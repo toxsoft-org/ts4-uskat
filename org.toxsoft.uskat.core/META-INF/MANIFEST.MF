@@ -1,0 +1,9 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: USkat core library
+Bundle-SymbolicName: org.toxsoft.uskat.core
+Bundle-Version: 1.0.0.qualifier
+Bundle-Vendor: toxsoft.org
+Automatic-Module-Name: org.toxsoft.uskat.core
+Bundle-RequiredExecutionEnvironment: JavaSE-17
+Require-Bundle: org.toxsoft.tslib;bundle-version="1.0.0"
