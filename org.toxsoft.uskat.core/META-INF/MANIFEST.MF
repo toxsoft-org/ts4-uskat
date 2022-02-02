@@ -6,4 +6,12 @@ Bundle-Version: 1.0.0.qualifier
 Bundle-Vendor: toxsoft.org
 Automatic-Module-Name: org.toxsoft.uskat.core
 Bundle-RequiredExecutionEnvironment: JavaSE-17
-Require-Bundle: org.toxsoft.tslib;bundle-version="1.0.0"
+Require-Bundle: org.toxsoft.core.tslib
+Export-Package: org.toxsoft.uskat.core,
+ org.toxsoft.uskat.core.api,
+ org.toxsoft.uskat.core.api.linkserv,
+ org.toxsoft.uskat.core.api.objserv,
+ org.toxsoft.uskat.core.api.sysdescr,
+ org.toxsoft.uskat.core.api.sysdescr.dto,
+ org.toxsoft.uskat.core.backend,
+ org.toxsoft.uskat.core.impl

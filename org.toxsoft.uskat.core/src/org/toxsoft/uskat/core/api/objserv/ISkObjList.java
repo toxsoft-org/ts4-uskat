@@ -1,9 +1,9 @@
 package org.toxsoft.uskat.core.api.objserv;
 
-import org.toxsoft.tslib.coll.IList;
-import org.toxsoft.tslib.coll.primtypes.IStringList;
-import org.toxsoft.tslib.gw.skid.ISkidList;
-import org.toxsoft.tslib.gw.skid.Skid;
+import org.toxsoft.core.tslib.coll.IList;
+import org.toxsoft.core.tslib.coll.primtypes.IStringList;
+import org.toxsoft.core.tslib.gw.skid.ISkidList;
+import org.toxsoft.core.tslib.gw.skid.Skid;
 
 /**
  * Read-ponly interface of the list of objects {@link ISkObject}.

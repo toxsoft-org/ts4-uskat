@@ -1,11 +1,11 @@
 package org.toxsoft.uskat.core.api.sysdescr;
 
-import org.toxsoft.tslib.bricks.events.ITsEventer;
-import org.toxsoft.tslib.bricks.strid.coll.IStridablesList;
-import org.toxsoft.tslib.bricks.validator.ITsValidationSupport;
-import org.toxsoft.tslib.bricks.validator.impl.TsValidationFailedRtException;
-import org.toxsoft.tslib.utils.errors.TsItemNotFoundRtException;
-import org.toxsoft.tslib.utils.errors.TsNullArgumentRtException;
+import org.toxsoft.core.tslib.bricks.events.ITsEventer;
+import org.toxsoft.core.tslib.bricks.strid.coll.IStridablesList;
+import org.toxsoft.core.tslib.bricks.validator.ITsValidationSupport;
+import org.toxsoft.core.tslib.bricks.validator.impl.TsValidationFailedRtException;
+import org.toxsoft.core.tslib.utils.errors.TsItemNotFoundRtException;
+import org.toxsoft.core.tslib.utils.errors.TsNullArgumentRtException;
 import org.toxsoft.uskat.core.ISkHardConstants;
 import org.toxsoft.uskat.core.api.ISkService;
 import org.toxsoft.uskat.core.api.sysdescr.dto.IDtoClassInfo;

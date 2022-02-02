@@ -1,11 +1,11 @@
 package org.toxsoft.uskat.core.backend;
 
-import org.toxsoft.tslib.bricks.strid.coll.IStridablesList;
-import org.toxsoft.tslib.coll.primtypes.IStringList;
-import org.toxsoft.tslib.gw.IGwHardConstants;
-import org.toxsoft.tslib.utils.ICloseable;
-import org.toxsoft.tslib.utils.errors.TsIllegalArgumentRtException;
-import org.toxsoft.tslib.utils.errors.TsNullArgumentRtException;
+import org.toxsoft.core.tslib.bricks.strid.coll.IStridablesList;
+import org.toxsoft.core.tslib.coll.primtypes.IStringList;
+import org.toxsoft.core.tslib.gw.IGwHardConstants;
+import org.toxsoft.core.tslib.utils.ICloseable;
+import org.toxsoft.core.tslib.utils.errors.TsIllegalArgumentRtException;
+import org.toxsoft.core.tslib.utils.errors.TsNullArgumentRtException;
 import org.toxsoft.uskat.core.api.sysdescr.dto.IDtoClassInfo;
 
 /**

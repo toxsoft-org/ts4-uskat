@@ -1,10 +1,10 @@
 package org.toxsoft.uskat.core.api.objserv;
 
-import org.toxsoft.tslib.bricks.validator.ValidationResult;
-import org.toxsoft.tslib.coll.IList;
-import org.toxsoft.tslib.gw.skid.ISkidList;
-import org.toxsoft.tslib.gw.skid.Skid;
-import org.toxsoft.tslib.utils.errors.TsNullArgumentRtException;
+import org.toxsoft.core.tslib.bricks.validator.ValidationResult;
+import org.toxsoft.core.tslib.coll.IList;
+import org.toxsoft.core.tslib.gw.skid.ISkidList;
+import org.toxsoft.core.tslib.gw.skid.Skid;
+import org.toxsoft.core.tslib.utils.errors.TsNullArgumentRtException;
 
 /**
  * {@link ISkObjectService} service validator.

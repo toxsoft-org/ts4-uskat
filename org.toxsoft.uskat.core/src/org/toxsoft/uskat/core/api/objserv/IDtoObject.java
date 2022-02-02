@@ -1,9 +1,9 @@
 package org.toxsoft.uskat.core.api.objserv;
 
-import org.toxsoft.tslib.av.opset.IOptionSet;
-import org.toxsoft.tslib.coll.primtypes.IStringMap;
-import org.toxsoft.tslib.gw.skid.ISkidList;
-import org.toxsoft.tslib.gw.skid.Skid;
+import org.toxsoft.core.tslib.av.opset.IOptionSet;
+import org.toxsoft.core.tslib.coll.primtypes.IStringMap;
+import org.toxsoft.core.tslib.gw.skid.ISkidList;
+import org.toxsoft.core.tslib.gw.skid.Skid;
 import org.toxsoft.uskat.core.api.sysdescr.ISkClassInfo;
 import org.toxsoft.uskat.core.api.sysdescr.dto.IDtoRivetInfo;
 

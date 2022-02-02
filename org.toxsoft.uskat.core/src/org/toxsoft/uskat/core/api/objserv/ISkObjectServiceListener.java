@@ -1,7 +1,7 @@
 package org.toxsoft.uskat.core.api.objserv;
 
-import org.toxsoft.tslib.coll.helpers.ECrudOp;
-import org.toxsoft.tslib.gw.skid.Skid;
+import org.toxsoft.core.tslib.coll.helpers.ECrudOp;
+import org.toxsoft.core.tslib.gw.skid.Skid;
 import org.toxsoft.uskat.core.ISkCoreApi;
 
 /**

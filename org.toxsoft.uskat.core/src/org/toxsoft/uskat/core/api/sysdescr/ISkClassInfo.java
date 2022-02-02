@@ -1,8 +1,8 @@
 package org.toxsoft.uskat.core.api.sysdescr;
 
-import org.toxsoft.tslib.bricks.strid.IStridableParameterized;
-import org.toxsoft.tslib.gw.IGwHardConstants;
-import org.toxsoft.tslib.utils.TsLibUtils;
+import org.toxsoft.core.tslib.bricks.strid.IStridableParameterized;
+import org.toxsoft.core.tslib.gw.IGwHardConstants;
+import org.toxsoft.core.tslib.utils.TsLibUtils;
 import org.toxsoft.uskat.core.api.sysdescr.dto.*;
 
 /**

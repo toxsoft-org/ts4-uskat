@@ -1,6 +1,6 @@
 package org.toxsoft.uskat.core.api.sysdescr;
 
-import org.toxsoft.tslib.coll.helpers.ECrudOp;
+import org.toxsoft.core.tslib.coll.helpers.ECrudOp;
 import org.toxsoft.uskat.core.ISkCoreApi;
 
 /**

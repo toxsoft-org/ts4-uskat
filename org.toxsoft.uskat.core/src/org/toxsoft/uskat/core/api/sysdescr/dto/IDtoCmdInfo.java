@@ -1,7 +1,7 @@
 package org.toxsoft.uskat.core.api.sysdescr.dto;
 
-import org.toxsoft.tslib.av.metainfo.IDataDef;
-import org.toxsoft.tslib.bricks.strid.coll.IStridablesList;
+import org.toxsoft.core.tslib.av.metainfo.IDataDef;
+import org.toxsoft.core.tslib.bricks.strid.coll.IStridablesList;
 
 /**
  * Information about command property of class.

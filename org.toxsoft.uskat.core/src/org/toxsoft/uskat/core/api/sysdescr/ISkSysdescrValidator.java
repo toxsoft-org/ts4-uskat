@@ -1,7 +1,7 @@
 package org.toxsoft.uskat.core.api.sysdescr;
 
-import org.toxsoft.tslib.bricks.validator.ValidationResult;
-import org.toxsoft.tslib.utils.errors.TsNullArgumentRtException;
+import org.toxsoft.core.tslib.bricks.validator.ValidationResult;
+import org.toxsoft.core.tslib.utils.errors.TsNullArgumentRtException;
 import org.toxsoft.uskat.core.api.sysdescr.dto.IDtoClassInfo;
 
 /**

@@ -1,7 +1,7 @@
 package org.toxsoft.uskat.core.api.sysdescr.dto;
 
-import org.toxsoft.tslib.coll.helpers.CollConstraint;
-import org.toxsoft.tslib.coll.primtypes.IStringList;
+import org.toxsoft.core.tslib.coll.helpers.CollConstraint;
+import org.toxsoft.core.tslib.coll.primtypes.IStringList;
 
 /**
  * Information about link property of class.

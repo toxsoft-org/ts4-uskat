@@ -1,6 +1,6 @@
 package org.toxsoft.uskat.core.api.sysdescr;
 
-import org.toxsoft.tslib.bricks.strid.coll.IStridablesList;
+import org.toxsoft.core.tslib.bricks.strid.coll.IStridablesList;
 import org.toxsoft.uskat.core.api.sysdescr.dto.IDtoClassPropInfoBase;
 
 /**

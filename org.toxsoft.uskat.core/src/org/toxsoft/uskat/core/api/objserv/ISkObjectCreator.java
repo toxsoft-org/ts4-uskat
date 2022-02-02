@@ -1,6 +1,6 @@
 package org.toxsoft.uskat.core.api.objserv;
 
-import org.toxsoft.tslib.gw.skid.Skid;
+import org.toxsoft.core.tslib.gw.skid.Skid;
 import org.toxsoft.uskat.core.impl.SkObject;
 
 /**

@@ -1,6 +1,6 @@
 package org.toxsoft.uskat.core.api.sysdescr.dto;
 
-import org.toxsoft.tslib.bricks.strid.IStridableParameterized;
+import org.toxsoft.core.tslib.bricks.strid.IStridableParameterized;
 import org.toxsoft.uskat.core.api.sysdescr.ESkClassPropKind;
 
 /**

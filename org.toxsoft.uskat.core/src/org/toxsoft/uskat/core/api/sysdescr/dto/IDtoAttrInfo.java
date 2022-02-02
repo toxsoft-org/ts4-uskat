@@ -1,6 +1,6 @@
 package org.toxsoft.uskat.core.api.sysdescr.dto;
 
-import org.toxsoft.tslib.av.metainfo.IDataType;
+import org.toxsoft.core.tslib.av.metainfo.IDataType;
 
 /**
  * Information about attribute property of class.

@@ -1,14 +1,14 @@
 package org.toxsoft.uskat.core.api.objserv;
 
-import org.toxsoft.tslib.bricks.events.ITsEventer;
-import org.toxsoft.tslib.bricks.strid.impl.StridUtils;
-import org.toxsoft.tslib.bricks.validator.ITsValidationSupport;
-import org.toxsoft.tslib.bricks.validator.impl.TsValidationFailedRtException;
-import org.toxsoft.tslib.gw.skid.ISkidList;
-import org.toxsoft.tslib.gw.skid.Skid;
-import org.toxsoft.tslib.utils.errors.*;
-import org.toxsoft.tslib.utils.txtmatch.ETextMatchMode;
-import org.toxsoft.tslib.utils.txtmatch.TextMatcher;
+import org.toxsoft.core.tslib.bricks.events.ITsEventer;
+import org.toxsoft.core.tslib.bricks.strid.impl.StridUtils;
+import org.toxsoft.core.tslib.bricks.validator.ITsValidationSupport;
+import org.toxsoft.core.tslib.bricks.validator.impl.TsValidationFailedRtException;
+import org.toxsoft.core.tslib.gw.skid.ISkidList;
+import org.toxsoft.core.tslib.gw.skid.Skid;
+import org.toxsoft.core.tslib.utils.errors.*;
+import org.toxsoft.core.tslib.utils.txtmatch.ETextMatchMode;
+import org.toxsoft.core.tslib.utils.txtmatch.TextMatcher;
 import org.toxsoft.uskat.core.ISkHardConstants;
 import org.toxsoft.uskat.core.api.ISkService;
 

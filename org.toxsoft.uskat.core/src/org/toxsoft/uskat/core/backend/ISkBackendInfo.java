@@ -1,7 +1,7 @@
 package org.toxsoft.uskat.core.backend;
 
-import org.toxsoft.tslib.bricks.strid.IStridableParameterized;
-import org.toxsoft.tslib.gw.skid.Skid;
+import org.toxsoft.core.tslib.bricks.strid.IStridableParameterized;
+import org.toxsoft.core.tslib.gw.skid.Skid;
 
 /**
  * Information about backend.

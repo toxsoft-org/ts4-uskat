@@ -2,17 +2,17 @@ package org.toxsoft.uskat.core.api.sysdescr;
 
 import static org.toxsoft.uskat.core.api.sysdescr.ISkResources.*;
 
-import org.toxsoft.tslib.bricks.keeper.IEntityKeeper;
-import org.toxsoft.tslib.bricks.keeper.std.StridableEnumKeeper;
-import org.toxsoft.tslib.bricks.strid.IStridable;
-import org.toxsoft.tslib.bricks.strid.coll.IStridablesList;
-import org.toxsoft.tslib.bricks.strid.coll.IStridablesListEdit;
-import org.toxsoft.tslib.bricks.strid.coll.impl.StridablesList;
-import org.toxsoft.tslib.gw.IGwHardConstants;
-import org.toxsoft.tslib.gw.gwid.EGwidKind;
-import org.toxsoft.tslib.gw.gwid.Gwid;
-import org.toxsoft.tslib.utils.errors.TsItemNotFoundRtException;
-import org.toxsoft.tslib.utils.errors.TsNullArgumentRtException;
+import org.toxsoft.core.tslib.bricks.keeper.IEntityKeeper;
+import org.toxsoft.core.tslib.bricks.keeper.std.StridableEnumKeeper;
+import org.toxsoft.core.tslib.bricks.strid.IStridable;
+import org.toxsoft.core.tslib.bricks.strid.coll.IStridablesList;
+import org.toxsoft.core.tslib.bricks.strid.coll.IStridablesListEdit;
+import org.toxsoft.core.tslib.bricks.strid.coll.impl.StridablesList;
+import org.toxsoft.core.tslib.gw.IGwHardConstants;
+import org.toxsoft.core.tslib.gw.gwid.EGwidKind;
+import org.toxsoft.core.tslib.gw.gwid.Gwid;
+import org.toxsoft.core.tslib.utils.errors.TsItemNotFoundRtException;
+import org.toxsoft.core.tslib.utils.errors.TsNullArgumentRtException;
 
 /**
  * The enumeration of XXX.
