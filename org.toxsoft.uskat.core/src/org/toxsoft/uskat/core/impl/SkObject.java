@@ -117,37 +117,44 @@ public class SkObject
 
   @Override
   public Skid getSingleLinkSkid( String aLinkId ) {
-    // TODO Auto-generated method stub
+    // TODO реализовать SkObject.getSingleLinkSkid()
+    throw new TsUnderDevelopmentRtException( "SkObject.getSingleLinkSkid()" );
   }
 
   @Override
   public <T extends ISkObject> T getSingleLink( String aLinkId ) {
-    // TODO Auto-generated method stub
+    // TODO реализовать SkObject.getSingleLink()
+    throw new TsUnderDevelopmentRtException( "SkObject.getSingleLink()" );
   }
 
   @Override
   public ISkidList getLinkSkids( String aLinkId ) {
-    // TODO Auto-generated method stub
+    // TODO реализовать SkObject.getLinkSkids()
+    throw new TsUnderDevelopmentRtException( "SkObject.getLinkSkids()" );
   }
 
   @Override
   public <T extends ISkObject> IMap<Skid, T> getLink( String aLinkId ) {
-    // TODO Auto-generated method stub
+    // TODO реализовать SkObject.getLink()
+    throw new TsUnderDevelopmentRtException( "SkObject.getLink()" );
   }
 
   @Override
   public <T extends ISkObject> IList<T> getLinkObjs( String aLinkId ) {
-    // TODO Auto-generated method stub
+    // TODO реализовать SkObject.getLinkObjs()
+    throw new TsUnderDevelopmentRtException( "SkObject.getLinkObjs()" );
   }
 
   @Override
   public ISkidList getLinkRevSkids( String aClassId, String aLinkId ) {
-    // TODO Auto-generated method stub
+    // TODO реализовать SkObject.getLinkRevSkids()
+    throw new TsUnderDevelopmentRtException( "SkObject.getLinkRevSkids()" );
   }
 
   @Override
   public <T extends ISkObject> IMap<Skid, T> getLinkRev( String aClassId, String aLinkId ) {
-    // TODO Auto-generated method stub
+    // TODO реализовать SkObject.getLinkRev()
+    throw new TsUnderDevelopmentRtException( "SkObject.getLinkRev()" );
   }
 
   // ------------------------------------------------------------------------------------

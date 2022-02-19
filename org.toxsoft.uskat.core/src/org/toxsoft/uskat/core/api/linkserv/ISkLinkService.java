@@ -140,12 +140,12 @@ public interface ISkLinkService
    * @throws TsIllegalArgumentRtException аргумент не конкретный GWID связи
    * @throws TsItemNotFoundRtException нет такой связи или такого объекта в системе
    */
-  default IDtoLinkFwd getLink( Gwid aLinkConcreteGwid ) {
+  default IDtoLinkFwd getLinkFwd( Gwid aLinkConcreteGwid ) {
     TsNullArgumentRtException.checkNull( aLinkConcreteGwid );
     TsIllegalArgumentRtException.checkTrue( aLinkConcreteGwid.isAbstract() );
     TsIllegalArgumentRtException.checkTrue( aLinkConcreteGwid.isMulti() );
     TsIllegalArgumentRtException.checkTrue( aLinkConcreteGwid.kind() != EGwidKind.GW_LINK );
-    return getLink( aLinkConcreteGwid.skid(), aLinkConcreteGwid.propId() );
+    return getLinkFwd( aLinkConcreteGwid.skid(), aLinkConcreteGwid.propId() );
   }
 
   /**
