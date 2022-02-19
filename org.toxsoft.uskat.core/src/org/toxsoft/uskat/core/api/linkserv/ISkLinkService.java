@@ -1,16 +1,17 @@
 package org.toxsoft.uskat.core.api.linkserv;
 
-import org.toxsoft.core.tslib.bricks.events.ITsEventer;
-import org.toxsoft.core.tslib.bricks.validator.ITsValidationSupport;
-import org.toxsoft.core.tslib.bricks.validator.impl.TsValidationFailedRtException;
-import org.toxsoft.core.tslib.gw.gwid.EGwidKind;
-import org.toxsoft.core.tslib.gw.gwid.Gwid;
-import org.toxsoft.core.tslib.gw.skid.ISkidList;
-import org.toxsoft.core.tslib.gw.skid.Skid;
+import org.toxsoft.core.tslib.bricks.events.*;
+import org.toxsoft.core.tslib.bricks.validator.*;
+import org.toxsoft.core.tslib.bricks.validator.impl.*;
+import org.toxsoft.core.tslib.coll.*;
+import org.toxsoft.core.tslib.coll.primtypes.*;
+import org.toxsoft.core.tslib.gw.gwid.*;
+import org.toxsoft.core.tslib.gw.skid.*;
 import org.toxsoft.core.tslib.utils.errors.*;
-import org.toxsoft.uskat.core.ISkHardConstants;
-import org.toxsoft.uskat.core.api.ISkService;
-import org.toxsoft.uskat.core.api.objserv.ISkObjectService;
+import org.toxsoft.uskat.core.*;
+import org.toxsoft.uskat.core.api.*;
+import org.toxsoft.uskat.core.api.objserv.*;
+import org.toxsoft.uskat.core.api.sysdescr.*;
 
 /**
  * Service to manage links between objects.
@@ -38,7 +39,18 @@ public interface ISkLinkService
    * @throws TsNullArgumentRtException любой аргумент = null
    * @throws TsItemNotFoundRtException нет такой связи или такого объекта в системе
    */
-  IDtoLinkFwd getLink( Skid aLeftSkid, String aLinkId );
+  IDtoLinkFwd getLinkFwd( Skid aLeftSkid, String aLinkId );
+
+  /**
+   * Returns all forward links of the specified object.
+   * <p>
+   * The returned map alwayes contains all links even if no objects are linked. Keys in returned map are the the same as
+   * keys in {@link ISkClassInfo#links()}.
+   *
+   * @param aLeftSkid {@link Skid} - the object SKID
+   * @return {@link IStringMap}&lt;{@link IDtoLinkFwd}&lt; - the map "link ID" - "forward link"
+   */
+  IStringMap<IDtoLinkFwd> getAllLinksFwd( Skid aLeftSkid );
 
   /**
    * Возвращает обратную связь.
@@ -51,6 +63,14 @@ public interface ISkLinkService
    * @throws TsItemNotFoundRtException нет такой связи или такого объекта в системе
    */
   IDtoLinkRev getLinkRev( String aClassId, String aLinkId, Skid aRightSkid );
+
+  /**
+   * Returns all revese links of the specified object.
+   *
+   * @param aRightSkid {@link Skid} - the object SKID
+   * @return {@link IMap}&lt;{@link Gwid},{@link IDtoLinkRev}&gt; - the map "abstract link" - "reverse link"
+   */
+  IMap<Gwid, IDtoLinkRev> getAllLinksRev( Skid aRightSkid );
 
   /**
    * Определяет список связанных объектов.

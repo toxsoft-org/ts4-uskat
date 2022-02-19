@@ -1,25 +1,25 @@
 package org.toxsoft.uskat.core.api.objserv;
 
-import java.io.ObjectStreamException;
-import java.io.Serializable;
+import java.io.*;
 
-import org.toxsoft.core.tslib.av.opset.IOptionSet;
-import org.toxsoft.core.tslib.bricks.strid.IStridable;
-import org.toxsoft.core.tslib.coll.IList;
-import org.toxsoft.core.tslib.coll.IMap;
-import org.toxsoft.core.tslib.coll.primtypes.IStringMap;
-import org.toxsoft.core.tslib.gw.skid.ISkidList;
-import org.toxsoft.core.tslib.gw.skid.Skid;
-import org.toxsoft.core.tslib.utils.TsLibUtils;
-import org.toxsoft.core.tslib.utils.errors.TsNullObjectErrorRtException;
-import org.toxsoft.uskat.core.ISkCoreApi;
-import org.toxsoft.uskat.core.api.sysdescr.ISkClassInfo;
-import org.toxsoft.uskat.core.api.sysdescr.dto.IDtoRivetInfo;
+import org.toxsoft.core.tslib.av.opset.*;
+import org.toxsoft.core.tslib.bricks.strid.*;
+import org.toxsoft.core.tslib.coll.*;
+import org.toxsoft.core.tslib.coll.primtypes.*;
+import org.toxsoft.core.tslib.gw.skid.*;
+import org.toxsoft.core.tslib.utils.*;
+import org.toxsoft.core.tslib.utils.errors.*;
+import org.toxsoft.uskat.core.*;
+import org.toxsoft.uskat.core.api.sysdescr.*;
+import org.toxsoft.uskat.core.api.sysdescr.dto.*;
+import org.toxsoft.uskat.core.impl.*;
 
 /**
  * Green world (application domain) object.
  * <p>
  * Stridable identifier {@link #id()} returns object {@link #strid()}.
+ * <p>
+ * Note: any user implementation of {@link ISkObject} must be subclassed from {@link SkObject}.
  *
  * @author hazard157
  */
@@ -56,11 +56,48 @@ public interface ISkObject
   IStringMap<ISkidList> rivets();
 
   /**
+   * Returns the object class ID.
+   * <p>
+   * Always returns {@link Skid#classId() skid().classId()}.
+   *
+   * @return String - the class ID
+   */
+  String classId();
+
+  /**
+   * Returns the object string identifier.
+   * <p>
+   * Always returns {@link Skid#strid() skid().strid()}.
+   *
+   * @return String - the object strid
+   */
+  String strid();
+
+  /**
+   * Returns human-readable short name of the object.
+   * <p>
+   * By default if it is non-blank returns {@link #nmName()} otherwise returns {@link #id()}. Implementation may
+   * override.
+   *
+   * @return String - human-readable non-blank name
+   */
+  String readableName();
+
+  /**
    * Returns the core API of connnection to the objects source.
    *
    * @return {@link ISkCoreApi} - Skat core API
    */
   ISkCoreApi coreApi();
+
+  /**
+   * Returns the information of the object class.
+   *
+   * @return {@link ISkClassInfo} - class information
+   */
+  default ISkClassInfo classInfo() {
+    return coreApi().sysdescr().getClassInfo( skid().classId() );
+  }
 
   // TODO TRANSLATE
 
@@ -129,48 +166,6 @@ public interface ISkObject
    */
   <T extends ISkObject> IMap<Skid, T> getLinkRev( String aClassId, String aLinkId );
 
-  // ------------------------------------------------------------------------------------
-  // Convinience inline methods
-  //
-
-  /**
-   * Returns the object class ID.
-   *
-   * @return String - the class ID
-   */
-  default String classId() {
-    return skid().classId();
-  }
-
-  /**
-   * Returns the information of the object class.
-   *
-   * @return {@link ISkClassInfo} - class information
-   */
-  default ISkClassInfo classInfo() {
-    return coreApi().sysdescr().getClassInfo( skid().classId() );
-  }
-
-  /**
-   * Returns the object string iddentifier.
-   *
-   * @return String - the object strid
-   */
-  default String strid() {
-    return skid().strid();
-  }
-
-  /**
-   * Returns human-readable short name of the object.
-   * <p>
-   * By default if it is non-blank returns {@link #nmName()} otherwise returns {@link #id()}.
-   *
-   * @return String - human-readable non-blank name
-   */
-  default String readableName() {
-    return nmName().isBlank() ? id() : nmName();
-  }
-
 }
 
 class InternalNoneSkObject
@@ -179,10 +174,10 @@ class InternalNoneSkObject
   private static final long serialVersionUID = 157157L;
 
   /**
-   * Метод корректно восстанавливает сериализированный {@link ISkObject#NONE}.
+   * Method correctly deserializes {@link ISkObject#NONE} value.
    *
-   * @return Object объект {@link ISkObject#NONE}
-   * @throws ObjectStreamException это обявление, оно тут не выбрасывается
+   * @return {@link ObjectStreamException} - {@link ISkObject#NONE}
+   * @throws ObjectStreamException is declared but newer thrown by this method
    */
   @SuppressWarnings( { "static-method" } )
   private Object readResolve()
@@ -218,6 +213,21 @@ class InternalNoneSkObject
   @Override
   public IStringMap<ISkidList> rivets() {
     return IStringMap.EMPTY;
+  }
+
+  @Override
+  public String classId() {
+    return skid().classId();
+  }
+
+  @Override
+  public String strid() {
+    return skid().strid();
+  }
+
+  @Override
+  public String readableName() {
+    return skid().strid();
   }
 
   @Override
