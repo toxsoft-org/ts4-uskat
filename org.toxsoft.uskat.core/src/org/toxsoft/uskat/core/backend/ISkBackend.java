@@ -1,12 +1,8 @@
 package org.toxsoft.uskat.core.backend;
 
-import org.toxsoft.core.tslib.bricks.strid.coll.IStridablesList;
-import org.toxsoft.core.tslib.coll.primtypes.IStringList;
-import org.toxsoft.core.tslib.gw.IGwHardConstants;
-import org.toxsoft.core.tslib.utils.ICloseable;
-import org.toxsoft.core.tslib.utils.errors.TsIllegalArgumentRtException;
-import org.toxsoft.core.tslib.utils.errors.TsNullArgumentRtException;
-import org.toxsoft.uskat.core.api.sysdescr.dto.IDtoClassInfo;
+import org.toxsoft.core.tslib.utils.*;
+import org.toxsoft.core.tslib.utils.errors.*;
+import org.toxsoft.uskat.core.backend.api.*;
 
 /**
  * USkat backend API.
@@ -43,24 +39,59 @@ public interface ISkBackend
    */
   ISkBackendInfo getBackendInfo();
 
-  /**
-   * Read all classes from storage.
-   * <p>
-   * Note: root class is not stored so returned list does not includes class with ID
-   * {@link IGwHardConstants#GW_ROOT_CLASS_ID}.
-   *
-   * @return {@link IStridablesList}&lt;{@link IDtoClassInfo}&gt; - list of infos of all classes
-   */
-  IStridablesList<IDtoClassInfo> readClassInfos();
+  // ------------------------------------------------------------------------------------
+  // Mandatory addons
+  //
 
   /**
-   * Edits classes.
+   * Returns backend addon for classes storage.
    *
-   * @param aRemoveClassIds {@link IStringList} - class IDs to remove
-   * @param aUpdateClassInfos {@link IStridablesList}&lt;{@link IDtoClassInfo}&gt; - classes to add or update
-   * @throws TsNullArgumentRtException any argument = <code>null</code>
-   * @throws TsIllegalArgumentRtException there is the root class in lists
+   * @return {@link IBaClasses} - classes storage
    */
-  void writeClassInfos( IStringList aRemoveClassIds, IStridablesList<IDtoClassInfo> aUpdateClassInfos );
+  IBaClasses baClasses();
+
+  /**
+   * Returns backend addon for objects storage.
+   *
+   * @return {@link IBaClasses} - objects storage
+   */
+  IBaObjects baObjects();
+
+  /**
+   * Returns backend addon for links storage.
+   *
+   * @return {@link IBaClasses} - links storage
+   */
+  IBaLinks baLinks();
+
+  /**
+   * Returns backend addon for classes storage.
+   *
+   * @return {@link IBaClasses} - class storage
+   */
+  IBaClobs baClobs();
+
+  // ------------------------------------------------------------------------------------
+  // Optional addons
+  //
+
+  /**
+   * Returns the means to create USkat extension services provided by the backend.
+   * <p>
+   * If backend provides no extension services than method returns {@link ISkExtServicesProvider#NULL}.
+   *
+   * @return {@link ISkExtServicesProvider} - extension services provider
+   */
+  ISkExtServicesProvider getExtServicesProvider();
+
+  /**
+   * Returns bakend addon by it's interface.
+   *
+   * @param <T> - expected interface of the addon
+   * @param aAddonInterface {@link Class}&lt;T&gt; - expected interface of the addons
+   * @return &lt;T&gt; - found addon or <code>null</code> if no such optional addon exists
+   * @throws TsNullArgumentRtException any argument = <code>null</code>
+   */
+  <T> T findBackendAddon( Class<T> aAddonInterface );
 
 }

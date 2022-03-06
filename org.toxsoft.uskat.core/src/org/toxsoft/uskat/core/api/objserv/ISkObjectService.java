@@ -1,16 +1,15 @@
 package org.toxsoft.uskat.core.api.objserv;
 
-import org.toxsoft.core.tslib.bricks.events.ITsEventer;
-import org.toxsoft.core.tslib.bricks.strid.impl.StridUtils;
-import org.toxsoft.core.tslib.bricks.validator.ITsValidationSupport;
-import org.toxsoft.core.tslib.bricks.validator.impl.TsValidationFailedRtException;
-import org.toxsoft.core.tslib.gw.skid.ISkidList;
-import org.toxsoft.core.tslib.gw.skid.Skid;
+import org.toxsoft.core.tslib.bricks.events.*;
+import org.toxsoft.core.tslib.bricks.strid.impl.*;
+import org.toxsoft.core.tslib.bricks.validator.*;
+import org.toxsoft.core.tslib.bricks.validator.impl.*;
+import org.toxsoft.core.tslib.coll.*;
+import org.toxsoft.core.tslib.gw.skid.*;
 import org.toxsoft.core.tslib.utils.errors.*;
-import org.toxsoft.core.tslib.utils.txtmatch.ETextMatchMode;
-import org.toxsoft.core.tslib.utils.txtmatch.TextMatcher;
-import org.toxsoft.uskat.core.ISkHardConstants;
-import org.toxsoft.uskat.core.api.ISkService;
+import org.toxsoft.core.tslib.utils.txtmatch.*;
+import org.toxsoft.uskat.core.*;
+import org.toxsoft.uskat.core.api.*;
 
 /**
  * Objects management service.
@@ -88,48 +87,58 @@ public interface ISkObjectService
    */
   ISkObjList getObjs( ISkidList aSkids );
 
-  // TODO TRANSLATE
-
   /**
-   * Создает новый или редактирует существующий объект.
+   * Cretes new or updates an existing object. Создает новый или редактирует существующий объект.
    *
-   * @param <T> - конкретный тип объекта
-   * @param aDtoObject {@link IDtoObject} - данные создаваемого объекта
-   * @return {@link ISkObject} - созданный или отредактированный объект
-   * @throws TsNullArgumentRtException любой аргумент = null
-   * @throws TsValidationFailedRtException не прошла проверка
-   *           {@link ISkObjectServiceValidator#canCreateObject(IDtoObject)} или
+   * @param <T> - expected type of the object
+   * @param aDtoObject {@link IDtoObject} - the object data
+   * @return {@link ISkObject} - created/updated object
+   * @throws TsNullArgumentRtException any argument = <code>null</code>
+   * @throws TsValidationFailedRtException failed validation
+   *           {@link ISkObjectServiceValidator#canCreateObject(IDtoObject)} or
    *           {@link ISkObjectServiceValidator#canEditObject(IDtoObject, ISkObject)}
    */
   <T extends ISkObject> T defineObject( IDtoObject aDtoObject );
 
   /**
-   * Удалаяет объект.
+   * Creates/updates multiple objects at once.
    * <p>
-   * При удалении объекта удаляются все прямые связи объекта.
+   * TODO implementation details
    *
-   * @param aSkid {@link Skid} - идентификатор объекта
-   * @throws TsNullArgumentRtException любой аргумент = null
-   * @throws TsValidationFailedRtException не прошла проверка {@link ISkObjectServiceValidator#canRemoveObject(Skid)}
+   * @param aDtoObjects {@link IList}&lt;{@link IDtoObject}&gt; - objects data
+   * @return {@link ISkObjList} - created objects
+   * @throws TsValidationFailedRtException failed validation
+   *           {@link ISkObjectServiceValidator#canCreateObject(IDtoObject)} or
+   *           {@link ISkObjectServiceValidator#canEditObject(IDtoObject, ISkObject)}
+   */
+  ISkObjList defineObjects( IList<IDtoObject> aDtoObjects );
+
+  /**
+   * Removes the specified object.
+   * <p>
+   * All forward links are also deleted.
+   *
+   * @param aSkid {@link Skid} - SKID of the object to be deleted
+   * @throws TsNullArgumentRtException any argument = <code>null</code>
+   * @throws TsValidationFailedRtException failed validation {@link ISkObjectServiceValidator#canRemoveObject(Skid)}
    */
   void removeObject( Skid aSkid );
 
   /**
-   * Удалаяет объекты.
+   * Removes multiple obejcts at once.
    * <p>
-   * При удалении объектов удаляются все прямые связи удаляемых объектов.
+   * All forward links of all removed objects are also deleted.
    *
-   * @param aSkids {@link ISkidList} - идентификаторы объектов
-   * @throws TsNullArgumentRtException любой аргумент = null
-   * @throws TsValidationFailedRtException не прошла проверка {@link ISkObjectServiceValidator#canRemoveObject(Skid)}
+   * @param aSkids {@link ISkidList} - list of SKIDs of objects to remove
+   * @throws TsNullArgumentRtException any argument = <code>null</code>
+   * @throws TsValidationFailedRtException failed validation {@link ISkObjectServiceValidator#canRemoveObject(Skid)}
    */
   void removeObjects( ISkidList aSkids );
 
+  // TODO TRANSLATE
+
   /**
    * Регистрирует создатель объектов по правилу проверки идентификатор класса.
-   * <p>
-   * Создатели,зарегистрированные для конкретного идентификатора
-   * {@link #registerObjectCreator(String, ISkObjectCreator)} имеют приоритет перед зарегистрированными этим метоом.
    * <p>
    * Правила проверяются по порядку из регистриации, и поиск останавливается на первом успешном
    * {@link TextMatcher#match(String)}.

@@ -1,6 +1,6 @@
 package org.toxsoft.uskat.core;
 
-import org.toxsoft.uskat.core.api.sysdescr.ISkSysdescr;
+import org.toxsoft.uskat.core.api.sysdescr.*;
 
 /**
  * USkat core API.

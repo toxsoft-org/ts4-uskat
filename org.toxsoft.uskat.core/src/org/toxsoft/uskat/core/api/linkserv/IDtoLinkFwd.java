@@ -1,8 +1,7 @@
 package org.toxsoft.uskat.core.api.linkserv;
 
-import org.toxsoft.core.tslib.gw.gwid.Gwid;
-import org.toxsoft.core.tslib.gw.skid.ISkidList;
-import org.toxsoft.core.tslib.gw.skid.Skid;
+import org.toxsoft.core.tslib.gw.gwid.*;
+import org.toxsoft.core.tslib.gw.skid.*;
 
 /**
  * Direct one-to-many relationship from one left object to many right objects.
@@ -14,7 +13,7 @@ public interface IDtoLinkFwd {
   /**
    * Returns abstract GWID of this link.
    *
-   * @return {@link Gwid} - GWID of this link
+   * @return {@link Gwid} - abstract GWID of this link
    */
   Gwid gwid();
 
