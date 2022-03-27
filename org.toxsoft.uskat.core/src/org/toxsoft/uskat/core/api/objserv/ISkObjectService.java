@@ -20,6 +20,14 @@ public interface ISkObjectService
     extends ISkService {
 
   /**
+   * TODO in object service:
+   * <ul>
+   * <li>convoy objects;</li>
+   * <li>object "owner" service or it is determited by class service?;</li>
+   * </ul>
+   */
+
+  /**
    * Service identifier.
    */
   String SERVICE_ID = ISkHardConstants.SK_CORE_SERVICE_ID_PREFIX + ".ObjectService"; //$NON-NLS-1$

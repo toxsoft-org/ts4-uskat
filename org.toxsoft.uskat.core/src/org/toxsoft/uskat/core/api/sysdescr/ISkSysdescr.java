@@ -1,14 +1,13 @@
 package org.toxsoft.uskat.core.api.sysdescr;
 
-import org.toxsoft.core.tslib.bricks.events.ITsEventer;
-import org.toxsoft.core.tslib.bricks.strid.coll.IStridablesList;
-import org.toxsoft.core.tslib.bricks.validator.ITsValidationSupport;
-import org.toxsoft.core.tslib.bricks.validator.impl.TsValidationFailedRtException;
-import org.toxsoft.core.tslib.utils.errors.TsItemNotFoundRtException;
-import org.toxsoft.core.tslib.utils.errors.TsNullArgumentRtException;
-import org.toxsoft.uskat.core.ISkHardConstants;
-import org.toxsoft.uskat.core.api.ISkService;
-import org.toxsoft.uskat.core.api.sysdescr.dto.IDtoClassInfo;
+import org.toxsoft.core.tslib.bricks.events.*;
+import org.toxsoft.core.tslib.bricks.strid.coll.*;
+import org.toxsoft.core.tslib.bricks.validator.*;
+import org.toxsoft.core.tslib.bricks.validator.impl.*;
+import org.toxsoft.core.tslib.utils.errors.*;
+import org.toxsoft.uskat.core.*;
+import org.toxsoft.uskat.core.api.*;
+import org.toxsoft.uskat.core.api.sysdescr.dto.*;
 
 /**
  * Class management.
@@ -17,6 +16,13 @@ import org.toxsoft.uskat.core.api.sysdescr.dto.IDtoClassInfo;
  */
 public interface ISkSysdescr
     extends ISkService {
+
+  /**
+   * TODO in sysdescr:
+   * <ul>
+   * <li>class/object "owner" - API? make clear what it is and how it works;</li>
+   * </ul>
+   */
 
   /**
    * Service identifier.

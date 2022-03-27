@@ -1,11 +1,10 @@
 package org.toxsoft.uskat.core.api.objserv;
 
-import org.toxsoft.core.tslib.av.opset.IOptionSet;
-import org.toxsoft.core.tslib.coll.primtypes.IStringMap;
-import org.toxsoft.core.tslib.gw.skid.ISkidList;
-import org.toxsoft.core.tslib.gw.skid.Skid;
-import org.toxsoft.uskat.core.api.sysdescr.ISkClassInfo;
-import org.toxsoft.uskat.core.api.sysdescr.dto.IDtoRivetInfo;
+import org.toxsoft.core.tslib.av.opset.*;
+import org.toxsoft.core.tslib.coll.primtypes.*;
+import org.toxsoft.core.tslib.gw.skid.*;
+import org.toxsoft.uskat.core.api.sysdescr.*;
+import org.toxsoft.uskat.core.api.sysdescr.dto.*;
 
 /**
  * Encapsulated information about object.
@@ -37,5 +36,18 @@ public interface IDtoObject {
    * @return {@link IStringMap}&lt;{@link ISkidList}&gt; - the map "rivet ID" - "riveted right objects SKIDs list"
    */
   IStringMap<ISkidList> rivets();
+
+  // ------------------------------------------------------------------------------------
+  // inline methods for convinience
+
+  @SuppressWarnings( "javadoc" )
+  default String classId() {
+    return skid().classId();
+  }
+
+  @SuppressWarnings( "javadoc" )
+  default String strid() {
+    return skid().strid();
+  }
 
 }

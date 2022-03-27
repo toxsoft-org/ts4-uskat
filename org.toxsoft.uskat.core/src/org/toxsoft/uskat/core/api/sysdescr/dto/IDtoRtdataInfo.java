@@ -1,6 +1,6 @@
 package org.toxsoft.uskat.core.api.sysdescr.dto;
 
-import org.toxsoft.core.tslib.av.metainfo.IDataType;
+import org.toxsoft.core.tslib.av.metainfo.*;
 
 /**
  * Information about RTdata property of class.
@@ -41,7 +41,7 @@ public interface IDtoRtdataInfo
   /**
    * Returns the time interval (slot width) for synchronous data.
    *
-   * @return дщтп - the time interval in milliseconds
+   * @return long - the time interval in milliseconds
    */
   long syncDataDeltaT();
 

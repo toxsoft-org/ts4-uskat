@@ -65,6 +65,13 @@ public interface ISkBackend
   IBaLinks baLinks();
 
   /**
+   * Returns backend addon for events messaging.
+   *
+   * @return {@link IBaEvents} - events messaging
+   */
+  IBaEvents baEvents();
+
+  /**
    * Returns backend addon for classes storage.
    *
    * @return {@link IBaClasses} - class storage
