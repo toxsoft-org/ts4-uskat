@@ -5,7 +5,6 @@ import java.io.*;
 import org.toxsoft.core.tslib.av.opset.*;
 import org.toxsoft.core.tslib.bricks.strid.*;
 import org.toxsoft.core.tslib.coll.*;
-import org.toxsoft.core.tslib.coll.primtypes.*;
 import org.toxsoft.core.tslib.gw.skid.*;
 import org.toxsoft.core.tslib.utils.*;
 import org.toxsoft.core.tslib.utils.errors.*;
@@ -51,9 +50,9 @@ public interface ISkObject
    * The map always contains all rivets from {@link ISkClassInfo#rivets()}. All lists in map always contains
    * {@link IDtoRivetInfo#count()} items.
    *
-   * @return {@link IStringMap}&lt;{@link ISkidList}&gt; - the map "rivet ID" - "riveted right objects SKIDs list"
+   * @return {@link IMappedSkids} - the map "rivet ID" - "riveted right objects SKIDs list"
    */
-  IStringMap<ISkidList> rivets();
+  IMappedSkids rivets();
 
   /**
    * Returns the object class ID.
@@ -211,8 +210,8 @@ class InternalNoneSkObject
   }
 
   @Override
-  public IStringMap<ISkidList> rivets() {
-    return IStringMap.EMPTY;
+  public IMappedSkids rivets() {
+    return IMappedSkids.EMPTY;
   }
 
   @Override

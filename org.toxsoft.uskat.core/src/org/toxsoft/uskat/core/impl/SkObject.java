@@ -5,8 +5,6 @@ import static org.toxsoft.uskat.core.ISkHardConstants.*;
 import org.toxsoft.core.tslib.av.opset.*;
 import org.toxsoft.core.tslib.av.opset.impl.*;
 import org.toxsoft.core.tslib.coll.*;
-import org.toxsoft.core.tslib.coll.primtypes.*;
-import org.toxsoft.core.tslib.coll.primtypes.impl.*;
 import org.toxsoft.core.tslib.gw.skid.*;
 import org.toxsoft.core.tslib.utils.*;
 import org.toxsoft.core.tslib.utils.errors.*;
@@ -29,10 +27,10 @@ import org.toxsoft.uskat.core.api.objserv.*;
 public class SkObject
     implements ISkObject {
 
-  private ISkCoreApi                      coreApi;
-  private final Skid                      skid;
-  private final IOptionSetEdit            attrs  = new OptionSet();
-  private final IStringMapEdit<ISkidList> rivets = new StringMap<>();
+  private ISkCoreApi           coreApi;
+  private final Skid           skid;
+  private final IOptionSetEdit attrs  = new OptionSet();
+  private final IMappedSkids   rivets = new MappedSkids();
 
   /**
    * Constructor.
@@ -51,6 +49,10 @@ public class SkObject
     attrs.setStr( AID_CLASS_ID, skid.classId() );
     attrs.setStr( AID_STRID, skid.strid() );
   }
+
+  // ------------------------------------------------------------------------------------
+  // Package API
+  //
 
   /**
    * Sets reference to the core API, is called from {@link SkObjectService}.
@@ -106,7 +108,7 @@ public class SkObject
   }
 
   @Override
-  final public IStringMap<ISkidList> rivets() {
+  final public IMappedSkids rivets() {
     return rivets;
   }
 

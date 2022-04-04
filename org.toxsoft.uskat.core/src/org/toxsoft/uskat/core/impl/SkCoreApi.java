@@ -1,5 +1,6 @@
 package org.toxsoft.uskat.core.impl;
 
+import org.toxsoft.core.tslib.bricks.ctx.*;
 import org.toxsoft.core.tslib.bricks.events.msg.*;
 import org.toxsoft.core.tslib.utils.*;
 import org.toxsoft.uskat.core.api.sysdescr.*;
@@ -8,6 +9,10 @@ import org.toxsoft.uskat.core.devapi.*;
 
 public class SkCoreApi
     implements IDevCoreApi, ISkFrontendRear, ICloseable {
+
+  SkCoreApi( ITsContextRo aArgs, SkConnection aConn ) {
+    // TODO Auto-generated constructor stub
+  }
 
   // ------------------------------------------------------------------------------------
   // Package API

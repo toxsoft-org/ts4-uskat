@@ -158,6 +158,42 @@ public class DtoClassInfo
     parentId = TsLibUtils.EMPTY_STRING;
   }
 
+  /**
+   * Static copy constructor.
+   *
+   * @param aSource {@link IDtoClassInfo} - the source
+   * @return {@link DtoClassInfo} - deep copy of source
+   * @throws TsNullArgumentRtException any argument = <code>null</code>
+   * @throws TsIllegalArgumentRtException invalid source
+   */
+  public static DtoClassInfo createDeepCopy( IDtoClassInfo aSource ) {
+    TsNullArgumentRtException.checkNull( aSource );
+    DtoClassInfo dto;
+    if( aSource.parentId().isEmpty() ) {
+      TsIllegalArgumentRtException.checkFalse( aSource.id().equals( IGwHardConstants.GW_ROOT_CLASS_ID ) );
+      dto = new DtoClassInfo( aSource.params() );
+    }
+    else {
+      dto = new DtoClassInfo( aSource.id(), aSource.parentId(), aSource.params() );
+    }
+
+    // FIXME make deep copies!!!
+
+    dto.attrInfos().setAll( aSource.attrInfos() );
+    dto.clobInfos().setAll( aSource.clobInfos() );
+    dto.rivetInfos().setAll( aSource.rivetInfos() );
+    dto.rtdataInfos().setAll( aSource.rtdataInfos() );
+    dto.linkInfos().setAll( aSource.linkInfos() );
+    dto.cmdInfos().setAll( aSource.cmdInfos() );
+    dto.eventInfos().setAll( aSource.eventInfos() );
+
+    return dto;
+  }
+
+  // ------------------------------------------------------------------------------------
+  // IDtoClassInfo
+  //
+
   @Override
   public String parentId() {
     return parentId;
