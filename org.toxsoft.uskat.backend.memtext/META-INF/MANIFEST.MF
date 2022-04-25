@@ -1,0 +1,11 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: USkat backend: inmemory data stored as text
+Bundle-SymbolicName: org.toxsoft.uskat.backend.memtext
+Bundle-Version: 1.0.0.qualifier
+Bundle-Vendor: toxsoft.org
+Automatic-Module-Name: org.toxsoft.uskat.backend.memtext
+Bundle-RequiredExecutionEnvironment: JavaSE-17
+Require-Bundle: org.toxsoft.core.tslib,
+ org.toxsoft.uskat.core
+Export-Package: org.toxsoft.uskat.backend.memtext

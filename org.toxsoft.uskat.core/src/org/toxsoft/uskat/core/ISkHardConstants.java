@@ -1,9 +1,14 @@
 package org.toxsoft.uskat.core;
 
+import static org.toxsoft.core.tslib.av.EAtomicType.*;
+import static org.toxsoft.core.tslib.av.impl.AvUtils.*;
+import static org.toxsoft.core.tslib.av.impl.DataDef.*;
+import static org.toxsoft.core.tslib.av.metainfo.IAvMetaConstants.*;
+import static org.toxsoft.uskat.core.ISkResources.*;
+
+import org.toxsoft.core.tslib.av.*;
 import org.toxsoft.core.tslib.av.metainfo.*;
-import org.toxsoft.core.tslib.coll.primtypes.*;
-import org.toxsoft.core.tslib.coll.primtypes.impl.*;
-import org.toxsoft.core.tslib.utils.errors.*;
+import org.toxsoft.uskat.core.api.sysdescr.dto.*;
 
 /**
  * USkat global constants.
@@ -56,28 +61,27 @@ public interface ISkHardConstants {
    */
   String AID_DESCRIPTION = IAvMetaConstants.TSID_DESCRIPTION;
 
-  /**
-   * Identifiers of the ISkObject system attributes.
-   * <p>
-   * This attributes represent the invariant SKID identifier and they must not be changed by the common code. The only
-   * place the values of these attributes are set is SkObject constructor.
-   */
-  IStringList SK_SYS_ATTR_IDS = new StringArrayList( //
-      AID_CLASS_ID, //
-      AID_STRID, //
-      AID_SKID //
-  );
+  // ------------------------------------------------------------------------------------
+  // Meta-info on classes
+  //
+
+  // ------------------------------------------------------------------------------------
+  // Мета-информация о классах
 
   /**
-   * Determines if argument is on of the {@link #SK_SYS_ATTR_IDS} system attribute identifier.
-   *
-   * @param aAttrId String - identifier to be checked
-   * @return boolean - <code>true</code> if argument is on of the {@link #SK_SYS_ATTR_IDS} identifiers
-   * @throws TsNullArgumentRtException argument = <code>null</code>
+   * Flags the class definerd at runtime.<br>
+   * Type: {@link EAtomicType#BOOLEAN}<br>
+   * Usage: this option is not mandatory however it is very strongly recommended to set it to <code>true</code> for
+   * classes, defined on runtime be the Javca source code. There is no need to save/restore such classes info, or there
+   * is no need to display them in the SkIDE.<br>
+   * This option must be specified in {@link IDtoClassInfo#params()}.<br>
+   * Default value: <code>false</code>
    */
-  static boolean isSkSysAttrId( String aAttrId ) {
-    TsNullArgumentRtException.checkNull( aAttrId );
-    return SK_SYS_ATTR_IDS.hasElem( aAttrId );
-  }
+  IDataDef OP_SK_IS_SOURCE_CODE_DEFINED_CLASS = create( SK_ID + ".IsSourceCodeDefinedClass", STRING, //$NON-NLS-1$
+      TSID_NAME, STR_N_CLASS_IS_CODE_DEFINED, //
+      TSID_DESCRIPTION, STR_D_CLASS_IS_CODE_DEFINED, //
+      TSID_IS_NULL_ALLOWED, AV_TRUE, //
+      TSID_DEFAULT_VALUE, AV_FALSE //
+  );
 
 }

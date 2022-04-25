@@ -12,6 +12,7 @@ import org.toxsoft.core.tslib.bricks.strio.impl.*;
 import org.toxsoft.core.tslib.gw.*;
 import org.toxsoft.core.tslib.utils.*;
 import org.toxsoft.core.tslib.utils.errors.*;
+import org.toxsoft.uskat.core.api.sysdescr.*;
 import org.toxsoft.uskat.core.api.sysdescr.dto.*;
 
 /**
@@ -239,6 +240,21 @@ public class DtoClassInfo
   @Override
   public IStridablesListEdit<IDtoClobInfo> clobInfos() {
     return (IStridablesListEdit)clobInfos;
+  }
+
+  @SuppressWarnings( { "rawtypes", "unchecked" } )
+  @Override
+  public <T extends IDtoClassPropInfoBase> IStridablesList<T> propInfos( ESkClassPropKind aKind ) {
+    TsNullArgumentRtException.checkNull( aKind );
+    return switch( aKind ) {
+      case ATTR -> (IStridablesList)attrInfos;
+      case RIVET -> (IStridablesList)rivetInfos;
+      case CLOB -> (IStridablesList)clobInfos;
+      case RTDATA -> (IStridablesList)rtdataInfos;
+      case LINK -> (IStridablesList)linkInfos;
+      case CMD -> (IStridablesList)cmdInfos;
+      case EVENT -> (IStridablesList)eventInfos;
+    };
   }
 
 }

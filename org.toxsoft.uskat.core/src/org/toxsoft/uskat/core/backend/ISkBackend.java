@@ -1,8 +1,12 @@
 package org.toxsoft.uskat.core.backend;
 
+import org.toxsoft.core.tslib.bricks.ctx.*;
+import org.toxsoft.core.tslib.bricks.events.msg.*;
 import org.toxsoft.core.tslib.utils.*;
 import org.toxsoft.core.tslib.utils.errors.*;
 import org.toxsoft.uskat.core.backend.api.*;
+import org.toxsoft.uskat.core.connection.*;
+import org.toxsoft.uskat.core.impl.*;
 
 /**
  * USkat backend API.
@@ -12,8 +16,16 @@ import org.toxsoft.uskat.core.backend.api.*;
  * <li>All modification methods may throw additional exceptions. Backed API does not require backend to enforce any
  * validation when writing data to it. However particular backend may check data to be written and not allow to violate
  * the storage integrity;</li>
- * <li>TODO frontend rear messaging - ???.</li>
- * <li>TODO working with threads- ???.</li>
+ * <li>Communication may be initiatied both by the frontend or the backend. The frontend simply calls methods of the
+ * backend. The only way to cimmunicate to frontend at the backends initiative is to send message via
+ * {@link ISkFrontendRear#onBackendMessage(GtMessage)}.</li>
+ * <li>Execution threads. Some backend implementations may have internal execution threads and may want to send message
+ * to the frontend from the internal thread. Such backends inform their counterparts with the
+ * {@link ISkBackendHardConstant#OPDEF_SKBI_NEEDS_THREAD_SEPARATOR} option set ti <code>true</code> in
+ * {@link ISkBackendInfo#params()}. Because core API impementation (class {@link SkCoreApi} and servcies) is
+ * single-threaded, the threads must be separated by supplying {@link SkBackendThreadSeparator} instance in the
+ * {@link ISkCoreConfigConstants#REFDEF_BACKEND_THREAD_SEPARATOR} when opening th connection via
+ * {@link ISkConnection#open(ITsContextRo)}.</li>
  * </ul>
  *
  * @author hazard157

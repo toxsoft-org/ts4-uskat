@@ -54,12 +54,12 @@ public interface ISkConnection
   ISkCoreApi coreApi();
 
   /**
-   * Returns the information about the server.
+   * Returns the information about the backend.
    *
-   * @return {@link ISkBackendInfo} - information about the server
+   * @return {@link ISkBackendInfo} - information about the backend
    * @throws TsIllegalStateRtException connection is closed
    */
-  ISkBackendInfo serverInfo();
+  ISkBackendInfo backendInfo();
 
   /**
    * Returns the session object.

@@ -44,7 +44,7 @@ public final class DtoAttrInfo
    * Constructor.
    *
    * @param aId String - the ID (IDpath)
-   * @param aParams {@link IOptionSet} - parameters values
+   * @param aParams {@link IOptionSet} - {@link #params()} values
    * @throws TsNullArgumentRtException any argument = <code>null</code>
    * @throws TsIllegalArgumentRtException identifier is not an IDpath
    */
@@ -57,7 +57,7 @@ public final class DtoAttrInfo
    *
    * @param aId String - the ID (IDpath)
    * @param aDataType {@link IDataType} - data type
-   * @param aParams {@link IOptionSet} - parameters values
+   * @param aParams {@link IOptionSet} - {@link #params()} values
    * @return {@link DtoAttrInfo} - created instance
    * @throws TsNullArgumentRtException any argument = <code>null</code>
    * @throws TsIllegalArgumentRtException identifier is not an IDpath

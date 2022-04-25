@@ -21,4 +21,18 @@ public interface IDevCoreApi
    */
   <T> T getBackendAddon( Class<T> aAddonInterface );
 
+  /**
+   * Fire core event using eventer {@link ISkCoreApi#eventer()}.
+   *
+   * @param aSkCoreEvent {@link org.toxsoft.uskat.core.SkCoreEvent} - the event
+   */
+  void fireCoreEvent( SkCoreEvent aSkCoreEvent );
+
+  /**
+   * Returns the core entities localization support.
+   *
+   * @return {@link ICoreL10n} - the core localizer
+   */
+  ICoreL10n l10n();
+
 }

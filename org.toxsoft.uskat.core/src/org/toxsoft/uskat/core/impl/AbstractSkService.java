@@ -3,11 +3,13 @@ package org.toxsoft.uskat.core.impl;
 import static org.toxsoft.uskat.core.impl.ISkResources.*;
 
 import org.toxsoft.core.tslib.bricks.ctx.*;
+import org.toxsoft.core.tslib.bricks.events.msg.*;
 import org.toxsoft.core.tslib.bricks.strid.impl.*;
 import org.toxsoft.core.tslib.utils.errors.*;
 import org.toxsoft.core.tslib.utils.logs.impl.*;
 import org.toxsoft.uskat.core.*;
 import org.toxsoft.uskat.core.api.*;
+import org.toxsoft.uskat.core.connection.*;
 import org.toxsoft.uskat.core.devapi.*;
 
 /**
@@ -30,6 +32,12 @@ public abstract class AbstractSkService
   private boolean inited        = false;
   private boolean backendActive = false;
 
+  /**
+   * Constructor.
+   *
+   * @param aId String - the service ID
+   * @param aCoreApi {@link IDevCoreApi} - owner core API implementation
+   */
   protected AbstractSkService( String aId, IDevCoreApi aCoreApi ) {
     serviceId = StridUtils.checkValidIdPath( aId );
     coreApi = SkCoreApi.class.cast( aCoreApi );
@@ -117,6 +125,16 @@ public abstract class AbstractSkService
     catch( Exception ex ) {
       LoggerUtils.errorLogger().error( ex );
     }
+  }
+
+  // ------------------------------------------------------------------------------------
+  // package API for communication with other parts
+  //
+
+  public void papiOnBackendMessage( GtMessage aMessage ) {
+
+    // TODO AbstractSkService.papiOnBackendMessage()
+
   }
 
   // ------------------------------------------------------------------------------------

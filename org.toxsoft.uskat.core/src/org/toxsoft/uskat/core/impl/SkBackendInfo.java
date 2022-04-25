@@ -11,6 +11,9 @@ import org.toxsoft.core.tslib.av.metainfo.*;
 import org.toxsoft.core.tslib.av.opset.*;
 import org.toxsoft.core.tslib.av.opset.impl.*;
 import org.toxsoft.core.tslib.bricks.strid.impl.*;
+import org.toxsoft.core.tslib.bricks.strio.*;
+import org.toxsoft.core.tslib.bricks.strio.chario.impl.*;
+import org.toxsoft.core.tslib.bricks.strio.impl.*;
 import org.toxsoft.core.tslib.gw.skid.*;
 import org.toxsoft.core.tslib.utils.errors.*;
 import org.toxsoft.uskat.core.backend.api.*;
@@ -26,8 +29,8 @@ public class SkBackendInfo
 
   private static final long serialVersionUID = 157157L;
 
-  private static final IDataDef OP_START_TIME   = create( SK_ID + "StartTime", TIMESTAMP ); //$NON-NLS-1$
-  private static final IDataDef OP_SESSION_SKID = create( SK_ID + "SessionSkid", VALOBJ );  //$NON-NLS-1$
+  private static final IDataDef OP_START_TIME   = create( SK_ID + ".StartTime", TIMESTAMP ); //$NON-NLS-1$
+  private static final IDataDef OP_SESSION_SKID = create( SK_ID + ".SessionSkid", VALOBJ );  //$NON-NLS-1$
 
   /**
    * Конструктор.
@@ -71,6 +74,22 @@ public class SkBackendInfo
   @Override
   public Skid sessionId() {
     return OP_SESSION_SKID.getValue( params() ).asValobj();
+  }
+
+  // ------------------------------------------------------------------------------------
+  // Object
+  //
+
+  @Override
+  public String toString() {
+    StringBuilder sb = new StringBuilder();
+    IStrioWriter sw = new StrioWriter( new CharOutputStreamAppendable( sb ) );
+    sw.pl( "BackendID=%s {", id() ); //$NON-NLS-1$
+    for( String opid : params().keys() ) {
+      sw.pl( "  %s = %s", opid, params().getValue( opid ).asString() ); //$NON-NLS-1$
+    }
+    sw.pl( "}" ); //$NON-NLS-1$
+    return sb.toString();
   }
 
 }

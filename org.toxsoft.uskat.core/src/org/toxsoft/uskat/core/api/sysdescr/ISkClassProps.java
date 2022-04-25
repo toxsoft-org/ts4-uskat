@@ -1,7 +1,7 @@
 package org.toxsoft.uskat.core.api.sysdescr;
 
-import org.toxsoft.core.tslib.bricks.strid.coll.IStridablesList;
-import org.toxsoft.uskat.core.api.sysdescr.dto.IDtoClassPropInfoBase;
+import org.toxsoft.core.tslib.bricks.strid.coll.*;
+import org.toxsoft.uskat.core.api.sysdescr.dto.*;
 
 /**
  * Complete information about the class properties of one kind..
@@ -42,6 +42,9 @@ public interface ISkClassProps<T extends IDtoClassPropInfoBase> {
 
   /**
    * Returns the classes, whch declares properties of specified ID.
+   * <p>
+   * Returns an empty list if property is not declared at all in the herarchy of this class. also an empty list is
+   * returned if such property exists in this class and obvously can not be declared by subclasses.
    *
    * @param aPropId String - the property ID
    * @return {@link IStridablesList}&lt;{@link ISkClassInfo}&gt; - list of declarer subclasses

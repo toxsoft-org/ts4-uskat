@@ -125,18 +125,18 @@ class SkConnection
 
     // TODO Auto-generated method stub
 
+    changeState( ESkConnState.ACTIVE );
   }
 
   @Override
   public ISkCoreApi coreApi() {
-    // TODO Auto-generated method stub
-    return null;
+    return coreApi;
   }
 
   @Override
-  public ISkBackendInfo serverInfo() {
-    // TODO Auto-generated method stub
-    return null;
+  public ISkBackendInfo backendInfo() {
+    TsIllegalStateRtException.checkFalse( state().isOpen(), MSG_ERR_CONN_NOT_OPEN );
+    return coreApi.backend().getBackendInfo();
   }
 
   @Override

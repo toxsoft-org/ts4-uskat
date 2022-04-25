@@ -4,7 +4,7 @@ import static org.toxsoft.core.tslib.av.impl.AvUtils.*;
 import static org.toxsoft.core.tslib.av.metainfo.IAvMetaConstants.*;
 import static org.toxsoft.core.tslib.bricks.strio.IStrioHardConstants.*;
 import static org.toxsoft.core.tslib.coll.impl.TsCollectionsUtils.*;
-import static org.toxsoft.uskat.core.impl.ISkConfigConstants.*;
+import static org.toxsoft.uskat.core.impl.ISkCoreConfigConstants.*;
 import static org.toxsoft.uskat.core.impl.ISkResources.*;
 
 import java.io.*;
@@ -37,11 +37,11 @@ import org.toxsoft.uskat.core.impl.dto.*;
 /**
  * Реализация {@link ICoreL10n}.
  * <p>
- * В директории {@link ISkConfigConstants#OPDEF_L10N_FILES_DIR} локализатор ищет директорию заданной локали
- * {@link ISkConfigConstants#OPDEF_LOCALE}, и из него считывает файлы локализации. Для каждого типа сущностей (классы,
- * объекты и т.п.) загружаются все файлы, совпадающие по имени с соответствующим шаблоном <code>PTRN_XXX</code>. Файлы
- * обрабатываются в сортированном по имени порядке, так что более поздние данные локализации имеют приоритет над более
- * ранними.
+ * В директории {@link ISkCoreConfigConstants#OPDEF_L10N_FILES_DIR} локализатор ищет директорию заданной локали
+ * {@link ISkCoreConfigConstants#OPDEF_LOCALE}, и из него считывает файлы локализации. Для каждого типа сущностей
+ * (классы, объекты и т.п.) загружаются все файлы, совпадающие по имени с соответствующим шаблоном
+ * <code>PTRN_XXX</code>. Файлы обрабатываются в сортированном по имени порядке, так что более поздние данные
+ * локализации имеют приоритет над более ранними.
  * <p>
  * Подробности про хранение и принципы работы локализатиора описани в коде этого класса, по месту.
  *
@@ -171,12 +171,12 @@ class CoreL10n
   }
 
   /**
-   * Локаль, которая задана в опции {@link ISkConfigConstants#OPDEF_LOCALE}.
+   * Локаль, которая задана в опции {@link ISkCoreConfigConstants#OPDEF_LOCALE}.
    */
   private final Locale locale;
 
   /**
-   * Корневая директория локализатора, которая задана в опции {@link ISkConfigConstants#OPDEF_L10N_FILES_DIR}.
+   * Корневая директория локализатора, которая задана в опции {@link ISkCoreConfigConstants#OPDEF_L10N_FILES_DIR}.
    */
   private final File l10nFilesRoot;
 
@@ -230,7 +230,7 @@ class CoreL10n
       String shortName = locale.getLanguage();
       File f = new File( l10nFilesRoot, longName );
       if( !TsFileUtils.isDirReadable( f ) ) {
-        f = new File( f, shortName );
+        f = new File( l10nFilesRoot, shortName );
       }
       if( TsFileUtils.isDirReadable( f ) ) {
         localeFilesRoot = f;

@@ -1,8 +1,8 @@
 package org.toxsoft.uskat.core.api.sysdescr;
 
-import org.toxsoft.core.tslib.bricks.strid.IStridableParameterized;
-import org.toxsoft.core.tslib.gw.IGwHardConstants;
-import org.toxsoft.core.tslib.utils.TsLibUtils;
+import org.toxsoft.core.tslib.bricks.strid.*;
+import org.toxsoft.core.tslib.gw.*;
+import org.toxsoft.core.tslib.utils.*;
 import org.toxsoft.uskat.core.api.sysdescr.dto.*;
 
 /**
@@ -90,17 +90,6 @@ public interface ISkClassInfo
    * @param aKind {@link ESkClassPropKind} - the requested kind of properties
    * @return {@link ISkClassProps}&lt;T&gt; - requested properties
    */
-  @SuppressWarnings( { "unchecked", "rawtypes" } )
-  default <T extends IDtoClassPropInfoBase> ISkClassProps<T> props( ESkClassPropKind aKind ) {
-    return switch( aKind ) {
-      case ATTR -> (ISkClassProps)attrs();
-      case RIVET -> (ISkClassProps)rivets();
-      case CLOB -> (ISkClassProps)clobs();
-      case LINK -> (ISkClassProps)links();
-      case RTDATA -> (ISkClassProps)rtdata();
-      case EVENT -> (ISkClassProps)events();
-      case CMD -> (ISkClassProps)cmds();
-    };
-  }
+  <T extends IDtoClassPropInfoBase> ISkClassProps<T> props( ESkClassPropKind aKind );
 
 }

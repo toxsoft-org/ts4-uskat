@@ -1,6 +1,5 @@
 package org.toxsoft.uskat.core.api.sysdescr;
 
-import org.toxsoft.core.tslib.bricks.events.*;
 import org.toxsoft.core.tslib.bricks.strid.coll.*;
 import org.toxsoft.core.tslib.bricks.validator.*;
 import org.toxsoft.core.tslib.bricks.validator.impl.*;
@@ -90,13 +89,6 @@ public interface ISkSysdescr
 
   // ------------------------------------------------------------------------------------
   // Service support
-
-  /**
-   * Returns the service eventer.
-   *
-   * @return {@link ITsEventer}&lt;{@link ISkSysdescrListener}&gt; - the service eventer
-   */
-  ITsEventer<ISkSysdescrListener> eventer();
 
   /**
    * Returns the service validator.

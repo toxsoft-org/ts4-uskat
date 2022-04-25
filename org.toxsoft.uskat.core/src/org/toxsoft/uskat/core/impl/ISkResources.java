@@ -28,17 +28,42 @@ interface ISkResources {
   String MSG_NO_ITEMS_READ_YET          = "No items was read from file";
 
   /**
-   * {@link ISkConfigConstants}.
+   * {@link ISkCoreConfigConstants}.
    */
-  String STR_N_OP_L10N_FILES_DIR = "L10n directory";
-  String STR_D_OP_L10N_FILES_DIR = "Localization files root directory";
-  String STR_N_OP_LOCALE         = "Locale";
-  String STR_D_OP_LOCALE         = "Locale for core entitties localization";
+  String STR_N_OP_L10N_FILES_DIR    = "L10n directory";
+  String STR_D_OP_L10N_FILES_DIR    = "Localization files root directory";
+  String STR_N_OP_LOCALE            = "Locale";
+  String STR_D_OP_LOCALE            = "Locale for core entitties localization";
+  String STR_N_REF_BACKEND_PROVIDER = "Backend provider";
+  String STR_D_REF_BACKEND_PROVIDER = "Refernce to the of the USkat API backend instance creator";
 
   /**
    * {@link SkConnection}.
    */
   String MSG_ERR_CONN_NOT_ACTIVE = "Connection is not active";
   String MSG_ERR_CONN_IS_OPEN    = "Connection is already open";
+
+  /**
+   * {@link SkCoreApi}
+   */
+  String MSG_ERR_CONN_NOT_OPEN              = "Connection is closed";
+  String LOG_WARN_UNHANDLED_BACKEND_MESSAGE = "Unhandled message from backend, topicID= %s";
+
+  /**
+   * {@link SkObjectService}
+   */
+  String FMT_ERR_NO_SUCH_OBJ = "Нет объекта с идентификатором %s";
+
+  /**
+   * {@link SkSysdescr}
+   */
+  String STR_N_ROOT_CLASS    = "Корневой класс";
+  String STR_D_ROOT_CLASS    = "Корневой класс иерархии классов USkat";
+  String STR_N_ATTR_SKID     = "Skid";
+  String STR_D_ATTR_SKID     = "Тип данных, содержащий Skid идентификатор";
+  String STR_N_ATTR_CLASS_ID = "ClassId";
+  String STR_D_ATTR_CLASS_ID = "Идентификатор класса объекта";
+  String STR_N_ATTR_STRID    = "Strid";
+  String STR_D_ATTR_STRID    = "Строковый идентификатор объекта (в уникальный в рамках класса)";
 
 }

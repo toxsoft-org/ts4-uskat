@@ -28,6 +28,13 @@ public interface ISkBackendHardConstant {
       TSID_DESCRIPTION, STR_D_SKBI_MAX_CLOB_LENGTH //
   );
 
+  String OPID_SKBI_NEEDS_THREAD_SEPARATOR = SKBI_ID + ".NeedsThreadSeparator"; //$NON-NLS-1$
+
+  IDataDef OPDEF_SKBI_NEEDS_THREAD_SEPARATOR = DataDef.create( OPID_SKBI_NEEDS_THREAD_SEPARATOR, INTEGER, //
+      TSID_NAME, STR_N_SKBI_NEEDS_THREAD_SEPARATOR, //
+      TSID_DESCRIPTION, STR_D_SKBI_NEEDS_THREAD_SEPARATOR //
+  );
+
   // ------------------------------------------------------------------------------------
   // IBaEvents info
 

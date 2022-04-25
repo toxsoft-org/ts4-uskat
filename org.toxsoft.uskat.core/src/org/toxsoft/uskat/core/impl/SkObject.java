@@ -27,6 +27,11 @@ import org.toxsoft.uskat.core.api.objserv.*;
 public class SkObject
     implements ISkObject {
 
+  /**
+   * Default creator singleton, creates instances of the class {@link SkObject}.
+   */
+  static final ISkObjectCreator<SkObject> DEFAULT_CREATOR = SkObject::new;
+
   private ISkCoreApi           coreApi;
   private final Skid           skid;
   private final IOptionSetEdit attrs  = new OptionSet();
@@ -59,7 +64,7 @@ public class SkObject
    *
    * @param aSkatApi {@link ISkCoreApi} - the core API
    */
-  void papiSetSkatApi( ISkCoreApi aSkatApi ) {
+  void papiSetCoreApi( ISkCoreApi aSkatApi ) {
     coreApi = aSkatApi;
     doPostConstruct();
   }

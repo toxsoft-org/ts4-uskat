@@ -1,8 +1,9 @@
 package org.toxsoft.uskat.core.api.sysdescr.dto;
 
-import org.toxsoft.core.tslib.bricks.strid.IStridableParameterized;
-import org.toxsoft.core.tslib.bricks.strid.coll.IStridablesList;
-import org.toxsoft.core.tslib.gw.IGwHardConstants;
+import org.toxsoft.core.tslib.bricks.strid.*;
+import org.toxsoft.core.tslib.bricks.strid.coll.*;
+import org.toxsoft.core.tslib.gw.*;
+import org.toxsoft.uskat.core.api.sysdescr.*;
 
 /**
  * Information about class.
@@ -69,5 +70,14 @@ public interface IDtoClassInfo
    * @return IStridablesList&lt;{@link IDtoEventInfo}&lt; - list of the CLOB description DTOs
    */
   IStridablesList<IDtoClobInfo> clobInfos();
+
+  /**
+   * Returns asked properties list of this class.
+   *
+   * @param <T> - the property type
+   * @param aKind {@link ESkClassPropKind} - the requested kind of properties
+   * @return IStridablesList&lt;T&lt; - list of the properties
+   */
+  <T extends IDtoClassPropInfoBase> IStridablesList<T> propInfos( ESkClassPropKind aKind );
 
 }

@@ -1,6 +1,5 @@
 package org.toxsoft.uskat.core.api.clobserv;
 
-import org.toxsoft.core.tslib.bricks.events.*;
 import org.toxsoft.core.tslib.gw.gwid.*;
 import org.toxsoft.core.tslib.utils.errors.*;
 import org.toxsoft.uskat.core.*;
@@ -49,11 +48,6 @@ public interface ISkClobService
    */
   void writeClob( Gwid aGwid, String aClob );
 
-  /**
-   * Returns the eventer for service notifications
-   *
-   * @return {@link ITsEventer}&lt;{@link ISkClobServiceListener}&gt; - the eventer
-   */
-  ITsEventer<ISkClobServiceListener> eventer();
+  // TODO CLOB validator
 
 }
