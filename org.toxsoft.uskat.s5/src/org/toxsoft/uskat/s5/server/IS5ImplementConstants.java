@@ -9,8 +9,6 @@ import org.toxsoft.uskat.s5.server.backend.IS5BackendLocal;
 import org.toxsoft.uskat.s5.server.backend.IS5BackendRemote;
 import org.toxsoft.uskat.s5.server.backend.impl.S5BackendCoreSingleton;
 import org.toxsoft.uskat.s5.server.backend.impl.S5BackendSession;
-import org.toxsoft.uskat.s5.server.backend.supports.commands.impl.S5BackendCommandSingleton;
-import org.toxsoft.uskat.s5.server.backend.supports.currdata.S5BackendCurrDataSingleton;
 import org.toxsoft.uskat.s5.server.backend.supports.events.impl.S5BackendEventSingleton;
 import org.toxsoft.uskat.s5.server.backend.supports.links.S5BackendLinksSingleton;
 import org.toxsoft.uskat.s5.server.backend.supports.lobs.S5BackendLobsSingleton;
@@ -150,16 +148,6 @@ public interface IS5ImplementConstants
    * 11. Синглетон поддержки доступа к событиям
    */
   String BACKEND_EVENTS_SINGLETON = S5BackendEventSingleton.BACKEND_EVENTS_ID;
-
-  /**
-   * 12. Синглетон поддержки доступа к командам
-   */
-  String BACKEND_COMMANDS_SINGLETON = S5BackendCommandSingleton.BACKEND_COMMANDS_ID;
-
-  /**
-   * 13. Синглетон поддержки доступа к данным реального времени
-   */
-  String BACKEND_RTDATA_SINGLETON = S5BackendCurrDataSingleton.BACKEND_CURRDATA_ID;
 
   /**
    * 14. Синглетон предоставляющий локальное соединение.

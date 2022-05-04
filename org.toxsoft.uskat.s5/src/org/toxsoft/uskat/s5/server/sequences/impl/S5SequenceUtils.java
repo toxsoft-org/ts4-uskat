@@ -16,6 +16,7 @@ import org.toxsoft.core.tslib.bricks.validator.impl.ValResList;
 import org.toxsoft.core.tslib.coll.IList;
 import org.toxsoft.core.tslib.gw.gwid.Gwid;
 import org.toxsoft.core.tslib.utils.errors.*;
+import org.toxsoft.uskat.s5.legacy.QueryInterval;
 import org.toxsoft.uskat.s5.server.sequences.IS5Sequence;
 import org.toxsoft.uskat.s5.server.sequences.ISequenceBlock;
 

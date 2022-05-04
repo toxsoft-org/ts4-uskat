@@ -103,6 +103,8 @@ public final class S5EventSupport
             break;
           case GW_ATTR:
           case GW_CMD:
+          case GW_CMD_ARG:
+          case GW_EVENT_PARAM:
           case GW_LINK:
           case GW_RTDATA:
           case GW_CLOB:

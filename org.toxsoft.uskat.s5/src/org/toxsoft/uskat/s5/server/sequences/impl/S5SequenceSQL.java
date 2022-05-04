@@ -31,6 +31,7 @@ import org.toxsoft.core.tslib.utils.Pair;
 import org.toxsoft.core.tslib.utils.errors.*;
 import org.toxsoft.core.tslib.utils.logs.ELogSeverity;
 import org.toxsoft.core.tslib.utils.logs.ILogger;
+import org.toxsoft.uskat.s5.legacy.QueryInterval;
 import org.toxsoft.uskat.s5.server.backend.supports.objects.S5ObjectEntity;
 import org.toxsoft.uskat.s5.server.sequences.*;
 import org.toxsoft.uskat.s5.server.sequences.reader.IS5SequenceReadQuery;

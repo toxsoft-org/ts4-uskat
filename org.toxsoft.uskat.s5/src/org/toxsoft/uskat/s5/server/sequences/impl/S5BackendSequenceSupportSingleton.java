@@ -49,6 +49,7 @@ import org.toxsoft.core.tslib.utils.logs.ELogSeverity;
 import org.toxsoft.core.tslib.utils.logs.ILogger;
 import org.toxsoft.uskat.classes.IS5ClassBackend;
 import org.toxsoft.uskat.classes.IS5ClassHistorableBackend;
+import org.toxsoft.uskat.s5.legacy.QueryInterval;
 import org.toxsoft.uskat.s5.server.backend.impl.S5BackendSupportSingleton;
 import org.toxsoft.uskat.s5.server.backend.supports.objects.IS5BackendObjectsSingleton;
 import org.toxsoft.uskat.s5.server.backend.supports.sysdescr.IS5BackendSysDescrSingleton;
@@ -262,7 +263,6 @@ public abstract class S5BackendSequenceSupportSingleton<S extends IS5Sequence<V>
   // ------------------------------------------------------------------------------------
   // Реализация шаблонных методов S5ServiceSingletonBase
   //
-  @SuppressWarnings( "unchecked" )
   @Override
   protected IOptionSet doCreateConfiguration() {
     return new OptionSet();

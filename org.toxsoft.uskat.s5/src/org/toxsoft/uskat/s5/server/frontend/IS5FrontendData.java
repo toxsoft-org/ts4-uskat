@@ -2,6 +2,9 @@ package org.toxsoft.uskat.s5.server.frontend;
 
 import org.toxsoft.core.tslib.coll.primtypes.IStringList;
 import org.toxsoft.core.tslib.utils.errors.*;
+import org.toxsoft.uskat.core.impl.S5EventSupport;
+
+import ru.uskat.common.dpu.rt.events.SkEvent;
 
 /**
  * Данные frontend
@@ -9,6 +12,13 @@ import org.toxsoft.core.tslib.utils.errors.*;
  * @author mvk
  */
 public interface IS5FrontendData {
+
+  /**
+   * Возвращает настройки событий получаемых клиентом
+   *
+   * @return {@link S5EventSupport} вспомогательный класс обработки событий {@link SkEvent}
+   */
+  S5EventSupport events();
 
   /**
    * Возвращает список идентификаторов инициализируемых расширений бекендов

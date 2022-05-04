@@ -31,6 +31,7 @@ import org.toxsoft.core.tslib.gw.gwid.Gwid;
 import org.toxsoft.core.tslib.gw.gwid.GwidList;
 import org.toxsoft.core.tslib.utils.errors.*;
 import org.toxsoft.core.tslib.utils.logs.ILogger;
+import org.toxsoft.uskat.s5.legacy.QueryInterval;
 import org.toxsoft.uskat.s5.server.backend.IS5BackendCoreSingleton;
 import org.toxsoft.uskat.s5.server.cluster.IS5ClusterCommand;
 import org.toxsoft.uskat.s5.server.cluster.IS5ClusterManager;

@@ -3,7 +3,6 @@ package org.toxsoft.uskat.s5.server.backend.supports.events.impl;
 import static org.toxsoft.uskat.core.impl.S5EventsUtils.*;
 import static org.toxsoft.uskat.s5.common.IS5CommonResources.*;
 import static org.toxsoft.uskat.s5.server.IS5ImplementConstants.*;
-import static org.toxsoft.uskat.s5.server.backend.addons.realtime.S5RealtimeUtils.*;
 import static org.toxsoft.uskat.s5.server.backend.supports.events.impl.IS5Resources.*;
 import static org.toxsoft.uskat.s5.server.transactions.ES5TransactionResources.*;
 import static ru.uskat.core.impl.SkGwidUtils.*;
@@ -24,7 +23,7 @@ import org.toxsoft.core.tslib.gw.skid.Skid;
 import org.toxsoft.core.tslib.utils.Pair;
 import org.toxsoft.core.tslib.utils.errors.TsNotAllEnumsUsedRtException;
 import org.toxsoft.core.tslib.utils.errors.TsNullArgumentRtException;
-import org.toxsoft.uskat.s5.server.backend.addons.realtime.S5RealtimeFrontendData;
+import org.toxsoft.uskat.s5.legacy.QueryInterval;
 import org.toxsoft.uskat.s5.server.backend.supports.events.IS5BackendEventSingleton;
 import org.toxsoft.uskat.s5.server.backend.supports.events.sequences.IS5EventSequence;
 import org.toxsoft.uskat.s5.server.backend.supports.events.sequences.IS5EventSequenceEdit;
@@ -147,7 +146,7 @@ public class S5BackendEventSingleton
       }
       if( !needGwid.isAbstract() ) {
         // Определен идентификатор объекта
-        Gwid gwid = Gwid.create( needGwid.classId(), needGwid.strid(), null, null );
+        Gwid gwid = Gwid.createObj( needGwid.classId(), needGwid.strid() );
         if( !gwids.hasElem( gwid ) ) {
           gwids.add( gwid );
         }
@@ -160,7 +159,7 @@ public class S5BackendEventSingleton
       }
       IList<IDpuObject> objs = objectsBackend().readObjects( classIds );
       for( IDpuObject obj : objs ) {
-        Gwid gwid = Gwid.create( obj.classId(), obj.strid(), null, null );
+        Gwid gwid = Gwid.createObj( obj.classId(), obj.strid() );
         if( !gwids.hasElem( gwid ) ) {
           gwids.add( gwid );
         }
@@ -222,13 +221,8 @@ public class S5BackendEventSingleton
             // События не передаются frontend-у которые он отправил
             continue;
           }
-          S5RealtimeFrontendData frontendData = getRealtimeFrontendData( frontend );
-          if( frontendData == null ) {
-            // Фронтенд не поддерживает реальное время
-            continue;
-          }
           // Фильтрация интересуемых событий
-          SkEventList frontendEvents = frontendData.events.filter( sysdescrBackend(), events );
+          SkEventList frontendEvents = frontend.frontendData().events().filter( sysdescrBackend(), events );
           if( frontendEvents.size() == 0 ) {
             // Нечего отправлять
             continue;
@@ -312,7 +306,7 @@ public class S5BackendEventSingleton
         String classId = obj.classId();
         ISkClassInfo classInfo = sysdescrReader().getClassInfo( classId );
         if( classInfo.eventInfos().size() == 0 ) {
-          gwidsEditor.removeByKey( Gwid.create( classId, obj.strid(), null, null ) );
+          gwidsEditor.removeByKey( Gwid.createObj( classId, obj.strid() ) );
         }
       }
     }
@@ -348,7 +342,7 @@ public class S5BackendEventSingleton
       }
       IList<IDpuObject> objs = aRemovedObjs.getByKey( classInfo );
       for( IDpuObject obj : objs ) {
-        gwidsEditor.removeByKey( Gwid.create( obj.classId(), obj.strid(), null, null ) );
+        gwidsEditor.removeByKey( Gwid.createObj( obj.classId(), obj.strid() ) );
       }
     }
   }
@@ -387,8 +381,9 @@ public class S5BackendEventSingleton
       if( events.size() == 0 ) {
         continue;
       }
-      Gwid objId = Gwid.create( skid.classId(), skid.strid(), null, null );
-      IQueryInterval interval = new QueryInterval( CSCE, events.first().timestamp(), events.last().timestamp() );
+      Gwid objId = Gwid.createObj( skid.classId(), skid.strid() );
+      IQueryInterval interval =
+          new QueryInterval( EQueryIntervalType.CSCE, events.first().timestamp(), events.last().timestamp() );
       IS5EventSequenceEdit sequence = new S5EventSequence( aFactory, objId, interval, IList.EMPTY );
       sequence.set( events );
       retValue.add( sequence );
