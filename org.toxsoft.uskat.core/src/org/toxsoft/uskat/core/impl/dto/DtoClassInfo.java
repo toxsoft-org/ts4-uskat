@@ -191,6 +191,36 @@ public class DtoClassInfo
     return dto;
   }
 
+  /**
+   * Creates {@link DtoClassInfo} from the USkat class info {@link ISkClassInfo}.
+   * <p>
+   * Depending on the argument value the returned instance will include either all properties of the source class or the
+   * properties introduced in the source class (spo called 'self properties').
+   *
+   * @param aSkClass {@link ISkClassInfo} - the source
+   * @param aOnlySelfProps boolean - the flag to exclude inherited properties
+   * @return {@link DtoClassInfo} - created instance
+   * @throws TsNullArgumentRtException any argument = <code>null</code>
+   */
+  public static DtoClassInfo createFromSk( ISkClassInfo aSkClass, boolean aOnlySelfProps ) {
+    TsNullArgumentRtException.checkNull( aSkClass );
+    DtoClassInfo dtoClass;
+    if( aSkClass.id().equals( IGwHardConstants.GW_ROOT_CLASS_ID ) ) {
+      dtoClass = new DtoClassInfo( aSkClass.params() );
+    }
+    else {
+      dtoClass = new DtoClassInfo( aSkClass.id(), aSkClass.parentId(), aSkClass.params() );
+    }
+    dtoClass.attrInfos().setAll( aSkClass.attrs().makeCopy( aOnlySelfProps ) );
+    dtoClass.rivetInfos().setAll( aSkClass.rivets().makeCopy( aOnlySelfProps ) );
+    dtoClass.clobInfos().setAll( aSkClass.clobs().makeCopy( aOnlySelfProps ) );
+    dtoClass.rtdataInfos().setAll( aSkClass.rtdata().makeCopy( aOnlySelfProps ) );
+    dtoClass.linkInfos().setAll( aSkClass.links().makeCopy( aOnlySelfProps ) );
+    dtoClass.cmdInfos().setAll( aSkClass.cmds().makeCopy( aOnlySelfProps ) );
+    dtoClass.eventInfos().setAll( aSkClass.events().makeCopy( aOnlySelfProps ) );
+    return dtoClass;
+  }
+
   // ------------------------------------------------------------------------------------
   // IDtoClassInfo
   //

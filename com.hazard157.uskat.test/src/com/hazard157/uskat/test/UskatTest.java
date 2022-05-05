@@ -2,6 +2,7 @@ package com.hazard157.uskat.test;
 
 import static org.toxsoft.core.tslib.utils.TsTestUtils.*;
 
+import org.toxsoft.core.tslib.utils.logs.impl.*;
 import org.toxsoft.uskat.core.impl.*;
 
 /**
@@ -18,9 +19,14 @@ public class UskatTest {
     SkUtils.initialize();
 
     Test1 t = new Test1();
-    t.run();
-
-    pl( "Test finished." );
+    try {
+      t.run();
+      pl( "Test OK." );
+    }
+    catch( Exception ex ) {
+      LoggerUtils.errorLogger().error( ex );
+      pl( "Test FAILED." );
+    }
     nl();
   }
 

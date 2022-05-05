@@ -36,6 +36,9 @@ public abstract class DtoAbstractClassPropInfoBase
   @Override
   public abstract ESkClassPropKind kind();
 
+  @Override
+  public abstract <T extends IDtoClassPropInfoBase> T makeCopy();
+
   // ------------------------------------------------------------------------------------
   // API
   //

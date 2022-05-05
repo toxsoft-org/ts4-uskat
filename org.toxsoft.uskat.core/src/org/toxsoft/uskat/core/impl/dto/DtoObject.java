@@ -1,5 +1,6 @@
 package org.toxsoft.uskat.core.impl.dto;
 
+import static org.toxsoft.core.tslib.bricks.strio.IStrioHardConstants.*;
 import static org.toxsoft.core.tslib.utils.TsLibUtils.*;
 
 import java.io.*;
@@ -12,7 +13,10 @@ import org.toxsoft.core.tslib.bricks.strio.*;
 import org.toxsoft.core.tslib.coll.primtypes.*;
 import org.toxsoft.core.tslib.gw.skid.*;
 import org.toxsoft.core.tslib.utils.errors.*;
+import org.toxsoft.uskat.core.*;
 import org.toxsoft.uskat.core.api.objserv.*;
+import org.toxsoft.uskat.core.api.sysdescr.*;
+import org.toxsoft.uskat.core.api.sysdescr.dto.*;
 
 /**
  * {@link IDtoObject} implementation.
@@ -84,8 +88,32 @@ public final class DtoObject
     rivets = aRivets;
   }
 
+  /**
+   * Creates {@link DtoObject} instance based on {@link ISkObject} of cvlass {@link ISkClassInfo}.
+   * <p>
+   * Created instance does not have system attribute values in the {@link IDtoObject#attrs()} set.
+   *
+   * @param aSkObj {@link ISkObject} - the source
+   * @param aSkClass {@link ISkClassInfo} - description of the object's class
+   * @return {@link DtoObject} - cretaed instance
+   * @throws TsNullArgumentRtException any argument = <code>null</code>
+   * @throws TsIllegalArgumentRtException class description is not of obnject class
+   */
+  public static DtoObject createFromSk( ISkObject aSkObj, ISkClassInfo aSkClass ) {
+    TsNullArgumentRtException.checkNulls( aSkObj, aSkClass );
+    TsIllegalArgumentRtException.checkFalse( aSkClass.id().equals( aSkObj.classId() ) );
+    DtoObject dtoObj = new DtoObject( aSkObj.skid(), IOptionSet.NULL, aSkObj.rivets().map() );
+    // copy all but system attributes values
+    for( IDtoAttrInfo ainf : aSkClass.attrs().list() ) {
+      if( !ISkHardConstants.isSkSysAttr( ainf ) ) {
+        dtoObj.attrs().setValue( ainf.id(), aSkObj.attrs().getValue( ainf.id() ) );
+      }
+    }
+    return dtoObj;
+  }
+
   // ------------------------------------------------------------------------------------
-  // Реализация интерфейса IDtoObject
+  // IDtoObject
   //
 
   @Override
@@ -101,6 +129,49 @@ public final class DtoObject
   @Override
   public MappedSkids rivets() {
     return rivets;
+  }
+
+  // ------------------------------------------------------------------------------------
+  // API
+  //
+
+  /**
+   * Writes an {@link DtoObject} without class ID for storage size minimization.
+   *
+   * @param aSw {@link IStrioWriter} - character output stream
+   * @param aEntity {@link DtoObject} - an instance to write
+   * @throws TsNullArgumentRtException any argument = <code>null</code>
+   */
+  public static void writeShortened( IStrioWriter aSw, IDtoObject aEntity ) {
+    TsNullArgumentRtException.checkNulls( aSw, aEntity );
+    aSw.writeChar( CHAR_SET_BEGIN );
+    aSw.writeAsIs( aEntity.strid() );
+    aSw.writeSeparatorChar();
+    OptionSetKeeper.KEEPER.write( aSw, aEntity.attrs() );
+    aSw.writeSeparatorChar();
+    MappedSkids.KEEPER.write( aSw, aEntity.rivets() );
+    aSw.writeChar( CHAR_SET_END );
+  }
+
+  /**
+   * Reads shortened {@link DtoObject} previously written by {@link #writeShortened(IStrioWriter, IDtoObject)}.
+   *
+   * @param aSr {@link IStrioReader} - char input stream
+   * @param aClassId String - the class ID of the object to read
+   * @return {@link DtoObject} - the read instance
+   * @throws TsNullArgumentRtException any argument = <code>null</code>
+   */
+  public static DtoObject readShortened( IStrioReader aSr, String aClassId ) {
+    TsNullArgumentRtException.checkNulls( aSr, aClassId );
+    aSr.ensureChar( CHAR_SET_BEGIN );
+    String strid = aSr.readIdPath();
+    Skid skid = new Skid( aClassId, strid );
+    aSr.ensureSeparatorChar();
+    OptionSet attrs = (OptionSet)OptionSetKeeper.KEEPER.read( aSr );
+    aSr.ensureSeparatorChar();
+    MappedSkids rivets = (MappedSkids)MappedSkids.KEEPER.read( aSr );
+    aSr.ensureChar( CHAR_SET_END );
+    return new DtoObject( 0, skid, attrs, rivets );
   }
 
   // ------------------------------------------------------------------------------------

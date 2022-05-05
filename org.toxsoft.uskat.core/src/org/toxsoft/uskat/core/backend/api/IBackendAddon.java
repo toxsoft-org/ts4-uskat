@@ -1,19 +1,16 @@
 package org.toxsoft.uskat.core.backend.api;
 
-import org.toxsoft.uskat.core.backend.*;
+import org.toxsoft.core.tslib.bricks.strid.*;
 
 /**
  * Backend addon base interface.
+ * <p>
  *
  * @author hazard157
  */
-public interface IBackendAddon {
+public interface IBackendAddon
+    extends IStridable {
 
-  /**
-   * Returns the owner backend.
-   *
-   * @return &lt;B&gt; - the owner backend
-   */
-  ISkBackend owner();
+  // nop
 
 }

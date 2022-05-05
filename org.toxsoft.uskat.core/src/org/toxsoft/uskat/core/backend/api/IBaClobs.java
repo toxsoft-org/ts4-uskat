@@ -1,5 +1,7 @@
 package org.toxsoft.uskat.core.backend.api;
 
+import static org.toxsoft.uskat.core.ISkHardConstants.*;
+
 import org.toxsoft.core.tslib.gw.gwid.*;
 import org.toxsoft.core.tslib.utils.errors.*;
 
@@ -12,6 +14,11 @@ import org.toxsoft.core.tslib.utils.errors.*;
  */
 public interface IBaClobs
     extends IBackendAddon {
+
+  /**
+   * ID of this backend addon.
+   */
+  String ADDON_ID = SK_ID + "ba.Clobs"; //$NON-NLS-1$
 
   /**
    * Reads the CLOB content.

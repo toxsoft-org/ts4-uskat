@@ -52,7 +52,16 @@ interface ISkResources {
   /**
    * {@link SkObjectService}
    */
-  String FMT_ERR_NO_SUCH_OBJ = "Нет объекта с идентификатором %s";
+  String FMT_ERR_NO_SUCH_OBJ        = "Нет объекта с идентификатором %s";
+  String FMT_ERR_INV_ATTR_TYPE      = "Object '%s', attribute '%s': value type '%s' is not assignable to the type '%s'";
+  String FMT_ERR_NO_ATTR_VAL        = "Object '%s': value of the attribute '%s' must be specified";
+  String FMT_ERR_NO_RIVET_CLASS     = "Object '%s', rivet '%s': right class '%s' does not exists";
+  String FMT_ERR_NO_RIVET           = "Object '%s': riveted objects of the rivet '%s' must be specified";
+  String FMT_ERR_INV_RIVET_COUNT    = "Object '%s', rivet '%s': number of riveted objects is %d instead of %d";
+  String FMT_ERR_INV_RIVET_OBJ_CLS  = "Object '%s', rivet '%s': right object '%s' is not of class '%s'";
+  String FMT_ERR_OBJ_ALREADY_EXISTS = "Object with SKID '%s' уже существует";
+  String FMT_ERR_CANT_CHANGE_SKID   = "Object '%s': can't change SKID";
+  String FMT_ERR_CANT_REMOVE_NO_OBJ = "Object '%s'^ does not exists, can not remove it";
 
   /**
    * {@link SkSysdescr}

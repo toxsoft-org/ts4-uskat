@@ -51,4 +51,12 @@ public interface ISkClassProps<T extends IDtoClassPropInfoBase> {
    */
   IStridablesList<ISkClassInfo> findSubDeclarers( String aPropId );
 
+  /**
+   * Creteas and retuirns copy of the {@link #list()} or {@link #listSelf()}.
+   *
+   * @param aOnlySelf boolean - <code>true</code> for {@link #listSelf()} copy, <code>false</code> for {@link #list()}
+   * @return IStridablesList&lt;T&gt; - copy of the specified list of properties
+   */
+  IStridablesList<T> makeCopy( boolean aOnlySelf );
+
 }

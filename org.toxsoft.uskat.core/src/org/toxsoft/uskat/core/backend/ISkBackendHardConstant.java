@@ -8,6 +8,8 @@ import static org.toxsoft.uskat.core.backend.ISkResources.*;
 
 import org.toxsoft.core.tslib.av.impl.*;
 import org.toxsoft.core.tslib.av.metainfo.*;
+import org.toxsoft.core.tslib.bricks.strid.*;
+import org.toxsoft.core.tslib.bricks.strid.impl.*;
 
 /**
  * Constants common for all backends.
@@ -17,18 +19,19 @@ import org.toxsoft.core.tslib.av.metainfo.*;
 @SuppressWarnings( "javadoc" )
 public interface ISkBackendHardConstant {
 
-  String SKB_ID = SK_ID + ".backend"; //$NON-NLS-1$
+  String SKB_ID  = SK_ID + ".backend"; //$NON-NLS-1$
+  String SKBI_ID = SKB_ID + ".info";   //$NON-NLS-1$
 
-  String SKBI_ID = SKB_ID + ".info"; //$NON-NLS-1$
+  // ------------------------------------------------------------------------------------
+  // ISkBackendInfo
 
-  String OPID_SKBI_MAX_CLOB_LENGTH = SKBI_ID + ".MaxClobLength"; //$NON-NLS-1$
+  String OPID_SKBI_MAX_CLOB_LENGTH        = SKBI_ID + ".MaxClobLength";        //$NON-NLS-1$
+  String OPID_SKBI_NEEDS_THREAD_SEPARATOR = SKBI_ID + ".NeedsThreadSeparator"; //$NON-NLS-1$
 
   IDataDef OPDEF_SKBI_MAX_CLOB_LENGTH = DataDef.create( OPID_SKBI_MAX_CLOB_LENGTH, INTEGER, //
       TSID_NAME, STR_N_SKBI_MAX_CLOB_LENGTH, //
       TSID_DESCRIPTION, STR_D_SKBI_MAX_CLOB_LENGTH //
   );
-
-  String OPID_SKBI_NEEDS_THREAD_SEPARATOR = SKBI_ID + ".NeedsThreadSeparator"; //$NON-NLS-1$
 
   IDataDef OPDEF_SKBI_NEEDS_THREAD_SEPARATOR = DataDef.create( OPID_SKBI_NEEDS_THREAD_SEPARATOR, INTEGER, //
       TSID_NAME, STR_N_SKBI_NEEDS_THREAD_SEPARATOR, //
@@ -36,10 +39,27 @@ public interface ISkBackendHardConstant {
   );
 
   // ------------------------------------------------------------------------------------
-  // IBaEvents info
+  // IBaClasses
 
+  String BAID_CLASSES = SKB_ID + ".Classes"; //$NON-NLS-1$
+
+  IStridable BAINF_CLASSES = new Stridable( BAID_CLASSES, STR_N_BA_CLASSES, STR_D_BA_CLASSES );
+
+  // ------------------------------------------------------------------------------------
+  // IBaClobs
+
+  String BAID_CLOBS = SKB_ID + ".Clobs"; //$NON-NLS-1$
+
+  IStridable BAINF_CLOBS = new Stridable( BAID_CLOBS, STR_N_BA_CLOBS, STR_D_BA_CLOBS );
+
+  // ------------------------------------------------------------------------------------
+  // IBaEvents
+
+  String BAID_EVENTS                    = SKB_ID + ".Events";              //$NON-NLS-1$
   String OPID_SKBI_BA_EVENTS_IS_REMOTE  = SKBI_ID + ".BaEvents.IsRemove";  //$NON-NLS-1$
   String OPID_SKBI_BA_EVENTS_IS_HISTORY = SKBI_ID + ".BaEvents.IsHistory"; //$NON-NLS-1$
+
+  IStridable BAINF_EVENTS = new Stridable( BAID_EVENTS, STR_N_BA_EVENTS, STR_D_BA_EVENTS );
 
   IDataDef OPDEF_SKBI_BA_EVENTS_IS_REMOTE = DataDef.create( OPID_SKBI_BA_EVENTS_IS_REMOTE, INTEGER, //
       TSID_NAME, STR_N_SKBI_BA_EVENTS_IS_REMOTE, //
@@ -52,5 +72,19 @@ public interface ISkBackendHardConstant {
       TSID_DESCRIPTION, STR_D_SKBI_BA_EVENTS_IS_HISTORY, //
       TSID_DEFAULT_VALUE, AV_FALSE //
   );
+
+  // ------------------------------------------------------------------------------------
+  // IBaLinks
+
+  String BAID_LINKS = SKB_ID + ".Links"; //$NON-NLS-1$
+
+  IStridable BAINF_LINKS = new Stridable( BAID_LINKS, STR_N_BA_LINKS, STR_D_BA_LINKS );
+
+  // ------------------------------------------------------------------------------------
+  // IBaObjects
+
+  String BAID_OBJECTS = SKB_ID + ".Objects"; //$NON-NLS-1$
+
+  IStridable BAINF_OBJECTS = new Stridable( BAID_OBJECTS, STR_N_BA_OBJECTS, STR_D_BA_OBJECTS );
 
 }

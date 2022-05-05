@@ -89,6 +89,12 @@ public final class DtoEventInfo
     return ESkClassPropKind.EVENT;
   }
 
+  @SuppressWarnings( "unchecked" )
+  @Override
+  public DtoEventInfo makeCopy() {
+    return new DtoEventInfo( id(), params() );
+  }
+
   // ------------------------------------------------------------------------------------
   // IDtoEventInfo
   //

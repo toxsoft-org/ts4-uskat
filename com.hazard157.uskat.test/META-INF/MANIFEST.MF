@@ -8,5 +8,4 @@ Automatic-Module-Name: com.hazard157.uskat.test
 Bundle-RequiredExecutionEnvironment: JavaSE-17
 Require-Bundle: org.toxsoft.core.tslib;bundle-version="1.0.0",
  org.toxsoft.uskat.core;bundle-version="1.0.0",
- org.toxsoft.uskat.backend.memtext;bundle-version="1.0.0",
- com.hazard157.femjoy3;bundle-version="1.0.0"
+ org.toxsoft.uskat.backend.memtext;bundle-version="1.0.0"

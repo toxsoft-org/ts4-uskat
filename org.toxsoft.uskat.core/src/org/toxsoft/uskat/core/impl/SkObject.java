@@ -35,7 +35,7 @@ public class SkObject
   private ISkCoreApi           coreApi;
   private final Skid           skid;
   private final IOptionSetEdit attrs  = new OptionSet();
-  private final IMappedSkids   rivets = new MappedSkids();
+  private final MappedSkids    rivets = new MappedSkids();
 
   /**
    * Constructor.
@@ -108,12 +108,12 @@ public class SkObject
   }
 
   @Override
-  final public IOptionSet attrs() {
+  final public IOptionSetEdit attrs() {
     return attrs;
   }
 
   @Override
-  final public IMappedSkids rivets() {
+  final public MappedSkids rivets() {
     return rivets;
   }
 

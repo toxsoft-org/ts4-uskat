@@ -77,6 +77,12 @@ public final class DtoAttrInfo
     return ESkClassPropKind.ATTR;
   }
 
+  @SuppressWarnings( "unchecked" )
+  @Override
+  public DtoAttrInfo makeCopy() {
+    return new DtoAttrInfo( id(), params() );
+  }
+
   // ------------------------------------------------------------------------------------
   // IDtoAttrInfo
   //

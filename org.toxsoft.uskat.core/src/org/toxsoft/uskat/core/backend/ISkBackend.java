@@ -106,11 +106,13 @@ public interface ISkBackend
   /**
    * Returns bakend addon by it's interface.
    *
-   * @param <T> - expected interface of the addon
-   * @param aAddonInterface {@link Class}&lt;T&gt; - expected interface of the addons
+   * @param <T> - expected interface/class of the addon
+   * @param aAddonId String the ID of the addon
+   * @param aExpectedType {@link Class}&lt;T&gt; - expected interface of the addons
    * @return &lt;T&gt; - found addon or <code>null</code> if no such optional addon exists
    * @throws TsNullArgumentRtException any argument = <code>null</code>
+   * @throws ClassCastException found addon is not of expected Java type
    */
-  <T> T findBackendAddon( Class<T> aAddonInterface );
+  <T> T findBackendAddon( String aAddonId, Class<T> aExpectedType );
 
 }

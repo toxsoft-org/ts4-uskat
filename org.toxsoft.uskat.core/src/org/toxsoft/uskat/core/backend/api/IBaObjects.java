@@ -1,5 +1,7 @@
 package org.toxsoft.uskat.core.backend.api;
 
+import static org.toxsoft.uskat.core.ISkHardConstants.*;
+
 import org.toxsoft.core.tslib.coll.*;
 import org.toxsoft.core.tslib.coll.primtypes.*;
 import org.toxsoft.core.tslib.gw.skid.*;
@@ -15,6 +17,11 @@ import org.toxsoft.uskat.core.api.objserv.*;
  */
 public interface IBaObjects
     extends IBackendAddon {
+
+  /**
+   * ID of this backend addon.
+   */
+  String ADDON_ID = SK_ID + "ba.Objects"; //$NON-NLS-1$
 
   /**
    * Finds the object by SKID.

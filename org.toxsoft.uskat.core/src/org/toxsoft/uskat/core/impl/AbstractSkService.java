@@ -1,7 +1,5 @@
 package org.toxsoft.uskat.core.impl;
 
-import static org.toxsoft.uskat.core.impl.ISkResources.*;
-
 import org.toxsoft.core.tslib.bricks.ctx.*;
 import org.toxsoft.core.tslib.bricks.events.msg.*;
 import org.toxsoft.core.tslib.bricks.strid.impl.*;
@@ -97,7 +95,7 @@ public abstract class AbstractSkService
    * @param aArgs {@link ITsContextRo} - initialization arguments (the same as backend init args)
    */
   final void init( ITsContextRo aArgs ) {
-    LoggerUtils.defaultLogger().info( FMT_INFO_SERVICE_INIT, serviceId() );
+    // FIXME LoggerUtils.defaultLogger().info( FMT_INFO_SERVICE_INIT, serviceId() );
     TsIllegalStateRtException.checkTrue( inited );
     try {
       doInit( aArgs );
@@ -115,7 +113,7 @@ public abstract class AbstractSkService
    * After closing the service it is not usable.
    */
   final void close() {
-    LoggerUtils.defaultLogger().info( FMT_INFO_SERVICE_CLOSE, serviceId() );
+    // FIXME LoggerUtils.defaultLogger().info( FMT_INFO_SERVICE_CLOSE, serviceId() );
     if( !inited ) {
       return;
     }

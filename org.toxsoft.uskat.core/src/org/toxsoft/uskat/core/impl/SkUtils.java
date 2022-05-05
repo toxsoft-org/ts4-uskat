@@ -41,12 +41,14 @@ public class SkUtils {
 
   /**
    * Creates root class (with ID {@link IGwHardConstants#GW_ROOT_CLASS_ID}) description.
+   * <p>
+   * This is the main and only way to create correct root class description.
    *
    * @return {@link DtoClassInfo} - root class
    */
   public static DtoClassInfo createRootClassDto() {
     DtoClassInfo dpuRoot = new DtoClassInfo( OptionSetUtils.createOpSet( //
-        OP_SK_IS_SOURCE_CODE_DEFINED_CLASS, AV_TRUE //
+        OPDEF_SK_IS_SOURCE_CODE_DEFINED_CLASS, AV_TRUE //
     ) );
     // root class name
     dpuRoot.params().setStr( TSID_NAME, STR_N_ROOT_CLASS );
@@ -59,21 +61,27 @@ public class SkUtils {
         TSID_KEEPER_ID, Skid.KEEPER_ID, //
         TSID_IS_NULL_ALLOWED, AV_FALSE, //
         TSID_DEFAULT_VALUE, avValobj( Skid.NONE ) //
-    ), IOptionSet.NULL ) );
+    ), OptionSetUtils.createOpSet( //
+        OPDEF_SK_IS_SYS_ATTR, AV_TRUE //
+    ) ) );
     // AID_CLASS_ID
     dpuRoot.attrInfos().add( DtoAttrInfo.create1( AID_CLASS_ID, new DataType( STRING, //
         TSID_NAME, STR_N_ATTR_CLASS_ID, //
         TSID_DESCRIPTION, STR_D_ATTR_CLASS_ID, //
         TSID_IS_NULL_ALLOWED, AV_FALSE, //
         TSID_DEFAULT_VALUE, avStr( Skid.NONE.classId() ) //
-    ), IOptionSet.NULL ) );
+    ), OptionSetUtils.createOpSet( //
+        OPDEF_SK_IS_SYS_ATTR, AV_TRUE //
+    ) ) );
     // AID_STRID
     dpuRoot.attrInfos().add( DtoAttrInfo.create1( AID_STRID, new DataType( STRING, //
         TSID_NAME, STR_N_ATTR_STRID, //
         TSID_DESCRIPTION, STR_D_ATTR_STRID, //
         TSID_IS_NULL_ALLOWED, AV_FALSE, //
         TSID_DEFAULT_VALUE, avStr( Skid.NONE.strid() ) //
-    ), IOptionSet.NULL ) );
+    ), OptionSetUtils.createOpSet( //
+        OPDEF_SK_IS_SYS_ATTR, AV_TRUE //
+    ) ) );
     // AID_NAME
     dpuRoot.attrInfos().add( DtoAttrInfo.create1( AID_NAME, DDEF_NAME, IOptionSet.NULL ) );
     // AID_DESCRIPTION

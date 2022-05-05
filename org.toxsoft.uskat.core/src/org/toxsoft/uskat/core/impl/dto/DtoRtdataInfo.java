@@ -87,6 +87,12 @@ public final class DtoRtdataInfo
     return ESkClassPropKind.ATTR;
   }
 
+  @SuppressWarnings( "unchecked" )
+  @Override
+  public DtoRtdataInfo makeCopy() {
+    return new DtoRtdataInfo( id(), params() );
+  }
+
   // ------------------------------------------------------------------------------------
   // IDtoRtdataInfo
   //

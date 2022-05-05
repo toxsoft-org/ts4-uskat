@@ -14,6 +14,7 @@ import org.toxsoft.uskat.core.*;
 import org.toxsoft.uskat.core.api.sysdescr.*;
 import org.toxsoft.uskat.core.api.sysdescr.dto.*;
 import org.toxsoft.uskat.core.devapi.*;
+import org.toxsoft.uskat.core.impl.dto.*;
 
 /**
  * {@link ISkSysdescr} implementation.
@@ -164,15 +165,18 @@ class SkSysdescr
     }
   }
 
+  private void internalWriteSkClassToBackend( ISkClassInfo aSkClass ) {
+    IDtoClassInfo dtoClass = DtoClassInfo.createFromSk( aSkClass, true );
+    ba().baClasses().writeClassInfos( IStringList.EMPTY, new StridablesList<>( dtoClass ) );
+  }
+
   // ------------------------------------------------------------------------------------
   // AbstractSkService
   //
 
   @Override
   protected void doInit( ITsContextRo aArgs ) {
-
     // TODO SkSysdescr.doInit()
-
   }
 
   @Override
@@ -186,14 +190,12 @@ class SkSysdescr
 
   @Override
   public ISkClassInfo findClassInfo( String aClassId ) {
-    // TODO реализовать SkSysdescr.findClassInfo()
-    throw new TsUnderDevelopmentRtException( "SkSysdescr.findClassInfo()" );
+    return internalClassesCache.findByKey( aClassId );
   }
 
   @Override
   public ISkClassInfo getClassInfo( String aClassId ) {
-    // TODO реализовать SkSysdescr.getClassInfo()
-    throw new TsUnderDevelopmentRtException( "SkSysdescr.getClassInfo()" );
+    return internalClassesCache.getByKey( aClassId );
   }
 
   @SuppressWarnings( { "rawtypes", "unchecked" } )
@@ -223,7 +225,7 @@ class SkSysdescr
     SkClassInfo cinf = fromDto( aDtoClassInfo, listClasses().getByKey( aDtoClassInfo.parentId() ) );
     internalClassesCache.put( cinf );
     internalClearHierarchyCache();
-    ba().baClasses().writeClassInfos( IStringList.EMPTY, new StridablesList<>( aDtoClassInfo ) );
+    internalWriteSkClassToBackend( cinf );
     coreApi().fireCoreEvent( event );
     return cinf;
   }

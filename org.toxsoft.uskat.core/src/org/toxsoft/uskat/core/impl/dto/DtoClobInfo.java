@@ -77,6 +77,12 @@ public final class DtoClobInfo
     return ESkClassPropKind.CLOB;
   }
 
+  @SuppressWarnings( "unchecked" )
+  @Override
+  public DtoClobInfo makeCopy() {
+    return new DtoClobInfo( id(), params() );
+  }
+
   // ------------------------------------------------------------------------------------
   // IDtoClobInfo
   //

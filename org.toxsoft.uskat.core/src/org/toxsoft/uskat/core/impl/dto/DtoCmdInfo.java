@@ -87,6 +87,12 @@ public final class DtoCmdInfo
     return ESkClassPropKind.CMD;
   }
 
+  @SuppressWarnings( "unchecked" )
+  @Override
+  public DtoCmdInfo makeCopy() {
+    return new DtoCmdInfo( id(), params() );
+  }
+
   // ------------------------------------------------------------------------------------
   // IDtoCmdInfo
   //

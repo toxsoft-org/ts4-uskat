@@ -99,6 +99,16 @@ final class SkClassProps<T extends IDtoClassPropInfoBase>
     throw new TsUnderDevelopmentRtException( "SkClassProps.findSubDeclarers()" );
   }
 
+  @Override
+  public IStridablesList<T> makeCopy( boolean aOnlySelf ) {
+    IStridablesListEdit<T> src = aOnlySelf ? itemsSelf : itemsAll;
+    IStridablesListEdit<T> ll = new StridablesList<>();
+    for( T t : src ) {
+      ll.add( t.makeCopy() );
+    }
+    return ll;
+  }
+
   // ------------------------------------------------------------------------------------
   // package API
   //

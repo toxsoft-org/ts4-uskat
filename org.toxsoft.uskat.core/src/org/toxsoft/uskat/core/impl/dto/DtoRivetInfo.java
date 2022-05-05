@@ -79,6 +79,12 @@ public final class DtoRivetInfo
     return ESkClassPropKind.RIVET;
   }
 
+  @SuppressWarnings( "unchecked" )
+  @Override
+  public DtoRivetInfo makeCopy() {
+    return new DtoRivetInfo( id(), params() );
+  }
+
   // ------------------------------------------------------------------------------------
   // IDtoRivetInfo
   //
@@ -90,7 +96,7 @@ public final class DtoRivetInfo
 
   @Override
   public int count() {
-    return OPDEF_RIGHT_CLASS_ID.getValue( params() ).asInt();
+    return OPDEF_COUNT.getValue( params() ).asInt();
   }
 
   // ------------------------------------------------------------------------------------

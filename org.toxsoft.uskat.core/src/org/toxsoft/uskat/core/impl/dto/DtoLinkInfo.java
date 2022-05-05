@@ -81,6 +81,12 @@ public final class DtoLinkInfo
     return ESkClassPropKind.LINK;
   }
 
+  @SuppressWarnings( "unchecked" )
+  @Override
+  public DtoLinkInfo makeCopy() {
+    return new DtoLinkInfo( id(), params() );
+  }
+
   // ------------------------------------------------------------------------------------
   // IDtoLinkInfo
   //

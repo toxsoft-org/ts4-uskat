@@ -1,22 +1,31 @@
 package org.toxsoft.uskat.core.impl;
 
+import static org.toxsoft.core.tslib.av.metainfo.IAvMetaConstants.*;
+import static org.toxsoft.uskat.core.ISkHardConstants.*;
 import static org.toxsoft.uskat.core.impl.ISkResources.*;
 
 import org.toxsoft.core.tslib.av.*;
+import org.toxsoft.core.tslib.av.errors.*;
+import org.toxsoft.core.tslib.av.opset.*;
 import org.toxsoft.core.tslib.bricks.ctx.*;
 import org.toxsoft.core.tslib.bricks.strid.impl.*;
 import org.toxsoft.core.tslib.bricks.validator.*;
+import org.toxsoft.core.tslib.bricks.validator.impl.*;
 import org.toxsoft.core.tslib.coll.*;
+import org.toxsoft.core.tslib.coll.helpers.*;
 import org.toxsoft.core.tslib.coll.impl.*;
 import org.toxsoft.core.tslib.coll.primtypes.*;
 import org.toxsoft.core.tslib.coll.primtypes.impl.*;
+import org.toxsoft.core.tslib.gw.gwid.*;
 import org.toxsoft.core.tslib.gw.skid.*;
 import org.toxsoft.core.tslib.utils.errors.*;
 import org.toxsoft.core.tslib.utils.txtmatch.*;
+import org.toxsoft.uskat.core.*;
 import org.toxsoft.uskat.core.api.objserv.*;
 import org.toxsoft.uskat.core.api.sysdescr.*;
 import org.toxsoft.uskat.core.api.sysdescr.dto.*;
 import org.toxsoft.uskat.core.devapi.*;
+import org.toxsoft.uskat.core.impl.dto.*;
 
 /**
  * {@link ISkObjectService} implementation.
@@ -132,8 +141,193 @@ class SkObjectService
 
   }
 
-  final ObjsCache    objsCache    = new ObjsCache();
-  final ObjsCreators objsCreators = new ObjsCreators();
+  /**
+   * The service validator {@link ISkObjectService#svs()} implementation.
+   *
+   * @author hazard157
+   */
+  class ValidationSupport
+      extends AbstractTsValidationSupport<ISkObjectServiceValidator>
+      implements ISkObjectServiceValidator {
+
+    @Override
+    public ISkObjectServiceValidator validator() {
+      return this;
+    }
+
+    @Override
+    public ValidationResult canCreateObject( IDtoObject aObject ) {
+      TsNullArgumentRtException.checkNull( aObject );
+      ValidationResult vr = ValidationResult.SUCCESS;
+      for( ISkObjectServiceValidator v : validatorsList() ) {
+        vr = ValidationResult.firstNonOk( vr, v.canCreateObject( aObject ) );
+        if( vr.isError() ) {
+          break;
+        }
+      }
+      return vr;
+    }
+
+    @Override
+    public ValidationResult canCreateObjects( IList<IDtoObject> aObjects ) {
+      TsNullArgumentRtException.checkNull( aObjects );
+      ValidationResult vr = ValidationResult.SUCCESS;
+      for( ISkObjectServiceValidator v : validatorsList() ) {
+        vr = ValidationResult.firstNonOk( vr, v.canCreateObjects( aObjects ) );
+        if( vr.isError() ) {
+          break;
+        }
+      }
+      return vr;
+    }
+
+    @Override
+    public ValidationResult canEditObject( IDtoObject aObject, ISkObject aOldInfo ) {
+      TsNullArgumentRtException.checkNull( aObject );
+      ValidationResult vr = ValidationResult.SUCCESS;
+      for( ISkObjectServiceValidator v : validatorsList() ) {
+        vr = ValidationResult.firstNonOk( vr, v.canEditObject( aObject, aOldInfo ) );
+        if( vr.isError() ) {
+          break;
+        }
+      }
+      return vr;
+    }
+
+    @Override
+    public ValidationResult canRemoveObject( Skid aSkid ) {
+      TsNullArgumentRtException.checkNull( aSkid );
+      ValidationResult vr = ValidationResult.SUCCESS;
+      for( ISkObjectServiceValidator v : validatorsList() ) {
+        vr = ValidationResult.firstNonOk( vr, v.canRemoveObject( aSkid ) );
+        if( vr.isError() ) {
+          break;
+        }
+      }
+      return vr;
+    }
+
+    @Override
+    public ValidationResult canRemoveObjects( ISkidList aSkids ) {
+      TsNullArgumentRtException.checkNull( aSkids );
+      ValidationResult vr = ValidationResult.SUCCESS;
+      for( ISkObjectServiceValidator v : validatorsList() ) {
+        vr = ValidationResult.firstNonOk( vr, v.canRemoveObjects( aSkids ) );
+        if( vr.isError() ) {
+          break;
+        }
+      }
+      return vr;
+    }
+
+  }
+
+  private final ISkObjectServiceValidator builtinValidator = new ISkObjectServiceValidator() {
+
+    private ValidationResult checkAttrsAndRivets( IDtoObject aDtoObj, boolean aCreation ) {
+      ISkClassInfo classInfo = coreApi().sysdescr().getClassInfo( aDtoObj.skid().classId() );
+      // check attributes
+      for( IDtoAttrInfo attrInfo : classInfo.attrs().list() ) {
+        IAtomicValue defVal = attrInfo.dataType().params().getValue( TSID_DEFAULT_VALUE, null );
+        IAtomicValue val = aDtoObj.attrs().getValue( attrInfo.id(), null );
+        if( val != null ) {
+          // check if atomic type of attribute is compatible with the specified value
+          EAtomicType lType = attrInfo.dataType().atomicType();
+          EAtomicType rType = val.atomicType();
+          AvTypeCastRtException.checkCanAssign( lType, rType, FMT_ERR_INV_ATTR_TYPE, aDtoObj.skid().toString(),
+              attrInfo.id(), rType.id(), lType.id() );
+        }
+        else {
+          // at creation type all non-system attributes must have value specified
+          if( aCreation && defVal == null && !isSkSysAttr( attrInfo ) ) {
+            return ValidationResult.error( FMT_ERR_NO_ATTR_VAL, aDtoObj.skid().toString(), attrInfo.id() );
+          }
+        }
+      }
+      // FIXME check rivets
+      for( IDtoRivetInfo rivetInfo : classInfo.rivets().list() ) {
+        // check right class exists
+        ISkClassInfo rightClass = coreApi().sysdescr().findClassInfo( rivetInfo.rightClassId() );
+        if( rightClass == null ) {
+          return ValidationResult.error( FMT_ERR_NO_RIVET_CLASS, aDtoObj.skid().toString(), rivetInfo.id(),
+              rivetInfo.rightClassId() );
+        }
+        // check riveted objects are specified
+        ISkidList rivet = aDtoObj.rivets().map().findByKey( rivetInfo.id() );
+        if( rivet == null ) {
+          return ValidationResult.error( FMT_ERR_NO_RIVET, aDtoObj.skid().toString(), rivetInfo.id() );
+        }
+        // check riveted objects number is equal to specified one
+        if( rivet.size() != rivetInfo.count() ) {
+          return ValidationResult.error( FMT_ERR_INV_RIVET_COUNT, aDtoObj.skid().toString(), rivetInfo.id(),
+              Integer.valueOf( rivet.size() ), Integer.valueOf( rivetInfo.count() ) );
+        }
+        // check riveted objects is of specified right class ID
+        for( Skid skid : rivet ) {
+          if( !skid.isNone() ) {
+            if( !rightClass.hierarchy().isAssignableFrom( skid.classId() ) ) {
+              return ValidationResult.error( FMT_ERR_INV_RIVET_OBJ_CLS, aDtoObj.skid().toString(), rivetInfo.id(),
+                  skid.toString(), rightClass.id() );
+            }
+          }
+        }
+      }
+      return ValidationResult.SUCCESS;
+    }
+
+    @Override
+    public ValidationResult canCreateObject( IDtoObject aDtoObject ) {
+      if( internalDoesObjectExists( aDtoObject.skid() ) ) {
+        return ValidationResult.error( FMT_ERR_OBJ_ALREADY_EXISTS, aDtoObject.skid().toString() );
+      }
+      return checkAttrsAndRivets( aDtoObject, true );
+    }
+
+    @Override
+    public ValidationResult canCreateObjects( IList<IDtoObject> aDtoObjects ) {
+      ValidationResult vr = ValidationResult.SUCCESS;
+      for( IDtoObject dtoObj : aDtoObjects ) {
+        vr = ValidationResult.firstNonOk( vr, canCreateObject( dtoObj ) );
+        if( vr.isError() ) {
+          break;
+        }
+      }
+      return vr;
+    }
+
+    @Override
+    public ValidationResult canEditObject( IDtoObject aDtoObject, ISkObject aOldObject ) {
+      if( !aDtoObject.skid().equals( aOldObject.skid() ) ) {
+        return ValidationResult.error( FMT_ERR_CANT_CHANGE_SKID, aOldObject.skid().toString() );
+      }
+      return checkAttrsAndRivets( aDtoObject, false );
+    }
+
+    @Override
+    public ValidationResult canRemoveObject( Skid aSkid ) {
+      if( internalDoesObjectExists( aSkid ) ) {
+        return ValidationResult.SUCCESS;
+      }
+      return ValidationResult.error( FMT_ERR_CANT_REMOVE_NO_OBJ, aSkid.toString() );
+    }
+
+    @Override
+    public ValidationResult canRemoveObjects( ISkidList aSkids ) {
+      ValidationResult vr = ValidationResult.SUCCESS;
+      for( Skid skid : aSkids ) {
+        vr = ValidationResult.firstNonOk( vr, canRemoveObject( skid ) );
+        if( vr.isError() ) {
+          break;
+        }
+      }
+      return vr;
+    }
+
+  };
+
+  final ObjsCache         objsCache         = new ObjsCache();
+  final ObjsCreators      objsCreators      = new ObjsCreators();
+  final ValidationSupport validationSupport = new ValidationSupport();
 
   /**
    * Constructor.
@@ -142,6 +336,7 @@ class SkObjectService
    */
   SkObjectService( IDevCoreApi aCoreApi ) {
     super( SERVICE_ID, aCoreApi );
+    validationSupport.addValidator( builtinValidator );
   }
 
   // ------------------------------------------------------------------------------------
@@ -150,20 +345,30 @@ class SkObjectService
 
   @Override
   protected void doInit( ITsContextRo aArgs ) {
-    // TODO Auto-generated method stub
-
+    // nop
   }
 
   @Override
   protected void doClose() {
-    // TODO Auto-generated method stub
-
+    // nop
   }
 
   // ------------------------------------------------------------------------------------
   // implementation
   //
 
+  /**
+   * Creates {@link SkObject} from the data {@link IDtoObject}.
+   * <p>
+   * {@link DtoObject} may contain not all properties (eg. not all attributes) however contained data must be valid.
+   * This methods adds missing values but does not checks for provided values validity.
+   * <p>
+   * Created instance will have all and only the attributes and rivets as described in {@link ISkClassInfo}.
+   *
+   * @param aObjectDto {@link IDtoObject} - data for object creation
+   * @param aClassInfo {@link ISkClassInfo} - class description of the object to be created
+   * @return {@link SkObject} - created instance
+   */
   private SkObject fromDto( IDtoObject aObjectDto, ISkClassInfo aClassInfo ) {
     String classId = aObjectDto.skid().classId();
     ISkObjectCreator<? extends SkObject> creator = objsCreators.getCreator( classId );
@@ -171,16 +376,65 @@ class SkObjectService
     sko.papiSetCoreApi( coreApi() );
     // initialize attributes from aObjectDto or by default values
     for( IDtoAttrInfo ainf : aClassInfo.attrs().list() ) {
-      if( !isSkSysAttrId( ainf.id() ) ) {
-        IAtomicValue av = aObjectDto.attrs().findValue( ainf.id() );
-        if( av == null ) {
-          av = defaultValue( ainf );
-        }
-        sko.attrs().setValue( ainf, av );
+      if( !isSkSysAttr( ainf ) ) {
+        IAtomicValue av = aObjectDto.attrs().getValue( ainf.id(), ainf.dataType().defaultValue() );
+        sko.attrs().setValue( ainf.id(), av );
       }
     }
-    // TODO initialize rivets from aObjectDto or by Skid.NONE
+    // initialize rivets from aObjectDto or by Skid.NONE
+    for( IDtoRivetInfo rinf : aClassInfo.rivets().list() ) {
+      ISkidList rivet = sko.rivets().map().findByKey( rinf.id() );
+      if( rivet == null ) {
+        rivet = SkidList.createNones( rinf.count() );
+      }
+      sko.rivets().map().put( rinf.id(), rivet );
+    }
     return sko;
+  }
+
+  /**
+   * Creates {@link DtoObject} to ba saved to the backend.
+   * <p>
+   * For size optimization, created instance:
+   * <ul>
+   * <li>does not have system attibute values in the set {@link IDtoObject#attrs()};</li>
+   * <li>does not includes attributes with default values - they will be restored from attribut info at load time.</li>
+   * </ul>
+   *
+   * @param aSkObj {@link ISkObject} - the source
+   * @return {@link DtoObject} - created instance
+   */
+  private DtoObject createForBackendSave( ISkObject aSkObj ) {
+    ISkClassInfo classInfo = coreApi().sysdescr().getClassInfo( aSkObj.classId() );
+    DtoObject dtoObj = new DtoObject( aSkObj.skid(), IOptionSet.NULL, aSkObj.rivets().map() );
+    // copy all but system attributes and attributes with default values
+    for( IDtoAttrInfo ainf : classInfo.attrs().list() ) {
+      // don't save system attributes
+      if( !ISkHardConstants.isSkSysAttr( ainf ) ) {
+        IAtomicValue attrVal = aSkObj.attrs().getValue( ainf.id() );
+        IAtomicValue defVal = ainf.dataType().defaultValue();
+        // don't save attribute with the default value
+        if( !attrVal.equals( defVal ) ) {
+          dtoObj.attrs().setValue( ainf.id(), attrVal );
+        }
+      }
+    }
+    return dtoObj;
+  }
+
+  private void internalWriteSkObjectToBacked( ISkObject aObj ) {
+    DtoObject dtoObj = createForBackendSave( aObj );
+    ba().baObjects().writeObjects( ISkidList.EMPTY, new SingleItemList<>( dtoObj ) );
+  }
+
+  boolean internalDoesObjectExists( Skid aSkid ) {
+    if( objsCache.has( aSkid ) ) {
+      return true;
+    }
+    if( ba().baObjects().findObject( aSkid ) != null ) {
+      return true;
+    }
+    return false;
   }
 
   // ------------------------------------------------------------------------------------
@@ -215,56 +469,81 @@ class SkObjectService
 
   @Override
   public ISkidList listSkids( String aClassId, boolean aIncludeSubclasses ) {
-    // TODO Auto-generated method stub
-    return null;
+    // TODO реализовать SkObjectService.listSkids()
+    throw new TsUnderDevelopmentRtException( "SkObjectService.listSkids()" );
   }
 
   @Override
   public ISkObjList listObjs( String aClassId, boolean aIncludeSubclasses ) {
-    // TODO Auto-generated method stub
-    return null;
+    // TODO реализовать SkObjectService.listObjs()
+    throw new TsUnderDevelopmentRtException( "SkObjectService.listObjs()" );
   }
 
   @Override
   public ISkObjList getObjs( ISkidList aSkids ) {
-    // TODO Auto-generated method stub
-    return null;
+    // TODO реализовать SkObjectService.getObjs()
+    throw new TsUnderDevelopmentRtException( "SkObjectService.getObjs()" );
   }
 
+  @SuppressWarnings( "unchecked" )
   @Override
   public <T extends ISkObject> T defineObject( IDtoObject aDtoObject ) {
-    // TODO Auto-generated method stub
-    return null;
+    // check preconditions
+    TsNullArgumentRtException.checkNull( aDtoObject );
+    coreApi().papiCheckIsOpen();
+    ISkClassInfo cInfo = coreApi().sysdescr().getClassInfo( aDtoObject.skid().classId() );
+    SkObject sko = (SkObject)find( aDtoObject.skid() );
+    ECrudOp op;
+    if( sko != null ) {
+      op = ECrudOp.EDIT;
+      TsValidationFailedRtException.checkError( validationSupport.canEditObject( aDtoObject, sko ) );
+    }
+    else {
+      op = ECrudOp.CREATE;
+      TsValidationFailedRtException.checkError( validationSupport.canCreateObject( aDtoObject ) );
+      sko = fromDto( aDtoObject, cInfo );
+    }
+    // refresh attribute values (validator already checked that attributes set is valid)
+    for( IDtoAttrInfo ainf : cInfo.attrs().list() ) {
+      if( !isSkSysAttr( ainf ) ) {
+        IAtomicValue val = aDtoObject.attrs().getValue( ainf.id(), ainf.dataType().defaultValue() );
+        sko.attrs().setValue( ainf.id(), val );
+      }
+    }
+    // сохраним объект и известим об изменениях
+    internalWriteSkObjectToBacked( sko );
+    objsCache.put( sko );
+    coreApi().fireCoreEvent( new SkCoreEvent( op, Gwid.createObj( sko.skid() ) ) );
+    return (T)sko;
   }
 
   @Override
   public ISkObjList defineObjects( IList<IDtoObject> aDtoObjects ) {
-    // TODO Auto-generated method stub
-    return null;
+    // TODO реализовать SkObjectService.defineObjects()
+    throw new TsUnderDevelopmentRtException( "SkObjectService.defineObjects()" );
   }
 
   @Override
   public void removeObject( Skid aSkid ) {
-    // TODO Auto-generated method stub
-
+    // TODO реализовать SkObjectService.removeObject()
+    throw new TsUnderDevelopmentRtException( "SkObjectService.removeObject()" );
   }
 
   @Override
   public void removeObjects( ISkidList aSkids ) {
-    // TODO Auto-generated method stub
-
+    // TODO реализовать SkObjectService.removeObjects()
+    throw new TsUnderDevelopmentRtException( "SkObjectService.removeObjects()" );
   }
 
   @Override
   public void registerObjectCreator( TextMatcher aRule, ISkObjectCreator<?> aCreator ) {
-    // TODO Auto-generated method stub
-
+    objsCreators.registerObjectCreator( aRule, aCreator );
   }
 
   @Override
   public ITsValidationSupport<ISkObjectServiceValidator> svs() {
-    // TODO Auto-generated method stub
-    return null;
+    // TODO реализовать SkObjectService.svs()
+    throw new TsUnderDevelopmentRtException( "SkObjectService.svs()" );
   }
 
 }

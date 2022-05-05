@@ -8,6 +8,7 @@ import static org.toxsoft.uskat.core.ISkResources.*;
 
 import org.toxsoft.core.tslib.av.*;
 import org.toxsoft.core.tslib.av.metainfo.*;
+import org.toxsoft.core.tslib.utils.errors.*;
 import org.toxsoft.uskat.core.api.sysdescr.dto.*;
 
 /**
@@ -63,10 +64,25 @@ public interface ISkHardConstants {
 
   // ------------------------------------------------------------------------------------
   // Meta-info on classes
-  //
 
-  // ------------------------------------------------------------------------------------
-  // Мета-информация о классах
+  IDataDef OPDEF_SK_IS_SYS_ATTR = create( SK_ID + ".IsSysAttr", BOOLEAN, //$NON-NLS-1$
+      TSID_NAME, STR_N_IS_SYS_ATTR, //
+      TSID_DESCRIPTION, STR_D_IS_SYS_ATTR, //
+      TSID_IS_MANDATORY, AV_FALSE, //
+      TSID_DEFAULT_VALUE, AV_FALSE //
+  );
+
+  /**
+   * Determines if argument is the system attribute.
+   *
+   * @param aAttrInfo {@link IDtoAttrInfo} - the attribute info
+   * @return boolean - <code>true</code> if argument has {@link #OPDEF_SK_IS_SYS_ATTR} flag set
+   * @throws TsNullArgumentRtException argument = <code>null</code>
+   */
+  static boolean isSkSysAttr( IDtoAttrInfo aAttrInfo ) {
+    TsNullArgumentRtException.checkNull( aAttrInfo );
+    return OPDEF_SK_IS_SYS_ATTR.getValue( aAttrInfo.params() ).asBool();
+  }
 
   /**
    * Flags the class definerd at runtime.<br>
@@ -77,7 +93,7 @@ public interface ISkHardConstants {
    * This option must be specified in {@link IDtoClassInfo#params()}.<br>
    * Default value: <code>false</code>
    */
-  IDataDef OP_SK_IS_SOURCE_CODE_DEFINED_CLASS = create( SK_ID + ".IsSourceCodeDefinedClass", STRING, //$NON-NLS-1$
+  IDataDef OPDEF_SK_IS_SOURCE_CODE_DEFINED_CLASS = create( SK_ID + ".IsSourceCodeDefinedClass", STRING, //$NON-NLS-1$
       TSID_NAME, STR_N_CLASS_IS_CODE_DEFINED, //
       TSID_DESCRIPTION, STR_D_CLASS_IS_CODE_DEFINED, //
       TSID_IS_NULL_ALLOWED, AV_TRUE, //
