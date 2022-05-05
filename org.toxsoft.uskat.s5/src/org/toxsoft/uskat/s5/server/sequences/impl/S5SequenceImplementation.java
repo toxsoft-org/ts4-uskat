@@ -8,8 +8,6 @@ import org.toxsoft.core.tslib.utils.TsLibUtils;
 import org.toxsoft.core.tslib.utils.errors.TsIllegalArgumentRtException;
 import org.toxsoft.core.tslib.utils.errors.TsNullArgumentRtException;
 import org.toxsoft.core.tslib.utils.logs.ILogger;
-import org.toxsoft.uskat.s5.server.backend.supports.histdata.sequences.async.S5HistDataAsyncBooleanBlobEntity;
-import org.toxsoft.uskat.s5.server.backend.supports.histdata.sequences.async.S5HistDataAsyncBooleanEnity;
 import org.toxsoft.uskat.s5.server.sequences.IS5SequenceImplementation;
 
 /**
@@ -46,7 +44,7 @@ public final class S5SequenceImplementation
    * Для определения хранения значений данного в нескольких таблицах, указывается класс первой таблицы с индексом 0 и их
    * количество например:<br>
    * <code>
-   * IS5SequenceImplementation info = new S5SequenceImplementation( {@link S5HistDataAsyncBooleanEnity}.class, {@link S5HistDataAsyncBooleanBlobEntity}.class,  10 );
+   * IS5SequenceImplementation info = new S5SequenceImplementation( S5HistDataAsyncBooleanEnity.class, S5HistDataAsyncBooleanBlobEntity.class,  10 );
    * </code>
    *
    * @param aBlockClass Class класс реализации хранения блока последовательности значений

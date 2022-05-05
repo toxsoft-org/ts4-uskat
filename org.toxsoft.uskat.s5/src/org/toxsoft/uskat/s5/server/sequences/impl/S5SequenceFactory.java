@@ -7,6 +7,7 @@ import static org.toxsoft.uskat.s5.server.sequences.IS5SequenceHardConstants.*;
 import static org.toxsoft.uskat.s5.server.sequences.impl.IS5Resources.*;
 import static org.toxsoft.uskat.s5.utils.threads.impl.S5Lockable.*;
 
+import java.io.Serializable;
 import java.lang.reflect.*;
 import java.sql.ResultSet;
 import java.util.HashMap;
@@ -21,6 +22,7 @@ import org.toxsoft.core.tslib.gw.gwid.Gwid;
 import org.toxsoft.core.tslib.utils.Pair;
 import org.toxsoft.core.tslib.utils.TsLibUtils;
 import org.toxsoft.core.tslib.utils.errors.*;
+import org.toxsoft.uskat.s5.legacy.SynchronizedMap;
 import org.toxsoft.uskat.s5.server.sequences.*;
 import org.toxsoft.uskat.s5.server.startup.IS5InitialImplementation;
 import org.toxsoft.uskat.s5.utils.collections.WrapperMap;
@@ -36,7 +38,7 @@ import ru.uskat.core.common.helpers.sysdescr.ISkSysdescrReader;
  */
 public abstract class S5SequenceFactory<V extends ITemporal<?>>
     extends Stridable
-    implements ISequenceFactory<V> {
+    implements ISequenceFactory<V>, Serializable {
 
   private static final long serialVersionUID = 157157L;
 

@@ -197,7 +197,9 @@ public final class S5CommandSupport
             retValue.add( info( MSG_REGISTER_CMD_GWID, aExecutorName, gwid ) );
             continue;
           case GW_ATTR:
+          case GW_CMD_ARG:
           case GW_EVENT:
+          case GW_EVENT_PARAM:
           case GW_LINK:
           case GW_RTDATA:
           case GW_CLOB:

@@ -37,6 +37,7 @@ import org.toxsoft.core.tslib.utils.logs.ILogger;
 import org.toxsoft.uskat.s5.client.local.IS5LocalBackendHardConstants;
 import org.toxsoft.uskat.s5.common.info.IS5SessionsInfos;
 import org.toxsoft.uskat.s5.common.sessions.IS5SessionInfo;
+import org.toxsoft.uskat.s5.legacy.SynchronizedMap;
 import org.toxsoft.uskat.s5.server.IS5ServerHardConstants;
 import org.toxsoft.uskat.s5.server.backend.IS5BackendCoreSingleton;
 import org.toxsoft.uskat.s5.server.backend.impl.S5AccessDeniedException;
@@ -387,7 +388,7 @@ public class S5SessionManager
       OP_SESSION_CLUSTER_TOPOLOGY.setValue( backendSpecificParams, avValobj( info.clusterTopology() ) );
       IOptionSetEdit connectionCreationParams = new OptionSet();
       OP_SESSION_ADDRESS.setValue( connectionCreationParams, avStr( info.remoteAddress() ) );
-      OP_SESSION_PORT.setValue( connectionCreationParams, dvInt( info.remotePort() ) );
+      OP_SESSION_PORT.setValue( connectionCreationParams, avInt( info.remotePort() ) );
       // Создание или восстановление сессии
       boolean created =
           createSkSession( sessionID, frontend, login, createTime, backendSpecificParams, connectionCreationParams );
@@ -624,7 +625,7 @@ public class S5SessionManager
   @Override
   public IS5FrontendRear closeCallbackWriter( Skid aSessionID ) {
     TsNullArgumentRtException.checkNull( aSessionID );
-    S5SessionCallbackWriter callbackWriter = callbackWritersBySessions.remove( aSessionID );
+    S5SessionCallbackWriter callbackWriter = callbackWritersBySessions.removeByKey( aSessionID );
     if( callbackWriter != null ) {
       callbackWriter.close();
     }

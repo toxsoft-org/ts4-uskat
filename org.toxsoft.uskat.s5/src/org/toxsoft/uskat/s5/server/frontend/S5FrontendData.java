@@ -9,6 +9,7 @@ import org.toxsoft.core.tslib.coll.primtypes.IStringMapEdit;
 import org.toxsoft.core.tslib.coll.primtypes.impl.StringMap;
 import org.toxsoft.core.tslib.utils.TsLibUtils;
 import org.toxsoft.core.tslib.utils.errors.*;
+import org.toxsoft.uskat.core.impl.S5EventSupport;
 
 /**
  * Реализация {@link IS5FrontendData}.
@@ -20,11 +21,17 @@ public final class S5FrontendData
 
   private static final long serialVersionUID = 157157L;
 
+  private final S5EventSupport                       events     = new S5EventSupport();
   private final IStringMapEdit<IS5FrontendAddonData> addonsData = new StringMap<>();
 
   // ------------------------------------------------------------------------------------
   // Реализация IS5FrontendData
   //
+  @Override
+  public S5EventSupport events() {
+    return events;
+  }
+
   @Override
   public IStringList addonIds() {
     return addonsData.keys();

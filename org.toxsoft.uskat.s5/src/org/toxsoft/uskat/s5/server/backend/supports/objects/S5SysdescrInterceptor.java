@@ -81,11 +81,6 @@ class S5SysdescrInterceptor
   @Override
   public void beforeUpdateType( IDpuSdTypeInfo aPrevTypeInfo, IDpuSdTypeInfo aNewTypeInfo,
       IStridablesList<IDpuSdClassInfo> aDependentClasses ) {
-    // null: без проверки текущего значения (общая проверка для всех объектов)
-    if( isIgnoredTypeChanges( aPrevTypeInfo, aNewTypeInfo ) ) {
-      // Изменения типа не влияют на реализацию объектов
-      return;
-    }
     // Список идентификаторов классов объекты которых могут изменить тип атрибутов
     IStringListEdit classIds = new StringArrayList( aDependentClasses.keys().size() );
     for( String classId : aDependentClasses.keys() ) {
@@ -132,11 +127,8 @@ class S5SysdescrInterceptor
           if( !attrInfo.typeId().equals( typeId ) ) {
             continue;
           }
-          // Проверка текущего значения на необходимость его сброса в значение по умолчанию
-          if( needDefaultValue( aPrevTypeInfo, aNewTypeInfo, attrsValues.getValue( attrInfo.id() ) ) ) {
-            // 2019-10-17: По принятом в ISkConnection правилу - если значение по умолчанию, то оно не хранится
-            attrsValues.remove( attrInfo.id() );
-          }
+          // Сброс значения текущего данного в значение по умолчанию
+          attrsValues.remove( attrInfo.id() );
         }
         obj.setAttrs( attrsValues );
       }

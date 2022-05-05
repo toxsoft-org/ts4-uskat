@@ -46,13 +46,15 @@ import ru.uskat.core.impl.SkUtils;
 @Singleton
 @LocalBean
 @DependsOn( { //
-    // BACKEND_SYSDESCR_SINGLETON, // уже включено неявным образом
-    // BACKEND_OBJECTS_SINGLETON, // уже включено неявным образом
-    // BACKEND_LINKS_SINGLETON, // уже включено неявным образом
-    // BACKEND_LOBS_SINGLETON, //уже включено неявным образом
-    // BACKEND_EVENTS_SINGLETON, //уже включено неявным образом
-    // BACKEND_COMMANDS_SINGLETON, //уже включено неявным образом
-    BACKEND_RTDATA_SINGLETON } )
+// BACKEND_SYSDESCR_SINGLETON, // уже включено неявным образом
+// BACKEND_OBJECTS_SINGLETON, // уже включено неявным образом
+// BACKEND_LINKS_SINGLETON, // уже включено неявным образом
+// BACKEND_LOBS_SINGLETON, //уже включено неявным образом
+// BACKEND_EVENTS_SINGLETON, //уже включено неявным образом
+// BACKEND_COMMANDS_SINGLETON, //уже включено неявным образом
+// 2022-05-04 mvk события в ядре
+// BACKEND_RTDATA_SINGLETON
+} )
 @TransactionManagement( TransactionManagementType.CONTAINER )
 @TransactionAttribute( TransactionAttributeType.SUPPORTS )
 @ConcurrencyManagement( ConcurrencyManagementType.CONTAINER )
