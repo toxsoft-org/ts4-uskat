@@ -23,6 +23,7 @@ import org.toxsoft.core.tslib.bricks.strid.coll.IStridablesList;
 import org.toxsoft.core.tslib.bricks.strid.coll.impl.StridablesList;
 import org.toxsoft.core.tslib.coll.IList;
 import org.toxsoft.core.tslib.coll.primtypes.IStringList;
+import org.toxsoft.core.tslib.gw.gwid.IGwidList;
 import org.toxsoft.core.tslib.gw.skid.ISkidList;
 import org.toxsoft.core.tslib.gw.skid.Skid;
 import org.toxsoft.core.tslib.utils.TsLibUtils;
@@ -349,6 +350,12 @@ public final class S5LocalBackend
   public void removeLob( IdPair aId ) {
     TsNullArgumentRtException.checkNull( aId );
     lobsBackendSupport.removeClob( aId );
+  }
+
+  @Override
+  public void setNeededEventGwids( IGwidList aNeededGwids ) {
+    TsNullArgumentRtException.checkNull( aNeededGwids );
+    frontendData.events().setNeededEventGwids( aNeededGwids );
   }
 
   @Override
