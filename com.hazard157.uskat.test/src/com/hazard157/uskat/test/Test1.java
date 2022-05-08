@@ -15,7 +15,6 @@ import org.toxsoft.core.tslib.coll.primtypes.*;
 import org.toxsoft.core.tslib.gw.skid.*;
 import org.toxsoft.core.tslib.utils.*;
 import org.toxsoft.uskat.backend.memtext.*;
-import org.toxsoft.uskat.core.*;
 import org.toxsoft.uskat.core.api.sysdescr.*;
 import org.toxsoft.uskat.core.api.sysdescr.dto.*;
 import org.toxsoft.uskat.core.connection.*;
@@ -32,11 +31,11 @@ import org.toxsoft.uskat.core.utils.*;
 public class Test1
     implements Runnable, IUSkatConnected {
 
-  private final ISkCoreListener coreListener = aEvents -> {
-    for( SkCoreEvent e : aEvents ) {
-      TsTestUtils.pl( "===> %s", e ); //$NON-NLS-1$
-    }
-  };
+  // FIXME private final ISkCoreListener coreListener = aEvents -> {
+  // for( SkCoreEvent e : aEvents ) {
+  // TsTestUtils.pl( "===> %s", e ); //$NON-NLS-1$
+  // }
+  // };
 
   private final ISkConnection conn;
 
@@ -126,7 +125,7 @@ public class Test1
       ISkCoreConfigConstants.REFDEF_BACKEND_PROVIDER.setRef( ctx, MtbBackendToFile.PROVIDER );
       MtbBackendToFile.OPDEF_FILE_PATH.setValue( ctx.params(), avStr( "/home/goga/mtb-test.txt" ) );
       conn.open( ctx );
-      conn.coreApi().eventer().addListener( coreListener );
+      // FIXME conn.coreApi().eventer().addListener( coreListener );
       TsTestUtils.pl( conn.backendInfo().toString() );
       runTestSequenceWithOpenConnection();
       TsTestUtils.nl();

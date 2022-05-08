@@ -14,9 +14,9 @@ import org.toxsoft.uskat.core.api.objserv.*;
 import org.toxsoft.uskat.core.api.sysdescr.*;
 
 /**
- * Service to manage links between objects.
+ * Core service: manage links between objects.
  *
- * @author goga
+ * @author hazard157
  */
 public interface ISkLinkService
     extends ISkService {
@@ -24,7 +24,7 @@ public interface ISkLinkService
   /**
    * Service ID.
    */
-  String SERVICE_ID = ISkHardConstants.SK_CORE_SERVICE_ID_PREFIX + "LinkService"; //$NON-NLS-1$
+  String SERVICE_ID = ISkHardConstants.SK_CORE_SERVICE_ID_PREFIX + "Links"; //$NON-NLS-1$
 
   // TODO TRANSLATE
 

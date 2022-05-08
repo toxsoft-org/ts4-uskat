@@ -11,12 +11,14 @@ import org.toxsoft.core.tslib.av.metainfo.*;
 import org.toxsoft.core.tslib.bricks.ctx.*;
 import org.toxsoft.core.tslib.bricks.ctx.impl.*;
 import org.toxsoft.core.tslib.bricks.keeper.std.*;
+import org.toxsoft.core.tslib.coll.*;
+import org.toxsoft.core.tslib.utils.logs.*;
 import org.toxsoft.uskat.core.*;
 import org.toxsoft.uskat.core.backend.*;
 import org.toxsoft.uskat.core.connection.*;
 
 /**
- * USkat core configuration constants and options.
+ * USkat core implementation-specific constants and options.
  * <p>
  * Most of this options/references is used as connection arguments in {@link ISkConnection#open(ITsContextRo)}.
  *
@@ -47,13 +49,39 @@ public interface ISkCoreConfigConstants {
   );
 
   /**
+   * {@link ISkConnection#open(ITsContextRo)} argument: Default log messages lowest severity to be logged. <br>
+   * Usage: optional argument to specify which severity of the log messages will be logged. All messages of the
+   * specified and higher severity will be logged. Thus specifying this option to {@link ELogSeverity#DEBUG} will log
+   * all messages, while {@link ELogSeverity#ERROR} will log only errors. Note that error messages can not be hidden.
+   */
+  IDataDef OPDEF_DEF_CORE_LOG_SEVERITY = DataDef.create( SK_ID + "DefaultCoreLogSeverity", VALOBJ, //$NON-NLS-1$
+      TSID_NAME, STR_N_OP_DEF_CORE_LOG_SEVERITY, //
+      TSID_DESCRIPTION, STR_N_OP_DEF_CORE_LOG_SEVERITY, //
+      TSID_KEEPER_ID, ELogSeverity.KEEPER_ID, //
+      TSID_DEFAULT_VALUE, avValobj( ELogSeverity.DEBUG, ELogSeverity.KEEPER, ELogSeverity.KEEPER_ID ) //
+  );
+
+  /**
    * {@link ISkConnection#open(ITsContextRo)} argument: the backend privider. <br>
-   * Usage: this is mandatory oprion to create concrete backend of connection.
+   * Usage: this is mandatory option to create concrete backend of connection.
    */
   ITsContextRefDef<ISkBackendProvider> REFDEF_BACKEND_PROVIDER = TsContextRefDef.create( ISkBackendProvider.class, //
       TSID_NAME, STR_N_REF_BACKEND_PROVIDER, //
       TSID_DESCRIPTION, STR_D_REF_BACKEND_PROVIDER, //
       TSID_IS_MANDATORY, AV_TRUE //
+  );
+
+  /**
+   * {@link ISkConnection#open(ITsContextRo)} argument: user-specified core services creators list. <br>
+   * Usage: this non-mandatory option provides {@link IList}&lt;{@link ISkServiceCreator}&gt; of the services user needs
+   * to be present immediately after connection opens. Note that user-specified service may be added to the USkat core
+   * at any time using {@link ISkCoreApi#addService(ISkServiceCreator)} method.
+   */
+  @SuppressWarnings( "rawtypes" )
+  ITsContextRefDef<IList> REFDEF_USER_SERVICES = TsContextRefDef.create( IList.class, //
+      TSID_NAME, STR_N_REF_USER_SERVICES, //
+      TSID_DESCRIPTION, STR_D_REF_USER_SERVICES, //
+      TSID_IS_MANDATORY, AV_FALSE //
   );
 
   /**

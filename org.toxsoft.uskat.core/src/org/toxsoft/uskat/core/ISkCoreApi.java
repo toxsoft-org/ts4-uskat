@@ -1,10 +1,14 @@
 package org.toxsoft.uskat.core;
 
-import org.toxsoft.core.tslib.bricks.events.*;
 import org.toxsoft.core.tslib.coll.primtypes.*;
 import org.toxsoft.core.tslib.utils.errors.*;
 import org.toxsoft.uskat.core.api.*;
+import org.toxsoft.uskat.core.api.clobserv.*;
+import org.toxsoft.uskat.core.api.cmdserv.*;
+import org.toxsoft.uskat.core.api.evserv.*;
+import org.toxsoft.uskat.core.api.linkserv.*;
 import org.toxsoft.uskat.core.api.objserv.*;
+import org.toxsoft.uskat.core.api.rtdserv.*;
 import org.toxsoft.uskat.core.api.sysdescr.*;
 import org.toxsoft.uskat.core.impl.*;
 
@@ -29,13 +33,23 @@ public interface ISkCoreApi {
    */
   ISkObjectService objService();
 
+  ISkClobService clobService();
+
+  ISkCommandService cmdService();
+
+  ISkEventService eventService();
+
+  ISkLinkService linkService();
+
+  ISkRtdataService rtdService();
+
   // ------------------------------------------------------------------------------------
   // all services
 
   /**
    * Returns all services.
    *
-   * @return {@link IStringMap}&lt;{@link ISkService}&gt; - map of all services "service ID"- "service"
+   * @return {@link IStringMap}&lt;{@link ISkService}&gt; - map of all services "service ID" - "service"
    */
   IStringMap<ISkService> services();
 
@@ -62,15 +76,5 @@ public interface ISkCoreApi {
    * @throws RuntimeException service creation or initialization error
    */
   <S extends AbstractSkService> S addService( ISkServiceCreator<S> aCreator );
-
-  // ------------------------------------------------------------------------------------
-  // Misc
-
-  /**
-   * Returns the core eventer.
-   *
-   * @return {@link ITsEventer}&lt;{@link ISkCoreListener}&gt; - the core eventer
-   */
-  ITsEventer<ISkCoreListener> eventer();
 
 }

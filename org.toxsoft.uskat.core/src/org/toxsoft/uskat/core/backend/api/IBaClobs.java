@@ -8,7 +8,7 @@ import org.toxsoft.core.tslib.utils.errors.*;
 /**
  * Backend addon for CLOBs storage.
  * <p>
- * This is the madatory addon.
+ * This is the mandatory addon.
  *
  * @author hazard157
  */

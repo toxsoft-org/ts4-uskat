@@ -12,11 +12,9 @@ import org.toxsoft.core.tslib.bricks.strid.impl.*;
 import org.toxsoft.core.tslib.bricks.validator.*;
 import org.toxsoft.core.tslib.bricks.validator.impl.*;
 import org.toxsoft.core.tslib.coll.*;
-import org.toxsoft.core.tslib.coll.helpers.*;
 import org.toxsoft.core.tslib.coll.impl.*;
 import org.toxsoft.core.tslib.coll.primtypes.*;
 import org.toxsoft.core.tslib.coll.primtypes.impl.*;
-import org.toxsoft.core.tslib.gw.gwid.*;
 import org.toxsoft.core.tslib.gw.skid.*;
 import org.toxsoft.core.tslib.utils.errors.*;
 import org.toxsoft.core.tslib.utils.txtmatch.*;
@@ -32,9 +30,14 @@ import org.toxsoft.uskat.core.impl.dto.*;
  *
  * @author hazard157
  */
-class SkObjectService
+class SkCoreServObject
     extends AbstractSkCoreService
     implements ISkObjectService {
+
+  /**
+   * Service creator singleton.
+   */
+  public static final ISkServiceCreator<AbstractSkService> CREATOR = SkCoreServObject::new;
 
   /**
    * Internal cache of the objects.
@@ -265,7 +268,7 @@ class SkObjectService
         // check riveted objects is of specified right class ID
         for( Skid skid : rivet ) {
           if( !skid.isNone() ) {
-            if( !rightClass.hierarchy().isAssignableFrom( skid.classId() ) ) {
+            if( !rightClass.isAssignableFrom( skid.classId() ) ) {
               return ValidationResult.error( FMT_ERR_INV_RIVET_OBJ_CLS, aDtoObj.skid().toString(), rivetInfo.id(),
                   skid.toString(), rightClass.id() );
             }
@@ -334,7 +337,7 @@ class SkObjectService
    *
    * @param aCoreApi {@link IDevCoreApi} - owner core API implementation
    */
-  SkObjectService( IDevCoreApi aCoreApi ) {
+  SkCoreServObject( IDevCoreApi aCoreApi ) {
     super( SERVICE_ID, aCoreApi );
     validationSupport.addValidator( builtinValidator );
   }
@@ -469,20 +472,20 @@ class SkObjectService
 
   @Override
   public ISkidList listSkids( String aClassId, boolean aIncludeSubclasses ) {
-    // TODO реализовать SkObjectService.listSkids()
-    throw new TsUnderDevelopmentRtException( "SkObjectService.listSkids()" );
+    // TODO реализовать SkCoreServObject.listSkids()
+    throw new TsUnderDevelopmentRtException( "SkCoreServObject.listSkids()" );
   }
 
   @Override
   public ISkObjList listObjs( String aClassId, boolean aIncludeSubclasses ) {
-    // TODO реализовать SkObjectService.listObjs()
-    throw new TsUnderDevelopmentRtException( "SkObjectService.listObjs()" );
+    // TODO реализовать SkCoreServObject.listObjs()
+    throw new TsUnderDevelopmentRtException( "SkCoreServObject.listObjs()" );
   }
 
   @Override
   public ISkObjList getObjs( ISkidList aSkids ) {
-    // TODO реализовать SkObjectService.getObjs()
-    throw new TsUnderDevelopmentRtException( "SkObjectService.getObjs()" );
+    // TODO реализовать SkCoreServObject.getObjs()
+    throw new TsUnderDevelopmentRtException( "SkCoreServObject.getObjs()" );
   }
 
   @SuppressWarnings( "unchecked" )
@@ -492,14 +495,12 @@ class SkObjectService
     TsNullArgumentRtException.checkNull( aDtoObject );
     coreApi().papiCheckIsOpen();
     ISkClassInfo cInfo = coreApi().sysdescr().getClassInfo( aDtoObject.skid().classId() );
+    // validate operation
     SkObject sko = (SkObject)find( aDtoObject.skid() );
-    ECrudOp op;
-    if( sko != null ) {
-      op = ECrudOp.EDIT;
+    if( sko != null ) { // validate exiting object editing
       TsValidationFailedRtException.checkError( validationSupport.canEditObject( aDtoObject, sko ) );
     }
-    else {
-      op = ECrudOp.CREATE;
+    else { // validate new object creation
       TsValidationFailedRtException.checkError( validationSupport.canCreateObject( aDtoObject ) );
       sko = fromDto( aDtoObject, cInfo );
     }
@@ -513,26 +514,26 @@ class SkObjectService
     // сохраним объект и известим об изменениях
     internalWriteSkObjectToBacked( sko );
     objsCache.put( sko );
-    coreApi().fireCoreEvent( new SkCoreEvent( op, Gwid.createObj( sko.skid() ) ) );
+    // FIXME coreApi().fireCoreEvent( new SkCoreEvent( op, Gwid.createObj( sko.skid() ) ) );
     return (T)sko;
   }
 
   @Override
   public ISkObjList defineObjects( IList<IDtoObject> aDtoObjects ) {
-    // TODO реализовать SkObjectService.defineObjects()
-    throw new TsUnderDevelopmentRtException( "SkObjectService.defineObjects()" );
+    // TODO реализовать SkCoreServObject.defineObjects()
+    throw new TsUnderDevelopmentRtException( "SkCoreServObject.defineObjects()" );
   }
 
   @Override
   public void removeObject( Skid aSkid ) {
-    // TODO реализовать SkObjectService.removeObject()
-    throw new TsUnderDevelopmentRtException( "SkObjectService.removeObject()" );
+    // TODO реализовать SkCoreServObject.removeObject()
+    throw new TsUnderDevelopmentRtException( "SkCoreServObject.removeObject()" );
   }
 
   @Override
   public void removeObjects( ISkidList aSkids ) {
-    // TODO реализовать SkObjectService.removeObjects()
-    throw new TsUnderDevelopmentRtException( "SkObjectService.removeObjects()" );
+    // TODO реализовать SkCoreServObject.removeObjects()
+    throw new TsUnderDevelopmentRtException( "SkCoreServObject.removeObjects()" );
   }
 
   @Override
@@ -542,8 +543,8 @@ class SkObjectService
 
   @Override
   public ITsValidationSupport<ISkObjectServiceValidator> svs() {
-    // TODO реализовать SkObjectService.svs()
-    throw new TsUnderDevelopmentRtException( "SkObjectService.svs()" );
+    // TODO реализовать SkCoreServObject.svs()
+    throw new TsUnderDevelopmentRtException( "SkCoreServObject.svs()" );
   }
 
 }

@@ -60,7 +60,7 @@ public class SkObject
   //
 
   /**
-   * Sets reference to the core API, is called from {@link SkObjectService}.
+   * Sets reference to the core API, is called from {@link SkCoreServObject}.
    *
    * @param aSkatApi {@link ISkCoreApi} - the core API
    */
@@ -176,7 +176,7 @@ public class SkObject
   /**
    * Subclass may perform ore API dependent initialization.
    * <p>
-   * This method is called by {@link SkObjectService} after construcotr but sfter setting {@link #coreApi()}.
+   * This method is called by {@link SkCoreServObject} after construcotr but sfter setting {@link #coreApi()}.
    * инициализирована.
    * <p>
    * Does nothing in base class, there is no need to call superclass method when overriding.

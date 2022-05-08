@@ -4,8 +4,9 @@ import static org.toxsoft.uskat.core.impl.ISkCoreConfigConstants.*;
 import static org.toxsoft.uskat.core.impl.ISkResources.*;
 
 import org.toxsoft.core.tslib.bricks.ctx.*;
-import org.toxsoft.core.tslib.bricks.events.*;
 import org.toxsoft.core.tslib.bricks.events.msg.*;
+import org.toxsoft.core.tslib.coll.*;
+import org.toxsoft.core.tslib.coll.impl.*;
 import org.toxsoft.core.tslib.coll.primtypes.*;
 import org.toxsoft.core.tslib.coll.primtypes.impl.*;
 import org.toxsoft.core.tslib.utils.*;
@@ -13,7 +14,12 @@ import org.toxsoft.core.tslib.utils.errors.*;
 import org.toxsoft.core.tslib.utils.logs.impl.*;
 import org.toxsoft.uskat.core.*;
 import org.toxsoft.uskat.core.api.*;
+import org.toxsoft.uskat.core.api.clobserv.*;
+import org.toxsoft.uskat.core.api.cmdserv.*;
+import org.toxsoft.uskat.core.api.evserv.*;
+import org.toxsoft.uskat.core.api.linkserv.*;
 import org.toxsoft.uskat.core.api.objserv.*;
+import org.toxsoft.uskat.core.api.rtdserv.*;
 import org.toxsoft.uskat.core.api.sysdescr.*;
 import org.toxsoft.uskat.core.backend.*;
 import org.toxsoft.uskat.core.connection.*;
@@ -27,19 +33,22 @@ import org.toxsoft.uskat.core.devapi.*;
 public class SkCoreApi
     implements IDevCoreApi, ISkFrontendRear, ICloseable {
 
-  private final InternalCoreListenerEventer       coreEventer;
-  private final IStringMapEdit<AbstractSkService> servMap = new StringMap<>();
+  private final IStringMapEdit<AbstractSkService> servicesMap = new StringMap<>();
 
   private final ITsContextRo    openArgs;
   private final SkConnection    conn;
   private final CoreL10n        coreL10n;
+  private final CoreLogger      logger;
   private final ISkFrontendRear frontendForBackend;
   private final ISkBackend      backend;
 
-  private final SkSysdescr      sysdescr;
-  private final SkObjectService objService;
-
-  private final IStringMapEdit<AbstractSkService> servicesMap = new StringMap<>();
+  private final SkCoreServSysdescr sysdescr;
+  private final SkCoreServObject   objService;
+  private final SkCoreServClobs    clobService;
+  private final SkCoreServCommands cmdService;
+  private final SkCoreServEvents   eventService;
+  private final SkCoreServLinks    linkService;
+  private final SkCoreServRtdata   rtdService;
 
   /**
    * Initialization flag.
@@ -55,7 +64,7 @@ public class SkCoreApi
    */
   SkCoreApi( ITsContextRo aArgs, SkConnection aConn ) {
     TsNullArgumentRtException.checkNulls( aArgs, aConn );
-    coreEventer = new InternalCoreListenerEventer( this );
+    logger = new CoreLogger( LoggerUtils.defaultLogger(), aArgs );
     openArgs = aArgs;
     conn = aConn;
     coreL10n = new CoreL10n( aArgs );
@@ -63,21 +72,65 @@ public class SkCoreApi
     frontendForBackend = createAndInitFrontend();
     ISkBackendProvider bp = REFDEF_BACKEND_PROVIDER.getRef( aArgs );
     backend = bp.createBackend( frontendForBackend, aArgs );
-    // TODO mandatory services
-    sysdescr = new SkSysdescr( this );
-    servMap.put( sysdescr().serviceId(), sysdescr );
-    objService = new SkObjectService( this );
-    servMap.put( objService.serviceId(), objService );
-    // TODO realtime services - real or stubs
-
-    // TODO backend-provided services
-
-    // TODO user-provided services
-
-    // TODO check if backend requires thread separator and it s present
-
-    // init services
-    internalInitServices();
+    // prepare services to be created
+    IListEdit<ISkServiceCreator<? extends AbstractSkService>> llCreators = new ElemArrayList<>();
+    // mandatory built-in services
+    llCreators.add( SkCoreServSysdescr.CREATOR );
+    llCreators.add( SkCoreServObject.CREATOR );
+    llCreators.add( SkCoreServClobs.CREATOR );
+    llCreators.add( SkCoreServCommands.CREATOR );
+    llCreators.add( SkCoreServEvents.CREATOR );
+    llCreators.add( SkCoreServLinks.CREATOR );
+    llCreators.add( SkCoreServRtdata.CREATOR );
+    // backend and user-specified services
+    llCreators.addAll( backend.listBackendServicesCreators() );
+    IList<ISkServiceCreator<? extends AbstractSkService>> llUser = REFDEF_USER_SERVICES.getRef( aArgs, IList.EMPTY );
+    llCreators.addAll( llUser );
+    // fill map of the services
+    for( ISkServiceCreator<? extends AbstractSkService> c : llCreators ) {
+      AbstractSkService s;
+      try {
+        s = c.createService( this );
+      }
+      catch( Exception ex ) {
+        logger().error( ex );
+        throw new TsInternalErrorRtException( ex, FMT_ERR_CANT_CREATE_SERVICE, c.getClass().getName() );
+      }
+      if( servicesMap.hasKey( s.serviceId() ) ) {
+        RuntimeException ex =
+            new TsItemAlreadyExistsRtException( FMT_ERR_DUP_SERVICE_ID, c.getClass().getName(), s.serviceId() );
+        logger().error( ex );
+        try {
+          s.close();
+        }
+        catch( Exception ex1 ) {
+          logger().error( ex1 );
+        }
+        throw ex;
+      }
+      servicesMap.put( s.serviceId(), s );
+    }
+    // init mandatory service refs
+    sysdescr = getService( ISkSysdescr.SERVICE_ID );
+    objService = getService( ISkObjectService.SERVICE_ID );
+    clobService = getService( ISkClobService.SERVICE_ID );
+    cmdService = getService( ISkCommandService.SERVICE_ID );
+    eventService = getService( ISkEventService.SERVICE_ID );
+    linkService = getService( ISkLinkService.SERVICE_ID );
+    rtdService = getService( ISkRtdataService.SERVICE_ID );
+    // initialize services
+    for( int i = 0; i < servicesMap.size(); i++ ) {
+      AbstractSkService s = servicesMap.values().get( i );
+      try {
+        s.init( openArgs );
+      }
+      catch( Exception ex ) {
+        logger().error( ex );
+        if( s.isCoreService() ) {
+          throw ex;
+        }
+      }
+    }
     inited = true;
   }
 
@@ -88,7 +141,8 @@ public class SkCoreApi
   /**
    * Creates and returnes an {@link ISkFrontendRear} implementation.
    * <p>
-   * Depending on connection opening argument FIXME ??? creates either single-threaded or thread-safe implementation.
+   * Depending on connection opening argument {@link ISkCoreConfigConstants#REFDEF_BACKEND_THREAD_SEPARATOR} creates
+   * either single-threaded or thread-safe implementation.
    *
    * @return {@link ISkFrontendRear} - created instance of fromtend read
    */
@@ -106,19 +160,8 @@ public class SkCoreApi
     return separatedFrontend;
   }
 
-  private void internalInitServices() {
-    for( int i = 0; i < servMap.size(); i++ ) {
-      AbstractSkService s = servMap.values().get( i );
-      try {
-        s.init( openArgs );
-      }
-      catch( Exception ex ) {
-        LoggerUtils.errorLogger().error( ex );
-        if( s.isCoreService() ) {
-          throw ex;
-        }
-      }
-    }
+  private CoreLogger logger() {
+    return logger;
   }
 
   // ------------------------------------------------------------------------------------
@@ -159,37 +202,58 @@ public class SkCoreApi
     return objService;
   }
 
+  @Override
+  public ISkClobService clobService() {
+    return clobService;
+  }
+
+  @Override
+  public ISkCommandService cmdService() {
+    return cmdService;
+  }
+
+  @Override
+  public ISkEventService eventService() {
+    return eventService;
+  }
+
+  @Override
+  public ISkLinkService linkService() {
+    return linkService;
+  }
+
+  @Override
+  public ISkRtdataService rtdService() {
+    return rtdService;
+  }
+
   @SuppressWarnings( { "unchecked", "rawtypes" } )
   @Override
   public IStringMap<ISkService> services() {
-    return (IStringMap)servMap;
+    return (IStringMap)servicesMap;
   }
 
   @SuppressWarnings( "unchecked" )
   @Override
-  public <S extends ISkService> S getService( String aServiceId ) {
-    return (S)servMap.getByKey( aServiceId );
+  final public <S extends ISkService> S getService( String aServiceId ) {
+    return (S)servicesMap.getByKey( aServiceId );
   }
 
   @Override
   public <S extends AbstractSkService> S addService( ISkServiceCreator<S> aCreator ) {
-    // TODO реализовать SkCoreApi.addService()
-    throw new TsUnderDevelopmentRtException( "SkCoreApi.addService()" );
-  }
-
-  @Override
-  public ITsEventer<ISkCoreListener> eventer() {
-    return coreEventer;
-  }
-
-  @Override
-  public void fireCoreEvent( SkCoreEvent aSkCoreEvent ) {
-    coreEventer.fireCoreEvent( aSkCoreEvent );
-  }
-
-  @Override
-  public ICoreL10n l10n() {
-    return coreL10n;
+    TsNullArgumentRtException.checkNull( aCreator );
+    TsIllegalStateRtException.checkFalse( inited );
+    S s = aCreator.createService( this );
+    TsItemAlreadyExistsRtException.checkTrue( servicesMap.hasKey( s.serviceId() ) );
+    try {
+      s.init( openArgs );
+      servicesMap.put( s.serviceId(), s );
+    }
+    catch( Exception ex ) {
+      logger().error( ex );
+      throw ex;
+    }
+    return s;
   }
 
   // ------------------------------------------------------------------------------------
@@ -203,7 +267,7 @@ public class SkCoreApi
       s.papiOnBackendMessage( aMessage );
     }
     else {
-      LoggerUtils.errorLogger().warning( LOG_WARN_UNHANDLED_BACKEND_MESSAGE, aMessage.topicId() );
+      logger().warning( LOG_WARN_UNHANDLED_BACKEND_MESSAGE, aMessage.topicId() );
     }
   }
 
@@ -212,9 +276,18 @@ public class SkCoreApi
   //
 
   @Override
-  public <T> T getBackendAddon( Class<T> aAddonInterface ) {
-    // TODO реализовать SkCoreApi.getBackendAddon()
-    throw new TsUnderDevelopmentRtException( "SkCoreApi.getBackendAddon()" );
+  public <T> T findBackendAddon( String aAddonId, Class<T> aExpectedType ) {
+    return backend().findBackendAddon( aAddonId, aExpectedType );
+  }
+
+  @Override
+  public ICoreL10n l10n() {
+    return coreL10n;
+  }
+
+  @Override
+  public ITsContextRo openArgs() {
+    return openArgs;
   }
 
   // ------------------------------------------------------------------------------------
@@ -226,18 +299,18 @@ public class SkCoreApi
     if( !inited ) {
       return;
     }
-    for( int i = servMap.size() - 1; i >= 0; i-- ) {
+    for( int i = servicesMap.size() - 1; i >= 0; i-- ) {
       try {
-        AbstractSkService s = servMap.values().get( i );
+        AbstractSkService s = servicesMap.values().get( i );
         s.close();
       }
       catch( Exception ex ) {
-        LoggerUtils.errorLogger().error( ex );
+        logger().error( ex );
       }
     }
     // backend closes after services were closed
     backend.close();
-    servMap.clear();
+    servicesMap.clear();
     inited = false;
   }
 

@@ -11,8 +11,10 @@ interface ISkResources {
   /**
    * {@link AbstractSkService}
    */
-  String FMT_INFO_SERVICE_INIT  = "Service %s: init() called";
-  String FMT_INFO_SERVICE_CLOSE = "Service %s: close() called";
+  String FMT_INFO_SERVICE_INIT       = "Service %s: init() called";
+  String FMT_INFO_SERVICE_CLOSE      = "Service %s: close() called";
+  String FMT_WARN_INV_SERVICE_GT_MSG = "Service %s: received invalid message with topic ID '%s'";
+  String FMT_WARN_UNKNOWN_MSG        = "Service %s: received message with unknown message ID '%s'";
 
   /**
    * {@link CoreL10n}
@@ -30,12 +32,16 @@ interface ISkResources {
   /**
    * {@link ISkCoreConfigConstants}.
    */
-  String STR_N_OP_L10N_FILES_DIR    = "L10n directory";
-  String STR_D_OP_L10N_FILES_DIR    = "Localization files root directory";
-  String STR_N_OP_LOCALE            = "Locale";
-  String STR_D_OP_LOCALE            = "Locale for core entitties localization";
-  String STR_N_REF_BACKEND_PROVIDER = "Backend provider";
-  String STR_D_REF_BACKEND_PROVIDER = "Refernce to the of the USkat API backend instance creator";
+  String STR_N_OP_L10N_FILES_DIR        = "L10n directory";
+  String STR_D_OP_L10N_FILES_DIR        = "Localization files root directory";
+  String STR_N_OP_LOCALE                = "Locale";
+  String STR_D_OP_LOCALE                = "Locale for core entitties localization";
+  String STR_N_OP_DEF_CORE_LOG_SEVERITY = "Log severity";
+  String STR_D_OP_DEF_CORE_LOG_SEVERITY = "Default log messages lowest severity to be logged";
+  String STR_N_REF_USER_SERVICES        = "User services";
+  String STR_D_REF_USER_SERVICES        = "List of user-specified core services creators";
+  String STR_N_REF_BACKEND_PROVIDER     = "Backend provider";
+  String STR_D_REF_BACKEND_PROVIDER     = "Refernce to the of the USkat API backend instance creator";
 
   /**
    * {@link SkConnection}.
@@ -47,10 +53,12 @@ interface ISkResources {
    * {@link SkCoreApi}
    */
   String MSG_ERR_CONN_NOT_OPEN              = "Connection is closed";
+  String FMT_ERR_CANT_CREATE_SERVICE        = "Creator '%s' can not create service instance";
+  String FMT_ERR_DUP_SERVICE_ID             = "Creator '%s' tries to create service of existing ID '%s'";
   String LOG_WARN_UNHANDLED_BACKEND_MESSAGE = "Unhandled message from backend, topicID= %s";
 
   /**
-   * {@link SkObjectService}
+   * {@link SkCoreServObject}
    */
   String FMT_ERR_NO_SUCH_OBJ        = "Нет объекта с идентификатором %s";
   String FMT_ERR_INV_ATTR_TYPE      = "Object '%s', attribute '%s': value type '%s' is not assignable to the type '%s'";
@@ -64,7 +72,24 @@ interface ISkResources {
   String FMT_ERR_CANT_REMOVE_NO_OBJ = "Object '%s'^ does not exists, can not remove it";
 
   /**
-   * {@link SkSysdescr}
+   * {@link SkCoreServSysdescr}
+   */
+  String FMT_WARN_ORPHAN_CLASS             = "Ignoring an orphan class loaded from backend (class ID: '%s')";
+  String FMT_WARN_EMPTY_CLASS_NAME         = "Желательно задать имя класса с идентификатором %s";
+  String FMT_ERR_CLASS_ALREADY_EXISTS      = "Класс с идентификатором %s уже существует";
+  String FMT_ERR_NO_PARENT_CLASS           = "Не существует родительского класса с идентификатором '%s'";
+  String FMT_ERR_DUP_PROP_IN_SUPER         = "%s '%s' is already declared in the ancestor class '%s'";
+  String FMT_ERR_DUP_PROP_IN_SUB           = "%s '%s' is already declared in the descendant classes '%s'";
+  String MSG_ERR_CANT_CHANGE_ROOT_CLASS    = "Нельзя редактировать корневой класс";
+  String FMT_ERR_CANT_CHANGE_CLASS_ID      = "Нельзя изменить идентификатор существующего класса %s";
+  String FMT_ERR_CANT_CHANGE_PARENT        = "Нельзя изменить родителя существующего класса %s";
+  String FMT_ERR_CANT_REMOVE_ABSENT_CLASS  = "Нельзя удалить не существующий класс %s";
+  String FMT_ERR_CANT_REMOVE_CHILDED_CLASS = "Нельзя удалить класс %s - у него есть наследники";
+  String MSG_ERR_CANT_REMOVE_ROOT_CLASS    = "Нельзя удалить корневой класс";
+  String FMT_ERR_INV_CLASS_LOAD_IGNORED    = "Class '%s' ignored: %s '%s' is already declared in class '%s'";
+
+  /**
+   * {@link SkUtils}
    */
   String STR_N_ROOT_CLASS    = "Корневой класс";
   String STR_D_ROOT_CLASS    = "Корневой класс иерархии классов USkat";

@@ -11,7 +11,7 @@ import org.toxsoft.uskat.core.api.linkserv.*;
 /**
  * Backend addon for links storage.
  * <p>
- * This is the madatory addon.
+ * This is the mandatory addon.
  *
  * @author hazard157
  */

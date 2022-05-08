@@ -1,5 +1,7 @@
 package org.toxsoft.uskat.core.backend.api;
 
+import static org.toxsoft.uskat.core.ISkHardConstants.*;
+
 import org.toxsoft.core.tslib.bricks.strid.coll.*;
 import org.toxsoft.core.tslib.coll.primtypes.*;
 import org.toxsoft.core.tslib.gw.*;
@@ -9,12 +11,17 @@ import org.toxsoft.uskat.core.api.sysdescr.dto.*;
 /**
  * Backend addon for classes storage.
  * <p>
- * This is the madatory addon.
+ * This is the mandatory addon.
  *
  * @author hazard157
  */
 public interface IBaClasses
     extends IBackendAddon {
+
+  /**
+   * ID of this backend addon.
+   */
+  String ADDON_ID = SK_ID + "ba.Classes"; //$NON-NLS-1$
 
   /**
    * Read all classes from storage.

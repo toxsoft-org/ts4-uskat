@@ -2,8 +2,10 @@ package org.toxsoft.uskat.core.backend;
 
 import org.toxsoft.core.tslib.bricks.ctx.*;
 import org.toxsoft.core.tslib.bricks.events.msg.*;
+import org.toxsoft.core.tslib.coll.*;
 import org.toxsoft.core.tslib.utils.*;
 import org.toxsoft.core.tslib.utils.errors.*;
+import org.toxsoft.uskat.core.*;
 import org.toxsoft.uskat.core.backend.api.*;
 import org.toxsoft.uskat.core.connection.*;
 import org.toxsoft.uskat.core.impl.*;
@@ -17,14 +19,14 @@ import org.toxsoft.uskat.core.impl.*;
  * validation when writing data to it. However particular backend may check data to be written and not allow to violate
  * the storage integrity;</li>
  * <li>Communication may be initiatied both by the frontend or the backend. The frontend simply calls methods of the
- * backend. The only way to cimmunicate to frontend at the backends initiative is to send message via
+ * backend. The only way to communicate to frontend at the backends initiative is to send message via
  * {@link ISkFrontendRear#onBackendMessage(GtMessage)}.</li>
  * <li>Execution threads. Some backend implementations may have internal execution threads and may want to send message
  * to the frontend from the internal thread. Such backends inform their counterparts with the
- * {@link ISkBackendHardConstant#OPDEF_SKBI_NEEDS_THREAD_SEPARATOR} option set ti <code>true</code> in
+ * {@link ISkBackendHardConstant#OPDEF_SKBI_NEEDS_THREAD_SEPARATOR} option set to <code>true</code> in
  * {@link ISkBackendInfo#params()}. Because core API impementation (class {@link SkCoreApi} and servcies) is
  * single-threaded, the threads must be separated by supplying {@link SkBackendThreadSeparator} instance in the
- * {@link ISkCoreConfigConstants#REFDEF_BACKEND_THREAD_SEPARATOR} when opening th connection via
+ * {@link ISkCoreConfigConstants#REFDEF_BACKEND_THREAD_SEPARATOR} when opening the connection by the method
  * {@link ISkConnection#open(ITsContextRo)}.</li>
  * </ul>
  *
@@ -50,6 +52,20 @@ public interface ISkBackend
    * @return {@link ISkBackendInfo} - the backend info
    */
   ISkBackendInfo getBackendInfo();
+
+  /**
+   * Returns the owner frontend.
+   *
+   * @return {@link ISkFrontendRear} - the frontend
+   */
+  ISkFrontendRear frontend();
+
+  /**
+   * Returns the connection opening arguments used to create backend.
+   *
+   * @return {@link ITsContextRo} - connection opening arguments
+   */
+  ITsContextRo openArgs();
 
   // ------------------------------------------------------------------------------------
   // Mandatory addons
@@ -84,34 +100,46 @@ public interface ISkBackend
   IBaEvents baEvents();
 
   /**
-   * Returns backend addon for classes storage.
+   * Returns backend addon for CLOBs storage.
    *
-   * @return {@link IBaClasses} - class storage
+   * @return {@link IBaClasses} - CLOBs storage
    */
   IBaClobs baClobs();
+
+  /**
+   * Returns backend addon to work with real-time data.
+   *
+   * @return {@link IBaClasses} - real-time data
+   */
+  IBaRtdata baRtdata();
+
+  /**
+   * Returns backend addon to work with the commands.
+   *
+   * @return {@link IBaClasses} - commands
+   */
+  IBaCommands baCommands();
 
   // ------------------------------------------------------------------------------------
   // Optional addons
   //
 
   /**
-   * Returns the means to create USkat extension services provided by the backend.
-   * <p>
-   * If backend provides no extension services than method returns {@link ISkExtServicesProvider#NULL}.
+   * Returns the list to create USkat services provided by the backend.
    *
-   * @return {@link ISkExtServicesProvider} - extension services provider
+   * @return {@link IList}&lt;{@link ISkServiceCreator}&gt; - services creators list
    */
-  ISkExtServicesProvider getExtServicesProvider();
+  IList<ISkServiceCreator<? extends AbstractSkService>> listBackendServicesCreators();
 
   /**
-   * Returns bakend addon by it's interface.
+   * Finds backend addon.
    *
    * @param <T> - expected interface/class of the addon
-   * @param aAddonId String the ID of the addon
+   * @param aAddonId String - the ID of the addon
    * @param aExpectedType {@link Class}&lt;T&gt; - expected interface of the addons
    * @return &lt;T&gt; - found addon or <code>null</code> if no such optional addon exists
    * @throws TsNullArgumentRtException any argument = <code>null</code>
-   * @throws ClassCastException found addon is not of expected Java type
+   * @throws ClassCastException addon was found but not of excpected type
    */
   <T> T findBackendAddon( String aAddonId, Class<T> aExpectedType );
 

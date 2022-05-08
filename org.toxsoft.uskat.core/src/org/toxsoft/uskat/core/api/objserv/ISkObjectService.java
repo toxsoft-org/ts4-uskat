@@ -11,9 +11,9 @@ import org.toxsoft.uskat.core.*;
 import org.toxsoft.uskat.core.api.*;
 
 /**
- * Objects management service.
+ * Core service: objects manipulation.
  *
- * @author goga
+ * @author hazard157
  */
 public interface ISkObjectService
     extends ISkService {
@@ -29,7 +29,7 @@ public interface ISkObjectService
   /**
    * Service identifier.
    */
-  String SERVICE_ID = ISkHardConstants.SK_CORE_SERVICE_ID_PREFIX + ".ObjectService"; //$NON-NLS-1$
+  String SERVICE_ID = ISkHardConstants.SK_CORE_SERVICE_ID_PREFIX + ".Objects"; //$NON-NLS-1$
 
   /**
    * Finds an object by it's SKID.

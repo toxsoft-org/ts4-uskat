@@ -9,7 +9,9 @@ import static org.toxsoft.uskat.core.ISkResources.*;
 import org.toxsoft.core.tslib.av.*;
 import org.toxsoft.core.tslib.av.metainfo.*;
 import org.toxsoft.core.tslib.utils.errors.*;
+import org.toxsoft.uskat.core.api.objserv.*;
 import org.toxsoft.uskat.core.api.sysdescr.dto.*;
+import org.toxsoft.uskat.core.impl.*;
 
 /**
  * USkat global constants.
@@ -24,14 +26,19 @@ public interface ISkHardConstants {
   String SK_ID = "sk"; //$NON-NLS-1$
 
   /**
+   * ID of the USkat core (not any particular service).
+   */
+  String SK_CORE_ID = SK_ID + ".core"; //$NON-NLS-1$
+
+  /**
    * Core service identifiers prefix.
    */
-  String SK_CORE_SERVICE_ID_PREFIX = SK_ID + ".core"; //$NON-NLS-1$
+  String SK_CORE_SERVICE_ID_PREFIX = SK_ID + ".service.core"; //$NON-NLS-1$
 
   /**
    * System extension service identifiers prefix.
    */
-  String SK_SYSEXT_SERVICE_ID_PREFIX = SK_ID + ".sysext"; //$NON-NLS-1$
+  String SK_SYSEXT_SERVICE_ID_PREFIX = SK_ID + ".service.sysext"; //$NON-NLS-1$
 
   // ------------------------------------------------------------------------------------
   // The root class constants
@@ -65,6 +72,18 @@ public interface ISkHardConstants {
   // ------------------------------------------------------------------------------------
   // Meta-info on classes
 
+  /**
+   * Flags that attribute is the system managed. Type: {@link EAtomicType#BOOLEAN}<br>
+   * Usage: system managed attributes values are stored as {@link SkObject} implementation class fields. At runtime this
+   * attributes are also presented in the {@link ISkObject#attrs()} set howeverwhen storing object to database system
+   * attributes are not stores as part of the {@link ISkObject#attrs()} set, rather they are stored by other means.<br>
+   * Most obvious system attributes are {@link ISkHardConstants#AID_SKID},{@link ISkHardConstants#AID_STRID} and
+   * {@link ISkHardConstants#AID_CLASS_ID}. All of them are derived from field {@link SkObject#skid()}.<br>
+   * System attributes are used to decrease needed storege amount and more important, it avoids possible errors due to
+   * stored data duplication (both in fields and attributes set).<br>
+   * This option must be specified in {@link IDtoAttrInfo#params()}.<br>
+   * Default value: <code>false</code>
+   */
   IDataDef OPDEF_SK_IS_SYS_ATTR = create( SK_ID + ".IsSysAttr", BOOLEAN, //$NON-NLS-1$
       TSID_NAME, STR_N_IS_SYS_ATTR, //
       TSID_DESCRIPTION, STR_D_IS_SYS_ATTR, //

@@ -1,4 +1,4 @@
-package org.toxsoft.uskat.core.api.events;
+package org.toxsoft.uskat.core.api.evserv;
 
 import java.io.*;
 

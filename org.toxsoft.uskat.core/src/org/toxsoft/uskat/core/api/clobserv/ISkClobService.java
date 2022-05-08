@@ -1,5 +1,6 @@
 package org.toxsoft.uskat.core.api.clobserv;
 
+import org.toxsoft.core.tslib.bricks.validator.*;
 import org.toxsoft.core.tslib.gw.gwid.*;
 import org.toxsoft.core.tslib.utils.errors.*;
 import org.toxsoft.uskat.core.*;
@@ -7,7 +8,7 @@ import org.toxsoft.uskat.core.api.*;
 import org.toxsoft.uskat.core.api.sysdescr.*;
 
 /**
- * The CLOB (Character Large OBject) service.
+ * Core service: the CLOB (Character Large OBject) class properties management.
  * <p>
  * CLOB are class properties defined in Sysdescr method {@link ISkClassInfo#clobs()}. CLOB values are handled by this
  * service.
@@ -24,7 +25,7 @@ public interface ISkClobService
   /**
    * The service ID.
    */
-  String SERVICE_ID = ISkHardConstants.SK_CORE_SERVICE_ID_PREFIX + ".CLOBs"; //$NON-NLS-1$
+  String SERVICE_ID = ISkHardConstants.SK_CORE_SERVICE_ID_PREFIX + ".Clobs"; //$NON-NLS-1$
 
   /**
    * Reads the CLOB content.
@@ -48,6 +49,11 @@ public interface ISkClobService
    */
   void writeClob( Gwid aGwid, String aClob );
 
-  // TODO CLOB validator
+  /**
+   * Returns the service validator.
+   *
+   * @return {@link ITsValidationSupport}&lt;{@link ISkClobServiceValidator}&gt; - the service validator
+   */
+  ITsValidationSupport<ISkClobServiceValidator> svs();
 
 }

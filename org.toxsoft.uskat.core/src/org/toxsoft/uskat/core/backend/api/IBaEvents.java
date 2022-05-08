@@ -5,12 +5,12 @@ import static org.toxsoft.uskat.core.ISkHardConstants.*;
 import org.toxsoft.core.tslib.bricks.time.*;
 import org.toxsoft.core.tslib.gw.gwid.*;
 import org.toxsoft.core.tslib.utils.errors.*;
-import org.toxsoft.uskat.core.api.events.*;
+import org.toxsoft.uskat.core.api.evserv.*;
 
 /**
  * Backend addon for events send/receive and storage.
  * <p>
- * This is the madatory addon however some or whole features may not be supported by addon. The flags
+ * This is the mandatory addon however some or whole features may not be supported by addon. The flags
  * <code>OPDEF_SKBI_BA_EVENTS_XXX</code> informs CoreAPI and user about supported features.
  *
  * @author hazard157

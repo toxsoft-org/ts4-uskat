@@ -1,4 +1,4 @@
-package org.toxsoft.uskat.core.api.events;
+package org.toxsoft.uskat.core.api.evserv;
 
 import org.toxsoft.core.tslib.bricks.time.*;
 import org.toxsoft.core.tslib.gw.gwid.*;
@@ -8,7 +8,7 @@ import org.toxsoft.core.tslib.gw.gwid.*;
  *
  * @author hazard157
  */
-public interface ISkEventslist {
+public interface ISkEventsList {
 
   /**
    * Returns the list of events ordered byt timestamp.

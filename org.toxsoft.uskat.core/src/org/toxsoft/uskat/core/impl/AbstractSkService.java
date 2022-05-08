@@ -1,5 +1,7 @@
 package org.toxsoft.uskat.core.impl;
 
+import static org.toxsoft.uskat.core.impl.ISkResources.*;
+
 import org.toxsoft.core.tslib.bricks.ctx.*;
 import org.toxsoft.core.tslib.bricks.events.msg.*;
 import org.toxsoft.core.tslib.bricks.strid.impl.*;
@@ -24,14 +26,18 @@ import org.toxsoft.uskat.core.devapi.*;
 public abstract class AbstractSkService
     implements ISkService {
 
-  private final String    serviceId;
-  private final SkCoreApi coreApi;
+  private final String     serviceId;
+  private final SkCoreApi  coreApi;
+  private final CoreLogger logger;
 
   private boolean inited        = false;
   private boolean backendActive = false;
 
   /**
-   * Constructor.
+   * Constructor for subclasses.
+   * <p>
+   * Implementation notes: subclasses must not initilize it's content in constructor. All initialization staff must be
+   * performed in {@link #doInit(ITsContextRo)} method.
    *
    * @param aId String - the service ID
    * @param aCoreApi {@link IDevCoreApi} - owner core API implementation
@@ -39,20 +45,12 @@ public abstract class AbstractSkService
   protected AbstractSkService( String aId, IDevCoreApi aCoreApi ) {
     serviceId = StridUtils.checkValidIdPath( aId );
     coreApi = SkCoreApi.class.cast( aCoreApi );
+    logger = new CoreLogger( LoggerUtils.defaultLogger(), aCoreApi.openArgs() );
   }
 
   // ------------------------------------------------------------------------------------
-  // public API
+  // API for subclasses
   //
-
-  /**
-   * Returns the core API.
-   *
-   * @return {@link SkCoreApi} - core API
-   */
-  public SkCoreApi coreApi() {
-    return coreApi;
-  }
 
   /**
    * Determines if this is the core service.
@@ -61,7 +59,7 @@ public abstract class AbstractSkService
    *
    * @return boolean <code>true</code> if this is core service
    */
-  public boolean isCoreService() {
+  final public boolean isCoreService() {
     return serviceId.startsWith( ISkHardConstants.SK_CORE_SERVICE_ID_PREFIX );
   }
 
@@ -70,12 +68,21 @@ public abstract class AbstractSkService
    *
    * @return boolean <b>true</b> backend is active; <b>false</b> backend is not active
    */
-  public boolean backendState() {
+  final public boolean backendState() {
     return backendActive;
   }
 
+  /**
+   * Returns the inidividual logger for this service.
+   *
+   * @return {@link CoreLogger} - service logger
+   */
+  final public CoreLogger logger() {
+    return logger;
+  }
+
   // ------------------------------------------------------------------------------------
-  // package API for lifecycle management
+  // package API
   //
 
   /**
@@ -95,14 +102,14 @@ public abstract class AbstractSkService
    * @param aArgs {@link ITsContextRo} - initialization arguments (the same as backend init args)
    */
   final void init( ITsContextRo aArgs ) {
-    // FIXME LoggerUtils.defaultLogger().info( FMT_INFO_SERVICE_INIT, serviceId() );
+    logger().info( FMT_INFO_SERVICE_INIT, serviceId() );
     TsIllegalStateRtException.checkTrue( inited );
     try {
       doInit( aArgs );
       inited = true;
     }
     catch( Exception ex ) {
-      LoggerUtils.errorLogger().error( ex );
+      logger().error( ex );
       throw ex;
     }
   }
@@ -113,7 +120,7 @@ public abstract class AbstractSkService
    * After closing the service it is not usable.
    */
   final void close() {
-    // FIXME LoggerUtils.defaultLogger().info( FMT_INFO_SERVICE_CLOSE, serviceId() );
+    logger().info( FMT_INFO_SERVICE_CLOSE, serviceId() );
     if( !inited ) {
       return;
     }
@@ -121,18 +128,26 @@ public abstract class AbstractSkService
       doClose();
     }
     catch( Exception ex ) {
-      LoggerUtils.errorLogger().error( ex );
+      logger().error( ex );
     }
   }
 
-  // ------------------------------------------------------------------------------------
-  // package API for communication with other parts
-  //
-
-  public void papiOnBackendMessage( GtMessage aMessage ) {
-
-    // TODO AbstractSkService.papiOnBackendMessage()
-
+  /**
+   * Handles mesaage from backend.
+   * <p>
+   * Method simple checks if topic is of this service and passes message to the implementation as
+   * {@link GenericMessage}, that is the message without topic.
+   *
+   * @param aMessage {@link GtMessage} - the message from backend
+   */
+  public final void papiOnBackendMessage( GtMessage aMessage ) {
+    if( !aMessage.topicId().equals( serviceId ) ) {
+      logger().warning( FMT_WARN_INV_SERVICE_GT_MSG, serviceId, aMessage.topicId() );
+      return;
+    }
+    if( !onBackendMessage( aMessage ) ) {
+      logger().warning( FMT_WARN_UNKNOWN_MSG, serviceId, aMessage.messageId() );
+    }
   }
 
   // ------------------------------------------------------------------------------------
@@ -144,11 +159,14 @@ public abstract class AbstractSkService
     return serviceId;
   }
 
+  @Override
+  final public SkCoreApi coreApi() {
+    return coreApi;
+  }
+
   // ------------------------------------------------------------------------------------
   // To implement
   //
-
-  // TODO TRANSLATE
 
   /**
    * Subclasses must initialize internal data, and became ready to process API method calls.
@@ -165,6 +183,21 @@ public abstract class AbstractSkService
   protected abstract void doClose();
 
   /**
+   * Subclass may handle message from the backend.
+   * <p>
+   * Base inmplementation simply returns <code>false</code>. When overridoing there is no need to call superclass
+   * method.
+   * <p>
+   * If method returns <code>false</code> caller base class will log an "unhandled message" warning.
+   *
+   * @param aMessage {@link GenericMessage} - message from the backend
+   * @return boolean - <code>true</code> = marks message as handled
+   */
+  protected boolean onBackendMessage( GenericMessage aMessage ) {
+    return false;
+  }
+
+  /**
    * Subclass may process backend state change.
    *
    * @param aActive boolean - the backens activity state
@@ -172,20 +205,5 @@ public abstract class AbstractSkService
   protected void doWhenBackendStateChanged( boolean aActive ) {
     // nop
   }
-
-  // FIXME нужно ли это в прекрасном БСкат будущего?
-  //
-  // // ------------------------------------------------------------------------------------
-  // // API for subclasses
-  // //
-  //
-  // /**
-  // * Check if connecion is active and throw an exception if not.
-  // *
-  // * @throws TsIllegalStateRtException connection is not active
-  // */
-  // protected void checkIsOpen() {
-  // coreApi.papiCheckIsOpen();
-  // }
 
 }

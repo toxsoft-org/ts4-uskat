@@ -20,6 +20,7 @@ import org.toxsoft.core.tslib.coll.impl.*;
 import org.toxsoft.core.tslib.coll.primtypes.*;
 import org.toxsoft.core.tslib.gw.skid.*;
 import org.toxsoft.core.tslib.utils.errors.*;
+import org.toxsoft.uskat.core.*;
 import org.toxsoft.uskat.core.backend.*;
 import org.toxsoft.uskat.core.backend.api.*;
 import org.toxsoft.uskat.core.impl.*;
@@ -49,6 +50,8 @@ public abstract class MtbAbstractBackend
    * Backend ID prefix for subclass implementations.
    */
   protected static final String SKB_ID_MEMTEXT = ISkBackendHardConstant.SKB_ID + ".memtext"; //$NON-NLS-1$
+
+  IListEdit<ISkServiceCreator<? extends AbstractSkService>> backendServicesCreators = new ElemArrayList<>();
 
   private final ITsContextRo    argContext;
   private final ISkFrontendRear frontend;
@@ -190,6 +193,16 @@ public abstract class MtbAbstractBackend
   }
 
   @Override
+  public ISkFrontendRear frontend() {
+    return frontend;
+  }
+
+  @Override
+  public ITsContextRo openArgs() {
+    return argContext;
+  }
+
+  @Override
   public MtbBaClasses baClasses() {
     return mtbBaClasses;
   }
@@ -218,9 +231,20 @@ public abstract class MtbAbstractBackend
   }
 
   @Override
-  public ISkExtServicesProvider getExtServicesProvider() {
+  public IBaRtdata baRtdata() {
     // TODO Auto-generated method stub
     return null;
+  }
+
+  @Override
+  public IBaCommands baCommands() {
+    // TODO Auto-generated method stub
+    return null;
+  }
+
+  @Override
+  public IListEdit<ISkServiceCreator<? extends AbstractSkService>> listBackendServicesCreators() {
+    return backendServicesCreators;
   }
 
   @Override
