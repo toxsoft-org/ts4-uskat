@@ -1,5 +1,6 @@
 package org.toxsoft.uskat.s5.server.backend.impl;
 
+import static java.lang.String.*;
 import static org.toxsoft.core.log4j.Logger.*;
 import static org.toxsoft.core.tslib.av.impl.AvUtils.*;
 import static org.toxsoft.uskat.s5.client.IS5ConnectionParams.*;
@@ -33,10 +34,13 @@ import org.toxsoft.core.tslib.coll.impl.ElemArrayList;
 import org.toxsoft.core.tslib.coll.primtypes.*;
 import org.toxsoft.core.tslib.coll.primtypes.impl.StringMap;
 import org.toxsoft.core.tslib.gw.gwid.Gwid;
+import org.toxsoft.core.tslib.gw.gwid.IGwidList;
 import org.toxsoft.core.tslib.gw.skid.ISkidList;
 import org.toxsoft.core.tslib.gw.skid.Skid;
 import org.toxsoft.core.tslib.utils.errors.*;
+import org.toxsoft.core.tslib.utils.logs.ELogSeverity;
 import org.toxsoft.core.tslib.utils.logs.ILogger;
+import org.toxsoft.uskat.core.impl.S5EventSupport;
 import org.toxsoft.uskat.s5.client.remote.connection.S5ClusterTopology;
 import org.toxsoft.uskat.s5.common.sessions.IS5SessionInfo;
 import org.toxsoft.uskat.s5.server.backend.*;
@@ -61,6 +65,7 @@ import ru.uskat.core.api.ISkExtServicesProvider;
 import ru.uskat.core.api.ISkSystem;
 import ru.uskat.core.api.users.ISkSession;
 import ru.uskat.core.api.users.ISkUser;
+import ru.uskat.core.impl.SkUserService;
 import ru.uskat.legacy.IdPair;
 
 /**
@@ -297,8 +302,15 @@ public class S5BackendSession
         eventBackend.fireAsyncEvents( IS5FrontendRear.NULL, new TimedList<>( event ) );
         throw new S5AccessDeniedException( ERR_WRONG_USER );
       }
-      if( !user.attrs().getValue( ISkUser.ATRID_PASSWORD ).asString().equals( pswd ) ) {
-        // Доступ запрещен - неверное имя пользователя или пароль
+      // Пароль или его хэшкод пользователя
+      String userPswd = user.attrs().getValue( ISkUser.ATRID_PASSWORD ).asString();
+      // Хэшкод пароля
+      String pswdHashCode = SkUserService.getPasswordHashCode( pswd );
+      // Пароль указан в "сыром" виде
+      boolean isPlainPswd = userPswd.equals( pswd );
+      // Пароль указан в виде хэшкода
+      boolean isHashCodePswd = userPswd.equals( pswdHashCode );
+      if( !isPlainPswd && !isHashCodePswd ) { // Доступ запрещен - неверное имя пользователя или пароль
         Gwid eventGwid = Gwid.createEvent( ISkSystem.CLASS_ID, ISkSystem.THIS_SYSTEM, ISkSystem.EVID_LOGIN_FAILED );
         IOptionSetEdit params = new OptionSet();
         params.setStr( ISkSystem.EVPID_LOGIN, login );
@@ -307,7 +319,14 @@ public class S5BackendSession
         eventBackend.fireAsyncEvents( IS5FrontendRear.NULL, new TimedList<>( event ) );
         throw new S5AccessDeniedException( ERR_WRONG_USER );
       }
-
+      if( isPlainPswd ) {
+        // Формируем для пароля hashCode
+        IOptionSetEdit attrs = new OptionSet( user.attrs() );
+        attrs.setValue( ISkUser.ATRID_PASSWORD, avStr( pswdHashCode ) );
+        IDpuObject dpu = new DpuObject( user.skid(), attrs );
+        objectsBackend.writeObjects( IS5FrontendRear.NULL, ISkidList.EMPTY, new ElemArrayList<>( dpu ), false );
+        logger().warning( "init(...): write password hashcode" ); //$NON-NLS-1$
+      }
       // 2021-09-18 mvkd требуется отсекать "старых" клиентов
       // Проверка версии клиента
       IAtomicValue clientVersion = OP_CLIENT_VERSION.getValue( options );
@@ -385,6 +404,8 @@ public class S5BackendSession
       long addonsInitStartTime = System.currentTimeMillis();
       // Инициализация сессии данными клиента
       initResult.setAddons( getRemoteReferences( addonSessions ) );
+      // Подписка на события в сессии
+      session.frontendData().events().setNeededEventGwids( aInitData.eventGwids() );
       // Инициализация расширений службы
       for( String addonId : addonSessions.keys() ) {
         IS5BackendAddonSession addonSession = addonSessions.getByKey( addonId );
@@ -746,6 +767,34 @@ public class S5BackendSession
   public void removeLob( IdPair aId ) {
     TsNullArgumentRtException.checkNull( aId );
     lobsBackend.removeClob( aId );
+  }
+
+  @Override
+  @TransactionAttribute( TransactionAttributeType.SUPPORTS )
+  public void setNeededEventGwids( IGwidList aNeededGwids ) {
+    TsNullArgumentRtException.checkNull( aNeededGwids );
+    // Писатель обратных вызовов сессии
+    S5SessionCallbackWriter callbackWriter = sessionManager.getCallbackWriter( sessionID );
+    // Сессия связанная с писателем обратных вызовов
+    S5RemoteSession session = callbackWriter.session();
+    // Поддержка подписки на события в сессии
+    S5EventSupport eventSupport = callbackWriter.frontendData().events();
+    // Реконфигурация набора
+    eventSupport.setNeededEventGwids( aNeededGwids );
+    // Сохранение измененной сессии в кэше
+    sessionManager.updateRemoteSession( session );
+    if( logger().isSeverityOn( ELogSeverity.INFO ) || logger().isSeverityOn( ELogSeverity.DEBUG ) ) {
+      IGwidList eventIds = eventSupport.gwids();
+      // Вывод в журнал информации о регистрации ресурсов в сессии
+      StringBuilder sb = new StringBuilder();
+      sb.append( format( "setNeededEventGwids(...): sessionID = %s, changed resources:", sessionID ) ); //$NON-NLS-1$
+      sb.append( format( "\n   === events (%d) === ", Integer.valueOf( eventIds.size() ) ) ); //$NON-NLS-1$
+      for( Gwid gwid : eventIds ) {
+        sb.append( format( "\n   %s", gwid ) ); //$NON-NLS-1$
+      }
+      logger().info( sb.toString() );
+    }
+
   }
 
   @Override

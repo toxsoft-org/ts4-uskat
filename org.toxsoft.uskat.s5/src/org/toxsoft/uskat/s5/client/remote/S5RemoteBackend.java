@@ -26,10 +26,12 @@ import org.toxsoft.core.tslib.coll.IListEdit;
 import org.toxsoft.core.tslib.coll.impl.ElemArrayList;
 import org.toxsoft.core.tslib.coll.primtypes.*;
 import org.toxsoft.core.tslib.coll.primtypes.impl.StringMap;
+import org.toxsoft.core.tslib.gw.gwid.IGwidList;
 import org.toxsoft.core.tslib.gw.skid.ISkidList;
 import org.toxsoft.core.tslib.gw.skid.Skid;
 import org.toxsoft.core.tslib.utils.errors.*;
 import org.toxsoft.core.tslib.utils.logs.ILogger;
+import org.toxsoft.uskat.core.impl.S5EventSupport;
 import org.toxsoft.uskat.s5.client.remote.connection.*;
 import org.toxsoft.uskat.s5.common.S5BackendDoJobThread;
 import org.toxsoft.uskat.s5.common.S5FrontendRearCaller;
@@ -123,6 +125,11 @@ public final class S5RemoteBackend
    * Список стабов расширений backend
    */
   private final IStridablesListEdit<S5BackendAddonRemote<?>> remotes = new StridablesList<>();
+
+  /**
+   * Список событий на которые подписан клиент
+   */
+  private final S5EventSupport eventSupport = new S5EventSupport();
 
   /**
    * Удаленная ссылка на s5-backend
@@ -383,6 +390,16 @@ public final class S5RemoteBackend
   }
 
   @Override
+  public void setNeededEventGwids( IGwidList aNeededGwids ) {
+    TsNullArgumentRtException.checkNull( aNeededGwids );
+    eventSupport.setNeededEventGwids( aNeededGwids );
+    IS5BackendRemote r = findRemote();
+    if( r != null ) {
+      r.setNeededEventGwids( aNeededGwids );
+    }
+  }
+
+  @Override
   public ISkExtServicesProvider getExtServicesProvider() {
     return aCoreApi -> {
       IStringMapEdit<AbstractSkService> retValue = new StringMap<>();
@@ -443,6 +460,9 @@ public final class S5RemoteBackend
         r.init( this );
       }
     }
+    // Установка списка событий на который подписан клиент
+    aSource.sessionInitData().eventGwids().setAll( eventSupport.gwids() );
+    // Инициализация данных расширениями бекенда
     for( S5BackendAddonRemote<?> r : remotes ) {
       r.onAfterDiscover( aSource );
     }

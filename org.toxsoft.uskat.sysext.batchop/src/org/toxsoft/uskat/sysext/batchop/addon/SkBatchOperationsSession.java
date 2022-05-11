@@ -13,6 +13,7 @@ import org.toxsoft.core.tslib.bricks.strid.coll.IStridablesList;
 import org.toxsoft.core.tslib.bricks.validator.IValResList;
 import org.toxsoft.core.tslib.coll.IList;
 import org.toxsoft.core.tslib.coll.primtypes.IStringList;
+import org.toxsoft.core.tslib.gw.gwid.IGwidList;
 import org.toxsoft.core.tslib.gw.skid.ISkidList;
 import org.toxsoft.core.tslib.gw.skid.Skid;
 import org.toxsoft.core.tslib.utils.errors.TsNullArgumentRtException;
@@ -261,6 +262,11 @@ public class SkBatchOperationsSession
     public void removeLob( IdPair aId ) {
       TsNullArgumentRtException.checkNull( aId );
       lobsBackend.removeClob( aId );
+    }
+
+    @Override
+    public void setNeededEventGwids( IGwidList aNeededGwids ) {
+      throw new TsUnsupportedFeatureRtException();
     }
 
     @Override

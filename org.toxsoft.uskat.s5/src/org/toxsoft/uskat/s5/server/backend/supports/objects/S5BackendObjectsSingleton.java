@@ -461,10 +461,12 @@ public class S5BackendObjectsSingleton
       ISkidList aObjectIds ) {
     TsNullArgumentRtException.checkNulls( aFrontend, aFrontends, aObjectIds );
     for( IS5FrontendRear frontend : aFrontends ) {
-      if( aFrontend == frontend ) {
-        // В свой frontend событие не отправляется (frontend сам отслеживает свои изменения)
-        continue;
-      }
+      // 2022-04-11 mvk не всегда frontend может отслеживать свои изменения объектов (или это получается криво как при
+      // использовании ISkBatchOperationService), поэтому извещение производится для всех frontend
+      // if( aFrontend == frontend ) {
+      // В свой frontend событие не отправляется (frontend сам отслеживает свои изменения)
+      // continue;
+      // }
       SkMessageWhenObjectsChanged.send( frontend, aObjectIds );
     }
   }
