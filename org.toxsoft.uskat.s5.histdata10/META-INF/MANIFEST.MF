@@ -1,0 +1,22 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: uskat s5 histdata10 extension - ToxSoft's common library
+Bundle-SymbolicName: org.toxsoft.uskat.s5.histdata10
+Bundle-Version: 1.0.0.qualifier
+Bundle-Vendor: ToxSoft Ltd.
+Require-Bundle: org.toxsoft.extlibs.log4j,
+ org.toxsoft.extlibs.wildfly,
+ org.toxsoft.core.tslib,
+ org.toxsoft.uskat.core,
+ ru.uskat.core,
+ org.toxsoft.uskat.s5,
+ org.toxsoft.uskat.sysext.realtime
+Eclipse-RegisterBuddy: ru.toxsoft.extlib.wildfly
+Eclipse-BuddyPolicy: registered
+Bundle-RequiredExecutionEnvironment: JavaSE-17
+Export-Package: org.toxsoft.uskat.sysext.realtime.supports.histdata.sequences,
+ org.toxsoft.uskat.sysext.realtime.supports.histdata.sequences.async,
+ org.toxsoft.uskat.sysext.realtime.supports.histdata.sequences.sync
+DynamicImport-Package: *
+Automatic-Module-Name: org.toxsoft.uskat.s5.histdata10
+ 
