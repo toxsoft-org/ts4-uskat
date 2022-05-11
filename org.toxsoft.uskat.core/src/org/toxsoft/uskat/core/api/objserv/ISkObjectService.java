@@ -72,13 +72,14 @@ public interface ISkObjectService
    * And if <code>SomeClass</code> is not parent of <code>OtherClass</code>, returned list will contain instances of
    * different Java-classes.
    *
+   * @param <T> - extpected type of the objects
    * @param aClassId String - the objects class ID
    * @param aIncludeSubclasses boolean - <code>true</code> to include objects of all subclasses
-   * @return {@link ISkObjList} - list of the objects
+   * @return {@link IList}&lt;T&gt; - list of the objects
    * @throws TsNullArgumentRtException any argument = <code>null</code>
    * @throws TsItemNotFoundRtException no such class
    */
-  ISkObjList listObjs( String aClassId, boolean aIncludeSubclasses );
+  <T extends ISkObject> IList<T> listObjs( String aClassId, boolean aIncludeSubclasses );
 
   /**
    * Returns objects by SKIDs.
@@ -88,37 +89,24 @@ public interface ISkObjectService
    * specified.
    *
    * @param aSkids {@link ISkidList} - list of SKIDs
-   * @return {@link ISkObjList} - objects list
+   * @return {@link IList}&lt;{@link ISkObject}&gt; - objects list
    * @throws TsNullArgumentRtException any argument = <code>null</code>
    * @throws TsItemNotFoundRtException argument contains at least one non-existing obejct SKID
    */
-  ISkObjList getObjs( ISkidList aSkids );
+  IList<ISkObject> getObjs( ISkidList aSkids );
 
   /**
    * Cretes new or updates an existing object. Создает новый или редактирует существующий объект.
    *
    * @param <T> - expected type of the object
    * @param aDtoObject {@link IDtoObject} - the object data
-   * @return {@link ISkObject} - created/updated object
+   * @return &lt;T&gt; - created/updated object
    * @throws TsNullArgumentRtException any argument = <code>null</code>
    * @throws TsValidationFailedRtException failed validation
    *           {@link ISkObjectServiceValidator#canCreateObject(IDtoObject)} or
    *           {@link ISkObjectServiceValidator#canEditObject(IDtoObject, ISkObject)}
    */
   <T extends ISkObject> T defineObject( IDtoObject aDtoObject );
-
-  /**
-   * Creates/updates multiple objects at once.
-   * <p>
-   * TODO implementation details
-   *
-   * @param aDtoObjects {@link IList}&lt;{@link IDtoObject}&gt; - objects data
-   * @return {@link ISkObjList} - created objects
-   * @throws TsValidationFailedRtException failed validation
-   *           {@link ISkObjectServiceValidator#canCreateObject(IDtoObject)} or
-   *           {@link ISkObjectServiceValidator#canEditObject(IDtoObject, ISkObject)}
-   */
-  ISkObjList defineObjects( IList<IDtoObject> aDtoObjects );
 
   /**
    * Removes the specified object.

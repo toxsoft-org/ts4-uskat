@@ -1,10 +1,9 @@
 package org.toxsoft.uskat.core.api.objserv;
 
-import org.toxsoft.core.tslib.bricks.validator.ValidationResult;
-import org.toxsoft.core.tslib.coll.IList;
-import org.toxsoft.core.tslib.gw.skid.ISkidList;
-import org.toxsoft.core.tslib.gw.skid.Skid;
-import org.toxsoft.core.tslib.utils.errors.TsNullArgumentRtException;
+import org.toxsoft.core.tslib.bricks.validator.*;
+import org.toxsoft.core.tslib.coll.*;
+import org.toxsoft.core.tslib.gw.skid.*;
+import org.toxsoft.core.tslib.utils.errors.*;
 
 /**
  * {@link ISkObjectService} service validator.
@@ -29,7 +28,17 @@ public interface ISkObjectServiceValidator {
    * @return {@link ValidationResult} - the validation result
    * @throws TsNullArgumentRtException any argument = <code>null</code>
    */
-  ValidationResult canCreateObjects( IList<IDtoObject> aDtoObjects );
+  default ValidationResult canCreateObjects( IList<IDtoObject> aDtoObjects ) {
+    TsNullArgumentRtException.checkNull( aDtoObjects );
+    ValidationResult vr = ValidationResult.SUCCESS;
+    for( IDtoObject o : aDtoObjects ) {
+      vr = ValidationResult.firstNonOk( vr, canCreateObject( o ) );
+      if( vr.isError() ) {
+        break;
+      }
+    }
+    return vr;
+  }
 
   /**
    * Проверят, можно ли создать отредактировать существующий объект.
@@ -57,6 +66,16 @@ public interface ISkObjectServiceValidator {
    * @return {@link ValidationResult} - the validation result
    * @throws TsNullArgumentRtException any argument = <code>null</code>
    */
-  ValidationResult canRemoveObjects( ISkidList aSkids );
+  default ValidationResult canRemoveObjects( ISkidList aSkids ) {
+    TsNullArgumentRtException.checkNull( aSkids );
+    ValidationResult vr = ValidationResult.SUCCESS;
+    for( Skid s : aSkids ) {
+      vr = ValidationResult.firstNonOk( vr, canRemoveObject( s ) );
+      if( vr.isError() ) {
+        break;
+      }
+    }
+    return vr;
+  }
 
 }

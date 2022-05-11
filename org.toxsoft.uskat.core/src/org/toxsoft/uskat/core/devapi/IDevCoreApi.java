@@ -39,4 +39,6 @@ public interface IDevCoreApi
    */
   ITsContextRo openArgs();
 
+  void doJobInCoreMainThred();
+
 }

@@ -24,7 +24,7 @@ public class SkCoreServRtdata
   }
 
   // ------------------------------------------------------------------------------------
-  // AbstractSkService
+  // ApiWrapAbstractSkService
   //
 
   @Override

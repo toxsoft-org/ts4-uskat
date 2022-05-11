@@ -86,7 +86,7 @@ class SkCoreServClobs
   }
 
   // ------------------------------------------------------------------------------------
-  // AbstractSkService
+  // ApiWrapAbstractSkService
   //
 
   @Override

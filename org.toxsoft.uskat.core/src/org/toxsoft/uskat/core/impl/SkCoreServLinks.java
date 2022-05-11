@@ -65,7 +65,7 @@ public class SkCoreServLinks
   }
 
   // ------------------------------------------------------------------------------------
-  // AbstractSkService
+  // ApiWrapAbstractSkService
   //
 
   @Override

@@ -352,7 +352,7 @@ class SkCoreServSysdescr
   }
 
   // ------------------------------------------------------------------------------------
-  // AbstractSkService
+  // ApiWrapAbstractSkService
   //
 
   @Override

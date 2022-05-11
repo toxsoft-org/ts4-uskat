@@ -29,7 +29,7 @@ public class SkCoreServCommands
   }
 
   // ------------------------------------------------------------------------------------
-  // AbstractSkService
+  // ApiWrapAbstractSkService
   //
 
   @Override

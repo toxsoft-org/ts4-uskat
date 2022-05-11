@@ -25,17 +25,17 @@ public interface ISkBackendHardConstant {
   // ------------------------------------------------------------------------------------
   // ISkBackendInfo
 
-  String OPID_SKBI_MAX_CLOB_LENGTH        = SKBI_ID + ".MaxClobLength";        //$NON-NLS-1$
-  String OPID_SKBI_NEEDS_THREAD_SEPARATOR = SKBI_ID + ".NeedsThreadSeparator"; //$NON-NLS-1$
+  String OPID_SKBI_MAX_CLOB_LENGTH  = SKBI_ID + ".MaxClobLength";        //$NON-NLS-1$
+  String OPID_SKBI_NEED_THREAD_SAFE = SKBI_ID + ".NeedsThreadSeparator"; //$NON-NLS-1$
 
   IDataDef OPDEF_SKBI_MAX_CLOB_LENGTH = DataDef.create( OPID_SKBI_MAX_CLOB_LENGTH, INTEGER, //
       TSID_NAME, STR_N_SKBI_MAX_CLOB_LENGTH, //
       TSID_DESCRIPTION, STR_D_SKBI_MAX_CLOB_LENGTH //
   );
 
-  IDataDef OPDEF_SKBI_NEEDS_THREAD_SEPARATOR = DataDef.create( OPID_SKBI_NEEDS_THREAD_SEPARATOR, INTEGER, //
-      TSID_NAME, STR_N_SKBI_NEEDS_THREAD_SEPARATOR, //
-      TSID_DESCRIPTION, STR_D_SKBI_NEEDS_THREAD_SEPARATOR //
+  IDataDef OPDEF_SKBI_NEED_THREAD_SAFE = DataDef.create( OPID_SKBI_NEED_THREAD_SAFE, INTEGER, //
+      TSID_NAME, STR_N_SKBI_NEED_THREAD_SAFE, //
+      TSID_DESCRIPTION, STR_D_SKBI_NEED_THREAD_SAFE //
   );
 
   // ------------------------------------------------------------------------------------

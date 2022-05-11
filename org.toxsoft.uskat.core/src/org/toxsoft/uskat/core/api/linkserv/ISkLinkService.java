@@ -106,7 +106,7 @@ public interface ISkLinkService
    * результатом обоих дествий будет пустой список правых объектов. Например, связи, которая должна содержать ровно один
    * объект, нельзя задавать 0 правых объектов - это нарушение правил. А удалить такую связь можно, фактически,
    * восстанавливая объект до состояния момента создания. Напомним, только что созданный методом
-   * {@link ISkObjectService#defineObject(IDpuObject)} имеет только пустые связи.
+   * {@link ISkObjectService#defineObject(IDtoObject)} имеет только пустые связи.
    *
    * @param aLeftSkid {@link Skid} - идентификатор левого объекта
    * @throws TsNullArgumentRtException любой аргумент (кроме aRemovedSkids) = null

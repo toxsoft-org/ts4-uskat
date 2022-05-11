@@ -9,6 +9,13 @@ import org.toxsoft.core.tslib.utils.errors.*;
 import org.toxsoft.core.tslib.utils.logs.impl.*;
 import org.toxsoft.uskat.core.*;
 import org.toxsoft.uskat.core.api.*;
+import org.toxsoft.uskat.core.api.clobserv.*;
+import org.toxsoft.uskat.core.api.cmdserv.*;
+import org.toxsoft.uskat.core.api.evserv.*;
+import org.toxsoft.uskat.core.api.linkserv.*;
+import org.toxsoft.uskat.core.api.objserv.*;
+import org.toxsoft.uskat.core.api.rtdserv.*;
+import org.toxsoft.uskat.core.api.sysdescr.*;
 import org.toxsoft.uskat.core.connection.*;
 import org.toxsoft.uskat.core.devapi.*;
 
@@ -162,6 +169,45 @@ public abstract class AbstractSkService
   @Override
   final public SkCoreApi coreApi() {
     return coreApi;
+  }
+
+  // ------------------------------------------------------------------------------------
+  // API for descendants
+  //
+
+  @SuppressWarnings( "javadoc" )
+  public ISkSysdescr sysdescr() {
+    return coreApi.sysdescr();
+  }
+
+  @SuppressWarnings( "javadoc" )
+  public ISkObjectService objServ() {
+    return coreApi.objService();
+  }
+
+  @SuppressWarnings( "javadoc" )
+  public ISkClobService clobService() {
+    return coreApi.clobService();
+  }
+
+  @SuppressWarnings( "javadoc" )
+  public ISkCommandService cmdService() {
+    return coreApi.cmdService();
+  }
+
+  @SuppressWarnings( "javadoc" )
+  public ISkEventService eventService() {
+    return coreApi.eventService();
+  }
+
+  @SuppressWarnings( "javadoc" )
+  public ISkLinkService linkService() {
+    return coreApi.linkService();
+  }
+
+  @SuppressWarnings( "javadoc" )
+  public ISkRtdataService rtdService() {
+    return coreApi.rtdService();
   }
 
   // ------------------------------------------------------------------------------------

@@ -29,7 +29,7 @@ public class SkCoreServEvents
   }
 
   // ------------------------------------------------------------------------------------
-  // AbstractSkService
+  // ApiWrapAbstractSkService
   //
 
   @Override

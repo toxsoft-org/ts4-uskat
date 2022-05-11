@@ -84,14 +84,4 @@ public interface ISkCoreConfigConstants {
       TSID_IS_MANDATORY, AV_FALSE //
   );
 
-  /**
-   * {@link ISkConnection#open(ITsContextRo)} argument: frontend-backend thread separator.<br>
-   * Usage: this argument is mandatory for backends with flag
-   * {@link ISkBackendHardConstant#OPDEF_SKBI_NEEDS_THREAD_SEPARATOR} set. Must contain reference to the
-   * {@link SkBackendThreadSeparator} instance which {@link SkBackendThreadSeparator#doJob()} is called from the same
-   * execution thread as {@link ISkCoreApi} calls.
-   */
-  ITsContextRefDef<SkBackendThreadSeparator> REFDEF_BACKEND_THREAD_SEPARATOR =
-      TsContextRefDef.create( SkBackendThreadSeparator.class );
-
 }

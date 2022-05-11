@@ -8,6 +8,8 @@ import org.toxsoft.core.tslib.av.*;
 import org.toxsoft.core.tslib.av.errors.*;
 import org.toxsoft.core.tslib.av.opset.*;
 import org.toxsoft.core.tslib.bricks.ctx.*;
+import org.toxsoft.core.tslib.bricks.strid.coll.*;
+import org.toxsoft.core.tslib.bricks.strid.coll.impl.*;
 import org.toxsoft.core.tslib.bricks.strid.impl.*;
 import org.toxsoft.core.tslib.bricks.validator.*;
 import org.toxsoft.core.tslib.bricks.validator.impl.*;
@@ -247,7 +249,7 @@ class SkCoreServObject
           }
         }
       }
-      // FIXME check rivets
+      // check rivets
       for( IDtoRivetInfo rivetInfo : classInfo.rivets().list() ) {
         // check right class exists
         ISkClassInfo rightClass = coreApi().sysdescr().findClassInfo( rivetInfo.rightClassId() );
@@ -343,7 +345,7 @@ class SkCoreServObject
   }
 
   // ------------------------------------------------------------------------------------
-  // AbstractSkService
+  // ApiWrapAbstractSkService
   //
 
   @Override
@@ -425,7 +427,7 @@ class SkCoreServObject
     return dtoObj;
   }
 
-  private void internalWriteSkObjectToBacked( ISkObject aObj ) {
+  private void internalWriteSkObjectToBackend( ISkObject aObj ) {
     DtoObject dtoObj = createForBackendSave( aObj );
     ba().baObjects().writeObjects( ISkidList.EMPTY, new SingleItemList<>( dtoObj ) );
   }
@@ -438,6 +440,14 @@ class SkCoreServObject
       return true;
     }
     return false;
+  }
+
+  private void internalRemoveObjects( ISkidList aSkids ) {
+    // remove all links before removing object
+    for( Skid s : aSkids ) {
+      linkService().removeLinks( s );
+    }
+    ba().baObjects().writeObjects( aSkids, IList.EMPTY );
   }
 
   // ------------------------------------------------------------------------------------
@@ -465,6 +475,7 @@ class SkCoreServObject
   @SuppressWarnings( "unchecked" )
   @Override
   public <T extends ISkObject> T get( Skid aSkid ) {
+    coreApi().papiCheckIsOpen();
     ISkObject sko = find( aSkid );
     TsItemNotFoundRtException.checkNull( sko, FMT_ERR_NO_SUCH_OBJ, aSkid.toString() );
     return (T)sko;
@@ -472,20 +483,68 @@ class SkCoreServObject
 
   @Override
   public ISkidList listSkids( String aClassId, boolean aIncludeSubclasses ) {
-    // TODO реализовать SkCoreServObject.listSkids()
-    throw new TsUnderDevelopmentRtException( "SkCoreServObject.listSkids()" );
+    coreApi().papiCheckIsOpen();
+    ISkClassInfo cinf = coreApi().sysdescr().getClassInfo( aClassId );
+    IStridablesList<ISkClassInfo> classesList;
+    if( aIncludeSubclasses ) {
+      classesList = cinf.listSubclasses( !aIncludeSubclasses, true );
+    }
+    else {
+      classesList = new StridablesList<>( cinf );
+    }
+    IList<IDtoObject> dpuObjs = coreApi().l10n().l10nObjectsList( ba().baObjects().readObjects( classesList.ids() ) );
+    SkidList ll = new SkidList();
+    for( IDtoObject dpu : dpuObjs ) {
+      ll.add( dpu.skid() );
+    }
+    return ll;
+  }
+
+  @SuppressWarnings( "unchecked" )
+  @Override
+  public <T extends ISkObject> IList<T> listObjs( String aClassId, boolean aIncludeSubclasses ) {
+    TsNullArgumentRtException.checkNull( aClassId );
+    coreApi().papiCheckIsOpen();
+    ISkClassInfo cinf = sysdescr().getClassInfo( aClassId );
+    IStridablesList<ISkClassInfo> classesList;
+    if( aIncludeSubclasses ) {
+      classesList = cinf.listSubclasses( !aIncludeSubclasses, true );
+    }
+    else {
+      classesList = new StridablesList<>( cinf );
+    }
+    IList<IDtoObject> dpuObjs = coreApi().l10n().l10nObjectsList( ba().baObjects().readObjects( classesList.ids() ) );
+    // aAllowDuplicates = false
+    IListEdit<ISkObject> ll = new ElemLinkedBundleList<>( 256, false );
+    for( IDtoObject dpu : dpuObjs ) {
+      SkObject sko = objsCache.find( dpu.skid() );
+      if( sko == null ) {
+        ISkClassInfo cInfo = sysdescr().getClassInfo( dpu.skid().classId() );
+        sko = fromDto( dpu, cInfo );
+        objsCache.put( sko );
+      }
+      ll.add( sko );
+    }
+    return (IList<T>)ll;
   }
 
   @Override
-  public ISkObjList listObjs( String aClassId, boolean aIncludeSubclasses ) {
-    // TODO реализовать SkCoreServObject.listObjs()
-    throw new TsUnderDevelopmentRtException( "SkCoreServObject.listObjs()" );
-  }
-
-  @Override
-  public ISkObjList getObjs( ISkidList aSkids ) {
-    // TODO реализовать SkCoreServObject.getObjs()
-    throw new TsUnderDevelopmentRtException( "SkCoreServObject.getObjs()" );
+  public IList<ISkObject> getObjs( ISkidList aSkids ) {
+    TsNullArgumentRtException.checkNull( aSkids );
+    coreApi().papiCheckIsOpen();
+    IList<IDtoObject> dpuObjs = coreApi().l10n().l10nObjectsList( ba().baObjects().readObjectsByIds( aSkids ) );
+    IListEdit<ISkObject> result = new ElemLinkedBundleList<>(
+        TsCollectionsUtils.getListInitialCapacity( TsCollectionsUtils.estimateOrder( 1_000 ) ), false );
+    for( IDtoObject dpu : dpuObjs ) {
+      SkObject sko = objsCache.find( dpu.skid() );
+      if( sko == null ) {
+        ISkClassInfo cInfo = sysdescr().getClassInfo( dpu.skid().classId() );
+        sko = fromDto( dpu, cInfo );
+        objsCache.put( sko );
+      }
+      result.add( sko );
+    }
+    return result;
   }
 
   @SuppressWarnings( "unchecked" )
@@ -496,7 +555,7 @@ class SkCoreServObject
     coreApi().papiCheckIsOpen();
     ISkClassInfo cInfo = coreApi().sysdescr().getClassInfo( aDtoObject.skid().classId() );
     // validate operation
-    SkObject sko = (SkObject)find( aDtoObject.skid() );
+    SkObject sko = find( aDtoObject.skid() );
     if( sko != null ) { // validate exiting object editing
       TsValidationFailedRtException.checkError( validationSupport.canEditObject( aDtoObject, sko ) );
     }
@@ -511,29 +570,29 @@ class SkCoreServObject
         sko.attrs().setValue( ainf.id(), val );
       }
     }
-    // сохраним объект и известим об изменениях
-    internalWriteSkObjectToBacked( sko );
+    // FIXME refresh rivets values
+    // save object
     objsCache.put( sko );
-    // FIXME coreApi().fireCoreEvent( new SkCoreEvent( op, Gwid.createObj( sko.skid() ) ) );
+    internalWriteSkObjectToBackend( sko );
     return (T)sko;
   }
 
   @Override
-  public ISkObjList defineObjects( IList<IDtoObject> aDtoObjects ) {
-    // TODO реализовать SkCoreServObject.defineObjects()
-    throw new TsUnderDevelopmentRtException( "SkCoreServObject.defineObjects()" );
-  }
-
-  @Override
   public void removeObject( Skid aSkid ) {
-    // TODO реализовать SkCoreServObject.removeObject()
-    throw new TsUnderDevelopmentRtException( "SkCoreServObject.removeObject()" );
+    coreApi().papiCheckIsOpen();
+    TsValidationFailedRtException.checkError( validationSupport.canRemoveObject( aSkid ) );
+    objsCache.remove( aSkid );
+    internalRemoveObjects( new SkidList( aSkid ) );
   }
 
   @Override
   public void removeObjects( ISkidList aSkids ) {
-    // TODO реализовать SkCoreServObject.removeObjects()
-    throw new TsUnderDevelopmentRtException( "SkCoreServObject.removeObjects()" );
+    coreApi().papiCheckIsOpen();
+    TsValidationFailedRtException.checkError( validationSupport.canRemoveObjects( aSkids ) );
+    for( Skid s : aSkids ) {
+      objsCache.remove( s );
+    }
+    internalRemoveObjects( aSkids );
   }
 
   @Override
@@ -543,8 +602,7 @@ class SkCoreServObject
 
   @Override
   public ITsValidationSupport<ISkObjectServiceValidator> svs() {
-    // TODO реализовать SkCoreServObject.svs()
-    throw new TsUnderDevelopmentRtException( "SkCoreServObject.svs()" );
+    return validationSupport;
   }
 
 }

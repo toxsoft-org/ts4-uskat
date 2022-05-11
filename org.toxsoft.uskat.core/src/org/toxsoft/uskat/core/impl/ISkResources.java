@@ -9,7 +9,7 @@ package org.toxsoft.uskat.core.impl;
 interface ISkResources {
 
   /**
-   * {@link AbstractSkService}
+   * {@link ApiWrapAbstractSkService}
    */
   String FMT_INFO_SERVICE_INIT       = "Service %s: init() called";
   String FMT_INFO_SERVICE_CLOSE      = "Service %s: close() called";
