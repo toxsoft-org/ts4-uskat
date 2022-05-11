@@ -99,13 +99,13 @@ public class SkCoreServLinks
   }
 
   @Override
-  public IDtoLinkRev getLinkRev( String aClassId, String aLinkId, Skid aRightSkid ) {
+  public ISkidList getLinkRev( String aClassId, String aLinkId, Skid aRightSkid ) {
     // TODO Auto-generated method stub
     return null;
   }
 
   @Override
-  public IMap<Gwid, IDtoLinkRev> getAllLinksRev( Skid aRightSkid ) {
+  public IMap<Gwid, ISkidList> getAllLinksRev( Skid aRightSkid ) {
     // TODO Auto-generated method stub
     return null;
   }

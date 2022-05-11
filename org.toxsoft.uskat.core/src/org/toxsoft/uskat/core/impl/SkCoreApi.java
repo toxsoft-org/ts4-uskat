@@ -65,8 +65,8 @@ public class SkCoreApi
    * ant the end of core service method, when user explicitly calls {@link SkCoreApi#doJobInCoreMainThred()};</li>
    * <li>Some backends have their own execution threads. While calling suck backend's API is thread safe, reverce call
    * to the {@link ISkFrontendRear#onBackendMessage(GtMessage)} must be also thread-safe. For such backends (marked by
-   * {@link ISkBackendHardConstant#OPDEF_SKBI_NEEDS_THREAD_SEPARATOR} option) the queue implementation will be wrapped
-   * in the thread-safe {@link SynchronizedQueueWrapper}.</li>
+   * {@link ISkBackendHardConstant#OPDEF_SKBI_NEED_THREAD_SAFE} option) the queue implementation will be wrapped in the
+   * thread-safe {@link SynchronizedQueueWrapper}.</li>
    * </ul>
    */
   private final IQueue<GtMessage> backendMessageQueue;

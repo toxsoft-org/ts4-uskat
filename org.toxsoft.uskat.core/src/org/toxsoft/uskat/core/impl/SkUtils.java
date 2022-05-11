@@ -55,7 +55,7 @@ public class SkUtils {
     dpuRoot.params().setStr( TSID_DESCRIPTION, STR_D_ROOT_CLASS );
     // --- creating attributes
     // AID_SKID
-    dpuRoot.attrInfos().add( DtoAttrInfo.create1( AID_SKID, new DataType( VALOBJ, //
+    dpuRoot.attrInfos().add( DtoAttrInfo.create1( AID_SKID, DataType.create( VALOBJ, //
         TSID_NAME, STR_N_ATTR_SKID, //
         TSID_DESCRIPTION, STR_D_ATTR_SKID, //
         TSID_KEEPER_ID, Skid.KEEPER_ID, //
@@ -65,7 +65,7 @@ public class SkUtils {
         OPDEF_SK_IS_SYS_ATTR, AV_TRUE //
     ) ) );
     // AID_CLASS_ID
-    dpuRoot.attrInfos().add( DtoAttrInfo.create1( AID_CLASS_ID, new DataType( STRING, //
+    dpuRoot.attrInfos().add( DtoAttrInfo.create1( AID_CLASS_ID, DataType.create( STRING, //
         TSID_NAME, STR_N_ATTR_CLASS_ID, //
         TSID_DESCRIPTION, STR_D_ATTR_CLASS_ID, //
         TSID_IS_NULL_ALLOWED, AV_FALSE, //
@@ -74,7 +74,7 @@ public class SkUtils {
         OPDEF_SK_IS_SYS_ATTR, AV_TRUE //
     ) ) );
     // AID_STRID
-    dpuRoot.attrInfos().add( DtoAttrInfo.create1( AID_STRID, new DataType( STRING, //
+    dpuRoot.attrInfos().add( DtoAttrInfo.create1( AID_STRID, DataType.create( STRING, //
         TSID_NAME, STR_N_ATTR_STRID, //
         TSID_DESCRIPTION, STR_D_ATTR_STRID, //
         TSID_IS_NULL_ALLOWED, AV_FALSE, //

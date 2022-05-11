@@ -17,6 +17,7 @@ import org.toxsoft.core.tslib.coll.*;
 import org.toxsoft.core.tslib.coll.impl.*;
 import org.toxsoft.core.tslib.coll.primtypes.*;
 import org.toxsoft.core.tslib.coll.primtypes.impl.*;
+import org.toxsoft.core.tslib.gw.gwid.*;
 import org.toxsoft.core.tslib.gw.skid.*;
 import org.toxsoft.core.tslib.utils.errors.*;
 import org.toxsoft.core.tslib.utils.txtmatch.*;
@@ -571,6 +572,9 @@ class SkCoreServObject
       }
     }
     // FIXME refresh rivets values
+    for( IDtoRivetInfo rinf : cInfo.rivets().list() ) {
+      sko.rivets().ensureSkidList( rinf.id() ).setAll( aDtoObject.rivets().map().getByKey( rinf.id() ) );
+    }
     // save object
     objsCache.put( sko );
     internalWriteSkObjectToBackend( sko );
@@ -583,6 +587,18 @@ class SkCoreServObject
     TsValidationFailedRtException.checkError( validationSupport.canRemoveObject( aSkid ) );
     objsCache.remove( aSkid );
     internalRemoveObjects( new SkidList( aSkid ) );
+  }
+
+  @Override
+  public ISkidList getRivetRev( String aClassId, String aRivetId, Skid aRightSkid ) {
+    // TODO Auto-generated method stub
+    return null;
+  }
+
+  @Override
+  public IMap<Gwid, ISkidList> getAllRivetsRev( Skid aRightSkid ) {
+    // TODO Auto-generated method stub
+    return null;
   }
 
   @Override

@@ -35,7 +35,8 @@ public interface ISkBackendHardConstant {
 
   IDataDef OPDEF_SKBI_NEED_THREAD_SAFE = DataDef.create( OPID_SKBI_NEED_THREAD_SAFE, INTEGER, //
       TSID_NAME, STR_N_SKBI_NEED_THREAD_SAFE, //
-      TSID_DESCRIPTION, STR_D_SKBI_NEED_THREAD_SAFE //
+      TSID_DESCRIPTION, STR_D_SKBI_NEED_THREAD_SAFE, //
+      TSID_DEFAULT_VALUE, AV_FALSE //
   );
 
   // ------------------------------------------------------------------------------------

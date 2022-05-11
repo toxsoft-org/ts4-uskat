@@ -58,19 +58,19 @@ public interface ISkLinkService
    * @param aClassId String - идентификатор класса связи
    * @param aLinkId String - идентификатор связи
    * @param aRightSkid {@link Skid} - идентификатор правого объекта
-   * @return {@link IDtoLinkFwd} - обратная связь
+   * @return {@link ISkidList} - обратная связь
    * @throws TsNullArgumentRtException любой аргумент = null
    * @throws TsItemNotFoundRtException нет такой связи или такого объекта в системе
    */
-  IDtoLinkRev getLinkRev( String aClassId, String aLinkId, Skid aRightSkid );
+  ISkidList getLinkRev( String aClassId, String aLinkId, Skid aRightSkid );
 
   /**
    * Returns all revese links of the specified object.
    *
    * @param aRightSkid {@link Skid} - the object SKID
-   * @return {@link IMap}&lt;{@link Gwid},{@link IDtoLinkRev}&gt; - the map "abstract link" - "reverse link"
+   * @return {@link IMap}&lt;{@link Gwid},{@link ISkidList}&gt; - the map "abstract link" - "left objects of link"
    */
-  IMap<Gwid, IDtoLinkRev> getAllLinksRev( Skid aRightSkid );
+  IMap<Gwid, ISkidList> getAllLinksRev( Skid aRightSkid );
 
   /**
    * Определяет список связанных объектов.

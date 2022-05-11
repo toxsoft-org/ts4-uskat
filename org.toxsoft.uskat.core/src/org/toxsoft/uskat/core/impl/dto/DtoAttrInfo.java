@@ -5,6 +5,7 @@ import static org.toxsoft.uskat.core.impl.dto.IDtoHardConstants.*;
 
 import org.toxsoft.core.tslib.av.metainfo.*;
 import org.toxsoft.core.tslib.av.opset.*;
+import org.toxsoft.core.tslib.av.opset.impl.*;
 import org.toxsoft.core.tslib.bricks.keeper.*;
 import org.toxsoft.core.tslib.bricks.strid.impl.*;
 import org.toxsoft.core.tslib.utils.errors.*;
@@ -66,6 +67,20 @@ public final class DtoAttrInfo
     DtoAttrInfo ainf = new DtoAttrInfo( aId, aParams );
     ainf.setProps( aDataType );
     return ainf;
+  }
+
+  /**
+   * Static constructor.
+   *
+   * @param aId String - the ID (IDpath)
+   * @param aDataType {@link IDataType} - data type
+   * @param aIdsAndValues Object[] - {@link #params()} values
+   * @return {@link DtoAttrInfo} - created instance
+   * @throws TsNullArgumentRtException any argument = <code>null</code>
+   * @throws TsIllegalArgumentRtException identifier is not an IDpath
+   */
+  public static DtoAttrInfo create2( String aId, IDataType aDataType, Object... aIdsAndValues ) {
+    return create1( aId, aDataType, OptionSetUtils.createOpSet( aIdsAndValues ) );
   }
 
   // ------------------------------------------------------------------------------------

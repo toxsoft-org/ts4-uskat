@@ -4,6 +4,7 @@ import org.toxsoft.core.tslib.bricks.strid.impl.*;
 import org.toxsoft.core.tslib.bricks.validator.*;
 import org.toxsoft.core.tslib.bricks.validator.impl.*;
 import org.toxsoft.core.tslib.coll.*;
+import org.toxsoft.core.tslib.gw.gwid.*;
 import org.toxsoft.core.tslib.gw.skid.*;
 import org.toxsoft.core.tslib.utils.errors.*;
 import org.toxsoft.core.tslib.utils.txtmatch.*;
@@ -120,7 +121,28 @@ public interface ISkObjectService
   void removeObject( Skid aSkid );
 
   /**
-   * Removes multiple obejcts at once.
+   * Returns the objects which have specified object riveted with the specified rivet.
+   *
+   * @param aClassId String - rivet class ID
+   * @param aRivetId String - rivet ID
+   * @param aRightSkid {@link Skid} - the right object of rivet
+   * @return {@link ISkidList} - the list of left objects with specified right object riveted
+   * @throws TsNullArgumentRtException any argument = <code>null</code>
+   * @throws TsItemNotFoundRtException нет такой связи или такого объекта в системе
+   */
+  ISkidList getRivetRev( String aClassId, String aRivetId, Skid aRightSkid );
+
+  /**
+   * Returns the objects which have specified object riveted with any rivet.
+   *
+   * @param aRightSkid {@link Skid} - the object SKID
+   * @return {@link IMap}&lt;{@link Gwid},{@link ISkidList}&gt; - the map "abstract rivet" - "left objects of rivet"
+   * @throws TsNullArgumentRtException any argument = <code>null</code>
+   */
+  IMap<Gwid, ISkidList> getAllRivetsRev( Skid aRightSkid );
+
+  /**
+   * /** Removes multiple obejcts at once.
    * <p>
    * All forward links of all removed objects are also deleted.
    *

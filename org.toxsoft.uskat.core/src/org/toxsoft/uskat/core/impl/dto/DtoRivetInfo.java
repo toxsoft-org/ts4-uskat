@@ -4,6 +4,7 @@ import static org.toxsoft.core.tslib.av.impl.AvUtils.*;
 import static org.toxsoft.uskat.core.impl.dto.IDtoHardConstants.*;
 
 import org.toxsoft.core.tslib.av.opset.*;
+import org.toxsoft.core.tslib.av.opset.impl.*;
 import org.toxsoft.core.tslib.bricks.keeper.*;
 import org.toxsoft.core.tslib.bricks.strid.impl.*;
 import org.toxsoft.core.tslib.utils.errors.*;
@@ -68,6 +69,22 @@ public final class DtoRivetInfo
     DtoRivetInfo ainf = new DtoRivetInfo( aId, aParams );
     ainf.setProps( aRightClassId, aCount );
     return ainf;
+  }
+
+  /**
+   * Static constructor.
+   *
+   * @param aId String - the ID (IDpath)
+   * @param aRightClassId String - riveted objects class ID
+   * @param aCount int - quantity of objects, always >= 1
+   * @param aIdsAndValues Object[] - {@link #params()} values
+   * @return {@link DtoRivetInfo} - created instance
+   * @throws TsNullArgumentRtException any argument = <code>null</code>
+   * @throws TsIllegalArgumentRtException identifier is not an IDpath
+   * @throws TsIllegalArgumentRtException aCount < 1
+   */
+  public static DtoRivetInfo create2( String aId, String aRightClassId, int aCount, Object... aIdsAndValues ) {
+    return create1( aId, aRightClassId, aCount, OptionSetUtils.createOpSet( aIdsAndValues ) );
   }
 
   // ------------------------------------------------------------------------------------

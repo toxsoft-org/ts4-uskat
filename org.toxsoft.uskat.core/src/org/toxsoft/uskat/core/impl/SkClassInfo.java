@@ -45,7 +45,7 @@ class SkClassInfo
       llSelf.addAll( thisDto.propInfos( aKind ) );
       // ancestors properties
       IStridablesListEdit<T> llAll = new StridablesList<>();
-      IDtoClassInfo dtoParent = aList.findByKey( thisDto.parentId() );
+      IDtoClassInfo dtoParent = thisDto;
       while( dtoParent != null ) {
         llAll.insertAll( 0, dtoParent.propInfos( aKind ) );
         dtoParent = aList.findByKey( dtoParent.parentId() );
