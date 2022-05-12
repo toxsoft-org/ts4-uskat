@@ -73,7 +73,7 @@ class SkCoreServSysdescr
       }
       for( ISkSysdescrListener l : listeners() ) {
         try {
-          l.onClassInfosChanged( SkCoreServSysdescr.this, aOp, aClassId );
+          l.onClassInfosChanged( coreApi(), aOp, aClassId );
         }
         catch( Exception ex ) {
           LoggerUtils.errorLogger().error( ex );

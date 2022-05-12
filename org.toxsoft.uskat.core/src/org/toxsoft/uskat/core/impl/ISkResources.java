@@ -9,7 +9,7 @@ package org.toxsoft.uskat.core.impl;
 interface ISkResources {
 
   /**
-   * {@link ApiWrapAbstractSkService}
+   * {@link AbstractSkService}
    */
   String FMT_INFO_SERVICE_INIT       = "Service %s: init() called";
   String FMT_INFO_SERVICE_CLOSE      = "Service %s: close() called";
@@ -56,6 +56,13 @@ interface ISkResources {
   String FMT_ERR_CANT_CREATE_SERVICE        = "Creator '%s' can not create service instance";
   String FMT_ERR_DUP_SERVICE_ID             = "Creator '%s' tries to create service of existing ID '%s'";
   String LOG_WARN_UNHANDLED_BACKEND_MESSAGE = "Unhandled message from backend, topicID= %s";
+
+  /**
+   * {@link SkCoreServClobs}
+   */
+  String FMT_ERR_NON_CLOB_GWID   = "Concrete GWID of CLOB was expected instead of '%s'";
+  String FMT_ERR_CLOB_TOO_LONG   = "Clob length %d exceeds platforn restirction %d";
+  String FMT_ERR_CLOB_TO_BACKEND = "Error writing CLOB (GWID='%s') to to the backend";
 
   /**
    * {@link SkCoreServObject}

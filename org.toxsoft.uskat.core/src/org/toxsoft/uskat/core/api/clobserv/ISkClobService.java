@@ -1,5 +1,6 @@
 package org.toxsoft.uskat.core.api.clobserv;
 
+import org.toxsoft.core.tslib.bricks.events.*;
 import org.toxsoft.core.tslib.bricks.validator.*;
 import org.toxsoft.core.tslib.gw.gwid.*;
 import org.toxsoft.core.tslib.utils.errors.*;
@@ -33,7 +34,7 @@ public interface ISkClobService
    * @param aGwid {@link Gwid} - concrete GWID of the clob
    * @return String - the CLOB content
    * @throws TsNullArgumentRtException any argument = <code>null</code>
-   * @throws TsItemNotFoundRtException no such CLOB
+   * @throws TsItemNotFoundRtException no such CLOB (either in sysdescr or no such object)
    * @throws TsIllegalStateRtException CLOB is too big for reading
    */
   String readClob( Gwid aGwid );
@@ -49,11 +50,21 @@ public interface ISkClobService
    */
   void writeClob( Gwid aGwid, String aClob );
 
+  // ------------------------------------------------------------------------------------
+  // Service support
+
   /**
    * Returns the service validator.
    *
    * @return {@link ITsValidationSupport}&lt;{@link ISkClobServiceValidator}&gt; - the service validator
    */
   ITsValidationSupport<ISkClobServiceValidator> svs();
+
+  /**
+   * Returns the service eventer.
+   *
+   * @return {@link ITsEventer}&lt;{@link ISkClobServiceListener}&gt; - the service eventer
+   */
+  ITsEventer<ISkClobServiceListener> eventer();
 
 }

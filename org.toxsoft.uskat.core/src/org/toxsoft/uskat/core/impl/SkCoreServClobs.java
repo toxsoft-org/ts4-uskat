@@ -1,10 +1,14 @@
 package org.toxsoft.uskat.core.impl;
 
 import static org.toxsoft.uskat.core.backend.ISkBackendHardConstant.*;
+import static org.toxsoft.uskat.core.impl.ISkResources.*;
 
 import org.toxsoft.core.tslib.bricks.ctx.*;
+import org.toxsoft.core.tslib.bricks.events.*;
 import org.toxsoft.core.tslib.bricks.validator.*;
 import org.toxsoft.core.tslib.bricks.validator.impl.*;
+import org.toxsoft.core.tslib.coll.*;
+import org.toxsoft.core.tslib.coll.impl.*;
 import org.toxsoft.core.tslib.gw.gwid.*;
 import org.toxsoft.core.tslib.utils.errors.*;
 import org.toxsoft.uskat.core.*;
@@ -27,6 +31,51 @@ class SkCoreServClobs
   public static final ISkServiceCreator<AbstractSkService> CREATOR = SkCoreServClobs::new;
 
   /**
+   * {@link ISkClobService#eventer()} implementation.
+   *
+   * @author hazard157
+   */
+  class Eventer
+      extends AbstractTsEventer<ISkClobServiceListener> {
+
+    private final IListEdit<Gwid> changedClobGwids = new ElemLinkedBundleList<>();
+
+    @Override
+    protected boolean doIsPendingEvents() {
+      return !changedClobGwids.isEmpty();
+    }
+
+    @Override
+    protected void doFirePendingEvents() {
+      while( !changedClobGwids.isEmpty() ) {
+        reallyFireEvent( changedClobGwids.removeByIndex( 0 ) );
+      }
+    }
+
+    @Override
+    protected void doClearPendingEvents() {
+      changedClobGwids.clear();
+    }
+
+    private void reallyFireEvent( Gwid aGwid ) {
+      for( ISkClobServiceListener l : listeners() ) {
+        l.onClobChanged( coreApi(), aGwid );
+      }
+    }
+
+    public void fireEvent( Gwid aGwid ) {
+      if( isFiringPaused() ) {
+        // put changed GWID at the end of the list
+        changedClobGwids.remove( aGwid );
+        changedClobGwids.add( aGwid );
+        return;
+      }
+      reallyFireEvent( aGwid );
+    }
+
+  }
+
+  /**
    * The service validator {@link ISkObjectService#svs()} implementation.
    *
    * @author hazard157
@@ -37,8 +86,7 @@ class SkCoreServClobs
 
     @Override
     public ISkClobServiceValidator validator() {
-      // TODO реализовать SkCoreServClobs.ValidationSupport.validator()
-      throw new TsUnderDevelopmentRtException( "SkCoreServClobs.ValidationSupport.validator()" );
+      return this;
     }
 
     // ------------------------------------------------------------------------------------
@@ -57,23 +105,29 @@ class SkCoreServClobs
 
   }
 
+  @SuppressWarnings( "boxing" )
   private final ISkClobServiceValidator builtinValidator = ( aGwid, aClob ) -> {
-    // TODO check if GWID is valid
+    // check if GWID is valid
     if( aGwid.kind() != EGwidKind.GW_CLOB ) {
-
+      return ValidationResult.error( FMT_ERR_NON_CLOB_GWID, aGwid.toString() );
     }
     if( aGwid.isAbstract() || aGwid.isMulti() ) {
-
+      return ValidationResult.error( FMT_ERR_NON_CLOB_GWID, aGwid.toString() );
     }
-    // TODO check if CLOB size is less than ISkBackendHardConstant.OPDEF_SKBI_MAX_CLOB_LENGTH
+
+    // FIXME check if CLOB's object exists
+
+    // check if CLOB size is less than ISkBackendHardConstant.OPDEF_SKBI_MAX_CLOB_LENGTH
     int maxLen = OPDEF_SKBI_MAX_CLOB_LENGTH.getValue( coreApi().openArgs().params() ).asInt();
     if( aClob.length() > maxLen ) {
-
+      return ValidationResult.error( FMT_ERR_CLOB_TOO_LONG, aClob.length(), maxLen );
     }
     return ValidationResult.SUCCESS;
   };
 
   final ValidationSupport validationSupport = new ValidationSupport();
+
+  final Eventer eventer = new Eventer();
 
   /**
    * Constructor.
@@ -120,14 +174,23 @@ class SkCoreServClobs
   @Override
   public void writeClob( Gwid aGwid, String aClob ) {
     TsValidationFailedRtException.checkError( validationSupport.canWriteClob( aGwid, aClob ) );
-
-    // TODO реализовать SkCoreServClobs.writeClob()
-    throw new TsUnderDevelopmentRtException( "SkCoreServClobs.writeClob()" );
+    try {
+      ba().baClobs().writeClob( aGwid, aClob );
+    }
+    catch( Exception ex ) {
+      throw new TsIoRtException( ex, FMT_ERR_CLOB_TO_BACKEND, aGwid.toString() );
+    }
+    coreApi().doJobInCoreMainThred();
   }
 
   @Override
   public ITsValidationSupport<ISkClobServiceValidator> svs() {
     return validationSupport;
+  }
+
+  @Override
+  public ITsEventer<ISkClobServiceListener> eventer() {
+    return eventer;
   }
 
 }

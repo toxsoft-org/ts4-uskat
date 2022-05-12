@@ -22,11 +22,12 @@ public interface IBaClobs
 
   /**
    * Reads the CLOB content.
+   * <p>
+   * If no such CLOb presents in the backend, returns <code>null</code>.
    *
    * @param aGwid {@link Gwid} - concrete GWID of the clob
-   * @return String - the CLOB content
+   * @return String - the CLOB content or <code>null</code> if there is no such CLOB
    * @throws TsNullArgumentRtException any argument = <code>null</code>
-   * @throws TsItemNotFoundRtException no such CLOB
    * @throws TsIllegalStateRtException CLOB is too big for reading
    */
   String readClob( Gwid aGwid );
@@ -37,7 +38,6 @@ public interface IBaClobs
    * @param aGwid {@link Gwid} - concrete GWID of the clob
    * @param aClob String - the CLOB content
    * @throws TsNullArgumentRtException any argument = <code>null</code>
-   * @throws TsItemNotFoundRtException no such CLOB
    * @throws TsIllegalArgumentRtException CLOB is too big for reading
    */
   void writeClob( Gwid aGwid, String aClob );
