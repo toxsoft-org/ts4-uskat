@@ -1,0 +1,18 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: skadmin-lib
+Bundle-SymbolicName: org.toxsoft.uskat.skadmin.core
+Bundle-Version: 1.0.0.qualifier
+Bundle-Vendor: ToxSoft Ltd.
+Require-Bundle: org.toxsoft.extlibs.log4j,
+ org.toxsoft.extlibs.wildfly,
+ org.toxsoft.core.tslib,
+ org.toxsoft.core.pas,
+ org.toxsoft.core.log4j,
+ org.toxsoft.uskat.core,
+ org.toxsoft.uskat.s5
+Export-Package: org.toxsoft.uskat.skadmin.core,
+ org.toxsoft.uskat.skadmin.core.impl,
+ org.toxsoft.uskat.skadmin.core.plugins
+Bundle-RequiredExecutionEnvironment: JavaSE-17
+Automatic-Module-Name: org.toxsoft.uskat.skadmin.core
