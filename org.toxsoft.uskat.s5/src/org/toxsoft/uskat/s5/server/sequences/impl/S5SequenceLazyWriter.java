@@ -15,7 +15,7 @@ import javax.naming.InitialContext;
 import javax.persistence.EntityManager;
 import javax.transaction.UserTransaction;
 
-import org.toxsoft.core.log4j.Logger;
+import org.toxsoft.core.log4j.LoggerWrapper;
 import org.toxsoft.core.tslib.av.opset.IOptionSet;
 import org.toxsoft.core.tslib.av.opset.IOptionSetEdit;
 import org.toxsoft.core.tslib.av.opset.impl.OptionSet;
@@ -150,7 +150,7 @@ class S5SequenceLazyWriter<S extends IS5Sequence<V>, V extends ITemporal<?>>
   @Override
   public S5SequenceUnionStat<V> doUnion( IOptionSet aArgs ) {
     // Журнал для потоков
-    ILogger uniterLogger = Logger.getLogger( LOG_UNITER_ID );
+    ILogger uniterLogger = LoggerWrapper.getLogger( LOG_UNITER_ID );
     // Состояние задачи объединения данного
     S5SequenceUnionStat<V> statistics = new S5SequenceUnionStat<>();
     IOptionSetEdit args = new OptionSet( aArgs );
@@ -196,7 +196,7 @@ class S5SequenceLazyWriter<S extends IS5Sequence<V>, V extends ITemporal<?>>
     EntityManager em = entityManagerFactory().createEntityManager();
     try {
       // Журнал для потоков
-      ILogger logger = Logger.getLogger( LOG_VALIDATOR_ID );
+      ILogger logger = LoggerWrapper.getLogger( LOG_VALIDATOR_ID );
       // Исполнитель s5-потоков проверки данных
       S5WriteThreadExecutor executor = new S5WriteThreadExecutor( validationExecutor(), logger );
 

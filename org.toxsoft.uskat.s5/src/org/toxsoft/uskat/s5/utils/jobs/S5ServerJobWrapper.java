@@ -1,6 +1,6 @@
 package org.toxsoft.uskat.s5.utils.jobs;
 
-import static org.toxsoft.core.log4j.Logger.*;
+import static org.toxsoft.core.log4j.LoggerWrapper.*;
 
 import org.toxsoft.core.tslib.utils.errors.TsNullArgumentRtException;
 import org.toxsoft.core.tslib.utils.logs.ILogger;

@@ -1,6 +1,6 @@
 package org.toxsoft.uskat.s5.server.backend.impl;
 
-import static org.toxsoft.core.log4j.Logger.*;
+import static org.toxsoft.core.log4j.LoggerWrapper.*;
 import static org.toxsoft.uskat.s5.utils.threads.impl.S5Lockable.*;
 
 import org.toxsoft.core.tslib.coll.IList;

@@ -4,7 +4,7 @@ import static org.toxsoft.uskat.s5.server.statistics.EStatisticInterval.*;
 
 import java.io.Serializable;
 
-import org.toxsoft.core.log4j.Logger;
+import org.toxsoft.core.log4j.LoggerWrapper;
 import org.toxsoft.core.tslib.av.EAtomicType;
 import org.toxsoft.core.tslib.av.IAtomicValue;
 import org.toxsoft.core.tslib.bricks.strid.impl.Stridable;
@@ -191,7 +191,7 @@ public abstract class S5StatisticHandler
    */
   protected final ILogger logger() {
     if( logger == null ) {
-      logger = Logger.getLogger( getClass() );
+      logger = LoggerWrapper.getLogger( getClass() );
     }
     return logger;
   }

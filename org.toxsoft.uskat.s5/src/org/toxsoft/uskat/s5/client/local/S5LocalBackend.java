@@ -15,7 +15,7 @@ import static ru.uskat.backend.messages.SkMessageWhenSysdescrChanged.*;
 
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
-import org.toxsoft.core.log4j.Logger;
+import org.toxsoft.core.log4j.LoggerWrapper;
 import org.toxsoft.core.tslib.bricks.ICooperativeMultiTaskable;
 import org.toxsoft.core.tslib.bricks.ctx.ITsContextRo;
 import org.toxsoft.core.tslib.bricks.events.msg.GenericMessage;
@@ -164,7 +164,7 @@ public final class S5LocalBackend
   /**
    * Журнал работы
    */
-  private final ILogger logger = Logger.getLogger( getClass() );
+  private final ILogger logger = LoggerWrapper.getLogger( getClass() );
 
   /**
    * Конструктор backend

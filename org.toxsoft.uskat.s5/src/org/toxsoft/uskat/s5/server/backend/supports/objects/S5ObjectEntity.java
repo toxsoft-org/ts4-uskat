@@ -9,7 +9,7 @@ import java.sql.ResultSet;
 
 import javax.persistence.*;
 
-import org.toxsoft.core.log4j.Logger;
+import org.toxsoft.core.log4j.LoggerWrapper;
 import org.toxsoft.core.tslib.av.opset.IOptionSet;
 import org.toxsoft.core.tslib.av.opset.impl.OptionSetKeeper;
 import org.toxsoft.core.tslib.gw.skid.Skid;
@@ -140,7 +140,7 @@ public class S5ObjectEntity
    */
   protected final ILogger logger() {
     if( logger == null ) {
-      logger = Logger.getLogger( getClass() );
+      logger = LoggerWrapper.getLogger( getClass() );
     }
     return logger;
   }

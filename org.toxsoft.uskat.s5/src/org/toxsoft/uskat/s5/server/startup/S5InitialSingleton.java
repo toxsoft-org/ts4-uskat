@@ -6,7 +6,7 @@ import javax.ejb.*;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 
-import org.toxsoft.core.log4j.Logger;
+import org.toxsoft.core.log4j.LoggerWrapper;
 import org.toxsoft.core.tslib.av.opset.IOptionSet;
 import org.toxsoft.core.tslib.av.opset.impl.OptionSetKeeper;
 import org.toxsoft.core.tslib.utils.errors.TsNullArgumentRtException;
@@ -43,8 +43,8 @@ public class S5InitialSingleton
    * Пустой конструктор.
    */
   public S5InitialSingleton() {
-    LoggerUtils.setDefaultLogger( Logger.getLogger( "out" ) ); //$NON-NLS-1$
-    LoggerUtils.setErrorLogger( Logger.getLogger( "error" ) ); //$NON-NLS-1$
+    LoggerUtils.setDefaultLogger( LoggerWrapper.getLogger( "out" ) ); //$NON-NLS-1$
+    LoggerUtils.setErrorLogger( LoggerWrapper.getLogger( "error" ) ); //$NON-NLS-1$
   }
 
   // ------------------------------------------------------------------------------------
