@@ -16,7 +16,7 @@ import javax.ejb.*;
 
 import org.infinispan.Cache;
 import org.infinispan.commons.util.CloseableIterator;
-import org.toxsoft.core.log4j.Logger;
+import org.toxsoft.core.log4j.LoggerWrapper;
 import org.toxsoft.core.tslib.av.utils.IParameterized;
 import org.toxsoft.core.tslib.bricks.strid.coll.IStridablesList;
 import org.toxsoft.core.tslib.bricks.time.*;
@@ -324,7 +324,7 @@ public class S5BackendCommandSingleton
       // Фиксируется факт передачи команды через целевой frontend
       ValidationResult addResult = frontendData.commands.addExecutingCmd( aCommand.id() );
       // Запись в журнал результата добавления команды в очередь ожидания
-      Logger.resultToLog( logger(), addResult );
+      LoggerWrapper.resultToLog( logger(), addResult );
       // Поиск исполнителя и передача ему команды
       // 2020-08-05 mvk
       IS5FrontendRear cmdFrontend = null;

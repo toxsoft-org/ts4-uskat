@@ -1,6 +1,6 @@
 package org.toxsoft.uskat.sysext.realtime.pas;
 
-import static org.toxsoft.core.log4j.Logger.*;
+import static org.toxsoft.core.log4j.LoggerWrapper.*;
 import static org.toxsoft.core.pas.tj.impl.TjUtils.*;
 import static org.toxsoft.core.tslib.av.impl.AvUtils.*;
 import static org.toxsoft.uskat.sysext.realtime.addon.S5RealtimeUtils.*;

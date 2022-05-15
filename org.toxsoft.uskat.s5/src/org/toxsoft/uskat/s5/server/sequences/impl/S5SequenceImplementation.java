@@ -1,7 +1,7 @@
 package org.toxsoft.uskat.s5.server.sequences.impl;
 
 import static java.lang.String.*;
-import static org.toxsoft.core.log4j.Logger.*;
+import static org.toxsoft.core.log4j.LoggerWrapper.*;
 import static org.toxsoft.uskat.s5.server.sequences.impl.IS5Resources.*;
 
 import org.toxsoft.core.tslib.utils.TsLibUtils;

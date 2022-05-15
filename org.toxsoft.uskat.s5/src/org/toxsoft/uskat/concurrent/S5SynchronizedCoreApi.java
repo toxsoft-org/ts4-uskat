@@ -2,7 +2,7 @@ package org.toxsoft.uskat.concurrent;
 
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
-import org.toxsoft.core.log4j.Logger;
+import org.toxsoft.core.log4j.LoggerWrapper;
 import org.toxsoft.core.tslib.coll.primtypes.IStringMap;
 import org.toxsoft.core.tslib.coll.primtypes.IStringMapEdit;
 import org.toxsoft.core.tslib.coll.primtypes.impl.StringMap;
@@ -45,7 +45,7 @@ public final class S5SynchronizedCoreApi
   private final S5SynchronizedLobService      lobService;
   private final IStringMapEdit<ISkService>    services;
 
-  private final ILogger logger = Logger.getLogger( getClass() );
+  private final ILogger logger = LoggerWrapper.getLogger( getClass() );
 
   /**
    * Конструктор

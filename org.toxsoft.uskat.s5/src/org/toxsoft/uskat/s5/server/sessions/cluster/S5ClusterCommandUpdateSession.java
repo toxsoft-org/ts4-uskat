@@ -1,6 +1,6 @@
 package org.toxsoft.uskat.s5.server.sessions.cluster;
 
-import static org.toxsoft.core.log4j.Logger.*;
+import static org.toxsoft.core.log4j.LoggerWrapper.*;
 import static org.toxsoft.core.pas.tj.impl.TjUtils.*;
 import static org.toxsoft.uskat.s5.server.cluster.IS5ClusterHardConstants.*;
 import static org.toxsoft.uskat.s5.server.sessions.cluster.IS5Resources.*;

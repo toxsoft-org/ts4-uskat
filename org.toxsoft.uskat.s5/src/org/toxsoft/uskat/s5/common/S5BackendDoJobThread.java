@@ -1,6 +1,6 @@
 package org.toxsoft.uskat.s5.common;
 
-import static org.toxsoft.core.log4j.Logger.*;
+import static org.toxsoft.core.log4j.LoggerWrapper.*;
 import static org.toxsoft.uskat.s5.common.IS5CommonResources.*;
 import static org.toxsoft.uskat.s5.common.IS5Resources.*;
 

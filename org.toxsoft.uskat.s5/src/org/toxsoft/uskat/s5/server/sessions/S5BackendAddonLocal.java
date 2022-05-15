@@ -1,6 +1,6 @@
 package org.toxsoft.uskat.s5.server.sessions;
 
-import static org.toxsoft.core.log4j.Logger.*;
+import static org.toxsoft.core.log4j.LoggerWrapper.*;
 
 import java.io.Serializable;
 

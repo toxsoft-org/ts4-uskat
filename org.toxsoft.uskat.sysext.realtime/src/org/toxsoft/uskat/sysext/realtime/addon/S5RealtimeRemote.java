@@ -3,7 +3,7 @@ package org.toxsoft.uskat.sysext.realtime.addon;
 import static org.toxsoft.uskat.s5.utils.collections.S5CollectionUtils.*;
 import static org.toxsoft.uskat.sysext.realtime.addon.IS5Resources.*;
 
-import org.toxsoft.core.log4j.Logger;
+import org.toxsoft.core.log4j.LoggerWrapper;
 import org.toxsoft.core.pas.common.IPasTxChannel;
 import org.toxsoft.core.tslib.av.IAtomicValue;
 import org.toxsoft.core.tslib.av.opset.IOptionSet;
@@ -162,7 +162,7 @@ public final class S5RealtimeRemote
     IValResList resultList = commandSupport.setExcutableCommandGwids( "local", aNeededGwids ); //$NON-NLS-1$
     // Запись в журнал результата установки списка исполняемых команд
     for( ValidationResult result : resultList.results() ) {
-      Logger.resultToLog( logger(), result );
+      LoggerWrapper.resultToLog( logger(), result );
     }
     // Вывод журнала
     logger().info( MSG_REGISTER_CMD_GWIDS, itemsToString( aNeededGwids ), Boolean.valueOf( remote != null ) );

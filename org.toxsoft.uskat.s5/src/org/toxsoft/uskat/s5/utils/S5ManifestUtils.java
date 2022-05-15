@@ -1,6 +1,6 @@
 package org.toxsoft.uskat.s5.utils;
 
-import static org.toxsoft.core.log4j.Logger.*;
+import static org.toxsoft.core.log4j.LoggerWrapper.*;
 
 import java.io.IOException;
 import java.io.InputStream;

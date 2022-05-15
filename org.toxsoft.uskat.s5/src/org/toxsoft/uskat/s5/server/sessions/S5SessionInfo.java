@@ -1,7 +1,7 @@
 package org.toxsoft.uskat.s5.server.sessions;
 
 import static java.lang.String.*;
-import static org.toxsoft.core.log4j.Logger.*;
+import static org.toxsoft.core.log4j.LoggerWrapper.*;
 import static org.toxsoft.uskat.s5.server.IS5ServerHardConstants.*;
 import static org.toxsoft.uskat.s5.server.sessions.IS5Resources.*;
 

@@ -1,6 +1,6 @@
 package org.toxsoft.uskat.s5.utils.threads.impl;
 
-import static org.toxsoft.core.log4j.Logger.*;
+import static org.toxsoft.core.log4j.LoggerWrapper.*;
 import static org.toxsoft.uskat.s5.utils.threads.impl.IS5Resources.*;
 
 import java.util.concurrent.ExecutorService;
