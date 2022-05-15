@@ -122,7 +122,24 @@ class MtbBaClasses
         break;
       }
       case 1: { // single change causes single class event
-        // FIXME fire an event
+        ECrudOp op;
+        String classId;
+        if( !createdClassIds.isEmpty() ) {
+          op = ECrudOp.CREATE;
+          classId = createdClassIds.first();
+        }
+        else {
+          if( !editedClassIds.isEmpty() ) {
+            op = ECrudOp.EDIT;
+            classId = editedClassIds.first();
+          }
+          else {
+            op = ECrudOp.REMOVE;
+            classId = removedClassIds.first();
+          }
+        }
+        GtMessage msg = IBaClassesMessages.makeMessage( op, classId );
+        owner().frontend().onBackendMessage( msg );
         break;
       }
       default: { // batch changes will fir ECrudOp.LIST event

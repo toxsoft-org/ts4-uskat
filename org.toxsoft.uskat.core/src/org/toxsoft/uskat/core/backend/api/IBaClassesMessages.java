@@ -102,10 +102,10 @@ public interface IBaClassesMessages {
     ECrudOp op = extractCrudOp( aMsg );
     String classId = aMsg.args().getStr( OPID_CLASS_ID, null );
     if( classId != null ) {
-      TsIllegalArgumentRtException.checkTrue( op != ECrudOp.LIST );
+      TsIllegalArgumentRtException.checkTrue( op == ECrudOp.LIST );
     }
     else {
-      TsIllegalArgumentRtException.checkTrue( op == ECrudOp.LIST );
+      TsIllegalArgumentRtException.checkTrue( op != ECrudOp.LIST );
     }
     return classId;
   }
