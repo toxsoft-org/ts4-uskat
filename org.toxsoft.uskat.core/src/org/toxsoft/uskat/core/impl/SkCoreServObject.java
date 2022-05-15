@@ -8,6 +8,7 @@ import org.toxsoft.core.tslib.av.*;
 import org.toxsoft.core.tslib.av.errors.*;
 import org.toxsoft.core.tslib.av.opset.*;
 import org.toxsoft.core.tslib.bricks.ctx.*;
+import org.toxsoft.core.tslib.bricks.events.*;
 import org.toxsoft.core.tslib.bricks.strid.coll.*;
 import org.toxsoft.core.tslib.bricks.strid.coll.impl.*;
 import org.toxsoft.core.tslib.bricks.strid.impl.*;
@@ -619,6 +620,12 @@ class SkCoreServObject
   @Override
   public ITsValidationSupport<ISkObjectServiceValidator> svs() {
     return validationSupport;
+  }
+
+  @Override
+  public ITsEventer<ISkObjectServiceListener> eventer() {
+    // TODO реализовать SkCoreServObject.eventer()
+    throw new TsUnderDevelopmentRtException( "SkCoreServObject.eventer()" );
   }
 
 }

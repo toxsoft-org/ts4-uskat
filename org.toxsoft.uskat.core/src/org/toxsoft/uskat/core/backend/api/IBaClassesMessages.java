@@ -42,7 +42,7 @@ public interface IBaClassesMessages {
   /**
    * ID of the option {@link #OPDEF_CLASS_ID}.
    */
-  String OPID_CLASS_ID = "CrudOp"; //$NON-NLS-1$
+  String OPID_CLASS_ID = "ClassId"; //$NON-NLS-1$
 
   /**
    * {@link GtMessage#args()} option: stores affected class ID or not specified for {@link ECrudOp#LIST}.

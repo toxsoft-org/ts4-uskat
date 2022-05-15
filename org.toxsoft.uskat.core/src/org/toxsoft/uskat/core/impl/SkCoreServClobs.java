@@ -1,15 +1,18 @@
 package org.toxsoft.uskat.core.impl;
 
 import static org.toxsoft.uskat.core.backend.ISkBackendHardConstant.*;
+import static org.toxsoft.uskat.core.backend.api.IBaClobsMessages.*;
 import static org.toxsoft.uskat.core.impl.ISkResources.*;
 
 import org.toxsoft.core.tslib.bricks.ctx.*;
 import org.toxsoft.core.tslib.bricks.events.*;
+import org.toxsoft.core.tslib.bricks.events.msg.*;
 import org.toxsoft.core.tslib.bricks.validator.*;
 import org.toxsoft.core.tslib.bricks.validator.impl.*;
 import org.toxsoft.core.tslib.coll.*;
 import org.toxsoft.core.tslib.coll.impl.*;
 import org.toxsoft.core.tslib.gw.gwid.*;
+import org.toxsoft.core.tslib.utils.*;
 import org.toxsoft.core.tslib.utils.errors.*;
 import org.toxsoft.uskat.core.*;
 import org.toxsoft.uskat.core.api.clobserv.*;
@@ -63,7 +66,7 @@ class SkCoreServClobs
       }
     }
 
-    public void fireEvent( Gwid aGwid ) {
+    public void fireClobsChangedEvent( Gwid aGwid ) {
       if( isFiringPaused() ) {
         // put changed GWID at the end of the list
         changedClobGwids.remove( aGwid );
@@ -114,9 +117,10 @@ class SkCoreServClobs
     if( aGwid.isAbstract() || aGwid.isMulti() ) {
       return ValidationResult.error( FMT_ERR_NON_CLOB_GWID, aGwid.toString() );
     }
-
-    // FIXME check if CLOB's object exists
-
+    // check if CLOB's object exists
+    if( objServ().find( aGwid.skid() ) == null ) {
+      return ValidationResult.error( FMT_ERR_NO_OBJ_OF_CLOB, aGwid.skid().toString(), aGwid.toString() );
+    }
     // check if CLOB size is less than ISkBackendHardConstant.OPDEF_SKBI_MAX_CLOB_LENGTH
     int maxLen = OPDEF_SKBI_MAX_CLOB_LENGTH.getValue( coreApi().openArgs().params() ).asInt();
     if( aClob.length() > maxLen ) {
@@ -153,9 +157,18 @@ class SkCoreServClobs
     // nop
   }
 
-  // ------------------------------------------------------------------------------------
-  // implementation
-  //
+  @Override
+  protected boolean onBackendMessage( GenericMessage aMessage ) {
+    switch( aMessage.messageId() ) {
+      case MSGID_CLOB_CHANGE: {
+        Gwid clobGwid = extractClobGwid( aMessage );
+        eventer.fireClobsChangedEvent( clobGwid );
+        return true;
+      }
+      default:
+        return false;
+    }
+  }
 
   // ------------------------------------------------------------------------------------
   // ISkClobService
@@ -166,9 +179,9 @@ class SkCoreServClobs
     TsIllegalArgumentRtException.checkNull( aGwid );
     TsIllegalArgumentRtException.checkTrue( aGwid.isAbstract() || aGwid.isMulti() );
     TsIllegalArgumentRtException.checkTrue( aGwid.kind() != EGwidKind.GW_CLOB );
-
-    // TODO реализовать SkCoreServClobs.readClob()
-    throw new TsUnderDevelopmentRtException( "SkCoreServClobs.readClob()" );
+    TsItemNotFoundRtException.checkNull( objServ().find( aGwid.skid() ) );
+    String clob = ba().baClobs().readClob( aGwid );
+    return (clob != null) ? clob : TsLibUtils.EMPTY_STRING;
   }
 
   @Override
