@@ -4,6 +4,7 @@ import static org.toxsoft.core.tslib.av.impl.AvUtils.*;
 import static org.toxsoft.uskat.core.impl.dto.IDtoHardConstants.*;
 
 import org.toxsoft.core.tslib.av.opset.*;
+import org.toxsoft.core.tslib.av.opset.impl.*;
 import org.toxsoft.core.tslib.bricks.keeper.*;
 import org.toxsoft.core.tslib.bricks.strid.impl.*;
 import org.toxsoft.core.tslib.utils.errors.*;
@@ -60,12 +61,28 @@ public final class DtoClobInfo
    * @return {@link DtoClobInfo} - created instance
    * @throws TsNullArgumentRtException any argument = <code>null</code>
    * @throws TsIllegalArgumentRtException identifier is not an IDpath
-   * @throws TsIllegalArgumentRtException argument < 0
+   * @throws TsIllegalArgumentRtException aMaxCharsCount < 0
    */
   public static DtoClobInfo create1( String aId, int aMaxCharsCount, IOptionSet aParams ) {
+    TsIllegalArgumentRtException.checkTrue( aMaxCharsCount < 0 );
     DtoClobInfo ainf = new DtoClobInfo( aId, aParams );
     ainf.setProps( aMaxCharsCount );
     return ainf;
+  }
+
+  /**
+   * Static constructor.
+   *
+   * @param aId String - the ID (IDpath)
+   * @param aMaxCharsCount int - maximal number of <code>char</code>s in CLOB
+   * @param aIdsAndValues Object[] - {@link #params()} values
+   * @return {@link DtoClobInfo} - created instance
+   * @throws TsNullArgumentRtException any argument = <code>null</code>
+   * @throws TsIllegalArgumentRtException identifier is not an IDpath
+   * @throws TsIllegalArgumentRtException aMaxCharsCount < 0
+   */
+  public static DtoClobInfo create2( String aId, int aMaxCharsCount, Object... aIdsAndValues ) {
+    return create1( aId, aMaxCharsCount, OptionSetUtils.createOpSet( aIdsAndValues ) );
   }
 
   // ------------------------------------------------------------------------------------

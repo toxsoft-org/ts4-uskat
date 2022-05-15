@@ -22,6 +22,8 @@ public interface ISkBackendHardConstant {
   String SKB_ID  = SK_ID + ".backend"; //$NON-NLS-1$
   String SKBI_ID = SKB_ID + ".info";   //$NON-NLS-1$
 
+  int DEFAULT_MAX_CLOB_LENGTH = 100_000;
+
   // ------------------------------------------------------------------------------------
   // ISkBackendInfo
 
@@ -30,6 +32,7 @@ public interface ISkBackendHardConstant {
 
   IDataDef OPDEF_SKBI_MAX_CLOB_LENGTH = DataDef.create( OPID_SKBI_MAX_CLOB_LENGTH, INTEGER, //
       TSID_NAME, STR_N_SKBI_MAX_CLOB_LENGTH, //
+      TSID_DEFAULT_VALUE, avInt( DEFAULT_MAX_CLOB_LENGTH ), //
       TSID_DESCRIPTION, STR_D_SKBI_MAX_CLOB_LENGTH //
   );
 

@@ -58,8 +58,8 @@ public abstract class MtbAbstractBackend
 
   private final MtbBaClasses     mtbBaClasses;
   private final MtbBaObjects     mtbBaObjects;
+  private final MtbBaClobs       mtbBaClobs;
   private final MtbAbstractAddon baLinks  = null; // FIXME null
-  private final MtbAbstractAddon baClobs  = null; // FIXME null
   private final MtbAbstractAddon baEvents = null; // FIXME null
 
   private final IMapEdit<Class<?>, MtbAbstractAddon> allAddons = new ElemMap<>();
@@ -94,11 +94,9 @@ public abstract class MtbAbstractBackend
     allAddons.put( IBaClasses.class, mtbBaClasses );
     mtbBaObjects = new MtbBaObjects( this );
     allAddons.put( IBaObjects.class, mtbBaObjects );
-    //  FIXME ???
-    // allAddons.put( IBaObjects.class, baObjects );
-    // allAddons.put( IBaLinks.class, baLinks );
-    // allAddons.put( IBaClasses.class, baClobs );
-    // allAddons.put( IBaEvents.class, baEvents );
+    mtbBaClobs = new MtbBaClobs( this );
+    allAddons.put( IBaClobsMessages.class, mtbBaClobs );
+    // TODO other addons
     backendInfo = new SkBackendInfo( aBackendId, System.currentTimeMillis(), Skid.NONE, aBackendInfoValue );
   }
 
@@ -226,8 +224,7 @@ public abstract class MtbAbstractBackend
 
   @Override
   public IBaClobs baClobs() {
-    // TODO Auto-generated method stub
-    return null;
+    return mtbBaClobs;
   }
 
   @Override

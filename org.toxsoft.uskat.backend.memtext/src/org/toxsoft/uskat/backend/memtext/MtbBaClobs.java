@@ -50,13 +50,11 @@ class MtbBaClobs
 
   @Override
   protected void doWrite( IStrioWriter aSw ) {
-    StrioUtils.writeKeywordHeader( aSw, KW_CLOB_DATA, true );
     StrioUtils.writeMap( aSw, KW_CLOB_DATA, clobsMap, Gwid.KEEPER, StringKeeper.KEEPER, true );
   }
 
   @Override
   protected void doRead( IStrioReader aSr ) {
-    StrioUtils.ensureKeywordHeader( aSr, KW_CLOB_DATA );
     clobsMap.clear();
     StrioUtils.readMap( aSr, KW_CLOB_DATA, Gwid.KEEPER, StringKeeper.KEEPER, clobsMap );
   }

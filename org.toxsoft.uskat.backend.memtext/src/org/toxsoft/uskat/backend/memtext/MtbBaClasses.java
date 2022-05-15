@@ -63,6 +63,7 @@ class MtbBaClasses
   @Override
   protected void doRead( IStrioReader aSr ) {
     StrioUtils.ensureKeywordHeader( aSr, KW_CLASS_INFOS );
+    classInfos.clear();
     DtoClassInfo.KEEPER.readColl( aSr, classInfos );
   }
 

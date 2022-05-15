@@ -1,6 +1,7 @@
 package org.toxsoft.uskat.core.utils;
 
 import org.toxsoft.uskat.core.*;
+import org.toxsoft.uskat.core.api.clobserv.*;
 import org.toxsoft.uskat.core.api.objserv.*;
 import org.toxsoft.uskat.core.api.sysdescr.*;
 import org.toxsoft.uskat.core.connection.*;
@@ -35,8 +36,8 @@ public interface IUSkatConnected {
     return coreApi().objService();
   }
 
-  // TODO default ISkClobService skClobServ() {
-  // return coreApi().clobService();
-  // }
+  default ISkClobService skClobServ() {
+    return coreApi().clobService();
+  }
 
 }
