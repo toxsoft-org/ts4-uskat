@@ -105,7 +105,9 @@ class MtbBaClasses
       IDtoClassInfo oldInf = classInfos.findByKey( inf.id() );
       if( !Objects.equals( inf, oldInf ) ) {
         if( oldInf != null ) {
-          editedClassIds.add( inf.id() );
+          if( !oldInf.equals( inf ) ) {
+            editedClassIds.add( inf.id() );
+          }
         }
         else {
           createdClassIds.add( inf.id() );
@@ -114,7 +116,7 @@ class MtbBaClasses
         setChanged();
       }
     }
-    // FIXME inform frontend
+    // inform frontend
     int totalCount = removedClassIds.size() + editedClassIds.size() + createdClassIds.size();
     switch( totalCount ) {
       case 0: { // no changes, nothing to inform about
@@ -148,7 +150,6 @@ class MtbBaClasses
         break;
       }
     }
-
   }
 
 }

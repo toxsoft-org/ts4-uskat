@@ -60,12 +60,14 @@ public interface IBaObjects
   /**
    * Edits the objects.
    * <p>
+   * Warning: <code>null</code> value of the <code>aRemoveSkids</code> causes <b>all objects to be deleted</b>!
+   * <p>
    * Backend is "dumb" - it does not checks if rivets SKIDs refer to the existing objects.
    * <p>
    * Sends an {@link IBaObjectsMessages#MSGID_OBJECT_CHANGE} messages to the
    * {@link ISkFrontendRear#onBackendMessage(GtMessage)}.
    *
-   * @param aRemoveSkids {@link ISkidList} - SKIDs of objects to be removed
+   * @param aRemoveSkids {@link ISkidList} - SKIDs of objects to be removed or <code>null</code> to remove ALL objects
    * @param aUpdateObjects {@link IList}&lt;{@link IDtoObject}&gt; - list obj objcets to add/change
    * @throws TsNullArgumentRtException any argument = <code>null</code>
    */

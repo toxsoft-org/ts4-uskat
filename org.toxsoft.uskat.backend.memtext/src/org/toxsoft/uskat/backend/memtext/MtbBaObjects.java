@@ -3,9 +3,11 @@ package org.toxsoft.uskat.backend.memtext;
 import static org.toxsoft.core.tslib.bricks.strio.IStrioHardConstants.*;
 import static org.toxsoft.core.tslib.coll.impl.TsCollectionsUtils.*;
 
+import org.toxsoft.core.tslib.bricks.events.msg.*;
 import org.toxsoft.core.tslib.bricks.strio.*;
 import org.toxsoft.core.tslib.bricks.strio.impl.*;
 import org.toxsoft.core.tslib.coll.*;
+import org.toxsoft.core.tslib.coll.helpers.*;
 import org.toxsoft.core.tslib.coll.impl.*;
 import org.toxsoft.core.tslib.coll.primtypes.*;
 import org.toxsoft.core.tslib.coll.primtypes.impl.*;
@@ -169,12 +171,18 @@ public class MtbBaObjects
   public void writeObjects( ISkidList aRemoveSkids, IList<IDtoObject> aUpdateObjects ) {
     internalCheck();
     TsNullArgumentRtException.checkNull( aUpdateObjects );
+    // prepare for frontend message
+    ECrudOp eventOp = null;
+    Skid eventSkid = null;
+    int changesCount = 0;
     // delete objects to be removed
     if( aRemoveSkids != null ) {
       for( Skid skid : aRemoveSkids ) {
         IMapEdit<Skid, IDtoObject> map = objsMap.findByKey( skid.classId() );
         if( map != null ) {
           if( map.removeByKey( skid ) != null ) {
+            ++changesCount;
+            eventSkid = skid;
             setChanged();
           }
           if( map.isEmpty() ) { // if there are no more objects of class skid.classId(), remove map from objs
@@ -185,6 +193,7 @@ public class MtbBaObjects
     }
     else {
       if( !objsMap.isEmpty() ) {
+        changesCount = 2; // any value >1 leads to generate ECrudOp.LIST event
         objsMap.clear();
         setChanged();
       }
@@ -197,10 +206,43 @@ public class MtbBaObjects
           map = new ElemMap<>( 4111, TsCollectionsUtils.DEFAULT_BUNDLE_CAPACITY );
           objsMap.put( obj.skid().classId(), map );
         }
+        // determie if object will be updated or created
+        IDtoObject oldObj = map.findByKey( obj.skid() );
+        if( oldObj != null ) {
+          // bypass object if it is not changed
+          if( !obj.equals( oldObj ) ) {
+            continue;
+          }
+          eventOp = ECrudOp.EDIT;
+        }
+        else {
+          eventOp = ECrudOp.CREATE;
+        }
+        // update/create object
         map.put( obj.skid(), obj );
+        ++changesCount;
+        eventSkid = obj.skid();
         setChanged();
       }
     }
+    // inform frontend
+    switch( changesCount ) {
+      case 0: { // no changes, nothing to inform about
+        // nop
+        break;
+      }
+      case 1: { // single change causes single object event
+        GtMessage msg = IBaObjectsMessages.makeMessage( eventOp, eventSkid );
+        owner().frontend().onBackendMessage( msg );
+        break;
+      }
+      default: { // batch changes will fir ECrudOp.LIST event
+        GtMessage msg = IBaObjectsMessages.makeMessage( ECrudOp.LIST, null );
+        owner().frontend().onBackendMessage( msg );
+        break;
+      }
+    }
+
   }
 
 }

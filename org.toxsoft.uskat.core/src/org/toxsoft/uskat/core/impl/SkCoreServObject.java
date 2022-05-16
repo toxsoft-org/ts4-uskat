@@ -2,6 +2,7 @@ package org.toxsoft.uskat.core.impl;
 
 import static org.toxsoft.core.tslib.av.metainfo.IAvMetaConstants.*;
 import static org.toxsoft.uskat.core.ISkHardConstants.*;
+import static org.toxsoft.uskat.core.backend.api.IBaObjectsMessages.*;
 import static org.toxsoft.uskat.core.impl.ISkResources.*;
 
 import org.toxsoft.core.tslib.av.*;
@@ -9,18 +10,21 @@ import org.toxsoft.core.tslib.av.errors.*;
 import org.toxsoft.core.tslib.av.opset.*;
 import org.toxsoft.core.tslib.bricks.ctx.*;
 import org.toxsoft.core.tslib.bricks.events.*;
+import org.toxsoft.core.tslib.bricks.events.msg.*;
 import org.toxsoft.core.tslib.bricks.strid.coll.*;
 import org.toxsoft.core.tslib.bricks.strid.coll.impl.*;
 import org.toxsoft.core.tslib.bricks.strid.impl.*;
 import org.toxsoft.core.tslib.bricks.validator.*;
 import org.toxsoft.core.tslib.bricks.validator.impl.*;
 import org.toxsoft.core.tslib.coll.*;
+import org.toxsoft.core.tslib.coll.helpers.*;
 import org.toxsoft.core.tslib.coll.impl.*;
 import org.toxsoft.core.tslib.coll.primtypes.*;
 import org.toxsoft.core.tslib.coll.primtypes.impl.*;
 import org.toxsoft.core.tslib.gw.gwid.*;
 import org.toxsoft.core.tslib.gw.skid.*;
 import org.toxsoft.core.tslib.utils.errors.*;
+import org.toxsoft.core.tslib.utils.logs.impl.*;
 import org.toxsoft.core.tslib.utils.txtmatch.*;
 import org.toxsoft.uskat.core.*;
 import org.toxsoft.uskat.core.api.objserv.*;
@@ -144,6 +148,49 @@ class SkCoreServObject
         throw new TsIllegalStateRtException();
       }
       objCreatorsByRules.removeByKey( aRule );
+    }
+
+  }
+
+  /**
+   * {@link ISkObjectService#eventer()} implementation.
+   *
+   * @author hazard157
+   */
+  class Eventer
+      extends AbstractTsEventer<ISkObjectServiceListener> {
+
+    private boolean isPending = false;
+
+    @Override
+    protected void doClearPendingEvents() {
+      isPending = false;
+    }
+
+    @Override
+    protected void doFirePendingEvents() {
+      isPending = false;
+      fireObjectsChanged( ECrudOp.LIST, null );
+    }
+
+    @Override
+    protected boolean doIsPendingEvents() {
+      return isPending;
+    }
+
+    void fireObjectsChanged( ECrudOp aOp, Skid aSkid ) {
+      if( isFiringPaused() ) {
+        isPending = true;
+        return;
+      }
+      for( ISkObjectServiceListener l : listeners() ) {
+        try {
+          l.onObjectsChanged( coreApi(), aOp, aSkid );
+        }
+        catch( Exception ex ) {
+          LoggerUtils.errorLogger().error( ex );
+        }
+      }
     }
 
   }
@@ -334,6 +381,7 @@ class SkCoreServObject
 
   final ObjsCache         objsCache         = new ObjsCache();
   final ObjsCreators      objsCreators      = new ObjsCreators();
+  final Eventer           eventer           = new Eventer();
   final ValidationSupport validationSupport = new ValidationSupport();
 
   /**
@@ -358,6 +406,20 @@ class SkCoreServObject
   @Override
   protected void doClose() {
     // nop
+  }
+
+  @Override
+  protected boolean onBackendMessage( GenericMessage aMessage ) {
+    switch( aMessage.messageId() ) {
+      case MSGID_OBJECTS_CHANGE: {
+        ECrudOp op = extractCrudOp( aMessage );
+        Skid skid = extractSkid( aMessage );
+        eventer.fireObjectsChanged( op, skid );
+        return true;
+      }
+      default:
+        return false;
+    }
   }
 
   // ------------------------------------------------------------------------------------
@@ -572,9 +634,10 @@ class SkCoreServObject
         sko.attrs().setValue( ainf.id(), val );
       }
     }
-    // FIXME refresh rivets values
+    // refresh rivets values
     for( IDtoRivetInfo rinf : cInfo.rivets().list() ) {
-      sko.rivets().ensureSkidList( rinf.id() ).setAll( aDtoObject.rivets().map().getByKey( rinf.id() ) );
+      ISkidList rivets = aDtoObject.rivets().map().getByKey( rinf.id() );
+      sko.rivets().ensureSkidList( rinf.id() ).setAll( rivets );
     }
     // save object
     objsCache.put( sko );
@@ -624,8 +687,7 @@ class SkCoreServObject
 
   @Override
   public ITsEventer<ISkObjectServiceListener> eventer() {
-    // TODO реализовать SkCoreServObject.eventer()
-    throw new TsUnderDevelopmentRtException( "SkCoreServObject.eventer()" );
+    return eventer;
   }
 
 }
