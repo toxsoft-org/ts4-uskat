@@ -17,7 +17,7 @@ import org.toxsoft.core.tslib.utils.errors.TsNullArgumentRtException;
 /**
  * The enumeration of XXX.
  *
- * @author goga
+ * @author hazard157
  */
 public enum ESkClassPropKind
     implements IStridable {

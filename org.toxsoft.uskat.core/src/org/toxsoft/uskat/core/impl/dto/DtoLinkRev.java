@@ -15,7 +15,7 @@ import org.toxsoft.uskat.core.api.linkserv.*;
 /**
  * Редактируемая реализация {@link IDtoLinkRev}.
  *
- * @author goga
+ * @author hazard157
  */
 public final class DtoLinkRev
     implements IDtoLinkRev, Serializable {

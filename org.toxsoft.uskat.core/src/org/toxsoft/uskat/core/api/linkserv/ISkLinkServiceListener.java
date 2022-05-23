@@ -1,22 +1,22 @@
 package org.toxsoft.uskat.core.api.linkserv;
 
-import org.toxsoft.core.tslib.coll.primtypes.IStringMap;
-import org.toxsoft.core.tslib.gw.skid.Skid;
-
-// TODO TRANSLATE
+import org.toxsoft.core.tslib.coll.primtypes.*;
+import org.toxsoft.core.tslib.gw.skid.*;
+import org.toxsoft.uskat.core.*;
 
 /**
- * Слушатель изменений в связях между объектами.
+ * {@link ISkLinkService} events listener.
  *
- * @author goga
+ * @author hazard157
  */
 public interface ISkLinkServiceListener {
 
   /**
-   * Вызывается при измененииях в связи.
+   * Called when any change in link occur.
    *
-   * @param aChangedLinks {@link IStringMap}&lt;{@link Skid}&gt; - карта "Ид связи" - "ИД левого объекта"
+   * @param aCoreApi {@link ISkCoreApi} - the event source
+   * @param aChangedLinks {@link IStringMap}&lt;{@link Skid}&gt; - the map "link ID" - "left object SKID"
    */
-  void onLinkChanged( IStringMap<Skid> aChangedLinks );
+  void onLinkChanged( ISkCoreApi aCoreApi, IStringMap<Skid> aChangedLinks );
 
 }

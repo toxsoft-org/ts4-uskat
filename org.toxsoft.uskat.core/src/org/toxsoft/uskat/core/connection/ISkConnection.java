@@ -9,7 +9,7 @@ import org.toxsoft.uskat.core.backend.api.*;
 /**
  * A connection to the MicroSKAT server.
  *
- * @author goga
+ * @author hazard157
  */
 public interface ISkConnection
     extends ICloseable {
@@ -62,19 +62,6 @@ public interface ISkConnection
   ISkBackendInfo backendInfo();
 
   /**
-   * Returns the session object.
-   * <p>
-   * Any opening of connection creates an unique session object.
-   * <p>
-   * Returns valid valfter {@link #close()}. Calling this method before first {@link #open(ITsContextRo)} will throw an
-   * exception.
-   *
-   * @return {@link ISkSession} - the session object
-   * @throws TsIllegalStateRtException connection was not opened ever
-   */
-  // FIXME ISkSession sessionInfo();
-
-  /**
    * Adds the connection state change listener.
    *
    * @param aListener {@link ISkConnectionListener} - the listener
@@ -93,7 +80,7 @@ public interface ISkConnection
   /**
    * Returns the scope of the connection - arbitrary references and options bound to this connection.
    * <p>
-   * User may bind anything with connection, UCoreAPI does not uses content of this context.
+   * User may bind anything with connection, USkat does not uses content of this context.
    *
    * @return {@link ITsContext} - editable set of custom references and options
    */

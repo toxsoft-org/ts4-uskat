@@ -16,7 +16,7 @@ import org.toxsoft.uskat.core.impl.*;
 /**
  * USkat global constants.
  *
- * @author goga
+ * @author hazard157
  */
 public interface ISkHardConstants {
 

@@ -29,7 +29,7 @@ public interface IBaLinks
    * Argument <code>aClassId</code> must be the class where the specified link is defined, not the subclass. Generally
    * backend is "dumb" and does not knows about class inheritance.
    *
-   * @param aClassId String - link definition class ID
+   * @param aClassId String - link declaring class ID
    * @param aLinkId String - the link ID
    * @param aLeftSkid {@link Skid} - the left object SKID
    * @return {@link IDtoLinkFwd} - forward link, may be <code>null</code> if no objects are linked

@@ -10,7 +10,6 @@ import org.toxsoft.core.tslib.gw.skid.*;
 import org.toxsoft.core.tslib.utils.errors.*;
 import org.toxsoft.uskat.core.*;
 import org.toxsoft.uskat.core.api.*;
-import org.toxsoft.uskat.core.api.objserv.*;
 import org.toxsoft.uskat.core.api.sysdescr.*;
 
 /**
@@ -26,18 +25,14 @@ public interface ISkLinkService
    */
   String SERVICE_ID = ISkHardConstants.SK_CORE_SERVICE_ID_PREFIX + "Links"; //$NON-NLS-1$
 
-  // TODO TRANSLATE
-
-  // FIXME review service API
-
   /**
-   * Возвращает прямую связь.
+   * Returns the forward link.
    *
-   * @param aLeftSkid {@link Skid} - идентификатор левого объекта
-   * @param aLinkId String - идентификатор связи
-   * @return {@link IDtoLinkFwd} - прямая связь, не бывает <code>null</code>
-   * @throws TsNullArgumentRtException любой аргумент = null
-   * @throws TsItemNotFoundRtException нет такой связи или такого объекта в системе
+   * @param aLeftSkid {@link Skid} - left object SKID of the link
+   * @param aLinkId String - the link ID
+   * @return {@link IDtoLinkFwd} - forward link (never is <code>null</code>)
+   * @throws TsNullArgumentRtException any argument = <code>null</code>
+   * @throws TsItemNotFoundRtException no such link or object exists
    */
   IDtoLinkFwd getLinkFwd( Skid aLeftSkid, String aLinkId );
 
@@ -45,100 +40,101 @@ public interface ISkLinkService
    * Returns all forward links of the specified object.
    * <p>
    * The returned map alwayes contains all links even if no objects are linked. Keys in returned map are the the same as
-   * keys in {@link ISkClassInfo#links()}.
+   * keys in {@link ISkClassInfo#links()} of the left object class.
    *
    * @param aLeftSkid {@link Skid} - the object SKID
    * @return {@link IStringMap}&lt;{@link IDtoLinkFwd}&lt; - the map "link ID" - "forward link"
+   * @throws TsNullArgumentRtException any argument = <code>null</code>
+   * @throws TsItemNotFoundRtException no such object exists
    */
   IStringMap<IDtoLinkFwd> getAllLinksFwd( Skid aLeftSkid );
 
   /**
-   * Возвращает обратную связь.
+   * Returns the reverse link that is finds left objects by specifying right object and link ID.
    *
-   * @param aClassId String - идентификатор класса связи
-   * @param aLinkId String - идентификатор связи
-   * @param aRightSkid {@link Skid} - идентификатор правого объекта
-   * @return {@link ISkidList} - обратная связь
-   * @throws TsNullArgumentRtException любой аргумент = null
-   * @throws TsItemNotFoundRtException нет такой связи или такого объекта в системе
+   * @param aClassId String - link declaring class ID
+   * @param aLinkId String - link ID
+   * @param aRightSkid {@link Skid} - right object SKID
+   * @return {@link IDtoLinkRev} - found reverse link may have an empty {@link IDtoLinkRev#leftSkids()}
+   * @throws TsNullArgumentRtException any argument = <code>null</code>
+   * @throws TsItemNotFoundRtException no such link or no such left right object exists
    */
-  ISkidList getLinkRev( String aClassId, String aLinkId, Skid aRightSkid );
+  IDtoLinkRev getLinkRev( String aClassId, String aLinkId, Skid aRightSkid );
 
   /**
-   * Returns all revese links of the specified object.
+   * Returns all reverse links of the specified object.
    *
    * @param aRightSkid {@link Skid} - the object SKID
-   * @return {@link IMap}&lt;{@link Gwid},{@link ISkidList}&gt; - the map "abstract link" - "left objects of link"
+   * @return {@link IMap}&lt;{@link Gwid},{@link ISkidList}&gt; - the map "abstract link GWID" - "left objects SKIDs"
    */
   IMap<Gwid, ISkidList> getAllLinksRev( Skid aRightSkid );
 
   /**
-   * Определяет список связанных объектов.
+   * Changes the right objects of the specified link.
    * <p>
-   * Метод сначала удаляет из связи правые объекты перечисленные в <code>aRemovedSkids</code>, а потом добавляет в связь
-   * правые объекты, перечисленные в <code>aAddedSkids</code>.
+   * First objects listed in <code>aRemovedSkids</code> arguments are removed from the link and then objects listed in
+   * <code>aAddedSkids</code> added to the link.
    * <p>
-   * Обратите внимание на <b>тотально</b> разный смысл двух значений аргумента <b><code>aRemovedSkids</code></b>:
+   * Warning: there is big difference specifying two values of the <b><code>aRemovedSkids</code></b> argument:
    * <ul>
-   * <li>значение <code>null</code> приводит к полному <b>удалению всех</b> связанных объектов;</li>
-   * <li>значение {@link ISkidList#EMPTY} вообще не изменяет связь.</li>
+   * <li>value <code>null</code> means deletion of <b>the all objects</b>;</li>
+   * <li>value {@link ISkidList#EMPTY} does not changes link at all.</li>
    * </ul>
    * <p>
-   * Один метод позволяет создать, удалить и редактировать связь. Для упрощения использования метода ниже определены
-   * inline методы.
+   * This sinle method allow to create link, edit or remove objects in the right objects list. Below there are some
+   * inline methods for convinience.
    *
-   * @param aLeftSkid {@link Skid} - идентификатор левого объекта
-   * @param aLinkId String - идентификатор связи
-   * @param aRemovedSkids {@link ISkidList} - удаляемые из связи объекты или <code>null</code> для удаления <b>всех</b>
-   * @param aAddedSkids {@link ISkidList} - добавляемые в связь объекты
-   * @throws TsNullArgumentRtException любой аргумент (кроме aRemovedSkids) = null
-   * @throws TsItemNotFoundRtException не существует такой связи
-   * @throws TsItemNotFoundRtException не существует одного из упомянутых объектов
-   * @throws TsValidationFailedRtException не прошла какая-либо проверка {@link ISkLinkServiceValidator}
+   * @param aLeftSkid {@link Skid} - the left object SKID
+   * @param aLinkId String - the link ID
+   * @param aRemovedSkids {@link ISkidList} - SKIDs to remove or <code>null</code> to remove <b>all objects</b>
+   * @param aAddedSkids {@link ISkidList} - objects to be added to the link
+   * @throws TsNullArgumentRtException any argument = <code>null</code>
+   * @throws TsValidationFailedRtException failed {@link ISkLinkServiceValidator} validation
    */
-  // TODO сделать void defineLink(IDpuLinkFwd aLink );
   void defineLink( Skid aLeftSkid, String aLinkId, ISkidList aRemovedSkids, ISkidList aAddedSkids );
 
   /**
-   * Удаляет все связи объекта, как будто .
+   * Removes all links of the specified left object.
    * <p>
-   * Обратите внимание, что удаления связей и задание связи с 0 объектами не одно и то же. Хотя, для одной связи
-   * результатом обоих дествий будет пустой список правых объектов. Например, связи, которая должна содержать ровно один
-   * объект, нельзя задавать 0 правых объектов - это нарушение правил. А удалить такую связь можно, фактически,
-   * восстанавливая объект до состояния момента создания. Напомним, только что созданный методом
-   * {@link ISkObjectService#defineObject(IDtoObject)} имеет только пустые связи.
+   * Removing link is not the same as setting link to 0 objects though both actions lead to links with empty list of the
+   * right objects. For example it is impossible to set 0 right objects for the link which must have exactly 1 object
+   * while clearing (removing) such link is allowed. Clearing links means to reset the object state as it was at the
+   * time of creation.
    *
-   * @param aLeftSkid {@link Skid} - идентификатор левого объекта
-   * @throws TsNullArgumentRtException любой аргумент (кроме aRemovedSkids) = null
-   * @throws TsItemNotFoundRtException нет такого объекта
+   * @param aLeftSkid {@link Skid} - the left object SKID
+   * @throws TsNullArgumentRtException any argument = <code>null</code>
+   * @throws TsValidationFailedRtException failed {@link ISkLinkServiceValidator} validation
    */
   void removeLinks( Skid aLeftSkid );
 
-  /**
-   * Возвращает средство работы с событиями от службы.
-   *
-   * @return {@link ITsEventer} - средство работы с событиями от службы
-   */
-  ITsEventer<ISkLinkServiceListener> eventer();
+  // ------------------------------------------------------------------------------------
+  // Service support
 
   /**
-   * Возвращает средсва валидации вызовов методов редактирования службы.
+   * Returns the service validator.
    *
-   * @return {@link ITsValidationSupport} - поддержка валидации
+   * @return {@link ITsValidationSupport}&lt;{@link ISkLinkServiceValidator}&gt; - the service validator
    */
   ITsValidationSupport<ISkLinkServiceValidator> svs();
 
+  /**
+   * Returns the service eventer.
+   *
+   * @return {@link ITsEventer}&lt;{@link ISkLinkServiceListener}&gt; - the service eventer
+   */
+  ITsEventer<ISkLinkServiceListener> eventer();
+
   // ------------------------------------------------------------------------------------
-  // inline методы для удобства
+  // inline methods for convinience
 
   /**
-   * Возвращает прямую связь.
+   * Returns the forward link by the concrete GWID.
    *
-   * @param aLinkConcreteGwid {@link Gwid} - конкретный идентификатор связи
-   * @return {@link IDtoLinkFwd} - прямая связь
-   * @throws TsNullArgumentRtException любой аргумент = null
-   * @throws TsIllegalArgumentRtException аргумент не конкретный GWID связи
-   * @throws TsItemNotFoundRtException нет такой связи или такого объекта в системе
+   * @param aLinkConcreteGwid {@link Gwid} - concrete GWID of the link
+   * @return {@link IDtoLinkFwd} - forward link (never is <code>null</code>)
+   * @throws TsNullArgumentRtException any argument = <code>null</code>
+   * @throws TsIllegalArgumentRtException argument is not a concrete GWID of the link
+   * @throws TsItemNotFoundRtException no such link or object exists
    */
   default IDtoLinkFwd getLinkFwd( Gwid aLinkConcreteGwid ) {
     TsNullArgumentRtException.checkNull( aLinkConcreteGwid );
@@ -149,18 +145,28 @@ public interface ISkLinkService
   }
 
   /**
-   * Задает связь.
+   * Sets the linked right objects.
    *
-   * @param aLeftSkid {@link Skid} - идентификатор левого объекта
-   * @param aLinkId String - идентификатор связи
-   * @param aNewSkids {@link ISkidList} - правые объекты связи
-   * @throws TsNullArgumentRtException любой аргумент (кроме aRemovedSkids) = null
-   * @throws TsItemNotFoundRtException не существует такой связи
-   * @throws TsItemNotFoundRtException не существует одного из упомянутых объектов
-   * @throws TsValidationFailedRtException не прошла какая-либо проверка {@link ISkLinkServiceValidator}
+   * @param aLeftSkid {@link Skid} - left object SKID
+   * @param aLinkId String - the link ID
+   * @param aNewSkids {@link ISkidList} - right objects to be set as link
+   * @throws TsNullArgumentRtException any argument = <code>null</code>
+   * @throws TsValidationFailedRtException failed {@link ISkLinkServiceValidator} validation
    */
   default void setLink( Skid aLeftSkid, String aLinkId, ISkidList aNewSkids ) {
     defineLink( aLeftSkid, aLinkId, null, aNewSkids );
+  }
+
+  /**
+   * Sets the specified link.
+   *
+   * @param aLink {@link IDtoLinkFwd} - the link to set
+   * @throws TsNullArgumentRtException any argument = <code>null</code>
+   * @throws TsValidationFailedRtException failed {@link ISkLinkServiceValidator} validation
+   */
+  default void setLink( IDtoLinkFwd aLink ) {
+    TsNullArgumentRtException.checkNull( aLink );
+    defineLink( aLink.leftSkid(), aLink.linkId(), null, aLink.rightSkids() );
   }
 
 }

@@ -27,6 +27,13 @@ public class MtbBaObjects
     extends MtbAbstractAddon
     implements IBaObjects {
 
+  /**
+   * TODO reverse rivets cache:<br>
+   * cache must be created on first load;<br>
+   * cache must be updated on every writeObjects();<br>
+   * cache is NOT saved to storage
+   */
+
   private final IStringMapEdit<IMapEdit<Skid, IDtoObject>> objsMap = new StringMap<>( 157 );
 
   /**
@@ -242,7 +249,6 @@ public class MtbBaObjects
         break;
       }
     }
-
   }
 
 }

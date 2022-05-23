@@ -418,7 +418,7 @@ class SkCoreServSysdescr
     cacheIsInvalid = true;
     ba().baClasses().writeClassInfos( IStringList.EMPTY, new StridablesList<>( aDtoClassInfo ) );
     ISkClassInfo result = listClasses().getByKey( aDtoClassInfo.id() );
-    coreApi().doJobInCoreMainThred();
+    coreApi().doJobInCoreMainThread();
     return result;
   }
 
@@ -429,7 +429,7 @@ class SkCoreServSysdescr
     // remove from backend
     cacheIsInvalid = true;
     ba().baClasses().writeClassInfos( new SingleStringList( aClassId ), IStridablesList.EMPTY );
-    coreApi().doJobInCoreMainThred();
+    coreApi().doJobInCoreMainThread();
   }
 
   @Override

@@ -8,7 +8,7 @@ import org.toxsoft.core.tslib.utils.errors.*;
 /**
  * {@link ISkObjectService} service validator.
  *
- * @author goga
+ * @author hazard157
  */
 public interface ISkObjectServiceValidator {
 

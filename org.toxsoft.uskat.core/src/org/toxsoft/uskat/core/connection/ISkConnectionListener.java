@@ -3,7 +3,7 @@ package org.toxsoft.uskat.core.connection;
 /**
  * Listener to the {@link ISkConnection#state()} change.
  *
- * @author goga
+ * @author hazard157
  */
 public interface ISkConnectionListener {
 

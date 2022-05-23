@@ -34,6 +34,8 @@ public final class DtoLinkFwd
         protected void doWrite( IStrioWriter aSw, IDtoLinkFwd aEntity ) {
           Gwid.KEEPER.write( aSw, aEntity.gwid() );
           aSw.writeSeparatorChar();
+          Skid.KEEPER.write( aSw, aEntity.leftSkid() );
+          aSw.writeSeparatorChar();
           SkidListKeeper.KEEPER.write( aSw, aEntity.rightSkids() );
         }
 
@@ -41,30 +43,37 @@ public final class DtoLinkFwd
         protected IDtoLinkFwd doRead( IStrioReader aSr ) {
           Gwid gwid = Gwid.KEEPER.read( aSr );
           aSr.ensureSeparatorChar();
-          ISkidList rightObjIds = SkidListKeeper.KEEPER.read( aSr );
-          return new DtoLinkFwd( gwid, rightObjIds );
+          Skid leftSkid = Skid.KEEPER.read( aSr );
+          aSr.ensureSeparatorChar();
+          SkidList rightObjIds = (SkidList)SkidListKeeper.KEEPER.read( aSr );
+          return new DtoLinkFwd( 0, gwid, leftSkid, rightObjIds );
         }
       };
 
   private final Gwid     gwid;
+  private final Skid     leftObj;
   private final SkidList rightObjIds;
 
   /**
    * Constructor.
+   * <p>
+   * Note: link GWID must contain ID of the link declaring class while left SKID contains class ID of the object.
    *
-   * @param aGwid {@link Gwid} - concrete link GWID
+   * @param aGwid {@link Gwid} - abstract GWID of the link
+   * @param aLeftSkid {@link Skid} - SKID of the left object
    * @param aRightObjIds {@link ISkidList} - right objects SKIDs initial values
    * @throws TsNullArgumentRtException any argument = <code>null</code>
    * @throws TsIllegalArgumentRtException {@link Gwid} is not of kind {@link EGwidKind#GW_LINK}
-   * @throws TsIllegalArgumentRtException link {@link Gwid} is abstract
+   * @throws TsIllegalArgumentRtException link {@link Gwid} is concrete
    * @throws TsIllegalArgumentRtException link {@link Gwid} is multi GWID
    */
-  public DtoLinkFwd( Gwid aGwid, ISkidList aRightObjIds ) {
+  public DtoLinkFwd( Gwid aGwid, Skid aLeftSkid, ISkidList aRightObjIds ) {
     TsNullArgumentRtException.checkNulls( aGwid, aRightObjIds );
-    TsIllegalArgumentRtException.checkTrue( aGwid.isAbstract() );
+    TsIllegalArgumentRtException.checkFalse( aGwid.isAbstract() );
     TsIllegalArgumentRtException.checkTrue( aGwid.isMulti() );
     TsIllegalArgumentRtException.checkTrue( aGwid.kind() != EGwidKind.GW_LINK );
     gwid = aGwid;
+    leftObj = aLeftSkid;
     rightObjIds = new SkidList( aRightObjIds );
   }
 
@@ -77,26 +86,13 @@ public final class DtoLinkFwd
    */
   public static DtoLinkFwd createCopy( IDtoLinkFwd aSource ) {
     TsNullArgumentRtException.checkNull( aSource );
-    return new DtoLinkFwd( aSource.gwid(), aSource.rightSkids() );
+    return new DtoLinkFwd( aSource.gwid(), aSource.leftSkid(), aSource.rightSkids() );
   }
 
-  private DtoLinkFwd( Gwid aGwid, SkidList aRightObjIds ) {
+  private DtoLinkFwd( @SuppressWarnings( "unused" ) int aFoo, Gwid aGwid, Skid aLeftSkid, SkidList aRightObjIds ) {
     gwid = aGwid;
+    leftObj = aLeftSkid;
     rightObjIds = aRightObjIds;
-  }
-
-  /**
-   * Static constructor.
-   * <p>
-   * WARNING: constructor is unsafe but fast. Arguments are stored without any check and without defensive copy
-   * creation.
-   *
-   * @param aGwid {@link Gwid} - concrete link GWID
-   * @param aRightObjIds {@link ISkidList} - right objects SKIDs initial values
-   * @return {@link DtoLinkFwd} - created instance
-   */
-  public static DtoLinkFwd createFastUnsafe( Gwid aGwid, SkidList aRightObjIds ) {
-    return new DtoLinkFwd( aGwid, aRightObjIds );
   }
 
   // ------------------------------------------------------------------------------------
@@ -120,7 +116,7 @@ public final class DtoLinkFwd
 
   @Override
   public Skid leftSkid() {
-    return gwid.skid();
+    return leftObj;
   }
 
   @Override
@@ -134,7 +130,7 @@ public final class DtoLinkFwd
 
   @Override
   public String toString() {
-    return gwid.toString();
+    return gwid.toString() + '-' + leftObj.toString();
   }
 
   @Override
@@ -143,7 +139,7 @@ public final class DtoLinkFwd
       return true;
     }
     if( aThat instanceof DtoLinkFwd that ) {
-      return gwid.equals( that.gwid ) && rightObjIds.equals( that.rightObjIds );
+      return gwid.equals( that.gwid ) && leftObj.equals( that.leftObj ) && rightObjIds.equals( that.rightObjIds );
     }
     return false;
   }
@@ -152,6 +148,7 @@ public final class DtoLinkFwd
   public int hashCode() {
     int result = INITIAL_HASH_CODE;
     result = PRIME * result + gwid.hashCode();
+    result = PRIME * result + leftObj.hashCode();
     result = PRIME * result + rightObjIds.hashCode();
     return result;
   }

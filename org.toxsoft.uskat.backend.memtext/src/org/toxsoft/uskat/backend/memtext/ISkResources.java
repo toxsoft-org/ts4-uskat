@@ -3,7 +3,7 @@ package org.toxsoft.uskat.backend.memtext;
 /**
  * Локализуемые ресурсы.
  *
- * @author goga
+ * @author hazard157
  */
 @SuppressWarnings( "nls" )
 interface ISkResources {

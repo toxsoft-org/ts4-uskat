@@ -655,14 +655,14 @@ class SkCoreServObject
 
   @Override
   public ISkidList getRivetRev( String aClassId, String aRivetId, Skid aRightSkid ) {
-    // TODO Auto-generated method stub
-    return null;
+    // TODO реализовать SkCoreServObject.getRivetRev()
+    throw new TsUnderDevelopmentRtException( "SkCoreServObject.getRivetRev()" );
   }
 
   @Override
   public IMap<Gwid, ISkidList> getAllRivetsRev( Skid aRightSkid ) {
-    // TODO Auto-generated method stub
-    return null;
+    // TODO реализовать SkCoreServObject.getRivetRev()
+    throw new TsUnderDevelopmentRtException( "SkCoreServObject.getRivetRev()" );
   }
 
   @Override
