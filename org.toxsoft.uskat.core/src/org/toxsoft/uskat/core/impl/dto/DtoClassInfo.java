@@ -1,5 +1,7 @@
 package org.toxsoft.uskat.core.impl.dto;
 
+import static org.toxsoft.core.tslib.utils.TsLibUtils.*;
+
 import org.toxsoft.core.tslib.av.opset.*;
 import org.toxsoft.core.tslib.av.opset.impl.*;
 import org.toxsoft.core.tslib.bricks.keeper.*;
@@ -285,6 +287,50 @@ public class DtoClassInfo
       case CMD -> (IStridablesList)cmdInfos;
       case EVENT -> (IStridablesList)eventInfos;
     };
+  }
+
+  // ------------------------------------------------------------------------------------
+  // Object
+  //
+
+  @SuppressWarnings( "boxing" )
+  @Override
+  public String toString() {
+    StringBuilder sb = new StringBuilder( super.toString() );
+    for( ESkClassPropKind k : ESkClassPropKind.asList() ) {
+      IStridablesList<?> cp = propInfos( k );
+      sb.append( String.format( ", %s[%d]", k.id(), cp.size() ) ); //$NON-NLS-1$
+    }
+    return sb.toString();
+  }
+
+  @Override
+  public int hashCode() {
+    int result = super.hashCode();
+    result = PRIME * result + attrInfos.hashCode();
+    result = PRIME * result + rivetInfos.hashCode();
+    result = PRIME * result + clobInfos.hashCode();
+    result = PRIME * result + linkInfos.hashCode();
+    result = PRIME * result + rtdataInfos.hashCode();
+    result = PRIME * result + eventInfos.hashCode();
+    result = PRIME * result + cmdInfos.hashCode();
+    return result;
+  }
+
+  @Override
+  public boolean equals( Object aThat ) {
+    if( super.equals( aThat ) ) {
+      if( aThat instanceof DtoClassInfo that ) {
+        return this.attrInfos.equals( that.attrInfos ) && //
+            this.rivetInfos.equals( that.rivetInfos ) && //
+            this.clobInfos.equals( that.clobInfos ) && //
+            this.linkInfos.equals( that.linkInfos ) && //
+            this.rtdataInfos.equals( that.rtdataInfos ) && //
+            this.eventInfos.equals( that.eventInfos ) && //
+            this.cmdInfos.equals( that.cmdInfos );
+      }
+    }
+    return false;
   }
 
 }

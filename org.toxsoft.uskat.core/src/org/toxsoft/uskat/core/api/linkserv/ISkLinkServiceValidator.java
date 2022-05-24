@@ -12,9 +12,10 @@ public interface ISkLinkServiceValidator {
   /**
    * Checks if new link can be set.
    *
-   * @param aLink {@link IDtoLinkFwd} - link to be set
+   * @param aOldLink {@link IDtoLinkFwd} - old link or <code>null</code> if none exists
+   * @param aNewLink {@link IDtoLinkFwd} - link to be set
    * @return {@link ValidationResult} - validation result
    */
-  ValidationResult canSetLink( IDtoLinkFwd aLink );
+  ValidationResult canSetLink( IDtoLinkFwd aOldLink, IDtoLinkFwd aNewLink );
 
 }

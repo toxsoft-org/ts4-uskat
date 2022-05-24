@@ -190,7 +190,6 @@ public class MtbBaObjects
           if( map.removeByKey( skid ) != null ) {
             ++changesCount;
             eventSkid = skid;
-            setChanged();
           }
           if( map.isEmpty() ) { // if there are no more objects of class skid.classId(), remove map from objs
             objsMap.removeByKey( skid.classId() );
@@ -202,7 +201,6 @@ public class MtbBaObjects
       if( !objsMap.isEmpty() ) {
         changesCount = 2; // any value >1 leads to generate ECrudOp.LIST event
         objsMap.clear();
-        setChanged();
       }
     }
     // add/update objects
@@ -229,7 +227,6 @@ public class MtbBaObjects
         map.put( obj.skid(), obj );
         ++changesCount;
         eventSkid = obj.skid();
-        setChanged();
       }
     }
     // inform frontend
@@ -239,11 +236,13 @@ public class MtbBaObjects
         break;
       }
       case 1: { // single change causes single object event
+        setChanged();
         GtMessage msg = IBaObjectsMessages.makeMessage( eventOp, eventSkid );
         owner().frontend().onBackendMessage( msg );
         break;
       }
       default: { // batch changes will fir ECrudOp.LIST event
+        setChanged();
         GtMessage msg = IBaObjectsMessages.makeMessage( ECrudOp.LIST, null );
         owner().frontend().onBackendMessage( msg );
         break;

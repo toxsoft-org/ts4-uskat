@@ -1,7 +1,6 @@
 package org.toxsoft.uskat.core.api.linkserv;
 
-import org.toxsoft.core.tslib.coll.primtypes.*;
-import org.toxsoft.core.tslib.gw.skid.*;
+import org.toxsoft.core.tslib.gw.gwid.*;
 import org.toxsoft.uskat.core.*;
 
 /**
@@ -15,8 +14,8 @@ public interface ISkLinkServiceListener {
    * Called when any change in link occur.
    *
    * @param aCoreApi {@link ISkCoreApi} - the event source
-   * @param aChangedLinks {@link IStringMap}&lt;{@link Skid}&gt; - the map "link ID" - "left object SKID"
+   * @param aChangedLinks {@link IGwidList}&gt; - list of the concrete GWIDs of the changed links
    */
-  void onLinkChanged( ISkCoreApi aCoreApi, IStringMap<Skid> aChangedLinks );
+  void onLinkChanged( ISkCoreApi aCoreApi, IGwidList aChangedLinks );
 
 }

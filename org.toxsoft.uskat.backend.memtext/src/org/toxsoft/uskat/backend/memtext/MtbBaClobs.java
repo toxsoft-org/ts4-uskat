@@ -1,5 +1,7 @@
 package org.toxsoft.uskat.backend.memtext;
 
+import java.util.*;
+
 import org.toxsoft.core.tslib.bricks.events.msg.*;
 import org.toxsoft.core.tslib.bricks.keeper.std.*;
 import org.toxsoft.core.tslib.bricks.strio.*;
@@ -65,14 +67,19 @@ class MtbBaClobs
 
   @Override
   public String readClob( Gwid aGwid ) {
+    internalCheck();
     return clobsMap.findByKey( aGwid );
   }
 
   @Override
   public void writeClob( Gwid aGwid, String aClob ) {
-    clobsMap.put( aGwid, aClob );
-    GtMessage msg = IBaClobsMessages.makeMessage( aGwid );
-    owner().frontend().onBackendMessage( msg );
+    internalCheck();
+    if( !Objects.equals( clobsMap.findByKey( aGwid ), aClob ) ) {
+      clobsMap.put( aGwid, aClob );
+      setChanged();
+      GtMessage msg = IBaClobsMessages.makeMessage( aGwid );
+      owner().frontend().onBackendMessage( msg );
+    }
   }
 
 }

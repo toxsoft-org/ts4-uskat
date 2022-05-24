@@ -95,6 +95,11 @@ public final class DtoLinkFwd
     rightObjIds = aRightObjIds;
   }
 
+  public static DtoLinkFwd createDirect( Gwid aGwid, Skid aLeftSkid, SkidList aRightObjIds ) {
+    TsNullArgumentRtException.checkNulls( aGwid, aLeftSkid, aRightObjIds );
+    return new DtoLinkFwd( 0, aGwid, aLeftSkid, aRightObjIds );
+  }
+
   // ------------------------------------------------------------------------------------
   // IDtoLink
   //

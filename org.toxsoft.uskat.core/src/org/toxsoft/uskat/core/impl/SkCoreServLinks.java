@@ -1,6 +1,9 @@
 package org.toxsoft.uskat.core.impl;
 
+import static org.toxsoft.uskat.core.backend.api.IBaLinksMessages.*;
 import static org.toxsoft.uskat.core.impl.ISkResources.*;
+
+import java.util.*;
 
 import org.toxsoft.core.tslib.bricks.ctx.*;
 import org.toxsoft.core.tslib.bricks.events.*;
@@ -45,7 +48,7 @@ public class SkCoreServLinks
   class Eventer
       extends AbstractTsEventer<ISkLinkServiceListener> {
 
-    private final IMapEdit<Skid, IStringListEdit> changedLinks = new ElemMap<>();
+    private final GwidList changedLinks = new GwidList();
 
     @Override
     protected void doClearPendingEvents() {
@@ -54,7 +57,7 @@ public class SkCoreServLinks
 
     @Override
     protected void doFirePendingEvents() {
-      doFire( changedLinks );
+      reallyFire( changedLinks );
       changedLinks.clear();
     }
 
@@ -63,57 +66,27 @@ public class SkCoreServLinks
       return !changedLinks.isEmpty();
     }
 
-    private void doFire( IMap<Skid, IStringListEdit> aChangedLinks ) {
-      for( Skid skid : aChangedLinks.keys() ) {
-        IStringMapEdit<Skid> map = new StringMap<>();
-        for( String lid : aChangedLinks.getByKey( skid ) ) {
-          map.put( lid, skid );
+    private void reallyFire( IGwidList aChangedLinks ) {
+      for( ISkLinkServiceListener l : listeners() ) {
+        try {
+          l.onLinkChanged( coreApi(), aChangedLinks );
         }
-        for( ISkLinkServiceListener l : listeners() ) {
-          try {
-            l.onLinkChanged( coreApi(), map );
-          }
-          catch( Exception ex ) {
-            LoggerUtils.errorLogger().error( ex );
-          }
+        catch( Exception ex ) {
+          LoggerUtils.errorLogger().error( ex );
         }
       }
     }
 
-    void fireLinkChanged( String aLinkId, Skid aLeftSkid ) {
+    void fireLinksChanged( IGwidList aChangedLink ) {
       if( isFiringPaused() ) {
-        IStringListEdit sl = changedLinks.findByKey( aLeftSkid );
-        if( sl == null ) {
-          sl = new StringArrayList();
-        }
-        if( !sl.hasElem( aLinkId ) ) {
-          sl.add( aLinkId );
-        }
-        changedLinks.put( aLeftSkid, sl );
-        return;
-      }
-      IMapEdit<Skid, IStringListEdit> map = new ElemMap<>();
-      map.put( aLeftSkid, new StringArrayList( aLinkId ) );
-      doFire( map );
-    }
-
-    void fireLinksChanged( IStringList aLinkIds, Skid aLeftSkid ) {
-      if( isFiringPaused() ) {
-        IStringListEdit sl = changedLinks.findByKey( aLeftSkid );
-        if( sl == null ) {
-          sl = new StringArrayList();
-        }
-        for( String lid : aLinkIds ) {
-          if( !sl.hasElem( lid ) ) {
-            sl.add( lid );
-          }
-          changedLinks.put( aLeftSkid, sl );
+        for( Gwid g : aChangedLink ) {
+          // put last changed link at the end of the list
+          changedLinks.remove( g );
+          changedLinks.add( g );
         }
         return;
       }
-      IMapEdit<Skid, IStringListEdit> map = new ElemMap<>();
-      map.put( aLeftSkid, new StringArrayList( aLinkIds ) );
-      doFire( map );
+      reallyFire( aChangedLink );
     }
 
   }
@@ -133,11 +106,11 @@ public class SkCoreServLinks
     }
 
     @Override
-    public ValidationResult canSetLink( IDtoLinkFwd aLink ) {
-      TsNullArgumentRtException.checkNull( aLink );
+    public ValidationResult canSetLink( IDtoLinkFwd aOldLink, IDtoLinkFwd aNewLink ) {
+      TsNullArgumentRtException.checkNull( aNewLink );
       ValidationResult vr = ValidationResult.SUCCESS;
       for( ISkLinkServiceValidator v : validatorsList() ) {
-        vr = ValidationResult.firstNonOk( vr, v.canSetLink( aLink ) );
+        vr = ValidationResult.firstNonOk( vr, v.canSetLink( aOldLink, aNewLink ) );
         if( vr.isError() ) {
           break;
         }
@@ -147,44 +120,44 @@ public class SkCoreServLinks
 
   }
 
-  private final ISkLinkServiceValidator builtinValidator = aLink -> {
-    String cid = aLink.leftSkid().classId();
+  private final ISkLinkServiceValidator builtinValidator = ( aOldLink, aNewLink ) -> {
+    String cid = aNewLink.leftSkid().classId();
     ISkClassInfo cInfo = sysdescr().getClassInfo( cid );
-    IDtoLinkInfo lInfo = cInfo.links().list().getByKey( aLink.linkId() );
+    IDtoLinkInfo lInfo = cInfo.links().list().getByKey( aNewLink.linkId() );
     // check that left object exists
-    ISkObject left = coreApi().objService().find( aLink.leftSkid() );
+    ISkObject left = coreApi().objService().find( aNewLink.leftSkid() );
     if( left == null ) {
-      return ValidationResult.error( FMT_ERR_NO_LINK_LEFT_OBJ, aLink.leftSkid(), aLink.linkId() );
+      return ValidationResult.error( FMT_ERR_NO_LINK_LEFT_OBJ, aNewLink.leftSkid(), aNewLink.linkId() );
     }
     // check each of the right objectc
-    for( Skid rSkid : aLink.rightSkids() ) {
+    for( Skid rSkid : aNewLink.rightSkids() ) {
       // right object class must exist in sysdescr
       ISkClassInfo rightClassInfo = sysdescr().findClassInfo( rSkid.classId() );
       if( rightClassInfo == null ) {
-        return ValidationResult.error( FMT_ERR_NO_LINK_RIGHT_OBJ_CLASS, rSkid, aLink.linkId() );
+        return ValidationResult.error( FMT_ERR_NO_LINK_RIGHT_OBJ_CLASS, rSkid, aNewLink.linkId() );
       }
       // right object c lass must be allowed in the link
-      if( rightClassInfo.isOfClass( lInfo.rightClassIds() ) ) {
-        return ValidationResult.error( FMT_ERR_RIGHT_OBJ_INV_CLASS, rSkid, aLink.linkId() );
+      if( !rightClassInfo.isOfClass( lInfo.rightClassIds() ) ) {
+        return ValidationResult.error( FMT_ERR_RIGHT_OBJ_INV_CLASS, rSkid, aNewLink.linkId() );
       }
       // right object itself must exist
       ISkObject rSkObj = coreApi().objService().find( rSkid );
       if( rSkObj == null ) {
-        return ValidationResult.error( FMT_ERR_NO_LINK_RIGHT_OBJ_STRID, rSkid, aLink.linkId() );
+        return ValidationResult.error( FMT_ERR_NO_LINK_RIGHT_OBJ_STRID, rSkid, aNewLink.linkId() );
       }
     }
     // check number of right objects against link constraints
-    ValidationResult vr = lInfo.linkConstraint().checkErrorSize( aLink.rightSkids() );
+    ValidationResult vr = lInfo.linkConstraint().checkErrorSize( aNewLink.rightSkids() );
     if( vr.isError() ) {
       return vr;
     }
     // check duplicate right objects against link constraints
-    vr = ValidationResult.firstNonOk( vr, lInfo.linkConstraint().checkErrorDups( aLink.rightSkids() ) );
+    vr = ValidationResult.firstNonOk( vr, lInfo.linkConstraint().checkErrorDups( aNewLink.rightSkids() ) );
     if( vr.isError() ) {
       return vr;
     }
     // check right objects list's emptyness against link constraints
-    return ValidationResult.firstNonOk( vr, lInfo.linkConstraint().checkWarnEmpty( aLink.rightSkids() ) );
+    return ValidationResult.firstNonOk( vr, lInfo.linkConstraint().checkWarnEmpty( aNewLink.rightSkids() ) );
   };
 
   final Eventer           eventer           = new Eventer();
@@ -216,21 +189,27 @@ public class SkCoreServLinks
 
   @Override
   protected boolean onBackendMessage( GenericMessage aMessage ) {
-    // TODO реализовать SkCoreServLinks.onBackendMessage()
-    throw new TsUnderDevelopmentRtException( "SkCoreServLinks.onBackendMessage()" );
+    switch( aMessage.messageId() ) {
+      case MSGID_LINKS_CHANGE: {
+        IGwidList gwidList = extractGwidList( aMessage );
+        eventer.fireLinksChanged( gwidList );
+        return true;
+      }
+      default:
+        return false;
+    }
   }
 
   // ------------------------------------------------------------------------------------
   // implementation
   //
 
-  private IDtoLinkFwd readFromBackend( String aDeclaringClassId, String aLinkId, Skid aLeftSkid ) {
-    IDtoLinkFwd lf = ba().baLinks().findLinkFwd( aDeclaringClassId, aLinkId, aLeftSkid );
+  private IDtoLinkFwd readFromBackend( Gwid aLinkGwid, Skid aLeftSkid ) {
+    IDtoLinkFwd lf = ba().baLinks().findLinkFwd( aLinkGwid, aLeftSkid );
     if( lf != null ) {
       return lf;
     }
-    Gwid linkGwid = Gwid.createLink( aDeclaringClassId, aLinkId );
-    return new DtoLinkFwd( linkGwid, aLeftSkid, ISkidList.EMPTY );
+    return new DtoLinkFwd( aLinkGwid, aLeftSkid, ISkidList.EMPTY );
   }
 
   // ------------------------------------------------------------------------------------
@@ -253,7 +232,7 @@ public class SkCoreServLinks
       throw new TsItemNotFoundRtException( FMT_ERR_NO_SUCH_LINK1, aLinkId, aLeftSkid.classId() );
     }
     // read link
-    return readFromBackend( declaringClassInfo.id(), aLinkId, aLeftSkid );
+    return readFromBackend( Gwid.createLink( declaringClassInfo.id(), aLinkId ), aLeftSkid );
   }
 
   @Override
@@ -269,7 +248,8 @@ public class SkCoreServLinks
     IStringMapEdit<IDtoLinkFwd> map = new StringMap<>();
     for( String linkId : leftClassInfo.links().list().ids() ) {
       ISkClassInfo declaringClassInfo = leftClassInfo.links().findSuperDeclarer( linkId );
-      IDtoLinkFwd lf = readFromBackend( declaringClassInfo.id(), linkId, aLeftSkid );
+      Gwid linkGwid = Gwid.createLink( declaringClassInfo.id(), linkId );
+      IDtoLinkFwd lf = readFromBackend( linkGwid, aLeftSkid );
       map.put( linkId, lf );
     }
     return map;
@@ -288,10 +268,9 @@ public class SkCoreServLinks
     if( declaringClassInfo == null ) {
       throw new TsItemNotFoundRtException( FMT_ERR_NO_SUCH_LINK1, aLinkId, aClassId );
     }
-    // проверка наличия объекта
+    // check object exists
     ISkObject right = coreApi().objService().find( aRightSkid );
     if( right == null ) {
-      Gwid linkGwid = Gwid.createLink( aClassId, aLinkId );
       throw new TsItemNotFoundRtException( FMT_ERR_NO_SUCH_OBJ, aRightSkid );
     }
     IDtoLinkRev lr = ba().baLinks().findLinkRev( declaringClassInfo.id(), aLinkId, aRightSkid, IStringList.EMPTY );
@@ -302,22 +281,83 @@ public class SkCoreServLinks
     return lr;
   }
 
-  @Override
-  public IMap<Gwid, ISkidList> getAllLinksRev( Skid aRightSkid ) {
-    // TODO Auto-generated method stub
-    return null;
-  }
+  // @Override
+  // FIXME public IMap<Gwid, ISkidList> getAllLinksRev( Skid aRightSkid ) {
+  // // TODO реализовать SkCoreServLinks.getAllLinksRev()
+  // throw new TsUnderDevelopmentRtException( "SkCoreServLinks.getAllLinksRev()" );
+  // }
 
   @Override
-  public void defineLink( Skid aLeftSkid, String aLinkId, ISkidList aRemovedSkids, ISkidList aAddedSkids ) {
-    // TODO Auto-generated method stub
-
+  public IDtoLinkFwd defineLink( Skid aLeftSkid, String aLinkId, ISkidList aRemovedSkids, ISkidList aAddedSkids ) {
+    TsNullArgumentRtException.checkNulls( aLinkId, aLeftSkid, aAddedSkids );
+    coreApi().papiCheckIsOpen();
+    // check left object exists
+    ISkObject left = coreApi().objService().find( aLeftSkid );
+    if( left == null ) {
+      throw new TsItemNotFoundRtException( FMT_ERR_NO_LINK_LEFT_OBJ, aLeftSkid, aLinkId );
+    }
+    // find link's declaring class
+    ISkClassInfo leftClassInfo = sysdescr().getClassInfo( aLeftSkid.classId() );
+    ISkClassInfo declaringClassInfo = leftClassInfo.links().findSuperDeclarer( aLinkId );
+    if( declaringClassInfo == null ) {
+      throw new TsItemNotFoundRtException( FMT_ERR_NO_SUCH_LINK1, aLinkId, aLeftSkid.classId() );
+    }
+    // creale forward link to be written to backend
+    Gwid linkGwid = Gwid.createLink( declaringClassInfo.id(), aLinkId );
+    DtoLinkFwd newLink = new DtoLinkFwd( linkGwid, aLeftSkid, ISkidList.EMPTY );
+    // first fill it from existing link if any
+    IDtoLinkFwd oldLink = ba().baLinks().findLinkFwd( linkGwid, aLeftSkid );
+    if( oldLink != null ) {
+      newLink.rightSkids().setAll( oldLink.rightSkids() );
+    }
+    // remove right objects
+    if( aRemovedSkids != null ) {
+      for( Skid skid : aRemovedSkids ) {
+        newLink.rightSkids().remove( skid );
+      }
+    }
+    else {
+      newLink.rightSkids().clear();
+    }
+    // add right objects without duplicates
+    for( Skid skid : aAddedSkids ) {
+      if( !newLink.rightSkids().hasElem( skid ) ) {
+        newLink.rightSkids().add( skid );
+      }
+    }
+    // write link only it was really changed
+    if( !Objects.equals( oldLink, newLink ) ) {
+      // validate link may be written
+      TsValidationFailedRtException.checkError( validationSupport.canSetLink( oldLink, newLink ) );
+      ba().baLinks().writeLinksFwd( new SingleItemList<IDtoLinkFwd>( newLink ) );
+    }
+    return newLink;
   }
 
   @Override
   public void removeLinks( Skid aLeftSkid ) {
-    // TODO Auto-generated method stub
-
+    TsNullArgumentRtException.checkNull( aLeftSkid );
+    coreApi().papiCheckIsOpen();
+    // check left object exists
+    ISkObject left = coreApi().objService().find( aLeftSkid );
+    if( left == null ) {
+      throw new TsItemNotFoundRtException( FMT_ERR_NO_SUCH_OBJ, aLeftSkid );
+    }
+    // list if all link IDs
+    ISkClassInfo objClassInfo = sysdescr().getClassInfo( aLeftSkid.classId() );
+    IStringList allLinkIds = objClassInfo.links().list().ids();
+    if( allLinkIds.isEmpty() ) {
+      return;
+    }
+    // remove all links
+    IListEdit<IDtoLinkFwd> ll = new ElemArrayList<>();
+    for( String lid : allLinkIds ) {
+      ISkClassInfo declaringClassInfo = objClassInfo.links().findSuperDeclarer( lid );
+      Gwid linkGwid = Gwid.createLink( declaringClassInfo.id(), lid );
+      IDtoLinkFwd link = new DtoLinkFwd( linkGwid, aLeftSkid, ISkidList.EMPTY );
+      ll.add( link );
+    }
+    ba().baLinks().writeLinksFwd( ll );
   }
 
   @Override

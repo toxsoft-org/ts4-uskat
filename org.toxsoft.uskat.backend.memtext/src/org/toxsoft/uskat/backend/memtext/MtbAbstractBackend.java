@@ -19,7 +19,6 @@ import org.toxsoft.core.tslib.coll.basis.*;
 import org.toxsoft.core.tslib.coll.impl.*;
 import org.toxsoft.core.tslib.coll.primtypes.*;
 import org.toxsoft.core.tslib.coll.primtypes.impl.*;
-import org.toxsoft.core.tslib.gw.skid.*;
 import org.toxsoft.core.tslib.utils.errors.*;
 import org.toxsoft.uskat.core.*;
 import org.toxsoft.uskat.core.backend.*;
@@ -57,11 +56,10 @@ public abstract class MtbAbstractBackend
   private final ITsContextRo    argContext;
   private final ISkFrontendRear frontend;
 
-  private final MtbBaClasses     mtbBaClasses;
-  private final MtbBaObjects     mtbBaObjects;
-  private final MtbBaClobs       mtbBaClobs;
-  private final MtbAbstractAddon baLinks  = null; // FIXME null
-  private final MtbAbstractAddon baEvents = null; // FIXME null
+  private final MtbBaClasses mtbBaClasses;
+  private final MtbBaObjects mtbBaObjects;
+  private final MtbBaClobs   mtbBaClobs;
+  private final MtbBaLinks   baLinks;
 
   private final IStringMapEdit<MtbAbstractAddon> allAddons = new StringMap<>();
 
@@ -97,8 +95,10 @@ public abstract class MtbAbstractBackend
     allAddons.put( mtbBaObjects.id(), mtbBaObjects );
     mtbBaClobs = new MtbBaClobs( this );
     allAddons.put( mtbBaClobs.id(), mtbBaClobs );
+    baLinks = new MtbBaLinks( this );
+    allAddons.put( baLinks.id(), baLinks );
     // TODO other addons
-    backendInfo = new SkBackendInfo( aBackendId, System.currentTimeMillis(), Skid.NONE, aBackendInfoValue );
+    backendInfo = new SkBackendInfo( aBackendId, System.currentTimeMillis(), aBackendInfoValue );
   }
 
   // ------------------------------------------------------------------------------------
@@ -213,14 +213,13 @@ public abstract class MtbAbstractBackend
 
   @Override
   public IBaLinks baLinks() {
-    // TODO Auto-generated method stub
-    return null;
+    return baLinks;
   }
 
   @Override
   public IBaEvents baEvents() {
-    // TODO Auto-generated method stub
-    return null;
+    // TODO реализовать MtbAbstractBackend.baEvents()
+    throw new TsUnderDevelopmentRtException( "MtbAbstractBackend.baEvents()" );
   }
 
   @Override
@@ -230,14 +229,14 @@ public abstract class MtbAbstractBackend
 
   @Override
   public IBaRtdata baRtdata() {
-    // TODO Auto-generated method stub
-    return null;
+    // TODO реализовать MtbAbstractBackend.baRtdata()
+    throw new TsUnderDevelopmentRtException( "MtbAbstractBackend.baRtdata()" );
   }
 
   @Override
   public IBaCommands baCommands() {
-    // TODO Auto-generated method stub
-    return null;
+    // TODO реализовать MtbAbstractBackend.baCommands()
+    throw new TsUnderDevelopmentRtException( "MtbAbstractBackend.baCommands()" );
   }
 
   @Override

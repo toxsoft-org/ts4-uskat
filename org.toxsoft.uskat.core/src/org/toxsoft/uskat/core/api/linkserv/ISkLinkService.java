@@ -3,7 +3,6 @@ package org.toxsoft.uskat.core.api.linkserv;
 import org.toxsoft.core.tslib.bricks.events.*;
 import org.toxsoft.core.tslib.bricks.validator.*;
 import org.toxsoft.core.tslib.bricks.validator.impl.*;
-import org.toxsoft.core.tslib.coll.*;
 import org.toxsoft.core.tslib.coll.primtypes.*;
 import org.toxsoft.core.tslib.gw.gwid.*;
 import org.toxsoft.core.tslib.gw.skid.*;
@@ -67,7 +66,7 @@ public interface ISkLinkService
    * @param aRightSkid {@link Skid} - the object SKID
    * @return {@link IMap}&lt;{@link Gwid},{@link ISkidList}&gt; - the map "abstract link GWID" - "left objects SKIDs"
    */
-  IMap<Gwid, ISkidList> getAllLinksRev( Skid aRightSkid );
+  // FIXME IMap<Gwid, ISkidList> getAllLinksRev( Skid aRightSkid );
 
   /**
    * Changes the right objects of the specified link.
@@ -88,10 +87,11 @@ public interface ISkLinkService
    * @param aLinkId String - the link ID
    * @param aRemovedSkids {@link ISkidList} - SKIDs to remove or <code>null</code> to remove <b>all objects</b>
    * @param aAddedSkids {@link ISkidList} - objects to be added to the link
+   * @return {@link IDtoLinkFwd} - created link
    * @throws TsNullArgumentRtException any argument = <code>null</code>
    * @throws TsValidationFailedRtException failed {@link ISkLinkServiceValidator} validation
    */
-  void defineLink( Skid aLeftSkid, String aLinkId, ISkidList aRemovedSkids, ISkidList aAddedSkids );
+  IDtoLinkFwd defineLink( Skid aLeftSkid, String aLinkId, ISkidList aRemovedSkids, ISkidList aAddedSkids );
 
   /**
    * Removes all links of the specified left object.
