@@ -215,7 +215,7 @@ public class MtbBaObjects
         IDtoObject oldObj = map.findByKey( obj.skid() );
         if( oldObj != null ) {
           // bypass object if it is not changed
-          if( !obj.equals( oldObj ) ) {
+          if( obj.equals( oldObj ) ) {
             continue;
           }
           eventOp = ECrudOp.EDIT;
