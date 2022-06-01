@@ -14,7 +14,7 @@ import org.toxsoft.core.tslib.utils.valobj.*;
 /**
  * Some enumeration.
  *
- * @author goga
+ * @author hazard157
  */
 public enum ESkConnState
     implements IStridable {

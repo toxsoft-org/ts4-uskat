@@ -4,6 +4,7 @@ import static org.toxsoft.uskat.core.ISkHardConstants.*;
 
 import org.toxsoft.core.tslib.coll.*;
 import org.toxsoft.core.tslib.coll.primtypes.*;
+import org.toxsoft.core.tslib.gw.gwid.*;
 import org.toxsoft.core.tslib.gw.skid.*;
 import org.toxsoft.core.tslib.utils.errors.*;
 import org.toxsoft.uskat.core.api.linkserv.*;
@@ -26,15 +27,14 @@ public interface IBaLinks
   /**
    * Finds the forward link.
    * <p>
-   * Argument <code>aClassId</code> must be the class where the specified link is defined, not the subclass. Generally
-   * backend is "dumb" and does not knows about class inheritance.
+   * Argument <code>aLinkGwid</code> must must contain the class ID where the specified link is declared, not the
+   * subclass. Generally backend is "dumb" and does not knows about class inheritance.
    *
-   * @param aClassId String - link definition class ID
-   * @param aLinkId String - the link ID
+   * @param aLinkGwid {@link Gwid} - abstract GWID of link
    * @param aLeftSkid {@link Skid} - the left object SKID
    * @return {@link IDtoLinkFwd} - forward link, may be <code>null</code> if no objects are linked
    */
-  IDtoLinkFwd findLinkFwd( String aClassId, String aLinkId, Skid aLeftSkid );
+  IDtoLinkFwd findLinkFwd( Gwid aLinkGwid, Skid aLeftSkid );
 
   /**
    * Returns all forward links stored in backend.

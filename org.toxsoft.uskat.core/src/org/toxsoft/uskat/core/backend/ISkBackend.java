@@ -7,7 +7,6 @@ import org.toxsoft.core.tslib.utils.*;
 import org.toxsoft.core.tslib.utils.errors.*;
 import org.toxsoft.uskat.core.*;
 import org.toxsoft.uskat.core.backend.api.*;
-import org.toxsoft.uskat.core.connection.*;
 import org.toxsoft.uskat.core.impl.*;
 
 /**
@@ -22,12 +21,11 @@ import org.toxsoft.uskat.core.impl.*;
  * backend. The only way to communicate to frontend at the backends initiative is to send message via
  * {@link ISkFrontendRear#onBackendMessage(GtMessage)}.</li>
  * <li>Execution threads. Some backend implementations may have internal execution threads and may want to send message
- * to the frontend from the internal thread. Such backends inform their counterparts with the
- * {@link ISkBackendHardConstant#OPDEF_SKBI_NEEDS_THREAD_SEPARATOR} option set to <code>true</code> in
- * {@link ISkBackendInfo#params()}. Because core API impementation (class {@link SkCoreApi} and servcies) is
- * single-threaded, the threads must be separated by supplying {@link SkBackendThreadSeparator} instance in the
- * {@link ISkCoreConfigConstants#REFDEF_BACKEND_THREAD_SEPARATOR} when opening the connection by the method
- * {@link ISkConnection#open(ITsContextRo)}.</li>
+ * to the frontend from the internal thread. Such backends inform their counterpart with the
+ * {@link ISkBackendHardConstant#OPDEF_SKBI_NEED_THREAD_SAFE_FRONTEND} option set to <code>true</code> in
+ * {@link ISkBackendInfo#params()}. Because core API impementation (class {@link SkCoreApi} and it's reap part
+ * {@link ISkFrontendRear}) is single-threaded by defaul, the threads must be separated by supplying ensuring that
+ * {@link ISkFrontendRear} method calls are thread-safe.</li>
  * </ul>
  *
  * @author hazard157

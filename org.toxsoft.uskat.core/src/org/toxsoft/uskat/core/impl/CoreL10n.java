@@ -45,7 +45,7 @@ import org.toxsoft.uskat.core.impl.dto.*;
  * <p>
  * Подробности про хранение и принципы работы локализатиора описани в коде этого класса, по месту.
  *
- * @author goga
+ * @author hazard157
  */
 class CoreL10n
     implements ICoreL10n {
@@ -86,7 +86,7 @@ class CoreL10n
    * только description, не задав name.</li>
    * </ul>
    *
-   * @author goga
+   * @author hazard157
    */
   static class L10nItem {
 

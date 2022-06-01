@@ -22,20 +22,23 @@ public interface ISkBackendHardConstant {
   String SKB_ID  = SK_ID + ".backend"; //$NON-NLS-1$
   String SKBI_ID = SKB_ID + ".info";   //$NON-NLS-1$
 
+  int DEFAULT_MAX_CLOB_LENGTH = 100_000;
+
   // ------------------------------------------------------------------------------------
   // ISkBackendInfo
 
-  String OPID_SKBI_MAX_CLOB_LENGTH  = SKBI_ID + ".MaxClobLength";        //$NON-NLS-1$
-  String OPID_SKBI_NEED_THREAD_SAFE = SKBI_ID + ".NeedsThreadSeparator"; //$NON-NLS-1$
+  String OPID_SKBI_MAX_CLOB_LENGTH          = SKBI_ID + ".MaxClobLength";          //$NON-NLS-1$
+  String OPID_SKBI_NEED_THREAD_SAFE_FRONTEND = SKBI_ID + ".NeedThreadSafeFrontend"; //$NON-NLS-1$
 
   IDataDef OPDEF_SKBI_MAX_CLOB_LENGTH = DataDef.create( OPID_SKBI_MAX_CLOB_LENGTH, INTEGER, //
       TSID_NAME, STR_N_SKBI_MAX_CLOB_LENGTH, //
+      TSID_DEFAULT_VALUE, avInt( DEFAULT_MAX_CLOB_LENGTH ), //
       TSID_DESCRIPTION, STR_D_SKBI_MAX_CLOB_LENGTH //
   );
 
-  IDataDef OPDEF_SKBI_NEED_THREAD_SAFE = DataDef.create( OPID_SKBI_NEED_THREAD_SAFE, INTEGER, //
-      TSID_NAME, STR_N_SKBI_NEED_THREAD_SAFE, //
-      TSID_DESCRIPTION, STR_D_SKBI_NEED_THREAD_SAFE, //
+  IDataDef OPDEF_SKBI_NEED_THREAD_SAFE_FRONTEND = DataDef.create( OPID_SKBI_NEED_THREAD_SAFE_FRONTEND, INTEGER, //
+      TSID_NAME, STR_N_SKBI_NEED_THREAD_SAFE_FRONTEND, //
+      TSID_DESCRIPTION, STR_D_SKBI_NEED_THREAD_SAFE_FRONTEND, //
       TSID_DEFAULT_VALUE, AV_FALSE //
   );
 

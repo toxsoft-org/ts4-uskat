@@ -13,7 +13,7 @@ import org.toxsoft.uskat.core.devapi.*;
  * <p>
  * This class is <code>not</code> public class. Therefore core services may be implemented only in this package.
  *
- * @author goga
+ * @author hazard157
  */
 abstract class AbstractSkCoreService
     extends AbstractSkService {

@@ -2,8 +2,10 @@ package org.toxsoft.uskat.core.backend.api;
 
 import static org.toxsoft.uskat.core.ISkHardConstants.*;
 
+import org.toxsoft.core.tslib.bricks.events.msg.*;
 import org.toxsoft.core.tslib.gw.gwid.*;
 import org.toxsoft.core.tslib.utils.errors.*;
+import org.toxsoft.uskat.core.backend.*;
 
 /**
  * Backend addon for CLOBs storage.
@@ -34,6 +36,9 @@ public interface IBaClobs
 
   /**
    * Writes the CLOB content.
+   * <p>
+   * Sends an {@link IBaClobsMessages#MSGID_CLOB_CHANGE} message to the
+   * {@link ISkFrontendRear#onBackendMessage(GtMessage)}.
    *
    * @param aGwid {@link Gwid} - concrete GWID of the clob
    * @param aClob String - the CLOB content

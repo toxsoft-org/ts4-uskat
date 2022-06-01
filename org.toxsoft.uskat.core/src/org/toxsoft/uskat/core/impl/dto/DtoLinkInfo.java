@@ -4,6 +4,7 @@ import static org.toxsoft.core.tslib.av.impl.AvUtils.*;
 import static org.toxsoft.uskat.core.impl.dto.IDtoHardConstants.*;
 
 import org.toxsoft.core.tslib.av.opset.*;
+import org.toxsoft.core.tslib.av.opset.impl.*;
 import org.toxsoft.core.tslib.bricks.keeper.*;
 import org.toxsoft.core.tslib.bricks.strid.impl.*;
 import org.toxsoft.core.tslib.coll.helpers.*;
@@ -68,6 +69,24 @@ public final class DtoLinkInfo
   public static DtoLinkInfo create1( String aId, IStringList aRightClassIds, CollConstraint aConstraint,
       IOptionSet aParams ) {
     DtoLinkInfo ainf = new DtoLinkInfo( aId, aParams );
+    ainf.setProps( aRightClassIds, aConstraint );
+    return ainf;
+  }
+
+  /**
+   * Static constructor.
+   *
+   * @param aId String - the ID (IDpath)
+   * @param aRightClassIds {@link IStringList} - right class IDs
+   * @param aConstraint {@link CollConstraint} - constraints on linked objects
+   * @param aIdsAndValues Object[] - parameters values
+   * @return {@link DtoLinkInfo} - created instance
+   * @throws TsNullArgumentRtException any argument = <code>null</code>
+   * @throws TsIllegalArgumentRtException any identifier is not an IDpath
+   */
+  public static DtoLinkInfo create2( String aId, IStringList aRightClassIds, CollConstraint aConstraint,
+      Object... aIdsAndValues ) {
+    DtoLinkInfo ainf = new DtoLinkInfo( aId, OptionSetUtils.createOpSet( aIdsAndValues ) );
     ainf.setProps( aRightClassIds, aConstraint );
     return ainf;
   }

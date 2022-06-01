@@ -8,7 +8,7 @@ import org.toxsoft.uskat.core.api.sysdescr.*;
 /**
  * Information about class.
  *
- * @author goga
+ * @author hazard157
  */
 public interface IDtoClassInfo
     extends IStridableParameterized {

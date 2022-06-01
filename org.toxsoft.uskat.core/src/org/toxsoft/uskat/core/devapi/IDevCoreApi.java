@@ -1,14 +1,17 @@
 package org.toxsoft.uskat.core.devapi;
 
 import org.toxsoft.core.tslib.bricks.ctx.*;
+import org.toxsoft.core.tslib.coll.*;
+import org.toxsoft.core.tslib.coll.primtypes.*;
 import org.toxsoft.core.tslib.utils.errors.*;
+import org.toxsoft.core.tslib.utils.txtmatch.*;
 import org.toxsoft.uskat.core.*;
 import org.toxsoft.uskat.core.connection.*;
 
 /**
  * Core API extensions for uskat service developers.
  *
- * @author goga
+ * @author hazard157
  */
 public interface IDevCoreApi
     extends ISkCoreApi {
@@ -39,6 +42,17 @@ public interface IDevCoreApi
    */
   ITsContextRo openArgs();
 
-  void doJobInCoreMainThred();
+  /**
+   * Returns rules of classes claiming by the services.
+   * <p>
+   * Note: even avfter connection is open the map is updated every time when new service is registered with method
+   * {@link ISkCoreApi#addService(ISkServiceCreator)}.
+   *
+   * @return {@link IStringMap}&lt;{@link IList}&lt;{@link TextMatcher}&gt;&gt; - map "service ID" - "rules list"
+   */
+  IStringMap<IList<TextMatcher>> mapClaimedClassRules();
+
+  // FIXME comment!
+  void doJobInCoreMainThread();
 
 }

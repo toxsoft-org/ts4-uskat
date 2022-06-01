@@ -5,8 +5,10 @@ import static org.toxsoft.uskat.core.impl.ISkResources.*;
 import org.toxsoft.core.tslib.bricks.ctx.*;
 import org.toxsoft.core.tslib.bricks.events.msg.*;
 import org.toxsoft.core.tslib.bricks.strid.impl.*;
+import org.toxsoft.core.tslib.coll.*;
 import org.toxsoft.core.tslib.utils.errors.*;
 import org.toxsoft.core.tslib.utils.logs.impl.*;
+import org.toxsoft.core.tslib.utils.txtmatch.*;
 import org.toxsoft.uskat.core.*;
 import org.toxsoft.uskat.core.api.*;
 import org.toxsoft.uskat.core.api.clobserv.*;
@@ -27,8 +29,19 @@ import org.toxsoft.uskat.core.devapi.*;
  * <li>be <code>public</code>;</li>
  * <li>have <code>public</code> constructor with only one argument of type {@link IDevCoreApi}.</li>
  * </ul>
+ * TOD tips on service implementation:
+ * <ul>
+ * <li>do absolute minimum in constructor beacause created service may be thrown away without initialization and
+ * {@link #close()};</li>
+ * <li>all initialization must be done in {@link #doInit(ITsContextRo)}. Note that {@link #close()} is called only for
+ * services initialized in {@link #doInit(ITsContextRo)};</li>
+ * <li>if classes are claimed by service, override {@link #listClassClaimingRules()};</li>
+ * <li>xxx;</li>
+ * <li>xxx;</li>
+ * <li>zzz.</li>
+ * </ul>
  *
- * @author goga
+ * @author hazard157
  */
 public abstract class AbstractSkService
     implements ISkService {
@@ -227,6 +240,19 @@ public abstract class AbstractSkService
    * Method is called when USkat core is finishing working. Avterf this method service will not be used.
    */
   protected abstract void doClose();
+
+  /**
+   * Returns list of rules on class IDs maintained by this service.
+   * <p>
+   * All other services can not change classes or objects of classes maintaned by this service.
+   * <p>
+   * This method is called once in service lifelime, immediately after {@link #doInit(ITsContextRo)}.
+   *
+   * @return {@link IList}&lt;{@link TextMatcher}&gt; - list of rules on class IDs or an empty list
+   */
+  protected IList<TextMatcher> listClassClaimingRules() {
+    return IList.EMPTY;
+  }
 
   /**
    * Subclass may handle message from the backend.

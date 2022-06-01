@@ -1,7 +1,6 @@
 package org.toxsoft.uskat.core.backend.api;
 
-import org.toxsoft.core.tslib.bricks.strid.IStridableParameterized;
-import org.toxsoft.core.tslib.gw.skid.Skid;
+import org.toxsoft.core.tslib.bricks.strid.*;
 
 /**
  * Information about backend.
@@ -17,12 +16,5 @@ public interface ISkBackendInfo
    * @return long - the backend start time (millisecons after epoch)
    */
   long startTime();
-
-  /**
-   * Returns the session ID.
-   *
-   * @return {@link Skid} - session ID
-   */
-  Skid sessionId();
 
 }

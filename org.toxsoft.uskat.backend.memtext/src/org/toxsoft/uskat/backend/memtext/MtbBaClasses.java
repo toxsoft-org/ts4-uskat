@@ -63,6 +63,7 @@ class MtbBaClasses
   @Override
   protected void doRead( IStrioReader aSr ) {
     StrioUtils.ensureKeywordHeader( aSr, KW_CLASS_INFOS );
+    classInfos.clear();
     DtoClassInfo.KEEPER.readColl( aSr, classInfos );
   }
 
@@ -104,7 +105,9 @@ class MtbBaClasses
       IDtoClassInfo oldInf = classInfos.findByKey( inf.id() );
       if( !Objects.equals( inf, oldInf ) ) {
         if( oldInf != null ) {
-          editedClassIds.add( inf.id() );
+          if( !oldInf.equals( inf ) ) {
+            editedClassIds.add( inf.id() );
+          }
         }
         else {
           createdClassIds.add( inf.id() );
@@ -113,7 +116,7 @@ class MtbBaClasses
         setChanged();
       }
     }
-    // FIXME inform frontend
+    // inform frontend
     int totalCount = removedClassIds.size() + editedClassIds.size() + createdClassIds.size();
     switch( totalCount ) {
       case 0: { // no changes, nothing to inform about
@@ -121,7 +124,24 @@ class MtbBaClasses
         break;
       }
       case 1: { // single change causes single class event
-        // FIXME fire an event
+        ECrudOp op;
+        String classId;
+        if( !createdClassIds.isEmpty() ) {
+          op = ECrudOp.CREATE;
+          classId = createdClassIds.first();
+        }
+        else {
+          if( !editedClassIds.isEmpty() ) {
+            op = ECrudOp.EDIT;
+            classId = editedClassIds.first();
+          }
+          else {
+            op = ECrudOp.REMOVE;
+            classId = removedClassIds.first();
+          }
+        }
+        GtMessage msg = IBaClassesMessages.makeMessage( op, classId );
+        owner().frontend().onBackendMessage( msg );
         break;
       }
       default: { // batch changes will fir ECrudOp.LIST event
@@ -130,7 +150,6 @@ class MtbBaClasses
         break;
       }
     }
-
   }
 
 }

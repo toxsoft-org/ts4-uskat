@@ -9,6 +9,12 @@ package org.toxsoft.uskat.core.impl;
 interface ISkResources {
 
   /**
+   * Common messages.
+   */
+  String FMT_ERR_NO_SUCH_CLASS = "Class '%s' does not exists";
+  String FMT_ERR_NO_SUCH_OBJ   = "Object '%s' does not exists";
+
+  /**
    * {@link AbstractSkService}
    */
   String FMT_INFO_SERVICE_INIT       = "Service %s: init() called";
@@ -63,11 +69,20 @@ interface ISkResources {
   String FMT_ERR_NON_CLOB_GWID   = "Concrete GWID of CLOB was expected instead of '%s'";
   String FMT_ERR_CLOB_TOO_LONG   = "Clob length %d exceeds platforn restirction %d";
   String FMT_ERR_CLOB_TO_BACKEND = "Error writing CLOB (GWID='%s') to to the backend";
+  String FMT_ERR_NO_OBJ_OF_CLOB  = "Object '%s' for CLOB '%s' doesa not exists";
+
+  /**
+   * {@link SkCoreServLinks}
+   */
+  String FMT_ERR_NO_SUCH_LINK1           = "Link '%s' does not exists in class '%s'";
+  String FMT_ERR_NO_LINK_LEFT_OBJ        = "Left object %s of link %s does not exists";
+  String FMT_ERR_NO_LINK_RIGHT_OBJ_CLASS = "Class of right object %s of link %s does not exists";
+  String FMT_ERR_NO_LINK_RIGHT_OBJ_STRID = "Right object %s of link %s does not exists";
+  String FMT_ERR_RIGHT_OBJ_INV_CLASS     = "Right object %s is not allowed in link %s";
 
   /**
    * {@link SkCoreServObject}
    */
-  String FMT_ERR_NO_SUCH_OBJ        = "Нет объекта с идентификатором %s";
   String FMT_ERR_INV_ATTR_TYPE      = "Object '%s', attribute '%s': value type '%s' is not assignable to the type '%s'";
   String FMT_ERR_NO_ATTR_VAL        = "Object '%s': value of the attribute '%s' must be specified";
   String FMT_ERR_NO_RIVET_CLASS     = "Object '%s', rivet '%s': right class '%s' does not exists";

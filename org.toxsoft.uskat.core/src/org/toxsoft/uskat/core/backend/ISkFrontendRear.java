@@ -9,7 +9,7 @@ import org.toxsoft.uskat.core.api.*;
  * All arguments of all methods must be an effectively immutable instances because they are used directly in
  * multithreaded environment, without creating defensive copies.
  *
- * @author goga
+ * @author hazard157
  */
 public interface ISkFrontendRear {
 

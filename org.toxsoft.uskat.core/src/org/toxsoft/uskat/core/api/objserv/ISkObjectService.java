@@ -1,5 +1,6 @@
 package org.toxsoft.uskat.core.api.objserv;
 
+import org.toxsoft.core.tslib.bricks.events.*;
 import org.toxsoft.core.tslib.bricks.strid.impl.*;
 import org.toxsoft.core.tslib.bricks.validator.*;
 import org.toxsoft.core.tslib.bricks.validator.impl.*;
@@ -176,6 +177,13 @@ public interface ISkObjectService
    * @return {@link ITsValidationSupport}&lt;{@link ISkObjectServiceValidator}&gt; - the service validator
    */
   ITsValidationSupport<ISkObjectServiceValidator> svs();
+
+  /**
+   * Returns the service eventer.
+   *
+   * @return {@link ITsEventer}&lt;{@link ISkObjectServiceListener}&gt; - the service eventer
+   */
+  ITsEventer<ISkObjectServiceListener> eventer();
 
   // ------------------------------------------------------------------------------------
   // Convinience inline methods

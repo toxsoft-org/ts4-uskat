@@ -13,6 +13,7 @@ import org.toxsoft.core.tslib.coll.primtypes.impl.*;
 import org.toxsoft.core.tslib.utils.*;
 import org.toxsoft.core.tslib.utils.errors.*;
 import org.toxsoft.core.tslib.utils.logs.impl.*;
+import org.toxsoft.core.tslib.utils.txtmatch.*;
 import org.toxsoft.uskat.core.*;
 import org.toxsoft.uskat.core.api.*;
 import org.toxsoft.uskat.core.api.clobserv.*;
@@ -50,11 +51,13 @@ public class SkCoreApi
   private final SkCoreServLinks    linkService;
   private final SkCoreServRtdata   rtdService;
 
+  IStringMapEdit<IList<TextMatcher>> classClaimingMap = new StringMap<>();
+
   /**
    * Queue of messages from the backend.
    * <p>
    * When backend calls {@link ISkFrontendRear#onBackendMessage(GtMessage)}, message is put in thes queue and execution
-   * immediately returns to the backend. Messages are taken from the queue in {@link SkCoreApi#doJobInCoreMainThred()}
+   * immediately returns to the backend. Messages are taken from the queue in {@link SkCoreApi#doJobInCoreMainThread()}
    * method and dispatched to the services. <br>
    * Queue-oriented message handling has foloowing motivation:
    * <ul>
@@ -62,11 +65,11 @@ public class SkCoreApi
    * backend in API methods calls. However generally backend user needs to do some houskeeping job <i>after</i> database
    * apdate but <i>before</i> the change message is delivered to the listeners. Using queue allows Sk-service
    * implementations to call backend API methods several times and remain sure that message will be send to listeners
-   * ant the end of core service method, when user explicitly calls {@link SkCoreApi#doJobInCoreMainThred()};</li>
+   * ant the end of core service method, when user explicitly calls {@link SkCoreApi#doJobInCoreMainThread()};</li>
    * <li>Some backends have their own execution threads. While calling suck backend's API is thread safe, reverce call
    * to the {@link ISkFrontendRear#onBackendMessage(GtMessage)} must be also thread-safe. For such backends (marked by
-   * {@link ISkBackendHardConstant#OPDEF_SKBI_NEED_THREAD_SAFE} option) the queue implementation will be wrapped in the
-   * thread-safe {@link SynchronizedQueueWrapper}.</li>
+   * {@link ISkBackendHardConstant#OPDEF_SKBI_NEED_THREAD_SAFE_FRONTEND} option) the queue implementation will be
+   * wrapped in the thread-safe {@link SynchronizedQueueWrapper}.</li>
    * </ul>
    */
   private final IQueue<GtMessage> backendMessageQueue;
@@ -93,7 +96,8 @@ public class SkCoreApi
     ISkBackendProvider bp = REFDEF_BACKEND_PROVIDER.getRef( aArgs );
     backend = bp.createBackend( this, aArgs );
     // if not needed reate thread unsafe queue
-    if( ISkBackendHardConstant.OPDEF_SKBI_NEED_THREAD_SAFE.getValue( backend.getBackendInfo().params() ).asBool() ) {
+    if( ISkBackendHardConstant.OPDEF_SKBI_NEED_THREAD_SAFE_FRONTEND.getValue( backend.getBackendInfo().params() )
+        .asBool() ) {
       backendMessageQueue = new SynchronizedQueueWrapper<>( new Queue<>() );
     }
     else {
@@ -127,12 +131,6 @@ public class SkCoreApi
         RuntimeException ex =
             new TsItemAlreadyExistsRtException( FMT_ERR_DUP_SERVICE_ID, c.getClass().getName(), s.serviceId() );
         logger().error( ex );
-        try {
-          s.close();
-        }
-        catch( Exception ex1 ) {
-          logger().error( ex1 );
-        }
         throw ex;
       }
       servicesMap.put( s.serviceId(), s );
@@ -148,15 +146,7 @@ public class SkCoreApi
     // initialize services
     for( int i = 0; i < servicesMap.size(); i++ ) {
       AbstractSkService s = servicesMap.values().get( i );
-      try {
-        s.init( openArgs );
-      }
-      catch( Exception ex ) {
-        logger().error( ex );
-        if( s.isCoreService() ) {
-          throw ex;
-        }
-      }
+      internalInitService( s );
     }
     inited = true;
   }
@@ -167,6 +157,23 @@ public class SkCoreApi
 
   private CoreLogger logger() {
     return logger;
+  }
+
+  private <S extends AbstractSkService> S internalInitService( S aService ) {
+    try {
+      aService.init( openArgs );
+      IList<TextMatcher> claimRules = aService.listClassClaimingRules();
+      if( claimRules.isEmpty() ) {
+        classClaimingMap.put( aService.serviceId(), claimRules );
+      }
+    }
+    catch( Exception ex ) {
+      logger().error( ex );
+      if( aService.isCoreService() ) {
+        throw ex;
+      }
+    }
+    return aService;
   }
 
   // ------------------------------------------------------------------------------------
@@ -250,14 +257,8 @@ public class SkCoreApi
     TsIllegalStateRtException.checkFalse( inited );
     S s = aCreator.createService( this );
     TsItemAlreadyExistsRtException.checkTrue( servicesMap.hasKey( s.serviceId() ) );
-    try {
-      s.init( openArgs );
-      servicesMap.put( s.serviceId(), s );
-    }
-    catch( Exception ex ) {
-      logger().error( ex );
-      throw ex;
-    }
+    internalInitService( s );
+    servicesMap.put( s.serviceId(), s );
     return s;
   }
 
@@ -290,7 +291,12 @@ public class SkCoreApi
   }
 
   @Override
-  public void doJobInCoreMainThred() {
+  public IStringMap<IList<TextMatcher>> mapClaimedClassRules() {
+    return classClaimingMap;
+  }
+
+  @Override
+  public void doJobInCoreMainThread() {
     GtMessage msg;
     while( (msg = backendMessageQueue.getHeadOrNull()) != null ) {
       AbstractSkService s = servicesMap.findByKey( msg.topicId() );

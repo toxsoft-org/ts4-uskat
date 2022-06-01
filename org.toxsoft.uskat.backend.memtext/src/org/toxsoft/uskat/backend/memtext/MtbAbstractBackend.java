@@ -18,7 +18,7 @@ import org.toxsoft.core.tslib.coll.*;
 import org.toxsoft.core.tslib.coll.basis.*;
 import org.toxsoft.core.tslib.coll.impl.*;
 import org.toxsoft.core.tslib.coll.primtypes.*;
-import org.toxsoft.core.tslib.gw.skid.*;
+import org.toxsoft.core.tslib.coll.primtypes.impl.*;
 import org.toxsoft.core.tslib.utils.errors.*;
 import org.toxsoft.uskat.core.*;
 import org.toxsoft.uskat.core.backend.*;
@@ -56,13 +56,12 @@ public abstract class MtbAbstractBackend
   private final ITsContextRo    argContext;
   private final ISkFrontendRear frontend;
 
-  private final MtbBaClasses     mtbBaClasses;
-  private final MtbBaObjects     mtbBaObjects;
-  private final MtbAbstractAddon baLinks  = null; // FIXME null
-  private final MtbAbstractAddon baClobs  = null; // FIXME null
-  private final MtbAbstractAddon baEvents = null; // FIXME null
+  private final MtbBaClasses mtbBaClasses;
+  private final MtbBaObjects mtbBaObjects;
+  private final MtbBaClobs   mtbBaClobs;
+  private final MtbBaLinks   baLinks;
 
-  private final IMapEdit<Class<?>, MtbAbstractAddon> allAddons = new ElemMap<>();
+  private final IStringMapEdit<MtbAbstractAddon> allAddons = new StringMap<>();
 
   private final SkBackendInfo        backendInfo;
   private final GenericChangeEventer eventer;
@@ -91,15 +90,15 @@ public abstract class MtbAbstractBackend
     frontend = aFrontend;
     argContext = aArgs;
     mtbBaClasses = new MtbBaClasses( this );
-    allAddons.put( IBaClasses.class, mtbBaClasses );
+    allAddons.put( mtbBaClasses.id(), mtbBaClasses );
     mtbBaObjects = new MtbBaObjects( this );
-    allAddons.put( IBaObjects.class, mtbBaObjects );
-    //  FIXME ???
-    // allAddons.put( IBaObjects.class, baObjects );
-    // allAddons.put( IBaLinks.class, baLinks );
-    // allAddons.put( IBaClasses.class, baClobs );
-    // allAddons.put( IBaEvents.class, baEvents );
-    backendInfo = new SkBackendInfo( aBackendId, System.currentTimeMillis(), Skid.NONE, aBackendInfoValue );
+    allAddons.put( mtbBaObjects.id(), mtbBaObjects );
+    mtbBaClobs = new MtbBaClobs( this );
+    allAddons.put( mtbBaClobs.id(), mtbBaClobs );
+    baLinks = new MtbBaLinks( this );
+    allAddons.put( baLinks.id(), baLinks );
+    // TODO other addons
+    backendInfo = new SkBackendInfo( aBackendId, System.currentTimeMillis(), aBackendInfoValue );
   }
 
   // ------------------------------------------------------------------------------------
@@ -136,7 +135,7 @@ public abstract class MtbAbstractBackend
 
   private void removeObjectsOfNonStoredClassIds( IStringList aNotStoredObjClassIds ) {
     // TODO remove object not to be stored
-    // TODO remove right objects of this class from links
+    // TODO ??? remove right objects of this class from links
     // TODO remove clobs of the removed objects
     // TODO remove links of the removed objects
     // TODO remove rtdata of the removed objects
@@ -214,32 +213,30 @@ public abstract class MtbAbstractBackend
 
   @Override
   public IBaLinks baLinks() {
-    // TODO Auto-generated method stub
-    return null;
+    return baLinks;
   }
 
   @Override
   public IBaEvents baEvents() {
-    // TODO Auto-generated method stub
-    return null;
+    // TODO реализовать MtbAbstractBackend.baEvents()
+    throw new TsUnderDevelopmentRtException( "MtbAbstractBackend.baEvents()" );
   }
 
   @Override
   public IBaClobs baClobs() {
-    // TODO Auto-generated method stub
-    return null;
+    return mtbBaClobs;
   }
 
   @Override
   public IBaRtdata baRtdata() {
-    // TODO Auto-generated method stub
-    return null;
+    // TODO реализовать MtbAbstractBackend.baRtdata()
+    throw new TsUnderDevelopmentRtException( "MtbAbstractBackend.baRtdata()" );
   }
 
   @Override
   public IBaCommands baCommands() {
-    // TODO Auto-generated method stub
-    return null;
+    // TODO реализовать MtbAbstractBackend.baCommands()
+    throw new TsUnderDevelopmentRtException( "MtbAbstractBackend.baCommands()" );
   }
 
   @Override
@@ -249,8 +246,9 @@ public abstract class MtbAbstractBackend
 
   @Override
   public <T> T findBackendAddon( String aAddonId, Class<T> aExpectedType ) {
-    // TODO Auto-generated method stub
-    return null;
+    TsNullArgumentRtException.checkNulls( aAddonId, aExpectedType );
+    Object rawAddon = allAddons.findByKey( aAddonId );
+    return aExpectedType.cast( rawAddon );
   }
 
   // ------------------------------------------------------------------------------------
