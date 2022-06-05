@@ -9,22 +9,19 @@ import static org.toxsoft.uskat.core.impl.ISkResources.*;
 import org.toxsoft.core.tslib.av.impl.*;
 import org.toxsoft.core.tslib.av.opset.*;
 import org.toxsoft.core.tslib.av.opset.impl.*;
-import org.toxsoft.core.tslib.bricks.validator.*;
 import org.toxsoft.core.tslib.gw.*;
-import org.toxsoft.core.tslib.gw.gwid.*;
 import org.toxsoft.core.tslib.gw.skid.*;
-import org.toxsoft.core.tslib.utils.errors.*;
 import org.toxsoft.core.tslib.utils.valobj.*;
 import org.toxsoft.uskat.core.api.evserv.*;
 import org.toxsoft.uskat.core.connection.*;
 import org.toxsoft.uskat.core.impl.dto.*;
 
 /**
- * USkat helper methods and the point of entry.
+ * Point of entry to the USkat and some methods used by CoreAPI implementation also useful for users.
  *
  * @author hazard157
  */
-public class SkUtils {
+public class SkCoreUtils {
 
   /**
    * Initializes static stuff, must be called once before any USkat usage.
@@ -45,22 +42,6 @@ public class SkUtils {
   // ------------------------------------------------------------------------------------
   // FIXME where to place this methods?
   //
-
-  /**
-   * Checks if the specified GWID exists in the system.
-   *
-   * @param aGwid {@link Gwid} - the GWID to check
-   * @return {@link ValidationResult} - the check result
-   * @throws TsNullArgumentRtException any argument = <code>null</code>
-   */
-  public ValidationResult validateGwid( Gwid aGwid ) {
-    TsNullArgumentRtException.checkNull( aGwid );
-    // TODO check if class exists
-    // TODO check if class propery exists
-    // TODO check if class sub-propery exists
-    // TODO check if object exists
-    return ValidationResult.SUCCESS;
-  }
 
   /**
    * Creates root class (with ID {@link IGwHardConstants#GW_ROOT_CLASS_ID}) description.
@@ -112,4 +93,10 @@ public class SkUtils {
     return dpuRoot;
   }
 
+  /**
+   * Prohibit inheritance.
+   */
+  private SkCoreUtils() {
+    // nop
+  }
 }

@@ -6,6 +6,7 @@ import org.toxsoft.uskat.core.api.*;
 import org.toxsoft.uskat.core.api.clobserv.*;
 import org.toxsoft.uskat.core.api.cmdserv.*;
 import org.toxsoft.uskat.core.api.evserv.*;
+import org.toxsoft.uskat.core.api.gwids.*;
 import org.toxsoft.uskat.core.api.linkserv.*;
 import org.toxsoft.uskat.core.api.objserv.*;
 import org.toxsoft.uskat.core.api.rtdserv.*;
@@ -42,6 +43,8 @@ public interface ISkCoreApi {
   ISkLinkService linkService();
 
   ISkRtdataService rtdService();
+
+  ISkGwidService gwidService();
 
   // ------------------------------------------------------------------------------------
   // all services

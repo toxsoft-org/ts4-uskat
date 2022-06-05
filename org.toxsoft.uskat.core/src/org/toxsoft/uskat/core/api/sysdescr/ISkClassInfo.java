@@ -150,7 +150,7 @@ public interface ISkClassInfo
   boolean isAssignableTo( String aSuperclassId );
 
   /**
-   * Determines if this class if one of the specified classes or its subclass.
+   * Determines if this class is one of the specified classes or its subclass.
    *
    * @param aClassIdsList {@link IStringList} - list of class IDs
    * @return boolean - <code>true</code> if this class is assignable to one the class in list

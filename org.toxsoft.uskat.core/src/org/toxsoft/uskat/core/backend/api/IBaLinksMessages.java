@@ -36,7 +36,7 @@ public interface IBaLinksMessages {
    */
   IDataDef OPDEF_GWIDS_LIST = DataDef.create( OPID_GWIDS_LIST, VALOBJ, //
       TSID_IS_MANDATORY, AV_TRUE, //
-      TSID_KEEPER_ID, GwidListKeeper.KEEPER_ID //
+      TSID_KEEPER_ID, GwidList.KEEPER_ID //
   );
 
   /**

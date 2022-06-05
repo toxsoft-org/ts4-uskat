@@ -52,25 +52,22 @@ public interface IBaLinks
    * Argument <code>aClassId</code> must be the class where the specified link is defined, not the subclass. Generally
    * backend is "dumb" and does not knows about class inheritance.
    *
-   * @param aClassId String - link definition class ID
-   * @param aLinkId String - the link ID
+   * @param aLinkGwid String - abstract GWID of the link
    * @param aRightSkid {@link Skid} - right object SKID
    * @param aLeftClassIds {@link IStringList} - IDs of queried left class or an empty list for all left classes
-   * @return {@link IDtoLinkRev} - the left link, may be <code>null</code> if no left objects are linkes
+   * @return {@link IDtoLinkRev} - the left link, may be <code>null</code> if no left objects are linked
    * @throws TsNullArgumentRtException any argument = <code>null</code>
    */
-  IDtoLinkRev findLinkRev( String aClassId, String aLinkId, Skid aRightSkid, IStringList aLeftClassIds );
+  IDtoLinkRev findLinkRev( Gwid aLinkGwid, Skid aRightSkid, IStringList aLeftClassIds );
 
   /**
    * Returns all reverse links of the specified object.
-   * <p>
-   * Returned list may contain multiple elements with the same {@link IDtoLinkRev#gwid()} values.
    *
    * @param aRightSkid {@link Skid} - the object SKID
-   * @return {@link IList}&lt;{@link IDtoLinkRev}&gt; - list of reverse links
+   * @return {@link IMap}&lt;{@link Gwid},{@link IDtoLinkRev}&gt; - map "link's abstract GWID" - "reverse link"
    * @throws TsNullArgumentRtException any argument = <code>null</code>
    */
-  IList<IDtoLinkRev> getAllLinksRev( Skid aRightSkid );
+  IMap<Gwid, IDtoLinkRev> getAllLinksRev( Skid aRightSkid );
 
   /**
    * Stores links.

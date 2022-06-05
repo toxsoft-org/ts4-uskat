@@ -103,7 +103,7 @@ public final class DtoLinkRev
    * @param aLeftObjIds {@link ISkidList} - the SKIDs list of the left objects
    * @return {@link DtoLinkRev} - created instance
    */
-  public static DtoLinkRev createFastUnsafe( Gwid aGwid, Skid aRightObjId, SkidList aLeftObjIds ) {
+  public static DtoLinkRev createDirect( Gwid aGwid, Skid aRightObjId, SkidList aLeftObjIds ) {
     return new DtoLinkRev( aGwid, aRightObjId, aLeftObjIds );
   }
 

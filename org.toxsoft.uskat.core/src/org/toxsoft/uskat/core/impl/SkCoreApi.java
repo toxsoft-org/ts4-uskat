@@ -19,6 +19,7 @@ import org.toxsoft.uskat.core.api.*;
 import org.toxsoft.uskat.core.api.clobserv.*;
 import org.toxsoft.uskat.core.api.cmdserv.*;
 import org.toxsoft.uskat.core.api.evserv.*;
+import org.toxsoft.uskat.core.api.gwids.*;
 import org.toxsoft.uskat.core.api.linkserv.*;
 import org.toxsoft.uskat.core.api.objserv.*;
 import org.toxsoft.uskat.core.api.rtdserv.*;
@@ -50,6 +51,7 @@ public class SkCoreApi
   private final SkCoreServEvents   eventService;
   private final SkCoreServLinks    linkService;
   private final SkCoreServRtdata   rtdService;
+  private final SkCoreServGwids    gwidService;
 
   IStringMapEdit<IList<TextMatcher>> classClaimingMap = new StringMap<>();
 
@@ -113,6 +115,7 @@ public class SkCoreApi
     llCreators.add( SkCoreServEvents.CREATOR );
     llCreators.add( SkCoreServLinks.CREATOR );
     llCreators.add( SkCoreServRtdata.CREATOR );
+    llCreators.add( SkCoreServGwids.CREATOR );
     // backend and user-specified services
     llCreators.addAll( backend.listBackendServicesCreators() );
     IList<ISkServiceCreator<? extends AbstractSkService>> llUser = REFDEF_USER_SERVICES.getRef( aArgs, IList.EMPTY );
@@ -143,6 +146,7 @@ public class SkCoreApi
     eventService = getService( ISkEventService.SERVICE_ID );
     linkService = getService( ISkLinkService.SERVICE_ID );
     rtdService = getService( ISkRtdataService.SERVICE_ID );
+    gwidService = getService( ISkGwidService.SERVICE_ID );
     // initialize services
     for( int i = 0; i < servicesMap.size(); i++ ) {
       AbstractSkService s = servicesMap.values().get( i );
@@ -237,6 +241,11 @@ public class SkCoreApi
   @Override
   public ISkRtdataService rtdService() {
     return rtdService;
+  }
+
+  @Override
+  public ISkGwidService gwidService() {
+    return gwidService;
   }
 
   @SuppressWarnings( { "unchecked", "rawtypes" } )

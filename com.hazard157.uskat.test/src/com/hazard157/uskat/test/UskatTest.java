@@ -16,7 +16,7 @@ public class UskatTest {
   public static void main( String[] aArgs ) {
     pl( "USkat test #1." );
 
-    SkUtils.initialize();
+    SkCoreUtils.initialize();
 
     Test1 t = new Test1();
     try {

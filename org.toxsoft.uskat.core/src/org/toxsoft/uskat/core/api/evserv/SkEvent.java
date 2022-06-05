@@ -15,7 +15,7 @@ import org.toxsoft.core.tslib.utils.errors.*;
 /**
  * USkat system event.
  * <p>
- * This is immutable class.
+ * This is an immutable class.
  *
  * @author hazard157
  */

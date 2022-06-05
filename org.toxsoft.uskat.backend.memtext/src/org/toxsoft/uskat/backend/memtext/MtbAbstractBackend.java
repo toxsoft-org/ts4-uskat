@@ -26,30 +26,12 @@ import org.toxsoft.uskat.core.backend.api.*;
 import org.toxsoft.uskat.core.impl.*;
 
 /**
- * Basic implementation of {@link ISkBackend} in-memry data permanently stored as text.
+ * Basic implementation of {@link ISkBackend} in-memory data permanently stored as text.
  *
  * @author hazard157
  */
 public abstract class MtbAbstractBackend
     implements ISkBackend, ITsClearable, IKeepableEntity, IGenericChangeEventCapable {
-
-  /**
-   * Backend arg: objects of the listed classs IDs will not be stored.
-   * <p>
-   * More precisely, objects will be removed on backend close, while backend is working objects are stored.
-   */
-  public static final IDataDef OPDEF_NOT_STORED_OBJ_CLASS_IDS =
-      DataDef.create( MtbBackendToFile.class.getSimpleName() + ".NotStoredObjClassIds", VALOBJ, //$NON-NLS-1$
-          TSID_DEFAULT_VALUE, avValobj( IStringList.EMPTY ), //
-          TSID_KEEPER_ID, avStr( StringListKeeper.KEEPER_ID ), //
-          TSID_NAME, STR_N_NOT_STORED_OBJ_CLASS_IDS, //
-          TSID_DESCRIPTION, STR_D_NOT_STORED_OBJ_CLASS_IDS //
-      );
-
-  /**
-   * Backend ID prefix for subclass implementations.
-   */
-  protected static final String SKB_ID_MEMTEXT = ISkBackendHardConstant.SKB_ID + ".memtext"; //$NON-NLS-1$
 
   IListEdit<ISkServiceCreator<? extends AbstractSkService>> backendServicesCreators = new ElemArrayList<>();
 
@@ -148,7 +130,7 @@ public abstract class MtbAbstractBackend
 
   @Override
   public void close() {
-    IStringList notStoredObjClassIds = OPDEF_NOT_STORED_OBJ_CLASS_IDS.getValue( argContext().params() ).asValobj();
+    IStringList notStoredObjClassIds = IBackendMemtextConstants.OPDEF_NOT_STORED_OBJ_CLASS_IDS.getValue( argContext().params() ).asValobj();
     if( !notStoredObjClassIds.isEmpty() ) {
       removeObjectsOfNonStoredClassIds( notStoredObjClassIds );
     }

@@ -6,12 +6,14 @@ import org.toxsoft.core.tslib.bricks.time.*;
 import org.toxsoft.core.tslib.gw.gwid.*;
 import org.toxsoft.core.tslib.utils.errors.*;
 import org.toxsoft.uskat.core.api.evserv.*;
+import org.toxsoft.uskat.core.backend.*;
 
 /**
  * Backend addon for events send/receive and storage.
  * <p>
  * This is the mandatory addon however some or whole features may not be supported by addon. The flags
- * <code>OPDEF_SKBI_BA_EVENTS_XXX</code> informs CoreAPI and user about supported features.
+ * {@link ISkBackendHardConstant}.<code>OPDEF_SKBI_BA_EVENTS_XXX</code> informs CoreAPI and user about supported
+ * features.
  *
  * @author hazard157
  */
@@ -34,8 +36,8 @@ public interface IBaEvents
    * Informs backend about events the frontend is interested in.
    * <p>
    * Argument replaces previous list of needed GWIDs in the backend. An empty list means that frontend does not
-   * subscribes on any event. However some system events will delivered to the frontend event if there is no
-   * subscription at all.
+   * subscribes on any event. However some system events will delivered to the frontend even if there is no subscription
+   * at all.
    * <p>
    * The list can contain only GWIDs of events (i.e., of type {@link EGwidKind#GW_EVENT}. The multi-GWIDs are allowed,
    * in particular (from more general to more specific):
@@ -57,13 +59,14 @@ public interface IBaEvents
    * @param aNeededGwids {@link IGwidList} - GWIDs of needed events
    * @throws TsNullArgumentRtException any argument = <code>null</code>
    */
-  void setNeededEventGwids( IGwidList aNeededGwids );
+  void subscribeToEvents( IGwidList aNeededGwids );
 
   /**
    * Queries the history of events.
    * <p>
-   * В списке интересующих событий допускаются только GWID-ы событий. Все элементы, у которых {@link Gwid#kind()} не
-   * равно {@link EGwidKind#GW_EVENT} молча игнорируются.
+   * Only GWIDs of kind {@link EGwidKind#GW_EVENT} are considered, all other kinds are ignored.
+   * <p>
+   * FIXME TRANSLATE
    * <p>
    * В списке могут быть как конкретные (с идентификатором объекта) {@link Gwid}-ы, так и абстрактные. Абстрактный
    * {@link Gwid} означает запрос указанного события от всех объектов. Кроме того, в запросе могут присутствовать

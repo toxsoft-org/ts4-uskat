@@ -27,7 +27,7 @@ public interface ISkBackendHardConstant {
   // ------------------------------------------------------------------------------------
   // ISkBackendInfo
 
-  String OPID_SKBI_MAX_CLOB_LENGTH          = SKBI_ID + ".MaxClobLength";          //$NON-NLS-1$
+  String OPID_SKBI_MAX_CLOB_LENGTH           = SKBI_ID + ".MaxClobLength";          //$NON-NLS-1$
   String OPID_SKBI_NEED_THREAD_SAFE_FRONTEND = SKBI_ID + ".NeedThreadSafeFrontend"; //$NON-NLS-1$
 
   IDataDef OPDEF_SKBI_MAX_CLOB_LENGTH = DataDef.create( OPID_SKBI_MAX_CLOB_LENGTH, INTEGER, //
@@ -60,16 +60,9 @@ public interface ISkBackendHardConstant {
   // IBaEvents
 
   String BAID_EVENTS                    = SKB_ID + ".Events";              //$NON-NLS-1$
-  String OPID_SKBI_BA_EVENTS_IS_REMOTE  = SKBI_ID + ".BaEvents.IsRemove";  //$NON-NLS-1$
   String OPID_SKBI_BA_EVENTS_IS_HISTORY = SKBI_ID + ".BaEvents.IsHistory"; //$NON-NLS-1$
 
   IStridable BAINF_EVENTS = new Stridable( BAID_EVENTS, STR_N_BA_EVENTS, STR_D_BA_EVENTS );
-
-  IDataDef OPDEF_SKBI_BA_EVENTS_IS_REMOTE = DataDef.create( OPID_SKBI_BA_EVENTS_IS_REMOTE, INTEGER, //
-      TSID_NAME, STR_N_SKBI_BA_EVENTS_IS_REMOTE, //
-      TSID_DESCRIPTION, STR_D_SKBI_BA_EVENTS_IS_REMOTE, //
-      TSID_DEFAULT_VALUE, AV_FALSE //
-  );
 
   IDataDef OPDEF_SKBI_BA_EVENTS_IS_HISTORY = DataDef.create( OPID_SKBI_BA_EVENTS_IS_HISTORY, INTEGER, //
       TSID_NAME, STR_N_SKBI_BA_EVENTS_IS_HISTORY, //

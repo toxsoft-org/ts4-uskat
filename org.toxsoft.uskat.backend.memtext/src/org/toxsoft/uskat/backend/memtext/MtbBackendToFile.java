@@ -36,7 +36,7 @@ public class MtbBackendToFile
   /**
    * ID of this backend returned as {@link ISkBackendInfo#id()}.
    */
-  public static final String BACKEND_ID = SKB_ID_MEMTEXT + ".file"; //$NON-NLS-1$
+  public static final String BACKEND_ID = IBackendMemtextConstants.SKB_ID_MEMTEXT + ".file"; //$NON-NLS-1$
 
   /**
    * Backend arg: path to the file.

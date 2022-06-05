@@ -41,6 +41,66 @@ class SkCoreServSysdescr
   public static final ISkServiceCreator<AbstractSkService> CREATOR = SkCoreServSysdescr::new;
 
   /**
+   * {@link ISkSysdescr#hierarchy()} implementation.
+   *
+   * @author hazard157
+   */
+  class HierarchyExplorer
+      implements ISkClassHierarchyExplorer {
+
+    @Override
+    public boolean isSuperclassOf( String aClassId, String aSubclassId ) {
+      TsNullArgumentRtException.checkNulls( aClassId, aSubclassId );
+      ISkClassInfo cinf = findClassInfo( aClassId );
+      if( cinf != null ) {
+        return cinf.isSuperclassOf( aSubclassId );
+      }
+      return false;
+    }
+
+    @Override
+    public boolean isAssignableFrom( String aClassId, String aSubclassId ) {
+      TsNullArgumentRtException.checkNulls( aClassId, aSubclassId );
+      ISkClassInfo cinf = findClassInfo( aClassId );
+      if( cinf != null ) {
+        return cinf.isAssignableFrom( aSubclassId );
+      }
+      return false;
+    }
+
+    @Override
+    public boolean isSubclassOf( String aClassId, String aSuperclassId ) {
+      TsNullArgumentRtException.checkNulls( aClassId, aSuperclassId );
+      ISkClassInfo cinf = findClassInfo( aClassId );
+      if( cinf != null ) {
+        return cinf.isSubclassOf( aSuperclassId );
+      }
+      return false;
+    }
+
+    @Override
+    public boolean isAssignableTo( String aClassId, String aSuperclassId ) {
+      TsNullArgumentRtException.checkNulls( aClassId, aSuperclassId );
+      ISkClassInfo cinf = findClassInfo( aClassId );
+      if( cinf != null ) {
+        return cinf.isAssignableTo( aSuperclassId );
+      }
+      return false;
+    }
+
+    @Override
+    public boolean isOfClass( String aClassId, IStringList aClassIdsList ) {
+      TsNullArgumentRtException.checkNulls( aClassId, aClassIdsList );
+      ISkClassInfo cinf = findClassInfo( aClassId );
+      if( cinf != null ) {
+        return cinf.isOfClass( aClassIdsList );
+      }
+      return false;
+    }
+
+  }
+
+  /**
    * {@link ISkSysdescr#eventer()} implementation.
    *
    * @author hazard157
@@ -247,6 +307,7 @@ class SkCoreServSysdescr
   };
 
   final Eventer                           eventer           = new Eventer();
+  final ISkClassHierarchyExplorer         hierarchyExplorer = new HierarchyExplorer();
   final ValidationSupport                 validationSupport = new ValidationSupport();
   final IStridablesListEdit<ISkClassInfo> cachedClassesList = new StridablesList<>();
 
@@ -295,7 +356,7 @@ class SkCoreServSysdescr
     IStridablesListEdit<IDtoClassInfo> dtoList = new StridablesList<>( ba().baClasses().readClassInfos() );
     // make list without orphans
     IStridablesListEdit<IDtoClassInfo> llResult = new StridablesList<>();
-    IDtoClassInfo rootClassDto = SkUtils.createRootClassDto();
+    IDtoClassInfo rootClassDto = SkCoreUtils.createRootClassDto();
     llResult.add( rootClassDto ); // add root class in the llResult
     dtoList.removeByKey( rootClassDto.id() );
     // now we have only root class, let us move all descendant tree from dtoList to llResult
@@ -430,6 +491,11 @@ class SkCoreServSysdescr
     cacheIsInvalid = true;
     ba().baClasses().writeClassInfos( new SingleStringList( aClassId ), IStridablesList.EMPTY );
     coreApi().doJobInCoreMainThread();
+  }
+
+  @Override
+  public ISkClassHierarchyExplorer hierarchy() {
+    return hierarchyExplorer;
   }
 
   @Override

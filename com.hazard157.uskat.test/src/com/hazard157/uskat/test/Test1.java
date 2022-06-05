@@ -29,7 +29,7 @@ import org.toxsoft.uskat.core.utils.*;
  */
 @SuppressWarnings( { "javadoc", "boxing", "nls" } )
 public class Test1
-    implements Runnable, IUSkatConnected {
+    implements Runnable, ISkConnected {
 
   // FIXME private final ISkCoreListener coreListener = aEvents -> {
   // for( SkCoreEvent e : aEvents ) {
@@ -43,7 +43,7 @@ public class Test1
    * Constructor.
    */
   public Test1() {
-    conn = SkUtils.createConnection();
+    conn = SkCoreUtils.createConnection();
   }
 
   // ------------------------------------------------------------------------------------

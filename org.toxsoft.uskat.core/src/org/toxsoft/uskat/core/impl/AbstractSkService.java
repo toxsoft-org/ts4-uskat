@@ -14,6 +14,7 @@ import org.toxsoft.uskat.core.api.*;
 import org.toxsoft.uskat.core.api.clobserv.*;
 import org.toxsoft.uskat.core.api.cmdserv.*;
 import org.toxsoft.uskat.core.api.evserv.*;
+import org.toxsoft.uskat.core.api.gwids.*;
 import org.toxsoft.uskat.core.api.linkserv.*;
 import org.toxsoft.uskat.core.api.objserv.*;
 import org.toxsoft.uskat.core.api.rtdserv.*;
@@ -221,6 +222,11 @@ public abstract class AbstractSkService
   @SuppressWarnings( "javadoc" )
   public ISkRtdataService rtdService() {
     return coreApi.rtdService();
+  }
+
+  @SuppressWarnings( "javadoc" )
+  public ISkGwidService gwidService() {
+    return coreApi.gwidService();
   }
 
   // ------------------------------------------------------------------------------------

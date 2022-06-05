@@ -84,6 +84,16 @@ public interface ISkSysdescr
   void removeClass( String aClassId );
 
   // ------------------------------------------------------------------------------------
+  // Classes hierarchy
+
+  /**
+   * Returns the handy means of class hierarchy exploration.
+   *
+   * @return {@link ISkClassHierarchyExplorer} - the hierarachy explorer
+   */
+  ISkClassHierarchyExplorer hierarchy();
+
+  // ------------------------------------------------------------------------------------
   // Classes ownership
 
   // TODO Classes ownership

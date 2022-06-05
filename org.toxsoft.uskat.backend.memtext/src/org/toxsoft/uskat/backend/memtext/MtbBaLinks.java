@@ -142,11 +142,16 @@ public class MtbBaLinks
     return concreteGwidOfTheRemovedLink;
   }
 
-  private IMapEdit<Skid, IDtoLinkFwd> internalCreateSingleLinkMap() {
+  private static IMapEdit<Skid, IDtoLinkFwd> internalCreateSingleLinkMap() {
     return new ElemMap<>( //
         getMapBucketsCount( estimateOrder( 10_000 ) ), //
         getListInitialCapacity( estimateOrder( 10_000 ) ) );
+  }
 
+  private static IMapEdit<Gwid, IDtoLinkRev> internalCreateRevLinksMap() {
+    return new ElemMap<>( //
+        getMapBucketsCount( estimateOrder( 1_000 ) ), //
+        getListInitialCapacity( estimateOrder( 1_000 ) ) );
   }
 
   // ------------------------------------------------------------------------------------
@@ -166,22 +171,62 @@ public class MtbBaLinks
   @Override
   public IList<IDtoLinkFwd> getAllLinksFwd( Skid aLeftSkid ) {
     internalCheck();
-    // TODO реализовать MtbBaLinks.getAllLinksFwd()
-    throw new TsUnderDevelopmentRtException( "MtbBaLinks.getAllLinksFwd()" );
+    IListEdit<IDtoLinkFwd> ll = new ElemLinkedBundleList<>();
+    for( IMap<Skid, IDtoLinkFwd> map : linksMap.values() ) {
+      for( Skid s : map.keys() ) {
+        if( s.equals( aLeftSkid ) ) {
+          ll.add( map.getByKey( s ) );
+        }
+      }
+    }
+    return ll;
   }
 
   @Override
-  public IDtoLinkRev findLinkRev( String aClassId, String aLinkId, Skid aRightSkid, IStringList aLeftClassIds ) {
+  public IDtoLinkRev findLinkRev( Gwid aLinkGwid, Skid aRightSkid, IStringList aLeftClassIds ) {
     internalCheck();
-    // TODO реализовать MtbBaLinks.findLinkRev()
-    throw new TsUnderDevelopmentRtException( "MtbBaLinks.findLinkRev()" );
+    // get all data of the specified link
+    IMap<Skid, IDtoLinkFwd> gwidLinks = linksMap.findByKey( aLinkGwid );
+    if( gwidLinks == null ) {
+      return null;
+    }
+    // iterate over found map
+    DtoLinkRev result = new DtoLinkRev( aLinkGwid, aRightSkid, ISkidList.EMPTY );
+    for( Skid leftSkid : gwidLinks.keys() ) {
+      // consider only allowed class of left SKIDs
+      if( aLeftClassIds.isEmpty() || aLeftClassIds.hasElem( leftSkid.classId() ) ) {
+        IDtoLinkFwd link = gwidLinks.getByKey( leftSkid );
+        if( link.rightSkids().hasElem( aRightSkid ) ) {
+          result.leftSkids().add( leftSkid );
+        }
+      }
+    }
+    if( result.leftSkids().isEmpty() ) {
+      return null;
+    }
+    return result;
   }
 
   @Override
-  public IList<IDtoLinkRev> getAllLinksRev( Skid aRightSkid ) {
+  public IMap<Gwid, IDtoLinkRev> getAllLinksRev( Skid aRightSkid ) {
     internalCheck();
-    // TODO реализовать MtbBaLinks.getAllLinksRev()
-    throw new TsUnderDevelopmentRtException( "MtbBaLinks.getAllLinksRev()" );
+    IMapEdit<Gwid, IDtoLinkRev> result = internalCreateRevLinksMap();
+    for( Gwid g : linksMap.keys() ) {
+      IMap<Skid, IDtoLinkFwd> gwidLinks = linksMap.getByKey( g );
+      DtoLinkRev revLink = new DtoLinkRev( g, aRightSkid, ISkidList.EMPTY );
+      // iterate over all left SKIDs
+      for( Skid leftSkid : gwidLinks.keys() ) {
+        // consider only allowed class of left SKIDs
+        IDtoLinkFwd lf = gwidLinks.getByKey( leftSkid );
+        if( lf.rightSkids().hasElem( aRightSkid ) ) {
+          revLink.leftSkids().add( leftSkid );
+        }
+      }
+      if( !revLink.leftSkids().isEmpty() ) {
+        result.put( g, revLink );
+      }
+    }
+    return result;
   }
 
   @Override

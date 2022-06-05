@@ -273,9 +273,9 @@ public class SkCoreServLinks
     if( right == null ) {
       throw new TsItemNotFoundRtException( FMT_ERR_NO_SUCH_OBJ, aRightSkid );
     }
-    IDtoLinkRev lr = ba().baLinks().findLinkRev( declaringClassInfo.id(), aLinkId, aRightSkid, IStringList.EMPTY );
+    Gwid linkGwid = Gwid.createLink( declaringClassInfo.id(), aLinkId );
+    IDtoLinkRev lr = ba().baLinks().findLinkRev( linkGwid, aRightSkid, IStringList.EMPTY );
     if( lr == null ) {
-      Gwid linkGwid = Gwid.createLink( declaringClassInfo.id(), aLinkId );
       lr = new DtoLinkRev( linkGwid, aRightSkid, ISkidList.EMPTY );
     }
     return lr;
