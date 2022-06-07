@@ -91,7 +91,7 @@ public final class S5ClusterCommandSequeneceUnlockGwids
       @Override
       public IStringMap<ITjValue> params() {
         IStringMapEdit<ITjValue> params = new StringMap<>();
-        params.put( GWIDS, TjUtils.createString( GwidListKeeper.KEEPER.ent2str( aGwids ) ) );
+        params.put( GWIDS, TjUtils.createString( Gwid.KEEPER.coll2str( aGwids ) ) );
         return params;
       }
     };
@@ -106,7 +106,7 @@ public final class S5ClusterCommandSequeneceUnlockGwids
     if( !aCommand.method().equals( REMOTE_UNLOCKS_GWIDS_METHOD ) ) {
       return TjUtils.NULL;
     }
-    IGwidList gwids = GwidListKeeper.KEEPER.str2ent( aCommand.params().getByKey( GWIDS ).asString() );
+    IGwidList gwids = new GwidList( Gwid.KEEPER.str2coll( aCommand.params().getByKey( GWIDS ).asString() ) );
     boolean result = writer.remoteUnlockGwids( gwids );
     return (result ? TjUtils.TRUE : TjUtils.FALSE);
   }
