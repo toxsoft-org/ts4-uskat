@@ -1,0 +1,21 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: skadmin Command Line Interface
+Bundle-SymbolicName: org.toxsoft.uskat.skadmin.cli
+Bundle-Version: 1.0.0.qualifier
+Bundle-Vendor: ToxSoft Ltd.
+Bundle-RequiredExecutionEnvironment: JavaSE-17
+Require-Bundle: org.toxsoft.extlibs.log4j,
+ org.toxsoft.extlibs.jline,
+ org.toxsoft.extlibs.wildfly,
+ org.toxsoft.core.tslib,
+ org.toxsoft.core.log4j,
+ org.toxsoft.uskat.core,
+ ru.uskat.core,
+ org.toxsoft.uskat.s5,
+ org.toxsoft.uskat.skadmin.core
+Export-Package: org.toxsoft.uskat.skadmin.cli,
+ org.toxsoft.uskat.skadmin.cli.cmds,
+ org.toxsoft.uskat.skadmin.cli.completion,
+ org.toxsoft.uskat.skadmin.cli.parsers
+Automatic-Module-Name: org.toxsoft.uskat.skadmin.cli
