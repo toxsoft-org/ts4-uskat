@@ -25,15 +25,15 @@ public interface IS5SessionInitData {
    * @return {@link Skid} идентификатор сессии {@link ISkSession}.
    */
   default Skid sessionID() {
-    return IS5ConnectionParams.OP_SESSION_ID.getValue( connectionOptions() ).asValobj();
+    return IS5ConnectionParams.OP_SESSION_ID.getValue( clientOptions() ).asValobj();
   }
 
   /**
-   * Возвращает опции соединения определяемые клиентом
+   * Возвращает параметры подключения клиента к серверу
    *
-   * @return {@link IOptionSet} опции соединения.
+   * @return {@link IOptionSet} параметры подключения
    */
-  IOptionSet connectionOptions();
+  IOptionSet clientOptions();
 
   /**
    * Возвращает информацию о топологии кластеров доступных клиенту

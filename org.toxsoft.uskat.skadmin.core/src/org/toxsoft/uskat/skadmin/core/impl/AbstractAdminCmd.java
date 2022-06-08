@@ -1139,15 +1139,15 @@ public abstract class AbstractAdminCmd
     // Создание типа значения
     IOptionSetEdit constraints = new OptionSet();
     constraints.setStr( TSID_DEFAULT_VALUE, (aDefault ? CHAR_YES : CHAR_NO) );
-    IDataType dataType = new DataType( EAtomicType.STRING, constraints );
-    IPlexyType cmdValueType = PlexyValueUtils.ptSingleValue( dataType );
     // Создание возможных значений
     IAtomicValue dataValueYes = AvUtils.avStr( CHAR_YES );
     IAtomicValue dataValueNo = AvUtils.avStr( CHAR_NO );
-    IPlexyValue cmdValueYes = PlexyValueUtils.pvSingleValue( cmdValueType, dataValueYes );
-    IPlexyValue cmdValueNo = PlexyValueUtils.pvSingleValue( cmdValueType, dataValueNo );
+    IPlexyValue cmdValueYes = PlexyValueUtils.pvSingleValue( dataValueYes );
+    IPlexyValue cmdValueNo = PlexyValueUtils.pvSingleValue( dataValueNo );
     IList<IPlexyValue> possibles = new ElemArrayList<>( cmdValueYes, cmdValueNo );
     // Запрос значения у клиента
+    IDataType dataType = new DataType( EAtomicType.STRING, constraints );
+    IPlexyType cmdValueType = PlexyValueUtils.ptSingleValue( dataType );
     IPlexyValue confirm = callback.getValue( cmdValueType, possibles, aMessages );
     if( confirm == IPlexyValue.NULL ) {
       // Клиент отказался предоставить значение

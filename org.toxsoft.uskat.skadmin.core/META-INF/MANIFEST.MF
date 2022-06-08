@@ -11,7 +11,14 @@ Require-Bundle: org.toxsoft.extlibs.log4j,
  org.toxsoft.core.log4j,
  org.toxsoft.uskat.core,
  org.toxsoft.uskat.s5
-Export-Package: org.toxsoft.uskat.skadmin.core,
+Export-Package: org.toxsoft.uskat.legacy.file,
+ org.toxsoft.uskat.legacy.file.dirscanner,
+ org.toxsoft.uskat.legacy.file.dirwalk,
+ org.toxsoft.uskat.legacy.plexy,
+ org.toxsoft.uskat.legacy.plexy.impl,
+ org.toxsoft.uskat.legacy.plugins,
+ org.toxsoft.uskat.legacy.plugins.impl,
+ org.toxsoft.uskat.skadmin.core,
  org.toxsoft.uskat.skadmin.core.impl,
  org.toxsoft.uskat.skadmin.core.plugins
 Bundle-RequiredExecutionEnvironment: JavaSE-17

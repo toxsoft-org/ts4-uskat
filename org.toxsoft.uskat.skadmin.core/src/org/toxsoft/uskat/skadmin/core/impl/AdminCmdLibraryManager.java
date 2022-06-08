@@ -308,7 +308,7 @@ class AdminCmdLibraryManager
           if( argValue == null && typeConstraints.hasValue( TSID_DEFAULT_VALUE ) ) {
             // Аргумента нет, но есть его значение по умолчанию
             IAtomicValue value = typeConstraints.getValue( TSID_DEFAULT_VALUE );
-            argValue = PlexyValueUtils.pvSingleValue( argType, value );
+            argValue = PlexyValueUtils.pvSingleValue( value );
             // Размещаем аргумент в карте аргументов команды
             aArgValues.put( argId, argValue );
           }

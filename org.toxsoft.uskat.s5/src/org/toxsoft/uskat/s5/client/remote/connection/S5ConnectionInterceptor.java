@@ -125,7 +125,7 @@ class S5ConnectionInterceptor
       }
       // noSuchEJBExceptionCount++;
       // Параметры ошибки: При вызове удаленного метода сервера была обнаружена потеря связи с сервером
-      IOptionSet options = connection.sessionInitData().connectionOptions();
+      IOptionSet options = connection.sessionInitData().clientOptions();
       // if( noSuchEJBExceptionCount < NO_SUCH_EJB_EXCEPTION_COUNT_MAX ) {
       // // Очередная ошибка
       // Integer c = Integer.valueOf( noSuchEJBExceptionCount );
@@ -143,7 +143,7 @@ class S5ConnectionInterceptor
       // Замена affinity у прокси расширений бекенда
       // (требуется для работы соединения внутри wildfly с удаленным сервером)
       try {
-        IOptionSet options = connection.sessionInitData().connectionOptions();
+        IOptionSet options = connection.sessionInitData().clientOptions();
         // 2020-09-03 mvk +++
         // Минимальный интервал передачи пакетов через соединение (не может быть больше чем 2/3 таймаута сессии)
         long failureTimeout = OP_FAILURE_TIMEOUT.getValue( options ).asInt();

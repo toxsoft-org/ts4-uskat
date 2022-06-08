@@ -282,7 +282,7 @@ public final class S5Connection
       progressMonitor.subTask( format( USER_PROGRESS_ACTIVE_ON ) );
       setConnectState( EConnectionState.INACTIVE );
       // Сохранение параметров подключения к серверу (создание копии)
-      sessionInitData.setConnectionOptions( aOptions );
+      sessionInitData.setClientOptions( aOptions );
       // Логин подключения
       String login = OP_USERNAME.getValue( aOptions ).asString();
       logger.info( MSG_CONNECTION_ACTIVATED, login );
@@ -365,7 +365,7 @@ public final class S5Connection
       // Статус соединения перед завершением связи
       EConnectionState prevState = state;
       // Опции соединения
-      IOptionSet options = sessionInitData.connectionOptions();
+      IOptionSet options = sessionInitData.clientOptions();
       // Параметры конфигурации
       String login = OP_USERNAME.getValue( options ).asString();
       S5HostList hosts = OP_HOSTS.getValue( options ).asValobj();
@@ -521,7 +521,7 @@ public final class S5Connection
   void tryConnect()
       throws S5ConnectionException {
     progressMonitor.subTask( format( USER_PROGRESS_WAIT_TRY_CONNECT ) );
-    IOptionSetEdit options = sessionInitData.connectionOptions();
+    IOptionSetEdit options = sessionInitData.clientOptions();
     lockWrite( lock );
     try {
       if( state == EConnectionState.CONNECTED ) {
@@ -748,7 +748,7 @@ public final class S5Connection
   void handlingUnexpectedBreak() {
     lockWrite( lock );
     try {
-      IOptionSet options = sessionInitData.connectionOptions();
+      IOptionSet options = sessionInitData.clientOptions();
       String login = OP_USERNAME.getValue( options ).asString();
       S5HostList hosts = OP_HOSTS.getValue( options ).asValobj();
       String host = hosts.get( 0 ).address();
@@ -896,7 +896,7 @@ public final class S5Connection
   //
   @Override
   public String toString() {
-    IOptionSet options = sessionInitData.connectionOptions();
+    IOptionSet options = sessionInitData.clientOptions();
     String login = OP_USERNAME.getValue( options ).asString();
     S5HostList hosts = OP_HOSTS.getValue( options ).asValobj();
     String host = hosts.get( 0 ).address();

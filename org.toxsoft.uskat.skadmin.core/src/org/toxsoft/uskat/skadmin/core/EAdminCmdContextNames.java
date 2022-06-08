@@ -20,6 +20,7 @@ import org.toxsoft.uskat.core.api.sysdescr.ISkSysdescr;
 import org.toxsoft.uskat.core.connection.ISkConnection;
 import org.toxsoft.uskat.legacy.plexy.IPlexyType;
 import org.toxsoft.uskat.s5.client.remote.connection.IS5Connection;
+import org.toxsoft.uskat.s5.common.S5Host;
 
 /**
  * Известные имена параметров контекста выполнения команд {@link IAdminCmdContext}.
@@ -101,8 +102,7 @@ public enum EAdminCmdContextNames
   /**
    * Адрес подключенного сервера.
    */
-  // 2022-05-12 mvk где IS5Host и нужен ли он здесь ???
-  // CTX_SK_HOSTS( "skHost", E_CN_D_HOST, E_CN_N_HOST, IS5Host.class, false ), //$NON-NLS-1$
+  CTX_SK_HOSTS( "skHost", E_CN_D_HOST, E_CN_N_HOST, S5Host.class, false ), //$NON-NLS-1$
 
   /**
    * Реализация службы управления классами сервера s5.

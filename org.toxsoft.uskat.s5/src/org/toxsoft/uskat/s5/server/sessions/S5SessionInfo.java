@@ -62,7 +62,7 @@ public class S5SessionInfo
           aSw.writeSeparatorChar();
           S5ClusterTopology.KEEPER.write( aSw, aEntity.clusterTopology() );
           aSw.writeSeparatorChar();
-          OptionSetKeeper.KEEPER.write( aSw, aEntity.client() );
+          OptionSetKeeper.KEEPER.write( aSw, aEntity.clientOptions() );
           aSw.writeSeparatorChar();
           S5Statistic.KEEPER.write( aSw, (S5Statistic)aEntity.statistics() );
           aSw.writeSeparatorChar();
@@ -110,7 +110,7 @@ public class S5SessionInfo
   private final long              openTime;
   private final String            login;
   private final S5ClusterTopology clusterTopology;
-  private final IOptionSet        clientInfo;
+  private final IOptionSet        clientOptions;
   private final S5Statistic       statistics;
   private volatile long           closeTime     = TimeUtils.MAX_TIMESTAMP;
   private volatile boolean        closeByRemote = false;
@@ -120,11 +120,11 @@ public class S5SessionInfo
    * Конструктор
    *
    * @param aUserLogin String учетное имя пользователя открывшего сессию сервера
-   * @param aClientInfo {@link IOptionSet} информация о пользователе сессии
+   * @param aClientOptions {@link IOptionSet} параметры клиента
    * @throws TsNullArgumentRtException любой аргумент = null
    */
-  public S5SessionInfo( String aUserLogin, IOptionSet aClientInfo ) {
-    this( System.currentTimeMillis(), aUserLogin, aClientInfo, new S5Statistic( STAT_SESSION_PARAMS ) );
+  public S5SessionInfo( String aUserLogin, IOptionSet aClientOptions ) {
+    this( System.currentTimeMillis(), aUserLogin, aClientOptions, new S5Statistic( STAT_SESSION_PARAMS ) );
   }
 
   /**
@@ -132,16 +132,16 @@ public class S5SessionInfo
    *
    * @param aOpenTime long метка время создания сессии
    * @param aUserLogin String учетное имя пользователя открывшего сессию сервера
-   * @param aClientInfo {@link IOptionSet} информация о пользователе сессии
+   * @param aClientOptions {@link IOptionSet} информация о пользователе сессии
    * @param aStatistics {@link S5Statistic} статистика работы сессии
    * @throws TsNullArgumentRtException любой аргумент = null
    */
-  S5SessionInfo( long aOpenTime, String aUserLogin, IOptionSet aClientInfo, S5Statistic aStatistics ) {
-    TsNullArgumentRtException.checkNulls( aUserLogin, aClientInfo, aStatistics );
+  S5SessionInfo( long aOpenTime, String aUserLogin, IOptionSet aClientOptions, S5Statistic aStatistics ) {
+    TsNullArgumentRtException.checkNulls( aUserLogin, aClientOptions, aStatistics );
     openTime = aOpenTime;
     login = aUserLogin;
     clusterTopology = new S5ClusterTopology();
-    clientInfo = new OptionSet( aClientInfo );
+    clientOptions = new OptionSet( aClientOptions );
     statistics = aStatistics;
   }
 
@@ -159,7 +159,7 @@ public class S5SessionInfo
     openTime = aSource.openTime();
     login = aSource.login();
     clusterTopology = new S5ClusterTopology( aSource.clusterTopology().nodes() );
-    clientInfo = new OptionSet( aSource.client() );
+    clientOptions = new OptionSet( aSource.clientOptions() );
     statistics = (S5Statistic)aSource.statistics();
     closeTime = aSource.closeTime();
     closeByRemote = aSource.closeByRemote();
@@ -239,8 +239,8 @@ public class S5SessionInfo
   }
 
   @Override
-  public IOptionSet client() {
-    return clientInfo;
+  public IOptionSet clientOptions() {
+    return clientOptions;
   }
 
   @Override

@@ -102,7 +102,7 @@ public class S5SessionCallbackWriter
     // 2021-02-13 mvk перемещено в S5SessionManager
     // backend.attachFrontend( this );
     // Опции клиента
-    IOptionSet options = session.info().client();
+    IOptionSet options = session.info().clientOptions();
     currdataTimeout = OP_CURRDATA_TIMEOUT.getValue( options ).asInt();
     IAtomicValue remoteAddress = avStr( session.info().remoteAddress() );
     IAtomicValue remotePort = avInt( session.info().remotePort() );

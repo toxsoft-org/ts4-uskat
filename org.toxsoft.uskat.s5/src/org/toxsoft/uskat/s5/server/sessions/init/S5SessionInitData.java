@@ -28,10 +28,10 @@ public final class S5SessionInitData
 
   private static final long serialVersionUID = 157157L;
 
-  private final IOptionSetEdit                          connectionOptions = new OptionSet();
-  private final S5ClusterTopology                       clusterTopology   = new S5ClusterTopology();
-  private final GwidList                                eventGwids        = new GwidList();
-  private final IStringMapEdit<IS5SessionAddonInitData> addonsData        = new StringMap<>();
+  private final IOptionSetEdit                          clientOptions   = new OptionSet();
+  private final S5ClusterTopology                       clusterTopology = new S5ClusterTopology();
+  private final GwidList                                eventGwids      = new GwidList();
+  private final IStringMapEdit<IS5SessionAddonInitData> addonsData      = new StringMap<>();
 
   /**
    * Конструктор
@@ -41,21 +41,21 @@ public final class S5SessionInitData
    */
   public S5SessionInitData( Skid aSessionID ) {
     TsNullArgumentRtException.checkNull( aSessionID );
-    IS5ConnectionParams.OP_SESSION_ID.setValue( connectionOptions(), AvUtils.avValobj( aSessionID ) );
+    IS5ConnectionParams.OP_SESSION_ID.setValue( clientOptions(), AvUtils.avValobj( aSessionID ) );
   }
 
   // ------------------------------------------------------------------------------------
   // Открытое API
   //
   /**
-   * Установить опции соединения определяемые клиентом
+   * Установить параметры подключения клиента к серверу
    *
-   * @param aOptions {@link IOptionSet}&gt; опции соединения.
+   * @param aClientOptions {@link IOptionSet}&gt; параметры подключения.
    * @throws TsNullArgumentRtException аргумент = null
    */
-  public void setConnectionOptions( IOptionSet aOptions ) {
-    TsNullArgumentRtException.checkNull( aOptions );
-    connectionOptions.setAll( aOptions );
+  public void setClientOptions( IOptionSet aClientOptions ) {
+    TsNullArgumentRtException.checkNull( aClientOptions );
+    clientOptions.setAll( aClientOptions );
   }
 
   /**
@@ -95,8 +95,8 @@ public final class S5SessionInitData
   // Реализация IS5SessionInitData
   //
   @Override
-  public IOptionSetEdit connectionOptions() {
-    return connectionOptions;
+  public IOptionSetEdit clientOptions() {
+    return clientOptions;
   }
 
   @Override
