@@ -1,0 +1,21 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: skadmin logon commands
+Bundle-SymbolicName: org.toxsoft.uskat.skadmin.logon
+Bundle-Version: 1.0.0.qualifier
+Bundle-Vendor: ToxSoft Ltd.
+Require-Bundle: org.toxsoft.extlibs.wildfly,
+ org.toxsoft.core.tslib,
+ org.toxsoft.uskat.core,
+ ru.uskat.core,
+ ru.uskat.backend,
+ org.toxsoft.uskat.s5,
+ org.toxsoft.uskat.skadmin.core
+Export-Package: org.toxsoft.uskat.skadmin.logon,
+ org.toxsoft.uskat.skadmin.logon.rules
+Bundle-RequiredExecutionEnvironment: JavaSE-17
+Automatic-Module-Name: org.toxsoft.uskat.skadmin.logon
+TsPluginContainerVersion: 2
+TsPluginVersion:    4.0 2022-05-24 00:00:00
+TsPluginType:       skadmin.library
+TsPluginClassName:  org.toxsoft.uskat.skadmin.logon.AdminPluginLogon
