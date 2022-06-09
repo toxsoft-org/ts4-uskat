@@ -5,7 +5,6 @@ import static org.toxsoft.uskat.core.backend.api.IBaEventsMessages.*;
 import org.toxsoft.core.tslib.bricks.ctx.*;
 import org.toxsoft.core.tslib.bricks.events.msg.*;
 import org.toxsoft.core.tslib.bricks.time.*;
-import org.toxsoft.core.tslib.bricks.time.impl.*;
 import org.toxsoft.core.tslib.coll.*;
 import org.toxsoft.core.tslib.coll.impl.*;
 import org.toxsoft.core.tslib.gw.gwid.*;
@@ -168,7 +167,8 @@ public class SkCoreServEvents
   @Override
   public void fireEvent( SkEvent aEvent ) {
     TsNullArgumentRtException.checkNull( aEvent );
-    ITimedList<SkEvent> events = new TimedList<>( aEvent );
+    SkEventList events = new SkEventList();
+    events.add( aEvent );
     ba().baEvents().fireEvents( events );
   }
 

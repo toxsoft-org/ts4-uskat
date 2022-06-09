@@ -1,18 +1,10 @@
 package org.toxsoft.uskat.backend.memtext;
 
-import static org.toxsoft.core.tslib.av.EAtomicType.*;
-import static org.toxsoft.core.tslib.av.impl.AvUtils.*;
-import static org.toxsoft.core.tslib.av.metainfo.IAvMetaConstants.*;
-import static org.toxsoft.uskat.backend.memtext.ISkResources.*;
-
 import org.toxsoft.core.tslib.av.*;
-import org.toxsoft.core.tslib.av.impl.*;
-import org.toxsoft.core.tslib.av.metainfo.*;
 import org.toxsoft.core.tslib.av.opset.*;
 import org.toxsoft.core.tslib.bricks.ctx.*;
 import org.toxsoft.core.tslib.bricks.events.change.*;
 import org.toxsoft.core.tslib.bricks.keeper.*;
-import org.toxsoft.core.tslib.bricks.keeper.std.*;
 import org.toxsoft.core.tslib.bricks.strio.*;
 import org.toxsoft.core.tslib.coll.*;
 import org.toxsoft.core.tslib.coll.basis.*;
@@ -38,10 +30,13 @@ public abstract class MtbAbstractBackend
   private final ITsContextRo    argContext;
   private final ISkFrontendRear frontend;
 
-  private final MtbBaClasses mtbBaClasses;
-  private final MtbBaObjects mtbBaObjects;
-  private final MtbBaClobs   mtbBaClobs;
+  private final MtbBaClasses baClasses;
+  private final MtbBaObjects baObjects;
+  private final MtbBaClobs   baClobs;
   private final MtbBaLinks   baLinks;
+  private final MtbBaEvents  baEvents;
+  // private final MtbBaRtdata baRtdata;
+  // private final MtbBaCommands baCommands;
 
   private final IStringMapEdit<MtbAbstractAddon> allAddons = new StringMap<>();
 
@@ -71,14 +66,16 @@ public abstract class MtbAbstractBackend
     eventer = new GenericChangeEventer( this );
     frontend = aFrontend;
     argContext = aArgs;
-    mtbBaClasses = new MtbBaClasses( this );
-    allAddons.put( mtbBaClasses.id(), mtbBaClasses );
-    mtbBaObjects = new MtbBaObjects( this );
-    allAddons.put( mtbBaObjects.id(), mtbBaObjects );
-    mtbBaClobs = new MtbBaClobs( this );
-    allAddons.put( mtbBaClobs.id(), mtbBaClobs );
+    baClasses = new MtbBaClasses( this );
+    allAddons.put( baClasses.id(), baClasses );
+    baObjects = new MtbBaObjects( this );
+    allAddons.put( baObjects.id(), baObjects );
+    baClobs = new MtbBaClobs( this );
+    allAddons.put( baClobs.id(), baClobs );
     baLinks = new MtbBaLinks( this );
     allAddons.put( baLinks.id(), baLinks );
+    baEvents = new MtbBaEvents( this );
+    allAddons.put( baEvents.id(), baEvents );
     // TODO other addons
     backendInfo = new SkBackendInfo( aBackendId, System.currentTimeMillis(), aBackendInfoValue );
   }
@@ -130,7 +127,8 @@ public abstract class MtbAbstractBackend
 
   @Override
   public void close() {
-    IStringList notStoredObjClassIds = IBackendMemtextConstants.OPDEF_NOT_STORED_OBJ_CLASS_IDS.getValue( argContext().params() ).asValobj();
+    IStringList notStoredObjClassIds =
+        IBackendMemtextConstants.OPDEF_NOT_STORED_OBJ_CLASS_IDS.getValue( argContext().params() ).asValobj();
     if( !notStoredObjClassIds.isEmpty() ) {
       removeObjectsOfNonStoredClassIds( notStoredObjClassIds );
     }
@@ -185,12 +183,12 @@ public abstract class MtbAbstractBackend
 
   @Override
   public MtbBaClasses baClasses() {
-    return mtbBaClasses;
+    return baClasses;
   }
 
   @Override
   public IBaObjects baObjects() {
-    return mtbBaObjects;
+    return baObjects;
   }
 
   @Override
@@ -200,13 +198,12 @@ public abstract class MtbAbstractBackend
 
   @Override
   public IBaEvents baEvents() {
-    // TODO реализовать MtbAbstractBackend.baEvents()
-    throw new TsUnderDevelopmentRtException( "MtbAbstractBackend.baEvents()" );
+    return baEvents;
   }
 
   @Override
   public IBaClobs baClobs() {
-    return mtbBaClobs;
+    return baClobs;
   }
 
   @Override

@@ -30,7 +30,7 @@ public interface IBaEvents
    *
    * @param aEvents {@link ITimedList} - the list of the events to send
    */
-  void fireEvents( ITimedList<SkEvent> aEvents );
+  void fireEvents( ISkEventList aEvents );
 
   /**
    * Informs backend about events the frontend is interested in.
