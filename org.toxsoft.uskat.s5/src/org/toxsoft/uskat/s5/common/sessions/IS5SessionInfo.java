@@ -73,11 +73,11 @@ public interface IS5SessionInfo {
   S5ClusterTopology clusterTopology();
 
   /**
-   * Возвращает информацию о пользователе сессии
+   * Возвращает параметры подключения клиента к серверу
    *
-   * @return {@link IOptionSet} информация о пользователе сессии
+   * @return {@link IOptionSet} параметры подключения
    */
-  IOptionSet client();
+  IOptionSet clientOptions();
 
   /**
    * Возвращает статистические данные сессии
@@ -154,7 +154,7 @@ class NullSessionInfo
   }
 
   @Override
-  public IOptionSet client() {
+  public IOptionSet clientOptions() {
     throw new TsNullObjectErrorRtException();
   }
 

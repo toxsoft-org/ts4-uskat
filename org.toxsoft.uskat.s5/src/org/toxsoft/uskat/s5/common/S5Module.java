@@ -95,6 +95,28 @@ public final class S5Module
   }
 
   // ------------------------------------------------------------------------------------
+  // Открытое API
+  //
+
+  /**
+   * Возвращает версию целевого модуля
+   *
+   * @return {@link TsVersion} версия модуля
+   */
+  public TsVersion version() {
+    return DDEF_VERSION.getValue( params() ).asValobj();
+  }
+
+  /**
+   * Возвращает cписок модулей от который зависит целевой модуль
+   *
+   * @return {@link S5ModuleList} список модулей
+   */
+  public S5ModuleList depends() {
+    return DDEF_DEPENDS.getValue( params() ).asValobj();
+  }
+
+  // ------------------------------------------------------------------------------------
   // Реализация Object
   //
   @Override

@@ -109,7 +109,7 @@ public final class S5CallbackClient
     TsNullArgumentRtException.checkNull( aConnection );
     connection = aConnection;
     // Конфигурация соединения
-    IOptionSet options = aConnection.sessionInitData().connectionOptions();
+    IOptionSet options = aConnection.sessionInitData().clientOptions();
     // Таймаут создания каналов
     createTimeout = IS5ConnectionParams.OP_CONNECT_TIMEOUT.getValue( options ).asInt();
     // 2021-03-27 mvk
@@ -129,7 +129,7 @@ public final class S5CallbackClient
     // Завершение текущих соединений
     disconnected();
     // Конфигурация соединения
-    IOptionSet options = connection.sessionInitData().connectionOptions();
+    IOptionSet options = connection.sessionInitData().clientOptions();
     // Результат
     InetSocketAddress retValue = null;
     // Метка времени начала установки pas-соединений с узлами кластера сервера
@@ -277,7 +277,7 @@ public final class S5CallbackClient
           // Период подключения к серверу завершен
           if( channel.needRegularFailureTimeout() ) {
             // Установка регулярного таймаута отказа работоспособности канала
-            IOptionSet options = connection.sessionInitData().connectionOptions();
+            IOptionSet options = connection.sessionInitData().clientOptions();
             long failureTimeout = IS5ConnectionParams.OP_FAILURE_TIMEOUT.getValue( options ).asInt();
             if( failureTimeout < 0 || failureTimeout > (2 * STATEFULL_TIMEOUT) / 3 ) {
               failureTimeout = (2 * STATEFULL_TIMEOUT) / 3;
@@ -393,7 +393,7 @@ public final class S5CallbackClient
       IS5ClusterNodeInfo aNode, ILogger aLogger ) {
     TsNullArgumentRtException.checkNulls( aConnection, aReader, aNode, aLogger );
     // Конфигурация соединения
-    IOptionSet options = aConnection.sessionInitData().connectionOptions();
+    IOptionSet options = aConnection.sessionInitData().clientOptions();
     // Сетевой адрес подключаемого узла
     String hostname = aNode.address();
     // Порт подключаемого узла

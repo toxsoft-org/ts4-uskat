@@ -163,9 +163,10 @@ public class PlexyValueUtils {
    * @throws TsIllegalArgumentRtException aType не {@link EPlexyKind#SINGLE_VALUE}
    * @throws AvTypeCastRtException атомарный тип aValue не соответствует атомарному типу aType
    */
-  public static IPlexyValue pvSingleValue( IPlexyType aType, IAtomicValue aValue ) {
-    return new PlexyValueSingleValueImpl( aType, aValue );
-  }
+  // deprecated
+  // public static IPlexyValue pvSingleValue( IPlexyType aType, IAtomicValue aValue ) {
+  // return new PlexyValueSingleValueImpl( aType, aValue );
+  // }
 
   /**
    * Создает единичное атомарное плекси-значения, тип которого определяется атомарным типом аргумента.
@@ -267,7 +268,7 @@ public class PlexyValueUtils {
    * @return {@link IPlexyValue} - созданное значение
    */
   public static IPlexyValue pvsBool( boolean aValue ) {
-    return pvSingleValue( PT_SINGLE_BOOLEAN, avBool( aValue ) );
+    return pvSingleValue( avBool( aValue ) );
   }
 
   /**
@@ -277,7 +278,7 @@ public class PlexyValueUtils {
    * @return {@link IPlexyValue} - созданное значение
    */
   public static IPlexyValue pvsInt( int aValue ) {
-    return pvSingleValue( PT_SINGLE_INTEGER, avInt( aValue ) );
+    return pvSingleValue( avInt( aValue ) );
   }
 
   /**
@@ -287,7 +288,7 @@ public class PlexyValueUtils {
    * @return {@link IPlexyValue} - созданное значение
    */
   public static IPlexyValue pvsLong( long aValue ) {
-    return pvSingleValue( PT_SINGLE_INTEGER, avInt( aValue ) );
+    return pvSingleValue( avInt( aValue ) );
   }
 
   /**
@@ -297,7 +298,7 @@ public class PlexyValueUtils {
    * @return {@link IPlexyValue} - созданное значение
    */
   public static IPlexyValue pvsTimestamp( long aValue ) {
-    return pvSingleValue( PT_SINGLE_TIMESTAMP, avTimestamp( aValue ) );
+    return pvSingleValue( avTimestamp( aValue ) );
   }
 
   /**
@@ -307,7 +308,7 @@ public class PlexyValueUtils {
    * @return {@link IPlexyValue} - созданное значение
    */
   public static IPlexyValue pvsFloat( float aValue ) {
-    return pvSingleValue( PT_SINGLE_FLOATING, avFloat( aValue ) );
+    return pvSingleValue( avFloat( aValue ) );
   }
 
   /**
@@ -317,7 +318,7 @@ public class PlexyValueUtils {
    * @return {@link IPlexyValue} - созданное значение
    */
   public static IPlexyValue pvsFloat( double aValue ) {
-    return pvSingleValue( PT_SINGLE_FLOATING, avFloat( aValue ) );
+    return pvSingleValue( avFloat( aValue ) );
   }
 
   /**
@@ -328,7 +329,7 @@ public class PlexyValueUtils {
    * @throws TsNullArgumentRtException любой аргумент = null
    */
   public static IPlexyValue pvsStr( String aValue ) {
-    return pvSingleValue( PT_SINGLE_STRING, avStr( aValue ) );
+    return pvSingleValue( avStr( aValue ) );
   }
 
   /**
@@ -339,7 +340,7 @@ public class PlexyValueUtils {
    */
   public static IPlexyValue pvsStr( IStridable aStridable ) {
     TsNullArgumentRtException.checkNull( aStridable );
-    return pvSingleValue( PT_SINGLE_STRING, avStr( aStridable.id() ) );
+    return pvSingleValue( avStr( aStridable.id() ) );
   }
 
   /**

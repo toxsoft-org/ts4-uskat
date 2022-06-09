@@ -42,12 +42,12 @@ public interface IS5SessionInfoEdit
   void setClusterTopology( S5ClusterTopology aClusterTopology );
 
   /**
-   * Возвращает информацию о пользователе сессии с возможностью редактирования
+   * Возвращает параметры подключения клиента к серверу
    *
-   * @return {@link IOptionSet} информация о пользователе сессии
+   * @return {@link IOptionSet} параметры подключения
    */
   @Override
-  IOptionSet client();
+  IOptionSet clientOptions();
 
   /**
    * Возвращает статистические данные сессии

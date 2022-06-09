@@ -280,12 +280,12 @@ public class S5BackendSession
       // Адрес удаленного клиента
       // InetSocketAddress remoteAddr = (InetSocketAddress)contextData.get( "jboss.source-address" );
 
-      // Проверка пользователя
-      IOptionSet options = aInitData.connectionOptions();
-      remoteAddress = OP_CLIENT_ADDRESS.getValue( options );
-      remotePort = OP_CLIENT_PORT.getValue( options );
-      login = OP_USERNAME.getValue( options ).asString();
-      pswd = OP_PASSWORD.getValue( options ).asString();
+      // Параметры подключения клиента к серверу
+      IOptionSet clientOptions = aInitData.clientOptions();
+      remoteAddress = OP_CLIENT_ADDRESS.getValue( clientOptions );
+      remotePort = OP_CLIENT_PORT.getValue( clientOptions );
+      login = OP_USERNAME.getValue( clientOptions ).asString();
+      pswd = OP_PASSWORD.getValue( clientOptions ).asString();
       if( !login.equals( principal ) ) {
         // Учтеная запись входа не соответствует вызову
         throw new S5AccessDeniedException( ERR_WRONG_USER );
@@ -329,7 +329,7 @@ public class S5BackendSession
       }
       // 2021-09-18 mvkd требуется отсекать "старых" клиентов
       // Проверка версии клиента
-      IAtomicValue clientVersion = OP_CLIENT_VERSION.getValue( options );
+      IAtomicValue clientVersion = OP_CLIENT_VERSION.getValue( clientOptions );
       if( clientVersion != null && clientVersion.isAssigned() && clientVersion.atomicType() == EAtomicType.STRING ) {
         // Неподдерживаемая версия клиента
         throw new S5AccessDeniedException( String.format( ERR_WRONG_VERSION, clientVersion ) );
@@ -368,7 +368,7 @@ public class S5BackendSession
       finally {
         context.close();
       }
-      IS5SessionInfoEdit sessionInfo = new S5SessionInfo( principal, options );
+      IS5SessionInfoEdit sessionInfo = new S5SessionInfo( principal, clientOptions );
       sessionInfo.setSessionID( sessionID );
       sessionInfo.setRemoteAddress( remoteAddress.asString(), remotePort.asInt() );
       // Установка топологии кластеров доступных клиенту при создании сессии
