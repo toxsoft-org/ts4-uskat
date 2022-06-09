@@ -1,16 +1,17 @@
 package org.toxsoft.uskat.sysext.alarms.api.filters;
 
+import static org.toxsoft.core.tslib.av.impl.AvUtils.*;
+import static org.toxsoft.core.tslib.av.impl.DataDef.*;
+import static org.toxsoft.core.tslib.av.metainfo.IAvMetaConstants.*;
 import static org.toxsoft.uskat.sysext.alarms.api.filters.ISkResources.*;
-import static ru.toxsoft.tslib.datavalue.impl.DvUtils.*;
 
+import org.toxsoft.core.tslib.av.EAtomicType;
+import org.toxsoft.core.tslib.av.impl.AvUtils;
+import org.toxsoft.core.tslib.av.metainfo.IDataDef;
+import org.toxsoft.core.tslib.bricks.filter.ITsFilter;
+import org.toxsoft.core.tslib.gw.skid.Skid;
 import org.toxsoft.uskat.sysext.alarms.api.ISkAlarm;
 import org.toxsoft.uskat.sysext.alarms.impl.SkAlarmUtils;
-
-import ru.toxsoft.tslib.datavalue.EAtomicType;
-import ru.toxsoft.tslib.greenworld.skid.Skid;
-import ru.toxsoft.tslib.patterns.opinfo.AtomicOptionInfo;
-import ru.toxsoft.tslib.patterns.opinfo.IAtomicOptionInfo;
-import ru.toxsoft.tslib.polyfilter.ISingleFilter;
 
 /**
  * Фильтр по полю {@link ISkAlarm#authorId()}.
@@ -20,7 +21,7 @@ import ru.toxsoft.tslib.polyfilter.ISingleFilter;
  * @author goga
  */
 public interface ISkAlarmFilterByAuthorObjId
-    extends ISingleFilter {
+    extends ITsFilter<ISkAlarm> {
 
   /**
    * Идентификатор фильтра.
@@ -34,8 +35,11 @@ public interface ISkAlarmFilterByAuthorObjId
    * Значение по умолчанию: {@link Skid#NONE}<br>
    * Соответствует полю {@link #authorId()}
    */
-  IAtomicOptionInfo AUTHOR_ID_CONST = new AtomicOptionInfo( "AuthorId", //$NON-NLS-1$
-      STR_D_LVF_AUTHOR_OBJ_ID_CONST, STR_N_LVF_AUTHOR_OBJ_ID_CONST, EAtomicType.VALOBJ, avValobj( Skid.NONE ), true );
+  IDataDef AUTHOR_ID_CONST = create( "AuthorId", EAtomicType.VALOBJ, // //$NON-NLS-1$
+      TSID_NAME, STR_N_LVF_AUTHOR_OBJ_ID_CONST, //
+      TSID_DESCRIPTION, STR_D_LVF_AUTHOR_OBJ_ID_CONST, //
+      TSID_IS_NULL_ALLOWED, AV_FALSE, //
+      TSID_DEFAULT_VALUE, AvUtils.avValobj( Skid.NONE ) );
 
   /**
    * Возвращает идентификатор, с которым сравнивается идентификатор объекта - автора тревоги.
@@ -52,6 +56,6 @@ public interface ISkAlarmFilterByAuthorObjId
    * В кчестве аргумента метод принимает ссылки на {@link ISkAlarm}.
    */
   @Override
-  boolean accept( Object aElement );
+  boolean accept( ISkAlarm aElement );
 
 }
