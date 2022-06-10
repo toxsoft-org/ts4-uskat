@@ -4,21 +4,18 @@ import static org.toxsoft.core.tslib.av.metainfo.IAvMetaConstants.*;
 import static org.toxsoft.uskat.classes.IS5ClassNode.*;
 import static org.toxsoft.uskat.classes.IS5ClassServer.*;
 import static org.toxsoft.uskat.classes.impl.IS5Resources.*;
-import static ru.uskat.common.dpu.impl.IDpuHardConstants.*;
 
-import org.toxsoft.core.tslib.av.impl.AvUtils;
 import org.toxsoft.core.tslib.av.opset.impl.OptionSetUtils;
 import org.toxsoft.core.tslib.coll.helpers.CollConstraint;
 import org.toxsoft.core.tslib.coll.primtypes.impl.SingleStringList;
 import org.toxsoft.core.tslib.gw.IGwHardConstants;
 import org.toxsoft.core.tslib.utils.errors.TsNullArgumentRtException;
 import org.toxsoft.uskat.classes.*;
-
-import ru.uskat.common.dpu.impl.DpuSdClassInfo;
-import ru.uskat.common.dpu.impl.DpuSdLinkInfo;
-import ru.uskat.core.ISkCoreApi;
-import ru.uskat.core.api.objserv.ISkObjectService;
-import ru.uskat.core.api.sysdescr.ISkClassInfoManager;
+import org.toxsoft.uskat.core.ISkCoreApi;
+import org.toxsoft.uskat.core.api.objserv.ISkObjectService;
+import org.toxsoft.uskat.core.api.sysdescr.ISkSysdescr;
+import org.toxsoft.uskat.core.impl.dto.DtoClassInfo;
+import org.toxsoft.uskat.core.impl.dto.DtoLinkInfo;
 
 /**
  * Константы пакета
@@ -35,13 +32,13 @@ public class S5ClassUtils {
    * <p>
    * Классы объектов связи: {@link IS5ClassServer#CLASS_ID}.
    */
-  private static final DpuSdLinkInfo LNKINF_NODE_SERVER = DpuSdLinkInfo.create1( //
+  private static final DtoLinkInfo LNKINF_NODE_SERVER = DtoLinkInfo.create1( //
       IS5ClassNode.LNKID_SERVER, //
-      DDEF_NAME, STR_N_LINK_NODE_SERVER, //
-      DDEF_DESCRIPTION, STR_D_LINK_NODE_SERVER, //
-      OP_RIGHT_CLASS_IDS, AvUtils.avValobj( new SingleStringList( CLASS_SERVER ) ), //
-      OP_LINK_CONSTRAINT, AvUtils.avValobj( new CollConstraint( 1, true, true, true ) )//
-  );
+      new SingleStringList( CLASS_SERVER ), //
+      new CollConstraint( 1, true, true, true ), //
+      OptionSetUtils.createOpSet( //
+          DDEF_NAME, STR_N_LINK_NODE_SERVER, //
+          DDEF_DESCRIPTION, STR_D_LINK_NODE_SERVER ) );
 
   // ------------------------------------------------------------------------------------
   // {@link IS5ClassBackend}
@@ -51,13 +48,14 @@ public class S5ClassUtils {
    * <p>
    * Классы объектов связи: {@link IS5ClassServer#CLASS_ID}.
    */
-  private static final DpuSdLinkInfo LNKINF_BACKEND_NODE = DpuSdLinkInfo.create1( //
+  private static final DtoLinkInfo LNKINF_BACKEND_NODE = DtoLinkInfo.create1( //
       IS5ClassBackend.LNKID_NODE, //
-      DDEF_NAME, STR_N_LINK_BACKEND_NODE, //
-      DDEF_DESCRIPTION, STR_D_LINK_BACKEND_NODE, //
-      OP_RIGHT_CLASS_IDS, AvUtils.avValobj( new SingleStringList( CLASS_NODE ) ), //
-      OP_LINK_CONSTRAINT, AvUtils.avValobj( new CollConstraint( 1, true, true, true ) )//
-  );
+      new SingleStringList( CLASS_NODE ), //
+      new CollConstraint( 1, true, true, true ), //
+      OptionSetUtils.createOpSet( //
+          DDEF_NAME, STR_N_LINK_BACKEND_NODE, //
+          DDEF_DESCRIPTION, STR_D_LINK_BACKEND_NODE //
+      ) );
 
   // ------------------------------------------------------------------------------------
   // {@link IS5ClassHistorableBackend}
@@ -73,26 +71,28 @@ public class S5ClassUtils {
    */
   public static void createS5Classes( ISkCoreApi aCoreApi ) {
     TsNullArgumentRtException.checkNull( aCoreApi );
-
-    ISkClassInfoManager cm = aCoreApi.sysdescr().classInfoManager();
-
+    ISkSysdescr cm = aCoreApi.sysdescr();
     // IS5ClassServer
     if( cm.findClassInfo( IS5ClassServer.CLASS_ID ) == null ) {
-      DpuSdClassInfo sci = new DpuSdClassInfo( IS5ClassServer.CLASS_ID, IGwHardConstants.GW_ROOT_CLASS_ID );
-      sci.params().addAll( OptionSetUtils.createOpSet( //
-          DDEF_NAME, STR_N_CLASS_SERVER, //
-          DDEF_DESCRIPTION, STR_D_CLASS_SERVER //
-      ) );
+      DtoClassInfo sci = new DtoClassInfo( //
+          IS5ClassServer.CLASS_ID, //
+          IGwHardConstants.GW_ROOT_CLASS_ID, //
+          OptionSetUtils.createOpSet( //
+              DDEF_NAME, STR_N_CLASS_SERVER, //
+              DDEF_DESCRIPTION, STR_D_CLASS_SERVER //
+          ) );
       cm.defineClass( sci );
     }
 
     // IS5ClassNode
     if( cm.findClassInfo( IS5ClassNode.CLASS_ID ) == null ) {
-      DpuSdClassInfo sci = new DpuSdClassInfo( IS5ClassNode.CLASS_ID, IGwHardConstants.GW_ROOT_CLASS_ID );
-      sci.params().addAll( OptionSetUtils.createOpSet( //
-          DDEF_NAME, STR_N_CLASS_NODE, //
-          DDEF_DESCRIPTION, STR_D_CLASS_NODE //
-      ) );
+      DtoClassInfo sci = new DtoClassInfo( //
+          IS5ClassNode.CLASS_ID, //
+          IGwHardConstants.GW_ROOT_CLASS_ID, //
+          OptionSetUtils.createOpSet( //
+              DDEF_NAME, STR_N_CLASS_NODE, //
+              DDEF_DESCRIPTION, STR_D_CLASS_NODE //
+          ) );
       sci.linkInfos().addAll( //
           LNKINF_NODE_SERVER //
       );
@@ -101,11 +101,13 @@ public class S5ClassUtils {
 
     // IS5ClassBackend
     if( cm.findClassInfo( IS5ClassBackend.CLASS_ID ) == null ) {
-      DpuSdClassInfo sci = new DpuSdClassInfo( IS5ClassBackend.CLASS_ID, IGwHardConstants.GW_ROOT_CLASS_ID );
-      sci.params().addAll( OptionSetUtils.createOpSet( //
-          DDEF_NAME, STR_N_CLASS_BACKEND, //
-          DDEF_DESCRIPTION, STR_D_CLASS_BACKEND //
-      ) );
+      DtoClassInfo sci = new DtoClassInfo( //
+          IS5ClassBackend.CLASS_ID, //
+          IGwHardConstants.GW_ROOT_CLASS_ID, //
+          OptionSetUtils.createOpSet( //
+              DDEF_NAME, STR_N_CLASS_BACKEND, //
+              DDEF_DESCRIPTION, STR_D_CLASS_BACKEND //
+          ) );
       sci.linkInfos().addAll( //
           LNKINF_BACKEND_NODE //
       );
@@ -114,11 +116,12 @@ public class S5ClassUtils {
 
     // IS5ClassHistorableBackend
     if( cm.findClassInfo( IS5ClassHistorableBackend.CLASS_ID ) == null ) {
-      DpuSdClassInfo sci = new DpuSdClassInfo( IS5ClassHistorableBackend.CLASS_ID, IS5ClassBackend.CLASS_ID );
-      sci.params().addAll( OptionSetUtils.createOpSet( //
-          DDEF_NAME, STR_N_CLASS_HISTORABLE_BACKEND, //
-          DDEF_DESCRIPTION, STR_D_CLASS_HISTORABLE_BACKEND //
-      ) );
+      DtoClassInfo sci = new DtoClassInfo( //
+          IS5ClassHistorableBackend.CLASS_ID, //
+          IS5ClassBackend.CLASS_ID, OptionSetUtils.createOpSet( //
+              DDEF_NAME, STR_N_CLASS_HISTORABLE_BACKEND, //
+              DDEF_DESCRIPTION, STR_D_CLASS_HISTORABLE_BACKEND //
+          ) );
       cm.defineClass( sci );
     }
   }

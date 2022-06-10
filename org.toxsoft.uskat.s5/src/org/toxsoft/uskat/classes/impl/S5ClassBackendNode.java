@@ -8,10 +8,9 @@ import org.toxsoft.core.tslib.bricks.strio.IStrioReader;
 import org.toxsoft.core.tslib.bricks.strio.IStrioWriter;
 import org.toxsoft.core.tslib.gw.skid.Skid;
 import org.toxsoft.uskat.classes.IS5ClassNode;
-
-import ru.uskat.core.common.skobject.ISkObject;
-import ru.uskat.core.common.skobject.ISkObjectCreator;
-import ru.uskat.core.impl.SkObject;
+import org.toxsoft.uskat.core.api.objserv.ISkObject;
+import org.toxsoft.uskat.core.api.objserv.ISkObjectCreator;
+import org.toxsoft.uskat.core.impl.SkObject;
 
 /**
  * Реализация {@link IS5ClassNode} как {@link ISkObject}.
