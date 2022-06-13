@@ -78,32 +78,10 @@ class MtbBaEvents
   // implementation
   //
 
-  private boolean isNeededEvent( SkEvent aEvent, IGwidList aNeededGwids ) {
+  private static boolean isNeededEvent( SkEvent aEvent, IGwidList aNeededGwids ) {
     for( Gwid g : aNeededGwids ) {
-      switch( g.kind() ) {
-        case GW_CLASS: {
-          // abstract: any event of interested class will be accepted
-          if( g.isAbstract() ) {
-            if( g.classId().equals( aEvent.eventGwid().classId() ) ) {
-              return true;
-            }
-          }
-          // concrete: any event of interested object will be accepted
-          else {
-            if( g.skid().equals( aEvent.eventGwid().skid() ) ) {
-
-            }
-          }
-          break;
-        }
-
-        case GW_EVENT: {
-
-          break;
-        }
-        // $CASES-OMITTED$
-        default:
-          break;
+      if( GwidUtils.covers( g, aEvent.eventGwid() ) ) {
+        return true;
       }
     }
     return false;
