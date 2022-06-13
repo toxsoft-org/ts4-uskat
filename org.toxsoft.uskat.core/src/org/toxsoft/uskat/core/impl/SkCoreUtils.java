@@ -13,6 +13,7 @@ import org.toxsoft.core.tslib.gw.*;
 import org.toxsoft.core.tslib.gw.skid.*;
 import org.toxsoft.core.tslib.utils.valobj.*;
 import org.toxsoft.uskat.core.api.evserv.*;
+import org.toxsoft.uskat.core.api.rtdserv.*;
 import org.toxsoft.uskat.core.connection.*;
 import org.toxsoft.uskat.core.impl.dto.*;
 
@@ -28,6 +29,7 @@ public class SkCoreUtils {
    */
   public static void initialize() {
     TsValobjUtils.registerKeeper( SkEvent.KEEPER_ID, SkEvent.KEEPER );
+    TsValobjUtils.registerKeeper( EQueryState.KEEPER_ID, EQueryState.KEEPER );
   }
 
   /**
