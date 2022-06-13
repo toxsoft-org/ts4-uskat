@@ -12,10 +12,12 @@ import org.toxsoft.core.tslib.av.opset.impl.*;
 import org.toxsoft.core.tslib.gw.*;
 import org.toxsoft.core.tslib.gw.skid.*;
 import org.toxsoft.core.tslib.utils.valobj.*;
+import org.toxsoft.uskat.core.api.cmdserv.*;
 import org.toxsoft.uskat.core.api.evserv.*;
 import org.toxsoft.uskat.core.api.rtdserv.*;
 import org.toxsoft.uskat.core.connection.*;
 import org.toxsoft.uskat.core.impl.dto.*;
+import org.toxsoft.uskat.core.utils.*;
 
 /**
  * Point of entry to the USkat and some methods used by CoreAPI implementation also useful for users.
@@ -30,6 +32,7 @@ public class SkCoreUtils {
   public static void initialize() {
     TsValobjUtils.registerKeeper( SkEvent.KEEPER_ID, SkEvent.KEEPER );
     TsValobjUtils.registerKeeper( EQueryState.KEEPER_ID, EQueryState.KEEPER );
+    TsValobjUtils.registerKeeper( SkCommandState.KEEPER_ID, SkCommandState.KEEPER );
   }
 
   /**

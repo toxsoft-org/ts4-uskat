@@ -1,5 +1,6 @@
 package org.toxsoft.uskat.core.impl;
 
+import org.toxsoft.core.tslib.av.opset.*;
 import org.toxsoft.core.tslib.bricks.ctx.*;
 import org.toxsoft.core.tslib.bricks.events.*;
 import org.toxsoft.core.tslib.coll.*;
@@ -54,6 +55,18 @@ public class SkCoreServRtdata
 
   @Override
   public ITsEventer<ISkCurrDataChangeListener> eventer() {
+    // TODO Auto-generated method stub
+    return null;
+  }
+
+  @Override
+  public ISkHistDataQuery createQuery( IOptionSet aOptions ) {
+    // TODO Auto-generated method stub
+    return null;
+  }
+
+  @Override
+  public IMap<Gwid, ISkWriteHistDataChannel> createWriteHistDataChannels( IGwidList aGwids ) {
     // TODO Auto-generated method stub
     return null;
   }
