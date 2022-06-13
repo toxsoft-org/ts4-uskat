@@ -60,14 +60,11 @@ public class SkAlarmFilterByAuthorObjId
   }
 
   @Override
-  public boolean accept( Object aElement ) {
+  public boolean accept( ISkAlarm aElement ) {
     if( aElement == null ) {
       throw new TsNullArgumentRtException();
     }
-    if( aElement instanceof ISkAlarm skAlarm ) {
-      return skAlarm.authorId().equals( authorId() );
-    }
-    throw new TsIllegalArgumentRtException( ERR_NON_ALARM_INPUT_OBJ, FILTER_ID );
+    return aElement.authorId().equals( authorId() );
   }
 
   // ------------------------------------------------------------------------------------

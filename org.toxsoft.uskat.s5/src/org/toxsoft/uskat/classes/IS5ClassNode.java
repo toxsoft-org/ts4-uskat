@@ -1,8 +1,7 @@
 package org.toxsoft.uskat.classes;
 
+import org.toxsoft.uskat.core.api.objserv.ISkObject;
 import org.toxsoft.uskat.s5.server.IS5ServerHardConstants;
-
-import ru.uskat.core.common.skobject.ISkObject;
 
 /**
  * Класс s5: узел кластера сервера.

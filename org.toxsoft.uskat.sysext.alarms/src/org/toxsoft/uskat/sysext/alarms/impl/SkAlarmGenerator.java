@@ -4,7 +4,7 @@ import static org.toxsoft.uskat.sysext.alarms.impl.ISkResources.*;
 
 import java.util.function.Predicate;
 
-import org.toxsoft.core.log4j.Logger;
+import org.toxsoft.core.log4j.LoggerWrapper;
 import org.toxsoft.core.tslib.av.IAtomicValue;
 import org.toxsoft.core.tslib.bricks.strid.coll.IStridablesList;
 import org.toxsoft.core.tslib.bricks.strid.coll.IStridablesListEdit;
@@ -40,7 +40,7 @@ class SkAlarmGenerator
   private final IStridablesListEdit<ISkAlarmDataProvider> providers;
   private final boolean                                   providersAutoClose;
   private final IListEdit<SkAlarmProfile>                 profiles  = new ElemArrayList<>();
-  private final ILogger                                   logger    = Logger.getLogger( getClass() );
+  private final ILogger                                   logger    = LoggerWrapper.getLogger( getClass() );
   private final long                                      startTime = System.currentTimeMillis();
 
   /**
