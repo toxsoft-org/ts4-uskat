@@ -45,11 +45,23 @@ public interface IBackendMemtextConstants {
   );
 
   /**
+   * Min acceptable value of option {@link #OPDEF_MAX_EVENTS_COUNT}.
+   */
+  int MIN_MAX_EVENTS_COUNT = 86_400 / 100;
+
+  /**
+   * Max acceptable value of option {@link #OPDEF_MAX_EVENTS_COUNT}.
+   */
+  int MAX_MAX_EVENTS_COUNT = 365 * 86_400;
+
+  /**
    * Backend arg: maximum number of events in history.
    */
   IDataDef OPDEF_MAX_EVENTS_COUNT = DataDef.create( SKB_ID_MEMTEXT + ".MaxEventsCount", INTEGER, //$NON-NLS-1$
       TSID_NAME, STR_N_MAX_EVENTS_COUNT, //
       TSID_DESCRIPTION, STR_D_MAX_EVENTS_COUNT, //
+      TSID_MIN_INCLUSIVE, avInt( MIN_MAX_EVENTS_COUNT ), //
+      TSID_MAX_INCLUSIVE, avInt( MAX_MAX_EVENTS_COUNT ), //
       TSID_DEFAULT_VALUE, avInt( 86_400 ) //
   );
 

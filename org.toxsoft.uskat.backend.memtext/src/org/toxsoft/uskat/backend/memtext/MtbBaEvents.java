@@ -1,12 +1,22 @@
 package org.toxsoft.uskat.backend.memtext;
 
+import static org.toxsoft.uskat.backend.memtext.IBackendMemtextConstants.*;
+import static org.toxsoft.uskat.core.backend.api.IBaEventsMessages.*;
+
+import org.toxsoft.core.tslib.bricks.events.msg.*;
 import org.toxsoft.core.tslib.bricks.strio.*;
+import org.toxsoft.core.tslib.bricks.strio.impl.*;
 import org.toxsoft.core.tslib.bricks.time.*;
+import org.toxsoft.core.tslib.bricks.time.impl.*;
+import org.toxsoft.core.tslib.coll.*;
+import org.toxsoft.core.tslib.coll.derivative.*;
 import org.toxsoft.core.tslib.gw.gwid.*;
+import org.toxsoft.core.tslib.utils.*;
 import org.toxsoft.core.tslib.utils.errors.*;
 import org.toxsoft.uskat.core.api.evserv.*;
 import org.toxsoft.uskat.core.backend.*;
 import org.toxsoft.uskat.core.backend.api.*;
+import org.toxsoft.uskat.core.impl.*;
 
 /**
  * {@link IBaEvents} implementation.
@@ -17,6 +27,11 @@ class MtbBaEvents
     extends MtbAbstractAddon
     implements IBaEvents {
 
+  private static final String KW_HISTORY = "EventsHistory"; //$NON-NLS-1$
+
+  private final GwidList             gwidsOfIntereset = new GwidList();
+  private final IRingBuffer<SkEvent> eventsHistory;
+
   /**
    * Constructor.
    *
@@ -25,6 +40,9 @@ class MtbBaEvents
    */
   public MtbBaEvents( MtbAbstractBackend aOwner ) {
     super( aOwner, ISkBackendHardConstant.BAINF_EVENTS );
+    int count = OPDEF_MAX_EVENTS_COUNT.getValue( aOwner.argContext().params() ).asInt();
+    count = TsMiscUtils.inRange( count, MIN_MAX_EVENTS_COUNT, MIN_MAX_EVENTS_COUNT );
+    eventsHistory = new RingBuffer<>( count );
   }
 
   // ------------------------------------------------------------------------------------
@@ -43,17 +61,53 @@ class MtbBaEvents
 
   @Override
   protected void doWrite( IStrioWriter aSw ) {
-    // TODO Auto-generated method stub
+    IList<SkEvent> ll = eventsHistory.getItems();
+    StrioUtils.writeCollection( aSw, KW_HISTORY, ll, SkEvent.KEEPER, true );
   }
 
   @Override
   protected void doRead( IStrioReader aSr ) {
-    // TODO Auto-generated method stub
+    IList<SkEvent> ll = StrioUtils.readCollection( aSr, KW_HISTORY, SkEvent.KEEPER );
+    eventsHistory.clear();
+    for( SkEvent e : ll ) {
+      eventsHistory.put( e );
+    }
   }
 
   // ------------------------------------------------------------------------------------
   // implementation
   //
+
+  private boolean isNeededEvent( SkEvent aEvent, IGwidList aNeededGwids ) {
+    for( Gwid g : aNeededGwids ) {
+      switch( g.kind() ) {
+        case GW_CLASS: {
+          // abstract: any event of interested class will be accepted
+          if( g.isAbstract() ) {
+            if( g.classId().equals( aEvent.eventGwid().classId() ) ) {
+              return true;
+            }
+          }
+          // concrete: any event of interested object will be accepted
+          else {
+            if( g.skid().equals( aEvent.eventGwid().skid() ) ) {
+
+            }
+          }
+          break;
+        }
+
+        case GW_EVENT: {
+
+          break;
+        }
+        // $CASES-OMITTED$
+        default:
+          break;
+      }
+    }
+    return false;
+  }
 
   // ------------------------------------------------------------------------------------
   // IBaLinks
@@ -61,20 +115,45 @@ class MtbBaEvents
 
   @Override
   public void fireEvents( ISkEventList aEvents ) {
-    // TODO Auto-generated method stub
-
+    TsNullArgumentRtException.checkNull( aEvents );
+    // remember history
+    for( SkEvent e : aEvents ) {
+      eventsHistory.put( e );
+    }
+    // make list of events of interest
+    SkEventList eventList = new SkEventList();
+    for( SkEvent e : aEvents ) {
+      if( isNeededEvent( e, gwidsOfIntereset ) ) {
+        if( isNeededEvent( e, gwidsOfIntereset ) ) {
+          eventList.add( e );
+        }
+      }
+    }
+    // put messages to the frontends back
+    if( !eventList.isEmpty() ) {
+      GtMessage msg = makeMessage( aEvents );
+      owner().frontend().onBackendMessage( msg );
+    }
   }
 
   @Override
   public void subscribeToEvents( IGwidList aNeededGwids ) {
-    // TODO Auto-generated method stub
-
+    TsNullArgumentRtException.checkNulls( aNeededGwids );
+    gwidsOfIntereset.setAll( aNeededGwids );
   }
 
   @Override
   public ITimedList<SkEvent> queryEvents( IQueryInterval aInterval, IGwidList aNeededGwids ) {
-    // TODO Auto-generated method stub
-    return null;
+    TsNullArgumentRtException.checkNulls( aInterval, aNeededGwids );
+    TimedList<SkEvent> result = new TimedList<>();
+    for( SkEvent e : eventsHistory.getItems() ) {
+      if( TimeUtils.contains( aInterval, e.timestamp() ) ) {
+        if( isNeededEvent( e, aNeededGwids ) ) {
+          result.add( e );
+        }
+      }
+    }
+    return result;
   }
 
 }

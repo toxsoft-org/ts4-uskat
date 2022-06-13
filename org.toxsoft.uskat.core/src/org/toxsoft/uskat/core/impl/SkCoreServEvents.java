@@ -44,7 +44,8 @@ public class SkCoreServEvents
 
   }
 
-  private final History                             history     = new History();
+  private final History history = new History();
+
   private final IMapEdit<ISkEventHandler, GwidList> handlersMap = new ElemMap<>();
 
   /**
