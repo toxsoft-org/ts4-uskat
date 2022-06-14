@@ -335,18 +335,19 @@ class SkCoreServSysdescr
 
   private void internalRefreshCacheIfNeeded() {
     if( cacheIsInvalid ) {
-      // localized list of DTOs tree starting from the root class
-      IStridablesList<IDtoClassInfo> llClassDtos = coreApi().l10n().l10nClassInfos( loadValidListOfClassDtos() );
-      // make list of SkClassInfo tree starting from the root class
-      cachedClassesList.clear();
-      for( IDtoClassInfo cdto : llClassDtos ) {
-        SkClassInfo cinf = new SkClassInfo( cdto, cachedClassesList.findByKey( cdto.parentId() ), llClassDtos );
-        cachedClassesList.add( cinf );
+      // load DTOs from backend
+      IStridablesList<IDtoClassInfo> loadedDtos = new StridablesList<>( ba().baClasses().readClassInfos() );
+      // validate DTOs
+      ValResList vrl = new ValResList();
+      IStridablesList<IDtoClassInfo> validDtos = SkCoreUtils.makeHierarchyTreeOfClassDtos( loadedDtos, vrl );
+      for( ValidationResult vr : vrl.results() ) {
+        vr.logTo( logger() );
       }
-      // finish SkCLassInfo instance initialiation
-      for( ISkClassInfo cinf : cachedClassesList ) {
-        ((SkClassInfo)cinf).papiInitClassHierarchy( cachedClassesList );
-      }
+      // localize DTOs
+      IStridablesList<IDtoClassInfo> localizedDtos = coreApi().l10n().l10nClassInfos( validDtos );
+      // make SkClassInfos
+      IStridablesList<ISkClassInfo> skClasses = SkCoreUtils.makeHierarchyTreeOfSkClasses( localizedDtos );
+      cachedClassesList.setAll( skClasses );
       cacheIsInvalid = false;
     }
   }

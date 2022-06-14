@@ -15,7 +15,6 @@ import org.toxsoft.core.tslib.bricks.validator.*;
 import org.toxsoft.core.tslib.bricks.validator.impl.*;
 import org.toxsoft.core.tslib.gw.*;
 import org.toxsoft.core.tslib.gw.skid.*;
-import org.toxsoft.core.tslib.utils.errors.*;
 import org.toxsoft.core.tslib.utils.valobj.*;
 import org.toxsoft.uskat.core.api.cmdserv.*;
 import org.toxsoft.uskat.core.api.evserv.*;
@@ -144,26 +143,26 @@ public class SkCoreUtils {
    * Invalid (with duplicated properties) and orphan (outside of hierarchy tree) classes are ignored but meassages
    * logged to <code>aLog</code>.
    *
-   * @param aClassDtos {@link IStridablesListEdit}&lt;{@link IDtoClassInfo}&gt; - source list
+   * @param aClassDtos {@link IStridablesList}&lt;{@link IDtoClassInfo}&gt; - source list
    * @param aLog {@link ValResList} - log to collect warning and error messages or <code>null</code>
    * @return {@link IStridablesListEdit}&lt;{@link IDtoClassInfo}&gt; - valid hierarchy tree classes list
    */
-  public static IStridablesList<IDtoClassInfo> makeHierarchyTreeOfClassDtos(
-      IStridablesListEdit<IDtoClassInfo> aClassDtos, ValResList aLog ) {
-    TsNullArgumentRtException.checkNull( aClassDtos );
+  public static IStridablesList<IDtoClassInfo> makeHierarchyTreeOfClassDtos( IStridablesList<IDtoClassInfo> aClassDtos,
+      ValResList aLog ) {
+    IStridablesListEdit<IDtoClassInfo> argDtos = new StridablesList<>( aClassDtos );
     // make list without orphans
     IStridablesListEdit<IDtoClassInfo> llResult = new StridablesList<>();
     IDtoClassInfo rootClassDto = SkCoreUtils.createRootClassDto();
     llResult.add( rootClassDto ); // add root class in the llResult
-    aClassDtos.removeByKey( rootClassDto.id() );
+    argDtos.removeByKey( rootClassDto.id() );
     // now we have only root class, let us move all descendant tree from dtoList to llResult
     int addCount = 0;
     do {
       addCount = 0;
       // add direct childs of the added classes
-      for( IDtoClassInfo dto : aClassDtos ) {
+      for( IDtoClassInfo dto : argDtos ) {
         if( llResult.keys().hasElem( dto.parentId() ) ) {
-          aClassDtos.removeByKey( dto.id() ); // remove from source even it will not be added to llResult
+          argDtos.removeByKey( dto.id() ); // remove from source even it will not be added to llResult
           ++addCount;
           // check that DTO to be added is valid
           ValidationResult vr = validateToUseClass( rootClassDto, llResult );
@@ -180,7 +179,7 @@ public class SkCoreUtils {
     } while( addCount > 0 ); // while nothing was added
     // warn if there were orphan classes in the loaded list
     if( aLog != null ) {
-      for( String orphanId : aClassDtos.keys() ) {
+      for( String orphanId : argDtos.keys() ) {
         aLog.add( ValidationResult.warn( FMT_WARN_ORPHAN_CLASS, orphanId ) );
       }
     }
@@ -190,14 +189,14 @@ public class SkCoreUtils {
   /**
    * Builds class infos hierarchy tree from supplyed list of class DTOs.
    * <p>
-   * Method implementation uses {@link #makeHierarchyTreeOfClassDtos(IStridablesListEdit, ValResList)} to prepare valid
-   * list of DTOs. Note thst some classes from source list may be silently ommited from resulting list.
+   * Method implementation uses {@link #makeHierarchyTreeOfClassDtos(IStridablesList, ValResList)} to prepare valid list
+   * of DTOs. Note thst some classes from source list may be silently ommited from resulting list.
    *
    * @param aClassDtos {@link IStridablesListEdit}&lt;{@link IDtoClassInfo}&gt; - source list
    * @return {@link IStridablesListEdit}&lt;{@link ISkClassInfo}&gt; - valid hierarchy tree classes list
    */
-  public static IStridablesList<ISkClassInfo> makeHierarchyTreeOfClassInfos(
-      IStridablesListEdit<IDtoClassInfo> aClassDtos ) {
+  public static IStridablesList<ISkClassInfo> makeHierarchyTreeOfSkClasses(
+      IStridablesList<IDtoClassInfo> aClassDtos ) {
     IStridablesList<IDtoClassInfo> classDtos = makeHierarchyTreeOfClassDtos( aClassDtos, null );
     IStridablesListEdit<ISkClassInfo> ll = new StridablesList<>();
     // make list of SkClassInfo tree starting from the root class
