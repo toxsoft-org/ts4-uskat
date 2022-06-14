@@ -9,15 +9,21 @@ import static org.toxsoft.uskat.core.impl.ISkResources.*;
 import org.toxsoft.core.tslib.av.impl.*;
 import org.toxsoft.core.tslib.av.opset.*;
 import org.toxsoft.core.tslib.av.opset.impl.*;
+import org.toxsoft.core.tslib.bricks.strid.coll.*;
+import org.toxsoft.core.tslib.bricks.strid.coll.impl.*;
+import org.toxsoft.core.tslib.bricks.validator.*;
+import org.toxsoft.core.tslib.bricks.validator.impl.*;
 import org.toxsoft.core.tslib.gw.*;
 import org.toxsoft.core.tslib.gw.skid.*;
+import org.toxsoft.core.tslib.utils.errors.*;
 import org.toxsoft.core.tslib.utils.valobj.*;
 import org.toxsoft.uskat.core.api.cmdserv.*;
 import org.toxsoft.uskat.core.api.evserv.*;
 import org.toxsoft.uskat.core.api.rtdserv.*;
+import org.toxsoft.uskat.core.api.sysdescr.*;
+import org.toxsoft.uskat.core.api.sysdescr.dto.*;
 import org.toxsoft.uskat.core.connection.*;
 import org.toxsoft.uskat.core.impl.dto.*;
-import org.toxsoft.uskat.core.utils.*;
 
 /**
  * Point of entry to the USkat and some methods used by CoreAPI implementation also useful for users.
@@ -45,7 +51,7 @@ public class SkCoreUtils {
   }
 
   // ------------------------------------------------------------------------------------
-  // FIXME where to place this methods?
+  // Classes & hierarchy
   //
 
   /**
@@ -96,6 +102,114 @@ public class SkCoreUtils {
     // AID_DESCRIPTION
     dpuRoot.attrInfos().add( DtoAttrInfo.create1( AID_DESCRIPTION, DDEF_DESCRIPTION, IOptionSet.NULL ) );
     return dpuRoot;
+  }
+
+  /**
+   * Checks if class to be used does not violates Sysdescr integrity.
+   * <p>
+   * Check is preformed if <code>aClassDto</code> duplicates any property from any superclass.
+   *
+   * @param aClassDto {@link IDtoClassInfo} - info about class to be used in Sysdescr
+   * @param aAncestors {@link IStridablesList}&lt;{@link IDtoClassInfo}&gt; - list wilh all ansestors
+   * @return ValidationResult - check result
+   */
+  private static ValidationResult validateToUseClass( IDtoClassInfo aClassDto,
+      IStridablesList<IDtoClassInfo> aAncestors ) {
+    // check that properties in the class to use does not duplicates ancestors properties
+    IDtoClassInfo parent = aAncestors.findByKey( aClassDto.parentId() );
+    while( parent != null ) {
+      for( ESkClassPropKind k : ESkClassPropKind.asList() ) {
+        IStridablesList<?> thisProps = aClassDto.propInfos( k );
+        IStridablesList<?> parentProps = parent.propInfos( k );
+        for( String propId : thisProps.ids() ) {
+          if( parentProps.ids().hasElem( propId ) ) {
+            return ValidationResult.error( FMT_ERR_INV_CLASS_LOAD_IGNORED, aClassDto.id(), k.id(), propId,
+                parent.id() );
+          }
+        }
+      }
+      parent = aAncestors.findByKey( parent.parentId() );
+    }
+    return ValidationResult.SUCCESS;
+  }
+
+  /**
+   * Extracts valid class hierarchy tree from the argument list.
+   * <p>
+   * <b>Hierarchy tree</b> means that resulting list contains the root class and it's subclasses tree. Root class DTO
+   * will be created by {@link #createRootClassDto()}.
+   * <p>
+   * <b>Valid</b> means that class properties are valid, no duplicates exits in hierarchy tree.
+   * <p>
+   * Invalid (with duplicated properties) and orphan (outside of hierarchy tree) classes are ignored but meassages
+   * logged to <code>aLog</code>.
+   *
+   * @param aClassDtos {@link IStridablesListEdit}&lt;{@link IDtoClassInfo}&gt; - source list
+   * @param aLog {@link ValResList} - log to collect warning and error messages or <code>null</code>
+   * @return {@link IStridablesListEdit}&lt;{@link IDtoClassInfo}&gt; - valid hierarchy tree classes list
+   */
+  public static IStridablesList<IDtoClassInfo> makeHierarchyTreeOfClassDtos(
+      IStridablesListEdit<IDtoClassInfo> aClassDtos, ValResList aLog ) {
+    TsNullArgumentRtException.checkNull( aClassDtos );
+    // make list without orphans
+    IStridablesListEdit<IDtoClassInfo> llResult = new StridablesList<>();
+    IDtoClassInfo rootClassDto = SkCoreUtils.createRootClassDto();
+    llResult.add( rootClassDto ); // add root class in the llResult
+    aClassDtos.removeByKey( rootClassDto.id() );
+    // now we have only root class, let us move all descendant tree from dtoList to llResult
+    int addCount = 0;
+    do {
+      addCount = 0;
+      // add direct childs of the added classes
+      for( IDtoClassInfo dto : aClassDtos ) {
+        if( llResult.keys().hasElem( dto.parentId() ) ) {
+          aClassDtos.removeByKey( dto.id() ); // remove from source even it will not be added to llResult
+          ++addCount;
+          // check that DTO to be added is valid
+          ValidationResult vr = validateToUseClass( rootClassDto, llResult );
+          if( !vr.isError() ) {
+            llResult.add( dto );
+          }
+          else {
+            if( aLog != null ) {
+              aLog.add( vr );
+            }
+          }
+        }
+      }
+    } while( addCount > 0 ); // while nothing was added
+    // warn if there were orphan classes in the loaded list
+    if( aLog != null ) {
+      for( String orphanId : aClassDtos.keys() ) {
+        aLog.add( ValidationResult.warn( FMT_WARN_ORPHAN_CLASS, orphanId ) );
+      }
+    }
+    return llResult;
+  }
+
+  /**
+   * Builds class infos hierarchy tree from supplyed list of class DTOs.
+   * <p>
+   * Method implementation uses {@link #makeHierarchyTreeOfClassDtos(IStridablesListEdit, ValResList)} to prepare valid
+   * list of DTOs. Note thst some classes from source list may be silently ommited from resulting list.
+   *
+   * @param aClassDtos {@link IStridablesListEdit}&lt;{@link IDtoClassInfo}&gt; - source list
+   * @return {@link IStridablesListEdit}&lt;{@link ISkClassInfo}&gt; - valid hierarchy tree classes list
+   */
+  public static IStridablesList<ISkClassInfo> makeHierarchyTreeOfClassInfos(
+      IStridablesListEdit<IDtoClassInfo> aClassDtos ) {
+    IStridablesList<IDtoClassInfo> classDtos = makeHierarchyTreeOfClassDtos( aClassDtos, null );
+    IStridablesListEdit<ISkClassInfo> ll = new StridablesList<>();
+    // make list of SkClassInfo tree starting from the root class
+    for( IDtoClassInfo cdto : classDtos ) {
+      SkClassInfo cinf = new SkClassInfo( cdto, ll.findByKey( cdto.parentId() ), classDtos );
+      ll.add( cinf );
+    }
+    // finish SkCLassInfo instance initialiation
+    for( ISkClassInfo cinf : ll ) {
+      ((SkClassInfo)cinf).papiInitClassHierarchy( ll );
+    }
+    return ll;
   }
 
   /**

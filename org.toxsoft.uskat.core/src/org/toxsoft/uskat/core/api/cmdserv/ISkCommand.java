@@ -5,7 +5,6 @@ import org.toxsoft.core.tslib.bricks.time.*;
 import org.toxsoft.core.tslib.bricks.time.impl.*;
 import org.toxsoft.core.tslib.gw.gwid.*;
 import org.toxsoft.core.tslib.gw.skid.*;
-import org.toxsoft.uskat.core.utils.*;
 
 /**
  * Команда.
@@ -28,7 +27,7 @@ public interface ISkCommand
     extends ITemporal<ISkCommand> {
 
   /**
-   * Returns an unique in system command instance identifier.
+   * Returns an unique command instance identifier.
    * <p>
    * This ID is unique among all command of all time in the particular system.
    *

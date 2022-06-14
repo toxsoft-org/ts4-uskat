@@ -8,6 +8,7 @@ import org.toxsoft.core.tslib.coll.*;
 import org.toxsoft.core.tslib.gw.gwid.*;
 import org.toxsoft.core.tslib.utils.*;
 import org.toxsoft.core.tslib.utils.errors.*;
+import org.toxsoft.uskat.core.*;
 
 /**
  * Query to the historic (strored) data.
@@ -31,6 +32,17 @@ import org.toxsoft.core.tslib.utils.errors.*;
  */
 public interface ISkHistDataQuery
     extends IGenericChangeEventCapable, ICloseable {
+
+  /**
+   * Returns an unique query instance identifier.
+   * <p>
+   * This ID is unique among all queries of all time in the particular system.
+   * <p>
+   * Query ID is not used by {@link ISkCoreApi} directly however it is useful for some other maintenance service.
+   *
+   * @return String - identifier (an IDpath) of the query instance
+   */
+  String queryId();
 
   /**
    * Returns current query state.
