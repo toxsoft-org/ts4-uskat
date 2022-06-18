@@ -118,6 +118,39 @@ public class MtbBaLinks
   }
 
   // ------------------------------------------------------------------------------------
+  // Package API
+  //
+
+  @Override
+  void papiRemoveEntitiesOfClassIdsBeforeSave( IStringList aClassIds ) {
+    /**
+     * We'll remove left objects of specified classes, not the abstract links of specified classes.
+     */
+    // however if any abstract link will remain with empty content in #linksMap it will be removed
+    IListEdit<Gwid> abstrcatLinksToRemoveDueToAnEmptyContent = new ElemArrayList<>();
+    for( Gwid abstractLink : linksMap.keys() ) {
+      IMapEdit<Skid, IDtoLinkFwd> map = linksMap.getByKey( abstractLink );
+      // remove from map all SKIDs of specified classes
+      IListEdit<Skid> skidsToRemove = new ElemLinkedBundleList<>();
+      for( Skid skid : map.keys() ) {
+        if( aClassIds.hasElem( skid.classId() ) ) {
+          skidsToRemove.add( skid );
+        }
+      }
+      for( Skid skid : skidsToRemove ) {
+        map.removeByKey( skid );
+      }
+      if( map.isEmpty() ) {
+        abstrcatLinksToRemoveDueToAnEmptyContent.add( abstractLink );
+      }
+    }
+    // remove (if any) empty values for abstract link GWIDs in #linksMap
+    for( Gwid g : abstrcatLinksToRemoveDueToAnEmptyContent ) {
+      linksMap.removeByKey( g );
+    }
+  }
+
+  // ------------------------------------------------------------------------------------
   // implementation
   //
 

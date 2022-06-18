@@ -8,6 +8,7 @@ import org.toxsoft.core.tslib.bricks.strio.*;
 import org.toxsoft.core.tslib.bricks.strio.impl.*;
 import org.toxsoft.core.tslib.coll.*;
 import org.toxsoft.core.tslib.coll.impl.*;
+import org.toxsoft.core.tslib.coll.primtypes.*;
 import org.toxsoft.core.tslib.gw.gwid.*;
 import org.toxsoft.core.tslib.utils.errors.*;
 import org.toxsoft.uskat.core.backend.*;
@@ -59,6 +60,23 @@ class MtbBaClobs
   protected void doRead( IStrioReader aSr ) {
     clobsMap.clear();
     StrioUtils.readMap( aSr, KW_CLOB_DATA, Gwid.KEEPER, StringKeeper.KEEPER, clobsMap );
+  }
+
+  @Override
+  void papiRemoveEntitiesOfClassIdsBeforeSave( IStringList aClassIds ) {
+    // determine which CLOBs to remove
+    IListEdit<Gwid> gwidsToRemove = new ElemLinkedBundleList<>();
+    for( String cid : aClassIds ) {
+      for( Gwid g : clobsMap.keys() ) {
+        if( g.classId().equals( cid ) ) {
+          gwidsToRemove.add( g );
+        }
+      }
+    }
+    // remove CLOBs
+    for( Gwid g : gwidsToRemove ) {
+      clobsMap.removeByKey( g );
+    }
   }
 
   // ------------------------------------------------------------------------------------

@@ -34,6 +34,9 @@ public class MtbBaObjects
    * cache is NOT saved to storage
    */
 
+  /**
+   * Objects as map "class ID" - "object SKID" - "object data"
+   */
   private final IStringMapEdit<IMapEdit<Skid, IDtoObject>> objsMap = new StringMap<>( 157 );
 
   /**
@@ -111,6 +114,17 @@ public class MtbBaObjects
       }
     }
     objsMap.setAll( allMap );
+  }
+
+  // ------------------------------------------------------------------------------------
+  // Package API
+  //
+
+  @Override
+  void papiRemoveEntitiesOfClassIdsBeforeSave( IStringList aClassIds ) {
+    for( String cid : aClassIds ) {
+      objsMap.removeByKey( cid );
+    }
   }
 
   // ------------------------------------------------------------------------------------

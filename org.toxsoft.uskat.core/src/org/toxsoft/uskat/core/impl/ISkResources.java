@@ -111,6 +111,11 @@ interface ISkResources {
   String FMT_ERR_INV_CLASS_LOAD_IGNORED    = "Class '%s' ignored: %s '%s' is already declared in class '%s'";
 
   /**
+   * {@link SkCoreServUsers}
+   */
+  String MSG_ERR_PSWD_IS_BLANK = "Не допускается пустой пароль";
+
+  /**
    * {@link SkCoreUtils}
    */
   String STR_N_ROOT_CLASS    = "Корневой класс";

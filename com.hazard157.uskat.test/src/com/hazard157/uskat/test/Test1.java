@@ -87,7 +87,7 @@ public class Test1
     // objects - models
     DtoObject dtoObj = new DtoObject( new Skid( CID_MODEL_GIRL, "marablake" ), IOptionSet.NULL, IStringMap.EMPTY );
     dtoObj.attrs().setStr( AID_NAME, "Mara Blake" );
-    Skid skidMaraBlake = dtoObj.skid();
+    // Skid skidMaraBlake = dtoObj.skid();
     skObjServ().defineObject( dtoObj );
     //
     dtoObj = new DtoObject( new Skid( CID_MODEL_GIRL, "ryana" ), IOptionSet.NULL, IStringMap.EMPTY );

@@ -66,11 +66,19 @@ public interface ISkObject
   /**
    * Returns the object string identifier.
    * <p>
-   * Always returns {@link Skid#strid() skid().strid()}.
+   * For anyISkObject {@link #id()} and {@link #strid()} returns the same value as {@link Skid#strid() skid().strid()}.
    *
    * @return String - the object strid
    */
   String strid();
+
+  /**
+   * For anyISkObject {@link #id()} and {@link #strid()} returns the same value as {@link Skid#strid() skid().strid()}.
+   * <p>
+   * {@inheritDoc}
+   */
+  @Override
+  String id();
 
   /**
    * Returns human-readable short name of the object.

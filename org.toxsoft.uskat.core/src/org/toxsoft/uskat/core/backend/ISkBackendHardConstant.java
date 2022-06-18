@@ -71,6 +71,20 @@ public interface ISkBackendHardConstant {
   );
 
   // ------------------------------------------------------------------------------------
+  // IBaCommands
+
+  String BAID_COMMANDS = SKB_ID + ".Commands"; //$NON-NLS-1$
+
+  IStridable BAINF_COMMANDS = new Stridable( BAID_COMMANDS, STR_N_BA_COMMANDS, STR_D_BA_COMMANDS );
+
+  // ------------------------------------------------------------------------------------
+  // IBaLinks
+
+  String BAID_RTDATA = SKB_ID + ".RTdata"; //$NON-NLS-1$
+
+  IStridable BAINF_RTDATA = new Stridable( BAID_RTDATA, STR_N_BA_RTDATA, STR_D_BA_RTDATA );
+
+  // ------------------------------------------------------------------------------------
   // IBaLinks
 
   String BAID_LINKS = SKB_ID + ".Links"; //$NON-NLS-1$

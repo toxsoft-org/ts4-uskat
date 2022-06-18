@@ -67,6 +67,11 @@ class MtbBaClasses
     DtoClassInfo.KEEPER.readColl( aSr, classInfos );
   }
 
+  @Override
+  void papiRemoveEntitiesOfClassIdsBeforeSave( IStringList aClassIds ) {
+    // nop - class definitions shall not be removed!
+  }
+
   // ------------------------------------------------------------------------------------
   // IBaClasses
   //

@@ -60,6 +60,9 @@ public interface ISkUser
    * <p>
    * Usually hidden users are system components such as local servers connected to main one, or control boxes directly
    * connected to servers.
+   * <p>
+   * This is just a hint - user service soes not uses this flag. It's up to application to hide users with
+   * {@link #isHidden()} flags.
    *
    * @return boolean - <code>true</code> if user is visible not for system administrator, only for developer
    */

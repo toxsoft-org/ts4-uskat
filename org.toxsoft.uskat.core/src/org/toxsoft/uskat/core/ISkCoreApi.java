@@ -11,6 +11,7 @@ import org.toxsoft.uskat.core.api.linkserv.*;
 import org.toxsoft.uskat.core.api.objserv.*;
 import org.toxsoft.uskat.core.api.rtdserv.*;
 import org.toxsoft.uskat.core.api.sysdescr.*;
+import org.toxsoft.uskat.core.api.users.*;
 import org.toxsoft.uskat.core.impl.*;
 
 /**
@@ -34,16 +35,53 @@ public interface ISkCoreApi {
    */
   ISkObjectService objService();
 
+  /**
+   * Returns the CLOB service.
+   *
+   * @return {@link ISkClobService} - the CLOB service
+   */
   ISkClobService clobService();
 
+  /**
+   * Returns the command service.
+   *
+   * @return {@link ISkCommandService} - the command service
+   */
   ISkCommandService cmdService();
 
+  /**
+   * Reurns the event service.
+   *
+   * @return {@link ISkEventService} - the event service
+   */
   ISkEventService eventService();
 
+  /**
+   * Returns the link service.
+   *
+   * @return {@link ISkLinkService} - the link service
+   */
   ISkLinkService linkService();
 
+  /**
+   * Returns the RTdata service.
+   *
+   * @return {@link ISkRtdataService} - the RTdata service
+   */
   ISkRtdataService rtdService();
 
+  /**
+   * Returns the user service.
+   *
+   * @return {@link ISkUserService} - the user service
+   */
+  ISkUserService userService();
+
+  /**
+   * Returns the GWID service - helper methods collection to work with GWIDs in context of this system.
+   *
+   * @return {@link ISkGwidService} - the GWID service
+   */
   ISkGwidService gwidService();
 
   // ------------------------------------------------------------------------------------

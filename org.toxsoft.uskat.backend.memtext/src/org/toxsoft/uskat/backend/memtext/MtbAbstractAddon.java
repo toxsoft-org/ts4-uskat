@@ -7,6 +7,7 @@ import org.toxsoft.core.tslib.bricks.strid.*;
 import org.toxsoft.core.tslib.bricks.strio.*;
 import org.toxsoft.core.tslib.bricks.strio.impl.*;
 import org.toxsoft.core.tslib.coll.basis.*;
+import org.toxsoft.core.tslib.coll.primtypes.*;
 import org.toxsoft.core.tslib.utils.*;
 import org.toxsoft.core.tslib.utils.errors.*;
 import org.toxsoft.uskat.core.backend.api.*;
@@ -83,6 +84,25 @@ public abstract class MtbAbstractAddon
 
     doRead( aSr );
     aSr.ensureChar( CHAR_SET_END );
+  }
+
+  // ------------------------------------------------------------------------------------
+  // Package API
+  //
+
+  /**
+   * Implementation must remove entitites related to the specified class IDs from the memory.
+   * <p>
+   * This method is called immediately before last save to the storage and implements MemText backend ability not to
+   * store garbage objects in the premanent storage (like connection session objects). However, saves during normal
+   * works will save all objects.
+   * <p>
+   * Method in base class does nothing there is no need to call superclass method when overriding.
+   *
+   * @param aClassIds {@link IStringList} - list of entities class IDs to be removed
+   */
+  void papiRemoveEntitiesOfClassIdsBeforeSave( IStringList aClassIds ) {
+    // nop
   }
 
   // ------------------------------------------------------------------------------------

@@ -10,6 +10,8 @@ import org.toxsoft.core.tslib.bricks.time.*;
 import org.toxsoft.core.tslib.bricks.time.impl.*;
 import org.toxsoft.core.tslib.coll.*;
 import org.toxsoft.core.tslib.coll.derivative.*;
+import org.toxsoft.core.tslib.coll.impl.*;
+import org.toxsoft.core.tslib.coll.primtypes.*;
 import org.toxsoft.core.tslib.gw.gwid.*;
 import org.toxsoft.core.tslib.utils.*;
 import org.toxsoft.core.tslib.utils.errors.*;
@@ -85,6 +87,26 @@ class MtbBaEvents
       }
     }
     return false;
+  }
+
+  // ------------------------------------------------------------------------------------
+  // Package API
+  //
+
+  @Override
+  void papiRemoveEntitiesOfClassIdsBeforeSave( IStringList aClassIds ) {
+    // retrieve from buffer event that shall remain in storage
+    IListEdit<SkEvent> eventsToRemain = new ElemLinkedBundleList<>();
+    while( !eventsHistory.isEmpty() ) {
+      SkEvent e = eventsHistory.get();
+      if( aClassIds.hasElem( e.eventGwid().classId() ) ) {
+        eventsToRemain.add( e );
+      }
+    }
+    // put back remained events to buffer
+    for( SkEvent e : eventsToRemain ) {
+      eventsHistory.put( e );
+    }
   }
 
   // ------------------------------------------------------------------------------------

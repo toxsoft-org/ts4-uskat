@@ -30,13 +30,13 @@ public abstract class MtbAbstractBackend
   private final ITsContextRo    argContext;
   private final ISkFrontendRear frontend;
 
-  private final MtbBaClasses baClasses;
-  private final MtbBaObjects baObjects;
-  private final MtbBaClobs   baClobs;
-  private final MtbBaLinks   baLinks;
-  private final MtbBaEvents  baEvents;
-  // private final MtbBaRtdata baRtdata;
-  // private final MtbBaCommands baCommands;
+  private final MtbBaClasses  baClasses;
+  private final MtbBaObjects  baObjects;
+  private final MtbBaClobs    baClobs;
+  private final MtbBaLinks    baLinks;
+  private final MtbBaEvents   baEvents;
+  private final MtbBaRtdata   baRtdata;
+  private final MtbBaCommands baCommands;
 
   private final IStringMapEdit<MtbAbstractAddon> allAddons = new StringMap<>();
 
@@ -76,7 +76,10 @@ public abstract class MtbAbstractBackend
     allAddons.put( baLinks.id(), baLinks );
     baEvents = new MtbBaEvents( this );
     allAddons.put( baEvents.id(), baEvents );
-    // TODO other addons
+    baRtdata = new MtbBaRtdata( this );
+    allAddons.put( baRtdata.id(), baRtdata );
+    baCommands = new MtbBaCommands( this );
+    allAddons.put( baCommands.id(), baCommands );
     backendInfo = new SkBackendInfo( aBackendId, System.currentTimeMillis(), aBackendInfoValue );
   }
 
@@ -112,15 +115,6 @@ public abstract class MtbAbstractBackend
     }
   }
 
-  private void removeObjectsOfNonStoredClassIds( IStringList aNotStoredObjClassIds ) {
-    // TODO remove object not to be stored
-    // TODO ??? remove right objects of this class from links
-    // TODO remove clobs of the removed objects
-    // TODO remove links of the removed objects
-    // TODO remove rtdata of the removed objects
-    // TODO remove events & commands histroy of the removed objects
-  }
-
   // ------------------------------------------------------------------------------------
   // ICloseable
   //
@@ -130,7 +124,9 @@ public abstract class MtbAbstractBackend
     IStringList notStoredObjClassIds =
         IBackendMemtextConstants.OPDEF_NOT_STORED_OBJ_CLASS_IDS.getValue( argContext().params() ).asValobj();
     if( !notStoredObjClassIds.isEmpty() ) {
-      removeObjectsOfNonStoredClassIds( notStoredObjClassIds );
+      for( MtbAbstractAddon a : allAddons ) {
+        a.papiRemoveEntitiesOfClassIdsBeforeSave( notStoredObjClassIds );
+      }
     }
     for( int i = allAddons.size() - 1; i >= 0; i-- ) {
       allAddons.values().get( i ).close();
@@ -208,14 +204,12 @@ public abstract class MtbAbstractBackend
 
   @Override
   public IBaRtdata baRtdata() {
-    // TODO реализовать MtbAbstractBackend.baRtdata()
-    throw new TsUnderDevelopmentRtException( "MtbAbstractBackend.baRtdata()" );
+    return baRtdata;
   }
 
   @Override
   public IBaCommands baCommands() {
-    // TODO реализовать MtbAbstractBackend.baCommands()
-    throw new TsUnderDevelopmentRtException( "MtbAbstractBackend.baCommands()" );
+    return baCommands;
   }
 
   @Override
