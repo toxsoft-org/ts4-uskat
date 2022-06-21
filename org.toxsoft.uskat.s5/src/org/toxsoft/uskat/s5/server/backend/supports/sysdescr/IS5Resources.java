@@ -39,6 +39,8 @@ interface IS5Resources {
   String MSG_ERR_DATA_ALREADY_EXIST         = Messages.getString( "IS5Resources.MSG_ERR_DATA_ALREADY_EXIST" );         //$NON-NLS-1$
   String MSG_ERR_CMD_ALREADY_EXIST          = Messages.getString( "IS5Resources.MSG_ERR_CMD_ALREADY_EXIST" );          //$NON-NLS-1$
   String MSG_ERR_EVENT_ALREADY_EXIST        = Messages.getString( "IS5Resources.MSG_ERR_EVENT_ALREADY_EXIST" );        //$NON-NLS-1$
+  String MSG_ERR_RIVET_ALREADY_EXIST        = Messages.getString( "IS5Resources.MSG_ERR_RIVET_ALREADY_EXIST" );        //$NON-NLS-1$
+  String MSG_ERR_CLOB_ALREADY_EXIST         = Messages.getString( "IS5Resources.MSG_ERR_CLOB_ALREADY_EXIST" );         //$NON-NLS-1$
 
   String ERR_MSG_TYPE_NOT_FOUND  = Messages.getString( "IS5Resources.ERR_MSG_TYPE_NOT_FOUND" );  //$NON-NLS-1$
   String ERR_MSG_CLASS_NOT_FOUND = Messages.getString( "IS5Resources.ERR_MSG_CLASS_NOT_FOUND" ); //$NON-NLS-1$
