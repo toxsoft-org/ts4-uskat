@@ -5,8 +5,7 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 import org.toxsoft.core.tslib.bricks.time.*;
 import org.toxsoft.core.tslib.gw.gwid.IGwidList;
 import org.toxsoft.core.tslib.utils.errors.TsNullArgumentRtException;
-
-import ru.uskat.core.common.helpers.ITemporalsHistory;
+import org.toxsoft.uskat.core.utils.ITemporalsHistory;
 
 /**
  * Синхронизация доступа к {@link ITemporalsHistory} (декоратор)

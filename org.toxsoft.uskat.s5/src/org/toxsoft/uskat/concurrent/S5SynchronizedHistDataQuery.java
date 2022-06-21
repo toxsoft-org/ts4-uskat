@@ -2,7 +2,6 @@ package org.toxsoft.uskat.concurrent;
 
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
-import org.toxsoft.core.tslib.av.opset.IOptionSet;
 import org.toxsoft.core.tslib.av.temporal.ITemporalAtomicValue;
 import org.toxsoft.core.tslib.bricks.events.change.IGenericChangeEventer;
 import org.toxsoft.core.tslib.bricks.time.IQueryInterval;
@@ -11,9 +10,8 @@ import org.toxsoft.core.tslib.coll.IMap;
 import org.toxsoft.core.tslib.gw.gwid.Gwid;
 import org.toxsoft.core.tslib.gw.gwid.IGwidList;
 import org.toxsoft.core.tslib.utils.errors.TsNullArgumentRtException;
-
-import ru.uskat.core.api.rtdata.EQueryState;
-import ru.uskat.core.api.rtdata.ISkHistDataQuery;
+import org.toxsoft.uskat.core.api.rtdserv.EQueryState;
+import org.toxsoft.uskat.core.api.rtdserv.ISkHistDataQuery;
 
 /**
  * Синхронизация доступа к {@link ISkHistDataQuery} (декоратор)
@@ -62,6 +60,16 @@ public final class S5SynchronizedHistDataQuery
   // ------------------------------------------------------------------------------------
   // ISkHistDataQuery
   //
+  @Override
+  public String queryId() {
+    lockWrite( this );
+    try {
+      return target().queryId();
+    }
+    finally {
+      unlockWrite( this );
+    }
+  }
 
   @Override
   public void close() {
@@ -87,21 +95,10 @@ public final class S5SynchronizedHistDataQuery
   }
 
   @Override
-  public IOptionSet options() {
+  public IGwidList prepare( IGwidList aGwids ) {
     lockWrite( this );
     try {
-      return target().options();
-    }
-    finally {
-      unlockWrite( this );
-    }
-  }
-
-  @Override
-  public void prepare( IGwidList aGwids ) {
-    lockWrite( this );
-    try {
-      target().prepare( aGwids );
+      return target().prepare( aGwids );
     }
     finally {
       unlockWrite( this );
@@ -135,28 +132,6 @@ public final class S5SynchronizedHistDataQuery
     lockWrite( this );
     try {
       return target().result();
-    }
-    finally {
-      unlockWrite( this );
-    }
-  }
-
-  @Override
-  public int errorCode() {
-    lockWrite( this );
-    try {
-      return target().errorCode();
-    }
-    finally {
-      unlockWrite( this );
-    }
-  }
-
-  @Override
-  public String errorMessage() {
-    lockWrite( this );
-    try {
-      return target().errorMessage();
     }
     finally {
       unlockWrite( this );

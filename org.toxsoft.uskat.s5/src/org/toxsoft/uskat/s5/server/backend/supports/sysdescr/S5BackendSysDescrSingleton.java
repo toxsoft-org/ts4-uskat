@@ -5,7 +5,6 @@ import static org.toxsoft.uskat.s5.common.IS5CommonResources.*;
 import static org.toxsoft.uskat.s5.server.IS5ImplementConstants.*;
 import static org.toxsoft.uskat.s5.server.backend.supports.sysdescr.IS5ClassesInterceptor.*;
 import static org.toxsoft.uskat.s5.server.backend.supports.sysdescr.IS5Resources.*;
-import static org.toxsoft.uskat.s5.server.backend.supports.sysdescr.IS5TypesInterceptor.*;
 import static org.toxsoft.uskat.s5.server.backend.supports.sysdescr.S5ClassEntity.*;
 import static org.toxsoft.uskat.s5.server.backend.supports.sysdescr.S5ClassesSQL.*;
 import static org.toxsoft.uskat.s5.server.transactions.ES5TransactionResources.*;
@@ -17,17 +16,23 @@ import javax.ejb.*;
 import javax.persistence.*;
 
 import org.hibernate.exception.ConstraintViolationException;
+import org.toxsoft.core.tslib.bricks.events.msg.GtMessage;
 import org.toxsoft.core.tslib.bricks.strid.IStridable;
 import org.toxsoft.core.tslib.bricks.strid.coll.IStridablesList;
 import org.toxsoft.core.tslib.bricks.strid.coll.IStridablesListEdit;
 import org.toxsoft.core.tslib.bricks.strid.coll.impl.StridablesList;
 import org.toxsoft.core.tslib.bricks.strid.impl.StridUtils;
-import org.toxsoft.core.tslib.bricks.time.ITimedListEdit;
-import org.toxsoft.core.tslib.bricks.time.impl.TimedList;
 import org.toxsoft.core.tslib.coll.IList;
+import org.toxsoft.core.tslib.coll.helpers.ECrudOp;
 import org.toxsoft.core.tslib.coll.primtypes.IStringList;
+import org.toxsoft.core.tslib.coll.primtypes.IStringListEdit;
+import org.toxsoft.core.tslib.coll.primtypes.impl.StringLinkedBundleList;
 import org.toxsoft.core.tslib.utils.TsLibUtils;
 import org.toxsoft.core.tslib.utils.errors.*;
+import org.toxsoft.uskat.core.api.sysdescr.dto.IDtoClassInfo;
+import org.toxsoft.uskat.core.backend.api.IBaClassesMessages;
+import org.toxsoft.uskat.core.impl.dto.DtoClassInfo;
+import org.toxsoft.uskat.s5.common.sysdescr.ISkSysdescrReader;
 import org.toxsoft.uskat.s5.server.backend.impl.S5BackendSupportSingleton;
 import org.toxsoft.uskat.s5.server.backend.supports.objects.IS5BackendObjectsSingleton;
 import org.toxsoft.uskat.s5.server.frontend.IS5FrontendRear;
@@ -35,13 +40,6 @@ import org.toxsoft.uskat.s5.server.interceptors.S5InterceptorSupport;
 import org.toxsoft.uskat.s5.server.startup.IS5InitialImplementSingleton;
 import org.toxsoft.uskat.s5.server.transactions.IS5Transaction;
 import org.toxsoft.uskat.s5.server.transactions.IS5TransactionManagerSingleton;
-
-import ru.uskat.backend.messages.SkMessageWhenSysdescrChanged;
-import ru.uskat.common.dpu.IDpuSdClassInfo;
-import ru.uskat.common.dpu.IDpuSdTypeInfo;
-import ru.uskat.common.dpu.impl.DpuSdClassInfo;
-import ru.uskat.common.dpu.rt.events.SkEvent;
-import ru.uskat.core.common.helpers.sysdescr.ISkSysdescrReader;
 
 /**
  * Реализация {@link IS5BackendObjectsSingleton}.
@@ -83,11 +81,6 @@ public class S5BackendSysDescrSingleton
   private IS5InitialImplementSingleton backendConfig;
 
   /**
-   * Поддержка интерсепторов операций проводимых над типами
-   */
-  private final S5InterceptorSupport<IS5TypesInterceptor> typesInterceptors = new S5InterceptorSupport<>();
-
-  /**
    * Поддержка интерсепторов операций проводимых над классами
    */
   private final S5InterceptorSupport<IS5ClassesInterceptor> classesInterceptors = new S5InterceptorSupport<>();
@@ -112,10 +105,8 @@ public class S5BackendSysDescrSingleton
     IS5BackendSysDescrSingleton sysdescr = sessionContext().getBusinessObject( IS5BackendSysDescrSingleton.class );
     sysdescrReader = new S5BackendSysdescrReader( entityManager, sysdescr );
     // Регистрация на получение извещений об изменениях системного описания
-    addTypeInterceptor( sysdescrReader, 100 );
     addClassInterceptor( sysdescrReader, 100 );
     // Инициализация читателя, далее обновления будут проводиться через интерсепцию
-    sysdescrReader.setTypeInfos( S5BackendSysdescrReader.detach( entityManager, readTypeInfos() ) );
     sysdescrReader.setClassInfos( S5BackendSysdescrReader.detach( entityManager, readClassInfos() ) );
     // Проверка существования корневого класса
     S5ClassEntity rootClass = entityManager.find( S5ClassEntity.class, GW_ROOT_CLASS_ID );
@@ -149,20 +140,6 @@ public class S5BackendSysDescrSingleton
 
   @Override
   @TransactionAttribute( TransactionAttributeType.SUPPORTS )
-  public void addTypeInterceptor( IS5TypesInterceptor aInterceptor, int aPriority ) {
-    TsNullArgumentRtException.checkNull( aInterceptor );
-    typesInterceptors.add( aInterceptor, aPriority );
-  }
-
-  @Override
-  @TransactionAttribute( TransactionAttributeType.SUPPORTS )
-  public void removeTypeInterceptor( IS5TypesInterceptor aInterceptor ) {
-    TsNullArgumentRtException.checkNull( aInterceptor );
-    typesInterceptors.remove( aInterceptor );
-  }
-
-  @Override
-  @TransactionAttribute( TransactionAttributeType.SUPPORTS )
   public void addClassInterceptor( IS5ClassesInterceptor aInterceptor, int aPriority ) {
     TsNullArgumentRtException.checkNull( aInterceptor );
     classesInterceptors.add( aInterceptor, aPriority );
@@ -186,81 +163,11 @@ public class S5BackendSysDescrSingleton
   //
   @Override
   @TransactionAttribute( TransactionAttributeType.SUPPORTS )
-  public IStridablesList<IDpuSdTypeInfo> readTypeInfos() {
-    // Выполнение запроса
-    TypedQuery<S5TypeEntity> query = entityManager.createNamedQuery( QUERY_NAME_GET_TYPES, S5TypeEntity.class );
-    List<S5TypeEntity> entities = query.getResultList();
-    IStridablesListEdit<IDpuSdTypeInfo> retValue = new StridablesList<>();
-    for( S5TypeEntity entity : entities ) {
-      retValue.add( entity );
-    }
-    return retValue;
-  }
-
-  @Override
-
-  @Lock( LockType.WRITE )
-  @TransactionAttribute( TransactionAttributeType.REQUIRED )
-  public void writeTypeInfos( IStringList aRemoveTypeIdsOrNull, IList<IDpuSdTypeInfo> aNewlyDefinedTypeInfos ) {
-    TsNullArgumentRtException.checkNull( aNewlyDefinedTypeInfos );
-    // Время начала выполнения запроса
-    // long currTime = System.currentTimeMillis();
-    // Запрос всех классов зарегистрированных в системе
-    @SuppressWarnings( "unchecked" )
-    IStridablesListEdit<S5ClassEntity> allClassInfos =
-        new StridablesList<>( (IStridablesList<S5ClassEntity>)(Object)sysdescrReader.readClassInfos() );
-    // Список событий сформированный при выполнении запроса
-    ITimedListEdit<SkEvent> events = new TimedList<>();
-    // Список идентификаторов удаляемых типов
-    IStringList removeTypeIds = aRemoveTypeIdsOrNull;
-    if( removeTypeIds == null ) {
-      removeTypeIds = sysdescrReader.readTypeInfos().ids();
-    }
-    // Удаление типов
-    for( String typeId : removeTypeIds ) {
-      // Список классов зависимых от типа
-      IStridablesList<IDpuSdClassInfo> dc = getClassesDependsFromType( allClassInfos, typeId );
-      if( dc.size() > 0 ) {
-        // Запрещено удалять тип данных используемый для описания классов системы
-        throw new TsIllegalArgumentRtException( MSG_ERR_HAS_TYPE_DEPENDENT_CLASSES, typeId, toString( dc ) );
-      }
-      if( sysdescrReader.findType( typeId ) != null && deleteType( typeId ) ) {
-        // Тип найден и удален. Формирование события
-        // TODO: сформировать событие
-        // eventService().fireEvent( createEvent( currTime, null, null ) );
-      }
-    }
-    // Добавление/обновление типов
-    for( IDpuSdTypeInfo typeInfo : aNewlyDefinedTypeInfos ) {
-      // Идентификатор типа
-      String typeId = typeInfo.id();
-      // Предыдущее определение типа. null: новый тип
-      IDpuSdTypeInfo prevTypeInfo = sysdescrReader.readTypeInfos().findByKey( typeId );
-      if( prevTypeInfo != null && prevTypeInfo.equals( typeInfo ) ) {
-        // Определение типа не изменилось
-        continue;
-      }
-      // 2021-01-27 mvk в sitrol-tm справочники создают новые типы данных, не понятно почему был отключен код
-      // Список классов зависимых от типа
-      IStridablesList<IDpuSdClassInfo> dc = getClassesDependsFromType( allClassInfos, typeId );
-      // Попытка создать или обновить тип
-      boolean created = defineType( typeInfo, dc );
-      // TODO: сформировать событие используя флаг created
-      // eventService().fireEvent( createEvent( currTime, null, null ) );
-    }
-    if( events.size() > 0 ) {
-      // Отправление события для frontend
-      fireWhenSysdescrChanged( backend().attachedFrontends() );
-    }
-  }
-
-  @Override
-  @TransactionAttribute( TransactionAttributeType.SUPPORTS )
-  public IStridablesList<IDpuSdClassInfo> readClassInfos() {
+  public IStridablesList<IDtoClassInfo> readClassInfos() {
     // Выполнение запроса
     TypedQuery<S5ClassEntity> query = entityManager.createNamedQuery( QUERY_NAME_GET_CLASSES, S5ClassEntity.class );
     List<S5ClassEntity> entities = query.getResultList();
-    IStridablesListEdit<IDpuSdClassInfo> retValue = new StridablesList<>();
+    IStridablesListEdit<IDtoClassInfo> retValue = new StridablesList<>();
     for( S5ClassEntity entity : entities ) {
       // TODO: в SkClassInfoManager.loadBackend поднимается ошибка если передавать root-класс. Это нормально???
       if( !entity.parentId().equals( TsLibUtils.EMPTY_STRING ) ) {
@@ -273,7 +180,7 @@ public class S5BackendSysDescrSingleton
   @Lock( LockType.WRITE )
   @Override
   @TransactionAttribute( TransactionAttributeType.REQUIRED )
-  public void writeClassInfos( IStringList aRemoveClassIdsOrNull, IStridablesList<IDpuSdClassInfo> aUpdateClassInfos ) {
+  public void writeClassInfos( IStringList aRemoveClassIdsOrNull, IStridablesList<IDtoClassInfo> aUpdateClassInfos ) {
     TsNullArgumentRtException.checkNull( aUpdateClassInfos );
     // Время начала выполнения запроса
     // long currTime = System.currentTimeMillis();
@@ -282,148 +189,81 @@ public class S5BackendSysDescrSingleton
     IStridablesListEdit<S5ClassEntity> allClassInfos =
         new StridablesList<>( (IStridablesList<S5ClassEntity>)(Object)sysdescrReader.readClassInfos() );
     // Список описаний удаляемых классов в порядке сначала потомок, потом родитель
-    IStridablesList<IDpuSdClassInfo> removeClassInfos =
+    IStridablesList<IDtoClassInfo> removeClassInfos =
         orderByDependencies( filterClassInfos( allClassInfos, aRemoveClassIdsOrNull ) );
-    // Признак необходимости оповещения frontend об изменениях
-    boolean needFrontendNotify = false;
+    // Список идентификаторов удаленных классов
+    IStringListEdit removeClassIds = new StringLinkedBundleList();
+    // Список идентификаторов удаленных классов
+    IStringListEdit newClassIds = new StringLinkedBundleList();
+    // Список идентификаторов обновленных классов
+    IStringListEdit updateClassIds = new StringLinkedBundleList();
+
     // Удаление классов в порядке сначала удаляется потомок, потом родитель
     for( int index = removeClassInfos.size() - 1; index >= 0; index-- ) {
       String classId = removeClassInfos.get( index ).id();
       // Список классов зависимых от удаляемого класса
-      IStridablesList<IDpuSdClassInfo> dc = getDescendantClasses( allClassInfos, classId );
+      IStridablesList<IDtoClassInfo> dc = getDescendantClasses( allClassInfos, classId );
       if( dc.size() > 0 ) {
         // Запрещено удалять класс имеющий классы-потомки
         throw new TsIllegalArgumentRtException( MSG_ERR_HAS_DESCENDANTS, classId, toString( dc ) );
       }
-      if( sysdescrReader.findType( classId ) != null && deleteClass( classId ) ) {
+      if( sysdescrReader.findClassInfo( classId ) != null && deleteClass( classId ) ) {
         // Класс найден и удален
         allClassInfos.removeByKey( classId );
         // Требование оповещения frontend
-        needFrontendNotify = true;
-        // Формирование события
-        // TODO: сформировать событие
-        // eventService().fireEvent( createEvent( currTime, null, null ) );
+        removeClassIds.add( classId );
       }
     }
     // Добавление/обновление классов
-    for( IDpuSdClassInfo classInfo : orderByDependencies( aUpdateClassInfos ) ) {
+    for( IDtoClassInfo classInfo : orderByDependencies( aUpdateClassInfos ) ) {
       // Идентификатор класса
       String classId = classInfo.id();
       // Предыдущее определение типа. null: новый тип
-      IDpuSdClassInfo prevClassInfo = sysdescrReader.readClassInfos().findByKey( classId );
+      IDtoClassInfo prevClassInfo = sysdescrReader.readClassInfos().findByKey( classId );
       if( prevClassInfo != null && prevClassInfo.equals( classInfo ) ) {
         // Определение класса не изменилось
         continue;
       }
       // Список классов зависимых от типа
-      IStridablesList<IDpuSdClassInfo> dc = getDescendantClasses( allClassInfos, classId );
+      IStridablesList<IDtoClassInfo> dc = getDescendantClasses( allClassInfos, classId );
       // Попытка создать или обновить класс
       boolean created = defineClass( classInfo, dc );
       if( created ) {
         allClassInfos.add( entityManager.find( S5ClassEntity.class, classId ) );
+        newClassIds.add( classId );
+        continue;
       }
-      // Требование оповещения frontend
-      needFrontendNotify = true;
-      // TODO: сформировать событие используя флаг created (класс создан или обновлен)
-      // eventService().fireEvent( createEvent( currTime, null, null ) );
+      updateClassIds.add( classId );
     }
-    if( needFrontendNotify ) {
-      // Отправление события для frontend
-      fireWhenSysdescrChanged( backend().attachedFrontends() );
-    }
-  }
+    // Признак необходимости оповещения frontend об изменениях
+    boolean needFrontendNotify = (removeClassIds.size() > 0 || newClassIds.size() > 0 || updateClassIds.size() > 0);
 
-  // ------------------------------------------------------------------------------------
-  // Реализация интерфейса ISkClassHierarchyProvider
-  //
-  @Override
-  @TransactionAttribute( TransactionAttributeType.SUPPORTS )
-  public boolean isAssignableFrom( String aParentClassId, String aChildClassId ) {
-    TsNullArgumentRtException.checkNulls( aParentClassId, aChildClassId );
-    return (aParentClassId.equals( aChildClassId ) || isAncestor( aParentClassId, aChildClassId ));
+    if( needFrontendNotify ) {
+      if( removeClassIds.size() == 1 ) {
+        // Отправление события об удалении класса для frontend
+        fireWhenSysdescrChanged( backend().attachedFrontends(), ECrudOp.REMOVE, removeClassIds.first() );
+      }
+      if( newClassIds.size() == 1 ) {
+        // Отправление события об создании класса для frontend
+        fireWhenSysdescrChanged( backend().attachedFrontends(), ECrudOp.CREATE, newClassIds.first() );
+      }
+      if( updateClassIds.size() == 1 ) {
+        // Отправление события об создании класса для frontend
+        fireWhenSysdescrChanged( backend().attachedFrontends(), ECrudOp.EDIT, updateClassIds.first() );
+      }
+      IStringListEdit allClassIds = new StringLinkedBundleList();
+      allClassIds.addAll( removeClassIds );
+      allClassIds.addAll( newClassIds );
+      allClassIds.addAll( updateClassIds );
+      if( allClassIds.size() > 1 ) {
+        fireWhenSysdescrChanged( backend().attachedFrontends(), ECrudOp.LIST, null );
+      }
+    }
   }
 
   // ------------------------------------------------------------------------------------
   // Внутренние методы
   //
-  /**
-   * Удаление типа
-   *
-   * @param aTypeId String идентификатор типа
-   * @return boolean <b>true</b> тип удален; <b>false</b> тип незарегистрирован в системе
-   * @throws TsNullArgumentRtException аргумент = null
-   */
-  private boolean deleteType( String aTypeId ) {
-    // Проверка контракта
-    StridUtils.checkValidIdPath( aTypeId );
-    try {
-      // Выполнение запроса
-      S5TypeEntity entity = entityManager.find( S5TypeEntity.class, aTypeId );
-      if( entity == null ) {
-        // Тип незарегистрирован в системе
-        return false;
-      }
-      // Пред-интерсепция
-      callBeforeDeleteTypeInteceptors( typesInterceptors, entity );
-      // Удаление
-      entityManager.remove( entity );
-      // Синхронизация с базой данных (возможно появление ConstraintViolationException)
-      entityManager.flush();
-      // Сброс кэша классов
-      sysdescrReader.invalidateCache();
-      // Пост-интерсепция
-      callAfterDeleteTypeInteceptors( typesInterceptors, entity );
-      return true;
-    }
-    catch( PersistenceException e ) {
-      if( e.getCause() instanceof ConstraintViolationException ) {
-        // Обработка исключений по constraints
-        handleConstraintViolations( aTypeId, (ConstraintViolationException)e.getCause() );
-      }
-      // Неизвестное исключение
-      throw e;
-    }
-  }
-
-  /**
-   * Создает или обновляет тип данных
-   *
-   * @param aTypeInfo {@link IDpuSdTypeInfo} описание типа
-   * @param aDependentClasses {@link IList}&lt;IDpuSdClassInfo&gt; список описаний классов зависимых от данного типа
-   * @return boolean <b>true</b> тип был создан; <b>false</b> тип был обновлен
-   * @throws TsNullArgumentRtException любой аргумент = null
-   */
-  private boolean defineType( IDpuSdTypeInfo aTypeInfo, IStridablesList<IDpuSdClassInfo> aDependentClasses ) {
-    TsNullArgumentRtException.checkNulls( aTypeInfo, aDependentClasses );
-    // Выполнение запроса
-    S5TypeEntity newEntity = new S5TypeEntity( aTypeInfo );
-    S5TypeEntity prevEntity = entityManager.find( S5TypeEntity.class, aTypeInfo.id() );
-    if( prevEntity == null ) {
-      // Создание нового типа. Пред-интерсепция
-      callBeforeCreateTypeInteceptors( typesInterceptors, newEntity );
-      // Сохранение в базе данных
-      entityManager.persist( newEntity );
-      // Без вызова запрос будет закэширован до закрытия транзакции и не будет ошибки по ключу
-      entityManager.flush();
-      // Сброс кэша классов
-      sysdescrReader.invalidateCache();
-      // Пост-интерсепция
-      callAfterCreateTypeInteceptors( typesInterceptors, newEntity );
-      return true;
-    }
-    // Обновление существующего типа. Пред-интерсепция
-    callBeforeUpdateTypeInteceptors( typesInterceptors, prevEntity, newEntity, aDependentClasses );
-    // Обновление в базе данных
-    entityManager.merge( newEntity );
-    // Без вызова запрос будет закэширован до закрытия транзакции и не будет ошибки по ключу
-    entityManager.flush();
-    // Сброс кэша классов
-    sysdescrReader.invalidateCache();
-    // Пост-интерсепция
-    callAfterUpdateTypeInteceptors( typesInterceptors, prevEntity, newEntity, aDependentClasses );
-    return false;
-  }
-
   /**
    * Удаление класса
    *
@@ -473,12 +313,12 @@ public class S5BackendSysDescrSingleton
   /**
    * Создает или обновляет класс
    *
-   * @param aClassInfo {@link IDpuSdClassInfo} описание класса
-   * @param aDescendantClasses {@link IList}&lt;IDpuSdClassInfo&gt; классы-наследники (пустой для нового класса)
-   * @return boolean <b>true</b> тип был создан; <b>false</b> класс был обновлен
+   * @param aClassInfo {@link IDtoClassInfo} описание класса
+   * @param aDescendantClasses {@link IList}&lt;IDtoClassInfo&gt; классы-наследники (пустой для нового класса)
+   * @return boolean <b>true</b> класс был создан; <b>false</b> класс был обновлен
    * @throws TsNullArgumentRtException любой аргумент = null
    */
-  private boolean defineClass( IDpuSdClassInfo aClassInfo, IStridablesList<IDpuSdClassInfo> aDescendantClasses ) {
+  private boolean defineClass( IDtoClassInfo aClassInfo, IStridablesList<IDtoClassInfo> aDescendantClasses ) {
     TsNullArgumentRtException.checkNulls( aClassInfo, aDescendantClasses );
     // Выполнение запроса
     S5ClassEntity parent = entityManager.find( S5ClassEntity.class, aClassInfo.parentId() );
@@ -490,8 +330,8 @@ public class S5BackendSysDescrSingleton
     }
     // Описание класса существующее в базе. null: нет в базе
     S5ClassEntity dbEntity = entityManager.find( S5ClassEntity.class, aClassInfo.id() );
-    // DpuSdClassInfo единственная реализация IDpuSdClassInfo
-    DpuSdClassInfo classInfo = (DpuSdClassInfo)aClassInfo;
+    // DtoClassInfo единственная реализация IDtoClassInfo
+    DtoClassInfo classInfo = (DtoClassInfo)aClassInfo;
     // Неизменяемые параметры класса.
     classInfo.params().addAll( backendConfig.impl().projectSpecificCreateClassParams( aClassInfo.id() ).params() );
     // Описание класса с новыми значениями
@@ -544,16 +384,16 @@ public class S5BackendSysDescrSingleton
    *
    * @param aClassInfos {@link IStridablesList}&lt; {@link S5ClassEntity}&lt; список описаний для фильтрации
    * @param aClassIdsOrNull {@link IStringList} список идентификаторов классов (фильтр). null: описания всех классов
-   * @return {@link IStridablesListEdit}&lt;{@link IDpuSdClassInfo}&gt; отфильтрованный список описаний классов
+   * @return {@link IStridablesListEdit}&lt;{@link IDtoClassInfo}&gt; отфильтрованный список описаний классов
    * @throws TsNullArgumentRtException aClassInfos = null
    */
   @SuppressWarnings( "unchecked" )
-  private static IStridablesList<IDpuSdClassInfo> filterClassInfos( IStridablesList<S5ClassEntity> aClassInfos,
+  private static IStridablesList<IDtoClassInfo> filterClassInfos( IStridablesList<S5ClassEntity> aClassInfos,
       IStringList aClassIdsOrNull ) {
     TsNullArgumentRtException.checkNull( aClassInfos );
-    IStridablesListEdit<IDpuSdClassInfo> retValue = new StridablesList<>();
+    IStridablesListEdit<IDtoClassInfo> retValue = new StridablesList<>();
     if( aClassIdsOrNull == null ) {
-      retValue.setAll( (IStridablesList<IDpuSdClassInfo>)(Object)aClassInfos );
+      retValue.setAll( (IStridablesList<IDtoClassInfo>)(Object)aClassInfos );
       return retValue;
     }
     for( S5ClassEntity classInfo : aClassInfos ) {
@@ -568,16 +408,16 @@ public class S5BackendSysDescrSingleton
    * Возвращает указанный список в порядке при котором в начале следуют описания классов которые не зависят от классов
    * которые следуют далее.
    *
-   * @param aInfos {@link IStridablesList}&lt; {@link IDpuSdClassInfo}&gt; список описаний классов
+   * @param aInfos {@link IStridablesList}&lt; {@link IDtoClassInfo}&gt; список описаний классов
    * @return {@link IStridablesList} список классов в требуемом порядке
    * @throws TsNullArgumentRtException любой аргумент = null
    */
-  private static IStridablesList<IDpuSdClassInfo> orderByDependencies( IStridablesList<IDpuSdClassInfo> aInfos ) {
+  private static IStridablesList<IDtoClassInfo> orderByDependencies( IStridablesList<IDtoClassInfo> aInfos ) {
     TsNullArgumentRtException.checkNull( aInfos );
-    IStridablesListEdit<IDpuSdClassInfo> remaining = new StridablesList<>( aInfos );
-    IStridablesListEdit<IDpuSdClassInfo> retValue = new StridablesList<>();
+    IStridablesListEdit<IDtoClassInfo> remaining = new StridablesList<>( aInfos );
+    IStridablesListEdit<IDtoClassInfo> retValue = new StridablesList<>();
     while( remaining.size() > 0 ) {
-      for( IDpuSdClassInfo info : new StridablesList<>( remaining ) ) {
+      for( IDtoClassInfo info : new StridablesList<>( remaining ) ) {
         String parentId = info.parentId();
         if( !remaining.hasKey( parentId ) ) {
           retValue.add( info );
@@ -682,12 +522,15 @@ public class S5BackendSysDescrSingleton
    * Формирование события: произошло изменение описания системы
    *
    * @param aFrontends {@link IS5FrontendRear} список фронтендов подключенных к бекенду
+   * @param aOp {@link ECrudOp} тип операции над классами
+   * @param aClassId String идентификатор класса или null для {@link ECrudOp#LIST}.
    * @throws TsNullArgumentRtException аргумент = null
    */
-  private static void fireWhenSysdescrChanged( IList<IS5FrontendRear> aFrontends ) {
-    TsNullArgumentRtException.checkNull( aFrontends );
+  private static void fireWhenSysdescrChanged( IList<IS5FrontendRear> aFrontends, ECrudOp aOp, String aClassId ) {
+    TsNullArgumentRtException.checkNulls( aFrontends, aOp, aClassId );
+    GtMessage message = IBaClassesMessages.makeMessage( aOp, aClassId );
     for( IS5FrontendRear frontend : aFrontends ) {
-      SkMessageWhenSysdescrChanged.send( frontend );
+      frontend.onBackendMessage( message );
     }
   }
 }

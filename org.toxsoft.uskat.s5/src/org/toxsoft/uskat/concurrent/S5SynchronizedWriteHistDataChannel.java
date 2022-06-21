@@ -6,8 +6,7 @@ import org.toxsoft.core.tslib.av.temporal.ITemporalAtomicValue;
 import org.toxsoft.core.tslib.bricks.time.ITimeInterval;
 import org.toxsoft.core.tslib.bricks.time.ITimedList;
 import org.toxsoft.core.tslib.utils.errors.TsNullArgumentRtException;
-
-import ru.uskat.core.api.rtdata.ISkWriteHistDataChannel;
+import org.toxsoft.uskat.core.api.rtdserv.ISkWriteHistDataChannel;
 
 /**
  * Синхронизация доступа к {@link ISkWriteHistDataChannel} (декоратор)

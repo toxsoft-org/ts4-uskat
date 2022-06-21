@@ -4,8 +4,7 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import org.toxsoft.core.tslib.av.IAtomicValue;
 import org.toxsoft.core.tslib.utils.errors.TsNullArgumentRtException;
-
-import ru.uskat.core.api.rtdata.ISkWriteCurrDataChannel;
+import org.toxsoft.uskat.core.api.rtdserv.ISkWriteCurrDataChannel;
 
 /**
  * Синхронизация доступа к {@link ISkWriteCurrDataChannel} (декоратор)

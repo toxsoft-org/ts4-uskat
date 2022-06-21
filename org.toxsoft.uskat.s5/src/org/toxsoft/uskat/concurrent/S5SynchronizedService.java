@@ -3,8 +3,8 @@ package org.toxsoft.uskat.concurrent;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import org.toxsoft.core.tslib.utils.errors.TsNullArgumentRtException;
-
-import ru.uskat.core.api.ISkService;
+import org.toxsoft.uskat.core.ISkCoreApi;
+import org.toxsoft.uskat.core.api.ISkService;
 
 /**
  * Синхронизация доступа к {@link ISkService} (декоратор)
@@ -35,6 +35,17 @@ public abstract class S5SynchronizedService<T extends ISkService>
     lockWrite( this );
     try {
       return target().serviceId();
+    }
+    finally {
+      unlockWrite( this );
+    }
+  }
+
+  @Override
+  public final ISkCoreApi coreApi() {
+    lockWrite( this );
+    try {
+      return target().coreApi();
     }
     finally {
       unlockWrite( this );

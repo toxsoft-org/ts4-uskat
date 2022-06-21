@@ -13,21 +13,20 @@ import org.toxsoft.core.tslib.coll.primtypes.IStringList;
 import org.toxsoft.core.tslib.utils.TsLibUtils;
 import org.toxsoft.core.tslib.utils.errors.TsItemAlreadyExistsRtException;
 import org.toxsoft.core.tslib.utils.errors.TsNullArgumentRtException;
+import org.toxsoft.uskat.core.api.sysdescr.ESkClassPropKind;
+import org.toxsoft.uskat.core.api.sysdescr.dto.*;
+import org.toxsoft.uskat.core.impl.dto.*;
 import org.toxsoft.uskat.s5.server.backend.supports.objects.S5ObjectEntity;
 
-import ru.uskat.common.dpu.*;
-import ru.uskat.common.dpu.impl.*;
-
 /**
- * Реализация интерфейса {@link IDpuSdClassInfo} способная маппироваться на таблицу базы данных
+ * Реализация интерфейса {@link IDtoClassInfo} способная маппироваться на таблицу базы данных
  *
  * @author mvk
  */
 @NamedQueries( { @NamedQuery( name = QUERY_NAME_GET_CLASSES, query = QUERY_GET_CLASSES ), } )
 @Entity
 public class S5ClassEntity
-    extends S5DpuBaseEntity
-    implements IDpuSdClassInfo {
+    extends S5DtoClassPropInfoBaseEntity {
 
   private static final long serialVersionUID = 157157L;
 
@@ -64,6 +63,13 @@ public class S5ClassEntity
   private String attrString;
 
   /**
+   * Описание расширенных склепок класса
+   */
+  @Lob
+  @Column( nullable = false )
+  private String rivetString;
+
+  /**
    * Описание расширенных связей класса (парсируемый буфер формата ...) формат
    */
   @Lob
@@ -92,18 +98,29 @@ public class S5ClassEntity
   private String eventString;
 
   /**
+   * Описание clob-ов класса
+   */
+  @Lob
+  @Column( nullable = false )
+  private String clobString;
+
+  /**
    * Lazy
    */
-  transient private IStridablesListEdit<IDpuSdAttrInfo>   attrInfos;
-  transient private IStridablesListEdit<IDpuSdLinkInfo>   linkInfos;
-  transient private IStridablesListEdit<IDpuSdRtdataInfo> rtdataInfos;
-  transient private IStridablesListEdit<IDpuSdCmdInfo>    cmdInfos;
-  transient private IStridablesListEdit<IDpuSdEventInfo>  eventInfos;
-  transient private IStridablesListEdit<IDpuSdAttrInfo>   allAttrInfos;
-  transient private IStridablesListEdit<IDpuSdLinkInfo>   allLinkInfos;
-  transient private IStridablesListEdit<IDpuSdRtdataInfo> allDataInfos;
-  transient private IStridablesListEdit<IDpuSdCmdInfo>    allCmdInfos;
-  transient private IStridablesListEdit<IDpuSdEventInfo>  allEventInfos;
+  transient private IStridablesListEdit<IDtoAttrInfo>   attrInfos;
+  transient private IStridablesListEdit<IDtoRivetInfo>  rivetInfos;
+  transient private IStridablesListEdit<IDtoLinkInfo>   linkInfos;
+  transient private IStridablesListEdit<IDtoRtdataInfo> rtdataInfos;
+  transient private IStridablesListEdit<IDtoCmdInfo>    cmdInfos;
+  transient private IStridablesListEdit<IDtoEventInfo>  eventInfos;
+  transient private IStridablesListEdit<IDtoClobInfo>   clobInfos;
+  transient private IStridablesListEdit<IDtoAttrInfo>   allAttrInfos;
+  transient private IStridablesListEdit<IDtoRivetInfo>  allRivetInfos;
+  transient private IStridablesListEdit<IDtoLinkInfo>   allLinkInfos;
+  transient private IStridablesListEdit<IDtoRtdataInfo> allDataInfos;
+  transient private IStridablesListEdit<IDtoCmdInfo>    allCmdInfos;
+  transient private IStridablesListEdit<IDtoEventInfo>  allEventInfos;
+  transient private IStridablesListEdit<IDtoClobInfo>   allClobInfos;
 
   /**
    * Конструктор корневого класса или первичного ключа {@link #createPrimaryKey(String)}
@@ -117,29 +134,32 @@ public class S5ClassEntity
     super( aId, aName, aDescription );
     parent = null;
     parentId = TsLibUtils.EMPTY_STRING;
-    attrString = DpuSdAttrInfo.KEEPER.coll2str( IStridablesList.EMPTY );
-    linkString = DpuSdLinkInfo.KEEPER.coll2str( IStridablesList.EMPTY );
-    rtdataString = DpuSdRtdataInfo.KEEPER.coll2str( IStridablesList.EMPTY );
-    cmdString = DpuSdCmdInfo.KEEPER.coll2str( IStridablesList.EMPTY );
-    eventString = DpuSdEventInfo.KEEPER.coll2str( IStridablesList.EMPTY );
+    attrString = DtoAttrInfo.KEEPER.coll2str( IStridablesList.EMPTY );
+    linkString = DtoLinkInfo.KEEPER.coll2str( IStridablesList.EMPTY );
+    rtdataString = DtoRtdataInfo.KEEPER.coll2str( IStridablesList.EMPTY );
+    cmdString = DtoCmdInfo.KEEPER.coll2str( IStridablesList.EMPTY );
+    eventString = DtoEventInfo.KEEPER.coll2str( IStridablesList.EMPTY );
+    clobString = DtoClobInfo.KEEPER.coll2str( IStridablesList.EMPTY );
   }
 
   /**
    * Конструктор копирования
    *
    * @param aParent {@link S5ClassEntity} описание родительского класса
-   * @param aSource {@link IDpuSdClassInfo} исходное описание класса
+   * @param aSource {@link IDtoClassInfo} исходное описание класса
    * @throws TsNullArgumentRtException aSource = null
    */
-  S5ClassEntity( S5ClassEntity aParent, IDpuSdClassInfo aSource ) {
+  S5ClassEntity( S5ClassEntity aParent, IDtoClassInfo aSource ) {
     super( aSource.id(), aSource.params() );
     parent = aParent;
     parentId = (aParent == null ? TsLibUtils.EMPTY_STRING : aParent.id());
-    attrString = DpuSdAttrInfo.KEEPER.coll2str( aSource.attrInfos() );
-    linkString = DpuSdLinkInfo.KEEPER.coll2str( aSource.linkInfos() );
-    rtdataString = DpuSdRtdataInfo.KEEPER.coll2str( aSource.rtdataInfos() );
-    cmdString = DpuSdCmdInfo.KEEPER.coll2str( aSource.cmdInfos() );
-    eventString = DpuSdEventInfo.KEEPER.coll2str( aSource.eventInfos() );
+    attrString = DtoAttrInfo.KEEPER.coll2str( aSource.attrInfos() );
+    rivetString = DtoRivetInfo.KEEPER.coll2str( aSource.rivetInfos() );
+    linkString = DtoLinkInfo.KEEPER.coll2str( aSource.linkInfos() );
+    rtdataString = DtoRtdataInfo.KEEPER.coll2str( aSource.rtdataInfos() );
+    cmdString = DtoCmdInfo.KEEPER.coll2str( aSource.cmdInfos() );
+    eventString = DtoEventInfo.KEEPER.coll2str( aSource.eventInfos() );
+    clobString = DtoClobInfo.KEEPER.coll2str( aSource.clobInfos() );
   }
 
   /**
@@ -164,9 +184,9 @@ public class S5ClassEntity
   /**
    * Возвращает список ВСЕХ атрибутов с учетом родительских классов
    *
-   * @return {@link IStridablesList}&lt;{@link IDpuSdAttrInfo}&gt; список описаний атрибутов
+   * @return {@link IStridablesList}&lt;{@link IDtoAttrInfo}&gt; список описаний атрибутов
    */
-  public IStridablesList<IDpuSdAttrInfo> allAttrInfos() {
+  public IStridablesList<IDtoAttrInfo> allAttrInfos() {
     if( allAttrInfos == null ) {
       allAttrInfos = new StridablesList<>( attrInfos() );
       if( parent != null ) {
@@ -177,11 +197,26 @@ public class S5ClassEntity
   }
 
   /**
+   * Возвращает список ВСЕХ склепок с учетом родительских классов
+   *
+   * @return {@link IStridablesList}&lt;{@link IDtoRivetInfo}&gt; список описаний склепок
+   */
+  public IStridablesList<IDtoRivetInfo> allRivetInfos() {
+    if( allRivetInfos == null ) {
+      allRivetInfos = new StridablesList<>( rivetInfos() );
+      if( parent != null ) {
+        allRivetInfos.addAll( parent.allRivetInfos() );
+      }
+    }
+    return allRivetInfos;
+  }
+
+  /**
    * Возвращает список ВСЕХ связей с учетом родительских классов
    *
-   * @return {@link IStridablesList}&lt;{@link IDpuSdLinkInfo}&gt; список описаний связей
+   * @return {@link IStridablesList}&lt;{@link IDtoLinkInfo}&gt; список описаний связей
    */
-  public IStridablesList<IDpuSdLinkInfo> allLinkInfos() {
+  public IStridablesList<IDtoLinkInfo> allLinkInfos() {
     if( allLinkInfos == null ) {
       allLinkInfos = new StridablesList<>( linkInfos() );
       if( parent != null ) {
@@ -194,9 +229,9 @@ public class S5ClassEntity
   /**
    * Возвращает список ВСЕХ данных реального времени с учетом родительских классов
    *
-   * @return {@link IStridablesList}&lt;{@link IDpuSdRtdataInfo}&gt; список описаний данных реального времени
+   * @return {@link IStridablesList}&lt;{@link IDtoRtdataInfo}&gt; список описаний данных реального времени
    */
-  public IStridablesList<IDpuSdRtdataInfo> allRtdataInfos() {
+  public IStridablesList<IDtoRtdataInfo> allRtdataInfos() {
     if( allDataInfos == null ) {
       allDataInfos = new StridablesList<>( rtdataInfos() );
       if( parent != null ) {
@@ -209,9 +244,9 @@ public class S5ClassEntity
   /**
    * Возвращает список ВСЕХ команд с учетом родительских классов
    *
-   * @return {@link IStridablesList}&lt;{@link IDpuSdCmdInfo}&gt; список описаний команд
+   * @return {@link IStridablesList}&lt;{@link IDtoCmdInfo}&gt; список описаний команд
    */
-  public IStridablesList<IDpuSdCmdInfo> allCmdInfos() {
+  public IStridablesList<IDtoCmdInfo> allCmdInfos() {
     if( allCmdInfos == null ) {
       allCmdInfos = new StridablesList<>( cmdInfos() );
       if( parent != null ) {
@@ -224,9 +259,9 @@ public class S5ClassEntity
   /**
    * Возвращает список ВСЕХ событий с учетом родительских классов
    *
-   * @return {@link IStridablesList}&lt;{@link IDpuSdEventInfo}&gt; список описаний событий
+   * @return {@link IStridablesList}&lt;{@link IDtoEventInfo}&gt; список описаний событий
    */
-  public IStridablesList<IDpuSdEventInfo> allEventInfos() {
+  public IStridablesList<IDtoEventInfo> allEventInfos() {
     if( allEventInfos == null ) {
       allEventInfos = new StridablesList<>( eventInfos() );
       if( parent != null ) {
@@ -237,34 +272,56 @@ public class S5ClassEntity
   }
 
   /**
+   * Возвращает список ВСЕХ clob-ов с учетом родительских классов
+   *
+   * @return {@link IStridablesList}&lt;{@link IDtoClobInfo}&gt; список clob-ов
+   */
+  public IStridablesList<IDtoClobInfo> allClobInfos() {
+    if( allClobInfos == null ) {
+      allClobInfos = new StridablesList<>( clobInfos() );
+      if( parent != null ) {
+        allClobInfos.addAll( parent.allClobInfos() );
+      }
+    }
+    return allClobInfos;
+  }
+
+  /**
    * Обновление данных
    *
-   * @param aSource {@link IDpuSdClassInfo} исходное описание
+   * @param aSource {@link IDtoClassInfo} исходное описание
    * @throws TsNullArgumentRtException аргумент = null
    */
-  public void update( IDpuSdClassInfo aSource ) {
+  @Override
+  public void update( IDtoClassInfo aSource ) {
     TsNullArgumentRtException.checkNull( aSource );
     super.update( aSource );
-    attrString = DpuSdAttrInfo.KEEPER.coll2str( aSource.attrInfos() );
-    linkString = DpuSdLinkInfo.KEEPER.coll2str( aSource.linkInfos() );
-    rtdataString = DpuSdRtdataInfo.KEEPER.coll2str( aSource.rtdataInfos() );
-    cmdString = DpuSdCmdInfo.KEEPER.coll2str( aSource.cmdInfos() );
-    eventString = DpuSdEventInfo.KEEPER.coll2str( aSource.eventInfos() );
+    attrString = DtoAttrInfo.KEEPER.coll2str( aSource.attrInfos() );
+    rivetString = DtoRivetInfo.KEEPER.coll2str( aSource.rivetInfos() );
+    linkString = DtoLinkInfo.KEEPER.coll2str( aSource.linkInfos() );
+    rtdataString = DtoRtdataInfo.KEEPER.coll2str( aSource.rtdataInfos() );
+    cmdString = DtoCmdInfo.KEEPER.coll2str( aSource.cmdInfos() );
+    eventString = DtoEventInfo.KEEPER.coll2str( aSource.eventInfos() );
+    clobString = DtoClobInfo.KEEPER.coll2str( aSource.clobInfos() );
 
     attrInfos = null;
+    rivetInfos = null;
     linkInfos = null;
     rtdataInfos = null;
     cmdInfos = null;
     eventInfos = null;
+    clobInfos = null;
     allAttrInfos = null;
+    allRivetInfos = null;
     allLinkInfos = null;
     allDataInfos = null;
     allCmdInfos = null;
     allEventInfos = null;
+    allClobInfos = null;
   }
 
   // ------------------------------------------------------------------------------------
-  // Реализация интерфейса IDpuSdClassInfo
+  // Реализация интерфейса IDtoClassInfo
   //
   @Override
   public String parentId() {
@@ -272,44 +329,75 @@ public class S5ClassEntity
   }
 
   @Override
-  public IStridablesList<IDpuSdAttrInfo> attrInfos() {
+  public IStridablesList<IDtoAttrInfo> attrInfos() {
     if( attrInfos == null ) {
-      // attrInfos = str2StridablesList( attrString, DpuSdAttrInfo.KEEPER );
-      attrInfos = new StridablesList<>( DpuSdAttrInfo.KEEPER.str2coll( attrString ) );
+      // attrInfos = str2StridablesList( attrString, DtoAttrInfo.KEEPER );
+      attrInfos = new StridablesList<>( DtoAttrInfo.KEEPER.str2coll( attrString ) );
     }
     return attrInfos;
   }
 
   @Override
-  public IStridablesList<IDpuSdLinkInfo> linkInfos() {
+  public IStridablesList<IDtoRivetInfo> rivetInfos() {
+    if( rivetInfos == null ) {
+      rivetInfos = new StridablesList<>( DtoRivetInfo.KEEPER.str2coll( rivetString ) );
+    }
+    return rivetInfos;
+  }
+
+  @Override
+  public IStridablesList<IDtoLinkInfo> linkInfos() {
     if( linkInfos == null ) {
-      linkInfos = new StridablesList<>( DpuSdLinkInfo.KEEPER.str2coll( linkString ) );
+      linkInfos = new StridablesList<>( DtoLinkInfo.KEEPER.str2coll( linkString ) );
     }
     return linkInfos;
   }
 
   @Override
-  public IStridablesList<IDpuSdRtdataInfo> rtdataInfos() {
+  public IStridablesList<IDtoRtdataInfo> rtdataInfos() {
     if( rtdataInfos == null ) {
-      rtdataInfos = new StridablesList<>( DpuSdRtdataInfo.KEEPER.str2coll( rtdataString ) );
+      rtdataInfos = new StridablesList<>( DtoRtdataInfo.KEEPER.str2coll( rtdataString ) );
     }
     return rtdataInfos;
   }
 
   @Override
-  public IStridablesList<IDpuSdCmdInfo> cmdInfos() {
+  public IStridablesList<IDtoCmdInfo> cmdInfos() {
     if( cmdInfos == null ) {
-      cmdInfos = new StridablesList<>( DpuSdCmdInfo.KEEPER.str2coll( cmdString ) );
+      cmdInfos = new StridablesList<>( DtoCmdInfo.KEEPER.str2coll( cmdString ) );
     }
     return cmdInfos;
   }
 
   @Override
-  public IStridablesList<IDpuSdEventInfo> eventInfos() {
+  public IStridablesList<IDtoEventInfo> eventInfos() {
     if( eventInfos == null ) {
-      eventInfos = new StridablesList<>( DpuSdEventInfo.KEEPER.str2coll( eventString ) );
+      eventInfos = new StridablesList<>( DtoEventInfo.KEEPER.str2coll( eventString ) );
     }
     return eventInfos;
+  }
+
+  @Override
+  public IStridablesList<IDtoClobInfo> clobInfos() {
+    if( clobInfos == null ) {
+      clobInfos = new StridablesList<>( DtoClobInfo.KEEPER.str2coll( clobString ) );
+    }
+    return clobInfos;
+  }
+
+  @Override
+  @SuppressWarnings( { "unchecked", "rawtypes" } )
+  public <T extends IDtoClassPropInfoBase> IStridablesList<T> propInfos( ESkClassPropKind aKind ) {
+    TsNullArgumentRtException.checkNull( aKind );
+    return switch( aKind ) {
+      case ATTR -> (IStridablesList)attrInfos();
+      case RIVET -> (IStridablesList)rivetInfos();
+      case RTDATA -> (IStridablesList)rtdataInfos();
+      case LINK -> (IStridablesList)linkInfos();
+      case CMD -> (IStridablesList)cmdInfos();
+      case EVENT -> (IStridablesList)eventInfos();
+      case CLOB -> (IStridablesList)clobInfos();
+    };
   }
 
   // ------------------------------------------------------------------------------------
@@ -319,10 +407,11 @@ public class S5ClassEntity
   @Override
   public boolean equals( Object aThat ) {
     if( super.equals( aThat ) ) {
-      if( aThat instanceof IDpuSdClassInfo that ) {
-        return attrInfos().equals( that.attrInfos() ) && rtdataInfos().equals( that.rtdataInfos() )
-            && linkInfos().equals( that.linkInfos() ) && cmdInfos().equals( that.cmdInfos() )
-            && eventInfos().equals( that.eventInfos() );
+      if( aThat instanceof IDtoClassInfo that ) {
+        return attrInfos().equals( that.attrInfos() ) && rivetInfos().equals( that.rivetInfos() )
+            && rtdataInfos().equals( that.rtdataInfos() ) && linkInfos().equals( that.linkInfos() )
+            && cmdInfos().equals( that.cmdInfos() ) && eventInfos().equals( that.eventInfos() )
+            && clobInfos().equals( that.clobInfos() );
       }
     }
     return false;
@@ -332,10 +421,12 @@ public class S5ClassEntity
   public int hashCode() {
     int result = super.hashCode();
     result = TsLibUtils.PRIME * result + attrInfos().hashCode();
+    result = TsLibUtils.PRIME * result + rivetInfos().hashCode();
     result = TsLibUtils.PRIME * result + rtdataInfos().hashCode();
     result = TsLibUtils.PRIME * result + linkInfos().hashCode();
     result = TsLibUtils.PRIME * result + cmdInfos().hashCode();
     result = TsLibUtils.PRIME * result + eventInfos().hashCode();
+    result = TsLibUtils.PRIME * result + clobInfos().hashCode();
     return result;
   }
 
@@ -361,11 +452,11 @@ public class S5ClassEntity
    * Проверяет наличие дубль-описаний в классе и его родителе
    *
    * @param aParent {@link S5ClassEntity} описание родительского класса. null: нет родительского класса, игнорирование
-   * @param aClassInfo {@link IDpuSdClassInfo} описание класса
+   * @param aClassInfo {@link IDtoClassInfo} описание класса
    * @throws TsNullArgumentRtException aClassInfo = null
    * @throws TsItemAlreadyExistsRtException описание уже существует
    */
-  public static void checkDuplicateInfos( S5ClassEntity aParent, IDpuSdClassInfo aClassInfo ) {
+  public static void checkDuplicateInfos( S5ClassEntity aParent, IDtoClassInfo aClassInfo ) {
     TsNullArgumentRtException.checkNull( aClassInfo );
     if( aParent == null ) {
       return;
@@ -373,97 +464,47 @@ public class S5ClassEntity
     String classId = aClassInfo.id();
     String parentId = aParent.id();
     // Проверка атрибутов
-    for( IDpuSdAttrInfo info : aClassInfo.attrInfos() ) {
+    for( IDtoAttrInfo info : aClassInfo.attrInfos() ) {
       if( aParent.allAttrInfos().hasKey( info.id() ) ) {
         throw new TsItemAlreadyExistsRtException( MSG_ERR_ATTR_ALREADY_EXIST, info.id(), classId, parentId );
       }
     }
+    // Проверка склепок
+    for( IDtoRivetInfo info : aClassInfo.rivetInfos() ) {
+      if( aParent.allRivetInfos().hasKey( info.id() ) ) {
+        throw new TsItemAlreadyExistsRtException( MSG_ERR_RIVET_ALREADY_EXIST, info.id(), classId, parentId );
+      }
+    }
     // Проверка связей
-    for( IDpuSdLinkInfo info : aClassInfo.linkInfos() ) {
+    for( IDtoLinkInfo info : aClassInfo.linkInfos() ) {
       if( aParent.allLinkInfos().hasKey( info.id() ) ) {
         throw new TsItemAlreadyExistsRtException( MSG_ERR_LINK_ALREADY_EXIST, info.id(), classId, parentId );
       }
     }
     // Проверка данных
-    for( IDpuSdRtdataInfo info : aClassInfo.rtdataInfos() ) {
+    for( IDtoRtdataInfo info : aClassInfo.rtdataInfos() ) {
       if( aParent.allRtdataInfos().hasKey( info.id() ) ) {
         throw new TsItemAlreadyExistsRtException( MSG_ERR_DATA_ALREADY_EXIST, info.id(), classId, parentId );
       }
     }
     // Проверка команд
-    for( IDpuSdCmdInfo info : aClassInfo.cmdInfos() ) {
+    for( IDtoCmdInfo info : aClassInfo.cmdInfos() ) {
       if( aParent.allCmdInfos().hasKey( info.id() ) ) {
         throw new TsItemAlreadyExistsRtException( MSG_ERR_CMD_ALREADY_EXIST, info.id(), classId, parentId );
       }
     }
     // Проверка событий
-    for( IDpuSdEventInfo info : aClassInfo.eventInfos() ) {
+    for( IDtoEventInfo info : aClassInfo.eventInfos() ) {
       if( aParent.allEventInfos().hasKey( info.id() ) ) {
         throw new TsItemAlreadyExistsRtException( MSG_ERR_EVENT_ALREADY_EXIST, info.id(), classId, parentId );
       }
     }
-  }
-
-  /**
-   * Из представленного списка описаний классов возвращает список описаний классов которые зависят от представленного
-   * типа
-   *
-   * @param aClassInfos {@link IStridablesList}&lt;{@link S5ClassEntity}&gt;список описаний классов
-   * @param aTypeId String идентификатор типа
-   * @return {@link IStridablesList}&lt;{@link IDpuSdClassInfo}&gt; список описаний классов
-   * @throws TsNullArgumentRtException любой аргумент = null
-   */
-  public static IStridablesList<IDpuSdClassInfo> getClassesDependsFromType( IStridablesList<S5ClassEntity> aClassInfos,
-      String aTypeId ) {
-    TsNullArgumentRtException.checkNulls( aClassInfos, aTypeId );
-    IStridablesListEdit<IDpuSdClassInfo> retValue = new StridablesList<>();
-    for( S5ClassEntity classEntity : aClassInfos ) {
-      if( isClassDependsFromType( classEntity, aTypeId ) ) {
-        retValue.add( classEntity );
+    // Проверка clob-ов
+    for( IDtoClobInfo info : aClassInfo.clobInfos() ) {
+      if( aParent.allClobInfos().hasKey( info.id() ) ) {
+        throw new TsItemAlreadyExistsRtException( MSG_ERR_CLOB_ALREADY_EXIST, info.id(), classId, parentId );
       }
     }
-    return retValue;
-  }
-
-  /**
-   * Возвращает признак того что представленное описание класса зависит от представленного типа
-   *
-   * @param aClassInfo {@link S5ClassEntity} описание класса
-   * @param aTypeId String идентификатор типа
-   * @return boolean <b>true</b> класс зависит от типа; <b>false</b> класс не зависит от типа
-   * @throws TsNullArgumentRtException любой аргумент = null
-   */
-  public static boolean isClassDependsFromType( S5ClassEntity aClassInfo, String aTypeId ) {
-    TsNullArgumentRtException.checkNulls( aClassInfo, aTypeId );
-    IStridablesList<IDpuSdAttrInfo> attrInfos = aClassInfo.allAttrInfos();
-    for( IDpuSdAttrInfo attrInfo : attrInfos ) {
-      if( attrInfo.typeId().equals( aTypeId ) ) {
-        return true;
-      }
-    }
-    IStridablesList<IDpuSdRtdataInfo> rtdataInfos = aClassInfo.allRtdataInfos();
-    for( IDpuSdRtdataInfo rtdataInfo : rtdataInfos ) {
-      if( rtdataInfo.typeId().equals( aTypeId ) ) {
-        return true;
-      }
-    }
-    IStridablesList<IDpuSdCmdInfo> cmdInfos = aClassInfo.allCmdInfos();
-    for( IDpuSdCmdInfo cmdInfo : cmdInfos ) {
-      for( IDpuStridableDataDef argDef : cmdInfo.argDefs() ) {
-        if( argDef.typeId().equals( aTypeId ) ) {
-          return true;
-        }
-      }
-    }
-    IStridablesList<IDpuSdEventInfo> eventInfos = aClassInfo.allEventInfos();
-    for( IDpuSdEventInfo eventInfo : eventInfos ) {
-      for( IDpuStridableDataDef paramDef : eventInfo.paramDefs() ) {
-        if( paramDef.typeId().equals( aTypeId ) ) {
-          return true;
-        }
-      }
-    }
-    return false;
   }
 
   /**
@@ -471,13 +512,13 @@ public class S5ClassEntity
    *
    * @param aClassInfos {@link IStridablesList}&lt;{@link S5ClassEntity}&gt;список описаний классов
    * @param aClassId String идентификатор класса
-   * @return {@link IStridablesList}&lt;{@link IDpuSdClassInfo}&gt; список описаний классов
+   * @return {@link IStridablesList}&lt;{@link IDtoClassInfo}&gt; список описаний классов
    * @throws TsNullArgumentRtException любой аргумент = null
    */
-  public static IStridablesList<IDpuSdClassInfo> getDescendantClasses( IStridablesList<S5ClassEntity> aClassInfos,
+  public static IStridablesList<IDtoClassInfo> getDescendantClasses( IStridablesList<S5ClassEntity> aClassInfos,
       String aClassId ) {
     TsNullArgumentRtException.checkNulls( aClassInfos, aClassId );
-    IStridablesListEdit<IDpuSdClassInfo> retValue = new StridablesList<>();
+    IStridablesListEdit<IDtoClassInfo> retValue = new StridablesList<>();
     for( S5ClassEntity classEntity : aClassInfos ) {
       if( hasParent( classEntity, aClassId ) ) {
         retValue.add( classEntity );

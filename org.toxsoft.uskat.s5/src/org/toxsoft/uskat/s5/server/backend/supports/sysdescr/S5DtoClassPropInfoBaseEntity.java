@@ -14,11 +14,10 @@ import org.toxsoft.core.tslib.av.opset.impl.OptionSetKeeper;
 import org.toxsoft.core.tslib.bricks.strid.impl.StridableParameterized;
 import org.toxsoft.core.tslib.utils.TsLibUtils;
 import org.toxsoft.core.tslib.utils.errors.TsNullArgumentRtException;
-
-import ru.uskat.common.dpu.IDpuBase;
+import org.toxsoft.uskat.core.api.sysdescr.dto.IDtoClassInfo;
 
 /**
- * Реализация интерфейса {@link IDpuBase} способная маппироваться на таблицу базы данных
+ * Реализация интерфейса {@link IDtoClassInfo} способная маппироваться на таблицу базы данных
  * <p>
  *
  * @author mvk
@@ -37,9 +36,9 @@ import ru.uskat.common.dpu.IDpuBase;
 //at deployment.ru.uskat.tm.server-deploy.jar//ru.toxsoft.tslib.strids.stridable.impl.AbstractStridablesList.add(AbstractStridablesList.java:1)
 //at deployment.ru.uskat.tm.server-deploy.jar//org.toxsoft.uskat.s5.server.backend.supports.sysdescr.S5BackendSysDescrSingleton.readClassInfos(S5BackendSysDescrSingleton.java:271)
 //@formatter:on
-// abstract class S5DpuBaseEntity
-public abstract class S5DpuBaseEntity
-    implements IDpuBase, Serializable {
+// abstract class S5DtoClassPropInfoBaseEntity
+public abstract class S5DtoClassPropInfoBaseEntity
+    implements IDtoClassInfo, Serializable {
 
   private static final long serialVersionUID = 157157L;
 
@@ -73,7 +72,7 @@ public abstract class S5DpuBaseEntity
    * @param aDescription String описание
    * @throws TsNullArgumentRtException любой аргумент = null
    */
-  protected S5DpuBaseEntity( String aId, String aName, String aDescription ) {
+  protected S5DtoClassPropInfoBaseEntity( String aId, String aName, String aDescription ) {
     TsNullArgumentRtException.checkNulls( aId, aName, aDescription );
     id = aId;
     IOptionSetEdit p = new OptionSet();
@@ -89,7 +88,7 @@ public abstract class S5DpuBaseEntity
    * @param aParams {@link IOptionSet} параметры
    * @throws TsNullArgumentRtException любой аргумент = null
    */
-  protected S5DpuBaseEntity( String aId, IOptionSet aParams ) {
+  protected S5DtoClassPropInfoBaseEntity( String aId, IOptionSet aParams ) {
     TsNullArgumentRtException.checkNulls( aId, aParams );
     id = aId;
     paramsString = OptionSetKeeper.KEEPER.ent2str( aParams );
@@ -101,10 +100,10 @@ public abstract class S5DpuBaseEntity
   /**
    * Обновление данных
    *
-   * @param aSource {@link IDpuBase} исходное описание
+   * @param aSource {@link IDtoClassInfo} исходное описание
    * @throws TsNullArgumentRtException аргумент = null
    */
-  public void update( IDpuBase aSource ) {
+  public void update( IDtoClassInfo aSource ) {
     TsNullArgumentRtException.checkNull( aSource );
     paramsString = OptionSetKeeper.KEEPER.ent2str( aSource.params() );
     params = null;

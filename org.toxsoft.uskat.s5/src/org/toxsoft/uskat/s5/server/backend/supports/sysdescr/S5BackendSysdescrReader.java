@@ -5,11 +5,9 @@ import javax.persistence.EntityManager;
 import org.toxsoft.core.tslib.bricks.strid.IStridable;
 import org.toxsoft.core.tslib.bricks.strid.coll.IStridablesList;
 import org.toxsoft.core.tslib.utils.errors.TsNullArgumentRtException;
-
-import ru.uskat.common.dpu.IDpuSdClassInfo;
-import ru.uskat.common.dpu.IDpuSdTypeInfo;
-import ru.uskat.core.common.helpers.sysdescr.ISkSysdescrReader;
-import ru.uskat.core.common.helpers.sysdescr.SkSysdescrReader;
+import org.toxsoft.uskat.core.api.sysdescr.dto.IDtoClassInfo;
+import org.toxsoft.uskat.s5.common.sysdescr.ISkSysdescrReader;
+import org.toxsoft.uskat.s5.common.sysdescr.SkSysdescrReader;
 
 /**
  * Реализация {@link ISkSysdescrReader} для работы в сервере
@@ -18,7 +16,7 @@ import ru.uskat.core.common.helpers.sysdescr.SkSysdescrReader;
  */
 final class S5BackendSysdescrReader
     extends SkSysdescrReader
-    implements IS5TypesInterceptor, IS5ClassesInterceptor {
+    implements IS5ClassesInterceptor {
 
   /**
    * Менеджер постоянства
@@ -45,72 +43,37 @@ final class S5BackendSysdescrReader
   }
 
   // ------------------------------------------------------------------------------------
-  // Реализация IS5TypesInterceptor
-  //
-  @Override
-  public void beforeCreateType( IDpuSdTypeInfo aTypeInfo ) {
-    // nop
-  }
-
-  @Override
-  public void afterCreateType( IDpuSdTypeInfo aTypeInfo ) {
-    setTypeInfos( detach( entityManager, backendSysdescr.readTypeInfos() ) );
-  }
-
-  @Override
-  public void beforeUpdateType( IDpuSdTypeInfo aPrevTypeInfo, IDpuSdTypeInfo aNewTypeInfo,
-      IStridablesList<IDpuSdClassInfo> aDependentClasses ) {
-    // nop
-  }
-
-  @Override
-  public void afterUpdateType( IDpuSdTypeInfo aPrevTypeInfo, IDpuSdTypeInfo aNewTypeInfo,
-      IStridablesList<IDpuSdClassInfo> aDependentClasses ) {
-    setTypeInfos( detach( entityManager, backendSysdescr.readTypeInfos() ) );
-  }
-
-  @Override
-  public void beforeDeleteType( IDpuSdTypeInfo aTypeInfo ) {
-    // nop
-  }
-
-  @Override
-  public void afterDeleteType( IDpuSdTypeInfo aTypeInfo ) {
-    setTypeInfos( detach( entityManager, backendSysdescr.readTypeInfos() ) );
-  }
-
-  // ------------------------------------------------------------------------------------
   // Реализация IS5ClassesInterceptor
   //
   @Override
-  public void beforeCreateClass( IDpuSdClassInfo aClassInfo ) {
+  public void beforeCreateClass( IDtoClassInfo aClassInfo ) {
     // nop
   }
 
   @Override
-  public void afterCreateClass( IDpuSdClassInfo aClassInfo ) {
+  public void afterCreateClass( IDtoClassInfo aClassInfo ) {
     setClassInfos( detach( entityManager, backendSysdescr.readClassInfos() ) );
   }
 
   @Override
-  public void beforeUpdateClass( IDpuSdClassInfo aPrevClassInfo, IDpuSdClassInfo aNewClassInfo,
-      IStridablesList<IDpuSdClassInfo> aDescendants ) {
+  public void beforeUpdateClass( IDtoClassInfo aPrevClassInfo, IDtoClassInfo aNewClassInfo,
+      IStridablesList<IDtoClassInfo> aDescendants ) {
     // nop
   }
 
   @Override
-  public void afterUpdateClass( IDpuSdClassInfo aPrevClassInfo, IDpuSdClassInfo aNewClassInfo,
-      IStridablesList<IDpuSdClassInfo> aDescendants ) {
+  public void afterUpdateClass( IDtoClassInfo aPrevClassInfo, IDtoClassInfo aNewClassInfo,
+      IStridablesList<IDtoClassInfo> aDescendants ) {
     setClassInfos( detach( entityManager, backendSysdescr.readClassInfos() ) );
   }
 
   @Override
-  public void beforeDeleteClass( IDpuSdClassInfo aClassInfo ) {
+  public void beforeDeleteClass( IDtoClassInfo aClassInfo ) {
     // nop
   }
 
   @Override
-  public void afterDeleteClass( IDpuSdClassInfo aClassInfo ) {
+  public void afterDeleteClass( IDtoClassInfo aClassInfo ) {
     setClassInfos( detach( entityManager, backendSysdescr.readClassInfos() ) );
   }
 

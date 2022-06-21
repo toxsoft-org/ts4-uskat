@@ -8,11 +8,8 @@ import org.toxsoft.core.tslib.gw.gwid.GwidList;
 import org.toxsoft.core.tslib.gw.gwid.IGwidList;
 import org.toxsoft.core.tslib.utils.errors.TsItemNotFoundRtException;
 import org.toxsoft.core.tslib.utils.errors.TsNullArgumentRtException;
-
-import ru.uskat.common.dpu.rt.events.SkEvent;
-import ru.uskat.core.api.events.ISkEventHandler;
-import ru.uskat.core.api.events.ISkEventService;
-import ru.uskat.core.common.helpers.ITemporalsHistory;
+import org.toxsoft.uskat.core.api.evserv.*;
+import org.toxsoft.uskat.core.utils.ITemporalsHistory;
 
 /**
  * Синхронизация доступа к {@link ISkEventService} (декоратор)
@@ -34,7 +31,7 @@ public final class S5SynchronizedEventService
    * @throws TsItemNotFoundRtException в соединении не найдена служба которую необходимо защитить
    */
   public S5SynchronizedEventService( S5SynchronizedConnection aConnection ) {
-    this( (ISkEventService)aConnection.getUnsynchronizedService( SERVICE_ID ), aConnection.mainLock() );
+    this( (ISkEventService)aConnection.getUnsynchronizedService( SERVICE_ID ), aConnection.nativeLock() );
     aConnection.addService( this );
   }
 

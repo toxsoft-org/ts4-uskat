@@ -6,17 +6,13 @@ import org.toxsoft.core.tslib.bricks.events.ITsEventer;
 import org.toxsoft.core.tslib.bricks.validator.ITsValidationSupport;
 import org.toxsoft.core.tslib.coll.IList;
 import org.toxsoft.core.tslib.coll.IMap;
-import org.toxsoft.core.tslib.coll.primtypes.IStringMap;
+import org.toxsoft.core.tslib.gw.gwid.Gwid;
 import org.toxsoft.core.tslib.gw.skid.ISkidList;
 import org.toxsoft.core.tslib.gw.skid.Skid;
 import org.toxsoft.core.tslib.utils.errors.TsItemNotFoundRtException;
 import org.toxsoft.core.tslib.utils.errors.TsNullArgumentRtException;
 import org.toxsoft.core.tslib.utils.txtmatch.TextMatcher;
-
-import ru.uskat.common.dpu.IDpuObject;
-import ru.uskat.core.api.objserv.*;
-import ru.uskat.core.common.skobject.ISkObject;
-import ru.uskat.core.common.skobject.ISkObjectCreator;
+import org.toxsoft.uskat.core.api.objserv.*;
 
 /**
  * Синхронизация доступа к {@link ISkObjectService} (декоратор)
@@ -38,8 +34,7 @@ public final class S5SynchronizedObjectService
    * @throws TsItemNotFoundRtException в соединении не найдена служба которую необходимо защитить
    */
   public S5SynchronizedObjectService( S5SynchronizedConnection aConnection ) {
-    this( (ISkObjectService)aConnection.getUnsynchronizedService( ISkObjectService.SERVICE_ID ),
-        aConnection.mainLock() );
+    this( (ISkObjectService)aConnection.getUnsynchronizedService( ISkObjectService.SERVICE_ID ), aConnection.nativeLock() );
     aConnection.addService( this );
   }
 
@@ -114,17 +109,6 @@ public final class S5SynchronizedObjectService
   }
 
   @Override
-  public IStringMap<IMap<Skid, ISkObject>> getObjs( String aClassId, boolean aIncludeDescendants ) {
-    lockWrite( this );
-    try {
-      return target().getObjs( aClassId, aIncludeDescendants );
-    }
-    finally {
-      unlockWrite( this );
-    }
-  }
-
-  @Override
   public IList<ISkObject> getObjs( ISkidList aSkids ) {
     lockWrite( this );
     try {
@@ -136,21 +120,10 @@ public final class S5SynchronizedObjectService
   }
 
   @Override
-  public <T extends ISkObject> IMap<Skid, T> getObjsByIds( ISkidList aSkids ) {
+  public <T extends ISkObject> T defineObject( IDtoObject aDtoObject ) {
     lockWrite( this );
     try {
-      return target().getObjsByIds( aSkids );
-    }
-    finally {
-      unlockWrite( this );
-    }
-  }
-
-  @Override
-  public <T extends ISkObject> T defineObject( IDpuObject aDpuObject ) {
-    lockWrite( this );
-    try {
-      return target().defineObject( aDpuObject );
+      return target().defineObject( aDtoObject );
     }
     finally {
       unlockWrite( this );
@@ -191,32 +164,32 @@ public final class S5SynchronizedObjectService
   }
 
   @Override
+  public ISkidList getRivetRev( String aClassId, String aRivetId, Skid aRightSkid ) {
+    lockWrite( this );
+    try {
+      return target().getRivetRev( aClassId, aRivetId, aRightSkid );
+    }
+    finally {
+      unlockWrite( this );
+    }
+  }
+
+  @Override
+  public IMap<Gwid, ISkidList> getAllRivetsRev( Skid aRightSkid ) {
+    lockWrite( this );
+    try {
+      return target().getAllRivetsRev( aRightSkid );
+    }
+    finally {
+      unlockWrite( this );
+    }
+  }
+
+  @Override
   public void registerObjectCreator( TextMatcher aRule, ISkObjectCreator<?> aCreator ) {
     lockWrite( this );
     try {
       target().registerObjectCreator( aRule, aCreator );
-    }
-    finally {
-      unlockWrite( this );
-    }
-  }
-
-  @Override
-  public void unregisterObjectCreator( String aClassId, ISkObjectCreator<?> aCreator ) {
-    lockWrite( this );
-    try {
-      target().unregisterObjectCreator( aClassId, aCreator );
-    }
-    finally {
-      unlockWrite( this );
-    }
-  }
-
-  @Override
-  public void unregisterObjectCreator( TextMatcher aRule, ISkObjectCreator<?> aCreator ) {
-    lockWrite( this );
-    try {
-      target().unregisterObjectCreator( aRule, aCreator );
     }
     finally {
       unlockWrite( this );
