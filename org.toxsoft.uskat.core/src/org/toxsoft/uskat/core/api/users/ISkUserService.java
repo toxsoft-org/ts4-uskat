@@ -6,6 +6,7 @@ import org.toxsoft.core.tslib.bricks.validator.*;
 import org.toxsoft.core.tslib.bricks.validator.impl.*;
 import org.toxsoft.core.tslib.utils.errors.*;
 import org.toxsoft.uskat.core.*;
+import org.toxsoft.uskat.core.api.*;
 import org.toxsoft.uskat.core.api.objserv.*;
 import org.toxsoft.uskat.core.connection.*;
 
@@ -35,7 +36,8 @@ import org.toxsoft.uskat.core.connection.*;
  *
  * @author hazard157
  */
-public interface ISkUserService {
+public interface ISkUserService
+    extends ISkService {
 
   /**
    * Service identifier.

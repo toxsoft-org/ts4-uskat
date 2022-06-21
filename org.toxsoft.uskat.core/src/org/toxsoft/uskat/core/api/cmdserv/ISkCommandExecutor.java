@@ -4,26 +4,24 @@ import org.toxsoft.core.tslib.gw.gwid.*;
 import org.toxsoft.core.tslib.utils.errors.*;
 
 /**
- * Интерфейс исполнителя команд, которому сервис отдает команду на выполнение.
+ * Interface of command executor.
  * <p>
- * Исполнители должны регистрироваться в сервисе команд методом
+ * In order to receive the commands intended for him, the executor must be registered in the service by method
  * {@link ISkCommandService#registerExecutor(ISkCommandExecutor, IGwidList)}.
  * <p>
- * Каждый исполнитель отвечает за свой набор объектов и команд, которые он готов выполнить. В нормальной системе,
- * зарегистрированные исполнители должны охватываеть возможность выполнения всех команд для всех объектов.
+ * Each executor is responsible for own set of obejcts and commands. Normally all the executors registered in the system
+ * shall cover all commands for all objects.
  *
- * @author goga
+ * @author hazard157
  * @author mvk
  */
 public interface ISkCommandExecutor {
 
   /**
-   * Выполняет команду, в основном же передает команду туда, где она будет физически исполнена.
-   * <p>
-   * Метод возвращает управление немедленно.
+   * Starts the command execution and returns immediately.
    *
-   * @param aCmd {@link IDtoCommand} - команда на выполнение
-   * @throws TsNullArgumentRtException аргумент = null
+   * @param aCmd {@link IDtoCommand} - the command data to be executed
+   * @throws TsNullArgumentRtException any argument = <code>null</code>
    */
   void executeCommand( IDtoCommand aCmd );
 

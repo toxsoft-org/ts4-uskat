@@ -27,7 +27,7 @@ import org.toxsoft.core.tslib.utils.errors.*;
  * <p>
  * This is the final immutable class.
  *
- * @author goga
+ * @author hazard157
  */
 public final class SkCommandState
     implements ITemporal<SkCommandState>, IParameterized, Serializable {

@@ -3,7 +3,7 @@ package org.toxsoft.uskat.core.api.cmdserv;
 /**
  * Localizable resources.
  *
- * @author goga
+ * @author hazard157
  */
 interface ISkResources {
 

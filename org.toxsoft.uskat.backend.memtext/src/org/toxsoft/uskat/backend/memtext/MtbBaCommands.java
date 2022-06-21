@@ -1,8 +1,12 @@
 package org.toxsoft.uskat.backend.memtext;
 
+import org.toxsoft.core.tslib.av.opset.*;
 import org.toxsoft.core.tslib.bricks.strio.*;
 import org.toxsoft.core.tslib.coll.primtypes.*;
+import org.toxsoft.core.tslib.gw.gwid.*;
+import org.toxsoft.core.tslib.gw.skid.*;
 import org.toxsoft.core.tslib.utils.errors.*;
+import org.toxsoft.uskat.core.api.cmdserv.*;
 import org.toxsoft.uskat.core.backend.*;
 import org.toxsoft.uskat.core.backend.api.*;
 
@@ -61,5 +65,12 @@ public class MtbBaCommands
   // ------------------------------------------------------------------------------------
   //
   //
+
+  @Override
+  public IDtoCommand sendCommand( Gwid aCmdGwid, Skid aAuthorSkid, IOptionSet aArgs ) {
+    // TODO Auto-generated method stub
+    // TODO реализовать MtbBaCommands.sendCommand()
+    throw new TsUnderDevelopmentRtException( "MtbBaCommands.sendCommand()" );
+  }
 
 }

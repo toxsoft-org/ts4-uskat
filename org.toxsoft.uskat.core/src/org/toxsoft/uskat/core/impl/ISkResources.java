@@ -72,6 +72,13 @@ interface ISkResources {
   String FMT_ERR_NO_OBJ_OF_CLOB  = "Object '%s' for CLOB '%s' doesa not exists";
 
   /**
+   * {@link SkCoreServCommands}
+   */
+  String FMT_ERR_CMD_CLASS_NOT_EXIST  = "Command class %s does not exist";
+  String FMT_ERR_CMD_NOT_EXIST        = "Command %s does not exist in class %s";
+  String FMT_ERR_CMD_AUTHOR_NOT_EXIST = "Author %s does not exist";
+
+  /**
    * {@link SkCoreServLinks}
    */
   String FMT_ERR_NO_SUCH_LINK1           = "Link '%s' does not exists in class '%s'";

@@ -161,7 +161,7 @@ public enum ESkCommandState
    *
    * @return boolean - the command processing finshed flag
    */
-  public boolean isFinished() {
+  public boolean isComplete() {
     return finished;
   }
 

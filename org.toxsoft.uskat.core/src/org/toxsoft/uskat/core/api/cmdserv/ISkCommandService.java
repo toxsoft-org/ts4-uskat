@@ -2,7 +2,6 @@ package org.toxsoft.uskat.core.api.cmdserv;
 
 import org.toxsoft.core.tslib.av.opset.*;
 import org.toxsoft.core.tslib.bricks.events.*;
-import org.toxsoft.core.tslib.bricks.validator.impl.*;
 import org.toxsoft.core.tslib.gw.gwid.*;
 import org.toxsoft.core.tslib.gw.skid.*;
 import org.toxsoft.core.tslib.utils.errors.*;
@@ -24,85 +23,69 @@ public interface ISkCommandService
   String SERVICE_ID = ISkHardConstants.SK_CORE_SERVICE_ID_PREFIX + ".Commands"; //$NON-NLS-1$
 
   /**
-   * Отправляет команду по назначению.
+   * Creates and sends the command.
+   * <p>
+   * Created instance is a "live" object changing it's {@link ISkCommand#statesHistory()} until command completes.
+   * Client may either poll {@link ISkCommand#statesHistory()} or subscribe to {@link ISkCommand#stateEventer()}.
    *
-   * @param aCmdGwid {@link Gwid} - конкретный {@link Gwid} объект-назначение и идентификатор команды
-   * @param aAuthorSkid {@link Gwid} - конкретный {@link Gwid} автора команды
-   * @param aArgs {@link IOptionSet} - значения аргументов команды
-   * @return {@link ISkCommand} - созданная команда с уникальным идентификатором экземпляра {@link ISkCommand#id()}
-   * @throws TsNullArgumentRtException любой аргумент = null
-   * @throws TsIllegalArgumentRtException неправльный {@link Gwid} команды или автора
-   * @throws TsValidationFailedRtException неверные аргументы (неполные, или неверный тип и т.п.)
+   * @param aCmdGwid {@link Gwid} - concrete GWID of the command
+   * @param aAuthorSkid {@link Skid} - SKID of the command author
+   * @param aArgs {@link IOptionSet} - command argumens values
+   * @return {@link ISkCommand} - created command instance
    */
   ISkCommand sendCommand( Gwid aCmdGwid, Skid aAuthorSkid, IOptionSet aArgs );
 
   /**
-   * Регистрирует исполнителя команды.
+   * Reigsters command executor.
    * <p>
-   * Повторная регистрация <b>заменяет</b> сущнствующий список выполняемых команд новым.
+   * Registering the same executor again changes GWIDs list.
    * <p>
-   * В списке выполняемых команд могут быть только {@link Gwid}-ы следующих типов:
+   * There may be only the following kinds of GWIDs in the list:
    * <ul>
-   * <li>абстрактный {@link EGwidKind#GW_CLASS} - все команды всех объектов указанного класса (и наследников);</li>
-   * <li>конкретный {@link EGwidKind#GW_CLASS} - все команды указанного объекта;</li>
-   * <li>абстрактный {@link EGwidKind#GW_CMD} - указанная команда всех объектов указанного класса (и наследников);</li>
-   * <li>конкретный {@link EGwidKind#GW_CMD} - указанная команда указанного объекта.</li>
+   * <li>abstract {@link EGwidKind#GW_CLASS} - all commans of all objects of the class and subclasses;</li>
+   * <li>concrete {@link EGwidKind#GW_CLASS} - all commands of the specified object;</li>
+   * <li>abstract {@link EGwidKind#GW_CMD} - specified command all objects of the class and subclasses;</li>
+   * <li>concrete {@link EGwidKind#GW_CMD} - specified command of the specified object.</li>
    * </ul>
-   * Все другие типы {@link Gwid}-ов игнорируются без выбрасывания исключений.
+   * Multi-GWIDs are expanded as usual. All other GWIDs are silently ignored.
    * <p>
-   * Исключение выбрасывается, если какой-либо из запрошенных команд уже имеет зарегистрированного исполнителя. В таком
-   * случае, исполнитель не регистрируется ни для одной команды.
+   * If this service has already registered an executor for one of the command then an exception is thrown and mothod
+   * does nothing.
+   * <p>
+   * If an empty list of GWIDs is specified than executor will be unregistered.
    *
-   * @param aExecutor {@link ISkCommandExecutor} - регистрируемый исполнитель
-   * @param aCmdGwids {@link IGwidList} - список GWID-ов выполняемых команд
-   * @throws TsNullArgumentRtException любой аргумент = null
-   * @throws TsItemAlreadyExistsRtException какой-либо из запрошенных команд конкретного объекта уже имеет исполнителя
+   * @param aExecutor {@link ISkCommandExecutor} - the executor to be registered
+   * @param aCmdGwids {@link IGwidList} - list of GWIDs the executor is responsible for
+   * @throws TsNullArgumentRtException any argument = <code>null</code>
+   * @throws TsItemAlreadyExistsRtException the was an executor already ergistered for at lieast on GWID from the list
    */
   void registerExecutor( ISkCommandExecutor aExecutor, IGwidList aCmdGwids );
 
   /**
-   * Возвращает все {@link Gwid}-ы, для которых этот экземпляр сервиса является исполнителем команд.
-   * <p>
-   * Возвращаемы список это "свернутый" список {@link Gwid}-ов, сформированный суммой всех вызовов
-   * {@link #registerExecutor(ISkCommandExecutor, IGwidList)} и {@link #unregisterExecutor(ISkCommandExecutor)}, и в
-   * общем случае меняется при вызове перечисленных методов. При изменениях генерируется сообщение
-   * {@link ISkCommandServiceListener#onExecutableCommandGwidsChanged(IGwidList)}.
+   * Returns the GWIDs for which the registered executors are responsible for.
    *
-   * @return {@link IGwidList} - список GWID-ов выполняемых команд
+   * @return {@link IGwidList} - the summary of all registered executors GWIDs
    */
-  IGwidList getExcutableCommandGwids();
+  IGwidList listExecutableCommandGwids();
 
   /**
-   * Удаляет зарегистрированный исполнитель.
+   * Chenges state of the command currently being executed.
    * <p>
-   * Если исполнитель не был зарегистрирован, метод ничего не делает.
-   *
-   * @param aExecutor {@link ISkCommandExecutor} - удаляемый исполнитель
-   * @throws TsNullArgumentRtException любой аргумент = null
-   */
-  void unregisterExecutor( ISkCommandExecutor aExecutor );
-
-  /**
-   * Изменяет состояние обработки команды.
-   * <p>
-   * Вместе с новым состоянием могут быть указана дополнительная информация, например причина
-   * {@link SkCommandState#OP_REASON}, {@link Skid} автора изменения {@link SkCommandState#OP_AUTHOR} и/или любые
-   * другие, приложение-специфичные данные.
-   * <p>
-   * Этот интерфейс предназначен для использования исполнителем команды. Соответственно, он может изменить состояние
-   * только на следующие:
+   * This interface is intended for use by the command executor hence only following states are allowed:
    * <ul>
-   * <li>{@link ESkCommandState#EXECUTING} - исполнение команды продолжается, дополнительная информация содержится в
-   * {@link SkCommandState#params()}. Это состояние может передаваться сколько угодно раз, но только до окончания
-   * обработки;</li>
-   * <li>{@link ESkCommandState#FAILED} - исполнение команды было начато, но закончилось неудачей;</li>
-   * <li>{@link ESkCommandState#SUCCESS} - команда успешно выполнениа.</li>
+   * <li>{@link ESkCommandState#EXECUTING} - execution is continuing, additional information is contained in
+   * {@link SkCommandState#params()}. This state may occur many time sequently until command completes;</li>
+   * <li>{@link ESkCommandState#FAILED} - command execution failed;</li>
+   * <li>{@link ESkCommandState#SUCCESS} - command completed successfully.</li>
    * </ul>
+   * <p>
+   * Argument may include additional optional information like reason {@link SkCommandState#OP_REASON}, state change
+   * SKID {@link SkCommandState#OP_AUTHOR} иand/or any other applicaion specific data.
    *
-   * @param aStateChangeInfo {@link DtoCommandStateChangeInfo} - информация о смене состояния команды
-   * @throws TsNullArgumentRtException любой аргумент null
-   * @throws TsIllegalArgumentRtException такая команда не находится на исполнении
-   * @throws TsIllegalArgumentRtException недопустимое состояние команды
+   * @param aStateChangeInfo {@link DtoCommandStateChangeInfo} - state change info
+   * @throws TsNullArgumentRtException any argument = <code>null</code>
+   * @throws TsItemNotFoundRtException command with specified ID is not executing now
+   * @throws TsIllegalArgumentRtException invalid command state
    */
   void changeCommandState( DtoCommandStateChangeInfo aStateChangeInfo );
 
@@ -111,12 +94,12 @@ public interface ISkCommandService
    *
    * @return {@link ITemporalsHistory} - the commands history
    */
-  ITemporalsHistory<ISkCommand> history();
+  ITemporalsHistory<IDtoCompletedCommand> history();
 
   /**
-   * Возвращает средство работы с событиями от службы.
+   * Returns the service eventer.
    *
-   * @return {@link ITsEventer} - средство работы с событиями от службы
+   * @return {@link ITsEventer}&lt;{@link ISkCommandServiceListener}&gt; - the service eventer
    */
   ITsEventer<ISkCommandServiceListener> eventer();
 

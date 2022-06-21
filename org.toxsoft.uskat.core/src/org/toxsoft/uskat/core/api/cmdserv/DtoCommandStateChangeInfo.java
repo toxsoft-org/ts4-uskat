@@ -11,7 +11,7 @@ import org.toxsoft.core.tslib.utils.*;
 import org.toxsoft.core.tslib.utils.errors.*;
 
 /**
- * Chunk of information about command state single change.
+ * Unit of information about single change of the command state.
  *
  * @author hazard157
  */
@@ -21,7 +21,7 @@ public final class DtoCommandStateChangeInfo
   private static final long serialVersionUID = 157157L;
 
   /**
-   * Синглтон хранителя.
+   * The keeper singleton.
    */
   public static final IEntityKeeper<DtoCommandStateChangeInfo> KEEPER =
       new AbstractEntityKeeper<>( DtoCommandStateChangeInfo.class, EEncloseMode.ENCLOSES_BASE_CLASS, null ) {
@@ -46,11 +46,11 @@ public final class DtoCommandStateChangeInfo
   private final SkCommandState state;
 
   /**
-   * Конструктор.
+   * Constructor
    *
-   * @param aCommandId String - идентифкатор экземпляра команды
-   * @param aState {@link SkCommandState} - состояние команды
-   * @throws TsNullArgumentRtException любой аргумент = null
+   * @param aCommandId String - the command instance ID
+   * @param aState {@link SkCommandState} - new state of the command
+   * @throws TsNullArgumentRtException any argument = <code>null</code>
    */
   public DtoCommandStateChangeInfo( String aCommandId, SkCommandState aState ) {
     commandId = StridUtils.checkValidIdPath( aCommandId );
@@ -58,7 +58,7 @@ public final class DtoCommandStateChangeInfo
   }
 
   // ------------------------------------------------------------------------------------
-  // Реализация интерфейса ITimestampable
+  // ITimestampable
   //
 
   @Override
@@ -71,25 +71,25 @@ public final class DtoCommandStateChangeInfo
   //
 
   /**
-   * Возвращает идентифкатор экземпляра команды.
+   * Returns the command instance ID.
    *
-   * @return String - идентифкатор экземпляра команды
+   * @return String - the command instance ID
    */
   public String cmdId() {
     return commandId;
   }
 
   /**
-   * Возвращает состояние команды.
+   * Returns state of the command.
    *
-   * @return {@link SkCommandState} - состояние команды
+   * @return {@link SkCommandState} - new state of the command
    */
   public SkCommandState state() {
     return state;
   }
 
   // ------------------------------------------------------------------------------------
-  // Реализация методов класса Object
+  // Object
   //
 
   @Override

@@ -6,33 +6,33 @@ import org.toxsoft.core.tslib.gw.gwid.*;
 import org.toxsoft.core.tslib.gw.skid.*;
 
 /**
- * DPU команды (без состояния).
+ * Information about sent command.
  *
- * @author goga
+ * @author hazard157
  */
 public interface IDtoCommand
     extends ITimestampable {
 
   /**
-   * Возвращает уникальный в системе <b>идентификатор экземпляра</b> команды.
+   * Returns an unique command instance identifier.
    * <p>
-   * Идентификатор уникален среди всех экземпляров команд за все время работы сстемы.
+   * This ID is unique among all commands of all time in the particular system.
    *
-   * @return String - идентификатор (ИД-путь) экземпляра команды
+   * @return String - command instance unique ID (an IDpath)
    */
   String id();
 
   /**
    * Returns the command GWID including the destination object skid and command identifier.
    *
-   * @return String - the event concrete GWID of kind {@link EGwidKind#GW_CMD}
+   * @return String - the concrete GWID of kind {@link EGwidKind#GW_CMD}
    */
   Gwid cmdGwid();
 
   /**
    * Returns command author object identifier.
    *
-   * @return {@link Skid} - the command author object
+   * @return {@link Skid} - the command author object SKID
    */
   Skid authorSkid();
 

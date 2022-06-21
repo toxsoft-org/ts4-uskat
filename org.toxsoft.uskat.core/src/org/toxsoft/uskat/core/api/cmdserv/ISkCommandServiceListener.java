@@ -5,9 +5,9 @@ import org.toxsoft.core.tslib.gw.gwid.*;
 import org.toxsoft.core.tslib.gw.skid.*;
 
 /**
- * Отслеживатель изменения состояния команды.
+ * Command service listener.
  *
- * @author goga
+ * @author hazard157
  */
 public interface ISkCommandServiceListener {
 
