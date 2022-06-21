@@ -4,12 +4,12 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import org.toxsoft.core.tslib.bricks.events.ITsEventer;
 import org.toxsoft.core.tslib.bricks.validator.ITsValidationSupport;
+import org.toxsoft.core.tslib.coll.primtypes.IStringMap;
 import org.toxsoft.core.tslib.gw.skid.ISkidList;
 import org.toxsoft.core.tslib.gw.skid.Skid;
 import org.toxsoft.core.tslib.utils.errors.TsItemNotFoundRtException;
 import org.toxsoft.core.tslib.utils.errors.TsNullArgumentRtException;
-
-import ru.uskat.core.api.links.*;
+import org.toxsoft.uskat.core.api.linkserv.*;
 
 /**
  * Синхронизация доступа к {@link ISkLinkService} (декоратор)
@@ -31,7 +31,7 @@ public final class S5SynchronizedLinkService
    * @throws TsItemNotFoundRtException в соединении не найдена служба которую необходимо защитить
    */
   public S5SynchronizedLinkService( S5SynchronizedConnection aConnection ) {
-    this( (ISkLinkService)aConnection.getUnsynchronizedService( ISkLinkService.SERVICE_ID ), aConnection.mainLock() );
+    this( (ISkLinkService)aConnection.getUnsynchronizedService( ISkLinkService.SERVICE_ID ), aConnection.nativeLock() );
     aConnection.addService( this );
   }
 
@@ -62,10 +62,10 @@ public final class S5SynchronizedLinkService
   // ISkLinkService
   //
   @Override
-  public ISkLinkFwd getLink( Skid aLeftSkid, String aLinkId ) {
+  public IDtoLinkFwd getLinkFwd( Skid aLeftSkid, String aLinkId ) {
     lockWrite( this );
     try {
-      return target().getLink( aLeftSkid, aLinkId );
+      return target().getLinkFwd( aLeftSkid, aLinkId );
     }
     finally {
       unlockWrite( this );
@@ -73,7 +73,18 @@ public final class S5SynchronizedLinkService
   }
 
   @Override
-  public ISkLinkRev getLinkRev( String aClassId, String aLinkId, Skid aRightSkid ) {
+  public IStringMap<IDtoLinkFwd> getAllLinksFwd( Skid aLeftSkid ) {
+    lockWrite( this );
+    try {
+      return target().getAllLinksFwd( aLeftSkid );
+    }
+    finally {
+      unlockWrite( this );
+    }
+  }
+
+  @Override
+  public IDtoLinkRev getLinkRev( String aClassId, String aLinkId, Skid aRightSkid ) {
     lockWrite( this );
     try {
       return target().getLinkRev( aClassId, aLinkId, aRightSkid );
@@ -84,10 +95,10 @@ public final class S5SynchronizedLinkService
   }
 
   @Override
-  public void defineLink( Skid aLeftSkid, String aLinkId, ISkidList aRemovedSkids, ISkidList aAddedSkids ) {
+  public IDtoLinkFwd defineLink( Skid aLeftSkid, String aLinkId, ISkidList aRemovedSkids, ISkidList aAddedSkids ) {
     lockWrite( this );
     try {
-      target().defineLink( aLeftSkid, aLinkId, aRemovedSkids, aAddedSkids );
+      return target().defineLink( aLeftSkid, aLinkId, aRemovedSkids, aAddedSkids );
     }
     finally {
       unlockWrite( this );

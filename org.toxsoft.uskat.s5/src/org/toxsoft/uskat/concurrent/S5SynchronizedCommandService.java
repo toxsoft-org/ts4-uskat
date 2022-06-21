@@ -11,10 +11,8 @@ import org.toxsoft.core.tslib.gw.gwid.IGwidList;
 import org.toxsoft.core.tslib.gw.skid.Skid;
 import org.toxsoft.core.tslib.utils.errors.TsItemNotFoundRtException;
 import org.toxsoft.core.tslib.utils.errors.TsNullArgumentRtException;
-
-import ru.uskat.common.dpu.rt.cmds.DpuCommandStateChangeInfo;
-import ru.uskat.core.api.cmds.*;
-import ru.uskat.core.common.helpers.ITemporalsHistory;
+import org.toxsoft.uskat.core.api.cmdserv.*;
+import org.toxsoft.uskat.core.utils.ITemporalsHistory;
 
 /**
  * Синхронизация доступа к {@link ISkCommandService} (декоратор)
@@ -37,7 +35,7 @@ public final class S5SynchronizedCommandService
    * @throws TsItemNotFoundRtException в соединении не найдена служба которую необходимо защитить
    */
   public S5SynchronizedCommandService( S5SynchronizedConnection aConnection ) {
-    this( (ISkCommandService)aConnection.getUnsynchronizedService( SERVICE_ID ), aConnection.mainLock() );
+    this( (ISkCommandService)aConnection.getUnsynchronizedService( SERVICE_ID ), aConnection.nativeLock() );
     aConnection.addService( this );
   }
 
@@ -51,7 +49,7 @@ public final class S5SynchronizedCommandService
   public S5SynchronizedCommandService( ISkCommandService aTarget, ReentrantReadWriteLock aLock ) {
     super( aTarget, aLock );
     eventer = new S5SynchronizedEventer<>( aTarget.eventer(), aLock );
-    history = new S5SynchronizedTemporalsHistory<>( target().history(), lock() );
+    history = new S5SynchronizedTemporalsHistory<>( target().history(), nativeLock() );
   }
 
   // ------------------------------------------------------------------------------------
@@ -117,7 +115,7 @@ public final class S5SynchronizedCommandService
   }
 
   @Override
-  public void changeCommandState( DpuCommandStateChangeInfo aStateChangeInfo ) {
+  public void changeCommandState( DtoCommandStateChangeInfo aStateChangeInfo ) {
     lockWrite( this );
     try {
       target().changeCommandState( aStateChangeInfo );

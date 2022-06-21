@@ -2,14 +2,14 @@ package org.toxsoft.uskat.concurrent;
 
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
+import org.toxsoft.core.tslib.bricks.events.ITsEventer;
 import org.toxsoft.core.tslib.bricks.strid.coll.IStridablesList;
 import org.toxsoft.core.tslib.bricks.validator.ITsValidationSupport;
-import org.toxsoft.core.tslib.bricks.validator.ValidationResult;
+import org.toxsoft.core.tslib.bricks.validator.ITsValidator;
 import org.toxsoft.core.tslib.utils.errors.TsItemNotFoundRtException;
 import org.toxsoft.core.tslib.utils.errors.TsNullArgumentRtException;
-
-import ru.uskat.common.dpu.IDpuObject;
-import ru.uskat.core.api.users.*;
+import org.toxsoft.uskat.core.api.objserv.IDtoObject;
+import org.toxsoft.uskat.core.api.users.*;
 
 /**
  * Синхронизация доступа к {@link ISkUserService} (декоратор)
@@ -20,6 +20,7 @@ public final class S5SynchronizedUserService
     extends S5SynchronizedService<ISkUserService>
     implements ISkUserService {
 
+  private final S5SynchronizedEventer<ISkUserServiceListener>            eventer;
   private final S5SynchronizedValidationSupport<ISkUserServiceValidator> svs;
 
   /**
@@ -30,7 +31,7 @@ public final class S5SynchronizedUserService
    * @throws TsItemNotFoundRtException в соединении не найдена служба которую необходимо защитить
    */
   public S5SynchronizedUserService( S5SynchronizedConnection aConnection ) {
-    this( (ISkUserService)aConnection.getUnsynchronizedService( ISkUserService.SERVICE_ID ), aConnection.mainLock() );
+    this( (ISkUserService)aConnection.getUnsynchronizedService( ISkUserService.SERVICE_ID ), aConnection.nativeLock() );
     aConnection.addService( this );
   }
 
@@ -43,6 +44,7 @@ public final class S5SynchronizedUserService
    */
   public S5SynchronizedUserService( ISkUserService aTarget, ReentrantReadWriteLock aLock ) {
     super( aTarget, aLock );
+    eventer = new S5SynchronizedEventer<>( aTarget.eventer(), aLock );
     svs = new S5SynchronizedValidationSupport<>( aTarget.svs(), aLock );
   }
 
@@ -52,6 +54,7 @@ public final class S5SynchronizedUserService
   @Override
   protected void doChangeTarget( ISkUserService aPrevTarget, ISkUserService aNewTarget,
       ReentrantReadWriteLock aNewLock ) {
+    eventer.changeTarget( aNewTarget.eventer(), aNewLock );
     svs.changeTarget( aNewTarget.svs(), aNewLock );
   }
 
@@ -59,10 +62,10 @@ public final class S5SynchronizedUserService
   // ISkUserService
   //
   @Override
-  public IStridablesList<ISkUser> list() {
+  public IStridablesList<ISkUser> listUsers() {
     lockWrite( this );
     try {
-      return target().list();
+      return target().listUsers();
     }
     finally {
       unlockWrite( this );
@@ -70,10 +73,10 @@ public final class S5SynchronizedUserService
   }
 
   @Override
-  public ISkUser find( String aLogin ) {
+  public IStridablesList<ISkRole> listRoles() {
     lockWrite( this );
     try {
-      return target().find( aLogin );
+      return target().listRoles();
     }
     finally {
       unlockWrite( this );
@@ -81,10 +84,10 @@ public final class S5SynchronizedUserService
   }
 
   @Override
-  public ISkUser defineUser( IDpuObject aUserDpu ) {
+  public ISkUser defineUser( IDtoObject aDtoUser ) {
     lockWrite( this );
     try {
-      return target().defineUser( aUserDpu );
+      return target().defineUser( aDtoUser );
     }
     finally {
       unlockWrite( this );
@@ -92,10 +95,10 @@ public final class S5SynchronizedUserService
   }
 
   @Override
-  public ISkUser disableUser( String aLogin, boolean aDisabled ) {
+  public ISkRole defineRole( IDtoObject aDtoRole ) {
     lockWrite( this );
     try {
-      return target().disableUser( aLogin, aDisabled );
+      return target().defineRole( aDtoRole );
     }
     finally {
       unlockWrite( this );
@@ -103,10 +106,10 @@ public final class S5SynchronizedUserService
   }
 
   @Override
-  public ISkUser setPassword( String aLogin, String aPassword ) {
+  public void removeUser( String aLogin ) {
     lockWrite( this );
     try {
-      return target().setPassword( aLogin, aPassword );
+      target().removeUser( aLogin );
     }
     finally {
       unlockWrite( this );
@@ -114,10 +117,10 @@ public final class S5SynchronizedUserService
   }
 
   @Override
-  public ValidationResult validatePassowrd( String aPassword ) {
+  public void removeRole( String aRoleId ) {
     lockWrite( this );
     try {
-      return target().validatePassowrd( aPassword );
+      target().removeRole( aRoleId );
     }
     finally {
       unlockWrite( this );
@@ -125,10 +128,54 @@ public final class S5SynchronizedUserService
   }
 
   @Override
-  public void deleteUser( String aLogin ) {
+  public ISkUser setUserEnabled( String aLogin, boolean aEnabled ) {
     lockWrite( this );
     try {
-      target().deleteUser( aLogin );
+      return target().setUserEnabled( aLogin, aEnabled );
+    }
+    finally {
+      unlockWrite( this );
+    }
+  }
+
+  @Override
+  public ISkUser setUserHidden( String aLogin, boolean aHidden ) {
+    lockWrite( this );
+    try {
+      return target().setUserHidden( aLogin, aHidden );
+    }
+    finally {
+      unlockWrite( this );
+    }
+  }
+
+  @Override
+  public ISkUser setUserPassword( String aLogin, String aPassword ) {
+    lockWrite( this );
+    try {
+      return target().setUserPassword( aLogin, aPassword );
+    }
+    finally {
+      unlockWrite( this );
+    }
+  }
+
+  @Override
+  public ITsValidator<String> passwordValidator() {
+    lockWrite( this );
+    try {
+      return target().passwordValidator();
+    }
+    finally {
+      unlockWrite( this );
+    }
+  }
+
+  @Override
+  public void addPasswordValidator( ITsValidator<String> aPasswordValidator ) {
+    lockWrite( this );
+    try {
+      target().addPasswordValidator( aPasswordValidator );
     }
     finally {
       unlockWrite( this );
@@ -138,6 +185,11 @@ public final class S5SynchronizedUserService
   @Override
   public ITsValidationSupport<ISkUserServiceValidator> svs() {
     return svs;
+  }
+
+  @Override
+  public ITsEventer<ISkUserServiceListener> eventer() {
+    return eventer;
   }
 
 }

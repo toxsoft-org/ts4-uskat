@@ -4,18 +4,17 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import org.toxsoft.core.tslib.bricks.ctx.ITsContext;
 import org.toxsoft.core.tslib.bricks.ctx.ITsContextRo;
+import org.toxsoft.core.tslib.bricks.ctx.impl.TsContext;
 import org.toxsoft.core.tslib.coll.IListEdit;
 import org.toxsoft.core.tslib.coll.impl.ElemArrayList;
 import org.toxsoft.core.tslib.coll.impl.ElemLinkedList;
 import org.toxsoft.core.tslib.utils.errors.*;
+import org.toxsoft.uskat.core.ISkCoreApi;
+import org.toxsoft.uskat.core.api.ISkService;
+import org.toxsoft.uskat.core.backend.api.ISkBackendInfo;
+import org.toxsoft.uskat.core.connection.*;
+import org.toxsoft.uskat.s5.client.IS5ConnectionParams;
 import org.toxsoft.uskat.s5.utils.threads.impl.S5Lockable;
-
-import ru.uskat.backend.ISkBackendInfo;
-import ru.uskat.core.ISkCoreApi;
-import ru.uskat.core.api.ISkBackend;
-import ru.uskat.core.api.ISkService;
-import ru.uskat.core.api.users.ISkSession;
-import ru.uskat.core.connection.*;
 
 /**
  * Синхронизация доступа к {@link ISkConnection} (декоратор)
@@ -35,14 +34,15 @@ public final class S5SynchronizedConnection
    * Конструктор
    *
    * @param aTarget {@link ISkConnection} защищаемый ресурс
+   * @param aLock {@link ReentrantReadWriteLock} блокировка соединения
    * @param aManualStateChange boolean<b>true</b> состояние соединения изменяется в ручную; <b>false</b>автоматическое
    *          изменение состояния.
    * @throws TsNullArgumentRtException любой аргумент = null
    */
-  private S5SynchronizedConnection( ISkConnection aTarget, boolean aManualStateChange ) {
-    super( aTarget, aTarget.mainLock() );
+  private S5SynchronizedConnection( ISkConnection aTarget, ReentrantReadWriteLock aLock, boolean aManualStateChange ) {
+    super( aTarget, aLock );
     if( aTarget.state() != ESkConnState.CLOSED ) {
-      coreApi = new S5SynchronizedCoreApi( aTarget.coreApi(), lock() );
+      coreApi = new S5SynchronizedCoreApi( aTarget.coreApi(), nativeLock() );
     }
     manualState = (aManualStateChange ? ESkConnState.CLOSED : null);
   }
@@ -54,7 +54,8 @@ public final class S5SynchronizedConnection
   protected void doChangeTarget( ISkConnection aPrevTarget, ISkConnection aNewTarget,
       ReentrantReadWriteLock aNewLock ) {
     // Удаление блокировки из пула
-    S5Lockable.removeLockableFromPool( aPrevTarget.mainLock() );
+    // 2022-06-15 mvk---
+    // S5Lockable.removeLockableFromPool( aPrevTarget.mainLock() );
     // Дерегистрация слушателей старого соединения при автоматическом изменении состояния
     if( manualState == null ) {
       ISkConnection oldTarget = target();
@@ -102,7 +103,7 @@ public final class S5SynchronizedConnection
     }
     // Оповещение слушателей "до"
     for( ISkConnectionListener l : ll ) {
-      l.beforeSkConnectionStateChanged( this, aNewState );
+      l.beforeSkConnectionStateChange( this, aNewState );
     }
     ESkConnState prevState = manualState;
     manualState = aNewState;
@@ -120,30 +121,45 @@ public final class S5SynchronizedConnection
    * @throws TsNullArgumentRtException аргумент = null
    */
   public static S5SynchronizedConnection createSynchronizedConnection( ISkConnection aTarget ) {
-    return createSynchronizedConnection( aTarget, false );
+    return createSynchronizedConnection( aTarget, new ReentrantReadWriteLock(), false );
   }
 
   /**
    * Конструктор
    *
    * @param aTarget {@link ISkConnection} защищаемое соединение
+   * @param aLock {@link ReentrantReadWriteLock} внешняя блокировка используемая соединением
+   * @return {@link S5SynchronizedConnection} защищенное соединение
+   * @throws TsNullArgumentRtException аргумент = null
+   */
+  public static S5SynchronizedConnection createSynchronizedConnection( ISkConnection aTarget,
+      ReentrantReadWriteLock aLock ) {
+    return createSynchronizedConnection( aTarget, aLock, false );
+  }
+
+  /**
+   * Конструктор
+   *
+   * @param aTarget {@link ISkConnection} защищаемое соединение
+   * @param aLock {@link ReentrantReadWriteLock} внешняя блокировка используемая соединением
    * @param aManualStateChange boolean<b>true</b> состояние соединения изменяется в ручную; <b>false</b>автоматическое
    *          изменение состояния.
    * @return {@link S5SynchronizedConnection} защищенное соединение
    * @throws TsNullArgumentRtException аргумент = null
    */
   public static S5SynchronizedConnection createSynchronizedConnection( ISkConnection aTarget,
-      boolean aManualStateChange ) {
+      ReentrantReadWriteLock aLock, boolean aManualStateChange ) {
     TsNullArgumentRtException.checkNull( aTarget );
     // 2021-06-23 mvk
     // if( aTarget.state() != ESkConnState.CLOSED ) {
     // S5Lockable.addLockableIfNotExistToPool( aTarget.mainLock(), aTarget.sessionInfo().strid() );
     // }
     // Имя блокировки для идентификации при отладке
-    String lockName = (aTarget.state() != ESkConnState.CLOSED ? aTarget.sessionInfo().strid()
-        : "ClosedConnection" + String.valueOf( instanceCounter++ )); //$NON-NLS-1$
-    S5Lockable.addLockableIfNotExistToPool( aTarget.mainLock(), lockName );
-    return new S5SynchronizedConnection( aTarget, aManualStateChange );
+    String lockName = (aTarget.state() != ESkConnState.CLOSED ? //
+        aTarget.backendInfo().id() : "ClosedConnection") //$NON-NLS-1$
+        + String.valueOf( instanceCounter++ );
+    S5Lockable.addLockableIfNotExistToPool( aLock, lockName );
+    return new S5SynchronizedConnection( aTarget, aLock, aManualStateChange );
   }
 
   /**
@@ -202,12 +218,16 @@ public final class S5SynchronizedConnection
   public void open( ITsContextRo aArgs ) {
     lockWrite( this );
     try {
+      TsContext ctx = new TsContext( aArgs );
+      // Размещение в контексте блокировки доступа к соединению
+      ctx.put( IS5ConnectionParams.REF_CONNECTION_LOCK.refKey(), lock() );
       // 2021-03-29 mvk ---
       // S5Lockable.addLockableIfNotExistToPool( target().mainLock(), target().sessionInfo().strid() );
-      target().open( aArgs );
+      target().open( ctx );
       // 2021-03-29 mvk +++
-      S5Lockable.addLockableIfNotExistToPool( target().mainLock(), target().sessionInfo().strid() );
-      coreApi = new S5SynchronizedCoreApi( target().coreApi(), lock() );
+      // 2022-06-15 mvk---
+      // S5Lockable.addLockableIfNotExistToPool( target().mainLock(), target().sessionInfo().strid() );
+      coreApi = new S5SynchronizedCoreApi( target().coreApi(), nativeLock() );
     }
     finally {
       unlockWrite( this );
@@ -222,7 +242,7 @@ public final class S5SynchronizedConnection
         changeState( ESkConnState.CLOSED );
       }
       target().close();
-      S5Lockable.removeLockableFromPool( target().mainLock() );
+      S5Lockable.removeLockableFromPool( nativeLock() );
     }
     finally {
       unlockWrite( this );
@@ -242,21 +262,10 @@ public final class S5SynchronizedConnection
   }
 
   @Override
-  public ISkBackendInfo serverInfo() {
+  public ISkBackendInfo backendInfo() {
     lockWrite( this );
     try {
-      return target().serverInfo();
-    }
-    finally {
-      unlockWrite( this );
-    }
-  }
-
-  @Override
-  public ISkSession sessionInfo() {
-    lockWrite( this );
-    try {
-      return target().sessionInfo();
+      return target().backendInfo();
     }
     finally {
       unlockWrite( this );
@@ -293,17 +302,6 @@ public final class S5SynchronizedConnection
     finally {
       unlockWrite( this );
     }
-  }
-
-  @Override
-  public <T extends ISkBackend> T getBackend() {
-    // Метода не должно быть в API ISkConnection
-    throw new TsUnsupportedFeatureRtException();
-  }
-
-  @Override
-  public ReentrantReadWriteLock mainLock() {
-    return target().mainLock();
   }
 
   @Override

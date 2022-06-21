@@ -10,23 +10,22 @@ import org.toxsoft.core.tslib.coll.impl.ElemMap;
 import org.toxsoft.core.tslib.gw.gwid.*;
 import org.toxsoft.core.tslib.utils.errors.TsItemNotFoundRtException;
 import org.toxsoft.core.tslib.utils.errors.TsNullArgumentRtException;
-
-import ru.uskat.core.api.rtdata.*;
+import org.toxsoft.uskat.core.api.rtdserv.*;
 
 /**
- * Синхронизация доступа к {@link ISkRtDataService} (декоратор)
+ * Синхронизация доступа к {@link ISkRtdataService} (декоратор)
  *
  * @author mvk
  */
 public final class S5SynchronizedRtDataService
-    extends S5SynchronizedService<ISkRtDataService>
-    implements ISkRtDataService {
+    extends S5SynchronizedService<ISkRtdataService>
+    implements ISkRtdataService {
 
-  private final S5SynchronizedEventer<ISkCurrDataChangeListener> eventer;
-  private final IListEdit<S5SynchronizedReadCurrDataChannel>     readCurrdata    = new ElemLinkedList<>();
-  private final IListEdit<S5SynchronizedWriteCurrDataChannel>    writeCurrdata   = new ElemLinkedList<>();
-  private final IListEdit<S5SynchronizedWriteHistDataChannel>    writeHistdata   = new ElemLinkedList<>();
-  private final IListEdit<S5SynchronizedHistDataQuery>           histDataQueries = new ElemLinkedList<>();
+  private final S5SynchronizedEventer<ISkCurrDataChangeListener>  eventer;
+  private final IListEdit<S5SynchronizedReadCurrDataChannel>      readCurrdata    = new ElemLinkedList<>();
+  private final IListEdit<S5SynchronizedWriteCurrDataChannel>     writeCurrdata   = new ElemLinkedList<>();
+  private final IListEdit<S5SynchronizedWriteHistDataChannel>     writeHistdata   = new ElemLinkedList<>();
+  private final IMapEdit<S5SynchronizedHistDataQuery, IOptionSet> histDataQueries = new ElemMap<>();
 
   /**
    * Конструктор
@@ -36,20 +35,20 @@ public final class S5SynchronizedRtDataService
    * @throws TsItemNotFoundRtException в соединении не найдена служба которую необходимо защитить
    */
   public S5SynchronizedRtDataService( S5SynchronizedConnection aConnection ) {
-    this( (ISkRtDataService)aConnection.getUnsynchronizedService( SERVICE_ID ), aConnection.mainLock() );
+    this( (ISkRtdataService)aConnection.getUnsynchronizedService( SERVICE_ID ), aConnection.nativeLock() );
     aConnection.addService( this );
   }
 
   /**
    * Конструктор
    *
-   * @param aTarget {@link ISkRtDataService} защищаемый ресурс
+   * @param aTarget {@link ISkRtdataService} защищаемый ресурс
    * @param aLock {@link ReentrantReadWriteLock} блокировка доступа к ресурсу
    * @throws TsNullArgumentRtException любой аргумент = null
    */
-  public S5SynchronizedRtDataService( ISkRtDataService aTarget, ReentrantReadWriteLock aLock ) {
+  public S5SynchronizedRtDataService( ISkRtdataService aTarget, ReentrantReadWriteLock aLock ) {
     super( aTarget, aLock );
-    eventer = new S5SynchronizedEventer<>( target().eventer(), lock() );
+    eventer = new S5SynchronizedEventer<>( target().eventer(), nativeLock() );
   }
 
   // ------------------------------------------------------------------------------------
@@ -57,7 +56,7 @@ public final class S5SynchronizedRtDataService
   //
   @SuppressWarnings( "unchecked" )
   @Override
-  protected void doChangeTarget( ISkRtDataService aPrevTarget, ISkRtDataService aNewTarget,
+  protected void doChangeTarget( ISkRtdataService aPrevTarget, ISkRtdataService aNewTarget,
       ReentrantReadWriteLock aNewLock ) {
     eventer.changeTarget( aNewTarget.eventer(), aNewLock );
     // Создание каналов в новом соединении и замена
@@ -77,8 +76,8 @@ public final class S5SynchronizedRtDataService
       channel.changeTarget( writeHistdataChannels.getByKey( channel.gwid() ), aNewLock );
     }
     // Создание и замена запросов хранимых данных
-    for( S5SynchronizedHistDataQuery query : histDataQueries ) {
-      query.changeTarget( aNewTarget.createQuery( query.options() ), aNewLock );
+    for( S5SynchronizedHistDataQuery query : histDataQueries.keys() ) {
+      query.changeTarget( aNewTarget.createQuery( histDataQueries.getByKey( query ) ), aNewLock );
     }
   }
 
@@ -115,11 +114,11 @@ public final class S5SynchronizedRtDataService
    */
   void removeQuery( S5SynchronizedHistDataQuery aQuery ) {
     TsNullArgumentRtException.checkNull( aQuery );
-    histDataQueries.remove( aQuery );
+    histDataQueries.removeByKey( aQuery );
   }
 
   // ------------------------------------------------------------------------------------
-  // ISkRtDataService
+  // ISkRtdataService
   //
   @Override
   public IMap<Gwid, ISkReadCurrDataChannel> createReadCurrDataChannels( IGwidList aGwids ) {
@@ -129,7 +128,7 @@ public final class S5SynchronizedRtDataService
       IMapEdit<Gwid, ISkReadCurrDataChannel> retValue = new ElemMap<>();
       for( Gwid gwid : channelsByGwids.keys() ) {
         S5SynchronizedReadCurrDataChannel channel =
-            new S5SynchronizedReadCurrDataChannel( this, channelsByGwids.getByKey( gwid ), lock() );
+            new S5SynchronizedReadCurrDataChannel( this, channelsByGwids.getByKey( gwid ), nativeLock() );
         retValue.put( gwid, channel );
         readCurrdata.add( channel );
       }
@@ -148,23 +147,11 @@ public final class S5SynchronizedRtDataService
       IMapEdit<Gwid, ISkWriteCurrDataChannel> retValue = new ElemMap<>();
       for( Gwid gwid : channelsByGwids.keys() ) {
         S5SynchronizedWriteCurrDataChannel channel =
-            new S5SynchronizedWriteCurrDataChannel( this, channelsByGwids.getByKey( gwid ), lock() );
+            new S5SynchronizedWriteCurrDataChannel( this, channelsByGwids.getByKey( gwid ), nativeLock() );
         retValue.put( gwid, channel );
         writeCurrdata.add( channel );
       }
       return retValue;
-    }
-    finally {
-      unlockWrite( this );
-    }
-  }
-
-  @SuppressWarnings( "deprecation" )
-  @Override
-  public void writeCurrValues() {
-    lockWrite( this );
-    try {
-      target().writeCurrValues();
     }
     finally {
       unlockWrite( this );
@@ -181,8 +168,8 @@ public final class S5SynchronizedRtDataService
     lockWrite( this );
     try {
       S5SynchronizedHistDataQuery retValue =
-          new S5SynchronizedHistDataQuery( this, target().createQuery( aOptions ), lock() );
-      histDataQueries.add( retValue );
+          new S5SynchronizedHistDataQuery( this, target().createQuery( aOptions ), nativeLock() );
+      histDataQueries.put( retValue, aOptions );
       return retValue;
     }
     finally {
@@ -199,7 +186,7 @@ public final class S5SynchronizedRtDataService
       IMapEdit<Gwid, ISkWriteHistDataChannel> retValue = new ElemMap<>();
       for( Gwid gwid : channelsByGwids.keys() ) {
         S5SynchronizedWriteHistDataChannel channel =
-            new S5SynchronizedWriteHistDataChannel( this, channelsByGwids.getByKey( gwid ), lock() );
+            new S5SynchronizedWriteHistDataChannel( this, channelsByGwids.getByKey( gwid ), nativeLock() );
         retValue.put( gwid, channel );
         writeHistdata.add( channel );
       }

@@ -10,21 +10,20 @@ import org.toxsoft.core.tslib.coll.synch.SynchronizedStringMap;
 import org.toxsoft.core.tslib.utils.errors.TsNullArgumentRtException;
 import org.toxsoft.core.tslib.utils.errors.TsUnsupportedFeatureRtException;
 import org.toxsoft.core.tslib.utils.logs.ILogger;
-
-import ru.uskat.core.ISkCoreApi;
-import ru.uskat.core.api.ISkService;
-import ru.uskat.core.api.ISkServiceCreator;
-import ru.uskat.core.api.cmds.ISkCommandService;
-import ru.uskat.core.api.events.ISkEventService;
-import ru.uskat.core.api.links.ISkLinkService;
-import ru.uskat.core.api.lobs.ISkLobService;
-import ru.uskat.core.api.objserv.ISkObjectService;
-import ru.uskat.core.api.rtdata.ISkRtDataService;
-import ru.uskat.core.api.sysdescr.ISkSysdescr;
-import ru.uskat.core.api.users.ISkSession;
-import ru.uskat.core.api.users.ISkUserService;
-import ru.uskat.core.devapi.IDevCoreApi;
-import ru.uskat.core.impl.AbstractSkService;
+import org.toxsoft.uskat.core.ISkCoreApi;
+import org.toxsoft.uskat.core.ISkServiceCreator;
+import org.toxsoft.uskat.core.api.ISkService;
+import org.toxsoft.uskat.core.api.clobserv.ISkClobService;
+import org.toxsoft.uskat.core.api.cmdserv.ISkCommandService;
+import org.toxsoft.uskat.core.api.evserv.ISkEventService;
+import org.toxsoft.uskat.core.api.gwids.ISkGwidService;
+import org.toxsoft.uskat.core.api.linkserv.ISkLinkService;
+import org.toxsoft.uskat.core.api.objserv.ISkObjectService;
+import org.toxsoft.uskat.core.api.rtdserv.ISkRtdataService;
+import org.toxsoft.uskat.core.api.sysdescr.ISkSysdescr;
+import org.toxsoft.uskat.core.api.users.ISkUserService;
+import org.toxsoft.uskat.core.devapi.IDevCoreApi;
+import org.toxsoft.uskat.core.impl.AbstractSkService;
 
 /**
  * Синхронизация доступа к {@link ISkCoreApi} (декоратор)
@@ -38,12 +37,14 @@ public final class S5SynchronizedCoreApi
   private final S5SynchronizedSysdescrService sysdescr;
   private final S5SynchronizedObjectService   objService;
   private final S5SynchronizedLinkService     linkService;
-  private final S5SynchronizedRtDataService   rtDataService;
+  private final S5SynchronizedClobService     clobService;
+  private final S5SynchronizedRtDataService   rtdService;
   private final S5SynchronizedCommandService  cmdService;
   private final S5SynchronizedEventService    eventService;
   private final S5SynchronizedUserService     userService;
-  private final S5SynchronizedLobService      lobService;
-  private final IStringMapEdit<ISkService>    services;
+  private final S5SynchronizedGwidService     gwidService;
+
+  private final IStringMapEdit<ISkService> services;
 
   private final ILogger logger = LoggerWrapper.getLogger( getClass() );
 
@@ -59,20 +60,25 @@ public final class S5SynchronizedCoreApi
     sysdescr = new S5SynchronizedSysdescrService( aTarget.sysdescr(), aLock );
     objService = new S5SynchronizedObjectService( aTarget.objService(), aLock );
     linkService = new S5SynchronizedLinkService( aTarget.linkService(), aLock );
-    rtDataService = new S5SynchronizedRtDataService( aTarget.rtDataService(), aLock );
+    clobService = new S5SynchronizedClobService( aTarget.clobService(), aLock );
+    rtdService = new S5SynchronizedRtDataService( aTarget.rtdService(), aLock );
     cmdService = new S5SynchronizedCommandService( aTarget.cmdService(), aLock );
     eventService = new S5SynchronizedEventService( aTarget.eventService(), aLock );
     userService = new S5SynchronizedUserService( aTarget.userService(), aLock );
-    lobService = new S5SynchronizedLobService( aTarget.lobService(), aLock );
+    gwidService = new S5SynchronizedGwidService( aTarget.gwidService(), aLock );
     services = new SynchronizedStringMap<>( new StringMap<>(), aLock );
     services.put( sysdescr.serviceId(), sysdescr );
     services.put( objService.serviceId(), objService );
     services.put( linkService.serviceId(), linkService );
-    services.put( rtDataService.serviceId(), rtDataService );
+    services.put( clobService.serviceId(), clobService );
+    services.put( rtdService.serviceId(), rtdService );
     services.put( cmdService.serviceId(), cmdService );
     services.put( eventService.serviceId(), eventService );
-    services.put( userService.serviceId(), userService );
-    services.put( lobService.serviceId(), lobService );
+    // TODO: ???
+    // services.put( userService.serviceId(), userService );
+    services.put( ISkUserService.SERVICE_ID, userService );
+
+    services.put( gwidService.serviceId(), gwidService );
   }
 
   // ------------------------------------------------------------------------------------
@@ -133,8 +139,13 @@ public final class S5SynchronizedCoreApi
   }
 
   @Override
-  public ISkRtDataService rtDataService() {
-    return rtDataService;
+  public ISkClobService clobService() {
+    return clobService;
+  }
+
+  @Override
+  public ISkRtdataService rtdService() {
+    return rtdService;
   }
 
   @Override
@@ -153,8 +164,8 @@ public final class S5SynchronizedCoreApi
   }
 
   @Override
-  public ISkLobService lobService() {
-    return lobService;
+  public ISkGwidService gwidService() {
+    return gwidService;
   }
 
   @Override
@@ -195,14 +206,4 @@ public final class S5SynchronizedCoreApi
     throw new TsUnsupportedFeatureRtException();
   }
 
-  @Override
-  public ISkSession sessionInfo() {
-    lockWrite( this );
-    try {
-      return target().sessionInfo();
-    }
-    finally {
-      unlockWrite( this );
-    }
-  }
 }

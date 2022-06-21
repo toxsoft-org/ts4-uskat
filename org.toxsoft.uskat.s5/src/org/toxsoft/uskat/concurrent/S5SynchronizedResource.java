@@ -120,9 +120,18 @@ abstract class S5SynchronizedResource<T> {
   /**
    * Возвращает блокировку используемую для защиты ресурса
    *
+   * @return {@link S5Lockable} блокировка
+   */
+  protected final S5Lockable lock() {
+    return lock;
+  }
+
+  /**
+   * Возвращает native-блокировку используемую для защиты ресурса
+   *
    * @return {@link ReentrantReadWriteLock} блокировка
    */
-  protected final ReentrantReadWriteLock lock() {
+  protected final ReentrantReadWriteLock nativeLock() {
     return S5Lockable.nativeLock( lock );
   }
 }

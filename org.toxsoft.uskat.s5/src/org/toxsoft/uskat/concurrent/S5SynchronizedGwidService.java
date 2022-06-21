@@ -2,21 +2,22 @@ package org.toxsoft.uskat.concurrent;
 
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
-import org.toxsoft.core.tslib.coll.IList;
+import org.toxsoft.core.tslib.coll.IListEdit;
+import org.toxsoft.core.tslib.gw.gwid.Gwid;
+import org.toxsoft.core.tslib.gw.gwid.GwidList;
 import org.toxsoft.core.tslib.utils.errors.TsItemNotFoundRtException;
 import org.toxsoft.core.tslib.utils.errors.TsNullArgumentRtException;
-
-import ru.uskat.core.api.lobs.ISkLobService;
-import ru.uskat.legacy.IdPair;
+import org.toxsoft.uskat.core.api.gwids.ISkGwidService;
+import org.toxsoft.uskat.core.api.sysdescr.ESkClassPropKind;
 
 /**
- * Синхронизация доступа к {@link ISkLobService} (декоратор)
+ * Синхронизация доступа к {@link ISkGwidService} (декоратор)
  *
  * @author mvk
  */
-public final class S5SynchronizedLobService
-    extends S5SynchronizedService<ISkLobService>
-    implements ISkLobService {
+public final class S5SynchronizedGwidService
+    extends S5SynchronizedService<ISkGwidService>
+    implements ISkGwidService {
 
   /**
    * Конструктор
@@ -25,19 +26,19 @@ public final class S5SynchronizedLobService
    * @throws TsNullArgumentRtException аругмент = null
    * @throws TsItemNotFoundRtException в соединении не найдена служба которую необходимо защитить
    */
-  public S5SynchronizedLobService( S5SynchronizedConnection aConnection ) {
-    this( (ISkLobService)aConnection.getUnsynchronizedService( ISkLobService.SERVICE_ID ), aConnection.mainLock() );
+  public S5SynchronizedGwidService( S5SynchronizedConnection aConnection ) {
+    this( (ISkGwidService)aConnection.getUnsynchronizedService( ISkGwidService.SERVICE_ID ), aConnection.nativeLock() );
     aConnection.addService( this );
   }
 
   /**
    * Конструктор
    *
-   * @param aTarget {@link ISkLobService} защищаемый ресурс
+   * @param aTarget {@link ISkGwidService} защищаемый ресурс
    * @param aLock {@link ReentrantReadWriteLock} блокировка доступа к ресурсу
    * @throws TsNullArgumentRtException любой аргумент = null
    */
-  public S5SynchronizedLobService( ISkLobService aTarget, ReentrantReadWriteLock aLock ) {
+  public S5SynchronizedGwidService( ISkGwidService aTarget, ReentrantReadWriteLock aLock ) {
     super( aTarget, aLock );
   }
 
@@ -45,19 +46,19 @@ public final class S5SynchronizedLobService
   // S5SynchronizedResource
   //
   @Override
-  protected void doChangeTarget( ISkLobService aPrevTarget, ISkLobService aNewTarget,
+  protected void doChangeTarget( ISkGwidService aPrevTarget, ISkGwidService aNewTarget,
       ReentrantReadWriteLock aNewLock ) {
     // nop
   }
 
   // ------------------------------------------------------------------------------------
-  // ISkLobService
+  // ISkGwidService
   //
   @Override
-  public IList<IdPair> listILobIds() {
+  public boolean covers( Gwid aGeneral, Gwid aTested, ESkClassPropKind aKind ) {
     lockWrite( this );
     try {
-      return target().listILobIds();
+      return target().covers( aGeneral, aTested, aKind );
     }
     finally {
       unlockWrite( this );
@@ -65,10 +66,10 @@ public final class S5SynchronizedLobService
   }
 
   @Override
-  public boolean hasLob( IdPair aId ) {
+  public boolean coversSingle( Gwid aGeneral, Gwid aTested, ESkClassPropKind aKind ) {
     lockWrite( this );
     try {
-      return target().hasLob( aId );
+      return target().coversSingle( aGeneral, aTested, aKind );
     }
     finally {
       unlockWrite( this );
@@ -76,10 +77,10 @@ public final class S5SynchronizedLobService
   }
 
   @Override
-  public boolean writeClob( IdPair aId, String aValue ) {
+  public boolean updateGwidsOfIntereset( IListEdit<Gwid> aList, Gwid aToAdd, ESkClassPropKind aKind ) {
     lockWrite( this );
     try {
-      return target().writeClob( aId, aValue );
+      return target().updateGwidsOfIntereset( aList, aToAdd, aKind );
     }
     finally {
       unlockWrite( this );
@@ -87,10 +88,10 @@ public final class S5SynchronizedLobService
   }
 
   @Override
-  public boolean copyClob( IdPair aSourceId, IdPair aDestId ) {
+  public boolean exists( Gwid aGwid ) {
     lockWrite( this );
     try {
-      return target().copyClob( aSourceId, aDestId );
+      return target().exists( aGwid );
     }
     finally {
       unlockWrite( this );
@@ -98,24 +99,14 @@ public final class S5SynchronizedLobService
   }
 
   @Override
-  public String readClob( IdPair aId ) {
+  public GwidList expandGwid( Gwid aGwid ) {
     lockWrite( this );
     try {
-      return target().readClob( aId );
+      return target().expandGwid( aGwid );
     }
     finally {
       unlockWrite( this );
     }
   }
 
-  @Override
-  public boolean removeLob( IdPair aId ) {
-    lockWrite( this );
-    try {
-      return target().removeLob( aId );
-    }
-    finally {
-      unlockWrite( this );
-    }
-  }
 }
