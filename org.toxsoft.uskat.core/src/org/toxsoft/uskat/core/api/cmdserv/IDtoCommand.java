@@ -20,7 +20,7 @@ public interface IDtoCommand
    *
    * @return String - command instance unique ID (an IDpath)
    */
-  String id();
+  String instanceId();
 
   /**
    * Returns the command GWID including the destination object skid and command identifier.

@@ -62,6 +62,15 @@ public interface ISkCommandService
   void registerExecutor( ISkCommandExecutor aExecutor, IGwidList aCmdGwids );
 
   /**
+   * Unregisters previously registered executor (if any).
+   * <p>
+   * Changes {@link #listExecutableCommandGwids()}.
+   *
+   * @param aExecutor {@link ISkCommandExecutor} - executor to unregister
+   */
+  void unregisterExecutor( ISkCommandExecutor aExecutor );
+
+  /**
    * Returns the GWIDs for which the registered executors are responsible for.
    *
    * @return {@link IGwidList} - the summary of all registered executors GWIDs
@@ -80,7 +89,7 @@ public interface ISkCommandService
    * </ul>
    * <p>
    * Argument may include additional optional information like reason {@link SkCommandState#OP_REASON}, state change
-   * SKID {@link SkCommandState#OP_AUTHOR} иand/or any other applicaion specific data.
+   * SKID {@link SkCommandState#OP_AUTHOR} and/or any other applicaion specific data.
    *
    * @param aStateChangeInfo {@link DtoCommandStateChangeInfo} - state change info
    * @throws TsNullArgumentRtException any argument = <code>null</code>
@@ -92,7 +101,7 @@ public interface ISkCommandService
   /**
    * Returns the stored completed commands history.
    *
-   * @return {@link ITemporalsHistory} - the commands history
+   * @return {@link ITemporalsHistory}&lt;{@link IDtoCompletedCommand}&gt; - the commands history
    */
   ITemporalsHistory<IDtoCompletedCommand> history();
 

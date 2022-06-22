@@ -28,7 +28,7 @@ public final class DtoCommandStateChangeInfo
 
         @Override
         protected void doWrite( IStrioWriter aSw, DtoCommandStateChangeInfo aEntity ) {
-          aSw.writeAsIs( aEntity.cmdId() );
+          aSw.writeAsIs( aEntity.instanceId() );
           aSw.writeSeparatorChar();
           SkCommandState.KEEPER.write( aSw, aEntity.state() );
         }
@@ -75,7 +75,7 @@ public final class DtoCommandStateChangeInfo
    *
    * @return String - the command instance ID
    */
-  public String cmdId() {
+  public String instanceId() {
     return commandId;
   }
 

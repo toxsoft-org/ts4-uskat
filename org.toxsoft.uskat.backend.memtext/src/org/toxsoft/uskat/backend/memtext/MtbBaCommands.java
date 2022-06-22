@@ -2,6 +2,7 @@ package org.toxsoft.uskat.backend.memtext;
 
 import org.toxsoft.core.tslib.av.opset.*;
 import org.toxsoft.core.tslib.bricks.strio.*;
+import org.toxsoft.core.tslib.bricks.time.*;
 import org.toxsoft.core.tslib.coll.primtypes.*;
 import org.toxsoft.core.tslib.gw.gwid.*;
 import org.toxsoft.core.tslib.gw.skid.*;
@@ -9,6 +10,7 @@ import org.toxsoft.core.tslib.utils.errors.*;
 import org.toxsoft.uskat.core.api.cmdserv.*;
 import org.toxsoft.uskat.core.backend.*;
 import org.toxsoft.uskat.core.backend.api.*;
+import org.toxsoft.uskat.core.impl.*;
 
 public class MtbBaCommands
     extends MtbAbstractAddon
@@ -42,12 +44,12 @@ public class MtbBaCommands
 
   @Override
   protected void doWrite( IStrioWriter aSw ) {
-    // TODO Auto-generated method stub
+    // nop
   }
 
   @Override
   protected void doRead( IStrioReader aSr ) {
-    // TODO Auto-generated method stub
+    // nop
   }
 
   // ------------------------------------------------------------------------------------
@@ -67,10 +69,28 @@ public class MtbBaCommands
   //
 
   @Override
-  public IDtoCommand sendCommand( Gwid aCmdGwid, Skid aAuthorSkid, IOptionSet aArgs ) {
+  public SkCommand sendCommand( Gwid aCmdGwid, Skid aAuthorSkid, IOptionSet aArgs ) {
     // TODO Auto-generated method stub
     // TODO реализовать MtbBaCommands.sendCommand()
     throw new TsUnderDevelopmentRtException( "MtbBaCommands.sendCommand()" );
+  }
+
+  @Override
+  public void setExcutableCommandGwids( IGwidList aGwids ) {
+    // TODO Auto-generated method stub
+
+  }
+
+  @Override
+  public void changeCommandState( DtoCommandStateChangeInfo aStateChangeInfo ) {
+    // TODO Auto-generated method stub
+
+  }
+
+  @Override
+  public ITimedList<IDtoCompletedCommand> queryCommands( IQueryInterval aInterval, IGwidList aNeededGwids ) {
+    // TODO Auto-generated method stub
+    return null;
   }
 
 }

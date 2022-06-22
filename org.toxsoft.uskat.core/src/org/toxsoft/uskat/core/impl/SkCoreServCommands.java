@@ -8,6 +8,8 @@ import org.toxsoft.core.tslib.av.metainfo.*;
 import org.toxsoft.core.tslib.av.opset.*;
 import org.toxsoft.core.tslib.bricks.ctx.*;
 import org.toxsoft.core.tslib.bricks.events.*;
+import org.toxsoft.core.tslib.coll.*;
+import org.toxsoft.core.tslib.coll.impl.*;
 import org.toxsoft.core.tslib.coll.primtypes.*;
 import org.toxsoft.core.tslib.coll.primtypes.impl.*;
 import org.toxsoft.core.tslib.gw.gwid.*;
@@ -21,11 +23,6 @@ import org.toxsoft.uskat.core.api.sysdescr.dto.*;
 import org.toxsoft.uskat.core.devapi.*;
 import org.toxsoft.uskat.core.utils.*;
 
-import ru.uskat.common.dpu.rt.cmds.*;
-import ru.uskat.core.api.sysdescr.*;
-import ru.uskat.core.common.skobject.*;
-import ru.uskat.core.impl.*;
-
 /**
  * {@link ISkCommandService} implementation.
  *
@@ -35,17 +32,79 @@ public class SkCoreServCommands
     extends AbstractSkCoreService
     implements ISkCommandService {
 
+  static class Eventer
+      extends AbstractTsEventer<ISkCommandServiceListener> {
+
+    /**
+     * Non <code>null</code> value means that there are penfding event.
+     */
+    private IGwidList excutableGwidsList = null;
+
+    @Override
+    protected boolean doIsPendingEvents() {
+      return excutableGwidsList != null;
+    }
+
+    @Override
+    protected void doFirePendingEvents() {
+      reallyFire( excutableGwidsList );
+    }
+
+    @Override
+    protected void doClearPendingEvents() {
+      excutableGwidsList = null;
+    }
+
+    private void reallyFire( IGwidList aList ) {
+      for( ISkCommandServiceListener l : listeners() ) {
+        l.onExecutableCommandGwidsChanged( aList );
+      }
+    }
+
+    void fireEvent( IGwidList aList ) {
+      if( isFiringPaused() ) {
+        excutableGwidsList = new GwidList( aList );
+        return;
+      }
+      reallyFire( aList );
+    }
+
+  }
+
   /**
    * Service creator singleton.
    */
   public static final ISkServiceCreator<AbstractSkService> CREATOR = SkCoreServCommands::new;
 
   /**
+   * {@link #history()} impementation
+   */
+  private final ITemporalsHistory<IDtoCompletedCommand> history = ( aInterval, aGwids ) -> {
+    TsNullArgumentRtException.checkNulls( aInterval, aGwids );
+    return ba().baCommands().queryCommands( aInterval, aGwids );
+  };
+
+  /**
    * Send commands executing now.
    * <p>
    * This is map "command instance ID" - "command"
    */
-  private final IStringMapEdit<IDtoCommand> executingCmds = new StringMap<>();
+  private final IStringMapEdit<SkCommand> executingCmds = new StringMap<>();
+
+  /**
+   * Registered registeredExecutors with a list of processed commands.
+   */
+  private final IMapEdit<ISkCommandExecutor, IGwidList> registeredExecutors = new ElemMap<>();
+
+  /**
+   * Cache of GWIDs which have executor registered in this service.
+   * <p>
+   * Cache is updated every time when {@link #registerExecutor(ISkCommandExecutor, IGwidList)} or
+   * {@link #unregisterExecutor(ISkCommandExecutor)} are called.
+   */
+  private final GwidList cacheOfExecutableCommandGwids = new GwidList();
+
+  private final Eventer eventer = new Eventer();
 
   /**
    * Constructor.
@@ -57,17 +116,35 @@ public class SkCoreServCommands
   }
 
   // ------------------------------------------------------------------------------------
-  // ApiWrapAbstractSkService
+  // AbstractSkCoreService
   //
 
   @Override
   protected void doInit( ITsContextRo aArgs ) {
-    // TODO Auto-generated method stub
+    // nop
   }
 
   @Override
   protected void doClose() {
-    // TODO Auto-generated method stub
+    // nop
+  }
+
+  // ------------------------------------------------------------------------------------
+  // implementation
+  //
+
+  /**
+   * Updates {@link #cacheOfExecutableCommandGwids} from {@link #registeredExecutors} GWIDs.
+   */
+  private void updateCacheOfExecutableCommandGwids() {
+    IListEdit<Gwid> ll = new ElemLinkedBundleList<>();
+    // iterate over all GWIDs in #registeredExecutorsMap
+    for( IGwidList gl : registeredExecutors.values() ) {
+      for( Gwid g : gl ) {
+        gwidService().updateGwidsOfIntereset( ll, g, ESkClassPropKind.CMD );
+      }
+    }
+    cacheOfExecutableCommandGwids.setAll( ll );
   }
 
   // ------------------------------------------------------------------------------------
@@ -103,56 +180,65 @@ public class SkCoreServCommands
        * are considered as hints, not mandatory restictions. USkat does NOT checks argument values against constraints.
        */
     }
-    // Передача команды
-    IDtoCommand cmd = ba().baCommands().sendCommand( aCmdGwid, aAuthorSkid, aArgs );
-    // Сохранение команды в карте выполняемых команд
-    executingCmds.put( cmd.id(), cmd );
-    // Формирование результата
-    return new SkCommand( new DtoCompletedCommand( cmd ) );
+    // send command
+    SkCommand cmd = ba().baCommands().sendCommand( aCmdGwid, aAuthorSkid, aArgs );
+    if( !cmd.isComplete() ) {
+      executingCmds.put( cmd.instanceId(), cmd );
+    }
+    return cmd;
   }
 
   @Override
   public void registerExecutor( ISkCommandExecutor aExecutor, IGwidList aCmdGwids ) {
-    // TODO Auto-generated method stub
-
+    TsNullArgumentRtException.checkNulls( aExecutor, aCmdGwids );
+    registeredExecutors.put( aExecutor, aCmdGwids );
+    updateCacheOfExecutableCommandGwids();
+    ba().baCommands().setExcutableCommandGwids( cacheOfExecutableCommandGwids );
+    eventer.fireEvent( cacheOfExecutableCommandGwids );
   }
 
   @Override
-  public IGwidList getExcutableCommandGwids() {
-    // TODO Auto-generated method stub
-    return null;
+  public IGwidList listExecutableCommandGwids() {
+    return cacheOfExecutableCommandGwids;
   }
 
   @Override
   public void unregisterExecutor( ISkCommandExecutor aExecutor ) {
-    // TODO Auto-generated method stub
-
+    if( registeredExecutors.removeByKey( aExecutor ) != null ) {
+      updateCacheOfExecutableCommandGwids();
+      ba().baCommands().setExcutableCommandGwids( cacheOfExecutableCommandGwids );
+      eventer.fireEvent( cacheOfExecutableCommandGwids );
+    }
   }
 
   @Override
   public void changeCommandState( DtoCommandStateChangeInfo aStateChangeInfo ) {
-    // TODO Auto-generated method stub
-
+    TsNullArgumentRtException.checkNull( aStateChangeInfo );
+    TsItemNotFoundRtException.checkFalse( executingCmds.hasKey( aStateChangeInfo.instanceId() ) );
+    switch( aStateChangeInfo.state().state() ) {
+      case EXECUTING:
+      case FAILED:
+      case SUCCESS: {
+        ba().baCommands().changeCommandState( aStateChangeInfo );
+        break;
+      }
+      case SENDING:
+      case TIMEOUTED:
+      case UNHANDLED:
+        throw new TsIllegalArgumentRtException();
+      default:
+        throw new TsNotAllEnumsUsedRtException( aStateChangeInfo.state().state().id() );
+    }
   }
 
   @Override
-  public ITemporalsHistory<ISkCommand> history() {
-    // TODO Auto-generated method stub
-    return null;
+  public ITemporalsHistory<IDtoCompletedCommand> history() {
+    return history;
   }
 
   @Override
   public ITsEventer<ISkCommandServiceListener> eventer() {
-    // TODO Auto-generated method stub
-    return null;
+    return eventer;
   }
-
-  // ------------------------------------------------------------------------------------
-  // implementation
-  //
-
-  // ------------------------------------------------------------------------------------
-  // ISkCommandService
-  //
 
 }

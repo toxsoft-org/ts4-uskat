@@ -95,6 +95,17 @@ public final class DtoLinkFwd
     rightObjIds = aRightObjIds;
   }
 
+  /**
+   * Constructor that uses arguments for internal storage, without any checks and defensive copy creation.
+   * <p>
+   * Warning: must be used only when loading from storage for optimization purposes.
+   *
+   * @param aGwid {@link Gwid} - abstract GWID of the link
+   * @param aLeftSkid {@link Skid} - SKID of the left object
+   * @param aRightObjIds {@link ISkidList} - right objects SKIDs initial values
+   * @return {@link DtoLinkFwd} - created instance
+   * @throws TsNullArgumentRtException any argument = <code>null</code>
+   */
   public static DtoLinkFwd createDirect( Gwid aGwid, Skid aLeftSkid, SkidList aRightObjIds ) {
     TsNullArgumentRtException.checkNulls( aGwid, aLeftSkid, aRightObjIds );
     return new DtoLinkFwd( 0, aGwid, aLeftSkid, aRightObjIds );
