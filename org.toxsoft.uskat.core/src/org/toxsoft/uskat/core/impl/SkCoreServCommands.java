@@ -7,7 +7,8 @@ import org.toxsoft.core.tslib.av.errors.*;
 import org.toxsoft.core.tslib.av.metainfo.*;
 import org.toxsoft.core.tslib.av.opset.*;
 import org.toxsoft.core.tslib.bricks.ctx.*;
-import org.toxsoft.core.tslib.bricks.events.*;
+import org.toxsoft.core.tslib.bricks.events.change.*;
+import org.toxsoft.core.tslib.bricks.events.msg.*;
 import org.toxsoft.core.tslib.coll.*;
 import org.toxsoft.core.tslib.coll.impl.*;
 import org.toxsoft.core.tslib.coll.primtypes.*;
@@ -20,7 +21,9 @@ import org.toxsoft.uskat.core.api.cmdserv.*;
 import org.toxsoft.uskat.core.api.objserv.*;
 import org.toxsoft.uskat.core.api.sysdescr.*;
 import org.toxsoft.uskat.core.api.sysdescr.dto.*;
+import org.toxsoft.uskat.core.backend.api.*;
 import org.toxsoft.uskat.core.devapi.*;
+import org.toxsoft.uskat.core.impl.dto.*;
 import org.toxsoft.uskat.core.utils.*;
 
 /**
@@ -31,45 +34,6 @@ import org.toxsoft.uskat.core.utils.*;
 public class SkCoreServCommands
     extends AbstractSkCoreService
     implements ISkCommandService {
-
-  static class Eventer
-      extends AbstractTsEventer<ISkCommandServiceListener> {
-
-    /**
-     * Non <code>null</code> value means that there are penfding event.
-     */
-    private IGwidList excutableGwidsList = null;
-
-    @Override
-    protected boolean doIsPendingEvents() {
-      return excutableGwidsList != null;
-    }
-
-    @Override
-    protected void doFirePendingEvents() {
-      reallyFire( excutableGwidsList );
-    }
-
-    @Override
-    protected void doClearPendingEvents() {
-      excutableGwidsList = null;
-    }
-
-    private void reallyFire( IGwidList aList ) {
-      for( ISkCommandServiceListener l : listeners() ) {
-        l.onExecutableCommandGwidsChanged( aList );
-      }
-    }
-
-    void fireEvent( IGwidList aList ) {
-      if( isFiringPaused() ) {
-        excutableGwidsList = new GwidList( aList );
-        return;
-      }
-      reallyFire( aList );
-    }
-
-  }
 
   /**
    * Service creator singleton.
@@ -96,15 +60,7 @@ public class SkCoreServCommands
    */
   private final IMapEdit<ISkCommandExecutor, IGwidList> registeredExecutors = new ElemMap<>();
 
-  /**
-   * Cache of GWIDs which have executor registered in this service.
-   * <p>
-   * Cache is updated every time when {@link #registerExecutor(ISkCommandExecutor, IGwidList)} or
-   * {@link #unregisterExecutor(ISkCommandExecutor)} are called.
-   */
-  private final GwidList cacheOfExecutableCommandGwids = new GwidList();
-
-  private final Eventer eventer = new Eventer();
+  private final GenericChangeEventer globallyHandledGwidsEventer;
 
   /**
    * Constructor.
@@ -113,6 +69,7 @@ public class SkCoreServCommands
    */
   SkCoreServCommands( IDevCoreApi aCoreApi ) {
     super( SERVICE_ID, aCoreApi );
+    globallyHandledGwidsEventer = new GenericChangeEventer( this );
   }
 
   // ------------------------------------------------------------------------------------
@@ -129,22 +86,91 @@ public class SkCoreServCommands
     // nop
   }
 
+  @Override
+  protected boolean onBackendMessage( GenericMessage aMessage ) {
+    switch( aMessage.messageId() ) {
+      case BaCommandsMsgExecCmd.MSG_ID: {
+        IDtoCommand cmd = BaCommandsMsgExecCmd.INSTANCE.getCmd( aMessage );
+        handleMsgExecuteCommand( cmd );
+        return true;
+      }
+      case BaCommandsMsgChangeState.MSG_ID: {
+        DtoCommandStateChangeInfo stateChangeInfo = BaCommandsMsgChangeState.INSTANCE.getStateChangeInfo( aMessage );
+        handleMsgCommandStateChanged( stateChangeInfo );
+        return true;
+      }
+      case BaCommandsMsgGloballyHandledGwidsChanged.MSG_ID: {
+        globallyHandledGwidsEventer.fireChangeEvent();
+        return true;
+      }
+      default:
+        return false;
+    }
+  }
+
   // ------------------------------------------------------------------------------------
   // implementation
   //
 
   /**
-   * Updates {@link #cacheOfExecutableCommandGwids} from {@link #registeredExecutors} GWIDs.
+   * Calculates GWIDs for which all {@link #registeredExecutors} are responsible.
+   *
+   * @return {@link IGwidList} - list of command GWIDs executed by thi service
    */
-  private void updateCacheOfExecutableCommandGwids() {
-    IListEdit<Gwid> ll = new ElemLinkedBundleList<>();
+  private IGwidList calcHandledCommandGwids() {
+    GwidList ll = new GwidList();
     // iterate over all GWIDs in #registeredExecutorsMap
     for( IGwidList gl : registeredExecutors.values() ) {
       for( Gwid g : gl ) {
         gwidService().updateGwidsOfIntereset( ll, g, ESkClassPropKind.CMD );
       }
     }
-    cacheOfExecutableCommandGwids.setAll( ll );
+    return ll;
+  }
+
+  /**
+   * Finds executor, responsible to send command with specified GWID.
+   *
+   * @param aCmdGwid {@link Gwid} - concrete GWID of the command
+   * @return {@link ISkCommandExecutor} - command executor or <code>null</code>
+   */
+  private ISkCommandExecutor findExecutorForGwid( Gwid aCmdGwid ) {
+    for( ISkCommandExecutor executor : registeredExecutors.keys() ) {
+      for( Gwid gwid : registeredExecutors.getByKey( executor ) ) {
+        if( GwidUtils.covers( gwid, aCmdGwid ) ) {
+          return executor;
+        }
+      }
+    }
+    return null;
+  }
+
+  private void handleMsgExecuteCommand( IDtoCommand aCommand ) {
+    ISkCommandExecutor executor = findExecutorForGwid( aCommand.cmdGwid() );
+    if( executor != null ) {
+      executor.executeCommand( aCommand );
+    }
+    else {
+      logger().warning( FMT_LOG_WARN_UNHANDLED_CMD, aCommand.toString() );
+    }
+  }
+
+  private void handleMsgCommandStateChanged( DtoCommandStateChangeInfo aStateChangeInfo ) {
+    SkCommand skCmd = executingCmds.findByKey( aStateChangeInfo.instanceId() );
+    if( skCmd != null ) {
+      SkCommandState newState = aStateChangeInfo.state();
+      skCmd.papiAddState( newState ); // this generates event from SkCommand
+      if( newState.state().isComplete() ) {
+        executingCmds.removeByKey( skCmd.instanceId() );
+        IDtoCommand dtoCmd = new DtoCommand( skCmd.timestamp(), skCmd.instanceId(), skCmd.cmdGwid(), skCmd.authorSkid(),
+            skCmd.argValues() );
+        IDtoCompletedCommand cc = new DtoCompletedCommand( dtoCmd, skCmd.statesHistory() );
+        ba().baCommands().saveToHistory( cc );
+      }
+    }
+    else {
+      logger().warning( FMT_LOG_WARN_NO_STATE_CHANGE_CMD, aStateChangeInfo.toString() );
+    }
   }
 
   // ------------------------------------------------------------------------------------
@@ -192,22 +218,15 @@ public class SkCoreServCommands
   public void registerExecutor( ISkCommandExecutor aExecutor, IGwidList aCmdGwids ) {
     TsNullArgumentRtException.checkNulls( aExecutor, aCmdGwids );
     registeredExecutors.put( aExecutor, aCmdGwids );
-    updateCacheOfExecutableCommandGwids();
-    ba().baCommands().setExcutableCommandGwids( cacheOfExecutableCommandGwids );
-    eventer.fireEvent( cacheOfExecutableCommandGwids );
-  }
-
-  @Override
-  public IGwidList listExecutableCommandGwids() {
-    return cacheOfExecutableCommandGwids;
+    IGwidList allGwids = calcHandledCommandGwids();
+    ba().baCommands().setHandledCommandGwids( allGwids );
   }
 
   @Override
   public void unregisterExecutor( ISkCommandExecutor aExecutor ) {
     if( registeredExecutors.removeByKey( aExecutor ) != null ) {
-      updateCacheOfExecutableCommandGwids();
-      ba().baCommands().setExcutableCommandGwids( cacheOfExecutableCommandGwids );
-      eventer.fireEvent( cacheOfExecutableCommandGwids );
+      IGwidList allGwids = calcHandledCommandGwids();
+      ba().baCommands().setHandledCommandGwids( allGwids );
     }
   }
 
@@ -237,8 +256,13 @@ public class SkCoreServCommands
   }
 
   @Override
-  public ITsEventer<ISkCommandServiceListener> eventer() {
-    return eventer;
+  public IGwidList listGloballyHandledCommandGwids() {
+    return ba().baCommands().listGloballyHandledCommandGwids();
+  }
+
+  @Override
+  public IGenericChangeEventer globallyHandledGwidsEventer() {
+    return globallyHandledGwidsEventer;
   }
 
 }

@@ -1,7 +1,7 @@
 package org.toxsoft.uskat.core.api.cmdserv;
 
 import org.toxsoft.core.tslib.av.opset.*;
-import org.toxsoft.core.tslib.bricks.events.*;
+import org.toxsoft.core.tslib.bricks.events.change.*;
 import org.toxsoft.core.tslib.gw.gwid.*;
 import org.toxsoft.core.tslib.gw.skid.*;
 import org.toxsoft.core.tslib.utils.errors.*;
@@ -63,19 +63,10 @@ public interface ISkCommandService
 
   /**
    * Unregisters previously registered executor (if any).
-   * <p>
-   * Changes {@link #listExecutableCommandGwids()}.
    *
    * @param aExecutor {@link ISkCommandExecutor} - executor to unregister
    */
   void unregisterExecutor( ISkCommandExecutor aExecutor );
-
-  /**
-   * Returns the GWIDs for which the registered executors are responsible for.
-   *
-   * @return {@link IGwidList} - the summary of all registered executors GWIDs
-   */
-  IGwidList listExecutableCommandGwids();
 
   /**
    * Chenges state of the command currently being executed.
@@ -105,11 +96,31 @@ public interface ISkCommandService
    */
   ITemporalsHistory<IDtoCompletedCommand> history();
 
+  // ------------------------------------------------------------------------------------
+  // Global GWIDs handling
+  //
+
   /**
-   * Returns the service eventer.
+   * Returns list of concrete command GWIDs that have executers assigned.
+   * <p>
+   * In distributed systems each {@link ISkCommandService#registerExecutor(ISkCommandExecutor, IGwidList)} adds
+   * executors handle subset of all commands of all objects. The master server keeps a record of all registered
+   * executors. This method returns list of command GWIDs from the master server.
+   * <p>
+   * In local environments returns union of GWIDs set to be handled by executors registered with method
+   * {@link #registerExecutor(ISkCommandExecutor, IGwidList)} in this servce.
+   * <p>
+   * Note: returned list may contain multi-GWIDs.
    *
-   * @return {@link ITsEventer}&lt;{@link ISkCommandServiceListener}&gt; - the service eventer
+   * @return {@link IGwidList} - global (system-wide) list GWIDs of commands with assigned executors
    */
-  ITsEventer<ISkCommandServiceListener> eventer();
+  IGwidList listGloballyHandledCommandGwids();
+
+  /**
+   * Returns the eventer notifying about changes in {@link #listGloballyHandledCommandGwids()}.
+   *
+   * @return {@link IGenericChangeEventer} - the eventer
+   */
+  IGenericChangeEventer globallyHandledGwidsEventer();
 
 }

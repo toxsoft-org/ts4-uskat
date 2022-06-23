@@ -22,5 +22,9 @@ interface ISkResources {
   String STR_N_MAX_EVENTS_COUNT         = "Max events";
   String STR_D_MAX_EVENTS_COUNT         = "Maximum number of events in history";
   String FMT_ERR_NO_FILE_NAME_SPECIFIED = "Не задан параметр %s: имя текстового файла хранения данных";
+  String STR_N_IS_CMDS_STORED           = "Хранить Команды?";
+  String STR_D_IS_CMDS_STORED           = "Specifies if events history  will be stored permanently";
+  String STR_N_MAX_CMDS_COUNT           = "Max Commands";
+  String STR_D_MAX_CMDS_COUNT           = "Maximum number of commands in history";
 
 }

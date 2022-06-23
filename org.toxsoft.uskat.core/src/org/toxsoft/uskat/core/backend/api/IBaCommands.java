@@ -45,7 +45,7 @@ public interface IBaCommands
    *
    * @param aGwids {@link IGwidList} - GWIDs of commands that are executed by this object
    */
-  void setExcutableCommandGwids( IGwidList aGwids );
+  void setHandledCommandGwids( IGwidList aGwids );
 
   /**
    * Request to change state of the command being executed now.
@@ -55,6 +55,23 @@ public interface IBaCommands
    * @param aStateChangeInfo {@link DtoCommandStateChangeInfo} - new state of the command
    */
   void changeCommandState( DtoCommandStateChangeInfo aStateChangeInfo );
+
+  /**
+   * Returns list of concrete command GWIDs that have executers assigned.
+   * <p>
+   * Note: returned list may contain multi-GWIDs.
+   *
+   * @return {@link IGwidList} - global (system-wide) list GWIDs of commands with assigned executors
+   * @see ISkCommandService#listGloballyHandledCommandGwids()
+   */
+  IGwidList listGloballyHandledCommandGwids();
+
+  /**
+   * Tells backend to save completed command to the history.
+   *
+   * @param aCompletedCommand {@link IDtoCompletedCommand}
+   */
+  void saveToHistory( IDtoCompletedCommand aCompletedCommand );
 
   /**
    * Fetches completed commands from history.

@@ -11,7 +11,7 @@ import org.toxsoft.core.tslib.gw.skid.*;
  * @author hazard157
  */
 public interface IDtoCommand
-    extends ITimestampable {
+    extends ITimestampable, Comparable<IDtoCommand> {
 
   /**
    * Returns an unique command instance identifier.

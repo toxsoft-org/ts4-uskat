@@ -27,23 +27,25 @@ public class MtbBaRtdata
   @Override
   public void close() {
     // TODO Auto-generated method stub
-
   }
 
   @Override
   public void clear() {
     // TODO Auto-generated method stub
-
   }
 
   @Override
   protected void doWrite( IStrioWriter aSw ) {
+
     // TODO Auto-generated method stub
+
   }
 
   @Override
   protected void doRead( IStrioReader aSr ) {
+
     // TODO Auto-generated method stub
+
   }
 
   // ------------------------------------------------------------------------------------

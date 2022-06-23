@@ -9,7 +9,6 @@ import org.toxsoft.core.tslib.bricks.strid.coll.*;
 import org.toxsoft.core.tslib.bricks.strid.coll.impl.*;
 import org.toxsoft.core.tslib.bricks.strio.*;
 import org.toxsoft.core.tslib.utils.errors.*;
-import org.toxsoft.core.tslib.utils.valobj.*;
 
 /**
  * Some enumeration.
@@ -35,12 +34,12 @@ public enum ESkConnState
   ACTIVE( "Active", STR_N_ACTIVE, STR_D_ACTIVE, true, true ); //$NON-NLS-1$
 
   /**
-   * Идентификатор регистрации хранителя {@link #KEEPER} в реестре {@link TsValobjUtils}.
+   * Registered keeper ID.
    */
   public static final String KEEPER_ID = "ESkConnState"; //$NON-NLS-1$
 
   /**
-   * Синглтон хранителя.
+   * Keeper singleton.
    */
   public static final IEntityKeeper<ESkConnState> KEEPER =
       new AbstractEntityKeeper<>( ESkConnState.class, EEncloseMode.ENCLOSES_BASE_CLASS, null ) {

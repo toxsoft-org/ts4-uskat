@@ -1,14 +1,11 @@
 package org.toxsoft.uskat.core.impl;
 
 import org.toxsoft.core.tslib.av.opset.*;
-import org.toxsoft.core.tslib.av.opset.impl.*;
 import org.toxsoft.core.tslib.bricks.events.change.*;
-import org.toxsoft.core.tslib.bricks.strid.impl.*;
 import org.toxsoft.core.tslib.bricks.time.*;
 import org.toxsoft.core.tslib.bricks.time.impl.*;
 import org.toxsoft.core.tslib.gw.gwid.*;
 import org.toxsoft.core.tslib.gw.skid.*;
-import org.toxsoft.core.tslib.utils.*;
 import org.toxsoft.core.tslib.utils.errors.*;
 import org.toxsoft.uskat.core.api.cmdserv.*;
 
@@ -17,40 +14,27 @@ import org.toxsoft.uskat.core.api.cmdserv.*;
  *
  * @author hazard157
  */
-public class SkCommand
+public final class SkCommand
     implements ISkCommand {
 
   private final GenericChangeEventer eventer;
 
-  private final long                           timestamp;
-  private final String                         id;
-  private final Gwid                           cmdGwid;
-  private final Skid                           authorSkid;
-  private final IOptionSetEdit                 argValues = new OptionSet();
-  private final ITimedListEdit<SkCommandState> states    = new TimedList<>();
+  private final IDtoCommand cmd;
+
+  private final ITimedListEdit<SkCommandState> states = new TimedList<>();
 
   /**
    * Constructor creates command with state {@link ESkCommandState#SENDING}.
    *
-   * @param aTimestamp long - command sending start time
-   * @param aId String - command instance ID
-   * @param aCmdGwid {@link Gwid} - concrete GWID of the command
-   * @param aAuthor {@link Skid} - author SKID
-   * @param aArgs {@link IOptionSet} - argument values
+   * @param aCmd {@link IDtoCommand} - command info
    * @throws TsNullArgumentRtException any argument = <code>null</code>
    * @throws TsIllegalArgumentRtException ID is not an IDpath
    * @throws TsIllegalArgumentRtException GWID is not comannd concrete GWID
    */
-  public SkCommand( long aTimestamp, String aId, Gwid aCmdGwid, Skid aAuthor, IOptionSet aArgs ) {
-    id = StridUtils.checkValidIdPath( aId );
-    TsNullArgumentRtException.checkNulls( aCmdGwid, aAuthor );
-    TsIllegalArgumentRtException.checkTrue( aCmdGwid.isAbstract() );
-    TsIllegalArgumentRtException.checkTrue( aCmdGwid.kind() != EGwidKind.GW_CMD );
+  public SkCommand( IDtoCommand aCmd ) {
+    cmd = TsNullArgumentRtException.checkNull( aCmd );
     eventer = new GenericChangeEventer( this );
-    timestamp = aTimestamp;
-    cmdGwid = aCmdGwid;
-    authorSkid = aAuthor;
-    states.add( new SkCommandState( timestamp, ESkCommandState.SENDING ) );
+    states.add( new SkCommandState( aCmd.timestamp(), ESkCommandState.SENDING ) );
   }
 
   // ------------------------------------------------------------------------------------
@@ -59,7 +43,7 @@ public class SkCommand
 
   @Override
   public long timestamp() {
-    return timestamp;
+    return cmd.timestamp();
   }
 
   @Override
@@ -71,7 +55,7 @@ public class SkCommand
     if( c != 0 ) {
       return c;
     }
-    return cmdGwid.compareTo( aThat.cmdGwid() );
+    return cmd.compareTo( ((SkCommand)aThat).cmd );
   }
 
   // ------------------------------------------------------------------------------------
@@ -80,22 +64,22 @@ public class SkCommand
 
   @Override
   public String instanceId() {
-    return id;
+    return cmd.instanceId();
   }
 
   @Override
   public Gwid cmdGwid() {
-    return cmdGwid;
+    return cmd.cmdGwid();
   }
 
   @Override
   public Skid authorSkid() {
-    return authorSkid;
+    return cmd.authorSkid();
   }
 
   @Override
   public IOptionSet argValues() {
-    return argValues;
+    return cmd.argValues();
   }
 
   @Override
@@ -128,7 +112,7 @@ public class SkCommand
 
   @Override
   public String toString() {
-    return id + ": " + cmdGwid.toString(); //$NON-NLS-1$
+    return cmd.toString();
   }
 
   @Override
@@ -136,22 +120,15 @@ public class SkCommand
     if( aThat == this ) {
       return true;
     }
-    if( aThat instanceof ISkCommand that ) {
-      return id.equals( that.instanceId() ) && timestamp == that.timestamp() && cmdGwid.equals( that.cmdGwid() )
-          && authorSkid.equals( that.authorSkid() ) && argValues.equals( that.argValues() );
+    if( aThat instanceof SkCommand that ) {
+      return cmd.equals( that.cmd );
     }
     return false;
   }
 
   @Override
   public int hashCode() {
-    int result = TsLibUtils.INITIAL_HASH_CODE;
-    result = TsLibUtils.PRIME * result + id.hashCode();
-    result = TsLibUtils.PRIME * result + (int)(timestamp ^ (timestamp >>> 32));
-    result = TsLibUtils.PRIME * result + cmdGwid.hashCode();
-    result = TsLibUtils.PRIME * result + authorSkid.hashCode();
-    result = TsLibUtils.PRIME * result + argValues.hashCode();
-    return result;
+    return cmd.hashCode();
   }
 
 }

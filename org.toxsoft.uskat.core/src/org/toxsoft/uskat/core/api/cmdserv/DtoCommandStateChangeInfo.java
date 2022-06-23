@@ -21,6 +21,11 @@ public final class DtoCommandStateChangeInfo
   private static final long serialVersionUID = 157157L;
 
   /**
+   * Registerd keeper ID.
+   */
+  public static final String KEEPER_ID = "DtoCommandStateChangeInfo"; //$NON-NLS-1$
+
+  /**
    * The keeper singleton.
    */
   public static final IEntityKeeper<DtoCommandStateChangeInfo> KEEPER =
