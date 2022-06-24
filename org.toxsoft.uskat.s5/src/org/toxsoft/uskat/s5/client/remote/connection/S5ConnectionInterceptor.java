@@ -16,7 +16,7 @@ import org.toxsoft.core.tslib.coll.primtypes.impl.StringMap;
 import org.toxsoft.core.tslib.utils.errors.TsInternalErrorRtException;
 import org.toxsoft.core.tslib.utils.errors.TsNullArgumentRtException;
 import org.toxsoft.core.tslib.utils.logs.ILogger;
-import org.toxsoft.uskat.s5.server.backend.IS5BackendAddonRemote;
+import org.toxsoft.uskat.s5.server.backend.addons.IS5BackendAddonSession;
 import org.toxsoft.uskat.s5.server.sessions.init.S5SessionInitResult;
 import org.wildfly.security.auth.client.AuthenticationContext;
 
@@ -148,14 +148,14 @@ class S5ConnectionInterceptor
         // Минимальный интервал передачи пакетов через соединение (не может быть больше чем 2/3 таймаута сессии)
         long failureTimeout = OP_FAILURE_TIMEOUT.getValue( options ).asInt();
 
-        Affinity backendAffinity = EJBClient.getWeakAffinity( connection.backend() );
+        Affinity backendAffinity = EJBClient.getWeakAffinity( connection.session() );
         S5SessionInitResult initResult = (S5SessionInitResult)originalResult;
-        IStringMap<IS5BackendAddonRemote> prevAddonProxies = initResult.addons();
-        IStringMapEdit<IS5BackendAddonRemote> newAddonProxies = new StringMap<>();
+        IStringMap<IS5BackendAddonSession> prevAddonProxies = initResult.baSessions();
+        IStringMapEdit<IS5BackendAddonSession> newAddonProxies = new StringMap<>();
         for( String addonId : prevAddonProxies.keys() ) {
           Object addonProxy = prevAddonProxies.getByKey( addonId );
           Affinity addonAffinity = EJBClient.getWeakAffinity( addonProxy );
-          IS5BackendAddonRemote proxy = (IS5BackendAddonRemote)replaceContextProxy( connection, addonProxy );
+          IS5BackendAddonSession proxy = (IS5BackendAddonSession)replaceContextProxy( connection, addonProxy );
           // 127.0.0.1: При failover не может переключится на работающий узел
           EJBClient.setWeakAffinity( proxy, backendAffinity );
           newAddonProxies.put( addonId, proxy );

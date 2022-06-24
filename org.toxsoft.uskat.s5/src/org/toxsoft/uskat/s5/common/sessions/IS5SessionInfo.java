@@ -9,8 +9,6 @@ import org.toxsoft.core.tslib.utils.errors.TsNullObjectErrorRtException;
 import org.toxsoft.uskat.s5.client.remote.connection.S5ClusterTopology;
 import org.toxsoft.uskat.s5.server.statistics.IS5Statistic;
 
-import ru.uskat.core.api.users.ISkSession;
-
 /**
  * Информация о сессии пользователя
  *

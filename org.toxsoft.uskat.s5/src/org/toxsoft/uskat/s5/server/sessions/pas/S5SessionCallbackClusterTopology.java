@@ -15,7 +15,7 @@ import org.toxsoft.core.tslib.coll.primtypes.impl.StringMap;
 import org.toxsoft.core.tslib.gw.skid.Skid;
 import org.toxsoft.core.tslib.utils.errors.TsNullArgumentRtException;
 import org.toxsoft.uskat.s5.client.remote.connection.S5ClusterTopology;
-import org.toxsoft.uskat.s5.server.backend.IS5BackendLocal;
+import org.toxsoft.uskat.s5.server.backend.IS5BackendSessionControl;
 import org.toxsoft.uskat.s5.server.sessions.IS5SessionManager;
 import org.toxsoft.uskat.s5.server.sessions.S5RemoteSession;
 
@@ -28,7 +28,7 @@ public final class S5SessionCallbackClusterTopology
     implements IJSONNotificationHandler<S5SessionCallbackChannel> {
 
   /**
-   * Вызов метода: {@link IS5BackendLocal#setClusterTopology(S5ClusterTopology)}
+   * Вызов метода: {@link IS5BackendSessionControl#setClusterTopology(S5ClusterTopology)}
    */
   public static final String SESSION_TOPOLOGY_METHOD = SESSIONS_METHOD_PREFIX + "setClusterTopology"; //$NON-NLS-1$
 
@@ -57,7 +57,7 @@ public final class S5SessionCallbackClusterTopology
   // Открытые методы
   //
   /**
-   * Передача по каналу вызова {@link IS5BackendLocal#verify()}
+   * Передача по каналу вызова {@link IS5BackendSessionControl#verify()}
    *
    * @param aChannel {@link IPasTxChannel} канал передачи
    * @param aTopology {@link S5ClusterTopology} топология кластеров доступных клиенту

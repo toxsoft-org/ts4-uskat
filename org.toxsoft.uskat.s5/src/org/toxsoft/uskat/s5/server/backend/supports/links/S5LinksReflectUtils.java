@@ -211,7 +211,7 @@ class S5LinksReflectUtils {
   static Class<S5LinkFwdEntity> getLinkFwdImplClass( ISkClassInfo aClassInfo ) {
     TsNullArgumentRtException.checkNull( aClassInfo );
     // Класс реализации хранения значений объекта
-    String linkImplClassName = DDEF_FWD_LINK_IMPL_CLASS.getValue( aClassInfo.params() ).asString();
+    String linkImplClassName = OP_FWD_LINK_IMPL_CLASS.getValue( aClassInfo.params() ).asString();
     return getLinkFwdImplClass( linkImplClassName );
   }
 
@@ -243,7 +243,7 @@ class S5LinksReflectUtils {
   static Class<S5LinkRevEntity> getLinkRevImplClass( ISkClassInfo aClassInfo ) {
     TsNullArgumentRtException.checkNull( aClassInfo );
     // Класс реализации хранения значений объекта
-    String linkImplClassName = DDEF_REV_LINK_IMPL_CLASS.getValue( aClassInfo.params() ).asString();
+    String linkImplClassName = OP_REV_LINK_IMPL_CLASS.getValue( aClassInfo.params() ).asString();
     return getLinkRevImplClass( linkImplClassName );
   }
 

@@ -15,5 +15,5 @@ public interface IS5BackendAddonsProvider {
    *
    * @return {@link IStridablesList}&lt;{@link IS5BackendAddon}&gt; список расширений бекенда
    */
-  IStridablesList<IS5BackendAddon> addons();
+  IStridablesList<IS5BackendAddon> baCreators();
 }

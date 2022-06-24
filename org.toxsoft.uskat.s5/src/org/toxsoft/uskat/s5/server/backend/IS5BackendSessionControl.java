@@ -3,19 +3,18 @@ package org.toxsoft.uskat.s5.server.backend;
 import javax.ejb.Local;
 
 import org.toxsoft.core.tslib.utils.errors.TsNullArgumentRtException;
+import org.toxsoft.uskat.core.backend.ISkBackend;
 import org.toxsoft.uskat.s5.client.remote.connection.S5ClusterTopology;
 import org.toxsoft.uskat.s5.common.sessions.IS5SessionInfo;
 
-import ru.uskat.core.api.ISkBackend;
-
 /**
- * Локальный доступ к {@link ISkBackend} предоставляемый s5-сервером
+ * Локальный доступ к управлению {@link ISkBackend} предоставляемый s5-сервером
  *
  * @author mvk
  */
 @Local
-public interface IS5BackendLocal
-    extends IS5Backend, IS5Verifiable {
+public interface IS5BackendSessionControl
+    extends IS5Verifiable {
 
   /**
    * Возвращает информацию о сессии пользователя

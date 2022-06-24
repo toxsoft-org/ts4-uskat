@@ -2,14 +2,12 @@ package org.toxsoft.uskat.s5.server.frontend;
 
 import java.io.ObjectStreamException;
 import java.io.Serializable;
-import java.util.concurrent.locks.ReentrantReadWriteLock;
 
-import org.toxsoft.core.tslib.bricks.events.msg.GenericMessage;
+import org.toxsoft.core.tslib.bricks.events.msg.GtMessage;
 import org.toxsoft.core.tslib.gw.skid.Skid;
 import org.toxsoft.core.tslib.utils.TsLibUtils;
-
-import ru.uskat.backend.ISkFrontendRear;
-import ru.uskat.core.api.users.ISkSession;
+import org.toxsoft.uskat.core.backend.ISkFrontendRear;
+import org.toxsoft.uskat.s5.common.sessions.ISkSession;
 
 /**
  * Фронтенд предоставляемый s5-клиентами
@@ -32,6 +30,13 @@ public interface IS5FrontendRear
   Skid sessionID();
 
   /**
+   * Возвращает признак того, что фронтенд представляет локального клиента
+   *
+   * @return boolean <b>true</b> фронтенд локального клиента;<b>false</b> клиент удаленного клиента
+   */
+  boolean isLocal();
+
+  /**
    * Возвращает данные фронтенда
    *
    * @return {@link IS5FrontendData} данные фронтенда
@@ -47,8 +52,7 @@ class InternalNullFrontendRear
 
   private static final long serialVersionUID = 157157L;
 
-  private transient ReentrantReadWriteLock lock;
-  private transient S5FrontendData         frontendData;
+  private transient S5FrontendData frontendData;
 
   /**
    * Метод корректно восстанавливает сериализированный {@link IS5FrontendRear#NULL}.
@@ -71,16 +75,13 @@ class InternalNullFrontendRear
   }
 
   @Override
-  public void onGenericMessage( GenericMessage aMessage ) {
-    // nop
+  public boolean isLocal() {
+    return true;
   }
 
   @Override
-  public ReentrantReadWriteLock mainLock() {
-    if( lock == null ) {
-      lock = new ReentrantReadWriteLock();
-    }
-    return lock;
+  public void onBackendMessage( GtMessage aMessage ) {
+    // nop
   }
 
   @Override

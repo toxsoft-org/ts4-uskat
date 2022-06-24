@@ -1,4 +1,4 @@
-package org.toxsoft.uskat.s5.server.backend;
+package org.toxsoft.uskat.s5.server.backend.addons;
 
 import javax.ejb.Remote;
 
@@ -10,7 +10,7 @@ import org.toxsoft.core.tslib.bricks.strid.IStridable;
  * @author mvk
  */
 @Remote
-public interface IS5BackendAddonRemote
+public interface IS5BackendAddonSession
     extends IStridable {
   // nop
 }

@@ -11,7 +11,7 @@ import org.toxsoft.core.tslib.coll.primtypes.IStringMapEdit;
 import org.toxsoft.core.tslib.coll.primtypes.impl.StringMap;
 import org.toxsoft.core.tslib.gw.skid.Skid;
 import org.toxsoft.core.tslib.utils.errors.TsNullArgumentRtException;
-import org.toxsoft.uskat.s5.server.backend.IS5BackendLocal;
+import org.toxsoft.uskat.s5.server.backend.IS5BackendSessionControl;
 
 import ru.uskat.core.api.users.ISkSession;
 
@@ -24,7 +24,7 @@ public final class S5SessionCallbackInit
     implements IJSONNotificationHandler<S5SessionCallbackChannel> {
 
   /**
-   * Вызов метода: {@link IS5BackendLocal#verify()}
+   * Вызов метода: {@link IS5BackendSessionControl#verify()}
    */
   public static final String SESSION_INIT_METHOD = SESSIONS_METHOD_PREFIX + "init"; //$NON-NLS-1$
 
@@ -44,7 +44,7 @@ public final class S5SessionCallbackInit
   // Открытые методы
   //
   /**
-   * Передача по каналу вызова {@link IS5BackendLocal#verify()}
+   * Передача по каналу вызова {@link IS5BackendSessionControl#verify()}
    *
    * @param aChannel {@link IPasTxChannel} канал передачи
    * @param aSessionID {@link Skid} идентификатор сессии {@link ISkSession}

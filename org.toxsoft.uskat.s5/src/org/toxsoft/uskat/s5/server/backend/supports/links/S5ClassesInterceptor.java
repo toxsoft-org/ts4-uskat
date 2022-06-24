@@ -149,12 +149,12 @@ class S5ClassesInterceptor
       EntityManager aEntityManager, IDpuSdClassInfo aPrevClassInfo, IDpuSdClassInfo aNewClassInfo ) {
     TsNullArgumentRtException.checkNulls( aTxManager, aEntityManager, aPrevClassInfo, aNewClassInfo );
     // Класс реализации хранения связей
-    String prevObjectImplClassName = DDEF_OBJECT_IMPL_CLASS.getValue( aPrevClassInfo.params() ).asString();
-    String newObjectImplClassName = DDEF_OBJECT_IMPL_CLASS.getValue( aNewClassInfo.params() ).asString();
-    String prevLinkFwdImplClassName = DDEF_FWD_LINK_IMPL_CLASS.getValue( aPrevClassInfo.params() ).asString();
-    String newLinkFwdImplClassName = DDEF_FWD_LINK_IMPL_CLASS.getValue( aNewClassInfo.params() ).asString();
-    String prevLinkRevImplClassName = DDEF_REV_LINK_IMPL_CLASS.getValue( aPrevClassInfo.params() ).asString();
-    String newLinkRevImplClassName = DDEF_REV_LINK_IMPL_CLASS.getValue( aNewClassInfo.params() ).asString();
+    String prevObjectImplClassName = OP_OBJECT_IMPL_CLASS.getValue( aPrevClassInfo.params() ).asString();
+    String newObjectImplClassName = OP_OBJECT_IMPL_CLASS.getValue( aNewClassInfo.params() ).asString();
+    String prevLinkFwdImplClassName = OP_FWD_LINK_IMPL_CLASS.getValue( aPrevClassInfo.params() ).asString();
+    String newLinkFwdImplClassName = OP_FWD_LINK_IMPL_CLASS.getValue( aNewClassInfo.params() ).asString();
+    String prevLinkRevImplClassName = OP_REV_LINK_IMPL_CLASS.getValue( aPrevClassInfo.params() ).asString();
+    String newLinkRevImplClassName = OP_REV_LINK_IMPL_CLASS.getValue( aNewClassInfo.params() ).asString();
     // Признак изменения класса реализации связи (перемещаться могут только связи измененного класса без наследников
     // - у наследников собственное определение)
     boolean needMoving = ( //
@@ -205,8 +205,8 @@ class S5ClassesInterceptor
       return false;
     }
     // Классы реализации хранения связей
-    String newLinkFwdImplClassName = DDEF_FWD_LINK_IMPL_CLASS.getValue( aNewClassInfo.params() ).asString();
-    String newLinkRevImplClassName = DDEF_REV_LINK_IMPL_CLASS.getValue( aNewClassInfo.params() ).asString();
+    String newLinkFwdImplClassName = OP_FWD_LINK_IMPL_CLASS.getValue( aNewClassInfo.params() ).asString();
+    String newLinkRevImplClassName = OP_REV_LINK_IMPL_CLASS.getValue( aNewClassInfo.params() ).asString();
     Class<S5LinkFwdEntity> newFwdClass = getLinkFwdImplClass( newLinkFwdImplClassName );
     Class<S5LinkRevEntity> newRevClass = getLinkRevImplClass( newLinkRevImplClassName );
     // Конструктор копирования для ПРЯМОЙ связи новой реализации

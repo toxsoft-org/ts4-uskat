@@ -7,13 +7,12 @@ import java.sql.ResultSet;
 import javax.persistence.*;
 
 import org.toxsoft.core.tslib.utils.errors.TsNullArgumentRtException;
+import org.toxsoft.uskat.core.api.linkserv.IDtoLinkFwd;
+import org.toxsoft.uskat.s5.common.sessions.ISkSession;
 import org.toxsoft.uskat.s5.server.backend.supports.links.S5LinkFwdEntity;
 
-import ru.uskat.common.dpu.IDpuLinkFwd;
-import ru.uskat.core.api.users.ISkSession;
-
 /**
- * Реализация интерфейса {@link IDpuLinkFwd} способная маппироваться на таблицу базы данных и предназначеная для
+ * Реализация интерфейса {@link IDtoLinkFwd} способная маппироваться на таблицу базы данных и предназначеная для
  * сохранения прямых связей {@link ISkSession}
  *
  * @author mvk
@@ -42,10 +41,10 @@ public final class S5SessionLinkFwdEntity
   /**
    * Конструктор копирования (для сохранения связи объекта в базу данных)
    *
-   * @param aSource {@link IDpuLinkFwd} исходная связь с объектами
+   * @param aSource {@link IDtoLinkFwd} исходная связь с объектами
    * @throws TsNullArgumentRtException любой аргумент = null
    */
-  S5SessionLinkFwdEntity( IDpuLinkFwd aSource ) {
+  S5SessionLinkFwdEntity( IDtoLinkFwd aSource ) {
     super( aSource );
     leftObj = S5SessionEntity.createPrimaryKey( aSource.leftSkid() );
   }

@@ -17,19 +17,18 @@ import org.toxsoft.core.tslib.utils.TsLibUtils;
 import org.toxsoft.core.tslib.utils.errors.TsInternalErrorRtException;
 import org.toxsoft.core.tslib.utils.errors.TsNullArgumentRtException;
 import org.toxsoft.core.tslib.utils.logs.ILogger;
+import org.toxsoft.uskat.core.api.objserv.IDtoObject;
 import org.toxsoft.uskat.s5.server.backend.supports.sysdescr.S5ClassEntity;
 
-import ru.uskat.common.dpu.IDpuObject;
-
 /**
- * Реализация интерфейса {@link IDpuObject} способная маппироваться на таблицу базы данных
+ * Реализация интерфейса {@link IDtoObject} способная маппироваться на таблицу базы данных
  *
  * @author mvk
  */
 @MappedSuperclass
 @Inheritance( strategy = InheritanceType.TABLE_PER_CLASS )
 public class S5ObjectEntity
-    implements IDpuObject, Serializable {
+    implements IDtoObject, Serializable {
 
   private static final long serialVersionUID = 157157L;
 
@@ -80,10 +79,10 @@ public class S5ObjectEntity
   /**
    * Конструктор копирования (для сохранения объекта в базу данных)
    *
-   * @param aSource {@link IDpuObject} исходные данные объекта
+   * @param aSource {@link IDtoObject} исходные данные объекта
    * @throws TsNullArgumentRtException любой аргумент = null
    */
-  protected S5ObjectEntity( IDpuObject aSource ) {
+  protected S5ObjectEntity( IDtoObject aSource ) {
     TsNullArgumentRtException.checkNull( aSource );
     id = new S5ObjectID( aSource.skid() );
     classInfo = S5ClassEntity.createPrimaryKey( aSource.classId() );
@@ -167,7 +166,7 @@ public class S5ObjectEntity
   }
 
   // ------------------------------------------------------------------------------------
-  // Реализация интерфейса IDpuObject
+  // Реализация интерфейса IDtoObject
   //
   @Override
   public Skid skid() {

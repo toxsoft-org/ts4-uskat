@@ -8,22 +8,22 @@ import java.sql.ResultSet;
 
 import javax.persistence.*;
 
+import org.toxsoft.core.tslib.gw.gwid.Gwid;
 import org.toxsoft.core.tslib.gw.skid.*;
 import org.toxsoft.core.tslib.utils.TsLibUtils;
 import org.toxsoft.core.tslib.utils.errors.TsInternalErrorRtException;
 import org.toxsoft.core.tslib.utils.errors.TsNullArgumentRtException;
-
-import ru.uskat.common.dpu.IDpuLinkRev;
+import org.toxsoft.uskat.core.api.linkserv.IDtoLinkRev;
 
 /**
- * Реализация интерфейса {@link IDpuLinkRev} способная маппироваться на таблицу базы данных
+ * Реализация интерфейса {@link IDtoLinkRev} способная маппироваться на таблицу базы данных
  *
  * @author mvk
  */
 @MappedSuperclass
 @Inheritance( strategy = InheritanceType.TABLE_PER_CLASS )
 public abstract class S5LinkRevEntity
-    implements IDpuLinkRev, Serializable {
+    implements IDtoLinkRev, Serializable {
 
   private static final long serialVersionUID = 157157L;
 
@@ -71,6 +71,7 @@ public abstract class S5LinkRevEntity
    */
   private transient Skid      skid;
   private transient ISkidList leftSkids;
+  private transient Gwid      gwid = null;
 
   /**
    * Конструктор с заданными параметрами (для сохранения связи объекта в базу данных)
@@ -90,10 +91,10 @@ public abstract class S5LinkRevEntity
   /**
    * Конструктор копирования (для сохранения связи объекта в базу данных)
    *
-   * @param aSource {@link IDpuLinkRev} исходная связь с объектами
+   * @param aSource {@link IDtoLinkRev} исходная связь с объектами
    * @throws TsNullArgumentRtException любой аргумент = null
    */
-  protected S5LinkRevEntity( IDpuLinkRev aSource ) {
+  protected S5LinkRevEntity( IDtoLinkRev aSource ) {
     TsNullArgumentRtException.checkNull( aSource );
     id = new S5LinkID( aSource.rightSkid(), aSource.classId(), aSource.linkId() );
     setLeftSkids( aSource.leftSkids() );
@@ -142,8 +143,16 @@ public abstract class S5LinkRevEntity
   }
 
   // ------------------------------------------------------------------------------------
-  // Реализация интерфейса IDpuLinkRev
+  // Реализация интерфейса IDtoLinkRev
   //
+  @Override
+  public Gwid gwid() {
+    if( gwid == null ) {
+      gwid = Gwid.createLink( classId(), rightSkid().strid(), linkId() );
+    }
+    return gwid;
+  }
+
   @Override
   public String classId() {
     return id.linkClassId();

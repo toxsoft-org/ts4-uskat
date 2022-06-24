@@ -32,10 +32,17 @@ interface IS5Resources {
   String D_CURRDATA_TIMEOUT = Messages.getString( "IS5Resources.D_CURRDATA_TIMEOUT" ); //$NON-NLS-1$
   String N_CURRDATA_TIMEOUT = Messages.getString( "IS5Resources.N_CURRDATA_TIMEOUT" ); //$NON-NLS-1$
 
-  String D_CLASSLOADER = Messages.getString( "IS5Resources.D_CLASSLOADER" ); //$NON-NLS-1$
-  String N_CLASSLOADER = Messages.getString( "IS5Resources.N_CLASSLOADER" ); //$NON-NLS-1$
-  String D_MONITOR     = Messages.getString( "IS5Resources.D_MONITOR" );     //$NON-NLS-1$
-  String N_MONITOR     = Messages.getString( "IS5Resources.N_MONITOR" );     //$NON-NLS-1$
+  String D_CLASSLOADER     = Messages.getString( "IS5Resources.D_CLASSLOADER" );     //$NON-NLS-1$
+  String N_CLASSLOADER     = Messages.getString( "IS5Resources.N_CLASSLOADER" );     //$NON-NLS-1$
+  String D_MONITOR         = Messages.getString( "IS5Resources.D_MONITOR" );         //$NON-NLS-1$
+  String N_MONITOR         = Messages.getString( "IS5Resources.N_MONITOR" );         //$NON-NLS-1$
+  String D_CONNECTION_LOCK = Messages.getString( "IS5Resources.D_CONNECTION_LOCK" ); //$NON-NLS-1$
+  String N_CONNECTION_LOCK = Messages.getString( "IS5Resources.N_CONNECTION_LOCK" ); //$NON-NLS-1$
+
+  String D_LOCAL_MODULE = Messages.getString( "IS5Resources.D_LOCAL_MODULE" ); //$NON-NLS-1$
+  String N_LOCAL_MODULE = Messages.getString( "IS5Resources.N_LOCAL_MODULE" ); //$NON-NLS-1$
+  String D_LOCAL_NODE   = Messages.getString( "IS5Resources.D_LOCAL_NODE" );   //$NON-NLS-1$
+  String N_LOCAL_NODE   = Messages.getString( "IS5Resources.N_LOCAL_NODE" );   //$NON-NLS-1$
 
   // --------------
 

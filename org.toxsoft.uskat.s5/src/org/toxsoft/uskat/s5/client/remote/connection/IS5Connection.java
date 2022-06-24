@@ -3,7 +3,7 @@ package org.toxsoft.uskat.s5.client.remote.connection;
 import org.toxsoft.core.pas.common.IPasTxChannel;
 import org.toxsoft.core.tslib.coll.primtypes.IStringMap;
 import org.toxsoft.core.tslib.utils.errors.*;
-import org.toxsoft.uskat.s5.server.backend.IS5BackendRemote;
+import org.toxsoft.uskat.s5.server.backend.IS5BackendSession;
 import org.toxsoft.uskat.s5.server.backend.addons.IS5BackendAddon;
 import org.toxsoft.uskat.s5.server.sessions.init.IS5SessionInitResult;
 import org.toxsoft.uskat.s5.server.sessions.init.S5SessionInitData;
@@ -48,12 +48,12 @@ public interface IS5Connection {
   IS5SessionInitResult sessionInitResult();
 
   /**
-   * Возвращает удаленную ссылку на s5-backend сервера.
+   * Сессия бекенда на сервере.
    *
-   * @return {@link IS5BackendRemote} - удаленная ссылка s5-backend сервера
+   * @return {@link IS5BackendSession} - ссылка на сессию бекенда
    * @throws TsIllegalArgumentRtException соединение находится в неактивном состоянии
    */
-  IS5BackendRemote backend();
+  IS5BackendSession session();
 
   /**
    * Возвращает канал передачи сообщений серверу

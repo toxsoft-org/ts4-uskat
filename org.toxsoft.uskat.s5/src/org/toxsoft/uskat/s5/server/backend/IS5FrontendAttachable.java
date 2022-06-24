@@ -4,9 +4,8 @@ import javax.ejb.Local;
 
 import org.toxsoft.core.tslib.coll.IList;
 import org.toxsoft.core.tslib.utils.errors.TsNullArgumentRtException;
+import org.toxsoft.uskat.core.backend.ISkFrontendRear;
 import org.toxsoft.uskat.s5.server.frontend.IS5FrontendRear;
-
-import ru.uskat.backend.ISkFrontendRear;
 
 /**
  * Интерфейс-метка способности присоединять {@link ISkFrontendRear}
@@ -19,7 +18,7 @@ public interface IS5FrontendAttachable {
   /**
    * Возвращает список присоединенных frontend
    *
-   * @return {@link IList}&lt;{@link ISkFrontendRear}&gt; список присоединенных frontend
+   * @return {@link IList}&lt;{@link IS5FrontendRear}&gt; список присоединенных frontend
    */
   IList<IS5FrontendRear> attachedFrontends();
 

@@ -6,14 +6,13 @@ import javax.persistence.Entity;
 
 import org.toxsoft.core.tslib.gw.skid.Skid;
 import org.toxsoft.core.tslib.utils.errors.TsNullArgumentRtException;
+import org.toxsoft.uskat.core.api.objserv.IDtoObject;
 import org.toxsoft.uskat.s5.server.backend.supports.objects.S5ObjectEntity;
 import org.toxsoft.uskat.s5.server.backend.supports.objects.S5ObjectID;
 import org.toxsoft.uskat.s5.server.backend.supports.sysdescr.S5ClassEntity;
 
-import ru.uskat.common.dpu.IDpuObject;
-
 /**
- * Реализация интерфейса {@link IDpuObject} способная маппироваться на таблицу базы данных и предназначеная для
+ * Реализация интерфейса {@link IDtoObject} способная маппироваться на таблицу базы данных и предназначеная для
  * сохранения объектов по умолчанию
  *
  * @author mvk
@@ -27,10 +26,10 @@ public final class S5DefaultObjectEntity
   /**
    * Конструктор копирования (для сохранения объекта в базу данных)
    *
-   * @param aSource {@link IDpuObject} исходные данные объекта
+   * @param aSource {@link IDtoObject} исходные данные объекта
    * @throws TsNullArgumentRtException любой аргумент = null
    */
-  S5DefaultObjectEntity( IDpuObject aSource ) {
+  S5DefaultObjectEntity( IDtoObject aSource ) {
     super( aSource );
   }
 

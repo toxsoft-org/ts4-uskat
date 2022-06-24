@@ -245,9 +245,9 @@ public abstract class S5InitialSysdescrSingleton
     // Информация о бекенде
     ISkBackendInfo info = backendCore.getInfo();
     // Идентификатор сервера
-    Skid serverId = DDEF_BACKEND_SERVER_ID.getValue( info.params() ).asValobj();
+    Skid serverId = OP_BACKEND_SERVER_ID.getValue( info.params() ).asValobj();
     // Идентификатор узла сервера
-    Skid nodeId = DDEF_BACKEND_NODE_ID.getValue( info.params() ).asValobj();
+    Skid nodeId = OP_BACKEND_NODE_ID.getValue( info.params() ).asValobj();
     // Проверка существования сервера
     IS5ClassServer server = objectService.find( serverId );
     if( server == null ) {

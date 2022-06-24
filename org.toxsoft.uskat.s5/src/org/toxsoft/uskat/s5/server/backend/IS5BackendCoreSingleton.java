@@ -4,17 +4,15 @@ import javax.ejb.Local;
 import javax.persistence.EntityManagerFactory;
 
 import org.toxsoft.core.tslib.utils.errors.TsNullArgumentRtException;
+import org.toxsoft.uskat.core.backend.ISkBackend;
+import org.toxsoft.uskat.core.backend.api.ISkBackendInfo;
+import org.toxsoft.uskat.core.connection.ISkConnection;
 import org.toxsoft.uskat.s5.server.backend.impl.IS5BackendCoreInterceptor;
 import org.toxsoft.uskat.s5.server.cluster.IS5ClusterManager;
 import org.toxsoft.uskat.s5.server.sessions.IS5SessionManager;
 import org.toxsoft.uskat.s5.server.startup.IS5InitialImplementSingleton;
 import org.toxsoft.uskat.s5.server.statistics.IS5StatisticCounter;
 import org.toxsoft.uskat.s5.server.transactions.IS5TransactionManagerSingleton;
-
-import ru.uskat.backend.ISkBackendInfo;
-import ru.uskat.backend.messages.SkMessageWhenBackendStateChanged;
-import ru.uskat.core.api.ISkBackend;
-import ru.uskat.core.connection.ISkConnection;
 
 /**
  * Локальный интерфейс синглетона предоставляющего ядро бекенда s5-сервера.

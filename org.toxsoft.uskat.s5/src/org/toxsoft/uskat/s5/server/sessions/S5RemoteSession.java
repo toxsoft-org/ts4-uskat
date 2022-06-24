@@ -8,7 +8,7 @@ import java.io.Serializable;
 import org.toxsoft.core.tslib.utils.errors.TsNullArgumentRtException;
 import org.toxsoft.core.tslib.utils.logs.ILogger;
 import org.toxsoft.uskat.s5.common.sessions.IS5SessionInfo;
-import org.toxsoft.uskat.s5.server.backend.IS5BackendLocal;
+import org.toxsoft.uskat.s5.server.backend.IS5BackendSessionControl;
 import org.toxsoft.uskat.s5.server.frontend.S5FrontendData;
 
 /**
@@ -21,7 +21,7 @@ public final class S5RemoteSession
 
   private static final long serialVersionUID = 157157L;
 
-  private final IS5BackendLocal    backend;
+  private final IS5BackendSessionControl    backend;
   private final S5FrontendData     frontendData;
   private final IS5SessionInfoEdit info;
 
@@ -30,11 +30,11 @@ public final class S5RemoteSession
   /**
    * Конструктор
    *
-   * @param aBackend {@link IS5BackendLocal} s5-backend сессии пользователя
+   * @param aBackend {@link IS5BackendSessionControl} s5-backend сессии пользователя
    * @param aSessionInfo {@link IS5SessionInfo} описание сессии
    * @throws TsNullArgumentRtException любой аргумент = null
    */
-  public S5RemoteSession( IS5BackendLocal aBackend, IS5SessionInfo aSessionInfo ) {
+  public S5RemoteSession( IS5BackendSessionControl aBackend, IS5SessionInfo aSessionInfo ) {
     backend = TsNullArgumentRtException.checkNull( aBackend );
     frontendData = new S5FrontendData();
     info = TsNullArgumentRtException.checkNull( new S5SessionInfo( aSessionInfo ) );
@@ -55,9 +55,9 @@ public final class S5RemoteSession
   /**
    * Возвращает s5-backend сессии пользователя
    *
-   * @return {@link IS5BackendLocal} s5-backend сессии
+   * @return {@link IS5BackendSessionControl} s5-backend сессии
    */
-  public IS5BackendLocal backend() {
+  public IS5BackendSessionControl backend() {
     return backend;
   }
 

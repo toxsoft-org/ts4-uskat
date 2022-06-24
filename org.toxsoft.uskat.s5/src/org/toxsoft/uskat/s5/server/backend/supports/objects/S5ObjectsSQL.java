@@ -89,7 +89,7 @@ class S5ObjectsSQL {
         // Описание класса объекта
         ISkClassInfo classInfo = aSysdescrReader.getClassInfo( classId );
         // Класс реализации хранения значений объекта
-        objectImplClassName = DDEF_OBJECT_IMPL_CLASS.getValue( classInfo.params() ).asString();
+        objectImplClassName = OP_OBJECT_IMPL_CLASS.getValue( classInfo.params() ).asString();
         // Сохраняем имя класса реализации объектов в карте
         objectImplClassNames.put( classId, objectImplClassName );
       }
@@ -161,7 +161,7 @@ class S5ObjectsSQL {
           continue;
         }
         // Класс реализации хранения значений объекта
-        objectImplClassName = DDEF_OBJECT_IMPL_CLASS.getValue( classInfo.params() ).asString();
+        objectImplClassName = OP_OBJECT_IMPL_CLASS.getValue( classInfo.params() ).asString();
         // Сохраняем имя класса реализации объектов в карте
         objectImplClassNames.put( classId, objectImplClassName );
       }

@@ -11,8 +11,8 @@ import org.toxsoft.core.tslib.coll.primtypes.IStringMap;
 import org.toxsoft.core.tslib.coll.primtypes.IStringMapEdit;
 import org.toxsoft.core.tslib.coll.primtypes.impl.StringMap;
 import org.toxsoft.core.tslib.utils.errors.*;
-import org.toxsoft.uskat.s5.server.backend.IS5BackendAddonRemote;
-import org.toxsoft.uskat.s5.server.backend.IS5BackendAddonSession;
+import org.toxsoft.uskat.s5.server.backend.addons.IS5BackendAddonSession;
+import org.toxsoft.uskat.s5.server.backend.addons.IS5BackendAddonSessionControl;
 
 import ru.uskat.common.dpu.IDpuSdClassInfo;
 import ru.uskat.common.dpu.IDpuSdTypeInfo;
@@ -29,7 +29,7 @@ public final class S5SessionInitResult
 
   private final IStridablesListEdit<IDpuSdTypeInfo>       typeInfos  = new StridablesList<>();
   private final IStridablesListEdit<IDpuSdClassInfo>      classInfos = new StridablesList<>();
-  private final IStringMapEdit<IS5BackendAddonRemote>     addons     = new StringMap<>();
+  private final IStringMapEdit<IS5BackendAddonSession>     addons     = new StringMap<>();
   private final IStringMapEdit<IS5SessionAddonInitResult> addonsData = new StringMap<>();
 
   // ------------------------------------------------------------------------------------
@@ -45,10 +45,10 @@ public final class S5SessionInitResult
     TsNullArgumentRtException.checkNull( aSource );
     typeInfos.setAll( aSource.typeInfos() );
     classInfos.setAll( aSource.classInfos() );
-    addons.setAll( aSource.addons() );
+    addons.setAll( aSource.baSessions() );
     addonsData.clear();
     for( String addonId : addons.keys() ) {
-      IS5SessionAddonInitResult addonData = aSource.getAddonData( addonId, IS5SessionAddonInitResult.class );
+      IS5SessionAddonInitResult addonData = aSource.getBaData( addonId, IS5SessionAddonInitResult.class );
       if( addonData != null ) {
         addonsData.put( addonId, addonData );
       }
@@ -80,12 +80,12 @@ public final class S5SessionInitResult
   /**
    * Устанавливает карту удаленного доступа к расширениям backend
    *
-   * @param aAddons {@link IS5BackendAddonRemote} карта удаленного доступа к расширениям backend. <br>
-   *          Ключ: идентификатор backend {@link IS5BackendAddonSession#id()};<br>
+   * @param aAddons {@link IS5BackendAddonSession} карта удаленного доступа к расширениям backend. <br>
+   *          Ключ: идентификатор backend {@link IS5BackendAddonSessionControl#id()};<br>
    *          Значение: удаленный доступ к расширенияю backend.
    * @throws TsNullArgumentRtException аргумент = null
    */
-  public void setAddons( IStringMap<IS5BackendAddonRemote> aAddons ) {
+  public void setAddons( IStringMap<IS5BackendAddonSession> aAddons ) {
     TsNullArgumentRtException.checkNull( aAddons );
     addons.setAll( aAddons );
   }
@@ -126,12 +126,12 @@ public final class S5SessionInitResult
   }
 
   @Override
-  public IStringMap<IS5BackendAddonRemote> addons() {
+  public IStringMap<IS5BackendAddonSession> baSessions() {
     return addons;
   }
 
   @Override
-  public <T extends IS5SessionAddonInitResult> T getAddonData( String aAddonId, Class<T> aAddonDataType ) {
+  public <T extends IS5SessionAddonInitResult> T getBaData( String aAddonId, Class<T> aAddonDataType ) {
     TsNullArgumentRtException.checkNulls( aAddonId, aAddonDataType );
     try {
       return aAddonDataType.cast( addonsData.findByKey( aAddonId ) );

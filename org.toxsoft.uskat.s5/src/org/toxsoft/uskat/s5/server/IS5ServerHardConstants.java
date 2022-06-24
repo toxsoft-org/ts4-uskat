@@ -17,6 +17,8 @@ import org.toxsoft.core.tslib.coll.IList;
 import org.toxsoft.core.tslib.gw.skid.Skid;
 import org.toxsoft.core.tslib.utils.TsVersion;
 import org.toxsoft.uskat.classes.*;
+import org.toxsoft.uskat.core.api.sysdescr.ISkClassInfo;
+import org.toxsoft.uskat.core.backend.api.ISkBackendInfo;
 import org.toxsoft.uskat.s5.client.remote.connection.S5ClusterTopology;
 import org.toxsoft.uskat.s5.common.S5Module;
 import org.toxsoft.uskat.s5.common.sessions.IS5SessionInfo;
@@ -25,10 +27,6 @@ import org.toxsoft.uskat.s5.server.sessions.S5SessionsInfos;
 import org.toxsoft.uskat.s5.server.statistics.*;
 import org.toxsoft.uskat.s5.server.transactions.S5TransactionInfos;
 import org.toxsoft.uskat.s5.utils.IS5HardConstants;
-
-import ru.uskat.backend.ISkBackendInfo;
-import ru.uskat.core.api.sysdescr.ISkClassInfo;
-import ru.uskat.core.api.users.ISkSession;
 
 /**
  * Константы реализации s5-сервера
@@ -80,7 +78,7 @@ public interface IS5ServerHardConstants
    * <p>
    * Тип: {@link EAtomicType#STRING}
    */
-  IDataDef DDEF_OBJECT_IMPL_CLASS = create( S5_ID_START + "ObjectImplClass", EAtomicType.STRING, //$NON-NLS-1$
+  IDataDef OP_OBJECT_IMPL_CLASS = create( S5_ID_START + "ObjectImplClass", EAtomicType.STRING, //$NON-NLS-1$
       TSID_NAME, STR_N_OBJECT_IMPL_CLASS, //
       TSID_DESCRIPTION, STR_D_OBJECT_IMPL_CLASS, //
       TSID_IS_NULL_ALLOWED, AV_FALSE, //
@@ -91,7 +89,7 @@ public interface IS5ServerHardConstants
    * <p>
    * Тип: {@link EAtomicType#STRING}
    */
-  IDataDef DDEF_FWD_LINK_IMPL_CLASS = create( S5_ID_START + "FwdLinkImplClass", EAtomicType.STRING, //$NON-NLS-1$
+  IDataDef OP_FWD_LINK_IMPL_CLASS = create( S5_ID_START + "FwdLinkImplClass", EAtomicType.STRING, //$NON-NLS-1$
       TSID_NAME, STR_N_FWD_LINK_IMPL_CLASS, //
       TSID_DESCRIPTION, STR_D_FWD_LINK_IMPL_CLASS, //
       TSID_IS_NULL_ALLOWED, AV_FALSE, //
@@ -102,7 +100,7 @@ public interface IS5ServerHardConstants
    * <p>
    * Тип: {@link EAtomicType#STRING}
    */
-  IDataDef DDEF_REV_LINK_IMPL_CLASS = create( S5_ID_START + "RevLinkImplClass", EAtomicType.STRING, //$NON-NLS-1$
+  IDataDef OP_REV_LINK_IMPL_CLASS = create( S5_ID_START + "RevLinkImplClass", EAtomicType.STRING, //$NON-NLS-1$
       TSID_NAME, STR_N_REV_LINK_IMPL_CLASS, //
       TSID_DESCRIPTION, STR_D_REV_LINK_IMPL_CLASS, //
       TSID_IS_NULL_ALLOWED, AV_FALSE, //
@@ -121,7 +119,7 @@ public interface IS5ServerHardConstants
    * <p>
    * Тип: {@link EAtomicType#VALOBJ} содержит {@link Skid}
    */
-  IDataDef DDEF_BACKEND_SERVER_ID = create( S5_BACKEND_ID_START + "ServerId", EAtomicType.VALOBJ, //$NON-NLS-1$
+  IDataDef OP_BACKEND_SERVER_ID = create( S5_BACKEND_ID_START + "ServerId", EAtomicType.VALOBJ, //$NON-NLS-1$
       TSID_NAME, STR_N_BACKEND_SERVER_ID, //
       TSID_DESCRIPTION, STR_D_BACKEND_SERVER_ID, //
       TSID_IS_NULL_ALLOWED, AV_FALSE, //
@@ -132,7 +130,7 @@ public interface IS5ServerHardConstants
    * <p>
    * Тип: {@link EAtomicType#VALOBJ} содержит {@link Skid}
    */
-  IDataDef DDEF_BACKEND_NODE_ID = create( S5_BACKEND_ID_START + "NodeId", EAtomicType.VALOBJ, //$NON-NLS-1$
+  IDataDef OP_BACKEND_NODE_ID = create( S5_BACKEND_ID_START + "NodeId", EAtomicType.VALOBJ, //$NON-NLS-1$
       TSID_NAME, STR_N_BACKEND_NODE_ID, //
       TSID_DESCRIPTION, STR_D_BACKEND_NODE_ID, //
       TSID_IS_NULL_ALLOWED, AV_FALSE, //
@@ -143,7 +141,7 @@ public interface IS5ServerHardConstants
    * <p>
    * Тип: {@link EAtomicType#VALOBJ} содержит {@link TsVersion}
    */
-  IDataDef DDEF_BACKEND_VERSION = create( S5_BACKEND_ID_START + "Version", EAtomicType.VALOBJ, //$NON-NLS-1$
+  IDataDef OP_BACKEND_VERSION = create( S5_BACKEND_ID_START + "Version", EAtomicType.VALOBJ, //$NON-NLS-1$
       TSID_NAME, STR_N_BACKEND_VERSION, //
       TSID_DESCRIPTION, STR_D_BACKEND_VERSION, //
       TSID_IS_NULL_ALLOWED, AV_FALSE, //
@@ -154,7 +152,7 @@ public interface IS5ServerHardConstants
    * <p>
    * Тип: {@link EAtomicType#VALOBJ} содержит {@link S5Module}
    */
-  IDataDef DDEF_BACKEND_MODULE = create( S5_BACKEND_ID_START + "Module", EAtomicType.VALOBJ, //$NON-NLS-1$
+  IDataDef OP_BACKEND_MODULE = create( S5_BACKEND_ID_START + "Module", EAtomicType.VALOBJ, //$NON-NLS-1$
       TSID_NAME, STR_N_BACKEND_MODULE, //
       TSID_DESCRIPTION, STR_D_BACKEND_MODULE, //
       TSID_IS_NULL_ALLOWED, AV_FALSE, //
@@ -176,7 +174,7 @@ public interface IS5ServerHardConstants
    * <p>
    * Тип: {@link EAtomicType#TIMESTAMP}
    */
-  IDataDef DDEF_BACKEND_START_TIME = create( S5_BACKEND_ID_START + "StartTime", EAtomicType.TIMESTAMP, //$NON-NLS-1$
+  IDataDef OP_BACKEND_START_TIME = create( S5_BACKEND_ID_START + "StartTime", EAtomicType.TIMESTAMP, //$NON-NLS-1$
       TSID_NAME, STR_N_BACKEND_START_TIME, //
       TSID_DESCRIPTION, STR_D_BACKEND_START_TIME, //
       TSID_IS_NULL_ALLOWED, AV_FALSE, //

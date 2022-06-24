@@ -40,11 +40,16 @@ import org.toxsoft.core.tslib.gw.skid.Skid;
 import org.toxsoft.core.tslib.utils.errors.*;
 import org.toxsoft.core.tslib.utils.logs.ELogSeverity;
 import org.toxsoft.core.tslib.utils.logs.ILogger;
+import org.toxsoft.uskat.core.api.evserv.SkEvent;
+import org.toxsoft.uskat.core.api.users.ISkUser;
+import org.toxsoft.uskat.core.backend.api.ISkBackendInfo;
 import org.toxsoft.uskat.core.impl.S5EventSupport;
+import org.toxsoft.uskat.core.impl.SkBackendInfo;
 import org.toxsoft.uskat.s5.client.remote.connection.S5ClusterTopology;
 import org.toxsoft.uskat.s5.common.sessions.IS5SessionInfo;
+import org.toxsoft.uskat.s5.common.sessions.ISkSession;
 import org.toxsoft.uskat.s5.server.backend.*;
-import org.toxsoft.uskat.s5.server.backend.addons.IS5BackendAddon;
+import org.toxsoft.uskat.s5.server.backend.addons.*;
 import org.toxsoft.uskat.s5.server.backend.supports.events.IS5BackendEventSingleton;
 import org.toxsoft.uskat.s5.server.backend.supports.links.IS5BackendLinksSingleton;
 import org.toxsoft.uskat.s5.server.backend.supports.lobs.IS5BackendLobsSingleton;
@@ -56,15 +61,10 @@ import org.toxsoft.uskat.s5.server.sessions.*;
 import org.toxsoft.uskat.s5.server.sessions.init.*;
 import org.toxsoft.uskat.s5.server.sessions.pas.S5SessionCallbackWriter;
 
-import ru.uskat.backend.ISkBackendInfo;
-import ru.uskat.backend.SkBackendInfo;
 import ru.uskat.common.dpu.*;
 import ru.uskat.common.dpu.impl.DpuObject;
-import ru.uskat.common.dpu.rt.events.SkEvent;
 import ru.uskat.core.api.ISkExtServicesProvider;
 import ru.uskat.core.api.ISkSystem;
-import ru.uskat.core.api.users.ISkSession;
-import ru.uskat.core.api.users.ISkUser;
 import ru.uskat.core.impl.SkUserService;
 import ru.uskat.legacy.IdPair;
 
@@ -79,7 +79,7 @@ import ru.uskat.legacy.IdPair;
 @TransactionAttribute( TransactionAttributeType.SUPPORTS )
 @TransactionManagement( TransactionManagementType.CONTAINER )
 public class S5BackendSession
-    implements SessionBean, IS5BackendLocal, IS5BackendRemote {
+    implements SessionBean, IS5BackendSessionControl, IS5BackendSession {
 
   private static final long serialVersionUID = 157157L;
 
@@ -145,16 +145,16 @@ public class S5BackendSession
   /**
    * Ссылка на собственный локальный интерфейс.
    * <p>
-   * Прямой доступ запрещен(transient), используйте {@link #selfLocal()}
+   * Прямой доступ запрещен(transient), используйте {@link #control()}
    */
-  private transient IS5BackendLocal selfLocal;
+  private transient IS5BackendSessionControl control;
 
   /**
    * Ссылка на собственный удаленный интерфейс.
    * <p>
-   * Прямой доступ запрещен(transient), используйте {@link #selfRemote()}
+   * Прямой доступ запрещен(transient), используйте {@link #session()}
    */
-  private transient IS5BackendRemote selfRemote;
+  private transient IS5BackendSession session;
 
   /**
    * Карта локального доступа к расширениям.
@@ -162,7 +162,7 @@ public class S5BackendSession
    * Ключ: идентификатор расширения;<br>
    * Значение: локальный доступ к расширению.
    */
-  private final IStringMapEdit<IS5BackendAddonSession> addonSessions = new StringMap<>();
+  private final IStringMapEdit<IS5BackendAddonSessionControl> addonSessions = new StringMap<>();
 
   /**
    * Признак того, что сессия готова к удалению
@@ -253,7 +253,7 @@ public class S5BackendSession
   }
 
   // ------------------------------------------------------------------------------------
-  // Реализация интерфейса IS5BackendRemote
+  // Реализация интерфейса IS5BackendSession
   //
   @Override
   // TODO: 2020-09-02 mvkd
@@ -344,8 +344,8 @@ public class S5BackendSession
       }
 
       // Формирование локального, удаленного доступа к сессии backend и его расширениям
-      IS5BackendLocal local = selfLocal();
-      IS5BackendRemote remote = selfRemote();
+      IS5BackendSessionControl local = control();
+      IS5BackendSession remote = session();
       TsInternalErrorRtException.checkNull( local );
       TsInternalErrorRtException.checkNull( remote );
 
@@ -354,10 +354,10 @@ public class S5BackendSession
       Context context = new InitialContext( prop );
       try {
         // Доступные расширения бекенда предоставляемые сервером
-        IStridablesList<IS5BackendAddon> addons =
-            backendCoreSingleton.initialConfig().impl().getBackendAddonsProvider().addons();
+        IStridablesList<IS5BackendAddonLegacy> addons =
+            backendCoreSingleton.initialConfig().impl().getBackendAddonsProvider().baCreators();
         for( String addonId : addons.keys() ) {
-          IS5BackendAddonSession addonSession = addons.getByKey( addonId ).createSession( context );
+          IS5BackendAddonSessionControl addonSession = addons.getByKey( addonId ).createSession( context );
           if( addonSession == null ) {
             // Расширение не работает с сессиями
             continue;
@@ -386,7 +386,7 @@ public class S5BackendSession
         // Не найден канал для обратных вызовов
         logger().error( e.getLocalizedMessage() );
         // Завершение сессии
-        selfLocal().removeAsync();
+        control().removeAsync();
         // Доводим информацию об ошибке до клиента
         throw sessionError( e );
       }
@@ -408,9 +408,9 @@ public class S5BackendSession
       session.frontendData().events().setNeededEventGwids( aInitData.eventGwids() );
       // Инициализация расширений службы
       for( String addonId : addonSessions.keys() ) {
-        IS5BackendAddonSession addonSession = addonSessions.getByKey( addonId );
+        IS5BackendAddonSessionControl addonSession = addonSessions.getByKey( addonId );
         try {
-          addonSession.init( selfLocal(), callbackWriter, aInitData, initResult );
+          addonSession.init( control(), callbackWriter, aInitData, initResult );
         }
         catch( Throwable e ) {
           // Неожиданная ошибка инициализации расширения
@@ -441,14 +441,14 @@ public class S5BackendSession
       // Неверное имя пользователя или пароль
       logger().error( ERR_REJECT_CONNECT, login, remoteAddress, remotePort, cause( e ) );
       // Завершение сессии
-      selfLocal().removeAsync();
+      control().removeAsync();
       throw e;
     }
     catch( S5SessionApiRtException e ) {
       // Отказ подключения к системе клиента
       logger().error( e, ERR_REJECT_CONNECT, login, remoteAddress, remotePort, cause( e ) );
       // Завершение сессии
-      selfLocal().removeAsync();
+      control().removeAsync();
       // Доводим информацию об ошибке до клиента
       throw e;
     }
@@ -456,7 +456,7 @@ public class S5BackendSession
       // Неожиданная ошибка подключения клиента
       logger().error( e, ERR_UNEXPECTED_CONNECT_FAIL, login, remoteAddress, remotePort, cause( e ) );
       // Завершение сессии
-      selfLocal().removeAsync();
+      control().removeAsync();
       // Доводим информацию об ошибке до клиента
       throw sessionError( e );
     }
@@ -494,18 +494,18 @@ public class S5BackendSession
     logger().info( MSG_SESSION_VERIFY_START, sessionID );
     for( String addonId : addonSessions.keys() ) {
       try {
-        IS5BackendAddonSession addonSession = addonSessions.getByKey( addonId );
+        IS5BackendAddonSessionControl addonSession = addonSessions.getByKey( addonId );
         addonSession.verify();
       }
       catch( NoSuchEJBException e ) {
         // Неожиданное завершение работы расширения сессии
         logger().error( ERR_UNEXPECTED_EXTENSION_CHECK2, addonId, cause( e ) );
-        selfLocal().removeAsync();
+        control().removeAsync();
       }
       catch( Throwable e ) {
         // Неожиданная ошибка проверки расширения сессии
         logger().error( ERR_UNEXPECTED_EXTENSION_CHECK, addonId, cause( e ) );
-        selfLocal().removeAsync();
+        control().removeAsync();
       }
     }
     // Завершение проверки работы сессии
@@ -533,12 +533,12 @@ public class S5BackendSession
     sessionManager.updateRemoteSession( session );
     // 2020-10-15 mvk
     // Асинронное удаление сессии
-    // selfLocal().removeAsync();
+    // control().removeAsync();
     session.backend().removeAsync();
   }
 
   // ------------------------------------------------------------------------------------
-  // Реализация интерфейса IS5BackendLocal
+  // Реализация интерфейса IS5BackendSessionControl
   //
   @Override
   @TransactionAttribute( TransactionAttributeType.SUPPORTS )
@@ -583,7 +583,7 @@ public class S5BackendSession
       // Завершение работы расширений
       for( String addonId : addonSessions.keys() ) {
         try {
-          IS5BackendAddonSession addonSession = addonSessions.getByKey( addonId );
+          IS5BackendAddonSessionControl addonSession = addonSessions.getByKey( addonId );
           addonSession.close();
         }
         catch( Throwable e ) {
@@ -819,47 +819,47 @@ public class S5BackendSession
   // Внутренние методы
   //
   /**
-   * Возвращает ссылку на собственный локальный интерфейс.
+   * Возвращает ссылку на управление (собственный локальный интерфейс).
    *
-   * @return {@link IS5BackendLocal} собственный локальный интерфейс
+   * @return {@link IS5BackendSessionControl} собственный локальный интерфейс
    */
-  private IS5BackendLocal selfLocal() {
-    if( selfLocal == null ) {
-      selfLocal = sessionContext.getBusinessObject( IS5BackendLocal.class );
+  private IS5BackendSessionControl control() {
+    if( control == null ) {
+      control = sessionContext.getBusinessObject( IS5BackendSessionControl.class );
     }
-    return selfLocal;
+    return control;
   }
 
   /**
-   * Возвращает ссылку на собственный удаленный интерфейс.
+   * Возвращает ссылку на сессию (собственный удаленный интерфейс).
    *
-   * @return {@link IS5BackendRemote} собственный удаленный интерфейс
+   * @return {@link IS5BackendSession} собственный удаленный интерфейс
    */
-  private IS5BackendRemote selfRemote() {
-    if( selfRemote == null ) {
-      selfRemote = sessionContext.getBusinessObject( IS5BackendRemote.class );
+  private IS5BackendSession session() {
+    if( session == null ) {
+      session = sessionContext.getBusinessObject( IS5BackendSession.class );
     }
-    return selfRemote;
+    return session;
   }
 
   /**
    * Возвращает карту удаленного доступа к расширениям backend
    *
-   * @param aLocalExtensions {@link IStringMap}&lt;{@link IS5BackendAddonSession}&gt; карта локального доступа к
+   * @param aLocalExtensions {@link IStringMap}&lt;{@link IS5BackendAddonSessionControl}&gt; карта локального доступа к
    *          расширениям. <br>
    *          Ключ: идентификатор расширения;<br>
    *          Значение: локальный доступ к расширению.
-   * @return {@link IStringMap}&lt;{@link IS5BackendAddonRemote}&gt; карта удаленного доступа к расширениям. <br>
+   * @return {@link IStringMap}&lt;{@link IS5BackendAddonSession}&gt; карта удаленного доступа к расширениям. <br>
    *         Ключ: идентификатор расширения;<br>
    *         Значение: удаленый доступ к расширению.
    * @throws TsNullArgumentRtException аргумент = null
    */
-  private static IStringMap<IS5BackendAddonRemote> getRemoteReferences(
-      IStringMapEdit<IS5BackendAddonSession> aLocalExtensions ) {
+  private static IStringMap<IS5BackendAddonSession> getRemoteReferences(
+      IStringMapEdit<IS5BackendAddonSessionControl> aLocalExtensions ) {
     TsNullArgumentRtException.checkNull( aLocalExtensions );
-    IStringMapEdit<IS5BackendAddonRemote> retValue = new StringMap<>();
-    for( IS5BackendAddonSession local : aLocalExtensions ) {
-      retValue.put( local.id(), local.selfRemote() );
+    IStringMapEdit<IS5BackendAddonSession> retValue = new StringMap<>();
+    for( IS5BackendAddonSessionControl local : aLocalExtensions ) {
+      retValue.put( local.id(), local.session() );
     }
     return retValue;
   }

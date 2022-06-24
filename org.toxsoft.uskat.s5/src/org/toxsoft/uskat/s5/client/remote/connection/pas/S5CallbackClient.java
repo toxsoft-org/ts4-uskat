@@ -18,7 +18,6 @@ import org.toxsoft.core.tslib.av.opset.IOptionSet;
 import org.toxsoft.core.tslib.bricks.ICooperativeMultiTaskable;
 import org.toxsoft.core.tslib.bricks.ctx.ITsContext;
 import org.toxsoft.core.tslib.bricks.ctx.impl.TsContext;
-import org.toxsoft.core.tslib.bricks.events.msg.IGenericMessageListener;
 import org.toxsoft.core.tslib.coll.IList;
 import org.toxsoft.core.tslib.coll.IListEdit;
 import org.toxsoft.core.tslib.coll.impl.ElemArrayList;
@@ -28,6 +27,7 @@ import org.toxsoft.core.tslib.utils.errors.TsIllegalStateRtException;
 import org.toxsoft.core.tslib.utils.errors.TsNullArgumentRtException;
 import org.toxsoft.core.tslib.utils.logs.ELogSeverity;
 import org.toxsoft.core.tslib.utils.logs.ILogger;
+import org.toxsoft.uskat.core.backend.ISkFrontendRear;
 import org.toxsoft.uskat.s5.client.IS5ConnectionParams;
 import org.toxsoft.uskat.s5.client.remote.connection.*;
 import org.toxsoft.uskat.s5.server.backend.addons.IS5BackendAddon;
@@ -415,7 +415,7 @@ public final class S5CallbackClient
     // aExternalDoJobCall = true: НЕ создавать внутренний поток для doJob
     PasClient<S5CallbackChannel> retValue = new PasClient<>( ctx, S5CallbackChannel.CREATOR, true, aLogger );
     // Регистрация обработчиков
-    IGenericMessageListener frontend = aConnection.frontend();
+    ISkFrontendRear frontend = aConnection.frontend();
     retValue.registerNotificationHandler( ON_MESSAGE_METHOD, new S5CallbackOnMessage( frontend ) );
     retValue.registerNotificationHandler( ON_GET_BACKEND_ADDON_INFOS_METHOD, new S5CallbackOnGetBackendAddonInfos() {
 

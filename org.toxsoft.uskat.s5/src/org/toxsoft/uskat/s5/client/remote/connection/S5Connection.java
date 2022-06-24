@@ -12,7 +12,6 @@ import static org.toxsoft.uskat.s5.utils.threads.impl.S5ThreadUtils.*;
 
 import java.net.*;
 import java.util.*;
-import java.util.concurrent.Callable;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.function.Supplier;
@@ -30,7 +29,6 @@ import org.jboss.marshalling.Pair;
 import org.toxsoft.core.pas.common.IPasTxChannel;
 import org.toxsoft.core.tslib.av.opset.IOptionSet;
 import org.toxsoft.core.tslib.av.opset.IOptionSetEdit;
-import org.toxsoft.core.tslib.bricks.events.msg.IGenericMessageListener;
 import org.toxsoft.core.tslib.coll.IListBasicEdit;
 import org.toxsoft.core.tslib.coll.IListEdit;
 import org.toxsoft.core.tslib.coll.impl.ElemArrayList;
@@ -40,11 +38,13 @@ import org.toxsoft.core.tslib.gw.skid.Skid;
 import org.toxsoft.core.tslib.utils.TsLibUtils;
 import org.toxsoft.core.tslib.utils.errors.*;
 import org.toxsoft.core.tslib.utils.logs.ILogger;
+import org.toxsoft.uskat.core.backend.ISkFrontendRear;
 import org.toxsoft.uskat.s5.client.remote.connection.pas.S5CallbackClient;
 import org.toxsoft.uskat.s5.common.S5Host;
 import org.toxsoft.uskat.s5.common.S5HostList;
+import org.toxsoft.uskat.s5.common.sessions.ISkSession;
 import org.toxsoft.uskat.s5.server.IS5ImplementConstants;
-import org.toxsoft.uskat.s5.server.backend.IS5BackendRemote;
+import org.toxsoft.uskat.s5.server.backend.IS5BackendSession;
 import org.toxsoft.uskat.s5.server.sessions.init.*;
 import org.toxsoft.uskat.s5.utils.progress.IS5ProgressMonitor;
 import org.toxsoft.uskat.s5.utils.threads.impl.S5Lockable;
@@ -55,9 +55,6 @@ import org.wildfly.naming.client.remote.RemoteNamingProviderFactory;
 import org.wildfly.naming.client.util.FastHashtable;
 import org.wildfly.security.auth.client.*;
 import org.wildfly.security.sasl.SaslMechanismSelector;
-
-import ru.uskat.core.api.users.ISkSession;
-import ru.uskat.core.connection.ISkConnection;
 
 /**
  * Реализация соединение с сервером {@link IS5Connection}.
@@ -83,7 +80,7 @@ public final class S5Connection
   private static final String CLUSTER_NODE_NAME = "node%02d"; //$NON-NLS-1$
 
   /**
-   * Тайматут (мсек) ожидания блокировки {@link ISkConnection#mainLock()}
+   * Тайматут (мсек) ожидания блокировки соединения
    */
   private static final long LOCK_TIMEOUT = 1000;
 
@@ -115,11 +112,11 @@ public final class S5Connection
   /**
    * Блокировка доступа к ресурсам соединения
    */
-  private final S5Lockable              lock;
+  private final S5Lockable      lock;
   /**
    * frontend
    */
-  private final IGenericMessageListener frontend;
+  private final ISkFrontendRear frontend;
 
   /**
    * Блокировка доступа к ресурсам соединения
@@ -139,7 +136,7 @@ public final class S5Connection
   /**
    * Удаленный backend s5-сервера. null: нет соединения с сервером
    */
-  private IS5BackendRemote remoteBackend;
+  private IS5BackendSession remoteBackend;
 
   /**
    * Поток выполнения повторного s5-соединения
@@ -204,12 +201,11 @@ public final class S5Connection
    *
    * @param aSessionID идентификатор сессии {@link ISkSession}
    * @param aClassLoader {@link ClassLoader} загрузчик классов
-   * @param aFrontend {@link IGenericMessageListener} frontend
+   * @param aFrontend {@link ISkFrontendRear} frontend
    * @param aFrontedLock {@link S5Lockable} блокировка доступа к frontend
    * @throws TsNullArgumentRtException любой аргумент = null
    */
-  public S5Connection( Skid aSessionID, ClassLoader aClassLoader, IGenericMessageListener aFrontend,
-      S5Lockable aFrontedLock ) {
+  public S5Connection( Skid aSessionID, ClassLoader aClassLoader, ISkFrontendRear aFrontend, S5Lockable aFrontedLock ) {
     sessionInitData = new S5SessionInitData( aSessionID );
     sessionInitResult = new S5SessionInitResult();
     classLoader = TsNullArgumentRtException.checkNull( aClassLoader );
@@ -488,9 +484,9 @@ public final class S5Connection
   /**
    * Возвращает подключенный frontend
    *
-   * @return {@link IGenericMessageListener} frontend
+   * @return {@link ISkFrontendRear} frontend
    */
-  public IGenericMessageListener frontend() {
+  public ISkFrontendRear frontend() {
     return frontend;
   }
 
@@ -558,7 +554,7 @@ public final class S5Connection
         // Поиск сервера и бина его API
         progressMonitor.subTask( format( USER_LOOKUP_REMOTE_API_START, this ) );
         logger.debug( USER_LOOKUP_REMOTE_API_START, this );
-        Pair<SessionID, IS5BackendRemote> remote =
+        Pair<SessionID, IS5BackendSession> remote =
             lookupClusterRemoteApi( this, hosts, login, pw, moduleName, apiIntefaceName, apiBeanName, loader );
         // remoteSessionID = remote.getA();
         remoteBackend = remote.getB();
@@ -807,7 +803,7 @@ public final class S5Connection
   }
 
   @Override
-  public IS5BackendRemote backend() {
+  public IS5BackendSession session() {
     TsIllegalStateRtException.checkTrue( state == EConnectionState.DISCONNECTED, MSG_CONNECTION_NOT_ACTIVE );
     return remoteBackend;
   }
@@ -1017,14 +1013,14 @@ public final class S5Connection
    * @param aInterfaceName String имя класса интерфейса удаленной ссылки на API
    * @param aBeanName String имя класса бина реализующего API клиента
    * @param aClassLoader {@link ClassLoader} загручик классов для создания proxy API сервера
-   * @return {@link Pair}&lt;{@link SessionID},{@link IS5BackendRemote}&gt; пара представляющая идентификатор сессии и
+   * @return {@link Pair}&lt;{@link SessionID},{@link IS5BackendSession}&gt; пара представляющая идентификатор сессии и
    *         удаленную ссылку на backend
    * @throws Exception ошибка создания соединения
    * @throws TsNullArgumentRtException любой аргумент = null
    * @throws NamingException контекст не найден
    */
   @SuppressWarnings( { "nls", "unchecked" } )
-  private Pair<SessionID, IS5BackendRemote> lookupClusterRemoteApi( S5Connection aConnection, S5HostList aHosts,
+  private Pair<SessionID, IS5BackendSession> lookupClusterRemoteApi( S5Connection aConnection, S5HostList aHosts,
       String aLogin, String aPassword, String aModuleName, String aInterfaceName, String aBeanName,
       ClassLoader aClassLoader )
       throws Exception {
@@ -1117,9 +1113,9 @@ public final class S5Connection
       // AuthenticationContext.getContextManager().setGlobalDefault( authenticationContext );
 
       // Код выполняемый в потоке контекста авторизации
-      Callable<Pair<SessionID, IS5BackendRemote>> callable = () -> {
+      java.util.concurrent.Callable<Pair<SessionID, IS5BackendSession>> callable = () -> {
         // Прокси точки входа на сервер
-        Class<IS5BackendRemote> view = (Class<IS5BackendRemote>)aClassLoader.loadClass( aInterfaceName );
+        Class<IS5BackendSession> view = (Class<IS5BackendSession>)aClassLoader.loadClass( aInterfaceName );
         String appname = "";
         String modulename = aModuleName;
         String beanname = aBeanName;
@@ -1149,7 +1145,7 @@ public final class S5Connection
             URI uri = new URI( "remote+http://" + hostname + ":" + port.toString() );
             // URI uri = new URI( "cluster://" + hostname + ":" + port.toString() );
             Affinity affinity = Affinity.forUri( uri );
-            StatelessEJBLocator<IS5BackendRemote> locator = StatelessEJBLocator.create( view, ejbId, affinity );
+            StatelessEJBLocator<IS5BackendSession> locator = StatelessEJBLocator.create( view, ejbId, affinity );
             // Подготовка и установка контекста EJB для соединения
             EJBClientContext.Builder contextBuilder = new EJBClientContext.Builder();
             // Загрузка поставщиков EJB транспорта
@@ -1181,13 +1177,13 @@ public final class S5Connection
             try( NamingProvider namingProvider =
                 namingProviderFactory.createProvider( properties, providerEnvironment ) ) {
               // Создание proxy на точку входа сервера (IServerApi) в контексте клиента
-              Pair<SessionID, IS5BackendRemote> session =
+              Pair<SessionID, IS5BackendSession> session =
                   EJBClient.createSessionProxy2( locator, S5Connection.this, namingProvider );
               // Замена прокси на прокси контекста соединения
               // TODO: 2020-03-08 mvk
-              // IS5BackendRemote proxy =
-              // (IS5BackendRemote)S5ConnectionInterceptor.replaceContextProxy( S5Connection.this, session.getB() );
-              IS5BackendRemote proxy = session.getB();
+              // IS5BackendSession proxy =
+              // (IS5BackendSession)S5ConnectionInterceptor.replaceContextProxy( S5Connection.this, session.getB() );
+              IS5BackendSession proxy = session.getB();
               if( proxy == null ) {
                 throw new TsInternalErrorRtException(
                     "lookupClusterRemoteApi(...): EJBClient.createSessionProxy2 return proxy = null " );
@@ -1235,7 +1231,7 @@ public final class S5Connection
   /* 2022-02-03 mvk переход на ejb-client-4.0.44 (wildfly-26.0.1.Final)
    * @formatter:off
   @SuppressWarnings( { "nls", "unchecked", "unused" } )
-  private IS5BackendRemote lookupRemoteApi( S5Connection aConnection, String aHost, Integer aPort, String aLogin,
+  private IS5BackendSession lookupRemoteApi( S5Connection aConnection, String aHost, Integer aPort, String aLogin,
       String aPassword, String aModuleName, String aInterfaceName, String aBeanName, ClassLoader aClassLoader )
       throws Exception {
     TsNullArgumentRtException.checkNulls( aConnection, aHost, aPort, aLogin, aPassword, aClassLoader );
@@ -1279,7 +1275,7 @@ public final class S5Connection
     try {
       // WildFlyRootContext ctx = new WildFlyRootContext( properties, ClassLoader.getSystemClassLoader() );
       // if( true ) {
-      // IS5BackendRemote ejb = (IS5BackendRemote)ctx
+      // IS5BackendSession ejb = (IS5BackendSession)ctx
       // .lookup( "ejb:" + "" + "/" + aModuleName + "/" + aBeanName + "!" + aInterfaceName + "?stateful" );
       // }
       // Формирование контеста аутентификации пользователя
@@ -1297,14 +1293,14 @@ public final class S5Connection
       AuthenticationContext.getContextManager().setThreadDefault( authenticationContext );
 
       // Код выполняемый в потоке контекста авторизации
-      Callable<IS5BackendRemote> callable = () -> {
+      Callable<IS5BackendSession> callable = () -> {
         // Прокси точки входа на сервер
-        Class<IS5BackendRemote> view = (Class<IS5BackendRemote>)aClassLoader.loadClass( aInterfaceName );
+        Class<IS5BackendSession> view = (Class<IS5BackendSession>)aClassLoader.loadClass( aInterfaceName );
         String appname = "";
         String modulename = aModuleName;
         String beanname = aBeanName;
         String distinctname = "";
-        StatelessEJBLocator<IS5BackendRemote> locator = null;
+        StatelessEJBLocator<IS5BackendSession> locator = null;
         try {
           EJBIdentifier ejbId = new EJBIdentifier( appname, modulename, beanname, distinctname );
           // mvk 2018-10-11
@@ -1338,8 +1334,8 @@ public final class S5Connection
             // Создание proxy на точку входа сервера (IServerApi) в контексте клиента
             Object proxy = EJBClient.createSessionProxy( locator, S5Connection.this, namingProvider );
             // // Замена прокси на прокси контекста соединения
-            // IS5BackendRemote retValue = (IS5BackendRemote)replaceContextProxy( S5Connection.this, proxy );
-            return (IS5BackendRemote)proxy;
+            // IS5BackendSession retValue = (IS5BackendSession)replaceContextProxy( S5Connection.this, proxy );
+            return (IS5BackendSession)proxy;
           }
         }
         catch( RuntimeException e ) {
@@ -1375,7 +1371,7 @@ public final class S5Connection
    */
 
   @SuppressWarnings( { "nls", "unused" } )
-  private static IS5BackendRemote lookupRemoteApiByJNDI( S5Connection aConnection, String aHost, Integer aPort,
+  private static IS5BackendSession lookupRemoteApiByJNDI( S5Connection aConnection, String aHost, Integer aPort,
       String aLogin, String aPassword, String aModuleName, String aInterfaceName, String aBeanName,
       ClassLoader aClassLoader )
       throws Exception {
@@ -1408,7 +1404,7 @@ public final class S5Connection
     Context context = new InitialContext( properties );
     Context ejbRootNamingContext = (Context)context.lookup( "ejb:" );
     try {
-      final IS5BackendRemote bean = (IS5BackendRemote)ejbRootNamingContext
+      final IS5BackendSession bean = (IS5BackendSession)ejbRootNamingContext
           .lookup( "ejb:" + "" + "/" + aModuleName + "/" + aBeanName + "!" + aInterfaceName + "?stateful" );
     }
     finally {
@@ -1470,11 +1466,11 @@ public final class S5Connection
 //    EJBClientContext.setSelector(
 //        new ConfigBasedEJBClientContextSelector( new PropertiesBasedEJBClientConfiguration( clientProperties ) ) );
 //
-//    StatefulEJBLocator<IS5BackendRemote> locator;
+//    StatefulEJBLocator<IS5BackendSession> locator;
 //    try {
 //      locator =
-//          EJBClient.createSession( IS5BackendRemote.class, "", "tm_server_deploy", "TmServerApiSessionImpl", "" );
-//      final IS5BackendRemote ejb = EJBClient.createProxy( locator );
+//          EJBClient.createSession( IS5BackendSession.class, "", "tm_server_deploy", "TmServerApiSessionImpl", "" );
+//      final IS5BackendSession ejb = EJBClient.createProxy( locator );
 //      System.out.println( ejb );
 //    }
 //    catch( Exception e ) {
@@ -1507,13 +1503,13 @@ public final class S5Connection
    *
    * @param aModuleName String имя модуля приложения
    * @param aJndiName String jndi-имя удаленного интерфейса сервера
-   * @return {@link IS5BackendRemote} ссылка на удаленный интерфейс соединения
+   * @return {@link IS5BackendSession} ссылка на удаленный интерфейс соединения
    * @throws TsNullArgumentRtException любой аргумент = null
    * @throws NamingException ссылка не найдена
    * @throws TsIllegalArgumentRtException найденная ссылка не является ссылкой удаленного интерфейса s5-сервера
    */
   // @formatter:off
-//  private static IS5BackendRemote lookupRemoteApi( Context aInitialContext, String aModuleName, String aJndiName )
+//  private static IS5BackendSession lookupRemoteApi( Context aInitialContext, String aModuleName, String aJndiName )
 //      throws NamingException {
 //    TsNullArgumentRtException.checkNulls( aInitialContext, aModuleName, aJndiName );
 //    String app = EMPTY_STRING;
@@ -1527,7 +1523,7 @@ public final class S5Connection
 //      String refClassName = (ref != null ? ref.getClass().getName() : MSG_NULL_REF);
 //      throw new TsIllegalArgumentRtException( MSG_ERR_NOT_SERVER_API, aJndiName, refClassName );
 //    }
-//    return (IS5BackendRemote)ref;
+//    return (IS5BackendSession)ref;
 //  }
   // @formatter:on
 
