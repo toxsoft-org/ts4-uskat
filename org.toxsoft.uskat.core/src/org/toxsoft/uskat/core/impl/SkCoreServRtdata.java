@@ -9,6 +9,11 @@ import org.toxsoft.uskat.core.*;
 import org.toxsoft.uskat.core.api.rtdserv.*;
 import org.toxsoft.uskat.core.devapi.*;
 
+/**
+ * {@link ISkRtdataService} implementation.
+ *
+ * @author hazard157
+ */
 public class SkCoreServRtdata
     extends AbstractSkCoreService
     implements ISkRtdataService {
@@ -28,7 +33,7 @@ public class SkCoreServRtdata
   }
 
   // ------------------------------------------------------------------------------------
-  // ApiWrapAbstractSkService
+  // AbstractSkCoreService
   //
 
   @Override

@@ -6,6 +6,11 @@ import org.toxsoft.core.tslib.utils.errors.*;
 import org.toxsoft.uskat.core.backend.*;
 import org.toxsoft.uskat.core.backend.api.*;
 
+/**
+ * {@link IBaRtdata} implementation.
+ *
+ * @author hazard157
+ */
 public class MtbBaRtdata
     extends MtbAbstractAddon
     implements IBaRtdata {

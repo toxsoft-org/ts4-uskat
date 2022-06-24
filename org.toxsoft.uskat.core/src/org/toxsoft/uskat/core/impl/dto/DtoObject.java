@@ -29,7 +29,7 @@ public final class DtoObject
   private static final long serialVersionUID = 157157L;
 
   /**
-   * Синглтон хранителя.
+   * The keeper singleton.
    */
   public static final IEntityKeeper<IDtoObject> KEEPER =
       new AbstractEntityKeeper<>( IDtoObject.class, EEncloseMode.ENCLOSES_BASE_CLASS, null ) {
@@ -75,14 +75,14 @@ public final class DtoObject
   }
 
   /**
-   * Private constructor for keeper.
+   * Package-private constructor for keeper.
    *
    * @param aFoo int - unsed argument for unique constructor signature
    * @param aSkid {@link Skid} - object skid
    * @param aAttrs {@link OptionSet} - attributes values
    * @param aRivets {@link MappedSkids} - reivets values
    */
-  private DtoObject( int aFoo, Skid aSkid, OptionSet aAttrs, MappedSkids aRivets ) {
+  DtoObject( int aFoo, Skid aSkid, IOptionSetEdit aAttrs, MappedSkids aRivets ) {
     skid = aSkid;
     attrs = aAttrs;
     rivets = aRivets;

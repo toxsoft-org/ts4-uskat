@@ -38,7 +38,7 @@ import org.toxsoft.uskat.core.impl.dto.*;
  *
  * @author hazard157
  */
-class SkCoreServObject
+public class SkCoreServObject
     extends AbstractSkCoreService
     implements ISkObjectService {
 
@@ -395,7 +395,7 @@ class SkCoreServObject
   }
 
   // ------------------------------------------------------------------------------------
-  // ApiWrapAbstractSkService
+  // AbstractSkCoreService
   //
 
   @Override

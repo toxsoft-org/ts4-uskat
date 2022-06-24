@@ -24,7 +24,7 @@ import org.toxsoft.uskat.core.devapi.*;
  *
  * @author hazard157
  */
-class SkCoreServClobs
+public class SkCoreServClobs
     extends AbstractSkCoreService
     implements ISkClobService {
 
@@ -144,7 +144,7 @@ class SkCoreServClobs
   }
 
   // ------------------------------------------------------------------------------------
-  // ApiWrapAbstractSkService
+  // AbstractSkCoreService
   //
 
   @Override

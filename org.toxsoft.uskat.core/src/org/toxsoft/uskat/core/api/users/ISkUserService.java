@@ -63,13 +63,16 @@ public interface ISkUserService
 
   /**
    * Creates new or updates existing user.
+   * <p>
+   * The argument may contain links to the roles.
    *
-   * @param aDtoUser {@link IDtoObject} - the user data
+   * @param aDtoUser {@link IDtoFullObject} - the user data
    * @return {@link ISkUser} - created/update user object
    * @throws TsNullArgumentRtException any argument = <code>null</code>
+   * @throws TsIllegalArgumentRtException object DTO does not refers to {@link ISkUser#CLASS_ID}
    * @throws TsValidationFailedRtException failed check of {@link ISkUserServiceValidator}
    */
-  ISkUser defineUser( IDtoObject aDtoUser );
+  ISkUser defineUser( IDtoFullObject aDtoUser );
 
   /**
    * Creates new or updates existing role.
@@ -77,6 +80,7 @@ public interface ISkUserService
    * @param aDtoRole {@link IDtoObject} - the role data
    * @return {@link ISkRole} - created/update role object
    * @throws TsNullArgumentRtException any argument = <code>null</code>
+   * @throws TsIllegalArgumentRtException object DTO does not refers to {@link ISkRole#CLASS_ID}
    * @throws TsValidationFailedRtException failed check of {@link ISkUserServiceValidator}
    */
   ISkRole defineRole( IDtoObject aDtoRole );
@@ -138,6 +142,19 @@ public interface ISkUserService
    * @throws TsValidationFailedRtException failed check of {@link ISkUserServiceValidator}
    */
   ISkUser setUserPassword( String aLogin, String aPassword );
+
+  /**
+   * Sets (changes) roles user may log in.
+   * <p>
+   * Event if list of roles is empty the user always has an assigned guest role.
+   *
+   * @param aRoles {@link IStridablesList}&lt;{@link ISkRole}&gt; - list of user roles
+   * @return {@link ISkUser} - updated user object
+   * @throws TsNullArgumentRtException any argument = <code>null</code>
+   * @throws TsItemNotFoundRtException no such user
+   * @throws TsValidationFailedRtException failed check of {@link ISkUserServiceValidator}
+   */
+  ISkUser setUserRoles( IStridablesList<ISkRole> aRoles );
 
   /**
    * Returns the password validator.

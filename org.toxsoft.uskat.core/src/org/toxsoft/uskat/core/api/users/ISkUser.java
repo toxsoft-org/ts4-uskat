@@ -1,5 +1,7 @@
 package org.toxsoft.uskat.core.api.users;
 
+import static org.toxsoft.uskat.core.api.users.ISkUserServiceHardConstants.*;
+
 import org.toxsoft.core.tslib.bricks.strid.coll.*;
 import org.toxsoft.uskat.core.*;
 import org.toxsoft.uskat.core.api.objserv.*;
@@ -34,7 +36,9 @@ public interface ISkUser
    *
    * @return String - the password used to open the session with the server
    */
-  String password();
+  default String password() {
+    return attrs().getStr( AID_PASSWORD );
+  }
 
   /**
    * Returns the roles the user are allowed to log in.
@@ -53,7 +57,9 @@ public interface ISkUser
    *         <code>true</code> if user is allowed to connect to the server<br>
    *         <code>false</code> if thei user is temporary disabled
    */
-  boolean isEnabled();
+  default boolean isEnabled() {
+    return attrs().getBool( AID_USER_IS_ENABLED );
+  }
 
   /**
    * Determines if user is hidden from system administrator.
@@ -66,6 +72,8 @@ public interface ISkUser
    *
    * @return boolean - <code>true</code> if user is visible not for system administrator, only for developer
    */
-  boolean isHidden();
+  default boolean isHidden() {
+    return attrs().getBool( AID_USER_IS_HIDDEN );
+  }
 
 }

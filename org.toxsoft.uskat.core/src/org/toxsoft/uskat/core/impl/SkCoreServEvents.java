@@ -58,7 +58,7 @@ public class SkCoreServEvents
   }
 
   // ------------------------------------------------------------------------------------
-  // ApiWrapAbstractSkService
+  // AbstractSkCoreService
   //
 
   @Override

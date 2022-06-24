@@ -31,7 +31,7 @@ import org.toxsoft.uskat.core.devapi.*;
  *
  * @author hazard157
  */
-class SkCoreServSysdescr
+public class SkCoreServSysdescr
     extends AbstractSkCoreService
     implements ISkSysdescr {
 
@@ -414,7 +414,7 @@ class SkCoreServSysdescr
   }
 
   // ------------------------------------------------------------------------------------
-  // ApiWrapAbstractSkService
+  // AbstractSkCoreService
   //
 
   @Override

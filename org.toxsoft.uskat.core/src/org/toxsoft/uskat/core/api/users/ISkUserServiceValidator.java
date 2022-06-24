@@ -11,42 +11,57 @@ import org.toxsoft.uskat.core.api.objserv.*;
  */
 public interface ISkUserServiceValidator {
 
-  ValidationResult canCreateUser( IDtoObject aUserDpu );
-
   /**
-   * @param aUserDpu
-   * @param aOldUser
+   * Checks if user can be created.
+   *
+   * @param aUserDto {@link IDtoFullObject} - user data including links
    * @return {@link ValidationResult} - validation result
    * @throws TsNullArgumentRtException any argument = <code>null</code>
    */
-  ValidationResult canEditUser( IDtoObject aUserDpu, ISkUser aOldUser );
+  ValidationResult canCreateUser( IDtoFullObject aUserDto );
 
   /**
-   * @param aLogin
+   * Checks if user can be edited.
+   *
+   * @param aUserDto {@link IDtoFullObject} - user data including links
+   * @param aOldUser {@link ISkUser} - current user data
+   * @return {@link ValidationResult} - validation result
+   * @throws TsNullArgumentRtException any argument = <code>null</code>
+   */
+  ValidationResult canEditUser( IDtoFullObject aUserDto, ISkUser aOldUser );
+
+  /**
+   * Checks if user may removed.
+   *
+   * @param aLogin String - user login
    * @return {@link ValidationResult} - validation result
    * @throws TsNullArgumentRtException any argument = <code>null</code>
    */
   ValidationResult canRemoveUser( String aLogin );
 
   /**
-   * @param aRoleDpu
+   * Checks if user can be created.
+   *
+   * @param aRoleDto {@link IDtoObject} - role data
    * @return {@link ValidationResult} - validation result
    * @throws TsNullArgumentRtException any argument = <code>null</code>
    */
-  ValidationResult canCreateRole( IDtoObject aRoleDpu );
+  ValidationResult canCreateRole( IDtoObject aRoleDto );
 
   /**
-   * @param aRoleDpu
-   * @param aOldRole
+   * Checks if role can be edited
+   *
+   * @param aRoleDto {@link IDtoObject} - role data
+   * @param aOldRole {@link ISkRole} - current role data
    * @return {@link ValidationResult} - validation result
    * @throws TsNullArgumentRtException any argument = <code>null</code>
    */
-  ValidationResult canEditRole( IDtoObject aRoleDpu, ISkRole aOldRole );
+  ValidationResult canEditRole( IDtoObject aRoleDto, ISkRole aOldRole );
 
   /**
    * Check if role can be removed.
    *
-   * @param aRoleId String - th role ID (that is {@link ISkRole#id()})
+   * @param aRoleId String - the role ID (that is {@link ISkRole#id()})
    * @return {@link ValidationResult} - validation result
    * @throws TsNullArgumentRtException any argument = <code>null</code>
    */
