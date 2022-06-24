@@ -13,25 +13,24 @@ import org.toxsoft.core.tslib.gw.gwid.Gwid;
 import org.toxsoft.core.tslib.gw.skid.*;
 import org.toxsoft.core.tslib.utils.TsLibUtils;
 import org.toxsoft.core.tslib.utils.errors.*;
-
-import ru.uskat.common.dpu.IDpuLinkFwd;
+import org.toxsoft.uskat.core.api.linkserv.IDtoLinkFwd;
 
 /**
- * Реализация интерфейса {@link IDpuLinkFwd} способная маппироваться на таблицу базы данных
+ * Реализация интерфейса {@link IDtoLinkFwd} способная маппироваться на таблицу базы данных
  *
  * @author mvk
  */
 @MappedSuperclass
 @Inheritance( strategy = InheritanceType.TABLE_PER_CLASS )
 public abstract class S5LinkFwdEntity
-    implements IDpuLinkFwd, Serializable {
+    implements IDtoLinkFwd, Serializable {
 
   private static final long serialVersionUID = 157157L;
 
   /**
    * Несуществующая связь
    */
-  public static final IDpuLinkFwd NULL = new InternalNulLinkFwd();
+  public static final IDtoLinkFwd NULL = new InternalNulLinkFwd();
 
   /**
    * Поле таблицы: первичный составной (classId,strid,linkClassId,linkId) {@link S5LinkID} идентификатор связи
@@ -87,10 +86,10 @@ public abstract class S5LinkFwdEntity
   /**
    * Конструктор копирования (для сохранения связи объекта в базу данных)
    *
-   * @param aSource {@link IDpuLinkFwd} исходная связь с объектами
+   * @param aSource {@link IDtoLinkFwd} исходная связь с объектами
    * @throws TsNullArgumentRtException любой аргумент = null
    */
-  protected S5LinkFwdEntity( IDpuLinkFwd aSource ) {
+  protected S5LinkFwdEntity( IDtoLinkFwd aSource ) {
     TsNullArgumentRtException.checkNull( aSource );
     id = new S5LinkID( aSource.leftSkid(), aSource.classId(), aSource.linkId() );
     setRightSkids( aSource.rightSkids() );
@@ -139,8 +138,16 @@ public abstract class S5LinkFwdEntity
   }
 
   // ------------------------------------------------------------------------------------
-  // Реализация интерфейса IDpuLinkFwd
+  // Реализация интерфейса IDtoLinkFwd
   //
+  @Override
+  public Gwid gwid() {
+    if( gwid == null ) {
+      gwid = Gwid.createLink( classId(), leftSkid().strid(), linkId() );
+    }
+    return gwid;
+  }
+
   @Override
   public String classId() {
     return id.linkClassId();
@@ -157,14 +164,6 @@ public abstract class S5LinkFwdEntity
       skid = new Skid( id.classId(), id.strid() );
     }
     return skid;
-  }
-
-  @Override
-  public Gwid linkGwid() {
-    if( gwid == null ) {
-      gwid = Gwid.createLink( classId(), leftSkid().strid(), linkId() );
-    }
-    return gwid;
   }
 
   @Override
@@ -207,7 +206,7 @@ public abstract class S5LinkFwdEntity
  * Реализация несуществующего описания соединения {@link S5LinkFwdEntity#NULL}.
  */
 class InternalNulLinkFwd
-    implements IDpuLinkFwd, Serializable {
+    implements IDtoLinkFwd, Serializable {
 
   private static final long serialVersionUID = 157157L;
 
@@ -224,7 +223,7 @@ class InternalNulLinkFwd
   }
 
   // ------------------------------------------------------------------------------------
-  // Реализация методов IDpuLinkFwd
+  // Реализация методов IDtoLinkFwd
   //
   @Override
   public String classId() {
@@ -242,7 +241,7 @@ class InternalNulLinkFwd
   }
 
   @Override
-  public Gwid linkGwid() {
+  public Gwid gwid() {
     throw new TsNullObjectErrorRtException();
   }
 
@@ -266,6 +265,6 @@ class InternalNulLinkFwd
 
   @Override
   public String toString() {
-    return IDpuLinkFwd.class.getSimpleName() + ".NULL"; //$NON-NLS-1$
+    return IDtoLinkFwd.class.getSimpleName() + ".NULL"; //$NON-NLS-1$
   }
 }

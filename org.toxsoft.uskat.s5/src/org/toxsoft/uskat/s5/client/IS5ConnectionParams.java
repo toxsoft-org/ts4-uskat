@@ -15,6 +15,7 @@ import org.toxsoft.core.tslib.gw.skid.Skid;
 import org.toxsoft.core.tslib.utils.TsVersion;
 import org.toxsoft.uskat.s5.common.S5HostList;
 import org.toxsoft.uskat.s5.utils.progress.IS5ProgressMonitor;
+import org.toxsoft.uskat.s5.utils.threads.impl.S5Lockable;
 
 /**
  * Параметры соединения с s5
@@ -35,7 +36,7 @@ public interface IS5ConnectionParams {
       TSID_DEFAULT_VALUE, avValobj( Skid.NONE ) );
 
   // ------------------------------------------------------------------------------------
-  // Учетная запись пользователя
+  // Учетная запись пользователя (для remote)
   //
   /**
    * Параметр: Имя пользователя
@@ -56,6 +57,31 @@ public interface IS5ConnectionParams {
   IDataDef OP_PASSWORD = create( "password", STRING, //$NON-NLS-1$
       TSID_NAME, N_PASSWORD, //
       TSID_DESCRIPTION, D_PASSWORD, //
+      TSID_IS_NULL_ALLOWED, AV_FALSE, //
+      TSID_DEFAULT_VALUE, AvUtils.AV_STR_EMPTY );
+
+  // ------------------------------------------------------------------------------------
+  // Учетная запись пользователя (для local)
+  //
+  /**
+   * Параметр: Имя модуля создавшего локальное подключение к бекенду
+   * <p>
+   * Тип: {@link EAtomicType#STRING}
+   */
+  IDataDef OP_LOCAL_MODULE = create( "localModule", STRING, //$NON-NLS-1$
+      TSID_NAME, N_LOCAL_MODULE, //
+      TSID_DESCRIPTION, D_LOCAL_MODULE, //
+      TSID_IS_NULL_ALLOWED, AV_FALSE, //
+      TSID_DEFAULT_VALUE, AvUtils.AV_STR_EMPTY );
+
+  /**
+   * Параметр: Имя локального узла на котором создано локальное подключение к бекенду.
+   * <p>
+   * Тип: {@link EAtomicType#STRING}
+   */
+  IDataDef OP_LOCAL_NODE = create( "localNode", STRING, //$NON-NLS-1$
+      TSID_NAME, N_LOCAL_NODE, //
+      TSID_DESCRIPTION, D_LOCAL_NODE, //
       TSID_IS_NULL_ALLOWED, AV_FALSE, //
       TSID_DEFAULT_VALUE, AvUtils.AV_STR_EMPTY );
 
@@ -160,6 +186,16 @@ public interface IS5ConnectionParams {
   // ------------------------------------------------------------------------------------
   // Параметры контекста соединения
   //
+  /**
+   * Параметр: блокировка доступа к данным соединения
+   * <p>
+   * Тип: {@link S5Lockable}
+   */
+  ITsContextRefDef<S5Lockable> REF_CONNECTION_LOCK = create( "connectionLock", S5Lockable.class, //$NON-NLS-1$
+      TSID_NAME, N_CONNECTION_LOCK, //
+      TSID_DESCRIPTION, D_CONNECTION_LOCK, //
+      TSID_IS_NULL_ALLOWED, AV_TRUE );
+
   /**
    * Параметр: Загрузчик классов используемый соединением
    * <p>

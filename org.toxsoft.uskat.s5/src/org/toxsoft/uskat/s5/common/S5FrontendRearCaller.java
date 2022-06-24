@@ -5,39 +5,40 @@ import static org.toxsoft.uskat.s5.common.IS5Resources.*;
 import static org.toxsoft.uskat.s5.utils.threads.impl.S5Lockable.*;
 
 import java.util.concurrent.atomic.AtomicLong;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 
-import org.toxsoft.core.tslib.bricks.events.msg.GenericMessage;
-import org.toxsoft.core.tslib.bricks.events.msg.IGenericMessageListener;
+import org.toxsoft.core.tslib.bricks.events.msg.GtMessage;
+import org.toxsoft.core.tslib.bricks.events.msg.IGtMessageListener;
 import org.toxsoft.core.tslib.coll.derivative.IQueue;
 import org.toxsoft.core.tslib.coll.derivative.Queue;
 import org.toxsoft.core.tslib.utils.ICloseable;
 import org.toxsoft.core.tslib.utils.errors.TsInternalErrorRtException;
 import org.toxsoft.core.tslib.utils.errors.TsNullArgumentRtException;
 import org.toxsoft.core.tslib.utils.logs.ILogger;
+import org.toxsoft.uskat.concurrent.S5SynchronizedConnection;
+import org.toxsoft.uskat.core.backend.ISkFrontendRear;
+import org.toxsoft.uskat.core.connection.ISkConnection;
 import org.toxsoft.uskat.s5.utils.threads.impl.S5Lockable;
 
-import ru.uskat.backend.ISkFrontendRear;
-import ru.uskat.core.connection.ISkConnection;
-
 /**
- * Поставщик асинхронных вызовов {@link ISkFrontendRear#onGenericMessage(GenericMessage)} для локального и/или
- * удаленного работающий в собственном потоке
+ * Поставщик асинхронных вызовов {@link ISkFrontendRear#onBackendMessage(GtMessage)} для локального и/или удаленного
+ * работающий в собственном потоке
  * <p>
  * Обеспечивает развязку между потоками транспорта и {@link ISkConnection}
  *
  * @author mvk
  */
 public final class S5FrontendRearCaller
-    implements IGenericMessageListener, Runnable, ICloseable {
+    implements IGtMessageListener, Runnable, ICloseable {
 
   /**
    * Время (мсек) между отправлением вызовов callback когда они идут серией или когда невозможно получить доступ к
-   * {@link ISkConnection#mainLock()}
+   * {@link S5SynchronizedConnection#getConnectionLock()}
    */
   private static final long FRONTEND_CALL_INTERVAL = 1;
 
   /**
-   * Тайматут (мсек) после ошибки получения блокировки {@link ISkConnection#mainLock()}
+   * Тайматут (мсек) после ошибки получения блокировки {@link S5SynchronizedConnection#getConnectionLock()}
    */
   private static final long LOCK_TIMEOUT = 1000;
 
@@ -69,7 +70,7 @@ public final class S5FrontendRearCaller
   /**
    * Очередь запросов
    */
-  private final IQueue<GenericMessage> calls = new Queue<>();
+  private final IQueue<GtMessage> calls = new Queue<>();
 
   /**
    * Поток задачи
@@ -91,14 +92,15 @@ public final class S5FrontendRearCaller
    *
    * @param aName String имя задачи
    * @param aFrontend {@link ISkFrontendRear} фронтенд соединения
+   * @param aFrontendLock {@link ReentrantReadWriteLock} блокировка доступа к фронтенду
    * @throws TsNullArgumentRtException любой аргумент = null
    */
-  public S5FrontendRearCaller( String aName, ISkFrontendRear aFrontend ) {
-    TsNullArgumentRtException.checkNulls( aName, aFrontend );
+  public S5FrontendRearCaller( String aName, ISkFrontendRear aFrontend, ReentrantReadWriteLock aFrontendLock ) {
+    TsNullArgumentRtException.checkNulls( aName, aFrontend, aFrontendLock );
     id = Long.valueOf( idGenerator.incrementAndGet() );
     name = String.format( STR_FRONTEND_CALLER, id, aName );
     frontend = TsNullArgumentRtException.checkNull( aFrontend );
-    frontendLock = S5Lockable.getLockableFromPool( frontend.mainLock() );
+    frontendLock = S5Lockable.getLockableFromPool( aFrontendLock );
     logger = getLogger( getClass() );
     Thread thread = new Thread( this, name );
     thread.start();
@@ -126,16 +128,16 @@ public final class S5FrontendRearCaller
   }
 
   // ------------------------------------------------------------------------------------
-  // IGenericMessageListener
+  // IGtMessageListener
   //
   /**
    * Асинхронная отправка сообщение фроненду
    *
-   * @param aMessage String сообщениe
+   * @param aMessage {@link GtMessage} сообщениe
    * @throws TsNullArgumentRtException любой аргумент = null
    */
   @Override
-  public void onGenericMessage( GenericMessage aMessage ) {
+  public void onGenericTopicMessage( GtMessage aMessage ) {
     TsNullArgumentRtException.checkNull( aMessage );
     synchronized (calls) {
       calls.putTail( aMessage );
@@ -162,7 +164,7 @@ public final class S5FrontendRearCaller
       while( !stopQueried ) {
         try {
           // Вызов фронтенда. null: нет вызовов
-          GenericMessage message = null;
+          GtMessage message = null;
           synchronized (calls) {
             if( calls.size() == 0 ) {
               // Вызовов нет, ждем сигнала о добавлении новых вызовов
@@ -247,13 +249,13 @@ public final class S5FrontendRearCaller
    * Безопасный (без исключений) вызов фронтенда
    *
    * @param aFrontend {@link ISkFrontendRear} вызываемый фронтенд
-   * @param aMessage {@link GenericMessage} сообщение
+   * @param aMessage {@link GtMessage} сообщение
    * @param aLogger {@link ILogger} журнал
    */
-  private static void safeCallFrontend( ISkFrontendRear aFrontend, GenericMessage aMessage, ILogger aLogger ) {
+  private static void safeCallFrontend( ISkFrontendRear aFrontend, GtMessage aMessage, ILogger aLogger ) {
     try {
       TsNullArgumentRtException.checkNulls( aFrontend, aMessage, aLogger );
-      aFrontend.onGenericMessage( aMessage );
+      aFrontend.onBackendMessage( aMessage );
     }
     catch( Exception e ) {
       aLogger.error( e );

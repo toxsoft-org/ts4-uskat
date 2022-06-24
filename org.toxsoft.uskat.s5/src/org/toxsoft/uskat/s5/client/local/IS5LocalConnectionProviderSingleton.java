@@ -2,8 +2,8 @@ package org.toxsoft.uskat.s5.client.local;
 
 import javax.ejb.Local;
 
-import ru.uskat.core.api.ISkBackendProvider;
-import ru.uskat.core.connection.ISkConnection;
+import org.toxsoft.uskat.core.backend.ISkBackendProvider;
+import org.toxsoft.uskat.core.connection.ISkConnection;
 
 /**
  * Поставщик соединений {@link ISkConnection} с локальным сервером.

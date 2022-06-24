@@ -266,8 +266,8 @@ class S5SysdescrInterceptor
   private boolean prepareTransactionMoveObjectImpl( IDpuSdClassInfo aPrevClassInfo, IDpuSdClassInfo aNewClassInfo ) {
     TsNullArgumentRtException.checkNulls( aPrevClassInfo, aNewClassInfo );
     // Класс реализации хранения значений объекта
-    String prevObjectImplClassName = DDEF_OBJECT_IMPL_CLASS.getValue( aPrevClassInfo.params() ).asString();
-    String newObjectImplClassName = DDEF_OBJECT_IMPL_CLASS.getValue( aNewClassInfo.params() ).asString();
+    String prevObjectImplClassName = OP_OBJECT_IMPL_CLASS.getValue( aPrevClassInfo.params() ).asString();
+    String newObjectImplClassName = OP_OBJECT_IMPL_CLASS.getValue( aNewClassInfo.params() ).asString();
     // Признак изменения класса реализации объекта (перемещаться могут только объекты измененного класса без наследников
     // - у наследников собственное определение)
     boolean changeObjectImplClass = !prevObjectImplClassName.equals( newObjectImplClassName );

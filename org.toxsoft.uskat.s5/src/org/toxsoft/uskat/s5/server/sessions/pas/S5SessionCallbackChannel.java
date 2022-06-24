@@ -122,7 +122,7 @@ public final class S5SessionCallbackChannel
   @Override
   protected boolean doInit() {
     // Передача информации о классе реализации бекенда сервера
-    S5CallbackOnGetBackendAddonInfos.send( this, initialImplementation.addons() );
+    S5CallbackOnGetBackendAddonInfos.send( this, initialImplementation.baCreators() );
     // Базовая обработка
     return super.doInit();
   }

@@ -17,24 +17,24 @@ import org.toxsoft.core.tslib.bricks.ctx.impl.TsContext;
 import org.toxsoft.core.tslib.bricks.strid.coll.IStridablesList;
 import org.toxsoft.core.tslib.bricks.strid.coll.IStridablesListEdit;
 import org.toxsoft.core.tslib.bricks.strid.coll.impl.StridablesList;
-import org.toxsoft.core.tslib.gw.skid.Skid;
 import org.toxsoft.core.tslib.utils.TsLibUtils;
 import org.toxsoft.core.tslib.utils.errors.TsNullArgumentRtException;
+import org.toxsoft.uskat.concurrent.S5SynchronizedConnection;
+import org.toxsoft.uskat.core.api.users.ISkUserServiceHardConstants;
+import org.toxsoft.uskat.core.backend.ISkBackend;
+import org.toxsoft.uskat.core.backend.ISkFrontendRear;
+import org.toxsoft.uskat.core.connection.ISkConnection;
+import org.toxsoft.uskat.core.impl.ISkCoreConfigConstants;
+import org.toxsoft.uskat.core.impl.SkCoreUtils;
+import org.toxsoft.uskat.s5.client.IS5ConnectionParams;
 import org.toxsoft.uskat.s5.server.backend.IS5BackendCoreSingleton;
 import org.toxsoft.uskat.s5.server.backend.addons.IS5BackendAddon;
+import org.toxsoft.uskat.s5.server.backend.addons.IS5BackendAddonLocal;
 import org.toxsoft.uskat.s5.server.backend.supports.objects.IS5BackendObjectsSingleton;
 import org.toxsoft.uskat.s5.server.cluster.IS5ClusterCommandHandler;
 import org.toxsoft.uskat.s5.server.cluster.IS5ClusterManager;
-import org.toxsoft.uskat.s5.server.sessions.S5BackendAddonLocal;
 import org.toxsoft.uskat.s5.server.singletons.S5SingletonBase;
 import org.toxsoft.uskat.s5.utils.jobs.IS5ServerJob;
-
-import ru.uskat.backend.ISkFrontendRear;
-import ru.uskat.common.dpu.IDpuObject;
-import ru.uskat.core.api.ISkBackend;
-import ru.uskat.core.api.users.ISkUser;
-import ru.uskat.core.connection.ISkConnection;
-import ru.uskat.core.impl.SkUtils;
 
 /**
  * Реализация синглтона {@link IS5LocalConnectionSingleton}.
@@ -148,45 +148,30 @@ public class S5LocalConnectionSingleton
   @TransactionAttribute( TransactionAttributeType.NOT_SUPPORTED )
   @Override
   public ISkConnection open( String aModuleName ) {
-    return open( aModuleName, TsLibUtils.EMPTY_STRING, new ReentrantReadWriteLock() );
-  }
-
-  @TransactionAttribute( TransactionAttributeType.NOT_SUPPORTED )
-  @Override
-  public ISkConnection open( String aModuleName, String aExtServiceProvider ) {
-    return open( aModuleName, aExtServiceProvider, new ReentrantReadWriteLock() );
+    return open( aModuleName, new TsContext(), new ReentrantReadWriteLock() );
   }
 
   @TransactionAttribute( TransactionAttributeType.NOT_SUPPORTED )
   @SuppressWarnings( "nls" )
   @Override
-  public ISkConnection open( String aModuleName, String aExtServiceProvider, ReentrantReadWriteLock aLock ) {
-    TsNullArgumentRtException.checkNull( aModuleName, aExtServiceProvider, aLock );
+  public ISkConnection open( String aModuleName, ITsContextRo aArgs, ReentrantReadWriteLock aLock ) {
+    TsNullArgumentRtException.checkNulls( aModuleName, aArgs, aLock );
     IS5LocalConnectionProviderSingleton provider =
         sessionContext().getBusinessObject( IS5LocalConnectionProviderSingleton.class );
-    // Пробуем найти пользователя root и получить его пароль для подключения
-    IDpuObject user = objectsBackendSupport.findObject( new Skid( ISkUser.CLASS_ID, ISkUser.ROOT_USER_LOGIN ) );
     // Узел кластера на котором работает модуль
     String moduleName = aModuleName.replaceAll( "-", "." );
     // Узел кластера на котором работает модуль
     String moduleNode = clusterManager.group().getLocalMember().getName().replaceAll( "-", "." );
 
-    ITsContext ctx = new TsContext();
-    SkUtils.REF_BACKEND_PROVIDER.setRef( ctx, provider );
-    SkUtils.OP_LOGIN.setValue( ctx.params(), avStr( ISkUser.ROOT_USER_LOGIN ) );
-    SkUtils.OP_PASSWORD.setValue( ctx.params(), avStr( TsLibUtils.EMPTY_STRING ) );
-    if( user != null ) {
-      // Пользователь root уже существует (есть sysdescr), определяем его текущий пароль
-      SkUtils.OP_PASSWORD.setValue( ctx.params(), avStr( user.attrs().getStr( ISkUser.ATRID_PASSWORD ) ) );
-    }
-    if( aExtServiceProvider.length() > 0 ) {
-      // Для создания соединения используется инициализатор
-      SkUtils.OP_EXT_SERV_PROVIDER_CLASS.setValue( ctx.params(), avStr( aExtServiceProvider ) );
-    }
-    IS5LocalBackendHardConstants.OP_LOCAL_MODULE.setValue( ctx.params(), avStr( moduleName ) );
-    IS5LocalBackendHardConstants.OP_LOCAL_NODE.setValue( ctx.params(), avStr( moduleNode ) );
+    ITsContext ctx = new TsContext( aArgs );
+    ISkCoreConfigConstants.REFDEF_BACKEND_PROVIDER.setRef( ctx, provider );
+    IS5ConnectionParams.OP_USERNAME.setValue( ctx.params(), avStr( ISkUserServiceHardConstants.SUPER_USER_ID ) );
+    IS5ConnectionParams.OP_PASSWORD.setValue( ctx.params(), avStr( TsLibUtils.EMPTY_STRING ) );
+    IS5ConnectionParams.OP_LOCAL_MODULE.setValue( ctx.params(), avStr( moduleName ) );
+    IS5ConnectionParams.OP_LOCAL_NODE.setValue( ctx.params(), avStr( moduleNode ) );
 
-    ISkConnection connection = SkUtils.createConnection( aLock );
+    ISkConnection connection =
+        S5SynchronizedConnection.createSynchronizedConnection( SkCoreUtils.createConnection(), aLock );
     connection.open( ctx );
     return connection;
   }
@@ -197,19 +182,19 @@ public class S5LocalConnectionSingleton
   @Override
   public ISkBackend createBackend( ISkFrontendRear aFrontend, ITsContextRo aArgs ) {
     TsNullArgumentRtException.checkNulls( aFrontend, aArgs );
-    IStridablesListEdit<S5BackendAddonLocal> addonLocalClients = new StridablesList<>();
+    IStridablesListEdit<IS5BackendAddonLocal> baLocals = new StridablesList<>();
     // Доступные расширения бекенда предоставляемые сервером
-    IStridablesList<IS5BackendAddon> addons = backend.initialConfig().impl().getBackendAddonsProvider().addons();
+    IStridablesList<IS5BackendAddon> addons = backend.initialConfig().impl().getBackendAddonsProvider().baCreators();
     for( IS5BackendAddon addon : addons ) {
-      S5BackendAddonLocal addonLocalClient = addon.createLocalClient( aArgs );
-      if( addonLocalClient == null ) {
+      IS5BackendAddonLocal baLocal = addon.createLocalClient( aArgs );
+      if( baLocal == null ) {
         // Расширение не работает с локальными клиентами
         continue;
       }
-      addonLocalClients.put( addonLocalClient );
+      baLocals.put( baLocal );
     }
     // Создание локального бекенда
-    return new S5LocalBackend( aArgs, backend, aFrontend, addonLocalClients );
+    return new S5BackendLocal( aArgs, aFrontend, backend, baLocals );
   }
 
   // ------------------------------------------------------------------------------------
@@ -225,17 +210,5 @@ public class S5LocalConnectionSingleton
     }
     doJobTimestamp = currTime;
     // TODO:
-  }
-
-  // ------------------------------------------------------------------------------------
-  // Шаблонные методы
-  //
-  /**
-   * Возвращает список расширений бекендов необходимых наследнику
-   *
-   * @return {@link IStridablesList}&lt;{@link S5BackendAddonLocal}&gt; список расширений
-   */
-  protected IStridablesList<S5BackendAddonLocal> doGetAddons() {
-    return IStridablesList.EMPTY;
   }
 }

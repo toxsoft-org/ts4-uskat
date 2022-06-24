@@ -6,15 +6,15 @@ import org.toxsoft.core.tslib.bricks.strid.coll.IStridablesList;
 import org.toxsoft.core.tslib.coll.IList;
 import org.toxsoft.core.tslib.gw.gwid.Gwid;
 import org.toxsoft.core.tslib.utils.errors.TsNullArgumentRtException;
+import org.toxsoft.uskat.core.api.sysdescr.ISkClassInfo;
+import org.toxsoft.uskat.core.backend.api.ISkBackendInfo;
 import org.toxsoft.uskat.s5.common.IS5BackendAddonsProvider;
 import org.toxsoft.uskat.s5.server.IS5ImplementConstants;
 import org.toxsoft.uskat.s5.server.IS5ServerHardConstants;
 import org.toxsoft.uskat.s5.server.backend.addons.IS5BackendAddon;
 import org.toxsoft.uskat.s5.server.sequences.IS5SequenceImplementation;
 
-import ru.uskat.backend.ISkBackendInfo;
 import ru.uskat.core.api.ISkExtServicesProvider;
-import ru.uskat.core.api.sysdescr.ISkClassInfo;
 import ru.uskat.core.api.sysdescr.ISkClassInfoManager;
 
 /**
@@ -38,7 +38,7 @@ public interface IS5InitialImplementation
    *
    * @return {@link IStridablesList}&lt; {@link IS5BackendAddon}&gt; список расширений бекенда
    */
-  IStridablesList<IS5BackendAddon> addons();
+  IStridablesList<IS5BackendAddonCreator> baCreators();
 
   /**
    * Возвращает поставщика служб
@@ -64,9 +64,9 @@ public interface IS5InitialImplementation
    * Конкретные (проектные) реализации {@link IS5InitialImplementation} могут переопределять значения свойств более
    * приемлимых для реализации проекта, например:
    * <ul>
-   * <li>Класс реализации объектов - {@link IS5ServerHardConstants#DDEF_OBJECT_IMPL_CLASS};</li>
-   * <li>Класс реализации прямой связи объектов - {@link IS5ServerHardConstants#DDEF_FWD_LINK_IMPL_CLASS};</li>
-   * <li>Класс реализации обратной связи объектов - {@link IS5ServerHardConstants#DDEF_REV_LINK_IMPL_CLASS}.</li>
+   * <li>Класс реализации объектов - {@link IS5ServerHardConstants#OP_OBJECT_IMPL_CLASS};</li>
+   * <li>Класс реализации прямой связи объектов - {@link IS5ServerHardConstants#OP_FWD_LINK_IMPL_CLASS};</li>
+   * <li>Класс реализации обратной связи объектов - {@link IS5ServerHardConstants#OP_REV_LINK_IMPL_CLASS}.</li>
    * </ul>
    *
    * @param aClassId {@link String} идентификатор класса

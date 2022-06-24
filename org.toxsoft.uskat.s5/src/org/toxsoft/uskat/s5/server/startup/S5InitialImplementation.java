@@ -30,7 +30,7 @@ import org.toxsoft.uskat.s5.common.IS5BackendAddonsProvider;
 import org.toxsoft.uskat.s5.common.S5Module;
 import org.toxsoft.uskat.s5.server.IS5ServerHardConstants;
 import org.toxsoft.uskat.s5.server.backend.IS5BackendCoreSingleton;
-import org.toxsoft.uskat.s5.server.backend.addons.IS5BackendAddon;
+import org.toxsoft.uskat.s5.server.backend.addons.IS5BackendAddonLegacy;
 import org.toxsoft.uskat.s5.server.entities.*;
 import org.toxsoft.uskat.s5.server.sequences.IS5SequenceImplementation;
 
@@ -60,7 +60,7 @@ public abstract class S5InitialImplementation
   /**
    * Расширения бекенда предоставляемые сервером
    */
-  private IStridablesList<IS5BackendAddon> addons;
+  private IStridablesList<IS5BackendAddonLegacy> addons;
 
   /**
    * Конструктор.
@@ -91,11 +91,11 @@ public abstract class S5InitialImplementation
     if( System.getProperty( JBOSS_NODE_NAME ) != null ) {
       nodeId = new Skid( CLASS_NODE, System.getProperty( JBOSS_NODE_NAME ).replaceAll( "-", "." ) ); //$NON-NLS-1$ //$NON-NLS-2$
     }
-    DDEF_BACKEND_SERVER_ID.setValue( params, avValobj( serverId ) );
-    DDEF_BACKEND_NODE_ID.setValue( params, avValobj( nodeId ) );
-    DDEF_BACKEND_VERSION.setValue( params, avValobj( version ) );
-    DDEF_BACKEND_MODULE.setValue( params, avValobj( aModule ) );
-    DDEF_BACKEND_START_TIME.setValue( params, avTimestamp( System.currentTimeMillis() ) );
+    OP_BACKEND_SERVER_ID.setValue( params, avValobj( serverId ) );
+    OP_BACKEND_NODE_ID.setValue( params, avValobj( nodeId ) );
+    OP_BACKEND_VERSION.setValue( params, avValobj( version ) );
+    OP_BACKEND_MODULE.setValue( params, avValobj( aModule ) );
+    OP_BACKEND_START_TIME.setValue( params, avTimestamp( System.currentTimeMillis() ) );
   }
 
   // ------------------------------------------------------------------------------------
@@ -123,19 +123,19 @@ public abstract class S5InitialImplementation
     TsNullArgumentRtException.checkNull( aClassId );
     IParameterizedEdit retValue = new StridableParameterized( aClassId );
     retValue.params().addAll( doProjectSpecificCreateClassParams( aClassId ) );
-    if( !retValue.params().hasValue( DDEF_OBJECT_IMPL_CLASS ) ) {
+    if( !retValue.params().hasValue( OP_OBJECT_IMPL_CLASS ) ) {
       // Определение по умолчанию таблиц хранения объектов пользователй и сессии
       if( ISkUser.CLASS_ID.equals( aClassId ) ) {
         // Класс пользователя ISkUser
-        DDEF_OBJECT_IMPL_CLASS.setValue( retValue.params(), avStr( S5UserEntity.class.getName() ) );
-        DDEF_FWD_LINK_IMPL_CLASS.setValue( retValue.params(), avStr( S5UserLinkFwdEntity.class.getName() ) );
-        DDEF_REV_LINK_IMPL_CLASS.setValue( retValue.params(), avStr( S5UserLinkRevEntity.class.getName() ) );
+        OP_OBJECT_IMPL_CLASS.setValue( retValue.params(), avStr( S5UserEntity.class.getName() ) );
+        OP_FWD_LINK_IMPL_CLASS.setValue( retValue.params(), avStr( S5UserLinkFwdEntity.class.getName() ) );
+        OP_REV_LINK_IMPL_CLASS.setValue( retValue.params(), avStr( S5UserLinkRevEntity.class.getName() ) );
       }
       if( ISkSession.CLASS_ID.equals( aClassId ) ) {
         // Класс сессии пользователя ISkSession
-        DDEF_OBJECT_IMPL_CLASS.setValue( retValue.params(), avStr( S5SessionEntity.class.getName() ) );
-        DDEF_FWD_LINK_IMPL_CLASS.setValue( retValue.params(), avStr( S5SessionLinkFwdEntity.class.getName() ) );
-        DDEF_REV_LINK_IMPL_CLASS.setValue( retValue.params(), avStr( S5SessionLinkRevEntity.class.getName() ) );
+        OP_OBJECT_IMPL_CLASS.setValue( retValue.params(), avStr( S5SessionEntity.class.getName() ) );
+        OP_FWD_LINK_IMPL_CLASS.setValue( retValue.params(), avStr( S5SessionLinkFwdEntity.class.getName() ) );
+        OP_REV_LINK_IMPL_CLASS.setValue( retValue.params(), avStr( S5SessionLinkRevEntity.class.getName() ) );
       }
     }
     return retValue;
@@ -155,7 +155,7 @@ public abstract class S5InitialImplementation
   // ISkExtServicesProvider
   //
   @Override
-  public final IStridablesList<IS5BackendAddon> addons() {
+  public final IStridablesList<IS5BackendAddonLegacy> baCreators() {
     if( addons == null ) {
       addons = doProjectSpecificAddons();
     }
@@ -166,7 +166,7 @@ public abstract class S5InitialImplementation
   public final IStringMap<AbstractSkService> createExtServices( IDevCoreApi aCoreApi ) {
     TsNullArgumentRtException.checkNull( aCoreApi );
     IStringMapEdit<AbstractSkService> retValue = new StringMap<>();
-    for( IS5BackendAddon addon : addons() ) {
+    for( IS5BackendAddonLegacy addon : allAddons() ) {
       retValue.putAll( addon.createServices( aCoreApi ) );
     }
     return retValue;
@@ -191,9 +191,9 @@ public abstract class S5InitialImplementation
    * Порядок расширений во возращаемом списке имеет значение - в начале списка должны идти расширения которые независят
    * от других расширений, в конце списка расширения зависящие от расширений в начале списка.
    *
-   * @return {@link IList}&lt;{@link IS5BackendAddon}&gt; список расширений бекенда.
+   * @return {@link IList}&lt;{@link IS5BackendAddonLegacy}&gt; список расширений бекенда.
    */
-  protected IStridablesList<IS5BackendAddon> doProjectSpecificAddons() {
+  protected IStridablesList<IS5BackendAddonLegacy> doProjectSpecificAddons() {
     return IStridablesList.EMPTY;
   }
 
@@ -206,9 +206,9 @@ public abstract class S5InitialImplementation
    * Конкретные (проектные) реализации {@link IS5BackendCoreSingleton} могут переопределять значения свойств более
    * приемлимых для реализации проекта, например:
    * <ul>
-   * <li>Класс реализации объектов - {@link IS5ServerHardConstants#DDEF_OBJECT_IMPL_CLASS};</li>
-   * <li>Класс реализации прямой связи объектов - {@link IS5ServerHardConstants#DDEF_FWD_LINK_IMPL_CLASS};</li>
-   * <li>Класс реализации обратной связи объектов - {@link IS5ServerHardConstants#DDEF_REV_LINK_IMPL_CLASS}.</li>
+   * <li>Класс реализации объектов - {@link IS5ServerHardConstants#OP_OBJECT_IMPL_CLASS};</li>
+   * <li>Класс реализации прямой связи объектов - {@link IS5ServerHardConstants#OP_FWD_LINK_IMPL_CLASS};</li>
+   * <li>Класс реализации обратной связи объектов - {@link IS5ServerHardConstants#OP_REV_LINK_IMPL_CLASS}.</li>
    * </ul>
    *
    * @param aClassId {@link String} идентификатор класса

@@ -94,7 +94,7 @@ class S5ObjectReflectUtils {
       return retValue;
     }
     // Класс реализации хранения значений объекта
-    String objectImplClassName = DDEF_OBJECT_IMPL_CLASS.getValue( aClassInfo.params() ).asString();
+    String objectImplClassName = OP_OBJECT_IMPL_CLASS.getValue( aClassInfo.params() ).asString();
     try {
       retValue = (Class<S5ObjectEntity>)Class.forName( objectImplClassName );
       aImplByIds.put( aClassInfo.id(), retValue );

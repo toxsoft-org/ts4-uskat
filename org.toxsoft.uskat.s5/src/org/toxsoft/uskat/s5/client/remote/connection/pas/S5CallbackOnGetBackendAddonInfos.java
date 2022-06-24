@@ -8,16 +8,15 @@ import org.toxsoft.core.pas.common.PasChannel;
 import org.toxsoft.core.pas.json.IJSONNotification;
 import org.toxsoft.core.pas.json.IJSONNotificationHandler;
 import org.toxsoft.core.pas.tj.ITjValue;
-import org.toxsoft.core.tslib.bricks.events.msg.GenericMessage;
+import org.toxsoft.core.tslib.bricks.events.msg.GtMessage;
 import org.toxsoft.core.tslib.bricks.keeper.std.StringListKeeper;
 import org.toxsoft.core.tslib.bricks.strid.coll.IStridablesList;
 import org.toxsoft.core.tslib.coll.primtypes.*;
 import org.toxsoft.core.tslib.coll.primtypes.impl.StringLinkedBundleList;
 import org.toxsoft.core.tslib.coll.primtypes.impl.StringMap;
 import org.toxsoft.core.tslib.utils.errors.TsNullArgumentRtException;
+import org.toxsoft.uskat.core.backend.ISkFrontendRear;
 import org.toxsoft.uskat.s5.server.backend.addons.IS5BackendAddon;
-
-import ru.uskat.backend.ISkFrontendRear;
 
 /**
  * Обратный вызов сервера: передача списка описаний аддонов {@link IS5BackendAddon} бекенда поддерживаемых сервером
@@ -28,7 +27,7 @@ public abstract class S5CallbackOnGetBackendAddonInfos
     implements IJSONNotificationHandler<S5CallbackChannel> {
 
   /**
-   * Вызов метода: {@link ISkFrontendRear#onGenericMessage(GenericMessage)}
+   * Вызов метода: {@link ISkFrontendRear#onBackendMessage(GtMessage)}
    */
   public static final String ON_GET_BACKEND_ADDON_INFOS_METHOD = FRONTENDS_METHOD_PREFIX + "onGetBackendAddonInfos"; //$NON-NLS-1$
 

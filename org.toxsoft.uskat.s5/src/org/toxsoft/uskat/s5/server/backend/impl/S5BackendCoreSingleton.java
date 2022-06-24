@@ -214,7 +214,7 @@ public class S5BackendCoreSingleton
     // Параметры бекенда
     IOptionSet backendConfigParams = initialConfig.impl().params();
     // Модуль реализующий бекенд
-    S5Module module = DDEF_BACKEND_MODULE.getValue( backendConfigParams ).asValobj();
+    S5Module module = OP_BACKEND_MODULE.getValue( backendConfigParams ).asValobj();
 
     // Описание бекенда
     backendInfo = new SkBackendInfo( module.id(), launchTimestamp(), Skid.NONE, backendConfigParams );
@@ -364,7 +364,7 @@ public class S5BackendCoreSingleton
     // Информация о бекенде
     ISkBackendInfo info = getInfo();
     // Идентификатор узла сервера
-    Skid nodeId = DDEF_BACKEND_NODE_ID.getValue( info.params() ).asValobj();
+    Skid nodeId = OP_BACKEND_NODE_ID.getValue( info.params() ).asValobj();
     // Создание писателя статистики узла сервера
     statisticWriter = new S5StatisticWriter( aConnection, nodeId, STAT_BACKEND_NODE_PARAMS );
   }

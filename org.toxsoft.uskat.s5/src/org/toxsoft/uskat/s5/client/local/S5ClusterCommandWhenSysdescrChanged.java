@@ -4,19 +4,22 @@ import static org.toxsoft.uskat.s5.client.local.IS5LocalNoticeHardConstants.*;
 
 import org.toxsoft.core.pas.tj.ITjValue;
 import org.toxsoft.core.pas.tj.impl.TjUtils;
+import org.toxsoft.core.tslib.bricks.events.msg.GtMessage;
+import org.toxsoft.core.tslib.coll.helpers.ECrudOp;
 import org.toxsoft.core.tslib.coll.primtypes.IStringMap;
+import org.toxsoft.core.tslib.coll.primtypes.impl.StringMap;
+import org.toxsoft.core.tslib.gw.skid.Skid;
+import org.toxsoft.core.tslib.utils.TsLibUtils;
+import org.toxsoft.core.tslib.utils.errors.TsIllegalArgumentRtException;
 import org.toxsoft.core.tslib.utils.errors.TsNullArgumentRtException;
+import org.toxsoft.uskat.core.backend.api.IBaClassesMessages;
 import org.toxsoft.uskat.s5.server.backend.IS5BackendCoreSingleton;
 import org.toxsoft.uskat.s5.server.cluster.IS5ClusterCommand;
 import org.toxsoft.uskat.s5.server.cluster.IS5ClusterCommandHandler;
-import org.toxsoft.uskat.s5.server.sessions.IS5SessionManager;
-import org.toxsoft.uskat.s5.server.sessions.S5RemoteSession;
-
-import ru.uskat.backend.ISkFrontendRear;
-import ru.uskat.backend.messages.SkMessageWhenSysdescrChanged;
+import org.toxsoft.uskat.s5.server.frontend.IS5FrontendRear;
 
 /**
- * Обработчик команды кластера: всем узлам вызвать у локальных соединений {@link SkMessageWhenSysdescrChanged}
+ * Обработчик команды кластера: всем узлам вызвать у локальных соединений {@link IBaClassesMessages}
  *
  * @author mvk
  */
@@ -24,28 +27,37 @@ public final class S5ClusterCommandWhenSysdescrChanged
     implements IS5ClusterCommandHandler {
 
   /**
-   * Вызов метода: {@link IS5SessionManager#tryCreateCallbackWriter(S5RemoteSession)}
+   * Вызов метода: {@link IS5FrontendRear#onBackendMessage(GtMessage)}({@link IBaClassesMessages})
    */
   public static final String WHEN_SYSDESCR_CHANGED_METHOD = FRONTEND_METHOD_PREFIX + "whenSysdescrChanged"; //$NON-NLS-1$
 
   /**
-   * s5-backend предоставляемый сервером
+   * Тип операции над классом
+   * <p>
+   * Тип: String (представляющее {@link ECrudOp})
    */
-  private IS5BackendCoreSingleton backend;
+  private static final String ARG_CRUD_OP = "crudOp"; //$NON-NLS-1$
 
   /**
-   * Журнал работы
+   * Идентификатор класса. {@link TsLibUtils#EMPTY_STRING}: если {@link #ARG_CRUD_OP} == {@link ECrudOp#LIST}.
+   * <p>
+   * Тип: String
    */
-  // private final ILogger logger = l4jLogger( getClass() );
+  private static final String ARG_CLASS_ID = "classId"; //$NON-NLS-1$
+
+  /**
+   * s5-backend предоставляемый сервером
+   */
+  private IS5BackendCoreSingleton backendSingleton;
 
   /**
    * Конструктор
    *
-   * @param aBackend {@link IS5BackendCoreSingleton} s5-backend предоставляемый сервером
+   * @param aBackendSingleton {@link IS5BackendCoreSingleton} s5-backend предоставляемый сервером
    * @throws TsNullArgumentRtException аргумент = null
    */
-  public S5ClusterCommandWhenSysdescrChanged( IS5BackendCoreSingleton aBackend ) {
-    backend = TsNullArgumentRtException.checkNull( aBackend );
+  public S5ClusterCommandWhenSysdescrChanged( IS5BackendCoreSingleton aBackendSingleton ) {
+    backendSingleton = TsNullArgumentRtException.checkNull( aBackendSingleton );
   }
 
   // ------------------------------------------------------------------------------------
@@ -54,9 +66,17 @@ public final class S5ClusterCommandWhenSysdescrChanged
   /**
    * Создание команды
    *
-   * @return {@link IS5ClusterCommand} созданные команды
+   * @param aCrudOp {@link ECrudOp} операция над объектом
+   * @param aClassId String Идентификатор класса. {@link TsLibUtils#EMPTY_STRING}: если {@link #ARG_CRUD_OP} ==
+   *          {@link ECrudOp#LIST}
+   * @return {@link IS5ClusterCommand} созданная команда
+   * @throws TsNullArgumentRtException аргумент = null
+   * @throws TsIllegalArgumentRtException неверный идентификатор объекта {@link Skid#NONE}.
    */
-  public static IS5ClusterCommand whenSysdescrChangedCommand() {
+  public static IS5ClusterCommand whenObjectsChangedCommand( ECrudOp aCrudOp, String aClassId ) {
+    TsNullArgumentRtException.checkNulls( aCrudOp, aClassId );
+    TsIllegalArgumentRtException.checkTrue( aClassId.length() == 0 && aCrudOp != ECrudOp.LIST );
+    TsIllegalArgumentRtException.checkTrue( aClassId.length() != 0 && aCrudOp == ECrudOp.LIST );
     return new IS5ClusterCommand() {
 
       @Override
@@ -66,7 +86,10 @@ public final class S5ClusterCommandWhenSysdescrChanged
 
       @Override
       public IStringMap<ITjValue> params() {
-        return IStringMap.EMPTY;
+        StringMap<ITjValue> retValue = new StringMap<>();
+        retValue.put( ARG_CRUD_OP, TjUtils.createString( aCrudOp.id() ) );
+        retValue.put( ARG_CLASS_ID, TjUtils.createString( aClassId ) );
+        return retValue;
       }
     };
   }
@@ -80,9 +103,11 @@ public final class S5ClusterCommandWhenSysdescrChanged
     if( !aCommand.method().equals( WHEN_SYSDESCR_CHANGED_METHOD ) ) {
       return TjUtils.NULL;
     }
-    for( ISkFrontendRear frontend : backend.attachedFrontends() ) {
-      if( frontend instanceof S5LocalBackend ) {
-        SkMessageWhenSysdescrChanged.send( ((S5LocalBackend)frontend).frontend() );
+    ECrudOp crudOp = ECrudOp.findById( aCommand.params().getByKey( ARG_CRUD_OP ).asString() );
+    String classId = aCommand.params().getByKey( ARG_CLASS_ID ).asString();
+    for( IS5FrontendRear frontend : backendSingleton.attachedFrontends() ) {
+      if( frontend.isLocal() ) {
+        frontend.onBackendMessage( IBaClassesMessages.makeMessage( crudOp, classId ) );
       }
     }
     return TjUtils.TRUE;

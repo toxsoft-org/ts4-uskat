@@ -1,7 +1,6 @@
 package org.toxsoft.uskat.s5.client.remote.connection.pas;
 
 import static org.toxsoft.core.pas.tj.impl.TjUtils.*;
-import static org.toxsoft.core.tslib.utils.valobj.TsValobjUtils.*;
 import static org.toxsoft.uskat.s5.client.remote.connection.pas.S5CallbackHardConstants.*;
 
 import org.toxsoft.core.pas.common.IPasTxChannel;
@@ -11,14 +10,12 @@ import org.toxsoft.core.pas.json.IJSONNotificationHandler;
 import org.toxsoft.core.pas.tj.ITjValue;
 import org.toxsoft.core.tslib.av.opset.IOptionSet;
 import org.toxsoft.core.tslib.av.opset.impl.OptionSetKeeper;
-import org.toxsoft.core.tslib.bricks.events.msg.GenericMessage;
-import org.toxsoft.core.tslib.bricks.events.msg.IGenericMessageListener;
+import org.toxsoft.core.tslib.bricks.events.msg.GtMessage;
+import org.toxsoft.core.tslib.bricks.events.msg.IGtMessageListener;
 import org.toxsoft.core.tslib.coll.primtypes.IStringMapEdit;
 import org.toxsoft.core.tslib.coll.primtypes.impl.StringMap;
 import org.toxsoft.core.tslib.utils.errors.TsNullArgumentRtException;
-
-import ru.uskat.backend.ISkFrontendRear;
-import ru.uskat.backend.messages.*;
+import org.toxsoft.uskat.core.backend.ISkFrontendRear;
 
 /**
  * Обратный вызов сервера: передача сообщения бекенда
@@ -29,9 +26,14 @@ public final class S5CallbackOnMessage
     implements IJSONNotificationHandler<S5CallbackChannel> {
 
   /**
-   * Вызов метода: {@link ISkFrontendRear#onGenericMessage(GenericMessage)}
+   * Вызов метода: {@link ISkFrontendRear#onBackendMessage(GtMessage)}
    */
   public static final String ON_MESSAGE_METHOD = FRONTENDS_METHOD_PREFIX + "onMessage"; //$NON-NLS-1$
+
+  /**
+   * Тема сообщения
+   */
+  private static final String MSG_TOPIC = "topicId"; //$NON-NLS-1$
 
   /**
    * Идентификатор сообщения
@@ -46,25 +48,15 @@ public final class S5CallbackOnMessage
   /**
    * frontend
    */
-  private final IGenericMessageListener frontend;
-
-  /**
-   * TODO: ??? где лучше регистрировать киперы с учетом addons?
-   */
-  static {
-    registerKeeperIfNone( SkMessageWhenCommandsStateChanged.KEEPER_ID, SkMessageWhenCommandsStateChanged.KEEPER );
-    registerKeeperIfNone( SkMessageWhenCurrdataChanged.KEEPER_ID, SkMessageWhenCurrdataChanged.KEEPER );
-    registerKeeperIfNone( SkMessageWhenEvents.KEEPER_ID, SkMessageWhenEvents.KEEPER );
-    registerKeeperIfNone( SkMessageExecuteCommand.KEEPER_ID, SkMessageExecuteCommand.KEEPER );
-  }
+  private final ISkFrontendRear frontend;
 
   /**
    * Конструктор
    *
-   * @param aFrontend {@link IGenericMessageListener} frontend
+   * @param aFrontend {@link IGtMessageListener} frontend
    * @throws TsNullArgumentRtException аргумент = null
    */
-  S5CallbackOnMessage( IGenericMessageListener aFrontend ) {
+  S5CallbackOnMessage( ISkFrontendRear aFrontend ) {
     frontend = TsNullArgumentRtException.checkNull( aFrontend );
   }
 
@@ -75,12 +67,13 @@ public final class S5CallbackOnMessage
    * Отправляет сообщение по каналу {@link PasChannel}
    *
    * @param aChannel {@link IPasTxChannel} канал передачи
-   * @param aMessage {@link GenericMessage} сообщение.
+   * @param aMessage {@link GtMessage} сообщение.
    * @throws TsNullArgumentRtException любой аргумент = null
    */
-  public static void send( IPasTxChannel aChannel, GenericMessage aMessage ) {
+  public static void send( IPasTxChannel aChannel, GtMessage aMessage ) {
     TsNullArgumentRtException.checkNulls( aChannel, aMessage );
     IStringMapEdit<ITjValue> notifyParams = new StringMap<>();
+    notifyParams.put( MSG_TOPIC, createString( aMessage.topicId() ) );
     notifyParams.put( MSG_ID, createString( aMessage.messageId() ) );
     notifyParams.put( MSG_ARGS, createString( OptionSetKeeper.KEEPER.ent2str( aMessage.args() ) ) );
     // Передача по каналу
@@ -97,10 +90,11 @@ public final class S5CallbackOnMessage
       // Уведомление игнорировано
       return;
     }
+    String topicId = aNotification.params().getByKey( MSG_TOPIC ).asString();
     String msgId = aNotification.params().getByKey( MSG_ID ).asString();
     IOptionSet msgArgs = OptionSetKeeper.KEEPER.str2ent( aNotification.params().getByKey( MSG_ARGS ).asString() );
     // Передача сообщения на обработку
-    frontend.onGenericMessage( new GenericMessage( msgId, msgArgs ) );
+    frontend.onBackendMessage( new GtMessage( topicId, msgId, msgArgs ) );
   }
 
   // ------------------------------------------------------------------------------------

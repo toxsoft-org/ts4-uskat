@@ -5,8 +5,8 @@ import javax.enterprise.concurrent.ManagedExecutorService;
 import javax.transaction.UserTransaction;
 
 import org.toxsoft.uskat.s5.client.local.S5LocalConnectionSingleton;
-import org.toxsoft.uskat.s5.server.backend.IS5BackendLocal;
-import org.toxsoft.uskat.s5.server.backend.IS5BackendRemote;
+import org.toxsoft.uskat.s5.server.backend.IS5BackendSessionControl;
+import org.toxsoft.uskat.s5.server.backend.IS5BackendSession;
 import org.toxsoft.uskat.s5.server.backend.impl.S5BackendCoreSingleton;
 import org.toxsoft.uskat.s5.server.backend.impl.S5BackendSession;
 import org.toxsoft.uskat.s5.server.backend.supports.events.impl.S5BackendEventSingleton;
@@ -60,13 +60,13 @@ public interface IS5ImplementConstants
   long ACCESS_TIMEOUT_DEFAULT = 10 * 1000;
 
   /**
-   * Таймаут(мсек) SFSB в течении которого он должны ответить на {@link IS5BackendLocal#verify()} прежде чем будет
+   * Таймаут(мсек) SFSB в течении которого он должны ответить на {@link IS5BackendSessionControl#verify()} прежде чем будет
    * вызвающий код будет определит, что SFSB занят
    */
   long CHECK_ACCESS_TIMEOUT_DEFAULT = 100;
 
   /**
-   * Таймаут(мсек) SFSB в течении которого он должны ответить на {@link IS5BackendLocal#removeAsync()} прежде чем будет
+   * Таймаут(мсек) SFSB в течении которого он должны ответить на {@link IS5BackendSessionControl#removeAsync()} прежде чем будет
    * вызвающий код будет определит, что SFSB занят
    */
   long REMOVE_ACCESS_TIMEOUT_DEFAULT = 100;
@@ -167,7 +167,7 @@ public interface IS5ImplementConstants
   /**
    * Имя класса (full) представляющий интерфейс для подключения к серверу
    */
-  String BACKEND_SESSION_INTERFACE = IS5BackendRemote.class.getName();
+  String BACKEND_SESSION_INTERFACE = IS5BackendSession.class.getName();
 
   /**
    * Имя класса (simple) реализующий сессию

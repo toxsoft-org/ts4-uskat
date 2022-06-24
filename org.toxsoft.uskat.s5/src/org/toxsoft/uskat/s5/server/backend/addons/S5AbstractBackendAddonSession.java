@@ -1,4 +1,4 @@
-package org.toxsoft.uskat.s5.server.sessions;
+package org.toxsoft.uskat.s5.server.backend.addons;
 
 import static org.toxsoft.core.log4j.LoggerWrapper.*;
 import static org.toxsoft.uskat.s5.server.IS5ImplementConstants.*;
@@ -9,27 +9,25 @@ import java.util.concurrent.TimeUnit;
 import javax.annotation.Resource;
 import javax.ejb.*;
 
+import org.toxsoft.core.tslib.bricks.strid.IStridable;
 import org.toxsoft.core.tslib.bricks.strid.impl.Stridable;
 import org.toxsoft.core.tslib.gw.skid.Skid;
-import org.toxsoft.core.tslib.utils.TsLibUtils;
 import org.toxsoft.core.tslib.utils.errors.TsNullArgumentRtException;
 import org.toxsoft.core.tslib.utils.logs.ILogger;
-import org.toxsoft.uskat.s5.server.backend.*;
+import org.toxsoft.uskat.s5.common.sessions.ISkSession;
+import org.toxsoft.uskat.s5.server.backend.IS5BackendSessionControl;
 import org.toxsoft.uskat.s5.server.sessions.init.IS5SessionInitData;
 import org.toxsoft.uskat.s5.server.sessions.init.S5SessionInitResult;
 import org.toxsoft.uskat.s5.server.sessions.pas.S5SessionCallbackWriter;
-
-import ru.uskat.core.api.ISkBackend;
-import ru.uskat.core.api.users.ISkSession;
 
 /**
  * Абстрактная реализация сессии расширения backend
  *
  * @author mvk
  */
-public abstract class S5BackendAddonSession
+public abstract class S5AbstractBackendAddonSession
     extends Stridable
-    implements SessionBean, IS5BackendAddonRemote, IS5BackendAddonSession {
+    implements SessionBean, IS5BackendAddonSession, IS5BackendAddonSessionControl {
 
   private static final long serialVersionUID = 157157L;
 
@@ -44,21 +42,21 @@ public abstract class S5BackendAddonSession
   /**
    * Сессия предоставляющая backend ядра s5-сервера
    */
-  private IS5BackendLocal backend;
+  private IS5BackendSessionControl backend;
 
   /**
    * Ссылка на собственный локальный интерфейс.
    * <p>
-   * Прямой доступ запрещен(transient), используйте {@link #selfLocal()}
+   * Прямой доступ запрещен(transient), используйте {@link #control()}
    */
-  private transient IS5BackendAddonSession selfLocal;
+  private transient IS5BackendAddonSessionControl selfLocal;
 
   /**
    * Ссылка на собственный удаленный интерфейс.
    * <p>
-   * Прямой доступ запрещен(transient), используйте {@link #selfRemote()}
+   * Прямой доступ запрещен(transient), используйте {@link #session()}
    */
-  private transient IS5BackendAddonRemote selfRemote;
+  private transient IS5BackendAddonSession selfRemote;
 
   /**
    * Признак того, что сессия готова к удалению
@@ -75,13 +73,11 @@ public abstract class S5BackendAddonSession
   /**
    * Конструктор для наследников.
    *
-   * @param aId String идентификатор расширения
-   * @param aName String описание расширения
+   * @param aInfo {@link IStridable} информация о расширении бекенда
    * @throws TsNullArgumentRtException любой аргумент = null
    */
-  protected S5BackendAddonSession( String aId, String aName ) {
-    // true: разрешен IDpath
-    super( aId, aName, TsLibUtils.EMPTY_STRING );
+  protected S5AbstractBackendAddonSession( IStridable aInfo ) {
+    super( aInfo );
   }
 
   // ------------------------------------------------------------------------------------
@@ -144,27 +140,27 @@ public abstract class S5BackendAddonSession
   }
 
   // ------------------------------------------------------------------------------------
-  // Реализация интерфейса IS5BackendAddonSession
+  // Реализация интерфейса IS5BackendAddonSessionControl
   //
   @Override
-  public IS5BackendAddonSession selfLocal() {
+  public IS5BackendAddonSessionControl control() {
     if( selfLocal == null ) {
-      selfLocal = sessionContext.getBusinessObject( doGetLocalView() );
+      selfLocal = sessionContext.getBusinessObject( IS5BackendAddonSessionControl.class );
     }
     return selfLocal;
   }
 
   @Override
-  public IS5BackendAddonRemote selfRemote() {
+  public IS5BackendAddonSession session() {
     if( selfRemote == null ) {
-      selfRemote = sessionContext.getBusinessObject( doGetRemoteView() );
+      selfRemote = sessionContext.getBusinessObject( doGetSessionView() );
     }
     return selfRemote;
   }
 
   @Override
-  public void init( IS5BackendLocal aBackend, S5SessionCallbackWriter aCallbackWriter, IS5SessionInitData aInitData,
-      S5SessionInitResult aInitResult ) {
+  public void init( IS5BackendSessionControl aBackend, S5SessionCallbackWriter aCallbackWriter,
+      IS5SessionInitData aInitData, S5SessionInitResult aInitResult ) {
     TsNullArgumentRtException.checkNulls( aCallbackWriter, aBackend, aInitData, aInitResult );
     sessionID = aInitData.sessionID();
     backend = aBackend;
@@ -222,7 +218,7 @@ public abstract class S5BackendAddonSession
     // Сессия готова к удалению
     removeReady = true;
     // Удаление бина сессии
-    selfLocal().removeAsync();
+    control().removeAsync();
   }
 
   // ------------------------------------------------------------------------------------
@@ -247,15 +243,6 @@ public abstract class S5BackendAddonSession
   }
 
   /**
-   * Возвращает бекенд сервера
-   *
-   * @return {@link ISkBackend} бекенд сервера
-   */
-  protected final ISkBackend backend() {
-    return backend;
-  }
-
-  /**
    * Возвращает общий журнал работы
    *
    * @return {@link ILogger} журнал работы
@@ -271,22 +258,15 @@ public abstract class S5BackendAddonSession
   // Методы для переопределения наследниками
   //
   /**
-   * Возвращает локальный бизнес-интерфейс доступа к наследнику сессионного бина
-   *
-   * @return Class<? extends {@link IS5BackendAddonSession}> - локальный интерфейс доступа
-   */
-  protected abstract Class<? extends IS5BackendAddonSession> doGetLocalView();
-
-  /**
    * Возвращает удаленый бизнес-интерфейс доступа к наследнику сессионного бина
    *
-   * @return Class<? extends {@link IS5BackendAddonRemote}> - удаленный интерфейс доступа
+   * @return Class<? extends {@link IS5BackendAddonSession}> - удаленный интерфейс доступа
    */
-  protected abstract Class<? extends IS5BackendAddonRemote> doGetRemoteView();
+  protected abstract Class<? extends IS5BackendAddonSession> doGetSessionView();
 
   /**
    * Вызывается в конце метода
-   * {@link #init(IS5BackendLocal, S5SessionCallbackWriter, IS5SessionInitData, S5SessionInitResult)} .
+   * {@link #init(IS5BackendSessionControl, S5SessionCallbackWriter, IS5SessionInitData, S5SessionInitResult)} .
    * <p>
    * Выброшенные методом исключения передаются сессии backend, что приводит к провалу установления связи с сервером.
    *

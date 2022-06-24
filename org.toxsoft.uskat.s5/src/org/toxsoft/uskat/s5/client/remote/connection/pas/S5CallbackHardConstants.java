@@ -1,8 +1,7 @@
 package org.toxsoft.uskat.s5.client.remote.connection.pas;
 
 import org.toxsoft.core.pas.json.IJSONNotification;
-
-import ru.uskat.backend.ISkFrontendRear;
+import org.toxsoft.uskat.core.backend.ISkFrontendRear;
 
 /**
  * Вспомогательные константы пакета

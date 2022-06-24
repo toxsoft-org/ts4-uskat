@@ -291,7 +291,7 @@ public class S5BackendLinksSingleton
     TsNullArgumentRtException.checkNull( aClassId );
     ISkClassInfo classInfo = sysdescrReader.getClassInfo( aClassId );
     // Класс реализации хранения значений объекта
-    String linkImplClassName = DDEF_FWD_LINK_IMPL_CLASS.getValue( classInfo.params() ).asString();
+    String linkImplClassName = OP_FWD_LINK_IMPL_CLASS.getValue( classInfo.params() ).asString();
     return getFwdLinksByClassId( entityManager, linkImplClassName, aClassId, TsLibUtils.EMPTY_STRING );
   }
 
@@ -301,7 +301,7 @@ public class S5BackendLinksSingleton
     TsNullArgumentRtException.checkNulls( aClassId, aLinkId );
     ISkClassInfo classInfo = sysdescrReader.getClassInfo( aClassId );
     // Класс реализации хранения значений объекта
-    String linkImplClassName = DDEF_FWD_LINK_IMPL_CLASS.getValue( classInfo.params() ).asString();
+    String linkImplClassName = OP_FWD_LINK_IMPL_CLASS.getValue( classInfo.params() ).asString();
     return getFwdLinksByClassId( entityManager, linkImplClassName, aClassId, aLinkId );
   }
 

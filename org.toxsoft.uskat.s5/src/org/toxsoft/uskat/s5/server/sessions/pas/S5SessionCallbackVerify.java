@@ -11,7 +11,7 @@ import org.toxsoft.core.pas.json.IJSONNotificationHandler;
 import org.toxsoft.core.tslib.coll.primtypes.IStringMap;
 import org.toxsoft.core.tslib.gw.skid.Skid;
 import org.toxsoft.core.tslib.utils.errors.TsNullArgumentRtException;
-import org.toxsoft.uskat.s5.server.backend.IS5BackendLocal;
+import org.toxsoft.uskat.s5.server.backend.IS5BackendSessionControl;
 import org.toxsoft.uskat.s5.server.sessions.IS5SessionManager;
 import org.toxsoft.uskat.s5.server.sessions.S5RemoteSession;
 
@@ -24,7 +24,7 @@ public final class S5SessionCallbackVerify
     implements IJSONNotificationHandler<S5SessionCallbackChannel> {
 
   /**
-   * Вызов метода: {@link IS5BackendLocal#verify()}
+   * Вызов метода: {@link IS5BackendSessionControl#verify()}
    */
   public static final String SESSION_VERIFY_METHOD = SESSIONS_METHOD_PREFIX + "verify"; //$NON-NLS-1$
 
@@ -48,7 +48,7 @@ public final class S5SessionCallbackVerify
   // Открытые методы
   //
   /**
-   * Передача по каналу вызова {@link IS5BackendLocal#verify()}
+   * Передача по каналу вызова {@link IS5BackendSessionControl#verify()}
    *
    * @param aChannel {@link IPasTxChannel} канал передачи
    * @throws TsNullArgumentRtException любой аргумент = null

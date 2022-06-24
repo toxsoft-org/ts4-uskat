@@ -4,22 +4,21 @@ import static org.toxsoft.uskat.s5.client.local.IS5LocalNoticeHardConstants.*;
 
 import org.toxsoft.core.pas.tj.ITjValue;
 import org.toxsoft.core.pas.tj.impl.TjUtils;
+import org.toxsoft.core.tslib.bricks.events.msg.GtMessage;
+import org.toxsoft.core.tslib.coll.helpers.ECrudOp;
 import org.toxsoft.core.tslib.coll.primtypes.IStringMap;
 import org.toxsoft.core.tslib.coll.primtypes.impl.StringMap;
-import org.toxsoft.core.tslib.gw.skid.ISkidList;
-import org.toxsoft.core.tslib.gw.skid.SkidListKeeper;
+import org.toxsoft.core.tslib.gw.skid.Skid;
+import org.toxsoft.core.tslib.utils.errors.TsIllegalArgumentRtException;
 import org.toxsoft.core.tslib.utils.errors.TsNullArgumentRtException;
+import org.toxsoft.uskat.core.backend.api.IBaObjectsMessages;
 import org.toxsoft.uskat.s5.server.backend.IS5BackendCoreSingleton;
 import org.toxsoft.uskat.s5.server.cluster.IS5ClusterCommand;
 import org.toxsoft.uskat.s5.server.cluster.IS5ClusterCommandHandler;
 import org.toxsoft.uskat.s5.server.frontend.IS5FrontendRear;
-import org.toxsoft.uskat.s5.server.sessions.IS5SessionManager;
-import org.toxsoft.uskat.s5.server.sessions.S5RemoteSession;
-
-import ru.uskat.backend.messages.SkMessageWhenObjectsChanged;
 
 /**
- * Обработчик команды кластера: всем узлам вызвать у локальных соединений {@link SkMessageWhenObjectsChanged}
+ * Обработчик команды кластера: всем узлам вызвать у локальных соединений {@link IBaObjectsMessages}
  *
  * @author mvk
  */
@@ -27,22 +26,28 @@ public final class S5ClusterCommandWhenObjectsChanged
     implements IS5ClusterCommandHandler {
 
   /**
-   * Вызов метода: {@link IS5SessionManager#tryCreateCallbackWriter(S5RemoteSession)}
+   * Вызов метода: {@link IS5FrontendRear#onBackendMessage(GtMessage)}({@link IBaObjectsMessages})
    */
   public static final String WHEN_OBJECTS_CHANGED_METHOD = FRONTEND_METHOD_PREFIX + "whenObjectsChanged"; //$NON-NLS-1$
 
   /**
-   * Аргумент: идентификаторы объектов изменивших свои атрибуты или удаленных из системы. {@link ISkidList#EMPTY} все
-   * объекты системы
+   * Тип операции над объектом
    * <p>
-   * Тип: String (представляющее {@link ISkidList})
+   * Тип: String (представляющее {@link ECrudOp})
    */
-  private static final String ARG_OBJECT_IDS = "objectIds"; //$NON-NLS-1$
+  private static final String ARG_CRUD_OP = "crudOp"; //$NON-NLS-1$
 
   /**
-   * s5-backend предоставляемый сервером
+   * Идентификатор объекта. {@link Skid#NONE}: если {@link #ARG_CRUD_OP} == {@link ECrudOp#LIST}.
+   * <p>
+   * Тип: String (представляющее {@link Skid})
    */
-  private IS5BackendCoreSingleton backend;
+  private static final String ARG_OBJ_SKID = "objId"; //$NON-NLS-1$
+
+  /**
+   * s5-backendSingleton предоставляемый сервером
+   */
+  private IS5BackendCoreSingleton backendSingleton;
 
   /**
    * Журнал работы
@@ -52,11 +57,11 @@ public final class S5ClusterCommandWhenObjectsChanged
   /**
    * Конструктор
    *
-   * @param aBackend {@link IS5BackendCoreSingleton} s5-backend предоставляемый сервером
+   * @param aBackend {@link IS5BackendCoreSingleton} s5-backendSingleton предоставляемый сервером
    * @throws TsNullArgumentRtException аргумент = null
    */
   public S5ClusterCommandWhenObjectsChanged( IS5BackendCoreSingleton aBackend ) {
-    backend = TsNullArgumentRtException.checkNull( aBackend );
+    backendSingleton = TsNullArgumentRtException.checkNull( aBackend );
   }
 
   // ------------------------------------------------------------------------------------
@@ -65,13 +70,17 @@ public final class S5ClusterCommandWhenObjectsChanged
   /**
    * Создание команды
    *
+   * @param aCrudOp {@link ECrudOp} операция над объектом
+   * @param aObjectId {@link Skid} Идентификатор объекта. {@link Skid#NONE}: если {@link #ARG_CRUD_OP} ==
+   *          {@link ECrudOp#LIST}
    * @return {@link IS5ClusterCommand} созданная команда
-   * @param aObjectIds {@link ISkidList} идентификаторы объектов изменивших свои атрибуты или удаленных из системы.
-   *          {@link ISkidList#EMPTY} все объекты системы
    * @throws TsNullArgumentRtException аргумент = null
+   * @throws TsIllegalArgumentRtException неверный идентификатор объекта {@link Skid#NONE}.
    */
-  public static IS5ClusterCommand whenObjectsChangedCommand( ISkidList aObjectIds ) {
-    TsNullArgumentRtException.checkNull( aObjectIds );
+  public static IS5ClusterCommand whenObjectsChangedCommand( ECrudOp aCrudOp, Skid aObjectId ) {
+    TsNullArgumentRtException.checkNulls( aCrudOp, aObjectId );
+    TsIllegalArgumentRtException.checkTrue( aObjectId == Skid.NONE && aCrudOp != ECrudOp.LIST );
+    TsIllegalArgumentRtException.checkTrue( aObjectId != Skid.NONE && aCrudOp == ECrudOp.LIST );
     return new IS5ClusterCommand() {
 
       @Override
@@ -82,7 +91,8 @@ public final class S5ClusterCommandWhenObjectsChanged
       @Override
       public IStringMap<ITjValue> params() {
         StringMap<ITjValue> retValue = new StringMap<>();
-        retValue.put( ARG_OBJECT_IDS, TjUtils.createString( SkidListKeeper.KEEPER.ent2str( aObjectIds ) ) );
+        retValue.put( ARG_CRUD_OP, TjUtils.createString( aCrudOp.id() ) );
+        retValue.put( ARG_OBJ_SKID, TjUtils.createString( Skid.KEEPER.ent2str( aObjectId ) ) );
         return retValue;
       }
     };
@@ -97,11 +107,11 @@ public final class S5ClusterCommandWhenObjectsChanged
     if( !aCommand.method().equals( WHEN_OBJECTS_CHANGED_METHOD ) ) {
       return TjUtils.NULL;
     }
-    ISkidList objectIds = SkidListKeeper.KEEPER.str2ent( aCommand.params().getByKey( ARG_OBJECT_IDS ).asString() );
-
-    for( IS5FrontendRear frontend : backend.attachedFrontends() ) {
-      if( frontend instanceof S5LocalBackend ) {
-        SkMessageWhenObjectsChanged.send( ((S5LocalBackend)frontend).frontend(), objectIds );
+    ECrudOp crudOp = ECrudOp.findById( aCommand.params().getByKey( ARG_CRUD_OP ).asString() );
+    Skid objectId = Skid.KEEPER.str2ent( aCommand.params().getByKey( ARG_OBJ_SKID ).asString() );
+    for( IS5FrontendRear frontend : backendSingleton.attachedFrontends() ) {
+      if( frontend.isLocal() ) {
+        frontend.onBackendMessage( IBaObjectsMessages.makeMessage( crudOp, objectId ) );
       }
     }
     return TjUtils.TRUE;
