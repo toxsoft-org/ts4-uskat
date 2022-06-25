@@ -9,7 +9,6 @@ import org.toxsoft.core.tslib.utils.errors.*;
 import org.toxsoft.core.tslib.utils.logs.ILogger;
 import org.toxsoft.uskat.core.backend.api.BackendAddonBase;
 import org.toxsoft.uskat.core.backend.api.IBackendAddon;
-import org.toxsoft.uskat.s5.client.remote.S5BackendRemote;
 
 /**
  * Base implementation of remote {@link IBackendAddon} for s5 backend.
@@ -18,7 +17,7 @@ import org.toxsoft.uskat.s5.client.remote.S5BackendRemote;
  * @param <SESSION> сессия расширения бекенда на сервере
  */
 public abstract class S5AbstractBackendAddonRemote<SESSION extends IS5BackendAddonSession>
-    extends BackendAddonBase<S5BackendRemote>
+    extends BackendAddonBase<IS5BackendRemote>
     implements IS5BackendAddonRemote {
 
   private final Class<SESSION> addonSessionClass;
@@ -27,13 +26,14 @@ public abstract class S5AbstractBackendAddonRemote<SESSION extends IS5BackendAdd
   /**
    * Constructor for subclasses.
    *
-   * @param aOwner {@link S5BackendRemote} - the owner backend
+   * @param aOwner {@link IS5BackendRemote} - the owner backend
    * @param aInfo {@link IStridable} - the addon info
    * @param aAddonSessionClass Class&lt;SESSION&gt; тип интерфейса расширения backend
    * @throws TsNullArgumentRtException any argument = <code>null</code>
    * @throws TsIllegalArgumentRtException section name is not an IDpath
    */
-  protected S5AbstractBackendAddonRemote( S5BackendRemote aOwner, IStridable aInfo, Class<SESSION> aAddonSessionClass ) {
+  protected S5AbstractBackendAddonRemote( IS5BackendRemote aOwner, IStridable aInfo,
+      Class<SESSION> aAddonSessionClass ) {
     super( aOwner, aInfo );
     addonSessionClass = TsNullArgumentRtException.checkNull( aAddonSessionClass );
   }

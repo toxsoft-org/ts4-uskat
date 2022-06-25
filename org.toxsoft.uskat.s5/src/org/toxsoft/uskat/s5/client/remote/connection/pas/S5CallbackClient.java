@@ -82,7 +82,7 @@ public final class S5CallbackClient
    * Ключ: идентификатор расширения {@link IS5BackendAddon#id()};<br>
    * Значение: полное имя java-класса реализующий расширение {@link IS5BackendAddon};<br>
    */
-  private IStringMap<String> serverBackendAddonInfos;
+  private IStringMap<String> backendAddonInfos;
 
   /**
    * Признак завершения работы соединения
@@ -191,7 +191,7 @@ public final class S5CallbackClient
 
   @Override
   public IStringMap<String> backendAddonInfos() {
-    return TsIllegalStateRtException.checkNull( serverBackendAddonInfos );
+    return TsIllegalStateRtException.checkNull( backendAddonInfos );
   }
 
   @Override
@@ -422,7 +422,7 @@ public final class S5CallbackClient
       @Override
       protected void doWhenGetBackendAddonIds( IStringMap<String> aBackendAddonInfos ) {
         // Получение от узла информации о реализации бекенда
-        aReader.serverBackendAddonInfos = aBackendAddonInfos;
+        aReader.backendAddonInfos = aBackendAddonInfos;
         synchronized (aReader.pasClients) {
           IList<S5CallbackChannel> connected = getConnectedChannels( aReader.pasClients );
           if( connected.size() == aReader.pasClients.size() ) {

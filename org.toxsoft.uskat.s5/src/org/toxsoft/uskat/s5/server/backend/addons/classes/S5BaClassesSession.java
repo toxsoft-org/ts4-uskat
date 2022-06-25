@@ -24,7 +24,7 @@ import org.toxsoft.uskat.s5.server.backend.supports.sysdescr.IS5BackendSysDescrS
 @AccessTimeout( value = ACCESS_TIMEOUT_DEFAULT, unit = TimeUnit.MILLISECONDS )
 @TransactionManagement( TransactionManagementType.CONTAINER )
 @TransactionAttribute( TransactionAttributeType.SUPPORTS )
-public class S5BaClassesSession
+class S5BaClassesSession
     extends S5AbstractBackendAddonSession
     implements IS5BaClassesSession {
 

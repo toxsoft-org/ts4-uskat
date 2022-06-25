@@ -8,8 +8,7 @@ import org.toxsoft.uskat.core.backend.api.ISkBackendInfo;
 import org.toxsoft.uskat.core.impl.SkBackendInfo;
 import org.toxsoft.uskat.s5.client.IS5ConnectionParams;
 import org.toxsoft.uskat.s5.server.backend.IS5BackendCoreSingleton;
-import org.toxsoft.uskat.s5.server.backend.addons.IS5BackendAddonLocal;
-import org.toxsoft.uskat.s5.server.backend.addons.S5AbstractBackend;
+import org.toxsoft.uskat.s5.server.backend.addons.*;
 import org.toxsoft.uskat.s5.server.backend.messages.*;
 import org.toxsoft.uskat.s5.server.sessions.IS5SessionManager;
 import org.toxsoft.uskat.s5.server.sessions.S5LocalSession;
@@ -20,7 +19,8 @@ import org.toxsoft.uskat.s5.server.sessions.S5LocalSession;
  * @author mvk
  */
 public final class S5BackendLocal
-    extends S5AbstractBackend<IS5BackendAddonLocal> {
+    extends S5AbstractBackend<IS5BackendAddonLocal>
+    implements IS5BackendLocal {
 
   /**
    * Синглетон реализующий бекенд
@@ -34,23 +34,25 @@ public final class S5BackendLocal
 
   /**
    * Конструктор backend
-   *
-   * @param aArgs {@link ITsContextRo} - аргументы (ссылки и опции) создания бекенда
    * @param aFrontend {@link ISkFrontendRear} - фронтенд, для которого создается бекенд
+   * @param aArgs {@link ITsContextRo} - аргументы (ссылки и опции) создания бекенда
    * @param aBackendSingleton {@link IS5BackendCoreSingleton} - backend сервера
-   * @param aAddonLocalClients {@link IStridablesList}&lt;{@link IS5BackendAddonLocal}&gt; список расширений backend
+   * @param aBackendAddonCreators {@link IStridablesList}&lt; {@link IS5BackendAddonCreator}&gt; список построителей
+   *          расширений бекенда.
+   *
    * @throws TsNullArgumentRtException аргумент = null
    */
-  S5BackendLocal( ITsContextRo aArgs, ISkFrontendRear aFrontend, IS5BackendCoreSingleton aBackendSingleton,
-      IStridablesList<IS5BackendAddonLocal> aAddonLocalClients ) {
-    super( aArgs, aFrontend );
-    TsNullArgumentRtException.checkNulls( aBackendSingleton, aAddonLocalClients );
+  S5BackendLocal( ISkFrontendRear aFrontend, ITsContextRo aArgs, IS5BackendCoreSingleton aBackendSingleton,
+      IStridablesList<IS5BackendAddonCreator> aBackendAddonCreators ) {
+    super( aFrontend, aArgs );
+    TsNullArgumentRtException.checkNulls( aBackendSingleton, aBackendAddonCreators );
     backendSingleton = aBackendSingleton;
     sessionManager = TsNullArgumentRtException.checkNull( backendSingleton.sessionManager() );
 
-    // Установка аддонов бекенда
-    for( IS5BackendAddonLocal addon : aAddonLocalClients ) {
-      allAddons().put( addon.id(), addon );
+    // Создание и установка аддонов бекенда
+    for( IS5BackendAddonCreator baCreator : aBackendAddonCreators ) {
+      IS5BackendAddonLocal ba = baCreator.createLocal( this );
+      allAddons().put( ba.id(), ba );
     }
 
     // Создание локальной сессии
@@ -71,13 +73,9 @@ public final class S5BackendLocal
   }
 
   // ------------------------------------------------------------------------------------
-  // Открытое API
+  // IS5BackendLocal
   //
-  /**
-   * Возвращает синглетон реализующий бекенд для доступа расширений бекенда к функциям {@link IS5BackendCoreSingleton}
-   *
-   * @return {@link IS5BackendCoreSingleton} синлетон бекенда
-   */
+  @Override
   public IS5BackendCoreSingleton backendSingleton() {
     return backendSingleton;
   }

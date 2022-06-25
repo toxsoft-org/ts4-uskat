@@ -27,7 +27,6 @@ import org.toxsoft.core.tslib.utils.errors.TsInternalErrorRtException;
 import org.toxsoft.core.tslib.utils.errors.TsNullArgumentRtException;
 import org.toxsoft.core.tslib.utils.logs.ILogger;
 import org.toxsoft.uskat.core.ISkServiceCreator;
-import org.toxsoft.uskat.core.backend.ISkBackend;
 import org.toxsoft.uskat.core.backend.ISkFrontendRear;
 import org.toxsoft.uskat.core.backend.api.*;
 import org.toxsoft.uskat.core.connection.ISkConnection;
@@ -48,19 +47,19 @@ import org.toxsoft.uskat.s5.utils.threads.impl.S5Lockable;
  * @param <ADDON> тип расширения
  */
 public abstract class S5AbstractBackend<ADDON extends IS5BackendAddon>
-    implements ISkBackend, ICooperativeMultiTaskable {
+    implements IS5Backend {
 
   private static final long LOCK_TIMEOUT = 1000;
-
-  /**
-   * Параметры создания бекенда
-   */
-  private final ITsContextRo openArgs;
 
   /**
    * Представленный клиентом фронтенд с которым работает бекенд
    */
   private final ISkFrontendRear frontend;
+
+  /**
+   * Параметры создания бекенда
+   */
+  private final ITsContextRo openArgs;
 
   /**
    * Данные фронтенда
@@ -131,20 +130,16 @@ public abstract class S5AbstractBackend<ADDON extends IS5BackendAddon>
   /**
    * Конструктор backend
    *
-   * @param aArgs {@link ITsContextRo} аргументы (ссылки и опции) создания бекенда
    * @param aFrontend {@link ISkFrontendRear} фронтенд, для которого создается бекенд
+   * @param aArgs {@link ITsContextRo} аргументы (ссылки и опции) создания бекенда
    * @throws TsNullArgumentRtException аргумент = null
    */
-  public S5AbstractBackend( ITsContextRo aArgs, ISkFrontendRear aFrontend ) {
+  public S5AbstractBackend( ISkFrontendRear aFrontend, ITsContextRo aArgs ) {
     TsNullArgumentRtException.checkNulls( aArgs, aFrontend );
     // Параметры аутентификации
     IAtomicValue login = IS5ConnectionParams.OP_USERNAME.getValue( aArgs.params() );
     // Формирование идентификатора сессии
     sessionID = new Skid( ISkSession.CLASS_ID, login.asString() + "." + stridGenerator.nextId() ); //$NON-NLS-1$
-    // Параметры создания бекенда с собственными параметрами
-    TsContext args = new TsContext( aArgs );
-    args.params().setValobj( IS5ConnectionParams.OP_SESSION_ID, sessionID );
-    openArgs = args;
     // Получение блокировки соединения
     frontendLock = aArgs.getRef( IS5ConnectionParams.REF_CONNECTION_LOCK.refKey(), S5Lockable.class );
     // Представленный фронтенд
@@ -173,6 +168,10 @@ public abstract class S5AbstractBackend<ADDON extends IS5BackendAddon>
       }
 
     };
+    // Параметры создания бекенда с собственными параметрами
+    TsContext args = new TsContext( aArgs );
+    args.params().setValobj( IS5ConnectionParams.OP_SESSION_ID, sessionID );
+    openArgs = args;
 
     // Загручик классов
     classLoader = (aArgs.hasKey( REF_CLASSLOADER.refKey() ) ? //

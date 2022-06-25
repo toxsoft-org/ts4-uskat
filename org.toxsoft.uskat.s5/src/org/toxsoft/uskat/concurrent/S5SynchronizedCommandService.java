@@ -3,7 +3,7 @@ package org.toxsoft.uskat.concurrent;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import org.toxsoft.core.tslib.av.opset.IOptionSet;
-import org.toxsoft.core.tslib.bricks.events.ITsEventer;
+import org.toxsoft.core.tslib.bricks.events.change.IGenericChangeEventer;
 import org.toxsoft.core.tslib.coll.IMapEdit;
 import org.toxsoft.core.tslib.coll.impl.ElemMap;
 import org.toxsoft.core.tslib.gw.gwid.Gwid;
@@ -23,9 +23,9 @@ public final class S5SynchronizedCommandService
     extends S5SynchronizedService<ISkCommandService>
     implements ISkCommandService {
 
-  private final S5SynchronizedEventer<ISkCommandServiceListener> eventer;
-  private final S5SynchronizedTemporalsHistory<ISkCommand>       history;
-  private final IMapEdit<ISkCommandExecutor, IGwidList>          executors = new ElemMap<>();
+  private final S5SynchronizedGenericChangeEventer                   eventer;
+  private final S5SynchronizedTemporalsHistory<IDtoCompletedCommand> history;
+  private final IMapEdit<ISkCommandExecutor, IGwidList>              executors = new ElemMap<>();
 
   /**
    * Конструктор
@@ -48,7 +48,7 @@ public final class S5SynchronizedCommandService
    */
   public S5SynchronizedCommandService( ISkCommandService aTarget, ReentrantReadWriteLock aLock ) {
     super( aTarget, aLock );
-    eventer = new S5SynchronizedEventer<>( aTarget.eventer(), aLock );
+    eventer = new S5SynchronizedGenericChangeEventer( aTarget.globallyHandledGwidsEventer(), aLock );
     history = new S5SynchronizedTemporalsHistory<>( target().history(), nativeLock() );
   }
 
@@ -58,7 +58,7 @@ public final class S5SynchronizedCommandService
   @Override
   protected void doChangeTarget( ISkCommandService aPrevTarget, ISkCommandService aNewTarget,
       ReentrantReadWriteLock aNewLock ) {
-    eventer.changeTarget( aNewTarget.eventer(), aNewLock );
+    eventer.changeTarget( aNewTarget.globallyHandledGwidsEventer(), aNewLock );
     history.changeTarget( aNewTarget.history(), aNewLock );
     for( ISkCommandExecutor executor : executors.keys() ) {
       aNewTarget.registerExecutor( executor, executors.getByKey( executor ) );
@@ -72,7 +72,9 @@ public final class S5SynchronizedCommandService
   public ISkCommand sendCommand( Gwid aCmdGwid, Skid aAuthorSkid, IOptionSet aArgs ) {
     lockWrite( this );
     try {
-      return target().sendCommand( aCmdGwid, aAuthorSkid, aArgs );
+      ISkCommand cmd = target().sendCommand( aCmdGwid, aAuthorSkid, aArgs );
+      S5SynchronizedCommand retValue = new S5SynchronizedCommand( cmd, nativeLock() );
+      return retValue;
     }
     finally {
       unlockWrite( this );
@@ -85,17 +87,6 @@ public final class S5SynchronizedCommandService
     try {
       target().registerExecutor( aExecutor, aCmdGwids );
       executors.put( aExecutor, aCmdGwids );
-    }
-    finally {
-      unlockWrite( this );
-    }
-  }
-
-  @Override
-  public IGwidList getExcutableCommandGwids() {
-    lockWrite( this );
-    try {
-      return target().getExcutableCommandGwids();
     }
     finally {
       unlockWrite( this );
@@ -126,12 +117,23 @@ public final class S5SynchronizedCommandService
   }
 
   @Override
-  public ITemporalsHistory<ISkCommand> history() {
+  public ITemporalsHistory<IDtoCompletedCommand> history() {
     return history;
   }
 
   @Override
-  public ITsEventer<ISkCommandServiceListener> eventer() {
+  public IGwidList listGloballyHandledCommandGwids() {
+    lockWrite( this );
+    try {
+      return target().listGloballyHandledCommandGwids();
+    }
+    finally {
+      unlockWrite( this );
+    }
+  }
+
+  @Override
+  public IGenericChangeEventer globallyHandledGwidsEventer() {
     return eventer;
   }
 }

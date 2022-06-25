@@ -5,7 +5,7 @@ import javax.ejb.Remote;
 import org.toxsoft.core.tslib.bricks.strid.IStridable;
 
 /**
- * Удаленный доступ к расширению backend предоставляемый s5-сервером
+ * Сессия расширения бекенда предоставляемая s5-сервером для удаленного доступа {@link IS5BackendAddonRemote}.
  *
  * @author mvk
  */

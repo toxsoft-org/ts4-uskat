@@ -15,8 +15,6 @@ import org.toxsoft.core.tslib.bricks.ctx.ITsContext;
 import org.toxsoft.core.tslib.bricks.ctx.ITsContextRo;
 import org.toxsoft.core.tslib.bricks.ctx.impl.TsContext;
 import org.toxsoft.core.tslib.bricks.strid.coll.IStridablesList;
-import org.toxsoft.core.tslib.bricks.strid.coll.IStridablesListEdit;
-import org.toxsoft.core.tslib.bricks.strid.coll.impl.StridablesList;
 import org.toxsoft.core.tslib.utils.TsLibUtils;
 import org.toxsoft.core.tslib.utils.errors.TsNullArgumentRtException;
 import org.toxsoft.uskat.concurrent.S5SynchronizedConnection;
@@ -28,8 +26,7 @@ import org.toxsoft.uskat.core.impl.ISkCoreConfigConstants;
 import org.toxsoft.uskat.core.impl.SkCoreUtils;
 import org.toxsoft.uskat.s5.client.IS5ConnectionParams;
 import org.toxsoft.uskat.s5.server.backend.IS5BackendCoreSingleton;
-import org.toxsoft.uskat.s5.server.backend.addons.IS5BackendAddon;
-import org.toxsoft.uskat.s5.server.backend.addons.IS5BackendAddonLocal;
+import org.toxsoft.uskat.s5.server.backend.addons.IS5BackendAddonCreator;
 import org.toxsoft.uskat.s5.server.backend.supports.objects.IS5BackendObjectsSingleton;
 import org.toxsoft.uskat.s5.server.cluster.IS5ClusterCommandHandler;
 import org.toxsoft.uskat.s5.server.cluster.IS5ClusterManager;
@@ -182,19 +179,10 @@ public class S5LocalConnectionSingleton
   @Override
   public ISkBackend createBackend( ISkFrontendRear aFrontend, ITsContextRo aArgs ) {
     TsNullArgumentRtException.checkNulls( aFrontend, aArgs );
-    IStridablesListEdit<IS5BackendAddonLocal> baLocals = new StridablesList<>();
     // Доступные расширения бекенда предоставляемые сервером
-    IStridablesList<IS5BackendAddon> addons = backend.initialConfig().impl().getBackendAddonsProvider().baCreators();
-    for( IS5BackendAddon addon : addons ) {
-      IS5BackendAddonLocal baLocal = addon.createLocalClient( aArgs );
-      if( baLocal == null ) {
-        // Расширение не работает с локальными клиентами
-        continue;
-      }
-      baLocals.put( baLocal );
-    }
+    IStridablesList<IS5BackendAddonCreator> baCreators = backend.initialConfig().impl().baCreators();
     // Создание локального бекенда
-    return new S5BackendLocal( aArgs, aFrontend, backend, baLocals );
+    return new S5BackendLocal( aFrontend, aArgs, backend, baCreators );
   }
 
   // ------------------------------------------------------------------------------------

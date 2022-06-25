@@ -7,15 +7,12 @@ import org.toxsoft.core.tslib.coll.IList;
 import org.toxsoft.core.tslib.gw.gwid.Gwid;
 import org.toxsoft.core.tslib.utils.errors.TsNullArgumentRtException;
 import org.toxsoft.uskat.core.api.sysdescr.ISkClassInfo;
+import org.toxsoft.uskat.core.api.sysdescr.ISkSysdescr;
 import org.toxsoft.uskat.core.backend.api.ISkBackendInfo;
-import org.toxsoft.uskat.s5.common.IS5BackendAddonsProvider;
 import org.toxsoft.uskat.s5.server.IS5ImplementConstants;
 import org.toxsoft.uskat.s5.server.IS5ServerHardConstants;
-import org.toxsoft.uskat.s5.server.backend.addons.IS5BackendAddon;
+import org.toxsoft.uskat.s5.server.backend.addons.IS5BackendAddonCreator;
 import org.toxsoft.uskat.s5.server.sequences.IS5SequenceImplementation;
-
-import ru.uskat.core.api.ISkExtServicesProvider;
-import ru.uskat.core.api.sysdescr.ISkClassInfoManager;
 
 /**
  * Начальная, неизменяемая, проектно-зависимая конфигурация реализации бекенда сервера
@@ -34,32 +31,17 @@ public interface IS5InitialImplementation
     extends IParameterized {
 
   /**
-   * Возвращает расширения бекенда предоставляемые сервером
+   * Возвращает построителей расширений бекенда предоставляемые сервером
    *
-   * @return {@link IStridablesList}&lt; {@link IS5BackendAddon}&gt; список расширений бекенда
+   * @return {@link IStridablesList}&lt;{@link IS5BackendAddonCreator}&gt; список расширений бекенда
    */
   IStridablesList<IS5BackendAddonCreator> baCreators();
-
-  /**
-   * Возвращает поставщика служб
-   *
-   * @return {@link ISkExtServicesProvider} поставщик служб. {@link ISkExtServicesProvider#NULL}: бекенд не
-   *         предоставляет поставщика
-   */
-  ISkExtServicesProvider getExtServicesProvider();
-
-  /**
-   * Возвращает расширений бекенда необходимых для работы клиента
-   *
-   * @return {@link IS5BackendAddonsProvider} поставщик расширений
-   */
-  IS5BackendAddonsProvider getBackendAddonsProvider();
 
   /**
    * Возвращает cпецифичные для проекта параметры создания класса {@link ISkClassInfo#params()}
    * <p>
    * Проектно-специфичные параметры класса используются только при создании класса и впоследствии могут быть изменены
-   * средствами {@link ISkClassInfoManager}.
+   * средствами {@link ISkSysdescr}.
    * <p>
    * Конкретные (проектные) реализации {@link IS5InitialImplementation} могут переопределять значения свойств более
    * приемлимых для реализации проекта, например:

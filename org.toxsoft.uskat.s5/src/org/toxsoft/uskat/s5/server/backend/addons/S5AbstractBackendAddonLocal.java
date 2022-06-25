@@ -6,7 +6,6 @@ import org.toxsoft.core.tslib.utils.errors.TsIllegalArgumentRtException;
 import org.toxsoft.core.tslib.utils.errors.TsNullArgumentRtException;
 import org.toxsoft.uskat.core.backend.api.BackendAddonBase;
 import org.toxsoft.uskat.core.backend.api.IBackendAddon;
-import org.toxsoft.uskat.s5.client.local.S5BackendLocal;
 
 /**
  * Base implementation of local {@link IBackendAddon} for s5 backend.
@@ -14,18 +13,18 @@ import org.toxsoft.uskat.s5.client.local.S5BackendLocal;
  * @author mvk
  */
 public abstract class S5AbstractBackendAddonLocal
-    extends BackendAddonBase<S5BackendLocal>
+    extends BackendAddonBase<IS5BackendLocal>
     implements IS5BackendAddonLocal {
 
   /**
    * Constructor for subclasses.
    *
-   * @param aOwner {@link S5BackendLocal} - the owner backend
+   * @param aOwner {@link IS5BackendLocal} - the owner backend
    * @param aInfo {@link IStridable} - the addon info
    * @throws TsNullArgumentRtException any argument = <code>null</code>
    * @throws TsIllegalArgumentRtException section name is not an IDpath
    */
-  protected S5AbstractBackendAddonLocal( S5BackendLocal aOwner, IStridable aInfo ) {
+  protected S5AbstractBackendAddonLocal( IS5BackendLocal aOwner, IStridable aInfo ) {
     super( aOwner, aInfo );
   }
 
