@@ -37,8 +37,6 @@ import org.toxsoft.uskat.s5.server.frontend.S5FrontendData;
 import org.toxsoft.uskat.s5.server.sessions.*;
 import org.toxsoft.uskat.s5.utils.threads.impl.S5Lockable;
 
-import ru.uskat.common.dpu.rt.events.SkCurrDataValues;
-
 /**
  * Передача обратных вызовов от сервера к клиенту
  *

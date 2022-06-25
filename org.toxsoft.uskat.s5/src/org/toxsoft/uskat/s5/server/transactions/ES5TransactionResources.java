@@ -14,12 +14,14 @@ import org.toxsoft.core.tslib.coll.*;
 import org.toxsoft.core.tslib.gw.gwid.Gwid;
 import org.toxsoft.core.tslib.utils.errors.TsItemNotFoundRtException;
 import org.toxsoft.core.tslib.utils.errors.TsNullArgumentRtException;
+import org.toxsoft.uskat.core.api.evserv.SkEvent;
+import org.toxsoft.uskat.core.api.linkserv.IDtoLinkFwd;
+import org.toxsoft.uskat.core.api.objserv.IDtoObject;
+import org.toxsoft.uskat.core.api.sysdescr.dto.IDtoAttrInfo;
+import org.toxsoft.uskat.core.api.sysdescr.dto.IDtoRtdataInfo;
 import org.toxsoft.uskat.s5.server.frontend.IS5FrontendRear;
 import org.toxsoft.uskat.s5.server.sequences.IS5Sequence;
 import org.toxsoft.uskat.s5.server.sequences.impl.S5SequenceWriteStat;
-
-import ru.uskat.common.dpu.*;
-import ru.uskat.common.dpu.rt.events.SkEvent;
 
 /**
  * Известные, общедоступные ресурсы транзакции.
@@ -33,21 +35,21 @@ public enum ES5TransactionResources
   /**
    * Список объектов удаляемого класса
    * <p>
-   * Тип: {@link IList}&lt;{@link IDpuObject}&gt; список объектов
+   * Тип: {@link IList}&lt;{@link IDtoObject}&gt; список объектов
    */
   TX_REMOVED_CLASS_OBJS( "removedClassObjs", E_TR_D_REMOVED_CLASS_OBJS, E_TR_N_REMOVED_CLASS_OBJS, IList.class ),
 
   /**
    * Список объектов изменяющихся классов
    * <p>
-   * Тип: {@link IList}&lt;{@link IDpuObject}&gt; список объектов
+   * Тип: {@link IList}&lt;{@link IDtoObject}&gt; список объектов
    */
   TX_UPDATED_CLASS_OBJS( "updatedClassObjs", E_TR_D_UPDATED_CLASS_OBJS, E_TR_N_UPDATED_CLASS_OBJS, IList.class ),
 
   /**
    * Идентификатор ресурса транзакции: список объектов у которых изменяется тип атрибутов
    * <p>
-   * Тип: {@link IList}&lt;{@link IDpuObject}&gt; список объектов
+   * Тип: {@link IList}&lt;{@link IDtoObject}&gt; список объектов
    */
   TX_UPDATED_OBJS_BY_ATTR_TYPE( "updatedObjsByAttrType", E_TR_D_UPDATED_OBJS_BY_ATTR_TYPE,
       E_TR_N_UPDATED_OBJS_BY_ATTR_TYPE, IList.class ),
@@ -55,7 +57,7 @@ public enum ES5TransactionResources
   /**
    * Идентификатор ресурса транзакции: список объектов у которых изменяется тип текущих данных
    * <p>
-   * Тип: {@link IList}&lt;{@link IDpuObject}&gt; список объектов
+   * Тип: {@link IList}&lt;{@link IDtoObject}&gt; список объектов
    */
   TX_UPDATED_OBJS_BY_CURRDATA_TYPE( "updatedObjsByCurrdataType", E_TR_D_UPDATED_OBJS_BY_CURRDATA_TYPE,
       E_TR_N_UPDATED_OBJS_BY_CURRDATA_TYPE, IList.class ),
@@ -63,28 +65,28 @@ public enum ES5TransactionResources
   /**
    * Идентификатор ресурса транзакции: список описаний атрибутов добавляемых в класс
    * <p>
-   * Тип: {@link IStridablesList}&lt;{@link IDpuSdAttrInfo}&gt; список описаний атрибутов
+   * Тип: {@link IStridablesList}&lt;{@link IDtoAttrInfo}&gt; список описаний атрибутов
    */
   TX_ADDED_ATTRS( "addedClassAttrs", E_TR_D_ADDED_ATTRS, E_TR_N_ADDED_ATTRS, IStridablesList.class ),
 
   /**
    * Идентификатор ресурса транзакции: список описаний атрибутов удаляемых из класса
    * <p>
-   * Тип: {@link IStridablesList}&lt;{@link IDpuSdAttrInfo}&gt; список описаний атрибутов
+   * Тип: {@link IStridablesList}&lt;{@link IDtoAttrInfo}&gt; список описаний атрибутов
    */
   TX_REMOVED_ATTRS( "removedClassAttrs", E_TR_D_REMOVED_ATTRS, E_TR_N_REMOVED_ATTRS, IStridablesList.class ),
 
   /**
    * Идентификатор ресурса транзакции: список описаний текущих данных добавляемых в класс
    * <p>
-   * Тип: {@link IStridablesList}&lt;{@link IDpuSdRtdataInfo}&gt; список описаний данных
+   * Тип: {@link IStridablesList}&lt;{@link IDtoRtdataInfo}&gt; список описаний данных
    */
   TX_ADDED_CURRDATA( "addedClassCurrdata", E_TR_D_ADDED_CURRDATA, E_TR_N_ADDED_CURRDATA, IStridablesList.class ),
 
   /**
    * Идентификатор ресурса транзакции: список описаний текущих данных удаляемых из класса
    * <p>
-   * Тип: {@link IStridablesList}&lt;{@link IDpuSdRtdataInfo}&gt; список описаний данных
+   * Тип: {@link IStridablesList}&lt;{@link IDtoRtdataInfo}&gt; список описаний данных
    */
   TX_REMOVED_CURRDATA( "removedClassCurrdata", E_TR_D_REMOVED_CURRDATA, E_TR_N_REMOVED_CURRDATA,
       IStridablesList.class ),
@@ -92,7 +94,7 @@ public enum ES5TransactionResources
   /**
    * Идентификатор ресурса транзакции: список объектов меняющих реализацию хранения
    * <p>
-   * Тип: {@link IList}&lt;{@link IDpuObject}&gt; список объектов
+   * Тип: {@link IList}&lt;{@link IDtoObject}&gt; список объектов
    */
   TX_UPDATED_OBJS_BY_CHANGE_IMPL( "updatedObjsByChangeImpl", E_TR_D_UPDATED_OBJS_BY_CHANGE_IMPL,
       E_TR_N_UPDATED_OBJS_BY_CHANGE_IMPL, IList.class ),
@@ -100,7 +102,7 @@ public enum ES5TransactionResources
   /**
    * Идентификатор ресурса транзакции: список ПРЯМЫХ связей объектов меняющих реализацию хранения
    * <p>
-   * Тип: {@link List}&lt;{@link IDpuLinkFwd}&gt; список связей
+   * Тип: {@link List}&lt;{@link IDtoLinkFwd}&gt; список связей
    */
   TX_UPDATED_FWD_LINKS_BY_CHANGE_IMPL( "updatedFwdLinksByChangeImpl", E_TR_D_UPDATED_FWD_LINKS_BY_CHANGE_IMPL,
       E_TR_N_UPDATED_FWD_LINKS_BY_CHANGE_IMPL, List.class ),
@@ -108,7 +110,7 @@ public enum ES5TransactionResources
   /**
    * Идентификатор ресурса транзакции: список ОБРАТНЫХ связей объектов меняющих реализацию хранения
    * <p>
-   * Тип: {@link List}&lt;{@link IDpuLinkFwd}&gt; список связей
+   * Тип: {@link List}&lt;{@link IDtoLinkFwd}&gt; список связей
    */
   TX_UPDATED_REV_LINKS_BY_CHANGE_IMPL( "updatedRevLinksByChangeImpl", E_TR_D_UPDATED_REV_LINKS_BY_CHANGE_IMPL,
       E_TR_N_UPDATED_REV_LINKS_BY_CHANGE_IMPL, List.class ),

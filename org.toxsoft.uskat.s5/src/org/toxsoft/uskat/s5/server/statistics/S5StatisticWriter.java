@@ -1,12 +1,12 @@
 package org.toxsoft.uskat.s5.server.statistics;
 
-import static org.toxsoft.core.tslib.av.impl.AvUtils.*;
 import static org.toxsoft.core.tslib.av.metainfo.IAvMetaConstants.*;
 import static org.toxsoft.uskat.s5.utils.threads.impl.S5Lockable.*;
-import static ru.uskat.common.dpu.impl.IDpuHardConstants.*;
 
-import org.toxsoft.core.tslib.av.EAtomicType;
 import org.toxsoft.core.tslib.av.IAtomicValue;
+import org.toxsoft.core.tslib.av.impl.DataType;
+import org.toxsoft.core.tslib.av.opset.IOptionSet;
+import org.toxsoft.core.tslib.av.opset.impl.OptionSetUtils;
 import org.toxsoft.core.tslib.av.temporal.ITemporalAtomicValue;
 import org.toxsoft.core.tslib.av.temporal.TemporalAtomicValue;
 import org.toxsoft.core.tslib.bricks.strid.IStridable;
@@ -27,13 +27,14 @@ import org.toxsoft.core.tslib.gw.skid.Skid;
 import org.toxsoft.core.tslib.utils.ICloseable;
 import org.toxsoft.core.tslib.utils.Pair;
 import org.toxsoft.core.tslib.utils.errors.TsNullArgumentRtException;
+import org.toxsoft.uskat.core.api.rtdserv.*;
+import org.toxsoft.uskat.core.api.sysdescr.ISkClassInfo;
+import org.toxsoft.uskat.core.api.sysdescr.ISkSysdescr;
+import org.toxsoft.uskat.core.api.sysdescr.dto.*;
+import org.toxsoft.uskat.core.connection.ISkConnection;
+import org.toxsoft.uskat.core.impl.dto.DtoClassInfo;
+import org.toxsoft.uskat.core.impl.dto.DtoRtdataInfo;
 import org.toxsoft.uskat.s5.utils.threads.impl.S5Lockable;
-
-import ru.uskat.common.dpu.IDpuSdRtdataInfo;
-import ru.uskat.common.dpu.impl.*;
-import ru.uskat.core.api.rtdata.*;
-import ru.uskat.core.api.sysdescr.*;
-import ru.uskat.core.connection.ISkConnection;
 
 /**
  * Статистика параметров сохраняемая в системе
@@ -42,11 +43,6 @@ import ru.uskat.core.connection.ISkConnection;
  */
 public class S5StatisticWriter
     implements IS5StatisticCounter, ICloseable {
-
-  /**
-   * Соединение
-   */
-  private final ISkConnection connection;
 
   /**
    * Статистика
@@ -79,7 +75,6 @@ public class S5StatisticWriter
   public S5StatisticWriter( ISkConnection aConnection, Skid aStatisticObjId,
       IStridablesList<S5StatisticParamInfo> aInfos ) {
     TsNullArgumentRtException.checkNulls( aConnection, aStatisticObjId );
-    connection = aConnection;
     stat = new S5Statistic( aInfos ) {
 
       @Override
@@ -121,14 +116,9 @@ public class S5StatisticWriter
     return true;
   }
 
-  @SuppressWarnings( "deprecation" )
   @Override
   public boolean update() {
-    if( stat.update() ) {
-      connection.coreApi().rtDataService().writeCurrValues();
-      return true;
-    }
-    return false;
+    return stat.update();
   }
 
   @Override
@@ -224,25 +214,22 @@ public class S5StatisticWriter
   private static void createStatIfNeed( ISkConnection aConnection, Skid aStatisticObjId,
       IStridablesList<S5StatisticParamInfo> aInfos ) {
     TsNullArgumentRtException.checkNulls( aConnection, aStatisticObjId, aInfos );
-    ISkClassInfoManager cim = aConnection.coreApi().sysdescr().classInfoManager();
+    ISkSysdescr cim = aConnection.coreApi().sysdescr();
     ISkClassInfo classInfo = cim.getClassInfo( aStatisticObjId.classId() );
     ISkClassInfo parentClassInfo = cim.getClassInfo( classInfo.parentId() );
-    IStridablesList<ISkRtdataInfo> rtInfos = classInfo.rtdInfos();
+    IStridablesList<IDtoRtdataInfo> rtInfos = classInfo.rtdata().list();
     // Список описаний данных которые необходимо добавить в класс
-    IListEdit<IDpuSdRtdataInfo> needDataInfos = new ElemLinkedList<>();
+    IListEdit<IDtoRtdataInfo> needDataInfos = new ElemLinkedList<>();
     for( S5StatisticParamInfo info : aInfos ) {
       for( IS5StatisticInterval interval : info.intervals() ) {
         String dataId = getDataId( interval, info.id() );
         if( !rtInfos.hasKey( dataId ) ) {
           // Описание базового данного
-          IDpuSdRtdataInfo dataInfo = DpuSdRtdataInfo.create1( //
-              dataId, typeId( info.atomicType() ), //
-              DDEF_NAME, info.nmName() + '(' + interval.nmName() + ')', //
-              DDEF_DESCRIPTION, info.description() + '(' + info.description() + ')', //
-              OP_IS_CURR, AV_TRUE, //
-              OP_IS_HIST, AV_TRUE, //
-              OP_IS_SYNC, AV_TRUE, //
-              OP_SYNC_DT, avInt( interval.milli() ) //
+          IDtoRtdataInfo dataInfo = DtoRtdataInfo.create1( //
+              dataId, new DataType( info.atomicType() ), true, true, true, interval.milli(), //
+              OptionSetUtils.createOpSet( //
+                  DDEF_NAME, info.nmName() + '(' + interval.nmName() + ')', //
+                  DDEF_DESCRIPTION, info.description() + '(' + info.description() + ')' ) //
           );
           needDataInfos.add( dataInfo );
         }
@@ -250,9 +237,9 @@ public class S5StatisticWriter
     }
     if( needDataInfos.size() > 0 ) {
       // Добавление новых данных в класс
-      DpuSdClassInfo dpuClassInfo = dpuClassInfo( parentClassInfo, classInfo );
-      dpuClassInfo.rtdataInfos().addAll( needDataInfos );
-      cim.defineClass( dpuClassInfo );
+      DtoClassInfo dtoClassInfo = dtoClassInfo( parentClassInfo, classInfo );
+      dtoClassInfo.rtdataInfos().addAll( needDataInfos );
+      cim.defineClass( dtoClassInfo );
     }
   }
 
@@ -280,7 +267,7 @@ public class S5StatisticWriter
       // Нет каналов
       return IStringMap.EMPTY;
     }
-    ISkRtDataService rtService = aConnection.coreApi().rtDataService();
+    ISkRtdataService rtService = aConnection.coreApi().rtdService();
     IMap<Gwid, ISkWriteCurrDataChannel> cdChannels = rtService.createWriteCurrDataChannels( gwids );
     IMap<Gwid, ISkWriteHistDataChannel> hdChannels = rtService.createWriteHistDataChannels( gwids );
     IStringMapEdit<Pair<ISkWriteCurrDataChannel, ISkWriteHistDataChannel>> retValue = new StringMap<>();
@@ -293,54 +280,52 @@ public class S5StatisticWriter
   }
 
   /**
-   * Возвращает описание класса в формате DPU
+   * Возвращает описание класса в формате DTO
    *
    * @param aParentClassInfo {@link ISkClassInfo} описание родительского класса
    * @param aClassInfo {@link ISkClassInfo} описание класса
-   * @return {@link DpuSdClassInfo} описание класса в формате DPU
+   * @return {@link DtoClassInfo} описание класса в формате DTO
    * @throws TsNullArgumentRtException аргумент = null
    */
-  private static DpuSdClassInfo dpuClassInfo( ISkClassInfo aParentClassInfo, ISkClassInfo aClassInfo ) {
+  private static DtoClassInfo dtoClassInfo( ISkClassInfo aParentClassInfo, ISkClassInfo aClassInfo ) {
     TsNullArgumentRtException.checkNulls( aParentClassInfo, aClassInfo );
-    DpuSdClassInfo retValue = new DpuSdClassInfo( aClassInfo.id(), aClassInfo.parentId() );
-    for( ISkAttrInfo info : aClassInfo.attrInfos() ) {
-      if( !aParentClassInfo.attrInfos().hasKey( info.id() ) ) {
-        retValue.attrInfos().add( new DpuSdAttrInfo( info.id(), info.params() ) );
+    DtoClassInfo retValue = new DtoClassInfo( aClassInfo.id(), aClassInfo.parentId(), IOptionSet.NULL );
+    for( IDtoAttrInfo info : aClassInfo.attrs().list() ) {
+      if( !aParentClassInfo.attrs().list().hasKey( info.id() ) ) {
+        retValue.attrInfos().add( info );
       }
     }
-    for( ISkLinkInfo info : aClassInfo.linkInfos() ) {
-      if( !aParentClassInfo.linkInfos().hasKey( info.id() ) ) {
-        retValue.linkInfos().add( new DpuSdLinkInfo( info.id(), info.params() ) );
+    for( IDtoRivetInfo info : aClassInfo.rivets().list() ) {
+      if( !aParentClassInfo.rivets().list().hasKey( info.id() ) ) {
+        retValue.rivetInfos().add( info );
       }
     }
-    for( ISkRtdataInfo info : aClassInfo.rtdInfos() ) {
-      if( !aParentClassInfo.rtdInfos().hasKey( info.id() ) ) {
-        retValue.rtdataInfos().add( new DpuSdRtdataInfo( info.id(), info.params() ) );
+    for( IDtoLinkInfo info : aClassInfo.links().list() ) {
+      if( !aParentClassInfo.links().list().hasKey( info.id() ) ) {
+        retValue.linkInfos().add( info );
       }
     }
-    for( ISkCmdInfo info : aClassInfo.cmdInfos() ) {
-      if( !aParentClassInfo.cmdInfos().hasKey( info.id() ) ) {
-        retValue.cmdInfos().add( new DpuSdCmdInfo( info.id(), info.params() ) );
+    for( IDtoRtdataInfo info : aClassInfo.rtdata().list() ) {
+      if( !aParentClassInfo.rtdata().list().hasKey( info.id() ) ) {
+        retValue.rtdataInfos().add( info );
       }
     }
-    for( ISkEventInfo info : aClassInfo.eventInfos() ) {
-      if( !aParentClassInfo.eventInfos().hasKey( info.id() ) ) {
-        retValue.eventInfos().add( new DpuSdEventInfo( info.id(), info.params() ) );
+    for( IDtoCmdInfo info : aClassInfo.cmds().list() ) {
+      if( !aParentClassInfo.cmds().list().hasKey( info.id() ) ) {
+        retValue.cmdInfos().add( info );
+      }
+    }
+    for( IDtoEventInfo info : aClassInfo.events().list() ) {
+      if( !aParentClassInfo.events().list().hasKey( info.id() ) ) {
+        retValue.eventInfos().add( info );
+      }
+    }
+    for( IDtoClobInfo info : aClassInfo.clobs().list() ) {
+      if( !aParentClassInfo.clobs().list().hasKey( info.id() ) ) {
+        retValue.clobInfos().add( info );
       }
     }
     return retValue;
-  }
-
-  /**
-   * Возвращает идентификатор типа данного по его атомарному типу
-   *
-   * @param aType {@link EAtomicType} тип данного
-   * @return String идентификатор типа
-   * @throws TsNullArgumentRtException аргумент = null
-   */
-  private static String typeId( EAtomicType aType ) {
-    TsNullArgumentRtException.checkNull( aType );
-    return aType.id();
   }
 
   /**

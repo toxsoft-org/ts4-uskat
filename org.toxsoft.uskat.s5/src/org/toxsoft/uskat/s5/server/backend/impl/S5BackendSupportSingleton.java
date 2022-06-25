@@ -11,14 +11,13 @@ import org.toxsoft.core.tslib.gw.skid.Skid;
 import org.toxsoft.core.tslib.utils.errors.TsNullArgumentRtException;
 import org.toxsoft.uskat.classes.IS5ClassBackend;
 import org.toxsoft.uskat.classes.IS5ClassHistorableBackend;
+import org.toxsoft.uskat.core.backend.api.ISkBackendInfo;
 import org.toxsoft.uskat.s5.server.backend.IS5BackendCoreSingleton;
 import org.toxsoft.uskat.s5.server.backend.IS5BackendSupportSingleton;
 import org.toxsoft.uskat.s5.server.cluster.IS5ClusterManager;
 import org.toxsoft.uskat.s5.server.singletons.S5SingletonBase;
 import org.toxsoft.uskat.s5.server.transactions.IS5Transaction;
 import org.toxsoft.uskat.s5.server.transactions.IS5TransactionListener;
-
-import ru.uskat.backend.ISkBackendInfo;
 
 /**
  * Базовая реализация синглетона поддержки бекенда предоставляемого s5-сервером {@link IS5BackendSupportSingleton}

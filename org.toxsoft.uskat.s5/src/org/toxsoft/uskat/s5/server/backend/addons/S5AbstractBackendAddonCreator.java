@@ -48,7 +48,7 @@ public abstract class S5AbstractBackendAddonCreator
   }
 
   @Override
-  public final IS5BackendAddonSession createSession( Context aContext ) {
+  public final IS5BackendAddonSessionControl createSessionControl( Context aContext ) {
     TsNullArgumentRtException.checkNull( aContext );
     Pair<Class<? extends IS5BackendAddonSession>, Class<? extends IS5BackendAddonSession>> sessionClasses =
         doGetSessionClasses();
@@ -59,7 +59,7 @@ public abstract class S5AbstractBackendAddonCreator
     String beanName = sessionClasses.right().getSimpleName();
     String jndi = String.format( BACKEND_ADDON_JNDI, beanName, beanIface );
     try {
-      return (IS5BackendAddonSession)aContext.lookup( jndi );
+      return (IS5BackendAddonSessionControl)aContext.lookup( jndi );
     }
     catch( NamingException e ) {
       // Ошибка поиска сессии

@@ -26,14 +26,14 @@ public interface IS5BackendAddonCreator
   ISkServiceCreator<? extends AbstractSkService> serviceCreator();
 
   /**
-   * Создает сессию для удаленного доступа к расширению бекенда
+   * Создает доступ к управлению сессией расширения бекенда
    *
    * @param aContext {@link Context} контекст имен сервера
-   * @return {@link IS5BackendAddonSession} сессия для удаленного доступа к расширению бекенда. null: расширение не
-   *         имеет удаленного доступа
+   * @return {@link IS5BackendAddonSessionControl} доступ к управлению сессией. null: расширение не имеет удаленного
+   *         доступа
    * @throws TsNullArgumentRtException аргумент = null
    */
-  IS5BackendAddonSession createSession( Context aContext );
+  IS5BackendAddonSessionControl createSessionControl( Context aContext );
 
   /**
    * Создает локальный доступ к расширению бекенда

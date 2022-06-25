@@ -19,12 +19,11 @@ import org.toxsoft.core.tslib.utils.errors.TsIllegalArgumentRtException;
 import org.toxsoft.core.tslib.utils.errors.TsNullArgumentRtException;
 import org.toxsoft.core.tslib.utils.logs.ILogger;
 import org.toxsoft.uskat.s5.client.remote.connection.pas.S5CallbackOnGetBackendAddonInfos;
+import org.toxsoft.uskat.s5.common.sessions.ISkSession;
 import org.toxsoft.uskat.s5.server.IS5ServerHardConstants;
 import org.toxsoft.uskat.s5.server.sessions.IS5SessionManager;
 import org.toxsoft.uskat.s5.server.startup.IS5InitialImplementation;
 import org.toxsoft.uskat.s5.server.statistics.IS5StatisticCounter;
-
-import ru.uskat.core.api.users.ISkSession;
 
 /**
  * Канал приема обратных вызовов сервера

@@ -27,6 +27,9 @@ import org.toxsoft.core.tslib.coll.synch.SynchronizedStringMap;
 import org.toxsoft.core.tslib.gw.skid.Skid;
 import org.toxsoft.core.tslib.utils.errors.*;
 import org.toxsoft.uskat.classes.IS5ClassNode;
+import org.toxsoft.uskat.core.backend.api.ISkBackendInfo;
+import org.toxsoft.uskat.core.connection.ISkConnection;
+import org.toxsoft.uskat.core.impl.SkBackendInfo;
 import org.toxsoft.uskat.s5.common.S5Module;
 import org.toxsoft.uskat.s5.server.IS5ServerHardConstants;
 import org.toxsoft.uskat.s5.server.backend.IS5BackendCoreSingleton;
@@ -48,10 +51,6 @@ import org.toxsoft.uskat.s5.utils.jobs.IS5ServerJob;
 import org.toxsoft.uskat.s5.utils.platform.S5PlatformInfo;
 import org.toxsoft.uskat.s5.utils.platform.S5ServerPlatformUtils;
 import org.toxsoft.uskat.s5.utils.threads.impl.S5Lockable;
-
-import ru.uskat.backend.ISkBackendInfo;
-import ru.uskat.backend.SkBackendInfo;
-import ru.uskat.core.connection.ISkConnection;
 
 /**
  * Реализация синглтона {@link IS5BackendCoreSingleton}.

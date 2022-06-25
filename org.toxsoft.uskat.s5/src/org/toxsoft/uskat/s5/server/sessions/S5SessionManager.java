@@ -2,6 +2,7 @@ package org.toxsoft.uskat.s5.server.sessions;
 
 import static org.toxsoft.core.tslib.av.impl.AvUtils.*;
 import static org.toxsoft.uskat.s5.common.IS5CommonResources.*;
+import static org.toxsoft.uskat.s5.common.sessions.ISkSession.*;
 import static org.toxsoft.uskat.s5.server.IS5ImplementConstants.*;
 import static org.toxsoft.uskat.s5.server.IS5ServerHardConstants.*;
 import static org.toxsoft.uskat.s5.server.sessions.IS5Resources.*;
@@ -9,7 +10,6 @@ import static org.toxsoft.uskat.s5.server.sessions.IS5SessionInterceptor.*;
 import static org.toxsoft.uskat.s5.server.sessions.cluster.S5ClusterCommandCloseCallback.*;
 import static org.toxsoft.uskat.s5.server.sessions.cluster.S5ClusterCommandCreateCallback.*;
 import static org.toxsoft.uskat.s5.server.sessions.cluster.S5ClusterCommandUpdateSession.*;
-import static ru.uskat.core.api.users.ISkSession.*;
 
 import javax.annotation.Resource;
 import javax.ejb.*;
@@ -34,9 +34,11 @@ import org.toxsoft.core.tslib.utils.errors.TsIllegalArgumentRtException;
 import org.toxsoft.core.tslib.utils.errors.TsNullArgumentRtException;
 import org.toxsoft.core.tslib.utils.logs.ELogSeverity;
 import org.toxsoft.core.tslib.utils.logs.ILogger;
-import org.toxsoft.uskat.s5.client.local.IS5LocalBackendHardConstants;
+import org.toxsoft.uskat.core.api.evserv.SkEvent;
+import org.toxsoft.uskat.core.api.users.ISkUser;
 import org.toxsoft.uskat.s5.common.info.IS5SessionsInfos;
 import org.toxsoft.uskat.s5.common.sessions.IS5SessionInfo;
+import org.toxsoft.uskat.s5.common.sessions.ISkSession;
 import org.toxsoft.uskat.s5.legacy.SynchronizedMap;
 import org.toxsoft.uskat.s5.server.IS5ServerHardConstants;
 import org.toxsoft.uskat.s5.server.backend.IS5BackendCoreSingleton;
@@ -56,13 +58,6 @@ import org.toxsoft.uskat.s5.server.statistics.*;
 import org.toxsoft.uskat.s5.utils.jobs.IS5ServerJob;
 import org.wildfly.clustering.group.Membership;
 import org.wildfly.clustering.group.Node;
-
-import ru.uskat.common.dpu.IDpuObject;
-import ru.uskat.common.dpu.impl.DpuLinkFwd;
-import ru.uskat.common.dpu.impl.DpuObject;
-import ru.uskat.common.dpu.rt.events.SkEvent;
-import ru.uskat.core.api.users.ISkSession;
-import ru.uskat.core.api.users.ISkUser;
 
 /**
  * Управление сессиями сервера

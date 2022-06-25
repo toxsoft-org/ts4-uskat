@@ -13,13 +13,12 @@ import org.toxsoft.core.tslib.coll.primtypes.impl.StringMap;
 import org.toxsoft.core.tslib.gw.skid.Skid;
 import org.toxsoft.core.tslib.utils.errors.TsNullArgumentRtException;
 import org.toxsoft.core.tslib.utils.logs.ILogger;
+import org.toxsoft.uskat.s5.common.sessions.ISkSession;
 import org.toxsoft.uskat.s5.server.cluster.IS5ClusterCommand;
 import org.toxsoft.uskat.s5.server.cluster.IS5ClusterCommandHandler;
 import org.toxsoft.uskat.s5.server.sessions.IS5SessionManager;
 import org.toxsoft.uskat.s5.server.sessions.S5RemoteSession;
 import org.toxsoft.uskat.s5.server.sessions.pas.S5SessionCallbackWriter;
-
-import ru.uskat.core.api.users.ISkSession;
 
 /**
  * Обработчик команды кластера: всем узлам обновить состояние сессии
