@@ -34,7 +34,7 @@ import org.toxsoft.uskat.core.impl.AbstractSkService;
 import org.toxsoft.uskat.s5.client.IS5ConnectionParams;
 import org.toxsoft.uskat.s5.common.S5BackendDoJobThread;
 import org.toxsoft.uskat.s5.common.sessions.ISkSession;
-import org.toxsoft.uskat.s5.server.backend.messages.IS5BaBeforeCloseMessages;
+import org.toxsoft.uskat.s5.server.backend.messages.S5BaBeforeCloseMessages;
 import org.toxsoft.uskat.s5.server.frontend.*;
 import org.toxsoft.uskat.s5.utils.S5ValobjUtils;
 import org.toxsoft.uskat.s5.utils.progress.IS5ProgressMonitor;
@@ -286,7 +286,7 @@ public abstract class S5AbstractBackend<ADDON extends IS5BackendAddon>
   public final void close() {
     logger.info( "S5AbstractBackend.close(): starting ..." ); //$NON-NLS-1$
     // Формирование сообщения о предстоящем завершении работы
-    fireBackendMessage( IS5BaBeforeCloseMessages.makeMessage() );
+    fireBackendMessage( S5BaBeforeCloseMessages.INSTANCE.makeMessage() );
     // Завершение работы наследниками
     doClose();
     // Завершение работы базового класса

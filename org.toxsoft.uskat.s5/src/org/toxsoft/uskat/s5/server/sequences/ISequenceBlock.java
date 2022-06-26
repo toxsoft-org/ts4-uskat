@@ -10,8 +10,7 @@ import org.toxsoft.core.tslib.gw.gwid.Gwid;
 import org.toxsoft.core.tslib.utils.TsLibUtils;
 import org.toxsoft.core.tslib.utils.errors.TsIllegalArgumentRtException;
 import org.toxsoft.core.tslib.utils.errors.TsIllegalStateRtException;
-
-import ru.uskat.core.api.sysdescr.ISkRtdataInfo;
+import org.toxsoft.uskat.core.api.sysdescr.dto.IDtoRtdataInfo;
 
 /**
  * Блок значений последовательности {@link IS5Sequence}.
@@ -42,7 +41,7 @@ public interface ISequenceBlock<V extends ITemporal<?>> {
   /**
    * Возвращает признак того, что значения в блоке являются синхронными.
    * <p>
-   * По своей сути для данных реального времени тоже самое, что и {@link ISkRtdataInfo#isSync()}. Для истории событий и
+   * По своей сути для данных реального времени тоже самое, что и {@link IDtoRtdataInfo#isSync()}. Для истории событий и
    * команд данные всегда асинхронные.
    *
    * @return boolean <b>true</b> данное является синхронным; <b>false</b> данное является асинхронным.

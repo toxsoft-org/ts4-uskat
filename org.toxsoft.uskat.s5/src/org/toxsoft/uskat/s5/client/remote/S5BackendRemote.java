@@ -39,9 +39,9 @@ public final class S5BackendRemote
 
   /**
    * Конструктор backend
+   *
    * @param aFrontend {@link ISkFrontendRear} фронтенд, для которого создается бекенд
    * @param aArgs {@link ITsContextRo} аргументы (ссылки и опции) создания бекенда
-   *
    * @throws TsNullArgumentRtException аргумент = null
    */
   public S5BackendRemote( ISkFrontendRear aFrontend, ITsContextRo aArgs ) {
@@ -109,22 +109,22 @@ public final class S5BackendRemote
       // Создание расширений используемых клиентом (определяется наличием jar-расширения в classpath клиента)
       allAddons().putAll( createBackendAddons( classLoader(), aSource.backendAddonInfos(), logger() ) );
       // Формирование сообщения о проведенной инициализации расширений
-      fireBackendMessage( IS5BaAfterInitMessages.makeMessage() );
+      fireBackendMessage( S5BaAfterInitMessages.INSTANCE.makeMessage() );
     }
     // Формирование сообщения о предстоящем соединении с бекендом
-    fireBackendMessage( IS5BaBeforeConnectMessages.makeMessage() );
+    fireBackendMessage( S5BaBeforeConnectMessages.INSTANCE.makeMessage() );
   }
 
   @Override
   public void onAfterConnect( IS5Connection aSource ) {
     session = aSource.session();
-    fireBackendMessage( IS5BaAfterConnectMessages.makeMessage() );
+    fireBackendMessage( S5BaAfterConnectMessages.INSTANCE.makeMessage() );
   }
 
   @Override
   public void onAfterDisconnect( IS5Connection aSource ) {
     session = null;
-    fireBackendMessage( IS5BaAfterDisconnectMessages.makeMessage() );
+    fireBackendMessage( S5BaAfterDisconnectMessages.INSTANCE.makeMessage() );
   }
 
   // ------------------------------------------------------------------------------------

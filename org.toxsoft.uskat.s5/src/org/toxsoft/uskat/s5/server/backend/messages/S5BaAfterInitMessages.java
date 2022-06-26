@@ -2,19 +2,30 @@ package org.toxsoft.uskat.s5.server.backend.messages;
 
 import org.toxsoft.core.tslib.bricks.events.msg.GtMessage;
 import org.toxsoft.core.tslib.utils.errors.TsNullArgumentRtException;
+import org.toxsoft.uskat.core.backend.api.AbstractBackendMessageBuilder;
 
 /**
  * Сообщение об завершении инициализации
  *
  * @author mvk
  */
-public interface IS5BaAfterInitMessages
-    extends IS5BackendMessages {
+public class S5BaAfterInitMessages
+    extends AbstractBackendMessageBuilder
+    implements IS5BackendMessages {
 
   /**
-   * The message ID.
+   * ID of the message.
    */
-  String MSGID = "AfterInit"; //$NON-NLS-1$
+  public static final String MSG_ID = "AfterInit"; //$NON-NLS-1$
+
+  /**
+   * Singletone intance.
+   */
+  public static final S5BaAfterConnectMessages INSTANCE = new S5BaAfterConnectMessages();
+
+  S5BaAfterInitMessages() {
+    super( TOPIC_ID, MSG_ID );
+  }
 
   /**
    * Creates the {@link GtMessage} for any change in the classes.
@@ -23,7 +34,7 @@ public interface IS5BaAfterInitMessages
    * @throws TsNullArgumentRtException any argument = <code>null</code>
    */
   static GtMessage makeMessage() {
-    GtMessage msg = new GtMessage( TOPICID, MSGID );
+    GtMessage msg = new GtMessage( TOPIC_ID, MSG_ID );
     return msg;
   }
 

@@ -34,12 +34,12 @@ public final class S5BackendLocal
 
   /**
    * Конструктор backend
+   *
    * @param aFrontend {@link ISkFrontendRear} - фронтенд, для которого создается бекенд
    * @param aArgs {@link ITsContextRo} - аргументы (ссылки и опции) создания бекенда
    * @param aBackendSingleton {@link IS5BackendCoreSingleton} - backend сервера
    * @param aBackendAddonCreators {@link IStridablesList}&lt; {@link IS5BackendAddonCreator}&gt; список построителей
    *          расширений бекенда.
-   *
    * @throws TsNullArgumentRtException аргумент = null
    */
   S5BackendLocal( ISkFrontendRear aFrontend, ITsContextRo aArgs, IS5BackendCoreSingleton aBackendSingleton,
@@ -65,11 +65,11 @@ public final class S5BackendLocal
     // Подключение фронтенда
     backendSingleton.attachFrontend( frontend() );
     // Формирование сообщения о проведенной инициализации расширений
-    fireBackendMessage( IS5BaAfterInitMessages.makeMessage() );
+    fireBackendMessage( S5BaAfterInitMessages.INSTANCE.makeMessage() );
     // Формирование сообщения о предстоящем подключении
-    fireBackendMessage( IS5BaBeforeConnectMessages.makeMessage() );
+    fireBackendMessage( S5BaBeforeConnectMessages.INSTANCE.makeMessage() );
     // Формирование сообщения о подключении
-    fireBackendMessage( IS5BaAfterConnectMessages.makeMessage() );
+    fireBackendMessage( S5BaAfterConnectMessages.INSTANCE.makeMessage() );
   }
 
   // ------------------------------------------------------------------------------------

@@ -11,8 +11,6 @@ import org.toxsoft.core.tslib.av.EAtomicType;
 import org.toxsoft.core.tslib.av.metainfo.IDataDef;
 import org.toxsoft.uskat.s5.utils.IS5HardConstants;
 
-import ru.uskat.common.dpu.impl.IDpuHardConstants;
-
 /**
  * Константы по умолчанию определяющие работу механизма {@link IS5Sequence}.
  *
@@ -35,7 +33,7 @@ public interface IS5SequenceHardConstants
    * <p>
    * Тип: {@link EAtomicType#BOOLEAN}
    */
-  IDataDef OP_IS_SYNC = IDpuHardConstants.OP_IS_SYNC;
+  IDataDef OP_IS_SYNC = IDtoHardConstants.OP_IS_SYNC;
 
   /**
    * Опция {@link IS5Sequence#typeInfo()}: интервал (мсек) значения данного имеющего синхронные значения.
