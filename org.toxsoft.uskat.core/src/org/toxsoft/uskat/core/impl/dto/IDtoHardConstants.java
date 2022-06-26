@@ -19,7 +19,8 @@ import org.toxsoft.uskat.core.api.sysdescr.dto.*;
  *
  * @author hazard157
  */
-interface IDtoHardConstants {
+@SuppressWarnings( "javadoc" )
+public interface IDtoHardConstants {
 
   /**
    * {@link DtoClassInfo} keeper keywords.
