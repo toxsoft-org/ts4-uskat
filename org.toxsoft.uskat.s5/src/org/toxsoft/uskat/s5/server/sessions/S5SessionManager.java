@@ -22,9 +22,9 @@ import org.toxsoft.core.tslib.av.opset.IOptionSetEdit;
 import org.toxsoft.core.tslib.av.opset.impl.OptionSet;
 import org.toxsoft.core.tslib.bricks.strid.idgen.IStridGenerator;
 import org.toxsoft.core.tslib.bricks.strid.idgen.UuidStridGenerator;
-import org.toxsoft.core.tslib.bricks.time.impl.TimedList;
 import org.toxsoft.core.tslib.coll.*;
 import org.toxsoft.core.tslib.coll.impl.*;
+import org.toxsoft.core.tslib.coll.primtypes.IStringMap;
 import org.toxsoft.core.tslib.coll.primtypes.IStringMapEdit;
 import org.toxsoft.core.tslib.coll.primtypes.impl.StringArrayList;
 import org.toxsoft.core.tslib.coll.primtypes.impl.StringMap;
@@ -34,8 +34,12 @@ import org.toxsoft.core.tslib.utils.errors.TsIllegalArgumentRtException;
 import org.toxsoft.core.tslib.utils.errors.TsNullArgumentRtException;
 import org.toxsoft.core.tslib.utils.logs.ELogSeverity;
 import org.toxsoft.core.tslib.utils.logs.ILogger;
-import org.toxsoft.uskat.core.api.evserv.SkEvent;
+import org.toxsoft.uskat.core.api.objserv.IDtoObject;
 import org.toxsoft.uskat.core.api.users.ISkUser;
+import org.toxsoft.uskat.core.api.users.ISkUserServiceHardConstants;
+import org.toxsoft.uskat.core.impl.dto.DtoLinkFwd;
+import org.toxsoft.uskat.core.impl.dto.DtoObject;
+import org.toxsoft.uskat.s5.client.IS5ConnectionParams;
 import org.toxsoft.uskat.s5.common.info.IS5SessionsInfos;
 import org.toxsoft.uskat.s5.common.sessions.IS5SessionInfo;
 import org.toxsoft.uskat.s5.common.sessions.ISkSession;
@@ -390,14 +394,15 @@ public class S5SessionManager
       S5RemoteSession prevSession = remoteOpenSessionCache.put( info.sessionID(), aSession );
       callAfterCreateSession( interceptors, sessionID, logger() );
 
+      // TODO: формировать события
       // Формирование события
-      Gwid eventGwid = Gwid.createEvent( ISkUser.CLASS_ID, login,
-          created ? ISkUser.EVID_SESSION_CREATED : ISkUser.EVID_SESSION_RESTORED );
-      IOptionSetEdit params = new OptionSet();
-      params.setStr( ISkUser.EVPID_IP, aSession.info().remoteAddress() );
-      params.setValobj( ISkUser.EVPID_SESSION_ID, aSession.info().sessionID() );
-      SkEvent event = new SkEvent( createTime, eventGwid, params );
-      eventSupport.fireEvents( frontend, new TimedList<>( event ) );
+      // Gwid eventGwid = Gwid.createEvent( ISkUser.CLASS_ID, login,
+      // created ? ISkUser.EVID_SESSION_CREATED : ISkUser.EVID_SESSION_RESTORED );
+      // IOptionSetEdit params = new OptionSet();
+      // params.setStr( ISkUser.EVPID_IP, aSession.info().remoteAddress() );
+      // params.setValobj( ISkUser.EVPID_SESSION_ID, aSession.info().sessionID() );
+      // SkEvent event = new SkEvent( createTime, eventGwid, params );
+      // eventSupport.fireEvents( frontend, new TimedList<>( event ) );
 
       return (prevSession == null);
     }
@@ -412,14 +417,14 @@ public class S5SessionManager
     TsNullArgumentRtException.checkNull( aSession );
     Skid sessionID = aSession.sessionID();
     IS5FrontendRear frontend = aSession.frontend();
-    String login = ISkUser.ROOT_USER_LOGIN;
+    String login = ISkUserServiceHardConstants.SUPER_USER_ID;
     callBeforeCreateSession( interceptors, sessionID );
     long createTime = System.currentTimeMillis();
     // TODO: ???
     IOptionSet backendSpecificParams = IOptionSet.NULL;
     IOptionSetEdit connectionCreationParams = new OptionSet();
-    IS5LocalBackendHardConstants.OP_LOCAL_MODULE.setValue( connectionCreationParams, avStr( aSession.module() ) );
-    IS5LocalBackendHardConstants.OP_LOCAL_NODE.setValue( connectionCreationParams, avStr( aSession.node() ) );
+    IS5ConnectionParams.OP_LOCAL_MODULE.setValue( connectionCreationParams, avStr( aSession.module() ) );
+    IS5ConnectionParams.OP_LOCAL_NODE.setValue( connectionCreationParams, avStr( aSession.node() ) );
     createSkSession( sessionID, frontend, login, createTime, backendSpecificParams, connectionCreationParams );
     S5LocalSession prevSession = localOpenSessionCache.put( sessionID, aSession );
     callAfterCreateSession( interceptors, sessionID, logger() );
@@ -478,15 +483,15 @@ public class S5SessionManager
         // Сессия найдена и закрыта (перемещается в кэш закрытых сессий)
         closedSessionCache.put( aSessionID, session );
 
-        // 2021-08-23 mvk
+        // TODO: формировать события
         // Формирование события
-        String evId = (loss ? ISkUser.EVID_SESSION_BREAKED : ISkUser.EVID_SESSION_CLOSED);
-        Gwid eventGwid = Gwid.createEvent( ISkUser.CLASS_ID, session.info().login(), evId );
-        IOptionSetEdit params = new OptionSet();
-        params.setStr( ISkUser.EVPID_IP, session.info().remoteAddress() );
-        params.setValobj( ISkUser.EVPID_SESSION_ID, session.info().sessionID() );
-        SkEvent event = new SkEvent( endTime, eventGwid, params );
-        eventSupport.fireEvents( frontend, new TimedList<>( event ) );
+        // String evId = (loss ? ISkUser.EVID_SESSION_BREAKED : ISkUser.EVID_SESSION_CLOSED);
+        // Gwid eventGwid = Gwid.createEvent( ISkUser.CLASS_ID, session.info().login(), evId );
+        // IOptionSetEdit params = new OptionSet();
+        // params.setStr( ISkUser.EVPID_IP, session.info().remoteAddress() );
+        // params.setValobj( ISkUser.EVPID_SESSION_ID, session.info().sessionID() );
+        // SkEvent event = new SkEvent( endTime, eventGwid, params );
+        // eventSupport.fireEvents( frontend, new TimedList<>( event ) );
 
         callAfterCloseSession( interceptors, sessionID, logger() );
       }
@@ -768,9 +773,9 @@ public class S5SessionManager
       // Проверка существования старых сессий
       logger().warning( ERR_REMOVE_OLD_SESSIONS_CHECK );
       // Удаление сессий прошлой работы сервера
-      IList<IDpuObject> sessions = objectsSupport.readObjects( new StringArrayList( ISkSession.CLASS_ID ) );
+      IList<IDtoObject> sessions = objectsSupport.readObjects( new StringArrayList( ISkSession.CLASS_ID ) );
       SkidList sessionIds = new SkidList();
-      for( IDpuObject session : sessions ) {
+      for( IDtoObject session : sessions ) {
         Skid sessionID = session.skid();
         boolean needRemove = (localOpenSessionCache.findByKey( sessionID ) == null);
         for( S5RemoteSession openSession : remoteOpenSessions ) {
@@ -989,14 +994,14 @@ public class S5SessionManager
   private boolean createSkSession( Skid aSessionID, IS5FrontendRear aFrontend, String aLogin, long aCreationTime,
       IOptionSet aBackendSpecificParams, IOptionSet aConnectionCreationParams ) {
     TsNullArgumentRtException.checkNulls( aSessionID, aFrontend, aBackendSpecificParams, aConnectionCreationParams );
-    IDpuObject obj = objectsSupport.findObject( aSessionID );
+    IDtoObject obj = objectsSupport.findObject( aSessionID );
     if( obj != null ) {
       // Сессия уже существует
       IOptionSetEdit attrs = new OptionSet( obj.attrs() );
       attrs.setValue( ATRID_END_TIME, IAtomicValue.NULL );
-      IDpuObject dpu = new DpuObject( aSessionID, attrs );
+      IDtoObject dto = new DtoObject( aSessionID, attrs, obj.rivets().map() );
       // Создание объекта сессия. aInterceptable = false
-      objectsSupport.writeObjects( IS5FrontendRear.NULL, ISkidList.EMPTY, new ElemArrayList<>( dpu ), false );
+      objectsSupport.writeObjects( IS5FrontendRear.NULL, ISkidList.EMPTY, new ElemArrayList<>( dto ), false );
       // 2021-04-09 mvk создание статистики проводится как lazy через findStatisticCounter
       // Статистика сессии
       // if( statisticCountersBySessions.findByKey( aSessionID ) == null ) {
@@ -1017,13 +1022,14 @@ public class S5SessionManager
     attrs.setTime( ATRID_START_TIME, aCreationTime );
     attrs.setValobj( ATRID_BACKEND_SPECIFIC_PARAMS, aBackendSpecificParams );
     attrs.setValobj( ATRID_CONNECTION_CREATION_PARAMS, aConnectionCreationParams );
-    IDpuObject dpu = new DpuObject( aSessionID, attrs );
+    IDtoObject dto = new DtoObject( aSessionID, attrs, IStringMap.EMPTY );
     // Создание объекта сессия. aInterceptable = false
-    objectsSupport.writeObjects( IS5FrontendRear.NULL, ISkidList.EMPTY, new ElemArrayList<>( dpu ), false );
+    objectsSupport.writeObjects( IS5FrontendRear.NULL, ISkidList.EMPTY, new ElemArrayList<>( dto ), false );
     // Установка пользователя сессии
     Skid userID = new Skid( ISkUser.CLASS_ID, aLogin );
-    DpuLinkFwd dpuUserLink = new DpuLinkFwd( ISkSession.CLASS_ID, ISkSession.LNKID_USER, aSessionID, userID );
-    linksSupport.writeLinks( new ElemArrayList<>( dpuUserLink ), false ); // false: запрет интерсепторов
+    DtoLinkFwd dtoUserLink = new DtoLinkFwd( //
+        Gwid.createLink( ISkSession.CLASS_ID, ISkSession.LNKID_USER ), aSessionID, new SkidList( userID ) );
+    linksSupport.writeLinks( new ElemArrayList<>( dtoUserLink ), false ); // false: запрет интерсепторов
     // 2021-04-09 mvk создание статистики проводится как lazy через findStatisticCounter
     // Статистика сессии
     // if( statisticCountersBySessions.findByKey( aSessionID ) == null ) {
@@ -1062,7 +1068,7 @@ public class S5SessionManager
       }
     }
     // Обработка объекта сессия
-    IDpuObject obj = objectsSupport.findObject( aSessionID );
+    IDtoObject obj = objectsSupport.findObject( aSessionID );
     if( obj == null ) {
       // Не найден объект сессии ISkSession
       logger().error( ERR_SK_SESSION_NOT_FOUND, aSessionID );
@@ -1071,9 +1077,9 @@ public class S5SessionManager
     try {
       IOptionSetEdit attrs = new OptionSet( obj.attrs() );
       attrs.setTime( ATRID_END_TIME, aEndTime );
-      IDpuObject dpu = new DpuObject( aSessionID, attrs );
+      IDtoObject dto = new DtoObject( aSessionID, attrs, obj.rivets().map() );
       // Создание объекта сессия. aInterceptable = false
-      objectsSupport.writeObjects( IS5FrontendRear.NULL, ISkidList.EMPTY, new ElemArrayList<>( dpu ), false );
+      objectsSupport.writeObjects( IS5FrontendRear.NULL, ISkidList.EMPTY, new ElemArrayList<>( dto ), false );
 
       // TODO: 2021-08-23 mvk подготовлено для удаления
       // // Формирование события

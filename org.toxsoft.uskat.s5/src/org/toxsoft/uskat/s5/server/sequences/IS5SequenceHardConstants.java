@@ -9,6 +9,7 @@ import javax.enterprise.concurrent.ManagedExecutorService;
 
 import org.toxsoft.core.tslib.av.EAtomicType;
 import org.toxsoft.core.tslib.av.metainfo.IDataDef;
+import org.toxsoft.uskat.core.impl.dto.IDtoHardConstants;
 import org.toxsoft.uskat.s5.utils.IS5HardConstants;
 
 /**
@@ -33,14 +34,14 @@ public interface IS5SequenceHardConstants
    * <p>
    * Тип: {@link EAtomicType#BOOLEAN}
    */
-  IDataDef OP_IS_SYNC = IDtoHardConstants.OP_IS_SYNC;
+  IDataDef OP_IS_SYNC = IDtoHardConstants.OPDEF_IS_SYNC;
 
   /**
    * Опция {@link IS5Sequence#typeInfo()}: интервал (мсек) значения данного имеющего синхронные значения.
    * <p>
    * Тип: {@link EAtomicType#INTEGER}
    */
-  IDataDef OP_SYNC_DT = IDpuHardConstants.OP_SYNC_DT;
+  IDataDef OP_SYNC_DT = IDtoHardConstants.OPDEF_SYNC_DATA_DELTA_T;
 
   /**
    * Опция {@link IS5Sequence#typeInfo()}: полное имя java-класса реализации блока.

@@ -11,6 +11,8 @@ import static org.toxsoft.uskat.s5.server.sessions.cluster.S5ClusterCommandClose
 import static org.toxsoft.uskat.s5.server.sessions.cluster.S5ClusterCommandCreateCallback.*;
 
 import java.rmi.RemoteException;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.Properties;
 import java.util.concurrent.TimeUnit;
 
@@ -305,7 +307,9 @@ public class S5BackendSession
       // Пароль или его хэшкод пользователя
       String userPswd = user.attrs().getValue( ATRID_PASSWORD ).asString();
       // Хэшкод пароля
-      String pswdHashCode = SkUserService.getPasswordHashCode( pswd );
+      // TODO:
+      // String pswdHashCode = SkUserService.getPasswordHashCode( pswd );
+      String pswdHashCode = getPasswordHashCode( pswd );
       // Пароль указан в "сыром" виде
       boolean isPlainPswd = userPswd.equals( pswd );
       // Пароль указан в виде хэшкода
@@ -674,6 +678,36 @@ public class S5BackendSession
     catch( Exception ex ) {
       throw new TsIllegalArgumentRtException( ex, ex.getMessage() );
     }
+  }
+
+  // ------------------------------------------------------------------------------------
+  // Открытые вспомогательные методы
+  //
+  /**
+   * Возвращает 128-битный хэш-код указанного пароля
+   *
+   * @param aPassword String пароль
+   * @return String хэш-код
+   * @throws TsNullArgumentRtException аргумент = null
+   * @deprecated TODO: метод вероятно должен быть в SkCoreServUsers как и раньше
+   */
+  @Deprecated
+  public static String getPasswordHashCode( String aPassword ) {
+    TsNullArgumentRtException.checkNull( aPassword );
+    MessageDigest md;
+    try {
+      md = MessageDigest.getInstance( "MD5" ); //$NON-NLS-1$
+    }
+    catch( NoSuchAlgorithmException e ) {
+      throw new TsInternalErrorRtException( e );
+    }
+    md.update( aPassword.getBytes() );
+    byte[] digest = md.digest();
+    StringBuilder sb = new StringBuilder( digest.length * 2 );
+    for( byte b : digest ) {
+      sb.append( String.format( "%02x", Byte.valueOf( b ) ) ); //$NON-NLS-1$
+    }
+    return sb.toString();
   }
 
   // ------------------------------------------------------------------------------------
