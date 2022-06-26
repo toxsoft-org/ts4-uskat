@@ -103,6 +103,12 @@ interface ISkResources {
   String FMT_ERR_CANT_REMOVE_NO_OBJ = "Object '%s'^ does not exists, can not remove it";
 
   /**
+   * {@link SkCoreServRtdata}
+   */
+  String FMT_ERR_RTD_CHNL_INV_ATOMIC_TYPE = "RtData channel %s: got %s value instead of %s";
+  String FMT_ERR_CDW_CHANNEL_HAS_NO_KEY   = "CurrDataWrite channel %s has no key(-1)";
+
+  /**
    * {@link SkCoreServSysdescr}
    */
   String FMT_WARN_ORPHAN_CLASS             = "Ignoring an orphan class loaded from backend (class ID: '%s')";

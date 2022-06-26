@@ -66,9 +66,9 @@ public interface IBackendMemtextConstants {
   );
 
   /**
-   * Backend arg: determines if events history is stored permamnently.
+   * Backend arg: determines if commands history is stored permamnently.
    */
-  IDataDef OPDEF_IS_CMDS_STORED = DataDef.create( SKB_ID_MEMTEXT + ".IsEventsStored", BOOLEAN, //$NON-NLS-1$
+  IDataDef OPDEF_IS_CMDS_STORED = DataDef.create( SKB_ID_MEMTEXT + ".IsCommandsStored", BOOLEAN, //$NON-NLS-1$
       TSID_NAME, STR_N_IS_CMDS_STORED, //
       TSID_DESCRIPTION, STR_D_IS_CMDS_STORED, //
       TSID_DEFAULT_VALUE, AV_TRUE //
@@ -85,9 +85,9 @@ public interface IBackendMemtextConstants {
   int MAX_MAX_CMDS_COUNT = 10_000;
 
   /**
-   * Backend arg: maximum number of events in history.
+   * Backend arg: maximum number of commands in history.
    */
-  IDataDef OPDEF_MAX_CMDS_COUNT = DataDef.create( SKB_ID_MEMTEXT + ".MaxEventsCount", INTEGER, //$NON-NLS-1$
+  IDataDef OPDEF_MAX_CMDS_COUNT = DataDef.create( SKB_ID_MEMTEXT + ".MaxCommandsCount", INTEGER, //$NON-NLS-1$
       TSID_NAME, STR_N_MAX_CMDS_COUNT, //
       TSID_DESCRIPTION, STR_D_MAX_CMDS_COUNT, //
       TSID_MIN_INCLUSIVE, avInt( MIN_MAX_CMDS_COUNT ), //

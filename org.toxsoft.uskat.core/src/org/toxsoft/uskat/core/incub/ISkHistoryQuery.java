@@ -2,6 +2,7 @@ package org.toxsoft.uskat.core.incub;
 
 import org.toxsoft.core.tslib.bricks.events.change.*;
 import org.toxsoft.core.tslib.bricks.time.*;
+import org.toxsoft.core.tslib.coll.*;
 import org.toxsoft.core.tslib.gw.gwid.*;
 import org.toxsoft.core.tslib.utils.*;
 import org.toxsoft.uskat.core.api.rtdserv.*;
@@ -29,6 +30,6 @@ public interface ISkHistoryQuery<T extends ITemporalValue<T>>
 
   ITimedList<T> get( Gwid aGwid );
 
-  ITimedList<T> getAll();
+  IMap<Gwid, ITimedList<T>> getAll();
 
 }
