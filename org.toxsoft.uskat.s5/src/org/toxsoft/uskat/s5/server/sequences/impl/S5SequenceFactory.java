@@ -22,13 +22,12 @@ import org.toxsoft.core.tslib.gw.gwid.Gwid;
 import org.toxsoft.core.tslib.utils.Pair;
 import org.toxsoft.core.tslib.utils.TsLibUtils;
 import org.toxsoft.core.tslib.utils.errors.*;
+import org.toxsoft.uskat.s5.common.sysdescr.ISkSysdescrReader;
 import org.toxsoft.uskat.s5.legacy.SynchronizedMap;
 import org.toxsoft.uskat.s5.server.sequences.*;
 import org.toxsoft.uskat.s5.server.startup.IS5InitialImplementation;
 import org.toxsoft.uskat.s5.utils.collections.WrapperMap;
 import org.toxsoft.uskat.s5.utils.threads.impl.S5Lockable;
-
-import ru.uskat.core.common.helpers.sysdescr.ISkSysdescrReader;
 
 /**
  * Абстрактная реализация фабрики последовательности

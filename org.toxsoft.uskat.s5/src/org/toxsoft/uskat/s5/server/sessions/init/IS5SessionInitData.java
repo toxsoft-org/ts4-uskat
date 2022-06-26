@@ -5,12 +5,11 @@ import org.toxsoft.core.tslib.gw.gwid.GwidList;
 import org.toxsoft.core.tslib.gw.gwid.IGwidList;
 import org.toxsoft.core.tslib.gw.skid.Skid;
 import org.toxsoft.core.tslib.utils.errors.TsNullArgumentRtException;
+import org.toxsoft.uskat.core.api.evserv.ISkEventHandler;
+import org.toxsoft.uskat.core.api.evserv.ISkEventService;
 import org.toxsoft.uskat.s5.client.IS5ConnectionParams;
 import org.toxsoft.uskat.s5.client.remote.connection.S5ClusterTopology;
-
-import ru.uskat.core.api.events.ISkEventHandler;
-import ru.uskat.core.api.events.ISkEventService;
-import ru.uskat.core.api.users.ISkSession;
+import org.toxsoft.uskat.s5.common.sessions.ISkSession;
 
 /**
  * Данные инициализации сессии

@@ -15,19 +15,18 @@ import org.toxsoft.core.tslib.utils.errors.TsNullArgumentRtException;
 import org.toxsoft.uskat.classes.IS5ClassNode;
 import org.toxsoft.uskat.classes.IS5ClassServer;
 import org.toxsoft.uskat.classes.impl.S5ClassUtils;
+import org.toxsoft.uskat.core.ISkCoreApi;
+import org.toxsoft.uskat.core.api.linkserv.ISkLinkService;
+import org.toxsoft.uskat.core.api.objserv.ISkObjectService;
+import org.toxsoft.uskat.core.api.sysdescr.ISkSysdescr;
+import org.toxsoft.uskat.core.api.users.ISkUser;
+import org.toxsoft.uskat.core.api.users.ISkUserService;
+import org.toxsoft.uskat.core.backend.api.ISkBackendInfo;
+import org.toxsoft.uskat.core.connection.ISkConnection;
+import org.toxsoft.uskat.core.impl.dto.DtoFullObject;
 import org.toxsoft.uskat.s5.client.local.IS5LocalConnectionSingleton;
 import org.toxsoft.uskat.s5.server.backend.IS5BackendCoreSingleton;
 import org.toxsoft.uskat.s5.server.singletons.S5SingletonBase;
-
-import ru.uskat.backend.ISkBackendInfo;
-import ru.uskat.common.dpu.impl.DpuObject;
-import ru.uskat.core.ISkCoreApi;
-import ru.uskat.core.api.links.ISkLinkService;
-import ru.uskat.core.api.objserv.ISkObjectService;
-import ru.uskat.core.api.sysdescr.*;
-import ru.uskat.core.api.users.ISkUser;
-import ru.uskat.core.api.users.ISkUserService;
-import ru.uskat.core.connection.ISkConnection;
 
 /**
  * Реализация синглтона {@link IS5InitialSysdescrSingleton}.
@@ -65,14 +64,9 @@ public abstract class S5InitialSysdescrSingleton
   private ISkConnection connection;
 
   /**
-   * Менеджер управления типами системы
+   * Описание системы
    */
-  private ISkDataTypesManager typesManager;
-
-  /**
-   * Менеджер управления классами системы
-   */
-  private ISkClassInfoManager classInfoManager;
+  private ISkSysdescr sysdescr;
 
   /**
    * Служба управления объектами
@@ -105,9 +99,7 @@ public abstract class S5InitialSysdescrSingleton
     // Подключение к серверу
     connection = createSynchronizedConnection( localConnectionSingleton.open( id() ) );
     ISkCoreApi coreApi = connection.coreApi();
-    ISkSysdescr sysdescr = coreApi.sysdescr();
-    typesManager = sysdescr.dataTypesManager();
-    classInfoManager = sysdescr.classInfoManager();
+    sysdescr = coreApi.sysdescr();
     objectService = coreApi.objService();
     linkService = coreApi.linkService();
     userService = coreApi.userService();
@@ -126,21 +118,12 @@ public abstract class S5InitialSysdescrSingleton
   // Методы для наследников
   //
   /**
-   * Возвращает менеджер управления типами системы
+   * Возвращает описание системы
    *
-   * @return {@link ISkDataTypesManager} менеджер типов данных
+   * @return {@link ISkSysdescr} описание
    */
-  protected final ISkDataTypesManager typesManager() {
-    return typesManager;
-  }
-
-  /**
-   * Возвращает менеджер управления классами системы
-   *
-   * @return {@link ISkClassInfoManager} менеджер управления классами
-   */
-  protected final ISkClassInfoManager classInfoManager() {
-    return classInfoManager;
+  protected final ISkSysdescr sysdescr() {
+    return sysdescr;
   }
 
   /**
@@ -213,12 +196,12 @@ public abstract class S5InitialSysdescrSingleton
   protected final ISkUser createUser( String aLogin, IOptionSet aParams ) {
     TsNullArgumentRtException.checkNulls( aLogin, aParams );
     Skid id = new Skid( ISkUser.CLASS_ID, aLogin );
-    ISkUser user = userService().find( aLogin );
+    ISkUser user = userService().listUsers().findByKey( aLogin );
     if( user != null ) {
       // Пользователь уже существует
       return user;
     }
-    return userService().defineUser( new DpuObject( id, aParams ) );
+    return userService().defineUser( new DtoFullObject( id ) );
   }
 
   // ------------------------------------------------------------------------------------
@@ -252,13 +235,13 @@ public abstract class S5InitialSysdescrSingleton
     IS5ClassServer server = objectService.find( serverId );
     if( server == null ) {
       // Сервер не найден. Создание сервера
-      server = objectService.defineObject( new DpuObject( serverId, IOptionSet.NULL ) );
+      server = objectService.defineObject( new DtoFullObject( serverId ) );
     }
     // Проверка существования узла сервера
     IS5ClassNode node = objectService.find( nodeId );
     if( node == null ) {
       // Узел не найден. Создание узла
-      node = objectService.defineObject( new DpuObject( nodeId, IOptionSet.NULL ) );
+      node = objectService.defineObject( new DtoFullObject( nodeId ) );
       linkService.defineLink( nodeId, IS5ClassNode.LNKID_SERVER, ISkidList.EMPTY, new SkidList( serverId ) );
     }
     // Создание проектного sysdescr

@@ -15,8 +15,7 @@ import org.toxsoft.core.tslib.gw.skid.Skid;
 import org.toxsoft.core.tslib.utils.errors.*;
 import org.toxsoft.uskat.s5.client.IS5ConnectionParams;
 import org.toxsoft.uskat.s5.client.remote.connection.S5ClusterTopology;
-
-import ru.uskat.core.api.users.ISkSession;
+import org.toxsoft.uskat.s5.common.sessions.ISkSession;
 
 /**
  * Реализация {@link IS5SessionInitData}

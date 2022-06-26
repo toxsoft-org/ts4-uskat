@@ -22,8 +22,6 @@ import org.toxsoft.core.tslib.utils.errors.*;
 import org.toxsoft.core.tslib.utils.logs.ILogger;
 import org.toxsoft.uskat.s5.server.sequences.*;
 
-import ru.uskat.common.dpu.impl.IDpuHardConstants;
-
 /**
  * Блок хранения синхронных данных.
  * <p>
@@ -45,7 +43,7 @@ public abstract class S5SequenceSyncBlock<V extends ITemporal<?>, BLOB_ARRAY, BL
   public static final String FIELD_SYNC_DATA_DELTA = "syncDataDelta"; //$NON-NLS-1$
 
   /**
-   * Интервал времени (мсек) между отсчетами. То же самое что и {@link IDpuHardConstants#OP_SYNC_DT}
+   * Интервал времени (мсек) между отсчетами. То же самое что и {@link IS5SequenceHardConstants#OP_SYNC_DT}
    */
   @Column( name = FIELD_SYNC_DATA_DELTA, //
       insertable = true,
@@ -319,7 +317,7 @@ public abstract class S5SequenceSyncBlock<V extends ITemporal<?>, BLOB_ARRAY, BL
   //
   /**
    * Возвращает интервал времени (мсек) между отсчетами (размер слота синхронного данного). То же самое что и
-   * {@link IDpuHardConstants#OP_SYNC_DT}
+   * {@link IS5SequenceHardConstants#OP_SYNC_DT}
    *
    * @return long интервал времени (мсек)
    */

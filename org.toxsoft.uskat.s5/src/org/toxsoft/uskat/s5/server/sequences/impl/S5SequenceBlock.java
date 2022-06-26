@@ -4,9 +4,9 @@ import static java.lang.String.*;
 import static org.toxsoft.core.log4j.LoggerWrapper.*;
 import static org.toxsoft.core.tslib.bricks.time.impl.TimeUtils.*;
 import static org.toxsoft.uskat.s5.common.IS5CommonResources.*;
+import static org.toxsoft.uskat.s5.server.sequences.IS5SequenceHardConstants.*;
 import static org.toxsoft.uskat.s5.server.sequences.impl.IS5Resources.*;
 import static org.toxsoft.uskat.s5.server.sequences.impl.S5DataID.*;
-import static ru.uskat.common.dpu.impl.IDpuHardConstants.*;
 
 import java.io.Serializable;
 import java.lang.reflect.Array;

@@ -4,18 +4,12 @@ import static org.toxsoft.uskat.s5.server.sessions.init.IS5Resources.*;
 
 import java.io.Serializable;
 
-import org.toxsoft.core.tslib.bricks.strid.coll.IStridablesList;
-import org.toxsoft.core.tslib.bricks.strid.coll.IStridablesListEdit;
-import org.toxsoft.core.tslib.bricks.strid.coll.impl.StridablesList;
 import org.toxsoft.core.tslib.coll.primtypes.IStringMap;
 import org.toxsoft.core.tslib.coll.primtypes.IStringMapEdit;
 import org.toxsoft.core.tslib.coll.primtypes.impl.StringMap;
 import org.toxsoft.core.tslib.utils.errors.*;
 import org.toxsoft.uskat.s5.server.backend.addons.IS5BackendAddonSession;
 import org.toxsoft.uskat.s5.server.backend.addons.IS5BackendAddonSessionControl;
-
-import ru.uskat.common.dpu.IDpuSdClassInfo;
-import ru.uskat.common.dpu.IDpuSdTypeInfo;
 
 /**
  * Реализация {@link IS5SessionInitResult}
@@ -27,9 +21,7 @@ public final class S5SessionInitResult
 
   private static final long serialVersionUID = 157157L;
 
-  private final IStridablesListEdit<IDpuSdTypeInfo>       typeInfos  = new StridablesList<>();
-  private final IStridablesListEdit<IDpuSdClassInfo>      classInfos = new StridablesList<>();
-  private final IStringMapEdit<IS5BackendAddonSession>     addons     = new StringMap<>();
+  private final IStringMapEdit<IS5BackendAddonSession>    addons     = new StringMap<>();
   private final IStringMapEdit<IS5SessionAddonInitResult> addonsData = new StringMap<>();
 
   // ------------------------------------------------------------------------------------
@@ -43,8 +35,6 @@ public final class S5SessionInitResult
    */
   public void setAll( IS5SessionInitResult aSource ) {
     TsNullArgumentRtException.checkNull( aSource );
-    typeInfos.setAll( aSource.typeInfos() );
-    classInfos.setAll( aSource.classInfos() );
     addons.setAll( aSource.baSessions() );
     addonsData.clear();
     for( String addonId : addons.keys() ) {
@@ -53,28 +43,6 @@ public final class S5SessionInitResult
         addonsData.put( addonId, addonData );
       }
     }
-  }
-
-  /**
-   * Устанавливает описания всех типов зарегистрированных в системе на момент подключения к серверу
-   *
-   * @param aTypeInfos {@link IStridablesList}&lt;{@link IDpuSdTypeInfo}&gt; описания типов
-   * @throws TsNullArgumentRtException аргумент = null
-   */
-  public void setTypeInfos( IStridablesList<IDpuSdTypeInfo> aTypeInfos ) {
-    TsNullArgumentRtException.checkNull( aTypeInfos );
-    typeInfos.setAll( aTypeInfos );
-  }
-
-  /**
-   * Устанавливает описания всех классов зарегистрированных в системе на момент подключения к серверу
-   *
-   * @param aClassInfos {@link IStridablesList}&lt;{@link IDpuSdClassInfo}&gt; описания классов
-   * @throws TsNullArgumentRtException аргумент = null
-   */
-  public void setClassInfos( IStridablesList<IDpuSdClassInfo> aClassInfos ) {
-    TsNullArgumentRtException.checkNull( aClassInfos );
-    classInfos.setAll( aClassInfos );
   }
 
   /**
@@ -116,18 +84,9 @@ public final class S5SessionInitResult
   // Реализация IS5SessionInitResult
   //
   @Override
-  public IStridablesList<IDpuSdTypeInfo> typeInfos() {
-    return typeInfos;
-  }
-
-  @Override
-  public IStridablesList<IDpuSdClassInfo> classInfos() {
-    return classInfos;
-  }
-
-  @Override
   public IStringMap<IS5BackendAddonSession> baSessions() {
-    return addons;
+    // TODO Auto-generated method stub
+    return null;
   }
 
   @Override

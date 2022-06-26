@@ -11,8 +11,12 @@ import org.toxsoft.core.tslib.coll.primtypes.IStringList;
 import org.toxsoft.core.tslib.utils.errors.TsNullArgumentRtException;
 import org.toxsoft.uskat.core.api.sysdescr.dto.IDtoClassInfo;
 import org.toxsoft.uskat.core.backend.ISkBackendHardConstant;
+import org.toxsoft.uskat.core.backend.api.IBaClasses;
 import org.toxsoft.uskat.s5.server.backend.addons.S5AbstractBackendAddonSession;
 import org.toxsoft.uskat.s5.server.backend.supports.sysdescr.IS5BackendSysDescrSingleton;
+import org.toxsoft.uskat.s5.server.sessions.init.IS5SessionInitData;
+import org.toxsoft.uskat.s5.server.sessions.init.S5SessionInitResult;
+import org.toxsoft.uskat.s5.server.sessions.pas.S5SessionCallbackWriter;
 
 /**
  * Реализация сессии расширения бекенда {@link IS5BaClassesSession}.
@@ -24,7 +28,7 @@ import org.toxsoft.uskat.s5.server.backend.supports.sysdescr.IS5BackendSysDescrS
 @AccessTimeout( value = ACCESS_TIMEOUT_DEFAULT, unit = TimeUnit.MILLISECONDS )
 @TransactionManagement( TransactionManagementType.CONTAINER )
 @TransactionAttribute( TransactionAttributeType.SUPPORTS )
-public class S5BaClassesSession
+class S5BaClassesSession
     extends S5AbstractBackendAddonSession
     implements IS5BaClassesSession {
 
@@ -49,6 +53,12 @@ public class S5BaClassesSession
   @Override
   protected Class<? extends IS5BaClassesSession> doGetSessionView() {
     return IS5BaClassesSession.class;
+  }
+
+  @Override
+  protected void doAfterInit( S5SessionCallbackWriter aCallbackWriter, IS5SessionInitData aInitData,
+      S5SessionInitResult aInitResult ) {
+    aInitResult.getBaData( IBaClasses.ADDON_ID, S5BaClassesInitResult.class ).classInfos.setAll( readClassInfos() );
   }
 
   // ------------------------------------------------------------------------------------

@@ -19,28 +19,20 @@ import org.toxsoft.core.tslib.bricks.strid.coll.IStridablesListEdit;
 import org.toxsoft.core.tslib.bricks.strid.coll.impl.StridablesList;
 import org.toxsoft.core.tslib.bricks.strid.impl.StridableParameterized;
 import org.toxsoft.core.tslib.coll.IList;
-import org.toxsoft.core.tslib.coll.primtypes.IStringMap;
-import org.toxsoft.core.tslib.coll.primtypes.IStringMapEdit;
-import org.toxsoft.core.tslib.coll.primtypes.impl.StringMap;
 import org.toxsoft.core.tslib.gw.gwid.Gwid;
 import org.toxsoft.core.tslib.gw.skid.Skid;
 import org.toxsoft.core.tslib.utils.errors.TsIllegalArgumentRtException;
 import org.toxsoft.core.tslib.utils.errors.TsNullArgumentRtException;
-import org.toxsoft.uskat.s5.common.IS5BackendAddonsProvider;
+import org.toxsoft.uskat.core.api.sysdescr.ISkClassInfo;
+import org.toxsoft.uskat.core.api.sysdescr.ISkSysdescr;
+import org.toxsoft.uskat.core.api.users.ISkUser;
 import org.toxsoft.uskat.s5.common.S5Module;
+import org.toxsoft.uskat.s5.common.sessions.ISkSession;
 import org.toxsoft.uskat.s5.server.IS5ServerHardConstants;
 import org.toxsoft.uskat.s5.server.backend.IS5BackendCoreSingleton;
-import org.toxsoft.uskat.s5.server.backend.addons.IS5BackendAddonLegacy;
+import org.toxsoft.uskat.s5.server.backend.addons.IS5BackendAddonCreator;
 import org.toxsoft.uskat.s5.server.entities.*;
 import org.toxsoft.uskat.s5.server.sequences.IS5SequenceImplementation;
-
-import ru.uskat.core.api.ISkExtServicesProvider;
-import ru.uskat.core.api.sysdescr.ISkClassInfo;
-import ru.uskat.core.api.sysdescr.ISkClassInfoManager;
-import ru.uskat.core.api.users.ISkSession;
-import ru.uskat.core.api.users.ISkUser;
-import ru.uskat.core.devapi.IDevCoreApi;
-import ru.uskat.core.impl.AbstractSkService;
 
 /**
  * Базовая реализация {@link IS5InitialImplementation}.
@@ -50,7 +42,7 @@ import ru.uskat.core.impl.AbstractSkService;
  * @author mvk
  */
 public abstract class S5InitialImplementation
-    implements IS5InitialImplementation, ISkExtServicesProvider, IS5BackendAddonsProvider {
+    implements IS5InitialImplementation {
 
   /**
    * Параметры конфигурации
@@ -58,9 +50,9 @@ public abstract class S5InitialImplementation
   private final IOptionSetEdit params;
 
   /**
-   * Расширения бекенда предоставляемые сервером
+   * Построители расширений бекенда предоставляемые сервером
    */
-  private IStridablesList<IS5BackendAddonLegacy> addons;
+  private IStridablesList<IS5BackendAddonCreator> baCreators;
 
   /**
    * Конструктор.
@@ -101,16 +93,6 @@ public abstract class S5InitialImplementation
   // ------------------------------------------------------------------------------------
   // IS5InitialImplementation
   //
-  @Override
-  public final ISkExtServicesProvider getExtServicesProvider() {
-    return this;
-  }
-
-  @Override
-  public final IS5BackendAddonsProvider getBackendAddonsProvider() {
-    return this;
-  }
-
   @Override
   public final IOptionSet params() {
     IOptionSetEdit retValue = new OptionSet( params );
@@ -155,21 +137,11 @@ public abstract class S5InitialImplementation
   // ISkExtServicesProvider
   //
   @Override
-  public final IStridablesList<IS5BackendAddonLegacy> baCreators() {
-    if( addons == null ) {
-      addons = doProjectSpecificAddons();
+  public final IStridablesList<IS5BackendAddonCreator> baCreators() {
+    if( baCreators == null ) {
+      baCreators = doProjectSpecificBaCreators();
     }
-    return addons;
-  }
-
-  @Override
-  public final IStringMap<AbstractSkService> createExtServices( IDevCoreApi aCoreApi ) {
-    TsNullArgumentRtException.checkNull( aCoreApi );
-    IStringMapEdit<AbstractSkService> retValue = new StringMap<>();
-    for( IS5BackendAddonLegacy addon : allAddons() ) {
-      retValue.putAll( addon.createServices( aCoreApi ) );
-    }
-    return retValue;
+    return baCreators;
   }
 
   // ------------------------------------------------------------------------------------
@@ -186,14 +158,14 @@ public abstract class S5InitialImplementation
   }
 
   /**
-   * Возвращает спислк расширений бекенда предоставляемых сервером проекта
+   * Возвращает список построителей расширений бекенда предоставляемых сервером проекта
    * <p>
    * Порядок расширений во возращаемом списке имеет значение - в начале списка должны идти расширения которые независят
    * от других расширений, в конце списка расширения зависящие от расширений в начале списка.
    *
-   * @return {@link IList}&lt;{@link IS5BackendAddonLegacy}&gt; список расширений бекенда.
+   * @return {@link IList}&lt;{@link IS5BackendAddonCreator}&gt; список расширений бекенда.
    */
-  protected IStridablesList<IS5BackendAddonLegacy> doProjectSpecificAddons() {
+  protected IStridablesList<IS5BackendAddonCreator> doProjectSpecificBaCreators() {
     return IStridablesList.EMPTY;
   }
 
@@ -201,7 +173,7 @@ public abstract class S5InitialImplementation
    * Возвращает cпецифичные для проекта параметры создания класса {@link ISkClassInfo#params()}
    * <p>
    * Проектно-специфичные параметры класса используются только при создании класса и впоследствии могут быть изменены
-   * средствами {@link ISkClassInfoManager}.
+   * средствами {@link ISkSysdescr}.
    * <p>
    * Конкретные (проектные) реализации {@link IS5BackendCoreSingleton} могут переопределять значения свойств более
    * приемлимых для реализации проекта, например:

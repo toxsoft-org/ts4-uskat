@@ -49,6 +49,14 @@ import org.toxsoft.core.tslib.utils.logs.ELogSeverity;
 import org.toxsoft.core.tslib.utils.logs.ILogger;
 import org.toxsoft.uskat.classes.IS5ClassBackend;
 import org.toxsoft.uskat.classes.IS5ClassHistorableBackend;
+import org.toxsoft.uskat.core.ISkCoreApi;
+import org.toxsoft.uskat.core.api.linkserv.ISkLinkService;
+import org.toxsoft.uskat.core.api.objserv.*;
+import org.toxsoft.uskat.core.api.sysdescr.ISkClassInfo;
+import org.toxsoft.uskat.core.api.sysdescr.dto.IDtoClassInfo;
+import org.toxsoft.uskat.core.connection.ISkConnection;
+import org.toxsoft.uskat.core.impl.dto.DtoObject;
+import org.toxsoft.uskat.s5.common.sysdescr.ISkSysdescrReader;
 import org.toxsoft.uskat.s5.legacy.QueryInterval;
 import org.toxsoft.uskat.s5.server.backend.impl.S5BackendSupportSingleton;
 import org.toxsoft.uskat.s5.server.backend.supports.objects.IS5BackendObjectsSingleton;
@@ -64,17 +72,6 @@ import org.toxsoft.uskat.s5.server.statistics.S5StatisticWriter;
 import org.toxsoft.uskat.s5.utils.platform.S5ServerPlatformUtils;
 import org.toxsoft.uskat.s5.utils.schedules.*;
 import org.toxsoft.uskat.s5.utils.threads.impl.S5ReadThreadExecutor;
-
-import ru.uskat.common.dpu.IDpuObject;
-import ru.uskat.common.dpu.IDpuSdClassInfo;
-import ru.uskat.common.dpu.impl.DpuObject;
-import ru.uskat.core.ISkCoreApi;
-import ru.uskat.core.api.links.ISkLinkService;
-import ru.uskat.core.api.objserv.ISkObjectService;
-import ru.uskat.core.api.sysdescr.ISkClassInfo;
-import ru.uskat.core.common.helpers.sysdescr.ISkSysdescrReader;
-import ru.uskat.core.common.skobject.ISkObject;
-import ru.uskat.core.connection.ISkConnection;
 
 /**
  * Базовая (абстрактная) реализация синглетона поддержки бекенда обрабатывающего последовательности данных
@@ -863,7 +860,7 @@ public abstract class S5BackendSequenceSupportSingleton<S extends IS5Sequence<V>
     IS5ClassHistorableBackend backend = objectService.find( backendId );
     if( backend == null ) {
       // Бекенд не найден. Создание бекенда как объекта системы
-      backend = objectService.defineObject( new DpuObject( backendId, IOptionSet.NULL ) );
+      backend = objectService.defineObject( new DtoObject( backendId, IOptionSet.NULL, IStringMap.EMPTY ) );
       linkService.defineLink( backendId, IS5ClassBackend.LNKID_NODE, ISkidList.EMPTY, new SkidList( nodeId ) );
     }
     if( statisticWriter != null ) {
@@ -880,7 +877,7 @@ public abstract class S5BackendSequenceSupportSingleton<S extends IS5Sequence<V>
   @TransactionAttribute( TransactionAttributeType.MANDATORY )
   @Lock( LockType.READ )
   @Override
-  public void beforeCreateClass( IDpuSdClassInfo aClassInfo ) {
+  public void beforeCreateClass( IDtoClassInfo aClassInfo ) {
     TsNullArgumentRtException.checkNull( aClassInfo );
     doBeforeCreateClass( aClassInfo );
   }
@@ -888,7 +885,7 @@ public abstract class S5BackendSequenceSupportSingleton<S extends IS5Sequence<V>
   @TransactionAttribute( TransactionAttributeType.MANDATORY )
   @Lock( LockType.READ )
   @Override
-  public void afterCreateClass( IDpuSdClassInfo aClassInfo ) {
+  public void afterCreateClass( IDtoClassInfo aClassInfo ) {
     TsNullArgumentRtException.checkNull( aClassInfo );
     doAfterCreateClass( aClassInfo );
   }
@@ -896,8 +893,8 @@ public abstract class S5BackendSequenceSupportSingleton<S extends IS5Sequence<V>
   @TransactionAttribute( TransactionAttributeType.MANDATORY )
   @Lock( LockType.READ )
   @Override
-  public void beforeUpdateClass( IDpuSdClassInfo aPrevClassInfo, IDpuSdClassInfo aNewClassInfo,
-      IStridablesList<IDpuSdClassInfo> aDescendants ) {
+  public void beforeUpdateClass( IDtoClassInfo aPrevClassInfo, IDtoClassInfo aNewClassInfo,
+      IStridablesList<IDtoClassInfo> aDescendants ) {
     TsNullArgumentRtException.checkNulls( aPrevClassInfo, aNewClassInfo, aDescendants );
     doBeforeUpdateClass( aPrevClassInfo, aNewClassInfo, aDescendants );
   }
@@ -905,8 +902,8 @@ public abstract class S5BackendSequenceSupportSingleton<S extends IS5Sequence<V>
   @TransactionAttribute( TransactionAttributeType.MANDATORY )
   @Lock( LockType.READ )
   @Override
-  public void afterUpdateClass( IDpuSdClassInfo aPrevClassInfo, IDpuSdClassInfo aNewClassInfo,
-      IStridablesList<IDpuSdClassInfo> aDescendants ) {
+  public void afterUpdateClass( IDtoClassInfo aPrevClassInfo, IDtoClassInfo aNewClassInfo,
+      IStridablesList<IDtoClassInfo> aDescendants ) {
     TsNullArgumentRtException.checkNulls( aPrevClassInfo, aNewClassInfo, aDescendants );
     doAfterUpdateClass( aPrevClassInfo, aNewClassInfo, aDescendants );
   }
@@ -914,7 +911,7 @@ public abstract class S5BackendSequenceSupportSingleton<S extends IS5Sequence<V>
   @TransactionAttribute( TransactionAttributeType.MANDATORY )
   @Lock( LockType.READ )
   @Override
-  public void beforeDeleteClass( IDpuSdClassInfo aClassInfo ) {
+  public void beforeDeleteClass( IDtoClassInfo aClassInfo ) {
     TsNullArgumentRtException.checkNull( aClassInfo );
     doBeforeDeleteClass( aClassInfo );
   }
@@ -922,7 +919,7 @@ public abstract class S5BackendSequenceSupportSingleton<S extends IS5Sequence<V>
   @TransactionAttribute( TransactionAttributeType.MANDATORY )
   @Lock( LockType.READ )
   @Override
-  public void afterDeleteClass( IDpuSdClassInfo aClassInfo ) {
+  public void afterDeleteClass( IDtoClassInfo aClassInfo ) {
     TsNullArgumentRtException.checkNull( aClassInfo );
     doAfterDeleteClass( aClassInfo );
   }
@@ -933,7 +930,7 @@ public abstract class S5BackendSequenceSupportSingleton<S extends IS5Sequence<V>
   @TransactionAttribute( TransactionAttributeType.SUPPORTS )
   @Lock( LockType.READ )
   @Override
-  public IDpuObject beforeFindObject( Skid aSkid, IDpuObject aObj ) {
+  public IDtoObject beforeFindObject( Skid aSkid, IDtoObject aObj ) {
     TsNullArgumentRtException.checkNull( aSkid );
     return doBeforeFindObject( aSkid, aObj );
   }
@@ -941,7 +938,7 @@ public abstract class S5BackendSequenceSupportSingleton<S extends IS5Sequence<V>
   @TransactionAttribute( TransactionAttributeType.SUPPORTS )
   @Lock( LockType.READ )
   @Override
-  public IDpuObject afterFindObject( Skid aSkid, IDpuObject aObj ) {
+  public IDtoObject afterFindObject( Skid aSkid, IDtoObject aObj ) {
     TsNullArgumentRtException.checkNull( aSkid );
     return doAfterFindObject( aSkid, aObj );
   }
@@ -949,7 +946,7 @@ public abstract class S5BackendSequenceSupportSingleton<S extends IS5Sequence<V>
   @TransactionAttribute( TransactionAttributeType.SUPPORTS )
   @Lock( LockType.READ )
   @Override
-  public void beforeReadObjects( IStringList aClassIds, IListEdit<IDpuObject> aObjs ) {
+  public void beforeReadObjects( IStringList aClassIds, IListEdit<IDtoObject> aObjs ) {
     TsNullArgumentRtException.checkNulls( aClassIds, aObjs );
     doBeforeReadObjects( aClassIds, aObjs );
   }
@@ -957,7 +954,7 @@ public abstract class S5BackendSequenceSupportSingleton<S extends IS5Sequence<V>
   @TransactionAttribute( TransactionAttributeType.SUPPORTS )
   @Lock( LockType.READ )
   @Override
-  public void afterReadObjects( IStringList aClassIds, IListEdit<IDpuObject> aObjs ) {
+  public void afterReadObjects( IStringList aClassIds, IListEdit<IDtoObject> aObjs ) {
     TsNullArgumentRtException.checkNulls( aClassIds, aObjs );
     doAfterReadObjects( aClassIds, aObjs );
   }
@@ -965,7 +962,7 @@ public abstract class S5BackendSequenceSupportSingleton<S extends IS5Sequence<V>
   @TransactionAttribute( TransactionAttributeType.SUPPORTS )
   @Lock( LockType.READ )
   @Override
-  public void beforeReadObjectsByIds( ISkidList aSkids, IListEdit<IDpuObject> aObjs ) {
+  public void beforeReadObjectsByIds( ISkidList aSkids, IListEdit<IDtoObject> aObjs ) {
     TsNullArgumentRtException.checkNulls( aSkids, aObjs );
     doBeforeReadObjectsByIds( aSkids, aObjs );
   }
@@ -973,7 +970,7 @@ public abstract class S5BackendSequenceSupportSingleton<S extends IS5Sequence<V>
   @TransactionAttribute( TransactionAttributeType.SUPPORTS )
   @Lock( LockType.READ )
   @Override
-  public void afterReadObjectsByIds( ISkidList aSkids, IListEdit<IDpuObject> aObjs ) {
+  public void afterReadObjectsByIds( ISkidList aSkids, IListEdit<IDtoObject> aObjs ) {
     TsNullArgumentRtException.checkNulls( aSkids, aObjs );
     doAfterReadObjectsByIds( aSkids, aObjs );
   }
@@ -982,9 +979,9 @@ public abstract class S5BackendSequenceSupportSingleton<S extends IS5Sequence<V>
   @Lock( LockType.READ )
   @Override
   public void beforeWriteObjects( //
-      IMap<ISkClassInfo, IList<IDpuObject>> aRemovedObjs,
-      IMap<ISkClassInfo, IList<Pair<IDpuObject, IDpuObject>>> aUpdatedObjs,
-      IMap<ISkClassInfo, IList<IDpuObject>> aCreatedObjs ) {
+      IMap<ISkClassInfo, IList<IDtoObject>> aRemovedObjs,
+      IMap<ISkClassInfo, IList<Pair<IDtoObject, IDtoObject>>> aUpdatedObjs,
+      IMap<ISkClassInfo, IList<IDtoObject>> aCreatedObjs ) {
     TsNullArgumentRtException.checkNulls( aRemovedObjs, aUpdatedObjs, aCreatedObjs );
     doBeforeWriteObjects( aRemovedObjs, aUpdatedObjs, aCreatedObjs );
   }
@@ -993,9 +990,9 @@ public abstract class S5BackendSequenceSupportSingleton<S extends IS5Sequence<V>
   @Lock( LockType.READ )
   @Override
   public void afterWriteObjects( //
-      IMap<ISkClassInfo, IList<IDpuObject>> aRemovedObjs,
-      IMap<ISkClassInfo, IList<Pair<IDpuObject, IDpuObject>>> aUpdatedObjs,
-      IMap<ISkClassInfo, IList<IDpuObject>> aCreatedObjs ) {
+      IMap<ISkClassInfo, IList<IDtoObject>> aRemovedObjs,
+      IMap<ISkClassInfo, IList<Pair<IDtoObject, IDtoObject>>> aUpdatedObjs,
+      IMap<ISkClassInfo, IList<IDtoObject>> aCreatedObjs ) {
     TsNullArgumentRtException.checkNulls( aRemovedObjs, aUpdatedObjs, aCreatedObjs );
     doAfterWriteObjects( aRemovedObjs, aUpdatedObjs, aCreatedObjs );
   }
@@ -1095,10 +1092,10 @@ public abstract class S5BackendSequenceSupportSingleton<S extends IS5Sequence<V>
    * клиент-перехватчик должен организовать логику восстановления своего состояния при откате транзакции (смотри
    * S5TransactionSingleton}.
    *
-   * @param aClassInfo {@link IDpuSdClassInfo} описание создаваемого класса
+   * @param aClassInfo {@link IDtoClassInfo} описание создаваемого класса
    * @throws TsIllegalStateRtException запрещено создавать класс
    */
-  protected void doBeforeCreateClass( IDpuSdClassInfo aClassInfo ) {
+  protected void doBeforeCreateClass( IDtoClassInfo aClassInfo ) {
     // nop
   }
 
@@ -1109,10 +1106,10 @@ public abstract class S5BackendSequenceSupportSingleton<S extends IS5Sequence<V>
    * клиент-перехватчик должен организовать логику восстановления своего состояния при откате транзакции (смотри
    * S5TransactionSingleton}.
    *
-   * @param aClassInfo {@link IDpuSdClassInfo} описание созданного класса
+   * @param aClassInfo {@link IDtoClassInfo} описание созданного класса
    * @throws TsIllegalStateRtException отменить создание класса (откат транзакции)
    */
-  protected void doAfterCreateClass( IDpuSdClassInfo aClassInfo ) {
+  protected void doAfterCreateClass( IDtoClassInfo aClassInfo ) {
     // nop
   }
 
@@ -1123,13 +1120,13 @@ public abstract class S5BackendSequenceSupportSingleton<S extends IS5Sequence<V>
    * клиент-перехватчик должен организовать логику восстановления своего состояния при откате транзакции (смотри
    * S5TransactionSingleton}.
    *
-   * @param aPrevClassInfo {@link IDpuSdClassInfo} описание редактируемого класса (старая редакция)
-   * @param aNewClassInfo {@link IDpuSdClassInfo} описание редактируемого класса (новая редакция)
-   * @param aDescendants {@link IStridablesList}&lt;IDpuSdClassInfo&gt; описания классов-потомков изменяемого класса
+   * @param aPrevClassInfo {@link IDtoClassInfo} описание редактируемого класса (старая редакция)
+   * @param aNewClassInfo {@link IDtoClassInfo} описание редактируемого класса (новая редакция)
+   * @param aDescendants {@link IStridablesList}&lt;IDtoClassInfo&gt; описания классов-потомков изменяемого класса
    * @throws TsIllegalStateRtException запрещено редактировать класс
    */
-  protected void doBeforeUpdateClass( IDpuSdClassInfo aPrevClassInfo, IDpuSdClassInfo aNewClassInfo,
-      IStridablesList<IDpuSdClassInfo> aDescendants ) {
+  protected void doBeforeUpdateClass( IDtoClassInfo aPrevClassInfo, IDtoClassInfo aNewClassInfo,
+      IStridablesList<IDtoClassInfo> aDescendants ) {
     // nop
   }
 
@@ -1140,13 +1137,13 @@ public abstract class S5BackendSequenceSupportSingleton<S extends IS5Sequence<V>
    * клиент-перехватчик должен организовать логику восстановления своего состояния при откате транзакции (смотри
    * S5TransactionSingleton}.
    *
-   * @param aPrevClassInfo {@link IDpuSdClassInfo} описание редактируемого класса (старая редакция)
-   * @param aNewClassInfo {@link IDpuSdClassInfo} описание редактируемого класса (новая редакция)
-   * @param aDescendants {@link IStridablesList}&lt;IDpuSdClassInfo&gt; описания классов-потомков измененного класса
+   * @param aPrevClassInfo {@link IDtoClassInfo} описание редактируемого класса (старая редакция)
+   * @param aNewClassInfo {@link IDtoClassInfo} описание редактируемого класса (новая редакция)
+   * @param aDescendants {@link IStridablesList}&lt;IDtoClassInfo&gt; описания классов-потомков измененного класса
    * @throws TsIllegalStateRtException отменить редактирование класса (откат транзакции)
    */
-  protected void doAfterUpdateClass( IDpuSdClassInfo aPrevClassInfo, IDpuSdClassInfo aNewClassInfo,
-      IStridablesList<IDpuSdClassInfo> aDescendants ) {
+  protected void doAfterUpdateClass( IDtoClassInfo aPrevClassInfo, IDtoClassInfo aNewClassInfo,
+      IStridablesList<IDtoClassInfo> aDescendants ) {
     // nop
   }
 
@@ -1157,10 +1154,10 @@ public abstract class S5BackendSequenceSupportSingleton<S extends IS5Sequence<V>
    * клиент-перехватчик должен организовать логику восстановления своего состояния при откате транзакции (смотри
    * S5TransactionSingleton}.
    *
-   * @param aClassInfo {@link IDpuSdClassInfo} описание удаляемого класса
+   * @param aClassInfo {@link IDtoClassInfo} описание удаляемого класса
    * @throws TsIllegalStateRtException запрещено удалять класс
    */
-  protected void doBeforeDeleteClass( IDpuSdClassInfo aClassInfo ) {
+  protected void doBeforeDeleteClass( IDtoClassInfo aClassInfo ) {
     // nop
   }
 
@@ -1171,10 +1168,10 @@ public abstract class S5BackendSequenceSupportSingleton<S extends IS5Sequence<V>
    * клиент-перехватчик должен организовать логику восстановления своего состояния при откате транзакции (смотри
    * S5TransactionSingleton}.
    *
-   * @param aClassInfo {@link IDpuSdClassInfo} описание удаленного класса
+   * @param aClassInfo {@link IDtoClassInfo} описание удаленного класса
    * @throws TsIllegalStateRtException отменить удаление класса (откат транзакции)
    */
-  protected void doAfterDeleteClass( IDpuSdClassInfo aClassInfo ) {
+  protected void doAfterDeleteClass( IDtoClassInfo aClassInfo ) {
     // nop
   }
 
@@ -1186,11 +1183,11 @@ public abstract class S5BackendSequenceSupportSingleton<S extends IS5Sequence<V>
    * S5TransactionSingleton}.
    *
    * @param aSkid {@link Skid} - идентификатор объекта
-   * @param aObj {@link IDpuObject} объект найденный ранее интерсепторами
+   * @param aObj {@link IDtoObject} объект найденный ранее интерсепторами
    * @return {@link ISkObject} - найденный объект или <code>null</code> если нет такого
    * @throws TsIllegalStateRtException запретить выполнение {@link IS5BackendObjectsSingleton#findObject(Skid)}
    */
-  protected IDpuObject doBeforeFindObject( Skid aSkid, IDpuObject aObj ) {
+  protected IDtoObject doBeforeFindObject( Skid aSkid, IDtoObject aObj ) {
     return aObj;
   }
 
@@ -1202,11 +1199,11 @@ public abstract class S5BackendSequenceSupportSingleton<S extends IS5Sequence<V>
    * S5TransactionSingleton}.
    *
    * @param aSkid {@link Skid} - идентификатор объекта
-   * @param aObj {@link IDpuObject} объект найденный ранее службой или интерсепторами
+   * @param aObj {@link IDtoObject} объект найденный ранее службой или интерсепторами
    * @return {@link ISkObject} - найденный объект или <code>null</code> если нет такого
    * @throws TsIllegalStateRtException запретить выполнение {@link IS5BackendObjectsSingleton#findObject(Skid)}
    */
-  protected IDpuObject doAfterFindObject( Skid aSkid, IDpuObject aObj ) {
+  protected IDtoObject doAfterFindObject( Skid aSkid, IDtoObject aObj ) {
     return aObj;
   }
 
@@ -1218,10 +1215,10 @@ public abstract class S5BackendSequenceSupportSingleton<S extends IS5Sequence<V>
    * S5TransactionSingleton}.
    *
    * @param aClassIds {@link IStringList} список идентификаторов классов
-   * @param aObjs {@link IListEdit}&lt;{link IDpuObject}&gt; список объектов найденных ранее интерсепторами
+   * @param aObjs {@link IListEdit}&lt;{link IDtoObject}&gt; список объектов найденных ранее интерсепторами
    * @throws TsIllegalStateRtException запретить выполнение {@link IS5BackendObjectsSingleton#readObjects(IStringList)}
    */
-  protected void doBeforeReadObjects( IStringList aClassIds, IListEdit<IDpuObject> aObjs ) {
+  protected void doBeforeReadObjects( IStringList aClassIds, IListEdit<IDtoObject> aObjs ) {
     // nop
   }
 
@@ -1233,11 +1230,11 @@ public abstract class S5BackendSequenceSupportSingleton<S extends IS5Sequence<V>
    * S5TransactionSingleton}.
    *
    * @param aClassIds {@link IStringList} список идентификаторов классов
-   * @param aObjs {@link IListEdit}&lt;{link IDpuObject}&gt; список объектов найденных ранее службой и/или
+   * @param aObjs {@link IListEdit}&lt;{link IDtoObject}&gt; список объектов найденных ранее службой и/или
    *          интерсепторами
    * @throws TsIllegalStateRtException запретить выполнение {@link IS5BackendObjectsSingleton#readObjects(IStringList)}
    */
-  protected void doAfterReadObjects( IStringList aClassIds, IListEdit<IDpuObject> aObjs ) {
+  protected void doAfterReadObjects( IStringList aClassIds, IListEdit<IDtoObject> aObjs ) {
     // nop
   }
 
@@ -1249,10 +1246,10 @@ public abstract class S5BackendSequenceSupportSingleton<S extends IS5Sequence<V>
    * S5TransactionSingleton}.
    *
    * @param aSkids {@link ISkidList} список идентификаторов объектов
-   * @param aObjs {@link IListEdit}&lt;{link IDpuObject}&gt; список объектов найденных ранее интерсепторами
+   * @param aObjs {@link IListEdit}&lt;{link IDtoObject}&gt; список объектов найденных ранее интерсепторами
    * @throws TsIllegalStateRtException запретить выполнение {@link IS5BackendObjectsSingleton#readObjects(IStringList)}
    */
-  protected void doBeforeReadObjectsByIds( ISkidList aSkids, IListEdit<IDpuObject> aObjs ) {
+  protected void doBeforeReadObjectsByIds( ISkidList aSkids, IListEdit<IDtoObject> aObjs ) {
     // nop
   }
 
@@ -1264,11 +1261,11 @@ public abstract class S5BackendSequenceSupportSingleton<S extends IS5Sequence<V>
    * S5TransactionSingleton}.
    *
    * @param aSkids {@link ISkidList} список идентификаторов объектов
-   * @param aObjs {@link IListEdit}&lt;{link IDpuObject}&gt; список объектов найденных ранее службой и/или
+   * @param aObjs {@link IListEdit}&lt;{link IDtoObject}&gt; список объектов найденных ранее службой и/или
    *          интерсепторами
    * @throws TsIllegalStateRtException запретить выполнение {@link IS5BackendObjectsSingleton#readObjects(IStringList)}
    */
-  protected void doAfterReadObjectsByIds( ISkidList aSkids, IListEdit<IDpuObject> aObjs ) {
+  protected void doAfterReadObjectsByIds( ISkidList aSkids, IListEdit<IDtoObject> aObjs ) {
     // nop
   }
 
@@ -1280,16 +1277,16 @@ public abstract class S5BackendSequenceSupportSingleton<S extends IS5Sequence<V>
    * клиент-перехватчик должен организовать логику восстановления своего состояния при откате транзакции (смотри
    * S5TransactionSingleton}.
    *
-   * @param aRemovedObjs {@link IMap}&lt;{@link ISkClassInfo},{@link IList}&lt;{@link IDpuObject}&gt;&gt; карта
+   * @param aRemovedObjs {@link IMap}&lt;{@link ISkClassInfo},{@link IList}&lt;{@link IDtoObject}&gt;&gt; карта
    *          удаляемых объектов из базы данных.<br>
    *          Ключ: Описание класса;<br>
    *          Значение: Список удаляемых объектов класса.
    * @param aUpdatedObjs
-   *          {@link IMap}&lt;{@link ISkClassInfo},{@link IList}&lt;{@link Pair}&lt;{@link IDpuObject},{@link IDpuObject}&gt;&gt;&gt;
+   *          {@link IMap}&lt;{@link ISkClassInfo},{@link IList}&lt;{@link Pair}&lt;{@link IDtoObject},{@link IDtoObject}&gt;&gt;&gt;
    *          карта объектов обновляемых в базе данных.<br>
    *          Ключ: Описание класса;<br>
    *          Значение: Список пар: {@link Pair#left()} - старое состояние , {@link Pair#right()} - новое состояние.
-   * @param aCreatedObjs {@link IMap}&lt;{@link ISkClassInfo},{@link IList}&lt;{@link IDpuObject}&gt;&gt; карта объектов
+   * @param aCreatedObjs {@link IMap}&lt;{@link ISkClassInfo},{@link IList}&lt;{@link IDtoObject}&gt;&gt; карта объектов
    *          создаваемых в базе данных.<br>
    *          Ключ: Описание класса;<br>
    *          Значение: Список создаваемых объектов класса.
@@ -1297,9 +1294,9 @@ public abstract class S5BackendSequenceSupportSingleton<S extends IS5Sequence<V>
    *           {@link IS5BackendObjectsSingleton#writeObjects(IS5FrontendRear, ISkidList, IList, boolean)}
    */
   protected void doBeforeWriteObjects( //
-      IMap<ISkClassInfo, IList<IDpuObject>> aRemovedObjs,
-      IMap<ISkClassInfo, IList<Pair<IDpuObject, IDpuObject>>> aUpdatedObjs,
-      IMap<ISkClassInfo, IList<IDpuObject>> aCreatedObjs ) {
+      IMap<ISkClassInfo, IList<IDtoObject>> aRemovedObjs,
+      IMap<ISkClassInfo, IList<Pair<IDtoObject, IDtoObject>>> aUpdatedObjs,
+      IMap<ISkClassInfo, IList<IDtoObject>> aCreatedObjs ) {
     // nop
   }
 
@@ -1311,16 +1308,16 @@ public abstract class S5BackendSequenceSupportSingleton<S extends IS5Sequence<V>
    * клиент-перехватчик должен организовать логику восстановления своего состояния при откате транзакции (смотри
    * S5TransactionSingleton}.
    *
-   * @param aRemovedObjs {@link IMap}&lt;{@link ISkClassInfo},{@link IList}&lt;{@link IDpuObject}&gt;&gt; карта
+   * @param aRemovedObjs {@link IMap}&lt;{@link ISkClassInfo},{@link IList}&lt;{@link IDtoObject}&gt;&gt; карта
    *          удаляемых объектов из базы данных.<br>
    *          Ключ: Описание класса;<br>
    *          Значение: Список удаляемых объектов класса.
    * @param aUpdatedObjs
-   *          {@link IMap}&lt;{@link ISkClassInfo},{@link IList}&lt;{@link Pair}&lt;{@link IDpuObject},{@link IDpuObject}&gt;&gt;&gt;
+   *          {@link IMap}&lt;{@link ISkClassInfo},{@link IList}&lt;{@link Pair}&lt;{@link IDtoObject},{@link IDtoObject}&gt;&gt;&gt;
    *          карта объектов обновляемых в базе данных.<br>
    *          Ключ: Описание класса;<br>
    *          Значение: Список пар: {@link Pair#left()} - старое состояние , {@link Pair#right()} - новое состояние.
-   * @param aCreatedObjs {@link IMap}&lt;{@link ISkClassInfo},{@link IList}&lt;{@link IDpuObject}&gt;&gt; карта объектов
+   * @param aCreatedObjs {@link IMap}&lt;{@link ISkClassInfo},{@link IList}&lt;{@link IDtoObject}&gt;&gt; карта объектов
    *          создаваемых в базе данных.<br>
    *          Ключ: Описание класса;<br>
    *          Значение: Список создаваемых объектов класса.
@@ -1329,9 +1326,9 @@ public abstract class S5BackendSequenceSupportSingleton<S extends IS5Sequence<V>
    *           транзакции)
    */
   protected void doAfterWriteObjects( //
-      IMap<ISkClassInfo, IList<IDpuObject>> aRemovedObjs,
-      IMap<ISkClassInfo, IList<Pair<IDpuObject, IDpuObject>>> aUpdatedObjs,
-      IMap<ISkClassInfo, IList<IDpuObject>> aCreatedObjs ) {
+      IMap<ISkClassInfo, IList<IDtoObject>> aRemovedObjs,
+      IMap<ISkClassInfo, IList<Pair<IDtoObject, IDtoObject>>> aUpdatedObjs,
+      IMap<ISkClassInfo, IList<IDtoObject>> aCreatedObjs ) {
     // nop
   }
 

@@ -6,9 +6,8 @@ import org.toxsoft.core.tslib.utils.ICloseable;
 import org.toxsoft.core.tslib.utils.errors.TsNullArgumentRtException;
 import org.toxsoft.uskat.s5.client.remote.connection.S5ClusterTopology;
 import org.toxsoft.uskat.s5.common.sessions.IS5SessionInfo;
+import org.toxsoft.uskat.s5.common.sessions.ISkSession;
 import org.toxsoft.uskat.s5.server.statistics.IS5Statistic;
-
-import ru.uskat.core.api.users.ISkSession;
 
 /**
  * Описание backend-сессии пользователя с возможностью изменения отдельных параметров

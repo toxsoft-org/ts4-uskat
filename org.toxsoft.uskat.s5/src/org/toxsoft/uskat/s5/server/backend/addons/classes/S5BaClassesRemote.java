@@ -8,10 +8,10 @@ import org.toxsoft.uskat.core.api.sysdescr.dto.IDtoClassInfo;
 import org.toxsoft.uskat.core.backend.ISkBackendHardConstant;
 import org.toxsoft.uskat.core.backend.api.IBaClasses;
 import org.toxsoft.uskat.core.backend.api.IBaClassesMessages;
-import org.toxsoft.uskat.s5.client.remote.S5BackendRemote;
 import org.toxsoft.uskat.s5.common.sysdescr.SkSysdescrReader;
+import org.toxsoft.uskat.s5.server.backend.addons.IS5BackendRemote;
 import org.toxsoft.uskat.s5.server.backend.addons.S5AbstractBackendAddonRemote;
-import org.toxsoft.uskat.s5.server.backend.messages.IS5BaAfterConnectMessages;
+import org.toxsoft.uskat.s5.server.backend.messages.S5BaAfterConnectMessages;
 
 /**
  * Remote {@link IBaClasses} implementation.
@@ -30,10 +30,10 @@ class S5BaClassesRemote
   /**
    * Constructor.
    *
-   * @param aOwner {@link S5BackendRemote} - the owner backend
+   * @param aOwner {@link IS5BackendRemote} - the owner backend
    * @throws TsNullArgumentRtException any argument = <code>null</code>
    */
-  public S5BaClassesRemote( S5BackendRemote aOwner ) {
+  public S5BaClassesRemote( IS5BackendRemote aOwner ) {
     super( aOwner, ISkBackendHardConstant.BAINF_CLASSES, IS5BaClassesSession.class );
     // Читатель системного описания
     sysdescrReader = new SkSysdescrReader( () -> session().readClassInfos() );
@@ -44,7 +44,7 @@ class S5BaClassesRemote
   //
   @Override
   public void onBackendMessage( GtMessage aMessage ) {
-    if( aMessage.messageId().equals( IS5BaAfterConnectMessages.MSGID ) ) {
+    if( aMessage.messageId().equals( S5BaAfterConnectMessages.MSG_ID ) ) {
       // Подключение к серверу, обработка полученных классов
       sysdescrReader
           .setClassInfos( owner().sessionInitResult().getBaData( id(), S5BaClassesInitResult.class ).classInfos );

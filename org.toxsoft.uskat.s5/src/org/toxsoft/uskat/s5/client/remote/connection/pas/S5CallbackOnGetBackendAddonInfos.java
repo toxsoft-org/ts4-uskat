@@ -17,6 +17,7 @@ import org.toxsoft.core.tslib.coll.primtypes.impl.StringMap;
 import org.toxsoft.core.tslib.utils.errors.TsNullArgumentRtException;
 import org.toxsoft.uskat.core.backend.ISkFrontendRear;
 import org.toxsoft.uskat.s5.server.backend.addons.IS5BackendAddon;
+import org.toxsoft.uskat.s5.server.backend.addons.IS5BackendAddonCreator;
 
 /**
  * Обратный вызов сервера: передача списка описаний аддонов {@link IS5BackendAddon} бекенда поддерживаемых сервером
@@ -48,20 +49,20 @@ public abstract class S5CallbackOnGetBackendAddonInfos
    * Отправляет сообщение по каналу {@link PasChannel}
    *
    * @param aChannel {@link IPasTxChannel} канал передачи
-   * @param aBackendAddons {@link IStridablesList}&lt;{@link IS5BackendAddon}&gt; список расширений бекенда
-   *          поддерживаемых сервером
+   * @param aBackendAddonCreators {@link IStridablesList}&lt;{@link IS5BackendAddonCreator}&gt; список построителей
+   *          расширений бекенда поддерживаемых сервером
    * @throws TsNullArgumentRtException любой аргумент = null
    */
-  public static void send( IPasTxChannel aChannel, IStridablesList<IS5BackendAddon> aBackendAddons ) {
-    TsNullArgumentRtException.checkNulls( aChannel, aBackendAddons );
-    IStringList addonIds = aBackendAddons.ids();
-    IStringListEdit addonClassNames = new StringLinkedBundleList();
-    for( IS5BackendAddon addon : aBackendAddons ) {
-      addonClassNames.add( addon.getClass().getName() );
+  public static void send( IPasTxChannel aChannel, IStridablesList<IS5BackendAddonCreator> aBackendAddonCreators ) {
+    TsNullArgumentRtException.checkNulls( aChannel, aBackendAddonCreators );
+    IStringList baCreatorIds = aBackendAddonCreators.ids();
+    IStringListEdit baCreatorClassNames = new StringLinkedBundleList();
+    for( IS5BackendAddonCreator baCreator : aBackendAddonCreators ) {
+      baCreatorClassNames.add( baCreator.getClass().getName() );
     }
     IStringMapEdit<ITjValue> notifyParams = new StringMap<>();
-    notifyParams.put( ADDON_IDS, createString( StringListKeeper.KEEPER.ent2str( addonIds ) ) );
-    notifyParams.put( ADDON_CLASS_NAMES, createString( StringListKeeper.KEEPER.ent2str( addonClassNames ) ) );
+    notifyParams.put( ADDON_IDS, createString( StringListKeeper.KEEPER.ent2str( baCreatorIds ) ) );
+    notifyParams.put( ADDON_CLASS_NAMES, createString( StringListKeeper.KEEPER.ent2str( baCreatorClassNames ) ) );
     // Передача по каналу
     aChannel.sendNotification( ON_GET_BACKEND_ADDON_INFOS_METHOD, notifyParams );
   }

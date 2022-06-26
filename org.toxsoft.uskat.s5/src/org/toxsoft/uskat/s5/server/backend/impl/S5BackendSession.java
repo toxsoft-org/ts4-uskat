@@ -1,6 +1,5 @@
 package org.toxsoft.uskat.s5.server.backend.impl;
 
-import static java.lang.String.*;
 import static org.toxsoft.core.log4j.LoggerWrapper.*;
 import static org.toxsoft.core.tslib.av.impl.AvUtils.*;
 import static org.toxsoft.uskat.s5.client.IS5ConnectionParams.*;
@@ -10,9 +9,10 @@ import static org.toxsoft.uskat.s5.server.IS5ServerHardConstants.*;
 import static org.toxsoft.uskat.s5.server.backend.impl.IS5Resources.*;
 import static org.toxsoft.uskat.s5.server.sessions.cluster.S5ClusterCommandCloseCallback.*;
 import static org.toxsoft.uskat.s5.server.sessions.cluster.S5ClusterCommandCreateCallback.*;
-import static ru.uskat.core.api.users.ISkSession.*;
 
 import java.rmi.RemoteException;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.Properties;
 import java.util.concurrent.TimeUnit;
 
@@ -26,28 +26,35 @@ import org.toxsoft.core.tslib.av.IAtomicValue;
 import org.toxsoft.core.tslib.av.opset.IOptionSet;
 import org.toxsoft.core.tslib.av.opset.IOptionSetEdit;
 import org.toxsoft.core.tslib.av.opset.impl.OptionSet;
+import org.toxsoft.core.tslib.bricks.ctx.ITsContextRo;
 import org.toxsoft.core.tslib.bricks.strid.coll.IStridablesList;
 import org.toxsoft.core.tslib.bricks.time.impl.TimeUtils;
 import org.toxsoft.core.tslib.bricks.time.impl.TimedList;
 import org.toxsoft.core.tslib.coll.IList;
+import org.toxsoft.core.tslib.coll.IListEdit;
 import org.toxsoft.core.tslib.coll.impl.ElemArrayList;
-import org.toxsoft.core.tslib.coll.primtypes.*;
+import org.toxsoft.core.tslib.coll.impl.ElemLinkedList;
+import org.toxsoft.core.tslib.coll.primtypes.IStringMap;
+import org.toxsoft.core.tslib.coll.primtypes.IStringMapEdit;
 import org.toxsoft.core.tslib.coll.primtypes.impl.StringMap;
 import org.toxsoft.core.tslib.gw.gwid.Gwid;
-import org.toxsoft.core.tslib.gw.gwid.IGwidList;
 import org.toxsoft.core.tslib.gw.skid.ISkidList;
 import org.toxsoft.core.tslib.gw.skid.Skid;
 import org.toxsoft.core.tslib.utils.errors.*;
-import org.toxsoft.core.tslib.utils.logs.ELogSeverity;
 import org.toxsoft.core.tslib.utils.logs.ILogger;
+import org.toxsoft.uskat.core.ISkServiceCreator;
 import org.toxsoft.uskat.core.api.evserv.SkEvent;
+import org.toxsoft.uskat.core.api.objserv.IDtoObject;
 import org.toxsoft.uskat.core.api.users.ISkUser;
-import org.toxsoft.uskat.core.backend.api.ISkBackendInfo;
-import org.toxsoft.uskat.core.impl.S5EventSupport;
+import org.toxsoft.uskat.core.backend.ISkFrontendRear;
+import org.toxsoft.uskat.core.backend.api.*;
+import org.toxsoft.uskat.core.impl.AbstractSkService;
 import org.toxsoft.uskat.core.impl.SkBackendInfo;
+import org.toxsoft.uskat.core.impl.dto.DtoObject;
 import org.toxsoft.uskat.s5.client.remote.connection.S5ClusterTopology;
 import org.toxsoft.uskat.s5.common.sessions.IS5SessionInfo;
 import org.toxsoft.uskat.s5.common.sessions.ISkSession;
+import org.toxsoft.uskat.s5.legacy.ISkSystem;
 import org.toxsoft.uskat.s5.server.backend.*;
 import org.toxsoft.uskat.s5.server.backend.addons.*;
 import org.toxsoft.uskat.s5.server.backend.supports.events.IS5BackendEventSingleton;
@@ -60,13 +67,6 @@ import org.toxsoft.uskat.s5.server.frontend.IS5FrontendRear;
 import org.toxsoft.uskat.s5.server.sessions.*;
 import org.toxsoft.uskat.s5.server.sessions.init.*;
 import org.toxsoft.uskat.s5.server.sessions.pas.S5SessionCallbackWriter;
-
-import ru.uskat.common.dpu.*;
-import ru.uskat.common.dpu.impl.DpuObject;
-import ru.uskat.core.api.ISkExtServicesProvider;
-import ru.uskat.core.api.ISkSystem;
-import ru.uskat.core.impl.SkUserService;
-import ru.uskat.legacy.IdPair;
 
 /**
  * Абстрактная реализация сессии {@link IS5Backend}.
@@ -154,7 +154,7 @@ public class S5BackendSession
    * <p>
    * Прямой доступ запрещен(transient), используйте {@link #session()}
    */
-  private transient IS5BackendSession session;
+  private transient IS5BackendSession selfSession;
 
   /**
    * Карта локального доступа к расширениям.
@@ -162,7 +162,7 @@ public class S5BackendSession
    * Ключ: идентификатор расширения;<br>
    * Значение: локальный доступ к расширению.
    */
-  private final IStringMapEdit<IS5BackendAddonSessionControl> addonSessions = new StringMap<>();
+  private final IStringMapEdit<IS5BackendAddonSessionControl> baSessionControls = new StringMap<>();
 
   /**
    * Признак того, что сессия готова к удалению
@@ -291,7 +291,7 @@ public class S5BackendSession
         throw new S5AccessDeniedException( ERR_WRONG_USER );
       }
       // Пользователь системы
-      IDpuObject user = objectsBackend.findObject( new Skid( ISkUser.CLASS_ID, login ) );
+      IDtoObject user = objectsBackend.findObject( new Skid( ISkUser.CLASS_ID, login ) );
       if( user == null ) {
         // Доступ запрещен - неверное имя пользователя или пароль
         Gwid eventGwid = Gwid.createEvent( ISkSystem.CLASS_ID, ISkSystem.THIS_SYSTEM, ISkSystem.EVID_LOGIN_FAILED );
@@ -302,10 +302,14 @@ public class S5BackendSession
         eventBackend.fireAsyncEvents( IS5FrontendRear.NULL, new TimedList<>( event ) );
         throw new S5AccessDeniedException( ERR_WRONG_USER );
       }
+      // TODO:
+      String ATRID_PASSWORD = "passwd";// ISkUser.ATRID_PASSWORD
       // Пароль или его хэшкод пользователя
-      String userPswd = user.attrs().getValue( ISkUser.ATRID_PASSWORD ).asString();
+      String userPswd = user.attrs().getValue( ATRID_PASSWORD ).asString();
       // Хэшкод пароля
-      String pswdHashCode = SkUserService.getPasswordHashCode( pswd );
+      // TODO:
+      // String pswdHashCode = SkUserService.getPasswordHashCode( pswd );
+      String pswdHashCode = getPasswordHashCode( pswd );
       // Пароль указан в "сыром" виде
       boolean isPlainPswd = userPswd.equals( pswd );
       // Пароль указан в виде хэшкода
@@ -322,8 +326,8 @@ public class S5BackendSession
       if( isPlainPswd ) {
         // Формируем для пароля hashCode
         IOptionSetEdit attrs = new OptionSet( user.attrs() );
-        attrs.setValue( ISkUser.ATRID_PASSWORD, avStr( pswdHashCode ) );
-        IDpuObject dpu = new DpuObject( user.skid(), attrs );
+        attrs.setValue( ATRID_PASSWORD, avStr( pswdHashCode ) );
+        IDtoObject dpu = new DtoObject( user.skid(), attrs, user.rivets().map() );
         objectsBackend.writeObjects( IS5FrontendRear.NULL, ISkidList.EMPTY, new ElemArrayList<>( dpu ), false );
         logger().warning( "init(...): write password hashcode" ); //$NON-NLS-1$
       }
@@ -354,15 +358,15 @@ public class S5BackendSession
       Context context = new InitialContext( prop );
       try {
         // Доступные расширения бекенда предоставляемые сервером
-        IStridablesList<IS5BackendAddonLegacy> addons =
-            backendCoreSingleton.initialConfig().impl().getBackendAddonsProvider().baCreators();
-        for( String addonId : addons.keys() ) {
-          IS5BackendAddonSessionControl addonSession = addons.getByKey( addonId ).createSession( context );
-          if( addonSession == null ) {
+        IStridablesList<IS5BackendAddonCreator> baCreators = backendCoreSingleton.initialConfig().impl().baCreators();
+        for( String baCreatorId : baCreators.keys() ) {
+          IS5BackendAddonSessionControl addonSessionControl =
+              baCreators.getByKey( baCreatorId ).createSessionControl( context );
+          if( addonSessionControl == null ) {
             // Расширение не работает с сессиями
             continue;
           }
-          addonSessions.put( addonSession.id(), addonSession );
+          baSessionControls.put( addonSessionControl.id(), addonSessionControl );
         }
       }
       finally {
@@ -393,22 +397,19 @@ public class S5BackendSession
 
       // 2021-04-10 mvk
       // Сохранение информации о пользователе в кэше
-      // sessionManager.createRemoteSession( session );
+      // sessionManager.createRemoteSession( selfSession );
 
       // Результат инициализации сессии
       S5SessionInitResult initResult = new S5SessionInitResult();
       // Текущие типы и классы
-      initResult.setTypeInfos( sysdescrBackend.readTypeInfos() );
-      initResult.setClassInfos( sysdescrBackend.readClassInfos() );
+      initResult.getBaData( IBaClasses.ADDON_ID, null );
       // Метка времени начала инициализации расширений сессии
       long addonsInitStartTime = System.currentTimeMillis();
       // Инициализация сессии данными клиента
-      initResult.setAddons( getRemoteReferences( addonSessions ) );
-      // Подписка на события в сессии
-      session.frontendData().events().setNeededEventGwids( aInitData.eventGwids() );
+      initResult.setAddons( getRemoteReferences( baSessionControls ) );
       // Инициализация расширений службы
-      for( String addonId : addonSessions.keys() ) {
-        IS5BackendAddonSessionControl addonSession = addonSessions.getByKey( addonId );
+      for( String addonId : baSessionControls.keys() ) {
+        IS5BackendAddonSessionControl addonSession = baSessionControls.getByKey( addonId );
         try {
           addonSession.init( control(), callbackWriter, aInitData, initResult );
         }
@@ -472,12 +473,13 @@ public class S5BackendSession
     sessionManager.updateRemoteSession( session );
     try {
       // Сохранение топологии в ISkSession
-      IDpuObject obj = objectsBackend.findObject( sessionID );
+      IDtoObject obj = objectsBackend.findObject( sessionID );
       IOptionSetEdit attrs = new OptionSet( obj.attrs() );
-      IOptionSetEdit backendSpecificParams = new OptionSet( attrs.getValobj( ATRID_BACKEND_SPECIFIC_PARAMS ) );
+      IOptionSetEdit backendSpecificParams =
+          new OptionSet( attrs.getValobj( ISkSession.ATRID_BACKEND_SPECIFIC_PARAMS ) );
       OP_SESSION_CLUSTER_TOPOLOGY.setValue( backendSpecificParams, avValobj( aClusterTopology ) );
-      attrs.setValobj( ATRID_BACKEND_SPECIFIC_PARAMS, backendSpecificParams );
-      IDpuObject dpu = new DpuObject( sessionID, attrs );
+      attrs.setValobj( ISkSession.ATRID_BACKEND_SPECIFIC_PARAMS, backendSpecificParams );
+      IDtoObject dpu = new DtoObject( sessionID, attrs, obj.rivets().map() );
       // Создание объекта сессия. false: интерсепция запрещена
       objectsBackend.writeObjects( IS5FrontendRear.NULL, ISkidList.EMPTY, new ElemArrayList<>( dpu ), false );
     }
@@ -492,9 +494,9 @@ public class S5BackendSession
   public void verify() {
     // Начало проверки работы сессии
     logger().info( MSG_SESSION_VERIFY_START, sessionID );
-    for( String addonId : addonSessions.keys() ) {
+    for( String addonId : baSessionControls.keys() ) {
       try {
-        IS5BackendAddonSessionControl addonSession = addonSessions.getByKey( addonId );
+        IS5BackendAddonSessionControl addonSession = baSessionControls.getByKey( addonId );
         addonSession.verify();
       }
       catch( NoSuchEJBException e ) {
@@ -510,31 +512,6 @@ public class S5BackendSession
     }
     // Завершение проверки работы сессии
     logger().info( MSG_SESSION_VERIFY_FINISH, sessionID );
-  }
-
-  @Override
-  @TransactionAttribute( TransactionAttributeType.REQUIRED )
-  public void close( Skid aSessionID ) {
-    TsIllegalStateRtException.checkNull( aSessionID );
-    S5RemoteSession session = sessionManager.findSession( aSessionID );
-    if( session == null ) {
-      // Сессия не найдена
-      throw new TsIllegalArgumentRtException( ERR_SESSION_NOT_FOUND, aSessionID );
-    }
-    if( session.info().closeTime() != TimeUtils.MAX_TIMESTAMP ) {
-      // Сессия уже завершена
-      throw new TsIllegalArgumentRtException( ERR_SESSION_ALREADY_CLOSED, aSessionID );
-    }
-    if( !aSessionID.equals( sessionID ) ) {
-      // TODO: здесь можно проверить права доступа на завершение чужой сессии
-    }
-    // Установка признака: завершение сессии по инициативе пользователя
-    session.info().setCloseByRemote( true );
-    sessionManager.updateRemoteSession( session );
-    // 2020-10-15 mvk
-    // Асинронное удаление сессии
-    // control().removeAsync();
-    session.backend().removeAsync();
   }
 
   // ------------------------------------------------------------------------------------
@@ -581,9 +558,9 @@ public class S5BackendSession
       // Запуск процесса на удаление сессии
       logger().info( MSG_BEFORE_REMOVE_SESSION, sessionID );
       // Завершение работы расширений
-      for( String addonId : addonSessions.keys() ) {
+      for( String addonId : baSessionControls.keys() ) {
         try {
-          IS5BackendAddonSessionControl addonSession = addonSessions.getByKey( addonId );
+          IS5BackendAddonSessionControl addonSession = baSessionControls.getByKey( addonId );
           addonSession.close();
         }
         catch( Throwable e ) {
@@ -626,7 +603,7 @@ public class S5BackendSession
 
   @Override
   @TransactionAttribute( TransactionAttributeType.SUPPORTS )
-  public ISkBackendInfo getInfo() {
+  public ISkBackendInfo getBackendInfo() {
     // Запрос текущей информации о сервере (backend)
     ISkBackendInfo info = backendCoreSingleton.getInfo();
     // Формирование информации сессии
@@ -634,181 +611,69 @@ public class S5BackendSession
     return retValue;
   }
 
-  // ------------------------------------------------------------------------------------
-  // Реализация ISkBackend - system description
-  //
   @Override
-  @TransactionAttribute( TransactionAttributeType.SUPPORTS )
-  public IStridablesList<IDpuSdTypeInfo> readTypeInfos() {
-    return sysdescrBackend.getReader().readTypeInfos();
+  public ISkFrontendRear frontend() {
+    return sessionManager.getCallbackWriter( sessionID );
   }
 
   @Override
-  @TransactionAttribute( TransactionAttributeType.REQUIRED )
-  public void writeTypeInfos( IStringList aRemoveTypeIds, IList<IDpuSdTypeInfo> aNewlyDefinedTypeInfos ) {
-    TsNullArgumentRtException.checkNulls( aRemoveTypeIds, aNewlyDefinedTypeInfos );
-    sysdescrBackend.writeTypeInfos( aRemoveTypeIds, aNewlyDefinedTypeInfos );
+  public ITsContextRo openArgs() {
+    // TODO: нет возможности передать на удаленный бекенд ITsContextRo - из-за наличия в нем references. Что можно
+    // сделать?
+    throw new TsUnsupportedFeatureRtException();
+    // return sessionManager.findSession( sessionID ).info().clientOptions();
   }
 
   @Override
-  @TransactionAttribute( TransactionAttributeType.SUPPORTS )
-  public IStridablesList<IDpuSdClassInfo> readClassInfos() {
-    return sysdescrBackend.getReader().readClassInfos();
+  public IBaClasses baClasses() {
+    return findBackendAddon( IBaClasses.ADDON_ID, IBaClasses.class );
   }
 
   @Override
-  @TransactionAttribute( TransactionAttributeType.REQUIRED )
-  public void writeClassInfos( IStringList aRemoveClassIds, IStridablesList<IDpuSdClassInfo> aUpdateClassInfos ) {
-    TsNullArgumentRtException.checkNulls( aRemoveClassIds, aUpdateClassInfos );
-    sysdescrBackend.writeClassInfos( aRemoveClassIds, aUpdateClassInfos );
-  }
-
-  // ------------------------------------------------------------------------------------
-  // Реализация ISkBackend - objects management
-  //
-  @Override
-  @TransactionAttribute( TransactionAttributeType.SUPPORTS )
-  public IDpuObject findObject( Skid aSkid ) {
-    TsNullArgumentRtException.checkNull( aSkid );
-    return objectsBackend.findObject( aSkid );
+  public IBaObjects baObjects() {
+    return findBackendAddon( IBaObjects.ADDON_ID, IBaObjects.class );
   }
 
   @Override
-  @TransactionAttribute( TransactionAttributeType.SUPPORTS )
-  public IList<IDpuObject> readObjects( IStringList aClassIds ) {
-    TsNullArgumentRtException.checkNull( aClassIds );
-    // Некоторые типы реализации IList (например, ElemLinkedList) дают сбой сериализации на больших коллекциях
-    return new ElemArrayList<>( objectsBackend.readObjects( aClassIds ) );
+  public IBaLinks baLinks() {
+    return findBackendAddon( IBaLinks.ADDON_ID, IBaLinks.class );
   }
 
   @Override
-  @TransactionAttribute( TransactionAttributeType.SUPPORTS )
-  public IList<IDpuObject> readObjectsByIds( ISkidList aSkids ) {
-    TsNullArgumentRtException.checkNull( aSkids );
-    // Некоторые типы реализации IList (например, ElemLinkedList) дают сбой сериализации на больших коллекциях
-    return new ElemArrayList<>( objectsBackend.readObjectsByIds( aSkids ) );
+  public IBaEvents baEvents() {
+    return findBackendAddon( IBaEvents.ADDON_ID, IBaEvents.class );
   }
 
   @Override
-  @TransactionAttribute( TransactionAttributeType.REQUIRED )
-  public void writeObjects( ISkidList aRemovedSkids, IList<IDpuObject> aObjects ) {
-    TsNullArgumentRtException.checkNulls( aRemovedSkids, aObjects );
-    // Передатчик обратных вызовов (frontend)
-    S5SessionCallbackWriter callbackWriter = sessionManager.getCallbackWriter( sessionID );
-    // aInterceptable = true
-    objectsBackend.writeObjects( callbackWriter, aRemovedSkids, aObjects, true );
-  }
-
-  // ------------------------------------------------------------------------------------
-  // Реализация ISkBackend - links management
-  //
-  @Override
-  @TransactionAttribute( TransactionAttributeType.SUPPORTS )
-  public IDpuLinkFwd findLink( String aClassId, String aLinkId, Skid aLeftSkid ) {
-    TsNullArgumentRtException.checkNulls( aClassId, aLinkId, aLeftSkid );
-    return linksBackend.findLink( aClassId, aLinkId, aLeftSkid );
+  public IBaClobs baClobs() {
+    return findBackendAddon( IBaClobs.ADDON_ID, IBaClobs.class );
   }
 
   @Override
-  @TransactionAttribute( TransactionAttributeType.SUPPORTS )
-  public IDpuLinkFwd readLink( String aClassId, String aLinkId, Skid aLeftSkid ) {
-    TsNullArgumentRtException.checkNulls( aClassId, aLinkId, aLeftSkid );
-    return linksBackend.readLink( aClassId, aLinkId, aLeftSkid );
+  public IBaRtdata baRtdata() {
+    return findBackendAddon( IBaRtdata.ADDON_ID, IBaRtdata.class );
   }
 
   @Override
-  @TransactionAttribute( TransactionAttributeType.SUPPORTS )
-  public IDpuLinkRev readReverseLink( String aClassId, String aLinkId, Skid aRightSkid, IStringList aLeftClassIds ) {
-    TsNullArgumentRtException.checkNulls( aClassId, aLinkId, aRightSkid, aLeftClassIds );
-    return linksBackend.readReverseLink( aClassId, aLinkId, aRightSkid, aLeftClassIds );
+  public IBaCommands baCommands() {
+    return findBackendAddon( IBaCommands.ADDON_ID, IBaCommands.class );
   }
 
   @Override
-  @TransactionAttribute( TransactionAttributeType.REQUIRED )
-  public void writeLink( IDpuLinkFwd aLink ) {
-    TsNullArgumentRtException.checkNull( aLink );
-    linksBackend.writeLink( aLink );
-  }
-
-  @Override
-  public void writeLinks( IList<IDpuLinkFwd> aLinks ) {
-    TsNullArgumentRtException.checkNull( aLinks );
-    linksBackend.writeLinks( aLinks, true );
-  }
-
-  @Override
-  @TransactionAttribute( TransactionAttributeType.SUPPORTS )
-  public IList<IdPair> listLobIds() {
-    return lobsBackend.listLobIds();
-  }
-
-  @Override
-  @TransactionAttribute( TransactionAttributeType.REQUIRED )
-  public void writeClob( IdPair aId, String aData ) {
-    TsNullArgumentRtException.checkNulls( aId, aData );
-    lobsBackend.writeClob( aId, aData );
-  }
-
-  @Override
-  public boolean copyClob( IdPair aSourceId, IdPair aDestId ) {
-    TsNullArgumentRtException.checkNulls( aSourceId, aDestId );
-    return lobsBackend.copyClob( aSourceId, aDestId );
-  }
-
-  @Override
-  @TransactionAttribute( TransactionAttributeType.SUPPORTS )
-  public String readClob( IdPair aId ) {
-    TsNullArgumentRtException.checkNull( aId );
-    return lobsBackend.readClob( aId );
-  }
-
-  @Override
-  @TransactionAttribute( TransactionAttributeType.REQUIRED )
-  public void removeLob( IdPair aId ) {
-    TsNullArgumentRtException.checkNull( aId );
-    lobsBackend.removeClob( aId );
-  }
-
-  @Override
-  @TransactionAttribute( TransactionAttributeType.SUPPORTS )
-  public void setNeededEventGwids( IGwidList aNeededGwids ) {
-    TsNullArgumentRtException.checkNull( aNeededGwids );
-    // Писатель обратных вызовов сессии
-    S5SessionCallbackWriter callbackWriter = sessionManager.getCallbackWriter( sessionID );
-    // Сессия связанная с писателем обратных вызовов
-    S5RemoteSession session = callbackWriter.session();
-    // Поддержка подписки на события в сессии
-    S5EventSupport eventSupport = callbackWriter.frontendData().events();
-    // Реконфигурация набора
-    eventSupport.setNeededEventGwids( aNeededGwids );
-    // Сохранение измененной сессии в кэше
-    sessionManager.updateRemoteSession( session );
-    if( logger().isSeverityOn( ELogSeverity.INFO ) || logger().isSeverityOn( ELogSeverity.DEBUG ) ) {
-      IGwidList eventIds = eventSupport.gwids();
-      // Вывод в журнал информации о регистрации ресурсов в сессии
-      StringBuilder sb = new StringBuilder();
-      sb.append( format( "setNeededEventGwids(...): sessionID = %s, changed resources:", sessionID ) ); //$NON-NLS-1$
-      sb.append( format( "\n   === events (%d) === ", Integer.valueOf( eventIds.size() ) ) ); //$NON-NLS-1$
-      for( Gwid gwid : eventIds ) {
-        sb.append( format( "\n   %s", gwid ) ); //$NON-NLS-1$
-      }
-      logger().info( sb.toString() );
+  public IList<ISkServiceCreator<? extends AbstractSkService>> listBackendServicesCreators() {
+    IStridablesList<IS5BackendAddonCreator> baCreators = backendCoreSingleton.initialConfig().impl().baCreators();
+    IListEdit<ISkServiceCreator<? extends AbstractSkService>> retValue = new ElemLinkedList<>();
+    for( IS5BackendAddonCreator baCreator : baCreators ) {
+      retValue.add( baCreator.serviceCreator() );
     }
-
+    return retValue;
   }
 
   @Override
-  @TransactionAttribute( TransactionAttributeType.SUPPORTS )
-  public ISkExtServicesProvider getExtServicesProvider() {
-    return backendCoreSingleton.initialConfig().impl().getExtServicesProvider();
-  }
-
-  @Override
-  @TransactionAttribute( TransactionAttributeType.SUPPORTS )
-  public <T> T getBackendAddon( String aAddonId, Class<T> aAddonInterface ) {
-    TsNullArgumentRtException.checkNulls( aAddonId, aAddonInterface );
+  public <T> T findBackendAddon( String aAddonId, Class<T> aExpectedType ) {
+    TsNullArgumentRtException.checkNulls( aAddonId, aExpectedType );
     try {
-      return aAddonInterface.cast( addonSessions.findByKey( aAddonId ) );
+      return aExpectedType.cast( baSessionControls.findByKey( aAddonId ) );
     }
     catch( Exception ex ) {
       throw new TsIllegalArgumentRtException( ex, ex.getMessage() );
@@ -816,8 +681,63 @@ public class S5BackendSession
   }
 
   // ------------------------------------------------------------------------------------
+  // Открытые вспомогательные методы
+  //
+  /**
+   * Возвращает 128-битный хэш-код указанного пароля
+   *
+   * @param aPassword String пароль
+   * @return String хэш-код
+   * @throws TsNullArgumentRtException аргумент = null
+   * @deprecated TODO: метод вероятно должен быть в SkCoreServUsers как и раньше
+   */
+  @Deprecated
+  public static String getPasswordHashCode( String aPassword ) {
+    TsNullArgumentRtException.checkNull( aPassword );
+    MessageDigest md;
+    try {
+      md = MessageDigest.getInstance( "MD5" ); //$NON-NLS-1$
+    }
+    catch( NoSuchAlgorithmException e ) {
+      throw new TsInternalErrorRtException( e );
+    }
+    md.update( aPassword.getBytes() );
+    byte[] digest = md.digest();
+    StringBuilder sb = new StringBuilder( digest.length * 2 );
+    for( byte b : digest ) {
+      sb.append( String.format( "%02x", Byte.valueOf( b ) ) ); //$NON-NLS-1$
+    }
+    return sb.toString();
+  }
+
+  // ------------------------------------------------------------------------------------
   // Внутренние методы
   //
+  // @Override
+  // @TransactionAttribute( TransactionAttributeType.REQUIRED )
+  private void close( Skid aSessionID ) {
+    TsIllegalStateRtException.checkNull( aSessionID );
+    S5RemoteSession session = sessionManager.findSession( aSessionID );
+    if( session == null ) {
+      // Сессия не найдена
+      throw new TsIllegalArgumentRtException( ERR_SESSION_NOT_FOUND, aSessionID );
+    }
+    if( session.info().closeTime() != TimeUtils.MAX_TIMESTAMP ) {
+      // Сессия уже завершена
+      throw new TsIllegalArgumentRtException( ERR_SESSION_ALREADY_CLOSED, aSessionID );
+    }
+    if( !aSessionID.equals( sessionID ) ) {
+      // TODO: здесь можно проверить права доступа на завершение чужой сессии
+    }
+    // Установка признака: завершение сессии по инициативе пользователя
+    session.info().setCloseByRemote( true );
+    sessionManager.updateRemoteSession( session );
+    // 2020-10-15 mvk
+    // Асинронное удаление сессии
+    // control().removeAsync();
+    session.backend().removeAsync();
+  }
+
   /**
    * Возвращает ссылку на управление (собственный локальный интерфейс).
    *
@@ -836,10 +756,10 @@ public class S5BackendSession
    * @return {@link IS5BackendSession} собственный удаленный интерфейс
    */
   private IS5BackendSession session() {
-    if( session == null ) {
-      session = sessionContext.getBusinessObject( IS5BackendSession.class );
+    if( selfSession == null ) {
+      selfSession = sessionContext.getBusinessObject( IS5BackendSession.class );
     }
-    return session;
+    return selfSession;
   }
 
   /**

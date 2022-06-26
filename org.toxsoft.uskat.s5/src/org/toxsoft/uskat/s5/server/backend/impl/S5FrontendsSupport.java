@@ -8,11 +8,10 @@ import org.toxsoft.core.tslib.coll.IListEdit;
 import org.toxsoft.core.tslib.coll.impl.ElemArrayList;
 import org.toxsoft.core.tslib.utils.errors.TsNullArgumentRtException;
 import org.toxsoft.core.tslib.utils.logs.ILogger;
+import org.toxsoft.uskat.core.backend.ISkFrontendRear;
 import org.toxsoft.uskat.s5.server.backend.IS5FrontendAttachable;
 import org.toxsoft.uskat.s5.server.frontend.IS5FrontendRear;
 import org.toxsoft.uskat.s5.utils.threads.impl.S5Lockable;
-
-import ru.uskat.backend.ISkFrontendRear;
 
 /**
  * Поддержка работы с {@link ISkFrontendRear}

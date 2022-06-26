@@ -4,12 +4,11 @@ import javax.ejb.Local;
 
 import org.toxsoft.core.tslib.utils.errors.TsIllegalStateRtException;
 import org.toxsoft.core.tslib.utils.errors.TsNullArgumentRtException;
+import org.toxsoft.uskat.core.api.evserv.SkEvent;
+import org.toxsoft.uskat.core.connection.ISkConnection;
 import org.toxsoft.uskat.s5.server.backend.IS5BackendCoreSingleton;
 import org.toxsoft.uskat.s5.server.interceptors.IS5Interceptor;
 import org.toxsoft.uskat.s5.server.interceptors.S5InterceptorSupport;
-
-import ru.uskat.common.dpu.rt.events.SkEvent;
-import ru.uskat.core.connection.ISkConnection;
 
 /**
  * Перехватчик операций ядра backend.

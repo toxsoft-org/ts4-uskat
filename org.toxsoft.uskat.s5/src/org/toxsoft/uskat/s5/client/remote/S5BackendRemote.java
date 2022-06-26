@@ -20,7 +20,7 @@ import org.toxsoft.uskat.s5.server.sessions.init.IS5SessionInitResult;
  */
 public final class S5BackendRemote
     extends S5AbstractBackend<IS5BackendAddonRemote>
-    implements IS5ConnectionListener {
+    implements IS5BackendRemote, IS5ConnectionListener {
 
   /**
    * Соединение с s5-сервером
@@ -40,12 +40,12 @@ public final class S5BackendRemote
   /**
    * Конструктор backend
    *
-   * @param aArgs {@link ITsContextRo} аргументы (ссылки и опции) создания бекенда
    * @param aFrontend {@link ISkFrontendRear} фронтенд, для которого создается бекенд
+   * @param aArgs {@link ITsContextRo} аргументы (ссылки и опции) создания бекенда
    * @throws TsNullArgumentRtException аргумент = null
    */
-  public S5BackendRemote( ITsContextRo aArgs, ISkFrontendRear aFrontend ) {
-    super( aArgs, aFrontend );
+  public S5BackendRemote( ISkFrontendRear aFrontend, ITsContextRo aArgs ) {
+    super( aFrontend, aArgs );
     // Создание соединения
     connection = new S5Connection( sessionID(), classLoader(), frontend(), frontendLock() );
     connection.addConnectionListener( this );
@@ -56,28 +56,14 @@ public final class S5BackendRemote
   }
 
   // ------------------------------------------------------------------------------------
-  // Открытое API
+  // IS5BackendRemote
   //
-  /**
-   * Возвращает результат подключения к серверу
-   *
-   * @return {@link IS5SessionInitResult} результат инициализации сессии
-   */
+  @Override
   public IS5SessionInitResult sessionInitResult() {
     return connection.sessionInitResult();
   }
 
-  /**
-   * Возвращает сессию расширения бекенда на сервере
-   *
-   * @param aAddonId String - идентификатор (ИД-путь) расширения
-   * @param aAddonSessionClass - класс сессии расширения бекенда
-   * @return SESSION удаленный доступ к расширению
-   * @param <SESSION> тип возвращаемого доступа
-   * @throws TsNullArgumentRtException любой аргумент = null
-   * @throws TsIllegalArgumentRtException не найден удаленный доступ
-   * @throws TsIllegalArgumentRtException ошибка приведения типа доступа к указанному интерфейсу
-   */
+  @Override
   public <SESSION extends IS5BackendAddonSession> SESSION getBaSession( String aAddonId,
       Class<SESSION> aAddonSessionClass ) {
     TsNullArgumentRtException.checkNulls( aAddonId, aAddonSessionClass );
@@ -123,22 +109,22 @@ public final class S5BackendRemote
       // Создание расширений используемых клиентом (определяется наличием jar-расширения в classpath клиента)
       allAddons().putAll( createBackendAddons( classLoader(), aSource.backendAddonInfos(), logger() ) );
       // Формирование сообщения о проведенной инициализации расширений
-      fireBackendMessage( IS5BaAfterInitMessages.makeMessage() );
+      fireBackendMessage( S5BaAfterInitMessages.INSTANCE.makeMessage() );
     }
     // Формирование сообщения о предстоящем соединении с бекендом
-    fireBackendMessage( IS5BaBeforeConnectMessages.makeMessage() );
+    fireBackendMessage( S5BaBeforeConnectMessages.INSTANCE.makeMessage() );
   }
 
   @Override
   public void onAfterConnect( IS5Connection aSource ) {
     session = aSource.session();
-    fireBackendMessage( IS5BaAfterConnectMessages.makeMessage() );
+    fireBackendMessage( S5BaAfterConnectMessages.INSTANCE.makeMessage() );
   }
 
   @Override
   public void onAfterDisconnect( IS5Connection aSource ) {
     session = null;
-    fireBackendMessage( IS5BaAfterDisconnectMessages.makeMessage() );
+    fireBackendMessage( S5BaAfterDisconnectMessages.INSTANCE.makeMessage() );
   }
 
   // ------------------------------------------------------------------------------------

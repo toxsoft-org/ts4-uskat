@@ -7,12 +7,11 @@ import org.toxsoft.core.tslib.gw.skid.Skid;
 import org.toxsoft.core.tslib.utils.errors.*;
 import org.toxsoft.uskat.s5.common.info.IS5SessionsInfos;
 import org.toxsoft.uskat.s5.common.sessions.IS5SessionInfo;
+import org.toxsoft.uskat.s5.common.sessions.ISkSession;
 import org.toxsoft.uskat.s5.server.backend.IS5BackendCoreSingleton;
 import org.toxsoft.uskat.s5.server.frontend.IS5FrontendRear;
 import org.toxsoft.uskat.s5.server.sessions.pas.S5SessionCallbackWriter;
 import org.toxsoft.uskat.s5.server.statistics.IS5StatisticCounter;
-
-import ru.uskat.core.api.users.ISkSession;
 
 /**
  * Управление сессиями пользователей сервера

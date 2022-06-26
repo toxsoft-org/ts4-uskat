@@ -8,6 +8,7 @@ import org.toxsoft.core.tslib.bricks.validator.ITsValidationSupport;
 import org.toxsoft.core.tslib.bricks.validator.ITsValidator;
 import org.toxsoft.core.tslib.utils.errors.TsItemNotFoundRtException;
 import org.toxsoft.core.tslib.utils.errors.TsNullArgumentRtException;
+import org.toxsoft.uskat.core.api.objserv.IDtoFullObject;
 import org.toxsoft.uskat.core.api.objserv.IDtoObject;
 import org.toxsoft.uskat.core.api.users.*;
 
@@ -84,7 +85,7 @@ public final class S5SynchronizedUserService
   }
 
   @Override
-  public ISkUser defineUser( IDtoObject aDtoUser ) {
+  public ISkUser defineUser( IDtoFullObject aDtoUser ) {
     lockWrite( this );
     try {
       return target().defineUser( aDtoUser );
@@ -161,6 +162,17 @@ public final class S5SynchronizedUserService
   }
 
   @Override
+  public ISkUser setUserRoles( IStridablesList<ISkRole> aRoles ) {
+    lockWrite( this );
+    try {
+      return target().setUserRoles( aRoles );
+    }
+    finally {
+      unlockWrite( this );
+    }
+  }
+
+  @Override
   public ITsValidator<String> passwordValidator() {
     lockWrite( this );
     try {
@@ -191,5 +203,4 @@ public final class S5SynchronizedUserService
   public ITsEventer<ISkUserServiceListener> eventer() {
     return eventer;
   }
-
 }

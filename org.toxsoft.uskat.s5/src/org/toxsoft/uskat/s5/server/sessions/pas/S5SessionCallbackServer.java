@@ -26,12 +26,11 @@ import org.toxsoft.core.tslib.utils.ICloseable;
 import org.toxsoft.core.tslib.utils.errors.TsNullArgumentRtException;
 import org.toxsoft.core.tslib.utils.logs.ELogSeverity;
 import org.toxsoft.core.tslib.utils.logs.ILogger;
+import org.toxsoft.uskat.s5.common.sessions.ISkSession;
 import org.toxsoft.uskat.s5.server.cluster.IS5ClusterManager;
 import org.toxsoft.uskat.s5.server.sessions.IS5SessionManager;
 import org.toxsoft.uskat.s5.server.sessions.S5RemoteSession;
 import org.toxsoft.uskat.s5.server.startup.IS5InitialImplementation;
-
-import ru.uskat.core.api.users.ISkSession;
 
 /**
  * Поставщик PAS-каналов для образования писателей обратных вызовов

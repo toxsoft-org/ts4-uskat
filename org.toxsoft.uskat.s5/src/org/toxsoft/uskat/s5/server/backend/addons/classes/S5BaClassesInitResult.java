@@ -12,7 +12,7 @@ import org.toxsoft.uskat.s5.server.sessions.init.IS5SessionAddonInitResult;
  *
  * @author mvk
  */
-public final class S5BaClassesInitResult
+class S5BaClassesInitResult
     implements IS5SessionAddonInitResult, Serializable {
 
   private static final long serialVersionUID = 157157L;

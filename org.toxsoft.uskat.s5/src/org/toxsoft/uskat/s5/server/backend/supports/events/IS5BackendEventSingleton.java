@@ -7,11 +7,10 @@ import org.toxsoft.core.tslib.bricks.time.ITimedList;
 import org.toxsoft.core.tslib.coll.IMap;
 import org.toxsoft.core.tslib.gw.gwid.*;
 import org.toxsoft.core.tslib.utils.errors.TsNullArgumentRtException;
+import org.toxsoft.uskat.core.api.evserv.SkEvent;
 import org.toxsoft.uskat.s5.server.backend.supports.events.sequences.IS5EventSequence;
 import org.toxsoft.uskat.s5.server.frontend.IS5FrontendRear;
 import org.toxsoft.uskat.s5.server.sequences.IS5BackendSequenceSupportSingleton;
-
-import ru.uskat.common.dpu.rt.events.SkEvent;
 
 /**
  * Локальный интерфейс синглетона событий предоставляемый s5-сервером.

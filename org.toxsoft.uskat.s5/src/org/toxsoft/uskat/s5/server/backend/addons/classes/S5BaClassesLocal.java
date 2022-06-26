@@ -8,8 +8,8 @@ import org.toxsoft.uskat.core.api.sysdescr.dto.IDtoClassInfo;
 import org.toxsoft.uskat.core.backend.ISkBackendHardConstant;
 import org.toxsoft.uskat.core.backend.api.IBaClasses;
 import org.toxsoft.uskat.core.backend.api.IBaClassesMessages;
-import org.toxsoft.uskat.s5.client.local.S5BackendLocal;
 import org.toxsoft.uskat.s5.common.sysdescr.SkSysdescrReader;
+import org.toxsoft.uskat.s5.server.backend.addons.IS5BackendLocal;
 import org.toxsoft.uskat.s5.server.backend.addons.S5AbstractBackendAddonLocal;
 import org.toxsoft.uskat.s5.server.backend.supports.sysdescr.IS5BackendSysDescrSingleton;
 import org.toxsoft.uskat.s5.server.backend.supports.sysdescr.S5BackendSysDescrSingleton;
@@ -36,10 +36,10 @@ class S5BaClassesLocal
   /**
    * Constructor.
    *
-   * @param aOwner {@link S5BackendLocal} - the owner backend
+   * @param aOwner {@link IS5BackendLocal} - the owner backend
    * @throws TsNullArgumentRtException any argument = <code>null</code>
    */
-  public S5BaClassesLocal( S5BackendLocal aOwner ) {
+  public S5BaClassesLocal( IS5BackendLocal aOwner ) {
     super( aOwner, ISkBackendHardConstant.BAINF_CLASSES );
     // Синглтон поддержки чтения/записи системного описания
     sysdescrSupport = aOwner.backendSingleton().get( S5BackendSysDescrSingleton.BACKEND_SYSDESCR_ID,

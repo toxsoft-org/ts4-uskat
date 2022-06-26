@@ -12,7 +12,7 @@ import org.toxsoft.uskat.s5.server.sessions.init.S5SessionInitResult;
 import org.toxsoft.uskat.s5.server.sessions.pas.S5SessionCallbackWriter;
 
 /**
- * Локальный доступ к управлению сессии расширения бекенда
+ * Управление сессией расширения бекенда. Работает только в локальном доступе к серверу (в том же процессе что и сервер)
  *
  * @author mvk
  */
