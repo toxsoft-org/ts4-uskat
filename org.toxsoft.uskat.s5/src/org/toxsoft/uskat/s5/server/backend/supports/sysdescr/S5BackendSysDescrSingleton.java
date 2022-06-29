@@ -527,7 +527,8 @@ public class S5BackendSysDescrSingleton
    * @throws TsNullArgumentRtException аргумент = null
    */
   private static void fireWhenSysdescrChanged( IList<IS5FrontendRear> aFrontends, ECrudOp aOp, String aClassId ) {
-    TsNullArgumentRtException.checkNulls( aFrontends, aOp, aClassId );
+    TsNullArgumentRtException.checkNulls( aFrontends, aOp );
+    TsNullArgumentRtException.checkTrue( aOp != ECrudOp.LIST && aClassId == null );
     GtMessage message = IBaClassesMessages.makeMessage( aOp, aClassId );
     for( IS5FrontendRear frontend : aFrontends ) {
       frontend.onBackendMessage( message );

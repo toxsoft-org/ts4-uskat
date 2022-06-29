@@ -11,8 +11,8 @@ import org.toxsoft.core.tslib.bricks.strid.coll.IStridablesListEdit;
 import org.toxsoft.core.tslib.coll.IList;
 import org.toxsoft.core.tslib.gw.skid.*;
 import org.toxsoft.core.tslib.utils.errors.TsNullArgumentRtException;
-
-import ru.uskat.common.dpu.*;
+import org.toxsoft.uskat.core.api.objserv.IDtoObject;
+import org.toxsoft.uskat.core.api.sysdescr.dto.IDtoClassPropInfoBase;
 
 /**
  * Вспомогательные методы для работы с объектами и их атрибутами
@@ -26,13 +26,14 @@ public class S5BackendObjectsUtils {
    * представленных списков - старая и новая редакция
    *
    * @param <T> тип элемента
-   * @param aPrevPropInfos {@link IStridablesList}&lt;{@link IDpuSdAttrInfo}&gt; список элементов (старая редакция)
-   * @param aNewPropInfos {@link IStridablesList}&lt;{@link IDpuSdAttrInfo}&gt; список элементов (новая редакция)
-   * @param aRemovedProps {@link IStridablesListEdit}&lt;{@link IDpuSdAttrInfo}&gt; список удаленных элементов
-   * @param aAddedProps {@link IStridablesListEdit}&lt;{@link IDpuSdAttrInfo}&gt; список добавленных элементов
+   * @param aPrevPropInfos {@link IStridablesList}&lt;{@link IDtoClassPropInfoBase}&gt; список элементов (старая
+   *          редакция)
+   * @param aNewPropInfos {@link IStridablesList}&lt;{@link IDtoClassPropInfoBase}&gt; список элементов (новая редакция)
+   * @param aRemovedProps {@link IStridablesListEdit}&lt;{@link IDtoClassPropInfoBase}&gt; список удаленных элементов
+   * @param aAddedProps {@link IStridablesListEdit}&lt;{@link IDtoClassPropInfoBase}&gt; список добавленных элементов
    * @throws TsNullArgumentRtException любой аргумент = null
    */
-  public static <T extends IDpuSdPropInfoBase> void loadSysdescrChangedProps( IStridablesList<T> aPrevPropInfos,
+  public static <T extends IDtoClassPropInfoBase> void loadSysdescrChangedProps( IStridablesList<T> aPrevPropInfos,
       IStridablesList<T> aNewPropInfos, IStridablesListEdit<T> aRemovedProps, IStridablesListEdit<T> aAddedProps ) {
     TsNullArgumentRtException.checkNulls( aPrevPropInfos, aNewPropInfos, aRemovedProps, aAddedProps );
     for( T propInfo : aPrevPropInfos ) {
@@ -100,16 +101,16 @@ public class S5BackendObjectsUtils {
   /**
    * Возвращает список объектов в строковом виде
    *
-   * @param aObjs {@link IList}&lt; {@link IDpuObject}&gt; список объектов
+   * @param aObjs {@link IList}&lt; {@link IDtoObject}&gt; список объектов
    * @param aMaxCount int максимальное количество объектов возможных при выводе
    * @return String список объектов в текстовом виде
    * @throws TsNullArgumentRtException аргумент = null
    */
-  public static String objsToStr( IList<IDpuObject> aObjs, int aMaxCount ) {
+  public static String objsToStr( IList<IDtoObject> aObjs, int aMaxCount ) {
     TsNullArgumentRtException.checkNull( aObjs );
     StringBuilder sb = new StringBuilder();
     int count = 0;
-    for( IDpuObject obj : aObjs ) {
+    for( IDtoObject obj : aObjs ) {
       sb.append( format( "%s[%s]", obj.classId(), obj.strid() ) ); //$NON-NLS-1$
       if( count + 1 < aObjs.size() ) {
         sb.append( ", " ); //$NON-NLS-1$

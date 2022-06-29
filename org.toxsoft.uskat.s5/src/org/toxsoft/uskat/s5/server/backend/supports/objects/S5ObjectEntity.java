@@ -12,7 +12,7 @@ import javax.persistence.*;
 import org.toxsoft.core.log4j.LoggerWrapper;
 import org.toxsoft.core.tslib.av.opset.IOptionSet;
 import org.toxsoft.core.tslib.av.opset.impl.OptionSetKeeper;
-import org.toxsoft.core.tslib.gw.skid.Skid;
+import org.toxsoft.core.tslib.gw.skid.*;
 import org.toxsoft.core.tslib.utils.TsLibUtils;
 import org.toxsoft.core.tslib.utils.errors.TsInternalErrorRtException;
 import org.toxsoft.core.tslib.utils.errors.TsNullArgumentRtException;
@@ -43,6 +43,11 @@ public class S5ObjectEntity
   protected static final String FIELD_ATTRS_STRING = "attrsString"; //$NON-NLS-1$
 
   /**
+   * Поле таблицы: значения склепок объекта в строковом формате
+   */
+  protected static final String FIELD_RIVERTS_STRING = "rivertsString"; //$NON-NLS-1$
+
+  /**
    * Первичный составной (classId,strid) ключ
    */
   @EmbeddedId
@@ -70,11 +75,23 @@ public class S5ObjectEntity
   private String attrsString;
 
   /**
+   * Значения всех склепок.
+   */
+  @Lob
+  @Column( name = FIELD_RIVERTS_STRING, //
+      nullable = false,
+      insertable = true,
+      updatable = true,
+      unique = false )
+  private String rivetsString;
+
+  /**
    * Lazy
    */
-  private transient Skid       skid;
-  private transient IOptionSet attrs;
-  private transient ILogger    logger;
+  private transient Skid         skid;
+  private transient IOptionSet   attrs;
+  private transient IMappedSkids rivets;
+  private transient ILogger      logger;
 
   /**
    * Конструктор копирования (для сохранения объекта в базу данных)
@@ -87,6 +104,7 @@ public class S5ObjectEntity
     id = new S5ObjectID( aSource.skid() );
     classInfo = S5ClassEntity.createPrimaryKey( aSource.classId() );
     setAttrs( aSource.attrs() );
+    setRiverts( aSource.rivets() );
   }
 
   /**
@@ -103,6 +121,7 @@ public class S5ObjectEntity
       id = new S5ObjectID( aResultSet );
       classInfo = null;
       attrsString = aResultSet.getString( FIELD_ATTRS_STRING );
+      rivetsString = aResultSet.getString( FIELD_RIVERTS_STRING );
     }
     catch( Throwable e ) {
       // Неожиданная ошибка чтения данных jdbc-курсора
@@ -121,6 +140,7 @@ public class S5ObjectEntity
     id = aId;
     classInfo = null;
     attrsString = TsLibUtils.EMPTY_STRING;
+    rivetsString = TsLibUtils.EMPTY_STRING;
   }
 
   /**
@@ -130,6 +150,7 @@ public class S5ObjectEntity
     id = null;
     classInfo = null;
     attrsString = TsLibUtils.EMPTY_STRING;
+    rivetsString = TsLibUtils.EMPTY_STRING;
   }
 
   /**
@@ -165,6 +186,24 @@ public class S5ObjectEntity
     attrs = null;
   }
 
+  /**
+   * Установить значение всех склепок
+   *
+   * @param aRiverts {@link IOptionSet} карта атрибутов и их значений
+   * @throws TsNullArgumentRtException аргумент = null
+   */
+  void setRiverts( IMappedSkids aRiverts ) {
+    TsNullArgumentRtException.checkNull( aRiverts );
+    try {
+      rivetsString = MappedSkids.KEEPER.ent2str( aRiverts );
+    }
+    catch( Throwable e ) {
+      logger().error( e, "setRiverts(...). cause: %s", cause( e ) ); //$NON-NLS-1$
+      throw e;
+    }
+    rivets = null;
+  }
+
   // ------------------------------------------------------------------------------------
   // Реализация интерфейса IDtoObject
   //
@@ -182,6 +221,14 @@ public class S5ObjectEntity
       attrs = OptionSetKeeper.KEEPER.str2ent( attrsString );
     }
     return attrs;
+  }
+
+  @Override
+  public IMappedSkids rivets() {
+    if( rivets == null ) {
+      rivets = MappedSkids.KEEPER.str2ent( rivetsString );
+    }
+    return rivets;
   }
 
   // ------------------------------------------------------------------------------------

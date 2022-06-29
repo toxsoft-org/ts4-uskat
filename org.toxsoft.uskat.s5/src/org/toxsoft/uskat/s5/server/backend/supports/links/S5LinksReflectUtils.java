@@ -11,10 +11,9 @@ import org.toxsoft.core.tslib.coll.primtypes.IStringMapEdit;
 import org.toxsoft.core.tslib.gw.skid.ISkidList;
 import org.toxsoft.core.tslib.gw.skid.Skid;
 import org.toxsoft.core.tslib.utils.errors.*;
-
-import ru.uskat.common.dpu.IDpuLinkFwd;
-import ru.uskat.common.dpu.IDpuLinkRev;
-import ru.uskat.core.api.sysdescr.ISkClassInfo;
+import org.toxsoft.uskat.core.api.linkserv.IDtoLinkFwd;
+import org.toxsoft.uskat.core.api.linkserv.IDtoLinkRev;
+import org.toxsoft.uskat.core.api.sysdescr.ISkClassInfo;
 
 /**
  * Вспомогательные методы пакета для работы с отражением java
@@ -88,18 +87,18 @@ class S5LinksReflectUtils {
   }
 
   /**
-   * Возвращает конструктор копирования ПРЯМОЙ связи объекта через исходное {@link IDpuLinkFwd}.
+   * Возвращает конструктор копирования ПРЯМОЙ связи объекта через исходное {@link IDtoLinkFwd}.
    *
    * @param aLinkFwdImplClass Class класс реализации ПРЯМОЙ связи объекта, наследник {@link S5LinkFwdEntity}
-   * @return {@link Constructor} конструктор с параметром ({@link IDpuLinkFwd} )
+   * @return {@link Constructor} конструктор с параметром ({@link IDtoLinkFwd} )
    * @throws TsNullArgumentRtException аргумент = null
    * @throws TsIllegalArgumentRtException не найден класс реализации объекта
-   * @throws TsIllegalArgumentRtException не найден метод конструктора с параметром {@link IDpuLinkFwd}
+   * @throws TsIllegalArgumentRtException не найден метод конструктора с параметром {@link IDtoLinkFwd}
    */
   static Constructor<S5LinkFwdEntity> getConstructorLinkFwdBySource( Class<S5LinkFwdEntity> aLinkFwdImplClass ) {
     TsNullArgumentRtException.checkNull( aLinkFwdImplClass );
     try {
-      Constructor<S5LinkFwdEntity> retValue = aLinkFwdImplClass.getDeclaredConstructor( IDpuLinkFwd.class );
+      Constructor<S5LinkFwdEntity> retValue = aLinkFwdImplClass.getDeclaredConstructor( IDtoLinkFwd.class );
       retValue.setAccessible( true );
       return retValue;
     }
@@ -111,18 +110,18 @@ class S5LinksReflectUtils {
   }
 
   /**
-   * Возвращает конструктор копирования ОБРАТНОЙ связи объекта через исходное {@link IDpuLinkRev}.
+   * Возвращает конструктор копирования ОБРАТНОЙ связи объекта через исходное {@link IDtoLinkRev}.
    *
    * @param aLinkRevImplClass Class класс реализации ОБРАТНоЙ связи объекта, наследник {@link S5LinkRevEntity}
-   * @return {@link Constructor} конструктор с параметром ({@link IDpuLinkRev} )
+   * @return {@link Constructor} конструктор с параметром ({@link IDtoLinkRev} )
    * @throws TsNullArgumentRtException аргумент = null
    * @throws TsIllegalArgumentRtException не найден класс реализации объекта
-   * @throws TsIllegalArgumentRtException не найден метод конструктора с параметром {@link IDpuLinkRev}
+   * @throws TsIllegalArgumentRtException не найден метод конструктора с параметром {@link IDtoLinkRev}
    */
   static Constructor<S5LinkRevEntity> getConstructorLinkRevBySource( Class<S5LinkRevEntity> aLinkRevImplClass ) {
     TsNullArgumentRtException.checkNull( aLinkRevImplClass );
     try {
-      Constructor<S5LinkRevEntity> retValue = aLinkRevImplClass.getDeclaredConstructor( IDpuLinkRev.class );
+      Constructor<S5LinkRevEntity> retValue = aLinkRevImplClass.getDeclaredConstructor( IDtoLinkRev.class );
       retValue.setAccessible( true );
       return retValue;
     }
@@ -137,10 +136,10 @@ class S5LinksReflectUtils {
    * Возвращает конструктор копирования ОБРАТНОЙ связи объекта через заданные параметры.
    *
    * @param aLinkRevImplClass Class класс реализации ОБРАТНоЙ связи объекта, наследник {@link S5LinkRevEntity}
-   * @return {@link Constructor} конструктор с параметром ({@link IDpuLinkRev} )
+   * @return {@link Constructor} конструктор с параметром ({@link IDtoLinkRev} )
    * @throws TsNullArgumentRtException аргумент = null
    * @throws TsIllegalArgumentRtException не найден класс реализации объекта
-   * @throws TsIllegalArgumentRtException не найден метод конструктора с параметром {@link IDpuLinkRev}
+   * @throws TsIllegalArgumentRtException не найден метод конструктора с параметром {@link IDtoLinkRev}
    */
   static Constructor<S5LinkRevEntity> getConstructorLinkRevByParams( Class<S5LinkRevEntity> aLinkRevImplClass ) {
     TsNullArgumentRtException.checkNull( aLinkRevImplClass );
@@ -269,11 +268,11 @@ class S5LinksReflectUtils {
    * Создает ПРЯМУЮ связь объекта способную быть сохраненной в базе данных
    *
    * @param aConstructor {@link Constructor}&lt;{@link S5LinkFwdEntity}&gt; конструктор связи объекта
-   * @param aSource {@link IDpuLinkFwd} исходная связь с объектами
+   * @param aSource {@link IDtoLinkFwd} исходная связь с объектами
    * @return {@link S5LinkFwdEntity} созданная связь объекта
    * @throws TsNullArgumentRtException любой аргумент = null
    */
-  static S5LinkFwdEntity createLinkFwdEntity( Constructor<S5LinkFwdEntity> aConstructor, IDpuLinkFwd aSource ) {
+  static S5LinkFwdEntity createLinkFwdEntity( Constructor<S5LinkFwdEntity> aConstructor, IDtoLinkFwd aSource ) {
     TsNullArgumentRtException.checkNulls( aConstructor, aSource );
     try {
       return aConstructor.newInstance( aSource );
@@ -289,11 +288,11 @@ class S5LinksReflectUtils {
    * Создает ОБРАТНУЮ связь объекта способную быть сохраненной в базе данных
    *
    * @param aConstructor {@link Constructor}&lt;{@link S5LinkRevEntity}&gt; конструктор связи объекта
-   * @param aSource {@link IDpuLinkRev} исходная связь с объектами
+   * @param aSource {@link IDtoLinkRev} исходная связь с объектами
    * @return {@link S5LinkRevEntity} созданная связь объекта
    * @throws TsNullArgumentRtException любой аргумент = null
    */
-  static S5LinkRevEntity createLinkRevEntity( Constructor<S5LinkRevEntity> aConstructor, IDpuLinkRev aSource ) {
+  static S5LinkRevEntity createLinkRevEntity( Constructor<S5LinkRevEntity> aConstructor, IDtoLinkRev aSource ) {
     TsNullArgumentRtException.checkNulls( aConstructor, aSource );
     try {
       return aConstructor.newInstance( aSource );

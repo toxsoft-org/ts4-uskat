@@ -22,15 +22,13 @@ import org.toxsoft.core.tslib.coll.IListEdit;
 import org.toxsoft.core.tslib.coll.impl.ElemLinkedList;
 import org.toxsoft.core.tslib.coll.primtypes.*;
 import org.toxsoft.core.tslib.coll.primtypes.impl.StringMap;
-import org.toxsoft.core.tslib.gw.skid.ISkidList;
-import org.toxsoft.core.tslib.gw.skid.Skid;
+import org.toxsoft.core.tslib.gw.skid.*;
 import org.toxsoft.core.tslib.utils.errors.TsInternalErrorRtException;
 import org.toxsoft.core.tslib.utils.errors.TsNullArgumentRtException;
 import org.toxsoft.core.tslib.utils.logs.ILogger;
-
-import ru.uskat.common.dpu.IDpuObject;
-import ru.uskat.core.api.sysdescr.ISkClassInfo;
-import ru.uskat.core.common.helpers.sysdescr.ISkSysdescrReader;
+import org.toxsoft.uskat.core.api.objserv.IDtoObject;
+import org.toxsoft.uskat.core.api.sysdescr.ISkClassInfo;
+import org.toxsoft.uskat.s5.common.sysdescr.ISkSysdescrReader;
 
 /**
  * Служебные константы и методы для выполнения SQL-запросов
@@ -69,10 +67,10 @@ class S5ObjectsSQL {
    * @param aConnection {@link Connection} соединение с базой данных
    * @param aSysdescrReader {@link ISkSysdescrReader} читатель системного описания
    * @param aClassIds {@link ISkidList} список идентификаторов классов запрашиваемых объектов
-   * @return IList&lt;{@link IDpuObject}&lt;V&gt;&gt; данные объектов
+   * @return IList&lt;{@link IDtoObject}&lt;V&gt;&gt; данные объектов
    * @throws TsNullArgumentRtException любой аргумент = null
    */
-  static IList<IDpuObject> loadByClasses( Connection aConnection, ISkSysdescrReader aSysdescrReader,
+  static IList<IDtoObject> loadByClasses( Connection aConnection, ISkSysdescrReader aSysdescrReader,
       IStringList aClassIds ) {
     TsNullArgumentRtException.checkNulls( aConnection, aSysdescrReader, aClassIds );
     // Карта имен классов реализации объектов по идентификаторам классов
@@ -113,7 +111,7 @@ class S5ObjectsSQL {
     // Время начала выполнения запроса
     long traceStartTime = System.currentTimeMillis();
     // Выполнение запроса
-    IList<IDpuObject> retValue = executeQuery( aConnection, objectImplClassNames, sql );
+    IList<IDtoObject> retValue = executeQuery( aConnection, objectImplClassNames, sql );
     // Получен результат запроса
     Long time = Long.valueOf( System.currentTimeMillis() - traceStartTime );
     logger.info( MSG_READ_OBJ_BY_CLASSID_SQL_FINISH, Integer.valueOf( retValue.size() ), time );
@@ -136,10 +134,10 @@ class S5ObjectsSQL {
    * @param aConnection {@link Connection} соединение с базой данных
    * @param aSysdescrReader {@link ISkSysdescrReader} читатель системного описания
    * @param aSkids {@link ISkidList} список идентификаторов запрашиваемых объектов
-   * @return IList&lt;{@link IDpuObject}&lt;V&gt;&gt; данные объектов
+   * @return IList&lt;{@link IDtoObject}&lt;V&gt;&gt; данные объектов
    * @throws TsNullArgumentRtException любой аргумент = null
    */
-  static IList<IDpuObject> loadBySkids( Connection aConnection, ISkSysdescrReader aSysdescrReader, ISkidList aSkids ) {
+  static IList<IDtoObject> loadBySkids( Connection aConnection, ISkSysdescrReader aSysdescrReader, ISkidList aSkids ) {
     TsNullArgumentRtException.checkNulls( aConnection, aSysdescrReader, aSkids );
     // Карта имен классов реализации объектов по идентификаторам классов
     IStringMapEdit<String> objectImplClassNames = new StringMap<>();
@@ -189,7 +187,7 @@ class S5ObjectsSQL {
     // Время начала выполнения запроса
     long traceStartTime = System.currentTimeMillis();
     // Выполнение запроса
-    IList<IDpuObject> retValue = executeQuery( aConnection, objectImplClassNames, sql );
+    IList<IDtoObject> retValue = executeQuery( aConnection, objectImplClassNames, sql );
     // Получен результат запроса
     Long time = Long.valueOf( System.currentTimeMillis() - traceStartTime );
     logger.info( MSG_READ_OBJ_BY_SKID_SQL_FINISH, Integer.valueOf( retValue.size() ), time );
@@ -236,14 +234,14 @@ class S5ObjectsSQL {
    *          Ключ: имя класса объекта;<br>
    *          Значение: полное имя java-класса реализации объекта
    * @param aSQL String текст SQL-запроса
-   * @return {@link IList}&lt;{@link IDpuObject}&gt; список загруженных объектов
+   * @return {@link IList}&lt;{@link IDtoObject}&gt; список загруженных объектов
    * @throws TsNullArgumentRtException любой аргумент = null
    */
-  private static IList<IDpuObject> executeQuery( Connection aConnection, IStringMap<String> aObjectImplClassNames,
+  private static IList<IDtoObject> executeQuery( Connection aConnection, IStringMap<String> aObjectImplClassNames,
       String aSQL ) {
     TsNullArgumentRtException.checkNulls( aConnection, aObjectImplClassNames, aSQL );
     // Результат выполнения запроса
-    IListEdit<IDpuObject> retValue = new ElemLinkedList<>();
+    IListEdit<IDtoObject> retValue = new ElemLinkedList<>();
     // Карта конструкторов объектов. Ключ: идентификатор класса; Значение: конструктор
     IStringMapEdit<Constructor<S5ObjectEntity>> objectContructors = new StringMap<>();
     try {
@@ -278,8 +276,8 @@ class S5ObjectsSQL {
    */
   private static final String QFRMT_INSERT_OBJECT = //
       "insert into %s" //
-          + "(" + FIELD_CLASSID + "," + FIELD_STRID + "," + FIELD_ATTRS_STRING + ")values" //
-          + "(:" + FIELD_CLASSID + ",:" + FIELD_STRID + ",:" + FIELD_ATTRS_STRING + ")";
+          + "(" + FIELD_CLASSID + "," + FIELD_STRID + "," + FIELD_ATTRS_STRING + "," + FIELD_RIVERTS_STRING + ")values" //
+          + "(:" + FIELD_CLASSID + ",:" + FIELD_STRID + ",:" + FIELD_ATTRS_STRING + ",:" + FIELD_RIVERTS_STRING + ")";
 
   /**
    * Сохранить новый объект в базе данных
@@ -287,10 +285,10 @@ class S5ObjectsSQL {
    * TODO: mvkd эксперименты с native-SQL для insert и update
    *
    * @param aEntityManager {@link EntityManager} менеджер постоянства
-   * @param aObject {@link IDpuObject} объект
+   * @param aObject {@link IDtoObject} объект
    * @throws TsNullArgumentRtException любой аргумент = null
    */
-  public static void createObject( EntityManager aEntityManager, IDpuObject aObject ) {
+  public static void createObject( EntityManager aEntityManager, IDtoObject aObject ) {
     TsNullArgumentRtException.checkNulls( aEntityManager, aObject );
     // Текст SQL-запроса
     String sql = format( QFRMT_INSERT_OBJECT, "S5DefaultObjectEntity" );
@@ -299,6 +297,7 @@ class S5ObjectsSQL {
     query.setParameter( FIELD_CLASSID, aObject.classId() );
     query.setParameter( FIELD_STRID, aObject.strid() );
     query.setParameter( FIELD_ATTRS_STRING, OptionSetKeeper.KEEPER.ent2str( aObject.attrs() ) );
+    query.setParameter( FIELD_RIVERTS_STRING, MappedSkids.KEEPER.ent2str( aObject.rivets() ) );
     query.executeUpdate();
   }
 
@@ -309,7 +308,8 @@ class S5ObjectsSQL {
    */
   private static final String QFRMT_UPDATE_OBJECT = //
       "update %s set " //
-          + FIELD_ATTRS_STRING + "=:" + FIELD_ATTRS_STRING + " " //
+          + FIELD_ATTRS_STRING + "=:" + FIELD_ATTRS_STRING + "," //
+          + FIELD_RIVERTS_STRING + "=:" + FIELD_RIVERTS_STRING + " " //
           + "where " + FIELD_CLASSID + "=:" + FIELD_CLASSID + " and " + FIELD_STRID + "=:" + FIELD_STRID;
 
   /**
@@ -318,10 +318,10 @@ class S5ObjectsSQL {
    * TODO: mvkd эксперименты с native-SQL для insert и update
    *
    * @param aEntityManager {@link EntityManager} менеджер постоянства
-   * @param aObject {@link IDpuObject} объект
+   * @param aObject {@link IDtoObject} объект
    * @throws TsNullArgumentRtException любой аргумент = null
    */
-  public static void updateObject( EntityManager aEntityManager, IDpuObject aObject ) {
+  public static void updateObject( EntityManager aEntityManager, IDtoObject aObject ) {
     TsNullArgumentRtException.checkNulls( aEntityManager, aObject );
     // Текст SQL-запроса
     String sql = format( QFRMT_UPDATE_OBJECT, "S5DefaultObjectEntity" );
@@ -330,6 +330,7 @@ class S5ObjectsSQL {
     query.setParameter( FIELD_CLASSID, aObject.classId() );
     query.setParameter( FIELD_STRID, aObject.strid() );
     query.setParameter( FIELD_ATTRS_STRING, OptionSetKeeper.KEEPER.ent2str( aObject.attrs() ) );
+    query.setParameter( FIELD_RIVERTS_STRING, MappedSkids.KEEPER.ent2str( aObject.rivets() ) );
     int i = query.executeUpdate();
     System.out.println( i );
   }

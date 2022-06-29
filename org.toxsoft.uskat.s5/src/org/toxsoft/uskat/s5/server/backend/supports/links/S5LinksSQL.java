@@ -16,11 +16,10 @@ import javax.persistence.Query;
 import org.toxsoft.core.tslib.coll.IList;
 import org.toxsoft.core.tslib.utils.errors.TsNullArgumentRtException;
 import org.toxsoft.core.tslib.utils.logs.ILogger;
+import org.toxsoft.uskat.core.api.linkserv.IDtoLinkFwd;
+import org.toxsoft.uskat.core.api.linkserv.IDtoLinkRev;
 import org.toxsoft.uskat.s5.server.entities.S5DefaultLinkFwdEntity;
 import org.toxsoft.uskat.s5.server.entities.S5DefaultLinkRevEntity;
-
-import ru.uskat.common.dpu.IDpuLinkFwd;
-import ru.uskat.common.dpu.IDpuLinkRev;
 
 /**
  * Служебные константы и методы для выполнения SQL-запросов
@@ -68,7 +67,7 @@ class S5LinksSQL {
    * @throws TsNullArgumentRtException любой аргумент = null
    */
   @SuppressWarnings( "unchecked" )
-  static List<IDpuLinkFwd> getFwdLinksByClassId( EntityManager aEntityManager, String aLinkFwdImplClassName,
+  static List<IDtoLinkFwd> getFwdLinksByClassId( EntityManager aEntityManager, String aLinkFwdImplClassName,
       String aLefObjClassId, String aLefObjClassLinkId ) {
     TsNullArgumentRtException.checkNulls( aEntityManager, aLefObjClassId, aLefObjClassLinkId );
     // Время начала выполнения запроса
@@ -85,7 +84,7 @@ class S5LinksSQL {
     // Получен результат запроса
     Long time = Long.valueOf( System.currentTimeMillis() - traceStartTime );
     logger.info( MSG_READ_FWD_LINKS_BY_CLASSID_SQL_FINISH, Integer.valueOf( retValue.size() ), time );
-    return (List<IDpuLinkFwd>)(Object)retValue;
+    return (List<IDtoLinkFwd>)(Object)retValue;
   }
 
   /**
@@ -98,7 +97,7 @@ class S5LinksSQL {
    * @throws TsNullArgumentRtException любой аргумент = null
    */
   @SuppressWarnings( "unchecked" )
-  static List<IDpuLinkRev> getRevLinksByClassId( EntityManager aEntityManager, String aLinkRevImplClassName,
+  static List<IDtoLinkRev> getRevLinksByClassId( EntityManager aEntityManager, String aLinkRevImplClassName,
       String aRightObjClassId ) {
     TsNullArgumentRtException.checkNulls( aEntityManager, aRightObjClassId );
     // Время начала выполнения запроса
@@ -113,7 +112,7 @@ class S5LinksSQL {
     // Получен результат запроса
     Long time = Long.valueOf( System.currentTimeMillis() - traceStartTime );
     logger.info( MSG_READ_REV_LINKS_BY_CLASSID_SQL_FINISH, Integer.valueOf( retValue.size() ), time );
-    return (List<IDpuLinkRev>)(Object)retValue;
+    return (List<IDtoLinkRev>)(Object)retValue;
   }
 
   /**

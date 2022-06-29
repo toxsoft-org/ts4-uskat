@@ -18,7 +18,9 @@ import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.sql.DataSource;
 
+import org.toxsoft.core.tslib.bricks.events.msg.GtMessage;
 import org.toxsoft.core.tslib.coll.*;
+import org.toxsoft.core.tslib.coll.helpers.ECrudOp;
 import org.toxsoft.core.tslib.coll.impl.*;
 import org.toxsoft.core.tslib.coll.primtypes.IStringList;
 import org.toxsoft.core.tslib.coll.primtypes.IStringMapEdit;
@@ -27,16 +29,15 @@ import org.toxsoft.core.tslib.gw.skid.*;
 import org.toxsoft.core.tslib.utils.Pair;
 import org.toxsoft.core.tslib.utils.errors.TsInternalErrorRtException;
 import org.toxsoft.core.tslib.utils.errors.TsNullArgumentRtException;
+import org.toxsoft.uskat.core.api.objserv.IDtoObject;
+import org.toxsoft.uskat.core.api.sysdescr.ISkClassInfo;
+import org.toxsoft.uskat.core.backend.api.IBaObjectsMessages;
+import org.toxsoft.uskat.s5.common.sysdescr.ISkSysdescrReader;
 import org.toxsoft.uskat.s5.server.backend.impl.S5BackendSupportSingleton;
 import org.toxsoft.uskat.s5.server.backend.supports.events.IS5BackendEventSingleton;
 import org.toxsoft.uskat.s5.server.backend.supports.sysdescr.IS5BackendSysDescrSingleton;
 import org.toxsoft.uskat.s5.server.frontend.IS5FrontendRear;
 import org.toxsoft.uskat.s5.server.interceptors.S5InterceptorSupport;
-
-import ru.uskat.backend.messages.SkMessageWhenObjectsChanged;
-import ru.uskat.common.dpu.IDpuObject;
-import ru.uskat.core.api.sysdescr.ISkClassInfo;
-import ru.uskat.core.common.helpers.sysdescr.ISkSysdescrReader;
 
 /**
  * Реализация {@link IS5BackendObjectsSingleton}.
@@ -118,7 +119,7 @@ public class S5BackendObjectsSingleton
   protected void doInitSupport() {
     sysdescrReader = sysdescrBackend.getReader();
     IS5BackendObjectsSingleton business = sessionContext().getBusinessObject( IS5BackendObjectsSingleton.class );
-    classesInterceptor = new S5SysdescrInterceptor( transactionManager(), sysdescrReader, business );
+    classesInterceptor = new S5SysdescrInterceptor( transactionManager(), business );
     sysdescrBackend.addClassInterceptor( classesInterceptor, 1 );
   }
 
@@ -147,14 +148,14 @@ public class S5BackendObjectsSingleton
   //
   @Override
   @TransactionAttribute( TransactionAttributeType.SUPPORTS )
-  public IDpuObject findObject( Skid aSkid ) {
+  public IDtoObject findObject( Skid aSkid ) {
     TsNullArgumentRtException.checkNull( aSkid );
 
     // Пред-интерсепция
-    IDpuObject retValue = callBeforeFindObject( interceptors, aSkid );
+    IDtoObject retValue = callBeforeFindObject( interceptors, aSkid );
 
     if( retValue == null ) {
-      IList<IDpuObject> objs = readObjectsByIds( new SkidList( aSkid ) );
+      IList<IDtoObject> objs = readObjectsByIds( new SkidList( aSkid ) );
       if( objs.size() > 0 ) {
         TsInternalErrorRtException.checkTrue( objs.size() > 1 );
         // Если объект найден в локальном хранилище, то он заменяет ранее найденные
@@ -170,10 +171,10 @@ public class S5BackendObjectsSingleton
 
   @Override
   @TransactionAttribute( TransactionAttributeType.SUPPORTS )
-  public IList<IDpuObject> readObjects( IStringList aClassIds ) {
+  public IList<IDtoObject> readObjects( IStringList aClassIds ) {
     TsNullArgumentRtException.checkNull( aClassIds );
     // Результат
-    IListEdit<IDpuObject> retValue = new ElemLinkedList<>();
+    IListEdit<IDtoObject> retValue = new ElemLinkedList<>();
 
     // Пред-интерсепция
     callBeforeReadObjects( interceptors, aClassIds, retValue );
@@ -194,10 +195,10 @@ public class S5BackendObjectsSingleton
 
   @Override
   @TransactionAttribute( TransactionAttributeType.SUPPORTS )
-  public IList<IDpuObject> readObjectsByIds( ISkidList aSkids ) {
+  public IList<IDtoObject> readObjectsByIds( ISkidList aSkids ) {
     TsNullArgumentRtException.checkNull( aSkids );
     // Результат
-    IListEdit<IDpuObject> retValue = new ElemLinkedList<>();
+    IListEdit<IDtoObject> retValue = new ElemLinkedList<>();
 
     // Пред-интерсепция
     callBeforeReadObjectsByIds( interceptors, aSkids, retValue );
@@ -219,7 +220,7 @@ public class S5BackendObjectsSingleton
   @SuppressWarnings( "unchecked" )
   @Override
   @TransactionAttribute( TransactionAttributeType.REQUIRED )
-  public void writeObjects( IS5FrontendRear aFrontend, ISkidList aRemovedSkids, IList<IDpuObject> aObjects,
+  public void writeObjects( IS5FrontendRear aFrontend, ISkidList aRemovedSkids, IList<IDtoObject> aObjects,
       boolean aInterceptable ) {
     TsNullArgumentRtException.checkNulls( aFrontend, aRemovedSkids, aObjects );
     // Время начала выполнения запроса
@@ -229,14 +230,14 @@ public class S5BackendObjectsSingleton
     // Карта классов реализаций объектов по идентификаторам их классов
     IStringMapEdit<Class<S5ObjectEntity>> implByIds = new StringMap<>();
     // Карта удаляемых объектов по классам
-    IMap<ISkClassInfo, IList<IDpuObject>> removedObjs = loadObjectsBySkids( aRemovedSkids, classesByIds, implByIds );
+    IMap<ISkClassInfo, IList<IDtoObject>> removedObjs = loadObjectsBySkids( aRemovedSkids, classesByIds, implByIds );
     // Карта обновляемых объектов по классам и его readonly-вариант
-    IMapEdit<ISkClassInfo, IListEdit<Pair<IDpuObject, IDpuObject>>> updatedObjsEdit = new ElemMap<>();
-    IMap<ISkClassInfo, IList<Pair<IDpuObject, IDpuObject>>> updatedObjs =
-        (IMap<ISkClassInfo, IList<Pair<IDpuObject, IDpuObject>>>)(Object)updatedObjsEdit;
+    IMapEdit<ISkClassInfo, IListEdit<Pair<IDtoObject, IDtoObject>>> updatedObjsEdit = new ElemMap<>();
+    IMap<ISkClassInfo, IList<Pair<IDtoObject, IDtoObject>>> updatedObjs =
+        (IMap<ISkClassInfo, IList<Pair<IDtoObject, IDtoObject>>>)(Object)updatedObjsEdit;
     // Карта создаваемых объектов по классам и его readonly-вариант
-    IMapEdit<ISkClassInfo, IListEdit<IDpuObject>> createdObjsEdit = new ElemMap<>();
-    IMap<ISkClassInfo, IList<IDpuObject>> createdObjs = (IMap<ISkClassInfo, IList<IDpuObject>>)(Object)createdObjsEdit;
+    IMapEdit<ISkClassInfo, IListEdit<IDtoObject>> createdObjsEdit = new ElemMap<>();
+    IMap<ISkClassInfo, IList<IDtoObject>> createdObjs = (IMap<ISkClassInfo, IList<IDtoObject>>)(Object)createdObjsEdit;
 
     // Анализ существования объектов
     loadObjectsByDpu( aObjects, classesByIds, implByIds, updatedObjsEdit, createdObjsEdit );
@@ -253,8 +254,8 @@ public class S5BackendObjectsSingleton
     IListEdit<Skid> changedObjectIds = new SkidList();
     // Удаление объектов
     int removeCount = 0;
-    for( IList<IDpuObject> classRemovedObjs : removedObjs.values() ) {
-      for( IDpuObject removedObj : classRemovedObjs ) {
+    for( IList<IDtoObject> classRemovedObjs : removedObjs.values() ) {
+      for( IDtoObject removedObj : classRemovedObjs ) {
         changedObjectIds.add( removedObj.skid() );
         entityManager.remove( removedObj );
         removeCount++;
@@ -262,8 +263,8 @@ public class S5BackendObjectsSingleton
     }
     // Обновление объектов
     int updateCount = 0;
-    for( IList<Pair<IDpuObject, IDpuObject>> objs : updatedObjs.values() ) {
-      for( Pair<IDpuObject, IDpuObject> obj : objs ) {
+    for( IList<Pair<IDtoObject, IDtoObject>> objs : updatedObjs.values() ) {
+      for( Pair<IDtoObject, IDtoObject> obj : objs ) {
         changedObjectIds.add( obj.right().skid() );
         // 2020-07-23 mvk
         // entityManager.merge( obj.right() );
@@ -275,8 +276,8 @@ public class S5BackendObjectsSingleton
     }
     // Создание объектов
     int createCount = 0;
-    for( IList<IDpuObject> objs : createdObjs.values() ) {
-      for( IDpuObject obj : objs ) {
+    for( IList<IDtoObject> objs : createdObjs.values() ) {
+      for( IDtoObject obj : objs ) {
         entityManager.persist( obj );
         // TODO: mvkd experimental
         // createObject( entityManager, obj );
@@ -313,9 +314,27 @@ public class S5BackendObjectsSingleton
     Long et2 = Long.valueOf( entityManagerTimestamp2 - entityManagerTimestamp1 );
     Long it2 = Long.valueOf( interceptorTimestamp2 - entityManagerTimestamp2 );
     Long et = Long.valueOf( eventTimestamp - interceptorTimestamp2 );
-    if( changedObjectIds.size() > 0 ) {
-      // Отправление события для frontend
-      fireWhenObjectsChanged( aFrontend, backend().attachedFrontends(), new SkidList( changedObjectIds ) );
+
+    // Признак необходимости оповещения frontend об изменениях
+    boolean needFrontendNotify = (removeCount > 0 || createCount > 0 || updateCount > 0);
+
+    if( needFrontendNotify ) {
+      IList<IS5FrontendRear> frontends = backend().attachedFrontends();
+      if( removeCount == 1 ) {
+        // Отправление события об удалении класса для frontend
+        fireWhenObjectsChanged( frontends, ECrudOp.REMOVE, removedObjs.values().first().first().skid() );
+      }
+      if( createCount == 1 ) {
+        // Отправление события об создании класса для frontend
+        fireWhenObjectsChanged( frontends, ECrudOp.CREATE, createdObjs.values().first().first().skid() );
+      }
+      if( updateCount == 1 ) {
+        // Отправление события об создании класса для frontend
+        fireWhenObjectsChanged( frontends, ECrudOp.EDIT, updatedObjs.values().first().first().left().skid() );
+      }
+      if( removeCount + createCount + updateCount > 1 ) {
+        fireWhenObjectsChanged( frontends, ECrudOp.LIST, null );
+      }
     }
     logger().info( MSG_WRITE_OBJECTES, rc, uc, cc, at, lt, it1, et1, et2, it2, et );
   }
@@ -334,18 +353,18 @@ public class S5BackendObjectsSingleton
    * @param aImplByIds {@link IStringMapEdit}&lt;Class&gt; карта классов реализаций объектов по описаниям классов. <br>
    *          Ключ: описание класса;<br>
    *          Значение: Класс реализации объекта.
-   * @return {@link IMap}&lt;{@link ISkClassInfo},{@link IList}&lt;{@link IDpuObject}&gt;&gt; карта объектов наденных в
+   * @return {@link IMap}&lt;{@link ISkClassInfo},{@link IList}&lt;{@link IDtoObject}&gt;&gt; карта объектов наденных в
    *         базе данных.<br>
    *         Ключ: Описание классов;<br>
    *         Значение: Список объектов.
    * @throws TsNullArgumentRtException любой аргумент = null
    */
   @SuppressWarnings( "unchecked" )
-  private IMap<ISkClassInfo, IList<IDpuObject>> loadObjectsBySkids( ISkidList aSkids,
+  private IMap<ISkClassInfo, IList<IDtoObject>> loadObjectsBySkids( ISkidList aSkids,
       IStringMapEdit<ISkClassInfo> aClassInfosByIds, IStringMapEdit<Class<S5ObjectEntity>> aImplByIds ) {
     TsNullArgumentRtException.checkNulls( aSkids, aClassInfosByIds, aImplByIds );
     // Формирование карты найденных объектов. Ключ: описание класса; Значение: список объектов класса
-    IMapEdit<ISkClassInfo, IListEdit<IDpuObject>> retValue = new ElemMap<>();
+    IMapEdit<ISkClassInfo, IListEdit<IDtoObject>> retValue = new ElemMap<>();
     for( Skid skid : aSkids ) {
       String classId = skid.classId();
       ISkClassInfo classInfo = aClassInfosByIds.findByKey( classId );
@@ -360,25 +379,25 @@ public class S5BackendObjectsSingleton
       // Класс реализации объекта
       Class<S5ObjectEntity> objImplClass = getObjectImplClass( classInfo, aImplByIds );
       // Поиск объекта
-      IDpuObject obj = entityManager.find( objImplClass, new S5ObjectID( skid ) );
+      IDtoObject obj = entityManager.find( objImplClass, new S5ObjectID( skid ) );
       if( obj == null ) {
         // Объект не найден
         continue;
       }
-      IListEdit<IDpuObject> objs = retValue.findByKey( classInfo );
+      IListEdit<IDtoObject> objs = retValue.findByKey( classInfo );
       if( objs == null ) {
         objs = new ElemArrayList<>( aSkids.size() );
         retValue.put( classInfo, objs );
       }
       objs.add( obj );
     }
-    return (IMap<ISkClassInfo, IList<IDpuObject>>)(Object)retValue;
+    return (IMap<ISkClassInfo, IList<IDtoObject>>)(Object)retValue;
   }
 
   /**
    * Возвращает список объектов которые есть в базе данных и которых нет
    *
-   * @param aObjects {@link IList}&lt;{@link IDpuObject}&gt; проверяемый список объектов
+   * @param aObjects {@link IList}&lt;{@link IDtoObject}&gt; проверяемый список объектов
    * @param aClassesByIds {@link IStringMapEdit}&lt;{@link ISkClassInfo}&gt; карта описаний классов по их
    *          идентификаторам. <br>
    *          Ключ: идентификатор класса;<br>
@@ -387,24 +406,24 @@ public class S5BackendObjectsSingleton
    *          Ключ: описание класса;<br>
    *          Значение: Класс реализации объекта.
    * @param aUpdatedObjs
-   *          {@link IMap}&lt;{@link ISkClassInfo},{@link IListEdit}&lt;{@link Pair}&lt;{@link IDpuObject},{@link IDpuObject}&gt;&gt;&gt;
+   *          {@link IMap}&lt;{@link ISkClassInfo},{@link IListEdit}&lt;{@link Pair}&lt;{@link IDtoObject},{@link IDtoObject}&gt;&gt;&gt;
    *          карта объектов обновляемых в базе данных.<br>
    *          Ключ: Описание классов;<br>
    *          Значение: Список пар: {@link Pair#left()} - старое состояние объекта, {@link Pair#right()} - новое.
-   * @param aCreatedObjs {@link IMap}&lt;{@link ISkClassInfo},{@link IList}&lt;{@link IDpuObject}&gt;&gt; карта объектов
+   * @param aCreatedObjs {@link IMap}&lt;{@link ISkClassInfo},{@link IList}&lt;{@link IDtoObject}&gt;&gt; карта объектов
    *          создаваемых в базе данных.<br>
    *          Ключ: Описание классов;<br>
    *          Значение: Список объектов.
    * @throws TsNullArgumentRtException любой аргумент = null
    */
-  private void loadObjectsByDpu( IList<IDpuObject> aObjects, IStringMapEdit<ISkClassInfo> aClassesByIds,
+  private void loadObjectsByDpu( IList<IDtoObject> aObjects, IStringMapEdit<ISkClassInfo> aClassesByIds,
       IStringMapEdit<Class<S5ObjectEntity>> aImplByIds,
-      IMapEdit<ISkClassInfo, IListEdit<Pair<IDpuObject, IDpuObject>>> aUpdatedObjs,
-      IMapEdit<ISkClassInfo, IListEdit<IDpuObject>> aCreatedObjs ) {
+      IMapEdit<ISkClassInfo, IListEdit<Pair<IDtoObject, IDtoObject>>> aUpdatedObjs,
+      IMapEdit<ISkClassInfo, IListEdit<IDtoObject>> aCreatedObjs ) {
     TsNullArgumentRtException.checkNulls( aObjects, aClassesByIds, aImplByIds, aCreatedObjs, aUpdatedObjs );
     // Карта конструкторов объектов. Ключ: идентификатор класса; Значение: конструктор
     IStringMapEdit<Constructor<S5ObjectEntity>> objectContructors = new StringMap<>();
-    for( IDpuObject obj : aObjects ) {
+    for( IDtoObject obj : aObjects ) {
       String classId = obj.classId();
       ISkClassInfo classInfo = aClassesByIds.findByKey( classId );
       if( classInfo == null ) {
@@ -414,7 +433,7 @@ public class S5BackendObjectsSingleton
       // Класс реализации объекта
       Class<S5ObjectEntity> objImplClass = getObjectImplClass( classInfo, aImplByIds );
       // Создание нового объекта
-      IDpuObject newObj = obj;
+      IDtoObject newObj = obj;
       // Если объект не может быть маппирован на базу данных, то создаем копию объекта
       if( newObj.getClass() != objImplClass ) {
         // Конструктор объекта
@@ -428,10 +447,10 @@ public class S5BackendObjectsSingleton
         newObj = createObjectEntity( objectConstructor, obj );
       }
       // Поиск существующего объекта
-      IDpuObject prevObj = entityManager.find( objImplClass, new S5ObjectID( obj.skid() ) );
+      IDtoObject prevObj = entityManager.find( objImplClass, new S5ObjectID( obj.skid() ) );
       if( prevObj == null ) {
         // Объект не найден значит он создается
-        IListEdit<IDpuObject> objs = aCreatedObjs.findByKey( classInfo );
+        IListEdit<IDtoObject> objs = aCreatedObjs.findByKey( classInfo );
         if( objs == null ) {
           objs = new ElemArrayList<>( aObjects.size() );
           aCreatedObjs.put( classInfo, objs );
@@ -439,7 +458,7 @@ public class S5BackendObjectsSingleton
         objs.add( newObj );
         continue;
       }
-      IListEdit<Pair<IDpuObject, IDpuObject>> objs = aUpdatedObjs.findByKey( classInfo );
+      IListEdit<Pair<IDtoObject, IDtoObject>> objs = aUpdatedObjs.findByKey( classInfo );
       if( objs == null ) {
         objs = new ElemArrayList<>( aObjects.size() );
         aUpdatedObjs.put( classInfo, objs );
@@ -451,24 +470,17 @@ public class S5BackendObjectsSingleton
   /**
    * Формирование события: произошло изменение объектов системы
    *
-   * @param aFrontend {@link IS5FrontendRear} frontend выполняющий операцию по изменению объектов системы
    * @param aFrontends {@link IS5FrontendRear} список фронтендов подключенных к бекенду
-   * @param aObjectIds {@link ISkidList} идентификаторы объектов изменивших свои атрибуты или удаленных из системы.
-   *          {@link ISkidList#EMPTY} все объекты системы
+   * @param aOp {@link ECrudOp} тип операции над объектами
+   * @param aObjectId {@link Skid} идентификатор объекта или null для {@link ECrudOp#LIST}.
    * @throws TsNullArgumentRtException аргумент = null
    */
-  private static void fireWhenObjectsChanged( IS5FrontendRear aFrontend, IList<IS5FrontendRear> aFrontends,
-      ISkidList aObjectIds ) {
-    TsNullArgumentRtException.checkNulls( aFrontend, aFrontends, aObjectIds );
+  private static void fireWhenObjectsChanged( IList<IS5FrontendRear> aFrontends, ECrudOp aOp, Skid aObjectId ) {
+    TsNullArgumentRtException.checkNulls( aFrontends, aOp );
+    TsNullArgumentRtException.checkTrue( aOp != ECrudOp.LIST && aObjectId == null );
+    GtMessage message = IBaObjectsMessages.makeMessage( aOp, aObjectId );
     for( IS5FrontendRear frontend : aFrontends ) {
-      // 2022-04-11 mvk не всегда frontend может отслеживать свои изменения объектов (или это получается криво как при
-      // использовании ISkBatchOperationService), поэтому извещение производится для всех frontend
-      // if( aFrontend == frontend ) {
-      // В свой frontend событие не отправляется (frontend сам отслеживает свои изменения)
-      // continue;
-      // }
-      SkMessageWhenObjectsChanged.send( frontend, aObjectIds );
+      frontend.onBackendMessage( message );
     }
   }
-
 }

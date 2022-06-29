@@ -8,7 +8,6 @@ import static org.toxsoft.uskat.s5.server.backend.supports.objects.S5BackendObje
 import static org.toxsoft.uskat.s5.server.transactions.ES5TransactionResources.*;
 
 import org.toxsoft.core.tslib.av.IAtomicValue;
-import org.toxsoft.core.tslib.av.metainfo.IDataDef;
 import org.toxsoft.core.tslib.av.opset.IOptionSetEdit;
 import org.toxsoft.core.tslib.av.opset.impl.OptionSet;
 import org.toxsoft.core.tslib.bricks.strid.coll.IStridablesList;
@@ -17,19 +16,17 @@ import org.toxsoft.core.tslib.bricks.strid.coll.impl.StridablesList;
 import org.toxsoft.core.tslib.coll.IList;
 import org.toxsoft.core.tslib.coll.IListEdit;
 import org.toxsoft.core.tslib.coll.impl.ElemArrayList;
-import org.toxsoft.core.tslib.coll.primtypes.IStringListEdit;
 import org.toxsoft.core.tslib.coll.primtypes.impl.StringArrayList;
 import org.toxsoft.core.tslib.gw.skid.ISkidList;
 import org.toxsoft.core.tslib.gw.skid.SkidList;
 import org.toxsoft.core.tslib.utils.errors.*;
+import org.toxsoft.uskat.core.api.objserv.IDtoObject;
+import org.toxsoft.uskat.core.api.sysdescr.dto.IDtoAttrInfo;
+import org.toxsoft.uskat.core.api.sysdescr.dto.IDtoClassInfo;
+import org.toxsoft.uskat.core.impl.dto.DtoObject;
 import org.toxsoft.uskat.s5.server.backend.supports.sysdescr.IS5ClassesInterceptor;
-import org.toxsoft.uskat.s5.server.backend.supports.sysdescr.IS5TypesInterceptor;
 import org.toxsoft.uskat.s5.server.frontend.IS5FrontendRear;
 import org.toxsoft.uskat.s5.server.transactions.*;
-
-import ru.uskat.common.dpu.*;
-import ru.uskat.common.dpu.impl.DpuObject;
-import ru.uskat.core.common.helpers.sysdescr.ISkSysdescrReader;
 
 /**
  * Интерсептор системного описания используемый {@link S5BackendObjectsSingleton}
@@ -44,133 +41,48 @@ import ru.uskat.core.common.helpers.sysdescr.ISkSysdescrReader;
  * @author mvk
  */
 class S5SysdescrInterceptor
-    implements IS5TypesInterceptor, IS5ClassesInterceptor {
+    implements IS5ClassesInterceptor {
 
   private final IS5TransactionManagerSingleton txManager;
-  private final ISkSysdescrReader              sysdescrReader;
   private final IS5BackendObjectsSingleton     objectsBackend;
 
   /**
    * Конструктор
    *
    * @param aTransactionManager {@link IS5TransactionManagerSingleton} менеджер транзакций
-   * @param aSysdescrReader {@link ISkSysdescrReader} читатель системного описания
    * @param aObjectsBackend {@link IS5BackendObjectsSingleton} backend управления объектами системы
    * @throws TsNullArgumentRtException аргумент = null
    */
-  S5SysdescrInterceptor( IS5TransactionManagerSingleton aTransactionManager, ISkSysdescrReader aSysdescrReader,
+  S5SysdescrInterceptor( IS5TransactionManagerSingleton aTransactionManager,
       IS5BackendObjectsSingleton aObjectsBackend ) {
     txManager = TsNullArgumentRtException.checkNull( aTransactionManager );
-    sysdescrReader = TsNullArgumentRtException.checkNull( aSysdescrReader );
     objectsBackend = TsNullArgumentRtException.checkNull( aObjectsBackend );
-  }
-
-  // ------------------------------------------------------------------------------------
-  // Реализация интерфейса IS5TypesInterceptor
-  //
-  @Override
-  public void beforeCreateType( IDpuSdTypeInfo aTypeInfo ) {
-    // nop
-  }
-
-  @Override
-  public void afterCreateType( IDpuSdTypeInfo aTypeInfo ) {
-    // nop
-  }
-
-  @Override
-  public void beforeUpdateType( IDpuSdTypeInfo aPrevTypeInfo, IDpuSdTypeInfo aNewTypeInfo,
-      IStridablesList<IDpuSdClassInfo> aDependentClasses ) {
-    // Список идентификаторов классов объекты которых могут изменить тип атрибутов
-    IStringListEdit classIds = new StringArrayList( aDependentClasses.keys().size() );
-    for( String classId : aDependentClasses.keys() ) {
-      IDpuSdClassInfo classInfo = aDependentClasses.getByKey( classId );
-      for( IDpuSdAttrInfo attrInfo : classInfo.attrInfos() ) {
-        if( attrInfo.typeId().equals( aPrevTypeInfo.id() ) ) {
-          // Объекты класса будут изменять тип атрибута
-          classIds.add( classId );
-          break;
-        }
-      }
-    }
-    // Список объектов непозволяющих поменять тип атрибута
-    IList<IDpuObject> objs = objectsBackend.readObjects( classIds );
-    if( objs.size() == 0 ) {
-      // Нет объектов
-      return;
-    }
-    // Значение по умолчанию для нового типа. null: у типа нет значения по умолчанию
-    if( findTypeDefaultValue( aNewTypeInfo ) == null ) {
-      // Существуют объекты атрибуты которых не допускают установку типа без значения по умолчанию
-      throw new TsIllegalStateRtException( ERR_NO_DEFAULT_VALUE, objsToStr( objs, 5 ) );
-    }
-    // Текущая транзакция
-    IS5Transaction tx = txManager.getTransaction();
-    // Сохраняем в транзакции список объектов менящих тип атрибутов
-    TsIllegalStateRtException.checkNoNull( tx.putResource( TX_UPDATED_OBJS_BY_ATTR_TYPE, objs ) );
-  }
-
-  @Override
-  @SuppressWarnings( "unchecked" )
-  public void afterUpdateType( IDpuSdTypeInfo aPrevTypeInfo, IDpuSdTypeInfo aNewTypeInfo,
-      IStridablesList<IDpuSdClassInfo> aDependentClasses ) {
-    String typeId = aPrevTypeInfo.id();
-    // Текущая транзакция
-    IS5Transaction tx = txManager.getTransaction();
-    // Список объектов меняющих тип атрибутов
-    IList<S5ObjectEntity> objs = tx.findResource( TX_UPDATED_OBJS_BY_ATTR_TYPE );
-    if( objs != null ) {
-      for( S5ObjectEntity obj : objs ) {
-        IDpuSdClassInfo classInfo = aDependentClasses.getByKey( obj.classId() );
-        IOptionSetEdit attrsValues = new OptionSet( obj.attrs() );
-        for( IDpuSdAttrInfo attrInfo : classInfo.attrInfos() ) {
-          if( !attrInfo.typeId().equals( typeId ) ) {
-            continue;
-          }
-          // Сброс значения текущего данного в значение по умолчанию
-          attrsValues.remove( attrInfo.id() );
-        }
-        obj.setAttrs( attrsValues );
-      }
-      // Сохранение объектов в базе данных. false: перехват запрещен
-      objectsBackend.writeObjects( IS5FrontendRear.NULL, ISkidList.EMPTY, (IList<IDpuObject>)(Object)objs, false );
-    }
-  }
-
-  @Override
-  public void beforeDeleteType( IDpuSdTypeInfo aTypeInfo ) {
-    // nop
-  }
-
-  @Override
-  public void afterDeleteType( IDpuSdTypeInfo aTypeInfo ) {
-    // nop
   }
 
   // ------------------------------------------------------------------------------------
   // Реализация интерфейса IS5ClassesInterceptor
   //
   @Override
-  public void beforeCreateClass( IDpuSdClassInfo aClassInfo ) {
+  public void beforeCreateClass( IDtoClassInfo aClassInfo ) {
     // nop
   }
 
   @Override
-  public void afterCreateClass( IDpuSdClassInfo aClassInfo ) {
+  public void afterCreateClass( IDtoClassInfo aClassInfo ) {
     // nop
   }
 
   @Override
-  public void beforeUpdateClass( IDpuSdClassInfo aPrevClassInfo, IDpuSdClassInfo aNewClassInfo,
-      IStridablesList<IDpuSdClassInfo> aDescendants ) {
+  public void beforeUpdateClass( IDtoClassInfo aPrevClassInfo, IDtoClassInfo aNewClassInfo,
+      IStridablesList<IDtoClassInfo> aDescendants ) {
     // Идентификатор изменяемого класса
     String classId = aNewClassInfo.id();
     // Подготовка транзакции к перемещению реализации если необходимо
     boolean isMovingImpl = prepareTransactionMoveObjectImpl( aPrevClassInfo, aNewClassInfo );
     // Список удаленных атрибутов
-    IStridablesListEdit<IDpuSdAttrInfo> removedAttrs = new StridablesList<>();
+    IStridablesListEdit<IDtoAttrInfo> removedAttrs = new StridablesList<>();
     // Список добавленных атрибутов
-    IStridablesListEdit<IDpuSdAttrInfo> addedAttrs = new StridablesList<>();
+    IStridablesListEdit<IDtoAttrInfo> addedAttrs = new StridablesList<>();
     // Анализ для формирования списка добавленных и удаленных атрибутов
     loadSysdescrChangedProps( aPrevClassInfo.attrInfos(), aNewClassInfo.attrInfos(), removedAttrs, addedAttrs );
     // Проверка есть ли добавленные или удаленные атрибуты. Если нет, то проверка не требуется
@@ -182,19 +94,18 @@ class S5SysdescrInterceptor
       throw new TsIllegalStateRtException( ERR_CANT_CHANGE_IMPL_AND_ATTRS, classId );
     }
     // Список объектов изменяющих хранение
-    IList<IDpuObject> objs = S5TransactionUtils.txUpdatedClassObjs( txManager, objectsBackend, classId, aDescendants );
+    IList<IDtoObject> objs = S5TransactionUtils.txUpdatedClassObjs( txManager, objectsBackend, classId, aDescendants );
     if( objs.size() == 0 ) {
       // Нет объектов
       return;
     }
     // Если есть объекты, то все вновь добавляемые атрибуты ОБЯЗАНЫ иметь значение по умолчанию
     StringBuilder sbError = new StringBuilder();
-    for( IDpuSdAttrInfo attrInfo : addedAttrs ) {
-      IDataDef type = sysdescrReader.findType( attrInfo.typeId() );
-      IAtomicValue defaultValue = findTypeDefaultValue( type );
+    for( IDtoAttrInfo attrInfo : addedAttrs ) {
+      IAtomicValue defaultValue = findTypeDefaultValue( attrInfo.dataType() );
       if( defaultValue == null ) {
         // Атрибут имеет тип у которого нет значения по умолчанию
-        sbError.append( format( ERR_ATTR_NOT_HAVE_DEFAULT_VALUE, attrInfo.id(), type.id() ) );
+        sbError.append( format( ERR_ATTR_NOT_HAVE_DEFAULT_VALUE, attrInfo.id(), attrInfo.dataType() ) );
       }
     }
     if( sbError.length() > 0 ) {
@@ -210,45 +121,45 @@ class S5SysdescrInterceptor
 
   @Override
   @SuppressWarnings( "unchecked" )
-  public void afterUpdateClass( IDpuSdClassInfo aPrevClassInfo, IDpuSdClassInfo aNewClassInfo,
-      IStridablesList<IDpuSdClassInfo> aDescendants ) {
+  public void afterUpdateClass( IDtoClassInfo aPrevClassInfo, IDtoClassInfo aNewClassInfo,
+      IStridablesList<IDtoClassInfo> aDescendants ) {
     // Текущая транзакция
     IS5Transaction tx = txManager.getTransaction();
     // Список объектов перемещаемых в новую таблицу (реализацию)
-    IList<IDpuObject> movingImplObjs = tx.findResource( TX_UPDATED_OBJS_BY_CHANGE_IMPL );
+    IList<IDtoObject> movingImplObjs = tx.findResource( TX_UPDATED_OBJS_BY_CHANGE_IMPL );
     if( movingImplObjs != null ) {
       // Есть объекты для перемещения. Необходимо просто провести запись, так как описание класса уже было изменено
       // false: перехват запрещен
       objectsBackend.writeObjects( IS5FrontendRear.NULL, ISkidList.EMPTY, movingImplObjs, false );
     }
     // Список объектов на которые влияет изменение класса (добавление/удаление атрибутов)
-    IStridablesList<IDpuSdAttrInfo> removedAttrs = tx.findResource( TX_REMOVED_ATTRS );
+    IStridablesList<IDtoAttrInfo> removedAttrs = tx.findResource( TX_REMOVED_ATTRS );
     if( removedAttrs != null ) {
       IList<S5ObjectEntity> objs = tx.getResource( TX_UPDATED_CLASS_OBJS );
       for( S5ObjectEntity obj : objs ) {
         IOptionSetEdit attrsValues = new OptionSet( obj.attrs() );
-        for( IDpuSdAttrInfo attrInfo : removedAttrs ) {
+        for( IDtoAttrInfo attrInfo : removedAttrs ) {
           attrsValues.remove( attrInfo.id() );
         }
         // 2019-10-17: По принятом в ISkConnection правилу - если значение по умолчанию, то оно не хранится
-        // for( IDpuSdAttrInfo attrInfo : addedAttrs ) {
+        // for( IDtoAttrInfo attrInfo : addedAttrs ) {
         // IStridableDataDef type = typesManager.findType( attrInfo.typeId() );
         // IAtomicValue defaultValue = type.defaultValueOrNull();
         // attrsValues.setValobj( attrInfo.id(), defaultValue );
         // }
       }
       // false: перехват запрещен
-      objectsBackend.writeObjects( IS5FrontendRear.NULL, ISkidList.EMPTY, (IList<IDpuObject>)(Object)objs, false );
+      objectsBackend.writeObjects( IS5FrontendRear.NULL, ISkidList.EMPTY, (IList<IDtoObject>)(Object)objs, false );
     }
   }
 
   @Override
-  public void beforeDeleteClass( IDpuSdClassInfo aClassInfo ) {
+  public void beforeDeleteClass( IDtoClassInfo aClassInfo ) {
     // Целостность контролируется внешним ключом: S5ObjectEntity -> S5ClassEntity
   }
 
   @Override
-  public void afterDeleteClass( IDpuSdClassInfo aClassInfo ) {
+  public void afterDeleteClass( IDtoClassInfo aClassInfo ) {
     // Целостность контролируется внешним ключом: S5ObjectEntity -> S5ClassEntity
   }
 
@@ -258,12 +169,12 @@ class S5SysdescrInterceptor
   /**
    * Подготавливает транзакцию к перемещению реализации объектов из одной таблицы базы данных в другую
    *
-   * @param aPrevClassInfo {@link IDpuSdClassInfo} описание класса (старая редакция)
-   * @param aNewClassInfo {@link IDpuSdClassInfo} описание класса (новая редакция)
+   * @param aPrevClassInfo {@link IDtoClassInfo} описание класса (старая редакция)
+   * @param aNewClassInfo {@link IDtoClassInfo} описание класса (новая редакция)
    * @return boolean <b>true</b> запущен процесс замены реализации объектов;<b>false</b> нет перемещения реализации
    * @throws TsNullArgumentRtException любой аргумент = null
    */
-  private boolean prepareTransactionMoveObjectImpl( IDpuSdClassInfo aPrevClassInfo, IDpuSdClassInfo aNewClassInfo ) {
+  private boolean prepareTransactionMoveObjectImpl( IDtoClassInfo aPrevClassInfo, IDtoClassInfo aNewClassInfo ) {
     TsNullArgumentRtException.checkNulls( aPrevClassInfo, aNewClassInfo );
     // Класс реализации хранения значений объекта
     String prevObjectImplClassName = OP_OBJECT_IMPL_CLASS.getValue( aPrevClassInfo.params() ).asString();
@@ -276,7 +187,7 @@ class S5SysdescrInterceptor
       return false;
     }
     // Список перемещаемых объектов
-    IList<IDpuObject> objs = objectsBackend.readObjects( new StringArrayList( aPrevClassInfo.id() ) );
+    IList<IDtoObject> objs = objectsBackend.readObjects( new StringArrayList( aPrevClassInfo.id() ) );
     if( objs.size() == 0 ) {
       // Реализация изменилась, но нет объектов изменяющих реализацию
       return false;
@@ -284,10 +195,10 @@ class S5SysdescrInterceptor
     // Список идентификаторов объектов
     SkidList movingImplSkids = new SkidList();
     // Составляем список объектов "оторванных" от реализации
-    IListEdit<IDpuObject> movingImplObjs = new ElemArrayList<>( objs.size() );
-    for( IDpuObject obj : objs ) {
+    IListEdit<IDtoObject> movingImplObjs = new ElemArrayList<>( objs.size() );
+    for( IDtoObject obj : objs ) {
       movingImplSkids.add( obj.skid() );
-      movingImplObjs.add( new DpuObject( obj.skid(), obj.attrs() ) );
+      movingImplObjs.add( new DtoObject( obj.skid(), obj.attrs(), obj.rivets().map() ) );
     }
     // Текущая транзакция
     IS5Transaction tx = txManager.getTransaction();
