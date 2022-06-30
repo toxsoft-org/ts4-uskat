@@ -1,4 +1,4 @@
-package org.toxsoft.uskat.core.api.rtdserv;
+package org.toxsoft.uskat.core.api.hqserv;
 
 /**
  * Localizable resources.
@@ -23,5 +23,11 @@ interface ISkResources {
   String STR_D_FAILED     = "Данные не удалось получить (таймаут, нет связи и т.п.)";
   String STR_N_CLOSED     = "Закрыт";
   String STR_D_CLOSED     = "Уже был вызван close(), объект запроса (ISkHistDataQuery) следует выбросить";
+
+  /**
+   * {@link ISkHistoryQueryServiceConstants}
+   */
+  String STR_N_MAX_EXECUTION_TIME = "Время(мсек)";
+  String STR_D_MAX_EXECUTION_TIME = "Макс. время (мсек) выполнения запроса до принудительной отмены";
 
 }

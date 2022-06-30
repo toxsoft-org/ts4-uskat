@@ -1,4 +1,4 @@
-package org.toxsoft.uskat.core.incub;
+package org.toxsoft.uskat.core.api.hqserv;
 
 import org.toxsoft.core.tslib.bricks.events.change.*;
 import org.toxsoft.core.tslib.bricks.time.*;
@@ -7,15 +7,14 @@ import org.toxsoft.core.tslib.gw.gwid.*;
 import org.toxsoft.core.tslib.utils.*;
 import org.toxsoft.core.tslib.utils.errors.*;
 import org.toxsoft.uskat.core.*;
-import org.toxsoft.uskat.core.api.rtdserv.*;
+import org.toxsoft.uskat.core.api.gwids.*;
 
 /**
  * The asynchronous query.
  *
  * @author hazard157
- * @param <T> - queries temporal value type
  */
-public interface ISkHistoryQuery<T extends ITemporalValue<T>>
+public interface ISkHistoryQuery
     extends IGenericChangeEventCapable, ICloseable {
 
   /**
@@ -37,7 +36,7 @@ public interface ISkHistoryQuery<T extends ITemporalValue<T>>
   EQueryState state();
 
   /**
-   * returns GWID specified in method {@link #setGwids(IGwidList)}.
+   * returns GWID specified in method {@link #prepare(IGwidList)}.
    *
    * @return {@link IGwidList} - requested GWIDs
    */
@@ -46,17 +45,22 @@ public interface ISkHistoryQuery<T extends ITemporalValue<T>>
   /**
    * Prepares the query.
    * <p>
-   * Query preparation includes at list GWIDs analysis and optional actions on the server side (if applicable). Only
-   * concrete GWIDs of kind {@link EGwidKind#GW_RTDATA}
+   * Query preparation includes at least GWIDs analysis and optional actions on the server side (if applicable).
    * <p>
-   * Commands? Events?
+   * Query accepts GWIDs of following kind:
+   * <ul>
+   * <li>{@link EGwidKind#GW_RTDATA} - returns historical RTdata;</li>
+   * <li>{@link EGwidKind#GW_CMD} - returns history of the commands;</li>
+   * <li>{@link EGwidKind#GW_EVENT} - returns history of events.</li>
+   * </ul>
    * <p>
-   * are considered as appropriate. All other GWIDs, including but not limited to unexisting GWIDs, duplicate GWIDs,
-   * non-historic RTdata, etc are ignored. Multi-GWIDs are expanded.
+   * Invalid GWIDs are silently ignored. Non-existing entities GWIDs, or GWIDs of non-historical RTdata are examples of
+   * invalid GWIDs,
    * <p>
-   * Method returns the result of analysis - the list of GWIDs to be processed. This list will be the same as the keys
-   * of the {@link #result()} map. All multi-GWIDs will be expanded so result sontains only <b>concrete single</b> GWIDs
-   * (that is {@link Gwid#isMulti()} = <code>false</code>) of kind {@link EGwidKind#GW_RTDATA}.
+   * Multi GWIDs are acceped and expanded as {@link ISkGwidService#expandGwid(Gwid)}. Method returns the result of
+   * analysis - the list of GWIDs to be processed. This list will be the same as the keys of the {@link #getAll()} map.
+   * All multi-GWIDs will be expanded so result contains only <b>concrete single</b> GWIDs (that is
+   * {@link Gwid#isMulti()} = <code>false</code>).
    * <p>
    * Mathod shall not ba called when {@link #state()} is {@link EQueryState#EXECUTING} or {@link EQueryState#CLOSED}.
    *
@@ -65,7 +69,7 @@ public interface ISkHistoryQuery<T extends ITemporalValue<T>>
    * @throws TsNullArgumentRtException any argument = <code>null</code>
    * @throws TsIllegalStateRtException illegal {@link #state()}
    */
-  void setGwids( IGwidList aList );
+  IGwidList prepare( IGwidList aGwids );
 
   /**
    * Queries the data for the specified time interval.
@@ -85,18 +89,22 @@ public interface ISkHistoryQuery<T extends ITemporalValue<T>>
   /**
    * Returns result of query for specified RTdata.
    *
+   * @param <T> - expected type of the temporal value
    * @param aGwid {@link Gwid} - data GWID
    * @return {@link ITimedList}&lt;T&gt; - data sequence
    * @throws TsNullArgumentRtException any argument = <code>null</code>
    * @throws TsItemNotFoundRtException not such GWID in the result
    */
-  ITimedList<T> get( Gwid aGwid );
+  <T extends ITemporalValue<T>> ITimedList<T> get( Gwid aGwid );
 
   /**
-   * Returns all results of the quesry at once.
+   * Returns all results of the query at once.
+   * <p>
+   * Map keys is the same list of GWIDs as returned by {@link #prepare(IGwidList)}.
    *
+   * @param <T> - expected type of the temporal value
    * @return {@link IMap}&lt;{@link Gwid},{@link ITimedList}&gt; - map "data GWID" - "data sequence"
    */
-  IMap<Gwid, ITimedList<T>> getAll();
+  <T extends ITemporalValue<T>> IMap<Gwid, ITimedList<T>> getAll();
 
 }

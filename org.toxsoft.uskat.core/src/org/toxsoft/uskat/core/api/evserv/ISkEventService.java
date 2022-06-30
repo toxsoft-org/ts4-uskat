@@ -1,10 +1,10 @@
 package org.toxsoft.uskat.core.api.evserv;
 
+import org.toxsoft.core.tslib.bricks.time.*;
 import org.toxsoft.core.tslib.gw.gwid.*;
 import org.toxsoft.core.tslib.utils.errors.*;
 import org.toxsoft.uskat.core.*;
 import org.toxsoft.uskat.core.api.*;
-import org.toxsoft.uskat.core.utils.*;
 
 /**
  * Core service: object-generated events management.
@@ -75,10 +75,17 @@ public interface ISkEventService
   void unregisterHandler( ISkEventHandler aEventHandler );
 
   /**
-   * Returns the stored events history.
+   * Returns the specified event history for specified time interval.
+   * <p>
+   * Note: do not ask for long time interval, this method is synchronous and hence may frreze for a long time.
    *
-   * @return {@link ITemporalsHistory} - the events history
+   * @param aInterval {@link IQueryInterval} - query time interval
+   * @param aGwid {@link Gwid} - concrete single (non-multi) GWID of the event
+   * @return {@link ITimedList}&lt;{@link SkEvent}&gt; - list of the queried entities
+   * @throws TsNullArgumentRtException any argument = <code>null</code>
+   * @throws TsIllegalArgumentRtException invalid GWID
+   * @throws TsItemNotFoundRtException no such event exists in sysdescr
    */
-  ITemporalsHistory<SkEvent> history();
+  ITimedList<SkEvent> query( IQueryInterval aInterval, Gwid aGwid );
 
 }

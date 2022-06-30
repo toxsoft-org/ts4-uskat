@@ -1,7 +1,8 @@
 package org.toxsoft.uskat.core.api.rtdserv;
 
-import org.toxsoft.core.tslib.av.opset.*;
+import org.toxsoft.core.tslib.av.temporal.*;
 import org.toxsoft.core.tslib.bricks.events.*;
+import org.toxsoft.core.tslib.bricks.time.*;
 import org.toxsoft.core.tslib.coll.*;
 import org.toxsoft.core.tslib.gw.gwid.*;
 import org.toxsoft.core.tslib.utils.errors.*;
@@ -64,20 +65,9 @@ public interface ISkRtdataService
   // HistData
 
   /**
-   * Creates an empty query to historic data.
-   * <p>
-   * Options values are implementation specific and are described somwhere else.
-   *
-   * @param aOptions {@link IOptionSet} - optional query execution parameters
-   * @return {@link ISkHistDataQuery} - created instance
-   * @throws TsNullArgumentRtException any argument = <code>null</code>
-   */
-  ISkHistDataQuery createQuery( IOptionSet aOptions );
-
-  /**
    * Returns channels to write historic data to.
    * <p>
-   * Argument GWIDs will be analysed and expanded as described for {@link ISkHistDataQuery#prepare(IGwidList)}.
+   * Argument GWIDs will be expanded and invalid GIWD silently ignored.
    * <p>
    * For each valid GWID the channel will be returned. Either new instance or an existing one.
    *
@@ -86,5 +76,19 @@ public interface ISkRtdataService
    * @throws TsNullArgumentRtException any argument = <code>null</code>
    */
   IMap<Gwid, ISkWriteHistDataChannel> createWriteHistDataChannels( IGwidList aGwids );
+
+  /**
+   * Returns the specified RTdata history for specified time interval.
+   * <p>
+   * Note: do not ask for long time interval, this method is synchronous and hence may freeze for a long time.
+   *
+   * @param aInterval {@link IQueryInterval} - query time interval
+   * @param aGwid {@link Gwid} - concrete single (non-multi) GWID of the RTdata
+   * @return {@link ITimedList}&lt;{@link ITemporalAtomicValue}&gt; - list of the queried entities
+   * @throws TsNullArgumentRtException any argument = <code>null</code>
+   * @throws TsIllegalArgumentRtException invalid GWID
+   * @throws TsItemNotFoundRtException no such RTdata exists in sysdescr
+   */
+  ITimedList<ITemporalAtomicValue> query( IQueryInterval aInterval, Gwid aGwid );
 
 }

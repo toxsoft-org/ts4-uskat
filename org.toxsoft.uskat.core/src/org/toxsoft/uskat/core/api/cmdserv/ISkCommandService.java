@@ -2,12 +2,12 @@ package org.toxsoft.uskat.core.api.cmdserv;
 
 import org.toxsoft.core.tslib.av.opset.*;
 import org.toxsoft.core.tslib.bricks.events.change.*;
+import org.toxsoft.core.tslib.bricks.time.*;
 import org.toxsoft.core.tslib.gw.gwid.*;
 import org.toxsoft.core.tslib.gw.skid.*;
 import org.toxsoft.core.tslib.utils.errors.*;
 import org.toxsoft.uskat.core.*;
 import org.toxsoft.uskat.core.api.*;
-import org.toxsoft.uskat.core.utils.*;
 
 /**
  * Core service: command sending and processing support.
@@ -90,11 +90,18 @@ public interface ISkCommandService
   void changeCommandState( DtoCommandStateChangeInfo aStateChangeInfo );
 
   /**
-   * Returns the stored completed commands history.
+   * Returns the specified command history for specified time interval.
+   * <p>
+   * Note: do not ask for long time interval, this method is synchronous and hence may frreze for a long time.
    *
-   * @return {@link ITemporalsHistory}&lt;{@link IDtoCompletedCommand}&gt; - the commands history
+   * @param aInterval {@link IQueryInterval} - query time interval
+   * @param aGwid {@link Gwid} - concrete single (non-multi) GWID of the command
+   * @return {@link ITimedList}&lt;{@link IDtoCompletedCommand}&gt; - list of the queried entities
+   * @throws TsNullArgumentRtException any argument = <code>null</code>
+   * @throws TsIllegalArgumentRtException invalid GWID
+   * @throws TsItemNotFoundRtException no such command exists in sysdescr
    */
-  ITemporalsHistory<IDtoCompletedCommand> history();
+  ITimedList<IDtoCompletedCommand> query( IQueryInterval aInterval, Gwid aGwid );
 
   // ------------------------------------------------------------------------------------
   // Global GWIDs handling

@@ -1,6 +1,6 @@
-package org.toxsoft.uskat.core.api.rtdserv;
+package org.toxsoft.uskat.core.api.hqserv;
 
-import static org.toxsoft.uskat.core.api.rtdserv.ISkResources.*;
+import static org.toxsoft.uskat.core.api.hqserv.ISkResources.*;
 
 import org.toxsoft.core.tslib.bricks.keeper.*;
 import org.toxsoft.core.tslib.bricks.keeper.std.*;
@@ -12,7 +12,7 @@ import org.toxsoft.core.tslib.gw.gwid.*;
 import org.toxsoft.core.tslib.utils.errors.*;
 
 /**
- * Possible statesof the historic data query {@link ISkHistDataQuery}.
+ * Possible statesof the historic data query {@link ISkHistoryQuery}.
  *
  * @author hazard157
  */
@@ -25,12 +25,12 @@ public enum EQueryState
   UNPREPARED( "Unprepared", STR_D_UNPREPARED, STR_N_UNPREPARED ), //$NON-NLS-1$
 
   /**
-   * State after call to {@link ISkHistDataQuery#prepare(IGwidList)}.
+   * State after call to {@link ISkHistoryQuery#prepare(IGwidList)}.
    */
   PREPARED( "Prepared", STR_D_PREPARED, STR_N_PREPARED ), //$NON-NLS-1$
 
   /**
-   * State immediately after query start via {@link ISkHistDataQuery#exec(IQueryInterval)}.
+   * State immediately after query start via {@link ISkHistoryQuery#exec(IQueryInterval)}.
    */
   EXECUTING( "Executing", STR_D_EXECUTING, STR_N_EXECUTING ), //$NON-NLS-1$
 
@@ -45,7 +45,7 @@ public enum EQueryState
   FAILED( "Failed", STR_D_FAILED, STR_N_FAILED ), //$NON-NLS-1$
 
   /**
-   * Query was clsed by {@link ISkHistDataQuery#close()} so instance is usless.
+   * Query was clsed by {@link ISkHistoryQuery#close()} so instance is usless.
    */
   CLOSED( "Closed", STR_D_CLOSED, STR_N_CLOSED ); //$NON-NLS-1$
 

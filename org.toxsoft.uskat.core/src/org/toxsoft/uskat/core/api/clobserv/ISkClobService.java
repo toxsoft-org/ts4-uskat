@@ -30,6 +30,9 @@ public interface ISkClobService
 
   /**
    * Reads the CLOB content.
+   * <p>
+   * By definition any valid GWID of kind {@link EGwidKind#GW_CLOB} has the content. If content never will be written by
+   * {@link #writeClob(Gwid, String)}, this method will return an empty string as CLOB content.
    *
    * @param aGwid {@link Gwid} - concrete GWID of the clob
    * @return String - the CLOB content
