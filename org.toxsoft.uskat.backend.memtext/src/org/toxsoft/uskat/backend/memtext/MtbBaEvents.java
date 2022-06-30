@@ -143,13 +143,14 @@ class MtbBaEvents
   }
 
   @Override
-  public ITimedList<SkEvent> queryEvents( IQueryInterval aInterval, IGwidList aNeededGwids ) {
-    TsNullArgumentRtException.checkNulls( aInterval, aNeededGwids );
+  public ITimedList<SkEvent> queryObjEvents( IQueryInterval aInterval, Gwid aGwid ) {
     TimedList<SkEvent> result = new TimedList<>();
     for( SkEvent e : eventsHistory.getItems() ) {
       if( TimeUtils.contains( aInterval, e.timestamp() ) ) {
-        if( isNeededEvent( e, aNeededGwids ) ) {
-          result.add( e );
+        if( e.eventGwid().skid().equals( aGwid.skid() ) ) {
+          if( aGwid.isPropMulti() || aGwid.propId().equals( e.eventGwid().propId() ) ) {
+            result.add( e );
+          }
         }
       }
     }

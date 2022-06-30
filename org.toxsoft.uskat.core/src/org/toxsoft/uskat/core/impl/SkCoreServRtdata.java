@@ -4,9 +4,10 @@ import static org.toxsoft.uskat.core.impl.ISkResources.*;
 
 import org.toxsoft.core.tslib.av.*;
 import org.toxsoft.core.tslib.av.errors.*;
-import org.toxsoft.core.tslib.av.opset.*;
+import org.toxsoft.core.tslib.av.temporal.*;
 import org.toxsoft.core.tslib.bricks.ctx.*;
 import org.toxsoft.core.tslib.bricks.events.*;
+import org.toxsoft.core.tslib.bricks.time.*;
 import org.toxsoft.core.tslib.coll.*;
 import org.toxsoft.core.tslib.coll.impl.*;
 import org.toxsoft.core.tslib.gw.gwid.*;
@@ -275,9 +276,13 @@ public class SkCoreServRtdata
   }
 
   @Override
-  public ISkHistDataQuery createQuery( IOptionSet aOptions ) {
-    // TODO Auto-generated method stub
-    return null;
+  public ITimedList<ITemporalAtomicValue> queryObjRtdata( IQueryInterval aInterval, Gwid aGwid ) {
+    TsNullArgumentRtException.checkNulls( aInterval, aGwid );
+    TsIllegalArgumentRtException.checkTrue( aGwid.kind() != EGwidKind.GW_RTDATA );
+    TsIllegalArgumentRtException.checkTrue( aGwid.isAbstract() );
+    TsIllegalArgumentRtException.checkTrue( aGwid.isMulti() );
+    TsItemNotFoundRtException.checkFalse( gwidService().exists( aGwid ) );
+    return ba().baRtdata().queryObjRtdata( aInterval, aGwid );
   }
 
   @Override

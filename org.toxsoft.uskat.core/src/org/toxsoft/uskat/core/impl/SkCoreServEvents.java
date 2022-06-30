@@ -13,7 +13,6 @@ import org.toxsoft.uskat.core.*;
 import org.toxsoft.uskat.core.api.evserv.*;
 import org.toxsoft.uskat.core.api.sysdescr.*;
 import org.toxsoft.uskat.core.devapi.*;
-import org.toxsoft.uskat.core.utils.*;
 
 /**
  * {@link ISkEventService} implementation.
@@ -28,23 +27,6 @@ public class SkCoreServEvents
    * Service creator singleton.
    */
   public static final ISkServiceCreator<AbstractSkService> CREATOR = SkCoreServEvents::new;
-
-  /**
-   * {@link ISkEventService#history()} implementation.
-   *
-   * @author hazard157
-   */
-  class History
-      implements ITemporalsHistory<SkEvent> {
-
-    @Override
-    public ITimedList<SkEvent> query( IQueryInterval aInterval, IGwidList aGwids ) {
-      return ba().baEvents().queryEvents( aInterval, aGwids );
-    }
-
-  }
-
-  private final History history = new History();
 
   private final IMapEdit<ISkEventHandler, GwidList> handlersMap = new ElemMap<>();
 
@@ -202,8 +184,13 @@ public class SkCoreServEvents
   }
 
   @Override
-  public ITemporalsHistory<SkEvent> history() {
-    return history;
+  public ITimedList<SkEvent> queryObjEvents( IQueryInterval aInterval, Gwid aGwid ) {
+    TsNullArgumentRtException.checkNulls( aInterval, aGwid );
+    TsIllegalArgumentRtException.checkTrue( aGwid.kind() != EGwidKind.GW_EVENT );
+    TsIllegalArgumentRtException.checkTrue( aGwid.isAbstract() );
+    TsIllegalArgumentRtException.checkTrue( aGwid.isStridMulti() );
+    TsItemNotFoundRtException.checkFalse( gwidService().exists( aGwid ) );
+    return ba().baEvents().queryObjEvents( aInterval, aGwid );
   }
 
 }

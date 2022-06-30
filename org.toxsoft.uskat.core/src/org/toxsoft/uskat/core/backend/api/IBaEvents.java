@@ -62,22 +62,12 @@ public interface IBaEvents
   void subscribeToEvents( IGwidList aNeededGwids );
 
   /**
-   * Queries the history of events.
-   * <p>
-   * Only GWIDs of kind {@link EGwidKind#GW_EVENT} are considered, all other kinds are ignored.
-   * <p>
-   * FIXME TRANSLATE
-   * <p>
-   * В списке могут быть как конкретные (с идентификатором объекта) {@link Gwid}-ы, так и абстрактные. Абстрактный
-   * {@link Gwid} означает запрос указанного события от всех объектов. Кроме того, в запросе могут присутствовать
-   * мулти-GWID-ы, у которых {@link Gwid#isMulti()} = <code>true</code>, что означает "все собятия запрошенного
-   * объекта". Получается, что абстрактный мули-GWID запрашивает все события от всех объектов класса
-   * {@link Gwid#classId()}.
+   * Returns the objects event history for specified time interval.
    *
-   * @param aInterval {@link IQueryInterval} - the time interval to be queried
-   * @param aNeededGwids {@link IGwidList} - list of event GWIDs to be queried
-   * @return {@link ITimedList}&lt;{@link SkEvent}&gt; - list of requested events
+   * @param aInterval {@link IQueryInterval} - query time interval
+   * @param aGwid {@link Gwid} - valid concrete event(s) GWID of one object
+   * @return {@link ITimedList}&lt;{@link SkEvent}&gt; - list of the queried entities
    */
-  ITimedList<SkEvent> queryEvents( IQueryInterval aInterval, IGwidList aNeededGwids );
+  ITimedList<SkEvent> queryObjEvents( IQueryInterval aInterval, Gwid aGwid );
 
 }

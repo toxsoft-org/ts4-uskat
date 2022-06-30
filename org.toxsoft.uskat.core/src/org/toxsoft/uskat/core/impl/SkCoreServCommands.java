@@ -9,6 +9,7 @@ import org.toxsoft.core.tslib.av.opset.*;
 import org.toxsoft.core.tslib.bricks.ctx.*;
 import org.toxsoft.core.tslib.bricks.events.change.*;
 import org.toxsoft.core.tslib.bricks.events.msg.*;
+import org.toxsoft.core.tslib.bricks.time.*;
 import org.toxsoft.core.tslib.coll.*;
 import org.toxsoft.core.tslib.coll.impl.*;
 import org.toxsoft.core.tslib.coll.primtypes.*;
@@ -24,7 +25,6 @@ import org.toxsoft.uskat.core.api.sysdescr.dto.*;
 import org.toxsoft.uskat.core.backend.api.*;
 import org.toxsoft.uskat.core.devapi.*;
 import org.toxsoft.uskat.core.impl.dto.*;
-import org.toxsoft.uskat.core.utils.*;
 
 /**
  * {@link ISkCommandService} implementation.
@@ -39,14 +39,6 @@ public class SkCoreServCommands
    * Service creator singleton.
    */
   public static final ISkServiceCreator<AbstractSkService> CREATOR = SkCoreServCommands::new;
-
-  /**
-   * {@link #history()} impementation
-   */
-  private final ITemporalsHistory<IDtoCompletedCommand> history = ( aInterval, aGwids ) -> {
-    TsNullArgumentRtException.checkNulls( aInterval, aGwids );
-    return ba().baCommands().queryCommands( aInterval, aGwids );
-  };
 
   /**
    * Send commands executing now.
@@ -251,8 +243,13 @@ public class SkCoreServCommands
   }
 
   @Override
-  public ITemporalsHistory<IDtoCompletedCommand> history() {
-    return history;
+  public ITimedList<IDtoCompletedCommand> queryObjCommands( IQueryInterval aInterval, Gwid aGwid ) {
+    TsNullArgumentRtException.checkNulls( aInterval, aGwid );
+    TsIllegalArgumentRtException.checkTrue( aGwid.kind() != EGwidKind.GW_CMD );
+    TsIllegalArgumentRtException.checkTrue( aGwid.isAbstract() );
+    TsIllegalArgumentRtException.checkTrue( aGwid.isStridMulti() );
+    TsItemNotFoundRtException.checkFalse( gwidService().exists( aGwid ) );
+    return ba().baCommands().queryObjCommands( aInterval, aGwid );
   }
 
   @Override

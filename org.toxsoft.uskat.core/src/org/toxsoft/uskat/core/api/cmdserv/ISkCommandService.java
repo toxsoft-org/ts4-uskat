@@ -90,18 +90,21 @@ public interface ISkCommandService
   void changeCommandState( DtoCommandStateChangeInfo aStateChangeInfo );
 
   /**
-   * Returns the specified command history for specified time interval.
+   * Returns the object command history for specified time interval.
    * <p>
-   * Note: do not ask for long time interval, this method is synchronous and hence may frreze for a long time.
+   * Method accepts concrete GWID of kind {@link EGwidKind#GW_CMD}. Multi objects are <b>not</b> allowed, however
+   * multi-commands {@link Gwid#isPropMulti()} = <code>true</code> are allowed.
+   * <p>
+   * Note: do not ask for long time interval, this method is synchronous and hence may freeze for a long time.
    *
    * @param aInterval {@link IQueryInterval} - query time interval
-   * @param aGwid {@link Gwid} - concrete single (non-multi) GWID of the command
+   * @param aGwid {@link Gwid} - concrete GWID of the command (s)
    * @return {@link ITimedList}&lt;{@link IDtoCompletedCommand}&gt; - list of the queried entities
    * @throws TsNullArgumentRtException any argument = <code>null</code>
    * @throws TsIllegalArgumentRtException invalid GWID
    * @throws TsItemNotFoundRtException no such command exists in sysdescr
    */
-  ITimedList<IDtoCompletedCommand> query( IQueryInterval aInterval, Gwid aGwid );
+  ITimedList<IDtoCompletedCommand> queryObjCommands( IQueryInterval aInterval, Gwid aGwid );
 
   // ------------------------------------------------------------------------------------
   // Global GWIDs handling

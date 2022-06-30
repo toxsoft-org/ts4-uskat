@@ -89,6 +89,6 @@ public interface ISkRtdataService
    * @throws TsIllegalArgumentRtException invalid GWID
    * @throws TsItemNotFoundRtException no such RTdata exists in sysdescr
    */
-  ITimedList<ITemporalAtomicValue> query( IQueryInterval aInterval, Gwid aGwid );
+  ITimedList<ITemporalAtomicValue> queryObjRtdata( IQueryInterval aInterval, Gwid aGwid );
 
 }

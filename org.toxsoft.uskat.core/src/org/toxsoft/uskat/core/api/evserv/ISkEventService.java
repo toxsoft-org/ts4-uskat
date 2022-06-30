@@ -75,17 +75,20 @@ public interface ISkEventService
   void unregisterHandler( ISkEventHandler aEventHandler );
 
   /**
-   * Returns the specified event history for specified time interval.
+   * Returns the objects event history for specified time interval.
    * <p>
-   * Note: do not ask for long time interval, this method is synchronous and hence may frreze for a long time.
+   * Method accepts concrete GWID of kind {@link EGwidKind#GW_EVENT}. Multi objects are <b>not</b> allowed, however
+   * multi-events {@link Gwid#isPropMulti()} = <code>true</code> are allowed.
+   * <p>
+   * Note: do not ask for long time interval, this method is synchronous and hence may freeze for a long time.
    *
    * @param aInterval {@link IQueryInterval} - query time interval
-   * @param aGwid {@link Gwid} - concrete single (non-multi) GWID of the event
+   * @param aGwid {@link Gwid} - concrete GWID of event(s)
    * @return {@link ITimedList}&lt;{@link SkEvent}&gt; - list of the queried entities
    * @throws TsNullArgumentRtException any argument = <code>null</code>
    * @throws TsIllegalArgumentRtException invalid GWID
    * @throws TsItemNotFoundRtException no such event exists in sysdescr
    */
-  ITimedList<SkEvent> query( IQueryInterval aInterval, Gwid aGwid );
+  ITimedList<SkEvent> queryObjEvents( IQueryInterval aInterval, Gwid aGwid );
 
 }

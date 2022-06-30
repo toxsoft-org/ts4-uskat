@@ -94,19 +94,6 @@ public class MtbBaCommands
   }
 
   // ------------------------------------------------------------------------------------
-  // implementation
-  //
-
-  private static boolean isNeededCmd( IDtoCompletedCommand aCmd, IGwidList aNeededGwids ) {
-    for( Gwid g : aNeededGwids ) {
-      if( GwidUtils.covers( g, aCmd.cmd().cmdGwid() ) ) {
-        return true;
-      }
-    }
-    return false;
-  }
-
-  // ------------------------------------------------------------------------------------
   // Package API
   //
 
@@ -167,13 +154,14 @@ public class MtbBaCommands
   }
 
   @Override
-  public ITimedList<IDtoCompletedCommand> queryCommands( IQueryInterval aInterval, IGwidList aNeededGwids ) {
-    TsNullArgumentRtException.checkNulls( aInterval, aNeededGwids );
+  public ITimedList<IDtoCompletedCommand> queryObjCommands( IQueryInterval aInterval, Gwid aGwid ) {
     TimedList<IDtoCompletedCommand> result = new TimedList<>();
     for( IDtoCompletedCommand e : cmdsHistory.getItems() ) {
       if( TimeUtils.contains( aInterval, e.timestamp() ) ) {
-        if( isNeededCmd( e, aNeededGwids ) ) {
-          result.add( e );
+        if( e.cmd().cmdGwid().skid().equals( aGwid.skid() ) ) {
+          if( aGwid.isPropMulti() || aGwid.propId().equals( e.cmd().cmdGwid().propId() ) ) {
+            result.add( e );
+          }
         }
       }
     }

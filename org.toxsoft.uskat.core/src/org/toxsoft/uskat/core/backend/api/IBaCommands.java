@@ -74,12 +74,12 @@ public interface IBaCommands
   void saveToHistory( IDtoCompletedCommand aCompletedCommand );
 
   /**
-   * Fetches completed commands from history.
+   * Returns the object command history for specified time interval.
    *
-   * @param aInterval {@link IQueryInterval} - the time interval to be queried
-   * @param aNeededGwids {@link IGwidList} - list of command GWIDs to be queried
-   * @return {@link ITimedList}&lt;{@link IDtoCompletedCommand}&gt; - list of requested commands
+   * @param aInterval {@link IQueryInterval} - query time interval
+   * @param aGwid {@link Gwid} - valid concrete command(s) GWID of one object
+   * @return {@link ITimedList}&lt;{@link IDtoCompletedCommand}&gt; - list of the queried entities
    */
-  ITimedList<IDtoCompletedCommand> queryCommands( IQueryInterval aInterval, IGwidList aNeededGwids );
+  ITimedList<IDtoCompletedCommand> queryObjCommands( IQueryInterval aInterval, Gwid aGwid );
 
 }
