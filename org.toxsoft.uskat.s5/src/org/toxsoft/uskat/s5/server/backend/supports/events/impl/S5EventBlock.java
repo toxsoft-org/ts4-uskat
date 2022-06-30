@@ -11,11 +11,10 @@ import org.toxsoft.core.tslib.bricks.time.ITimedList;
 import org.toxsoft.core.tslib.gw.gwid.EGwidKind;
 import org.toxsoft.core.tslib.gw.gwid.Gwid;
 import org.toxsoft.core.tslib.utils.errors.*;
+import org.toxsoft.uskat.core.api.evserv.SkEvent;
 import org.toxsoft.uskat.s5.server.sequences.ISequenceBlockEdit;
 import org.toxsoft.uskat.s5.server.sequences.impl.S5SequenceAsyncBlock;
 import org.toxsoft.uskat.s5.utils.indexes.ILongKey;
-
-import ru.uskat.common.dpu.rt.events.SkEvent;
 
 /**
  * Блок хранения событий s5-объекта.

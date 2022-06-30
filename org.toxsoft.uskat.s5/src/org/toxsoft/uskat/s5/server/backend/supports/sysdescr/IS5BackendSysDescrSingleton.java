@@ -6,6 +6,7 @@ import org.toxsoft.core.tslib.bricks.strid.coll.IStridablesList;
 import org.toxsoft.core.tslib.coll.primtypes.IStringList;
 import org.toxsoft.core.tslib.utils.errors.TsItemNotFoundRtException;
 import org.toxsoft.core.tslib.utils.errors.TsNullArgumentRtException;
+import org.toxsoft.uskat.core.api.sysdescr.ISkClassHierarchyExplorer;
 import org.toxsoft.uskat.core.api.sysdescr.dto.IDtoClassInfo;
 import org.toxsoft.uskat.s5.common.sysdescr.ISkSysdescrDtoReader;
 import org.toxsoft.uskat.s5.common.sysdescr.ISkSysdescrReader;
@@ -18,7 +19,7 @@ import org.toxsoft.uskat.s5.server.backend.IS5BackendSupportSingleton;
  */
 @Local
 public interface IS5BackendSysDescrSingleton
-    extends ISkSysdescrDtoReader, IS5BackendSupportSingleton {
+    extends ISkSysdescrDtoReader, ISkClassHierarchyExplorer, IS5BackendSupportSingleton {
 
   // ------------------------------------------------------------------------------------
   // Чтение системного описания

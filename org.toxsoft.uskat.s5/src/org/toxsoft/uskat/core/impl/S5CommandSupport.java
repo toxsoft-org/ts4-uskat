@@ -15,18 +15,12 @@ import org.toxsoft.core.tslib.coll.primtypes.impl.StringArrayList;
 import org.toxsoft.core.tslib.gw.gwid.*;
 import org.toxsoft.core.tslib.utils.errors.TsNotAllEnumsUsedRtException;
 import org.toxsoft.core.tslib.utils.errors.TsNullArgumentRtException;
+import org.toxsoft.uskat.core.api.cmdserv.*;
+import org.toxsoft.uskat.s5.legacy.SkGwidUtils;
 import org.toxsoft.uskat.s5.utils.threads.impl.S5Lockable;
 
-import ru.uskat.common.dpu.rt.cmds.DpuCommandStateChangeInfo;
-import ru.uskat.common.dpu.rt.cmds.IDpuCommand;
-import ru.uskat.common.dpu.rt.events.SkCommandStateChangeInfoList;
-import ru.uskat.core.api.cmds.ISkCommandExecutor;
-import ru.uskat.core.api.cmds.ISkCommandService;
-import ru.uskat.core.impl.SkGwidUtils;
-import ru.uskat.core.impl.SkGwidUtils.ISkClassHierarchyProvider;
-
 /**
- * Вспомогательный класс обработки комманд {@link IDpuCommand}.
+ * Вспомогательный класс обработки комманд {@link IDtoCommand}.
  *
  * @author mvk
  */
@@ -50,7 +44,7 @@ public final class S5CommandSupport
   private final GwidList gwids = new GwidList();
 
   /**
-   * Список идентификаторов {@link IDpuCommand#id()} команд ожидающих выполнения
+   * Список идентификаторов {@link IDtoCommand#id()} команд ожидающих выполнения
    */
   private final IStringListEdit executingCmds = new StringArrayList( false );
 
@@ -91,7 +85,7 @@ public final class S5CommandSupport
    * Если при добавлении команды будет обнаружено, что очередь команд переполнена, то самая старая команда будет удалена
    * из очереди ожидания.
    *
-   * @param aCmdId String идентификатор команды {@link IDpuCommand#id()}
+   * @param aCmdId String идентификатор команды {@link IDtoCommand#id()}
    * @return {@link ValidationResult} результат добавления команды в очередь
    * @throws TsNullArgumentRtException любой аргумент = null
    */
@@ -118,16 +112,16 @@ public final class S5CommandSupport
    * Если состояние какой-либо команды определено как "команда завершена", то команда будет удалена из списка команд
    * ожидающих выполнения.
    *
-   * @param aStates {@link ITimedList}&lt; {@link DpuCommandStateChangeInfo}&gt; список состояний для фильтрации
+   * @param aStates {@link ITimedList}&lt; {@link DtoCommandStateChangeInfo}&gt; список состояний для фильтрации
    * @return SkCommandStateChangeInfoList список состояний команд целевого fronedn.
    * @throws TsNullArgumentRtException любой аргумент = null
    */
-  public SkCommandStateChangeInfoList updateExecutingCmds( ITimedList<DpuCommandStateChangeInfo> aStates ) {
+  public SkCommandStateChangeInfoList updateExecutingCmds( ITimedList<DtoCommandStateChangeInfo> aStates ) {
     TsNullArgumentRtException.checkNull( aStates );
     SkCommandStateChangeInfoList retValue = new SkCommandStateChangeInfoList();
     lockWrite( lock() );
     try {
-      for( DpuCommandStateChangeInfo dpuState : aStates ) {
+      for( DtoCommandStateChangeInfo dpuState : aStates ) {
         String cmdId = dpuState.cmdId();
         if( !executingCmds.hasElem( cmdId ) ) {
           // Завершение команды не ожидается целевым frontend
@@ -151,7 +145,7 @@ public final class S5CommandSupport
    * <p>
    * Если команда не зарегистрирована, то ничего не делает
    *
-   * @param aCmdId String идентификатор команды {@link IDpuCommand#id()}
+   * @param aCmdId String идентификатор команды {@link IDtoCommand#id()}
    * @return boolean <b>true</b> команда удалена;<b>false</b> команда не найдена.
    * @throws TsNullArgumentRtException любой аргумент = null
    */
@@ -222,11 +216,11 @@ public final class S5CommandSupport
    * Возвращает признак того, что представленная команда может быть исполнена исполнителем
    *
    * @param aHierarchy {@link ISkClassHierarchyProvider} поставщик информации об иерархии классов
-   * @param aCommand {@link IDpuCommand} проверяемая команда {@link IDpuCommand#cmdGwid()}
+   * @param aCommand {@link IDtoCommand} проверяемая команда {@link IDtoCommand#cmdGwid()}
    * @return boolean <b>true</b> команда исполняется; <b>false</b> команда не исполняется.
    * @throws TsNullArgumentRtException любой аргумент = null
    */
-  public boolean acceptable( ISkClassHierarchyProvider aHierarchy, IDpuCommand aCommand ) {
+  public boolean acceptable( ISkClassHierarchyProvider aHierarchy, IDtoCommand aCommand ) {
     TsNullArgumentRtException.checkNulls( aHierarchy, aCommand );
     // Блокирование доступа на чтение карты обработчиков
     lockRead( lock() );

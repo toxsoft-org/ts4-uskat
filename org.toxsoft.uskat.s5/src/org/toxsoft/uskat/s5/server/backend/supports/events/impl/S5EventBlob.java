@@ -6,9 +6,8 @@ import javax.persistence.Entity;
 
 import org.toxsoft.core.tslib.utils.errors.TsInternalErrorRtException;
 import org.toxsoft.core.tslib.utils.errors.TsNullArgumentRtException;
+import org.toxsoft.uskat.core.api.evserv.SkEvent;
 import org.toxsoft.uskat.s5.server.sequences.impl.S5SequenceAsyncBlob;
-
-import ru.uskat.common.dpu.rt.events.SkEvent;
 
 /**
  * Данные блока хранения событий s5-объекта.

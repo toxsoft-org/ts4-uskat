@@ -5,8 +5,6 @@ import static org.toxsoft.uskat.s5.server.backend.supports.events.IS5EventHardCo
 import static org.toxsoft.uskat.s5.server.backend.supports.events.impl.IS5Resources.*;
 import static org.toxsoft.uskat.s5.utils.IS5HardConstants.*;
 
-import java.io.Serializable;
-
 import org.toxsoft.core.tslib.av.opset.IOptionSetEdit;
 import org.toxsoft.core.tslib.av.utils.IParameterized;
 import org.toxsoft.core.tslib.av.utils.IParameterizedEdit;
@@ -18,13 +16,12 @@ import org.toxsoft.core.tslib.gw.gwid.Gwid;
 import org.toxsoft.core.tslib.utils.Pair;
 import org.toxsoft.core.tslib.utils.errors.TsIllegalStateRtException;
 import org.toxsoft.core.tslib.utils.errors.TsNullArgumentRtException;
+import org.toxsoft.uskat.core.api.evserv.SkEvent;
+import org.toxsoft.uskat.core.api.sysdescr.ISkClassInfo;
+import org.toxsoft.uskat.s5.common.sysdescr.ISkSysdescrReader;
 import org.toxsoft.uskat.s5.server.sequences.*;
 import org.toxsoft.uskat.s5.server.sequences.impl.S5SequenceFactory;
 import org.toxsoft.uskat.s5.server.startup.IS5InitialImplementation;
-
-import ru.uskat.common.dpu.rt.events.SkEvent;
-import ru.uskat.core.api.sysdescr.ISkClassInfo;
-import ru.uskat.core.common.helpers.sysdescr.ISkSysdescrReader;
 
 /**
  * Фабрика формирования последовательности блоков событий
@@ -32,8 +29,7 @@ import ru.uskat.core.common.helpers.sysdescr.ISkSysdescrReader;
  * @author mvk
  */
 public class S5EventSequenceFactory
-    extends S5SequenceFactory<SkEvent>
-    implements Serializable {
+    extends S5SequenceFactory<SkEvent> {
 
   private static final long serialVersionUID = 157157L;
 
