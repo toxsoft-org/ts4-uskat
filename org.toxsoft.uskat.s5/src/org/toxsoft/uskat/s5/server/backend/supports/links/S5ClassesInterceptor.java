@@ -17,16 +17,20 @@ import org.toxsoft.core.tslib.bricks.strid.coll.impl.StridablesList;
 import org.toxsoft.core.tslib.coll.IList;
 import org.toxsoft.core.tslib.coll.IListEdit;
 import org.toxsoft.core.tslib.coll.impl.ElemArrayList;
+import org.toxsoft.core.tslib.gw.gwid.Gwid;
 import org.toxsoft.core.tslib.gw.skid.ISkidList;
 import org.toxsoft.core.tslib.utils.TsLibUtils;
 import org.toxsoft.core.tslib.utils.errors.TsIllegalStateRtException;
 import org.toxsoft.core.tslib.utils.errors.TsNullArgumentRtException;
+import org.toxsoft.uskat.core.api.linkserv.IDtoLinkFwd;
+import org.toxsoft.uskat.core.api.linkserv.IDtoLinkRev;
+import org.toxsoft.uskat.core.api.objserv.IDtoObject;
+import org.toxsoft.uskat.core.api.sysdescr.dto.IDtoClassInfo;
+import org.toxsoft.uskat.core.api.sysdescr.dto.IDtoLinkInfo;
+import org.toxsoft.uskat.core.impl.dto.DtoLinkFwd;
 import org.toxsoft.uskat.s5.server.backend.supports.objects.IS5BackendObjectsSingleton;
 import org.toxsoft.uskat.s5.server.backend.supports.sysdescr.IS5ClassesInterceptor;
 import org.toxsoft.uskat.s5.server.transactions.*;
-
-import ru.uskat.common.dpu.*;
-import ru.uskat.common.dpu.impl.DpuLinkFwd;
 
 /**
  * Интерсептор системного описания используемый {@link S5BackendLinksSingleton}
@@ -67,33 +71,33 @@ class S5ClassesInterceptor
   // Реализация интерфейса IS5ClassesInterceptor
   //
   @Override
-  public void beforeCreateClass( IDpuSdClassInfo aClassInfo ) {
+  public void beforeCreateClass( IDtoClassInfo aClassInfo ) {
     // nop
   }
 
   @Override
-  public void afterCreateClass( IDpuSdClassInfo aClassInfo ) {
+  public void afterCreateClass( IDtoClassInfo aClassInfo ) {
     // nop
   }
 
   @Override
-  public void beforeUpdateClass( IDpuSdClassInfo aPrevClassInfo, IDpuSdClassInfo aNewClassInfo,
-      IStridablesList<IDpuSdClassInfo> aDescendants ) {
+  public void beforeUpdateClass( IDtoClassInfo aPrevClassInfo, IDtoClassInfo aNewClassInfo,
+      IStridablesList<IDtoClassInfo> aDescendants ) {
     // Подготовка транзакции к перемещению реализации (объектов и/или их связей) если необходимо
     beforeChangeImplIfNeed( txManager, entityManager, aPrevClassInfo, aNewClassInfo );
   }
 
   @Override
-  public void afterUpdateClass( IDpuSdClassInfo aPrevClassInfo, IDpuSdClassInfo aNewClassInfo,
-      IStridablesList<IDpuSdClassInfo> aDescendants ) {
+  public void afterUpdateClass( IDtoClassInfo aPrevClassInfo, IDtoClassInfo aNewClassInfo,
+      IStridablesList<IDtoClassInfo> aDescendants ) {
     // Завершение перемещения реализации (объектов и/или их связей) если необходимо
     afterChangeImplIfNeed( txManager, entityManager, aNewClassInfo );
     // Идентификатор изменяемого класса
     String classId = aNewClassInfo.id();
     // Список удаленных связей
-    IStridablesListEdit<IDpuSdLinkInfo> removedLinks = new StridablesList<>();
+    IStridablesListEdit<IDtoLinkInfo> removedLinks = new StridablesList<>();
     // Список добавленных связей
-    IStridablesListEdit<IDpuSdLinkInfo> addedLinks = new StridablesList<>();
+    IStridablesListEdit<IDtoLinkInfo> addedLinks = new StridablesList<>();
     // Анализ для формирования списка добавленных и удаленных связей
     loadSysdescrChangedProps( aPrevClassInfo.linkInfos(), aNewClassInfo.linkInfos(), removedLinks, addedLinks );
 
@@ -104,17 +108,18 @@ class S5ClassesInterceptor
       return;
     }
     // Список объектов изменяющихся классов
-    IList<IDpuObject> objs = S5TransactionUtils.txUpdatedClassObjs( txManager, objectsBackend, classId, aDescendants );
+    IList<IDtoObject> objs = S5TransactionUtils.txUpdatedClassObjs( txManager, objectsBackend, classId, aDescendants );
     if( objs.size() == 0 ) {
       // Нет объектов
       return;
     }
     // Список удаляемых ПРЯМЫХ связей удаляемых объектов.
-    IListEdit<IDpuLinkFwd> removedFwdLinks = new ElemArrayList<>( removedLinks.size() * objs.size() );
+    IListEdit<IDtoLinkFwd> removedFwdLinks = new ElemArrayList<>( removedLinks.size() * objs.size() );
     // Удаление реализаций прямых связей из таблиц которые больше неопределены в классе
-    for( IDpuSdLinkInfo link : removedLinks ) {
-      for( IDpuObject obj : objs ) {
-        removedFwdLinks.add( new DpuLinkFwd( obj.classId(), link.id(), obj.skid(), ISkidList.EMPTY ) );
+    for( IDtoLinkInfo link : removedLinks ) {
+      for( IDtoObject obj : objs ) {
+        removedFwdLinks
+            .add( new DtoLinkFwd( Gwid.createLink( obj.classId(), link.id() ), obj.skid(), ISkidList.EMPTY ) );
       }
     }
     // Запись в базу данных. false: запретить перехват
@@ -122,12 +127,12 @@ class S5ClassesInterceptor
   }
 
   @Override
-  public void beforeDeleteClass( IDpuSdClassInfo aClassInfo ) {
+  public void beforeDeleteClass( IDtoClassInfo aClassInfo ) {
     // Целостность контролируется внешним ключом: S5LinkFwdEntity -> S5ClassEntity
   }
 
   @Override
-  public void afterDeleteClass( IDpuSdClassInfo aClassInfo ) {
+  public void afterDeleteClass( IDtoClassInfo aClassInfo ) {
     // Целостность контролируется внешним ключом: S5LinkFwdEntity -> S5ClassEntity
   }
 
@@ -140,13 +145,13 @@ class S5ClassesInterceptor
    *
    * @param aTxManager {@link IS5TransactionManagerSingleton} менеджер транзакций
    * @param aEntityManager {@link EntityManager} менеджер постоянства
-   * @param aPrevClassInfo {@link IDpuSdClassInfo} описание класса (старая редакция)
-   * @param aNewClassInfo {@link IDpuSdClassInfo} описание класса (новая редакция)
+   * @param aPrevClassInfo {@link IDtoClassInfo} описание класса (старая редакция)
+   * @param aNewClassInfo {@link IDtoClassInfo} описание класса (новая редакция)
    * @return boolean <b>true</b> выполнен процесс перемещения реализации;<b>false</b> перемещение не требуется
    * @throws TsNullArgumentRtException любой аргумент = null
    */
   private static boolean beforeChangeImplIfNeed( IS5TransactionManagerSingleton aTxManager,
-      EntityManager aEntityManager, IDpuSdClassInfo aPrevClassInfo, IDpuSdClassInfo aNewClassInfo ) {
+      EntityManager aEntityManager, IDtoClassInfo aPrevClassInfo, IDtoClassInfo aNewClassInfo ) {
     TsNullArgumentRtException.checkNulls( aTxManager, aEntityManager, aPrevClassInfo, aNewClassInfo );
     // Класс реализации хранения связей
     String prevObjectImplClassName = OP_OBJECT_IMPL_CLASS.getValue( aPrevClassInfo.params() ).asString();
@@ -165,9 +170,9 @@ class S5ClassesInterceptor
       String classId = aPrevClassInfo.id();
       Class<S5LinkFwdEntity> prevFwdClass = getLinkFwdImplClass( prevLinkFwdImplClassName );
       Class<S5LinkRevEntity> prevRevClass = getLinkRevImplClass( prevLinkRevImplClassName );
-      List<IDpuLinkFwd> fwdLinks =
+      List<IDtoLinkFwd> fwdLinks =
           getFwdLinksByClassId( aEntityManager, prevFwdClass.getName(), classId, TsLibUtils.EMPTY_STRING );
-      List<IDpuLinkRev> revLinks = getRevLinksByClassId( aEntityManager, prevRevClass.getName(), classId );
+      List<IDtoLinkRev> revLinks = getRevLinksByClassId( aEntityManager, prevRevClass.getName(), classId );
       // Текущая транзакция
       IS5Transaction tx = aTxManager.getTransaction();
       // Размещение ресурсов в транзакции
@@ -189,18 +194,18 @@ class S5ClassesInterceptor
    *
    * @param aTxManager {@link IS5TransactionManagerSingleton} менеджер транзакций
    * @param aEntityManager {@link EntityManager} менеджер постоянства
-   * @param aNewClassInfo {@link IDpuSdClassInfo} описание класса (новая редакция)
+   * @param aNewClassInfo {@link IDtoClassInfo} описание класса (новая редакция)
    * @return boolean <b>true</b> выполнен процесс перемещения реализации;<b>false</b> перемещение не требуется
    * @throws TsNullArgumentRtException любой аргумент = null
    */
   private static boolean afterChangeImplIfNeed( IS5TransactionManagerSingleton aTxManager, EntityManager aEntityManager,
-      IDpuSdClassInfo aNewClassInfo ) {
+      IDtoClassInfo aNewClassInfo ) {
     TsNullArgumentRtException.checkNulls( aTxManager, aEntityManager, aNewClassInfo );
     // Текущая транзакция
     IS5Transaction tx = aTxManager.getTransaction();
     // Поиск ресурсов в транзакции
-    List<IDpuLinkFwd> fwdLinks = tx.findResource( TX_UPDATED_FWD_LINKS_BY_CHANGE_IMPL );
-    List<IDpuLinkRev> revLinks = tx.findResource( TX_UPDATED_REV_LINKS_BY_CHANGE_IMPL );
+    List<IDtoLinkFwd> fwdLinks = tx.findResource( TX_UPDATED_FWD_LINKS_BY_CHANGE_IMPL );
+    List<IDtoLinkRev> revLinks = tx.findResource( TX_UPDATED_REV_LINKS_BY_CHANGE_IMPL );
     if( fwdLinks == null || revLinks == null ) {
       return false;
     }
@@ -211,14 +216,14 @@ class S5ClassesInterceptor
     Class<S5LinkRevEntity> newRevClass = getLinkRevImplClass( newLinkRevImplClassName );
     // Конструктор копирования для ПРЯМОЙ связи новой реализации
     Constructor<S5LinkFwdEntity> fwdConstructor = getConstructorLinkFwdBySource( newFwdClass );
-    for( IDpuLinkFwd link : fwdLinks ) {
+    for( IDtoLinkFwd link : fwdLinks ) {
       // 2020-07-21 mvk
       // aEntityManager.persist( createLinkFwdEntity( fwdConstructor, link ) );
       aEntityManager.merge( createLinkFwdEntity( fwdConstructor, link ) );
     }
     // Конструктор копирования для ОБРАТНЫОЙ связи новой реализации
     Constructor<S5LinkRevEntity> revConstructor = getConstructorLinkRevBySource( newRevClass );
-    for( IDpuLinkRev link : revLinks ) {
+    for( IDtoLinkRev link : revLinks ) {
       // 2020-07-21 mvk
       // aEntityManager.persist( createLinkRevEntity( revConstructor, link ) );
       aEntityManager.merge( createLinkRevEntity( revConstructor, link ) );

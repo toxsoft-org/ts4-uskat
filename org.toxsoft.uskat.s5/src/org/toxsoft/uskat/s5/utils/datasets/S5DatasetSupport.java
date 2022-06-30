@@ -19,7 +19,6 @@ import org.toxsoft.core.tslib.utils.logs.ILogger;
 import org.toxsoft.uskat.s5.server.sessions.S5RemoteSession;
 import org.toxsoft.uskat.s5.utils.threads.impl.S5Lockable;
 
-import ru.uskat.common.dpu.rt.events.SkCurrDataValues;
 
 /**
  * Поддержка работы с наборами данных

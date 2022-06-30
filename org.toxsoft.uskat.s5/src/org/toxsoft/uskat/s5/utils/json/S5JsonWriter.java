@@ -2,7 +2,7 @@ package org.toxsoft.uskat.s5.utils.json;
 
 import static org.toxsoft.core.pas.tj.impl.TjUtils.*;
 import static org.toxsoft.core.tslib.gw.IGwHardConstants.*;
-import static ru.uskat.common.ISkHardConstants.*;
+import static org.toxsoft.uskat.core.ISkHardConstants.*;
 
 import org.toxsoft.core.pas.tj.ITjObject;
 import org.toxsoft.core.pas.tj.ITjValue;
@@ -16,15 +16,17 @@ import org.toxsoft.core.tslib.coll.primtypes.IStringListEdit;
 import org.toxsoft.core.tslib.coll.primtypes.impl.StringArrayList;
 import org.toxsoft.core.tslib.gw.skid.Skid;
 import org.toxsoft.core.tslib.utils.errors.*;
-
-import ru.uskat.core.ISkCoreApi;
-import ru.uskat.core.api.links.ISkLinkFwd;
-import ru.uskat.core.api.links.ISkLinkService;
-import ru.uskat.core.api.objserv.ISkObjectService;
-import ru.uskat.core.api.sysdescr.*;
-import ru.uskat.core.common.skobject.ISkObject;
-import ru.uskat.core.connection.ESkConnState;
-import ru.uskat.core.connection.ISkConnection;
+import org.toxsoft.uskat.core.ISkCoreApi;
+import org.toxsoft.uskat.core.api.linkserv.IDtoLinkFwd;
+import org.toxsoft.uskat.core.api.linkserv.ISkLinkService;
+import org.toxsoft.uskat.core.api.objserv.ISkObject;
+import org.toxsoft.uskat.core.api.objserv.ISkObjectService;
+import org.toxsoft.uskat.core.api.sysdescr.ISkClassInfo;
+import org.toxsoft.uskat.core.api.sysdescr.ISkSysdescr;
+import org.toxsoft.uskat.core.api.sysdescr.dto.IDtoAttrInfo;
+import org.toxsoft.uskat.core.api.sysdescr.dto.IDtoLinkInfo;
+import org.toxsoft.uskat.core.connection.ESkConnState;
+import org.toxsoft.uskat.core.connection.ISkConnection;
 
 /**
  * Писатель JSON
@@ -98,7 +100,7 @@ public class S5JsonWriter {
     TsNullArgumentRtException.checkNulls( aConnection, aExcludeClassIds );
     TsIllegalArgumentRtException.checkFalse( aConnection.state() == ESkConnState.ACTIVE );
     ISkCoreApi coreApi = aConnection.coreApi();
-    ISkClassInfoManager cm = coreApi.sysdescr().classInfoManager();
+    ISkSysdescr sysdescr = coreApi.sysdescr();
     ISkObjectService os = coreApi.objService();
     ISkLinkService ls = coreApi.linkService();
     ITjObject retValue = createTjObject();
@@ -106,17 +108,17 @@ public class S5JsonWriter {
     // Составление списка классов для исключения которые есть в соединении
     IStringListEdit excludedClassIds = new StringArrayList();
     for( String id : aExcludeClassIds ) {
-      if( cm.findClassInfo( id ) != null ) {
+      if( sysdescr.findClassInfo( id ) != null ) {
         excludedClassIds.add( id );
       }
     }
 
     // Классы
     IListEdit<ITjValue> classes = new ElemLinkedList<>();
-    for( ISkClassInfo classInfo : cm.listClasses() ) {
+    for( ISkClassInfo classInfo : sysdescr.listClasses() ) {
       String classId = classInfo.id();
       // Проверка того, что класс не находится в списке исключенных
-      if( isExcludedClass( cm, excludedClassIds, classId ) ) {
+      if( isExcludedClass( sysdescr, excludedClassIds, classId ) ) {
         // Класс в blacklist
         continue;
       }
@@ -130,11 +132,11 @@ public class S5JsonWriter {
       tjoClass.fields().put( PARAMS, writeOptionSet( classInfo.params(), IStringList.EMPTY ) );
       // Описание родительского класса. null: его не существует
       ISkClassInfo parentClassInfo =
-          (!classId.equals( GW_ROOT_CLASS_ID ) ? cm.getClassInfo( classInfo.parentId() ) : null);
+          (!classId.equals( GW_ROOT_CLASS_ID ) ? sysdescr.getClassInfo( classInfo.parentId() ) : null);
       // Атрибуты класса
       IListEdit<ITjValue> attrs = new ElemLinkedList<>();
-      for( ISkAttrInfo attrInfo : classInfo.attrInfos() ) {
-        if( parentClassInfo != null && parentClassInfo.attrInfos().hasKey( attrInfo.id() ) ) {
+      for( IDtoAttrInfo attrInfo : classInfo.attrs().list() ) {
+        if( parentClassInfo != null && parentClassInfo.attrs().list().hasKey( attrInfo.id() ) ) {
           // Атрибут определен в базовом классе
           continue;
         }
@@ -151,8 +153,8 @@ public class S5JsonWriter {
 
       // Связи класса
       IListEdit<ITjValue> links = new ElemLinkedList<>();
-      for( ISkLinkInfo linkInfo : classInfo.linkInfos() ) {
-        if( parentClassInfo != null && parentClassInfo.linkInfos().hasKey( linkInfo.id() ) ) {
+      for( IDtoLinkInfo linkInfo : classInfo.links().list() ) {
+        if( parentClassInfo != null && parentClassInfo.links().list().hasKey( linkInfo.id() ) ) {
           // Связь определена в базовом классе
           continue;
         }
@@ -177,10 +179,10 @@ public class S5JsonWriter {
     IListEdit<ITjValue> objects = new ElemLinkedList<>();
     // Список атрибутов исключенных из обработки (избыточная информация)
     IStringList excludedAttrs = new StringArrayList( AID_SKID, AID_CLASS_ID, AID_STRID );
-    for( ISkClassInfo classInfo : cm.listClasses() ) {
+    for( ISkClassInfo classInfo : sysdescr.listClasses() ) {
       String classId = classInfo.id();
       // Проверка того, что класс не находится в списке исключенных
-      if( isExcludedClass( cm, excludedClassIds, classId ) ) {
+      if( isExcludedClass( sysdescr, excludedClassIds, classId ) ) {
         // Класс в blacklist
         continue;
       }
@@ -210,17 +212,16 @@ public class S5JsonWriter {
   /**
    * Возвращает признак того, что указанный класс должен быть исключен из обработки
    *
-   * @param aClassInfoManager {@link ISkClassInfoManager} менеджер классов
+   * @param aSysdescr {@link ISkSysdescr} системное описание
    * @param aExcludedClassIds {@link IStringListEdit} список идентификаторов исключаемых классов
    * @param aClassId String проверяемый класс
    * @return boolean <b>true</b> класс исключается из обработки;<b>false</b> класс не исключается из обработки
    * @throws TsNullArgumentRtException любой аргумент = null
    */
-  private static boolean isExcludedClass( ISkClassInfoManager aClassInfoManager, IStringListEdit aExcludedClassIds,
-      String aClassId ) {
-    TsNullArgumentRtException.checkNulls( aClassInfoManager, aExcludedClassIds, aClassId );
+  private static boolean isExcludedClass( ISkSysdescr aSysdescr, IStringListEdit aExcludedClassIds, String aClassId ) {
+    TsNullArgumentRtException.checkNulls( aSysdescr, aExcludedClassIds, aClassId );
     for( String excludeClassId : aExcludedClassIds ) {
-      if( (aClassInfoManager.isAncestor( excludeClassId, aClassId ) || excludeClassId.equals( aClassId )) ) {
+      if( (aSysdescr.hierarchy().isSuperclassOf( excludeClassId, aClassId ) || excludeClassId.equals( aClassId )) ) {
         return true;
       }
     }
@@ -278,9 +279,9 @@ public class S5JsonWriter {
   private static ITjValue writeLinks( ISkLinkService aLinkService, ISkClassInfo aClassInfo, ISkObject aObj ) {
     TsNullArgumentRtException.checkNulls( aLinkService, aClassInfo, aObj );
     IListEdit<ITjValue> objectLinks = new ElemLinkedList<>();
-    for( ISkLinkInfo linkInfo : aClassInfo.linkInfos() ) {
+    for( IDtoLinkInfo linkInfo : aClassInfo.links().list() ) {
       String linkId = linkInfo.id();
-      ISkLinkFwd linkFwd = aLinkService.getLink( aObj.skid(), linkId );
+      IDtoLinkFwd linkFwd = aLinkService.getLinkFwd( aObj.skid(), linkId );
       IListEdit<ITjValue> link = new ElemLinkedList<>();
       for( Skid rightObjId : linkFwd.rightSkids() ) {
         link.add( createString( rightObjId.toString() ) );

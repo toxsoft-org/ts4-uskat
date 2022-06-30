@@ -24,23 +24,23 @@ import org.toxsoft.core.tslib.coll.impl.ElemArrayList;
 import org.toxsoft.core.tslib.coll.primtypes.IStringList;
 import org.toxsoft.core.tslib.coll.primtypes.IStringMapEdit;
 import org.toxsoft.core.tslib.coll.primtypes.impl.StringMap;
+import org.toxsoft.core.tslib.gw.gwid.Gwid;
 import org.toxsoft.core.tslib.gw.skid.*;
 import org.toxsoft.core.tslib.utils.Pair;
 import org.toxsoft.core.tslib.utils.TsLibUtils;
 import org.toxsoft.core.tslib.utils.errors.*;
 import org.toxsoft.core.tslib.utils.logs.ILogger;
+import org.toxsoft.uskat.core.api.linkserv.IDtoLinkFwd;
+import org.toxsoft.uskat.core.api.linkserv.IDtoLinkRev;
+import org.toxsoft.uskat.core.api.sysdescr.ISkClassInfo;
+import org.toxsoft.uskat.core.impl.dto.DtoLinkFwd;
+import org.toxsoft.uskat.core.impl.dto.DtoLinkRev;
+import org.toxsoft.uskat.s5.common.sysdescr.ISkSysdescrReader;
 import org.toxsoft.uskat.s5.server.backend.impl.S5BackendSupportSingleton;
 import org.toxsoft.uskat.s5.server.backend.supports.events.IS5BackendEventSingleton;
 import org.toxsoft.uskat.s5.server.backend.supports.objects.IS5BackendObjectsSingleton;
 import org.toxsoft.uskat.s5.server.backend.supports.sysdescr.IS5BackendSysDescrSingleton;
 import org.toxsoft.uskat.s5.server.interceptors.S5InterceptorSupport;
-
-import ru.uskat.common.dpu.IDpuLinkFwd;
-import ru.uskat.common.dpu.IDpuLinkRev;
-import ru.uskat.common.dpu.impl.DpuLinkFwd;
-import ru.uskat.common.dpu.impl.DpuLinkRev;
-import ru.uskat.core.api.sysdescr.ISkClassInfo;
-import ru.uskat.core.common.helpers.sysdescr.ISkSysdescrReader;
 
 /**
  * Реализация {@link IS5BackendLinksSingleton}.
@@ -165,22 +165,22 @@ public class S5BackendLinksSingleton
   //
   @Override
   @TransactionAttribute( TransactionAttributeType.SUPPORTS )
-  public IDpuLinkFwd findLink( String aClassId, String aLinkId, Skid aLeftSkid ) {
+  public IDtoLinkFwd findLink( String aClassId, String aLinkId, Skid aLeftSkid ) {
     TsNullArgumentRtException.checkNulls( aClassId, aLinkId, aLeftSkid );
 
     // Пред-интерсепция
-    IDpuLinkFwd retValue = callBeforeFindLink( interceptors, aClassId, aLinkId, aLeftSkid );
+    IDtoLinkFwd retValue = callBeforeFindLink( interceptors, aClassId, aLinkId, aLeftSkid );
 
     if( retValue == null ) {
       ISkClassInfo classInfo = sysdescrReader.findClassInfo( aLeftSkid.classId() );
-      if( classInfo != null && classInfo.linkInfos().hasKey( aLinkId ) ) {
+      if( classInfo != null && classInfo.links().list().hasKey( aLinkId ) ) {
         Class<S5LinkFwdEntity> linkImplClass = getLinkFwdImplClass( classInfo );
         retValue = entityManager.find( linkImplClass, new S5LinkID( aLeftSkid, aClassId, aLinkId ) );
         if( retValue == null ) {
           // Проверяем если объект
           if( objectsBackend.findObject( aLeftSkid ) != null ) {
             // Связь с объектами не найдена (пустая)
-            retValue = new DpuLinkFwd( aClassId, aLinkId, aLeftSkid, ISkidList.EMPTY );
+            retValue = new DtoLinkFwd( Gwid.createLink( aClassId, aLinkId ), aLeftSkid, ISkidList.EMPTY );
           }
         }
       }
@@ -194,16 +194,16 @@ public class S5BackendLinksSingleton
 
   @Override
   @TransactionAttribute( TransactionAttributeType.SUPPORTS )
-  public IDpuLinkFwd readLink( String aClassId, String aLinkId, Skid aLeftSkid ) {
+  public IDtoLinkFwd readLink( String aClassId, String aLinkId, Skid aLeftSkid ) {
     TsNullArgumentRtException.checkNulls( aClassId, aLinkId, aLeftSkid );
 
     // Пред-интерсепция
-    IDpuLinkFwd retValue = callBeforeReadLink( interceptors, aClassId, aLinkId, aLeftSkid );
+    IDtoLinkFwd retValue = callBeforeReadLink( interceptors, aClassId, aLinkId, aLeftSkid );
 
     if( retValue == null ) {
       // Описание класса левого объекта связи
       ISkClassInfo classInfo = sysdescrReader.getClassInfo( aLeftSkid.classId() );
-      if( !classInfo.linkInfos().hasKey( aLinkId ) ) {
+      if( !classInfo.links().list().hasKey( aLinkId ) ) {
         // У объекта нет указанной связи
         throw new TsItemNotFoundRtException( MSG_ERR_OBJECT_DONT_HAVE_LINK, aLeftSkid, aLinkId );
       }
@@ -216,7 +216,7 @@ public class S5BackendLinksSingleton
           throw new TsItemNotFoundRtException( MSG_ERR_OBJECT_NOT_FOUND, aLeftSkid );
         }
         // Связь с объектами не найдена (пустая)
-        retValue = new DpuLinkFwd( aClassId, aLinkId, aLeftSkid, ISkidList.EMPTY );
+        retValue = new DtoLinkFwd( Gwid.createLink( aClassId, aLinkId ), aLeftSkid, ISkidList.EMPTY );
       }
     }
 
@@ -233,16 +233,16 @@ public class S5BackendLinksSingleton
 
   @Override
   @TransactionAttribute( TransactionAttributeType.SUPPORTS )
-  public IDpuLinkRev readReverseLink( String aClassId, String aLinkId, Skid aRightSkid, IStringList aLeftClassIds ) {
+  public IDtoLinkRev readReverseLink( String aClassId, String aLinkId, Skid aRightSkid, IStringList aLeftClassIds ) {
     TsNullArgumentRtException.checkNulls( aClassId, aLinkId, aRightSkid, aLeftClassIds );
 
     // Пред-интерсепция
-    IDpuLinkRev retValue = callBeforeReadReverseLink( interceptors, aClassId, aLinkId, aRightSkid, aLeftClassIds );
+    IDtoLinkRev retValue = callBeforeReadReverseLink( interceptors, aClassId, aLinkId, aRightSkid, aLeftClassIds );
 
     if( retValue == null ) {
       // Описание класса в котором определена связь
       ISkClassInfo linkClassInfo = sysdescrReader.getClassInfo( aClassId );
-      if( !linkClassInfo.linkInfos().hasKey( aLinkId ) ) {
+      if( !linkClassInfo.links().list().hasKey( aLinkId ) ) {
         // У класса нет указанной связи
         throw new TsItemNotFoundRtException( MSG_ERR_CLASS_DONT_HAVE_LINK, aClassId, aLinkId );
       }
@@ -257,7 +257,7 @@ public class S5BackendLinksSingleton
           throw new TsItemNotFoundRtException( MSG_ERR_OBJECT_NOT_FOUND, aRightSkid );
         }
         // Связи на объект не найдены (пустая)
-        return new DpuLinkRev( aClassId, aLinkId, aRightSkid, ISkidList.EMPTY );
+        return new DtoLinkRev( Gwid.createLink( aClassId, aLinkId ), aRightSkid, ISkidList.EMPTY );
       }
       if( aLeftClassIds.size() > 0 ) {
         // Фильтрация результата в соответствии с параметрами поиска
@@ -279,7 +279,7 @@ public class S5BackendLinksSingleton
 
   @Override
   @TransactionAttribute( TransactionAttributeType.REQUIRED )
-  public void writeLink( IDpuLinkFwd aLink ) {
+  public void writeLink( IDtoLinkFwd aLink ) {
     TsNullArgumentRtException.checkNulls( aLink );
     // Запись связей. true: разрешить перехват
     writeLinks( new ElemArrayList<>( aLink ), true );
@@ -287,7 +287,7 @@ public class S5BackendLinksSingleton
 
   @Override
   @TransactionAttribute( TransactionAttributeType.SUPPORTS )
-  public List<IDpuLinkFwd> getLinks( String aClassId ) {
+  public List<IDtoLinkFwd> getLinks( String aClassId ) {
     TsNullArgumentRtException.checkNull( aClassId );
     ISkClassInfo classInfo = sysdescrReader.getClassInfo( aClassId );
     // Класс реализации хранения значений объекта
@@ -297,7 +297,7 @@ public class S5BackendLinksSingleton
 
   @Override
   @TransactionAttribute( TransactionAttributeType.SUPPORTS )
-  public List<IDpuLinkFwd> getLinks( String aClassId, String aLinkId ) {
+  public List<IDtoLinkFwd> getLinks( String aClassId, String aLinkId ) {
     TsNullArgumentRtException.checkNulls( aClassId, aLinkId );
     ISkClassInfo classInfo = sysdescrReader.getClassInfo( aClassId );
     // Класс реализации хранения значений объекта
@@ -308,7 +308,7 @@ public class S5BackendLinksSingleton
   @Override
   @TransactionAttribute( TransactionAttributeType.REQUIRED )
   @SuppressWarnings( "unchecked" )
-  public void writeLinks( IList<IDpuLinkFwd> aLinks, boolean aInterceptionEnabled ) {
+  public void writeLinks( IList<IDtoLinkFwd> aLinks, boolean aInterceptionEnabled ) {
     TsNullArgumentRtException.checkNull( aLinks );
     // Время начала выполнения запроса
     long currTime = System.currentTimeMillis();
@@ -317,8 +317,8 @@ public class S5BackendLinksSingleton
     // Загрузка карты обновляемых ПРЯМЫХ связей
     loadUpdatedLinks( linkWriterSupport, aLinks );
     // Карта обновляемых ПРЯМЫХ связей объектов по классам левого объекта связи
-    IMap<ISkClassInfo, IList<Pair<IDpuLinkFwd, IDpuLinkFwd>>> updatedLinks =
-        (IMap<ISkClassInfo, IList<Pair<IDpuLinkFwd, IDpuLinkFwd>>>)(Object)linkWriterSupport.updatedLinks;
+    IMap<ISkClassInfo, IList<Pair<IDtoLinkFwd, IDtoLinkFwd>>> updatedLinks =
+        (IMap<ISkClassInfo, IList<Pair<IDtoLinkFwd, IDtoLinkFwd>>>)(Object)linkWriterSupport.updatedLinks;
     long loadTimestamp = System.currentTimeMillis();
 
     if( aInterceptionEnabled ) {
@@ -331,10 +331,10 @@ public class S5BackendLinksSingleton
     int updateCount = 0;
     int createCount = 0;
     for( ISkClassInfo classInfo : updatedLinks.keys() ) {
-      IList<Pair<IDpuLinkFwd, IDpuLinkFwd>> links = updatedLinks.getByKey( classInfo );
-      for( Pair<IDpuLinkFwd, IDpuLinkFwd> link : links ) {
-        IDpuLinkFwd prevLink = link.left();
-        IDpuLinkFwd newLink = link.right();
+      IList<Pair<IDtoLinkFwd, IDtoLinkFwd>> links = updatedLinks.getByKey( classInfo );
+      for( Pair<IDtoLinkFwd, IDtoLinkFwd> link : links ) {
+        IDtoLinkFwd prevLink = link.left();
+        IDtoLinkFwd newLink = link.right();
         int prevCount = (prevLink != S5LinkFwdEntity.NULL ? prevLink.rightSkids().size() : 0);
         int newCount = newLink.rightSkids().size();
         if( prevCount > 0 && newCount == 0 ) {
@@ -418,20 +418,20 @@ public class S5BackendLinksSingleton
    * Формирует список обновляемых ПРЯМЫХ связей
    *
    * @param aSupport {@link S5LinkWriterSupport} вспомогательный механизм записи
-   * @param aLinks {@link IList}&lt;{@link IDpuLinkFwd}&gt; список связей объектов записываемых в базу данных
+   * @param aLinks {@link IList}&lt;{@link IDtoLinkFwd}&gt; список связей объектов записываемых в базу данных
    * @throws TsNullArgumentRtException любой аргумент = null
    */
-  private static void loadUpdatedLinks( S5LinkWriterSupport aSupport, IList<IDpuLinkFwd> aLinks ) {
+  private static void loadUpdatedLinks( S5LinkWriterSupport aSupport, IList<IDtoLinkFwd> aLinks ) {
     TsNullArgumentRtException.checkNulls( aSupport, aLinks );
     // Карта конструкторов объектов. Ключ: идентификатор класса левого объекта связи; Значение: конструктор
     IStringMapEdit<Constructor<S5LinkFwdEntity>> linkFwdContructors = new StringMap<>();
-    for( IDpuLinkFwd link : aLinks ) {
+    for( IDtoLinkFwd link : aLinks ) {
       String classId = link.leftSkid().classId();
       ISkClassInfo classInfo = getClassInfo( aSupport.sysdescrReader, aSupport.classesByIds, classId );
       // Класс реализации прямой связи
       Class<S5LinkFwdEntity> linkFwdImplClass = getLinkFwdImplClass( classInfo, aSupport.implLinkFwdByIds );
       // Создание новой связи объекта
-      IDpuLinkFwd newLink = link;
+      IDtoLinkFwd newLink = link;
       // Если связь объекта не может быть маппирована на базу данных, то создаем копию связи объекта
       if( newLink.getClass() != linkFwdImplClass ) {
         // Конструктор связи
@@ -447,12 +447,12 @@ public class S5BackendLinksSingleton
       // Первичный ключ
       S5LinkID linkID = new S5LinkID( link.leftSkid(), link.classId(), link.linkId() );
       // Поиск существующей связи объекта
-      IDpuLinkFwd prevLink = aSupport.entityManager.find( linkFwdImplClass, linkID );
+      IDtoLinkFwd prevLink = aSupport.entityManager.find( linkFwdImplClass, linkID );
       if( prevLink == null ) {
         // Связь не существует
         prevLink = S5LinkFwdEntity.NULL;
       }
-      IListEdit<Pair<IDpuLinkFwd, IDpuLinkFwd>> links = aSupport.updatedLinks.findByKey( classInfo );
+      IListEdit<Pair<IDtoLinkFwd, IDtoLinkFwd>> links = aSupport.updatedLinks.findByKey( classInfo );
       if( links == null ) {
         links = new ElemArrayList<>( aLinks.size() );
         aSupport.updatedLinks.put( classInfo, links );
@@ -465,11 +465,11 @@ public class S5BackendLinksSingleton
    * Удаляет из базы данных связи объекта
    *
    * @param aSupport {@link S5LinkWriterSupport} вспомогательный механизм записи
-   * @param aLinkFwd {@link IDpuLinkFwd} удаляемая ПРЯМАЯ связь объекта
+   * @param aLinkFwd {@link IDtoLinkFwd} удаляемая ПРЯМАЯ связь объекта
    * @param aLogger {@link ILogger} журнал
    * @throws TsNullArgumentRtException любой аргумент = null
    */
-  private static void removeLinks( S5LinkWriterSupport aSupport, IDpuLinkFwd aLinkFwd, ILogger aLogger ) {
+  private static void removeLinks( S5LinkWriterSupport aSupport, IDtoLinkFwd aLinkFwd, ILogger aLogger ) {
     TsNullArgumentRtException.checkNulls( aSupport, aLinkFwd, aLogger );
     String linkClassId = aLinkFwd.classId();
     Skid leftSkid = aLinkFwd.leftSkid();
@@ -485,13 +485,13 @@ public class S5BackendLinksSingleton
    * Обновляет в базе данных связь объекта
    *
    * @param aSupport {@link S5LinkWriterSupport} вспомогательный механизм записи
-   * @param aNewLink {@link IDpuLinkFwd} новое состояние прямой связи объекта
+   * @param aNewLink {@link IDtoLinkFwd} новое состояние прямой связи объекта
    * @param aRemovedRightLinks {@link ISkidList} список удаленных правых связей
    * @param aCreatedRightLinks {@link ISkidList} список созданных правых связей
    * @param aLogger {@link ILogger} журнал
    * @throws TsNullArgumentRtException любой аргумент = null
    */
-  private static void updateLinks( S5LinkWriterSupport aSupport, IDpuLinkFwd aNewLink, SkidList aRemovedRightLinks,
+  private static void updateLinks( S5LinkWriterSupport aSupport, IDtoLinkFwd aNewLink, SkidList aRemovedRightLinks,
       SkidList aCreatedRightLinks, ILogger aLogger ) {
     TsNullArgumentRtException.checkNulls( aSupport, aNewLink, aRemovedRightLinks, aCreatedRightLinks, aLogger );
     String linkClassId = aNewLink.classId();
@@ -513,10 +513,10 @@ public class S5BackendLinksSingleton
    * Создает в базе данных связи объекта
    *
    * @param aSupport {@link S5LinkWriterSupport} вспомогательный механизм записи
-   * @param aLinkFwd {@link IDpuLinkFwd} добавляемая ПРЯМАЯ связь объекта
+   * @param aLinkFwd {@link IDtoLinkFwd} добавляемая ПРЯМАЯ связь объекта
    * @throws TsNullArgumentRtException любой аргумент = null
    */
-  private static void createdLinks( S5LinkWriterSupport aSupport, IDpuLinkFwd aLinkFwd ) {
+  private static void createdLinks( S5LinkWriterSupport aSupport, IDtoLinkFwd aLinkFwd ) {
     TsNullArgumentRtException.checkNulls( aSupport, aLinkFwd );
     Skid leftSkid = aLinkFwd.leftSkid();
     String linkClassId = aLinkFwd.classId();
@@ -643,11 +643,11 @@ public class S5BackendLinksSingleton
   /**
    * Возвращает текстовое представление связи
    *
-   * @param aLink {@link IDpuLinkFwd} связь
+   * @param aLink {@link IDtoLinkFwd} связь
    * @return String тествое представление
    * @throws TsNullArgumentRtException аргумент = null
    */
-  private static String linkToStr( IDpuLinkFwd aLink ) {
+  private static String linkToStr( IDtoLinkFwd aLink ) {
     TsNullArgumentRtException.checkNull( aLink );
     StringBuilder sb = new StringBuilder();
     sb.append( aLink.leftSkid() );

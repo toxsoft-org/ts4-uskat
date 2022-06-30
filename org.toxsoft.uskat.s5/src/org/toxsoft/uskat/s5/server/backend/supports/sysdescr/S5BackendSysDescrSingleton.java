@@ -29,6 +29,7 @@ import org.toxsoft.core.tslib.coll.primtypes.IStringListEdit;
 import org.toxsoft.core.tslib.coll.primtypes.impl.StringLinkedBundleList;
 import org.toxsoft.core.tslib.utils.TsLibUtils;
 import org.toxsoft.core.tslib.utils.errors.*;
+import org.toxsoft.uskat.core.api.sysdescr.ISkClassInfo;
 import org.toxsoft.uskat.core.api.sysdescr.dto.IDtoClassInfo;
 import org.toxsoft.uskat.core.backend.api.IBaClassesMessages;
 import org.toxsoft.uskat.core.impl.dto.DtoClassInfo;
@@ -129,7 +130,7 @@ public class S5BackendSysDescrSingleton
   }
 
   // ------------------------------------------------------------------------------------
-  // Реализация интерфейса IS5BackendSysDescrSingleton
+  // IS5BackendSysDescrSingleton
   //
   @Override
   @TransactionAttribute( TransactionAttributeType.SUPPORTS )
@@ -159,7 +160,7 @@ public class S5BackendSysDescrSingleton
   }
 
   // ------------------------------------------------------------------------------------
-  // Реализация интерфейса ISkBackendSystemDescription
+  // ISkBackendSystemDescription
   //
   @Override
   @TransactionAttribute( TransactionAttributeType.SUPPORTS )
@@ -259,6 +260,51 @@ public class S5BackendSysDescrSingleton
         fireWhenSysdescrChanged( backend().attachedFrontends(), ECrudOp.LIST, null );
       }
     }
+  }
+
+  // ------------------------------------------------------------------------------------
+  // ISkClassHierarchyExplorer
+  //
+  @Override
+  public boolean isSuperclassOf( String aClassId, String aSubclassId ) {
+    TsNullArgumentRtException.checkNulls( aClassId, aSubclassId );
+    ISkClassInfo classInfo = sysdescrReader.findClassInfo( aSubclassId );
+    while( classInfo.parent() != null ) {
+      if( aClassId.equals( classInfo.parent().id() ) ) {
+        return true;
+      }
+      classInfo = sysdescrReader.findClassInfo( classInfo.parent().id() );
+    }
+    return false;
+  }
+
+  @Override
+  public boolean isAssignableFrom( String aClassId, String aSubclassId ) {
+    TsNullArgumentRtException.checkNulls( aClassId, aSubclassId );
+    return (aClassId.equals( aSubclassId ) || isSuperclassOf( aClassId, aSubclassId ));
+  }
+
+  @Override
+  public boolean isSubclassOf( String aClassId, String aSuperclassId ) {
+    TsNullArgumentRtException.checkNulls( aClassId, aSuperclassId );
+    return isSuperclassOf( aSuperclassId, aClassId );
+  }
+
+  @Override
+  public boolean isAssignableTo( String aClassId, String aSuperclassId ) {
+    TsNullArgumentRtException.checkNulls( aClassId, aSuperclassId );
+    return isAssignableFrom( aSuperclassId, aClassId );
+  }
+
+  @Override
+  public boolean isOfClass( String aClassId, IStringList aClassIdsList ) {
+    TsNullArgumentRtException.checkNulls( aClassId, aClassIdsList );
+    for( String classId : aClassIdsList ) {
+      if( classId.equals( aClassId ) && isSubclassOf( classId, aClassId ) ) {
+        return true;
+      }
+    }
+    return false;
   }
 
   // ------------------------------------------------------------------------------------
@@ -527,7 +573,8 @@ public class S5BackendSysDescrSingleton
    * @throws TsNullArgumentRtException аргумент = null
    */
   private static void fireWhenSysdescrChanged( IList<IS5FrontendRear> aFrontends, ECrudOp aOp, String aClassId ) {
-    TsNullArgumentRtException.checkNulls( aFrontends, aOp, aClassId );
+    TsNullArgumentRtException.checkNulls( aFrontends, aOp );
+    TsNullArgumentRtException.checkTrue( aOp != ECrudOp.LIST && aClassId == null );
     GtMessage message = IBaClassesMessages.makeMessage( aOp, aClassId );
     for( IS5FrontendRear frontend : aFrontends ) {
       frontend.onBackendMessage( message );

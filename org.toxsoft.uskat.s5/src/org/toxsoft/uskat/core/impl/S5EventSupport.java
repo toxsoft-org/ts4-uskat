@@ -11,15 +11,10 @@ import org.toxsoft.core.tslib.gw.gwid.*;
 import org.toxsoft.core.tslib.utils.errors.TsNotAllEnumsUsedRtException;
 import org.toxsoft.core.tslib.utils.errors.TsNullArgumentRtException;
 import org.toxsoft.core.tslib.utils.logs.ILogger;
+import org.toxsoft.uskat.core.api.evserv.*;
+import org.toxsoft.uskat.core.api.sysdescr.ISkClassHierarchyExplorer;
+import org.toxsoft.uskat.s5.legacy.SkGwidUtils;
 import org.toxsoft.uskat.s5.utils.threads.impl.S5Lockable;
-
-import ru.uskat.backend.messages.SkMessageWhenEvents;
-import ru.uskat.common.dpu.rt.events.SkEvent;
-import ru.uskat.common.dpu.rt.events.SkEventList;
-import ru.uskat.core.api.events.ISkEventHandler;
-import ru.uskat.core.api.events.ISkEventService;
-import ru.uskat.core.impl.SkGwidUtils;
-import ru.uskat.core.impl.SkGwidUtils.ISkClassHierarchyProvider;
 
 /**
  * Вспомогательный класс обработки событий {@link SkEvent}.
@@ -125,12 +120,12 @@ public final class S5EventSupport
   /**
    * Фильтрует указанные события в соответствии с {@link #gwids}.
    *
-   * @param aHierarchy {@link ISkClassHierarchyProvider} поставщик информации об иерархии классов
+   * @param aHierarchy {@link ISkClassHierarchyExplorer} поставщик информации об иерархии классов
    * @param aEvents {@link ITimedList} список событий для фильтрации
    * @return SkEventList список событий прошедших фильтрацию
    * @throws TsNullArgumentRtException любой аргумент = null
    */
-  public SkEventList filter( ISkClassHierarchyProvider aHierarchy, ITimedList<SkEvent> aEvents ) {
+  public SkEventList filter( ISkClassHierarchyExplorer aHierarchy, ITimedList<SkEvent> aEvents ) {
     TsNullArgumentRtException.checkNulls( aHierarchy, aEvents );
     // Список отправляемых событий
     SkEventList events = new SkEventList();

@@ -2,8 +2,7 @@ package org.toxsoft.uskat.core.impl;
 
 import org.toxsoft.core.tslib.coll.IList;
 import org.toxsoft.core.tslib.utils.errors.TsNullArgumentRtException;
-
-import ru.uskat.common.dpu.rt.events.SkEvent;
+import org.toxsoft.uskat.core.api.evserv.SkEvent;
 
 /**
  * Вспомогательные методы для работы с событиями

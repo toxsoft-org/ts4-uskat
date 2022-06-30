@@ -11,10 +11,9 @@ import org.toxsoft.core.tslib.coll.primtypes.IStringMapEdit;
 import org.toxsoft.core.tslib.coll.primtypes.impl.StringMap;
 import org.toxsoft.core.tslib.utils.Pair;
 import org.toxsoft.core.tslib.utils.errors.TsNullArgumentRtException;
-
-import ru.uskat.common.dpu.IDpuLinkFwd;
-import ru.uskat.core.api.sysdescr.ISkClassInfo;
-import ru.uskat.core.common.helpers.sysdescr.ISkSysdescrReader;
+import org.toxsoft.uskat.core.api.linkserv.IDtoLinkFwd;
+import org.toxsoft.uskat.core.api.sysdescr.ISkClassInfo;
+import org.toxsoft.uskat.s5.common.sysdescr.ISkSysdescrReader;
 
 /**
  * Вспомогательный класс записи связей между объектами
@@ -80,7 +79,7 @@ final class S5LinkWriterSupport {
    * Значение: список пар изменившихся связей. Левое - старая редакция связи (может быть {@link S5LinkFwdEntity#NULL} ),
    * правое - новое
    */
-  final IMapEdit<ISkClassInfo, IListEdit<Pair<IDpuLinkFwd, IDpuLinkFwd>>> updatedLinks = new ElemMap<>();
+  final IMapEdit<ISkClassInfo, IListEdit<Pair<IDtoLinkFwd, IDtoLinkFwd>>> updatedLinks = new ElemMap<>();
 
   /**
    * Конструктор

@@ -9,9 +9,8 @@ import java.sql.ResultSet;
 
 import org.toxsoft.core.tslib.coll.primtypes.IStringMapEdit;
 import org.toxsoft.core.tslib.utils.errors.*;
-
-import ru.uskat.common.dpu.IDpuObject;
-import ru.uskat.core.api.sysdescr.ISkClassInfo;
+import org.toxsoft.uskat.core.api.objserv.IDtoObject;
+import org.toxsoft.uskat.core.api.sysdescr.ISkClassInfo;
 
 /**
  * Вспомогательные методы пакета для работы с отражением java
@@ -53,18 +52,18 @@ class S5ObjectReflectUtils {
   }
 
   /**
-   * Возвращает конструктор копирования объекта через исходное {@link IDpuObject}.
+   * Возвращает конструктор копирования объекта через исходное {@link IDtoObject}.
    *
    * @param aObjectImplClass Class класс реализации объекта, наследник {@link S5ObjectEntity}
-   * @return {@link Constructor} конструктор с параметром ({@link IDpuObject} )
+   * @return {@link Constructor} конструктор с параметром ({@link IDtoObject} )
    * @throws TsNullArgumentRtException аргумент = null
    * @throws TsIllegalArgumentRtException не найден класс реализации объекта
-   * @throws TsIllegalArgumentRtException не найден метод конструктора с параметром {@link IDpuObject}
+   * @throws TsIllegalArgumentRtException не найден метод конструктора с параметром {@link IDtoObject}
    */
   static Constructor<S5ObjectEntity> getConstructorBySource( Class<S5ObjectEntity> aObjectImplClass ) {
     TsNullArgumentRtException.checkNull( aObjectImplClass );
     try {
-      Constructor<S5ObjectEntity> retValue = aObjectImplClass.getDeclaredConstructor( IDpuObject.class );
+      Constructor<S5ObjectEntity> retValue = aObjectImplClass.getDeclaredConstructor( IDtoObject.class );
       retValue.setAccessible( true );
       return retValue;
     }
@@ -109,11 +108,11 @@ class S5ObjectReflectUtils {
    * Создает объект способный быть сохранен в базе данных
    *
    * @param aConstructor {@link Constructor}&lt;{@link S5ObjectEntity}&gt; конструктор объекта
-   * @param aSource {@link IDpuObject} исходное описание объекта
+   * @param aSource {@link IDtoObject} исходное описание объекта
    * @return {@link S5ObjectEntity} созданный объект
    * @throws TsNullArgumentRtException любой аргумент = null
    */
-  static S5ObjectEntity createObjectEntity( Constructor<S5ObjectEntity> aConstructor, IDpuObject aSource ) {
+  static S5ObjectEntity createObjectEntity( Constructor<S5ObjectEntity> aConstructor, IDtoObject aSource ) {
     TsNullArgumentRtException.checkNulls( aConstructor, aSource );
     try {
       return aConstructor.newInstance( aSource );

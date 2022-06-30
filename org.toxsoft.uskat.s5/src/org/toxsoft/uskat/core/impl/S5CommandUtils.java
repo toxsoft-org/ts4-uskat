@@ -2,8 +2,7 @@ package org.toxsoft.uskat.core.impl;
 
 import org.toxsoft.core.tslib.coll.IList;
 import org.toxsoft.core.tslib.utils.errors.TsNullArgumentRtException;
-
-import ru.uskat.common.dpu.rt.cmds.DpuCommandStateChangeInfo;
+import org.toxsoft.uskat.core.api.cmdserv.DtoCommandStateChangeInfo;
 
 /**
  * Вспомогательные методы для работы с командами
@@ -18,11 +17,11 @@ public class S5CommandUtils {
   /**
    * Возвращает текстовое представление списка состояний команд
    *
-   * @param aCommandStates {@link IList}&lt;{@link DpuCommandStateChangeInfo}&gt;список состояний команд
+   * @param aCommandStates {@link IList}&lt;{@link DtoCommandStateChangeInfo}&gt;список состояний команд
    * @return String текстовое представление
    * @throws TsNullArgumentRtException аргумент = null
    */
-  public static String commandStates2str( IList<DpuCommandStateChangeInfo> aCommandStates ) {
+  public static String commandStates2str( IList<DtoCommandStateChangeInfo> aCommandStates ) {
     TsNullArgumentRtException.checkNull( aCommandStates );
     if( aCommandStates.size() == 0 ) {
       return "no command states"; //$NON-NLS-1$

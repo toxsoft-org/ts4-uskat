@@ -12,21 +12,24 @@ import javax.ejb.TransactionAttributeType;
 import org.toxsoft.core.pas.common.PasChannel;
 import org.toxsoft.core.pas.json.IJSONNotificationHandler;
 import org.toxsoft.core.tslib.av.IAtomicValue;
-import org.toxsoft.core.tslib.av.opset.IOptionSet;
 import org.toxsoft.core.tslib.bricks.ICooperativeMultiTaskable;
 import org.toxsoft.core.tslib.bricks.events.msg.GtMessage;
+import org.toxsoft.core.tslib.coll.IList;
+import org.toxsoft.core.tslib.coll.IListEdit;
+import org.toxsoft.core.tslib.coll.impl.ElemArrayList;
 import org.toxsoft.core.tslib.gw.skid.Skid;
 import org.toxsoft.core.tslib.utils.ICloseable;
 import org.toxsoft.core.tslib.utils.TsLibUtils;
 import org.toxsoft.core.tslib.utils.errors.TsNullArgumentRtException;
 import org.toxsoft.core.tslib.utils.logs.ILogger;
+import org.toxsoft.uskat.s5.client.remote.connection.pas.S5CallbackOnMessage;
 import org.toxsoft.uskat.s5.common.sessions.IS5SessionInfo;
 import org.toxsoft.uskat.s5.server.backend.IS5BackendCoreSingleton;
+import org.toxsoft.uskat.s5.server.backend.addons.IS5BackendAddonCreator;
 import org.toxsoft.uskat.s5.server.backend.impl.S5BackendCoreSingleton;
 import org.toxsoft.uskat.s5.server.frontend.IS5FrontendRear;
 import org.toxsoft.uskat.s5.server.frontend.S5FrontendData;
-import org.toxsoft.uskat.s5.server.sessions.IS5SessionManager;
-import org.toxsoft.uskat.s5.server.sessions.S5RemoteSession;
+import org.toxsoft.uskat.s5.server.sessions.*;
 
 /**
  * Передача обратных вызовов от сервера к клиенту
@@ -41,36 +44,32 @@ public class S5SessionCallbackWriter
    */
   private static final String TO_STRING_FORMAT = "%s@%s[%s]"; //$NON-NLS-1$
 
-  private final IS5BackendCoreSingleton backend;
-  private volatile S5RemoteSession      session;
-  // TODO: mvk 2022-06-26 Уходит в backendAddon
-  // private final int currdataTimeout;
-  // private final SkCurrDataValues currdataValues = new SkCurrDataValues();
-  // private final S5Lockable currdataValuesLock = new S5Lockable();
-  private long                     lastCurrdataTime = System.currentTimeMillis();
-  private S5SessionCallbackChannel channel;
-  private final ILogger            logger           = getLogger( getClass() );
+  private final IS5BackendCoreSingleton    backendCoreSingleton;
+  private volatile S5RemoteSession         session;
+  private S5SessionCallbackChannel         channel;
+  private final IList<IS5MessageProcessor> messageProcessors;
+  private final ILogger                    logger = getLogger( getClass() );
 
   /**
    * Менеджер сессий
    * <p>
    * Устанавливается через lazy-загрузку {@link #sessionManager()} . Это связано с тем, что конструктор писателя может
    * (когда уже есть открытые сессии) быть использан из {@link S5BackendCoreSingleton#doInit} и обращение "назад" к
-   * backend вызовет ошибку рекурсивного доступа
+   * backendCoreSingleton вызовет ошибку рекурсивного доступа
    */
   private volatile IS5SessionManager sessionManager;
 
   /**
    * Конструктор
    *
-   * @param aBackend {@link IS5BackendCoreSingleton} backend сервера
+   * @param aBackendCoreSingleton {@link IS5BackendCoreSingleton} backendCoreSingleton сервера
    * @param aSession {@link S5RemoteSession} сессия
    * @param aChannel {@link S5SessionCallbackChannel} канал обмена данными
    * @throws TsNullArgumentRtException любой аругмент = null
    */
-  public S5SessionCallbackWriter( IS5BackendCoreSingleton aBackend, S5RemoteSession aSession,
+  public S5SessionCallbackWriter( IS5BackendCoreSingleton aBackendCoreSingleton, S5RemoteSession aSession,
       S5SessionCallbackChannel aChannel ) {
-    TsNullArgumentRtException.checkNulls( aBackend, aSession, aChannel );
+    TsNullArgumentRtException.checkNulls( aBackendCoreSingleton, aSession, aChannel );
 
     // // TODO:
     // // http port
@@ -84,17 +83,19 @@ public class S5SessionCallbackWriter
     // // Имя узла кластера
     // String node = System.getProperty( JBOSS_NODE_NAME );
 
-    backend = aBackend;
+    backendCoreSingleton = aBackendCoreSingleton;
     session = aSession;
     channel = aChannel;
-    // Подключение к backend
-    // 2021-02-13 mvk перемещено в S5SessionManager
-    // backend.attachFrontend( this );
-    // Опции клиента
-    IOptionSet options = session.info().clientOptions();
 
-    // TODO: mvk 2022-06-26 Уходит в backendAddon
-    // currdataTimeout = OP_CURRDATA_TIMEOUT.getValue( options ).asInt();
+    // Получение процессоров сообщений от расширений бекенда
+    IListEdit<IS5MessageProcessor> mp = new ElemArrayList<>();
+    for( IS5BackendAddonCreator baCreator : backendCoreSingleton.initialConfig().impl().baCreators() ) {
+      IS5MessageProcessor processor = baCreator.messageProcessor();
+      if( processor != IS5MessageProcessor.NULL ) {
+        mp.add( processor );
+      }
+    }
+    messageProcessors = mp;
 
     IAtomicValue remoteAddress = avStr( session.info().remoteAddress() );
     IAtomicValue remotePort = avInt( session.info().remotePort() );
@@ -175,47 +176,35 @@ public class S5SessionCallbackWriter
   @Override
   public void onBackendMessage( GtMessage aMessage ) {
     TsNullArgumentRtException.checkNull( aMessage );
-    // TODO: mvk 2022-06-26 Уходит в backendAddon
-    // if( WHEN_COMMANDS_STATE_CHANGED.equals( aMessage.messageId() ) ) {
-    // // Мог изменится список выполняемых команд. Обновим данные сессии (возможно избыточно, неконтролируем)
-    // sessionManager().updateRemoteSession( session );
-    // }
-    // if( WHEN_CURRDATA_CHANGED.equals( aMessage.messageId() ) && //
-    // currdataTimeout > 0 ) {
-    // // Текущие данные передаются по таймауту текущих данных (буферизация)
-    // lockRead( currdataValuesLock );
-    // try {
-    // currdataValues.putAll( aMessage.args().getValobj( ARG_VALUES ) );
-    // }
-    // finally {
-    // unlockRead( currdataValuesLock );
-    // }
-    // return;
-    // }
-    // try {
-    // // 2020-05-22 mvk
-    // if( channel.isRunning() ) {
-    // S5CallbackOnMessage.send( channel, aMessage );
-    // }
-    // else {
-    // // Канал находится не в рабочем состоянии
-    // logger.error( "onMessage(...): pas channel.isRunning() = false, sessionID = %s. close remote connection",
-    // //$NON-NLS-1$
-    // sessionID() );
-    // sessionManager().closeRemoteSession( sessionID() );
-    // }
-    // }
-    // catch( Throwable e ) {
-    // // Обработка ошибки записи обратного вызова
-    // handleWriteError( this, e, logger );
-    // // Попытка записать информацию в статистику о сессии
-    // try {
-    // S5SessionInfo.onErrorEvent( sessionManager(), session().info().sessionID() );
-    // }
-    // catch( Throwable e2 ) {
-    // logger.error( e2 );
-    // }
-    // }
+    // Обработка сообщений процессором
+    for( IS5MessageProcessor processor : messageProcessors ) {
+      if( processor.processMessage( aMessage ) ) {
+        // Сообщение обработанно процессором
+        return;
+      }
+    }
+    try {
+      if( channel.isRunning() ) {
+        S5CallbackOnMessage.send( channel, aMessage );
+      }
+      else {
+        // Канал находится не в рабочем состоянии
+        logger.error( "onMessage(...): pas channel.isRunning() = false, sessionID = %s. close remote connection", //$NON-NLS-1$
+            sessionID() );
+        sessionManager().closeRemoteSession( sessionID() );
+      }
+    }
+    catch( Throwable e ) {
+      // Обработка ошибки записи обратного вызова
+      handleWriteError( this, e, logger );
+      // Попытка записать информацию в статистику о сессии
+      try {
+        S5SessionInfo.onErrorEvent( sessionManager(), session().info().sessionID() );
+      }
+      catch( Throwable e2 ) {
+        logger.error( e2 );
+      }
+    }
   }
 
   @Override
@@ -229,40 +218,20 @@ public class S5SessionCallbackWriter
   //
   @Override
   public void doJob() {
-    // TODO: mvk 2022-06-26 Уходит в backendAddon
-    // long currTime = System.currentTimeMillis();
-    // // Отправка значений текущих данных по таймауту
-    // if( currdataTimeout > 0 && currTime - lastCurrdataTime > currdataTimeout ) {
-    // lockRead( currdataValuesLock );
-    // try {
-    // try {
-    // if( currdataValues.size() > 0 ) {
-    // IOptionSetEdit args = new OptionSet();
-    // args.setValobj( ARG_VALUES, currdataValues );
-    // // 2020-05-22 mvk
-    // if( channel.isRunning() ) {
-    // S5CallbackOnMessage.send( channel, new GenericMessage( WHEN_CURRDATA_CHANGED, args ) );
-    // }
-    // else {
-    // // Канал находится не в рабочем состоянии
-    // logger.error( "doJob(...): pas channel.isRunning() = false, sessionID = %s. close remote connection",
-    // //$NON-NLS-1$
-    // sessionID() );
-    // sessionManager().closeRemoteSession( sessionID() );
-    // }
-    // currdataValues.clear();
-    // }
-    // lastCurrdataTime = currTime;
-    // }
-    // catch( Throwable e ) {
-    // // Обработка ошибки записи обратного вызова
-    // handleWriteError( this, e, logger );
-    // }
-    // }
-    // finally {
-    // unlockRead( currdataValuesLock );
-    // }
-    // }
+    if( !channel.isRunning() ) {
+      logger.error( "doJob(...): pas channel.isRunning() = false, sessionID = %s. close remote connection", //$NON-NLS-1$
+          sessionID() );
+      sessionManager().closeRemoteSession( sessionID() );
+      return;
+    }
+    // Передача накопленных сообщений
+    for( IS5MessageProcessor processor : messageProcessors ) {
+      GtMessage message = processor.getHeadOrNull();
+      while( message != null ) {
+        S5CallbackOnMessage.send( channel, message );
+        message = processor.getHeadOrNull();
+      }
+    }
   }
 
   // ------------------------------------------------------------------------------------
@@ -270,8 +239,8 @@ public class S5SessionCallbackWriter
   //
   @Override
   public void close() {
-    // Отключение от backend
-    backend.detachFrontend( this );
+    // Отключение от backendCoreSingleton
+    backendCoreSingleton.detachFrontend( this );
     // Завершение работы канала передачи
     channel.close();
   }
@@ -320,19 +289,19 @@ public class S5SessionCallbackWriter
    */
   private IS5SessionManager sessionManager() {
     if( sessionManager == null ) {
-      sessionManager = backend.sessionManager();
+      sessionManager = backendCoreSingleton.sessionManager();
     }
     return sessionManager;
   }
 
   /**
-   * Возвращает backend системного описания
+   * Возвращает backendCoreSingleton системного описания
    *
-   * @return {@link IS5BackendSysDescrSingleton} backend системного описания
+   * @return {@link IS5BackendSysDescrSingleton} backendCoreSingleton системного описания
    */
   // private IS5BackendSysDescrSingleton sysdescrBackend() {
   // if( sysdescrBackend == null ) {
-  // sysdescrBackend = backend.sysdescr();
+  // sysdescrBackend = backendCoreSingleton.sysdescr();
   // }
   // return sysdescrBackend;
   // }

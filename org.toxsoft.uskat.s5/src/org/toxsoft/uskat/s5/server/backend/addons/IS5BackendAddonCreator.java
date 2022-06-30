@@ -8,6 +8,7 @@ import org.toxsoft.core.tslib.utils.errors.TsNullArgumentRtException;
 import org.toxsoft.uskat.core.ISkServiceCreator;
 import org.toxsoft.uskat.core.impl.AbstractSkService;
 import org.toxsoft.uskat.s5.server.backend.IS5BackendSupportSingleton;
+import org.toxsoft.uskat.s5.server.sessions.pas.IS5MessageProcessor;
 
 /**
  * Построитель расширения бекенда предоставляемого сервером
@@ -54,6 +55,16 @@ public interface IS5BackendAddonCreator
    * @throws TsNullArgumentRtException аргумент = null
    */
   IS5BackendAddonRemote createRemote( IS5BackendRemote aOwner );
+
+  /**
+   * Возвращает процессор сообщений бекенда.
+   * <p>
+   * Процессоры сообщений могут(!) использоваться для "накопления" данных перед их фактической отправкой фронтенду.
+   * Например, передача значений текущих данных может осуществляться не чаще одного раза в секунду (параметр настройки).
+   *
+   * @return {@link IS5MessageProcessor} процессор сообщений {@link IS5MessageProcessor#NULL}: нет процессора
+   */
+  IS5MessageProcessor messageProcessor();
 
   /**
    * Возвращает список синглетонов поддержки {@link IS5BackendSupportSingleton} необходимых для работы расширения

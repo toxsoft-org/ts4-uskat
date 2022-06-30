@@ -162,7 +162,7 @@ public class S5BackendSession
    * Ключ: идентификатор расширения;<br>
    * Значение: локальный доступ к расширению.
    */
-  private final IStringMapEdit<IS5BackendAddonSessionControl> baSessionControls = new StringMap<>();
+  private final IStringMapEdit<IS5BackendAddonSessionControl> baSessionCtrls = new StringMap<>();
 
   /**
    * Признак того, что сессия готова к удалению
@@ -360,13 +360,13 @@ public class S5BackendSession
         // Доступные расширения бекенда предоставляемые сервером
         IStridablesList<IS5BackendAddonCreator> baCreators = backendCoreSingleton.initialConfig().impl().baCreators();
         for( String baCreatorId : baCreators.keys() ) {
-          IS5BackendAddonSessionControl addonSessionControl =
+          IS5BackendAddonSessionControl baSessionCtrl =
               baCreators.getByKey( baCreatorId ).createSessionControl( context );
-          if( addonSessionControl == null ) {
+          if( baSessionCtrl == null ) {
             // Расширение не работает с сессиями
             continue;
           }
-          baSessionControls.put( addonSessionControl.id(), addonSessionControl );
+          baSessionCtrls.put( baSessionCtrl.id(), baSessionCtrl );
         }
       }
       finally {
@@ -406,10 +406,10 @@ public class S5BackendSession
       // Метка времени начала инициализации расширений сессии
       long addonsInitStartTime = System.currentTimeMillis();
       // Инициализация сессии данными клиента
-      initResult.setAddons( getRemoteReferences( baSessionControls ) );
+      initResult.setAddons( getRemoteReferences( baSessionCtrls ) );
       // Инициализация расширений службы
-      for( String addonId : baSessionControls.keys() ) {
-        IS5BackendAddonSessionControl addonSession = baSessionControls.getByKey( addonId );
+      for( String addonId : baSessionCtrls.keys() ) {
+        IS5BackendAddonSessionControl addonSession = baSessionCtrls.getByKey( addonId );
         try {
           addonSession.init( control(), callbackWriter, aInitData, initResult );
         }
@@ -494,9 +494,9 @@ public class S5BackendSession
   public void verify() {
     // Начало проверки работы сессии
     logger().info( MSG_SESSION_VERIFY_START, sessionID );
-    for( String addonId : baSessionControls.keys() ) {
+    for( String addonId : baSessionCtrls.keys() ) {
       try {
-        IS5BackendAddonSessionControl addonSession = baSessionControls.getByKey( addonId );
+        IS5BackendAddonSessionControl addonSession = baSessionCtrls.getByKey( addonId );
         addonSession.verify();
       }
       catch( NoSuchEJBException e ) {
@@ -558,9 +558,9 @@ public class S5BackendSession
       // Запуск процесса на удаление сессии
       logger().info( MSG_BEFORE_REMOVE_SESSION, sessionID );
       // Завершение работы расширений
-      for( String addonId : baSessionControls.keys() ) {
+      for( String addonId : baSessionCtrls.keys() ) {
         try {
-          IS5BackendAddonSessionControl addonSession = baSessionControls.getByKey( addonId );
+          IS5BackendAddonSessionControl addonSession = baSessionCtrls.getByKey( addonId );
           addonSession.close();
         }
         catch( Throwable e ) {
@@ -673,7 +673,7 @@ public class S5BackendSession
   public <T> T findBackendAddon( String aAddonId, Class<T> aExpectedType ) {
     TsNullArgumentRtException.checkNulls( aAddonId, aExpectedType );
     try {
-      return aExpectedType.cast( baSessionControls.findByKey( aAddonId ) );
+      return aExpectedType.cast( baSessionCtrls.findByKey( aAddonId ) );
     }
     catch( Exception ex ) {
       throw new TsIllegalArgumentRtException( ex, ex.getMessage() );

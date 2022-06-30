@@ -2,10 +2,10 @@ package org.toxsoft.uskat.s5.server.backend.supports.events.impl;
 
 import static org.toxsoft.uskat.core.impl.S5EventsUtils.*;
 import static org.toxsoft.uskat.s5.common.IS5CommonResources.*;
+import static org.toxsoft.uskat.s5.legacy.SkGwidUtils.*;
 import static org.toxsoft.uskat.s5.server.IS5ImplementConstants.*;
 import static org.toxsoft.uskat.s5.server.backend.supports.events.impl.IS5Resources.*;
 import static org.toxsoft.uskat.s5.server.transactions.ES5TransactionResources.*;
-import static ru.uskat.core.impl.SkGwidUtils.*;
 
 import java.util.concurrent.TimeUnit;
 
@@ -23,7 +23,16 @@ import org.toxsoft.core.tslib.gw.skid.Skid;
 import org.toxsoft.core.tslib.utils.Pair;
 import org.toxsoft.core.tslib.utils.errors.TsNotAllEnumsUsedRtException;
 import org.toxsoft.core.tslib.utils.errors.TsNullArgumentRtException;
+import org.toxsoft.uskat.core.api.evserv.SkEvent;
+import org.toxsoft.uskat.core.api.objserv.IDtoObject;
+import org.toxsoft.uskat.core.api.sysdescr.ISkClassHierarchyExplorer;
+import org.toxsoft.uskat.core.api.sysdescr.ISkClassInfo;
+import org.toxsoft.uskat.core.api.sysdescr.dto.IDtoClassInfo;
+import org.toxsoft.uskat.core.backend.api.IBaEvents;
+import org.toxsoft.uskat.core.backend.api.IBaEventsMessages;
+import org.toxsoft.uskat.core.impl.SkEventList;
 import org.toxsoft.uskat.s5.legacy.QueryInterval;
+import org.toxsoft.uskat.s5.server.backend.addons.events.S5BaEventsFrontendData;
 import org.toxsoft.uskat.s5.server.backend.supports.events.IS5BackendEventSingleton;
 import org.toxsoft.uskat.s5.server.backend.supports.events.sequences.IS5EventSequence;
 import org.toxsoft.uskat.s5.server.backend.supports.events.sequences.IS5EventSequenceEdit;
@@ -34,13 +43,6 @@ import org.toxsoft.uskat.s5.server.sequences.impl.S5BackendSequenceSupportSingle
 import org.toxsoft.uskat.s5.server.sequences.impl.S5SequenceFactory;
 import org.toxsoft.uskat.s5.server.transactions.*;
 import org.toxsoft.uskat.s5.utils.collections.S5FixedCapacityTimedList;
-
-import ru.uskat.backend.messages.SkMessageWhenEvents;
-import ru.uskat.common.dpu.IDpuObject;
-import ru.uskat.common.dpu.IDpuSdClassInfo;
-import ru.uskat.common.dpu.rt.events.SkEvent;
-import ru.uskat.common.dpu.rt.events.SkEventList;
-import ru.uskat.core.api.sysdescr.ISkClassInfo;
 
 /**
  * Реализация синглетона {@link IS5BackendEventSingleton}
@@ -157,8 +159,8 @@ public class S5BackendEventSingleton
       if( classIds.size() == 0 ) {
         continue;
       }
-      IList<IDpuObject> objs = objectsBackend().readObjects( classIds );
-      for( IDpuObject obj : objs ) {
+      IList<IDtoObject> objs = objectsBackend().readObjects( classIds );
+      for( IDtoObject obj : objs ) {
         Gwid gwid = Gwid.createObj( obj.classId(), obj.strid() );
         if( !gwids.hasElem( gwid ) ) {
           gwids.add( gwid );
@@ -178,7 +180,38 @@ public class S5BackendEventSingleton
         for( int index = 0, n = block.size(); index < n; index++ ) {
           SkEvent event = block.getValue( index );
           for( Gwid gwid : aNeededGwids ) {
-            if( acceptableEvent( sysdescrBackend(), gwid, event ) ) {
+            if( acceptableEvent( new ISkClassHierarchyExplorer() {
+
+              @Override
+              public boolean isSuperclassOf( String aClassId, String aSubclassId ) {
+                // TODO Auto-generated method stub
+                return false;
+              }
+
+              @Override
+              public boolean isSubclassOf( String aClassId, String aSuperclassId ) {
+                // TODO Auto-generated method stub
+                return false;
+              }
+
+              @Override
+              public boolean isOfClass( String aClassId, IStringList aClassIdsList ) {
+                // TODO Auto-generated method stub
+                return false;
+              }
+
+              @Override
+              public boolean isAssignableTo( String aClassId, String aSuperclassId ) {
+                // TODO Auto-generated method stub
+                return false;
+              }
+
+              @Override
+              public boolean isAssignableFrom( String aClassId, String aSubclassId ) {
+                // TODO Auto-generated method stub
+                return false;
+              }
+            }, gwid, event ) ) {
               events.add( event );
             }
           }
@@ -206,6 +239,9 @@ public class S5BackendEventSingleton
   @Asynchronous
   public void writeEventsImpl( IMap<IS5FrontendRear, ITimedList<SkEvent>> aEvents ) {
     TsNullArgumentRtException.checkNull( aEvents );
+    if( aEvents.size() == 0 ) {
+      return;
+    }
     // Отправка сообщений об изменении связей только после успешного завершения транзакции
     for( IS5FrontendRear fireRaiser : aEvents.keys() ) {
       try {
@@ -215,20 +251,21 @@ public class S5BackendEventSingleton
         IList<IS5EventSequence> sequences = createEventSequences( factory(), events );
         // Cохранение событий в базе данных
         writeSequences( sequences );
-        // Передача событий frontend-ам
         for( IS5FrontendRear frontend : backend().attachedFrontends() ) {
           if( frontend.equals( fireRaiser ) ) {
             // События не передаются frontend-у которые он отправил
             continue;
           }
           // Фильтрация интересуемых событий
-          SkEventList frontendEvents = frontend.frontendData().events().filter( sysdescrBackend(), events );
+          SkEventList frontendEvents =
+              frontend.frontendData().getAddonData( IBaEvents.ADDON_ID, S5BaEventsFrontendData.class ).events
+                  .filter( sysdescrBackend(), events );
           if( frontendEvents.size() == 0 ) {
             // Нечего отправлять
             continue;
           }
           try {
-            SkMessageWhenEvents.send( frontend, frontendEvents );
+            frontend.onBackendMessage( IBaEventsMessages.makeMessage( frontendEvents ) );
           }
           catch( Throwable e ) {
             // Ошибка доставки событий
@@ -294,18 +331,18 @@ public class S5BackendEventSingleton
   //
   @Override
   @SuppressWarnings( { "rawtypes" } )
-  protected void doAfterUpdateClass( IDpuSdClassInfo aPrevClassInfo, IDpuSdClassInfo aNewClassInfo,
-      IStridablesList<IDpuSdClassInfo> aDescendants ) {
+  protected void doAfterUpdateClass( IDtoClassInfo aPrevClassInfo, IDtoClassInfo aNewClassInfo,
+      IStridablesList<IDtoClassInfo> aDescendants ) {
     if( aPrevClassInfo.eventInfos().size() > 0 && aNewClassInfo.eventInfos().size() == 0 ) {
       // Удаление идентификаторов данных объектов у которых больше нет событий
       IMapEdit<Gwid, IParameterized> gwidsEditor = ((S5SequenceFactory)factory()).gwidsEditor();
       // Список объектов изменившихся классов
-      IList<IDpuObject> objs = S5TransactionUtils.txUpdatedClassObjs( transactionManager(), objectsBackend(),
+      IList<IDtoObject> objs = S5TransactionUtils.txUpdatedClassObjs( transactionManager(), objectsBackend(),
           aNewClassInfo.id(), aDescendants );
-      for( IDpuObject obj : objs ) {
+      for( IDtoObject obj : objs ) {
         String classId = obj.classId();
         ISkClassInfo classInfo = sysdescrReader().getClassInfo( classId );
-        if( classInfo.eventInfos().size() == 0 ) {
+        if( classInfo.events().list().size() == 0 ) {
           gwidsEditor.removeByKey( Gwid.createObj( classId, obj.strid() ) );
         }
       }
@@ -314,7 +351,7 @@ public class S5BackendEventSingleton
 
   @Override
   @SuppressWarnings( { "rawtypes" } )
-  protected void doBeforeDeleteClass( IDpuSdClassInfo aClassInfo ) {
+  protected void doBeforeDeleteClass( IDtoClassInfo aClassInfo ) {
     String classId = aClassInfo.id();
     // Удаление идентификаторов данных объектов удаленного класса
     if( aClassInfo.eventInfos().size() > 0 ) {
@@ -330,18 +367,18 @@ public class S5BackendEventSingleton
 
   @Override
   @SuppressWarnings( { "rawtypes" } )
-  protected void doAfterWriteObjects( IMap<ISkClassInfo, IList<IDpuObject>> aRemovedObjs,
-      IMap<ISkClassInfo, IList<Pair<IDpuObject, IDpuObject>>> aUpdatedObjs,
-      IMap<ISkClassInfo, IList<IDpuObject>> aCreatedObjs ) {
+  protected void doAfterWriteObjects( IMap<ISkClassInfo, IList<IDtoObject>> aRemovedObjs,
+      IMap<ISkClassInfo, IList<Pair<IDtoObject, IDtoObject>>> aUpdatedObjs,
+      IMap<ISkClassInfo, IList<IDtoObject>> aCreatedObjs ) {
     // Удаление идентификаторов данных удаленных объектов
     IMapEdit<Gwid, IParameterized> gwidsEditor = ((S5SequenceFactory)factory()).gwidsEditor();
     for( ISkClassInfo classInfo : aRemovedObjs.keys() ) {
-      if( classInfo.eventInfos().size() == 0 ) {
+      if( classInfo.events().list().size() == 0 ) {
         // У класса объекта нет событий
         continue;
       }
-      IList<IDpuObject> objs = aRemovedObjs.getByKey( classInfo );
-      for( IDpuObject obj : objs ) {
+      IList<IDtoObject> objs = aRemovedObjs.getByKey( classInfo );
+      for( IDtoObject obj : objs ) {
         gwidsEditor.removeByKey( Gwid.createObj( obj.classId(), obj.strid() ) );
       }
     }

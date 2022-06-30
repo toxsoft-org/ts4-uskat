@@ -4,12 +4,11 @@ import org.toxsoft.core.tslib.bricks.time.IQueryInterval;
 import org.toxsoft.core.tslib.coll.IList;
 import org.toxsoft.core.tslib.gw.gwid.Gwid;
 import org.toxsoft.core.tslib.utils.errors.TsNullArgumentRtException;
+import org.toxsoft.uskat.core.api.evserv.SkEvent;
 import org.toxsoft.uskat.s5.server.backend.supports.events.sequences.IS5EventSequenceEdit;
 import org.toxsoft.uskat.s5.server.sequences.ISequenceBlock;
 import org.toxsoft.uskat.s5.server.sequences.ISequenceBlockEdit;
 import org.toxsoft.uskat.s5.server.sequences.impl.S5Sequence;
-
-import ru.uskat.common.dpu.rt.events.SkEvent;
 
 /**
  * Реализация последовательности событий одного объекта
