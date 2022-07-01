@@ -106,6 +106,8 @@ public final class S5BackendRemote
   @Override
   public void onAfterDiscover( IS5Connection aSource ) {
     if( !wasConnect ) {
+      // Формирование сообщения о предстоящей инициализации расширений
+      fireBackendMessage( S5BaBeforeInitMessages.INSTANCE.makeMessage() );
       // Создание расширений используемых клиентом (определяется наличием jar-расширения в classpath клиента)
       allAddons().putAll( createBackendAddons( classLoader(), aSource.backendAddonInfos(), logger() ) );
       // Формирование сообщения о проведенной инициализации расширений

@@ -11,7 +11,6 @@ import org.toxsoft.core.tslib.coll.primtypes.IStringMap;
 import org.toxsoft.core.tslib.coll.primtypes.IStringMapEdit;
 import org.toxsoft.core.tslib.coll.primtypes.impl.StringMap;
 import org.toxsoft.core.tslib.gw.IGwHardConstants;
-import org.toxsoft.core.tslib.utils.TsLibUtils;
 import org.toxsoft.core.tslib.utils.errors.TsNullArgumentRtException;
 import org.toxsoft.uskat.core.api.sysdescr.ISkClassInfo;
 import org.toxsoft.uskat.core.api.sysdescr.dto.IDtoClassInfo;
@@ -189,22 +188,4 @@ public class SkSysdescrReader
     setClassInfos( dtoReader.readClassInfos() );
     return getClassInfos( aClassId );
   }
-
-  @Override
-  public boolean isAncestor( String aParentClassId, String aClassId ) {
-    TsNullArgumentRtException.checkNulls( aParentClassId, aClassId );
-    ISkClassInfo classInfo = findClassInfo( aClassId );
-    while( classInfo != null ) {
-      String parentId = classInfo.parentId();
-      if( parentId.equals( TsLibUtils.EMPTY_STRING ) ) {
-        break;
-      }
-      if( parentId.equals( aParentClassId ) ) {
-        return true;
-      }
-      classInfo = findClassInfo( parentId );
-    }
-    return false;
-  }
-
 }

@@ -9,6 +9,7 @@ import org.toxsoft.core.tslib.utils.errors.*;
 import org.toxsoft.core.tslib.utils.logs.ILogger;
 import org.toxsoft.uskat.core.backend.api.BackendAddonBase;
 import org.toxsoft.uskat.core.backend.api.IBackendAddon;
+import org.toxsoft.uskat.s5.server.frontend.IS5FrontendRear;
 
 /**
  * Base implementation of remote {@link IBackendAddon} for s5 backend.
@@ -41,6 +42,11 @@ public abstract class S5AbstractBackendAddonRemote<SESSION extends IS5BackendAdd
   // ------------------------------------------------------------------------------------
   // IS5BackendAddonRemote
   //
+  @Override
+  public final IS5FrontendRear frontend() {
+    return (IS5FrontendRear)owner().frontend();
+  }
+
   @Override
   public void onBackendMessage( GtMessage aMessage ) {
     // nop

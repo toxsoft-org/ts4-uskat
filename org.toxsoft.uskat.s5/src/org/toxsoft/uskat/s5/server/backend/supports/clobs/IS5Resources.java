@@ -1,4 +1,4 @@
-package org.toxsoft.uskat.s5.server.backend.supports.lobs;
+package org.toxsoft.uskat.s5.server.backend.supports.clobs;
 
 /**
  * Локализуемые ресурсы реализации службы.

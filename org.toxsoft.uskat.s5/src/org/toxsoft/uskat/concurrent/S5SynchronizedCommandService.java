@@ -4,6 +4,8 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import org.toxsoft.core.tslib.av.opset.IOptionSet;
 import org.toxsoft.core.tslib.bricks.events.change.IGenericChangeEventer;
+import org.toxsoft.core.tslib.bricks.time.IQueryInterval;
+import org.toxsoft.core.tslib.bricks.time.ITimedList;
 import org.toxsoft.core.tslib.coll.IMapEdit;
 import org.toxsoft.core.tslib.coll.impl.ElemMap;
 import org.toxsoft.core.tslib.gw.gwid.Gwid;
@@ -12,7 +14,6 @@ import org.toxsoft.core.tslib.gw.skid.Skid;
 import org.toxsoft.core.tslib.utils.errors.TsItemNotFoundRtException;
 import org.toxsoft.core.tslib.utils.errors.TsNullArgumentRtException;
 import org.toxsoft.uskat.core.api.cmdserv.*;
-import org.toxsoft.uskat.core.utils.ITemporalsHistory;
 
 /**
  * Синхронизация доступа к {@link ISkCommandService} (декоратор)
@@ -23,9 +24,8 @@ public final class S5SynchronizedCommandService
     extends S5SynchronizedService<ISkCommandService>
     implements ISkCommandService {
 
-  private final S5SynchronizedGenericChangeEventer                   eventer;
-  private final S5SynchronizedTemporalsHistory<IDtoCompletedCommand> history;
-  private final IMapEdit<ISkCommandExecutor, IGwidList>              executors = new ElemMap<>();
+  private final S5SynchronizedGenericChangeEventer      eventer;
+  private final IMapEdit<ISkCommandExecutor, IGwidList> executors = new ElemMap<>();
 
   /**
    * Конструктор
@@ -49,7 +49,6 @@ public final class S5SynchronizedCommandService
   public S5SynchronizedCommandService( ISkCommandService aTarget, ReentrantReadWriteLock aLock ) {
     super( aTarget, aLock );
     eventer = new S5SynchronizedGenericChangeEventer( aTarget.globallyHandledGwidsEventer(), aLock );
-    history = new S5SynchronizedTemporalsHistory<>( target().history(), nativeLock() );
   }
 
   // ------------------------------------------------------------------------------------
@@ -59,7 +58,6 @@ public final class S5SynchronizedCommandService
   protected void doChangeTarget( ISkCommandService aPrevTarget, ISkCommandService aNewTarget,
       ReentrantReadWriteLock aNewLock ) {
     eventer.changeTarget( aNewTarget.globallyHandledGwidsEventer(), aNewLock );
-    history.changeTarget( aNewTarget.history(), aNewLock );
     for( ISkCommandExecutor executor : executors.keys() ) {
       aNewTarget.registerExecutor( executor, executors.getByKey( executor ) );
     }
@@ -117,8 +115,14 @@ public final class S5SynchronizedCommandService
   }
 
   @Override
-  public ITemporalsHistory<IDtoCompletedCommand> history() {
-    return history;
+  public ITimedList<IDtoCompletedCommand> queryObjCommands( IQueryInterval aInterval, Gwid aGwid ) {
+    lockWrite( this );
+    try {
+      return target().queryObjCommands( aInterval, aGwid );
+    }
+    finally {
+      unlockWrite( this );
+    }
   }
 
   @Override

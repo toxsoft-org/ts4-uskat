@@ -7,7 +7,7 @@ import org.toxsoft.uskat.core.impl.S5EventSupport;
 import org.toxsoft.uskat.s5.server.frontend.IS5FrontendAddonData;
 
 /**
- * Данные конфигурации frontend расширения backend {@link IBaEvents}.
+ * Данные конфигурации фронтенда для {@link IBaEvents}.
  *
  * @author mvk
  */

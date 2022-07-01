@@ -4,7 +4,6 @@ import javax.ejb.Local;
 
 import org.toxsoft.core.tslib.bricks.strid.coll.IStridablesList;
 import org.toxsoft.core.tslib.coll.primtypes.IStringList;
-import org.toxsoft.core.tslib.utils.errors.TsItemNotFoundRtException;
 import org.toxsoft.core.tslib.utils.errors.TsNullArgumentRtException;
 import org.toxsoft.uskat.core.api.sysdescr.ISkClassHierarchyExplorer;
 import org.toxsoft.uskat.core.api.sysdescr.dto.IDtoClassInfo;
@@ -44,25 +43,6 @@ public interface IS5BackendSysDescrSingleton
    * @throws TsNullArgumentRtException aNewlyDefinedClassInfos = null
    */
   void writeClassInfos( IStringList aRemoveClassIdsOrNull, IStridablesList<IDtoClassInfo> aUpdateClassInfos );
-
-  // ------------------------------------------------------------------------------------
-  // Дополнительные, необходимые функции
-  //
-
-  /**
-   * Определяет, является ли aParentClassId предком класса aClassId.
-   * <p>
-   * Класс aParentClassId считается предком, если среди цепочки родителей класса aClassId есть aParentClassId.
-   *
-   * @param aParentClassId String - идентификатор родительского класса
-   * @param aClassId String - идентификатор проверяемого класса
-   * @return boolean - признак, что класс aParentClassId является предком aClassId<br>
-   *         <b>true</b> - aParentClassId является предком aClassId;<br>
-   *         <b>false</b> - среди потомков aParentClassId нет класса aClassId.
-   * @throws TsNullArgumentRtException любой аргумент = null
-   * @throws TsItemNotFoundRtException нет такого класса
-   */
-  boolean isAncestor( String aParentClassId, String aClassId );
 
   // ------------------------------------------------------------------------------------
   // Интерсепция

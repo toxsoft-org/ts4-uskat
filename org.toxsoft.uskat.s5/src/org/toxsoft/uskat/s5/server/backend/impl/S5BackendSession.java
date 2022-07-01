@@ -57,9 +57,9 @@ import org.toxsoft.uskat.s5.common.sessions.ISkSession;
 import org.toxsoft.uskat.s5.legacy.ISkSystem;
 import org.toxsoft.uskat.s5.server.backend.*;
 import org.toxsoft.uskat.s5.server.backend.addons.*;
+import org.toxsoft.uskat.s5.server.backend.supports.clobs.IS5BackendClobSingleton;
 import org.toxsoft.uskat.s5.server.backend.supports.events.IS5BackendEventSingleton;
 import org.toxsoft.uskat.s5.server.backend.supports.links.IS5BackendLinksSingleton;
-import org.toxsoft.uskat.s5.server.backend.supports.lobs.IS5BackendLobsSingleton;
 import org.toxsoft.uskat.s5.server.backend.supports.objects.IS5BackendObjectsSingleton;
 import org.toxsoft.uskat.s5.server.backend.supports.sysdescr.IS5BackendSysDescrSingleton;
 import org.toxsoft.uskat.s5.server.cluster.IS5ClusterManager;
@@ -140,7 +140,7 @@ public class S5BackendSession
    * backend управления большими объектами объектами (Large OBject - LOB) системы
    */
   @EJB
-  private IS5BackendLobsSingleton lobsBackend;
+  private IS5BackendClobSingleton lobsBackend;
 
   /**
    * Ссылка на собственный локальный интерфейс.

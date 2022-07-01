@@ -49,6 +49,9 @@ public final class S5BackendLocal
     backendSingleton = aBackendSingleton;
     sessionManager = TsNullArgumentRtException.checkNull( backendSingleton.sessionManager() );
 
+    // Формирование сообщения о предстоящей инициализации расширений
+    fireBackendMessage( S5BaBeforeInitMessages.INSTANCE.makeMessage() );
+
     // Создание и установка аддонов бекенда
     for( IS5BackendAddonCreator baCreator : aBackendAddonCreators ) {
       IS5BackendAddonLocal ba = baCreator.createLocal( this );

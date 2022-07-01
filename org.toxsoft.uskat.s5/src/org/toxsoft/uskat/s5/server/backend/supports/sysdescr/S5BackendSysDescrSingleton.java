@@ -134,13 +134,6 @@ public class S5BackendSysDescrSingleton
   //
   @Override
   @TransactionAttribute( TransactionAttributeType.SUPPORTS )
-  public boolean isAncestor( String aParentClassId, String aClassId ) {
-    TsNullArgumentRtException.checkNulls( aParentClassId, aClassId );
-    return sysdescrReader.isAncestor( aParentClassId, aClassId );
-  }
-
-  @Override
-  @TransactionAttribute( TransactionAttributeType.SUPPORTS )
   public void addClassInterceptor( IS5ClassesInterceptor aInterceptor, int aPriority ) {
     TsNullArgumentRtException.checkNull( aInterceptor );
     classesInterceptors.add( aInterceptor, aPriority );

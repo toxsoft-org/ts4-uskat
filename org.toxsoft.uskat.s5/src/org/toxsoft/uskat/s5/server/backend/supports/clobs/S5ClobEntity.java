@@ -1,9 +1,9 @@
-package org.toxsoft.uskat.s5.server.backend.supports.lobs;
+package org.toxsoft.uskat.s5.server.backend.supports.clobs;
 
 import static java.lang.String.*;
 import static org.toxsoft.uskat.s5.common.IS5CommonResources.*;
 import static org.toxsoft.uskat.s5.server.IS5ImplementConstants.*;
-import static org.toxsoft.uskat.s5.server.backend.supports.lobs.IS5Resources.*;
+import static org.toxsoft.uskat.s5.server.backend.supports.clobs.IS5Resources.*;
 
 import java.io.*;
 import java.util.zip.GZIPInputStream;
@@ -20,13 +20,13 @@ import org.toxsoft.core.tslib.utils.errors.TsNullArgumentRtException;
  * @author mvk
  */
 @Entity
-public class S5LobEntity
+public class S5ClobEntity
     implements Serializable {
 
   private static final long serialVersionUID = 157157L;
 
   /**
-   * Шаблон формирования toString для узлов {@link S5LobEntity}
+   * Шаблон формирования toString для узлов {@link S5ClobEntity}
    */
   private static final String TO_STRING_FORMAT = "%s [id=%s, size=%d, zip=%d]"; //$NON-NLS-1$
 
@@ -72,7 +72,7 @@ public class S5LobEntity
   /**
    * Конструктор без параметров
    */
-  public S5LobEntity() {
+  public S5ClobEntity() {
   }
 
   /**
@@ -81,7 +81,7 @@ public class S5LobEntity
    * @param aId String идентификатор данного
    * @param aBlob byte[] данные lob
    */
-  public S5LobEntity( String aId, byte[] aBlob ) {
+  public S5ClobEntity( String aId, byte[] aBlob ) {
     id = TsNullArgumentRtException.checkNull( aId );
     setBlob( aBlob );
   }
@@ -172,10 +172,10 @@ public class S5LobEntity
     if( aObj == this ) {
       return true;
     }
-    if( !(aObj instanceof S5LobEntity) ) {
+    if( !(aObj instanceof S5ClobEntity) ) {
       return false;
     }
-    S5LobEntity other = (S5LobEntity)aObj;
+    S5ClobEntity other = (S5ClobEntity)aObj;
     if( !id.equals( other.id() ) ) {
       return false;
     }

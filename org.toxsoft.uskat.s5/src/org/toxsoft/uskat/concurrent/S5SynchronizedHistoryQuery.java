@@ -2,38 +2,36 @@ package org.toxsoft.uskat.concurrent;
 
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
-import org.toxsoft.core.tslib.av.temporal.ITemporalAtomicValue;
 import org.toxsoft.core.tslib.bricks.events.change.IGenericChangeEventer;
-import org.toxsoft.core.tslib.bricks.time.IQueryInterval;
-import org.toxsoft.core.tslib.bricks.time.ITimedList;
+import org.toxsoft.core.tslib.bricks.time.*;
 import org.toxsoft.core.tslib.coll.IMap;
 import org.toxsoft.core.tslib.gw.gwid.Gwid;
 import org.toxsoft.core.tslib.gw.gwid.IGwidList;
 import org.toxsoft.core.tslib.utils.errors.TsNullArgumentRtException;
-import org.toxsoft.uskat.core.api.rtdserv.EQueryState;
-import org.toxsoft.uskat.core.api.rtdserv.ISkHistDataQuery;
+import org.toxsoft.uskat.core.api.hqserv.EQueryState;
+import org.toxsoft.uskat.core.api.hqserv.ISkHistoryQuery;
 
 /**
- * Синхронизация доступа к {@link ISkHistDataQuery} (декоратор)
+ * Синхронизация доступа к {@link ISkHistoryQuery} (декоратор)
  *
  * @author mvk
  */
-public final class S5SynchronizedHistDataQuery
-    extends S5SynchronizedResource<ISkHistDataQuery>
-    implements ISkHistDataQuery {
+public final class S5SynchronizedHistoryQuery
+    extends S5SynchronizedResource<ISkHistoryQuery>
+    implements ISkHistoryQuery {
 
-  private final S5SynchronizedRtDataService        owner;
+  private final S5SynchronizedHistoryQueryService  owner;
   private final S5SynchronizedGenericChangeEventer eventer;
 
   /**
    * Конструктор
    *
-   * @param aOwner {@link S5SynchronizedRtDataService} служба-собственник канала
-   * @param aTarget {@link ISkHistDataQuery} защищаемый ресурс
+   * @param aOwner {@link S5SynchronizedHistoryQueryService} служба-собственник канала
+   * @param aTarget {@link ISkHistoryQuery} защищаемый ресурс
    * @param aLock {@link ReentrantReadWriteLock} блокировка доступа к ресурсу
    * @throws TsNullArgumentRtException любой аргумент = null
    */
-  public S5SynchronizedHistDataQuery( S5SynchronizedRtDataService aOwner, ISkHistDataQuery aTarget,
+  public S5SynchronizedHistoryQuery( S5SynchronizedHistoryQueryService aOwner, ISkHistoryQuery aTarget,
       ReentrantReadWriteLock aLock ) {
     super( aTarget, aLock );
     owner = TsNullArgumentRtException.checkNull( aOwner );
@@ -44,7 +42,7 @@ public final class S5SynchronizedHistDataQuery
   // S5SynchronizedResource
   //
   @Override
-  protected void doChangeTarget( ISkHistDataQuery aPrevTarget, ISkHistDataQuery aNewTarget,
+  protected void doChangeTarget( ISkHistoryQuery aPrevTarget, ISkHistoryQuery aNewTarget,
       ReentrantReadWriteLock aNewLock ) {
     // nop
   }
@@ -58,7 +56,7 @@ public final class S5SynchronizedHistDataQuery
   }
 
   // ------------------------------------------------------------------------------------
-  // ISkHistDataQuery
+  // ISkHistoryQuery
   //
   @Override
   public String queryId() {
@@ -88,6 +86,17 @@ public final class S5SynchronizedHistDataQuery
     lockWrite( this );
     try {
       return target().state();
+    }
+    finally {
+      unlockWrite( this );
+    }
+  }
+
+  @Override
+  public IGwidList listGwids() {
+    lockWrite( this );
+    try {
+      return target().listGwids();
     }
     finally {
       unlockWrite( this );
@@ -128,10 +137,21 @@ public final class S5SynchronizedHistDataQuery
   }
 
   @Override
-  public IMap<Gwid, ITimedList<ITemporalAtomicValue>> result() {
+  public <T extends ITemporalValue<T>> ITimedList<T> get( Gwid aGwid ) {
     lockWrite( this );
     try {
-      return target().result();
+      return target().get( aGwid );
+    }
+    finally {
+      unlockWrite( this );
+    }
+  }
+
+  @Override
+  public <T extends ITemporalValue<T>> IMap<Gwid, ITimedList<T>> getAll() {
+    lockWrite( this );
+    try {
+      return target().getAll();
     }
     finally {
       unlockWrite( this );

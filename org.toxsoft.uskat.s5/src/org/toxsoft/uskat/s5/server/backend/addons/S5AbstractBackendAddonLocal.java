@@ -6,6 +6,7 @@ import org.toxsoft.core.tslib.utils.errors.TsIllegalArgumentRtException;
 import org.toxsoft.core.tslib.utils.errors.TsNullArgumentRtException;
 import org.toxsoft.uskat.core.backend.api.BackendAddonBase;
 import org.toxsoft.uskat.core.backend.api.IBackendAddon;
+import org.toxsoft.uskat.s5.server.frontend.IS5FrontendRear;
 
 /**
  * Base implementation of local {@link IBackendAddon} for s5 backend.
@@ -31,6 +32,11 @@ public abstract class S5AbstractBackendAddonLocal
   // ------------------------------------------------------------------------------------
   // IS5BackendAddonLocal
   //
+  @Override
+  public final IS5FrontendRear frontend() {
+    return (IS5FrontendRear)owner().frontend();
+  }
+
   @Override
   public void onBackendMessage( GtMessage aMessage ) {
     // nop
