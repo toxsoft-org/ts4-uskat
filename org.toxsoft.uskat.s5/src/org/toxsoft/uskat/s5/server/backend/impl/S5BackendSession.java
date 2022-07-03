@@ -46,6 +46,7 @@ import org.toxsoft.uskat.core.ISkServiceCreator;
 import org.toxsoft.uskat.core.api.evserv.SkEvent;
 import org.toxsoft.uskat.core.api.objserv.IDtoObject;
 import org.toxsoft.uskat.core.api.users.ISkUser;
+import org.toxsoft.uskat.core.api.users.ISkUserServiceHardConstants;
 import org.toxsoft.uskat.core.backend.ISkFrontendRear;
 import org.toxsoft.uskat.core.backend.api.*;
 import org.toxsoft.uskat.core.impl.AbstractSkService;
@@ -302,8 +303,7 @@ public class S5BackendSession
         eventBackend.fireAsyncEvents( IS5FrontendRear.NULL, new TimedList<>( event ) );
         throw new S5AccessDeniedException( ERR_WRONG_USER );
       }
-      // TODO:
-      String ATRID_PASSWORD = "passwd";// ISkUser.ATRID_PASSWORD
+      String ATRID_PASSWORD = ISkUserServiceHardConstants.AID_PASSWORD;
       // Пароль или его хэшкод пользователя
       String userPswd = user.attrs().getValue( ATRID_PASSWORD ).asString();
       // Хэшкод пароля

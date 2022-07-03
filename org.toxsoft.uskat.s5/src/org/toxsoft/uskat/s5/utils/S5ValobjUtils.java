@@ -32,8 +32,6 @@ public class S5ValobjUtils {
 
     TsValobjUtils.registerKeeperIfNone( Skid.KEEPER_ID, Skid.KEEPER );
     TsValobjUtils.registerKeeperIfNone( SkidListKeeper.KEEPER_ID, SkidListKeeper.KEEPER );
-    TsValobjUtils.registerKeeperIfNone( DpuContainerKeeper.KEEPER_ID, DpuContainerKeeper.KEEPER );
-    TsValobjUtils.registerKeeperIfNone( EOrphanProcessing.KEEPER_ID, EOrphanProcessing.KEEPER );
     TsValobjUtils.registerKeeperIfNone( S5SessionIdentity.KEEPER_ID, S5SessionIdentity.KEEPER );
     // 2020-03-21 mvk
     TsValobjUtils.registerKeeperIfNone( S5SessionIDKeeper.KEEPER_ID, S5SessionIDKeeper.KEEPER );
@@ -47,16 +45,7 @@ public class S5ValobjUtils {
     TsValobjUtils.registerKeeperIfNone( S5TransactionInfos.KEEPER_ID, S5TransactionInfos.KEEPER );
     TsValobjUtils.registerKeeperIfNone( S5TransactionInfo.KEEPER_ID, S5TransactionInfo.KEEPER );
     TsValobjUtils.registerKeeperIfNone( S5ClusterTopology.KEEPER_ID, S5ClusterTopology.KEEPER );
-    // 2020-04-28
     TsValobjUtils.registerKeeperIfNone( ESkConnState.KEEPER_ID, ESkConnState.KEEPER );
-
-    // 2021-12-23 from S5CallbackOnGetBackendAddonInfos
-    TsValobjUtils.registerKeeperIfNone( SkMessageWhenCommandsStateChanged.KEEPER_ID,
-        SkMessageWhenCommandsStateChanged.KEEPER );
-    TsValobjUtils.registerKeeperIfNone( SkMessageWhenCurrdataChanged.KEEPER_ID, SkMessageWhenCurrdataChanged.KEEPER );
-    TsValobjUtils.registerKeeperIfNone( SkMessageWhenEvents.KEEPER_ID, SkMessageWhenEvents.KEEPER );
-    TsValobjUtils.registerKeeperIfNone( SkMessageExecuteCommand.KEEPER_ID, SkMessageExecuteCommand.KEEPER );
-    TsValobjUtils.registerKeeperIfNone( DpuHistData.KEEPER_ID, DpuHistData.KEEPER );
     TsValobjUtils.registerKeeperIfNone( SkidMap.KEEPER_ID, SkidMap.KEEPER );
   }
 
