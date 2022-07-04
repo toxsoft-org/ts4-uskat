@@ -25,7 +25,7 @@ interface ISkResources {
   String STR_D_CLOSED     = "Уже был вызван close(), объект запроса (ISkHistDataQuery) следует выбросить";
 
   /**
-   * {@link ISkHistoryQueryServiceConstants}
+   * {@link ISkQueryServiceConstants}
    */
   String STR_N_MAX_EXECUTION_TIME = "Время(мсек)";
   String STR_D_MAX_EXECUTION_TIME = "Макс. время (мсек) выполнения запроса до принудительной отмены";

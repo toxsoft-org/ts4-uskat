@@ -68,6 +68,22 @@ public class MtbBaRtdata
 
   }
 
+  // ------------------------------------------------------------------------------------
+  // IBaRtdata
+  //
+
+  @Override
+  public IIntMap<Gwid> configureCurrDataReader( IGwidList aToRemove, IGwidList aToAdd ) {
+    // TODO Auto-generated method stub
+    return null;
+  }
+
+  @Override
+  public IIntMap<Gwid> configureCurrDataWriter( IGwidList aToRemove, IGwidList aToAdd ) {
+    // TODO Auto-generated method stub
+    return null;
+  }
+
   @Override
   public ITimedList<ITemporalAtomicValue> queryObjRtdata( IQueryInterval aInterval, Gwid aGwid ) {
     // TODO Auto-generated method stub

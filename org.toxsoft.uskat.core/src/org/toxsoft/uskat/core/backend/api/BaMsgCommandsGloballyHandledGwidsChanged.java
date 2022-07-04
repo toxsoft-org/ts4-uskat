@@ -9,7 +9,7 @@ import org.toxsoft.uskat.core.api.cmdserv.*;
  *
  * @author hazard157
  */
-public class BaCommandsMsgGloballyHandledGwidsChanged
+public class BaMsgCommandsGloballyHandledGwidsChanged
     extends AbstractBackendMessageBuilder {
 
   /**
@@ -20,10 +20,10 @@ public class BaCommandsMsgGloballyHandledGwidsChanged
   /**
    * Singletone intance.
    */
-  public static final BaCommandsMsgGloballyHandledGwidsChanged INSTANCE =
-      new BaCommandsMsgGloballyHandledGwidsChanged();
+  public static final BaMsgCommandsGloballyHandledGwidsChanged INSTANCE =
+      new BaMsgCommandsGloballyHandledGwidsChanged();
 
-  BaCommandsMsgGloballyHandledGwidsChanged() {
+  BaMsgCommandsGloballyHandledGwidsChanged() {
     super( ISkCommandService.SERVICE_ID, MSG_ID );
   }
 

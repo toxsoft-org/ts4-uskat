@@ -1,39 +1,24 @@
 package org.toxsoft.uskat.core.api.hqserv;
 
-import org.toxsoft.core.tslib.bricks.events.change.*;
 import org.toxsoft.core.tslib.bricks.time.*;
 import org.toxsoft.core.tslib.coll.*;
 import org.toxsoft.core.tslib.gw.gwid.*;
-import org.toxsoft.core.tslib.utils.*;
 import org.toxsoft.core.tslib.utils.errors.*;
-import org.toxsoft.uskat.core.*;
 import org.toxsoft.uskat.core.api.gwids.*;
 
 /**
- * The asynchronous query.
+ * Queries the "raw" history of data.
+ * <p>
+ * Query simply returns contents of the storage for every requested GWID for the specified time interval.
  *
  * @author hazard157
  */
 public interface ISkHistoryQuery
-    extends IGenericChangeEventCapable, ICloseable {
+    extends ISkAsynchronousQuery {
 
-  /**
-   * Returns an unique query instance identifier.
-   * <p>
-   * This ID is unique among all queries of all time in the particular system.
-   * <p>
-   * Query ID is not used by {@link ISkCoreApi} directly however it is useful for some other maintenance service.
-   *
-   * @return String - identifier (an IDpath) of the query instance
-   */
-  String queryId();
-
-  /**
-   * Returns current query state.
-   *
-   * @return {@link EQueryState} - the query state
-   */
-  EQueryState state();
+  // ------------------------------------------------------------------------------------
+  // Query preparation
+  //
 
   /**
    * returns GWID specified in method {@link #prepare(IGwidList)}.
@@ -71,23 +56,16 @@ public interface ISkHistoryQuery
    */
   IGwidList prepare( IGwidList aGwids );
 
-  /**
-   * Queries the data for the specified time interval.
-   *
-   * @param aInterval {@link IQueryInterval} - asked interval of time
-   * @throws TsNullArgumentRtException any argument = <code>null</code>
-   */
-  void exec( IQueryInterval aInterval );
-
-  /**
-   * Cancel the executng query.
-   * <p>
-   * Has no effect is query is not in state of execution.
-   */
-  void cancel();
+  // ------------------------------------------------------------------------------------
+  // Result getters
+  //
 
   /**
    * Returns result of query for specified RTdata.
+   * <p>
+   * Note: while open, only query with {@link ISkHistoryQuery#state()} = {@link EQueryState#READY} contains data. All
+   * other states leads to an empty result of this method. After {@link #close()} data (if there were any) will remain
+   * in query instance and may be used.
    *
    * @param <T> - expected type of the temporal value
    * @param aGwid {@link Gwid} - data GWID
@@ -101,6 +79,10 @@ public interface ISkHistoryQuery
    * Returns all results of the query at once.
    * <p>
    * Map keys is the same list of GWIDs as returned by {@link #prepare(IGwidList)}.
+   * <p>
+   * Note: while open, only query with {@link ISkHistoryQuery#state()} = {@link EQueryState#READY} contains data. All
+   * other states leads to an empty result of this method. After {@link #close()} data (if there were any) will remain
+   * in query instance and may be used.
    *
    * @param <T> - expected type of the temporal value
    * @return {@link IMap}&lt;{@link Gwid},{@link ITimedList}&gt; - map "data GWID" - "data sequence"

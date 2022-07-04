@@ -11,7 +11,7 @@ import org.toxsoft.uskat.core.api.cmdserv.*;
  *
  * @author hazard157
  */
-public class BaCommandsMsgChangeState
+public class BaMsgCommandsChangeState
     extends AbstractBackendMessageBuilder {
 
   /**
@@ -22,11 +22,11 @@ public class BaCommandsMsgChangeState
   /**
    * Singletone intance.
    */
-  public static final BaCommandsMsgChangeState INSTANCE = new BaCommandsMsgChangeState();
+  public static final BaMsgCommandsChangeState INSTANCE = new BaMsgCommandsChangeState();
 
   private static final String ARGID_CMD_STATE_INFO = "CmdStateInfo"; //$NON-NLS-1$
 
-  BaCommandsMsgChangeState() {
+  BaMsgCommandsChangeState() {
     super( ISkCommandService.SERVICE_ID, MSG_ID );
     defineArgValobj( ARGID_CMD_STATE_INFO, DtoCommandStateChangeInfo.KEEPER_ID, true );
   }

@@ -17,7 +17,7 @@ import org.toxsoft.core.tslib.av.metainfo.*;
  *
  * @author mvk
  */
-public interface ISkHistoryQueryServiceConstants {
+public interface ISkQueryServiceConstants {
 
   // ------------------------------------------------------------------------------------
   // Опции

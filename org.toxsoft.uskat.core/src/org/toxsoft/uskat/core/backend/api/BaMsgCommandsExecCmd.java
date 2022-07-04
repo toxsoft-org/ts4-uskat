@@ -12,7 +12,7 @@ import org.toxsoft.uskat.core.impl.dto.*;
  *
  * @author hazard157
  */
-public class BaCommandsMsgExecCmd
+public class BaMsgCommandsExecCmd
     extends AbstractBackendMessageBuilder {
 
   
@@ -23,11 +23,11 @@ public class BaCommandsMsgExecCmd
   /**
    * Singletone intance.
    */
-  public static final BaCommandsMsgExecCmd INSTANCE = new BaCommandsMsgExecCmd();
+  public static final BaMsgCommandsExecCmd INSTANCE = new BaMsgCommandsExecCmd();
 
   private static final String ARGID_CMD_DTO = "CmdDto"; //$NON-NLS-1$
 
-  BaCommandsMsgExecCmd() {
+  BaMsgCommandsExecCmd() {
     super( ISkCommandService.SERVICE_ID, MSG_ID );
     defineArgValobj( ARGID_CMD_DTO, DtoCommand.KEEPER_ID, true );
   }

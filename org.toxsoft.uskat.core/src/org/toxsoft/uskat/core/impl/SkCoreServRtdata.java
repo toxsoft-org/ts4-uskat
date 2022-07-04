@@ -10,12 +10,17 @@ import org.toxsoft.core.tslib.bricks.events.*;
 import org.toxsoft.core.tslib.bricks.time.*;
 import org.toxsoft.core.tslib.coll.*;
 import org.toxsoft.core.tslib.coll.impl.*;
+import org.toxsoft.core.tslib.coll.primtypes.*;
+import org.toxsoft.core.tslib.coll.primtypes.impl.*;
 import org.toxsoft.core.tslib.gw.gwid.*;
 import org.toxsoft.core.tslib.utils.errors.*;
 import org.toxsoft.core.tslib.utils.logs.impl.*;
 import org.toxsoft.uskat.core.*;
 import org.toxsoft.uskat.core.api.linkserv.*;
+import org.toxsoft.uskat.core.api.objserv.*;
 import org.toxsoft.uskat.core.api.rtdserv.*;
+import org.toxsoft.uskat.core.api.sysdescr.*;
+import org.toxsoft.uskat.core.api.sysdescr.dto.*;
 import org.toxsoft.uskat.core.devapi.*;
 
 /**
@@ -92,9 +97,11 @@ public class SkCoreServRtdata
     private IAtomicValue      value   = null;
     private int               counter = 0;
 
-    SkReadCurrDataChannel( Gwid aGwid, EAtomicType aAtomicType ) {
+    SkReadCurrDataChannel( Gwid aGwid ) {
       gwid = aGwid;
-      atomicType = aAtomicType;
+      ISkClassInfo cinf = sysdescr().getClassInfo( aGwid.classId() );
+      IDtoRtdataInfo dinf = cinf.rtdata().list().getByKey( aGwid.propId() );
+      atomicType = dinf.dataType().atomicType();
       ++counter;
     }
 
@@ -131,8 +138,10 @@ public class SkCoreServRtdata
       if( value != null && value.equals( aValue ) ) {
         return false;
       }
-      AvTypeCastRtException.checkCanAssign( atomicType, aValue.atomicType(), FMT_ERR_RTD_CHNL_INV_ATOMIC_TYPE,
-          gwid.toString(), aValue.atomicType().id(), atomicType.id() );
+      if( atomicType != aValue.atomicType() && atomicType != EAtomicType.NONE && aValue != IAtomicValue.NULL ) {
+        throw new AvTypeCastRtException( FMT_ERR_RTD_CHNL_INV_ATOMIC_TYPE, gwid.toString(), aValue.atomicType().id(),
+            atomicType.id() );
+      }
       value = aValue;
       return true;
     }
@@ -231,7 +240,12 @@ public class SkCoreServRtdata
   /**
    * FIXME usage?
    */
+
   final IMapEdit<Gwid, SkWriteCurrDataChannel> cdChannelsWithFreshDataToWrite = new ElemMap<>();
+  final IIntMapEdit<SkReadCurrDataChannel>     cdReadChannelsIndexMap         = new IntMap<>();
+  final IIntMapEdit<SkWriteCurrDataChannel>    cdWriteChannelsIndexMap        = new IntMap<>();
+  final IMapEdit<Gwid, SkReadCurrDataChannel>  cdReadChannelsMap              = new ElemMap<>();
+  final IMapEdit<Gwid, SkWriteCurrDataChannel> cdWriteChannelsMap             = new ElemMap<>();
 
   private final Eventer eventer = new Eventer();
 
@@ -245,23 +259,136 @@ public class SkCoreServRtdata
   }
 
   // ------------------------------------------------------------------------------------
+  // implementation
+  //
+
+  /**
+   * Makes from argument the list of valid GWIDs.
+   * <p>
+   * Dependiong on argument <code>aHistoric</code> includes only RTdata either {@link IDtoRtdataInfo#isCurr()} or
+   * {@link IDtoRtdataInfo#isHist()} flag set.
+   * <p>
+   * GWIDs is considered valid if it is concrete GWID of kind {@link EGwidKind#GW_RTDATA} and is not duplicated. Method
+   * also checks that specified {@link ISkObject} exists.
+   *
+   * @param aList {@link IGwidList} - the source list
+   * @param aHistoric boolean - <code>true</code> to selected historic rather than current RTdata
+   * @return {@link IGwidList} - the selected GWIDs
+   */
+  private IGwidList toValidRtdataGwids( IGwidList aList, boolean aHistoric ) {
+    GwidList ll = new GwidList();
+    // iterate over all GWIDs in argument list
+    for( Gwid g : aList ) {
+      // check GWID kind
+      if( !g.isAbstract() && !g.isMulti() && g.kind() == EGwidKind.GW_RTDATA ) {
+        // no duplicates
+        if( !ll.hasElem( g ) ) {
+          ISkClassInfo cinf = sysdescr().findClassInfo( g.classId() );
+          // class must exist
+          if( cinf != null ) {
+            IDtoRtdataInfo rinf = cinf.rtdata().list().findByKey( g.propId() );
+            // RTdata must be defined
+            if( rinf != null ) {
+              boolean propVal = aHistoric ? rinf.isHist() : rinf.isCurr();
+              // RTdata must be current or historic one (depending on aHistoric argument)
+              if( propVal ) {
+                // object must exist
+                if( objServ().find( g.skid() ) != null ) {
+                  ll.add( g );
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+    return ll;
+  }
+
+  /**
+   * Removes from the {@link #cdReadChannelsMap} closed channels and returns their {@link Gwid}s.
+   *
+   * @return {@link IGwidList} - List of closed and just removed channels GWIDs
+   */
+  private IGwidList listClosedReadChannelsAndRemoveFromMap() {
+    GwidList list = new GwidList();
+    for( SkReadCurrDataChannel channel : cdReadChannelsMap ) {
+      if( channel.isClosed() ) {
+        list.add( channel.gwid() );
+      }
+    }
+    for( Gwid g : list ) {
+      cdReadChannelsMap.removeByKey( g );
+    }
+    return list;
+  }
+
+  // ------------------------------------------------------------------------------------
   // AbstractSkCoreService
   //
 
   @Override
   protected void doInit( ITsContextRo aArgs ) {
-    // TODO Auto-generated method stub
+    // nop
   }
 
   @Override
   protected void doClose() {
-    // TODO Auto-generated method stub
+    // cancel all subscriptions
+    ba().baRtdata().configureCurrDataWriter( null, IGwidList.EMPTY );
+    ba().baRtdata().configureCurrDataReader( null, IGwidList.EMPTY );
+    // отменить все подписки в eventer
+    eventer.clearListenersList();
+    eventer.resetPendingEvents();
+    // close all open write channels
+    while( !cdWriteChannelsMap.isEmpty() ) {
+      SkWriteCurrDataChannel c = cdWriteChannelsMap.removeByKey( cdWriteChannelsMap.keys().first() );
+      c.close();
+    }
+    // close all read channels
+    while( !cdReadChannelsMap.isEmpty() ) {
+      SkReadCurrDataChannel c = cdReadChannelsMap.removeByKey( cdReadChannelsMap.keys().first() );
+      c.resetCounter();
+      c.close();
+    }
   }
 
   @Override
-  public IMap<Gwid, ISkReadCurrDataChannel> createReadCurrDataChannels( IGwidList aGwids ) {
-    // TODO Auto-generated method stub
-    return null;
+  public IMap<Gwid, ISkReadCurrDataChannel> createReadCurrDataChannels( IGwidList aGwids1 ) {
+    TsNullArgumentRtException.checkNull( aGwids1 );
+    TsIllegalStateRtException.checkFalse( isInited() );
+    IMapEdit<Gwid, ISkReadCurrDataChannel> result = new ElemMap<>();
+    // select valid GWIDs
+    IGwidList gwids = toValidRtdataGwids( aGwids1, false );
+    // channels to be listened by backend
+    GwidList toAddQuery = new GwidList();
+    for( Gwid g : gwids ) {
+      // already open channels will be returned
+      SkReadCurrDataChannel channel = cdReadChannelsMap.findByKey( g );
+      if( channel != null && channel.isOk() ) {
+        result.put( g, channel );
+        channel.incCounter();
+        continue;
+      }
+      // create channel and add to channels to be listened by backend
+      channel = new SkReadCurrDataChannel( g );
+      cdReadChannelsMap.put( g, channel );
+      result.put( g, channel );
+      toAddQuery.add( g );
+    }
+    // prepare query to backend
+    IGwidList toRemoveQuery = listClosedReadChannelsAndRemoveFromMap();
+    IIntMap<Gwid> keyedMap = ba().baRtdata().configureCurrDataReader( toRemoveQuery, toAddQuery );
+    // reresh #readChannelsIndexMap
+    cdReadChannelsIndexMap.clear();
+    for( int i = 0; i < keyedMap.size(); i++ ) {
+      int key = keyedMap.keys().getValue( i );
+      Gwid gwid = keyedMap.values().get( i );
+      SkReadCurrDataChannel channel = cdReadChannelsMap.findByKey( gwid );
+      TsInternalErrorRtException.checkNull( channel ); // must not happen
+      cdReadChannelsIndexMap.put( key, channel );
+    }
+    return result;
   }
 
   @Override

@@ -30,7 +30,8 @@ public interface ISkRtdataService
    * Returns channels to read current values of RTdata.
    * <p>
    * Invalid GWIDs in argument list are ignored. Valid GWIDs are concrete GWID of kind {@link EGwidKind#GW_RTDATA} for
-   * existing objects and with {@link IDtoRtdataInfo#isCurr()} flag set. Duplicate GWIDs are also ignored.
+   * existing objects and with {@link IDtoRtdataInfo#isCurr()} flag set. Duplicate GWIDs and multi-GWIDs are also
+   * ignored.
    * <p>
    * For each valid GWID a channel is returned either new or shared one with internal usage counter increased.
    *
@@ -89,6 +90,9 @@ public interface ISkRtdataService
    * @throws TsIllegalArgumentRtException invalid GWID
    * @throws TsItemNotFoundRtException no such RTdata exists in sysdescr
    */
+
+  // TODO как насчет получать секндные данные по часам?
+
   ITimedList<ITemporalAtomicValue> queryObjRtdata( IQueryInterval aInterval, Gwid aGwid );
 
 }

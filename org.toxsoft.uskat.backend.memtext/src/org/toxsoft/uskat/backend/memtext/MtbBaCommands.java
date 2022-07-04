@@ -127,7 +127,7 @@ public class MtbBaCommands
      * FIXME remember command, start to count the elapsed time and timeout comand if needed
      */
 
-    GtMessage msg = BaCommandsMsgExecCmd.INSTANCE.makeMessage( dtoCmd );
+    GtMessage msg = BaMsgCommandsExecCmd.INSTANCE.makeMessage( dtoCmd );
     owner().frontend().onBackendMessage( msg );
     return new SkCommand( dtoCmd );
   }
@@ -139,7 +139,7 @@ public class MtbBaCommands
 
   @Override
   public void changeCommandState( DtoCommandStateChangeInfo aStateChangeInfo ) {
-    GtMessage msg = BaCommandsMsgChangeState.INSTANCE.makeMessage( aStateChangeInfo );
+    GtMessage msg = BaMsgCommandsChangeState.INSTANCE.makeMessage( aStateChangeInfo );
     owner().frontend().onBackendMessage( msg );
   }
 

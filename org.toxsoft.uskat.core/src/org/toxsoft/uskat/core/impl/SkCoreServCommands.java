@@ -81,17 +81,17 @@ public class SkCoreServCommands
   @Override
   protected boolean onBackendMessage( GenericMessage aMessage ) {
     switch( aMessage.messageId() ) {
-      case BaCommandsMsgExecCmd.MSG_ID: {
-        IDtoCommand cmd = BaCommandsMsgExecCmd.INSTANCE.getCmd( aMessage );
+      case BaMsgCommandsExecCmd.MSG_ID: {
+        IDtoCommand cmd = BaMsgCommandsExecCmd.INSTANCE.getCmd( aMessage );
         handleMsgExecuteCommand( cmd );
         return true;
       }
-      case BaCommandsMsgChangeState.MSG_ID: {
-        DtoCommandStateChangeInfo stateChangeInfo = BaCommandsMsgChangeState.INSTANCE.getStateChangeInfo( aMessage );
+      case BaMsgCommandsChangeState.MSG_ID: {
+        DtoCommandStateChangeInfo stateChangeInfo = BaMsgCommandsChangeState.INSTANCE.getStateChangeInfo( aMessage );
         handleMsgCommandStateChanged( stateChangeInfo );
         return true;
       }
-      case BaCommandsMsgGloballyHandledGwidsChanged.MSG_ID: {
+      case BaMsgCommandsGloballyHandledGwidsChanged.MSG_ID: {
         globallyHandledGwidsEventer.fireChangeEvent();
         return true;
       }
