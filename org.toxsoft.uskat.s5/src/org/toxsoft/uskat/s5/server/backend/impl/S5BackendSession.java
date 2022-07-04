@@ -46,6 +46,7 @@ import org.toxsoft.uskat.core.ISkServiceCreator;
 import org.toxsoft.uskat.core.api.evserv.SkEvent;
 import org.toxsoft.uskat.core.api.objserv.IDtoObject;
 import org.toxsoft.uskat.core.api.users.ISkUser;
+import org.toxsoft.uskat.core.api.users.ISkUserServiceHardConstants;
 import org.toxsoft.uskat.core.backend.ISkFrontendRear;
 import org.toxsoft.uskat.core.backend.api.*;
 import org.toxsoft.uskat.core.impl.AbstractSkService;
@@ -57,9 +58,9 @@ import org.toxsoft.uskat.s5.common.sessions.ISkSession;
 import org.toxsoft.uskat.s5.legacy.ISkSystem;
 import org.toxsoft.uskat.s5.server.backend.*;
 import org.toxsoft.uskat.s5.server.backend.addons.*;
+import org.toxsoft.uskat.s5.server.backend.supports.clobs.IS5BackendClobSingleton;
 import org.toxsoft.uskat.s5.server.backend.supports.events.IS5BackendEventSingleton;
 import org.toxsoft.uskat.s5.server.backend.supports.links.IS5BackendLinksSingleton;
-import org.toxsoft.uskat.s5.server.backend.supports.lobs.IS5BackendLobsSingleton;
 import org.toxsoft.uskat.s5.server.backend.supports.objects.IS5BackendObjectsSingleton;
 import org.toxsoft.uskat.s5.server.backend.supports.sysdescr.IS5BackendSysDescrSingleton;
 import org.toxsoft.uskat.s5.server.cluster.IS5ClusterManager;
@@ -140,7 +141,7 @@ public class S5BackendSession
    * backend управления большими объектами объектами (Large OBject - LOB) системы
    */
   @EJB
-  private IS5BackendLobsSingleton lobsBackend;
+  private IS5BackendClobSingleton lobsBackend;
 
   /**
    * Ссылка на собственный локальный интерфейс.
@@ -302,8 +303,7 @@ public class S5BackendSession
         eventBackend.fireAsyncEvents( IS5FrontendRear.NULL, new TimedList<>( event ) );
         throw new S5AccessDeniedException( ERR_WRONG_USER );
       }
-      // TODO:
-      String ATRID_PASSWORD = "passwd";// ISkUser.ATRID_PASSWORD
+      String ATRID_PASSWORD = ISkUserServiceHardConstants.AID_PASSWORD;
       // Пароль или его хэшкод пользователя
       String userPswd = user.attrs().getValue( ATRID_PASSWORD ).asString();
       // Хэшкод пароля

@@ -2,8 +2,10 @@ package org.toxsoft.uskat.concurrent;
 
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
-import org.toxsoft.core.tslib.av.opset.IOptionSet;
+import org.toxsoft.core.tslib.av.temporal.ITemporalAtomicValue;
 import org.toxsoft.core.tslib.bricks.events.ITsEventer;
+import org.toxsoft.core.tslib.bricks.time.IQueryInterval;
+import org.toxsoft.core.tslib.bricks.time.ITimedList;
 import org.toxsoft.core.tslib.coll.*;
 import org.toxsoft.core.tslib.coll.impl.ElemLinkedList;
 import org.toxsoft.core.tslib.coll.impl.ElemMap;
@@ -21,11 +23,10 @@ public final class S5SynchronizedRtDataService
     extends S5SynchronizedService<ISkRtdataService>
     implements ISkRtdataService {
 
-  private final S5SynchronizedEventer<ISkCurrDataChangeListener>  eventer;
-  private final IListEdit<S5SynchronizedReadCurrDataChannel>      readCurrdata    = new ElemLinkedList<>();
-  private final IListEdit<S5SynchronizedWriteCurrDataChannel>     writeCurrdata   = new ElemLinkedList<>();
-  private final IListEdit<S5SynchronizedWriteHistDataChannel>     writeHistdata   = new ElemLinkedList<>();
-  private final IMapEdit<S5SynchronizedHistDataQuery, IOptionSet> histDataQueries = new ElemMap<>();
+  private final S5SynchronizedEventer<ISkCurrDataChangeListener> eventer;
+  private final IListEdit<S5SynchronizedReadCurrDataChannel>     readCurrdata  = new ElemLinkedList<>();
+  private final IListEdit<S5SynchronizedWriteCurrDataChannel>    writeCurrdata = new ElemLinkedList<>();
+  private final IListEdit<S5SynchronizedWriteHistDataChannel>    writeHistdata = new ElemLinkedList<>();
 
   /**
    * Конструктор
@@ -75,10 +76,6 @@ public final class S5SynchronizedRtDataService
     for( S5SynchronizedWriteHistDataChannel channel : writeHistdata ) {
       channel.changeTarget( writeHistdataChannels.getByKey( channel.gwid() ), aNewLock );
     }
-    // Создание и замена запросов хранимых данных
-    for( S5SynchronizedHistDataQuery query : histDataQueries.keys() ) {
-      query.changeTarget( aNewTarget.createQuery( histDataQueries.getByKey( query ) ), aNewLock );
-    }
   }
 
   // ------------------------------------------------------------------------------------
@@ -104,17 +101,6 @@ public final class S5SynchronizedRtDataService
       writeHistdata.remove( (S5SynchronizedWriteHistDataChannel)aChannel );
       return;
     }
-  }
-
-  /**
-   * Удаление запроса к хранимым данным из внутренних структур наблюдения службы
-   *
-   * @param aQuery {@link S5SynchronizedHistDataQuery} запрос
-   * @throws TsNullArgumentRtException аргумент = null
-   */
-  void removeQuery( S5SynchronizedHistDataQuery aQuery ) {
-    TsNullArgumentRtException.checkNull( aQuery );
-    histDataQueries.removeByKey( aQuery );
   }
 
   // ------------------------------------------------------------------------------------
@@ -164,20 +150,6 @@ public final class S5SynchronizedRtDataService
   }
 
   @Override
-  public ISkHistDataQuery createQuery( IOptionSet aOptions ) {
-    lockWrite( this );
-    try {
-      S5SynchronizedHistDataQuery retValue =
-          new S5SynchronizedHistDataQuery( this, target().createQuery( aOptions ), nativeLock() );
-      histDataQueries.put( retValue, aOptions );
-      return retValue;
-    }
-    finally {
-      unlockWrite( this );
-    }
-  }
-
-  @Override
   public IMap<Gwid, ISkWriteHistDataChannel> createWriteHistDataChannels( IGwidList aGwids ) {
     lockWrite( this );
     try {
@@ -191,6 +163,17 @@ public final class S5SynchronizedRtDataService
         writeHistdata.add( channel );
       }
       return retValue;
+    }
+    finally {
+      unlockWrite( this );
+    }
+  }
+
+  @Override
+  public ITimedList<ITemporalAtomicValue> queryObjRtdata( IQueryInterval aInterval, Gwid aGwid ) {
+    lockWrite( this );
+    try {
+      return target().queryObjRtdata( aInterval, aGwid );
     }
     finally {
       unlockWrite( this );

@@ -1,13 +1,11 @@
-package org.toxsoft.uskat.s5.server.backend.supports.lobs;
+package org.toxsoft.uskat.s5.server.backend.supports.clobs;
 
 import javax.ejb.Local;
 
-import org.toxsoft.core.tslib.coll.IList;
+import org.toxsoft.core.tslib.gw.gwid.Gwid;
 import org.toxsoft.core.tslib.utils.errors.TsIllegalArgumentRtException;
 import org.toxsoft.core.tslib.utils.errors.TsNullArgumentRtException;
 import org.toxsoft.uskat.s5.server.backend.IS5BackendSupportSingleton;
-
-import ru.uskat.legacy.IdPair;
 
 /**
  * Поддержка сервера для функций доступа к большим объектам (Large OBject - LOB).
@@ -15,69 +13,43 @@ import ru.uskat.legacy.IdPair;
  * @author mvk
  */
 @Local
-public interface IS5BackendLobsSingleton
+public interface IS5BackendClobSingleton
     extends IS5BackendSupportSingleton {
 
   /**
-   * Возвращает список идентификаторов lob-данных доступные в системе
+   * Читает значение clob-данного из системы
    *
-   * @return {@link IList}&lt;{@link IdPair}&gt; список идентификаторов
-   */
-  IList<IdPair> listLobIds();
-
-  /**
-   * Проверяет, существует ли в системе lob-данное с указанным идентификатором
-   *
-   * @param aId {@link IdPair} идентификатор данного
-   * @return <b>true</b> данное существует. <b>fasle</b> данное не существует
-   * @throws TsNullArgumentRtException аргумент = null
-   */
-  boolean hasLob( IdPair aId );
-
-  /**
-   * Читает значение lob-данного из системы
-   *
-   * @param aId {@link IdPair} идентификатор lob-данного
+   * @param aGwid {@link Gwid} идентификатор конкретного clob-данного
    * @return String текстовое представление lob-данного
    * @throws TsNullArgumentRtException любой аргумент = null
    * @throws TsIllegalArgumentRtException данное не существует в системе
    */
-  String readClob( IdPair aId );
+  String readClob( Gwid aGwid );
 
   /**
-   * Сохраняет значение lob-данного в системе
+   * Сохраняет значение clob-данного в системе
    * <p>
    * Если в системе уже существует указанное данное, то его значение обновляется.
    *
-   * @param aId {@link IdPair} идентификатор lob-данного
+   * @param aGwid {@link Gwid} идентификатор конкретного clob-данного
    * @param aValue String текстовое представление значения
    * @return boolean <b>true</b> новое значение;<b>false</b> значение было обновлено.
    * @throws TsNullArgumentRtException любой аргумент = null
    */
-  boolean writeClob( IdPair aId, String aValue );
+  boolean writeClob( Gwid aGwid, String aValue );
 
   /**
    * Копирует значение lob-данного в системе
    * <p>
    * Если в системе уже существует указанное данное, то его значение обновляется.
    *
-   * @param aSourceId {@link IdPair} идентификатор исходного lob-данного
-   * @param aDestId {@link IdPair} идентификатор приемного lob-данного
+   * @param aSourceGwid {@link Gwid} идентификатор исходного конкретного clob-данного
+   * @param aDestGwid {@link Gwid} идентификатор приемного конкретного clob-данного
    * @return boolean <b>true</b> новое значение;<b>false</b> значение было обновлено.
    * @throws TsNullArgumentRtException любой аргумент = null
    * @throws TsIllegalArgumentRtException данное не существует в системе
    */
-  boolean copyClob( IdPair aSourceId, IdPair aDestId );
-
-  /**
-   * Удаляет lob-данное из системы
-   * <p>
-   * Если значения нет в системе, то ничего не делает.
-   *
-   * @param aId {@link IdPair} идентификатор lob-данного
-   * @return <b>true</b> значение было удалено из системы;<b>false</b> значения не было в системе.
-   */
-  boolean removeClob( IdPair aId );
+  boolean copyClob( Gwid aSourceGwid, Gwid aDestGwid );
 
   // ------------------------------------------------------------------------------------
   // Интерсепция
@@ -87,19 +59,19 @@ public interface IS5BackendLobsSingleton
    * <p>
    * Если такой перехватчик уже зарегистрирован, то обновляет его приоритет.
    *
-   * @param aInterceptor {@link IS5LobsInterceptor} перехватчик операций
+   * @param aInterceptor {@link IS5ClobsInterceptor} перехватчик операций
    * @param aPriority int приоритет перехватчика. Чем меньше значение, тем выше приоритет.
    * @throws TsNullArgumentRtException аргумент = null
    */
-  void addLobsInterceptor( IS5LobsInterceptor aInterceptor, int aPriority );
+  void addLobsInterceptor( IS5ClobsInterceptor aInterceptor, int aPriority );
 
   /**
    * Удаляет перехватчика операций проводимых над над большими данными (LOBs)
    * <p>
    * Если такой перехватчик не зарегистрирован, то метод ничего не делает.
    *
-   * @param aInterceptor {@link IS5LobsInterceptor} перехватчик операций
+   * @param aInterceptor {@link IS5ClobsInterceptor} перехватчик операций
    * @throws TsNullArgumentRtException аргумент = null
    */
-  void removeLobsInterceptor( IS5LobsInterceptor aInterceptor );
+  void removeLobsInterceptor( IS5ClobsInterceptor aInterceptor );
 }

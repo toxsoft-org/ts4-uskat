@@ -1,7 +1,8 @@
 package org.toxsoft.uskat.s5.common.sysdescr;
 
 import org.toxsoft.core.tslib.coll.primtypes.IStringMap;
-import org.toxsoft.core.tslib.utils.errors.*;
+import org.toxsoft.core.tslib.utils.errors.TsIllegalArgumentRtException;
+import org.toxsoft.core.tslib.utils.errors.TsNullArgumentRtException;
 import org.toxsoft.uskat.core.api.sysdescr.ISkClassInfo;
 
 /**
@@ -54,20 +55,4 @@ public interface ISkSysdescrReader
    * @throws TsNullArgumentRtException аргумент = null
    */
   IStringMap<ISkClassInfo> getClassInfos( String aClassId );
-
-  /**
-   * Определяет, является ли aParentClassId предком класса aClassId.
-   * <p>
-   * Класс aParentClassId считается предком, если среди цепочки родителей класса aClassId есть aParentClassId.
-   *
-   * @param aParentClassId String - идентификатор родительского класса
-   * @param aClassId String - идентификатор проверяемого класса
-   * @return boolean - признак, что класс aParentClassId является предком aClassId<br>
-   *         <b>true</b> - aParentClassId является предком aClassId;<br>
-   *         <b>false</b> - среди потомков aParentClassId нет класса aClassId.
-   * @throws TsNullArgumentRtException любой аргумент = null
-   * @throws TsItemNotFoundRtException нет такого класса
-   */
-  boolean isAncestor( String aParentClassId, String aClassId );
-
 }

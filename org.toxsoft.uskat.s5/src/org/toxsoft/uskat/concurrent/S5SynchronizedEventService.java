@@ -2,14 +2,14 @@ package org.toxsoft.uskat.concurrent;
 
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
+import org.toxsoft.core.tslib.bricks.time.IQueryInterval;
+import org.toxsoft.core.tslib.bricks.time.ITimedList;
 import org.toxsoft.core.tslib.coll.IMapEdit;
 import org.toxsoft.core.tslib.coll.impl.ElemMap;
-import org.toxsoft.core.tslib.gw.gwid.GwidList;
-import org.toxsoft.core.tslib.gw.gwid.IGwidList;
+import org.toxsoft.core.tslib.gw.gwid.*;
 import org.toxsoft.core.tslib.utils.errors.TsItemNotFoundRtException;
 import org.toxsoft.core.tslib.utils.errors.TsNullArgumentRtException;
 import org.toxsoft.uskat.core.api.evserv.*;
-import org.toxsoft.uskat.core.utils.ITemporalsHistory;
 
 /**
  * Синхронизация доступа к {@link ISkEventService} (декоратор)
@@ -20,8 +20,7 @@ public final class S5SynchronizedEventService
     extends S5SynchronizedService<ISkEventService>
     implements ISkEventService {
 
-  private final S5SynchronizedTemporalsHistory<SkEvent> history;
-  private final IMapEdit<ISkEventHandler, GwidList>     handlers = new ElemMap<>();
+  private final IMapEdit<ISkEventHandler, GwidList> handlers = new ElemMap<>();
 
   /**
    * Конструктор
@@ -44,7 +43,6 @@ public final class S5SynchronizedEventService
    */
   public S5SynchronizedEventService( ISkEventService aTarget, ReentrantReadWriteLock aLock ) {
     super( aTarget, aLock );
-    history = new S5SynchronizedTemporalsHistory<>( aTarget.history(), aLock );
   }
 
   // ------------------------------------------------------------------------------------
@@ -53,7 +51,6 @@ public final class S5SynchronizedEventService
   @Override
   protected void doChangeTarget( ISkEventService aPrevTarget, ISkEventService aNewTarget,
       ReentrantReadWriteLock aNewLock ) {
-    history.changeTarget( aNewTarget.history(), aNewLock );
     for( ISkEventHandler handler : handlers.keys() ) {
       aNewTarget.registerHandler( handlers.getByKey( handler ), handler );
     }
@@ -103,7 +100,13 @@ public final class S5SynchronizedEventService
   }
 
   @Override
-  public ITemporalsHistory<SkEvent> history() {
-    return history;
+  public ITimedList<SkEvent> queryObjEvents( IQueryInterval aInterval, Gwid aGwid ) {
+    lockWrite( this );
+    try {
+      return target().queryObjEvents( aInterval, aGwid );
+    }
+    finally {
+      unlockWrite( this );
+    }
   }
 }
