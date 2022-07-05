@@ -1,9 +1,9 @@
 package org.toxsoft.uskat.s5.server.backend.supports.events.impl;
 
-import static org.toxsoft.uskat.core.impl.S5EventsUtils.*;
 import static org.toxsoft.uskat.s5.common.IS5CommonResources.*;
 import static org.toxsoft.uskat.s5.legacy.SkGwidUtils.*;
 import static org.toxsoft.uskat.s5.server.IS5ImplementConstants.*;
+import static org.toxsoft.uskat.s5.server.backend.addons.events.S5BaEventsUtils.*;
 import static org.toxsoft.uskat.s5.server.backend.supports.events.impl.IS5Resources.*;
 import static org.toxsoft.uskat.s5.server.transactions.ES5TransactionResources.*;
 
@@ -25,7 +25,6 @@ import org.toxsoft.core.tslib.utils.errors.TsNotAllEnumsUsedRtException;
 import org.toxsoft.core.tslib.utils.errors.TsNullArgumentRtException;
 import org.toxsoft.uskat.core.api.evserv.SkEvent;
 import org.toxsoft.uskat.core.api.objserv.IDtoObject;
-import org.toxsoft.uskat.core.api.sysdescr.ISkClassHierarchyExplorer;
 import org.toxsoft.uskat.core.api.sysdescr.ISkClassInfo;
 import org.toxsoft.uskat.core.api.sysdescr.dto.IDtoClassInfo;
 import org.toxsoft.uskat.core.backend.api.IBaEvents;
@@ -180,38 +179,7 @@ public class S5BackendEventSingleton
         for( int index = 0, n = block.size(); index < n; index++ ) {
           SkEvent event = block.getValue( index );
           for( Gwid gwid : aNeededGwids ) {
-            if( acceptableEvent( new ISkClassHierarchyExplorer() {
-
-              @Override
-              public boolean isSuperclassOf( String aClassId, String aSubclassId ) {
-                // TODO Auto-generated method stub
-                return false;
-              }
-
-              @Override
-              public boolean isSubclassOf( String aClassId, String aSuperclassId ) {
-                // TODO Auto-generated method stub
-                return false;
-              }
-
-              @Override
-              public boolean isOfClass( String aClassId, IStringList aClassIdsList ) {
-                // TODO Auto-generated method stub
-                return false;
-              }
-
-              @Override
-              public boolean isAssignableTo( String aClassId, String aSuperclassId ) {
-                // TODO Auto-generated method stub
-                return false;
-              }
-
-              @Override
-              public boolean isAssignableFrom( String aClassId, String aSubclassId ) {
-                // TODO Auto-generated method stub
-                return false;
-              }
-            }, gwid, event ) ) {
+            if( acceptableEvent( sysdescrBackend(), gwid, event ) ) {
               events.add( event );
             }
           }

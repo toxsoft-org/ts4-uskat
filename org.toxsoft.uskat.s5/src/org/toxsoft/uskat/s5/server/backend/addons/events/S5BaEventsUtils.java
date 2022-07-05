@@ -1,4 +1,4 @@
-package org.toxsoft.uskat.core.impl;
+package org.toxsoft.uskat.s5.server.backend.addons.events;
 
 import org.toxsoft.core.tslib.coll.IList;
 import org.toxsoft.core.tslib.utils.errors.TsNullArgumentRtException;
@@ -9,7 +9,7 @@ import org.toxsoft.uskat.core.api.evserv.SkEvent;
  *
  * @author mvk
  */
-public class S5EventsUtils {
+public class S5BaEventsUtils {
 
   // ------------------------------------------------------------------------------------
   // Открытые методы

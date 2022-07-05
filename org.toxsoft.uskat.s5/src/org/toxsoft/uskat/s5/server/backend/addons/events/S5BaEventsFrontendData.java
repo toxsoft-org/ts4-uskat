@@ -3,7 +3,6 @@ package org.toxsoft.uskat.s5.server.backend.addons.events;
 import java.io.Serializable;
 
 import org.toxsoft.uskat.core.backend.api.IBaEvents;
-import org.toxsoft.uskat.core.impl.S5EventSupport;
 import org.toxsoft.uskat.s5.server.frontend.IS5FrontendAddonData;
 
 /**
@@ -19,6 +18,6 @@ public class S5BaEventsFrontendData
   /**
    * Конфигурация обработки событий
    */
-  public final S5EventSupport events = new S5EventSupport();
+  public final S5BaEventSupport events = new S5BaEventSupport();
 
 }

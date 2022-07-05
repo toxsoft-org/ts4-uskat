@@ -1,12 +1,8 @@
 package org.toxsoft.uskat.s5.server.sessions.init;
 
 import org.toxsoft.core.tslib.av.opset.IOptionSet;
-import org.toxsoft.core.tslib.gw.gwid.GwidList;
-import org.toxsoft.core.tslib.gw.gwid.IGwidList;
 import org.toxsoft.core.tslib.gw.skid.Skid;
 import org.toxsoft.core.tslib.utils.errors.TsNullArgumentRtException;
-import org.toxsoft.uskat.core.api.evserv.ISkEventHandler;
-import org.toxsoft.uskat.core.api.evserv.ISkEventService;
 import org.toxsoft.uskat.s5.client.IS5ConnectionParams;
 import org.toxsoft.uskat.s5.client.remote.connection.S5ClusterTopology;
 import org.toxsoft.uskat.s5.common.sessions.ISkSession;
@@ -40,15 +36,6 @@ public interface IS5SessionInitData {
    * @return {@link S5ClusterTopology} информация о топологии
    */
   S5ClusterTopology clusterTopology();
-
-  /**
-   * Идентификаторы событий на которые подписан клиент
-   * <p>
-   * Определение идентификаторов смотри {@link ISkEventService#registerHandler(IGwidList, ISkEventHandler)}
-   *
-   * @return {@link GwidList} список идентификаторов событий на которые подписан клиент
-   */
-  GwidList eventGwids();
 
   /**
    * Возвращает данные расширения бекенда

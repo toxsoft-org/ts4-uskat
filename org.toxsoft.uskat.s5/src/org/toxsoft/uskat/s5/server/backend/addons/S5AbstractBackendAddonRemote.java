@@ -69,7 +69,7 @@ public abstract class S5AbstractBackendAddonRemote<SESSION extends IS5BackendAdd
    * @return SESSION сессия расширения бекенда
    */
   public final SESSION session() {
-    SESSION retValue = findRemote();
+    SESSION retValue = findSession();
     if( retValue == null ) {
       // Не найден addons
       if( !owner().isActive() ) {
@@ -87,7 +87,7 @@ public abstract class S5AbstractBackendAddonRemote<SESSION extends IS5BackendAdd
    *
    * @return SESSION сессия расширения бекенда или null если нет связи
    */
-  public final SESSION findRemote() {
+  public final SESSION findSession() {
     if( !owner().isActive() ) {
       // Нет связи с сервером
       return null;

@@ -36,23 +36,17 @@ public class S5BaEventsCreator
 
   @Override
   protected Pair<Class<? extends IS5BackendAddonSession>, Class<? extends IS5BackendAddonSession>> doGetSessionClasses() {
-    // TODO:
-    // return new Pair<>( IS5BaClassesSession.class, S5BaClassesSession.class );
-    return null;
+    return new Pair<>( IS5BaEventsSession.class, S5BaEventsSession.class );
   }
 
   @Override
   protected IS5BackendAddonLocal doCreateLocal( IS5BackendLocal aOwner ) {
-    // TODO:
-    // return new S5BaClassesLocal( aOwner );
-    return null;
+    return new S5BaEventsLocal( aOwner );
   }
 
   @Override
   protected IS5BackendAddonRemote doCreateRemote( IS5BackendRemote aOwner ) {
-    // TODO:
-    // return new S5BaClassesRemote( aOwner );
-    return null;
+    return new S5BaEventsRemote( aOwner );
   }
 
   @Override
