@@ -45,7 +45,7 @@ class S5BaObjectsSession
    * Пустой конструктор.
    */
   public S5BaObjectsSession() {
-    super( ISkBackendHardConstant.BAINF_CLASSES );
+    super( ISkBackendHardConstant.BAINF_OBJECTS );
   }
 
   // ------------------------------------------------------------------------------------

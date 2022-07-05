@@ -35,7 +35,7 @@ class S5BaObjectsLocal
    * @throws TsNullArgumentRtException any argument = <code>null</code>
    */
   public S5BaObjectsLocal( IS5BackendLocal aOwner ) {
-    super( aOwner, ISkBackendHardConstant.BAINF_CLASSES );
+    super( aOwner, ISkBackendHardConstant.BAINF_OBJECTS );
     // Синглтон поддержки чтения/записи системного описания
     objectsSupport =
         aOwner.backendSingleton().get( S5BackendObjectsSingleton.BACKEND_OBJECTS_ID, IS5BackendObjectsSingleton.class );
