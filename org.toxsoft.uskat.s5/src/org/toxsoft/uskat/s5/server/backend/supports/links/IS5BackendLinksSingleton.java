@@ -2,7 +2,9 @@ package org.toxsoft.uskat.s5.server.backend.supports.links;
 
 import javax.ejb.Local;
 
+import org.toxsoft.core.tslib.coll.IList;
 import org.toxsoft.core.tslib.utils.errors.TsNullArgumentRtException;
+import org.toxsoft.uskat.core.api.linkserv.IDtoLinkFwd;
 import org.toxsoft.uskat.core.backend.api.IBaLinks;
 import org.toxsoft.uskat.core.impl.ISkBackendLinksManagement;
 import org.toxsoft.uskat.s5.server.backend.IS5BackendSupportSingleton;
@@ -15,6 +17,18 @@ import org.toxsoft.uskat.s5.server.backend.IS5BackendSupportSingleton;
 @Local
 public interface IS5BackendLinksSingleton
     extends IBaLinks, IS5BackendSupportSingleton {
+
+  /**
+   * Stores links.
+   * <p>
+   * If any of the {@link IDtoLinkFwd#rightSkids()} is empty such link will be removed.
+   * <p>
+   * Elements of argument are applied sequentaly.
+   *
+   * @param aLinks {@link IList}&lt;{@link IDtoLinkFwd}&gt; - list of the links
+   * @param aInterceptionEnabled boolean <b>true</b>перехват разрешен; <b>false</b>перехват запрещен.
+   */
+  void writeLinksFwd( IList<IDtoLinkFwd> aLinks, boolean aInterceptionEnabled );
 
   // /**
   // * Возвращает все ПРЯМЫЕ связи всех объектов указанного класса без учета наследников

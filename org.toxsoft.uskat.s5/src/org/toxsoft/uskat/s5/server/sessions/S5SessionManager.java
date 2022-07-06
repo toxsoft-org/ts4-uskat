@@ -1029,7 +1029,7 @@ public class S5SessionManager
     Skid userID = new Skid( ISkUser.CLASS_ID, aLogin );
     DtoLinkFwd dtoUserLink = new DtoLinkFwd( //
         Gwid.createLink( ISkSession.CLASS_ID, ISkSession.LNKID_USER ), aSessionID, new SkidList( userID ) );
-    linksSupport.writeLinks( new ElemArrayList<>( dtoUserLink ), false ); // false: запрет интерсепторов
+    linksSupport.writeLinksFwd( new ElemArrayList<>( dtoUserLink ) ); // false: запрет интерсепторов
     // 2021-04-09 mvk создание статистики проводится как lazy через findStatisticCounter
     // Статистика сессии
     // if( statisticCountersBySessions.findByKey( aSessionID ) == null ) {

@@ -14,6 +14,7 @@ import javax.persistence.EntityManager;
 import javax.persistence.Query;
 
 import org.toxsoft.core.tslib.coll.IList;
+import org.toxsoft.core.tslib.gw.skid.Skid;
 import org.toxsoft.core.tslib.utils.errors.TsNullArgumentRtException;
 import org.toxsoft.core.tslib.utils.logs.ILogger;
 import org.toxsoft.uskat.core.api.linkserv.IDtoLinkFwd;
@@ -41,7 +42,7 @@ class S5LinksSQL {
    * Формат запроса всех связей объектов указанного класса
    * <p>
    * <li>1. %s - Класс реализации описания, например,{@link S5DefaultLinkFwdEntity}/{@link S5DefaultLinkRevEntity};</li>
-   * <li>2. %s - идентификатор класса левого/правого объекта связи.</li>
+   * <li>2. %s - Идентификатор класса левого/правого объекта связи.</li>
    */
   private static final String QFRMT_GET_LINKS_BY_CLASSID =
       "SELECT link FROM %s link WHERE (link." + FIELD_ID + "." + FIELD_CLASSID + "='%s' )";
@@ -50,11 +51,21 @@ class S5LinksSQL {
    * Формат запроса связей объектов указанного класса
    * <p>
    * <li>1. %s - Класс реализации описания, например,{@link S5DefaultLinkFwdEntity}/{@link S5DefaultLinkRevEntity};</li>
-   * <li>2. %s - идентификатор класса левого/правого объекта связи;</li>
-   * <li>3. %s - идентификатор связ связи.</li>
+   * <li>2. %s - Идентификатор класса левого/правого объекта связи;</li>
+   * <li>3. %s - Идентификатор связи.</li>
    */
   private static final String QFRMT_GET_LINKS_BY_CLASSID_LINKID = "SELECT link FROM %s link WHERE" + //
       "(link." + FIELD_ID + "." + FIELD_CLASSID + "='%s')AND(link." + FIELD_ID + "." + FIELD_LINKID + "='%s')";
+
+  /**
+   * Формат запроса связей указанного объекта
+   * <p>
+   * <li>1. %s - Класс реализации описания, например,{@link S5DefaultLinkFwdEntity}/{@link S5DefaultLinkRevEntity};</li>
+   * <li>2. %s - Идентификатор класса левого/правого объекта связи;</li>
+   * <li>3. %s - Идентификатор левого/правого объекта связи.</li>
+   */
+  private static final String QFRMT_GET_LINKS_BY_OBJID = "SELECT link FROM %s link WHERE" + //
+      "(link." + FIELD_ID + "." + FIELD_CLASSID + "='%s')AND(link." + FIELD_ID + "." + FIELD_STRID + "='%s')";
 
   /**
    * Возвращает все ПРЯМЫЕ связи объектов указанного класса (без учета наследников)
@@ -88,6 +99,34 @@ class S5LinksSQL {
   }
 
   /**
+   * Возвращает все ПРЯМЫЕ связи объектов указанного класса (без учета наследников)
+   *
+   * @param aEntityManager {@link EntityManager} менеджер постоянства
+   * @param aLinkFwdImplClassName String полное имя класса реализации прямой связи, наследник {@link S5LinkFwdEntity}
+   * @param aLeftSkid {@link Skid} идентификатор левого объекта связи
+   * @return {@link IList}&lt;{@link S5LinkFwdEntity}&gt; список прямых связей
+   * @throws TsNullArgumentRtException любой аргумент = null
+   */
+  @SuppressWarnings( "unchecked" )
+  static List<IDtoLinkFwd> getFwdLinksByObjectId( EntityManager aEntityManager, String aLinkFwdImplClassName,
+      Skid aLeftSkid ) {
+    TsNullArgumentRtException.checkNulls( aEntityManager, aLeftSkid );
+    // Время начала выполнения запроса
+    long traceStartTime = System.currentTimeMillis();
+    // Текст SQL-запроса
+    String tableName = getLast( aLinkFwdImplClassName );
+    // Текст SQL-запроса
+    String sql = format( QFRMT_GET_LINKS_BY_OBJID, tableName, aLeftSkid.classId(), aLeftSkid.strid() );
+    // Выполнение запроса
+    Query query = aEntityManager.createQuery( sql );
+    List<Object> retValue = query.getResultList();
+    // Получен результат запроса
+    Long time = Long.valueOf( System.currentTimeMillis() - traceStartTime );
+    logger.info( MSG_READ_FWD_LINKS_BY_CLASSID_SQL_FINISH, Integer.valueOf( retValue.size() ), time );
+    return (List<IDtoLinkFwd>)(Object)retValue;
+  }
+
+  /**
    * Возвращает все ОБРАТНЫЕ связи объектов указанного класса (без учета наследников)
    *
    * @param aEntityManager {@link EntityManager} менеджер постоянства
@@ -106,6 +145,34 @@ class S5LinksSQL {
     String tableName = getLast( aLinkRevImplClassName );
     // Текст SQL-запроса
     String sql = format( QFRMT_GET_LINKS_BY_CLASSID, tableName, aRightObjClassId );
+    // Выполнение запроса
+    Query query = aEntityManager.createQuery( sql );
+    List<S5LinkRevEntity> retValue = query.getResultList();
+    // Получен результат запроса
+    Long time = Long.valueOf( System.currentTimeMillis() - traceStartTime );
+    logger.info( MSG_READ_REV_LINKS_BY_CLASSID_SQL_FINISH, Integer.valueOf( retValue.size() ), time );
+    return (List<IDtoLinkRev>)(Object)retValue;
+  }
+
+  /**
+   * Возвращает все ОБРАТНЫЕ связи указанного объекта (без учета наследников)
+   *
+   * @param aEntityManager {@link EntityManager} менеджер постоянства
+   * @param aLinkRevImplClassName String полное имя класса реализации обратной связи, наследник {@link S5LinkRevEntity}
+   * @param aRightSkid String идентификатор класса правого объекта связи
+   * @return {@link IList}&lt;{@link S5LinkRevEntity}&gt; список обратных связей
+   * @throws TsNullArgumentRtException любой аргумент = null
+   */
+  @SuppressWarnings( "unchecked" )
+  static List<IDtoLinkRev> getRevLinksByObjId( EntityManager aEntityManager, String aLinkRevImplClassName,
+      Skid aRightSkid ) {
+    TsNullArgumentRtException.checkNulls( aEntityManager, aRightSkid );
+    // Время начала выполнения запроса
+    long traceStartTime = System.currentTimeMillis();
+    // Текст SQL-запроса
+    String tableName = getLast( aLinkRevImplClassName );
+    // Текст SQL-запроса
+    String sql = format( QFRMT_GET_LINKS_BY_OBJID, tableName, aRightSkid.classId(), aRightSkid.strid() );
     // Выполнение запроса
     Query query = aEntityManager.createQuery( sql );
     List<S5LinkRevEntity> retValue = query.getResultList();
