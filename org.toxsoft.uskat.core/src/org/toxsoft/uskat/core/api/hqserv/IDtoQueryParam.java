@@ -7,7 +7,7 @@ import org.toxsoft.core.tslib.bricks.strid.*;
 import org.toxsoft.core.tslib.gw.gwid.*;
 
 /**
- * Single data argumetn to be queried by {@link ISkProcessedQuery}.
+ * Single data argumetn to be queried by {@link ISkQueryProcessedData}.
  * <p>
  * Implementa {@link IStridableParameterized} where {@link #id()} is user-specified data ID (unique in query). Visal
  * {@link #nmName()} and {@link #description()} is not used by query itself but may be specified for example to be used
@@ -17,7 +17,7 @@ import org.toxsoft.core.tslib.gw.gwid.*;
  *
  * @author hazard157
  */
-public interface ISkProcessedQueryDataArg
+public interface IDtoQueryParam
     extends IStridable {
 
   /**

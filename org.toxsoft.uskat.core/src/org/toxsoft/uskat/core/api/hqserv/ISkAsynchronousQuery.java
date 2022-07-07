@@ -9,13 +9,13 @@ import org.toxsoft.core.tslib.utils.errors.*;
 import org.toxsoft.uskat.core.*;
 
 /**
- * The historic data asynchronous query base interface.
+ * The asynchronous data query base interface.
  * <p>
  * Implements {@link IParameterized} and stores in {@link #params()} options used when creating query by
- * {@link ISkQueryService#createHistoricQuery(IOptionSet)}.
+ * {@link ISkHistoryQueryService#createHistoricQuery(IOptionSet)}.
  * <p>
  * Fire {@link IGenericChangeListener#onGenericChangeEvent(Object)} events every time when {@link #state()} changes and
- * when next portion of data is received while in {@link EQueryState#EXECUTING} state.
+ * when next portion of data is received while in {@link ESkQueryState#EXECUTING} state.
  *
  * @author hazard157
  */
@@ -36,15 +36,15 @@ public interface ISkAsynchronousQuery
   /**
    * Returns current query state.
    *
-   * @return {@link EQueryState} - the query state
+   * @return {@link ESkQueryState} - the query state
    */
-  EQueryState state();
+  ESkQueryState state();
 
   /**
    * Queries the data for the specified time interval.
    * <p>
-   * Mathod shall not ba called when {@link #state()} is {@link EQueryState#UNPREPARED}, {@link EQueryState#EXECUTING}
-   * or {@link EQueryState#CLOSED}.
+   * Mathod shall not ba called when {@link #state()} is {@link ESkQueryState#UNPREPARED},
+   * {@link ESkQueryState#EXECUTING} or {@link ESkQueryState#CLOSED}.
    *
    * @param aInterval {@link IQueryInterval} - asked interval of time
    * @throws TsNullArgumentRtException any argument = <code>null</code>

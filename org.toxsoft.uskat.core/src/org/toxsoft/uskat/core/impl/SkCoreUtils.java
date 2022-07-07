@@ -37,7 +37,7 @@ public class SkCoreUtils {
    */
   public static void initialize() {
     TsValobjUtils.registerKeeper( SkEvent.KEEPER_ID, SkEvent.KEEPER );
-    TsValobjUtils.registerKeeper( EQueryState.KEEPER_ID, EQueryState.KEEPER );
+    TsValobjUtils.registerKeeper( ESkQueryState.KEEPER_ID, ESkQueryState.KEEPER );
     TsValobjUtils.registerKeeper( SkCommandState.KEEPER_ID, SkCommandState.KEEPER );
     TsValobjUtils.registerKeeper( DtoCommandStateChangeInfo.KEEPER_ID, DtoCommandStateChangeInfo.KEEPER );
     TsValobjUtils.registerKeeper( DtoCommand.KEEPER_ID, DtoCommand.KEEPER );

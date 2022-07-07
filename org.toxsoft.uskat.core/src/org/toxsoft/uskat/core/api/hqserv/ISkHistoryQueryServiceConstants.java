@@ -11,13 +11,13 @@ import org.toxsoft.core.tslib.av.*;
 import org.toxsoft.core.tslib.av.metainfo.*;
 
 /**
- * {@link ISkHistoryQuery} constants.
+ * {@link ISkQueryRawHistory} constants.
  * <p>
  * Listed options are used as arguments of query instance creation.
  *
  * @author mvk
  */
-public interface ISkQueryServiceConstants {
+public interface ISkHistoryQueryServiceConstants {
 
   // ------------------------------------------------------------------------------------
   // Опции

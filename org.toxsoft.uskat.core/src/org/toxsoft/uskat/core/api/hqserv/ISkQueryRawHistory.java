@@ -13,7 +13,7 @@ import org.toxsoft.uskat.core.api.gwids.*;
  *
  * @author hazard157
  */
-public interface ISkHistoryQuery
+public interface ISkQueryRawHistory
     extends ISkAsynchronousQuery {
 
   // ------------------------------------------------------------------------------------
@@ -47,7 +47,7 @@ public interface ISkHistoryQuery
    * All multi-GWIDs will be expanded so result contains only <b>concrete single</b> GWIDs (that is
    * {@link Gwid#isMulti()} = <code>false</code>).
    * <p>
-   * Mathod shall not ba called when {@link #state()} is {@link EQueryState#EXECUTING} or {@link EQueryState#CLOSED}.
+   * Mathod shall not ba called when {@link #state()} is {@link ESkQueryState#EXECUTING} or {@link ESkQueryState#CLOSED}.
    *
    * @param aGwids {@link IGwidList} - RTdata GWIDs user ask for query
    * @return {@link IGwidList} - GWIDs to be queried in fact
@@ -63,7 +63,7 @@ public interface ISkHistoryQuery
   /**
    * Returns result of query for specified RTdata.
    * <p>
-   * Note: while open, only query with {@link ISkHistoryQuery#state()} = {@link EQueryState#READY} contains data. All
+   * Note: while open, only query with {@link ISkQueryRawHistory#state()} = {@link ESkQueryState#READY} contains data. All
    * other states leads to an empty result of this method. After {@link #close()} data (if there were any) will remain
    * in query instance and may be used.
    *
@@ -80,7 +80,7 @@ public interface ISkHistoryQuery
    * <p>
    * Map keys is the same list of GWIDs as returned by {@link #prepare(IGwidList)}.
    * <p>
-   * Note: while open, only query with {@link ISkHistoryQuery#state()} = {@link EQueryState#READY} contains data. All
+   * Note: while open, only query with {@link ISkQueryRawHistory#state()} = {@link ESkQueryState#READY} contains data. All
    * other states leads to an empty result of this method. After {@link #close()} data (if there were any) will remain
    * in query instance and may be used.
    *

@@ -7,7 +7,7 @@ import org.toxsoft.core.tslib.utils.errors.*;
 /**
  * Queries data and returns processed results.
  * <p>
- * Data GWIDs and processing rules are specified as query arguments {@link ISkProcessedQueryDataArg}.
+ * Data GWIDs and processing rules are specified as query arguments {@link IDtoQueryParam}.
  * <p>
  * Processed data will be returned one-by-one. It is possible to use them even before whole set is ready. To check and
  * get single data result methods {@link #isArgDataReady(String)} and {@link #getArgData(String)} may be used.
@@ -16,8 +16,7 @@ import org.toxsoft.core.tslib.utils.errors.*;
  *
  * @author hazard157
  */
-@SuppressWarnings( "javadoc" )
-public interface ISkProcessedQuery
+public interface ISkQueryProcessedData
     extends ISkAsynchronousQuery {
 
   // ------------------------------------------------------------------------------------
@@ -27,18 +26,18 @@ public interface ISkProcessedQuery
   /**
    * Listes the argument as specified by {@link #prepare(IStridablesList)}.
    *
-   * @return {@link IStridablesList}&lt;{@link ISkProcessedQueryDataArg}&gt; - the query arguments
+   * @return {@link IStridablesList}&lt;{@link IDtoQueryParam}&gt; - the query arguments
    */
-  IStridablesList<ISkProcessedQueryDataArg> listArgs();
+  IStridablesList<IDtoQueryParam> listArgs();
 
   /**
    * Prepares query to be executed.
    *
-   * @param aArgs {@link IStridablesList}&lt;{@link ISkProcessedQueryDataArg}&gt; - the query arguments
+   * @param aArgs {@link IStridablesList}&lt;{@link IDtoQueryParam}&gt; - the query arguments
    * @throws TsNullArgumentRtException any argument = <code>null</code>
    * @throws TsIllegalArgumentRtException somethiong illegal found in query arguments
    */
-  void prepare( IStridablesList<ISkProcessedQueryDataArg> aArgs );
+  void prepare( IStridablesList<IDtoQueryParam> aArgs );
 
   // ------------------------------------------------------------------------------------
   // Result getters
@@ -47,8 +46,8 @@ public interface ISkProcessedQuery
   /**
    * Determines if result for the specified argumetn is ready.
    * <p>
-   * This method is useful when query {@link #state()} is {@link EQueryState#EXECUTING EXECUTING}. When query becames
-   * {@link EQueryState#READY READY} this method will return <code>true</code> for all arguments.
+   * This method is useful when query {@link #state()} is {@link ESkQueryState#EXECUTING EXECUTING}. When query becames
+   * {@link ESkQueryState#READY READY} this method will return <code>true</code> for all arguments.
    *
    * @param aDataId String - the data argument ID as in {@link #listArgs()}
    * @return boolean - data is ready, {@link #getArgData(String)} may be called

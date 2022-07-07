@@ -3,9 +3,9 @@ package org.toxsoft.uskat.core.backend.api;
 import static org.toxsoft.uskat.core.ISkHardConstants.*;
 
 import org.toxsoft.core.tslib.av.opset.*;
+import org.toxsoft.core.tslib.bricks.events.msg.*;
 import org.toxsoft.core.tslib.bricks.time.*;
-import org.toxsoft.core.tslib.gw.gwid.*;
-import org.toxsoft.core.tslib.utils.errors.*;
+import org.toxsoft.core.tslib.coll.primtypes.*;
 import org.toxsoft.uskat.core.api.hqserv.*;
 
 /**
@@ -24,38 +24,58 @@ public interface IBaQueries
   String ADDON_ID = SK_ID + "ba.Queries"; //$NON-NLS-1$
 
   /**
-   * Starts historic data query and returns immediately
+   * Creates data query.
    * <p>
-   * <code>aGwids</code> may contain only concrete valid GWIDs of kind {@link EGwidKind#GW_RTDATA},
-   * {@link EGwidKind#GW_CMD} and {@link EGwidKind#GW_EVENT} without duplicates.
-   * <p>
-   * <code>aParams</code> is query options as defined in {@link ISkQueryService#createHistoricQuery(IOptionSet)}.
-   * <p>
-   * After this method backend starts query execution and sends {@link BaMsgQueriesNextData} with portions of data until
-   * last portio marked with option {@link BaMsgQueriesNextData#ARGID_IS_FINISHED} set to <code>true</code>. Query
-   * execution also will be finished after {@link #cancelQuery(String)}.
+   * This method handles both {@link ISkQueryRawHistory} and {@link ISkQueryProcessedData}.
    *
-   * @param aQueryId String - query ID (an IDpath) is unique while backend is running
-   * @param aQueryInterval {@link IQueryInterval} - asked interval of time
-   * @param aGwids {@link IGwidList} - valid GWIDs list
-   * @param aParams {@link IOptionSet} - query options
-   * @throws TsNullArgumentRtException any argument = <code>null</code>
-   * @throws TsItemAlreadyExistsRtException query with specified ID is already started and still executing
-   * @throws TsIllegalArgumentRtException invalid GWIDs encountered
+   * @param aParams {@link IOptionSet} - the query creation parameters
+   * @return String - the query instance ID
    */
-  void execHistoricQuery( String aQueryId, IQueryInterval aQueryInterval, IGwidList aGwids, IOptionSet aParams );
+  String createQuery( IOptionSet aParams );
 
   /**
-   * Cancels one of the executing query started with
-   * {@link #execHistoricQuery(String, IQueryInterval, IGwidList, IOptionSet)}.
+   * Prepares query to be executed.
+   *
+   * @param aQueryId String - the query ID
+   * @param aParams {@link IStringMap}&lt;{@link IDtoQueryParam}&gt; - data request parameters
+   */
+  void prepareQuery( String aQueryId, IStringMap<IDtoQueryParam> aParams );
+
+  /**
+   * Starts query/statement execution.
    * <p>
-   * After this call fronted has to wait while message with set option {@link BaMsgQueriesNextData#ARGID_IS_FINISHED} is
-   * received.
+   * While executing, backend sends {@link BaMsgQueryNextData} messages to the frontend until query execution is
+   * finished. Last message will contain flag {@link BaMsgQueryNextData#getIsFinished(GenericMessage)} set to
+   * <code>true</code>.
+   *
+   * @param aQueryId String - the query ID
+   * @param aTimeInterval {@link IQueryInterval} - requested time interval
+   */
+  void execQuery( String aQueryId, IQueryInterval aTimeInterval );
+
+  // FIXME statment execution must be developed !
+  // String createStatement( IOptionSet aParams );
+  // Object prepareStatement( String aStatementId, String aSkatQl, IStringMap<IAtomicValue> aArgs );
+  // void execStatement( String aStatementId );
+
+  /**
+   * Cancels the executing query/statement.
    * <p>
-   * If no query with specified ID is executing than method does nothing.
+   * Does nothing if no such query is executing.
+   * <p>
+   * Cancelling query will resuslt backend message FOXME ???W
    *
    * @param aQueryId String - the query ID
    */
-  void cancelQuery( String aQueryId );
+  void cancel( String aQueryId );
+
+  /**
+   * Closes the open query/statement.
+   * <p>
+   * Does nothing if no such query is open.
+   *
+   * @param aQueryId String - the query ID
+   */
+  void close( String aQueryId );
 
 }

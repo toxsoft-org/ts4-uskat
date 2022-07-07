@@ -9,7 +9,7 @@ package org.toxsoft.uskat.core.api.hqserv;
 interface ISkResources {
 
   /**
-   * {@link EQueryState}
+   * {@link ESkQueryState}
    */
   String STR_N_UNPREPARED = "Не определен";
   String STR_D_UNPREPARED = "Начальное состояние";
@@ -25,7 +25,7 @@ interface ISkResources {
   String STR_D_CLOSED     = "Уже был вызван close(), объект запроса (ISkHistDataQuery) следует выбросить";
 
   /**
-   * {@link ISkQueryServiceConstants}
+   * {@link ISkHistoryQueryServiceConstants}
    */
   String STR_N_MAX_EXECUTION_TIME = "Время(мсек)";
   String STR_D_MAX_EXECUTION_TIME = "Макс. время (мсек) выполнения запроса до принудительной отмены";

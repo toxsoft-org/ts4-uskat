@@ -15,7 +15,7 @@ import org.toxsoft.core.tslib.utils.errors.*;
  *
  * @author hazard157
  */
-public enum EQueryState
+public enum ESkQueryState
     implements IStridable {
 
   /**
@@ -51,12 +51,14 @@ public enum EQueryState
   READY( "Ready", STR_D_READY, STR_N_READY ), //$NON-NLS-1$
 
   /**
-   * Query execution failed, data no result was received.
+   * Query execution failed, no result was received.
    */
   FAILED( "Failed", STR_D_FAILED, STR_N_FAILED ), //$NON-NLS-1$
 
   /**
-   * Query was clsed by {@link ISkAsynchronousQuery#close()} so instance is usless.
+   * Query was clsed by {@link ISkAsynchronousQuery#close()} so instance can't be executed or prepared again.
+   * <p>
+   * However if there were result data it is still accessible.
    */
   CLOSED( "Closed", STR_D_CLOSED, STR_N_CLOSED ); //$NON-NLS-1$
 
@@ -68,9 +70,9 @@ public enum EQueryState
   /**
    * Keeper singleton.
    */
-  public static final IEntityKeeper<EQueryState> KEEPER = new StridableEnumKeeper<>( EQueryState.class );
+  public static final IEntityKeeper<ESkQueryState> KEEPER = new StridableEnumKeeper<>( ESkQueryState.class );
 
-  private static IStridablesList<EQueryState> list = null;
+  private static IStridablesList<ESkQueryState> list = null;
 
   private final String id;
   private final String nmName;
@@ -83,7 +85,7 @@ public enum EQueryState
    * @param aName - short name
    * @param aDescription String - description
    */
-  EQueryState( String aId, String aName, String aDescription ) {
+  ESkQueryState( String aId, String aName, String aDescription ) {
     id = aId;
     nmName = aName;
     description = aDescription;
@@ -114,9 +116,9 @@ public enum EQueryState
   /**
    * Returns all constants as list.
    *
-   * @return {@link IStridablesList}&lt;{@link EQueryState}&gt; - list of all constants
+   * @return {@link IStridablesList}&lt;{@link ESkQueryState}&gt; - list of all constants
    */
-  public static IStridablesList<EQueryState> asList() {
+  public static IStridablesList<ESkQueryState> asList() {
     if( list == null ) {
       list = new StridablesList<>( values() );
     }
@@ -131,10 +133,10 @@ public enum EQueryState
    * Finds the constant by the identifier.
    *
    * @param aId String - identifier of the constant
-   * @return {@link EQueryState} - found constant or <code>null</code> there is no constant with specified identifier
+   * @return {@link ESkQueryState} - found constant or <code>null</code> there is no constant with specified identifier
    * @throws TsNullArgumentRtException any argument = <code>null</code>
    */
-  public static EQueryState findById( String aId ) {
+  public static ESkQueryState findById( String aId ) {
     return asList().findByKey( aId );
   }
 
@@ -142,11 +144,11 @@ public enum EQueryState
    * Returns the constant by the identifier.
    *
    * @param aId String - identifier of the constant
-   * @return {@link EQueryState} - found constant
+   * @return {@link ESkQueryState} - found constant
    * @throws TsNullArgumentRtException any argument = <code>null</code>
    * @throws TsItemNotFoundRtException there is no constant with specified identifier
    */
-  public static EQueryState getById( String aId ) {
+  public static ESkQueryState getById( String aId ) {
     return asList().getByKey( aId );
   }
 
