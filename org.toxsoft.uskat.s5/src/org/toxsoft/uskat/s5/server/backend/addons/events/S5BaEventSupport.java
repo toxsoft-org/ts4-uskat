@@ -1,7 +1,6 @@
-package org.toxsoft.uskat.core.impl;
+package org.toxsoft.uskat.s5.server.backend.addons.events;
 
 import static org.toxsoft.core.log4j.LoggerWrapper.*;
-import static org.toxsoft.uskat.core.impl.IS5Resources.*;
 import static org.toxsoft.uskat.s5.utils.threads.impl.S5Lockable.*;
 
 import java.io.Serializable;
@@ -13,6 +12,7 @@ import org.toxsoft.core.tslib.utils.errors.TsNullArgumentRtException;
 import org.toxsoft.core.tslib.utils.logs.ILogger;
 import org.toxsoft.uskat.core.api.evserv.*;
 import org.toxsoft.uskat.core.api.sysdescr.ISkClassHierarchyExplorer;
+import org.toxsoft.uskat.core.impl.SkEventList;
 import org.toxsoft.uskat.s5.legacy.SkGwidUtils;
 import org.toxsoft.uskat.s5.utils.threads.impl.S5Lockable;
 
@@ -21,7 +21,7 @@ import org.toxsoft.uskat.s5.utils.threads.impl.S5Lockable;
  *
  * @author mvk
  */
-public final class S5EventSupport
+public final class S5BaEventSupport
     implements Serializable {
 
   private static final long serialVersionUID = 157157L;
@@ -47,7 +47,7 @@ public final class S5EventSupport
   /**
    * Конструктор.
    */
-  public S5EventSupport() {
+  public S5BaEventSupport() {
   }
 
   // ------------------------------------------------------------------------------------
@@ -75,9 +75,6 @@ public final class S5EventSupport
    * Аргумент заменяет существующий до этого список подписки в бекенде. Пустой список означает, что фронтенд отказываеся
    * от подписки.
    * <p>
-   * Обратите внимание, что даже когда фронтенд отказывается от подписок, ему все равно сообщениями бекенда
-   * {@link SkMessageWhenEvents} будут поступать некоторые системные события.
-   * <p>
    * Описание содержимого и использования списка-аргумента приведено в комментарии к методу
    * {@link ISkEventService#registerHandler(IGwidList, ISkEventHandler)}</code>.
    *
@@ -94,7 +91,7 @@ public final class S5EventSupport
           case GW_EVENT:
             gwids.add( gwid );
             // Подписка на события с идентификатором GWID
-            logger().debug( MSG_REGISTER_EVENT_GWID, gwid );
+            logger().debug( "Subscription on event with GWID: %s", gwid ); //$NON-NLS-1$
             break;
           case GW_ATTR:
           case GW_CMD:
@@ -105,7 +102,7 @@ public final class S5EventSupport
           case GW_CLOB:
           case GW_RIVET:
             // Попытка подписки на события с игнорируемый типом идентификатора GWID
-            logger().warning( MSG_ERR_IGNORE_GWID_BY_KIND, gwid );
+            logger().warning( "Attempt to subscribe on ignored type of GWID: %s", gwid ); //$NON-NLS-1$
             break;
           default:
             throw new TsNotAllEnumsUsedRtException();

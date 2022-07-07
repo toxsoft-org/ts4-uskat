@@ -94,7 +94,7 @@ class S5ObjectsInterceptor
         }
       }
       // Запись в базу данных. false: запретить перехват
-      linksBackend.writeLinks( removedFwdLinks, false );
+      linksBackend.writeLinksFwd( removedFwdLinks, false );
     }
   }
 

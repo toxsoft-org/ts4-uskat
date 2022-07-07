@@ -3,6 +3,7 @@ package org.toxsoft.uskat.s5.server.backend.addons;
 import org.toxsoft.core.tslib.utils.errors.TsIllegalArgumentRtException;
 import org.toxsoft.core.tslib.utils.errors.TsNullArgumentRtException;
 import org.toxsoft.uskat.s5.server.sessions.init.IS5SessionInitResult;
+import org.toxsoft.uskat.s5.server.sessions.init.S5SessionInitData;
 
 /**
  * Удаленный доступ к серверу
@@ -11,6 +12,13 @@ import org.toxsoft.uskat.s5.server.sessions.init.IS5SessionInitResult;
  */
 public interface IS5BackendRemote
     extends IS5Backend {
+
+  /**
+   * Возвращает данные для инициализации сессии на сервере
+   *
+   * @return {@link S5SessionInitData} данные инициализации сессии
+   */
+  S5SessionInitData sessionInitData();
 
   /**
    * Возвращает результат подключения к серверу

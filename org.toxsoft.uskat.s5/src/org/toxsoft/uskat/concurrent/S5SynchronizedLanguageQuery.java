@@ -4,22 +4,20 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import org.toxsoft.core.tslib.av.opset.IOptionSet;
 import org.toxsoft.core.tslib.bricks.events.change.IGenericChangeEventer;
-import org.toxsoft.core.tslib.bricks.time.*;
-import org.toxsoft.core.tslib.coll.IMap;
-import org.toxsoft.core.tslib.gw.gwid.Gwid;
-import org.toxsoft.core.tslib.gw.gwid.IGwidList;
+import org.toxsoft.core.tslib.bricks.time.IQueryInterval;
+import org.toxsoft.core.tslib.coll.primtypes.IStringMap;
 import org.toxsoft.core.tslib.utils.errors.TsNullArgumentRtException;
 import org.toxsoft.uskat.core.api.hqserv.EQueryState;
-import org.toxsoft.uskat.core.api.hqserv.ISkHistoryQuery;
+import org.toxsoft.uskat.core.api.hqserv.ISkLanguageQuery;
 
 /**
- * Синхронизация доступа к {@link ISkHistoryQuery} (декоратор)
+ * Синхронизация доступа к {@link ISkLanguageQuery} (декоратор)
  *
  * @author mvk
  */
-public final class S5SynchronizedHistoryQuery
-    extends S5SynchronizedResource<ISkHistoryQuery>
-    implements ISkHistoryQuery {
+public final class S5SynchronizedLanguageQuery
+    extends S5SynchronizedResource<ISkLanguageQuery>
+    implements ISkLanguageQuery {
 
   private final S5SynchronizedHistoryQueryService  owner;
   private final S5SynchronizedGenericChangeEventer eventer;
@@ -28,11 +26,11 @@ public final class S5SynchronizedHistoryQuery
    * Конструктор
    *
    * @param aOwner {@link S5SynchronizedHistoryQueryService} служба-собственник канала
-   * @param aTarget {@link ISkHistoryQuery} защищаемый ресурс
+   * @param aTarget {@link ISkLanguageQuery} защищаемый ресурс
    * @param aLock {@link ReentrantReadWriteLock} блокировка доступа к ресурсу
    * @throws TsNullArgumentRtException любой аргумент = null
    */
-  public S5SynchronizedHistoryQuery( S5SynchronizedHistoryQueryService aOwner, ISkHistoryQuery aTarget,
+  public S5SynchronizedLanguageQuery( S5SynchronizedHistoryQueryService aOwner, ISkLanguageQuery aTarget,
       ReentrantReadWriteLock aLock ) {
     super( aTarget, aLock );
     owner = TsNullArgumentRtException.checkNull( aOwner );
@@ -43,7 +41,7 @@ public final class S5SynchronizedHistoryQuery
   // S5SynchronizedResource
   //
   @Override
-  protected void doChangeTarget( ISkHistoryQuery aPrevTarget, ISkHistoryQuery aNewTarget,
+  protected void doChangeTarget( ISkLanguageQuery aPrevTarget, ISkLanguageQuery aNewTarget,
       ReentrantReadWriteLock aNewLock ) {
     // nop
   }
@@ -57,7 +55,7 @@ public final class S5SynchronizedHistoryQuery
   }
 
   // ------------------------------------------------------------------------------------
-  // ISkHistoryQuery
+  // ISkLanguageQuery
   //
   @Override
   public String queryId() {
@@ -85,7 +83,7 @@ public final class S5SynchronizedHistoryQuery
   public void close() {
     lockWrite( this );
     try {
-      owner.removeHistoryQuery( this );
+      owner.removeLanguageQuery( this );
       target().close();
     }
     finally {
@@ -105,21 +103,10 @@ public final class S5SynchronizedHistoryQuery
   }
 
   @Override
-  public IGwidList listGwids() {
+  public void prepare( String aSkatQl, IStringMap<Object> aArgs ) {
     lockWrite( this );
     try {
-      return target().listGwids();
-    }
-    finally {
-      unlockWrite( this );
-    }
-  }
-
-  @Override
-  public IGwidList prepare( IGwidList aGwids ) {
-    lockWrite( this );
-    try {
-      return target().prepare( aGwids );
+      target().prepare( aSkatQl, aArgs );
     }
     finally {
       unlockWrite( this );
@@ -149,24 +136,14 @@ public final class S5SynchronizedHistoryQuery
   }
 
   @Override
-  public <T extends ITemporalValue<T>> ITimedList<T> get( Gwid aGwid ) {
+  public Object getResult() {
     lockWrite( this );
     try {
-      return target().get( aGwid );
+      return target().getResult();
     }
     finally {
       unlockWrite( this );
     }
   }
 
-  @Override
-  public <T extends ITemporalValue<T>> IMap<Gwid, ITimedList<T>> getAll() {
-    lockWrite( this );
-    try {
-      return target().getAll();
-    }
-    finally {
-      unlockWrite( this );
-    }
-  }
 }

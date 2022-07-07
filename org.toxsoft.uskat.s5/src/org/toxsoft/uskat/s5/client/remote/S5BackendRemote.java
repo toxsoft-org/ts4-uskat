@@ -12,6 +12,7 @@ import org.toxsoft.uskat.s5.server.backend.IS5BackendSession;
 import org.toxsoft.uskat.s5.server.backend.addons.*;
 import org.toxsoft.uskat.s5.server.backend.messages.*;
 import org.toxsoft.uskat.s5.server.sessions.init.IS5SessionInitResult;
+import org.toxsoft.uskat.s5.server.sessions.init.S5SessionInitData;
 
 /**
  * Удаленный s5-backend
@@ -58,6 +59,11 @@ public final class S5BackendRemote
   // ------------------------------------------------------------------------------------
   // IS5BackendRemote
   //
+  @Override
+  public S5SessionInitData sessionInitData() {
+    return connection.sessionInitData();
+  }
+
   @Override
   public IS5SessionInitResult sessionInitResult() {
     return connection.sessionInitResult();

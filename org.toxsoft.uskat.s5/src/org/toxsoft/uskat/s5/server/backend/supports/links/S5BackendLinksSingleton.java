@@ -21,13 +21,13 @@ import javax.sql.DataSource;
 
 import org.toxsoft.core.tslib.coll.*;
 import org.toxsoft.core.tslib.coll.impl.ElemArrayList;
+import org.toxsoft.core.tslib.coll.impl.ElemMap;
 import org.toxsoft.core.tslib.coll.primtypes.IStringList;
 import org.toxsoft.core.tslib.coll.primtypes.IStringMapEdit;
 import org.toxsoft.core.tslib.coll.primtypes.impl.StringMap;
 import org.toxsoft.core.tslib.gw.gwid.Gwid;
 import org.toxsoft.core.tslib.gw.skid.*;
 import org.toxsoft.core.tslib.utils.Pair;
-import org.toxsoft.core.tslib.utils.TsLibUtils;
 import org.toxsoft.core.tslib.utils.errors.*;
 import org.toxsoft.core.tslib.utils.logs.ILogger;
 import org.toxsoft.uskat.core.api.linkserv.IDtoLinkFwd;
@@ -161,95 +161,76 @@ public class S5BackendLinksSingleton
   }
 
   // ------------------------------------------------------------------------------------
-  // Реализация интерфейса ISkBackendLinksManagement
+  // Реализация интерфейса IBaLinks
   //
   @Override
   @TransactionAttribute( TransactionAttributeType.SUPPORTS )
-  public IDtoLinkFwd findLink( String aClassId, String aLinkId, Skid aLeftSkid ) {
-    TsNullArgumentRtException.checkNulls( aClassId, aLinkId, aLeftSkid );
+  public IDtoLinkFwd findLinkFwd( Gwid aLinkGwid, Skid aLeftSkid ) {
+    TsNullArgumentRtException.checkNulls( aLinkGwid, aLeftSkid );
 
     // Пред-интерсепция
-    IDtoLinkFwd retValue = callBeforeFindLink( interceptors, aClassId, aLinkId, aLeftSkid );
+    IDtoLinkFwd retValue = callBeforeFindLink( interceptors, aLinkGwid, aLeftSkid );
 
     if( retValue == null ) {
+      String classId = aLinkGwid.classId();
+      String linkId = aLinkGwid.propId();
       ISkClassInfo classInfo = sysdescrReader.findClassInfo( aLeftSkid.classId() );
-      if( classInfo != null && classInfo.links().list().hasKey( aLinkId ) ) {
+      if( classInfo != null && classInfo.links().list().hasKey( linkId ) ) {
         Class<S5LinkFwdEntity> linkImplClass = getLinkFwdImplClass( classInfo );
-        retValue = entityManager.find( linkImplClass, new S5LinkID( aLeftSkid, aClassId, aLinkId ) );
+        retValue = entityManager.find( linkImplClass, new S5LinkID( aLeftSkid, classId, linkId ) );
         if( retValue == null ) {
           // Проверяем если объект
           if( objectsBackend.findObject( aLeftSkid ) != null ) {
             // Связь с объектами не найдена (пустая)
-            retValue = new DtoLinkFwd( Gwid.createLink( aClassId, aLinkId ), aLeftSkid, ISkidList.EMPTY );
+            retValue = new DtoLinkFwd( Gwid.createLink( classId, linkId ), aLeftSkid, ISkidList.EMPTY );
           }
         }
       }
     }
 
     // Пост-интерсепция
-    retValue = callAfterFindLink( interceptors, aClassId, aLinkId, aLeftSkid, retValue );
+    retValue = callAfterFindLink( interceptors, aLinkGwid, aLeftSkid, retValue );
 
     return retValue;
   }
 
   @Override
-  @TransactionAttribute( TransactionAttributeType.SUPPORTS )
-  public IDtoLinkFwd readLink( String aClassId, String aLinkId, Skid aLeftSkid ) {
-    TsNullArgumentRtException.checkNulls( aClassId, aLinkId, aLeftSkid );
+  public IList<IDtoLinkFwd> getAllLinksFwd( Skid aLeftSkid ) {
+    TsNullArgumentRtException.checkNulls( aLeftSkid );
 
     // Пред-интерсепция
-    IDtoLinkFwd retValue = callBeforeReadLink( interceptors, aClassId, aLinkId, aLeftSkid );
-
+    IList<IDtoLinkFwd> retValue = callBeforeGetAllLinksFwd( interceptors, aLeftSkid );
     if( retValue == null ) {
-      // Описание класса левого объекта связи
-      ISkClassInfo classInfo = sysdescrReader.getClassInfo( aLeftSkid.classId() );
-      if( !classInfo.links().list().hasKey( aLinkId ) ) {
-        // У объекта нет указанной связи
-        throw new TsItemNotFoundRtException( MSG_ERR_OBJECT_DONT_HAVE_LINK, aLeftSkid, aLinkId );
-      }
-      Class<S5LinkFwdEntity> linkImplClass = getLinkFwdImplClass( classInfo );
-      retValue = entityManager.find( linkImplClass, new S5LinkID( aLeftSkid, aClassId, aLinkId ) );
-      if( retValue == null ) {
-        // Проверяем если объект
-        if( objectsBackend.findObject( aLeftSkid ) == null ) {
-          // Нет объекта
-          throw new TsItemNotFoundRtException( MSG_ERR_OBJECT_NOT_FOUND, aLeftSkid );
-        }
-        // Связь с объектами не найдена (пустая)
-        retValue = new DtoLinkFwd( Gwid.createLink( aClassId, aLinkId ), aLeftSkid, ISkidList.EMPTY );
-      }
+      ISkClassInfo classInfo = sysdescrReader.findClassInfo( aLeftSkid.classId() );
+      String linkImplClassName = OP_FWD_LINK_IMPL_CLASS.getValue( classInfo.params() ).asString();
+      retValue = new ElemArrayList<>( getFwdLinksByObjectId( entityManager, linkImplClassName, aLeftSkid ) );
     }
 
     // Пост-интерсепция
-    retValue = callAfterReadLink( interceptors, aClassId, aLinkId, aLeftSkid, retValue );
-
-    if( retValue == null ) {
-      // У объекта нет указанной связи
-      throw new TsItemNotFoundRtException( MSG_ERR_OBJECT_DONT_HAVE_LINK, aLeftSkid, aLinkId );
-    }
+    retValue = callAfterGetAllLinksFwd( interceptors, aLeftSkid, retValue );
 
     return retValue;
   }
 
   @Override
-  @TransactionAttribute( TransactionAttributeType.SUPPORTS )
-  public IDtoLinkRev readReverseLink( String aClassId, String aLinkId, Skid aRightSkid, IStringList aLeftClassIds ) {
-    TsNullArgumentRtException.checkNulls( aClassId, aLinkId, aRightSkid, aLeftClassIds );
-
+  public IDtoLinkRev findLinkRev( Gwid aLinkGwid, Skid aRightSkid, IStringList aLeftClassIds ) {
+    TsNullArgumentRtException.checkNulls( aLinkGwid, aRightSkid, aLeftClassIds );
     // Пред-интерсепция
-    IDtoLinkRev retValue = callBeforeReadReverseLink( interceptors, aClassId, aLinkId, aRightSkid, aLeftClassIds );
+    IDtoLinkRev retValue = callBeforeFindLinkRev( interceptors, aLinkGwid, aRightSkid, aLeftClassIds );
 
     if( retValue == null ) {
+      String classId = aLinkGwid.classId();
+      String linkId = aLinkGwid.propId();
       // Описание класса в котором определена связь
-      ISkClassInfo linkClassInfo = sysdescrReader.getClassInfo( aClassId );
-      if( !linkClassInfo.links().list().hasKey( aLinkId ) ) {
+      ISkClassInfo linkClassInfo = sysdescrReader.getClassInfo( classId );
+      if( !linkClassInfo.links().list().hasKey( linkId ) ) {
         // У класса нет указанной связи
-        throw new TsItemNotFoundRtException( MSG_ERR_CLASS_DONT_HAVE_LINK, aClassId, aLinkId );
+        throw new TsItemNotFoundRtException( MSG_ERR_CLASS_DONT_HAVE_LINK, classId, linkId );
       }
       // Описание класса правого объекта связи
       ISkClassInfo classInfo = sysdescrReader.getClassInfo( aRightSkid.classId() );
       Class<S5LinkRevEntity> linkImplClass = getLinkRevImplClass( classInfo );
-      retValue = entityManager.find( linkImplClass, new S5LinkID( aRightSkid, aClassId, aLinkId ) );
+      retValue = entityManager.find( linkImplClass, new S5LinkID( aRightSkid, classId, linkId ) );
       if( retValue == null ) {
         // Проверяем есть ли объект
         if( objectsBackend.findObject( aRightSkid ) == null ) {
@@ -257,7 +238,7 @@ public class S5BackendLinksSingleton
           throw new TsItemNotFoundRtException( MSG_ERR_OBJECT_NOT_FOUND, aRightSkid );
         }
         // Связи на объект не найдены (пустая)
-        return new DtoLinkRev( Gwid.createLink( aClassId, aLinkId ), aRightSkid, ISkidList.EMPTY );
+        return new DtoLinkRev( Gwid.createLink( classId, linkId ), aRightSkid, ISkidList.EMPTY );
       }
       if( aLeftClassIds.size() > 0 ) {
         // Фильтрация результата в соответствии с параметрами поиска
@@ -272,43 +253,46 @@ public class S5BackendLinksSingleton
     }
 
     // Пост-интерсепция
-    retValue = callAfterReadReverseLink( interceptors, aClassId, aLinkId, aRightSkid, aLeftClassIds, retValue );
+    retValue = callAfterFindLinkRev( interceptors, aLinkGwid, aRightSkid, aLeftClassIds, retValue );
 
     return retValue;
   }
 
   @Override
+  public IMap<Gwid, IDtoLinkRev> getAllLinksRev( Skid aRightSkid ) {
+    TsNullArgumentRtException.checkNull( aRightSkid );
+
+    // Пред-интерсепция
+    IMap<Gwid, IDtoLinkRev> retValue = callBeforeGetAllLinksRev( interceptors, aRightSkid );
+    if( retValue == null ) {
+      IMapEdit<Gwid, IDtoLinkRev> linksMap = new ElemMap<>();
+      ISkClassInfo classInfo = sysdescrReader.getClassInfo( aRightSkid.classId() );
+      String revLinkImplClassName = OP_REV_LINK_IMPL_CLASS.getValue( classInfo.params() ).asString();
+      List<IDtoLinkRev> links = getRevLinksByObjId( entityManager, revLinkImplClassName, aRightSkid );
+      for( IDtoLinkRev link : links ) {
+        linksMap.put( link.gwid(), link );
+      }
+      retValue = (linksMap.size() > 0 ? linksMap : null);
+    }
+
+    // Пост-интерсепция
+    retValue = callAfterGetAllLinksRev( interceptors, aRightSkid, retValue );
+
+    return retValue;
+
+  }
+
   @TransactionAttribute( TransactionAttributeType.REQUIRED )
-  public void writeLink( IDtoLinkFwd aLink ) {
-    TsNullArgumentRtException.checkNulls( aLink );
-    // Запись связей. true: разрешить перехват
-    writeLinks( new ElemArrayList<>( aLink ), true );
+  @Override
+  public void writeLinksFwd( IList<IDtoLinkFwd> aLinks ) {
+    // aInterceptionEnabled = true
+    writeLinksFwd( aLinks, true );
   }
 
-  @Override
-  @TransactionAttribute( TransactionAttributeType.SUPPORTS )
-  public List<IDtoLinkFwd> getLinks( String aClassId ) {
-    TsNullArgumentRtException.checkNull( aClassId );
-    ISkClassInfo classInfo = sysdescrReader.getClassInfo( aClassId );
-    // Класс реализации хранения значений объекта
-    String linkImplClassName = OP_FWD_LINK_IMPL_CLASS.getValue( classInfo.params() ).asString();
-    return getFwdLinksByClassId( entityManager, linkImplClassName, aClassId, TsLibUtils.EMPTY_STRING );
-  }
-
-  @Override
-  @TransactionAttribute( TransactionAttributeType.SUPPORTS )
-  public List<IDtoLinkFwd> getLinks( String aClassId, String aLinkId ) {
-    TsNullArgumentRtException.checkNulls( aClassId, aLinkId );
-    ISkClassInfo classInfo = sysdescrReader.getClassInfo( aClassId );
-    // Класс реализации хранения значений объекта
-    String linkImplClassName = OP_FWD_LINK_IMPL_CLASS.getValue( classInfo.params() ).asString();
-    return getFwdLinksByClassId( entityManager, linkImplClassName, aClassId, aLinkId );
-  }
-
-  @Override
   @TransactionAttribute( TransactionAttributeType.REQUIRED )
   @SuppressWarnings( "unchecked" )
-  public void writeLinks( IList<IDtoLinkFwd> aLinks, boolean aInterceptionEnabled ) {
+  @Override
+  public void writeLinksFwd( IList<IDtoLinkFwd> aLinks, boolean aInterceptionEnabled ) {
     TsNullArgumentRtException.checkNull( aLinks );
     // Время начала выполнения запроса
     long currTime = System.currentTimeMillis();
@@ -410,6 +394,26 @@ public class S5BackendLinksSingleton
     Long et = Long.valueOf( eventTimestamp - interceptorTimestamp2 );
     logger().info( MSG_WRITE_LINKS, rc, uc, cc, at, lt, it1, et1, et2, it2, et );
   }
+
+  // @Override
+  // @TransactionAttribute( TransactionAttributeType.SUPPORTS )
+  // public List<IDtoLinkFwd> getLinks( String aClassId ) {
+  // TsNullArgumentRtException.checkNull( aClassId );
+  // ISkClassInfo classInfo = sysdescrReader.getClassInfo( aClassId );
+  // // Класс реализации хранения значений объекта
+  // String linkImplClassName = OP_FWD_LINK_IMPL_CLASS.getValue( classInfo.params() ).asString();
+  // return getFwdLinksByClassId( entityManager, linkImplClassName, aClassId, TsLibUtils.EMPTY_STRING );
+  // }
+  //
+  // @Override
+  // @TransactionAttribute( TransactionAttributeType.SUPPORTS )
+  // public List<IDtoLinkFwd> getLinks( String aClassId, String aLinkId ) {
+  // TsNullArgumentRtException.checkNulls( aClassId, aLinkId );
+  // ISkClassInfo classInfo = sysdescrReader.getClassInfo( aClassId );
+  // // Класс реализации хранения значений объекта
+  // String linkImplClassName = OP_FWD_LINK_IMPL_CLASS.getValue( classInfo.params() ).asString();
+  // return getFwdLinksByClassId( entityManager, linkImplClassName, aClassId, aLinkId );
+  // }
 
   // ------------------------------------------------------------------------------------
   // Внутренние методы

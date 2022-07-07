@@ -5,6 +5,7 @@ import javax.ejb.Local;
 import org.toxsoft.core.tslib.coll.IList;
 import org.toxsoft.core.tslib.coll.IMap;
 import org.toxsoft.core.tslib.coll.primtypes.IStringList;
+import org.toxsoft.core.tslib.gw.gwid.Gwid;
 import org.toxsoft.core.tslib.gw.skid.Skid;
 import org.toxsoft.core.tslib.utils.Pair;
 import org.toxsoft.core.tslib.utils.errors.*;
@@ -32,118 +33,151 @@ public interface IS5LinksInterceptor
     extends IS5Interceptor {
 
   /**
-   * Вызывается ДО выполнения метода {@link IS5BackendLinksSingleton#findLink(String, String, Skid)}
+   * Вызывается ДО выполнения метода {@link IS5BackendLinksSingleton#findLinkFwd(Gwid, Skid)}
    * <p>
    * Событие формируется в открытой транзакции которая впоследствии может быть отменена. Поэтому, если необходимо,
    * клиент-перехватчик должен организовать логику восстановления своего состояния при откате транзакции (смотри
    * S5TransactionSingleton}.
    *
-   * @param aClassId String - идентификатор класса связи
-   * @param aLinkId String - идентификатор связи
+   * @param aLinkGwid {@link Gwid} - идентификатор связи (идентификатор связи и класса в котором она объявлена)
    * @param aLeftSkid {@link Skid} - идентификатор левого объекта связи
    * @param aLink {@link IDtoLinkFwd} - связь найденная ранее интерсепторами
    * @return {@link IDtoLinkFwd} - связь (м.б. пустая) или <code>null</code> если нет такого класса/связи/объекта
-   * @throws TsIllegalStateRtException запретить выполнение
-   *           {@link IS5BackendLinksSingleton#findLink(String, String, Skid)}
+   * @throws TsIllegalStateRtException запретить выполнение {@link IS5BackendLinksSingleton#findLinkFwd(Gwid, Skid)}
    */
-  IDtoLinkFwd beforeFindLink( String aClassId, String aLinkId, Skid aLeftSkid, IDtoLinkFwd aLink );
+  IDtoLinkFwd beforeFindLink( Gwid aLinkGwid, Skid aLeftSkid, IDtoLinkFwd aLink );
 
   /**
-   * Вызывается ПОСЛЕ выполнения метода {@link IS5BackendLinksSingleton#findLink(String, String, Skid)}
+   * Вызывается ПОСЛЕ выполнения метода {@link IS5BackendLinksSingleton#findLinkFwd(Gwid, Skid)}
    * <p>
    * Событие формируется в открытой транзакции которая впоследствии может быть отменена. Поэтому, если необходимо,
    * клиент-перехватчик должен организовать логику восстановления своего состояния при откате транзакции (смотри
    * S5TransactionSingleton}.
    *
-   * @param aClassId String - идентификатор класса связи
-   * @param aLinkId String - идентификатор связи
+   * @param aLinkGwid {@link Gwid} - идентификатор связи (идентификатор связи и класса в котором она объявлена)
    * @param aLeftSkid {@link Skid} - идентификатор левого объекта связи
    * @param aLink {@link IDtoLinkFwd} - связь найденная ранее службой или интерсепторами
    * @return {@link IDtoLinkFwd} - связь (м.б. пустая) или <code>null</code> если нет такого класса/связи/объекта
-   * @throws TsIllegalStateRtException запретить выполнение
-   *           {@link IS5BackendLinksSingleton#findLink(String, String, Skid)}
+   * @throws TsIllegalStateRtException запретить выполнение {@link IS5BackendLinksSingleton#findLinkFwd(Gwid, Skid)}
    */
-  IDtoLinkFwd afterFindLink( String aClassId, String aLinkId, Skid aLeftSkid, IDtoLinkFwd aLink );
+  IDtoLinkFwd afterFindLink( Gwid aLinkGwid, Skid aLeftSkid, IDtoLinkFwd aLink );
 
   /**
-   * Вызывается ДО выполнения метода {@link IS5BackendLinksSingleton#readLink(String, String, Skid)}
+   * Вызывается ДО выполнения метода {@link IS5BackendLinksSingleton#getAllLinksFwd(Skid)}
    * <p>
    * Событие формируется в открытой транзакции которая впоследствии может быть отменена. Поэтому, если необходимо,
    * клиент-перехватчик должен организовать логику восстановления своего состояния при откате транзакции (смотри
    * S5TransactionSingleton}.
    *
-   * @param aClassId String - идентификатор класса связи
-   * @param aLinkId String - идентификатор связи
    * @param aLeftSkid {@link Skid} - идентификатор левого объекта связи
-   * @param aLink {@link IDtoLinkFwd} - связь найденная ранее интерсепторами
-   * @return {@link IDtoLinkFwd} - связь (м.б. пустая) или <code>null</code> если связь не найдена
-   * @throws TsIllegalStateRtException запретить выполнение
-   *           {@link IS5BackendLinksSingleton#readLink(String, String, Skid)}
-   * @throws TsItemNotFoundRtException нет такого класса/связи/объекта
+   * @param aLinks {@link IList}&lt;{@link IDtoLinkFwd}&gt; - список связей найденных ранее интерсепторами. null: не
+   *          найдены
+   * @return {@link IList}&lt;{@link IDtoLinkFwd}&gt; - список связей (м.б. пустая) или <code>null</code> если нет
+   *         такого класса/объекта
+   * @throws TsIllegalStateRtException запретить выполнение {@link IS5BackendLinksSingleton#findLinkFwd(Gwid, Skid)}
    */
-  IDtoLinkFwd beforeReadLink( String aClassId, String aLinkId, Skid aLeftSkid, IDtoLinkFwd aLink );
+  IList<IDtoLinkFwd> beforeGetAllLinksFwd( Skid aLeftSkid, IList<IDtoLinkFwd> aLinks );
 
   /**
-   * Вызывается ПОСЛЕ выполнения метода {@link IS5BackendLinksSingleton#readLink(String, String, Skid)}
+   * Вызывается ПОСЛЕ выполнения метода {@link IS5BackendLinksSingleton#getAllLinksFwd(Skid)}
    * <p>
    * Событие формируется в открытой транзакции которая впоследствии может быть отменена. Поэтому, если необходимо,
    * клиент-перехватчик должен организовать логику восстановления своего состояния при откате транзакции (смотри
    * S5TransactionSingleton}.
    *
-   * @param aClassId String - идентификатор класса связи
-   * @param aLinkId String - идентификатор связи
    * @param aLeftSkid {@link Skid} - идентификатор левого объекта связи
-   * @param aLink {@link IDtoLinkFwd} - связь найденная ранее службой или интерсепторами
-   * @return {@link IDtoLinkFwd} - связь (м.б. пустая) или <code>null</code> если связь не найдена
-   * @throws TsIllegalStateRtException запретить выполнение
-   *           {@link IS5BackendLinksSingleton#readLink(String, String, Skid)}
-   * @throws TsItemNotFoundRtException нет такого класса/связи/объекта
+   * @param aLinks {@link IList}&lt;{@link IDtoLinkFwd} - список связей найденных ранее службой или интерсепторами.
+   *          null: не найдены
+   * @return {@link IList}&lt;{@link IDtoLinkFwd} - список связей (м.б. пустая) или <code>null</code> если нет такого
+   *         класса/объекта
+   * @throws TsIllegalStateRtException запретить выполнение {@link IS5BackendLinksSingleton#getAllLinksFwd(Skid)}
    */
-  IDtoLinkFwd afterReadLink( String aClassId, String aLinkId, Skid aLeftSkid, IDtoLinkFwd aLink );
+  IList<IDtoLinkFwd> afterGetAllLinksFwd( Skid aLeftSkid, IList<IDtoLinkFwd> aLinks );
 
   /**
-   * Вызывается ДО выполнения метода {@link IS5BackendLinksSingleton#readReverseLink(String, String, Skid, IStringList)}
+   * Вызывается ДО выполнения метода {@link IS5BackendLinksSingleton#findLinkRev(Gwid, Skid, IStringList)}
    * <p>
    * Событие формируется в открытой транзакции которая впоследствии может быть отменена. Поэтому, если необходимо,
    * клиент-перехватчик должен организовать логику восстановления своего состояния при откате транзакции (смотри
    * S5TransactionSingleton}.
    *
-   * @param aClassId String - идентификатор класса связи
-   * @param aLinkId String - идентификатор связи
+   * @param aLinkGwid {@link Gwid} идентификатор связи
    * @param aRightSkid {@link Skid} - идентификатор поавого объекта связи
    * @param aLeftClassIds {@link IStringList} - список ИД-ов классов левых объектов, пустой список = все классы
    * @param aReverseLink {@link IDtoLinkRev} - связь найденная ранее интерсепторами
    * @return {@link IDtoLinkRev} - связь (м.б. пустая) или <code>null</code> если связь не найдена
    * @throws TsIllegalStateRtException запретить выполнение
-   *           {@link IS5BackendLinksSingleton#readReverseLink(String, String, Skid, IStringList)}
+   *           {@link IS5BackendLinksSingleton#findLinkRev(Gwid, Skid, IStringList)}
    * @throws TsItemNotFoundRtException нет такого класса/связи/объекта
    */
-  IDtoLinkRev beforeReadReverseLink( String aClassId, String aLinkId, Skid aRightSkid, IStringList aLeftClassIds,
-      IDtoLinkRev aReverseLink );
+  IDtoLinkRev beforeFindLinkRev( Gwid aLinkGwid, Skid aRightSkid, IStringList aLeftClassIds, IDtoLinkRev aReverseLink );
 
   /**
-   * Вызывается ПОСЛЕ выполнения метода
-   * {@link IS5BackendLinksSingleton#readReverseLink(String, String, Skid, IStringList)}
+   * Вызывается ПОСЛЕ выполнения метода {@link IS5BackendLinksSingleton#findLinkRev(Gwid, Skid, IStringList)}
    * <p>
    * Событие формируется в открытой транзакции которая впоследствии может быть отменена. Поэтому, если необходимо,
    * клиент-перехватчик должен организовать логику восстановления своего состояния при откате транзакции (смотри
    * S5TransactionSingleton}.
    *
-   * @param aClassId String - идентификатор класса связи
-   * @param aLinkId String - идентификатор связи
+   * @param aLinkGwid {@link Gwid} идентификатор связи
    * @param aRightSkid {@link Skid} - идентификатор поавого объекта связи
    * @param aLeftClassIds {@link IStringList} - список ИД-ов классов левых объектов, пустой список = все классы
    * @param aReverseLink {@link IDtoLinkRev} - связь найденная ранее интерсепторами
    * @return {@link IDtoLinkRev} - связь (м.б. пустая) или <code>null</code> если связь не найдена
    * @throws TsIllegalStateRtException запретить выполнение
-   *           {@link IS5BackendLinksSingleton#readReverseLink(String, String, Skid, IStringList)}
+   *           {@link IS5BackendLinksSingleton#findLinkRev(Gwid, Skid, IStringList)}
    * @throws TsItemNotFoundRtException нет такого класса/связи/объекта
    */
-  IDtoLinkRev afterReadReverseLink( String aClassId, String aLinkId, Skid aRightSkid, IStringList aLeftClassIds,
-      IDtoLinkRev aReverseLink );
+  IDtoLinkRev afterFindLinkRev( Gwid aLinkGwid, Skid aRightSkid, IStringList aLeftClassIds, IDtoLinkRev aReverseLink );
 
   /**
-   * Вызывается ДО выполнения метода {@link IS5BackendLinksSingleton#writeLinks(IList, boolean)}
+   * Вызывается ДО выполнения метода {@link IS5BackendLinksSingleton#getAllLinksRev(Skid)}
+   * <p>
+   * Событие формируется в открытой транзакции которая впоследствии может быть отменена. Поэтому, если необходимо,
+   * клиент-перехватчик должен организовать логику восстановления своего состояния при откате транзакции (смотри
+   * S5TransactionSingleton}.
+   *
+   * @param aRightSkid {@link Skid} - идентификатор правого объекта связи
+   * @param aReverseLinks {@link IMap}&lt;{@link Gwid},{@link IDtoLinkRev}&gt; карта обратных связей ранее найденная
+   *          интерсепторами. null: не найдена
+   *          <p>
+   *          Ключ: абстрактный идентификатор связи;<br>
+   *          Значение: обратная связь
+   * @return {@link IMap}&lt;{@link Gwid},{@link IDtoLinkRev}&gt; карта обратных связей ранее найденная интерсепторами.
+   *         null: не найдена.
+   *         <p>
+   *         Ключ: абстрактный идентификатор связи;<br>
+   *         Значение: обратная связь
+   * @throws TsIllegalStateRtException запретить выполнение {@link IS5BackendLinksSingleton#getAllLinksRev(Skid)}
+   * @throws TsItemNotFoundRtException нет такого класса/связи/объекта
+   */
+  IMap<Gwid, IDtoLinkRev> beforeGetAllLinksRev( Skid aRightSkid, IMap<Gwid, IDtoLinkRev> aReverseLinks );
+
+  /**
+   * Вызывается ПОСЛЕ выполнения метода {@link IS5BackendLinksSingleton#findLinkRev(Gwid, Skid, IStringList)}
+   * <p>
+   * Событие формируется в открытой транзакции которая впоследствии может быть отменена. Поэтому, если необходимо,
+   * клиент-перехватчик должен организовать логику восстановления своего состояния при откате транзакции (смотри
+   * S5TransactionSingleton}.
+   *
+   * @param aRightSkid {@link Skid} - идентификатор поавого объекта связи
+   * @param aReverseLinks {@link IMap}&lt;{@link Gwid},{@link IDtoLinkRev}&gt; карта обратных связей ранее найденная
+   *          службой или интерсепторами. null: не найдена
+   *          <p>
+   *          Ключ: абстрактный идентификатор связи;<br>
+   *          Значение: обратная связь
+   * @return {@link IMap}&lt;{@link Gwid},{@link IDtoLinkRev}&gt; карта обратных связей ранее найденная интерсепторами.
+   *         null: не найдена.
+   *         <p>
+   *         Ключ: абстрактный идентификатор связи;<br>
+   *         Значение: обратная связь
+   * @throws TsIllegalStateRtException запретить выполнение {@link IS5BackendLinksSingleton#getAllLinksRev(Skid)}
+   * @throws TsItemNotFoundRtException нет такого класса/связи/объекта
+   */
+  IMap<Gwid, IDtoLinkRev> afterGetAllLinksRev( Skid aRightSkid, IMap<Gwid, IDtoLinkRev> aReverseLinks );
+
+  /**
+   * Вызывается ДО выполнения метода {@link IS5BackendLinksSingleton#writeLinksFwd(IList)}
    * <p>
    * Событие формируется в открытой транзакции которая впоследствии может быть отменена. Поэтому, если необходимо,
    * клиент-перехватчик должен организовать логику восстановления своего состояния при откате транзакции (смотри
@@ -154,12 +188,12 @@ public interface IS5LinksInterceptor
    *          карта связей объектов обновляемых в базе данных.<br>
    *          Ключ: Описание класса левого объекта связи;<br>
    *          Значение: Список пар: {@link Pair#left()} - старое состояние, {@link Pair#right()} - новое состояние.
-   * @throws TsIllegalStateRtException запретить выполнение {@link IS5BackendLinksSingleton#writeLinks(IList, boolean)}
+   * @throws TsIllegalStateRtException запретить выполнение {@link IS5BackendLinksSingleton#writeLinksFwd(IList)}
    */
   void beforeWriteLinks( IMap<ISkClassInfo, IList<Pair<IDtoLinkFwd, IDtoLinkFwd>>> aUpdatedLinks );
 
   /**
-   * Вызывается ПОСЛЕ {@link IS5BackendLinksSingleton#writeLinks(IList, boolean)}, но до завершения транзакции.
+   * Вызывается ПОСЛЕ {@link IS5BackendLinksSingleton#writeLinksFwd(IList)}, но до завершения транзакции.
    * <p>
    * Событие формируется в открытой транзакции которая впоследствии может быть отменена. Поэтому, если необходимо,
    * клиент-перехватчик должен организовать логику восстановления своего состояния при откате транзакции (смотри
@@ -171,7 +205,7 @@ public interface IS5LinksInterceptor
    *          Ключ: Описание класса левого объекта связи;<br>
    *          Значение: Список пар: {@link Pair#left()} - старое состояние, {@link Pair#right()} - новое состояние.
    * @throws TsIllegalStateRtException отменить изменения сделанные методом
-   *           {@link IS5BackendLinksSingleton#writeLinks(IList, boolean)} (откат транзакции)
+   *           {@link IS5BackendLinksSingleton#writeLinksFwd(IList)} (откат транзакции)
    */
   void afterWriteLinks( IMap<ISkClassInfo, IList<Pair<IDtoLinkFwd, IDtoLinkFwd>>> aUpdatedLinks );
 
@@ -179,140 +213,177 @@ public interface IS5LinksInterceptor
   // Вспомогательные методы
   //
   /**
-   * Вызов перехватчиков операции {@link IS5LinksInterceptor#beforeFindLink(String, String, Skid, IDtoLinkFwd)}
+   * Вызов перехватчиков операции {@link IS5LinksInterceptor#beforeFindLink(Gwid, Skid, IDtoLinkFwd)}
    *
    * @param aInterceptorSupport {@link S5InterceptorSupport}&lt;{@link IS5LinksInterceptor}&gt; поддержка перехватчиков
-   * @param aClassId String - идентификатор класса связи
-   * @param aLinkId String - идентификатор связи
+   * @param aLinkGwid {@link Gwid} - идентификатор связи (идентификатор связи и класса в котором она объявлена)
    * @param aLeftSkid {@link Skid} - идентификатор левого объекта связи
    * @return {@link IDtoLinkFwd} - найденная связь или <code>null</code> если нет такой
    * @throws TsNullArgumentRtException любой аргумент = null
-   * @throws TsIllegalStateRtException запретить выполнение
-   *           {@link IS5BackendLinksSingleton#findLink(String, String, Skid)}
+   * @throws TsIllegalStateRtException запретить выполнение {@link IS5BackendLinksSingleton#findLinkFwd(Gwid, Skid)}
    */
-  static IDtoLinkFwd callBeforeFindLink( S5InterceptorSupport<IS5LinksInterceptor> aInterceptorSupport, String aClassId,
-      String aLinkId, Skid aLeftSkid ) {
-    TsNullArgumentRtException.checkNulls( aInterceptorSupport, aClassId, aLinkId, aLeftSkid );
+  static IDtoLinkFwd callBeforeFindLink( S5InterceptorSupport<IS5LinksInterceptor> aInterceptorSupport, Gwid aLinkGwid,
+      Skid aLeftSkid ) {
+    TsNullArgumentRtException.checkNulls( aInterceptorSupport, aLinkGwid, aLeftSkid );
     IDtoLinkFwd retValue = null;
     for( IS5LinksInterceptor interceptor : aInterceptorSupport.interceptors() ) {
-      retValue = interceptor.beforeFindLink( aClassId, aLinkId, aLeftSkid, retValue );
+      retValue = interceptor.beforeFindLink( aLinkGwid, aLeftSkid, retValue );
     }
     return retValue;
   }
 
   /**
-   * Вызов перехватчиков операции {@link IS5LinksInterceptor#afterFindLink(String, String, Skid, IDtoLinkFwd)}
+   * Вызов перехватчиков операции {@link IS5LinksInterceptor#afterFindLink(Gwid, Skid, IDtoLinkFwd)}
    *
    * @param aInterceptorSupport {@link S5InterceptorSupport}&lt;{@link IS5LinksInterceptor}&gt; поддержка перехватчиков
-   * @param aClassId String - идентификатор класса связи
-   * @param aLinkId String - идентификатор связи
+   * @param aLinkGwid {@link Gwid} - идентификатор связи (идентификатор связи и класса в котором она объявлена)
    * @param aLeftSkid {@link Skid} - идентификатор левого объекта связи
    * @param aLink {@link IDtoLinkFwd} - связь найденная ранее службой или интерсепторами
    * @return {@link IDtoLinkFwd} - найденная связь или <code>null</code> если нет такой
    * @throws TsNullArgumentRtException любой аргумент = null
-   * @throws TsIllegalStateRtException запретить выполнение
-   *           {@link IS5BackendLinksSingleton#findLink(String, String, Skid)}
+   * @throws TsIllegalStateRtException запретить выполнение {@link IS5BackendLinksSingleton#findLinkFwd(Gwid, Skid)}
    */
-  static IDtoLinkFwd callAfterFindLink( S5InterceptorSupport<IS5LinksInterceptor> aInterceptorSupport, String aClassId,
-      String aLinkId, Skid aLeftSkid, IDtoLinkFwd aLink ) {
-    TsNullArgumentRtException.checkNulls( aInterceptorSupport, aClassId, aLinkId, aLeftSkid );
+  static IDtoLinkFwd callAfterFindLink( S5InterceptorSupport<IS5LinksInterceptor> aInterceptorSupport, Gwid aLinkGwid,
+      Skid aLeftSkid, IDtoLinkFwd aLink ) {
+    TsNullArgumentRtException.checkNulls( aInterceptorSupport, aLinkGwid, aLeftSkid );
     IDtoLinkFwd retValue = aLink;
     for( IS5LinksInterceptor interceptor : aInterceptorSupport.interceptors() ) {
-      retValue = interceptor.afterFindLink( aClassId, aLinkId, aLeftSkid, retValue );
+      retValue = interceptor.afterFindLink( aLinkGwid, aLeftSkid, retValue );
     }
     return retValue;
   }
 
   /**
-   * Вызов перехватчиков операции {@link IS5LinksInterceptor#beforeReadLink(String, String, Skid, IDtoLinkFwd)}
+   * Вызов перехватчиков операции {@link IS5LinksInterceptor#beforeGetAllLinksFwd(Skid, IList)}
    *
    * @param aInterceptorSupport {@link S5InterceptorSupport}&lt;{@link IS5LinksInterceptor}&gt; поддержка перехватчиков
-   * @param aClassId String - идентификатор класса связи
-   * @param aLinkId String - идентификатор связи
    * @param aLeftSkid {@link Skid} - идентификатор левого объекта связи
-   * @return {@link IDtoLinkFwd} - найденная связь или <code>null</code> если нет такой
+   * @return {@link IList}&lt;{@link IDtoLinkFwd}&gt; - список найденных связей или <code>null</code> если нет такой
    * @throws TsNullArgumentRtException любой аргумент = null
-   * @throws TsIllegalStateRtException запретить выполнение
-   *           {@link IS5BackendLinksSingleton#readLink(String, String, Skid)}
+   * @throws TsIllegalStateRtException запретить выполнение {@link IS5BackendLinksSingleton#getAllLinksFwd(Skid)}
    */
-  static IDtoLinkFwd callBeforeReadLink( S5InterceptorSupport<IS5LinksInterceptor> aInterceptorSupport, String aClassId,
-      String aLinkId, Skid aLeftSkid ) {
-    TsNullArgumentRtException.checkNulls( aInterceptorSupport, aClassId, aLinkId, aLeftSkid );
-    IDtoLinkFwd retValue = null;
+  static IList<IDtoLinkFwd> callBeforeGetAllLinksFwd( S5InterceptorSupport<IS5LinksInterceptor> aInterceptorSupport,
+      Skid aLeftSkid ) {
+    TsNullArgumentRtException.checkNulls( aInterceptorSupport, aLeftSkid );
+    IList<IDtoLinkFwd> retValue = null;
     for( IS5LinksInterceptor interceptor : aInterceptorSupport.interceptors() ) {
-      retValue = interceptor.beforeReadLink( aClassId, aLinkId, aLeftSkid, retValue );
+      retValue = interceptor.beforeGetAllLinksFwd( aLeftSkid, retValue );
     }
     return retValue;
   }
 
   /**
-   * Вызов перехватчиков операции {@link IS5LinksInterceptor#afterReadLink(String, String, Skid, IDtoLinkFwd)}
+   * Вызов перехватчиков операции {@link IS5LinksInterceptor#afterGetAllLinksFwd(Skid, IList)}
    *
    * @param aInterceptorSupport {@link S5InterceptorSupport}&lt;{@link IS5LinksInterceptor}&gt; поддержка перехватчиков
-   * @param aClassId String - идентификатор класса связи
-   * @param aLinkId String - идентификатор связи
    * @param aLeftSkid {@link Skid} - идентификатор левого объекта связи
-   * @param aLink {@link IDtoLinkFwd} - связь найденная ранее службой или интерсепторами
-   * @return {@link IDtoLinkFwd} - найденная связь или <code>null</code> если нет такой
+   * @param aLinks {@link IDtoLinkFwd} - список связей найденных ранее службой или интерсепторами. null: не найдено
+   * @return {@link IList}&lt;{@link IDtoLinkFwd}&gt; - список найденных связей или <code>null</code> если нет такой
    * @throws TsNullArgumentRtException любой аргумент = null
-   * @throws TsIllegalStateRtException запретить выполнение
-   *           {@link IS5BackendLinksSingleton#readLink(String, String, Skid)}
+   * @throws TsIllegalStateRtException запретить выполнение {@link IS5BackendLinksSingleton#getAllLinksFwd(Skid)}
    */
-  static IDtoLinkFwd callAfterReadLink( S5InterceptorSupport<IS5LinksInterceptor> aInterceptorSupport, String aClassId,
-      String aLinkId, Skid aLeftSkid, IDtoLinkFwd aLink ) {
-    TsNullArgumentRtException.checkNulls( aInterceptorSupport, aClassId, aLinkId, aLeftSkid );
-    IDtoLinkFwd retValue = aLink;
+  static IList<IDtoLinkFwd> callAfterGetAllLinksFwd( S5InterceptorSupport<IS5LinksInterceptor> aInterceptorSupport,
+      Skid aLeftSkid, IList<IDtoLinkFwd> aLinks ) {
+    TsNullArgumentRtException.checkNulls( aInterceptorSupport, aLeftSkid );
+    IList<IDtoLinkFwd> retValue = aLinks;
     for( IS5LinksInterceptor interceptor : aInterceptorSupport.interceptors() ) {
-      retValue = interceptor.afterReadLink( aClassId, aLinkId, aLeftSkid, retValue );
+      retValue = interceptor.afterGetAllLinksFwd( aLeftSkid, retValue );
     }
     return retValue;
   }
 
   /**
-   * Вызов перехватчиков операции
-   * {@link IS5LinksInterceptor#beforeReadReverseLink(String, String, Skid, IStringList, IDtoLinkRev)}
+   * Вызов перехватчиков операции {@link IS5LinksInterceptor#beforeFindLinkRev(Gwid, Skid, IStringList, IDtoLinkRev)}
    *
    * @param aInterceptorSupport {@link S5InterceptorSupport}&lt;{@link IS5LinksInterceptor}&gt; поддержка перехватчиков
-   * @param aClassId String - идентификатор класса связи
-   * @param aLinkId String - идентификатор связи
+   * @param aLinkGwid {@link Gwid} идентификатор связи
    * @param aRightSkid {@link Skid} - идентификатор поавого объекта связи
    * @param aLeftClassIds {@link IStringList} - список ИД-ов классов левых объектов, пустой список = все классы
    * @return {@link IDtoLinkRev} - найденная связь или <code>null</code> если нет такой
    * @throws TsNullArgumentRtException любой аргумент = null
    * @throws TsIllegalStateRtException запретить выполнение
-   *           {@link IS5BackendLinksSingleton#readReverseLink(String, String, Skid, IStringList)}
+   *           {@link IS5BackendLinksSingleton#findLinkRev(Gwid, Skid, IStringList)}
    */
-  static IDtoLinkRev callBeforeReadReverseLink( S5InterceptorSupport<IS5LinksInterceptor> aInterceptorSupport,
-      String aClassId, String aLinkId, Skid aRightSkid, IStringList aLeftClassIds ) {
-    TsNullArgumentRtException.checkNulls( aInterceptorSupport, aClassId, aLinkId, aRightSkid, aLeftClassIds );
+  static IDtoLinkRev callBeforeFindLinkRev( S5InterceptorSupport<IS5LinksInterceptor> aInterceptorSupport,
+      Gwid aLinkGwid, Skid aRightSkid, IStringList aLeftClassIds ) {
+    TsNullArgumentRtException.checkNulls( aInterceptorSupport, aLinkGwid, aRightSkid, aLeftClassIds );
     IDtoLinkRev retValue = null;
     for( IS5LinksInterceptor interceptor : aInterceptorSupport.interceptors() ) {
-      retValue = interceptor.beforeReadReverseLink( aClassId, aLinkId, aRightSkid, aLeftClassIds, retValue );
+      retValue = interceptor.beforeFindLinkRev( aLinkGwid, aRightSkid, aLeftClassIds, retValue );
     }
     return retValue;
   }
 
   /**
-   * Вызов перехватчиков операции
-   * {@link IS5LinksInterceptor#afterReadReverseLink(String, String, Skid, IStringList, IDtoLinkRev)}
+   * Вызов перехватчиков операции {@link IS5LinksInterceptor#afterFindLinkRev(Gwid, Skid, IStringList, IDtoLinkRev)}
    *
    * @param aInterceptorSupport {@link S5InterceptorSupport}&lt;{@link IS5LinksInterceptor}&gt; поддержка перехватчиков
-   * @param aClassId String - идентификатор класса связи
-   * @param aLinkId String - идентификатор связи
+   * @param aLinkGwid {@link Gwid} идентификатор связи
    * @param aRightSkid {@link Skid} - идентификатор поавого объекта связи
    * @param aLeftClassIds {@link IStringList} - список ИД-ов классов левых объектов, пустой список = все классы
    * @param aReverseLink {@link IDtoLinkRev} - связь найденная ранее интерсепторами
    * @return {@link IDtoLinkRev} - найденная связь или <code>null</code> если нет такой
    * @throws TsNullArgumentRtException любой аргумент = null
    * @throws TsIllegalStateRtException запретить выполнение
-   *           {@link IS5BackendLinksSingleton#readReverseLink(String, String, Skid, IStringList)}
+   *           {@link IS5BackendLinksSingleton#findLinkRev(Gwid, Skid, IStringList)}
    */
-  static IDtoLinkRev callAfterReadReverseLink( S5InterceptorSupport<IS5LinksInterceptor> aInterceptorSupport,
-      String aClassId, String aLinkId, Skid aRightSkid, IStringList aLeftClassIds, IDtoLinkRev aReverseLink ) {
-    TsNullArgumentRtException.checkNulls( aInterceptorSupport, aClassId, aLinkId, aRightSkid, aLeftClassIds );
+  static IDtoLinkRev callAfterFindLinkRev( S5InterceptorSupport<IS5LinksInterceptor> aInterceptorSupport,
+      Gwid aLinkGwid, Skid aRightSkid, IStringList aLeftClassIds, IDtoLinkRev aReverseLink ) {
+    TsNullArgumentRtException.checkNulls( aInterceptorSupport, aLinkGwid, aRightSkid, aLeftClassIds );
     IDtoLinkRev retValue = aReverseLink;
     for( IS5LinksInterceptor interceptor : aInterceptorSupport.interceptors() ) {
-      retValue = interceptor.afterReadReverseLink( aClassId, aLinkId, aRightSkid, aLeftClassIds, retValue );
+      retValue = interceptor.afterFindLinkRev( aLinkGwid, aRightSkid, aLeftClassIds, retValue );
+    }
+    return retValue;
+  }
+
+  /**
+   * Вызов перехватчиков операции {@link IS5LinksInterceptor#beforeGetAllLinksRev(Skid, IMap)}
+   *
+   * @param aInterceptorSupport {@link S5InterceptorSupport}&lt;{@link IS5LinksInterceptor}&gt; поддержка перехватчиков
+   * @param aRightSkid {@link Skid} - идентификатор правого объекта связи
+   * @return {@link IMap}&lt;{@link Gwid},{@link IDtoLinkRev}&gt; карта обратных связей ранее найденная интерсепторами.
+   *         null: не найдена.
+   *         <p>
+   *         Ключ: абстрактный идентификатор связи;<br>
+   *         Значение: обратная связь
+   * @throws TsNullArgumentRtException любой аргумент = null
+   * @throws TsIllegalStateRtException запретить выполнение {@link IS5BackendLinksSingleton#getAllLinksRev(Skid)}
+   */
+  static IMap<Gwid, IDtoLinkRev> callBeforeGetAllLinksRev(
+      S5InterceptorSupport<IS5LinksInterceptor> aInterceptorSupport, Skid aRightSkid ) {
+    TsNullArgumentRtException.checkNulls( aInterceptorSupport, aRightSkid );
+    IMap<Gwid, IDtoLinkRev> retValue = null;
+    for( IS5LinksInterceptor interceptor : aInterceptorSupport.interceptors() ) {
+      retValue = interceptor.beforeGetAllLinksRev( aRightSkid, retValue );
+    }
+    return retValue;
+  }
+
+  /**
+   * Вызов перехватчиков операции {@link IS5LinksInterceptor#afterGetAllLinksRev(Skid, IMap)}
+   *
+   * @param aInterceptorSupport {@link S5InterceptorSupport}&lt;{@link IS5LinksInterceptor}&gt; поддержка перехватчиков
+   * @param aRightSkid {@link Skid} - идентификатор правого объекта связи
+   * @param aReverseLinks {@link IMap}&lt;{@link Gwid},{@link IDtoLinkRev}&gt; карта обратных связей ранее найденная
+   *          службой или интерсепторами. null: не найдена
+   *          <p>
+   *          Ключ: абстрактный идентификатор связи;<br>
+   *          Значение: обратная связь
+   * @return {@link IMap}&lt;{@link Gwid},{@link IDtoLinkRev}&gt; карта обратных связей ранее найденная интерсепторами.
+   *         null: не найдена.
+   *         <p>
+   *         Ключ: абстрактный идентификатор связи;<br>
+   *         Значение: обратная связь
+   * @throws TsNullArgumentRtException любой аргумент = null
+   * @throws TsIllegalStateRtException запретить выполнение {@link IS5BackendLinksSingleton#getAllLinksRev(Skid)}
+   */
+  static IMap<Gwid, IDtoLinkRev> callAfterGetAllLinksRev( S5InterceptorSupport<IS5LinksInterceptor> aInterceptorSupport,
+      Skid aRightSkid, IMap<Gwid, IDtoLinkRev> aReverseLinks ) {
+    TsNullArgumentRtException.checkNulls( aInterceptorSupport, aRightSkid );
+    IMap<Gwid, IDtoLinkRev> retValue = aReverseLinks;
+    for( IS5LinksInterceptor interceptor : aInterceptorSupport.interceptors() ) {
+      retValue = interceptor.afterGetAllLinksRev( aRightSkid, aReverseLinks );
     }
     return retValue;
   }
@@ -327,7 +398,7 @@ public interface IS5LinksInterceptor
    *          Ключ: Описание класса левого объекта связи;<br>
    *          Значение: Список пар: {@link Pair#left()} - старое состояние, {@link Pair#right()} - новое состояние.
    * @throws TsNullArgumentRtException любой аргумент = null
-   * @throws TsIllegalStateRtException запретить выполнение {@link IS5BackendLinksSingleton#writeLinks(IList, boolean)}
+   * @throws TsIllegalStateRtException запретить выполнение {@link IS5BackendLinksSingleton#writeLinksFwd(IList)}
    */
   static void callBeforeWriteLinks( S5InterceptorSupport<IS5LinksInterceptor> aInterceptorSupport,
       IMap<ISkClassInfo, IList<Pair<IDtoLinkFwd, IDtoLinkFwd>>> aUpdatedLinks ) {
@@ -348,7 +419,7 @@ public interface IS5LinksInterceptor
    *          Значение: Список пар: {@link Pair#left()} - старое состояние, {@link Pair#right()} - новое состояние.
    * @throws TsNullArgumentRtException любой аргумент = null
    * @throws TsIllegalStateRtException отменить изменения сделанные методом
-   *           {@link IS5BackendLinksSingleton#writeLinks(IList, boolean)} (откат транзакции)
+   *           {@link IS5BackendLinksSingleton#writeLinksFwd(IList)} (откат транзакции)
    */
   static void callAfterWriteLinksInterceptors( S5InterceptorSupport<IS5LinksInterceptor> aInterceptorSupport,
       IMap<ISkClassInfo, IList<Pair<IDtoLinkFwd, IDtoLinkFwd>>> aUpdatedLinks ) {

@@ -8,7 +8,6 @@ Require-Bundle: org.toxsoft.extlibs.log4j,
  org.toxsoft.extlibs.wildfly,
  org.toxsoft.core.tslib,
  org.toxsoft.uskat.core,
- ru.uskat.core,
  org.toxsoft.uskat.s5,
  org.toxsoft.uskat.sysext.realtime
 Eclipse-RegisterBuddy: ru.toxsoft.extlib.wildfly

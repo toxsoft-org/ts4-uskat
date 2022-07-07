@@ -50,7 +50,6 @@ import org.toxsoft.uskat.core.api.users.ISkUserServiceHardConstants;
 import org.toxsoft.uskat.core.backend.ISkFrontendRear;
 import org.toxsoft.uskat.core.backend.api.*;
 import org.toxsoft.uskat.core.impl.AbstractSkService;
-import org.toxsoft.uskat.core.impl.SkBackendInfo;
 import org.toxsoft.uskat.core.impl.dto.DtoObject;
 import org.toxsoft.uskat.s5.client.remote.connection.S5ClusterTopology;
 import org.toxsoft.uskat.s5.common.sessions.IS5SessionInfo;
@@ -607,7 +606,7 @@ public class S5BackendSession
     // Запрос текущей информации о сервере (backend)
     ISkBackendInfo info = backendCoreSingleton.getInfo();
     // Формирование информации сессии
-    SkBackendInfo retValue = new SkBackendInfo( info.id(), info.startTime(), sessionID, info.params() );
+    S5BackendInfo retValue = new S5BackendInfo( info.id(), sessionInfo(), info.params() );
     return retValue;
   }
 

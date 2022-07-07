@@ -22,6 +22,7 @@ import org.toxsoft.uskat.core.backend.api.ISkBackendInfo;
 import org.toxsoft.uskat.s5.client.remote.connection.S5ClusterTopology;
 import org.toxsoft.uskat.s5.common.S5Module;
 import org.toxsoft.uskat.s5.common.sessions.IS5SessionInfo;
+import org.toxsoft.uskat.s5.common.sessions.ISkSession;
 import org.toxsoft.uskat.s5.server.entities.*;
 import org.toxsoft.uskat.s5.server.sessions.S5SessionsInfos;
 import org.toxsoft.uskat.s5.server.statistics.*;
@@ -212,6 +213,17 @@ public interface IS5ServerHardConstants
       TSID_DESCRIPTION, STR_D_BACKEND_SESSION_KEEP_DAYS, //
       TSID_IS_NULL_ALLOWED, AV_FALSE, //
       TSID_DEFAULT_VALUE, avInt( 5 ) );
+
+  /**
+   * Параметр {@link ISkBackendInfo#params()}: Информация о текущей сессии пользователя
+   * <p>
+   * Тип: {@link EAtomicType#VALOBJ} содержит {@link IS5SessionInfo}
+   */
+  IDataDef OP_BACKEND_SESSION_INFO = create( S5_BACKEND_ID_START + "S5SessionInfo", EAtomicType.VALOBJ, //$NON-NLS-1$
+      TSID_NAME, STR_N_BACKEND_SESSION_INFO, //
+      TSID_DESCRIPTION, STR_D_BACKEND_SESSION_INFO, //
+      TSID_IS_NULL_ALLOWED, AV_FALSE, //
+      TSID_DEFAULT_VALUE, avValobj( IS5SessionInfo.NULL ) );
 
   /**
    * Параметр {@link ISkBackendInfo#params()}: Информация об открытых и завершенных сессиях пользователей

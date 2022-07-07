@@ -16,6 +16,8 @@ import org.toxsoft.core.tslib.utils.errors.TsNullArgumentRtException;
 import org.toxsoft.core.tslib.utils.logs.ILogger;
 import org.toxsoft.uskat.s5.common.sessions.ISkSession;
 import org.toxsoft.uskat.s5.server.backend.IS5BackendSessionControl;
+import org.toxsoft.uskat.s5.server.frontend.IS5FrontendRear;
+import org.toxsoft.uskat.s5.server.sessions.IS5SessionManager;
 import org.toxsoft.uskat.s5.server.sessions.init.IS5SessionInitData;
 import org.toxsoft.uskat.s5.server.sessions.init.S5SessionInitResult;
 import org.toxsoft.uskat.s5.server.sessions.pas.S5SessionCallbackWriter;
@@ -31,8 +33,17 @@ public abstract class S5AbstractBackendAddonSession
 
   private static final long serialVersionUID = 157157L;
 
+  /**
+   * Контекст сессии
+   */
   @Resource
   private SessionContext sessionContext;
+
+  /**
+   * Менеджер сессий
+   */
+  @EJB
+  private IS5SessionManager sessionManager;
 
   /**
    * Идентификатор сессии {@link ISkSession#skid()}
@@ -234,12 +245,28 @@ public abstract class S5AbstractBackendAddonSession
   }
 
   /**
+   * Возвращает фронтенд с которым работает сессия бекенда
+   *
+   * @return {@link IS5FrontendRear} фронтенд с которым работает сессия
+   */
+  protected final IS5FrontendRear frontend() {
+    return sessionManager.getCallbackWriter( sessionID() );
+  }
+
+  /**
    * Возвращает идентификатор сессии
    *
    * @return {@link Skid} идентификатор сессии {@link ISkSession#skid()}
    */
   protected final Skid sessionID() {
     return sessionID;
+  }
+
+  /**
+   * Сохраняет изменные данные сессии в кластере сервера
+   */
+  protected final void updateSessionData() {
+    sessionManager.updateRemoteSession( sessionManager.getCallbackWriter( sessionID() ).session() );
   }
 
   /**

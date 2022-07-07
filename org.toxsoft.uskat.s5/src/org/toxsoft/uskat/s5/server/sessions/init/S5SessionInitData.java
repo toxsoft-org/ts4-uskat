@@ -10,7 +10,6 @@ import org.toxsoft.core.tslib.av.opset.IOptionSetEdit;
 import org.toxsoft.core.tslib.av.opset.impl.OptionSet;
 import org.toxsoft.core.tslib.coll.primtypes.IStringMapEdit;
 import org.toxsoft.core.tslib.coll.primtypes.impl.StringMap;
-import org.toxsoft.core.tslib.gw.gwid.GwidList;
 import org.toxsoft.core.tslib.gw.skid.Skid;
 import org.toxsoft.core.tslib.utils.errors.*;
 import org.toxsoft.uskat.s5.client.IS5ConnectionParams;
@@ -29,7 +28,6 @@ public final class S5SessionInitData
 
   private final IOptionSetEdit                          clientOptions   = new OptionSet();
   private final S5ClusterTopology                       clusterTopology = new S5ClusterTopology();
-  private final GwidList                                eventGwids      = new GwidList();
   private final IStringMapEdit<IS5SessionAddonInitData> addonsData      = new StringMap<>();
 
   /**
@@ -101,11 +99,6 @@ public final class S5SessionInitData
   @Override
   public S5ClusterTopology clusterTopology() {
     return clusterTopology;
-  }
-
-  @Override
-  public GwidList eventGwids() {
-    return eventGwids;
   }
 
   @Override
