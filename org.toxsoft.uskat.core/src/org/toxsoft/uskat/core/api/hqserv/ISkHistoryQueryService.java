@@ -3,17 +3,25 @@ package org.toxsoft.uskat.core.api.hqserv;
 import org.toxsoft.core.tslib.av.opset.*;
 import org.toxsoft.core.tslib.coll.primtypes.*;
 import org.toxsoft.core.tslib.utils.errors.*;
+import org.toxsoft.uskat.core.*;
+import org.toxsoft.uskat.core.api.*;
 
 /**
  * The query service.
  * <p>
  * Query creation methods <code>createXxxQuery(IOptionSet)</code> accepts creation options. Options values are listed in
- * {@link ISkHistoryQueryServiceConstants}. Also backend implementation may define specific options described somwhere else.
- * User-specific options also may be supplied and read back in {@link ISkQueryRawHistory#params()}.
+ * {@link ISkHistoryQueryServiceConstants}. Also backend implementation may define specific options described somwhere
+ * else. User-specific options also may be supplied and read back in {@link ISkQueryRawHistory#params()}.
  *
  * @author hazard157
  */
-public interface ISkHistoryQueryService {
+public interface ISkHistoryQueryService
+    extends ISkService {
+
+  /**
+   * Service identifier.
+   */
+  String SERVICE_ID = ISkHardConstants.SK_CORE_SERVICE_ID_PREFIX + ".HistQuery"; //$NON-NLS-1$
 
   /**
    * Creates an empty query to historical data.
