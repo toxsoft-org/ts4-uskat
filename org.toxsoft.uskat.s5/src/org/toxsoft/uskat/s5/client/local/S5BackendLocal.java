@@ -5,10 +5,11 @@ import org.toxsoft.core.tslib.bricks.strid.coll.IStridablesList;
 import org.toxsoft.core.tslib.utils.errors.TsNullArgumentRtException;
 import org.toxsoft.uskat.core.backend.ISkFrontendRear;
 import org.toxsoft.uskat.core.backend.api.ISkBackendInfo;
-import org.toxsoft.uskat.core.impl.SkBackendInfo;
 import org.toxsoft.uskat.s5.client.IS5ConnectionParams;
+import org.toxsoft.uskat.s5.common.sessions.IS5SessionInfo;
 import org.toxsoft.uskat.s5.server.backend.IS5BackendCoreSingleton;
 import org.toxsoft.uskat.s5.server.backend.addons.*;
+import org.toxsoft.uskat.s5.server.backend.impl.S5BackendInfo;
 import org.toxsoft.uskat.s5.server.backend.messages.*;
 import org.toxsoft.uskat.s5.server.sessions.IS5SessionManager;
 import org.toxsoft.uskat.s5.server.sessions.S5LocalSession;
@@ -95,8 +96,10 @@ public final class S5BackendLocal
   public ISkBackendInfo getBackendInfo() {
     // Запрос текущей информации о сервере (backend)
     ISkBackendInfo backendInfo = backendSingleton.getInfo();
+    // Информация о сессии пользователя
+    IS5SessionInfo sessionInfo = sessionManager.findSession( sessionID() ).info();
     // Формирование информации сессии
-    return new SkBackendInfo( backendInfo.id(), backendInfo.startTime(), sessionID(), backendInfo.params() );
+    return new S5BackendInfo( backendInfo.id(), sessionInfo, backendInfo.params() );
   }
 
   // ------------------------------------------------------------------------------------

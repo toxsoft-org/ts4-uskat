@@ -44,6 +44,9 @@ interface IS5Resources {
   String STR_N_BACKEND_SESSION_KEEP_DAYS = Messages.getString( "IS5Resources.STR_N_BACKEND_SESSION_KEEP_DAYS" ); //$NON-NLS-1$
   String STR_D_BACKEND_SESSION_KEEP_DAYS = Messages.getString( "IS5Resources.STR_D_BACKEND_SESSION_KEEP_DAYS" ); //$NON-NLS-1$
 
+  String STR_N_BACKEND_SESSION_INFO = Messages.getString( "IS5Resources.STR_N_BACKEND_SESSION_INFO" ); //$NON-NLS-1$
+  String STR_D_BACKEND_SESSION_INFO = Messages.getString( "IS5Resources.STR_D_BACKEND_SESSION_INFO" ); //$NON-NLS-1$
+
   String STR_N_BACKEND_SESSIONS_INFOS = Messages.getString( "IS5Resources.STR_N_BACKEND_SESSIONS_INFOS" ); //$NON-NLS-1$
   String STR_D_BACKEND_SESSIONS_INFOS = Messages.getString( "IS5Resources.STR_D_BACKEND_SESSIONS_INFOS" ); //$NON-NLS-1$
 

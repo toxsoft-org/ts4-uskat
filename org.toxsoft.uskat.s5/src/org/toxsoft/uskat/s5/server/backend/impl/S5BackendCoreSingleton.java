@@ -216,7 +216,7 @@ public class S5BackendCoreSingleton
     S5Module module = OP_BACKEND_MODULE.getValue( backendConfigParams ).asValobj();
 
     // Описание бекенда
-    backendInfo = new SkBackendInfo( module.id(), launchTimestamp(), Skid.NONE, backendConfigParams );
+    backendInfo = new SkBackendInfo( module.id(), launchTimestamp(), backendConfigParams );
     // Переход в режим "overload"
     startOverloadMode();
     // Установка режима работы с кэшем сессий (infinispan)
