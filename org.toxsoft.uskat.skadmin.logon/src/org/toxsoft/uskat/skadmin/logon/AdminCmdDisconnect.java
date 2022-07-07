@@ -10,17 +10,15 @@ import org.toxsoft.core.tslib.coll.primtypes.IStringList;
 import org.toxsoft.core.tslib.coll.primtypes.IStringMap;
 import org.toxsoft.core.tslib.gw.skid.Skid;
 import org.toxsoft.core.tslib.utils.errors.TsNullArgumentRtException;
+import org.toxsoft.uskat.core.backend.api.ISkBackendInfo;
+import org.toxsoft.uskat.core.connection.ISkConnection;
 import org.toxsoft.uskat.legacy.plexy.IPlexyType;
 import org.toxsoft.uskat.legacy.plexy.IPlexyValue;
 import org.toxsoft.uskat.s5.common.sessions.IS5SessionInfo;
-import org.toxsoft.uskat.s5.server.backend.IS5Backend;
+import org.toxsoft.uskat.s5.common.sessions.ISkSession;
 import org.toxsoft.uskat.s5.server.sessions.S5SessionsInfos;
 import org.toxsoft.uskat.skadmin.core.IAdminCmdCallback;
 import org.toxsoft.uskat.skadmin.core.impl.AbstractAdminCmd;
-
-import ru.uskat.backend.ISkBackendInfo;
-import ru.uskat.core.api.users.ISkSession;
-import ru.uskat.core.connection.ISkConnection;
 
 /**
  * Команда администрирования: принудительно разорвать соединение с клиентом
@@ -83,12 +81,12 @@ public class AdminCmdDisconnect
     String session = argSingleValue( ARG_DISCONNECT_SESSION ).asString();
 
     // Информация о сервере
-    ISkBackendInfo backendInfo = connection.serverInfo();
+    ISkBackendInfo backendInfo = connection.backendInfo();
     // Информация об открытых и завершенных сессиях пользователей
     S5SessionsInfos sessionInfos = OP_BACKEND_SESSIONS_INFOS.getValue( backendInfo.params() ).asValobj();
     for( IS5SessionInfo info : sessionInfos.openInfos() ) {
       if( sessionIDToString( info.sessionID() ).equals( session ) ) {
-        ((IS5Backend)connection.getBackend()).close( info.sessionID() );
+        connection.close();
         resultOk();
         return;
       }

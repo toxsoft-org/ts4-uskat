@@ -1,7 +1,5 @@
 package org.toxsoft.uskat.s5.server.backend.impl;
 
-import static org.toxsoft.core.tslib.av.impl.AvUtils.*;
-
 import java.io.Serializable;
 
 import org.toxsoft.core.tslib.av.opset.IOptionSet;
@@ -11,13 +9,12 @@ import org.toxsoft.core.tslib.bricks.strio.chario.impl.CharOutputStreamAppendabl
 import org.toxsoft.core.tslib.bricks.strio.impl.StrioWriter;
 import org.toxsoft.core.tslib.utils.errors.TsNullArgumentRtException;
 import org.toxsoft.uskat.core.backend.api.ISkBackendInfo;
-import org.toxsoft.uskat.s5.common.sessions.IS5SessionInfo;
 import org.toxsoft.uskat.s5.server.IS5ServerHardConstants;
 
 /**
- * {@link ISkBackendInfo} implementation.
+ * {@link ISkBackendInfo} s5 implementation.
  *
- * @author hazard157
+ * @author mvk
  */
 public class S5BackendInfo
     extends StridableParameterized
@@ -29,13 +26,11 @@ public class S5BackendInfo
    * Конструктор.
    *
    * @param aId String - backend ID
-   * @param aSessionInfo {@link IS5SessionInfo} информация о текущей сессии пользователя
    * @param aParams {@link IOptionSet} - {@link ISkBackendInfo#params()} initial values
    * @throws TsNullArgumentRtException any argument = <code>null</code>
    */
-  public S5BackendInfo( String aId, IS5SessionInfo aSessionInfo, IOptionSet aParams ) {
+  public S5BackendInfo( String aId, IOptionSet aParams ) {
     super( aId, aParams );
-    IS5ServerHardConstants.OP_BACKEND_SESSION_INFO.setValue( params(), avValobj( aSessionInfo ) );
   }
 
   // ------------------------------------------------------------------------------------

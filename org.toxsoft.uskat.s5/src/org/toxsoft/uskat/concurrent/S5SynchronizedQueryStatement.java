@@ -2,21 +2,23 @@ package org.toxsoft.uskat.concurrent;
 
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
+import org.toxsoft.core.tslib.av.IAtomicValue;
 import org.toxsoft.core.tslib.av.opset.IOptionSet;
 import org.toxsoft.core.tslib.bricks.events.change.IGenericChangeEventer;
-import org.toxsoft.core.tslib.bricks.strid.coll.IStridablesList;
-import org.toxsoft.core.tslib.bricks.time.*;
+import org.toxsoft.core.tslib.bricks.time.IQueryInterval;
+import org.toxsoft.core.tslib.coll.primtypes.IStringMap;
 import org.toxsoft.core.tslib.utils.errors.TsNullArgumentRtException;
-import org.toxsoft.uskat.core.api.hqserv.*;
+import org.toxsoft.uskat.core.api.hqserv.ESkQueryState;
+import org.toxsoft.uskat.core.api.hqserv.ISkQueryStatement;
 
 /**
- * Синхронизация доступа к {@link ISkProcessedQuery} (декоратор)
+ * Синхронизация доступа к {@link ISkQueryStatement} (декоратор)
  *
  * @author mvk
  */
-public final class S5SynchronizedProcessedQuery
-    extends S5SynchronizedResource<ISkProcessedQuery>
-    implements ISkProcessedQuery {
+public final class S5SynchronizedQueryStatement
+    extends S5SynchronizedResource<ISkQueryStatement>
+    implements ISkQueryStatement {
 
   private final S5SynchronizedHistoryQueryService  owner;
   private final S5SynchronizedGenericChangeEventer eventer;
@@ -25,11 +27,11 @@ public final class S5SynchronizedProcessedQuery
    * Конструктор
    *
    * @param aOwner {@link S5SynchronizedHistoryQueryService} служба-собственник канала
-   * @param aTarget {@link ISkProcessedQuery} защищаемый ресурс
+   * @param aTarget {@link ISkQueryStatement} защищаемый ресурс
    * @param aLock {@link ReentrantReadWriteLock} блокировка доступа к ресурсу
    * @throws TsNullArgumentRtException любой аргумент = null
    */
-  public S5SynchronizedProcessedQuery( S5SynchronizedHistoryQueryService aOwner, ISkProcessedQuery aTarget,
+  public S5SynchronizedQueryStatement( S5SynchronizedHistoryQueryService aOwner, ISkQueryStatement aTarget,
       ReentrantReadWriteLock aLock ) {
     super( aTarget, aLock );
     owner = TsNullArgumentRtException.checkNull( aOwner );
@@ -40,7 +42,7 @@ public final class S5SynchronizedProcessedQuery
   // S5SynchronizedResource
   //
   @Override
-  protected void doChangeTarget( ISkProcessedQuery aPrevTarget, ISkProcessedQuery aNewTarget,
+  protected void doChangeTarget( ISkQueryStatement aPrevTarget, ISkQueryStatement aNewTarget,
       ReentrantReadWriteLock aNewLock ) {
     // nop
   }
@@ -54,7 +56,7 @@ public final class S5SynchronizedProcessedQuery
   }
 
   // ------------------------------------------------------------------------------------
-  // ISkProcessedQuery
+  // ISkQueryStatement
   //
   @Override
   public String queryId() {
@@ -82,7 +84,7 @@ public final class S5SynchronizedProcessedQuery
   public void close() {
     lockWrite( this );
     try {
-      owner.removeProcessedQuery( this );
+      owner.removeLanguageQuery( this );
       target().close();
     }
     finally {
@@ -91,7 +93,7 @@ public final class S5SynchronizedProcessedQuery
   }
 
   @Override
-  public EQueryState state() {
+  public ESkQueryState state() {
     lockWrite( this );
     try {
       return target().state();
@@ -102,10 +104,10 @@ public final class S5SynchronizedProcessedQuery
   }
 
   @Override
-  public void prepare( IStridablesList<ISkProcessedQueryDataArg> aArgs ) {
+  public void prepare( String aSkatQl, IStringMap<IAtomicValue> aArgs ) {
     lockWrite( this );
     try {
-      target().prepare( aArgs );
+      target().prepare( aSkatQl, aArgs );
     }
     finally {
       unlockWrite( this );
@@ -135,35 +137,14 @@ public final class S5SynchronizedProcessedQuery
   }
 
   @Override
-  public IStridablesList<ISkProcessedQueryDataArg> listArgs() {
+  public Object getResult() {
     lockWrite( this );
     try {
-      return target().listArgs();
+      return target().getResult();
     }
     finally {
       unlockWrite( this );
     }
   }
 
-  @Override
-  public boolean isArgDataReady( String aArgId ) {
-    lockWrite( this );
-    try {
-      return target().isArgDataReady( aArgId );
-    }
-    finally {
-      unlockWrite( this );
-    }
-  }
-
-  @Override
-  public <V extends ITemporal<V>> ITimedList<V> getArgData( String aDataId ) {
-    lockWrite( this );
-    try {
-      return target().getArgData( aDataId );
-    }
-    finally {
-      unlockWrite( this );
-    }
-  }
 }

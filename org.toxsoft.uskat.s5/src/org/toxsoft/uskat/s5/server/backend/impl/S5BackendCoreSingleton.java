@@ -29,7 +29,6 @@ import org.toxsoft.core.tslib.utils.errors.*;
 import org.toxsoft.uskat.classes.IS5ClassNode;
 import org.toxsoft.uskat.core.backend.api.ISkBackendInfo;
 import org.toxsoft.uskat.core.connection.ISkConnection;
-import org.toxsoft.uskat.core.impl.SkBackendInfo;
 import org.toxsoft.uskat.s5.common.S5Module;
 import org.toxsoft.uskat.s5.server.IS5ServerHardConstants;
 import org.toxsoft.uskat.s5.server.backend.IS5BackendCoreSingleton;
@@ -169,7 +168,7 @@ public class S5BackendCoreSingleton
   /**
    * Информация о бекенде
    */
-  private SkBackendInfo backendInfo;
+  private S5BackendInfo backendInfo;
 
   /**
    * Соединение с сервером
@@ -216,7 +215,10 @@ public class S5BackendCoreSingleton
     S5Module module = OP_BACKEND_MODULE.getValue( backendConfigParams ).asValobj();
 
     // Описание бекенда
-    backendInfo = new SkBackendInfo( module.id(), launchTimestamp(), backendConfigParams );
+    backendInfo = new S5BackendInfo( module.id(), backendConfigParams );
+    // Время запуска сервера
+    IS5ServerHardConstants.OP_BACKEND_START_TIME.setValue( backendInfo.params(),
+        avTimestamp( System.currentTimeMillis() ) );
     // Переход в режим "overload"
     startOverloadMode();
     // Установка режима работы с кэшем сессий (infinispan)

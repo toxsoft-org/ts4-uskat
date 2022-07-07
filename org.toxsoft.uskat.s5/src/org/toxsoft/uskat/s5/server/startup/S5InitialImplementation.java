@@ -87,7 +87,7 @@ public abstract class S5InitialImplementation
     OP_BACKEND_NODE_ID.setValue( params, avValobj( nodeId ) );
     OP_BACKEND_VERSION.setValue( params, avValobj( version ) );
     OP_BACKEND_MODULE.setValue( params, avValobj( aModule ) );
-    OP_BACKEND_START_TIME.setValue( params, avTimestamp( System.currentTimeMillis() ) );
+    OP_BACKEND_CURRENT_TIME.setValue( params, avTimestamp( System.currentTimeMillis() ) );
   }
 
   // ------------------------------------------------------------------------------------

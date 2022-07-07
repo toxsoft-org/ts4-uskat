@@ -18,6 +18,6 @@ public class S5BaEventsFrontendData
   /**
    * Конфигурация обработки событий
    */
-  public final S5BaEventSupport events = new S5BaEventSupport();
+  public final S5BaEventsSupport events = new S5BaEventsSupport();
 
 }

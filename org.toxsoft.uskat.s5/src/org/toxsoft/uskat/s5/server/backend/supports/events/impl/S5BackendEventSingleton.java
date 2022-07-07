@@ -226,7 +226,7 @@ public class S5BackendEventSingleton
           }
           // Фильтрация интересуемых событий
           SkEventList frontendEvents =
-              frontend.frontendData().getAddonData( IBaEvents.ADDON_ID, S5BaEventsFrontendData.class ).events
+              frontend.frontendData().findAddonData( IBaEvents.ADDON_ID, S5BaEventsFrontendData.class ).events
                   .filter( sysdescrBackend(), events );
           if( frontendEvents.size() == 0 ) {
             // Нечего отправлять

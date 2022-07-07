@@ -55,6 +55,7 @@ import org.toxsoft.uskat.s5.client.remote.connection.S5ClusterTopology;
 import org.toxsoft.uskat.s5.common.sessions.IS5SessionInfo;
 import org.toxsoft.uskat.s5.common.sessions.ISkSession;
 import org.toxsoft.uskat.s5.legacy.ISkSystem;
+import org.toxsoft.uskat.s5.server.IS5ServerHardConstants;
 import org.toxsoft.uskat.s5.server.backend.*;
 import org.toxsoft.uskat.s5.server.backend.addons.*;
 import org.toxsoft.uskat.s5.server.backend.supports.clobs.IS5BackendClobSingleton;
@@ -604,9 +605,12 @@ public class S5BackendSession
   @TransactionAttribute( TransactionAttributeType.SUPPORTS )
   public ISkBackendInfo getBackendInfo() {
     // Запрос текущей информации о сервере (backend)
-    ISkBackendInfo info = backendCoreSingleton.getInfo();
-    // Формирование информации сессии
-    S5BackendInfo retValue = new S5BackendInfo( info.id(), sessionInfo(), info.params() );
+    ISkBackendInfo backendInfo = backendCoreSingleton.getInfo();
+    // Формирование информации сессии бекенда
+    S5BackendInfo retValue = new S5BackendInfo( backendInfo.id(), backendInfo.params() );
+    // Идентификатор текущей сессии пользователя
+    IS5ServerHardConstants.OP_BACKEND_SESSION_INFO.setValue( retValue.params(), avValobj( sessionInfo() ) );
+
     return retValue;
   }
 

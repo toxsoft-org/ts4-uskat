@@ -90,7 +90,7 @@ class S5BaEventsSession
     TsNullArgumentRtException.checkNull( aNeededGwids );
     // Данные сессии
     S5BaEventsFrontendData frontendData =
-        frontend().frontendData().getAddonData( IBaEvents.ADDON_ID, S5BaEventsFrontendData.class );
+        frontend().frontendData().findAddonData( IBaEvents.ADDON_ID, S5BaEventsFrontendData.class );
     // Реконфигурация набора
     frontendData.events.setNeededEventGwids( aNeededGwids );
     // Сохранение измененной сессии в кластере сервера

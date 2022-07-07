@@ -1,5 +1,7 @@
 package org.toxsoft.uskat.s5.client.local;
 
+import static org.toxsoft.core.tslib.av.impl.AvUtils.*;
+
 import org.toxsoft.core.tslib.bricks.ctx.ITsContextRo;
 import org.toxsoft.core.tslib.bricks.strid.coll.IStridablesList;
 import org.toxsoft.core.tslib.utils.errors.TsNullArgumentRtException;
@@ -7,6 +9,7 @@ import org.toxsoft.uskat.core.backend.ISkFrontendRear;
 import org.toxsoft.uskat.core.backend.api.ISkBackendInfo;
 import org.toxsoft.uskat.s5.client.IS5ConnectionParams;
 import org.toxsoft.uskat.s5.common.sessions.IS5SessionInfo;
+import org.toxsoft.uskat.s5.server.IS5ServerHardConstants;
 import org.toxsoft.uskat.s5.server.backend.IS5BackendCoreSingleton;
 import org.toxsoft.uskat.s5.server.backend.addons.*;
 import org.toxsoft.uskat.s5.server.backend.impl.S5BackendInfo;
@@ -94,12 +97,16 @@ public final class S5BackendLocal
 
   @Override
   public ISkBackendInfo getBackendInfo() {
+    // Описание текущей сессии пользователя
+    IS5SessionInfo sessionInfo = sessionManager.findSession( sessionID() ).info();
     // Запрос текущей информации о сервере (backend)
     ISkBackendInfo backendInfo = backendSingleton.getInfo();
-    // Информация о сессии пользователя
-    IS5SessionInfo sessionInfo = sessionManager.findSession( sessionID() ).info();
-    // Формирование информации сессии
-    return new S5BackendInfo( backendInfo.id(), sessionInfo, backendInfo.params() );
+    // Формирование информации сессии бекенда
+    S5BackendInfo retValue = new S5BackendInfo( backendInfo.id(), backendInfo.params() );
+    // Идентификатор текущей сессии пользователя
+    IS5ServerHardConstants.OP_BACKEND_SESSION_INFO.setValue( retValue.params(), avValobj( sessionInfo ) );
+
+    return retValue;
   }
 
   // ------------------------------------------------------------------------------------

@@ -11,7 +11,6 @@ Require-Bundle: org.toxsoft.extlibs.log4j,
  org.toxsoft.core.tslib,
  org.toxsoft.core.log4j,
  org.toxsoft.uskat.core,
- ru.uskat.core,
  org.toxsoft.uskat.s5,
  org.toxsoft.uskat.skadmin.core
 Export-Package: org.toxsoft.uskat.skadmin.cli,

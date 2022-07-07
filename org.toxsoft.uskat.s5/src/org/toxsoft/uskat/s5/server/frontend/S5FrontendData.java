@@ -32,7 +32,7 @@ public final class S5FrontendData
   }
 
   @Override
-  public <T extends IS5FrontendAddonData> T getAddonData( String aAddonId, Class<T> aAddonDataType ) {
+  public <T extends IS5FrontendAddonData> T findAddonData( String aAddonId, Class<T> aAddonDataType ) {
     TsNullArgumentRtException.checkNulls( aAddonId, aAddonDataType );
     try {
       return aAddonDataType.cast( addonsData.findByKey( aAddonId ) );

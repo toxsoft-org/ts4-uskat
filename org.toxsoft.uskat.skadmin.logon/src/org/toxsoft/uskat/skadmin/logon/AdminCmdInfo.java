@@ -29,6 +29,8 @@ import org.toxsoft.core.tslib.gw.skid.Skid;
 import org.toxsoft.core.tslib.utils.TsVersion;
 import org.toxsoft.core.tslib.utils.errors.TsNotAllEnumsUsedRtException;
 import org.toxsoft.core.tslib.utils.errors.TsNullArgumentRtException;
+import org.toxsoft.uskat.core.backend.api.ISkBackendInfo;
+import org.toxsoft.uskat.core.connection.ISkConnection;
 import org.toxsoft.uskat.legacy.plexy.IPlexyType;
 import org.toxsoft.uskat.legacy.plexy.IPlexyValue;
 import org.toxsoft.uskat.s5.client.IS5ConnectionParams;
@@ -36,6 +38,7 @@ import org.toxsoft.uskat.s5.client.remote.connection.S5ClusterTopology;
 import org.toxsoft.uskat.s5.common.S5Module;
 import org.toxsoft.uskat.s5.common.info.ITransactionInfo;
 import org.toxsoft.uskat.s5.common.sessions.IS5SessionInfo;
+import org.toxsoft.uskat.s5.common.sessions.ISkSession;
 import org.toxsoft.uskat.s5.server.IS5ServerHardConstants;
 import org.toxsoft.uskat.s5.server.sessions.S5SessionsInfos;
 import org.toxsoft.uskat.s5.server.statistics.EStatisticInterval;
@@ -45,10 +48,6 @@ import org.toxsoft.uskat.skadmin.core.EAdminCmdContextNames;
 import org.toxsoft.uskat.skadmin.core.IAdminCmdCallback;
 import org.toxsoft.uskat.skadmin.core.impl.AbstractAdminCmd;
 import org.toxsoft.uskat.skadmin.logon.rules.IAdminCheckClientRule;
-
-import ru.uskat.backend.ISkBackendInfo;
-import ru.uskat.core.api.users.ISkSession;
-import ru.uskat.core.connection.ISkConnection;
 
 /**
  * Команда администрирования: вывести информацию о текущем состоянии сервера
@@ -146,7 +145,7 @@ public class AdminCmdInfo
     boolean format = argSingleValue( ARG_FORMAT ).asBool();
 
     // Информация о сервере
-    ISkBackendInfo info = connection.serverInfo();
+    ISkBackendInfo info = connection.backendInfo();
     // Информация об открытых и завершенных сессиях пользователей
     S5SessionsInfos sessionsInfos = OP_BACKEND_SESSIONS_INFOS.getValue( info.params() ).asValobj();
     // Информация об открытых и завершенных транзакциях сервера
@@ -157,7 +156,7 @@ public class AdminCmdInfo
     addResultInfo( MSG_INFO_NAME, info.nmName() );
     addResultInfo( MSG_INFO_DESCR, info.description() );
     addResultInfo( MSG_CONNECT_BACKEND );
-    S5Module module = IS5ServerHardConstants.DDEF_BACKEND_MODULE.getValue( info.params() ).asValobj();
+    S5Module module = IS5ServerHardConstants.OP_BACKEND_MODULE.getValue( info.params() ).asValobj();
     addResultInfo( "\n" ); //$NON-NLS-1$
     addResultInfo( MSG_CONNECT_VERSION, module.version() );
     addResultInfo( MSG_CONNECT_DEPENDS );
@@ -165,7 +164,7 @@ public class AdminCmdInfo
       addResultInfo( MSG_CONNECT_MODULE, depend.id(), depend.description(), depend.version() );
     }
     ZoneId zone = OP_BACKEND_ZONE_ID.getValue( info.params() ).asValobj();
-    ZonedDateTime startTime = getZonedDateTime( zone, DDEF_BACKEND_START_TIME.getValue( info.params() ).asLong() );
+    ZonedDateTime startTime = getZonedDateTime( zone, OP_BACKEND_START_TIME.getValue( info.params() ).asLong() );
     ZonedDateTime currTime = getZonedDateTime( zone, OP_BACKEND_CURRENT_TIME.getValue( info.params() ).asLong() );
 
     addResultInfo( MSG_INFO_ZONE, zone );
