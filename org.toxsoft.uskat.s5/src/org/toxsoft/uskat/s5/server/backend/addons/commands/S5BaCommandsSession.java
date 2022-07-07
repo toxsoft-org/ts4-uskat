@@ -1,4 +1,4 @@
-package org.toxsoft.uskat.s5.server.backend.addons.events;
+package org.toxsoft.uskat.s5.server.backend.addons.commands;
 
 import static org.toxsoft.uskat.s5.server.IS5ImplementConstants.*;
 
@@ -16,14 +16,15 @@ import org.toxsoft.uskat.core.api.evserv.SkEvent;
 import org.toxsoft.uskat.core.backend.ISkBackendHardConstant;
 import org.toxsoft.uskat.core.backend.api.IBaEvents;
 import org.toxsoft.uskat.s5.server.backend.addons.S5AbstractBackendAddonSession;
-import org.toxsoft.uskat.s5.server.backend.supports.events.IS5BackendEventSingleton;
+import org.toxsoft.uskat.s5.server.backend.addons.events.S5BaEventsFrontendData;
+import org.toxsoft.uskat.s5.server.backend.addons.events.S5BaEventsInitData;
 import org.toxsoft.uskat.s5.server.backend.supports.sysdescr.IS5BackendSysDescrSingleton;
 import org.toxsoft.uskat.s5.server.sessions.init.IS5SessionInitData;
 import org.toxsoft.uskat.s5.server.sessions.init.S5SessionInitResult;
 import org.toxsoft.uskat.s5.server.sessions.pas.S5SessionCallbackWriter;
 
 /**
- * Реализация сессии расширения бекенда {@link IS5BaEventsSession}.
+ * Реализация сессии расширения бекенда {@link IS5BaCommandsSession}.
  *
  * @author mvk
  */
@@ -32,9 +33,9 @@ import org.toxsoft.uskat.s5.server.sessions.pas.S5SessionCallbackWriter;
 @AccessTimeout( value = ACCESS_TIMEOUT_DEFAULT, unit = TimeUnit.MILLISECONDS )
 @TransactionManagement( TransactionManagementType.CONTAINER )
 @TransactionAttribute( TransactionAttributeType.SUPPORTS )
-class S5BaEventsSession
+class S5BaCommandsSession
     extends S5AbstractBackendAddonSession
-    implements IS5BaEventsSession {
+    implements IS5BaCommandsSession {
 
   private static final long serialVersionUID = 157157L;
 
@@ -45,15 +46,15 @@ class S5BaEventsSession
   private IS5BackendSysDescrSingleton sysdescrSupport;
 
   /**
-   * Поддержка сервера для формирования событий
+   * Поддержка сервера для формирования команд
    */
   @EJB
-  private IS5BackendEventSingleton eventsSupport;
+  private IS5BackendSingleton eventsSupport;
 
   /**
    * Пустой конструктор.
    */
-  public S5BaEventsSession() {
+  public S5BaCommandsSession() {
     super( ISkBackendHardConstant.BAINF_EVENTS );
   }
 
@@ -61,8 +62,8 @@ class S5BaEventsSession
   // Реализация шаблонных методов S5BackendAddonSession
   //
   @Override
-  protected Class<? extends IS5BaEventsSession> doGetSessionView() {
-    return IS5BaEventsSession.class;
+  protected Class<? extends IS5BaCommandsSession> doGetSessionView() {
+    return IS5BaCommandsSession.class;
   }
 
   @Override
@@ -77,7 +78,7 @@ class S5BaEventsSession
   }
 
   // ------------------------------------------------------------------------------------
-  // Реализация IS5BaEventsSession
+  // Реализация IS5BaCommandsSession
   //
   @Override
   public void fireEvents( ISkEventList aEvents ) {

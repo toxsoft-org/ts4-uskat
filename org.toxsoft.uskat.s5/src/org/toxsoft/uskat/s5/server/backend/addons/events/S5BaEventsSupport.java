@@ -21,7 +21,7 @@ import org.toxsoft.uskat.s5.utils.threads.impl.S5Lockable;
  *
  * @author mvk
  */
-public final class S5BaEventSupport
+public final class S5BaEventsSupport
     implements Serializable {
 
   private static final long serialVersionUID = 157157L;
@@ -47,7 +47,7 @@ public final class S5BaEventSupport
   /**
    * Конструктор.
    */
-  public S5BaEventSupport() {
+  public S5BaEventsSupport() {
   }
 
   // ------------------------------------------------------------------------------------

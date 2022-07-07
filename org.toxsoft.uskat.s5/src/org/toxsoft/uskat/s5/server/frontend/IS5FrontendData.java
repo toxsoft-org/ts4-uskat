@@ -25,10 +25,9 @@ public interface IS5FrontendData {
    * @return T данные расширения. null: данные не существуют
    * @param <T> тип данных расширения
    * @throws TsNullArgumentRtException любой аргумент = null
-   * @throws TsIllegalArgumentRtException данные не существуют
    * @throws ClassCastException данные расширение есть, но они не запрошенного типа
    */
-  <T extends IS5FrontendAddonData> T getAddonData( String aAddonId, Class<T> aAddonDataType );
+  <T extends IS5FrontendAddonData> T findAddonData( String aAddonId, Class<T> aAddonDataType );
 
   /**
    * Устанавливает данные расширения бекенда
