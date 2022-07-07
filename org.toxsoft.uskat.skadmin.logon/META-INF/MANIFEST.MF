@@ -7,8 +7,6 @@ Bundle-Vendor: ToxSoft Ltd.
 Require-Bundle: org.toxsoft.extlibs.wildfly,
  org.toxsoft.core.tslib,
  org.toxsoft.uskat.core,
- ru.uskat.core,
- ru.uskat.backend,
  org.toxsoft.uskat.s5,
  org.toxsoft.uskat.skadmin.core
 Export-Package: org.toxsoft.uskat.skadmin.logon,

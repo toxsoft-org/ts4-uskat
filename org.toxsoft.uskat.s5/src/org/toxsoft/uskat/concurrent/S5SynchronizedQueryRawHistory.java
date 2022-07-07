@@ -9,17 +9,17 @@ import org.toxsoft.core.tslib.coll.IMap;
 import org.toxsoft.core.tslib.gw.gwid.Gwid;
 import org.toxsoft.core.tslib.gw.gwid.IGwidList;
 import org.toxsoft.core.tslib.utils.errors.TsNullArgumentRtException;
-import org.toxsoft.uskat.core.api.hqserv.EQueryState;
-import org.toxsoft.uskat.core.api.hqserv.ISkHistoryQuery;
+import org.toxsoft.uskat.core.api.hqserv.ESkQueryState;
+import org.toxsoft.uskat.core.api.hqserv.ISkQueryRawHistory;
 
 /**
- * Синхронизация доступа к {@link ISkHistoryQuery} (декоратор)
+ * Синхронизация доступа к {@link ISkQueryRawHistory} (декоратор)
  *
  * @author mvk
  */
-public final class S5SynchronizedHistoryQuery
-    extends S5SynchronizedResource<ISkHistoryQuery>
-    implements ISkHistoryQuery {
+public final class S5SynchronizedQueryRawHistory
+    extends S5SynchronizedResource<ISkQueryRawHistory>
+    implements ISkQueryRawHistory {
 
   private final S5SynchronizedHistoryQueryService  owner;
   private final S5SynchronizedGenericChangeEventer eventer;
@@ -28,11 +28,11 @@ public final class S5SynchronizedHistoryQuery
    * Конструктор
    *
    * @param aOwner {@link S5SynchronizedHistoryQueryService} служба-собственник канала
-   * @param aTarget {@link ISkHistoryQuery} защищаемый ресурс
+   * @param aTarget {@link ISkQueryRawHistory} защищаемый ресурс
    * @param aLock {@link ReentrantReadWriteLock} блокировка доступа к ресурсу
    * @throws TsNullArgumentRtException любой аргумент = null
    */
-  public S5SynchronizedHistoryQuery( S5SynchronizedHistoryQueryService aOwner, ISkHistoryQuery aTarget,
+  public S5SynchronizedQueryRawHistory( S5SynchronizedHistoryQueryService aOwner, ISkQueryRawHistory aTarget,
       ReentrantReadWriteLock aLock ) {
     super( aTarget, aLock );
     owner = TsNullArgumentRtException.checkNull( aOwner );
@@ -43,7 +43,7 @@ public final class S5SynchronizedHistoryQuery
   // S5SynchronizedResource
   //
   @Override
-  protected void doChangeTarget( ISkHistoryQuery aPrevTarget, ISkHistoryQuery aNewTarget,
+  protected void doChangeTarget( ISkQueryRawHistory aPrevTarget, ISkQueryRawHistory aNewTarget,
       ReentrantReadWriteLock aNewLock ) {
     // nop
   }
@@ -94,7 +94,7 @@ public final class S5SynchronizedHistoryQuery
   }
 
   @Override
-  public EQueryState state() {
+  public ESkQueryState state() {
     lockWrite( this );
     try {
       return target().state();

@@ -1,9 +1,9 @@
 package org.toxsoft.uskat.skadmin.logon;
 
 import org.toxsoft.core.tslib.utils.errors.TsNullArgumentRtException;
-
-import ru.uskat.core.api.users.ISkSession;
-import ru.uskat.core.connection.ISkConnection;
+import org.toxsoft.uskat.core.connection.ISkConnection;
+import org.toxsoft.uskat.s5.common.sessions.IS5SessionInfo;
+import org.toxsoft.uskat.s5.server.IS5ServerHardConstants;
 
 /**
  * Всмомогательные методы пакета
@@ -21,8 +21,9 @@ public class AdminLogonUtils {
    */
   static String connectionToString( ISkConnection aConnection ) {
     TsNullArgumentRtException.checkNull( aConnection );
-    ISkSession session = aConnection.sessionInfo();
-    return session.toString();
+    IS5SessionInfo sessionInfo =
+        IS5ServerHardConstants.OP_BACKEND_SESSION_INFO.getValue( aConnection.backendInfo().params() ).asValobj();
+    return sessionInfo.toString();
   }
 
 }

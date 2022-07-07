@@ -15,6 +15,11 @@ import org.toxsoft.core.tslib.bricks.strid.coll.IStridablesListEdit;
 import org.toxsoft.core.tslib.bricks.strid.coll.impl.StridablesList;
 import org.toxsoft.core.tslib.coll.IList;
 import org.toxsoft.core.tslib.coll.primtypes.*;
+import org.toxsoft.uskat.core.backend.api.ISkBackendInfo;
+import org.toxsoft.uskat.core.connection.ESkConnState;
+import org.toxsoft.uskat.core.connection.ISkConnection;
+import org.toxsoft.uskat.core.impl.ISkCoreConfigConstants;
+import org.toxsoft.uskat.core.impl.SkCoreUtils;
 import org.toxsoft.uskat.legacy.plexy.IPlexyType;
 import org.toxsoft.uskat.legacy.plexy.IPlexyValue;
 import org.toxsoft.uskat.s5.client.IS5ConnectionParams;
@@ -24,11 +29,6 @@ import org.toxsoft.uskat.s5.server.IS5ServerHardConstants;
 import org.toxsoft.uskat.s5.utils.S5ValobjUtils;
 import org.toxsoft.uskat.skadmin.core.*;
 import org.toxsoft.uskat.skadmin.core.impl.AbstractAdminCmd;
-
-import ru.uskat.backend.ISkBackendInfo;
-import ru.uskat.core.connection.ESkConnState;
-import ru.uskat.core.connection.ISkConnection;
-import ru.uskat.core.impl.SkUtils;
 
 /**
  * Команда администрирования: вход пользователя на skat-s5-сервер
@@ -147,9 +147,9 @@ public class AdminCmdConnect
     IAtomicValue connectTimeout = argSingleValue( ARG_CONNECT_CONNECT_TIMEOUT );
     IAtomicValue failureTimeout = argSingleValue( ARG_CONNECT_FAILURE_TIMEOUT );
     IAtomicValue currDataTimeout = argSingleValue( ARG_CONNECT_CURRDATA_TIMEOUT );
-    IAtomicValue initializator = argSingleValue( ARG_CONNECT_INITIALIZER );
+    // IAtomicValue initializator = argSingleValue( ARG_CONNECT_INITIALIZER );
     try {
-      ISkConnection connection = SkUtils.createConnection();
+      ISkConnection connection = SkCoreUtils.createConnection();
       connection.addConnectionListener( ( aSource, aOldState ) -> {
         if( aSource.state() == ESkConnState.ACTIVE ) {
           AdminCmdGetConnection.SK_CONNECTIONS.add( aSource );
@@ -165,9 +165,9 @@ public class AdminCmdConnect
 
       ITsContext ctx = new TsContext();
       // сначала откроем соединение
-      SkUtils.REF_BACKEND_PROVIDER.setRef( ctx, new S5RemoteBackendProvider() );
-      SkUtils.OP_LOGIN.setValue( ctx.params(), avStr( login ) );
-      SkUtils.OP_PASSWORD.setValue( ctx.params(), avStr( password ) );
+      ISkCoreConfigConstants.REFDEF_BACKEND_PROVIDER.setRef( ctx, new S5RemoteBackendProvider() );
+      IS5ConnectionParams.OP_USERNAME.setValue( ctx.params(), avStr( login ) );
+      IS5ConnectionParams.OP_PASSWORD.setValue( ctx.params(), avStr( password ) );
 
       IS5ConnectionParams.OP_HOSTS.setValue( ctx.params(), avValobj( hosts ) );
       IS5ConnectionParams.OP_CLIENT_PROGRAM.setValue( ctx.params(), avStr( "skadmin" ) ); //$NON-NLS-1$
@@ -176,7 +176,7 @@ public class AdminCmdConnect
       IS5ConnectionParams.OP_FAILURE_TIMEOUT.setValue( ctx.params(), failureTimeout );
       IS5ConnectionParams.OP_CURRDATA_TIMEOUT.setValue( ctx.params(), currDataTimeout );
 
-      SkUtils.OP_EXT_SERV_PROVIDER_CLASS.setValue( ctx.params(), initializator );
+      // SkUtils.OP_EXT_SERV_PROVIDER_CLASS.setValue( ctx.params(), initializator );
       connection.open( ctx );
       setContextParamValue( CTX_SK_CORE_API, pvSingleRef( connection.coreApi() ) );
       setContextParamValue( CTX_SK_HOSTS, pvSingleRef( new S5Host( hostnames.first(), ports.first().intValue() ) ) );
@@ -187,13 +187,13 @@ public class AdminCmdConnect
         // Удаляем своего слушателя соединения
         connection.removeConnectionListener( AdminCmdGetConnection.CURRENT_CONNECTION_LISTENER );
       }
-      ISkBackendInfo info = connection.getBackend().getInfo();
+      ISkBackendInfo info = connection.backendInfo();
       addResultInfo( MSG_CONNECT, connectionToString( connection ) );
       addResultInfo( MSG_CONNECT_SERVER_ID, info.id() );
       addResultInfo( MSG_CONNECT_SERVER_NAME, info.nmName() );
       addResultInfo( MSG_CONNECT_SERVER_DESCR, info.description() );
       addResultInfo( MSG_CONNECT_BACKEND );
-      S5Module module = IS5ServerHardConstants.DDEF_BACKEND_MODULE.getValue( info.params() ).asValobj();
+      S5Module module = IS5ServerHardConstants.OP_BACKEND_MODULE.getValue( info.params() ).asValobj();
       addResultInfo( "\n" ); //$NON-NLS-1$
       addResultInfo( MSG_CONNECT_VERSION, module.version() );
       addResultInfo( MSG_CONNECT_DEPENDS );

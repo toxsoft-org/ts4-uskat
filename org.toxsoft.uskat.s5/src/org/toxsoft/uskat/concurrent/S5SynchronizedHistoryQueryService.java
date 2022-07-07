@@ -11,17 +11,17 @@ import org.toxsoft.core.tslib.utils.errors.TsNullArgumentRtException;
 import org.toxsoft.uskat.core.api.hqserv.*;
 
 /**
- * Синхронизация доступа к {@link ISkQueryService} (декоратор)
+ * Синхронизация доступа к {@link ISkHistoryQueryService} (декоратор)
  *
  * @author mvk
  */
 public final class S5SynchronizedHistoryQueryService
-    extends S5SynchronizedService<ISkQueryService>
-    implements ISkQueryService {
+    extends S5SynchronizedService<ISkHistoryQueryService>
+    implements ISkHistoryQueryService {
 
-  private IStringMapEdit<S5SynchronizedHistoryQuery>   openHistoricQueries  = new StringMap<>();
-  private IStringMapEdit<S5SynchronizedProcessedQuery> openProcessedQueries = new StringMap<>();
-  private IStringMapEdit<S5SynchronizedLanguageQuery>  openLanguageQueries  = new StringMap<>();
+  private IStringMapEdit<S5SynchronizedQueryRawHistory>   openHistoricQueries  = new StringMap<>();
+  private IStringMapEdit<S5SynchronizedQueryProcessedData> openProcessedQueries = new StringMap<>();
+  private IStringMapEdit<S5SynchronizedQueryStatement>  openLanguageQueries  = new StringMap<>();
 
   /**
    * Конструктор
@@ -31,18 +31,18 @@ public final class S5SynchronizedHistoryQueryService
    * @throws TsItemNotFoundRtException в соединении не найдена служба которую необходимо защитить
    */
   public S5SynchronizedHistoryQueryService( S5SynchronizedConnection aConnection ) {
-    this( (ISkQueryService)aConnection.getUnsynchronizedService( SERVICE_ID ), aConnection.nativeLock() );
+    this( (ISkHistoryQueryService)aConnection.getUnsynchronizedService( SERVICE_ID ), aConnection.nativeLock() );
     aConnection.addService( this );
   }
 
   /**
    * Конструктор
    *
-   * @param aTarget {@link ISkQueryService} защищаемый ресурс
+   * @param aTarget {@link ISkHistoryQueryService} защищаемый ресурс
    * @param aLock {@link ReentrantReadWriteLock} блокировка доступа к ресурсу
    * @throws TsNullArgumentRtException любой аргумент = null
    */
-  public S5SynchronizedHistoryQueryService( ISkQueryService aTarget, ReentrantReadWriteLock aLock ) {
+  public S5SynchronizedHistoryQueryService( ISkHistoryQueryService aTarget, ReentrantReadWriteLock aLock ) {
     super( aTarget, aLock );
   }
 
@@ -50,34 +50,34 @@ public final class S5SynchronizedHistoryQueryService
   // S5SynchronizedResource
   //
   @Override
-  protected void doChangeTarget( ISkQueryService aPrevTarget, ISkQueryService aNewTarget,
+  protected void doChangeTarget( ISkHistoryQueryService aPrevTarget, ISkHistoryQueryService aNewTarget,
       ReentrantReadWriteLock aNewLock ) {
     for( String queryId : openHistoricQueries.keys() ) {
-      S5SynchronizedHistoryQuery query = openHistoricQueries.getByKey( queryId );
-      ISkHistoryQuery newQuery = aNewTarget.createHistoricQuery( query.params() );
+      S5SynchronizedQueryRawHistory query = openHistoricQueries.getByKey( queryId );
+      ISkQueryRawHistory newQuery = aNewTarget.createHistoricQuery( query.params() );
       query.changeTarget( newQuery, aNewLock );
     }
     for( String queryId : openProcessedQueries.keys() ) {
-      S5SynchronizedProcessedQuery query = openProcessedQueries.getByKey( queryId );
-      ISkProcessedQuery newQuery = aNewTarget.createProcessedQuery( query.params() );
+      S5SynchronizedQueryProcessedData query = openProcessedQueries.getByKey( queryId );
+      ISkQueryProcessedData newQuery = aNewTarget.createProcessedQuery( query.params() );
       query.changeTarget( newQuery, aNewLock );
     }
     for( String queryId : openLanguageQueries.keys() ) {
-      S5SynchronizedLanguageQuery query = openLanguageQueries.getByKey( queryId );
-      ISkLanguageQuery newQuery = aNewTarget.createLanguageQuery( query.params() );
+      S5SynchronizedQueryStatement query = openLanguageQueries.getByKey( queryId );
+      ISkQueryStatement newQuery = aNewTarget.createLanguageQuery( query.params() );
       query.changeTarget( newQuery, aNewLock );
     }
   }
 
   // ------------------------------------------------------------------------------------
-  // ISkQueryService
+  // ISkHistoryQueryService
   //
   @Override
-  public ISkHistoryQuery createHistoricQuery( IOptionSet aOptions ) {
+  public ISkQueryRawHistory createHistoricQuery( IOptionSet aOptions ) {
     lockWrite( this );
     try {
-      ISkHistoryQuery query = target().createHistoricQuery( aOptions );
-      S5SynchronizedHistoryQuery retValue = new S5SynchronizedHistoryQuery( this, query, nativeLock() );
+      ISkQueryRawHistory query = target().createHistoricQuery( aOptions );
+      S5SynchronizedQueryRawHistory retValue = new S5SynchronizedQueryRawHistory( this, query, nativeLock() );
       openHistoricQueries.put( query.queryId(), retValue );
       return retValue;
     }
@@ -87,11 +87,11 @@ public final class S5SynchronizedHistoryQueryService
   }
 
   @Override
-  public ISkProcessedQuery createProcessedQuery( IOptionSet aOptions ) {
+  public ISkQueryProcessedData createProcessedQuery( IOptionSet aOptions ) {
     lockWrite( this );
     try {
-      ISkProcessedQuery query = target().createProcessedQuery( aOptions );
-      S5SynchronizedProcessedQuery retValue = new S5SynchronizedProcessedQuery( this, query, nativeLock() );
+      ISkQueryProcessedData query = target().createProcessedQuery( aOptions );
+      S5SynchronizedQueryProcessedData retValue = new S5SynchronizedQueryProcessedData( this, query, nativeLock() );
       openProcessedQueries.put( query.queryId(), retValue );
       return retValue;
     }
@@ -101,11 +101,11 @@ public final class S5SynchronizedHistoryQueryService
   }
 
   @Override
-  public ISkLanguageQuery createLanguageQuery( IOptionSet aOptions ) {
+  public ISkQueryStatement createLanguageQuery( IOptionSet aOptions ) {
     lockWrite( this );
     try {
-      ISkLanguageQuery query = target().createLanguageQuery( aOptions );
-      S5SynchronizedLanguageQuery retValue = new S5SynchronizedLanguageQuery( this, query, nativeLock() );
+      ISkQueryStatement query = target().createLanguageQuery( aOptions );
+      S5SynchronizedQueryStatement retValue = new S5SynchronizedQueryStatement( this, query, nativeLock() );
       openLanguageQueries.put( query.queryId(), retValue );
       return retValue;
     }
@@ -132,7 +132,7 @@ public final class S5SynchronizedHistoryQueryService
   // ------------------------------------------------------------------------------------
   // package API
   //
-  void removeHistoryQuery( S5SynchronizedHistoryQuery aQuery ) {
+  void removeHistoryQuery( S5SynchronizedQueryRawHistory aQuery ) {
     TsNullArgumentRtException.checkNull( aQuery );
     lockWrite( this );
     try {
@@ -143,7 +143,7 @@ public final class S5SynchronizedHistoryQueryService
     }
   }
 
-  void removeProcessedQuery( S5SynchronizedProcessedQuery aQuery ) {
+  void removeProcessedQuery( S5SynchronizedQueryProcessedData aQuery ) {
     TsNullArgumentRtException.checkNull( aQuery );
     lockWrite( this );
     try {
@@ -154,7 +154,7 @@ public final class S5SynchronizedHistoryQueryService
     }
   }
 
-  void removeLanguageQuery( S5SynchronizedLanguageQuery aQuery ) {
+  void removeLanguageQuery( S5SynchronizedQueryStatement aQuery ) {
     TsNullArgumentRtException.checkNull( aQuery );
     lockWrite( this );
     try {

@@ -17,6 +17,9 @@ interface IS5Resources {
   String STR_N_REV_LINK_IMPL_CLASS = Messages.getString( "IS5Resources.STR_N_REV_LINK_IMPL_CLASS" ); //$NON-NLS-1$
   String STR_D_REV_LINK_IMPL_CLASS = Messages.getString( "IS5Resources.STR_D_REV_LINK_IMPL_CLASS" ); //$NON-NLS-1$
 
+  String STR_N_BACKEND_SESSION_ID = "Сессия";                       //$NON-NLS-1$
+  String STR_D_BACKEND_SESSION_ID = "Сессия текущего пользователя"; //$NON-NLS-1$
+
   String STR_N_BACKEND_SERVER_ID = "Сервер";                                                //$NON-NLS-1$
   String STR_D_BACKEND_SERVER_ID = "Идентификатор сервера, объекта {@link IS5ClassServer}"; //$NON-NLS-1$
 
