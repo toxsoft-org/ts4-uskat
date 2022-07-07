@@ -18,6 +18,8 @@ import org.toxsoft.uskat.core.api.objserv.*;
  */
 public interface IBaLinksMessages {
 
+  // FIXME move to BaMsgXxx
+
   // ------------------------------------------------------------------------------------
   // Message: any change in the objects
 

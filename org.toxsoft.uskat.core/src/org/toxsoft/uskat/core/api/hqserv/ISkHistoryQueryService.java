@@ -34,17 +34,12 @@ public interface ISkHistoryQueryService
 
   /**
    * Creates an empty query to processed data.
-   * <p>
-   * FIXME as of 04/07/2022 this API is under development and has no implementation !
    *
    * @param aOptions {@link IOptionSet} - optional query execution parameters
    * @return {@link ISkQueryProcessedData} - created instance
    * @throws TsNullArgumentRtException any argument = <code>null</code>
    */
-  default ISkQueryProcessedData createProcessedQuery( IOptionSet aOptions ) {
-    // TODO реализовать ISkHistoryQueryService.createProcessedQuery()
-    throw new TsUnderDevelopmentRtException( "ISkHistoryQueryService.createProcessedQuery()" );
-  }
+  ISkQueryProcessedData createProcessedQuery( IOptionSet aOptions );
 
   /**
    * Creates an empty query to processed data.
@@ -55,10 +50,7 @@ public interface ISkHistoryQueryService
    * @return {@link ISkQueryStatement} - created instance
    * @throws TsNullArgumentRtException any argument = <code>null</code>
    */
-  default ISkQueryStatement createLanguageQuery( IOptionSet aOptions ) {
-    // TODO реализовать ISkHistoryQueryService.createLanguageQuery()
-    throw new TsUnderDevelopmentRtException( "ISkHistoryQueryService.createLanguageQuery()" );
-  }
+  // TODO ISkQueryStatement createLanguageQuery( IOptionSet aOptions );
 
   /**
    * Returns currently open queries.
@@ -67,6 +59,6 @@ public interface ISkHistoryQueryService
    *
    * @return {@link IStringMap}&lt;{@link ISkAsynchronousQuery}&gt; - map "query instance ID" - "the query"
    */
-  IStringMap<ISkAsynchronousQuery> openQueries();
+  IStringMap<ISkAsynchronousQuery> listOpenQueries();
 
 }

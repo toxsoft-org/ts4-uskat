@@ -37,6 +37,7 @@ public abstract class MtbAbstractBackend
   private final MtbBaEvents   baEvents;
   private final MtbBaRtdata   baRtdata;
   private final MtbBaCommands baCommands;
+  private final MtbBaQueries  baQueries;
 
   private final IStringMapEdit<MtbAbstractAddon> allAddons = new StringMap<>();
 
@@ -80,6 +81,8 @@ public abstract class MtbAbstractBackend
     allAddons.put( baRtdata.id(), baRtdata );
     baCommands = new MtbBaCommands( this );
     allAddons.put( baCommands.id(), baCommands );
+    baQueries = new MtbBaQueries( this );
+    allAddons.put( baQueries.id(), baQueries );
     backendInfo = new SkBackendInfo( aBackendId, System.currentTimeMillis(), aBackendInfoValue );
   }
 
@@ -210,6 +213,11 @@ public abstract class MtbAbstractBackend
   @Override
   public IBaCommands baCommands() {
     return baCommands;
+  }
+
+  @Override
+  public IBaQueries baQueries() {
+    return baQueries;
   }
 
   @Override

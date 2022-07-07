@@ -19,6 +19,8 @@ import org.toxsoft.uskat.core.impl.*;
  */
 public interface IBaEventsMessages {
 
+  // FIXME move to BaMsgXxx
+
   // ------------------------------------------------------------------------------------
   // Message: list of events
 

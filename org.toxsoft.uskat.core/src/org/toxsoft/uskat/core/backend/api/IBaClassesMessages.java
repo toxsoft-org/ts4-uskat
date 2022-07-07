@@ -18,6 +18,8 @@ import org.toxsoft.uskat.core.api.sysdescr.*;
  */
 public interface IBaClassesMessages {
 
+  // FIXME move to BaMsgXxx
+
   // ------------------------------------------------------------------------------------
   // Message: any change in the classes
 

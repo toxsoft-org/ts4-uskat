@@ -79,14 +79,14 @@ public interface ISkBackend
   /**
    * Returns backend addon for objects storage.
    *
-   * @return {@link IBaClasses} - objects storage
+   * @return {@link IBaObjects} - objects storage
    */
   IBaObjects baObjects();
 
   /**
    * Returns backend addon for links storage.
    *
-   * @return {@link IBaClasses} - links storage
+   * @return {@link IBaLinks} - links storage
    */
   IBaLinks baLinks();
 
@@ -100,23 +100,30 @@ public interface ISkBackend
   /**
    * Returns backend addon for CLOBs storage.
    *
-   * @return {@link IBaClasses} - CLOBs storage
+   * @return {@link IBaClobs} - CLOBs storage
    */
   IBaClobs baClobs();
 
   /**
    * Returns backend addon to work with real-time data.
    *
-   * @return {@link IBaClasses} - real-time data
+   * @return {@link IBaRtdata} - real-time data
    */
   IBaRtdata baRtdata();
 
   /**
    * Returns backend addon to work with the commands.
    *
-   * @return {@link IBaClasses} - commands
+   * @return {@link IBaCommands} - commands
    */
   IBaCommands baCommands();
+
+  /**
+   * Returns backend addon for history queries.
+   *
+   * @return {@link IBaQueries} - history queries
+   */
+  IBaQueries baQueries();
 
   // ------------------------------------------------------------------------------------
   // Optional addons

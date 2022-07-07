@@ -1,24 +1,37 @@
 package org.toxsoft.uskat.core.api.hqserv;
 
-import java.io.*;
-
+import org.toxsoft.core.tslib.av.opset.*;
+import org.toxsoft.core.tslib.av.temporal.*;
 import org.toxsoft.core.tslib.bricks.filter.*;
-import org.toxsoft.core.tslib.bricks.strid.*;
+import org.toxsoft.core.tslib.bricks.time.*;
 import org.toxsoft.core.tslib.gw.gwid.*;
+import org.toxsoft.uskat.core.api.evserv.*;
 
 /**
- * Single data argumetn to be queried by {@link ISkQueryProcessedData}.
+ * Single data argument to be queried by {@link ISkQueryProcessedData}.
  * <p>
- * Implementa {@link IStridableParameterized} where {@link #id()} is user-specified data ID (unique in query). Visal
- * {@link #nmName()} and {@link #description()} is not used by query itself but may be specified for example to be used
- * in manual query creation GUI.
+ * Single data is retrieved as {@link ITimedList} of values (like {@link ITemporalAtomicValue} or {@link SkEvent}) over
+ * the specified time interval and then processed. Result of processing is {@link ITimedList} usualy of the same value
+ * types. However, some functions (like COUNT, see below) returns list {@link ITemporalAtomicValue}.
  * <p>
- * FIXME as of 04/07/2022 this API is under development and has no implementation !
+ * Data processing consist of two steps:
+ * <ul>
+ * <li><b>filtering</b> - some values from the initial {@link ITimedList} may be rejected by the filer. Filter is crated
+ * based on specified parameters {@link #filterParams()}. For example, filter may reject/accept commands with the
+ * specified argument, or atmic values if they are out of the range, etc.;</li>
+ * <li>aplying an aggregating <b>function</b> - function {@link #funcId()} with arguments {@link #funcArgs()} will be
+ * applyed to each filtered element. Most function are aggregating functions having fixed time periods called
+ * aggregation interval. Each aggregation interval produces single element in resulting {@link ITimedList}. Aggregation
+ * interval duration is specified as argument {@link ISkHistoryQueryServiceConstants#HQFUNC_ARG_AGGREGAION_INTERVAL}.
+ * Specifying 0 as aggregation interval means to aggregate over whole queried time interval thus producing single value
+ * in resulting list.</li>
+ * </ul>
+ * {@link ITsCombiFilterParams#ALL} as {@link #filterParams()} and an empty string as {@link #funcId()} produces the raw
+ * data list of the specified {@link #dataGwid()}, thus implementiing {@link ISkQueryRawHistory}.
  *
  * @author hazard157
  */
-public interface IDtoQueryParam
-    extends IStridable {
+public interface IDtoQueryParam {
 
   /**
    * The GWID of data to be queried.
@@ -31,25 +44,35 @@ public interface IDtoQueryParam
   Gwid dataGwid();
 
   /**
-   * FIXME the api of the data processing rules must be developed.
+   * Parameters of the filter to by used for values filtering.
    * <p>
-   * In ts3 uskat there were was EReportFunc enum (like MIN/MAX/COUNT/AVE etc) with IOptionSet of additional parameters
-   * like aggregation time interval.
+   * Cretad filter must accept elemnts of type, depending on {@link #dataGwid()}. For example, for
+   * {@link EGwidKind#GW_EVENT} filter must accept elements of type {@link SkEvent}.
    * <p>
-   * In ts4 usakt must be added the ability for user-specified rules in addition with standard MIN/MAX/COUNT/AVE/....
-   * <p>
-   * At least the following solutions shall be considered:
-   * <ul>
-   * <li>enum like EReprtFunc with USER_SPECIFIED choice (see below about how to USER-SPECIFY);</li>
-   * <li>user-specified rules as filter {@link ITsCombiFilterParams};</li>
-   * <li>specify reules as JavaScript code;</li>
-   * <li>introduce {@link Serializable} class AbstractDataProcessor and send subclasses to the server for processing in
-   * server context;</li>
-   * <li>develop SkatQL (the USkat Query Language) and use it's framnets as argument processing rules.</li>
-   * </ul>
+   * If no filtering is used method returns {@link ITsCombiFilterParams#ALL}.
    *
-   * @return {@link Object} - processing rule to be developed
+   * @return {@link ITsCombiFilterParams} - parameters for filter creation or {@link ITsCombiFilterParams#ALL}
    */
-  Object methodMustReturnProcessingRule();
+  ITsCombiFilterParams filterParams();
+
+  /**
+   * The ID of function to be used for data processing.
+   * <p>
+   * Function may be either aggregating or of any other kind. There are some builtin functions listed in
+   * {@link ISkHistoryQueryServiceConstants}. Other functions may be application-specific.
+   * <p>
+   * An empty string means that no function will be used.
+   *
+   * @return String - function ID (an IDpath) or an empty string for no function processing
+   */
+  String funcId();
+
+  /**
+   * Arguments of function {@link #funcId()}.
+   * <p>
+   *
+   * @return {@link IOptionSet} - function arguments
+   */
+  IOptionSet funcArgs();
 
 }

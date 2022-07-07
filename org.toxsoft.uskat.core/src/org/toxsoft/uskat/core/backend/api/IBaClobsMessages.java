@@ -19,6 +19,8 @@ import org.toxsoft.uskat.core.api.clobserv.*;
  */
 public interface IBaClobsMessages {
 
+  // FIXME move to BaMsgXxx
+
   // ------------------------------------------------------------------------------------
   // Message: any change in the CLOBs
 
