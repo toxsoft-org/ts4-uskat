@@ -245,6 +245,11 @@ public abstract class S5AbstractBackend<ADDON extends IS5BackendAddon>
   }
 
   @Override
+  public IBaQueries baQueries() {
+    return (IBaQueries)allAddons.getByKey( IBaQueries.ADDON_ID );
+  }
+
+  @Override
   public IListEdit<ISkServiceCreator<? extends AbstractSkService>> listBackendServicesCreators() {
     return backendServicesCreators;
   }

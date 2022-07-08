@@ -663,6 +663,11 @@ public class S5BackendSession
   }
 
   @Override
+  public IBaQueries baQueries() {
+    return findBackendAddon( IBaQueries.ADDON_ID, IBaQueries.class );
+  }
+
+  @Override
   public IList<ISkServiceCreator<? extends AbstractSkService>> listBackendServicesCreators() {
     IStridablesList<IS5BackendAddonCreator> baCreators = backendCoreSingleton.initialConfig().impl().baCreators();
     IListEdit<ISkServiceCreator<? extends AbstractSkService>> retValue = new ElemLinkedList<>();
