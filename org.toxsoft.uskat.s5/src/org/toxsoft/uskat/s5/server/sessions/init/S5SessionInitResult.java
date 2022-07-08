@@ -10,6 +10,7 @@ import org.toxsoft.core.tslib.coll.primtypes.impl.StringMap;
 import org.toxsoft.core.tslib.utils.errors.*;
 import org.toxsoft.uskat.s5.server.backend.addons.IS5BackendAddonSession;
 import org.toxsoft.uskat.s5.server.backend.addons.IS5BackendAddonSessionControl;
+import org.toxsoft.uskat.s5.server.frontend.IS5BackendAddonData;
 
 /**
  * Реализация {@link IS5SessionInitResult}
@@ -21,8 +22,8 @@ public final class S5SessionInitResult
 
   private static final long serialVersionUID = 157157L;
 
-  private final IStringMapEdit<IS5BackendAddonSession>    addons     = new StringMap<>();
-  private final IStringMapEdit<IS5SessionAddonInitResult> addonsData = new StringMap<>();
+  private final IStringMapEdit<IS5BackendAddonSession> sessions          = new StringMap<>();
+  private final IStringMapEdit<IS5BackendAddonData>    backendAddonDatas = new StringMap<>();
 
   // ------------------------------------------------------------------------------------
   // Открытое API
@@ -35,12 +36,12 @@ public final class S5SessionInitResult
    */
   public void setAll( IS5SessionInitResult aSource ) {
     TsNullArgumentRtException.checkNull( aSource );
-    addons.setAll( aSource.baSessions() );
-    addonsData.clear();
-    for( String addonId : addons.keys() ) {
-      IS5SessionAddonInitResult addonData = aSource.getBaData( addonId, IS5SessionAddonInitResult.class );
+    sessions.setAll( aSource.baSessions() );
+    backendAddonDatas.clear();
+    for( String addonId : sessions.keys() ) {
+      IS5BackendAddonData addonData = aSource.getBackendAddonData( addonId, IS5BackendAddonData.class );
       if( addonData != null ) {
-        addonsData.put( addonId, addonData );
+        backendAddonDatas.put( addonId, addonData );
       }
     }
   }
@@ -55,29 +56,29 @@ public final class S5SessionInitResult
    */
   public void setAddons( IStringMap<IS5BackendAddonSession> aAddons ) {
     TsNullArgumentRtException.checkNull( aAddons );
-    addons.setAll( aAddons );
+    sessions.setAll( aAddons );
   }
 
   /**
    * Устанавливает данные расширения бекенда
    *
    * @param aAddonId String идентификатор (ИД-путь) расширения
-   * @param aData {@link IS5SessionAddonInitResult} данные фронтенда расширения бекенд
+   * @param aBackendAddonData {@link IS5BackendAddonData} данные фронтенда расширения бекенд
    * @throws TsNullArgumentRtException любой аргумент = null
    * @throws TsIllegalArgumentRtException данные должны поддерживать сериализацию
    * @throws TsItemAlreadyExistsRtException данные расширения уже установлены
    */
-  public void setAddonData( String aAddonId, IS5SessionAddonInitResult aData ) {
-    TsNullArgumentRtException.checkNulls( aAddonId, aData );
-    if( !(aData instanceof Serializable) ) {
+  public void setBackendAddonData( String aAddonId, IS5BackendAddonData aBackendAddonData ) {
+    TsNullArgumentRtException.checkNulls( aAddonId, aBackendAddonData );
+    if( !(aBackendAddonData instanceof Serializable) ) {
       // Данные должны поддерживать сериализацию
       throw new TsIllegalArgumentRtException( ERR_MSG_ADDON_DATA_NO_SERIALIZABLE, aAddonId );
     }
-    if( addonsData.hasKey( aAddonId ) ) {
+    if( backendAddonDatas.hasKey( aAddonId ) ) {
       // Данные расширения уже зарегистрированы
       throw new TsItemAlreadyExistsRtException( ERR_MSG_ADDON_DATA_ALREADY_EXIST, aAddonId );
     }
-    addonsData.put( aAddonId, aData );
+    backendAddonDatas.put( aAddonId, aBackendAddonData );
   }
 
   // ------------------------------------------------------------------------------------
@@ -90,10 +91,10 @@ public final class S5SessionInitResult
   }
 
   @Override
-  public <T extends IS5SessionAddonInitResult> T getBaData( String aAddonId, Class<T> aAddonDataType ) {
+  public <T extends IS5BackendAddonData> T getBackendAddonData( String aAddonId, Class<T> aAddonDataType ) {
     TsNullArgumentRtException.checkNulls( aAddonId, aAddonDataType );
     try {
-      return aAddonDataType.cast( addonsData.findByKey( aAddonId ) );
+      return aAddonDataType.cast( backendAddonDatas.findByKey( aAddonId ) );
     }
     catch( Exception ex ) {
       throw new TsIllegalArgumentRtException( ex, ex.getMessage() );

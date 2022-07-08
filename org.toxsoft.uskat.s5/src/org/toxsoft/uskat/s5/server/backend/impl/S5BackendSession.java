@@ -402,7 +402,7 @@ public class S5BackendSession
       // Результат инициализации сессии
       S5SessionInitResult initResult = new S5SessionInitResult();
       // Текущие типы и классы
-      initResult.getBaData( IBaClasses.ADDON_ID, null );
+      initResult.getBackendAddonData( IBaClasses.ADDON_ID, null );
       // Метка времени начала инициализации расширений сессии
       long addonsInitStartTime = System.currentTimeMillis();
       // Инициализация сессии данными клиента

@@ -58,7 +58,7 @@ class S5BaClassesSession
   @Override
   protected void doAfterInit( S5SessionCallbackWriter aCallbackWriter, IS5SessionInitData aInitData,
       S5SessionInitResult aInitResult ) {
-    aInitResult.getBaData( IBaClasses.ADDON_ID, S5BaClassesInitResult.class ).classInfos.setAll( readClassInfos() );
+    aInitResult.getBackendAddonData( IBaClasses.ADDON_ID, S5BaClassesData.class ).classInfos.setAll( readClassInfos() );
   }
 
   // ------------------------------------------------------------------------------------

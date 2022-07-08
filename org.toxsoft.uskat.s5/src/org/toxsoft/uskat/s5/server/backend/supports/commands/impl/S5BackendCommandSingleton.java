@@ -35,11 +35,11 @@ import org.toxsoft.uskat.core.api.objserv.IDtoObject;
 import org.toxsoft.uskat.core.api.sysdescr.ISkClassInfo;
 import org.toxsoft.uskat.core.api.sysdescr.dto.IDtoClassInfo;
 import org.toxsoft.uskat.core.api.sysdescr.dto.IDtoCmdInfo;
-import org.toxsoft.uskat.core.backend.api.IBaCommands;
+import org.toxsoft.uskat.core.backend.api.*;
 import org.toxsoft.uskat.core.impl.dto.DtoCompletedCommand;
 import org.toxsoft.uskat.s5.common.sysdescr.ISkSysdescrReader;
 import org.toxsoft.uskat.s5.legacy.QueryInterval;
-import org.toxsoft.uskat.s5.server.backend.addons.commands.S5BaCommandsFrontendData;
+import org.toxsoft.uskat.s5.server.backend.addons.commands.S5BaCommandsData;
 import org.toxsoft.uskat.s5.server.backend.addons.commands.S5BaCommandsSupport;
 import org.toxsoft.uskat.s5.server.backend.supports.commands.IS5BackendCommandSingleton;
 import org.toxsoft.uskat.s5.server.backend.supports.objects.IS5BackendObjectsSingleton;
@@ -271,7 +271,7 @@ public class S5BackendCommandSingleton
     // }
     // }
     // }
-    S5BaCommandsFrontendData frontendData = findCommandsFrontendData( aFrontend );
+    S5BaCommandsData frontendData = findCommandsFrontendData( aFrontend );
     if( frontendData == null ) {
       // Недопустимый usecase
       throw new TsInternalErrorRtException();
@@ -316,7 +316,7 @@ public class S5BackendCommandSingleton
       // Gwid-идентификатор команды
       Gwid cmdGwid = aCommand.cmdGwid();
       // Данные фронтенда отправляющего команду
-      S5BaCommandsFrontendData frontendData = findCommandsFrontendData( aFrontend );
+      S5BaCommandsData frontendData = findCommandsFrontendData( aFrontend );
       if( frontendData == null ) {
         // Недопустимый usecase
         throw new TsInternalErrorRtException();
@@ -327,10 +327,10 @@ public class S5BackendCommandSingleton
       LoggerWrapper.resultToLog( logger(), addResult );
       // Поиск исполнителя и передача ему команды
       // 2020-08-05 mvk
-      IS5FrontendRear cmdFrontend = null;
+      IS5FrontendRear frontend = null;
       lockRead( executorsLock );
       try {
-        cmdFrontend = executors.findByKey( cmdGwid );
+        frontend = executors.findByKey( cmdGwid );
       }
       finally {
         unlockRead( executorsLock );
@@ -344,11 +344,11 @@ public class S5BackendCommandSingleton
       // changeCommandState( aCommand, new TimedList<>(), createState( currTime, EXECUTING, REASON_EXEC_BY_QUERY ) );
       // return;
       // }
-      if( cmdFrontend != null ) {
+      if( frontend != null ) {
         // Изменение состояния на "исполняется"
         changeCommandState( aCommand, new TimedList<>(), createState( currTime, EXECUTING, REASON_EXEC_BY_QUERY ) );
         // Отправляем команду на исполнение
-        SkMessageExecuteCommand.send( cmdFrontend, aCommand );
+        frontend.onBackendMessage( BaMsgCommandsExecCmd.INSTANCE.makeMessage( aCommand ) );
         return;
       }
 
@@ -624,7 +624,7 @@ public class S5BackendCommandSingleton
     }
     // Сообщение frontend
     for( IS5FrontendRear frontend : backend().attachedFrontends() ) {
-      S5BaCommandsFrontendData frontendData = findCommandsFrontendData( frontend );
+      S5BaCommandsData frontendData = findCommandsFrontendData( frontend );
       if( frontendData == null ) {
         // фронтенд не поддерживает реальное время
         continue;
@@ -638,7 +638,8 @@ public class S5BackendCommandSingleton
         continue;
       }
       // Оповещение фронтенда
-      SkMessageWhenCommandsStateChanged.send( frontend, states );
+      BaMsgCommandsChangeState.INSTANCE.//
+          SkMessageWhenCommandsStateChanged.send( frontend, states );
     }
   }
 
@@ -736,10 +737,10 @@ public class S5BackendCommandSingleton
    * Возвращает данные фронтенда "команды"
    *
    * @param aFrontend {@link IS5FrontendRear} фронтенд
-   * @return {@link S5BaCommandsFrontendData} данные фронтенда. null: данные не существуют
+   * @return {@link S5BaCommandsData} данные фронтенда. null: данные не существуют
    * @throws TsNullArgumentRtException аргумент = null
    */
-  private static S5BaCommandsFrontendData findCommandsFrontendData( IS5FrontendRear aFrontend ) {
-    return aFrontend.frontendData().findAddonData( IBaCommands.ADDON_ID, S5BaCommandsFrontendData.class );
+  private static S5BaCommandsData findCommandsFrontendData( IS5FrontendRear aFrontend ) {
+    return aFrontend.frontendData().findBackendAddonData( IBaCommands.ADDON_ID, S5BaCommandsData.class );
   }
 }

@@ -47,7 +47,7 @@ class S5BaClassesRemote
     if( aMessage.messageId().equals( S5BaAfterConnectMessages.MSG_ID ) ) {
       // Подключение к серверу, обработка полученных классов
       sysdescrReader
-          .setClassInfos( owner().sessionInitResult().getBaData( id(), S5BaClassesInitResult.class ).classInfos );
+          .setClassInfos( owner().sessionInitResult().getBackendAddonData( id(), S5BaClassesData.class ).classInfos );
     }
     if( aMessage.messageId().equals( IBaClassesMessages.MSGID_SYSDESCR_CHANGE ) ) {
       // Изменились описания классов системы, обновление кэша

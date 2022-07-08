@@ -159,7 +159,7 @@ public class S5BackendCommandSingleton
     // 2020-08-05 mvk
     // GwidList retValue = new GwidList();
     // for( IS5FrontendRear frontend : backend().attachedFrontends() ) {
-    // S5BaCommandsFrontendData frontendData = getRealtimeFrontendData( frontend );
+    // S5BaCommandsData frontendData = getRealtimeFrontendData( frontend );
     // if( frontendData == null ) {
     // // Фроненд не поддерживает реальное время
     // continue;
@@ -251,7 +251,7 @@ public class S5BackendCommandSingleton
     // // Свой frontend пропускаем
     // continue;
     // }
-    // S5BaCommandsFrontendData frontendData = getRealtimeFrontendData( frontend );
+    // S5BaCommandsData frontendData = getRealtimeFrontendData( frontend );
     // if( frontendData == null ) {
     // // Фроненд не поддерживает реальное время
     // continue;

@@ -40,9 +40,9 @@ class S5BaEventsRemote
   @Override
   public void onBackendMessage( GtMessage aMessage ) {
     if( aMessage.messageId().equals( S5BaBeforeConnectMessages.MSG_ID ) ) {
-      S5BaEventsInitData initData = new S5BaEventsInitData();
-      initData.events.setAll( needEvents );
-      owner().sessionInitData().setAddonData( IBaEvents.ADDON_ID, initData );
+      S5BaEventsData baData = new S5BaEventsData();
+      baData.events.setNeededEventGwids( needEvents );
+      owner().sessionInitData().setBackendAddonData( IBaEvents.ADDON_ID, baData );
     }
   }
 

@@ -6,6 +6,7 @@ import org.toxsoft.core.tslib.utils.errors.TsNullArgumentRtException;
 import org.toxsoft.uskat.s5.client.IS5ConnectionParams;
 import org.toxsoft.uskat.s5.client.remote.connection.S5ClusterTopology;
 import org.toxsoft.uskat.s5.common.sessions.ISkSession;
+import org.toxsoft.uskat.s5.server.frontend.IS5BackendAddonData;
 
 /**
  * Данные инициализации сессии
@@ -42,10 +43,10 @@ public interface IS5SessionInitData {
    *
    * @param aAddonId String идентификатор (ИД-путь) расширения
    * @param aAddonDataType Java-тип данных расширения
-   * @return {@link IS5SessionAddonInitData} данные расширения. null: данных нет
+   * @return {@link IS5BackendAddonData} данные расширения. null: данных нет
    * @param <T> тип данных расширения
    * @throws TsNullArgumentRtException любой аргумент = null
    * @throws ClassCastException данные расширение есть, но они не запрошенного типа
    */
-  <T extends IS5SessionAddonInitData> T findAddonData( String aAddonId, Class<T> aAddonDataType );
+  <T extends IS5BackendAddonData> T findBackendAddonData( String aAddonId, Class<T> aAddonDataType );
 }

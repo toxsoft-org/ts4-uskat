@@ -1,12 +1,12 @@
 package org.toxsoft.uskat.s5.server.frontend;
 
 /**
- * Данные фронтенда расширения бекенда
+ * Данные расширения бекенда
  * <p>
  * Интерфейс-метка
  *
  * @author mvk
  */
-public interface IS5FrontendAddonData {
+public interface IS5BackendAddonData {
   // nop
 }
