@@ -19,9 +19,9 @@ public final class S5SynchronizedHistoryQueryService
     extends S5SynchronizedService<ISkHistoryQueryService>
     implements ISkHistoryQueryService {
 
-  private IStringMapEdit<S5SynchronizedQueryRawHistory>   openHistoricQueries  = new StringMap<>();
+  private IStringMapEdit<S5SynchronizedQueryRawHistory>    openHistoricQueries  = new StringMap<>();
   private IStringMapEdit<S5SynchronizedQueryProcessedData> openProcessedQueries = new StringMap<>();
-  private IStringMapEdit<S5SynchronizedQueryStatement>  openLanguageQueries  = new StringMap<>();
+  private IStringMapEdit<S5SynchronizedQueryStatement>     openLanguageQueries  = new StringMap<>();
 
   /**
    * Конструктор
@@ -62,11 +62,12 @@ public final class S5SynchronizedHistoryQueryService
       ISkQueryProcessedData newQuery = aNewTarget.createProcessedQuery( query.params() );
       query.changeTarget( newQuery, aNewLock );
     }
-    for( String queryId : openLanguageQueries.keys() ) {
-      S5SynchronizedQueryStatement query = openLanguageQueries.getByKey( queryId );
-      ISkQueryStatement newQuery = aNewTarget.createLanguageQuery( query.params() );
-      query.changeTarget( newQuery, aNewLock );
-    }
+    // TODO: language API
+    // for( String queryId : openLanguageQueries.keys() ) {
+    // S5SynchronizedQueryStatement query = openLanguageQueries.getByKey( queryId );
+    // ISkQueryStatement newQuery = aNewTarget.createLanguageQuery( query.params() );
+    // query.changeTarget( newQuery, aNewLock );
+    // }
   }
 
   // ------------------------------------------------------------------------------------
@@ -100,22 +101,23 @@ public final class S5SynchronizedHistoryQueryService
     }
   }
 
-  @Override
-  public ISkQueryStatement createLanguageQuery( IOptionSet aOptions ) {
-    lockWrite( this );
-    try {
-      ISkQueryStatement query = target().createLanguageQuery( aOptions );
-      S5SynchronizedQueryStatement retValue = new S5SynchronizedQueryStatement( this, query, nativeLock() );
-      openLanguageQueries.put( query.queryId(), retValue );
-      return retValue;
-    }
-    finally {
-      unlockWrite( this );
-    }
-  }
+  // TODO: language API
+  // @Override
+  // public ISkQueryStatement createLanguageQuery( IOptionSet aOptions ) {
+  // lockWrite( this );
+  // try {
+  // ISkQueryStatement query = target().createLanguageQuery( aOptions );
+  // S5SynchronizedQueryStatement retValue = new S5SynchronizedQueryStatement( this, query, nativeLock() );
+  // openLanguageQueries.put( query.queryId(), retValue );
+  // return retValue;
+  // }
+  // finally {
+  // unlockWrite( this );
+  // }
+  // }
 
   @Override
-  public IStringMap<ISkAsynchronousQuery> openQueries() {
+  public IStringMap<ISkAsynchronousQuery> listOpenQueries() {
     lockWrite( this );
     try {
       IStringMapEdit<ISkAsynchronousQuery> retValue = new StringMap<>();
