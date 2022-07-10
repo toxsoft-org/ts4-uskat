@@ -4,8 +4,8 @@ import javax.ejb.Local;
 
 import org.toxsoft.uskat.core.api.cmdserv.IDtoCompletedCommand;
 import org.toxsoft.uskat.core.backend.api.IBaCommands;
+import org.toxsoft.uskat.s5.server.backend.supports.commands.sequences.IS5CommandSequence;
 import org.toxsoft.uskat.s5.server.sequences.IS5BackendSequenceSupportSingleton;
-import org.toxsoft.uskat.sysext.realtime.supports.commands.sequences.IS5CommandSequence;
 
 /**
  * Локальный интерфейс синглетона команд предоставляемый s5-сервером.

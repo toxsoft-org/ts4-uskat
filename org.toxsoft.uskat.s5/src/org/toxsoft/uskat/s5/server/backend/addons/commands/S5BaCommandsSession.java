@@ -6,9 +6,11 @@ import java.util.concurrent.TimeUnit;
 
 import javax.ejb.*;
 
+import org.toxsoft.core.log4j.LoggerWrapper;
 import org.toxsoft.core.tslib.av.opset.IOptionSet;
 import org.toxsoft.core.tslib.bricks.time.IQueryInterval;
 import org.toxsoft.core.tslib.bricks.time.ITimedList;
+import org.toxsoft.core.tslib.bricks.validator.ValidationResult;
 import org.toxsoft.core.tslib.gw.gwid.Gwid;
 import org.toxsoft.core.tslib.gw.gwid.IGwidList;
 import org.toxsoft.core.tslib.gw.skid.Skid;
@@ -87,7 +89,17 @@ class S5BaCommandsSession
   @Override
   public SkCommand sendCommand( Gwid aCmdGwid, Skid aAuthorSkid, IOptionSet aArgs ) {
     TsNullArgumentRtException.checkNulls( aCmdGwid, aAuthorSkid, aArgs );
-    return commandsSupport.sendCommand( aCmdGwid, aAuthorSkid, aArgs );
+    SkCommand retValue = commandsSupport.sendCommand( aCmdGwid, aAuthorSkid, aArgs );
+    if( !retValue.isComplete() ) {
+      // Данные сессии
+      S5BaCommandsData baData =
+          frontend().frontendData().findBackendAddonData( IBaCommands.ADDON_ID, S5BaCommandsData.class );
+      // Фиксация факта ожидания выполнения команды
+      ValidationResult addResult = baData.commands.addExecutingCmd( retValue.instanceId() );
+      // Запись в журнал результата добавления команды в очередь ожидания
+      LoggerWrapper.resultToLog( logger(), addResult );
+    }
+    return retValue;
   }
 
   @Override
@@ -99,18 +111,21 @@ class S5BaCommandsSession
     // Реконфигурация набора
     baData.commands.setHandledCommandGwids( aGwids );
     // Сохранение измененной сессии в кластере сервера
-    updateSessionData();
+    writeSessionData();
     // Вывод протокола
     if( logger().isSeverityOn( ELogSeverity.INFO ) || logger().isSeverityOn( ELogSeverity.DEBUG ) ) {
       // Вывод в журнал информации о регистрации ресурсов в сессии
       StringBuilder sb = new StringBuilder();
       sb.append( String.format( "setHandledCommandGwids(...): sessionID = %s, changed executor list:", sessionID() ) ); //$NON-NLS-1$
-      sb.append( String.format( "\n   === events (%d) === ", Integer.valueOf( baData.commands.getHandledCommandGwids().size() ) ) ); //$NON-NLS-1$
+      sb.append( String.format( "\n   === events (%d) === ", //$NON-NLS-1$
+          Integer.valueOf( baData.commands.getHandledCommandGwids().size() ) ) );
       for( Gwid gwid : baData.commands.getHandledCommandGwids() ) {
         sb.append( String.format( "\n   %s", gwid ) ); //$NON-NLS-1$
       }
       logger().info( sb.toString() );
     }
+    // Оповещение бекенда
+    commandsSupport.setHandledCommandGwids( aGwids );
   }
 
   @Override

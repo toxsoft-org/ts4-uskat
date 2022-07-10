@@ -2,12 +2,9 @@ package org.toxsoft.uskat.s5.server.backend.supports.commands.impl;
 
 import static org.toxsoft.core.tslib.bricks.time.EQueryIntervalType.*;
 import static org.toxsoft.uskat.core.api.cmdserv.ESkCommandState.*;
-import static org.toxsoft.uskat.s5.legacy.SkGwidUtils.*;
 import static org.toxsoft.uskat.s5.server.IS5ImplementConstants.*;
 import static org.toxsoft.uskat.s5.server.backend.supports.commands.IS5CommandHardConstants.*;
 import static org.toxsoft.uskat.s5.server.backend.supports.commands.impl.IS5Resources.*;
-import static org.toxsoft.uskat.s5.utils.threads.impl.S5Lockable.*;
-import static org.toxsoft.uskat.sysext.realtime.addon.S5RealtimeUtils.*;
 
 import java.util.concurrent.TimeUnit;
 
@@ -16,33 +13,33 @@ import javax.ejb.*;
 
 import org.infinispan.Cache;
 import org.infinispan.commons.util.CloseableIterator;
-import org.toxsoft.core.log4j.LoggerWrapper;
+import org.toxsoft.core.tslib.av.opset.IOptionSet;
 import org.toxsoft.core.tslib.av.utils.IParameterized;
 import org.toxsoft.core.tslib.bricks.strid.coll.IStridablesList;
 import org.toxsoft.core.tslib.bricks.time.*;
 import org.toxsoft.core.tslib.bricks.time.impl.TimedList;
-import org.toxsoft.core.tslib.bricks.validator.ValidationResult;
 import org.toxsoft.core.tslib.coll.*;
-import org.toxsoft.core.tslib.coll.impl.*;
-import org.toxsoft.core.tslib.coll.primtypes.IStringList;
+import org.toxsoft.core.tslib.coll.impl.ElemArrayList;
 import org.toxsoft.core.tslib.gw.gwid.*;
 import org.toxsoft.core.tslib.gw.skid.Skid;
 import org.toxsoft.core.tslib.utils.Pair;
 import org.toxsoft.core.tslib.utils.errors.*;
-import org.toxsoft.core.tslib.utils.logs.ELogSeverity;
 import org.toxsoft.uskat.core.api.cmdserv.*;
 import org.toxsoft.uskat.core.api.objserv.IDtoObject;
 import org.toxsoft.uskat.core.api.sysdescr.ISkClassInfo;
 import org.toxsoft.uskat.core.api.sysdescr.dto.IDtoClassInfo;
 import org.toxsoft.uskat.core.api.sysdescr.dto.IDtoCmdInfo;
 import org.toxsoft.uskat.core.backend.api.*;
+import org.toxsoft.uskat.core.impl.SkCommand;
+import org.toxsoft.uskat.core.impl.dto.DtoCommand;
 import org.toxsoft.uskat.core.impl.dto.DtoCompletedCommand;
 import org.toxsoft.uskat.s5.common.sysdescr.ISkSysdescrReader;
 import org.toxsoft.uskat.s5.legacy.QueryInterval;
 import org.toxsoft.uskat.s5.server.backend.addons.commands.S5BaCommandsData;
 import org.toxsoft.uskat.s5.server.backend.addons.commands.S5BaCommandsSupport;
 import org.toxsoft.uskat.s5.server.backend.supports.commands.IS5BackendCommandSingleton;
-import org.toxsoft.uskat.s5.server.backend.supports.objects.IS5BackendObjectsSingleton;
+import org.toxsoft.uskat.s5.server.backend.supports.commands.sequences.IS5CommandSequence;
+import org.toxsoft.uskat.s5.server.backend.supports.commands.sequences.IS5CommandSequenceEdit;
 import org.toxsoft.uskat.s5.server.frontend.IS5FrontendRear;
 import org.toxsoft.uskat.s5.server.sequences.ISequenceBlock;
 import org.toxsoft.uskat.s5.server.sequences.ISequenceFactory;
@@ -51,9 +48,6 @@ import org.toxsoft.uskat.s5.server.sequences.impl.S5SequenceFactory;
 import org.toxsoft.uskat.s5.server.transactions.S5TransactionUtils;
 import org.toxsoft.uskat.s5.utils.collections.S5FixedCapacityTimedList;
 import org.toxsoft.uskat.s5.utils.jobs.IS5ServerJob;
-import org.toxsoft.uskat.s5.utils.threads.impl.S5Lockable;
-import org.toxsoft.uskat.sysext.realtime.supports.commands.sequences.IS5CommandSequence;
-import org.toxsoft.uskat.sysext.realtime.supports.commands.sequences.IS5CommandSequenceEdit;
 
 /**
  * Реализация синглетона {@link IS5BackendCommandSingleton}
@@ -108,19 +102,6 @@ public class S5BackendCommandSingleton
   private String nodeId;
 
   /**
-   * Карта исполнителей команд:
-   * <p>
-   * Ключ: идентификатор конкретной команды, конкретного объекта;<br>
-   * Значение: исполнитель
-   */
-  private final IMapEdit<Gwid, IS5FrontendRear> executors = new ElemMap<>();
-
-  /**
-   * Блокировка доступа к {@link #executors}.
-   */
-  private final S5Lockable executorsLock = new S5Lockable();
-
-  /**
    * Конструктор.
    */
   public S5BackendCommandSingleton() {
@@ -154,217 +135,64 @@ public class S5BackendCommandSingleton
   // ------------------------------------------------------------------------------------
   // Реализация IS5BackendCommandSingleton
   //
-  @Override
   @TransactionAttribute( TransactionAttributeType.SUPPORTS )
-  public IGwidList getExecutableCommandGwids() {
-    // 2020-08-05 mvk
-    // GwidList retValue = new GwidList();
-    // for( IS5FrontendRear frontend : backend().attachedFrontends() ) {
-    // S5RealtimeFrontendData frontendData = getRealtimeFrontendData( frontend );
-    // if( frontendData == null ) {
-    // // Фроненд не поддерживает реальное время
-    // continue;
-    // }
-    // retValue.addAll( frontendData.commands.gwids() );
-    // }
-    lockRead( executorsLock );
-    try {
-      return new GwidList( executors.keys() );
-    }
-    finally {
-      unlockRead( executorsLock );
-    }
-  }
-
   @Override
-  // 2020-11-20 mvk
-  // @TransactionAttribute( TransactionAttributeType.REQUIRED )
-  @TransactionAttribute( TransactionAttributeType.NOT_SUPPORTED )
-  public void setExecutableCommandGwids( IS5FrontendRear aFrontend, IGwidList aNeededGwids ) {
-    TsNullArgumentRtException.checkNulls( aFrontend, aNeededGwids );
-    // Время начала запроса
-    long traceStartTime = System.currentTimeMillis();
-    // TODO: 2020-08-05 mvk ??? что делать с кластеризацией + executors ???
-    // TODO: 2020-08-05 mvk ??? отработка изменения системного описания (классы, объекты, команды) ???
-    IListEdit<Gwid> addGwids = new ElemLinkedList<>();
-    for( Gwid gwid : aNeededGwids ) {
-      // Замена групповых идентификаторов на конкретные
-      addGwids.addAll( expandMultiGwid( sysdescrReader(), objectsBackend(), gwid ) );
-    }
-    // Количество ранее существующих команд исполнителя
-    int prevCmdCount = 0;
-    // Новое количество команд исполнителя
-    int newCmdCount = 0;
-    // Общее количество команд всех исполнителей
-    int allCmdCount = 0;
-    // Список всех идентификаторов команд на которые зарегистрированы исполнители
-    IGwidList allCmdGwids = null;
-    lockWrite( executorsLock );
-    try {
-      // Удаление старого списка исполнителей фронтенда
-      for( Gwid gwid : new ElemArrayList<>( executors.keys() ) ) {
-        IS5FrontendRear frontend = executors.getByKey( gwid );
-        if( frontend.equals( aFrontend ) ) {
-          executors.removeByKey( gwid );
-          prevCmdCount++;
-        }
-      }
-      // Проверка конфликтов с другими исполнителями
-      for( Gwid gwid : addGwids ) {
-        IS5FrontendRear frontend = executors.findByKey( gwid );
-        if( frontend != null && frontend.equals( aFrontend ) ) {
-          // Повторное указание команды в списке исполнителя
-          logger().warning( ERR_EXECUTOR_DOUBLE_REGISTER, gwid, frontend );
-          continue;
-        }
-        if( frontend != null ) {
-          // Для команды был зарегистрирован другой исполнитель
-          logger().error( ERR_EXECUTOR_EXIST, aFrontend, gwid, frontend );
-          // 2020-08-15 mvk есть предположение о формировании deadlock
-          // throw new TsIllegalArgumentRtException( ERR_EXECUTOR_EXIST, aFrontend, gwid, frontend );
-        }
-      }
-      // Изменение карты исполнителей
-      for( Gwid addGwid : addGwids ) {
-        executors.put( addGwid, aFrontend );
-      }
-      // Список всех зарегистрированных команд
-      allCmdGwids = new GwidList( executors.keys() );
-      newCmdCount = addGwids.size();
-      allCmdCount = allCmdGwids.size();
-      // Вывод в журнал исполнителей команд
-      if( logger().isSeverityOn( ELogSeverity.DEBUG ) ) {
-        for( Gwid gwid : allCmdGwids ) {
-          logger().debug( MSG_CMD_EXECUTOR, gwid, executors.getByKey( gwid ) );
-        }
-      }
-    }
-    finally {
-      unlockWrite( executorsLock );
-    }
-
-    // Список идентификаторов команд поддерживаемых всеми исполнителями
-    // GwidList allFrontendGwids = new GwidList( aNeededGwids );
-    // TODO: 2020-07-24 mvkd код вызывает overhead на запуске сервера и массового подключения клиентов
-    // TODO: 2020-07-24 mvkd ТРЕБУЕТСЯ переработка!
-    // for( IS5FrontendRear frontend : backend().attachedFrontends() ) {
-    // if( frontend.equals( aFrontend ) == true ) {
-    // // Свой frontend пропускаем
-    // continue;
-    // }
-    // S5RealtimeFrontendData frontendData = getRealtimeFrontendData( frontend );
-    // if( frontendData == null ) {
-    // // Фроненд не поддерживает реальное время
-    // continue;
-    // }
-    // for( Gwid neededGwid : aNeededGwids ) {
-    // IGwidList frontendGwids = frontendData.commands.gwids();
-    // allFrontendGwids.addAll( frontendGwids );
-    // for( Gwid frontendGwid : frontendGwids ) {
-    // if( acceptableCmd( sysdescrBackend(), neededGwid, frontendGwid ) == false
-    // && acceptableCmd( sysdescrBackend(), frontendGwid, neededGwid ) == false ) {
-    // // Исполнители команд не пересекаются по выбранным gwid-идентификаторам
-    // continue;
-    // }
-    // // Для команды уже зарегистрирован исполнитель
-    // throw new TsIllegalArgumentRtException( ERR_EXECUTOR_EXIST, neededGwid, frontend, frontendGwid );
-    // }
-    // }
-    // }
-    S5BaCommandsData frontendData = findCommandsFrontendData( aFrontend );
-    if( frontendData == null ) {
-      // Недопустимый usecase
-      throw new TsInternalErrorRtException();
-    }
-    // 2020-08-05 mvk
-    // // Регистрация команд исполнителя
-    // ValidationResult result = frontendData.commands.setExcutableCommandGwids( aFrontend.toString(), aNeededGwids );
-    // // Запись в журнал результата установки списка исполняемых команд
-    // Logger.resultToLog( logger(), result );
-    // Время начала запроса
-    long traceSendEventTime = System.currentTimeMillis();
-    // Сообщение frontend
-    for( IS5FrontendRear frontend : backend().attachedFrontends() ) {
-      frontendData = findCommandsFrontendData( frontend );
-      if( frontendData == null ) {
-        // фронтенд не поддерживает реальное время
-        continue;
-      }
-      // Оповещение фронтенда
-      SkMessageWhenCommandExecutorsChanged.send( frontend, allCmdGwids );
-    }
-    // Текущее время
-    long currTime = System.currentTimeMillis();
-    // Журналирование
-    Integer pcc = Integer.valueOf( prevCmdCount );
-    Integer ncc = Integer.valueOf( newCmdCount );
-    Integer acc = Integer.valueOf( allCmdCount );
-    Long registerTime = Long.valueOf( traceSendEventTime - traceStartTime );
-    Long eventTime = Long.valueOf( currTime - traceSendEventTime );
-    logger().info( MSG_SET_EXECUTABLE_CMDS, aFrontend, pcc, ncc, acc, registerTime, eventTime );
-  }
-
-  @Override
-  @Asynchronous
-  @TransactionAttribute( TransactionAttributeType.SUPPORTS )
-  public void sendCommand( IS5FrontendRear aFrontend, IDtoCommand aCommand ) {
-    TsNullArgumentRtException.checkNulls( aFrontend, aCommand );
-    TsIllegalArgumentRtException.checkTrue( executingCommandsCache.containsKey( aCommand.instanceId() ) );
+  public SkCommand sendCommand( Gwid aCmdGwid, Skid aAuthorSkid, IOptionSet aArgs ) {
+    TsNullArgumentRtException.checkNulls( aCmdGwid, aAuthorSkid, aArgs );
     try {
       // Текущее время
       long currTime = System.currentTimeMillis();
-      // Gwid-идентификатор команды
-      Gwid cmdGwid = aCommand.cmdGwid();
-      // Данные фронтенда отправляющего команду
-      S5BaCommandsData frontendData = findCommandsFrontendData( aFrontend );
-      if( frontendData == null ) {
-        // Недопустимый usecase
-        throw new TsInternalErrorRtException();
-      }
-      // Фиксируется факт передачи команды через целевой frontend
-      ValidationResult addResult = frontendData.commands.addExecutingCmd( aCommand.instanceId() );
-      // Запись в журнал результата добавления команды в очередь ожидания
-      LoggerWrapper.resultToLog( logger(), addResult );
-      // Поиск исполнителя и передача ему команды
-      // 2020-08-05 mvk
-      IS5FrontendRear frontend = null;
-      lockRead( executorsLock );
-      try {
-        frontend = executors.findByKey( cmdGwid );
-      }
-      finally {
-        unlockRead( executorsLock );
-      }
-
-      // 2020-08-06 mvk: try fix concurrent modification of command states
-      // if( cmdFrontend != null ) {
-      // // Отправляем команду на исполнение
-      // SkMessageExecuteCommand.send( cmdFrontend, aCommand );
-      // // Изменение состояния на "исполняется"
-      // changeCommandState( aCommand, new TimedList<>(), createState( currTime, EXECUTING, REASON_EXEC_BY_QUERY ) );
-      // return;
-      // }
+      // Фронтенд исполнителя команды
+      IS5FrontendRear frontend = findExecutorFrontend( aCmdGwid );
+      // Идентификатор команды
+      String instanceId = S5CommandIdGenerator.INSTANCE.nextId();
+      // Команда
+      DtoCommand command = new DtoCommand( currTime, instanceId, aCmdGwid, aAuthorSkid, aArgs );
       if( frontend != null ) {
         // Изменение состояния на "исполняется"
-        changeCommandState( aCommand, new TimedList<>(), createState( currTime, EXECUTING, REASON_EXEC_BY_QUERY ) );
+        DtoCommandStateChangeInfo changeInfo =
+            createChangeInfo( instanceId, currTime, EXECUTING, REASON_EXEC_BY_QUERY );
+        changeCommandState( command, new TimedList<>(), changeInfo );
         // Отправляем команду на исполнение
-        frontend.onBackendMessage( BaMsgCommandsExecCmd.INSTANCE.makeMessage( aCommand ) );
-        return;
+        frontend.onBackendMessage( BaMsgCommandsExecCmd.INSTANCE.makeMessage( command ) );
+        // Команда принята на исполнение
+        return new SkCommand( command );
       }
-
       // Не найден исполнитель команды
-      changeCommandState( aCommand, new TimedList<>(), createState( currTime, UNHANDLED, REASON_EXECUTOR_NOT_FOUND ) );
+      DtoCommandStateChangeInfo changeInfo =
+          createChangeInfo( instanceId, currTime, UNHANDLED, REASON_EXECUTOR_NOT_FOUND );
+      changeCommandState( command, new TimedList<>(), changeInfo );
+      // Отказ от выполнения команды
+      return new SkCommand( command );
     }
     catch( Throwable e ) {
       // Неожиданная ошибка обработки
       logger().error( e );
+      throw e;
     }
   }
 
+  @TransactionAttribute( TransactionAttributeType.NOT_SUPPORTED )
   @Override
+  public void setHandledCommandGwids( IGwidList aGwids ) {
+    TsNullArgumentRtException.checkNulls( aGwids );
+    // Сообщение frontend
+    for( IS5FrontendRear frontend : backend().attachedFrontends() ) {
+      S5BaCommandsData frontendData = findCommandsFrontendData( frontend );
+      if( frontendData == null ) {
+        // фронтенд не поддерживает реальное время
+        continue;
+      }
+      // Оповещение фронтенда об изменении списка команд поддерживаемых исполнителями
+      frontend.onBackendMessage( BaMsgCommandsGloballyHandledGwidsChanged.INSTANCE.makeMessage() );
+    }
+    logger().info( MSG_SET_EXECUTABLE_CMDS, Integer.valueOf( listGloballyHandledCommandGwids().size() ) );
+  }
+
   @TransactionAttribute( TransactionAttributeType.REQUIRED )
-  public void changeCommandState( IS5FrontendRear aFrontend, DtoCommandStateChangeInfo aStateChangeInfo ) {
-    TsNullArgumentRtException.checkNulls( aFrontend, aStateChangeInfo );
+  @Override
+  public void changeCommandState( DtoCommandStateChangeInfo aStateChangeInfo ) {
+    TsNullArgumentRtException.checkNull( aStateChangeInfo );
     // Поиск выполняемой команды
     Pair<IDtoCommand, ITimedListEdit<SkCommandState>> cmd = executingCommandsCache.get( aStateChangeInfo.instanceId() );
     if( cmd == null ) {
@@ -373,70 +201,70 @@ public class S5BackendCommandSingleton
       return;
     }
     // Изменение состояния. false: установка состояния уже выполняемой команды
-    changeCommandState( cmd.left(), cmd.right(), aStateChangeInfo.state() );
+    changeCommandState( cmd.left(), cmd.right(), aStateChangeInfo );
   }
 
-  @Override
   @TransactionAttribute( TransactionAttributeType.SUPPORTS )
-  public ITimedList<IDtoCompletedCommand> queryCommands( IQueryInterval aInterval, IGwidList aNeededGwids ) {
-    TsNullArgumentRtException.checkNulls( aInterval, aNeededGwids );
+  @Override
+  public IGwidList listGloballyHandledCommandGwids() {
+    GwidList retValue = new GwidList();
+    for( IS5FrontendRear frontend : backend().attachedFrontends() ) {
+      S5BaCommandsData frontendData = findCommandsFrontendData( frontend );
+      if( frontendData == null ) {
+        // фронтенд не поддерживает реальное время
+        continue;
+      }
+      retValue.addAll( frontendData.commands.getHandledCommandGwids() );
+    }
+    return retValue;
+  }
+
+  @TransactionAttribute( TransactionAttributeType.REQUIRED )
+  @Override
+  public void saveToHistory( IDtoCompletedCommand aCompletedCommand ) {
+    TsNullArgumentRtException.checkNull( aCompletedCommand );
+    // TODO вопрос на обсуждение: на момент завершения команды, skconnection клиента отправившего команду может
+    // оказаться "далеко" и недоступным (например, разрыв связи с клиентом). В текущей реализации бекенд сам
+    // обрабатывает состояние команды (смотри changeCommandState) и делает при необходимости вызов:
+    // writeCommand( aCompletedCommand );
+  }
+
+  @TransactionAttribute( TransactionAttributeType.SUPPORTS )
+  @Override
+  public ITimedList<IDtoCompletedCommand> queryObjCommands( IQueryInterval aInterval, Gwid aObjId ) {
+    TsNullArgumentRtException.checkNulls( aInterval, aObjId );
     long traceStartTime = System.currentTimeMillis();
     // Подготовка списка идентификаторов запрашиваемых объектов. false: без повторов
-    GwidList objIds = new GwidList();
-    for( Gwid gwid : aNeededGwids ) {
-      if( gwid.kind() != EGwidKind.GW_CMD ) {
-        // По контракту идентификаторы не команды молча игнорируются
-        continue;
-      }
-      if( !gwid.isAbstract() ) {
-        // Определен идентификатор объекта
-        objIds.add( Gwid.createObj( gwid.classId(), gwid.strid() ) );
-        continue;
-      }
-      // Все объекты указанного класса. true: включая наследников
-      IStringList classIds = sysdescrReader().getClassInfos( gwid.classId() ).keys();
-      if( classIds.size() == 0 ) {
-        continue;
-      }
-      IList<IDtoObject> objs = objectsBackend().readObjects( classIds );
-      for( IDtoObject obj : objs ) {
-        objIds.add( Gwid.createObj( obj.classId(), obj.strid() ) );
-      }
+    if( aObjId.kind() != EGwidKind.GW_CLASS || aObjId.isAbstract() ) {
+      // По контракту принимаются только идентификаторы объектов
+      return new TimedList<>();
     }
     // Чтение истории команд
     long traceReadStartTime = System.currentTimeMillis();
-    IList<IS5CommandSequence> sequences = readSequences( objIds, aInterval, ACCESS_TIMEOUT_DEFAULT );
+    IList<IS5CommandSequence> sequences = readSequences( new GwidList( aObjId ), aInterval, ACCESS_TIMEOUT_DEFAULT );
     long traceReadEndTime = System.currentTimeMillis();
-
     // Фильтрация команд и формирование сводного(по объектам) результата запроса
     TimedList<IDtoCompletedCommand> commands = new TimedList<>();
     for( IS5CommandSequence sequence : sequences ) {
       for( ISequenceBlock<IDtoCompletedCommand> block : sequence.blocks() ) {
         for( int index = 0, n = block.size(); index < n; index++ ) {
-          IDtoCompletedCommand command = block.getValue( index );
-          for( Gwid gwid : aNeededGwids ) {
-            if( acceptableCmd( sysdescrBackend(), gwid, command.cmd().cmdGwid() ) ) {
-              commands.add( command );
-            }
-          }
+          commands.add( block.getValue( index ) );
         }
       }
     }
-
     // Формирование результата. aAllowDuplicates = true
     ITimedListEdit<IDtoCompletedCommand> retValue = new S5FixedCapacityTimedList<>( commands.size(), true );
     retValue.addAll( commands );
 
     long traceResultTime = System.currentTimeMillis();
     // Формирование журнала
-    Integer gc = Integer.valueOf( objIds.size() );
     Integer rc = Integer.valueOf( retValue.size() );
     Long pt = Long.valueOf( traceReadStartTime - traceStartTime );
     Long rt = Long.valueOf( traceReadEndTime - traceReadStartTime );
     Long ft = Long.valueOf( traceResultTime - traceReadEndTime );
     Long at = Long.valueOf( traceResultTime - traceStartTime );
     // Завершено чтение истории команд
-    logger().info( MSG_READ_COMMANDS, gc, aInterval, rc, at, pt, rt, ft );
+    logger().info( MSG_READ_COMMANDS, aObjId, aInterval, rc, at, pt, rt, ft );
     return retValue;
   }
 
@@ -460,7 +288,10 @@ public class S5BackendCommandSingleton
         // currTime - cmd.timestamp() >= getCmdTimeout( sysdescrReader(), cmd ) ) {
         if( currTime - cmd.timestamp() >= getCmdTimeout( sysdescrReader(), cmd ) ) {
           // Завершение выполнения команды по таймауту
-          changeCommandState( cmd, cmdPair.right(), createState( currTime, TIMEOUTED, REASON_CANCEL_BY_TIMEOUT ) );
+          DtoCommandStateChangeInfo newState =
+              createChangeInfo( cmd.instanceId(), currTime, TIMEOUTED, REASON_CANCEL_BY_TIMEOUT );
+          changeCommandState( cmd, cmdPair.right(), newState );
+
           continue;
         }
         // Команда остается на выполнении
@@ -547,21 +378,44 @@ public class S5BackendCommandSingleton
   // Внутренние методы
   //
   /**
+   * Возвращает фронтенд способный выполнить команду с указанным идентификатором
+   *
+   * @param aGwid {@link Gwid} идентификатор команды
+   * @return {@link IS5FrontendRear} фронтенд исполнителя команды. null: не найден
+   * @throws TsNullArgumentRtException аргумент = null
+   */
+  private IS5FrontendRear findExecutorFrontend( Gwid aGwid ) {
+    for( IS5FrontendRear frontend : backend().attachedFrontends() ) {
+      S5BaCommandsData frontendData = findCommandsFrontendData( frontend );
+      if( frontendData == null ) {
+        // фронтенд не поддерживает реальное время
+        continue;
+      }
+      if( frontendData.commands.getHandledCommandGwids().hasElem( aGwid ) ) {
+        return frontend;
+      }
+    }
+    return null;
+  }
+
+  /**
    * Установка нового состояния команды
    *
    * @param aCommand {@link IDtoCommand} команда {@link IDtoCommand#instanceId()}
    * @param aStates {@link ITimedListEdit}&lt;{@link SkCommandState}&gt; история состояния команды
-   * @param aState {@link SkCommandState} новое состояние команды
+   * @param aStateChangeInfo {@link DtoCommandStateChangeInfo} новое состояние команды
    * @throws TsNullArgumentRtException аргумент = null
    * @throws TsIllegalArgumentRtException недопустимый переход состояния команды
    */
   private void changeCommandState( IDtoCommand aCommand, ITimedListEdit<SkCommandState> aStates,
-      SkCommandState aState ) {
-    TsNullArgumentRtException.checkNulls( aCommand, aStates, aState );
+      DtoCommandStateChangeInfo aStateChangeInfo ) {
+    TsNullArgumentRtException.checkNulls( aCommand, aStates, aStateChangeInfo );
     // Предыдущее состояние команды
     SkCommandState prevState = aStates.last();
+    // Новое состояние команды
+    SkCommandState newCommandState = aStateChangeInfo.state();
     // Проверка допустимых переходов состояния выполнения команды
-    switch( aState.state() ) {
+    switch( newCommandState.state() ) {
       case SENDING:
         if( prevState != null && prevState.state() != SENDING ) {
           throw new TsIllegalArgumentRtException();
@@ -570,23 +424,23 @@ public class S5BackendCommandSingleton
       case EXECUTING:
         if( prevState == null ) {
           // Команда одновременно послана и запущена на выполнение
-          prevState = createState( aState.timestamp(), SENDING, REASON_SEND_AND_EXEC );
+          prevState = createState( newCommandState.timestamp(), SENDING, REASON_SEND_AND_EXEC );
           aStates.add( prevState );
         }
         if( prevState.state() != SENDING && prevState.state() != EXECUTING ) {
           // Недопустимый переход состояния команды
-          throw new TsIllegalArgumentRtException( ERR_WRONG_NEW_STATE, aCommand, prevState, aState );
+          throw new TsIllegalArgumentRtException( ERR_WRONG_NEW_STATE, aCommand, prevState, newCommandState );
         }
         break;
       case UNHANDLED:
         if( prevState == null ) {
           // Команда одновременно послана и отменена так как нет ее исполнителя
-          prevState = createState( aState.timestamp(), SENDING, REASON_SEND_AND_CANCEL );
+          prevState = createState( newCommandState.timestamp(), SENDING, REASON_SEND_AND_CANCEL );
           aStates.add( prevState );
         }
         if( prevState.state() != SENDING ) {
           // Недопустимый переход состояния команды
-          throw new TsIllegalArgumentRtException( ERR_WRONG_NEW_STATE, aCommand, prevState, aState );
+          throw new TsIllegalArgumentRtException( ERR_WRONG_NEW_STATE, aCommand, prevState, newCommandState );
         }
         break;
       case TIMEOUTED:
@@ -594,24 +448,24 @@ public class S5BackendCommandSingleton
       case FAILED:
         if( prevState == null || prevState.state() != EXECUTING ) {
           // Недопустимый переход состояния команды
-          throw new TsIllegalArgumentRtException( ERR_WRONG_NEW_STATE, aCommand, prevState, aState );
+          throw new TsIllegalArgumentRtException( ERR_WRONG_NEW_STATE, aCommand, prevState, newCommandState );
         }
         break;
       default:
         throw new TsNotAllEnumsUsedRtException();
     }
     // Добавление нового состояния в историю
-    aStates.add( aState );
+    aStates.add( newCommandState );
     // Журнал: изменение состояния команды
-    logger().info( MSG_NEW_STATE, aCommand, prevState, aState );
+    logger().info( MSG_NEW_STATE, aCommand, prevState, newCommandState );
 
     // Идентификатор команды
     String cmdId = aCommand.instanceId();
-    if( !aState.state().isComplete() ) {
+    if( !newCommandState.state().isComplete() ) {
       // Продолжение выполнения команды. Обновление кэша
       executingCommandsCache.put( cmdId, new Pair<>( aCommand, aStates ) );
     }
-    if( aState.state().isComplete() ) {
+    if( newCommandState.state().isComplete() ) {
       // Завершение выполнения команды. Удаление команды из кэша
       executingCommandsCache.remove( cmdId );
       // Запись истории в базу данных
@@ -637,9 +491,8 @@ public class S5BackendCommandSingleton
         // В текущем фронтенде нет состояний команд ожидающих выполнения
         continue;
       }
-      // Оповещение фронтенда
-      BaMsgCommandsChangeState.INSTANCE.//
-          SkMessageWhenCommandsStateChanged.send( frontend, states );
+      // Оповещение бекенда
+      frontend.onBackendMessage( BaMsgCommandsChangeState.INSTANCE.makeMessage( aStateChangeInfo ) );
     }
   }
 
@@ -672,6 +525,24 @@ public class S5BackendCommandSingleton
   /**
    * Создает новое состояние команды
    *
+   * @param aInstanceId String идентификатор команды
+   * @param aTimestamp long метка времени нового состояния
+   * @param aState {@link ESkCommandState} идентификатор состояния
+   * @param aCause String причина перехода в новое состояние
+   * @return {@link DtoCommandStateChangeInfo} новое состояние
+   * @throws TsNullArgumentRtException любой аргумент = null
+   */
+  private DtoCommandStateChangeInfo createChangeInfo( String aInstanceId, long aTimestamp, ESkCommandState aState,
+      String aCause ) {
+    TsNullArgumentRtException.checkNulls( aInstanceId, aState, aCause );
+    SkCommandState commandState = createState( aTimestamp, aState, aCause );
+    DtoCommandStateChangeInfo retValue = new DtoCommandStateChangeInfo( aInstanceId, commandState );
+    return retValue;
+  }
+
+  /**
+   * Создает новое состояние команды
+   *
    * @param aTimestamp long метка времени нового состояния
    * @param aState {@link ESkCommandState} идентификатор состояния
    * @param aCause String причина перехода в новое состояние
@@ -680,7 +551,7 @@ public class S5BackendCommandSingleton
    */
   private SkCommandState createState( long aTimestamp, ESkCommandState aState, String aCause ) {
     TsNullArgumentRtException.checkNulls( aState, aCause );
-    Gwid author = Gwid.createObj( "skat.backend.server", nodeId ); //$NON-NLS-1$
+    Gwid author = Gwid.create( "skat.backend.server", nodeId, null, null, null, null ); //$NON-NLS-1$
     return new SkCommandState( aTimestamp, aState, aCause, author );
   }
 
@@ -706,31 +577,6 @@ public class S5BackendCommandSingleton
     }
     // Класс или описание команды не найдено. Значение по умолчанию
     return OP_EXECUTION_TIMEOUT.defaultValue().asLong();
-  }
-
-  /**
-   * Раскрывает мульти-Gwid в список одиночных GWid-ов, существующих в системе.
-   * <p>
-   * Если аргумент не мульти-Gwid, то метод вернет список из одного элемента - аргумента <code>aGwid</code>, а для
-   * несуществующего {@link Gwid} - пустой список.
-   * <p>
-   * TODO: на уровне реализации должен быть связан с {@link ISkGwidManager#expandMultiGwid(Gwid)}
-   *
-   * @param aSysdescr {@link ISkSysdescrReader} читатель системного описания
-   * @param aObjService {@link IS5BackendObjectsSingleton} служба объекты
-   * @param aGwid {@link Gwid} - раскрываемый {@link Gwid}
-   * @return {@link IGwidList} - список Gwid-ов, раскрывающий аргумент
-   * @throws TsNullArgumentRtException аргумент = null
-   */
-  private static IGwidList expandMultiGwid( ISkSysdescrReader aSysdescr, IS5BackendObjectsSingleton aObjService,
-      Gwid aGwid ) {
-    TsNullArgumentRtException.checkNulls( aSysdescr, aObjService, aGwid );
-    if( !aGwid.isMulti() ) {
-      return new GwidList( aGwid );
-    }
-    // TODO: реализовать IGwidList expandMultiGwid(Gwid)
-    GwidList retValue = new GwidList();
-    return retValue;
   }
 
   /**

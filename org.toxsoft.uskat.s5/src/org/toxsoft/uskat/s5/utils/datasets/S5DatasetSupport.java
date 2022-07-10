@@ -17,7 +17,7 @@ import org.toxsoft.core.tslib.utils.errors.TsIllegalArgumentRtException;
 import org.toxsoft.core.tslib.utils.errors.TsNullArgumentRtException;
 import org.toxsoft.core.tslib.utils.logs.ILogger;
 import org.toxsoft.uskat.s5.legacy.SkCurrDataValues;
-import org.toxsoft.uskat.s5.server.sessions.S5RemoteSession;
+import org.toxsoft.uskat.s5.server.sessions.S5SessionData;
 import org.toxsoft.uskat.s5.utils.threads.impl.S5Lockable;
 
 /**
@@ -37,7 +37,7 @@ public final class S5DatasetSupport
    * Значение: идентификатор данного
    * <p>
    * TODO: Запрещено использовать текущую реализацию IntMap(!) - из-за проблемы ее сериализации в рамках сохранения
-   * сессии {@link S5RemoteSession}.
+   * сессии {@link S5SessionData}.
    */
   private final IIntMapEdit<Gwid> gwids = new IntMap<>();
 

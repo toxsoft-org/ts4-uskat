@@ -9,10 +9,10 @@ import static org.toxsoft.uskat.s5.utils.IS5HardConstants.*;
 import org.toxsoft.core.tslib.av.EAtomicType;
 import org.toxsoft.core.tslib.av.metainfo.IDataDef;
 import org.toxsoft.uskat.core.api.sysdescr.dto.IDtoCmdInfo;
+import org.toxsoft.uskat.s5.server.backend.supports.commands.impl.S5CommandBlob;
+import org.toxsoft.uskat.s5.server.backend.supports.commands.impl.S5CommandBlock;
 import org.toxsoft.uskat.s5.server.sequences.IS5SequenceHardConstants;
 import org.toxsoft.uskat.s5.utils.IS5HardConstants;
-import org.toxsoft.uskat.sysext.realtime.supports.commands.impl.S5CommandBlob;
-import org.toxsoft.uskat.sysext.realtime.supports.commands.impl.S5CommandBlock;
 
 /**
  * Константы по умолчанию определяющие работу механизма команд.

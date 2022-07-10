@@ -93,7 +93,7 @@ class S5BaEventsSession
     // Реконфигурация набора
     baData.events.setNeededEventGwids( aNeededGwids );
     // Сохранение измененной сессии в кластере сервера
-    updateSessionData();
+    writeSessionData();
     // Вывод протокола
     if( logger().isSeverityOn( ELogSeverity.INFO ) || logger().isSeverityOn( ELogSeverity.DEBUG ) ) {
       // Вывод в журнал информации о регистрации ресурсов в сессии

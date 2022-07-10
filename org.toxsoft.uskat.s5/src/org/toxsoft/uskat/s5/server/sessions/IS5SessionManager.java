@@ -61,34 +61,34 @@ public interface IS5SessionManager {
    *
    * @return {@link IList}&lt;{@link IS5SessionInfo}&gt; список сессий
    */
-  IList<S5RemoteSession> openSessions();
+  IList<S5SessionData> openSessions();
 
   /**
    * Возвращает список закрытых сессий
    *
    * @return {@link IList}&lt;{@link IS5SessionInfo}&gt; список сессий
    */
-  IList<S5RemoteSession> closedSessions();
+  IList<S5SessionData> closedSessions();
 
   /**
-   * Возвращает описание сессии пользователя
+   * Возвращает данные сессии пользователя
    *
    * @param aSessionID {@link Skid} идентификатор сессии {@link ISkSession}
-   * @return {@link S5RemoteSession} сессия пользователя. null: сессия не существует
+   * @return {@link S5SessionData} данные сессии пользователя. null: сессия не существует
    * @throws TsNullArgumentRtException аргумент = null
    */
-  S5RemoteSession findSession( Skid aSessionID );
+  S5SessionData findSessionData( Skid aSessionID );
 
   /**
    * Регистрация сессии с удаленным пользователем
    * <p>
    * Если сессия была уже зарегистрирована, то обновляются ее параметры
    *
-   * @param aSession {@link S5RemoteSession} сессия пользователя
+   * @param aSession {@link S5SessionData} сессия пользователя
    * @return boolean <b>true</b> сессия создана;<b>false</b> сессия была создана ранее, параметры обновлены
    * @throws TsNullArgumentRtException аргумент = null
    */
-  boolean createRemoteSession( S5RemoteSession aSession );
+  boolean createRemoteSession( S5SessionData aSession );
 
   /**
    * Регистрация сессии с локальным пользователем
@@ -102,24 +102,25 @@ public interface IS5SessionManager {
   boolean createLocalSession( S5LocalSession aSession );
 
   /**
-   * Определяет описание открытой сессии удаленного пользователя
+   * Сохраняет данные сессии в кластере
    * <p>
-   * Если сессия не существует, то ничего не делает
+   * Метод сохраняет данные в кэше открытых сессий (infinispan) и оповещает все узлы кластера об изменении данных сессии
    *
-   * @param aSession {@link S5RemoteSession} сессия пользователя
+   * @param aSessionData {@link S5SessionData} данные сессии пользователя
    * @throws TsNullArgumentRtException аргумент = null
    */
-  void updateRemoteSession( S5RemoteSession aSession );
+  void writeSessionData( S5SessionData aSessionData );
 
-  /**
-   * Определяет описание открытой сессии локального пользователя
-   * <p>
-   * Если сессия не существует, то ничего не делает
-   *
-   * @param aSession {@link S5LocalSession} сессия пользователя
-   * @throws TsNullArgumentRtException аргумент = null
-   */
-  void updateLocalSession( S5LocalSession aSession );
+  // 2022-07-09 mvk
+  // /**
+  // * Определяет описание открытой сессии локального пользователя
+  // * <p>
+  // * Если сессия не существует, то ничего не делает
+  // *
+  // * @param aSession {@link S5LocalSession} сессия пользователя
+  // * @throws TsNullArgumentRtException аргумент = null
+  // */
+  // void updateLocalSession( S5LocalSession aSession );
 
   /**
    * Удаление сессии удаленного пользователя
@@ -163,24 +164,24 @@ public interface IS5SessionManager {
   /**
    * Создает писателя обратных вызовов для указанной сессии
    *
-   * @param aSession {@link S5RemoteSession} сессия клиента
+   * @param aSession {@link S5SessionData} сессия клиента
    * @return {@link S5SessionCallbackWriter} писатель обратных вызовов
    * @throws TsNullArgumentRtException любой аругмент = null
    * @throws TsIllegalArgumentRtException ошибка установки соединения с клиентом
    */
-  S5SessionCallbackWriter createCallbackWriter( S5RemoteSession aSession );
+  S5SessionCallbackWriter createCallbackWriter( S5SessionData aSession );
 
   /**
    * Делает попытку создания писателя обратных вызовов для указанной сессии
    * <p>
    * Если писатель для указанной сессии уже создан, то обновляется его информация о сессии
    *
-   * @param aSession {@link S5RemoteSession} сессия клиента
+   * @param aSession {@link S5SessionData} сессия клиента
    * @return {@link S5SessionCallbackWriter} писатель обратных вызовов. null: удаленный клиент недоступен
    * @throws TsNullArgumentRtException любой аругмент = null
    * @throws TsIllegalArgumentRtException ошибка установки соединения с клиентом
    */
-  S5SessionCallbackWriter tryCreateCallbackWriter( S5RemoteSession aSession );
+  S5SessionCallbackWriter tryCreateCallbackWriter( S5SessionData aSession );
 
   /**
    * Завершает работу писателя обратных вызовов для указанной сессии

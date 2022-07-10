@@ -17,7 +17,7 @@ import org.toxsoft.uskat.s5.common.sessions.ISkSession;
 import org.toxsoft.uskat.s5.server.cluster.IS5ClusterCommand;
 import org.toxsoft.uskat.s5.server.cluster.IS5ClusterCommandHandler;
 import org.toxsoft.uskat.s5.server.sessions.IS5SessionManager;
-import org.toxsoft.uskat.s5.server.sessions.S5RemoteSession;
+import org.toxsoft.uskat.s5.server.sessions.S5SessionData;
 
 /**
  * Обработчик команды кластера: всем узлам создать писателей обратных вызовов
@@ -28,7 +28,7 @@ public final class S5ClusterCommandCreateCallback
     implements IS5ClusterCommandHandler {
 
   /**
-   * Вызов метода: {@link IS5SessionManager#tryCreateCallbackWriter(S5RemoteSession)}
+   * Вызов метода: {@link IS5SessionManager#tryCreateCallbackWriter(S5SessionData)}
    */
   public static final String CREATE_CALLBACK_METHOD = CLUSTER_METHOD_PREFIX + "createCallback"; //$NON-NLS-1$
 
@@ -106,10 +106,10 @@ public final class S5ClusterCommandCreateCallback
     }
     Skid sessionID = Skid.KEEPER.str2ent( aCommand.params().getByKey( SESSION_ID ).asString() );
     long startTime = System.currentTimeMillis();
-    S5RemoteSession session = null;
+    S5SessionData session = null;
     while( System.currentTimeMillis() - startTime < SESSION_CACHE_WAIT_TIMEOUT ) {
       try {
-        session = sessionManager.findSession( sessionID );
+        session = sessionManager.findSessionData( sessionID );
         if( session != null ) {
           break;
         }

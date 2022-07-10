@@ -29,7 +29,7 @@ import org.toxsoft.core.tslib.utils.logs.ILogger;
 import org.toxsoft.uskat.s5.common.sessions.ISkSession;
 import org.toxsoft.uskat.s5.server.cluster.IS5ClusterManager;
 import org.toxsoft.uskat.s5.server.sessions.IS5SessionManager;
-import org.toxsoft.uskat.s5.server.sessions.S5RemoteSession;
+import org.toxsoft.uskat.s5.server.sessions.S5SessionData;
 import org.toxsoft.uskat.s5.server.startup.IS5InitialImplementation;
 
 /**
@@ -257,7 +257,7 @@ public final class S5SessionCallbackServer
     }
     if( callbackWriter == null ) {
       logger.info( "onOpenChannel(...): callbackWriter = null. Search exist session for %s", aSessionID ); //$NON-NLS-1$
-      S5RemoteSession session = sessionManager.findSession( aSessionID );
+      S5SessionData session = sessionManager.findSessionData( aSessionID );
       if( session == null ) {
         return;
       }
@@ -290,7 +290,7 @@ public final class S5SessionCallbackServer
       logger.warning( ERR_CANT_CLOSE_NULL_SESSION, aChannel );
       return;
     }
-    S5RemoteSession session = sessionManager.findSession( sessionID );
+    S5SessionData session = sessionManager.findSessionData( sessionID );
     if( session == null ) {
       // Не найдена сессия разрываемого канала
       aChannel.logger().error( ERR_CLOSED_CHANNEL_SESSION_NOT_FOUND, sessionID, aChannel );

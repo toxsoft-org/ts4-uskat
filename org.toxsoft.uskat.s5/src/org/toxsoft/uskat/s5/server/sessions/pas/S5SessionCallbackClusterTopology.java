@@ -17,7 +17,7 @@ import org.toxsoft.core.tslib.utils.errors.TsNullArgumentRtException;
 import org.toxsoft.uskat.s5.client.remote.connection.S5ClusterTopology;
 import org.toxsoft.uskat.s5.server.backend.IS5BackendSessionControl;
 import org.toxsoft.uskat.s5.server.sessions.IS5SessionManager;
-import org.toxsoft.uskat.s5.server.sessions.S5RemoteSession;
+import org.toxsoft.uskat.s5.server.sessions.S5SessionData;
 
 /**
  * Вызов клиента: обновление топологии кластеров доступных клиенту
@@ -83,7 +83,7 @@ public final class S5SessionCallbackClusterTopology
     }
     Skid sessionID = aChannel.getSessionID();
     if( sessionID != null ) {
-      S5RemoteSession session = sessionManager.findSession( sessionID );
+      S5SessionData session = sessionManager.findSessionData( sessionID );
       if( session == null ) {
         // Сессия канала не найдена. Завершение работы канала
         aChannel.close();

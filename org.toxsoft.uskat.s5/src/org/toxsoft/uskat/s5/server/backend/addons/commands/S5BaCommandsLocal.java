@@ -1,9 +1,11 @@
 package org.toxsoft.uskat.s5.server.backend.addons.commands;
 
+import org.toxsoft.core.log4j.LoggerWrapper;
 import org.toxsoft.core.tslib.av.opset.IOptionSet;
 import org.toxsoft.core.tslib.bricks.events.msg.GtMessage;
 import org.toxsoft.core.tslib.bricks.time.IQueryInterval;
 import org.toxsoft.core.tslib.bricks.time.ITimedList;
+import org.toxsoft.core.tslib.bricks.validator.ValidationResult;
 import org.toxsoft.core.tslib.gw.gwid.Gwid;
 import org.toxsoft.core.tslib.gw.gwid.IGwidList;
 import org.toxsoft.core.tslib.gw.skid.Skid;
@@ -72,13 +74,22 @@ class S5BaCommandsLocal
   @Override
   public SkCommand sendCommand( Gwid aCmdGwid, Skid aAuthorSkid, IOptionSet aArgs ) {
     TsNullArgumentRtException.checkNulls( aCmdGwid, aAuthorSkid, aArgs );
-    return commandsSupport.sendCommand( aCmdGwid, aAuthorSkid, aArgs );
+    SkCommand retValue = commandsSupport.sendCommand( aCmdGwid, aAuthorSkid, aArgs );
+    if( !retValue.isComplete() ) {
+      // Фиксация факта ожидания выполнения команды
+      ValidationResult addResult = baData.commands.addExecutingCmd( retValue.instanceId() );
+      // Запись в журнал результата добавления команды в очередь ожидания
+      LoggerWrapper.resultToLog( logger(), addResult );
+    }
+    return retValue;
   }
 
   @Override
   public void setHandledCommandGwids( IGwidList aGwids ) {
     TsNullArgumentRtException.checkNull( aGwids );
     baData.commands.setHandledCommandGwids( aGwids );
+    // Оповещение бекенда
+    commandsSupport.setHandledCommandGwids( aGwids );
   }
 
   @Override

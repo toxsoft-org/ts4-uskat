@@ -13,7 +13,7 @@ import org.toxsoft.core.tslib.gw.skid.Skid;
 import org.toxsoft.core.tslib.utils.errors.TsNullArgumentRtException;
 import org.toxsoft.uskat.s5.server.backend.IS5BackendSessionControl;
 import org.toxsoft.uskat.s5.server.sessions.IS5SessionManager;
-import org.toxsoft.uskat.s5.server.sessions.S5RemoteSession;
+import org.toxsoft.uskat.s5.server.sessions.S5SessionData;
 
 /**
  * Вызов клиента: проверка состояния сессии
@@ -72,7 +72,7 @@ public final class S5SessionCallbackVerify
     if( sessionID == Skid.NONE ) {
       return;
     }
-    S5RemoteSession session = sessionManager.findSession( sessionID );
+    S5SessionData session = sessionManager.findSessionData( sessionID );
     if( session == null ) {
       // Сессия канала не найдена. Завершение работы канала
       aChannel.close();
