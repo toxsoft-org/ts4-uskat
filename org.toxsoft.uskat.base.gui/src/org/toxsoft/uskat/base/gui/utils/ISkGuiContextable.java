@@ -1,6 +1,7 @@
 package org.toxsoft.uskat.base.gui.utils;
 
 import org.toxsoft.core.tsgui.bricks.ctx.*;
+import org.toxsoft.uskat.base.gui.conn.*;
 import org.toxsoft.uskat.core.*;
 import org.toxsoft.uskat.core.api.*;
 import org.toxsoft.uskat.core.api.clobserv.*;
@@ -31,6 +32,10 @@ public interface ISkGuiContextable
    * @return {@link ISkConnection} - connection to USkat.
    */
   ISkConnection skConn();
+
+  default ISkConnectionSupplier connectionSupplier() {
+    return tsContext().get( ISkConnectionSupplier.class );
+  }
 
   default ISkCoreApi coreApi() {
     return skConn().coreApi();

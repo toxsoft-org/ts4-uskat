@@ -69,4 +69,16 @@ public interface ISkConnectionSupplier {
    */
   void removeConnection( IdChain aKey );
 
+  /**
+   * Returns connection by ID.
+   *
+   * @param aId {@link IdChain} - the connection ID
+   * @return {@link ISkConnection} - found connection
+   * @throws TsNullArgumentRtException any argument = <code>null</code>
+   * @throws TsItemNotFoundRtException no such connection
+   */
+  default ISkConnection getConn( IdChain aId ) {
+    return allConns().getByKey( aId );
+  }
+
 }
