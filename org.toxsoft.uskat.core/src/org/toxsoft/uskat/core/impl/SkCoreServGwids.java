@@ -144,7 +144,11 @@ public class SkCoreServGwids
     if( cinf == null ) {
       return false;
     }
+
+    // FIXME multi-GWIDs check?
+
     // check if class propery/sub-propery exists
+
     switch( aGwid.kind() ) {
       case GW_CLASS: {
         break;
@@ -225,8 +229,18 @@ public class SkCoreServGwids
 
   @Override
   public GwidList expandGwid( Gwid aGwid ) {
-    // TODO реализовать SkCoreServGwids.expandGwid()
-    throw new TsUnderDevelopmentRtException( "SkCoreServGwids.expandGwid()" );
+    GwidList gl = new GwidList();
+    if( aGwid.isMulti() ) {
+
+      // TODO SkCoreServGwids.expandGwid()
+
+    }
+    else {
+      if( exists( aGwid ) ) {
+        gl.add( aGwid );
+      }
+    }
+    return gl;
   }
 
 }

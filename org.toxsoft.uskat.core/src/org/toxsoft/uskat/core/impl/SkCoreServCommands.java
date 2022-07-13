@@ -75,7 +75,8 @@ public class SkCoreServCommands
 
   @Override
   protected void doClose() {
-    // nop
+    globallyHandledGwidsEventer.clearListenersList();
+    globallyHandledGwidsEventer.resetPendingEvents();
   }
 
   @Override

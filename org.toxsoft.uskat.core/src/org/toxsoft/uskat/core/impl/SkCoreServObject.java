@@ -405,7 +405,8 @@ public class SkCoreServObject
 
   @Override
   protected void doClose() {
-    // nop
+    eventer.clearListenersList();
+    eventer.resetPendingEvents();
   }
 
   @Override

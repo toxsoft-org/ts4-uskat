@@ -283,7 +283,7 @@ public class SkCoreServSysdescr
         }
         // FIXME check changed properties
         for( IDtoClassPropInfoBase p : diff.getByKey( EDiffNature.DIFF ) ) {
-          // check that chaged property is compatible with existing one so that exsiting values in DB will remain
+          // check that changed property is compatible with existing one so that exsiting values in DB will remain
         }
       }
       return checkInfo( aClassInfo );
@@ -424,7 +424,8 @@ public class SkCoreServSysdescr
 
   @Override
   protected void doClose() {
-    // nop
+    eventer.clearListenersList();
+    eventer.resetPendingEvents();
   }
 
   @Override

@@ -7,6 +7,7 @@ import org.toxsoft.uskat.core.api.clobserv.*;
 import org.toxsoft.uskat.core.api.cmdserv.*;
 import org.toxsoft.uskat.core.api.evserv.*;
 import org.toxsoft.uskat.core.api.gwids.*;
+import org.toxsoft.uskat.core.api.hqserv.*;
 import org.toxsoft.uskat.core.api.linkserv.*;
 import org.toxsoft.uskat.core.api.objserv.*;
 import org.toxsoft.uskat.core.api.rtdserv.*;
@@ -69,6 +70,13 @@ public interface ISkCoreApi {
    * @return {@link ISkRtdataService} - the RTdata service
    */
   ISkRtdataService rtdService();
+
+  /**
+   * Returns asyncronyous queries service.
+   *
+   * @return {@link ISkHistoryQueryService} - the history query service
+   */
+  ISkHistoryQueryService hqService();
 
   /**
    * Returns the user service.

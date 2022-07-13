@@ -105,13 +105,13 @@ public interface ISkGwidService
   boolean exists( Gwid aGwid );
 
   /**
-   * Returns all single GWIDs covered by the specified GWID.
+   * Returns all existing single GWIDs covered by the specified GWID.
    * <p>
    * For unexisting GWID returns an empty list.
    * <p>
    * Note: method may be very resource-expensive!
    *
-   * @param aGwid {@link Gwid} - the GWID to expane
+   * @param aGwid {@link Gwid} - the GWID to expand
    * @return {@link GwidList} - an editable list of GWIDs
    * @throws TsNullArgumentRtException any argument = <code>null</code>
    */

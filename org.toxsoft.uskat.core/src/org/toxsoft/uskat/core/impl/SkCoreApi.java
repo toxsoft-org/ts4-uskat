@@ -20,6 +20,7 @@ import org.toxsoft.uskat.core.api.clobserv.*;
 import org.toxsoft.uskat.core.api.cmdserv.*;
 import org.toxsoft.uskat.core.api.evserv.*;
 import org.toxsoft.uskat.core.api.gwids.*;
+import org.toxsoft.uskat.core.api.hqserv.*;
 import org.toxsoft.uskat.core.api.linkserv.*;
 import org.toxsoft.uskat.core.api.objserv.*;
 import org.toxsoft.uskat.core.api.rtdserv.*;
@@ -45,15 +46,16 @@ public class SkCoreApi
   private final CoreLogger   logger;
   private final ISkBackend   backend;
 
-  private final SkCoreServSysdescr sysdescr;
-  private final SkCoreServObject   objService;
-  private final SkCoreServClobs    clobService;
-  private final SkCoreServCommands cmdService;
-  private final SkCoreServEvents   eventService;
-  private final SkCoreServLinks    linkService;
-  private final SkCoreServRtdata   rtdService;
-  private final SkCoreServUsers    userService;
-  private final SkCoreServGwids    gwidService;
+  private final SkCoreServSysdescr  sysdescr;
+  private final SkCoreServObject    objService;
+  private final SkCoreServClobs     clobService;
+  private final SkCoreServCommands  cmdService;
+  private final SkCoreServEvents    eventService;
+  private final SkCoreServLinks     linkService;
+  private final SkCoreServRtdata    rtdService;
+  private final SkCoreServHistQuery hqService;
+  private final SkCoreServUsers     userService;
+  private final SkCoreServGwids     gwidService;
 
   IStringMapEdit<IList<TextMatcher>> classClaimingMap = new StringMap<>();
 
@@ -117,6 +119,7 @@ public class SkCoreApi
     llCreators.add( SkCoreServEvents.CREATOR );
     llCreators.add( SkCoreServLinks.CREATOR );
     llCreators.add( SkCoreServRtdata.CREATOR );
+    llCreators.add( SkCoreServHistQuery.CREATOR );
     llCreators.add( SkCoreServUsers.CREATOR );
     llCreators.add( SkCoreServGwids.CREATOR );
     // backend and user-specified services
@@ -149,6 +152,7 @@ public class SkCoreApi
     eventService = getService( ISkEventService.SERVICE_ID );
     linkService = getService( ISkLinkService.SERVICE_ID );
     rtdService = getService( ISkRtdataService.SERVICE_ID );
+    hqService = getService( ISkHistoryQueryService.SERVICE_ID );
     userService = getService( ISkUserService.SERVICE_ID );
     gwidService = getService( ISkGwidService.SERVICE_ID );
     // initialize services
@@ -245,6 +249,11 @@ public class SkCoreApi
   @Override
   public ISkRtdataService rtdService() {
     return rtdService;
+  }
+
+  @Override
+  public ISkHistoryQueryService hqService() {
+    return hqService;
   }
 
   @Override
@@ -347,6 +356,7 @@ public class SkCoreApi
     }
     // backend closes after services were closed
     backend.close();
+    backendMessageQueue.clear();
     servicesMap.clear();
     inited = false;
   }

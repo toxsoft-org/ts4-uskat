@@ -21,7 +21,9 @@ import org.toxsoft.uskat.core.api.objserv.*;
 import org.toxsoft.uskat.core.api.rtdserv.*;
 import org.toxsoft.uskat.core.api.sysdescr.*;
 import org.toxsoft.uskat.core.api.sysdescr.dto.*;
+import org.toxsoft.uskat.core.backend.api.*;
 import org.toxsoft.uskat.core.devapi.*;
+import org.toxsoft.uskat.core.utils.*;
 
 /**
  * {@link ISkRtdataService} implementation.
@@ -172,13 +174,15 @@ public class SkCoreServRtdata
     private final Gwid        gwid;
     private final EAtomicType atomicType;
 
-    private IAtomicValue value    = null;
-    private boolean      open     = true;
-    private int          keyCache = -1;  // кешированный ключ в карте cdWriteChannelsIndexMap
+    private IAtomicValue value       = IAtomicValue.NULL;
+    private boolean      open        = true;
+    private boolean      wasNewValue = true;
 
-    SkWriteCurrDataChannel( Gwid aGwid, EAtomicType aAtomicType ) {
+    SkWriteCurrDataChannel( Gwid aGwid ) {
       gwid = aGwid;
-      atomicType = aAtomicType;
+      ISkClassInfo cinf = sysdescr().getClassInfo( aGwid.classId() );
+      IDtoRtdataInfo dinf = cinf.rtdata().list().getByKey( aGwid.propId() );
+      atomicType = dinf.dataType().atomicType();
     }
 
     @Override
@@ -201,13 +205,9 @@ public class SkCoreServRtdata
       TsIllegalStateRtException.checkFalse( open );
       TsNullArgumentRtException.checkNull( aValue );
       AvTypeCastRtException.checkCanAssign( atomicType, aValue.atomicType() );
-      // 2020-10-19 mvk
-      if( keyCache < 0 ) {
-        throw new TsInternalErrorRtException( FMT_ERR_CDW_CHANNEL_HAS_NO_KEY, gwid.toString() );
-      }
-      if( value == null || !value.equals( aValue ) ) {
+      if( !value.equals( aValue ) ) {
         value = aValue;
-        cdChannelsWithFreshDataToWrite.put( gwid, this );
+        wasNewValue = true;
       }
     }
 
@@ -216,36 +216,57 @@ public class SkCoreServRtdata
      */
     void reopen() {
       open = true;
-      value = null;
+      value = IAtomicValue.NULL;
     }
 
     boolean isClosed() {
       return !open;
     }
 
-    int getCachedKey() {
-      return keyCache;
-    }
-
-    void setKeyCache( int aKey ) {
-      keyCache = aKey;
-    }
-
     IAtomicValue getValue() {
-      return (value == null ? IAtomicValue.NULL : value); // этот метод не вызывается до первого вызова setValue()
+      return value;
+    }
+
+    boolean isNewValue() {
+      return wasNewValue;
+    }
+
+    boolean chackWasNewValueAndReset() {
+      boolean b = wasNewValue;
+      wasNewValue = false;
+      return b;
     }
 
   }
 
-  /**
-   * FIXME usage?
-   */
+  // ------------------------------------------------------------------------------------
+  // SkCoreServRtdata
+  //
 
-  final IMapEdit<Gwid, SkWriteCurrDataChannel> cdChannelsWithFreshDataToWrite = new ElemMap<>();
-  final IIntMapEdit<SkReadCurrDataChannel>     cdReadChannelsIndexMap         = new IntMap<>();
-  final IIntMapEdit<SkWriteCurrDataChannel>    cdWriteChannelsIndexMap        = new IntMap<>();
-  final IMapEdit<Gwid, SkReadCurrDataChannel>  cdReadChannelsMap              = new ElemMap<>();
-  final IMapEdit<Gwid, SkWriteCurrDataChannel> cdWriteChannelsMap             = new ElemMap<>();
+  /**
+   * Both read and write current data channels are hold in <code>cdXxxChannelsMap</code>. On each call to
+   * <code>createXxxCurrDataChannels()</code> this maps are updated. So these <b>GWID</b>-keyed maps are used by
+   * <code>RtdataService</code> to communicate through {@link ISkRtdataService} API while <code>int</code>-keyed maps
+   * <code>cdXxxChannelsIndexMap</code> are used to communicate through {@link IBaRtdata} API to the backend. Index maps
+   * are also updated in <code>createXxxCurrDataChannels()</code> after retreiving from backend <code>int</code> keys of
+   * data.
+   */
+  final IMapEdit<Gwid, SkReadCurrDataChannel> cdReadChannelsMap = new ElemMap<>();
+
+  /**
+   * @see #cdReadChannelsMap
+   */
+  final IIntMapEdit<SkReadCurrDataChannel> cdReadChannelsIndexMap = new IntMap<>();
+
+  /**
+   * @see #cdReadChannelsMap
+   */
+  final IMapEdit<Gwid, SkWriteCurrDataChannel> cdWriteChannelsMap = new ElemMap<>();
+
+  /**
+   * @see #cdReadChannelsMap
+   */
+  final IIntMapEdit<SkWriteCurrDataChannel> cdWriteChannelsIndexMap = new IntMap<>();
 
   private final Eventer eventer = new Eventer();
 
@@ -263,9 +284,9 @@ public class SkCoreServRtdata
   //
 
   /**
-   * Makes from argument the list of valid GWIDs.
+   * Makes the list of valid GWIDs from the argument list of arbitrary GWIDs.
    * <p>
-   * Dependiong on argument <code>aHistoric</code> includes only RTdata either {@link IDtoRtdataInfo#isCurr()} or
+   * Dependiong on argument <code>aHistoric</code> includes only RTdata with either {@link IDtoRtdataInfo#isCurr()} or
    * {@link IDtoRtdataInfo#isHist()} flag set.
    * <p>
    * GWIDs is considered valid if it is concrete GWID of kind {@link EGwidKind#GW_RTDATA} and is not duplicated. Method
@@ -308,7 +329,7 @@ public class SkCoreServRtdata
   /**
    * Removes from the {@link #cdReadChannelsMap} closed channels and returns their {@link Gwid}s.
    *
-   * @return {@link IGwidList} - List of closed and just removed channels GWIDs
+   * @return {@link IGwidList} - list of closed and just removed channels GWIDs
    */
   private IGwidList listClosedReadChannelsAndRemoveFromMap() {
     GwidList list = new GwidList();
@@ -321,6 +342,52 @@ public class SkCoreServRtdata
       cdReadChannelsMap.removeByKey( g );
     }
     return list;
+  }
+
+  /**
+   * Removes from the {@link #cdWriteChannelsMap} closed channels and returns their {@link Gwid}s.
+   *
+   * @return {@link IGwidList} - list of closed and just removed channels GWIDs
+   */
+  private IGwidList listClosedWriteChannelsAndRemoveFromMap() {
+    GwidList list = new GwidList();
+    for( SkWriteCurrDataChannel channel : cdWriteChannelsMap ) {
+      if( channel.isClosed() ) {
+        list.add( channel.gwid() );
+      }
+    }
+    for( Gwid g : list ) {
+      cdWriteChannelsMap.removeByKey( g );
+    }
+    return list;
+  }
+
+  /**
+   * Sends new current data values to the backend.
+   * <p>
+   * "new" values means values changed since last call to {@link #sendCurrDataValues()}.
+   */
+  private void sendCurrDataValues() {
+    int newValuesCount = 0;
+    for( int i = 0, sz = cdWriteChannelsIndexMap.size(); i < sz; i++ ) {
+      SkWriteCurrDataChannel wc = cdWriteChannelsIndexMap.values().get( i );
+      if( wc.isNewValue() ) {
+        ++newValuesCount;
+      }
+    }
+    if( newValuesCount == 0 ) {
+      return;
+    }
+    FixedCapacityIntMap<IAtomicValue> newValues = new FixedCapacityIntMap<>( newValuesCount );
+    for( int i = 0, sz = cdWriteChannelsIndexMap.size(); i < sz; i++ ) {
+      SkWriteCurrDataChannel wc = cdWriteChannelsIndexMap.values().get( i );
+      if( wc.chackWasNewValueAndReset() ) {
+        int cdIndex = cdWriteChannelsIndexMap.keys().getValue( i );
+        newValues.add( i, wc.getValue() );
+      }
+    }
+    // TODO SkCoreServRtdata.sendCurrDataValues()
+    // FIXME ba().baRtdata().writeCurrData( newValues );
   }
 
   // ------------------------------------------------------------------------------------
@@ -337,7 +404,6 @@ public class SkCoreServRtdata
     // cancel all subscriptions
     ba().baRtdata().configureCurrDataWriter( null, IGwidList.EMPTY );
     ba().baRtdata().configureCurrDataReader( null, IGwidList.EMPTY );
-    // отменить все подписки в eventer
     eventer.clearListenersList();
     eventer.resetPendingEvents();
     // close all open write channels
@@ -354,18 +420,18 @@ public class SkCoreServRtdata
   }
 
   @Override
-  public IMap<Gwid, ISkReadCurrDataChannel> createReadCurrDataChannels( IGwidList aGwids1 ) {
-    TsNullArgumentRtException.checkNull( aGwids1 );
+  public IMap<Gwid, ISkReadCurrDataChannel> createReadCurrDataChannels( IGwidList aGwids ) {
+    TsNullArgumentRtException.checkNull( aGwids );
     TsIllegalStateRtException.checkFalse( isInited() );
     IMapEdit<Gwid, ISkReadCurrDataChannel> result = new ElemMap<>();
     // select valid GWIDs
-    IGwidList gwids = toValidRtdataGwids( aGwids1, false );
+    IGwidList gwids = toValidRtdataGwids( aGwids, false );
     // channels to be listened by backend
     GwidList toAddQuery = new GwidList();
     for( Gwid g : gwids ) {
       // already open channels will be returned
       SkReadCurrDataChannel channel = cdReadChannelsMap.findByKey( g );
-      if( channel != null && channel.isOk() ) {
+      if( channel != null ) {
         result.put( g, channel );
         channel.incCounter();
         continue;
@@ -384,22 +450,62 @@ public class SkCoreServRtdata
     for( int i = 0; i < keyedMap.size(); i++ ) {
       int key = keyedMap.keys().getValue( i );
       Gwid gwid = keyedMap.values().get( i );
-      SkReadCurrDataChannel channel = cdReadChannelsMap.findByKey( gwid );
-      TsInternalErrorRtException.checkNull( channel ); // must not happen
+      SkReadCurrDataChannel channel = cdReadChannelsMap.getByKey( gwid );
       cdReadChannelsIndexMap.put( key, channel );
     }
     return result;
   }
 
   @Override
-  public IMap<Gwid, ISkWriteCurrDataChannel> createWriteCurrDataChannels( IGwidList aGwids ) {
-    // TODO Auto-generated method stub
-    return null;
+  public IMap<Gwid, ISkWriteCurrDataChannel> createWriteCurrDataChannels( IGwidList aGwids1 ) {
+    TsNullArgumentRtException.checkNull( aGwids1 );
+    TsIllegalStateRtException.checkFalse( isInited() );
+    IMapEdit<Gwid, ISkWriteCurrDataChannel> result = new ElemMap<>();
+    // send unsent data to server
+    // TODO writeCurrValues();
+    // select valid GWIDs
+    IGwidList gwids = toValidRtdataGwids( aGwids1, true );
+    // list of new channels to be created
+    GwidList toAddQuery = new GwidList();
+    // process all requested GWIDs: return exsiting channels and create unexisting
+    for( Gwid g : gwids ) {
+      SkWriteCurrDataChannel channel = cdWriteChannelsMap.findByKey( g );
+      if( channel != null ) { // use existing channel
+        // if channel was closed but backend don't know yet - we can simply reopen channel
+        if( channel.isClosed() ) {
+          channel.reopen();
+        }
+      }
+      else { // create unexisting channel and add request to backend
+        channel = new SkWriteCurrDataChannel( g );
+        cdWriteChannelsMap.put( g, channel );
+        toAddQuery.add( g );
+      }
+      result.put( g, channel );
+    }
+    // prepare query to backend
+    IGwidList toRemoveQuery = listClosedWriteChannelsAndRemoveFromMap();
+    IIntMap<Gwid> keyedMap = ba().baRtdata().configureCurrDataWriter( toRemoveQuery, toAddQuery );
+    // refresh #cdWriteChannelsIndexMap
+    cdWriteChannelsIndexMap.clear();
+    for( int i = 0; i < keyedMap.size(); i++ ) {
+      int key = keyedMap.keys().getValue( i );
+      Gwid gwid = keyedMap.values().get( i );
+      SkWriteCurrDataChannel channel = cdWriteChannelsMap.getByKey( gwid );
+      cdWriteChannelsIndexMap.put( key, channel );
+    }
+    return result;
   }
 
   @Override
   public ITsEventer<ISkCurrDataChangeListener> eventer() {
     return eventer;
+  }
+
+  @Override
+  public IMap<Gwid, ISkWriteHistDataChannel> createWriteHistDataChannels( IGwidList aGwids ) {
+    // TODO реализовать SkCoreServRtdata.createWriteHistDataChannels()
+    throw new TsUnderDevelopmentRtException( "SkCoreServRtdata.createWriteHistDataChannels()" );
   }
 
   @Override
@@ -410,12 +516,6 @@ public class SkCoreServRtdata
     TsIllegalArgumentRtException.checkTrue( aGwid.isMulti() );
     TsItemNotFoundRtException.checkFalse( gwidService().exists( aGwid ) );
     return ba().baRtdata().queryObjRtdata( aInterval, aGwid );
-  }
-
-  @Override
-  public IMap<Gwid, ISkWriteHistDataChannel> createWriteHistDataChannels( IGwidList aGwids ) {
-    // TODO Auto-generated method stub
-    return null;
   }
 
 }

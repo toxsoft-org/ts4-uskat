@@ -184,7 +184,8 @@ public class SkCoreServLinks
 
   @Override
   protected void doClose() {
-    // nop
+    eventer.clearListenersList();
+    eventer.resetPendingEvents();
   }
 
   @Override

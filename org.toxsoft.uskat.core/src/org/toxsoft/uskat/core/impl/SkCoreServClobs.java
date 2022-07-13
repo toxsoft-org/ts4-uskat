@@ -154,7 +154,8 @@ public class SkCoreServClobs
 
   @Override
   protected void doClose() {
-    // nop
+    eventer.clearListenersList();
+    eventer.resetPendingEvents();
   }
 
   @Override
