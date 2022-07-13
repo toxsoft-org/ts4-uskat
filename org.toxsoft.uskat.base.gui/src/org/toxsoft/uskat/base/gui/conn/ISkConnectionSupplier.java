@@ -2,6 +2,7 @@ package org.toxsoft.uskat.base.gui.conn;
 
 import org.toxsoft.core.tslib.bricks.strid.more.*;
 import org.toxsoft.core.tslib.coll.*;
+import org.toxsoft.core.tslib.utils.*;
 import org.toxsoft.core.tslib.utils.errors.*;
 import org.toxsoft.uskat.core.connection.*;
 
@@ -12,7 +13,8 @@ import org.toxsoft.uskat.core.connection.*;
  *
  * @author hazard157
  */
-public interface ISkConnectionSupplier {
+public interface ISkConnectionSupplier
+    extends ICloseable {
 
   /**
    * Returns the default connection if defined.

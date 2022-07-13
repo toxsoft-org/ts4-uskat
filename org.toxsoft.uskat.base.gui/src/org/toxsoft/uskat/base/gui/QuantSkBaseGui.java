@@ -12,6 +12,8 @@ import org.toxsoft.uskat.base.gui.conn.*;
 public class QuantSkBaseGui
     extends AbstractQuant {
 
+  private ISkConnectionSupplier connectionSupplier = null;
+
   /**
    * Constructor.
    */
@@ -21,13 +23,20 @@ public class QuantSkBaseGui
 
   @Override
   protected void doInitApp( IEclipseContext aAppContext ) {
-    ISkConnectionSupplier cs = new SkConnectionSupplier();
-    aAppContext.set( ISkConnectionSupplier.class, cs );
+    connectionSupplier = new SkConnectionSupplier();
+    aAppContext.set( ISkConnectionSupplier.class, connectionSupplier );
   }
 
   @Override
   protected void doInitWin( IEclipseContext aWinContext ) {
     // nop
+  }
+
+  @Override
+  protected void doClose() {
+    if( connectionSupplier != null ) {
+      connectionSupplier.close();
+    }
   }
 
 }

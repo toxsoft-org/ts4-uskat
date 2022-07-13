@@ -4,6 +4,7 @@ import org.toxsoft.core.tslib.bricks.strid.more.*;
 import org.toxsoft.core.tslib.coll.*;
 import org.toxsoft.core.tslib.coll.impl.*;
 import org.toxsoft.core.tslib.utils.errors.*;
+import org.toxsoft.core.tslib.utils.logs.impl.*;
 import org.toxsoft.uskat.core.connection.*;
 import org.toxsoft.uskat.core.impl.*;
 
@@ -72,6 +73,23 @@ public class SkConnectionSupplier
     connsMap.removeByKey( aKey );
     if( defKey.equals( aKey ) ) {
       defKey = IdChain.NULL;
+    }
+  }
+
+  // ------------------------------------------------------------------------------------
+  // ICloseable
+  //
+
+  @Override
+  public void close() {
+    while( !connsMap.isEmpty() ) {
+      ISkConnection conn = connsMap.removeByKey( connsMap.keys().first() );
+      try {
+        conn.close();
+      }
+      catch( Exception ex ) {
+        LoggerUtils.errorLogger().error( ex );
+      }
     }
   }
 
