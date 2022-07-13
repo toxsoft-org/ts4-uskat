@@ -146,7 +146,7 @@ public class S5SessionManager
    * Значение: {@link IS5SessionInfo} сессия пользователя
    */
   @Resource( lookup = INFINISPAN_CACHE_OPEN_SESSIONS )
-  private Cache<Skid, S5RemoteSession> remoteOpenSessionCache;
+  private Cache<Skid, S5SessionData> remoteOpenSessionCache;
 
   /**
    * Карта закрытых сессий.
@@ -155,7 +155,7 @@ public class S5SessionManager
    * Значение: {@link IS5SessionInfo} сессия пользователя
    */
   @Resource( lookup = INFINISPAN_CACHE_CLOSED_SESSIONS )
-  private Cache<Skid, S5RemoteSession> closedSessionCache;
+  private Cache<Skid, S5SessionData> closedSessionCache;
 
   /**
    * Карта открытых локальных сессий.
@@ -276,11 +276,11 @@ public class S5SessionManager
         // Проверка сессий на предмет того, что все они имеют писателя обратных вызовов
         IS5SessionManager sm = sessionContext().getBusinessObject( IS5SessionManager.class );
         // Список открытых сессий
-        IList<S5RemoteSession> openSessions = openSessions();
+        IList<S5SessionData> openSessions = openSessions();
         // Журнал
         logger().info( "membershipChanged(...): openSessions size = %d", Integer.valueOf( openSessions.size() ) ); //$NON-NLS-1$
         // Попытка формирования передатчиков для уже открытых сессий
-        for( S5RemoteSession session : openSessions ) {
+        for( S5SessionData session : openSessions ) {
           logger().info( "membershipChanged(...): createCallbackWriter for = %s", session ); //$NON-NLS-1$
           tryCreateCallbackWriter( session );
         }
@@ -311,10 +311,10 @@ public class S5SessionManager
   public IS5SessionsInfos getInfos() {
     IListEdit<IS5SessionInfo> openInfos = new ElemArrayList<>();
     IListEdit<IS5SessionInfo> closeInfos = new ElemArrayList<>();
-    for( S5RemoteSession session : openSessions() ) {
+    for( S5SessionData session : openSessions() ) {
       openInfos.add( session.info() );
     }
-    for( S5RemoteSession session : closedSessions() ) {
+    for( S5SessionData session : closedSessions() ) {
       closeInfos.add( session.info() );
     }
     return new S5SessionsInfos( openInfos, closeInfos );
@@ -334,9 +334,9 @@ public class S5SessionManager
   }
 
   @Override
-  public IList<S5RemoteSession> openSessions() {
-    IListBasicEdit<S5RemoteSession> openSessions = new SortedElemLinkedBundleList<>();
-    try( CloseableIterator<S5RemoteSession> iterator = remoteOpenSessionCache.values().iterator() ) {
+  public IList<S5SessionData> openSessions() {
+    IListBasicEdit<S5SessionData> openSessions = new SortedElemLinkedBundleList<>();
+    try( CloseableIterator<S5SessionData> iterator = remoteOpenSessionCache.values().iterator() ) {
       while( iterator.hasNext() ) {
         openSessions.add( iterator.next() );
       }
@@ -345,10 +345,10 @@ public class S5SessionManager
   }
 
   @Override
-  public IList<S5RemoteSession> closedSessions() {
+  public IList<S5SessionData> closedSessions() {
     // Список закрытых сессий
-    IListBasicEdit<S5RemoteSession> closedSessions = new SortedElemLinkedBundleList<>();
-    try( CloseableIterator<S5RemoteSession> iterator = closedSessionCache.values().iterator() ) {
+    IListBasicEdit<S5SessionData> closedSessions = new SortedElemLinkedBundleList<>();
+    try( CloseableIterator<S5SessionData> iterator = closedSessionCache.values().iterator() ) {
       while( iterator.hasNext() ) {
         closedSessions.add( iterator.next() );
       }
@@ -357,14 +357,14 @@ public class S5SessionManager
   }
 
   @Override
-  public S5RemoteSession findSession( Skid aSessionID ) {
+  public S5SessionData findSessionData( Skid aSessionID ) {
     TsNullArgumentRtException.checkNull( aSessionID );
     return remoteOpenSessionCache.get( aSessionID );
   }
 
   @TransactionAttribute( TransactionAttributeType.REQUIRED )
   @Override
-  public boolean createRemoteSession( S5RemoteSession aSession ) {
+  public boolean createRemoteSession( S5SessionData aSession ) {
     TsNullArgumentRtException.checkNull( aSession );
     long currTime = System.currentTimeMillis();
 
@@ -391,7 +391,7 @@ public class S5SessionManager
       // Создание или восстановление сессии
       boolean created =
           createSkSession( sessionID, frontend, login, createTime, backendSpecificParams, connectionCreationParams );
-      S5RemoteSession prevSession = remoteOpenSessionCache.put( info.sessionID(), aSession );
+      S5SessionData prevSession = remoteOpenSessionCache.put( info.sessionID(), aSession );
       callAfterCreateSession( interceptors, sessionID, logger() );
 
       // TODO: формировать события
@@ -433,7 +433,7 @@ public class S5SessionManager
 
   @TransactionAttribute( TransactionAttributeType.REQUIRED )
   @Override
-  public void updateRemoteSession( S5RemoteSession aSession ) {
+  public void writeSessionData( S5SessionData aSession ) {
     TsNullArgumentRtException.checkNull( aSession );
     // Идентификатор сессии
     Skid sessionID = aSession.info().sessionID();
@@ -441,7 +441,7 @@ public class S5SessionManager
     startCacheBatch( remoteOpenSessionCache );
     try {
       // TODO: 2020-04-06 mvk проблема в том, что иногда проводится попытка чтения backend которого уже нет
-      // S5RemoteSession prevSession = remoteOpenSessionCache.replace( aSession.info().id(), aSession );
+      // S5SessionData prevSession = remoteOpenSessionCache.replace( aSession.info().id(), aSession );
       remoteOpenSessionCache.put( sessionID, aSession );
     }
     finally {
@@ -451,12 +451,13 @@ public class S5SessionManager
     clusterManager.sendAsyncCommand( updateSessionCommand( sessionID ), true, false );
   }
 
-  @TransactionAttribute( TransactionAttributeType.REQUIRED )
-  @Override
-  public void updateLocalSession( S5LocalSession aSession ) {
-    TsNullArgumentRtException.checkNull( aSession );
-    localOpenSessionCache.put( aSession.sessionID(), aSession );
-  }
+  // 2022-07-09 mvk
+  // @TransactionAttribute( TransactionAttributeType.REQUIRED )
+  // @Override
+  // public void updateLocalSession( S5LocalSession aSession ) {
+  // TsNullArgumentRtException.checkNull( aSession );
+  // localOpenSessionCache.put( aSession.sessionID(), aSession );
+  // }
 
   @TransactionAttribute( TransactionAttributeType.REQUIRES_NEW )
   @Override
@@ -465,7 +466,7 @@ public class S5SessionManager
     try {
       startCacheBatch( remoteOpenSessionCache );
       try {
-        S5RemoteSession session = remoteOpenSessionCache.get( aSessionID );
+        S5SessionData session = remoteOpenSessionCache.get( aSessionID );
         if( session == null ) {
           return;
         }
@@ -543,7 +544,7 @@ public class S5SessionManager
     if( retValue != null ) {
       return retValue;
     }
-    S5RemoteSession session = findSession( aSessionID );
+    S5SessionData session = findSessionData( aSessionID );
     if( session == null ) {
       // Сессия не найдена
       throw new TsIllegalArgumentRtException( ERR_SESSION_NOT_FOUND, "callbackWriter(...)", aSessionID ); //$NON-NLS-1$
@@ -557,7 +558,7 @@ public class S5SessionManager
   }
 
   @Override
-  public S5SessionCallbackWriter createCallbackWriter( S5RemoteSession aSession ) {
+  public S5SessionCallbackWriter createCallbackWriter( S5SessionData aSession ) {
     TsNullArgumentRtException.checkNull( aSession );
     // Описание сессии
     IS5SessionInfo sessionInfo = aSession.info();
@@ -579,7 +580,7 @@ public class S5SessionManager
   }
 
   @Override
-  public S5SessionCallbackWriter tryCreateCallbackWriter( S5RemoteSession aSession ) {
+  public S5SessionCallbackWriter tryCreateCallbackWriter( S5SessionData aSession ) {
     TsNullArgumentRtException.checkNull( aSession );
     // Описание сессии
     IS5SessionInfo sessionInfo = aSession.info();
@@ -687,12 +688,12 @@ public class S5SessionManager
       sbDoJobLog = new StringBuilder();
     }
     // Список открытых удаленных сессий
-    IListEdit<S5RemoteSession> remoteOpenSessions = new ElemLinkedList<>();
+    IListEdit<S5SessionData> remoteOpenSessions = new ElemLinkedList<>();
     // Количество закрытых сессий
     int closedSessionsCount;
-    try( CloseableIterator<S5RemoteSession> iterator = remoteOpenSessionCache.values().iterator() ) {
+    try( CloseableIterator<S5SessionData> iterator = remoteOpenSessionCache.values().iterator() ) {
       while( iterator.hasNext() ) {
-        S5RemoteSession session = iterator.next();
+        S5SessionData session = iterator.next();
         remoteOpenSessions.add( session );
         if( sbDoJobLog != null ) {
           sbDoJobLog.append( session.toString() + '\n' );
@@ -726,7 +727,7 @@ public class S5SessionManager
     // Очистка старых сессий
     cleanSessions( remoteOpenSessions );
     // Обработка статистики
-    for( S5RemoteSession session : remoteOpenSessions ) {
+    for( S5SessionData session : remoteOpenSessions ) {
       Skid sessionID = session.info().sessionID();
       // Признак необходимости обновить статистику сессии
       boolean needUpdate = false;
@@ -778,7 +779,7 @@ public class S5SessionManager
       for( IDtoObject session : sessions ) {
         Skid sessionID = session.skid();
         boolean needRemove = (localOpenSessionCache.findByKey( sessionID ) == null);
-        for( S5RemoteSession openSession : remoteOpenSessions ) {
+        for( S5SessionData openSession : remoteOpenSessions ) {
           if( openSession.info().sessionID().equals( sessionID ) ) {
             needRemove = false;
             break;
@@ -833,13 +834,13 @@ public class S5SessionManager
   /**
    * Проверка работоспособности сессии
    *
-   * @param aSessions {@link IList}&lt;{@link S5RemoteSession}&gt; список открытых сессий
+   * @param aSessions {@link IList}&lt;{@link S5SessionData}&gt; список открытых сессий
    * @throws TsNullArgumentRtException аргумент = null
    */
-  private void verifySessions( IList<S5RemoteSession> aSessions ) {
+  private void verifySessions( IList<S5SessionData> aSessions ) {
     TsNullArgumentRtException.checkNull( aSessions );
     long currTime = System.currentTimeMillis();
-    for( S5RemoteSession session : aSessions ) {
+    for( S5SessionData session : aSessions ) {
       Skid sessionID = session.info().sessionID();
       try {
         // Признак отработки завершения таймаута после открытия сессии (сессия недавно создана и, возможно, еще не
@@ -902,7 +903,7 @@ public class S5SessionManager
         // Сессия не найдена в кэше, проверка ее существования и размещения ее в кэше
         logger().error( ERR_CHECK_CALLBACK, sessionID );
         // Проверяемая сессия
-        S5RemoteSession session = callback.session();
+        S5SessionData session = callback.session();
         try {
           // Проверка существования сессии
           session.backend().verify();
@@ -929,10 +930,10 @@ public class S5SessionManager
   /**
    * Очистка старых или потерянных сесссий
    *
-   * @param aOpenSessions {@link IList}&lt;{@link S5RemoteSession}&gt; список открытых сессий
+   * @param aOpenSessions {@link IList}&lt;{@link S5SessionData}&gt; список открытых сессий
    * @throws TsNullArgumentRtException аргумент = null
    */
-  private void cleanSessions( IList<S5RemoteSession> aOpenSessions ) {
+  private void cleanSessions( IList<S5SessionData> aOpenSessions ) {
     TsNullArgumentRtException.checkNull( aOpenSessions );
     // Текущее время
     long currTime = System.currentTimeMillis();
@@ -948,8 +949,8 @@ public class S5SessionManager
     // Проверка открытых сессий
     verifySessions( aOpenSessions );
     // Список закрытых сессий
-    IListBasicEdit<S5RemoteSession> closedSessions = new SortedElemLinkedBundleList<>();
-    try( CloseableIterator<S5RemoteSession> iterator = closedSessionCache.values().iterator() ) {
+    IListBasicEdit<S5SessionData> closedSessions = new SortedElemLinkedBundleList<>();
+    try( CloseableIterator<S5SessionData> iterator = closedSessionCache.values().iterator() ) {
       while( iterator.hasNext() ) {
         closedSessions.add( iterator.next() );
       }
@@ -959,7 +960,7 @@ public class S5SessionManager
     // Список удаляемых объектов сессий
     SkidList removedSessionIds = new SkidList();
     // Удаление сессий
-    for( S5RemoteSession session : closedSessions ) {
+    for( S5SessionData session : closedSessions ) {
       Skid sessionID = session.info().sessionID();
       if( forceRemoveCount-- > 0 ) {
         closedSessionCache.remove( sessionID );
@@ -1042,13 +1043,13 @@ public class S5SessionManager
    * Обработка завершения работы объекта сессия {@link ISkSession}
    *
    * @param aFrontend {@link IS5FrontendRear} фронтенд сессии
-   * @param aRemoteSessionOrNull {@link S5RemoteSession} удаленная сессия. null: локальная сессия
+   * @param aRemoteSessionOrNull {@link S5SessionData} удаленная сессия. null: локальная сессия
    * @param aSessionID {@link Skid} идентификатор {@link ISkSession}
    * @param aEndTime long метка времени завершения сессии
    * @param aLoss boolean <b>true</b> потеря соединения; <b>false</b> штатное завершение соединения
    * @throws TsNullArgumentRtException аргумент = null
    */
-  private void closeSkSession( IS5FrontendRear aFrontend, S5RemoteSession aRemoteSessionOrNull, Skid aSessionID,
+  private void closeSkSession( IS5FrontendRear aFrontend, S5SessionData aRemoteSessionOrNull, Skid aSessionID,
       long aEndTime, boolean aLoss ) {
     TsNullArgumentRtException.checkNulls( aFrontend, aSessionID );
     // Завершение формирования статистики по сессии
@@ -1064,7 +1065,7 @@ public class S5SessionManager
         counter.update();
         counter.write( statistic );
         statistic.update();
-        updateRemoteSession( aRemoteSessionOrNull );
+        writeSessionData( aRemoteSessionOrNull );
       }
     }
     // Обработка объекта сессия
@@ -1126,10 +1127,10 @@ public class S5SessionManager
   /**
    * Формирует сообщение об открытии сессии пользователя
    *
-   * @param aSession {@link S5RemoteSession} сессия
+   * @param aSession {@link S5SessionData} сессия
    * @throws TsNullArgumentRtException аргумент = null
    */
-  private void fireOpenSessionEvent( S5RemoteSession aSession ) {
+  private void fireOpenSessionEvent( S5SessionData aSession ) {
     TsNullArgumentRtException.checkNull( aSession );
     // Формирование события о об открытии сессии
     logger().info( MSG_CREATED_SESSION, aSession );
@@ -1149,10 +1150,10 @@ public class S5SessionManager
   /**
    * Формирует сообщение об закрытии сессии пользователя
    *
-   * @param aSession {@link S5RemoteSession} сессия
+   * @param aSession {@link S5SessionData} сессия
    * @throws TsNullArgumentRtException аргумент = null
    */
-  private void fireCloseSessionEvent( S5RemoteSession aSession ) {
+  private void fireCloseSessionEvent( S5SessionData aSession ) {
     TsNullArgumentRtException.checkNull( aSession );
     // Формирование события о завершение сессии
     logger().info( MSG_REMOVED_SESSION, aSession );

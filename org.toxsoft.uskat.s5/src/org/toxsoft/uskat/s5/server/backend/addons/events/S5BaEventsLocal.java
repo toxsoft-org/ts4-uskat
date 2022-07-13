@@ -31,7 +31,7 @@ class S5BaEventsLocal
   /**
    * Данные конфигурации фронтенда для {@link IBaEvents}
    */
-  private S5BaEventsFrontendData frontendData = new S5BaEventsFrontendData();
+  private S5BaEventsData frontendData = new S5BaEventsData();
 
   /**
    * Constructor.
@@ -45,7 +45,7 @@ class S5BaEventsLocal
     eventsSupport =
         aOwner.backendSingleton().get( S5BackendEventSingleton.BACKEND_EVENTS_ID, IS5BackendEventSingleton.class );
     // Установка конфигурации фронтенда
-    frontend().frontendData().setAddonData( IBaEvents.ADDON_ID, frontendData );
+    frontend().frontendData().setBackendAddonData( IBaEvents.ADDON_ID, frontendData );
   }
 
   // ------------------------------------------------------------------------------------

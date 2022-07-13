@@ -98,7 +98,7 @@ public final class S5BackendLocal
   @Override
   public ISkBackendInfo getBackendInfo() {
     // Описание текущей сессии пользователя
-    IS5SessionInfo sessionInfo = sessionManager.findSession( sessionID() ).info();
+    IS5SessionInfo sessionInfo = sessionManager.findSessionData( sessionID() ).info();
     // Запрос текущей информации о сервере (backend)
     ISkBackendInfo backendInfo = backendSingleton.getInfo();
     // Формирование информации сессии бекенда

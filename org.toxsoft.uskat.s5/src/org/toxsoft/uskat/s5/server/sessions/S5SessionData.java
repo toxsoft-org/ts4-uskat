@@ -12,32 +12,32 @@ import org.toxsoft.uskat.s5.server.backend.IS5BackendSessionControl;
 import org.toxsoft.uskat.s5.server.frontend.S5FrontendData;
 
 /**
- * Сессия пользователя создаваемая для удаленных клиентов
+ * Данные сессии пользователя удаленных клиентов
  *
  * @author mvk
  */
-public final class S5RemoteSession
-    implements Comparable<S5RemoteSession>, Serializable {
+public final class S5SessionData
+    implements Comparable<S5SessionData>, Serializable {
 
   private static final long serialVersionUID = 157157L;
 
-  private final IS5BackendSessionControl    backend;
-  private final S5FrontendData     frontendData;
-  private final IS5SessionInfoEdit info;
+  private final IS5SessionInfoEdit       info;
+  private final IS5BackendSessionControl backend;
+  private final S5FrontendData           frontendData;
 
   private transient ILogger logger;
 
   /**
    * Конструктор
    *
-   * @param aBackend {@link IS5BackendSessionControl} s5-backend сессии пользователя
    * @param aSessionInfo {@link IS5SessionInfo} описание сессии
+   * @param aBackend {@link IS5BackendSessionControl} s5-backend сессии пользователя
    * @throws TsNullArgumentRtException любой аргумент = null
    */
-  public S5RemoteSession( IS5BackendSessionControl aBackend, IS5SessionInfo aSessionInfo ) {
+  public S5SessionData( IS5SessionInfo aSessionInfo, IS5BackendSessionControl aBackend ) {
+    info = TsNullArgumentRtException.checkNull( new S5SessionInfo( aSessionInfo ) );
     backend = TsNullArgumentRtException.checkNull( aBackend );
     frontendData = new S5FrontendData();
-    info = TsNullArgumentRtException.checkNull( new S5SessionInfo( aSessionInfo ) );
   }
 
   // ------------------------------------------------------------------------------------
@@ -94,14 +94,14 @@ public final class S5RemoteSession
     if( getClass() != aObject.getClass() ) {
       return false;
     }
-    return info.equals( ((S5RemoteSession)aObject).info );
+    return info.equals( ((S5SessionData)aObject).info );
   }
 
   // ------------------------------------------------------------------------------------
-  // Реализация Comparable&lt;S5RemoteSession&gt;
+  // Реализация Comparable&lt;S5SessionData&gt;
   //
   @Override
-  public int compareTo( S5RemoteSession aOther ) {
+  public int compareTo( S5SessionData aOther ) {
     TsNullArgumentRtException.checkNull( aOther );
     IS5SessionInfo sessionInfo2 = aOther.info;
     long openTime = info.openTime();

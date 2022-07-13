@@ -20,7 +20,7 @@ public final class S5FrontendData
 
   private static final long serialVersionUID = 157157L;
 
-  private final IStringMapEdit<IS5FrontendAddonData> addonsData = new StringMap<>();
+  private final IStringMapEdit<IS5BackendAddonData> addonsData = new StringMap<>();
 
   // ------------------------------------------------------------------------------------
   // Реализация IS5FrontendData
@@ -32,7 +32,7 @@ public final class S5FrontendData
   }
 
   @Override
-  public <T extends IS5FrontendAddonData> T findAddonData( String aAddonId, Class<T> aAddonDataType ) {
+  public <T extends IS5BackendAddonData> T findBackendAddonData( String aAddonId, Class<T> aAddonDataType ) {
     TsNullArgumentRtException.checkNulls( aAddonId, aAddonDataType );
     try {
       return aAddonDataType.cast( addonsData.findByKey( aAddonId ) );
@@ -43,7 +43,7 @@ public final class S5FrontendData
   }
 
   @Override
-  public void setAddonData( String aAddonId, IS5FrontendAddonData aData ) {
+  public void setBackendAddonData( String aAddonId, IS5BackendAddonData aData ) {
     TsNullArgumentRtException.checkNulls( aAddonId, aData );
     if( !(aData instanceof Serializable) ) {
       // Данные должны поддерживать сериализацию
@@ -64,7 +64,7 @@ public final class S5FrontendData
     StringBuilder sb = new StringBuilder();
     for( int index = 0, n = addonsData.size(); index < n; index++ ) {
       String addonId = addonsData.keys().get( index );
-      IS5FrontendAddonData addonData = addonsData.values().get( index );
+      IS5BackendAddonData addonData = addonsData.values().get( index );
       sb.append( addonId );
       sb.append( '=' );
       sb.append( addonData.toString() );

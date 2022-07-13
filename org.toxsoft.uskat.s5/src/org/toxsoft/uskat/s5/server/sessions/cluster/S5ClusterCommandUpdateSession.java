@@ -17,12 +17,12 @@ import org.toxsoft.uskat.s5.common.sessions.ISkSession;
 import org.toxsoft.uskat.s5.server.cluster.IS5ClusterCommand;
 import org.toxsoft.uskat.s5.server.cluster.IS5ClusterCommandHandler;
 import org.toxsoft.uskat.s5.server.sessions.IS5SessionManager;
-import org.toxsoft.uskat.s5.server.sessions.S5RemoteSession;
+import org.toxsoft.uskat.s5.server.sessions.S5SessionData;
 import org.toxsoft.uskat.s5.server.sessions.pas.S5SessionCallbackWriter;
 
 /**
  * Обработчик команды кластера: всем узлам обновить состояние сессии
- * {@link IS5SessionManager#updateRemoteSession(S5RemoteSession)}
+ * {@link IS5SessionManager#writeSessionData(S5SessionData)}
  *
  * @author mvk
  */
@@ -30,7 +30,7 @@ public final class S5ClusterCommandUpdateSession
     implements IS5ClusterCommandHandler {
 
   /**
-   * Вызов метода: {@link IS5SessionManager#tryCreateCallbackWriter(S5RemoteSession)}
+   * Вызов метода: {@link IS5SessionManager#tryCreateCallbackWriter(S5SessionData)}
    */
   public static final String UDATE_SESSION_METHOD = CLUSTER_METHOD_PREFIX + "updateSession"; //$NON-NLS-1$
 
@@ -97,8 +97,8 @@ public final class S5ClusterCommandUpdateSession
       return TjUtils.NULL;
     }
     Skid sessionID = Skid.KEEPER.str2ent( aCommand.params().getByKey( SESSION_ID ).asString() );
-    S5RemoteSession session = sessionManager.findSession( sessionID );
-    if( session == null ) {
+    S5SessionData sessionData = sessionManager.findSessionData( sessionID );
+    if( sessionData == null ) {
       // Сессия не найдена в кэше открытых сессий
       logger.error( "handleClusterCommand(...): " + MSG_ERR_SESSION_NOT_FOUND, sessionID ); //$NON-NLS-1$
       return TjUtils.TRUE;
@@ -109,7 +109,7 @@ public final class S5ClusterCommandUpdateSession
       logger.warning( "handleClusterCommand(...): %s. callbackWriter = null", UDATE_SESSION_METHOD ); //$NON-NLS-1$
       return TjUtils.TRUE;
     }
-    callbackWriter.updateSession( session );
+    callbackWriter.updateSession( sessionData );
     logger.info( "handleClusterCommand(...): %s. update session for callbackWriter", UDATE_SESSION_METHOD ); //$NON-NLS-1$
     return TjUtils.TRUE;
   }

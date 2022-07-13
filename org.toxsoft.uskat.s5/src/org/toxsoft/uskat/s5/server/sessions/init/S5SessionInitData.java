@@ -15,6 +15,7 @@ import org.toxsoft.core.tslib.utils.errors.*;
 import org.toxsoft.uskat.s5.client.IS5ConnectionParams;
 import org.toxsoft.uskat.s5.client.remote.connection.S5ClusterTopology;
 import org.toxsoft.uskat.s5.common.sessions.ISkSession;
+import org.toxsoft.uskat.s5.server.frontend.IS5BackendAddonData;
 
 /**
  * Реализация {@link IS5SessionInitData}
@@ -26,9 +27,9 @@ public final class S5SessionInitData
 
   private static final long serialVersionUID = 157157L;
 
-  private final IOptionSetEdit                          clientOptions   = new OptionSet();
-  private final S5ClusterTopology                       clusterTopology = new S5ClusterTopology();
-  private final IStringMapEdit<IS5SessionAddonInitData> addonsData      = new StringMap<>();
+  private final IOptionSetEdit                      clientOptions     = new OptionSet();
+  private final S5ClusterTopology                   clusterTopology   = new S5ClusterTopology();
+  private final IStringMapEdit<IS5BackendAddonData> backendAddonDatas = new StringMap<>();
 
   /**
    * Конструктор
@@ -70,22 +71,22 @@ public final class S5SessionInitData
    * Устанавливает данные расширения бекенда
    *
    * @param aAddonId String идентификатор (ИД-путь) расширения
-   * @param aData {@link IS5SessionAddonInitData} данные фронтенда расширения бекенд
+   * @param aData {@link IS5BackendAddonData} данные фронтенда расширения бекенд
    * @throws TsNullArgumentRtException любой аргумент = null
    * @throws TsIllegalArgumentRtException данные должны поддерживать сериализацию
    * @throws TsItemAlreadyExistsRtException данные расширения уже установлены
    */
-  public void setAddonData( String aAddonId, IS5SessionAddonInitData aData ) {
+  public void setBackendAddonData( String aAddonId, IS5BackendAddonData aData ) {
     TsNullArgumentRtException.checkNulls( aAddonId, aData );
     if( !(aData instanceof Serializable) ) {
       // Данные должны поддерживать сериализацию
       throw new TsIllegalArgumentRtException( ERR_MSG_ADDON_DATA_NO_SERIALIZABLE, aAddonId );
     }
-    if( addonsData.hasKey( aAddonId ) ) {
+    if( backendAddonDatas.hasKey( aAddonId ) ) {
       // Данные расширения уже зарегистрированы
       throw new TsItemAlreadyExistsRtException( ERR_MSG_ADDON_DATA_ALREADY_EXIST, aAddonId );
     }
-    addonsData.put( aAddonId, aData );
+    backendAddonDatas.put( aAddonId, aData );
   }
 
   // ------------------------------------------------------------------------------------
@@ -102,10 +103,10 @@ public final class S5SessionInitData
   }
 
   @Override
-  public <T extends IS5SessionAddonInitData> T findAddonData( String aAddonId, Class<T> aAddonDataType ) {
+  public <T extends IS5BackendAddonData> T findBackendAddonData( String aAddonId, Class<T> aAddonDataType ) {
     TsNullArgumentRtException.checkNulls( aAddonId, aAddonDataType );
     try {
-      return aAddonDataType.cast( addonsData.findByKey( aAddonId ) );
+      return aAddonDataType.cast( backendAddonDatas.findByKey( aAddonId ) );
     }
     catch( Exception ex ) {
       throw new TsIllegalArgumentRtException( ex, ex.getMessage() );

@@ -4,8 +4,8 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import org.toxsoft.core.tslib.av.opset.IOptionSet;
 import org.toxsoft.core.tslib.bricks.events.change.IGenericChangeEventer;
-import org.toxsoft.core.tslib.bricks.strid.coll.IStridablesList;
 import org.toxsoft.core.tslib.bricks.time.*;
+import org.toxsoft.core.tslib.coll.primtypes.IStringMap;
 import org.toxsoft.core.tslib.utils.errors.TsNullArgumentRtException;
 import org.toxsoft.uskat.core.api.hqserv.*;
 
@@ -102,17 +102,6 @@ public final class S5SynchronizedQueryProcessedData
   }
 
   @Override
-  public void prepare( IStridablesList<IDtoQueryParam> aArgs ) {
-    lockWrite( this );
-    try {
-      target().prepare( aArgs );
-    }
-    finally {
-      unlockWrite( this );
-    }
-  }
-
-  @Override
   public void exec( IQueryInterval aQueryInterval ) {
     lockWrite( this );
     try {
@@ -135,10 +124,22 @@ public final class S5SynchronizedQueryProcessedData
   }
 
   @Override
-  public IStridablesList<IDtoQueryParam> listArgs() {
+  public IStringMap<IDtoQueryParam> listArgs() {
+
     lockWrite( this );
     try {
       return target().listArgs();
+    }
+    finally {
+      unlockWrite( this );
+    }
+  }
+
+  @Override
+  public void prepare( IStringMap<IDtoQueryParam> aArgs ) {
+    lockWrite( this );
+    try {
+      target().prepare( aArgs );
     }
     finally {
       unlockWrite( this );

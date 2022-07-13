@@ -45,7 +45,7 @@ public class S5SessionCallbackWriter
   private static final String TO_STRING_FORMAT = "%s@%s[%s]"; //$NON-NLS-1$
 
   private final IS5BackendCoreSingleton    backendCoreSingleton;
-  private volatile S5RemoteSession         session;
+  private volatile S5SessionData           session;
   private S5SessionCallbackChannel         channel;
   private final IList<IS5MessageProcessor> messageProcessors;
   private final ILogger                    logger = getLogger( getClass() );
@@ -63,11 +63,11 @@ public class S5SessionCallbackWriter
    * Конструктор
    *
    * @param aBackendCoreSingleton {@link IS5BackendCoreSingleton} backendCoreSingleton сервера
-   * @param aSession {@link S5RemoteSession} сессия
+   * @param aSession {@link S5SessionData} сессия
    * @param aChannel {@link S5SessionCallbackChannel} канал обмена данными
    * @throws TsNullArgumentRtException любой аругмент = null
    */
-  public S5SessionCallbackWriter( IS5BackendCoreSingleton aBackendCoreSingleton, S5RemoteSession aSession,
+  public S5SessionCallbackWriter( IS5BackendCoreSingleton aBackendCoreSingleton, S5SessionData aSession,
       S5SessionCallbackChannel aChannel ) {
     TsNullArgumentRtException.checkNulls( aBackendCoreSingleton, aSession, aChannel );
 
@@ -109,9 +109,9 @@ public class S5SessionCallbackWriter
   /**
    * Возвращает сессию передатичика
    *
-   * @return {@link S5RemoteSession} сессия
+   * @return {@link S5SessionData} сессия
    */
-  public S5RemoteSession session() {
+  public S5SessionData session() {
     return session;
   }
 
@@ -139,10 +139,10 @@ public class S5SessionCallbackWriter
   /**
    * Обновление данных сессии
    *
-   * @param aSession {@link S5RemoteSession} сессия у которой изменились данных
+   * @param aSession {@link S5SessionData} сессия у которой изменились данных
    * @throws TsNullArgumentRtException аргумент = null
    */
-  public void updateSession( S5RemoteSession aSession ) {
+  public void updateSession( S5SessionData aSession ) {
     TsNullArgumentRtException.checkNull( aSession );
     session = aSession;
   }

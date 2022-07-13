@@ -340,7 +340,7 @@ public class S5BackendSession
       }
 
       // Информация о сессии пользователя
-      S5RemoteSession prevSession = sessionManager.findSession( sessionID );
+      S5SessionData prevSession = sessionManager.findSessionData( sessionID );
       IS5SessionInfo prevSessionInfo = (prevSession != null ? prevSession.info() : null);
       if( prevSessionInfo != null ) {
         // Попытка повторной инициализации сессии пользователя
@@ -380,7 +380,7 @@ public class S5BackendSession
       // Запущен процесс создания сессии
       logger().info( MSG_CREATE_SESSION_START, sessionInfo );
       // Сессия
-      S5RemoteSession session = new S5RemoteSession( local, sessionInfo );
+      S5SessionData session = new S5SessionData( sessionInfo, local );
       // Создание писателя обратных вызовов для сессии и его регистрация в backend
       S5SessionCallbackWriter callbackWriter = null;
       try {
@@ -402,7 +402,7 @@ public class S5BackendSession
       // Результат инициализации сессии
       S5SessionInitResult initResult = new S5SessionInitResult();
       // Текущие типы и классы
-      initResult.getBaData( IBaClasses.ADDON_ID, null );
+      initResult.getBackendAddonData( IBaClasses.ADDON_ID, null );
       // Метка времени начала инициализации расширений сессии
       long addonsInitStartTime = System.currentTimeMillis();
       // Инициализация сессии данными клиента
@@ -468,9 +468,9 @@ public class S5BackendSession
   public void setClusterTopology( S5ClusterTopology aClusterTopology ) {
     TsNullArgumentRtException.checkNull( aClusterTopology );
     // Изменение топологии кластеров доступных клиенту
-    S5RemoteSession session = sessionManager.findSession( sessionID );
+    S5SessionData session = sessionManager.findSessionData( sessionID );
     session.info().setClusterTopology( aClusterTopology );
-    sessionManager.updateRemoteSession( session );
+    sessionManager.writeSessionData( session );
     try {
       // Сохранение топологии в ISkSession
       IDtoObject obj = objectsBackend.findObject( sessionID );
@@ -524,7 +524,7 @@ public class S5BackendSession
       logger().error( S5BackendSession.class.getSimpleName() + ".sessionInfo().userSessionID = null" ); //$NON-NLS-1$
       return null;
     }
-    S5RemoteSession session = sessionManager.findSession( sessionID );
+    S5SessionData session = sessionManager.findSessionData( sessionID );
     if( session == null ) {
       return null;
     }
@@ -663,6 +663,11 @@ public class S5BackendSession
   }
 
   @Override
+  public IBaQueries baQueries() {
+    return findBackendAddon( IBaQueries.ADDON_ID, IBaQueries.class );
+  }
+
+  @Override
   public IList<ISkServiceCreator<? extends AbstractSkService>> listBackendServicesCreators() {
     IStridablesList<IS5BackendAddonCreator> baCreators = backendCoreSingleton.initialConfig().impl().baCreators();
     IListEdit<ISkServiceCreator<? extends AbstractSkService>> retValue = new ElemLinkedList<>();
@@ -720,7 +725,7 @@ public class S5BackendSession
   // @TransactionAttribute( TransactionAttributeType.REQUIRED )
   private void close( Skid aSessionID ) {
     TsIllegalStateRtException.checkNull( aSessionID );
-    S5RemoteSession session = sessionManager.findSession( aSessionID );
+    S5SessionData session = sessionManager.findSessionData( aSessionID );
     if( session == null ) {
       // Сессия не найдена
       throw new TsIllegalArgumentRtException( ERR_SESSION_NOT_FOUND, aSessionID );
@@ -734,10 +739,8 @@ public class S5BackendSession
     }
     // Установка признака: завершение сессии по инициативе пользователя
     session.info().setCloseByRemote( true );
-    sessionManager.updateRemoteSession( session );
-    // 2020-10-15 mvk
+    sessionManager.writeSessionData( session );
     // Асинронное удаление сессии
-    // control().removeAsync();
     session.backend().removeAsync();
   }
 
@@ -802,7 +805,7 @@ public class S5BackendSession
       // Уже поднято исключение API сессии
       return (TsRuntimeException)aError;
     }
-    S5RemoteSession session = sessionManager.findSession( sessionID );
+    S5SessionData session = sessionManager.findSessionData( sessionID );
     logger().error( ERR_API_UNEXPECTED_ERROR, session, cause( aError ) );
     return new S5SessionApiRtException( aError, ERR_API_UNEXPECTED_ERROR, session, cause( aError ) );
   }

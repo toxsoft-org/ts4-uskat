@@ -4,6 +4,7 @@ import org.toxsoft.core.tslib.coll.primtypes.IStringMap;
 import org.toxsoft.core.tslib.utils.errors.TsIllegalArgumentRtException;
 import org.toxsoft.core.tslib.utils.errors.TsNullArgumentRtException;
 import org.toxsoft.uskat.s5.server.backend.addons.IS5BackendAddonSession;
+import org.toxsoft.uskat.s5.server.frontend.IS5BackendAddonData;
 
 /**
  * Результат инициализации сессии
@@ -26,11 +27,11 @@ public interface IS5SessionInitResult {
    *
    * @param aAddonId String идентификатор (ИД-путь) расширения
    * @param aAddonDataType Java-тип данных расширения
-   * @return {@link IS5SessionAddonInitResult} данные расширения
+   * @return {@link IS5BackendAddonData} данные расширения
    * @param <T> тип данных расширения. null: данные не найдены
    * @throws TsNullArgumentRtException любой аргумент = null
    * @throws TsIllegalArgumentRtException данные не существуют
    * @throws ClassCastException данные расширение есть, но они не запрошенного типа
    */
-  <T extends IS5SessionAddonInitResult> T getBaData( String aAddonId, Class<T> aAddonDataType );
+  <T extends IS5BackendAddonData> T getBackendAddonData( String aAddonId, Class<T> aAddonDataType );
 }

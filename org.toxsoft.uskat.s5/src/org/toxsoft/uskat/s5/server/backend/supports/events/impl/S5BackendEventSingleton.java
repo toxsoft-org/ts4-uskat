@@ -31,7 +31,7 @@ import org.toxsoft.uskat.core.backend.api.IBaEvents;
 import org.toxsoft.uskat.core.backend.api.IBaEventsMessages;
 import org.toxsoft.uskat.core.impl.SkEventList;
 import org.toxsoft.uskat.s5.legacy.QueryInterval;
-import org.toxsoft.uskat.s5.server.backend.addons.events.S5BaEventsFrontendData;
+import org.toxsoft.uskat.s5.server.backend.addons.events.S5BaEventsData;
 import org.toxsoft.uskat.s5.server.backend.supports.events.IS5BackendEventSingleton;
 import org.toxsoft.uskat.s5.server.backend.supports.events.sequences.IS5EventSequence;
 import org.toxsoft.uskat.s5.server.backend.supports.events.sequences.IS5EventSequenceEdit;
@@ -226,7 +226,7 @@ public class S5BackendEventSingleton
           }
           // Фильтрация интересуемых событий
           SkEventList frontendEvents =
-              frontend.frontendData().findAddonData( IBaEvents.ADDON_ID, S5BaEventsFrontendData.class ).events
+              frontend.frontendData().findBackendAddonData( IBaEvents.ADDON_ID, S5BaEventsData.class ).events
                   .filter( sysdescrBackend(), events );
           if( frontendEvents.size() == 0 ) {
             // Нечего отправлять

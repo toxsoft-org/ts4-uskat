@@ -265,8 +265,9 @@ public abstract class S5AbstractBackendAddonSession
   /**
    * Сохраняет изменные данные сессии в кластере сервера
    */
-  protected final void updateSessionData() {
-    sessionManager.updateRemoteSession( sessionManager.getCallbackWriter( sessionID() ).session() );
+  protected final void writeSessionData() {
+    // Данные писателя обратных вызовов записываются в кэш данных сессий (infinispan) + оповещается кластер
+    sessionManager.writeSessionData( sessionManager.getCallbackWriter( sessionID() ).session() );
   }
 
   /**

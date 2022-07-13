@@ -69,7 +69,7 @@ public final class S5BaCommandsSupport
    *
    * @return {@link IGwidList} список идентификаторов команд
    */
-  public IGwidList gwids() {
+  public IGwidList getHandledCommandGwids() {
     lockRead( lock() );
     try {
       return new GwidList( gwids );
@@ -173,13 +173,12 @@ public final class S5BaCommandsSupport
    * Описание содержимого и использования списка-аргумента приведено в комментарии к методу
    * <code>ISkCommandService.registerExecutor()</code>.
    *
-   * @param aExecutorName String имя исполнителя
    * @param aNeededGwids {@link IGwidList} - список GWID-ов интересующих событий
    * @return {@link ValidationResult} результат регистрации исполнителя
    * @throws TsNullArgumentRtException любой аргумент = null
    */
-  public IValResList setExcutableCommandGwids( String aExecutorName, IGwidList aNeededGwids ) {
-    TsNullArgumentRtException.checkNulls( aExecutorName, aNeededGwids );
+  public IValResList setHandledCommandGwids( IGwidList aNeededGwids ) {
+    TsNullArgumentRtException.checkNull( aNeededGwids );
     ValResList retValue = new ValResList();
     lockWrite( lock() );
     try {
@@ -190,7 +189,7 @@ public final class S5BaCommandsSupport
           case GW_CMD:
             gwids.add( gwid );
             // Регистрация исполнителя команды идентификатором GWID
-            retValue.add( info( MSG_REGISTER_CMD_GWID, aExecutorName, gwid ) );
+            retValue.add( info( MSG_REGISTER_CMD_GWID, gwid ) );
             continue;
           case GW_ATTR:
           case GW_CMD_ARG:

@@ -27,16 +27,16 @@ public interface IS5FrontendData {
    * @throws TsNullArgumentRtException любой аргумент = null
    * @throws ClassCastException данные расширение есть, но они не запрошенного типа
    */
-  <T extends IS5FrontendAddonData> T findAddonData( String aAddonId, Class<T> aAddonDataType );
+  <T extends IS5BackendAddonData> T findBackendAddonData( String aAddonId, Class<T> aAddonDataType );
 
   /**
    * Устанавливает данные расширения бекенда
    *
    * @param aAddonId String идентификатор (ИД-путь) расширения
-   * @param aData {@link IS5FrontendAddonData} данные фронтенда расширения бекенд
+   * @param aData {@link IS5BackendAddonData} данные фронтенда расширения бекенд
    * @throws TsNullArgumentRtException любой аргумент = null
    * @throws TsIllegalArgumentRtException данные должны поддерживать сериализацию
    * @throws TsItemAlreadyExistsRtException данные расширения уже установлены
    */
-  void setAddonData( String aAddonId, IS5FrontendAddonData aData );
+  void setBackendAddonData( String aAddonId, IS5BackendAddonData aData );
 }

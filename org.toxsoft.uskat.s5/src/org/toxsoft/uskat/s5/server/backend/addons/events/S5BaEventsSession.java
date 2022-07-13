@@ -68,12 +68,12 @@ class S5BaEventsSession
   @Override
   protected void doAfterInit( S5SessionCallbackWriter aCallbackWriter, IS5SessionInitData aInitData,
       S5SessionInitResult aInitResult ) {
-    S5BaEventsFrontendData frontdata = new S5BaEventsFrontendData();
-    S5BaEventsInitData eventsInit = aInitData.findAddonData( IBaEvents.ADDON_ID, S5BaEventsInitData.class );
-    if( eventsInit != null ) {
-      frontdata.events.setNeededEventGwids( eventsInit.events );
+    S5BaEventsData baData = new S5BaEventsData();
+    S5BaEventsData initData = aInitData.findBackendAddonData( IBaEvents.ADDON_ID, S5BaEventsData.class );
+    if( initData != null ) {
+      baData.events.setNeededEventGwids( initData.events.gwids() );
     }
-    frontend().frontendData().setAddonData( IBaEvents.ADDON_ID, frontdata );
+    frontend().frontendData().setBackendAddonData( IBaEvents.ADDON_ID, baData );
   }
 
   // ------------------------------------------------------------------------------------
@@ -89,19 +89,18 @@ class S5BaEventsSession
   public void subscribeToEvents( IGwidList aNeededGwids ) {
     TsNullArgumentRtException.checkNull( aNeededGwids );
     // Данные сессии
-    S5BaEventsFrontendData frontendData =
-        frontend().frontendData().findAddonData( IBaEvents.ADDON_ID, S5BaEventsFrontendData.class );
+    S5BaEventsData baData = frontend().frontendData().findBackendAddonData( IBaEvents.ADDON_ID, S5BaEventsData.class );
     // Реконфигурация набора
-    frontendData.events.setNeededEventGwids( aNeededGwids );
+    baData.events.setNeededEventGwids( aNeededGwids );
     // Сохранение измененной сессии в кластере сервера
-    updateSessionData();
+    writeSessionData();
     // Вывод протокола
     if( logger().isSeverityOn( ELogSeverity.INFO ) || logger().isSeverityOn( ELogSeverity.DEBUG ) ) {
       // Вывод в журнал информации о регистрации ресурсов в сессии
       StringBuilder sb = new StringBuilder();
       sb.append( String.format( "setNeededEventGwids(...): sessionID = %s, changed resources:", sessionID() ) ); //$NON-NLS-1$
-      sb.append( String.format( "\n   === events (%d) === ", Integer.valueOf( frontendData.events.gwids().size() ) ) ); //$NON-NLS-1$
-      for( Gwid gwid : frontendData.events.gwids() ) {
+      sb.append( String.format( "\n   === events (%d) === ", Integer.valueOf( baData.events.gwids().size() ) ) ); //$NON-NLS-1$
+      for( Gwid gwid : baData.events.gwids() ) {
         sb.append( String.format( "\n   %s", gwid ) ); //$NON-NLS-1$
       }
       logger().info( sb.toString() );

@@ -5,10 +5,10 @@ import org.toxsoft.core.tslib.coll.IList;
 import org.toxsoft.core.tslib.gw.gwid.Gwid;
 import org.toxsoft.core.tslib.utils.errors.TsNullArgumentRtException;
 import org.toxsoft.uskat.core.api.cmdserv.IDtoCompletedCommand;
+import org.toxsoft.uskat.s5.server.backend.supports.commands.sequences.IS5CommandSequenceEdit;
 import org.toxsoft.uskat.s5.server.sequences.ISequenceBlock;
 import org.toxsoft.uskat.s5.server.sequences.ISequenceBlockEdit;
 import org.toxsoft.uskat.s5.server.sequences.impl.S5Sequence;
-import org.toxsoft.uskat.sysext.realtime.supports.commands.sequences.IS5CommandSequenceEdit;
 
 /**
  * Реализация последовательности команд одного объекта
