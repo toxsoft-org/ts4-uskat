@@ -9,14 +9,14 @@ import org.toxsoft.uskat.base.gui.conn.*;
  *
  * @author hazard157
  */
-public class QuantSkBaseBui
+public class QuantSkBaseGui
     extends AbstractQuant {
 
   /**
    * Constructor.
    */
-  public QuantSkBaseBui() {
-    super( QuantSkBaseBui.class.getSimpleName() );
+  public QuantSkBaseGui() {
+    super( QuantSkBaseGui.class.getSimpleName() );
   }
 
   @Override
