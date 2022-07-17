@@ -1,8 +1,10 @@
 package org.toxsoft.uskat.backend.memtext;
 
+import org.toxsoft.core.tslib.av.*;
 import org.toxsoft.core.tslib.av.temporal.*;
 import org.toxsoft.core.tslib.bricks.strio.*;
 import org.toxsoft.core.tslib.bricks.time.*;
+import org.toxsoft.core.tslib.coll.*;
 import org.toxsoft.core.tslib.coll.primtypes.*;
 import org.toxsoft.core.tslib.gw.gwid.*;
 import org.toxsoft.core.tslib.utils.errors.*;
@@ -73,15 +75,27 @@ public class MtbBaRtdata
   //
 
   @Override
-  public IIntMap<Gwid> configureCurrDataReader( IGwidList aToRemove, IGwidList aToAdd ) {
+  public void configureCurrDataReader( IList<Gwid> aRtdGwids ) {
     // TODO Auto-generated method stub
-    return null;
+
   }
 
   @Override
-  public IIntMap<Gwid> configureCurrDataWriter( IGwidList aToRemove, IGwidList aToAdd ) {
+  public void configureCurrDataWriter( IList<Gwid> aRtdGwids ) {
     // TODO Auto-generated method stub
-    return null;
+
+  }
+
+  @Override
+  public void writeCurrData( Gwid aGwid, IAtomicValue aValue ) {
+    // TODO Auto-generated method stub
+
+  }
+
+  @Override
+  public void writeHistData( Gwid aGwid, ITimeInterval aInterval, ITimedList<ITemporalAtomicValue> aValues ) {
+    // TODO Auto-generated method stub
+
   }
 
   @Override
@@ -89,5 +103,4 @@ public class MtbBaRtdata
     // TODO Auto-generated method stub
     return null;
   }
-
 }
