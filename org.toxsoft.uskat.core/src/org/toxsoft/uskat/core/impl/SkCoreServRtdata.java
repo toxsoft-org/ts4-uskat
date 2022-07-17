@@ -20,6 +20,7 @@ import org.toxsoft.uskat.core.api.objserv.*;
 import org.toxsoft.uskat.core.api.rtdserv.*;
 import org.toxsoft.uskat.core.api.sysdescr.*;
 import org.toxsoft.uskat.core.api.sysdescr.dto.*;
+import org.toxsoft.uskat.core.backend.api.*;
 import org.toxsoft.uskat.core.devapi.*;
 
 /**
@@ -75,20 +76,23 @@ public class SkCoreServRtdata
   class Eventer
       extends AbstractTsEventer<ISkCurrDataChangeListener> {
 
-    private IMapEdit<Gwid, ISkReadCurrDataChannel> map = null;
+    private final IMapEdit<Gwid, IAtomicValue> map       = new ElemMap<>();
+    private boolean                            wasEvents = false;
 
     @Override
     protected boolean doIsPendingEvents() {
-      return map != null;
+      return wasEvents;
     }
 
     @Override
     protected void doFirePendingEvents() {
-      IMap<Gwid, ISkReadCurrDataChannel> arg = map;
-      map = null;
+      reallyFire( map );
+    }
+
+    private void reallyFire( IMap<Gwid, IAtomicValue> aNewValues ) {
       for( ISkCurrDataChangeListener l : listeners() ) {
         try {
-          l.onCurrData( arg );
+          l.onCurrData( aNewValues );
         }
         catch( Exception ex ) {
           LoggerUtils.errorLogger().error( ex );
@@ -98,18 +102,17 @@ public class SkCoreServRtdata
 
     @Override
     protected void doClearPendingEvents() {
-      map = null;
+      map.clear();
+      wasEvents = false;
     }
 
-    void addChannelWithFreshData( ISkReadCurrDataChannel aChannel ) {
-      if( map == null ) {
-        map = new ElemMap<>();
+    void fireCurrData( IMap<Gwid, IAtomicValue> aNewValues ) {
+      if( isFiringPaused() ) {
+        map.putAll( aNewValues );
+        wasEvents = true;
+        return;
       }
-      map.put( aChannel.gwid(), aChannel );
-    }
-
-    void fireAddedChannels() {
-      doFirePendingEvents();
+      reallyFire( aNewValues );
     }
 
   }
@@ -210,7 +213,17 @@ public class SkCoreServRtdata
 
   @Override
   protected boolean onBackendMessage( GenericMessage aMessage ) {
-    // TODO Auto-generated method stub
+    IMap<Gwid, IAtomicValue> newValues = BaMsgRtdataCurrData.INSTANCE.getNewValues( aMessage );
+    // update curr data values in channels
+    for( Gwid g : newValues.keys() ) {
+      SkReadCurrDataChannel channel = cdReadChannelsMap.findByKey( g );
+      if( channel != null ) {
+        channel.setValue( newValues.getByKey( g ) );
+      }
+    }
+    // fire new data event
+    eventer.fireCurrData( newValues );
+    return true;
   }
 
   // ------------------------------------------------------------------------------------

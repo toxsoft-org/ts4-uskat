@@ -1,11 +1,18 @@
 package org.toxsoft.uskat.core.backend.api;
 
-import static org.toxsoft.core.tslib.av.impl.AvUtils.*;
+import static org.toxsoft.core.tslib.bricks.strio.IStrioHardConstants.*;
 
+import org.toxsoft.core.tslib.av.*;
+import org.toxsoft.core.tslib.av.impl.*;
 import org.toxsoft.core.tslib.bricks.events.msg.*;
+import org.toxsoft.core.tslib.bricks.strio.*;
+import org.toxsoft.core.tslib.bricks.strio.chario.impl.*;
+import org.toxsoft.core.tslib.bricks.strio.impl.*;
+import org.toxsoft.core.tslib.coll.*;
+import org.toxsoft.core.tslib.coll.impl.*;
+import org.toxsoft.core.tslib.gw.gwid.*;
 import org.toxsoft.core.tslib.utils.errors.*;
 import org.toxsoft.uskat.core.api.cmdserv.*;
-import org.toxsoft.uskat.core.impl.dto.*;
 
 /**
  * {@link IBaRtdata} message builder: new values of current data received.
@@ -25,32 +32,57 @@ public class BaMsgRtdataCurrData
    */
   public static final BaMsgRtdataCurrData INSTANCE = new BaMsgRtdataCurrData();
 
-  private static final String ARGID_CMD_DTO = "NewValues"; //$NON-NLS-1$
+  private static final String ARGID_NEW_VALUES = "NewValues"; //$NON-NLS-1$
 
   BaMsgRtdataCurrData() {
     super( ISkCommandService.SERVICE_ID, MSG_ID );
-    defineArgValobj( ARGID_CMD_DTO, DtoCommand.KEEPER_ID, true );
+    defineArgNonValobj( ARGID_NEW_VALUES, EAtomicType.STRING, true );
   }
 
   /**
    * Creates the message instance.
    *
-   * @param aCmd {@link IDtoCommand} - command to execute
+   * @param aNewValues {@link IMap}&lt;{@link Gwid},{@link IAtomicValue}&gt; - map "RTdata GWID" - "current value"
    * @return {@link GtMessage} - created instance of the message
    * @throws TsNullArgumentRtException any argument = <code>null</code>
    */
-  public GtMessage makeMessage( IDtoCommand aCmd ) {
-    return makeMessageVarargs( ARGID_CMD_DTO, avValobj( aCmd ) );
+  public GtMessage makeMessage( IMap<Gwid, IAtomicValue> aNewValues ) {
+    StringBuilder sb = new StringBuilder();
+    IStrioWriter sw = new StrioWriter( new CharOutputStreamAppendable( sb ) );
+    sw.writeChar( CHAR_ARRAY_BEGIN );
+    for( int i = 0, count = aNewValues.size(); i < count; i++ ) {
+      Gwid g = aNewValues.keys().get( i );
+      IAtomicValue v = aNewValues.values().get( i );
+      Gwid.KEEPER.write( sw, g );
+      sw.writeSeparatorChar();
+      AtomicValueKeeper.KEEPER.write( sw, v );
+      if( i < count - 1 ) {
+        sw.writeSeparatorChar();
+      }
+    }
+    sw.writeChar( CHAR_ARRAY_END );
+    return makeMessageVarargs( ARGID_NEW_VALUES, sb.toString() );
   }
 
   /**
-   * Extracts {@link IDtoCommand} argument from the message.
+   * Extracts new current RTdata values argument from the message.
    *
    * @param aMsg {@link GenericMessage} - the message
-   * @return {@link IDtoCommand} - argument extracted from the message
+   * @return {@link IMap}&lt;{@link Gwid},{@link IAtomicValue}&gt; - map "RTdata GWID" - "current value"
    */
-  public IDtoCommand getCmd( GenericMessage aMsg ) {
-    return getArg( aMsg, ARGID_CMD_DTO ).asValobj();
+  public IMap<Gwid, IAtomicValue> getNewValues( GenericMessage aMsg ) {
+    String s = getArg( aMsg, ARGID_NEW_VALUES ).asString();
+    IMapEdit<Gwid, IAtomicValue> map = new ElemMap<>();
+    IStrioReader sr = new StrioReader( new CharInputStreamString( s ) );
+    if( sr.readArrayBegin() ) {
+      do {
+        Gwid g = Gwid.KEEPER.read( sr );
+        sr.ensureSeparatorChar();
+        IAtomicValue v = AtomicValueKeeper.KEEPER.read( sr );
+        map.put( g, v );
+      } while( sr.readArrayNext() );
+    }
+    return map;
   }
 
 }
