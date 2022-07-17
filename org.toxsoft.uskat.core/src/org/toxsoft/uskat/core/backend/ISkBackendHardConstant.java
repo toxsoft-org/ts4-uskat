@@ -98,4 +98,11 @@ public interface ISkBackendHardConstant {
 
   IStridable BAINF_OBJECTS = new Stridable( BAID_OBJECTS, STR_N_BA_OBJECTS, STR_D_BA_OBJECTS );
 
+  // ------------------------------------------------------------------------------------
+  // IBaQueries
+
+  String BAID_QUERIES = SKB_ID + ".Queries"; //$NON-NLS-1$
+
+  IStridable BAINF_QUERIES = new Stridable( BAID_QUERIES, STR_N_BA_QUERIES, STR_D_BA_QUERIES );
+
 }

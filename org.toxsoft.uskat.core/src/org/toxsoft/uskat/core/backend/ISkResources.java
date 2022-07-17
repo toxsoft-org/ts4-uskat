@@ -30,5 +30,7 @@ interface ISkResources {
   String STR_D_BA_COMMANDS = "Commands addon";
   String STR_N_BA_OBJECTS  = "Objects";
   String STR_D_BA_OBJECTS  = "Objects addon";
+  String STR_N_BA_QUERIES  = "Queries";
+  String STR_D_BA_QUERIES  = "Queriesaddon";
 
 }

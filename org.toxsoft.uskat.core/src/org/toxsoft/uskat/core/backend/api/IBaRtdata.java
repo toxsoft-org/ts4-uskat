@@ -2,11 +2,11 @@ package org.toxsoft.uskat.core.backend.api;
 
 import static org.toxsoft.uskat.core.ISkHardConstants.*;
 
+import org.toxsoft.core.tslib.av.*;
 import org.toxsoft.core.tslib.av.temporal.*;
 import org.toxsoft.core.tslib.bricks.time.*;
-import org.toxsoft.core.tslib.coll.primtypes.*;
+import org.toxsoft.core.tslib.coll.*;
 import org.toxsoft.core.tslib.gw.gwid.*;
-import org.toxsoft.core.tslib.utils.errors.*;
 import org.toxsoft.uskat.core.api.evserv.*;
 
 /**
@@ -27,53 +27,13 @@ public interface IBaRtdata
   // ------------------------------------------------------------------------------------
   // Текущие данные
 
-  /**
-   * Конфигурирует, какие текущие РВданные хочет читать клиент.
-   * <p>
-   * Внимание: пустой список или <code>null</code> в качестве первого аргумента <code>aToRemove</code> имеют совершенно
-   * разный смысл! Пустой список означает, что никакие РВданные не удаляются из списка интересующих клиента, в то время,
-   * как <code>null</code> означает, что <b>все</b> до этого интересующие РВданные более не нужны, и должны быть удалены
-   * из списка интересующих клиента.
-   * <p>
-   * Метод возвращает карту. Ключами в карте являются уникальные int-ключи, назначаемыйе сервером запрошенному
-   * РВданному. Значением в карте является {@link Gwid} идентификатор <code>всех</code> запрошенных клиентом данных. То
-   * есть, значения {@link IIntMap#values()} в карте, это список все РВданных, сформированный согласно запросу - ранее
-   * запрошенные данные минус <code>aToRemove</code> плюс <code>aToAdd</code>. При этом в карте отсутствуют
-   * повторяющейся РВ данные.
-   * <p>
-   * Обратите внимание, что сохранение значения ключенй между вызовами метода не гарантируется. Один и тотже
-   * {@link Gwid} может иметь разный ключ после каждого вызова.
-   *
-   * @param aToRemove {@link IGwidList} - список ключей удаляемых РВданных или <code>null</code> для удаления всех
-   * @param aToAdd {@link IGwidList} - список интересующих клиента данных
-   * @return {@link IIntMap}&lt;{@link Gwid}&gt; - карта "уникальный ключ" - "GWID РВданного"
-   * @throws TsNullArgumentRtException <code>aToAdd</code> == null
-   */
-  IIntMap<Gwid> configureCurrDataReader( IGwidList aToRemove, IGwidList aToAdd );
+  void configureCurrDataReader( IList<Gwid> aRtdGwids );
 
-  /**
-   * Конфигурирует, какие текущие РВданные хочет писать клиент.
-   * <p>
-   * Внимание: пустой список или <code>null</code> в качестве первого аргумента имеют совершенно разный смысл! Пустой
-   * список означает, что никакие РВданные не удаляются из списка интересующих клиента, в то время, как
-   * <code>null</code> означает, что <b>все</b> до этого интересующие РВданные более не нужны, и должны быть удалены из
-   * списка интересующих клиента.
-   * <p>
-   * Метод возвращает карту. Ключами в карте являются уникальные int-ключи, назначаемыйе сервером запрошенному
-   * РВданному. Значением в карте является {@link Gwid} идентификатор <code>всех</code> запрошенных клиентом данных. То
-   * есть, значения {@link IIntMap#values()} в карте, это список все РВданных, сформированный согласно запросу - ранее
-   * запрошенные данные минус <code>aToRemove</code> плюс <code>aToAdd</code>. При этом в карте отсутствуют
-   * повторяющейся РВ данные.
-   * <p>
-   * Обратите внимание, что сохранение значения ключенй между вызовами метода не гарантируется. Один и тотже
-   * {@link Gwid} может иметь разный ключ после каждого вызова.
-   *
-   * @param aToRemove {@link IGwidList} - список ключей удаляемых РВданных или <code>null</code> для удаления всех
-   * @param aToAdd {@link IGwidList} - список записываемых клиентом данных
-   * @return {@link IIntMap}&lt;{@link Gwid}&gt; - карта "уникальный ключ" - "GWID РВданного"
-   * @throws TsNullArgumentRtException <code>aToAdd</code> == null
-   */
-  IIntMap<Gwid> configureCurrDataWriter( IGwidList aToRemove, IGwidList aToAdd );
+  void configureCurrDataWriter( IList<Gwid> aRtdGwids );
+
+  void writeCurrData( Gwid aGwid, IAtomicValue aValue );
+
+  void writeHistData( Gwid aGwid, ITimeInterval aInterval, ITimedList<ITemporalAtomicValue> aValues );
 
   /**
    * Returns the single RTdata history for specified time interval.
