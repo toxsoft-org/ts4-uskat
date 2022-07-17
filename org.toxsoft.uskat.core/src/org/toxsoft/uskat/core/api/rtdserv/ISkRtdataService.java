@@ -90,9 +90,6 @@ public interface ISkRtdataService
    * @throws TsIllegalArgumentRtException invalid GWID
    * @throws TsItemNotFoundRtException no such RTdata exists in sysdescr
    */
-
-  // TODO как насчет получать секндные данные по часам?
-
   ITimedList<ITemporalAtomicValue> queryObjRtdata( IQueryInterval aInterval, Gwid aGwid );
 
 }
