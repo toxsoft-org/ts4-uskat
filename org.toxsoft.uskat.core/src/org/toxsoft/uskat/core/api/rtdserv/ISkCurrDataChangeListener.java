@@ -1,5 +1,6 @@
 package org.toxsoft.uskat.core.api.rtdserv;
 
+import org.toxsoft.core.tslib.av.*;
 import org.toxsoft.core.tslib.coll.*;
 import org.toxsoft.core.tslib.gw.gwid.*;
 
@@ -13,8 +14,8 @@ public interface ISkCurrDataChangeListener {
   /**
    * Called when current value(s) of RTdata change.
    *
-   * @param aRtdMap {@link IMap}&lt;{@link Gwid}, {@link ISkReadCurrDataChannel} &gt; - channels with changed values
+   * @param aNewValues {@link IMap}&lt;{@link Gwid},{@link IAtomicValue}&gt; - map "RTdata GWID" - "current value"
    */
-  void onCurrData( IMap<Gwid, ISkReadCurrDataChannel> aRtdMap );
+  void onCurrData( IMap<Gwid, IAtomicValue> aNewValues );
 
 }

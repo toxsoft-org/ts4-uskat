@@ -8,6 +8,8 @@ import org.toxsoft.core.tslib.bricks.time.*;
 import org.toxsoft.core.tslib.coll.*;
 import org.toxsoft.core.tslib.gw.gwid.*;
 import org.toxsoft.uskat.core.api.evserv.*;
+import org.toxsoft.uskat.core.api.rtdserv.*;
+import org.toxsoft.uskat.core.api.sysdescr.dto.*;
 
 /**
  * Backend addon for current and historic RTdata.
@@ -27,12 +29,41 @@ public interface IBaRtdata
   // ------------------------------------------------------------------------------------
   // Текущие данные
 
+  /**
+   * Prepares backend to supply current RTdata values in real-time.
+   *
+   * @param aRtdGwids {@link IList}&lt;{@link Gwid}&gt; - list of current RTdata concrete GWIDs
+   */
   void configureCurrDataReader( IList<Gwid> aRtdGwids );
 
+  /**
+   * Prepares backend to receive current values for the specified RTdata.
+   * <p>
+   * Note: for unprepared GWIDs updating curtret valyes by {@link #writeCurrData(Gwid, IAtomicValue)} has no effect.
+   *
+   * @param aRtdGwids {@link IList}&lt;{@link Gwid}&gt; - list of current RTdata concrete GWIDs
+   */
   void configureCurrDataWriter( IList<Gwid> aRtdGwids );
 
+  /**
+   * Updates the actual value of the current data.
+   * <p>
+   * Note: GWID must be prviously configured for writing by {@link #configureCurrDataWriter(IList)}.
+   *
+   * @param aGwid {@link Gwid} - concrete GWID of RTdata with {@link IDtoRtdataInfo#isCurr()} = <code>true</code>
+   * @param aValue {@link IAtomicValue} - current value of RTdata
+   */
   void writeCurrData( Gwid aGwid, IAtomicValue aValue );
 
+  /**
+   * Writes RTdata data history.
+   * <p>
+   * Arguments are as specified in {@link ISkWriteHistDataChannel#writeValues(ITimeInterval, ITimedList)}.
+   *
+   * @param aGwid {@link Gwid} - concrete GWID of RTdata with {@link IDtoRtdataInfo#isHist()} = <code>true</code>
+   * @param aInterval {@link ITimeInterval} - time interval covered by values
+   * @param aValues {@link Gwid},{@link ITimedList}&lt;{@link ITemporalAtomicValue}&gt; - the values
+   */
   void writeHistData( Gwid aGwid, ITimeInterval aInterval, ITimedList<ITemporalAtomicValue> aValues );
 
   /**

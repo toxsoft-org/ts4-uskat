@@ -105,8 +105,9 @@ interface ISkResources {
   /**
    * {@link SkCoreServRtdata}
    */
-  String FMT_ERR_RTD_CHNL_INV_ATOMIC_TYPE = "RtData channel %s: got %s value instead of %s";
-  String FMT_ERR_CDW_CHANNEL_HAS_NO_KEY   = "CurrDataWrite channel %s has no key(-1)";
+  String FMT_ERR_RTD_CHNL_INV_ATOMIC_TYPE         = "RtData channel %s: got %s value instead of %s";
+  String FMT_ERR_CDW_CHANNEL_HAS_NO_KEY           = "CurrDataWrite channel %s has no key(-1)";
+  String FMT_ERR_HDW_CHANNEL_WRONG_WRITE_INTERVAL = "History data write interval %s is less then values interval %s";
 
   /**
    * {@link SkCoreServSysdescr}
