@@ -52,7 +52,7 @@ import org.toxsoft.uskat.s5.utils.collections.S5FixedCapacityTimedList;
 @Singleton
 @LocalBean
 @DependsOn( { //
-    BACKEND_LOBS_SINGLETON //
+    BACKEND_LINKS_SINGLETON //
 } )
 @TransactionManagement( TransactionManagementType.CONTAINER )
 @TransactionAttribute( TransactionAttributeType.SUPPORTS )

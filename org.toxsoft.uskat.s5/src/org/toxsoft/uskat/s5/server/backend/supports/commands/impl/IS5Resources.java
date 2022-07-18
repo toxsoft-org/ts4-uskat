@@ -9,7 +9,7 @@ import org.toxsoft.uskat.core.impl.Messages;
  */
 interface IS5Resources {
 
-  String STR_D_BACKEND_COMMANDS = Messages.getString( "IS5Resources.STR_D_BACKEND_COMMANDS" ); //$NON-NLS-1$
+  String STR_D_BACKEND_COMMANDS = Messages.getString( "IS5Resources.STR_D_BACKEND_QUERIES" ); //$NON-NLS-1$
   String STR_D_COMMANDS_FACTORY = Messages.getString( "IS5Resources.STR_D_COMMANDS_FACTORY" ); //$NON-NLS-1$
 
   // ------------------------------------------------------------------------------------

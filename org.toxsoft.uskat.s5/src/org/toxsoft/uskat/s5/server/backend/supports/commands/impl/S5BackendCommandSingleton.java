@@ -58,7 +58,7 @@ import org.toxsoft.uskat.s5.utils.jobs.IS5ServerJob;
 @Singleton
 @LocalBean
 @DependsOn( { //
-    BACKEND_EVENTS_SINGLETON //
+    BACKEND_LINKS_SINGLETON //
 } )
 @TransactionManagement( TransactionManagementType.CONTAINER )
 @TransactionAttribute( TransactionAttributeType.SUPPORTS )
@@ -133,7 +133,7 @@ public class S5BackendCommandSingleton
   }
 
   // ------------------------------------------------------------------------------------
-  // Реализация IS5BackendCommandSingleton
+  // Реализация IS5BackendQueriesSingleton
   //
   @TransactionAttribute( TransactionAttributeType.SUPPORTS )
   @Override

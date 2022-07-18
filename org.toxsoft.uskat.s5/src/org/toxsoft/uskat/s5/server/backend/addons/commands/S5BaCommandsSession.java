@@ -20,9 +20,9 @@ import org.toxsoft.uskat.core.api.cmdserv.DtoCommandStateChangeInfo;
 import org.toxsoft.uskat.core.api.cmdserv.IDtoCompletedCommand;
 import org.toxsoft.uskat.core.backend.ISkBackendHardConstant;
 import org.toxsoft.uskat.core.backend.api.IBaCommands;
-import org.toxsoft.uskat.core.backend.api.IBaEvents;
 import org.toxsoft.uskat.core.impl.SkCommand;
 import org.toxsoft.uskat.s5.server.backend.addons.S5AbstractBackendAddonSession;
+import org.toxsoft.uskat.s5.server.backend.addons.queries.IS5BaQueriesSession;
 import org.toxsoft.uskat.s5.server.backend.supports.commands.IS5BackendCommandSingleton;
 import org.toxsoft.uskat.s5.server.backend.supports.sysdescr.IS5BackendSysDescrSingleton;
 import org.toxsoft.uskat.s5.server.sessions.init.IS5SessionInitData;
@@ -30,7 +30,7 @@ import org.toxsoft.uskat.s5.server.sessions.init.S5SessionInitResult;
 import org.toxsoft.uskat.s5.server.sessions.pas.S5SessionCallbackWriter;
 
 /**
- * Реализация сессии расширения бекенда {@link IS5BaCommandsSession}.
+ * Реализация сессии расширения бекенда {@link IS5BaQueriesSession}.
  *
  * @author mvk
  */
@@ -61,7 +61,7 @@ class S5BaCommandsSession
    * Пустой конструктор.
    */
   public S5BaCommandsSession() {
-    super( ISkBackendHardConstant.BAINF_EVENTS );
+    super( ISkBackendHardConstant.BAINF_COMMANDS );
   }
 
   // ------------------------------------------------------------------------------------
@@ -76,15 +76,15 @@ class S5BaCommandsSession
   protected void doAfterInit( S5SessionCallbackWriter aCallbackWriter, IS5SessionInitData aInitData,
       S5SessionInitResult aInitResult ) {
     S5BaCommandsData baData = new S5BaCommandsData();
-    S5BaCommandsData initData = aInitData.findBackendAddonData( IBaEvents.ADDON_ID, S5BaCommandsData.class );
+    S5BaCommandsData initData = aInitData.findBackendAddonData( IBaCommands.ADDON_ID, S5BaCommandsData.class );
     if( initData != null ) {
       baData.commands.setHandledCommandGwids( initData.commands.getHandledCommandGwids() );
     }
-    frontend().frontendData().setBackendAddonData( IBaEvents.ADDON_ID, baData );
+    frontend().frontendData().setBackendAddonData( IBaCommands.ADDON_ID, baData );
   }
 
   // ------------------------------------------------------------------------------------
-  // Реализация IS5BaCommandsSession
+  // Реализация IS5BaQueriesSession
   //
   @Override
   public SkCommand sendCommand( Gwid aCmdGwid, Skid aAuthorSkid, IOptionSet aArgs ) {
@@ -117,7 +117,7 @@ class S5BaCommandsSession
       // Вывод в журнал информации о регистрации ресурсов в сессии
       StringBuilder sb = new StringBuilder();
       sb.append( String.format( "setHandledCommandGwids(...): sessionID = %s, changed executor list:", sessionID() ) ); //$NON-NLS-1$
-      sb.append( String.format( "\n   === events (%d) === ", //$NON-NLS-1$
+      sb.append( String.format( "\n   === commands (%d) === ", //$NON-NLS-1$
           Integer.valueOf( baData.commands.getHandledCommandGwids().size() ) ) );
       for( Gwid gwid : baData.commands.getHandledCommandGwids() ) {
         sb.append( String.format( "\n   %s", gwid ) ); //$NON-NLS-1$
