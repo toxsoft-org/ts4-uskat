@@ -17,6 +17,7 @@ import org.toxsoft.uskat.core.api.clobserv.ISkClobService;
 import org.toxsoft.uskat.core.api.cmdserv.ISkCommandService;
 import org.toxsoft.uskat.core.api.evserv.ISkEventService;
 import org.toxsoft.uskat.core.api.gwids.ISkGwidService;
+import org.toxsoft.uskat.core.api.hqserv.ISkHistoryQueryService;
 import org.toxsoft.uskat.core.api.linkserv.ISkLinkService;
 import org.toxsoft.uskat.core.api.objserv.ISkObjectService;
 import org.toxsoft.uskat.core.api.rtdserv.ISkRtdataService;
@@ -34,15 +35,16 @@ public final class S5SynchronizedCoreApi
     extends S5SynchronizedResource<ISkCoreApi>
     implements ISkCoreApi {
 
-  private final S5SynchronizedSysdescrService sysdescr;
-  private final S5SynchronizedObjectService   objService;
-  private final S5SynchronizedLinkService     linkService;
-  private final S5SynchronizedClobService     clobService;
-  private final S5SynchronizedRtDataService   rtdService;
-  private final S5SynchronizedCommandService  cmdService;
-  private final S5SynchronizedEventService    eventService;
-  private final S5SynchronizedUserService     userService;
-  private final S5SynchronizedGwidService     gwidService;
+  private final S5SynchronizedSysdescrService     sysdescr;
+  private final S5SynchronizedObjectService       objService;
+  private final S5SynchronizedLinkService         linkService;
+  private final S5SynchronizedClobService         clobService;
+  private final S5SynchronizedRtDataService       rtdService;
+  private final S5SynchronizedCommandService      cmdService;
+  private final S5SynchronizedEventService        eventService;
+  private final S5SynchronizedHistoryQueryService hqService;
+  private final S5SynchronizedUserService         userService;
+  private final S5SynchronizedGwidService         gwidService;
 
   private final IStringMapEdit<ISkService> services;
 
@@ -64,6 +66,7 @@ public final class S5SynchronizedCoreApi
     rtdService = new S5SynchronizedRtDataService( aTarget.rtdService(), aLock );
     cmdService = new S5SynchronizedCommandService( aTarget.cmdService(), aLock );
     eventService = new S5SynchronizedEventService( aTarget.eventService(), aLock );
+    hqService = new S5SynchronizedHistoryQueryService( aTarget.hqService(), aLock );
     userService = new S5SynchronizedUserService( aTarget.userService(), aLock );
     gwidService = new S5SynchronizedGwidService( aTarget.gwidService(), aLock );
     services = new SynchronizedStringMap<>( new StringMap<>(), aLock );
@@ -74,6 +77,7 @@ public final class S5SynchronizedCoreApi
     services.put( rtdService.serviceId(), rtdService );
     services.put( cmdService.serviceId(), cmdService );
     services.put( eventService.serviceId(), eventService );
+    services.put( hqService.serviceId(), hqService );
     // TODO: ???
     // services.put( userService.serviceId(), userService );
     services.put( ISkUserService.SERVICE_ID, userService );
@@ -156,6 +160,11 @@ public final class S5SynchronizedCoreApi
   @Override
   public ISkEventService eventService() {
     return eventService;
+  }
+
+  @Override
+  public ISkHistoryQueryService hqService() {
+    return hqService;
   }
 
   @Override

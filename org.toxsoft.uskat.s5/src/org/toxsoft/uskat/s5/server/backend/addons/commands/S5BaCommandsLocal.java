@@ -46,7 +46,7 @@ class S5BaCommandsLocal
    * @throws TsNullArgumentRtException any argument = <code>null</code>
    */
   public S5BaCommandsLocal( IS5BackendLocal aOwner ) {
-    super( aOwner, ISkBackendHardConstant.BAINF_EVENTS );
+    super( aOwner, ISkBackendHardConstant.BAINF_COMMANDS );
     // Синглтон поддержки чтения/записи системного описания
     commandsSupport = aOwner.backendSingleton().get( S5BackendCommandSingleton.BACKEND_COMMANDS_ID,
         IS5BackendCommandSingleton.class );
