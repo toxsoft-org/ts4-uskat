@@ -1,7 +1,11 @@
 package org.toxsoft.uskat.backend.memtext;
 
+import static org.toxsoft.core.tslib.av.impl.AvUtils.*;
+import static org.toxsoft.uskat.core.backend.ISkBackendHardConstant.*;
+
 import org.toxsoft.core.tslib.av.*;
 import org.toxsoft.core.tslib.av.opset.*;
+import org.toxsoft.core.tslib.av.opset.impl.*;
 import org.toxsoft.core.tslib.bricks.ctx.*;
 import org.toxsoft.core.tslib.bricks.events.change.*;
 import org.toxsoft.core.tslib.bricks.keeper.*;
@@ -83,7 +87,9 @@ public abstract class MtbAbstractBackend
     allAddons.put( baCommands.id(), baCommands );
     baQueries = new MtbBaQueries( this );
     allAddons.put( baQueries.id(), baQueries );
-    backendInfo = new SkBackendInfo( aBackendId, System.currentTimeMillis(), aBackendInfoValue );
+    IOptionSetEdit backendInfoValue = new OptionSet( aBackendInfoValue );
+    OPDEF_SKBI_NEED_THREAD_SAFE_FRONTEND.setValue( backendInfoValue, AV_TRUE );
+    backendInfo = new SkBackendInfo( aBackendId, System.currentTimeMillis(), backendInfoValue );
   }
 
   // ------------------------------------------------------------------------------------
