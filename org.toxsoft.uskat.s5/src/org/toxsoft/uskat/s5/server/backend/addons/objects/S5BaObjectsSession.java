@@ -65,18 +65,21 @@ class S5BaObjectsSession
   // ------------------------------------------------------------------------------------
   // Реализация IS5BaObjectsSession
   //
+  @TransactionAttribute( TransactionAttributeType.SUPPORTS )
   @Override
   public IDtoObject findObject( Skid aSkid ) {
     TsNullArgumentRtException.checkNull( aSkid );
     return objectsSupport.findObject( aSkid );
   }
 
+  @TransactionAttribute( TransactionAttributeType.SUPPORTS )
   @Override
   public IList<IDtoObject> readObjects( IStringList aClassIds ) {
     TsNullArgumentRtException.checkNull( aClassIds );
     return objectsSupport.readObjects( aClassIds );
   }
 
+  @TransactionAttribute( TransactionAttributeType.SUPPORTS )
   @Override
   public IList<IDtoObject> readObjectsByIds( ISkidList aSkids ) {
     TsNullArgumentRtException.checkNulls( aSkids );

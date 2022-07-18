@@ -1,4 +1,4 @@
-package org.toxsoft.uskat.s5.server.backend.addons.queries;
+package org.toxsoft.uskat.s5.server.backend.addons.rtdata;
 
 import static org.toxsoft.uskat.s5.server.IS5ImplementConstants.*;
 
@@ -6,20 +6,21 @@ import java.util.concurrent.TimeUnit;
 
 import javax.ejb.*;
 
-import org.toxsoft.core.tslib.av.opset.IOptionSet;
-import org.toxsoft.core.tslib.bricks.time.IQueryInterval;
-import org.toxsoft.core.tslib.coll.primtypes.IStringMap;
+import org.toxsoft.core.tslib.av.IAtomicValue;
+import org.toxsoft.core.tslib.av.temporal.ITemporalAtomicValue;
+import org.toxsoft.core.tslib.bricks.time.*;
+import org.toxsoft.core.tslib.coll.IList;
+import org.toxsoft.core.tslib.gw.gwid.Gwid;
 import org.toxsoft.core.tslib.utils.errors.TsNullArgumentRtException;
-import org.toxsoft.uskat.core.api.hqserv.IDtoQueryParam;
 import org.toxsoft.uskat.core.backend.ISkBackendHardConstant;
 import org.toxsoft.uskat.s5.server.backend.addons.S5AbstractBackendAddonSession;
-import org.toxsoft.uskat.s5.server.backend.supports.queries.IS5BackendQueriesSingleton;
+import org.toxsoft.uskat.s5.server.backend.supports.rtdata.IS5BackendRtdataSingleton;
 import org.toxsoft.uskat.s5.server.sessions.init.IS5SessionInitData;
 import org.toxsoft.uskat.s5.server.sessions.init.S5SessionInitResult;
 import org.toxsoft.uskat.s5.server.sessions.pas.S5SessionCallbackWriter;
 
 /**
- * Реализация сессии расширения бекенда {@link IS5BaQueriesSession}.
+ * Реализация сессии расширения бекенда {@link IS5BaRtdataSession}.
  *
  * @author mvk
  */
@@ -28,31 +29,31 @@ import org.toxsoft.uskat.s5.server.sessions.pas.S5SessionCallbackWriter;
 @AccessTimeout( value = ACCESS_TIMEOUT_DEFAULT, unit = TimeUnit.MILLISECONDS )
 @TransactionManagement( TransactionManagementType.CONTAINER )
 @TransactionAttribute( TransactionAttributeType.SUPPORTS )
-class S5BaQueriesSession
+class S5BaRtdataSession
     extends S5AbstractBackendAddonSession
-    implements IS5BaQueriesSession {
+    implements IS5BaRtdataSession {
 
   private static final long serialVersionUID = 157157L;
 
   /**
-   * Поддержка сервера запросов хранимых данных
+   * Поддержка сервера запросов к данным реального времени
    */
   @EJB
-  private IS5BackendQueriesSingleton queriesSupport;
+  private IS5BackendRtdataSingleton rtdataSupport;
 
   /**
    * Пустой конструктор.
    */
-  public S5BaQueriesSession() {
-    super( ISkBackendHardConstant.BAINF_QUERIES );
+  public S5BaRtdataSession() {
+    super( ISkBackendHardConstant.BAINF_RTDATA );
   }
 
   // ------------------------------------------------------------------------------------
   // Реализация шаблонных методов S5BackendAddonSession
   //
   @Override
-  protected Class<? extends IS5BaQueriesSession> doGetSessionView() {
-    return IS5BaQueriesSession.class;
+  protected Class<? extends IS5BaRtdataSession> doGetSessionView() {
+    return IS5BaRtdataSession.class;
   }
 
   @Override
@@ -62,40 +63,40 @@ class S5BaQueriesSession
   }
 
   // ------------------------------------------------------------------------------------
-  // Реализация IS5BaQueriesSession
+  // Реализация IS5BaRtdataSession
   //
   @TransactionAttribute( TransactionAttributeType.SUPPORTS )
   @Override
-  public String createQuery( IOptionSet aParams ) {
-    TsNullArgumentRtException.checkNull( aParams );
-    return queriesSupport.createQuery( aParams );
+  public void configureCurrDataReader( IList<Gwid> aRtdGwids ) {
+    TsNullArgumentRtException.checkNull( aRtdGwids );
+    rtdataSupport.configureCurrDataReader( aRtdGwids );
   }
 
   @TransactionAttribute( TransactionAttributeType.SUPPORTS )
   @Override
-  public void prepareQuery( String aQueryId, IStringMap<IDtoQueryParam> aParams ) {
-    TsNullArgumentRtException.checkNulls( aQueryId, aParams );
-    queriesSupport.prepareQuery( aQueryId, aParams );
+  public void configureCurrDataWriter( IList<Gwid> aRtdGwids ) {
+    TsNullArgumentRtException.checkNull( aRtdGwids );
+    rtdataSupport.configureCurrDataWriter( aRtdGwids );
   }
 
   @TransactionAttribute( TransactionAttributeType.SUPPORTS )
   @Override
-  public void execQuery( String aQueryId, IQueryInterval aTimeInterval ) {
-    TsNullArgumentRtException.checkNulls( aQueryId, aTimeInterval );
-    queriesSupport.execQuery( aQueryId, aTimeInterval );
+  public void writeCurrData( Gwid aGwid, IAtomicValue aValue ) {
+    TsNullArgumentRtException.checkNulls( aGwid, aValue );
+    rtdataSupport.writeCurrData( aGwid, aValue );
   }
 
   @TransactionAttribute( TransactionAttributeType.SUPPORTS )
   @Override
-  public void cancel( String aQueryId ) {
-    TsNullArgumentRtException.checkNull( aQueryId );
-    queriesSupport.cancel( aQueryId );
+  public void writeHistData( Gwid aGwid, ITimeInterval aInterval, ITimedList<ITemporalAtomicValue> aValues ) {
+    TsNullArgumentRtException.checkNulls( aGwid, aInterval, aValues );
+    rtdataSupport.writeHistData( aGwid, aInterval, aValues );
   }
 
   @TransactionAttribute( TransactionAttributeType.SUPPORTS )
   @Override
-  public void close( String aQueryId ) {
-    TsNullArgumentRtException.checkNull( aQueryId );
-    queriesSupport.close( aQueryId );
+  public ITimedList<ITemporalAtomicValue> queryObjRtdata( IQueryInterval aInterval, Gwid aGwid ) {
+    TsNullArgumentRtException.checkNulls( aInterval, aGwid );
+    return rtdataSupport.queryObjRtdata( aInterval, aGwid );
   }
 }

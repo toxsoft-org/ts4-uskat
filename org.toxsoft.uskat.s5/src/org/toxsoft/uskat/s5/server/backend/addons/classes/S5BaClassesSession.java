@@ -64,6 +64,7 @@ class S5BaClassesSession
   // ------------------------------------------------------------------------------------
   // Реализация IS5BaClassesSession
   //
+  @TransactionAttribute( TransactionAttributeType.SUPPORTS )
   @Override
   public IStridablesList<IDtoClassInfo> readClassInfos() {
     return sysdescrSupport.readClassInfos();
