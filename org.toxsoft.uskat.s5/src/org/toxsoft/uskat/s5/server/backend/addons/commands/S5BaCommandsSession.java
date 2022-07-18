@@ -86,6 +86,7 @@ class S5BaCommandsSession
   // ------------------------------------------------------------------------------------
   // Реализация IS5BaQueriesSession
   //
+  @TransactionAttribute( TransactionAttributeType.SUPPORTS )
   @Override
   public SkCommand sendCommand( Gwid aCmdGwid, Skid aAuthorSkid, IOptionSet aArgs ) {
     TsNullArgumentRtException.checkNulls( aCmdGwid, aAuthorSkid, aArgs );
@@ -102,6 +103,7 @@ class S5BaCommandsSession
     return retValue;
   }
 
+  @TransactionAttribute( TransactionAttributeType.NOT_SUPPORTED )
   @Override
   public void setHandledCommandGwids( IGwidList aGwids ) {
     TsNullArgumentRtException.checkNull( aGwids );
@@ -128,23 +130,27 @@ class S5BaCommandsSession
     commandsSupport.setHandledCommandGwids( aGwids );
   }
 
+  @TransactionAttribute( TransactionAttributeType.REQUIRED )
   @Override
   public void changeCommandState( DtoCommandStateChangeInfo aStateChangeInfo ) {
     TsNullArgumentRtException.checkNull( aStateChangeInfo );
     commandsSupport.changeCommandState( aStateChangeInfo );
   }
 
+  @TransactionAttribute( TransactionAttributeType.SUPPORTS )
   @Override
   public IGwidList listGloballyHandledCommandGwids() {
     return commandsSupport.listGloballyHandledCommandGwids();
   }
 
+  @TransactionAttribute( TransactionAttributeType.REQUIRED )
   @Override
   public void saveToHistory( IDtoCompletedCommand aCompletedCommand ) {
     TsNullArgumentRtException.checkNull( aCompletedCommand );
     commandsSupport.saveToHistory( aCompletedCommand );
   }
 
+  @TransactionAttribute( TransactionAttributeType.SUPPORTS )
   @Override
   public ITimedList<IDtoCompletedCommand> queryObjCommands( IQueryInterval aInterval, Gwid aGwid ) {
     TsNullArgumentRtException.checkNulls( aInterval, aGwid );

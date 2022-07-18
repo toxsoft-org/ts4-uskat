@@ -1,4 +1,4 @@
-package org.toxsoft.uskat.s5.server.backend.supports.queries.impl;
+package org.toxsoft.uskat.s5.server.backend.supports.rtdata.impl;
 
 /**
  * Локализуемые ресурсы реализации.
@@ -8,7 +8,7 @@ package org.toxsoft.uskat.s5.server.backend.supports.queries.impl;
 @SuppressWarnings( "nls" )
 interface IS5Resources {
 
-  String STR_D_BACKEND_QUERIES = "Подджержка расширения бекенда: 'запросы к хранимым данным'";
+  String STR_D_BACKEND_RTDATA = "Подджержка расширения бекенда: 'доступ к данным реального времени'";
 
   // ------------------------------------------------------------------------------------
   // Строки сообщений

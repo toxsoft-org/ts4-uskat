@@ -1,23 +1,24 @@
-package org.toxsoft.uskat.s5.server.backend.supports.queries.impl;
+package org.toxsoft.uskat.s5.server.backend.supports.rtdata.impl;
 
 import static org.toxsoft.uskat.s5.server.IS5ImplementConstants.*;
-import static org.toxsoft.uskat.s5.server.backend.supports.queries.impl.IS5Resources.*;
+import static org.toxsoft.uskat.s5.server.backend.supports.rtdata.impl.IS5Resources.*;
 
 import java.util.concurrent.TimeUnit;
 
 import javax.ejb.*;
 
-import org.toxsoft.core.tslib.av.opset.IOptionSet;
-import org.toxsoft.core.tslib.bricks.time.IQueryInterval;
-import org.toxsoft.core.tslib.coll.primtypes.IStringMap;
+import org.toxsoft.core.tslib.av.IAtomicValue;
+import org.toxsoft.core.tslib.av.temporal.ITemporalAtomicValue;
+import org.toxsoft.core.tslib.bricks.time.*;
+import org.toxsoft.core.tslib.coll.IList;
+import org.toxsoft.core.tslib.gw.gwid.Gwid;
 import org.toxsoft.core.tslib.utils.errors.TsNullArgumentRtException;
-import org.toxsoft.uskat.core.api.hqserv.IDtoQueryParam;
 import org.toxsoft.uskat.s5.server.backend.impl.S5BackendSupportSingleton;
-import org.toxsoft.uskat.s5.server.backend.supports.queries.IS5BackendQueriesSingleton;
+import org.toxsoft.uskat.s5.server.backend.supports.rtdata.IS5BackendRtdataSingleton;
 import org.toxsoft.uskat.s5.utils.jobs.IS5ServerJob;
 
 /**
- * Реализация синглетона {@link IS5BackendQueriesSingleton}
+ * Реализация синглетона {@link IS5BackendRtdataSingleton}
  *
  * @author mvk
  */
@@ -33,16 +34,16 @@ import org.toxsoft.uskat.s5.utils.jobs.IS5ServerJob;
 @ConcurrencyManagement( ConcurrencyManagementType.BEAN )
 @AccessTimeout( value = ACCESS_TIMEOUT_DEFAULT, unit = TimeUnit.MILLISECONDS )
 @Lock( LockType.READ )
-public class S5BackendQueriesSingleton
+public class S5BackendRtdataSingleton
     extends S5BackendSupportSingleton
-    implements IS5BackendQueriesSingleton, IS5ServerJob {
+    implements IS5BackendRtdataSingleton, IS5ServerJob {
 
   private static final long serialVersionUID = 157157L;
 
   /**
    * Имя синглетона в контейнере сервера для организации зависимостей (@DependsOn)
    */
-  public static final String BACKEND_QUERIES_ID = "S5BackendQueriesSingleton"; //$NON-NLS-1$
+  public static final String BACKEND_RTDATA_ID = "S5BackendRtdataSingleton"; //$NON-NLS-1$
 
   /**
    * Интервал выполнения doJob (мсек)
@@ -52,8 +53,8 @@ public class S5BackendQueriesSingleton
   /**
    * Конструктор.
    */
-  public S5BackendQueriesSingleton() {
-    super( BACKEND_QUERIES_ID, STR_D_BACKEND_QUERIES );
+  public S5BackendRtdataSingleton() {
+    super( BACKEND_RTDATA_ID, STR_D_BACKEND_RTDATA );
   }
 
   // ------------------------------------------------------------------------------------
@@ -73,45 +74,42 @@ public class S5BackendQueriesSingleton
   }
 
   // ------------------------------------------------------------------------------------
-  // Реализация IS5BackendQueriesSingleton
+  // Реализация IS5BackendRtdataSingleton
   //
   @TransactionAttribute( TransactionAttributeType.SUPPORTS )
   @Override
-  public String createQuery( IOptionSet aParams ) {
-    TsNullArgumentRtException.checkNull( aParams );
+  public void configureCurrDataReader( IList<Gwid> aRtdGwids ) {
+    TsNullArgumentRtException.checkNull( aRtdGwids );
+    // TODO Auto-generated method stub
+  }
+
+  @TransactionAttribute( TransactionAttributeType.SUPPORTS )
+  @Override
+  public void configureCurrDataWriter( IList<Gwid> aRtdGwids ) {
+    TsNullArgumentRtException.checkNull( aRtdGwids );
+    // TODO Auto-generated method stub
+  }
+
+  @TransactionAttribute( TransactionAttributeType.SUPPORTS )
+  @Override
+  public void writeCurrData( Gwid aGwid, IAtomicValue aValue ) {
+    TsNullArgumentRtException.checkNulls( aGwid, aValue );
+    // TODO Auto-generated method stub
+  }
+
+  @TransactionAttribute( TransactionAttributeType.REQUIRED )
+  @Override
+  public void writeHistData( Gwid aGwid, ITimeInterval aInterval, ITimedList<ITemporalAtomicValue> aValues ) {
+    TsNullArgumentRtException.checkNulls( aGwid, aInterval, aValues );
+    // TODO Auto-generated method stub
+  }
+
+  @TransactionAttribute( TransactionAttributeType.SUPPORTS )
+  @Override
+  public ITimedList<ITemporalAtomicValue> queryObjRtdata( IQueryInterval aInterval, Gwid aGwid ) {
+    TsNullArgumentRtException.checkNulls( aInterval, aGwid );
     // TODO Auto-generated method stub
     return null;
-  }
-
-  @TransactionAttribute( TransactionAttributeType.SUPPORTS )
-  @Override
-  public void prepareQuery( String aQueryId, IStringMap<IDtoQueryParam> aParams ) {
-    TsNullArgumentRtException.checkNulls( aQueryId, aParams );
-    // TODO Auto-generated method stub
-
-  }
-
-  @TransactionAttribute( TransactionAttributeType.SUPPORTS )
-  @Override
-  public void execQuery( String aQueryId, IQueryInterval aTimeInterval ) {
-    TsNullArgumentRtException.checkNulls( aQueryId, aTimeInterval );
-    // TODO Auto-generated method stub
-
-  }
-
-  @TransactionAttribute( TransactionAttributeType.SUPPORTS )
-  @Override
-  public void cancel( String aQueryId ) {
-    TsNullArgumentRtException.checkNull( aQueryId );
-    // TODO Auto-generated method stub
-
-  }
-
-  @Override
-  public void close( String aQueryId ) {
-    TsNullArgumentRtException.checkNull( aQueryId );
-    // TODO Auto-generated method stub
-
   }
 
 }

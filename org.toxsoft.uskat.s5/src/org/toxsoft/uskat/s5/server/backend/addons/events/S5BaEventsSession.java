@@ -79,12 +79,14 @@ class S5BaEventsSession
   // ------------------------------------------------------------------------------------
   // Реализация IS5BaEventsSession
   //
+  @TransactionAttribute( TransactionAttributeType.REQUIRED )
   @Override
   public void fireEvents( ISkEventList aEvents ) {
     TsNullArgumentRtException.checkNull( aEvents );
     eventsSupport.fireEvents( frontend(), aEvents );
   }
 
+  @TransactionAttribute( TransactionAttributeType.SUPPORTS )
   @Override
   public void subscribeToEvents( IGwidList aNeededGwids ) {
     TsNullArgumentRtException.checkNull( aNeededGwids );
@@ -108,6 +110,7 @@ class S5BaEventsSession
 
   }
 
+  @TransactionAttribute( TransactionAttributeType.SUPPORTS )
   @Override
   public ITimedList<SkEvent> queryObjEvents( IQueryInterval aInterval, Gwid aGwid ) {
     TsNullArgumentRtException.checkNulls( aInterval, aGwid );
