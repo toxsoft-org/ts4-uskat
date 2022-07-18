@@ -21,6 +21,10 @@ interface ISkResources {
   String STR_D_IS_CMDS_STORED           = "Specifies if events history  will be stored permanently";
   String STR_N_MAX_CMDS_COUNT           = "Max Commands";
   String STR_D_MAX_CMDS_COUNT           = "Maximum number of commands in history";
+  String STR_N_HISTORY_DEPTH_HOURS      = "History hours";
+  String STR_D_HISTORY_DEPTH_HOURS      = "RTdata history will be kept for specified number of hours";
+  String STR_N_CURR_DATA_10MS_TICKS     = "CurrData 10ms ticks";
+  String STR_D_CURR_DATA_10MS_TICKS     = "Current data will be checked and updated every specified ticks of 10 msec";
 
   /**
    * {@link MtbBackendToFile}

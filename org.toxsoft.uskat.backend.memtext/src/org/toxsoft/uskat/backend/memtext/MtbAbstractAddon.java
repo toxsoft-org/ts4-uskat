@@ -22,6 +22,15 @@ public abstract class MtbAbstractAddon
     implements ITsClearable, ICloseable, IKeepableEntity {
 
   /**
+   * TODO list for memtext addon:
+   * <ol>
+   * <li>some saved data need to be explicitly removed as sysdescr changes, like CLOBs or history data;</li>
+   * <li>xxx;</li>
+   * <li>zzz.</li>
+   * </ol>
+   */
+
+  /**
    * Constructor for subclasses.
    * <p>
    * Addon may store it's data in textual representation as named section (described
