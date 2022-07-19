@@ -1,6 +1,5 @@
 package org.toxsoft.uskat.core.api.users;
 
-import org.toxsoft.uskat.core.*;
 import org.toxsoft.uskat.core.api.objserv.*;
 
 /**
@@ -14,7 +13,7 @@ public interface ISkRole
   /**
    * The {@link ISkRole} class identifier.
    */
-  String CLASS_ID = ISkHardConstants.SK_ID + ".Role"; //$NON-NLS-1$
+  String CLASS_ID = ISkUserServiceHardConstants.CLSID_ROLE;
 
   /**
    * Determines if the role is allowed to connect to server.

@@ -16,8 +16,6 @@ import org.toxsoft.core.tslib.utils.errors.*;
 
 /**
  * Backend to frontend message builder classed base implementation.
- * <p>
- * TODO describe usage
  *
  * @author hazard157
  */

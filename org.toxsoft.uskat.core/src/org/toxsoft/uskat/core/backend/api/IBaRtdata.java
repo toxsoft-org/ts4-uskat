@@ -32,18 +32,18 @@ public interface IBaRtdata
   /**
    * Prepares backend to supply current RTdata values in real-time.
    *
-   * @param aRtdGwids {@link IList}&lt;{@link Gwid}&gt; - list of current RTdata concrete GWIDs
+   * @param aRtdGwids {@link IGwidList} - list of current RTdata concrete GWIDs
    */
-  void configureCurrDataReader( IList<Gwid> aRtdGwids );
+  void configureCurrDataReader( IGwidList aRtdGwids );
 
   /**
    * Prepares backend to receive current values for the specified RTdata.
    * <p>
    * Note: for unprepared GWIDs updating curtret valyes by {@link #writeCurrData(Gwid, IAtomicValue)} has no effect.
    *
-   * @param aRtdGwids {@link IList}&lt;{@link Gwid}&gt; - list of current RTdata concrete GWIDs
+   * @param aRtdGwids {@link IGwidList} - list of current RTdata concrete GWIDs
    */
-  void configureCurrDataWriter( IList<Gwid> aRtdGwids );
+  void configureCurrDataWriter( IGwidList aRtdGwids );
 
   /**
    * Updates the actual value of the current data.

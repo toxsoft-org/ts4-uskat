@@ -24,7 +24,7 @@ public class MtbBaQueries
    * @throws TsNullArgumentRtException any argument = <code>null</code>
    */
   public MtbBaQueries( MtbAbstractBackend aOwner ) {
-    super( aOwner, ISkBackendHardConstant.BAINF_LINKS );
+    super( aOwner, ISkBackendHardConstant.BAINF_QUERIES );
   }
 
   // ------------------------------------------------------------------------------------

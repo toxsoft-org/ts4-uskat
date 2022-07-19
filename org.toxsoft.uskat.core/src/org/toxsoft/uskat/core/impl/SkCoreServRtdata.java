@@ -320,7 +320,7 @@ public class SkCoreServRtdata
       result.put( g, channel );
     }
     // inform backend
-    ba().baRtdata().configureCurrDataReader( gwids );
+    ba().baRtdata().configureCurrDataReader( new GwidList( cdReadChannelsMap.keys() ) );
     return result;
   }
 
@@ -393,7 +393,7 @@ public class SkCoreServRtdata
       result.put( g, channel );
     }
     // inform backend
-    ba().baRtdata().configureCurrDataWriter( cdWriteChannelsMap.keys() );
+    ba().baRtdata().configureCurrDataWriter( new GwidList( cdWriteChannelsMap.keys() ) );
     return result;
   }
 

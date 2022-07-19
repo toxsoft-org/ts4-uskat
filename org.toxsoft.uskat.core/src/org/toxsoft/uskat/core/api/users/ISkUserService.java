@@ -26,8 +26,8 @@ import org.toxsoft.uskat.core.connection.*;
  * object {@link ISkUser#strid()};</li>
  * <li>to open the connection mandatory arguments login and password ({@link ISkConnectionConstants#ARGDEF_LOGIN} and
  * {@link ISkConnectionConstants#ARGID_PASSWORD}) must be specified;</li>
- * <li>there always exists the guest user {@link ISkUserServiceHardConstants#GUEST_USER_ID} and the guest role
- * {@link ISkUserServiceHardConstants#GUEST_ROLE_ID} which simply does not allows any data or functionality it is asked
+ * <li>there always exists the guest user {@link ISkUserServiceHardConstants#USER_ID_GUEST} and the guest role
+ * {@link ISkUserServiceHardConstants#ROLE_ID_GUEST} which simply does not allows any data or functionality it is asked
  * for. Other data and fucnctionality is allowed for guest role. Guest user roles can not be changed and iot has the
  * only role - the guest role. However, either guest user or guest role may be disabled;</li>
  * <li>the user may be temporarily disabled - {@link ISkUser#isEnabled()} = <code>false</code>. Disabled users are not

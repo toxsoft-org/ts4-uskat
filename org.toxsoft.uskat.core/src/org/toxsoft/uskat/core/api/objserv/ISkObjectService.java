@@ -98,7 +98,7 @@ public interface ISkObjectService
   IList<ISkObject> getObjs( ISkidList aSkids );
 
   /**
-   * Cretes new or updates an existing object. Создает новый или редактирует существующий объект.
+   * Cretes new or updates an existing object.
    *
    * @param <T> - expected type of the object
    * @param aDtoObject {@link IDtoObject} - the object data
@@ -143,7 +143,7 @@ public interface ISkObjectService
   IMap<Gwid, ISkidList> getAllRivetsRev( Skid aRightSkid );
 
   /**
-   * /** Removes multiple obejcts at once.
+   * Removes multiple obejcts at once.
    * <p>
    * All forward links of all removed objects are also deleted.
    *

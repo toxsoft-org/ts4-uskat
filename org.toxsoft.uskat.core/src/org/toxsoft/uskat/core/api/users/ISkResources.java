@@ -5,25 +5,24 @@ package org.toxsoft.uskat.core.api.users;
  *
  * @author mvk
  */
-@SuppressWarnings( "nls" )
 interface ISkResources {
 
   /**
    * {@link ISkUserServiceHardConstants}
    */
-  String STR_N_USER         = "Пользователь";
-  String STR_D_USER         = "Пользователь или программный модуль, имеющий право входа в систему";
-  String STR_N_PASSORD      = "Пароль";
-  String STR_D_PASSORD      = "Пароль пользователя (точнее, хеш-код для проверки)";
-  String STR_N_ROLES        = "Роли";
-  String STR_D_ROLES        = "Роли, под которым пользователь может войти в систему";
-  String STR_N_USER_ENABLED = "Разрешен?";
-  String STR_D_USER_ENABLED = "Признак разрешения пользователя на вход в систему";
-  String STR_N_USER_HIDDEN  = "Скрыт?";
-  String STR_D_USER_HIDDEN  = "Признак скрытия пользоватея в списках обычного администрирования";
-  String STR_N_ROLE_ENABLED = "Разрешен?";
-  String STR_D_ROLE_ENABLED = "Признак разрешения входа в систему с этой ролью";
-  String STR_N_ROLE_HIDDEN  = "Скрыт?";
-  String STR_D_ROLE_HIDDEN  = "Признак скрытия пользоватея в списках обычного администрирования";
+  String STR_N_USER         = Messages.getString( "STR_N_USER" );         //$NON-NLS-1$
+  String STR_D_USER         = Messages.getString( "STR_D_USER" );         //$NON-NLS-1$
+  String STR_N_PASSWORD     = Messages.getString( "STR_N_PASSWORD" );     //$NON-NLS-1$
+  String STR_D_PASSWORD     = Messages.getString( "STR_D_PASSWORD" );     //$NON-NLS-1$
+  String STR_N_ROLES        = Messages.getString( "STR_N_ROLES" );        //$NON-NLS-1$
+  String STR_D_ROLES        = Messages.getString( "STR_D_ROLES" );        //$NON-NLS-1$
+  String STR_N_USER_ENABLED = Messages.getString( "STR_N_USER_ENABLED" ); //$NON-NLS-1$
+  String STR_D_USER_ENABLED = Messages.getString( "STR_D_USER_ENABLED" ); //$NON-NLS-1$
+  String STR_N_USER_HIDDEN  = Messages.getString( "STR_N_USER_HIDDEN" );  //$NON-NLS-1$
+  String STR_D_USER_HIDDEN  = Messages.getString( "STR_D_USER_HIDDEN" );  //$NON-NLS-1$
+  String STR_N_ROLE_ENABLED = Messages.getString( "STR_N_ROLE_ENABLED" ); //$NON-NLS-1$
+  String STR_D_ROLE_ENABLED = Messages.getString( "STR_D_ROLE_ENABLED" ); //$NON-NLS-1$
+  String STR_N_ROLE_HIDDEN  = Messages.getString( "STR_N_ROLE_HIDDEN" );  //$NON-NLS-1$
+  String STR_D_ROLE_HIDDEN  = Messages.getString( "STR_D_ROLE_HIDDEN" );  //$NON-NLS-1$
 
 }
