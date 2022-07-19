@@ -1,24 +1,22 @@
-package org.toxsoft.uskat.s5.server.backend.supports.rtdata.impl;
+package org.toxsoft.uskat.s5.server.backend.supports.histdata.impl;
 
 import static org.toxsoft.uskat.s5.server.IS5ImplementConstants.*;
-import static org.toxsoft.uskat.s5.server.backend.supports.rtdata.impl.IS5Resources.*;
+import static org.toxsoft.uskat.s5.server.backend.supports.histdata.impl.IS5Resources.*;
 
 import java.util.concurrent.TimeUnit;
 
 import javax.ejb.*;
 
-import org.toxsoft.core.tslib.av.IAtomicValue;
 import org.toxsoft.core.tslib.av.temporal.ITemporalAtomicValue;
 import org.toxsoft.core.tslib.bricks.time.*;
-import org.toxsoft.core.tslib.coll.IList;
 import org.toxsoft.core.tslib.gw.gwid.Gwid;
 import org.toxsoft.core.tslib.utils.errors.TsNullArgumentRtException;
 import org.toxsoft.uskat.s5.server.backend.impl.S5BackendSupportSingleton;
-import org.toxsoft.uskat.s5.server.backend.supports.rtdata.IS5BackendRtdataSingleton;
+import org.toxsoft.uskat.s5.server.backend.supports.histdata.IS5BackendHistDataSingleton;
 import org.toxsoft.uskat.s5.utils.jobs.IS5ServerJob;
 
 /**
- * Реализация синглетона {@link IS5BackendRtdataSingleton}
+ * Реализация синглетона {@link IS5BackendHistDataSingleton}
  *
  * @author mvk
  */
@@ -34,16 +32,18 @@ import org.toxsoft.uskat.s5.utils.jobs.IS5ServerJob;
 @ConcurrencyManagement( ConcurrencyManagementType.BEAN )
 @AccessTimeout( value = ACCESS_TIMEOUT_DEFAULT, unit = TimeUnit.MILLISECONDS )
 @Lock( LockType.READ )
-public class S5BackendRtdataSingleton
+public class S5BackendHistDataSingleton
+    // TODO:
+    // extends S5BackendSequenceSupportSingleton<IS5HistDataSequence, ITemporalAtomicValue>
     extends S5BackendSupportSingleton
-    implements IS5BackendRtdataSingleton, IS5ServerJob {
+    implements IS5BackendHistDataSingleton, IS5ServerJob {
 
   private static final long serialVersionUID = 157157L;
 
   /**
    * Имя синглетона в контейнере сервера для организации зависимостей (@DependsOn)
    */
-  public static final String BACKEND_RTDATA_ID = "S5BackendRtdataSingleton"; //$NON-NLS-1$
+  public static final String BACKEND_HISTDATA_ID = "S5BackendHistDataSingleton"; //$NON-NLS-1$
 
   /**
    * Интервал выполнения doJob (мсек)
@@ -53,8 +53,8 @@ public class S5BackendRtdataSingleton
   /**
    * Конструктор.
    */
-  public S5BackendRtdataSingleton() {
-    super( BACKEND_RTDATA_ID, STR_D_BACKEND_RTDATA );
+  public S5BackendHistDataSingleton() {
+    super( BACKEND_HISTDATA_ID, STR_D_BACKEND_HISTDATA );
   }
 
   // ------------------------------------------------------------------------------------
@@ -74,41 +74,20 @@ public class S5BackendRtdataSingleton
   }
 
   // ------------------------------------------------------------------------------------
-  // Реализация IS5BackendRtdataSingleton
+  // Реализация IS5BackendHistDataSingleton
   //
-  @TransactionAttribute( TransactionAttributeType.SUPPORTS )
-  @Override
-  public void configureCurrDataReader( IList<Gwid> aRtdGwids ) {
-    TsNullArgumentRtException.checkNull( aRtdGwids );
-    // TODO Auto-generated method stub
-  }
-
-  @TransactionAttribute( TransactionAttributeType.SUPPORTS )
-  @Override
-  public void configureCurrDataWriter( IList<Gwid> aRtdGwids ) {
-    TsNullArgumentRtException.checkNull( aRtdGwids );
-    // TODO Auto-generated method stub
-  }
-
-  @TransactionAttribute( TransactionAttributeType.SUPPORTS )
-  @Override
-  public void writeCurrData( Gwid aGwid, IAtomicValue aValue ) {
-    TsNullArgumentRtException.checkNulls( aGwid, aValue );
-    // TODO Auto-generated method stub
-  }
-
   @TransactionAttribute( TransactionAttributeType.REQUIRED )
   @Override
   public void writeHistData( Gwid aGwid, ITimeInterval aInterval, ITimedList<ITemporalAtomicValue> aValues ) {
     TsNullArgumentRtException.checkNulls( aGwid, aInterval, aValues );
-    // TODO Auto-generated method stub
+    // TODO:
   }
 
   @TransactionAttribute( TransactionAttributeType.SUPPORTS )
   @Override
   public ITimedList<ITemporalAtomicValue> queryObjRtdata( IQueryInterval aInterval, Gwid aGwid ) {
     TsNullArgumentRtException.checkNulls( aInterval, aGwid );
-    // TODO Auto-generated method stub
+    // TODO:
     return null;
   }
 

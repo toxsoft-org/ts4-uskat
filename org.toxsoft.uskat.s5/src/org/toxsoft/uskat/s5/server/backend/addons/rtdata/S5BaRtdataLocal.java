@@ -11,8 +11,10 @@ import org.toxsoft.uskat.core.backend.ISkBackendHardConstant;
 import org.toxsoft.uskat.core.backend.api.IBaRtdata;
 import org.toxsoft.uskat.s5.server.backend.addons.IS5BackendLocal;
 import org.toxsoft.uskat.s5.server.backend.addons.S5AbstractBackendAddonLocal;
-import org.toxsoft.uskat.s5.server.backend.supports.rtdata.IS5BackendRtdataSingleton;
-import org.toxsoft.uskat.s5.server.backend.supports.rtdata.impl.S5BackendRtdataSingleton;
+import org.toxsoft.uskat.s5.server.backend.supports.currdata.IS5BackendCurrDataSingleton;
+import org.toxsoft.uskat.s5.server.backend.supports.currdata.impl.S5BackendCurrDataSingleton;
+import org.toxsoft.uskat.s5.server.backend.supports.histdata.IS5BackendHistDataSingleton;
+import org.toxsoft.uskat.s5.server.backend.supports.histdata.impl.S5BackendHistDataSingleton;
 
 /**
  * Local {@link IBaRtdata} implementation.
@@ -24,9 +26,14 @@ class S5BaRtdataLocal
     implements IBaRtdata {
 
   /**
-   * Поддержка сервера обработки запросов к данным реального времени
+   * Поддержка сервера обработки запросов к текущим данным
    */
-  private final IS5BackendRtdataSingleton rtdataSupport;
+  private final IS5BackendCurrDataSingleton currDataSupport;
+
+  /**
+   * Поддержка сервера обработки запросов к хранимым данным
+   */
+  private final IS5BackendHistDataSingleton histDataSupport;
 
   /**
    * Constructor.
@@ -36,9 +43,10 @@ class S5BaRtdataLocal
    */
   public S5BaRtdataLocal( IS5BackendLocal aOwner ) {
     super( aOwner, ISkBackendHardConstant.BAINF_RTDATA );
-    // Синглтон поддержки чтения/записи системного описания
-    rtdataSupport =
-        aOwner.backendSingleton().get( S5BackendRtdataSingleton.BACKEND_RTDATA_ID, IS5BackendRtdataSingleton.class );
+    currDataSupport = aOwner.backendSingleton().get( S5BackendCurrDataSingleton.BACKEND_CURRDATA_ID,
+        IS5BackendCurrDataSingleton.class );
+    histDataSupport = aOwner.backendSingleton().get( S5BackendHistDataSingleton.BACKEND_HISTDATA_ID,
+        IS5BackendHistDataSingleton.class );
   }
 
   // ------------------------------------------------------------------------------------
@@ -61,30 +69,30 @@ class S5BaRtdataLocal
   @Override
   public void configureCurrDataReader( IList<Gwid> aRtdGwids ) {
     TsNullArgumentRtException.checkNull( aRtdGwids );
-    rtdataSupport.configureCurrDataReader( aRtdGwids );
+    currDataSupport.configureCurrDataReader( aRtdGwids );
   }
 
   @Override
   public void configureCurrDataWriter( IList<Gwid> aRtdGwids ) {
     TsNullArgumentRtException.checkNull( aRtdGwids );
-    rtdataSupport.configureCurrDataWriter( aRtdGwids );
+    currDataSupport.configureCurrDataWriter( aRtdGwids );
   }
 
   @Override
   public void writeCurrData( Gwid aGwid, IAtomicValue aValue ) {
     TsNullArgumentRtException.checkNulls( aGwid, aValue );
-    rtdataSupport.writeCurrData( aGwid, aValue );
+    currDataSupport.writeCurrData( aGwid, aValue );
   }
 
   @Override
   public void writeHistData( Gwid aGwid, ITimeInterval aInterval, ITimedList<ITemporalAtomicValue> aValues ) {
     TsNullArgumentRtException.checkNulls( aGwid, aInterval, aValues );
-    rtdataSupport.writeHistData( aGwid, aInterval, aValues );
+    histDataSupport.writeHistData( aGwid, aInterval, aValues );
   }
 
   @Override
   public ITimedList<ITemporalAtomicValue> queryObjRtdata( IQueryInterval aInterval, Gwid aGwid ) {
     TsNullArgumentRtException.checkNulls( aInterval, aGwid );
-    return rtdataSupport.queryObjRtdata( aInterval, aGwid );
+    return histDataSupport.queryObjRtdata( aInterval, aGwid );
   }
 }
