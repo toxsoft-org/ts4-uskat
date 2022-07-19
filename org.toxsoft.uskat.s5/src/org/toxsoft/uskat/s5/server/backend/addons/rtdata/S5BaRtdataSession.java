@@ -14,7 +14,8 @@ import org.toxsoft.core.tslib.gw.gwid.Gwid;
 import org.toxsoft.core.tslib.utils.errors.TsNullArgumentRtException;
 import org.toxsoft.uskat.core.backend.ISkBackendHardConstant;
 import org.toxsoft.uskat.s5.server.backend.addons.S5AbstractBackendAddonSession;
-import org.toxsoft.uskat.s5.server.backend.supports.rtdata.IS5BackendRtdataSingleton;
+import org.toxsoft.uskat.s5.server.backend.supports.currdata.IS5BackendCurrDataSingleton;
+import org.toxsoft.uskat.s5.server.backend.supports.histdata.IS5BackendHistDataSingleton;
 import org.toxsoft.uskat.s5.server.sessions.init.IS5SessionInitData;
 import org.toxsoft.uskat.s5.server.sessions.init.S5SessionInitResult;
 import org.toxsoft.uskat.s5.server.sessions.pas.S5SessionCallbackWriter;
@@ -36,10 +37,16 @@ class S5BaRtdataSession
   private static final long serialVersionUID = 157157L;
 
   /**
-   * Поддержка сервера запросов к данным реального времени
+   * Поддержка сервера запросов к текущим данным
    */
   @EJB
-  private IS5BackendRtdataSingleton rtdataSupport;
+  private IS5BackendCurrDataSingleton currDataSupport;
+
+  /**
+   * Поддержка сервера запросов к хранимым данным
+   */
+  @EJB
+  private IS5BackendHistDataSingleton histDataSupport;
 
   /**
    * Пустой конструктор.
@@ -69,34 +76,34 @@ class S5BaRtdataSession
   @Override
   public void configureCurrDataReader( IList<Gwid> aRtdGwids ) {
     TsNullArgumentRtException.checkNull( aRtdGwids );
-    rtdataSupport.configureCurrDataReader( aRtdGwids );
+    currDataSupport.configureCurrDataReader( aRtdGwids );
   }
 
   @TransactionAttribute( TransactionAttributeType.SUPPORTS )
   @Override
   public void configureCurrDataWriter( IList<Gwid> aRtdGwids ) {
     TsNullArgumentRtException.checkNull( aRtdGwids );
-    rtdataSupport.configureCurrDataWriter( aRtdGwids );
+    currDataSupport.configureCurrDataWriter( aRtdGwids );
   }
 
   @TransactionAttribute( TransactionAttributeType.SUPPORTS )
   @Override
   public void writeCurrData( Gwid aGwid, IAtomicValue aValue ) {
     TsNullArgumentRtException.checkNulls( aGwid, aValue );
-    rtdataSupport.writeCurrData( aGwid, aValue );
+    currDataSupport.writeCurrData( aGwid, aValue );
   }
 
-  @TransactionAttribute( TransactionAttributeType.SUPPORTS )
+  @TransactionAttribute( TransactionAttributeType.REQUIRED )
   @Override
   public void writeHistData( Gwid aGwid, ITimeInterval aInterval, ITimedList<ITemporalAtomicValue> aValues ) {
     TsNullArgumentRtException.checkNulls( aGwid, aInterval, aValues );
-    rtdataSupport.writeHistData( aGwid, aInterval, aValues );
+    histDataSupport.writeHistData( aGwid, aInterval, aValues );
   }
 
   @TransactionAttribute( TransactionAttributeType.SUPPORTS )
   @Override
   public ITimedList<ITemporalAtomicValue> queryObjRtdata( IQueryInterval aInterval, Gwid aGwid ) {
     TsNullArgumentRtException.checkNulls( aInterval, aGwid );
-    return rtdataSupport.queryObjRtdata( aInterval, aGwid );
+    return histDataSupport.queryObjRtdata( aInterval, aGwid );
   }
 }

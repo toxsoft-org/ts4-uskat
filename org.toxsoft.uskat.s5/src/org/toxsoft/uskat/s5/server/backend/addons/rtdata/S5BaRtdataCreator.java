@@ -9,7 +9,8 @@ import org.toxsoft.uskat.core.backend.api.IBaRtdata;
 import org.toxsoft.uskat.core.impl.AbstractSkService;
 import org.toxsoft.uskat.core.impl.SkCoreServRtdata;
 import org.toxsoft.uskat.s5.server.backend.addons.*;
-import org.toxsoft.uskat.s5.server.backend.supports.rtdata.impl.S5BackendRtdataSingleton;
+import org.toxsoft.uskat.s5.server.backend.supports.currdata.impl.S5BackendCurrDataSingleton;
+import org.toxsoft.uskat.s5.server.backend.supports.histdata.impl.S5BackendHistDataSingleton;
 
 /**
  * Построитель расширения бекенда {@link IBaRtdata} для s5
@@ -52,7 +53,8 @@ public class S5BaRtdataCreator
   @Override
   protected IStringList doSupportSingletonIds() {
     return new StringArrayList( //
-        S5BackendRtdataSingleton.BACKEND_RTDATA_ID//
+        S5BackendCurrDataSingleton.BACKEND_CURRDATA_ID, //
+        S5BackendHistDataSingleton.BACKEND_HISTDATA_ID//
     );
   }
 
