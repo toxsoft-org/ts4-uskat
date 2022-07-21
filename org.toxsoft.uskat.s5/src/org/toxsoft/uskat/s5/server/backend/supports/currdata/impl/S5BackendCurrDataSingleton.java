@@ -1,6 +1,7 @@
 package org.toxsoft.uskat.s5.server.backend.supports.currdata.impl;
 
 import static org.toxsoft.uskat.s5.server.IS5ImplementConstants.*;
+import static org.toxsoft.uskat.s5.server.backend.supports.currdata.impl.IS5CurrDataInterceptor.*;
 import static org.toxsoft.uskat.s5.server.backend.supports.currdata.impl.IS5Resources.*;
 
 import java.util.HashSet;
@@ -15,15 +16,19 @@ import org.toxsoft.core.tslib.av.IAtomicValue;
 import org.toxsoft.core.tslib.coll.IList;
 import org.toxsoft.core.tslib.coll.IMap;
 import org.toxsoft.core.tslib.gw.IGwHardConstants;
-import org.toxsoft.core.tslib.gw.gwid.Gwid;
-import org.toxsoft.core.tslib.gw.gwid.IGwidList;
+import org.toxsoft.core.tslib.gw.gwid.*;
+import org.toxsoft.core.tslib.utils.errors.TsInternalErrorRtException;
 import org.toxsoft.core.tslib.utils.errors.TsNullArgumentRtException;
+import org.toxsoft.uskat.core.backend.api.BaMsgRtdataCurrData;
+import org.toxsoft.uskat.core.backend.api.IBaRtdata;
 import org.toxsoft.uskat.s5.common.sysdescr.ISkSysdescrReader;
+import org.toxsoft.uskat.s5.server.backend.addons.rtdata.S5BaRtdataData;
 import org.toxsoft.uskat.s5.server.backend.impl.S5BackendSupportSingleton;
 import org.toxsoft.uskat.s5.server.backend.supports.currdata.IS5BackendCurrDataSingleton;
 import org.toxsoft.uskat.s5.server.backend.supports.currdata.impl.cluster.S5ClusterCommandCurrdataUnlockGwids;
 import org.toxsoft.uskat.s5.server.backend.supports.objects.IS5BackendObjectsSingleton;
 import org.toxsoft.uskat.s5.server.backend.supports.sysdescr.IS5BackendSysDescrSingleton;
+import org.toxsoft.uskat.s5.server.frontend.IS5FrontendRear;
 import org.toxsoft.uskat.s5.server.interceptors.S5InterceptorSupport;
 import org.toxsoft.uskat.s5.utils.jobs.IS5ServerJob;
 
@@ -164,47 +169,157 @@ public class S5BackendCurrDataSingleton
   //
   @TransactionAttribute( TransactionAttributeType.SUPPORTS )
   @Override
-  public void configureCurrDataReader( IList<Gwid> aRtdGwids ) {
-    TsNullArgumentRtException.checkNull( aRtdGwids );
-    // TODO Auto-generated method stub
-  }
-
-  @TransactionAttribute( TransactionAttributeType.SUPPORTS )
-  @Override
-  public void configureCurrDataWriter( IList<Gwid> aRtdGwids ) {
-    TsNullArgumentRtException.checkNull( aRtdGwids );
-    // TODO Auto-generated method stub
-  }
-
-  @TransactionAttribute( TransactionAttributeType.SUPPORTS )
-  @Override
-  public void writeCurrData( Gwid aGwid, IAtomicValue aValue ) {
-    TsNullArgumentRtException.checkNulls( aGwid, aValue );
-    // TODO Auto-generated method stub
-  }
-
-  @Override
   public void reconfigure( IGwidList aRemoveRtdGwids, IMap<Gwid, IAtomicValue> aAddRtdGwids ) {
+    TsNullArgumentRtException.checkNulls( aRemoveRtdGwids, aAddRtdGwids );
+
+    // Пред-вызов интерсепторов
+    if( !callBeforeReconfigureCurrData( interceptors, aRemoveRtdGwids, aAddRtdGwids ) ) {
+      // Интерсепторы отклонили изменение набора
+      logger().info( MSG_REJECT_CONFIGURE_BY_INTERCEPTORS );
+      return;
+    }
+
+    try {
+      // Удаление данных из кэша
+      for( Gwid gwid : aRemoveRtdGwids ) {
+        currdataValuesCache.remove( gwid );
+      }
+
+      // Размещение данных в кэше
+      for( Gwid gwid : aAddRtdGwids.keys() ) {
+        currdataValuesCache.put( gwid, aAddRtdGwids.getByKey( gwid ) );
+      }
+    }
+    catch( Throwable e ) {
+      // Неожиданные ошибки
+      throw new TsInternalErrorRtException( e );
+    }
+    // Требование обновить состояние набора
+    // TODO: 2020-07-30 mvk ???
+    // dataset = null;
+    // debugIndexes = null;
+    // Оповещение других узлов: boolean remoteOnly = true; boolean primaryOnly = false
+    // TODO: 2020-07-30
+    // clusterManager().sendAsyncCommand( createUpdateCurrdataCommand(), true, false );
+    // Возвращаем полученный результат
+    // TODO: 2020-07-30 mvk ???
+    // return dataset();
+
+    // Пост-вызов интерсепторов
+    callAfterReconfigureCurrData( interceptors, aRemoveRtdGwids, aAddRtdGwids, logger() );
+
+  }
+
+  @TransactionAttribute( TransactionAttributeType.SUPPORTS )
+  @Override
+  public void configureCurrDataReader( IS5FrontendRear aFrontend, IGwidList aRtdGwids ) {
+    TsNullArgumentRtException.checkNulls( aFrontend, aRtdGwids );
+
+    // Данные фронтенда
+    S5BaRtdataData baData = aFrontend.frontendData().findBackendAddonData( IBaRtdata.ADDON_ID, S5BaRtdataData.class );
+    // Удаляемые данные из подписки
+    GwidList removeRtdGwids = new GwidList( baData.readRtdGwids );
+    // Добавляемые данные в подписку
+    GwidList addRtdGwids = new GwidList();
+    for( Gwid rtdGwid : aRtdGwids ) {
+      if( removeRtdGwids.remove( rtdGwid ) < 0 ) {
+        addRtdGwids.add( rtdGwid );
+      }
+    }
+    // Пред-вызов интерсепторов
+    if( !callBeforeConfigureCurrDataReader( interceptors, aFrontend, removeRtdGwids, addRtdGwids ) ) {
+      // Интерсепторы отклонили регистрацию читателя данных
+      logger().info( MSG_REJECT_READER_BY_INTERCEPTORS );
+      return;
+    }
+
+    // Пост-вызов интерсепторов
+    callAfterConfigureCurrDataReader( interceptors, aFrontend, removeRtdGwids, addRtdGwids, logger() );
+    // Фактическое выполнение подписки на данные
+    baData.readRtdGwids.setAll( aRtdGwids );
+
+    // Планирование передачи текущих значений для вновь подписанных данных
+    if( addRtdGwids.size() > 0 ) {
+      IMap<Gwid, IAtomicValue> values = readValues( addRtdGwids );
+      aFrontend.onBackendMessage( BaMsgRtdataCurrData.INSTANCE.makeMessage( values ) );
+    }
+  }
+
+  @TransactionAttribute( TransactionAttributeType.SUPPORTS )
+  @Override
+  public void configureCurrDataWriter( IS5FrontendRear aFrontend, IGwidList aRtdGwids ) {
+    TsNullArgumentRtException.checkNulls( aFrontend, aRtdGwids );
+
+    // Данные фронтенда
+    S5BaRtdataData baData = aFrontend.frontendData().findBackendAddonData( IBaRtdata.ADDON_ID, S5BaRtdataData.class );
+    // Удаляемые данные из подписки
+    GwidList removeRtdGwids = new GwidList( baData.writeRtdGwids );
+    // Добавляемые данные в подписку
+    GwidList addRtdGwids = new GwidList();
+    for( Gwid rtdGwid : aRtdGwids ) {
+      if( removeRtdGwids.remove( rtdGwid ) < 0 ) {
+        addRtdGwids.add( rtdGwid );
+      }
+    }
+    // Пред-вызов интерсепторов
+    if( !callBeforeConfigureCurrDataWriter( interceptors, aFrontend, removeRtdGwids, addRtdGwids ) ) {
+      // Интерсепторы отклонили регистрацию читателя данных
+      logger().info( MSG_REJECT_READER_BY_INTERCEPTORS );
+      return;
+    }
+
+    // Пост-вызов интерсепторов
+    callAfterConfigureCurrDataWriter( interceptors, aFrontend, removeRtdGwids, addRtdGwids, logger() );
+    // Фактическое выполнение подписки на данные
+    baData.writeRtdGwids.setAll( aRtdGwids );
+  }
+
+  @TransactionAttribute( TransactionAttributeType.SUPPORTS )
+  @Override
+  public IGwidList readRtdGwids() {
+    // TODO Auto-generated method stub
+    return null;
+  }
+
+  @TransactionAttribute( TransactionAttributeType.SUPPORTS )
+  @Override
+  public IGwidList writeRtdGwids() {
+    // TODO Auto-generated method stub
+    return null;
+  }
+
+  @TransactionAttribute( TransactionAttributeType.SUPPORTS )
+  @Override
+  public IMap<Gwid, IAtomicValue> readValues( IGwidList aRtdGwids ) {
+    // TODO Auto-generated method stub
+    return null;
+  }
+
+  @TransactionAttribute( TransactionAttributeType.SUPPORTS )
+  @Override
+  public void writeValues( IMap<Gwid, IAtomicValue> aValues ) {
     // TODO Auto-generated method stub
 
   }
 
+  @TransactionAttribute( TransactionAttributeType.SUPPORTS )
   @Override
   public void addCurrDataInterceptor( IS5CurrDataInterceptor aInterceptor, int aPriority ) {
     // TODO Auto-generated method stub
 
   }
 
+  @TransactionAttribute( TransactionAttributeType.SUPPORTS )
   @Override
   public void removeCurrDataInterceptor( IS5CurrDataInterceptor aInterceptor ) {
     // TODO Auto-generated method stub
 
   }
 
+  @TransactionAttribute( TransactionAttributeType.SUPPORTS )
   @Override
-  public boolean remoteUnlockGwids( IList<Gwid> aGwids ) {
+  public boolean remoteUnlockGwids( IList<Gwid> aRtdGwids ) {
     // TODO Auto-generated method stub
     return false;
   }
-
 }

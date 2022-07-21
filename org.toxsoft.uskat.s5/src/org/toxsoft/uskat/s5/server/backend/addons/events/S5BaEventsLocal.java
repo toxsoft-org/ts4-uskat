@@ -31,7 +31,7 @@ class S5BaEventsLocal
   /**
    * Данные конфигурации фронтенда для {@link IBaEvents}
    */
-  private S5BaEventsData frontendData = new S5BaEventsData();
+  private S5BaEventsData baData = new S5BaEventsData();
 
   /**
    * Constructor.
@@ -45,7 +45,7 @@ class S5BaEventsLocal
     eventsSupport =
         aOwner.backendSingleton().get( S5BackendEventSingleton.BACKEND_EVENTS_ID, IS5BackendEventSingleton.class );
     // Установка конфигурации фронтенда
-    frontend().frontendData().setBackendAddonData( IBaEvents.ADDON_ID, frontendData );
+    frontend().frontendData().setBackendAddonData( IBaEvents.ADDON_ID, baData );
   }
 
   // ------------------------------------------------------------------------------------
@@ -74,7 +74,7 @@ class S5BaEventsLocal
   @Override
   public void subscribeToEvents( IGwidList aNeededGwids ) {
     TsNullArgumentRtException.checkNull( aNeededGwids );
-    frontendData.events.setNeededEventGwids( aNeededGwids );
+    baData.events.setNeededEventGwids( aNeededGwids );
   }
 
   @Override

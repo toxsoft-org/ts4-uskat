@@ -4,8 +4,8 @@ import org.toxsoft.core.tslib.av.IAtomicValue;
 import org.toxsoft.core.tslib.av.temporal.ITemporalAtomicValue;
 import org.toxsoft.core.tslib.bricks.events.msg.GtMessage;
 import org.toxsoft.core.tslib.bricks.time.*;
-import org.toxsoft.core.tslib.coll.IList;
 import org.toxsoft.core.tslib.gw.gwid.Gwid;
+import org.toxsoft.core.tslib.gw.gwid.IGwidList;
 import org.toxsoft.core.tslib.utils.errors.TsNullArgumentRtException;
 import org.toxsoft.uskat.core.backend.ISkBackendHardConstant;
 import org.toxsoft.uskat.core.backend.api.IBaRtdata;
@@ -48,13 +48,13 @@ class S5BaRtdataRemote
   // IBaRtdata
   //
   @Override
-  public void configureCurrDataReader( IList<Gwid> aRtdGwids ) {
+  public void configureCurrDataReader( IGwidList aRtdGwids ) {
     TsNullArgumentRtException.checkNull( aRtdGwids );
     session().configureCurrDataReader( aRtdGwids );
   }
 
   @Override
-  public void configureCurrDataWriter( IList<Gwid> aRtdGwids ) {
+  public void configureCurrDataWriter( IGwidList aRtdGwids ) {
     TsNullArgumentRtException.checkNull( aRtdGwids );
     session().configureCurrDataWriter( aRtdGwids );
   }

@@ -8,8 +8,10 @@ import org.toxsoft.core.tslib.bricks.keeper.IEntityKeeper;
 import org.toxsoft.core.tslib.bricks.strio.IStrioReader;
 import org.toxsoft.core.tslib.bricks.strio.IStrioWriter;
 import org.toxsoft.core.tslib.coll.IList;
+import org.toxsoft.core.tslib.coll.impl.ElemMap;
 import org.toxsoft.core.tslib.coll.primtypes.IIntList;
-import org.toxsoft.core.tslib.coll.primtypes.impl.IntMap;
+import org.toxsoft.core.tslib.gw.gwid.Gwid;
+import org.toxsoft.core.tslib.gw.gwid.GwidList;
 import org.toxsoft.core.tslib.utils.valobj.TsValobjUtils;
 
 /**
@@ -21,7 +23,7 @@ import org.toxsoft.core.tslib.utils.valobj.TsValobjUtils;
  * @author mvk
  */
 public final class SkCurrDataValues
-    extends IntMap<IAtomicValue> {
+    extends ElemMap<Gwid, IAtomicValue> {
 
   private static final long serialVersionUID = 4820728049991582042L;
 
@@ -38,7 +40,7 @@ public final class SkCurrDataValues
 
         @Override
         protected void doWrite( IStrioWriter aSw, SkCurrDataValues aEntity ) {
-          IntListKeeper.KEEPER.write( aSw, aEntity.keys() );
+          GwidList.KEEPER.write( aSw, new GwidList( aEntity.keys() ) );
           AtomicValueKeeper.KEEPER.writeColl( aSw, aEntity.values(), false );
         }
 

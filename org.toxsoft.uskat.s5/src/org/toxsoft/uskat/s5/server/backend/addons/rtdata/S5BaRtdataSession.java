@@ -9,10 +9,11 @@ import javax.ejb.*;
 import org.toxsoft.core.tslib.av.IAtomicValue;
 import org.toxsoft.core.tslib.av.temporal.ITemporalAtomicValue;
 import org.toxsoft.core.tslib.bricks.time.*;
-import org.toxsoft.core.tslib.coll.IList;
 import org.toxsoft.core.tslib.gw.gwid.Gwid;
+import org.toxsoft.core.tslib.gw.gwid.IGwidList;
 import org.toxsoft.core.tslib.utils.errors.TsNullArgumentRtException;
 import org.toxsoft.uskat.core.backend.ISkBackendHardConstant;
+import org.toxsoft.uskat.core.backend.api.IBaCommands;
 import org.toxsoft.uskat.s5.server.backend.addons.S5AbstractBackendAddonSession;
 import org.toxsoft.uskat.s5.server.backend.supports.currdata.IS5BackendCurrDataSingleton;
 import org.toxsoft.uskat.s5.server.backend.supports.histdata.IS5BackendHistDataSingleton;
@@ -66,7 +67,8 @@ class S5BaRtdataSession
   @Override
   protected void doAfterInit( S5SessionCallbackWriter aCallbackWriter, IS5SessionInitData aInitData,
       S5SessionInitResult aInitResult ) {
-    // nop
+    S5BaRtdataData baData = new S5BaRtdataData();
+    frontend().frontendData().setBackendAddonData( IBaCommands.ADDON_ID, baData );
   }
 
   // ------------------------------------------------------------------------------------
@@ -74,16 +76,20 @@ class S5BaRtdataSession
   //
   @TransactionAttribute( TransactionAttributeType.SUPPORTS )
   @Override
-  public void configureCurrDataReader( IList<Gwid> aRtdGwids ) {
+  public void configureCurrDataReader( IGwidList aRtdGwids ) {
     TsNullArgumentRtException.checkNull( aRtdGwids );
-    currDataSupport.configureCurrDataReader( aRtdGwids );
+    currDataSupport.configureCurrDataReader( frontend(), aRtdGwids );
+    // Сохранение измененной сессии в кластере сервера
+    writeSessionData();
   }
 
   @TransactionAttribute( TransactionAttributeType.SUPPORTS )
   @Override
-  public void configureCurrDataWriter( IList<Gwid> aRtdGwids ) {
+  public void configureCurrDataWriter( IGwidList aRtdGwids ) {
     TsNullArgumentRtException.checkNull( aRtdGwids );
-    currDataSupport.configureCurrDataWriter( aRtdGwids );
+    currDataSupport.configureCurrDataWriter( frontend(), aRtdGwids );
+    // Сохранение измененной сессии в кластере сервера
+    writeSessionData();
   }
 
   @TransactionAttribute( TransactionAttributeType.SUPPORTS )

@@ -1,4 +1,4 @@
-package org.toxsoft.uskat.s5.utils.datasets;
+package org.toxsoft.uskat.s5.server.backend.addons.rtdata.pas;
 
 import java.util.MissingResourceException;
 import java.util.ResourceBundle;
@@ -6,7 +6,7 @@ import java.util.ResourceBundle;
 @SuppressWarnings( { "unused" } )
 class Messages {
 
-  private static final String BUNDLE_NAME = "org.toxsoft.uskat.s5.utils.datasets.messages"; //$NON-NLS-1$
+  private static final String BUNDLE_NAME = "org.toxsoft.uskat.s5.server.backend.addons.rtdata.pas.messages"; //$NON-NLS-1$
 
   private static final ResourceBundle RESOURCE_BUNDLE = ResourceBundle.getBundle( BUNDLE_NAME );
 

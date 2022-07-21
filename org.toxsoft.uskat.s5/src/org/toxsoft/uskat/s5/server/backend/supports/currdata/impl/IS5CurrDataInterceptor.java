@@ -4,7 +4,6 @@ import javax.ejb.Local;
 
 import org.toxsoft.core.tslib.av.IAtomicValue;
 import org.toxsoft.core.tslib.coll.IMap;
-import org.toxsoft.core.tslib.coll.primtypes.IIntMap;
 import org.toxsoft.core.tslib.gw.gwid.Gwid;
 import org.toxsoft.core.tslib.gw.gwid.IGwidList;
 import org.toxsoft.core.tslib.utils.errors.TsIllegalStateRtException;
@@ -153,26 +152,26 @@ public interface IS5CurrDataInterceptor
    * {@link IS5BackendCurrDataSingleton#reconfigure(IGwidList, IMap)} или
    * {@link IS5BackendCurrDataSingleton#configureCurrDataWriter(IS5FrontendRear, IGwidList, IGwidList)}.
    *
-   * @param aValues {@link IIntMap}&lt;{@link IAtomicValue}&gt; - записываемые значения
+   * @param aValues {@link IMap}&lt;{@link Gwid},{@link IAtomicValue}&gt; - записываемые значения
    * @return boolean <b>true</b> разрешить дальнейшее выполнение операции;<b>false</b> отменить выполнение операции.
    * @throws TsNullArgumentRtException аргумент = null
    */
-  boolean beforeWriteCurrData( IIntMap<IAtomicValue> aValues );
+  boolean beforeWriteCurrData( IMap<Gwid, IAtomicValue> aValues );
 
   /**
    * Вызывается ПОСЛЕ записи текущих данных в систему, но ДО завершения транзакции.
    * <p>
    * Событие формируется в открытой транзакции, но все попытки ее отмены (через поднятие исключения в
-   * {@link #afterWriteCurrData(IIntMap)}) будут игнорироваться.
+   * {@link #afterWriteCurrData(IMap)}) будут игнорироваться.
    * <p>
    * Аргументом является карта, в которой ключи, это назначенные ранее сервером int-ы, присланные в качестве ответа на
    * {@link IS5BackendCurrDataSingleton#reconfigure(IGwidList, IMap)} или
    * {@link IS5BackendCurrDataSingleton#configureCurrDataWriter(IS5FrontendRear, IGwidList, IGwidList)}.
    *
-   * @param aValues {@link IIntMap}&lt;{@link IAtomicValue}&gt; - записываемые значения
+   * @param aValues {@link IMap}&lt;{@link Gwid},{@link IAtomicValue}&gt; - записываемые значения
    * @throws TsNullArgumentRtException аргумент = null
    */
-  void afterWriteCurrData( IIntMap<IAtomicValue> aValues );
+  void afterWriteCurrData( IMap<Gwid, IAtomicValue> aValues );
 
   // ------------------------------------------------------------------------------------
   // Вспомогательные методы
@@ -324,17 +323,17 @@ public interface IS5CurrDataInterceptor
   }
 
   /**
-   * Вызов перехватчиков операции {@link IS5CurrDataInterceptor#beforeWriteCurrData(IIntMap)}
+   * Вызов перехватчиков операции {@link IS5CurrDataInterceptor#beforeWriteCurrData(IMap)}
    *
    * @param aInterceptorSupport {@link S5InterceptorSupport}&lt;{@link IS5CurrDataInterceptor}&gt; поддержка
    *          перехватчиков
-   * @param aValues {@link IIntMap}&lt;{@link IAtomicValue}&gt; - записываемые значения
+   * @param aValues {@link IMap}&lt;{@link Gwid},{@link IAtomicValue}&gt; - записываемые значения
    * @return boolean <b>true</b> разрешить дальнейшее выполнение операции;<b>false</b> отменить выполнение операции.
    * @throws TsNullArgumentRtException любой аргумент = null
    * @throws TsIllegalStateRtException запретить запись текущих данных
    */
   static boolean callBeforeWriteCurrData( S5InterceptorSupport<IS5CurrDataInterceptor> aInterceptorSupport,
-      IIntMap<IAtomicValue> aValues ) {
+      IMap<Gwid, IAtomicValue> aValues ) {
     TsNullArgumentRtException.checkNulls( aInterceptorSupport, aValues );
     for( IS5CurrDataInterceptor interceptor : aInterceptorSupport.interceptors() ) {
       if( !interceptor.beforeWriteCurrData( aValues ) ) {
@@ -345,16 +344,16 @@ public interface IS5CurrDataInterceptor
   }
 
   /**
-   * Вызов перехватчиков операции {@link IS5CurrDataInterceptor#afterWriteCurrData(IIntMap)}
+   * Вызов перехватчиков операции {@link IS5CurrDataInterceptor#afterWriteCurrData(IMap)}
    *
    * @param aInterceptorSupport {@link S5InterceptorSupport}&lt;{@link IS5CurrDataInterceptor}&gt; поддержка
    *          перехватчиков
-   * @param aValues {@link IIntMap}&lt;{@link IAtomicValue}&gt; - записываемые значения
+   * @param aValues {@link IMap}&lt;{@link Gwid},{@link IAtomicValue}&gt; - записываемые значения
    * @param aLogger {@link ILogger} журнал работы
    * @throws TsNullArgumentRtException любой аргумент = null
    */
   static void callAfterWriteCurrData( S5InterceptorSupport<IS5CurrDataInterceptor> aInterceptorSupport,
-      IIntMap<IAtomicValue> aValues, ILogger aLogger ) {
+      IMap<Gwid, IAtomicValue> aValues, ILogger aLogger ) {
     TsNullArgumentRtException.checkNulls( aInterceptorSupport, aValues, aLogger );
     for( IS5CurrDataInterceptor interceptor : aInterceptorSupport.interceptors() ) {
       try {
