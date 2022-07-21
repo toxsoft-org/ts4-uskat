@@ -3,7 +3,6 @@ package org.toxsoft.uskat.core.api.users;
 import static org.toxsoft.uskat.core.api.users.ISkUserServiceHardConstants.*;
 
 import org.toxsoft.core.tslib.bricks.strid.coll.*;
-import org.toxsoft.uskat.core.*;
 import org.toxsoft.uskat.core.api.objserv.*;
 import org.toxsoft.uskat.core.connection.*;
 
@@ -20,7 +19,7 @@ public interface ISkUser
   /**
    * The {@link ISkUser} class identifier.
    */
-  String CLASS_ID = ISkHardConstants.SK_ID + ".User"; //$NON-NLS-1$
+  String CLASS_ID = ISkUserServiceHardConstants.CLSID_USER;
 
   /**
    * Returns user login, the same as {@link #id()} or {@link #strid()}.
@@ -37,7 +36,7 @@ public interface ISkUser
    * @return String - the password used to open the session with the server
    */
   default String password() {
-    return attrs().getStr( AID_PASSWORD );
+    return attrs().getStr( ATRID_PASSWORD );
   }
 
   /**
@@ -58,7 +57,7 @@ public interface ISkUser
    *         <code>false</code> if thei user is temporary disabled
    */
   default boolean isEnabled() {
-    return attrs().getBool( AID_USER_IS_ENABLED );
+    return attrs().getBool( ATRID_USER_IS_ENABLED );
   }
 
   /**
@@ -73,7 +72,7 @@ public interface ISkUser
    * @return boolean - <code>true</code> if user is visible not for system administrator, only for developer
    */
   default boolean isHidden() {
-    return attrs().getBool( AID_USER_IS_HIDDEN );
+    return attrs().getBool( ATRID_USER_IS_HIDDEN );
   }
 
 }

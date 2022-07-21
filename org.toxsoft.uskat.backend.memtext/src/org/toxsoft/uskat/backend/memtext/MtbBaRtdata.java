@@ -424,7 +424,7 @@ public class MtbBaRtdata
   //
 
   @Override
-  public void configureCurrDataReader( IList<Gwid> aRtdGwids ) {
+  public void configureCurrDataReader( IGwidList aRtdGwids ) {
     cdLock.writeLock().lock();
     try {
       cdReadGwids.setAll( aRtdGwids );
@@ -436,7 +436,7 @@ public class MtbBaRtdata
   }
 
   @Override
-  public void configureCurrDataWriter( IList<Gwid> aRtdGwids ) {
+  public void configureCurrDataWriter( IGwidList aRtdGwids ) {
     cdLock.writeLock().lock();
     try {
       cdWriteGwids.setAll( aRtdGwids );

@@ -1,7 +1,10 @@
 package org.toxsoft.uskat.core.impl;
 
+import static org.toxsoft.core.tslib.gw.IGwHardConstants.*;
+import static org.toxsoft.uskat.core.api.users.ISkUserServiceHardConstants.*;
 import static org.toxsoft.uskat.core.impl.ISkResources.*;
 
+import org.toxsoft.core.tslib.av.opset.*;
 import org.toxsoft.core.tslib.bricks.ctx.*;
 import org.toxsoft.core.tslib.bricks.events.*;
 import org.toxsoft.core.tslib.bricks.strid.coll.*;
@@ -14,8 +17,11 @@ import org.toxsoft.core.tslib.utils.errors.*;
 import org.toxsoft.core.tslib.utils.logs.impl.*;
 import org.toxsoft.uskat.core.*;
 import org.toxsoft.uskat.core.api.objserv.*;
+import org.toxsoft.uskat.core.api.sysdescr.dto.*;
 import org.toxsoft.uskat.core.api.users.*;
 import org.toxsoft.uskat.core.devapi.*;
+import org.toxsoft.uskat.core.impl.dto.*;
+import org.toxsoft.uskat.core.utils.*;
 
 /**
  * {@link ISkUserService} implementation.
@@ -251,7 +257,32 @@ public class SkCoreServUsers
 
   @Override
   protected void doInit( ITsContextRo aArgs ) {
-    // nop
+    // create class for ISkUser
+    IDtoClassInfo userCinf = internalCreateUserClassDto();
+    sysdescr().defineClass( userCinf );
+    // create class for ISkRole
+    IDtoClassInfo roleCinf = internalCreateRoleClassDto();
+    sysdescr().defineClass( roleCinf );
+    // create role rootRole
+    IDtoObject objRoleRoot = SkHelperUtils.createDtoObject( SKID_ROLE_ROOT, coreApi() );
+    // TODO setup
+    objServ().defineObject( objRoleRoot );
+    // create role guestRole
+    IDtoObject objRoleGuest = SkHelperUtils.createDtoObject( SKID_ROLE_GUEST, coreApi() );
+    // TODO setup
+    objServ().defineObject( objRoleGuest );
+    // create user root
+    IDtoObject objUserRoot = SkHelperUtils.createDtoObject( SKID_USER_ROOT, coreApi() );
+    // TODO setup
+    objServ().defineObject( objUserRoot );
+    // create user guest
+    IDtoObject objUserGuest = SkHelperUtils.createDtoObject( SKID_USER_GUEST, coreApi() );
+    // TODO setup
+    objServ().defineObject( objUserGuest );
+    // TODO add this service validators to ISkSysdescr and ISkObjectService
+    // FIXME sysdescr().svs().addValidator();
+    // FIXME objServ().svs().addValidator();
+    // FIXME linkService().svs().addValidator();
   }
 
   @Override
@@ -261,6 +292,23 @@ public class SkCoreServUsers
 
   // ------------------------------------------------------------------------------------
   // implementation
+  //
+
+  private IDtoClassInfo internalCreateUserClassDto() {
+    DtoClassInfo cinf = new DtoClassInfo( CLSID_USER, GW_ROOT_CLASS_ID, IOptionSet.NULL );
+    cinf.attrInfos().add( DtoAttrInfo.create2( ATRID_PASSWORD, null, null ) );
+
+    // TODO реализовать SkCoreServUsers.internalCreateUserClassDto()
+    throw new TsUnderDevelopmentRtException( "SkCoreServUsers.internalCreateUserClassDto()" );
+  }
+
+  private IDtoClassInfo internalCreateRoleClassDto() {
+    // TODO реализовать SkCoreServUsers.internalCreateUserClassDto()
+    throw new TsUnderDevelopmentRtException( "SkCoreServUsers.internalCreateUserClassDto()" );
+  }
+
+  // ------------------------------------------------------------------------------------
+  // ISkUserService
   //
 
   @Override

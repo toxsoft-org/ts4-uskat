@@ -4,7 +4,7 @@ import org.toxsoft.uskat.core.devapi.*;
 import org.toxsoft.uskat.core.impl.*;
 
 /**
- * {@link AbstractSkCoreService} creator is used to dynamically add services to the USkat core at runtime.
+ * {@link AbstractSkService} creator is used to dynamically add services to the USkat core at runtime.
  *
  * @author hazard157
  * @param <S> - the type of the service
