@@ -162,7 +162,7 @@ public class S5LocalConnectionSingleton
 
     ITsContext ctx = new TsContext( aArgs );
     ISkCoreConfigConstants.REFDEF_BACKEND_PROVIDER.setRef( ctx, provider );
-    IS5ConnectionParams.OP_USERNAME.setValue( ctx.params(), avStr( ISkUserServiceHardConstants.SUPER_USER_ID ) );
+    IS5ConnectionParams.OP_USERNAME.setValue( ctx.params(), avStr( ISkUserServiceHardConstants.USER_ID_ROOT ) );
     IS5ConnectionParams.OP_PASSWORD.setValue( ctx.params(), avStr( TsLibUtils.EMPTY_STRING ) );
     IS5ConnectionParams.OP_LOCAL_MODULE.setValue( ctx.params(), avStr( moduleName ) );
     IS5ConnectionParams.OP_LOCAL_NODE.setValue( ctx.params(), avStr( moduleNode ) );
