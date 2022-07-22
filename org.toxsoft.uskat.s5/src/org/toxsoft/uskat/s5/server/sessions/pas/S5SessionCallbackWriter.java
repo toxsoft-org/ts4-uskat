@@ -45,7 +45,7 @@ public class S5SessionCallbackWriter
   private static final String TO_STRING_FORMAT = "%s@%s[%s]"; //$NON-NLS-1$
 
   private final IS5BackendCoreSingleton    backendCoreSingleton;
-  private volatile S5SessionData           session;
+  private volatile S5SessionData           sessionData;
   private S5SessionCallbackChannel         channel;
   private final IList<IS5MessageProcessor> messageProcessors;
   private final ILogger                    logger = getLogger( getClass() );
@@ -84,7 +84,7 @@ public class S5SessionCallbackWriter
     // String node = System.getProperty( JBOSS_NODE_NAME );
 
     backendCoreSingleton = aBackendCoreSingleton;
-    session = aSession;
+    sessionData = aSession;
     channel = aChannel;
 
     // Получение процессоров сообщений от расширений бекенда
@@ -97,8 +97,8 @@ public class S5SessionCallbackWriter
     }
     messageProcessors = mp;
 
-    IAtomicValue remoteAddress = avStr( session.info().remoteAddress() );
-    IAtomicValue remotePort = avInt( session.info().remotePort() );
+    IAtomicValue remoteAddress = avStr( sessionData.info().remoteAddress() );
+    IAtomicValue remotePort = avInt( sessionData.info().remotePort() );
     // Создание писателя обратных вызовов
     logger.info( MSG_CREATE_CALLBACK_WRITER, remoteAddress, remotePort );
   }
@@ -107,12 +107,12 @@ public class S5SessionCallbackWriter
   // Открытое API
   //
   /**
-   * Возвращает сессию передатичика
+   * Возвращает данные сессии передатичика
    *
    * @return {@link S5SessionData} сессия
    */
-  public S5SessionData session() {
-    return session;
+  public S5SessionData sessionData() {
+    return sessionData;
   }
 
   /**
@@ -125,7 +125,7 @@ public class S5SessionCallbackWriter
    * @return {@link S5SessionCallbackChannel} старый канал писателя. null: канал не изменился
    * @throws TsNullArgumentRtException аргумент = null
    */
-  public S5SessionCallbackChannel setNewChannel( S5SessionCallbackChannel aChannel ) {
+  S5SessionCallbackChannel setNewChannel( S5SessionCallbackChannel aChannel ) {
     TsNullArgumentRtException.checkNull( aChannel );
     if( aChannel.equals( channel ) ) {
       // Канал не изменился
@@ -139,12 +139,12 @@ public class S5SessionCallbackWriter
   /**
    * Обновление данных сессии
    *
-   * @param aSession {@link S5SessionData} сессия у которой изменились данных
+   * @param aSessionData {@link S5SessionData} сессия у которой изменились данных
    * @throws TsNullArgumentRtException аргумент = null
    */
-  public void updateSession( S5SessionData aSession ) {
-    TsNullArgumentRtException.checkNull( aSession );
-    session = aSession;
+  public void updateSessionData( S5SessionData aSessionData ) {
+    TsNullArgumentRtException.checkNull( aSessionData );
+    sessionData = aSessionData;
   }
 
   /**
@@ -165,7 +165,7 @@ public class S5SessionCallbackWriter
   //
   @Override
   public Skid sessionID() {
-    return session.info().sessionID();
+    return sessionData.info().sessionID();
   }
 
   @Override
@@ -199,7 +199,7 @@ public class S5SessionCallbackWriter
       handleWriteError( this, e, logger );
       // Попытка записать информацию в статистику о сессии
       try {
-        S5SessionInfo.onErrorEvent( sessionManager(), session().info().sessionID() );
+        S5SessionInfo.onErrorEvent( sessionManager(), sessionData().info().sessionID() );
       }
       catch( Throwable e2 ) {
         logger.error( e2 );
@@ -210,7 +210,7 @@ public class S5SessionCallbackWriter
   @Override
   @TransactionAttribute( TransactionAttributeType.SUPPORTS )
   public S5FrontendData frontendData() {
-    return session.frontendData();
+    return sessionData.frontendData();
   }
 
   // ------------------------------------------------------------------------------------
@@ -250,14 +250,14 @@ public class S5SessionCallbackWriter
   //
   @Override
   public String toString() {
-    IS5SessionInfo info = session.info();
+    IS5SessionInfo info = sessionData.info();
     return format( TO_STRING_FORMAT, info.login(), info.remoteAddress(), sessionIDToString( info.sessionID(), true ) );
   }
 
   @Override
   public int hashCode() {
     int result = TsLibUtils.INITIAL_HASH_CODE;
-    result = TsLibUtils.PRIME * result + session.hashCode();
+    result = TsLibUtils.PRIME * result + sessionData.hashCode();
     return result;
   }
 
@@ -273,7 +273,7 @@ public class S5SessionCallbackWriter
       return false;
     }
     S5SessionCallbackWriter other = (S5SessionCallbackWriter)aObject;
-    if( !session.equals( other.session ) ) {
+    if( !sessionData.equals( other.sessionData ) ) {
       return false;
     }
     return true;

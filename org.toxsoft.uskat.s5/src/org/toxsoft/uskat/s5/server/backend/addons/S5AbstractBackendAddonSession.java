@@ -267,7 +267,7 @@ public abstract class S5AbstractBackendAddonSession
    */
   protected final void writeSessionData() {
     // Данные писателя обратных вызовов записываются в кэш данных сессий (infinispan) + оповещается кластер
-    sessionManager.writeSessionData( sessionManager.getCallbackWriter( sessionID() ).session() );
+    sessionManager.writeSessionData( sessionManager.getCallbackWriter( sessionID() ).sessionData() );
   }
 
   /**

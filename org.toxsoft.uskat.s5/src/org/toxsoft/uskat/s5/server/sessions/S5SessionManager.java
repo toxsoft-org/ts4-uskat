@@ -591,7 +591,7 @@ public class S5SessionManager
     if( callbackWriter != null ) {
       // Обновление данных передатчика обратных вызов сессии
       logger().info( MSG_UPDATE_SESSION_CALLBACK_WRITER, sessionID );
-      callbackWriter.updateSession( aSession );
+      callbackWriter.updateSessionData( aSession );
       return callbackWriter;
     }
     // Адрес клиента
@@ -898,12 +898,12 @@ public class S5SessionManager
       S5SessionCallbackWriter callback = callbacks.getByKey( sessionID );
       // Признак отработки завершения таймаута после открытия сессии (сессия недавно создана и, возможно, еще не
       // размещена в кэше remoteOpenSessionCache)
-      boolean afterOpenTimeout = (currTime - callback.session().info().openTime() < CHECK_TIMEOUT_AFTER_OPEN);
+      boolean afterOpenTimeout = (currTime - callback.sessionData().info().openTime() < CHECK_TIMEOUT_AFTER_OPEN);
       if( !afterOpenTimeout && remoteOpenSessionCache.get( sessionID ) == null ) {
         // Сессия не найдена в кэше, проверка ее существования и размещения ее в кэше
         logger().error( ERR_CHECK_CALLBACK, sessionID );
         // Проверяемая сессия
-        S5SessionData session = callback.session();
+        S5SessionData session = callback.sessionData();
         try {
           // Проверка существования сессии
           session.backend().verify();

@@ -109,7 +109,7 @@ public final class S5ClusterCommandUpdateSession
       logger.warning( "handleClusterCommand(...): %s. callbackWriter = null", UDATE_SESSION_METHOD ); //$NON-NLS-1$
       return TjUtils.TRUE;
     }
-    callbackWriter.updateSession( sessionData );
+    callbackWriter.updateSessionData( sessionData );
     logger.info( "handleClusterCommand(...): %s. update session for callbackWriter", UDATE_SESSION_METHOD ); //$NON-NLS-1$
     return TjUtils.TRUE;
   }

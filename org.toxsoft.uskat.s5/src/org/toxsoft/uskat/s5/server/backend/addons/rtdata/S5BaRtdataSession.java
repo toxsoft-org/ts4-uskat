@@ -9,6 +9,8 @@ import javax.ejb.*;
 import org.toxsoft.core.tslib.av.IAtomicValue;
 import org.toxsoft.core.tslib.av.temporal.ITemporalAtomicValue;
 import org.toxsoft.core.tslib.bricks.time.*;
+import org.toxsoft.core.tslib.coll.IMap;
+import org.toxsoft.core.tslib.coll.impl.ElemMap;
 import org.toxsoft.core.tslib.gw.gwid.Gwid;
 import org.toxsoft.core.tslib.gw.gwid.IGwidList;
 import org.toxsoft.core.tslib.utils.errors.TsNullArgumentRtException;
@@ -92,11 +94,15 @@ class S5BaRtdataSession
     writeSessionData();
   }
 
+  // Клиент не должен использовать этот метод - текущие данные поступают через onFrontendMessage( GtMessage). Реализация
+  // сделана только для целостности поддержки API
+  @Deprecated
   @TransactionAttribute( TransactionAttributeType.SUPPORTS )
   @Override
   public void writeCurrData( Gwid aGwid, IAtomicValue aValue ) {
     TsNullArgumentRtException.checkNulls( aGwid, aValue );
-    currDataSupport.writeCurrData( aGwid, aValue );
+    IMap<Gwid, IAtomicValue> values = new ElemMap<>();
+    currDataSupport.writeValues( values );
   }
 
   @TransactionAttribute( TransactionAttributeType.REQUIRED )

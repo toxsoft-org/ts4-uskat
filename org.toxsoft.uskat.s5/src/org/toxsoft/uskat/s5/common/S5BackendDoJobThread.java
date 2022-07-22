@@ -114,8 +114,7 @@ public final class S5BackendDoJobThread
           if( stopQueried ) {
             break;
           }
-          // Появление в этом месте означает, что есть вызов, но он не был передан по таймауту обращения к ISkConnection
-          // или по тому что один вызов был уже обработан
+          // Отработка интервала перед следующим вызовом бекенда
           Thread.sleep( BACKEND_DOJOB_INTERVAL );
         }
         catch( @SuppressWarnings( "unused" ) InterruptedException e ) {

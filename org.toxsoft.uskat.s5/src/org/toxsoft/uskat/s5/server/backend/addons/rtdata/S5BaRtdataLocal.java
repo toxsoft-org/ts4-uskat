@@ -12,6 +12,7 @@ import org.toxsoft.core.tslib.gw.gwid.Gwid;
 import org.toxsoft.core.tslib.gw.gwid.IGwidList;
 import org.toxsoft.core.tslib.utils.errors.TsNullArgumentRtException;
 import org.toxsoft.uskat.core.backend.ISkBackendHardConstant;
+import org.toxsoft.uskat.core.backend.api.BaMsgRtdataCurrData;
 import org.toxsoft.uskat.core.backend.api.IBaRtdata;
 import org.toxsoft.uskat.s5.client.IS5ConnectionParams;
 import org.toxsoft.uskat.s5.server.backend.addons.IS5BackendLocal;
@@ -99,8 +100,8 @@ class S5BaRtdataLocal
     if( currTime - lastCurrDataToBackendTime > currDataToBackendTimeout ) {
       lockWrite( currDataToBackendLock );
       try {
-        // Отправка данных в бекенд
-        currDataSupport.writeValues( currDataToBackend );
+        // Отправка данных от фронтенда в бекенд
+        owner().onFrontendMessage( BaMsgRtdataCurrData.INSTANCE.makeMessage( currDataToBackend ) );
         currDataToBackend.clear();
         lastCurrDataToBackendTime = currTime;
       }
