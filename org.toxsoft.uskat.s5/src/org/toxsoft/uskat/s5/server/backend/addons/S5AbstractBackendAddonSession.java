@@ -12,6 +12,7 @@ import javax.ejb.*;
 import org.toxsoft.core.tslib.bricks.strid.IStridable;
 import org.toxsoft.core.tslib.bricks.strid.impl.Stridable;
 import org.toxsoft.core.tslib.gw.skid.Skid;
+import org.toxsoft.core.tslib.utils.errors.TsInternalErrorRtException;
 import org.toxsoft.core.tslib.utils.errors.TsNullArgumentRtException;
 import org.toxsoft.core.tslib.utils.logs.ILogger;
 import org.toxsoft.uskat.s5.common.sessions.ISkSession;
@@ -21,6 +22,7 @@ import org.toxsoft.uskat.s5.server.sessions.IS5SessionManager;
 import org.toxsoft.uskat.s5.server.sessions.init.IS5SessionInitData;
 import org.toxsoft.uskat.s5.server.sessions.init.S5SessionInitResult;
 import org.toxsoft.uskat.s5.server.sessions.pas.S5SessionCallbackWriter;
+import org.toxsoft.uskat.s5.server.statistics.IS5StatisticCounter;
 
 /**
  * Абстрактная реализация сессии расширения backend
@@ -73,6 +75,11 @@ public abstract class S5AbstractBackendAddonSession
    * Признак того, что сессия готова к удалению
    */
   private boolean removeReady = false;
+
+  /**
+   * Счетчик статистической информации сессии
+   */
+  private transient IS5StatisticCounter statisticCounter;
 
   /**
    * Журнал работы
@@ -268,6 +275,19 @@ public abstract class S5AbstractBackendAddonSession
   protected final void writeSessionData() {
     // Данные писателя обратных вызовов записываются в кэш данных сессий (infinispan) + оповещается кластер
     sessionManager.writeSessionData( sessionManager.getCallbackWriter( sessionID() ).sessionData() );
+  }
+
+  /**
+   * Возвращает модуль формирования статистики
+   *
+   * @return {@link IS5StatisticCounter} статистика
+   */
+  protected final IS5StatisticCounter statisticCounter() {
+    if( statisticCounter == null ) {
+      statisticCounter = sessionManager.findStatisticCounter( sessionID() );
+      TsInternalErrorRtException.checkNull( statisticCounter );
+    }
+    return statisticCounter;
   }
 
   /**

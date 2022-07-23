@@ -19,7 +19,6 @@ import org.toxsoft.uskat.core.api.ISkService;
 import org.toxsoft.uskat.core.devapi.IDevCoreApi;
 import org.toxsoft.uskat.core.impl.AbstractSkService;
 import org.toxsoft.uskat.s5.server.backend.IS5BackendSupportSingleton;
-import org.toxsoft.uskat.s5.server.sessions.pas.IS5MessageProcessor;
 
 /**
  * Абстрактная реализация {@link IS5BackendAddonCreator}
@@ -78,11 +77,6 @@ public abstract class S5AbstractBackendAddonCreator
   public final IS5BackendAddonRemote createRemote( IS5BackendRemote aOwner ) {
     TsNullArgumentRtException.checkNull( aOwner );
     return doCreateRemote( aOwner );
-  }
-
-  @Override
-  public final IS5MessageProcessor messageProcessor() {
-    return doMessageProcessor();
   }
 
   @Override
@@ -147,15 +141,6 @@ public abstract class S5AbstractBackendAddonCreator
    */
   protected IS5BackendAddonRemote doCreateRemote( IS5BackendRemote aOwner ) {
     return null;
-  }
-
-  /**
-   * Возвращает процессор сообщений бекенда
-   *
-   * @return {@link IS5MessageProcessor} процессор сообщений {@link IS5MessageProcessor#NULL}: нет процессора
-   */
-  protected IS5MessageProcessor doMessageProcessor() {
-    return IS5MessageProcessor.NULL;
   }
 
   /**

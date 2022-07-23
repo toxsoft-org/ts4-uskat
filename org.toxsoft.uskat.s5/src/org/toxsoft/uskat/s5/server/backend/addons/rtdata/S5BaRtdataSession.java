@@ -1,5 +1,6 @@
 package org.toxsoft.uskat.s5.server.backend.addons.rtdata;
 
+import static org.toxsoft.core.tslib.av.impl.AvUtils.*;
 import static org.toxsoft.uskat.s5.server.IS5ImplementConstants.*;
 
 import java.util.concurrent.TimeUnit;
@@ -15,7 +16,9 @@ import org.toxsoft.core.tslib.gw.gwid.Gwid;
 import org.toxsoft.core.tslib.gw.gwid.IGwidList;
 import org.toxsoft.core.tslib.utils.errors.TsNullArgumentRtException;
 import org.toxsoft.uskat.core.backend.ISkBackendHardConstant;
+import org.toxsoft.uskat.core.backend.api.BaMsgRtdataCurrData;
 import org.toxsoft.uskat.core.backend.api.IBaCommands;
+import org.toxsoft.uskat.s5.server.IS5ServerHardConstants;
 import org.toxsoft.uskat.s5.server.backend.addons.S5AbstractBackendAddonSession;
 import org.toxsoft.uskat.s5.server.backend.supports.currdata.IS5BackendCurrDataSingleton;
 import org.toxsoft.uskat.s5.server.backend.supports.histdata.IS5BackendHistDataSingleton;
@@ -71,6 +74,18 @@ class S5BaRtdataSession
       S5SessionInitResult aInitResult ) {
     S5BaRtdataData baData = new S5BaRtdataData();
     frontend().frontendData().setBackendAddonData( IBaCommands.ADDON_ID, baData );
+    // Регистрация слушателя событий от фронтенда
+    frontend().gtMessageEventer().addListener( aMessage -> {
+      // Получение значений текущих данных от фронтенда для записи в бекенда
+      if( aMessage.messageId().equals( BaMsgRtdataCurrData.MSG_ID ) ) {
+        IMap<Gwid, IAtomicValue> values = BaMsgRtdataCurrData.INSTANCE.getNewValues( aMessage );
+        // Запись новых значений текущих данных
+        currDataSupport.writeValues( values );
+        // Обработка статистики приема пакета текущих данных
+        statisticCounter().onEvent( IS5ServerHardConstants.STAT_SESSION_RECEVIED_CURRDATA, AV_1 );
+        return;
+      }
+    } );
   }
 
   // ------------------------------------------------------------------------------------
@@ -94,8 +109,8 @@ class S5BaRtdataSession
     writeSessionData();
   }
 
-  // Клиент не должен использовать этот метод - текущие данные поступают через onFrontendMessage( GtMessage). Реализация
-  // сделана только для целостности поддержки API
+  // Клиент не должен использовать этот метод - текущие данные поступают через IGtMessageListener.onGenericTopicMessage(
+  // GtMessage). Смотри метод doAfterInit(...). Реализация сделана только для целостности поддержки API
   @Deprecated
   @TransactionAttribute( TransactionAttributeType.SUPPORTS )
   @Override

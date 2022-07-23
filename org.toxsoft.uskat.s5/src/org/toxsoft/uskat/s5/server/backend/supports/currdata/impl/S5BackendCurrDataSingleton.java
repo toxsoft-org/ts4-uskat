@@ -218,7 +218,7 @@ public class S5BackendCurrDataSingleton
     // Данные фронтенда
     S5BaRtdataData baData = aFrontend.frontendData().findBackendAddonData( IBaRtdata.ADDON_ID, S5BaRtdataData.class );
     // Удаляемые данные из подписки
-    GwidList removeRtdGwids = new GwidList( baData.readRtdGwids );
+    GwidList removeRtdGwids = new GwidList( baData.readCurrDataGwids );
     // Добавляемые данные в подписку
     GwidList addRtdGwids = new GwidList();
     for( Gwid rtdGwid : aRtdGwids ) {
@@ -236,7 +236,7 @@ public class S5BackendCurrDataSingleton
     // Пост-вызов интерсепторов
     callAfterConfigureCurrDataReader( interceptors, aFrontend, removeRtdGwids, addRtdGwids, logger() );
     // Фактическое выполнение подписки на данные
-    baData.readRtdGwids.setAll( aRtdGwids );
+    baData.readCurrDataGwids.setAll( aRtdGwids );
 
     // Планирование передачи текущих значений для вновь подписанных данных
     if( addRtdGwids.size() > 0 ) {
@@ -253,7 +253,7 @@ public class S5BackendCurrDataSingleton
     // Данные фронтенда
     S5BaRtdataData baData = aFrontend.frontendData().findBackendAddonData( IBaRtdata.ADDON_ID, S5BaRtdataData.class );
     // Удаляемые данные из подписки
-    GwidList removeRtdGwids = new GwidList( baData.writeRtdGwids );
+    GwidList removeRtdGwids = new GwidList( baData.writeCurrDataGwids );
     // Добавляемые данные в подписку
     GwidList addRtdGwids = new GwidList();
     for( Gwid rtdGwid : aRtdGwids ) {
@@ -271,7 +271,7 @@ public class S5BackendCurrDataSingleton
     // Пост-вызов интерсепторов
     callAfterConfigureCurrDataWriter( interceptors, aFrontend, removeRtdGwids, addRtdGwids, logger() );
     // Фактическое выполнение подписки на данные
-    baData.writeRtdGwids.setAll( aRtdGwids );
+    baData.writeCurrDataGwids.setAll( aRtdGwids );
   }
 
   @TransactionAttribute( TransactionAttributeType.SUPPORTS )

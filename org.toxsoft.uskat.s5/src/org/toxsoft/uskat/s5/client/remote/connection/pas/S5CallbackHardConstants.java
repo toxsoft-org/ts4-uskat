@@ -14,6 +14,6 @@ class S5CallbackHardConstants {
    * Префикс идентификаторов JSON-уведомления {@link IJSONNotification#method()} используемый для передачи запросов
    * {@link ISkFrontendRear}
    */
-  static final String FRONTENDS_METHOD_PREFIX = "ru.toxsoft.frontends."; //$NON-NLS-1$
+  static final String FRONTENDS_METHOD_PREFIX = "org.toxsoft.uskat.s5.messages."; //$NON-NLS-1$
 
 }

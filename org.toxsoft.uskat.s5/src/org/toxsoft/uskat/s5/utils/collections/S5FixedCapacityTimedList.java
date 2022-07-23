@@ -386,4 +386,9 @@ public class S5FixedCapacityTimedList<E extends ITimestampable>
     throw new TsUnderDevelopmentRtException();
   }
 
+  @Override
+  public int replaceByTimestamp( E aElem ) {
+    throw new TsUnderDevelopmentRtException();
+  }
+
 }

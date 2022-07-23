@@ -1,13 +1,9 @@
 package org.toxsoft.uskat.s5.server.backend.addons.rtdata;
 
-import static org.toxsoft.uskat.s5.utils.threads.impl.S5Lockable.*;
-
 import org.toxsoft.core.tslib.av.IAtomicValue;
 import org.toxsoft.core.tslib.av.temporal.ITemporalAtomicValue;
 import org.toxsoft.core.tslib.bricks.events.msg.GtMessage;
 import org.toxsoft.core.tslib.bricks.time.*;
-import org.toxsoft.core.tslib.coll.IMapEdit;
-import org.toxsoft.core.tslib.coll.impl.ElemMap;
 import org.toxsoft.core.tslib.gw.gwid.Gwid;
 import org.toxsoft.core.tslib.gw.gwid.IGwidList;
 import org.toxsoft.core.tslib.utils.errors.TsNullArgumentRtException;
@@ -17,7 +13,6 @@ import org.toxsoft.uskat.core.backend.api.IBaRtdata;
 import org.toxsoft.uskat.s5.client.IS5ConnectionParams;
 import org.toxsoft.uskat.s5.server.backend.addons.IS5BackendRemote;
 import org.toxsoft.uskat.s5.server.backend.addons.S5AbstractBackendAddonRemote;
-import org.toxsoft.uskat.s5.utils.threads.impl.S5Lockable;
 
 /**
  * Remote {@link IBaRtdata} implementation.
@@ -29,24 +24,9 @@ class S5BaRtdataRemote
     implements IBaRtdata {
 
   /**
-   * Карта значений подготовленных для отправки в бекенд
+   * Данные конфигурации фронтенда для {@link IBaRtdata}
    */
-  private final IMapEdit<Gwid, IAtomicValue> currDataToBackend = new ElemMap<>();
-
-  /**
-   * Блокировка доступа к {@link #currDataToBackend}
-   */
-  private final S5Lockable currDataToBackendLock = new S5Lockable();
-
-  /**
-   * Таймаут (мсек) передачи текущих данных в бекенд
-   */
-  private long currDataToBackendTimeout = 1000;
-
-  /**
-   * Время последней передачи данных в бекенд
-   */
-  private volatile long lastCurrDataToBackendTime = System.currentTimeMillis();
+  private final S5BaRtdataData baData = new S5BaRtdataData();
 
   /**
    * Constructor.
@@ -56,8 +36,13 @@ class S5BaRtdataRemote
    */
   public S5BaRtdataRemote( IS5BackendRemote aOwner ) {
     super( aOwner, ISkBackendHardConstant.BAINF_RTDATA, IS5BaRtdataSession.class );
-    // Установка таймаута
-    currDataToBackendTimeout = IS5ConnectionParams.OP_CURRDATA_TIMEOUT.getValue( aOwner.openArgs().params() ).asLong();
+    // Установка конфигурации фронтенда
+    frontend().frontendData().setBackendAddonData( IBaRtdata.ADDON_ID, baData );
+    // Установка таймаутов
+    baData.currDataToSendTimeout =
+        IS5ConnectionParams.OP_CURRDATA_TIMEOUT.getValue( aOwner.openArgs().params() ).asLong();
+    baData.histDataToSendTimeout =
+        IS5ConnectionParams.OP_HISTDATA_TIMEOUT.getValue( aOwner.openArgs().params() ).asLong();
   }
 
   // ------------------------------------------------------------------------------------
@@ -71,16 +56,16 @@ class S5BaRtdataRemote
   @Override
   public void doJob() {
     long currTime = System.currentTimeMillis();
-    if( currTime - lastCurrDataToBackendTime > currDataToBackendTimeout ) {
-      lockWrite( currDataToBackendLock );
-      try {
+    synchronized (baData) {
+      if( currTime - baData.lastCurrDataToSendTime > baData.currDataToSendTimeout ) {
         // Отправка данных от фронтенда в бекенд
-        owner().onFrontendMessage( BaMsgRtdataCurrData.INSTANCE.makeMessage( currDataToBackend ) );
-        currDataToBackend.clear();
-        lastCurrDataToBackendTime = currTime;
+        owner().onFrontendMessage( BaMsgRtdataCurrData.INSTANCE.makeMessage( baData.currDataToSend ) );
+        baData.currDataToSend.clear();
+        baData.lastCurrDataToSendTime = currTime;
       }
-      finally {
-        unlockWrite( currDataToBackendLock );
+      if( currTime - baData.lastHistDataToSendTime > baData.histDataToSendTimeout ) {
+        // TODO:
+        baData.lastHistDataToSendTime = currTime;
       }
     }
   }
@@ -108,7 +93,9 @@ class S5BaRtdataRemote
   @Override
   public void writeCurrData( Gwid aGwid, IAtomicValue aValue ) {
     TsNullArgumentRtException.checkNulls( aGwid, aValue );
-    session().writeCurrData( aGwid, aValue );
+    synchronized (baData) {
+      baData.currDataToSend.put( aGwid, aValue );
+    }
   }
 
   @Override

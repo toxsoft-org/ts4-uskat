@@ -31,6 +31,8 @@ interface IS5Resources {
   String N_FAILURE_TIMEOUT  = Messages.getString( "IS5Resources.N_FAILURE_TIMEOUT" );  //$NON-NLS-1$
   String D_CURRDATA_TIMEOUT = Messages.getString( "IS5Resources.D_CURRDATA_TIMEOUT" ); //$NON-NLS-1$
   String N_CURRDATA_TIMEOUT = Messages.getString( "IS5Resources.N_CURRDATA_TIMEOUT" ); //$NON-NLS-1$
+  String D_HISTDATA_TIMEOUT = Messages.getString( "IS5Resources.D_HISTATA_TIMEOUT" );  //$NON-NLS-1$
+  String N_HISTDATA_TIMEOUT = Messages.getString( "IS5Resources.N_HISTDATA_TIMEOUT" ); //$NON-NLS-1$
 
   String D_CLASSLOADER     = Messages.getString( "IS5Resources.D_CLASSLOADER" );     //$NON-NLS-1$
   String N_CLASSLOADER     = Messages.getString( "IS5Resources.N_CLASSLOADER" );     //$NON-NLS-1$

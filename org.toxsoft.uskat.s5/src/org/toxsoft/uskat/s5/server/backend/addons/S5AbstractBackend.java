@@ -272,6 +272,11 @@ public abstract class S5AbstractBackend<ADDON extends IS5BackendAddon>
   }
 
   @Override
+  public final Skid sessionID() {
+    return sessionID;
+  }
+
+  @Override
   public final void onFrontendMessage( GtMessage aMessage ) {
     TsNullArgumentRtException.checkNull( aMessage );
     eventer.sendMessage( aMessage );
@@ -354,15 +359,6 @@ public abstract class S5AbstractBackend<ADDON extends IS5BackendAddon>
   // ------------------------------------------------------------------------------------
   // Методы для наследников
   //
-  /**
-   * Возвращает идентификатор соединения
-   *
-   * @return {@link Skid} идентификатор соединения
-   */
-  protected final Skid sessionID() {
-    return sessionID;
-  }
-
   /**
    * Возвращает все расширения бекенда поддерживаемые сервером
    *

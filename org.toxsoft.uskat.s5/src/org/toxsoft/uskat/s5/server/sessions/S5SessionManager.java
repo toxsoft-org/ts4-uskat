@@ -417,7 +417,7 @@ public class S5SessionManager
     TsNullArgumentRtException.checkNull( aSession );
     Skid sessionID = aSession.sessionID();
     IS5FrontendRear frontend = aSession.frontend();
-    String login = ISkUserServiceHardConstants.SUPER_USER_ID;
+    String login = ISkUserServiceHardConstants.USER_ID_ROOT;
     callBeforeCreateSession( interceptors, sessionID );
     long createTime = System.currentTimeMillis();
     // TODO: ???

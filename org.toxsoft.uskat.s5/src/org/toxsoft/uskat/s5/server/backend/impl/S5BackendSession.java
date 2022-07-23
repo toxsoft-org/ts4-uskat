@@ -303,7 +303,7 @@ public class S5BackendSession
         eventBackend.fireAsyncEvents( IS5FrontendRear.NULL, new TimedList<>( event ) );
         throw new S5AccessDeniedException( ERR_WRONG_USER );
       }
-      String ATRID_PASSWORD = ISkUserServiceHardConstants.AID_PASSWORD;
+      String ATRID_PASSWORD = ISkUserServiceHardConstants.ATRID_PASSWORD;
       // Пароль или его хэшкод пользователя
       String userPswd = user.attrs().getValue( ATRID_PASSWORD ).asString();
       // Хэшкод пароля
