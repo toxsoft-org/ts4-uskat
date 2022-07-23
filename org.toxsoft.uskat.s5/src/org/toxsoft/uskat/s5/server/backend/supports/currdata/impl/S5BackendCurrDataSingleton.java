@@ -231,7 +231,10 @@ public class S5BackendCurrDataSingleton
     // Данные фронтенда
     S5BaRtdataData baData = aFrontend.frontendData().findBackendAddonData( IBaRtdata.ADDON_ID, S5BaRtdataData.class );
     // Удаляемые данные из подписки
-    GwidList removeRtdGwids = new GwidList( baData.readCurrDataGwids );
+    GwidList removeRtdGwids;
+    synchronized (baData) {
+      removeRtdGwids = new GwidList( baData.readCurrDataGwids );
+    }
     // Добавляемые данные в подписку
     GwidList addRtdGwids = new GwidList();
     for( Gwid rtdGwid : aRtdGwids ) {
@@ -249,7 +252,9 @@ public class S5BackendCurrDataSingleton
     // Пост-вызов интерсепторов
     callAfterConfigureCurrDataReader( interceptors, aFrontend, removeRtdGwids, addRtdGwids, logger() );
     // Фактическое выполнение подписки на данные
-    baData.readCurrDataGwids.setAll( aRtdGwids );
+    synchronized (baData) {
+      baData.readCurrDataGwids.setAll( aRtdGwids );
+    }
 
     // Планирование передачи текущих значений для вновь подписанных данных
     if( addRtdGwids.size() > 0 ) {
@@ -266,7 +271,10 @@ public class S5BackendCurrDataSingleton
     // Данные фронтенда
     S5BaRtdataData baData = aFrontend.frontendData().findBackendAddonData( IBaRtdata.ADDON_ID, S5BaRtdataData.class );
     // Удаляемые данные из подписки
-    GwidList removeRtdGwids = new GwidList( baData.writeCurrDataGwids );
+    GwidList removeRtdGwids;
+    synchronized (baData) {
+      removeRtdGwids = new GwidList( baData.writeCurrDataGwids );
+    }
     // Добавляемые данные в подписку
     GwidList addRtdGwids = new GwidList();
     for( Gwid rtdGwid : aRtdGwids ) {
@@ -284,7 +292,9 @@ public class S5BackendCurrDataSingleton
     // Пост-вызов интерсепторов
     callAfterConfigureCurrDataWriter( interceptors, aFrontend, removeRtdGwids, addRtdGwids, logger() );
     // Фактическое выполнение подписки на данные
-    baData.writeCurrDataGwids.setAll( aRtdGwids );
+    synchronized (baData) {
+      baData.writeCurrDataGwids.setAll( aRtdGwids );
+    }
   }
 
   @TransactionAttribute( TransactionAttributeType.SUPPORTS )
@@ -297,8 +307,10 @@ public class S5BackendCurrDataSingleton
         // Фронтенд не работает с данными реального времени
         continue;
       }
-      for( Gwid gwid : baData.readCurrDataGwids ) {
-        gwids.add( gwid );
+      synchronized (baData) {
+        for( Gwid gwid : baData.readCurrDataGwids ) {
+          gwids.add( gwid );
+        }
       }
     }
     return new GwidList( gwids );
@@ -315,8 +327,10 @@ public class S5BackendCurrDataSingleton
         // Фронтенд не работает с данными реального времени
         continue;
       }
-      for( Gwid gwid : baData.writeCurrDataGwids ) {
-        gwids.add( gwid );
+      synchronized (baData) {
+        for( Gwid gwid : baData.writeCurrDataGwids ) {
+          gwids.add( gwid );
+        }
       }
     }
     return new GwidList( gwids );
@@ -403,12 +417,12 @@ public class S5BackendCurrDataSingleton
         // фронтенд не поддерживает обработку текущих данных
         continue;
       }
-      for( Gwid gwid : changedValues.keys() ) {
-        if( baData.readCurrDataGwids.hasElem( gwid ) ) {
-          synchronized (baData) {
+      synchronized (baData) {
+        for( Gwid gwid : changedValues.keys() ) {
+          if( baData.readCurrDataGwids.hasElem( gwid ) ) {
             baData.currDataToSend.put( gwid, changedValues.getByKey( gwid ) );
             if( baData.currDataToSend.size() == 1 ) {
-              // При добавлении первого данного, обнуляем отсчет времени
+              // При добавлении первого данного обнуляем отсчет времени
               baData.lastCurrDataToSendTime = currTime;
             }
           }
