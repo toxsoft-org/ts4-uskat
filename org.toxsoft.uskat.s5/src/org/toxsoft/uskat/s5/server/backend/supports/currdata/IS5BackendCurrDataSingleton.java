@@ -3,7 +3,6 @@ package org.toxsoft.uskat.s5.server.backend.supports.currdata;
 import javax.ejb.Local;
 
 import org.toxsoft.core.tslib.av.IAtomicValue;
-import org.toxsoft.core.tslib.coll.IList;
 import org.toxsoft.core.tslib.coll.IMap;
 import org.toxsoft.core.tslib.coll.primtypes.IIntMap;
 import org.toxsoft.core.tslib.gw.gwid.Gwid;
@@ -140,14 +139,5 @@ public interface IS5BackendCurrDataSingleton
    * @throws TsNullArgumentRtException аргумент = null
    */
   void removeCurrDataInterceptor( IS5CurrDataInterceptor aInterceptor );
-
-  /**
-   * Делает попытку разблокирования удаленного доступа к указанным данным
-   *
-   * @param aRtdGwids {@link IList}&lt;{@link Gwid}&gt; список идентификаторов освобождаемых данных
-   * @return boolean <b>true</b> данные освобождены;<b>false</b> данные не могут быть освобождены (еще используются)
-   * @throws TsNullArgumentRtException аргумент = null
-   */
-  boolean remoteUnlockGwids( IList<Gwid> aRtdGwids );
 
 }

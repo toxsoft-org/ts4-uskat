@@ -10,7 +10,6 @@ import org.toxsoft.core.tslib.utils.errors.TsIllegalStateRtException;
 import org.toxsoft.core.tslib.utils.errors.TsNullArgumentRtException;
 import org.toxsoft.core.tslib.utils.logs.ILogger;
 import org.toxsoft.uskat.core.api.evserv.SkEvent;
-import org.toxsoft.uskat.s5.server.backend.supports.currdata.IS5BackendCurrDataSingleton;
 import org.toxsoft.uskat.s5.server.frontend.IS5FrontendRear;
 import org.toxsoft.uskat.s5.server.interceptors.IS5Interceptor;
 import org.toxsoft.uskat.s5.server.interceptors.S5InterceptorSupport;
@@ -143,14 +142,6 @@ public interface IS5CurrDataInterceptor
 
   /**
    * Вызывается ДО записи текущих данных в систему
-   * <p>
-   * Событие формируется в открытой транзакции которая впоследствии может быть отменена. Поэтому, если необходимо,
-   * клиент-перехватчик должен организовать логику восстановления своего состояния при откате транзакции (смотри
-   * S5TransactionSingleton}.
-   * <p>
-   * Аргументом является карта, в которой ключи, это назначенные ранее сервером int-ы, присланные в качестве ответа на
-   * {@link IS5BackendCurrDataSingleton#reconfigure(IGwidList, IMap)} или
-   * {@link IS5BackendCurrDataSingleton#configureCurrDataWriter(IS5FrontendRear, IGwidList, IGwidList)}.
    *
    * @param aValues {@link IMap}&lt;{@link Gwid},{@link IAtomicValue}&gt; - записываемые значения
    * @return boolean <b>true</b> разрешить дальнейшее выполнение операции;<b>false</b> отменить выполнение операции.
@@ -160,13 +151,6 @@ public interface IS5CurrDataInterceptor
 
   /**
    * Вызывается ПОСЛЕ записи текущих данных в систему, но ДО завершения транзакции.
-   * <p>
-   * Событие формируется в открытой транзакции, но все попытки ее отмены (через поднятие исключения в
-   * {@link #afterWriteCurrData(IMap)}) будут игнорироваться.
-   * <p>
-   * Аргументом является карта, в которой ключи, это назначенные ранее сервером int-ы, присланные в качестве ответа на
-   * {@link IS5BackendCurrDataSingleton#reconfigure(IGwidList, IMap)} или
-   * {@link IS5BackendCurrDataSingleton#configureCurrDataWriter(IS5FrontendRear, IGwidList, IGwidList)}.
    *
    * @param aValues {@link IMap}&lt;{@link Gwid},{@link IAtomicValue}&gt; - записываемые значения
    * @throws TsNullArgumentRtException аргумент = null
