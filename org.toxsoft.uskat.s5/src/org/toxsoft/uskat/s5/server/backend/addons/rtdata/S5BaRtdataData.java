@@ -3,10 +3,14 @@ package org.toxsoft.uskat.s5.server.backend.addons.rtdata;
 import java.io.Serializable;
 
 import org.toxsoft.core.tslib.av.IAtomicValue;
+import org.toxsoft.core.tslib.av.temporal.ITemporalAtomicValue;
+import org.toxsoft.core.tslib.bricks.time.ITimeInterval;
+import org.toxsoft.core.tslib.bricks.time.ITimedList;
 import org.toxsoft.core.tslib.coll.IMapEdit;
 import org.toxsoft.core.tslib.coll.impl.ElemMap;
 import org.toxsoft.core.tslib.gw.gwid.Gwid;
 import org.toxsoft.core.tslib.gw.gwid.GwidList;
+import org.toxsoft.core.tslib.utils.Pair;
 import org.toxsoft.uskat.core.backend.api.IBaRtdata;
 import org.toxsoft.uskat.s5.client.IS5ConnectionParams;
 import org.toxsoft.uskat.s5.server.frontend.IS5BackendAddonData;
@@ -52,6 +56,11 @@ public class S5BaRtdataData
   // ------------------------------------------------------------------------------------
   // Хранимые данные
   //
+  /**
+   * Значения хранимых данных готовых для передачи
+   */
+  public final IMapEdit<Gwid, Pair<ITimeInterval, ITimedList<ITemporalAtomicValue>>> histDataToSend = new ElemMap<>();
+
   /**
    * Таймаут (мсек) передачи хранимых данных в бекенд
    */

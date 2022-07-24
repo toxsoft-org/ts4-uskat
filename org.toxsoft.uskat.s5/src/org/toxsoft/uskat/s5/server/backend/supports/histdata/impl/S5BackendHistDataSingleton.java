@@ -1,6 +1,8 @@
 package org.toxsoft.uskat.s5.server.backend.supports.histdata.impl;
 
+import static org.toxsoft.uskat.s5.common.IS5CommonResources.*;
 import static org.toxsoft.uskat.s5.server.IS5ImplementConstants.*;
+import static org.toxsoft.uskat.s5.server.backend.supports.histdata.IS5HistDataInterceptor.*;
 import static org.toxsoft.uskat.s5.server.backend.supports.histdata.impl.IS5Resources.*;
 
 import java.util.concurrent.TimeUnit;
@@ -9,11 +11,20 @@ import javax.ejb.*;
 
 import org.toxsoft.core.tslib.av.temporal.ITemporalAtomicValue;
 import org.toxsoft.core.tslib.bricks.time.*;
+import org.toxsoft.core.tslib.coll.*;
+import org.toxsoft.core.tslib.coll.impl.ElemArrayList;
+import org.toxsoft.core.tslib.coll.impl.ElemLinkedList;
 import org.toxsoft.core.tslib.gw.gwid.Gwid;
+import org.toxsoft.core.tslib.gw.gwid.GwidList;
+import org.toxsoft.core.tslib.utils.Pair;
+import org.toxsoft.core.tslib.utils.errors.TsInternalErrorRtException;
 import org.toxsoft.core.tslib.utils.errors.TsNullArgumentRtException;
-import org.toxsoft.uskat.s5.server.backend.supports.histdata.IS5BackendHistDataSingleton;
-import org.toxsoft.uskat.s5.server.backend.supports.histdata.IS5HistDataSequence;
+import org.toxsoft.core.tslib.utils.logs.ELogSeverity;
+import org.toxsoft.uskat.s5.legacy.QueryInterval;
+import org.toxsoft.uskat.s5.server.backend.supports.histdata.*;
 import org.toxsoft.uskat.s5.server.backend.supports.histdata.impl.sequences.S5HistDataSequenceFactory;
+import org.toxsoft.uskat.s5.server.interceptors.S5InterceptorSupport;
+import org.toxsoft.uskat.s5.server.sequences.ISequenceBlockEdit;
 import org.toxsoft.uskat.s5.server.sequences.ISequenceFactory;
 import org.toxsoft.uskat.s5.server.sequences.impl.S5BackendSequenceSupportSingleton;
 import org.toxsoft.uskat.s5.utils.jobs.IS5ServerJob;
@@ -53,6 +64,16 @@ public class S5BackendHistDataSingleton
   private static final long DOJOB_INTERVAL = 1000;
 
   /**
+   * Таймаут запроса хранимых значений по одному данному (мсек)
+   */
+  private static final long ONE_READ_VALUES_TIMEOUT = 10000;
+
+  /**
+   * Поддержка интерсепторов операций проводимых над данными
+   */
+  private final S5InterceptorSupport<IS5HistDataInterceptor> interceptors = new S5InterceptorSupport<>();
+
+  /**
    * Конструктор.
    */
   public S5BackendHistDataSingleton() {
@@ -88,19 +109,89 @@ public class S5BackendHistDataSingleton
   // ------------------------------------------------------------------------------------
   // Реализация IS5BackendHistDataSingleton
   //
+  @SuppressWarnings( "unchecked" )
   @TransactionAttribute( TransactionAttributeType.REQUIRED )
   @Override
-  public void writeHistData( Gwid aGwid, ITimeInterval aInterval, ITimedList<ITemporalAtomicValue> aValues ) {
-    TsNullArgumentRtException.checkNulls( aGwid, aInterval, aValues );
-    // TODO:
+  public void writeValues( IMap<Gwid, Pair<ITimeInterval, ITimedList<ITemporalAtomicValue>>> aValues ) {
+    TsNullArgumentRtException.checkNulls( aValues );
+    try {
+      // Пред-вызов интерсепторов
+      if( !callBeforeWriteHistData( interceptors, aValues ) ) {
+        // Интерсепторы отклонили запись значений хранимых данных
+        logger().debug( MSG_REJECT_HISTDATA_WRITE_BY_INTERCEPTORS );
+        return;
+      }
+      if( logger().isSeverityOn( ELogSeverity.INFO ) ) {
+        // Вывод в лог сохраняемых данных
+        logger().info( toStr( MSG_WRITE_HISTDATA_VALUES, aValues ) );
+      }
+      // Карта последовательностей данных. Ключ: идентификатор данного; Значение: последовательность значений
+      IListEdit<IS5HistDataSequence> sequences = new ElemLinkedList<>();
+      for( Gwid gwid : aValues.keys() ) {
+        Pair<ITimeInterval, ITimedList<ITemporalAtomicValue>> intervalValues = aValues.getByKey( gwid );
+        // Интервал записи
+        ITimeInterval ti = intervalValues.left();
+        ITimedList<ITemporalAtomicValue> values = intervalValues.right();
+        IQueryInterval interval = new QueryInterval( EQueryIntervalType.CSCE, ti.startTime(), ti.endTime() );
+        ISequenceBlockEdit<ITemporalAtomicValue> block = factory().createBlock( gwid, values );
+        sequences.add( (IS5HistDataSequence)factory().createSequence( gwid, interval, new ElemArrayList<>( block ) ) );
+      }
+      writeSequences( sequences );
+
+      // Пост-вызов интерсепторов
+      callAfterWriteHistData( interceptors, aValues, logger() );
+    }
+    catch( Throwable e ) {
+      // Неожиданная ошибка записи хранимых данных
+      logger().error( e, ERR_WRITE_UNEXPECTED, cause( e ) );
+      throw new TsInternalErrorRtException( e, ERR_WRITE_UNEXPECTED, cause( e ) );
+    }
   }
 
   @TransactionAttribute( TransactionAttributeType.SUPPORTS )
   @Override
   public ITimedList<ITemporalAtomicValue> queryObjRtdata( IQueryInterval aInterval, Gwid aGwid ) {
     TsNullArgumentRtException.checkNulls( aInterval, aGwid );
-    // TODO:
-    return null;
+    IList<IS5HistDataSequence> sequences = readSequences( new GwidList( aGwid ), aInterval, ONE_READ_VALUES_TIMEOUT );
+    return sequences.first().get( aInterval );
   }
 
+  @Override
+  public void addHistDataInterceptor( IS5HistDataInterceptor aInterceptor, int aPriority ) {
+    TsNullArgumentRtException.checkNulls( aInterceptor );
+    interceptors.add( aInterceptor, aPriority );
+  }
+
+  @Override
+  public void removeHistDataInterceptor( IS5HistDataInterceptor aInterceptor ) {
+    TsNullArgumentRtException.checkNulls( aInterceptor );
+    interceptors.remove( aInterceptor );
+  }
+
+  // ------------------------------------------------------------------------------------
+  // Внутренние методы
+  //
+  /**
+   * Возвращает строку представляющую значения хранимых данных
+   *
+   * @param aMessage String начальная строка
+   * @param aValues
+   *          {@link IMap}&lt;{@link Gwid},{@link Pair}&lt;{@link ITimeInterval},{@link ITimedList}&lt;{@link ITemporalAtomicValue}&gt;&gt;&gt;
+   *          - значения
+   * @return String строка представления значений данных
+   */
+  private static String toStr( String aMessage,
+      IMap<Gwid, Pair<ITimeInterval, ITimedList<ITemporalAtomicValue>>> aValues ) {
+    TsNullArgumentRtException.checkNull( aValues );
+    StringBuilder sb = new StringBuilder();
+    sb.append( String.format( aMessage, Integer.valueOf( aValues.size() ) ) );
+    for( Gwid gwid : aValues.keys() ) {
+      Pair<ITimeInterval, ITimedList<ITemporalAtomicValue>> intervalValues = aValues.getByKey( gwid );
+      ITimeInterval interval = intervalValues.left();
+      ITimedList<ITemporalAtomicValue> values = intervalValues.right();
+      Integer count = Integer.valueOf( values.size() );
+      sb.append( String.format( MSG_HISTDATA_VALUE, gwid, interval, count ) );
+    }
+    return sb.toString();
+  }
 }

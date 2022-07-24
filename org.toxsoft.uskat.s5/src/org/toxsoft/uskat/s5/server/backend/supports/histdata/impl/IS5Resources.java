@@ -14,10 +14,12 @@ interface IS5Resources {
   // ------------------------------------------------------------------------------------
   // Строки сообщений
   //
-  // String MSG_DOJOB = Messages.getString( "IS5Resources.MSG_DOJOB" ); //$NON-NLS-1$
-
+  String MSG_REJECT_HISTDATA_WRITE_BY_INTERCEPTORS =
+      "Интерсепторы синглетона отклонили запись значений хранимых данных";
+  String MSG_WRITE_HISTDATA_VALUES                 = "Запись хранимых значений данных(%d). Списки значений:";
+  String MSG_HISTDATA_VALUE                        = "   %s=%s, count=%d";
   // ------------------------------------------------------------------------------------
   // Тексты ошибок
   //
-  // String ERR_ON_COMMANDS = Messages.getString( "IS5Resources.ERR_ON_COMMANDS" ); //$NON-NLS-1$
+  String ERR_WRITE_UNEXPECTED = "Неожиданная ошибка записи хранимых данных. Причина: %s";
 }

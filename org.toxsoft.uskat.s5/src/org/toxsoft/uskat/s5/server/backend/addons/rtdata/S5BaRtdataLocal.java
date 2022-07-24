@@ -6,13 +6,15 @@ import org.toxsoft.core.tslib.av.IAtomicValue;
 import org.toxsoft.core.tslib.av.temporal.ITemporalAtomicValue;
 import org.toxsoft.core.tslib.bricks.events.msg.GtMessage;
 import org.toxsoft.core.tslib.bricks.time.*;
+import org.toxsoft.core.tslib.bricks.time.impl.TimeInterval;
+import org.toxsoft.core.tslib.bricks.time.impl.TimedList;
 import org.toxsoft.core.tslib.coll.IMap;
 import org.toxsoft.core.tslib.gw.gwid.Gwid;
 import org.toxsoft.core.tslib.gw.gwid.IGwidList;
+import org.toxsoft.core.tslib.utils.Pair;
 import org.toxsoft.core.tslib.utils.errors.TsNullArgumentRtException;
 import org.toxsoft.uskat.core.backend.ISkBackendHardConstant;
-import org.toxsoft.uskat.core.backend.api.BaMsgRtdataCurrData;
-import org.toxsoft.uskat.core.backend.api.IBaRtdata;
+import org.toxsoft.uskat.core.backend.api.*;
 import org.toxsoft.uskat.s5.client.IS5ConnectionParams;
 import org.toxsoft.uskat.s5.server.IS5ServerHardConstants;
 import org.toxsoft.uskat.s5.server.backend.addons.IS5BackendLocal;
@@ -71,7 +73,15 @@ class S5BaRtdataLocal
         statisticCounter().onEvent( IS5ServerHardConstants.STAT_SESSION_RECEVIED_CURRDATA, AV_1 );
         return;
       }
-      // TODO: for histdata
+      if( aMessage.messageId().equals( BaMsgRtdataHistData.MSG_ID ) ) {
+        IMap<Gwid, Pair<ITimeInterval, ITimedList<ITemporalAtomicValue>>> values =
+            BaMsgRtdataHistData.INSTANCE.getNewValues( aMessage );
+        // Запись новых значений хранимых данных
+        histDataSupport.writeValues( values );
+        // Обработка статистики приема пакета текущих данных
+        statisticCounter().onEvent( IS5ServerHardConstants.STAT_SESSION_RECEVIED_HISTDATA, AV_1 );
+        return;
+      }
     } );
     // Установка таймаутов
     baData.currDataToSendTimeout =
@@ -101,7 +111,9 @@ class S5BaRtdataLocal
         baData.lastCurrDataToSendTime = currTime;
       }
       if( currTime - baData.lastHistDataToSendTime > baData.histDataToSendTimeout ) {
-        // TODO: for histdata
+        // Отправка значений хранимых данных от фронтенда в бекенд
+        owner().onFrontendMessage( BaMsgRtdataHistData.INSTANCE.makeMessage( baData.histDataToSend ) );
+        baData.histDataToSend.clear();
         baData.lastHistDataToSendTime = currTime;
       }
     }
@@ -138,7 +150,19 @@ class S5BaRtdataLocal
   @Override
   public void writeHistData( Gwid aGwid, ITimeInterval aInterval, ITimedList<ITemporalAtomicValue> aValues ) {
     TsNullArgumentRtException.checkNulls( aGwid, aInterval, aValues );
-    histDataSupport.writeHistData( aGwid, aInterval, aValues );
+    synchronized (baData) {
+      Pair<ITimeInterval, ITimedList<ITemporalAtomicValue>> prevValues = baData.histDataToSend.findByKey( aGwid );
+      Pair<ITimeInterval, ITimedList<ITemporalAtomicValue>> newValues = new Pair<>( aInterval, aValues );
+      if( prevValues != null ) {
+        // Объединение значений по одному данному
+        long startTime = Math.min( prevValues.left().startTime(), newValues.left().startTime() );
+        long endTime = Math.max( prevValues.left().endTime(), newValues.left().endTime() );
+        TimedList<ITemporalAtomicValue> values = new TimedList<>( prevValues.right() );
+        values.addAll( newValues.right() );
+        newValues = new Pair<>( new TimeInterval( startTime, endTime ), values );
+      }
+      baData.histDataToSend.put( aGwid, newValues );
+    }
   }
 
   @Override

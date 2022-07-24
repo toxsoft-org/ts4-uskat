@@ -11,13 +11,14 @@ import org.toxsoft.core.tslib.av.IAtomicValue;
 import org.toxsoft.core.tslib.av.temporal.ITemporalAtomicValue;
 import org.toxsoft.core.tslib.bricks.time.*;
 import org.toxsoft.core.tslib.coll.IMap;
+import org.toxsoft.core.tslib.coll.IMapEdit;
 import org.toxsoft.core.tslib.coll.impl.ElemMap;
 import org.toxsoft.core.tslib.gw.gwid.Gwid;
 import org.toxsoft.core.tslib.gw.gwid.IGwidList;
+import org.toxsoft.core.tslib.utils.Pair;
 import org.toxsoft.core.tslib.utils.errors.TsNullArgumentRtException;
 import org.toxsoft.uskat.core.backend.ISkBackendHardConstant;
-import org.toxsoft.uskat.core.backend.api.BaMsgRtdataCurrData;
-import org.toxsoft.uskat.core.backend.api.IBaCommands;
+import org.toxsoft.uskat.core.backend.api.*;
 import org.toxsoft.uskat.s5.server.IS5ServerHardConstants;
 import org.toxsoft.uskat.s5.server.backend.addons.S5AbstractBackendAddonSession;
 import org.toxsoft.uskat.s5.server.backend.supports.currdata.IS5BackendCurrDataSingleton;
@@ -85,7 +86,15 @@ class S5BaRtdataSession
         statisticCounter().onEvent( IS5ServerHardConstants.STAT_SESSION_RECEVIED_CURRDATA, AV_1 );
         return;
       }
-      // TODO: for histdata
+      if( aMessage.messageId().equals( BaMsgRtdataHistData.MSG_ID ) ) {
+        IMap<Gwid, Pair<ITimeInterval, ITimedList<ITemporalAtomicValue>>> values =
+            BaMsgRtdataHistData.INSTANCE.getNewValues( aMessage );
+        // Запись новых значений хранимых данных
+        histDataSupport.writeValues( values );
+        // Обработка статистики приема пакета текущих данных
+        statisticCounter().onEvent( IS5ServerHardConstants.STAT_SESSION_RECEVIED_HISTDATA, AV_1 );
+        return;
+      }
     } );
   }
 
@@ -111,7 +120,7 @@ class S5BaRtdataSession
   }
 
   // Клиент не должен использовать этот метод - текущие данные поступают через IGtMessageListener.onGenericTopicMessage(
-  // GtMessage). Смотри метод doAfterInit(...). Реализация сделана только для целостности поддержки API
+  // GtMessage). Смотри метод doAfterInit(...). Реализация сделана только для полной поддержки API
   @Deprecated
   @TransactionAttribute( TransactionAttributeType.SUPPORTS )
   @Override
@@ -121,11 +130,16 @@ class S5BaRtdataSession
     currDataSupport.writeValues( values );
   }
 
+  // Клиент не должен использовать этот метод - текущие данные поступают через IGtMessageListener.onGenericTopicMessage(
+  // GtMessage). Смотри метод doAfterInit(...). Реализация сделана только для полной поддержки API
+  @Deprecated
   @TransactionAttribute( TransactionAttributeType.REQUIRED )
   @Override
   public void writeHistData( Gwid aGwid, ITimeInterval aInterval, ITimedList<ITemporalAtomicValue> aValues ) {
     TsNullArgumentRtException.checkNulls( aGwid, aInterval, aValues );
-    histDataSupport.writeHistData( aGwid, aInterval, aValues );
+    IMapEdit<Gwid, Pair<ITimeInterval, ITimedList<ITemporalAtomicValue>>> values = new ElemMap<>();
+    values.put( aGwid, new Pair<>( aInterval, aValues ) );
+    histDataSupport.writeValues( values );
   }
 
   @TransactionAttribute( TransactionAttributeType.SUPPORTS )
