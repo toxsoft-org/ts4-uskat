@@ -25,7 +25,7 @@ import org.toxsoft.uskat.s5.server.sequences.impl.S5SequenceAsyncBlock;
  * @author mvk
  */
 @MappedSuperclass
-abstract class S5HistDataAsyncBlock<BLOB_ARRAY, BLOB extends S5SequenceAsyncBlob<?, BLOB_ARRAY, ?>>
+public abstract class S5HistDataAsyncBlock<BLOB_ARRAY, BLOB extends S5SequenceAsyncBlob<?, BLOB_ARRAY, ?>>
     extends S5SequenceAsyncBlock<ITemporalAtomicValue, BLOB_ARRAY, BLOB>
     implements IHistDataBlock, ITemporalValueImporter {
 

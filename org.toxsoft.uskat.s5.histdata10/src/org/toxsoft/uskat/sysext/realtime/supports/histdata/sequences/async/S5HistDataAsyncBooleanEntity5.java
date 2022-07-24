@@ -1,9 +1,9 @@
 package org.toxsoft.uskat.sysext.realtime.supports.histdata.sequences.async;
 
 import static org.toxsoft.core.tslib.av.impl.AvUtils.*;
+import static org.toxsoft.uskat.s5.server.backend.supports.histdata.impl.sequences.S5HistDataSequenceFactory.*;
 import static org.toxsoft.uskat.s5.server.sequences.IS5SequenceHardConstants.*;
 import static org.toxsoft.uskat.s5.utils.indexes.impl.S5BinaryIndexUtils.*;
-import static org.toxsoft.uskat.sysext.realtime.supports.histdata.sequences.S5HistDataSequenceFactory.*;
 
 import java.sql.ResultSet;
 
@@ -18,6 +18,7 @@ import org.toxsoft.core.tslib.av.utils.IParameterized;
 import org.toxsoft.core.tslib.bricks.time.ITimedList;
 import org.toxsoft.core.tslib.gw.gwid.Gwid;
 import org.toxsoft.core.tslib.utils.errors.*;
+import org.toxsoft.uskat.s5.server.backend.supports.histdata.impl.sequences.async.S5HistDataAsyncBlock;
 import org.toxsoft.uskat.s5.server.sequences.ISequenceBlockEdit;
 import org.toxsoft.uskat.s5.utils.indexes.ILongKey;
 

@@ -8,6 +8,8 @@ import java.util.concurrent.TimeUnit;
 import javax.ejb.*;
 
 import org.toxsoft.core.tslib.av.opset.IOptionSet;
+import org.toxsoft.core.tslib.bricks.strid.idgen.IStridGenerator;
+import org.toxsoft.core.tslib.bricks.strid.idgen.UuidStridGenerator;
 import org.toxsoft.core.tslib.bricks.time.IQueryInterval;
 import org.toxsoft.core.tslib.coll.primtypes.IStringMap;
 import org.toxsoft.core.tslib.utils.errors.TsNullArgumentRtException;
@@ -73,10 +75,16 @@ public class S5BackendQueriesSingleton
   private IS5BackendHistDataSingleton histDataSupport;
 
   /**
+   * Генератор идентификаторов запроса чтения данных
+   */
+  private final IStridGenerator uuidGenerator;
+
+  /**
    * Конструктор.
    */
   public S5BackendQueriesSingleton() {
     super( BACKEND_QUERIES_ID, STR_D_BACKEND_QUERIES );
+    uuidGenerator = new UuidStridGenerator( UuidStridGenerator.createState( BACKEND_QUERIES_ID ) );
   }
 
   // ------------------------------------------------------------------------------------

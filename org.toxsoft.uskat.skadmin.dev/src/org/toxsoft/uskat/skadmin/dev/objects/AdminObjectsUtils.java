@@ -7,9 +7,8 @@ import org.toxsoft.core.tslib.gw.gwid.*;
 import org.toxsoft.core.tslib.gw.skid.ISkidList;
 import org.toxsoft.core.tslib.gw.skid.Skid;
 import org.toxsoft.core.tslib.utils.errors.TsNullArgumentRtException;
-
-import ru.uskat.core.ISkCoreApi;
-import ru.uskat.core.api.sysdescr.ISkAttrInfo;
+import org.toxsoft.uskat.core.ISkCoreApi;
+import org.toxsoft.uskat.core.api.sysdescr.dto.IDtoAttrInfo;
 
 /**
  * Вспомогательные методы пакета
@@ -41,8 +40,8 @@ class AdminObjectsUtils {
     }
     if( aAttrId.equals( "*" ) ) { //$NON-NLS-1$
       attrIds.clear();
-      IStridablesList<ISkAttrInfo> infos = aCoreApi.sysdescr().classInfoManager().getClassInfo( aClassId ).attrInfos();
-      for( ISkAttrInfo info : infos ) {
+      IStridablesList<IDtoAttrInfo> infos = aCoreApi.sysdescr().getClassInfo( aClassId ).attrs().list();
+      for( IDtoAttrInfo info : infos ) {
         attrIds.add( info.id() );
       }
     }

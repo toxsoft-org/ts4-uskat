@@ -8,8 +8,7 @@ Require-Bundle: org.toxsoft.extlibs.log4j,
  org.toxsoft.extlibs.wildfly,
  org.toxsoft.core.tslib,
  org.toxsoft.uskat.core,
- org.toxsoft.uskat.s5,
- org.toxsoft.uskat.sysext.realtime
+ org.toxsoft.uskat.s5
 Eclipse-RegisterBuddy: ru.toxsoft.extlib.wildfly
 Eclipse-BuddyPolicy: registered
 Bundle-RequiredExecutionEnvironment: JavaSE-17

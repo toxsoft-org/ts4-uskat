@@ -9,9 +9,8 @@ import org.toxsoft.core.tslib.gw.gwid.*;
 import org.toxsoft.core.tslib.gw.skid.ISkidList;
 import org.toxsoft.core.tslib.gw.skid.Skid;
 import org.toxsoft.core.tslib.utils.errors.TsNullArgumentRtException;
-
-import ru.uskat.core.ISkCoreApi;
-import ru.uskat.core.api.sysdescr.ISkEventInfo;
+import org.toxsoft.uskat.core.ISkCoreApi;
+import org.toxsoft.uskat.core.api.sysdescr.dto.IDtoEventInfo;
 
 /**
  * Вспомогательные методы пакета
@@ -43,9 +42,8 @@ class AdminEventsUtils {
     }
     if( aEventId.equals( MULTI ) ) {
       eventIds.clear();
-      IStridablesList<ISkEventInfo> infos =
-          aCoreApi.sysdescr().classInfoManager().getClassInfo( aClassId ).eventInfos();
-      for( ISkEventInfo info : infos ) {
+      IStridablesList<IDtoEventInfo> infos = aCoreApi.sysdescr().getClassInfo( aClassId ).events().list();
+      for( IDtoEventInfo info : infos ) {
         eventIds.add( info.id() );
       }
     }

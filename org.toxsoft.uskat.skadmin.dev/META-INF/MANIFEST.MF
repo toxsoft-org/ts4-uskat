@@ -9,19 +9,12 @@ Require-Bundle: org.toxsoft.extlibs.wildfly,
  org.toxsoft.core.pas,
  org.toxsoft.uskat.core,
  org.toxsoft.uskat.s5,
- org.toxsoft.uskat.sysext.batchop,
- org.toxsoft.uskat.skadmin.core,
- ru.uskat.core,
- ru.uskat.backend,
- ru.uskat.common
+ org.toxsoft.uskat.skadmin.core
 Export-Package: org.toxsoft.uskat.skadmin.dev,
- org.toxsoft.uskat.skadmin.dev.batch,
  org.toxsoft.uskat.skadmin.dev.commands,
  org.toxsoft.uskat.skadmin.dev.events,
- org.toxsoft.uskat.skadmin.dev.lobs,
  org.toxsoft.uskat.skadmin.dev.objects,
- org.toxsoft.uskat.skadmin.dev.pas,
- org.toxsoft.uskat.skadmin.dev.rtdata
+ org.toxsoft.uskat.skadmin.dev.pas
 Bundle-RequiredExecutionEnvironment: JavaSE-17
 Automatic-Module-Name: org.toxsoft.uskat.skadmin.dev
 TsPluginContainerVersion: 2
