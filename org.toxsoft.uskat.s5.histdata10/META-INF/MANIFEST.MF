@@ -12,9 +12,9 @@ Require-Bundle: org.toxsoft.extlibs.log4j,
 Eclipse-RegisterBuddy: ru.toxsoft.extlib.wildfly
 Eclipse-BuddyPolicy: registered
 Bundle-RequiredExecutionEnvironment: JavaSE-17
-Export-Package: org.toxsoft.uskat.sysext.realtime.supports.histdata.sequences,
- org.toxsoft.uskat.sysext.realtime.supports.histdata.sequences.async,
- org.toxsoft.uskat.sysext.realtime.supports.histdata.sequences.sync
+Export-Package: org.toxsoft.uskat.s5.server.backend.supports.histdata.impl.sequences,
+ org.toxsoft.uskat.s5.server.backend.supports.histdata.impl.sequences.async,
+ org.toxsoft.uskat.s5.server.backend.supports.histdata.impl.sequences.sync
 DynamicImport-Package: *
 Automatic-Module-Name: org.toxsoft.uskat.s5.histdata10
  
