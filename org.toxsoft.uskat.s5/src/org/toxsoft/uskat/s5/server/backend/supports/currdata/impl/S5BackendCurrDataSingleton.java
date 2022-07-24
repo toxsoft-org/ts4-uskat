@@ -67,6 +67,11 @@ public class S5BackendCurrDataSingleton
   public static final String BACKEND_CURRDATA_ID = "S5BackendCurrDataSingleton"; //$NON-NLS-1$
 
   /**
+   * Интервал выполнения doJob (мсек)
+   */
+  private static final long DOJOB_INTERVAL = 10;
+
+  /**
    * Карта кэша значений текущих данных.
    * <p>
    * Ключ: {@link Gwid} идентификатор текущего данного;<br>
@@ -114,11 +119,6 @@ public class S5BackendCurrDataSingleton
    * Поддержка интерсепторов операций проводимых над данными
    */
   private final S5InterceptorSupport<IS5CurrDataInterceptor> interceptors = new S5InterceptorSupport<>();
-
-  /**
-   * Интервал выполнения doJob (мсек)
-   */
-  private static final long DOJOB_INTERVAL = 10;
 
   /**
    * Конструктор.

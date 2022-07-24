@@ -28,6 +28,11 @@ class S5BaQueriesLocal
   private final IS5BackendQueriesSingleton queriesSupport;
 
   /**
+   * Данные конфигурации фронтенда для {@link IBaQueries}
+   */
+  private final S5BaQueriesData baData = new S5BaQueriesData();
+
+  /**
    * Constructor.
    *
    * @param aOwner {@link IS5BackendLocal} - the owner backend
@@ -38,6 +43,8 @@ class S5BaQueriesLocal
     // Синглтон поддержки чтения/записи системного описания
     queriesSupport =
         aOwner.backendSingleton().get( S5BackendQueriesSingleton.BACKEND_QUERIES_ID, IS5BackendQueriesSingleton.class );
+    // Установка конфигурации фронтенда
+    frontend().frontendData().setBackendAddonData( IBaQueries.ADDON_ID, baData );
   }
 
   // ------------------------------------------------------------------------------------

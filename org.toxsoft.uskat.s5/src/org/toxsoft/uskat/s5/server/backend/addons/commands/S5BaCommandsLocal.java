@@ -37,7 +37,7 @@ class S5BaCommandsLocal
   /**
    * Данные конфигурации фронтенда для {@link IBaCommands}
    */
-  private S5BaCommandsData baData = new S5BaCommandsData();
+  private final S5BaCommandsData baData = new S5BaCommandsData();
 
   /**
    * Constructor.

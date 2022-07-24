@@ -74,7 +74,7 @@ class S5BaRtdataSession
   protected void doAfterInit( S5SessionCallbackWriter aCallbackWriter, IS5SessionInitData aInitData,
       S5SessionInitResult aInitResult ) {
     S5BaRtdataData baData = new S5BaRtdataData();
-    frontend().frontendData().setBackendAddonData( IBaCommands.ADDON_ID, baData );
+    frontend().frontendData().setBackendAddonData( IBaRtdata.ADDON_ID, baData );
     // Регистрация слушателя событий от фронтенда
     frontend().gtMessageEventer().addListener( aMessage -> {
       // Получение значений текущих данных от фронтенда для записи в бекенда

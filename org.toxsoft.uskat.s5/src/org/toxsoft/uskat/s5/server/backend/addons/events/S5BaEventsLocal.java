@@ -31,7 +31,7 @@ class S5BaEventsLocal
   /**
    * Данные конфигурации фронтенда для {@link IBaEvents}
    */
-  private S5BaEventsData baData = new S5BaEventsData();
+  private final S5BaEventsData baData = new S5BaEventsData();
 
   /**
    * Constructor.

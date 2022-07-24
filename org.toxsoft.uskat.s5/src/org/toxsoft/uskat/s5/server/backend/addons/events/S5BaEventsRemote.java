@@ -3,7 +3,8 @@ package org.toxsoft.uskat.s5.server.backend.addons.events;
 import org.toxsoft.core.tslib.bricks.events.msg.GtMessage;
 import org.toxsoft.core.tslib.bricks.time.IQueryInterval;
 import org.toxsoft.core.tslib.bricks.time.ITimedList;
-import org.toxsoft.core.tslib.gw.gwid.*;
+import org.toxsoft.core.tslib.gw.gwid.Gwid;
+import org.toxsoft.core.tslib.gw.gwid.IGwidList;
 import org.toxsoft.core.tslib.utils.errors.TsNullArgumentRtException;
 import org.toxsoft.uskat.core.api.evserv.ISkEventList;
 import org.toxsoft.uskat.core.api.evserv.SkEvent;
@@ -22,7 +23,10 @@ class S5BaEventsRemote
     extends S5AbstractBackendAddonRemote<IS5BaEventsSession>
     implements IBaEvents {
 
-  private final GwidList needEvents = new GwidList();
+  /**
+   * Данные конфигурации фронтенда для {@link IBaEvents}
+   */
+  private final S5BaEventsData baData = new S5BaEventsData();
 
   /**
    * Constructor.
@@ -32,6 +36,8 @@ class S5BaEventsRemote
    */
   public S5BaEventsRemote( IS5BackendRemote aOwner ) {
     super( aOwner, ISkBackendHardConstant.BAINF_EVENTS, IS5BaEventsSession.class );
+    // Установка конфигурации фронтенда
+    frontend().frontendData().setBackendAddonData( IBaEvents.ADDON_ID, baData );
   }
 
   // ------------------------------------------------------------------------------------
@@ -40,8 +46,6 @@ class S5BaEventsRemote
   @Override
   public void onBackendMessage( GtMessage aMessage ) {
     if( aMessage.messageId().equals( S5BaBeforeConnectMessages.MSG_ID ) ) {
-      S5BaEventsData baData = new S5BaEventsData();
-      baData.events.setNeededEventGwids( needEvents );
       owner().sessionInitData().setBackendAddonData( IBaEvents.ADDON_ID, baData );
     }
   }
@@ -63,7 +67,7 @@ class S5BaEventsRemote
   @Override
   public void subscribeToEvents( IGwidList aNeededGwids ) {
     TsNullArgumentRtException.checkNull( aNeededGwids );
-    needEvents.setAll( aNeededGwids );
+    baData.events.setNeededEventGwids( aNeededGwids );
     IS5BaEventsSession session = findSession();
     if( session != null ) {
       session.subscribeToEvents( aNeededGwids );

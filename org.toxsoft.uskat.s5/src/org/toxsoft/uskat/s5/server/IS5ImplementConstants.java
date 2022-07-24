@@ -10,10 +10,13 @@ import org.toxsoft.uskat.s5.server.backend.IS5BackendSessionControl;
 import org.toxsoft.uskat.s5.server.backend.impl.S5BackendCoreSingleton;
 import org.toxsoft.uskat.s5.server.backend.impl.S5BackendSession;
 import org.toxsoft.uskat.s5.server.backend.supports.clobs.S5BackendClobSingleton;
+import org.toxsoft.uskat.s5.server.backend.supports.commands.impl.S5BackendCommandSingleton;
 import org.toxsoft.uskat.s5.server.backend.supports.events.impl.S5BackendEventSingleton;
+import org.toxsoft.uskat.s5.server.backend.supports.histdata.impl.S5BackendHistDataSingleton;
 import org.toxsoft.uskat.s5.server.backend.supports.links.S5BackendLinksSingleton;
 import org.toxsoft.uskat.s5.server.backend.supports.objects.S5BackendObjectsSingleton;
 import org.toxsoft.uskat.s5.server.backend.supports.objects.S5ObjectEntity;
+import org.toxsoft.uskat.s5.server.backend.supports.queries.impl.S5BackendQueriesSingleton;
 import org.toxsoft.uskat.s5.server.backend.supports.sysdescr.S5BackendSysDescrSingleton;
 import org.toxsoft.uskat.s5.server.cluster.S5ClusterManager;
 import org.toxsoft.uskat.s5.server.sessions.S5SessionManager;
@@ -150,12 +153,32 @@ public interface IS5ImplementConstants
   String BACKEND_EVENTS_SINGLETON = S5BackendEventSingleton.BACKEND_EVENTS_ID;
 
   /**
-   * 14. Синглетон предоставляющий локальное соединение.
+   * 12. Синглетон поддержки доступа к командам
+   */
+  String BACKEND_COMMANDS_SINGLETON = S5BackendCommandSingleton.BACKEND_COMMANDS_ID;
+
+  /**
+   * 13. Синглетон поддержки доступа к текущим данным
+   */
+  String BACKEND_CURRDATA_SINGLETON = S5BackendHistDataSingleton.BACKEND_HISTDATA_ID;
+
+  /**
+   * 14. Синглетон поддержки доступа к хранимым данным
+   */
+  String BACKEND_HISTDATA_SINGLETON = S5BackendHistDataSingleton.BACKEND_HISTDATA_ID;
+
+  /**
+   * 15. Синглетон поддержки доступа к запросам данных
+   */
+  String BACKEND_QUERIES_SINGLETON = S5BackendQueriesSingleton.BACKEND_QUERIES_ID;
+
+  /**
+   * 16. Синглетон предоставляющий локальное соединение.
    */
   String LOCAL_CONNECTIION_SINGLETON = S5LocalConnectionSingleton.LOCAL_CONNECTION_ID;
 
   /**
-   * 15. Синглетон осуществляющий начальную инициализацию системного описания проекта.
+   * 17. Синглетон осуществляющий начальную инициализацию системного описания проекта.
    */
   String PROJECT_INITIAL_SYSDESCR_SINGLETON = S5InitialSysdescrSingleton.PROJECT_INITIAL_SYSDESCR_ID;
 

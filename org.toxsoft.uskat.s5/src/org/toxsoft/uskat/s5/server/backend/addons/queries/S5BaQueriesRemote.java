@@ -21,6 +21,11 @@ class S5BaQueriesRemote
     implements IBaQueries {
 
   /**
+   * Данные конфигурации фронтенда для {@link IBaQueries}
+   */
+  private final S5BaQueriesData baData = new S5BaQueriesData();
+
+  /**
    * Constructor.
    *
    * @param aOwner {@link IS5BackendRemote} - the owner backend
@@ -28,6 +33,8 @@ class S5BaQueriesRemote
    */
   public S5BaQueriesRemote( IS5BackendRemote aOwner ) {
     super( aOwner, ISkBackendHardConstant.BAINF_QUERIES, IS5BaQueriesSession.class );
+    // Установка конфигурации фронтенда
+    frontend().frontendData().setBackendAddonData( IBaQueries.ADDON_ID, baData );
   }
 
   // ------------------------------------------------------------------------------------
