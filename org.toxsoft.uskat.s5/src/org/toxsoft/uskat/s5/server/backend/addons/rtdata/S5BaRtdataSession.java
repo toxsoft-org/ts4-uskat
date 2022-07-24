@@ -85,6 +85,7 @@ class S5BaRtdataSession
         statisticCounter().onEvent( IS5ServerHardConstants.STAT_SESSION_RECEVIED_CURRDATA, AV_1 );
         return;
       }
+      // TODO: for histdata
     } );
   }
 

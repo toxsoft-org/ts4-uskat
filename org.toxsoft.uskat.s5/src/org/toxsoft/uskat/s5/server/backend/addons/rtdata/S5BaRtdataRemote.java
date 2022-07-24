@@ -64,7 +64,7 @@ class S5BaRtdataRemote
         baData.lastCurrDataToSendTime = currTime;
       }
       if( currTime - baData.lastHistDataToSendTime > baData.histDataToSendTimeout ) {
-        // TODO:
+        // TODO: for histdata
         baData.lastHistDataToSendTime = currTime;
       }
     }

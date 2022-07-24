@@ -8,7 +8,7 @@ import org.toxsoft.core.tslib.gw.gwid.Gwid;
 import org.toxsoft.uskat.core.api.evserv.SkEvent;
 import org.toxsoft.uskat.core.api.rtdserv.ISkWriteHistDataChannel;
 import org.toxsoft.uskat.core.api.sysdescr.dto.IDtoRtdataInfo;
-import org.toxsoft.uskat.s5.server.backend.IS5BackendSupportSingleton;
+import org.toxsoft.uskat.s5.server.sequences.IS5BackendSequenceSupportSingleton;
 
 /**
  * Локальный интерфейс синглетона запросов к хранимым данным предоставляемый s5-сервером.
@@ -17,7 +17,7 @@ import org.toxsoft.uskat.s5.server.backend.IS5BackendSupportSingleton;
  */
 @Local
 public interface IS5BackendHistDataSingleton
-    extends IS5BackendSupportSingleton {
+    extends IS5BackendSequenceSupportSingleton<IS5HistDataSequence, ITemporalAtomicValue> {
 
   /**
    * Writes RTdata data history.

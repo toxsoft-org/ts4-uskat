@@ -11,8 +11,11 @@ import org.toxsoft.core.tslib.av.temporal.ITemporalAtomicValue;
 import org.toxsoft.core.tslib.bricks.time.*;
 import org.toxsoft.core.tslib.gw.gwid.Gwid;
 import org.toxsoft.core.tslib.utils.errors.TsNullArgumentRtException;
-import org.toxsoft.uskat.s5.server.backend.impl.S5BackendSupportSingleton;
 import org.toxsoft.uskat.s5.server.backend.supports.histdata.IS5BackendHistDataSingleton;
+import org.toxsoft.uskat.s5.server.backend.supports.histdata.IS5HistDataSequence;
+import org.toxsoft.uskat.s5.server.backend.supports.histdata.impl.sequences.S5HistDataSequenceFactory;
+import org.toxsoft.uskat.s5.server.sequences.ISequenceFactory;
+import org.toxsoft.uskat.s5.server.sequences.impl.S5BackendSequenceSupportSingleton;
 import org.toxsoft.uskat.s5.utils.jobs.IS5ServerJob;
 
 /**
@@ -33,9 +36,8 @@ import org.toxsoft.uskat.s5.utils.jobs.IS5ServerJob;
 @AccessTimeout( value = ACCESS_TIMEOUT_DEFAULT, unit = TimeUnit.MILLISECONDS )
 @Lock( LockType.READ )
 public class S5BackendHistDataSingleton
-    // TODO:
-    // extends S5BackendSequenceSupportSingleton<IS5HistDataSequence, ITemporalAtomicValue>
-    extends S5BackendSupportSingleton
+    extends S5BackendSequenceSupportSingleton<IS5HistDataSequence, ITemporalAtomicValue>
+    // extends S5BackendSupportSingleton
     implements IS5BackendHistDataSingleton, IS5ServerJob {
 
   private static final long serialVersionUID = 157157L;
@@ -71,6 +73,16 @@ public class S5BackendHistDataSingleton
   @Override
   protected void doCloseSupport() {
     // nop
+  }
+
+  @Override
+  protected IS5BackendHistDataSingleton getBusinessObject() {
+    return sessionContext().getBusinessObject( IS5BackendHistDataSingleton.class );
+  }
+
+  @Override
+  protected ISequenceFactory<ITemporalAtomicValue> doCreateFactory() {
+    return new S5HistDataSequenceFactory( backend().initialConfig().impl(), sysdescrReader() );
   }
 
   // ------------------------------------------------------------------------------------

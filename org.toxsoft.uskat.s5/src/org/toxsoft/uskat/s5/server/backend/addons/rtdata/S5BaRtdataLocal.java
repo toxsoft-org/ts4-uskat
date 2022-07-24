@@ -71,6 +71,7 @@ class S5BaRtdataLocal
         statisticCounter().onEvent( IS5ServerHardConstants.STAT_SESSION_RECEVIED_CURRDATA, AV_1 );
         return;
       }
+      // TODO: for histdata
     } );
     // Установка таймаутов
     baData.currDataToSendTimeout =
@@ -100,7 +101,7 @@ class S5BaRtdataLocal
         baData.lastCurrDataToSendTime = currTime;
       }
       if( currTime - baData.lastHistDataToSendTime > baData.histDataToSendTimeout ) {
-        // TODO:
+        // TODO: for histdata
         baData.lastHistDataToSendTime = currTime;
       }
     }
