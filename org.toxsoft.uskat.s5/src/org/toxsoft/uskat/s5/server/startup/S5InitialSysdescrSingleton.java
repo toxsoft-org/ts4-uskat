@@ -19,8 +19,7 @@ import org.toxsoft.uskat.core.ISkCoreApi;
 import org.toxsoft.uskat.core.api.linkserv.ISkLinkService;
 import org.toxsoft.uskat.core.api.objserv.ISkObjectService;
 import org.toxsoft.uskat.core.api.sysdescr.ISkSysdescr;
-import org.toxsoft.uskat.core.api.users.ISkUser;
-import org.toxsoft.uskat.core.api.users.ISkUserService;
+import org.toxsoft.uskat.core.api.users.*;
 import org.toxsoft.uskat.core.backend.api.ISkBackendInfo;
 import org.toxsoft.uskat.core.connection.ISkConnection;
 import org.toxsoft.uskat.core.impl.dto.DtoFullObject;
@@ -160,9 +159,9 @@ public abstract class S5InitialSysdescrSingleton
    * <ul>
    * <li>{@link IAvMetaConstants#DDEF_NAME};</li>
    * <li>{@link IAvMetaConstants#DDEF_DESCRIPTION};</li>
-   * <li>{@link ISkUser#ATRID_PASSWORD};</li>;
-   * <li>{@link ISkUser#ATRID_IS_ENABLED};</li>;
-   * <li>{@link ISkUser#ATRID_IS_HIDDEN}.</li>;
+   * <li>{@link ISkUserServiceHardConstants#ATRID_PASSWORD};</li>;
+   * <li>{@link ISkUserServiceHardConstants#ATRID_USER_IS_ENABLED};</li>;
+   * <li>{@link ISkUserServiceHardConstants#ATRID_USER_IS_HIDDEN}.</li>;
    * <p>
    * Если пользователь уже существует в системе, то ничего не делает
    *
@@ -182,9 +181,9 @@ public abstract class S5InitialSysdescrSingleton
    * <ul>
    * <li>{@link IAvMetaConstants#DDEF_NAME};</li>
    * <li>{@link IAvMetaConstants#DDEF_DESCRIPTION};</li>
-   * <li>{@link ISkUser#ATRID_PASSWORD};</li>;
-   * <li>{@link ISkUser#ATRID_IS_ENABLED};</li>;
-   * <li>{@link ISkUser#ATRID_IS_HIDDEN}.</li>;
+   * <li>{@link ISkUserServiceHardConstants#ATRID_PASSWORD};</li>;
+   * <li>{@link ISkUserServiceHardConstants#ATRID_USER_IS_ENABLED};</li>;
+   * <li>{@link ISkUserServiceHardConstants#ATRID_USER_IS_HIDDEN}.</li>;
    * <p>
    * Если пользователь уже существует в системе, то ничего не делает
    *
