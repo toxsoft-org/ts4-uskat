@@ -6,11 +6,10 @@ import org.toxsoft.core.tslib.coll.IList;
 import org.toxsoft.core.tslib.utils.errors.TsNullArgumentRtException;
 import org.toxsoft.uskat.core.api.linkserv.IDtoLinkFwd;
 import org.toxsoft.uskat.core.backend.api.IBaLinks;
-import org.toxsoft.uskat.core.impl.ISkBackendLinksManagement;
 import org.toxsoft.uskat.s5.server.backend.IS5BackendSupportSingleton;
 
 /**
- * Локальный интерфейс синглетона {@link ISkBackendLinksManagement} предоставляемый s5-сервером.
+ * Локальный интерфейс синглетона {@link IBaLinks} предоставляемый s5-сервером.
  *
  * @author mvk
  */
