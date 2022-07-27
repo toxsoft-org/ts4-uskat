@@ -4,7 +4,8 @@ import org.toxsoft.core.tslib.av.opset.IOptionSet;
 import org.toxsoft.core.tslib.bricks.events.msg.GtMessage;
 import org.toxsoft.core.tslib.bricks.time.IQueryInterval;
 import org.toxsoft.core.tslib.bricks.time.ITimedList;
-import org.toxsoft.core.tslib.gw.gwid.*;
+import org.toxsoft.core.tslib.gw.gwid.Gwid;
+import org.toxsoft.core.tslib.gw.gwid.IGwidList;
 import org.toxsoft.core.tslib.gw.skid.Skid;
 import org.toxsoft.core.tslib.utils.errors.TsNullArgumentRtException;
 import org.toxsoft.uskat.core.api.cmdserv.DtoCommandStateChangeInfo;
@@ -25,7 +26,10 @@ class S5BaCommandsRemote
     extends S5AbstractBackendAddonRemote<IS5BaCommandsSession>
     implements IBaCommands {
 
-  private final GwidList handledCommandGwids = new GwidList();
+  /**
+   * Данные конфигурации фронтенда для {@link IBaCommands}
+   */
+  private final S5BaCommandsData baData = new S5BaCommandsData();
 
   /**
    * Constructor.
@@ -35,6 +39,8 @@ class S5BaCommandsRemote
    */
   public S5BaCommandsRemote( IS5BackendRemote aOwner ) {
     super( aOwner, ISkBackendHardConstant.BAINF_COMMANDS, IS5BaCommandsSession.class );
+    // Установка конфигурации фронтенда
+    frontend().frontendData().setBackendAddonData( IBaCommands.ADDON_ID, baData );
   }
 
   // ------------------------------------------------------------------------------------
@@ -43,8 +49,6 @@ class S5BaCommandsRemote
   @Override
   public void onBackendMessage( GtMessage aMessage ) {
     if( aMessage.messageId().equals( S5BaBeforeConnectMessages.MSG_ID ) ) {
-      S5BaCommandsData baData = new S5BaCommandsData();
-      baData.commands.setHandledCommandGwids( handledCommandGwids );
       owner().sessionInitData().setBackendAddonData( IBaCommands.ADDON_ID, baData );
     }
   }
@@ -66,7 +70,7 @@ class S5BaCommandsRemote
   @Override
   public void setHandledCommandGwids( IGwidList aGwids ) {
     TsNullArgumentRtException.checkNull( aGwids );
-    handledCommandGwids.setAll( aGwids );
+    baData.commands.setHandledCommandGwids( aGwids );
     IS5BaCommandsSession session = findSession();
     if( session != null ) {
       session.setHandledCommandGwids( aGwids );

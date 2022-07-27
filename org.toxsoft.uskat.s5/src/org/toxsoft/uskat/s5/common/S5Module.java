@@ -10,6 +10,7 @@ import java.io.Serializable;
 import org.toxsoft.core.tslib.av.EAtomicType;
 import org.toxsoft.core.tslib.av.metainfo.IDataDef;
 import org.toxsoft.core.tslib.av.opset.IOptionSet;
+import org.toxsoft.core.tslib.av.opset.impl.OptionSetUtils;
 import org.toxsoft.core.tslib.bricks.keeper.IEntityKeeper;
 import org.toxsoft.core.tslib.bricks.strid.impl.AbstractStridableParameterizedKeeper;
 import org.toxsoft.core.tslib.bricks.strid.impl.StridableParameterized;
@@ -81,6 +82,23 @@ public final class S5Module
    */
   public S5Module( String aId ) {
     super( aId );
+  }
+
+  /**
+   * Констрктор
+   *
+   * @param aId String идентификатор модуля.
+   * @param aName String имя модуля
+   * @param aDescription String описание модуля
+   * @param aVersion {@link TsVersion} версия модуля
+   * @throws TsNullArgumentRtException любой аргумент = null
+   */
+  public S5Module( String aId, String aName, String aDescription, TsVersion aVersion ) {
+    this( aId, OptionSetUtils.createOpSet( //
+        TSID_NAME, aName, //
+        TSID_DESCRIPTION, aDescription, //
+        S5Module.DDEF_VERSION, aVersion //
+    ) );
   }
 
   /**

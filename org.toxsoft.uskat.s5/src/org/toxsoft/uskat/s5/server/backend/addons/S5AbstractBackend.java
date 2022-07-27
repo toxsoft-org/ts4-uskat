@@ -12,7 +12,7 @@ import org.toxsoft.core.tslib.av.IAtomicValue;
 import org.toxsoft.core.tslib.bricks.ICooperativeMultiTaskable;
 import org.toxsoft.core.tslib.bricks.ctx.ITsContextRo;
 import org.toxsoft.core.tslib.bricks.ctx.impl.TsContext;
-import org.toxsoft.core.tslib.bricks.events.msg.GtMessage;
+import org.toxsoft.core.tslib.bricks.events.msg.*;
 import org.toxsoft.core.tslib.bricks.strid.coll.IStridablesList;
 import org.toxsoft.core.tslib.bricks.strid.idgen.IStridGenerator;
 import org.toxsoft.core.tslib.bricks.strid.idgen.UuidStridGenerator;
@@ -70,6 +70,11 @@ public abstract class S5AbstractBackend<ADDON extends IS5BackendAddon>
    * Фронтенд с перехватом и обработкой сообщений внутри бекенда и его расширений
    */
   private final IS5FrontendRear frontendRear;
+
+  /**
+   * Механизм формирования сообщений от фронтенда к бекенду
+   */
+  private final GtMessageEventer eventer = new GtMessageEventer();
 
   /**
    * Блокировка доступа к frontendRear
@@ -167,6 +172,11 @@ public abstract class S5AbstractBackend<ADDON extends IS5BackendAddon>
         return frontendData;
       }
 
+      @Override
+      public IGtMessageEventer gtMessageEventer() {
+        return eventer;
+      }
+
     };
     // Параметры создания бекенда с собственными параметрами
     TsContext args = new TsContext( aArgs );
@@ -200,65 +210,76 @@ public abstract class S5AbstractBackend<ADDON extends IS5BackendAddon>
   // ISkBackend
   //
   @Override
-  public IS5FrontendRear frontend() {
+  public final IS5FrontendRear frontend() {
     return frontendRear;
   }
 
   @Override
-  public ITsContextRo openArgs() {
+  public final ITsContextRo openArgs() {
     return openArgs;
   }
 
   @Override
-  public IBaClasses baClasses() {
+  public final IBaClasses baClasses() {
     return (IBaClasses)allAddons.getByKey( IBaClasses.ADDON_ID );
   }
 
   @Override
-  public IBaObjects baObjects() {
+  public final IBaObjects baObjects() {
     return (IBaObjects)allAddons.getByKey( IBaObjects.ADDON_ID );
   }
 
   @Override
-  public IBaLinks baLinks() {
+  public final IBaLinks baLinks() {
     return (IBaLinks)allAddons.getByKey( IBaLinks.ADDON_ID );
   }
 
   @Override
-  public IBaEvents baEvents() {
+  public final IBaEvents baEvents() {
     return (IBaEvents)allAddons.getByKey( IBaEvents.ADDON_ID );
   }
 
   @Override
-  public IBaClobs baClobs() {
+  public final IBaClobs baClobs() {
     return (IBaClobs)allAddons.getByKey( IBaClobs.ADDON_ID );
   }
 
   @Override
-  public IBaRtdata baRtdata() {
+  public final IBaRtdata baRtdata() {
     return (IBaRtdata)allAddons.getByKey( IBaRtdata.ADDON_ID );
   }
 
   @Override
-  public IBaCommands baCommands() {
+  public final IBaCommands baCommands() {
     return (IBaCommands)allAddons.getByKey( IBaCommands.ADDON_ID );
   }
 
   @Override
-  public IBaQueries baQueries() {
+  public final IBaQueries baQueries() {
     return (IBaQueries)allAddons.getByKey( IBaQueries.ADDON_ID );
   }
 
   @Override
-  public IListEdit<ISkServiceCreator<? extends AbstractSkService>> listBackendServicesCreators() {
+  public final IListEdit<ISkServiceCreator<? extends AbstractSkService>> listBackendServicesCreators() {
     return backendServicesCreators;
   }
 
   @Override
-  public <T> T findBackendAddon( String aAddonId, Class<T> aExpectedType ) {
+  public final <T> T findBackendAddon( String aAddonId, Class<T> aExpectedType ) {
     TsNullArgumentRtException.checkNulls( aAddonId, aExpectedType );
     Object rawAddon = allAddons.findByKey( aAddonId );
     return aExpectedType.cast( rawAddon );
+  }
+
+  @Override
+  public final Skid sessionID() {
+    return sessionID;
+  }
+
+  @Override
+  public final void onFrontendMessage( GtMessage aMessage ) {
+    TsNullArgumentRtException.checkNull( aMessage );
+    eventer.sendMessage( aMessage );
   }
 
   // ------------------------------------------------------------------------------------
@@ -339,15 +360,6 @@ public abstract class S5AbstractBackend<ADDON extends IS5BackendAddon>
   // Методы для наследников
   //
   /**
-   * Возвращает идентификатор соединения
-   *
-   * @return {@link Skid} идентификатор соединения
-   */
-  protected final Skid sessionID() {
-    return sessionID;
-  }
-
-  /**
    * Возвращает все расширения бекенда поддерживаемые сервером
    *
    * @return {@link IStringMapEdit}&lt;ADDON&gt; карта расширений бекенда;
@@ -369,7 +381,7 @@ public abstract class S5AbstractBackend<ADDON extends IS5BackendAddon>
   }
 
   /**
-   * Формирование (генерация) сообщения для фронтенда и расширений бекенда
+   * Формирование (генерация) сообщения от бекенда к фронтенду
    *
    * @param aMessage {@link GtMessage} сообщение
    * @throws TsNullArgumentRtException аргумент = null
@@ -386,6 +398,15 @@ public abstract class S5AbstractBackend<ADDON extends IS5BackendAddon>
       unlockWrite( frontendLock );
     }
     frontend.onBackendMessage( aMessage );
+  }
+
+  /**
+   * Возвращает механизм передачи сообщений от фронтенда к бекенду
+   *
+   * @return {@link GtMessageEventer} механизм сообщений
+   */
+  protected final IGtMessageEventer eventer() {
+    return eventer;
   }
 
   /**

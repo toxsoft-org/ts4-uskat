@@ -1,7 +1,5 @@
 package org.toxsoft.uskat.s5.server.backend.supports.commands.impl;
 
-import org.toxsoft.uskat.core.impl.Messages;
-
 /**
  * Локализуемые ресурсы реализации.
  *

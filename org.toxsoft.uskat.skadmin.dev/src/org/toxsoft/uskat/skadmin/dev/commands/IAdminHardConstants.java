@@ -8,12 +8,11 @@ import static org.toxsoft.uskat.skadmin.core.plugins.AdminPluginUtils.*;
 import static org.toxsoft.uskat.skadmin.dev.commands.IAdminHardResources.*;
 
 import org.toxsoft.core.tslib.bricks.time.impl.TimeUtils;
+import org.toxsoft.uskat.core.api.cmdserv.ESkCommandState;
 import org.toxsoft.uskat.legacy.plexy.IPlexyType;
 import org.toxsoft.uskat.skadmin.core.IAdminCmdArgDef;
 import org.toxsoft.uskat.skadmin.core.impl.AdminCmdArgDef;
 import org.toxsoft.uskat.skadmin.dev.AdminPluginDev;
-
-import ru.uskat.common.dpu.rt.cmds.ESkCommandState;
 
 /**
  * Константы пакета.

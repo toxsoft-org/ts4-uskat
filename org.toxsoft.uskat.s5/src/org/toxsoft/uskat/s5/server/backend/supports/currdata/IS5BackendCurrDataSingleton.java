@@ -3,14 +3,15 @@ package org.toxsoft.uskat.s5.server.backend.supports.currdata;
 import javax.ejb.Local;
 
 import org.toxsoft.core.tslib.av.IAtomicValue;
-import org.toxsoft.core.tslib.coll.IList;
 import org.toxsoft.core.tslib.coll.IMap;
+import org.toxsoft.core.tslib.coll.primtypes.IIntMap;
 import org.toxsoft.core.tslib.gw.gwid.Gwid;
 import org.toxsoft.core.tslib.gw.gwid.IGwidList;
+import org.toxsoft.core.tslib.utils.errors.TsIllegalArgumentRtException;
 import org.toxsoft.core.tslib.utils.errors.TsNullArgumentRtException;
-import org.toxsoft.uskat.core.api.sysdescr.dto.IDtoRtdataInfo;
 import org.toxsoft.uskat.s5.server.backend.IS5BackendSupportSingleton;
 import org.toxsoft.uskat.s5.server.backend.supports.currdata.impl.IS5CurrDataInterceptor;
+import org.toxsoft.uskat.s5.server.frontend.IS5FrontendRear;
 
 /**
  * Локальный интерфейс синглетона запросов к текущим данным предоставляемым s5-сервером.
@@ -34,30 +35,86 @@ public interface IS5BackendCurrDataSingleton
   void reconfigure( IGwidList aRemoveRtdGwids, IMap<Gwid, IAtomicValue> aAddRtdGwids );
 
   /**
-   * Prepares backend to supply current RTdata values in real-time.
+   * Конфигурирует, какие текущие РВданные хочет читать клиент.
+   * <p>
+   * Внимание: пустой список или <code>null</code> в качестве первого аргумента <code>aToRemove</code> имеют совершенно
+   * разный смысл! Пустой список означает, что никакие РВданные не удаляются из списка интересующих клиента, в то время,
+   * как <code>null</code> означает, что <b>все</b> до этого интересующие РВданные более не нужны, и должны быть удалены
+   * из списка интересующих клиента.
+   * <p>
+   * Метод возвращает карту. Ключами в карте являются уникальные int-ключи, назначаемыйе сервером запрошенному
+   * РВданному. Значением в карте является {@link Gwid} идентификатор <code>всех</code> запрошенных клиентом данных. То
+   * есть, значения {@link IIntMap#values()} в карте, это список все РВданных, сформированный согласно запросу - ранее
+   * запрошенные данные минус <code>aToRemove</code> плюс <code>aToAdd</code>. При этом в карте отсутствуют
+   * повторяющейся РВ данные.
+   * <p>
+   * Обратите внимание, что сохранение значения ключенй между вызовами метода не гарантируется. Один и тотже
+   * {@link Gwid} может иметь разный ключ после каждого вызова.
    *
-   * @param aRtdGwids {@link IList}&lt;{@link Gwid}&gt; - list of current RTdata concrete GWIDs
+   * @param aFrontend {@link IS5FrontendRear} фронтенд сформировавший запрос
+   * @param aRtdGwids {@link IGwidList} - список идентификаторов данных читаемых клиентом
+   * @throws TsNullArgumentRtException <code>aToAdd</code> == null
    */
-  void configureCurrDataReader( IList<Gwid> aRtdGwids );
+  void configureCurrDataReader( IS5FrontendRear aFrontend, IGwidList aRtdGwids );
 
   /**
-   * Prepares backend to receive current values for the specified RTdata.
+   * Конфигурирует, какие текущие РВданные хочет писать клиент.
    * <p>
-   * Note: for unprepared GWIDs updating curtret valyes by {@link #writeCurrData(Gwid, IAtomicValue)} has no effect.
+   * Внимание: пустой список или <code>null</code> в качестве первого аргумента имеют совершенно разный смысл! Пустой
+   * список означает, что никакие РВданные не удаляются из списка интересующих клиента, в то время, как
+   * <code>null</code> означает, что <b>все</b> до этого интересующие РВданные более не нужны, и должны быть удалены из
+   * списка интересующих клиента.
+   * <p>
+   * Метод возвращает карту. Ключами в карте являются уникальные int-ключи, назначаемыйе сервером запрошенному
+   * РВданному. Значением в карте является {@link Gwid} идентификатор <code>всех</code> запрошенных клиентом данных. То
+   * есть, значения {@link IIntMap#values()} в карте, это список все РВданных, сформированный согласно запросу - ранее
+   * запрошенные данные минус <code>aToRemove</code> плюс <code>aToAdd</code>. При этом в карте отсутствуют
+   * повторяющейся РВ данные.
+   * <p>
+   * Обратите внимание, что сохранение значения ключенй между вызовами метода не гарантируется. Один и тотже
+   * {@link Gwid} может иметь разный ключ после каждого вызова.
    *
-   * @param aRtdGwids {@link IList}&lt;{@link Gwid}&gt; - list of current RTdata concrete GWIDs
+   * @param aFrontend {@link IS5FrontendRear} фронтенд сформировавший запрос
+   * @param aRtdGwids {@link IGwidList} - список идентификаторов данных записываемых клиентом
+   * @throws TsNullArgumentRtException <code>aToAdd</code> == null
    */
-  void configureCurrDataWriter( IList<Gwid> aRtdGwids );
+  void configureCurrDataWriter( IS5FrontendRear aFrontend, IGwidList aRtdGwids );
 
   /**
-   * Updates the actual value of the current data.
-   * <p>
-   * Note: GWID must be prviously configured for writing by {@link #configureCurrDataWriter(IList)}.
+   * Возвращает список идентификаторов текущих данных читаемых клиентами службы
    *
-   * @param aGwid {@link Gwid} - concrete GWID of RTdata with {@link IDtoRtdataInfo#isCurr()} = <code>true</code>
-   * @param aValue {@link IAtomicValue} - current value of RTdata
+   * @return {@link IGwidList} список данных
    */
-  void writeCurrData( Gwid aGwid, IAtomicValue aValue );
+  IGwidList readRtdGwids();
+
+  /**
+   * Возвращает список идентификаторов текущих данных записываемых клиентами службы
+   *
+   * @return {@link IGwidList} список данных
+   */
+  IGwidList writeRtdGwids();
+
+  /**
+   * Возвращает значения текущих данных
+   *
+   * @param aRtGwids {@link IGwidList} список идентификаторов данных
+   * @return {@link IMap}&lt;{@link Gwid},{@link IAtomicValue}&gt; карта значений данных;<br>
+   *         Ключ: идентификатор данного;<br>
+   *         Значение: значение данного.
+   * @throws TsNullArgumentRtException аргумент = null
+   * @throws TsIllegalArgumentRtException текущего данного не существует
+   */
+  IMap<Gwid, IAtomicValue> readValues( IGwidList aRtGwids );
+
+  /**
+   * Записывает значения текущих данных в систему.
+   *
+   * @param aValues {@link IMap}&lt;{@link Gwid},{@link IAtomicValue}&gt; карта значений данных;<br>
+   *          Ключ: идентификатор данного;<br>
+   *          Значение: значение данного.
+   * @throws TsNullArgumentRtException аргумент = null
+   */
+  void writeValues( IMap<Gwid, IAtomicValue> aValues );
 
   // ------------------------------------------------------------------------------------
   // Интерсепция
@@ -82,14 +139,5 @@ public interface IS5BackendCurrDataSingleton
    * @throws TsNullArgumentRtException аргумент = null
    */
   void removeCurrDataInterceptor( IS5CurrDataInterceptor aInterceptor );
-
-  /**
-   * Делает попытку разблокирования удаленного доступа к указанным данным
-   *
-   * @param aGwids {@link IList}&lt;{@link Gwid}&gt; список идентификаторов освобождаемых данных
-   * @return boolean <b>true</b> данные освобождены;<b>false</b> данные не могут быть освобождены (еще используются)
-   * @throws TsNullArgumentRtException аргумент = null
-   */
-  boolean remoteUnlockGwids( IList<Gwid> aGwids );
 
 }

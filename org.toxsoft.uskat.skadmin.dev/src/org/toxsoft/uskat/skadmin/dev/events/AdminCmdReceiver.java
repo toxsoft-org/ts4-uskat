@@ -5,7 +5,6 @@ import static org.toxsoft.uskat.skadmin.core.EAdminCmdContextNames.*;
 import static org.toxsoft.uskat.skadmin.dev.events.IAdminHardConstants.*;
 import static org.toxsoft.uskat.skadmin.dev.events.IAdminHardResources.*;
 
-import org.toxsoft.core.tslib.bricks.time.ITimedList;
 import org.toxsoft.core.tslib.coll.IList;
 import org.toxsoft.core.tslib.coll.impl.ElemArrayList;
 import org.toxsoft.core.tslib.coll.primtypes.IStringList;
@@ -13,15 +12,12 @@ import org.toxsoft.core.tslib.coll.primtypes.IStringMap;
 import org.toxsoft.core.tslib.gw.gwid.Gwid;
 import org.toxsoft.core.tslib.gw.gwid.GwidList;
 import org.toxsoft.core.tslib.utils.errors.TsNullArgumentRtException;
+import org.toxsoft.uskat.core.ISkCoreApi;
+import org.toxsoft.uskat.core.api.evserv.*;
 import org.toxsoft.uskat.legacy.plexy.IPlexyType;
 import org.toxsoft.uskat.legacy.plexy.IPlexyValue;
 import org.toxsoft.uskat.skadmin.core.IAdminCmdCallback;
 import org.toxsoft.uskat.skadmin.core.impl.AbstractAdminCmd;
-
-import ru.uskat.common.dpu.rt.events.SkEvent;
-import ru.uskat.core.ISkCoreApi;
-import ru.uskat.core.api.events.ISkEventHandler;
-import ru.uskat.core.api.events.ISkEventService;
 
 /**
  * Команда s5admin: прием событий системы
@@ -135,7 +131,7 @@ public class AdminCmdReceiver
   // Реализация ISkEventHandler
   //
   @Override
-  public void onEvents( ITimedList<SkEvent> aEvents ) {
+  public void onEvents( ISkEventList aEvents ) {
     try {
       for( SkEvent event : aEvents ) {
         // Печать принятой команды

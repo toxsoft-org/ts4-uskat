@@ -8,11 +8,16 @@ import java.util.concurrent.TimeUnit;
 import javax.ejb.*;
 
 import org.toxsoft.core.tslib.av.opset.IOptionSet;
+import org.toxsoft.core.tslib.bricks.strid.idgen.IStridGenerator;
+import org.toxsoft.core.tslib.bricks.strid.idgen.UuidStridGenerator;
 import org.toxsoft.core.tslib.bricks.time.IQueryInterval;
 import org.toxsoft.core.tslib.coll.primtypes.IStringMap;
 import org.toxsoft.core.tslib.utils.errors.TsNullArgumentRtException;
 import org.toxsoft.uskat.core.api.hqserv.IDtoQueryParam;
 import org.toxsoft.uskat.s5.server.backend.impl.S5BackendSupportSingleton;
+import org.toxsoft.uskat.s5.server.backend.supports.commands.IS5BackendCommandSingleton;
+import org.toxsoft.uskat.s5.server.backend.supports.events.IS5BackendEventSingleton;
+import org.toxsoft.uskat.s5.server.backend.supports.histdata.IS5BackendHistDataSingleton;
 import org.toxsoft.uskat.s5.server.backend.supports.queries.IS5BackendQueriesSingleton;
 import org.toxsoft.uskat.s5.utils.jobs.IS5ServerJob;
 
@@ -25,7 +30,9 @@ import org.toxsoft.uskat.s5.utils.jobs.IS5ServerJob;
 @Singleton
 @LocalBean
 @DependsOn( { //
-    BACKEND_LINKS_SINGLETON //
+    BACKEND_EVENTS_SINGLETON, //
+    BACKEND_COMMANDS_SINGLETON, //
+    BACKEND_HISTDATA_SINGLETON //
 } )
 @TransactionManagement( TransactionManagementType.CONTAINER )
 @TransactionAttribute( TransactionAttributeType.SUPPORTS )
@@ -50,10 +57,34 @@ public class S5BackendQueriesSingleton
   private static final long DOJOB_INTERVAL = 1000;
 
   /**
+   * Поддержка сервера запросов событий
+   */
+  @EJB
+  private IS5BackendEventSingleton eventsSupport;
+
+  /**
+   * Поддержка сервера запросов команд
+   */
+  @EJB
+  private IS5BackendCommandSingleton commandsSupport;
+
+  /**
+   * Поддержка сервера запросов хранимых данных
+   */
+  @EJB
+  private IS5BackendHistDataSingleton histDataSupport;
+
+  /**
+   * Генератор идентификаторов запроса чтения данных
+   */
+  private final IStridGenerator uuidGenerator;
+
+  /**
    * Конструктор.
    */
   public S5BackendQueriesSingleton() {
     super( BACKEND_QUERIES_ID, STR_D_BACKEND_QUERIES );
+    uuidGenerator = new UuidStridGenerator( UuidStridGenerator.createState( BACKEND_QUERIES_ID ) );
   }
 
   // ------------------------------------------------------------------------------------

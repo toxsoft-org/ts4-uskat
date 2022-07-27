@@ -9,6 +9,7 @@ import org.toxsoft.core.tslib.utils.logs.ILogger;
 import org.toxsoft.uskat.core.backend.api.BackendAddonBase;
 import org.toxsoft.uskat.core.backend.api.IBackendAddon;
 import org.toxsoft.uskat.s5.server.frontend.IS5FrontendRear;
+import org.toxsoft.uskat.s5.server.statistics.IS5StatisticCounter;
 
 /**
  * Base implementation of local {@link IBackendAddon} for s5 backend.
@@ -18,6 +19,11 @@ import org.toxsoft.uskat.s5.server.frontend.IS5FrontendRear;
 public abstract class S5AbstractBackendAddonLocal
     extends BackendAddonBase<IS5BackendLocal>
     implements IS5BackendAddonLocal {
+
+  /**
+   * Счетчик статистической информации сессии
+   */
+  private IS5StatisticCounter statisticCounter;
 
   /**
    * Журнал
@@ -34,6 +40,7 @@ public abstract class S5AbstractBackendAddonLocal
    */
   protected S5AbstractBackendAddonLocal( IS5BackendLocal aOwner, IStridable aInfo ) {
     super( aOwner, aInfo );
+    statisticCounter = aOwner.backendSingleton().sessionManager().findStatisticCounter( aOwner.sessionID() );
   }
 
   // ------------------------------------------------------------------------------------
@@ -58,8 +65,17 @@ public abstract class S5AbstractBackendAddonLocal
   public abstract void close();
 
   // ------------------------------------------------------------------------------------
-  // API for descendans
+  // API для наследников
   //
+  /**
+   * Возвращает модуль формирования статистики
+   *
+   * @return {@link IS5StatisticCounter} статистика
+   */
+  protected final IS5StatisticCounter statisticCounter() {
+    return statisticCounter;
+  }
+
   /**
    * Возвращает журнал работы
    *

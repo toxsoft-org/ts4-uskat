@@ -16,15 +16,12 @@ import org.toxsoft.core.tslib.coll.primtypes.IStringMap;
 import org.toxsoft.core.tslib.gw.gwid.Gwid;
 import org.toxsoft.core.tslib.gw.gwid.GwidList;
 import org.toxsoft.core.tslib.utils.errors.TsNullArgumentRtException;
+import org.toxsoft.uskat.core.ISkCoreApi;
+import org.toxsoft.uskat.core.api.cmdserv.*;
 import org.toxsoft.uskat.legacy.plexy.IPlexyType;
 import org.toxsoft.uskat.legacy.plexy.IPlexyValue;
 import org.toxsoft.uskat.skadmin.core.IAdminCmdCallback;
 import org.toxsoft.uskat.skadmin.core.impl.AbstractAdminCmd;
-
-import ru.uskat.common.dpu.rt.cmds.*;
-import ru.uskat.core.ISkCoreApi;
-import ru.uskat.core.api.cmds.ISkCommandExecutor;
-import ru.uskat.core.api.cmds.ISkCommandService;
 
 /**
  * Команда s5admin: отправка команды исполнителю
@@ -164,7 +161,7 @@ public class AdminCmdExecutor
   // Реализация ISkCommandExecutor
   //
   @Override
-  public void executeCommand( IDpuCommand aCmd ) {
+  public void executeCommand( IDtoCommand aCmd ) {
     try {
       // Печать состояния команды
       println( MSG_COMMAND_EXECUTE, aCmd );
@@ -179,7 +176,7 @@ public class AdminCmdExecutor
       ISkCoreApi coreApi = (ISkCoreApi)pxCoreApi.singleRef();
       ISkCommandService commandService = coreApi.cmdService();
       SkCommandState state = new SkCommandState( System.currentTimeMillis(), responseState );
-      commandService.changeCommandState( new DpuCommandStateChangeInfo( aCmd.id(), state ) );
+      commandService.changeCommandState( new DtoCommandStateChangeInfo( aCmd.instanceId(), state ) );
     }
     catch( Throwable e ) {
       logger().error( e );

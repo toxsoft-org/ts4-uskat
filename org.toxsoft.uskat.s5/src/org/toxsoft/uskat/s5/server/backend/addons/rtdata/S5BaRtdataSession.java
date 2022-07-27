@@ -1,5 +1,6 @@
 package org.toxsoft.uskat.s5.server.backend.addons.rtdata;
 
+import static org.toxsoft.core.tslib.av.impl.AvUtils.*;
 import static org.toxsoft.uskat.s5.server.IS5ImplementConstants.*;
 
 import java.util.concurrent.TimeUnit;
@@ -9,10 +10,16 @@ import javax.ejb.*;
 import org.toxsoft.core.tslib.av.IAtomicValue;
 import org.toxsoft.core.tslib.av.temporal.ITemporalAtomicValue;
 import org.toxsoft.core.tslib.bricks.time.*;
-import org.toxsoft.core.tslib.coll.IList;
+import org.toxsoft.core.tslib.coll.IMap;
+import org.toxsoft.core.tslib.coll.IMapEdit;
+import org.toxsoft.core.tslib.coll.impl.ElemMap;
 import org.toxsoft.core.tslib.gw.gwid.Gwid;
+import org.toxsoft.core.tslib.gw.gwid.IGwidList;
+import org.toxsoft.core.tslib.utils.Pair;
 import org.toxsoft.core.tslib.utils.errors.TsNullArgumentRtException;
 import org.toxsoft.uskat.core.backend.ISkBackendHardConstant;
+import org.toxsoft.uskat.core.backend.api.*;
+import org.toxsoft.uskat.s5.server.IS5ServerHardConstants;
 import org.toxsoft.uskat.s5.server.backend.addons.S5AbstractBackendAddonSession;
 import org.toxsoft.uskat.s5.server.backend.supports.currdata.IS5BackendCurrDataSingleton;
 import org.toxsoft.uskat.s5.server.backend.supports.histdata.IS5BackendHistDataSingleton;
@@ -66,7 +73,29 @@ class S5BaRtdataSession
   @Override
   protected void doAfterInit( S5SessionCallbackWriter aCallbackWriter, IS5SessionInitData aInitData,
       S5SessionInitResult aInitResult ) {
-    // nop
+    S5BaRtdataData baData = new S5BaRtdataData();
+    frontend().frontendData().setBackendAddonData( IBaRtdata.ADDON_ID, baData );
+    // Регистрация слушателя событий от фронтенда
+    frontend().gtMessageEventer().addListener( aMessage -> {
+      // Получение значений текущих данных от фронтенда для записи в бекенда
+      if( aMessage.messageId().equals( BaMsgRtdataCurrData.MSG_ID ) ) {
+        IMap<Gwid, IAtomicValue> values = BaMsgRtdataCurrData.INSTANCE.getNewValues( aMessage );
+        // Запись новых значений текущих данных
+        currDataSupport.writeValues( values );
+        // Обработка статистики приема пакета текущих данных
+        statisticCounter().onEvent( IS5ServerHardConstants.STAT_SESSION_RECEVIED_CURRDATA, AV_1 );
+        return;
+      }
+      if( aMessage.messageId().equals( BaMsgRtdataHistData.MSG_ID ) ) {
+        IMap<Gwid, Pair<ITimeInterval, ITimedList<ITemporalAtomicValue>>> values =
+            BaMsgRtdataHistData.INSTANCE.getNewValues( aMessage );
+        // Запись новых значений хранимых данных
+        histDataSupport.writeValues( values );
+        // Обработка статистики приема пакета текущих данных
+        statisticCounter().onEvent( IS5ServerHardConstants.STAT_SESSION_RECEVIED_HISTDATA, AV_1 );
+        return;
+      }
+    } );
   }
 
   // ------------------------------------------------------------------------------------
@@ -74,30 +103,43 @@ class S5BaRtdataSession
   //
   @TransactionAttribute( TransactionAttributeType.SUPPORTS )
   @Override
-  public void configureCurrDataReader( IList<Gwid> aRtdGwids ) {
+  public void configureCurrDataReader( IGwidList aRtdGwids ) {
     TsNullArgumentRtException.checkNull( aRtdGwids );
-    currDataSupport.configureCurrDataReader( aRtdGwids );
+    currDataSupport.configureCurrDataReader( frontend(), aRtdGwids );
+    // Сохранение измененной сессии в кластере сервера
+    writeSessionData();
   }
 
   @TransactionAttribute( TransactionAttributeType.SUPPORTS )
   @Override
-  public void configureCurrDataWriter( IList<Gwid> aRtdGwids ) {
+  public void configureCurrDataWriter( IGwidList aRtdGwids ) {
     TsNullArgumentRtException.checkNull( aRtdGwids );
-    currDataSupport.configureCurrDataWriter( aRtdGwids );
+    currDataSupport.configureCurrDataWriter( frontend(), aRtdGwids );
+    // Сохранение измененной сессии в кластере сервера
+    writeSessionData();
   }
 
+  // Клиент не должен использовать этот метод - текущие данные поступают через IGtMessageListener.onGenericTopicMessage(
+  // GtMessage). Смотри метод doAfterInit(...). Реализация сделана только для полной поддержки API
+  @Deprecated
   @TransactionAttribute( TransactionAttributeType.SUPPORTS )
   @Override
   public void writeCurrData( Gwid aGwid, IAtomicValue aValue ) {
     TsNullArgumentRtException.checkNulls( aGwid, aValue );
-    currDataSupport.writeCurrData( aGwid, aValue );
+    IMap<Gwid, IAtomicValue> values = new ElemMap<>();
+    currDataSupport.writeValues( values );
   }
 
+  // Клиент не должен использовать этот метод - текущие данные поступают через IGtMessageListener.onGenericTopicMessage(
+  // GtMessage). Смотри метод doAfterInit(...). Реализация сделана только для полной поддержки API
+  @Deprecated
   @TransactionAttribute( TransactionAttributeType.REQUIRED )
   @Override
   public void writeHistData( Gwid aGwid, ITimeInterval aInterval, ITimedList<ITemporalAtomicValue> aValues ) {
     TsNullArgumentRtException.checkNulls( aGwid, aInterval, aValues );
-    histDataSupport.writeHistData( aGwid, aInterval, aValues );
+    IMapEdit<Gwid, Pair<ITimeInterval, ITimedList<ITemporalAtomicValue>>> values = new ElemMap<>();
+    values.put( aGwid, new Pair<>( aInterval, aValues ) );
+    histDataSupport.writeValues( values );
   }
 
   @TransactionAttribute( TransactionAttributeType.SUPPORTS )

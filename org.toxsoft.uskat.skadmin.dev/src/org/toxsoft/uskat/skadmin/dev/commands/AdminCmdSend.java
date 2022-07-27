@@ -9,6 +9,7 @@ import static org.toxsoft.uskat.skadmin.dev.commands.IAdminHardResources.*;
 import org.toxsoft.core.tslib.av.IAtomicValue;
 import org.toxsoft.core.tslib.av.impl.AvUtils;
 import org.toxsoft.core.tslib.av.opset.IOptionSet;
+import org.toxsoft.core.tslib.bricks.events.change.IGenericChangeListener;
 import org.toxsoft.core.tslib.bricks.strid.coll.IStridablesList;
 import org.toxsoft.core.tslib.coll.IList;
 import org.toxsoft.core.tslib.coll.IListEdit;
@@ -16,23 +17,23 @@ import org.toxsoft.core.tslib.coll.impl.ElemArrayList;
 import org.toxsoft.core.tslib.coll.primtypes.IStringList;
 import org.toxsoft.core.tslib.coll.primtypes.IStringMap;
 import org.toxsoft.core.tslib.gw.gwid.Gwid;
-import org.toxsoft.core.tslib.gw.gwid.IGwidList;
 import org.toxsoft.core.tslib.gw.skid.ISkidList;
 import org.toxsoft.core.tslib.gw.skid.Skid;
 import org.toxsoft.core.tslib.utils.TsLibUtils;
 import org.toxsoft.core.tslib.utils.errors.TsNullArgumentRtException;
+import org.toxsoft.uskat.core.ISkCoreApi;
+import org.toxsoft.uskat.core.api.cmdserv.*;
+import org.toxsoft.uskat.core.api.objserv.ISkObjectService;
+import org.toxsoft.uskat.core.api.sysdescr.ISkClassInfo;
+import org.toxsoft.uskat.core.api.sysdescr.ISkSysdescr;
+import org.toxsoft.uskat.core.api.sysdescr.dto.IDtoCmdInfo;
+import org.toxsoft.uskat.core.api.users.ISkUser;
+import org.toxsoft.uskat.core.connection.ISkConnection;
+import org.toxsoft.uskat.core.impl.SkCommand;
 import org.toxsoft.uskat.legacy.plexy.IPlexyType;
 import org.toxsoft.uskat.legacy.plexy.IPlexyValue;
 import org.toxsoft.uskat.skadmin.core.IAdminCmdCallback;
 import org.toxsoft.uskat.skadmin.core.impl.AbstractAdminCmd;
-
-import ru.uskat.common.dpu.rt.cmds.*;
-import ru.uskat.core.ISkCoreApi;
-import ru.uskat.core.api.cmds.*;
-import ru.uskat.core.api.objserv.ISkObjectService;
-import ru.uskat.core.api.sysdescr.*;
-import ru.uskat.core.api.users.ISkUser;
-import ru.uskat.core.connection.ISkConnection;
 
 /**
  * Команда s5admin: отправка команды исполнителю
@@ -41,7 +42,7 @@ import ru.uskat.core.connection.ISkConnection;
  */
 public class AdminCmdSend
     extends AbstractAdminCmd
-    implements ISkCommandServiceListener {
+    implements IGenericChangeListener {
 
   /**
    * Обратный вызов выполняемой команды
@@ -129,11 +130,11 @@ public class AdminCmdSend
         authorClassId = AvUtils.avStr( ISkUser.CLASS_ID );
       }
       if( !authorStrid.isAssigned() ) {
-        authorStrid = AvUtils.avStr( connection.sessionInfo().getUser().login() );
+        // TODO: connection.getConnectionInfo()....
+        // authorStrid = AvUtils.avStr( connection.sessionInfo().getUser().login() );
+        authorStrid = AvUtils.avStr( "root" ); //$NON-NLS-1$
       }
       int timeout = argSingleValue( ARG_SEND_TIMEOUT ).asInt();
-      // Установка слушателя команд
-      commandService.eventer().addListener( this );
       try {
         long startTime = System.currentTimeMillis();
         Gwid cmdGwid = Gwid.createCmd( classId, objStrid, cmdId );
@@ -142,8 +143,10 @@ public class AdminCmdSend
           commandFinished = false;
           // Выполнение
           ISkCommand cmd = commandService.sendCommand( cmdGwid, authorSkid, args );
+          // Установка слушателя команды
+          cmd.stateEventer().addListener( this );
           // Команда отправлена на выполнение
-          println( MSG_COMMAND_SEND, cmd.id() );
+          println( MSG_COMMAND_SEND, cmd.instanceId() );
           // Ожидание выполнения
           this.wait( timeout );
           // Проверка завершения
@@ -151,7 +154,7 @@ public class AdminCmdSend
             // Команда не выполнена в установленное время и будет отменена
             addResultError( ERR_CANT_EXECUTE_BY_TIMEOUT + '\n', cmdGwid, Long.valueOf( timeout ) );
             SkCommandState cancelState = new SkCommandState( System.currentTimeMillis(), ESkCommandState.TIMEOUTED );
-            commandService.changeCommandState( new DpuCommandStateChangeInfo( cmd.id(), cancelState ) );
+            commandService.changeCommandState( new DtoCommandStateChangeInfo( cmd.instanceId(), cancelState ) );
             resultFail();
             return;
           }
@@ -163,10 +166,6 @@ public class AdminCmdSend
       catch( Throwable e ) {
         addResultError( e );
         resultFail();
-      }
-      finally {
-        // Удаление слушателя команд
-        commandService.eventer().removeListener( this );
       }
     }
     finally {
@@ -182,11 +181,10 @@ public class AdminCmdSend
     }
     ISkCoreApi coreApi = (ISkCoreApi)pxCoreApi.singleRef();
     ISkSysdescr sysdescr = coreApi.sysdescr();
-    ISkClassInfoManager classManager = sysdescr.classInfoManager();
     ISkObjectService objService = coreApi.objService();
     if( aArgId.equals( ARG_SEND_CLASSID.id() ) ) {
       // Список всех классов
-      IStridablesList<ISkClassInfo> classInfos = classManager.listClasses();
+      IStridablesList<ISkClassInfo> classInfos = sysdescr.listClasses();
       // Подготовка списка возможных значений
       IListEdit<IPlexyValue> values = new ElemArrayList<>( classInfos.size() );
       // Тип значений
@@ -219,16 +217,16 @@ public class AdminCmdSend
       // Идентификатор класса
       String classId = aArgValues.getByKey( ARG_SEND_CLASSID.id() ).singleValue().asString();
       // Список всех связей с учетом наследников
-      ISkClassInfo classInfo = classManager.findClassInfo( classId );
+      ISkClassInfo classInfo = sysdescr.findClassInfo( classId );
       if( classInfo == null ) {
         return IList.EMPTY;
       }
-      IStridablesList<ISkCmdInfo> cmdInfoes = classInfo.cmdInfos();
+      IStridablesList<IDtoCmdInfo> cmdInfoes = classInfo.cmds().list();
       IListEdit<IPlexyValue> values = new ElemArrayList<>( cmdInfoes.size() );
       // Пустое значение
       IPlexyValue plexyValue = pvSingleValue( AvUtils.AV_STR_EMPTY );
       values.add( plexyValue );
-      for( ISkCmdInfo cmdInfo : cmdInfoes ) {
+      for( IDtoCmdInfo cmdInfo : cmdInfoes ) {
         IAtomicValue dataValue = AvUtils.avStr( cmdInfo.id() );
         plexyValue = pvSingleValue( dataValue );
         values.add( plexyValue );
@@ -239,10 +237,11 @@ public class AdminCmdSend
   }
 
   // ------------------------------------------------------------------------------------
-  // Реализация ISkCommandServiceListener
+  // Реализация IGenericChangeListener
   //
   @Override
-  public void onCommandStateChanged( ISkCommand aCommand ) {
+  public void onGenericChangeEvent( Object aSource ) {
+    SkCommand aCommand = (SkCommand)aSource;
     // Печать состояния команды
     StringBuilder sb = new StringBuilder();
     sb.append( aCommand.state() );
@@ -258,7 +257,7 @@ public class AdminCmdSend
     sb.append( ')' );
     println( MSG_COMMAND_STATE_CHANGED, sb.toString() );
     synchronized (this) {
-      if( aCommand.state().state().isFinished() ) {
+      if( aCommand.state().state().isComplete() ) {
         // Команда завершена
         commandFinished = true;
         // Сигнал о завершении команды
@@ -267,11 +266,11 @@ public class AdminCmdSend
     }
   }
 
-  @Override
-  public void onExecutableCommandGwidsChanged( IGwidList aExecutableCommandGwids ) {
-    // Печать об изменении списка поддерживаемых команд
-    println( MSG_EXCUTABLE_COMMAND_GWIDS_CHANGED, Integer.valueOf( aExecutableCommandGwids.size() ) );
-  }
+  // @Override
+  // public void onExecutableCommandGwidsChanged( IGwidList aExecutableCommandGwids ) {
+  // // Печать об изменении списка поддерживаемых команд
+  // println( MSG_EXCUTABLE_COMMAND_GWIDS_CHANGED, Integer.valueOf( aExecutableCommandGwids.size() ) );
+  // }
 
   // ------------------------------------------------------------------------------------
   // Внутренние методы

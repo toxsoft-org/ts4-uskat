@@ -20,17 +20,18 @@ import org.toxsoft.core.tslib.coll.primtypes.IStringList;
 import org.toxsoft.core.tslib.coll.primtypes.IStringMap;
 import org.toxsoft.core.tslib.gw.gwid.Gwid;
 import org.toxsoft.core.tslib.gw.skid.ISkidList;
+import org.toxsoft.uskat.core.ISkCoreApi;
+import org.toxsoft.uskat.core.api.objserv.ISkObject;
+import org.toxsoft.uskat.core.api.objserv.ISkObjectService;
+import org.toxsoft.uskat.core.api.sysdescr.ISkClassInfo;
+import org.toxsoft.uskat.core.api.sysdescr.ISkSysdescr;
+import org.toxsoft.uskat.core.api.sysdescr.dto.IDtoAttrInfo;
+import org.toxsoft.uskat.core.connection.ISkConnection;
 import org.toxsoft.uskat.legacy.plexy.IPlexyType;
 import org.toxsoft.uskat.legacy.plexy.IPlexyValue;
 import org.toxsoft.uskat.skadmin.core.IAdminCmdCallback;
 import org.toxsoft.uskat.skadmin.core.IAdminCmdContextParam;
 import org.toxsoft.uskat.skadmin.core.impl.AbstractAdminCmd;
-
-import ru.uskat.core.ISkCoreApi;
-import ru.uskat.core.api.objserv.ISkObjectService;
-import ru.uskat.core.api.sysdescr.*;
-import ru.uskat.core.common.skobject.ISkObject;
-import ru.uskat.core.connection.ISkConnection;
 
 /**
  * Команда s5admin: Чтение значения атрибута объекта
@@ -143,11 +144,10 @@ public class AdminCmdGetAttr
     }
     ISkCoreApi coreApi = (ISkCoreApi)pxCoreApi.singleRef();
     ISkSysdescr sysdescr = coreApi.sysdescr();
-    ISkClassInfoManager classManager = sysdescr.classInfoManager();
     ISkObjectService objService = coreApi.objService();
     if( aArgId.equals( ARG_CLASSID.id() ) ) {
       // Список всех классов
-      IStridablesList<ISkClassInfo> classInfos = classManager.listClasses();
+      IStridablesList<ISkClassInfo> classInfos = sysdescr.listClasses();
       // Подготовка списка возможных значений
       IListEdit<IPlexyValue> values = new ElemArrayList<>( classInfos.size() );
       for( int index = 0, n = classInfos.size(); index < n; index++ ) {
@@ -177,17 +177,17 @@ public class AdminCmdGetAttr
     }
     if( aArgId.equals( ARG_ATTRID.id() ) && aArgValues.keys().hasElem( ARG_CLASSID.id() ) ) {
       String classId = aArgValues.getByKey( ARG_CLASSID.id() ).singleValue().asString();
-      ISkClassInfo classInfo = classManager.findClassInfo( classId );
+      ISkClassInfo classInfo = sysdescr.findClassInfo( classId );
       if( classInfo == null ) {
         return IList.EMPTY;
       }
-      IStridablesList<ISkAttrInfo> attrInfos = classInfo.attrInfos();
+      IStridablesList<IDtoAttrInfo> attrInfos = classInfo.attrs().list();
       IListEdit<IPlexyValue> values = new ElemLinkedList<>();
       // Значение '*'
       IAtomicValue attrValue = AvUtils.avStr( MULTI );
       IPlexyValue plexyValue = pvSingleValue( attrValue );
       values.add( plexyValue );
-      for( ISkAttrInfo attrInfo : attrInfos ) {
+      for( IDtoAttrInfo attrInfo : attrInfos ) {
         attrValue = AvUtils.avStr( attrInfo.id() );
         plexyValue = pvSingleValue( attrValue );
         values.add( plexyValue );

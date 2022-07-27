@@ -19,16 +19,17 @@ import org.toxsoft.core.tslib.coll.primtypes.IStringMap;
 import org.toxsoft.core.tslib.gw.gwid.Gwid;
 import org.toxsoft.core.tslib.gw.skid.ISkidList;
 import org.toxsoft.core.tslib.utils.errors.TsNullArgumentRtException;
+import org.toxsoft.uskat.core.ISkCoreApi;
+import org.toxsoft.uskat.core.api.evserv.ISkEventService;
+import org.toxsoft.uskat.core.api.evserv.SkEvent;
+import org.toxsoft.uskat.core.api.objserv.ISkObjectService;
+import org.toxsoft.uskat.core.api.sysdescr.ISkClassInfo;
+import org.toxsoft.uskat.core.api.sysdescr.ISkSysdescr;
+import org.toxsoft.uskat.core.api.sysdescr.dto.IDtoEventInfo;
 import org.toxsoft.uskat.legacy.plexy.IPlexyType;
 import org.toxsoft.uskat.legacy.plexy.IPlexyValue;
 import org.toxsoft.uskat.skadmin.core.IAdminCmdCallback;
 import org.toxsoft.uskat.skadmin.core.impl.AbstractAdminCmd;
-
-import ru.uskat.common.dpu.rt.events.SkEvent;
-import ru.uskat.core.ISkCoreApi;
-import ru.uskat.core.api.events.ISkEventService;
-import ru.uskat.core.api.objserv.ISkObjectService;
-import ru.uskat.core.api.sysdescr.*;
 
 /**
  * Команда s5admin: генерация события
@@ -133,11 +134,10 @@ public class AdminCmdFire
     }
     ISkCoreApi coreApi = (ISkCoreApi)pxCoreApi.singleRef();
     ISkSysdescr sysdescr = coreApi.sysdescr();
-    ISkClassInfoManager classManager = sysdescr.classInfoManager();
     ISkObjectService objService = coreApi.objService();
     if( aArgId.equals( ARG_CLASSID.id() ) ) {
       // Список всех классов
-      IStridablesList<ISkClassInfo> classInfos = classManager.listClasses();
+      IStridablesList<ISkClassInfo> classInfos = sysdescr.listClasses();
       // Подготовка списка возможных значений
       IListEdit<IPlexyValue> values = new ElemArrayList<>( classInfos.size() );
       for( int index = 0, n = classInfos.size(); index < n; index++ ) {
@@ -169,17 +169,17 @@ public class AdminCmdFire
       // Идентификатор класса
       String classId = aArgValues.getByKey( ARG_CLASSID.id() ).singleValue().asString();
       // Список всех связей с учетом наследников
-      ISkClassInfo classInfo = classManager.findClassInfo( classId );
+      ISkClassInfo classInfo = sysdescr.findClassInfo( classId );
       if( classInfo == null ) {
         return IList.EMPTY;
       }
-      IStridablesList<ISkEventInfo> eventInfoes = classInfo.eventInfos();
+      IStridablesList<IDtoEventInfo> eventInfoes = classInfo.events().list();
       IListEdit<IPlexyValue> values = new ElemArrayList<>( eventInfoes.size() );
       // Пустое значение
       IAtomicValue dataValue = AvUtils.avStr( EMPTY_STRING );
       IPlexyValue plexyValue = pvSingleValue( dataValue );
       values.add( plexyValue );
-      for( ISkEventInfo eventInfo : eventInfoes ) {
+      for( IDtoEventInfo eventInfo : eventInfoes ) {
         dataValue = AvUtils.avStr( eventInfo.id() );
         plexyValue = pvSingleValue( dataValue );
         values.add( plexyValue );

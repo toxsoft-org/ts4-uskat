@@ -3,7 +3,7 @@ package org.toxsoft.uskat.s5.server.frontend;
 import java.io.ObjectStreamException;
 import java.io.Serializable;
 
-import org.toxsoft.core.tslib.bricks.events.msg.GtMessage;
+import org.toxsoft.core.tslib.bricks.events.msg.*;
 import org.toxsoft.core.tslib.gw.skid.Skid;
 import org.toxsoft.core.tslib.utils.TsLibUtils;
 import org.toxsoft.uskat.core.backend.ISkFrontendRear;
@@ -11,11 +11,14 @@ import org.toxsoft.uskat.s5.common.sessions.ISkSession;
 
 /**
  * Фронтенд предоставляемый s5-клиентами
+ * <p>
+ * TODO: не попросить ли goga сделать ISkFrontendRear extends IGtMessageEventCapable, что будет означать что соообщения
+ * идут не только от бекенда к фронтенду, но и в обратном направлении
  *
  * @author mvk
  */
 public interface IS5FrontendRear
-    extends ISkFrontendRear {
+    extends ISkFrontendRear, IGtMessageEventCapable {
 
   /**
    * Несуществующий фронтенд
@@ -52,7 +55,8 @@ class InternalNullFrontendRear
 
   private static final long serialVersionUID = 157157L;
 
-  private transient S5FrontendData frontendData;
+  private transient S5FrontendData    frontendData;
+  private transient IGtMessageEventer eventer;
 
   /**
    * Метод корректно восстанавливает сериализированный {@link IS5FrontendRear#NULL}.
@@ -92,6 +96,14 @@ class InternalNullFrontendRear
     return frontendData;
   }
 
+  @Override
+  public IGtMessageEventer gtMessageEventer() {
+    if( eventer == null ) {
+      eventer = new GtMessageEventer();
+    }
+    return eventer;
+  }
+
   // ------------------------------------------------------------------------------------
   // Реализация методов Object
   //
@@ -109,4 +121,5 @@ class InternalNullFrontendRear
   public String toString() {
     return IS5FrontendRear.class.getSimpleName() + ".NULL"; //$NON-NLS-1$
   }
+
 }
