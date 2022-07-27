@@ -103,8 +103,7 @@ public class SkCoreApi
     // create backend
     ISkBackendProvider bp = REFDEF_BACKEND_PROVIDER.getRef( aArgs );
     backend = bp.createBackend( this, aArgs );
-    backend.initialize();
-    // if not needed reate thread unsafe queue
+    // if needed сreate thread-safe queue
     if( ISkBackendHardConstant.OPDEF_SKBI_NEED_THREAD_SAFE_FRONTEND.getValue( backend.getBackendInfo().params() )
         .asBool() ) {
       backendMessageQueue = new SynchronizedQueueWrapper<>( new Queue<>() );
@@ -112,6 +111,7 @@ public class SkCoreApi
     else {
       backendMessageQueue = new Queue<>();
     }
+    backend.initialize();
     // prepare services to be created
     IListEdit<ISkServiceCreator<? extends AbstractSkService>> llCreators = new ElemArrayList<>();
     // mandatory built-in services
