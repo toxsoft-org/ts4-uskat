@@ -45,6 +45,13 @@ public interface ISkBackend
   boolean isActive();
 
   /**
+   * Called once immediately after constructor.
+   * <p>
+   * This is second step of the two-step initialization of a backend (constructor and then {@link #initialize()}).
+   */
+  void initialize();
+
+  /**
    * Returns information about backend instance.
    *
    * @return {@link ISkBackendInfo} - the backend info

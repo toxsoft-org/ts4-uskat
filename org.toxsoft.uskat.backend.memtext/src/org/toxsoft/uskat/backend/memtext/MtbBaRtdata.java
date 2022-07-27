@@ -144,7 +144,7 @@ public class MtbBaRtdata
   private final ReentrantReadWriteLock                          hdLock = new ReentrantReadWriteLock();
   private final IMapEdit<Gwid, TimedList<ITemporalAtomicValue>> hdMap  = new ElemMap<>();
 
-  private final InternalThread theThread;
+  private InternalThread theThread;
 
   /**
    * This reference is changed in {@link #internalSendNewCurrDataToFrontend()}.
@@ -166,14 +166,18 @@ public class MtbBaRtdata
     val = OPDEF_HISTORY_DEPTH_HOURS.getValue( owner().argContext().params() ).asInt();
     historyDepthMsecs = TsMiscUtils.inRange( val, MIN_HISTORY_DEPTH_HOURS, MAX_HISTORY_DEPTH_HOURS ) * 3600_000L;
     earliestTimeToStore = System.currentTimeMillis() - historyDepthMsecs;
-    String threadName = INTERNAL_THREAD_NAME_PREFIX + owner().getBackendInfo().id();
-    theThread = new InternalThread( threadName );
-    theThread.start();
   }
 
   // ------------------------------------------------------------------------------------
   // MtbAbstractAddon
   //
+
+  @Override
+  protected void initialize() {
+    String threadName = INTERNAL_THREAD_NAME_PREFIX + owner().getBackendInfo().id();
+    theThread = new InternalThread( threadName );
+    theThread.start();
+  }
 
   @Override
   public void close() {

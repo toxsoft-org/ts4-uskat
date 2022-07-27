@@ -167,6 +167,13 @@ public abstract class MtbAbstractBackend
   //
 
   @Override
+  public void initialize() {
+    for( MtbAbstractAddon a : allAddons ) {
+      a.initialize();
+    }
+  }
+
+  @Override
   public boolean isActive() {
     return true;
   }

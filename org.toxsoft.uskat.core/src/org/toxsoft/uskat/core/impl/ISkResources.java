@@ -21,6 +21,7 @@ interface ISkResources {
   String FMT_INFO_SERVICE_CLOSE      = "Service %s: close() called";
   String FMT_WARN_INV_SERVICE_GT_MSG = "Service %s: received invalid message with topic ID '%s'";
   String FMT_WARN_UNKNOWN_MSG        = "Service %s: received message with unknown message ID '%s'";
+  String FMT_ERR_CLAIM_VIOLATION     = "Entities of class ID %s are claimed by service %s";
 
   /**
    * {@link CoreL10n}
@@ -129,7 +130,24 @@ interface ISkResources {
   /**
    * {@link SkCoreServUsers}
    */
-  String MSG_ERR_PSWD_IS_BLANK = "Не допускается пустой пароль";
+  String MSG_ERR_PSWD_IS_BLANK          = "Не допускается пустой пароль";
+  String FMT_ERR_NOT_USER_DPU           = "Внутрненняя ошибка: DPU пользователя имеет класс '%s' вместо '%s'";
+  String FMT_ERR_DUP_USER               = "Пользователь с логином %s уже существет";
+  String MSG_ERR_NO_ROLES               = "Пользователю должна быть назначена хотя бы одна роль";
+  String FMT_ERR_INV_ROLES              = "Попытка назначить несуществующую роль %s";
+  String FMT_ERR_NOT_ROLE_DPU           = "Внутрненняя ошибка: DPU роли имеет класс '%s' вместо '%s'";
+  String FMT_ERR_DUP_ROLE               = "Роль с идентификатором %s уже существет";
+  String MSG_ERR_CANT_DISABLE_ROOT_USER = "Запрет отключения учетной записи суперпользователя";
+  String MSG_WARN_DISABLING_GUEST_USER  = "Нежелательно отклуючать учетную запись гостя";
+  String MSG_ERR_CANT_DISABLE_ROOT_ROLE = "Запрет отключения роли суперпользователя";
+  String MSG_WARN_DISABLING_GUEST_ROLE  = "Нежелательно отклуючать гостевую роль";
+
+  String FMT_WARN_CANT_DEL_NO_USER   = "Нельзя удалить несуществующего пользователя с логином '%s'";
+  String MSG_ERR_CANT_DEL_ROOT_USER  = "Нельзя удалить учетную запись суперпользователя";
+  String MSG_ERR_CANT_DEL_GUEST_USER = "Нельзя удалить гостевую учетную запись";
+  String FMT_WARN_CANT_DEL_NO_ROLE   = "Нельзя удалить несуществующую роль с идентификатором '%s'";
+  String MSG_ERR_CANT_DEL_ROOT_ROLE  = "Нельзя удалить роль суперпользователя";
+  String MSG_ERR_CANT_DEL_GUEST_ROLE = "Нельзя удалить гостевую роль";
 
   /**
    * {@link SkCoreUtils}

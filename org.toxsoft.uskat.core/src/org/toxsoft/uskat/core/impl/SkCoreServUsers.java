@@ -1,9 +1,16 @@
 package org.toxsoft.uskat.core.impl;
 
+import static org.toxsoft.core.tslib.av.impl.AvUtils.*;
+import static org.toxsoft.core.tslib.av.metainfo.IAvMetaConstants.*;
 import static org.toxsoft.core.tslib.gw.IGwHardConstants.*;
+import static org.toxsoft.core.tslib.utils.TsLibUtils.*;
+import static org.toxsoft.uskat.core.ISkHardConstants.*;
 import static org.toxsoft.uskat.core.api.users.ISkUserServiceHardConstants.*;
 import static org.toxsoft.uskat.core.impl.ISkResources.*;
 
+import org.toxsoft.core.tslib.av.*;
+import org.toxsoft.core.tslib.av.impl.*;
+import org.toxsoft.core.tslib.av.metainfo.*;
 import org.toxsoft.core.tslib.av.opset.*;
 import org.toxsoft.core.tslib.bricks.ctx.*;
 import org.toxsoft.core.tslib.bricks.events.*;
@@ -13,6 +20,7 @@ import org.toxsoft.core.tslib.bricks.validator.*;
 import org.toxsoft.core.tslib.bricks.validator.impl.*;
 import org.toxsoft.core.tslib.coll.*;
 import org.toxsoft.core.tslib.coll.helpers.*;
+import org.toxsoft.core.tslib.gw.skid.*;
 import org.toxsoft.core.tslib.utils.errors.*;
 import org.toxsoft.core.tslib.utils.logs.impl.*;
 import org.toxsoft.uskat.core.*;
@@ -36,6 +44,20 @@ public class SkCoreServUsers
    * Service creator singleton.
    */
   public static final ISkServiceCreator<AbstractSkService> CREATOR = SkCoreServUsers::new;
+
+  /**
+   * Builtin objects name/description is always in english, no need to localize in Java code.
+   * <p>
+   * As usual, localization may be done by means of {@link CoreL10n}.
+   */
+  private static final String STR_N_ROOT_ROLE  = "Superuser";        //$NON-NLS-1$
+  private static final String STR_D_ROOT_ROLE  = "Superuser role";   //$NON-NLS-1$
+  private static final String STR_N_GUEST_ROLE = "Guest";            //$NON-NLS-1$
+  private static final String STR_D_GUEST_ROLE = "Guest role";       //$NON-NLS-1$
+  private static final String STR_N_ROOT_USER  = "Root";             //$NON-NLS-1$
+  private static final String STR_D_ROOT_USER  = "Root - superuser"; //$NON-NLS-1$
+  private static final String STR_N_GUEST_USER = "Guest";            //$NON-NLS-1$
+  private static final String STR_D_GUEST_USER = "Guest user";       //$NON-NLS-1$
 
   /**
    * {@link ISkUserService#svs()} implementation.
@@ -191,40 +213,152 @@ public class SkCoreServUsers
   private final ISkUserServiceValidator builtinValidator = new ISkUserServiceValidator() {
 
     @Override
-    public ValidationResult canRemoveUser( String aLogin ) {
-      // TODO Auto-generated method stub
-      return ValidationResult.SUCCESS;
+    public ValidationResult canCreateUser( IDtoFullObject aUserDto ) {
+      // check precondition
+      if( !aUserDto.skid().classId().equals( ISkUser.CLASS_ID ) ) {
+        return ValidationResult.error( FMT_ERR_NOT_USER_DPU, aUserDto.classId(), ISkUser.CLASS_ID );
+      }
+      // user exists?
+      if( listUsers().hasKey( aUserDto.strid() ) ) {
+        return ValidationResult.error( FMT_ERR_DUP_USER, aUserDto.strid() );
+      }
+      // check password validity
+      String passowrd = aUserDto.attrs().getStr( ATRID_PASSWORD, EMPTY_STRING );
+      ValidationResult vr = passwordValidator().validate( passowrd );
+      if( vr.isError() ) {
+        return vr;
+      }
+      // check if any role is assigned
+      ISkidList rolesSkids = aUserDto.links().map().findByKey( LNKID_USER_ROLES );
+      if( rolesSkids == null || rolesSkids.isEmpty() ) {
+        return ValidationResult.error( MSG_ERR_NO_ROLES );
+      }
+      // check roles exists
+      IStridablesList<ISkRole> existingRoles = listRoles();
+      for( Skid s : rolesSkids ) {
+        if( !existingRoles.hasKey( s.strid() ) ) {
+          return ValidationResult.error( FMT_ERR_INV_ROLES, s.strid() );
+        }
+      }
+      return vr;
     }
 
     @Override
-    public ValidationResult canRemoveRole( String aRoleId ) {
-      // TODO Auto-generated method stub
+    public ValidationResult canCreateRole( IDtoObject aRoleDto ) {
+      // check precondition
+      if( !aRoleDto.skid().classId().equals( ISkRole.CLASS_ID ) ) {
+        return ValidationResult.error( FMT_ERR_NOT_ROLE_DPU, aRoleDto.classId(), ISkRole.CLASS_ID );
+      }
+      // role exists?
+      if( listRoles().hasKey( aRoleDto.strid() ) ) {
+        return ValidationResult.error( FMT_ERR_DUP_ROLE, aRoleDto.strid() );
+      }
       return ValidationResult.SUCCESS;
     }
 
     @Override
     public ValidationResult canEditUser( IDtoFullObject aUserDto, ISkUser aOldUser ) {
-      // TODO Auto-generated method stub
-      return ValidationResult.SUCCESS;
+      ValidationResult vr = ValidationResult.SUCCESS;
+      // check precondition
+      if( !aUserDto.skid().classId().equals( ISkUser.CLASS_ID ) ) {
+        return ValidationResult.error( FMT_ERR_NOT_USER_DPU, aUserDto.classId(), ISkUser.CLASS_ID );
+      }
+      // error: can't disable root user
+      if( USER_ID_ROOT.equals( aUserDto.strid() ) ) {
+        boolean enable = aUserDto.attrs().getBool( ATRID_USER_IS_ENABLED, true );
+        if( !enable ) {
+          return ValidationResult.error( MSG_ERR_CANT_DISABLE_ROOT_USER );
+        }
+      }
+      // warning: disabling enabled guest user
+      if( USER_ID_GUEST.equals( aUserDto.strid() ) ) {
+        boolean enable = aUserDto.attrs().getBool( ATRID_USER_IS_ENABLED, true );
+        boolean enabledNow = aOldUser.isEnabled();
+        if( !enable && enabledNow ) {
+          return ValidationResult.warn( MSG_WARN_DISABLING_GUEST_USER );
+        }
+      }
+      // check password validity
+      String passowrd = aUserDto.attrs().getStr( ATRID_PASSWORD, EMPTY_STRING );
+      vr = ValidationResult.firstNonOk( vr, passwordValidator().validate( passowrd ) );
+      if( vr.isError() ) {
+        return vr;
+      }
+      // check if any role is assigned
+      ISkidList rolesSkids = aUserDto.links().map().findByKey( LNKID_USER_ROLES );
+      if( rolesSkids == null || rolesSkids.isEmpty() ) {
+        return ValidationResult.error( MSG_ERR_NO_ROLES );
+      }
+      // check roles exists
+      IStridablesList<ISkRole> existingRoles = listRoles();
+      for( Skid s : rolesSkids ) {
+        if( !existingRoles.hasKey( s.strid() ) ) {
+          return ValidationResult.error( FMT_ERR_INV_ROLES, s.strid() );
+        }
+      }
+      return vr;
     }
 
     @Override
     public ValidationResult canEditRole( IDtoObject aRoleDto, ISkRole aOldRole ) {
-      // TODO Auto-generated method stub
+      // check precondition
+      if( !aRoleDto.skid().classId().equals( ISkRole.CLASS_ID ) ) {
+        return ValidationResult.error( FMT_ERR_NOT_ROLE_DPU, aRoleDto.classId(), ISkRole.CLASS_ID );
+      }
+      // error: can't disable root role
+      if( ROLE_ID_ROOT.equals( aRoleDto.strid() ) ) {
+        boolean enable = aRoleDto.attrs().getBool( ATRID_ROLE_IS_ENABLED, true );
+        if( !enable ) {
+          return ValidationResult.error( MSG_ERR_CANT_DISABLE_ROOT_ROLE );
+        }
+      }
+      // warning: disabling enabled guest role
+      if( ROLE_ID_GUEST.equals( aRoleDto.strid() ) ) {
+        boolean enable = aRoleDto.attrs().getBool( ATRID_ROLE_IS_ENABLED, true );
+        boolean enabledNow = aOldRole.isEnabled();
+        if( !enable && enabledNow ) {
+          return ValidationResult.warn( MSG_WARN_DISABLING_GUEST_ROLE );
+        }
+      }
       return ValidationResult.SUCCESS;
     }
 
     @Override
-    public ValidationResult canCreateUser( IDtoFullObject aUserDto ) {
-      // TODO Auto-generated method stub
+    public ValidationResult canRemoveUser( String aLogin ) {
+      // warn about attempt to remove unexisting user
+      if( !listUsers().hasKey( aLogin ) ) {
+        return ValidationResult.warn( FMT_WARN_CANT_DEL_NO_USER, aLogin );
+      }
+      // can't remove root user
+      if( USER_ID_ROOT.equals( aLogin ) ) {
+        return ValidationResult.error( MSG_ERR_CANT_DEL_ROOT_USER );
+      }
+      // can't remove guest user
+      if( USER_ID_GUEST.equals( aLogin ) ) {
+        return ValidationResult.error( MSG_ERR_CANT_DEL_GUEST_USER );
+      }
+      // TODO onlone user can not be removed
       return ValidationResult.SUCCESS;
     }
 
     @Override
-    public ValidationResult canCreateRole( IDtoObject aRoleDto ) {
-      // TODO Auto-generated method stub
+    public ValidationResult canRemoveRole( String aRoleId ) {
+      // warn about attempt to remove unexisting role
+      if( !listRoles().hasKey( aRoleId ) ) {
+        return ValidationResult.warn( FMT_WARN_CANT_DEL_NO_ROLE, aRoleId );
+      }
+      // can't remove root role
+      if( ROLE_ID_ROOT.equals( aRoleId ) ) {
+        return ValidationResult.error( MSG_ERR_CANT_DEL_ROOT_ROLE );
+      }
+      // can't remove guest role
+      if( ROLE_ID_GUEST.equals( aRoleId ) ) {
+        return ValidationResult.error( MSG_ERR_CANT_DEL_GUEST_ROLE );
+      }
+      // TODO if any user is online then role can not be removed
       return ValidationResult.SUCCESS;
     }
+
   };
 
   private final ValidationSupport validationSupport = new ValidationSupport();
@@ -257,29 +391,32 @@ public class SkCoreServUsers
 
   @Override
   protected void doInit( ITsContextRo aArgs ) {
-    // create class for ISkUser
-    IDtoClassInfo userCinf = internalCreateUserClassDto();
-    sysdescr().defineClass( userCinf );
     // create class for ISkRole
     IDtoClassInfo roleCinf = internalCreateRoleClassDto();
     sysdescr().defineClass( roleCinf );
+    // create class for ISkUser
+    IDtoClassInfo userCinf = internalCreateUserClassDto();
+    sysdescr().defineClass( userCinf );
     // create role rootRole
-    IDtoObject objRoleRoot = SkHelperUtils.createDtoObject( SKID_ROLE_ROOT, coreApi() );
-    // TODO setup
+    DtoObject objRoleRoot = SkHelperUtils.createDtoObject( SKID_ROLE_ROOT, coreApi() );
+    objRoleRoot.attrs().setStr( AID_NAME, STR_N_ROOT_ROLE );
+    objRoleRoot.attrs().setStr( AID_DESCRIPTION, STR_D_ROOT_ROLE );
     objServ().defineObject( objRoleRoot );
     // create role guestRole
-    IDtoObject objRoleGuest = SkHelperUtils.createDtoObject( SKID_ROLE_GUEST, coreApi() );
-    // TODO setup
+    DtoObject objRoleGuest = SkHelperUtils.createDtoObject( SKID_ROLE_GUEST, coreApi() );
+    objRoleGuest.attrs().setStr( AID_NAME, STR_N_GUEST_ROLE );
+    objRoleGuest.attrs().setStr( AID_DESCRIPTION, STR_D_GUEST_ROLE );
     objServ().defineObject( objRoleGuest );
     // create user root
-    IDtoObject objUserRoot = SkHelperUtils.createDtoObject( SKID_USER_ROOT, coreApi() );
-    // TODO setup
+    DtoObject objUserRoot = SkHelperUtils.createDtoObject( SKID_USER_ROOT, coreApi() );
+    objRoleRoot.attrs().setStr( AID_NAME, STR_N_ROOT_USER );
+    objRoleRoot.attrs().setStr( AID_DESCRIPTION, STR_D_ROOT_USER );
     objServ().defineObject( objUserRoot );
     // create user guest
-    IDtoObject objUserGuest = SkHelperUtils.createDtoObject( SKID_USER_GUEST, coreApi() );
-    // TODO setup
+    DtoObject objUserGuest = SkHelperUtils.createDtoObject( SKID_USER_GUEST, coreApi() );
+    objRoleGuest.attrs().setStr( AID_NAME, STR_N_GUEST_USER );
+    objRoleGuest.attrs().setStr( AID_DESCRIPTION, STR_D_GUEST_USER );
     objServ().defineObject( objUserGuest );
-    // TODO add this service validators to ISkSysdescr and ISkObjectService
     // FIXME sysdescr().svs().addValidator();
     // FIXME objServ().svs().addValidator();
     // FIXME linkService().svs().addValidator();
@@ -294,17 +431,36 @@ public class SkCoreServUsers
   // implementation
   //
 
-  private IDtoClassInfo internalCreateUserClassDto() {
-    DtoClassInfo cinf = new DtoClassInfo( CLSID_USER, GW_ROOT_CLASS_ID, IOptionSet.NULL );
-    cinf.attrInfos().add( DtoAttrInfo.create2( ATRID_PASSWORD, null, null ) );
+  IDataType DT_PASSWORD = DataType.create( EAtomicType.STRING, //
+      TSID_DEFAULT_VALUE, AV_STR_EMPTY //
+  );
 
-    // TODO реализовать SkCoreServUsers.internalCreateUserClassDto()
-    throw new TsUnderDevelopmentRtException( "SkCoreServUsers.internalCreateUserClassDto()" );
+  /**
+   * Creates DTO of {@link ISkRole#CLASS_ID} class.
+   *
+   * @return {@link IDtoClassInfo} - {@link ISkRole#CLASS_ID} class info
+   */
+  private static IDtoClassInfo internalCreateRoleClassDto() {
+    DtoClassInfo cinf = new DtoClassInfo( CLSID_ROLE, GW_ROOT_CLASS_ID, IOptionSet.NULL );
+    OPDEF_SK_IS_SOURCE_CODE_DEFINED_CLASS.setValue( cinf.params(), AV_TRUE );
+    cinf.attrInfos().add( ATRINF_ROLE_IS_ENABLED );
+    cinf.attrInfos().add( ATRINF_ROLE_IS_HIDDEN );
+    return cinf;
   }
 
-  private IDtoClassInfo internalCreateRoleClassDto() {
-    // TODO реализовать SkCoreServUsers.internalCreateUserClassDto()
-    throw new TsUnderDevelopmentRtException( "SkCoreServUsers.internalCreateUserClassDto()" );
+  /**
+   * Creates DTO of {@link ISkUser#CLASS_ID} class.
+   *
+   * @return {@link IDtoClassInfo} - {@link ISkUser#CLASS_ID} class info
+   */
+  private static IDtoClassInfo internalCreateUserClassDto() {
+    DtoClassInfo cinf = new DtoClassInfo( CLSID_USER, GW_ROOT_CLASS_ID, IOptionSet.NULL );
+    OPDEF_SK_IS_SOURCE_CODE_DEFINED_CLASS.setValue( cinf.params(), AV_TRUE );
+    cinf.attrInfos().add( ATRINF_PASSWORD );
+    cinf.attrInfos().add( ATRINF_USER_IS_ENABLED );
+    cinf.attrInfos().add( ATRINF_USER_IS_HIDDEN );
+    cinf.linkInfos().add( LNKINF_USER_ROLES );
+    return cinf;
   }
 
   // ------------------------------------------------------------------------------------

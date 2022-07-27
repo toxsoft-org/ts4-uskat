@@ -1,10 +1,12 @@
 package org.toxsoft.uskat.core.impl;
 
+import static org.toxsoft.core.tslib.utils.TsLibUtils.*;
 import static org.toxsoft.uskat.core.impl.ISkCoreConfigConstants.*;
 import static org.toxsoft.uskat.core.impl.ISkResources.*;
 
 import org.toxsoft.core.tslib.bricks.ctx.*;
 import org.toxsoft.core.tslib.bricks.events.msg.*;
+import org.toxsoft.core.tslib.bricks.strid.impl.*;
 import org.toxsoft.core.tslib.coll.*;
 import org.toxsoft.core.tslib.coll.derivative.*;
 import org.toxsoft.core.tslib.coll.impl.*;
@@ -101,6 +103,7 @@ public class SkCoreApi
     // create backend
     ISkBackendProvider bp = REFDEF_BACKEND_PROVIDER.getRef( aArgs );
     backend = bp.createBackend( this, aArgs );
+    backend.initialize();
     // if not needed reate thread unsafe queue
     if( ISkBackendHardConstant.OPDEF_SKBI_NEED_THREAD_SAFE_FRONTEND.getValue( backend.getBackendInfo().params() )
         .asBool() ) {
@@ -189,7 +192,7 @@ public class SkCoreApi
   }
 
   // ------------------------------------------------------------------------------------
-  // Package API
+  // API for service implementations
   //
 
   /**
@@ -197,8 +200,9 @@ public class SkCoreApi
    *
    * @throws TsIllegalStateRtException connection is not open but may be inactive
    */
-  void papiCheckIsOpen() {
-    if( conn.state() == ESkConnState.CLOSED ) {
+  public void papiCheckIsOpen() {
+    // check also openArgs!=null, means that CoreAPI is in initalization state (inside constructor)
+    if( conn.state() == ESkConnState.CLOSED && openArgs == null ) {
       throw new TsIllegalStateRtException( MSG_ERR_CONN_NOT_OPEN );
     }
   }
@@ -210,6 +214,28 @@ public class SkCoreApi
    */
   public ISkBackend backend() {
     return backend;
+  }
+
+  /**
+   * Returns the service ID that claims the ownership of classes and objects of specified class ID.
+   * <p>
+   * Please note, that all classes no claimed by other services is assumed to be claimed by {@link ISkSysdescr} so in
+   * current impementation this method never returns an empty string.
+   *
+   * @param aClassId String aClassId - the class ID
+   * @return String - the service ID or an empty string if no one claims this class
+   * @throws TsNullArgumentRtException any argument = <code>null</code>
+   */
+  public String findClaimingService( String aClassId ) {
+    StridUtils.checkValidIdPath( aClassId );
+    for( String serviceId : classClaimingMap.keys() ) {
+      for( TextMatcher m : classClaimingMap.getByKey( serviceId ) ) {
+        if( m.accept( aClassId ) ) {
+          return serviceId;
+        }
+      }
+    }
+    return EMPTY_STRING;
   }
 
   // ------------------------------------------------------------------------------------

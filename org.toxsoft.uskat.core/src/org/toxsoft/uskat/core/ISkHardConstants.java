@@ -112,7 +112,7 @@ public interface ISkHardConstants {
    * This option must be specified in {@link IDtoClassInfo#params()}.<br>
    * Default value: <code>false</code>
    */
-  IDataDef OPDEF_SK_IS_SOURCE_CODE_DEFINED_CLASS = create( SK_ID + ".IsSourceCodeDefinedClass", STRING, //$NON-NLS-1$
+  IDataDef OPDEF_SK_IS_SOURCE_CODE_DEFINED_CLASS = create( SK_ID + ".IsSourceCodeDefinedClass", BOOLEAN, //$NON-NLS-1$
       TSID_NAME, STR_N_CLASS_IS_CODE_DEFINED, //
       TSID_DESCRIPTION, STR_D_CLASS_IS_CODE_DEFINED, //
       TSID_IS_NULL_ALLOWED, AV_TRUE, //

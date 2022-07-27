@@ -98,7 +98,7 @@ public interface ICoreL10n {
    * <p>
    * If localization is turend off ({@link #isL10nOn()} = <code>false</code>), then returns the argument.
    * <p>
-   * Two different methods {@link #l10nObject(IDtoObject)} and {@link #l10nObjectsList(IList)} exits for optimization
+   * Two different methods {@link #l10nObject(IDtoObject)} and {@link #l10nObjectsList(IList)} exists for optimization
    * purposes.
    *
    * @param aObjects {@link IStridablesList}&lt;{@link IDtoObject}&gt; - list of objects

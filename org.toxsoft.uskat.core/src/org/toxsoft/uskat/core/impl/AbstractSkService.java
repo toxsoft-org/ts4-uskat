@@ -5,7 +5,9 @@ import static org.toxsoft.uskat.core.impl.ISkResources.*;
 import org.toxsoft.core.tslib.bricks.ctx.*;
 import org.toxsoft.core.tslib.bricks.events.msg.*;
 import org.toxsoft.core.tslib.bricks.strid.impl.*;
+import org.toxsoft.core.tslib.bricks.validator.*;
 import org.toxsoft.core.tslib.coll.*;
+import org.toxsoft.core.tslib.coll.impl.*;
 import org.toxsoft.core.tslib.utils.errors.*;
 import org.toxsoft.core.tslib.utils.logs.impl.*;
 import org.toxsoft.core.tslib.utils.txtmatch.*;
@@ -19,6 +21,7 @@ import org.toxsoft.uskat.core.api.linkserv.*;
 import org.toxsoft.uskat.core.api.objserv.*;
 import org.toxsoft.uskat.core.api.rtdserv.*;
 import org.toxsoft.uskat.core.api.sysdescr.*;
+import org.toxsoft.uskat.core.api.sysdescr.dto.*;
 import org.toxsoft.uskat.core.connection.*;
 import org.toxsoft.uskat.core.devapi.*;
 
@@ -47,12 +50,41 @@ import org.toxsoft.uskat.core.devapi.*;
 public abstract class AbstractSkService
     implements ISkService {
 
+  /**
+   * Helper implementation of {@link ISkSysdescrValidator}.
+   * <p>
+   * Instance may be created by subclass and added to I
+   *
+   * @author hazard157
+   */
+  protected class ClaimingSysdescrValidator
+      implements ISkSysdescrValidator {
+
+    @Override
+    public ValidationResult canCreateClass( IDtoClassInfo aNewClassInfo ) {
+      return validateEditByOtherService( aNewClassInfo.id() );
+    }
+
+    @Override
+    public ValidationResult canEditClass( IDtoClassInfo aNewClassInfo, ISkClassInfo aOldClassInfo ) {
+      ValidationResult vr = validateEditByOtherService( aNewClassInfo.id() );
+      return ValidationResult.firstNonOk( vr, validateEditByOtherService( aOldClassInfo.id() ) );
+    }
+
+    @Override
+    public ValidationResult canRemoveClass( String aClassId ) {
+      return validateEditByOtherService( aClassId );
+    }
+
+  }
+
+  private IListEdit<TextMatcher> classClaimingRules = new ElemArrayList<>();
+
   private final String     serviceId;
   private final SkCoreApi  coreApi;
   private final CoreLogger logger;
 
-  private boolean inited        = false;
-  private boolean backendActive = false;
+  private boolean inited = false;
 
   /**
    * Constructor for subclasses.
@@ -67,6 +99,27 @@ public abstract class AbstractSkService
     serviceId = StridUtils.checkValidIdPath( aId );
     coreApi = SkCoreApi.class.cast( aCoreApi );
     logger = new CoreLogger( LoggerUtils.defaultLogger(), aCoreApi.openArgs() );
+  }
+
+  // ------------------------------------------------------------------------------------
+  // implementation
+  //
+
+  /**
+   * Returns error if class with specified ID is claimed by this service.
+   * <p>
+   * This is helper method for various core services validaton implementations.
+   *
+   * @param aClassId String ID of class to be checked
+   * @return {@link ValidationResult} - error if entities of class is claimed be this service
+   */
+  protected ValidationResult validateEditByOtherService( String aClassId ) {
+    for( TextMatcher m : classClaimingRules ) {
+      if( m.accept( aClassId ) ) {
+        return ValidationResult.error( FMT_ERR_CLAIM_VIOLATION, aClassId, serviceId );
+      }
+    }
+    return ValidationResult.SUCCESS;
   }
 
   // ------------------------------------------------------------------------------------
@@ -85,21 +138,24 @@ public abstract class AbstractSkService
   }
 
   /**
-   * Returns the backend state
-   *
-   * @return boolean <b>true</b> backend is active; <b>false</b> backend is not active
-   */
-  final public boolean backendState() {
-    return backendActive;
-  }
-
-  /**
    * Returns the inidividual logger for this service.
    *
    * @return {@link CoreLogger} - service logger
    */
   final public CoreLogger logger() {
     return logger;
+  }
+
+  /**
+   * Adds rule of claiming class as owned by this service.
+   * <p>
+   * Rules are returned by {@link #listClassClaimingRules()}.
+   *
+   * @param aRule {@link TextMatcher} - the rule
+   * @throws TsNullArgumentRtException any argument = <code>null</code>
+   */
+  final protected void addClassClaimingRule( TextMatcher aRule ) {
+    classClaimingRules.add( aRule );
   }
 
   // ------------------------------------------------------------------------------------
@@ -252,12 +308,13 @@ public abstract class AbstractSkService
    * <p>
    * All other services can not change classes or objects of classes maintaned by this service.
    * <p>
-   * This method is called once in service lifelime, immediately after {@link #doInit(ITsContextRo)}.
+   * List of the rules <b>must</b> be deinfed and fixed at initialization and <b>must not</b> change after
+   * {@link #doInit(ITsContextRo)}. Use FIXME ???
    *
    * @return {@link IList}&lt;{@link TextMatcher}&gt; - list of rules on class IDs or an empty list
    */
   protected IList<TextMatcher> listClassClaimingRules() {
-    return IList.EMPTY;
+    return classClaimingRules;
   }
 
   /**

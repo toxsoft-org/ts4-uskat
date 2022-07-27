@@ -139,6 +139,16 @@ public abstract class MtbAbstractAddon
   //
 
   /**
+   * Subclass may perform additional initialization immediately after backend constructor.
+   * <p>
+   * <p>
+   * In base class does nothing there is no need to call superclass method when overriding.
+   */
+  protected void initialize() {
+    // nop
+  }
+
+  /**
    * Subclass may override to store it's data to the permanent storage.
    * <p>
    * In base class does nothing there is no need to call superclass method when overriding.

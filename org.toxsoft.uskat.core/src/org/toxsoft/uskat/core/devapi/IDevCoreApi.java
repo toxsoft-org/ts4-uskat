@@ -45,7 +45,7 @@ public interface IDevCoreApi
   /**
    * Returns rules of classes claiming by the services.
    * <p>
-   * Note: even avfter connection is open the map is updated every time when new service is registered with method
+   * Note: even after connection is open the map is updated every time when new service is registered with method
    * {@link ISkCoreApi#addService(ISkServiceCreator)}.
    *
    * @return {@link IStringMap}&lt;{@link IList}&lt;{@link TextMatcher}&gt;&gt; - map "service ID" - "rules list"

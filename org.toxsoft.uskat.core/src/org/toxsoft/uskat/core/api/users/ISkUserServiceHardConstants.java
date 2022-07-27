@@ -4,6 +4,8 @@ import static org.toxsoft.core.tslib.av.impl.AvUtils.*;
 import static org.toxsoft.core.tslib.av.metainfo.IAvMetaConstants.*;
 import static org.toxsoft.uskat.core.api.users.ISkResources.*;
 
+import org.toxsoft.core.tslib.coll.helpers.*;
+import org.toxsoft.core.tslib.coll.primtypes.impl.*;
 import org.toxsoft.core.tslib.gw.skid.*;
 import org.toxsoft.uskat.core.*;
 import org.toxsoft.uskat.core.api.sysdescr.dto.*;
@@ -15,6 +17,68 @@ import org.toxsoft.uskat.core.impl.dto.*;
  * @author hazard157
  */
 public interface ISkUserServiceHardConstants {
+
+  // ------------------------------------------------------------------------------------
+  // Role
+
+  /**
+   * Role class ID.
+   */
+  String CLSID_ROLE = ISkHardConstants.SK_ID + ".Role"; //$NON-NLS-1$
+
+  /**
+   * Unremovable administrative role.
+   * <p>
+   * This role always have all the right.
+   */
+  String ROLE_ID_ROOT = "rootRole"; //$NON-NLS-1$
+
+  /**
+   * Unremovable administrative role.
+   * <p>
+   * This role rights as defined for guest by the administrator.
+   * <p>
+   * Any user always has an assigned guest role.
+   */
+  String ROLE_ID_GUEST = "guestRole"; //$NON-NLS-1$
+
+  /**
+   * SKID of root role.
+   */
+  Skid SKID_ROLE_ROOT = new Skid( CLSID_ROLE, ROLE_ID_GUEST );
+
+  /**
+   * SKID of guest role.
+   */
+  Skid SKID_ROLE_GUEST = new Skid( CLSID_ROLE, ROLE_ID_GUEST );
+
+  /**
+   * ID of attribute {@link ISkRole#isEnabled()}.
+   */
+  String ATRID_ROLE_IS_ENABLED = "enabled"; //$NON-NLS-1$
+
+  /**
+   * ID of attribute {@link ISkRole#isHidden()}.
+   */
+  String ATRID_ROLE_IS_HIDDEN = "hidden"; //$NON-NLS-1$
+
+  /**
+   * Attribute {@link ISkRole#isEnabled()}.
+   */
+  IDtoAttrInfo ATRINF_ROLE_IS_ENABLED = DtoAttrInfo.create2( ATRID_ROLE_IS_ENABLED, DDEF_STRING, //
+      TSID_NAME, STR_N_ROLE_IS_ENABLED, //
+      TSID_DESCRIPTION, STR_D_ROLE_IS_ENABLED, //
+      TSID_DEFAULT_VALUE, AV_STR_EMPTY //
+  );
+
+  /**
+   * Attribute {@link ISkRole#isHidden()}.
+   */
+  IDtoAttrInfo ATRINF_ROLE_IS_HIDDEN = DtoAttrInfo.create2( ATRID_ROLE_IS_HIDDEN, DDEF_STRING, //
+      TSID_NAME, STR_N_ROLE_IS_HIDDEN, //
+      TSID_DESCRIPTION, STR_D_ROLE_IS_HIDDEN, //
+      TSID_DEFAULT_VALUE, AV_STR_EMPTY //
+  );
 
   // ------------------------------------------------------------------------------------
   // User
@@ -51,10 +115,22 @@ public interface ISkUserServiceHardConstants {
   /**
    * ID of attribute {@link #ATRINF_PASSWORD}.
    */
-  String ATRID_PASSWORD        = "password"; //$NON-NLS-1$
-  String ATRID_USER_IS_ENABLED = "enabled";  //$NON-NLS-1$
-  String ATRID_USER_IS_HIDDEN  = "hidden";   //$NON-NLS-1$
-  String LMKID_USER_ROLES      = "roles";    //$NON-NLS-1$
+  String ATRID_PASSWORD = "password"; //$NON-NLS-1$
+
+  /**
+   * ID of attribute {@link #ATRINF_USER_IS_ENABLED}.
+   */
+  String ATRID_USER_IS_ENABLED = "enabled"; //$NON-NLS-1$
+
+  /**
+   * ID of attribute {@link #ATRINF_USER_IS_HIDDEN}.
+   */
+  String ATRID_USER_IS_HIDDEN = "hidden"; //$NON-NLS-1$
+
+  /**
+   * ID of link {@link #LNKID_USER_ROLES}.
+   */
+  String LNKID_USER_ROLES = "roles"; //$NON-NLS-1$
 
   /**
    * Attribute {@link ISkUser#password()}.
@@ -65,35 +141,31 @@ public interface ISkUserServiceHardConstants {
       TSID_DEFAULT_VALUE, AV_STR_EMPTY //
   );
 
-  // ------------------------------------------------------------------------------------
-  // Role
+  /**
+   * Attribute {@link ISkUser#isEnabled()}.
+   */
+  IDtoAttrInfo ATRINF_USER_IS_ENABLED = DtoAttrInfo.create2( ATRID_USER_IS_ENABLED, DDEF_STRING, //
+      TSID_NAME, STR_N_USER_IS_ENABLED, //
+      TSID_DESCRIPTION, STR_D_USER_IS_ENABLED, //
+      TSID_DEFAULT_VALUE, AV_STR_EMPTY //
+  );
 
   /**
-   * Role class ID.
+   * Attribute {@link ISkUser#isHidden()}.
    */
-  String CLSID_ROLE = ISkHardConstants.SK_ID + ".Role"; //$NON-NLS-1$
+  IDtoAttrInfo ATRINF_USER_IS_HIDDEN = DtoAttrInfo.create2( ATRID_USER_IS_HIDDEN, DDEF_STRING, //
+      TSID_NAME, STR_N_USER_IS_HIDDEN, //
+      TSID_DESCRIPTION, STR_D_USER_IS_HIDDEN, //
+      TSID_DEFAULT_VALUE, AV_STR_EMPTY //
+  );
 
   /**
-   * Unremovable administrative role.
-   * <p>
-   * This role always have all the right.
+   * Link {@link ISkUser#listRoles()}.
    */
-  String ROLE_ID_ROOT = "rootRole"; //$NON-NLS-1$
-
-  /**
-   * Unremovable administrative role.
-   * <p>
-   * This role rights as defined for guest by the administrator.
-   * <p>
-   * Any user always has an assigned guest role.
-   */
-  String ROLE_ID_GUEST = "guestRole"; //$NON-NLS-1$
-
-  Skid SKID_ROLE_ROOT = new Skid( CLSID_ROLE, ROLE_ID_GUEST );
-
-  Skid SKID_ROLE_GUEST = new Skid( CLSID_ROLE, ROLE_ID_GUEST );
-
-  String ATRID_ROLE_IS_ENABLED = "enabled"; //$NON-NLS-1$
-  String ATRID_ROLE_IS_HIDDEN  = "hidden";  //$NON-NLS-1$
+  IDtoLinkInfo LNKINF_USER_ROLES = DtoLinkInfo.create2( LNKID_USER_ROLES, //
+      new SingleStringList( CLSID_ROLE ), new CollConstraint( 0, false, true, true ), //
+      TSID_NAME, STR_N_ROLES, //
+      TSID_DESCRIPTION, STR_D_ROLES //
+  );
 
 }
