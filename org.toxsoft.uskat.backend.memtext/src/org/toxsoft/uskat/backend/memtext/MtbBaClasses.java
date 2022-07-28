@@ -1,5 +1,7 @@
 package org.toxsoft.uskat.backend.memtext;
 
+import static org.toxsoft.uskat.core.ISkHardConstants.*;
+
 import java.util.*;
 
 import org.toxsoft.core.tslib.bricks.events.msg.*;
@@ -57,7 +59,18 @@ class MtbBaClasses
   @Override
   protected void doWrite( IStrioWriter aSw ) {
     StrioUtils.writeKeywordHeader( aSw, KW_CLASS_INFOS, true );
-    DtoClassInfo.KEEPER.writeColl( aSw, classInfos, true );
+    /**
+     * We'll remove classes defined by the core services.
+     */
+    IStridablesListEdit<IDtoClassInfo> toSave = new StridablesList<>();
+    for( IDtoClassInfo cinf : classInfos ) {
+      boolean isSrcCode = OPDEF_SK_IS_SOURCE_CODE_DEFINED_CLASS.getValue( cinf.params() ).asBool();
+      boolean isCoreClass = OPDEF_SK_IS_SOURCE_USKAT_CORE_CLASS.getValue( cinf.params() ).asBool();
+      if( !isSrcCode && !isCoreClass ) {
+        toSave.add( cinf );
+      }
+    }
+    DtoClassInfo.KEEPER.writeColl( aSw, toSave, true );
   }
 
   @Override

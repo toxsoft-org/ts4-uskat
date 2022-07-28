@@ -443,6 +443,7 @@ public class SkCoreServUsers
   private static IDtoClassInfo internalCreateRoleClassDto() {
     DtoClassInfo cinf = new DtoClassInfo( CLSID_ROLE, GW_ROOT_CLASS_ID, IOptionSet.NULL );
     OPDEF_SK_IS_SOURCE_CODE_DEFINED_CLASS.setValue( cinf.params(), AV_TRUE );
+    OPDEF_SK_IS_SOURCE_USKAT_CORE_CLASS.setValue( cinf.params(), AV_TRUE );
     cinf.attrInfos().add( ATRINF_ROLE_IS_ENABLED );
     cinf.attrInfos().add( ATRINF_ROLE_IS_HIDDEN );
     return cinf;
@@ -456,6 +457,7 @@ public class SkCoreServUsers
   private static IDtoClassInfo internalCreateUserClassDto() {
     DtoClassInfo cinf = new DtoClassInfo( CLSID_USER, GW_ROOT_CLASS_ID, IOptionSet.NULL );
     OPDEF_SK_IS_SOURCE_CODE_DEFINED_CLASS.setValue( cinf.params(), AV_TRUE );
+    OPDEF_SK_IS_SOURCE_USKAT_CORE_CLASS.setValue( cinf.params(), AV_TRUE );
     cinf.attrInfos().add( ATRINF_PASSWORD );
     cinf.attrInfos().add( ATRINF_USER_IS_ENABLED );
     cinf.attrInfos().add( ATRINF_USER_IS_HIDDEN );

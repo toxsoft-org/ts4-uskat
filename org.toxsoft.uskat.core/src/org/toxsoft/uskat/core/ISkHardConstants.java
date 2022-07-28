@@ -75,8 +75,8 @@ public interface ISkHardConstants {
   /**
    * Flags that attribute is the system managed. Type: {@link EAtomicType#BOOLEAN}<br>
    * Usage: system managed attributes values are stored as {@link SkObject} implementation class fields. At runtime this
-   * attributes are also presented in the {@link ISkObject#attrs()} set howeverwhen storing object to database system
-   * attributes are not stores as part of the {@link ISkObject#attrs()} set, rather they are stored by other means.<br>
+   * attributes are also presented in the {@link ISkObject#attrs()} set however when storing object to database system
+   * attributes are not storeв as part of the {@link ISkObject#attrs()} set, rather they are stored by other means.<br>
    * Most obvious system attributes are {@link ISkHardConstants#AID_SKID},{@link ISkHardConstants#AID_STRID} and
    * {@link ISkHardConstants#AID_CLASS_ID}. All of them are derived from field {@link SkObject#skid()}.<br>
    * System attributes are used to decrease needed storege amount and more important, it avoids possible errors due to
@@ -104,7 +104,7 @@ public interface ISkHardConstants {
   }
 
   /**
-   * Flags the class definerd at runtime.<br>
+   * Flags that class is definerd at runtime.<br>
    * Type: {@link EAtomicType#BOOLEAN}<br>
    * Usage: this option is not mandatory however it is very strongly recommended to set it to <code>true</code> for
    * classes, defined on runtime be the Javca source code. There is no need to save/restore such classes info, or there
@@ -115,6 +115,20 @@ public interface ISkHardConstants {
   IDataDef OPDEF_SK_IS_SOURCE_CODE_DEFINED_CLASS = create( SK_ID + ".IsSourceCodeDefinedClass", BOOLEAN, //$NON-NLS-1$
       TSID_NAME, STR_N_CLASS_IS_CODE_DEFINED, //
       TSID_DESCRIPTION, STR_D_CLASS_IS_CODE_DEFINED, //
+      TSID_IS_NULL_ALLOWED, AV_TRUE, //
+      TSID_DEFAULT_VALUE, AV_FALSE //
+  );
+
+  /**
+   * Flags that class is definerd at runtime by core service.<br>
+   * Type: {@link EAtomicType#BOOLEAN}<br>
+   * Usage: this is additional to {@link #OPDEF_SK_IS_SOURCE_CODE_DEFINED_CLASS} option. <br>
+   * This option must be specified in {@link IDtoClassInfo#params()}.<br>
+   * Default value: <code>false</code>
+   */
+  IDataDef OPDEF_SK_IS_SOURCE_USKAT_CORE_CLASS = create( SK_ID + ".IsUskatCoreDefinedClass", BOOLEAN, //$NON-NLS-1$
+      TSID_NAME, STR_N_CLASS_IS_USKAT_CORE, //
+      TSID_DESCRIPTION, STR_D_CLASS_IS_USKAT_CORE, //
       TSID_IS_NULL_ALLOWED, AV_TRUE, //
       TSID_DEFAULT_VALUE, AV_FALSE //
   );
