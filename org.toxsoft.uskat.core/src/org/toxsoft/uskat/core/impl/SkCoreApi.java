@@ -1,12 +1,10 @@
 package org.toxsoft.uskat.core.impl;
 
-import static org.toxsoft.core.tslib.utils.TsLibUtils.*;
 import static org.toxsoft.uskat.core.impl.ISkCoreConfigConstants.*;
 import static org.toxsoft.uskat.core.impl.ISkResources.*;
 
 import org.toxsoft.core.tslib.bricks.ctx.*;
 import org.toxsoft.core.tslib.bricks.events.msg.*;
-import org.toxsoft.core.tslib.bricks.strid.impl.*;
 import org.toxsoft.core.tslib.coll.*;
 import org.toxsoft.core.tslib.coll.derivative.*;
 import org.toxsoft.core.tslib.coll.impl.*;
@@ -15,7 +13,6 @@ import org.toxsoft.core.tslib.coll.primtypes.impl.*;
 import org.toxsoft.core.tslib.utils.*;
 import org.toxsoft.core.tslib.utils.errors.*;
 import org.toxsoft.core.tslib.utils.logs.impl.*;
-import org.toxsoft.core.tslib.utils.txtmatch.*;
 import org.toxsoft.uskat.core.*;
 import org.toxsoft.uskat.core.api.*;
 import org.toxsoft.uskat.core.api.clobserv.*;
@@ -58,8 +55,6 @@ public class SkCoreApi
   private final SkCoreServHistQuery hqService;
   private final SkCoreServUsers     userService;
   private final SkCoreServGwids     gwidService;
-
-  IStringMapEdit<IList<TextMatcher>> classClaimingMap = new StringMap<>();
 
   /**
    * Queue of messages from the backend.
@@ -177,10 +172,6 @@ public class SkCoreApi
   private <S extends AbstractSkService> S internalInitService( S aService ) {
     try {
       aService.init( openArgs );
-      IList<TextMatcher> claimRules = aService.listClassClaimingRules();
-      if( claimRules.isEmpty() ) {
-        classClaimingMap.put( aService.serviceId(), claimRules );
-      }
     }
     catch( Exception ex ) {
       logger().error( ex );
@@ -214,28 +205,6 @@ public class SkCoreApi
    */
   public ISkBackend backend() {
     return backend;
-  }
-
-  /**
-   * Returns the service ID that claims the ownership of classes and objects of specified class ID.
-   * <p>
-   * Please note, that all classes no claimed by other services is assumed to be claimed by {@link ISkSysdescr} so in
-   * current impementation this method never returns an empty string.
-   *
-   * @param aClassId String aClassId - the class ID
-   * @return String - the service ID or an empty string if no one claims this class
-   * @throws TsNullArgumentRtException any argument = <code>null</code>
-   */
-  public String findClaimingService( String aClassId ) {
-    StridUtils.checkValidIdPath( aClassId );
-    for( String serviceId : classClaimingMap.keys() ) {
-      for( TextMatcher m : classClaimingMap.getByKey( serviceId ) ) {
-        if( m.accept( aClassId ) ) {
-          return serviceId;
-        }
-      }
-    }
-    return EMPTY_STRING;
   }
 
   // ------------------------------------------------------------------------------------
@@ -344,8 +313,14 @@ public class SkCoreApi
   }
 
   @Override
-  public IStringMap<IList<TextMatcher>> mapClaimedClassRules() {
-    return classClaimingMap;
+  public String determineClassClaimingServiceId( String aClassId ) {
+    TsNullArgumentRtException.checkNull( aClassId );
+    for( AbstractSkService s : servicesMap ) {
+      if( s.isClassClaimedByService( aClassId ) ) {
+        return s.serviceId();
+      }
+    }
+    return ISkSysdescr.SERVICE_ID;
   }
 
   @Override

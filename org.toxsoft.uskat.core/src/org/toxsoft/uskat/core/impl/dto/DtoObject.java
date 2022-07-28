@@ -89,22 +89,22 @@ public final class DtoObject
   }
 
   /**
-   * Creates {@link DtoObject} instance based on {@link ISkObject} of cvlass {@link ISkClassInfo}.
+   * Creates {@link DtoObject} instance based on {@link ISkObject}.
    * <p>
    * Created instance does not have system attribute values in the {@link IDtoObject#attrs()} set.
    *
    * @param aSkObj {@link ISkObject} - the source
-   * @param aSkClass {@link ISkClassInfo} - description of the object's class
+   * @param aCoreApi {@link ISkCoreApi} - core API
    * @return {@link DtoObject} - cretaed instance
    * @throws TsNullArgumentRtException any argument = <code>null</code>
-   * @throws TsIllegalArgumentRtException class description is not of obnject class
+   * @throws TsItemNotFoundRtException there is no {@link ISkClassInfo} in this core API for specified object
    */
-  public static DtoObject createFromSk( ISkObject aSkObj, ISkClassInfo aSkClass ) {
-    TsNullArgumentRtException.checkNulls( aSkObj, aSkClass );
-    TsIllegalArgumentRtException.checkFalse( aSkClass.id().equals( aSkObj.classId() ) );
+  public static DtoObject createFromSk( ISkObject aSkObj, ISkCoreApi aCoreApi ) {
+    TsNullArgumentRtException.checkNulls( aSkObj, aCoreApi );
     DtoObject dtoObj = new DtoObject( aSkObj.skid(), IOptionSet.NULL, aSkObj.rivets().map() );
+    ISkClassInfo cinf = aCoreApi.sysdescr().getClassInfo( aSkObj.classId() );
     // copy all but system attributes values
-    for( IDtoAttrInfo ainf : aSkClass.attrs().list() ) {
+    for( IDtoAttrInfo ainf : cinf.attrs().list() ) {
       if( !ISkHardConstants.isSkSysAttr( ainf ) ) {
         dtoObj.attrs().setValue( ainf.id(), aSkObj.attrs().getValue( ainf.id() ) );
       }

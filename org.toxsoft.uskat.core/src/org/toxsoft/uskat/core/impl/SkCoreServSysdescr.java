@@ -501,6 +501,11 @@ public class SkCoreServSysdescr
   }
 
   @Override
+  public String determineClassClaimingServiceId( String aClassId ) {
+    return coreApi().determineClassClaimingServiceId( aClassId );
+  }
+
+  @Override
   public ITsValidationSupport<ISkSysdescrValidator> svs() {
     return validationSupport;
   }

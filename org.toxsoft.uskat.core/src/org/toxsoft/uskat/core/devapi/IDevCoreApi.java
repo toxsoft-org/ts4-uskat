@@ -1,11 +1,9 @@
 package org.toxsoft.uskat.core.devapi;
 
 import org.toxsoft.core.tslib.bricks.ctx.*;
-import org.toxsoft.core.tslib.coll.*;
-import org.toxsoft.core.tslib.coll.primtypes.*;
 import org.toxsoft.core.tslib.utils.errors.*;
-import org.toxsoft.core.tslib.utils.txtmatch.*;
 import org.toxsoft.uskat.core.*;
+import org.toxsoft.uskat.core.api.sysdescr.*;
 import org.toxsoft.uskat.core.connection.*;
 
 /**
@@ -43,14 +41,15 @@ public interface IDevCoreApi
   ITsContextRo openArgs();
 
   /**
-   * Returns rules of classes claiming by the services.
+   * Determines ID of service claiming ownership of entities of the specified class.
    * <p>
-   * Note: even after connection is open the map is updated every time when new service is registered with method
-   * {@link ISkCoreApi#addService(ISkServiceCreator)}.
+   * All classes not explicitly claimed by any service is considered to be"oned" by {@link ISkSysdescr#SERVICE_ID}.
    *
-   * @return {@link IStringMap}&lt;{@link IList}&lt;{@link TextMatcher}&gt;&gt; - map "service ID" - "rules list"
+   * @param aClassId String - ID of class to be checked
+   * @return String - ID of claiming service ID
+   * @throws TsNullArgumentRtException any argument = <code>null</code>
    */
-  IStringMap<IList<TextMatcher>> mapClaimedClassRules();
+  String determineClassClaimingServiceId( String aClassId );
 
   // FIXME comment!
   void doJobInCoreMainThread();

@@ -96,7 +96,16 @@ public interface ISkSysdescr
   // ------------------------------------------------------------------------------------
   // Classes ownership
 
-  // TODO Classes ownership
+  /**
+   * Determines ID of service claiming ownership of entities of the specified class.
+   * <p>
+   * All classes not explicitly claimed by any service is considered to be"oned" by {@link ISkSysdescr#SERVICE_ID}.
+   *
+   * @param aClassId String - ID of class to be checked
+   * @return String - ID of claiming service ID
+   * @throws TsNullArgumentRtException any argument = <code>null</code>
+   */
+  String determineClassClaimingServiceId( String aClassId );
 
   // ------------------------------------------------------------------------------------
   // Service support

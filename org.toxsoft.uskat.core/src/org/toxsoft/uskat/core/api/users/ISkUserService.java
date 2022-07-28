@@ -19,8 +19,8 @@ import org.toxsoft.uskat.core.connection.*;
  * <p>
  * This service is based on the following consepts:
  * <ul>
- * <li>there alwayes exists the superuser (with ID {@link ISkUserServiceHardConstants#SUPER_USER_ID}) with associated
- * super-role (with ID {@link ISkUserServiceHardConstants#SUPER_ROLE_ID}) both having all rights and access to the whole
+ * <li>there alwayes exists the superuser (with ID {@link ISkUserServiceHardConstants#USER_ID_ROOT}) with associated
+ * super-role (with ID {@link ISkUserServiceHardConstants#ROLE_ID_ROOT}) both having all rights and access to the whole
  * funcionality of USkat. Nither super-user nor supr-role may be disabled;</li>
  * <li>the user ID {@link ISkUser#id()} is the same as the user login {@link ISkUser#login()} and STRID of the used
  * object {@link ISkUser#strid()};</li>
@@ -62,6 +62,22 @@ public interface ISkUserService
   IStridablesList<ISkRole> listRoles();
 
   /**
+   * Finds the user.
+   *
+   * @param aUserId String - user login that is user ID and {@link ISkObject#strid()}
+   * @return {@link ISkUser} - found user or <code>null</code>
+   */
+  ISkUser findUser( String aUserId );
+
+  /**
+   * Finds the role.
+   *
+   * @param aRoleId String - the role ID
+   * @return {@link ISkRole} - found user or <code>null</code>
+   */
+  ISkRole findRole( String aRoleId );
+
+  /**
    * Creates new or updates existing user.
    * <p>
    * The argument may contain links to the roles.
@@ -88,11 +104,11 @@ public interface ISkUserService
   /**
    * Removes the user.
    *
-   * @param aLogin String - user login that is user ID and {@link ISkObject#strid()}
+   * @param aUserId String - user login that is user ID and {@link ISkObject#strid()}
    * @throws TsNullArgumentRtException any argument = <code>null</code>
    * @throws TsValidationFailedRtException failed check of {@link ISkUserServiceValidator}
    */
-  void removeUser( String aLogin );
+  void removeUser( String aUserId );
 
   /**
    * Removes the role.
@@ -108,32 +124,32 @@ public interface ISkUserService
    * <p>
    * Any user may be disabled at any time except of builtin root user.
    *
-   * @param aLogin String - user login that is user ID and {@link ISkObject#strid()}
+   * @param aUserId String - user login that is user ID and {@link ISkObject#strid()}
    * @param aEnabled boolean - enabledstate
    * @return {@link ISkUser} - updated user object
    * @throws TsNullArgumentRtException any argument = <code>null</code>
    * @throws TsItemNotFoundRtException no such user
    * @throws TsIllegalStateRtException trying to disable root user
    */
-  ISkUser setUserEnabled( String aLogin, boolean aEnabled );
+  ISkUser setUserEnabled( String aUserId, boolean aEnabled );
 
   /**
    * Changes user's hidden state {@link ISkUser#isHidden()}.
    * <p>
    * Any user may be hidden at any time including builtin root user.
    *
-   * @param aLogin String - user login that is user ID and {@link ISkObject#strid()}
+   * @param aUserId String - user login that is user ID and {@link ISkObject#strid()}
    * @param aHidden boolean - hidden state
    * @return {@link ISkUser} - updated user object
    * @throws TsNullArgumentRtException any argument = <code>null</code>
    * @throws TsItemNotFoundRtException no such user
    */
-  ISkUser setUserHidden( String aLogin, boolean aHidden );
+  ISkUser setUserHidden( String aUserId, boolean aHidden );
 
   /**
    * Sets (changes) passord for the user specified by the login (ID).
    *
-   * @param aLogin String - user login that is user ID and {@link ISkObject#strid()}
+   * @param aUserId String - user login that is user ID and {@link ISkObject#strid()}
    * @param aPassword String - the new password
    * @return {@link ISkUser} - updated user object
    * @throws TsNullArgumentRtException any argument = <code>null</code>
@@ -141,20 +157,21 @@ public interface ISkUserService
    * @throws TsValidationFailedRtException failed check of {@link #passwordValidator()}
    * @throws TsValidationFailedRtException failed check of {@link ISkUserServiceValidator}
    */
-  ISkUser setUserPassword( String aLogin, String aPassword );
+  ISkUser setUserPassword( String aUserId, String aPassword );
 
   /**
    * Sets (changes) roles user may log in.
    * <p>
    * Event if list of roles is empty the user always has an assigned guest role.
    *
+   * @param aUserId String - user login that is user ID and {@link ISkObject#strid()}
    * @param aRoles {@link IStridablesList}&lt;{@link ISkRole}&gt; - list of user roles
    * @return {@link ISkUser} - updated user object
    * @throws TsNullArgumentRtException any argument = <code>null</code>
    * @throws TsItemNotFoundRtException no such user
    * @throws TsValidationFailedRtException failed check of {@link ISkUserServiceValidator}
    */
-  ISkUser setUserRoles( IStridablesList<ISkRole> aRoles );
+  ISkUser setUserRoles( String aUserId, IStridablesList<ISkRole> aRoles );
 
   /**
    * Returns the password validator.
@@ -189,5 +206,18 @@ public interface ISkUserService
    * @return {@link ITsEventer}&lt;{@link ISkUserServiceListener}&gt; - the service eventer
    */
   ITsEventer<ISkUserServiceListener> eventer();
+
+  // ------------------------------------------------------------------------------------
+  // inline methods for convinience
+
+  @SuppressWarnings( "javadoc" )
+  default ISkUser getUser( String aUserId ) {
+    return TsItemNotFoundRtException.checkNull( findUser( aUserId ) );
+  }
+
+  @SuppressWarnings( "javadoc" )
+  default ISkRole getRole( String aRoleId ) {
+    return TsItemNotFoundRtException.checkNull( findRole( aRoleId ) );
+  }
 
 }

@@ -6,11 +6,10 @@ import org.toxsoft.core.tslib.bricks.ctx.*;
 import org.toxsoft.core.tslib.bricks.events.msg.*;
 import org.toxsoft.core.tslib.bricks.strid.impl.*;
 import org.toxsoft.core.tslib.bricks.validator.*;
-import org.toxsoft.core.tslib.coll.*;
-import org.toxsoft.core.tslib.coll.impl.*;
+import org.toxsoft.core.tslib.gw.gwid.*;
+import org.toxsoft.core.tslib.gw.skid.*;
 import org.toxsoft.core.tslib.utils.errors.*;
 import org.toxsoft.core.tslib.utils.logs.impl.*;
-import org.toxsoft.core.tslib.utils.txtmatch.*;
 import org.toxsoft.uskat.core.*;
 import org.toxsoft.uskat.core.api.*;
 import org.toxsoft.uskat.core.api.clobserv.*;
@@ -33,13 +32,13 @@ import org.toxsoft.uskat.core.devapi.*;
  * <li>be <code>public</code>;</li>
  * <li>have <code>public</code> constructor with only one argument of type {@link IDevCoreApi}.</li>
  * </ul>
- * TOD tips on service implementation:
+ * TODO tips on service implementation:
  * <ul>
  * <li>do absolute minimum in constructor beacause created service may be thrown away without initialization and
  * {@link #close()};</li>
  * <li>all initialization must be done in {@link #doInit(ITsContextRo)}. Note that {@link #close()} is called only for
  * services initialized in {@link #doInit(ITsContextRo)};</li>
- * <li>if classes are claimed by service, override {@link #listClassClaimingRules()};</li>
+ * <li>if any of classes are claimed by service, override {@link #doIsClassClaimedByService(String)};</li>
  * <li>xxx;</li>
  * <li>xxx;</li>
  * <li>zzz.</li>
@@ -51,34 +50,60 @@ public abstract class AbstractSkService
     implements ISkService {
 
   /**
-   * Helper implementation of {@link ISkSysdescrValidator}.
+   * Сore services validators implementation that prohibits services to change entities of non-claimed classes.
    * <p>
-   * Instance may be created by subclass and added to I
+   * Instance may be created by subclass and added to {@link ISkSysdescr#svs()}, {@link ISkObjectService#svs()},
+   * {@link ISkLinkService#svs()}, {@link ISkClobService#svs()}.
    *
    * @author hazard157
    */
-  protected class ClaimingSysdescrValidator
-      implements ISkSysdescrValidator {
+  protected class ClassClaimingCoreValidator
+      implements ISkSysdescrValidator, ISkObjectServiceValidator, ISkLinkServiceValidator, ISkClobServiceValidator {
 
     @Override
     public ValidationResult canCreateClass( IDtoClassInfo aNewClassInfo ) {
-      return validateEditByOtherService( aNewClassInfo.id() );
+      return validateEditByNonSysdescrService( aNewClassInfo.id() );
     }
 
     @Override
     public ValidationResult canEditClass( IDtoClassInfo aNewClassInfo, ISkClassInfo aOldClassInfo ) {
-      ValidationResult vr = validateEditByOtherService( aNewClassInfo.id() );
-      return ValidationResult.firstNonOk( vr, validateEditByOtherService( aOldClassInfo.id() ) );
+      ValidationResult vr = validateEditByNonSysdescrService( aNewClassInfo.id() );
+      return ValidationResult.firstNonOk( vr, validateEditByNonSysdescrService( aOldClassInfo.id() ) );
     }
 
     @Override
     public ValidationResult canRemoveClass( String aClassId ) {
-      return validateEditByOtherService( aClassId );
+      return validateEditByNonSysdescrService( aClassId );
+    }
+
+    @Override
+    public ValidationResult canCreateObject( IDtoObject aDtoObject ) {
+      return validateEditByNonSysdescrService( aDtoObject.classId() );
+    }
+
+    @Override
+    public ValidationResult canEditObject( IDtoObject aNewObject, ISkObject aOldObject ) {
+      ValidationResult vr = validateEditByNonSysdescrService( aNewObject.classId() );
+      return ValidationResult.firstNonOk( vr, validateEditByNonSysdescrService( aOldObject.classId() ) );
+    }
+
+    @Override
+    public ValidationResult canRemoveObject( Skid aSkid ) {
+      return validateEditByNonSysdescrService( aSkid.classId() );
+    }
+
+    @Override
+    public ValidationResult canSetLink( IDtoLinkFwd aOldLink, IDtoLinkFwd aNewLink ) {
+      ValidationResult vr = validateEditByNonSysdescrService( aNewLink.leftSkid().classId() );
+      return ValidationResult.firstNonOk( vr, validateEditByNonSysdescrService( aOldLink.leftSkid().classId() ) );
+    }
+
+    @Override
+    public ValidationResult canWriteClob( Gwid aGwid, String aClob ) {
+      return validateEditByNonSysdescrService( aGwid.classId() );
     }
 
   }
-
-  private IListEdit<TextMatcher> classClaimingRules = new ElemArrayList<>();
 
   private final String     serviceId;
   private final SkCoreApi  coreApi;
@@ -110,12 +135,13 @@ public abstract class AbstractSkService
    * <p>
    * This is helper method for various core services validaton implementations.
    *
-   * @param aClassId String ID of class to be checked
+   * @param aClassId String - ID of class to be checked
    * @return {@link ValidationResult} - error if entities of class is claimed be this service
    */
-  protected ValidationResult validateEditByOtherService( String aClassId ) {
-    for( TextMatcher m : classClaimingRules ) {
-      if( m.accept( aClassId ) ) {
+  ValidationResult validateEditByNonSysdescrService( String aClassId ) {
+    TsNullArgumentRtException.checkNull( aClassId );
+    if( !aClassId.equals( ISkSysdescr.SERVICE_ID ) ) {
+      if( isClassClaimedByService( aClassId ) ) {
         return ValidationResult.error( FMT_ERR_CLAIM_VIOLATION, aClassId, serviceId );
       }
     }
@@ -144,18 +170,6 @@ public abstract class AbstractSkService
    */
   final public CoreLogger logger() {
     return logger;
-  }
-
-  /**
-   * Adds rule of claiming class as owned by this service.
-   * <p>
-   * Rules are returned by {@link #listClassClaimingRules()}.
-   *
-   * @param aRule {@link TextMatcher} - the rule
-   * @throws TsNullArgumentRtException any argument = <code>null</code>
-   */
-  final protected void addClassClaimingRule( TextMatcher aRule ) {
-    classClaimingRules.add( aRule );
   }
 
   // ------------------------------------------------------------------------------------
@@ -227,6 +241,16 @@ public abstract class AbstractSkService
     }
   }
 
+  /**
+   * Determines if class is claimed by this service.
+   *
+   * @param aClassId String - ID of class to be checked
+   * @return boolean - <code>true</code> if this service is owning entities of asked class
+   */
+  final boolean isClassClaimedByService( String aClassId ) {
+    return doIsClassClaimedByService( aClassId );
+  }
+
   // ------------------------------------------------------------------------------------
   // ISkService
   //
@@ -286,6 +310,22 @@ public abstract class AbstractSkService
   }
 
   // ------------------------------------------------------------------------------------
+  // To override
+  //
+
+  /**
+   * If owning (claiming on) any class then descendant must determine if asked class is claimed one.
+   * <p>
+   * In base class returns <code>false</code> there is no need to call superclass method when overriding.
+   *
+   * @param aClassId String - ID of class to be checked
+   * @return boolean - <code>true</code> if this service is owning entities of asked class
+   */
+  protected boolean doIsClassClaimedByService( String aClassId ) {
+    return false;
+  }
+
+  // ------------------------------------------------------------------------------------
   // To implement
   //
 
@@ -302,20 +342,6 @@ public abstract class AbstractSkService
    * Method is called when USkat core is finishing working. Avterf this method service will not be used.
    */
   protected abstract void doClose();
-
-  /**
-   * Returns list of rules on class IDs maintained by this service.
-   * <p>
-   * All other services can not change classes or objects of classes maintaned by this service.
-   * <p>
-   * List of the rules <b>must</b> be deinfed and fixed at initialization and <b>must not</b> change after
-   * {@link #doInit(ITsContextRo)}. Use FIXME ???
-   *
-   * @return {@link IList}&lt;{@link TextMatcher}&gt; - list of rules on class IDs or an empty list
-   */
-  protected IList<TextMatcher> listClassClaimingRules() {
-    return classClaimingRules;
-  }
 
   /**
    * Subclass may handle message from the backend.

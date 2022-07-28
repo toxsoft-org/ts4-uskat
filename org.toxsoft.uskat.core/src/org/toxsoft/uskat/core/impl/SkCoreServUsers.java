@@ -94,11 +94,11 @@ public class SkCoreServUsers
     }
 
     @Override
-    public ValidationResult canRemoveUser( String aLogin ) {
-      TsNullArgumentRtException.checkNull( aLogin );
+    public ValidationResult canRemoveUser( String aUserId ) {
+      TsNullArgumentRtException.checkNull( aUserId );
       ValidationResult vr = ValidationResult.SUCCESS;
       for( ISkUserServiceValidator v : validatorsList() ) {
-        vr = ValidationResult.firstNonOk( vr, v.canRemoveUser( aLogin ) );
+        vr = ValidationResult.firstNonOk( vr, v.canRemoveUser( aUserId ) );
       }
       return vr;
     }
@@ -167,10 +167,10 @@ public class SkCoreServUsers
       return isPendingUsers || isPendingRoles;
     }
 
-    private void reallyFireUser( ECrudOp aOp, String aLogin ) {
+    private void reallyFireUser( ECrudOp aOp, String aUserId ) {
       for( ISkUserServiceListener l : listeners() ) {
         try {
-          l.onRolesChanged( coreApi(), aOp, aLogin );
+          l.onRolesChanged( coreApi(), aOp, aUserId );
         }
         catch( Exception ex ) {
           LoggerUtils.errorLogger().error( ex );
@@ -189,12 +189,12 @@ public class SkCoreServUsers
       }
     }
 
-    void fireUserChanged( ECrudOp aOp, String aLogin ) {
+    void fireUserChanged( ECrudOp aOp, String aUserId ) {
       if( isFiringPaused() ) {
         isPendingUsers = true;
         return;
       }
-      reallyFireUser( aOp, aLogin );
+      reallyFireUser( aOp, aUserId );
     }
 
     void fireRoleChanged( ECrudOp aOp, String aRoleId ) {
@@ -324,20 +324,19 @@ public class SkCoreServUsers
     }
 
     @Override
-    public ValidationResult canRemoveUser( String aLogin ) {
+    public ValidationResult canRemoveUser( String aUserId ) {
       // warn about attempt to remove unexisting user
-      if( !listUsers().hasKey( aLogin ) ) {
-        return ValidationResult.warn( FMT_WARN_CANT_DEL_NO_USER, aLogin );
+      if( !listUsers().hasKey( aUserId ) ) {
+        return ValidationResult.warn( FMT_WARN_CANT_DEL_NO_USER, aUserId );
       }
       // can't remove root user
-      if( USER_ID_ROOT.equals( aLogin ) ) {
+      if( USER_ID_ROOT.equals( aUserId ) ) {
         return ValidationResult.error( MSG_ERR_CANT_DEL_ROOT_USER );
       }
       // can't remove guest user
-      if( USER_ID_GUEST.equals( aLogin ) ) {
+      if( USER_ID_GUEST.equals( aUserId ) ) {
         return ValidationResult.error( MSG_ERR_CANT_DEL_GUEST_USER );
       }
-      // TODO onlone user can not be removed
       return ValidationResult.SUCCESS;
     }
 
@@ -355,17 +354,15 @@ public class SkCoreServUsers
       if( ROLE_ID_GUEST.equals( aRoleId ) ) {
         return ValidationResult.error( MSG_ERR_CANT_DEL_GUEST_ROLE );
       }
-      // TODO if any user is online then role can not be removed
       return ValidationResult.SUCCESS;
     }
 
   };
 
-  private final ValidationSupport validationSupport = new ValidationSupport();
-
-  private final Eventer eventer = new Eventer();
-
+  private final ValidationSupport            validationSupport = new ValidationSupport();
   private final ITsCompoundValidator<String> passwordValidator = TsCompoundValidator.create( true, true );
+  private final Eventer                      eventer           = new Eventer();
+  private final ClassClaimingCoreValidator   claimingValidator = new ClassClaimingCoreValidator();
 
   private final ITsValidator<String> builtinPasswordValidator = aValue -> {
     if( aValue.isBlank() ) {
@@ -417,9 +414,10 @@ public class SkCoreServUsers
     objRoleGuest.attrs().setStr( AID_NAME, STR_N_GUEST_USER );
     objRoleGuest.attrs().setStr( AID_DESCRIPTION, STR_D_GUEST_USER );
     objServ().defineObject( objUserGuest );
-    // FIXME sysdescr().svs().addValidator();
-    // FIXME objServ().svs().addValidator();
-    // FIXME linkService().svs().addValidator();
+    sysdescr().svs().addValidator( claimingValidator );
+    objServ().svs().addValidator( claimingValidator );
+    linkService().svs().addValidator( claimingValidator );
+    clobService().svs().addValidator( claimingValidator );
   }
 
   @Override
@@ -465,9 +463,35 @@ public class SkCoreServUsers
     return cinf;
   }
 
+  private void pauseCoreValidation() {
+    sysdescr().svs().pauseValidator( claimingValidator );
+    objServ().svs().pauseValidator( claimingValidator );
+    linkService().svs().pauseValidator( claimingValidator );
+    clobService().svs().pauseValidator( claimingValidator );
+  }
+
+  private void resumeCoreValidation() {
+    sysdescr().svs().resumeValidator( claimingValidator );
+    objServ().svs().resumeValidator( claimingValidator );
+    linkService().svs().resumeValidator( claimingValidator );
+    clobService().svs().resumeValidator( claimingValidator );
+  }
+
   // ------------------------------------------------------------------------------------
   // ISkUserService
   //
+
+  @Override
+  public ISkUser findUser( String aUserId ) {
+    TsNullArgumentRtException.checkNull( aUserId );
+    return coreApi().objService().find( new Skid( ISkUser.CLASS_ID, aUserId ) );
+  }
+
+  @Override
+  public ISkRole findRole( String aRoleId ) {
+    TsNullArgumentRtException.checkNull( aRoleId );
+    return coreApi().objService().find( new Skid( ISkRole.CLASS_ID, aRoleId ) );
+  }
 
   @Override
   public IStridablesList<ISkUser> listUsers() {
@@ -492,9 +516,13 @@ public class SkCoreServUsers
     else {
       TsValidationFailedRtException.checkError( validationSupport.canCreateRole( aDtoUser ) );
     }
-
-    // TODO Auto-generated method stub
-    return null;
+    pauseCoreValidation();
+    try {
+      return SkHelperUtils.defineFullObject( coreApi(), aDtoUser );
+    }
+    finally {
+      resumeCoreValidation();
+    }
   }
 
   @Override
@@ -508,51 +536,80 @@ public class SkCoreServUsers
     else {
       TsValidationFailedRtException.checkError( validationSupport.canCreateRole( aDtoRole ) );
     }
-
-    // TODO Auto-generated method stub
-    return null;
+    pauseCoreValidation();
+    try {
+      return objServ().defineObject( aDtoRole );
+    }
+    finally {
+      resumeCoreValidation();
+    }
   }
 
   @Override
   public void removeUser( String aUserId ) {
     TsValidationFailedRtException.checkError( svs().validator().canRemoveUser( aUserId ) );
-
-    // TODO remove user object
+    pauseCoreValidation();
+    try {
+      coreApi().objService().removeObject( new Skid( ISkUser.CLASS_ID, aUserId ) );
+    }
+    finally {
+      resumeCoreValidation();
+    }
   }
 
   @Override
   public void removeRole( String aRoleId ) {
     TsValidationFailedRtException.checkError( svs().validator().canRemoveRole( aRoleId ) );
-
-    // TODO remove role object
+    try {
+      coreApi().objService().removeObject( new Skid( ISkRole.CLASS_ID, aRoleId ) );
+    }
+    finally {
+      resumeCoreValidation();
+    }
   }
 
   @Override
-  public ISkUser setUserEnabled( String aLogin, boolean aEnabled ) {
-    // TODO Auto-generated method stub
-    return null;
+  public ISkUser setUserEnabled( String aUserId, boolean aEnabled ) {
+    TsNullArgumentRtException.checkNull( aUserId );
+    TsItemNotFoundRtException.checkNull( findUser( aUserId ) );
+    Skid skid = new Skid( ISkUser.CLASS_ID, aUserId );
+    DtoFullObject dto = SkHelperUtils.createDtoFullObject( skid, coreApi() );
+    dto.attrs().setBool( ATRID_USER_IS_ENABLED, aEnabled );
+    return defineUser( dto );
   }
 
   @Override
-  public ISkUser setUserHidden( String aLogin, boolean aHidden ) {
-    // TODO Auto-generated method stub
-    return null;
+  public ISkUser setUserHidden( String aUserId, boolean aHidden ) {
+    TsNullArgumentRtException.checkNull( aUserId );
+    TsItemNotFoundRtException.checkNull( findUser( aUserId ) );
+    Skid skid = new Skid( ISkUser.CLASS_ID, aUserId );
+    DtoFullObject dto = SkHelperUtils.createDtoFullObject( skid, coreApi() );
+    dto.attrs().setBool( ATRID_USER_IS_HIDDEN, aHidden );
+    return defineUser( dto );
   }
 
   @Override
-  public ISkUser setUserPassword( String aLogin, String aPassword ) {
-    TsNullArgumentRtException.checkNulls( aLogin, aPassword );
-    TsValidationFailedRtException.checkWarn( passwordValidator.validate( aPassword ) );
-
-    // TODO Auto-generated method stub
-
-    return null;
+  public ISkUser setUserPassword( String aUserId, String aPassword ) {
+    TsNullArgumentRtException.checkNull( aUserId );
+    TsItemNotFoundRtException.checkNull( findUser( aUserId ) );
+    Skid skid = new Skid( ISkUser.CLASS_ID, aUserId );
+    DtoFullObject dto = SkHelperUtils.createDtoFullObject( skid, coreApi() );
+    dto.attrs().setStr( ATRID_PASSWORD, SkHelperUtils.getPasswordHashCode( aPassword ) );
+    return defineUser( dto );
   }
 
   @Override
-  public ISkUser setUserRoles( IStridablesList<ISkRole> aRoles ) {
-    // TODO Auto-generated method stub
-    return null;
+  public ISkUser setUserRoles( String aUserId, IStridablesList<ISkRole> aRoles ) {
+    TsNullArgumentRtException.checkNull( aUserId );
+    TsItemNotFoundRtException.checkNull( findUser( aUserId ) );
+    Skid skid = new Skid( ISkUser.CLASS_ID, aUserId );
+    DtoFullObject dto = SkHelperUtils.createDtoFullObject( skid, coreApi() );
+    SkidList rolesList = new SkidList();
+    for( ISkRole r : aRoles ) {
+      rolesList.add( r.skid() );
+    }
+    dto.links().map().put( LNKID_USER_ROLES, rolesList );
+    return defineUser( dto );
   }
 
   @Override
