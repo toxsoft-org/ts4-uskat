@@ -65,7 +65,7 @@ public interface ISkUserServiceHardConstants {
   /**
    * Attribute {@link ISkRole#isEnabled()}.
    */
-  IDtoAttrInfo ATRINF_ROLE_IS_ENABLED = DtoAttrInfo.create2( ATRID_ROLE_IS_ENABLED, DDEF_STRING, //
+  IDtoAttrInfo ATRINF_ROLE_IS_ENABLED = DtoAttrInfo.create2( ATRID_ROLE_IS_ENABLED, DDEF_TS_BOOL, //
       TSID_NAME, STR_N_ROLE_IS_ENABLED, //
       TSID_DESCRIPTION, STR_D_ROLE_IS_ENABLED, //
       TSID_DEFAULT_VALUE, AV_STR_EMPTY //
@@ -74,7 +74,7 @@ public interface ISkUserServiceHardConstants {
   /**
    * Attribute {@link ISkRole#isHidden()}.
    */
-  IDtoAttrInfo ATRINF_ROLE_IS_HIDDEN = DtoAttrInfo.create2( ATRID_ROLE_IS_HIDDEN, DDEF_STRING, //
+  IDtoAttrInfo ATRINF_ROLE_IS_HIDDEN = DtoAttrInfo.create2( ATRID_ROLE_IS_HIDDEN, DDEF_TS_BOOL, //
       TSID_NAME, STR_N_ROLE_IS_HIDDEN, //
       TSID_DESCRIPTION, STR_D_ROLE_IS_HIDDEN, //
       TSID_DEFAULT_VALUE, AV_STR_EMPTY //
@@ -144,7 +144,7 @@ public interface ISkUserServiceHardConstants {
   /**
    * Attribute {@link ISkUser#isEnabled()}.
    */
-  IDtoAttrInfo ATRINF_USER_IS_ENABLED = DtoAttrInfo.create2( ATRID_USER_IS_ENABLED, DDEF_STRING, //
+  IDtoAttrInfo ATRINF_USER_IS_ENABLED = DtoAttrInfo.create2( ATRID_USER_IS_ENABLED, DDEF_TS_BOOL, //
       TSID_NAME, STR_N_USER_IS_ENABLED, //
       TSID_DESCRIPTION, STR_D_USER_IS_ENABLED, //
       TSID_DEFAULT_VALUE, AV_STR_EMPTY //
@@ -153,7 +153,7 @@ public interface ISkUserServiceHardConstants {
   /**
    * Attribute {@link ISkUser#isHidden()}.
    */
-  IDtoAttrInfo ATRINF_USER_IS_HIDDEN = DtoAttrInfo.create2( ATRID_USER_IS_HIDDEN, DDEF_STRING, //
+  IDtoAttrInfo ATRINF_USER_IS_HIDDEN = DtoAttrInfo.create2( ATRID_USER_IS_HIDDEN, DDEF_TS_BOOL, //
       TSID_NAME, STR_N_USER_IS_HIDDEN, //
       TSID_DESCRIPTION, STR_D_USER_IS_HIDDEN, //
       TSID_DEFAULT_VALUE, AV_STR_EMPTY //
