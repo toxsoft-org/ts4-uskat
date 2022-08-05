@@ -1,5 +1,7 @@
 package org.toxsoft.uskat.core.api.users;
 
+import static org.toxsoft.uskat.core.api.users.ISkUserServiceHardConstants.*;
+
 import org.toxsoft.uskat.core.api.objserv.*;
 
 /**
@@ -22,7 +24,9 @@ public interface ISkRole
    *         <code>true</code> if role is allowed to connect to the server<br>
    *         <code>false</code> if the role is temporary disabled
    */
-  boolean isEnabled();
+  default boolean isEnabled() {
+    return attrs().getBool( ATRID_ROLE_IS_ENABLED );
+  }
 
   /**
    * Determines if the role is hidden from system administrator.
@@ -32,6 +36,8 @@ public interface ISkRole
    *
    * @return boolean - <code>true</code> if the roleis visible not for system administrator, only for developer
    */
-  boolean isHidden();
+  default boolean isHidden() {
+    return attrs().getBool( ATRID_ROLE_IS_HIDDEN );
+  }
 
 }

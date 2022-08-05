@@ -391,9 +391,11 @@ public class SkCoreServUsers
     // create class for ISkRole
     IDtoClassInfo roleCinf = internalCreateRoleClassDto();
     sysdescr().defineClass( roleCinf );
+    objServ().registerObjectCreator( ISkRole.CLASS_ID, SkRole.CREATOR );
     // create class for ISkUser
     IDtoClassInfo userCinf = internalCreateUserClassDto();
     sysdescr().defineClass( userCinf );
+    objServ().registerObjectCreator( ISkUser.CLASS_ID, SkUser.CREATOR );
     // create role rootRole
     DtoObject objRoleRoot = SkHelperUtils.createDtoObject( SKID_ROLE_ROOT, coreApi() );
     objRoleRoot.attrs().setStr( AID_NAME, STR_N_ROOT_ROLE );
