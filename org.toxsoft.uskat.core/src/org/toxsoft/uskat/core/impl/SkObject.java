@@ -9,6 +9,7 @@ import org.toxsoft.core.tslib.gw.skid.*;
 import org.toxsoft.core.tslib.utils.*;
 import org.toxsoft.core.tslib.utils.errors.*;
 import org.toxsoft.uskat.core.*;
+import org.toxsoft.uskat.core.api.linkserv.*;
 import org.toxsoft.uskat.core.api.objserv.*;
 
 /**
@@ -16,7 +17,7 @@ import org.toxsoft.uskat.core.api.objserv.*;
  * <p>
  * Notes on subclassing:
  * <ul>
- * <li>it is legal to add som initialization code to the subclass constructor. However {@link #coreApi()} is not set in
+ * <li>it is legal to add some initialization code to the subclass constructor. However {@link #coreApi()} is not set in
  * constructor. {@link #doPostConstruct()} is the right place to prerform initialization which needs
  * {@link #coreApi()};</li>
  * <li>TODO ???.</li>
@@ -124,44 +125,48 @@ public class SkObject
 
   @Override
   public Skid getSingleLinkSkid( String aLinkId ) {
-    // TODO реализовать SkObject.getSingleLinkSkid()
-    throw new TsUnderDevelopmentRtException( "SkObject.getSingleLinkSkid()" );
+    IDtoLinkFwd lf = coreApi.linkService().getLinkFwd( skid, aLinkId );
+    return lf.rightSkids().findOnly();
   }
 
   @Override
-  public <T extends ISkObject> T getSingleLink( String aLinkId ) {
-    // TODO реализовать SkObject.getSingleLink()
-    throw new TsUnderDevelopmentRtException( "SkObject.getSingleLink()" );
+  public <T extends ISkObject> T getSingleLinkObj( String aLinkId ) {
+    IDtoLinkFwd lf = coreApi.linkService().getLinkFwd( skid, aLinkId );
+    Skid s = lf.rightSkids().findOnly();
+    if( s != null ) {
+      return coreApi.objService().find( s );
+    }
+    return null;
   }
 
   @Override
   public ISkidList getLinkSkids( String aLinkId ) {
-    // TODO реализовать SkObject.getLinkSkids()
-    throw new TsUnderDevelopmentRtException( "SkObject.getLinkSkids()" );
+    return coreApi.linkService().getLinkFwd( skid, aLinkId ).rightSkids();
   }
 
-  @Override
-  public <T extends ISkObject> IMap<Skid, T> getLink( String aLinkId ) {
-    // TODO реализовать SkObject.getLink()
-    throw new TsUnderDevelopmentRtException( "SkObject.getLink()" );
-  }
-
+  @SuppressWarnings( { "unchecked", "rawtypes" } )
   @Override
   public <T extends ISkObject> IList<T> getLinkObjs( String aLinkId ) {
-    // TODO реализовать SkObject.getLinkObjs()
-    throw new TsUnderDevelopmentRtException( "SkObject.getLinkObjs()" );
+    ISkidList sl = coreApi.linkService().getLinkFwd( skid, aLinkId ).rightSkids();
+    if( sl.isEmpty() ) {
+      return IList.EMPTY;
+    }
+    return (IList)coreApi.objService().getObjs( sl );
   }
 
   @Override
   public ISkidList getLinkRevSkids( String aClassId, String aLinkId ) {
-    // TODO реализовать SkObject.getLinkRevSkids()
-    throw new TsUnderDevelopmentRtException( "SkObject.getLinkRevSkids()" );
+    return coreApi.linkService().getLinkRev( aClassId, aLinkId, skid ).leftSkids();
   }
 
+  @SuppressWarnings( { "unchecked", "rawtypes" } )
   @Override
-  public <T extends ISkObject> IMap<Skid, T> getLinkRev( String aClassId, String aLinkId ) {
-    // TODO реализовать SkObject.getLinkRev()
-    throw new TsUnderDevelopmentRtException( "SkObject.getLinkRev()" );
+  public <T extends ISkObject> IList<T> getLinkRevObjs( String aClassId, String aLinkId ) {
+    ISkidList sl = coreApi.linkService().getLinkRev( aClassId, aLinkId, skid ).leftSkids();
+    if( sl.isEmpty() ) {
+      return IList.EMPTY;
+    }
+    return (IList)coreApi.objService().getObjs( sl );
   }
 
   // ------------------------------------------------------------------------------------
@@ -176,8 +181,8 @@ public class SkObject
   /**
    * Subclass may perform ore API dependent initialization.
    * <p>
-   * This method is called by {@link SkCoreServObject} after construcotr but sfter setting {@link #coreApi()}.
-   * инициализирована.
+   * This method is called by {@link SkCoreServObject} imeediately after constructor when {@link #coreApi()} has been
+   * set.
    * <p>
    * Does nothing in base class, there is no need to call superclass method when overriding.
    */

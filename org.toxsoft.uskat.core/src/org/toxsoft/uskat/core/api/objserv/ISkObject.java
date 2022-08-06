@@ -106,72 +106,72 @@ public interface ISkObject
     return coreApi().sysdescr().getClassInfo( skid().classId() );
   }
 
-  // TODO TRANSLATE
-
   // ------------------------------------------------------------------------------------
   //
 
   /**
-   * Возвращает идентификатор единственного (или первого) объекта по связи.
+   * Return SKID of single link (link with max 1 object linked).
+   * <p>
+   * If link is empty or there are more than 1 linked object, method returns <code>null</code>.
    *
-   * @param aLinkId String - идентификатор связи
-   * @return {@link Skid} - идентификатор связанного объекта или <code>null</code>
+   * @param aLinkId String - the link ID
+   * @return {@link Skid} - single linked object SKID or <code>null</code>
+   * @throws TsItemNotFoundRtException no such link or object exists
    */
   Skid getSingleLinkSkid( String aLinkId );
 
   /**
-   * Возвращает единственный (или первый) объект по связи.
+   * Return object of single link (link with max 1 object linked).
+   * <p>
+   * If link is empty or there are more than 1 linked object, method returns <code>null</code>. Also returns
+   * <code>null</code> if object of linked SKID does not exists.
    *
-   * @param <T> - конкретный тип возвращаемого объекта
-   * @param aLinkId String - идентификатор связи
-   * @return {@link ISkObject} - связанный объект или <code>null</code>
+   * @param <T> - expected type of the object
+   * @param aLinkId String - the link ID
+   * @return {@link ISkObject} - single linked object or <code>null</code>
+   * @throws TsItemNotFoundRtException no such link or object exists
    */
-  <T extends ISkObject> T getSingleLink( String aLinkId );
+  <T extends ISkObject> T getSingleLinkObj( String aLinkId );
 
   /**
-   * Возвращает идентификаторы объектов по связи.
+   * Returns SKIDs of linked objects.
    *
-   * @param aLinkId String - идентификатор связи
-   * @return {@link ISkidList} - список идентификаторов объектов
+   * @param aLinkId String - the link ID
+   * @return {@link ISkidList} - list of linked objects SKIDs
+   * @throws TsItemNotFoundRtException no such link or object exists
    */
   ISkidList getLinkSkids( String aLinkId );
 
   /**
-   * Возвращает объекты по связи.
+   * Returns linked objects.
    *
-   * @param <T> - конкретный тип возвращаемых объектов
-   * @param aLinkId String - идентификатор связи
-   * @return {@link IList}&lt;{@link ISkObject}&gt; - список связанный объектов
-   */
-  <T extends ISkObject> IMap<Skid, T> getLink( String aLinkId );
-
-  /**
-   * Возвращает объекты по связи.
-   *
-   * @param <T> - конкретный тип возвращаемых объектов
-   * @param aLinkId String - идентификатор связи
-   * @return {@link IMap}&lt;{@link Skid},{@link ISkObject}&gt; - карта связанный объектов
+   * @param <T> - expected type of the linked objects
+   * @param aLinkId String - the link ID
+   * @return {@link IList}&lt;T&gt; - list of objects
+   * @throws TsItemNotFoundRtException no such link or object exists
    */
   <T extends ISkObject> IList<T> getLinkObjs( String aLinkId );
 
   /**
-   * Возвращает идентификаторы объектов по обратной связи.
+   * Returns SKIDs of reverse link (left objects which have this object linked).
    *
-   * @param aClassId String - идентификатор класса связи
-   * @param aLinkId String - идентификатор связи
-   * @return {@link ISkidList} - список идентификаторов объектов
+   * @param aClassId String - link class ID
+   * @param aLinkId String - link ID
+   * @return {@link ISkidList} - list of left objects SKIDs
+   * @throws TsNullArgumentRtException any argument = <code>null</code>
    */
   ISkidList getLinkRevSkids( String aClassId, String aLinkId );
 
   /**
-   * Возвращает объекты по обратной связи.
+   * Returns objects of reverse link (left objects which have this object linked).
    *
    * @param <T> - конкретный тип возвращаемых объектов
-   * @param aClassId String - идентификатор класса связи
-   * @param aLinkId String - идентификатор связи
-   * @return {@link ISkidList} - список идентификаторов объектов
+   * @param aClassId String - link class ID
+   * @param aLinkId String - link ID
+   * @return {@link IList}&lt;T&gt; - list of objects
+   * @throws TsNullArgumentRtException any argument = <code>null</code>
    */
-  <T extends ISkObject> IMap<Skid, T> getLinkRev( String aClassId, String aLinkId );
+  <T extends ISkObject> IList<T> getLinkRevObjs( String aClassId, String aLinkId );
 
 }
 
@@ -248,17 +248,12 @@ class InternalNoneSkObject
   }
 
   @Override
-  public <T extends ISkObject> T getSingleLink( String aLinkId ) {
+  public <T extends ISkObject> T getSingleLinkObj( String aLinkId ) {
     throw new TsNullObjectErrorRtException();
   }
 
   @Override
   public ISkidList getLinkSkids( String aLinkId ) {
-    throw new TsNullObjectErrorRtException();
-  }
-
-  @Override
-  public <T extends ISkObject> IMap<Skid, T> getLink( String aLinkId ) {
     throw new TsNullObjectErrorRtException();
   }
 
@@ -273,7 +268,7 @@ class InternalNoneSkObject
   }
 
   @Override
-  public <T extends ISkObject> IMap<Skid, T> getLinkRev( String aClassId, String aLinkId ) {
+  public <T extends ISkObject> IList<T> getLinkRevObjs( String aClassId, String aLinkId ) {
     throw new TsNullObjectErrorRtException();
   }
 
