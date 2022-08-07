@@ -1,0 +1,11 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: SkIDE base GUI library to work with bridges
+Bundle-SymbolicName: org.toxsoft.skide.bridge.gui
+Bundle-Version: 1.0.0.qualifier
+Bundle-Activator: org.toxsoft.skide.bridge.gui.Activator
+Bundle-Vendor: toxsoft.org
+Require-Bundle: org.eclipse.core.runtime
+Bundle-RequiredExecutionEnvironment: JavaSE-17
+Automatic-Module-Name: org.toxsoft.skide.bridge.gui
+Bundle-ActivationPolicy: lazy

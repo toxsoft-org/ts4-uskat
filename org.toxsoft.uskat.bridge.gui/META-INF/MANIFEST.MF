@@ -1,0 +1,11 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: USkat bridges GUI support library
+Bundle-SymbolicName: org.toxsoft.uskat.bridge.gui
+Bundle-Version: 1.0.0.qualifier
+Bundle-Activator: org.toxsoft.uskat.bridge.gui.Activator
+Bundle-Vendor: toxsoft.org
+Require-Bundle: org.eclipse.core.runtime
+Bundle-RequiredExecutionEnvironment: JavaSE-17
+Automatic-Module-Name: org.toxsoft.uskat.bridge.gui
+Bundle-ActivationPolicy: lazy

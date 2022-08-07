@@ -1,0 +1,11 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: SkIDE bridges MWS module
+Bundle-SymbolicName: org.toxsoft.skide.bridge.mws
+Bundle-Version: 1.0.0.qualifier
+Bundle-Activator: org.toxsoft.skide.bridge.mws.Activator
+Bundle-Vendor: toxsoft.org
+Require-Bundle: org.eclipse.core.runtime
+Bundle-RequiredExecutionEnvironment: JavaSE-17
+Automatic-Module-Name: org.toxsoft.skide.bridge.mws
+Bundle-ActivationPolicy: lazy

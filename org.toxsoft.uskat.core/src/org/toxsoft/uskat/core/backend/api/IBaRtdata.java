@@ -5,7 +5,6 @@ import static org.toxsoft.uskat.core.ISkHardConstants.*;
 import org.toxsoft.core.tslib.av.*;
 import org.toxsoft.core.tslib.av.temporal.*;
 import org.toxsoft.core.tslib.bricks.time.*;
-import org.toxsoft.core.tslib.coll.*;
 import org.toxsoft.core.tslib.gw.gwid.*;
 import org.toxsoft.uskat.core.api.evserv.*;
 import org.toxsoft.uskat.core.api.rtdserv.*;
@@ -48,7 +47,7 @@ public interface IBaRtdata
   /**
    * Updates the actual value of the current data.
    * <p>
-   * Note: GWID must be prviously configured for writing by {@link #configureCurrDataWriter(IList)}.
+   * Note: GWID must be prviously configured for writing by {@link #configureCurrDataWriter(IGwidList)}.
    *
    * @param aGwid {@link Gwid} - concrete GWID of RTdata with {@link IDtoRtdataInfo#isCurr()} = <code>true</code>
    * @param aValue {@link IAtomicValue} - current value of RTdata

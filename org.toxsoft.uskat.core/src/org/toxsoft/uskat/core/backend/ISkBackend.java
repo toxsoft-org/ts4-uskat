@@ -1,5 +1,6 @@
 package org.toxsoft.uskat.core.backend;
 
+import org.toxsoft.core.tslib.bricks.*;
 import org.toxsoft.core.tslib.bricks.ctx.*;
 import org.toxsoft.core.tslib.bricks.events.msg.*;
 import org.toxsoft.core.tslib.coll.*;
@@ -31,7 +32,7 @@ import org.toxsoft.uskat.core.impl.*;
  * @author hazard157
  */
 public interface ISkBackend
-    extends ICloseable {
+    extends ICloseable, IInitializable {
 
   /**
    * Determines if backend is active.
@@ -49,7 +50,14 @@ public interface ISkBackend
    * <p>
    * This is second step of the two-step initialization of a backend (constructor and then {@link #initialize()}).
    */
+  @Override
   void initialize();
+
+  /**
+   * Called once when backend finishes working.
+   */
+  @Override
+  void close();
 
   /**
    * Returns information about backend instance.
