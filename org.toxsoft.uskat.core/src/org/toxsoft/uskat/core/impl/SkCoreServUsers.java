@@ -519,7 +519,7 @@ public class SkCoreServUsers
       TsValidationFailedRtException.checkError( validationSupport.canEditUser( aDtoUser, oldUser ) );
     }
     else {
-      TsValidationFailedRtException.checkError( validationSupport.canCreateRole( aDtoUser ) );
+      TsValidationFailedRtException.checkError( validationSupport.canCreateUser( aDtoUser ) );
     }
     pauseCoreValidation();
     try {
