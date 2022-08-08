@@ -408,14 +408,17 @@ public class SkCoreServUsers
     objServ().defineObject( objRoleGuest );
     // create user root
     DtoObject objUserRoot = SkHelperUtils.createDtoObject( SKID_USER_ROOT, coreApi() );
-    objRoleRoot.attrs().setStr( AID_NAME, STR_N_ROOT_USER );
-    objRoleRoot.attrs().setStr( AID_DESCRIPTION, STR_D_ROOT_USER );
-    objServ().defineObject( objUserRoot );
+    objUserRoot.attrs().setStr( AID_NAME, STR_N_ROOT_USER );
+    objUserRoot.attrs().setStr( AID_DESCRIPTION, STR_D_ROOT_USER );
+    ISkObject skoRootUser = objServ().defineObject( objUserRoot );
+    linkService().setLink( skoRootUser.skid(), LNKID_USER_ROLES, new SkidList( objRoleRoot.skid() ) );
     // create user guest
     DtoObject objUserGuest = SkHelperUtils.createDtoObject( SKID_USER_GUEST, coreApi() );
-    objRoleGuest.attrs().setStr( AID_NAME, STR_N_GUEST_USER );
-    objRoleGuest.attrs().setStr( AID_DESCRIPTION, STR_D_GUEST_USER );
-    objServ().defineObject( objUserGuest );
+    objUserGuest.attrs().setStr( AID_NAME, STR_N_GUEST_USER );
+    objUserGuest.attrs().setStr( AID_DESCRIPTION, STR_D_GUEST_USER );
+    ISkObject skoGuestUser = objServ().defineObject( objUserGuest );
+    linkService().setLink( skoGuestUser.skid(), LNKID_USER_ROLES, new SkidList( objRoleGuest.skid() ) );
+    //
     sysdescr().svs().addValidator( claimingValidator );
     objServ().svs().addValidator( claimingValidator );
     linkService().svs().addValidator( claimingValidator );
