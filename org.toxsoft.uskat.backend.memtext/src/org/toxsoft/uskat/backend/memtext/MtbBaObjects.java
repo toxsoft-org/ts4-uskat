@@ -193,7 +193,7 @@ public class MtbBaObjects
     internalCheck();
     TsNullArgumentRtException.checkNull( aUpdateObjects );
     // prepare for frontend message
-    ECrudOp eventOp = null;
+    ECrudOp eventOp = ECrudOp.REMOVE;
     Skid eventSkid = null;
     int changesCount = 0;
     // delete objects to be removed
@@ -219,7 +219,6 @@ public class MtbBaObjects
     }
     // add/update objects
     if( !aUpdateObjects.isEmpty() ) {
-      eventOp = ECrudOp.REMOVE;
       for( IDtoObject obj : aUpdateObjects ) {
         IMapEdit<Skid, IDtoObject> map = objsMap.findByKey( obj.skid().classId() );
         if( map == null ) {
