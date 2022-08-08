@@ -219,6 +219,7 @@ public class MtbBaObjects
     }
     // add/update objects
     if( !aUpdateObjects.isEmpty() ) {
+      eventOp = ECrudOp.REMOVE;
       for( IDtoObject obj : aUpdateObjects ) {
         IMapEdit<Skid, IDtoObject> map = objsMap.findByKey( obj.skid().classId() );
         if( map == null ) {
