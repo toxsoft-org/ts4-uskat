@@ -98,6 +98,44 @@ public class SkCoreServSysdescr
       return false;
     }
 
+    @Override
+    public String findCommonRootClassId( IStringList aClassIds ) {
+      TsNullArgumentRtException.checkNull( aClassIds );
+      // search for first existing class ID
+      ISkClassInfo h = null;
+      for( String cid : aClassIds ) {
+        h = findClassInfo( cid );
+        if( h != null ) {
+          break;
+        }
+      }
+      if( h == null ) { // no exsiting class ID in argument
+        return IGwHardConstants.GW_ROOT_CLASS_ID;
+      }
+      // iterate over superclasses of found class and determine which is common root
+      IStringList ancestorIdLists = h.listSuperclasses( true ).ids();
+      // from found class up to (but not incluring) root class
+      for( int i = ancestorIdLists.size() - 1; i >= 1; i-- ) {
+        String ansId = ancestorIdLists.get( i );
+        if( isCommonSuperclass( ansId, aClassIds ) ) {
+          return ansId;
+        }
+      }
+      return IGwHardConstants.GW_ROOT_CLASS_ID;
+    }
+
+    private boolean isCommonSuperclass( String aAncestorId, IStringList aClassIds ) {
+      for( String cid : aClassIds ) {
+        if( listClasses().hasKey( aAncestorId ) ) {
+          ISkClassInfo h = getClassInfo( cid );
+          if( !h.listSuperclasses( true ).ids().hasElem( aAncestorId ) ) {
+            return false;
+          }
+        }
+      }
+      return true;
+    }
+
   }
 
   /**

@@ -76,7 +76,7 @@ public interface ISkLinkService
    * <p>
    * Warning: there is big difference specifying two values of the <b><code>aRemovedSkids</code></b> argument:
    * <ul>
-   * <li>value <code>null</code> means deletion of <b>the all objects</b>;</li>
+   * <li>value <code>null</code> means deletion of <b>the all linked objects</b>;</li>
    * <li>value {@link ISkidList#EMPTY} does not changes link at all.</li>
    * </ul>
    * <p>

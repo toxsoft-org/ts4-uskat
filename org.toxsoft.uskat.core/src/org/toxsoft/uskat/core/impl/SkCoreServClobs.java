@@ -17,6 +17,7 @@ import org.toxsoft.core.tslib.utils.errors.*;
 import org.toxsoft.uskat.core.*;
 import org.toxsoft.uskat.core.api.clobserv.*;
 import org.toxsoft.uskat.core.api.objserv.*;
+import org.toxsoft.uskat.core.api.sysdescr.*;
 import org.toxsoft.uskat.core.devapi.*;
 
 /**
@@ -116,6 +117,13 @@ public class SkCoreServClobs
     }
     if( aGwid.isAbstract() || aGwid.isMulti() ) {
       return ValidationResult.error( FMT_ERR_NON_CLOB_GWID, aGwid.toString() );
+    }
+    ISkClassInfo cinf = coreApi().sysdescr().findClassInfo( aGwid.classId() );
+    if( cinf == null ) {
+      return ValidationResult.error( FMT_ERR_CLOB_CLASS_NOT_EXIST, aGwid.classId() );
+    }
+    if( !cinf.clobs().list().hasKey( aGwid.propId() ) ) {
+      return ValidationResult.error( FMT_ERR_CLOB_NOT_EXIST, aGwid.propId(), aGwid.classId() );
     }
     // check if CLOB's object exists
     if( objServ().find( aGwid.skid() ) == null ) {

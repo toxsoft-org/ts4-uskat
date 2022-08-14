@@ -1,14 +1,16 @@
 package org.toxsoft.uskat.core.api.sysdescr;
 
 import org.toxsoft.core.tslib.coll.primtypes.*;
+import org.toxsoft.core.tslib.gw.*;
 import org.toxsoft.core.tslib.utils.errors.*;
 
 /**
  * Classes hierarchy information provider.
  * <p>
- * The idea of interface is to answer on logical questions if there is an asked releation between classes. Only positive
- * answer <code>true</code> is meaningful, negative answers may caused both by absenсу of the releation or the absence
- * of the class with the specified ID.
+ * The idea of interface is to provide single place to answer miscellaneous questions about relationships in the class
+ * hierarchy. For logical questions about releations between classes only positive answer <code>true</code> is
+ * meaningful, negative answers may caused both by absenсe of the releation or the absence of the class with the
+ * specified ID.
  *
  * @author hazard157
  */
@@ -79,5 +81,19 @@ public interface ISkClassHierarchyExplorer {
    * @throws TsNullArgumentRtException any argument = <code>null</code>
    */
   boolean isOfClass( String aClassId, IStringList aClassIdsList );
+
+  /**
+   * Finds common superclass for all listed classes and returns it's ID.
+   * <p>
+   * When processing argument list only IDs of existing classes are considered, all others are ignored.
+   * <p>
+   * If considered classes list contains one element then it is returned, for an empty list
+   * {@link IGwHardConstants#GW_ROOT_CLASS_ID} is returned.
+   *
+   * @param aClassIds {@link IStringList} - classIDs
+   * @return String - common root class ID
+   * @throws TsNullArgumentRtException any argument = <code>null</code>
+   */
+  String findCommonRootClassId( IStringList aClassIds );
 
 }

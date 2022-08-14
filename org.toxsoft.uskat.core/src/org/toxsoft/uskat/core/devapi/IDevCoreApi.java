@@ -14,6 +14,8 @@ import org.toxsoft.uskat.core.connection.*;
 public interface IDevCoreApi
     extends ISkCoreApi {
 
+  // TODO objects locking ???
+
   /**
    * Finds backend addon.
    *

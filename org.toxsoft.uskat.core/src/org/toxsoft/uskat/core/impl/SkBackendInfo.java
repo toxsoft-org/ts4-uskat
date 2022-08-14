@@ -2,11 +2,11 @@ package org.toxsoft.uskat.core.impl;
 
 import static org.toxsoft.core.tslib.av.EAtomicType.*;
 import static org.toxsoft.core.tslib.av.impl.AvUtils.*;
-import static org.toxsoft.core.tslib.av.impl.DataDef.*;
 import static org.toxsoft.uskat.core.ISkHardConstants.*;
 
 import java.io.*;
 
+import org.toxsoft.core.tslib.av.impl.*;
 import org.toxsoft.core.tslib.av.metainfo.*;
 import org.toxsoft.core.tslib.av.opset.*;
 import org.toxsoft.core.tslib.av.opset.impl.*;
@@ -28,7 +28,7 @@ public class SkBackendInfo
 
   private static final long serialVersionUID = 157157L;
 
-  private static final IDataDef OP_START_TIME = create( SK_ID + ".StartTime", TIMESTAMP ); //$NON-NLS-1$
+  private static final IDataDef OP_START_TIME = DataDef.create( SK_ID + ".StartTime", TIMESTAMP ); //$NON-NLS-1$
 
   /**
    * Конструктор.

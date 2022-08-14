@@ -397,23 +397,23 @@ public class SkCoreServUsers
     sysdescr().defineClass( userCinf );
     objServ().registerObjectCreator( ISkUser.CLASS_ID, SkUser.CREATOR );
     // create role rootRole
-    DtoObject objRoleRoot = SkHelperUtils.createDtoObject( SKID_ROLE_ROOT, coreApi() );
+    DtoObject objRoleRoot = DtoObject.createDtoObject( SKID_ROLE_ROOT, coreApi() );
     objRoleRoot.attrs().setStr( AID_NAME, STR_N_ROOT_ROLE );
     objRoleRoot.attrs().setStr( AID_DESCRIPTION, STR_D_ROOT_ROLE );
     objServ().defineObject( objRoleRoot );
     // create role guestRole
-    DtoObject objRoleGuest = SkHelperUtils.createDtoObject( SKID_ROLE_GUEST, coreApi() );
+    DtoObject objRoleGuest = DtoObject.createDtoObject( SKID_ROLE_GUEST, coreApi() );
     objRoleGuest.attrs().setStr( AID_NAME, STR_N_GUEST_ROLE );
     objRoleGuest.attrs().setStr( AID_DESCRIPTION, STR_D_GUEST_ROLE );
     objServ().defineObject( objRoleGuest );
     // create user root
-    DtoObject objUserRoot = SkHelperUtils.createDtoObject( SKID_USER_ROOT, coreApi() );
+    DtoObject objUserRoot = DtoObject.createDtoObject( SKID_USER_ROOT, coreApi() );
     objUserRoot.attrs().setStr( AID_NAME, STR_N_ROOT_USER );
     objUserRoot.attrs().setStr( AID_DESCRIPTION, STR_D_ROOT_USER );
     ISkObject skoRootUser = objServ().defineObject( objUserRoot );
     linkService().setLink( skoRootUser.skid(), LNKID_USER_ROLES, new SkidList( objRoleRoot.skid() ) );
     // create user guest
-    DtoObject objUserGuest = SkHelperUtils.createDtoObject( SKID_USER_GUEST, coreApi() );
+    DtoObject objUserGuest = DtoObject.createDtoObject( SKID_USER_GUEST, coreApi() );
     objUserGuest.attrs().setStr( AID_NAME, STR_N_GUEST_USER );
     objUserGuest.attrs().setStr( AID_DESCRIPTION, STR_D_GUEST_USER );
     ISkObject skoGuestUser = objServ().defineObject( objUserGuest );
@@ -523,7 +523,7 @@ public class SkCoreServUsers
     }
     pauseCoreValidation();
     try {
-      return SkHelperUtils.defineFullObject( coreApi(), aDtoUser );
+      return DtoFullObject.defineFullObject( coreApi(), aDtoUser );
     }
     finally {
       resumeCoreValidation();
@@ -578,7 +578,7 @@ public class SkCoreServUsers
     TsNullArgumentRtException.checkNull( aUserId );
     TsItemNotFoundRtException.checkNull( findUser( aUserId ) );
     Skid skid = new Skid( ISkUser.CLASS_ID, aUserId );
-    DtoFullObject dto = SkHelperUtils.createDtoFullObject( skid, coreApi() );
+    DtoFullObject dto = DtoFullObject.createDtoFullObject( skid, coreApi() );
     dto.attrs().setBool( ATRID_USER_IS_ENABLED, aEnabled );
     return defineUser( dto );
   }
@@ -588,7 +588,7 @@ public class SkCoreServUsers
     TsNullArgumentRtException.checkNull( aUserId );
     TsItemNotFoundRtException.checkNull( findUser( aUserId ) );
     Skid skid = new Skid( ISkUser.CLASS_ID, aUserId );
-    DtoFullObject dto = SkHelperUtils.createDtoFullObject( skid, coreApi() );
+    DtoFullObject dto = DtoFullObject.createDtoFullObject( skid, coreApi() );
     dto.attrs().setBool( ATRID_USER_IS_HIDDEN, aHidden );
     return defineUser( dto );
   }
@@ -598,7 +598,7 @@ public class SkCoreServUsers
     TsNullArgumentRtException.checkNull( aUserId );
     TsItemNotFoundRtException.checkNull( findUser( aUserId ) );
     Skid skid = new Skid( ISkUser.CLASS_ID, aUserId );
-    DtoFullObject dto = SkHelperUtils.createDtoFullObject( skid, coreApi() );
+    DtoFullObject dto = DtoFullObject.createDtoFullObject( skid, coreApi() );
     dto.attrs().setStr( ATRID_PASSWORD, SkHelperUtils.getPasswordHashCode( aPassword ) );
     return defineUser( dto );
   }
@@ -608,7 +608,7 @@ public class SkCoreServUsers
     TsNullArgumentRtException.checkNull( aUserId );
     TsItemNotFoundRtException.checkNull( findUser( aUserId ) );
     Skid skid = new Skid( ISkUser.CLASS_ID, aUserId );
-    DtoFullObject dto = SkHelperUtils.createDtoFullObject( skid, coreApi() );
+    DtoFullObject dto = DtoFullObject.createDtoFullObject( skid, coreApi() );
     SkidList rolesList = new SkidList();
     for( ISkRole r : aRoles ) {
       rolesList.add( r.skid() );

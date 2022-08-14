@@ -67,10 +67,12 @@ interface ISkResources {
   /**
    * {@link SkCoreServClobs}
    */
-  String FMT_ERR_NON_CLOB_GWID   = "Concrete GWID of CLOB was expected instead of '%s'";
-  String FMT_ERR_CLOB_TOO_LONG   = "Clob length %d exceeds platforn restirction %d";
-  String FMT_ERR_CLOB_TO_BACKEND = "Error writing CLOB (GWID='%s') to to the backend";
-  String FMT_ERR_NO_OBJ_OF_CLOB  = "Object '%s' for CLOB '%s' doesa not exists";
+  String FMT_ERR_NON_CLOB_GWID        = "Concrete GWID of CLOB was expected instead of '%s'";
+  String FMT_ERR_CLOB_CLASS_NOT_EXIST = "CLOB class %s does not exist";
+  String FMT_ERR_CLOB_NOT_EXIST       = "CLOB %s does not exist in class %s";
+  String FMT_ERR_CLOB_TOO_LONG        = "Clob length %d exceeds platforn restirction %d";
+  String FMT_ERR_CLOB_TO_BACKEND      = "Error writing CLOB (GWID='%s') to to the backend";
+  String FMT_ERR_NO_OBJ_OF_CLOB       = "Object '%s' for CLOB '%s' doesa not exists";
 
   /**
    * {@link SkCoreServCommands}

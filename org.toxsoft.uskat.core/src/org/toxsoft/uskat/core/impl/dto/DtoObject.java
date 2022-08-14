@@ -75,6 +75,16 @@ public final class DtoObject
   }
 
   /**
+   * Constructor with empty fields.
+   *
+   * @param aSkid {@link Skid} - object skid
+   * @throws TsNullArgumentRtException any argument = <code>null</code>
+   */
+  public DtoObject( Skid aSkid ) {
+    this( aSkid, IOptionSet.NULL, IStringMap.EMPTY );
+  }
+
+  /**
    * Package-private constructor for keeper.
    *
    * @param aFoo int - unsed argument for unique constructor signature
@@ -101,7 +111,7 @@ public final class DtoObject
    */
   public static DtoObject createFromSk( ISkObject aSkObj, ISkCoreApi aCoreApi ) {
     TsNullArgumentRtException.checkNulls( aSkObj, aCoreApi );
-    DtoObject dtoObj = new DtoObject( aSkObj.skid(), IOptionSet.NULL, aSkObj.rivets().map() );
+    DtoObject dtoObj = new DtoObject( aSkObj.skid() );
     ISkClassInfo cinf = aCoreApi.sysdescr().getClassInfo( aSkObj.classId() );
     // copy all but system attributes values
     for( IDtoAttrInfo ainf : cinf.attrs().list() ) {
@@ -110,6 +120,41 @@ public final class DtoObject
       }
     }
     return dtoObj;
+  }
+
+  /**
+   * Creates editable {@link DtoObject} with all attrs and rivets inited by defaults.
+   * <p>
+   * If object with specified SKID exists then result will be filled by exiting properties, otherwise default attribute
+   * values and {@link Skid#NONE} rivets will be applied.
+   * <p>
+   * Created instance does not have system attribute values in the {@link IDtoObject#attrs()} set.
+   *
+   * @param aSkid {@link Skid} - objecvt SKID
+   * @param aCoreApi {@link ISkSysdescr} - class info provider
+   * @return {@link DtoObject} - created instance
+   * @throws TsNullArgumentRtException any argument = <code>null</code>
+   * @throws TsItemNotFoundRtException no such class as {@link Skid#classId()}
+   */
+  public static DtoObject createDtoObject( Skid aSkid, ISkCoreApi aCoreApi ) {
+    TsNullArgumentRtException.checkNulls( aSkid, aCoreApi );
+    // for existing object return it's DTO
+    ISkObject skObj = aCoreApi.objService().find( aSkid );
+    if( skObj != null ) {
+      return DtoObject.createFromSk( skObj, aCoreApi );
+    }
+    ISkClassInfo cinf = aCoreApi.sysdescr().getClassInfo( aSkid.classId() );
+    // create new DTO with properties default values
+    DtoObject dto = new DtoObject( aSkid );
+    for( IDtoAttrInfo ainf : cinf.attrs().list() ) {
+      if( !ISkHardConstants.isSkSysAttr( ainf ) ) {
+        dto.attrs().setValue( ainf.id(), ainf.dataType().defaultValue() );
+      }
+    }
+    for( IDtoRivetInfo rinf : cinf.rivets().list() ) {
+      dto.rivets().ensureSkidList( rinf.id(), rinf.count() );
+    }
+    return dto;
   }
 
   // ------------------------------------------------------------------------------------
