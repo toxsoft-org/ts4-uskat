@@ -11,7 +11,6 @@ import org.toxsoft.core.tslib.bricks.ctx.*;
 import org.toxsoft.core.tslib.bricks.ctx.impl.*;
 import org.toxsoft.core.tslib.bricks.strid.coll.*;
 import org.toxsoft.core.tslib.bricks.strid.impl.*;
-import org.toxsoft.core.tslib.coll.primtypes.*;
 import org.toxsoft.core.tslib.gw.skid.*;
 import org.toxsoft.core.tslib.utils.*;
 import org.toxsoft.uskat.backend.memtext.*;
@@ -85,28 +84,28 @@ public class Test1
     TsTestUtils.pl( "  total %d class(es)", llClasses.size() );
 
     // objects - models
-    DtoObject dtoObj = new DtoObject( new Skid( CID_MODEL_GIRL, "marablake" ), IOptionSet.NULL, IStringMap.EMPTY );
+    DtoObject dtoObj = new DtoObject( new Skid( CID_MODEL_GIRL, "marablake" ) );
     dtoObj.attrs().setStr( AID_NAME, "Mara Blake" );
     // Skid skidMaraBlake = dtoObj.skid();
     skObjServ().defineObject( dtoObj );
     //
-    dtoObj = new DtoObject( new Skid( CID_MODEL_GIRL, "ryana" ), IOptionSet.NULL, IStringMap.EMPTY );
+    dtoObj = new DtoObject( new Skid( CID_MODEL_GIRL, "ryana" ) );
     dtoObj.attrs().setStr( AID_NAME, "Ryana" );
     Skid skidRyana = dtoObj.skid();
     skObjServ().defineObject( dtoObj );
 
     // objects - image sets
-    dtoObj = new DtoObject( new Skid( CID_IMAGE_SET, "ryana.luscious" ), IOptionSet.NULL, IStringMap.EMPTY );
+    dtoObj = new DtoObject( new Skid( CID_IMAGE_SET, "ryana.luscious" ) );
     dtoObj.attrs().setStr( AID_NAME, "Luscious" );
     dtoObj.rivets().ensureSkidList( RID_IMGSET_MAIN_MODEL ).add( skidRyana );
     skObjServ().defineObject( dtoObj );
     //
-    dtoObj = new DtoObject( new Skid( CID_IMAGE_SET, "ryana.charming" ), IOptionSet.NULL, IStringMap.EMPTY );
+    dtoObj = new DtoObject( new Skid( CID_IMAGE_SET, "ryana.charming" ) );
     dtoObj.attrs().setStr( AID_NAME, "Charming" );
     dtoObj.rivets().ensureSkidList( RID_IMGSET_MAIN_MODEL ).add( skidRyana );
     skObjServ().defineObject( dtoObj );
     //
-    dtoObj = new DtoObject( new Skid( CID_IMAGE_SET, "ryana.coy" ), IOptionSet.NULL, IStringMap.EMPTY );
+    dtoObj = new DtoObject( new Skid( CID_IMAGE_SET, "ryana.coy" ) );
     dtoObj.attrs().setStr( AID_NAME, "Coy" );
     dtoObj.rivets().ensureSkidList( RID_IMGSET_MAIN_MODEL ).add( skidRyana );
     skObjServ().defineObject( dtoObj );
