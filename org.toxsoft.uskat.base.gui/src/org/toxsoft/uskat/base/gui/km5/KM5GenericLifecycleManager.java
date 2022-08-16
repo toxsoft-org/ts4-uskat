@@ -17,6 +17,7 @@ import org.toxsoft.uskat.core.api.objserv.*;
 import org.toxsoft.uskat.core.api.sysdescr.*;
 import org.toxsoft.uskat.core.api.sysdescr.dto.*;
 import org.toxsoft.uskat.core.impl.dto.*;
+import org.toxsoft.uskat.core.utils.*;
 
 /**
  * Менеджер ЖЦ объектов, которые управляются службой {@link ISkObjectService}.
@@ -48,7 +49,7 @@ public class KM5GenericLifecycleManager<T extends ISkObject, M>
   // Внутренние методы
   //
 
-  private DtoFullObject makeDtoObject( IM5Bunch<T> aValues ) {
+  private DtoFullObject makeDtoFullObject( IM5Bunch<T> aValues ) {
     // создаем структуру объекта
     String classId = aValues.getAsAv( AID_CLASS_ID ).asString();
     String strid = aValues.getAsAv( AID_STRID ).asString();
@@ -70,7 +71,7 @@ public class KM5GenericLifecycleManager<T extends ISkObject, M>
 
   @SuppressWarnings( "unchecked" )
   private ISkObject internalDefineObject( IM5Bunch<T> aValues ) {
-    DtoObject objDto = makeDtoObject( aValues );
+    DtoFullObject objDto = makeDtoFullObject( aValues );
     // создаем объект
     ISkObject sko = skObjServ().defineObject( objDto );
     // TODO rivets? CLOBs?
@@ -86,7 +87,7 @@ public class KM5GenericLifecycleManager<T extends ISkObject, M>
       }
       else {
         IList<ISkObject> robjs = (IList<ISkObject>)aValues.get( linf.id() );
-        rightSkids = SkUtils.objsToSkids( robjs );
+        rightSkids = SkHelperUtils.objsToSkids( robjs );
       }
       skLinkServ().defineLink( sko.skid(), linf.id(), null, rightSkids );
     }
@@ -115,7 +116,7 @@ public class KM5GenericLifecycleManager<T extends ISkObject, M>
       return ValidationResult.error( FMT_ERR_DUP_CLASS_STRID, classId, strid );
     }
     // проверить значения атрибутов
-    IDtoObject dpu = makeDtoObject( aValues );
+    IDtoObject dpu = makeDtoFullObject( aValues );
     ValidationResult vr = skObjServ().svs().validator().canCreateObject( dpu );
     // TODO проверить значения связей
     return vr;
@@ -142,7 +143,7 @@ public class KM5GenericLifecycleManager<T extends ISkObject, M>
       return ValidationResult.error( FMT_ERR_CANT_EDIT_STRID, aValues.originalEntity().skid() );
     }
     // проверить значения атрибутов
-    IDtoObject dpu = makeDtoObject( aValues );
+    IDtoObject dpu = makeDtoFullObject( aValues );
     ValidationResult vr = skObjServ().svs().validator().canEditObject( dpu, aValues.originalEntity() );
     // TODO проверить значения связей
     return vr;

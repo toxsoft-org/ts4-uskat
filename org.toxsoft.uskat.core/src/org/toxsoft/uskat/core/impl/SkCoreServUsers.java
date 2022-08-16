@@ -430,6 +430,15 @@ public class SkCoreServUsers
     // nop
   }
 
+  @Override
+  protected boolean doIsClassClaimedByService( String aClassId ) {
+    return switch( aClassId ) {
+      case ISkUser.CLASS_ID -> true;
+      case ISkRole.CLASS_ID -> true;
+      default -> false;
+    };
+  }
+
   // ------------------------------------------------------------------------------------
   // implementation
   //
