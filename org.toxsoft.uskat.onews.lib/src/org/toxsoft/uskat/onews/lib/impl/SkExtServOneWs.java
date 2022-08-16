@@ -15,6 +15,7 @@ import org.toxsoft.core.tslib.bricks.strid.impl.*;
 import org.toxsoft.core.tslib.bricks.validator.*;
 import org.toxsoft.core.tslib.bricks.validator.impl.*;
 import org.toxsoft.core.tslib.coll.*;
+import org.toxsoft.core.tslib.coll.impl.*;
 import org.toxsoft.core.tslib.gw.skid.*;
 import org.toxsoft.core.tslib.utils.errors.*;
 import org.toxsoft.uskat.core.*;
@@ -78,12 +79,16 @@ public class SkExtServOneWs
     DtoFullObject fobj = DtoFullObject.createDtoFullObject( OWS_SKID_PROFILE_ROOT, coreApi() );
     fobj.attrs().setStr( AID_NAME, STR_N_ROOT_PROFILE );
     fobj.attrs().setStr( AID_DESCRIPTION, STR_D_ROOT_PROFILE );
+    fobj.attrs().setStr( ATRID_PROFILE_RULES,
+        OneWsRule.KEEPER.coll2str( new SingleItemList<>( OneWsRule.RULE_ALLOW_ALL ) ) );
     fobj.links().ensureSkidList( LNKID_ROLES ).add( ISkUserServiceHardConstants.SKID_ROLE_ROOT );
     DtoFullObject.defineFullObject( coreApi(), fobj );
     // create guest profile
     fobj = DtoFullObject.createDtoFullObject( OWS_SKID_PROFILE_GUEST, coreApi() );
     fobj.attrs().setStr( AID_NAME, STR_N_GUEST_PROFILE );
     fobj.attrs().setStr( AID_DESCRIPTION, STR_D_GUEST_PROFILE );
+    fobj.attrs().setStr( ATRID_PROFILE_RULES,
+        OneWsRule.KEEPER.coll2str( new SingleItemList<>( OneWsRule.RULE_DENY_ALL ) ) );
     fobj.links().ensureSkidList( LNKID_ROLES ).add( ISkUserServiceHardConstants.SKID_ROLE_GUEST );
     DtoFullObject.defineFullObject( coreApi(), fobj );
     //
