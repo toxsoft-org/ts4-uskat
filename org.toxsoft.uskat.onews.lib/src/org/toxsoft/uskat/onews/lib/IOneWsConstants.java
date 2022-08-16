@@ -9,6 +9,7 @@ import static org.toxsoft.uskat.onews.lib.ISkResources.*;
 import org.toxsoft.core.tslib.av.*;
 import org.toxsoft.core.tslib.av.impl.*;
 import org.toxsoft.core.tslib.av.metainfo.*;
+import org.toxsoft.core.tslib.av.opset.impl.*;
 import org.toxsoft.core.tslib.bricks.keeper.*;
 import org.toxsoft.core.tslib.bricks.strid.*;
 import org.toxsoft.core.tslib.bricks.strid.coll.*;
@@ -134,7 +135,7 @@ public interface IOneWsConstants {
   IDtoAttrInfo ATRINF_PROFILE_PARAMS = DtoAttrInfo.create2( ATRID_PROFILE_PARAMS, DDEF_VALOBJ, //
       TSID_NAME, STR_N_PROFILE_PARAMS, //
       TSID_DESCRIPTION, STR_D_PROFILE_PARAMS, //
-      TSID_DEFAULT_VALUE, AV_STR_EMPTY //
+      TSID_DEFAULT_VALUE, OptionSetKeeper.STR_EMPTY_OPSET_REPRESENTATION //
   );
 
   /**

@@ -447,7 +447,8 @@ public class SkCoreServObject
     // initialize attributes from aObjectDto or by default values
     for( IDtoAttrInfo ainf : aClassInfo.attrs().list() ) {
       if( !isSkSysAttr( ainf ) ) {
-        IAtomicValue av = aObjectDto.attrs().getValue( ainf.id(), ainf.dataType().defaultValue() );
+        IAtomicValue defVal = ainf.getParamValue( TSID_DEFAULT_VALUE, IAtomicValue.NULL );
+        IAtomicValue av = aObjectDto.attrs().getValue( ainf.id(), defVal );
         sko.attrs().setValue( ainf.id(), av );
       }
     }

@@ -3,6 +3,7 @@ package org.toxsoft.uskat.onews.lib.impl;
 import static org.toxsoft.uskat.onews.lib.IOneWsConstants.*;
 
 import org.toxsoft.core.tslib.av.opset.*;
+import org.toxsoft.core.tslib.bricks.keeper.*;
 import org.toxsoft.core.tslib.coll.*;
 import org.toxsoft.core.tslib.gw.skid.*;
 import org.toxsoft.core.tslib.utils.errors.*;
@@ -58,7 +59,7 @@ public class SkOneWsProfile
 
   @Override
   public IList<OneWsRule> rules() {
-    String s = attrs().getStr( ATRID_PROFILE_RULES );
+    String s = attrs().getStr( ATRID_PROFILE_RULES, IEntityKeeper.STR_EMPTY_COLLECTION_REPRESENTATION );
     return OneWsRule.KEEPER.str2coll( s );
   }
 
