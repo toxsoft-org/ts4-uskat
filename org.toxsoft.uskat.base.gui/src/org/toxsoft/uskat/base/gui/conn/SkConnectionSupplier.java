@@ -5,6 +5,7 @@ import org.toxsoft.core.tslib.coll.*;
 import org.toxsoft.core.tslib.coll.impl.*;
 import org.toxsoft.core.tslib.utils.errors.*;
 import org.toxsoft.core.tslib.utils.logs.impl.*;
+import org.toxsoft.uskat.base.gui.km5.*;
 import org.toxsoft.uskat.core.connection.*;
 import org.toxsoft.uskat.core.impl.*;
 
@@ -55,6 +56,8 @@ public class SkConnectionSupplier
     TsIllegalArgumentRtException.checkTrue( aKey == IdChain.NULL );
     TsItemAlreadyExistsRtException.checkTrue( connsMap.hasKey( aKey ) );
     ISkConnection conn = SkCoreUtils.createConnection();
+    IKM5Support km5 = KM5Utils.createKM5Support();
+    // FIXME km5.bind( conn, ctx )
     connsMap.put( aKey, conn );
     return conn;
   }

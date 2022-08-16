@@ -95,7 +95,7 @@ public abstract class AbstractSkService
     @Override
     public ValidationResult canSetLink( IDtoLinkFwd aOldLink, IDtoLinkFwd aNewLink ) {
       ValidationResult vr = validateEditByNonSysdescrService( aNewLink.leftSkid().classId() );
-      return ValidationResult.firstNonOk( vr, validateEditByNonSysdescrService( aOldLink.leftSkid().classId() ) );
+      return ValidationResult.firstNonOk( vr, validateEditByNonSysdescrService( aNewLink.leftSkid().classId() ) );
     }
 
     @Override

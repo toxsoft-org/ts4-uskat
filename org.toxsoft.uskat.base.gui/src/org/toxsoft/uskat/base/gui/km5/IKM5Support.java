@@ -4,13 +4,14 @@ import org.toxsoft.core.tsgui.bricks.ctx.*;
 import org.toxsoft.core.tsgui.m5.*;
 import org.toxsoft.core.tslib.coll.primtypes.*;
 import org.toxsoft.core.tslib.utils.errors.*;
+import org.toxsoft.uskat.core.api.sysdescr.*;
 import org.toxsoft.uskat.core.connection.*;
 
 /**
  * Поддержка M5-моделирования для Sk-сущностей.
  * <p>
  * Связыват домен моделирования с Sk-соединением так, что при открытом соединении в домене присутствуют модели всех
- * классов из {@link ISkClassInfoManager#listClasses()}. Часть моделей создаются специализированными модулями
+ * классов из {@link ISkSysdescr#listClasses()}. Часть моделей создаются специализированными модулями
  * {@link KM5AbstractModelManagementUnit}, а все остальные - генерируются по внутренним правилам {@link IKM5Support}.
  * Таким образм, жизненный цикл сущностей подсистемы KM5 по сути связан с жизненным циколм {@link ISkConnection}.
  * <p>
@@ -36,8 +37,8 @@ public interface IKM5Support {
    * В качестве контекста домена устанавливаеться аргумент aDomainContext, и родительский домен берется из этого же
    * контекста.
    * <p>
-   * В процессе привязки метод размещает ссылки на себя и соединение в {@link IM5Domain#domainContext()}, а ссылки на
-   * себя и домен - в {@link ISkConnection#scope()}.
+   * В процессе привязки метод размещает ссылки на себя и соединение в {@link IM5Domain#tsContext()}, а ссылки на себя и
+   * домен - в {@link ISkConnection#scope()}.
    *
    * @param aSkConn {@link ISkConnection} - Sk-соедниение
    * @param aDomainContext {@link ITsGuiContext} - контекст для инициализации {@link IM5Domain}

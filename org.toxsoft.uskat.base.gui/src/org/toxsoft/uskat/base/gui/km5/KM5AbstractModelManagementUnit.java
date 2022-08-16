@@ -2,6 +2,7 @@ package org.toxsoft.uskat.base.gui.km5;
 
 import org.toxsoft.core.tsgui.m5.*;
 import org.toxsoft.core.tsgui.m5.model.impl.*;
+import org.toxsoft.core.tslib.bricks.ctx.*;
 import org.toxsoft.core.tslib.bricks.strid.impl.*;
 import org.toxsoft.core.tslib.coll.helpers.*;
 import org.toxsoft.core.tslib.coll.primtypes.*;
@@ -22,7 +23,7 @@ import org.toxsoft.uskat.core.connection.*;
  * Замечания:
  * <p>
  * 1. Важно сделать привязку того модуля к {@link ISkConnection} до того, как соединение будет открыто методом
- * {@link ISkConnection#open(ITsContextReadonly)}. Дело в том, что модель создает модели в момент открытия соединения.
+ * {@link ISkConnection#open(ITsContextRo)}. Дело в том, что модель создает модели в момент открытия соединения.
  * Следовательно, если привязаться после октрытия соединения, то модуль сработает только при следующем открытии этого же
  * экземпляра соединения.
  * <p>
