@@ -8,4 +8,5 @@ Automatic-Module-Name: org.toxsoft.uskat.onews.lib
 Bundle-RequiredExecutionEnvironment: JavaSE-17
 Require-Bundle: org.toxsoft.core.tslib;bundle-version="1.0.0",
  org.toxsoft.uskat.core;bundle-version="1.0.0"
-Export-Package: org.toxsoft.uskat.onews.lib
+Export-Package: org.toxsoft.uskat.onews.lib,
+ org.toxsoft.uskat.onews.lib.impl
