@@ -23,6 +23,7 @@ import org.toxsoft.core.tslib.coll.primtypes.*;
 import org.toxsoft.core.tslib.coll.primtypes.impl.*;
 import org.toxsoft.core.tslib.gw.gwid.*;
 import org.toxsoft.core.tslib.gw.skid.*;
+import org.toxsoft.core.tslib.utils.*;
 import org.toxsoft.core.tslib.utils.errors.*;
 import org.toxsoft.core.tslib.utils.logs.impl.*;
 import org.toxsoft.core.tslib.utils.txtmatch.*;
@@ -72,6 +73,13 @@ public class SkCoreServObject
     }
 
     SkObject put( SkObject aObject ) {
+
+      // DEBUG ---
+      if( aObject.classId().contains( "ofile" ) ) {
+        TsTestUtils.pl( aObject.readableName() );
+      }
+      // ---
+
       if( cache.size() >= MAX_SIZE ) {
         cache.removeByKey( cache.keys().first() );
       }
