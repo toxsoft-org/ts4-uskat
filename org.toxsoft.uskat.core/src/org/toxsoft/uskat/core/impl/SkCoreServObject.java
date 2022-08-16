@@ -579,6 +579,7 @@ public class SkCoreServObject
     else {
       classesList = new StridablesList<>( cinf );
     }
+    // FIXME search objects in cache
     IList<IDtoObject> dpuObjs = coreApi().l10n().l10nObjectsList( ba().baObjects().readObjects( classesList.ids() ) );
     // aAllowDuplicates = false
     IListEdit<ISkObject> ll = new ElemLinkedBundleList<>( 256, false );

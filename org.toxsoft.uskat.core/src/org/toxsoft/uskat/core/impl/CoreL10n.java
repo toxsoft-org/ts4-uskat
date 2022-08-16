@@ -168,6 +168,10 @@ class CoreL10n
       return description;
     }
 
+    @Override
+    public String toString() {
+      return String.format( "%s: %s --- %s", entityIdString, name, description ); //$NON-NLS-1$
+    }
   }
 
   /**
