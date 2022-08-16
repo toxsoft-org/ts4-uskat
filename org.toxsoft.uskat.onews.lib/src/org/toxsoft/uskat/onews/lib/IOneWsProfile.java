@@ -1,8 +1,10 @@
 package org.toxsoft.uskat.onews.lib;
 
+import org.toxsoft.core.tslib.av.utils.*;
 import org.toxsoft.core.tslib.coll.*;
 import org.toxsoft.core.tslib.utils.errors.*;
 import org.toxsoft.uskat.core.api.objserv.*;
+import org.toxsoft.uskat.core.api.users.*;
 
 /**
  * Workstation profile - determines which comonents (abilities) are available to the user.
@@ -14,7 +16,12 @@ import org.toxsoft.uskat.core.api.objserv.*;
  * @author hazard157
  */
 public interface IOneWsProfile
-    extends ISkObject {
+    extends ISkObject, IParameterized {
+
+  /**
+   * The {@link IOneWsProfile} class identifier.
+   */
+  String CLASS_ID = IOneWsConstants.CLSID_OWS_PROFILE;
 
   /**
    * Determines of specified ability is allowed to be used in this profile.
@@ -26,10 +33,26 @@ public interface IOneWsProfile
   boolean isAllowed( IOneWsAbility aAbility );
 
   /**
+   * Determines if it is builtin uneditable profile.
+   *
+   * @return boolean - <code>true</code> this is builtin profile
+   */
+  boolean isBuiltinProfile();
+
+  /**
    * Returns the rules making this profile.
    *
    * @return {@link IListEdit}&lt;{@link OneWsRule}&gt; - rules in the order in which they are applied
    */
   IList<OneWsRule> rules();
+
+  /**
+   * Returns users assiciated with this profile.
+   * <p>
+   * Note: for guest profile returns only roles explicitly associated with profile.
+   *
+   * @return {@link IList}&lt;{@link ISkRole}&gt; - roles with this profile
+   */
+  IList<ISkRole> profileRoles();
 
 }

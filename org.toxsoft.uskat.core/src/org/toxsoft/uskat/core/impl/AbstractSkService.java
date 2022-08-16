@@ -57,7 +57,7 @@ public abstract class AbstractSkService
    *
    * @author hazard157
    */
-  protected class ClassClaimingCoreValidator
+  public class ClassClaimingCoreValidator
       implements ISkSysdescrValidator, ISkObjectServiceValidator, ISkLinkServiceValidator, ISkClobServiceValidator {
 
     @Override

@@ -52,7 +52,7 @@ public final class DtoLinkFwd
 
   private final Gwid     gwid;
   private final Skid     leftObj;
-  private final SkidList rightObjIds;
+  private final SkidList rightSkids;
 
   /**
    * Constructor.
@@ -74,7 +74,7 @@ public final class DtoLinkFwd
     TsIllegalArgumentRtException.checkTrue( aGwid.kind() != EGwidKind.GW_LINK );
     gwid = aGwid;
     leftObj = aLeftSkid;
-    rightObjIds = new SkidList( aRightObjIds );
+    rightSkids = new SkidList( aRightObjIds );
   }
 
   /**
@@ -92,7 +92,7 @@ public final class DtoLinkFwd
   private DtoLinkFwd( @SuppressWarnings( "unused" ) int aFoo, Gwid aGwid, Skid aLeftSkid, SkidList aRightObjIds ) {
     gwid = aGwid;
     leftObj = aLeftSkid;
-    rightObjIds = aRightObjIds;
+    rightSkids = aRightObjIds;
   }
 
   /**
@@ -109,6 +109,50 @@ public final class DtoLinkFwd
   public static DtoLinkFwd createDirect( Gwid aGwid, Skid aLeftSkid, SkidList aRightObjIds ) {
     TsNullArgumentRtException.checkNulls( aGwid, aLeftSkid, aRightObjIds );
     return new DtoLinkFwd( 0, aGwid, aLeftSkid, aRightObjIds );
+  }
+
+  // ------------------------------------------------------------------------------------
+  // Static API
+  //
+
+  /**
+   * Returns new instance with given SKID removed from right objects.
+   * <p>
+   * Method is aimed to simplify single object removal from the link.
+   * <p>
+   * If given SKID is not in list then returns copy of source argument.
+   *
+   * @param aLink {@link IDtoLinkFwd} - source link
+   * @param aRightSkidToRemove {@link Skid} - SKID obj object to remove from {@link IDtoLinkFwd#rightSkids()}
+   * @return {@link DtoLinkFwd} - created instance
+   * @throws TsNullArgumentRtException any argument = <code>null</code>
+   */
+  public static DtoLinkFwd createCopyMinusSkid( IDtoLinkFwd aLink, Skid aRightSkidToRemove ) {
+    TsNullArgumentRtException.checkNulls( aRightSkidToRemove );
+    DtoLinkFwd lf = DtoLinkFwd.createCopy( aLink );
+    lf.rightSkids.remove( aRightSkidToRemove );
+    return lf;
+  }
+
+  /**
+   * Returns new instance with given SKID added to right objects.
+   * <p>
+   * Method is aimed to simplify single object addition to the link.
+   * <p>
+   * If given SKID alreday in list then returns copy of source argument.
+   *
+   * @param aLink {@link IDtoLinkFwd} - source link
+   * @param aRightSkidToRemove {@link Skid} - SKID obj object to add to {@link IDtoLinkFwd#rightSkids()}
+   * @return {@link DtoLinkFwd} - created instance
+   * @throws TsNullArgumentRtException any argument = <code>null</code>
+   */
+  public static DtoLinkFwd createCopyPlusSkid( IDtoLinkFwd aLink, Skid aRightSkidToRemove ) {
+    TsNullArgumentRtException.checkNulls( aRightSkidToRemove );
+    DtoLinkFwd lf = DtoLinkFwd.createCopy( aLink );
+    if( !lf.rightSkids().hasElem( aRightSkidToRemove ) ) {
+      lf.rightSkids.add( aRightSkidToRemove );
+    }
+    return lf;
   }
 
   // ------------------------------------------------------------------------------------
@@ -137,7 +181,7 @@ public final class DtoLinkFwd
 
   @Override
   public SkidList rightSkids() {
-    return rightObjIds;
+    return rightSkids;
   }
 
   // ------------------------------------------------------------------------------------
@@ -155,7 +199,7 @@ public final class DtoLinkFwd
       return true;
     }
     if( aThat instanceof DtoLinkFwd that ) {
-      return gwid.equals( that.gwid ) && leftObj.equals( that.leftObj ) && rightObjIds.equals( that.rightObjIds );
+      return gwid.equals( that.gwid ) && leftObj.equals( that.leftObj ) && rightSkids.equals( that.rightSkids );
     }
     return false;
   }
@@ -165,7 +209,7 @@ public final class DtoLinkFwd
     int result = INITIAL_HASH_CODE;
     result = PRIME * result + gwid.hashCode();
     result = PRIME * result + leftObj.hashCode();
-    result = PRIME * result + rightObjIds.hashCode();
+    result = PRIME * result + rightSkids.hashCode();
     return result;
   }
 }

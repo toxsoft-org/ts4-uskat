@@ -5,6 +5,7 @@ import java.security.*;
 import org.toxsoft.core.tslib.coll.*;
 import org.toxsoft.core.tslib.coll.basis.*;
 import org.toxsoft.core.tslib.coll.impl.*;
+import org.toxsoft.core.tslib.gw.skid.*;
 import org.toxsoft.core.tslib.utils.*;
 import org.toxsoft.core.tslib.utils.errors.*;
 import org.toxsoft.uskat.core.*;
@@ -83,6 +84,29 @@ public class SkHelperUtils {
         return sb.toString();
       }
     }
+  }
+
+  /**
+   * Get SKIDs of listed objects.
+   *
+   * @param aObjs {@link IList}&lt;{@link ISkObject}&gt; - list of objects
+   * @return {@link SkidList} - list of SKIDs
+   * @throws TsNullArgumentRtException any argument = <code>null</code>
+   */
+  public static SkidList objsToSkids( IList<? extends ISkObject> aObjs ) {
+    TsNullArgumentRtException.checkNull( aObjs );
+    SkidList ll = new SkidList();
+    if( aObjs instanceof ITsFastIndexListTag<? extends ISkObject> fl ) {
+      for( int i = 0, n = fl.size(); i < n; i++ ) {
+        ll.add( fl.get( i ).skid() );
+      }
+    }
+    else {
+      for( ISkObject o : aObjs ) {
+        ll.add( o.skid() );
+      }
+    }
+    return ll;
   }
 
   /**

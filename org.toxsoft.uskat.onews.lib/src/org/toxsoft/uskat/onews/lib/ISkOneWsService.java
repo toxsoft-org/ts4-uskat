@@ -5,7 +5,6 @@ import org.toxsoft.core.tslib.bricks.strid.*;
 import org.toxsoft.core.tslib.bricks.strid.coll.*;
 import org.toxsoft.core.tslib.bricks.validator.impl.*;
 import org.toxsoft.core.tslib.coll.*;
-import org.toxsoft.core.tslib.coll.primtypes.*;
 import org.toxsoft.core.tslib.utils.errors.*;
 import org.toxsoft.uskat.core.*;
 import org.toxsoft.uskat.core.api.*;
@@ -68,21 +67,6 @@ public interface ISkOneWsService
   IOneWsProfile getProfileByRoleId( String aRoleId );
 
   /**
-   * Возвращает пользователей, которые соответствуют данному профилю.
-   * <p>
-   * Обратите внимание на некоторые особенности:
-   * <ul>
-   * <li>для профиля по умолчанию поведение метода не определено, гарантируется, только то, что в результат будут
-   * включены те пользователи, которым был явно задан профиль методом {@link #setRoleProfile(String, String)};</li>
-   * <li>в список могут попасть несуществующие пользователи и пользователи, которым запрещен вход в систему.</li>
-   * </ul>
-   *
-   * @param aProfileId String - идентификатор профиля
-   * @return {@link IStringList} - список идентификаторов пользвателей (возможно, пустой)
-   */
-  IStringList listProfileRoles( String aProfileId );
-
-  /**
    * Lists known kinds of abilities.
    * <p>
    * Both builtin and user-defined kinds are returned in a single list.
@@ -90,9 +74,9 @@ public interface ISkOneWsService
    * Note: user-defined kinds are not stored between application runs, on every startup user have to define kind by with
    * method {@link #defineAbilityKind(IStridableParameterized)}.
    *
-   * @return {@link IStridablesList}&lt;{@link IStridable}&gt; - list of WS ability (component) kinds
+   * @return {@link IStridablesList}&lt;{@link IStridableParameterized}&gt; - list of WS ability (component) kinds
    */
-  IStridablesList<IStridable> listKnownAbilityKinds();
+  IStridablesList<IStridableParameterized> listKnownAbilityKinds();
 
   /**
    * Returns known abilities (components) of OneWS.
@@ -133,10 +117,11 @@ public interface ISkOneWsService
 
   /**
    * Removes profile.
+   * <p>
+   * If no such profile exists then method does nothing.
    *
    * @param aProfileId String - the profile ID
    * @throws TsNullArgumentRtException any argument = <code>null</code>
-   * @throws TsItemNotFoundRtException нет такого профиля
    * @throws TsValidationFailedRtException attempt to remove builtin profile
    */
   void removeProfile( String aProfileId );

@@ -1,6 +1,6 @@
 package org.toxsoft.uskat.onews.lib;
 
-import static org.toxsoft.uskat.onews.lib.ITsResources.*;
+import static org.toxsoft.uskat.onews.lib.ISkResources.*;
 
 import org.toxsoft.core.tslib.bricks.keeper.*;
 import org.toxsoft.core.tslib.bricks.keeper.std.*;
@@ -68,6 +68,17 @@ public enum EOwsPermission
   // ----------------------------------------------------------------------------------
   // API
   //
+
+  /**
+   * Determines if this constant grans permission.
+   * <p>
+   * Simply returns result of check <code>this == ALLOW</code>.
+   *
+   * @return boolean - the flag that permission is granted
+   */
+  public boolean isAllowed() {
+    return this == ALLOW;
+  }
 
   /**
    * Returns all constants in single list.

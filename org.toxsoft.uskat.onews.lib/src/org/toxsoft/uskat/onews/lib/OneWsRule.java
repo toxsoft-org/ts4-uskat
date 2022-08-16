@@ -1,7 +1,7 @@
 package org.toxsoft.uskat.onews.lib;
 
 import static org.toxsoft.uskat.core.ISkHardConstants.*;
-import static org.toxsoft.uskat.onews.lib.ITsResources.*;
+import static org.toxsoft.uskat.onews.lib.ISkResources.*;
 
 import java.io.*;
 
