@@ -214,7 +214,7 @@ public class SkExtServOneWs
     // check both role and profile exists
     ISkRole role = coreApi().userService().findRole( aRoleId );
     TsItemNotFoundRtException.checkNull( role, FMT_ERR_NO_ROLE_ID, aRoleId );
-    IOneWsProfile p = getProfileByRoleId( aProfileId );
+    IOneWsProfile p = getProfileByRoleId( aRoleId );
     // start
     pauseCoreValidation();
     try {
