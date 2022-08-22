@@ -45,7 +45,7 @@ public interface ISkUserServiceHardConstants {
   /**
    * SKID of root role.
    */
-  Skid SKID_ROLE_ROOT = new Skid( CLSID_ROLE, ROLE_ID_GUEST );
+  Skid SKID_ROLE_ROOT = new Skid( CLSID_ROLE, ROLE_ID_ROOT );
 
   /**
    * SKID of guest role.
