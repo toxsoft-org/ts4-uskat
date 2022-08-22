@@ -2,26 +2,29 @@ package org.toxsoft.uskat.core.impl;
 
 import static org.toxsoft.uskat.core.impl.ISkResources.*;
 
-import org.toxsoft.core.tslib.av.*;
-import org.toxsoft.core.tslib.av.errors.*;
-import org.toxsoft.core.tslib.av.temporal.*;
-import org.toxsoft.core.tslib.bricks.ctx.*;
-import org.toxsoft.core.tslib.bricks.events.*;
-import org.toxsoft.core.tslib.bricks.events.msg.*;
+import org.toxsoft.core.tslib.av.EAtomicType;
+import org.toxsoft.core.tslib.av.IAtomicValue;
+import org.toxsoft.core.tslib.av.errors.AvTypeCastRtException;
+import org.toxsoft.core.tslib.av.temporal.ITemporalAtomicValue;
+import org.toxsoft.core.tslib.bricks.ctx.ITsContextRo;
+import org.toxsoft.core.tslib.bricks.events.AbstractTsEventer;
+import org.toxsoft.core.tslib.bricks.events.ITsEventer;
+import org.toxsoft.core.tslib.bricks.events.msg.GenericMessage;
 import org.toxsoft.core.tslib.bricks.time.*;
-import org.toxsoft.core.tslib.coll.*;
-import org.toxsoft.core.tslib.coll.impl.*;
+import org.toxsoft.core.tslib.coll.IMap;
+import org.toxsoft.core.tslib.coll.IMapEdit;
+import org.toxsoft.core.tslib.coll.impl.ElemMap;
 import org.toxsoft.core.tslib.gw.gwid.*;
 import org.toxsoft.core.tslib.utils.errors.*;
-import org.toxsoft.core.tslib.utils.logs.impl.*;
-import org.toxsoft.uskat.core.*;
-import org.toxsoft.uskat.core.api.linkserv.*;
-import org.toxsoft.uskat.core.api.objserv.*;
+import org.toxsoft.core.tslib.utils.logs.impl.LoggerUtils;
+import org.toxsoft.uskat.core.ISkServiceCreator;
+import org.toxsoft.uskat.core.api.linkserv.ISkLinkService;
+import org.toxsoft.uskat.core.api.objserv.ISkObject;
 import org.toxsoft.uskat.core.api.rtdserv.*;
-import org.toxsoft.uskat.core.api.sysdescr.*;
-import org.toxsoft.uskat.core.api.sysdescr.dto.*;
-import org.toxsoft.uskat.core.backend.api.*;
-import org.toxsoft.uskat.core.devapi.*;
+import org.toxsoft.uskat.core.api.sysdescr.ISkClassInfo;
+import org.toxsoft.uskat.core.api.sysdescr.dto.IDtoRtdataInfo;
+import org.toxsoft.uskat.core.backend.api.BaMsgRtdataCurrData;
+import org.toxsoft.uskat.core.devapi.IDevCoreApi;
 
 /**
  * {@link ISkRtdataService} implementation.
@@ -386,7 +389,7 @@ public class SkCoreServRtdata
     IGwidList gwids = toValidRtdataGwids( aGwids1, true );
     for( Gwid g : gwids ) {
       SkWriteCurrDataChannel channel = cdWriteChannelsMap.findByKey( g );
-      if( channel != null ) {
+      if( channel == null ) {
         channel = new SkWriteCurrDataChannel( g );
         cdWriteChannelsMap.put( g, channel );
       }
