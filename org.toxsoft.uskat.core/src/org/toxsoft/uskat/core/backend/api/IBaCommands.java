@@ -1,12 +1,11 @@
 package org.toxsoft.uskat.core.backend.api;
 
-import static org.toxsoft.uskat.core.ISkHardConstants.*;
-
 import org.toxsoft.core.tslib.av.opset.*;
 import org.toxsoft.core.tslib.bricks.time.*;
 import org.toxsoft.core.tslib.gw.gwid.*;
 import org.toxsoft.core.tslib.gw.skid.*;
 import org.toxsoft.uskat.core.api.cmdserv.*;
+import org.toxsoft.uskat.core.backend.*;
 import org.toxsoft.uskat.core.impl.*;
 
 /**
@@ -22,7 +21,7 @@ public interface IBaCommands
   /**
    * ID of this backend addon.
    */
-  String ADDON_ID = SK_ID + "ba.Commands"; //$NON-NLS-1$
+  String ADDON_ID = ISkBackendHardConstant.BAID_COMMANDS;
 
   /**
    * Backend starts command execution if possible.

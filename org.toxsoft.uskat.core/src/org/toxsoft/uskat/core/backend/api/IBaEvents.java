@@ -1,7 +1,5 @@
 package org.toxsoft.uskat.core.backend.api;
 
-import static org.toxsoft.uskat.core.ISkHardConstants.*;
-
 import org.toxsoft.core.tslib.bricks.time.*;
 import org.toxsoft.core.tslib.gw.gwid.*;
 import org.toxsoft.core.tslib.utils.errors.*;
@@ -23,7 +21,7 @@ public interface IBaEvents
   /**
    * ID of this backend addon.
    */
-  String ADDON_ID = SK_ID + "ba.Events"; //$NON-NLS-1$
+  String ADDON_ID = ISkBackendHardConstant.BAID_EVENTS;
 
   /**
    * Sends events to all consumers including the remote ones.

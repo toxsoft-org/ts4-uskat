@@ -84,7 +84,7 @@ public interface ISkEventService
    *
    * @param aInterval {@link IQueryInterval} - query time interval
    * @param aGwid {@link Gwid} - concrete GWID of event(s)
-   * @return {@link ITimedList}&lt;{@link SkEvent}&gt; - list of the queried entities
+   * @return {@link ITimedList}&lt;{@link SkEvent}&gt; - list of the reuried events
    * @throws TsNullArgumentRtException any argument = <code>null</code>
    * @throws TsIllegalArgumentRtException invalid GWID
    * @throws TsItemNotFoundRtException no such event exists in sysdescr

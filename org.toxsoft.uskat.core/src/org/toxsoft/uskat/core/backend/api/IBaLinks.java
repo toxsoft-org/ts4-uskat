@@ -1,13 +1,12 @@
 package org.toxsoft.uskat.core.backend.api;
 
-import static org.toxsoft.uskat.core.ISkHardConstants.*;
-
 import org.toxsoft.core.tslib.coll.*;
 import org.toxsoft.core.tslib.coll.primtypes.*;
 import org.toxsoft.core.tslib.gw.gwid.*;
 import org.toxsoft.core.tslib.gw.skid.*;
 import org.toxsoft.core.tslib.utils.errors.*;
 import org.toxsoft.uskat.core.api.linkserv.*;
+import org.toxsoft.uskat.core.backend.*;
 
 /**
  * Backend addon for links storage.
@@ -22,7 +21,7 @@ public interface IBaLinks
   /**
    * ID of this backend addon.
    */
-  String ADDON_ID = SK_ID + "ba.Links"; //$NON-NLS-1$
+  String ADDON_ID = ISkBackendHardConstant.BAID_LINKS;
 
   /**
    * Finds the forward link.

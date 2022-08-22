@@ -1,7 +1,5 @@
 package org.toxsoft.uskat.core.backend.api;
 
-import static org.toxsoft.uskat.core.ISkHardConstants.*;
-
 import org.toxsoft.core.tslib.bricks.events.msg.*;
 import org.toxsoft.core.tslib.gw.gwid.*;
 import org.toxsoft.core.tslib.utils.errors.*;
@@ -20,7 +18,7 @@ public interface IBaClobs
   /**
    * ID of this backend addon.
    */
-  String ADDON_ID = SK_ID + "ba.Clobs"; //$NON-NLS-1$
+  String ADDON_ID = ISkBackendHardConstant.BAID_CLOBS;
 
   /**
    * Reads the CLOB content.

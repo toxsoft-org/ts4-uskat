@@ -1,12 +1,11 @@
 package org.toxsoft.uskat.core.backend.api;
 
-import static org.toxsoft.uskat.core.ISkHardConstants.*;
-
 import org.toxsoft.core.tslib.av.opset.*;
 import org.toxsoft.core.tslib.bricks.events.msg.*;
 import org.toxsoft.core.tslib.bricks.time.*;
 import org.toxsoft.core.tslib.coll.primtypes.*;
 import org.toxsoft.uskat.core.api.hqserv.*;
+import org.toxsoft.uskat.core.backend.*;
 
 /**
  * Backend addon for queries execution.
@@ -21,7 +20,7 @@ public interface IBaQueries
   /**
    * ID of this backend addon.
    */
-  String ADDON_ID = SK_ID + "ba.Queries"; //$NON-NLS-1$
+  String ADDON_ID = ISkBackendHardConstant.BAID_QUERIES;
 
   /**
    * Creates data query.

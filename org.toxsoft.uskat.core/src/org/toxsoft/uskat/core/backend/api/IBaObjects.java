@@ -1,7 +1,5 @@
 package org.toxsoft.uskat.core.backend.api;
 
-import static org.toxsoft.uskat.core.ISkHardConstants.*;
-
 import org.toxsoft.core.tslib.bricks.events.msg.*;
 import org.toxsoft.core.tslib.coll.*;
 import org.toxsoft.core.tslib.coll.primtypes.*;
@@ -23,7 +21,7 @@ public interface IBaObjects
   /**
    * ID of this backend addon.
    */
-  String ADDON_ID = SK_ID + "ba.Objects"; //$NON-NLS-1$
+  String ADDON_ID = ISkBackendHardConstant.BAID_OBJECTS;
 
   /**
    * Finds the object by SKID.

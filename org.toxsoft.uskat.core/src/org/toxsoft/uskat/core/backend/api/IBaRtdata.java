@@ -1,7 +1,5 @@
 package org.toxsoft.uskat.core.backend.api;
 
-import static org.toxsoft.uskat.core.ISkHardConstants.*;
-
 import org.toxsoft.core.tslib.av.*;
 import org.toxsoft.core.tslib.av.temporal.*;
 import org.toxsoft.core.tslib.bricks.time.*;
@@ -9,6 +7,7 @@ import org.toxsoft.core.tslib.gw.gwid.*;
 import org.toxsoft.uskat.core.api.evserv.*;
 import org.toxsoft.uskat.core.api.rtdserv.*;
 import org.toxsoft.uskat.core.api.sysdescr.dto.*;
+import org.toxsoft.uskat.core.backend.*;
 
 /**
  * Backend addon for current and historic RTdata.
@@ -23,7 +22,7 @@ public interface IBaRtdata
   /**
    * ID of this backend addon.
    */
-  String ADDON_ID = SK_ID + "ba.Rtdata"; //$NON-NLS-1$
+  String ADDON_ID = ISkBackendHardConstant.BAID_RTDATA;
 
   // ------------------------------------------------------------------------------------
   // Текущие данные
