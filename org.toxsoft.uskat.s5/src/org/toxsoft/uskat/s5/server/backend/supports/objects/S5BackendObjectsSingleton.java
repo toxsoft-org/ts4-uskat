@@ -204,7 +204,7 @@ public class S5BackendObjectsSingleton
     callBeforeReadObjectsByIds( interceptors, aSkids, retValue );
 
     try( Connection dbConnection = dataSource.getConnection() ) {
-      // Все объекты найденные в локальном хранилище добавляются к ранее найденым
+      // Все объекты найденные в локальном хранилище добавляются к ранее найденным
       retValue.addAll( loadBySkids( dbConnection, sysdescrReader, aSkids ) );
     }
     catch( SQLException e ) {

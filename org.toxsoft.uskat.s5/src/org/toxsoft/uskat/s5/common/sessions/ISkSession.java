@@ -37,24 +37,24 @@ public interface ISkSession
   /**
    * Идентификатор атирбута "Момент времени устаноления соединения (создания сессии)" {@link #startTime()}.
    */
-  String ATRID_START_TIME = "StartTime"; //$NON-NLS-1$
+  String AID_STARTTIME = "StartTime"; //$NON-NLS-1$
 
   /**
    * Идентификатор атирбута "Момент времени закрытия соединения (сессии)" {@link #endTime()}.
    * <p>
    * Пока сессия открыта аторибут имеет значение {@link IAtomicValue#NULL}.
    */
-  String ATRID_END_TIME = "EndTime"; //$NON-NLS-1$
+  String AID_ENDTIME = "EndTime"; //$NON-NLS-1$
 
   /**
    * Идентификатор атрибута "Специфичные для бекенда параметры".
    */
-  String ATRID_BACKEND_SPECIFIC_PARAMS = "BackendSpecificParams"; //$NON-NLS-1$
+  String AID_BACKEND_SPECIFIC_PARAMS = "BackendSpecificParams"; //$NON-NLS-1$
 
   /**
    * Идентификатор атрибута "Параметры создания соединения".
    */
-  String ATRID_CONNECTION_CREATION_PARAMS = "ConnectionCreationParams"; //$NON-NLS-1$
+  String AID_CONNECTION_CREATION_PARAMS = "ConnectionCreationParams"; //$NON-NLS-1$
 
   /**
    * Идентификатор связи "Пользователь, который вошел в систему" {@link #getUser()}.
@@ -86,7 +86,7 @@ public interface ISkSession
    * @return long - the connection start time (millisecons after epoch)
    */
   default long startTime() {
-    return attrs().getTime( ATRID_START_TIME );
+    return attrs().getTime( AID_STARTTIME );
   }
 
   /**
@@ -95,7 +95,7 @@ public interface ISkSession
    * @return long - the connection close time (millisecons after epoch)
    */
   default long endTime() {
-    return attrs().getTime( ATRID_END_TIME );
+    return attrs().getTime( AID_ENDTIME );
   }
 
   /**
@@ -104,7 +104,7 @@ public interface ISkSession
    * @return {@link IOptionSet} - бекенд-специфичные параметры
    */
   default IOptionSet backendSpecificParams() {
-    return attrs().getValobj( ATRID_BACKEND_SPECIFIC_PARAMS );
+    return attrs().getValobj( AID_BACKEND_SPECIFIC_PARAMS );
   }
 
   /**
@@ -115,7 +115,7 @@ public interface ISkSession
    * @return {@link IOptionSet} - параметры создания соединения
    */
   default IOptionSet connectionCreationParams() {
-    return attrs().getValobj( ATRID_CONNECTION_CREATION_PARAMS );
+    return attrs().getValobj( AID_CONNECTION_CREATION_PARAMS );
   }
 
   /**
@@ -124,7 +124,7 @@ public interface ISkSession
    * @return {@link ISkUser} - пользователь
    */
   default ISkUser getUser() {
-    return getSingleLink( LNKID_USER );
+    return getSingleLinkObj( LNKID_USER );
   }
 
   /**

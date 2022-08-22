@@ -2,8 +2,10 @@ package org.toxsoft.uskat.concurrent;
 
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
+import org.toxsoft.core.tslib.av.IAtomicValue;
 import org.toxsoft.core.tslib.bricks.ctx.ITsContext;
 import org.toxsoft.core.tslib.bricks.ctx.ITsContextRo;
+import org.toxsoft.core.tslib.bricks.ctx.impl.IAskParent;
 import org.toxsoft.core.tslib.bricks.ctx.impl.TsContext;
 import org.toxsoft.core.tslib.coll.IListEdit;
 import org.toxsoft.core.tslib.coll.impl.ElemArrayList;
@@ -218,7 +220,7 @@ public final class S5SynchronizedConnection
   public void open( ITsContextRo aArgs ) {
     lockWrite( this );
     try {
-      TsContext ctx = new TsContext( aArgs );
+      ITsContext ctx = createContextForConnection( aArgs );
       // Размещение в контексте блокировки доступа к соединению
       ctx.put( IS5ConnectionParams.REF_CONNECTION_LOCK.refKey(), lock() );
       // 2021-03-29 mvk ---
@@ -313,5 +315,26 @@ public final class S5SynchronizedConnection
     finally {
       unlockWrite( this );
     }
+  }
+
+  // ------------------------------------------------------------------------------------
+  // Внутренние методы
+  //
+  private static ITsContext createContextForConnection( ITsContextRo aContext ) {
+    ITsContext ctx = new TsContext( new IAskParent() {
+
+      @Override
+      public IAtomicValue findOp( String aId ) {
+        return aContext.params().findByKey( aId );
+      }
+
+      @Override
+      public Object findRef( String aKey ) {
+        return aContext.find( aKey );
+      }
+
+    } );
+    ctx.params().setAll( aContext.params() );
+    return ctx;
   }
 }

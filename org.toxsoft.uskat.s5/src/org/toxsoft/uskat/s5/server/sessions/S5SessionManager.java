@@ -1,6 +1,9 @@
 package org.toxsoft.uskat.s5.server.sessions;
 
+import static org.toxsoft.core.tslib.av.EAtomicType.*;
 import static org.toxsoft.core.tslib.av.impl.AvUtils.*;
+import static org.toxsoft.core.tslib.av.metainfo.IAvMetaConstants.*;
+import static org.toxsoft.uskat.core.ISkHardConstants.*;
 import static org.toxsoft.uskat.s5.common.IS5CommonResources.*;
 import static org.toxsoft.uskat.s5.common.sessions.ISkSession.*;
 import static org.toxsoft.uskat.s5.server.IS5ImplementConstants.*;
@@ -17,17 +20,22 @@ import javax.ejb.*;
 import org.infinispan.Cache;
 import org.infinispan.commons.util.CloseableIterator;
 import org.toxsoft.core.tslib.av.IAtomicValue;
+import org.toxsoft.core.tslib.av.impl.DataType;
+import org.toxsoft.core.tslib.av.metainfo.IAvMetaConstants;
 import org.toxsoft.core.tslib.av.opset.IOptionSet;
 import org.toxsoft.core.tslib.av.opset.IOptionSetEdit;
-import org.toxsoft.core.tslib.av.opset.impl.OptionSet;
+import org.toxsoft.core.tslib.av.opset.impl.*;
+import org.toxsoft.core.tslib.bricks.strid.coll.IStridablesList;
+import org.toxsoft.core.tslib.bricks.strid.coll.IStridablesListEdit;
+import org.toxsoft.core.tslib.bricks.strid.coll.impl.StridablesList;
 import org.toxsoft.core.tslib.bricks.strid.idgen.IStridGenerator;
 import org.toxsoft.core.tslib.bricks.strid.idgen.UuidStridGenerator;
 import org.toxsoft.core.tslib.coll.*;
 import org.toxsoft.core.tslib.coll.impl.*;
-import org.toxsoft.core.tslib.coll.primtypes.IStringMap;
-import org.toxsoft.core.tslib.coll.primtypes.IStringMapEdit;
+import org.toxsoft.core.tslib.coll.primtypes.*;
 import org.toxsoft.core.tslib.coll.primtypes.impl.StringArrayList;
 import org.toxsoft.core.tslib.coll.primtypes.impl.StringMap;
+import org.toxsoft.core.tslib.gw.IGwHardConstants;
 import org.toxsoft.core.tslib.gw.gwid.Gwid;
 import org.toxsoft.core.tslib.gw.skid.*;
 import org.toxsoft.core.tslib.utils.errors.TsIllegalArgumentRtException;
@@ -35,10 +43,11 @@ import org.toxsoft.core.tslib.utils.errors.TsNullArgumentRtException;
 import org.toxsoft.core.tslib.utils.logs.ELogSeverity;
 import org.toxsoft.core.tslib.utils.logs.ILogger;
 import org.toxsoft.uskat.core.api.objserv.IDtoObject;
+import org.toxsoft.uskat.core.api.sysdescr.dto.IDtoClassInfo;
 import org.toxsoft.uskat.core.api.users.ISkUser;
 import org.toxsoft.uskat.core.api.users.ISkUserServiceHardConstants;
-import org.toxsoft.uskat.core.impl.dto.DtoLinkFwd;
-import org.toxsoft.uskat.core.impl.dto.DtoObject;
+import org.toxsoft.uskat.core.impl.SkCoreServUsers;
+import org.toxsoft.uskat.core.impl.dto.*;
 import org.toxsoft.uskat.s5.client.IS5ConnectionParams;
 import org.toxsoft.uskat.s5.common.info.IS5SessionsInfos;
 import org.toxsoft.uskat.s5.common.sessions.IS5SessionInfo;
@@ -50,6 +59,7 @@ import org.toxsoft.uskat.s5.server.backend.impl.S5AccessDeniedException;
 import org.toxsoft.uskat.s5.server.backend.supports.events.IS5BackendEventSingleton;
 import org.toxsoft.uskat.s5.server.backend.supports.links.IS5BackendLinksSingleton;
 import org.toxsoft.uskat.s5.server.backend.supports.objects.IS5BackendObjectsSingleton;
+import org.toxsoft.uskat.s5.server.backend.supports.sysdescr.IS5BackendSysDescrSingleton;
 import org.toxsoft.uskat.s5.server.cluster.IS5ClusterListener;
 import org.toxsoft.uskat.s5.server.cluster.IS5ClusterManager;
 import org.toxsoft.uskat.s5.server.frontend.IS5FrontendRear;
@@ -71,7 +81,12 @@ import org.wildfly.clustering.group.Node;
 @Startup
 @Singleton
 @DependsOn( { //
-    CLUSTER_MANAGER_SINGLETON //
+    BACKEND_CORE_SINGLETON, //
+    CLUSTER_MANAGER_SINGLETON, //
+    BACKEND_SYSDESCR_SINGLETON, //
+    BACKEND_OBJECTS_SINGLETON, //
+    BACKEND_LINKS_SINGLETON, //
+    BACKEND_EVENTS_SINGLETON //
 } )
 @TransactionManagement( TransactionManagementType.CONTAINER )
 @TransactionAttribute( TransactionAttributeType.SUPPORTS )
@@ -115,11 +130,26 @@ public class S5SessionManager
    */
   private static final long CLEAN_SESSION_AFTER_START_TIMEOUT = 30 * 60 * 1000;
 
+  private static final String STR_N_ROOT_USER = "Root";             //$NON-NLS-1$
+  private static final String STR_D_ROOT_USER = "Root - superuser"; //$NON-NLS-1$
+
   /**
    * Начальная, неизменяемая, проектно-зависимая конфигурация реализации бекенда сервера
    */
   @EJB
   private IS5InitialImplementSingleton initialConfig;
+
+  /**
+   * Поддержка синглетонов (контейнер)
+   */
+  @EJB
+  private IS5BackendCoreSingleton backendCoreSingleton;
+
+  /**
+   * Поддержка классов
+   */
+  @EJB
+  private IS5BackendSysDescrSingleton sysdescrSupport;
 
   /**
    * Поддержка управления объектами
@@ -259,6 +289,8 @@ public class S5SessionManager
   protected void doInit() {
     // Бизнес-API
     IS5SessionManager sessionManager = sessionContext().getBusinessObject( IS5SessionManager.class );
+    // Регистрация менеджера сессий в ядре бекенда
+    backendCoreSingleton.setSessionManager( sessionManager );
     // Регистрация обработчиков уведомлений
     clusterManager.addCommandHandler( CREATE_CALLBACK_METHOD, new S5ClusterCommandCreateCallback( sessionManager ) );
     clusterManager.addCommandHandler( CLOSE_CALLBACK_METHOD, new S5ClusterCommandCloseCallback( sessionManager ) );
@@ -287,6 +319,68 @@ public class S5SessionManager
       }
 
     } );
+    // Существующие классы
+    IStridablesList<IDtoClassInfo> classes = sysdescrSupport.readClassInfos();
+    // Добавляемые класы
+    IStridablesListEdit<IDtoClassInfo> newClasses = new StridablesList<>();
+    // Создание класса пользователя
+    if( !classes.hasKey( ISkUser.CLASS_ID ) ) {
+      newClasses.add( SkCoreServUsers.internalCreateUserClassDto() );
+    }
+    // Создание класса сессия
+    if( !classes.hasKey( ISkSession.CLASS_ID ) ) {
+      // Создание класса ISkSession
+      DtoClassInfo dtoSession = new DtoClassInfo( ISkSession.CLASS_ID, IGwHardConstants.GW_ROOT_CLASS_ID, //
+          OptionSetUtils.createOpSet( //
+              IAvMetaConstants.TSID_NAME, STR_N_SESSION, //
+              IAvMetaConstants.TSID_DESCRIPTION, STR_D_SESSION //
+          ) );
+
+      // AID_STARTTIME
+      dtoSession.attrInfos().add( DtoAttrInfo.create1( ISkSession.AID_STARTTIME, DataType.create( TIMESTAMP, //
+          TSID_NAME, STR_N_AID_STARTTIME, //
+          TSID_DESCRIPTION, STR_D_AID_STARTTIME //
+      ), //
+          IOptionSet.NULL ) );
+      // AID_ENDTIME
+      dtoSession.attrInfos().add( DtoAttrInfo.create1( ISkSession.AID_ENDTIME, DataType.create( TIMESTAMP, //
+          TSID_NAME, STR_N_AID_ENDTIME, //
+          TSID_DESCRIPTION, STR_D_AID_ENDTIME //
+      ), IOptionSet.NULL ) );
+      // AID_BACKEND_SPECIFIC_PARAMS
+      dtoSession.attrInfos().add( DtoAttrInfo.create1( ISkSession.AID_BACKEND_SPECIFIC_PARAMS, DataType.create( VALOBJ, //
+          TSID_NAME, STR_N_AID_BACKEND_SPECIFIC_PARAMS, //
+          TSID_DESCRIPTION, STR_D_AID_BACKEND_SPECIFIC_PARAMS, //
+          TSID_KEEPER_ID, OptionSetKeeper.KEEPER_ID, //
+          TSID_IS_NULL_ALLOWED, AV_FALSE, //
+          TSID_DEFAULT_VALUE, avValobj( new OptionSet() ) //
+      ), IOptionSet.NULL ) );
+      // AID_CONNECTION_CREATION_PARAMS
+      dtoSession.attrInfos()
+          .add( DtoAttrInfo.create1( ISkSession.AID_CONNECTION_CREATION_PARAMS, DataType.create( VALOBJ, //
+              TSID_NAME, STR_N_AID_CONNECTION_CREATION_PARAMS, //
+              TSID_DESCRIPTION, STR_D_AID_CONNECTION_CREATION_PARAMS, //
+              TSID_KEEPER_ID, OptionSetKeeper.KEEPER_ID, //
+              TSID_IS_NULL_ALLOWED, AV_FALSE, //
+              TSID_DEFAULT_VALUE, avValobj( new OptionSet() ) //
+          ), IOptionSet.NULL ) );
+      // TODO:
+      // dtoSession.linkInfos().addAll( ISkUserServiceConstants.LNKINF_USER );
+      // dtoSession.rtdataInfos().addAll( ISkUserServiceConstants.RTDINF_STATE );
+      // dtoSession.eventInfos().addAll( ISkUserServiceConstants.EVINF_STATE_CHANGED );
+      newClasses.add( dtoSession );
+    }
+    if( newClasses.size() > 0 ) {
+      sysdescrSupport.writeClassInfos( IStringList.EMPTY, newClasses );
+    }
+    // Создание пользователя root
+    if( objectsSupport.findObject( ISkUserServiceHardConstants.SKID_USER_ROOT ) == null ) {
+      IOptionSetEdit attrs = new OptionSet();
+      attrs.setStr( AID_NAME, STR_N_ROOT_USER );
+      attrs.setStr( AID_DESCRIPTION, STR_D_ROOT_USER );
+      IDtoObject root = new DtoObject( ISkUserServiceHardConstants.SKID_USER_ROOT, attrs, IStringMap.EMPTY );
+      objectsSupport.writeObjects( IS5FrontendRear.NULL, ISkidList.EMPTY, new ElemArrayList<>( root ), true );
+    }
   }
 
   @Override
@@ -643,7 +737,7 @@ public class S5SessionManager
     if( retValue == null ) {
       // Если сессия открыта, то создаем для нее статистику
       // IDpuObject session = objectsSupport.findObject( aSessionID );
-      // if( session != null && session.attrs().getValue( ATRID_END_TIME ).isAssigned() == false ) {
+      // if( session != null && session.attrs().getValue( AID_ENDTIME ).isAssigned() == false ) {
       retValue = new S5Statistic( STAT_SESSION_PARAMS );
       statisticCountersBySessions.put( aSessionID, retValue );
       // }
@@ -999,7 +1093,7 @@ public class S5SessionManager
     if( obj != null ) {
       // Сессия уже существует
       IOptionSetEdit attrs = new OptionSet( obj.attrs() );
-      attrs.setValue( ATRID_END_TIME, IAtomicValue.NULL );
+      attrs.setValue( AID_ENDTIME, IAtomicValue.NULL );
       IDtoObject dto = new DtoObject( aSessionID, attrs, obj.rivets().map() );
       // Создание объекта сессия. aInterceptable = false
       objectsSupport.writeObjects( IS5FrontendRear.NULL, ISkidList.EMPTY, new ElemArrayList<>( dto ), false );
@@ -1020,9 +1114,9 @@ public class S5SessionManager
     }
     // Создание новой сессии
     IOptionSetEdit attrs = new OptionSet();
-    attrs.setTime( ATRID_START_TIME, aCreationTime );
-    attrs.setValobj( ATRID_BACKEND_SPECIFIC_PARAMS, aBackendSpecificParams );
-    attrs.setValobj( ATRID_CONNECTION_CREATION_PARAMS, aConnectionCreationParams );
+    attrs.setTime( AID_STARTTIME, aCreationTime );
+    attrs.setValobj( AID_BACKEND_SPECIFIC_PARAMS, aBackendSpecificParams );
+    attrs.setValobj( AID_CONNECTION_CREATION_PARAMS, aConnectionCreationParams );
     IDtoObject dto = new DtoObject( aSessionID, attrs, IStringMap.EMPTY );
     // Создание объекта сессия. aInterceptable = false
     objectsSupport.writeObjects( IS5FrontendRear.NULL, ISkidList.EMPTY, new ElemArrayList<>( dto ), false );
@@ -1077,7 +1171,7 @@ public class S5SessionManager
     }
     try {
       IOptionSetEdit attrs = new OptionSet( obj.attrs() );
-      attrs.setTime( ATRID_END_TIME, aEndTime );
+      attrs.setTime( AID_ENDTIME, aEndTime );
       IDtoObject dto = new DtoObject( aSessionID, attrs, obj.rivets().map() );
       // Создание объекта сессия. aInterceptable = false
       objectsSupport.writeObjects( IS5FrontendRear.NULL, ISkidList.EMPTY, new ElemArrayList<>( dto ), false );

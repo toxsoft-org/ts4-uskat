@@ -210,6 +210,11 @@ public abstract class S5AbstractBackend<ADDON extends IS5BackendAddon>
   // ISkBackend
   //
   @Override
+  public final void initialize() {
+    doInitialize();
+  }
+
+  @Override
   public final IS5FrontendRear frontend() {
     return frontendRear;
   }
@@ -296,6 +301,7 @@ public abstract class S5AbstractBackend<ADDON extends IS5BackendAddon>
     // Получен доступ к блокировке.
     try {
       for( IS5BackendAddon addon : allAddons ) {
+        // 2022-08-22 mvk doJob + mainLock
         addon.doJob();
       }
     }
@@ -342,6 +348,13 @@ public abstract class S5AbstractBackend<ADDON extends IS5BackendAddon>
   // ------------------------------------------------------------------------------------
   // Шаблонные и абстрактные методы для реализации наследниками
   //
+  /**
+   * Провести инициализацию бекенда в наследнике. Вызывается после вызова конструктора
+   */
+  protected void doInitialize() {
+    // nop
+  }
+
   /**
    * Возвращает признак того, что фронтенд представляет локального клиента
    *

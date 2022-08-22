@@ -94,4 +94,14 @@ public final class S5SynchronizedClassHierarchyExplorer
     }
   }
 
+  @Override
+  public String findCommonRootClassId( IStringList aClassIds ) {
+    lockWrite( this );
+    try {
+      return target().findCommonRootClassId( aClassIds );
+    }
+    finally {
+      unlockWrite( this );
+    }
+  }
 }

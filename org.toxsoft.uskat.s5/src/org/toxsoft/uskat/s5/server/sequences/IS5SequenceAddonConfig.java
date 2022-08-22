@@ -10,6 +10,7 @@ import org.toxsoft.core.tslib.av.metainfo.IDataDef;
 import org.toxsoft.uskat.s5.server.backend.supports.IS5BackendAddonConfig;
 import org.toxsoft.uskat.s5.server.sequences.maintenance.IS5SequenceUnionOptions;
 import org.toxsoft.uskat.s5.server.sequences.maintenance.IS5SequenceValidationOptions;
+import org.toxsoft.uskat.s5.utils.schedules.S5ScheduleExpressionList;
 import org.toxsoft.uskat.s5.utils.schedules.S5ScheduleUtils;
 
 /**
@@ -37,7 +38,9 @@ public interface IS5SequenceAddonConfig
       TSID_NAME, N_UNION_CALENDARS, //
       TSID_DESCRIPTION, D_UNION_CALENDARS, //
       TSID_IS_NULL_ALLOWED, AV_FALSE, //
-      TSID_DEFAULT_VALUE, avValobj( S5ScheduleUtils.createSchedule( "*", "*", "*", "*/5" ) ) );
+      TSID_DEFAULT_VALUE, avValobj( new S5ScheduleExpressionList( //
+          S5ScheduleUtils.createSchedule( "*", "*", "*", "*/5" ) ) )//
+  );
 
   /**
    * Максимальное количество значений передаваемых удаленным клиентам в одной передаче

@@ -85,6 +85,28 @@ public final class S5SynchronizedUserService
   }
 
   @Override
+  public ISkUser findUser( String aUserId ) {
+    lockWrite( this );
+    try {
+      return target().findUser( aUserId );
+    }
+    finally {
+      unlockWrite( this );
+    }
+  }
+
+  @Override
+  public ISkRole findRole( String aRoleId ) {
+    lockWrite( this );
+    try {
+      return target().findRole( aRoleId );
+    }
+    finally {
+      unlockWrite( this );
+    }
+  }
+
+  @Override
   public ISkUser defineUser( IDtoFullObject aDtoUser ) {
     lockWrite( this );
     try {
@@ -162,10 +184,10 @@ public final class S5SynchronizedUserService
   }
 
   @Override
-  public ISkUser setUserRoles( IStridablesList<ISkRole> aRoles ) {
+  public ISkUser setUserRoles( String aUserId, IStridablesList<ISkRole> aRoles ) {
     lockWrite( this );
     try {
-      return target().setUserRoles( aRoles );
+      return target().setUserRoles( aUserId, aRoles );
     }
     finally {
       unlockWrite( this );

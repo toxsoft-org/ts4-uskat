@@ -111,7 +111,7 @@ public abstract class S5LinkFwdEntity
     }
     catch( Throwable e ) {
       // Неожиданная ошибка чтения данных jdbc-курсора
-      throw new TsInternalErrorRtException( e, MSG_ERR_READ_JDBC_UNEXPECTED, cause( e ) );
+      throw new TsInternalErrorRtException( e, ERR_READ_JDBC_UNEXPECTED, cause( e ) );
     }
   }
 

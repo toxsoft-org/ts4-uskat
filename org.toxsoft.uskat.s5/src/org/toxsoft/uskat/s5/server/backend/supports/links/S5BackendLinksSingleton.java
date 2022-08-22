@@ -19,6 +19,7 @@ import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.sql.DataSource;
 
+import org.hibernate.TransientPropertyValueException;
 import org.toxsoft.core.tslib.coll.*;
 import org.toxsoft.core.tslib.coll.impl.ElemArrayList;
 import org.toxsoft.core.tslib.coll.impl.ElemMap;
@@ -225,7 +226,7 @@ public class S5BackendLinksSingleton
       ISkClassInfo linkClassInfo = sysdescrReader.getClassInfo( classId );
       if( !linkClassInfo.links().list().hasKey( linkId ) ) {
         // У класса нет указанной связи
-        throw new TsItemNotFoundRtException( MSG_ERR_CLASS_DONT_HAVE_LINK, classId, linkId );
+        throw new TsItemNotFoundRtException( ERR_CLASS_DONT_HAVE_LINK, classId, linkId );
       }
       // Описание класса правого объекта связи
       ISkClassInfo classInfo = sysdescrReader.getClassInfo( aRightSkid.classId() );
@@ -235,7 +236,7 @@ public class S5BackendLinksSingleton
         // Проверяем есть ли объект
         if( objectsBackend.findObject( aRightSkid ) == null ) {
           // Объект не существует
-          throw new TsItemNotFoundRtException( MSG_ERR_OBJECT_NOT_FOUND, aRightSkid );
+          throw new TsItemNotFoundRtException( ERR_OBJECT_NOT_FOUND, aRightSkid );
         }
         // Связи на объект не найдены (пустая)
         return new DtoLinkRev( Gwid.createLink( classId, linkId ), aRightSkid, ISkidList.EMPTY );
@@ -329,7 +330,7 @@ public class S5BackendLinksSingleton
           }
           catch( Throwable e ) {
             // Неожиданная ошибка записи связи(удаление)
-            throw new TsInternalErrorRtException( e, MSG_ERR_WRITE_REMOVE_LINK, linkToStr( prevLink ), cause( e ) );
+            throw new TsInternalErrorRtException( e, ERR_WRITE_REMOVE_LINK, linkToStr( prevLink ), cause( e ) );
           }
         }
         if( prevCount > 0 && newCount > 0 ) {
@@ -342,7 +343,7 @@ public class S5BackendLinksSingleton
           }
           catch( Throwable e ) {
             // Неожиданная ошибка записи связи(создание)
-            throw new TsInternalErrorRtException( e, MSG_ERR_WRITE_EXIST_LINK, linkToStr( newLink ), cause( e ) );
+            throw new TsInternalErrorRtException( e, ERR_WRITE_EXIST_LINK, linkToStr( newLink ), cause( e ) );
           }
           removeCount += removedRightLinks.size();
           updateCount++;
@@ -354,13 +355,20 @@ public class S5BackendLinksSingleton
             createdLinks( linkWriterSupport, newLink );
           }
           catch( Throwable e ) {
+            if( e.getCause() instanceof TransientPropertyValueException ) {
+              // Не найден один или более объектов связи
+              TransientPropertyValueException tpe = (TransientPropertyValueException)e.getCause();
+              throw new TsItemNotFoundRtException( ERR_NOT_FOUND_LINK_OBJ, linkToStr( newLink ),
+                  tpe.getPropertyOwnerEntityName(), tpe.getPropertyName(), tpe.getTransientEntityName() );
+            }
             // Неожиданная ошибка записи связи(создание)
-            throw new TsInternalErrorRtException( e, MSG_ERR_WRITE_NEW_LINK, linkToStr( newLink ), cause( e ) );
+            throw new TsInternalErrorRtException( e, ERR_WRITE_NEW_LINK, linkToStr( newLink ), cause( e ) );
           }
           createCount += 1 + newCount;
         }
       }
     }
+
     long entityManagerTimestamp1 = System.currentTimeMillis();
 
     // Синхронизация с базой данных
@@ -392,6 +400,7 @@ public class S5BackendLinksSingleton
     Long et2 = Long.valueOf( entityManagerTimestamp2 - entityManagerTimestamp1 );
     Long it2 = Long.valueOf( interceptorTimestamp2 - entityManagerTimestamp2 );
     Long et = Long.valueOf( eventTimestamp - interceptorTimestamp2 );
+
     logger().info( MSG_WRITE_LINKS, rc, uc, cc, at, lt, it1, et1, et2, it2, et );
   }
 

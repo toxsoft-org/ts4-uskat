@@ -27,7 +27,8 @@ import org.toxsoft.core.tslib.utils.logs.ILogger;
 import org.toxsoft.uskat.core.api.objserv.IDtoObject;
 import org.toxsoft.uskat.core.api.sysdescr.ISkClassInfo;
 import org.toxsoft.uskat.core.api.sysdescr.dto.IDtoRtdataInfo;
-import org.toxsoft.uskat.core.backend.api.*;
+import org.toxsoft.uskat.core.backend.api.BaMsgRtdataCurrData;
+import org.toxsoft.uskat.core.backend.api.IBaRtdata;
 import org.toxsoft.uskat.s5.common.sysdescr.ISkSysdescrReader;
 import org.toxsoft.uskat.s5.server.backend.addons.rtdata.S5BaRtdataData;
 import org.toxsoft.uskat.s5.server.backend.impl.S5BackendSupportSingleton;
@@ -154,8 +155,7 @@ public class S5BackendCurrDataSingleton
     // Обработка данных фронтендов
     for( IS5FrontendRear frontend : backend().attachedFrontends() ) {
       // Данные расширения для сессии
-      S5BaRtdataData baData =
-          frontend.frontendData().findBackendAddonData( IBaCommands.ADDON_ID, S5BaRtdataData.class );
+      S5BaRtdataData baData = frontend.frontendData().findBackendAddonData( IBaRtdata.ADDON_ID, S5BaRtdataData.class );
       if( baData == null ) {
         // фронтенд не поддерживает обработку текущих данных
         continue;
@@ -411,8 +411,7 @@ public class S5BackendCurrDataSingleton
     // Проход по всем фронтендам и формирование их буферов передачи данных
     for( IS5FrontendRear frontend : backend().attachedFrontends() ) {
       // Данные расширения для сессии
-      S5BaRtdataData baData =
-          frontend.frontendData().findBackendAddonData( IBaCommands.ADDON_ID, S5BaRtdataData.class );
+      S5BaRtdataData baData = frontend.frontendData().findBackendAddonData( IBaRtdata.ADDON_ID, S5BaRtdataData.class );
       if( baData == null ) {
         // фронтенд не поддерживает обработку текущих данных
         continue;

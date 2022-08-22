@@ -118,6 +118,17 @@ public final class S5SynchronizedSysdescrService
   }
 
   @Override
+  public String determineClassClaimingServiceId( String aClassId ) {
+    lockWrite( this );
+    try {
+      return target().determineClassClaimingServiceId( aClassId );
+    }
+    finally {
+      unlockWrite( this );
+    }
+  }
+
+  @Override
   public ISkClassHierarchyExplorer hierarchy() {
     return hierarchy;
   }

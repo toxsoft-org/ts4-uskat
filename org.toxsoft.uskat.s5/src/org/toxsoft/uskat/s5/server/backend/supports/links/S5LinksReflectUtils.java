@@ -41,7 +41,7 @@ class S5LinksReflectUtils {
     }
     catch( ClassNotFoundException e ) {
       // Не найден класс реализации связи объекта
-      throw new TsIllegalArgumentRtException( MSG_ERR_LINK_IMPL_NOT_FOUND, aLinkImplClassName, cause( e ) );
+      throw new TsIllegalArgumentRtException( ERR_LINK_IMPL_NOT_FOUND, aLinkImplClassName, cause( e ) );
     }
     try {
       Constructor<S5LinkFwdEntity> retValue = linkImplClass.getDeclaredConstructor( ResultSet.class );
@@ -50,7 +50,7 @@ class S5LinksReflectUtils {
     }
     catch( NoSuchMethodException | SecurityException e ) {
       // Не найден класс реализации
-      throw new TsIllegalArgumentRtException( MSG_ERR_LINK_FWD_CONSTRUCTOR_NOT_FOUND1, aLinkImplClassName, cause( e ) );
+      throw new TsIllegalArgumentRtException( ERR_LINK_FWD_CONSTRUCTOR_NOT_FOUND1, aLinkImplClassName, cause( e ) );
     }
   }
 
@@ -73,7 +73,7 @@ class S5LinksReflectUtils {
     }
     catch( ClassNotFoundException e ) {
       // Не найден класс реализации связи объекта
-      throw new TsIllegalArgumentRtException( MSG_ERR_LINK_IMPL_NOT_FOUND, aLinkImplClassName, cause( e ) );
+      throw new TsIllegalArgumentRtException( ERR_LINK_IMPL_NOT_FOUND, aLinkImplClassName, cause( e ) );
     }
     try {
       Constructor<S5LinkRevEntity> retValue = linkImplClass.getDeclaredConstructor( ResultSet.class );
@@ -82,7 +82,7 @@ class S5LinksReflectUtils {
     }
     catch( NoSuchMethodException | SecurityException e ) {
       // Не найден класс реализации
-      throw new TsIllegalArgumentRtException( MSG_ERR_LINK_REV_CONSTRUCTOR_NOT_FOUND1, aLinkImplClassName, cause( e ) );
+      throw new TsIllegalArgumentRtException( ERR_LINK_REV_CONSTRUCTOR_NOT_FOUND1, aLinkImplClassName, cause( e ) );
     }
   }
 
@@ -104,7 +104,7 @@ class S5LinksReflectUtils {
     }
     catch( NoSuchMethodException | SecurityException e ) {
       // Не найден класс реализации
-      throw new TsIllegalArgumentRtException( MSG_ERR_LINK_FWD_CONSTRUCTOR_NOT_FOUND2, aLinkFwdImplClass.getName(),
+      throw new TsIllegalArgumentRtException( ERR_LINK_FWD_CONSTRUCTOR_NOT_FOUND2, aLinkFwdImplClass.getName(),
           cause( e ) );
     }
   }
@@ -127,7 +127,7 @@ class S5LinksReflectUtils {
     }
     catch( NoSuchMethodException | SecurityException e ) {
       // Не найден класс реализации
-      throw new TsIllegalArgumentRtException( MSG_ERR_LINK_REV_CONSTRUCTOR_NOT_FOUND2, aLinkRevImplClass.getName(),
+      throw new TsIllegalArgumentRtException( ERR_LINK_REV_CONSTRUCTOR_NOT_FOUND2, aLinkRevImplClass.getName(),
           cause( e ) );
     }
   }
@@ -151,7 +151,7 @@ class S5LinksReflectUtils {
     }
     catch( NoSuchMethodException | SecurityException e ) {
       // Не найден класс реализации
-      throw new TsIllegalArgumentRtException( MSG_ERR_LINK_REV_CONSTRUCTOR_NOT_FOUND3, aLinkRevImplClass.getName(),
+      throw new TsIllegalArgumentRtException( ERR_LINK_REV_CONSTRUCTOR_NOT_FOUND3, aLinkRevImplClass.getName(),
           cause( e ) );
     }
   }
@@ -279,7 +279,7 @@ class S5LinksReflectUtils {
     }
     catch( Throwable e ) {
       // Неожиданная ошибка создания объекта класса
-      throw new TsInternalErrorRtException( e, MSG_ERR_CREATE_LINK_UNEXPECTED, aSource.linkId(), aSource.leftSkid(),
+      throw new TsInternalErrorRtException( e, ERR_CREATE_LINK_UNEXPECTED, aSource.linkId(), aSource.leftSkid(),
           cause( e ) );
     }
   }
@@ -299,7 +299,7 @@ class S5LinksReflectUtils {
     }
     catch( Throwable e ) {
       // Неожиданная ошибка создания объекта класса
-      throw new TsInternalErrorRtException( e, MSG_ERR_CREATE_LINK_UNEXPECTED, aSource.linkId(), aSource.rightSkid(),
+      throw new TsInternalErrorRtException( e, ERR_CREATE_LINK_UNEXPECTED, aSource.linkId(), aSource.rightSkid(),
           cause( e ) );
     }
   }
@@ -323,7 +323,7 @@ class S5LinksReflectUtils {
     }
     catch( Throwable e ) {
       // Неожиданная ошибка создания объекта класса
-      throw new TsInternalErrorRtException( e, MSG_ERR_CREATE_LINK_UNEXPECTED, aLinkId, aRightSkid, cause( e ) );
+      throw new TsInternalErrorRtException( e, ERR_CREATE_LINK_UNEXPECTED, aLinkId, aRightSkid, cause( e ) );
     }
   }
 }

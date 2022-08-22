@@ -66,7 +66,7 @@ public class S5Lockable {
     String tracingId = System.getProperty( "s5.lock.tracing.id" ); //$NON-NLS-1$
     LOCK_TRACING_ID = (tracingId != null ? tracingId : TsLibUtils.EMPTY_STRING);
     // Вывод в журнал
-    logger.info( "WRITER_DISABLE = %b, LOCK_TRACING_ID = %s", Boolean.valueOf( LOCK_TRACING ), LOCK_TRACING_ID ); //$NON-NLS-1$
+    logger.info( "LOCK_TRACING = %b, LOCK_TRACING_ID = %s", Boolean.valueOf( LOCK_TRACING ), LOCK_TRACING_ID ); //$NON-NLS-1$
   }
 
   /**

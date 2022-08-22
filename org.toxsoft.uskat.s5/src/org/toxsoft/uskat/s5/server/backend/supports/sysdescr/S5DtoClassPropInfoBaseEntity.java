@@ -31,9 +31,9 @@ import org.toxsoft.uskat.core.api.sysdescr.dto.IDtoClassInfo;
 //at org.hibernate@5.3.13.Final//org.hibernate.proxy.pojo.bytebuddy.ByteBuddyInterceptor.intercept(ByteBuddyInterceptor.java:56)
 //at org.hibernate@5.3.13.Final//org.hibernate.proxy.ProxyConfiguration$InterceptorDispatcher.intercept(ProxyConfiguration.java:95)
 //at deployment.ru.uskat.tm.server-deploy.jar//org.toxsoft.uskat.s5.server.backend.supports.sysdescr.S5ClassEntity$HibernateProxy$1vW5g3US.id(Unknown Source)
-//at deployment.ru.uskat.tm.server-deploy.jar//ru.toxsoft.tslib.strids.stridable.impl.StridablesList.put(StridablesList.java:68)
-//at deployment.ru.uskat.tm.server-deploy.jar//ru.toxsoft.tslib.strids.stridable.impl.AbstractStridablesList.add(AbstractStridablesList.java:230)
-//at deployment.ru.uskat.tm.server-deploy.jar//ru.toxsoft.tslib.strids.stridable.impl.AbstractStridablesList.add(AbstractStridablesList.java:1)
+//at deployment.ru.uskat.tm.server-deploy.jar//org.toxsoft.tslib.strids.stridable.impl.StridablesList.put(StridablesList.java:68)
+//at deployment.ru.uskat.tm.server-deploy.jar//org.toxsoft.tslib.strids.stridable.impl.AbstractStridablesList.add(AbstractStridablesList.java:230)
+//at deployment.ru.uskat.tm.server-deploy.jar//org.toxsoft.tslib.strids.stridable.impl.AbstractStridablesList.add(AbstractStridablesList.java:1)
 //at deployment.ru.uskat.tm.server-deploy.jar//org.toxsoft.uskat.s5.server.backend.supports.sysdescr.S5BackendSysDescrSingleton.readClassInfos(S5BackendSysDescrSingleton.java:271)
 //@formatter:on
 // abstract class S5DtoClassPropInfoBaseEntity

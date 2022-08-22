@@ -25,12 +25,14 @@ import org.toxsoft.uskat.core.connection.ISkConnection;
 import org.toxsoft.uskat.core.impl.ISkCoreConfigConstants;
 import org.toxsoft.uskat.core.impl.SkCoreUtils;
 import org.toxsoft.uskat.s5.client.IS5ConnectionParams;
+import org.toxsoft.uskat.s5.server.IS5ImplementConstants;
 import org.toxsoft.uskat.s5.server.backend.IS5BackendCoreSingleton;
 import org.toxsoft.uskat.s5.server.backend.addons.IS5BackendAddonCreator;
-import org.toxsoft.uskat.s5.server.backend.supports.objects.IS5BackendObjectsSingleton;
 import org.toxsoft.uskat.s5.server.cluster.IS5ClusterCommandHandler;
 import org.toxsoft.uskat.s5.server.cluster.IS5ClusterManager;
 import org.toxsoft.uskat.s5.server.singletons.S5SingletonBase;
+import org.toxsoft.uskat.s5.server.startup.IS5InitialImplementSingleton;
+import org.toxsoft.uskat.s5.server.startup.IS5InitialImplementation;
 import org.toxsoft.uskat.s5.utils.jobs.IS5ServerJob;
 
 /**
@@ -43,15 +45,15 @@ import org.toxsoft.uskat.s5.utils.jobs.IS5ServerJob;
 @Singleton
 @LocalBean
 @DependsOn( { //
-// BACKEND_SYSDESCR_SINGLETON, // уже включено неявным образом
-// BACKEND_OBJECTS_SINGLETON, // уже включено неявным образом
-// BACKEND_LINKS_SINGLETON, // уже включено неявным образом
-// BACKEND_LOBS_SINGLETON, //уже включено неявным образом
-// BACKEND_EVENTS_SINGLETON, //уже включено неявным образом
-// BACKEND_COMMANDS_SINGLETON, //уже включено неявным образом
-// 2022-05-04 mvk события в ядре
-// BACKEND_RTDATA_SINGLETON
-} )
+    // BACKEND_SYSDESCR_SINGLETON, // уже включено неявным образом
+    // BACKEND_OBJECTS_SINGLETON, // уже включено неявным образом
+    // BACKEND_LINKS_SINGLETON, // уже включено неявным образом
+    // BACKEND_LOBS_SINGLETON, //уже включено неявным образом
+    // BACKEND_EVENTS_SINGLETON, //уже включено неявным образом
+    // BACKEND_COMMANDS_SINGLETON, //уже включено неявным образом
+    // 2022-05-04 mvk события в ядре
+    IS5ImplementConstants.BACKEND_CORE_SINGLETON, //
+    IS5ImplementConstants.SESSION_MANAGER_SINGLETON } )
 @TransactionManagement( TransactionManagementType.CONTAINER )
 @TransactionAttribute( TransactionAttributeType.SUPPORTS )
 @ConcurrencyManagement( ConcurrencyManagementType.CONTAINER )
@@ -90,8 +92,8 @@ public class S5LocalConnectionSingleton
   /**
    * s5-backend предоставляемый сервером
    */
-  @EJB
-  private IS5BackendObjectsSingleton objectsBackendSupport;
+  // @EJB
+  // private IS5BackendObjectsSingleton objectsBackendSupport;
 
   /**
    * Обработчик команд кластера: изменение описания системы
@@ -130,6 +132,15 @@ public class S5LocalConnectionSingleton
     clusterManager.addCommandHandler( WHEN_OBJECTS_CHANGED_METHOD, whenObjectsChangedHandler );
     // Запуск фоновой задачи
     addOwnDoJob( DO_JOB_TIMEOUT );
+
+    // 2022-08-20 mvkd
+    logger().info( "debug1!" );
+    IS5InitialImplementSingleton initialSingleton = backend.initialConfig();
+    logger().info( "debug2!" );
+    IS5InitialImplementation initialImplementation = initialSingleton.impl();
+    logger().info( "debug3!" );
+    IStridablesList<IS5BackendAddonCreator> baCreators = initialImplementation.baCreators();
+    logger().info( "debug is success!" );
   }
 
   @Override
@@ -180,7 +191,10 @@ public class S5LocalConnectionSingleton
   public ISkBackend createBackend( ISkFrontendRear aFrontend, ITsContextRo aArgs ) {
     TsNullArgumentRtException.checkNulls( aFrontend, aArgs );
     // Доступные расширения бекенда предоставляемые сервером
-    IStridablesList<IS5BackendAddonCreator> baCreators = backend.initialConfig().impl().baCreators();
+    // 2022-08-20 mvkd
+    IS5InitialImplementSingleton initialSingleton = backend.initialConfig();
+    IS5InitialImplementation initialImplementation = initialSingleton.impl();
+    IStridablesList<IS5BackendAddonCreator> baCreators = initialImplementation.baCreators();
     // Создание локального бекенда
     return new S5BackendLocal( aFrontend, aArgs, backend, baCreators );
   }
