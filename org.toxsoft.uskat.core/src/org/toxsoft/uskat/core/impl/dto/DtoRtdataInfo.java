@@ -10,6 +10,7 @@ import org.toxsoft.core.tslib.bricks.strid.impl.*;
 import org.toxsoft.core.tslib.utils.errors.*;
 import org.toxsoft.uskat.core.api.sysdescr.*;
 import org.toxsoft.uskat.core.api.sysdescr.dto.*;
+import org.toxsoft.uskat.core.utils.*;
 
 /**
  * {@link IDtoRtdataInfo} implementation.
@@ -43,6 +44,8 @@ public final class DtoRtdataInfo
           return new DtoRtdataInfo( aId, aParams );
         }
       };
+
+  private transient PriorityDataType dataType = null;
 
   /**
    * Constructor.
@@ -99,7 +102,11 @@ public final class DtoRtdataInfo
 
   @Override
   public IDataType dataType() {
-    return OPDEF_DATA_TYPE.getValue( params() ).asValobj();
+    if( dataType == null ) {
+      IDataType dtOp = OPDEF_DATA_TYPE.getValue( params() ).asValobj();
+      dataType = new PriorityDataType( dtOp.atomicType(), params(), dtOp.params() );
+    }
+    return dataType;
   }
 
   @Override
@@ -140,11 +147,12 @@ public final class DtoRtdataInfo
   public void setProps( IDataType aDataType, boolean aIsCurr, boolean aIsHist, boolean aIsSync, long aDeltaT ) {
     TsNullArgumentRtException.checkNull( aDataType );
     TsIllegalArgumentRtException.checkTrue( aDeltaT < 1 );
-    OPDEF_DATA_TYPE.setValue( params(), avValobj( aDataType ) );
     OPDEF_IS_CURR.setValue( params(), avBool( aIsCurr ) );
     OPDEF_IS_HIST.setValue( params(), avBool( aIsHist ) );
     OPDEF_IS_SYNC.setValue( params(), avBool( aIsSync ) );
     OPDEF_SYNC_DATA_DELTA_T.setValue( params(), avInt( aDeltaT ) );
+    OPDEF_DATA_TYPE.setValue( params(), avValobj( aDataType ) );
+    dataType = null;
   }
 
 }

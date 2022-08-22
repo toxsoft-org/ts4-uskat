@@ -11,6 +11,7 @@ import org.toxsoft.core.tslib.bricks.strid.impl.*;
 import org.toxsoft.core.tslib.utils.errors.*;
 import org.toxsoft.uskat.core.api.sysdescr.*;
 import org.toxsoft.uskat.core.api.sysdescr.dto.*;
+import org.toxsoft.uskat.core.utils.*;
 
 /**
  * {@link IDtoAttrInfo} implementation.
@@ -40,6 +41,8 @@ public final class DtoAttrInfo
           return new DtoAttrInfo( aId, aParams );
         }
       };
+
+  private transient PriorityDataType dataType = null;
 
   /**
    * Constructor.
@@ -104,7 +107,11 @@ public final class DtoAttrInfo
 
   @Override
   public IDataType dataType() {
-    return OPDEF_DATA_TYPE.getValue( params() ).asValobj();
+    if( dataType == null ) {
+      IDataType dtOp = OPDEF_DATA_TYPE.getValue( params() ).asValobj();
+      dataType = new PriorityDataType( dtOp.atomicType(), params(), dtOp.params() );
+    }
+    return dataType;
   }
 
   // ------------------------------------------------------------------------------------
@@ -120,6 +127,7 @@ public final class DtoAttrInfo
   public void setProps( IDataType aDataType ) {
     TsNullArgumentRtException.checkNull( aDataType );
     OPDEF_DATA_TYPE.setValue( params(), avValobj( aDataType ) );
+    dataType = null;
   }
 
 }

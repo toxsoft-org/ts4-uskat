@@ -4,6 +4,8 @@ import org.toxsoft.core.tslib.av.metainfo.*;
 
 /**
  * Information about RTdata property of class.
+ * <p>
+ * Note: option values from {@link #params()} override values from {@link #dataType()} parameters.
  *
  * @author hazard157
  */
@@ -12,6 +14,11 @@ public interface IDtoRtdataInfo
 
   /**
    * Returns the data type of the RTData.
+   * <p>
+   * Note: setting option value to {@link IDtoRtdataInfo#params()} will override same option value of returned data
+   * type. Such approach allows to use same data type for many attributes and RTdata still having ability to specify
+   * different values for options like {@link IAvMetaConstants#TSID_DEFAULT_VALUE} or
+   * {@link IAvMetaConstants#TSID_FORMAT_STRING}.
    *
    * @return {@link IDataType} - the data type
    */
