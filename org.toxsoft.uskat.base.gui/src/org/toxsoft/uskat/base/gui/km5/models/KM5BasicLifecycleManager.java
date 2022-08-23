@@ -1,4 +1,4 @@
-package org.toxsoft.uskat.base.gui.km5;
+package org.toxsoft.uskat.base.gui.km5.models;
 
 import org.toxsoft.core.tsgui.m5.*;
 import org.toxsoft.core.tsgui.m5.model.impl.*;

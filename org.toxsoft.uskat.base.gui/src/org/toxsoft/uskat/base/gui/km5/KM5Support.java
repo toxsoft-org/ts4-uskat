@@ -1,31 +1,57 @@
 package org.toxsoft.uskat.base.gui.km5;
 
-import org.toxsoft.core.tsgui.bricks.ctx.*;
 import org.toxsoft.core.tsgui.m5.*;
 import org.toxsoft.core.tsgui.m5.model.impl.*;
-import org.toxsoft.core.tslib.bricks.strid.coll.*;
 import org.toxsoft.core.tslib.bricks.strid.idgen.*;
 import org.toxsoft.core.tslib.coll.*;
 import org.toxsoft.core.tslib.coll.helpers.*;
 import org.toxsoft.core.tslib.coll.impl.*;
 import org.toxsoft.core.tslib.coll.primtypes.*;
 import org.toxsoft.core.tslib.coll.primtypes.impl.*;
-import org.toxsoft.core.tslib.gw.*;
 import org.toxsoft.core.tslib.utils.errors.*;
 import org.toxsoft.core.tslib.utils.logs.impl.*;
+import org.toxsoft.uskat.base.gui.km5.models.*;
+import org.toxsoft.uskat.core.*;
 import org.toxsoft.uskat.core.api.objserv.*;
 import org.toxsoft.uskat.core.api.sysdescr.*;
 import org.toxsoft.uskat.core.connection.*;
 import org.toxsoft.uskat.core.utils.*;
 
 /**
- * {@link IKM5Support} implementation.
+ * Binding between Sk-connection and M5-domain.
+ * <p>
+ * Constructor creates new domain and binds to the connection. Bind domain is "listening" to the connection. At
+ * connection opening creates M5-models by the {@link #initializeDomain()} method. When {@link ISkSysdescr} changes
+ * {@link KM5Support} updates M5-models of the changed entities by the {@link #updateDomain(ECrudOp, String)} method.
+ * When connection closes domain is cleared by the {@link #clearDomain()} method.
+ * <p>
+ * Note: activation/deactivation of connection does not changes domain, only connection open/close matters.
+ * <p>
+ * Binding also means that connection and domain know about each other. {@link ISkConnection#scope()} contains reference
+ * to the {@link KM5Support} and {@link IM5Domain} while {@link IM5Domain#tsContext()} holds references to the
+ * {@link ISkConnection} and to the {@link KM5Support}.
+ * <p>
+ * <b>Important note:</b> created domain {@link #m5()} is not intended to have models other than created by this class.
+ * All other models may be removed at random modemt of time. If other models are needed, they may be added either in the
+ * parent domain or by the registered {@link KM5AbstractContributor}.
  *
  * @author hazard157
  */
-class KM5Support
-    implements IKM5Support, ISkConnected {
+public final class KM5Support
+    implements ISkConnected {
 
+  /**
+   * Prefix of {@link IM5Domain#id()} to be created in constructor.
+   */
+  private static final String M5_DOMAIN_ID_PREFIX = "km5"; //$NON-NLS-1$
+
+  // --- Log messages does not need to be localized.
+  private static final String FMT_LOG_WARN_DUP_CLASS_CONTRIBUTION = "Duplicate KM5 contribution of M5-model %s"; //$NON-NLS-1$
+  // ---
+
+  /**
+   * Listens to the connection to initialize/clear M5-domain.
+   */
   private final ISkConnectionListener skConnectionListener = ( aSource, aOldState ) -> {
     switch( aSource.state() ) {
       case ACTIVE:
@@ -43,156 +69,120 @@ class KM5Support
     }
   };
 
-  private final ISkSysdescrListener classServiceListener =
-      ( core, op, cid ) -> updateDomain( op, new SingleStringList( cid ) );
-
-  private static final IStridGenerator domainIdGenerator = new UuidStridGenerator();
-
   /**
-   * IDs of classes with M5-models created here, not by KM5 MMUs.
+   * Listens to the Sysdescr to {@link #updateDomain(ECrudOp, String)} as needed.
+   * <p>
+   * Listener is added in {@link #initializeDomain()} but never removed because there is no need to remove listener.
    */
-  private final IStringListEdit managedClassIds = new StringLinkedBundleList();
+  private final ISkSysdescrListener classServiceListener = ( core, op, cid ) -> updateDomain( op, cid );
 
-  private IM5Domain     m5      = null; // m5 != null ==> признак наличия привязки m5-ck
-  private ISkConnection skConn1 = null;
+  private static final IStridGenerator domainIdGenerator = new SynchronizedStridGeneratorWrapper( //
+      new SimpleStridGenaretor( SimpleStridGenaretor.createState( M5_DOMAIN_ID_PREFIX, 0, 4 ) ) //
+  );
+
+  private final ISkConnection skConn;
+  private final IM5Domain     m5;
+
+  private final IList<KM5AbstractContributor> contributorsList;
 
   /**
    * Constructor.
+   * <p>
+   * The child M5-domain will be created as child of <code>aParentDomain</code> and share the same context.
+   *
+   * @param aConn {@link ISkConnection} - the connection
+   * @param aParentDomain {@link IM5Domain} - the parent domain
+   * @throws TsNullArgumentRtException any argument = <code>null</code>
+   * @throws TsItemNotFoundRtException the context does not have reference to the parent {@link IM5Domain}
    */
-  public KM5Support() {
-    // nop
+  public KM5Support( ISkConnection aConn, IM5Domain aParentDomain ) {
+    TsNullArgumentRtException.checkNulls( aConn, aParentDomain );
+    skConn = aConn;
+    m5 = aParentDomain.createChildDomain( domainIdGenerator.nextId(), aParentDomain.tsContext() );
+    // inform connection and domain about each other
+    skConn.scope().put( IM5Domain.class, m5 );
+    skConn.scope().put( KM5Support.class, this );
+    m5.tsContext().put( ISkConnection.class, skConn );
+    m5.tsContext().put( KM5Support.class, this );
+    // create contributors
+    IListEdit<KM5AbstractContributor> ll = new ElemArrayList<>();
+    for( IKM5ContributorCreator cc : KM5Utils.listContributorCreators() ) {
+      KM5AbstractContributor contributor = cc.create( skConn, m5 );
+      ll.add( contributor );
+    }
+    // ... and add last contributor
+    ll.add( new BuiltinLastContributor( skConn, m5 ) );
+    contributorsList = ll;
+    // init domain for opened connection
+    if( skConn.state().isActive() ) {
+      initializeDomain();
+    }
+    // now we'll listen to the connection
+    skConn.addConnectionListener( skConnectionListener );
   }
 
   // ------------------------------------------------------------------------------------
   // implementation
   //
 
-  public IList<KM5AbstractModelManagementUnit> internalListModelManagementUnits() {
-    return getModelManagementUnits().values();
-  }
-
+  /**
+   * Creates all models when connection opens.
+   */
   void initializeDomain() {
-    IStringList modelIdsBeforeOp = new StringArrayList( m5.models().ids() );
-    try {
-      // создаем модель корневого класса
-      M5Model<ISkObject> rootModel = new SkObjectKM5Model( skConn() );
-      m5.addModel( rootModel );
-      // все модули создают свои классы
-      IList<KM5AbstractModelManagementUnit> mmUnits = internalListModelManagementUnits();
-      for( KM5AbstractModelManagementUnit u : mmUnits ) {
-        try {
-          u.papiInitModels( m5 );
+    // create root Sk-class model
+    M5Model<ISkObject> rootModel = new SkObjectKM5Model( skConn );
+    m5.addModel( rootModel );
+    //
+    // create contributed M5-models
+    IStringListEdit contributedModelIds = new StringLinkedBundleList();
+    for( KM5AbstractContributor u : contributorsList ) {
+      IStringList ll = u.papiCreateModels();
+      for( String modelId : ll ) {
+        if( !contributedModelIds.hasElem( modelId ) ) {
+          contributedModelIds.add( modelId );
         }
-        catch( Exception ex ) {
-          LoggerUtils.errorLogger().error( ex );
+        else {
+          LoggerUtils.errorLogger().warning( FMT_LOG_WARN_DUP_CLASS_CONTRIBUTION, modelId );
         }
       }
-      // определим перечень "бесхозных" классов, для которых не были созданы модели
-      IStridablesList<ISkClassInfo> allClasses = skSysdescr().listClasses();
-      IStringListEdit undoneClassIds = new StringLinkedBundleList( allClasses.ids() );
-      undoneClassIds.remove( IGwHardConstants.GW_ROOT_CLASS_ID ); // модель корневого класса уже есть
-      for( String mid : m5.models().ids() ) {
-        undoneClassIds.remove( mid );
-      }
-      // оставшимся "бесхозным" классам назначим модели по уолчанию
-      for( String cid : undoneClassIds ) {
-        ISkClassInfo cinf = allClasses.getByKey( cid );
-        M5Model<? extends ISkObject> model = new KM5GenericM5Model<>( cinf, skConn() );
-        m5.addModel( model );
-      }
-      skSysdescr().eventer().addListener( classServiceListener );
     }
-    finally {
-      IStringListEdit modelIdsAfterOp = new StringLinkedBundleList( m5.models().ids() );
-      TsCollectionsUtils.subtract( modelIdsAfterOp, modelIdsBeforeOp );
-    }
+    // now listen to the Sysdescr
+    skSysdescr().eventer().addListener( classServiceListener );
   }
 
-  void updateDomain( ECrudOp aOp, IStringList aClassIds ) {
-    // пока делаем грубо - при массовом изменении переинициализируем всё
+  /**
+   * Updates model when sysdescr changes.
+   * <p>
+   * Arguments are directly passed from {@link ISkSysdescrListener#onClassInfosChanged(ISkCoreApi, ECrudOp, String)}.
+   *
+   * @param aOp {@link ECrudOp} - the kind of change
+   * @param aClassId String - affected class ID or <code>null</code> for batch changes {@link ECrudOp#LIST}
+   */
+  void updateDomain( ECrudOp aOp, String aClassId ) {
+    // on batch changes reinitialize whole domain like connection closes and then opens
+    // OPTIMIZE determine changed classes and process only changed ones
     if( aOp == ECrudOp.LIST ) {
       clearDomain();
       initializeDomain();
       return;
     }
-    IStringList modelIdsBeforeOp = new StringArrayList( m5.models().ids() );
-    try {
-      IList<KM5AbstractModelManagementUnit> mmUnits = internalListModelManagementUnits();
-      // пусть изменения обработают модули
-      IStringListEdit yetUndoneClassIds = new StringLinkedBundleList( aClassIds );
-      for( KM5AbstractModelManagementUnit u : mmUnits ) {
-        try {
-          IStringList moduleDoneClassIds = u.papiUpdateModel( aOp, aClassIds );
-          // обработанные классы уберем из yetUndoneClassIds
-          for( String cid : moduleDoneClassIds ) {
-            yetUndoneClassIds.remove( cid );
-          }
-          if( yetUndoneClassIds.isEmpty() ) {
-            break;
-          }
-        }
-        catch( Exception ex ) {
-          LoggerUtils.errorLogger().error( ex );
-        }
-      }
-      // неотработанные классы обработаем по умолчанию
-      for( String cid : yetUndoneClassIds ) {
-        switch( aOp ) {
-          case CREATE: {
-            M5Model<?> model = new KM5GenericM5Model<>( skSysdescr().getClassInfo( cid ), skConn() );
-            m5.addModel( model );
-            break;
-          }
-          case EDIT: {
-            M5Model<?> model = new KM5GenericM5Model<>( skSysdescr().getClassInfo( cid ), skConn() );
-            m5.replaceModel( model );
-            break;
-          }
-          case REMOVE: {
-            m5.removeModel( cid );
-            break;
-          }
-          // $CASES-OMITTED$
-          default:
-            throw new TsNotAllEnumsUsedRtException();
-        }
-      }
-    }
-    finally {
-      IStringListEdit idsAfter = new StringLinkedBundleList( m5.models().ids() );
-      // сначала отработаем удаление моделей
-      for( String cid : modelIdsBeforeOp ) {
-        if( !idsAfter.hasElem( cid ) ) {
-          managedClassIds.remove( cid );
-        }
-      }
-      // теперь - добавление моделей
-      for( String cid : idsAfter ) {
-        if( !managedClassIds.hasElem( cid ) ) {
-          managedClassIds.add( cid );
-        }
+    // allow contributors to process changes
+    for( KM5AbstractContributor u : contributorsList ) {
+      if( u.papiUpdateModel( aOp, aClassId ) ) {
+        // change was processed, nothing to be done
+        return;
       }
     }
   }
 
   void clearDomain() {
-    if( skConn().state() == ESkConnState.ACTIVE ) {
-      skConn().coreApi().sysdescr().eventer().removeListener( classServiceListener );
+    // remove all models
+    for( String modelId : m5.selfModels().keys() ) {
+      m5.removeModel( modelId );
     }
-    // удалим все ранее созданные нами модели из домена
-    for( String cid : managedClassIds ) {
-      m5.removeModel( cid );
-    }
-    managedClassIds.clear();
-    // пусть отработают все модули
-    IList<KM5AbstractModelManagementUnit> mmUnits = internalListModelManagementUnits();
-    for( KM5AbstractModelManagementUnit u : mmUnits ) {
-      try {
-        u.papiClear();
-      }
-      catch( Exception ex ) {
-        LoggerUtils.errorLogger().error( ex );
-      }
+    // inform contributors on connection close
+    for( KM5AbstractContributor u : contributorsList ) {
+      u.papiAfterConnectionClose();
     }
   }
 
@@ -202,68 +192,24 @@ class KM5Support
 
   @Override
   public ISkConnection skConn() {
-    TsIllegalStateRtException.checkNull( skConn1 );
-    return skConn1;
+    return skConn;
   }
 
   // ------------------------------------------------------------------------------------
-  // Реализация интерфейса IKM5Support
+  // API
   //
 
-  @Override
-  public IM5Domain bind( ISkConnection aSkConn, ITsGuiContext aDomainContext ) {
-    TsNullArgumentRtException.checkNulls( aSkConn, aDomainContext );
-    TsIllegalStateRtException.checkTrue( isBind() );
-    // создание и првязка KM5
-    IM5Domain parentM5 = aDomainContext.get( IM5Domain.class );
-    m5 = parentM5.createChildDomain( domainIdGenerator.nextId(), aDomainContext );
-    skConn1 = aSkConn;
-    // установка ссылок друг на друга...
-    skConn().scope().put( IM5Domain.class, m5 );
-    skConn().scope().put( IKM5Support.class, this );
-    m5.tsContext().put( ISkConnection.class, skConn() );
-    m5.tsContext().put( IKM5Support.class, this );
-    // инициализируем модели сразу, если нужно
-    if( skConn().state() == ESkConnState.ACTIVE ) {
-      initializeDomain();
-    }
-    // и теперь спокойно слушаем соединение
-    skConn().addConnectionListener( skConnectionListener );
-    return m5;
-  }
-
-  @Override
-  public boolean isBind() {
-    return m5 != null;
-  }
-
-  @Override
-  public void unbind() {
-    if( m5 != null ) {
-      skConn().removeConnectionListener( skConnectionListener );
-      skConn().scope().remove( IM5Domain.class );
-      m5.tsContext().remove( ISkConnection.class );
-      clearDomain();
-      m5 = null;
-      skConn1 = null;
-    }
-  }
-
-  @Override
+  /**
+   * Returns the bind domain created in constructor.
+   * <p>
+   * <b>Important note:</b> created domain {@link #m5()} is not intended to have models other than created by this
+   * class. All other models may be removed at random modemt of time. If other models are needed, they may be added
+   * either in the parent domain or by the registered {@link KM5AbstractContributor}.
+   *
+   * @return {@link IM5Domain} - the domain bind to the connection {@link #skConn()}
+   */
   public IM5Domain m5() {
-    TsIllegalStateRtException.checkNull( m5 );
     return m5;
-  }
-
-  @Override
-  public IStringMap<KM5AbstractModelManagementUnit> getModelManagementUnits() {
-    TsIllegalStateRtException.checkNull( m5 );
-    KM5AbstractModelManagementUnit.UnitsList ul =
-        skConn().scope().find( KM5AbstractModelManagementUnit.UnitsList.class );
-    if( ul == null ) {
-      return IStringMap.EMPTY;
-    }
-    return ul.units();
   }
 
 }

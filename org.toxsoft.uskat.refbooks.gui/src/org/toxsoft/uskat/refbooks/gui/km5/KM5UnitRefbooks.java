@@ -1,6 +1,6 @@
 package org.toxsoft.uskat.refbooks.gui.km5;
 
-import org.toxsoft.uskat.base.gui.km5.*;
+import org.toxsoft.uskat.base.gui.km5_old.*;
 import org.toxsoft.uskat.refbooks.lib.*;
 
 /**
