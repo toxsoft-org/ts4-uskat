@@ -1,75 +1,56 @@
 package org.toxsoft.uskat.base.gui.km5;
 
+import java.util.concurrent.locks.*;
+
+import org.toxsoft.core.tslib.coll.*;
+import org.toxsoft.core.tslib.coll.impl.*;
+import org.toxsoft.core.tslib.coll.synch.*;
+import org.toxsoft.core.tslib.utils.errors.*;
+
 /**
- * Вспомогательные методы как для пользователей, так и для реализации подсистемы SM5.
+ * KM5 utilities.
+ * <p>
+ * All methods are thread-safe.
  *
- * @author goga
+ * @author hazard157
  */
 public class KM5Utils {
 
+  private static final ReentrantReadWriteLock lock = new ReentrantReadWriteLock();
+
+  private static final SynchronizedListEdit<IKM5ContributorCreator> creatorsList =
+      new SynchronizedListEdit<>( new ElemArrayList<>(), lock );
+
   /**
-   * Создает экземпляр {@link IKM5Support}.
+   * Registers contributor creator to be used with all connections.
    *
-   * @return {@link IKM5Support} - созданный экземпляр
+   * @param aCreator {@link IKM5ContributorCreator} - the creator
+   * @throws TsNullArgumentRtException any argument = <code>null</code>
    */
-  public static final IKM5Support createKM5Support() {
-    return new KM5Support();
+  public static void registerContributorCreator( IKM5ContributorCreator aCreator ) {
+    TsNullArgumentRtException.checkNull( aCreator );
+    lock.writeLock().lock();
+    try {
+      if( !creatorsList.hasElem( aCreator ) ) {
+        creatorsList.add( aCreator );
+      }
+    }
+    finally {
+      lock.writeLock().unlock();
+    }
   }
 
-  // /**
-  // * Определяет, является ли аргумент идентификатором обычного атрибута.
-  // * <p>
-  // * Обычным считается аторибут, значения которого задается пользователем с помощью
-  // * {@link IBsObjectEditor#setAttrValue(String, IAtomicValue)}. К обычным относятся все атрибуты, кроме специальных -
-  // * {@link ISkObject#ATTR_ID_CLASSID}, {@link ISkObject#ATTR_ID_STRID}, {@link ISkObject#ATTR_ID_OBJID},
-  // * {@link ISkObject#ATTR_ID_VISNAME}.
-  // *
-  // * @param aAttrId String - проверемый идентификатор
-  // * @return boolean - призак обычного атрибута
-  // * @throws TsNullArgumentRtException любой аргумент = null
-  // */
-  // public static boolean isCommonAttr( String aAttrId ) {
-  // TsNullArgumentRtException.checkNull( aAttrId );
-  // switch( aAttrId ) {
-  // case ATTR_ID_CLASSID:
-  // case ATTR_ID_STRID:
-  // case ATTR_ID_OBJID:
-  // case ATTR_ID_VISNAME:
-  // return false;
-  // default:
-  // return true;
-  // }
-  // }
-
-  // /**
-  // * Возвращает Java-класс, реализующий S5-объект указанного S5-класса.
-  // *
-  // * @param <T> - конкретный класс моделируемой S5-сущности
-  // * @param aClassInfo {@link ISkClassInfo} - описание S5-класса
-  // * @return {@link Class} - Java-класс реализующий S5-объект
-  // * @throws TsNullArgumentRtException любой аргумент = null
-  // * @throws TsItemNotFoundRtException не науден нужны класс
-  // * @throws TsIllegalStateRtException Java-класс не наследник {@link ISkObject}
-  // */
-  // @SuppressWarnings( "unchecked" )
-  // public static <T extends ISkObject> Class<T> getBsObjectImplementationClass( ISkClassInfo aClassInfo ) {
-  // TsNullArgumentRtException.checkNull( aClassInfo );
-  // Class<?> rawClass;
-  // try {
-  // rawClass = Class.forName( aClassInfo.javaClassName() );
-  // }
-  // catch( ClassNotFoundException ex ) {
-  // throw new TsItemNotFoundRtException( ex, FMT_ERR_NO_BSOBJ_JCLASS, aClassInfo.id(), aClassInfo.javaClassName() );
-  // }
-  // if( ISkObject.class.isAssignableFrom( rawClass ) ) {
-  // return (Class<T>)rawClass;
-  // }
-  // throw new TsIllegalStateRtException( FMT_ERR_INV_BSOBJ_JCLASS, aClassInfo.id(), rawClass.getName(),
-  // ISkObject.class.getSimpleName() );
-  // }
+  /**
+   * Returns all registered contributor creators.
+   *
+   * @return {@link IList}&lt;{@link IKM5ContributorCreator}&gt; - copy of the creators list
+   */
+  public static IList<IKM5ContributorCreator> listContributorCreators() {
+    return creatorsList.copyTo( null );
+  }
 
   /**
-   * Запрет на создание экземпляров.
+   * No subclassing.
    */
   private KM5Utils() {
     // nop

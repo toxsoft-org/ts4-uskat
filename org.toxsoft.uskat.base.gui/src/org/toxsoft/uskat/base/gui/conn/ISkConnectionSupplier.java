@@ -1,15 +1,21 @@
 package org.toxsoft.uskat.base.gui.conn;
 
+import org.toxsoft.core.tsgui.bricks.ctx.*;
+import org.toxsoft.core.tsgui.m5.*;
 import org.toxsoft.core.tslib.bricks.strid.more.*;
 import org.toxsoft.core.tslib.coll.*;
 import org.toxsoft.core.tslib.utils.*;
 import org.toxsoft.core.tslib.utils.errors.*;
+import org.toxsoft.uskat.base.gui.km5.*;
 import org.toxsoft.uskat.core.connection.*;
 
 /**
  * Manages {@link ISkConnection} instances in the MWS application.
  * <p>
  * Reference to this interface is placed in application level context.
+ * <p>
+ * Note: managed connection have {@link KM5Support} enabled so all of them have {@link IM5Domain} in
+ * {@link ISkConnection#scope()}.
  *
  * @author hazard157
  */
@@ -46,12 +52,13 @@ public interface ISkConnectionSupplier
    * Creates the connection instance with the specified key.
    *
    * @param aKey {@link IdChain} - connection key
+   * @param aContext {@link ITsGuiContext} - the context for connection and it's M5-domain
    * @return {@link ISkConnection} - new instance of connection
    * @throws TsNullArgumentRtException any argument = <code>null</code>
    * @throws TsIllegalArgumentRtException argument is {@link IdChain#NULL}
    * @throws TsItemAlreadyExistsRtException connection with this key already exists
    */
-  ISkConnection createConnection( IdChain aKey );
+  ISkConnection createConnection( IdChain aKey, ITsGuiContext aContext );
 
   /**
    * Return sll connections instances.

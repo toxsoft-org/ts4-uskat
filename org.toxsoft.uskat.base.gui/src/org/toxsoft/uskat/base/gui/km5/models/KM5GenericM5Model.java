@@ -1,10 +1,11 @@
-package org.toxsoft.uskat.base.gui.km5;
+package org.toxsoft.uskat.base.gui.km5.models;
 
 import org.toxsoft.core.tsgui.m5.*;
 import org.toxsoft.core.tsgui.m5.model.*;
 import org.toxsoft.core.tslib.bricks.strid.coll.*;
 import org.toxsoft.core.tslib.bricks.strid.coll.impl.*;
 import org.toxsoft.core.tslib.utils.errors.*;
+import org.toxsoft.uskat.base.gui.km5.*;
 import org.toxsoft.uskat.core.*;
 import org.toxsoft.uskat.core.api.objserv.*;
 import org.toxsoft.uskat.core.api.sysdescr.*;
@@ -14,9 +15,9 @@ import org.toxsoft.uskat.core.connection.*;
 /**
  * Модель по умолчанию для S5-сущностей.
  * <p>
- * Это полноценная модель, которая автоматически создается средствами поддержки {@link IKM5Support} для тех классов
- * системного описания, которые не были смоделированы тематическими модулями {@link KM5AbstractModelManagementUnit}.
- * Модель полноценно работает с объектами, которые создаются и управляются службой {@link ISkObjectService}.
+ * Это полноценная модель, которая автоматически создается средствами поддержки {@link KM5Support} для тех классов
+ * системного описания, которые не были смоделированы тематическими модулями {@link KM5AbstractContributor}. Модель
+ * полноценно работает с объектами, которые создаются и управляются службой {@link ISkObjectService}.
  *
  * @author goga
  * @param <T> - конкретный класс моделируемой Sk-сущности

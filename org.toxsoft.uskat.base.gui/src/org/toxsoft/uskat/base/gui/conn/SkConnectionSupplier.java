@@ -1,5 +1,7 @@
 package org.toxsoft.uskat.base.gui.conn;
 
+import org.toxsoft.core.tsgui.bricks.ctx.*;
+import org.toxsoft.core.tsgui.m5.*;
 import org.toxsoft.core.tslib.bricks.strid.more.*;
 import org.toxsoft.core.tslib.coll.*;
 import org.toxsoft.core.tslib.coll.impl.*;
@@ -51,13 +53,13 @@ public class SkConnectionSupplier
   }
 
   @Override
-  public ISkConnection createConnection( IdChain aKey ) {
+  public ISkConnection createConnection( IdChain aKey, ITsGuiContext aContext ) {
     TsNullArgumentRtException.checkNull( aKey );
     TsIllegalArgumentRtException.checkTrue( aKey == IdChain.NULL );
     TsItemAlreadyExistsRtException.checkTrue( connsMap.hasKey( aKey ) );
     ISkConnection conn = SkCoreUtils.createConnection();
-    IKM5Support km5 = KM5Utils.createKM5Support();
-    // FIXME km5.bind( conn, ctx )
+    @SuppressWarnings( "unused" )
+    KM5Support km5 = new KM5Support( conn, aContext.get( IM5Domain.class ) );
     connsMap.put( aKey, conn );
     return conn;
   }
