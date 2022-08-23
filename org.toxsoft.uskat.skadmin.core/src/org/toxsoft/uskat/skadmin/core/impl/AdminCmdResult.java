@@ -120,30 +120,32 @@ public class AdminCmdResult
     TsNullArgumentRtException.checkNull( aValue );
     TsIllegalStateRtException.checkTrue( finished, ERR_RESULT_ALREADY_FINISHED );
     IPlexyType valueType = aValue.type();
-    if( resultType.kind() != valueType.kind() ) {
+    if( valueType != IPlexyType.NONE && resultType.kind() != valueType.kind() ) {
       throw new TsIllegalArgumentRtException( ERR_RESULT_WRONG_TYPE, resultType.kind(), valueType.kind() );
     }
-    switch( resultType.kind() ) {
-      case SINGLE_VALUE:
-      case VALUE_LIST:
-        IDataType resultDt = resultType.dataType();
-        IDataType valueDt = valueType.dataType();
-        if( !resultDt.equals( valueDt ) ) {
-          throw new TsIllegalArgumentRtException( ERR_RESULT_WRONG_TYPE, resultDt, valueDt );
-        }
-        break;
-      case OPSET:
-        break;
-      case SINGLE_REF:
-      case REF_LIST:
-        Class<?> resultRefClass = resultType.refClass();
-        Class<?> valueRefClass = valueType.refClass();
-        if( !resultRefClass.isAssignableFrom( valueRefClass ) ) {
-          throw new TsIllegalArgumentRtException( ERR_RESULT_WRONG_TYPE, resultRefClass, valueRefClass );
-        }
-        break;
-      default:
-        throw new TsNotAllEnumsUsedRtException();
+    if( resultType != IPlexyType.NONE ) {
+      switch( resultType.kind() ) {
+        case SINGLE_VALUE:
+        case VALUE_LIST:
+          IDataType resultDt = resultType.dataType();
+          IDataType valueDt = valueType.dataType();
+          if( !resultDt.equals( valueDt ) ) {
+            throw new TsIllegalArgumentRtException( ERR_RESULT_WRONG_TYPE, resultDt, valueDt );
+          }
+          break;
+        case OPSET:
+          break;
+        case SINGLE_REF:
+        case REF_LIST:
+          Class<?> resultRefClass = resultType.refClass();
+          Class<?> valueRefClass = valueType.refClass();
+          if( !resultRefClass.isAssignableFrom( valueRefClass ) ) {
+            throw new TsIllegalArgumentRtException( ERR_RESULT_WRONG_TYPE, resultRefClass, valueRefClass );
+          }
+          break;
+        default:
+          throw new TsNotAllEnumsUsedRtException();
+      }
     }
     okFlag = true;
     result = aValue;

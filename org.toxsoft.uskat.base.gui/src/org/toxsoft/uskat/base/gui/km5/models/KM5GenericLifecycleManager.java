@@ -1,6 +1,6 @@
-package org.toxsoft.uskat.base.gui.km5;
+package org.toxsoft.uskat.base.gui.km5.models;
 
-import static org.toxsoft.uskat.base.gui.km5.ISkResources.*;
+import static org.toxsoft.uskat.base.gui.km5.models.ISkResources.*;
 import static org.toxsoft.uskat.core.ISkHardConstants.*;
 
 import java.util.*;

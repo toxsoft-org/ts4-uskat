@@ -1,12 +1,13 @@
-package org.toxsoft.uskat.base.gui.km5;
+package org.toxsoft.uskat.base.gui.km5.models;
 
 import static org.toxsoft.core.tsgui.m5.IM5Constants.*;
 import static org.toxsoft.core.tslib.av.metainfo.IAvMetaConstants.*;
-import static org.toxsoft.uskat.base.gui.km5.ISkResources.*;
+import static org.toxsoft.uskat.base.gui.km5.models.ISkResources.*;
 import static org.toxsoft.uskat.core.ISkHardConstants.*;
 
 import org.toxsoft.core.tsgui.m5.model.impl.*;
 import org.toxsoft.core.tslib.utils.errors.*;
+import org.toxsoft.uskat.base.gui.km5.*;
 import org.toxsoft.uskat.core.*;
 import org.toxsoft.uskat.core.api.objserv.*;
 import org.toxsoft.uskat.core.connection.*;
@@ -18,7 +19,7 @@ import org.toxsoft.uskat.core.utils.*;
  * Этот класс низкоуровневый - не добавляет никакие поля в модель, не имеет менеджера ЖЦ и т.п. Чаще всего, если нужно
  * уточнить только некторые аспекты M5-моделирования конкретного класса предметной области, следует унаследоваться и
  * уточнить поведение класса {@link KM5GenericM5Model}. Этот класс имеет смысл использовать при создании библотечных
- * моделей, например, для использования со служебными тематическими моделями {@link KM5AbstractModelManagementUnit}
+ * моделей, например, для использования со служебными тематическими моделями {@link KM5AbstractContributor}
  * справочников, НСИ и т.п.
  *
  * @author goga

@@ -332,7 +332,7 @@ class AdminCmdLibraryManager
           }
           // Проверка типа
           IPlexyType valueType = argValue.type();
-          if( !argType.equals( valueType ) ) {
+          if( !argType.dataType().atomicType().equals( valueType.dataType().atomicType() ) ) {
             throw new TsIllegalArgumentRtException( ERR_ARG_WRONG_TYPE, cmdId, argId, valueType );
           }
           continue;

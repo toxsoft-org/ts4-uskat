@@ -1,4 +1,4 @@
-package org.toxsoft.uskat.base.gui.km5;
+package org.toxsoft.uskat.base.gui.km5.models;
 
 import static org.toxsoft.core.tslib.av.metainfo.IAvMetaConstants.*;
 

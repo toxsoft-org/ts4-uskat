@@ -14,9 +14,9 @@ public interface IAdminCmdLibraryPlugin
     extends IAdminCmdLibrary {
 
   /**
-   * Тип плагинов исполняющих наборы команд s5admin
+   * Тип плагинов исполняющих наборы команд skadmin
    */
-  String CMD_LIBRARY_PLUGIN_TYPE = "s5admin.library";
+  String CMD_LIBRARY_PLUGIN_TYPE = "skadmin.library";
 
   /**
    * Информация о плагине

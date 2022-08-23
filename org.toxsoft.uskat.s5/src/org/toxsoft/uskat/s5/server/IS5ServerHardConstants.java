@@ -320,7 +320,7 @@ public interface IS5ServerHardConstants
       TSID_NAME, STR_N_SESSION_CLUSTER_TOPOLOGY, //
       TSID_DESCRIPTION, STR_D_SESSION_CLUSTER_TOPOLOGY, //
       TSID_IS_NULL_ALLOWED, AV_FALSE, //
-      TSID_DEFAULT_VALUE, new S5ClusterTopology() );
+      TSID_DEFAULT_VALUE, avValobj( new S5ClusterTopology() ) );
 
   /**
    * Идентификатор параметра jvm (-Ds5.callback.port=...): номер порта используемый для создания обратных вызовов

@@ -2,9 +2,11 @@ package org.toxsoft.uskat.s5.client.remote;
 
 import static org.toxsoft.uskat.s5.client.remote.IS5Resources.*;
 
+import org.toxsoft.core.tslib.av.opset.IOptionSet;
 import org.toxsoft.core.tslib.bricks.ctx.ITsContextRo;
 import org.toxsoft.core.tslib.coll.helpers.ECrudOp;
 import org.toxsoft.core.tslib.utils.errors.*;
+import org.toxsoft.uskat.core.backend.ISkBackendHardConstant;
 import org.toxsoft.uskat.core.backend.ISkFrontendRear;
 import org.toxsoft.uskat.core.backend.api.*;
 import org.toxsoft.uskat.s5.client.remote.connection.*;
@@ -23,6 +25,11 @@ import org.toxsoft.uskat.s5.server.sessions.init.S5SessionInitData;
 public final class S5BackendRemote
     extends S5AbstractBackend<IS5BackendAddonRemote>
     implements IS5BackendRemote, IS5ConnectionListener {
+
+  /**
+   * Идентификатор бекенда возвращаемый как {@link ISkBackendInfo#id()}.
+   */
+  public static final String BACKEND_ID = ISkBackendHardConstant.SKB_ID + ".s5.remote"; //$NON-NLS-1$
 
   /**
    * Соединение с s5-сервером
@@ -47,7 +54,7 @@ public final class S5BackendRemote
    * @throws TsNullArgumentRtException аргумент = null
    */
   public S5BackendRemote( ISkFrontendRear aFrontend, ITsContextRo aArgs ) {
-    super( aFrontend, aArgs );
+    super( aFrontend, aArgs, BACKEND_ID, IOptionSet.NULL );
     // Создание соединения
     connection = new S5Connection( sessionID(), classLoader(), frontend(), frontendLock() );
     connection.addConnectionListener( this );
@@ -90,11 +97,6 @@ public final class S5BackendRemote
   @Override
   public boolean isActive() {
     return (connection.state() == EConnectionState.CONNECTED);
-  }
-
-  @Override
-  public ISkBackendInfo getBackendInfo() {
-    return session().getBackendInfo();
   }
 
   // ------------------------------------------------------------------------------------
@@ -199,6 +201,11 @@ public final class S5BackendRemote
   @Override
   protected boolean doIsLocal() {
     return false;
+  }
+
+  @Override
+  protected ISkBackendInfo doFindServerBackendInfo() {
+    return (connection.state() == EConnectionState.CONNECTED ? session().getBackendInfo() : null);
   }
 
   // ------------------------------------------------------------------------------------
