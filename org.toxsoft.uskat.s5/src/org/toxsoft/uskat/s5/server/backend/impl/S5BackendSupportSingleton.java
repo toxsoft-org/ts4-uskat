@@ -40,7 +40,7 @@ public abstract class S5BackendSupportSingleton
    * Поддержка синглетонов (контейнер)
    */
   @EJB
-  private IS5BackendCoreSingleton supports;
+  private IS5BackendCoreSingleton backendCoreSingleton;
 
   /**
    * Конструктор для наследников.
@@ -63,7 +63,7 @@ public abstract class S5BackendSupportSingleton
    */
   @Override
   protected void doInit() {
-    supports.add( id(), sessionContext().getBusinessObject( getClass() ) );
+    backendCoreSingleton.add( id(), sessionContext().getBusinessObject( getClass() ) );
     doInitSupport();
     clusterManager.addCommandHandler( WHEN_SUPPORT_CONFIG_CHANGED_METHOD,
         new S5ClusterCommandWhenSupportConfigChanged() {
@@ -85,7 +85,7 @@ public abstract class S5BackendSupportSingleton
   @Override
   protected void doClose() {
     doCloseSupport();
-    supports.remove( id() );
+    backendCoreSingleton.remove( id() );
   }
 
   // ------------------------------------------------------------------------------------
@@ -132,12 +132,12 @@ public abstract class S5BackendSupportSingleton
   // Методы для наследников
   //
   /**
-   * Возвращает supports
+   * Возвращает backendCoreSingleton
    *
-   * @return {@link IS5BackendCoreSingleton} supports
+   * @return {@link IS5BackendCoreSingleton} backendCoreSingleton
    */
   protected final IS5BackendCoreSingleton backend() {
-    return supports;
+    return backendCoreSingleton;
   }
 
   /**
@@ -170,7 +170,7 @@ public abstract class S5BackendSupportSingleton
   protected final Skid backendId() {
     // Идентификатор узла сервера
     Skid nodeId = nodeId();
-    // Полный (с именем узла) идентификатор supports
+    // Полный (с именем узла) идентификатор backendCoreSingleton
     return new Skid( doBackendClassId(), nodeId.strid() + '.' + id() );
   }
 

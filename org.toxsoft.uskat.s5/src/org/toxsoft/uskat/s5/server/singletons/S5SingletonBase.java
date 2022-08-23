@@ -18,7 +18,6 @@ import javax.enterprise.concurrent.ManagedExecutorService;
 import org.toxsoft.core.tslib.av.opset.IOptionSet;
 import org.toxsoft.core.tslib.av.opset.IOptionSetEdit;
 import org.toxsoft.core.tslib.av.opset.impl.OptionSet;
-import org.toxsoft.core.tslib.bricks.strid.impl.Stridable;
 import org.toxsoft.core.tslib.bricks.time.impl.TimeUtils;
 import org.toxsoft.core.tslib.coll.IList;
 import org.toxsoft.core.tslib.coll.IListEdit;
@@ -28,6 +27,7 @@ import org.toxsoft.core.tslib.utils.errors.TsIllegalArgumentRtException;
 import org.toxsoft.core.tslib.utils.errors.TsNullArgumentRtException;
 import org.toxsoft.core.tslib.utils.logs.ELogSeverity;
 import org.toxsoft.core.tslib.utils.logs.ILogger;
+import org.toxsoft.uskat.s5.legacy.S5Stridable;
 import org.toxsoft.uskat.s5.server.startup.IS5InitialSingleton;
 import org.toxsoft.uskat.s5.server.transactions.IS5TransactionDetectorSingleton;
 import org.toxsoft.uskat.s5.server.transactions.IS5TransactionManagerSingleton;
@@ -53,7 +53,7 @@ import org.toxsoft.uskat.s5.utils.threads.impl.S5Lockable;
  * @author mvk
  */
 public class S5SingletonBase
-    extends Stridable
+    extends S5Stridable
     implements IS5Singleton, Serializable {
 
   private static final long serialVersionUID = 157157L;
@@ -155,13 +155,15 @@ public class S5SingletonBase
   @TransactionAttribute( TransactionAttributeType.REQUIRED )
   private void load() {
     // Запись в журнал
-    logger.info( MSG_INIT_SINGLETON, id() );
+    logger.info( "load(...): start init %s", id() ); //$NON-NLS-1$
     // Попытка явной регистрации текущей транзакции
     registerCurrentTransaction( "load", NO_METHOD_PARAMS ); //$NON-NLS-1$
     // Инициализация фоновых потоков
     doJobExecutor = S5ServiceSingletonUtils.lookupExecutor( DO_JOB_EXECUTOR_JNDI );
     // Инициализация наследника
     doInit();
+    // Запись в журнал
+    logger.info( "load(...): finish init %s", id() ); //$NON-NLS-1$
   }
 
   /**

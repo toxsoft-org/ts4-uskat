@@ -13,6 +13,6 @@ class S5SessionCallbackHardConstants {
    * Префикс идентификаторов JSON-уведомления {@link IJSONNotification#method()} используемый для передачи запросов
    * backend s5-сессиям
    */
-  static final String SESSIONS_METHOD_PREFIX = "ru.toxsoft.sessions."; //$NON-NLS-1$
+  static final String SESSIONS_METHOD_PREFIX = "org.toxsoft.uskat.s5.server.sessions.pas."; //$NON-NLS-1$
 
 }

@@ -11,7 +11,7 @@ import org.toxsoft.core.tslib.utils.errors.TsIoRtException;
 import org.toxsoft.core.tslib.utils.errors.TsNullArgumentRtException;
 
 /**
- * Вспомогательные методы для работы с пакетом ru.toxsoft.tslib.strids
+ * Вспомогательные методы для работы с пакетом org.toxsoft.core.tslib.bricks.strid
  *
  * @author mvk
  */

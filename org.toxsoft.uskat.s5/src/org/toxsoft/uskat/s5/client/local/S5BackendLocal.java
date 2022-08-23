@@ -14,8 +14,7 @@ import org.toxsoft.uskat.s5.server.backend.IS5BackendCoreSingleton;
 import org.toxsoft.uskat.s5.server.backend.addons.*;
 import org.toxsoft.uskat.s5.server.backend.impl.S5BackendInfo;
 import org.toxsoft.uskat.s5.server.backend.messages.*;
-import org.toxsoft.uskat.s5.server.sessions.IS5SessionManager;
-import org.toxsoft.uskat.s5.server.sessions.S5LocalSession;
+import org.toxsoft.uskat.s5.server.sessions.*;
 
 /**
  * Локальный s5-backend
@@ -27,9 +26,13 @@ public final class S5BackendLocal
     implements IS5BackendLocal {
 
   /**
+   * Построители расширений бекенда.
+   */
+  private final IStridablesList<IS5BackendAddonCreator> baCreators;
+  /**
    * Синглетон реализующий бекенд
    */
-  private final IS5BackendCoreSingleton backendSingleton;
+  private final IS5BackendCoreSingleton                 backendSingleton;
 
   /**
    * Менеджер сессий s5-сервера
@@ -50,33 +53,9 @@ public final class S5BackendLocal
       IStridablesList<IS5BackendAddonCreator> aBackendAddonCreators ) {
     super( aFrontend, aArgs );
     TsNullArgumentRtException.checkNulls( aBackendSingleton, aBackendAddonCreators );
+    baCreators = aBackendAddonCreators;
     backendSingleton = aBackendSingleton;
     sessionManager = TsNullArgumentRtException.checkNull( backendSingleton.sessionManager() );
-
-    // Формирование сообщения о предстоящей инициализации расширений
-    fireBackendMessage( S5BaBeforeInitMessages.INSTANCE.makeMessage() );
-
-    // Создание и установка аддонов бекенда
-    for( IS5BackendAddonCreator baCreator : aBackendAddonCreators ) {
-      IS5BackendAddonLocal ba = baCreator.createLocal( this );
-      allAddons().put( ba.id(), ba );
-    }
-
-    // Создание локальной сессии
-    String programName = IS5ConnectionParams.OP_LOCAL_MODULE.getValue( aArgs.params() ).asString();
-    String userName = IS5ConnectionParams.OP_LOCAL_NODE.getValue( aArgs.params() ).asString();
-    S5LocalSession session = new S5LocalSession( sessionID(), programName, userName, frontend() );
-    // Создание локальной сессии
-    sessionManager.createLocalSession( session );
-
-    // Подключение фронтенда
-    backendSingleton.attachFrontend( frontend() );
-    // Формирование сообщения о проведенной инициализации расширений
-    fireBackendMessage( S5BaAfterInitMessages.INSTANCE.makeMessage() );
-    // Формирование сообщения о предстоящем подключении
-    fireBackendMessage( S5BaBeforeConnectMessages.INSTANCE.makeMessage() );
-    // Формирование сообщения о подключении
-    fireBackendMessage( S5BaAfterConnectMessages.INSTANCE.makeMessage() );
   }
 
   // ------------------------------------------------------------------------------------
@@ -97,10 +76,16 @@ public final class S5BackendLocal
 
   @Override
   public ISkBackendInfo getBackendInfo() {
-    // Описание текущей сессии пользователя
-    IS5SessionInfo sessionInfo = sessionManager.findSessionData( sessionID() ).info();
     // Запрос текущей информации о сервере (backend)
     ISkBackendInfo backendInfo = backendSingleton.getInfo();
+    // Данные сессии
+    S5SessionData sessionData = sessionManager.findSessionData( sessionID() );
+    if( sessionData == null ) {
+      // Вызов информации бекенда ДО создания сессии. Такое возможно смотри SkCoreApi, создание бекенда
+      return backendInfo;
+    }
+    // Описание текущей сессии пользователя
+    IS5SessionInfo sessionInfo = sessionData.info();
     // Формирование информации сессии бекенда
     S5BackendInfo retValue = new S5BackendInfo( backendInfo.id(), backendInfo.params() );
     // Идентификатор текущей сессии пользователя
@@ -112,6 +97,37 @@ public final class S5BackendLocal
   // ------------------------------------------------------------------------------------
   // Реализация шаблонных и абстрактных методов базового класса
   //
+  /**
+   * Провести инициализацию бекенда в наследнике. Вызывается после вызова конструктора
+   */
+  @Override
+  protected void doInitialize() {
+    // Формирование сообщения о предстоящей инициализации расширений
+    fireBackendMessage( S5BaBeforeInitMessages.INSTANCE.makeMessage() );
+
+    // Создание и установка аддонов бекенда
+    for( IS5BackendAddonCreator baCreator : baCreators ) {
+      IS5BackendAddonLocal ba = baCreator.createLocal( this );
+      allAddons().put( ba.id(), ba );
+    }
+
+    // Создание локальной сессии
+    String programName = IS5ConnectionParams.OP_LOCAL_MODULE.getValue( openArgs().params() ).asString();
+    String userName = IS5ConnectionParams.OP_LOCAL_NODE.getValue( openArgs().params() ).asString();
+    S5LocalSession session = new S5LocalSession( sessionID(), programName, userName, frontend() );
+    // Создание локальной сессии
+    sessionManager.createLocalSession( session );
+
+    // Подключение фронтенда
+    backendSingleton.attachFrontend( frontend() );
+    // Формирование сообщения о проведенной инициализации расширений
+    fireBackendMessage( S5BaAfterInitMessages.INSTANCE.makeMessage() );
+    // Формирование сообщения о предстоящем подключении
+    fireBackendMessage( S5BaBeforeConnectMessages.INSTANCE.makeMessage() );
+    // Формирование сообщения о подключении
+    fireBackendMessage( S5BaAfterConnectMessages.INSTANCE.makeMessage() );
+  }
+
   @Override
   protected boolean doIsLocal() {
     return true;

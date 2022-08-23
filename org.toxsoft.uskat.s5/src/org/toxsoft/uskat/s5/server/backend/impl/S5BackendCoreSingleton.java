@@ -21,6 +21,7 @@ import javax.sql.DataSource;
 import org.toxsoft.core.tslib.av.IAtomicValue;
 import org.toxsoft.core.tslib.av.opset.IOptionSet;
 import org.toxsoft.core.tslib.coll.IList;
+import org.toxsoft.core.tslib.coll.primtypes.IStringList;
 import org.toxsoft.core.tslib.coll.primtypes.IStringMapEdit;
 import org.toxsoft.core.tslib.coll.primtypes.impl.StringMap;
 import org.toxsoft.core.tslib.coll.synch.SynchronizedStringMap;
@@ -33,6 +34,7 @@ import org.toxsoft.uskat.s5.common.S5Module;
 import org.toxsoft.uskat.s5.server.IS5ServerHardConstants;
 import org.toxsoft.uskat.s5.server.backend.IS5BackendCoreSingleton;
 import org.toxsoft.uskat.s5.server.backend.IS5BackendSupportSingleton;
+import org.toxsoft.uskat.s5.server.backend.addons.IS5BackendAddonCreator;
 import org.toxsoft.uskat.s5.server.backend.supports.clobs.IS5BackendClobSingleton;
 import org.toxsoft.uskat.s5.server.backend.supports.links.IS5BackendLinksSingleton;
 import org.toxsoft.uskat.s5.server.backend.supports.objects.IS5BackendObjectsSingleton;
@@ -63,7 +65,8 @@ import org.toxsoft.uskat.s5.utils.threads.impl.S5Lockable;
 @DependsOn( { //
     TRANSACTION_MANAGER_SINGLETON, //
     CLUSTER_MANAGER_SINGLETON, //
-    SESSION_MANAGER_SINGLETON, //
+    // 2022-08-21 mvk
+    // SESSION_MANAGER_SINGLETON, //
     PROJECT_INITIAL_IMPLEMENT_SINGLETON //
 } )
 @TransactionManagement( TransactionManagementType.CONTAINER )
@@ -81,6 +84,16 @@ public class S5BackendCoreSingleton
    * Имя синглетона в контейнере сервера для организации зависимостей (@DependsOn)
    */
   public static final String BACKEND_CORE_ID = "S5BackendCoreSingleton"; //$NON-NLS-1$
+
+  /**
+   * Таймаут ожидания загрузки поддержки (мсек)
+   */
+  public static final long SUPPORT_READY_CHECK_INTERVAL = 100;
+
+  /**
+   * Таймаут ожидания загрузки поддержки (мсек)
+   */
+  public static final long SUPPORT_READY_TIMEOUT = 60 * 1000;
 
   /**
    * Соединение с базой данных
@@ -105,16 +118,17 @@ public class S5BackendCoreSingleton
   private IS5TransactionManagerSingleton txManager;
 
   /**
-   * Менеджер сессий
-   */
-  @EJB
-  private IS5SessionManager sessionManager;
-
-  /**
    * Менеджер кластера s5-сервера
    */
   @EJB
   private IS5ClusterManager clusterManager;
+
+  /**
+   * Менеджер сессий
+   */
+  // 2022-08-21 mvk ---
+  // @EJB
+  private IS5SessionManager sessionManager;
 
   /**
    * Начальная, неизменяемая, проектно-зависимая конфигурация реализации бекенда сервера
@@ -227,7 +241,8 @@ public class S5BackendCoreSingleton
     // builder.transaction().lockingMode( LockingMode.OPTIMISTIC );
 
     // Инициализация backend у менеджера сессий
-    sessionManager.setBackend( sessionContext().getBusinessObject( IS5BackendCoreSingleton.class ) );
+    // 2022-08-21 mvk
+    // sessionManager.setBackend( sessionContext().getBusinessObject( IS5BackendCoreSingleton.class ) );
     // Запуск фоновой задачи
     addOwnDoJob( BACKEND_JOB_TIMEOUT );
     // Разрешение регистрации пользователей
@@ -261,7 +276,7 @@ public class S5BackendCoreSingleton
     try {
       OP_BACKEND_ZONE_ID.setValue( backendInfo.params(), avValobj( ZoneId.systemDefault() ) );
       OP_BACKEND_CURRENT_TIME.setValue( backendInfo.params(), avTimestamp( System.currentTimeMillis() ) );
-      OP_BACKEND_SESSIONS_INFOS.setValue( backendInfo.params(), avValobj( sessionManager.getInfos() ) );
+      OP_BACKEND_SESSIONS_INFOS.setValue( backendInfo.params(), avValobj( sessionManager().getInfos() ) );
       OP_BACKEND_TRANSACTIONS_INFOS.setValue( backendInfo.params(), avValobj( txManager.getInfos() ) );
       OP_BACKEND_HEAP_MEMORY_USAGE.setValue( backendInfo.params(), avStr( printHeapMemoryUsage() ) );
       OP_BACKEND_NON_HEAP_MEMORY_USAGE.setValue( backendInfo.params(), avStr( printNonHeapMemoryUsage() ) );
@@ -295,6 +310,7 @@ public class S5BackendCoreSingleton
   @Override
   @TransactionAttribute( TransactionAttributeType.SUPPORTS )
   public IS5SessionManager sessionManager() {
+    TsInternalErrorRtException.checkNull( sessionManager );
     return sessionManager;
   }
 
@@ -302,6 +318,14 @@ public class S5BackendCoreSingleton
   @TransactionAttribute( TransactionAttributeType.SUPPORTS )
   public IS5InitialImplementSingleton initialConfig() {
     return initialConfig;
+  }
+
+  @Override
+  @TransactionAttribute( TransactionAttributeType.SUPPORTS )
+  public void setSessionManager( IS5SessionManager aSessionManager ) {
+    TsNullArgumentRtException.checkNull( aSessionManager );
+    TsIllegalStateRtException.checkNoNull( sessionManager );
+    sessionManager = aSessionManager;
   }
 
   @Override
@@ -327,6 +351,16 @@ public class S5BackendCoreSingleton
   public <T extends IS5BackendSupportSingleton> T get( String aSupportId, Class<T> aSupportInterface ) {
     TsNullArgumentRtException.checkNulls( aSupportId, aSupportInterface );
     try {
+      int waitCount = 0;
+      long startTime = System.currentTimeMillis();
+      while( !isReadySupportSingletons() ) {
+        if( System.currentTimeMillis() - startTime > SUPPORT_READY_TIMEOUT ) {
+          throw new TsInternalErrorRtException( "supports not ready" ); //$NON-NLS-1$
+        }
+        logger().warning( "Waiting load support singletons needs for backend implementation. %d", //$NON-NLS-1$
+            Integer.valueOf( waitCount++ ) );
+        Thread.sleep( SUPPORT_READY_CHECK_INTERVAL );
+      }
       return aSupportInterface.cast( backendSupports.getByKey( aSupportId ) );
     }
     catch( Exception ex ) {
@@ -440,7 +474,7 @@ public class S5BackendCoreSingleton
       stat.onEvent( STAT_BACKEND_NODE_MAX_NON_HEAP_MEMORY, avFloat( pi.maxNonHeapMemory() ) );
       stat.onEvent( STAT_BACKEND_NODE_USED_NON_HEAP_MEMORY, avFloat( pi.usedNonHeapMemory() ) );
       stat.onEvent( STAT_BACKEND_NODE_OPEN_TX_MAX, avInt( txManager.openCount() ) );
-      stat.onEvent( STAT_BACKEND_NODE_OPEN_SESSION_MAX, avInt( sessionManager.openSessionCount() ) );
+      stat.onEvent( STAT_BACKEND_NODE_OPEN_SESSION_MAX, avInt( sessionManager().openSessionCount() ) );
       stat.update();
     }
     if( overloadModeStartTime > 0 && currTime - overloadModeStartTime > STARTUP_OVERLOAD_TIMEOUT ) {
@@ -483,6 +517,23 @@ public class S5BackendCoreSingleton
     overloadModeStartTime = 0;
     S5Lockable.setAccessTimeoutDefault( ACCESS_TIMEOUT_DEFAULT );
     logger().info( MSG_END_OVERLOAD );
+  }
+
+  /**
+   * Проверяет, все ли сиглетоны поддержки необходимые для реализации бекенда, завершили загрузку
+   *
+   * @return boolean <b>true</b> все синглетоны завершили загрузку. <b>false</b> не все синглетоны завершили загрузку
+   */
+  private boolean isReadySupportSingletons() {
+    IStringList singletonIds = backendSupports.keys();
+    for( IS5BackendAddonCreator creator : initialConfig.impl().baCreators() ) {
+      for( String singletonId : creator.supportSingletonIds() ) {
+        if( !singletonIds.hasElem( singletonId ) ) {
+          return false;
+        }
+      }
+    }
+    return true;
   }
 
   /**

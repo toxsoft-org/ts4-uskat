@@ -6,7 +6,7 @@ import java.util.ResourceBundle;
 @SuppressWarnings( { "unused" } )
 class Messages {
 
-  private static final String BUNDLE_NAME = "org.toxsoft.uskat.s5.client.messages"; //$NON-NLS-1$
+  private static final String BUNDLE_NAME = "org.toxsoft.uskat.s5.common.messages"; //$NON-NLS-1$
 
   private static final ResourceBundle RESOURCE_BUNDLE = ResourceBundle.getBundle( BUNDLE_NAME );
 

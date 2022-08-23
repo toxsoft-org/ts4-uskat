@@ -21,6 +21,7 @@ interface IS5Resources {
 
   String MSG_CREATE_SESSION_REQUEST      = Messages.getString( "IS5Resources.MSG_CREATE_SESSION_REQUEST" );      //$NON-NLS-1$
   String MSG_SESSION_CONTEXT             = Messages.getString( "IS5Resources.MSG_SESSION_CONTEXT" );             //$NON-NLS-1$
+  String MSG_SESSION_INITIALIZE          = "initialize session";                                                 //$NON-NLS-1$
   String MSG_SESSION_ACTIVATE            = Messages.getString( "IS5Resources.MSG_SESSION_ACTIVATE" );            //$NON-NLS-1$
   String MSG_SESSION_PASSIVATE           = Messages.getString( "IS5Resources.MSG_SESSION_PASSIVATE" );           //$NON-NLS-1$
   String MSG_SESSION_REMOVE              = Messages.getString( "IS5Resources.MSG_SESSION_REMOVE" );              //$NON-NLS-1$

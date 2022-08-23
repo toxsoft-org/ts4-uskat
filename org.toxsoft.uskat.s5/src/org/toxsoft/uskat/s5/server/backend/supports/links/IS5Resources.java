@@ -25,26 +25,22 @@ interface IS5Resources {
   // ------------------------------------------------------------------------------------
   // Тексты ошибок
   //
-  String MSG_ERR_LINK_FWD_CONSTRUCTOR_NOT_FOUND1 =
-      Messages.getString( "IS5Resources.MSG_ERR_LINK_FWD_CONSTRUCTOR_NOT_FOUND1" );                                     //$NON-NLS-1$
-  String MSG_ERR_LINK_FWD_CONSTRUCTOR_NOT_FOUND2 =
-      Messages.getString( "IS5Resources.MSG_ERR_LINK_FWD_CONSTRUCTOR_NOT_FOUND2" );                                     //$NON-NLS-1$
-  String MSG_ERR_LINK_REV_CONSTRUCTOR_NOT_FOUND1 =
-      Messages.getString( "IS5Resources.MSG_ERR_LINK_REV_CONSTRUCTOR_NOT_FOUND1" );                                     //$NON-NLS-1$
-  String MSG_ERR_LINK_REV_CONSTRUCTOR_NOT_FOUND2 =
-      Messages.getString( "IS5Resources.MSG_ERR_LINK_REV_CONSTRUCTOR_NOT_FOUND2" );                                     //$NON-NLS-1$
-  String MSG_ERR_LINK_REV_CONSTRUCTOR_NOT_FOUND3 =
-      Messages.getString( "IS5Resources.MSG_ERR_LINK_REV_CONSTRUCTOR_NOT_FOUND3" );                                     //$NON-NLS-1$
-  String MSG_ERR_READ_JDBC_UNEXPECTED            = Messages.getString( "IS5Resources.MSG_ERR_READ_JDBC_UNEXPECTED" );   //$NON-NLS-1$
-  String MSG_ERR_LINK_IMPL_NOT_FOUND             = Messages.getString( "IS5Resources.MSG_ERR_LINK_IMPL_NOT_FOUND" );    //$NON-NLS-1$
-  String MSG_ERR_SQL_EXECUTE_UNEXPECTED          = Messages.getString( "IS5Resources.MSG_ERR_SQL_EXECUTE_UNEXPECTED" ); //$NON-NLS-1$
-  String MSG_ERR_READ_UNEXPECTED                 = Messages.getString( "IS5Resources.MSG_ERR_READ_UNEXPECTED" );        //$NON-NLS-1$
-  String MSG_ERR_CLASS_DONT_HAVE_LINK            = Messages.getString( "IS5Resources.MSG_ERR_CLASS_DONT_HAVE_LINK" );   //$NON-NLS-1$
-  String MSG_ERR_OBJECT_DONT_HAVE_LINK           = Messages.getString( "IS5Resources.MSG_ERR_OBJECT_DONT_HAVE_LINK" );  //$NON-NLS-1$
-  String MSG_ERR_OBJECT_NOT_FOUND                = Messages.getString( "IS5Resources.MSG_ERR_OBJECT_NOT_FOUND" );       //$NON-NLS-1$
+  String ERR_LINK_FWD_CONSTRUCTOR_NOT_FOUND1 = Messages.getString( "IS5Resources.ERR_LINK_FWD_CONSTRUCTOR_NOT_FOUND1" ); //$NON-NLS-1$
+  String ERR_LINK_FWD_CONSTRUCTOR_NOT_FOUND2 = Messages.getString( "IS5Resources.ERR_LINK_FWD_CONSTRUCTOR_NOT_FOUND2" ); //$NON-NLS-1$
+  String ERR_LINK_REV_CONSTRUCTOR_NOT_FOUND1 = Messages.getString( "IS5Resources.ERR_LINK_REV_CONSTRUCTOR_NOT_FOUND1" ); //$NON-NLS-1$
+  String ERR_LINK_REV_CONSTRUCTOR_NOT_FOUND2 = Messages.getString( "IS5Resources.ERR_LINK_REV_CONSTRUCTOR_NOT_FOUND2" ); //$NON-NLS-1$
+  String ERR_LINK_REV_CONSTRUCTOR_NOT_FOUND3 = Messages.getString( "IS5Resources.ERR_LINK_REV_CONSTRUCTOR_NOT_FOUND3" ); //$NON-NLS-1$
+  String ERR_READ_JDBC_UNEXPECTED            = Messages.getString( "IS5Resources.ERR_READ_JDBC_UNEXPECTED" );            //$NON-NLS-1$
+  String ERR_LINK_IMPL_NOT_FOUND             = Messages.getString( "IS5Resources.ERR_LINK_IMPL_NOT_FOUND" );             //$NON-NLS-1$
+  String ERR_SQL_EXECUTE_UNEXPECTED          = Messages.getString( "IS5Resources.ERR_SQL_EXECUTE_UNEXPECTED" );          //$NON-NLS-1$
+  String ERR_READ_UNEXPECTED                 = Messages.getString( "IS5Resources.ERR_READ_UNEXPECTED" );                 //$NON-NLS-1$
+  String ERR_CLASS_DONT_HAVE_LINK            = Messages.getString( "IS5Resources.ERR_CLASS_DONT_HAVE_LINK" );            //$NON-NLS-1$
+  String ERR_OBJECT_DONT_HAVE_LINK           = Messages.getString( "IS5Resources.ERR_OBJECT_DONT_HAVE_LINK" );           //$NON-NLS-1$
+  String ERR_OBJECT_NOT_FOUND                = Messages.getString( "IS5Resources.ERR_OBJECT_NOT_FOUND" );                //$NON-NLS-1$
 
-  String MSG_ERR_CREATE_LINK_UNEXPECTED = Messages.getString( "IS5Resources.MSG_ERR_CREATE_LINK_UNEXPECTED" ); //$NON-NLS-1$
-  String MSG_ERR_WRITE_EXIST_LINK       = Messages.getString( "IS5Resources.MSG_ERR_WRITE_EXIST_LINK" );       //$NON-NLS-1$
-  String MSG_ERR_WRITE_NEW_LINK         = Messages.getString( "IS5Resources.MSG_ERR_WRITE_NEW_LINK" );         //$NON-NLS-1$
-  String MSG_ERR_WRITE_REMOVE_LINK      = Messages.getString( "IS5Resources.MSG_ERR_WRITE_REMOVE_LINK" );      //$NON-NLS-1$
+  String ERR_CREATE_LINK_UNEXPECTED = Messages.getString( "IS5Resources.ERR_CREATE_LINK_UNEXPECTED" ); //$NON-NLS-1$
+  String ERR_WRITE_EXIST_LINK       = Messages.getString( "IS5Resources.ERR_WRITE_EXIST_LINK" );       //$NON-NLS-1$
+  String ERR_WRITE_NEW_LINK         = Messages.getString( "IS5Resources.ERR_WRITE_NEW_LINK" );         //$NON-NLS-1$
+  String ERR_WRITE_REMOVE_LINK      = Messages.getString( "IS5Resources.ERR_WRITE_REMOVE_LINK" );      //$NON-NLS-1$
+  String ERR_NOT_FOUND_LINK_OBJ     = Messages.getString( "IS5Resources.ERR_NOT_FOUND_LINK_OBJ" );     //$NON-NLS-1$
 }

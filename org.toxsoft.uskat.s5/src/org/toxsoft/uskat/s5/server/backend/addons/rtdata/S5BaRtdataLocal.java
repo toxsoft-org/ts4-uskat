@@ -104,13 +104,15 @@ class S5BaRtdataLocal
   public void doJob() {
     long currTime = System.currentTimeMillis();
     synchronized (baData) {
-      if( currTime - baData.lastCurrDataToSendTime > baData.currDataToSendTimeout ) {
+      if( baData.currDataToSend.size() > 0
+          && currTime - baData.lastCurrDataToSendTime > baData.currDataToSendTimeout ) {
         // Отправка данных от фронтенда в бекенд
         owner().onFrontendMessage( BaMsgRtdataCurrData.INSTANCE.makeMessage( baData.currDataToSend ) );
         baData.currDataToSend.clear();
         baData.lastCurrDataToSendTime = currTime;
       }
-      if( currTime - baData.lastHistDataToSendTime > baData.histDataToSendTimeout ) {
+      if( baData.histDataToSend.size() > 0
+          && currTime - baData.lastHistDataToSendTime > baData.histDataToSendTimeout ) {
         // Отправка значений хранимых данных от фронтенда в бекенд
         owner().onFrontendMessage( BaMsgRtdataHistData.INSTANCE.makeMessage( baData.histDataToSend ) );
         baData.histDataToSend.clear();

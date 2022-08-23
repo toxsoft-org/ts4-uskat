@@ -93,24 +93,6 @@ interface IAdminHardConstants {
       new AdminCmdArgDef( "currDataTimeout", createType( INTEGER, "300" ), STR_ARG_CONNECT_CURRDATA_TIMEOUT );
 
   /**
-   * Аргумент {@link AdminCmdConnect}: Имя модуля сервера
-   */
-  IAdminCmdArgDef ARG_CONNECT_MODULE =
-      new AdminCmdArgDef( "module", createType( STRING, "mm-server-deploy" ), STR_ARG_CONNECT_MODULE );
-
-  /**
-   * Аргумент {@link AdminCmdConnect}: Полное имя интерфейса API(точка входа) подключения к сервера
-   */
-  IAdminCmdArgDef ARG_CONNECT_IFACE = new AdminCmdArgDef( "interface",
-      createType( STRING, "ru.toxsoft.mm.server.IMmServerApiRemote" ), STR_ARG_CONNECT_IFACE );
-
-  /**
-   * Аргумент {@link AdminCmdConnect}: Имя (без доменной части) бина API(точка входа) подключения к сервера
-   */
-  IAdminCmdArgDef ARG_CONNECT_BEAN =
-      new AdminCmdArgDef( "bean", createType( STRING, "MmServerApiSessionImpl" ), STR_ARG_CONNECT_BEAN );
-
-  /**
    * Аргумент {@link AdminCmdConnect}: Имя класса инициализатора клиентского API
    */
   IAdminCmdArgDef ARG_CONNECT_INITIALIZER =

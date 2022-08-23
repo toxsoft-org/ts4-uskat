@@ -203,6 +203,7 @@ public class S5BackendSession
       throws EJBException,
       RemoteException {
     logger().info( MSG_SESSION_CONTEXT, aContext );
+    initialize();
   }
 
   @Override
@@ -256,6 +257,11 @@ public class S5BackendSession
   // ------------------------------------------------------------------------------------
   // Реализация интерфейса IS5BackendSession
   //
+  @Override
+  public void initialize() {
+    logger().info( MSG_SESSION_CONTEXT );
+  }
+
   @Override
   // TODO: 2020-09-02 mvkd
   // @TransactionAttribute( TransactionAttributeType.REQUIRES_NEW )
@@ -476,9 +482,9 @@ public class S5BackendSession
       IDtoObject obj = objectsBackend.findObject( sessionID );
       IOptionSetEdit attrs = new OptionSet( obj.attrs() );
       IOptionSetEdit backendSpecificParams =
-          new OptionSet( attrs.getValobj( ISkSession.ATRID_BACKEND_SPECIFIC_PARAMS ) );
+          new OptionSet( attrs.getValobj( ISkSession.AID_BACKEND_SPECIFIC_PARAMS ) );
       OP_SESSION_CLUSTER_TOPOLOGY.setValue( backendSpecificParams, avValobj( aClusterTopology ) );
-      attrs.setValobj( ISkSession.ATRID_BACKEND_SPECIFIC_PARAMS, backendSpecificParams );
+      attrs.setValobj( ISkSession.AID_BACKEND_SPECIFIC_PARAMS, backendSpecificParams );
       IDtoObject dpu = new DtoObject( sessionID, attrs, obj.rivets().map() );
       // Создание объекта сессия. false: интерсепция запрещена
       objectsBackend.writeObjects( IS5FrontendRear.NULL, ISkidList.EMPTY, new ElemArrayList<>( dpu ), false );

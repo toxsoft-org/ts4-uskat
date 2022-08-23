@@ -135,6 +135,7 @@ public class S5ClassEntity
     parent = null;
     parentId = TsLibUtils.EMPTY_STRING;
     attrString = DtoAttrInfo.KEEPER.coll2str( IStridablesList.EMPTY );
+    rivetString = DtoRivetInfo.KEEPER.coll2str( IStridablesList.EMPTY );
     linkString = DtoLinkInfo.KEEPER.coll2str( IStridablesList.EMPTY );
     rtdataString = DtoRtdataInfo.KEEPER.coll2str( IStridablesList.EMPTY );
     cmdString = DtoCmdInfo.KEEPER.coll2str( IStridablesList.EMPTY );
@@ -331,7 +332,6 @@ public class S5ClassEntity
   @Override
   public IStridablesList<IDtoAttrInfo> attrInfos() {
     if( attrInfos == null ) {
-      // attrInfos = str2StridablesList( attrString, DtoAttrInfo.KEEPER );
       attrInfos = new StridablesList<>( DtoAttrInfo.KEEPER.str2coll( attrString ) );
     }
     return attrInfos;

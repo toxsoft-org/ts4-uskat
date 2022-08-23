@@ -56,10 +56,7 @@ public final class S5BackendRemote
       // Передача сообщения серверу
       S5CallbackOnMessage.send( connection.callbackTxChannel(), aMessage );
     } );
-    // Подключение к серверу
-    connection.openSession( openArgs().params(), progressMonitor() );
-    // Признак получения соединения
-    wasConnect = true;
+    // Соединение открывается в doInitialize
   }
 
   // ------------------------------------------------------------------------------------
@@ -188,6 +185,17 @@ public final class S5BackendRemote
   // ------------------------------------------------------------------------------------
   // Реализация абстрактных методов
   //
+  /**
+   * Провести инициализацию бекенда в наследнике. Вызывается после вызова конструктора
+   */
+  @Override
+  protected void doInitialize() {
+    // Подключение к серверу
+    connection.openSession( openArgs().params(), progressMonitor() );
+    // Признак получения соединения
+    wasConnect = true;
+  }
+
   @Override
   protected boolean doIsLocal() {
     return false;

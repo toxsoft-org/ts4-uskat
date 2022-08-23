@@ -2,8 +2,8 @@ package org.toxsoft.uskat.s5.server.backend;
 
 import javax.ejb.Local;
 
-import org.toxsoft.core.tslib.utils.errors.TsIllegalArgumentRtException;
-import org.toxsoft.core.tslib.utils.errors.TsNullArgumentRtException;
+import org.toxsoft.core.tslib.utils.errors.*;
+import org.toxsoft.uskat.s5.server.sessions.IS5SessionManager;
 
 /**
  * Интерфейс синглетона реестра поддержки бекендов {@link IS5BackendSupportSingleton}
@@ -12,6 +12,15 @@ import org.toxsoft.core.tslib.utils.errors.TsNullArgumentRtException;
  */
 @Local
 public interface IS5BackendSupportRegistry {
+
+  /**
+   * Установить менеджера сессий
+   *
+   * @param aSessionManager {@link IS5SessionManager} менеджер сессий
+   * @throws TsNullArgumentRtException аргумент = null
+   * @throws TsIllegalStateRtException менеджер сессий уже установлен
+   */
+  void setSessionManager( IS5SessionManager aSessionManager );
 
   /**
    * Добавляет в бекенд синглетон поддержки

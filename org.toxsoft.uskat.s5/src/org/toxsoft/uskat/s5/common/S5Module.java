@@ -1,13 +1,13 @@
 package org.toxsoft.uskat.s5.common;
 
 import static org.toxsoft.core.tslib.av.impl.AvUtils.*;
-import static org.toxsoft.core.tslib.av.impl.DataDef.*;
 import static org.toxsoft.core.tslib.av.metainfo.IAvMetaConstants.*;
 import static org.toxsoft.uskat.s5.common.IS5Resources.*;
 
 import java.io.Serializable;
 
 import org.toxsoft.core.tslib.av.EAtomicType;
+import org.toxsoft.core.tslib.av.impl.DataDef;
 import org.toxsoft.core.tslib.av.metainfo.IDataDef;
 import org.toxsoft.core.tslib.av.opset.IOptionSet;
 import org.toxsoft.core.tslib.av.opset.impl.OptionSetUtils;
@@ -34,7 +34,7 @@ public final class S5Module
    * <p>
    * Тип: {@link EAtomicType#VALOBJ} содержит {@link TsVersion}
    */
-  public static final IDataDef DDEF_VERSION = create( "Version", EAtomicType.VALOBJ, //$NON-NLS-1$
+  public static final IDataDef DDEF_VERSION = DataDef.create( "Version", EAtomicType.VALOBJ, //$NON-NLS-1$
       TSID_NAME, STR_N_VERSION, //
       TSID_DESCRIPTION, STR_D_VERSION, //
       TSID_IS_NULL_ALLOWED, AV_FALSE, //
@@ -45,7 +45,7 @@ public final class S5Module
    * <p>
    * Тип: {@link EAtomicType#VALOBJ} содержит {@link TsVersion}
    */
-  public static final IDataDef DDEF_DEPENDS = create( "Depends", EAtomicType.VALOBJ, //$NON-NLS-1$
+  public static final IDataDef DDEF_DEPENDS = DataDef.create( "Depends", EAtomicType.VALOBJ, //$NON-NLS-1$
       TSID_NAME, STR_N_DEPENDS, //
       TSID_DESCRIPTION, STR_D_DEPENDS, //
       TSID_IS_NULL_ALLOWED, AV_FALSE, //

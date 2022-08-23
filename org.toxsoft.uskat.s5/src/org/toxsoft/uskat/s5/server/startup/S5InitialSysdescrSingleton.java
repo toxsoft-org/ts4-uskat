@@ -1,6 +1,5 @@
 package org.toxsoft.uskat.s5.server.startup;
 
-import static org.toxsoft.uskat.concurrent.S5SynchronizedConnection.*;
 import static org.toxsoft.uskat.s5.server.IS5ServerHardConstants.*;
 import static org.toxsoft.uskat.s5.server.startup.IS5Resources.*;
 
@@ -96,7 +95,7 @@ public abstract class S5InitialSysdescrSingleton
   protected void doInit() {
     TsIllegalStateRtException.checkNoNull( connection );
     // Подключение к серверу
-    connection = createSynchronizedConnection( localConnectionSingleton.open( id() ) );
+    connection = localConnectionSingleton.open( id() );
     ISkCoreApi coreApi = connection.coreApi();
     sysdescr = coreApi.sysdescr();
     objectService = coreApi.objService();

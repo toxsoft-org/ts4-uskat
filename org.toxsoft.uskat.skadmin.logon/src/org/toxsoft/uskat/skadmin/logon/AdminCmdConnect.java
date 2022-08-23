@@ -60,12 +60,6 @@ public class AdminCmdConnect
     addArg( ARG_CONNECT_FAILURE_TIMEOUT );
     // Таймаут текущих данных
     addArg( ARG_CONNECT_CURRDATA_TIMEOUT );
-    // Имя модуля сервера
-    addArg( ARG_CONNECT_MODULE );
-    // Имя интерфейса точки входа к API сервера
-    addArg( ARG_CONNECT_IFACE );
-    // Имя бина точки входа к API сервера
-    addArg( ARG_CONNECT_BEAN );
     // Имя класса-инициализатора клиентского API
     addArg( ARG_CONNECT_INITIALIZER );
     // Подключение расширения API: Реальное время

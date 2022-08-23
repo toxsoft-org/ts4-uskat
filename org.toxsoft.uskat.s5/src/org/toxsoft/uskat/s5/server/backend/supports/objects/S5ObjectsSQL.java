@@ -246,7 +246,9 @@ class S5ObjectsSQL {
     IStringMapEdit<Constructor<S5ObjectEntity>> objectContructors = new StringMap<>();
     try {
       // Выполнение запроса
-      try( Statement statement = aConnection.createStatement(); ResultSet rs = statement.executeQuery( aSQL ); ) {
+      try( Statement statement =
+          aConnection.createStatement( ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY );
+          ResultSet rs = statement.executeQuery( aSQL ); ) {
         for( boolean hasData = rs.first(); hasData; hasData = rs.next() ) {
           // Идентификатор класса объекта
           String classId = rs.getString( FIELD_CLASSID );

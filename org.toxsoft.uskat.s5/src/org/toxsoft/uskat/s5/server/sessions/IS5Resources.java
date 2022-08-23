@@ -108,4 +108,22 @@ interface IS5Resources {
   String ERR_CLOSE_LOCAL_SESSION            = "Ошибка завершения local-сессии. Причина: %s";                               //$NON-NLS-1$
   String ERR_CALLBACK_WRITER_ALREADY_EXIST  =
       "tryCreateCallbackWriter(...): для сессии %s уже существовал писатель обратных вызовов. Его работа будет завершена"; //$NON-NLS-1$
+
+  String STR_N_SESSION = "Сессия";
+  String STR_D_SESSION = "Сессия пользователя подключенного к серверу";
+
+  String STR_N_AID_STARTTIME = "Открыта";
+  String STR_D_AID_STARTTIME = "Метка времени (мсек с начала эпохи) открытия сессии";
+
+  String STR_N_AID_ENDTIME = "Закрыта";
+  String STR_D_AID_ENDTIME = "Метка времени (мсек с начала эпохи) завершения сессии";
+
+  String STR_N_AID_BACKEND_SPECIFIC_PARAMS = "Backend";
+  String STR_D_AID_BACKEND_SPECIFIC_PARAMS = "Специфичные для бекенда параметры";
+
+  String STR_N_AID_CONNECTION_CREATION_PARAMS = "Connection";
+  String STR_D_AID_CONNECTION_CREATION_PARAMS = "Параметры создания соединения";
+
+  String STR_N_LNK_USER = "Пользователь";
+  String STR_D_LNK_USER = "Пользователь, который вошел в систему";
 }
