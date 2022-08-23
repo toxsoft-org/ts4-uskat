@@ -1,6 +1,8 @@
 package org.toxsoft.uskat.s5.server.backend.addons;
 
 import static org.toxsoft.core.log4j.LoggerWrapper.*;
+import static org.toxsoft.core.tslib.av.impl.AvUtils.*;
+import static org.toxsoft.uskat.core.backend.ISkBackendHardConstant.*;
 import static org.toxsoft.uskat.s5.client.IS5ConnectionParams.*;
 import static org.toxsoft.uskat.s5.common.IS5CommonResources.*;
 import static org.toxsoft.uskat.s5.server.backend.addons.IS5Resources.*;
@@ -9,8 +11,13 @@ import static org.toxsoft.uskat.s5.utils.threads.impl.S5Lockable.*;
 import java.lang.reflect.InvocationTargetException;
 
 import org.toxsoft.core.tslib.av.IAtomicValue;
+import org.toxsoft.core.tslib.av.opset.IOptionSet;
+import org.toxsoft.core.tslib.av.opset.IOptionSetEdit;
+import org.toxsoft.core.tslib.av.opset.impl.OptionSet;
 import org.toxsoft.core.tslib.bricks.ICooperativeMultiTaskable;
+import org.toxsoft.core.tslib.bricks.ctx.ITsContext;
 import org.toxsoft.core.tslib.bricks.ctx.ITsContextRo;
+import org.toxsoft.core.tslib.bricks.ctx.impl.IAskParent;
 import org.toxsoft.core.tslib.bricks.ctx.impl.TsContext;
 import org.toxsoft.core.tslib.bricks.events.msg.*;
 import org.toxsoft.core.tslib.bricks.strid.coll.IStridablesList;
@@ -31,6 +38,7 @@ import org.toxsoft.uskat.core.backend.ISkFrontendRear;
 import org.toxsoft.uskat.core.backend.api.*;
 import org.toxsoft.uskat.core.connection.ISkConnection;
 import org.toxsoft.uskat.core.impl.AbstractSkService;
+import org.toxsoft.uskat.core.impl.SkBackendInfo;
 import org.toxsoft.uskat.s5.client.IS5ConnectionParams;
 import org.toxsoft.uskat.s5.common.S5BackendDoJobThread;
 import org.toxsoft.uskat.s5.common.sessions.ISkSession;
@@ -92,6 +100,11 @@ public abstract class S5AbstractBackend<ADDON extends IS5BackendAddon>
   private final IS5ProgressMonitor progressMonitor;
 
   /**
+   * Значения параметров бекенда
+   */
+  private final SkBackendInfo backendInfo;
+
+  /**
    * Генератор идентификаторов сессий, объектов {@link ISkSession}
    */
   private static IStridGenerator stridGenerator = new UuidStridGenerator( UuidStridGenerator.createState( "remote" ) ); //$NON-NLS-1$
@@ -137,10 +150,13 @@ public abstract class S5AbstractBackend<ADDON extends IS5BackendAddon>
    *
    * @param aFrontend {@link ISkFrontendRear} фронтенд, для которого создается бекенд
    * @param aArgs {@link ITsContextRo} аргументы (ссылки и опции) создания бекенда
+   * @param aBackendId String идентификатор бекенда
+   * @param aBackendInfoValue {@link IOptionSet} значения параметров бекенда {@link ISkBackendInfo#params()}
    * @throws TsNullArgumentRtException аргумент = null
    */
-  public S5AbstractBackend( ISkFrontendRear aFrontend, ITsContextRo aArgs ) {
-    TsNullArgumentRtException.checkNulls( aArgs, aFrontend );
+  public S5AbstractBackend( ISkFrontendRear aFrontend, ITsContextRo aArgs, String aBackendId,
+      IOptionSet aBackendInfoValue ) {
+    TsNullArgumentRtException.checkNulls( aArgs, aFrontend, aBackendId, aBackendInfoValue );
     // Параметры аутентификации
     IAtomicValue login = IS5ConnectionParams.OP_USERNAME.getValue( aArgs.params() );
     // Формирование идентификатора сессии
@@ -178,10 +194,8 @@ public abstract class S5AbstractBackend<ADDON extends IS5BackendAddon>
       }
 
     };
-    // Параметры создания бекенда с собственными параметрами
-    TsContext args = new TsContext( aArgs );
-    args.params().setValobj( IS5ConnectionParams.OP_SESSION_ID, sessionID );
-    openArgs = args;
+    // Параметры создания бекенда
+    openArgs = createContextForBackend( aArgs, sessionID );
 
     // Загручик классов
     classLoader = (aArgs.hasKey( REF_CLASSLOADER.refKey() ) ? //
@@ -204,6 +218,9 @@ public abstract class S5AbstractBackend<ADDON extends IS5BackendAddon>
     String name = "sessionID = " + sessionID.strid(); //$NON-NLS-1$
     // Задача (поток) обслуживания потребностей бекенда
     backendDojobThread = new S5BackendDoJobThread( name, this );
+    IOptionSetEdit backendInfoValue = new OptionSet( aBackendInfoValue );
+    OPDEF_SKBI_NEED_THREAD_SAFE_FRONTEND.setValue( backendInfoValue, AV_TRUE );
+    backendInfo = new SkBackendInfo( aBackendId, System.currentTimeMillis(), backendInfoValue );
   }
 
   // ------------------------------------------------------------------------------------
@@ -212,6 +229,15 @@ public abstract class S5AbstractBackend<ADDON extends IS5BackendAddon>
   @Override
   public final void initialize() {
     doInitialize();
+  }
+
+  @Override
+  public final ISkBackendInfo getBackendInfo() {
+    ISkBackendInfo serverBackendInfo = doFindServerBackendInfo();
+    if( serverBackendInfo != null ) {
+      backendInfo.params().addAll( serverBackendInfo.params() );
+    }
+    return backendInfo;
   }
 
   @Override
@@ -363,6 +389,15 @@ public abstract class S5AbstractBackend<ADDON extends IS5BackendAddon>
   protected abstract boolean doIsLocal();
 
   /**
+   * Возвращает значения параметров бекенда предоставляемых сервером
+   *
+   * @return {@link ISkBackendInfo} значения параметров бекенда или null если сервер недоступен
+   */
+  protected ISkBackendInfo doFindServerBackendInfo() {
+    return null;
+  }
+
+  /**
    * Обработать завершение работы с бекендом
    */
   protected void doClose() {
@@ -499,5 +534,36 @@ public abstract class S5AbstractBackend<ADDON extends IS5BackendAddon>
       }
     }
     return retValue;
+  }
+
+  // ------------------------------------------------------------------------------------
+  // Внутренние методы
+  //
+  /**
+   * Создание контекста для бекенда
+   *
+   * @param aContext {@link ITsContextRo} родительский контекст
+   * @param aSessionID {@link Skid} идентификатор сессии
+   * @return {@link ITsContext} контекст бекенда
+   * @throws TsNullArgumentRtException аргумент = null
+   */
+  private static ITsContext createContextForBackend( ITsContextRo aContext, Skid aSessionID ) {
+    TsNullArgumentRtException.checkNulls( aContext, aSessionID );
+    TsContext ctx = new TsContext( new IAskParent() {
+
+      @Override
+      public IAtomicValue findOp( String aId ) {
+        return aContext.params().findByKey( aId );
+      }
+
+      @Override
+      public Object findRef( String aKey ) {
+        return aContext.find( aKey );
+      }
+
+    } );
+    ctx.params().setAll( aContext.params() );
+    ctx.params().setValobj( IS5ConnectionParams.OP_SESSION_ID, aSessionID );
+    return ctx;
   }
 }

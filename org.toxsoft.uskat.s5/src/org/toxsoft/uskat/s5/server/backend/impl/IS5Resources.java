@@ -20,7 +20,6 @@ interface IS5Resources {
   String MSG_END_OVERLOAD   = Messages.getString( "IS5Resources.MSG_END_OVERLOAD" );   //$NON-NLS-1$
 
   String MSG_CREATE_SESSION_REQUEST      = Messages.getString( "IS5Resources.MSG_CREATE_SESSION_REQUEST" );      //$NON-NLS-1$
-  String MSG_SESSION_CONTEXT             = Messages.getString( "IS5Resources.MSG_SESSION_CONTEXT" );             //$NON-NLS-1$
   String MSG_SESSION_INITIALIZE          = "initialize session";                                                 //$NON-NLS-1$
   String MSG_SESSION_ACTIVATE            = Messages.getString( "IS5Resources.MSG_SESSION_ACTIVATE" );            //$NON-NLS-1$
   String MSG_SESSION_PASSIVATE           = Messages.getString( "IS5Resources.MSG_SESSION_PASSIVATE" );           //$NON-NLS-1$

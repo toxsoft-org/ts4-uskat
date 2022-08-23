@@ -132,15 +132,6 @@ public class S5LocalConnectionSingleton
     clusterManager.addCommandHandler( WHEN_OBJECTS_CHANGED_METHOD, whenObjectsChangedHandler );
     // Запуск фоновой задачи
     addOwnDoJob( DO_JOB_TIMEOUT );
-
-    // 2022-08-20 mvkd
-    logger().info( "debug1!" );
-    IS5InitialImplementSingleton initialSingleton = backend.initialConfig();
-    logger().info( "debug2!" );
-    IS5InitialImplementation initialImplementation = initialSingleton.impl();
-    logger().info( "debug3!" );
-    IStridablesList<IS5BackendAddonCreator> baCreators = initialImplementation.baCreators();
-    logger().info( "debug is success!" );
   }
 
   @Override

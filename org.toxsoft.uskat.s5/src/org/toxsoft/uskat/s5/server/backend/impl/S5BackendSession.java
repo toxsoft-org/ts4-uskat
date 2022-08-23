@@ -202,7 +202,7 @@ public class S5BackendSession
   public final void setSessionContext( SessionContext aContext )
       throws EJBException,
       RemoteException {
-    logger().info( MSG_SESSION_CONTEXT, aContext );
+    logger().info( MSG_SESSION_INITIALIZE, aContext );
     initialize();
   }
 
@@ -259,7 +259,7 @@ public class S5BackendSession
   //
   @Override
   public void initialize() {
-    logger().info( MSG_SESSION_CONTEXT );
+    logger().info( MSG_SESSION_INITIALIZE );
   }
 
   @Override

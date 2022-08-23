@@ -47,7 +47,8 @@ public enum EAdminCmdContextNames
    * <li>Текущий каталог файловой системы.</li>
    * </ul>
    */
-  CTX_PLUGIN_PATHS( "ru.uskat.s5.admin.plugin.paths", E_CN_D_PLUGIN_PATHS, E_CN_N_PLUGIN_PATHS, PT_SINGLE_VALOBJ ), // $NON-NLS-1$ //$NON-NLS-1$
+  CTX_PLUGIN_PATHS( "org.toxsoft.uskat.skadmin.plugin.paths", E_CN_D_PLUGIN_PATHS, E_CN_N_PLUGIN_PATHS, //$NON-NLS-1$
+      PT_SINGLE_VALOBJ ), // $NON-NLS-1$
 
   /**
    * Каталог относительного которого конечное приложение формирует свою файловую систему.

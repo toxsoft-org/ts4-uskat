@@ -721,7 +721,7 @@ public abstract class AbstractAdminCmd
       throw new TsIllegalStateRtException( ERR_ARG_CANT_INT_LIST_NARROW, id(), aArgId );
     }
     IList<IAtomicValue> valueList = value.valueList();
-    IIntListEdit retValue = new IntArrayList( valueList.size() );
+    IIntListEdit retValue = new IntArrayList();
     for( int index = 0, n = valueList.size(); index < n; index++ ) {
       retValue.add( valueList.get( index ).asInt() );
     }
