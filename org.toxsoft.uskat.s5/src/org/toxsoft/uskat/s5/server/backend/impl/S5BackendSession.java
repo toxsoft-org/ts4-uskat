@@ -202,7 +202,7 @@ public class S5BackendSession
   public final void setSessionContext( SessionContext aContext )
       throws EJBException,
       RemoteException {
-    logger().info( MSG_SESSION_CONTEXT, aContext );
+    logger().info( MSG_SESSION_INITIALIZE, aContext );
     initialize();
   }
 
@@ -259,7 +259,7 @@ public class S5BackendSession
   //
   @Override
   public void initialize() {
-    logger().info( MSG_SESSION_CONTEXT );
+    logger().info( MSG_SESSION_INITIALIZE );
   }
 
   @Override
@@ -310,17 +310,9 @@ public class S5BackendSession
         throw new S5AccessDeniedException( ERR_WRONG_USER );
       }
       String ATRID_PASSWORD = ISkUserServiceHardConstants.ATRID_PASSWORD;
-      // Пароль или его хэшкод пользователя
-      String userPswd = user.attrs().getValue( ATRID_PASSWORD ).asString();
-      // Хэшкод пароля
-      // TODO:
-      // String pswdHashCode = SkUserService.getPasswordHashCode( pswd );
-      String pswdHashCode = getPasswordHashCode( pswd );
-      // Пароль указан в "сыром" виде
-      boolean isPlainPswd = userPswd.equals( pswd );
-      // Пароль указан в виде хэшкода
-      boolean isHashCodePswd = userPswd.equals( pswdHashCode );
-      if( !isPlainPswd && !isHashCodePswd ) { // Доступ запрещен - неверное имя пользователя или пароль
+      // Хэшкод пароля пользователя
+      String pswdHashCode = user.attrs().getValue( ATRID_PASSWORD ).asString();
+      if( !pswdHashCode.equals( pswd ) ) { // Доступ запрещен - неверное имя пользователя или пароль
         Gwid eventGwid = Gwid.createEvent( ISkSystem.CLASS_ID, ISkSystem.THIS_SYSTEM, ISkSystem.EVID_LOGIN_FAILED );
         IOptionSetEdit params = new OptionSet();
         params.setStr( ISkSystem.EVPID_LOGIN, login );
@@ -328,14 +320,6 @@ public class S5BackendSession
         SkEvent event = new SkEvent( startTime, eventGwid, params );
         eventBackend.fireAsyncEvents( IS5FrontendRear.NULL, new TimedList<>( event ) );
         throw new S5AccessDeniedException( ERR_WRONG_USER );
-      }
-      if( isPlainPswd ) {
-        // Формируем для пароля hashCode
-        IOptionSetEdit attrs = new OptionSet( user.attrs() );
-        attrs.setValue( ATRID_PASSWORD, avStr( pswdHashCode ) );
-        IDtoObject dpu = new DtoObject( user.skid(), attrs, user.rivets().map() );
-        objectsBackend.writeObjects( IS5FrontendRear.NULL, ISkidList.EMPTY, new ElemArrayList<>( dpu ), false );
-        logger().warning( "init(...): write password hashcode" ); //$NON-NLS-1$
       }
       // 2021-09-18 mvkd требуется отсекать "старых" клиентов
       // Проверка версии клиента
@@ -481,8 +465,7 @@ public class S5BackendSession
       // Сохранение топологии в ISkSession
       IDtoObject obj = objectsBackend.findObject( sessionID );
       IOptionSetEdit attrs = new OptionSet( obj.attrs() );
-      IOptionSetEdit backendSpecificParams =
-          new OptionSet( attrs.getValobj( ISkSession.AID_BACKEND_SPECIFIC_PARAMS ) );
+      IOptionSetEdit backendSpecificParams = new OptionSet( attrs.getValobj( ISkSession.AID_BACKEND_SPECIFIC_PARAMS ) );
       OP_SESSION_CLUSTER_TOPOLOGY.setValue( backendSpecificParams, avValobj( aClusterTopology ) );
       attrs.setValobj( ISkSession.AID_BACKEND_SPECIFIC_PARAMS, backendSpecificParams );
       IDtoObject dpu = new DtoObject( sessionID, attrs, obj.rivets().map() );

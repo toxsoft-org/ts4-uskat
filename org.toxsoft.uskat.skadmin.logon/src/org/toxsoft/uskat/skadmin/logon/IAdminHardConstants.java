@@ -54,12 +54,13 @@ interface IAdminHardConstants {
   /**
    * Аргумент {@link AdminCmdConnect}: Имя пользователя
    */
-  IAdminCmdArgDef ARG_CONNECT_USER = new AdminCmdArgDef( "user", PT_SINGLE_STRING, STR_ARG_CONNECT_USER );
+  IAdminCmdArgDef ARG_CONNECT_USER = new AdminCmdArgDef( "user", createType( STRING, "root" ), STR_ARG_CONNECT_USER );
 
   /**
    * Аргумент {@link AdminCmdConnect}: Пароль пользователя
    */
-  IAdminCmdArgDef ARG_CONNECT_PASSWORD = new AdminCmdArgDef( "password", PT_SINGLE_STRING, STR_ARG_CONNECT_PASSWORD );
+  IAdminCmdArgDef ARG_CONNECT_PASSWORD =
+      new AdminCmdArgDef( "password", createType( STRING, "1" ), STR_ARG_CONNECT_PASSWORD );
 
   /**
    * Аргумент {@link AdminCmdConnect}: Список сетевых имен или IP-адресов узлов кластера сервера

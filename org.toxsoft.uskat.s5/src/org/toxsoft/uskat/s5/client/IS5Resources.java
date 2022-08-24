@@ -7,14 +7,18 @@ package org.toxsoft.uskat.s5.client;
  */
 interface IS5Resources {
 
-  String D_SESSION_ID = Messages.getString( "IS5Resources.D_SESSION_ID" ); //$NON-NLS-1$
-  String N_SESSION_ID = Messages.getString( "IS5Resources.N_SESSION_ID" ); //$NON-NLS-1$
-  String D_USERNAME   = Messages.getString( "IS5Resources.D_USERNAME" );   //$NON-NLS-1$
-  String N_USERNAME   = Messages.getString( "IS5Resources.N_USERNAME" );   //$NON-NLS-1$
-  String D_PASSWORD   = Messages.getString( "IS5Resources.D_PASSWORD" );   //$NON-NLS-1$
-  String N_PASSWORD   = Messages.getString( "IS5Resources.N_PASSWORD" );   //$NON-NLS-1$
-  String D_HOSTS      = Messages.getString( "IS5Resources.D_HOSTS" );      //$NON-NLS-1$
-  String N_HOSTS      = Messages.getString( "IS5Resources.N_HOSTS" );      //$NON-NLS-1$
+  String D_SESSION_ID       = Messages.getString( "IS5Resources.D_SESSION_ID" );       //$NON-NLS-1$
+  String N_SESSION_ID       = Messages.getString( "IS5Resources.N_SESSION_ID" );       //$NON-NLS-1$
+  String D_USERNAME         = Messages.getString( "IS5Resources.D_USERNAME" );         //$NON-NLS-1$
+  String N_USERNAME         = Messages.getString( "IS5Resources.N_USERNAME" );         //$NON-NLS-1$
+  String D_PASSWORD         = Messages.getString( "IS5Resources.D_PASSWORD" );         //$NON-NLS-1$
+  String N_PASSWORD         = Messages.getString( "IS5Resources.N_PASSWORD" );         //$NON-NLS-1$
+  String D_WILDFLY_LOGIN    = Messages.getString( "IS5Resources.D_WILDFLY_LOGIN" );    //$NON-NLS-1$
+  String N_WILDFLY_LOGIN    = Messages.getString( "IS5Resources.N_WILDFLY_LOGIN" );    //$NON-NLS-1$
+  String D_WILDFLY_PASSWORD = Messages.getString( "IS5Resources.D_WILDFLY_PASSWORD" ); //$NON-NLS-1$
+  String N_WILDFLY_PASSWORD = Messages.getString( "IS5Resources.N_WILDFLY_PASSWORD" ); //$NON-NLS-1$
+  String D_HOSTS            = Messages.getString( "IS5Resources.D_HOSTS" );            //$NON-NLS-1$
+  String N_HOSTS            = Messages.getString( "IS5Resources.N_HOSTS" );            //$NON-NLS-1$
 
   String D_CLIENT_ADDRESS = Messages.getString( "IS5Resources.D_CLIENT_ADDRESS" ); //$NON-NLS-1$
   String N_CLIENT_ADDRESS = Messages.getString( "IS5Resources.N_CLIENT_ADDRESS" ); //$NON-NLS-1$

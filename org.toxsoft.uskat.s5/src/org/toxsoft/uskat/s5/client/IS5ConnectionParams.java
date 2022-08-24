@@ -89,6 +89,34 @@ public interface IS5ConnectionParams {
   // Адресная информация для подключения к бекенду
   //
   /**
+   * Параметр: Имя учетной записи (login) под которой произоводится подключение к серверу wildfly.
+   * <p>
+   * Под одной и той же учетной записью может работать несколько пользователей. Управление учетными записями
+   * осуществляется средствами wildfly (add-user, application-users.properties, application-users.roles.properties).
+   * <p>
+   * Тип: {@link EAtomicType#STRING}
+   */
+  IDataDef OP_WILDFLY_LOGIN = create( "wildfly_login", STRING, //$NON-NLS-1$
+      TSID_NAME, N_WILDFLY_PASSWORD, //
+      TSID_DESCRIPTION, D_WILDFLY_PASSWORD, //
+      TSID_IS_NULL_ALLOWED, AV_FALSE, //
+      TSID_DEFAULT_VALUE, avStr( "root" ) ); //$NON-NLS-1$
+
+  /**
+   * Параметр: Пароль учетной записи под которой произоводится подключение к серверу wildfly.
+   * <p>
+   * Под одной и той же учетной записью может работать несколько пользователей. Управление учетными записями
+   * осуществляется средствами wildfly (add-user, application-users.properties, application-users.roles.properties).
+   * <p>
+   * Тип: {@link EAtomicType#STRING}
+   */
+  IDataDef OP_WILDFLY_PASSWORD = create( "wildfly_password", STRING, //$NON-NLS-1$
+      TSID_NAME, N_WILDFLY_PASSWORD, //
+      TSID_DESCRIPTION, D_WILDFLY_PASSWORD, //
+      TSID_IS_NULL_ALLOWED, AV_FALSE, //
+      TSID_DEFAULT_VALUE, avStr( "1" ) ); //$NON-NLS-1$
+
+  /**
    * Параметр: Список возможных точек подключения(адресов) к серверу в порядке понижения приоритета (первый основной, с
    * высшим приоритетом).
    * <p>
