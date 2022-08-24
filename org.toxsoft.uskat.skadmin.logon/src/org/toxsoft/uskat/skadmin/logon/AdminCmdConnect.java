@@ -15,6 +15,8 @@ import org.toxsoft.core.tslib.bricks.strid.coll.IStridablesListEdit;
 import org.toxsoft.core.tslib.bricks.strid.coll.impl.StridablesList;
 import org.toxsoft.core.tslib.coll.IList;
 import org.toxsoft.core.tslib.coll.primtypes.*;
+import org.toxsoft.core.tslib.coll.primtypes.impl.IntArrayList;
+import org.toxsoft.core.tslib.coll.primtypes.impl.StringArrayList;
 import org.toxsoft.uskat.core.backend.api.ISkBackendInfo;
 import org.toxsoft.uskat.core.connection.ESkConnState;
 import org.toxsoft.uskat.core.connection.ISkConnection;
@@ -124,10 +126,12 @@ public class AdminCmdConnect
     IStringList hostnames = argStrList( ARG_CONNECT_HOST );
     IIntList ports = argIntList( ARG_CONNECT_PORT );
     if( hostnames.size() == 0 ) {
-      // Неопределен список сетевых имен или ip-адресов сервера (host)
-      addResultError( ERR_CONNECT_WRONG_HOST );
-      resultFail();
-      return;
+      // Неопределен список сетевых имен сервера (host)
+      hostnames = new StringArrayList( "localhost" ); //$NON-NLS-1$
+    }
+    if( ports.size() == 0 ) {
+      // Неопределен список ip-адресов сервера
+      ports = new IntArrayList( 8080 );
     }
     if( hostnames.size() > 1 && ports.size() == 0 && hostnames.size() != ports.size() ) {
       // Количество портов не соответствует количеству узлов кластера
