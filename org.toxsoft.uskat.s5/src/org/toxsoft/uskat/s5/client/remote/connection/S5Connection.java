@@ -202,17 +202,19 @@ public final class S5Connection
    * @param aSessionID идентификатор сессии {@link ISkSession}
    * @param aClassLoader {@link ClassLoader} загрузчик классов
    * @param aFrontend {@link ISkFrontendRear} frontend
-   * @param aFrontedLock {@link S5Lockable} блокировка доступа к frontend
+   * @param aFrontendLock {@link S5Lockable} блокировка доступа к frontend
    * @throws TsNullArgumentRtException любой аргумент = null
    */
-  public S5Connection( Skid aSessionID, ClassLoader aClassLoader, ISkFrontendRear aFrontend, S5Lockable aFrontedLock ) {
+  public S5Connection( Skid aSessionID, ClassLoader aClassLoader, ISkFrontendRear aFrontend,
+      S5Lockable aFrontendLock ) {
+    TsNullArgumentRtException.checkNulls( aSessionID, aClassLoader, aFrontend, aFrontendLock );
     sessionInitData = new S5SessionInitData( aSessionID );
     sessionInitResult = new S5SessionInitResult();
     classLoader = TsNullArgumentRtException.checkNull( aClassLoader );
     // fooClassLoader = ClassLoader.getSystemClassLoader();
     frontend = TsNullArgumentRtException.checkNull( aFrontend );
-    lock = TsNullArgumentRtException.checkNull( aFrontedLock );
-    frontedLock = nativeLock( aFrontedLock );
+    lock = TsNullArgumentRtException.checkNull( aFrontendLock );
+    frontedLock = nativeLock( aFrontendLock );
     uniqueId = instanceCount++;
     logger = getLogger( getClass() );
   }
@@ -534,8 +536,12 @@ public final class S5Connection
       progressMonitor.subTask( format( USER_PROGRESS_BEFORE_CONNECT, this ) );
       fireOnBeforeConnectEvent();
 
-      String login = OP_USERNAME.getValue( options ).asString();
-      String pw = OP_PASSWORD.getValue( options ).asString();
+      // Для подключения к серверу используется wildfly-запись. Позже, в S5BackendSession.init(...) проверяется учетная
+      // запись самого пользователя
+      String login = OP_WILDFLY_LOGIN.getValue( options ).asString();
+      String pw = OP_WILDFLY_PASSWORD.getValue( options ).asString();
+
+      // Адрес сервера
       S5HostList hosts = OP_HOSTS.getValue( options ).asValobj();
       String moduleName = IS5ImplementConstants.BACKEND_SERVER_MODULE_ID;
       String apiIntefaceName = IS5ImplementConstants.BACKEND_SESSION_INTERFACE;
