@@ -1,36 +1,46 @@
-package org.toxsoft.uskat.base.gui.km5.models;
+package org.toxsoft.uskat.base.gui.km5;
 
 import static org.toxsoft.core.tsgui.m5.IM5Constants.*;
 import static org.toxsoft.core.tslib.av.metainfo.IAvMetaConstants.*;
-import static org.toxsoft.uskat.base.gui.km5.models.ISkResources.*;
+import static org.toxsoft.uskat.base.gui.km5.ISkResources.*;
 import static org.toxsoft.uskat.core.ISkHardConstants.*;
 
+import org.toxsoft.core.tsgui.m5.gui.panels.impl.*;
 import org.toxsoft.core.tsgui.m5.model.impl.*;
 import org.toxsoft.core.tslib.utils.errors.*;
-import org.toxsoft.uskat.base.gui.km5.*;
 import org.toxsoft.uskat.core.*;
 import org.toxsoft.uskat.core.api.objserv.*;
+import org.toxsoft.uskat.core.api.sysdescr.*;
+import org.toxsoft.uskat.core.api.users.*;
 import org.toxsoft.uskat.core.connection.*;
 import org.toxsoft.uskat.core.utils.*;
 
 /**
- * Базовый класс моделирования Sk-объектов.
+ * Base class of all KM5 modelled Sk-classes.
  * <p>
- * Этот класс низкоуровневый - не добавляет никакие поля в модель, не имеет менеджера ЖЦ и т.п. Чаще всего, если нужно
- * уточнить только некторые аспекты M5-моделирования конкретного класса предметной области, следует унаследоваться и
- * уточнить поведение класса {@link KM5GenericM5Model}. Этот класс имеет смысл использовать при создании библотечных
- * моделей, например, для использования со служебными тематическими моделями {@link KM5AbstractContributor}
- * справочников, НСИ и т.п.
+ * This class only declares {@link ISkObject} attributes and introduces an {@link ISkConnected} implementation
+ * {@link #skConn()}. This class assumes that the Sk-connection, the same as used in domain must be supplied in
+ * constructor to allow easyly write initialization code in subclass constructors. This class does <b>not</b> adds any
+ * M5-field definition, lifecycle manager or custom GUI panels. Single purpose is to be the very base of other
+ * implementations.
+ * <p>
+ * This class is intended to create M5-models of service classes in {@link M5AbstractCollectionPanel} implemetation like
+ * {@link ISkUser} or refbooks, etc. <i>Service classes</i> means classes claimed and owned by Sk-services other that
+ * {@link ISkSysdescr}. See {@link ISkSysdescr#determineClassClaimingServiceId(String)}.
+ * <p>
+ * For subject area classes claimed by {@link ISkSysdescr} use {@link KM5ModelGeneric}.
  *
- * @author goga
- * @param <T> - конкретный класс моделируемой сущности
+ * @see ISkSysdescr#determineClassClaimingServiceId(String)
+ * @see KM5ModelGeneric
+ * @author hazard157
+ * @param <T> - modelled entity type
  */
-public class KM5BasicModel<T extends ISkObject>
+public class KM5ModelBasic<T extends ISkObject>
     extends M5Model<T>
     implements ISkConnected {
 
   /**
-   * Атрибут {@link ISkObject#classId()} - {@link ISkHardConstants#AID_CLASS_ID}.
+   * Attribute {@link ISkObject#classId()} - {@link ISkHardConstants#AID_CLASS_ID}.
    */
   public final KM5AttributeFieldDef<T> SKID = new KM5AttributeFieldDef<>( ISkHardConstants.AID_SKID, DDEF_VALOBJ ) {
 
@@ -43,7 +53,7 @@ public class KM5BasicModel<T extends ISkObject>
   };
 
   /**
-   * Атрибут {@link ISkObject#classId()} - {@link ISkHardConstants#AID_CLASS_ID}.
+   * Attribute {@link ISkObject#classId()} - {@link ISkHardConstants#AID_CLASS_ID}.
    */
   public final KM5AttributeFieldDef<T> CLASS_ID = new KM5AttributeFieldDef<>( AID_CLASS_ID, DDEF_IDPATH ) {
 
@@ -56,7 +66,7 @@ public class KM5BasicModel<T extends ISkObject>
   };
 
   /**
-   * Атрибут {@link ISkObject#strid()} - {@link ISkHardConstants#AID_STRID}.
+   * Attribute {@link ISkObject#strid()} - {@link ISkHardConstants#AID_STRID}.
    */
   public final KM5AttributeFieldDef<T> STRID = new KM5AttributeFieldDef<>( AID_STRID, DDEF_IDPATH ) {
 
@@ -69,7 +79,7 @@ public class KM5BasicModel<T extends ISkObject>
   };
 
   /**
-   * Атрибут {@link ISkObject#nmName()} - {@link ISkHardConstants#AID_NAME}.
+   * Attribute {@link ISkObject#nmName()} - {@link ISkHardConstants#AID_NAME}.
    * <p>
    * Никогда не возвращает неотображаемую пустую строку, если имя пустое, то возвращает идентификатор.
    */
@@ -93,7 +103,7 @@ public class KM5BasicModel<T extends ISkObject>
   };
 
   /**
-   * Атрибут {@link ISkObject#description()} - {@link ISkHardConstants#AID_DESCRIPTION}.
+   * Attribute {@link ISkObject#description()} - {@link ISkHardConstants#AID_DESCRIPTION}.
    */
   public final KM5AttributeFieldDef<T> DESCRIPTION = new KM5AttributeFieldDef<>( AID_DESCRIPTION, DDEF_NAME ) {
 
@@ -108,28 +118,23 @@ public class KM5BasicModel<T extends ISkObject>
   private final ISkConnection conn;
 
   /**
-   * Конструктор.
+   * Constructor.
    *
-   * @param aId String - идентификатор модели (чаще всего, идентификатор {@link ISkObject#classId()}
-   * @param aModelledClass {@link Class} - класс (тип) моделированной S5-сущности
-   * @param aConn {@link ISkConnection} - соединение с сервером, используемое моделью
-   * @throws TsNullArgumentRtException любой аргумент = <code>null</code>
+   * @param aId String - the model ID mostly the same as {@link ISkObject#classId()}
+   * @param aModelledClass {@link Class} - concrete java type of objects
+   * @param aConn {@link ISkConnection} - Sk-connection to be used in constructor
+   * @throws TsNullArgumentRtException any argument = <code>null</code>
    */
-  public KM5BasicModel( String aId, Class<T> aModelledClass, ISkConnection aConn ) {
+  public KM5ModelBasic( String aId, Class<T> aModelledClass, ISkConnection aConn ) {
     super( aId, aModelledClass );
     conn = TsNullArgumentRtException.checkNull( aConn );
     setNameAndDescription( STR_N_KM5M_OBJECT, STR_D_KM5M_OBJECT );
   }
 
   // ------------------------------------------------------------------------------------
-  // Реализация интерфейса ISkStdContextReferences
+  // ISkConnected
   //
 
-  /**
-   * Возвращает используемое соединение с сервером.
-   *
-   * @return {@link ISkConnection} - соединение с сервером, не бывает <code>null</code>
-   */
   @Override
   public ISkConnection skConn() {
     return conn;

@@ -1,4 +1,4 @@
-package org.toxsoft.uskat.base.gui.km5.models;
+package org.toxsoft.uskat.base.gui.km5;
 
 import static org.toxsoft.core.tslib.av.metainfo.IAvMetaConstants.*;
 
@@ -15,8 +15,8 @@ import org.toxsoft.uskat.core.api.sysdescr.dto.*;
 /**
  * Класс описания атрибута
  *
- * @author goga
- * @param <T> - Java-тип сущности
+ * @author hazard157
+ * @param <T> - modelled entity type
  */
 public class KM5AttributeFieldDef<T extends ISkObject>
     extends M5AttributeFieldDef<T> {

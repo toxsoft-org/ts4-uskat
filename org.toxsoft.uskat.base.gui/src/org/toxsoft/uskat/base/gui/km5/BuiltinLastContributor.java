@@ -7,7 +7,6 @@ import org.toxsoft.core.tslib.coll.helpers.*;
 import org.toxsoft.core.tslib.coll.primtypes.*;
 import org.toxsoft.core.tslib.coll.primtypes.impl.*;
 import org.toxsoft.core.tslib.utils.errors.*;
-import org.toxsoft.uskat.base.gui.km5.models.*;
 import org.toxsoft.uskat.core.api.objserv.*;
 import org.toxsoft.uskat.core.api.sysdescr.*;
 import org.toxsoft.uskat.core.connection.*;
@@ -49,7 +48,7 @@ class BuiltinLastContributor
     // create default M5-models for unhandled classes
     for( String cid : classIdsForLastContribution ) {
       ISkClassInfo cinf = allClasses.getByKey( cid );
-      M5Model<? extends ISkObject> model = new KM5GenericM5Model<>( cinf, skConn() );
+      M5Model<? extends ISkObject> model = new KM5ModelGeneric<>( cinf, skConn() );
       m5().addModel( model );
     }
     return classIdsForLastContribution;
@@ -59,12 +58,12 @@ class BuiltinLastContributor
   protected boolean papiUpdateModel( ECrudOp aOp, String aClassId ) {
     switch( aOp ) {
       case CREATE: {
-        M5Model<?> model = new KM5GenericM5Model<>( skSysdescr().getClassInfo( aClassId ), skConn() );
+        M5Model<?> model = new KM5ModelGeneric<>( skSysdescr().getClassInfo( aClassId ), skConn() );
         m5().addModel( model );
         break;
       }
       case EDIT: {
-        M5Model<?> model = new KM5GenericM5Model<>( skSysdescr().getClassInfo( aClassId ), skConn() );
+        M5Model<?> model = new KM5ModelGeneric<>( skSysdescr().getClassInfo( aClassId ), skConn() );
         m5().replaceModel( model );
         break;
       }

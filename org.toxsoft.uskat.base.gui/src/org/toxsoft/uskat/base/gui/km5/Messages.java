@@ -1,4 +1,4 @@
-package org.toxsoft.uskat.base.gui.km5.models;
+package org.toxsoft.uskat.base.gui.km5;
 
 import java.util.*;
 

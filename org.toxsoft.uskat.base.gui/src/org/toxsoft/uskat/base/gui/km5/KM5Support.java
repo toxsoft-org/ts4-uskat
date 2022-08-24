@@ -10,7 +10,6 @@ import org.toxsoft.core.tslib.coll.primtypes.*;
 import org.toxsoft.core.tslib.coll.primtypes.impl.*;
 import org.toxsoft.core.tslib.utils.errors.*;
 import org.toxsoft.core.tslib.utils.logs.impl.*;
-import org.toxsoft.uskat.base.gui.km5.models.*;
 import org.toxsoft.uskat.core.*;
 import org.toxsoft.uskat.core.api.objserv.*;
 import org.toxsoft.uskat.core.api.sysdescr.*;
@@ -130,7 +129,7 @@ public final class KM5Support
    */
   void initializeDomain() {
     // create root Sk-class model
-    M5Model<ISkObject> rootModel = new SkObjectKM5Model( skConn );
+    M5Model<ISkObject> rootModel = new KM5RootClassModel( skConn );
     m5.addModel( rootModel );
     //
     // create contributed M5-models

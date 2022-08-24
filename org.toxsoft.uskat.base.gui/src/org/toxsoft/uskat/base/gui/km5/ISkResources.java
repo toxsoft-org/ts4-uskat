@@ -1,4 +1,4 @@
-package org.toxsoft.uskat.base.gui.km5.models;
+package org.toxsoft.uskat.base.gui.km5;
 
 /**
  * Localizable resources.
@@ -8,7 +8,7 @@ package org.toxsoft.uskat.base.gui.km5.models;
 interface ISkResources {
 
   /**
-   * {@link KM5BasicModel}
+   * {@link KM5ModelBasic}
    */
   String STR_N_KM5M_OBJECT      = Messages.getString( "STR_N_KM5M_OBJECT" );      //$NON-NLS-1$
   String STR_D_KM5M_OBJECT      = Messages.getString( "STR_D_KM5M_OBJECT" );      //$NON-NLS-1$
@@ -24,7 +24,7 @@ interface ISkResources {
   String STR_D_FDEF_DESCRIPTION = Messages.getString( "STR_D_FDEF_DESCRIPTION" ); //$NON-NLS-1$
 
   /**
-   * {@link KM5GenericLifecycleManager}
+   * {@link KM5LifecycleManagerGeneric}
    */
   String FMT_ERR_NO_CLASS_ID        = Messages.getString( "FMT_ERR_NO_CLASS_ID" );        //$NON-NLS-1$
   String FMT_ERR_INV_OBJ_STRID      = Messages.getString( "FMT_ERR_INV_OBJ_STRID" );      //$NON-NLS-1$
