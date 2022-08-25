@@ -43,7 +43,7 @@ public class SkUserM5LifecycleManager
     return master().coreApi().userService();
   }
 
-  private IDtoFullObject makeRoleDto( IM5Bunch<ISkUser> aValues ) {
+  private IDtoFullObject makeUserDto( IM5Bunch<ISkUser> aValues ) {
     String id = aValues.getAsAv( AID_STRID ).asString();
     Skid skid = new Skid( ISkUser.CLASS_ID, id );
     DtoFullObject dtoUser = DtoFullObject.createDtoFullObject( skid, coreApi() );
@@ -66,25 +66,25 @@ public class SkUserM5LifecycleManager
 
   @Override
   protected ValidationResult doBeforeCreate( IM5Bunch<ISkUser> aValues ) {
-    IDtoFullObject dtoUsr = makeRoleDto( aValues );
+    IDtoFullObject dtoUsr = makeUserDto( aValues );
     return userService().svs().validator().canCreateUser( dtoUsr );
   }
 
   @Override
   protected ISkUser doCreate( IM5Bunch<ISkUser> aValues ) {
-    IDtoFullObject dtoUsr = makeRoleDto( aValues );
+    IDtoFullObject dtoUsr = makeUserDto( aValues );
     return userService().defineUser( dtoUsr );
   }
 
   @Override
   protected ValidationResult doBeforeEdit( IM5Bunch<ISkUser> aValues ) {
-    IDtoFullObject dtoUsr = makeRoleDto( aValues );
+    IDtoFullObject dtoUsr = makeUserDto( aValues );
     return userService().svs().validator().canEditUser( dtoUsr, aValues.originalEntity() );
   }
 
   @Override
   protected ISkUser doEdit( IM5Bunch<ISkUser> aValues ) {
-    IDtoFullObject dtoUsr = makeRoleDto( aValues );
+    IDtoFullObject dtoUsr = makeUserDto( aValues );
     return userService().defineUser( dtoUsr );
   }
 
