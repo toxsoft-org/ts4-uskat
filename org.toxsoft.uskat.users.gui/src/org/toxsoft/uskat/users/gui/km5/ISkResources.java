@@ -57,9 +57,17 @@ interface ISkResources {
   /**
    * {@link SkRoleM5Model}
    */
-  String STR_N_ROLE    = "роль";
+  String STR_N_ROLE    = "Роль";
   String STR_D_ROLE    = "Набор прав доступа в системе";
-  String STR_N_FDEF_ID = "id";
-  String STR_D_FDEF_ID = "идентификатор роли";
+  String STR_N_ROLE_ID = "ИД роли";
+  String STR_D_ROLE_ID = "Идентификатор роли";
+
+  /**
+   * {@link SkUserMpc}
+   */
+  String STR_N_TMI_BY_ROLES    = "По ролям";
+  String STR_D_TMI_BY_ROLES    = "Группировка пользователей по ролям";
+  String STR_N_NO_HIDDEN_USERS = "Скрыть";
+  String STR_D_NO_HIDDEN_USERS = "Не показывать скрытых пользователей";
 
 }

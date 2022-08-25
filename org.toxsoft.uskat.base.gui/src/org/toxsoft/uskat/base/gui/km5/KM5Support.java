@@ -176,7 +176,8 @@ public final class KM5Support
 
   void clearDomain() {
     // remove all models
-    for( String modelId : m5.selfModels().keys() ) {
+    IStringList idsToRemove = new StringArrayList( m5.selfModels().keys() );
+    for( String modelId : idsToRemove ) {
       m5.removeModel( modelId );
     }
     // inform contributors on connection close

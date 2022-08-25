@@ -13,7 +13,10 @@ import org.toxsoft.uskat.users.gui.km5.*;
 public class QuantSkUsersGui
     extends AbstractQuant {
 
-  protected QuantSkUsersGui() {
+  /**
+   * Constructor.
+   */
+  public QuantSkUsersGui() {
     super( QuantSkUsersGui.class.getSimpleName() );
     KM5Utils.registerContributorCreator( KM5UsersContributor.CREATOR );
   }

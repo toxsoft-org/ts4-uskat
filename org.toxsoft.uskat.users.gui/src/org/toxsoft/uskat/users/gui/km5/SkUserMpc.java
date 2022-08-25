@@ -1,0 +1,158 @@
+package org.toxsoft.uskat.users.gui.km5;
+
+import static org.toxsoft.core.tsgui.bricks.actions.ITsStdActionDefs.*;
+import static org.toxsoft.core.tsgui.graphics.icons.ITsStdIconIds.*;
+import static org.toxsoft.core.tsgui.m5.gui.mpc.IMultiPaneComponentConstants.*;
+import static org.toxsoft.uskat.users.gui.ISkUsersGuiConstants.*;
+import static org.toxsoft.uskat.users.gui.km5.ISkResources.*;
+
+import org.toxsoft.core.tsgui.bricks.actions.*;
+import org.toxsoft.core.tsgui.bricks.ctx.*;
+import org.toxsoft.core.tsgui.bricks.tsnodes.*;
+import org.toxsoft.core.tsgui.bricks.tstree.tmm.*;
+import org.toxsoft.core.tsgui.graphics.icons.*;
+import org.toxsoft.core.tsgui.m5.*;
+import org.toxsoft.core.tsgui.m5.gui.mpc.*;
+import org.toxsoft.core.tsgui.m5.gui.mpc.impl.*;
+import org.toxsoft.core.tsgui.m5.gui.viewers.impl.*;
+import org.toxsoft.core.tsgui.m5.model.*;
+import org.toxsoft.core.tsgui.panels.toolbar.*;
+import org.toxsoft.core.tslib.bricks.filter.*;
+import org.toxsoft.core.tslib.bricks.strid.coll.*;
+import org.toxsoft.core.tslib.coll.*;
+import org.toxsoft.core.tslib.coll.primtypes.*;
+import org.toxsoft.core.tslib.coll.primtypes.impl.*;
+import org.toxsoft.core.tslib.utils.errors.*;
+import org.toxsoft.uskat.core.api.users.*;
+import org.toxsoft.uskat.core.connection.*;
+import org.toxsoft.uskat.core.utils.*;
+
+/**
+ * {@link IMultiPaneComponent} implementation for users collection viewer/editor.
+ *
+ * @author hazard157
+ */
+class SkUserMpc
+    extends MultiPaneComponentModown<ISkUser>
+    implements ISkConnected {
+
+  static final ITsNodeKind<ISkUser> NK_USER = new TsNodeKind<>( "LeafUser", ISkUser.class, false ); //$NON-NLS-1$
+  static final ITsNodeKind<ISkRole> NK_ROLE = new TsNodeKind<>( "NodeRole", ISkRole.class, true );  //$NON-NLS-1$
+
+  static final String ACTID_NO_HIDDEN_USERS = "SkUserMpc.IsHiddenUsersShown"; //$NON-NLS-1$
+
+  static final TsActionDef ACDEF_NO_HIDDEN_USERS = TsActionDef.ofCheck2( ACTID_NO_HIDDEN_USERS, //
+      STR_N_NO_HIDDEN_USERS, STR_D_NO_HIDDEN_USERS, ICONID_VIEW_FILTER );
+
+  /**
+   * Tree maker groups users by roles.
+   *
+   * @author hazard157
+   */
+  class TreeMakerByRole
+      implements ITsTreeMaker<ISkUser> {
+
+    // ------------------------------------------------------------------------------------
+    // ITsTreeMaker
+    //
+
+    private IStringMapEdit<DefaultTsNode<ISkRole>> makeRolesRootsMap( ITsNode aRootNode ) {
+      IStringMapEdit<DefaultTsNode<ISkRole>> retVal = new StringMap<>();
+      IStridablesList<ISkRole> roles = skUserServ().listRoles();
+      for( ISkRole role : roles ) {
+        DefaultTsNode<ISkRole> roleNode = new DefaultTsNode<>( NK_ROLE, aRootNode, role );
+        // присвоим красивую иконку и нормальное имя
+        roleNode.setName( role.attrs().getStr( IM5Constants.FID_NAME ) );
+        roleNode.setIconId( ICON_ROLE );
+        retVal.put( role.id(), roleNode );
+      }
+      return retVal;
+    }
+
+    @SuppressWarnings( { "unchecked", "rawtypes" } )
+    @Override
+    public IList<ITsNode> makeRoots( ITsNode aRootNode, IList<ISkUser> aUsers ) {
+      IStringMapEdit<DefaultTsNode<ISkRole>> roots = makeRolesRootsMap( aRootNode );
+      for( ISkUser user : aUsers ) {
+        for( ISkRole role : user.listRoles() ) {
+          DefaultTsNode<ISkRole> roleNode = roots.findByKey( role.id() );
+          DefaultTsNode<ISkUser> userLeaf = new DefaultTsNode<>( NK_USER, roleNode, user );
+          // присвоим красивую иконку и нормальное имя
+          userLeaf.setName( user.attrs().getStr( IM5Constants.FID_NAME ) );
+          userLeaf.setIconId( ICON_USER );
+          roleNode.addNode( userLeaf );
+        }
+      }
+      return (IList)roots.values();
+    }
+
+    @Override
+    public boolean isItemNode( ITsNode aNode ) {
+      return aNode.kind() == NK_USER;
+    }
+
+  }
+
+  /**
+   * Creates instance to edit entities.
+   *
+   * @param aContext {@link ITsGuiContext} - the context
+   * @param aModel {@link IM5Model} - the model
+   * @param aItemsProvider {@link IM5ItemsProvider} - the items provider or <code>null</code>
+   * @param aLifecycleManager {@link IM5LifecycleManager} - the lifecycle manager or <code>null</code>
+   */
+  public SkUserMpc( ITsGuiContext aContext, IM5Model<ISkUser> aModel, IM5ItemsProvider<ISkUser> aItemsProvider,
+      IM5LifecycleManager<ISkUser> aLifecycleManager ) {
+    super( new M5TreeViewer<>( aContext, aModel, OPDEF_IS_SUPPORTS_CHECKS.getValue( aContext.params() ).asBool() ) );
+    setItemProvider( aItemsProvider );
+    setLifecycleManager( aLifecycleManager );
+    //
+    TreeModeInfo<ISkUser> tmiByRole = new TreeModeInfo<>( "ByRole", //$NON-NLS-1$
+        STR_N_TMI_BY_ROLES, STR_D_TMI_BY_ROLES, ICON_ROLES_LIST, new TreeMakerByRole() );
+    treeModeManager().addTreeMode( tmiByRole );
+  }
+
+  // ------------------------------------------------------------------------------------
+  // implementation
+  //
+
+  // ------------------------------------------------------------------------------------
+  // MultiPaneComponentModown
+  //
+
+  @Override
+  protected ITsToolbar doCreateToolbar( ITsGuiContext aContext, String aName, EIconSize aIconSize,
+      IListEdit<ITsActionDef> aActs ) {
+    aActs.add( ACDEF_SEPARATOR );
+    aActs.add( ACDEF_NO_HIDDEN_USERS );
+    return super.doCreateToolbar( aContext, aName, aIconSize, aActs );
+  }
+
+  @Override
+  protected void doProcessAction( String aActionId ) {
+    switch( aActionId ) {
+      case ACTID_NO_HIDDEN_USERS: {
+        if( toolbar().isActionChecked( ACTID_NO_HIDDEN_USERS ) ) {
+          tree().filterManager().setFilter( aObj -> !aObj.isHidden() );
+        }
+        else {
+          tree().filterManager().setFilter( ITsFilter.ALL );
+        }
+        refresh();
+        break;
+      }
+      default:
+        throw new TsNotAllEnumsUsedRtException( aActionId );
+    }
+  }
+
+  // ------------------------------------------------------------------------------------
+  // ISkConnected
+  //
+
+  @Override
+  public ISkConnection skConn() {
+    return model().domain().tsContext().get( ISkConnection.class );
+  }
+
+}

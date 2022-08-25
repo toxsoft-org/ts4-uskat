@@ -1,6 +1,6 @@
 package org.toxsoft.uskat.users.gui.km5;
 
-import static org.toxsoft.core.tsgui.m5.IM5Constants.*;
+import static org.toxsoft.uskat.core.ISkHardConstants.*;
 import static org.toxsoft.uskat.core.api.users.ISkUserServiceHardConstants.*;
 
 import org.toxsoft.core.tsgui.m5.*;
@@ -44,11 +44,11 @@ public class SkUserM5LifecycleManager
   }
 
   private IDtoFullObject makeRoleDto( IM5Bunch<ISkUser> aValues ) {
-    String id = aValues.getAsAv( FID_ID ).asString();
+    String id = aValues.getAsAv( AID_STRID ).asString();
     Skid skid = new Skid( ISkUser.CLASS_ID, id );
     DtoFullObject dtoUser = DtoFullObject.createDtoFullObject( skid, coreApi() );
-    dtoUser.attrs().setValue( FID_NAME, aValues.getAsAv( FID_NAME ) );
-    dtoUser.attrs().setValue( FID_DESCRIPTION, aValues.getAsAv( FID_DESCRIPTION ) );
+    dtoUser.attrs().setValue( AID_NAME, aValues.getAsAv( AID_NAME ) );
+    dtoUser.attrs().setValue( AID_DESCRIPTION, aValues.getAsAv( AID_DESCRIPTION ) );
     dtoUser.attrs().setValue( ATRID_USER_IS_ENABLED, aValues.getAsAv( ATRID_USER_IS_ENABLED ) );
     dtoUser.attrs().setValue( ATRID_USER_IS_HIDDEN, aValues.getAsAv( ATRID_USER_IS_HIDDEN ) );
 

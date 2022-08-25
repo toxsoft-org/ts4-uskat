@@ -4,10 +4,7 @@ import static org.toxsoft.core.tslib.av.metainfo.IAvMetaConstants.*;
 
 import org.toxsoft.core.tsgui.m5.model.impl.*;
 import org.toxsoft.core.tslib.av.*;
-import org.toxsoft.core.tslib.av.impl.*;
 import org.toxsoft.core.tslib.av.metainfo.*;
-import org.toxsoft.core.tslib.av.opset.*;
-import org.toxsoft.core.tslib.av.opset.impl.*;
 import org.toxsoft.core.tslib.utils.errors.*;
 import org.toxsoft.uskat.core.api.objserv.*;
 import org.toxsoft.uskat.core.api.sysdescr.dto.*;
@@ -28,7 +25,7 @@ public class KM5AttributeFieldDef<T extends ISkObject>
    * @throws TsNullArgumentRtException любой аргумент = null
    */
   public KM5AttributeFieldDef( IDtoAttrInfo aAttrInfo ) {
-    this( aAttrInfo.id(), ainf2dt( aAttrInfo ) );
+    this( aAttrInfo.id(), aAttrInfo.dataType() );
     params().addAll( aAttrInfo.params() );
     setNameAndDescription( aAttrInfo.nmName(), aAttrInfo.description() );
   }
@@ -43,19 +40,21 @@ public class KM5AttributeFieldDef<T extends ISkObject>
    */
   public KM5AttributeFieldDef( String aId, IDataType aAttrType ) {
     super( aId, aAttrType );
-  }
-
-  static IDataType ainf2dt( IDtoAttrInfo aAttrInfo ) {
-    // если у булевого типа не указана форматна строка по умолчанию, зададим отображение галочкой
-    IDataType dd = aAttrInfo.dataType();
-    IOptionSetEdit p = new OptionSet();
-    p.setAll( dd.params() );
-    if( dd.atomicType() == EAtomicType.BOOLEAN ) {
-      if( !p.hasValue( TSID_FORMAT_STRING ) ) {
-        p.setStr( TSID_FORMAT_STRING, FMT_BOOL_CHECK );
+    // if no default format string for boolean AV, set it as chek mark
+    if( atomicType() == EAtomicType.BOOLEAN ) {
+      if( !params().hasValue( TSID_FORMAT_STRING ) ) {
+        params().setStr( TSID_FORMAT_STRING, FMT_BOOL_CHECK );
       }
     }
-    return new DataType( dd.atomicType(), p );
+  }
+
+  // ------------------------------------------------------------------------------------
+  // M5FieldDef
+  //
+
+  @Override
+  protected IAtomicValue doGetFieldValue( T aEntity ) {
+    return aEntity.attrs().getValue( id() );
   }
 
 }
