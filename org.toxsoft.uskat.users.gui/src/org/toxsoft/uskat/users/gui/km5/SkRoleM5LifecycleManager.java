@@ -1,6 +1,7 @@
 package org.toxsoft.uskat.users.gui.km5;
 
 import static org.toxsoft.core.tsgui.m5.IM5Constants.*;
+import static org.toxsoft.uskat.core.ISkHardConstants.*;
 import static org.toxsoft.uskat.core.api.users.ISkUserServiceHardConstants.*;
 
 import org.toxsoft.core.tsgui.m5.*;
@@ -22,6 +23,8 @@ import org.toxsoft.uskat.core.impl.dto.*;
 public class SkRoleM5LifecycleManager
     extends KM5LifecycleManagerBasic<ISkRole, ISkConnection> {
 
+  // FIXME create SkRoleMpc with filering out hidden roles
+
   /**
    * Constructor.
    *
@@ -39,7 +42,7 @@ public class SkRoleM5LifecycleManager
 
   private IDtoObject makeRoleDto( IM5Bunch<ISkRole> aValues ) {
     // Создаем IDpuObject и инициализируем его значениями из пучка
-    String id = aValues.getAsAv( FID_ID ).asString();
+    String id = aValues.getAsAv( AID_STRID ).asString();
     Skid skid = new Skid( ISkRole.CLASS_ID, id );
     DtoObject dtoRole = DtoObject.createDtoObject( skid, coreApi() );
     dtoRole.attrs().setValue( ATRID_ROLE_IS_ENABLED, aValues.getAsAv( ATRID_ROLE_IS_ENABLED ) );

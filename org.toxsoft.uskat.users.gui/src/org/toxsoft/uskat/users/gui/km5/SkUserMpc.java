@@ -1,7 +1,6 @@
 package org.toxsoft.uskat.users.gui.km5;
 
 import static org.toxsoft.core.tsgui.bricks.actions.ITsStdActionDefs.*;
-import static org.toxsoft.core.tsgui.graphics.icons.ITsStdIconIds.*;
 import static org.toxsoft.core.tsgui.m5.gui.mpc.IMultiPaneComponentConstants.*;
 import static org.toxsoft.uskat.users.gui.ISkUsersGuiConstants.*;
 import static org.toxsoft.uskat.users.gui.km5.ISkResources.*;
@@ -10,12 +9,16 @@ import org.toxsoft.core.tsgui.bricks.actions.*;
 import org.toxsoft.core.tsgui.bricks.ctx.*;
 import org.toxsoft.core.tsgui.bricks.tsnodes.*;
 import org.toxsoft.core.tsgui.bricks.tstree.tmm.*;
+import org.toxsoft.core.tsgui.dialogs.datarec.*;
+import org.toxsoft.core.tsgui.dialogs.misc.*;
 import org.toxsoft.core.tsgui.graphics.icons.*;
 import org.toxsoft.core.tsgui.m5.*;
+import org.toxsoft.core.tsgui.m5.gui.*;
 import org.toxsoft.core.tsgui.m5.gui.mpc.*;
 import org.toxsoft.core.tsgui.m5.gui.mpc.impl.*;
 import org.toxsoft.core.tsgui.m5.gui.viewers.impl.*;
 import org.toxsoft.core.tsgui.m5.model.*;
+import org.toxsoft.core.tsgui.m5.model.impl.*;
 import org.toxsoft.core.tsgui.panels.toolbar.*;
 import org.toxsoft.core.tslib.bricks.filter.*;
 import org.toxsoft.core.tslib.bricks.strid.coll.*;
@@ -23,26 +26,23 @@ import org.toxsoft.core.tslib.coll.*;
 import org.toxsoft.core.tslib.coll.primtypes.*;
 import org.toxsoft.core.tslib.coll.primtypes.impl.*;
 import org.toxsoft.core.tslib.utils.errors.*;
+import org.toxsoft.uskat.core.api.objserv.*;
 import org.toxsoft.uskat.core.api.users.*;
 import org.toxsoft.uskat.core.connection.*;
 import org.toxsoft.uskat.core.utils.*;
+import org.toxsoft.uskat.users.gui.*;
 
 /**
  * {@link IMultiPaneComponent} implementation for users collection viewer/editor.
  *
  * @author hazard157
  */
-class SkUserMpc
+public class SkUserMpc
     extends MultiPaneComponentModown<ISkUser>
     implements ISkConnected {
 
   static final ITsNodeKind<ISkUser> NK_USER = new TsNodeKind<>( "LeafUser", ISkUser.class, false ); //$NON-NLS-1$
   static final ITsNodeKind<ISkRole> NK_ROLE = new TsNodeKind<>( "NodeRole", ISkRole.class, true );  //$NON-NLS-1$
-
-  static final String ACTID_NO_HIDDEN_USERS = "SkUserMpc.IsHiddenUsersShown"; //$NON-NLS-1$
-
-  static final TsActionDef ACDEF_NO_HIDDEN_USERS = TsActionDef.ofCheck2( ACTID_NO_HIDDEN_USERS, //
-      STR_N_NO_HIDDEN_USERS, STR_D_NO_HIDDEN_USERS, ICONID_VIEW_FILTER );
 
   /**
    * Tree maker groups users by roles.
@@ -51,6 +51,8 @@ class SkUserMpc
    */
   class TreeMakerByRole
       implements ITsTreeMaker<ISkUser> {
+
+    // FIXME when hiding users also hide hidden roles
 
     // ------------------------------------------------------------------------------------
     // ITsTreeMaker
@@ -124,15 +126,18 @@ class SkUserMpc
   protected ITsToolbar doCreateToolbar( ITsGuiContext aContext, String aName, EIconSize aIconSize,
       IListEdit<ITsActionDef> aActs ) {
     aActs.add( ACDEF_SEPARATOR );
+    aActs.add( ACDEF_CHANGE_PASSWORD );
+    aActs.add( ACDEF_SEPARATOR );
     aActs.add( ACDEF_NO_HIDDEN_USERS );
     return super.doCreateToolbar( aContext, aName, aIconSize, aActs );
   }
 
   @Override
   protected void doProcessAction( String aActionId ) {
+    ISkUser selUser = selectedItem();
     switch( aActionId ) {
-      case ACTID_NO_HIDDEN_USERS: {
-        if( toolbar().isActionChecked( ACTID_NO_HIDDEN_USERS ) ) {
+      case ISkUsersGuiConstants.ACTID_NO_HIDDEN_USERS: {
+        if( toolbar().isActionChecked( ISkUsersGuiConstants.ACTID_NO_HIDDEN_USERS ) ) {
           tree().filterManager().setFilter( aObj -> !aObj.isHidden() );
         }
         else {
@@ -141,9 +146,47 @@ class SkUserMpc
         refresh();
         break;
       }
+      case ACTID_CHANGE_PASSWORD: {
+        if( selUser != null ) {
+          String password = DialogEnterPassword.enterPassword( tsContext(), skUserServ().passwordValidator() );
+          if( password != null ) {
+            skUserServ().setUserPassword( selUser.login(), password );
+          }
+        }
+        break;
+      }
       default:
         throw new TsNotAllEnumsUsedRtException( aActionId );
     }
+  }
+
+  @Override
+  protected void doUpdateActionsState( boolean aIsAlive, boolean aIsSel, ISkUser aSel ) {
+    toolbar().setActionEnabled( ACTID_CHANGE_PASSWORD, aIsSel );
+  }
+
+  @Override
+  protected ISkUser doAddItem() {
+    /**
+     * Method should be overrident because password should be entered seperately from KSUser M5-model properties and
+     * hence user creation can not be done through the lifecycle manager.
+     */
+    // edit user object to be created as IM5Bunch
+    ITsDialogInfo cdi = TsDialogInfo.forCreateEntity( tsContext() );
+    IM5BunchEdit<ISkUser> initVals = new M5BunchEdit<>( model() );
+    doAdjustEntityCreationInitialValues( initVals );
+    IM5Bunch<ISkUser> bunch = M5GuiUtils.editBunch( tsContext(), model(), initVals, cdi, lifecycleManager() );
+    if( bunch == null ) {
+      return null;
+    }
+    IDtoFullObject dtoUser = SkUserM5LifecycleManager.makeUserDto( bunch, coreApi() );
+    // specify password
+    String password = DialogEnterPassword.enterPassword( tsContext(), skUserServ().passwordValidator() );
+    if( password == null ) {
+      return null;
+    }
+    // create user by service, not by lifecycle manager
+    return skUserServ().createUser( dtoUser, password );
   }
 
   // ------------------------------------------------------------------------------------

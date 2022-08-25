@@ -31,15 +31,6 @@ public interface ISkUser
   }
 
   /**
-   * Returns the password hashcode string.
-   *
-   * @return String - the password used to open the session with the server
-   */
-  default String password() {
-    return attrs().getStr( ATRID_PASSWORD );
-  }
-
-  /**
    * Returns the roles the user are allowed to log in.
    * <p>
    * At each login the user roles may be restricted by specifying the value of the argument

@@ -3,7 +3,6 @@ package org.toxsoft.uskat.core.impl;
 import static org.toxsoft.core.tslib.av.impl.AvUtils.*;
 import static org.toxsoft.core.tslib.av.metainfo.IAvMetaConstants.*;
 import static org.toxsoft.core.tslib.gw.IGwHardConstants.*;
-import static org.toxsoft.core.tslib.utils.TsLibUtils.*;
 import static org.toxsoft.uskat.core.ISkHardConstants.*;
 import static org.toxsoft.uskat.core.api.users.ISkUserServiceHardConstants.*;
 import static org.toxsoft.uskat.core.impl.ISkResources.*;
@@ -222,12 +221,6 @@ public class SkCoreServUsers
       if( listUsers().hasKey( aUserDto.strid() ) ) {
         return ValidationResult.error( FMT_ERR_DUP_USER, aUserDto.strid() );
       }
-      // check password validity
-      String passowrd = aUserDto.attrs().getStr( ATRID_PASSWORD, EMPTY_STRING );
-      ValidationResult vr = passwordValidator().validate( passowrd );
-      if( vr.isError() ) {
-        return vr;
-      }
       // check if any role is assigned
       ISkidList rolesSkids = aUserDto.links().map().findByKey( LNKID_USER_ROLES );
       if( rolesSkids == null || rolesSkids.isEmpty() ) {
@@ -240,7 +233,7 @@ public class SkCoreServUsers
           return ValidationResult.error( FMT_ERR_INV_ROLES, s.strid() );
         }
       }
-      return vr;
+      return ValidationResult.SUCCESS;
     }
 
     @Override
@@ -277,12 +270,6 @@ public class SkCoreServUsers
         if( !enable && enabledNow ) {
           return ValidationResult.warn( MSG_WARN_DISABLING_GUEST_USER );
         }
-      }
-      // check password validity
-      String passowrd = aUserDto.attrs().getStr( ATRID_PASSWORD, EMPTY_STRING );
-      vr = ValidationResult.firstNonOk( vr, passwordValidator().validate( passowrd ) );
-      if( vr.isError() ) {
-        return vr;
       }
       // check if any role is assigned
       ISkidList rolesSkids = aUserDto.links().map().findByKey( LNKID_USER_ROLES );
@@ -414,6 +401,10 @@ public class SkCoreServUsers
     DtoObject objUserRoot = DtoObject.createDtoObject( SKID_USER_ROOT, coreApi() );
     objUserRoot.attrs().setStr( AID_NAME, STR_N_ROOT_USER );
     objUserRoot.attrs().setStr( AID_DESCRIPTION, STR_D_ROOT_USER );
+    // if password is not set (or was reset) specify the builtin default password
+    if( objUserRoot.attrs().getStr( ATRID_PASSWORD_HASH ).isEmpty() ) {
+      objUserRoot.attrs().setStr( ATRID_PASSWORD_HASH, SkHelperUtils.getPasswordHashCode( INITIAL_ROOT_PASSWORD ) );
+    }
     ISkObject skoRootUser = objServ().defineObject( objUserRoot );
     linkService().setLink( skoRootUser.skid(), LNKID_USER_ROLES, new SkidList( objRoleRoot.skid() ) );
     // create user guest
@@ -476,7 +467,7 @@ public class SkCoreServUsers
     DtoClassInfo cinf = new DtoClassInfo( CLSID_USER, GW_ROOT_CLASS_ID, IOptionSet.NULL );
     OPDEF_SK_IS_SOURCE_CODE_DEFINED_CLASS.setValue( cinf.params(), AV_TRUE );
     OPDEF_SK_IS_SOURCE_USKAT_CORE_CLASS.setValue( cinf.params(), AV_TRUE );
-    cinf.attrInfos().add( ATRINF_PASSWORD );
+    cinf.attrInfos().add( ATRINF_PASSWORD_HASH );
     cinf.attrInfos().add( ATRINF_USER_IS_ENABLED );
     cinf.attrInfos().add( ATRINF_USER_IS_HIDDEN );
     cinf.linkInfos().add( LNKINF_USER_ROLES );
@@ -526,18 +517,33 @@ public class SkCoreServUsers
   }
 
   @Override
-  public ISkUser defineUser( IDtoFullObject aDtoUser ) {
+  public ISkUser createUser( IDtoFullObject aDtoUser, String aPassword ) {
+    TsValidationFailedRtException.checkError( passwordValidator.validate( aPassword ) );
+    TsValidationFailedRtException.checkError( validationSupport.canCreateUser( aDtoUser ) );
+    pauseCoreValidation();
+    try {
+      // forcefully set password hash attribute
+      DtoFullObject dtoUser = new DtoFullObject( aDtoUser );
+      dtoUser.attrs().setStr( ATRID_PASSWORD_HASH, SkHelperUtils.getPasswordHashCode( aPassword ) );
+      return DtoFullObject.defineFullObject( coreApi(), aDtoUser );
+    }
+    finally {
+      resumeCoreValidation();
+    }
+  }
+
+  @Override
+  public ISkUser editUser( IDtoFullObject aDtoUser ) {
     TsNullArgumentRtException.checkNull( aDtoUser );
     TsIllegalArgumentRtException.checkFalse( aDtoUser.classId().equals( ISkUser.CLASS_ID ) );
     ISkUser oldUser = objServ().find( aDtoUser.skid() );
-    if( oldUser != null ) {
-      TsValidationFailedRtException.checkError( validationSupport.canEditUser( aDtoUser, oldUser ) );
-    }
-    else {
-      TsValidationFailedRtException.checkError( validationSupport.canCreateUser( aDtoUser ) );
-    }
+    TsItemNotFoundRtException.checkNull( oldUser );
+    TsValidationFailedRtException.checkError( validationSupport.canEditUser( aDtoUser, oldUser ) );
     pauseCoreValidation();
     try {
+      // edit object retaining previuos password hash
+      DtoFullObject dtoUser = new DtoFullObject( aDtoUser );
+      dtoUser.attrs().setStr( ATRID_PASSWORD_HASH, oldUser.attrs().getStr( ATRID_PASSWORD_HASH ) );
       return DtoFullObject.defineFullObject( coreApi(), aDtoUser );
     }
     finally {
@@ -595,7 +601,7 @@ public class SkCoreServUsers
     Skid skid = new Skid( ISkUser.CLASS_ID, aUserId );
     DtoFullObject dto = DtoFullObject.createDtoFullObject( skid, coreApi() );
     dto.attrs().setBool( ATRID_USER_IS_ENABLED, aEnabled );
-    return defineUser( dto );
+    return editUser( dto );
   }
 
   @Override
@@ -605,17 +611,18 @@ public class SkCoreServUsers
     Skid skid = new Skid( ISkUser.CLASS_ID, aUserId );
     DtoFullObject dto = DtoFullObject.createDtoFullObject( skid, coreApi() );
     dto.attrs().setBool( ATRID_USER_IS_HIDDEN, aHidden );
-    return defineUser( dto );
+    return editUser( dto );
   }
 
   @Override
   public ISkUser setUserPassword( String aUserId, String aPassword ) {
     TsNullArgumentRtException.checkNull( aUserId );
     TsItemNotFoundRtException.checkNull( findUser( aUserId ) );
+    TsValidationFailedRtException.checkError( passwordValidator.validate( aPassword ) );
     Skid skid = new Skid( ISkUser.CLASS_ID, aUserId );
     DtoFullObject dto = DtoFullObject.createDtoFullObject( skid, coreApi() );
-    dto.attrs().setStr( ATRID_PASSWORD, SkHelperUtils.getPasswordHashCode( aPassword ) );
-    return defineUser( dto );
+    dto.attrs().setStr( ATRID_PASSWORD_HASH, SkHelperUtils.getPasswordHashCode( aPassword ) );
+    return editUser( dto );
   }
 
   @Override
@@ -629,7 +636,7 @@ public class SkCoreServUsers
       rolesList.add( r.skid() );
     }
     dto.links().map().put( LNKID_USER_ROLES, rolesList );
-    return defineUser( dto );
+    return editUser( dto );
   }
 
   @Override

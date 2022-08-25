@@ -9,6 +9,7 @@ import org.toxsoft.core.tslib.coll.*;
 import org.toxsoft.core.tslib.gw.skid.*;
 import org.toxsoft.core.tslib.utils.errors.*;
 import org.toxsoft.uskat.base.gui.km5.*;
+import org.toxsoft.uskat.core.*;
 import org.toxsoft.uskat.core.api.objserv.*;
 import org.toxsoft.uskat.core.api.users.*;
 import org.toxsoft.uskat.core.connection.*;
@@ -23,6 +24,8 @@ import org.toxsoft.uskat.core.utils.*;
  */
 public class SkUserM5LifecycleManager
     extends KM5LifecycleManagerBasic<ISkUser, ISkConnection> {
+
+  // TODO when editing user in roles selection dialog should be the hiddon roles be shown? maybe app pref?
 
   /**
    * Constructor.
@@ -43,49 +46,32 @@ public class SkUserM5LifecycleManager
     return master().coreApi().userService();
   }
 
-  private IDtoFullObject makeRoleDto( IM5Bunch<ISkUser> aValues ) {
-    String id = aValues.getAsAv( AID_STRID ).asString();
-    Skid skid = new Skid( ISkUser.CLASS_ID, id );
-    DtoFullObject dtoUser = DtoFullObject.createDtoFullObject( skid, coreApi() );
-    dtoUser.attrs().setValue( AID_NAME, aValues.getAsAv( AID_NAME ) );
-    dtoUser.attrs().setValue( AID_DESCRIPTION, aValues.getAsAv( AID_DESCRIPTION ) );
-    dtoUser.attrs().setValue( ATRID_USER_IS_ENABLED, aValues.getAsAv( ATRID_USER_IS_ENABLED ) );
-    dtoUser.attrs().setValue( ATRID_USER_IS_HIDDEN, aValues.getAsAv( ATRID_USER_IS_HIDDEN ) );
-
-    // FIXME manage password!
-
-    IList<ISkRole> rolesList = aValues.getAs( LNKID_USER_ROLES, IList.class );
-    ISkidList roleSkids = SkHelperUtils.objsToSkids( rolesList );
-    dtoUser.links().ensureSkidList( LNKID_USER_ROLES, roleSkids );
-    return dtoUser;
-  }
-
   // ------------------------------------------------------------------------------------
   // M5LifecycleManager
   //
 
   @Override
   protected ValidationResult doBeforeCreate( IM5Bunch<ISkUser> aValues ) {
-    IDtoFullObject dtoUsr = makeRoleDto( aValues );
+    IDtoFullObject dtoUsr = makeUserDto( aValues, coreApi() );
     return userService().svs().validator().canCreateUser( dtoUsr );
   }
 
   @Override
   protected ISkUser doCreate( IM5Bunch<ISkUser> aValues ) {
-    IDtoFullObject dtoUsr = makeRoleDto( aValues );
-    return userService().defineUser( dtoUsr );
+    // user creation beacause of password can not be done through LifecycleManager
+    throw new TsUnsupportedFeatureRtException();
   }
 
   @Override
   protected ValidationResult doBeforeEdit( IM5Bunch<ISkUser> aValues ) {
-    IDtoFullObject dtoUsr = makeRoleDto( aValues );
+    IDtoFullObject dtoUsr = makeUserDto( aValues, coreApi() );
     return userService().svs().validator().canEditUser( dtoUsr, aValues.originalEntity() );
   }
 
   @Override
   protected ISkUser doEdit( IM5Bunch<ISkUser> aValues ) {
-    IDtoFullObject dtoUsr = makeRoleDto( aValues );
-    return userService().defineUser( dtoUsr );
+    IDtoFullObject dtoUsr = makeUserDto( aValues, coreApi() );
+    return userService().editUser( dtoUsr );
   }
 
   @Override
@@ -101,6 +87,24 @@ public class SkUserM5LifecycleManager
   @Override
   protected IList<ISkUser> doListEntities() {
     return userService().listUsers();
+  }
+
+  // ------------------------------------------------------------------------------------
+  // Package API
+  //
+
+  static IDtoFullObject makeUserDto( IM5Bunch<ISkUser> aValues, ISkCoreApi aCoreApi ) {
+    String id = aValues.getAsAv( AID_STRID ).asString();
+    Skid skid = new Skid( ISkUser.CLASS_ID, id );
+    DtoFullObject dtoUser = DtoFullObject.createDtoFullObject( skid, aCoreApi );
+    dtoUser.attrs().setValue( AID_NAME, aValues.getAsAv( AID_NAME ) );
+    dtoUser.attrs().setValue( AID_DESCRIPTION, aValues.getAsAv( AID_DESCRIPTION ) );
+    dtoUser.attrs().setValue( ATRID_USER_IS_ENABLED, aValues.getAsAv( ATRID_USER_IS_ENABLED ) );
+    dtoUser.attrs().setValue( ATRID_USER_IS_HIDDEN, aValues.getAsAv( ATRID_USER_IS_HIDDEN ) );
+    IList<ISkRole> rolesList = aValues.getAs( LNKID_USER_ROLES, IList.class );
+    ISkidList roleSkids = SkHelperUtils.objsToSkids( rolesList );
+    dtoUser.links().ensureSkidList( LNKID_USER_ROLES, roleSkids );
+    return dtoUser;
   }
 
 }
