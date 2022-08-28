@@ -6,6 +6,7 @@ import org.toxsoft.uskat.core.api.gwids.*;
 import org.toxsoft.uskat.core.api.linkserv.*;
 import org.toxsoft.uskat.core.api.objserv.*;
 import org.toxsoft.uskat.core.api.sysdescr.*;
+import org.toxsoft.uskat.core.api.users.*;
 import org.toxsoft.uskat.core.connection.*;
 
 /**
@@ -48,6 +49,10 @@ public interface ISkConnected {
 
   default ISkGwidService skGwidServ() {
     return coreApi().gwidService();
+  }
+
+  default ISkUserService skUserServ() {
+    return coreApi().userService();
   }
 
 }

@@ -10,6 +10,7 @@ import org.toxsoft.core.tslib.gw.skid.*;
 import org.toxsoft.uskat.core.*;
 import org.toxsoft.uskat.core.api.sysdescr.dto.*;
 import org.toxsoft.uskat.core.impl.dto.*;
+import org.toxsoft.uskat.core.utils.*;
 
 /**
  * Unchangeable constants of the user service.
@@ -96,6 +97,13 @@ public interface ISkUserServiceHardConstants {
   String USER_ID_ROOT = "root"; //$NON-NLS-1$
 
   /**
+   * Initial password for root user.
+   * <p>
+   * On freshly installed systems root user will have this password untill first password change.
+   */
+  String INITIAL_ROOT_PASSWORD = "root"; //$NON-NLS-1$
+
+  /**
    * Unremovable guest account login.
    * <p>
    * This account may be disabled.
@@ -113,9 +121,9 @@ public interface ISkUserServiceHardConstants {
   Skid SKID_USER_GUEST = new Skid( CLSID_USER, USER_ID_GUEST );
 
   /**
-   * ID of attribute {@link #ATRINF_PASSWORD}.
+   * ID of attribute {@link #ATRINF_PASSWORD_HASH}.
    */
-  String ATRID_PASSWORD = "password"; //$NON-NLS-1$
+  String ATRID_PASSWORD_HASH = "passwordHash"; //$NON-NLS-1$
 
   /**
    * ID of attribute {@link #ATRINF_USER_IS_ENABLED}.
@@ -133,9 +141,9 @@ public interface ISkUserServiceHardConstants {
   String LNKID_USER_ROLES = "roles"; //$NON-NLS-1$
 
   /**
-   * Attribute {@link ISkUser#password()}.
+   * Internal attribute storing password hash code calculated by {@link SkHelperUtils#getPasswordHashCode(String)}.
    */
-  IDtoAttrInfo ATRINF_PASSWORD = DtoAttrInfo.create2( ATRID_PASSWORD, DDEF_STRING, //
+  IDtoAttrInfo ATRINF_PASSWORD_HASH = DtoAttrInfo.create2( ATRID_PASSWORD_HASH, DDEF_STRING, //
       TSID_NAME, STR_N_PASSWORD, //
       TSID_DESCRIPTION, STR_D_PASSWORD, //
       TSID_DEFAULT_VALUE, AV_STR_EMPTY //

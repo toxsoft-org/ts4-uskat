@@ -78,7 +78,22 @@ public interface ISkUserService
   ISkRole findRole( String aRoleId );
 
   /**
-   * Creates new or updates existing user.
+   * Creates new user.
+   * <p>
+   * The argument may contain links to the roles.
+   *
+   * @param aDtoUser {@link IDtoFullObject} - the user data
+   * @param aPassword String - the password
+   * @return {@link ISkUser} - created/update user object
+   * @throws TsNullArgumentRtException any argument = <code>null</code>
+   * @throws TsIllegalArgumentRtException object DTO does not refers to {@link ISkUser#CLASS_ID}
+   * @throws TsValidationFailedRtException failed check of {@link ISkUserServiceValidator}
+   * @throws TsValidationFailedRtException failed check of {@link #passwordValidator()}
+   */
+  ISkUser createUser( IDtoFullObject aDtoUser, String aPassword );
+
+  /**
+   * Edits an existing user.
    * <p>
    * The argument may contain links to the roles.
    *
@@ -88,7 +103,7 @@ public interface ISkUserService
    * @throws TsIllegalArgumentRtException object DTO does not refers to {@link ISkUser#CLASS_ID}
    * @throws TsValidationFailedRtException failed check of {@link ISkUserServiceValidator}
    */
-  ISkUser defineUser( IDtoFullObject aDtoUser );
+  ISkUser editUser( IDtoFullObject aDtoUser );
 
   /**
    * Creates new or updates existing role.

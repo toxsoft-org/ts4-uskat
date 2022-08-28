@@ -1,4 +1,4 @@
-package org.toxsoft.uskat.base.gui.km5.models;
+package org.toxsoft.uskat.base.gui.km5;
 
 import static org.toxsoft.core.tsgui.m5.gui.mpc.IMultiPaneComponentConstants.*;
 import static org.toxsoft.core.tslib.av.impl.AvUtils.*;
@@ -19,8 +19,8 @@ import org.toxsoft.uskat.core.api.objserv.*;
  * <p>
  * Предназначен также для переопределения для создания собственных реализации.
  *
- * @author goga
- * @param <T> - конкретный класс моделируемой Sk-сущности
+ * @author hazard157
+ * @param <T> - modelled entity type
  */
 public class KM5GenericPanelCreator<T extends ISkObject>
     extends M5DefaultPanelCreator<T> {

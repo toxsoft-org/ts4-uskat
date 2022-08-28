@@ -1,6 +1,6 @@
-package org.toxsoft.uskat.base.gui.km5.models;
+package org.toxsoft.uskat.base.gui.km5;
 
-import static org.toxsoft.uskat.base.gui.km5.models.ISkResources.*;
+import static org.toxsoft.uskat.base.gui.km5.ISkResources.*;
 import static org.toxsoft.uskat.core.ISkHardConstants.*;
 
 import java.util.*;
@@ -11,7 +11,6 @@ import org.toxsoft.core.tslib.bricks.strid.impl.*;
 import org.toxsoft.core.tslib.bricks.validator.*;
 import org.toxsoft.core.tslib.coll.*;
 import org.toxsoft.core.tslib.gw.skid.*;
-import org.toxsoft.core.tslib.utils.errors.*;
 import org.toxsoft.uskat.core.*;
 import org.toxsoft.uskat.core.api.objserv.*;
 import org.toxsoft.uskat.core.api.sysdescr.*;
@@ -20,33 +19,34 @@ import org.toxsoft.uskat.core.impl.dto.*;
 import org.toxsoft.uskat.core.utils.*;
 
 /**
- * Менеджер ЖЦ объектов, которые управляются службой {@link ISkObjectService}.
+ * Lifecycle manager implementation base for subject area Sk-classes modelling.
  * <p>
- * Менеджер исходит из того, что идентификатор модели совпадат с идентификатором класса {@link ISkClassInfo#id()}.
+ * This manager assumes that M5-model has the same ID as Sk-class ID {@link ISkClassInfo#id()}.
  * <p>
  * Вообще говоря, логика проверки возможности создания/редактирования и удаления объектов должна находится в службе
  * {@link ISkObjectService}, а не в этом классе.
  *
- * @author goga
- * @param <T> - конкретный класс моделируемой S5-сущности
- * @param <M> - класс мастер-объекта
+ * @author hazard157
+ * @param <T> - modelled entity type
+ * @param <M> - M5 master-object type
  */
-public class KM5GenericLifecycleManager<T extends ISkObject, M>
-    extends KM5BasicLifecycleManager<T, M> {
+public class KM5LifecycleManagerGeneric<T extends ISkObject, M>
+    extends KM5LifecycleManagerBasic<T, M> {
 
   /**
-   * Конструктор.
+   * Constructor.
+   * <p>
+   * For {@link ISkSysdescr} claimed Sk-classes CRUD operations are always enabled.
    *
-   * @param aModel {@link IM5Model} - модель
-   * @param aMaster &ltM&gt; - мастер-объект
-   * @throws TsNullArgumentRtException aModel = null
+   * @param aModel {@link IM5Model}&lt;T&gt; - the model
+   * @param aMaster &lt;M&gt; - master object, may be <code>null</code>
    */
-  public KM5GenericLifecycleManager( IM5Model<T> aModel, M aMaster ) {
+  public KM5LifecycleManagerGeneric( IM5Model<T> aModel, M aMaster ) {
     super( aModel, true, true, true, true, aMaster );
   }
 
   // ------------------------------------------------------------------------------------
-  // Внутренние методы
+  // implementation
   //
 
   private DtoFullObject makeDtoFullObject( IM5Bunch<T> aValues ) {
@@ -95,7 +95,7 @@ public class KM5GenericLifecycleManager<T extends ISkObject, M>
   }
 
   // ------------------------------------------------------------------------------------
-  // Реализация M5LifecycleManager
+  // M5LifecycleManager
   //
 
   @Override
@@ -166,11 +166,6 @@ public class KM5GenericLifecycleManager<T extends ISkObject, M>
   @Override
   protected void doRemove( T aEntity ) {
     skObjServ().removeObject( aEntity.skid() );
-  }
-
-  @Override
-  protected IList<T> doListEntities() {
-    return skObjServ().listObjs( model().id(), true );
   }
 
 }

@@ -190,4 +190,13 @@ public class SkObject
     // nop
   }
 
+  // ------------------------------------------------------------------------------------
+  // Object
+  //
+
+  @Override
+  public String toString() {
+    return skid.toString();
+  }
+
 }
