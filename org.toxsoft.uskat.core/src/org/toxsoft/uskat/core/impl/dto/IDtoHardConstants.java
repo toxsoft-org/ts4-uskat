@@ -73,20 +73,6 @@ public interface IDtoHardConstants {
   );
 
   /**
-   * Identifier of option {@link #OPDEF_MAX_CHARS_COUNT}.
-   */
-  String OPID_MAX_CHARS_COUNT = SK_ID + ".dto.MaxCharsCount"; //$NON-NLS-1$
-
-  /**
-   * Option: {@link IDtoAttrInfo#dataType()}.
-   */
-  IDataDef OPDEF_MAX_CHARS_COUNT = DataDef.create( OPID_MAX_CHARS_COUNT, INTEGER, //
-      TSID_MIN_INCLUSIVE, AV_0, //
-      TSID_DEFAULT_VALUE, AV_0, //
-      TSID_IS_MANDATORY, AV_FALSE //
-  );
-
-  /**
    * Identifier of option {@link #OPDEF_IS_CURR}.
    */
   String OPID_IS_CURR = SK_ID + ".dto.isCurr"; //$NON-NLS-1$
