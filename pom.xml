@@ -1,0 +1,603 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <groupId>org.toxsoft.uskat</groupId>
+  <artifactId>org.toxsoft.uskat.releng</artifactId>
+  <version>1.0.0-SNAPSHOT</version>
+  <packaging>pom</packaging>
+
+  <properties>
+    <tychoVersion>2.6.0</tychoVersion>
+    <sonar.exclusions>**/src-gen/**</sonar.exclusions>
+ 
+    <!-- Версия java -->
+    <java.version>17</java.version>
+    <java.environment>JavaSE-17</java.environment>
+    <maven.compiler.target>${java.version}</maven.compiler.target>
+    <maven.compiler.source>${java.version}</maven.compiler.source>
+
+    <!-- Группа артефактов определения rcp и rap платформ -->    
+    <platform.groupId>org.toxsoft</platform.groupId>
+
+    <!-- Артефакт определения rcp-платформы -->    
+    <platform.rcp.artifactId>org.toxsoft.releng.targetplatform.rcp</platform.rcp.artifactId>
+
+    <!-- Артефакт определения rap-платформы -->    
+    <platform.rap.artifactId>org.toxsoft.releng.targetplatform.rap</platform.rap.artifactId>
+
+    <!-- Версия платформы swt. Источник для примера windows: https://mvnrepository.com/artifact/org.eclipse.platform/org.eclipse.swt.win32.win32.x86_64 -->    
+    <platform.swt.version>3.115.100</platform.swt.version>
+
+    <!-- Версия org.eclipse.ui. Источник: https://mvnrepository.com/artifact/org.eclipse.ui/org.eclipse.ui -->
+    <rcp.ui.version>3.5.0.I20090604-2000</rcp.ui.version>
+
+    <!-- Версия org.eclipse.rap.ui. Источник: https://mvnrepository.com/artifact/org.eclipse.rap/org.eclipse.rap.ui -->
+    <rap.ui.version>3.15.0</rap.ui.version>
+
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+
+    <!-- Формат метки времени билда: https://stackoverflow.com/questions/13228472/how-to-access-maven-build-timestamp-for-resource-filtering -->
+    <maven.build.timestamp.format>yyyy-MM-dd HH:mm:ss</maven.build.timestamp.format>
+    
+    <env.ui.test>-Xms512m -Xmx2048m</env.ui.test>
+  </properties>
+
+  <dependencies>
+    <dependency>
+      <groupId>junit</groupId>
+      <artifactId>junit</artifactId>
+      <version>3.8.1</version>
+      <scope>test</scope>
+    </dependency>
+  </dependencies>
+
+  <build>
+    <pluginManagement>
+      <plugins>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-javadoc-plugin</artifactId>
+          <version>2.10.3</version>
+        </plugin>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-site-plugin</artifactId>
+          <version>3.3</version>
+        </plugin>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-deploy-plugin</artifactId>
+          <version>2.8.2</version>
+        </plugin>
+        <plugin>
+          <groupId>org.codehaus.mojo</groupId>
+          <artifactId>build-helper-maven-plugin</artifactId>
+          <version>1.10</version>
+        </plugin>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-surefire-report-plugin</artifactId>
+          <version>2.18.1</version>
+        </plugin>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-enforcer-plugin</artifactId>
+          <version>1.4.1</version>
+        </plugin>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-resources-plugin</artifactId>
+          <version>2.7</version>
+        </plugin>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-clean-plugin</artifactId>
+          <version>3.0.0</version>
+        </plugin>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-jxr-plugin</artifactId>
+          <version>2.5</version>
+        </plugin>
+        <plugin>
+          <groupId>org.eclipse.tycho</groupId>
+          <artifactId>tycho-compiler-plugin</artifactId>
+          <version>${tychoVersion}</version>
+        </plugin>
+        <plugin>
+          <groupId>org.eclipse.tycho</groupId>
+          <artifactId>tycho-maven-plugin</artifactId>
+          <version>${tychoVersion}</version>
+          <extensions>true</extensions>
+        </plugin>
+        <plugin>
+          <groupId>org.eclipse.tycho</groupId>
+          <artifactId>tycho-p2-repository-plugin</artifactId>
+          <version>${tychoVersion}</version>
+        </plugin>
+        <plugin>
+          <groupId>org.eclipse.tycho</groupId>
+          <artifactId>tycho-source-plugin</artifactId>
+          <version>${tychoVersion}</version>
+        </plugin>
+        <plugin>
+          <groupId>org.eclipse.tycho.extras</groupId>
+          <artifactId>tycho-source-feature-plugin</artifactId>
+          <version>${tychoVersion}</version>
+        </plugin>
+        <plugin>
+          <groupId>org.eclipse.tycho</groupId>
+          <artifactId>tycho-p2-plugin</artifactId>
+          <version>${tychoVersion}</version>
+        </plugin>
+        <plugin>
+          <groupId>org.eclipse.tycho</groupId>
+          <artifactId>tycho-versions-plugin</artifactId>
+          <version>${tychoVersion}</version>
+        </plugin>
+        <plugin>
+          <groupId>org.eclipse.tycho</groupId>
+          <artifactId>tycho-p2-director-plugin</artifactId>
+          <version>${tychoVersion}</version>
+        </plugin>
+        <plugin>
+          <groupId>org.eclipse.tycho</groupId>
+          <artifactId>tycho-surefire-plugin</artifactId>
+          <version>${tychoVersion}</version>
+        </plugin>
+        <plugin>
+          <groupId>org.eclipse.tycho</groupId>
+          <artifactId>target-platform-configuration</artifactId>
+          <version>${tychoVersion}</version>
+        </plugin>
+        <plugin>
+          <groupId>org.eclipse.tycho.extras</groupId>
+          <artifactId>tycho-pack200a-plugin</artifactId>
+          <version>${tychoVersion}</version>
+        </plugin>
+        <plugin>
+          <groupId>org.eclipse.tycho.extras</groupId>
+          <artifactId>tycho-pack200b-plugin</artifactId>
+          <version>${tychoVersion}</version>
+        </plugin>
+        <plugin>
+          <groupId>org.eclipse.cbi.maven.plugins</groupId>
+          <artifactId>eclipse-jarsigner-plugin</artifactId>
+          <version>1.1.2</version>
+        </plugin>
+      </plugins>
+    </pluginManagement>
+    <plugins>
+      <!-- 2021-01-26 mvk  -->
+      <!-- add build time to manifest -->
+      <!-- sources: https://www.eclipse.org/tycho/sitedocs/tycho-packaging-plugin/package-plugin-mojo.html -->
+      <plugin>
+        <groupId>org.eclipse.tycho</groupId>
+        <artifactId>tycho-packaging-plugin</artifactId>
+        <version>${tychoVersion}</version>
+        <configuration>
+          <archive>
+            <manifestEntries>
+              <Built-Date>${maven.build.timestamp}</Built-Date>
+            </manifestEntries>						
+          </archive>
+        </configuration>
+      </plugin>
+      <!-- 2022-02-05 mvk suppress warnings -->
+      <plugin>
+        <groupId>org.eclipse.tycho</groupId>
+        <artifactId>tycho-p2-publisher-plugin</artifactId>
+        <version>${tychoVersion}</version>
+        <configuration>
+          <publishArtifacts>true</publishArtifacts>
+          <profiles>${java.environment}</profiles>
+        </configuration>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-resources-plugin</artifactId>
+        <configuration>
+          <encoding>UTF-8</encoding>
+        </configuration>
+      </plugin>
+      <plugin>
+        <groupId>org.eclipse.tycho</groupId>
+        <artifactId>tycho-compiler-plugin</artifactId>
+        <configuration>
+          <source>${java.version}</source>
+          <target>${java.version}</target>
+          <useProjectSettings>true</useProjectSettings>
+          <optimize>true</optimize>
+          <showWarnings>false</showWarnings>
+          
+          <!-- 2021-01-12 mvk пример отключения кода
+          <excludes>
+             <exclude>ru/uskat/mws/lib/core/olds/</exclude>
+             <exclude>ru/uskat/lib/mnemos/m5/</exclude>
+             <exclude>ru/uskat/mws/lib/refbooks/m5/</exclude>                
+          </excludes>
+          -->
+
+        </configuration>
+      </plugin>
+      <plugin>
+        <groupId>org.eclipse.tycho</groupId>
+        <artifactId>tycho-maven-plugin</artifactId>
+        <extensions>true</extensions>
+      </plugin>
+      <plugin>
+        <groupId>org.eclipse.tycho</groupId>
+        <artifactId>tycho-p2-repository-plugin</artifactId>
+      </plugin>
+      <plugin>
+        <groupId>org.eclipse.tycho</groupId>
+        <artifactId>tycho-source-plugin</artifactId>
+        <executions>
+          <execution>
+            <id>plugin-source</id>
+            <goals>
+              <goal>plugin-source</goal>
+            </goals>
+          </execution>
+          <execution>
+            <id>feature-source</id>
+            <phase>package</phase>
+            <goals>
+              <goal>feature-source</goal>
+            </goals>
+            <configuration>
+              <excludes>
+                <plugin id="com.google.guava"/>
+                <plugin id="com.google.inject"/>
+                <plugin id="org.apache.batik.pdf"/>
+                <plugin id="org.apache.log4j"/>
+                <plugin id="org.apache.batik.bridge"/>
+                <plugin id="org.apache.batik.css"/>
+                <plugin id="org.apache.batik.dom"/>
+                <plugin id="org.apache.batik.dom.svg"/>
+                <plugin id="org.apache.batik.ext.awt"/>
+                <plugin id="org.apache.batik.parser"/>
+                <plugin id="org.apache.batik.svggen"/>
+                <plugin id="org.apache.batik.transcoder"/>
+                <plugin id="org.apache.batik.util"/>
+                <plugin id="org.apache.batik.util.gui"/>
+                <plugin id="org.apache.batik.xml"/>
+                <plugin id="org.apache.commons.lang"/>
+                <plugin id="org.eclipse.m2m.qvt.oml.project"/>
+                <plugin id="org.eclipse.m2m.qvt.oml.runtime"/>
+                <plugin id="org.eclipse.xtend.shared.ui"/>
+                <plugin id="org.eclipse.xwt.ui.workbench"/>
+                <plugin id="org.eclipse.wst.common.project.facet.core"/>
+              </excludes>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+      <plugin>
+        <groupId>org.eclipse.tycho</groupId>
+        <artifactId>tycho-p2-plugin</artifactId>
+        <executions>
+          <execution>
+            <id>attach-p2-metadata</id>
+            <phase>package</phase>
+            <goals>
+              <goal>p2-metadata</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+      <plugin>
+        <groupId>org.eclipse.tycho</groupId>
+        <artifactId>tycho-versions-plugin</artifactId>
+      </plugin>
+      <plugin>
+        <groupId>org.eclipse.tycho</groupId>
+        <artifactId>tycho-surefire-plugin</artifactId>
+        <configuration>
+          <failIfNoTests>false</failIfNoTests>
+          <useUIHarness>true</useUIHarness>
+          <useUIThread>true</useUIThread>
+          <!--<showEclipseLog>true</showEclipseLog> -->
+          <!--<testFailureIgnore>true</testFailureIgnore> -->
+          <argLine>${ui.test.vmargs}</argLine>
+          <jvmArgs>
+            <args>${ui.test.vmargs}</args>
+          </jvmArgs>
+          <bundleStartLevel>
+            <bundle>
+              <id>org.eclipse.equinox.launcher</id>
+              <level>4</level>
+              <autoStart>true</autoStart>
+            </bundle>
+          </bundleStartLevel>
+          <dependencies>
+            <dependency>
+              <type>p2-installable-unit</type>
+              <artifactId>org.eclipse.equinox.ds</artifactId>
+            </dependency>
+            <dependency>
+              <type>p2-installable-unit</type>
+              <artifactId>org.eclipse.equinox.event</artifactId>
+            </dependency>
+          </dependencies>
+        </configuration>
+      </plugin>
+      <plugin>
+        <groupId>org.eclipse.tycho</groupId>
+        <artifactId>target-platform-configuration</artifactId>
+        <configuration>
+          <!-- 2022-02-05 mvk. source: https://www.vogella.com/tutorials/EclipseTycho/article.html -->
+          <executionEnvironment>${java.environment}</executionEnvironment>
+          <!-- 2021-01-09 mvk. source: https://www.eclipse.org/lists/tycho-user/msg03932.html -->
+          <dependency-resolution>
+            <optionalDependencies>ignore</optionalDependencies>
+          </dependency-resolution>
+          <environments>
+            <environment>
+              <os>linux</os>
+              <ws>gtk</ws>
+              <arch>x86_64</arch>
+            </environment>
+            <environment>
+              <os>win32</os>
+              <ws>win32</ws>
+              <arch>x86_64</arch>
+            </environment>
+            <environment>
+              <os>macosx</os>
+              <ws>cocoa</ws>
+              <arch>x86_64</arch>
+            </environment>
+          </environments>
+        </configuration>
+      </plugin>
+    </plugins>
+  </build>
+
+  <!-- 2021-01-09 mvk source: https://stackoverflow.com/questions/52742653/swt-libraries-cannot-be-resolved -->
+  <profiles>
+    <profile>
+      <id>swt-unix</id>
+      <activation>
+        <os>
+          <family>unix</family>
+        </os>
+      </activation>
+      <properties>
+        <swt.artifactId>org.eclipse.swt.gtk.linux.x86_64</swt.artifactId>
+          <env>linux</env>
+      </properties>
+      <dependencies>
+        <dependency>
+          <groupId>org.eclipse.platform</groupId>
+          <artifactId>${swt.artifactId}</artifactId>
+          <version>${platform.swt.version}</version>
+          <optional>true</optional>
+          <exclusions>
+            <exclusion>
+              <groupId>org.eclipse.platform</groupId>
+              <artifactId>org.eclipse.swt</artifactId>
+            </exclusion>
+          </exclusions>
+        </dependency>
+      </dependencies>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>org.eclipse.tycho</groupId>
+            <artifactId>target-platform-configuration</artifactId>
+            <configuration>
+              <!-- 2021-01-09 mvk. source: https://www.eclipse.org/lists/tycho-user/msg03932.html -->
+              <dependency-resolution>
+                <optionalDependencies>ignore</optionalDependencies>
+              </dependency-resolution>
+            </configuration>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+    <profile>
+      <id>swt-mac</id>
+      <activation>
+        <os>
+          <family>mac</family>
+        </os>
+      </activation>
+      <properties>
+        <swt.artifactId>org.eclipse.swt.cocoa.macosx.x86_64</swt.artifactId>
+        <env>mac</env>
+      </properties>
+      <dependencies>
+        <dependency>
+          <groupId>org.eclipse.platform</groupId>
+          <artifactId>${swt.artifactId}</artifactId>
+          <version>${platform.swt.version}</version>
+          <optional>true</optional>
+          <exclusions>
+            <exclusion>
+              <groupId>org.eclipse.platform</groupId>
+              <artifactId>org.eclipse.swt</artifactId>
+            </exclusion>
+          </exclusions>
+        </dependency>
+      </dependencies>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>org.eclipse.tycho</groupId>
+            <artifactId>target-platform-configuration</artifactId>
+            <configuration>
+              <!-- 2021-01-09 mvk. source: https://www.eclipse.org/lists/tycho-user/msg03932.html -->
+              <dependency-resolution>
+                <optionalDependencies>ignore</optionalDependencies>
+              </dependency-resolution>
+            </configuration>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+    <profile>
+      <id>swt-windows</id>
+      <activation>
+        <os>
+          <family>windows</family>
+        </os>
+      </activation>
+      <properties>
+        <swt.artifactId>org.eclipse.swt.win32.win32.x86_64</swt.artifactId>
+        <env>windows</env>
+      </properties>
+      <dependencies>
+        <dependency>
+          <groupId>org.eclipse.platform</groupId>
+          <artifactId>${swt.artifactId}</artifactId>
+          <version>${platform.swt.version}</version>
+          <optional>true</optional>
+          <exclusions>
+            <exclusion>
+              <groupId>org.eclipse.platform</groupId>
+              <artifactId>org.eclipse.swt</artifactId>
+            </exclusion>
+          </exclusions>
+        </dependency>
+      </dependencies>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>org.eclipse.tycho</groupId>
+            <artifactId>target-platform-configuration</artifactId>
+            <configuration>
+              <!-- 2021-01-09 mvk. source: https://www.eclipse.org/lists/tycho-user/msg03932.html -->
+              <dependency-resolution>
+                <optionalDependencies>ignore</optionalDependencies>
+              </dependency-resolution>
+            </configuration>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+    <profile>
+      <id>rcp</id>
+      <activation>
+        <property>
+          <name>!rap</name>
+        </property>      
+      </activation>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>org.eclipse.tycho</groupId>
+            <artifactId>target-platform-configuration</artifactId>
+            <configuration>
+              <!-- 2021-01-09 mvk. source: https://www.eclipse.org/lists/tycho-user/msg03932.html -->
+              <dependency-resolution>
+                <optionalDependencies>ignore</optionalDependencies>
+                <extraRequirements>
+                  <requirement>
+                     <type>eclipse-plugin</type>
+                     <id>org.eclipse.ui</id>
+                     <versionRange>${rcp.ui.version}</versionRange>
+                  </requirement>
+                </extraRequirements>
+              </dependency-resolution>
+              <target>
+                <artifact>
+                  <groupId>${platform.groupId}</groupId>
+                  <artifactId>${platform.rcp.artifactId}</artifactId>
+                  <version>1.0.0-SNAPSHOT</version>
+                </artifact>
+              </target>
+            </configuration>
+          </plugin>
+        </plugins>
+      </build>
+      <modules>
+        <!-- TODO rcp-библиотеки -->
+
+        <module>releng/org.toxsoft.uskat.releng.p2.rcp</module>
+        <module>releng/org.toxsoft.uskat.releng.ant.rcp</module>
+      </modules>
+    </profile>
+    <profile>
+      <id>rap</id>
+      <activation>
+        <property>
+          <name>rap</name>
+        </property>      
+      </activation>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>org.eclipse.tycho</groupId>
+            <artifactId>target-platform-configuration</artifactId>
+            <configuration>
+              <!-- 2021-01-09 mvk. source: https://www.eclipse.org/lists/tycho-user/msg03932.html -->
+              <dependency-resolution>
+                <optionalDependencies>ignore</optionalDependencies>
+                <extraRequirements>
+                  <requirement>
+                     <type>eclipse-plugin</type>
+                     <id>org.eclipse.rap.ui</id>
+                     <versionRange>${rap.ui.version}</versionRange>
+                  </requirement>
+                </extraRequirements>
+              </dependency-resolution>
+              <!-- -->
+              <target>
+                <artifact>
+                  <groupId>${platform.groupId}</groupId>
+                  <artifactId>${platform.rap.artifactId}</artifactId>
+                  <version>1.0.0-SNAPSHOT</version>
+                </artifact>
+              </target>
+            </configuration>
+          </plugin>
+        </plugins>
+      </build>
+      <modules>                                           
+        <!-- TODO rap-библиотеки -->
+ 
+        <module>releng/org.toxsoft.uskat.releng.p2.rap</module>
+        <module>releng/org.toxsoft.uskat.releng.ant.rap</module>
+     </modules>
+    </profile>
+  </profiles>
+  <modules>
+    <module>org.toxsoft.uskat.core</module>
+    <module>org.toxsoft.uskat.s5</module>  
+    <module>org.toxsoft.uskat.s5.histdata10</module>  
+    <module>org.toxsoft.uskat.skadmin.core</module>
+    <module>org.toxsoft.uskat.skadmin.cli</module>
+    <module>org.toxsoft.uskat.skadmin.dev</module>
+    <module>org.toxsoft.uskat.skadmin.logon</module>
+
+    <!-- <module>org.toxsoft.uskat.sysext.alarms</module>  
+    <module>org.toxsoft.uskat.sysext.batchop</module> 
+    <module>org.toxsoft.uskat.sysext.realtime</module> 
+    <module>org.toxsoft.uskat.sysext.refbooks</module>
+-->
+
+<!--
+    <module>ru.uskat.common</module>
+    <module>ru.uskat.core</module>
+    <module>ru.uskat.backend</module>
+--> 
+    <module>releng/org.toxsoft.uskat.releng.p2</module>
+    <module>releng/org.toxsoft.uskat.releng.ant</module>
+  </modules>
+
+  <distributionManagement>
+    <repository>
+      <id>nexus</id>
+      <name>Internal Releases</name>
+      <url>http://localhost:8081/nexus/content/repositories/releases/</url>
+    </repository>
+    <snapshotRepository>
+      <id>nexus</id>
+      <name>Internal Snapshots</name>
+      <!-- <url>http://localhost:8081/nexus/content/repositories/snapshots/</url> -->
+      <url>http://localhost:8081/repository/org.toxsoft.eclipse-2019-03/</url>
+    </snapshotRepository>
+  </distributionManagement>
+</project>

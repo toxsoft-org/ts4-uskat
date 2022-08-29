@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+ <modelVersion>4.0.0</modelVersion>
+ <parent>
+  <groupId>org.toxsoft.uskat</groupId>
+  <artifactId>org.toxsoft.uskat.releng</artifactId>
+  <version>1.0.0-SNAPSHOT</version>
+  <relativePath>../../pom.xml</relativePath>
+ </parent>
+ <artifactId>org.toxsoft.uskat.releng.p2</artifactId>
+ <packaging>eclipse-repository</packaging>
+ <!-- <name>ant-compile and deploy tasks</name> -->
+ <build>
+  <extensions>
+   <!-- Enabling the use of FTP -->
+   <extension>
+    <groupId>org.apache.maven.wagon</groupId>
+    <artifactId>wagon-ftp</artifactId>
+    <version>1.0-beta-6</version>
+   </extension>
+  </extensions>
+ </build>
+
+ <profiles>
+  <!-- This profile is used to upload the repo -->
+  <profile>
+   <id>uploadRepo</id>
+   <properties>
+    <!-- Properties relative to the
+    distant host where to upload the repo -->
+    <ftp.url>ftp://192.168.30.128</ftp.url>
+    <ftp.toDir>/home/tsdev/toxsoft/repository</ftp.toDir>
+    <!-- Relative path to the repo being uploaded -->
+    <repo.path>${project.build.directory}/repository/</repo.path>
+   </properties>
+
+   <build>
+    <plugins>
+     <plugin>
+      <groupId>org.codehaus.mojo</groupId>
+      <artifactId>wagon-maven-plugin</artifactId>
+      <version>1.0-beta-4</version>
+      <executions>
+       <execution>
+        <id>upload-repo</id>
+        <phase>install</phase>
+        <goals>
+         <goal>upload</goal>
+        </goals>
+        <configuration>
+         <fromDir>${repo.path}</fromDir>
+         <includes>**</includes>
+         <toDir>${ftp.toDir}</toDir>
+         <url>${ftp.url}</url>
+         <serverId>ftp-repository</serverId>
+         <!-- Points to your settings.xml
+         where the connection settings are
+          stored as shown below -->
+         <!-- <server> -->
+         <!-- <id>p2Repo</id> -->
+         <!-- <username>username</username> -->
+         <!-- <password>password</password> -->
+         <!-- </server> -->
+        </configuration>
+       </execution>
+      </executions>
+     </plugin>
+    </plugins>
+   </build>
+  </profile>
+ </profiles>
+
+</project>
