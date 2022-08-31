@@ -163,7 +163,7 @@ public abstract class S5InitialSysdescrSingleton
    * <li>{@link ISkUserServiceHardConstants#ATRID_USER_IS_ENABLED};</li>;
    * <li>{@link ISkUserServiceHardConstants#ATRID_USER_IS_HIDDEN}.</li>;
    * <p>
-   * Если пользователь уже существует в системе, то ничего не делает
+   * Если пользователь уже существует в системе, то ничего не делает.
    *
    * @param aLogin String логин пользователя
    * @param aPassword String пароль пользователя
