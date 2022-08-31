@@ -145,7 +145,7 @@ public abstract class S5InitialSysdescrSingleton
   }
 
   /**
-   * Возвращает служба управления пользователями
+   * Возвращает служба управления пользователями.
    *
    * @return {@link ISkUserService} служба управления пользователями
    */
