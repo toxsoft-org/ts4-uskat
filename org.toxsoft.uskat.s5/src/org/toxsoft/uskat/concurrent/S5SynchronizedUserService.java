@@ -107,10 +107,21 @@ public final class S5SynchronizedUserService
   }
 
   @Override
-  public ISkUser defineUser( IDtoFullObject aDtoUser ) {
+  public ISkUser createUser( IDtoFullObject aDtoUser, String aPassword ) {
     lockWrite( this );
     try {
-      return target().defineUser( aDtoUser );
+      return target().createUser( aDtoUser, aPassword );
+    }
+    finally {
+      unlockWrite( this );
+    }
+  }
+
+  @Override
+  public ISkUser editUser( IDtoFullObject aDtoUser ) {
+    lockWrite( this );
+    try {
+      return target().editUser( aDtoUser );
     }
     finally {
       unlockWrite( this );

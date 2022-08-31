@@ -309,9 +309,9 @@ public class S5BackendSession
         eventBackend.fireAsyncEvents( IS5FrontendRear.NULL, new TimedList<>( event ) );
         throw new S5AccessDeniedException( ERR_WRONG_USER );
       }
-      String ATRID_PASSWORD = ISkUserServiceHardConstants.ATRID_PASSWORD;
+      String ATRID_PASSWORD_HASH = ISkUserServiceHardConstants.ATRID_PASSWORD_HASH;
       // Хэшкод пароля пользователя
-      String pswdHashCode = user.attrs().getValue( ATRID_PASSWORD ).asString();
+      String pswdHashCode = user.attrs().getValue( ATRID_PASSWORD_HASH ).asString();
       if( !pswdHashCode.equals( pswd ) ) { // Доступ запрещен - неверное имя пользователя или пароль
         Gwid eventGwid = Gwid.createEvent( ISkSystem.CLASS_ID, ISkSystem.THIS_SYSTEM, ISkSystem.EVID_LOGIN_FAILED );
         IOptionSetEdit params = new OptionSet();
