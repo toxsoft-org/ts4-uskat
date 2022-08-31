@@ -136,7 +136,7 @@ public abstract class S5InitialSysdescrSingleton
   }
 
   /**
-   * Возвращает служба управления связями
+   * Возвращает служба управления связями.
    *
    * @return {@link ISkLinkService} служба управления связями
    */
