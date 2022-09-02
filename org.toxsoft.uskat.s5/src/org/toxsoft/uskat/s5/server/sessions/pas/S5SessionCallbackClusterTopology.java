@@ -30,7 +30,7 @@ public final class S5SessionCallbackClusterTopology
   /**
    * Вызов метода: {@link IS5BackendSessionControl#setClusterTopology(S5ClusterTopology)}
    */
-  public static final String SESSION_TOPOLOGY_METHOD = SESSIONS_METHOD_PREFIX + "setClusterTopology"; //$NON-NLS-1$
+  public static final String SESSION_TOPOLOGY_METHOD = FRONTEND_METHOD_PREFIX + "setClusterTopology"; //$NON-NLS-1$
 
   /**
    * Идентификатор сообщения

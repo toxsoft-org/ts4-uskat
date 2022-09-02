@@ -304,18 +304,6 @@ public class S5Lockable {
   }
 
   /**
-   * Делает попытку захвата блокировки на чтение
-   *
-   * @param aLocable блокируемый ресурс
-   * @return <b>true</b> блокировка получена;<b>false</b> ошибка получения блокировки.
-   * @throws TsIllegalArgumentRtException таймаут <= 0
-   */
-  public static boolean tryLockRead( S5Lockable aLocable ) {
-    TsNullArgumentRtException.checkNull( aLocable );
-    return aLocable.tryLockRead();
-  }
-
-  /**
    * Освобождает блокировку на чтение
    *
    * @param aLocable блокируемый ресурс
@@ -365,18 +353,6 @@ public class S5Lockable {
   public static boolean tryLockWrite( S5Lockable aLocable, long aAccessTimeout ) {
     TsNullArgumentRtException.checkNull( aLocable );
     return aLocable.tryLockWrite( aAccessTimeout );
-  }
-
-  /**
-   * Делает попытку захвата блокировки на запись.
-   *
-   * @param aLocable блокируемый ресурс
-   * @return <b>true</b> блокировка получена;<b>false</b> ошибка получения блокировки.
-   * @throws TsIllegalArgumentRtException таймаут <= 0
-   */
-  public static boolean tryLockWrite( S5Lockable aLocable ) {
-    TsNullArgumentRtException.checkNull( aLocable );
-    return aLocable.tryLockWrite();
   }
 
   /**

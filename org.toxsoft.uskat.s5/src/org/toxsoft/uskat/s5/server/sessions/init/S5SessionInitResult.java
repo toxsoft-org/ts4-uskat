@@ -86,8 +86,7 @@ public final class S5SessionInitResult
   //
   @Override
   public IStringMap<IS5BackendAddonSession> baSessions() {
-    // TODO Auto-generated method stub
-    return null;
+    return sessions;
   }
 
   @Override

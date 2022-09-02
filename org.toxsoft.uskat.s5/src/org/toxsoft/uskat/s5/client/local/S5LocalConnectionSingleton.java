@@ -169,8 +169,11 @@ public class S5LocalConnectionSingleton
     IS5ConnectionParams.OP_LOCAL_MODULE.setValue( ctx.params(), avStr( moduleName ) );
     IS5ConnectionParams.OP_LOCAL_NODE.setValue( ctx.params(), avStr( moduleNode ) );
 
+    // Имя блокировки
+    String lockName = "locConn[" + moduleName + "@" + moduleNode + "]";
+
     ISkConnection connection =
-        S5SynchronizedConnection.createSynchronizedConnection( SkCoreUtils.createConnection(), aLock );
+        S5SynchronizedConnection.createSynchronizedConnection( SkCoreUtils.createConnection(), aLock, lockName );
     connection.open( ctx );
     return connection;
   }

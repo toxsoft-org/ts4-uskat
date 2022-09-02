@@ -1,16 +1,24 @@
 package org.toxsoft.uskat.s5.client.remote;
 
 import static org.toxsoft.uskat.s5.client.remote.IS5Resources.*;
+import static org.toxsoft.uskat.s5.common.IS5CommonResources.*;
+
+import java.lang.reflect.InvocationTargetException;
 
 import org.toxsoft.core.tslib.av.opset.IOptionSet;
 import org.toxsoft.core.tslib.bricks.ctx.ITsContextRo;
+import org.toxsoft.core.tslib.bricks.strid.coll.IStridablesList;
 import org.toxsoft.core.tslib.coll.helpers.ECrudOp;
+import org.toxsoft.core.tslib.coll.primtypes.IStringMap;
+import org.toxsoft.core.tslib.coll.primtypes.IStringMapEdit;
+import org.toxsoft.core.tslib.coll.primtypes.impl.StringMap;
 import org.toxsoft.core.tslib.utils.errors.*;
+import org.toxsoft.core.tslib.utils.logs.ILogger;
 import org.toxsoft.uskat.core.backend.ISkBackendHardConstant;
 import org.toxsoft.uskat.core.backend.ISkFrontendRear;
 import org.toxsoft.uskat.core.backend.api.*;
 import org.toxsoft.uskat.s5.client.remote.connection.*;
-import org.toxsoft.uskat.s5.client.remote.connection.pas.S5CallbackOnMessage;
+import org.toxsoft.uskat.s5.client.remote.connection.pas.S5CallbackOnBackendMessage;
 import org.toxsoft.uskat.s5.server.backend.IS5BackendSession;
 import org.toxsoft.uskat.s5.server.backend.addons.*;
 import org.toxsoft.uskat.s5.server.backend.messages.*;
@@ -61,7 +69,8 @@ public final class S5BackendRemote
     // Слушаем сообщения фроненда и передаем их бекенду через pas-канал
     eventer().addListener( aMessage -> {
       // Передача сообщения серверу
-      S5CallbackOnMessage.send( connection.callbackTxChannel(), aMessage );
+      TODO:
+      S5CallbackOnBackendMessage.send( connection.callbackTxChannel(), aMessage );
     } );
     // Соединение открывается в doInitialize
   }
@@ -120,7 +129,7 @@ public final class S5BackendRemote
       // Формирование сообщения о предстоящей инициализации расширений
       fireBackendMessage( S5BaBeforeInitMessages.INSTANCE.makeMessage() );
       // Создание расширений используемых клиентом (определяется наличием jar-расширения в classpath клиента)
-      allAddons().putAll( createBackendAddons( classLoader(), aSource.backendAddonInfos(), logger() ) );
+      allAddons().putAll( createBackendAddonRemotes( classLoader(), aSource.backendAddonInfos(), logger() ) );
       // Формирование сообщения о проведенной инициализации расширений
       fireBackendMessage( S5BaAfterInitMessages.INSTANCE.makeMessage() );
     }
@@ -211,4 +220,56 @@ public final class S5BackendRemote
   // ------------------------------------------------------------------------------------
   // Внутренние методы
   //
+  /**
+   * Создает список расширений бекенда
+   * <p>
+   * Если класс реализации расширения не найден в classpath клиента, то выводится предупреждение
+   *
+   * @param aClassLoader {@link ClassLoader} используемый загрузчик классов
+   * @param aAddonInfos {@link IStringMap}&lt;String&gt; карта описания расширений.
+   *          <p>
+   *          Ключ: идентификатор расширения {@link IS5BackendAddon};<br>
+   *          Значение: полное имя java-класса реализующий расширение {@link IS5BackendAddon};<br>
+   * @param aLogger {@link ILogger} журнал работы
+   * @param <T> тип бекенда
+   * @return {@link IStridablesList}&lt;{@link IS5BackendAddon}&gt; список расширений бекенда.
+   * @throws TsNullArgumentRtException любой аргумент = null
+   */
+  @SuppressWarnings( { "unchecked" } )
+  private <T extends IS5BackendAddonRemote> IStringMap<T> createBackendAddonRemotes( ClassLoader aClassLoader,
+      IStringMap<String> aAddonInfos, ILogger aLogger ) {
+    TsNullArgumentRtException.checkNulls( aClassLoader, aAddonInfos, aLogger );
+    IStringMapEdit<T> retValue = new StringMap<>();
+    for( String addonId : aAddonInfos.keys() ) {
+      String addonClassName = aAddonInfos.getByKey( addonId );
+      Class<T> implClassName = null;
+      try {
+        implClassName = (Class<T>)aClassLoader.loadClass( addonClassName );
+      }
+      catch( @SuppressWarnings( "unused" ) ClassNotFoundException e ) {
+        // Предупреждение: класс расширения не найден в classpath клиента
+        aLogger.warning( ERR_ADDON_IMPL_NOT_FOUND, addonId, addonClassName );
+        continue;
+      }
+      try {
+        IS5BackendAddonCreator addonCreator = (IS5BackendAddonCreator)implClassName.getConstructor().newInstance();
+        // getClass() is owner class
+        T addon = (T)addonCreator.createRemote( this );
+        retValue.put( addon.id(), addon );
+      }
+      catch( NoSuchMethodException e ) {
+        // Не найден открытый конструктор без параметров в классе реализации бекенда (IS5InitialImplementation)
+        throw new TsInternalErrorRtException( e, ERR_NOT_FOUND_INIT_IMPL_CONSTRUCTOR, implClassName, cause( e ) );
+      }
+      catch( InstantiationException e ) {
+        // Ошибка создания описания реализации бекенда (IS5InitialImplementation)
+        throw new TsInternalErrorRtException( e, ERR_NOT_FOUND_INIT_IMPL_INSTANTIATION, implClassName, cause( e ) );
+      }
+      catch( SecurityException | IllegalAccessException | IllegalArgumentException | InvocationTargetException e ) {
+        // Неожиданная ошибка создания описания реализации бекенда (IS5InitialImplementation)
+        throw new TsInternalErrorRtException( e, ERR_NOT_FOUND_INIT_IMPL_UNEXPECTED, implClassName, cause( e ) );
+      }
+    }
+    return retValue;
+  }
 }

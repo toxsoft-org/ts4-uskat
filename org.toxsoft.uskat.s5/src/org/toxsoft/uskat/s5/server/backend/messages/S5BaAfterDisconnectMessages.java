@@ -21,7 +21,7 @@ public class S5BaAfterDisconnectMessages
   /**
    * Singletone intance.
    */
-  public static final S5BaAfterConnectMessages INSTANCE = new S5BaAfterConnectMessages();
+  public static final S5BaAfterDisconnectMessages INSTANCE = new S5BaAfterDisconnectMessages();
 
   S5BaAfterDisconnectMessages() {
     super( TOPIC_ID, MSG_ID );
@@ -33,7 +33,7 @@ public class S5BaAfterDisconnectMessages
    * @return {@link GtMessage} - created instance to send to the frontend
    * @throws TsNullArgumentRtException any argument = <code>null</code>
    */
-  static GtMessage makeMessage() {
+  public GtMessage makeMessage() {
     GtMessage msg = new GtMessage( TOPIC_ID, MSG_ID );
     return msg;
   }

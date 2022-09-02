@@ -88,7 +88,6 @@ public final class S5SessionCallbackServer
     int pasPort =
         (port == null ? ((Integer)readAttribute( JBOSS_SOCKET_BINDING_HTTP, JBOSS_ATTR_BOUND_PORT )).intValue() + 1
             : Integer.parseInt( (String)port ));
-
     // Имя узла кластера
     String node = System.getProperty( JBOSS_NODE_NAME );
     // Создание клиента передачи обратных вызовов

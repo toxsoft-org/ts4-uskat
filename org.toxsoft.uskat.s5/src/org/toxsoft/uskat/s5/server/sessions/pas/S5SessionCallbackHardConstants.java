@@ -1,6 +1,7 @@
 package org.toxsoft.uskat.s5.server.sessions.pas;
 
 import org.toxsoft.core.pas.json.IJSONNotification;
+import org.toxsoft.uskat.core.backend.ISkFrontendRear;
 
 /**
  * Вспомогательные константы пакета
@@ -11,8 +12,7 @@ class S5SessionCallbackHardConstants {
 
   /**
    * Префикс идентификаторов JSON-уведомления {@link IJSONNotification#method()} используемый для передачи запросов
-   * backend s5-сессиям
+   * {@link ISkFrontendRear}
    */
-  static final String SESSIONS_METHOD_PREFIX = "org.toxsoft.uskat.s5.server.sessions.pas."; //$NON-NLS-1$
-
+  static final String FRONTEND_METHOD_PREFIX = "org.toxsoft.uskat.s5.frontend.messages."; //$NON-NLS-1$
 }

@@ -55,7 +55,8 @@ public abstract class S5AbstractBackendAddonCreator
     if( sessionClasses == null ) {
       return null;
     }
-    String beanIface = sessionClasses.left().getName();
+    // String beanIface = sessionClasses.left().getName();
+    String beanIface = IS5BackendAddonSessionControl.class.getName();
     String beanName = sessionClasses.right().getSimpleName();
     String jndi = String.format( BACKEND_ADDON_JNDI, beanName, beanIface );
     try {

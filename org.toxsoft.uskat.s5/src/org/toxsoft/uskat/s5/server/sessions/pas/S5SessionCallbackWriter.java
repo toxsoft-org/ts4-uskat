@@ -19,7 +19,7 @@ import org.toxsoft.core.tslib.utils.ICloseable;
 import org.toxsoft.core.tslib.utils.TsLibUtils;
 import org.toxsoft.core.tslib.utils.errors.TsNullArgumentRtException;
 import org.toxsoft.core.tslib.utils.logs.ILogger;
-import org.toxsoft.uskat.s5.client.remote.connection.pas.S5CallbackOnMessage;
+import org.toxsoft.uskat.s5.client.remote.connection.pas.S5CallbackOnBackendMessage;
 import org.toxsoft.uskat.s5.common.sessions.IS5SessionInfo;
 import org.toxsoft.uskat.s5.server.backend.IS5BackendCoreSingleton;
 import org.toxsoft.uskat.s5.server.backend.impl.S5BackendCoreSingleton;
@@ -164,7 +164,7 @@ public class S5SessionCallbackWriter
     TsNullArgumentRtException.checkNull( aMessage );
     try {
       if( channel.isRunning() ) {
-        S5CallbackOnMessage.send( channel, aMessage );
+        S5CallbackOnBackendMessage.send( channel, aMessage );
       }
       else {
         // Канал находится не в рабочем состоянии

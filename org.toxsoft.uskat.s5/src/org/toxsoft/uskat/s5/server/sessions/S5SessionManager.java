@@ -19,7 +19,9 @@ import javax.ejb.*;
 
 import org.infinispan.Cache;
 import org.infinispan.commons.util.CloseableIterator;
+import org.toxsoft.core.tslib.av.EAtomicType;
 import org.toxsoft.core.tslib.av.IAtomicValue;
+import org.toxsoft.core.tslib.av.impl.DataDef;
 import org.toxsoft.core.tslib.av.impl.DataType;
 import org.toxsoft.core.tslib.av.metainfo.IAvMetaConstants;
 import org.toxsoft.core.tslib.av.opset.IOptionSet;
@@ -52,10 +54,12 @@ import org.toxsoft.uskat.s5.client.IS5ConnectionParams;
 import org.toxsoft.uskat.s5.common.info.IS5SessionsInfos;
 import org.toxsoft.uskat.s5.common.sessions.IS5SessionInfo;
 import org.toxsoft.uskat.s5.common.sessions.ISkSession;
+import org.toxsoft.uskat.s5.legacy.ISkSystem;
 import org.toxsoft.uskat.s5.legacy.SynchronizedMap;
 import org.toxsoft.uskat.s5.server.IS5ServerHardConstants;
 import org.toxsoft.uskat.s5.server.backend.IS5BackendCoreSingleton;
 import org.toxsoft.uskat.s5.server.backend.impl.S5AccessDeniedException;
+import org.toxsoft.uskat.s5.server.backend.impl.S5BackendSession;
 import org.toxsoft.uskat.s5.server.backend.supports.events.IS5BackendEventSingleton;
 import org.toxsoft.uskat.s5.server.backend.supports.links.IS5BackendLinksSingleton;
 import org.toxsoft.uskat.s5.server.backend.supports.objects.IS5BackendObjectsSingleton;
@@ -130,8 +134,9 @@ public class S5SessionManager
    */
   private static final long CLEAN_SESSION_AFTER_START_TIMEOUT = 30 * 60 * 1000;
 
-  private static final String STR_N_ROOT_USER = "Root";             //$NON-NLS-1$
-  private static final String STR_D_ROOT_USER = "Root - superuser"; //$NON-NLS-1$
+  private static final String STR_N_ROOT_USER       = "Root";                                      //$NON-NLS-1$
+  private static final String STR_D_ROOT_USER       = "Root - superuser";                          //$NON-NLS-1$
+  private static final String DEFAULT_ROOT_PASSWORD = S5BackendSession.getPasswordHashCode( "1" ); //$NON-NLS-1$
 
   /**
    * Начальная, неизменяемая, проектно-зависимая конфигурация реализации бекенда сервера
@@ -226,11 +231,6 @@ public class S5SessionManager
   private final IMapEdit<Skid, S5Statistic> statisticCountersBySessions = new SynchronizedMap<>( new ElemMap<>() );
 
   /**
-   * backend сервера
-   */
-  private IS5BackendCoreSingleton backend;
-
-  /**
    * Признак того, что после запуска менеджера сессий была выполнена пауза перед запуском doJob
    */
   private boolean doJobInited;
@@ -319,68 +319,8 @@ public class S5SessionManager
       }
 
     } );
-    // Существующие классы
-    IStridablesList<IDtoClassInfo> classes = sysdescrSupport.readClassInfos();
-    // Добавляемые класы
-    IStridablesListEdit<IDtoClassInfo> newClasses = new StridablesList<>();
-    // Создание класса пользователя
-    if( !classes.hasKey( ISkUser.CLASS_ID ) ) {
-      newClasses.add( SkCoreServUsers.internalCreateUserClassDto() );
-    }
-    // Создание класса сессия
-    if( !classes.hasKey( ISkSession.CLASS_ID ) ) {
-      // Создание класса ISkSession
-      DtoClassInfo dtoSession = new DtoClassInfo( ISkSession.CLASS_ID, IGwHardConstants.GW_ROOT_CLASS_ID, //
-          OptionSetUtils.createOpSet( //
-              IAvMetaConstants.TSID_NAME, STR_N_SESSION, //
-              IAvMetaConstants.TSID_DESCRIPTION, STR_D_SESSION //
-          ) );
-
-      // AID_STARTTIME
-      dtoSession.attrInfos().add( DtoAttrInfo.create1( ISkSession.AID_STARTTIME, DataType.create( TIMESTAMP, //
-          TSID_NAME, STR_N_AID_STARTTIME, //
-          TSID_DESCRIPTION, STR_D_AID_STARTTIME //
-      ), //
-          IOptionSet.NULL ) );
-      // AID_ENDTIME
-      dtoSession.attrInfos().add( DtoAttrInfo.create1( ISkSession.AID_ENDTIME, DataType.create( TIMESTAMP, //
-          TSID_NAME, STR_N_AID_ENDTIME, //
-          TSID_DESCRIPTION, STR_D_AID_ENDTIME //
-      ), IOptionSet.NULL ) );
-      // AID_BACKEND_SPECIFIC_PARAMS
-      dtoSession.attrInfos().add( DtoAttrInfo.create1( ISkSession.AID_BACKEND_SPECIFIC_PARAMS, DataType.create( VALOBJ, //
-          TSID_NAME, STR_N_AID_BACKEND_SPECIFIC_PARAMS, //
-          TSID_DESCRIPTION, STR_D_AID_BACKEND_SPECIFIC_PARAMS, //
-          TSID_KEEPER_ID, OptionSetKeeper.KEEPER_ID, //
-          TSID_IS_NULL_ALLOWED, AV_FALSE, //
-          TSID_DEFAULT_VALUE, avValobj( new OptionSet() ) //
-      ), IOptionSet.NULL ) );
-      // AID_CONNECTION_CREATION_PARAMS
-      dtoSession.attrInfos()
-          .add( DtoAttrInfo.create1( ISkSession.AID_CONNECTION_CREATION_PARAMS, DataType.create( VALOBJ, //
-              TSID_NAME, STR_N_AID_CONNECTION_CREATION_PARAMS, //
-              TSID_DESCRIPTION, STR_D_AID_CONNECTION_CREATION_PARAMS, //
-              TSID_KEEPER_ID, OptionSetKeeper.KEEPER_ID, //
-              TSID_IS_NULL_ALLOWED, AV_FALSE, //
-              TSID_DEFAULT_VALUE, avValobj( new OptionSet() ) //
-          ), IOptionSet.NULL ) );
-      // TODO:
-      // dtoSession.linkInfos().addAll( ISkUserServiceConstants.LNKINF_USER );
-      // dtoSession.rtdataInfos().addAll( ISkUserServiceConstants.RTDINF_STATE );
-      // dtoSession.eventInfos().addAll( ISkUserServiceConstants.EVINF_STATE_CHANGED );
-      newClasses.add( dtoSession );
-    }
-    if( newClasses.size() > 0 ) {
-      sysdescrSupport.writeClassInfos( IStringList.EMPTY, newClasses );
-    }
-    // Создание пользователя root
-    if( objectsSupport.findObject( ISkUserServiceHardConstants.SKID_USER_ROOT ) == null ) {
-      IOptionSetEdit attrs = new OptionSet();
-      attrs.setStr( AID_NAME, STR_N_ROOT_USER );
-      attrs.setStr( AID_DESCRIPTION, STR_D_ROOT_USER );
-      IDtoObject root = new DtoObject( ISkUserServiceHardConstants.SKID_USER_ROOT, attrs, IStringMap.EMPTY );
-      objectsSupport.writeObjects( IS5FrontendRear.NULL, ISkidList.EMPTY, new ElemArrayList<>( root ), true );
-    }
+    // Проверка и, если необходимо, обовление sysdescr
+    checkAndUpdateSysdecr( sysdescrSupport, objectsSupport );
   }
 
   @Override
@@ -417,7 +357,7 @@ public class S5SessionManager
   @Override
   public void setBackend( IS5BackendCoreSingleton aBackend ) {
     TsNullArgumentRtException.checkNull( aBackend );
-    backend = aBackend;
+    backendCoreSingleton = aBackend;
     // Запуск фоновой задачи
     addOwnDoJob( DO_JOB_TIMEOUT );
   }
@@ -534,7 +474,7 @@ public class S5SessionManager
     // Обновление сессии в кэше
     startCacheBatch( remoteOpenSessionCache );
     try {
-      // TODO: 2020-04-06 mvk проблема в том, что иногда проводится попытка чтения backend которого уже нет
+      // TODO: 2020-04-06 mvk проблема в том, что иногда проводится попытка чтения backendCoreSingleton которого уже нет
       // S5SessionData prevSession = remoteOpenSessionCache.replace( aSession.info().id(), aSession );
       remoteOpenSessionCache.put( sessionID, aSession );
     }
@@ -701,7 +641,7 @@ public class S5SessionManager
       return null;
     }
     // Создание писателя обратных вызовов
-    callbackWriter = new S5SessionCallbackWriter( backend, aSession, callbackChannel );
+    callbackWriter = new S5SessionCallbackWriter( backendCoreSingleton, aSession, callbackChannel );
     // Регистрация писателя обратных вызовов
     S5SessionCallbackWriter oldCallbackWriter = callbackWritersBySessions.put( sessionID, callbackWriter );
     if( oldCallbackWriter != null && !callbackWriter.equals( oldCallbackWriter ) ) {
@@ -711,7 +651,7 @@ public class S5SessionManager
     }
     // 2021-02-13 mvk перемещено из конструктора S5SessionCallbackWriter
     // Регистрация писателя обратных вызовов как frontend бекенда сервера
-    backend.attachFrontend( callbackWriter );
+    backendCoreSingleton.attachFrontend( callbackWriter );
     // Создание передатчика обратных вызовов сессии завершено
     logger().info( MSG_CREATE_SESSION_CALLBACK_FINISH, sessionID );
     return callbackWriter;
@@ -838,7 +778,7 @@ public class S5SessionManager
           needUpdate |= statistic.onEvent( paramName, paramValue );
         }
         // Суммирование отдельных значений в статистику узла бекенда
-        IS5StatisticCounter backendStatistic = backend.statisticCounter();
+        IS5StatisticCounter backendStatistic = backendCoreSingleton.statisticCounter();
         backendStatistic.onEvent( STAT_BACKEND_NODE_PAS_RECEIVED, params.getByKey( STAT_SESSION_RECEVIED.id() ) );
         backendStatistic.onEvent( STAT_BACKEND_NODE_PAS_SEND, params.getByKey( STAT_SESSION_SENDED.id() ) );
         // Сброс счетчика
@@ -1264,5 +1204,127 @@ public class S5SessionManager
     // String eventId = (sessionInfo.closeByRemote() ? IUser.EVENT_ID_DISCONNECTED : IUser.EVENT_ID_CONN_LOST);
     // Асинхронное(!) создание события для пользователей. 0: время сервера
     // eventServiceSingleton.fireAsyncEvent( sessionInfo.userId(), eventId, params, 0 );
+  }
+
+  /**
+   * Проверяет и, если необходимо, обновляет системное описание для работы менеджера сессий
+   *
+   * @param aSysdescrSupport {@link IS5BackendSysDescrSingleton} поддержка классов
+   * @param aObjectsSupport {@link IS5BackendObjectsSingleton} поддержка объектов
+   * @throws TsNullArgumentRtException любой аргумент = null
+   */
+  private static void checkAndUpdateSysdecr( IS5BackendSysDescrSingleton aSysdescrSupport,
+      IS5BackendObjectsSingleton aObjectsSupport ) {
+    TsNullArgumentRtException.checkNulls( aSysdescrSupport, aObjectsSupport );
+    // Существующие классы
+    IStridablesList<IDtoClassInfo> classes = aSysdescrSupport.readClassInfos();
+    // Добавляемые класы
+    IStridablesListEdit<IDtoClassInfo> newClasses = new StridablesList<>();
+    // Создание класса система
+    if( !classes.hasKey( ISkSystem.CLASS_ID ) ) {
+      // Создание класса ISkSystem
+      DtoClassInfo dtoSystem = new DtoClassInfo( ISkSystem.CLASS_ID, IGwHardConstants.GW_ROOT_CLASS_ID, //
+          OptionSetUtils.createOpSet( //
+              IAvMetaConstants.TSID_NAME, STR_N_SYSTEM, //
+              IAvMetaConstants.TSID_DESCRIPTION, STR_D_SYSTEM //
+          ) );
+      dtoSystem.eventInfos().addAll( //
+          DtoEventInfo.create1( ISkSystem.EVID_LOGIN_FAILED, true, //
+              new StridablesList<>( //
+                  DataDef.create( ISkSystem.EVPID_LOGIN, EAtomicType.STRING, TSID_NAME, STR_N_EV_PARAM_LOGIN, //
+                      TSID_DESCRIPTION, STR_D_EV_PARAM_LOGIN, //
+                      TSID_IS_NULL_ALLOWED, AV_FALSE, //
+                      TSID_DEFAULT_VALUE, AV_STR_EMPTY ), //
+                  DataDef.create( ISkSystem.EVPID_IP, EAtomicType.STRING, TSID_NAME, STR_N_EV_PARAM_IP, //
+                      TSID_DESCRIPTION, STR_D_EV_PARAM_IP, //
+                      TSID_IS_NULL_ALLOWED, AV_FALSE, //
+                      TSID_DEFAULT_VALUE, AV_STR_EMPTY ) //
+              ), //
+              OptionSetUtils.createOpSet( //
+                  IAvMetaConstants.TSID_NAME, STR_N_EV_LOGIN_FAILED, //
+                  IAvMetaConstants.TSID_DESCRIPTION, STR_D_EV_LOGIN_FAILED //
+              ) ), //
+          DtoEventInfo.create1( ISkSystem.EVID_SYSDESCR_CHANGED, true, //
+              new StridablesList<>( //
+                  DataDef.create( ISkSystem.EVPID_USER, EAtomicType.STRING, TSID_NAME, STR_N_EV_PARAM_USER, //
+                      TSID_DESCRIPTION, STR_D_EV_PARAM_USER, //
+                      TSID_IS_NULL_ALLOWED, AV_FALSE, //
+                      TSID_DEFAULT_VALUE, AV_STR_EMPTY ), //
+                  DataDef.create( ISkSystem.EVPID_DESCR, EAtomicType.STRING, TSID_NAME, STR_N_EV_PARAM_DESCR, //
+                      TSID_DESCRIPTION, STR_D_EV_PARAM_DESCR, //
+                      TSID_IS_NULL_ALLOWED, AV_FALSE, //
+                      TSID_DEFAULT_VALUE, AV_STR_EMPTY ), //
+                  DataDef.create( ISkSystem.EVPID_EDITOR, EAtomicType.STRING, TSID_NAME, STR_N_EV_PARAM_EDITOR, //
+                      TSID_DESCRIPTION, STR_D_EV_PARAM_EDITOR, //
+                      TSID_IS_NULL_ALLOWED, AV_FALSE, //
+                      TSID_DEFAULT_VALUE, AV_STR_EMPTY ) //
+              ), //
+              OptionSetUtils.createOpSet( //
+                  IAvMetaConstants.TSID_NAME, STR_N_EV_SYSDESCR_CHANGED, //
+                  IAvMetaConstants.TSID_DESCRIPTION, STR_D_EV_SYSDESCR_CHANGED //
+              ) //
+          )//
+      );
+      newClasses.add( dtoSystem );
+    }
+    // Создание класса пользователя
+    if( !classes.hasKey( ISkUser.CLASS_ID ) ) {
+      newClasses.add( SkCoreServUsers.internalCreateUserClassDto() );
+    }
+    // Создание класса сессия
+    if( !classes.hasKey( ISkSession.CLASS_ID ) ) {
+      // Создание класса ISkSession
+      DtoClassInfo dtoSession = new DtoClassInfo( ISkSession.CLASS_ID, IGwHardConstants.GW_ROOT_CLASS_ID, //
+          OptionSetUtils.createOpSet( //
+              IAvMetaConstants.TSID_NAME, STR_N_SESSION, //
+              IAvMetaConstants.TSID_DESCRIPTION, STR_D_SESSION //
+          ) );
+
+      // AID_STARTTIME
+      dtoSession.attrInfos().add( DtoAttrInfo.create1( ISkSession.AID_STARTTIME, DataType.create( TIMESTAMP, //
+          TSID_NAME, STR_N_AID_STARTTIME, //
+          TSID_DESCRIPTION, STR_D_AID_STARTTIME //
+      ), //
+          IOptionSet.NULL ) );
+      // AID_ENDTIME
+      dtoSession.attrInfos().add( DtoAttrInfo.create1( ISkSession.AID_ENDTIME, DataType.create( TIMESTAMP, //
+          TSID_NAME, STR_N_AID_ENDTIME, //
+          TSID_DESCRIPTION, STR_D_AID_ENDTIME //
+      ), IOptionSet.NULL ) );
+      // AID_BACKEND_SPECIFIC_PARAMS
+      dtoSession.attrInfos().add( DtoAttrInfo.create1( ISkSession.AID_BACKEND_SPECIFIC_PARAMS, DataType.create( VALOBJ, //
+          TSID_NAME, STR_N_AID_BACKEND_SPECIFIC_PARAMS, //
+          TSID_DESCRIPTION, STR_D_AID_BACKEND_SPECIFIC_PARAMS, //
+          TSID_KEEPER_ID, OptionSetKeeper.KEEPER_ID, //
+          TSID_IS_NULL_ALLOWED, AV_FALSE, //
+          TSID_DEFAULT_VALUE, avValobj( new OptionSet() ) //
+      ), IOptionSet.NULL ) );
+      // AID_CONNECTION_CREATION_PARAMS
+      dtoSession.attrInfos()
+          .add( DtoAttrInfo.create1( ISkSession.AID_CONNECTION_CREATION_PARAMS, DataType.create( VALOBJ, //
+              TSID_NAME, STR_N_AID_CONNECTION_CREATION_PARAMS, //
+              TSID_DESCRIPTION, STR_D_AID_CONNECTION_CREATION_PARAMS, //
+              TSID_KEEPER_ID, OptionSetKeeper.KEEPER_ID, //
+              TSID_IS_NULL_ALLOWED, AV_FALSE, //
+              TSID_DEFAULT_VALUE, avValobj( new OptionSet() ) //
+          ), IOptionSet.NULL ) );
+      // TODO:
+      // dtoSession.linkInfos().addAll( ISkUserServiceConstants.LNKINF_USER );
+      // dtoSession.rtdataInfos().addAll( ISkUserServiceConstants.RTDINF_STATE );
+      // dtoSession.eventInfos().addAll( ISkUserServiceConstants.EVINF_STATE_CHANGED );
+      newClasses.add( dtoSession );
+    }
+    if( newClasses.size() > 0 ) {
+      aSysdescrSupport.writeClassInfos( IStringList.EMPTY, newClasses );
+    }
+    // Создание пользователя root
+    if( aObjectsSupport.findObject( ISkUserServiceHardConstants.SKID_USER_ROOT ) == null ) {
+      IOptionSetEdit attrs = new OptionSet();
+      attrs.setStr( AID_NAME, STR_N_ROOT_USER );
+      attrs.setStr( AID_DESCRIPTION, STR_D_ROOT_USER );
+      attrs.setStr( ISkUserServiceHardConstants.ATRID_PASSWORD_HASH, DEFAULT_ROOT_PASSWORD );
+      IDtoObject root = new DtoObject( ISkUserServiceHardConstants.SKID_USER_ROOT, attrs, IStringMap.EMPTY );
+      aObjectsSupport.writeObjects( IS5FrontendRear.NULL, ISkidList.EMPTY, new ElemArrayList<>( root ), true );
+    }
   }
 }

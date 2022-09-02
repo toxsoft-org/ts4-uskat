@@ -391,8 +391,6 @@ public class S5BackendSession
 
       // Результат инициализации сессии
       S5SessionInitResult initResult = new S5SessionInitResult();
-      // Текущие типы и классы
-      initResult.getBackendAddonData( IBaClasses.ADDON_ID, null );
       // Метка времени начала инициализации расширений сессии
       long addonsInitStartTime = System.currentTimeMillis();
       // Инициализация сессии данными клиента
@@ -411,6 +409,10 @@ public class S5BackendSession
       // 2021-04-10 mvk
       // Сохранение информации о пользователе в кэше
       sessionManager.createRemoteSession( session );
+
+      // Регистрация приема сообщений от фронтенда
+      // TODO:
+      // callbackWriter.registerNotificationHandler( , null );
 
       // Время (мсек) инициализации расширений сессии
       Long addonsInitTime = Long.valueOf( System.currentTimeMillis() - addonsInitStartTime );
@@ -510,7 +512,7 @@ public class S5BackendSession
   @TransactionAttribute( TransactionAttributeType.SUPPORTS )
   public IS5SessionInfo sessionInfo() {
     if( sessionID == null ) {
-      logger().error( S5BackendSession.class.getSimpleName() + ".sessionInfo().userSessionID = null" ); //$NON-NLS-1$
+      logger().error( getClass().getSimpleName() + ".sessionInfo().userSessionID = null" ); //$NON-NLS-1$
       return null;
     }
     S5SessionData session = sessionManager.findSessionData( sessionID );
@@ -576,7 +578,7 @@ public class S5BackendSession
   @Override
   public void close() {
     if( sessionID == null ) {
-      logger().error( S5BackendSession.class.getSimpleName() + ".close().userSessionID = null" ); //$NON-NLS-1$
+      logger().error( getClass().getSimpleName() + ".close().userSessionID = null" ); //$NON-NLS-1$
       return;
     }
     close( sessionID );
@@ -682,13 +684,13 @@ public class S5BackendSession
   //
   /**
    * Возвращает 128-битный хэш-код указанного пароля
+   * <p>
+   * deprecated TODO: метод вероятно должен быть в SkCoreServUsers как и раньше
    *
    * @param aPassword String пароль
    * @return String хэш-код
    * @throws TsNullArgumentRtException аргумент = null
-   * @deprecated TODO: метод вероятно должен быть в SkCoreServUsers как и раньше
    */
-  @Deprecated
   public static String getPasswordHashCode( String aPassword ) {
     TsNullArgumentRtException.checkNull( aPassword );
     MessageDigest md;

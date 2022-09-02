@@ -13,6 +13,7 @@ import org.toxsoft.core.tslib.utils.errors.TsNullArgumentRtException;
 import org.toxsoft.uskat.core.api.hqserv.IDtoQueryParam;
 import org.toxsoft.uskat.core.backend.ISkBackendHardConstant;
 import org.toxsoft.uskat.core.backend.api.IBaQueries;
+import org.toxsoft.uskat.s5.server.backend.addons.IS5BackendAddonSessionControl;
 import org.toxsoft.uskat.s5.server.backend.addons.S5AbstractBackendAddonSession;
 import org.toxsoft.uskat.s5.server.backend.supports.queries.IS5BackendQueriesSingleton;
 import org.toxsoft.uskat.s5.server.sessions.init.IS5SessionInitData;
@@ -29,9 +30,10 @@ import org.toxsoft.uskat.s5.server.sessions.pas.S5SessionCallbackWriter;
 @AccessTimeout( value = ACCESS_TIMEOUT_DEFAULT, unit = TimeUnit.MILLISECONDS )
 @TransactionManagement( TransactionManagementType.CONTAINER )
 @TransactionAttribute( TransactionAttributeType.SUPPORTS )
-class S5BaQueriesSession
+@SuppressWarnings( "unused" )
+public class S5BaQueriesSession
     extends S5AbstractBackendAddonSession
-    implements IS5BaQueriesSession {
+    implements IS5BaQueriesSession, IS5BackendAddonSessionControl {
 
   private static final long serialVersionUID = 157157L;
 

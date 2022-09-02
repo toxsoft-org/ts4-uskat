@@ -136,7 +136,7 @@ public class S5StatisticWriter
   //
   @Override
   public void close() {
-    tryLockWrite( channelsLock );
+    lockWrite( channelsLock );
     try {
       for( Pair<ISkWriteCurrDataChannel, ISkWriteHistDataChannel> channels : writeChannels ) {
         channels.left().close();
@@ -193,7 +193,7 @@ public class S5StatisticWriter
     // Имя параметра для интервала
     String param = getDataId( aInterval, aParam );
     // Попытка получить уже ранее открытый канал
-    tryLockRead( channelsLock );
+    lockRead( channelsLock );
     try {
       Pair<ISkWriteCurrDataChannel, ISkWriteHistDataChannel> retValue = writeChannels.findByKey( param );
       return retValue;

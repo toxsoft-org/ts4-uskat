@@ -112,6 +112,23 @@ interface IS5Resources {
   String STR_N_SESSION = "Сессия";
   String STR_D_SESSION = "Сессия пользователя подключенного к серверу";
 
+  String STR_N_SYSTEM              = "Система";
+  String STR_D_SYSTEM              = "Система/сервер/бекенд/инфрастуктура";
+  String STR_N_EV_PARAM_LOGIN      = "Логин";                                          //
+  String STR_D_EV_PARAM_LOGIN      = "Логин пользователя";                             //
+  String STR_N_EV_PARAM_IP         = "IP";                                             //
+  String STR_D_EV_PARAM_IP         = "IP-адрес пользователя";                          //
+  String STR_N_EV_LOGIN_FAILED     = "Неудачная попытка подключения";                  //
+  String STR_D_EV_LOGIN_FAILED     = "Неудачная попытка создания сессии пользователя"; //
+  String STR_N_EV_PARAM_USER       = "Пользователь";                                   //
+  String STR_D_EV_PARAM_USER       = "Пользователь системы (login)";                   //
+  String STR_N_EV_PARAM_DESCR      = "Изменения";                                      //
+  String STR_D_EV_PARAM_DESCR      = "Описание изменений (вводится пользователем)";    //
+  String STR_N_EV_PARAM_EDITOR     = "Редактир";                                       //
+  String STR_D_EV_PARAM_EDITOR     = "Описание редактора";                             //
+  String STR_N_EV_SYSDESCR_CHANGED = "Изменено описание";                              //
+  String STR_D_EV_SYSDESCR_CHANGED = "Изменено системное описание сервера";            //
+
   String STR_N_AID_STARTTIME = "Открыта";
   String STR_D_AID_STARTTIME = "Метка времени (мсек с начала эпохи) открытия сессии";
 
@@ -126,4 +143,5 @@ interface IS5Resources {
 
   String STR_N_LNK_USER = "Пользователь";
   String STR_D_LNK_USER = "Пользователь, который вошел в систему";
+
 }
