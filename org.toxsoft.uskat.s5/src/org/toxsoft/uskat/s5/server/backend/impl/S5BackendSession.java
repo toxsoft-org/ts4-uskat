@@ -410,10 +410,6 @@ public class S5BackendSession
       // Сохранение информации о пользователе в кэше
       sessionManager.createRemoteSession( session );
 
-      // Регистрация приема сообщений от фронтенда
-      // TODO:
-      // callbackWriter.registerNotificationHandler( , null );
-
       // Время (мсек) инициализации расширений сессии
       Long addonsInitTime = Long.valueOf( System.currentTimeMillis() - addonsInitStartTime );
 

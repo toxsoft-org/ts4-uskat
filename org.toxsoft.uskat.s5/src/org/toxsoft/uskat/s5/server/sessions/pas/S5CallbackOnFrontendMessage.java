@@ -11,7 +11,6 @@ import org.toxsoft.core.pas.tj.ITjValue;
 import org.toxsoft.core.tslib.av.opset.IOptionSet;
 import org.toxsoft.core.tslib.av.opset.impl.OptionSetKeeper;
 import org.toxsoft.core.tslib.bricks.events.msg.GtMessage;
-import org.toxsoft.core.tslib.bricks.events.msg.IGtMessageListener;
 import org.toxsoft.core.tslib.coll.primtypes.IStringMapEdit;
 import org.toxsoft.core.tslib.coll.primtypes.impl.StringMap;
 import org.toxsoft.core.tslib.utils.errors.TsNullArgumentRtException;
@@ -22,7 +21,7 @@ import org.toxsoft.uskat.core.backend.ISkFrontendRear;
  *
  * @author mvk
  */
-public final class S5CallbackOnFrontendMessage
+public abstract class S5CallbackOnFrontendMessage
     implements IJSONNotificationHandler<S5SessionCallbackChannel> {
 
   /**
@@ -44,21 +43,6 @@ public final class S5CallbackOnFrontendMessage
    * Аргументы сообщения
    */
   private static final String MSG_ARGS = "args"; //$NON-NLS-1$
-
-  /**
-   * frontend
-   */
-  private final ISkFrontendRear frontend;
-
-  /**
-   * Конструктор
-   *
-   * @param aFrontend {@link IGtMessageListener} frontend
-   * @throws TsNullArgumentRtException аргумент = null
-   */
-  S5CallbackOnFrontendMessage( ISkFrontendRear aFrontend ) {
-    frontend = TsNullArgumentRtException.checkNull( aFrontend );
-  }
 
   // ------------------------------------------------------------------------------------
   // Открытые методы
@@ -94,8 +78,13 @@ public final class S5CallbackOnFrontendMessage
     String msgId = aNotification.params().getByKey( MSG_ID ).asString();
     IOptionSet msgArgs = OptionSetKeeper.KEEPER.str2ent( aNotification.params().getByKey( MSG_ARGS ).asString() );
     // Передача сообщения на обработку
-    frontend.onBackendMessage( new GtMessage( topicId, msgId, msgArgs ) );
+    onFrontendMessage( new GtMessage( topicId, msgId, msgArgs ) );
   }
+
+  // ------------------------------------------------------------------------------------
+  // Абстрактные методы для реализации наследником
+  //
+  protected abstract void onFrontendMessage( GtMessage aMessage );
 
   // ------------------------------------------------------------------------------------
   // Внутренние методы

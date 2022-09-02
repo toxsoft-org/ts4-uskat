@@ -109,10 +109,12 @@ public final class S5SessionCallbackChannel
    * @param aHandler {@link IJSONNotificationHandler}
    * @throws TsNullArgumentRtException любой аргумент = null
    */
-  public void registerNotificationHandler( String aMethodName, IJSONNotificationHandler<PasChannel> aHandler ) {
+  @SuppressWarnings( "unchecked" )
+  void registerNotificationHandler( String aMethodName, IJSONNotificationHandler<S5SessionCallbackChannel> aHandler ) {
     TsNullArgumentRtException.checkNull( aMethodName );
     TsNullArgumentRtException.checkNull( aHandler );
-    super.handlerHolder().registerNotificationHandler( aMethodName, aHandler );
+    super.handlerHolder().registerNotificationHandler( aMethodName,
+        (IJSONNotificationHandler<PasChannel>)(Object)aHandler );
   }
 
   // ------------------------------------------------------------------------------------

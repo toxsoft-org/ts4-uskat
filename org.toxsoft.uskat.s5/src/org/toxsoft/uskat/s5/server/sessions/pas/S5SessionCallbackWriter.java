@@ -9,8 +9,6 @@ import static org.toxsoft.uskat.s5.server.sessions.pas.IS5Resources.*;
 import javax.ejb.TransactionAttribute;
 import javax.ejb.TransactionAttributeType;
 
-import org.toxsoft.core.pas.common.PasChannel;
-import org.toxsoft.core.pas.json.IJSONNotificationHandler;
 import org.toxsoft.core.tslib.av.IAtomicValue;
 import org.toxsoft.core.tslib.bricks.ICooperativeMultiTaskable;
 import org.toxsoft.core.tslib.bricks.events.msg.*;
@@ -119,6 +117,17 @@ public class S5SessionCallbackWriter
     }
     S5SessionCallbackChannel retValue = channel;
     channel = aChannel;
+
+    // Регистрация слушателя сообщений от фронтенда
+    channel.registerNotificationHandler( S5CallbackOnFrontendMessage.ON_MESSAGE_METHOD,
+        new S5CallbackOnFrontendMessage() {
+
+          @Override
+          protected void onFrontendMessage( GtMessage aMessage ) {
+            eventer.sendMessage( aMessage );
+          }
+        } );
+
     return retValue;
   }
 
@@ -131,19 +140,6 @@ public class S5SessionCallbackWriter
   public void updateSessionData( S5SessionData aSessionData ) {
     TsNullArgumentRtException.checkNull( aSessionData );
     sessionData = aSessionData;
-  }
-
-  /**
-   * Регистрация обработчика уведомления
-   *
-   * @param aMethodName String имя метода уведомления
-   * @param aHandler {@link IJSONNotificationHandler}
-   * @throws TsNullArgumentRtException любой аргумент = null
-   */
-  public void registerNotificationHandler( String aMethodName, IJSONNotificationHandler<PasChannel> aHandler ) {
-    TsNullArgumentRtException.checkNull( aMethodName );
-    TsNullArgumentRtException.checkNull( aHandler );
-    channel.registerNotificationHandler( aMethodName, aHandler );
   }
 
   // ------------------------------------------------------------------------------------
