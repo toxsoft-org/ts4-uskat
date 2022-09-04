@@ -2,17 +2,23 @@ package org.toxsoft.uskat.core.backend.api;
 
 import static org.toxsoft.core.tslib.bricks.strio.IStrioHardConstants.*;
 
-import org.toxsoft.core.tslib.av.*;
-import org.toxsoft.core.tslib.av.impl.*;
-import org.toxsoft.core.tslib.bricks.events.msg.*;
-import org.toxsoft.core.tslib.bricks.strio.*;
-import org.toxsoft.core.tslib.bricks.strio.chario.impl.*;
-import org.toxsoft.core.tslib.bricks.strio.impl.*;
-import org.toxsoft.core.tslib.coll.*;
-import org.toxsoft.core.tslib.coll.impl.*;
-import org.toxsoft.core.tslib.gw.gwid.*;
-import org.toxsoft.core.tslib.utils.errors.*;
-import org.toxsoft.uskat.core.api.cmdserv.*;
+import org.toxsoft.core.tslib.av.EAtomicType;
+import org.toxsoft.core.tslib.av.IAtomicValue;
+import org.toxsoft.core.tslib.av.impl.AtomicValueKeeper;
+import org.toxsoft.core.tslib.bricks.events.msg.GenericMessage;
+import org.toxsoft.core.tslib.bricks.events.msg.GtMessage;
+import org.toxsoft.core.tslib.bricks.strio.IStrioReader;
+import org.toxsoft.core.tslib.bricks.strio.IStrioWriter;
+import org.toxsoft.core.tslib.bricks.strio.chario.impl.CharInputStreamString;
+import org.toxsoft.core.tslib.bricks.strio.chario.impl.CharOutputStreamAppendable;
+import org.toxsoft.core.tslib.bricks.strio.impl.StrioReader;
+import org.toxsoft.core.tslib.bricks.strio.impl.StrioWriter;
+import org.toxsoft.core.tslib.coll.IMap;
+import org.toxsoft.core.tslib.coll.IMapEdit;
+import org.toxsoft.core.tslib.coll.impl.ElemMap;
+import org.toxsoft.core.tslib.gw.gwid.Gwid;
+import org.toxsoft.core.tslib.utils.errors.TsNullArgumentRtException;
+import org.toxsoft.uskat.core.api.rtdserv.ISkRtdataService;
 
 /**
  * {@link IBaRtdata} message builder: new values of current data received.
@@ -35,7 +41,7 @@ public class BaMsgRtdataCurrData
   private static final String ARGID_NEW_VALUES = "NewValues"; //$NON-NLS-1$
 
   BaMsgRtdataCurrData() {
-    super( ISkCommandService.SERVICE_ID, MSG_ID );
+    super( ISkRtdataService.SERVICE_ID, MSG_ID );
     defineArgNonValobj( ARGID_NEW_VALUES, EAtomicType.STRING, true );
   }
 
