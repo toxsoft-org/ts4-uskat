@@ -145,6 +145,9 @@ class S5BaRtdataLocal
   public void writeCurrData( Gwid aGwid, IAtomicValue aValue ) {
     TsNullArgumentRtException.checkNulls( aGwid, aValue );
     synchronized (baData) {
+      if( baData.currDataToSend.size() == 0 ) {
+        baData.lastCurrDataToSendTime = System.currentTimeMillis();
+      }
       baData.currDataToSend.put( aGwid, aValue );
     }
   }
@@ -153,6 +156,9 @@ class S5BaRtdataLocal
   public void writeHistData( Gwid aGwid, ITimeInterval aInterval, ITimedList<ITemporalAtomicValue> aValues ) {
     TsNullArgumentRtException.checkNulls( aGwid, aInterval, aValues );
     synchronized (baData) {
+      if( baData.histDataToSend.size() == 0 ) {
+        baData.lastHistDataToSendTime = System.currentTimeMillis();
+      }
       Pair<ITimeInterval, ITimedList<ITemporalAtomicValue>> prevValues = baData.histDataToSend.findByKey( aGwid );
       Pair<ITimeInterval, ITimedList<ITemporalAtomicValue>> newValues = new Pair<>( aInterval, aValues );
       if( prevValues != null ) {

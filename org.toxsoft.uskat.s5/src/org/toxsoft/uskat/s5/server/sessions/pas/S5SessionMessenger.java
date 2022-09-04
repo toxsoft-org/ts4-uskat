@@ -26,11 +26,11 @@ import org.toxsoft.uskat.s5.server.frontend.S5FrontendData;
 import org.toxsoft.uskat.s5.server.sessions.*;
 
 /**
- * Передача обратных вызовов от сервера к клиенту
+ * Механизм приема/передачи сообщений от клиента работающий в рамках его сессии на сервере
  *
  * @author mvk
  */
-public class S5SessionCallbackWriter
+public class S5SessionMessenger
     implements IS5FrontendRear, ICooperativeMultiTaskable, ICloseable {
 
   /**
@@ -61,7 +61,7 @@ public class S5SessionCallbackWriter
    * @param aChannel {@link S5SessionCallbackChannel} канал обмена данными
    * @throws TsNullArgumentRtException любой аругмент = null
    */
-  public S5SessionCallbackWriter( IS5BackendCoreSingleton aBackendCoreSingleton, S5SessionData aSession,
+  public S5SessionMessenger( IS5BackendCoreSingleton aBackendCoreSingleton, S5SessionData aSession,
       S5SessionCallbackChannel aChannel ) {
     TsNullArgumentRtException.checkNulls( aBackendCoreSingleton, aSession, aChannel );
 
@@ -79,7 +79,7 @@ public class S5SessionCallbackWriter
 
     backendCoreSingleton = aBackendCoreSingleton;
     sessionData = aSession;
-    channel = aChannel;
+    setChannel( aChannel );
 
     IAtomicValue remoteAddress = avStr( sessionData.info().remoteAddress() );
     IAtomicValue remotePort = avInt( sessionData.info().remotePort() );
@@ -100,7 +100,7 @@ public class S5SessionCallbackWriter
   }
 
   /**
-   * Установить новый канал передачи для писателя
+   * Установить канал передачи для писателя
    * <p>
    * Метод используется {@link S5SessionCallbackServer#onOpenChannel(S5SessionCallbackChannel, Skid)} при определении
    * факта появления дублей каналов от одного и того же клиента.
@@ -109,9 +109,11 @@ public class S5SessionCallbackWriter
    * @return {@link S5SessionCallbackChannel} старый канал писателя. null: канал не изменился
    * @throws TsNullArgumentRtException аргумент = null
    */
-  S5SessionCallbackChannel setNewChannel( S5SessionCallbackChannel aChannel ) {
+  S5SessionCallbackChannel setChannel( S5SessionCallbackChannel aChannel ) {
     TsNullArgumentRtException.checkNull( aChannel );
-    if( aChannel.equals( channel ) ) {
+    // 2022-09-04 mvk
+    // if( aChannel.equals( channel ) ) {
+    if( aChannel == channel ) {
       // Канал не изменился
       return null;
     }
@@ -124,6 +126,7 @@ public class S5SessionCallbackWriter
 
           @Override
           protected void onFrontendMessage( GtMessage aMessage ) {
+            logger.info( "onFrontendMessage recevied: %s", aMessage ); //$NON-NLS-1$
             eventer.sendMessage( aMessage );
           }
         } );
@@ -244,7 +247,7 @@ public class S5SessionCallbackWriter
     if( getClass() != aObject.getClass() ) {
       return false;
     }
-    S5SessionCallbackWriter other = (S5SessionCallbackWriter)aObject;
+    S5SessionMessenger other = (S5SessionMessenger)aObject;
     if( !sessionData.equals( other.sessionData ) ) {
       return false;
     }
@@ -281,12 +284,12 @@ public class S5SessionCallbackWriter
   /**
    * Обработка ошибки записи обратного вызова
    *
-   * @param aWriter {@link S5SessionCallbackWriter} писатель обратных вызовов
+   * @param aWriter {@link S5SessionMessenger} писатель обратных вызовов
    * @param aError {@link Throwable} произошедшая ошибка
    * @param aLogger {@link ILogger} журнал работы
    * @throws TsNullArgumentRtException любой аргумент = null
    */
-  private static void handleWriteError( S5SessionCallbackWriter aWriter, Throwable aError, ILogger aLogger ) {
+  private static void handleWriteError( S5SessionMessenger aWriter, Throwable aError, ILogger aLogger ) {
     TsNullArgumentRtException.checkNulls( aWriter, aError, aLogger );
     try {
       // Любые ошибки записи вызывают завершение соединения с клиентом

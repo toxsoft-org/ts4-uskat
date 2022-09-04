@@ -217,7 +217,7 @@ public class S5SessionManager
    * Ключ: идентификатор сессии пользователя, {@link ISkSession};<br>
    * Значение: отправитель
    */
-  private final SynchronizedMap<Skid, S5SessionCallbackWriter> callbackWritersBySessions =
+  private final SynchronizedMap<Skid, S5SessionMessenger> messengerBySessions =
       new SynchronizedMap<>( new ElemMap<>() );
 
   /**
@@ -314,7 +314,7 @@ public class S5SessionManager
         // Попытка формирования передатчиков для уже открытых сессий
         for( S5SessionData session : openSessions ) {
           logger().info( "membershipChanged(...): createCallbackWriter for = %s", session ); //$NON-NLS-1$
-          tryCreateCallbackWriter( session );
+          tryCreateMessenger( session );
         }
       }
 
@@ -364,7 +364,7 @@ public class S5SessionManager
 
   @Override
   public int openSessionCount() {
-    return callbackWritersBySessions.size();
+    return messengerBySessions.size();
   }
 
   @Override
@@ -414,7 +414,7 @@ public class S5SessionManager
       IS5SessionInfo info = aSession.info();
       Skid sessionID = info.sessionID();
       callBeforeCreateSession( interceptors, sessionID );
-      IS5FrontendRear frontend = callbackWritersBySessions.getByKey( sessionID );
+      IS5FrontendRear frontend = messengerBySessions.getByKey( sessionID );
       String login = info.login();
       long createTime = info.openTime();
       IOptionSetEdit backendSpecificParams = new OptionSet();
@@ -511,7 +511,7 @@ public class S5SessionManager
 
         callBeforeCloseSession( interceptors, sessionID, logger() );
 
-        IS5FrontendRear frontend = closeCallbackWriter( aSessionID );
+        IS5FrontendRear frontend = closeMessenger( aSessionID );
         closeSkSession( frontend, session, sessionID, endTime, loss );
 
         remoteOpenSessionCache.remove( aSessionID );
@@ -566,15 +566,15 @@ public class S5SessionManager
   }
 
   @Override
-  public S5SessionCallbackWriter findCallbackWriter( Skid aSessionID ) {
+  public S5SessionMessenger findMessenger( Skid aSessionID ) {
     TsNullArgumentRtException.checkNull( aSessionID );
-    return callbackWritersBySessions.findByKey( aSessionID );
+    return messengerBySessions.findByKey( aSessionID );
   }
 
   @Override
-  public S5SessionCallbackWriter getCallbackWriter( Skid aSessionID ) {
+  public S5SessionMessenger getMessenger( Skid aSessionID ) {
     TsNullArgumentRtException.checkNull( aSessionID );
-    S5SessionCallbackWriter retValue = callbackWritersBySessions.findByKey( aSessionID );
+    S5SessionMessenger retValue = messengerBySessions.findByKey( aSessionID );
     if( retValue != null ) {
       return retValue;
     }
@@ -583,7 +583,7 @@ public class S5SessionManager
       // Сессия не найдена
       throw new TsIllegalArgumentRtException( ERR_SESSION_NOT_FOUND, "callbackWriter(...)", aSessionID ); //$NON-NLS-1$
     }
-    retValue = tryCreateCallbackWriter( session );
+    retValue = tryCreateMessenger( session );
     if( retValue == null ) {
       // Не найден канал для обратных вызовов
       throw new TsIllegalArgumentRtException( ERR_CALLBACK_NOT_FOUND, aSessionID );
@@ -592,41 +592,41 @@ public class S5SessionManager
   }
 
   @Override
-  public S5SessionCallbackWriter createCallbackWriter( S5SessionData aSession ) {
+  public S5SessionMessenger createMessenger( S5SessionData aSession ) {
     TsNullArgumentRtException.checkNull( aSession );
     // Описание сессии
     IS5SessionInfo sessionInfo = aSession.info();
     // Идентификатор сессии
     Skid sessionID = sessionInfo.sessionID();
     // Если писатель уже создан, то он удаляется
-    boolean wasSessionWriter = (closeCallbackWriter( sessionID ) != IS5FrontendRear.NULL);
+    boolean wasSessionWriter = (closeMessenger( sessionID ) != IS5FrontendRear.NULL);
     if( wasSessionWriter ) {
       logger().error( "createCallbackWriter(...): the session already had callback writer. sessionID = %s", sessionID ); //$NON-NLS-1$
     }
     // Попытка создания писателя
-    S5SessionCallbackWriter retValue = tryCreateCallbackWriter( aSession );
+    S5SessionMessenger messenger = tryCreateMessenger( aSession );
     // Анализ результата
-    if( retValue == null ) {
-      // Писатель callback не создан
+    if( messenger == null ) {
+      // Messenger не создан
       throw new TsIllegalArgumentRtException( ERR_CALLBACK_NOT_FOUND, aSession );
     }
-    return retValue;
+    return messenger;
   }
 
   @Override
-  public S5SessionCallbackWriter tryCreateCallbackWriter( S5SessionData aSession ) {
+  public S5SessionMessenger tryCreateMessenger( S5SessionData aSession ) {
     TsNullArgumentRtException.checkNull( aSession );
     // Описание сессии
     IS5SessionInfo sessionInfo = aSession.info();
     // Идентификатор сессии
     Skid sessionID = sessionInfo.sessionID();
     // Писатель обратных вызовов
-    S5SessionCallbackWriter callbackWriter = callbackWritersBySessions.findByKey( sessionID );
-    if( callbackWriter != null ) {
+    S5SessionMessenger messenger = messengerBySessions.findByKey( sessionID );
+    if( messenger != null ) {
       // Обновление данных передатчика обратных вызов сессии
       logger().info( MSG_UPDATE_SESSION_CALLBACK_WRITER, sessionID );
-      callbackWriter.updateSessionData( aSession );
-      return callbackWriter;
+      messenger.updateSessionData( aSession );
+      return messenger;
     }
     // Адрес клиента
     String remoteAddr = sessionInfo.remoteAddress();
@@ -641,26 +641,26 @@ public class S5SessionManager
       return null;
     }
     // Создание писателя обратных вызовов
-    callbackWriter = new S5SessionCallbackWriter( backendCoreSingleton, aSession, callbackChannel );
+    messenger = new S5SessionMessenger( backendCoreSingleton, aSession, callbackChannel );
     // Регистрация писателя обратных вызовов
-    S5SessionCallbackWriter oldCallbackWriter = callbackWritersBySessions.put( sessionID, callbackWriter );
-    if( oldCallbackWriter != null && !callbackWriter.equals( oldCallbackWriter ) ) {
+    S5SessionMessenger oldCallbackWriter = messengerBySessions.put( sessionID, messenger );
+    if( oldCallbackWriter != null && !messenger.equals( oldCallbackWriter ) ) {
       // Для сессии уже существовал писатель обратных вызовов
       logger().error( ERR_CALLBACK_WRITER_ALREADY_EXIST, aSession );
       oldCallbackWriter.close();
     }
-    // 2021-02-13 mvk перемещено из конструктора S5SessionCallbackWriter
+    // 2021-02-13 mvk перемещено из конструктора S5SessionMessenger
     // Регистрация писателя обратных вызовов как frontend бекенда сервера
-    backendCoreSingleton.attachFrontend( callbackWriter );
+    backendCoreSingleton.attachFrontend( messenger );
     // Создание передатчика обратных вызовов сессии завершено
     logger().info( MSG_CREATE_SESSION_CALLBACK_FINISH, sessionID );
-    return callbackWriter;
+    return messenger;
   }
 
   @Override
-  public IS5FrontendRear closeCallbackWriter( Skid aSessionID ) {
+  public IS5FrontendRear closeMessenger( Skid aSessionID ) {
     TsNullArgumentRtException.checkNull( aSessionID );
-    S5SessionCallbackWriter callbackWriter = callbackWritersBySessions.removeByKey( aSessionID );
+    S5SessionMessenger callbackWriter = messengerBySessions.removeByKey( aSessionID );
     if( callbackWriter != null ) {
       callbackWriter.close();
     }
@@ -705,8 +705,8 @@ public class S5SessionManager
     // Текущее время
     long currTime = System.currentTimeMillis();
     // Обработка doJob открытых писателей обратных вызовов
-    IList<S5SessionCallbackWriter> callbacks = callbackWritersBySessions.values().copyTo( new ElemArrayList<>() );
-    for( S5SessionCallbackWriter callback : callbacks ) {
+    IList<S5SessionMessenger> callbacks = messengerBySessions.values().copyTo( new ElemArrayList<>() );
+    for( S5SessionMessenger callback : callbacks ) {
       callback.doJob();
     }
     // if( currTime - doJobTimestamp < SECOND.interval() ) {
@@ -892,7 +892,7 @@ public class S5SessionManager
         // // Проверка существования писателя сессии
         // tryLockWrite( lock );
         // try {
-        // if( callbackWritersBySessions.hasKey( sessionID ) == false ) {
+        // if( messengerBySessions.hasKey( sessionID ) == false ) {
         // // Проверка сессии. Создание писателя обратных вызовов
         // logger().error( ERR_CHECK_SESSION_CREATE_CALLBACK, sessionID );
         // // Создание писателя
@@ -926,10 +926,10 @@ public class S5SessionManager
     // Текущее время
     long currTime = System.currentTimeMillis();
     // Карта писателей обратных вызовов
-    IMap<Skid, S5SessionCallbackWriter> callbacks = callbackWritersBySessions.copyTo( new ElemMap<>() );
+    IMap<Skid, S5SessionMessenger> callbacks = messengerBySessions.copyTo( new ElemMap<>() );
     // Проверка писателей обратных вызовов
     for( Skid sessionID : callbacks.keys() ) {
-      S5SessionCallbackWriter callback = callbacks.getByKey( sessionID );
+      S5SessionMessenger callback = callbacks.getByKey( sessionID );
       // Признак отработки завершения таймаута после открытия сессии (сессия недавно создана и, возможно, еще не
       // размещена в кэше remoteOpenSessionCache)
       boolean afterOpenTimeout = (currTime - callback.sessionData().info().openTime() < CHECK_TIMEOUT_AFTER_OPEN);
@@ -945,13 +945,13 @@ public class S5SessionManager
         catch( NoSuchEJBException e ) {
           // Невалидная сессия. Callback будет закрыт
           logger().error( ERR_CHECK_CALLBACK_SESSION_INVALID, sessionID );
-          closeCallbackWriter( sessionID );
+          closeMessenger( sessionID );
           continue;
         }
         catch( Throwable e ) {
           // Неожиданная ошибка доступа к сессии
           logger().error( e );
-          closeCallbackWriter( sessionID );
+          closeMessenger( sessionID );
           continue;
         }
         // Размещение сессии в кэше

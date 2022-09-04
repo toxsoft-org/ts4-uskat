@@ -430,6 +430,7 @@ public abstract class S5AbstractBackend<ADDON extends IS5BackendAddon>
    */
   protected final void fireBackendMessage( GtMessage aMessage ) {
     TsNullArgumentRtException.checkNull( aMessage );
+    logger.info( "onBackendMessage recevied: %s", aMessage ); //$NON-NLS-1$
     lockWrite( frontendLock );
     try {
       for( IS5BackendAddon addon : allAddons ) {

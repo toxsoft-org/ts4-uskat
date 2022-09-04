@@ -67,7 +67,7 @@ import org.toxsoft.uskat.s5.server.cluster.IS5ClusterManager;
 import org.toxsoft.uskat.s5.server.frontend.IS5FrontendRear;
 import org.toxsoft.uskat.s5.server.sessions.*;
 import org.toxsoft.uskat.s5.server.sessions.init.*;
-import org.toxsoft.uskat.s5.server.sessions.pas.S5SessionCallbackWriter;
+import org.toxsoft.uskat.s5.server.sessions.pas.S5SessionMessenger;
 
 /**
  * Абстрактная реализация сессии {@link IS5Backend}.
@@ -371,10 +371,10 @@ public class S5BackendSession
       logger().info( MSG_CREATE_SESSION_START, sessionInfo );
       // Сессия
       S5SessionData session = new S5SessionData( sessionInfo, local );
-      // Создание писателя обратных вызовов для сессии и его регистрация в backend
-      S5SessionCallbackWriter callbackWriter = null;
+      // Создание приемопередатчика сообщений для сессии и его регистрация в backend
+      S5SessionMessenger messenger = null;
       try {
-        callbackWriter = sessionManager.createCallbackWriter( session );
+        messenger = sessionManager.createMessenger( session );
       }
       catch( TsItemNotFoundRtException e ) {
         // Не найден канал для обратных вызовов
@@ -399,7 +399,7 @@ public class S5BackendSession
       for( String addonId : baSessionCtrls.keys() ) {
         IS5BackendAddonSessionControl addonSession = baSessionCtrls.getByKey( addonId );
         try {
-          addonSession.init( control(), callbackWriter, aInitData, initResult );
+          addonSession.init( control(), messenger, aInitData, initResult );
         }
         catch( Throwable e ) {
           // Неожиданная ошибка инициализации расширения
@@ -603,7 +603,7 @@ public class S5BackendSession
 
   @Override
   public ISkFrontendRear frontend() {
-    return sessionManager.getCallbackWriter( sessionID );
+    return sessionManager.getMessenger( sessionID );
   }
 
   @Override

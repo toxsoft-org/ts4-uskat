@@ -21,7 +21,7 @@ import org.toxsoft.uskat.s5.server.backend.supports.events.IS5BackendEventSingle
 import org.toxsoft.uskat.s5.server.backend.supports.sysdescr.IS5BackendSysDescrSingleton;
 import org.toxsoft.uskat.s5.server.sessions.init.IS5SessionInitData;
 import org.toxsoft.uskat.s5.server.sessions.init.S5SessionInitResult;
-import org.toxsoft.uskat.s5.server.sessions.pas.S5SessionCallbackWriter;
+import org.toxsoft.uskat.s5.server.sessions.pas.S5SessionMessenger;
 
 /**
  * Реализация сессии расширения бекенда {@link IS5BaEventsSession}.
@@ -68,7 +68,7 @@ public class S5BaEventsSession
   }
 
   @Override
-  protected void doAfterInit( S5SessionCallbackWriter aCallbackWriter, IS5SessionInitData aInitData,
+  protected void doAfterInit( S5SessionMessenger aMessenger, IS5SessionInitData aInitData,
       S5SessionInitResult aInitResult ) {
     S5BaEventsData baData = new S5BaEventsData();
     S5BaEventsData initData = aInitData.findBackendAddonData( IBaEvents.ADDON_ID, S5BaEventsData.class );

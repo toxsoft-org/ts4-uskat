@@ -59,13 +59,15 @@ class S5BaRtdataRemote
   public void doJob() {
     long currTime = System.currentTimeMillis();
     synchronized (baData) {
-      if( currTime - baData.lastCurrDataToSendTime > baData.currDataToSendTimeout ) {
+      if( baData.currDataToSend.size() > 0
+          && currTime - baData.lastCurrDataToSendTime > baData.currDataToSendTimeout ) {
         // Отправка значений текущих данных от фронтенда в бекенд
         owner().onFrontendMessage( BaMsgRtdataCurrData.INSTANCE.makeMessage( baData.currDataToSend ) );
         baData.currDataToSend.clear();
         baData.lastCurrDataToSendTime = currTime;
       }
-      if( currTime - baData.lastHistDataToSendTime > baData.histDataToSendTimeout ) {
+      if( baData.histDataToSend.size() > 0
+          && currTime - baData.lastHistDataToSendTime > baData.histDataToSendTimeout ) {
         // Отправка значений хранимых данных от фронтенда в бекенд
         owner().onFrontendMessage( BaMsgRtdataHistData.INSTANCE.makeMessage( baData.histDataToSend ) );
         baData.histDataToSend.clear();
@@ -98,6 +100,9 @@ class S5BaRtdataRemote
   public void writeCurrData( Gwid aGwid, IAtomicValue aValue ) {
     TsNullArgumentRtException.checkNulls( aGwid, aValue );
     synchronized (baData) {
+      if( baData.currDataToSend.size() == 0 ) {
+        baData.lastCurrDataToSendTime = System.currentTimeMillis();
+      }
       baData.currDataToSend.put( aGwid, aValue );
     }
   }
@@ -106,6 +111,9 @@ class S5BaRtdataRemote
   public void writeHistData( Gwid aGwid, ITimeInterval aInterval, ITimedList<ITemporalAtomicValue> aValues ) {
     TsNullArgumentRtException.checkNulls( aGwid, aInterval, aValues );
     synchronized (baData) {
+      if( baData.histDataToSend.size() == 0 ) {
+        baData.lastHistDataToSendTime = System.currentTimeMillis();
+      }
       Pair<ITimeInterval, ITimedList<ITemporalAtomicValue>> prevValues = baData.histDataToSend.findByKey( aGwid );
       Pair<ITimeInterval, ITimedList<ITemporalAtomicValue>> newValues = new Pair<>( aInterval, aValues );
       if( prevValues != null ) {

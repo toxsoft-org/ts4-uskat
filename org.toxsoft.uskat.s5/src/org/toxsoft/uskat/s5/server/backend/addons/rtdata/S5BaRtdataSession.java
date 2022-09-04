@@ -26,7 +26,7 @@ import org.toxsoft.uskat.s5.server.backend.supports.currdata.IS5BackendCurrDataS
 import org.toxsoft.uskat.s5.server.backend.supports.histdata.IS5BackendHistDataSingleton;
 import org.toxsoft.uskat.s5.server.sessions.init.IS5SessionInitData;
 import org.toxsoft.uskat.s5.server.sessions.init.S5SessionInitResult;
-import org.toxsoft.uskat.s5.server.sessions.pas.S5SessionCallbackWriter;
+import org.toxsoft.uskat.s5.server.sessions.pas.S5SessionMessenger;
 
 /**
  * Реализация сессии расширения бекенда {@link IS5BaRtdataSession}.
@@ -73,7 +73,7 @@ public class S5BaRtdataSession
   }
 
   @Override
-  protected void doAfterInit( S5SessionCallbackWriter aCallbackWriter, IS5SessionInitData aInitData,
+  protected void doAfterInit( S5SessionMessenger aMessenger, IS5SessionInitData aInitData,
       S5SessionInitResult aInitResult ) {
     S5BaRtdataData baData = new S5BaRtdataData();
     frontend().frontendData().setBackendAddonData( IBaRtdata.ADDON_ID, baData );

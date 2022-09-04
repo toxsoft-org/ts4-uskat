@@ -18,7 +18,7 @@ import org.toxsoft.uskat.s5.server.backend.addons.S5AbstractBackendAddonSession;
 import org.toxsoft.uskat.s5.server.backend.supports.queries.IS5BackendQueriesSingleton;
 import org.toxsoft.uskat.s5.server.sessions.init.IS5SessionInitData;
 import org.toxsoft.uskat.s5.server.sessions.init.S5SessionInitResult;
-import org.toxsoft.uskat.s5.server.sessions.pas.S5SessionCallbackWriter;
+import org.toxsoft.uskat.s5.server.sessions.pas.S5SessionMessenger;
 
 /**
  * Реализация сессии расширения бекенда {@link IS5BaQueriesSession}.
@@ -59,7 +59,7 @@ public class S5BaQueriesSession
   }
 
   @Override
-  protected void doAfterInit( S5SessionCallbackWriter aCallbackWriter, IS5SessionInitData aInitData,
+  protected void doAfterInit( S5SessionMessenger aMessenger, IS5SessionInitData aInitData,
       S5SessionInitResult aInitResult ) {
     S5BaQueriesData baData = new S5BaQueriesData();
     frontend().frontendData().setBackendAddonData( IBaQueries.ADDON_ID, baData );

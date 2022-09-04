@@ -419,11 +419,11 @@ public class S5BackendCurrDataSingleton
       synchronized (baData) {
         for( Gwid gwid : changedValues.keys() ) {
           if( baData.readCurrDataGwids.hasElem( gwid ) ) {
-            baData.currDataToSend.put( gwid, changedValues.getByKey( gwid ) );
-            if( baData.currDataToSend.size() == 1 ) {
+            if( baData.currDataToSend.size() == 0 ) {
               // При добавлении первого данного обнуляем отсчет времени
               baData.lastCurrDataToSendTime = currTime;
             }
+            baData.currDataToSend.put( gwid, changedValues.getByKey( gwid ) );
           }
         }
       }
