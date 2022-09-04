@@ -5,6 +5,7 @@ package org.toxsoft.uskat.s5.server.sessions;
  *
  * @author mvk
  */
+@SuppressWarnings( "nls" )
 interface IS5Resources {
 
   String STR_D_SESSION_MANAGER    = Messages.getString( "IS5Resources.STR_D_SESSION_MANAGER" );    //$NON-NLS-1$

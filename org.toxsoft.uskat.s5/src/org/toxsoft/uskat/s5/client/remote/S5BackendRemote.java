@@ -18,12 +18,12 @@ import org.toxsoft.uskat.core.backend.ISkBackendHardConstant;
 import org.toxsoft.uskat.core.backend.ISkFrontendRear;
 import org.toxsoft.uskat.core.backend.api.*;
 import org.toxsoft.uskat.s5.client.remote.connection.*;
-import org.toxsoft.uskat.s5.client.remote.connection.pas.S5CallbackOnBackendMessage;
 import org.toxsoft.uskat.s5.server.backend.IS5BackendSession;
 import org.toxsoft.uskat.s5.server.backend.addons.*;
 import org.toxsoft.uskat.s5.server.backend.messages.*;
 import org.toxsoft.uskat.s5.server.sessions.init.IS5SessionInitResult;
 import org.toxsoft.uskat.s5.server.sessions.init.S5SessionInitData;
+import org.toxsoft.uskat.s5.server.sessions.pas.S5CallbackOnFrontendMessage;
 
 /**
  * Удаленный s5-backend
@@ -69,8 +69,7 @@ public final class S5BackendRemote
     // Слушаем сообщения фроненда и передаем их бекенду через pas-канал
     eventer().addListener( aMessage -> {
       // Передача сообщения серверу
-      TODO:
-      S5CallbackOnBackendMessage.send( connection.callbackTxChannel(), aMessage );
+      S5CallbackOnFrontendMessage.send( connection.callbackTxChannel(), aMessage );
     } );
     // Соединение открывается в doInitialize
   }
