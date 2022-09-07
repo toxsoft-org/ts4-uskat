@@ -23,6 +23,7 @@ import org.toxsoft.core.tslib.bricks.strio.IStrioWriter;
 import org.toxsoft.core.tslib.coll.IList;
 import org.toxsoft.core.tslib.coll.IListEdit;
 import org.toxsoft.core.tslib.coll.impl.ElemArrayList;
+import org.toxsoft.core.tslib.coll.impl.ElemLinkedList;
 import org.toxsoft.core.tslib.coll.primtypes.*;
 import org.toxsoft.core.tslib.coll.primtypes.impl.StringArrayList;
 import org.toxsoft.core.tslib.coll.primtypes.impl.StringMap;
@@ -198,21 +199,26 @@ public class S5Statistic
 
   @Override
   public boolean update() {
+    IListEdit<S5StatisticHandler> updatedHandlers = new ElemLinkedList<>();
     lockWrite( lock() );
     try {
-      boolean retValue = false;
       for( S5StatisticHandler handler : handlers ) {
         if( handler.update() != IAtomicValue.NULL ) {
-          doOnStatValue( handler.id(), handler.interval(), handler.value() );
-          retValue = true;
+          updatedHandlers.add( handler );
         }
       }
-      updateTime = System.currentTimeMillis();
-      return retValue;
     }
     finally {
       unlockWrite( lock() );
     }
+    if( updatedHandlers.size() == 0 ) {
+      return false;
+    }
+    for( S5StatisticHandler handler : updatedHandlers ) {
+      doOnStatValue( handler.id(), handler.interval(), handler.value() );
+    }
+    updateTime = System.currentTimeMillis();
+    return true;
   }
 
   @Override

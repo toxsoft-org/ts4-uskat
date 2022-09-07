@@ -14,6 +14,7 @@ import javax.ejb.*;
 import org.infinispan.Cache;
 import org.toxsoft.core.tslib.av.EAtomicType;
 import org.toxsoft.core.tslib.av.IAtomicValue;
+import org.toxsoft.core.tslib.bricks.events.msg.GtMessage;
 import org.toxsoft.core.tslib.bricks.strid.coll.IStridablesList;
 import org.toxsoft.core.tslib.bricks.strid.coll.IStridablesListEdit;
 import org.toxsoft.core.tslib.bricks.strid.coll.impl.StridablesList;
@@ -160,14 +161,18 @@ public class S5BackendCurrDataSingleton
         // фронтенд не поддерживает обработку текущих данных
         continue;
       }
+      GtMessage message = null;
       synchronized (baData) {
-        if( baData.currDataToSend.size() > 0 && //
-            (currTime - baData.lastCurrDataToSendTime >= baData.currDataToSendTimeout) ) {
-          // Передача текущих значений фронтенду
-          frontend.onBackendMessage( BaMsgRtdataCurrData.INSTANCE.makeMessage( baData.currDataToSend ) );
-          baData.currDataToSend.clear();
-          baData.lastCurrDataToSendTime = currTime;
+        if( baData.currdataToFrontend.size() > 0 && //
+            (currTime - baData.lastCurrdataToFrontendTime >= baData.currdataTimeout) ) {
+          message = BaMsgRtdataCurrData.INSTANCE.makeMessage( baData.currdataToFrontend );
+          baData.currdataToFrontend.clear();
+          baData.lastCurrdataToFrontendTime = currTime;
         }
+      }
+      if( message != null ) {
+        // Передача текущих значений фронтенду
+        frontend.onBackendMessage( message );
       }
     }
   }
@@ -233,7 +238,7 @@ public class S5BackendCurrDataSingleton
     // Удаляемые данные из подписки
     GwidList removeRtdGwids;
     synchronized (baData) {
-      removeRtdGwids = new GwidList( baData.readCurrDataGwids );
+      removeRtdGwids = new GwidList( baData.currdataGwidsToFrontend );
     }
     // Добавляемые данные в подписку
     GwidList addRtdGwids = new GwidList();
@@ -253,7 +258,7 @@ public class S5BackendCurrDataSingleton
     callAfterConfigureCurrDataReader( interceptors, aFrontend, removeRtdGwids, addRtdGwids, logger() );
     // Фактическое выполнение подписки на данные
     synchronized (baData) {
-      baData.readCurrDataGwids.setAll( aRtdGwids );
+      baData.currdataGwidsToFrontend.setAll( aRtdGwids );
     }
 
     // Планирование передачи текущих значений для вновь подписанных данных
@@ -273,7 +278,7 @@ public class S5BackendCurrDataSingleton
     // Удаляемые данные из подписки
     GwidList removeRtdGwids;
     synchronized (baData) {
-      removeRtdGwids = new GwidList( baData.writeCurrDataGwids );
+      removeRtdGwids = new GwidList( baData.currdataGwidsToBackend );
     }
     // Добавляемые данные в подписку
     GwidList addRtdGwids = new GwidList();
@@ -293,7 +298,7 @@ public class S5BackendCurrDataSingleton
     callAfterConfigureCurrDataWriter( interceptors, aFrontend, removeRtdGwids, addRtdGwids, logger() );
     // Фактическое выполнение подписки на данные
     synchronized (baData) {
-      baData.writeCurrDataGwids.setAll( aRtdGwids );
+      baData.currdataGwidsToBackend.setAll( aRtdGwids );
     }
   }
 
@@ -308,7 +313,7 @@ public class S5BackendCurrDataSingleton
         continue;
       }
       synchronized (baData) {
-        for( Gwid gwid : baData.readCurrDataGwids ) {
+        for( Gwid gwid : baData.currdataGwidsToFrontend ) {
           gwids.add( gwid );
         }
       }
@@ -328,7 +333,7 @@ public class S5BackendCurrDataSingleton
         continue;
       }
       synchronized (baData) {
-        for( Gwid gwid : baData.writeCurrDataGwids ) {
+        for( Gwid gwid : baData.currdataGwidsToBackend ) {
           gwids.add( gwid );
         }
       }
@@ -418,12 +423,12 @@ public class S5BackendCurrDataSingleton
       }
       synchronized (baData) {
         for( Gwid gwid : changedValues.keys() ) {
-          if( baData.readCurrDataGwids.hasElem( gwid ) ) {
-            if( baData.currDataToSend.size() == 0 ) {
+          if( baData.currdataGwidsToFrontend.hasElem( gwid ) ) {
+            if( baData.currdataToFrontend.size() == 0 ) {
               // При добавлении первого данного обнуляем отсчет времени
-              baData.lastCurrDataToSendTime = currTime;
+              baData.lastCurrdataToFrontendTime = currTime;
             }
-            baData.currDataToSend.put( gwid, changedValues.getByKey( gwid ) );
+            baData.currdataToFrontend.put( gwid, changedValues.getByKey( gwid ) );
           }
         }
       }

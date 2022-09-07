@@ -91,7 +91,14 @@ interface IAdminHardConstants {
    * отправлять немедленно
    */
   IAdminCmdArgDef ARG_CONNECT_CURRDATA_TIMEOUT =
-      new AdminCmdArgDef( "currDataTimeout", createType( INTEGER, "300" ), STR_ARG_CONNECT_CURRDATA_TIMEOUT );
+      new AdminCmdArgDef( "currdataTimeout", createType( INTEGER, "300" ), STR_ARG_CONNECT_CURRDATA_TIMEOUT );
+
+  /**
+   * Аргумент {@link AdminCmdConnect}: Таймаут (мсек) передачи текущих данных от сервера клиенту. Значение <=0 -
+   * отправлять немедленно
+   */
+  IAdminCmdArgDef ARG_CONNECT_HISTDATA_TIMEOUT =
+      new AdminCmdArgDef( "histdataTimeout", createType( INTEGER, "60000" ), STR_ARG_CONNECT_HISTDATA_TIMEOUT );
 
   /**
    * Аргумент {@link AdminCmdConnect}: Имя класса инициализатора клиентского API
