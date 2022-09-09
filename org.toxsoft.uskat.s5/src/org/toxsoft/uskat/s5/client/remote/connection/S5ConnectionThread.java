@@ -73,7 +73,7 @@ class S5ConnectionThread
     while( !shutdown ) {
       try {
         // 2021-01-19 mvk fix-попытка ошибки существования потока восстановления связи закрытого соединения
-        S5Lockable lock = findLockableFromPool( connection.frontedLock() );
+        S5Lockable lock = connection.frontedLock();
         if( lock == null ) {
           // Не найдена блокировка соединения в пуле блокировок. Завершение потока восстановления соединения
           logger.warning( ERR_CLOSE_BY_LOCK_NOT_FOUND, getName() );

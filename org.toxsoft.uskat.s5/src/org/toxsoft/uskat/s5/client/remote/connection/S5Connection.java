@@ -13,7 +13,6 @@ import static org.toxsoft.uskat.s5.utils.threads.impl.S5ThreadUtils.*;
 import java.net.*;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.function.Supplier;
 
 import javax.ejb.NoSuchEJBException;
@@ -29,6 +28,7 @@ import org.jboss.marshalling.Pair;
 import org.toxsoft.core.pas.common.IPasTxChannel;
 import org.toxsoft.core.tslib.av.opset.IOptionSet;
 import org.toxsoft.core.tslib.av.opset.IOptionSetEdit;
+import org.toxsoft.core.tslib.av.opset.impl.OptionSet;
 import org.toxsoft.core.tslib.coll.IListBasicEdit;
 import org.toxsoft.core.tslib.coll.IListEdit;
 import org.toxsoft.core.tslib.coll.impl.ElemArrayList;
@@ -86,6 +86,11 @@ public final class S5Connection
   private static final long LOCK_TIMEOUT = 1000;
 
   /**
+   * Параметры создания сессии
+   */
+  private IOptionSet openArgs = IOptionSet.NULL;
+
+  /**
    * Текущее состояние соединениия
    */
   private volatile EConnectionState state = EConnectionState.DISCONNECTED;
@@ -122,7 +127,7 @@ public final class S5Connection
   /**
    * Блокировка доступа к ресурсам соединения
    */
-  private final ReentrantReadWriteLock frontedLock;
+  private final S5Lockable frontedLock;
 
   /**
    * Поток поиска API сервера. null: поиск не проводится
@@ -215,7 +220,7 @@ public final class S5Connection
     // fooClassLoader = ClassLoader.getSystemClassLoader();
     frontend = TsNullArgumentRtException.checkNull( aFrontend );
     lock = TsNullArgumentRtException.checkNull( aFrontendLock );
-    frontedLock = nativeLock( aFrontendLock );
+    frontedLock = aFrontendLock;
     uniqueId = instanceCount++;
     logger = getLogger( getClass() );
   }
@@ -258,6 +263,7 @@ public final class S5Connection
       throws S5ConnectionException {
     TsNullArgumentRtException.checkNull( aOptions );
     TsNullArgumentRtException.checkNull( aProgressMonitor );
+    openArgs = new OptionSet( aOptions );
     progressMonitor = aProgressMonitor;
     // Хосты на которых развернуты узлы кластера сервера
     S5HostList hosts = OP_HOSTS.getValue( aOptions ).asValobj();
@@ -496,10 +502,10 @@ public final class S5Connection
   /**
    * Возвращает блокировку доступа к {@link #frontend()}
    *
-   * @return {@link ReentrantReadWriteLock} блокировка доступа
+   * @return {@link S5Lockable} блокировка доступа
    */
   // 2020-10-12 mvk doJob + mainLock
-  public ReentrantReadWriteLock frontedLock() {
+  public S5Lockable frontedLock() {
     return frontedLock;
   }
 
@@ -543,7 +549,8 @@ public final class S5Connection
       String wpasswd = OP_WILDFLY_PASSWORD.getValue( options ).asString();
 
       // Передача пароля в hash-code
-      String passwdHashCode = S5BackendSession.getPasswordHashCode( OP_PASSWORD.getValue( options ).asString() );
+      String passwdHashCode = S5BackendSession.getPasswordHashCode( OP_PASSWORD.getValue( openArgs ).asString() );
+      // Замена пароля на хэш-код
       OP_PASSWORD.setValue( options, avStr( passwdHashCode ) );
 
       // Адрес сервера

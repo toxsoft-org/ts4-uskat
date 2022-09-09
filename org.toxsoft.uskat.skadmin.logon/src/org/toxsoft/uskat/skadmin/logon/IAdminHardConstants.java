@@ -7,7 +7,7 @@ import static org.toxsoft.uskat.s5.utils.collections.S5CollectionUtils.*;
 import static org.toxsoft.uskat.skadmin.core.plugins.AdminPluginUtils.*;
 import static org.toxsoft.uskat.skadmin.logon.IAdminResources.*;
 
-import org.toxsoft.core.tslib.av.metainfo.IAvMetaConstants;
+import org.toxsoft.core.tslib.av.EAtomicType;
 import org.toxsoft.uskat.s5.server.statistics.EStatisticInterval;
 import org.toxsoft.uskat.skadmin.core.IAdminCmdArgDef;
 import org.toxsoft.uskat.skadmin.core.impl.AdminCmdArgDef;
@@ -157,7 +157,7 @@ interface IAdminHardConstants {
   /**
    * Аргумент {@link AdminCmdInfo}: Интервал статистики
    */
-  IAdminCmdArgDef ARG_INFO_INTERVAL = new AdminCmdArgDef( "interval", IAvMetaConstants.DDEF_INTEGER,
+  IAdminCmdArgDef ARG_INFO_INTERVAL = new AdminCmdArgDef( "interval", createType( EAtomicType.STRING, "min" ),
       STR_ARG_INFO_INTERVAL + itemsToString( EStatisticInterval.asStridablesList() ) );
 
   /**
