@@ -42,16 +42,14 @@ import org.toxsoft.core.tslib.coll.primtypes.IStringList;
 import org.toxsoft.core.tslib.coll.primtypes.IStringMapEdit;
 import org.toxsoft.core.tslib.coll.primtypes.impl.StringArrayList;
 import org.toxsoft.core.tslib.coll.primtypes.impl.StringMap;
-import org.toxsoft.core.tslib.gw.skid.Skid;
 import org.toxsoft.core.tslib.utils.TsLibUtils;
 import org.toxsoft.core.tslib.utils.TsVersion;
 import org.toxsoft.core.tslib.utils.errors.*;
 import org.toxsoft.core.tslib.utils.logs.ILogger;
-import org.toxsoft.uskat.core.ISkCoreApi;
 import org.toxsoft.uskat.core.connection.*;
 import org.toxsoft.uskat.legacy.plexy.*;
 import org.toxsoft.uskat.s5.common.S5Host;
-import org.toxsoft.uskat.s5.common.sessions.ISkSession;
+import org.toxsoft.uskat.s5.common.sessions.IS5SessionInfo;
 import org.toxsoft.uskat.s5.server.IS5ServerHardConstants;
 import org.toxsoft.uskat.skadmin.cli.cmds.*;
 import org.toxsoft.uskat.skadmin.cli.completion.AdminCmdCompleter;
@@ -500,11 +498,9 @@ class AdminConsole
       // Информация о соединении с сервером
       sbPrompt.append( COLOR_SINGLE_VALUE );
       try {
-        ISkCoreApi coreApi = skConnection.coreApi();
-        Skid sessionId =
-            IS5ServerHardConstants.OP_BACKEND_SERVER_ID.getValue( skConnection.backendInfo().params() ).asValobj();
-        ISkSession session = coreApi.objService().get( sessionId );
-        sbPrompt.append( session.getUser().strid() );
+        IS5SessionInfo sessionInfo =
+            IS5ServerHardConstants.OP_BACKEND_SESSION_INFO.getValue( skConnection.backendInfo().params() ).asValobj();
+        sbPrompt.append( sessionInfo.login() );
       }
       catch( @SuppressWarnings( "unused" ) RuntimeException e ) {
         sbPrompt.append( "???" ); //$NON-NLS-1$
