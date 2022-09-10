@@ -370,7 +370,11 @@ public class AdminCmdCompleter
    */
   private static boolean isIdToken( String aBuffer, IAdminCmdToken aToken ) {
     // Провека символа перед лексемой
-    return (aToken.startIndex() > 0 && aBuffer.charAt( aToken.startIndex() - 1 ) == CHAR_ID_PREFIX);
+    if( aToken.startIndex() > 0 ) {
+      char c = aBuffer.charAt( aToken.startIndex() - 1 );
+      return (c == CHAR_ID_PREFIX);
+    }
+    return false;
   }
 
 }

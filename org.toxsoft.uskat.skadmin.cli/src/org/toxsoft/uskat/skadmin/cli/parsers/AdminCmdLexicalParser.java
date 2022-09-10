@@ -319,7 +319,9 @@ public class AdminCmdLexicalParser
       startPosition++;
       finishPosition--;
     }
-    aTokens.add( new AdminCmdToken( tokenType, startPosition, finishPosition, data, quoted || superQuoted ) );
+    // 2022-09-10 mvk
+    // aTokens.add( new AdminCmdToken( tokenType, startPosition, finishPosition, data, quoted || superQuoted ) );
+    aTokens.add( new AdminCmdToken( tokenType, startPosition - 1, finishPosition, data, quoted || superQuoted ) );
     return strioReader.peekChar( EStrioSkipMode.SKIP_BYPASSED );
   }
 
