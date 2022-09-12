@@ -4,11 +4,11 @@ import javax.ejb.Local;
 
 import org.toxsoft.core.tslib.coll.IList;
 import org.toxsoft.core.tslib.gw.skid.Skid;
-import org.toxsoft.core.tslib.utils.errors.*;
+import org.toxsoft.core.tslib.utils.errors.TsIllegalArgumentRtException;
+import org.toxsoft.core.tslib.utils.errors.TsNullArgumentRtException;
 import org.toxsoft.uskat.s5.common.info.IS5SessionsInfos;
 import org.toxsoft.uskat.s5.common.sessions.IS5SessionInfo;
 import org.toxsoft.uskat.s5.common.sessions.ISkSession;
-import org.toxsoft.uskat.s5.server.backend.IS5BackendCoreSingleton;
 import org.toxsoft.uskat.s5.server.frontend.IS5FrontendRear;
 import org.toxsoft.uskat.s5.server.sessions.pas.S5SessionMessenger;
 import org.toxsoft.uskat.s5.server.statistics.IS5StatisticCounter;
@@ -37,15 +37,6 @@ public interface IS5SessionManager {
    * @return {@link IS5SessionsInfos} информация о сессиях
    */
   IS5SessionsInfos getInfos();
-
-  /**
-   * Установить backend сервера
-   *
-   * @param aBackend {@link IS5BackendCoreSingleton} backend
-   * @throws TsNullArgumentRtException аргумент = null
-   * @throws TsIllegalStateRtException backend уже установлен
-   */
-  void setBackend( IS5BackendCoreSingleton aBackend );
 
   /**
    * Возвращает текущее количество открытых сессий

@@ -192,7 +192,7 @@ public class AdminCmdConnect
         connection.removeConnectionListener( AdminCmdGetConnection.CURRENT_CONNECTION_LISTENER );
       }
       ISkBackendInfo info = connection.backendInfo();
-      addResultInfo( MSG_CONNECT, connectionToString( connection ) );
+      addResultInfo( MSG_CONNECT, connectionToString( info ) );
       addResultInfo( MSG_CONNECT_SERVER_ID, info.id() );
       addResultInfo( MSG_CONNECT_SERVER_NAME, info.nmName() );
       addResultInfo( MSG_CONNECT_SERVER_DESCR, info.description() );

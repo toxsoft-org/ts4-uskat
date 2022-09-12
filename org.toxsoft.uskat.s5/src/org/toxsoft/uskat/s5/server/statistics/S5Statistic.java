@@ -96,6 +96,7 @@ public class S5Statistic
   private final IStringMap<S5StatisticHandler>        handlers;
   private long                                        updateTime;
   private transient S5Lockable                        lock;
+  private boolean                                     closed;
 
   /**
    * Конструктор
@@ -156,8 +157,21 @@ public class S5Statistic
   }
 
   // ------------------------------------------------------------------------------------
-  // Реализация IS5StatisticCounter
+  // IClosable
   //
+  @Override
+  public void close() {
+    closed = true;
+  }
+
+  // ------------------------------------------------------------------------------------
+  // IS5StatisticCounter
+  //
+  @Override
+  public boolean isClosed() {
+    return closed;
+  }
+
   @Override
   public boolean onEvent( IStridable aParam, IAtomicValue aValue ) {
     return onEvent( aParam.id(), aValue );

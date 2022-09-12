@@ -151,7 +151,7 @@ public class AdminCmdInfo
     // Информация об открытых и завершенных транзакциях сервера
     S5TransactionInfos transactionsInfos = OP_BACKEND_TRANSACTIONS_INFOS.getValue( info.params() ).asValobj();
     // Вывод
-    addResultInfo( MSG_INFO_CONNECT, connectionToString( connection ) );
+    addResultInfo( MSG_INFO_CONNECT, connectionToString( info ) );
     addResultInfo( MSG_INFO_ID, info.id() );
     addResultInfo( MSG_INFO_NAME, info.nmName() );
     addResultInfo( MSG_INFO_DESCR, info.description() );

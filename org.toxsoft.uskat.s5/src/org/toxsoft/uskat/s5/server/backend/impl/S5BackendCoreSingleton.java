@@ -274,7 +274,7 @@ public class S5BackendCoreSingleton
   public ISkBackendInfo getInfo() {
     // Размещение текущей информации о сервере (backend)
     try {
-      OP_BACKEND_ZONE_ID.setValue( backendInfo.params(), avValobj( ZoneId.systemDefault() ) );
+      OP_BACKEND_ZONE_ID.setValue( backendInfo.params(), avStr( ZoneId.systemDefault().getId() ) );
       OP_BACKEND_CURRENT_TIME.setValue( backendInfo.params(), avTimestamp( System.currentTimeMillis() ) );
       OP_BACKEND_SESSIONS_INFOS.setValue( backendInfo.params(), avValobj( sessionManager().getInfos() ) );
       OP_BACKEND_TRANSACTIONS_INFOS.setValue( backendInfo.params(), avValobj( txManager.getInfos() ) );

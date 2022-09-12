@@ -1,15 +1,12 @@
 package org.toxsoft.uskat.s5.utils;
 
 import org.toxsoft.core.tslib.bricks.keeper.IEntityKeeper;
-import org.toxsoft.core.tslib.gw.skid.Skid;
-import org.toxsoft.core.tslib.gw.skid.SkidListKeeper;
 import org.toxsoft.core.tslib.utils.errors.TsIllegalArgumentRtException;
 import org.toxsoft.core.tslib.utils.errors.TsNullArgumentRtException;
 import org.toxsoft.core.tslib.utils.valobj.TsValobjUtils;
 import org.toxsoft.uskat.core.connection.ESkConnState;
 import org.toxsoft.uskat.s5.client.remote.connection.S5ClusterTopology;
-import org.toxsoft.uskat.s5.common.S5Host;
-import org.toxsoft.uskat.s5.common.S5HostList;
+import org.toxsoft.uskat.s5.common.*;
 import org.toxsoft.uskat.s5.server.sessions.*;
 import org.toxsoft.uskat.s5.server.statistics.*;
 import org.toxsoft.uskat.s5.server.transactions.S5TransactionInfo;
@@ -30,8 +27,8 @@ public class S5ValobjUtils {
     TsValobjUtils.registerKeeperIfNone( S5Host.KEEPER_ID, S5Host.KEEPER );
     TsValobjUtils.registerKeeperIfNone( S5HostList.KEEPER_ID, S5HostList.KEEPER );
 
-    TsValobjUtils.registerKeeperIfNone( Skid.KEEPER_ID, Skid.KEEPER );
-    TsValobjUtils.registerKeeperIfNone( SkidListKeeper.KEEPER_ID, SkidListKeeper.KEEPER );
+    TsValobjUtils.registerKeeperIfNone( S5Module.KEEPER_ID, S5Module.KEEPER );
+    TsValobjUtils.registerKeeperIfNone( S5ModuleList.KEEPER_ID, S5ModuleList.KEEPER );
     TsValobjUtils.registerKeeperIfNone( S5SessionIdentity.KEEPER_ID, S5SessionIdentity.KEEPER );
     // 2020-03-21 mvk
     TsValobjUtils.registerKeeperIfNone( S5SessionIDKeeper.KEEPER_ID, S5SessionIDKeeper.KEEPER );

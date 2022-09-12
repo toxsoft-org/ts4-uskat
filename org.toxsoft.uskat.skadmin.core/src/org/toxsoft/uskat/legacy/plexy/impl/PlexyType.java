@@ -106,7 +106,7 @@ class PlexyType
             return true;
           case SINGLE_VALUE:
           case VALUE_LIST:
-            return dataType.equals( obj.dataType() );
+            return dataType.atomicType().equals( obj.dataType().atomicType() );
           case REF_LIST:
           case SINGLE_REF:
             return refClass.equals( obj.refClass() );

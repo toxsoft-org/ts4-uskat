@@ -2,15 +2,13 @@ package org.toxsoft.uskat.s5.server.statistics.handlers;
 
 import static org.toxsoft.uskat.s5.server.statistics.EStatisticInterval.*;
 
-import java.io.Serializable;
-
 import org.toxsoft.core.log4j.LoggerWrapper;
 import org.toxsoft.core.tslib.av.EAtomicType;
 import org.toxsoft.core.tslib.av.IAtomicValue;
-import org.toxsoft.core.tslib.bricks.strid.impl.Stridable;
 import org.toxsoft.core.tslib.utils.errors.TsIllegalArgumentRtException;
 import org.toxsoft.core.tslib.utils.errors.TsNullArgumentRtException;
 import org.toxsoft.core.tslib.utils.logs.ILogger;
+import org.toxsoft.uskat.s5.legacy.S5Stridable;
 import org.toxsoft.uskat.s5.server.statistics.EStatisticInterval;
 import org.toxsoft.uskat.s5.server.statistics.IS5StatisticInterval;
 
@@ -21,8 +19,7 @@ import org.toxsoft.uskat.s5.server.statistics.IS5StatisticInterval;
  * Обработчик статистики по одному параметру
  */
 public abstract class S5StatisticHandler
-    extends Stridable
-    implements Serializable {
+    extends S5Stridable {
 
   private static final long serialVersionUID = 157157L;
 

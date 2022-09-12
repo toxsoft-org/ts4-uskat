@@ -24,6 +24,7 @@ import org.toxsoft.uskat.s5.server.backend.impl.S5BackendCoreSingleton;
 import org.toxsoft.uskat.s5.server.frontend.IS5FrontendRear;
 import org.toxsoft.uskat.s5.server.frontend.S5FrontendData;
 import org.toxsoft.uskat.s5.server.sessions.*;
+import org.toxsoft.uskat.s5.server.statistics.IS5StatisticCounter;
 
 /**
  * Механизм приема/передачи сообщений от клиента работающий в рамках его сессии на сервере
@@ -47,11 +48,16 @@ public class S5SessionMessenger
   /**
    * Менеджер сессий
    * <p>
-   * Устанавливается через lazy-загрузку {@link #sessionManager()} . Это связано с тем, что конструктор писателя может
-   * (когда уже есть открытые сессии) быть использан из {@link S5BackendCoreSingleton#doInit} и обращение "назад" к
-   * backendCoreSingleton вызовет ошибку рекурсивного доступа
+   * Устанавливается через lazy-загрузку {@link #sessionManager()} . Это связано с тем, что конструктор
+   * приемопередатчика может (когда уже есть открытые сессии) быть использан из {@link S5BackendCoreSingleton#doInit} и
+   * обращение "назад" к backendCoreSingleton вызовет ошибку рекурсивного доступа
    */
   private volatile IS5SessionManager sessionManager;
+
+  /**
+   * Статистика работы
+   */
+  private volatile IS5StatisticCounter statistics;
 
   /**
    * Конструктор
@@ -127,6 +133,7 @@ public class S5SessionMessenger
           @Override
           protected void onFrontendMessage( GtMessage aMessage ) {
             logger.info( "onFrontendMessage recevied: %s", aMessage ); //$NON-NLS-1$
+            S5SessionInfo.onReceviedEvent( statistics() );
             eventer.sendMessage( aMessage );
           }
         } );
@@ -163,7 +170,9 @@ public class S5SessionMessenger
     TsNullArgumentRtException.checkNull( aMessage );
     try {
       if( channel.isRunning() ) {
+        logger.info( "onBackendMessage sended: %s", aMessage ); //$NON-NLS-1$
         S5CallbackOnBackendMessage.send( channel, aMessage );
+        S5SessionInfo.onSendEvent( statistics() );
       }
       else {
         // Канал находится не в рабочем состоянии
@@ -177,7 +186,7 @@ public class S5SessionMessenger
       handleWriteError( this, e, logger );
       // Попытка записать информацию в статистику о сессии
       try {
-        S5SessionInfo.onErrorEvent( sessionManager(), sessionData().info().sessionID() );
+        S5SessionInfo.onErrorEvent( statistics() );
       }
       catch( Throwable e2 ) {
         logger.error( e2 );
@@ -267,6 +276,18 @@ public class S5SessionMessenger
       sessionManager = backendCoreSingleton.sessionManager();
     }
     return sessionManager;
+  }
+
+  /**
+   * Возвращает статистику работы
+   *
+   * @return {@link IS5StatisticCounter} счетчик статистической информации
+   */
+  private IS5StatisticCounter statistics() {
+    if( statistics == null || statistics.isClosed() ) {
+      statistics = sessionManager().findStatisticCounter( sessionID() );
+    }
+    return statistics;
   }
 
   /**

@@ -4,8 +4,6 @@ import static org.toxsoft.core.tslib.av.impl.AvUtils.*;
 import static org.toxsoft.core.tslib.av.metainfo.IAvMetaConstants.*;
 import static org.toxsoft.uskat.s5.common.IS5Resources.*;
 
-import java.io.Serializable;
-
 import org.toxsoft.core.tslib.av.EAtomicType;
 import org.toxsoft.core.tslib.av.impl.DataDef;
 import org.toxsoft.core.tslib.av.metainfo.IDataDef;
@@ -13,7 +11,7 @@ import org.toxsoft.core.tslib.av.opset.IOptionSet;
 import org.toxsoft.core.tslib.av.opset.impl.OptionSetUtils;
 import org.toxsoft.core.tslib.bricks.keeper.IEntityKeeper;
 import org.toxsoft.core.tslib.bricks.strid.impl.AbstractStridableParameterizedKeeper;
-import org.toxsoft.core.tslib.bricks.strid.impl.StridableParameterized;
+import org.toxsoft.core.tslib.bricks.strid.impl.StridableParameterizedSer;
 import org.toxsoft.core.tslib.utils.TsVersion;
 import org.toxsoft.core.tslib.utils.errors.TsNullArgumentRtException;
 import org.toxsoft.core.tslib.utils.valobj.TsValobjUtils;
@@ -24,8 +22,7 @@ import org.toxsoft.core.tslib.utils.valobj.TsValobjUtils;
  * @author mvk
  */
 public final class S5Module
-    extends StridableParameterized
-    implements Serializable {
+    extends StridableParameterizedSer {
 
   private static final long serialVersionUID = 157157L;
 

@@ -205,7 +205,7 @@ public class AdminCmdGetConnection
       ISkConnection connection = connections.get( index );
       String isCurrent = (connection.equals( currentConnection ) ? "*" : " ");
       addResultInfo( MSG_GET_CONNECTION_CONNECTION, isCurrent, Integer.valueOf( index ),
-          connectionToString( connections.get( index ) ) );
+          connectionToString( connections.get( index ).backendInfo() ) );
     }
   }
 

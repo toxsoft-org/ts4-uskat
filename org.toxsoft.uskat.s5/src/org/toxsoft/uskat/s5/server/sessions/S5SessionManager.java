@@ -321,6 +321,8 @@ public class S5SessionManager
     } );
     // Проверка и, если необходимо, обовление sysdescr
     checkAndUpdateSysdecr( sysdescrSupport, objectsSupport );
+    // Запуск фоновой задачи
+    addOwnDoJob( DO_JOB_TIMEOUT );
   }
 
   @Override
@@ -348,18 +350,11 @@ public class S5SessionManager
     for( S5SessionData session : openSessions() ) {
       openInfos.add( session.info() );
     }
-    for( S5SessionData session : closedSessions() ) {
-      closeInfos.add( session.info() );
-    }
+    // TODO: 2022-09-11 mvkd
+    // for( S5SessionData session : closedSessions() ) {
+    // closeInfos.add( session.info() );
+    // }
     return new S5SessionsInfos( openInfos, closeInfos );
-  }
-
-  @Override
-  public void setBackend( IS5BackendCoreSingleton aBackend ) {
-    TsNullArgumentRtException.checkNull( aBackend );
-    backendCoreSingleton = aBackend;
-    // Запуск фоновой задачи
-    addOwnDoJob( DO_JOB_TIMEOUT );
   }
 
   @Override
@@ -1101,6 +1096,8 @@ public class S5SessionManager
         statistic.update();
         writeSessionData( aRemoteSessionOrNull );
       }
+      // Установка признака того, что счетчик завершил свою работу
+      counter.close();
     }
     // Обработка объекта сессия
     IDtoObject obj = objectsSupport.findObject( aSessionID );

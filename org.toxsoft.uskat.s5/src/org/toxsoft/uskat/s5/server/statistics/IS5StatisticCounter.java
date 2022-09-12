@@ -3,13 +3,22 @@ package org.toxsoft.uskat.s5.server.statistics;
 import org.toxsoft.core.tslib.av.EAtomicType;
 import org.toxsoft.core.tslib.av.IAtomicValue;
 import org.toxsoft.core.tslib.bricks.strid.IStridable;
+import org.toxsoft.core.tslib.utils.ICloseable;
 import org.toxsoft.core.tslib.utils.errors.TsIllegalArgumentRtException;
 import org.toxsoft.core.tslib.utils.errors.TsNullArgumentRtException;
 
 /**
  * Счетчик статистической информации
  */
-public interface IS5StatisticCounter {
+public interface IS5StatisticCounter
+    extends ICloseable {
+
+  /**
+   * Возвращает признак того, что счетчик завершил свою работу
+   *
+   * @return boolean <b>true</b> счетчик завершил работу;<b>false</b> счетчик находится в рабочем состоянии.
+   */
+  boolean isClosed();
 
   /**
    * Отработать появления события параметра

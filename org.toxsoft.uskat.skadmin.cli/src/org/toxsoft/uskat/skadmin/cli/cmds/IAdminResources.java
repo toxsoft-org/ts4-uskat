@@ -164,10 +164,10 @@ interface IAdminResources {
   String BATCH_CMD_ALIAS = "b";
   String BATCH_CMD_NAME  = "Выполнение сценария";
   String BATCH_CMD_DESCR =
-      "Команда -batch построчно читает из представленного текстового файла команды s5admin и запускает их на выполнение. "
+      "Команда -batch построчно читает из представленного текстового файла команды skadmin и запускает их на выполнение. "
           + "Строки начинающиеся символом # игнорируются (строка комментарий).\n\n "
           + "Поиск скрипта по указанному имени выполняется в каталогах (в указанном порядке):\n"
-          + "   * Каталог $APPLICATION_HOME/scripts;\n" + "   * Каталог $S5ADMIN_HOME/scripts.\n";
+          + "   * Каталог $APPLICATION_HOME/scripts;\n" + "   * Каталог $SKADMIN_HOME/scripts.\n";
 
   String BATCH_ARG_FILE_ID    = "file";
   String BATCH_ARG_FILE_ALIAS = "f";
@@ -546,7 +546,7 @@ interface IAdminResources {
           //
           //
           + COLOR_ID
-          + "s5admin"
+          + "skadmin"
           + COLOR_RESET
           + " не форматирует вывод результатов формируемый командами. Вследствии этого, возможно некорректное отображение данных "
           + "если ширина буфера консоли меньше чем ширина выводимых данных. Такая ситуация возможна, например, при выводе "
@@ -561,7 +561,7 @@ interface IAdminResources {
           + COLOR_RESET
           + ". Для "
           + COLOR_ID
-          + "*nix-систем s5admin-cli"
+          + "*nix-систем skadmin-cli"
           + COLOR_RESET
           + " рекомендуется запускать под терминалом: "
           + COLOR_ID
