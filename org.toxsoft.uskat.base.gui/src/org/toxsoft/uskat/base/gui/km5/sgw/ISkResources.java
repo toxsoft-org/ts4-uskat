@@ -7,6 +7,8 @@ package org.toxsoft.uskat.base.gui.km5.sgw;
  */
 interface ISkResources {
 
+  String STR_N_M5M_CLASS         = Messages.getString( "STR_N_M5M_CLASS" );         //$NON-NLS-1$
+  String STR_D_M5M_CLASS         = Messages.getString( "STR_D_M5M_CLASS" );         //$NON-NLS-1$
   String STR_N_CLASS_ID          = Messages.getString( "STR_N_CLASS_ID" );          //$NON-NLS-1$
   String STR_D_CLASS_ID          = Messages.getString( "STR_D_CLASS_ID" );          //$NON-NLS-1$
   String STR_N_PARENT_ID         = Messages.getString( "STR_N_PARENT_ID" );         //$NON-NLS-1$
