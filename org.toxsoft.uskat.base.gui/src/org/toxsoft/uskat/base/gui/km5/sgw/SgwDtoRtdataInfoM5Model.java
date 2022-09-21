@@ -96,7 +96,7 @@ public class SgwDtoRtdataInfoM5Model
    * @throws TsNullArgumentRtException any argument = <code>null</code>
    */
   public SgwDtoRtdataInfoM5Model( ISkConnection aConn ) {
-    super( MID_SGW_ATTR_INFO, IDtoRtdataInfo.class, aConn );
+    super( MID_SGW_RTDATA_INFO, IDtoRtdataInfo.class, aConn );
     addFieldDefs( DATA_TYPE, IS_CURR, IS_HIST, IS_SYNC );
   }
 
