@@ -43,5 +43,8 @@ public interface ISgwM5Constants {
   String FID_CLASS_ID  = "classId";  //$NON-NLS-1$
   String FID_PARENT_ID = "parentId"; //$NON-NLS-1$
   String FID_DATA_TYPE = "dataType"; //$NON-NLS-1$
+  String FID_IS_CURR   = "isCurr";   //$NON-NLS-1$
+  String FID_IS_HIST   = "isHist";   //$NON-NLS-1$
+  String FID_IS_SYNC   = "isSync";   //$NON-NLS-1$
 
 }

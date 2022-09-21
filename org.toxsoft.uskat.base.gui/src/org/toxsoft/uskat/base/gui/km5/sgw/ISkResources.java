@@ -23,5 +23,11 @@ interface ISkResources {
   String STR_D_PROP_NAME         = Messages.getString( "STR_D_PROP_NAME" );         //$NON-NLS-1$
   String STR_N_PROP_DESCRIPTION  = Messages.getString( "STR_N_PROP_DESCRIPTION" );  //$NON-NLS-1$
   String STR_D_PROP_DESCRIPTION  = Messages.getString( "STR_D_PROP_DESCRIPTION" );  //$NON-NLS-1$
+  String STR_N_IS_CURR           = Messages.getString( "STR_N_IS_CURR" );           //$NON-NLS-1$
+  String STR_D_IS_CURR           = Messages.getString( "STR_D_IS_CURR" );           //$NON-NLS-1$
+  String STR_N_IS_HIST           = Messages.getString( "STR_N_IS_HIST" );           //$NON-NLS-1$
+  String STR_D_IS_HIST           = Messages.getString( "STR_D_IS_HIST" );           //$NON-NLS-1$
+  String STR_N_IS_SYNC           = Messages.getString( "STR_N_IS_SYNC" );           //$NON-NLS-1$
+  String STR_D_IS_SYNC           = Messages.getString( "STR_D_IS_SYNC" );           //$NON-NLS-1$
 
 }

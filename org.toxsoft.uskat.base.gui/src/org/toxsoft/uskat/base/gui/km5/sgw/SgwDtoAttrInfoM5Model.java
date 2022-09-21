@@ -14,7 +14,7 @@ import org.toxsoft.uskat.core.connection.*;
 public class SgwDtoAttrInfoM5Model
     extends SgwDtoPropInfoM5ModelBase<IDtoAttrInfo> {
 
-  // public final IM5AttributeFieldDef<T>
+  // public final IM5SingleModownFieldDef<IDtoAttrInfo> DATA_TYPE = null;
 
   /**
    * Constructor.
