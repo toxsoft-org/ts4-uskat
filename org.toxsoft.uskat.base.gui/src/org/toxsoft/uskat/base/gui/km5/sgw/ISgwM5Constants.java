@@ -3,6 +3,7 @@ package org.toxsoft.uskat.base.gui.km5.sgw;
 import static org.toxsoft.uskat.core.ISkHardConstants.*;
 
 import org.toxsoft.core.tslib.gw.gwid.*;
+import org.toxsoft.uskat.core.api.objserv.*;
 import org.toxsoft.uskat.core.api.sysdescr.*;
 
 /**
@@ -25,6 +26,11 @@ public interface ISgwM5Constants {
    * ID of SGW M5 model of {@link ISkClassInfo}.
    */
   String MID_SGW_CLASS_INFO = SGW_ID + ".ClassInfo"; //$NON-NLS-1$
+
+  /**
+   * ID of SGW M5 model of {@link ISkObject}.
+   */
+  String MID_SGW_SK_OBJECT = SGW_ID + ".SkObject"; //$NON-NLS-1$
 
   String MID_SGW_ATTR_INFO   = SGW_ID + ".AttrInfo";   //$NON-NLS-1$
   String MID_SGW_RIVET_INFO  = SGW_ID + ".RivetInfo";  //$NON-NLS-1$

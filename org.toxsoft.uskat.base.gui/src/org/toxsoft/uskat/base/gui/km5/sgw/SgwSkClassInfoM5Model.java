@@ -12,9 +12,9 @@ import org.toxsoft.core.tsgui.m5.model.impl.*;
 import org.toxsoft.core.tslib.av.*;
 import org.toxsoft.core.tslib.coll.*;
 import org.toxsoft.core.tslib.utils.errors.*;
+import org.toxsoft.uskat.base.gui.km5.*;
 import org.toxsoft.uskat.core.api.sysdescr.*;
 import org.toxsoft.uskat.core.connection.*;
-import org.toxsoft.uskat.core.utils.*;
 
 /**
  * M5-model of the {@link ISkClassInfo}.
@@ -22,8 +22,7 @@ import org.toxsoft.uskat.core.utils.*;
  * @author hazard157
  */
 public class SgwSkClassInfoM5Model
-    extends M5Model<ISkClassInfo>
-    implements ISkConnected {
+    extends KM5ConnectedModelBase<ISkClassInfo> {
 
   /**
    * Attribute {@link ISkClassInfo#id()}.
@@ -116,8 +115,6 @@ public class SgwSkClassInfoM5Model
 
   }
 
-  private final ISkConnection conn;
-
   /**
    * Constructor.
    *
@@ -125,8 +122,7 @@ public class SgwSkClassInfoM5Model
    * @throws TsNullArgumentRtException any argument = <code>null</code>
    */
   public SgwSkClassInfoM5Model( ISkConnection aConn ) {
-    super( MID_SGW_CLASS_INFO, ISkClassInfo.class );
-    conn = TsNullArgumentRtException.checkNull( aConn );
+    super( MID_SGW_CLASS_INFO, ISkClassInfo.class, aConn );
     addFieldDefs( CLASS_ID, NAME, PARENT_ID, DESCRIPTION );
     // HERE add more fields
   }
@@ -137,21 +133,12 @@ public class SgwSkClassInfoM5Model
 
   @Override
   protected IM5LifecycleManager<ISkClassInfo> doCreateDefaultLifecycleManager() {
-    return new LifecycleManager( this, conn );
+    return new LifecycleManager( this, skConn() );
   }
 
   @Override
   protected IM5LifecycleManager<ISkClassInfo> doCreateLifecycleManager( Object aMaster ) {
     return new LifecycleManager( this, ISkConnection.class.cast( aMaster ) );
-  }
-
-  // ------------------------------------------------------------------------------------
-  // ISkConnected
-  //
-
-  @Override
-  public ISkConnection skConn() {
-    return conn;
   }
 
 }

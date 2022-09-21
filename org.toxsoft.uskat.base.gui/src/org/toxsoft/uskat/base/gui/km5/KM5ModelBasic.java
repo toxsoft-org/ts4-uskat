@@ -6,7 +6,6 @@ import static org.toxsoft.uskat.base.gui.km5.ISkResources.*;
 import static org.toxsoft.uskat.core.ISkHardConstants.*;
 
 import org.toxsoft.core.tsgui.m5.gui.panels.impl.*;
-import org.toxsoft.core.tsgui.m5.model.impl.*;
 import org.toxsoft.core.tslib.utils.errors.*;
 import org.toxsoft.uskat.core.*;
 import org.toxsoft.uskat.core.api.objserv.*;
@@ -36,8 +35,7 @@ import org.toxsoft.uskat.core.utils.*;
  * @param <T> - modelled entity type
  */
 public class KM5ModelBasic<T extends ISkObject>
-    extends M5Model<T>
-    implements ISkConnected {
+    extends KM5ConnectedModelBase<T> {
 
   /**
    * Attribute {@link ISkObject#classId()} - {@link ISkHardConstants#AID_CLASS_ID}.
@@ -115,8 +113,6 @@ public class KM5ModelBasic<T extends ISkObject>
 
   };
 
-  private final ISkConnection conn;
-
   /**
    * Constructor.
    *
@@ -126,18 +122,8 @@ public class KM5ModelBasic<T extends ISkObject>
    * @throws TsNullArgumentRtException any argument = <code>null</code>
    */
   public KM5ModelBasic( String aId, Class<T> aModelledClass, ISkConnection aConn ) {
-    super( aId, aModelledClass );
-    conn = TsNullArgumentRtException.checkNull( aConn );
+    super( aId, aModelledClass, aConn );
     setNameAndDescription( STR_N_KM5M_OBJECT, STR_D_KM5M_OBJECT );
-  }
-
-  // ------------------------------------------------------------------------------------
-  // ISkConnected
-  //
-
-  @Override
-  public ISkConnection skConn() {
-    return conn;
   }
 
 }

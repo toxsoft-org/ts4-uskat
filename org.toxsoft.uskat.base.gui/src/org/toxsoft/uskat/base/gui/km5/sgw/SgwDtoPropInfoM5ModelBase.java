@@ -9,9 +9,9 @@ import org.toxsoft.core.tsgui.m5.model.*;
 import org.toxsoft.core.tsgui.m5.model.impl.*;
 import org.toxsoft.core.tslib.av.*;
 import org.toxsoft.core.tslib.utils.errors.*;
+import org.toxsoft.uskat.base.gui.km5.*;
 import org.toxsoft.uskat.core.api.sysdescr.dto.*;
 import org.toxsoft.uskat.core.connection.*;
-import org.toxsoft.uskat.core.utils.*;
 
 /**
  * M5-mode base for all entities extending {@link IDtoClassPropInfoBase}.
@@ -20,8 +20,7 @@ import org.toxsoft.uskat.core.utils.*;
  * @param <T> - modelled entity type
  */
 public class SgwDtoPropInfoM5ModelBase<T extends IDtoClassPropInfoBase>
-    extends M5Model<T>
-    implements ISkConnected {
+    extends KM5ConnectedModelBase<T> {
 
   /**
    * Attribute {@link T#id()}.
@@ -74,8 +73,6 @@ public class SgwDtoPropInfoM5ModelBase<T extends IDtoClassPropInfoBase>
 
   };
 
-  private final ISkConnection conn;
-
   /**
    * Constructor.
    *
@@ -87,18 +84,8 @@ public class SgwDtoPropInfoM5ModelBase<T extends IDtoClassPropInfoBase>
    * @throws TsItemAlreadyExistsRtException model with specified ID already exists in domain
    */
   protected SgwDtoPropInfoM5ModelBase( String aId, Class<T> aEntityClass, ISkConnection aConn ) {
-    super( aId, aEntityClass );
-    conn = TsNullArgumentRtException.checkNull( aConn );
+    super( aId, aEntityClass, aConn );
     addFieldDefs( ID, NAME, DESCRIPTION );
-  }
-
-  // ------------------------------------------------------------------------------------
-  // ISkConnected
-  //
-
-  @Override
-  public ISkConnection skConn() {
-    return conn;
   }
 
 }

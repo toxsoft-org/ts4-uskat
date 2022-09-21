@@ -23,7 +23,9 @@ public class KM5SgwContributor
   public static final IKM5ContributorCreator CREATOR = KM5SgwContributor::new;
 
   private static final IStringList CONRTIBUTED_MODEL_IDS = new StringArrayList( //
-      MID_SGW_CLASS_INFO //
+      MID_SGW_SK_OBJECT, //
+      MID_SGW_CLASS_INFO, //
+      MID_SGW_ATTR_INFO //
   );
 
   /**
@@ -39,6 +41,7 @@ public class KM5SgwContributor
 
   @Override
   protected IStringList papiCreateModels() {
+    m5().addModel( new SgwSkObject( skConn() ) );
     m5().addModel( new SgwSkClassInfoM5Model( skConn() ) );
     m5().addModel( new SgwDtoAttrInfoM5Model( skConn() ) );
     return CONRTIBUTED_MODEL_IDS;
