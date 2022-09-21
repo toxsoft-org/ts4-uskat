@@ -16,7 +16,7 @@ import org.toxsoft.uskat.core.connection.*;
 import org.toxsoft.uskat.core.utils.*;
 
 /**
- * Base class of all KM5 modelled Sk-classes.
+ * Base class of all KM5 modelled Sk-objects.
  * <p>
  * This class only declares {@link ISkObject} attributes and introduces an {@link ISkConnected} implementation
  * {@link #skConn()}. This class assumes that the Sk-connection, the same as used in domain must be supplied in

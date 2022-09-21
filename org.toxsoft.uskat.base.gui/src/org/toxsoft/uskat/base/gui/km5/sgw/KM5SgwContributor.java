@@ -1,29 +1,29 @@
-package org.toxsoft.uskat.users.gui.km5;
+package org.toxsoft.uskat.base.gui.km5.sgw;
+
+import static org.toxsoft.uskat.base.gui.km5.sgw.ISgwM5Constants.*;
 
 import org.toxsoft.core.tsgui.m5.*;
 import org.toxsoft.core.tslib.coll.primtypes.*;
 import org.toxsoft.core.tslib.coll.primtypes.impl.*;
 import org.toxsoft.core.tslib.utils.errors.*;
 import org.toxsoft.uskat.base.gui.km5.*;
-import org.toxsoft.uskat.core.api.users.*;
 import org.toxsoft.uskat.core.connection.*;
 
 /**
- * Contributes M5-models for {@link ISkUserService} manager classes.
+ * Contributes M5-models for SGW entities.
  *
  * @author hazard157
  */
-public class KM5UsersContributor
+public class KM5SgwContributor
     extends KM5AbstractContributor {
 
   /**
    * Creator singleton.
    */
-  public static final IKM5ContributorCreator CREATOR = KM5UsersContributor::new;
+  public static final IKM5ContributorCreator CREATOR = KM5SgwContributor::new;
 
   private static final IStringList CONRTIBUTED_MODEL_IDS = new StringArrayList( //
-      ISkRole.CLASS_ID, //
-      ISkUser.CLASS_ID //
+      MID_SGW_CLASS_INFO //
   );
 
   /**
@@ -33,14 +33,13 @@ public class KM5UsersContributor
    * @param aDomain {@link IM5Domain} - connection domain
    * @throws TsNullArgumentRtException any argument = <code>null</code>
    */
-  public KM5UsersContributor( ISkConnection aConn, IM5Domain aDomain ) {
+  public KM5SgwContributor( ISkConnection aConn, IM5Domain aDomain ) {
     super( aConn, aDomain );
   }
 
   @Override
   protected IStringList papiCreateModels() {
-    m5().addModel( new SkRoleM5Model( skConn() ) );
-    m5().addModel( new SkUserM5Model( skConn() ) );
+    m5().addModel( new SgwSkClassInfoM5Model( skConn() ) );
     return CONRTIBUTED_MODEL_IDS;
   }
 
