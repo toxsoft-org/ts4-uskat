@@ -16,12 +16,12 @@ import org.toxsoft.uskat.core.api.sysdescr.dto.*;
 import org.toxsoft.uskat.core.connection.*;
 
 /**
- * M5-model of the {@link IDtoAttrInfo}.
+ * M5-model of the {@link IDtoRtdataInfo}.
  *
  * @author hazard157
  */
 public class SgwDtoRtdataInfoM5Model
-    extends SgwDtoPropInfoM5ModelBase<IDtoAttrInfo> {
+    extends SgwDtoPropInfoM5ModelBase<IDtoRtdataInfo> {
 
   /**
    * Modown field {@link IDtoRtdataInfo#dataType()}.
@@ -96,7 +96,7 @@ public class SgwDtoRtdataInfoM5Model
    * @throws TsNullArgumentRtException any argument = <code>null</code>
    */
   public SgwDtoRtdataInfoM5Model( ISkConnection aConn ) {
-    super( MID_SGW_ATTR_INFO, IDtoAttrInfo.class, aConn );
+    super( MID_SGW_ATTR_INFO, IDtoRtdataInfo.class, aConn );
     addFieldDefs( DATA_TYPE, IS_CURR, IS_HIST, IS_SYNC );
   }
 
