@@ -95,6 +95,11 @@ public class AdminCmdCompleter
       boolean isCanonic = hasCmd && parser.isCanonicArgs();
       // Определение лексемы в позиции курсора
       int cursorTokenIndex = getCursorTokenIndex( tokens, aCursor );
+      // Отработка ситуации - курсор на последнем символе строки
+      if( cursorTokenIndex < 0 && aCursor == aBuffer.length()
+          && (aCursor == 0 || aBuffer.charAt( aCursor - 1 ) != ' ') ) {
+        cursorTokenIndex = tokens.size() - 1;
+      }
       IAdminCmdToken cursorToken = (cursorTokenIndex >= 0 ? tokens.get( cursorTokenIndex ) : null);
       // System.out.println( "cursorToken = " + cursorToken + ", cursorTokenIndex = " + cursorTokenIndex +
       // ", aCursor = "
@@ -112,7 +117,10 @@ public class AdminCmdCompleter
         for( IAdminCmdDef cmdDef : cmdDefs ) {
           tryCmdAdd( sectionId, cmdDef, filter, aCandidates );
         }
-        return (cursorToken != null ? cursorToken.startIndex() : aCursor);
+        if( cursorToken != null ) {
+          return cursorToken.startIndex();
+        }
+        return aCursor - aBuffer.length();
       }
       if( hasCmd && isCanonic && cursorToken != null && isIdToken( aBuffer, cursorToken ) ) {
         // Добавление аргументов команды определенных в канонической форме
@@ -122,7 +130,7 @@ public class AdminCmdCompleter
       }
       if( hasCmd && isCanonic ) {
         // Добавление значений аргументов команды определенных в канонической форме
-        int prevTokenIndex = getPrevCursorTokenIndex( tokens, aCursor );
+        int prevTokenIndex = getLastIdTokenIndex( tokens, aCursor );
         IAdminCmdToken prevToken = (prevTokenIndex >= 0 ? tokens.get( prevTokenIndex ) : null);
         if( prevToken != null && prevToken.type() == ETokenType.ID ) {
           IAdminCmdDef cmdDef = library.findCommand( parser.getCmdId() );
@@ -238,7 +246,7 @@ public class AdminCmdCompleter
         aCandidates.add( COLOR_ID + argId + COLOR_RESET );
       }
     }
-    return aToken.startIndex();
+    return (aToken.data().length() == 0 ? aToken.startIndex() + 1 : aToken.startIndex());
   }
 
   /**
@@ -319,7 +327,9 @@ public class AdminCmdCompleter
   private static int getCursorTokenIndex( IList<IAdminCmdToken> aTokens, int aCursor ) {
     for( int index = 0, n = aTokens.size(); index < n; index++ ) {
       IAdminCmdToken token = aTokens.get( index );
-      if( token.startIndex() <= aCursor && aCursor - 1 <= token.finishIndex() ) {
+      // 2022-09-20 mvk
+      // if( token.startIndex() <= aCursor && aCursor - 1 <= token.finishIndex() ) {
+      if( token.startIndex() <= aCursor && aCursor <= token.finishIndex() ) {
         return index;
       }
     }
@@ -327,22 +337,18 @@ public class AdminCmdCompleter
   }
 
   /**
-   * Возвращает индекс лексемы в списке лексем перед позицией курсора
+   * Возвращает индекс лексемы в списке лексем перед позицией курсора и имеющей тип ID
    *
    * @param aTokens {@link IList}&lt;{@link IAdminCmdToken}&gt; список лексем
    * @param aCursor int позиция курсора
    * @return int индекс лексемы. -1: лексема не найдена
    * @throws TsNullArgumentRtException аргумент = null
    */
-  private static int getPrevCursorTokenIndex( IList<IAdminCmdToken> aTokens, int aCursor ) {
+  private static int getLastIdTokenIndex( IList<IAdminCmdToken> aTokens, int aCursor ) {
     int retValue = -1;
     for( int index = 0, n = aTokens.size(); index < n; index++ ) {
       IAdminCmdToken token = aTokens.get( index );
-      if( token.finishIndex() + 1 == aCursor ) {
-        // Курсор установлен сразу за лексемой (нет разделителя)
-        // return -1;
-      }
-      if( token.finishIndex() + 1 < aCursor ) {
+      if( token.finishIndex() < aCursor && token.type() == ETokenType.ID ) {
         retValue = index;
       }
     }
@@ -369,8 +375,21 @@ public class AdminCmdCompleter
    *         символа идентификатора
    */
   private static boolean isIdToken( String aBuffer, IAdminCmdToken aToken ) {
-    // Провека символа перед лексемой
-    return (aToken.startIndex() > 0 && aBuffer.charAt( aToken.startIndex() - 1 ) == CHAR_ID_PREFIX);
+    // 2022-09-20 mvk
+    // Проверка символа перед лексемой
+    if( aBuffer.length() > aToken.startIndex() ) {
+      if( aToken.startIndex() == aToken.finishIndex() ) {
+        if( aToken.data().length() == 0 ) {
+          char c = aBuffer.charAt( aToken.startIndex() );
+          return (c == CHAR_ID_PREFIX);
+        }
+      }
+    }
+    if( aToken.startIndex() > 0 ) {
+      char c = aBuffer.charAt( aToken.startIndex() - 1 );
+      return (c == CHAR_ID_PREFIX);
+    }
+    return false;
   }
 
 }

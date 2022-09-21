@@ -10,6 +10,7 @@ import org.toxsoft.core.tslib.bricks.ctx.impl.TsContext;
 import org.toxsoft.core.tslib.coll.IListEdit;
 import org.toxsoft.core.tslib.coll.impl.ElemArrayList;
 import org.toxsoft.core.tslib.coll.impl.ElemLinkedList;
+import org.toxsoft.core.tslib.utils.TsLibUtils;
 import org.toxsoft.core.tslib.utils.errors.*;
 import org.toxsoft.uskat.core.ISkCoreApi;
 import org.toxsoft.uskat.core.api.ISkService;
@@ -123,7 +124,7 @@ public final class S5SynchronizedConnection
    * @throws TsNullArgumentRtException аргумент = null
    */
   public static S5SynchronizedConnection createSynchronizedConnection( ISkConnection aTarget ) {
-    return createSynchronizedConnection( aTarget, new ReentrantReadWriteLock(), false );
+    return createSynchronizedConnection( aTarget, new ReentrantReadWriteLock(), false, TsLibUtils.EMPTY_STRING );
   }
 
   /**
@@ -131,35 +132,41 @@ public final class S5SynchronizedConnection
    *
    * @param aTarget {@link ISkConnection} защищаемое соединение
    * @param aLock {@link ReentrantReadWriteLock} внешняя блокировка используемая соединением
+   * @param aLockName String имя блокировки. Пустая строка - выбирается автоматически
    * @return {@link S5SynchronizedConnection} защищенное соединение
    * @throws TsNullArgumentRtException аргумент = null
    */
   public static S5SynchronizedConnection createSynchronizedConnection( ISkConnection aTarget,
-      ReentrantReadWriteLock aLock ) {
-    return createSynchronizedConnection( aTarget, aLock, false );
+      ReentrantReadWriteLock aLock, String aLockName ) {
+    return createSynchronizedConnection( aTarget, aLock, false, aLockName );
   }
 
   /**
-   * Конструктор
+   * Создать синхронизированное соединение
    *
    * @param aTarget {@link ISkConnection} защищаемое соединение
    * @param aLock {@link ReentrantReadWriteLock} внешняя блокировка используемая соединением
    * @param aManualStateChange boolean<b>true</b> состояние соединения изменяется в ручную; <b>false</b>автоматическое
    *          изменение состояния.
+   * @param aLockName String имя блокировки. Пустая строка - выбирается автоматически
    * @return {@link S5SynchronizedConnection} защищенное соединение
    * @throws TsNullArgumentRtException аргумент = null
    */
   public static S5SynchronizedConnection createSynchronizedConnection( ISkConnection aTarget,
-      ReentrantReadWriteLock aLock, boolean aManualStateChange ) {
-    TsNullArgumentRtException.checkNull( aTarget );
+      ReentrantReadWriteLock aLock, boolean aManualStateChange, String aLockName ) {
+    TsNullArgumentRtException.checkNulls( aTarget, aLock, aLockName );
     // 2021-06-23 mvk
     // if( aTarget.state() != ESkConnState.CLOSED ) {
     // S5Lockable.addLockableIfNotExistToPool( aTarget.mainLock(), aTarget.sessionInfo().strid() );
     // }
     // Имя блокировки для идентификации при отладке
-    String lockName = (aTarget.state() != ESkConnState.CLOSED ? //
-        aTarget.backendInfo().id() : "ClosedConnection") //$NON-NLS-1$
-        + String.valueOf( instanceCounter++ );
+    String lockName = aLockName;
+    if( lockName.length() == 0 ) {
+      // Имя не задано
+      lockName = (aTarget.state() != ESkConnState.CLOSED ? //
+          aTarget.backendInfo().id() : "ClosedConnection") //$NON-NLS-1$
+          + String.valueOf( instanceCounter++ );
+    }
     S5Lockable.addLockableIfNotExistToPool( aLock, lockName );
     return new S5SynchronizedConnection( aTarget, aLock, aManualStateChange );
   }

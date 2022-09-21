@@ -162,13 +162,13 @@ public interface IS5ServerHardConstants
   /**
    * Параметр {@link ISkBackendInfo#params()}: Идентификатор зоны времени, по которому работает сервер
    * <p>
-   * Тип: {@link EAtomicType#VALOBJ} содержит {@link ZoneId}
+   * Тип: {@link EAtomicType#STRING} содержит {@link ZoneId#getId()}
    */
-  IDataDef OP_BACKEND_ZONE_ID = create( S5_BACKEND_ID_START + "ZoneId", EAtomicType.VALOBJ, //$NON-NLS-1$
+  IDataDef OP_BACKEND_ZONE_ID = create( S5_BACKEND_ID_START + "ZoneId", EAtomicType.STRING, //$NON-NLS-1$
       TSID_NAME, STR_N_BACKEND_ZONE_ID, //
       TSID_DESCRIPTION, STR_D_BACKEND_ZONE_ID, //
       TSID_IS_NULL_ALLOWED, AV_FALSE, //
-      TSID_DEFAULT_VALUE, avValobj( ZoneId.systemDefault() ) );
+      TSID_DEFAULT_VALUE, avStr( ZoneId.systemDefault().getId() ) );
 
   /**
    * Параметр {@link ISkBackendInfo#params()}: время запуска сервера

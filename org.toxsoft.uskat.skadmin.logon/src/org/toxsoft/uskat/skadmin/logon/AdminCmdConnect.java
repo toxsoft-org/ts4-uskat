@@ -63,6 +63,8 @@ public class AdminCmdConnect
     addArg( ARG_CONNECT_FAILURE_TIMEOUT );
     // Таймаут текущих данных
     addArg( ARG_CONNECT_CURRDATA_TIMEOUT );
+    // Таймаут хранимых данных
+    addArg( ARG_CONNECT_HISTDATA_TIMEOUT );
     // Имя класса-инициализатора клиентского API
     // addArg( ARG_CONNECT_INITIALIZER );
     // Подключение расширения API: Реальное время
@@ -145,7 +147,8 @@ public class AdminCmdConnect
     }
     IAtomicValue connectTimeout = argSingleValue( ARG_CONNECT_CONNECT_TIMEOUT );
     IAtomicValue failureTimeout = argSingleValue( ARG_CONNECT_FAILURE_TIMEOUT );
-    IAtomicValue currDataTimeout = argSingleValue( ARG_CONNECT_CURRDATA_TIMEOUT );
+    IAtomicValue currdataTimeout = argSingleValue( ARG_CONNECT_CURRDATA_TIMEOUT );
+    IAtomicValue histdataTimeout = argSingleValue( ARG_CONNECT_HISTDATA_TIMEOUT );
     // IAtomicValue initializator = argSingleValue( ARG_CONNECT_INITIALIZER );
     try {
       ISkConnection connection = SkCoreUtils.createConnection();
@@ -173,7 +176,8 @@ public class AdminCmdConnect
       IS5ConnectionParams.OP_CLIENT_VERSION.setValue( ctx.params(), avValobj( IS5ServerHardConstants.version ) );
       IS5ConnectionParams.OP_CONNECT_TIMEOUT.setValue( ctx.params(), connectTimeout );
       IS5ConnectionParams.OP_FAILURE_TIMEOUT.setValue( ctx.params(), failureTimeout );
-      IS5ConnectionParams.OP_CURRDATA_TIMEOUT.setValue( ctx.params(), currDataTimeout );
+      IS5ConnectionParams.OP_CURRDATA_TIMEOUT.setValue( ctx.params(), currdataTimeout );
+      IS5ConnectionParams.OP_HISTDATA_TIMEOUT.setValue( ctx.params(), histdataTimeout );
       IS5ConnectionParams.REF_CONNECTION_LOCK.setRef( ctx, new S5Lockable() );
 
       // SkUtils.OP_EXT_SERV_PROVIDER_CLASS.setValue( ctx.params(), initializator );
@@ -188,7 +192,7 @@ public class AdminCmdConnect
         connection.removeConnectionListener( AdminCmdGetConnection.CURRENT_CONNECTION_LISTENER );
       }
       ISkBackendInfo info = connection.backendInfo();
-      addResultInfo( MSG_CONNECT, connectionToString( connection ) );
+      addResultInfo( MSG_CONNECT, connectionToString( info ) );
       addResultInfo( MSG_CONNECT_SERVER_ID, info.id() );
       addResultInfo( MSG_CONNECT_SERVER_NAME, info.nmName() );
       addResultInfo( MSG_CONNECT_SERVER_DESCR, info.description() );

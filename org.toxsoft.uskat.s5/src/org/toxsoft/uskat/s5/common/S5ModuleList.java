@@ -1,13 +1,15 @@
 package org.toxsoft.uskat.s5.common;
 
-import static org.toxsoft.core.tslib.bricks.strio.IStrioHardConstants.*;
+import static org.toxsoft.core.tslib.coll.impl.TsCollectionsUtils.*;
 
 import org.toxsoft.core.tslib.bricks.keeper.AbstractEntityKeeper;
 import org.toxsoft.core.tslib.bricks.keeper.AbstractEntityKeeper.EEncloseMode;
 import org.toxsoft.core.tslib.bricks.keeper.IEntityKeeper;
 import org.toxsoft.core.tslib.bricks.strio.IStrioReader;
 import org.toxsoft.core.tslib.bricks.strio.IStrioWriter;
-import org.toxsoft.core.tslib.coll.impl.ElemLinkedList;
+import org.toxsoft.core.tslib.coll.IList;
+import org.toxsoft.core.tslib.coll.IListEdit;
+import org.toxsoft.core.tslib.coll.impl.ElemArrayList;
 import org.toxsoft.core.tslib.utils.errors.TsNullArgumentRtException;
 import org.toxsoft.core.tslib.utils.valobj.TsValobjUtils;
 
@@ -17,7 +19,7 @@ import org.toxsoft.core.tslib.utils.valobj.TsValobjUtils;
  * @author mvk
  */
 public final class S5ModuleList
-    extends ElemLinkedList<S5Module> {
+    extends ElemArrayList<S5Module> {
 
   private static final long serialVersionUID = 157157L;
 
@@ -34,34 +36,36 @@ public final class S5ModuleList
 
         @Override
         protected void doWrite( IStrioWriter aSw, S5ModuleList aEntity ) {
-          aSw.writeChar( CHAR_SET_BEGIN );
-          aSw.writeInt( aEntity.size() );
-          aSw.writeChar( CHAR_ARRAY_BEGIN );
-          for( int i = 0, n = aEntity.size(); i < n; i++ ) {
-            S5Module v = aEntity.get( i );
-            S5Module.KEEPER.write( aSw, v );
-            if( i < n - 1 ) {
-              aSw.writeChar( CHAR_ITEM_SEPARATOR );
-            }
-            aSw.writeEol();
-          }
-          aSw.writeChar( CHAR_ARRAY_END );
-          aSw.writeChar( CHAR_SET_END );
+          S5Module.KEEPER.writeColl( aSw, aEntity, true );
         }
 
         @Override
         protected S5ModuleList doRead( IStrioReader aSr ) {
-          aSr.ensureChar( CHAR_SET_BEGIN );
-          S5ModuleList result = new S5ModuleList();
-          if( aSr.readArrayBegin() ) {
-            do {
-              result.add( S5Module.KEEPER.read( aSr ) );
-            } while( aSr.readArrayNext() );
-          }
-          aSr.ensureChar( CHAR_SET_END );
-          return result;
+          IListEdit<S5Module> ll = S5Module.KEEPER.readColl( aSr );
+          return new S5ModuleList( ll );
         }
       };
+
+  /**
+   * Создает список
+   *
+   * @throws TsNullArgumentRtException любой аргумент = null
+   */
+  public S5ModuleList() {
+    // aAllowDuplicates = false
+    super( DEFAULT_ARRAY_LIST_CAPACITY, false );
+  }
+
+  /**
+   * Создает список
+   *
+   * @param aList {@link IList} - исходный список
+   * @throws TsNullArgumentRtException любой аргумент = null
+   */
+  public S5ModuleList( IList<S5Module> aList ) {
+    this();
+    addAll( aList );
+  }
 
   /**
    * Возвращает текствое представление коллекции описания модулей

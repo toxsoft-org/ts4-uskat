@@ -11,7 +11,6 @@ import org.toxsoft.core.tslib.av.EAtomicType;
 import org.toxsoft.core.tslib.av.IAtomicValue;
 import org.toxsoft.core.tslib.av.impl.AtomicValueKeeper;
 import org.toxsoft.core.tslib.av.impl.DataType;
-import org.toxsoft.core.tslib.av.metainfo.IAvMetaConstants;
 import org.toxsoft.core.tslib.av.metainfo.IDataType;
 import org.toxsoft.core.tslib.av.opset.IOptionSet;
 import org.toxsoft.core.tslib.av.opset.IOptionSetEdit;
@@ -315,16 +314,20 @@ public class AdminCmdParserUtils {
   private static boolean tryReadFlagArgValue( IAdminCmdArgDef aArgDef, IList<IPlexyValue> aPossibleValues,
       IStringMapEdit<IPlexyValue> aValueMap, IListEdit<ValidationResult> aErrors ) {
     TsNullArgumentRtException.checkNulls( aArgDef, aPossibleValues, aValueMap, aErrors );
-    IPlexyType type = aArgDef.type();
-    IDataType dataType = type.dataType();
-    // Получаем логическое значение флага через значение по умолчанию(если оно есть)
-    boolean value = false;
-    IOptionSet constraints = dataType.params();
-    if( constraints.hasValue( IAvMetaConstants.DDEF_DEFAULT_VALUE ) ) {
-      value = constraints.getBool( IAvMetaConstants.DDEF_DEFAULT_VALUE );
-    }
-    // Инвертируем значение флага
-    IPlexyValue cmdValue = PlexyValueUtils.pvSingleValue( avBool( !value ) );
+
+    // 2022-09-10 mvk
+    // IPlexyType type = aArgDef.type();
+    // IDataType dataType = type.dataType();
+    // // Получаем логическое значение флага через значение по умолчанию(если оно есть)
+    // boolean value = false;
+    // IOptionSet constraints = dataType.params();
+    // if( constraints.hasValue( IAvMetaConstants.DDEF_DEFAULT_VALUE ) ) {
+    // value = constraints.getBool( IAvMetaConstants.DDEF_DEFAULT_VALUE );
+    // }
+    // // Инвертируем значение флага
+    // IPlexyValue cmdValue = PlexyValueUtils.pvSingleValue( avBool( !value ) );
+    IPlexyValue cmdValue = PlexyValueUtils.pvSingleValue( avBool( true ) );
+
     // Проверяем использования значения флага с другими значениями аргументов
     if( aPossibleValues.size() > 0 ) {
       for( int index = 0, n = aPossibleValues.size(); index < n; index++ ) {

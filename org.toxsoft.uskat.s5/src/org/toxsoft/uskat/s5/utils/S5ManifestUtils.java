@@ -30,6 +30,7 @@ public class S5ManifestUtils {
   /**
    * Журнал
    */
+  @SuppressWarnings( "unused" )
   private static final ILogger logger = getLogger( S5ManifestUtils.class );
 
   /**

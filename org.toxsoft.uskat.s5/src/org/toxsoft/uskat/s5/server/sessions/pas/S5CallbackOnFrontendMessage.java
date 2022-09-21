@@ -1,7 +1,7 @@
-package org.toxsoft.uskat.s5.client.remote.connection.pas;
+package org.toxsoft.uskat.s5.server.sessions.pas;
 
 import static org.toxsoft.core.pas.tj.impl.TjUtils.*;
-import static org.toxsoft.uskat.s5.client.remote.connection.pas.S5CallbackHardConstants.*;
+import static org.toxsoft.uskat.s5.server.sessions.pas.S5SessionCallbackHardConstants.*;
 
 import org.toxsoft.core.pas.common.IPasTxChannel;
 import org.toxsoft.core.pas.common.PasChannel;
@@ -11,24 +11,23 @@ import org.toxsoft.core.pas.tj.ITjValue;
 import org.toxsoft.core.tslib.av.opset.IOptionSet;
 import org.toxsoft.core.tslib.av.opset.impl.OptionSetKeeper;
 import org.toxsoft.core.tslib.bricks.events.msg.GtMessage;
-import org.toxsoft.core.tslib.bricks.events.msg.IGtMessageListener;
 import org.toxsoft.core.tslib.coll.primtypes.IStringMapEdit;
 import org.toxsoft.core.tslib.coll.primtypes.impl.StringMap;
 import org.toxsoft.core.tslib.utils.errors.TsNullArgumentRtException;
 import org.toxsoft.uskat.core.backend.ISkFrontendRear;
 
 /**
- * Обратный вызов сервера: передача сообщения бекенда
+ * Передача сообщения от фронтенда к бекенду через PAS
  *
  * @author mvk
  */
-public final class S5CallbackOnMessage
-    implements IJSONNotificationHandler<S5CallbackChannel> {
+public abstract class S5CallbackOnFrontendMessage
+    implements IJSONNotificationHandler<S5SessionCallbackChannel> {
 
   /**
    * Вызов метода: {@link ISkFrontendRear#onBackendMessage(GtMessage)}
    */
-  public static final String ON_MESSAGE_METHOD = FRONTENDS_METHOD_PREFIX + "onMessage"; //$NON-NLS-1$
+  public static final String ON_MESSAGE_METHOD = FRONTEND_METHOD_PREFIX + "onFrontendMessage"; //$NON-NLS-1$
 
   /**
    * Тема сообщения
@@ -44,21 +43,6 @@ public final class S5CallbackOnMessage
    * Аргументы сообщения
    */
   private static final String MSG_ARGS = "args"; //$NON-NLS-1$
-
-  /**
-   * frontend
-   */
-  private final ISkFrontendRear frontend;
-
-  /**
-   * Конструктор
-   *
-   * @param aFrontend {@link IGtMessageListener} frontend
-   * @throws TsNullArgumentRtException аргумент = null
-   */
-  S5CallbackOnMessage( ISkFrontendRear aFrontend ) {
-    frontend = TsNullArgumentRtException.checkNull( aFrontend );
-  }
 
   // ------------------------------------------------------------------------------------
   // Открытые методы
@@ -84,7 +68,7 @@ public final class S5CallbackOnMessage
   // Реализация IJSONNotificationHandler
   //
   @Override
-  public void notify( S5CallbackChannel aChannel, IJSONNotification aNotification ) {
+  public void notify( S5SessionCallbackChannel aChannel, IJSONNotification aNotification ) {
     TsNullArgumentRtException.checkNull( aNotification );
     if( !aNotification.method().equals( ON_MESSAGE_METHOD ) ) {
       // Уведомление игнорировано
@@ -94,8 +78,13 @@ public final class S5CallbackOnMessage
     String msgId = aNotification.params().getByKey( MSG_ID ).asString();
     IOptionSet msgArgs = OptionSetKeeper.KEEPER.str2ent( aNotification.params().getByKey( MSG_ARGS ).asString() );
     // Передача сообщения на обработку
-    frontend.onBackendMessage( new GtMessage( topicId, msgId, msgArgs ) );
+    onFrontendMessage( new GtMessage( topicId, msgId, msgArgs ) );
   }
+
+  // ------------------------------------------------------------------------------------
+  // Абстрактные методы для реализации наследником
+  //
+  protected abstract void onFrontendMessage( GtMessage aMessage );
 
   // ------------------------------------------------------------------------------------
   // Внутренние методы

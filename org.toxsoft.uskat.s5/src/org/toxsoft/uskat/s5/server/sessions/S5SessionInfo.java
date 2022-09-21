@@ -19,6 +19,7 @@ import org.toxsoft.core.tslib.bricks.strio.IStrioWriter;
 import org.toxsoft.core.tslib.bricks.time.impl.TimeUtils;
 import org.toxsoft.core.tslib.gw.skid.Skid;
 import org.toxsoft.core.tslib.utils.TsLibUtils;
+import org.toxsoft.core.tslib.utils.errors.TsIllegalStateRtException;
 import org.toxsoft.core.tslib.utils.errors.TsNullArgumentRtException;
 import org.toxsoft.core.tslib.utils.logs.ILogger;
 import org.toxsoft.core.tslib.utils.valobj.TsValobjUtils;
@@ -104,17 +105,17 @@ public class S5SessionInfo
         }
       };
 
-  private Skid                    sessionID     = Skid.NONE;
-  private String                  remoteAddress = TsLibUtils.EMPTY_STRING;
-  private int                     remotePort    = -1;
-  private final long              openTime;
-  private final String            login;
-  private final S5ClusterTopology clusterTopology;
-  private final IOptionSet        clientOptions;
-  private final S5Statistic       statistics;
-  private volatile long           closeTime     = TimeUtils.MAX_TIMESTAMP;
-  private volatile boolean        closeByRemote = false;
-  private static ILogger          logger        = getLogger( S5SessionInfo.class );
+  private Skid              sessionID     = Skid.NONE;
+  private String            remoteAddress = TsLibUtils.EMPTY_STRING;
+  private int               remotePort    = -1;
+  private long              openTime;
+  private String            login;
+  private S5ClusterTopology clusterTopology;
+  private IOptionSet        clientOptions;
+  private S5Statistic       statistics;
+  private volatile long     closeTime     = TimeUtils.MAX_TIMESTAMP;
+  private volatile boolean  closeByRemote = false;
+  private static ILogger    logger        = getLogger( S5SessionInfo.class );
 
   /**
    * Конструктор
@@ -305,6 +306,45 @@ public class S5SessionInfo
       logger.warning( ERR_SESSION_NOT_FOUND, "onErrorEvent(...)", aSessionID ); //$NON-NLS-1$
       return;
     }
-    statistic.onEvent( IS5ServerHardConstants.STAT_SESSION_ERRORS, AvUtils.avInt( 1 ) );
+    onErrorEvent( statistic );
+  }
+
+  /**
+   * Фиксация в сессии факта передачи сообщения фронтенду
+   *
+   * @param aStatistic {@link IS5StatisticCounter}
+   * @throws TsNullArgumentRtException аргумент = null
+   * @throws TsIllegalStateRtException счетчик завершил работу
+   */
+  public static void onSendEvent( IS5StatisticCounter aStatistic ) {
+    TsNullArgumentRtException.checkNull( aStatistic );
+    TsIllegalStateRtException.checkTrue( aStatistic.isClosed() );
+    aStatistic.onEvent( IS5ServerHardConstants.STAT_SESSION_SENDED, AvUtils.AV_1 );
+  }
+
+  /**
+   * Фиксация в сессии факта приема сообщения от фронтенда
+   *
+   * @param aStatistic {@link IS5StatisticCounter}
+   * @throws TsNullArgumentRtException аргумент = null
+   * @throws TsIllegalStateRtException счетчик завершил работу
+   */
+  public static void onReceviedEvent( IS5StatisticCounter aStatistic ) {
+    TsNullArgumentRtException.checkNull( aStatistic );
+    TsIllegalStateRtException.checkTrue( aStatistic.isClosed() );
+    aStatistic.onEvent( IS5ServerHardConstants.STAT_SESSION_RECEVIED, AvUtils.AV_1 );
+  }
+
+  /**
+   * Фиксация ошибки в сессии
+   *
+   * @param aStatistic {@link IS5StatisticCounter}
+   * @throws TsNullArgumentRtException аргумент = null
+   * @throws TsIllegalStateRtException счетчик завершил работу
+   */
+  public static void onErrorEvent( IS5StatisticCounter aStatistic ) {
+    TsNullArgumentRtException.checkNull( aStatistic );
+    TsIllegalStateRtException.checkTrue( aStatistic.isClosed() );
+    aStatistic.onEvent( IS5ServerHardConstants.STAT_SESSION_ERRORS, AvUtils.AV_1 );
   }
 }

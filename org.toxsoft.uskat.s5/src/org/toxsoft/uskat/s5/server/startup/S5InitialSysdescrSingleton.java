@@ -7,7 +7,7 @@ import javax.ejb.EJB;
 
 import org.toxsoft.core.tslib.av.metainfo.IAvMetaConstants;
 import org.toxsoft.core.tslib.av.opset.IOptionSet;
-import org.toxsoft.core.tslib.av.opset.impl.OptionSetUtils;
+import org.toxsoft.core.tslib.coll.primtypes.IStringMap;
 import org.toxsoft.core.tslib.gw.skid.*;
 import org.toxsoft.core.tslib.utils.errors.TsIllegalStateRtException;
 import org.toxsoft.core.tslib.utils.errors.TsNullArgumentRtException;
@@ -16,12 +16,14 @@ import org.toxsoft.uskat.classes.IS5ClassServer;
 import org.toxsoft.uskat.classes.impl.S5ClassUtils;
 import org.toxsoft.uskat.core.ISkCoreApi;
 import org.toxsoft.uskat.core.api.linkserv.ISkLinkService;
+import org.toxsoft.uskat.core.api.objserv.IDtoObject;
 import org.toxsoft.uskat.core.api.objserv.ISkObjectService;
 import org.toxsoft.uskat.core.api.sysdescr.ISkSysdescr;
 import org.toxsoft.uskat.core.api.users.*;
 import org.toxsoft.uskat.core.backend.api.ISkBackendInfo;
 import org.toxsoft.uskat.core.connection.ISkConnection;
 import org.toxsoft.uskat.core.impl.dto.DtoFullObject;
+import org.toxsoft.uskat.core.impl.dto.DtoObject;
 import org.toxsoft.uskat.s5.client.local.IS5LocalConnectionSingleton;
 import org.toxsoft.uskat.s5.server.backend.IS5BackendCoreSingleton;
 import org.toxsoft.uskat.s5.server.singletons.S5SingletonBase;
@@ -134,7 +136,7 @@ public abstract class S5InitialSysdescrSingleton
   }
 
   /**
-   * Возвращает служба управления связями
+   * Возвращает служба управления связями.
    *
    * @return {@link ISkLinkService} служба управления связями
    */
@@ -143,7 +145,7 @@ public abstract class S5InitialSysdescrSingleton
   }
 
   /**
-   * Возвращает служба управления пользователями
+   * Возвращает служба управления пользователями.
    *
    * @return {@link ISkUserService} служба управления пользователями
    */
@@ -152,54 +154,33 @@ public abstract class S5InitialSysdescrSingleton
   }
 
   /**
-   * Создает нового пользователя с указанными параметрами
+   * Создает нового пользователя с указанными параметрами.
    * <p>
-   * Параметры пользователя могут определены константами:
+   * Атрибуты пользователя могут определены константами:
    * <ul>
    * <li>{@link IAvMetaConstants#DDEF_NAME};</li>
    * <li>{@link IAvMetaConstants#DDEF_DESCRIPTION};</li>
-   * <li>{@link ISkUserServiceHardConstants#ATRID_PASSWORD};</li>;
    * <li>{@link ISkUserServiceHardConstants#ATRID_USER_IS_ENABLED};</li>;
    * <li>{@link ISkUserServiceHardConstants#ATRID_USER_IS_HIDDEN}.</li>;
    * <p>
-   * Если пользователь уже существует в системе, то ничего не делает
+   * Если пользователь уже существует в системе, то ничего не делает.
    *
-   * @param aLogin String логин пользовател
-   * @param aIdsAndValues {@link IOptionSet} список параметров пользователя (имя параметра, значение параметра, ...)
+   * @param aLogin String логин пользователя
+   * @param aPassword String пароль пользователя
+   * @param aAttrs {@link IOptionSet} атрибуты пользователя
    * @return {@link ISkUser} созданный или найденный пользователь
    * @throws TsNullArgumentRtException любой аргумент = null
    */
-  protected final ISkUser createUser( String aLogin, Object... aIdsAndValues ) {
-    return createUser( aLogin, OptionSetUtils.createOpSet( aIdsAndValues ) );
-  }
-
-  /**
-   * Создает нового пользователя с указанными параметрами
-   * <p>
-   * Параметры пользователя могут определены константами:
-   * <ul>
-   * <li>{@link IAvMetaConstants#DDEF_NAME};</li>
-   * <li>{@link IAvMetaConstants#DDEF_DESCRIPTION};</li>
-   * <li>{@link ISkUserServiceHardConstants#ATRID_PASSWORD};</li>;
-   * <li>{@link ISkUserServiceHardConstants#ATRID_USER_IS_ENABLED};</li>;
-   * <li>{@link ISkUserServiceHardConstants#ATRID_USER_IS_HIDDEN}.</li>;
-   * <p>
-   * Если пользователь уже существует в системе, то ничего не делает
-   *
-   * @param aLogin String логин пользовател
-   * @param aParams {@link IOptionSet} параметры пользователя
-   * @return {@link ISkUser} созданный или найденный пользователь
-   * @throws TsNullArgumentRtException любой аргумент = null
-   */
-  protected final ISkUser createUser( String aLogin, IOptionSet aParams ) {
-    TsNullArgumentRtException.checkNulls( aLogin, aParams );
+  protected final ISkUser createUser( String aLogin, String aPassword, IOptionSet aAttrs ) {
+    TsNullArgumentRtException.checkNulls( aLogin, aPassword, aAttrs );
     Skid id = new Skid( ISkUser.CLASS_ID, aLogin );
     ISkUser user = userService().listUsers().findByKey( aLogin );
     if( user != null ) {
       // Пользователь уже существует
       return user;
     }
-    return userService().defineUser( new DtoFullObject( id ) );
+    IDtoObject dtoUser = new DtoObject( id, aAttrs, IStringMap.EMPTY );
+    return userService().createUser( new DtoFullObject( dtoUser ), aPassword );
   }
 
   // ------------------------------------------------------------------------------------

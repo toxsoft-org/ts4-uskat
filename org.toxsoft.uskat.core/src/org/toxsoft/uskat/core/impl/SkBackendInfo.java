@@ -4,18 +4,16 @@ import static org.toxsoft.core.tslib.av.EAtomicType.*;
 import static org.toxsoft.core.tslib.av.impl.AvUtils.*;
 import static org.toxsoft.uskat.core.ISkHardConstants.*;
 
-import java.io.*;
-
-import org.toxsoft.core.tslib.av.impl.*;
-import org.toxsoft.core.tslib.av.metainfo.*;
-import org.toxsoft.core.tslib.av.opset.*;
-import org.toxsoft.core.tslib.av.opset.impl.*;
-import org.toxsoft.core.tslib.bricks.strid.impl.*;
-import org.toxsoft.core.tslib.bricks.strio.*;
-import org.toxsoft.core.tslib.bricks.strio.chario.impl.*;
-import org.toxsoft.core.tslib.bricks.strio.impl.*;
-import org.toxsoft.core.tslib.utils.errors.*;
-import org.toxsoft.uskat.core.backend.api.*;
+import org.toxsoft.core.tslib.av.impl.DataDef;
+import org.toxsoft.core.tslib.av.metainfo.IDataDef;
+import org.toxsoft.core.tslib.av.opset.IOptionSet;
+import org.toxsoft.core.tslib.av.opset.impl.OptionSetUtils;
+import org.toxsoft.core.tslib.bricks.strid.impl.StridableParameterizedSer;
+import org.toxsoft.core.tslib.bricks.strio.IStrioWriter;
+import org.toxsoft.core.tslib.bricks.strio.chario.impl.CharOutputStreamAppendable;
+import org.toxsoft.core.tslib.bricks.strio.impl.StrioWriter;
+import org.toxsoft.core.tslib.utils.errors.TsNullArgumentRtException;
+import org.toxsoft.uskat.core.backend.api.ISkBackendInfo;
 
 /**
  * {@link ISkBackendInfo} implementation.
@@ -23,8 +21,8 @@ import org.toxsoft.uskat.core.backend.api.*;
  * @author hazard157
  */
 public class SkBackendInfo
-    extends StridableParameterized
-    implements ISkBackendInfo, Serializable {
+    extends StridableParameterizedSer
+    implements ISkBackendInfo {
 
   private static final long serialVersionUID = 157157L;
 

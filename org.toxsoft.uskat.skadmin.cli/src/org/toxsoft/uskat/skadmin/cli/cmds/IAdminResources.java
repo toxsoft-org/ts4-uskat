@@ -43,11 +43,11 @@ interface IAdminResources {
   /**
    * Идентификатор корневого раздела
    */
-  String ROOT_SECTION = ".";
+  String ROOT_SECTION    = ".";
   /**
    * Идентификатор родительского раздела
    */
-  String PARENT_SECTION = "..";
+  String PARENT_SECTION  = "..";
 
   /**
    * Комментарий
@@ -72,7 +72,7 @@ interface IAdminResources {
   /**
    * Начало шаблона
    */
-  String PATTERN_START = "%-";
+  String PATTERN_START  = "%-";
   /**
    * Завершение шаблона
    */
@@ -100,150 +100,150 @@ interface IAdminResources {
   // ------------------------------------------------------------------------------------
   // ConsoleCmdHelp
   //
-  String HELP_CMD_ID = "help";
+  String HELP_CMD_ID    = "help";
   String HELP_CMD_ALIAS = "h";
-  String HELP_CMD_NAME = "Помощь";
+  String HELP_CMD_NAME  = "Помощь";
   String HELP_CMD_DESCR = "Справка по командам и аргументам";
 
-  String HELP_ARG_CMD_ID = "cmd";
+  String HELP_ARG_CMD_ID    = "cmd";
   String HELP_ARG_CMD_ALIAS = "c";
-  String HELP_ARG_CMD_NAME = "Имя команды";
+  String HELP_ARG_CMD_NAME  = "Имя команды";
   String HELP_ARG_CMD_DESCR = "Имя команды по которой требуется вывести детальную справку";
 
-  String HELP_ARG_ALL_ID = "all";
-  String HELP_ARG_ALL_ALIAS = "a";
-  String HELP_ARG_ALL_NAME = "Флаг";
-  String HELP_ARG_ALL_DESCR = "Вывести справку по всем командам";
+  String HELP_ARG_ALL_ID      = "all";
+  String HELP_ARG_ALL_ALIAS   = "a";
+  String HELP_ARG_ALL_NAME    = "Флаг";
+  String HELP_ARG_ALL_DESCR   = "Вывести справку по всем командам";
   String HELP_ARG_ALL_DEFAULT = "false";
 
   // ------------------------------------------------------------------------------------
   // ConsoleCmdClear
   //
-  String CLEAR_CMD_ID = "clear";
+  String CLEAR_CMD_ID    = "clear";
   String CLEAR_CMD_ALIAS = "";
-  String CLEAR_CMD_NAME = "Очистка экрана";
+  String CLEAR_CMD_NAME  = "Очистка экрана";
   String CLEAR_CMD_DESCR = "";
 
   // ------------------------------------------------------------------------------------
   // ConsoleCmdCd
   //
-  String CD_CMD_ID = "chdir";
+  String CD_CMD_ID    = "chdir";
   String CD_CMD_ALIAS = "cd";
-  String CD_CMD_NAME = "Смена раздела";
+  String CD_CMD_NAME  = "Смена раздела";
   String CD_CMD_DESCR = "Смена текущего раздела команд";
 
-  String CD_ARG_SECTION_ID = "section";
+  String CD_ARG_SECTION_ID    = "section";
   String CD_ARG_SECTION_ALIAS = "s";
-  String CD_ARG_SECTION_NAME = "Имя раздела";
+  String CD_ARG_SECTION_NAME  = "Имя раздела";
   String CD_ARG_SECTION_DESCR = "Раздел на который требуется осуществить переход";
 
   // ------------------------------------------------------------------------------------
   // ConsoleCmdLs
   //
-  String LS_CMD_ID = "list";
+  String LS_CMD_ID    = "list";
   String LS_CMD_ALIAS = "ls";
-  String LS_CMD_NAME = "Список команд и разделов";
+  String LS_CMD_NAME  = "Список команд и разделов";
   String LS_CMD_DESCR = "Вывод на экран разделов и команд доступных в разделе";
 
-  String LS_ARG_SECTION_ID = "section";
+  String LS_ARG_SECTION_ID    = "section";
   String LS_ARG_SECTION_ALIAS = "s";
-  String LS_ARG_SECTION_NAME = "Имя раздела";
+  String LS_ARG_SECTION_NAME  = "Имя раздела";
   String LS_ARG_SECTION_DESCR =
       "Раздел по которому требуется вывести информацию. Пустая строка: вывод по текущему разделу";
 
-  String LS_ARG_DESCRIPTION_ID = "description";
-  String LS_ARG_DESCRIPTION_ALIAS = "d";
-  String LS_ARG_DESCRIPTION_NAME = "Флаг";
-  String LS_ARG_DESCRIPTION_DESCR = "Вывести описание команд";
+  String LS_ARG_DESCRIPTION_ID      = "description";
+  String LS_ARG_DESCRIPTION_ALIAS   = "d";
+  String LS_ARG_DESCRIPTION_NAME    = "Флаг";
+  String LS_ARG_DESCRIPTION_DESCR   = "Вывести описание команд";
   String LS_ARG_DESCRIPTION_DEFAULT = "false";
 
   // ------------------------------------------------------------------------------------
   // ConsoleCmdBatch
   //
-  String BATCH_CMD_ID = "batch";
+  String BATCH_CMD_ID    = "batch";
   String BATCH_CMD_ALIAS = "b";
-  String BATCH_CMD_NAME = "Выполнение сценария";
+  String BATCH_CMD_NAME  = "Выполнение сценария";
   String BATCH_CMD_DESCR =
-      "Команда -batch построчно читает из представленного текстового файла команды s5admin и запускает их на выполнение. "
+      "Команда -batch построчно читает из представленного текстового файла команды skadmin и запускает их на выполнение. "
           + "Строки начинающиеся символом # игнорируются (строка комментарий).\n\n "
           + "Поиск скрипта по указанному имени выполняется в каталогах (в указанном порядке):\n"
-          + "   * Каталог $APPLICATION_HOME/scripts;\n" + "   * Каталог $S5ADMIN_HOME/scripts.\n";
+          + "   * Каталог $APPLICATION_HOME/scripts;\n" + "   * Каталог $SKADMIN_HOME/scripts.\n";
 
-  String BATCH_ARG_FILE_ID = "file";
+  String BATCH_ARG_FILE_ID    = "file";
   String BATCH_ARG_FILE_ALIAS = "f";
-  String BATCH_ARG_FILE_NAME = "Имя файла";
+  String BATCH_ARG_FILE_NAME  = "Имя файла";
   String BATCH_ARG_FILE_DESCR = "Текстовый файл с командами для выполнения";
 
-  String BATCH_ARG_ARGS_ID = "args";
+  String BATCH_ARG_ARGS_ID    = "args";
   String BATCH_ARG_ARGS_ALIAS = "";
-  String BATCH_ARG_ARGS_NAME = "";
+  String BATCH_ARG_ARGS_NAME  = "";
   String BATCH_ARG_ARGS_DESCR =
       "Список фактических значений аргументов для выполнения скрипта. В сценарии эти значения доступны через параметры контекста $1, $2,...$N";
 
-  String BATCH_ARG_CHARSET_ID = "charset";
-  String BATCH_ARG_CHARSET_ALIAS = "";
-  String BATCH_ARG_CHARSET_NAME = "";
-  String BATCH_ARG_CHARSET_DESCR = "Кодировка текстового файла";
+  String BATCH_ARG_CHARSET_ID      = "charset";
+  String BATCH_ARG_CHARSET_ALIAS   = "";
+  String BATCH_ARG_CHARSET_NAME    = "";
+  String BATCH_ARG_CHARSET_DESCR   = "Кодировка текстового файла";
   String BATCH_ARG_CHARSET_DEFAULT = "UTF8";
 
-  String BATCH_ARG_EXIT_ID = "exit";
-  String BATCH_ARG_EXIT_ALIAS = "";
-  String BATCH_ARG_EXIT_NAME = "";
-  String BATCH_ARG_EXIT_DESCR = "Признак завершения работы консоли после выполнения команд файла";
+  String BATCH_ARG_EXIT_ID      = "exit";
+  String BATCH_ARG_EXIT_ALIAS   = "";
+  String BATCH_ARG_EXIT_NAME    = "";
+  String BATCH_ARG_EXIT_DESCR   = "Признак завершения работы консоли после выполнения команд файла";
   String BATCH_ARG_EXIT_DEFAULT = "false";
 
   // ------------------------------------------------------------------------------------
   // ConsoleCmdHasParam
   //
-  String HAS_CMD_ID = "hasContextParam";
-  String HAS_CMD_ALIAS = "";
-  String HAS_CMD_NAME = "";
-  String HAS_CMD_DESCR = "Возвращает  признак существования параметра в текущем контексте";
+  String HAS_CMD_ID           = "hasContextParam";
+  String HAS_CMD_ALIAS        = "";
+  String HAS_CMD_NAME         = "";
+  String HAS_CMD_DESCR        = "Возвращает  признак существования параметра в текущем контексте";
   String HAS_CMD_RESULT_DESCR = "Признак существования параметра";
 
-  String HAS_ARG_NAME_ID = "name";
+  String HAS_ARG_NAME_ID    = "name";
   String HAS_ARG_NAME_ALIAS = "";
-  String HAS_ARG_NAME_NAME = "";
+  String HAS_ARG_NAME_NAME  = "";
   String HAS_ARG_NAME_DESCR = "Имя проверяемого параметра. ВНИМАНИЕ: без префикса '$'";
 
   // ------------------------------------------------------------------------------------
   // ConsoleCmdSignal
   //
-  String SIGNAL_CMD_ID = "signal";
-  String SIGNAL_CMD_ALIAS = "";
-  String SIGNAL_CMD_NAME = "управление сигналами";
-  String SIGNAL_CMD_DESCR = "Команда -signal позволяет устанавливать, ожидать и снимать сигналы. ";
+  String SIGNAL_CMD_ID       = "signal";
+  String SIGNAL_CMD_ALIAS    = "";
+  String SIGNAL_CMD_NAME     = "управление сигналами";
+  String SIGNAL_CMD_DESCR    = "Команда -signal позволяет устанавливать, ожидать и снимать сигналы. ";
   String SIGNAL_RESULT_DESCR = "Значение сигнала в строковом виде. ";
 
-  String ARG_SIGNAL_ID_ID = "id";
+  String ARG_SIGNAL_ID_ID    = "id";
   String ARG_SIGNAL_ID_ALIAS = "";
-  String ARG_SIGNAL_ID_NAME = "Идентификатор";
+  String ARG_SIGNAL_ID_NAME  = "Идентификатор";
   String ARG_SIGNAL_ID_DESCR = "Идентификатор сигнала";
 
-  String ARG_SIGNAL_CMD_ID = "cmd";
+  String ARG_SIGNAL_CMD_ID    = "cmd";
   String ARG_SIGNAL_CMD_ALIAS = "";
-  String ARG_SIGNAL_CMD_NAME = "";
+  String ARG_SIGNAL_CMD_NAME  = "";
   String ARG_SIGNAL_CMD_DESCR = "Команда управления сигналом. Допустимые значения: create, delete, wait, check";
 
-  String ARG_SIGNAL_VALUE_ID = "value";
-  String ARG_SIGNAL_VALUE_ALIAS = "";
-  String ARG_SIGNAL_VALUE_NAME = "Значение";
-  String ARG_SIGNAL_VALUE_DESCR = "Значение сигнала. Пустая строка - любое значение";
+  String ARG_SIGNAL_VALUE_ID      = "value";
+  String ARG_SIGNAL_VALUE_ALIAS   = "";
+  String ARG_SIGNAL_VALUE_NAME    = "Значение";
+  String ARG_SIGNAL_VALUE_DESCR   = "Значение сигнала. Пустая строка - любое значение";
   String ARG_SIGNAL_VALUE_DEFAULT = "";
 
-  String ARG_SIGNAL_TIMEOUT_ID = "timeout";
-  String ARG_SIGNAL_TIMEOUT_ALIAS = "";
-  String ARG_SIGNAL_TIMEOUT_NAME = "";
-  String ARG_SIGNAL_TIMEOUT_DESCR = "Таймаут(сек) удержания или ожидания сигнала или его значения";
+  String ARG_SIGNAL_TIMEOUT_ID      = "timeout";
+  String ARG_SIGNAL_TIMEOUT_ALIAS   = "";
+  String ARG_SIGNAL_TIMEOUT_NAME    = "";
+  String ARG_SIGNAL_TIMEOUT_DESCR   = "Таймаут(сек) удержания или ожидания сигнала или его значения";
   String ARG_SIGNAL_TIMEOUT_DEFAULT = "5";
 
   String E_SIGNAL_N_CREATE = "Создание";
   String E_SIGNAL_N_DELETE = "Удаление";
-  String E_SIGNAL_N_WAIT = "Ожидание";
+  String E_SIGNAL_N_WAIT   = "Ожидание";
 
   String E_SIGNAL_D_CREATE = "Создание или удержание сигнала. Используются аргументы: -id, -value, -timeout";
   String E_SIGNAL_D_DELETE = "Удаление сигнала. Используются аргументы: -id";
-  String E_SIGNAL_D_WAIT = "Ожидание сигнала. Используются аргументы -id, -value, -timeout";
+  String E_SIGNAL_D_WAIT   = "Ожидание сигнала. Используются аргументы -id, -value, -timeout";
 
   String E_OPERATOR_N_NOOP = "Нет оператора";
   String E_OPERATOR_D_NOOP = "Нет оператора";
@@ -266,28 +266,28 @@ interface IAdminResources {
   // ------------------------------------------------------------------------------------
   // ConsoleCmdTimeout
   //
-  String TIMEOUT_CMD_ID = "timeout";
+  String TIMEOUT_CMD_ID    = "timeout";
   String TIMEOUT_CMD_ALIAS = "";
-  String TIMEOUT_CMD_NAME = "таймаут";
+  String TIMEOUT_CMD_NAME  = "таймаут";
   String TIMEOUT_CMD_DESCR = "Останавливает выполнение сценария или потока выполнения на указанное время. ";
 
-  String ARG_TIMEOUT_VALUE_ID = "value";
-  String ARG_TIMEOUT_VALUE_ALIAS = "";
-  String ARG_TIMEOUT_VALUE_NAME = "";
-  String ARG_TIMEOUT_VALUE_DESCR = "Значение таймаута(мсек)";
+  String ARG_TIMEOUT_VALUE_ID      = "value";
+  String ARG_TIMEOUT_VALUE_ALIAS   = "";
+  String ARG_TIMEOUT_VALUE_NAME    = "";
+  String ARG_TIMEOUT_VALUE_DESCR   = "Значение таймаута(мсек)";
   String ARG_TIMEOUT_VALUE_DEFAULT = "1000";
 
   // ------------------------------------------------------------------------------------
   // ConsoleCmdTimeToString
   //
-  String TIME_TO_STRING_CMD_ID = "timeToString";
+  String TIME_TO_STRING_CMD_ID    = "timeToString";
   String TIME_TO_STRING_CMD_ALIAS = "";
-  String TIME_TO_STRING_CMD_NAME = "Вывод времени";
+  String TIME_TO_STRING_CMD_NAME  = "Вывод времени";
   String TIME_TO_STRING_CMD_DESCR = "Выводит метку времени в текстовом виде.";
 
-  String ARG_TIME_ID = "time";
+  String ARG_TIME_ID    = "time";
   String ARG_TIME_ALIAS = "";
-  String ARG_TIME_NAME = "";
+  String ARG_TIME_NAME  = "";
   String ARG_TIME_DESCR = "Значение метки времени (мсек с начала эпохи)";
 
   String TIME_TO_STRING_RESULT_DESCR = "Значение метки времени в текстовом виде. ";
@@ -295,10 +295,10 @@ interface IAdminResources {
   // ------------------------------------------------------------------------------------
   // ConsoleCmdEcho
   //
-  String ECHO_CMD_ID = "echo";
-  String ECHO_CMD_ALIAS = "";
-  String ECHO_CMD_NAME = "Вывод текста";
-  String ECHO_CMD_DESCR =
+  String ECHO_CMD_ID       = "echo";
+  String ECHO_CMD_ALIAS    = "";
+  String ECHO_CMD_NAME     = "Вывод текста";
+  String ECHO_CMD_DESCR    =
       "Вывод текста на экран. При выводе можно управлять цветом и фоном выводимого текста. Для того, чтобы изменить цвет/фон дальше выводимого "
           + "текста необходимо определить :" + COLOR_ID + FORE_COLOR_ID + COLOR_RESET + "" + COLOR_SINGLE_VALUE
           + "COLOR_NAME" + COLOR_RESET + " или для фона :" + COLOR_ID + BACK_COLOR_ID + COLOR_RESET + ""
@@ -339,84 +339,84 @@ interface IAdminResources {
           + "DEFAULT.";
   String ECHO_RESULT_DESCR = "Текст выведенный на экран";
 
-  String ECHO_ARG_TEXT_ID = "text";
+  String ECHO_ARG_TEXT_ID    = "text";
   String ECHO_ARG_TEXT_ALIAS = "t";
-  String ECHO_ARG_TEXT_NAME = "Выводимый текст";
+  String ECHO_ARG_TEXT_NAME  = "Выводимый текст";
   String ECHO_ARG_TEXT_DESCR = "Выводимый текст c элементами переключения цвета и фона";
 
-  String ECHO_ARG_EOL_ID = "eol";
-  String ECHO_ARG_EOL_ALIAS = "e";
-  String ECHO_ARG_EOL_NAME = "Конец строки";
-  String ECHO_ARG_EOL_DESCR = "Добавлять у указанному тексту символ конца строки";
+  String ECHO_ARG_EOL_ID      = "eol";
+  String ECHO_ARG_EOL_ALIAS   = "e";
+  String ECHO_ARG_EOL_NAME    = "Конец строки";
+  String ECHO_ARG_EOL_DESCR   = "Добавлять у указанному тексту символ конца строки";
   String ECHO_ARG_EOL_DEFAULT = "false";
 
-  String ECHO_ARG_SILENT_ID = "silent";
-  String ECHO_ARG_SILENT_ALIAS = "s";
-  String ECHO_ARG_SILENT_NAME = "";
-  String ECHO_ARG_SILENT_DESCR = "Не выводить текст на экран (только формировать результат)";
+  String ECHO_ARG_SILENT_ID      = "silent";
+  String ECHO_ARG_SILENT_ALIAS   = "s";
+  String ECHO_ARG_SILENT_NAME    = "";
+  String ECHO_ARG_SILENT_DESCR   = "Не выводить текст на экран (только формировать результат)";
   String ECHO_ARG_SILENT_DEFAULT = "false";
 
-  String ECHO_ARG_SPACE_TRAIL_ID = "spaceTrail";
-  String ECHO_ARG_SPACE_TRAIL_ALIAS = "";
-  String ECHO_ARG_SPACE_TRAIL_NAME = "Дополнение пробелами";
-  String ECHO_ARG_SPACE_TRAIL_DESCR = "Добавлять строку пробелами до правой границы экрана";
+  String ECHO_ARG_SPACE_TRAIL_ID      = "spaceTrail";
+  String ECHO_ARG_SPACE_TRAIL_ALIAS   = "";
+  String ECHO_ARG_SPACE_TRAIL_NAME    = "Дополнение пробелами";
+  String ECHO_ARG_SPACE_TRAIL_DESCR   = "Добавлять строку пробелами до правой границы экрана";
   String ECHO_ARG_SPACE_TRAIL_DEFAULT = "false";
 
   // ------------------------------------------------------------------------------------
   // ConsoleCmdEquals
   //
-  String IS_EQUAL_CMD_ID = "isEqual";
-  String IS_EQUAL_CMD_ALIAS = "isEq";
-  String IS_EQUAL_CMD_NAME = "Сравнение параметров контекста";
-  String IS_EQUAL_CMD_DESCR = "Сравнение параметров контекста";
+  String IS_EQUAL_CMD_ID           = "isEqual";
+  String IS_EQUAL_CMD_ALIAS        = "isEq";
+  String IS_EQUAL_CMD_NAME         = "Сравнение параметров контекста";
+  String IS_EQUAL_CMD_DESCR        = "Сравнение параметров контекста";
   String IS_EQUAL_CMD_RESULT_DESCR = "Признак того, что параметры контекста имеют эквивалентные значения";
 
-  String IS_EQUAL_ARG_PAR1_ID = "param1";
+  String IS_EQUAL_ARG_PAR1_ID    = "param1";
   String IS_EQUAL_ARG_PAR1_ALIAS = "p1";
-  String IS_EQUAL_ARG_PAR1_NAME = "param1";
+  String IS_EQUAL_ARG_PAR1_NAME  = "param1";
   String IS_EQUAL_ARG_PAR1_DESCR = "Первый параметр контекста";
 
-  String IS_EQUAL_ARG_PAR2_ID = "param2";
+  String IS_EQUAL_ARG_PAR2_ID    = "param2";
   String IS_EQUAL_ARG_PAR2_ALIAS = "p2";
-  String IS_EQUAL_ARG_PAR2_NAME = "param2";
+  String IS_EQUAL_ARG_PAR2_NAME  = "param2";
   String IS_EQUAL_ARG_PAR2_DESCR = "Второй параметр контекста";
 
   // ------------------------------------------------------------------------------------
   // ConsoleCmdExit
   //
-  String EXIT_CMD_ID = "exit";
+  String EXIT_CMD_ID    = "exit";
   String EXIT_CMD_ALIAS = "";
-  String EXIT_CMD_NAME = "Выход";
+  String EXIT_CMD_NAME  = "Выход";
   String EXIT_CMD_DESCR = "Завершение работы с сохранением настроек консоли";
 
   // ------------------------------------------------------------------------------------
   // ConsoleCmdQuit
   //
-  String QUIT_CMD_ID = "quit";
+  String QUIT_CMD_ID    = "quit";
   String QUIT_CMD_ALIAS = "";
-  String QUIT_CMD_NAME = "Выход";
+  String QUIT_CMD_NAME  = "Выход";
   String QUIT_CMD_DESCR = "Завершение работы без сохранения настроек консоли";
 
   // ------------------------------------------------------------------------------------
   // Сообщения
   //
-  String MSG_CHILD_SECTION = "Раздел команд";
-  String MSG_CMD_INFO = "Раздел   : " + COLOR_ID + "%s\n" + COLOR_RESET + "Имя      : " + COLOR_ID + "%s\n"
+  String MSG_CHILD_SECTION        = "Раздел команд";
+  String MSG_CMD_INFO             = "Раздел   : " + COLOR_ID + "%s\n" + COLOR_RESET + "Имя      : " + COLOR_ID + "%s\n"
       + COLOR_RESET + "Роли     : %s\n" + "Кратко   : %s";
-  String MSG_CMD_ALIAS_INFO = "Раздел   : " + COLOR_ID + "%s\n" + COLOR_RESET + "Имя,алиас: " + COLOR_ID + "%s\n"
+  String MSG_CMD_ALIAS_INFO       = "Раздел   : " + COLOR_ID + "%s\n" + COLOR_RESET + "Имя,алиас: " + COLOR_ID + "%s\n"
       + COLOR_RESET + "Роли     : %s\n" + "Кратко   : %s";
-  String MSG_CMD_DESCR = "Описание : ";
-  String MSG_ROLES_ALL = "Без ограничений";
-  String MSG_CMD_CONTEXT = "Контекст : ";
+  String MSG_CMD_DESCR            = "Описание : ";
+  String MSG_ROLES_ALL            = "Без ограничений";
+  String MSG_CMD_CONTEXT          = "Контекст : ";
   String MSG_CMD_CONTEXT_NOT_USED = "Контекст : Не используется";
-  String MSG_CMD_CONTEXT_INFO = "%s  $%-14s %-20s" + COLOR_RESET;
-  String MSG_CMD_CONTEXT_DESCR = " %s.";
-  String MSG_CMD_ARGS = "Аргументы: ";
-  String MSG_CMD_ARG_INFO = "%s  %-15s%s %-20s" + COLOR_RESET;
-  String MSG_CMD_ARG_DESCR = " %s.";
-  String MSG_CMD_ARG_DEFAULT = " Значение по умолчанию: " + COLOR_SINGLE_VALUE + "%s" + COLOR_RESET + ".";
-  String MSG_CMD_RESULT = "Результат: %s       %-20s " + COLOR_RESET;
-  String MSG_NO_RESULT = "Результат: Нет\n";
+  String MSG_CMD_CONTEXT_INFO     = "%s  $%-14s %-20s" + COLOR_RESET;
+  String MSG_CMD_CONTEXT_DESCR    = " %s.";
+  String MSG_CMD_ARGS             = "Аргументы: ";
+  String MSG_CMD_ARG_INFO         = "%s  %-15s%s %-20s" + COLOR_RESET;
+  String MSG_CMD_ARG_DESCR        = " %s.";
+  String MSG_CMD_ARG_DEFAULT      = " Значение по умолчанию: " + COLOR_SINGLE_VALUE + "%s" + COLOR_RESET + ".";
+  String MSG_CMD_RESULT           = "Результат: %s       %-20s " + COLOR_RESET;
+  String MSG_NO_RESULT            = "Результат: Нет\n";
   // @formatter:off
   String MSG_HELP =
       "Общий формат команды определяется как: "
@@ -459,16 +459,12 @@ interface IAdminResources {
           //
           //
           + "Аргументы команды могут иметь значения по умолчанию. Ввод значений таких аргументов не является обязательным. Значение "
-          + "по умолчанию определяется при описании аргумента. Значения-списки всегда имеют значение по умолчанию: пустой список.\n\n"
+          + "по умолчанию определяется при описании аргумента. Значения-списки и значения именованных наборов всегда имеют значение по умолчанию: пустой список.\n\n"
           + "Значения аргументов могут быть определены в канонической или упрощенной форме. В канонической форме "
           + "значения аргументов указываются через ИД-имя аргумента(с префиксом '-') за которым следует его значение. "
           + "Исключением из этого правила является использование аргумента-флага. Тип значений флага может "
-          + "быть только логическим и не может быть списком. Когда система определяет, что за ИД-именем аргумента логического типа нет значения, "
-          + "то она считает аргумент флагом. Фактическое значение флага будет противоположным значению по умолчанию. "
-          + "Если у аргумента нет значения по умолчанию, то значение аргумента устанавливается как "
-          + COLOR_SINGLE_VALUE
-          + "true"
-          + COLOR_RESET
+          + "быть только логическим. Когда система определяет, что за ИД-именем аргумента логического типа нет значения, "
+          + "то она считает аргумент флагом. Фактическое значение флага всегда определяется как " + COLOR_SINGLE_VALUE + "true" + COLOR_RESET+ ". "
           + ". При этом, возможна ситуация, когда текущий набор значений других аргументов запрещает использование флага. "
           + "Об этом выводится соответствующее сообщение. Порядок перечисления аргументов в канонической форме может быть любым. Например: "
           + COLOR_ID
@@ -506,7 +502,7 @@ interface IAdminResources {
           + " value3_item1"
           + COLOR_RESET
           + "\n\n"
-          + "Формат значений аргументов допускает ввод логических, числовых, меток времени, строковых данных, а также их списков. Далее приводится информация по вводу значений некоторых типов данных"
+          + "Формат значений аргументов допускает ввод логических, числовых, меток времени, строковых данных, а также их списков и именованных наборов. Далее приводится информация по вводу значений некоторых типов данных"
           + "\n\n"
           + COLOR_SINGLE_VALUE + "Timestamp" + COLOR_RESET + ": Метки времени вводятся в формате: " + COLOR_SINGLE_VALUE
           + "YYYY-MM-DD_HH:MM:SS.mmm" + COLOR_RESET + " или в одном из его сокращенных форм: "
@@ -550,7 +546,7 @@ interface IAdminResources {
           //
           //
           + COLOR_ID
-          + "s5admin"
+          + "skadmin"
           + COLOR_RESET
           + " не форматирует вывод результатов формируемый командами. Вследствии этого, возможно некорректное отображение данных "
           + "если ширина буфера консоли меньше чем ширина выводимых данных. Такая ситуация возможна, например, при выводе "
@@ -565,7 +561,7 @@ interface IAdminResources {
           + COLOR_RESET
           + ". Для "
           + COLOR_ID
-          + "*nix-систем s5admin-cli"
+          + "*nix-систем skadmin-cli"
           + COLOR_RESET
           + " рекомендуется запускать под терминалом: "
           + COLOR_ID
@@ -598,32 +594,35 @@ interface IAdminResources {
   // ------------------------------------------------------------------------------------
   // Ошибки
   //
-  String ERR_MSG_CMD_REJECT = "Пользователь отказался от выполнения команды '%s'";
-  String ERR_MSG_CMD_NOT_FOUND = "Команда '%s' не существует";
-  String ERR_MSG_SECTION_NOT_FOUND = "Раздел '%s' не существует";
-  String ERR_MSG_FILE_NOT_FOUND = "Файл '%s' не существует. Введите другой файл";
+  String ERR_MSG_CMD_REJECT            = "Пользователь отказался от выполнения команды '%s'";
+  String ERR_MSG_CMD_NOT_FOUND         = "Команда '%s' не существует";
+  String ERR_MSG_SECTION_NOT_FOUND     = "Раздел '%s' не существует";
+  String ERR_MSG_FILE_NOT_FOUND        = "Файл '%s' не существует. Введите другой файл";
   String ERR_MSG_SIGNAL_DELETE_TIMEOUT =
       "Невозможно (нет сигнала или значения) удалить сигнал '%s' по таймауту: %d сек. ";
-  String ERR_MSG_SIGNAL_WAIT_TIMEOUT = "Невозможно получить сигнал '%s' или его значения по таймауту: %d сек. ";
+  String ERR_MSG_SIGNAL_WAIT_TIMEOUT   = "Невозможно получить сигнал '%s' или его значения по таймауту: %d сек. ";
 
-  String ERR_MSG_SCRIPT = "Ошибка скрипта %s[%d]: %s\n";
+  String ERR_MSG_SCRIPT              = "Ошибка скрипта %s[%d]: %s\n";
   String ERR_MSG_UNEXPECTED_OPERATOR = "Неожиданное появление оператора: %s";
-  String ERR_MSG_WRONG_IF_FORMAT =
+  String ERR_MSG_WRONG_IF_FORMAT     =
       "Неверный формат оператора if. Формат должен быть 'if logicalValue' или 'if numberValue1 op numberValue2'";
-  String ERR_MSG_EXPECTED_LOGICAL = "Ожидается значение логического типа. Причина: %s'";
-  String ERR_MSG_COMPARE_IMPOSSIBLE = "Невозможно сравнить операнды. value1: %s op: %s, value2: %s. Причина: %s'";
-  String ERR_MSG_UNKNOW_COMPARE = "Неизвестный тип сравнения: %s'";
-  String MSG_ERR_CMD_UNEXPECTED = "Неожиданная ошибка выполнения сценария %s[%d]. Причина: '%s'";
-  String ERR_MSG_UNCLOSED_OPERATOR = "Не найдено завершения оператора'";
-  String ERR_MSG_INCLUDE_NOT_FOUND = COLOR_ERROR + "Невозможно включить файл %s. Файл не найден\n" + COLOR_RESET;
-  String ERR_MSG_UNCLOSED_MULTILINE = "Незавершено формирование многострочной команды'";
+  String ERR_MSG_EXPECTED_LOGICAL    = "Ожидается значение логического типа. Причина: %s'";
+  String ERR_MSG_COMPARE_IMPOSSIBLE  = "Невозможно сравнить операнды. value1: %s op: %s, value2: %s. Причина: %s'";
+  String ERR_MSG_UNKNOW_COMPARE      = "Неизвестный тип сравнения: %s'";
+  String MSG_ERR_CMD_UNEXPECTED      = "Неожиданная ошибка выполнения сценария %s[%d]. Причина: '%s'";
+  String ERR_MSG_UNCLOSED_OPERATOR   = "Не найдено завершения оператора'";
+  String ERR_MSG_INCLUDE_NOT_FOUND   = COLOR_ERROR + "Невозможно включить файл %s. Файл не найден\n" + COLOR_RESET;
+  String ERR_MSG_UNCLOSED_MULTILINE  = "Незавершено формирование многострочной команды'";
 
-  String ERR_MSG_OPEN_FILE_READER = "Не могу открыть файл сценария для чтения (BufferedReader): %s. Причина: %s";
+  String ERR_MSG_OPEN_FILE_READER             =
+      "Не могу открыть файл сценария для чтения (BufferedReader): %s. Причина: %s";
   String ERR_MSG_OPEN_FILE_UNSUPPORT_ENCODING =
       "Не могу открыть файл сценария для чтения (неподдерживаемая кодировка символов): %s. Причина: %s";
-  String ERR_MSG_OPEN_FILE_STREAM_READER =
+  String ERR_MSG_OPEN_FILE_STREAM_READER      =
       "Не могу открыть файл сценария для чтения (InputStreamReader): %s. Причина: %s";
-  String ERR_MSG_OPEN_FILE_NOT_FOUND = "Не могу открыть файл сценария для чтения (файл не найден): %s. Причина: %s";
-  String ERR_MSG_OPEN_FILE_STREAM = "Не могу открыть файл сценария для чтения (FileInputStream): %s. Причина: %s";
+  String ERR_MSG_OPEN_FILE_NOT_FOUND          =
+      "Не могу открыть файл сценария для чтения (файл не найден): %s. Причина: %s";
+  String ERR_MSG_OPEN_FILE_STREAM             =
+      "Не могу открыть файл сценария для чтения (FileInputStream): %s. Причина: %s";
 
 }

@@ -9,7 +9,7 @@ import org.toxsoft.uskat.s5.server.backend.IS5BackendSessionControl;
 import org.toxsoft.uskat.s5.server.backend.IS5Verifiable;
 import org.toxsoft.uskat.s5.server.sessions.init.IS5SessionInitData;
 import org.toxsoft.uskat.s5.server.sessions.init.S5SessionInitResult;
-import org.toxsoft.uskat.s5.server.sessions.pas.S5SessionCallbackWriter;
+import org.toxsoft.uskat.s5.server.sessions.pas.S5SessionMessenger;
 
 /**
  * Управление сессией расширения бекенда. Работает только в локальном доступе к серверу (в том же процессе что и сервер)
@@ -38,12 +38,12 @@ public interface IS5BackendAddonSessionControl
    * Инициализация расширения
    *
    * @param aBackend {@link IS5BackendSessionControl} сессия предоставляющая backend ядра s5-сервера
-   * @param aCallbackWriter {@link S5SessionCallbackWriter} передатчик обратных вызовов
+   * @param aMessenger {@link S5SessionMessenger} приемопередатчик сообщений сессии
    * @param aInitData {@link IS5SessionInitData} данные для инициализации сессии
    * @param aInitResult {@link S5SessionInitResult} результаты инициализации сессии
    * @throws TsNullArgumentRtException аргумент = null
    */
-  void init( IS5BackendSessionControl aBackend, S5SessionCallbackWriter aCallbackWriter, IS5SessionInitData aInitData,
+  void init( IS5BackendSessionControl aBackend, S5SessionMessenger aMessenger, IS5SessionInitData aInitData,
       S5SessionInitResult aInitResult );
 
   /**

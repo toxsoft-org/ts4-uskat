@@ -1,4 +1,3 @@
-
 package org.toxsoft.uskat.skadmin.cli.parsers;
 
 import static org.toxsoft.core.tslib.bricks.strio.IStrioHardConstants.*;
@@ -308,7 +307,9 @@ public class AdminCmdLexicalParser
         throw new TsNotAllEnumsUsedRtException();
     }
     // Фиксация позиции лексемы
-    int finishPosition = currentPosition() - 1;
+    // 2022-09-10 mvk
+    // int finishPosition = currentPosition() - 1;
+    int finishPosition = currentPosition();
     if( finishPosition < startPosition ) {
       // Пустая лексема
       startPosition = -1;
@@ -319,7 +320,9 @@ public class AdminCmdLexicalParser
       startPosition++;
       finishPosition--;
     }
+    // 2022-09-10 mvk
     aTokens.add( new AdminCmdToken( tokenType, startPosition, finishPosition, data, quoted || superQuoted ) );
+    // aTokens.add( new AdminCmdToken( tokenType, startPosition - 1, finishPosition, data, quoted || superQuoted ) );
     return strioReader.peekChar( EStrioSkipMode.SKIP_BYPASSED );
   }
 
@@ -436,7 +439,9 @@ public class AdminCmdLexicalParser
    * @return int текущая позиция символа
    */
   private int currentPosition() {
-    return strioReader.getInput().currentPosition().charNo() + strioReaderPositionDelta;
+    // 2022-09-20 mvk
+    // return strioReader.currentPosition() + strioReaderPositionDelta;
+    return strioReader.getInput().currentPosition().charNo() + strioReaderPositionDelta - 1;
   }
 
   // // ------------------------------------------------------------------------------------

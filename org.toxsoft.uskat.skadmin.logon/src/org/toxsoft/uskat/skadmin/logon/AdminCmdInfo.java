@@ -151,7 +151,7 @@ public class AdminCmdInfo
     // Информация об открытых и завершенных транзакциях сервера
     S5TransactionInfos transactionsInfos = OP_BACKEND_TRANSACTIONS_INFOS.getValue( info.params() ).asValobj();
     // Вывод
-    addResultInfo( MSG_INFO_CONNECT, connectionToString( connection ) );
+    addResultInfo( MSG_INFO_CONNECT, connectionToString( info ) );
     addResultInfo( MSG_INFO_ID, info.id() );
     addResultInfo( MSG_INFO_NAME, info.nmName() );
     addResultInfo( MSG_INFO_DESCR, info.description() );
@@ -163,7 +163,7 @@ public class AdminCmdInfo
     for( S5Module depend : module.depends() ) {
       addResultInfo( MSG_CONNECT_MODULE, depend.id(), depend.description(), depend.version() );
     }
-    ZoneId zone = OP_BACKEND_ZONE_ID.getValue( info.params() ).asValobj();
+    ZoneId zone = ZoneId.of( OP_BACKEND_ZONE_ID.getValue( info.params() ).asString() );
     ZonedDateTime startTime = getZonedDateTime( zone, OP_BACKEND_START_TIME.getValue( info.params() ).asLong() );
     ZonedDateTime currTime = getZonedDateTime( zone, OP_BACKEND_CURRENT_TIME.getValue( info.params() ).asLong() );
 

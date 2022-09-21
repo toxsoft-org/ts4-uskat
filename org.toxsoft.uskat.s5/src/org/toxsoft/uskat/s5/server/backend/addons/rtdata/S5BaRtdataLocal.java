@@ -84,10 +84,8 @@ class S5BaRtdataLocal
       }
     } );
     // Установка таймаутов
-    baData.currDataToSendTimeout =
-        IS5ConnectionParams.OP_CURRDATA_TIMEOUT.getValue( aOwner.openArgs().params() ).asLong();
-    baData.histDataToSendTimeout =
-        IS5ConnectionParams.OP_HISTDATA_TIMEOUT.getValue( aOwner.openArgs().params() ).asLong();
+    baData.currdataTimeout = IS5ConnectionParams.OP_CURRDATA_TIMEOUT.getValue( aOwner.openArgs().params() ).asLong();
+    baData.histdataTimeout = IS5ConnectionParams.OP_HISTDATA_TIMEOUT.getValue( aOwner.openArgs().params() ).asLong();
 
   }
 
@@ -103,21 +101,29 @@ class S5BaRtdataLocal
   @Override
   public void doJob() {
     long currTime = System.currentTimeMillis();
+    GtMessage currDataMessage = null;
+    GtMessage histDataMessage = null;
     synchronized (baData) {
-      if( baData.currDataToSend.size() > 0
-          && currTime - baData.lastCurrDataToSendTime > baData.currDataToSendTimeout ) {
+      if( baData.currdataToBackend.size() > 0
+          && currTime - baData.lastCurrdataToBackendTime > baData.currdataTimeout ) {
         // Отправка данных от фронтенда в бекенд
-        owner().onFrontendMessage( BaMsgRtdataCurrData.INSTANCE.makeMessage( baData.currDataToSend ) );
-        baData.currDataToSend.clear();
-        baData.lastCurrDataToSendTime = currTime;
+        currDataMessage = BaMsgRtdataCurrData.INSTANCE.makeMessage( baData.currdataToBackend );
+        baData.currdataToBackend.clear();
+        baData.lastCurrdataToBackendTime = currTime;
       }
-      if( baData.histDataToSend.size() > 0
-          && currTime - baData.lastHistDataToSendTime > baData.histDataToSendTimeout ) {
+      if( baData.histdataToBackend.size() > 0
+          && currTime - baData.lastHistdataToBackendTime > baData.histdataTimeout ) {
         // Отправка значений хранимых данных от фронтенда в бекенд
-        owner().onFrontendMessage( BaMsgRtdataHistData.INSTANCE.makeMessage( baData.histDataToSend ) );
-        baData.histDataToSend.clear();
-        baData.lastHistDataToSendTime = currTime;
+        histDataMessage = BaMsgRtdataHistData.INSTANCE.makeMessage( baData.histdataToBackend );
+        baData.histdataToBackend.clear();
+        baData.lastHistdataToBackendTime = currTime;
       }
+    }
+    if( currDataMessage != null ) {
+      owner().onFrontendMessage( currDataMessage );
+    }
+    if( histDataMessage != null ) {
+      owner().onFrontendMessage( histDataMessage );
     }
   }
 
@@ -145,7 +151,10 @@ class S5BaRtdataLocal
   public void writeCurrData( Gwid aGwid, IAtomicValue aValue ) {
     TsNullArgumentRtException.checkNulls( aGwid, aValue );
     synchronized (baData) {
-      baData.currDataToSend.put( aGwid, aValue );
+      if( baData.currdataToBackend.size() == 0 ) {
+        baData.lastCurrdataToBackendTime = System.currentTimeMillis();
+      }
+      baData.currdataToBackend.put( aGwid, aValue );
     }
   }
 
@@ -153,7 +162,10 @@ class S5BaRtdataLocal
   public void writeHistData( Gwid aGwid, ITimeInterval aInterval, ITimedList<ITemporalAtomicValue> aValues ) {
     TsNullArgumentRtException.checkNulls( aGwid, aInterval, aValues );
     synchronized (baData) {
-      Pair<ITimeInterval, ITimedList<ITemporalAtomicValue>> prevValues = baData.histDataToSend.findByKey( aGwid );
+      if( baData.histdataToBackend.size() == 0 ) {
+        baData.lastHistdataToBackendTime = System.currentTimeMillis();
+      }
+      Pair<ITimeInterval, ITimedList<ITemporalAtomicValue>> prevValues = baData.histdataToBackend.findByKey( aGwid );
       Pair<ITimeInterval, ITimedList<ITemporalAtomicValue>> newValues = new Pair<>( aInterval, aValues );
       if( prevValues != null ) {
         // Объединение значений по одному данному
@@ -163,7 +175,7 @@ class S5BaRtdataLocal
         values.addAll( newValues.right() );
         newValues = new Pair<>( new TimeInterval( startTime, endTime ), values );
       }
-      baData.histDataToSend.put( aGwid, newValues );
+      baData.histdataToBackend.put( aGwid, newValues );
     }
   }
 

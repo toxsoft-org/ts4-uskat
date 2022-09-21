@@ -28,7 +28,7 @@ public final class S5ClusterCommandCreateCallback
     implements IS5ClusterCommandHandler {
 
   /**
-   * Вызов метода: {@link IS5SessionManager#tryCreateCallbackWriter(S5SessionData)}
+   * Вызов метода: {@link IS5SessionManager#tryCreateMessenger(S5SessionData)}
    */
   public static final String CREATE_CALLBACK_METHOD = CLUSTER_METHOD_PREFIX + "createCallback"; //$NON-NLS-1$
 
@@ -139,7 +139,7 @@ public final class S5ClusterCommandCreateCallback
     if( 500 <= waitTime ) {
       logger.error( MSG_WAIT_OPEN_SESSION_CACHE, wt, sessionID );
     }
-    sessionManager.tryCreateCallbackWriter( session );
+    sessionManager.tryCreateMessenger( session );
     return TjUtils.TRUE;
   }
 }

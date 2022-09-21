@@ -205,7 +205,7 @@ public interface IS5ConnectionParams {
    * <p>
    * Тип: {@link EAtomicType#INTEGER}
    */
-  IDataDef OP_CURRDATA_TIMEOUT = create( "currDataTimeout", INTEGER, //$NON-NLS-1$
+  IDataDef OP_CURRDATA_TIMEOUT = create( "currdataTimeout", INTEGER, //$NON-NLS-1$
       TSID_NAME, N_CURRDATA_TIMEOUT, //
       TSID_DESCRIPTION, D_CURRDATA_TIMEOUT, //
       TSID_IS_NULL_ALLOWED, AV_TRUE, //
@@ -217,7 +217,7 @@ public interface IS5ConnectionParams {
    * <p>
    * Тип: {@link EAtomicType#INTEGER}
    */
-  IDataDef OP_HISTDATA_TIMEOUT = create( "histDataTimeout", INTEGER, //$NON-NLS-1$
+  IDataDef OP_HISTDATA_TIMEOUT = create( "histdataTimeout", INTEGER, //$NON-NLS-1$
       TSID_NAME, N_HISTDATA_TIMEOUT, //
       TSID_DESCRIPTION, D_HISTDATA_TIMEOUT, //
       TSID_IS_NULL_ALLOWED, AV_TRUE, //

@@ -18,7 +18,7 @@ import org.toxsoft.uskat.s5.server.cluster.IS5ClusterCommand;
 import org.toxsoft.uskat.s5.server.cluster.IS5ClusterCommandHandler;
 import org.toxsoft.uskat.s5.server.sessions.IS5SessionManager;
 import org.toxsoft.uskat.s5.server.sessions.S5SessionData;
-import org.toxsoft.uskat.s5.server.sessions.pas.S5SessionCallbackWriter;
+import org.toxsoft.uskat.s5.server.sessions.pas.S5SessionMessenger;
 
 /**
  * Обработчик команды кластера: всем узлам обновить состояние сессии
@@ -30,7 +30,7 @@ public final class S5ClusterCommandUpdateSession
     implements IS5ClusterCommandHandler {
 
   /**
-   * Вызов метода: {@link IS5SessionManager#tryCreateCallbackWriter(S5SessionData)}
+   * Вызов метода: {@link IS5SessionManager#tryCreateMessenger(S5SessionData)}
    */
   public static final String UDATE_SESSION_METHOD = CLUSTER_METHOD_PREFIX + "updateSession"; //$NON-NLS-1$
 
@@ -103,14 +103,14 @@ public final class S5ClusterCommandUpdateSession
       logger.error( "handleClusterCommand(...): " + MSG_ERR_SESSION_NOT_FOUND, sessionID ); //$NON-NLS-1$
       return TjUtils.TRUE;
     }
-    // Писатель обратных вызовов сессии
-    S5SessionCallbackWriter callbackWriter = sessionManager.findCallbackWriter( sessionID );
-    if( callbackWriter == null ) {
-      logger.warning( "handleClusterCommand(...): %s. callbackWriter = null", UDATE_SESSION_METHOD ); //$NON-NLS-1$
+    // Приемопередатчик сообщений
+    S5SessionMessenger messenger = sessionManager.findMessenger( sessionID );
+    if( messenger == null ) {
+      logger.warning( "handleClusterCommand(...): %s. messenger = null", UDATE_SESSION_METHOD ); //$NON-NLS-1$
       return TjUtils.TRUE;
     }
-    callbackWriter.updateSessionData( sessionData );
-    logger.info( "handleClusterCommand(...): %s. update session for callbackWriter", UDATE_SESSION_METHOD ); //$NON-NLS-1$
+    messenger.updateSessionData( sessionData );
+    logger.info( "handleClusterCommand(...): %s. update session for messenger", UDATE_SESSION_METHOD ); //$NON-NLS-1$
     return TjUtils.TRUE;
   }
 }

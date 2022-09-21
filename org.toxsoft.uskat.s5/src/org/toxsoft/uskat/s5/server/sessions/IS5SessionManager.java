@@ -4,13 +4,13 @@ import javax.ejb.Local;
 
 import org.toxsoft.core.tslib.coll.IList;
 import org.toxsoft.core.tslib.gw.skid.Skid;
-import org.toxsoft.core.tslib.utils.errors.*;
+import org.toxsoft.core.tslib.utils.errors.TsIllegalArgumentRtException;
+import org.toxsoft.core.tslib.utils.errors.TsNullArgumentRtException;
 import org.toxsoft.uskat.s5.common.info.IS5SessionsInfos;
 import org.toxsoft.uskat.s5.common.sessions.IS5SessionInfo;
 import org.toxsoft.uskat.s5.common.sessions.ISkSession;
-import org.toxsoft.uskat.s5.server.backend.IS5BackendCoreSingleton;
 import org.toxsoft.uskat.s5.server.frontend.IS5FrontendRear;
-import org.toxsoft.uskat.s5.server.sessions.pas.S5SessionCallbackWriter;
+import org.toxsoft.uskat.s5.server.sessions.pas.S5SessionMessenger;
 import org.toxsoft.uskat.s5.server.statistics.IS5StatisticCounter;
 
 /**
@@ -37,15 +37,6 @@ public interface IS5SessionManager {
    * @return {@link IS5SessionsInfos} информация о сессиях
    */
   IS5SessionsInfos getInfos();
-
-  /**
-   * Установить backend сервера
-   *
-   * @param aBackend {@link IS5BackendCoreSingleton} backend
-   * @throws TsNullArgumentRtException аргумент = null
-   * @throws TsIllegalStateRtException backend уже установлен
-   */
-  void setBackend( IS5BackendCoreSingleton aBackend );
 
   /**
    * Возвращает текущее количество открытых сессий
@@ -143,54 +134,54 @@ public interface IS5SessionManager {
   void closeLocalSession( Skid aSessionID );
 
   /**
-   * Возвращает писателя обратных вызовов для указанной сессии
+   * Возвращает приемопередатчик сообщений для указанной сессии
    *
    * @param aSessionID {@link Skid} идентификатор сессии {@link ISkSession}
-   * @return {@link S5SessionCallbackWriter} писатель обратных вызовов. null: писатель не найден
+   * @return {@link S5SessionMessenger} приемопередатчик сообщений. null: не найден
    * @throws TsNullArgumentRtException аргумент = null
    */
-  S5SessionCallbackWriter findCallbackWriter( Skid aSessionID );
+  S5SessionMessenger findMessenger( Skid aSessionID );
 
   /**
-   * Возвращает писателя обратных вызовов для указанной сессии
+   * Возвращает приемопередатчик сообщений для указанной сессии
    *
    * @param aSessionID {@link Skid} идентификатор сессии {@link ISkSession}
-   * @return {@link S5SessionCallbackWriter} писатель обратных вызовов
+   * @return {@link S5SessionMessenger} приемопередатчик сообщений
    * @throws TsNullArgumentRtException аргумент = null
    * @throws TsIllegalArgumentRtException сессия не найдена
    */
-  S5SessionCallbackWriter getCallbackWriter( Skid aSessionID );
+  S5SessionMessenger getMessenger( Skid aSessionID );
 
   /**
-   * Создает писателя обратных вызовов для указанной сессии
+   * Создает приемопередатчик сообщений для указанной сессии
    *
    * @param aSession {@link S5SessionData} сессия клиента
-   * @return {@link S5SessionCallbackWriter} писатель обратных вызовов
+   * @return {@link S5SessionMessenger} приемопередатчик сообщений
    * @throws TsNullArgumentRtException любой аругмент = null
    * @throws TsIllegalArgumentRtException ошибка установки соединения с клиентом
    */
-  S5SessionCallbackWriter createCallbackWriter( S5SessionData aSession );
+  S5SessionMessenger createMessenger( S5SessionData aSession );
 
   /**
-   * Делает попытку создания писателя обратных вызовов для указанной сессии
+   * Делает попытку создания приемопередатчик сообщений для указанной сессии
    * <p>
-   * Если писатель для указанной сессии уже создан, то обновляется его информация о сессии
+   * Если приемопередатчик сообщений для указанной сессии уже создан, то обновляется его информация о сессии
    *
    * @param aSession {@link S5SessionData} сессия клиента
-   * @return {@link S5SessionCallbackWriter} писатель обратных вызовов. null: удаленный клиент недоступен
+   * @return {@link S5SessionMessenger} приемопередатчик сообщений. null: удаленный клиент недоступен
    * @throws TsNullArgumentRtException любой аругмент = null
    * @throws TsIllegalArgumentRtException ошибка установки соединения с клиентом
    */
-  S5SessionCallbackWriter tryCreateCallbackWriter( S5SessionData aSession );
+  S5SessionMessenger tryCreateMessenger( S5SessionData aSession );
 
   /**
-   * Завершает работу писателя обратных вызовов для указанной сессии
+   * Завершает работу приемопередатчик сообщений для указанной сессии
    *
    * @param aSessionID {@link Skid} идентификатор сессии {@link ISkSession}
-   * @return {@link S5SessionCallbackWriter} писатель обратных вызовов. null: писатель не был зарегистрирован для сессии
+   * @return {@link S5SessionMessenger} приемопередатчик сообщений. null: приемопередатчик не был зарегистрирован
    * @throws TsNullArgumentRtException любой аругмент = null
    */
-  IS5FrontendRear closeCallbackWriter( Skid aSessionID );
+  IS5FrontendRear closeMessenger( Skid aSessionID );
 
   /**
    * Возвращает счетчик статистистических данных работы сессии

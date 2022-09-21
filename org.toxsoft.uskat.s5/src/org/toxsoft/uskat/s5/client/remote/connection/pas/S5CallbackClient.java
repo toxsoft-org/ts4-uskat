@@ -6,7 +6,7 @@ import static org.toxsoft.core.tslib.av.impl.AvUtils.*;
 import static org.toxsoft.core.tslib.av.metainfo.IAvMetaConstants.*;
 import static org.toxsoft.uskat.s5.client.remote.connection.pas.IS5Resources.*;
 import static org.toxsoft.uskat.s5.client.remote.connection.pas.S5CallbackOnGetBackendAddonInfos.*;
-import static org.toxsoft.uskat.s5.client.remote.connection.pas.S5CallbackOnMessage.*;
+import static org.toxsoft.uskat.s5.client.remote.connection.pas.S5CallbackOnBackendMessage.*;
 import static org.toxsoft.uskat.s5.server.IS5ImplementConstants.*;
 
 import java.net.InetSocketAddress;
@@ -416,7 +416,7 @@ public final class S5CallbackClient
     PasClient<S5CallbackChannel> retValue = new PasClient<>( ctx, S5CallbackChannel.CREATOR, true, aLogger );
     // Регистрация обработчиков
     ISkFrontendRear frontend = aConnection.frontend();
-    retValue.registerNotificationHandler( ON_MESSAGE_METHOD, new S5CallbackOnMessage( frontend ) );
+    retValue.registerNotificationHandler( ON_MESSAGE_METHOD, new S5CallbackOnBackendMessage( frontend ) );
     retValue.registerNotificationHandler( ON_GET_BACKEND_ADDON_INFOS_METHOD, new S5CallbackOnGetBackendAddonInfos() {
 
       @Override

@@ -21,7 +21,7 @@ import org.toxsoft.uskat.s5.server.frontend.IS5FrontendRear;
 import org.toxsoft.uskat.s5.server.sessions.IS5SessionManager;
 import org.toxsoft.uskat.s5.server.sessions.init.IS5SessionInitData;
 import org.toxsoft.uskat.s5.server.sessions.init.S5SessionInitResult;
-import org.toxsoft.uskat.s5.server.sessions.pas.S5SessionCallbackWriter;
+import org.toxsoft.uskat.s5.server.sessions.pas.S5SessionMessenger;
 import org.toxsoft.uskat.s5.server.statistics.IS5StatisticCounter;
 
 /**
@@ -177,16 +177,16 @@ public abstract class S5AbstractBackendAddonSession
   }
 
   @Override
-  public void init( IS5BackendSessionControl aBackend, S5SessionCallbackWriter aCallbackWriter,
-      IS5SessionInitData aInitData, S5SessionInitResult aInitResult ) {
-    TsNullArgumentRtException.checkNulls( aCallbackWriter, aBackend, aInitData, aInitResult );
+  public void init( IS5BackendSessionControl aBackend, S5SessionMessenger aMessenger, IS5SessionInitData aInitData,
+      S5SessionInitResult aInitResult ) {
+    TsNullArgumentRtException.checkNulls( aMessenger, aBackend, aInitData, aInitResult );
     sessionID = aInitData.sessionID();
     backend = aBackend;
     // if( aSessionID.equals( wildflySessionID ) == false ) {
     // // Недопустимый идентификатор сессии
     // throw new TsIllegalArgumentRtException( ERR_WRONG_SESSION, aSessionID, wildflySessionID );
     // }
-    doAfterInit( aCallbackWriter, aInitData, aInitResult );
+    doAfterInit( aMessenger, aInitData, aInitResult );
   }
 
   @Override
@@ -257,7 +257,7 @@ public abstract class S5AbstractBackendAddonSession
    * @return {@link IS5FrontendRear} фронтенд с которым работает сессия
    */
   protected final IS5FrontendRear frontend() {
-    return sessionManager.getCallbackWriter( sessionID() );
+    return sessionManager.getMessenger( sessionID() );
   }
 
   /**
@@ -274,7 +274,7 @@ public abstract class S5AbstractBackendAddonSession
    */
   protected final void writeSessionData() {
     // Данные писателя обратных вызовов записываются в кэш данных сессий (infinispan) + оповещается кластер
-    sessionManager.writeSessionData( sessionManager.getCallbackWriter( sessionID() ).sessionData() );
+    sessionManager.writeSessionData( sessionManager.getMessenger( sessionID() ).sessionData() );
   }
 
   /**
@@ -314,15 +314,15 @@ public abstract class S5AbstractBackendAddonSession
 
   /**
    * Вызывается в конце метода
-   * {@link #init(IS5BackendSessionControl, S5SessionCallbackWriter, IS5SessionInitData, S5SessionInitResult)} .
+   * {@link #init(IS5BackendSessionControl, S5SessionMessenger, IS5SessionInitData, S5SessionInitResult)} .
    * <p>
    * Выброшенные методом исключения передаются сессии backend, что приводит к провалу установления связи с сервером.
    *
-   * @param aCallbackWriter {@link S5SessionCallbackWriter} передатчик обратных вызовов
+   * @param aMessenger {@link S5SessionMessenger} приемопередатчик сообщений сессии
    * @param aInitData {@link IS5SessionInitData} данные для инициализации сессии
    * @param aInitResult {@link S5SessionInitResult} результаты инициализации сессии
    */
-  protected void doAfterInit( S5SessionCallbackWriter aCallbackWriter, IS5SessionInitData aInitData,
+  protected void doAfterInit( S5SessionMessenger aMessenger, IS5SessionInitData aInitData,
       S5SessionInitResult aInitResult ) {
     // nop
   }

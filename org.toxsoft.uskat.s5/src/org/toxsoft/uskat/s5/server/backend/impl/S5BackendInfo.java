@@ -1,9 +1,7 @@
 package org.toxsoft.uskat.s5.server.backend.impl;
 
-import java.io.Serializable;
-
 import org.toxsoft.core.tslib.av.opset.IOptionSet;
-import org.toxsoft.core.tslib.bricks.strid.impl.StridableParameterized;
+import org.toxsoft.core.tslib.bricks.strid.impl.StridableParameterizedSer;
 import org.toxsoft.core.tslib.bricks.strio.IStrioWriter;
 import org.toxsoft.core.tslib.bricks.strio.chario.impl.CharOutputStreamAppendable;
 import org.toxsoft.core.tslib.bricks.strio.impl.StrioWriter;
@@ -17,8 +15,8 @@ import org.toxsoft.uskat.s5.server.IS5ServerHardConstants;
  * @author mvk
  */
 public class S5BackendInfo
-    extends StridableParameterized
-    implements ISkBackendInfo, Serializable {
+    extends StridableParameterizedSer
+    implements ISkBackendInfo {
 
   private static final long serialVersionUID = 157157L;
 

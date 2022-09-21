@@ -88,7 +88,6 @@ public final class S5SessionCallbackServer
     int pasPort =
         (port == null ? ((Integer)readAttribute( JBOSS_SOCKET_BINDING_HTTP, JBOSS_ATTR_BOUND_PORT )).intValue() + 1
             : Integer.parseInt( (String)port ));
-
     // Имя узла кластера
     String node = System.getProperty( JBOSS_NODE_NAME );
     // Создание клиента передачи обратных вызовов
@@ -237,7 +236,7 @@ public final class S5SessionCallbackServer
    */
   void onOpenChannel( S5SessionCallbackChannel aChannel, Skid aSessionID ) {
     TsNullArgumentRtException.checkNulls( aChannel, aSessionID );
-    S5SessionCallbackWriter callbackWriter = sessionManager.findCallbackWriter( aSessionID );
+    S5SessionMessenger messenger = sessionManager.findMessenger( aSessionID );
     for( S5SessionCallbackChannel channel : pasServer.channels()
         .copyTo( new ElemArrayList<S5SessionCallbackChannel>( pasServer.channels().size() ) ) ) {
       Skid sessionID = channel.getSessionID();
@@ -255,22 +254,22 @@ public final class S5SessionCallbackServer
         channel.close();
       }
     }
-    if( callbackWriter == null ) {
-      logger.info( "onOpenChannel(...): callbackWriter = null. Search exist session for %s", aSessionID ); //$NON-NLS-1$
+    if( messenger == null ) {
+      logger.info( "onOpenChannel(...): messenger = null. Search exist session for %s", aSessionID ); //$NON-NLS-1$
       S5SessionData session = sessionManager.findSessionData( aSessionID );
       if( session == null ) {
         return;
       }
-      logger.warning( "onOpenChannel(...): callbackWriter = null. Found session for %s. Try recreate callback writer", //$NON-NLS-1$
+      logger.warning( "onOpenChannel(...): messenger = null. Found session for %s. Try recreate messenger", //$NON-NLS-1$
           aSessionID );
-      // Писатель не был создан для сессии. Попытка создать писателя
-      sessionManager.tryCreateCallbackWriter( session );
+      // Приемопередачик сообщений не был создан для сессии. Попытка создать приемопередатчик
+      sessionManager.tryCreateMessenger( session );
       return;
     }
     // У сессии уже был писатель, заменяем ему канал. Старый (если он был) закрываем
-    S5SessionCallbackChannel oldChannel = callbackWriter.setNewChannel( aChannel );
+    S5SessionCallbackChannel oldChannel = messenger.setChannel( aChannel );
     if( oldChannel != null ) {
-      logger.error( "onOpenChannel(...): close double channel = %s, set new writer channel = %s", oldChannel, //$NON-NLS-1$
+      logger.error( "onOpenChannel(...): close double channel = %s, set new channel = %s", oldChannel, //$NON-NLS-1$
           aChannel );
       oldChannel.close();
     }

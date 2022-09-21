@@ -7,7 +7,7 @@ import static org.toxsoft.uskat.s5.utils.collections.S5CollectionUtils.*;
 import static org.toxsoft.uskat.skadmin.core.plugins.AdminPluginUtils.*;
 import static org.toxsoft.uskat.skadmin.logon.IAdminResources.*;
 
-import org.toxsoft.core.tslib.av.metainfo.IAvMetaConstants;
+import org.toxsoft.core.tslib.av.EAtomicType;
 import org.toxsoft.uskat.s5.server.statistics.EStatisticInterval;
 import org.toxsoft.uskat.skadmin.core.IAdminCmdArgDef;
 import org.toxsoft.uskat.skadmin.core.impl.AdminCmdArgDef;
@@ -91,7 +91,14 @@ interface IAdminHardConstants {
    * отправлять немедленно
    */
   IAdminCmdArgDef ARG_CONNECT_CURRDATA_TIMEOUT =
-      new AdminCmdArgDef( "currDataTimeout", createType( INTEGER, "300" ), STR_ARG_CONNECT_CURRDATA_TIMEOUT );
+      new AdminCmdArgDef( "currdataTimeout", createType( INTEGER, "300" ), STR_ARG_CONNECT_CURRDATA_TIMEOUT );
+
+  /**
+   * Аргумент {@link AdminCmdConnect}: Таймаут (мсек) передачи текущих данных от сервера клиенту. Значение <=0 -
+   * отправлять немедленно
+   */
+  IAdminCmdArgDef ARG_CONNECT_HISTDATA_TIMEOUT =
+      new AdminCmdArgDef( "histdataTimeout", createType( INTEGER, "60000" ), STR_ARG_CONNECT_HISTDATA_TIMEOUT );
 
   /**
    * Аргумент {@link AdminCmdConnect}: Имя класса инициализатора клиентского API
@@ -150,7 +157,7 @@ interface IAdminHardConstants {
   /**
    * Аргумент {@link AdminCmdInfo}: Интервал статистики
    */
-  IAdminCmdArgDef ARG_INFO_INTERVAL = new AdminCmdArgDef( "interval", IAvMetaConstants.DDEF_INTEGER,
+  IAdminCmdArgDef ARG_INFO_INTERVAL = new AdminCmdArgDef( "interval", createType( EAtomicType.STRING, "min" ),
       STR_ARG_INFO_INTERVAL + itemsToString( EStatisticInterval.asStridablesList() ) );
 
   /**

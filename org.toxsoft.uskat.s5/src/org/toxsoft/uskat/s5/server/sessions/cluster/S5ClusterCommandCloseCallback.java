@@ -24,7 +24,7 @@ public final class S5ClusterCommandCloseCallback
     implements IS5ClusterCommandHandler {
 
   /**
-   * Вызов метода: {@link IS5SessionManager#closeCallbackWriter(Skid)}
+   * Вызов метода: {@link IS5SessionManager#closeMessenger(Skid)}
    */
   public static final String CLOSE_CALLBACK_METHOD = CLUSTER_METHOD_PREFIX + "closeCallbackWriter"; //$NON-NLS-1$
 
@@ -91,7 +91,7 @@ public final class S5ClusterCommandCloseCallback
       return TjUtils.NULL;
     }
     Skid sessionID = Skid.KEEPER.str2ent( aCommand.params().getByKey( SESSION_ID ).asString() );
-    sessionManager.closeCallbackWriter( sessionID );
+    sessionManager.closeMessenger( sessionID );
     return TjUtils.TRUE;
   }
 }

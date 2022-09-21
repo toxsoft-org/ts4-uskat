@@ -15,12 +15,13 @@ import org.toxsoft.uskat.core.api.evserv.ISkEventList;
 import org.toxsoft.uskat.core.api.evserv.SkEvent;
 import org.toxsoft.uskat.core.backend.ISkBackendHardConstant;
 import org.toxsoft.uskat.core.backend.api.IBaEvents;
+import org.toxsoft.uskat.s5.server.backend.addons.IS5BackendAddonSessionControl;
 import org.toxsoft.uskat.s5.server.backend.addons.S5AbstractBackendAddonSession;
 import org.toxsoft.uskat.s5.server.backend.supports.events.IS5BackendEventSingleton;
 import org.toxsoft.uskat.s5.server.backend.supports.sysdescr.IS5BackendSysDescrSingleton;
 import org.toxsoft.uskat.s5.server.sessions.init.IS5SessionInitData;
 import org.toxsoft.uskat.s5.server.sessions.init.S5SessionInitResult;
-import org.toxsoft.uskat.s5.server.sessions.pas.S5SessionCallbackWriter;
+import org.toxsoft.uskat.s5.server.sessions.pas.S5SessionMessenger;
 
 /**
  * Реализация сессии расширения бекенда {@link IS5BaEventsSession}.
@@ -32,9 +33,10 @@ import org.toxsoft.uskat.s5.server.sessions.pas.S5SessionCallbackWriter;
 @AccessTimeout( value = ACCESS_TIMEOUT_DEFAULT, unit = TimeUnit.MILLISECONDS )
 @TransactionManagement( TransactionManagementType.CONTAINER )
 @TransactionAttribute( TransactionAttributeType.SUPPORTS )
-class S5BaEventsSession
+@SuppressWarnings( "unused" )
+public class S5BaEventsSession
     extends S5AbstractBackendAddonSession
-    implements IS5BaEventsSession {
+    implements IS5BaEventsSession, IS5BackendAddonSessionControl {
 
   private static final long serialVersionUID = 157157L;
 
@@ -66,7 +68,7 @@ class S5BaEventsSession
   }
 
   @Override
-  protected void doAfterInit( S5SessionCallbackWriter aCallbackWriter, IS5SessionInitData aInitData,
+  protected void doAfterInit( S5SessionMessenger aMessenger, IS5SessionInitData aInitData,
       S5SessionInitResult aInitResult ) {
     S5BaEventsData baData = new S5BaEventsData();
     S5BaEventsData initData = aInitData.findBackendAddonData( IBaEvents.ADDON_ID, S5BaEventsData.class );

@@ -24,7 +24,6 @@ import org.toxsoft.core.tslib.coll.primtypes.impl.StringMap;
 import org.toxsoft.core.tslib.gw.gwid.Gwid;
 import org.toxsoft.core.tslib.gw.gwid.GwidList;
 import org.toxsoft.core.tslib.gw.skid.Skid;
-import org.toxsoft.core.tslib.utils.ICloseable;
 import org.toxsoft.core.tslib.utils.Pair;
 import org.toxsoft.core.tslib.utils.errors.TsNullArgumentRtException;
 import org.toxsoft.uskat.core.api.rtdserv.*;
@@ -42,7 +41,7 @@ import org.toxsoft.uskat.s5.utils.threads.impl.S5Lockable;
  * @author mvk
  */
 public class S5StatisticWriter
-    implements IS5StatisticCounter, ICloseable {
+    implements IS5StatisticCounter {
 
   /**
    * Статистика
@@ -93,6 +92,11 @@ public class S5StatisticWriter
   // IS5StatisticCounter
   //
   @Override
+  public boolean isClosed() {
+    return stat.isClosed();
+  }
+
+  @Override
   public boolean onEvent( IStridable aParam, IAtomicValue aValue ) {
     TsNullArgumentRtException.checkNulls( aParam, aValue );
     return onEvent( aParam.id(), aValue );
@@ -136,8 +140,9 @@ public class S5StatisticWriter
   //
   @Override
   public void close() {
-    tryLockWrite( channelsLock );
+    lockWrite( channelsLock );
     try {
+      stat.close();
       for( Pair<ISkWriteCurrDataChannel, ISkWriteHistDataChannel> channels : writeChannels ) {
         channels.left().close();
         channels.right().close();
@@ -193,7 +198,7 @@ public class S5StatisticWriter
     // Имя параметра для интервала
     String param = getDataId( aInterval, aParam );
     // Попытка получить уже ранее открытый канал
-    tryLockRead( channelsLock );
+    lockRead( channelsLock );
     try {
       Pair<ISkWriteCurrDataChannel, ISkWriteHistDataChannel> retValue = writeChannels.findByKey( param );
       return retValue;

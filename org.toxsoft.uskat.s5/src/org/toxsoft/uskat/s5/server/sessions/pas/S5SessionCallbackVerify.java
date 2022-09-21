@@ -26,7 +26,7 @@ public final class S5SessionCallbackVerify
   /**
    * Вызов метода: {@link IS5BackendSessionControl#verify()}
    */
-  public static final String SESSION_VERIFY_METHOD = SESSIONS_METHOD_PREFIX + "verify"; //$NON-NLS-1$
+  public static final String SESSION_VERIFY_METHOD = FRONTEND_METHOD_PREFIX + "verify"; //$NON-NLS-1$
 
   /**
    * Менеджер сессий

@@ -281,9 +281,9 @@ public class ConsoleCmdHelp
       // Полное описание аргумента
       sb.append( format( MSG_CMD_ARG_DESCR, textLighting( aCmdDef, aArgDef.description() ) ) );
     }
-    if( argKind.isAtomic() && argType.dataType().params().hasValue( IAvMetaConstants.DDEF_DEFAULT_VALUE ) ) {
+    if( argKind.isAtomic() && argType.dataType().params().hasValue( IAvMetaConstants.TSID_DEFAULT_VALUE ) ) {
       // Значение по умолчанию
-      IAtomicValue defaultValue = aArgDef.type().dataType().params().getValue( IAvMetaConstants.DDEF_DEFAULT_VALUE );
+      IAtomicValue defaultValue = aArgDef.type().dataType().params().getValue( IAvMetaConstants.TSID_DEFAULT_VALUE );
       sb.append( format( MSG_CMD_ARG_DEFAULT, defaultValue ) );
     }
     sb.append( IStrioHardConstants.CHAR_EOL );

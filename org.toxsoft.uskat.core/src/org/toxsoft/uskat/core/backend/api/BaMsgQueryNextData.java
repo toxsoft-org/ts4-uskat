@@ -4,15 +4,19 @@ import static org.toxsoft.core.tslib.av.EAtomicType.*;
 import static org.toxsoft.core.tslib.av.impl.AvUtils.*;
 import static org.toxsoft.core.tslib.av.metainfo.IAvMetaConstants.*;
 
-import org.toxsoft.core.tslib.av.temporal.*;
-import org.toxsoft.core.tslib.bricks.events.msg.*;
-import org.toxsoft.core.tslib.bricks.time.*;
-import org.toxsoft.core.tslib.coll.*;
-import org.toxsoft.core.tslib.gw.gwid.*;
-import org.toxsoft.core.tslib.utils.errors.*;
-import org.toxsoft.uskat.core.api.cmdserv.*;
-import org.toxsoft.uskat.core.api.evserv.*;
-import org.toxsoft.uskat.core.impl.dto.*;
+import org.toxsoft.core.tslib.av.temporal.ITemporalAtomicValue;
+import org.toxsoft.core.tslib.av.temporal.TemporalAtomicValueKeeper;
+import org.toxsoft.core.tslib.bricks.events.msg.GenericMessage;
+import org.toxsoft.core.tslib.bricks.events.msg.GtMessage;
+import org.toxsoft.core.tslib.bricks.time.ITimedList;
+import org.toxsoft.core.tslib.coll.IList;
+import org.toxsoft.core.tslib.gw.gwid.EGwidKind;
+import org.toxsoft.core.tslib.utils.errors.TsNullArgumentRtException;
+import org.toxsoft.core.tslib.utils.errors.TsUnsupportedFeatureRtException;
+import org.toxsoft.uskat.core.api.cmdserv.IDtoCompletedCommand;
+import org.toxsoft.uskat.core.api.evserv.SkEvent;
+import org.toxsoft.uskat.core.api.hqserv.ISkHistoryQueryService;
+import org.toxsoft.uskat.core.impl.dto.DtoCompletedCommand;
 
 /**
  * {@link IBaQueries} message builder: next portion of data delivered from backend to frontend.
@@ -38,7 +42,7 @@ public class BaMsgQueryNextData
   private static final String ARGID_VALUES_LIST = "valuesList"; //$NON-NLS-1$
 
   BaMsgQueryNextData() {
-    super( ISkCommandService.SERVICE_ID, MSG_ID );
+    super( ISkHistoryQueryService.SERVICE_ID, MSG_ID );
     defineArgNonValobj( ARGID_DATA_ID, STRING, true );
     defineArgValobj( ARGID_KIND, EGwidKind.KEEPER_ID, true );
     defineArgNonValobj( ARGID_VALUES_LIST, STRING, true );

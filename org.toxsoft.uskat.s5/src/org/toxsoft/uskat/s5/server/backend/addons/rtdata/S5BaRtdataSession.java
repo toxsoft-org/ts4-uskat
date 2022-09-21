@@ -20,12 +20,13 @@ import org.toxsoft.core.tslib.utils.errors.TsNullArgumentRtException;
 import org.toxsoft.uskat.core.backend.ISkBackendHardConstant;
 import org.toxsoft.uskat.core.backend.api.*;
 import org.toxsoft.uskat.s5.server.IS5ServerHardConstants;
+import org.toxsoft.uskat.s5.server.backend.addons.IS5BackendAddonSessionControl;
 import org.toxsoft.uskat.s5.server.backend.addons.S5AbstractBackendAddonSession;
 import org.toxsoft.uskat.s5.server.backend.supports.currdata.IS5BackendCurrDataSingleton;
 import org.toxsoft.uskat.s5.server.backend.supports.histdata.IS5BackendHistDataSingleton;
 import org.toxsoft.uskat.s5.server.sessions.init.IS5SessionInitData;
 import org.toxsoft.uskat.s5.server.sessions.init.S5SessionInitResult;
-import org.toxsoft.uskat.s5.server.sessions.pas.S5SessionCallbackWriter;
+import org.toxsoft.uskat.s5.server.sessions.pas.S5SessionMessenger;
 
 /**
  * Реализация сессии расширения бекенда {@link IS5BaRtdataSession}.
@@ -37,9 +38,10 @@ import org.toxsoft.uskat.s5.server.sessions.pas.S5SessionCallbackWriter;
 @AccessTimeout( value = ACCESS_TIMEOUT_DEFAULT, unit = TimeUnit.MILLISECONDS )
 @TransactionManagement( TransactionManagementType.CONTAINER )
 @TransactionAttribute( TransactionAttributeType.SUPPORTS )
-class S5BaRtdataSession
+@SuppressWarnings( "unused" )
+public class S5BaRtdataSession
     extends S5AbstractBackendAddonSession
-    implements IS5BaRtdataSession {
+    implements IS5BaRtdataSession, IS5BackendAddonSessionControl {
 
   private static final long serialVersionUID = 157157L;
 
@@ -71,7 +73,7 @@ class S5BaRtdataSession
   }
 
   @Override
-  protected void doAfterInit( S5SessionCallbackWriter aCallbackWriter, IS5SessionInitData aInitData,
+  protected void doAfterInit( S5SessionMessenger aMessenger, IS5SessionInitData aInitData,
       S5SessionInitResult aInitResult ) {
     S5BaRtdataData baData = new S5BaRtdataData();
     frontend().frontendData().setBackendAddonData( IBaRtdata.ADDON_ID, baData );

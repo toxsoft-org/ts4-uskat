@@ -15,8 +15,6 @@ import org.toxsoft.core.tslib.av.opset.impl.OptionSetUtils;
 import org.toxsoft.core.tslib.av.utils.IParameterized;
 import org.toxsoft.core.tslib.av.utils.IParameterizedEdit;
 import org.toxsoft.core.tslib.bricks.strid.coll.IStridablesList;
-import org.toxsoft.core.tslib.bricks.strid.coll.IStridablesListEdit;
-import org.toxsoft.core.tslib.bricks.strid.coll.impl.StridablesList;
 import org.toxsoft.core.tslib.bricks.strid.impl.StridableParameterized;
 import org.toxsoft.core.tslib.coll.IList;
 import org.toxsoft.core.tslib.gw.gwid.Gwid;
@@ -27,6 +25,7 @@ import org.toxsoft.uskat.core.api.sysdescr.ISkClassInfo;
 import org.toxsoft.uskat.core.api.sysdescr.ISkSysdescr;
 import org.toxsoft.uskat.core.api.users.ISkUser;
 import org.toxsoft.uskat.s5.common.S5Module;
+import org.toxsoft.uskat.s5.common.S5ModuleList;
 import org.toxsoft.uskat.s5.common.sessions.ISkSession;
 import org.toxsoft.uskat.s5.server.IS5ServerHardConstants;
 import org.toxsoft.uskat.s5.server.backend.IS5BackendCoreSingleton;
@@ -64,7 +63,7 @@ public abstract class S5InitialImplementation
   protected S5InitialImplementation( S5Module aModule ) {
     TsNullArgumentRtException.checkNull( aModule );
     // Список зависимостей модуля s5-сервера
-    IStridablesListEdit<S5Module> depends = new StridablesList<>( aModule.params().getValobj( S5Module.DDEF_DEPENDS ) );
+    S5ModuleList depends = aModule.params().getValobj( S5Module.DDEF_DEPENDS );
     depends.add( new S5Module( S5_SERVER_ID, OptionSetUtils.createOpSet( //
         TSID_NAME, S5_SERVER_NAME, //
         TSID_DESCRIPTION, S5_SERVER_DESCR, //

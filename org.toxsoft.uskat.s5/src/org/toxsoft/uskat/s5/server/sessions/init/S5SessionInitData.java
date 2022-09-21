@@ -11,7 +11,8 @@ import org.toxsoft.core.tslib.av.opset.impl.OptionSet;
 import org.toxsoft.core.tslib.coll.primtypes.IStringMapEdit;
 import org.toxsoft.core.tslib.coll.primtypes.impl.StringMap;
 import org.toxsoft.core.tslib.gw.skid.Skid;
-import org.toxsoft.core.tslib.utils.errors.*;
+import org.toxsoft.core.tslib.utils.errors.TsIllegalArgumentRtException;
+import org.toxsoft.core.tslib.utils.errors.TsNullArgumentRtException;
 import org.toxsoft.uskat.s5.client.IS5ConnectionParams;
 import org.toxsoft.uskat.s5.client.remote.connection.S5ClusterTopology;
 import org.toxsoft.uskat.s5.common.sessions.ISkSession;
@@ -69,22 +70,19 @@ public final class S5SessionInitData
 
   /**
    * Устанавливает данные расширения бекенда
+   * <p>
+   * Если данные расширения уже были зарегистрированы, то они переопределяются.
    *
    * @param aAddonId String идентификатор (ИД-путь) расширения
    * @param aData {@link IS5BackendAddonData} данные фронтенда расширения бекенд
    * @throws TsNullArgumentRtException любой аргумент = null
    * @throws TsIllegalArgumentRtException данные должны поддерживать сериализацию
-   * @throws TsItemAlreadyExistsRtException данные расширения уже установлены
    */
   public void setBackendAddonData( String aAddonId, IS5BackendAddonData aData ) {
     TsNullArgumentRtException.checkNulls( aAddonId, aData );
     if( !(aData instanceof Serializable) ) {
       // Данные должны поддерживать сериализацию
       throw new TsIllegalArgumentRtException( ERR_MSG_ADDON_DATA_NO_SERIALIZABLE, aAddonId );
-    }
-    if( backendAddonDatas.hasKey( aAddonId ) ) {
-      // Данные расширения уже зарегистрированы
-      throw new TsItemAlreadyExistsRtException( ERR_MSG_ADDON_DATA_ALREADY_EXIST, aAddonId );
     }
     backendAddonDatas.put( aAddonId, aData );
   }

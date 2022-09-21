@@ -3,8 +3,6 @@ package org.toxsoft.uskat.s5.server.statistics;
 import static org.toxsoft.core.tslib.av.metainfo.IAvMetaConstants.*;
 import static org.toxsoft.uskat.s5.server.statistics.IS5StatisticHardConstants.*;
 
-import java.io.Serializable;
-
 import org.toxsoft.core.tslib.av.EAtomicType;
 import org.toxsoft.core.tslib.av.IAtomicValue;
 import org.toxsoft.core.tslib.av.errors.AvTypeCastRtException;
@@ -14,7 +12,7 @@ import org.toxsoft.core.tslib.bricks.keeper.AbstractEntityKeeper;
 import org.toxsoft.core.tslib.bricks.keeper.AbstractEntityKeeper.EEncloseMode;
 import org.toxsoft.core.tslib.bricks.keeper.IEntityKeeper;
 import org.toxsoft.core.tslib.bricks.strid.coll.IStridablesList;
-import org.toxsoft.core.tslib.bricks.strid.impl.StridableParameterized;
+import org.toxsoft.core.tslib.bricks.strid.impl.StridableParameterizedSer;
 import org.toxsoft.core.tslib.bricks.strio.IStrioReader;
 import org.toxsoft.core.tslib.bricks.strio.IStrioWriter;
 import org.toxsoft.core.tslib.utils.errors.TsIllegalArgumentRtException;
@@ -27,8 +25,7 @@ import org.toxsoft.core.tslib.utils.valobj.TsValobjUtils;
  * @author mvk
  */
 public final class S5StatisticParamInfo
-    extends StridableParameterized
-    implements Serializable {
+    extends StridableParameterizedSer {
 
   private static final long serialVersionUID = 157157L;
 
@@ -46,12 +43,12 @@ public final class S5StatisticParamInfo
 
         @Override
         protected void doWrite( IStrioWriter aSw, S5StatisticParamInfo aEntity ) {
-          StridableParameterized.KEEPER.write( aSw, aEntity );
+          StridableParameterizedSer.KEEPER.write( aSw, aEntity );
         }
 
         @Override
         protected S5StatisticParamInfo doRead( IStrioReader aSr ) {
-          StridableParameterized sp = StridableParameterized.KEEPER.read( aSr );
+          StridableParameterizedSer sp = StridableParameterizedSer.KEEPER.read( aSr );
           return new S5StatisticParamInfo( sp.id(), sp.params() );
         }
       };

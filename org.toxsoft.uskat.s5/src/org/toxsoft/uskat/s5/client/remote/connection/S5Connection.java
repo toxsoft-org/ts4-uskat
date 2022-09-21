@@ -13,7 +13,6 @@ import static org.toxsoft.uskat.s5.utils.threads.impl.S5ThreadUtils.*;
 import java.net.*;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.function.Supplier;
 
 import javax.ejb.NoSuchEJBException;
@@ -29,6 +28,7 @@ import org.jboss.marshalling.Pair;
 import org.toxsoft.core.pas.common.IPasTxChannel;
 import org.toxsoft.core.tslib.av.opset.IOptionSet;
 import org.toxsoft.core.tslib.av.opset.IOptionSetEdit;
+import org.toxsoft.core.tslib.av.opset.impl.OptionSet;
 import org.toxsoft.core.tslib.coll.IListBasicEdit;
 import org.toxsoft.core.tslib.coll.IListEdit;
 import org.toxsoft.core.tslib.coll.impl.ElemArrayList;
@@ -45,6 +45,7 @@ import org.toxsoft.uskat.s5.common.S5HostList;
 import org.toxsoft.uskat.s5.common.sessions.ISkSession;
 import org.toxsoft.uskat.s5.server.IS5ImplementConstants;
 import org.toxsoft.uskat.s5.server.backend.IS5BackendSession;
+import org.toxsoft.uskat.s5.server.backend.impl.S5BackendSession;
 import org.toxsoft.uskat.s5.server.sessions.init.*;
 import org.toxsoft.uskat.s5.utils.progress.IS5ProgressMonitor;
 import org.toxsoft.uskat.s5.utils.threads.impl.S5Lockable;
@@ -85,6 +86,11 @@ public final class S5Connection
   private static final long LOCK_TIMEOUT = 1000;
 
   /**
+   * Параметры создания сессии
+   */
+  private IOptionSet openArgs = IOptionSet.NULL;
+
+  /**
    * Текущее состояние соединениия
    */
   private volatile EConnectionState state = EConnectionState.DISCONNECTED;
@@ -121,7 +127,7 @@ public final class S5Connection
   /**
    * Блокировка доступа к ресурсам соединения
    */
-  private final ReentrantReadWriteLock frontedLock;
+  private final S5Lockable frontedLock;
 
   /**
    * Поток поиска API сервера. null: поиск не проводится
@@ -214,7 +220,7 @@ public final class S5Connection
     // fooClassLoader = ClassLoader.getSystemClassLoader();
     frontend = TsNullArgumentRtException.checkNull( aFrontend );
     lock = TsNullArgumentRtException.checkNull( aFrontendLock );
-    frontedLock = nativeLock( aFrontendLock );
+    frontedLock = aFrontendLock;
     uniqueId = instanceCount++;
     logger = getLogger( getClass() );
   }
@@ -257,6 +263,7 @@ public final class S5Connection
       throws S5ConnectionException {
     TsNullArgumentRtException.checkNull( aOptions );
     TsNullArgumentRtException.checkNull( aProgressMonitor );
+    openArgs = new OptionSet( aOptions );
     progressMonitor = aProgressMonitor;
     // Хосты на которых развернуты узлы кластера сервера
     S5HostList hosts = OP_HOSTS.getValue( aOptions ).asValobj();
@@ -495,10 +502,10 @@ public final class S5Connection
   /**
    * Возвращает блокировку доступа к {@link #frontend()}
    *
-   * @return {@link ReentrantReadWriteLock} блокировка доступа
+   * @return {@link S5Lockable} блокировка доступа
    */
   // 2020-10-12 mvk doJob + mainLock
-  public ReentrantReadWriteLock frontedLock() {
+  public S5Lockable frontedLock() {
     return frontedLock;
   }
 
@@ -538,8 +545,13 @@ public final class S5Connection
 
       // Для подключения к серверу используется wildfly-запись. Позже, в S5BackendSession.init(...) проверяется учетная
       // запись самого пользователя
-      String login = OP_WILDFLY_LOGIN.getValue( options ).asString();
-      String pw = OP_WILDFLY_PASSWORD.getValue( options ).asString();
+      String wlogin = OP_WILDFLY_LOGIN.getValue( options ).asString();
+      String wpasswd = OP_WILDFLY_PASSWORD.getValue( options ).asString();
+
+      // Передача пароля в hash-code
+      String passwdHashCode = S5BackendSession.getPasswordHashCode( OP_PASSWORD.getValue( openArgs ).asString() );
+      // Замена пароля на хэш-код
+      OP_PASSWORD.setValue( options, avStr( passwdHashCode ) );
 
       // Адрес сервера
       S5HostList hosts = OP_HOSTS.getValue( options ).asValobj();
@@ -552,7 +564,7 @@ public final class S5Connection
       // Минимальный интервал передачи пакетов через соединение (не может быть больше чем 2/3 таймаута сессии)
       long failureTimeout = OP_FAILURE_TIMEOUT.getValue( options ).asInt();
 
-      String entryPoint = format( ENTRY_POINT, login, hostsToString( hosts, true ), apiIntefaceName, apiBeanName );
+      String entryPoint = format( ENTRY_POINT, wlogin, hostsToString( hosts, true ), apiIntefaceName, apiBeanName );
       ClassLoader loader = classLoader;
       try {
         // 2021-01-20 mvk необходимо закрыть все соединения чтобы они не мешали потом через callback
@@ -561,7 +573,7 @@ public final class S5Connection
         progressMonitor.subTask( format( USER_LOOKUP_REMOTE_API_START, this ) );
         logger.debug( USER_LOOKUP_REMOTE_API_START, this );
         Pair<SessionID, IS5BackendSession> remote =
-            lookupClusterRemoteApi( this, hosts, login, pw, moduleName, apiIntefaceName, apiBeanName, loader );
+            lookupClusterRemoteApi( this, hosts, wlogin, wpasswd, moduleName, apiIntefaceName, apiBeanName, loader );
         // remoteSessionID = remote.getA();
         remoteBackend = remote.getB();
         // Сообщение завершении поиска сервера

@@ -29,46 +29,56 @@ public class S5BaRtdataData
   // Текущие данные
   //
   /**
-   * Идентификаторы данных читаемых фронтендом
-   */
-  public final GwidList readCurrDataGwids = new GwidList();
-
-  /**
-   * Значения текущих данных готовых для передачи
-   */
-  public final IMapEdit<Gwid, IAtomicValue> currDataToSend = new ElemMap<>();
-
-  /**
    * Таймаут (мсек) передачи текущих данных в бекенд
    */
-  public long currDataToSendTimeout = IS5ConnectionParams.OP_CURRDATA_TIMEOUT.defaultValue().asLong();
+  public long currdataTimeout = IS5ConnectionParams.OP_CURRDATA_TIMEOUT.defaultValue().asLong();
+
+  /**
+   * Идентификаторы данных передаваемые в бекендт
+   */
+  public final GwidList currdataGwidsToBackend = new GwidList();
+
+  /**
+   * Значения текущих данных готовых для передачи в бекенд
+   */
+  public final IMapEdit<Gwid, IAtomicValue> currdataToBackend = new ElemMap<>();
 
   /**
    * Время последней передачи текущих данных в бекенд
    */
-  public long lastCurrDataToSendTime = System.currentTimeMillis();
+  public long lastCurrdataToBackendTime = System.currentTimeMillis();
 
   /**
-   * Идентификаторы данных записываемые фронтендом
+   * Идентификаторы данных передавамые в фронтенд
    */
-  public final GwidList writeCurrDataGwids = new GwidList();
+  public final GwidList currdataGwidsToFrontend = new GwidList();
+
+  /**
+   * Значения текущих данных готовых для передачи в фроненд
+   */
+  public final IMapEdit<Gwid, IAtomicValue> currdataToFrontend = new ElemMap<>();
+
+  /**
+   * Время последней передачи текущих данных в фронтенд
+   */
+  public long lastCurrdataToFrontendTime = System.currentTimeMillis();
 
   // ------------------------------------------------------------------------------------
   // Хранимые данные
   //
   /**
-   * Значения хранимых данных готовых для передачи
-   */
-  public final IMapEdit<Gwid, Pair<ITimeInterval, ITimedList<ITemporalAtomicValue>>> histDataToSend = new ElemMap<>();
-
-  /**
    * Таймаут (мсек) передачи хранимых данных в бекенд
    */
-  public long histDataToSendTimeout = IS5ConnectionParams.OP_HISTDATA_TIMEOUT.defaultValue().asLong();
+  public long histdataTimeout = IS5ConnectionParams.OP_HISTDATA_TIMEOUT.defaultValue().asLong();
+
+  /**
+   * Значения хранимых данных готовых для передачи
+   */
+  public final IMapEdit<Gwid, Pair<ITimeInterval, ITimedList<ITemporalAtomicValue>>> histdataToBackend = new ElemMap<>();
 
   /**
    * Время последней передачи хранимых данных в бекенд
    */
-  public long lastHistDataToSendTime = System.currentTimeMillis();
+  public long lastHistdataToBackendTime = System.currentTimeMillis();
 
 }

@@ -67,7 +67,7 @@ import org.toxsoft.uskat.s5.server.cluster.IS5ClusterManager;
 import org.toxsoft.uskat.s5.server.frontend.IS5FrontendRear;
 import org.toxsoft.uskat.s5.server.sessions.*;
 import org.toxsoft.uskat.s5.server.sessions.init.*;
-import org.toxsoft.uskat.s5.server.sessions.pas.S5SessionCallbackWriter;
+import org.toxsoft.uskat.s5.server.sessions.pas.S5SessionMessenger;
 
 /**
  * Абстрактная реализация сессии {@link IS5Backend}.
@@ -309,9 +309,9 @@ public class S5BackendSession
         eventBackend.fireAsyncEvents( IS5FrontendRear.NULL, new TimedList<>( event ) );
         throw new S5AccessDeniedException( ERR_WRONG_USER );
       }
-      String ATRID_PASSWORD = ISkUserServiceHardConstants.ATRID_PASSWORD;
+      String ATRID_PASSWORD_HASH = ISkUserServiceHardConstants.ATRID_PASSWORD_HASH;
       // Хэшкод пароля пользователя
-      String pswdHashCode = user.attrs().getValue( ATRID_PASSWORD ).asString();
+      String pswdHashCode = user.attrs().getValue( ATRID_PASSWORD_HASH ).asString();
       if( !pswdHashCode.equals( pswd ) ) { // Доступ запрещен - неверное имя пользователя или пароль
         Gwid eventGwid = Gwid.createEvent( ISkSystem.CLASS_ID, ISkSystem.THIS_SYSTEM, ISkSystem.EVID_LOGIN_FAILED );
         IOptionSetEdit params = new OptionSet();
@@ -371,10 +371,10 @@ public class S5BackendSession
       logger().info( MSG_CREATE_SESSION_START, sessionInfo );
       // Сессия
       S5SessionData session = new S5SessionData( sessionInfo, local );
-      // Создание писателя обратных вызовов для сессии и его регистрация в backend
-      S5SessionCallbackWriter callbackWriter = null;
+      // Создание приемопередатчика сообщений для сессии и его регистрация в backend
+      S5SessionMessenger messenger = null;
       try {
-        callbackWriter = sessionManager.createCallbackWriter( session );
+        messenger = sessionManager.createMessenger( session );
       }
       catch( TsItemNotFoundRtException e ) {
         // Не найден канал для обратных вызовов
@@ -391,8 +391,6 @@ public class S5BackendSession
 
       // Результат инициализации сессии
       S5SessionInitResult initResult = new S5SessionInitResult();
-      // Текущие типы и классы
-      initResult.getBackendAddonData( IBaClasses.ADDON_ID, null );
       // Метка времени начала инициализации расширений сессии
       long addonsInitStartTime = System.currentTimeMillis();
       // Инициализация сессии данными клиента
@@ -401,7 +399,7 @@ public class S5BackendSession
       for( String addonId : baSessionCtrls.keys() ) {
         IS5BackendAddonSessionControl addonSession = baSessionCtrls.getByKey( addonId );
         try {
-          addonSession.init( control(), callbackWriter, aInitData, initResult );
+          addonSession.init( control(), messenger, aInitData, initResult );
         }
         catch( Throwable e ) {
           // Неожиданная ошибка инициализации расширения
@@ -510,7 +508,7 @@ public class S5BackendSession
   @TransactionAttribute( TransactionAttributeType.SUPPORTS )
   public IS5SessionInfo sessionInfo() {
     if( sessionID == null ) {
-      logger().error( S5BackendSession.class.getSimpleName() + ".sessionInfo().userSessionID = null" ); //$NON-NLS-1$
+      logger().error( getClass().getSimpleName() + ".sessionInfo().userSessionID = null" ); //$NON-NLS-1$
       return null;
     }
     S5SessionData session = sessionManager.findSessionData( sessionID );
@@ -576,7 +574,7 @@ public class S5BackendSession
   @Override
   public void close() {
     if( sessionID == null ) {
-      logger().error( S5BackendSession.class.getSimpleName() + ".close().userSessionID = null" ); //$NON-NLS-1$
+      logger().error( getClass().getSimpleName() + ".close().userSessionID = null" ); //$NON-NLS-1$
       return;
     }
     close( sessionID );
@@ -605,7 +603,7 @@ public class S5BackendSession
 
   @Override
   public ISkFrontendRear frontend() {
-    return sessionManager.getCallbackWriter( sessionID );
+    return sessionManager.getMessenger( sessionID );
   }
 
   @Override
@@ -682,13 +680,13 @@ public class S5BackendSession
   //
   /**
    * Возвращает 128-битный хэш-код указанного пароля
+   * <p>
+   * deprecated TODO: метод вероятно должен быть в SkCoreServUsers как и раньше
    *
    * @param aPassword String пароль
    * @return String хэш-код
    * @throws TsNullArgumentRtException аргумент = null
-   * @deprecated TODO: метод вероятно должен быть в SkCoreServUsers как и раньше
    */
-  @Deprecated
   public static String getPasswordHashCode( String aPassword ) {
     TsNullArgumentRtException.checkNull( aPassword );
     MessageDigest md;

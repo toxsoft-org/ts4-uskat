@@ -20,7 +20,7 @@ import org.toxsoft.uskat.s5.server.backend.supports.queries.impl.S5BackendQuerie
 import org.toxsoft.uskat.s5.server.backend.supports.sysdescr.S5BackendSysDescrSingleton;
 import org.toxsoft.uskat.s5.server.cluster.S5ClusterManager;
 import org.toxsoft.uskat.s5.server.sessions.S5SessionManager;
-import org.toxsoft.uskat.s5.server.sessions.pas.S5SessionCallbackWriter;
+import org.toxsoft.uskat.s5.server.sessions.pas.S5SessionMessenger;
 import org.toxsoft.uskat.s5.server.startup.*;
 import org.toxsoft.uskat.s5.server.transactions.S5TransactionManager;
 import org.toxsoft.uskat.s5.utils.IS5HardConstants;
@@ -271,7 +271,7 @@ public interface IS5ImplementConstants
   String INFINISPAN_CACHE_CLOSED_SESSIONS = "java:jboss/infinispan/cache/s5caches/closed_sessions";
 
   /**
-   * JNDI-имя кэша данных обратных вызовов сессий {@link S5SessionCallbackWriter}
+   * JNDI-имя кэша данных обратных вызовов сессий {@link S5SessionMessenger}
    */
   String INFINISPAN_CACHE_CALLBACK_CONFIGS = "java:jboss/infinispan/cache/s5caches/callback_configs";
 

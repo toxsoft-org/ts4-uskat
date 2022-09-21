@@ -2,6 +2,8 @@ package org.toxsoft.uskat.s5.legacy;
 
 import static org.toxsoft.core.tslib.utils.TsLibUtils.*;
 
+import java.io.Serializable;
+
 import org.toxsoft.core.tslib.bricks.strid.IStridable;
 import org.toxsoft.core.tslib.bricks.strid.impl.StridUtils;
 import org.toxsoft.core.tslib.utils.TsLibUtils;
@@ -16,7 +18,9 @@ import org.toxsoft.core.tslib.utils.errors.TsNullArgumentRtException;
  * @author hazard157
  */
 public class S5Stridable
-    implements IStridable {
+    implements IStridable, Serializable {
+
+  private static final long serialVersionUID = 157157L;
 
   private final String id;
 

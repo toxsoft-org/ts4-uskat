@@ -30,7 +30,7 @@ public abstract class S5CallbackOnGetBackendAddonInfos
   /**
    * Вызов метода: {@link ISkFrontendRear#onBackendMessage(GtMessage)}
    */
-  public static final String ON_GET_BACKEND_ADDON_INFOS_METHOD = FRONTENDS_METHOD_PREFIX + "onGetBackendAddonInfos"; //$NON-NLS-1$
+  public static final String ON_GET_BACKEND_ADDON_INFOS_METHOD = BACKEND_METHOD_PREFIX + "onGetBackendAddonInfos"; //$NON-NLS-1$
 
   /**
    * Список идентификаторов аддонов {@link IS5BackendAddon} бекеда поддерживаемых сервером

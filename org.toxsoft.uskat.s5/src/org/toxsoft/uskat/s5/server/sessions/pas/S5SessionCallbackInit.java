@@ -25,7 +25,7 @@ public final class S5SessionCallbackInit
   /**
    * Вызов метода: {@link IS5BackendSessionControl#verify()}
    */
-  public static final String SESSION_INIT_METHOD = SESSIONS_METHOD_PREFIX + "init"; //$NON-NLS-1$
+  public static final String SESSION_INIT_METHOD = FRONTEND_METHOD_PREFIX + "init"; //$NON-NLS-1$
 
   /**
    * Идентификатор сессии идентификатор сессии {@link ISkSession}
