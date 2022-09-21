@@ -26,4 +26,5 @@ Export-Package: org.toxsoft.uskat.base.gui,
  org.toxsoft.uskat.base.gui.conn,
  org.toxsoft.uskat.base.gui.e4.uiparts,
  org.toxsoft.uskat.base.gui.km5,
+ org.toxsoft.uskat.base.gui.km5.sgw,
  org.toxsoft.uskat.base.gui.utils

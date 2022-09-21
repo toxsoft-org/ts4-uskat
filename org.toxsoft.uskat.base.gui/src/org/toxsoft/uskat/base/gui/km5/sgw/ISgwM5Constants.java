@@ -24,9 +24,18 @@ public interface ISgwM5Constants {
   /**
    * ID of SGW M5 model of {@link ISkClassInfo}.
    */
-  String MID_SGW_CLASS_INFO = SGW_ID + ".classInfo"; //$NON-NLS-1$
+  String MID_SGW_CLASS_INFO = SGW_ID + ".ClassInfo"; //$NON-NLS-1$
 
-  String FID_CLASS_ID  = "ClassId";  //$NON-NLS-1$
-  String FID_PARENT_ID = "ParentId"; //$NON-NLS-1$
+  String MID_SGW_ATTR_INFO   = SGW_ID + ".AttrInfo";   //$NON-NLS-1$
+  String MID_SGW_RIVET_INFO  = SGW_ID + ".RivetInfo";  //$NON-NLS-1$
+  String MID_SGW_CLOB_INFO   = SGW_ID + ".ClobInfo";   //$NON-NLS-1$
+  String MID_SGW_RTDATA_INFO = SGW_ID + ".RtdataInfo"; //$NON-NLS-1$
+  String MID_SGW_LINK_INFO   = SGW_ID + ".LinkInfo";   //$NON-NLS-1$
+  String MID_SGW_CMD_INFO    = SGW_ID + ".CmdInfo";    //$NON-NLS-1$
+  String MID_SGW_EVENT_INFO  = SGW_ID + ".EventInfo";  //$NON-NLS-1$
+
+  String FID_CLASS_ID  = "classId";  //$NON-NLS-1$
+  String FID_PARENT_ID = "parentId"; //$NON-NLS-1$
+  String FID_DATA_TYPE = "dataType"; //$NON-NLS-1$
 
 }

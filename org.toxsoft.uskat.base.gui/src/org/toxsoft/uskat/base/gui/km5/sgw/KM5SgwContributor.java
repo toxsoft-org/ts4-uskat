@@ -40,6 +40,7 @@ public class KM5SgwContributor
   @Override
   protected IStringList papiCreateModels() {
     m5().addModel( new SgwSkClassInfoM5Model( skConn() ) );
+    m5().addModel( new SgwDtoAttrInfoM5Model( skConn() ) );
     return CONRTIBUTED_MODEL_IDS;
   }
 

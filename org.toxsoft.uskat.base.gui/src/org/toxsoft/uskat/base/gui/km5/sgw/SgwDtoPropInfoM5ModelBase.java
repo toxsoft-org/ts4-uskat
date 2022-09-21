@@ -19,7 +19,7 @@ import org.toxsoft.uskat.core.utils.*;
  * @author hazard157
  * @param <T> - modelled entity type
  */
-public class SgwSkPropInfoM5ModelBase<T extends IDtoClassPropInfoBase>
+public class SgwDtoPropInfoM5ModelBase<T extends IDtoClassPropInfoBase>
     extends M5Model<T>
     implements ISkConnected {
 
@@ -86,10 +86,10 @@ public class SgwSkPropInfoM5ModelBase<T extends IDtoClassPropInfoBase>
    * @throws TsIllegalArgumentRtException identifier is not an IDpath
    * @throws TsItemAlreadyExistsRtException model with specified ID already exists in domain
    */
-  protected SgwSkPropInfoM5ModelBase( String aId, Class<T> aEntityClass, ISkConnection aConn ) {
+  protected SgwDtoPropInfoM5ModelBase( String aId, Class<T> aEntityClass, ISkConnection aConn ) {
     super( aId, aEntityClass );
     conn = TsNullArgumentRtException.checkNull( aConn );
-    // TODO Auto-generated constructor stub
+    addFieldDefs( ID, NAME, DESCRIPTION );
   }
 
   // ------------------------------------------------------------------------------------
