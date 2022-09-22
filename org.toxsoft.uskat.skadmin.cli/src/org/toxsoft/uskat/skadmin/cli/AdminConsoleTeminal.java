@@ -322,7 +322,8 @@ public class AdminConsoleTeminal
         }
         // Данные лексемы
         // sb.append( token.data() );
-        sb.append( line.substring( startIndex, Math.min( finishIndex + 1, line.length() ) ) );
+        int endIndex = Math.min( finishIndex + 1, line.length() );
+        sb.append( line.substring( Math.min( startIndex, endIndex ), endIndex ) );
         sb.append( COLOR_RESET );
         lastIndex = finishIndex + 1;
       }
