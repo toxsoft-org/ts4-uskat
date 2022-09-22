@@ -147,6 +147,7 @@ public class Test1
       ISkCoreConfigConstants.REFDEF_BACKEND_PROVIDER.setRef( ctx, MtbBackendToFile.PROVIDER );
       MtbBackendToFile.OPDEF_FILE_PATH.setValue( ctx.params(), avStr( "/home/dmitry/mtb-test.txt" ) );
       conn.open( ctx );
+
       // FIXME conn.coreApi().eventer().addListener( coreListener );
       TsTestUtils.pl( conn.backendInfo().toString() );
       runTestSequenceWithOpenConnection();
