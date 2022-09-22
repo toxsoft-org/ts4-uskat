@@ -17,6 +17,7 @@ import org.toxsoft.core.tslib.coll.IList;
 import org.toxsoft.core.tslib.coll.primtypes.*;
 import org.toxsoft.core.tslib.coll.primtypes.impl.IntArrayList;
 import org.toxsoft.core.tslib.coll.primtypes.impl.StringArrayList;
+import org.toxsoft.uskat.concurrent.S5SynchronizedConnection;
 import org.toxsoft.uskat.core.backend.api.ISkBackendInfo;
 import org.toxsoft.uskat.core.connection.ESkConnState;
 import org.toxsoft.uskat.core.connection.ISkConnection;
@@ -151,7 +152,8 @@ public class AdminCmdConnect
     IAtomicValue histdataTimeout = argSingleValue( ARG_CONNECT_HISTDATA_TIMEOUT );
     // IAtomicValue initializator = argSingleValue( ARG_CONNECT_INITIALIZER );
     try {
-      ISkConnection connection = SkCoreUtils.createConnection();
+      ISkConnection connection =
+          S5SynchronizedConnection.createSynchronizedConnection( SkCoreUtils.createConnection() );
       connection.addConnectionListener( ( aSource, aOldState ) -> {
         if( aSource.state() == ESkConnState.ACTIVE ) {
           AdminCmdGetConnection.SK_CONNECTIONS.add( aSource );
