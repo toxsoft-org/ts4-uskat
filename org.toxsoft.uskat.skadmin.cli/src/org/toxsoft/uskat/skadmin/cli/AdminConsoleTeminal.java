@@ -310,6 +310,11 @@ public class AdminConsoleTeminal
             break;
           case VALUE:
             sb.append( COLOR_SINGLE_VALUE );
+            // TODO: 2022-09-23 mvk
+            if( token.quoted() ) {
+              // startIndex++;
+              // finishIndex += 1;
+            }
             break;
           case LIST_VALUE:
             sb.append( COLOR_VALUE_LIST );
@@ -323,11 +328,12 @@ public class AdminConsoleTeminal
         // Данные лексемы
         // sb.append( token.data() );
         int endIndex = Math.min( finishIndex + 1, line.length() );
-        sb.append( line.substring( Math.min( startIndex, endIndex ), endIndex ) );
+        String colorText = line.substring( Math.min( startIndex, endIndex ), endIndex );
+        sb.append( colorText );
         sb.append( COLOR_RESET );
         lastIndex = finishIndex + 1;
       }
-      if( lastIndex < line.length() - 1 ) {
+      if( lastIndex < line.length() ) {
         // Копирование данных строки до завершения строки
         sb.append( line.substring( lastIndex ) );
       }
