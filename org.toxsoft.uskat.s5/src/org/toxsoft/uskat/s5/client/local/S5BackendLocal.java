@@ -8,6 +8,7 @@ import org.toxsoft.core.tslib.bricks.strid.coll.IStridablesList;
 import org.toxsoft.core.tslib.utils.errors.TsNullArgumentRtException;
 import org.toxsoft.uskat.core.backend.ISkBackendHardConstant;
 import org.toxsoft.uskat.core.backend.ISkFrontendRear;
+import org.toxsoft.uskat.core.backend.api.BackendMsgActiveChanged;
 import org.toxsoft.uskat.core.backend.api.ISkBackendInfo;
 import org.toxsoft.uskat.s5.client.IS5ConnectionParams;
 import org.toxsoft.uskat.s5.common.sessions.IS5SessionInfo;
@@ -111,8 +112,8 @@ public final class S5BackendLocal
     fireBackendMessage( S5BaAfterInitMessages.INSTANCE.makeMessage() );
     // Формирование сообщения о предстоящем подключении
     fireBackendMessage( S5BaBeforeConnectMessages.INSTANCE.makeMessage() );
-    // Формирование сообщения о подключении
-    fireBackendMessage( S5BaAfterConnectMessages.INSTANCE.makeMessage() );
+    // Формирование сообщения об изменении состояния бекенда: active = true
+    fireBackendMessage( BackendMsgActiveChanged.INSTANCE.makeMessage( true ) );
   }
 
   @Override

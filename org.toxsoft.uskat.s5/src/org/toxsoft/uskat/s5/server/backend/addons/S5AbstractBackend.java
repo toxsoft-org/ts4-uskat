@@ -142,6 +142,11 @@ public abstract class S5AbstractBackend<ADDON extends IS5BackendAddon>
       new ElemArrayList<>();
 
   /**
+   * Признак завершенной инициализации
+   */
+  private boolean inited;
+
+  /**
    * Статическая инициализация
    */
   static {
@@ -235,6 +240,7 @@ public abstract class S5AbstractBackend<ADDON extends IS5BackendAddon>
   @Override
   public final void initialize() {
     doInitialize();
+    inited = true;
   }
 
   @Override
@@ -413,6 +419,15 @@ public abstract class S5AbstractBackend<ADDON extends IS5BackendAddon>
   // ------------------------------------------------------------------------------------
   // Методы для наследников
   //
+  /**
+   * Возвращает признак завершения инициализации бекенда
+   *
+   * @return boolean <b>true</b> бекенд завершил инициализацию. <b>false</b> бекенд не завершил инициализаци.
+   */
+  protected final boolean isInited() {
+    return inited;
+  }
+
   /**
    * Возвращает все расширения бекенда поддерживаемые сервером
    *

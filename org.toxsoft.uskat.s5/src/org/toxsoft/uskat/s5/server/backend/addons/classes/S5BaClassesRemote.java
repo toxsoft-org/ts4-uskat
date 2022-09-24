@@ -6,12 +6,10 @@ import org.toxsoft.core.tslib.coll.primtypes.IStringList;
 import org.toxsoft.core.tslib.utils.errors.TsNullArgumentRtException;
 import org.toxsoft.uskat.core.api.sysdescr.dto.IDtoClassInfo;
 import org.toxsoft.uskat.core.backend.ISkBackendHardConstant;
-import org.toxsoft.uskat.core.backend.api.IBaClasses;
-import org.toxsoft.uskat.core.backend.api.IBaClassesMessages;
+import org.toxsoft.uskat.core.backend.api.*;
 import org.toxsoft.uskat.s5.common.sysdescr.SkSysdescrReader;
 import org.toxsoft.uskat.s5.server.backend.addons.IS5BackendRemote;
 import org.toxsoft.uskat.s5.server.backend.addons.S5AbstractBackendAddonRemote;
-import org.toxsoft.uskat.s5.server.backend.messages.S5BaAfterConnectMessages;
 
 /**
  * Remote {@link IBaClasses} implementation.
@@ -44,7 +42,8 @@ class S5BaClassesRemote
   //
   @Override
   public void onBackendMessage( GtMessage aMessage ) {
-    if( aMessage.messageId().equals( S5BaAfterConnectMessages.MSG_ID ) ) {
+    if( BackendMsgActiveChanged.INSTANCE.isOwnMessage( aMessage )
+        && BackendMsgActiveChanged.INSTANCE.getActive( aMessage ) ) {
       // Подключение к серверу, обработка полученных классов
       sysdescrReader
           .setClassInfos( owner().sessionInitResult().getBackendAddonData( id(), S5BaClassesData.class ).classInfos );
