@@ -380,7 +380,7 @@ public class AdminCmdParserUtils {
         return index;
       case CONTEXT:
       case VALUE:
-        if( aType == IPlexyType.NONE ) {
+        if( aType.dataType().atomicType() == EAtomicType.NONE ) {
           // Тип читаемого значения не установлен. Читаем что получится
           value = argSingleValueParse( aContext, argToken, aType, aKey, aPossibleValues, aErrors );
           break;

@@ -139,13 +139,19 @@ public final class S5BackendRemote
   @Override
   public void onAfterConnect( IS5Connection aSource ) {
     session = aSource.session();
-    fireBackendMessage( S5BaAfterConnectMessages.INSTANCE.makeMessage() );
+    // Сообщение об активации бекенда не должно быть в конструкторе, так как слушатели состояния соединения могут
+    // получить сообщение об активации соединения при еще не до конца созданном соединении
+    if( isInited() ) {
+      // Формирование сообщения об изменении состояния бекенда: active = true
+      fireBackendMessage( BackendMsgActiveChanged.INSTANCE.makeMessage( true ) );
+    }
   }
 
   @Override
   public void onAfterDisconnect( IS5Connection aSource ) {
     session = null;
-    fireBackendMessage( S5BaAfterDisconnectMessages.INSTANCE.makeMessage() );
+    // Формирование сообщения об изменении состояния бекенда: active = false
+    fireBackendMessage( BackendMsgActiveChanged.INSTANCE.makeMessage( false ) );
   }
 
   // ------------------------------------------------------------------------------------

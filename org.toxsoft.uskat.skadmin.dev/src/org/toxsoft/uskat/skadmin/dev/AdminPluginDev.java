@@ -8,6 +8,8 @@ import org.toxsoft.uskat.skadmin.dev.events.AdminCmdReceiver;
 import org.toxsoft.uskat.skadmin.dev.objects.AdminCmdGetAttr;
 import org.toxsoft.uskat.skadmin.dev.objects.AdminCmdSetAttr;
 import org.toxsoft.uskat.skadmin.dev.pas.*;
+import org.toxsoft.uskat.skadmin.dev.rtdata.AdminCmdRead;
+import org.toxsoft.uskat.skadmin.dev.rtdata.AdminCmdWrite;
 
 /**
  * Плагин s5admin: команды разработчика
@@ -35,6 +37,9 @@ public class AdminPluginDev
     // Объекты
     addCmd( new AdminCmdGetAttr() );
     addCmd( new AdminCmdSetAttr() );
+    // Данные
+    addCmd( new AdminCmdRead() );
+    addCmd( new AdminCmdWrite() );
     // Команды
     addCmd( new AdminCmdSend() );
     addCmd( new AdminCmdExecutor() );

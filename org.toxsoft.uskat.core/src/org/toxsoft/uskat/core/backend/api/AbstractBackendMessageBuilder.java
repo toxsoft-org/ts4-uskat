@@ -2,16 +2,18 @@ package org.toxsoft.uskat.core.backend.api;
 
 import static org.toxsoft.core.tslib.av.metainfo.IAvMetaConstants.*;
 
-import org.toxsoft.core.tslib.av.*;
-import org.toxsoft.core.tslib.av.errors.*;
-import org.toxsoft.core.tslib.av.impl.*;
-import org.toxsoft.core.tslib.av.metainfo.*;
-import org.toxsoft.core.tslib.av.opset.*;
-import org.toxsoft.core.tslib.av.opset.impl.*;
-import org.toxsoft.core.tslib.bricks.events.msg.*;
-import org.toxsoft.core.tslib.bricks.strid.coll.*;
-import org.toxsoft.core.tslib.bricks.strid.coll.impl.*;
-import org.toxsoft.core.tslib.bricks.strid.impl.*;
+import org.toxsoft.core.tslib.av.EAtomicType;
+import org.toxsoft.core.tslib.av.IAtomicValue;
+import org.toxsoft.core.tslib.av.errors.AvTypeCastRtException;
+import org.toxsoft.core.tslib.av.impl.DataDef;
+import org.toxsoft.core.tslib.av.metainfo.IDataDef;
+import org.toxsoft.core.tslib.av.opset.IOptionSet;
+import org.toxsoft.core.tslib.av.opset.impl.OptionSetUtils;
+import org.toxsoft.core.tslib.bricks.events.msg.GenericMessage;
+import org.toxsoft.core.tslib.bricks.events.msg.GtMessage;
+import org.toxsoft.core.tslib.bricks.strid.coll.IStridablesListEdit;
+import org.toxsoft.core.tslib.bricks.strid.coll.impl.StridablesList;
+import org.toxsoft.core.tslib.bricks.strid.impl.StridUtils;
 import org.toxsoft.core.tslib.utils.errors.*;
 
 /**
@@ -21,13 +23,13 @@ import org.toxsoft.core.tslib.utils.errors.*;
  */
 public class AbstractBackendMessageBuilder {
 
-  private final String serviceId;
+  private final String topicId;
   private final String messageId;
 
   private final IStridablesListEdit<IDataDef> argDefs = new StridablesList<>();
 
-  protected AbstractBackendMessageBuilder( String aServiceId, String aMessageId ) {
-    serviceId = StridUtils.checkValidIdPath( aServiceId );
+  protected AbstractBackendMessageBuilder( String aTopicId, String aMessageId ) {
+    topicId = StridUtils.checkValidIdPath( aTopicId );
     messageId = StridUtils.checkValidIdPath( aMessageId );
   }
 
@@ -88,7 +90,17 @@ public class AbstractBackendMessageBuilder {
         AvTypeCastRtException.canAssign( dd.atomicType(), argVal.atomicType() );
       }
     }
-    return new GtMessage( serviceId, messageId, args );
+    return new GtMessage( topicId, messageId, args );
   }
 
+  /**
+   * Returns an indication that the message was built by the target builder.
+   *
+   * @param aMessage {@link GtMessage} the message.
+   * @return boolean <b>true</b> the message was built by the target builder.
+   */
+  public boolean isOwnMessage( GtMessage aMessage ) {
+    TsNullArgumentRtException.checkNull( aMessage );
+    return topicId.equals( aMessage.topicId() ) && messageId.equals( aMessage.messageId() );
+  }
 }

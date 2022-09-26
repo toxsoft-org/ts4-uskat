@@ -239,7 +239,11 @@ public class AdminCmdLexicalParser
           }
           catch( StrioRtException e ) {
             // Нет завершающих кавычек
+            // 2022-09-23 mvk чтение строки с последнего апострофа до конца строки
+            // tokenType = ETokenType.UNDEF;
+            data = aSource.substring( aSource.lastIndexOf( '"' ) + 1 );
             tokenType = ETokenType.UNDEF;
+            quoted = false;
           }
           break;
         }
