@@ -1,5 +1,7 @@
 package org.toxsoft.uskat.core.impl;
 
+import org.toxsoft.uskat.core.api.hqserv.ISkHistoryQueryServiceConstants;
+
 /**
  * Localizable resources.
  *
@@ -162,5 +164,12 @@ interface ISkResources {
   String STR_D_ATTR_CLASS_ID = "Идентификатор класса объекта";
   String STR_N_ATTR_STRID    = "Strid";
   String STR_D_ATTR_STRID    = "Строковый идентификатор объекта (в уникальный в рамках класса)";
+
+  /**
+   * {@link SkAsynchronousQuery}
+   */
+  String FMT_ERR_QUERY_INVALID_STATE = "%s. query invalid state: %s";
+  String FMT_ERR_QUERY_TIMEOUT       = "Cancel query by timeout error. Try change -"
+      + ISkHistoryQueryServiceConstants.OP_SK_MAX_EXECUTION_TIME.id() + " value to up (%d))";
 
 }

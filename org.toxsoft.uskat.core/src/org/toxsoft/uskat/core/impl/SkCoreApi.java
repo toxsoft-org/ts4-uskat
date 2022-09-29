@@ -51,16 +51,16 @@ public class SkCoreApi
   private final CoreLogger   logger;
   private final ISkBackend   backend;
 
-  private final SkCoreServSysdescr  sysdescr;
-  private final SkCoreServObject    objService;
-  private final SkCoreServClobs     clobService;
-  private final SkCoreServCommands  cmdService;
-  private final SkCoreServEvents    eventService;
-  private final SkCoreServLinks     linkService;
-  private final SkCoreServRtdata    rtdService;
-  private final SkCoreServHistQuery hqService;
-  private final SkCoreServUsers     userService;
-  private final SkCoreServGwids     gwidService;
+  private final SkCoreServSysdescr         sysdescr;
+  private final SkCoreServObject           objService;
+  private final SkCoreServClobs            clobService;
+  private final SkCoreServCommands         cmdService;
+  private final SkCoreServEvents           eventService;
+  private final SkCoreServLinks            linkService;
+  private final SkCoreServRtdata           rtdService;
+  private final SkCoreServHistQueryService hqService;
+  private final SkCoreServUsers            userService;
+  private final SkCoreServGwids            gwidService;
 
   /**
    * Queue of messages from the backend.
@@ -123,7 +123,7 @@ public class SkCoreApi
     llCreators.add( SkCoreServEvents.CREATOR );
     llCreators.add( SkCoreServLinks.CREATOR );
     llCreators.add( SkCoreServRtdata.CREATOR );
-    llCreators.add( SkCoreServHistQuery.CREATOR );
+    llCreators.add( SkCoreServHistQueryService.CREATOR );
     llCreators.add( SkCoreServUsers.CREATOR );
     llCreators.add( SkCoreServGwids.CREATOR );
     // backend and user-specified services
