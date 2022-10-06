@@ -72,34 +72,50 @@ public class S5BaQueriesSession
   @Override
   public String createQuery( IOptionSet aParams ) {
     TsNullArgumentRtException.checkNull( aParams );
-    return queriesSupport.createQuery( aParams );
+    // Создание запроса
+    String retValue = queriesSupport.createQuery( frontend(), aParams );
+    // Сохранение измененной сессии в кластере сервера
+    writeSessionData();
+    return retValue;
   }
 
   @TransactionAttribute( TransactionAttributeType.SUPPORTS )
   @Override
   public void prepareQuery( String aQueryId, IStringMap<IDtoQueryParam> aParams ) {
     TsNullArgumentRtException.checkNulls( aQueryId, aParams );
-    queriesSupport.prepareQuery( aQueryId, aParams );
+    // Подготовка запроса
+    queriesSupport.prepareQuery( frontend(), aQueryId, aParams );
+    // Сохранение измененной сессии в кластере сервера
+    writeSessionData();
   }
 
   @TransactionAttribute( TransactionAttributeType.SUPPORTS )
   @Override
   public void execQuery( String aQueryId, IQueryInterval aTimeInterval ) {
     TsNullArgumentRtException.checkNulls( aQueryId, aTimeInterval );
-    queriesSupport.execQuery( aQueryId, aTimeInterval );
+    // Выполнение запроса
+    queriesSupport.execQuery( frontend(), aQueryId, aTimeInterval );
+    // Сохранение измененной сессии в кластере сервера
+    writeSessionData();
   }
 
   @TransactionAttribute( TransactionAttributeType.SUPPORTS )
   @Override
   public void cancel( String aQueryId ) {
     TsNullArgumentRtException.checkNull( aQueryId );
-    queriesSupport.cancel( aQueryId );
+    // Отмена запроса
+    queriesSupport.cancel( frontend(), aQueryId );
+    // Сохранение измененной сессии в кластере сервера
+    writeSessionData();
   }
 
   @TransactionAttribute( TransactionAttributeType.SUPPORTS )
   @Override
   public void close( String aQueryId ) {
     TsNullArgumentRtException.checkNull( aQueryId );
-    queriesSupport.close( aQueryId );
+    // Завершение запроса
+    queriesSupport.close( frontend(), aQueryId );
+    // Сохранение измененной сессии в кластере сервера
+    writeSessionData();
   }
 }

@@ -16,6 +16,8 @@ import java.util.Arrays;
 
 import javax.persistence.*;
 
+import org.toxsoft.core.tslib.av.EAtomicType;
+import org.toxsoft.core.tslib.av.errors.AvTypeCastRtException;
 import org.toxsoft.core.tslib.av.utils.IParameterized;
 import org.toxsoft.core.tslib.bricks.time.ITemporal;
 import org.toxsoft.core.tslib.bricks.time.impl.TimeUtils;
@@ -30,6 +32,7 @@ import org.toxsoft.core.tslib.gw.gwid.Gwid;
 import org.toxsoft.core.tslib.utils.TsLibUtils;
 import org.toxsoft.core.tslib.utils.errors.*;
 import org.toxsoft.core.tslib.utils.logs.ILogger;
+import org.toxsoft.uskat.s5.server.backend.supports.histdata.impl.sequences.ITemporalValueImporter;
 import org.toxsoft.uskat.s5.server.sequences.*;
 
 /**
@@ -43,7 +46,7 @@ import org.toxsoft.uskat.s5.server.sequences.*;
 @MappedSuperclass
 @Inheritance( strategy = InheritanceType.TABLE_PER_CLASS )
 public abstract class S5SequenceBlock<V extends ITemporal<?>, BLOB_ARRAY, BLOB extends S5SequenceBlob<?, BLOB_ARRAY, ?>>
-    implements ISequenceBlockEdit<V>, Serializable {
+    implements ISequenceBlockEdit<V>, ITemporalValueImporter, Serializable {
 
   private static final long serialVersionUID = 157157L;
 
@@ -663,6 +666,86 @@ public abstract class S5SequenceBlock<V extends ITemporal<?>, BLOB_ARRAY, BLOB e
     retValue.put( FIELD_DEBUG_START_TIME, debugStartTime );
     retValue.put( FIELD_DEBUG_END_TIME, debugEndTime );
     return retValue;
+  }
+
+  /**
+   * Возвращает признак того, что значение установлено и может быть прочитано
+   *
+   * @param aIndex индекс значения
+   * @return boolean <b>true</b> значение установлено;<b>false</b> значение не установлено, попытка чтения приведет к
+   *         ошибке.
+   */
+  abstract protected boolean doIsAssigned( int aIndex );
+
+  /**
+   * Возвращает значение по индексу
+   *
+   * @param aIndex индекс значения
+   * @return boolean значение
+   */
+  protected boolean doAsBool( int aIndex ) {
+    throw new AvTypeCastRtException( ERR_CAST_VALUE, this, EAtomicType.BOOLEAN );
+  }
+
+  /**
+   * Возвращает значение по индексу
+   *
+   * @param aIndex индекс значения
+   * @return int значение
+   */
+  protected int doAsInt( int aIndex ) {
+    throw new AvTypeCastRtException( ERR_CAST_VALUE, this, EAtomicType.INTEGER );
+  }
+
+  /**
+   * Возвращает значение по индексу
+   *
+   * @param aIndex индекс значения
+   * @return long значение
+   */
+  protected long doAsLong( int aIndex ) {
+    throw new AvTypeCastRtException( ERR_CAST_VALUE, this, EAtomicType.INTEGER );
+  }
+
+  /**
+   * Возвращает значение по индексу
+   *
+   * @param aIndex индекс значения
+   * @return float значение
+   */
+  protected float doAsFloat( int aIndex ) {
+    throw new AvTypeCastRtException( ERR_CAST_VALUE, this, EAtomicType.FLOATING );
+  }
+
+  /**
+   * Возвращает значение по индексу
+   *
+   * @param aIndex индекс значения
+   * @return double значение
+   */
+  protected double doAsDouble( int aIndex ) {
+    throw new AvTypeCastRtException( ERR_CAST_VALUE, this, EAtomicType.FLOATING );
+  }
+
+  /**
+   * Возвращает значение по индексу
+   *
+   * @param aIndex индекс значения
+   * @return String значение
+   */
+  protected String doAsString( int aIndex ) {
+    return getValue( aIndex ).toString();
+  }
+
+  /**
+   * Возвращает значение по индексу
+   *
+   * @param aIndex индекс значения
+   * @return {@link Object} значение
+   * @param <T> тип возвращаемого значения
+   */
+  protected <T> T doAsValobj( int aIndex ) {
+    throw new AvTypeCastRtException( ERR_CAST_VALUE, this, EAtomicType.VALOBJ );
   }
 
   // ------------------------------------------------------------------------------------

@@ -311,6 +311,11 @@ interface IS5Resources {
       "readSequences(): gwid = '%s' указан в списке запроса несколько раз. Это может снижать эффективность обработки запроса"; //$NON-NLS-1$
   // >>>>>>>refs/heads/2020-11-15_no_localization
 
+  String ERR_WRONG_IMPORT_CURSOR    = Messages.getString( "IS5Resources.ERR_WRONG_IMPORT_CURSOR" );    //$NON-NLS-1$
+  String ERR_NOT_CURSOR_IMPORT_DATA = Messages.getString( "IS5Resources.ERR_NOT_CURSOR_IMPORT_DATA" ); //$NON-NLS-1$
+  String ERR_NOT_IMPORT_DATA        = Messages.getString( "IS5Resources.ERR_NOT_IMPORT_DATA" );        //$NON-NLS-1$
+  String ERR_CAST_VALUE             = Messages.getString( "IS5Resources.ERR_CAST_VALUE" );             //$NON-NLS-1$
+
   // THREADS
   // ------------------------------------------------------------------------------------
   // Строки сообщений

@@ -6,6 +6,7 @@ import java.sql.ResultSet;
 
 import javax.persistence.Entity;
 
+import org.toxsoft.core.tslib.av.errors.AvUnassignedValueRtException;
 import org.toxsoft.core.tslib.av.utils.IParameterized;
 import org.toxsoft.core.tslib.bricks.time.ITimedList;
 import org.toxsoft.core.tslib.gw.gwid.EGwidKind;
@@ -123,6 +124,24 @@ public class S5CommandBlock
       return restoreLongElemIndex( timestamps(), values(), false );
     }
     return createLongElemIndex( timestamps(), values() );
+  }
+
+  // ------------------------------------------------------------------------------------
+  // Реализация шаблонных методов (импорт значения)
+  //
+  @Override
+  protected boolean doIsAssigned( int aIndex ) {
+    return values()[aIndex] != null;
+  }
+
+  @SuppressWarnings( "unchecked" )
+  @Override
+  protected <T> T doAsValobj( int aIndex ) {
+    IDtoCompletedCommand value = values()[aIndex];
+    if( value == null ) {
+      throw new AvUnassignedValueRtException();
+    }
+    return (T)value;
   }
 
   // ------------------------------------------------------------------------------------

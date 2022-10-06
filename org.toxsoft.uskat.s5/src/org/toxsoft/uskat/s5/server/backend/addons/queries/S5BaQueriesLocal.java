@@ -67,30 +67,30 @@ class S5BaQueriesLocal
   @Override
   public String createQuery( IOptionSet aParams ) {
     TsNullArgumentRtException.checkNull( aParams );
-    return queriesSupport.createQuery( aParams );
+    return queriesSupport.createQuery( frontend(), aParams );
   }
 
   @Override
   public void prepareQuery( String aQueryId, IStringMap<IDtoQueryParam> aParams ) {
     TsNullArgumentRtException.checkNulls( aQueryId, aParams );
-    queriesSupport.prepareQuery( aQueryId, aParams );
+    queriesSupport.prepareQuery( frontend(), aQueryId, aParams );
   }
 
   @Override
   public void execQuery( String aQueryId, IQueryInterval aTimeInterval ) {
     TsNullArgumentRtException.checkNulls( aQueryId, aTimeInterval );
-    queriesSupport.execQuery( aQueryId, aTimeInterval );
+    queriesSupport.execQuery( frontend(), aQueryId, aTimeInterval );
   }
 
   @Override
   public void cancel( String aQueryId ) {
     TsNullArgumentRtException.checkNull( aQueryId );
-    queriesSupport.cancel( aQueryId );
+    queriesSupport.cancel( frontend(), aQueryId );
   }
 
   @Override
   public void close( String aQueryId ) {
     TsNullArgumentRtException.checkNull( aQueryId );
-    queriesSupport.close( aQueryId );
+    queriesSupport.close( frontend(), aQueryId );
   }
 }

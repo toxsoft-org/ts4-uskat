@@ -459,6 +459,7 @@ public class S5BackendCoreSingleton
   @TransactionAttribute( TransactionAttributeType.NOT_SUPPORTED )
   @Override
   public void doJob() {
+    super.doJob();
     // Текущее время
     long currTime = System.currentTimeMillis();
     // Обновление писателя статистики если он определен

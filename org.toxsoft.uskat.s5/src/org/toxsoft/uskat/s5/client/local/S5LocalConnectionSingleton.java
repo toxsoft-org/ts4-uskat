@@ -198,6 +198,8 @@ public class S5LocalConnectionSingleton
   //
   @Override
   public void doJob() {
+    super.doJob();
+    // Текущее время
     long currTime = System.currentTimeMillis();
     // if( currTime - doJobTimestamp < SECOND.interval() ) {
     if( currTime - doJobTimestamp < 1000 ) {

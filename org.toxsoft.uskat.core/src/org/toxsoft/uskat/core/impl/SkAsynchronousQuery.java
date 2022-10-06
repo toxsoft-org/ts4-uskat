@@ -28,11 +28,11 @@ import org.toxsoft.uskat.core.backend.api.IBaQueries;
 public abstract class SkAsynchronousQuery
     implements ISkAsynchronousQuery {
 
-  private final String                        queryId;
-  private final IOptionSet                    options;
+  private final String                     queryId;
+  private final IOptionSet                 options;
   private final SkCoreServHistQueryService service;
-  private final GenericChangeEventer          eventer = new GenericChangeEventer( this );
-  private ESkQueryState                       state   = UNPREPARED;
+  private final GenericChangeEventer       eventer = new GenericChangeEventer( this );
+  private ESkQueryState                    state   = UNPREPARED;
 
   private long                                         queryTimestamp = System.currentTimeMillis();
   private IMap<Gwid, ITimedList<ITemporalAtomicValue>> result         = IMap.EMPTY;
