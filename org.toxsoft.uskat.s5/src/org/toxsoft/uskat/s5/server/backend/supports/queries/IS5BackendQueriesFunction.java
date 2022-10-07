@@ -3,6 +3,7 @@ package org.toxsoft.uskat.s5.server.backend.supports.queries;
 import org.toxsoft.core.tslib.av.temporal.ITemporalAtomicValue;
 import org.toxsoft.core.tslib.bricks.time.ITemporal;
 import org.toxsoft.core.tslib.bricks.time.ITimedList;
+import org.toxsoft.core.tslib.utils.Pair;
 import org.toxsoft.core.tslib.utils.errors.TsNullArgumentRtException;
 import org.toxsoft.uskat.core.api.cmdserv.ISkCommand;
 import org.toxsoft.uskat.core.api.evserv.ISkEventList;
@@ -22,9 +23,12 @@ public interface IS5BackendQueriesFunction {
   /**
    * Аргумент запроса значений данного, один из {@link ISkQueryProcessedData#listArgs()}.
    *
-   * @return {@link IDtoQueryParam} параметры запроса данного
+   * @return {@link Pair}&lt;{@link IDtoQueryParam}&gt; параметр запроса данного.
+   *         <p>
+   *         {@link Pair#left()}: идентификатор параметра;<br>
+   *         {@link Pair#right()}: описание параметра.
    */
-  IDtoQueryParam arg();
+  Pair<String, IDtoQueryParam> arg();
 
   /**
    * Обработать следующее "сырое" значение данного.

@@ -6,10 +6,10 @@ import static org.toxsoft.uskat.s5.server.backend.supports.queries.impl.IS5Resou
 import org.toxsoft.core.tslib.av.temporal.ITemporalAtomicValue;
 import org.toxsoft.core.tslib.bricks.time.*;
 import org.toxsoft.core.tslib.bricks.time.impl.TimeInterval;
+import org.toxsoft.core.tslib.bricks.time.impl.TimedList;
 import org.toxsoft.core.tslib.coll.IList;
 import org.toxsoft.core.tslib.coll.IListEdit;
 import org.toxsoft.core.tslib.coll.impl.ElemArrayList;
-import org.toxsoft.core.tslib.coll.impl.ElemLinkedList;
 import org.toxsoft.core.tslib.coll.primtypes.ILongListEdit;
 import org.toxsoft.core.tslib.coll.primtypes.impl.LongArrayList;
 import org.toxsoft.core.tslib.gw.gwid.Gwid;
@@ -32,15 +32,15 @@ import org.toxsoft.uskat.s5.utils.threads.impl.S5AbstractReadThread;
  * @author mvk
  */
 public class S5BackendQueriesFunctionThread
-    extends S5AbstractReadThread<IList<IList<ITemporal<?>>>> {
+    extends S5AbstractReadThread<IList<ITimedList<ITemporal<?>>>> {
 
   private final IS5Sequence<?>                   source;
   private final IList<IS5BackendQueriesFunction> functions;
 
-  private final ITimeInterval                  interval;
-  private final ILongListEdit                  startTimes;
-  private final ILongListEdit                  endTimes;
-  private final IListEdit<IList<ITemporal<?>>> result;
+  private final ITimeInterval                       interval;
+  private final ILongListEdit                       startTimes;
+  private final ILongListEdit                       endTimes;
+  private final IListEdit<ITimedList<ITemporal<?>>> result;
 
   /**
    * Создание асинхронной задачи выполнения функций обработки значений данного
@@ -69,8 +69,8 @@ public class S5BackendQueriesFunctionThread
     endTimes = new LongArrayList( count );
     for( int index = 0; index < count; index++ ) {
       IS5BackendQueriesFunction function = aFunctions.get( index );
-      long aggregationStep =
-          ISkHistoryQueryServiceConstants.HQFUNC_ARG_AGGREGAION_INTERVAL.getValue( function.arg().funcArgs() ).asLong();
+      long aggregationStep = ISkHistoryQueryServiceConstants.HQFUNC_ARG_AGGREGAION_INTERVAL
+          .getValue( function.arg().right().funcArgs() ).asLong();
       if( aggregationStep == 0 ) {
         // Интервал обработки: все данные запроса
         startTimes.add( sequenceStartTime );
@@ -104,9 +104,9 @@ public class S5BackendQueriesFunctionThread
       Gwid gwid = source.gwid();
       long traceStartTime = System.currentTimeMillis();
       long traceCreateStartTime = 0, traceCreateTimeout = 0;
-      IListEdit<IListEdit<ITemporal<?>>> resultValues = new ElemArrayList<>( count );
+      IListEdit<ITimedListEdit<ITemporal<?>>> resultValues = new ElemArrayList<>( count );
       for( int index = 0; index < count; index++ ) {
-        resultValues.add( new ElemLinkedList<>() );
+        resultValues.add( new TimedList<>() );
       }
       // Блоки последовательности
       IList<ISequenceBlock<?>> blocks = (IList<ISequenceBlock<?>>)(Object)source.blocks();
@@ -122,7 +122,7 @@ public class S5BackendQueriesFunctionThread
         // Функция обработки
         IS5BackendQueriesFunction function = functions.get( index );
         // Значения-результат
-        IListEdit<ITemporal<?>> functionValues = resultValues.get( index );
+        ITimedListEdit<ITemporal<?>> functionValues = resultValues.get( index );
         // Начальное время обработки
         long funcStartTime = startTimes.getValue( index );
         // Конечное время агрегации
@@ -177,7 +177,7 @@ public class S5BackendQueriesFunctionThread
         // // Интервал агрегации
         // long step = aggregator.aggregationStep();
         // Значения для последовательности
-        IList<ITemporal<?>> aggregatorValues = resultValues.get( index );
+        ITimedList<ITemporal<?>> aggregatorValues = resultValues.get( index );
         // Добавление последовательности в результат
         result.add( aggregatorValues );
         // Количество агрегированных значений
@@ -208,7 +208,7 @@ public class S5BackendQueriesFunctionThread
   }
 
   @Override
-  public IList<IList<ITemporal<?>>> result() {
+  public IList<ITimedList<ITemporal<?>>> result() {
     return result;
   }
 
@@ -222,7 +222,7 @@ public class S5BackendQueriesFunctionThread
    * @return String текстовое представление
    * @throws TsNullArgumentRtException аргумент = null
    */
-  private static String valuesToString( IList<IList<ITemporal<?>>> aValues ) {
+  private static String valuesToString( IList<ITimedList<ITemporal<?>>> aValues ) {
     TsNullArgumentRtException.checkNull( aValues );
     StringBuilder sb = new StringBuilder();
     for( int index = 0, n = aValues.size(); index < n; index++ ) {

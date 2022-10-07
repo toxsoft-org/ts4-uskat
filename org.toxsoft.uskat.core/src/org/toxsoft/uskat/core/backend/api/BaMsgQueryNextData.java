@@ -23,7 +23,10 @@ import org.toxsoft.core.tslib.coll.primtypes.impl.StringMap;
 import org.toxsoft.core.tslib.gw.gwid.EGwidKind;
 import org.toxsoft.core.tslib.utils.errors.TsNullArgumentRtException;
 import org.toxsoft.core.tslib.utils.errors.TsUnsupportedFeatureRtException;
+import org.toxsoft.uskat.core.api.cmdserv.IDtoCompletedCommand;
+import org.toxsoft.uskat.core.api.evserv.SkEvent;
 import org.toxsoft.uskat.core.api.hqserv.ISkHistoryQueryService;
+import org.toxsoft.uskat.core.impl.dto.DtoCompletedCommand;
 
 /**
  * {@link IBaQueries} message builder: next portion of data delivered from backend to frontend.
@@ -90,6 +93,71 @@ public class BaMsgQueryNextData
   }
 
   /**
+   * Creates the message instance of kind {@link EGwidKind#GW_EVENT}.
+   *
+   * @param aQueryId String - the query ID
+   * @param aValues {@link IStringMap}&lt;{@link ITimedList}&lt;{@link SkEvent}&gt;&gt; - the events map
+   * @param aFinished boolean - finished flag
+   * @return {@link GtMessage} - created instance of the message
+   * @throws TsNullArgumentRtException any argument = <code>null</code>
+   */
+  public GtMessage makeMessageEvents( String aQueryId, IStringMap<ITimedList<SkEvent>> aValues, boolean aFinished ) {
+    StringBuilder sb = new StringBuilder();
+    IStrioWriter sw = new StrioWriter( new CharOutputStreamAppendable( sb ) );
+    sw.writeChar( CHAR_ARRAY_BEGIN );
+    for( int i = 0, count = aValues.size(); i < count; i++ ) {
+      String k = aValues.keys().get( i );
+      ITimedList<SkEvent> v = aValues.values().get( i );
+      sw.writeQuotedString( k );
+      sw.writeSeparatorChar();
+      SkEvent.KEEPER.coll2str( v );
+      if( i < count - 1 ) {
+        sw.writeSeparatorChar();
+      }
+    }
+    sw.writeChar( CHAR_ARRAY_END );
+    return makeMessageVarargs( //
+        ARGID_QUERY_ID, avStr( aQueryId ), //
+        ARGID_KIND, avValobj( EGwidKind.GW_EVENT ), //
+        ARGID_VALUES, sb.toString(), //
+        ARGID_IS_FINISHED, avBool( aFinished ) //
+    );
+  }
+
+  /**
+   * Creates the message instance of kind {@link EGwidKind#GW_CMD}.
+   *
+   * @param aQueryId String - the query ID
+   * @param aValues {@link IStringMap}&lt;{@link ITimedList}&lt;{@link IDtoCompletedCommand}&gt;&gt; - the commands map
+   * @param aFinished boolean - finished flag
+   * @return {@link GtMessage} - created instance of the message
+   * @throws TsNullArgumentRtException any argument = <code>null</code>
+   */
+  public GtMessage makeMessageCommands( String aQueryId, IStringMap<ITimedList<IDtoCompletedCommand>> aValues,
+      boolean aFinished ) {
+    StringBuilder sb = new StringBuilder();
+    IStrioWriter sw = new StrioWriter( new CharOutputStreamAppendable( sb ) );
+    sw.writeChar( CHAR_ARRAY_BEGIN );
+    for( int i = 0, count = aValues.size(); i < count; i++ ) {
+      String k = aValues.keys().get( i );
+      ITimedList<IDtoCompletedCommand> v = aValues.values().get( i );
+      sw.writeQuotedString( k );
+      sw.writeSeparatorChar();
+      DtoCompletedCommand.KEEPER.coll2str( v );
+      if( i < count - 1 ) {
+        sw.writeSeparatorChar();
+      }
+    }
+    sw.writeChar( CHAR_ARRAY_END );
+    return makeMessageVarargs( //
+        ARGID_QUERY_ID, avStr( aQueryId ), //
+        ARGID_KIND, avValobj( EGwidKind.GW_CMD ), //
+        ARGID_VALUES, sb.toString(), //
+        ARGID_IS_FINISHED, avBool( aFinished ) //
+    );
+  }
+
+  /**
    * Extracts query ID argument from the message.
    *
    * @param aMsg {@link GenericMessage} - the message
@@ -143,4 +211,51 @@ public class BaMsgQueryNextData
     return map;
   }
 
+  /**
+   * Extracts events map argument from the message.
+   *
+   * @param aMsg {@link GenericMessage} - the message
+   * @return {@link IStringMap}&lt;{@link ITimedList}&lt;{@link SkEvent}&gt;&gt; - the events map - argument extracted
+   *         from the message
+   * @throws TsUnsupportedFeatureRtException message is not of kind {@link EGwidKind#GW_EVENT}
+   */
+  public IStringMap<ITimedList<SkEvent>> getEvents( GenericMessage aMsg ) {
+    TsUnsupportedFeatureRtException.checkTrue( getGwidKind( aMsg ) != EGwidKind.GW_EVENT );
+    String s = aMsg.args().getStr( ARGID_VALUES );
+    IStringMapEdit<ITimedList<SkEvent>> map = new StringMap<>();
+    IStrioReader sr = new StrioReader( new CharInputStreamString( s ) );
+    if( sr.readArrayBegin() ) {
+      do {
+        String k = sr.readQuotedString();
+        sr.ensureSeparatorChar();
+        ITimedList<SkEvent> v = new TimedList<>( SkEvent.KEEPER.read( sr ) );
+        map.put( k, v );
+      } while( sr.readArrayNext() );
+    }
+    return map;
+  }
+
+  /**
+   * Extracts commands map argument from the message.
+   *
+   * @param aMsg {@link GenericMessage} - the message
+   * @return {@link IStringMap}&lt;{@link ITimedList}&lt;{@link IDtoCompletedCommand}&gt;&gt; - the events map -
+   *         argument extracted from the message
+   * @throws TsUnsupportedFeatureRtException message is not of kind {@link EGwidKind#GW_CMD}
+   */
+  public IStringMap<ITimedList<IDtoCompletedCommand>> getCommands( GenericMessage aMsg ) {
+    TsUnsupportedFeatureRtException.checkTrue( getGwidKind( aMsg ) != EGwidKind.GW_CMD );
+    String s = aMsg.args().getStr( ARGID_VALUES );
+    IStringMapEdit<ITimedList<IDtoCompletedCommand>> map = new StringMap<>();
+    IStrioReader sr = new StrioReader( new CharInputStreamString( s ) );
+    if( sr.readArrayBegin() ) {
+      do {
+        String k = sr.readQuotedString();
+        sr.ensureSeparatorChar();
+        ITimedList<IDtoCompletedCommand> v = new TimedList<>( DtoCompletedCommand.KEEPER.read( sr ) );
+        map.put( k, v );
+      } while( sr.readArrayNext() );
+    }
+    return map;
+  }
 }

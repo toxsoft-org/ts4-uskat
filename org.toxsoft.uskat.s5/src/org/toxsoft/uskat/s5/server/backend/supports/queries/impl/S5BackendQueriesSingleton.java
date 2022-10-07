@@ -8,22 +8,28 @@ import java.util.concurrent.TimeUnit;
 import javax.ejb.*;
 import javax.enterprise.concurrent.ManagedExecutorService;
 
+import org.toxsoft.core.tslib.av.EAtomicType;
 import org.toxsoft.core.tslib.av.opset.IOptionSet;
+import org.toxsoft.core.tslib.av.temporal.ITemporalAtomicValue;
 import org.toxsoft.core.tslib.bricks.events.msg.GtMessage;
 import org.toxsoft.core.tslib.bricks.strid.idgen.IStridGenerator;
 import org.toxsoft.core.tslib.bricks.strid.idgen.UuidStridGenerator;
-import org.toxsoft.core.tslib.bricks.time.IQueryInterval;
-import org.toxsoft.core.tslib.bricks.time.ITemporal;
+import org.toxsoft.core.tslib.bricks.time.*;
 import org.toxsoft.core.tslib.coll.*;
 import org.toxsoft.core.tslib.coll.impl.ElemArrayList;
 import org.toxsoft.core.tslib.coll.impl.ElemMap;
 import org.toxsoft.core.tslib.coll.primtypes.IStringMap;
+import org.toxsoft.core.tslib.coll.primtypes.IStringMapEdit;
 import org.toxsoft.core.tslib.coll.primtypes.impl.StringMap;
 import org.toxsoft.core.tslib.gw.gwid.*;
-import org.toxsoft.core.tslib.utils.errors.TsIllegalArgumentRtException;
-import org.toxsoft.core.tslib.utils.errors.TsNullArgumentRtException;
+import org.toxsoft.core.tslib.utils.errors.*;
+import org.toxsoft.uskat.core.api.cmdserv.IDtoCompletedCommand;
+import org.toxsoft.uskat.core.api.evserv.SkEvent;
 import org.toxsoft.uskat.core.api.hqserv.IDtoQueryParam;
+import org.toxsoft.uskat.core.api.sysdescr.ISkClassInfo;
+import org.toxsoft.uskat.core.backend.api.BaMsgQueryNextData;
 import org.toxsoft.uskat.core.backend.api.IBaQueries;
+import org.toxsoft.uskat.s5.common.sysdescr.ISkSysdescrReader;
 import org.toxsoft.uskat.s5.server.backend.addons.queries.S5BaQueriesConvoy;
 import org.toxsoft.uskat.s5.server.backend.addons.queries.S5BaQueriesData;
 import org.toxsoft.uskat.s5.server.backend.impl.S5BackendSupportSingleton;
@@ -76,6 +82,12 @@ public class S5BackendQueriesSingleton
   private static final long DOJOB_INTERVAL = 1000;
 
   /**
+   * Поддержка сервера системного описания
+   */
+  @EJB
+  private IS5BackendEventSingleton sysdescrSupport;
+
+  /**
    * Поддержка сервера запросов событий
    */
   @EJB
@@ -92,6 +104,11 @@ public class S5BackendQueriesSingleton
    */
   @EJB
   private IS5BackendHistDataSingleton histDataSupport;
+
+  /**
+   * Читатель системного описания
+   */
+  private ISkSysdescrReader sysdescrReader;
 
   /**
    * Исполнитель потоков чтения блоков
@@ -127,29 +144,6 @@ public class S5BackendQueriesSingleton
   @Override
   public void doJob() {
     super.doJob();
-    // Текущее время
-    long currTime = System.currentTimeMillis();
-    // Обработка данных фронтендов
-    for( IS5FrontendRear frontend : backend().attachedFrontends() ) {
-      // Данные расширения для сессии
-      S5BaQueriesData baData =
-          frontend.frontendData().findBackendAddonData( IBaQueries.ADDON_ID, S5BaQueriesData.class );
-      if( baData == null ) {
-        // фронтенд не поддерживает обработку текущих данных
-        continue;
-      }
-      GtMessage message = null;
-      IStringMap<S5BaQueriesConvoy> openQueries;
-      synchronized (baData) {
-        openQueries = new StringMap<>( baData.openQueries );
-      }
-      for( S5BaQueriesConvoy openQuery : openQueries ) {
-        if( message != null ) {
-          // Передача текущих значений фронтенду
-          frontend.onBackendMessage( message );
-        }
-      }
-    }
   }
 
   @Override
@@ -203,24 +197,49 @@ public class S5BackendQueriesSingleton
       convoy = baData.openQueries.getByKey( aQueryId );
       convoy.exec( aTimeInterval );
     }
+    // Счетчик значений
+    S5BackendQuriesCounter counter = new S5BackendQuriesCounter();
     // Интервал запроса
     IQueryInterval interval = convoy.interval();
     // Функции запроса
-    IMap<IS5SequenceReader<IS5Sequence<?>, ?>, IList<IS5BackendQueriesFunction>> functions =
-        getQueryFunctions( convoy.args().values(), interval );
+    IMap<IS5SequenceReader<IS5Sequence<?>, ?>, IList<IS5BackendQueriesFunction>> queryFunctions =
+        getQueryFunctions( convoy, counter );
+    // Тип значений
+    EGwidKind gwidKind = null;
+    // Прочитанные значения
+    IStringMap<ITimedList<ITemporal<?>>> values = null;
     // Результат для передачи
-    IListEdit<IList<ITemporal<?>>> retValue = new ElemArrayList<>();
-    for( IS5SequenceReader<IS5Sequence<?>, ?> reader : functions.keys() ) {
+    for( IS5SequenceReader<IS5Sequence<?>, ?> reader : queryFunctions.keys() ) {
+      // Функции обработки данных читателя
+      IList<IS5BackendQueriesFunction> functions = queryFunctions.getByKey( reader );
       // Чтение значений функциями
-      retValue.addAll( readByFunctions( reader, functions.getByKey( reader ), interval ) );
+      IList<ITimedList<ITemporal<?>>> readerValues = readByFunctions( reader, functions, interval );
+      if( readerValues.size() > 0 && values != null && values.size() > 0 ) {
+        // Передача предыдущих значений (промежуточных, aFinished = false)
+        fireNextDataMessage( aFrontend, aQueryId, gwidKind, values, false );
+        // Сохранение результатов нового чтения
+        gwidKind = getGwidKind( reader );
+        values = getValuesMap( functions, readerValues );
+      }
     }
-    // TODO:
+    synchronized (baData) {
+      convoy = baData.openQueries.getByKey( aQueryId );
+      convoy.cancel();
+    }
+    // Передача последних данных (даже если они не получены)
+    if( gwidKind == null ) {
+      // Данных нет - отправляем пустой ответ
+      gwidKind = EGwidKind.GW_RTDATA;
+      values = IStringMap.EMPTY;
+    }
+    // Передача последних значений, aFinished = true
+    fireNextDataMessage( aFrontend, aQueryId, gwidKind, values, true );
   }
 
   @TransactionAttribute( TransactionAttributeType.SUPPORTS )
   @Override
   public void cancel( IS5FrontendRear aFrontend, String aQueryId ) {
-    TsNullArgumentRtException.checkNull( aFrontend, aQueryId );
+    TsNullArgumentRtException.checkNulls( aFrontend, aQueryId );
     S5BaQueriesData baData =
         aFrontend.frontendData().findBackendAddonData( IBaQueries.ADDON_ID, S5BaQueriesData.class );
     synchronized (baData) {
@@ -231,7 +250,7 @@ public class S5BackendQueriesSingleton
 
   @Override
   public void close( IS5FrontendRear aFrontend, String aQueryId ) {
-    TsNullArgumentRtException.checkNull( aFrontend, aQueryId );
+    TsNullArgumentRtException.checkNulls( aFrontend, aQueryId );
     S5BaQueriesData baData =
         aFrontend.frontendData().findBackendAddonData( IBaQueries.ADDON_ID, S5BaQueriesData.class );
     synchronized (baData) {
@@ -245,10 +264,90 @@ public class S5BackendQueriesSingleton
   // ------------------------------------------------------------------------------------
   // Внутренняя реализация
   //
+  @SuppressWarnings( "unchecked" )
+  private EGwidKind getGwidKind( IS5SequenceReader<IS5Sequence<?>, ?> aReader ) {
+    TsNullArgumentRtException.checkNull( aReader );
+    if( aReader == (IS5SequenceReader<IS5Sequence<?>, ?>)(Object)histDataSupport ) {
+      return EGwidKind.GW_RTDATA;
+    }
+    if( aReader == (IS5SequenceReader<IS5Sequence<?>, ?>)(Object)eventsSupport ) {
+      return EGwidKind.GW_EVENT;
+    }
+    if( aReader == (IS5SequenceReader<IS5Sequence<?>, ?>)(Object)commandsSupport ) {
+      return EGwidKind.GW_CMD;
+    }
+    throw new TsNotAllEnumsUsedRtException();
+  }
+
+  @SuppressWarnings( "unchecked" )
+  private IS5SequenceReader<IS5Sequence<?>, ?> findReaderByGwidKind( EGwidKind aGwidKind ) {
+    TsNullArgumentRtException.checkNull( aGwidKind );
+    if( aGwidKind == EGwidKind.GW_RTDATA ) {
+      return (IS5SequenceReader<IS5Sequence<?>, ?>)(Object)histDataSupport;
+    }
+    if( aGwidKind == EGwidKind.GW_EVENT ) {
+      return (IS5SequenceReader<IS5Sequence<?>, ?>)(Object)eventsSupport;
+    }
+    if( aGwidKind == EGwidKind.GW_CMD ) {
+      return (IS5SequenceReader<IS5Sequence<?>, ?>)(Object)commandsSupport;
+    }
+    return null;
+  }
+
+  private static IStringMap<ITimedList<ITemporal<?>>> getValuesMap( IList<IS5BackendQueriesFunction> aFunctions,
+      IList<ITimedList<ITemporal<?>>> aValues ) {
+    IStringMapEdit<ITimedList<ITemporal<?>>> retValue = new StringMap<>();
+    for( int index = 0, n = aFunctions.size(); index < n; index++ ) {
+      String paramName = aFunctions.get( index ).arg().left();
+      retValue.put( paramName, aValues.get( index ) );
+    }
+    return retValue;
+  }
+
   private IMap<IS5SequenceReader<IS5Sequence<?>, ?>, IList<IS5BackendQueriesFunction>> getQueryFunctions(
-      IList<IDtoQueryParam> aQueryParams, IQueryInterval aInterval ) {
-    TsNullArgumentRtException.checkNulls( aQueryParams, aInterval );
+      S5BaQueriesConvoy aQuery, S5BackendQuriesCounter aCounter ) {
+    TsNullArgumentRtException.checkNulls( aQuery, aCounter );
+    IOptionSet options = aQuery.params();
+    IStringMap<IDtoQueryParam> params = aQuery.args();
+    ITimeInterval interval = aQuery.interval();
     IMapEdit<IS5SequenceReader<IS5Sequence<?>, ?>, IList<IS5BackendQueriesFunction>> retValue = new ElemMap<>();
+    for( String paramId : params.keys() ) {
+      IDtoQueryParam param = params.getByKey( paramId );
+      Gwid gwid = param.dataGwid();
+      EGwidKind gwidKind = gwid.kind();
+      IS5SequenceReader<IS5Sequence<?>, ?> reader = findReaderByGwidKind( gwidKind );
+      if( reader == null ) {
+        continue;
+      }
+      IListEdit<IS5BackendQueriesFunction> functions =
+          (IListEdit<IS5BackendQueriesFunction>)retValue.findByKey( reader );
+      if( functions == null ) {
+        functions = new ElemArrayList<>();
+        retValue.put( reader, functions );
+      }
+      switch( gwidKind ) {
+        case GW_RTDATA:
+          ISkClassInfo classInfo = sysdescrReader.getClassInfo( gwid.classId() );
+          EAtomicType type = classInfo.rtdata().list().getByKey( gwid.propId() ).dataType().atomicType();
+          functions.add(
+              new S5BackendQueriesAtomicValueFunctions( paramId, param, type, interval, aCounter, options, logger() ) );
+          break;
+        case GW_EVENT:
+          throw new TsUnderDevelopmentRtException();
+        case GW_CMD:
+          throw new TsUnderDevelopmentRtException();
+        case GW_ATTR:
+        case GW_CLASS:
+        case GW_CLOB:
+        case GW_CMD_ARG:
+        case GW_EVENT_PARAM:
+        case GW_LINK:
+        case GW_RIVET:
+          continue;
+        default:
+          throw new TsNotAllEnumsUsedRtException();
+      }
+    }
     return retValue;
   }
 
@@ -259,13 +358,13 @@ public class S5BackendQueriesSingleton
    * @param aFunctions {@link IList}&lt;{@link IS5BackendQueriesFunction}&gt; список функций обработки.
    * @param aInterval {@link IQueryInterval} интервал запрашиваемых данных
    * @throws TsIllegalArgumentRtException aStartTime > aEndTime
-   * @return {@link IList}&lt;{@link IList}&lt;{@link ITemporal}&gt;&gt; список обработанных значений данных. Порядок
-   *         элементов списка соответствует порядку элементам списка функций обработки.
+   * @return {@link IList}&lt;{@link ITimedList}&lt;{@link ITemporal}&gt;&gt; список списков обработанных значений
+   *         данных. Порядок и количество первого списка соответствует списку функций обработки.
    * @throws TsNullArgumentRtException аргумент = null
    * @throws TsIllegalArgumentRtException количество запрашиваемых данных не соответствует количеству агрегаторов
    * @throws TsIllegalArgumentRtException неверный интервал запроса
    */
-  private IList<IList<ITemporal<?>>> readByFunctions( IS5SequenceReader<IS5Sequence<?>, ?> aSequenceReader,
+  private IList<ITimedList<ITemporal<?>>> readByFunctions( IS5SequenceReader<IS5Sequence<?>, ?> aSequenceReader,
       IList<IS5BackendQueriesFunction> aFunctions, IQueryInterval aInterval ) {
     TsNullArgumentRtException.checkNulls( aFunctions, aInterval );
     // Количество запрашиваемых данных
@@ -280,7 +379,7 @@ public class S5BackendQueriesSingleton
       // Функция обработки данного
       IS5BackendQueriesFunction function = aFunctions.get( index );
       // Идентификатор данного
-      Gwid gwid = function.arg().dataGwid();
+      Gwid gwid = function.arg().right().dataGwid();
       // Формирование общего списка функции для данного
       IListEdit<IS5BackendQueriesFunction> functions = functionsByGwids.findByKey( gwid );
       if( functions == null ) {
@@ -295,7 +394,8 @@ public class S5BackendQueriesSingleton
     // Запрос данных внутри и на границах интервала
     IList<?> sequences = aSequenceReader.readSequences( gwids, aInterval, ACCESS_TIMEOUT_DEFAULT );
     // Исполнитель s5-потоков чтения данных
-    S5ReadThreadExecutor<IList<IList<ITemporal<?>>>> executor = new S5ReadThreadExecutor<>( readExecutor, logger() );
+    S5ReadThreadExecutor<IList<ITimedList<ITemporal<?>>>> executor =
+        new S5ReadThreadExecutor<>( readExecutor, logger() );
     for( int index = 0, n = gwids.size(); index < n; index++ ) {
       Gwid gwid = gwids.get( index );
       // Последовательность значений данного
@@ -312,15 +412,15 @@ public class S5BackendQueriesSingleton
     // Запуск потоков (с ожиданием завершения, c поднятием исключений на ошибках потоков)
     executor.run( true, true );
     // Результаты чтения и обработки
-    IList<IList<IList<ITemporal<?>>>> executorsResults = executor.results();
+    IList<IList<ITimedList<ITemporal<?>>>> executorsResults = executor.results();
 
     // Формирование результата
-    IListEdit<IList<ITemporal<?>>> retValue = new ElemArrayList<>( count );
+    IListEdit<ITimedList<ITemporal<?>>> retValue = new ElemArrayList<>( count );
     for( int index = 0; index < count; index++ ) {
       // Функция обработки данного
       IS5BackendQueriesFunction function = aFunctions.get( index );
       // Идентификатор данного
-      Gwid gwid = function.arg().dataGwid();
+      Gwid gwid = function.arg().right().dataGwid();
       // Индекс описания в списке запроса данных
       int gwidIndex = functionsByGwids.keys().indexOf( gwid );
       // Функции значений данного
@@ -335,6 +435,42 @@ public class S5BackendQueriesSingleton
     logger().debug( MSG_FUNC_READ_SEQUENCE_TIME, Integer.valueOf( count ), traceTimeout );
     // Возвращаение результата
     return retValue;
+  }
+
+  @SuppressWarnings( "unchecked" )
+  private static void fireNextDataMessage( IS5FrontendRear aFrontend, String aQueryId, EGwidKind aGwidKind,
+      IStringMap<ITimedList<ITemporal<?>>> aValues, boolean aFinished ) {
+    TsNullArgumentRtException.checkNulls( aFrontend, aQueryId, aGwidKind, aValues );
+
+    GtMessage message = null;
+    switch( aGwidKind ) {
+      case GW_RTDATA:
+        message = BaMsgQueryNextData.INSTANCE.makeMessageAtomicValues( aQueryId,
+            (IStringMap<ITimedList<ITemporalAtomicValue>>)(Object)aValues, aFinished );
+        break;
+      case GW_EVENT:
+        message = BaMsgQueryNextData.INSTANCE.makeMessageEvents( aQueryId,
+            (IStringMap<ITimedList<SkEvent>>)(Object)aValues, aFinished );
+        break;
+      case GW_CMD:
+        message = BaMsgQueryNextData.INSTANCE.makeMessageCommands( aQueryId,
+            (IStringMap<ITimedList<IDtoCompletedCommand>>)(Object)aValues, aFinished );
+        break;
+      case GW_ATTR:
+      case GW_CLASS:
+      case GW_CLOB:
+      case GW_CMD_ARG:
+      case GW_EVENT_PARAM:
+      case GW_LINK:
+      case GW_RIVET:
+      default:
+        break;
+    }
+    if( message != null ) {
+      // Передача текущих значений фронтенду
+      aFrontend.onBackendMessage( message );
+    }
+
   }
 
 }

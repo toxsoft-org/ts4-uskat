@@ -14,6 +14,7 @@ import org.toxsoft.core.tslib.bricks.time.*;
 import org.toxsoft.core.tslib.coll.IList;
 import org.toxsoft.core.tslib.coll.IListEdit;
 import org.toxsoft.core.tslib.coll.impl.ElemLinkedList;
+import org.toxsoft.core.tslib.utils.Pair;
 import org.toxsoft.core.tslib.utils.errors.*;
 import org.toxsoft.core.tslib.utils.logs.ILogger;
 import org.toxsoft.uskat.core.api.hqserv.IDtoQueryParam;
@@ -33,13 +34,18 @@ class S5BackendQueriesAtomicValueFunctions
    */
   private static final int RESULT_COUNT_MAX = 1000000;
 
-  private final IDtoQueryParam                  arg;
+  /**
+   * Повторить значение полученное на предыдущем интервале агрегации, если на текущем нет значений
+   */
+  private static final boolean REPEAT_BY_EMPTY = true;
+
+  private final Pair<String, IDtoQueryParam>    arg;
   private final EAtomicType                     type;
   private final ITimeInterval                   interval;
   private final long                            aggregationStep;
   private final long                            factAggregationStep;
   private final boolean                         repeatByEmpty;
-  private final S5BackendQuriesCounter            counter;
+  private final S5BackendQuriesCounter          counter;
   private final int                             answerSize;
   private final EKnownFunc                      func;
   private final IListEdit<ITemporalAtomicValue> result    = new ElemLinkedList<>();
@@ -74,10 +80,10 @@ class S5BackendQueriesAtomicValueFunctions
   /**
    * Конструктор
    *
+   * @param aParamId String идентификатор параметра
    * @param aArg {@link IDtoQueryParam} агумент запроса
    * @param aType тип значений
    * @param aInterval {@link ITimeInterval} интервал запрашиваемых данных
-   * @param aRepeatByEmpty boolean признак повторения значения если нет значений на интервале агрегации
    * @param aCounter {@link S5BackendQuriesCounter} счетчик агрегированных значений для всего запроса
    * @param aOptions {@link IOptionSet} параметры выполнения запроса
    * @param aLogger {@link ILogger} журнал
@@ -85,11 +91,11 @@ class S5BackendQueriesAtomicValueFunctions
    * @throws TsIllegalArgumentRtException неверный интервал запроса
    * @throws TsIllegalArgumentRtException недопустимый тип значений для агрегации
    */
-  S5BackendQueriesAtomicValueFunctions( IDtoQueryParam aArg, EAtomicType aType, ITimeInterval aInterval,
-      boolean aRepeatByEmpty, S5BackendQuriesCounter aCounter, IOptionSet aOptions, ILogger aLogger ) {
+  S5BackendQueriesAtomicValueFunctions( String aParamId, IDtoQueryParam aArg, EAtomicType aType,
+      ITimeInterval aInterval, S5BackendQuriesCounter aCounter, IOptionSet aOptions, ILogger aLogger ) {
     TsNullArgumentRtException.checkNulls( aArg, aType, aInterval, aCounter, aOptions );
-    arg = aArg;
-    switch( arg.funcId() ) {
+    arg = new Pair<>( aParamId, aArg );
+    switch( aArg.funcId() ) {
       case EMPTY_STRING:
         break;
       case HQFUNC_ID_MIN:
@@ -105,13 +111,13 @@ class S5BackendQueriesAtomicValueFunctions
       default:
         throw new TsNotAllEnumsUsedRtException();
     }
-    type = switch( arg.funcId() ) {
+    type = switch( aArg.funcId() ) {
       case EMPTY_STRING, HQFUNC_ID_MIN, HQFUNC_ID_MAX, HQFUNC_ID_SUM -> aType;
       case HQFUNC_ID_COUNT -> EAtomicType.INTEGER;
       case HQFUNC_ID_AVERAGE -> (aType == EAtomicType.BOOLEAN ? EAtomicType.BOOLEAN : EAtomicType.FLOATING);
       default -> throw new TsNotAllEnumsUsedRtException();
     };
-    func = switch( arg.funcId() ) {
+    func = switch( aArg.funcId() ) {
       case EMPTY_STRING -> EKnownFunc.NONE;
       case HQFUNC_ID_MIN -> EKnownFunc.MIN;
       case HQFUNC_ID_MAX -> EKnownFunc.MAX;
@@ -122,11 +128,11 @@ class S5BackendQueriesAtomicValueFunctions
     };
     interval = aInterval;
     // Интервал агрегации. 0: на всем интервале
-    aggregationStep = HQFUNC_ARG_AGGREGAION_INTERVAL.getValue( arg.funcArgs() ).asLong();
+    aggregationStep = HQFUNC_ARG_AGGREGAION_INTERVAL.getValue( aArg.funcArgs() ).asLong();
     // Фактический интервал(мсек) агрегации. +1: включительно
     factAggregationStep = (aggregationStep == 0 ? interval.endTime() - interval.startTime() + 1 : aggregationStep);
     // Повтор предыдущего значения если на текущем интервале агрегации нет значений
-    repeatByEmpty = aRepeatByEmpty;
+    repeatByEmpty = REPEAT_BY_EMPTY;
     // Текущее начало интервала усреднения. Включительно
     intervalStartTime = interval.startTime();
     // Текущие завершение интервала усреднения. Включительно
@@ -154,7 +160,7 @@ class S5BackendQueriesAtomicValueFunctions
   // Реализация интерфейса IS5BackendQueriesFunction
   //
   @Override
-  public IDtoQueryParam arg() {
+  public Pair<String, IDtoQueryParam> arg() {
     return arg;
   }
 
@@ -256,7 +262,7 @@ class S5BackendQueriesAtomicValueFunctions
       // Превышение максимального количества агрегированных значений
       Integer ag = Integer.valueOf( (int)(factAggregationStep / 1000) );
       Integer as = Integer.valueOf( answerSize );
-      throw new TsIllegalArgumentRtException( ERR_OUTPUT_SIZE_LIMIT, arg.dataGwid(), interval, ag, as );
+      throw new TsIllegalArgumentRtException( ERR_OUTPUT_SIZE_LIMIT, arg.right().dataGwid(), interval, ag, as );
     }
 
     // Признак того, что на интервале были найдены значения
