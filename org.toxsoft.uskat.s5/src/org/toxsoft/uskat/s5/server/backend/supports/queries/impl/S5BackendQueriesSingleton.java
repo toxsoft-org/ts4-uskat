@@ -22,9 +22,11 @@ import org.toxsoft.core.tslib.coll.primtypes.IStringMap;
 import org.toxsoft.core.tslib.coll.primtypes.IStringMapEdit;
 import org.toxsoft.core.tslib.coll.primtypes.impl.StringMap;
 import org.toxsoft.core.tslib.gw.gwid.*;
+import org.toxsoft.core.tslib.utils.TsLibUtils;
 import org.toxsoft.core.tslib.utils.errors.*;
 import org.toxsoft.uskat.core.api.cmdserv.IDtoCompletedCommand;
 import org.toxsoft.uskat.core.api.evserv.SkEvent;
+import org.toxsoft.uskat.core.api.hqserv.ESkQueryState;
 import org.toxsoft.uskat.core.api.hqserv.IDtoQueryParam;
 import org.toxsoft.uskat.core.api.sysdescr.ISkClassInfo;
 import org.toxsoft.uskat.core.backend.api.BaMsgQueryNextData;
@@ -41,6 +43,7 @@ import org.toxsoft.uskat.s5.server.backend.supports.queries.IS5BackendQueriesSin
 import org.toxsoft.uskat.s5.server.frontend.IS5FrontendRear;
 import org.toxsoft.uskat.s5.server.sequences.IS5Sequence;
 import org.toxsoft.uskat.s5.server.sequences.IS5SequenceHardConstants;
+import org.toxsoft.uskat.s5.server.sequences.reader.IS5SequenceReadQuery;
 import org.toxsoft.uskat.s5.server.sequences.reader.IS5SequenceReader;
 import org.toxsoft.uskat.s5.server.singletons.S5ServiceSingletonUtils;
 import org.toxsoft.uskat.s5.utils.jobs.IS5ServerJob;
@@ -169,6 +172,7 @@ public class S5BackendQueriesSingleton
       // Размещение конвой-объекта в сессии
       baData.openQueries.put( queryId, convoy );
     }
+    logger().info( MSG_CREATE_QUERY, queryId );
     return queryId;
   }
 
@@ -182,6 +186,7 @@ public class S5BackendQueriesSingleton
       S5BaQueriesConvoy convoy = baData.openQueries.getByKey( aQueryId );
       convoy.prepareQuery( aParams );
     }
+    logger().info( MSG_PREPARE_QUERY, aQueryId );
   }
 
   @TransactionAttribute( TransactionAttributeType.SUPPORTS )
@@ -191,6 +196,8 @@ public class S5BackendQueriesSingleton
     TsNullArgumentRtException.checkNulls( aFrontend, aQueryId, aTimeInterval );
     S5BaQueriesData baData =
         aFrontend.frontendData().findBackendAddonData( IBaQueries.ADDON_ID, S5BaQueriesData.class );
+    // Время начала выполнения запроса
+    long traceTime0 = System.currentTimeMillis();
     // Конвой-объект
     S5BaQueriesConvoy convoy = null;
     synchronized (baData) {
@@ -204,16 +211,29 @@ public class S5BackendQueriesSingleton
     // Функции запроса
     IMap<IS5SequenceReader<IS5Sequence<?>, ?>, IList<IS5BackendQueriesFunction>> queryFunctions =
         getQueryFunctions( convoy, counter );
+    // Трасировка 1
+    long traceTime1 = System.currentTimeMillis();
     // Тип значений
     EGwidKind gwidKind = null;
     // Прочитанные значения
     IStringMap<ITimedList<ITemporal<?>>> values = null;
+    // Счетчик обработанных значений
+    int valueCounter = 0;
     // Результат для передачи
     for( IS5SequenceReader<IS5Sequence<?>, ?> reader : queryFunctions.keys() ) {
       // Функции обработки данных читателя
       IList<IS5BackendQueriesFunction> functions = queryFunctions.getByKey( reader );
       // Чтение значений функциями
-      IList<ITimedList<ITemporal<?>>> readerValues = readByFunctions( reader, functions, interval );
+      IList<ITimedList<ITemporal<?>>> readerValues = readByFunctions( aQueryId, reader, functions, interval );
+      if( convoy.state() != ESkQueryState.EXECUTING ) {
+        // Отмена выполнения запроса
+        logger().error( ERR_CANCEL_QUERY, "execQuery(...)", aQueryId, TsLibUtils.EMPTY_STRING ); //$NON-NLS-1$
+        return;
+      }
+      // Подсчет обработанных значений
+      for( ITimedList<ITemporal<?>> rv : readerValues ) {
+        valueCounter += rv.size();
+      }
       if( readerValues.size() > 0 && values != null && values.size() > 0 ) {
         // Передача предыдущих значений (промежуточных, aFinished = false)
         fireNextDataMessage( aFrontend, aQueryId, gwidKind, values, false );
@@ -222,6 +242,8 @@ public class S5BackendQueriesSingleton
         values = getValuesMap( functions, readerValues );
       }
     }
+    // Трасировка 2
+    long traceTime2 = System.currentTimeMillis();
     synchronized (baData) {
       convoy = baData.openQueries.getByKey( aQueryId );
       convoy.cancel();
@@ -234,18 +256,43 @@ public class S5BackendQueriesSingleton
     }
     // Передача последних значений, aFinished = true
     fireNextDataMessage( aFrontend, aQueryId, gwidKind, values, true );
+    // Трасировка 3
+    long traceTime3 = System.currentTimeMillis();
+
+    // Вывод в журнал информации об обработке запроса
+    Integer pc = Integer.valueOf( convoy.args().size() );
+    Integer vc = Integer.valueOf( valueCounter );
+    Long at = Long.valueOf( traceTime3 - traceTime0 );
+    Long t1 = Long.valueOf( traceTime1 - traceTime0 );
+    Long t2 = Long.valueOf( traceTime2 - traceTime1 );
+    Long t3 = Long.valueOf( traceTime3 - traceTime2 );
+    logger().info( MSG_EXEC_QUERY_INFO, aQueryId, interval, pc, vc, at, t1, t2, t3 );
   }
 
+  @SuppressWarnings( "nls" )
   @TransactionAttribute( TransactionAttributeType.SUPPORTS )
   @Override
   public void cancel( IS5FrontendRear aFrontend, String aQueryId ) {
     TsNullArgumentRtException.checkNulls( aFrontend, aQueryId );
+    IS5SequenceReadQuery histdataQuery = histDataSupport.cancelReadQuery( aQueryId );
+    IS5SequenceReadQuery eventsQuery = eventsSupport.cancelReadQuery( aQueryId );
+    IS5SequenceReadQuery commandsQuery = commandsSupport.cancelReadQuery( aQueryId );
+    if( histdataQuery != null ) {
+      logger().error( ERR_CANCEL_QUERY, "cancel(...)", aQueryId, "histdata" );
+    }
+    if( eventsQuery != null ) {
+      logger().error( ERR_CANCEL_QUERY, "cancel(...)", aQueryId, "events" );
+    }
+    if( commandsQuery != null ) {
+      logger().error( ERR_CANCEL_QUERY, "cancel(...)", aQueryId, "commands" );
+    }
     S5BaQueriesData baData =
         aFrontend.frontendData().findBackendAddonData( IBaQueries.ADDON_ID, S5BaQueriesData.class );
     synchronized (baData) {
       S5BaQueriesConvoy convoy = baData.openQueries.getByKey( aQueryId );
       convoy.cancel();
     }
+    logger().error( ERR_CANCEL_QUERY, "cancel(...)", aQueryId, TsLibUtils.EMPTY_STRING ); //$NON-NLS-1$
   }
 
   @Override
@@ -259,6 +306,7 @@ public class S5BackendQueriesSingleton
         convoy.close();
       }
     }
+    logger().info( MSG_CLOSE_QUERY, aQueryId );
   }
 
   // ------------------------------------------------------------------------------------
@@ -354,6 +402,7 @@ public class S5BackendQueriesSingleton
   /**
    * Читает значения последовательностей данных в указанном диапазоне времени и применяет к ним функции обработки.
    *
+   * @param aQueryId String идентификатор запроса
    * @param aSequenceReader {@link IS5SequenceReader} читатель последовательности значений
    * @param aFunctions {@link IList}&lt;{@link IS5BackendQueriesFunction}&gt; список функций обработки.
    * @param aInterval {@link IQueryInterval} интервал запрашиваемых данных
@@ -364,9 +413,10 @@ public class S5BackendQueriesSingleton
    * @throws TsIllegalArgumentRtException количество запрашиваемых данных не соответствует количеству агрегаторов
    * @throws TsIllegalArgumentRtException неверный интервал запроса
    */
-  private IList<ITimedList<ITemporal<?>>> readByFunctions( IS5SequenceReader<IS5Sequence<?>, ?> aSequenceReader,
-      IList<IS5BackendQueriesFunction> aFunctions, IQueryInterval aInterval ) {
-    TsNullArgumentRtException.checkNulls( aFunctions, aInterval );
+  private IList<ITimedList<ITemporal<?>>> readByFunctions( String aQueryId,
+      IS5SequenceReader<IS5Sequence<?>, ?> aSequenceReader, IList<IS5BackendQueriesFunction> aFunctions,
+      IQueryInterval aInterval ) {
+    TsNullArgumentRtException.checkNulls( aQueryId, aSequenceReader, aFunctions, aInterval );
     // Количество запрашиваемых данных
     int count = aFunctions.size();
     if( count == 0 ) {
@@ -392,7 +442,8 @@ public class S5BackendQueriesSingleton
     // Список описаний запрашиваемых данных
     IGwidList gwids = new GwidList( functionsByGwids.keys() );
     // Запрос данных внутри и на границах интервала
-    IList<?> sequences = aSequenceReader.readSequences( gwids, aInterval, ACCESS_TIMEOUT_DEFAULT );
+    IList<?> sequences =
+        aSequenceReader.readSequences( IS5FrontendRear.NULL, aQueryId, gwids, aInterval, ACCESS_TIMEOUT_DEFAULT );
     // Исполнитель s5-потоков чтения данных
     S5ReadThreadExecutor<IList<ITimedList<ITemporal<?>>>> executor =
         new S5ReadThreadExecutor<>( readExecutor, logger() );
