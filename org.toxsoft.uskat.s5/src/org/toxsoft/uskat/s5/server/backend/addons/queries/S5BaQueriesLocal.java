@@ -3,6 +3,7 @@ package org.toxsoft.uskat.s5.server.backend.addons.queries;
 import org.toxsoft.core.tslib.av.opset.IOptionSet;
 import org.toxsoft.core.tslib.bricks.events.msg.GtMessage;
 import org.toxsoft.core.tslib.bricks.time.IQueryInterval;
+import org.toxsoft.core.tslib.coll.primtypes.IStringList;
 import org.toxsoft.core.tslib.coll.primtypes.IStringMap;
 import org.toxsoft.core.tslib.utils.errors.TsNullArgumentRtException;
 import org.toxsoft.uskat.core.api.hqserv.IDtoQueryParam;
@@ -58,7 +59,15 @@ class S5BaQueriesLocal
 
   @Override
   public void close() {
-    // nop
+    // Список идентификаторов открытых запросов
+    IStringList queryIds;
+    synchronized (baData) {
+      queryIds = baData.openQueries.keys();
+    }
+    // Завершение работы открытых запросов
+    for( String queryId : queryIds ) {
+      queriesSupport.close( frontend(), queryId );
+    }
   }
 
   // ------------------------------------------------------------------------------------
