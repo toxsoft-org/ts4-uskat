@@ -25,6 +25,7 @@ import org.toxsoft.core.tslib.utils.errors.TsNullArgumentRtException;
 import org.toxsoft.core.tslib.utils.errors.TsUnsupportedFeatureRtException;
 import org.toxsoft.uskat.core.api.cmdserv.IDtoCompletedCommand;
 import org.toxsoft.uskat.core.api.evserv.SkEvent;
+import org.toxsoft.uskat.core.api.hqserv.ESkQueryState;
 import org.toxsoft.uskat.core.api.hqserv.ISkHistoryQueryService;
 import org.toxsoft.uskat.core.impl.dto.DtoCompletedCommand;
 
@@ -46,17 +47,17 @@ public class BaMsgQueryNextData
    */
   public static final BaMsgQueryNextData INSTANCE = new BaMsgQueryNextData();
 
-  private static final String ARGID_IS_FINISHED = "isFinished"; //$NON-NLS-1$
-  private static final String ARGID_QUERY_ID    = "queryId";    //$NON-NLS-1$
-  private static final String ARGID_KIND        = "kind";       //$NON-NLS-1$
-  private static final String ARGID_VALUES      = "values";     //$NON-NLS-1$
+  private static final String ARGID_STATE    = "state";   //$NON-NLS-1$
+  private static final String ARGID_QUERY_ID = "queryId"; //$NON-NLS-1$
+  private static final String ARGID_KIND     = "kind";    //$NON-NLS-1$
+  private static final String ARGID_VALUES   = "values";  //$NON-NLS-1$
 
   BaMsgQueryNextData() {
     super( ISkHistoryQueryService.SERVICE_ID, MSG_ID );
     defineArgNonValobj( ARGID_QUERY_ID, STRING, true );
     defineArgValobj( ARGID_KIND, EGwidKind.KEEPER_ID, true );
     defineArgNonValobj( ARGID_VALUES, STRING, true );
-    defineArgNonValobj( ARGID_IS_FINISHED, BOOLEAN, false, TSID_DEFAULT_VALUE, AV_FALSE );
+    defineArgNonValobj( ARGID_STATE, STRING, false, TSID_DEFAULT_VALUE, AV_FALSE );
   }
 
   /**
@@ -64,31 +65,32 @@ public class BaMsgQueryNextData
    *
    * @param aQueryId String - the query ID
    * @param aValues {@link IStringMap}&lt;{@link ITimedList}&lt;{@link ITemporalAtomicValue}&gt;&gt; - the values map
-   * @param aFinished boolean - finished flag
+   * @param aState {@link ESkQueryState} - current query state
    * @return {@link GtMessage} - created instance of the message
    * @throws TsNullArgumentRtException any argument = <code>null</code>
    */
   public GtMessage makeMessageAtomicValues( String aQueryId, IStringMap<ITimedList<ITemporalAtomicValue>> aValues,
-      boolean aFinished ) {
+      ESkQueryState aState ) {
     StringBuilder sb = new StringBuilder();
     IStrioWriter sw = new StrioWriter( new CharOutputStreamAppendable( sb ) );
     sw.writeChar( CHAR_ARRAY_BEGIN );
-    for( int i = 0, count = aValues.size(); i < count; i++ ) {
-      String k = aValues.keys().get( i );
+    int i = 0, n = aValues.size();
+    for( String k : aValues.keys() ) {
       ITimedList<ITemporalAtomicValue> v = aValues.values().get( i );
       sw.writeQuotedString( k );
       sw.writeSeparatorChar();
-      TemporalAtomicValueKeeper.KEEPER.coll2str( v );
-      if( i < count - 1 ) {
+      TemporalAtomicValueKeeper.KEEPER.writeColl( sw, v, false ); // aIndented = false
+      if( i < n - 1 ) {
         sw.writeSeparatorChar();
       }
+      ++i;
     }
     sw.writeChar( CHAR_ARRAY_END );
     return makeMessageVarargs( //
         ARGID_QUERY_ID, avStr( aQueryId ), //
         ARGID_KIND, avValobj( EGwidKind.GW_RTDATA ), //
         ARGID_VALUES, sb.toString(), //
-        ARGID_IS_FINISHED, avBool( aFinished ) //
+        ARGID_STATE, avValobj( aState ) //
     );
   }
 
@@ -97,30 +99,31 @@ public class BaMsgQueryNextData
    *
    * @param aQueryId String - the query ID
    * @param aValues {@link IStringMap}&lt;{@link ITimedList}&lt;{@link SkEvent}&gt;&gt; - the events map
-   * @param aFinished boolean - finished flag
+   * @param aState {@link ESkQueryState} - current query state
    * @return {@link GtMessage} - created instance of the message
    * @throws TsNullArgumentRtException any argument = <code>null</code>
    */
-  public GtMessage makeMessageEvents( String aQueryId, IStringMap<ITimedList<SkEvent>> aValues, boolean aFinished ) {
+  public GtMessage makeMessageEvents( String aQueryId, IStringMap<ITimedList<SkEvent>> aValues, ESkQueryState aState ) {
     StringBuilder sb = new StringBuilder();
     IStrioWriter sw = new StrioWriter( new CharOutputStreamAppendable( sb ) );
     sw.writeChar( CHAR_ARRAY_BEGIN );
-    for( int i = 0, count = aValues.size(); i < count; i++ ) {
-      String k = aValues.keys().get( i );
+    int i = 0, n = aValues.size();
+    for( String k : aValues.keys() ) {
       ITimedList<SkEvent> v = aValues.values().get( i );
       sw.writeQuotedString( k );
       sw.writeSeparatorChar();
-      SkEvent.KEEPER.coll2str( v );
-      if( i < count - 1 ) {
+      SkEvent.KEEPER.writeColl( sw, v, false ); // aIndented = false
+      if( i < n - 1 ) {
         sw.writeSeparatorChar();
       }
+      ++i;
     }
     sw.writeChar( CHAR_ARRAY_END );
     return makeMessageVarargs( //
         ARGID_QUERY_ID, avStr( aQueryId ), //
         ARGID_KIND, avValobj( EGwidKind.GW_EVENT ), //
         ARGID_VALUES, sb.toString(), //
-        ARGID_IS_FINISHED, avBool( aFinished ) //
+        ARGID_STATE, avValobj( aState ) //
     );
   }
 
@@ -129,31 +132,32 @@ public class BaMsgQueryNextData
    *
    * @param aQueryId String - the query ID
    * @param aValues {@link IStringMap}&lt;{@link ITimedList}&lt;{@link IDtoCompletedCommand}&gt;&gt; - the commands map
-   * @param aFinished boolean - finished flag
+   * @param aState {@link ESkQueryState} - current query state
    * @return {@link GtMessage} - created instance of the message
    * @throws TsNullArgumentRtException any argument = <code>null</code>
    */
   public GtMessage makeMessageCommands( String aQueryId, IStringMap<ITimedList<IDtoCompletedCommand>> aValues,
-      boolean aFinished ) {
+      ESkQueryState aState ) {
     StringBuilder sb = new StringBuilder();
     IStrioWriter sw = new StrioWriter( new CharOutputStreamAppendable( sb ) );
     sw.writeChar( CHAR_ARRAY_BEGIN );
-    for( int i = 0, count = aValues.size(); i < count; i++ ) {
-      String k = aValues.keys().get( i );
+    int i = 0, n = aValues.size();
+    for( String k : aValues.keys() ) {
       ITimedList<IDtoCompletedCommand> v = aValues.values().get( i );
       sw.writeQuotedString( k );
       sw.writeSeparatorChar();
-      DtoCompletedCommand.KEEPER.coll2str( v );
-      if( i < count - 1 ) {
+      DtoCompletedCommand.KEEPER.writeColl( sw, v, false ); // aIndented = false
+      if( i < n - 1 ) {
         sw.writeSeparatorChar();
       }
+      ++i;
     }
     sw.writeChar( CHAR_ARRAY_END );
     return makeMessageVarargs( //
         ARGID_QUERY_ID, avStr( aQueryId ), //
         ARGID_KIND, avValobj( EGwidKind.GW_CMD ), //
         ARGID_VALUES, sb.toString(), //
-        ARGID_IS_FINISHED, avBool( aFinished ) //
+        ARGID_STATE, avValobj( aState ) //
     );
   }
 
@@ -168,13 +172,13 @@ public class BaMsgQueryNextData
   }
 
   /**
-   * Extracts is finshed argument from the message.
+   * Extracts is state argument from the message.
    *
    * @param aMsg {@link GenericMessage} - the message
    * @return boolean - argument extracted from the message
    */
-  public boolean getIsFinished( GenericMessage aMsg ) {
-    return getArg( aMsg, ARGID_IS_FINISHED ).asBool();
+  public ESkQueryState getState( GenericMessage aMsg ) {
+    return getArg( aMsg, ARGID_STATE ).asValobj();
   }
 
   /**
@@ -204,7 +208,7 @@ public class BaMsgQueryNextData
       do {
         String k = sr.readQuotedString();
         sr.ensureSeparatorChar();
-        ITimedList<ITemporalAtomicValue> v = new TimedList<>( TemporalAtomicValueKeeper.KEEPER.read( sr ) );
+        ITimedList<ITemporalAtomicValue> v = new TimedList<>( TemporalAtomicValueKeeper.KEEPER.readColl( sr ) );
         map.put( k, v );
       } while( sr.readArrayNext() );
     }
@@ -228,7 +232,7 @@ public class BaMsgQueryNextData
       do {
         String k = sr.readQuotedString();
         sr.ensureSeparatorChar();
-        ITimedList<SkEvent> v = new TimedList<>( SkEvent.KEEPER.read( sr ) );
+        ITimedList<SkEvent> v = new TimedList<>( SkEvent.KEEPER.readColl( sr ) );
         map.put( k, v );
       } while( sr.readArrayNext() );
     }
@@ -252,7 +256,7 @@ public class BaMsgQueryNextData
       do {
         String k = sr.readQuotedString();
         sr.ensureSeparatorChar();
-        ITimedList<IDtoCompletedCommand> v = new TimedList<>( DtoCompletedCommand.KEEPER.read( sr ) );
+        ITimedList<IDtoCompletedCommand> v = new TimedList<>( DtoCompletedCommand.KEEPER.readColl( sr ) );
         map.put( k, v );
       } while( sr.readArrayNext() );
     }

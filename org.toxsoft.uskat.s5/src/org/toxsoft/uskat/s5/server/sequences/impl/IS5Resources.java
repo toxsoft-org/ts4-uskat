@@ -138,6 +138,8 @@ interface IS5Resources {
   String MSG_LOAD_BLOCK_CLASS        = Messages.getString( "IS5Resources.MSG_LOAD_BLOCK_CLASS" );        //$NON-NLS-1$
   String MSG_TIMER_EVENT_START       = Messages.getString( "IS5Resources.MSG_TIMER_EVENT_START" );       //$NON-NLS-1$
   String MSG_TIMER_EVENT_FINISH      = Messages.getString( "IS5Resources.MSG_TIMER_EVENT_FINISH" );      //$NON-NLS-1$
+
+  String MSG_GWID_FRAGMENT_COUNT = "prepareAuto(...): gwid = %s, lookupCount = %d, fragmentCount = %d"; //$NON-NLS-1$
   // =======
   // String MSG_FIND_TIME_BEFORE_SQL = "findTimeBefore(%s, time = %s), сформирован HSQL-запрос:\n%s ";
   // String MSG_LOAD_BLOCK_CLASS_START =

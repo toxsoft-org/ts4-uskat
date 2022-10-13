@@ -11,11 +11,11 @@ import org.toxsoft.core.tslib.coll.IList;
 import org.toxsoft.core.tslib.coll.IListEdit;
 import org.toxsoft.core.tslib.coll.impl.ElemArrayList;
 import org.toxsoft.core.tslib.coll.primtypes.ILongListEdit;
-import org.toxsoft.core.tslib.coll.primtypes.impl.LongArrayList;
 import org.toxsoft.core.tslib.gw.gwid.Gwid;
 import org.toxsoft.core.tslib.utils.errors.*;
 import org.toxsoft.core.tslib.utils.logs.ELogSeverity;
 import org.toxsoft.uskat.core.api.hqserv.ISkHistoryQueryServiceConstants;
+import org.toxsoft.uskat.s5.legacy.S5LongArrayList;
 import org.toxsoft.uskat.s5.server.backend.supports.histdata.IS5HistDataSequence;
 import org.toxsoft.uskat.s5.server.backend.supports.histdata.impl.sequences.ITemporalValueImporter;
 import org.toxsoft.uskat.s5.server.backend.supports.queries.IS5BackendQueriesFunction;
@@ -65,8 +65,8 @@ public class S5BackendQueriesFunctionThread
     long minStartTime = sequenceStartTime;
     long maxEndTime = sequenceEndTime;
     // ... и формируем интервалы в которых формируются обработанные значения
-    startTimes = new LongArrayList( count );
-    endTimes = new LongArrayList( count );
+    startTimes = new S5LongArrayList( count );
+    endTimes = new S5LongArrayList( count );
     for( int index = 0; index < count; index++ ) {
       IS5BackendQueriesFunction function = aFunctions.get( index );
       long aggregationStep = ISkHistoryQueryServiceConstants.HQFUNC_ARG_AGGREGAION_INTERVAL

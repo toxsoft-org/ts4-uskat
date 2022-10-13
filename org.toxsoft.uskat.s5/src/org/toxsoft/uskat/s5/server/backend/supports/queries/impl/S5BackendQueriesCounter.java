@@ -5,7 +5,7 @@ package org.toxsoft.uskat.s5.server.backend.supports.queries.impl;
  *
  * @author mvk
  */
-class S5BackendQuriesCounter {
+class S5BackendQueriesCounter {
 
   private volatile int counter;
 

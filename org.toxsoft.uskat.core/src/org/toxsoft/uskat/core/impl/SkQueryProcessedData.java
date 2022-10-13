@@ -1,19 +1,15 @@
 package org.toxsoft.uskat.core.impl;
 
-import static org.toxsoft.core.tslib.bricks.strid.idgen.UuidStridGenerator.*;
+import static org.toxsoft.uskat.core.api.hqserv.ESkQueryState.*;
 
 import org.toxsoft.core.tslib.av.opset.IOptionSet;
-import org.toxsoft.core.tslib.av.temporal.ITemporalAtomicValue;
-import org.toxsoft.core.tslib.bricks.strid.idgen.IStridGenerator;
-import org.toxsoft.core.tslib.bricks.strid.idgen.UuidStridGenerator;
 import org.toxsoft.core.tslib.bricks.time.*;
 import org.toxsoft.core.tslib.bricks.time.impl.TimedList;
 import org.toxsoft.core.tslib.coll.primtypes.IStringMap;
 import org.toxsoft.core.tslib.coll.primtypes.IStringMapEdit;
 import org.toxsoft.core.tslib.coll.primtypes.impl.StringMap;
 import org.toxsoft.core.tslib.utils.errors.TsNullArgumentRtException;
-import org.toxsoft.uskat.core.api.hqserv.IDtoQueryParam;
-import org.toxsoft.uskat.core.api.hqserv.ISkQueryProcessedData;
+import org.toxsoft.uskat.core.api.hqserv.*;
 
 /**
  * {@link ISkQueryProcessedData} implementation.
@@ -24,11 +20,8 @@ public final class SkQueryProcessedData
     extends SkAsynchronousQuery
     implements ISkQueryProcessedData {
 
-  private static final String          QUERY_ID_PREFIX = "ProcessedDataQuery";                                    //$NON-NLS-1$
-  private static final IStridGenerator uuidGenerator   = new UuidStridGenerator( createState( QUERY_ID_PREFIX ) );
-
-  private final IStringMapEdit<IDtoQueryParam>                       args      = new StringMap<>();
-  private final IStringMapEdit<ITimedListEdit<ITemporalAtomicValue>> argsDatas = new StringMap<>();
+  private final IStringMapEdit<IDtoQueryParam>               args      = new StringMap<>();
+  private final IStringMapEdit<ITimedListEdit<ITemporal<?>>> argsDatas = new StringMap<>();
 
   /**
    * Constructor
@@ -38,7 +31,7 @@ public final class SkQueryProcessedData
    * @throws TsNullArgumentRtException any argurment = null
    */
   public SkQueryProcessedData( SkCoreServHistQueryService aService, IOptionSet aOptions ) {
-    super( aService, uuidGenerator.nextId(), aOptions );
+    super( aService, aOptions );
   }
 
   // ------------------------------------------------------------------------------------
@@ -52,8 +45,11 @@ public final class SkQueryProcessedData
   @Override
   public void prepare( IStringMap<IDtoQueryParam> aArgs ) {
     TsNullArgumentRtException.checkNull( aArgs );
+    checkInvalidState( this, EXECUTING, CLOSED );
     args.setAll( aArgs );
+    argsDatas.clear();
     backend().prepareQuery( queryId(), args );
+    changeState( ESkQueryState.PREPARED );
   }
 
   @Override
@@ -65,16 +61,17 @@ public final class SkQueryProcessedData
   @SuppressWarnings( "unchecked" )
   @Override
   public <V extends ITemporal<V>> ITimedList<V> getArgData( String aArgDataId ) {
-    return (ITimedList<V>)argsDatas.getByKey( aArgDataId );
+    Object retValue = argsDatas.findByKey( aArgDataId );
+    return (retValue != null ? (ITimedList<V>)retValue : (ITimedList<V>)EMPTY_TIMED_LIST);
   }
 
   // ------------------------------------------------------------------------------------
   // SkAsynchronousQuery abstract implementation
   //
   @Override
-  protected void doNextData( IStringMap<ITimedList<ITemporalAtomicValue>> aValues, boolean aFinished ) {
+  protected void doNextData( IStringMap<ITimedList<ITemporal<?>>> aValues, ESkQueryState aState ) {
     for( String k : aValues.keys() ) {
-      ITimedListEdit<ITemporalAtomicValue> v = argsDatas.findByKey( k );
+      ITimedListEdit<ITemporal<?>> v = argsDatas.findByKey( k );
       if( v == null ) {
         v = new TimedList<>();
         argsDatas.put( k, v );

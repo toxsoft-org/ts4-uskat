@@ -3,6 +3,7 @@ package org.toxsoft.uskat.core.impl;
 import static org.toxsoft.uskat.core.impl.ISkCoreConfigConstants.*;
 import static org.toxsoft.uskat.core.impl.ISkResources.*;
 
+import org.toxsoft.core.tslib.av.opset.IOptionSet;
 import org.toxsoft.core.tslib.bricks.ctx.ITsContextRo;
 import org.toxsoft.core.tslib.bricks.events.msg.GtMessage;
 import org.toxsoft.core.tslib.coll.IList;
@@ -343,7 +344,8 @@ public class SkCoreApi
         s.papiOnBackendMessage( msg );
       }
       else {
-        logger().warning( LOG_WARN_UNHANDLED_BACKEND_MESSAGE, msg.topicId() );
+        logger().warning( LOG_WARN_UNHANDLED_BACKEND_MESSAGE, msg.topicId(), msg.messageId(),
+            msg.args() == IOptionSet.NULL ? "IOptionSet.NULL" : msg.args() ); //$NON-NLS-1$
       }
     }
   }

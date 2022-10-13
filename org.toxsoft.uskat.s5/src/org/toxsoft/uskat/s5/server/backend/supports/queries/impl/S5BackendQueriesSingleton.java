@@ -1,5 +1,6 @@
 package org.toxsoft.uskat.s5.server.backend.supports.queries.impl;
 
+import static org.toxsoft.uskat.s5.common.IS5CommonResources.*;
 import static org.toxsoft.uskat.s5.server.IS5ImplementConstants.*;
 import static org.toxsoft.uskat.s5.server.backend.supports.queries.impl.IS5Resources.*;
 
@@ -40,6 +41,7 @@ import org.toxsoft.uskat.s5.server.backend.supports.events.IS5BackendEventSingle
 import org.toxsoft.uskat.s5.server.backend.supports.histdata.IS5BackendHistDataSingleton;
 import org.toxsoft.uskat.s5.server.backend.supports.queries.IS5BackendQueriesFunction;
 import org.toxsoft.uskat.s5.server.backend.supports.queries.IS5BackendQueriesSingleton;
+import org.toxsoft.uskat.s5.server.backend.supports.sysdescr.IS5BackendSysDescrSingleton;
 import org.toxsoft.uskat.s5.server.frontend.IS5FrontendRear;
 import org.toxsoft.uskat.s5.server.sequences.IS5Sequence;
 import org.toxsoft.uskat.s5.server.sequences.IS5SequenceHardConstants;
@@ -88,7 +90,7 @@ public class S5BackendQueriesSingleton
    * Поддержка сервера системного описания
    */
   @EJB
-  private IS5BackendEventSingleton sysdescrSupport;
+  private IS5BackendSysDescrSingleton sysdescrSupport;
 
   /**
    * Поддержка сервера запросов событий
@@ -121,14 +123,13 @@ public class S5BackendQueriesSingleton
   /**
    * Генератор идентификаторов запроса чтения данных
    */
-  private final IStridGenerator uuidGenerator;
+  private final IStridGenerator uuidGenerator = new UuidStridGenerator();
 
   /**
    * Конструктор.
    */
   public S5BackendQueriesSingleton() {
     super( BACKEND_QUERIES_ID, STR_D_BACKEND_QUERIES );
-    uuidGenerator = new UuidStridGenerator( UuidStridGenerator.createState( BACKEND_QUERIES_ID ) );
   }
 
   // ------------------------------------------------------------------------------------
@@ -138,6 +139,8 @@ public class S5BackendQueriesSingleton
   protected void doInitSupport() {
     // Инициализация базового класса
     super.doInitSupport();
+    // Читатель системного описания
+    sysdescrReader = sysdescrSupport.getReader();
     // Поиск исполнителя потоков чтения блоков
     readExecutor = S5ServiceSingletonUtils.lookupExecutor( IS5SequenceHardConstants.READ_EXECUTOR_JNDI );
     // Запуск doJob
@@ -204,69 +207,92 @@ public class S5BackendQueriesSingleton
       convoy = baData.openQueries.getByKey( aQueryId );
       convoy.exec( aTimeInterval );
     }
-    // Счетчик значений
-    S5BackendQuriesCounter counter = new S5BackendQuriesCounter();
-    // Интервал запроса
-    IQueryInterval interval = convoy.interval();
-    // Функции запроса
-    IMap<IS5SequenceReader<IS5Sequence<?>, ?>, IList<IS5BackendQueriesFunction>> queryFunctions =
-        getQueryFunctions( convoy, counter );
-    // Трасировка 1
-    long traceTime1 = System.currentTimeMillis();
     // Тип значений
     EGwidKind gwidKind = null;
     // Прочитанные значения
     IStringMap<ITimedList<ITemporal<?>>> values = null;
-    // Счетчик обработанных значений
-    int valueCounter = 0;
-    // Результат для передачи
-    for( IS5SequenceReader<IS5Sequence<?>, ?> reader : queryFunctions.keys() ) {
-      // Функции обработки данных читателя
-      IList<IS5BackendQueriesFunction> functions = queryFunctions.getByKey( reader );
-      // Чтение значений функциями
-      IList<ITimedList<ITemporal<?>>> readerValues = readByFunctions( aQueryId, reader, functions, interval );
-      if( convoy.state() != ESkQueryState.EXECUTING ) {
-        // Отмена выполнения запроса
-        logger().error( ERR_CANCEL_QUERY, "execQuery(...)", aQueryId, TsLibUtils.EMPTY_STRING ); //$NON-NLS-1$
-        return;
+    try {
+      // Счетчик считанных(сырых) значений
+      S5BackendQueriesCounter rawCounter = new S5BackendQueriesCounter();
+      // Счетчик обработанных значений
+      S5BackendQueriesCounter valueCounter = new S5BackendQueriesCounter();
+      // Интервал запроса
+      IQueryInterval interval = convoy.interval();
+      // Функции запроса
+      IMap<IS5SequenceReader<IS5Sequence<?>, ?>, IList<IS5BackendQueriesFunction>> queryFunctions =
+          getQueryFunctions( convoy, rawCounter, valueCounter );
+      // Трасировка 1
+      long traceTime1 = System.currentTimeMillis();
+      // Результат для передачи
+      for( IS5SequenceReader<IS5Sequence<?>, ?> reader : queryFunctions.keys() ) {
+        // Функции обработки данных читателя
+        IList<IS5BackendQueriesFunction> functions = queryFunctions.getByKey( reader );
+        // Чтение значений функциями
+        IList<ITimedList<ITemporal<?>>> readerValues = readByFunctions( aQueryId, reader, functions, interval );
+        if( convoy.state() != ESkQueryState.EXECUTING ) {
+          // Отмена выполнения запроса
+          logger().error( ERR_CANCEL_QUERY, "execQuery(...)", aQueryId, TsLibUtils.EMPTY_STRING ); //$NON-NLS-1$
+          return;
+        }
+        if( readerValues.size() == 0 ) {
+          continue;
+        }
+        if( values == null ) {
+          // Сохранение результатов нового чтения
+          gwidKind = getGwidKind( reader );
+          values = getValuesMap( functions, readerValues );
+          continue;
+        }
+        if( values.size() > 0 ) {
+          // Передача предыдущих значений (промежуточных)
+          fireNextDataMessage( aFrontend, aQueryId, gwidKind, values, ESkQueryState.EXECUTING );
+          // Сохранение результатов нового чтения
+          gwidKind = getGwidKind( reader );
+          values = getValuesMap( functions, readerValues );
+        }
       }
-      // Подсчет обработанных значений
-      for( ITimedList<ITemporal<?>> rv : readerValues ) {
-        valueCounter += rv.size();
+      // Трасировка 2
+      long traceTime2 = System.currentTimeMillis();
+      synchronized (baData) {
+        convoy = baData.openQueries.getByKey( aQueryId );
+        // aSuccess = true
+        convoy.execFinished( true );
       }
-      if( readerValues.size() > 0 && values != null && values.size() > 0 ) {
-        // Передача предыдущих значений (промежуточных, aFinished = false)
-        fireNextDataMessage( aFrontend, aQueryId, gwidKind, values, false );
-        // Сохранение результатов нового чтения
-        gwidKind = getGwidKind( reader );
-        values = getValuesMap( functions, readerValues );
+      // Передача последних данных (даже если они не получены)
+      if( gwidKind == null ) {
+        // Данных нет - отправляем пустой ответ
+        gwidKind = EGwidKind.GW_RTDATA;
+        values = IStringMap.EMPTY;
       }
-    }
-    // Трасировка 2
-    long traceTime2 = System.currentTimeMillis();
-    synchronized (baData) {
-      convoy = baData.openQueries.getByKey( aQueryId );
-      convoy.cancel();
-    }
-    // Передача последних данных (даже если они не получены)
-    if( gwidKind == null ) {
-      // Данных нет - отправляем пустой ответ
-      gwidKind = EGwidKind.GW_RTDATA;
-      values = IStringMap.EMPTY;
-    }
-    // Передача последних значений, aFinished = true
-    fireNextDataMessage( aFrontend, aQueryId, gwidKind, values, true );
-    // Трасировка 3
-    long traceTime3 = System.currentTimeMillis();
+      // Передача последних значений
+      fireNextDataMessage( aFrontend, aQueryId, gwidKind, values, ESkQueryState.READY );
+      // Трасировка 3
+      long traceTime3 = System.currentTimeMillis();
 
-    // Вывод в журнал информации об обработке запроса
-    Integer pc = Integer.valueOf( convoy.args().size() );
-    Integer vc = Integer.valueOf( valueCounter );
-    Long at = Long.valueOf( traceTime3 - traceTime0 );
-    Long t1 = Long.valueOf( traceTime1 - traceTime0 );
-    Long t2 = Long.valueOf( traceTime2 - traceTime1 );
-    Long t3 = Long.valueOf( traceTime3 - traceTime2 );
-    logger().info( MSG_EXEC_QUERY_INFO, aQueryId, interval, pc, vc, at, t1, t2, t3 );
+      // Вывод в журнал информации об обработке запроса
+      Integer pc = Integer.valueOf( convoy.args().size() );
+      Integer vc = Integer.valueOf( valueCounter.current() );
+      Integer rc = Integer.valueOf( rawCounter.current() );
+      Long at = Long.valueOf( traceTime3 - traceTime0 );
+      Long t1 = Long.valueOf( traceTime1 - traceTime0 );
+      Long t2 = Long.valueOf( traceTime2 - traceTime1 );
+      Long t3 = Long.valueOf( traceTime3 - traceTime2 );
+      logger().info( MSG_EXEC_QUERY, aQueryId, interval, pc, vc, rc, at, t1, t2, t3 );
+    }
+    catch( Throwable e ) {
+      // Неожиданная ошибка выполнения запроса
+      convoy.execFinished( false ); // aSuccess = false
+      TsException error = new TsException( e, ERR_EXEC_QUERY, aQueryId, cause( e ) );
+      logger().error( error );
+      // Передача последних данных (даже если они не получены)
+      if( gwidKind == null ) {
+        // Данных нет - отправляем пустой ответ
+        gwidKind = EGwidKind.GW_RTDATA;
+        values = IStringMap.EMPTY;
+      }
+      // Передача последних значений
+      fireNextDataMessage( aFrontend, aQueryId, gwidKind, values, ESkQueryState.FAILED );
+    }
   }
 
   @SuppressWarnings( "nls" )
@@ -353,8 +379,8 @@ public class S5BackendQueriesSingleton
   }
 
   private IMap<IS5SequenceReader<IS5Sequence<?>, ?>, IList<IS5BackendQueriesFunction>> getQueryFunctions(
-      S5BaQueriesConvoy aQuery, S5BackendQuriesCounter aCounter ) {
-    TsNullArgumentRtException.checkNulls( aQuery, aCounter );
+      S5BaQueriesConvoy aQuery, S5BackendQueriesCounter aRawCounter, S5BackendQueriesCounter aValuesCounter ) {
+    TsNullArgumentRtException.checkNulls( aQuery, aRawCounter, aValuesCounter );
     IOptionSet options = aQuery.params();
     IStringMap<IDtoQueryParam> params = aQuery.args();
     ITimeInterval interval = aQuery.interval();
@@ -377,8 +403,8 @@ public class S5BackendQueriesSingleton
         case GW_RTDATA:
           ISkClassInfo classInfo = sysdescrReader.getClassInfo( gwid.classId() );
           EAtomicType type = classInfo.rtdata().list().getByKey( gwid.propId() ).dataType().atomicType();
-          functions.add(
-              new S5BackendQueriesAtomicValueFunctions( paramId, param, type, interval, aCounter, options, logger() ) );
+          functions.add( new S5BackendQueriesAtomicValueFunctions( paramId, param, type, interval, aRawCounter,
+              aValuesCounter, options, logger() ) );
           break;
         case GW_EVENT:
           throw new TsUnderDevelopmentRtException();
@@ -490,22 +516,22 @@ public class S5BackendQueriesSingleton
 
   @SuppressWarnings( "unchecked" )
   private static void fireNextDataMessage( IS5FrontendRear aFrontend, String aQueryId, EGwidKind aGwidKind,
-      IStringMap<ITimedList<ITemporal<?>>> aValues, boolean aFinished ) {
+      IStringMap<ITimedList<ITemporal<?>>> aValues, ESkQueryState aState ) {
     TsNullArgumentRtException.checkNulls( aFrontend, aQueryId, aGwidKind, aValues );
 
     GtMessage message = null;
     switch( aGwidKind ) {
       case GW_RTDATA:
         message = BaMsgQueryNextData.INSTANCE.makeMessageAtomicValues( aQueryId,
-            (IStringMap<ITimedList<ITemporalAtomicValue>>)(Object)aValues, aFinished );
+            (IStringMap<ITimedList<ITemporalAtomicValue>>)(Object)aValues, aState );
         break;
       case GW_EVENT:
         message = BaMsgQueryNextData.INSTANCE.makeMessageEvents( aQueryId,
-            (IStringMap<ITimedList<SkEvent>>)(Object)aValues, aFinished );
+            (IStringMap<ITimedList<SkEvent>>)(Object)aValues, aState );
         break;
       case GW_CMD:
         message = BaMsgQueryNextData.INSTANCE.makeMessageCommands( aQueryId,
-            (IStringMap<ITimedList<IDtoCompletedCommand>>)(Object)aValues, aFinished );
+            (IStringMap<ITimedList<IDtoCompletedCommand>>)(Object)aValues, aState );
         break;
       case GW_ATTR:
       case GW_CLASS:

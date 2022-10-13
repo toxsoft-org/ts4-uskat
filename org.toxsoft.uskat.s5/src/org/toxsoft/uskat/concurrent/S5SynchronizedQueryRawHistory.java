@@ -149,7 +149,7 @@ public final class S5SynchronizedQueryRawHistory
   }
 
   @Override
-  public <T extends ITemporalValue<T>> ITimedList<T> get( Gwid aGwid ) {
+  public <T extends ITemporal<T>> ITimedList<T> get( Gwid aGwid ) {
     lockWrite( this );
     try {
       return target().get( aGwid );
@@ -160,7 +160,7 @@ public final class S5SynchronizedQueryRawHistory
   }
 
   @Override
-  public <T extends ITemporalValue<T>> IMap<Gwid, ITimedList<T>> getAll() {
+  public <T extends ITemporal<T>> IMap<Gwid, ITimedList<T>> getAll() {
     lockWrite( this );
     try {
       return target().getAll();

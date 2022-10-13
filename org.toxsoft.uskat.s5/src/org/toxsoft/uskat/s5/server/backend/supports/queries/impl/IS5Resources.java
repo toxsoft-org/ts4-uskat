@@ -18,8 +18,8 @@ interface IS5Resources {
   String MSG_FUNC_READ_SEQUENCE_START =
       "Запуск задачи обработки последовательностей значений данных. Количество данных (count = %d), количество функций ( functions = %d )"; //$NON-NLS-1$
   String MSG_FUNC_READ_SEQUENCE_TIME  = "Чтение обработанных последовательностей (count = %d) проведено за %d (мсек)";                      //$NON-NLS-1$
-  String MSG_EXEC_QUERY_INFO          =
-      "execQuery(...): Выполнение запроса данных %s (%s. params = %d, values = %d) за %d (%d/%d/%d) мсек.";
+  String MSG_EXEC_QUERY               =
+      "execQuery(...): Выполнение запроса данных %s (%s. params = %d, values = %d, raw = %d) за %d (%d/%d/%d) мсек.";
   String MSG_CREATE_QUERY             = "createQuery(...): Создание запроса данных %s.";
   String MSG_PREPARE_QUERY            = "prepareQuery(...): Подготовка запроса данных %s.";
   String MSG_CLOSE_QUERY              = "close(...): завершение запроса данных %s";
@@ -33,4 +33,5 @@ interface IS5Resources {
   String ERR_OUTPUT_SIZE_LIMIT =
       "При формировании отчета по параметру %s, в интервале %s, с шагом %d (сек), было сформировано более %d значений. Повторите запрос с меньшим интервалом времени или с большим шагом агрегации";
   String ERR_CANCEL_QUERY      = "%s: Отмена выполнения запроса данных %s (%s)";
+  String ERR_EXEC_QUERY        = "execQuery(...): Ошибка выполнения запроса данных %s. Причина: %s";
 }

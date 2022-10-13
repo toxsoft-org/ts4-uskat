@@ -5,6 +5,7 @@ import org.toxsoft.core.tslib.bricks.events.msg.GtMessage;
 import org.toxsoft.core.tslib.bricks.time.IQueryInterval;
 import org.toxsoft.core.tslib.coll.primtypes.IStringList;
 import org.toxsoft.core.tslib.coll.primtypes.IStringMap;
+import org.toxsoft.core.tslib.coll.primtypes.impl.StringArrayList;
 import org.toxsoft.core.tslib.utils.errors.TsNullArgumentRtException;
 import org.toxsoft.uskat.core.api.hqserv.IDtoQueryParam;
 import org.toxsoft.uskat.core.backend.ISkBackendHardConstant;
@@ -62,7 +63,7 @@ class S5BaQueriesLocal
     // Список идентификаторов открытых запросов
     IStringList queryIds;
     synchronized (baData) {
-      queryIds = baData.openQueries.keys();
+      queryIds = new StringArrayList( baData.openQueries.keys() );
     }
     // Завершение работы открытых запросов
     for( String queryId : queryIds ) {

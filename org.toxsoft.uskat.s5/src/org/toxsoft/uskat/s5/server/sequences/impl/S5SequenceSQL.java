@@ -782,7 +782,9 @@ class S5SequenceSQL {
             if( aQuery.maxExecutionTimeout() > 1000 ) {
               statement.setQueryTimeout( (int)(aQuery.maxExecutionTimeout() / 1000) );
             }
-            for( boolean hasData = rs.first(); hasData; hasData = rs.next() ) {
+            // 2022-10-09 mvk
+            // for( boolean hasData = rs.first(); hasData; hasData = rs.next() ) {
+            while( rs.next() ) {
               ISequenceBlock<V> block = factory.createBlock( blockImplClass, rs );
               if( readedBlocks.size() > 0 && readedBlocks.get( readedBlocks.size() - 1 ).equals( block ) ) {
                 // throw new TsInternalErrorRtException();

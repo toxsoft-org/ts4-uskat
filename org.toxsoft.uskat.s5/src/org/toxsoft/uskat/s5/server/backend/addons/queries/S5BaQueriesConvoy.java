@@ -113,6 +113,17 @@ public class S5BaQueriesConvoy
     checkInvalidState( this, UNPREPARED, EXECUTING, CLOSED );
     state = EXECUTING;
     startTime = System.currentTimeMillis();
+    interval = aInterval;
+  }
+
+  /**
+   * Завершение выполнения запроса
+   *
+   * @param aSuccess boolean <b>true</b> запрос успешно завершен; <b>false</b> ошибка выполнения запроса
+   */
+  public void execFinished( boolean aSuccess ) {
+    checkInvalidState( this, UNPREPARED, PREPARED, READY, FAILED, CLOSED );
+    state = (aSuccess ? READY : FAILED);
   }
 
   /**

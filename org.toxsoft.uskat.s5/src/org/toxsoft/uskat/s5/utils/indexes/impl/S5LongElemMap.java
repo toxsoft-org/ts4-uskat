@@ -10,8 +10,8 @@ import org.toxsoft.core.tslib.coll.IList;
 import org.toxsoft.core.tslib.coll.IListEdit;
 import org.toxsoft.core.tslib.coll.impl.ElemArrayList;
 import org.toxsoft.core.tslib.coll.primtypes.*;
-import org.toxsoft.core.tslib.coll.primtypes.impl.LongArrayList;
 import org.toxsoft.core.tslib.utils.errors.*;
+import org.toxsoft.uskat.s5.legacy.S5LongArrayList;
 import org.toxsoft.uskat.s5.utils.indexes.ILongElemIndex;
 
 /**
@@ -98,7 +98,7 @@ class S5LongElemMap<E>
 
   @Override
   public ILongList keys() {
-    ILongListEdit ids = new LongArrayList( index.watermark() );
+    ILongListEdit ids = new S5LongArrayList( index.watermark() );
     for( int i = 0, n = index.watermark(); i < n; i++ ) {
       ids.add( index.longKey( i ) );
     }

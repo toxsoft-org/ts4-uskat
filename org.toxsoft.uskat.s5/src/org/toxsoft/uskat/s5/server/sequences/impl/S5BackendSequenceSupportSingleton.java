@@ -38,7 +38,8 @@ import org.toxsoft.core.tslib.coll.*;
 import org.toxsoft.core.tslib.coll.impl.ElemArrayList;
 import org.toxsoft.core.tslib.coll.impl.ElemMap;
 import org.toxsoft.core.tslib.coll.primtypes.*;
-import org.toxsoft.core.tslib.coll.primtypes.impl.*;
+import org.toxsoft.core.tslib.coll.primtypes.impl.StringArrayList;
+import org.toxsoft.core.tslib.coll.primtypes.impl.StringMap;
 import org.toxsoft.core.tslib.coll.synch.SynchronizedStringMap;
 import org.toxsoft.core.tslib.gw.gwid.*;
 import org.toxsoft.core.tslib.gw.skid.*;
@@ -58,6 +59,7 @@ import org.toxsoft.uskat.core.connection.ISkConnection;
 import org.toxsoft.uskat.core.impl.dto.DtoObject;
 import org.toxsoft.uskat.s5.common.sysdescr.ISkSysdescrReader;
 import org.toxsoft.uskat.s5.legacy.QueryInterval;
+import org.toxsoft.uskat.s5.legacy.S5LongArrayList;
 import org.toxsoft.uskat.s5.server.backend.impl.S5BackendSupportSingleton;
 import org.toxsoft.uskat.s5.server.backend.supports.objects.IS5BackendObjectsSingleton;
 import org.toxsoft.uskat.s5.server.backend.supports.sysdescr.IS5BackendSysDescrSingleton;
@@ -465,7 +467,7 @@ public abstract class S5BackendSequenceSupportSingleton<S extends IS5Sequence<V>
     // Ближайшее время к метке
     long minTime = MAX_TIMESTAMP;
     // Результат
-    ILongListEdit retValue = new LongArrayList( aGwids.size() );
+    ILongListEdit retValue = new S5LongArrayList( aGwids.size() );
     for( Gwid gwid : aGwids ) {
       // Поиск времени последовательности. Находим первый блок в котором может быть значение на/за указанным временем
       long startTime = S5SequenceSQL.findTimeAfter( em, factory(), gwid, afterTime );
@@ -520,7 +522,7 @@ public abstract class S5BackendSequenceSupportSingleton<S extends IS5Sequence<V>
     // Ближайшее время к метке
     long maxTime = MIN_TIMESTAMP;
     // Результат
-    ILongListEdit retValue = new LongArrayList( aGwid.size() );
+    ILongListEdit retValue = new S5LongArrayList( aGwid.size() );
     for( Gwid gwid : aGwid ) {
       // Поиск времени последовательности. Находим первый блок в котором может быть значение на/перед указанным временем
       long endTime = S5SequenceSQL.findTimeBefore( em, factory(), gwid, beforeTime );

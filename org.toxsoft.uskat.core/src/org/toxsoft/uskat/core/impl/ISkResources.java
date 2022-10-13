@@ -64,7 +64,7 @@ interface ISkResources {
   String MSG_ERR_CONN_NOT_OPEN              = "Connection is closed";
   String FMT_ERR_CANT_CREATE_SERVICE        = "Creator '%s' can not create service instance";
   String FMT_ERR_DUP_SERVICE_ID             = "Creator '%s' tries to create service of existing ID '%s'";
-  String LOG_WARN_UNHANDLED_BACKEND_MESSAGE = "Unhandled message from backend, topicID= %s";
+  String LOG_WARN_UNHANDLED_BACKEND_MESSAGE = "Unhandled message from backend, topicID= %s, messageId = %s, args = %s";
 
   /**
    * {@link SkCoreServClobs}
