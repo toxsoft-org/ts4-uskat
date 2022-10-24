@@ -11,7 +11,7 @@ interface ISkResources {
   /**
    * {@link DirScanner}
    */
-  String MSG_STEP_PROCESSING_FILE  = Messages.getString( "ISkResources.MSG_STEP_PROCESSING_FILE" );
-  String STR_JAR_FILE_FILTER_DESCR = Messages.getString( "ISkResources.STR_JAR_FILE_FILTER_DESCR" );
+  String MSG_STEP_PROCESSING_FILE  = Messages.getString( "IS5Resources.MSG_STEP_PROCESSING_FILE" );
+  String STR_JAR_FILE_FILTER_DESCR = Messages.getString( "IS5Resources.STR_JAR_FILE_FILTER_DESCR" );
 
 }

@@ -7,7 +7,7 @@ import org.toxsoft.uskat.core.ISkServiceCreator;
 import org.toxsoft.uskat.core.backend.ISkBackendHardConstant;
 import org.toxsoft.uskat.core.backend.api.IBaQueries;
 import org.toxsoft.uskat.core.impl.AbstractSkService;
-import org.toxsoft.uskat.core.impl.SkCoreServHistQuery;
+import org.toxsoft.uskat.core.impl.SkCoreServHistQueryService;
 import org.toxsoft.uskat.s5.server.backend.addons.*;
 import org.toxsoft.uskat.s5.server.backend.supports.queries.impl.S5BackendQueriesSingleton;
 
@@ -31,7 +31,7 @@ public class S5BaQueriesCreator
   //
   @Override
   protected ISkServiceCreator<? extends AbstractSkService> doGetServiceCreator() {
-    return SkCoreServHistQuery.CREATOR;
+    return SkCoreServHistQueryService.CREATOR;
   }
 
   @Override

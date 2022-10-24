@@ -7,7 +7,6 @@ import static org.toxsoft.uskat.s5.server.singletons.IS5Resources.*;
 import static org.toxsoft.uskat.s5.server.transactions.IS5TransactionDetectorSingleton.*;
 import static org.toxsoft.uskat.s5.utils.threads.impl.S5Lockable.*;
 
-import java.io.Serializable;
 import java.lang.reflect.Method;
 import java.util.concurrent.ExecutorService;
 
@@ -54,7 +53,7 @@ import org.toxsoft.uskat.s5.utils.threads.impl.S5Lockable;
  */
 public class S5SingletonBase
     extends S5Stridable
-    implements IS5Singleton, Serializable {
+    implements IS5Singleton {
 
   private static final long serialVersionUID = 157157L;
 

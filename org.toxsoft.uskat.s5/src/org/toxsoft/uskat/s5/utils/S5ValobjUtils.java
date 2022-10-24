@@ -4,6 +4,7 @@ import org.toxsoft.core.tslib.bricks.keeper.IEntityKeeper;
 import org.toxsoft.core.tslib.utils.errors.TsIllegalArgumentRtException;
 import org.toxsoft.core.tslib.utils.errors.TsNullArgumentRtException;
 import org.toxsoft.core.tslib.utils.valobj.TsValobjUtils;
+import org.toxsoft.uskat.core.api.hqserv.ESkQueryState;
 import org.toxsoft.uskat.core.connection.ESkConnState;
 import org.toxsoft.uskat.s5.client.remote.connection.S5ClusterTopology;
 import org.toxsoft.uskat.s5.common.*;
@@ -43,6 +44,7 @@ public class S5ValobjUtils {
     TsValobjUtils.registerKeeperIfNone( S5TransactionInfo.KEEPER_ID, S5TransactionInfo.KEEPER );
     TsValobjUtils.registerKeeperIfNone( S5ClusterTopology.KEEPER_ID, S5ClusterTopology.KEEPER );
     TsValobjUtils.registerKeeperIfNone( ESkConnState.KEEPER_ID, ESkConnState.KEEPER );
+    TsValobjUtils.registerKeeperIfNone( ESkQueryState.KEEPER_ID, ESkQueryState.KEEPER );
     TsValobjUtils.registerKeeperIfNone( SkidMap.KEEPER_ID, SkidMap.KEEPER );
   }
 

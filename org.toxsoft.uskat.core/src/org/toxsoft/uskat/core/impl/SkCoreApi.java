@@ -3,6 +3,7 @@ package org.toxsoft.uskat.core.impl;
 import static org.toxsoft.uskat.core.impl.ISkCoreConfigConstants.*;
 import static org.toxsoft.uskat.core.impl.ISkResources.*;
 
+import org.toxsoft.core.tslib.av.opset.IOptionSet;
 import org.toxsoft.core.tslib.bricks.ctx.ITsContextRo;
 import org.toxsoft.core.tslib.bricks.events.msg.GtMessage;
 import org.toxsoft.core.tslib.coll.IList;
@@ -51,16 +52,16 @@ public class SkCoreApi
   private final CoreLogger   logger;
   private final ISkBackend   backend;
 
-  private final SkCoreServSysdescr  sysdescr;
-  private final SkCoreServObject    objService;
-  private final SkCoreServClobs     clobService;
-  private final SkCoreServCommands  cmdService;
-  private final SkCoreServEvents    eventService;
-  private final SkCoreServLinks     linkService;
-  private final SkCoreServRtdata    rtdService;
-  private final SkCoreServHistQuery hqService;
-  private final SkCoreServUsers     userService;
-  private final SkCoreServGwids     gwidService;
+  private final SkCoreServSysdescr         sysdescr;
+  private final SkCoreServObject           objService;
+  private final SkCoreServClobs            clobService;
+  private final SkCoreServCommands         cmdService;
+  private final SkCoreServEvents           eventService;
+  private final SkCoreServLinks            linkService;
+  private final SkCoreServRtdata           rtdService;
+  private final SkCoreServHistQueryService hqService;
+  private final SkCoreServUsers            userService;
+  private final SkCoreServGwids            gwidService;
 
   /**
    * Queue of messages from the backend.
@@ -123,7 +124,7 @@ public class SkCoreApi
     llCreators.add( SkCoreServEvents.CREATOR );
     llCreators.add( SkCoreServLinks.CREATOR );
     llCreators.add( SkCoreServRtdata.CREATOR );
-    llCreators.add( SkCoreServHistQuery.CREATOR );
+    llCreators.add( SkCoreServHistQueryService.CREATOR );
     llCreators.add( SkCoreServUsers.CREATOR );
     llCreators.add( SkCoreServGwids.CREATOR );
     // backend and user-specified services
@@ -343,7 +344,8 @@ public class SkCoreApi
         s.papiOnBackendMessage( msg );
       }
       else {
-        logger().warning( LOG_WARN_UNHANDLED_BACKEND_MESSAGE, msg.topicId() );
+        logger().warning( LOG_WARN_UNHANDLED_BACKEND_MESSAGE, msg.topicId(), msg.messageId(),
+            msg.args() == IOptionSet.NULL ? "IOptionSet.NULL" : msg.args() ); //$NON-NLS-1$
       }
     }
   }

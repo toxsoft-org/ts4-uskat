@@ -273,6 +273,7 @@ public class S5BackendCommandSingleton
   //
   @Override
   public void doJob() {
+    super.doJob();
     // Текущее время
     long currTime = System.currentTimeMillis();
     // Количество команд на выполении

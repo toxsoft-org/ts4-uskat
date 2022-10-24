@@ -45,7 +45,7 @@ interface IS5Resources {
   // ------------------------------------------------------------------------------------
   // Строки сообщений
   //
-  String MSG_AGGR_THREAD_FINISH = Messages.getString( "IS5Resources.MSG_AGGR_THREAD_FINISH" ); //$NON-NLS-1$
+  String MSG_AGGR_THREAD_FINISH = Messages.getString( "IS5Resources.MSG_FUNC_THREAD_FINISH" ); //$NON-NLS-1$
 
   // ------------------------------------------------------------------------------------
   // Тексты ошибок
@@ -62,7 +62,7 @@ interface IS5Resources {
 
   String ERR_AGGR_READ_OUT_OF_MEMORY_TRY = Messages.getString( "IS5Resources.ERR_AGGR_READ_OUT_OF_MEMORY_TRY" ); //$NON-NLS-1$
   String ERR_AGGR_READ_OUT_OF_MEMORY     = Messages.getString( "IS5Resources.ERR_AGGR_READ_OUT_OF_MEMORY" );     //$NON-NLS-1$
-  String ERR_AGGR_UNEXPECTED             = Messages.getString( "IS5Resources.ERR_AGGR_UNEXPECTED" );             //$NON-NLS-1$
+  String ERR_AGGR_UNEXPECTED             = Messages.getString( "IS5Resources.ERR_FUNC_UNEXPECTED" );             //$NON-NLS-1$
   String ERR_AGGR_TRY_READ_OVER          = Messages.getString( "IS5Resources.ERR_AGGR_TRY_READ_OVER" );          //$NON-NLS-1$
   String ERR_NO_HISTDATA                 = Messages.getString( "IS5Resources.ERR_NO_HISTDATA" );                 //$NON-NLS-1$
   String ERR_HISTDATA_IMPL_NOT_FOUND     = Messages.getString( "IS5Resources.ERR_HISTDATA_IMPL_NOT_FOUND" );     //$NON-NLS-1$

@@ -504,6 +504,10 @@ class S5SequenceLazyWriter<S extends IS5Sequence<V>, V extends ITemporal<?>>
             + (candiateFragments != null ? candiateFragments.fragmentCount() : 0);
         // Реальное количество фрагментов полученных чтением из базы данных
         ISequenceFragmentInfo realAllFragments = ISequenceFragmentInfo.NULL;
+        // Вывод трасировки в журнал
+        logger().debug( MSG_GWID_FRAGMENT_COUNT, gwid, Integer.valueOf( lookupCount ),
+            Integer.valueOf( fragmentCount ) );
+        // Анализ фрагментации
         if( allFragments == null || (fragmentCountMin < 0 || fragmentCount >= fragmentCountMin) ) {
           // Фрагментация с момента прошлого процесса дефрагментации данного неопределена или накопилось много
           // фрагментов (по записи) которые могут быть дефрагментированы. Запрос к базе для получения реальной

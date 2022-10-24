@@ -312,7 +312,7 @@ public class S5ClusterManager
   //
   @Override
   public void doJob() {
-    // TODO:
+    super.doJob();
   }
 
   @Override

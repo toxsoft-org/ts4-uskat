@@ -8,7 +8,9 @@ import javax.ejb.*;
 
 import org.toxsoft.core.tslib.av.opset.IOptionSet;
 import org.toxsoft.core.tslib.bricks.time.IQueryInterval;
+import org.toxsoft.core.tslib.coll.primtypes.IStringList;
 import org.toxsoft.core.tslib.coll.primtypes.IStringMap;
+import org.toxsoft.core.tslib.coll.primtypes.impl.StringArrayList;
 import org.toxsoft.core.tslib.utils.errors.TsNullArgumentRtException;
 import org.toxsoft.uskat.core.api.hqserv.IDtoQueryParam;
 import org.toxsoft.uskat.core.backend.ISkBackendHardConstant;
@@ -65,6 +67,21 @@ public class S5BaQueriesSession
     frontend().frontendData().setBackendAddonData( IBaQueries.ADDON_ID, baData );
   }
 
+  @Override
+  protected void doBeforeClose() {
+    S5BaQueriesData baData =
+        frontend().frontendData().findBackendAddonData( IBaQueries.ADDON_ID, S5BaQueriesData.class );
+    // Список идентификаторов открытых запросов
+    IStringList queryIds;
+    synchronized (baData) {
+      queryIds = new StringArrayList( baData.openQueries.keys() );
+    }
+    // Завершение работы открытых запросов
+    for( String queryId : queryIds ) {
+      queriesSupport.close( frontend(), queryId );
+    }
+  }
+
   // ------------------------------------------------------------------------------------
   // Реализация IS5BaQueriesSession
   //
@@ -72,34 +89,50 @@ public class S5BaQueriesSession
   @Override
   public String createQuery( IOptionSet aParams ) {
     TsNullArgumentRtException.checkNull( aParams );
-    return queriesSupport.createQuery( aParams );
+    // Создание запроса
+    String retValue = queriesSupport.createQuery( frontend(), aParams );
+    // Сохранение измененной сессии в кластере сервера
+    writeSessionData();
+    return retValue;
   }
 
   @TransactionAttribute( TransactionAttributeType.SUPPORTS )
   @Override
   public void prepareQuery( String aQueryId, IStringMap<IDtoQueryParam> aParams ) {
     TsNullArgumentRtException.checkNulls( aQueryId, aParams );
-    queriesSupport.prepareQuery( aQueryId, aParams );
+    // Подготовка запроса
+    queriesSupport.prepareQuery( frontend(), aQueryId, aParams );
+    // Сохранение измененной сессии в кластере сервера
+    writeSessionData();
   }
 
   @TransactionAttribute( TransactionAttributeType.SUPPORTS )
   @Override
   public void execQuery( String aQueryId, IQueryInterval aTimeInterval ) {
     TsNullArgumentRtException.checkNulls( aQueryId, aTimeInterval );
-    queriesSupport.execQuery( aQueryId, aTimeInterval );
+    // Выполнение запроса
+    queriesSupport.execQuery( frontend(), aQueryId, aTimeInterval );
+    // Сохранение измененной сессии в кластере сервера
+    writeSessionData();
   }
 
   @TransactionAttribute( TransactionAttributeType.SUPPORTS )
   @Override
   public void cancel( String aQueryId ) {
     TsNullArgumentRtException.checkNull( aQueryId );
-    queriesSupport.cancel( aQueryId );
+    // Отмена запроса
+    queriesSupport.cancel( frontend(), aQueryId );
+    // Сохранение измененной сессии в кластере сервера
+    writeSessionData();
   }
 
   @TransactionAttribute( TransactionAttributeType.SUPPORTS )
   @Override
   public void close( String aQueryId ) {
     TsNullArgumentRtException.checkNull( aQueryId );
-    queriesSupport.close( aQueryId );
+    // Завершение запроса
+    queriesSupport.close( frontend(), aQueryId );
+    // Сохранение измененной сессии в кластере сервера
+    writeSessionData();
   }
 }
