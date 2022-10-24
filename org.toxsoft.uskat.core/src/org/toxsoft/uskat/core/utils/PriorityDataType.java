@@ -27,6 +27,8 @@ public class PriorityDataType
 
   private final IOptionSetEdit chainedParams = new OptionSet() {
 
+    private static final long serialVersionUID = 6088217283283760186L;
+
     @Override
     protected IAtomicValue doInternalFind( String aId ) {
       IAtomicValue av = priorityParams.findByKey( aId );
