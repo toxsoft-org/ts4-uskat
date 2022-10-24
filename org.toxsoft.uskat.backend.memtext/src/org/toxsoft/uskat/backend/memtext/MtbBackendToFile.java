@@ -39,7 +39,7 @@ public class MtbBackendToFile
   public static final String BACKEND_ID = IBackendMemtextConstants.SKB_ID_MEMTEXT + ".file"; //$NON-NLS-1$
 
   /**
-   * Backend arg: path to the file.
+   * Backend arg option: path to the file.
    */
   public static final IDataDef OPDEF_FILE_PATH =
       DataDef.create( MtbBackendToFile.class.getSimpleName() + ".FilePath", STRING, //$NON-NLS-1$
@@ -49,7 +49,7 @@ public class MtbBackendToFile
       );
 
   /**
-   * Backendarg: seconds between automatic save to file. <= 0 - no autosave.
+   * Backend arg option: seconds between automatic save to file. <= 0 - no autosave.
    * <p>
    * Note: passed time between saves is determined at each backend API call in
    * {@link MtbAbstractBackend#internalCheck()} method. If backend is not called for a long time no autosave will be
