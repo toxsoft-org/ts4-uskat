@@ -13,14 +13,12 @@ import org.toxsoft.core.tslib.bricks.ctx.*;
 import org.toxsoft.core.tslib.bricks.ctx.impl.*;
 import org.toxsoft.core.tslib.bricks.strid.impl.*;
 import org.toxsoft.core.tslib.bricks.strio.*;
-import org.toxsoft.core.tslib.gw.skid.*;
 import org.toxsoft.core.tslib.utils.*;
 import org.toxsoft.core.tslib.utils.errors.*;
 import org.toxsoft.core.txtproj.lib.*;
 import org.toxsoft.core.txtproj.lib.impl.*;
 import org.toxsoft.uskat.core.backend.*;
 import org.toxsoft.uskat.core.backend.api.*;
-import org.toxsoft.uskat.core.impl.*;
 
 /**
  * {@link MtbAbstractBackend} implementation which stores data as {@link IProjDataUnit} in {@link ITsProject}.
@@ -33,7 +31,7 @@ public class MtbBackendToTsProj
   /**
    * The backend provider singleton.
    */
-  public static final ISkBackendProvider PROVIDER = MtbBackendToFile::new;
+  public static final ISkBackendProvider PROVIDER = MtbBackendToTsProj::new;
 
   /**
    * ID of this backend returned as {@link ISkBackendInfo#id()}.
@@ -49,7 +47,7 @@ public class MtbBackendToTsProj
    * Backend arg option: project PDU ID.
    */
   public static final IDataDef OPDEF_PDU_ID = //
-      DataDef.create( MtbBackendToFile.class.getSimpleName() + ".PduId", STRING, //$NON-NLS-1$
+      DataDef.create( MtbBackendToTsProj.class.getSimpleName() + ".PduId", STRING, //$NON-NLS-1$
           TSID_NAME, STR_N_OP_PDU_ID, //
           TSID_DESCRIPTION, STR_D_OP_PDU_ID, //
           TSID_IS_MANDATORY, AV_FALSE, //
@@ -60,7 +58,7 @@ public class MtbBackendToTsProj
    * Ссылка на экземпляр проекта {@link ITsProject}.
    */
   public static final ITsContextRefDef<ITsProject> REFDEF_PROJECT = //
-      TsContextRefDef.create( MtbBackendToFile.class.getSimpleName() + ".Project", ITsProject.class, //$NON-NLS-1$
+      TsContextRefDef.create( MtbBackendToTsProj.class.getSimpleName() + ".Project", ITsProject.class, //$NON-NLS-1$
           TSID_NAME, STR_N_REF_PROJECT, //
           TSID_DESCRIPTION, STR_D_REF_PROJECT, //
           TSID_IS_MANDATORY, AV_TRUE //
@@ -111,8 +109,6 @@ public class MtbBackendToTsProj
   private final String     pduId;
   private final PduBackend pduBackend;
 
-  private final ISkBackendInfo info;
-
   /**
    * Constructor.
    *
@@ -132,7 +128,7 @@ public class MtbBackendToTsProj
     // создание раздела/чтение данных
     pduBackend = new PduBackend();
     project.registerUnit( pduId, pduBackend, true );
-    info = new SkBackendInfo( this.getClass().getSimpleName(), System.currentTimeMillis(), Skid.NONE );
+    setBackendInfoParamsOpton( OPDEF_PDU_ID.id(), avStr( pduId ) );
   }
 
   // ------------------------------------------------------------------------------------
