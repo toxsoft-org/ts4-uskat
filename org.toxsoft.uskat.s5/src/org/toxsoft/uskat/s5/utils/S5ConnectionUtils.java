@@ -20,7 +20,7 @@ public class S5ConnectionUtils {
    * @param aConnection {@link ISkConnection} соединение с s5-сервером
    * @return String логин пользователя подключенного к серверу
    * @throws TsNullArgumentRtException аргумент = null
-   * @throws TsIllegalStateRtException нет соединения с сервером
+   * @throws TsIllegalStateRtException нет открытого соединения с сервером
    */
   public static String getConnectedUserLogin( ISkConnection aConnection ) {
     TsNullArgumentRtException.checkNull( aConnection );
@@ -35,7 +35,7 @@ public class S5ConnectionUtils {
    * @param aConnection {@link ISkConnection} соединение с s5-сервером
    * @return {@link ISkUser} пользователь подключенный к серверу
    * @throws TsNullArgumentRtException аргумент = null
-   * @throws TsIllegalStateRtException нет соединения с сервером
+   * @throws TsIllegalStateRtException нет активного соединения с сервером
    */
   public static ISkUser getConnectedUser( ISkConnection aConnection ) {
     TsNullArgumentRtException.checkNull( aConnection );
