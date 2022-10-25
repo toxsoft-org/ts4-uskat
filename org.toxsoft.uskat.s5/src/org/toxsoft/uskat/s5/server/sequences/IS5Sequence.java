@@ -6,6 +6,7 @@ import org.toxsoft.core.tslib.coll.IList;
 import org.toxsoft.core.tslib.gw.gwid.EGwidKind;
 import org.toxsoft.core.tslib.gw.gwid.Gwid;
 import org.toxsoft.core.tslib.utils.errors.*;
+import org.toxsoft.uskat.s5.server.backend.supports.histdata.impl.sequences.ITemporalValueImporter;
 
 /**
  * Последовательность значений одного данного.
@@ -134,4 +135,29 @@ public interface IS5Sequence<V extends ITemporal<?>> {
    * @throws TsIllegalStateRtException невозможно получить данные за указанный интервал
    */
   ITimedList<V> get( IQueryInterval aInterval );
+
+  /**
+   * Установить начальную метку времени для импорта значений
+   * <p>
+   * Если в последовательности нет значения точно по указанной метке, то метка устанавливается на первое значение за
+   * указанной меткой
+   *
+   * @param aTimestamp long метка времени (мсек с начала эпохи) с которой будет производиться импорт значений
+   */
+  void setImportTime( long aTimestamp );
+
+  /**
+   * Возвращает признак того, что импорт значений может быть продолжен вызовом {@link #nextImport()}
+   *
+   * @return <b>true</b> есть данные для импорта. <b>false</b> нет данных для импорта
+   */
+  boolean hasImport();
+
+  /**
+   * Импортировать следующее значение
+   *
+   * @return {@link ITemporalValueImporter} способ получения значений
+   * @throws TsIllegalArgumentRtException нет больше данных для импорта
+   */
+  ITemporalValueImporter nextImport();
 }

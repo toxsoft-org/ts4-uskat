@@ -7,7 +7,6 @@ import org.toxsoft.core.tslib.bricks.events.ITsEventer;
 import org.toxsoft.core.tslib.bricks.time.IQueryInterval;
 import org.toxsoft.core.tslib.bricks.time.ITimedList;
 import org.toxsoft.core.tslib.coll.*;
-import org.toxsoft.core.tslib.coll.impl.ElemLinkedList;
 import org.toxsoft.core.tslib.coll.impl.ElemMap;
 import org.toxsoft.core.tslib.gw.gwid.*;
 import org.toxsoft.core.tslib.utils.errors.TsItemNotFoundRtException;
@@ -23,10 +22,10 @@ public final class S5SynchronizedRtDataService
     extends S5SynchronizedService<ISkRtdataService>
     implements ISkRtdataService {
 
-  private final S5SynchronizedEventer<ISkCurrDataChangeListener> eventer;
-  private final IListEdit<S5SynchronizedReadCurrDataChannel>     readCurrdata  = new ElemLinkedList<>();
-  private final IListEdit<S5SynchronizedWriteCurrDataChannel>    writeCurrdata = new ElemLinkedList<>();
-  private final IListEdit<S5SynchronizedWriteHistDataChannel>    writeHistdata = new ElemLinkedList<>();
+  private final S5SynchronizedEventer<ISkCurrDataChangeListener>   eventer;
+  private final IMapEdit<Gwid, S5SynchronizedReadCurrDataChannel>  readCurrdata  = new ElemMap<>();
+  private final IMapEdit<Gwid, S5SynchronizedWriteCurrDataChannel> writeCurrdata = new ElemMap<>();
+  private final IMapEdit<Gwid, S5SynchronizedWriteHistDataChannel> writeHistdata = new ElemMap<>();
 
   /**
    * Конструктор
@@ -90,15 +89,15 @@ public final class S5SynchronizedRtDataService
   void removeChannel( S5SynchronizedRtdataChannel<? extends ISkRtdataChannel> aChannel ) {
     TsNullArgumentRtException.checkNull( aChannel );
     if( aChannel instanceof S5SynchronizedReadCurrDataChannel ) {
-      readCurrdata.remove( (S5SynchronizedReadCurrDataChannel)aChannel );
+      readCurrdata.removeByKey( aChannel.gwid() );
       return;
     }
     if( aChannel instanceof S5SynchronizedWriteCurrDataChannel ) {
-      writeCurrdata.remove( (S5SynchronizedWriteCurrDataChannel)aChannel );
+      writeCurrdata.removeByKey( aChannel.gwid() );
       return;
     }
     if( aChannel instanceof S5SynchronizedWriteHistDataChannel ) {
-      writeHistdata.remove( (S5SynchronizedWriteHistDataChannel)aChannel );
+      writeHistdata.removeByKey( aChannel.gwid() );
       return;
     }
   }
@@ -113,10 +112,15 @@ public final class S5SynchronizedRtDataService
       IMap<Gwid, ISkReadCurrDataChannel> channelsByGwids = target().createReadCurrDataChannels( aGwids );
       IMapEdit<Gwid, ISkReadCurrDataChannel> retValue = new ElemMap<>();
       for( Gwid gwid : channelsByGwids.keys() ) {
-        S5SynchronizedReadCurrDataChannel channel =
-            new S5SynchronizedReadCurrDataChannel( this, channelsByGwids.getByKey( gwid ), nativeLock() );
+        S5SynchronizedReadCurrDataChannel channel = readCurrdata.findByKey( gwid );
+        if( channel == null ) {
+          channel = new S5SynchronizedReadCurrDataChannel( this, channelsByGwids.getByKey( gwid ), nativeLock() );
+          readCurrdata.put( gwid, channel );
+        }
+        else {
+          channel.changeTarget( channelsByGwids.getByKey( gwid ), nativeLock() );
+        }
         retValue.put( gwid, channel );
-        readCurrdata.add( channel );
       }
       return retValue;
     }
@@ -132,10 +136,15 @@ public final class S5SynchronizedRtDataService
       IMap<Gwid, ISkWriteCurrDataChannel> channelsByGwids = target().createWriteCurrDataChannels( aGwids );
       IMapEdit<Gwid, ISkWriteCurrDataChannel> retValue = new ElemMap<>();
       for( Gwid gwid : channelsByGwids.keys() ) {
-        S5SynchronizedWriteCurrDataChannel channel =
-            new S5SynchronizedWriteCurrDataChannel( this, channelsByGwids.getByKey( gwid ), nativeLock() );
+        S5SynchronizedWriteCurrDataChannel channel = writeCurrdata.findByKey( gwid );
+        if( channel == null ) {
+          channel = new S5SynchronizedWriteCurrDataChannel( this, channelsByGwids.getByKey( gwid ), nativeLock() );
+          writeCurrdata.put( gwid, channel );
+        }
+        else {
+          channel.changeTarget( channelsByGwids.getByKey( gwid ), nativeLock() );
+        }
         retValue.put( gwid, channel );
-        writeCurrdata.add( channel );
       }
       return retValue;
     }
@@ -153,14 +162,18 @@ public final class S5SynchronizedRtDataService
   public IMap<Gwid, ISkWriteHistDataChannel> createWriteHistDataChannels( IGwidList aGwids ) {
     lockWrite( this );
     try {
-      // return target().createWriteHistDataChannels( aGwids );
       IMap<Gwid, ISkWriteHistDataChannel> channelsByGwids = target().createWriteHistDataChannels( aGwids );
       IMapEdit<Gwid, ISkWriteHistDataChannel> retValue = new ElemMap<>();
       for( Gwid gwid : channelsByGwids.keys() ) {
-        S5SynchronizedWriteHistDataChannel channel =
-            new S5SynchronizedWriteHistDataChannel( this, channelsByGwids.getByKey( gwid ), nativeLock() );
+        S5SynchronizedWriteHistDataChannel channel = writeHistdata.findByKey( gwid );
+        if( channel == null ) {
+          channel = new S5SynchronizedWriteHistDataChannel( this, channelsByGwids.getByKey( gwid ), nativeLock() );
+          writeHistdata.put( gwid, channel );
+        }
+        else {
+          channel.changeTarget( channelsByGwids.getByKey( gwid ), nativeLock() );
+        }
         retValue.put( gwid, channel );
-        writeHistdata.add( channel );
       }
       return retValue;
     }

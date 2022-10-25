@@ -9,7 +9,7 @@ import org.toxsoft.uskat.core.api.users.*;
 import org.toxsoft.uskat.core.connection.*;
 
 /**
- * Contributes M5- models for {@link ISkUserService} manager classes.
+ * Contributes M5-models for {@link ISkUserService} manager classes.
  *
  * @author hazard157
  */

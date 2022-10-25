@@ -12,7 +12,7 @@ import org.toxsoft.uskat.core.api.sysdescr.*;
 import org.toxsoft.uskat.core.connection.*;
 
 /**
- * Builtin contributor processes all all {@link ISkSysdescr#listClasses()} not handled by other contributors.
+ * Builtin contributor processes all {@link ISkSysdescr#listClasses()} not handled by other contributors.
  * <p>
  * This contributor is not registered in {@link KM5Utils}, it is added as last coontributor in the constructor
  * {@link KM5Support#KM5Support(ISkConnection, IM5Domain)}.

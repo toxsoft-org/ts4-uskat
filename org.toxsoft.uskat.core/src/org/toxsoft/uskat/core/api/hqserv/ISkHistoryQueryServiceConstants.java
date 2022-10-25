@@ -7,9 +7,10 @@ import static org.toxsoft.core.tslib.av.metainfo.IAvMetaConstants.*;
 import static org.toxsoft.uskat.core.ISkHardConstants.*;
 import static org.toxsoft.uskat.core.api.hqserv.ISkResources.*;
 
-import org.toxsoft.core.tslib.av.*;
-import org.toxsoft.core.tslib.av.metainfo.*;
-import org.toxsoft.core.tslib.gw.gwid.*;
+import org.toxsoft.core.tslib.av.EAtomicType;
+import org.toxsoft.core.tslib.av.metainfo.IDataDef;
+import org.toxsoft.core.tslib.bricks.time.impl.TimeUtils;
+import org.toxsoft.core.tslib.gw.gwid.EGwidKind;
 
 /**
  * {@link ISkQueryRawHistory} constants.
@@ -30,55 +31,77 @@ public interface ISkHistoryQueryServiceConstants {
   //
 
   /**
-   * Mandatory argument of all aggregating functions: duration of the aggregation time interval.<br>
-   * Type: {@link EAtomicType#INTEGER}<br>
+   * Mandatory argument ({@link IDtoQueryParam#funcArgs()}) of all aggregating functions: duration of the aggregation
+   * time interval.<br>
+   * Type: {@link EAtomicType#INTEGER}
+   * <p>
    * Usage: duration is specified in milliseconds. Aggregating functions creates single value for each aggregation time
    * interval. Value 0 means sinlge aggregation interval of whole queried time interval. Please note, that aggregation
-   * intervals by default starts at time 0 millisecond at epoch start (01.01.1970 00:00:00.000) unless argiment
-   * {@link #HQFUNC_ARG_AGGREGAION_START} is specified.<br>
+   * intervals by default starts at time 0 millisecond at epoch start (01.01.1970 00:00:00.000) unless argument
+   * {@link #HQFUNC_ARG_AGGREGAION_START} is specified.
+   * <p>
    * Default value: no default for mandatory argument
    */
-  String HQFUNC_ARG_AGGREGAION_INTERVAL = "AggregationIntervalMsecs"; //$NON-NLS-1$
+  IDataDef HQFUNC_ARG_AGGREGAION_INTERVAL = create( HQ_ID + "AggregationInterval", EAtomicType.INTEGER, //$NON-NLS-1$
+      TSID_NAME, STR_N_MAX_AGGREGATION_INTERVAL, //
+      TSID_DESCRIPTION, STR_D_MAX_AGGREGATION_INTERVAL, //
+      TSID_IS_NULL_ALLOWED, AV_FALSE, //
+      TSID_DEFAULT_VALUE, avInt( 0 ) );
 
   /**
-   * Optional argument of all aggregating functions: starting point of aggregation time intervals.<br>
-   * Type: {@link EAtomicType#INTEGER}<br>
-   * Usage: specifies the reference point (starting timestamp in milliseconds) for the origin of uniform aggregation
+   * Optional argument ({@link IDtoQueryParam#funcArgs()}) of all aggregating functions: starting point of aggregation
    * time intervals.<br>
+   * Type: {@link EAtomicType#TIMESTAMP}
+   * <p>
+   * Usage: specifies the reference point (starting timestamp in milliseconds) for the origin of uniform aggregation
+   * time intervals.
+   * <p>
    * Default value: 0 (epoch start at 01.01.1970 00:00:00.000)
    */
-  String HQFUNC_ARG_AGGREGAION_START = "AggregationIntervalsStart"; //$NON-NLS-1$
+  IDataDef HQFUNC_ARG_AGGREGAION_START = create( HQ_ID + "AggregationStart", EAtomicType.TIMESTAMP, //$NON-NLS-1$
+      TSID_NAME, STR_N_MAX_AGGREGATION_START, //
+      TSID_DESCRIPTION, STR_D_MAX_AGGREGATION_START, //
+      TSID_IS_NULL_ALLOWED, AV_FALSE, //
+      TSID_DEFAULT_VALUE, avTimestamp( TimeUtils.MIN_TIMESTAMP ) );
 
   /**
-   * Aggragating function returns single minimal value for each aggregation interval.<br>
+   * Aggregating function ({@link IDtoQueryParam#funcId()}) returns single minimal value for each aggregation interval.
+   * <p>
    * Applicable to the {@link EGwidKind#GW_RTDATA} of type {@link EAtomicType#INTEGER INTEGER} or
    * {@link EAtomicType#FLOATING}.
    */
   String HQFUNC_ID_MIN = HQ_ID + ".Min"; //$NON-NLS-1$
 
   /**
-   * Aggragating function returns single minimal value for each aggregation interval. <br>
+   * Aggregating function ({@link IDtoQueryParam#funcId()}) returns single minimal value for each aggregation interval.
+   * <p>
    * Applicable to the {@link EGwidKind#GW_RTDATA} of type {@link EAtomicType#INTEGER INTEGER} or
    * {@link EAtomicType#FLOATING}.
    */
   String HQFUNC_ID_MAX = HQ_ID + ".Max"; //$NON-NLS-1$
 
   /**
-   * Aggragating function returns single arithmetical average value for each aggregation interval. <br>
+   * Aggregating function ({@link IDtoQueryParam#funcId()}) returns single arithmetical average value for each
+   * aggregation interval.
+   * <p>
    * Applicable to the {@link EGwidKind#GW_RTDATA} of type {@link EAtomicType#INTEGER INTEGER} or
    * {@link EAtomicType#FLOATING}.
    */
   String HQFUNC_ID_AVERAGE = HQ_ID + ".Average"; //$NON-NLS-1$
 
   /**
-   * Aggragating function returns single sum of all values for each aggregation interval. <br>
+   * Aggregating function ({@link IDtoQueryParam#funcId()}) returns single sum of all values for each aggregation
+   * interval.
+   * <p>
    * Applicable to the {@link EGwidKind#GW_RTDATA} of type {@link EAtomicType#INTEGER INTEGER} or
    * {@link EAtomicType#FLOATING}.
    */
   String HQFUNC_ID_SUM = HQ_ID + ".Sum"; //$NON-NLS-1$
 
   /**
-   * Aggragating function returns single arithmetical average value for each aggregation interval. <br>
+   * Aggregating function ({@link IDtoQueryParam#funcId()}) returns single arithmetical average value for each
+   * aggregation interval.
+   * <p>
    * Applicable to the {@link EGwidKind#GW_RTDATA} of type {@link EAtomicType#INTEGER INTEGER} or
    * {@link EAtomicType#FLOATING}.
    */

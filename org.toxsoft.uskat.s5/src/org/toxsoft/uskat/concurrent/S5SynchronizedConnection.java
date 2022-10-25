@@ -84,6 +84,15 @@ public final class S5SynchronizedConnection
   // Открытое API
   //
   /**
+   * Возвращает блокировку используемую соединением
+   *
+   * @return {@link S5Lockable} блокировка
+   */
+  public S5Lockable getLock() {
+    return super.lock();
+  }
+
+  /**
    * Изменить состояние соединения
    *
    * @param aNewState {@link ESkConnState} новое состояние соединения

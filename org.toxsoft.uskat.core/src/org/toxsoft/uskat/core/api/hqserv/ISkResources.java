@@ -27,7 +27,11 @@ interface ISkResources {
   /**
    * {@link ISkHistoryQueryServiceConstants}
    */
-  String STR_N_MAX_EXECUTION_TIME = "Время(мсек)";
-  String STR_D_MAX_EXECUTION_TIME = "Макс. время (мсек) выполнения запроса до принудительной отмены";
+  String STR_N_MAX_AGGREGATION_INTERVAL = "Aggregation interval";
+  String STR_D_MAX_AGGREGATION_INTERVAL = "Duration of the aggregation time interval (msec)";
+  String STR_N_MAX_AGGREGATION_START    = "Aggregation interval";
+  String STR_D_MAX_AGGREGATION_START    = "Duration of the aggregation time interval (msec)";
+  String STR_N_MAX_EXECUTION_TIME       = "Время(мсек)";
+  String STR_D_MAX_EXECUTION_TIME       = "Макс. время (мсек) выполнения запроса до принудительной отмены";
 
 }

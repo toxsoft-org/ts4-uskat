@@ -31,6 +31,7 @@ import org.toxsoft.core.tslib.utils.logs.ILogger;
 import org.toxsoft.uskat.legacy.plexy.*;
 import org.toxsoft.uskat.legacy.plexy.impl.PlexyValueUtils;
 import org.toxsoft.uskat.s5.common.IS5CommonResources;
+import org.toxsoft.uskat.s5.legacy.S5LongArrayList;
 import org.toxsoft.uskat.skadmin.core.*;
 
 /**
@@ -769,7 +770,7 @@ public abstract class AbstractAdminCmd
       throw new TsIllegalStateRtException( ERR_ARG_CANT_INT_LIST_NARROW, id(), aArgId );
     }
     IList<IAtomicValue> valueList = value.valueList();
-    ILongListEdit retValue = new LongArrayList( valueList.size() );
+    ILongListEdit retValue = new S5LongArrayList( valueList.size() );
     for( int index = 0, n = valueList.size(); index < n; index++ ) {
       retValue.add( valueList.get( index ).asLong() );
     }

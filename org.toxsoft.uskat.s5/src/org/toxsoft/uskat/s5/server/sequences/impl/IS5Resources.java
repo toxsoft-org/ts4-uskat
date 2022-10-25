@@ -138,6 +138,8 @@ interface IS5Resources {
   String MSG_LOAD_BLOCK_CLASS        = Messages.getString( "IS5Resources.MSG_LOAD_BLOCK_CLASS" );        //$NON-NLS-1$
   String MSG_TIMER_EVENT_START       = Messages.getString( "IS5Resources.MSG_TIMER_EVENT_START" );       //$NON-NLS-1$
   String MSG_TIMER_EVENT_FINISH      = Messages.getString( "IS5Resources.MSG_TIMER_EVENT_FINISH" );      //$NON-NLS-1$
+
+  String MSG_GWID_FRAGMENT_COUNT = "prepareAuto(...): gwid = %s, lookupCount = %d, fragmentCount = %d"; //$NON-NLS-1$
   // =======
   // String MSG_FIND_TIME_BEFORE_SQL = "findTimeBefore(%s, time = %s), сформирован HSQL-запрос:\n%s ";
   // String MSG_LOAD_BLOCK_CLASS_START =
@@ -310,6 +312,11 @@ interface IS5Resources {
   String ERR_GWID_DOUBLE_ON_READ =
       "readSequences(): gwid = '%s' указан в списке запроса несколько раз. Это может снижать эффективность обработки запроса"; //$NON-NLS-1$
   // >>>>>>>refs/heads/2020-11-15_no_localization
+
+  String ERR_WRONG_IMPORT_CURSOR    = Messages.getString( "IS5Resources.ERR_WRONG_IMPORT_CURSOR" );    //$NON-NLS-1$
+  String ERR_NOT_CURSOR_IMPORT_DATA = Messages.getString( "IS5Resources.ERR_NOT_CURSOR_IMPORT_DATA" ); //$NON-NLS-1$
+  String ERR_NOT_IMPORT_DATA        = Messages.getString( "IS5Resources.ERR_NOT_IMPORT_DATA" );        //$NON-NLS-1$
+  String ERR_CAST_VALUE             = Messages.getString( "IS5Resources.ERR_CAST_VALUE" );             //$NON-NLS-1$
 
   // THREADS
   // ------------------------------------------------------------------------------------

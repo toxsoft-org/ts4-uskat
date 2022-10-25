@@ -697,6 +697,7 @@ public class S5SessionManager
   //
   @Override
   public void doJob() {
+    super.doJob();
     // Текущее время
     long currTime = System.currentTimeMillis();
     // Обработка doJob открытых писателей обратных вызовов

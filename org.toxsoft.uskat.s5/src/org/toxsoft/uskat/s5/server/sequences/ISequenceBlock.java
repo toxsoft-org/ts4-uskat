@@ -8,9 +8,9 @@ import org.toxsoft.core.tslib.bricks.time.ITimeInterval;
 import org.toxsoft.core.tslib.gw.gwid.EGwidKind;
 import org.toxsoft.core.tslib.gw.gwid.Gwid;
 import org.toxsoft.core.tslib.utils.TsLibUtils;
-import org.toxsoft.core.tslib.utils.errors.TsIllegalArgumentRtException;
-import org.toxsoft.core.tslib.utils.errors.TsIllegalStateRtException;
+import org.toxsoft.core.tslib.utils.errors.*;
 import org.toxsoft.uskat.core.api.sysdescr.dto.IDtoRtdataInfo;
+import org.toxsoft.uskat.s5.server.backend.supports.histdata.impl.sequences.ITemporalValueImporter;
 
 /**
  * Блок значений последовательности {@link IS5Sequence}.
@@ -111,6 +111,28 @@ public interface ISequenceBlock<V extends ITemporal<?>> {
    */
   int lastByTime( long aTimestamp );
 
+  /**
+   * Установить начальную метку времени для импорта значений
+   *
+   * @param aTimestamp long метка времени (мсек с начала эпохи) с которой будет производиться импорт значений
+   */
+  void setImportTime( long aTimestamp );
+
+  /**
+   * Возвращает признак того, что импорт значений может быть продолжен вызовом {@link #nextImport()}
+   *
+   * @return <b>true</b> есть данные для импорта. <b>false</b> нет данных для импорта
+   */
+  boolean hasImport();
+
+  /**
+   * Импортировать следующее значение
+   *
+   * @return {@link ITemporalValueImporter} способ получения значений
+   * @throws TsIllegalArgumentRtException нет больше данных для импорта
+   */
+  ITemporalValueImporter nextImport();
+
 }
 
 /**
@@ -156,46 +178,61 @@ class InternalNullDataValue
   //
   @Override
   public Gwid gwid() {
-    throw new TsIllegalStateRtException();
+    throw new TsNullObjectErrorRtException();
   }
 
   @Override
   public boolean isSync() {
-    throw new TsIllegalStateRtException();
+    throw new TsNullObjectErrorRtException();
   }
 
   @Override
   public int size() {
-    throw new TsIllegalStateRtException();
+    throw new TsNullObjectErrorRtException();
   }
 
   @Override
   public long timestamp( int aIndex ) {
-    throw new TsIllegalStateRtException();
+    throw new TsNullObjectErrorRtException();
   }
 
   @Override
   public ITemporal<?> getValue( int aIndex ) {
-    throw new TsIllegalStateRtException();
+    throw new TsNullObjectErrorRtException();
   }
 
   @Override
   public long startTime() {
-    throw new TsIllegalStateRtException();
+    throw new TsNullObjectErrorRtException();
   }
 
   @Override
   public long endTime() {
-    throw new TsIllegalStateRtException();
+    throw new TsNullObjectErrorRtException();
   }
 
   @Override
   public int firstByTime( long aTimestamp ) {
-    throw new TsIllegalStateRtException();
+    throw new TsNullObjectErrorRtException();
   }
 
   @Override
   public int lastByTime( long aTimestamp ) {
-    throw new TsIllegalStateRtException();
+    throw new TsNullObjectErrorRtException();
+  }
+
+  @Override
+  public void setImportTime( long aTimestamp ) {
+    throw new TsNullObjectErrorRtException();
+  }
+
+  @Override
+  public boolean hasImport() {
+    throw new TsNullObjectErrorRtException();
+  }
+
+  @Override
+  public ITemporalValueImporter nextImport() {
+    throw new TsNullObjectErrorRtException();
   }
 }

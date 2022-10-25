@@ -31,6 +31,7 @@ import org.toxsoft.uskat.core.ISkServiceCreator;
 import org.toxsoft.uskat.core.backend.ISkFrontendRear;
 import org.toxsoft.uskat.core.backend.api.*;
 import org.toxsoft.uskat.core.connection.ISkConnection;
+import org.toxsoft.uskat.core.devapi.IDevCoreApi;
 import org.toxsoft.uskat.core.impl.AbstractSkService;
 import org.toxsoft.uskat.core.impl.SkBackendInfo;
 import org.toxsoft.uskat.s5.client.IS5ConnectionParams;
@@ -52,6 +53,15 @@ public abstract class S5AbstractBackend<ADDON extends IS5BackendAddon>
     implements IS5Backend {
 
   private static final long LOCK_TIMEOUT = 1000;
+
+  /**
+   * API разработчика ядра
+   * <p>
+   * TODO: 2022-09-22 mvk: использование {@link IDevCoreApi} в бекенде (для передачи сообщения backend->frontend) -
+   * является грязным хаком. Предполагается, что метод {@link IDevCoreApi#doJobInCoreMainThread()} будет вызываться
+   * косвенно клиентом. "Как и когда" - тема для обсуждения с goga.
+   */
+  private final IDevCoreApi devCoreApi;
 
   /**
    * Представленный клиентом фронтенд с которым работает бекенд
@@ -132,6 +142,11 @@ public abstract class S5AbstractBackend<ADDON extends IS5BackendAddon>
       new ElemArrayList<>();
 
   /**
+   * Признак завершенной инициализации
+   */
+  private boolean inited;
+
+  /**
    * Статическая инициализация
    */
   static {
@@ -157,6 +172,8 @@ public abstract class S5AbstractBackend<ADDON extends IS5BackendAddon>
     sessionID = new Skid( ISkSession.CLASS_ID, login.asString() + "." + stridGenerator.nextId() ); //$NON-NLS-1$
     // Получение блокировки соединения
     frontendLock = aArgs.getRef( IS5ConnectionParams.REF_CONNECTION_LOCK.refKey(), S5Lockable.class );
+    // Доступ к ядру как разработчика
+    devCoreApi = (IDevCoreApi)aFrontend;
     // Представленный фронтенд
     frontend = aFrontend;
     // Фронтенд с перехватом и обработкой сообщений внутри бекенда и его расширений
@@ -223,6 +240,7 @@ public abstract class S5AbstractBackend<ADDON extends IS5BackendAddon>
   @Override
   public final void initialize() {
     doInitialize();
+    inited = true;
   }
 
   @Override
@@ -402,6 +420,15 @@ public abstract class S5AbstractBackend<ADDON extends IS5BackendAddon>
   // Методы для наследников
   //
   /**
+   * Возвращает признак завершения инициализации бекенда
+   *
+   * @return boolean <b>true</b> бекенд завершил инициализацию. <b>false</b> бекенд не завершил инициализаци.
+   */
+  protected final boolean isInited() {
+    return inited;
+  }
+
+  /**
    * Возвращает все расширения бекенда поддерживаемые сервером
    *
    * @return {@link IStringMapEdit}&lt;ADDON&gt; карта расширений бекенда;
@@ -441,6 +468,15 @@ public abstract class S5AbstractBackend<ADDON extends IS5BackendAddon>
       unlockWrite( frontendLock );
     }
     frontend.onBackendMessage( aMessage );
+
+    // Отработка сообщений
+    lockWrite( frontendLock );
+    try {
+      devCoreApi.doJobInCoreMainThread();
+    }
+    finally {
+      unlockWrite( frontendLock );
+    }
   }
 
   /**

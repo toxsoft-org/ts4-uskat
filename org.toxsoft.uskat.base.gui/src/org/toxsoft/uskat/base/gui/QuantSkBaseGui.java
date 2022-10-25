@@ -3,6 +3,8 @@ package org.toxsoft.uskat.base.gui;
 import org.eclipse.e4.core.contexts.*;
 import org.toxsoft.core.tsgui.bricks.quant.*;
 import org.toxsoft.uskat.base.gui.conn.*;
+import org.toxsoft.uskat.base.gui.km5.*;
+import org.toxsoft.uskat.base.gui.km5.sgw.*;
 
 /**
  * The library quant.
@@ -19,6 +21,7 @@ public class QuantSkBaseGui
    */
   public QuantSkBaseGui() {
     super( QuantSkBaseGui.class.getSimpleName() );
+    KM5Utils.registerContributorCreator( KM5SgwContributor.CREATOR );
   }
 
   @Override

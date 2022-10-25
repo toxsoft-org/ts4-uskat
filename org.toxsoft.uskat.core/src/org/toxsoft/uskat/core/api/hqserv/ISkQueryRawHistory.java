@@ -1,10 +1,11 @@
 package org.toxsoft.uskat.core.api.hqserv;
 
-import org.toxsoft.core.tslib.bricks.time.*;
-import org.toxsoft.core.tslib.coll.*;
+import org.toxsoft.core.tslib.bricks.time.ITemporal;
+import org.toxsoft.core.tslib.bricks.time.ITimedList;
+import org.toxsoft.core.tslib.coll.IMap;
 import org.toxsoft.core.tslib.gw.gwid.*;
 import org.toxsoft.core.tslib.utils.errors.*;
-import org.toxsoft.uskat.core.api.gwids.*;
+import org.toxsoft.uskat.core.api.gwids.ISkGwidService;
 
 /**
  * Queries the "raw" history of data.
@@ -47,7 +48,8 @@ public interface ISkQueryRawHistory
    * All multi-GWIDs will be expanded so result contains only <b>concrete single</b> GWIDs (that is
    * {@link Gwid#isMulti()} = <code>false</code>).
    * <p>
-   * Mathod shall not ba called when {@link #state()} is {@link ESkQueryState#EXECUTING} or {@link ESkQueryState#CLOSED}.
+   * Mathod shall not ba called when {@link #state()} is {@link ESkQueryState#EXECUTING} or
+   * {@link ESkQueryState#CLOSED}.
    *
    * @param aGwids {@link IGwidList} - RTdata GWIDs user ask for query
    * @return {@link IGwidList} - GWIDs to be queried in fact
@@ -63,30 +65,30 @@ public interface ISkQueryRawHistory
   /**
    * Returns result of query for specified RTdata.
    * <p>
-   * Note: while open, only query with {@link ISkQueryRawHistory#state()} = {@link ESkQueryState#READY} contains data. All
-   * other states leads to an empty result of this method. After {@link #close()} data (if there were any) will remain
-   * in query instance and may be used.
+   * Note: while open, only query with {@link ISkQueryRawHistory#state()} = {@link ESkQueryState#READY} contains data.
+   * All other states leads to an empty result of this method. After {@link #close()} data (if there were any) will
+   * remain in query instance and may be used.
    *
-   * @param <T> - expected type of the temporal value
+   * @param <V> - expected type of the temporal value
    * @param aGwid {@link Gwid} - data GWID
    * @return {@link ITimedList}&lt;T&gt; - data sequence
    * @throws TsNullArgumentRtException any argument = <code>null</code>
    * @throws TsItemNotFoundRtException not such GWID in the result
    */
-  <T extends ITemporalValue<T>> ITimedList<T> get( Gwid aGwid );
+  <V extends ITemporal<V>> ITimedList<V> get( Gwid aGwid );
 
   /**
    * Returns all results of the query at once.
    * <p>
    * Map keys is the same list of GWIDs as returned by {@link #prepare(IGwidList)}.
    * <p>
-   * Note: while open, only query with {@link ISkQueryRawHistory#state()} = {@link ESkQueryState#READY} contains data. All
-   * other states leads to an empty result of this method. After {@link #close()} data (if there were any) will remain
-   * in query instance and may be used.
+   * Note: while open, only query with {@link ISkQueryRawHistory#state()} = {@link ESkQueryState#READY} contains data.
+   * All other states leads to an empty result of this method. After {@link #close()} data (if there were any) will
+   * remain in query instance and may be used.
    *
-   * @param <T> - expected type of the temporal value
+   * @param <V> - expected type of the temporal value
    * @return {@link IMap}&lt;{@link Gwid},{@link ITimedList}&gt; - map "data GWID" - "data sequence"
    */
-  <T extends ITemporalValue<T>> IMap<Gwid, ITimedList<T>> getAll();
+  <V extends ITemporal<V>> IMap<Gwid, ITimedList<V>> getAll();
 
 }

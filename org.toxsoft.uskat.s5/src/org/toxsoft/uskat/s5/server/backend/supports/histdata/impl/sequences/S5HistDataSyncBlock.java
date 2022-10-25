@@ -25,11 +25,9 @@ import org.toxsoft.uskat.s5.server.sequences.impl.S5SequenceSyncBlock;
 @MappedSuperclass
 public abstract class S5HistDataSyncBlock<BLOB_ARRAY, BLOB extends S5SequenceSyncBlob<?, BLOB_ARRAY, ?>>
     extends S5SequenceSyncBlock<ITemporalAtomicValue, BLOB_ARRAY, BLOB>
-    implements IHistDataBlock, ITemporalValueImporter {
+    implements IHistDataBlock {
 
   private static final long serialVersionUID = 157157L;
-  private transient int     importIndex      = -1;
-  private transient boolean hasImport        = false;
 
   /**
    * Конструктор без параметров (для JPA)
@@ -65,93 +63,6 @@ public abstract class S5HistDataSyncBlock<BLOB_ARRAY, BLOB extends S5SequenceSyn
   }
 
   // ------------------------------------------------------------------------------------
-  // Реализация IHistDataBlock
-  //
-  @Override
-  public final void setImportTime( long aTimestamp ) {
-    // Слот (мсек)
-    long syncDataDelta = syncDataDelta();
-    // Метка времени выравненная по слоту блока
-    long timestamp = ((aTimestamp / syncDataDelta) * syncDataDelta);
-    importIndex = firstByTime( timestamp );
-    if( importIndex >= 0 ) {
-      hasImport = true;
-      // Декремент индекса так как он будет поправлен при первом вызове nextImport
-      importIndex--;
-      return;
-    }
-    // Нет данных для импорта
-    hasImport = false;
-    importIndex = -1;
-  }
-
-  @Override
-  public final boolean hasImport() {
-    return hasImport;
-  }
-
-  @Override
-  public final ITemporalValueImporter nextImport() {
-    if( !hasImport ) {
-      throw new TsIllegalArgumentRtException( ERR_NOT_IMPORT_DATA, this );
-    }
-    importIndex++;
-    if( importIndex + 1 >= size() ) {
-      // Достижение конца блока. Больше нет данных для импорта
-      hasImport = false;
-    }
-    return this;
-  }
-
-  // ------------------------------------------------------------------------------------
-  // Реализация ITemporalValueImporter
-  //
-  @Override
-  public final long timestamp() {
-    return timestamp( importIndex );
-  }
-
-  @Override
-  public final boolean isAssigned() {
-    return doIsAssigned( importIndex );
-  }
-
-  @Override
-  public final boolean asBool() {
-    return doAsBool( importIndex );
-  }
-
-  @Override
-  public final int asInt() {
-    return doAsInt( importIndex );
-  }
-
-  @Override
-  public final long asLong() {
-    return doAsLong( importIndex );
-  }
-
-  @Override
-  public final float asFloat() {
-    return doAsFloat( importIndex );
-  }
-
-  @Override
-  public final double asDouble() {
-    return doAsDouble( importIndex );
-  }
-
-  @Override
-  public final String asString() {
-    return doAsString( importIndex );
-  }
-
-  @Override
-  public final <T> T asValobj() {
-    return doAsValobj( importIndex );
-  }
-
-  // ------------------------------------------------------------------------------------
   // Методы для реализации наследниками
   //
   /**
@@ -161,6 +72,7 @@ public abstract class S5HistDataSyncBlock<BLOB_ARRAY, BLOB extends S5SequenceSyn
    * @return boolean <b>true</b> значение установлено;<b>false</b> значение не установлено, попытка чтения приведет к
    *         ошибке.
    */
+  @Override
   abstract protected boolean doIsAssigned( int aIndex );
 
   /**
@@ -169,6 +81,7 @@ public abstract class S5HistDataSyncBlock<BLOB_ARRAY, BLOB extends S5SequenceSyn
    * @param aIndex индекс значения
    * @return boolean значение
    */
+  @Override
   protected boolean doAsBool( int aIndex ) {
     throw new AvTypeCastRtException( ERR_CAST_VALUE, this, "boolean" ); //$NON-NLS-1$
   }
@@ -179,6 +92,7 @@ public abstract class S5HistDataSyncBlock<BLOB_ARRAY, BLOB extends S5SequenceSyn
    * @param aIndex индекс значения
    * @return int значение
    */
+  @Override
   protected int doAsInt( int aIndex ) {
     throw new AvTypeCastRtException( ERR_CAST_VALUE, this, "int" ); //$NON-NLS-1$
   }
@@ -189,6 +103,7 @@ public abstract class S5HistDataSyncBlock<BLOB_ARRAY, BLOB extends S5SequenceSyn
    * @param aIndex индекс значения
    * @return long значение
    */
+  @Override
   protected long doAsLong( int aIndex ) {
     throw new AvTypeCastRtException( ERR_CAST_VALUE, this, "long" ); //$NON-NLS-1$
   }
@@ -199,6 +114,7 @@ public abstract class S5HistDataSyncBlock<BLOB_ARRAY, BLOB extends S5SequenceSyn
    * @param aIndex индекс значения
    * @return float значение
    */
+  @Override
   protected float doAsFloat( int aIndex ) {
     throw new AvTypeCastRtException( ERR_CAST_VALUE, this, "float" ); //$NON-NLS-1$
   }
@@ -209,6 +125,7 @@ public abstract class S5HistDataSyncBlock<BLOB_ARRAY, BLOB extends S5SequenceSyn
    * @param aIndex индекс значения
    * @return double значение
    */
+  @Override
   protected double doAsDouble( int aIndex ) {
     throw new AvTypeCastRtException( ERR_CAST_VALUE, this, "double" ); //$NON-NLS-1$
   }
@@ -219,6 +136,7 @@ public abstract class S5HistDataSyncBlock<BLOB_ARRAY, BLOB extends S5SequenceSyn
    * @param aIndex индекс значения
    * @return String значение
    */
+  @Override
   protected String doAsString( int aIndex ) {
     return getValue( aIndex ).toString();
   }
@@ -240,6 +158,7 @@ public abstract class S5HistDataSyncBlock<BLOB_ARRAY, BLOB extends S5SequenceSyn
    * @return {@link Object} значение
    * @param <T> тип возвращаемого значения
    */
+  @Override
   protected <T> T doAsValobj( int aIndex ) {
     throw new AvTypeCastRtException( ERR_CAST_VALUE, this, "valobj" ); //$NON-NLS-1$
   }

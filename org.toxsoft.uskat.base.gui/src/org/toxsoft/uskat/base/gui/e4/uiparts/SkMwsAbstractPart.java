@@ -3,6 +3,7 @@ package org.toxsoft.uskat.base.gui.e4.uiparts;
 import org.eclipse.swt.*;
 import org.eclipse.swt.widgets.*;
 import org.toxsoft.core.tsgui.dialogs.*;
+import org.toxsoft.core.tsgui.m5.*;
 import org.toxsoft.core.tsgui.mws.bases.*;
 import org.toxsoft.core.tsgui.utils.layout.*;
 import org.toxsoft.core.tsgui.widgets.*;
@@ -197,6 +198,11 @@ public abstract class SkMwsAbstractPart
       return connectionSupplier().defConn();
     }
     return connectionSupplier().getConn( suppliedConnectionId );
+  }
+
+  @Override
+  public IM5Domain m5() {
+    return skConn().scope().get( IM5Domain.class );
   }
 
   // ------------------------------------------------------------------------------------

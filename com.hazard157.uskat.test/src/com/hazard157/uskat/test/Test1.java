@@ -5,6 +5,8 @@ import static org.toxsoft.core.tslib.av.metainfo.IAvMetaConstants.*;
 import static org.toxsoft.core.tslib.gw.IGwHardConstants.*;
 import static org.toxsoft.uskat.core.ISkHardConstants.*;
 
+import org.toxsoft.core.tslib.av.*;
+import org.toxsoft.core.tslib.av.impl.*;
 import org.toxsoft.core.tslib.av.opset.*;
 import org.toxsoft.core.tslib.av.opset.impl.*;
 import org.toxsoft.core.tslib.bricks.ctx.*;
@@ -49,13 +51,34 @@ public class Test1
   // Testing sequence
   //
 
-  private static final String CID_MODEL_GIRL        = "fj.Model";    //$NON-NLS-1$
-  private static final String CID_IMAGE_SET         = "fj.ImageSet"; //$NON-NLS-1$
-  private static final String RID_IMGSET_MAIN_MODEL = "main_model";  //$NON-NLS-1$
+  private static final String CID_MODEL_GIRL        = "fj.Model";             //$NON-NLS-1$
+  private static final String CID_IMAGE_SET         = "fj.ImageSet";          //$NON-NLS-1$
+  private static final String RID_IMGSET_MAIN_MODEL = "main_model";           //$NON-NLS-1$
+  private static final String RTDID_PREGNANT        = "pregnant_rtdataId";    //$NON-NLS-1$
+  private static final String RTDID_PULSE           = "pulse_rtdataId";       //$NON-NLS-1$
+  private static final String RTDID_TEMPERATURE     = "temperature_rtdataId"; //$NON-NLS-1$
 
   private static IDtoClassInfo makeModelGirlClass() {
     DtoClassInfo dtoClass = new DtoClassInfo( CID_MODEL_GIRL, GW_ROOT_CLASS_ID, IOptionSet.NULL );
     // TODO Test1.makeModelGirlClass()
+    DtoRtdataInfo rtdinf1 = DtoRtdataInfo.create1( RTDID_PREGNANT, new DataType( EAtomicType.BOOLEAN ), true, true,
+        true, 1000, OptionSetUtils.createOpSet( //
+            TSID_NAME, "flag pregnant", //
+            TSID_DESCRIPTION, "Flag is girl pregnant" //
+        ) );
+    dtoClass.rtdataInfos().put( rtdinf1 );
+    DtoRtdataInfo rtdinf2 = DtoRtdataInfo.create1( RTDID_PULSE, new DataType( EAtomicType.INTEGER ), true, true, true,
+        1000, OptionSetUtils.createOpSet( //
+            TSID_NAME, "pulse of heart", //
+            TSID_DESCRIPTION, "pulse of heart" //
+        ) );
+    dtoClass.rtdataInfos().put( rtdinf2 );
+    DtoRtdataInfo rtdinf3 = DtoRtdataInfo.create1( RTDID_TEMPERATURE, new DataType( EAtomicType.STRING ), true, true,
+        true, 1000, OptionSetUtils.createOpSet( //
+            TSID_NAME, "temperature ", //
+            TSID_DESCRIPTION, "temperature of body" //
+        ) );
+    dtoClass.rtdataInfos().put( rtdinf3 );
     return dtoClass;
   }
 
@@ -122,8 +145,9 @@ public class Test1
     try {
       TsTestUtils.nl();
       ISkCoreConfigConstants.REFDEF_BACKEND_PROVIDER.setRef( ctx, MtbBackendToFile.PROVIDER );
-      MtbBackendToFile.OPDEF_FILE_PATH.setValue( ctx.params(), avStr( "/home/goga/mtb-test.txt" ) );
+      MtbBackendToFile.OPDEF_FILE_PATH.setValue( ctx.params(), avStr( "/home/dmitry/mtb-test.txt" ) );
       conn.open( ctx );
+
       // FIXME conn.coreApi().eventer().addListener( coreListener );
       TsTestUtils.pl( conn.backendInfo().toString() );
       runTestSequenceWithOpenConnection();

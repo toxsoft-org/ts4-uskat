@@ -255,7 +255,8 @@ public class SkCoreServRtdata
       ISkClassInfo cinf = sysdescr().getClassInfo( aGwid.classId() );
       IDtoRtdataInfo dinf = cinf.rtdata().list().getByKey( aGwid.propId() );
       atomicType = dinf.dataType().atomicType();
-      ++counter;
+      // 2022-09-22 mvk fix ---
+      // ++counter;
     }
 
     @Override

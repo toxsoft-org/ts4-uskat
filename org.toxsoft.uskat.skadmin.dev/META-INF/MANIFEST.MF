@@ -14,7 +14,8 @@ Export-Package: org.toxsoft.uskat.skadmin.dev,
  org.toxsoft.uskat.skadmin.dev.commands,
  org.toxsoft.uskat.skadmin.dev.events,
  org.toxsoft.uskat.skadmin.dev.objects,
- org.toxsoft.uskat.skadmin.dev.pas
+ org.toxsoft.uskat.skadmin.dev.pas,
+ org.toxsoft.uskat.skadmin.dev.rtdata
 Bundle-RequiredExecutionEnvironment: JavaSE-17
 Automatic-Module-Name: org.toxsoft.uskat.skadmin.dev
 TsPluginContainerVersion: 2

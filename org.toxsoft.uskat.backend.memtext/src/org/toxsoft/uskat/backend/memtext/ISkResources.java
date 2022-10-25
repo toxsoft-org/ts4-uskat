@@ -1,5 +1,7 @@
 package org.toxsoft.uskat.backend.memtext;
 
+import org.toxsoft.core.txtproj.lib.*;
+
 /**
  * Локализуемые ресурсы.
  *
@@ -34,5 +36,14 @@ interface ISkResources {
   String STR_N_OP_AUTO_SAVE_SECS        = "Интервал (сек)";
   String STR_D_OP_AUTO_SAVE_SECS        = "Миниманое время между авто-сохранениями файла БД";
   String FMT_ERR_NO_FILE_NAME_SPECIFIED = "Не задан параметр %s: имя текстового файла хранения данных";
+
+  /**
+   * {@link MtbBackendToTsProj}
+   */
+  String STR_N_OP_PDU_ID    = "Раздел проекта";
+  String STR_D_OP_PDU_ID    = "Идентификатор компоненты (раздела) файла проекта для хранения данных uskat";
+  String STR_N_REF_PROJECT  = "Проекта";
+  String STR_D_REF_PROJECT  = "Ссылка на экземпляр проекта " + ITsProject.class.getSimpleName();
+  String FMT_ERR_INV_PDU_ID = "Неверный параметр %s: идентификатор раздела проекта должен быть ИД-путем";
 
 }

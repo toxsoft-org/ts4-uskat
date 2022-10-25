@@ -152,6 +152,8 @@ public class S5BackendCurrDataSingleton
 
   @Override
   public void doJob() {
+    super.doJob();
+    // Текущее время
     long currTime = System.currentTimeMillis();
     // Обработка данных фронтендов
     for( IS5FrontendRear frontend : backend().attachedFrontends() ) {
