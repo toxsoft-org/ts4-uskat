@@ -18,7 +18,7 @@ import org.toxsoft.core.tslib.bricks.time.ITimedList;
 import org.toxsoft.core.tslib.gw.gwid.Gwid;
 import org.toxsoft.core.tslib.utils.errors.*;
 import org.toxsoft.uskat.s5.server.backend.supports.histdata.impl.sequences.S5HistDataSyncBlock;
-import org.toxsoft.uskat.s5.server.sequences.ISequenceBlockEdit;
+import org.toxsoft.uskat.s5.server.sequences.IS5SequenceBlockEdit;
 
 /**
  * Блок хранения синхронных атомарных значений типа {@link EAtomicType#BOOLEAN}
@@ -128,7 +128,7 @@ public class S5HistDataSyncBooleanEntity1
   // Реализация абстрактных методов
   //
   @Override
-  protected ISequenceBlockEdit<ITemporalAtomicValue> doCreateBlock( IParameterized aTypeInfo, long aStartTime,
+  protected IS5SequenceBlockEdit<ITemporalAtomicValue> doCreateBlock( IParameterized aTypeInfo, long aStartTime,
       byte[] aValues ) {
     S5HistDataSyncBooleanBlobEntity1 blob = new S5HistDataSyncBooleanBlobEntity1( aValues );
     return new S5HistDataSyncBooleanEntity1( aTypeInfo, gwid(), aStartTime, blob );
@@ -140,15 +140,15 @@ public class S5HistDataSyncBooleanEntity1
   }
 
   // ------------------------------------------------------------------------------------
-  // Реализация шаблонных методов (импорт значения)
+  // IS5HistDataBlockReader
   //
   @Override
-  protected boolean doIsAssigned( int aIndex ) {
+  public boolean isAssigned( int aIndex ) {
     return values()[aIndex] != BOOLEAN_NULL;
   }
 
   @Override
-  protected boolean doAsBool( int aIndex ) {
+  public boolean asBool( int aIndex ) {
     switch( values()[aIndex] ) {
       case BOOLEAN_TRUE:
         return true;
@@ -162,7 +162,7 @@ public class S5HistDataSyncBooleanEntity1
   }
 
   @Override
-  protected int doAsInt( int aIndex ) {
+  public int asInt( int aIndex ) {
     switch( values()[aIndex] ) {
       case BOOLEAN_TRUE:
         return AV_1.asInt();
@@ -176,7 +176,7 @@ public class S5HistDataSyncBooleanEntity1
   }
 
   @Override
-  protected long doAsLong( int aIndex ) {
+  public long asLong( int aIndex ) {
     switch( values()[aIndex] ) {
       case BOOLEAN_TRUE:
         return AV_1.asLong();
@@ -190,7 +190,7 @@ public class S5HistDataSyncBooleanEntity1
   }
 
   @Override
-  protected float doAsFloat( int aIndex ) {
+  public float asFloat( int aIndex ) {
     switch( values()[aIndex] ) {
       case BOOLEAN_TRUE:
         return AV_1.asFloat();
@@ -204,7 +204,7 @@ public class S5HistDataSyncBooleanEntity1
   }
 
   @Override
-  protected double doAsDouble( int aIndex ) {
+  public double asDouble( int aIndex ) {
     switch( values()[aIndex] ) {
       case BOOLEAN_TRUE:
         return AV_1.asDouble();
