@@ -12,6 +12,7 @@ import org.toxsoft.core.tslib.utils.TsVersion;
 import org.toxsoft.uskat.s5.common.S5Module;
 import org.toxsoft.uskat.s5.server.backend.addons.IS5BackendAddonCreator;
 import org.toxsoft.uskat.s5.server.backend.addons.classes.S5BaClassesCreator;
+import org.toxsoft.uskat.s5.server.backend.addons.clobs.S5BaClobsCreator;
 import org.toxsoft.uskat.s5.server.backend.addons.commands.S5BaCommandsCreator;
 import org.toxsoft.uskat.s5.server.backend.addons.events.S5BaEventsCreator;
 import org.toxsoft.uskat.s5.server.backend.addons.links.S5BaLinksCreator;
@@ -66,6 +67,7 @@ public class S5UskatServer
   @Override
   protected IStridablesList<IS5BackendAddonCreator> doProjectSpecificBaCreators() {
     return new StridablesList<>( //
+        new S5BaClobsCreator(), //
         new S5BaClassesCreator(), //
         new S5BaObjectsCreator(), //
         new S5BaLinksCreator(), //
