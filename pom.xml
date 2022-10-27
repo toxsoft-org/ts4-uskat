@@ -572,6 +572,8 @@
     <module>org.toxsoft.uskat.skadmin.dev</module>
     <module>org.toxsoft.uskat.skadmin.logon</module>
 
+    <module>org.toxsoft.uskat.base.gui</module>
+
     <!-- <module>org.toxsoft.uskat.sysext.alarms</module>  
     <module>org.toxsoft.uskat.sysext.batchop</module> 
     <module>org.toxsoft.uskat.sysext.realtime</module> 
