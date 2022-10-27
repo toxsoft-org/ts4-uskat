@@ -152,6 +152,11 @@ public class S5HistDataAsyncBooleanEntity0
   }
 
   @Override
+  public EAtomicType atomicType() {
+    return EAtomicType.BOOLEAN;
+  }
+
+  @Override
   public boolean asBool( int aIndex ) {
     switch( values()[aIndex] ) {
       case BOOLEAN_TRUE:

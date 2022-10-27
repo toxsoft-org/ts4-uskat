@@ -144,6 +144,11 @@ public class S5HistDataAsyncTimestampEntity1
   }
 
   @Override
+  public EAtomicType atomicType() {
+    return EAtomicType.TIMESTAMP;
+  }
+
+  @Override
   public long asLong( int aIndex ) {
     long value = values()[aIndex];
     if( value == LONG_NULL ) {

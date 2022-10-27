@@ -142,6 +142,11 @@ public class S5HistDataSyncFloatingEntity5
   }
 
   @Override
+  public EAtomicType atomicType() {
+    return EAtomicType.FLOATING;
+  }
+
+  @Override
   public double asDouble( int aIndex ) {
     double value = values()[aIndex];
     if( value == DOUBLE_NULL ) {

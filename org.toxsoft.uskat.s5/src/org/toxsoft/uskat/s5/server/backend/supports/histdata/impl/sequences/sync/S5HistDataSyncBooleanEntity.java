@@ -148,6 +148,11 @@ public class S5HistDataSyncBooleanEntity
   }
 
   @Override
+  public EAtomicType atomicType() {
+    return EAtomicType.BOOLEAN;
+  }
+
+  @Override
   public boolean asBool( int aIndex ) {
     switch( values()[aIndex] ) {
       case BOOLEAN_TRUE:

@@ -142,6 +142,11 @@ public class S5HistDataSyncIntegerEntity6
   }
 
   @Override
+  public EAtomicType atomicType() {
+    return EAtomicType.INTEGER;
+  }
+
+  @Override
   public int asInt( int aIndex ) {
     long value = values()[aIndex];
     if( value == LONG_NULL ) {

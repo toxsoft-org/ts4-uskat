@@ -143,6 +143,11 @@ public class S5HistDataAsyncStringEntity
   }
 
   @Override
+  public EAtomicType atomicType() {
+    return EAtomicType.STRING;
+  }
+
+  @Override
   public String asString( int aIndex ) {
     String value = values()[aIndex];
     if( value == null ) {

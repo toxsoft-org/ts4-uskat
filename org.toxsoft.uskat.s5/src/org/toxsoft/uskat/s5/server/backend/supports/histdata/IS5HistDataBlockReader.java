@@ -15,6 +15,13 @@ public interface IS5HistDataBlockReader
     extends IS5SequenceBlockReader {
 
   /**
+   * Возвращает атомарный тип значений
+   *
+   * @return {@link EAtomicType} атомарный тип
+   */
+  EAtomicType atomicType();
+
+  /**
    * Возвращает значение по индексу
    *
    * @param aIndex индекс значения в блоке

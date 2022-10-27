@@ -7,6 +7,9 @@ package org.toxsoft.uskat.s5.server.backend.supports.histdata;
  */
 interface IS5Resources {
 
+  String STR_N_ATOMIC_TYPE = Messages.getString( "IS5Resources.STR_N_ATOMIC_TYPE" ); //$NON-NLS-1$
+  String STR_D_ATOMIC_TYPE = Messages.getString( "IS5Resources.STR_D_ATOMIC_TYPE" ); //$NON-NLS-1$
+
   // ------------------------------------------------------------------------------------
   // Строки сообщений
   //

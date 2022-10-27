@@ -143,6 +143,11 @@ public class S5HistDataAsyncValobjEntity8
     return values()[aIndex] != null;
   }
 
+  @Override
+  public EAtomicType atomicType() {
+    return EAtomicType.VALOBJ;
+  }
+
   @SuppressWarnings( "unchecked" )
   @Override
   public <T> T asValobj( int aIndex ) {

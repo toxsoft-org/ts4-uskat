@@ -27,6 +27,7 @@ import org.toxsoft.core.tslib.utils.errors.*;
 import org.toxsoft.uskat.core.api.sysdescr.ISkClassInfo;
 import org.toxsoft.uskat.core.api.sysdescr.dto.IDtoRtdataInfo;
 import org.toxsoft.uskat.s5.common.sysdescr.ISkSysdescrReader;
+import org.toxsoft.uskat.s5.server.backend.supports.histdata.IS5HistDataHardConstants;
 import org.toxsoft.uskat.s5.server.backend.supports.histdata.impl.sequences.async.*;
 import org.toxsoft.uskat.s5.server.backend.supports.histdata.impl.sequences.sync.*;
 import org.toxsoft.uskat.s5.server.sequences.*;
@@ -189,6 +190,8 @@ public final class S5HistDataSequenceFactory
     // Для описания типа данного используются параметры описания события
     IParameterizedEdit typeInfo = new StridableParameterized( classId, rtdataInfo.params() );
     IOptionSetEdit params = typeInfo.params();
+    // Атомарный тип значений
+    IS5HistDataHardConstants.OP_ATOMIC_TYPE.setValue( params, avValobj( atomicType ) );
     // Установка значений неизменяемых опций("защита от дурака")
     IAvMetaConstants.DDEF_DEFAULT_VALUE.setValue( params, rtdataInfo.dataType().defaultValue() );
     IS5SequenceHardConstants.OP_IS_SYNC.setValue( params, avBool( rtdataInfo.isSync() ) );

@@ -4,10 +4,12 @@ import org.toxsoft.core.tslib.av.EAtomicType;
 import org.toxsoft.core.tslib.av.IAtomicValue;
 import org.toxsoft.core.tslib.av.temporal.ITemporalAtomicValue;
 import org.toxsoft.core.tslib.bricks.time.ITemporalValue;
-import org.toxsoft.core.tslib.utils.errors.TsIllegalArgumentRtException;
-import org.toxsoft.core.tslib.utils.errors.TsNullArgumentRtException;
+import org.toxsoft.core.tslib.utils.errors.*;
+import org.toxsoft.uskat.s5.server.backend.supports.histdata.IS5HistDataHardConstants;
 import org.toxsoft.uskat.s5.server.backend.supports.histdata.IS5HistDataSequence;
 import org.toxsoft.uskat.s5.server.backend.supports.queries.IS5BackendHistDataCursor;
+import org.toxsoft.uskat.s5.server.sequences.IS5Sequence;
+import org.toxsoft.uskat.s5.server.sequences.IS5SequenceBlock;
 
 /**
  * Реализация {@link IS5BackendHistDataCursor}
@@ -17,20 +19,41 @@ import org.toxsoft.uskat.s5.server.backend.supports.queries.IS5BackendHistDataCu
 public class S5HistDataCursor
     implements IS5BackendHistDataCursor, ITemporalAtomicValue {
 
-  private final IAtomicValue        atomicValue = new AtomicValueCursor();
-  private final IS5HistDataSequence sequence;
-  private IS5HistDataBlock          block;
+  private final IAtomicValue   atomicValue = new AtomicValueCursor();
+  private final IS5Sequence<?> sequence;
+  private IS5SequenceBlock<?>  block;
+  private int                  blockIndex;
+  private int                  valueIndex;
+  private int                  position    = 0;
 
+  /**
+   * Создание курсора для последовательности значений
+   *
+   * @param aSequence {@link IS5HistDataSequence} последовательность значений
+   * @throws TsNullArgumentRtException аргумент = null
+   */
   public S5HistDataCursor( IS5HistDataSequence aSequence ) {
     TsNullArgumentRtException.checkNull( aSequence );
     sequence = aSequence;
     block = (sequence.blocks().size() > 0 ? (IS5HistDataBlock)sequence.blocks().get( 0 ) : null);
+    setTime( aSequence.interval().startTime() );
+    // blockIndex = (sequence.blocks().size() - 1);
+    // valueIndex = (block != null ? block.size() - 1 : -1);
   }
 
+  /**
+   * Создание курсора для блока значений
+   *
+   * @param aBlock {@link IS5HistDataBlock} блок значений
+   * @throws TsNullArgumentRtException аргумент = null
+   */
   public S5HistDataCursor( IS5HistDataBlock aBlock ) {
     TsNullArgumentRtException.checkNull( aBlock );
     sequence = null;
     block = aBlock;
+    setTime( block.startTime() );
+    // blockIndex = -1;
+    // valueIndex = (aBlock.size() - 1);
   }
 
   // ------------------------------------------------------------------------------------
@@ -44,20 +67,37 @@ public class S5HistDataCursor
 
   @Override
   public boolean hasNextValue() {
-    // TODO Auto-generated method stub
-    return false;
+    if( valueIndex < block.size() ) {
+      return true;
+    }
+    return (sequence != null ? blockIndex < sequence.blocks().size() : false);
   }
 
   @Override
   public ITemporalAtomicValue nextValue() {
     TsIllegalArgumentRtException.checkFalse( hasNextValue() );
-    return this;
+    position++;
+    if( valueIndex + 1 < block.size() ) {
+      valueIndex++;
+      return this;
+    }
+    if( sequence == null ) {
+      throw new TsInternalErrorRtException();
+    }
+    valueIndex = 0;
+    for( int index = blockIndex + 1, n = sequence.blocks().size(); index < n; index++ ) {
+      IS5SequenceBlock<?> nextBlock = sequence.blocks().get( index );
+      if( nextBlock.size() > 0 ) {
+        blockIndex = index;
+        return this;
+      }
+    }
+    throw new TsInternalErrorRtException();
   }
 
   @Override
   public int position() {
-    // TODO Auto-generated method stub
-    return 0;
+    return position;
   }
 
   // ------------------------------------------------------------------------------------
@@ -65,13 +105,11 @@ public class S5HistDataCursor
   //
   @Override
   public long timestamp() {
-    // TODO Auto-generated method stub
-    return 0;
+    return block.timestamp( valueIndex );
   }
 
   @Override
   public IAtomicValue value() {
-    // TODO Auto-generated method stub
     return atomicValue;
   }
 
@@ -79,6 +117,15 @@ public class S5HistDataCursor
   public int compareTo( ITemporalValue<IAtomicValue> aO ) {
     // TODO Auto-generated method stub
     return 0;
+  }
+
+  @SuppressWarnings( "unchecked" )
+  protected final <T extends IS5SequenceBlock<?>> T block() {
+    return (T)block;
+  }
+
+  protected final int valueIndex() {
+    return valueIndex;
   }
 
   // ------------------------------------------------------------------------------------
@@ -98,56 +145,49 @@ public class S5HistDataCursor
 
     @Override
     public EAtomicType atomicType() {
-      // TODO Auto-generated method stub
-      return null;
+      EAtomicType atomicType =
+          IS5HistDataHardConstants.OP_ATOMIC_TYPE.getValue( sequence.typeInfo().params() ).asValobj();
+      return atomicType;
     }
 
     @Override
     public boolean isAssigned() {
-      // TODO Auto-generated method stub
-      return false;
+      return block().isAssigned( valueIndex() );
     }
 
     @Override
     public boolean asBool() {
-      // TODO Auto-generated method stub
-      return false;
+      return ((IS5HistDataBlock)block()).asBool( valueIndex() );
     }
 
     @Override
     public int asInt() {
-      // TODO Auto-generated method stub
-      return block.asInt( 0 );
+      return ((IS5HistDataBlock)block()).asInt( valueIndex() );
     }
 
     @Override
     public long asLong() {
-      // TODO Auto-generated method stub
-      return 0;
+      return ((IS5HistDataBlock)block()).asLong( valueIndex() );
     }
 
     @Override
     public float asFloat() {
-      // TODO Auto-generated method stub
-      return 0;
+      return ((IS5HistDataBlock)block()).asFloat( valueIndex() );
     }
 
     @Override
     public double asDouble() {
-      // TODO Auto-generated method stub
-      return 0;
+      return ((IS5HistDataBlock)block()).asDouble( valueIndex() );
     }
 
     @Override
     public String asString() {
-      // TODO Auto-generated method stub
-      return null;
+      return ((IS5HistDataBlock)block()).asString( valueIndex() );
     }
 
     @Override
     public <T> T asValobj() {
-      // TODO Auto-generated method stub
-      return null;
+      return ((IS5HistDataBlock)block()).asValobj( valueIndex() );
     }
   }
 
