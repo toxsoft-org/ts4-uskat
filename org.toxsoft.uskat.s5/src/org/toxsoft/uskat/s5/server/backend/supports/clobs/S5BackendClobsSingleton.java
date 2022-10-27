@@ -19,7 +19,7 @@ import org.toxsoft.uskat.s5.server.backend.impl.S5BackendSupportSingleton;
 import org.toxsoft.uskat.s5.server.interceptors.S5InterceptorSupport;
 
 /**
- * Реализация {@link IS5BackendClobSingleton}.
+ * Реализация {@link IS5BackendClobsSingleton}.
  *
  * @author mvk
  */
@@ -34,16 +34,16 @@ import org.toxsoft.uskat.s5.server.interceptors.S5InterceptorSupport;
 @ConcurrencyManagement( ConcurrencyManagementType.CONTAINER )
 @AccessTimeout( value = ACCESS_TIMEOUT_DEFAULT, unit = TimeUnit.MILLISECONDS )
 @Lock( LockType.READ )
-public class S5BackendClobSingleton
+public class S5BackendClobsSingleton
     extends S5BackendSupportSingleton
-    implements IS5BackendClobSingleton {
+    implements IS5BackendClobsSingleton {
 
   private static final long serialVersionUID = 157157L;
 
   /**
    * Имя синглетона в контейнере сервера для организации зависимостей (@DependsOn)
    */
-  public static final String BACKEND_LOBS_ID = "S5BackendClobSingleton"; //$NON-NLS-1$
+  public static final String BACKEND_CLOBS_ID = "S5BackendClobsSingleton"; //$NON-NLS-1$
 
   /**
    * Имя кодировки текста в значениях clob
@@ -64,8 +64,8 @@ public class S5BackendClobSingleton
   /**
    * Конструктор.
    */
-  public S5BackendClobSingleton() {
-    super( BACKEND_LOBS_ID, STR_D_BACKEND_LOBS );
+  public S5BackendClobsSingleton() {
+    super( BACKEND_CLOBS_ID, STR_D_BACKEND_LOBS );
   }
 
   // ------------------------------------------------------------------------------------
@@ -82,7 +82,7 @@ public class S5BackendClobSingleton
   }
 
   // ------------------------------------------------------------------------------------
-  // IS5BackendClobSingleton
+  // IS5BackendClobsSingleton
   //
   @Override
   @TransactionAttribute( TransactionAttributeType.SUPPORTS )

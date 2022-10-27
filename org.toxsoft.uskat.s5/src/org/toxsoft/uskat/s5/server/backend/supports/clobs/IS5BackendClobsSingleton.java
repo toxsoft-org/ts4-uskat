@@ -13,7 +13,7 @@ import org.toxsoft.uskat.s5.server.backend.IS5BackendSupportSingleton;
  * @author mvk
  */
 @Local
-public interface IS5BackendClobSingleton
+public interface IS5BackendClobsSingleton
     extends IS5BackendSupportSingleton {
 
   /**
