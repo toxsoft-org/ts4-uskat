@@ -129,7 +129,7 @@ public abstract class S5BackendSequenceSupportSingleton<S extends IS5Sequence<V>
   /**
    * Фабрика формирования последовательностей
    */
-  private ISequenceFactory<V> factory;
+  private IS5SequenceFactory<V> factory;
 
   /**
    * Писатель(статегия) сохранения последовательностей в dbms
@@ -170,7 +170,7 @@ public abstract class S5BackendSequenceSupportSingleton<S extends IS5Sequence<V>
   private S5SequenceUniterThread uniterThread;
 
   /**
-   * Рабочая(формируемая) статистика ввода/вывода блоков {@link ISequenceBlock} в dbms по интервалам времени. <br>
+   * Рабочая(формируемая) статистика ввода/вывода блоков {@link IS5SequenceBlock} в dbms по интервалам времени. <br>
    * Индекс в списке = индекс {@link EStatisticInterval}.
    */
   // private IListEdit<S5DbmsStatistics> dbmsWorksStatistics = new ElemArrayList<>( EStatisticInterval.values().length
@@ -184,7 +184,7 @@ public abstract class S5BackendSequenceSupportSingleton<S extends IS5Sequence<V>
   // private long dbmsWorksStatisticsTimestamps[];
 
   /**
-   * Сформированная статистика ввода/вывода блоков {@link ISequenceBlock} в dbms по интервалам времени. <br>
+   * Сформированная статистика ввода/вывода блоков {@link IS5SequenceBlock} в dbms по интервалам времени. <br>
    * Индекс в списке = индекс {@link EStatisticInterval}. {@link IS5DbmsStatistics#NULL}: статистика еще не определена
    * за период времени
    */
@@ -770,7 +770,7 @@ public abstract class S5BackendSequenceSupportSingleton<S extends IS5Sequence<V>
       // Журнал
       if( unionStat.infoes().size() > 0 || unionStat.queueSize() > 0 ) {
         // Список описаний данных в запросе на дефрагментацию
-        IList<ISequenceFragmentInfo> fragmentInfoes = unionStat.infoes();
+        IList<IS5SequenceFragmentInfo> fragmentInfoes = unionStat.infoes();
         // Вывод статистики
         Long d = Long.valueOf( (System.currentTimeMillis() - traceStartTime) / 1000 );
         Integer tc = Integer.valueOf( fragmentInfoes.size() );
@@ -791,7 +791,7 @@ public abstract class S5BackendSequenceSupportSingleton<S extends IS5Sequence<V>
         uniterLogger.info( MSG_UNION_TASK_FINISH, id(), aAuthor, lc, tc, threaded, mc, rc, vc, ec, qs, d );
       }
       // Информация о данных в проведенной дефрагментации
-      IList<ISequenceFragmentInfo> fragmentInfos = unionStat.infoes();
+      IList<IS5SequenceFragmentInfo> fragmentInfos = unionStat.infoes();
       // Обработка ошибок целостности
       if( unionStat.errorCount() == 0 || fragmentInfos.size() == 0 ) {
         return unionStat;
@@ -1051,10 +1051,10 @@ public abstract class S5BackendSequenceSupportSingleton<S extends IS5Sequence<V>
    * Возвращает фабрику формирования последовательностей
    *
    * @param <T> тип фабрики
-   * @return {@link ISequenceFactory} фабрика формирования последовательностей
+   * @return {@link IS5SequenceFactory} фабрика формирования последовательностей
    */
   @SuppressWarnings( "unchecked" )
-  protected final <T extends ISequenceFactory<V>> T factory() {
+  protected final <T extends IS5SequenceFactory<V>> T factory() {
     if( factory == null ) {
       factory = doCreateFactory();
     }
@@ -1074,9 +1074,9 @@ public abstract class S5BackendSequenceSupportSingleton<S extends IS5Sequence<V>
   /**
    * Создать фабрику формирования последовательностей
    *
-   * @return {@link ISequenceFactory} фабрика формирования последовательностей
+   * @return {@link IS5SequenceFactory} фабрика формирования последовательностей
    */
-  protected abstract ISequenceFactory<V> doCreateFactory();
+  protected abstract IS5SequenceFactory<V> doCreateFactory();
 
   /**
    * Возвращает приоритет перехватчиков (interceptors) backend системного описания и объектов
@@ -1340,14 +1340,14 @@ public abstract class S5BackendSequenceSupportSingleton<S extends IS5Sequence<V>
   /**
    * Проводит исправление хранения последовательностей значений указанных данных
    *
-   * @param aFragmentInfos {@link IList}&lt;{@link ISequenceFragmentInfo}&gt; список описаний дефрагментации данных
+   * @param aFragmentInfos {@link IList}&lt;{@link IS5SequenceFragmentInfo}&gt; список описаний дефрагментации данных
    * @throws TsNullArgumentRtException аргумент = null
    */
-  private void repairSequences( IList<ISequenceFragmentInfo> aFragmentInfos ) {
+  private void repairSequences( IList<IS5SequenceFragmentInfo> aFragmentInfos ) {
     TsNullArgumentRtException.checkNull( aFragmentInfos );
     // Список восстанавливаемых данных (избыточный, нет точной информации где была ошибка)
     GwidList ids = new GwidList();
-    ISequenceFragmentInfo fragmentInfo = aFragmentInfos.get( 0 );
+    IS5SequenceFragmentInfo fragmentInfo = aFragmentInfos.get( 0 );
     ids.add( fragmentInfo.gwid() );
     // Определение интервала дефрагментации
     ITimeInterval interval = fragmentInfo.interval();

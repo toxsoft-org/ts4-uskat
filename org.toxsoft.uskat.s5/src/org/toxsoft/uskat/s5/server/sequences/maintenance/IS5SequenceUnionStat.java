@@ -1,7 +1,7 @@
 package org.toxsoft.uskat.s5.server.sequences.maintenance;
 
 import org.toxsoft.core.tslib.coll.IList;
-import org.toxsoft.uskat.s5.server.sequences.ISequenceFragmentInfo;
+import org.toxsoft.uskat.s5.server.sequences.IS5SequenceFragmentInfo;
 
 /**
  * Статистика выполнения процесса дефрагментации хранимых данных
@@ -13,9 +13,9 @@ public interface IS5SequenceUnionStat {
   /**
    * Возвращает список описаний данных поступивших в запрос на дефрагментацию
    *
-   * @return {@link IList}&lt;{@link ISequenceFragmentInfo}&gt; список описаний фрагментированных данных
+   * @return {@link IList}&lt;{@link IS5SequenceFragmentInfo}&gt; список описаний фрагментированных данных
    */
-  IList<ISequenceFragmentInfo> infoes();
+  IList<IS5SequenceFragmentInfo> infoes();
 
   /**
    * Возвращает общее количество проанализированных последовательностей при поиске дефрагментации

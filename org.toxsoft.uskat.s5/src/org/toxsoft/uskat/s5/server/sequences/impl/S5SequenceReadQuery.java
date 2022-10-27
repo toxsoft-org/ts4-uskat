@@ -14,7 +14,7 @@ import org.toxsoft.core.tslib.utils.errors.TsIllegalArgumentRtException;
 import org.toxsoft.core.tslib.utils.errors.TsNullArgumentRtException;
 import org.toxsoft.core.tslib.utils.logs.ILogger;
 import org.toxsoft.uskat.s5.server.frontend.IS5FrontendRear;
-import org.toxsoft.uskat.s5.server.sequences.ISequenceFactory;
+import org.toxsoft.uskat.s5.server.sequences.IS5SequenceFactory;
 import org.toxsoft.uskat.s5.server.sequences.reader.IS5SequenceReadQuery;
 import org.toxsoft.uskat.s5.utils.threads.impl.S5Lockable;
 
@@ -29,7 +29,7 @@ final class S5SequenceReadQuery
   private final IS5FrontendRear      frontend;
   private final String               id;
   private final IQueryInterval       interval;
-  private final ISequenceFactory<?>  factory;
+  private final IS5SequenceFactory<?>  factory;
   private final Connection           connection;
   private final long                 maxExecutionTimeout;
   private final IListEdit<Statement> statements = new ElemArrayList<>( false );
@@ -43,12 +43,12 @@ final class S5SequenceReadQuery
    * @param aFrontend {@link IS5FrontendRear} фронтенд сформировавший запрос
    * @param aId String идентификатор запроса
    * @param aInterval {@link IQueryInterval} интервал запроса значений
-   * @param aFactory {@link ISequenceFactory} фабрика формирования значений
+   * @param aFactory {@link IS5SequenceFactory} фабрика формирования значений
    * @param aConnection {@link Connection} соединение с базой данных
    * @param aMaxExecutionTimeout long максимальное время(мсек) выполнения запроса. < 1000: без ограничения
    * @throws TsNullArgumentRtException аргумент = null
    */
-  S5SequenceReadQuery( IS5FrontendRear aFrontend, String aId, IQueryInterval aInterval, ISequenceFactory<?> aFactory,
+  S5SequenceReadQuery( IS5FrontendRear aFrontend, String aId, IQueryInterval aInterval, IS5SequenceFactory<?> aFactory,
       Connection aConnection, long aMaxExecutionTimeout ) {
     frontend = TsNullArgumentRtException.checkNull( aFrontend );
     id = TsNullArgumentRtException.checkNull( aId );
@@ -77,7 +77,7 @@ final class S5SequenceReadQuery
   }
 
   @Override
-  public ISequenceFactory<?> factory() {
+  public IS5SequenceFactory<?> factory() {
     return factory;
   }
 

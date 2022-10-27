@@ -3,24 +3,16 @@ package org.toxsoft.uskat.s5.server.backend.supports.queries.impl;
 import static org.toxsoft.uskat.s5.common.IS5CommonResources.*;
 import static org.toxsoft.uskat.s5.server.backend.supports.queries.impl.IS5Resources.*;
 
-import org.toxsoft.core.tslib.av.temporal.ITemporalAtomicValue;
 import org.toxsoft.core.tslib.bricks.time.*;
-import org.toxsoft.core.tslib.bricks.time.impl.TimeInterval;
-import org.toxsoft.core.tslib.bricks.time.impl.TimedList;
 import org.toxsoft.core.tslib.coll.IList;
 import org.toxsoft.core.tslib.coll.IListEdit;
 import org.toxsoft.core.tslib.coll.impl.ElemArrayList;
-import org.toxsoft.core.tslib.coll.primtypes.ILongListEdit;
 import org.toxsoft.core.tslib.gw.gwid.Gwid;
 import org.toxsoft.core.tslib.utils.errors.*;
 import org.toxsoft.core.tslib.utils.logs.ELogSeverity;
-import org.toxsoft.uskat.core.api.hqserv.ISkHistoryQueryServiceConstants;
-import org.toxsoft.uskat.s5.legacy.S5LongArrayList;
 import org.toxsoft.uskat.s5.server.backend.supports.histdata.IS5HistDataSequence;
-import org.toxsoft.uskat.s5.server.backend.supports.histdata.impl.sequences.ITemporalValueImporter;
 import org.toxsoft.uskat.s5.server.backend.supports.queries.IS5BackendQueriesFunction;
-import org.toxsoft.uskat.s5.server.sequences.IS5Sequence;
-import org.toxsoft.uskat.s5.server.sequences.ISequenceBlock;
+import org.toxsoft.uskat.s5.server.sequences.*;
 import org.toxsoft.uskat.s5.utils.threads.impl.S5AbstractReadThread;
 
 /**
@@ -34,12 +26,8 @@ import org.toxsoft.uskat.s5.utils.threads.impl.S5AbstractReadThread;
 public class S5BackendQueriesFunctionThread
     extends S5AbstractReadThread<IList<ITimedList<ITemporal<?>>>> {
 
-  private final IS5Sequence<?>                   source;
-  private final IList<IS5BackendQueriesFunction> functions;
-
-  private final ITimeInterval                       interval;
-  private final ILongListEdit                       startTimes;
-  private final ILongListEdit                       endTimes;
+  private final IS5Sequence<?>                      source;
+  private final IList<IS5BackendQueriesFunction>    functions;
   private final IListEdit<ITimedList<ITemporal<?>>> result;
 
   /**
@@ -56,39 +44,32 @@ public class S5BackendQueriesFunctionThread
     functions = new ElemArrayList<>( aFunctions );
     int count = aFunctions.size();
 
-    // Время последовательности
-    ITimeInterval sequenceInterval = aSource.interval();
-    long sequenceStartTime = sequenceInterval.startTime();
-    long sequenceEndTime = sequenceInterval.endTime();
-    // Определяем интервал запрашиваемх данных: необходимо начинать и завершать по времени которое определяется данным с
-    // самим большим временем обработки...
-    long minStartTime = sequenceStartTime;
-    long maxEndTime = sequenceEndTime;
-    // ... и формируем интервалы в которых формируются обработанные значения
-    startTimes = new S5LongArrayList( count );
-    endTimes = new S5LongArrayList( count );
-    for( int index = 0; index < count; index++ ) {
-      IS5BackendQueriesFunction function = aFunctions.get( index );
-      long aggregationStep = ISkHistoryQueryServiceConstants.HQFUNC_ARG_AGGREGAION_INTERVAL
-          .getValue( function.arg().right().funcArgs() ).asLong();
-      if( aggregationStep == 0 ) {
-        // Интервал обработки: все данные запроса
-        startTimes.add( sequenceStartTime );
-        endTimes.add( sequenceEndTime );
-        continue;
-      }
-      long funcStartTime = ((sequenceStartTime / aggregationStep) * aggregationStep);
-      long funcEndTime = ((((sequenceEndTime / aggregationStep) * aggregationStep) + aggregationStep) - 1);
-      if( minStartTime > funcStartTime ) {
-        minStartTime = funcStartTime;
-      }
-      if( maxEndTime < funcEndTime ) {
-        maxEndTime = funcEndTime;
-      }
-      startTimes.add( funcStartTime );
-      endTimes.add( funcEndTime );
-    }
-    interval = new TimeInterval( minStartTime, maxEndTime );
+    // // Время последовательности
+    // ITimeInterval sequenceInterval = aSource.interval();
+    // long sequenceStartTime = sequenceInterval.startTime();
+    // long sequenceEndTime = sequenceInterval.endTime();
+    // // Определяем интервал запрашиваемх данных: необходимо начинать и завершать по времени которое определяется
+    // данным с
+    // // самим большим временем обработки...
+    // long minStartTime = sequenceStartTime;
+    // long maxEndTime = sequenceEndTime;
+    // for( int index = 0; index < count; index++ ) {
+    // IS5BackendQueriesFunction function = aFunctions.get( index );
+    // long aggregationStep = ISkHistoryQueryServiceConstants.HQFUNC_ARG_AGGREGAION_INTERVAL
+    // .getValue( function.arg().right().funcArgs() ).asLong();
+    // if( aggregationStep == 0 ) {
+    // continue;
+    // }
+    // long funcStartTime = ((sequenceStartTime / aggregationStep) * aggregationStep);
+    // long funcEndTime = ((((sequenceEndTime / aggregationStep) * aggregationStep) + aggregationStep) - 1);
+    // if( minStartTime > funcStartTime ) {
+    // minStartTime = funcStartTime;
+    // }
+    // if( maxEndTime < funcEndTime ) {
+    // maxEndTime = funcEndTime;
+    // }
+    // }
+    // interval = new TimeInterval( minStartTime, maxEndTime );
     result = new ElemArrayList<>( count );
   }
 
@@ -98,18 +79,15 @@ public class S5BackendQueriesFunctionThread
   @SuppressWarnings( "unchecked" )
   @Override
   protected void doRun() {
+    IQueryInterval interval = source.interval();
     try {
       int count = functions.size();
       // Идентификатор данного
       Gwid gwid = source.gwid();
       long traceStartTime = System.currentTimeMillis();
       long traceCreateStartTime = 0, traceCreateTimeout = 0;
-      IListEdit<ITimedListEdit<ITemporal<?>>> resultValues = new ElemArrayList<>( count );
-      for( int index = 0; index < count; index++ ) {
-        resultValues.add( new TimedList<>() );
-      }
       // Блоки последовательности
-      IList<ISequenceBlock<?>> blocks = (IList<ISequenceBlock<?>>)(Object)source.blocks();
+      IList<IS5SequenceBlock<?>> blocks = (IList<IS5SequenceBlock<?>>)(Object)source.blocks();
       // Количество прочитанных значений
       int valueCount = 0;
       // Количество считанных блоков
@@ -117,71 +95,22 @@ public class S5BackendQueriesFunctionThread
         // Подсчет считанных значений
         valueCount += blocks.get( blockIndex ).size();
       }
+      // Создание последовательности и размещение в результате
+      traceCreateStartTime = System.currentTimeMillis();
+      // Курсор значений
+      IS5SequenceCursor<?> cursor = source.createCursor();
+      // Общее количество обработанных значений
+      int resultValueCount = 0;
       // Проход по всем функциям поставляя значения блока для обработки
       for( int index = 0; index < count; index++ ) {
         // Функция обработки
         IS5BackendQueriesFunction function = functions.get( index );
         // Значения-результат
-        ITimedListEdit<ITemporal<?>> functionValues = resultValues.get( index );
-        // Начальное время обработки
-        long funcStartTime = startTimes.getValue( index );
-        // Конечное время агрегации
-        long funcEndTime = endTimes.getValue( index );
-        // Обработка считанных блоков
-        for( int blockIndex = 0, n = blocks.size(); blockIndex < n; blockIndex++ ) {
-          ISequenceBlock<?> block = blocks.get( blockIndex );
-          // Время с которого должны считываться данные (включительно)
-          long startImportTime = Math.max( funcStartTime, block.startTime() );
-          // Время по которое должны считываться данные (включительно)
-          long endImportTime = Math.min( funcEndTime, block.endTime() );
-          if( startImportTime > block.endTime() ) {
-            // Текущий блок не может предоставить данные для обработки. Переход на следующий блок
-            continue;
-          }
-          // Инициализация импорта
-          block.setImportTime( startImportTime );
-          // Импорт и агрегация
-          while( block.hasImport() ) {
-            ITemporalValueImporter importer = block.nextImport();
-            if( importer.timestamp() > endImportTime ) {
-              // Данные для импорта закончились
-              break;
-            }
-            ITimedList<ITemporalAtomicValue> values = function.nextValue( importer );
-            if( values.size() > 0 ) {
-              for( ITemporalAtomicValue value : values ) {
-                functionValues.add( value );
-              }
-            }
-          }
-        }
-      }
-      // Значение признак: больше нет значений в последовательности
-      for( int index = 0; index < count; index++ ) {
-        IS5BackendQueriesFunction aggregator = functions.get( index );
-        IList<ITemporalAtomicValue> values = aggregator.nextValue( ITemporalValueImporter.NULL );
-        if( values.size() > 0 ) {
-          for( ITemporalAtomicValue value : values ) {
-            // При завершении текущего интервала было сформировано последнее значение
-            resultValues.get( index ).add( value );
-          }
-        }
-      }
-      // Создание последовательности и размещение в результате
-      traceCreateStartTime = System.currentTimeMillis();
-      // Общее количество агрегированных значений
-      int aggregateValueCount = 0;
-      for( int index = 0; index < count; index++ ) {
-        // 2020-11-30 mvk
-        // IS5BackendQueriesFunction aggregator = functions.get( index );
-        // // Интервал агрегации
-        // long step = aggregator.aggregationStep();
-        // Значения для последовательности
-        ITimedList<ITemporal<?>> aggregatorValues = resultValues.get( index );
-        // Добавление последовательности в результат
-        result.add( aggregatorValues );
-        // Количество агрегированных значений
-        aggregateValueCount += aggregatorValues.size();
+        ITimedList<ITemporal<?>> values = function.evaluate( cursor );
+        // Обработка значений последовательности
+        result.addAll( values );
+        // Количество обработанных значений
+        resultValueCount += values.size();
       }
       traceCreateTimeout = System.currentTimeMillis() - traceCreateStartTime;
 
@@ -189,7 +118,7 @@ public class S5BackendQueriesFunctionThread
         Integer bc = Integer.valueOf( blocks.size() );
         Integer vc = Integer.valueOf( valueCount );
         Integer ac = Integer.valueOf( functions.size() );
-        Integer avc = Integer.valueOf( aggregateValueCount );
+        Integer avc = Integer.valueOf( resultValueCount );
         Integer index = Integer.valueOf( threadIndex() );
         Long ta = Long.valueOf( System.currentTimeMillis() - traceStartTime );
         Long tc = Long.valueOf( traceCreateTimeout );

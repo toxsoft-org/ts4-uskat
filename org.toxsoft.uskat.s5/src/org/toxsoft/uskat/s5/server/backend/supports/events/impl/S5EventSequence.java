@@ -4,10 +4,10 @@ import org.toxsoft.core.tslib.bricks.time.IQueryInterval;
 import org.toxsoft.core.tslib.coll.IList;
 import org.toxsoft.core.tslib.gw.gwid.Gwid;
 import org.toxsoft.core.tslib.utils.errors.TsNullArgumentRtException;
+import org.toxsoft.core.tslib.utils.errors.TsUnderDevelopmentRtException;
 import org.toxsoft.uskat.core.api.evserv.SkEvent;
 import org.toxsoft.uskat.s5.server.backend.supports.events.sequences.IS5EventSequenceEdit;
-import org.toxsoft.uskat.s5.server.sequences.ISequenceBlock;
-import org.toxsoft.uskat.s5.server.sequences.ISequenceBlockEdit;
+import org.toxsoft.uskat.s5.server.sequences.*;
 import org.toxsoft.uskat.s5.server.sequences.impl.S5Sequence;
 
 /**
@@ -27,12 +27,20 @@ public class S5EventSequence
    * @param aFactory {@link S5EventSequenceFactory} фабрика последовательностей событий
    * @param aGwid {@link Gwid} идентификатор данного
    * @param aInterval {@link IQueryInterval} интервал времени последовательности, подробности в {@link #interval()}
-   * @param aEvents {@link IList}&lt;{@link ISequenceBlock}&gt; список блоков представляющих последовательность
+   * @param aEvents {@link IList}&lt;{@link IS5SequenceBlock}&gt; список блоков представляющих последовательность
    * @throw {@link TsNullArgumentRtException} любой аргумент = null
    */
   public S5EventSequence( S5EventSequenceFactory aFactory, Gwid aGwid, IQueryInterval aInterval,
-      Iterable<ISequenceBlockEdit<SkEvent>> aEvents ) {
+      Iterable<IS5SequenceBlockEdit<SkEvent>> aEvents ) {
     super( aFactory, aGwid, aInterval, aEvents );
+  }
+
+  // ------------------------------------------------------------------------------------
+  // IS5Sequence
+  //
+  @Override
+  public IS5SequenceCursor<SkEvent> createCursor() {
+    throw new TsUnderDevelopmentRtException();
   }
 
 }

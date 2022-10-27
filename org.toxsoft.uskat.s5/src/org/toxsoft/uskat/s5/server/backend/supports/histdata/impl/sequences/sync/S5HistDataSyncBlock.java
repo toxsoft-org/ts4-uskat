@@ -1,4 +1,4 @@
-package org.toxsoft.uskat.s5.server.backend.supports.histdata.impl.sequences.async;
+package org.toxsoft.uskat.s5.server.backend.supports.histdata.impl.sequences.sync;
 
 import java.sql.ResultSet;
 
@@ -10,20 +10,19 @@ import org.toxsoft.core.tslib.gw.gwid.Gwid;
 import org.toxsoft.core.tslib.utils.errors.*;
 import org.toxsoft.uskat.s5.server.backend.supports.histdata.impl.sequences.IS5HistDataBlock;
 import org.toxsoft.uskat.s5.server.sequences.IS5SequenceCursor;
-import org.toxsoft.uskat.s5.server.sequences.impl.S5SequenceAsyncBlob;
-import org.toxsoft.uskat.s5.server.sequences.impl.S5SequenceAsyncBlock;
+import org.toxsoft.uskat.s5.server.sequences.impl.S5SequenceSyncBlob;
+import org.toxsoft.uskat.s5.server.sequences.impl.S5SequenceSyncBlock;
 
 /**
- * Блок хранения асинхронных исторических данных s5-объекта
+ * Блок хранения синхронных исторических данных s5-объекта .
  *
  * @param <BLOB_ARRAY> тип массива blob-a в котором хранятся значения блока
  * @param <BLOB> реализация blob-а используемого для хранения значений блока
  * @author mvk
  */
 @MappedSuperclass
-// S5SequenceAsyncBlock<V extends ITemporal<V>, BLOB_ARRAY, BLOB extends S5SequenceAsyncBlob<?, BLOB_ARRAY, ?>>
-public abstract class S5HistDataAsyncBlock<BLOB_ARRAY, BLOB extends S5SequenceAsyncBlob<?, BLOB_ARRAY, ?>>
-    extends S5SequenceAsyncBlock<ITemporalAtomicValue, BLOB_ARRAY, BLOB>
+public abstract class S5HistDataSyncBlock<BLOB_ARRAY, BLOB extends S5SequenceSyncBlob<?, BLOB_ARRAY, ?>>
+    extends S5SequenceSyncBlock<ITemporalAtomicValue, BLOB_ARRAY, BLOB>
     implements IS5HistDataBlock {
 
   private static final long serialVersionUID = 157157L;
@@ -31,7 +30,7 @@ public abstract class S5HistDataAsyncBlock<BLOB_ARRAY, BLOB extends S5SequenceAs
   /**
    * Конструктор без параметров (для JPA)
    */
-  protected S5HistDataAsyncBlock() {
+  protected S5HistDataSyncBlock() {
   }
 
   /**
@@ -39,15 +38,15 @@ public abstract class S5HistDataAsyncBlock<BLOB_ARRAY, BLOB extends S5SequenceAs
    *
    * @param aTypeInfo {@link IParameterized} параметризованное описание типа данного
    * @param aGwid {@link Gwid} НЕабстрактный {@link Gwid}-идентификатор данного
-   * @param aBlob BLOB реализация blob-а в котором хранятся значения блока и их метки времени
+   * @param aStartTime long метка (мсек с начала эпохи) начала данных в блоке
+   * @param aBlob BLOB реализация blob-а в котором хранятся значения блока
    * @throws TsNullArgumentRtException любой аргумент = null
    * @throws TsIllegalArgumentRtException количество значений в блоке = 0
-   * @throws TsIllegalArgumentRtException количество меток времени не соответствует количеству значений
-   * @throws TsIllegalArgumentRtException метки времени не отсортированы в порядке возрастания
-   * @throws TsIllegalArgumentRtException описание данного должно представлять асинхронное данное
+   * @throws TsIllegalArgumentRtException неверная метка времени начала значений
+   * @throws TsIllegalArgumentRtException описание данного должно представлять синхронное данное
    */
-  protected S5HistDataAsyncBlock( IParameterized aTypeInfo, Gwid aGwid, BLOB aBlob ) {
-    super( aTypeInfo, aGwid, aBlob );
+  protected S5HistDataSyncBlock( IParameterized aTypeInfo, Gwid aGwid, long aStartTime, BLOB aBlob ) {
+    super( aTypeInfo, aGwid, aStartTime, aBlob );
   }
 
   /**
@@ -57,7 +56,7 @@ public abstract class S5HistDataAsyncBlock<BLOB_ARRAY, BLOB extends S5SequenceAs
    * @throws TsNullArgumentRtException аргумент = null
    * @throws TsInternalErrorRtException ошибка создания блока
    */
-  protected S5HistDataAsyncBlock( ResultSet aResultSet ) {
+  protected S5HistDataSyncBlock( ResultSet aResultSet ) {
     super( aResultSet );
   }
 
@@ -69,5 +68,4 @@ public abstract class S5HistDataAsyncBlock<BLOB_ARRAY, BLOB extends S5SequenceAs
     // TODO:
     throw new TsUnderDevelopmentRtException();
   }
-
 }

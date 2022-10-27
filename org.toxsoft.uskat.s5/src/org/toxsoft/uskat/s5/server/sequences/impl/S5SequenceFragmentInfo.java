@@ -10,15 +10,15 @@ import org.toxsoft.core.tslib.gw.gwid.Gwid;
 import org.toxsoft.core.tslib.utils.TsLibUtils;
 import org.toxsoft.core.tslib.utils.errors.TsIllegalArgumentRtException;
 import org.toxsoft.core.tslib.utils.errors.TsNullArgumentRtException;
-import org.toxsoft.uskat.s5.server.sequences.ISequenceFragmentInfo;
+import org.toxsoft.uskat.s5.server.sequences.IS5SequenceFragmentInfo;
 
 /**
- * Реализация {@link ISequenceFragmentInfo}
+ * Реализация {@link IS5SequenceFragmentInfo}
  *
  * @author mvk
  */
 public class S5SequenceFragmentInfo
-    implements ISequenceFragmentInfo, Serializable {
+    implements IS5SequenceFragmentInfo, Serializable {
 
   private static final long serialVersionUID = 157157L;
 
@@ -87,10 +87,10 @@ public class S5SequenceFragmentInfo
   /**
    * Конструктор копирования
    *
-   * @param aSource {@link ISequenceFragmentInfo} источник
+   * @param aSource {@link IS5SequenceFragmentInfo} источник
    * @throws TsNullArgumentRtException аргумент = null
    */
-  public S5SequenceFragmentInfo( ISequenceFragmentInfo aSource ) {
+  public S5SequenceFragmentInfo( IS5SequenceFragmentInfo aSource ) {
     TsNullArgumentRtException.checkNull( aSource );
     tableName = aSource.tableName();
     gwid = aSource.gwid();
@@ -137,7 +137,7 @@ public class S5SequenceFragmentInfo
   }
 
   // ------------------------------------------------------------------------------------
-  // /Реализация ISequenceFragmentInfo
+  // /Реализация IS5SequenceFragmentInfo
   //
   @Override
   public String tableName() {
@@ -165,7 +165,7 @@ public class S5SequenceFragmentInfo
   }
 
   // ------------------------------------------------------------------------------------
-  // /Реализация ISequenceFragmentInfo
+  // /Реализация IS5SequenceFragmentInfo
   //
   @Override
   public int compareTo( ITimeInterval o ) {
@@ -211,10 +211,10 @@ public class S5SequenceFragmentInfo
     if( aObject == null ) {
       return false;
     }
-    if( aObject.getClass() != ISequenceFragmentInfo.class ) {
+    if( aObject.getClass() != IS5SequenceFragmentInfo.class ) {
       return false;
     }
-    ISequenceFragmentInfo other = (ISequenceFragmentInfo)aObject;
+    IS5SequenceFragmentInfo other = (IS5SequenceFragmentInfo)aObject;
     if( !tableName.equals( other.tableName() ) ) {
       return false;
     }

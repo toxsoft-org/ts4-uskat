@@ -207,7 +207,7 @@ public final class S5HistDataSequenceFactory
 
   @Override
   public IS5SequenceEdit<ITemporalAtomicValue> doCreateSequence( Gwid aGwid, IQueryInterval aInterval,
-      Iterable<ISequenceBlockEdit<ITemporalAtomicValue>> aBlocks ) {
+      Iterable<IS5SequenceBlockEdit<ITemporalAtomicValue>> aBlocks ) {
     return new S5HistDataSequence( this, aGwid, aInterval, aBlocks );
   }
 

@@ -137,7 +137,7 @@ class S5SequenceSQL {
    * Загрузка размеров блоков попадающих в указанный интервал
    *
    * @param aEntityManager {@link EntityManager} менеджер постоянства
-   * @param aFactory {@link ISequenceFactory} фабрика формирования последовательностей
+   * @param aFactory {@link IS5SequenceFactory} фабрика формирования последовательностей
    * @param aGwid {@link Gwid} идентификатор данного
    * @param aInterval {@link IQueryInterval} интервал запроса
    * @param aFirstPosition int позиция с которой у dbms запрашивается результат
@@ -148,7 +148,7 @@ class S5SequenceSQL {
    * @throws TsNullArgumentRtException любой аргумент = null
    */
   static <V extends ITemporal<?>> List<Integer> loadBlockSizes( EntityManager aEntityManager,
-      ISequenceFactory<V> aFactory, Gwid aGwid, IQueryInterval aInterval, int aFirstPosition, int aMaxResultCount ) {
+      IS5SequenceFactory<V> aFactory, Gwid aGwid, IQueryInterval aInterval, int aFirstPosition, int aMaxResultCount ) {
     TsNullArgumentRtException.checkNulls( aEntityManager, aFactory, aGwid, aInterval );
     // Время начала запроса
     long traceStartTime = System.currentTimeMillis();
@@ -278,7 +278,7 @@ class S5SequenceSQL {
    * Загрузка меток времени и размеров блоков попадающих в указанный интервал
    *
    * @param aEntityManager {@link EntityManager} менеджер постоянства
-   * @param aFactory {@link ISequenceFactory} фабрика формирования последовательностей
+   * @param aFactory {@link IS5SequenceFactory} фабрика формирования последовательностей
    * @param aGwid {@link Gwid} идентификатор данного
    * @param aInterval {@link IQueryInterval} интервал запроса
    * @param aFirstPosition int позиция с которой у dbms запрашивается результат
@@ -292,7 +292,7 @@ class S5SequenceSQL {
    * @throws TsNullArgumentRtException любой аргумент = null
    */
   static <V extends ITemporal<?>> List<Object[]> loadBlockStartTimesSizes( EntityManager aEntityManager,
-      ISequenceFactory<V> aFactory, Gwid aGwid, IQueryInterval aInterval, int aFirstPosition, int aMaxResultCount ) {
+      IS5SequenceFactory<V> aFactory, Gwid aGwid, IQueryInterval aInterval, int aFirstPosition, int aMaxResultCount ) {
     TsNullArgumentRtException.checkNulls( aEntityManager, aFactory, aGwid, aInterval );
     // Параметризованное описание типа данного
     IParameterized typeInfo = aFactory.typeInfo( aGwid );
@@ -411,19 +411,19 @@ class S5SequenceSQL {
    * Загрузка блоков попадающих в указанный интервал
    *
    * @param aEntityManager {@link EntityManager} менеджер постоянства
-   * @param aFactory {@link ISequenceFactory} фабрика формирования последовательностей
+   * @param aFactory {@link IS5SequenceFactory} фабрика формирования последовательностей
    * @param aGwid {@link Gwid} идентификатор данного
    * @param aInterval {@link IQueryInterval} интервал запроса
    * @param aFirstPosition int позиция с которой у dbms запрашивается результат
    * @param aMaxResultCount int максимальное количество блоков которое может быть обработано за один вызов. <= 0:
    *          запрашиваются все данные
-   * @return List&lt;{@link ISequenceBlock}&lt;V&gt;&gt; последовательность блоков
+   * @return List&lt;{@link IS5SequenceBlock}&lt;V&gt;&gt; последовательность блоков
    * @param <V> тип значения последовательности
    * @throws TsNullArgumentRtException любой аргумент = null
    */
   @SuppressWarnings( "unchecked" )
-  static <V extends ITemporal<?>> List<ISequenceBlock<V>> loadBlocks( EntityManager aEntityManager,
-      ISequenceFactory<V> aFactory, Gwid aGwid, IQueryInterval aInterval, int aFirstPosition, int aMaxResultCount ) {
+  static <V extends ITemporal<?>> List<IS5SequenceBlock<V>> loadBlocks( EntityManager aEntityManager,
+      IS5SequenceFactory<V> aFactory, Gwid aGwid, IQueryInterval aInterval, int aFirstPosition, int aMaxResultCount ) {
     TsNullArgumentRtException.checkNulls( aEntityManager, aFactory, aGwid, aInterval );
     // Время начала запроса
     long traceStartTime = System.currentTimeMillis();
@@ -465,7 +465,7 @@ class S5SequenceSQL {
         Long time = Long.valueOf( System.currentTimeMillis() - traceStartTime );
         logger.debug( "loadBlocks(...): %d (msec). sql =\n %s", time, sql );
       }
-      return (List<ISequenceBlock<V>>)entities;
+      return (List<IS5SequenceBlock<V>>)entities;
     }
     catch( ClassNotFoundException e ) {
       // Не найден класс реализации блоков
@@ -553,13 +553,13 @@ class S5SequenceSQL {
    * Если блоков нет, то ничего не делает.
    *
    * @param aEntityManager {@link EntityManager} менеджер постоянства
-   * @param aFactory {@link ISequenceFactory} фабрика формирования последовательностей
+   * @param aFactory {@link IS5SequenceFactory} фабрика формирования последовательностей
    * @param aGwid {@link Gwid} идентификатор данного
    * @param aInterval {@link IQueryInterval} интервал удаляемых блоков
    * @param <V> тип значения последовательности
    * @throws TsNullArgumentRtException любой аргумент = null
    */
-  static <V extends ITemporal<?>> void removeBlocks( EntityManager aEntityManager, ISequenceFactory<V> aFactory,
+  static <V extends ITemporal<?>> void removeBlocks( EntityManager aEntityManager, IS5SequenceFactory<V> aFactory,
       Gwid aGwid, IQueryInterval aInterval ) {
     TsNullArgumentRtException.checkNulls( aEntityManager, aFactory, aGwid, aInterval );
     // Параметризованное описание типа данного
@@ -612,17 +612,17 @@ class S5SequenceSQL {
    * Проводится поиск ближайшего блока у которого есть значение на указанной метке времени или перед ней
    *
    * @param aEntityManager {@link EntityManager} менеджер постоянства
-   * @param aFactory {@link ISequenceFactory} фабрика формирования последовательностей
+   * @param aFactory {@link IS5SequenceFactory} фабрика формирования последовательностей
    * @param aGwid {@link Gwid} идентификатор данного
    * @param aTimestamp long метка времени (мсек с начала эпохи) перед которой или на которой проводится поиск блока со
    *          значением
-   * @return {@link ISequenceBlock}&lt;V&gt; найденный блок. null: блок не найден
+   * @return {@link IS5SequenceBlock}&lt;V&gt; найденный блок. null: блок не найден
    * @param <V> тип значения последовательности
    * @throws TsNullArgumentRtException любой аргумент = null
    */
   @SuppressWarnings( "unchecked" )
-  static <V extends ITemporal<?>> ISequenceBlock<V> findBlockBefore( EntityManager aEntityManager,
-      ISequenceFactory<V> aFactory, Gwid aGwid, long aTimestamp ) {
+  static <V extends ITemporal<?>> IS5SequenceBlock<V> findBlockBefore( EntityManager aEntityManager,
+      IS5SequenceFactory<V> aFactory, Gwid aGwid, long aTimestamp ) {
     TsNullArgumentRtException.checkNulls( aEntityManager, aFactory, aGwid );
     // Параметризованное описание типа данного
     IParameterized typeInfo = aFactory.typeInfo( aGwid );
@@ -631,7 +631,7 @@ class S5SequenceSQL {
     // Имя таблицы
     String tableName = getLast( blockImplClass );
     try {
-      List<ISequenceBlock<V>> blocks;
+      List<IS5SequenceBlock<V>> blocks;
       Long time = Long.valueOf( aTimestamp );
       if( aTimestamp == MIN_TIMESTAMP ) {
         time = Long.valueOf( MIN_TIMESTAMP + 1 );
@@ -649,7 +649,7 @@ class S5SequenceSQL {
       query.setFirstResult( 0 );
       query.setMaxResults( 1 );
       // Запрос данных
-      blocks = (List<ISequenceBlock<V>>)query.getResultList();
+      blocks = (List<IS5SequenceBlock<V>>)query.getResultList();
       if( blocks.size() == 0 ) {
         return null;
       }
@@ -671,7 +671,7 @@ class S5SequenceSQL {
    *
    * @param aQuery {@link IS5SequenceReadQuery} запрос чтения хранимых данных
    * @param aGwids {@link IGwidList} список идентификаторов данных.
-   * @return {@link IMap}&lt;Long,{@link IList}&lt;{@link ISequenceBlock}&lt;V&gt;&gt; карта найденных блоков.<br>
+   * @return {@link IMap}&lt;Long,{@link IList}&lt;{@link IS5SequenceBlock}&lt;V&gt;&gt; карта найденных блоков.<br>
    *         Ключ: идентификатор данного<br>
    *         Значение: список блоков.
    * @param <V> тип значения последовательности
@@ -679,7 +679,7 @@ class S5SequenceSQL {
    * @throws TsIllegalStateRtException блоки/blob значений реализуются разными классами
    */
   @SuppressWarnings( { "unchecked", "resource" } )
-  static <V extends ITemporal<?>> IMap<Gwid, IList<ISequenceBlock<V>>> readBlocks( IS5SequenceReadQuery aQuery,
+  static <V extends ITemporal<?>> IMap<Gwid, IList<IS5SequenceBlock<V>>> readBlocks( IS5SequenceReadQuery aQuery,
       IGwidList aGwids ) {
     // 2020-10-30 mvkd
     // GwidList aGwids = new GwidList();
@@ -698,14 +698,14 @@ class S5SequenceSQL {
     int count = aGwids.size();
     if( count == 0 ) {
       // Частный случай пустой запрос. Формирование пустого результата
-      IMapEdit<Gwid, IListEdit<ISequenceBlock<V>>> retValue = new ElemMap<>();
+      IMapEdit<Gwid, IListEdit<IS5SequenceBlock<V>>> retValue = new ElemMap<>();
       for( Gwid gwid : aGwids ) {
         retValue.put( gwid, IList.EMPTY );
       }
-      return (IMap<Gwid, IList<ISequenceBlock<V>>>)(Object)retValue;
+      return (IMap<Gwid, IList<IS5SequenceBlock<V>>>)(Object)retValue;
     }
     // Фабрика формирования значений
-    ISequenceFactory<V> factory = (ISequenceFactory<V>)aQuery.factory();
+    IS5SequenceFactory<V> factory = (IS5SequenceFactory<V>)aQuery.factory();
     // Список описаний типов данных
     IListEdit<IParameterized> typeInfos = new ElemArrayList<>( aGwids.size() );
     for( Gwid gwid : aGwids ) {
@@ -763,7 +763,7 @@ class S5SequenceSQL {
     // Фактическое время завершения данных
     long factEndTime = TimeUtils.MIN_TIMESTAMP;
     // Возвращаемый результат
-    IListEdit<ISequenceBlock<V>> readedBlocks = new ElemArrayList<>( count );
+    IListEdit<IS5SequenceBlock<V>> readedBlocks = new ElemArrayList<>( count );
     // Запрос
     long traceQueryStartTime = System.currentTimeMillis();
     long traceStartTime = traceQueryStartTime;
@@ -785,7 +785,7 @@ class S5SequenceSQL {
             // 2022-10-09 mvk
             // for( boolean hasData = rs.first(); hasData; hasData = rs.next() ) {
             while( rs.next() ) {
-              ISequenceBlock<V> block = factory.createBlock( blockImplClass, rs );
+              IS5SequenceBlock<V> block = factory.createBlock( blockImplClass, rs );
               if( readedBlocks.size() > 0 && readedBlocks.get( readedBlocks.size() - 1 ).equals( block ) ) {
                 // throw new TsInternalErrorRtException();
                 logger.warning( "Повтор чтения блока %s. Игнорирование. sql(%d) = \n%s", block,
@@ -794,7 +794,7 @@ class S5SequenceSQL {
               }
               // Обработка блока согласно интервалу (чтобы в блоке не было лишних данных)
               block = trim( factory, interval, block );
-              if( block == ISequenceBlock.NULL ) {
+              if( block == IS5SequenceBlock.NULL ) {
                 // Все значения блока вне интервала
                 continue;
               }
@@ -815,11 +815,11 @@ class S5SequenceSQL {
         }
       }
       // Формирование результата
-      IMapEdit<Gwid, IListEdit<ISequenceBlock<V>>> retValue = new ElemMap<>();
+      IMapEdit<Gwid, IListEdit<IS5SequenceBlock<V>>> retValue = new ElemMap<>();
       for( Gwid gwid : aGwids ) {
         retValue.put( gwid, new ElemArrayList<>( readedBlocks.size() ) );
       }
-      for( ISequenceBlock<V> block : readedBlocks ) {
+      for( IS5SequenceBlock<V> block : readedBlocks ) {
         retValue.getByKey( block.gwid() ).add( block );
       }
       long currTime = System.currentTimeMillis();
@@ -833,7 +833,7 @@ class S5SequenceSQL {
       Long th = Long.valueOf( currTime - traceStartTime );
       logger.info( MSG_READ_BLOCK_END, infoStr, interval, factInterval, c, ta, tq, th );
       // Результат
-      return (IMap<Gwid, IList<ISequenceBlock<V>>>)(Object)retValue;
+      return (IMap<Gwid, IList<IS5SequenceBlock<V>>>)(Object)retValue;
     }
     catch( OutOfMemoryError e ) {
       // Ошибка дефицита памяти для чтения блоков
@@ -869,7 +869,7 @@ class S5SequenceSQL {
    * найденный блок
    *
    * @param aEntityManager {@link EntityManager} менеджер постоянства
-   * @param aFactory {@link ISequenceFactory} фабрика формирования последовательностей
+   * @param aFactory {@link IS5SequenceFactory} фабрика формирования последовательностей
    * @param aGwid {@link Gwid} идентификатор данного
    * @param aBeforeTime long метка времени (мсек с начала эпохи) перед которой или на которой проводится поиск блока со
    *          значением
@@ -877,7 +877,7 @@ class S5SequenceSQL {
    * @param <V> тип значения последовательности
    * @throws TsNullArgumentRtException любой аргумент = null
    */
-  static <V extends ITemporal<?>> long findTimeBefore( EntityManager aEntityManager, ISequenceFactory<V> aFactory,
+  static <V extends ITemporal<?>> long findTimeBefore( EntityManager aEntityManager, IS5SequenceFactory<V> aFactory,
       Gwid aGwid, Long aBeforeTime ) {
     TsNullArgumentRtException.checkNulls( aEntityManager, aFactory, aGwid, aBeforeTime );
     // Параметризованное описание типа данного
@@ -939,7 +939,7 @@ class S5SequenceSQL {
    * найденный блок
    *
    * @param aEntityManager {@link EntityManager} менеджер постоянства
-   * @param aFactory {@link ISequenceFactory} фабрика формирования последовательностей
+   * @param aFactory {@link IS5SequenceFactory} фабрика формирования последовательностей
    * @param aGwid {@link Gwid} идентификатор данного
    * @param aAfterTime long метка времени (мсек с начала эпохи) после которой или на которой проводится поиск блока со
    *          значением
@@ -947,7 +947,7 @@ class S5SequenceSQL {
    * @param <V> тип значения последовательности
    * @throws TsNullArgumentRtException любой аргумент = null
    */
-  static <V extends ITemporal<?>> long findTimeAfter( EntityManager aEntityManager, ISequenceFactory<V> aFactory,
+  static <V extends ITemporal<?>> long findTimeAfter( EntityManager aEntityManager, IS5SequenceFactory<V> aFactory,
       Gwid aGwid, Long aAfterTime ) {
     TsNullArgumentRtException.checkNulls( aEntityManager, aFactory, aGwid, aAfterTime );
     // Параметризованное описание типа данного
@@ -1006,7 +1006,7 @@ class S5SequenceSQL {
    * полного блока
    *
    * @param aEntityManager {@link EntityManager} менеджер постоянства
-   * @param aFactory {@link ISequenceFactory} фабрика формирования последовательностей
+   * @param aFactory {@link IS5SequenceFactory} фабрика формирования последовательностей
    * @param aGwid {@link Gwid} идентификатор данного
    * @param aToTime long (время мсек с начала эпохи) до которого проводить поиск фрагментированных блоков (включительно)
    * @param aMaxSize int размер блока меньше которого блок считается фрагментированным
@@ -1014,14 +1014,14 @@ class S5SequenceSQL {
    * @param aFragmentCountMax int максимальное количество блоков которые требуетя для дефрагментации. <= 0: отключено
    * @param aFragmentTimeout long время (мсек) между блоками больше которого проводится принудительная дефрагментация.
    *          <= 0: отключено.
-   * @return {@link ISequenceFragmentInfo} информация о фрагментации. {@link ISequenceFragmentInfo#NULL} нет
+   * @return {@link IS5SequenceFragmentInfo} информация о фрагментации. {@link IS5SequenceFragmentInfo#NULL} нет
    *         фрагментации
    * @param <V> тип значения последовательности
    * @throws TsNullArgumentRtException любой аргумент = null
    * @throws TsIllegalArgumentRtException aFragmentCountMax = 1
    */
-  static <V extends ITemporal<?>> ISequenceFragmentInfo findFragmentationTime( EntityManager aEntityManager,
-      ISequenceFactory<V> aFactory, Gwid aGwid, long aToTime, int aMaxSize, int aFragmentCountMin,
+  static <V extends ITemporal<?>> IS5SequenceFragmentInfo findFragmentationTime( EntityManager aEntityManager,
+      IS5SequenceFactory<V> aFactory, Gwid aGwid, long aToTime, int aMaxSize, int aFragmentCountMin,
       int aFragmentCountMax, long aFragmentTimeout ) {
     TsNullArgumentRtException.checkNulls( aEntityManager, aFactory, aGwid );
     TsInternalErrorRtException.checkTrue( aFragmentCountMax == 1 );
@@ -1057,11 +1057,11 @@ class S5SequenceSQL {
       }
       if( fragmentStartTime == MAX_TIMESTAMP ) {
         // Не найдено время фрагментации
-        return ISequenceFragmentInfo.NULL;
+        return IS5SequenceFragmentInfo.NULL;
       }
       if( fragmentStartTime >= aToTime ) {
         // До указанного времени нет фрагментации
-        return ISequenceFragmentInfo.NULL;
+        return IS5SequenceFragmentInfo.NULL;
       }
       // Интервал запроса размеров фрагментированных блоков
       IQueryInterval interval = new QueryInterval( EQueryIntervalType.CSCE, fragmentStartTime, aToTime );
@@ -1071,7 +1071,7 @@ class S5SequenceSQL {
       int startsTimesSizesListSize = startsTimesSizesList.size();
       if( startsTimesSizesListSize == 0 ) {
         // Нет блоков для дефрагментации
-        return ISequenceFragmentInfo.NULL;
+        return IS5SequenceFragmentInfo.NULL;
       }
       // Общее количество значений фрагментированных блоков
       int allSize = 0;
@@ -1160,13 +1160,13 @@ class S5SequenceSQL {
    * Проводится поиск ближайшего блока у которого есть значение на указанной метке времени или перед ней
    *
    * @param aEntityManager {@link EntityManager} менеджер постоянства
-   * @param aFactory {@link ISequenceFactory} фабрика формирования последовательностей
+   * @param aFactory {@link IS5SequenceFactory} фабрика формирования последовательностей
    * @param aGwid {@link Gwid} идентификатор данного
    * @return long метка времени завершения последнего блока. MIN_TIMESTAMP: блок не найден
    * @param <V> тип значения последовательности
    * @throws TsNullArgumentRtException любой аргумент = null
    */
-  static <V extends ITemporal<?>> long findLastBlockEndTime( EntityManager aEntityManager, ISequenceFactory<V> aFactory,
+  static <V extends ITemporal<?>> long findLastBlockEndTime( EntityManager aEntityManager, IS5SequenceFactory<V> aFactory,
       Gwid aGwid ) {
     TsNullArgumentRtException.checkNulls( aEntityManager, aFactory, aGwid );
     // Параметризованное описание типа данного
@@ -1211,15 +1211,15 @@ class S5SequenceSQL {
    * Проводится поиск последнего блока
    *
    * @param aEntityManager {@link EntityManager} менеджер постоянства
-   * @param aFactory {@link ISequenceFactory} фабрика формирования последовательностей
+   * @param aFactory {@link IS5SequenceFactory} фабрика формирования последовательностей
    * @param aGwid {@link Gwid} идентификатор данного
-   * @return {@link ISequenceBlock}&lt;V&gt; найденный блок. null: блок не найден
+   * @return {@link IS5SequenceBlock}&lt;V&gt; найденный блок. null: блок не найден
    * @param <V> тип значения последовательности
    * @throws TsNullArgumentRtException любой аргумент = null
    */
   @SuppressWarnings( "unchecked" )
-  static <V extends ITemporal<?>> ISequenceBlock<V> findLastBlock( EntityManager aEntityManager,
-      ISequenceFactory<V> aFactory, Gwid aGwid ) {
+  static <V extends ITemporal<?>> IS5SequenceBlock<V> findLastBlock( EntityManager aEntityManager,
+      IS5SequenceFactory<V> aFactory, Gwid aGwid ) {
     TsNullArgumentRtException.checkNulls( aEntityManager, aFactory, aGwid );
     // Параметризованное описание типа данного
     IParameterized typeInfo = aFactory.typeInfo( aGwid );
@@ -1228,7 +1228,7 @@ class S5SequenceSQL {
     // Имя таблицы
     String tableName = getLast( blockImplClass );
     try {
-      List<ISequenceBlock<V>> blocks;
+      List<IS5SequenceBlock<V>> blocks;
       // Текст SQL-запроса
       String sql = format( QFRMT_LAST_BLOCK, tableName, aGwid );
       // Класс реализации блока
@@ -1239,7 +1239,7 @@ class S5SequenceSQL {
       query.setFirstResult( 0 );
       query.setMaxResults( 1 );
       // Запрос данных
-      blocks = (List<ISequenceBlock<V>>)query.getResultList();
+      blocks = (List<IS5SequenceBlock<V>>)query.getResultList();
       if( blocks.size() == 0 ) {
         return null;
       }
@@ -1671,16 +1671,16 @@ class S5SequenceSQL {
   /**
    * Удаляет из блока значения которые не попадают в интервал
    *
-   * @param aFactory {@link ISequenceFactory} фабрика формирования последовательности
+   * @param aFactory {@link IS5SequenceFactory} фабрика формирования последовательности
    * @param aInterval {@link IQueryInterval} интервал запроса последовательности
-   * @param aBlock {@link ISequenceBlock} блок
-   * @return {@link ISequenceBlock} блок результат. {@link ISequenceBlock#NULL}: все значения блока не попадают в
+   * @param aBlock {@link IS5SequenceBlock} блок
+   * @return {@link IS5SequenceBlock} блок результат. {@link IS5SequenceBlock#NULL}: все значения блока не попадают в
    *         интервал
    * @param <V> тип значений блока
    * @throws TsNullArgumentRtException любой аргумент = null
    */
-  private static <V extends ITemporal<?>> ISequenceBlock<V> trim( ISequenceFactory<V> aFactory,
-      IQueryInterval aInterval, ISequenceBlock<V> aBlock ) {
+  private static <V extends ITemporal<?>> IS5SequenceBlock<V> trim( IS5SequenceFactory<V> aFactory,
+      IQueryInterval aInterval, IS5SequenceBlock<V> aBlock ) {
     TsNullArgumentRtException.checkNulls( aFactory, aInterval, aBlock );
     IParameterized typeInfo = aFactory.typeInfo( aBlock.gwid() );
     long ist = S5SequenceBlock.alignByDDT( typeInfo, aInterval.startTime() );

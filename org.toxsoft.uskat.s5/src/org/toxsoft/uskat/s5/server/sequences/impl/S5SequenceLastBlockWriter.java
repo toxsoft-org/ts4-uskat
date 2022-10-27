@@ -61,25 +61,25 @@ class S5SequenceLastBlockWriter<S extends IS5Sequence<V>, V extends ITemporal<?>
   /**
    * Карта последних блоков.<br>
    * Ключ: идентификатор данного.<br>
-   * Значение: блок {@link ISequenceBlock}.
+   * Значение: блок {@link IS5SequenceBlock}.
    */
-  private final IMapEdit<Gwid, ISequenceBlock<V>> lastBlocks = new SynchronizedMap<>( new ElemMap<>() );
+  private final IMapEdit<Gwid, IS5SequenceBlock<V>> lastBlocks = new SynchronizedMap<>( new ElemMap<>() );
 
   /**
    * Карта последних блоков в транзакции.<br>
    * Ключ: идентификатор данного.<br>
-   * Значение: блок {@link ISequenceBlock}.
+   * Значение: блок {@link IS5SequenceBlock}.
    */
-  private final IMapEdit<Gwid, ISequenceBlock<V>> txLastBlocks = new SynchronizedMap<>( new ElemMap<>() );
+  private final IMapEdit<Gwid, IS5SequenceBlock<V>> txLastBlocks = new SynchronizedMap<>( new ElemMap<>() );
 
   /**
    * Создает писатель последовательностей
    *
    * @param aBackendCore {@link IS5BackendCoreSingleton} ядро бекенда сервера
-   * @param aSequenceFactory {@link ISequenceFactory} фабрика последовательностей блоков
+   * @param aSequenceFactory {@link IS5SequenceFactory} фабрика последовательностей блоков
    * @throws TsNullArgumentRtException аргумент = null
    */
-  S5SequenceLastBlockWriter( IS5BackendCoreSingleton aBackendCore, ISequenceFactory<V> aSequenceFactory ) {
+  S5SequenceLastBlockWriter( IS5BackendCoreSingleton aBackendCore, IS5SequenceFactory<V> aSequenceFactory ) {
     super( aBackendCore, aSequenceFactory );
   }
 
@@ -93,11 +93,11 @@ class S5SequenceLastBlockWriter<S extends IS5Sequence<V>, V extends ITemporal<?>
    * @param aSequence S последовательность
    * @param aStatistics {@link S5SequenceWriteStat} редактируемая статистика
    * @param aThreadIndex int индекс записи (индекс потока или просто порядковый номер, для журнала)
-   * @return {@link ISequenceBlock}&lt;V&gt; блок последних значений записаных в dbms. null: неопределен
+   * @return {@link IS5SequenceBlock}&lt;V&gt; блок последних значений записаных в dbms. null: неопределен
    */
   @SuppressWarnings( "unchecked" )
   @Override
-  protected ISequenceBlock<V> writeSequence( EntityManager aEntityManager, S aSequence, S5SequenceWriteStat aStatistics,
+  protected IS5SequenceBlock<V> writeSequence( EntityManager aEntityManager, S aSequence, S5SequenceWriteStat aStatistics,
       int aThreadIndex ) {
     TsNullArgumentRtException.checkNulls( aEntityManager, aSequence, aStatistics );
 
@@ -113,7 +113,7 @@ class S5SequenceLastBlockWriter<S extends IS5Sequence<V>, V extends ITemporal<?>
 
     // Вывод полученных блоков в журнал
     if( logger().isSeverityOn( ELogSeverity.DEBUG ) ) {
-      List<ISequenceBlock<V>> blocks = new ArrayList<>();
+      List<IS5SequenceBlock<V>> blocks = new ArrayList<>();
       for( int index = 0, n = aSequence.blocks().size(); index < n; index++ ) {
         blocks.add( aSequence.blocks().get( index ) );
       }
@@ -123,7 +123,7 @@ class S5SequenceLastBlockWriter<S extends IS5Sequence<V>, V extends ITemporal<?>
     int unioned = ((IS5SequenceEdit<V>)aSequence).uniteBlocks().size();
     // Вывод блоков после дефрагментации в журнал
     if( logger().isSeverityOn( ELogSeverity.DEBUG ) && unioned > 0 ) {
-      List<ISequenceBlock<V>> blocks = new ArrayList<>();
+      List<IS5SequenceBlock<V>> blocks = new ArrayList<>();
       for( int index = 0, n = aSequence.blocks().size(); index < n; index++ ) {
         blocks.add( aSequence.blocks().get( index ) );
       }
@@ -137,7 +137,7 @@ class S5SequenceLastBlockWriter<S extends IS5Sequence<V>, V extends ITemporal<?>
     // Интервал последовательности для записи
     ITimeInterval sourceInterval = aSequence.interval();
     // Последний блок сохраненный в dmbs. null: неопределенно
-    ISequenceBlock<V> lastBlock = lastBlocks.findByKey( gwid );
+    IS5SequenceBlock<V> lastBlock = lastBlocks.findByKey( gwid );
     if( lastBlock == null ) {
       long traceStartTime = System.currentTimeMillis();
       lastBlock = S5SequenceSQL.findLastBlock( aEntityManager, sequenceFactory(), gwid );
@@ -158,7 +158,7 @@ class S5SequenceLastBlockWriter<S extends IS5Sequence<V>, V extends ITemporal<?>
     if( lastBlock == null ) {
       logger().warning( MSG_NOT_LAST_BLOCK, threadIndex, gwid );
       // Нет последнего блока (это может быть если в базе еще не было значений этого данного)
-      ISequenceBlock<V> retValue = super.writeSequence( aEntityManager, aSequence, aStatistics, aThreadIndex );
+      IS5SequenceBlock<V> retValue = super.writeSequence( aEntityManager, aSequence, aStatistics, aThreadIndex );
       if( retValue != null ) {
         // Сохраняем блок последних знаений в тразнакции
         txLastBlocks.put( gwid, retValue );
@@ -217,7 +217,7 @@ class S5SequenceLastBlockWriter<S extends IS5Sequence<V>, V extends ITemporal<?>
         // Значения не были записаны в dbms
         return null;
       }
-      ElemArrayList<ISequenceBlock<V>> addedBlocks = new ElemArrayList<>( sbc );
+      ElemArrayList<IS5SequenceBlock<V>> addedBlocks = new ElemArrayList<>( sbc );
       for( int index = 0; index < sbc; index++ ) {
         addedBlocks.add( aSequence.blocks().get( index ) );
       }
@@ -232,7 +232,7 @@ class S5SequenceLastBlockWriter<S extends IS5Sequence<V>, V extends ITemporal<?>
       // Формирование статистики
       aStatistics.addWriteBlocks( sourceInterval, writedCount );
       // Блок последних значений сохраненных в dbms
-      ISequenceBlock<V> retValue = aSequence.blocks().last();
+      IS5SequenceBlock<V> retValue = aSequence.blocks().last();
       txLastBlocks.put( gwid, retValue );
       return retValue;
     }
@@ -240,21 +240,21 @@ class S5SequenceLastBlockWriter<S extends IS5Sequence<V>, V extends ITemporal<?>
       // Данные последнего блока редактируются новыми значениями, возможно добавляя новые блоки
       int sbc = aSequence.blocks().size();
       // Использование ElemArrayList из-за prepareDbmsBlocks которому это необходимо для производительности
-      ElemArrayList<ISequenceBlock<V>> addedBlocks = new ElemArrayList<>( sbc );
-      ElemArrayList<ISequenceBlock<V>> mergedBlocks = new ElemArrayList<>( sbc );
-      ElemArrayList<ISequenceBlock<V>> removedBlocks = new ElemArrayList<>( sbc );
-      ElemArrayList<ISequenceBlock<V>> blocks = new ElemArrayList<>();
+      ElemArrayList<IS5SequenceBlock<V>> addedBlocks = new ElemArrayList<>( sbc );
+      ElemArrayList<IS5SequenceBlock<V>> mergedBlocks = new ElemArrayList<>( sbc );
+      ElemArrayList<IS5SequenceBlock<V>> removedBlocks = new ElemArrayList<>( sbc );
+      ElemArrayList<IS5SequenceBlock<V>> blocks = new ElemArrayList<>();
       blocks.add( lastBlock );
 
       long st = lastBlock.startTime();
       long et = sourceInterval.endTime();
       IQueryInterval targetInterval = new QueryInterval( CSCE, st, et );
-      Iterable<ISequenceBlockEdit<V>> targetBlocks = (Iterable<ISequenceBlockEdit<V>>)(Object)blocks;
+      Iterable<IS5SequenceBlockEdit<V>> targetBlocks = (Iterable<IS5SequenceBlockEdit<V>>)(Object)blocks;
       IS5SequenceEdit<V> target = sequenceFactory().createSequence( gwid, targetInterval, targetBlocks );
       // Редактирование последовательности
       target.edit( aSequence, removedBlocks );
       // Объединение последовательности (не требуется, так как растет последний блок и перегружает dbms)
-      // removedBlocks.addAll( (IList<ISequenceBlock<V>>)(Object)target.uniteBlocks() );
+      // removedBlocks.addAll( (IList<IS5SequenceBlock<V>>)(Object)target.uniteBlocks() );
       int writedCount = aSequence.blocks().size();
 
       // Синхронизация с dbms: удаление блоков
@@ -274,16 +274,16 @@ class S5SequenceLastBlockWriter<S extends IS5Sequence<V>, V extends ITemporal<?>
       // Формирование статистики
       aStatistics.addWriteBlocks( sourceInterval, writedCount );
       // Блок последних значений сохраненных в dbms
-      ISequenceBlock<V> retValue = target.blocks().last();
+      IS5SequenceBlock<V> retValue = target.blocks().last();
       txLastBlocks.put( gwid, retValue );
       return retValue;
     }
     // Новые данные начинаются до блока последних значений. Используем базовый алгоритм
     logger().warning( MSG_CANT_USE_LAST_BLOCK, threadIndex, gwid, sourceInterval, lastBlock );
-    ISequenceBlock<V> retValue = super.writeSequence( aEntityManager, aSequence, aStatistics, aThreadIndex );
+    IS5SequenceBlock<V> retValue = super.writeSequence( aEntityManager, aSequence, aStatistics, aThreadIndex );
     // Удаляем последний блок, чтобы его запросить при следующей записи
     if( !writeBeforeLastBlock ) {
-      ISequenceBlock<V> removedLastBlock = lastBlocks.removeByKey( gwid );
+      IS5SequenceBlock<V> removedLastBlock = lastBlocks.removeByKey( gwid );
       logger().warning( MSG_REMOVE_LAST_BY_BEFORE, gwid, aSequence, removedLastBlock );
     }
     // TODO: планирование дефрагментации
@@ -358,12 +358,12 @@ class S5SequenceLastBlockWriter<S extends IS5Sequence<V>, V extends ITemporal<?>
   }
 
   @Override
-  protected void onUnionEvent( IOptionSet aArgs, IList<ISequenceFragmentInfo> aFragmentInfoes, ILogger aLogger ) {
-    for( ISequenceFragmentInfo fragmentInfo : aFragmentInfoes ) {
+  protected void onUnionEvent( IOptionSet aArgs, IList<IS5SequenceFragmentInfo> aFragmentInfoes, ILogger aLogger ) {
+    for( IS5SequenceFragmentInfo fragmentInfo : aFragmentInfoes ) {
       // Идентификатор данного
       Gwid gwid = fragmentInfo.gwid();
       // Последний блок значений данного
-      ISequenceBlock<V> lastBlock = lastBlocks.findByKey( gwid );
+      IS5SequenceBlock<V> lastBlock = lastBlocks.findByKey( gwid );
       if( lastBlock == null ) {
         // В данный момент для данного не хранится последний блок значений
         continue;
@@ -423,7 +423,7 @@ class S5SequenceLastBlockWriter<S extends IS5Sequence<V>, V extends ITemporal<?>
     }
     // Успешное завершение транзакции
     for( Gwid gwid : aGwids ) {
-      ISequenceBlock<V> txLastBlock = txLastBlocks.removeByKey( gwid );
+      IS5SequenceBlock<V> txLastBlock = txLastBlocks.removeByKey( gwid );
       if( txLastBlock == null ) {
         continue;
       }

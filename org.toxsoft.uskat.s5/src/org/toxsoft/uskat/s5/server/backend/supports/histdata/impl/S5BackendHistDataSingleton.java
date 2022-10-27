@@ -24,8 +24,8 @@ import org.toxsoft.uskat.s5.legacy.QueryInterval;
 import org.toxsoft.uskat.s5.server.backend.supports.histdata.*;
 import org.toxsoft.uskat.s5.server.backend.supports.histdata.impl.sequences.S5HistDataSequenceFactory;
 import org.toxsoft.uskat.s5.server.interceptors.S5InterceptorSupport;
-import org.toxsoft.uskat.s5.server.sequences.ISequenceBlockEdit;
-import org.toxsoft.uskat.s5.server.sequences.ISequenceFactory;
+import org.toxsoft.uskat.s5.server.sequences.IS5SequenceBlockEdit;
+import org.toxsoft.uskat.s5.server.sequences.IS5SequenceFactory;
 import org.toxsoft.uskat.s5.server.sequences.impl.S5BackendSequenceSupportSingleton;
 import org.toxsoft.uskat.s5.utils.jobs.IS5ServerJob;
 
@@ -102,7 +102,7 @@ public class S5BackendHistDataSingleton
   }
 
   @Override
-  protected ISequenceFactory<ITemporalAtomicValue> doCreateFactory() {
+  protected IS5SequenceFactory<ITemporalAtomicValue> doCreateFactory() {
     return new S5HistDataSequenceFactory( backend().initialConfig().impl(), sysdescrReader() );
   }
 
@@ -133,7 +133,7 @@ public class S5BackendHistDataSingleton
         ITimeInterval ti = intervalValues.left();
         ITimedList<ITemporalAtomicValue> values = intervalValues.right();
         IQueryInterval interval = new QueryInterval( EQueryIntervalType.CSCE, ti.startTime(), ti.endTime() );
-        ISequenceBlockEdit<ITemporalAtomicValue> block = factory().createBlock( gwid, values );
+        IS5SequenceBlockEdit<ITemporalAtomicValue> block = factory().createBlock( gwid, values );
         sequences.add( (IS5HistDataSequence)factory().createSequence( gwid, interval, new ElemArrayList<>( block ) ) );
       }
       writeSequences( sequences );

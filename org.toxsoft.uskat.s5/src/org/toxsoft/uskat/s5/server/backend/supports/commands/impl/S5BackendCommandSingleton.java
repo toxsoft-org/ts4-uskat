@@ -41,8 +41,8 @@ import org.toxsoft.uskat.s5.server.backend.supports.commands.IS5BackendCommandSi
 import org.toxsoft.uskat.s5.server.backend.supports.commands.sequences.IS5CommandSequence;
 import org.toxsoft.uskat.s5.server.backend.supports.commands.sequences.IS5CommandSequenceEdit;
 import org.toxsoft.uskat.s5.server.frontend.IS5FrontendRear;
-import org.toxsoft.uskat.s5.server.sequences.ISequenceBlock;
-import org.toxsoft.uskat.s5.server.sequences.ISequenceFactory;
+import org.toxsoft.uskat.s5.server.sequences.IS5SequenceBlock;
+import org.toxsoft.uskat.s5.server.sequences.IS5SequenceFactory;
 import org.toxsoft.uskat.s5.server.sequences.impl.S5BackendSequenceSupportSingleton;
 import org.toxsoft.uskat.s5.server.sequences.impl.S5SequenceFactory;
 import org.toxsoft.uskat.s5.server.transactions.S5TransactionUtils;
@@ -246,7 +246,7 @@ public class S5BackendCommandSingleton
     // Фильтрация команд и формирование сводного(по объектам) результата запроса
     TimedList<IDtoCompletedCommand> commands = new TimedList<>();
     for( IS5CommandSequence sequence : sequences ) {
-      for( ISequenceBlock<IDtoCompletedCommand> block : sequence.blocks() ) {
+      for( IS5SequenceBlock<IDtoCompletedCommand> block : sequence.blocks() ) {
         for( int index = 0, n = block.size(); index < n; index++ ) {
           commands.add( block.getValue( index ) );
         }
@@ -313,7 +313,7 @@ public class S5BackendCommandSingleton
   }
 
   @Override
-  protected ISequenceFactory<IDtoCompletedCommand> doCreateFactory() {
+  protected IS5SequenceFactory<IDtoCompletedCommand> doCreateFactory() {
     return new S5CommandSequenceFactory( backend().initialConfig().impl(), sysdescrReader() );
   }
 

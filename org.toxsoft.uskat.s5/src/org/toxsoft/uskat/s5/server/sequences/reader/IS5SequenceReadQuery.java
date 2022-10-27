@@ -7,7 +7,7 @@ import org.toxsoft.core.tslib.bricks.time.IQueryInterval;
 import org.toxsoft.core.tslib.utils.ICloseable;
 import org.toxsoft.core.tslib.utils.errors.TsNullArgumentRtException;
 import org.toxsoft.uskat.s5.server.frontend.IS5FrontendRear;
-import org.toxsoft.uskat.s5.server.sequences.ISequenceFactory;
+import org.toxsoft.uskat.s5.server.sequences.IS5SequenceFactory;
 
 /**
  * Запрос чтения хранимых данных
@@ -41,9 +41,9 @@ public interface IS5SequenceReadQuery
   /**
    * Возвращает фабрику последовательности значений
    *
-   * @return ISequenceFactory фабрику последовательности значений
+   * @return IS5SequenceFactory фабрику последовательности значений
    */
-  ISequenceFactory<?> factory();
+  IS5SequenceFactory<?> factory();
 
   /**
    * Возвращает максимальное время(мсек) выполнения запроса.

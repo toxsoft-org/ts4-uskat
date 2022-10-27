@@ -85,7 +85,7 @@ public class S5CommandSequenceFactory
 
   @Override
   public IS5SequenceEdit<IDtoCompletedCommand> doCreateSequence( Gwid aGwid, IQueryInterval aInterval,
-      Iterable<ISequenceBlockEdit<IDtoCompletedCommand>> aCommands ) {
+      Iterable<IS5SequenceBlockEdit<IDtoCompletedCommand>> aCommands ) {
     return new S5CommandSequence( this, aGwid, aInterval, aCommands );
   }
 

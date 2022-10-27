@@ -9,7 +9,7 @@ import static org.toxsoft.uskat.s5.server.sequences.impl.IS5Resources.*;
 import static org.toxsoft.uskat.s5.server.sequences.impl.S5SequenceBlock.*;
 import static org.toxsoft.uskat.s5.server.sequences.impl.S5SequenceUtils.*;
 
-import java.io.*;
+import java.io.Serializable;
 
 import org.toxsoft.core.tslib.av.utils.IParameterized;
 import org.toxsoft.core.tslib.bricks.time.*;
@@ -23,8 +23,6 @@ import org.toxsoft.core.tslib.utils.TsLibUtils;
 import org.toxsoft.core.tslib.utils.errors.*;
 import org.toxsoft.core.tslib.utils.logs.ILogger;
 import org.toxsoft.uskat.s5.legacy.QueryInterval;
-import org.toxsoft.uskat.s5.server.backend.supports.histdata.impl.sequences.IHistDataBlock;
-import org.toxsoft.uskat.s5.server.backend.supports.histdata.impl.sequences.ITemporalValueImporter;
 import org.toxsoft.uskat.s5.server.sequences.*;
 
 /**
@@ -58,7 +56,7 @@ public abstract class S5Sequence<V extends ITemporal<?>>
   /**
    * Список блоков исторических данных отсортированный по startTime
    */
-  private final IListEdit<ISequenceBlockEdit<V>> blocks;
+  private final IListEdit<IS5SequenceBlockEdit<V>> blocks;
 
   /**
    * Интервал времени последовательности значений
@@ -68,27 +66,7 @@ public abstract class S5Sequence<V extends ITemporal<?>>
   /**
    * Фабрика последовательностей
    */
-  private transient ISequenceFactory<V> factory;
-
-  /**
-   * Текущее время курсора
-   */
-  private transient long cursorTime;
-
-  /**
-   * Индекс блока на котором находится курсор. < 0: в последовательности нет блоков
-   */
-  private transient int cursorBlockIndex;
-
-  /**
-   * Блок на котором находится курсор. null: в последовательности нет блоков
-   */
-  private transient ISequenceBlockEdit<V> cursorBlock;
-
-  /**
-   * Позиция курсора в блоке. < 0: время курсора попадает в блок, но блок пустой
-   */
-  private transient int cursorBlockValueIndex;
+  private transient IS5SequenceFactory<V> factory;
 
   /**
    * Общий журнал работы
@@ -112,26 +90,16 @@ public abstract class S5Sequence<V extends ITemporal<?>>
   private boolean edited;
 
   /**
-   * Блок на котором находится курсор импорта данных. null: в последовательности нет блоков
-   */
-  private transient IHistDataBlock importBlock;
-
-  /**
-   * Индекс блока на котором находится курсор импорта данных. < 0: в последовательности нет блоков
-   */
-  private transient int importBlockIndex;
-
-  /**
    * Конструктор (используется для при загрузке блоков из dbms)
    *
-   * @param aFactory {@link ISequenceFactory} фабрика последовательностей значений
+   * @param aFactory {@link IS5SequenceFactory} фабрика последовательностей значений
    * @param aGwid {@link Gwid} идентификатор данного
    * @param aInterval {@link IQueryInterval} интервал времени последовательности, подробности в {@link #interval()}
-   * @param aBlocks {@link Iterable}&lt;{@link ISequenceBlock}&gt; список блоков представляющих последовательность
+   * @param aBlocks {@link Iterable}&lt;{@link IS5SequenceBlock}&gt; список блоков представляющих последовательность
    * @throw {@link TsNullArgumentRtException} любой аргумент = null
    */
-  protected S5Sequence( ISequenceFactory<V> aFactory, Gwid aGwid, IQueryInterval aInterval,
-      Iterable<ISequenceBlockEdit<V>> aBlocks ) {
+  protected S5Sequence( IS5SequenceFactory<V> aFactory, Gwid aGwid, IQueryInterval aInterval,
+      Iterable<IS5SequenceBlockEdit<V>> aBlocks ) {
     TsNullArgumentRtException.checkNulls( aFactory, aGwid, aInterval, aBlocks );
     factory = aFactory;
     typeInfo = aFactory.typeInfo( aGwid );
@@ -140,7 +108,7 @@ public abstract class S5Sequence<V extends ITemporal<?>>
     long endTime = alignByDDT( typeInfo, aInterval.endTime() );
     queryInterval = new QueryInterval( aInterval.type(), startTime, endTime );
     blocks = new ElemArrayList<>();
-    for( ISequenceBlockEdit<V> block : aBlocks ) {
+    for( IS5SequenceBlockEdit<V> block : aBlocks ) {
       if( startTime > block.startTime() || endTime < block.endTime() ) {
         // Блок добавляемых значений должен быть подмножеством последовательности
         String st = timestampToString( startTime );
@@ -152,10 +120,6 @@ public abstract class S5Sequence<V extends ITemporal<?>>
       // Добавление блоков в последовательность с проверкой их диапазона времени и порядка возрастания
       safeAddBlock( typeInfo, gwid, blocks, block, logger() );
     }
-    // Устанавливаем курсор на начало последовательности
-    setCurrTime( startTime );
-    // Устанавливаем курсор импорта на начало последовательности
-    setImportTime( aInterval.startTime() );
   }
 
   // ------------------------------------------------------------------------------------
@@ -178,144 +142,13 @@ public abstract class S5Sequence<V extends ITemporal<?>>
 
   @Override
   @SuppressWarnings( "unchecked" )
-  public IList<ISequenceBlock<V>> blocks() {
-    return ((IList<ISequenceBlock<V>>)(Object)blocks);
+  public IList<IS5SequenceBlock<V>> blocks() {
+    return ((IList<IS5SequenceBlock<V>>)(Object)blocks);
   }
 
   @Override
   public int findBlockIndex( long aTimestamp ) {
     return binarySearch( blocks, aTimestamp );
-  }
-
-  @Override
-  public long getCurrTime() {
-    return cursorTime;
-  }
-
-  @Override
-  public void setCurrTime( long aCurrTime ) {
-    long currTime = alignByDDT( typeInfo, aCurrTime );
-    if( currTime == MIN_TIMESTAMP ) {
-      currTime += 1;
-    }
-    if( currTime == MAX_TIMESTAMP ) {
-      currTime -= 1;
-    }
-    // Текущие параметры интервала
-    long factStartTime = alignByDDT( typeInfo, factStartTime( this ) );
-    long factEndTime = alignByDDT( typeInfo, factEndTime( this ) );
-    if( currTime < factStartTime ) {
-      // Курсор не может быть установлен за границами последовательности
-      String st = timestampToString( interval().startTime() );
-      String et = timestampToString( interval().endTime() );
-      String fst = timestampToString( factStartTime );
-      String fet = timestampToString( factEndTime );
-      String ct = timestampToString( currTime );
-      throw new TsIllegalArgumentRtException( ERR_WRONG_CURSOR, st, et, fst, fet, ct );
-    }
-    if( factEndTime < currTime ) {
-      // Курсор не может быть установлен за границами последовательности
-      String st = timestampToString( interval().startTime() );
-      String et = timestampToString( interval().endTime() );
-      String fst = timestampToString( factStartTime );
-      String fet = timestampToString( factEndTime );
-      String ct = timestampToString( currTime );
-      throw new TsIllegalArgumentRtException( ERR_WRONG_CURSOR, st, et, fst, fet, ct );
-    }
-    // Инициализация курсора
-    cursorTime = currTime;
-    cursorBlockIndex = -1;
-    cursorBlock = null;
-    cursorBlockValueIndex = -1;
-    // Индекс ближайщего блока в зоне aCurrTime
-    int nearest = binarySearch( blocks, currTime );
-    ISequenceBlockEdit<V> block = (nearest < 0 ? null : blocks.get( nearest ));
-    if( block == null ) {
-      // Блоков нет
-      return;
-    }
-    if( currTime < block.startTime() ) {
-      // Курсор оказался "слева" от блока. Пробуем получить первый элемент в любом следующем, непустом блоке
-      for( int index = nearest, n = blocks.size(); index < n; index++ ) {
-        block = blocks.get( index );
-        int blockValuesCount = block.size();
-        if( blockValuesCount == 0 ) {
-          continue;
-        }
-        cursorBlockIndex = index;
-        cursorBlock = block;
-        cursorBlockValueIndex = 0;
-        return;
-      }
-    }
-    if( block.endTime() < currTime ) {
-      // Курсор оказался "справа" от блока. Пробуем получить последний элемент в любом предыдущем,непустом блоке
-      for( int index = nearest; index >= 0; index-- ) {
-        block = blocks.get( index );
-        int blockValuesCount = block.size();
-        if( blockValuesCount > 0 ) {
-          continue;
-        }
-        cursorBlockIndex = index;
-        cursorBlock = block;
-        cursorBlockValueIndex = blockValuesCount - 1;
-        return;
-      }
-      // Не найдены блоки из которых могут быть получены значения
-      return;
-    }
-    cursorBlockIndex = nearest;
-    cursorBlock = block;
-    cursorBlockValueIndex = cursorBlock.firstByTime( alignByDDT( typeInfo, currTime ) );
-  }
-
-  @Override
-  public boolean hasNext() {
-    if( cursorBlock == null || cursorBlockValueIndex < 0 ) {
-      // Курсор невалиден. Движение невозможно
-      return false;
-    }
-    // Разрешено чтение значения
-    return true;
-  }
-
-  @Override
-  public V nextValue() {
-    if( cursorBlock == null || cursorBlockValueIndex < 0 ) {
-      // Курсор невалиден. Движение невозможно
-      String ct = timestampToString( cursorTime );
-      throw new TsIllegalStateRtException( ERR_NOT_CURSOR_DATA, ct, queryInterval );
-    }
-    // Чтение значения
-    V retValue = cursorBlock.getValue( cursorBlockValueIndex );
-    // Текущее время курсора
-    cursorTime = retValue.timestamp();
-    // Определяем есть ли следующее значение
-    if( cursorBlockValueIndex + 1 < cursorBlock.size() ) {
-      // Есть возможность движения по текущему блоку курсора
-      cursorBlockValueIndex++;
-    }
-    else {
-      // В текущем блоке больше нет значений
-      cursorBlock = null;
-      cursorBlockValueIndex = -1;
-      // Пробуем найти следующий блок
-      for( int index = cursorBlockIndex + 1, n = blocks.size(); index < n; index++ ) {
-        ISequenceBlockEdit<V> block = blocks.get( index );
-        if( block.size() > 0 ) {
-          // Есть возможность перехода на первое значение следующего блока
-          cursorBlockIndex = index;
-          cursorBlock = block;
-          cursorBlockValueIndex = 0;
-          break;
-        }
-      }
-      if( cursorBlockValueIndex < 0 ) {
-        // Значений больше нет. Устраняем противоречивость
-        cursorBlockIndex = -1;
-      }
-    }
-    return retValue;
   }
 
   @Override
@@ -370,10 +203,10 @@ public abstract class S5Sequence<V extends ITemporal<?>>
       return retValue;
     }
     // Первый блок в последовательности который имеет значения запроса. null: нет значений
-    ISequenceBlockEdit<V> firstBlock = null;
+    IS5SequenceBlockEdit<V> firstBlock = null;
     // При разрешении получать значения до aStartTime смещаемся на один блок назад до первого не пустого блока
     for( int index = Math.min( firstBlockIndex + 1, blocks.size() - 1 ); index >= 0; index-- ) {
-      ISequenceBlockEdit<V> block = blocks.get( index );
+      IS5SequenceBlockEdit<V> block = blocks.get( index );
       if( queryStartTime <= block.endTime() ) {
         firstBlock = block;
         firstBlockIndex = index;
@@ -414,7 +247,7 @@ public abstract class S5Sequence<V extends ITemporal<?>>
     TsInternalErrorRtException.checkTrue( blockIndex < 0 || blockValueIndex < 0 );
     // Обработка
     for( ; blockIndex < blocks.size(); blockIndex++ ) {
-      ISequenceBlockEdit<V> block = blocks.get( blockIndex );
+      IS5SequenceBlockEdit<V> block = blocks.get( blockIndex );
       for( ; blockValueIndex < blocks.get( blockIndex ).size(); blockValueIndex++ ) {
         V value = block.getValue( blockValueIndex );
         long timestamp = value.timestamp();
@@ -465,26 +298,24 @@ public abstract class S5Sequence<V extends ITemporal<?>>
     if( newEndTime < prevStartTime || prevEndTime < newStartTime ) {
       // Не один блок последовательности не попадает в новый интервал времени
       blocks.clear();
-      setCurrTime( newStartTime );
       return;
     }
     // Количество блоков в последовательности
     if( blocks.size() == 0 ) {
       // Нет блоков. Курсор на начало последовательности
-      setCurrTime( newStartTime );
       return;
     }
     // Список блоков которые будут составлять будущую последовательность
-    IListEdit<ISequenceBlockEdit<V>> oldBlocks = new ElemLinkedList<>( blocks );
+    IListEdit<IS5SequenceBlockEdit<V>> oldBlocks = new ElemLinkedList<>( blocks );
     // Очистка списка блоков последовательности
     blocks.clear();
     // Индекс первого блока
     int firstBlockIndex = binarySearch( oldBlocks, newStartTime );
     for( int index = firstBlockIndex, n = oldBlocks.size(); index < n; index++ ) {
       // Исходный блок
-      ISequenceBlockEdit<V> sourceBlock = oldBlocks.get( index );
+      IS5SequenceBlockEdit<V> sourceBlock = oldBlocks.get( index );
       // Целевой блок
-      ISequenceBlockEdit<V> targetBlock = null;
+      IS5SequenceBlockEdit<V> targetBlock = null;
       if( sourceBlock.endTime() < newStartTime ) {
         // Блок завершается раньше последовательности
         continue;
@@ -516,10 +347,6 @@ public abstract class S5Sequence<V extends ITemporal<?>>
       // Добавляем блок в последовательность
       safeAddBlock( typeInfo, gwid, blocks, targetBlock, logger() );
     }
-    if( cursorTime < newStartTime || cursorTime > newEndTime ) {
-      // Курсор оказался за пределами нового интервала. Позиционируем на начало последовательности
-      setCurrTime( newStartTime );
-    }
   }
 
   @Override
@@ -546,7 +373,7 @@ public abstract class S5Sequence<V extends ITemporal<?>>
       return;
     }
     // Формирование блока для новых значений
-    ISequenceBlockEdit<V> block = factory().createBlock( gwid, aValues );
+    IS5SequenceBlockEdit<V> block = factory().createBlock( gwid, aValues );
     // Интервал блока
     long blockStartTime = block.startTime();
     long blockEndTime = block.endTime();
@@ -560,39 +387,33 @@ public abstract class S5Sequence<V extends ITemporal<?>>
       String est = timestampToString( blockEndTime );
       throw new TsIllegalArgumentRtException( ERR_OUT_VALUE_SEQENCE, typeInfo, fv, lv, bst, est, queryInterval );
     }
-    try {
-      // Удаление старых значений с удалением блоков полностью попадающих в интервал удаления
-      remove( blockStartTime, blockEndTime, new ElemLinkedList<>() );
-      // Индекс ближайщего блока в зоне blockStartTime
-      int nearest = binarySearch( blocks, blockStartTime );
-      ISequenceBlockEdit<V> nearestBlock = (nearest < 0 ? null : blocks.get( nearest ));
-      // Добавление блока в последовательность
-      if( nearestBlock == null ) {
-        safeAddBlock( typeInfo, gwid, blocks, block, logger() );
-        return;
-      }
-      // Проверяем можем ли мы добавить значение в найденный блок
-      if( blockStartTime < nearestBlock.startTime() ) {
-        // Добавление перед найденным блоком
-        safeInsertBlock( typeInfo, gwid, blocks, nearest, block );
-        return;
-      }
-      if( nearestBlock.endTime() < blockStartTime ) {
-        // Добавление после найденного блока
-        safeInsertBlock( typeInfo, gwid, blocks, nearest + 1, block );
-        return;
-      }
-      // Недопустимая логика
-      throw new TsInternalErrorRtException();
+    // Удаление старых значений с удалением блоков полностью попадающих в интервал удаления
+    remove( blockStartTime, blockEndTime, new ElemLinkedList<>() );
+    // Индекс ближайщего блока в зоне blockStartTime
+    int nearest = binarySearch( blocks, blockStartTime );
+    IS5SequenceBlockEdit<V> nearestBlock = (nearest < 0 ? null : blocks.get( nearest ));
+    // Добавление блока в последовательность
+    if( nearestBlock == null ) {
+      safeAddBlock( typeInfo, gwid, blocks, block, logger() );
+      return;
     }
-    finally {
-      // Восстанавливаем позицию курсора
-      setCurrTime( cursorTime );
+    // Проверяем можем ли мы добавить значение в найденный блок
+    if( blockStartTime < nearestBlock.startTime() ) {
+      // Добавление перед найденным блоком
+      safeInsertBlock( typeInfo, gwid, blocks, nearest, block );
+      return;
     }
+    if( nearestBlock.endTime() < blockStartTime ) {
+      // Добавление после найденного блока
+      safeInsertBlock( typeInfo, gwid, blocks, nearest + 1, block );
+      return;
+    }
+    // Недопустимая логика
+    throw new TsInternalErrorRtException();
   }
 
   @Override
-  public boolean edit( IS5Sequence<V> aSource, IListEdit<ISequenceBlock<V>> aRemovedBlocks ) {
+  public boolean edit( IS5Sequence<V> aSource, IListEdit<IS5SequenceBlock<V>> aRemovedBlocks ) {
     TsNullArgumentRtException.checkNulls( aSource, aRemovedBlocks );
     if( !aSource.gwid().equals( gwid ) ) {
       // Нельзя редактировать последовательность значениями другого данного
@@ -604,275 +425,156 @@ public abstract class S5Sequence<V extends ITemporal<?>>
     }
     // Сброс признака фактического редактирования
     edited = false;
-    try {
-      // Интервал значений которые попадают в целевую последовательность
-      long fetchStartTime = alignByDDT( typeInfo, getFetchStartTime( this, aSource ) );
-      long fetchEndTime = alignByDDT( typeInfo, getFetchEndTime( this, aSource ) );
-      int targetIndex = remove( fetchStartTime, fetchEndTime, aRemovedBlocks );
-      if( aSource.blocks().size() == 0 ) {
-        // Частный случай: в исходной последовательности нет блоков. Задан только интервал (удаление пустой
-        // последовательностью через ее интервал).
-        return edited;
-      }
-      // Признак того, что последовательность содержит синхронные значения
-      boolean isSync = OP_IS_SYNC.getValue( typeInfo.params() ).asBool();
-      // Интервал (мсек) синхронных значений. Для асинхронных: 1
-      long syncDT = (isSync ? OP_SYNC_DT.getValue( typeInfo.params() ).asLong() : 1);
-      for( int index = 0, n = aSource.blocks().size(); index < n; index++ ) {
-        // Исходный блок
-        ISequenceBlockEdit<V> sourceBlock = (ISequenceBlockEdit<V>)aSource.blocks().get( index );
-        // Целевой блок
-        ISequenceBlockEdit<V> targetBlock = null;
-
-        if( sourceBlock.size() == 0 ) {
-          // В блоке нет значений
-          continue;
-        }
-        if( fetchStartTime > sourceBlock.endTime() ) {
-          // Блок завершается раньше последовательности
-          continue;
-        }
-        if( fetchEndTime < sourceBlock.startTime() ) {
-          // Начало блока позже завершения последовательности
-          break;
-        }
-        if( sourceBlock.startTime() < fetchStartTime && fetchEndTime < sourceBlock.endTime() ) {
-          // Интервал блока полностью покрывает интервал последовательности. Вырезаем из блока интервал
-          // последовательности
-          targetBlock = sourceBlock.createBlockOrNull( typeInfo, fetchStartTime, fetchEndTime );
-        }
-        if( targetBlock == null && fetchStartTime <= sourceBlock.startTime()
-            && sourceBlock.endTime() <= fetchEndTime ) {
-          // Блок целиком находится в диапазоне последовательности. Перемещение
-          targetBlock = sourceBlock;
-        }
-        if( targetBlock == null && sourceBlock.startTime() < fetchStartTime ) {
-          // Блок начинается раньше последовательности. Берем его часть(хвост)
-          targetBlock = sourceBlock.createBlockOrNull( typeInfo, fetchStartTime, sourceBlock.endTime() );
-        }
-        if( targetBlock == null && fetchEndTime < sourceBlock.endTime() ) {
-          // Блок завершается позже последовательности. Берем его часть(голову)
-          targetBlock = sourceBlock.createBlockOrNull( typeInfo, sourceBlock.startTime(), fetchEndTime );
-        }
-        if( targetBlock == null ) {
-          // Попытка создать новый блок для указанных интервалов провалилась (нет значений, получается пустой блок)
-          continue;
-        }
-        // Проверка того, что частота значений синхронных данных не меньше определенного описанием данного
-        if( isSync ) {
-          ISequenceBlockEdit<V> prevBlock = (targetIndex > 0 ? blocks.get( targetIndex - 1 ) : null);
-          if( prevBlock != null && (prevBlock.endTime() + syncDT > targetBlock.startTime()) ) {
-            // Метки времени значений идут чаще чем определяет параметр DataDelta для синхронных данных
-            Long dd = Long.valueOf( syncDT );
-            String st = timestampToString( targetBlock.startTime() );
-            String et = timestampToString( targetBlock.endTime() );
-            String pst = timestampToString( prevBlock.startTime() );
-            String pet = timestampToString( prevBlock.endTime() );
-            logger().warning( ERR_SYNC_INEFFECTIVE, typeInfo, dd, st, et, pst, pet );
-          }
-        }
-        // Вставляем блок в целевую последовательность
-        blocks.insert( targetIndex++, targetBlock );
-        // Признак проведенного редактирования (частично избыточно - он мог быть уже установлен при удалении блоков)
-        edited = true;
-      }
+    // Интервал значений которые попадают в целевую последовательность
+    long fetchStartTime = alignByDDT( typeInfo, getFetchStartTime( this, aSource ) );
+    long fetchEndTime = alignByDDT( typeInfo, getFetchEndTime( this, aSource ) );
+    int targetIndex = remove( fetchStartTime, fetchEndTime, aRemovedBlocks );
+    if( aSource.blocks().size() == 0 ) {
+      // Частный случай: в исходной последовательности нет блоков. Задан только интервал (удаление пустой
+      // последовательностью через ее интервал).
       return edited;
     }
-    finally {
-      // Восстанавливаем позицию курсора
-      setCurrTime( cursorTime );
+    // Признак того, что последовательность содержит синхронные значения
+    boolean isSync = OP_IS_SYNC.getValue( typeInfo.params() ).asBool();
+    // Интервал (мсек) синхронных значений. Для асинхронных: 1
+    long syncDT = (isSync ? OP_SYNC_DT.getValue( typeInfo.params() ).asLong() : 1);
+    for( int index = 0, n = aSource.blocks().size(); index < n; index++ ) {
+      // Исходный блок
+      IS5SequenceBlockEdit<V> sourceBlock = (IS5SequenceBlockEdit<V>)aSource.blocks().get( index );
+      // Целевой блок
+      IS5SequenceBlockEdit<V> targetBlock = null;
+
+      if( sourceBlock.size() == 0 ) {
+        // В блоке нет значений
+        continue;
+      }
+      if( fetchStartTime > sourceBlock.endTime() ) {
+        // Блок завершается раньше последовательности
+        continue;
+      }
+      if( fetchEndTime < sourceBlock.startTime() ) {
+        // Начало блока позже завершения последовательности
+        break;
+      }
+      if( sourceBlock.startTime() < fetchStartTime && fetchEndTime < sourceBlock.endTime() ) {
+        // Интервал блока полностью покрывает интервал последовательности. Вырезаем из блока интервал
+        // последовательности
+        targetBlock = sourceBlock.createBlockOrNull( typeInfo, fetchStartTime, fetchEndTime );
+      }
+      if( targetBlock == null && fetchStartTime <= sourceBlock.startTime() && sourceBlock.endTime() <= fetchEndTime ) {
+        // Блок целиком находится в диапазоне последовательности. Перемещение
+        targetBlock = sourceBlock;
+      }
+      if( targetBlock == null && sourceBlock.startTime() < fetchStartTime ) {
+        // Блок начинается раньше последовательности. Берем его часть(хвост)
+        targetBlock = sourceBlock.createBlockOrNull( typeInfo, fetchStartTime, sourceBlock.endTime() );
+      }
+      if( targetBlock == null && fetchEndTime < sourceBlock.endTime() ) {
+        // Блок завершается позже последовательности. Берем его часть(голову)
+        targetBlock = sourceBlock.createBlockOrNull( typeInfo, sourceBlock.startTime(), fetchEndTime );
+      }
+      if( targetBlock == null ) {
+        // Попытка создать новый блок для указанных интервалов провалилась (нет значений, получается пустой блок)
+        continue;
+      }
+      // Проверка того, что частота значений синхронных данных не меньше определенного описанием данного
+      if( isSync ) {
+        IS5SequenceBlockEdit<V> prevBlock = (targetIndex > 0 ? blocks.get( targetIndex - 1 ) : null);
+        if( prevBlock != null && (prevBlock.endTime() + syncDT > targetBlock.startTime()) ) {
+          // Метки времени значений идут чаще чем определяет параметр DataDelta для синхронных данных
+          Long dd = Long.valueOf( syncDT );
+          String st = timestampToString( targetBlock.startTime() );
+          String et = timestampToString( targetBlock.endTime() );
+          String pst = timestampToString( prevBlock.startTime() );
+          String pet = timestampToString( prevBlock.endTime() );
+          logger().warning( ERR_SYNC_INEFFECTIVE, typeInfo, dd, st, et, pst, pet );
+        }
+      }
+      // Вставляем блок в целевую последовательность
+      blocks.insert( targetIndex++, targetBlock );
+      // Признак проведенного редактирования (частично избыточно - он мог быть уже установлен при удалении блоков)
+      edited = true;
     }
+    return edited;
   }
 
   @Override
-  public IList<ISequenceBlockEdit<V>> uniteBlocks() {
-    try {
-      if( blocks.size() <= 0 ) {
-        // Нечего объединять
-        return IList.EMPTY;
-      }
-      // Количество значений полного блока (количество значений)
-      int blockSizeMax = OP_BLOCK_SIZE_MAX.getValue( typeInfo.params() ).asInt();
-      // Двойной максимальный размерр блока
-      Integer doubleMaxSize = Integer.valueOf( 2 * blockSizeMax );
-      // Количество блоков в последовательности
-      int blockQtty = blocks.size();
-      // Список всех блоков которые были объединены и должны быть выведены (удалены) из последовательности
-      IListEdit<ISequenceBlockEdit<V>> allRemoved = new ElemLinkedList<>();
-      // Список новых блоков составляющих последовательность
-      IListEdit<ISequenceBlockEdit<V>> newBlocks = new ElemLinkedList<>();
-      // targetIndex + 1: последний блок последовательности не с чем объединять
-      for( int targetIndex = 0; targetIndex < blockQtty; targetIndex++ ) {
-        // Блок с которым будет объединение
-        ISequenceBlockEdit<V> targetBlock = blocks.get( targetIndex );
-        try {
-          if( targetBlock.size() > doubleMaxSize.intValue() ) {
-            // Количество в блоке больше допустимого более чем в 2 раза (изменилось описание). Требуется необъединять,
-            // а разделить блок Разделяемый блок сохраняем в будущей последовательности
-            safeAddBlock( typeInfo, gwid, newBlocks, targetBlock, uniterLogger() );
-            while( targetBlock.size() > doubleMaxSize.intValue() ) {
-              int nextBlockStartIndex = doubleMaxSize.intValue();
-              int nextBlockEndIndex = targetBlock.size() - 1;
-              Integer oldSize = Integer.valueOf( targetBlock.size() );
-              // Создаем новый блок
-              long blockStartTime = targetBlock.timestamp( nextBlockStartIndex );
-              long blockEndTime = targetBlock.timestamp( nextBlockEndIndex );
-              ISequenceBlockEdit<V> newBlock = targetBlock.createBlockOrNull( typeInfo, blockStartTime, blockEndTime );
-              // newBlock не может быть = null так как интервал был сформирован по индексам значений этого же блока
-              TsInternalErrorRtException.checkNull( newBlock );
-              // Редактируем разделямый блок
-              targetBlock.editEndTime( targetBlock.timestamp( nextBlockStartIndex - 1 ) );
-              // Добавляем блок в последовательность
-              safeAddBlock( typeInfo, gwid, newBlocks, newBlock, uniterLogger() );
-              // Сообщение для журнала
-              uniterLogger().warning( MSG_SPLIT_BLOCK, typeInfo, oldSize, doubleMaxSize, Long.valueOf( blockSizeMax ),
-                  targetBlock );
-              // Меняем цель
-              targetBlock = newBlock;
-            }
-            continue;
+  public IList<IS5SequenceBlockEdit<V>> uniteBlocks() {
+    if( blocks.size() <= 0 ) {
+      // Нечего объединять
+      return IList.EMPTY;
+    }
+    // Количество значений полного блока (количество значений)
+    int blockSizeMax = OP_BLOCK_SIZE_MAX.getValue( typeInfo.params() ).asInt();
+    // Двойной максимальный размерр блока
+    Integer doubleMaxSize = Integer.valueOf( 2 * blockSizeMax );
+    // Количество блоков в последовательности
+    int blockQtty = blocks.size();
+    // Список всех блоков которые были объединены и должны быть выведены (удалены) из последовательности
+    IListEdit<IS5SequenceBlockEdit<V>> allRemoved = new ElemLinkedList<>();
+    // Список новых блоков составляющих последовательность
+    IListEdit<IS5SequenceBlockEdit<V>> newBlocks = new ElemLinkedList<>();
+    // targetIndex + 1: последний блок последовательности не с чем объединять
+    for( int targetIndex = 0; targetIndex < blockQtty; targetIndex++ ) {
+      // Блок с которым будет объединение
+      IS5SequenceBlockEdit<V> targetBlock = blocks.get( targetIndex );
+      try {
+        if( targetBlock.size() > doubleMaxSize.intValue() ) {
+          // Количество в блоке больше допустимого более чем в 2 раза (изменилось описание). Требуется необъединять,
+          // а разделить блок Разделяемый блок сохраняем в будущей последовательности
+          safeAddBlock( typeInfo, gwid, newBlocks, targetBlock, uniterLogger() );
+          while( targetBlock.size() > doubleMaxSize.intValue() ) {
+            int nextBlockStartIndex = doubleMaxSize.intValue();
+            int nextBlockEndIndex = targetBlock.size() - 1;
+            Integer oldSize = Integer.valueOf( targetBlock.size() );
+            // Создаем новый блок
+            long blockStartTime = targetBlock.timestamp( nextBlockStartIndex );
+            long blockEndTime = targetBlock.timestamp( nextBlockEndIndex );
+            IS5SequenceBlockEdit<V> newBlock = targetBlock.createBlockOrNull( typeInfo, blockStartTime, blockEndTime );
+            // newBlock не может быть = null так как интервал был сформирован по индексам значений этого же блока
+            TsInternalErrorRtException.checkNull( newBlock );
+            // Редактируем разделямый блок
+            targetBlock.editEndTime( targetBlock.timestamp( nextBlockStartIndex - 1 ) );
+            // Добавляем блок в последовательность
+            safeAddBlock( typeInfo, gwid, newBlocks, newBlock, uniterLogger() );
+            // Сообщение для журнала
+            uniterLogger().warning( MSG_SPLIT_BLOCK, typeInfo, oldSize, doubleMaxSize, Long.valueOf( blockSizeMax ),
+                targetBlock );
+            // Меняем цель
+            targetBlock = newBlock;
           }
+          continue;
         }
-        catch( Throwable e ) {
-          // Неожиданная ошибка дефрагментации
-          throw new TsInternalErrorRtException( e, ERR_UNION_BLOCKS_UNEXPECTED, cause( e ) );
-        }
-        // Кандидаты на объединение с targetBlock
-        IListEdit<ISequenceBlockEdit<V>> candidates = new ElemLinkedList<>();
-        for( int index = targetIndex + 1; index < blockQtty; index++ ) {
-          candidates.add( blocks.get( index ) );
-        }
-        // Проводим объединение и получаем количество объединенных блоков
-        int unitedQtty = targetBlock.uniteBlocks( factory(), candidates, uniterLogger() );
-        // Блок с которым было объединение сохраняем в будущей последовательности
-        safeAddBlock( typeInfo, gwid, newBlocks, targetBlock, uniterLogger() );
-        // Блоки которые были объединены перемещаем в общий список удаляемых(объединенных) блоков
-        for( int index = 0; index < unitedQtty; index++ ) {
-          allRemoved.add( candidates.get( index ) );
-        }
-        // Переходим на следующий первый блок с которым будет объединение
-        targetIndex += unitedQtty;
       }
-      // Замещаем список блоков составляющих последовательность
-      blocks.clear();
-      blocks.addAll( newBlocks );
-      return allRemoved;
+      catch( Throwable e ) {
+        // Неожиданная ошибка дефрагментации
+        throw new TsInternalErrorRtException( e, ERR_UNION_BLOCKS_UNEXPECTED, cause( e ) );
+      }
+      // Кандидаты на объединение с targetBlock
+      IListEdit<IS5SequenceBlockEdit<V>> candidates = new ElemLinkedList<>();
+      for( int index = targetIndex + 1; index < blockQtty; index++ ) {
+        candidates.add( blocks.get( index ) );
+      }
+      // Проводим объединение и получаем количество объединенных блоков
+      int unitedQtty = targetBlock.uniteBlocks( factory(), candidates, uniterLogger() );
+      // Блок с которым было объединение сохраняем в будущей последовательности
+      safeAddBlock( typeInfo, gwid, newBlocks, targetBlock, uniterLogger() );
+      // Блоки которые были объединены перемещаем в общий список удаляемых(объединенных) блоков
+      for( int index = 0; index < unitedQtty; index++ ) {
+        allRemoved.add( candidates.get( index ) );
+      }
+      // Переходим на следующий первый блок с которым будет объединение
+      targetIndex += unitedQtty;
     }
-    finally {
-      // Восстанавливаем позицию курсора
-      setCurrTime( cursorTime );
-    }
+    // Замещаем список блоков составляющих последовательность
+    blocks.clear();
+    blocks.addAll( newBlocks );
+    return allRemoved;
   }
 
   @Override
   public void clear() {
     blocks.clear();
-    setCurrTime( queryInterval.startTime() );
-  }
-
-  @Override
-  public void setImportTime( long aTimestamp ) {
-    IParameterized info = typeInfo();
-    ITimeInterval interval = interval();
-    long timestamp = alignByDDT( info, aTimestamp );
-    long startTime = alignByDDT( info, interval.startTime() );
-    long endTime = alignByDDT( info, interval.endTime() );
-    if( timestamp < startTime || endTime < timestamp ) {
-      // Курсор импорта не может быть установлен за границами последовательности
-      String st = timestampToString( startTime );
-      String et = timestampToString( endTime );
-      String ct = timestampToString( timestamp );
-      throw new TsIllegalArgumentRtException( ERR_WRONG_IMPORT_CURSOR, st, et, ct );
-    }
-    // Инициализация курсора
-    importBlockIndex = -1;
-    importBlock = null;
-    // Индекс ближайщего блока в зоне aTimestamp
-    int nearest = findBlockIndex( timestamp );
-    IHistDataBlock block = (nearest < 0 ? null : (IHistDataBlock)blocks().get( nearest ));
-    if( block == null ) {
-      // Блоков нет
-      return;
-    }
-    if( timestamp >= block.startTime() && timestamp <= block.endTime() && block.size() > 0 ) {
-      // Точное попадание в блок
-      importBlock = block;
-      importBlockIndex = nearest;
-      importBlock.setImportTime( aTimestamp );
-      return;
-    }
-    // Сдвиг к началу последовательности пока метка завершения текущего блока меньше метки курсора
-    for( int index = nearest; index >= 0; index-- ) {
-      IHistDataBlock prevBlock = (IHistDataBlock)blocks().get( index );
-      if( aTimestamp > prevBlock.endTime() ) {
-        break;
-      }
-      nearest = index;
-      block = prevBlock;
-    }
-    if( timestamp >= block.startTime() && timestamp <= block.endTime() && block.size() > 0 ) {
-      // Попадание в блок после "доводки"
-      importBlock = block;
-      importBlockIndex = nearest;
-      importBlock.setImportTime( aTimestamp );
-      return;
-    }
-    if( timestamp < block.startTime() || block.size() == 0 ) {
-      // Курсор оказался "слева" от блока или на пустом блоке. Пробуем получить первое значение в любом следующем,
-      // непустом блоке
-      for( int index = nearest, n = blocks().size(); index < n; index++ ) {
-        block = (IHistDataBlock)blocks().get( index );
-        if( block.size() == 0 ) {
-          continue;
-        }
-        importBlock = block;
-        importBlockIndex = index;
-        // Установка курсора импорта на начало блока!!!
-        importBlock.setImportTime( block.startTime() );
-        return;
-      }
-      // Нет больше значений (все блоки пустые)
-      return;
-    }
-    // Невозможно установить курсор импорта значений - в последовательности нет данных
-    // logger().error( ERR_MSG_NOT_IMPORT_DATA, this, TimeUtils.timestampToString( aTimestamp ) );
-  }
-
-  @Override
-  public boolean hasImport() {
-    return (importBlock != null && importBlock.hasImport());
-  }
-
-  @Override
-  public ITemporalValueImporter nextImport() {
-    if( !hasImport() ) {
-      // Курсор невалиден. Движение невозможно
-      throw new TsIllegalStateRtException( ERR_NOT_CURSOR_IMPORT_DATA, this );
-    }
-    ITemporalValueImporter retValue = importBlock.nextImport();
-    // Проверяем есть ли еще значения в блоке. Если нет, то пытаемся переместится на следующий блок
-    if( !hasImport() ) {
-      // В текущем блоке больше нет значений
-      importBlock = null;
-      for( int index = importBlockIndex + 1, n = blocks().size(); index < n; index++ ) {
-        IHistDataBlock block = (IHistDataBlock)blocks().get( index );
-        if( block.size() == 0 ) {
-          continue;
-        }
-        block.setImportTime( block.startTime() );
-        if( block.hasImport() ) {
-          // Есть возможность перехода на первое значение следующего блока
-          importBlock = block;
-          importBlockIndex = index;
-          break;
-        }
-      }
-    }
-    if( importBlock == null ) {
-      // Значений больше нет. Устраняем противоречивость
-      importBlockIndex = -1;
-    }
-    return retValue;
   }
 
   // ------------------------------------------------------------------------------------
@@ -881,9 +583,9 @@ public abstract class S5Sequence<V extends ITemporal<?>>
   /**
    * Возвращает фабрику формирования последовательности
    *
-   * @return {@link ISequenceFactory} фабрика. null: последовательность только для чтения
+   * @return {@link IS5SequenceFactory} фабрика. null: последовательность только для чтения
    */
-  protected final ISequenceFactory<V> factory() {
+  protected final IS5SequenceFactory<V> factory() {
     if( factory == null ) {
       // Последовательность значений доступна только для чтения
       throw new TsIllegalStateRtException( ERR_SEQUENCE_READONLY );
@@ -894,10 +596,10 @@ public abstract class S5Sequence<V extends ITemporal<?>>
   /**
    * Установить фабрику формирования последовательности
    *
-   * @param aFactory {@link ISequenceFactory} фабрика
+   * @param aFactory {@link IS5SequenceFactory} фабрика
    * @throws TsNullArgumentRtException аргумент = null
    */
-  public final void setFactory( ISequenceFactory<V> aFactory ) {
+  public final void setFactory( IS5SequenceFactory<V> aFactory ) {
     TsNullArgumentRtException.checkNull( aFactory );
     factory = aFactory;
   }
@@ -977,13 +679,11 @@ public abstract class S5Sequence<V extends ITemporal<?>>
   // ------------------------------------------------------------------------------------
   // Сериализация S5Sequence
   //
-  private void readObject( ObjectInputStream aIn )
-      throws IOException,
-      ClassNotFoundException {
-    aIn.defaultReadObject();
-    // Инициализация курсора после десериализации.
-    setCurrTime( queryInterval.startTime() );
-  }
+  // private void readObject( ObjectInputStream aIn )
+  // throws IOException,
+  // ClassNotFoundException {
+  // aIn.defaultReadObject();
+  // }
 
   // ------------------------------------------------------------------------------------
   // Внутренние методы
@@ -999,7 +699,7 @@ public abstract class S5Sequence<V extends ITemporal<?>>
    * @throws TsIllegalArgumentRtException aStartTime > aEndTime
    */
   @SuppressWarnings( "unchecked" )
-  private int remove( long aStartTime, long aEndTime, IListEdit<ISequenceBlock<V>> aRemovedBlocks ) {
+  private int remove( long aStartTime, long aEndTime, IListEdit<IS5SequenceBlock<V>> aRemovedBlocks ) {
     // Проверка интервала времени
     checkIntervalArgs( aStartTime, aEndTime );
     if( blocks.size() == 0 ) {
@@ -1008,7 +708,7 @@ public abstract class S5Sequence<V extends ITemporal<?>>
     }
     if( aStartTime <= blocks.get( 0 ).startTime() && blocks.get( blocks.size() - 1 ).endTime() <= aEndTime ) {
       // Частный случай: удаляются все блоки
-      aRemovedBlocks.addAll( (IList<ISequenceBlock<V>>)(Object)blocks );
+      aRemovedBlocks.addAll( (IList<IS5SequenceBlock<V>>)(Object)blocks );
       blocks.clear();
       edited = true;
       return 0;
@@ -1020,7 +720,7 @@ public abstract class S5Sequence<V extends ITemporal<?>>
     // Возвращаемый результат
     int retValue = blocks.size();
     for( int index = blocks.size() - 1; index >= 0; index-- ) {
-      ISequenceBlockEdit<V> block = blocks.get( index );
+      IS5SequenceBlockEdit<V> block = blocks.get( index );
       if( block.endTime() < aStartTime ) {
         // Блок завершается раньше интервала удаления. Дальше искать не имеет смысла
         retValue = index + 1;
@@ -1047,7 +747,7 @@ public abstract class S5Sequence<V extends ITemporal<?>>
       }
       if( block.startTime() < aStartTime && aEndTime < block.endTime() ) {
         // Блок полностью покрывает интервал удаления
-        ISequenceBlockEdit<V> tailBlock = block.createBlockOrNull( typeInfo, aEndTime + syncDT, block.endTime() );
+        IS5SequenceBlockEdit<V> tailBlock = block.createBlockOrNull( typeInfo, aEndTime + syncDT, block.endTime() );
         safeInsertBlock( typeInfo, gwid, blocks, index + 1, tailBlock );
         block.editEndTime( aStartTime - syncDT );
         retValue = index + 1;
@@ -1067,7 +767,7 @@ public abstract class S5Sequence<V extends ITemporal<?>>
         // TODO: 2019-11-08 mvk в API блока больше нет метода который позволял бы менять startTime (он первичный ключ)
         // Создаем копию блока без головы, старый блок удаляем
         // block.editBlock( typeInfo, aEndTime + syncDT, block.endTime() );
-        ISequenceBlockEdit<V> tailBlock = block.createBlockOrNull( typeInfo, aEndTime + syncDT, block.endTime() );
+        IS5SequenceBlockEdit<V> tailBlock = block.createBlockOrNull( typeInfo, aEndTime + syncDT, block.endTime() );
         safeInsertBlock( typeInfo, gwid, blocks, index + 1, tailBlock );
         aRemovedBlocks.add( blocks.removeByIndex( index ) );
 
@@ -1089,12 +789,13 @@ public abstract class S5Sequence<V extends ITemporal<?>>
    * которому метка находится ближе(слева или справа), но не попадает в него.
    *
    * @param <V> тип значения
-   * @param aBlocks {@link IList}&lt;{@link ISequenceBlockEdit}&gt; список блоков
+   * @param aBlocks {@link IList}&lt;{@link IS5SequenceBlockEdit}&gt; список блоков
    * @param aTimestamp long метка времени для которой определяется индекс.
    * @return индекс блока в который попадает метка времени или индекс ближайшего блока. < 0: пустой массив меток
    * @throws TsNullArgumentRtException аргумент = null
    */
-  protected static <V extends ITemporal<?>> int binarySearch( IList<ISequenceBlockEdit<V>> aBlocks, long aTimestamp ) {
+  protected static <V extends ITemporal<?>> int binarySearch( IList<IS5SequenceBlockEdit<V>> aBlocks,
+      long aTimestamp ) {
     TsNullArgumentRtException.checkNull( aBlocks );
     int size = aBlocks.size();
     if( size == 0 ) {
@@ -1105,7 +806,7 @@ public abstract class S5Sequence<V extends ITemporal<?>>
     int highIndex = size - 1;
     while( lowIndex <= highIndex ) {
       int middleIndex = lowIndex + (highIndex - lowIndex) / 2;
-      ISequenceBlockEdit<V> block = aBlocks.get( middleIndex );
+      IS5SequenceBlockEdit<V> block = aBlocks.get( middleIndex );
       if( aTimestamp < block.startTime() ) {
         // Смещение к началу
         highIndex = middleIndex - 1;
@@ -1206,7 +907,7 @@ public abstract class S5Sequence<V extends ITemporal<?>>
     }
     // Проход по блокам исходной последовательности с поиском метки времени на левой границе или перед ней
     for( int blockIndex = aSource.blocks().size() - 1; blockIndex >= 0; blockIndex-- ) {
-      ISequenceBlock<?> block = aSource.blocks().get( blockIndex );
+      IS5SequenceBlock<?> block = aSource.blocks().get( blockIndex );
       if( block.startTime() > targetStartTime ) {
         // Блок до левой границы
         continue;
@@ -1257,7 +958,7 @@ public abstract class S5Sequence<V extends ITemporal<?>>
     }
     // Проход по блокам исходной последовательности с поиском метки времени на левой границе или перед ней
     for( int blockIndex = 0, n = aSource.blocks().size(); blockIndex < n; blockIndex++ ) {
-      ISequenceBlock<?> block = aSource.blocks().get( blockIndex );
+      IS5SequenceBlock<?> block = aSource.blocks().get( blockIndex );
       if( block.endTime() < targetEndTime ) {
         // Блок до правой границы
         continue;
@@ -1279,15 +980,15 @@ public abstract class S5Sequence<V extends ITemporal<?>>
    * @param <V> тип значения
    * @param aTypeInfo {@link IParameterized} параметризованное описание типа данного
    * @param aGwid {@link Gwid} идентификатор данного
-   * @param aBlocks {@link IListEdit}&lt;{@link ISequenceBlockEdit}&lt;?&gt;&gt; список блоков
-   * @param aBlock {@link ISequenceBlockEdit} добавляемый блок
+   * @param aBlocks {@link IListEdit}&lt;{@link IS5SequenceBlockEdit}&lt;?&gt;&gt; список блоков
+   * @param aBlock {@link IS5SequenceBlockEdit} добавляемый блок
    * @param aLogger {@link ILogger} журнал последовательности
    * @throws TsNullArgumentRtException любой аргумент = null
    * @throws TsIllegalArgumentRtException попытка добавить в последовательность блок другого данного
    * @throws TsIllegalArgumentRtException невозможно добавить блок в конец списка
    */
   private static <V extends ITemporal<?>> void safeAddBlock( IParameterized aTypeInfo, Gwid aGwid,
-      IListEdit<ISequenceBlockEdit<V>> aBlocks, ISequenceBlockEdit<V> aBlock, ILogger aLogger ) {
+      IListEdit<IS5SequenceBlockEdit<V>> aBlocks, IS5SequenceBlockEdit<V> aBlock, ILogger aLogger ) {
     TsNullArgumentRtException.checkNulls( aTypeInfo, aGwid, aBlocks, aBlock, aLogger );
     if( !aGwid.equals( aBlock.gwid() ) ) {
       // Попытка добавить значения в последовательность данных блок другого данного
@@ -1303,7 +1004,7 @@ public abstract class S5Sequence<V extends ITemporal<?>>
     long minDataDeltaT = 1;
     int size = aBlocks.size();
     if( size > 0 ) {
-      ISequenceBlockEdit<V> prevBlock = aBlocks.get( size - 1 );
+      IS5SequenceBlockEdit<V> prevBlock = aBlocks.get( size - 1 );
       if( prevBlock.endTime() + minDataDeltaT > aBlock.startTime() ) {
         // TODO: WORKAROUND mvk 2018-08-09 ошибка целостности последовательности данных
         // На tm проявилась следующая ситуация:
@@ -1339,15 +1040,15 @@ public abstract class S5Sequence<V extends ITemporal<?>>
    * @param <V> тип значения
    * @param aTypeInfo {@link IParameterized} параметризованное описание типа данного
    * @param aGwid {@link Gwid} идентификатор данного
-   * @param aBlocks {@link IListEdit}&lt;{@link ISequenceBlockEdit}&lt;?&gt;&gt; список блоков
+   * @param aBlocks {@link IListEdit}&lt;{@link IS5SequenceBlockEdit}&lt;?&gt;&gt; список блоков
    * @param aIndex int индекс по которому размещается блок
-   * @param aBlock {@link ISequenceBlockEdit} добавляемый блок
+   * @param aBlock {@link IS5SequenceBlockEdit} добавляемый блок
    * @throws TsNullArgumentRtException любой аргумент = null
    * @throws TsIllegalArgumentRtException попытка добавить в последовательность блок другого данного
    * @throws TsIllegalArgumentRtException невозможно добавить блок в конец списка
    */
   private static <V extends ITemporal<?>> void safeInsertBlock( IParameterized aTypeInfo, Gwid aGwid,
-      IListEdit<ISequenceBlockEdit<V>> aBlocks, int aIndex, ISequenceBlockEdit<V> aBlock ) {
+      IListEdit<IS5SequenceBlockEdit<V>> aBlocks, int aIndex, IS5SequenceBlockEdit<V> aBlock ) {
     TsNullArgumentRtException.checkNulls( aTypeInfo, aGwid, aBlocks, aBlock );
     if( !aGwid.equals( aBlock.gwid() ) ) {
       // Попытка добавить значения в последовательность данных блок другого данного
@@ -1363,13 +1064,13 @@ public abstract class S5Sequence<V extends ITemporal<?>>
     long dataDeltaT = (isSync ? OP_SYNC_DT.getValue( aTypeInfo.params() ).asLong() : 1);
     int size = aBlocks.size();
     if( size > 0 && aIndex > 0 && aIndex < size - 1 ) {
-      ISequenceBlockEdit<V> prevBlock = aBlocks.get( aIndex - 1 );
+      IS5SequenceBlockEdit<V> prevBlock = aBlocks.get( aIndex - 1 );
       if( prevBlock.endTime() + dataDeltaT > aBlock.startTime() ) {
         throw new TsIllegalArgumentRtException( ERR_CANT_ADD_PREV, aGwid, aBlock, prevBlock );
       }
     }
     if( size > 0 && aIndex > 0 && aIndex + 1 < size ) {
-      ISequenceBlockEdit<V> nextBlock = aBlocks.get( aIndex + 1 );
+      IS5SequenceBlockEdit<V> nextBlock = aBlocks.get( aIndex + 1 );
       if( aBlock.endTime() + dataDeltaT > nextBlock.startTime() ) {
         String st = timestampToString( aBlock.startTime() );
         String et = timestampToString( aBlock.endTime() );

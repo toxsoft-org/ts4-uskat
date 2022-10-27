@@ -6,7 +6,6 @@ import org.toxsoft.core.tslib.coll.IList;
 import org.toxsoft.core.tslib.gw.gwid.EGwidKind;
 import org.toxsoft.core.tslib.gw.gwid.Gwid;
 import org.toxsoft.core.tslib.utils.errors.*;
-import org.toxsoft.uskat.s5.server.backend.supports.histdata.impl.sequences.ITemporalValueImporter;
 
 /**
  * Последовательность значений одного данного.
@@ -62,9 +61,9 @@ public interface IS5Sequence<V extends ITemporal<?>> {
   /**
    * Возвращает список блоков последовательности
    *
-   * @return {@link Iterable}&lt;{@link ISequenceBlock}&gt; итератор блоков
+   * @return {@link Iterable}&lt;{@link IS5SequenceBlock}&gt; итератор блоков
    */
-  IList<ISequenceBlock<V>> blocks();
+  IList<IS5SequenceBlock<V>> blocks();
 
   /**
    * Находит индекс блока в диапазон которого попадает указанная метка времени. Если такого блока нет, то возвращает
@@ -79,50 +78,11 @@ public interface IS5Sequence<V extends ITemporal<?>> {
   int findBlockIndex( long aTimestamp );
 
   /**
-   * Возвращает текущую метку времени для получения данных с помощью метода {@link #nextValue()}.
+   * Создает курсор получения значений последовательности
    *
-   * @return метка времени значений
+   * @return {@link IS5SequenceCursor} курсор
    */
-  long getCurrTime();
-
-  /**
-   * Задает начальную метку времени для получения данных с помощью метода {@link #nextValue()}.
-   * <p>
-   * Для вновь созданного набора метка времени установлена в {@link ITimeInterval#startTime()}.
-   * <p>
-   * Если метка времени попадает в интервал последовательности значений, но в последовательности нет значений с такой
-   * меткой времени, то возвращается ближайшее к ней(может быть "слева", может быть "справа"). Если значений в
-   * последовательности нет, то ничего не делает.
-   *
-   * @param aCurrTime long - начальная метка времени в пределах {@link #interval()} включительно.
-   * @throws TsIllegalArgumentRtException аргумент выходит за допустимые пределы
-   */
-  void setCurrTime( long aCurrTime );
-
-  /**
-   * Определяет, есть ли очередное значение данного.
-   * <p>
-   * Этот метод <b>не</b> сдвигает метку текущего времени для этого данного к следующему значению. Сколько угодно подряд
-   * вызвов этого метода (без промежуточного вызова {@link #nextValue()} для этого же индекса) будет возвращать одно и
-   * то же значение.
-   * <p>
-   * Получить данное методом {@link #nextValue()} без исключения возможно, только если {@link #hasNext()} возвращает
-   * <code>true</code>.
-   *
-   * @return boolean - признак наличия следующего значения (признак возможности вызова {@link #nextValue()})
-   */
-  boolean hasNext();
-
-  /**
-   * Возвращает очередное историческое данное.
-   * <p>
-   * Этот метод сдвигает метку текущего времени для этого данного к следующему значению пока следующее значение не
-   * оакжется за меткой времени конца набора {@link ITimeInterval#endTime()}.
-   *
-   * @return V - значение данного
-   * @throws TsIllegalStateRtException нет очередного данного
-   */
-  V nextValue();
+  IS5SequenceCursor<V> createCursor();
 
   /**
    * Возвращает все исторические значения данного за указанный интервал времени.
@@ -135,29 +95,4 @@ public interface IS5Sequence<V extends ITemporal<?>> {
    * @throws TsIllegalStateRtException невозможно получить данные за указанный интервал
    */
   ITimedList<V> get( IQueryInterval aInterval );
-
-  /**
-   * Установить начальную метку времени для импорта значений
-   * <p>
-   * Если в последовательности нет значения точно по указанной метке, то метка устанавливается на первое значение за
-   * указанной меткой
-   *
-   * @param aTimestamp long метка времени (мсек с начала эпохи) с которой будет производиться импорт значений
-   */
-  void setImportTime( long aTimestamp );
-
-  /**
-   * Возвращает признак того, что импорт значений может быть продолжен вызовом {@link #nextImport()}
-   *
-   * @return <b>true</b> есть данные для импорта. <b>false</b> нет данных для импорта
-   */
-  boolean hasImport();
-
-  /**
-   * Импортировать следующее значение
-   *
-   * @return {@link ITemporalValueImporter} способ получения значений
-   * @throws TsIllegalArgumentRtException нет больше данных для импорта
-   */
-  ITemporalValueImporter nextImport();
 }

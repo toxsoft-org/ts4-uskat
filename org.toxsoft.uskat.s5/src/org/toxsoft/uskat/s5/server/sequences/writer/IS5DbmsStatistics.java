@@ -5,10 +5,10 @@ import java.io.Serializable;
 
 import org.toxsoft.core.tslib.utils.TsLibUtils;
 import org.toxsoft.core.tslib.utils.errors.TsNullObjectErrorRtException;
-import org.toxsoft.uskat.s5.server.sequences.ISequenceBlock;
+import org.toxsoft.uskat.s5.server.sequences.IS5SequenceBlock;
 
 /**
- * Статистика ввода/вывода блоков {@link ISequenceBlock} в dbms
+ * Статистика ввода/вывода блоков {@link IS5SequenceBlock} в dbms
  *
  * @author mvk
  */

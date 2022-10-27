@@ -85,7 +85,7 @@ public class S5EventSequenceFactory
 
   @Override
   public IS5SequenceEdit<SkEvent> doCreateSequence( Gwid aGwid, IQueryInterval aInterval,
-      Iterable<ISequenceBlockEdit<SkEvent>> aEvents ) {
+      Iterable<IS5SequenceBlockEdit<SkEvent>> aEvents ) {
     return new S5EventSequence( this, aGwid, aInterval, aEvents );
   }
 

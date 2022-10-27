@@ -20,7 +20,7 @@ import org.toxsoft.core.tslib.av.utils.IParameterized;
 import org.toxsoft.core.tslib.bricks.time.ITimedList;
 import org.toxsoft.core.tslib.gw.gwid.Gwid;
 import org.toxsoft.core.tslib.utils.errors.*;
-import org.toxsoft.uskat.s5.server.sequences.ISequenceBlockEdit;
+import org.toxsoft.uskat.s5.server.sequences.IS5SequenceBlockEdit;
 import org.toxsoft.uskat.s5.utils.indexes.ILongKey;
 
 /**
@@ -104,7 +104,7 @@ public class S5HistDataAsyncIntegerEntity
   }
 
   // ------------------------------------------------------------------------------------
-  // Реализация ISequenceBlock
+  // Реализация IS5SequenceBlock
   //
   @Override
   public TemporalAtomicValue getValue( int aIndex ) {
@@ -117,7 +117,7 @@ public class S5HistDataAsyncIntegerEntity
   // Реализация шаблонных методов
   //
   @Override
-  protected ISequenceBlockEdit<ITemporalAtomicValue> doCreateBlock( IParameterized aTypeInfo, long[] aTimestamps,
+  protected IS5SequenceBlockEdit<ITemporalAtomicValue> doCreateBlock( IParameterized aTypeInfo, long[] aTimestamps,
       long[] aValues ) {
     S5HistDataAsyncIntegerBlobEntity blob = new S5HistDataAsyncIntegerBlobEntity( aTimestamps, aValues );
     return new S5HistDataAsyncIntegerEntity( aTypeInfo, gwid(), blob );
@@ -138,15 +138,15 @@ public class S5HistDataAsyncIntegerEntity
   }
 
   // ------------------------------------------------------------------------------------
-  // Реализация шаблонных методов (импорт значения)
+  // IS5HistDataBlockReader
   //
   @Override
-  protected boolean doIsAssigned( int aIndex ) {
+  public boolean isAssigned( int aIndex ) {
     return values()[aIndex] != LONG_NULL;
   }
 
   @Override
-  protected int doAsInt( int aIndex ) {
+  public int asInt( int aIndex ) {
     long value = values()[aIndex];
     if( value == LONG_NULL ) {
       throw new AvUnassignedValueRtException();
@@ -158,7 +158,7 @@ public class S5HistDataAsyncIntegerEntity
   }
 
   @Override
-  protected long doAsLong( int aIndex ) {
+  public long asLong( int aIndex ) {
     long value = values()[aIndex];
     if( value == LONG_NULL ) {
       throw new AvUnassignedValueRtException();
@@ -167,7 +167,7 @@ public class S5HistDataAsyncIntegerEntity
   }
 
   @Override
-  protected float doAsFloat( int aIndex ) {
+  public float asFloat( int aIndex ) {
     long value = values()[aIndex];
     if( value == LONG_NULL ) {
       throw new AvUnassignedValueRtException();
@@ -176,7 +176,7 @@ public class S5HistDataAsyncIntegerEntity
   }
 
   @Override
-  protected double doAsDouble( int aIndex ) {
+  public double asDouble( int aIndex ) {
     long value = values()[aIndex];
     if( value == LONG_NULL ) {
       throw new AvUnassignedValueRtException();

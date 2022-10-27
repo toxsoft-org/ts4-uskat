@@ -37,7 +37,7 @@ import org.toxsoft.uskat.s5.utils.threads.impl.S5Lockable;
  */
 public abstract class S5SequenceFactory<V extends ITemporal<?>>
     extends Stridable
-    implements ISequenceFactory<V>, Serializable {
+    implements IS5SequenceFactory<V>, Serializable {
 
   private static final long serialVersionUID = 157157L;
 
@@ -75,8 +75,8 @@ public abstract class S5SequenceFactory<V extends ITemporal<?>>
    * Ключ: полное имя класса реализации блока значений ;<br>
    * Значение: конструктор блока
    */
-  private final IMapEdit<String, Constructor<ISequenceBlockEdit<V>>> constructors =
-      new WrapperMap<>( new HashMap<String, Constructor<ISequenceBlockEdit<V>>>() );
+  private final IMapEdit<String, Constructor<IS5SequenceBlockEdit<V>>> constructors =
+      new WrapperMap<>( new HashMap<String, Constructor<IS5SequenceBlockEdit<V>>>() );
 
   /**
    * Карта идентификаторов данных.<br>
@@ -116,7 +116,7 @@ public abstract class S5SequenceFactory<V extends ITemporal<?>>
   }
 
   // ------------------------------------------------------------------------------------
-  // Реализация ISequenceFactory
+  // Реализация IS5SequenceFactory
   //
   @Override
   public final IList<Pair<String, String>> tableNames() {
@@ -139,14 +139,14 @@ public abstract class S5SequenceFactory<V extends ITemporal<?>>
 
   @Override
   public final IS5SequenceEdit<V> createSequence( Gwid aGwid, IQueryInterval aInterval,
-      Iterable<ISequenceBlockEdit<V>> aBlocks ) {
+      Iterable<IS5SequenceBlockEdit<V>> aBlocks ) {
     TsNullArgumentRtException.checkNulls( aGwid, aInterval, aBlocks );
     return doCreateSequence( aGwid, aInterval, aBlocks );
   }
 
   @Override
   @SuppressWarnings( "unchecked" )
-  public final ISequenceBlockEdit<V> createBlock( Gwid aGwid, ITimedList<V> aValues ) {
+  public final IS5SequenceBlockEdit<V> createBlock( Gwid aGwid, ITimedList<V> aValues ) {
     TsNullArgumentRtException.checkNulls( aGwid, aValues );
     // Параметризованное описание типа данного
     IParameterized typeInfo = typeInfo( aGwid );
@@ -156,7 +156,7 @@ public abstract class S5SequenceFactory<V extends ITemporal<?>>
       // Статический метод создания блока
       Method createMethod = getCreateMethod( blockImplClass );
       // Создание блока
-      return (ISequenceBlockEdit<V>)createMethod.invoke( null, typeInfo, aGwid, aValues );
+      return (IS5SequenceBlockEdit<V>)createMethod.invoke( null, typeInfo, aGwid, aValues );
     }
     catch( IllegalAccessException | IllegalArgumentException | InvocationTargetException e ) {
       // Неожиданная ошибка создания блока значений
@@ -165,11 +165,11 @@ public abstract class S5SequenceFactory<V extends ITemporal<?>>
   }
 
   @Override
-  public final ISequenceBlockEdit<V> createBlock( String aBlockImplClassName, ResultSet aResultSet ) {
+  public final IS5SequenceBlockEdit<V> createBlock( String aBlockImplClassName, ResultSet aResultSet ) {
     TsNullArgumentRtException.checkNulls( aBlockImplClassName, aResultSet );
     try {
       // Конструктор блока через курсор JDBC
-      Constructor<ISequenceBlockEdit<V>> constructorMethod = getConstructorMethod( aBlockImplClassName );
+      Constructor<IS5SequenceBlockEdit<V>> constructorMethod = getConstructorMethod( aBlockImplClassName );
       // Создание блока через курсор JDBC
       return constructorMethod.newInstance( aResultSet );
     }
@@ -180,7 +180,7 @@ public abstract class S5SequenceFactory<V extends ITemporal<?>>
   }
 
   // ------------------------------------------------------------------------------------
-  // Реализация ISequenceValueFactory
+  // Реализация IS5SequenceValueFactory
   //
   @Override
   public final <BLOB_ARRAY> BLOB_ARRAY createValueArray( IParameterized aTypeInfo, int aSize ) {
@@ -274,11 +274,11 @@ public abstract class S5SequenceFactory<V extends ITemporal<?>>
    * @param aGwid {@link Gwid} идентификатор данного
    * @param aInterval {@link IQueryInterval} интервал времени последовательности, подробности смотри в
    *          {@link IS5Sequence#interval()}
-   * @param aBlocks {@link Iterable}&lt;{@link ISequenceBlock}&gt; список блоков представляющих последовательность
+   * @param aBlocks {@link Iterable}&lt;{@link IS5SequenceBlock}&gt; список блоков представляющих последовательность
    * @return {@link IS5SequenceEdit} последовательность с возможностью редактирования
    */
   protected abstract IS5SequenceEdit<V> doCreateSequence( Gwid aGwid, IQueryInterval aInterval,
-      Iterable<ISequenceBlockEdit<V>> aBlocks );
+      Iterable<IS5SequenceBlockEdit<V>> aBlocks );
 
   /**
    * Сформировать массив значений для блока
@@ -319,7 +319,7 @@ public abstract class S5SequenceFactory<V extends ITemporal<?>>
    * Возвращает метод создания блока для указанного данного
    *
    * @param aBlockClass String полное имя класса реализации блока значений, наследник S5SequenceB
-   * @return {@link Method} метод сигнатуры: ISequenceBlockEdit&lt;I, E, V&gt; create( I aInfo, IList&ltV&gt; aValues )
+   * @return {@link Method} метод сигнатуры: IS5SequenceBlockEdit&lt;I, E, V&gt; create( I aInfo, IList&ltV&gt; aValues )
    * @throws TsNullArgumentRtException аргумент = null
    * @throws TsIllegalArgumentRtException не найден метод
    */
@@ -358,9 +358,9 @@ public abstract class S5SequenceFactory<V extends ITemporal<?>>
    * @throws TsIllegalArgumentRtException не найден метод
    */
   @SuppressWarnings( "unchecked" )
-  private Constructor<ISequenceBlockEdit<V>> getConstructorMethod( String aBlockImplClassName ) {
+  private Constructor<IS5SequenceBlockEdit<V>> getConstructorMethod( String aBlockImplClassName ) {
     TsNullArgumentRtException.checkNull( aBlockImplClassName );
-    Constructor<ISequenceBlockEdit<V>> constructor = null;
+    Constructor<IS5SequenceBlockEdit<V>> constructor = null;
     // Попытка найти метод создания блоков значений в кэше
     lockRead( constructorsLock );
     try {
@@ -371,7 +371,7 @@ public abstract class S5SequenceFactory<V extends ITemporal<?>>
     }
     if( constructor == null ) {
       // Попытка найти метод создания блоков значений из курсора
-      constructor = (Constructor<ISequenceBlockEdit<V>>)lookupConstructorMethod( aBlockImplClassName );
+      constructor = (Constructor<IS5SequenceBlockEdit<V>>)lookupConstructorMethod( aBlockImplClassName );
       // Сохранение метода в кэше
       lockWrite( constructorsLock );
       try {

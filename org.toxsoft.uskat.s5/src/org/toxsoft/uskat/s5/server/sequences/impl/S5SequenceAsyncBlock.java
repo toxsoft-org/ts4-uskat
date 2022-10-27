@@ -22,9 +22,8 @@ import org.toxsoft.core.tslib.coll.IList;
 import org.toxsoft.core.tslib.gw.gwid.Gwid;
 import org.toxsoft.core.tslib.utils.errors.*;
 import org.toxsoft.core.tslib.utils.logs.ILogger;
-import org.toxsoft.uskat.s5.server.backend.supports.histdata.impl.sequences.ITemporalValueImporter;
-import org.toxsoft.uskat.s5.server.sequences.ISequenceBlockEdit;
-import org.toxsoft.uskat.s5.server.sequences.ISequenceFactory;
+import org.toxsoft.uskat.s5.server.sequences.IS5SequenceBlockEdit;
+import org.toxsoft.uskat.s5.server.sequences.IS5SequenceFactory;
 import org.toxsoft.uskat.s5.utils.indexes.ILongKey;
 
 /**
@@ -47,12 +46,6 @@ public abstract class S5SequenceAsyncBlock<V extends ITemporal<?>, BLOB_ARRAY, B
    */
   @Transient
   private transient ILongKey timeKey;
-
-  @Transient
-  private transient int importIndex = -1;
-
-  @Transient
-  private transient boolean hasImport = false;
 
   /**
    * Конструктор без параметров (для JPA)
@@ -92,7 +85,7 @@ public abstract class S5SequenceAsyncBlock<V extends ITemporal<?>, BLOB_ARRAY, B
   }
 
   // ------------------------------------------------------------------------------------
-  // Реализация ISequenceBlock
+  // Реализация IS5SequenceBlock
   //
   @Override
   public boolean isSync() {
@@ -187,91 +180,11 @@ public abstract class S5SequenceAsyncBlock<V extends ITemporal<?>, BLOB_ARRAY, B
     return (nearest >= timestamps.length ? nearest - 1 : nearest);
   }
 
-  @Override
-  public final void setImportTime( long aTimestamp ) {
-    importIndex = firstByTime( aTimestamp );
-    if( importIndex >= 0 ) {
-      hasImport = true;
-      // Декремент индекса так как он будет поправлен при первом вызове nextImport
-      importIndex--;
-      return;
-    }
-    // Нет данных для импорта
-    hasImport = false;
-    importIndex = -1;
-  }
-
-  @Override
-  public final boolean hasImport() {
-    return hasImport;
-  }
-
-  @Override
-  public final ITemporalValueImporter nextImport() {
-    if( !hasImport ) {
-      throw new TsIllegalArgumentRtException( ERR_NOT_IMPORT_DATA, this );
-    }
-    importIndex++;
-    if( importIndex + 1 >= size() ) {
-      // Достижение конца блока. Больше нет данных для импорта
-      hasImport = false;
-    }
-    return this;
-  }
-
-  // ------------------------------------------------------------------------------------
-  // Реализация ITemporalValueImporter
-  //
-  @Override
-  public final long timestamp() {
-    return timestamp( importIndex );
-  }
-
-  @Override
-  public final boolean isAssigned() {
-    return doIsAssigned( importIndex );
-  }
-
-  @Override
-  public final boolean asBool() {
-    return doAsBool( importIndex );
-  }
-
-  @Override
-  public final int asInt() {
-    return doAsInt( importIndex );
-  }
-
-  @Override
-  public final long asLong() {
-    return doAsLong( importIndex );
-  }
-
-  @Override
-  public final float asFloat() {
-    return doAsFloat( importIndex );
-  }
-
-  @Override
-  public final double asDouble() {
-    return doAsDouble( importIndex );
-  }
-
-  @Override
-  public final String asString() {
-    return doAsString( importIndex );
-  }
-
-  @Override
-  public final <T> T asValobj() {
-    return doAsValobj( importIndex );
-  }
-
   // ------------------------------------------------------------------------------------
   // Реализация шаблонных методов
   //
   @Override
-  protected final ISequenceBlockEdit<V> doCreateBlock( IParameterized aTypeInfo, long aStartTime, long aEndTime,
+  protected final IS5SequenceBlockEdit<V> doCreateBlock( IParameterized aTypeInfo, long aStartTime, long aEndTime,
       int aStartIndex, int aEndIndex, BLOB_ARRAY aValues ) {
     // Метки времени текущих значений блока
     long[] timestamps = blob().timestamps();
@@ -374,7 +287,7 @@ public abstract class S5SequenceAsyncBlock<V extends ITemporal<?>, BLOB_ARRAY, B
 
   @SuppressWarnings( "unchecked" )
   @Override
-  public int doUniteBlocks( ISequenceFactory<V> aFactory, IList<ISequenceBlockEdit<V>> aBlocks, ILogger aLogger ) {
+  public int doUniteBlocks( IS5SequenceFactory<V> aFactory, IList<IS5SequenceBlockEdit<V>> aBlocks, ILogger aLogger ) {
     TsNullArgumentRtException.checkNulls( aFactory, aBlocks, aLogger );
     if( aBlocks.size() == 0 ) {
       // Не с чем объединять
@@ -460,9 +373,9 @@ public abstract class S5SequenceAsyncBlock<V extends ITemporal<?>, BLOB_ARRAY, B
    * @param aTypeInfo {@link IParameterized} параметризованное описание типа данного
    * @param aTimestamps long[] метки времени значений
    * @param aValues BLOB_ARRAY массив значений блока
-   * @return {@link ISequenceBlockEdit} созданный блок
+   * @return {@link IS5SequenceBlockEdit} созданный блок
    */
-  protected abstract ISequenceBlockEdit<V> doCreateBlock( IParameterized aTypeInfo, long[] aTimestamps,
+  protected abstract IS5SequenceBlockEdit<V> doCreateBlock( IParameterized aTypeInfo, long[] aTimestamps,
       BLOB_ARRAY aValues );
 
   /**
@@ -483,7 +396,7 @@ public abstract class S5SequenceAsyncBlock<V extends ITemporal<?>, BLOB_ARRAY, B
    *          новый
    * @return {@link ILongKey} ключ индекса доступа к значениям
    */
-  protected ILongKey timeKey( boolean aRestore ) {
+  protected final ILongKey timeKey( boolean aRestore ) {
     if( timeKey == null ) {
       // Создаем или восстанавливаем индекс без проверки (по соображениям производительности)
       timeKey = doTimestampIndex( aRestore );
@@ -496,7 +409,7 @@ public abstract class S5SequenceAsyncBlock<V extends ITemporal<?>, BLOB_ARRAY, B
    *
    * @return long[] метки времени(мсек с начала эпохи)
    */
-  protected long[] timestamps() {
+  protected final long[] timestamps() {
     return blob().timestamps();
   }
 
