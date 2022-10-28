@@ -184,7 +184,8 @@ public abstract class S5SequenceSyncBlock<V extends ITemporal<?>, BLOB_ARRAY, BL
 
   @SuppressWarnings( "unchecked" )
   @Override
-  protected int doUniteBlocks( IS5SequenceFactory<V> aFactory, IList<IS5SequenceBlockEdit<V>> aBlocks, ILogger aLogger ) {
+  protected int doUniteBlocks( IS5SequenceFactory<V> aFactory, IList<IS5SequenceBlockEdit<V>> aBlocks,
+      ILogger aLogger ) {
     if( aBlocks.size() == 0 ) {
       // Не с чем объединять
       return 0;
@@ -469,17 +470,18 @@ public abstract class S5SequenceSyncBlock<V extends ITemporal<?>, BLOB_ARRAY, BL
    * @throws TsIllegalArgumentRtException метка времени должна быть выравнена по syncDataDelta
    */
   private int getIndexByTime( long aTimestamp ) {
-    // Проверка метки на попадание в диапазон
-    checkTimestamp( aTimestamp );
     long startTime = startTime();
     long dataDelta = syncDataDelta.longValue();
     long index = (aTimestamp - startTime) / dataDelta;
-    if( index * dataDelta != aTimestamp - startTime ) {
-      // Метка времени значения синхроного блока должна быть выравнена по границе dataDeltaT
-      String ts = timestampToString( aTimestamp );
-      String st = timestampToString( startTime );
-      throw new TsIllegalArgumentRtException( ERR_SYNC_WRONG_ALIGN, ts, st, syncDataDelta );
-    }
+    // 2022-10-28 mvk --- излишняя проверка
+    // if( index * dataDelta != aTimestamp - startTime ) {
+    // // Метка времени значения синхроного блока должна быть выравнена по границе dataDeltaT
+    // String ts = timestampToString( aTimestamp );
+    // String st = timestampToString( startTime );
+    // throw new TsIllegalArgumentRtException( ERR_SYNC_WRONG_ALIGN, ts, st, syncDataDelta );
+    // }
+    // Проверка метки на попадание в диапазон
+    checkTimestamp( startTime + index * dataDelta );
     return (int)index;
   }
 

@@ -219,14 +219,12 @@ class S5BackendQueriesAtomicValueFunctions
   /**
    * Обработка текущего "сырого" значения
    *
-   * @param aValue {@link ITemporalAtomicValue} текущее "сырое" значение
+   * @param aValue {@link ITemporalAtomicValue} текущее "сырое" значение. null: завершение обработки
    * @param <T> тип значения
    * @return {@link ITimedList} список обработанных значений
-   * @throws TsNullArgumentRtException аргумент = null
    */
   @SuppressWarnings( "unchecked" )
   private <T extends ITemporal<?>> ITimedList<T> nextValue( ITemporalAtomicValue aValue ) {
-    TsNullArgumentRtException.checkNull( aValue );
     rawCounter.add( 1 );
     if( aValue == null ) {
       // У последовательности больше нет значений. Формирование последнего значения

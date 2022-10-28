@@ -5,7 +5,6 @@ import org.toxsoft.core.tslib.bricks.time.IQueryInterval;
 import org.toxsoft.core.tslib.coll.IList;
 import org.toxsoft.core.tslib.gw.gwid.Gwid;
 import org.toxsoft.core.tslib.utils.errors.TsNullArgumentRtException;
-import org.toxsoft.core.tslib.utils.errors.TsUnderDevelopmentRtException;
 import org.toxsoft.uskat.s5.server.backend.supports.histdata.IS5HistDataSequenceEdit;
 import org.toxsoft.uskat.s5.server.sequences.*;
 import org.toxsoft.uskat.s5.server.sequences.impl.S5Sequence;
@@ -40,6 +39,6 @@ public class S5HistDataSequence
   //
   @Override
   public IS5SequenceCursor<ITemporalAtomicValue> createCursor() {
-    throw new TsUnderDevelopmentRtException();
+    return new S5HistDataCursor( this );
   }
 }
