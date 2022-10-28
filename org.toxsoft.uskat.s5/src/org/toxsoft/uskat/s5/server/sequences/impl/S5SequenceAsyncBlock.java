@@ -5,27 +5,25 @@ import static org.toxsoft.uskat.s5.common.IS5CommonResources.*;
 import static org.toxsoft.uskat.s5.server.sequences.IS5SequenceHardConstants.*;
 import static org.toxsoft.uskat.s5.server.sequences.impl.IS5Resources.*;
 
+import java.beans.*;
 import java.lang.reflect.Array;
-import java.sql.ResultSet;
-import java.util.Arrays;
+import java.sql.*;
+import java.util.*;
 
 import javax.persistence.MappedSuperclass;
-import javax.persistence.Transient;
 
-import org.toxsoft.core.tslib.av.utils.IParameterized;
-import org.toxsoft.core.tslib.bricks.time.ITemporal;
-import org.toxsoft.core.tslib.bricks.time.impl.TimeUtils;
-import org.toxsoft.core.tslib.bricks.validator.IValResList;
-import org.toxsoft.core.tslib.bricks.validator.ValidationResult;
-import org.toxsoft.core.tslib.bricks.validator.impl.ValResList;
-import org.toxsoft.core.tslib.coll.IList;
-import org.toxsoft.core.tslib.gw.gwid.Gwid;
+import org.toxsoft.core.tslib.av.utils.*;
+import org.toxsoft.core.tslib.bricks.time.*;
+import org.toxsoft.core.tslib.bricks.time.impl.*;
+import org.toxsoft.core.tslib.bricks.validator.*;
+import org.toxsoft.core.tslib.bricks.validator.impl.*;
+import org.toxsoft.core.tslib.coll.*;
+import org.toxsoft.core.tslib.gw.gwid.*;
 import org.toxsoft.core.tslib.utils.errors.*;
-import org.toxsoft.core.tslib.utils.logs.ILogger;
-import org.toxsoft.uskat.s5.server.backend.supports.histdata.impl.sequences.ITemporalValueImporter;
-import org.toxsoft.uskat.s5.server.sequences.ISequenceBlockEdit;
-import org.toxsoft.uskat.s5.server.sequences.ISequenceFactory;
-import org.toxsoft.uskat.s5.utils.indexes.ILongKey;
+import org.toxsoft.core.tslib.utils.logs.*;
+import org.toxsoft.uskat.s5.server.backend.supports.histdata.impl.sequences.*;
+import org.toxsoft.uskat.s5.server.sequences.*;
+import org.toxsoft.uskat.s5.utils.indexes.*;
 
 /**
  * Блок хранения асинхронных данных.
@@ -325,12 +323,12 @@ public abstract class S5SequenceAsyncBlock<V extends ITemporal<?>, BLOB_ARRAY, B
 
   @Override
   public IValResList doValidation( IParameterized aTypeInfo ) {
-    // FIXME: goga закинуть одним разом
-    // ValResList retValue = new ValResList( super.doValidation( aTypeInfo ).results() );
-    ValResList retValue = new ValResList();
-    for( ValidationResult vr : super.doValidation( aTypeInfo ).results() ) {
-      retValue.add( vr );
-    }
+    // FIXME: FIXED goga закинуть одним разом
+    ValResList retValue = new ValResList( super.doValidation( aTypeInfo ).results() );
+    // ValResList retValue = new ValResList();
+    // for( ValidationResult vr : super.doValidation( aTypeInfo ).results() ) {
+    // retValue.add( vr );
+    // }
 
     if( !retValue.isOk() ) {
       return retValue;
