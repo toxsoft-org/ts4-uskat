@@ -585,10 +585,7 @@ public abstract class S5SequenceBlock<V extends ITemporal<?>, BLOB_ARRAY, BLOB e
       return retValue;
     }
     // Проверка blob
-    // FIXME: goga нет метода чтобы закинуть все сразу
-    for( ValidationResult vr : blob().validation().results() ) {
-      retValue.add( vr );
-    }
+    retValue.addValResList( blob().validation() );
     // Проверка согласованности значений и описания блока
     BLOB_ARRAY values = values();
     if( values == null ) {

@@ -162,11 +162,8 @@ public abstract class S5SequenceSyncBlock<V extends ITemporal<?>, BLOB_ARRAY, BL
 
   @Override
   public IValResList doValidation( IParameterized aTypeInfo ) {
-    // FIXME: goga занести все сразу одним методом
     ValResList retValue = new ValResList();
-    for( ValidationResult vr : super.doValidation( aTypeInfo ).results() ) {
-      retValue.add( vr );
-    }
+    retValue.addValResList( super.doValidation( aTypeInfo ) );
     if( !retValue.isOk() ) {
       return retValue;
     }
