@@ -5,7 +5,6 @@ import org.toxsoft.core.tslib.av.IAtomicValue;
 import org.toxsoft.core.tslib.av.temporal.ITemporalAtomicValue;
 import org.toxsoft.core.tslib.bricks.time.ITemporalValue;
 import org.toxsoft.core.tslib.utils.errors.*;
-import org.toxsoft.uskat.s5.server.backend.supports.histdata.IS5HistDataHardConstants;
 import org.toxsoft.uskat.s5.server.backend.supports.histdata.IS5HistDataSequence;
 import org.toxsoft.uskat.s5.server.backend.supports.queries.IS5BackendHistDataCursor;
 import org.toxsoft.uskat.s5.server.sequences.IS5Sequence;
@@ -144,15 +143,13 @@ public class S5HistDataCursor
     }
 
     @Override
-    public EAtomicType atomicType() {
-      EAtomicType atomicType =
-          IS5HistDataHardConstants.OP_ATOMIC_TYPE.getValue( sequence.typeInfo().params() ).asValobj();
-      return atomicType;
+    public boolean isAssigned() {
+      return block().isAssigned( valueIndex() );
     }
 
     @Override
-    public boolean isAssigned() {
-      return block().isAssigned( valueIndex() );
+    public EAtomicType atomicType() {
+      return ((IS5HistDataBlock)block()).atomicType();
     }
 
     @Override
