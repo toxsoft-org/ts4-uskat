@@ -4,22 +4,22 @@ import static org.toxsoft.core.tslib.bricks.time.impl.TimeUtils.*;
 import static org.toxsoft.uskat.s5.server.sequences.IS5SequenceHardConstants.*;
 import static org.toxsoft.uskat.s5.server.sequences.impl.IS5Resources.*;
 
+import java.beans.*;
 import java.lang.reflect.Array;
-import java.sql.ResultSet;
+import java.sql.*;
 
 import javax.persistence.*;
 
-import org.toxsoft.core.tslib.av.utils.IParameterized;
-import org.toxsoft.core.tslib.bricks.time.ITemporal;
-import org.toxsoft.core.tslib.bricks.validator.IValResList;
-import org.toxsoft.core.tslib.bricks.validator.ValidationResult;
-import org.toxsoft.core.tslib.bricks.validator.impl.ValResList;
-import org.toxsoft.core.tslib.coll.IList;
-import org.toxsoft.core.tslib.coll.primtypes.IStringMapEdit;
-import org.toxsoft.core.tslib.gw.gwid.Gwid;
+import org.toxsoft.core.tslib.av.utils.*;
+import org.toxsoft.core.tslib.bricks.time.*;
+import org.toxsoft.core.tslib.bricks.validator.*;
+import org.toxsoft.core.tslib.bricks.validator.impl.*;
+import org.toxsoft.core.tslib.coll.*;
+import org.toxsoft.core.tslib.coll.primtypes.*;
+import org.toxsoft.core.tslib.gw.gwid.*;
 import org.toxsoft.core.tslib.utils.errors.*;
-import org.toxsoft.core.tslib.utils.logs.ILogger;
-import org.toxsoft.uskat.s5.server.backend.supports.histdata.impl.sequences.ITemporalValueImporter;
+import org.toxsoft.core.tslib.utils.logs.*;
+import org.toxsoft.uskat.s5.server.backend.supports.histdata.impl.sequences.*;
 import org.toxsoft.uskat.s5.server.sequences.*;
 
 /**
@@ -247,11 +247,11 @@ public abstract class S5SequenceSyncBlock<V extends ITemporal<?>, BLOB_ARRAY, BL
 
   @Override
   public IValResList doValidation( IParameterized aTypeInfo ) {
-    // FIXME: goga занести все сразу одним методом
-    ValResList retValue = new ValResList();
-    for( ValidationResult vr : super.doValidation( aTypeInfo ).results() ) {
-      retValue.add( vr );
-    }
+    // FIXME: FIXED goga занести все сразу одним методом
+    ValResList retValue = new ValResList( super.doValidation( aTypeInfo ).results() );
+    // for( ValidationResult vr : super.doValidation( aTypeInfo ).results() ) {
+    // retValue.add( vr );
+    // }
     if( !retValue.isOk() ) {
       return retValue;
     }

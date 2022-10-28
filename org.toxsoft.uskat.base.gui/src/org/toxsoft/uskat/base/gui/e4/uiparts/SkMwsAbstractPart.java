@@ -99,7 +99,7 @@ public abstract class SkMwsAbstractPart
     if( basement.isDisposed() || disposableBackplane != null ) {
       return;
     }
-    disposableBackplane = new TsComposite( basement, SWT.BORDER );
+    disposableBackplane = new TsComposite( basement, SWT.NONE );
     disposableBackplane.setLayout( new BorderLayout() );
     disposableBackplane.setLayoutData( BorderLayout.CENTER );
     // попытка создать пользовательское содержимое
@@ -169,7 +169,7 @@ public abstract class SkMwsAbstractPart
 
     skConn.addConnectionListener( connectionListener );
 
-    basement = new TsComposite( aParent, SWT.BORDER );
+    basement = new TsComposite( aParent, SWT.NONE );
     basement.setLayout( new BorderLayout() );
 
     if( skConn.state() == ESkConnState.ACTIVE ) {
