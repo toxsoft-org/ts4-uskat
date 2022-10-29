@@ -26,7 +26,7 @@ import org.toxsoft.uskat.s5.server.transactions.S5TransactionManager;
 import org.toxsoft.uskat.s5.utils.IS5HardConstants;
 
 /**
- * Константы реализации s5-сервера
+ * Константы реализации s5-сервера.
  *
  * @author mvk
  */
