@@ -109,7 +109,6 @@ public class S5SequenceCursor<T extends ITemporal<?>>
     return (nextBlock != null && nextValueIndex >= 0);
   }
 
-  @SuppressWarnings( "unchecked" )
   @Override
   public final T nextValue() {
     TsIllegalArgumentRtException.checkFalse( hasNextValue() );
@@ -119,7 +118,7 @@ public class S5SequenceCursor<T extends ITemporal<?>>
     if( nextValueIndex + 1 < nextBlock.size() ) {
       // Перемещение по текущему блоку
       nextValueIndex++;
-      return (T)this;
+      return doGetCurrentValue();
     }
     if( sequence != null ) {
       // Попытка найти следующий блок в последовательности со значениями
@@ -129,7 +128,7 @@ public class S5SequenceCursor<T extends ITemporal<?>>
           nextBlock = b;
           nextBlockIndex = index;
           nextValueIndex = 0;
-          return (T)this;
+          return doGetCurrentValue();
         }
       }
     }
@@ -137,7 +136,7 @@ public class S5SequenceCursor<T extends ITemporal<?>>
     nextBlock = null;
     nextBlockIndex = -1;
     nextValueIndex = -1;
-    return (T)this;
+    return doGetCurrentValue();
   }
 
   @Override
@@ -145,4 +144,16 @@ public class S5SequenceCursor<T extends ITemporal<?>>
     return position;
   }
 
+  // ------------------------------------------------------------------------------------
+  // IS5BackendHistDataCursor
+  //
+  /**
+   * Возвращает текущее значение
+   *
+   * @return T значение
+   */
+  @SuppressWarnings( "unchecked" )
+  protected T doGetCurrentValue() {
+    return (T)this;
+  }
 }

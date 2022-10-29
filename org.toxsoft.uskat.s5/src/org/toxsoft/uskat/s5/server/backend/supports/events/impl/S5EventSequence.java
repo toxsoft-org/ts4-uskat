@@ -4,7 +4,6 @@ import org.toxsoft.core.tslib.bricks.time.IQueryInterval;
 import org.toxsoft.core.tslib.coll.IList;
 import org.toxsoft.core.tslib.gw.gwid.Gwid;
 import org.toxsoft.core.tslib.utils.errors.TsNullArgumentRtException;
-import org.toxsoft.core.tslib.utils.errors.TsUnderDevelopmentRtException;
 import org.toxsoft.uskat.core.api.evserv.SkEvent;
 import org.toxsoft.uskat.s5.server.backend.supports.events.sequences.IS5EventSequenceEdit;
 import org.toxsoft.uskat.s5.server.sequences.*;
@@ -40,7 +39,7 @@ public class S5EventSequence
   //
   @Override
   public IS5SequenceCursor<SkEvent> createCursor() {
-    throw new TsUnderDevelopmentRtException();
+    return new S5EventCursor( this );
   }
 
 }

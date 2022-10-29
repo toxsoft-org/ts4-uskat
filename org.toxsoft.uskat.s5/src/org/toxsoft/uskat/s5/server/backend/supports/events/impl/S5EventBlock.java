@@ -105,8 +105,7 @@ public class S5EventBlock
 
   @Override
   public IS5SequenceCursor<SkEvent> createCursor() {
-    // TODO:
-    throw new TsUnderDevelopmentRtException();
+    return new S5EventCursor( this );
   }
 
   // ------------------------------------------------------------------------------------

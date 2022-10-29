@@ -12,6 +12,7 @@ import org.toxsoft.core.tslib.gw.gwid.EGwidKind;
 import org.toxsoft.core.tslib.gw.gwid.Gwid;
 import org.toxsoft.core.tslib.utils.errors.*;
 import org.toxsoft.uskat.core.api.cmdserv.IDtoCompletedCommand;
+import org.toxsoft.uskat.s5.server.backend.supports.commands.sequences.S5CommandCursor;
 import org.toxsoft.uskat.s5.server.sequences.IS5SequenceBlockEdit;
 import org.toxsoft.uskat.s5.server.sequences.IS5SequenceCursor;
 import org.toxsoft.uskat.s5.server.sequences.impl.S5SequenceAsyncBlock;
@@ -105,8 +106,7 @@ public class S5CommandBlock
 
   @Override
   public IS5SequenceCursor<IDtoCompletedCommand> createCursor() {
-    // TODO:
-    throw new TsUnderDevelopmentRtException();
+    return new S5CommandCursor( this );
   }
 
   // ------------------------------------------------------------------------------------
