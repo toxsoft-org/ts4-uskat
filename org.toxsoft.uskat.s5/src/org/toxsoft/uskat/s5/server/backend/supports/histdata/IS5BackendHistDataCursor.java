@@ -1,4 +1,4 @@
-package org.toxsoft.uskat.s5.server.backend.supports.queries;
+package org.toxsoft.uskat.s5.server.backend.supports.histdata;
 
 import org.toxsoft.core.tslib.av.temporal.ITemporalAtomicValue;
 import org.toxsoft.uskat.s5.server.sequences.IS5SequenceCursor;

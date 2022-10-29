@@ -1,27 +1,28 @@
-package org.toxsoft.uskat.s5.server.backend.supports.histdata.impl.sequences;
+package org.toxsoft.uskat.s5.server.backend.supports.events.impl;
 
 import static org.toxsoft.core.tslib.bricks.strio.IStrioHardConstants.*;
 
 import org.toxsoft.core.tslib.av.EAtomicType;
 import org.toxsoft.core.tslib.av.IAtomicValue;
-import org.toxsoft.core.tslib.av.temporal.ITemporalAtomicValue;
 import org.toxsoft.core.tslib.bricks.time.ITemporalValue;
 import org.toxsoft.core.tslib.bricks.time.impl.TimeUtils;
 import org.toxsoft.core.tslib.utils.TsLibUtils;
 import org.toxsoft.core.tslib.utils.errors.TsNotAllEnumsUsedRtException;
 import org.toxsoft.core.tslib.utils.errors.TsNullArgumentRtException;
-import org.toxsoft.uskat.s5.server.backend.supports.histdata.IS5BackendHistDataCursor;
+import org.toxsoft.uskat.core.api.evserv.SkEvent;
+import org.toxsoft.uskat.s5.server.backend.supports.events.IS5BackendEventCursor;
 import org.toxsoft.uskat.s5.server.backend.supports.histdata.IS5HistDataSequence;
+import org.toxsoft.uskat.s5.server.backend.supports.histdata.impl.sequences.IS5HistDataBlock;
 import org.toxsoft.uskat.s5.server.sequences.impl.S5SequenceCursor;
 
 /**
- * Реализация {@link IS5BackendHistDataCursor}
+ * Реализация {@link IS5BackendEventCursor}
  *
  * @author mvk
  */
-public class S5HistDataCursor
-    extends S5SequenceCursor<ITemporalAtomicValue>
-    implements IS5BackendHistDataCursor, ITemporalAtomicValue {
+public class S5EventCursor
+    extends S5SequenceCursor<SkEvent>
+    implements IS5BackendEventCursor, SkEvent {
 
   /**
    * Textual representation of the constant is the string "@{}".
@@ -36,7 +37,7 @@ public class S5HistDataCursor
    * @param aSequence {@link IS5HistDataSequence} последовательность значений
    * @throws TsNullArgumentRtException аргумент = null
    */
-  public S5HistDataCursor( IS5HistDataSequence aSequence ) {
+  public S5EventCursor( IS5HistDataSequence aSequence ) {
     super( aSequence );
   }
 
@@ -46,7 +47,7 @@ public class S5HistDataCursor
    * @param aBlock {@link IS5HistDataBlock} блок значений
    * @throws TsNullArgumentRtException аргумент = null
    */
-  public S5HistDataCursor( IS5HistDataBlock aBlock ) {
+  public S5EventCursor( IS5HistDataBlock aBlock ) {
     super( aBlock );
   }
 
