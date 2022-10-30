@@ -1,9 +1,6 @@
 package org.toxsoft.uskat.s5.server.sessions;
 
-import static org.toxsoft.core.tslib.av.EAtomicType.*;
 import static org.toxsoft.core.tslib.av.impl.AvUtils.*;
-import static org.toxsoft.core.tslib.av.metainfo.IAvMetaConstants.*;
-import static org.toxsoft.uskat.core.ISkHardConstants.*;
 import static org.toxsoft.uskat.s5.common.IS5CommonResources.*;
 import static org.toxsoft.uskat.s5.common.sessions.ISkSession.*;
 import static org.toxsoft.uskat.s5.server.IS5ImplementConstants.*;
@@ -19,47 +16,37 @@ import javax.ejb.*;
 
 import org.infinispan.Cache;
 import org.infinispan.commons.util.CloseableIterator;
-import org.toxsoft.core.tslib.av.EAtomicType;
 import org.toxsoft.core.tslib.av.IAtomicValue;
-import org.toxsoft.core.tslib.av.impl.DataDef;
-import org.toxsoft.core.tslib.av.impl.DataType;
-import org.toxsoft.core.tslib.av.metainfo.IAvMetaConstants;
 import org.toxsoft.core.tslib.av.opset.IOptionSet;
 import org.toxsoft.core.tslib.av.opset.IOptionSetEdit;
-import org.toxsoft.core.tslib.av.opset.impl.*;
-import org.toxsoft.core.tslib.bricks.strid.coll.IStridablesList;
-import org.toxsoft.core.tslib.bricks.strid.coll.IStridablesListEdit;
-import org.toxsoft.core.tslib.bricks.strid.coll.impl.StridablesList;
+import org.toxsoft.core.tslib.av.opset.impl.OptionSet;
 import org.toxsoft.core.tslib.bricks.strid.idgen.IStridGenerator;
 import org.toxsoft.core.tslib.bricks.strid.idgen.UuidStridGenerator;
+import org.toxsoft.core.tslib.bricks.time.impl.TimedList;
 import org.toxsoft.core.tslib.coll.*;
 import org.toxsoft.core.tslib.coll.impl.*;
-import org.toxsoft.core.tslib.coll.primtypes.*;
+import org.toxsoft.core.tslib.coll.primtypes.IStringMap;
 import org.toxsoft.core.tslib.coll.primtypes.impl.StringArrayList;
-import org.toxsoft.core.tslib.coll.primtypes.impl.StringMap;
-import org.toxsoft.core.tslib.gw.IGwHardConstants;
 import org.toxsoft.core.tslib.gw.gwid.Gwid;
 import org.toxsoft.core.tslib.gw.skid.*;
 import org.toxsoft.core.tslib.utils.errors.TsIllegalArgumentRtException;
 import org.toxsoft.core.tslib.utils.errors.TsNullArgumentRtException;
 import org.toxsoft.core.tslib.utils.logs.ELogSeverity;
 import org.toxsoft.core.tslib.utils.logs.ILogger;
+import org.toxsoft.uskat.core.api.evserv.SkEvent;
 import org.toxsoft.uskat.core.api.objserv.IDtoObject;
-import org.toxsoft.uskat.core.api.sysdescr.dto.IDtoClassInfo;
 import org.toxsoft.uskat.core.api.users.ISkUser;
 import org.toxsoft.uskat.core.api.users.ISkUserServiceHardConstants;
-import org.toxsoft.uskat.core.impl.SkCoreServUsers;
-import org.toxsoft.uskat.core.impl.dto.*;
+import org.toxsoft.uskat.core.impl.dto.DtoLinkFwd;
+import org.toxsoft.uskat.core.impl.dto.DtoObject;
 import org.toxsoft.uskat.s5.client.IS5ConnectionParams;
 import org.toxsoft.uskat.s5.common.info.IS5SessionsInfos;
 import org.toxsoft.uskat.s5.common.sessions.IS5SessionInfo;
 import org.toxsoft.uskat.s5.common.sessions.ISkSession;
-import org.toxsoft.uskat.s5.legacy.ISkSystem;
 import org.toxsoft.uskat.s5.legacy.SynchronizedMap;
 import org.toxsoft.uskat.s5.server.IS5ServerHardConstants;
 import org.toxsoft.uskat.s5.server.backend.IS5BackendCoreSingleton;
 import org.toxsoft.uskat.s5.server.backend.impl.S5AccessDeniedException;
-import org.toxsoft.uskat.s5.server.backend.impl.S5BackendSession;
 import org.toxsoft.uskat.s5.server.backend.supports.events.IS5BackendEventSingleton;
 import org.toxsoft.uskat.s5.server.backend.supports.links.IS5BackendLinksSingleton;
 import org.toxsoft.uskat.s5.server.backend.supports.objects.IS5BackendObjectsSingleton;
@@ -133,10 +120,6 @@ public class S5SessionManager
    * Таймаут очистки закрытых сессий {@link ISkSession} после запуска сервера
    */
   private static final long CLEAN_SESSION_AFTER_START_TIMEOUT = 30 * 60 * 1000;
-
-  private static final String STR_N_ROOT_USER       = "Root";                                      //$NON-NLS-1$
-  private static final String STR_D_ROOT_USER       = "Root - superuser";                          //$NON-NLS-1$
-  private static final String DEFAULT_ROOT_PASSWORD = S5BackendSession.getPasswordHashCode( "1" ); //$NON-NLS-1$
 
   /**
    * Начальная, неизменяемая, проектно-зависимая конфигурация реализации бекенда сервера
@@ -320,7 +303,7 @@ public class S5SessionManager
 
     } );
     // Проверка и, если необходимо, обовление sysdescr
-    checkAndUpdateSysdecr( sysdescrSupport, objectsSupport );
+    S5SessionUtils.checkAndUpdateSysdecr( backendCoreSingleton );
     // Запуск фоновой задачи
     addOwnDoJob( DO_JOB_TIMEOUT );
   }
@@ -419,19 +402,17 @@ public class S5SessionManager
       OP_SESSION_PORT.setValue( connectionCreationParams, avInt( info.remotePort() ) );
       // Создание или восстановление сессии
       boolean created =
-          createSkSession( sessionID, frontend, login, createTime, backendSpecificParams, connectionCreationParams );
+          createSkSession( sessionID, login, createTime, backendSpecificParams, connectionCreationParams );
       S5SessionData prevSession = remoteOpenSessionCache.put( info.sessionID(), aSession );
       callAfterCreateSession( interceptors, sessionID, logger() );
 
-      // TODO: формировать события
       // Формирование события
-      // Gwid eventGwid = Gwid.createEvent( ISkUser.CLASS_ID, login,
-      // created ? ISkUser.EVID_SESSION_CREATED : ISkUser.EVID_SESSION_RESTORED );
-      // IOptionSetEdit params = new OptionSet();
-      // params.setStr( ISkUser.EVPID_IP, aSession.info().remoteAddress() );
-      // params.setValobj( ISkUser.EVPID_SESSION_ID, aSession.info().sessionID() );
-      // SkEvent event = new SkEvent( createTime, eventGwid, params );
-      // eventSupport.fireEvents( frontend, new TimedList<>( event ) );
+      Gwid eventGwid = Gwid.createEvent( ISkSession.CLASS_ID, sessionID.strid(),
+          created ? ISkSession.EVID_SESSION_CREATED : ISkSession.EVID_SESSION_RESTORED );
+      IOptionSetEdit params = new OptionSet();
+      params.setStr( ISkSession.EVPID_IP, aSession.info().remoteAddress() );
+      SkEvent event = new SkEvent( createTime, eventGwid, params );
+      eventSupport.fireEvents( frontend, new TimedList<>( event ) );
 
       return (prevSession == null);
     }
@@ -454,7 +435,7 @@ public class S5SessionManager
     IOptionSetEdit connectionCreationParams = new OptionSet();
     IS5ConnectionParams.OP_LOCAL_MODULE.setValue( connectionCreationParams, avStr( aSession.module() ) );
     IS5ConnectionParams.OP_LOCAL_NODE.setValue( connectionCreationParams, avStr( aSession.node() ) );
-    createSkSession( sessionID, frontend, login, createTime, backendSpecificParams, connectionCreationParams );
+    createSkSession( sessionID, login, createTime, backendSpecificParams, connectionCreationParams );
     S5LocalSession prevSession = localOpenSessionCache.put( sessionID, aSession );
     callAfterCreateSession( interceptors, sessionID, logger() );
     return (prevSession == null);
@@ -480,14 +461,6 @@ public class S5SessionManager
     clusterManager.sendAsyncCommand( updateSessionCommand( sessionID ), true, false );
   }
 
-  // 2022-07-09 mvk
-  // @TransactionAttribute( TransactionAttributeType.REQUIRED )
-  // @Override
-  // public void updateLocalSession( S5LocalSession aSession ) {
-  // TsNullArgumentRtException.checkNull( aSession );
-  // localOpenSessionCache.put( aSession.sessionID(), aSession );
-  // }
-
   @TransactionAttribute( TransactionAttributeType.REQUIRES_NEW )
   @Override
   public void closeRemoteSession( Skid aSessionID ) {
@@ -506,22 +479,21 @@ public class S5SessionManager
 
         callBeforeCloseSession( interceptors, sessionID, logger() );
 
-        IS5FrontendRear frontend = closeMessenger( aSessionID );
-        closeSkSession( frontend, session, sessionID, endTime, loss );
+        closeMessenger( aSessionID );
+
+        closeSkSession( sessionID, session, endTime, loss );
 
         remoteOpenSessionCache.remove( aSessionID );
         // Сессия найдена и закрыта (перемещается в кэш закрытых сессий)
         closedSessionCache.put( aSessionID, session );
 
-        // TODO: формировать события
         // Формирование события
-        // String evId = (loss ? ISkUser.EVID_SESSION_BREAKED : ISkUser.EVID_SESSION_CLOSED);
-        // Gwid eventGwid = Gwid.createEvent( ISkUser.CLASS_ID, session.info().login(), evId );
-        // IOptionSetEdit params = new OptionSet();
-        // params.setStr( ISkUser.EVPID_IP, session.info().remoteAddress() );
-        // params.setValobj( ISkUser.EVPID_SESSION_ID, session.info().sessionID() );
-        // SkEvent event = new SkEvent( endTime, eventGwid, params );
-        // eventSupport.fireEvents( frontend, new TimedList<>( event ) );
+        String evId = (loss ? ISkSession.EVID_SESSION_BREAKED : ISkSession.EVID_SESSION_CLOSED);
+        Gwid eventGwid = Gwid.createEvent( ISkSession.CLASS_ID, sessionID.strid(), evId );
+        IOptionSetEdit params = new OptionSet();
+        params.setStr( ISkSession.EVPID_IP, session.info().remoteAddress() );
+        SkEvent event = new SkEvent( endTime, eventGwid, params );
+        eventSupport.fireEvents( IS5FrontendRear.NULL, new TimedList<>( event ) );
 
         callAfterCloseSession( interceptors, sessionID, logger() );
       }
@@ -546,10 +518,9 @@ public class S5SessionManager
       }
       Skid sessionID = session.sessionID();
       callBeforeCloseSession( interceptors, sessionID, logger() );
-      IS5FrontendRear frontend = session.frontend();
       long endTime = System.currentTimeMillis();
       boolean loss = false;
-      closeSkSession( frontend, null, sessionID, endTime, loss );
+      closeSkSession( sessionID, null, endTime, loss );
       localOpenSessionCache.removeByKey( aSessionID );
       // Сессия найдена и закрыта (перемещается в кэш закрытых сессий)
       callAfterCloseSession( interceptors, sessionID, logger() );
@@ -1008,13 +979,12 @@ public class S5SessionManager
   }
 
   // ------------------------------------------------------------------------------------
-  // Внутренние методы. Формирование SkConnection
+  // Внутренние методы
   //
   /**
    * Создание нового объекта {@link ISkSession}
    *
    * @param aSessionID {@link Skid} идентификатор сессии
-   * @param aFrontend {@link IS5FrontendRear} фронтенд сессии
    * @param aLogin String логин пользователя подключенного к системе
    * @param aCreationTime long метка времени создания сессии
    * @param aBackendSpecificParams {@link IOptionSet} параметры бекенда
@@ -1022,9 +992,9 @@ public class S5SessionManager
    * @return boolean <b>true</b> создан объект сессии; <b>false</b> объект сессии уже существует
    * @throws TsNullArgumentRtException аргумент = null
    */
-  private boolean createSkSession( Skid aSessionID, IS5FrontendRear aFrontend, String aLogin, long aCreationTime,
+  private boolean createSkSession( Skid aSessionID, String aLogin, long aCreationTime,
       IOptionSet aBackendSpecificParams, IOptionSet aConnectionCreationParams ) {
-    TsNullArgumentRtException.checkNulls( aSessionID, aFrontend, aBackendSpecificParams, aConnectionCreationParams );
+    TsNullArgumentRtException.checkNulls( aSessionID, aBackendSpecificParams, aConnectionCreationParams );
     IDtoObject obj = objectsSupport.findObject( aSessionID );
     if( obj != null ) {
       // Сессия уже существует
@@ -1033,19 +1003,6 @@ public class S5SessionManager
       IDtoObject dto = new DtoObject( aSessionID, attrs, obj.rivets().map() );
       // Создание объекта сессия. aInterceptable = false
       objectsSupport.writeObjects( IS5FrontendRear.NULL, ISkidList.EMPTY, new ElemArrayList<>( dto ), false );
-      // 2021-04-09 mvk создание статистики проводится как lazy через findStatisticCounter
-      // Статистика сессии
-      // if( statisticCountersBySessions.findByKey( aSessionID ) == null ) {
-      // statisticCountersBySessions.put( aSessionID, new S5Statistic( STAT_SESSION_PARAMS ) );
-      // }
-
-      // TODO: 2021-08-23 mvk подготовлено для удаления
-      // Формирование события
-      // Gwid eventGwid = Gwid.createEvent( CLASS_ID, aSessionID.strid(), EVID_STATE_CHANGED );
-      // IOptionSetEdit params = new OptionSet();
-      // params.setValobj( EVPID_NEW_STATE, ESkConnState.ACTIVE );
-      // SkEvent event = new SkEvent( aCreationTime, eventGwid, params );
-      // eventSupport.fireEvents( aFrontend, new TimedList<>( event ) );
       return false;
     }
     // Создание новой сессии
@@ -1061,27 +1018,20 @@ public class S5SessionManager
     DtoLinkFwd dtoUserLink = new DtoLinkFwd( //
         Gwid.createLink( ISkSession.CLASS_ID, ISkSession.LNKID_USER ), aSessionID, new SkidList( userID ) );
     linksSupport.writeLinksFwd( new ElemArrayList<>( dtoUserLink ) ); // false: запрет интерсепторов
-    // 2021-04-09 mvk создание статистики проводится как lazy через findStatisticCounter
-    // Статистика сессии
-    // if( statisticCountersBySessions.findByKey( aSessionID ) == null ) {
-    // statisticCountersBySessions.put( aSessionID, new S5Statistic( STAT_SESSION_PARAMS ) );
-    // }
     return true;
   }
 
   /**
    * Обработка завершения работы объекта сессия {@link ISkSession}
    *
-   * @param aFrontend {@link IS5FrontendRear} фронтенд сессии
-   * @param aRemoteSessionOrNull {@link S5SessionData} удаленная сессия. null: локальная сессия
    * @param aSessionID {@link Skid} идентификатор {@link ISkSession}
+   * @param aRemoteSessionOrNull {@link S5SessionData} удаленная сессия. null: локальная сессия
    * @param aEndTime long метка времени завершения сессии
    * @param aLoss boolean <b>true</b> потеря соединения; <b>false</b> штатное завершение соединения
    * @throws TsNullArgumentRtException аргумент = null
    */
-  private void closeSkSession( IS5FrontendRear aFrontend, S5SessionData aRemoteSessionOrNull, Skid aSessionID,
-      long aEndTime, boolean aLoss ) {
-    TsNullArgumentRtException.checkNulls( aFrontend, aSessionID );
+  private void closeSkSession( Skid aSessionID, S5SessionData aRemoteSessionOrNull, long aEndTime, boolean aLoss ) {
+    TsNullArgumentRtException.checkNull( aSessionID );
     // Завершение формирования статистики по сессии
     S5Statistic counter = statisticCountersBySessions.removeByKey( aSessionID );
     if( counter != null ) {
@@ -1113,216 +1063,9 @@ public class S5SessionManager
       IDtoObject dto = new DtoObject( aSessionID, attrs, obj.rivets().map() );
       // Создание объекта сессия. aInterceptable = false
       objectsSupport.writeObjects( IS5FrontendRear.NULL, ISkidList.EMPTY, new ElemArrayList<>( dto ), false );
-
-      // TODO: 2021-08-23 mvk подготовлено для удаления
-      // // Формирование события
-      // Gwid eventGwid = Gwid.createEvent( CLASS_ID, aSessionID.strid(), EVID_STATE_CHANGED );
-      // IOptionSetEdit params = new OptionSet();
-      // params.setValobj( EVPID_NEW_STATE, (aLoss == false ? ESkConnState.CLOSED : ESkConnState.INACTIVE) );
-      // SkEvent event = new SkEvent( aEndTime, eventGwid, params );
-      // eventSupport.fireEvents( aFrontend, new TimedList<>( event ) );
     }
     catch( Throwable e ) {
       logger().error( e );
-    }
-  }
-
-  // ------------------------------------------------------------------------------------
-  // Внутренние методы. Формирование событий
-  //
-  /**
-   * Создает идентифицирующую информацию о сессии пользователя
-   *
-   * @param aSession {@link IS5SessionInfo} информация о сессии пользователя
-   * @return {@link S5SessionIdentity} идентифицирующая информация о сессии пользователя
-   * @throws TsNullArgumentRtException аргумент = null
-   */
-  private static S5SessionIdentity createSessionIdentity( IS5SessionInfo aSession ) {
-    TsNullArgumentRtException.checkNull( aSession );
-    String login = aSession.login();
-    long openTime = aSession.openTime();
-    String ip = aSession.remoteAddress();
-    int port = aSession.remotePort();
-    // Сохранение свойств клиента в событии
-    IOptionSetEdit features = new OptionSet();
-    // IListEdit<ITypedOptionSetEdit<IFeatureOptions>> fs = IClientInfoOptions.FEATURES.get( aSession.client() );
-    // for( ITypedOptionSetEdit<IFeatureOptions> f : fs ) {
-    // String id = IFeatureOptions.ID.getValue( f ).asString();
-    // IAtomicValue value = IFeatureOptions.VALUE.getValue( f );
-    // features.setValue( id, value );
-    // }
-    S5SessionIdentity sessionIdentity =
-        new S5SessionIdentity( aSession.sessionID(), login, openTime, ip, port, features );
-    return sessionIdentity;
-  }
-
-  /**
-   * Формирует сообщение об открытии сессии пользователя
-   *
-   * @param aSession {@link S5SessionData} сессия
-   * @throws TsNullArgumentRtException аргумент = null
-   */
-  private void fireOpenSessionEvent( S5SessionData aSession ) {
-    TsNullArgumentRtException.checkNull( aSession );
-    // Формирование события о об открытии сессии
-    logger().info( MSG_CREATED_SESSION, aSession );
-    // Описание сессии
-    IS5SessionInfo sessionInfo = aSession.info();
-    // Идентификатор сессии
-    S5SessionIdentity session = createSessionIdentity( sessionInfo );
-    // Формирование параметров события
-    IStringMapEdit<IAtomicValue> params = new StringMap<>();
-    // TODO:
-    // Fimbed fimbedSession = new Fimbed( session, S5SessionIdentity.KEEPER_ID );
-    // params.put( IUser.EP_SESSION_IDENTITY, DvUtils.avFimbed( fimbedSession ) );
-    // Асинхронное(!) создание события для пользователей. 0: время сервера
-    // eventServiceSingleton.fireAsyncEvent( sessionInfo.userId(), IUser.EVENT_ID_CONNECTED, params, 0 );
-  }
-
-  /**
-   * Формирует сообщение об закрытии сессии пользователя
-   *
-   * @param aSession {@link S5SessionData} сессия
-   * @throws TsNullArgumentRtException аргумент = null
-   */
-  private void fireCloseSessionEvent( S5SessionData aSession ) {
-    TsNullArgumentRtException.checkNull( aSession );
-    // Формирование события о завершение сессии
-    logger().info( MSG_REMOVED_SESSION, aSession );
-    // Описание сессии
-    IS5SessionInfo sessionInfo = aSession.info();
-    // Идентификатор сессии
-    S5SessionIdentity session = createSessionIdentity( sessionInfo );
-    // Формирование параметров события
-    IStringMapEdit<IAtomicValue> params = new StringMap<>();
-    // TODO:
-    // Fimbed fimbedSession = new Fimbed( session, S5SessionIdentity.KEEPER_ID );
-    // params.put( IUser.EP_SESSION_IDENTITY, DvUtils.avFimbed( fimbedSession ) );
-    // Идентификатор события (обрыв или штатное завершение связи)
-    // String eventId = (sessionInfo.closeByRemote() ? IUser.EVENT_ID_DISCONNECTED : IUser.EVENT_ID_CONN_LOST);
-    // Асинхронное(!) создание события для пользователей. 0: время сервера
-    // eventServiceSingleton.fireAsyncEvent( sessionInfo.userId(), eventId, params, 0 );
-  }
-
-  /**
-   * Проверяет и, если необходимо, обновляет системное описание для работы менеджера сессий
-   *
-   * @param aSysdescrSupport {@link IS5BackendSysDescrSingleton} поддержка классов
-   * @param aObjectsSupport {@link IS5BackendObjectsSingleton} поддержка объектов
-   * @throws TsNullArgumentRtException любой аргумент = null
-   */
-  private static void checkAndUpdateSysdecr( IS5BackendSysDescrSingleton aSysdescrSupport,
-      IS5BackendObjectsSingleton aObjectsSupport ) {
-    TsNullArgumentRtException.checkNulls( aSysdescrSupport, aObjectsSupport );
-    // Существующие классы
-    IStridablesList<IDtoClassInfo> classes = aSysdescrSupport.readClassInfos();
-    // Добавляемые класы
-    IStridablesListEdit<IDtoClassInfo> newClasses = new StridablesList<>();
-    // Создание класса система
-    if( !classes.hasKey( ISkSystem.CLASS_ID ) ) {
-      // Создание класса ISkSystem
-      DtoClassInfo dtoSystem = new DtoClassInfo( ISkSystem.CLASS_ID, IGwHardConstants.GW_ROOT_CLASS_ID, //
-          OptionSetUtils.createOpSet( //
-              IAvMetaConstants.TSID_NAME, STR_N_SYSTEM, //
-              IAvMetaConstants.TSID_DESCRIPTION, STR_D_SYSTEM //
-          ) );
-      dtoSystem.eventInfos().addAll( //
-          DtoEventInfo.create1( ISkSystem.EVID_LOGIN_FAILED, true, //
-              new StridablesList<>( //
-                  DataDef.create( ISkSystem.EVPID_LOGIN, EAtomicType.STRING, TSID_NAME, STR_N_EV_PARAM_LOGIN, //
-                      TSID_DESCRIPTION, STR_D_EV_PARAM_LOGIN, //
-                      TSID_IS_NULL_ALLOWED, AV_FALSE, //
-                      TSID_DEFAULT_VALUE, AV_STR_EMPTY ), //
-                  DataDef.create( ISkSystem.EVPID_IP, EAtomicType.STRING, TSID_NAME, STR_N_EV_PARAM_IP, //
-                      TSID_DESCRIPTION, STR_D_EV_PARAM_IP, //
-                      TSID_IS_NULL_ALLOWED, AV_FALSE, //
-                      TSID_DEFAULT_VALUE, AV_STR_EMPTY ) //
-              ), //
-              OptionSetUtils.createOpSet( //
-                  IAvMetaConstants.TSID_NAME, STR_N_EV_LOGIN_FAILED, //
-                  IAvMetaConstants.TSID_DESCRIPTION, STR_D_EV_LOGIN_FAILED //
-              ) ), //
-          DtoEventInfo.create1( ISkSystem.EVID_SYSDESCR_CHANGED, true, //
-              new StridablesList<>( //
-                  DataDef.create( ISkSystem.EVPID_USER, EAtomicType.STRING, TSID_NAME, STR_N_EV_PARAM_USER, //
-                      TSID_DESCRIPTION, STR_D_EV_PARAM_USER, //
-                      TSID_IS_NULL_ALLOWED, AV_FALSE, //
-                      TSID_DEFAULT_VALUE, AV_STR_EMPTY ), //
-                  DataDef.create( ISkSystem.EVPID_DESCR, EAtomicType.STRING, TSID_NAME, STR_N_EV_PARAM_DESCR, //
-                      TSID_DESCRIPTION, STR_D_EV_PARAM_DESCR, //
-                      TSID_IS_NULL_ALLOWED, AV_FALSE, //
-                      TSID_DEFAULT_VALUE, AV_STR_EMPTY ), //
-                  DataDef.create( ISkSystem.EVPID_EDITOR, EAtomicType.STRING, TSID_NAME, STR_N_EV_PARAM_EDITOR, //
-                      TSID_DESCRIPTION, STR_D_EV_PARAM_EDITOR, //
-                      TSID_IS_NULL_ALLOWED, AV_FALSE, //
-                      TSID_DEFAULT_VALUE, AV_STR_EMPTY ) //
-              ), //
-              OptionSetUtils.createOpSet( //
-                  IAvMetaConstants.TSID_NAME, STR_N_EV_SYSDESCR_CHANGED, //
-                  IAvMetaConstants.TSID_DESCRIPTION, STR_D_EV_SYSDESCR_CHANGED //
-              ) //
-          )//
-      );
-      newClasses.add( dtoSystem );
-    }
-    // Создание класса пользователя
-    if( !classes.hasKey( ISkUser.CLASS_ID ) ) {
-      newClasses.add( SkCoreServUsers.internalCreateUserClassDto() );
-    }
-    // Создание класса сессия
-    if( !classes.hasKey( ISkSession.CLASS_ID ) ) {
-      // Создание класса ISkSession
-      DtoClassInfo dtoSession = new DtoClassInfo( ISkSession.CLASS_ID, IGwHardConstants.GW_ROOT_CLASS_ID, //
-          OptionSetUtils.createOpSet( //
-              IAvMetaConstants.TSID_NAME, STR_N_SESSION, //
-              IAvMetaConstants.TSID_DESCRIPTION, STR_D_SESSION //
-          ) );
-
-      // AID_STARTTIME
-      dtoSession.attrInfos().add( DtoAttrInfo.create1( ISkSession.AID_STARTTIME, DataType.create( TIMESTAMP, //
-          TSID_NAME, STR_N_AID_STARTTIME, //
-          TSID_DESCRIPTION, STR_D_AID_STARTTIME //
-      ), //
-          IOptionSet.NULL ) );
-      // AID_ENDTIME
-      dtoSession.attrInfos().add( DtoAttrInfo.create1( ISkSession.AID_ENDTIME, DataType.create( TIMESTAMP, //
-          TSID_NAME, STR_N_AID_ENDTIME, //
-          TSID_DESCRIPTION, STR_D_AID_ENDTIME //
-      ), IOptionSet.NULL ) );
-      // AID_BACKEND_SPECIFIC_PARAMS
-      dtoSession.attrInfos().add( DtoAttrInfo.create1( ISkSession.AID_BACKEND_SPECIFIC_PARAMS, DataType.create( VALOBJ, //
-          TSID_NAME, STR_N_AID_BACKEND_SPECIFIC_PARAMS, //
-          TSID_DESCRIPTION, STR_D_AID_BACKEND_SPECIFIC_PARAMS, //
-          TSID_KEEPER_ID, OptionSetKeeper.KEEPER_ID, //
-          TSID_IS_NULL_ALLOWED, AV_FALSE, //
-          TSID_DEFAULT_VALUE, avValobj( new OptionSet() ) //
-      ), IOptionSet.NULL ) );
-      // AID_CONNECTION_CREATION_PARAMS
-      dtoSession.attrInfos()
-          .add( DtoAttrInfo.create1( ISkSession.AID_CONNECTION_CREATION_PARAMS, DataType.create( VALOBJ, //
-              TSID_NAME, STR_N_AID_CONNECTION_CREATION_PARAMS, //
-              TSID_DESCRIPTION, STR_D_AID_CONNECTION_CREATION_PARAMS, //
-              TSID_KEEPER_ID, OptionSetKeeper.KEEPER_ID, //
-              TSID_IS_NULL_ALLOWED, AV_FALSE, //
-              TSID_DEFAULT_VALUE, avValobj( new OptionSet() ) //
-          ), IOptionSet.NULL ) );
-      // TODO:
-      // dtoSession.linkInfos().addAll( ISkUserServiceConstants.LNKINF_USER );
-      // dtoSession.rtdataInfos().addAll( ISkUserServiceConstants.RTDINF_STATE );
-      // dtoSession.eventInfos().addAll( ISkUserServiceConstants.EVINF_STATE_CHANGED );
-      newClasses.add( dtoSession );
-    }
-    if( newClasses.size() > 0 ) {
-      aSysdescrSupport.writeClassInfos( IStringList.EMPTY, newClasses );
-    }
-    // Создание пользователя root
-    if( aObjectsSupport.findObject( ISkUserServiceHardConstants.SKID_USER_ROOT ) == null ) {
-      IOptionSetEdit attrs = new OptionSet();
-      attrs.setStr( AID_NAME, STR_N_ROOT_USER );
-      attrs.setStr( AID_DESCRIPTION, STR_D_ROOT_USER );
-      attrs.setStr( ISkUserServiceHardConstants.ATRID_PASSWORD_HASH, DEFAULT_ROOT_PASSWORD );
-      IDtoObject root = new DtoObject( ISkUserServiceHardConstants.SKID_USER_ROOT, attrs, IStringMap.EMPTY );
-      aObjectsSupport.writeObjects( IS5FrontendRear.NULL, ISkidList.EMPTY, new ElemArrayList<>( root ), true );
     }
   }
 }

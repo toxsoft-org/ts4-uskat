@@ -9,7 +9,6 @@ import org.toxsoft.uskat.core.ISkHardConstants;
 import org.toxsoft.uskat.core.api.objserv.ISkObject;
 import org.toxsoft.uskat.core.api.objserv.ISkObjectService;
 import org.toxsoft.uskat.core.api.users.ISkUser;
-import org.toxsoft.uskat.core.connection.ESkConnState;
 import org.toxsoft.uskat.core.connection.ISkConnection;
 
 /**
@@ -67,18 +66,62 @@ public interface ISkSession
   String RTDID_STATE = "State"; //$NON-NLS-1$
 
   /**
-   * Идентификатор события "Изменилось состояние сессии (состояние сединения)".
+   * Параметр события: IP-адрес пользователя сессии.
    * <p>
-   * Событие имеет один параметр {@link #EVPID_NEW_STATE}.
+   * Параметр имеет значение {@link EAtomicType#STRING}.
    */
-  String EVID_STATE_CHANGED = "StateChanged"; //$NON-NLS-1$
+  String EVPID_IP = "IP"; //$NON-NLS-1$
 
   /**
-   * Параметр "Новое (текущее) состояние сессии".
+   * Параметр события: логин пользователя .
    * <p>
-   * Параметр имеет значение {@link EAtomicType#VALOBJ} хранящий {@link ESkConnState}.
+   * Параметр имеет значение {@link EAtomicType#STRING}.
    */
-  String EVPID_NEW_STATE = "NewState"; //$NON-NLS-1$
+  String EVPID_LOGIN = "Login"; //$NON-NLS-1$
+
+  /**
+   * Идентификатор события: "Создание сессии пользователя".
+   * <p>
+   * Параметры:
+   * <ul>
+   * <li>{@link #EVPID_SESSION_ID};</li>.
+   * <li>{@link #EVPID_IP}.</li>.
+   * </ul>
+   */
+  String EVID_SESSION_CREATED = "SessionCreated"; //$NON-NLS-1$
+
+  /**
+   * Идентификатор события: "Завершение сессии пользователя".
+   * <p>
+   * Параметры:
+   * <ul>
+   * <li>{@link #EVPID_SESSION_ID};</li>.
+   * <li>{@link #EVPID_IP}.</li>.
+   * </ul>
+   */
+  String EVID_SESSION_CLOSED = "SessionClosed"; //$NON-NLS-1$
+
+  /**
+   * Идентификатор события: "Обрыв сессии пользователя".
+   * <p>
+   * Параметры:
+   * <ul>
+   * <li>{@link #EVPID_SESSION_ID};</li>.
+   * <li>{@link #EVPID_IP}.</li>.
+   * </ul>
+   */
+  String EVID_SESSION_BREAKED = "SessionBreaked"; //$NON-NLS-1$
+
+  /**
+   * Идентификатор события: "Восстановление сессии пользователя".
+   * <p>
+   * Параметры:
+   * <ul>
+   * <li>{@link #EVPID_SESSION_ID};</li>.
+   * <li>{@link #EVPID_IP}.</li>.
+   * </ul>
+   */
+  String EVID_SESSION_RESTORED = "SessionRestored"; //$NON-NLS-1$
 
   /**
    * Returns the connection start time.
