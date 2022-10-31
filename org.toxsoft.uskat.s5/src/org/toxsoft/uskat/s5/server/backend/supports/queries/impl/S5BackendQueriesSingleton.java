@@ -465,18 +465,47 @@ public class S5BackendQueriesSingleton
       functions.add( function );
     }
     long traceStartTime = System.currentTimeMillis();
+
     // Список описаний запрашиваемых данных
-    IGwidList gwids = new GwidList( functionsByGwids.keys() );
+    IGwidList functionGwids = new GwidList( functionsByGwids.keys() );
+    // Карта идентификторов запрашиваемых данных.
+    // Ключ: идентификатор данных в функции, значение: идентификатор данных в последовательности
+    IMapEdit<Gwid, Gwid> sequenceGwids = new ElemMap<>();
+    // Тип данных
+    EGwidKind gwidKind = getGwidKind( aSequenceReader );
+    for( Gwid functionGwid : functionGwids ) {
+      switch( gwidKind ) {
+        case GW_RTDATA:
+          sequenceGwids.put( functionGwid, functionGwid );
+          break;
+        case GW_EVENT:
+        case GW_CMD:
+          break;
+        case GW_ATTR:
+        case GW_CLASS:
+        case GW_CLOB:
+        case GW_CMD_ARG:
+        case GW_EVENT_PARAM:
+        case GW_LINK:
+        case GW_RIVET:
+          break;
+        default:
+          throw new TsNotAllEnumsUsedRtException();
+      }
+    }
     // Запрос данных внутри и на границах интервала
-    IList<?> sequences =
-        aSequenceReader.readSequences( IS5FrontendRear.NULL, aQueryId, gwids, aInterval, ACCESS_TIMEOUT_DEFAULT );
+    IMap<Gwid, IS5Sequence<?>> sequences = aSequenceReader.readSequences( IS5FrontendRear.NULL, //
+        aQueryId, new GwidList( sequenceGwids.values() ), aInterval, ACCESS_TIMEOUT_DEFAULT );
     // Исполнитель s5-потоков чтения данных
     S5ReadThreadExecutor<IList<ITimedList<ITemporal<?>>>> executor =
         new S5ReadThreadExecutor<>( readExecutor, logger() );
-    for( int index = 0, n = gwids.size(); index < n; index++ ) {
-      Gwid gwid = gwids.get( index );
+    for( int index = 0, n = functionGwids.size(); index < n; index++ ) {
+      // Идентификатор данных в функции
+      Gwid gwid = functionGwids.get( index );
+      // Идентификатор данных в последовательности
+      Gwid sequenceGwid = sequenceGwids.getByKey( gwid );
       // Последовательность значений данного
-      IS5Sequence<?> sequence = (IS5Sequence<?>)sequences.get( index );
+      IS5Sequence<?> sequence = sequences.getByKey( sequenceGwid );
       // Функции значений данного
       IListEdit<IS5BackendQueriesFunction> functions = functionsByGwids.getByKey( gwid );
       // Регистрация потока

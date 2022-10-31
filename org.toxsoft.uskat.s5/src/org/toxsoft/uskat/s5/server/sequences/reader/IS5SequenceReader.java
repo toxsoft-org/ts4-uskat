@@ -4,9 +4,10 @@ import org.toxsoft.core.tslib.bricks.strid.idgen.IStridGenerator;
 import org.toxsoft.core.tslib.bricks.time.IQueryInterval;
 import org.toxsoft.core.tslib.bricks.time.ITemporal;
 import org.toxsoft.core.tslib.bricks.time.impl.TimeUtils;
-import org.toxsoft.core.tslib.coll.IList;
+import org.toxsoft.core.tslib.coll.IMap;
 import org.toxsoft.core.tslib.coll.primtypes.ILongList;
 import org.toxsoft.core.tslib.coll.primtypes.IStringList;
+import org.toxsoft.core.tslib.gw.gwid.Gwid;
 import org.toxsoft.core.tslib.gw.gwid.IGwidList;
 import org.toxsoft.core.tslib.utils.errors.TsIllegalArgumentRtException;
 import org.toxsoft.core.tslib.utils.errors.TsNullArgumentRtException;
@@ -87,12 +88,15 @@ public interface IS5SequenceReader<S extends IS5Sequence<V>, V extends ITemporal
    * @param aInterval {@link IQueryInterval} интервал запроса
    * @param aMaxExecutionTimeout long максимальное время (мсек) выполнения запроса. < 1000: не ограничено
    * @throws TsIllegalArgumentRtException aStartTime > aEndTime
-   * @return {@link IList}&lt;{@link IS5Sequence}&gt; список последовательностей значений. Порядок элементы списка
-   *         соответствует порядку элементам списка идентификаторов описаний.
+   * @return {@link IMap}&lt;{@link Gwid},{@link IS5Sequence}&gt; список последовательностей значений. Порядок элементы
+   *         списка соответствует порядку элементам списка идентификаторов описаний.
+   *         <p>
+   *         Ключ: идентификатор данных;<br>
+   *         Значение: последовательность значений.
    * @throws TsNullArgumentRtException аргумент = null
    * @throws TsIllegalArgumentRtException неверный интервал запроса
    */
-  IList<S> readSequences( IGwidList aGwids, IQueryInterval aInterval, long aMaxExecutionTimeout );
+  IMap<Gwid, S> readSequences( IGwidList aGwids, IQueryInterval aInterval, long aMaxExecutionTimeout );
 
   /**
    * Читает последовательности значений данных в указанном диапазоне времени
@@ -103,13 +107,16 @@ public interface IS5SequenceReader<S extends IS5Sequence<V>, V extends ITemporal
    * @param aInterval {@link IQueryInterval} интервал запроса
    * @param aMaxExecutionTimeout long максимальное время (мсек) выполнения запроса. < 1000: не ограничено
    * @throws TsIllegalArgumentRtException aStartTime > aEndTime
-   * @return {@link IList}&lt;{@link IS5Sequence}&gt; список последовательностей значений. Порядок элементы списка
-   *         соответствует порядку элементам списка идентификаторов описаний.
+   * @return {@link IMap}&lt;{@link Gwid},{@link IS5Sequence}&gt; список последовательностей значений. Порядок элементы
+   *         списка соответствует порядку элементам списка идентификаторов описаний.
+   *         <p>
+   *         Ключ: идентификатор данных;<br>
+   *         Значение: последовательность значений.
    * @throws TsNullArgumentRtException аргумент = null
    * @throws TsIllegalArgumentRtException неверный интервал запроса
    * @throws TsIllegalArgumentRtException запрос уже выполняется
    */
-  IList<S> readSequences( IS5FrontendRear aFrontend, String aQueryId, IGwidList aGwids, IQueryInterval aInterval,
+  IMap<Gwid, S> readSequences( IS5FrontendRear aFrontend, String aQueryId, IGwidList aGwids, IQueryInterval aInterval,
       long aMaxExecutionTimeout );
 
   /**

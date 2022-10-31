@@ -11,7 +11,8 @@ import javax.ejb.*;
 
 import org.toxsoft.core.tslib.av.temporal.ITemporalAtomicValue;
 import org.toxsoft.core.tslib.bricks.time.*;
-import org.toxsoft.core.tslib.coll.*;
+import org.toxsoft.core.tslib.coll.IListEdit;
+import org.toxsoft.core.tslib.coll.IMap;
 import org.toxsoft.core.tslib.coll.impl.ElemArrayList;
 import org.toxsoft.core.tslib.coll.impl.ElemLinkedList;
 import org.toxsoft.core.tslib.gw.gwid.Gwid;
@@ -152,8 +153,9 @@ public class S5BackendHistDataSingleton
   @Override
   public ITimedList<ITemporalAtomicValue> queryObjRtdata( IQueryInterval aInterval, Gwid aGwid ) {
     TsNullArgumentRtException.checkNulls( aInterval, aGwid );
-    IList<IS5HistDataSequence> sequences = readSequences( new GwidList( aGwid ), aInterval, ONE_READ_VALUES_TIMEOUT );
-    return sequences.first().get( aInterval );
+    IMap<Gwid, IS5HistDataSequence> sequences =
+        readSequences( new GwidList( aGwid ), aInterval, ONE_READ_VALUES_TIMEOUT );
+    return sequences.values().first().get( aInterval );
   }
 
   @Override

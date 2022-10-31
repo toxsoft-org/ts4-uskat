@@ -555,18 +555,18 @@ public abstract class S5BackendSequenceSupportSingleton<S extends IS5Sequence<V>
 
   @Lock( LockType.READ )
   @Override
-  public IList<S> readSequences( IGwidList aGwids, IQueryInterval aInterval, long aMaxExecutionTimeout ) {
+  public IMap<Gwid, S> readSequences( IGwidList aGwids, IQueryInterval aInterval, long aMaxExecutionTimeout ) {
     return readSequences( IS5FrontendRear.NULL, uuidGenerator.nextId(), aGwids, aInterval, aMaxExecutionTimeout );
   }
 
   @Lock( LockType.READ )
   @Override
-  public IList<S> readSequences( IS5FrontendRear aFrontend, String aQueryId, IGwidList aGwids, IQueryInterval aInterval,
-      long aTimeout ) {
+  public IMap<Gwid, S> readSequences( IS5FrontendRear aFrontend, String aQueryId, IGwidList aGwids,
+      IQueryInterval aInterval, long aTimeout ) {
     TsNullArgumentRtException.checkNulls( aFrontend, aQueryId, aGwids, aInterval );
     if( aGwids.size() == 0 ) {
       // Частный случай, ничего не запрашивается
-      return IList.EMPTY;
+      return IMap.EMPTY;
     }
     if( readQueries.hasKey( aQueryId ) ) {
       // Запрос уже выполняется
@@ -626,7 +626,7 @@ public abstract class S5BackendSequenceSupportSingleton<S extends IS5Sequence<V>
           results.putAll( result );
         }
         // Формирование окончательного результата
-        IListEdit<S> retValue = new ElemArrayList<>();
+        IMapEdit<Gwid, S> retValue = new ElemMap<>();
         for( Gwid gwid : aGwids ) {
           S sequence = results.findByKey( gwid );
           if( sequence == null ) {
@@ -634,7 +634,7 @@ public abstract class S5BackendSequenceSupportSingleton<S extends IS5Sequence<V>
             IQueryInterval interval = new QueryInterval( CSCE, aInterval.startTime(), aInterval.endTime() );
             sequence = (S)factory.createSequence( gwid, interval, IList.EMPTY );
           }
-          retValue.add( sequence );
+          retValue.put( gwid, sequence );
         }
         // Журналирование
         Long traceTimeout = Long.valueOf( System.currentTimeMillis() - traceStartTime );

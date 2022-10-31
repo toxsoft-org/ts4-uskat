@@ -241,7 +241,8 @@ public class S5BackendCommandSingleton
     }
     // Чтение истории команд
     long traceReadStartTime = System.currentTimeMillis();
-    IList<IS5CommandSequence> sequences = readSequences( new GwidList( aObjId ), aInterval, ACCESS_TIMEOUT_DEFAULT );
+    IMap<Gwid, IS5CommandSequence> sequences =
+        readSequences( new GwidList( aObjId ), aInterval, ACCESS_TIMEOUT_DEFAULT );
     long traceReadEndTime = System.currentTimeMillis();
     // Фильтрация команд и формирование сводного(по объектам) результата запроса
     TimedList<IDtoCompletedCommand> commands = new TimedList<>();

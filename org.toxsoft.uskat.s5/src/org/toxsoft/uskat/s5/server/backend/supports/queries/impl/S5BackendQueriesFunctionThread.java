@@ -26,50 +26,23 @@ import org.toxsoft.uskat.s5.utils.threads.impl.S5AbstractReadThread;
 public class S5BackendQueriesFunctionThread
     extends S5AbstractReadThread<IList<ITimedList<ITemporal<?>>>> {
 
-  private final IS5Sequence<?>                      source;
+  private final IS5Sequence<?>                      sequence;
   private final IList<IS5BackendQueriesFunction>    functions;
   private final IListEdit<ITimedList<ITemporal<?>>> result;
 
   /**
    * Создание асинхронной задачи выполнения функций обработки значений данного
    *
-   * @param aSource {@link IS5HistDataSequence} исходная последовательность данных
+   * @param aSequence {@link IS5HistDataSequence} исходная последовательность данных
    * @param aFunctions {@link IList }&lt;{@link IS5BackendQueriesFunction}&gt; список функций обработки значений
    * @throws TsNullArgumentRtException любой аргумент = null
    * @throws TsIllegalArgumentRtException недопустимый интервал времени
    */
-  public S5BackendQueriesFunctionThread( IS5Sequence<?> aSource, IList<IS5BackendQueriesFunction> aFunctions ) {
-    TsNullArgumentRtException.checkNulls( aSource, aFunctions );
-    source = aSource;
+  public S5BackendQueriesFunctionThread( IS5Sequence<?> aSequence, IList<IS5BackendQueriesFunction> aFunctions ) {
+    TsNullArgumentRtException.checkNulls( aSequence, aFunctions );
+    sequence = aSequence;
     functions = new ElemArrayList<>( aFunctions );
     int count = aFunctions.size();
-
-    // // Время последовательности
-    // ITimeInterval sequenceInterval = aSource.interval();
-    // long sequenceStartTime = sequenceInterval.startTime();
-    // long sequenceEndTime = sequenceInterval.endTime();
-    // // Определяем интервал запрашиваемх данных: необходимо начинать и завершать по времени которое определяется
-    // данным с
-    // // самим большим временем обработки...
-    // long minStartTime = sequenceStartTime;
-    // long maxEndTime = sequenceEndTime;
-    // for( int index = 0; index < count; index++ ) {
-    // IS5BackendQueriesFunction function = aFunctions.get( index );
-    // long aggregationStep = ISkHistoryQueryServiceConstants.HQFUNC_ARG_AGGREGAION_INTERVAL
-    // .getValue( function.arg().right().funcArgs() ).asLong();
-    // if( aggregationStep == 0 ) {
-    // continue;
-    // }
-    // long funcStartTime = ((sequenceStartTime / aggregationStep) * aggregationStep);
-    // long funcEndTime = ((((sequenceEndTime / aggregationStep) * aggregationStep) + aggregationStep) - 1);
-    // if( minStartTime > funcStartTime ) {
-    // minStartTime = funcStartTime;
-    // }
-    // if( maxEndTime < funcEndTime ) {
-    // maxEndTime = funcEndTime;
-    // }
-    // }
-    // interval = new TimeInterval( minStartTime, maxEndTime );
     result = new ElemArrayList<>( count );
   }
 
@@ -79,15 +52,15 @@ public class S5BackendQueriesFunctionThread
   @SuppressWarnings( "unchecked" )
   @Override
   protected void doRun() {
-    IQueryInterval interval = source.interval();
+    IQueryInterval interval = sequence.interval();
     try {
       int count = functions.size();
       // Идентификатор данного
-      Gwid gwid = source.gwid();
+      Gwid gwid = sequence.gwid();
       long traceStartTime = System.currentTimeMillis();
       long traceCreateStartTime = 0, traceCreateTimeout = 0;
       // Блоки последовательности
-      IList<IS5SequenceBlock<?>> blocks = (IList<IS5SequenceBlock<?>>)(Object)source.blocks();
+      IList<IS5SequenceBlock<?>> blocks = (IList<IS5SequenceBlock<?>>)(Object)sequence.blocks();
       // Количество прочитанных значений
       int valueCount = 0;
       // Количество считанных блоков
@@ -98,7 +71,7 @@ public class S5BackendQueriesFunctionThread
       // Создание последовательности и размещение в результате
       traceCreateStartTime = System.currentTimeMillis();
       // Курсор значений
-      IS5SequenceCursor<?> cursor = source.createCursor();
+      IS5SequenceCursor<?> cursor = sequence.createCursor();
       // Общее количество обработанных значений
       int resultValueCount = 0;
       // Проход по всем функциям поставляя значения блока для обработки
@@ -127,7 +100,7 @@ public class S5BackendQueriesFunctionThread
       }
     }
     catch( Throwable e ) {
-      throw new TsInternalErrorRtException( e, ERR_FUNC_UNEXPECTED, source.gwid(), interval, cause( e ) );
+      throw new TsInternalErrorRtException( e, ERR_FUNC_UNEXPECTED, sequence.gwid(), interval, cause( e ) );
     }
   }
 

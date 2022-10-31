@@ -169,7 +169,7 @@ public class S5BackendEventSingleton
 
     // Чтение событий
     long traceReadStartTime = System.currentTimeMillis();
-    IList<IS5EventSequence> sequences = readSequences( gwids, aInterval, ACCESS_TIMEOUT_DEFAULT );
+    IMap<Gwid, IS5EventSequence> sequences = readSequences( gwids, aInterval, ACCESS_TIMEOUT_DEFAULT );
     long traceReadEndTime = System.currentTimeMillis();
 
     // Фильтрация событий и формирование сводного(по объектам) результата запроса
