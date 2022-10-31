@@ -15,13 +15,13 @@ import org.toxsoft.core.tslib.bricks.filter.ITsFilter;
 import org.toxsoft.core.tslib.bricks.filter.ITsFilterFactoriesRegistry;
 import org.toxsoft.core.tslib.bricks.filter.impl.TsCombiFilter;
 import org.toxsoft.core.tslib.bricks.filter.impl.TsFilterFactoriesRegistry;
-import org.toxsoft.core.tslib.bricks.filter.std.av.StdFilterAtimicValueVsConst;
 import org.toxsoft.core.tslib.bricks.time.*;
 import org.toxsoft.core.tslib.bricks.time.impl.TimedList;
 import org.toxsoft.core.tslib.utils.Pair;
 import org.toxsoft.core.tslib.utils.errors.*;
 import org.toxsoft.core.tslib.utils.logs.ILogger;
 import org.toxsoft.uskat.core.api.hqserv.IDtoQueryParam;
+import org.toxsoft.uskat.core.api.hqserv.filter.FilterAtomicValueVsConst;
 import org.toxsoft.uskat.s5.server.backend.supports.queries.IS5BackendQueriesFunction;
 import org.toxsoft.uskat.s5.server.sequences.IS5SequenceCursor;
 
@@ -50,7 +50,7 @@ class S5BackendQueriesAtomicValueFunctions
       new TsFilterFactoriesRegistry<>( IAtomicValue.class );
 
   static {
-    FILTER_FACTORIES_REGISTRY.register( StdFilterAtimicValueVsConst.FACTORY );
+    FILTER_FACTORIES_REGISTRY.register( FilterAtomicValueVsConst.FACTORY );
   }
 
   private final Pair<String, IDtoQueryParam>         arg;
