@@ -473,6 +473,7 @@ public class S5BackendQueriesSingleton
     IMapEdit<Gwid, Gwid> sequenceGwids = new ElemMap<>();
     // Тип данных
     EGwidKind gwidKind = getGwidKind( aSequenceReader );
+    // Формирование карты: идентификатор данного функции => идентификатор данного последовательности
     for( Gwid functionGwid : functionGwids ) {
       switch( gwidKind ) {
         case GW_RTDATA:
@@ -480,6 +481,8 @@ public class S5BackendQueriesSingleton
           break;
         case GW_EVENT:
         case GW_CMD:
+          Gwid sequenceGwid = Gwid.createObj( functionGwid.skid() );
+          sequenceGwids.put( functionGwid, sequenceGwid );
           break;
         case GW_ATTR:
         case GW_CLASS:
