@@ -1,6 +1,6 @@
 package org.toxsoft.uskat.core.impl;
 
-import org.toxsoft.uskat.core.api.hqserv.ISkHistoryQueryServiceConstants;
+import org.toxsoft.uskat.core.api.hqserv.*;
 
 /**
  * Localizable resources.
@@ -119,6 +119,7 @@ interface ISkResources {
    */
   String FMT_WARN_ORPHAN_CLASS             = "Ignoring an orphan class loaded from backend (class ID: '%s')";
   String FMT_WARN_EMPTY_CLASS_NAME         = "Желательно задать имя класса с идентификатором %s";
+  String FMT_ERR_CLASS_HAS_PROP_ID         = "Свойство с идентификатором %s уже существует в классе";
   String FMT_ERR_CLASS_ALREADY_EXISTS      = "Класс с идентификатором %s уже существует";
   String FMT_ERR_NO_PARENT_CLASS           = "Не существует родительского класса с идентификатором '%s'";
   String FMT_ERR_DUP_PROP_IN_SUPER         = "%s '%s' is already declared in the ancestor class '%s'";

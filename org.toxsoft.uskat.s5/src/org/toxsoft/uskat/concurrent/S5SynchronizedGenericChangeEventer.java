@@ -83,6 +83,17 @@ public final class S5SynchronizedGenericChangeEventer
   }
 
   @Override
+  public boolean isListenerMuted( IGenericChangeListener aListener ) {
+    lockWrite( this );
+    try {
+      return target().isListenerMuted( aListener );
+    }
+    finally {
+      unlockWrite( this );
+    }
+  }
+
+  @Override
   public void pauseFiring() {
     lockWrite( this );
     try {
@@ -136,5 +147,4 @@ public final class S5SynchronizedGenericChangeEventer
       unlockWrite( this );
     }
   }
-
 }
