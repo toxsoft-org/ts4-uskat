@@ -251,6 +251,25 @@ public class SkCoreServSysdescr
       return vr;
     }
 
+    private ValidationResult checkUniquePropIds( IDtoClassInfo aClassInfo, ISkClassInfo aParent ) {
+      // collect parent prop IDs
+      IStringListEdit propIds = new StringArrayList();
+      for( ESkClassPropKind k : ESkClassPropKind.asList() ) {
+        ISkClassProps<?> p = aParent.props( k );
+        propIds.addAll( p.list().ids() );
+      }
+      // TODO FIXME error if diff kind of props has the same ID
+      for( ESkClassPropKind k : ESkClassPropKind.asList() ) {
+        for( IDtoClassPropInfoBase p : aClassInfo.propInfos( k ) ) {
+          if( propIds.hasElem( p.id() ) ) {
+            return ValidationResult.error( FMT_ERR_CLASS_HAS_PROP_ID, p.id() );
+          }
+          propIds.add( p.id() );
+        }
+      }
+      return ValidationResult.SUCCESS;
+    }
+
     private ValidationResult checkDupProp( ESkClassPropKind aKind, IDtoClassInfo aClassInfo, ISkClassInfo aParent ) {
       IStridablesList<?> newProps = aClassInfo.propInfos( aKind );
       ISkClassProps<?> parentProps = aParent.props( aKind );
@@ -281,6 +300,11 @@ public class SkCoreServSysdescr
         if( vr.isError() ) {
           break;
         }
+      }
+      // check no duplicate prop IDs at all
+      vr = ValidationResult.firstNonOk( vr, checkUniquePropIds( aClassInfo, parentInfo ) );
+      if( vr.isError() ) {
+        return vr;
       }
       return ValidationResult.firstNonOk( vr, checkInfo( aClassInfo ) );
     }
@@ -320,8 +344,14 @@ public class SkCoreServSysdescr
           }
         }
         // FIXME check changed properties
+        ValidationResult vr = ValidationResult.SUCCESS;
         for( IDtoClassPropInfoBase p : diff.getByKey( EDiffNature.DIFF ) ) {
           // check that changed property is compatible with existing one so that exsiting values in DB will remain
+        }
+        // check no duplicate prop IDs at all
+        vr = ValidationResult.firstNonOk( vr, checkUniquePropIds( aClassInfo, aOldInfo.parent() ) );
+        if( vr.isError() ) {
+          return vr;
         }
       }
       return checkInfo( aClassInfo );

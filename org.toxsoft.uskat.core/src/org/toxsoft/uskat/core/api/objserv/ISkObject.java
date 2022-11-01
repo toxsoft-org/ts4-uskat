@@ -106,6 +106,36 @@ public interface ISkObject
     return coreApi().sysdescr().getClassInfo( skid().classId() );
   }
 
+  /**
+   * Return SKID of single rivet (rivet with max 1 object riveted).
+   * <p>
+   * If rivet is empty or there are more than 1 riveted object, method returns <code>null</code>.
+   *
+   * @param aRivetId String - the rivet ID
+   * @return {@rivet Skid} - single riveted object SKID or <code>null</code>
+   * @throws TsItemNotFoundRtException no such rivet or object exists
+   */
+  default Skid getSingleRivetSkid( String aRivetId ) {
+    return rivets().map().getByKey( aRivetId ).first();
+  }
+
+  /**
+   * Return object of single rivet (rivet with max 1 object riveted).
+   * <p>
+   * If rivet is empty or there are more than 1 riveted object, method returns <code>null</code>. Also returns
+   * <code>null</code> if object of riveted SKID does not exists.
+   *
+   * @param <T> - expected type of the object
+   * @param aRivetId String - the rivet ID
+   * @return {@rivet ISkObject} - single riveted object or <code>null</code>
+   * @throws TsItemNotFoundRtException no such rivet or object exists
+   */
+  @SuppressWarnings( "unchecked" )
+  default <T extends ISkObject> T getSingleRivet( String aRivetId ) {
+    Skid skid = getSingleRivetSkid( aRivetId );
+    return (T)coreApi().objService().find( skid );
+  }
+
   // ------------------------------------------------------------------------------------
   //
 
