@@ -35,7 +35,7 @@ import org.toxsoft.uskat.s5.server.IS5ServerHardConstants;
 import org.toxsoft.uskat.s5.server.backend.IS5BackendCoreSingleton;
 import org.toxsoft.uskat.s5.server.backend.IS5BackendSupportSingleton;
 import org.toxsoft.uskat.s5.server.backend.addons.IS5BackendAddonCreator;
-import org.toxsoft.uskat.s5.server.backend.supports.clobs.IS5BackendClobSingleton;
+import org.toxsoft.uskat.s5.server.backend.supports.clobs.IS5BackendClobsSingleton;
 import org.toxsoft.uskat.s5.server.backend.supports.links.IS5BackendLinksSingleton;
 import org.toxsoft.uskat.s5.server.backend.supports.objects.IS5BackendObjectsSingleton;
 import org.toxsoft.uskat.s5.server.backend.supports.sysdescr.IS5BackendSysDescrSingleton;
@@ -158,7 +158,7 @@ public class S5BackendCoreSingleton
    * backend управления большими объектами объектами (Large OBject - LOB) системы
    */
   @EJB
-  private IS5BackendClobSingleton lobsBackend;
+  private IS5BackendClobsSingleton lobsBackend;
 
   /**
    * Карта синглетонов поддержки бекенда

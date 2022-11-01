@@ -1,7 +1,7 @@
 package org.toxsoft.uskat.s5.server.backend.supports.clobs;
 
 /**
- * Константы для выполнения SQL-запросов {@link IS5BackendClobSingleton}
+ * Константы для выполнения SQL-запросов {@link IS5BackendClobsSingleton}
  *
  * @author mvk
  */

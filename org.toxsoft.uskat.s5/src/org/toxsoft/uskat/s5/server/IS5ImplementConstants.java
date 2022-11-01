@@ -9,7 +9,7 @@ import org.toxsoft.uskat.s5.server.backend.IS5BackendSession;
 import org.toxsoft.uskat.s5.server.backend.IS5BackendSessionControl;
 import org.toxsoft.uskat.s5.server.backend.impl.S5BackendCoreSingleton;
 import org.toxsoft.uskat.s5.server.backend.impl.S5BackendSession;
-import org.toxsoft.uskat.s5.server.backend.supports.clobs.S5BackendClobSingleton;
+import org.toxsoft.uskat.s5.server.backend.supports.clobs.S5BackendClobsSingleton;
 import org.toxsoft.uskat.s5.server.backend.supports.commands.impl.S5BackendCommandSingleton;
 import org.toxsoft.uskat.s5.server.backend.supports.events.impl.S5BackendEventSingleton;
 import org.toxsoft.uskat.s5.server.backend.supports.histdata.impl.S5BackendHistDataSingleton;
@@ -26,7 +26,7 @@ import org.toxsoft.uskat.s5.server.transactions.S5TransactionManager;
 import org.toxsoft.uskat.s5.utils.IS5HardConstants;
 
 /**
- * Константы реализации s5-сервера
+ * Константы реализации s5-сервера.
  *
  * @author mvk
  */
@@ -145,7 +145,7 @@ public interface IS5ImplementConstants
   /**
    * 10. Синглетон поддержки доступа к большим данным
    */
-  String BACKEND_LOBS_SINGLETON = S5BackendClobSingleton.BACKEND_LOBS_ID;
+  String BACKEND_LOBS_SINGLETON = S5BackendClobsSingleton.BACKEND_CLOBS_ID;
 
   /**
    * 11. Синглетон поддержки доступа к событиям

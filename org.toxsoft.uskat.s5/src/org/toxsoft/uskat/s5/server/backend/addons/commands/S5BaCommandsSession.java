@@ -23,7 +23,6 @@ import org.toxsoft.uskat.core.backend.api.IBaCommands;
 import org.toxsoft.uskat.core.impl.SkCommand;
 import org.toxsoft.uskat.s5.server.backend.addons.IS5BackendAddonSessionControl;
 import org.toxsoft.uskat.s5.server.backend.addons.S5AbstractBackendAddonSession;
-import org.toxsoft.uskat.s5.server.backend.addons.queries.IS5BaQueriesSession;
 import org.toxsoft.uskat.s5.server.backend.supports.commands.IS5BackendCommandSingleton;
 import org.toxsoft.uskat.s5.server.backend.supports.sysdescr.IS5BackendSysDescrSingleton;
 import org.toxsoft.uskat.s5.server.sessions.init.IS5SessionInitData;
@@ -31,7 +30,7 @@ import org.toxsoft.uskat.s5.server.sessions.init.S5SessionInitResult;
 import org.toxsoft.uskat.s5.server.sessions.pas.S5SessionMessenger;
 
 /**
- * Реализация сессии расширения бекенда {@link IS5BaQueriesSession}.
+ * Реализация сессии расширения бекенда {@link IS5BaCommandsSession}.
  *
  * @author mvk
  */
@@ -86,7 +85,7 @@ public class S5BaCommandsSession
   }
 
   // ------------------------------------------------------------------------------------
-  // Реализация IS5BaQueriesSession
+  // Реализация IS5BaCommandsSession
   //
   @TransactionAttribute( TransactionAttributeType.SUPPORTS )
   @Override

@@ -26,7 +26,7 @@ public interface IS5ClobsInterceptor
     extends IS5Interceptor {
 
   /**
-   * Вызывается ДО выполнения метода {@link IS5BackendClobSingleton#readClob(Gwid)}
+   * Вызывается ДО выполнения метода {@link IS5BackendClobsSingleton#readClob(Gwid)}
    * <p>
    * Событие формируется в открытой транзакции которая впоследствии может быть отменена. Поэтому, если необходимо,
    * клиент-перехватчик должен организовать логику восстановления своего состояния при откате транзакции (смотри
@@ -35,12 +35,12 @@ public interface IS5ClobsInterceptor
    * @param aGwid {@link Gwid} идентификатор конкретного clob-данного
    * @param aClob String объект текстовое представление lob-данного считанное интерсепторами
    * @return String текстовое представление lob-данного
-   * @throws TsIllegalStateRtException запретить выполнение {@link IS5BackendClobSingleton#readClob(Gwid)}
+   * @throws TsIllegalStateRtException запретить выполнение {@link IS5BackendClobsSingleton#readClob(Gwid)}
    */
   String beforeReadClob( Gwid aGwid, String aClob );
 
   /**
-   * Вызывается ДО выполнения метода {@link IS5BackendClobSingleton#readClob(Gwid)}
+   * Вызывается ДО выполнения метода {@link IS5BackendClobsSingleton#readClob(Gwid)}
    * <p>
    * Событие формируется в открытой транзакции которая впоследствии может быть отменена. Поэтому, если необходимо,
    * клиент-перехватчик должен организовать логику восстановления своего состояния при откате транзакции (смотри
@@ -49,12 +49,12 @@ public interface IS5ClobsInterceptor
    * @param aGwid {@link Gwid} идентификатор конкретного clob-данного
    * @param aClob String объект текстовое представление lob-данного считанное ранее службой или интерсепторами
    * @return String текстовое представление lob-данного
-   * @throws TsIllegalStateRtException запретить выполнение {@link IS5BackendClobSingleton#readClob(Gwid)}
+   * @throws TsIllegalStateRtException запретить выполнение {@link IS5BackendClobsSingleton#readClob(Gwid)}
    */
   String afterReadClob( Gwid aGwid, String aClob );
 
   /**
-   * Вызывается ДО выполнения метода {@link IS5BackendClobSingleton#writeClob(Gwid, String)}
+   * Вызывается ДО выполнения метода {@link IS5BackendClobsSingleton#writeClob(Gwid, String)}
    * <p>
    * Событие формируется в открытой транзакции которая впоследствии может быть отменена. Поэтому, если необходимо,
    * клиент-перехватчик должен организовать логику восстановления своего состояния при откате транзакции (смотри
@@ -62,12 +62,12 @@ public interface IS5ClobsInterceptor
    *
    * @param aGwid {@link Gwid} идентификатор конкретного clob-данного
    * @param aValue String текстовое представление значения
-   * @throws TsIllegalStateRtException запретить выполнение {@link IS5BackendClobSingleton#writeClob(Gwid, String)}
+   * @throws TsIllegalStateRtException запретить выполнение {@link IS5BackendClobsSingleton#writeClob(Gwid, String)}
    */
   void beforeWriteClob( Gwid aGwid, String aValue );
 
   /**
-   * Вызывается ПОСЛЕ {@link IS5BackendClobSingleton#writeClob(Gwid, String)}, но до завершения транзакции.
+   * Вызывается ПОСЛЕ {@link IS5BackendClobsSingleton#writeClob(Gwid, String)}, но до завершения транзакции.
    * <p>
    * Событие формируется в открытой транзакции которая впоследствии может быть отменена. Поэтому, если необходимо,
    * клиент-перехватчик должен организовать логику восстановления своего состояния при откате транзакции (смотри
@@ -76,7 +76,7 @@ public interface IS5ClobsInterceptor
    * @param aGwid {@link Gwid} идентификатор конкретного clob-данного
    * @param aValue String текстовое представление значения
    * @throws TsIllegalStateRtException отменить изменения сделанные методом
-   *           {@link IS5BackendClobSingleton#writeClob(Gwid, String)} (откат транзакции)
+   *           {@link IS5BackendClobsSingleton#writeClob(Gwid, String)} (откат транзакции)
    */
   void afterWriteClob( Gwid aGwid, String aValue );
 
@@ -90,7 +90,7 @@ public interface IS5ClobsInterceptor
    * @param aGwid {@link Gwid} идентификатор конкретного clob-данного
    * @return String текстовое представление lob-данного
    * @throws TsNullArgumentRtException любой аргумент = null
-   * @throws TsIllegalStateRtException запретить выполнение {@link IS5BackendClobSingleton#readClob(Gwid)}
+   * @throws TsIllegalStateRtException запретить выполнение {@link IS5BackendClobsSingleton#readClob(Gwid)}
    */
   static String callBeforeReadClob( S5InterceptorSupport<IS5ClobsInterceptor> aInterceptorSupport, Gwid aGwid ) {
     TsNullArgumentRtException.checkNulls( aInterceptorSupport, aGwid );
@@ -109,7 +109,7 @@ public interface IS5ClobsInterceptor
    * @param aClob String объект текстовое представление lob-данного считанное ранее службой или интерсепторами
    * @return String текстовое представление lob-данного
    * @throws TsNullArgumentRtException любой аргумент = null
-   * @throws TsIllegalStateRtException запретить выполнение {@link IS5BackendClobSingleton#readClob(Gwid)}
+   * @throws TsIllegalStateRtException запретить выполнение {@link IS5BackendClobsSingleton#readClob(Gwid)}
    */
   static String callAfterReadClob( S5InterceptorSupport<IS5ClobsInterceptor> aInterceptorSupport, Gwid aGwid,
       String aClob ) {
@@ -128,7 +128,7 @@ public interface IS5ClobsInterceptor
    * @param aGwid {@link Gwid} идентификатор конкретного clob-данного
    * @param aValue String текстовое представление значения
    * @throws TsNullArgumentRtException любой аргумент = null
-   * @throws TsIllegalStateRtException запретить выполнение {@link IS5BackendClobSingleton#writeClob(Gwid, String)}
+   * @throws TsIllegalStateRtException запретить выполнение {@link IS5BackendClobsSingleton#writeClob(Gwid, String)}
    */
   static void callBeforeWriteClobInterceptors( S5InterceptorSupport<IS5ClobsInterceptor> aInterceptorSupport,
       Gwid aGwid, String aValue ) {
@@ -146,7 +146,7 @@ public interface IS5ClobsInterceptor
    * @param aValue String текстовое представление значения
    * @throws TsNullArgumentRtException любой аргумент = null
    * @throws TsIllegalStateRtException отменить изменения сделанные методом
-   *           {@link IS5BackendClobSingleton#writeClob(Gwid, String)} (откат транзакции)
+   *           {@link IS5BackendClobsSingleton#writeClob(Gwid, String)} (откат транзакции)
    */
   static void callAfterWriteClobInterceptors( S5InterceptorSupport<IS5ClobsInterceptor> aInterceptorSupport, Gwid aGwid,
       String aValue ) {
