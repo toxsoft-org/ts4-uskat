@@ -147,4 +147,16 @@ public final class S5SynchronizedEventer<L>
       unlockWrite( this );
     }
   }
+
+  @Override
+  public boolean isListenerMuted( L aListener ) {
+    lockWrite( this );
+    try {
+      return target().isListenerMuted( aListener );
+    }
+    finally {
+      unlockWrite( this );
+    }
+  }
+
 }
