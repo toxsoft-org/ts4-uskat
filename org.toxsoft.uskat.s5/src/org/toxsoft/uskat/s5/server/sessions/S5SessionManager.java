@@ -43,6 +43,7 @@ import org.toxsoft.uskat.s5.client.IS5ConnectionParams;
 import org.toxsoft.uskat.s5.common.info.IS5SessionsInfos;
 import org.toxsoft.uskat.s5.common.sessions.IS5SessionInfo;
 import org.toxsoft.uskat.s5.common.sessions.ISkSession;
+import org.toxsoft.uskat.s5.legacy.ISkSystem;
 import org.toxsoft.uskat.s5.legacy.SynchronizedMap;
 import org.toxsoft.uskat.s5.server.IS5ServerHardConstants;
 import org.toxsoft.uskat.s5.server.backend.IS5BackendCoreSingleton;
@@ -407,10 +408,12 @@ public class S5SessionManager
       callAfterCreateSession( interceptors, sessionID, logger() );
 
       // Формирование события
-      Gwid eventGwid = Gwid.createEvent( ISkSession.CLASS_ID, sessionID.strid(),
-          created ? ISkSession.EVID_SESSION_CREATED : ISkSession.EVID_SESSION_RESTORED );
+      Gwid eventGwid = Gwid.createEvent( ISkSystem.CLASS_ID, ISkSystem.THIS_SYSTEM,
+          created ? ISkSystem.EVID_SESSION_CREATED : ISkSystem.EVID_SESSION_RESTORED );
       IOptionSetEdit params = new OptionSet();
-      params.setStr( ISkSession.EVPID_IP, aSession.info().remoteAddress() );
+      params.setStr( ISkSystem.EVPID_LOGIN, aSession.info().login() );
+      params.setStr( ISkSystem.EVPID_IP, aSession.info().remoteAddress() );
+      params.setValobj( ISkSystem.EVPID_SESSION_ID, sessionID );
       SkEvent event = new SkEvent( createTime, eventGwid, params );
       eventSupport.fireEvents( frontend, new TimedList<>( event ) );
 
@@ -488,10 +491,12 @@ public class S5SessionManager
         closedSessionCache.put( aSessionID, session );
 
         // Формирование события
-        String evId = (loss ? ISkSession.EVID_SESSION_BREAKED : ISkSession.EVID_SESSION_CLOSED);
-        Gwid eventGwid = Gwid.createEvent( ISkSession.CLASS_ID, sessionID.strid(), evId );
+        String evId = (loss ? ISkSystem.EVID_SESSION_BREAKED : ISkSystem.EVID_SESSION_CLOSED);
+        Gwid eventGwid = Gwid.createEvent( ISkSystem.CLASS_ID, ISkSystem.THIS_SYSTEM, evId );
         IOptionSetEdit params = new OptionSet();
-        params.setStr( ISkSession.EVPID_IP, session.info().remoteAddress() );
+        params.setStr( ISkSystem.EVPID_LOGIN, session.info().login() );
+        params.setStr( ISkSystem.EVPID_IP, session.info().remoteAddress() );
+        params.setValobj( ISkSystem.EVPID_SESSION_ID, sessionID );
         SkEvent event = new SkEvent( endTime, eventGwid, params );
         eventSupport.fireEvents( IS5FrontendRear.NULL, new TimedList<>( event ) );
 

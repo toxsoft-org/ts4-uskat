@@ -17,9 +17,11 @@ import org.toxsoft.core.tslib.av.opset.impl.*;
 import org.toxsoft.core.tslib.bricks.strid.coll.IStridablesList;
 import org.toxsoft.core.tslib.bricks.strid.coll.IStridablesListEdit;
 import org.toxsoft.core.tslib.bricks.strid.coll.impl.StridablesList;
+import org.toxsoft.core.tslib.coll.helpers.CollConstraint;
 import org.toxsoft.core.tslib.coll.impl.ElemArrayList;
 import org.toxsoft.core.tslib.coll.primtypes.IStringList;
 import org.toxsoft.core.tslib.coll.primtypes.IStringMap;
+import org.toxsoft.core.tslib.coll.primtypes.impl.SingleStringList;
 import org.toxsoft.core.tslib.gw.IGwHardConstants;
 import org.toxsoft.core.tslib.gw.skid.ISkidList;
 import org.toxsoft.core.tslib.gw.skid.Skid;
@@ -128,6 +130,78 @@ public class S5SessionUtils {
                   IAvMetaConstants.TSID_NAME, STR_N_EV_LOGIN_FAILED, //
                   IAvMetaConstants.TSID_DESCRIPTION, STR_D_EV_LOGIN_FAILED //
               ) ), //
+          DtoEventInfo.create1( ISkSystem.EVID_SESSION_CREATED, true, //
+              new StridablesList<>( //
+                  DataDef.create( ISkSystem.EVPID_LOGIN, EAtomicType.STRING, TSID_NAME, STR_N_EV_PARAM_LOGIN, //
+                      TSID_DESCRIPTION, STR_D_EV_PARAM_LOGIN, //
+                      TSID_IS_NULL_ALLOWED, AV_FALSE, //
+                      TSID_DEFAULT_VALUE, AV_STR_EMPTY ), //
+                  DataDef.create( ISkSystem.EVPID_IP, EAtomicType.STRING, TSID_NAME, STR_N_EV_PARAM_IP, //
+                      TSID_DESCRIPTION, STR_D_EV_PARAM_IP, //
+                      TSID_IS_NULL_ALLOWED, AV_FALSE, //
+                      TSID_DEFAULT_VALUE, AV_STR_EMPTY ), //
+                  DataDef.create( ISkSystem.EVPID_SESSION_ID, EAtomicType.VALOBJ, TSID_NAME, STR_N_EV_SESSION_ID, //
+                      TSID_DESCRIPTION, STR_D_EV_SESSION_ID, //
+                      TSID_IS_NULL_ALLOWED, AV_FALSE ) //
+              ), //
+              OptionSetUtils.createOpSet( //
+                  IAvMetaConstants.TSID_NAME, STR_N_EV_SESSION_CREATED, //
+                  IAvMetaConstants.TSID_DESCRIPTION, STR_D_EV_SESSION_CREATED//
+              ) ), //
+          DtoEventInfo.create1( ISkSystem.EVID_SESSION_CLOSED, true, //
+              new StridablesList<>( //
+                  DataDef.create( ISkSystem.EVPID_LOGIN, EAtomicType.STRING, TSID_NAME, STR_N_EV_PARAM_LOGIN, //
+                      TSID_DESCRIPTION, STR_D_EV_PARAM_LOGIN, //
+                      TSID_IS_NULL_ALLOWED, AV_FALSE, //
+                      TSID_DEFAULT_VALUE, AV_STR_EMPTY ), //
+                  DataDef.create( ISkSystem.EVPID_IP, EAtomicType.STRING, TSID_NAME, STR_N_EV_PARAM_IP, //
+                      TSID_DESCRIPTION, STR_D_EV_PARAM_IP, //
+                      TSID_IS_NULL_ALLOWED, AV_FALSE, //
+                      TSID_DEFAULT_VALUE, AV_STR_EMPTY ), //
+                  DataDef.create( ISkSystem.EVPID_SESSION_ID, EAtomicType.VALOBJ, TSID_NAME, STR_N_EV_SESSION_ID, //
+                      TSID_DESCRIPTION, STR_D_EV_SESSION_ID, //
+                      TSID_IS_NULL_ALLOWED, AV_FALSE ) //
+              ), //
+              OptionSetUtils.createOpSet( //
+                  IAvMetaConstants.TSID_NAME, STR_N_EV_SESSION_CLOSED, //
+                  IAvMetaConstants.TSID_DESCRIPTION, STR_D_EV_SESSION_CLOSED//
+              ) ), //
+          DtoEventInfo.create1( ISkSystem.EVID_SESSION_BREAKED, true, //
+              new StridablesList<>( //
+                  DataDef.create( ISkSystem.EVPID_LOGIN, EAtomicType.STRING, TSID_NAME, STR_N_EV_PARAM_LOGIN, //
+                      TSID_DESCRIPTION, STR_D_EV_PARAM_LOGIN, //
+                      TSID_IS_NULL_ALLOWED, AV_FALSE, //
+                      TSID_DEFAULT_VALUE, AV_STR_EMPTY ), //
+                  DataDef.create( ISkSystem.EVPID_IP, EAtomicType.STRING, TSID_NAME, STR_N_EV_PARAM_IP, //
+                      TSID_DESCRIPTION, STR_D_EV_PARAM_IP, //
+                      TSID_IS_NULL_ALLOWED, AV_FALSE, //
+                      TSID_DEFAULT_VALUE, AV_STR_EMPTY ), //
+                  DataDef.create( ISkSystem.EVPID_SESSION_ID, EAtomicType.VALOBJ, TSID_NAME, STR_N_EV_SESSION_ID, //
+                      TSID_DESCRIPTION, STR_D_EV_SESSION_ID, //
+                      TSID_IS_NULL_ALLOWED, AV_FALSE ) //
+              ), //
+              OptionSetUtils.createOpSet( //
+                  IAvMetaConstants.TSID_NAME, STR_N_EV_SESSION_BREAKED, //
+                  IAvMetaConstants.TSID_DESCRIPTION, STR_D_EV_SESSION_BREAKED//
+              ) ), //
+          DtoEventInfo.create1( ISkSystem.EVID_SESSION_RESTORED, true, //
+              new StridablesList<>( //
+                  DataDef.create( ISkSystem.EVPID_LOGIN, EAtomicType.STRING, TSID_NAME, STR_N_EV_PARAM_LOGIN, //
+                      TSID_DESCRIPTION, STR_D_EV_PARAM_LOGIN, //
+                      TSID_IS_NULL_ALLOWED, AV_FALSE, //
+                      TSID_DEFAULT_VALUE, AV_STR_EMPTY ), //
+                  DataDef.create( ISkSystem.EVPID_IP, EAtomicType.STRING, TSID_NAME, STR_N_EV_PARAM_IP, //
+                      TSID_DESCRIPTION, STR_D_EV_PARAM_IP, //
+                      TSID_IS_NULL_ALLOWED, AV_FALSE, //
+                      TSID_DEFAULT_VALUE, AV_STR_EMPTY ), //
+                  DataDef.create( ISkSystem.EVPID_SESSION_ID, EAtomicType.VALOBJ, TSID_NAME, STR_N_EV_SESSION_ID, //
+                      TSID_DESCRIPTION, STR_D_EV_SESSION_ID, //
+                      TSID_IS_NULL_ALLOWED, AV_FALSE ) //
+              ), //
+              OptionSetUtils.createOpSet( //
+                  IAvMetaConstants.TSID_NAME, STR_N_EV_SESSION_RESTORED, //
+                  IAvMetaConstants.TSID_DESCRIPTION, STR_D_EV_SESSION_RESTORED//
+              ) ), //
           DtoEventInfo.create1( ISkSystem.EVID_SYSDESCR_CHANGED, true, //
               new StridablesList<>( //
                   DataDef.create( ISkSystem.EVPID_USER, EAtomicType.STRING, TSID_NAME, STR_N_EV_PARAM_USER, //
@@ -192,14 +266,34 @@ public class S5SessionUtils {
               TSID_IS_NULL_ALLOWED, AV_FALSE, //
               TSID_DEFAULT_VALUE, avValobj( new OptionSet() ) //
           ), IOptionSet.NULL ) );
-      // TODO:
-      // dtoSession.linkInfos().addAll( ISkUserServiceConstants.LNKINF_USER );
-      // dtoSession.rtdataInfos().addAll( ISkUserServiceConstants.RTDINF_STATE );
-      // dtoSession.eventInfos().addAll( ISkUserServiceConstants.EVINF_STATE_CHANGED );
+
+      dtoSession.linkInfos().addAll( //
+          // LNKID_USER
+          DtoLinkInfo.create2( ISkSession.LNKID_USER, //
+              new SingleStringList( ISkUser.CLASS_ID ), new CollConstraint( 1, true, true, false ), //
+              TSID_NAME, STR_N_LNK_USER, //
+              TSID_DESCRIPTION, STR_D_LNK_USER //
+          ) );
+
+      // RTDID_STATE
+      dtoSession.rtdataInfos().addAll( //
+          DtoRtdataInfo.create1( ISkSession.RTDID_STATE, //
+              DDEF_BOOLEAN, true, true, false, 1000, //
+              OptionSetUtils.createOpSet( //
+                  TSID_NAME, STR_N_RTDID_STATE, //
+                  TSID_DESCRIPTION, STR_D_RTDID_STATE ) //
+          ) );
       newClasses.add( dtoSession );
     }
+
     if( newClasses.size() > 0 ) {
       sysdescrSupport.writeClassInfos( IStringList.EMPTY, newClasses );
+    }
+    // Создание объекта система
+    Skid systemId = new Skid( ISkSystem.CLASS_ID, ISkSystem.THIS_SYSTEM );
+    if( objectsSupport.findObject( systemId ) == null ) {
+      IDtoObject systemObj = new DtoObject( systemId, IOptionSet.NULL, IStringMap.EMPTY );
+      objectsSupport.writeObjects( IS5FrontendRear.NULL, ISkidList.EMPTY, new ElemArrayList<>( systemObj ), true );
     }
     // Создание пользователя root
     if( objectsSupport.findObject( ISkUserServiceHardConstants.SKID_USER_ROOT ) == null ) {

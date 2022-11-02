@@ -119,8 +119,18 @@ interface IS5Resources {
   String STR_D_EV_PARAM_LOGIN      = "Логин пользователя";                             //
   String STR_N_EV_PARAM_IP         = "IP";                                             //
   String STR_D_EV_PARAM_IP         = "IP-адрес пользователя";                          //
+  String STR_N_EV_SESSION_ID       = "Сессия";                                         //
+  String STR_D_EV_SESSION_ID       = "Идентификатор сессии пользователя";              //
   String STR_N_EV_LOGIN_FAILED     = "Неудачная попытка подключения";                  //
   String STR_D_EV_LOGIN_FAILED     = "Неудачная попытка создания сессии пользователя"; //
+  String STR_N_EV_SESSION_CREATED  = "Создание сессии";                                //
+  String STR_D_EV_SESSION_CREATED  = "Создание сессии пользователя";                   //
+  String STR_N_EV_SESSION_CLOSED   = "Завершение сессии";                              //
+  String STR_D_EV_SESSION_CLOSED   = "Завершение сессии пользователя";                 //
+  String STR_N_EV_SESSION_BREAKED  = "Разрыв сессии";                                  //
+  String STR_D_EV_SESSION_BREAKED  = "Разрыв сессии пользователя";                     //
+  String STR_N_EV_SESSION_RESTORED = "Восстановление сессии";                          //
+  String STR_D_EV_SESSION_RESTORED = "Восстановление сессии пользователя";             //
   String STR_N_EV_PARAM_USER       = "Пользователь";                                   //
   String STR_D_EV_PARAM_USER       = "Пользователь системы (login)";                   //
   String STR_N_EV_PARAM_DESCR      = "Изменения";                                      //
@@ -144,5 +154,8 @@ interface IS5Resources {
 
   String STR_N_LNK_USER = "Пользователь";
   String STR_D_LNK_USER = "Пользователь, который вошел в систему";
+
+  String STR_N_RTDID_STATE = "Состояние";
+  String STR_D_RTDID_STATE = "Состояние активности";
 
 }

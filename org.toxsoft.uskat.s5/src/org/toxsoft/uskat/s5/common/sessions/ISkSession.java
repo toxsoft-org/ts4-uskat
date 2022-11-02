@@ -1,6 +1,5 @@
 package org.toxsoft.uskat.s5.common.sessions;
 
-import org.toxsoft.core.tslib.av.EAtomicType;
 import org.toxsoft.core.tslib.av.IAtomicValue;
 import org.toxsoft.core.tslib.av.opset.IOptionSet;
 import org.toxsoft.core.tslib.bricks.ctx.ITsContextRo;
@@ -64,64 +63,6 @@ public interface ISkSession
    * Идентификатор РВ-данного "Состояние соединения"
    */
   String RTDID_STATE = "State"; //$NON-NLS-1$
-
-  /**
-   * Параметр события: IP-адрес пользователя сессии.
-   * <p>
-   * Параметр имеет значение {@link EAtomicType#STRING}.
-   */
-  String EVPID_IP = "IP"; //$NON-NLS-1$
-
-  /**
-   * Параметр события: логин пользователя .
-   * <p>
-   * Параметр имеет значение {@link EAtomicType#STRING}.
-   */
-  String EVPID_LOGIN = "Login"; //$NON-NLS-1$
-
-  /**
-   * Идентификатор события: "Создание сессии пользователя".
-   * <p>
-   * Параметры:
-   * <ul>
-   * <li>{@link #EVPID_SESSION_ID};</li>.
-   * <li>{@link #EVPID_IP}.</li>.
-   * </ul>
-   */
-  String EVID_SESSION_CREATED = "SessionCreated"; //$NON-NLS-1$
-
-  /**
-   * Идентификатор события: "Завершение сессии пользователя".
-   * <p>
-   * Параметры:
-   * <ul>
-   * <li>{@link #EVPID_SESSION_ID};</li>.
-   * <li>{@link #EVPID_IP}.</li>.
-   * </ul>
-   */
-  String EVID_SESSION_CLOSED = "SessionClosed"; //$NON-NLS-1$
-
-  /**
-   * Идентификатор события: "Обрыв сессии пользователя".
-   * <p>
-   * Параметры:
-   * <ul>
-   * <li>{@link #EVPID_SESSION_ID};</li>.
-   * <li>{@link #EVPID_IP}.</li>.
-   * </ul>
-   */
-  String EVID_SESSION_BREAKED = "SessionBreaked"; //$NON-NLS-1$
-
-  /**
-   * Идентификатор события: "Восстановление сессии пользователя".
-   * <p>
-   * Параметры:
-   * <ul>
-   * <li>{@link #EVPID_SESSION_ID};</li>.
-   * <li>{@link #EVPID_IP}.</li>.
-   * </ul>
-   */
-  String EVID_SESSION_RESTORED = "SessionRestored"; //$NON-NLS-1$
 
   /**
    * Returns the connection start time.
