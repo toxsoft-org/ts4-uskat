@@ -136,6 +136,27 @@ public interface ISkObject
     return (T)coreApi().objService().find( skid );
   }
 
+  /**
+   * Returns SKIDs of reverse rivet (left objects which have this object riveted).
+   *
+   * @param aClassId String - rivet class ID
+   * @param aRivetId String - rivet ID
+   * @return {@rivet ISkidList} - list of left objects SKIDs
+   * @throws TsNullArgumentRtException any argument = <code>null</code>
+   */
+  ISkidList getRivetRevSkids( String aClassId, String aRivetId );
+
+  /**
+   * Returns objects of reverse rivet (left objects which have this object riveted).
+   *
+   * @param <T> - конкретный тип возвращаемых объектов
+   * @param aClassId String - rivet class ID
+   * @param aRivetId String - rivet ID
+   * @return {@rivet IList}&lt;T&gt; - list of objects
+   * @throws TsNullArgumentRtException any argument = <code>null</code>
+   */
+  <T extends ISkObject> IList<T> getRivetRevObjs( String aClassId, String aRivetId );
+
   // ------------------------------------------------------------------------------------
   //
 
@@ -299,6 +320,16 @@ class InternalNoneSkObject
 
   @Override
   public <T extends ISkObject> IList<T> getLinkRevObjs( String aClassId, String aLinkId ) {
+    throw new TsNullObjectErrorRtException();
+  }
+
+  @Override
+  public ISkidList getRivetRevSkids( String aClassId, String aRivetId ) {
+    throw new TsNullObjectErrorRtException();
+  }
+
+  @Override
+  public <T extends ISkObject> IList<T> getRivetRevObjs( String aClassId, String aRivetId ) {
     throw new TsNullObjectErrorRtException();
   }
 

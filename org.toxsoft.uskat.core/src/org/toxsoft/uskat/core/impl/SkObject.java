@@ -169,6 +169,18 @@ public class SkObject
     return (IList)coreApi.objService().getObjs( sl );
   }
 
+  @Override
+  public <T extends ISkObject> IList<T> getRivetRevObjs( String aClassId, String aRivetId ) {
+    // TODO реализовать SkObject.getRivetRevObjs()
+    throw new TsUnderDevelopmentRtException( "SkObject.getRivetRevObjs()" );
+  }
+
+  @Override
+  public ISkidList getRivetRevSkids( String aClassId, String aRivetId ) {
+    // TODO реализовать SkObject.getRivetRevSkids()
+    throw new TsUnderDevelopmentRtException( "SkObject.getRivetRevSkids()" );
+  }
+
   // ------------------------------------------------------------------------------------
   // Overrideable
   //
