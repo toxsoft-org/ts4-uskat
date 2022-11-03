@@ -1,17 +1,14 @@
 package org.toxsoft.uskat.s5.server.backend.supports.histdata.impl.sequences;
 
-import static org.toxsoft.uskat.s5.server.backend.supports.histdata.impl.sequences.IS5Resources.*;
-
-import java.nio.ByteBuffer;
 import java.sql.ResultSet;
 
 import javax.persistence.MappedSuperclass;
 
-import org.toxsoft.core.tslib.av.errors.AvTypeCastRtException;
 import org.toxsoft.core.tslib.av.temporal.ITemporalAtomicValue;
 import org.toxsoft.core.tslib.av.utils.IParameterized;
 import org.toxsoft.core.tslib.gw.gwid.Gwid;
 import org.toxsoft.core.tslib.utils.errors.*;
+import org.toxsoft.uskat.s5.server.sequences.IS5SequenceCursor;
 import org.toxsoft.uskat.s5.server.sequences.impl.S5SequenceSyncBlob;
 import org.toxsoft.uskat.s5.server.sequences.impl.S5SequenceSyncBlock;
 
@@ -25,7 +22,7 @@ import org.toxsoft.uskat.s5.server.sequences.impl.S5SequenceSyncBlock;
 @MappedSuperclass
 public abstract class S5HistDataSyncBlock<BLOB_ARRAY, BLOB extends S5SequenceSyncBlob<?, BLOB_ARRAY, ?>>
     extends S5SequenceSyncBlock<ITemporalAtomicValue, BLOB_ARRAY, BLOB>
-    implements IHistDataBlock {
+    implements IS5HistDataBlock {
 
   private static final long serialVersionUID = 157157L;
 
@@ -63,103 +60,11 @@ public abstract class S5HistDataSyncBlock<BLOB_ARRAY, BLOB extends S5SequenceSyn
   }
 
   // ------------------------------------------------------------------------------------
-  // Методы для реализации наследниками
+  // IS5SequenceBlock
   //
-  /**
-   * Возвращает признак того, что значение установлено и может быть прочитано
-   *
-   * @param aIndex индекс значения
-   * @return boolean <b>true</b> значение установлено;<b>false</b> значение не установлено, попытка чтения приведет к
-   *         ошибке.
-   */
   @Override
-  abstract protected boolean doIsAssigned( int aIndex );
-
-  /**
-   * Возвращает значение по индексу
-   *
-   * @param aIndex индекс значения
-   * @return boolean значение
-   */
-  @Override
-  protected boolean doAsBool( int aIndex ) {
-    throw new AvTypeCastRtException( ERR_CAST_VALUE, this, "boolean" ); //$NON-NLS-1$
-  }
-
-  /**
-   * Возвращает значение по индексу
-   *
-   * @param aIndex индекс значения
-   * @return int значение
-   */
-  @Override
-  protected int doAsInt( int aIndex ) {
-    throw new AvTypeCastRtException( ERR_CAST_VALUE, this, "int" ); //$NON-NLS-1$
-  }
-
-  /**
-   * Возвращает значение по индексу
-   *
-   * @param aIndex индекс значения
-   * @return long значение
-   */
-  @Override
-  protected long doAsLong( int aIndex ) {
-    throw new AvTypeCastRtException( ERR_CAST_VALUE, this, "long" ); //$NON-NLS-1$
-  }
-
-  /**
-   * Возвращает значение по индексу
-   *
-   * @param aIndex индекс значения
-   * @return float значение
-   */
-  @Override
-  protected float doAsFloat( int aIndex ) {
-    throw new AvTypeCastRtException( ERR_CAST_VALUE, this, "float" ); //$NON-NLS-1$
-  }
-
-  /**
-   * Возвращает значение по индексу
-   *
-   * @param aIndex индекс значения
-   * @return double значение
-   */
-  @Override
-  protected double doAsDouble( int aIndex ) {
-    throw new AvTypeCastRtException( ERR_CAST_VALUE, this, "double" ); //$NON-NLS-1$
-  }
-
-  /**
-   * Возвращает значение по индексу
-   *
-   * @param aIndex индекс значения
-   * @return String значение
-   */
-  @Override
-  protected String doAsString( int aIndex ) {
-    return getValue( aIndex ).toString();
-  }
-
-  /**
-   * Возвращает значение по индексу
-   *
-   * @param aIndex индекс значения
-   * @return {@link ByteBuffer} значение
-   */
-  protected ByteBuffer doAsBuffer( int aIndex ) {
-    throw new AvTypeCastRtException( ERR_CAST_VALUE, this, "ByteBuffer" ); //$NON-NLS-1$
-  }
-
-  /**
-   * Возвращает значение по индексу
-   *
-   * @param aIndex индекс значения
-   * @return {@link Object} значение
-   * @param <T> тип возвращаемого значения
-   */
-  @Override
-  protected <T> T doAsValobj( int aIndex ) {
-    throw new AvTypeCastRtException( ERR_CAST_VALUE, this, "valobj" ); //$NON-NLS-1$
+  public IS5SequenceCursor<ITemporalAtomicValue> createCursor() {
+    // TODO:
+    throw new TsUnderDevelopmentRtException();
   }
 }

@@ -6,14 +6,14 @@ import java.sql.ResultSet;
 
 import javax.persistence.Entity;
 
-import org.toxsoft.core.tslib.av.errors.AvUnassignedValueRtException;
 import org.toxsoft.core.tslib.av.utils.IParameterized;
 import org.toxsoft.core.tslib.bricks.time.ITimedList;
 import org.toxsoft.core.tslib.gw.gwid.EGwidKind;
 import org.toxsoft.core.tslib.gw.gwid.Gwid;
 import org.toxsoft.core.tslib.utils.errors.*;
 import org.toxsoft.uskat.core.api.evserv.SkEvent;
-import org.toxsoft.uskat.s5.server.sequences.ISequenceBlockEdit;
+import org.toxsoft.uskat.s5.server.sequences.IS5SequenceBlockEdit;
+import org.toxsoft.uskat.s5.server.sequences.IS5SequenceCursor;
 import org.toxsoft.uskat.s5.server.sequences.impl.S5SequenceAsyncBlock;
 import org.toxsoft.uskat.s5.utils.indexes.ILongKey;
 
@@ -96,18 +96,23 @@ public class S5EventBlock
   }
 
   // ------------------------------------------------------------------------------------
-  // Реализация ISequenceBlock
+  // Реализация IS5SequenceBlock
   //
   @Override
   public SkEvent getValue( int aIndex ) {
     return values()[aIndex];
   }
 
+  @Override
+  public IS5SequenceCursor<SkEvent> createCursor() {
+    return new S5EventCursor( this );
+  }
+
   // ------------------------------------------------------------------------------------
   // Реализация шаблонных методов
   //
   @Override
-  protected ISequenceBlockEdit<SkEvent> doCreateBlock( IParameterized aTypeInfo, long[] aTimestamps,
+  protected IS5SequenceBlockEdit<SkEvent> doCreateBlock( IParameterized aTypeInfo, long[] aTimestamps,
       SkEvent[] aValues ) {
     return new S5EventBlock( aTypeInfo, gwid(), new S5EventBlob( aTimestamps, aValues ) );
   }
@@ -127,22 +132,22 @@ public class S5EventBlock
   }
 
   // ------------------------------------------------------------------------------------
-  // Реализация шаблонных методов (импорт значения)
+  // TODO: IS5EventRawReader
   //
-  @Override
-  protected boolean doIsAssigned( int aIndex ) {
-    return values()[aIndex] != null;
-  }
-
-  @SuppressWarnings( "unchecked" )
-  @Override
-  protected <T> T doAsValobj( int aIndex ) {
-    SkEvent value = values()[aIndex];
-    if( value == null ) {
-      throw new AvUnassignedValueRtException();
-    }
-    return (T)value;
-  }
+  // @Override
+  // protected boolean doIsAssigned( int aIndex ) {
+  // return values()[aIndex] != null;
+  // }
+  //
+  // @SuppressWarnings( "unchecked" )
+  // @Override
+  // protected <T> T doAsValobj( int aIndex ) {
+  // SkEvent value = values()[aIndex];
+  // if( value == null ) {
+  // throw new AvUnassignedValueRtException();
+  // }
+  // return (T)value;
+  // }
 
   // ------------------------------------------------------------------------------------
   // Внутреннее API

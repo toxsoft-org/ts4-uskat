@@ -61,13 +61,13 @@ public interface IS5SequenceEdit<V extends ITemporal<?>>
    * последовательности.
    *
    * @param aSource {@link IS5Sequence} исходная последовательность
-   * @param aRemovedBlocks {@link IListEdit}&lt;{@link ISequenceBlock}&gt; список блоков удаленных из последовательности
+   * @param aRemovedBlocks {@link IListEdit}&lt;{@link IS5SequenceBlock}&gt; список блоков удаленных из последовательности
    * @return boolean <b>true</b> последовательность была отредактирована; <b>false</b> последовательность не была
    *         отредактирована.
    * @throws TsNullArgumentRtException любой аргумент = null
    * @throws TsIllegalArgumentRtException последовательность не может принимать значения другого данного
    */
-  boolean edit( IS5Sequence<V> aSource, IListEdit<ISequenceBlock<V>> aRemovedBlocks );
+  boolean edit( IS5Sequence<V> aSource, IListEdit<IS5SequenceBlock<V>> aRemovedBlocks );
 
   /**
    * Выполняет попытку объединения блоков составляющих последовательность.
@@ -78,9 +78,9 @@ public interface IS5SequenceEdit<V extends ITemporal<?>>
    * <p>
    * Позиция курсора не меняется
    *
-   * @return {@link IList}&lt;{@link ISequenceBlockEdit}&gt; список блоков выведенных(удаленных) из последовательности
+   * @return {@link IList}&lt;{@link IS5SequenceBlockEdit}&gt; список блоков выведенных(удаленных) из последовательности
    */
-  IList<ISequenceBlockEdit<V>> uniteBlocks();
+  IList<IS5SequenceBlockEdit<V>> uniteBlocks();
 
   /**
    * Очистить последовательность (удалить из нее все блоки)

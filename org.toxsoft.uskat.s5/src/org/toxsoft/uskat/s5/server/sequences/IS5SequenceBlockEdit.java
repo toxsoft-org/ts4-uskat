@@ -15,8 +15,8 @@ import org.toxsoft.uskat.s5.server.sequences.impl.S5DataID;
  * @author mvk
  * @param <V> тип значения последовательности
  */
-public interface ISequenceBlockEdit<V extends ITemporal<?>>
-    extends ISequenceBlock<V> {
+public interface IS5SequenceBlockEdit<V extends ITemporal<?>>
+    extends IS5SequenceBlock<V> {
 
   /**
    * Создает новый блок и инициализирует его данными целевого блока. Если блок невозможно создать для указанного
@@ -25,12 +25,12 @@ public interface ISequenceBlockEdit<V extends ITemporal<?>>
    * @param aTypeInfo {@link IParameterized} параметризованное описание типа данного
    * @param aStartTime long время(мсек с начала эпохи) начала значений в блоке (включительно)
    * @param aEndTime long время(мсек с начала эпохи) окончания значений в блоке (включительно)
-   * @return {@link ISequenceBlockEdit}&lt;T&gt; созданный блок. null: невозможно создать блок для интервала (в
+   * @return {@link IS5SequenceBlockEdit}&lt;T&gt; созданный блок. null: невозможно создать блок для интервала (в
    *         указанном интервале нет значений)
    * @throws TsNullArgumentRtException аргумент = null
    * @throws TsIllegalArgumentRtException aStartTime > aEndTime
    */
-  ISequenceBlockEdit<V> createBlockOrNull( IParameterized aTypeInfo, long aStartTime, long aEndTime );
+  IS5SequenceBlockEdit<V> createBlockOrNull( IParameterized aTypeInfo, long aStartTime, long aEndTime );
 
   /**
    * Редактирует диапазон времени блока изменяя время завершения значений
@@ -46,13 +46,13 @@ public interface ISequenceBlockEdit<V extends ITemporal<?>>
   /**
    * Осуществляет попытку объединения значений блока со значениями указанного списка блоков.
    *
-   * @param aFactory {@link ISequenceValueFactory} фабрика формирования последовательности
-   * @param aBlocks {@link IList}&lt;{@link ISequenceBlockEdit}&lt;I&gt;&gt; список блоков
+   * @param aFactory {@link IS5SequenceValueFactory} фабрика формирования последовательности
+   * @param aBlocks {@link IList}&lt;{@link IS5SequenceBlockEdit}&lt;I&gt;&gt; список блоков
    * @param aLogger {@link ILogger} журнал объединения блоков
    * @return int количество блоков от начала указанного списка с которыми произошло объединение.
    * @throws TsNullArgumentRtException любой аргумент = null
    */
-  int uniteBlocks( ISequenceFactory<V> aFactory, IList<ISequenceBlockEdit<V>> aBlocks, ILogger aLogger );
+  int uniteBlocks( IS5SequenceFactory<V> aFactory, IList<IS5SequenceBlockEdit<V>> aBlocks, ILogger aLogger );
 
   /**
    * Проводит валидацию (исправление содержимого блока) если это необходимо

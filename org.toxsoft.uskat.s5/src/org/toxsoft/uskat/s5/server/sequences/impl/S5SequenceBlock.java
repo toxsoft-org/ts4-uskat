@@ -16,8 +16,6 @@ import java.util.Arrays;
 
 import javax.persistence.*;
 
-import org.toxsoft.core.tslib.av.EAtomicType;
-import org.toxsoft.core.tslib.av.errors.AvTypeCastRtException;
 import org.toxsoft.core.tslib.av.utils.IParameterized;
 import org.toxsoft.core.tslib.bricks.time.ITemporal;
 import org.toxsoft.core.tslib.bricks.time.impl.TimeUtils;
@@ -32,7 +30,6 @@ import org.toxsoft.core.tslib.gw.gwid.Gwid;
 import org.toxsoft.core.tslib.utils.TsLibUtils;
 import org.toxsoft.core.tslib.utils.errors.*;
 import org.toxsoft.core.tslib.utils.logs.ILogger;
-import org.toxsoft.uskat.s5.server.backend.supports.histdata.impl.sequences.ITemporalValueImporter;
 import org.toxsoft.uskat.s5.server.sequences.*;
 
 /**
@@ -46,7 +43,7 @@ import org.toxsoft.uskat.s5.server.sequences.*;
 @MappedSuperclass
 @Inheritance( strategy = InheritanceType.TABLE_PER_CLASS )
 public abstract class S5SequenceBlock<V extends ITemporal<?>, BLOB_ARRAY, BLOB extends S5SequenceBlob<?, BLOB_ARRAY, ?>>
-    implements ISequenceBlockEdit<V>, ITemporalValueImporter, Serializable {
+    implements IS5SequenceBlockEdit<V>, Serializable {
 
   private static final long serialVersionUID = 157157L;
 
@@ -78,7 +75,7 @@ public abstract class S5SequenceBlock<V extends ITemporal<?>, BLOB_ARRAY, BLOB e
   /**
    * Имя статического метода создания блока значений.
    * <p>
-   * TODO: ??? Метод имеет сигнатуру ISequenceBlockEdit&lt;V&gt;create( I aInfo, IList&ltV&gt; aValues ) и определяется
+   * TODO: ??? Метод имеет сигнатуру IS5SequenceBlockEdit&lt;V&gt;create( I aInfo, IList&ltV&gt; aValues ) и определяется
    * в конечных наследниках
    */
   public static final String BLOCK_CREATE_METHOD = "create"; //$NON-NLS-1$
@@ -277,7 +274,7 @@ public abstract class S5SequenceBlock<V extends ITemporal<?>, BLOB_ARRAY, BLOB e
   }
 
   // ------------------------------------------------------------------------------------
-  // Реализация ISequenceBlock
+  // Реализация IS5SequenceBlock
   //
   @Override
   public final Gwid gwid() {
@@ -315,10 +312,10 @@ public abstract class S5SequenceBlock<V extends ITemporal<?>, BLOB_ARRAY, BLOB e
   public abstract int lastByTime( long aTimestamp );
 
   // ------------------------------------------------------------------------------------
-  // Реализация ISequenceBlockEdit
+  // Реализация IS5SequenceBlockEdit
   //
   @Override
-  public final ISequenceBlockEdit<V> createBlockOrNull( IParameterized aTypeInfo, long aStartTime, long aEndTime ) {
+  public final IS5SequenceBlockEdit<V> createBlockOrNull( IParameterized aTypeInfo, long aStartTime, long aEndTime ) {
     TsNullArgumentRtException.checkNull( aTypeInfo );
     TimeUtils.checkIntervalArgs( aStartTime, aEndTime );
     if( aStartTime < startTime() || endTime() < aEndTime ) {
@@ -454,7 +451,7 @@ public abstract class S5SequenceBlock<V extends ITemporal<?>, BLOB_ARRAY, BLOB e
   }
 
   @Override
-  public final int uniteBlocks( ISequenceFactory<V> aFactory, IList<ISequenceBlockEdit<V>> aBlocks, ILogger aLogger ) {
+  public final int uniteBlocks( IS5SequenceFactory<V> aFactory, IList<IS5SequenceBlockEdit<V>> aBlocks, ILogger aLogger ) {
     TsNullArgumentRtException.checkNulls( aFactory, aBlocks, aLogger );
     return doUniteBlocks( aFactory, aBlocks, aLogger );
   }
@@ -515,9 +512,9 @@ public abstract class S5SequenceBlock<V extends ITemporal<?>, BLOB_ARRAY, BLOB e
    * @param aStartIndex int индекс первого значения в исходном блоке. Включительно
    * @param aEndIndex int индекс последнего значения в исходном блоке. Невключительно
    * @param aValues BLOB_ARRAY массив значений блока
-   * @return {@link ISequenceBlockEdit} созданный блок
+   * @return {@link IS5SequenceBlockEdit} созданный блок
    */
-  protected abstract ISequenceBlockEdit<V> doCreateBlock( IParameterized aTypeInfo, long aStartTime, long aEndTime,
+  protected abstract IS5SequenceBlockEdit<V> doCreateBlock( IParameterized aTypeInfo, long aStartTime, long aEndTime,
       int aStartIndex, int aEndIndex, BLOB_ARRAY aValues );
 
   /**
@@ -619,12 +616,12 @@ public abstract class S5SequenceBlock<V extends ITemporal<?>, BLOB_ARRAY, BLOB e
   /**
    * Осуществляет попытку объединения значений блока со значениями указанного списка блоков.
    *
-   * @param aFactory {@link ISequenceValueFactory} фабрика формирования последовательности
-   * @param aBlocks {@link IList}&lt;{@link ISequenceBlockEdit}&lt;I&gt;&gt; список блоков
+   * @param aFactory {@link IS5SequenceValueFactory} фабрика формирования последовательности
+   * @param aBlocks {@link IList}&lt;{@link IS5SequenceBlockEdit}&lt;I&gt;&gt; список блоков
    * @param aLogger {@link ILogger} журнал объединения блоков
    * @return int количество блоков от начала указанного списка с которыми произошло объединение.
    */
-  protected abstract int doUniteBlocks( ISequenceFactory<V> aFactory, IList<ISequenceBlockEdit<V>> aBlocks,
+  protected abstract int doUniteBlocks( IS5SequenceFactory<V> aFactory, IList<IS5SequenceBlockEdit<V>> aBlocks,
       ILogger aLogger );
 
   /**
@@ -663,86 +660,6 @@ public abstract class S5SequenceBlock<V extends ITemporal<?>, BLOB_ARRAY, BLOB e
     retValue.put( FIELD_DEBUG_START_TIME, debugStartTime );
     retValue.put( FIELD_DEBUG_END_TIME, debugEndTime );
     return retValue;
-  }
-
-  /**
-   * Возвращает признак того, что значение установлено и может быть прочитано
-   *
-   * @param aIndex индекс значения
-   * @return boolean <b>true</b> значение установлено;<b>false</b> значение не установлено, попытка чтения приведет к
-   *         ошибке.
-   */
-  abstract protected boolean doIsAssigned( int aIndex );
-
-  /**
-   * Возвращает значение по индексу
-   *
-   * @param aIndex индекс значения
-   * @return boolean значение
-   */
-  protected boolean doAsBool( int aIndex ) {
-    throw new AvTypeCastRtException( ERR_CAST_VALUE, this, EAtomicType.BOOLEAN );
-  }
-
-  /**
-   * Возвращает значение по индексу
-   *
-   * @param aIndex индекс значения
-   * @return int значение
-   */
-  protected int doAsInt( int aIndex ) {
-    throw new AvTypeCastRtException( ERR_CAST_VALUE, this, EAtomicType.INTEGER );
-  }
-
-  /**
-   * Возвращает значение по индексу
-   *
-   * @param aIndex индекс значения
-   * @return long значение
-   */
-  protected long doAsLong( int aIndex ) {
-    throw new AvTypeCastRtException( ERR_CAST_VALUE, this, EAtomicType.INTEGER );
-  }
-
-  /**
-   * Возвращает значение по индексу
-   *
-   * @param aIndex индекс значения
-   * @return float значение
-   */
-  protected float doAsFloat( int aIndex ) {
-    throw new AvTypeCastRtException( ERR_CAST_VALUE, this, EAtomicType.FLOATING );
-  }
-
-  /**
-   * Возвращает значение по индексу
-   *
-   * @param aIndex индекс значения
-   * @return double значение
-   */
-  protected double doAsDouble( int aIndex ) {
-    throw new AvTypeCastRtException( ERR_CAST_VALUE, this, EAtomicType.FLOATING );
-  }
-
-  /**
-   * Возвращает значение по индексу
-   *
-   * @param aIndex индекс значения
-   * @return String значение
-   */
-  protected String doAsString( int aIndex ) {
-    return getValue( aIndex ).toString();
-  }
-
-  /**
-   * Возвращает значение по индексу
-   *
-   * @param aIndex индекс значения
-   * @return {@link Object} значение
-   * @param <T> тип возвращаемого значения
-   */
-  protected <T> T doAsValobj( int aIndex ) {
-    throw new AvTypeCastRtException( ERR_CAST_VALUE, this, EAtomicType.VALOBJ );
   }
 
   // ------------------------------------------------------------------------------------
@@ -1060,7 +977,7 @@ public abstract class S5SequenceBlock<V extends ITemporal<?>, BLOB_ARRAY, BLOB e
   /**
    * Возвращает массив значений по умолчанию для данного с указанной фабрикой и описанием
    *
-   * @param aFactory {@link ISequenceFactory} фабрика формирования последовательностей
+   * @param aFactory {@link IS5SequenceFactory} фабрика формирования последовательностей
    * @param aTypeInfo {@link IParameterized} параметризованное описание типа данного
    * @param aCount int количество элементов в массиве
    * @param <V> тип значений последовательности
@@ -1070,7 +987,7 @@ public abstract class S5SequenceBlock<V extends ITemporal<?>, BLOB_ARRAY, BLOB e
    */
   @SuppressWarnings( "unchecked" )
   public static <V extends ITemporal<?>, BLOB_ARRAY> //
-  BLOB_ARRAY defaultValues( ISequenceFactory<V> aFactory, IParameterized aTypeInfo, int aCount ) {
+  BLOB_ARRAY defaultValues( IS5SequenceFactory<V> aFactory, IParameterized aTypeInfo, int aCount ) {
     TsNullArgumentRtException.checkNulls( aFactory, aTypeInfo );
     BLOB_ARRAY valueArray = aFactory.createValueArray( aTypeInfo, aCount );
     if( !OP_IS_SYNC.getValue( aTypeInfo.params() ).asBool() ) {
@@ -1123,7 +1040,7 @@ public abstract class S5SequenceBlock<V extends ITemporal<?>, BLOB_ARRAY, BLOB e
   /**
    * Возвращает массив null-значений для данного с указанной фабрикой и описанием
    *
-   * @param aFactory {@link ISequenceFactory} фабрика формирования последовательностей
+   * @param aFactory {@link IS5SequenceFactory} фабрика формирования последовательностей
    * @param aTypeInfo {@link IParameterized} параметризованное описание типа данного
    * @param aCount int количество элементов в массиве
    * @param <V> тип значений последовательности
@@ -1133,7 +1050,7 @@ public abstract class S5SequenceBlock<V extends ITemporal<?>, BLOB_ARRAY, BLOB e
    */
   @SuppressWarnings( "unchecked" )
   public static <V extends ITemporal<?>, BLOB_ARRAY> //
-  BLOB_ARRAY nullValues( ISequenceFactory<V> aFactory, IParameterized aTypeInfo, int aCount ) {
+  BLOB_ARRAY nullValues( IS5SequenceFactory<V> aFactory, IParameterized aTypeInfo, int aCount ) {
     TsNullArgumentRtException.checkNulls( aFactory, aTypeInfo );
     BLOB_ARRAY valueArray = aFactory.createValueArray( aTypeInfo, aCount );
     Class<?> componentType = valueArray.getClass().getComponentType();

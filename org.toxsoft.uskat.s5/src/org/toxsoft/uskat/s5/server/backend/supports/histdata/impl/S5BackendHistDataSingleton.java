@@ -11,7 +11,8 @@ import javax.ejb.*;
 
 import org.toxsoft.core.tslib.av.temporal.ITemporalAtomicValue;
 import org.toxsoft.core.tslib.bricks.time.*;
-import org.toxsoft.core.tslib.coll.*;
+import org.toxsoft.core.tslib.coll.IListEdit;
+import org.toxsoft.core.tslib.coll.IMap;
 import org.toxsoft.core.tslib.coll.impl.ElemArrayList;
 import org.toxsoft.core.tslib.coll.impl.ElemLinkedList;
 import org.toxsoft.core.tslib.gw.gwid.Gwid;
@@ -24,8 +25,8 @@ import org.toxsoft.uskat.s5.legacy.QueryInterval;
 import org.toxsoft.uskat.s5.server.backend.supports.histdata.*;
 import org.toxsoft.uskat.s5.server.backend.supports.histdata.impl.sequences.S5HistDataSequenceFactory;
 import org.toxsoft.uskat.s5.server.interceptors.S5InterceptorSupport;
-import org.toxsoft.uskat.s5.server.sequences.ISequenceBlockEdit;
-import org.toxsoft.uskat.s5.server.sequences.ISequenceFactory;
+import org.toxsoft.uskat.s5.server.sequences.IS5SequenceBlockEdit;
+import org.toxsoft.uskat.s5.server.sequences.IS5SequenceFactory;
 import org.toxsoft.uskat.s5.server.sequences.impl.S5BackendSequenceSupportSingleton;
 import org.toxsoft.uskat.s5.utils.jobs.IS5ServerJob;
 
@@ -102,7 +103,7 @@ public class S5BackendHistDataSingleton
   }
 
   @Override
-  protected ISequenceFactory<ITemporalAtomicValue> doCreateFactory() {
+  protected IS5SequenceFactory<ITemporalAtomicValue> doCreateFactory() {
     return new S5HistDataSequenceFactory( backend().initialConfig().impl(), sysdescrReader() );
   }
 
@@ -133,7 +134,7 @@ public class S5BackendHistDataSingleton
         ITimeInterval ti = intervalValues.left();
         ITimedList<ITemporalAtomicValue> values = intervalValues.right();
         IQueryInterval interval = new QueryInterval( EQueryIntervalType.CSCE, ti.startTime(), ti.endTime() );
-        ISequenceBlockEdit<ITemporalAtomicValue> block = factory().createBlock( gwid, values );
+        IS5SequenceBlockEdit<ITemporalAtomicValue> block = factory().createBlock( gwid, values );
         sequences.add( (IS5HistDataSequence)factory().createSequence( gwid, interval, new ElemArrayList<>( block ) ) );
       }
       writeSequences( sequences );
@@ -152,8 +153,9 @@ public class S5BackendHistDataSingleton
   @Override
   public ITimedList<ITemporalAtomicValue> queryObjRtdata( IQueryInterval aInterval, Gwid aGwid ) {
     TsNullArgumentRtException.checkNulls( aInterval, aGwid );
-    IList<IS5HistDataSequence> sequences = readSequences( new GwidList( aGwid ), aInterval, ONE_READ_VALUES_TIMEOUT );
-    return sequences.first().get( aInterval );
+    IMap<Gwid, IS5HistDataSequence> sequences =
+        readSequences( new GwidList( aGwid ), aInterval, ONE_READ_VALUES_TIMEOUT );
+    return sequences.values().first().get( aInterval );
   }
 
   @Override

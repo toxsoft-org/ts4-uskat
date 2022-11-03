@@ -2,6 +2,7 @@ package org.toxsoft.uskat.s5.legacy;
 
 import org.toxsoft.core.tslib.av.EAtomicType;
 import org.toxsoft.uskat.core.api.objserv.ISkObject;
+import org.toxsoft.uskat.s5.common.sessions.ISkSession;
 
 /**
  * Сущность представляющая систему в виде {@link ISkObject}
@@ -36,6 +37,13 @@ public interface ISkSystem
   String EVPID_IP = "IP"; //$NON-NLS-1$
 
   /**
+   * Параметр события: идентификатор сессии ({@link ISkSession#skid()}).
+   * <p>
+   * Параметр имеет значение {@link EAtomicType#VALOBJ} (Skid).
+   */
+  String EVPID_SESSION_ID = "sessionID"; //$NON-NLS-1$
+
+  /**
    * Идентификатор события: "Неудачная попытка создания сессии пользователя".
    * <p>
    * Параметры:
@@ -45,6 +53,54 @@ public interface ISkSystem
    * </ul>
    */
   String EVID_LOGIN_FAILED = "LoginFailed"; //$NON-NLS-1$
+
+  /**
+   * Идентификатор события: "Создание сессии пользователя".
+   * <p>
+   * Параметры:
+   * <ul>
+   * <li>{@link #EVPID_LOGIN};</li>.
+   * <li>{@link #EVPID_IP}.</li>.
+   * <li>{@link #EVPID_SESSION_ID};</li>.
+   * </ul>
+   */
+  String EVID_SESSION_CREATED = "SessionCreated"; //$NON-NLS-1$
+
+  /**
+   * Идентификатор события: "Завершение сессии пользователя".
+   * <p>
+   * Параметры:
+   * <ul>
+   * <li>{@link #EVPID_LOGIN};</li>.
+   * <li>{@link #EVPID_IP}.</li>.
+   * <li>{@link #EVPID_SESSION_ID};</li>.
+   * </ul>
+   */
+  String EVID_SESSION_CLOSED = "SessionClosed"; //$NON-NLS-1$
+
+  /**
+   * Идентификатор события: "Обрыв сессии пользователя".
+   * <p>
+   * Параметры:
+   * <ul>
+   * <li>{@link #EVPID_LOGIN};</li>.
+   * <li>{@link #EVPID_IP}.</li>.
+   * <li>{@link #EVPID_SESSION_ID};</li>.
+   * </ul>
+   */
+  String EVID_SESSION_BREAKED = "SessionBreaked"; //$NON-NLS-1$
+
+  /**
+   * Идентификатор события: "Восстановление сессии пользователя".
+   * <p>
+   * Параметры:
+   * <ul>
+   * <li>{@link #EVPID_LOGIN};</li>.
+   * <li>{@link #EVPID_IP}.</li>.
+   * <li>{@link #EVPID_SESSION_ID};</li>.
+   * </ul>
+   */
+  String EVID_SESSION_RESTORED = "SessionRestored"; //$NON-NLS-1$
 
   // ------------------------
   /**

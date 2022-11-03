@@ -20,7 +20,7 @@ import org.toxsoft.core.tslib.bricks.time.ITimedList;
 import org.toxsoft.core.tslib.gw.gwid.Gwid;
 import org.toxsoft.core.tslib.utils.errors.*;
 import org.toxsoft.uskat.s5.server.backend.supports.histdata.impl.sequences.S5HistDataSyncBlock;
-import org.toxsoft.uskat.s5.server.sequences.ISequenceBlockEdit;
+import org.toxsoft.uskat.s5.server.sequences.IS5SequenceBlockEdit;
 
 /**
  * Блок хранения асинхронных атомарных значений типа {@link EAtomicType#FLOATING}
@@ -122,7 +122,7 @@ public class S5HistDataSyncFloatingEntity0
   // Реализация абстрактных методов
   //
   @Override
-  protected ISequenceBlockEdit<ITemporalAtomicValue> doCreateBlock( IParameterized aTypeInfo, long aStartTime,
+  protected IS5SequenceBlockEdit<ITemporalAtomicValue> doCreateBlock( IParameterized aTypeInfo, long aStartTime,
       double[] aValues ) {
     S5HistDataSyncFloatingBlobEntity0 blob = new S5HistDataSyncFloatingBlobEntity0( aValues );
     return new S5HistDataSyncFloatingEntity0( aTypeInfo, gwid(), aStartTime, blob );
@@ -134,15 +134,20 @@ public class S5HistDataSyncFloatingEntity0
   }
 
   // ------------------------------------------------------------------------------------
-  // Реализация шаблонных методов (импорт значения)
+  // IS5HistDataBlockReader
   //
   @Override
-  protected boolean doIsAssigned( int aIndex ) {
+  public boolean isAssigned( int aIndex ) {
     return values()[aIndex] != DOUBLE_NULL;
   }
 
   @Override
-  protected double doAsDouble( int aIndex ) {
+  public EAtomicType atomicType() {
+    return EAtomicType.FLOATING;
+  }
+
+  @Override
+  public double asDouble( int aIndex ) {
     double value = values()[aIndex];
     if( value == DOUBLE_NULL ) {
       throw new AvUnassignedValueRtException();
@@ -151,7 +156,7 @@ public class S5HistDataSyncFloatingEntity0
   }
 
   @Override
-  protected float doAsFloat( int aIndex ) {
+  public float asFloat( int aIndex ) {
     double value = values()[aIndex];
     if( value == DOUBLE_NULL ) {
       throw new AvUnassignedValueRtException();

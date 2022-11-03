@@ -17,8 +17,7 @@ import org.toxsoft.core.tslib.coll.IList;
 import org.toxsoft.core.tslib.gw.gwid.Gwid;
 import org.toxsoft.core.tslib.utils.errors.*;
 import org.toxsoft.uskat.s5.legacy.QueryInterval;
-import org.toxsoft.uskat.s5.server.sequences.IS5Sequence;
-import org.toxsoft.uskat.s5.server.sequences.ISequenceBlock;
+import org.toxsoft.uskat.s5.server.sequences.*;
 
 /**
  * Открытые методы доступам к последовательностям значений
@@ -41,7 +40,7 @@ public class S5SequenceUtils {
     TsNullArgumentRtException.checkNull( aSequence );
     int retValue = 0;
     for( int index = 0, n = aSequence.blocks().size(); index < n; index++ ) {
-      ISequenceBlock<?> block = aSequence.blocks().get( index );
+      IS5SequenceBlock<?> block = aSequence.blocks().get( index );
       retValue += block.size();
     }
     return retValue;
@@ -51,7 +50,7 @@ public class S5SequenceUtils {
    * Возвращает фактическое время начала данных в указанных последовательностях
    * <p>
    * Фактическое время начала данных определяется как минимальное время блоков входящих в последовательности
-   * {@link ISequenceBlock#startTime()} . При этом следует учитывать, что для блоков с асинхронными значениями по
+   * {@link IS5SequenceBlock#startTime()} . При этом следует учитывать, что для блоков с асинхронными значениями по
    * возвращаемому времени данных может и не быть. Если все последовательности пустые, то возвращается
    * {@link TimeUtils#MAX_TIMESTAMP}.
    *
@@ -68,7 +67,7 @@ public class S5SequenceUtils {
         continue;
       }
       // В последовательности есть блоки значений
-      ISequenceBlock<?> firstBlock = sequence.blocks().first();
+      IS5SequenceBlock<?> firstBlock = sequence.blocks().first();
       if( retValue > firstBlock.startTime() ) {
         // Нашли блок с более ранним началом значений
         retValue = firstBlock.startTime();
@@ -81,7 +80,7 @@ public class S5SequenceUtils {
    * Возвращает фактическое время завершения данных в указанных последовательностях
    * <p>
    * Фактическое время завершения данных определяется как максимальное время блоков входящих в последовательности
-   * {@link ISequenceBlock#endTime()} . При этом следует учитывать, что для блоков с асинхронными значениями по
+   * {@link IS5SequenceBlock#endTime()} . При этом следует учитывать, что для блоков с асинхронными значениями по
    * возвращаемому времени данных может и не быть. Если все последовательности пустые, то возвращается
    * {@link TimeUtils#MIN_TIMESTAMP}.
    *
@@ -98,7 +97,7 @@ public class S5SequenceUtils {
         continue;
       }
       // В последовательности есть блоки значений
-      ISequenceBlock<?> lastBlock = sequence.blocks().last();
+      IS5SequenceBlock<?> lastBlock = sequence.blocks().last();
       if( retValue < lastBlock.endTime() ) {
         // Нашли блок с более поздним завершением значений
         retValue = lastBlock.endTime();
@@ -177,7 +176,7 @@ public class S5SequenceUtils {
    * Вовзращает признак того, что значения последовательности начинаются со значений указанного блока
    *
    * @param aSequence {@link IS5Sequence} последовательность значений
-   * @param aBlock {@link ISequenceBlock} блок значений
+   * @param aBlock {@link IS5SequenceBlock} блок значений
    * @return {@link IValResList} результат проверки значений
    * @param <S> тип последовательности значений данного
    * @param <V> тип значения последовательности
@@ -187,7 +186,7 @@ public class S5SequenceUtils {
    * @throws TsIllegalArgumentRtException aFreeRatio <= 0 или aFreeRatio > 1
    */
   public static <S extends IS5Sequence<V>, V extends ITemporal<?>> IValResList sequenceStartWithValues( S aSequence,
-      ISequenceBlock<V> aBlock ) {
+      IS5SequenceBlock<V> aBlock ) {
     ValResList retValue = new ValResList();
     TsNullArgumentRtException.checkNulls( aSequence, aBlock );
     if( aBlock.size() == 0 ) {
@@ -212,16 +211,20 @@ public class S5SequenceUtils {
       retValue.add( ValidationResult.error( MSG_START_SEQUENCE_OUT_OF_BLOCK ) );
       return retValue;
     }
+    // Курсоры значений
+    IS5SequenceCursor<V> sequenceCursor = aSequence.createCursor();
+    IS5SequenceCursor<V> blockCursor = aBlock.createCursor();
+    sequenceCursor.setTime( startTime );
     // Проверка значений
-    aSequence.setCurrTime( startTime );
-    for( int index = 0, n = aBlock.size(); index < n; index++ ) {
-      long blockTime = aBlock.timestamp( index );
+    while( blockCursor.hasNextValue() ) {
+      V blockValue = blockCursor.nextValue();
+      long blockTime = blockValue.timestamp();
       if( blockTime < startTime ) {
         // Текущее значение блока более ранее
         continue;
       }
-      V blockValue = aBlock.getValue( index );
-      V sequenceValue = (aSequence.hasNext() ? aSequence.nextValue() : null);
+      // TODO: 2022-10-23 mvk перевести чтение значений блока через курсор
+      V sequenceValue = (sequenceCursor.hasNextValue() ? sequenceCursor.nextValue() : null);
       if( sequenceValue == null ) {
         // В последовательности нет значения соответствующего значению блока
         retValue.add( ValidationResult.error( MSG_AT_SEQUENCE_NOT_FOUND_VALUE ) );
@@ -229,7 +232,7 @@ public class S5SequenceUtils {
       }
       long sequenceTime = sequenceValue.timestamp();
       if( sequenceTime != blockTime ) {
-        Integer bi = Integer.valueOf( index );
+        Integer bi = Integer.valueOf( blockCursor.position() );
         String st = timestampToString( sequenceTime );
         String bt = timestampToString( blockTime );
         // Различие по времени
@@ -237,7 +240,7 @@ public class S5SequenceUtils {
         break;
       }
       if( !sequenceValue.equals( blockValue ) ) {
-        Integer bi = Integer.valueOf( index );
+        Integer bi = Integer.valueOf( blockCursor.position() );
         String bt = timestampToString( blockTime );
         // Различие по значению
         retValue.add( ValidationResult.error( MSG_DIFFERENT_BY_VALUE, bi, bt, blockValue, sequenceValue ) );
@@ -272,12 +275,15 @@ public class S5SequenceUtils {
     long startCrossTime = Math.max( targetInterval.startTime(), sourceInterval.startTime() );
     // Метка времени по которую проводится анализ значений (включительно)
     long endCrossTime = Math.min( targetInterval.endTime(), sourceInterval.endTime() );
+    // Курсоры значений
+    IS5SequenceCursor<V> targetCursor = aTarget.createCursor();
+    IS5SequenceCursor<V> sourceCursor = aSource.createCursor();
     // Установка курсора
-    aTarget.setCurrTime( startCrossTime );
-    aSource.setCurrTime( startCrossTime );
-    while( aTarget.hasNext() && aSource.hasNext() ) {
-      V value = aTarget.nextValue();
-      V sourceValue = aSource.nextValue();
+    targetCursor.setTime( startCrossTime );
+    sourceCursor.setTime( startCrossTime );
+    while( targetCursor.hasNextValue() && sourceCursor.hasNextValue() ) {
+      V value = targetCursor.nextValue();
+      V sourceValue = sourceCursor.nextValue();
       if( !value.equals( sourceValue ) ) {
         // Значения не одинаковы
         break;
@@ -295,15 +301,15 @@ public class S5SequenceUtils {
    *
    * @param <V> тип блоков последовательности
    * @param aType {@link EQueryIntervalType} тип интервала
-   * @param aBlocks {@link Iterable}&lt{@link ISequenceBlock}&gt; список блоков
+   * @param aBlocks {@link Iterable}&lt{@link IS5SequenceBlock}&gt; список блоков
    * @return {@link ITimeInterval} интервал времени включительно
    */
   public static <V extends ITemporal<?>> IQueryInterval interval( EQueryIntervalType aType,
-      Iterable<ISequenceBlock<V>> aBlocks ) {
+      Iterable<IS5SequenceBlock<V>> aBlocks ) {
     TsNullArgumentRtException.checkNulls( aType, aBlocks );
     long startTime = MAX_TIMESTAMP;
     long endTime = MIN_TIMESTAMP;
-    for( ISequenceBlock<?> block : aBlocks ) {
+    for( IS5SequenceBlock<?> block : aBlocks ) {
       long blockStartTime = block.startTime();
       long blockEndTime = block.endTime();
       if( startTime > blockStartTime ) {

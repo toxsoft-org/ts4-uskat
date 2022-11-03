@@ -5,8 +5,8 @@ import java.io.Serializable;
 import org.toxsoft.core.tslib.bricks.time.ITemporal;
 import org.toxsoft.core.tslib.coll.IList;
 import org.toxsoft.core.tslib.utils.errors.TsNullArgumentRtException;
-import org.toxsoft.uskat.s5.server.sequences.ISequenceBlock;
-import org.toxsoft.uskat.s5.server.sequences.ISequenceFragmentInfo;
+import org.toxsoft.uskat.s5.server.sequences.IS5SequenceBlock;
+import org.toxsoft.uskat.s5.server.sequences.IS5SequenceFragmentInfo;
 import org.toxsoft.uskat.s5.server.sequences.maintenance.IS5SequenceUnionStat;
 
 /**
@@ -23,7 +23,7 @@ final class S5SequenceUnionStat<V extends ITemporal<?>>
   /**
    * Общее количество обработанных данных
    */
-  private IList<ISequenceFragmentInfo> infoes = IList.EMPTY;
+  private IList<IS5SequenceFragmentInfo> infoes = IList.EMPTY;
 
   /**
    * Общее количество обработанных последовательностей у которых произошло объединение
@@ -58,13 +58,13 @@ final class S5SequenceUnionStat<V extends ITemporal<?>>
   /**
    * Последний блок с которым было проведено объединение. null: неопределен
    */
-  private ISequenceBlock<V> lastUnitedBlock = null;
+  private IS5SequenceBlock<V> lastUnitedBlock = null;
 
   // ------------------------------------------------------------------------------------
   // Реализация IS5SequenceUnionStat
   //
   @Override
-  public IList<ISequenceFragmentInfo> infoes() {
+  public IList<IS5SequenceFragmentInfo> infoes() {
     return infoes;
   }
 
@@ -104,10 +104,10 @@ final class S5SequenceUnionStat<V extends ITemporal<?>>
   /**
    * Устанавливает список описаних данных поступивших на обработку
    *
-   * @param aInfoes {@link IList}&lt; {@link ISequenceFragmentInfo}&gt; список описаний фрагментированных данных данных
+   * @param aInfoes {@link IList}&lt; {@link IS5SequenceFragmentInfo}&gt; список описаний фрагментированных данных данных
    * @throws TsNullArgumentRtException аргумент = null
    */
-  void setInfoes( IList<ISequenceFragmentInfo> aInfoes ) {
+  void setInfoes( IList<IS5SequenceFragmentInfo> aInfoes ) {
     TsNullArgumentRtException.checkNull( aInfoes );
     infoes = aInfoes;
   }
@@ -167,9 +167,9 @@ final class S5SequenceUnionStat<V extends ITemporal<?>>
   /**
    * Устанавливает последний блок с которым было проведено объединение
    *
-   * @param aBlock {@link ISequenceBlock} блок
+   * @param aBlock {@link IS5SequenceBlock} блок
    */
-  void setUnitedBlock( ISequenceBlock<V> aBlock ) {
+  void setUnitedBlock( IS5SequenceBlock<V> aBlock ) {
     TsNullArgumentRtException.checkNull( aBlock );
     lastUnitedBlock = aBlock;
   }
@@ -177,9 +177,9 @@ final class S5SequenceUnionStat<V extends ITemporal<?>>
   /**
    * Возвращает последний блок с которым было проведено объединение
    *
-   * @return {@link ISequenceBlock} блок. null: неопределен
+   * @return {@link IS5SequenceBlock} блок. null: неопределен
    */
-  ISequenceBlock<V> lastUnitedBlockOrNull() {
+  IS5SequenceBlock<V> lastUnitedBlockOrNull() {
     return lastUnitedBlock;
   }
 

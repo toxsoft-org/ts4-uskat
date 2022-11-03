@@ -6,8 +6,8 @@ import org.toxsoft.core.tslib.gw.gwid.Gwid;
 import org.toxsoft.core.tslib.utils.errors.TsNullArgumentRtException;
 import org.toxsoft.uskat.core.api.cmdserv.IDtoCompletedCommand;
 import org.toxsoft.uskat.s5.server.backend.supports.commands.sequences.IS5CommandSequenceEdit;
-import org.toxsoft.uskat.s5.server.sequences.ISequenceBlock;
-import org.toxsoft.uskat.s5.server.sequences.ISequenceBlockEdit;
+import org.toxsoft.uskat.s5.server.backend.supports.commands.sequences.S5CommandCursor;
+import org.toxsoft.uskat.s5.server.sequences.*;
 import org.toxsoft.uskat.s5.server.sequences.impl.S5Sequence;
 
 /**
@@ -27,11 +27,19 @@ public class S5CommandSequence
    * @param aFactory {@link S5CommandSequenceFactory} фабрика последовательностей событий
    * @param aGwid {@link Gwid} идентификатор данного
    * @param aInterval {@link IQueryInterval} интервал времени последовательности, подробности в {@link #interval()}
-   * @param aCommands {@link IList}&lt;{@link ISequenceBlock}&gt; список блоков представляющих последовательность
+   * @param aCommands {@link IList}&lt;{@link IS5SequenceBlock}&gt; список блоков представляющих последовательность
    * @throw {@link TsNullArgumentRtException} любой аргумент = null
    */
   public S5CommandSequence( S5CommandSequenceFactory aFactory, Gwid aGwid, IQueryInterval aInterval,
-      Iterable<ISequenceBlockEdit<IDtoCompletedCommand>> aCommands ) {
+      Iterable<IS5SequenceBlockEdit<IDtoCompletedCommand>> aCommands ) {
     super( aFactory, aGwid, aInterval, aCommands );
+  }
+
+  // ------------------------------------------------------------------------------------
+  // IS5Sequence
+  //
+  @Override
+  public IS5SequenceCursor<IDtoCompletedCommand> createCursor() {
+    return new S5CommandCursor( this );
   }
 }

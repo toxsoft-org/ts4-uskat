@@ -6,14 +6,15 @@ import java.sql.ResultSet;
 
 import javax.persistence.Entity;
 
-import org.toxsoft.core.tslib.av.errors.AvUnassignedValueRtException;
 import org.toxsoft.core.tslib.av.utils.IParameterized;
 import org.toxsoft.core.tslib.bricks.time.ITimedList;
 import org.toxsoft.core.tslib.gw.gwid.EGwidKind;
 import org.toxsoft.core.tslib.gw.gwid.Gwid;
 import org.toxsoft.core.tslib.utils.errors.*;
 import org.toxsoft.uskat.core.api.cmdserv.IDtoCompletedCommand;
-import org.toxsoft.uskat.s5.server.sequences.ISequenceBlockEdit;
+import org.toxsoft.uskat.s5.server.backend.supports.commands.sequences.S5CommandCursor;
+import org.toxsoft.uskat.s5.server.sequences.IS5SequenceBlockEdit;
+import org.toxsoft.uskat.s5.server.sequences.IS5SequenceCursor;
 import org.toxsoft.uskat.s5.server.sequences.impl.S5SequenceAsyncBlock;
 import org.toxsoft.uskat.s5.utils.indexes.ILongKey;
 
@@ -96,18 +97,23 @@ public class S5CommandBlock
   }
 
   // ------------------------------------------------------------------------------------
-  // Реализация ISequenceBlock
+  // Реализация IS5SequenceBlock
   //
   @Override
   public IDtoCompletedCommand getValue( int aIndex ) {
     return values()[aIndex];
   }
 
+  @Override
+  public IS5SequenceCursor<IDtoCompletedCommand> createCursor() {
+    return new S5CommandCursor( this );
+  }
+
   // ------------------------------------------------------------------------------------
   // Реализация шаблонных методов
   //
   @Override
-  protected ISequenceBlockEdit<IDtoCompletedCommand> doCreateBlock( IParameterized aTypeInfo, long[] aTimestamps,
+  protected IS5SequenceBlockEdit<IDtoCompletedCommand> doCreateBlock( IParameterized aTypeInfo, long[] aTimestamps,
       IDtoCompletedCommand[] aValues ) {
     return new S5CommandBlock( aTypeInfo, gwid(), new S5CommandBlob( aTimestamps, aValues ) );
   }
@@ -127,22 +133,22 @@ public class S5CommandBlock
   }
 
   // ------------------------------------------------------------------------------------
-  // Реализация шаблонных методов (импорт значения)
+  // TODO: IS5CommandRawReader
   //
-  @Override
-  protected boolean doIsAssigned( int aIndex ) {
-    return values()[aIndex] != null;
-  }
-
-  @SuppressWarnings( "unchecked" )
-  @Override
-  protected <T> T doAsValobj( int aIndex ) {
-    IDtoCompletedCommand value = values()[aIndex];
-    if( value == null ) {
-      throw new AvUnassignedValueRtException();
-    }
-    return (T)value;
-  }
+  // @Override
+  // protected boolean doIsAssigned( int aIndex ) {
+  // return values()[aIndex] != null;
+  // }
+  //
+  // @SuppressWarnings( "unchecked" )
+  // @Override
+  // protected <T> T doAsValobj( int aIndex ) {
+  // IDtoCompletedCommand value = values()[aIndex];
+  // if( value == null ) {
+  // throw new AvUnassignedValueRtException();
+  // }
+  // return (T)value;
+  // }
 
   // ------------------------------------------------------------------------------------
   // Внутреннее API

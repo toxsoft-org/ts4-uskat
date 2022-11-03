@@ -13,13 +13,13 @@ import org.toxsoft.core.tslib.utils.errors.TsNullObjectErrorRtException;
  *
  * @author mvk
  */
-public interface ISequenceFragmentInfo
+public interface IS5SequenceFragmentInfo
     extends Comparable<ITimeInterval> {
 
   /**
    * Информация об отсутствии фрагментации
    */
-  ISequenceFragmentInfo NULL = new InternalNullSequenceFragmentInfo();
+  IS5SequenceFragmentInfo NULL = new InternalNullSequenceFragmentInfo();
 
   /**
    * Возвращает имя таблицы хранения данного
@@ -58,28 +58,28 @@ public interface ISequenceFragmentInfo
 }
 
 /**
- * Реализация несуществующей фрагментации {@link ISequenceFragmentInfo#NULL}.
+ * Реализация несуществующей фрагментации {@link IS5SequenceFragmentInfo#NULL}.
  */
 class InternalNullSequenceFragmentInfo
-    implements ISequenceFragmentInfo, Serializable {
+    implements IS5SequenceFragmentInfo, Serializable {
 
   private static final long serialVersionUID = 157157L;
 
   /**
-   * Метод корректно восстанавливает сериализированный {@link ISequenceFragmentInfo#NULL}.
+   * Метод корректно восстанавливает сериализированный {@link IS5SequenceFragmentInfo#NULL}.
    *
-   * @return Object объект {@link ISequenceFragmentInfo#NULL}
+   * @return Object объект {@link IS5SequenceFragmentInfo#NULL}
    * @throws ObjectStreamException это обявление, оно тут не выбрасывается
    */
   @SuppressWarnings( { "static-method" } )
   private Object readResolve()
       throws ObjectStreamException {
-    // return ISequenceFragmentInfo.NULL;
+    // return IS5SequenceFragmentInfo.NULL;
     return null;
   }
 
   // ------------------------------------------------------------------------------------
-  // Реализация методов ISequenceFragmentInfo
+  // Реализация методов IS5SequenceFragmentInfo
   //
   @Override
   public String tableName() {
@@ -129,6 +129,6 @@ class InternalNullSequenceFragmentInfo
 
   @Override
   public String toString() {
-    return ISequenceFragmentInfo.class.getSimpleName() + ".NULL"; //$NON-NLS-1$
+    return IS5SequenceFragmentInfo.class.getSimpleName() + ".NULL"; //$NON-NLS-1$
   }
 }

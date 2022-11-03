@@ -8,7 +8,8 @@ import org.toxsoft.core.tslib.av.temporal.ITemporalAtomicValue;
 import org.toxsoft.core.tslib.av.utils.IParameterized;
 import org.toxsoft.core.tslib.gw.gwid.Gwid;
 import org.toxsoft.core.tslib.utils.errors.*;
-import org.toxsoft.uskat.s5.server.backend.supports.histdata.impl.sequences.IHistDataBlock;
+import org.toxsoft.uskat.s5.server.backend.supports.histdata.impl.sequences.IS5HistDataBlock;
+import org.toxsoft.uskat.s5.server.sequences.IS5SequenceCursor;
 import org.toxsoft.uskat.s5.server.sequences.impl.S5SequenceAsyncBlob;
 import org.toxsoft.uskat.s5.server.sequences.impl.S5SequenceAsyncBlock;
 
@@ -20,9 +21,10 @@ import org.toxsoft.uskat.s5.server.sequences.impl.S5SequenceAsyncBlock;
  * @author mvk
  */
 @MappedSuperclass
+// S5SequenceAsyncBlock<V extends ITemporal<V>, BLOB_ARRAY, BLOB extends S5SequenceAsyncBlob<?, BLOB_ARRAY, ?>>
 public abstract class S5HistDataAsyncBlock<BLOB_ARRAY, BLOB extends S5SequenceAsyncBlob<?, BLOB_ARRAY, ?>>
     extends S5SequenceAsyncBlock<ITemporalAtomicValue, BLOB_ARRAY, BLOB>
-    implements IHistDataBlock {
+    implements IS5HistDataBlock {
 
   private static final long serialVersionUID = 157157L;
 
@@ -58,4 +60,14 @@ public abstract class S5HistDataAsyncBlock<BLOB_ARRAY, BLOB extends S5SequenceAs
   protected S5HistDataAsyncBlock( ResultSet aResultSet ) {
     super( aResultSet );
   }
+
+  // ------------------------------------------------------------------------------------
+  // IS5SequenceBlock
+  //
+  @Override
+  public IS5SequenceCursor<ITemporalAtomicValue> createCursor() {
+    // TODO:
+    throw new TsUnderDevelopmentRtException();
+  }
+
 }

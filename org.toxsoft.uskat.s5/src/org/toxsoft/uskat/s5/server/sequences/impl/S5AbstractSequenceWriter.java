@@ -116,7 +116,7 @@ public abstract class S5AbstractSequenceWriter<S extends IS5Sequence<V>, V exten
   /**
    * Фабрика последовательностей блоков
    */
-  private final ISequenceFactory<V> sequenceFactory;
+  private final IS5SequenceFactory<V> sequenceFactory;
 
   /**
    * Синглетон управления s5-транзакциями
@@ -153,11 +153,11 @@ public abstract class S5AbstractSequenceWriter<S extends IS5Sequence<V>, V exten
    * Создает писатель последовательностей
    *
    * @param aBackendCore {@link IS5BackendCoreSingleton} ядро бекенда сервера
-   * @param aSequenceFactory {@link ISequenceFactory} фабрика последовательностей блоков
+   * @param aSequenceFactory {@link IS5SequenceFactory} фабрика последовательностей блоков
    * @throws TsNullArgumentRtException любой аргумент = null
    * @throws TsIllegalArgumentRtException аргумент нет соединения с базой данных
    */
-  protected S5AbstractSequenceWriter( IS5BackendCoreSingleton aBackendCore, ISequenceFactory<V> aSequenceFactory ) {
+  protected S5AbstractSequenceWriter( IS5BackendCoreSingleton aBackendCore, IS5SequenceFactory<V> aSequenceFactory ) {
     TsNullArgumentRtException.checkNulls( aBackendCore, aSequenceFactory );
     // Поиск исполнителя потоков объединения блоков
     writeExecutor = S5ServiceSingletonUtils.lookupExecutor( WRITE_EXECUTOR_JNDI );
@@ -259,9 +259,9 @@ public abstract class S5AbstractSequenceWriter<S extends IS5Sequence<V>, V exten
   /**
    * Возвращает фабрику последовательностей блоков
    *
-   * @return {@link ISequenceFactory} фабрика
+   * @return {@link IS5SequenceFactory} фабрика
    */
-  protected final ISequenceFactory<V> sequenceFactory() {
+  protected final IS5SequenceFactory<V> sequenceFactory() {
     return sequenceFactory;
   }
 
@@ -390,7 +390,7 @@ public abstract class S5AbstractSequenceWriter<S extends IS5Sequence<V>, V exten
    * Сохраняет блоки в dbms
    *
    * @param aEntityManager {@link EntityManager} менеджер постоянства
-   * @param aBlocks {@link Iterable}&lt;{@link ISequenceBlock}&lt;V;&gt;&gt; сохраняемые блоки значений
+   * @param aBlocks {@link Iterable}&lt;{@link IS5SequenceBlock}&lt;V;&gt;&gt; сохраняемые блоки значений
    * @param aStat {@link S5DbmsStatistics} статистика работы
    * @param aLogger {@link ILogger} журнал
    * @param <V> тип значений в блоке
@@ -399,7 +399,7 @@ public abstract class S5AbstractSequenceWriter<S extends IS5Sequence<V>, V exten
    */
   @SuppressWarnings( "unchecked" )
   protected final static <V extends ITemporal<?>> void writeBlocksToDbms( EntityManager aEntityManager,
-      Iterable<ISequenceBlock<V>> aBlocks, ILogger aLogger, S5DbmsStatistics aStat ) {
+      Iterable<IS5SequenceBlock<V>> aBlocks, ILogger aLogger, S5DbmsStatistics aStat ) {
     TsNullArgumentRtException.checkNulls( aEntityManager, aBlocks, aLogger );
     // Время начала операции
     long startTime = System.currentTimeMillis();
@@ -407,7 +407,7 @@ public abstract class S5AbstractSequenceWriter<S extends IS5Sequence<V>, V exten
     int insertedCount = 0;
     // Количество обновленных блоков
     int mergedCount = 0;
-    for( ISequenceBlock<V> block : aBlocks ) {
+    for( IS5SequenceBlock<V> block : aBlocks ) {
       S5SequenceBlock<V, ?, ?> dbmsBlock = (S5SequenceBlock<V, ?, ?>)block;
       try {
         if( dbmsBlock.created() ) {
@@ -456,7 +456,7 @@ public abstract class S5AbstractSequenceWriter<S extends IS5Sequence<V>, V exten
    * Удаляет из базы данных все блоки покрывающие интервал указанным списком
    *
    * @param aEntityManager {@link EntityManager} менеджер постоянства
-   * @param aFactory {@link ISequenceFactory} фабрика формирования последовательностей
+   * @param aFactory {@link IS5SequenceFactory} фабрика формирования последовательностей
    * @param aGwid {@link Gwid} идентификатор данного
    * @param aRemovedBlocks {@link IList} список блоков
    * @param aStat {@link S5DbmsStatistics} статистика работы
@@ -464,7 +464,7 @@ public abstract class S5AbstractSequenceWriter<S extends IS5Sequence<V>, V exten
    * @throws TsNullArgumentRtException любой аргумент = null
    */
   protected final static <V extends ITemporal<?>> void removeBlocksFromDbms( EntityManager aEntityManager,
-      ISequenceFactory<V> aFactory, Gwid aGwid, IList<ISequenceBlock<V>> aRemovedBlocks, S5DbmsStatistics aStat ) {
+      IS5SequenceFactory<V> aFactory, Gwid aGwid, IList<IS5SequenceBlock<V>> aRemovedBlocks, S5DbmsStatistics aStat ) {
     TsNullArgumentRtException.checkNulls( aEntityManager, aFactory, aGwid, aRemovedBlocks, aStat );
     if( aRemovedBlocks.size() == 0 ) {
       return;
@@ -479,7 +479,7 @@ public abstract class S5AbstractSequenceWriter<S extends IS5Sequence<V>, V exten
     //
     // old s5 code: aEntityManager.remove( aEntityManager.merge( block ) );
 
-    for( ISequenceBlock<V> block : aRemovedBlocks ) {
+    for( IS5SequenceBlock<V> block : aRemovedBlocks ) {
       try {
         // 2020-05-25 mvk IlleaglArgumentException Removing a detach instance S5EventBlock#tm.Measuer...
         // aEntityManager.remove( block );
@@ -598,13 +598,13 @@ public abstract class S5AbstractSequenceWriter<S extends IS5Sequence<V>, V exten
       S5SequenceValidationStat aState, boolean aCanUpdate, boolean aCanRemove, ILogger aLogger ) {
     TsNullArgumentRtException.checkNulls( aEntityManager, aGwid, aInterval, aState, aLogger );
     EntityManager em = aEntityManager;
-    ISequenceFactory<V> factory = sequenceFactory();
+    IS5SequenceFactory<V> factory = sequenceFactory();
     // Параметризованное описание типа данного
     IParameterized typeInfo = factory.typeInfo( aGwid );
     // Текущее время сервера
     long currTime = System.currentTimeMillis();
     // Последний блок-результат. null: неопределен
-    ISequenceBlock<V> lastBlock = null;
+    IS5SequenceBlock<V> lastBlock = null;
     // Признак того, что последовательность содержит синхронные значения
     boolean isSync = OP_IS_SYNC.getValue( typeInfo.params() ).asBool();
     // Интервал (мсек) синхронных значений. Для асинхронных: 1
@@ -646,22 +646,22 @@ public abstract class S5AbstractSequenceWriter<S extends IS5Sequence<V>, V exten
       }
       try {
         // Загрузка блоков полностью попадающих в интервал объединения
-        List<ISequenceBlock<V>> blocks = loadBlocks( em, factory, aGwid, interval, 0, blockCount );
+        List<IS5SequenceBlock<V>> blocks = loadBlocks( em, factory, aGwid, interval, 0, blockCount );
         // Количество загруженных блоков
         int count = blocks.size();
         if( count == 0 ) {
           // Больше нет блоков для проверки
           break;
         }
-        ElemArrayList<ISequenceBlock<V>> writeBlocks = new ElemArrayList<>( count );
-        ElemArrayList<ISequenceBlock<V>> removedBlocks = new ElemArrayList<>( count );
+        ElemArrayList<IS5SequenceBlock<V>> writeBlocks = new ElemArrayList<>( count );
+        ElemArrayList<IS5SequenceBlock<V>> removedBlocks = new ElemArrayList<>( count );
 
         // Общее количество обработанных блоков
         processedQtty += count;
         // Количество блоков которое осталось для обработки
         int leftQtty = count;
         // ПРОВЕРКА БЛОКОВ
-        for( ISequenceBlock<V> block : blocks ) {
+        for( IS5SequenceBlock<V> block : blocks ) {
           leftQtty--;
           long lastEndTime = (lastBlock != null ? lastBlock.endTime() : MIN_TIMESTAMP);
           // Проверка порядка следования блоков и их интервалов (ложные пересечения)
@@ -671,7 +671,7 @@ public abstract class S5AbstractSequenceWriter<S extends IS5Sequence<V>, V exten
             aLogger.error( MSG_VALIDATION_REMOVE_UNORDER, aGwid, block, lastBlock );
             continue;
           }
-          ISequenceBlockEdit<V> blockEdit = (ISequenceBlockEdit<V>)block;
+          IS5SequenceBlockEdit<V> blockEdit = (IS5SequenceBlockEdit<V>)block;
           // Валидация блока
           IList<ValidationResult> validationResults = blockEdit.validation( typeInfo ).results();
           // Признак необходимости обновления блока
@@ -713,7 +713,7 @@ public abstract class S5AbstractSequenceWriter<S extends IS5Sequence<V>, V exten
         // Для блоков синхронных значений проводим расчет неэффективного хранения
         if( isSync ) {
           IListEdit<S5SequenceSyncBlock<V, ?, ?>> syncBlocks = new ElemArrayList<>( blocks.size() );
-          for( ISequenceBlock<V> block : blocks ) {
+          for( IS5SequenceBlock<V> block : blocks ) {
             if( removedBlocks.hasElem( block ) ) {
               // В проверку попадают только неудаленные блоки
               continue;
@@ -772,12 +772,12 @@ public abstract class S5AbstractSequenceWriter<S extends IS5Sequence<V>, V exten
    * @throws TsNullArgumentRtException любой аргумент = null
    */
   protected final static <V extends ITemporal<?>> void printBlocks( ILogger aLogger, String aMessage,
-      List<ISequenceBlock<V>> aBlocks ) {
+      List<IS5SequenceBlock<V>> aBlocks ) {
     TsNullArgumentRtException.checkNulls( aLogger, aMessage, aBlocks );
     StringBuilder sb = new StringBuilder();
     sb.append( aMessage );
     sb.append( IStrioHardConstants.CHAR_EOL );
-    for( ISequenceBlock<?> block : aBlocks ) {
+    for( IS5SequenceBlock<?> block : aBlocks ) {
       Long st = Long.valueOf( block.startTime() );
       Long et = Long.valueOf( block.endTime() );
       sb.append( String.format( "  %s, startTime = %d, endTime = %d", block, st, et ) ); //$NON-NLS-1$
@@ -796,12 +796,12 @@ public abstract class S5AbstractSequenceWriter<S extends IS5Sequence<V>, V exten
    * @throws TsNullArgumentRtException любой аргумент = null
    */
   protected final static <V extends ITemporal<?>> void printBlocks( ILogger aLogger, String aMessage,
-      IList<ISequenceBlock<V>> aBlocks ) {
+      IList<IS5SequenceBlock<V>> aBlocks ) {
     TsNullArgumentRtException.checkNulls( aLogger, aMessage, aBlocks );
     StringBuilder sb = new StringBuilder();
     sb.append( aMessage );
     sb.append( IStrioHardConstants.CHAR_EOL );
-    for( ISequenceBlock<?> block : aBlocks ) {
+    for( IS5SequenceBlock<?> block : aBlocks ) {
       Long st = Long.valueOf( block.startTime() );
       Long et = Long.valueOf( block.endTime() );
       sb.append( String.format( "  %s, startTime = %d, endTime = %d", block, st, et ) ); //$NON-NLS-1$
@@ -980,7 +980,7 @@ public abstract class S5AbstractSequenceWriter<S extends IS5Sequence<V>, V exten
       S5SequenceUnionStat<V> aState ) {
     TsNullArgumentRtException.checkNulls( aEntityManager, aGwid, aInterval, aState );
     EntityManager em = aEntityManager;
-    ISequenceFactory<V> factory = sequenceFactory();
+    IS5SequenceFactory<V> factory = sequenceFactory();
     // Параметризованное описание типа данного
     IParameterized typeInfo = factory.typeInfo( aGwid );
     // Текущее время сервера
@@ -996,7 +996,7 @@ public abstract class S5AbstractSequenceWriter<S extends IS5Sequence<V>, V exten
     int blockSizeMax = OP_BLOCK_SIZE_MAX.getValue( typeInfo.params() ).asInt();
 
     // Последний блок-результат. null: неопределен
-    ISequenceBlock<V> lastUnitedBlock = aState.lastUnitedBlockOrNull();
+    IS5SequenceBlock<V> lastUnitedBlock = aState.lastUnitedBlockOrNull();
     // Интервал времени запроса блоков
     IQueryInterval interval = new QueryInterval( EQueryIntervalType.CSOE, aInterval.startTime(), aInterval.endTime() );
     if( lastUnitedBlock != null ) {
@@ -1036,7 +1036,7 @@ public abstract class S5AbstractSequenceWriter<S extends IS5Sequence<V>, V exten
     }
     try {
       // Загрузка блоков полностью попадающих в интервал объединения
-      List<ISequenceBlock<V>> blocks = loadBlocks( em, factory, aGwid, interval, 0, blockCount );
+      List<IS5SequenceBlock<V>> blocks = loadBlocks( em, factory, aGwid, interval, 0, blockCount );
       if( blocks.size() <= 1 && !needFragmentation ) {
         // Больше нет блоков для объединения
         if( blocks.size() == 1 ) {
@@ -1048,7 +1048,7 @@ public abstract class S5AbstractSequenceWriter<S extends IS5Sequence<V>, V exten
       }
       // Количество полученных значений
       int valueCount = 0;
-      for( ISequenceBlock<V> bloсk : blocks ) {
+      for( IS5SequenceBlock<V> bloсk : blocks ) {
         valueCount += bloсk.size();
       }
       // Если есть блок-результат, то он добавляется в последовательность
@@ -1061,13 +1061,13 @@ public abstract class S5AbstractSequenceWriter<S extends IS5Sequence<V>, V exten
 
       // Последовательность блоков
       IQueryInterval targetInterval = new QueryInterval( EQueryIntervalType.CSCE, startTime, endTime );
-      Iterable<ISequenceBlockEdit<V>> targetBlocks = (Iterable<ISequenceBlockEdit<V>>)(Object)blocks;
+      Iterable<IS5SequenceBlockEdit<V>> targetBlocks = (Iterable<IS5SequenceBlockEdit<V>>)(Object)blocks;
       IS5SequenceEdit<V> target = factory.createSequence( aGwid, targetInterval, targetBlocks );
       // Использование реализации ElemArrayList из-за prepareDbmsBlocks которому это необходимо для производительности
-      ElemArrayList<ISequenceBlock<V>> removedBlocks = new ElemArrayList<>( target.blocks().size() );
+      ElemArrayList<IS5SequenceBlock<V>> removedBlocks = new ElemArrayList<>( target.blocks().size() );
 
       // ОБЪЕДИНЕНИЕ БЛОКОВ
-      removedBlocks.addAll( (IList<ISequenceBlock<V>>)(Object)target.uniteBlocks() );
+      removedBlocks.addAll( (IList<IS5SequenceBlock<V>>)(Object)target.uniteBlocks() );
 
       // Статистика
       S5DbmsStatistics dbmsStat = new S5DbmsStatistics();
@@ -1082,7 +1082,7 @@ public abstract class S5AbstractSequenceWriter<S extends IS5Sequence<V>, V exten
       lastUnitedBlock = target.blocks().get( blockCount - 1 );
       // Отвязываем блок от EJB чтобы не перегружать java heap
       for( int index = 0; index < blockCount; index++ ) {
-        ISequenceBlock<V> block = target.blocks().get( index );
+        IS5SequenceBlock<V> block = target.blocks().get( index );
         if( block != aState.lastUnitedBlockOrNull() ) {
           em.detach( block );
         }

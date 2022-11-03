@@ -18,7 +18,7 @@ import org.toxsoft.core.tslib.av.utils.IParameterized;
 import org.toxsoft.core.tslib.bricks.time.ITimedList;
 import org.toxsoft.core.tslib.gw.gwid.Gwid;
 import org.toxsoft.core.tslib.utils.errors.*;
-import org.toxsoft.uskat.s5.server.sequences.ISequenceBlockEdit;
+import org.toxsoft.uskat.s5.server.sequences.IS5SequenceBlockEdit;
 import org.toxsoft.uskat.s5.utils.indexes.ILongKey;
 
 /**
@@ -115,7 +115,7 @@ public class S5HistDataAsyncTimestampEntity0
   // Реализация шаблонных методов
   //
   @Override
-  protected ISequenceBlockEdit<ITemporalAtomicValue> doCreateBlock( IParameterized aTypeInfo, long[] aTimestamps,
+  protected IS5SequenceBlockEdit<ITemporalAtomicValue> doCreateBlock( IParameterized aTypeInfo, long[] aTimestamps,
       long[] aValues ) {
     S5HistDataAsyncTimestampBlobEntity0 blob = new S5HistDataAsyncTimestampBlobEntity0( aTimestamps, aValues );
     return new S5HistDataAsyncTimestampEntity0( aTypeInfo, gwid(), blob );
@@ -136,15 +136,20 @@ public class S5HistDataAsyncTimestampEntity0
   }
 
   // ------------------------------------------------------------------------------------
-  // Реализация шаблонных методов (импорт значения)
+  // IS5HistDataBlockReader
   //
   @Override
-  protected boolean doIsAssigned( int aIndex ) {
+  public boolean isAssigned( int aIndex ) {
     return values()[aIndex] != LONG_NULL;
   }
 
   @Override
-  protected long doAsLong( int aIndex ) {
+  public EAtomicType atomicType() {
+    return EAtomicType.TIMESTAMP;
+  }
+
+  @Override
+  public long asLong( int aIndex ) {
     long value = values()[aIndex];
     if( value == LONG_NULL ) {
       throw new AvUnassignedValueRtException();
