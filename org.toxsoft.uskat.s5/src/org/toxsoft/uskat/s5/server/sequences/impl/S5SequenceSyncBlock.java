@@ -19,7 +19,6 @@ import org.toxsoft.core.tslib.coll.primtypes.IStringMapEdit;
 import org.toxsoft.core.tslib.gw.gwid.Gwid;
 import org.toxsoft.core.tslib.utils.errors.*;
 import org.toxsoft.core.tslib.utils.logs.ILogger;
-import org.toxsoft.uskat.s5.server.backend.supports.histdata.impl.sequences.ITemporalValueImporter;
 import org.toxsoft.uskat.s5.server.sequences.*;
 
 /**
@@ -102,7 +101,7 @@ public abstract class S5SequenceSyncBlock<V extends ITemporal<?>, BLOB_ARRAY, BL
   }
 
   // ------------------------------------------------------------------------------------
-  // Реализация ISequenceBlock
+  // Реализация IS5SequenceBlock
   //
   @Override
   public boolean isSync() {
@@ -131,95 +130,11 @@ public abstract class S5SequenceSyncBlock<V extends ITemporal<?>, BLOB_ARRAY, BL
     return getIndexByTime( aTimestamp );
   }
 
-  @Override
-  public final void setImportTime( long aTimestamp ) {
-    // Слот (мсек)
-    long sdd = syncDataDelta();
-    // Метка времени выравненная по слоту блока
-    long timestamp = ((aTimestamp / sdd) * sdd);
-    importIndex = firstByTime( timestamp );
-    if( importIndex >= 0 ) {
-      hasImport = true;
-      // Декремент индекса так как он будет поправлен при первом вызове nextImport
-      importIndex--;
-      return;
-    }
-    // Нет данных для импорта
-    hasImport = false;
-    importIndex = -1;
-  }
-
-  @Override
-  public final boolean hasImport() {
-    return hasImport;
-  }
-
-  @Override
-  public final ITemporalValueImporter nextImport() {
-    if( !hasImport ) {
-      throw new TsIllegalArgumentRtException( ERR_NOT_IMPORT_DATA, this );
-    }
-    importIndex++;
-    if( importIndex + 1 >= size() ) {
-      // Достижение конца блока. Больше нет данных для импорта
-      hasImport = false;
-    }
-    return this;
-  }
-
-  // ------------------------------------------------------------------------------------
-  // Реализация ITemporalValueImporter
-  //
-  @Override
-  public final long timestamp() {
-    return timestamp( importIndex );
-  }
-
-  @Override
-  public final boolean isAssigned() {
-    return doIsAssigned( importIndex );
-  }
-
-  @Override
-  public final boolean asBool() {
-    return doAsBool( importIndex );
-  }
-
-  @Override
-  public final int asInt() {
-    return doAsInt( importIndex );
-  }
-
-  @Override
-  public final long asLong() {
-    return doAsLong( importIndex );
-  }
-
-  @Override
-  public final float asFloat() {
-    return doAsFloat( importIndex );
-  }
-
-  @Override
-  public final double asDouble() {
-    return doAsDouble( importIndex );
-  }
-
-  @Override
-  public final String asString() {
-    return doAsString( importIndex );
-  }
-
-  @Override
-  public final <T> T asValobj() {
-    return doAsValobj( importIndex );
-  }
-
   // ------------------------------------------------------------------------------------
   // Реализация шаблонных методов
   //
   @Override
-  protected final ISequenceBlockEdit<V> doCreateBlock( IParameterized aTypeInfo, long aStartTime, long aEndTime,
+  protected final IS5SequenceBlockEdit<V> doCreateBlock( IParameterized aTypeInfo, long aStartTime, long aEndTime,
       int aStartIndex, int aEndIndex, BLOB_ARRAY aValues ) {
     // Создание конкретного блока
     return doCreateBlock( aTypeInfo, aStartTime, aValues );
@@ -269,7 +184,8 @@ public abstract class S5SequenceSyncBlock<V extends ITemporal<?>, BLOB_ARRAY, BL
 
   @SuppressWarnings( "unchecked" )
   @Override
-  protected int doUniteBlocks( ISequenceFactory<V> aFactory, IList<ISequenceBlockEdit<V>> aBlocks, ILogger aLogger ) {
+  protected int doUniteBlocks( IS5SequenceFactory<V> aFactory, IList<IS5SequenceBlockEdit<V>> aBlocks,
+      ILogger aLogger ) {
     if( aBlocks.size() == 0 ) {
       // Не с чем объединять
       return 0;
@@ -412,6 +328,15 @@ public abstract class S5SequenceSyncBlock<V extends ITemporal<?>, BLOB_ARRAY, BL
     return syncDataDelta.longValue();
   }
 
+  /**
+   * Возвращает индекс импорта значения
+   *
+   * @return int индекс импорта. < 0: импорт не запущен
+   */
+  protected final int importIndex() {
+    return importIndex;
+  }
+
   // ------------------------------------------------------------------------------------
   // Методы для реализации наследниками
   //
@@ -421,9 +346,9 @@ public abstract class S5SequenceSyncBlock<V extends ITemporal<?>, BLOB_ARRAY, BL
    * @param aTypeInfo {@link IParameterized} параметризованное описание типа данного
    * @param aStartTime long время(мсек с начала эпохи) начала значений в блоке (включительно)
    * @param aValues BLOB_ARRAY массив значений блока
-   * @return {@link ISequenceBlockEdit} созданный блок
+   * @return {@link IS5SequenceBlockEdit} созданный блок
    */
-  protected abstract ISequenceBlockEdit<V> doCreateBlock( IParameterized aTypeInfo, long aStartTime,
+  protected abstract IS5SequenceBlockEdit<V> doCreateBlock( IParameterized aTypeInfo, long aStartTime,
       BLOB_ARRAY aValues );
 
   // ------------------------------------------------------------------------------------
@@ -545,27 +470,28 @@ public abstract class S5SequenceSyncBlock<V extends ITemporal<?>, BLOB_ARRAY, BL
    * @throws TsIllegalArgumentRtException метка времени должна быть выравнена по syncDataDelta
    */
   private int getIndexByTime( long aTimestamp ) {
-    // Проверка метки на попадание в диапазон
-    checkTimestamp( aTimestamp );
     long startTime = startTime();
     long dataDelta = syncDataDelta.longValue();
     long index = (aTimestamp - startTime) / dataDelta;
-    if( index * dataDelta != aTimestamp - startTime ) {
-      // Метка времени значения синхроного блока должна быть выравнена по границе dataDeltaT
-      String ts = timestampToString( aTimestamp );
-      String st = timestampToString( startTime );
-      throw new TsIllegalArgumentRtException( ERR_SYNC_WRONG_ALIGN, ts, st, syncDataDelta );
-    }
+    // 2022-10-28 mvk --- излишняя проверка
+    // if( index * dataDelta != aTimestamp - startTime ) {
+    // // Метка времени значения синхроного блока должна быть выравнена по границе dataDeltaT
+    // String ts = timestampToString( aTimestamp );
+    // String st = timestampToString( startTime );
+    // throw new TsIllegalArgumentRtException( ERR_SYNC_WRONG_ALIGN, ts, st, syncDataDelta );
+    // }
+    // Проверка метки на попадание в диапазон
+    checkTimestamp( startTime + index * dataDelta );
     return (int)index;
   }
 
   /**
    * Создает массив значений последовательно копируя значения исходного массива и значения указанных блоков
    *
-   * @param aFactory {@link ISequenceValueFactory} фабрика
+   * @param aFactory {@link IS5SequenceValueFactory} фабрика
    * @param aTypeInfo {@link IParameterized} параметризованное описание типа данного
    * @param aSource BLOB_ARRAY исходный массив значений
-   * @param aBlocks {@link IList}&lt;{@link ISequenceBlockEdit}&lt;&lt; список блоков поставляющих новые значения
+   * @param aBlocks {@link IList}&lt;{@link IS5SequenceBlockEdit}&lt;&lt; список блоков поставляющих новые значения
    * @param aFrom int индекс блока в списке блоков с которого начинать копирование
    * @param aCount int количество копируемых блоков
    * @return BLOB_TYPE массив значений
@@ -576,8 +502,8 @@ public abstract class S5SequenceSyncBlock<V extends ITemporal<?>, BLOB_ARRAY, BL
    */
   @SuppressWarnings( "unchecked" )
   private static <V extends ITemporal<?>, BLOB_ARRAY> //
-  BLOB_ARRAY addBlocksValues( ISequenceValueFactory aFactory, IParameterized aTypeInfo, BLOB_ARRAY aSource,
-      IList<ISequenceBlockEdit<V>> aBlocks, int aFrom, int aCount ) {
+  BLOB_ARRAY addBlocksValues( IS5SequenceValueFactory aFactory, IParameterized aTypeInfo, BLOB_ARRAY aSource,
+      IList<IS5SequenceBlockEdit<V>> aBlocks, int aFrom, int aCount ) {
     TsNullArgumentRtException.checkNulls( aFactory, aTypeInfo, aSource, aBlocks );
     // Размер исходного массива
     int oldSize = Array.getLength( aSource );
@@ -632,7 +558,7 @@ public abstract class S5SequenceSyncBlock<V extends ITemporal<?>, BLOB_ARRAY, BL
    * Создает массив значений последовательно копируя значения исходного массива и добавляя null-значения в указанном
    * количестве
    *
-   * @param aFactory {@link ISequenceValueFactory} фабрика
+   * @param aFactory {@link IS5SequenceValueFactory} фабрика
    * @param aTypeInfo {@link IParameterized} параметризованное описание типа данного
    * @param aSource BLOB_ARRAY исходный массив значений
    * @param aCount int количество копируемых null-значений
@@ -644,7 +570,7 @@ public abstract class S5SequenceSyncBlock<V extends ITemporal<?>, BLOB_ARRAY, BL
    */
   @SuppressWarnings( "unchecked" )
   private static <V extends ITemporal<?>, BLOB_ARRAY> //
-  BLOB_ARRAY addNullValues( ISequenceFactory<V> aFactory, IParameterized aTypeInfo, BLOB_ARRAY aSource, int aCount ) {
+  BLOB_ARRAY addNullValues( IS5SequenceFactory<V> aFactory, IParameterized aTypeInfo, BLOB_ARRAY aSource, int aCount ) {
     TsNullArgumentRtException.checkNulls( aFactory, aTypeInfo, aSource );
     if( !aSource.getClass().isArray() ) {
       // значения должны представлять массив

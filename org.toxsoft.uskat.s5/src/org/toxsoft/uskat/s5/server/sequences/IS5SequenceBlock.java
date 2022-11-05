@@ -10,7 +10,6 @@ import org.toxsoft.core.tslib.gw.gwid.Gwid;
 import org.toxsoft.core.tslib.utils.TsLibUtils;
 import org.toxsoft.core.tslib.utils.errors.*;
 import org.toxsoft.uskat.core.api.sysdescr.dto.IDtoRtdataInfo;
-import org.toxsoft.uskat.s5.server.backend.supports.histdata.impl.sequences.ITemporalValueImporter;
 
 /**
  * Блок значений последовательности {@link IS5Sequence}.
@@ -18,14 +17,15 @@ import org.toxsoft.uskat.s5.server.backend.supports.histdata.impl.sequences.ITem
  * @author mvk
  * @param <V> тип значения последовательности
  */
-public interface ISequenceBlock<V extends ITemporal<?>> {
+public interface IS5SequenceBlock<V extends ITemporal<?>>
+    extends IS5SequenceBlockReader {
 
   /**
    * "Нулевой" блок, всместо использования null.
    * <p>
-   * Все методы {@link ISequenceBlock} выбрасывают исключение {@link TsIllegalStateRtException}
+   * Все методы {@link IS5SequenceBlock} выбрасывают исключение {@link TsIllegalStateRtException}
    */
-  ISequenceBlock<?> NULL = new InternalNullDataValue();
+  IS5SequenceBlock<?> NULL = new InternalNullDataValue();
 
   /**
    * Возвращает НЕабстрактный {@link Gwid}-идентификатор данного значения которого хранятся в блоке
@@ -74,6 +74,13 @@ public interface ISequenceBlock<V extends ITemporal<?>> {
   V getValue( int aIndex );
 
   /**
+   * Создает курсор получения значений последовательности
+   *
+   * @return {@link IS5SequenceCursor} курсор
+   */
+  IS5SequenceCursor<V> createCursor();
+
+  /**
    * Возвращает время начала данных в блоке
    * <p>
    * {@link ITimeInterval} не используется в блоке по причине производительности.
@@ -110,49 +117,36 @@ public interface ISequenceBlock<V extends ITemporal<?>> {
    * @throws TsIllegalArgumentRtException для блоков сихронных значений метка времени должна быть выравнена по интервалу
    */
   int lastByTime( long aTimestamp );
+}
 
-  /**
-   * Установить начальную метку времени для импорта значений
-   *
-   * @param aTimestamp long метка времени (мсек с начала эпохи) с которой будет производиться импорт значений
-   */
-  void setImportTime( long aTimestamp );
-
-  /**
-   * Возвращает признак того, что импорт значений может быть продолжен вызовом {@link #nextImport()}
-   *
-   * @return <b>true</b> есть данные для импорта. <b>false</b> нет данных для импорта
-   */
-  boolean hasImport();
-
-  /**
-   * Импортировать следующее значение
-   *
-   * @return {@link ITemporalValueImporter} способ получения значений
-   * @throws TsIllegalArgumentRtException нет больше данных для импорта
-   */
-  ITemporalValueImporter nextImport();
-
+/**
+ * Несуществующее значение
+ *
+ * @author mvk
+ */
+interface IInternalNullValue
+    extends ITemporal<IInternalNullValue> {
+  // nop
 }
 
 /**
  * Реализация несуществующего блока
  */
 class InternalNullDataValue
-    implements ISequenceBlock<ITemporal<?>>, Serializable {
+    implements IS5SequenceBlock<IInternalNullValue>, Serializable {
 
   private static final long serialVersionUID = 157157L;
 
   /**
-   * Метод корректно восстанавливает сериализированный {@link ISequenceBlock#NULL}.
+   * Метод корректно восстанавливает сериализированный {@link IS5SequenceBlock#NULL}.
    *
-   * @return Object объект {@link ISequenceBlock#NULL}
+   * @return Object объект {@link IS5SequenceBlock#NULL}
    * @throws ObjectStreamException это обявление, оно тут не выбрасывается
    */
   @SuppressWarnings( { "static-method" } )
   private Object readResolve()
       throws ObjectStreamException {
-    return ISequenceBlock.NULL;
+    return IS5SequenceBlock.NULL;
   }
 
   // ------------------------------------------------------------------------------------
@@ -170,11 +164,11 @@ class InternalNullDataValue
 
   @Override
   public String toString() {
-    return ISequenceBlock.class.getSimpleName() + ".NULL"; //$NON-NLS-1$
+    return IS5SequenceBlock.class.getSimpleName() + ".NULL"; //$NON-NLS-1$
   }
 
   // ------------------------------------------------------------------------------------
-  // Реализация методов ISequenceBlock
+  // Реализация методов IS5SequenceBlock
   //
   @Override
   public Gwid gwid() {
@@ -197,7 +191,12 @@ class InternalNullDataValue
   }
 
   @Override
-  public ITemporal<?> getValue( int aIndex ) {
+  public IInternalNullValue getValue( int aIndex ) {
+    throw new TsNullObjectErrorRtException();
+  }
+
+  @Override
+  public IS5SequenceCursor<IInternalNullValue> createCursor() {
     throw new TsNullObjectErrorRtException();
   }
 
@@ -218,21 +217,6 @@ class InternalNullDataValue
 
   @Override
   public int lastByTime( long aTimestamp ) {
-    throw new TsNullObjectErrorRtException();
-  }
-
-  @Override
-  public void setImportTime( long aTimestamp ) {
-    throw new TsNullObjectErrorRtException();
-  }
-
-  @Override
-  public boolean hasImport() {
-    throw new TsNullObjectErrorRtException();
-  }
-
-  @Override
-  public ITemporalValueImporter nextImport() {
     throw new TsNullObjectErrorRtException();
   }
 }

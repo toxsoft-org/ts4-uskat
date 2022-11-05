@@ -8,7 +8,7 @@ import org.toxsoft.core.tslib.bricks.strid.IStridable;
  *
  * @author mvk
  */
-public interface ISequenceValueFactory
+public interface IS5SequenceValueFactory
     extends IStridable {
 
   /**

@@ -1,6 +1,5 @@
 package org.toxsoft.uskat.s5.common.sessions;
 
-import org.toxsoft.core.tslib.av.EAtomicType;
 import org.toxsoft.core.tslib.av.IAtomicValue;
 import org.toxsoft.core.tslib.av.opset.IOptionSet;
 import org.toxsoft.core.tslib.bricks.ctx.ITsContextRo;
@@ -9,7 +8,6 @@ import org.toxsoft.uskat.core.ISkHardConstants;
 import org.toxsoft.uskat.core.api.objserv.ISkObject;
 import org.toxsoft.uskat.core.api.objserv.ISkObjectService;
 import org.toxsoft.uskat.core.api.users.ISkUser;
-import org.toxsoft.uskat.core.connection.ESkConnState;
 import org.toxsoft.uskat.core.connection.ISkConnection;
 
 /**
@@ -65,20 +63,6 @@ public interface ISkSession
    * Идентификатор РВ-данного "Состояние соединения"
    */
   String RTDID_STATE = "State"; //$NON-NLS-1$
-
-  /**
-   * Идентификатор события "Изменилось состояние сессии (состояние сединения)".
-   * <p>
-   * Событие имеет один параметр {@link #EVPID_NEW_STATE}.
-   */
-  String EVID_STATE_CHANGED = "StateChanged"; //$NON-NLS-1$
-
-  /**
-   * Параметр "Новое (текущее) состояние сессии".
-   * <p>
-   * Параметр имеет значение {@link EAtomicType#VALOBJ} хранящий {@link ESkConnState}.
-   */
-  String EVPID_NEW_STATE = "NewState"; //$NON-NLS-1$
 
   /**
    * Returns the connection start time.

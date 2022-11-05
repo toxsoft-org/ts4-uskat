@@ -1,15 +1,12 @@
 package org.toxsoft.uskat.s5.server.backend.supports.queries;
 
-import org.toxsoft.core.tslib.av.temporal.ITemporalAtomicValue;
 import org.toxsoft.core.tslib.bricks.time.ITemporal;
 import org.toxsoft.core.tslib.bricks.time.ITimedList;
 import org.toxsoft.core.tslib.utils.Pair;
 import org.toxsoft.core.tslib.utils.errors.TsNullArgumentRtException;
-import org.toxsoft.uskat.core.api.cmdserv.ISkCommand;
-import org.toxsoft.uskat.core.api.evserv.ISkEventList;
 import org.toxsoft.uskat.core.api.hqserv.IDtoQueryParam;
 import org.toxsoft.uskat.core.api.hqserv.ISkQueryProcessedData;
-import org.toxsoft.uskat.s5.server.backend.supports.histdata.impl.sequences.ITemporalValueImporter;
+import org.toxsoft.uskat.s5.server.sequences.IS5SequenceCursor;
 
 /**
  * Функция обработки "сырых" значений данных
@@ -31,14 +28,13 @@ public interface IS5BackendQueriesFunction {
   Pair<String, IDtoQueryParam> arg();
 
   /**
-   * Обработать следующее "сырое" значение данного.
+   * Обработка значений последовательности
    *
-   * @param aImporter {@link ITemporalValueImporter} импортер следущего значения для агрегации.
-   *          {@link ITemporalValueImporter#NULL} - больше нет значений
-   * @return {@link ITimedList} список сформированных значений. Пустой список - значения еще не сформированы.
-   * @param <T> тип хранимых значений, например {@link ITemporalAtomicValue}, {@link ISkEventList}, {@link ISkCommand}
+   * @param aCursor {@link IS5SequenceCursor} курсор последовательности значений
+   * @param <T> тип значений
+   * @return {@link ITimedList} список обработанных значений
    * @throws TsNullArgumentRtException аргумент = null
    */
-  <T extends ITemporal<?>> ITimedList<T> nextValue( ITemporalValueImporter aImporter );
+  <T extends ITemporal<?>> ITimedList<T> evaluate( IS5SequenceCursor<?> aCursor );
 
 }

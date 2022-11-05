@@ -86,10 +86,10 @@ class S5SequenceLazyWriter<S extends IS5Sequence<V>, V extends ITemporal<?>>
    * Создает писатель последовательностей
    *
    * @param aBackendCore {@link IS5BackendCoreSingleton} ядро бекенда сервера
-   * @param aSequenceFactory {@link ISequenceFactory} фабрика последовательностей блоков
+   * @param aSequenceFactory {@link IS5SequenceFactory} фабрика последовательностей блоков
    * @throws TsNullArgumentRtException аргумент = null
    */
-  S5SequenceLazyWriter( IS5BackendCoreSingleton aBackendCore, ISequenceFactory<V> aSequenceFactory ) {
+  S5SequenceLazyWriter( IS5BackendCoreSingleton aBackendCore, IS5SequenceFactory<V> aSequenceFactory ) {
     super( aBackendCore, aSequenceFactory );
   }
 
@@ -157,7 +157,7 @@ class S5SequenceLazyWriter<S extends IS5Sequence<V>, V extends ITemporal<?>>
     // Признак ручного или автоматического объединения данных
     boolean isAuto = !args.hasValue( IS5SequenceUnionOptions.INTERVAL );
     // Список данных для объединения
-    IList<ISequenceFragmentInfo> infoes =
+    IList<IS5SequenceFragmentInfo> infoes =
         (!isAuto ? prepareManual( args ) : prepareAuto( args, statistics, uniterLogger ));
     // Текущий размер очереди на дефрагментацию
     int queueSize = getUnionQueueSize();
@@ -176,7 +176,7 @@ class S5SequenceLazyWriter<S extends IS5Sequence<V>, V extends ITemporal<?>>
     uniterLogger.info( MSG_UNION_START_THREAD, c, q, interval );
     // Исполнитель s5-потоков записи данных
     S5WriteThreadExecutor executor = new S5WriteThreadExecutor( unionExecutor(), uniterLogger );
-    for( ISequenceFragmentInfo info : infoes ) {
+    for( IS5SequenceFragmentInfo info : infoes ) {
       // Регистрация потока
       executor.add( new UnionThread( info, args, statistics, uniterLogger ) );
     }
@@ -263,12 +263,12 @@ class S5SequenceLazyWriter<S extends IS5Sequence<V>, V extends ITemporal<?>>
    * @param aSequence S последовательность
    * @param aStatistics {@link S5SequenceWriteStat} редактируемая статистика
    * @param aThreadIndex int индекс записи (индекс потока или просто порядковый номер, для журнала)
-   * @return {@link ISequenceBlock}&lt;V&gt; блок последних значений записаных в dbms. null: неопределен
+   * @return {@link IS5SequenceBlock}&lt;V&gt; блок последних значений записаных в dbms. null: неопределен
    * @throws TsNullArgumentRtException любой аргумент = null
    * @throws TsIllegalStateRtException попытка конкуретного изменения данных последовательности
    */
   @SuppressWarnings( "unchecked" )
-  protected ISequenceBlock<V> writeSequence( EntityManager aEntityManager, S aSequence, S5SequenceWriteStat aStatistics,
+  protected IS5SequenceBlock<V> writeSequence( EntityManager aEntityManager, S aSequence, S5SequenceWriteStat aStatistics,
       int aThreadIndex ) {
     TsNullArgumentRtException.checkNulls( aEntityManager, aSequence, aSequence );
     // Индекс потока
@@ -278,14 +278,14 @@ class S5SequenceLazyWriter<S extends IS5Sequence<V>, V extends ITemporal<?>>
     // Идентификатор данного
     Gwid gwid = aSequence.gwid();
     // Фабрика последовательностей
-    ISequenceFactory<V> factory = sequenceFactory();
+    IS5SequenceFactory<V> factory = sequenceFactory();
     // Статистика dbms
     S5DbmsStatistics dbmsStat = aStatistics.dbmsStatistics();
     // Локальная статистика обработки
     ITimeInterval writeInterval = aSequence.interval();
     ITimeInterval loadedInterval = aSequence.interval();
     // Последовательность блоков.
-    List<ISequenceBlock<V>> blocks = null;
+    List<IS5SequenceBlock<V>> blocks = null;
     // Интервал запрашиваемых блоков
     long st = loadedInterval.startTime();
     long et = loadedInterval.endTime();
@@ -319,10 +319,10 @@ class S5SequenceLazyWriter<S extends IS5Sequence<V>, V extends ITemporal<?>>
       loadedInterval = new TimeInterval( st, et );
     }
     // Использование реализации ElemArrayList из-за prepareDbmsBlocks которому это необходимо для производительности
-    ElemArrayList<ISequenceBlock<V>> addedBlocks = new ElemArrayList<>( aSequence.blocks().size() );
-    ElemArrayList<ISequenceBlock<V>> mergedBlocks = new ElemArrayList<>( blocks.size() );
-    ElemArrayList<ISequenceBlock<V>> removedBlocks = new ElemArrayList<>( blocks.size() );
-    ElemArrayList<ISequenceBlock<V>> unmanagedBlocks = new ElemArrayList<>( blocks.size() );
+    ElemArrayList<IS5SequenceBlock<V>> addedBlocks = new ElemArrayList<>( aSequence.blocks().size() );
+    ElemArrayList<IS5SequenceBlock<V>> mergedBlocks = new ElemArrayList<>( blocks.size() );
+    ElemArrayList<IS5SequenceBlock<V>> removedBlocks = new ElemArrayList<>( blocks.size() );
+    ElemArrayList<IS5SequenceBlock<V>> unmanagedBlocks = new ElemArrayList<>( blocks.size() );
 
     int writedCount = aSequence.blocks().size();
     long addedTime = 0;
@@ -331,7 +331,7 @@ class S5SequenceLazyWriter<S extends IS5Sequence<V>, V extends ITemporal<?>>
 
     // Формирование последовательности
     IQueryInterval targetInterval = new QueryInterval( EQueryIntervalType.CSCE, st, et );
-    Iterable<ISequenceBlockEdit<V>> targetBlocks = (Iterable<ISequenceBlockEdit<V>>)(Object)blocks;
+    Iterable<IS5SequenceBlockEdit<V>> targetBlocks = (Iterable<IS5SequenceBlockEdit<V>>)(Object)blocks;
     IS5SequenceEdit<V> target = factory.createSequence( gwid, targetInterval, targetBlocks );
     // Редактирование значений
     if( !target.edit( aSequence, removedBlocks ) ) {
@@ -365,7 +365,7 @@ class S5SequenceLazyWriter<S extends IS5Sequence<V>, V extends ITemporal<?>>
    * @param aInfoes {@link IList}&lt;I&gt; описания данных для которых была проведена дефрагментация
    * @param aLogger {@link ILogger} журнал работы
    */
-  protected void onUnionEvent( IOptionSet aArgs, IList<ISequenceFragmentInfo> aInfoes, ILogger aLogger ) {
+  protected void onUnionEvent( IOptionSet aArgs, IList<IS5SequenceFragmentInfo> aInfoes, ILogger aLogger ) {
     TsNullArgumentRtException.checkNulls( aArgs, aInfoes, aLogger );
   }
 
@@ -376,12 +376,12 @@ class S5SequenceLazyWriter<S extends IS5Sequence<V>, V extends ITemporal<?>>
   /**
    * Возвращает имя таблицы базы данных хранения значений данного
    *
-   * @param aFactory {@link ISequenceFactory} фабрика формирования последовательностей
+   * @param aFactory {@link IS5SequenceFactory} фабрика формирования последовательностей
    * @param aDataGwid {@link Gwid} идентификатор данного
    * @return String имя таблицы
    * @throws TsNullArgumentRtException любой аргумент = null
    */
-  private static String tableName( ISequenceFactory<?> aFactory, Gwid aDataGwid ) {
+  private static String tableName( IS5SequenceFactory<?> aFactory, Gwid aDataGwid ) {
     TsNullArgumentRtException.checkNulls( aFactory, aDataGwid );
     // Параметризованное описание типа данного
     IParameterized typeInfo = aFactory.typeInfo( aDataGwid );
@@ -395,7 +395,7 @@ class S5SequenceLazyWriter<S extends IS5Sequence<V>, V extends ITemporal<?>>
    * @return {@link IList}&lt;I&gt; список описаний данных для объединения
    * @throws TsNullArgumentRtException аргумент = null
    */
-  private IList<ISequenceFragmentInfo> prepareManual( IOptionSetEdit aArgs ) {
+  private IList<IS5SequenceFragmentInfo> prepareManual( IOptionSetEdit aArgs ) {
     TsNullArgumentRtException.checkNull( aArgs );
     // Менеджер постоянства
     EntityManager em = entityManagerFactory().createEntityManager();
@@ -403,7 +403,7 @@ class S5SequenceLazyWriter<S extends IS5Sequence<V>, V extends ITemporal<?>>
       // Запрос всех идентификаторов данных которые есть в базе данных
       IGwidList allGwids = getAllGwids( em, sequenceFactory().tableNames() );
       // Информация о фрагментации
-      IListEdit<ISequenceFragmentInfo> infoes = new ElemArrayList<>( allGwids.size() );
+      IListEdit<IS5SequenceFragmentInfo> infoes = new ElemArrayList<>( allGwids.size() );
       // Идентификаторы данных. null: неопределены
       IGwidList gwids = null;
       if( aArgs.hasValue( IS5SequenceUnionOptions.GWIDS ) ) {
@@ -431,14 +431,14 @@ class S5SequenceLazyWriter<S extends IS5Sequence<V>, V extends ITemporal<?>>
    * @param aArgs {@link IOptionSetEdit} аргументы для дефрагментации блоков .
    * @param aStatistics {@link S5SequenceUnionStat} статистика с возможностью редактирования
    * @param aLogger {@link ILogger} журнал
-   * @return {@link IList}&lt;ISequenceFragmentInfo&gt; список описаний фрагментированности данных
+   * @return {@link IList}&lt;IS5SequenceFragmentInfo&gt; список описаний фрагментированности данных
    * @throws TsNullArgumentRtException любой аргумент = null
    */
-  private IList<ISequenceFragmentInfo> prepareAuto( IOptionSetEdit aArgs, S5SequenceUnionStat<V> aStatistics,
+  private IList<IS5SequenceFragmentInfo> prepareAuto( IOptionSetEdit aArgs, S5SequenceUnionStat<V> aStatistics,
       ILogger aLogger ) {
     TsNullArgumentRtException.checkNulls( aArgs, aLogger );
     // Фабрика последовательностей
-    ISequenceFactory<V> factory = sequenceFactory();
+    IS5SequenceFactory<V> factory = sequenceFactory();
     // Смещение дефрагментации от текущего времении
     long offset = IS5SequenceUnionOptions.AUTO_OFFSET.getValue( aArgs ).asLong();
     // Максимальное время фрагментации
@@ -457,7 +457,7 @@ class S5SequenceLazyWriter<S extends IS5Sequence<V>, V extends ITemporal<?>>
     long fragmentEndTime = currTime - offset;
     EntityManager em = entityManagerFactory().createEntityManager();
     // Возвращаемый результат
-    IListEdit<ISequenceFragmentInfo> retValue = new ElemArrayList<>();
+    IListEdit<IS5SequenceFragmentInfo> retValue = new ElemArrayList<>();
     // Текущее количество выполненных операций поиска дефрагментации
     int lookupCount = 0;
     try {
@@ -480,7 +480,7 @@ class S5SequenceLazyWriter<S extends IS5Sequence<V>, V extends ITemporal<?>>
           if( gwid != null ) {
             // Создаем потоко-независимую копию дефрагментации данного
             candiateFragments = new S5SequenceFragmentInfo( unionCandidateFragments.getByKey( gwid ) );
-            ISequenceFragmentInfo tmp = unionAllFragments.findByKey( gwid );
+            IS5SequenceFragmentInfo tmp = unionAllFragments.findByKey( gwid );
             if( tmp != null ) {
               allFragments = new S5SequenceFragmentInfo( tmp );
             }
@@ -503,7 +503,7 @@ class S5SequenceLazyWriter<S extends IS5Sequence<V>, V extends ITemporal<?>>
         int fragmentCount = (allFragments != null ? allFragments.fragmentCount() : 0)
             + (candiateFragments != null ? candiateFragments.fragmentCount() : 0);
         // Реальное количество фрагментов полученных чтением из базы данных
-        ISequenceFragmentInfo realAllFragments = ISequenceFragmentInfo.NULL;
+        IS5SequenceFragmentInfo realAllFragments = IS5SequenceFragmentInfo.NULL;
         // Вывод трасировки в журнал
         logger().debug( MSG_GWID_FRAGMENT_COUNT, gwid, Integer.valueOf( lookupCount ),
             Integer.valueOf( fragmentCount ) );
@@ -520,13 +520,13 @@ class S5SequenceLazyWriter<S extends IS5Sequence<V>, V extends ITemporal<?>>
           // Обновление статистики
           aStatistics.addLookupCount();
           // // Обновление количества фрагментов
-          // if( realAllFragments != ISequenceFragmentInfo.NULL ) {
+          // if( realAllFragments != IS5SequenceFragmentInfo.NULL ) {
           // fragmentCount = realAllFragments.fragmentCount();
           // }
         }
         // Признак необходимости провести дефрагментацию
         boolean needDefragmentation =
-            (realAllFragments != ISequenceFragmentInfo.NULL && realAllFragments.fragmentCount() > 0);
+            (realAllFragments != IS5SequenceFragmentInfo.NULL && realAllFragments.fragmentCount() > 0);
         // Признак того, что дефрагментированная последовательность выбрана полностью
         boolean fragmentCompleted =
             (!needDefragmentation || fragmentCountMax < 0 || realAllFragments.fragmentCount() < fragmentCountMax);
@@ -551,10 +551,10 @@ class S5SequenceLazyWriter<S extends IS5Sequence<V>, V extends ITemporal<?>>
               String tableName = tableName( sequenceFactory(), gwid );
               // Количество фрагментов найденных в базе, но недостаточно для дефрагментации
               int realCount =
-                  (realAllFragments == ISequenceFragmentInfo.NULL ? 0 : realAllFragments.fragmentAfterCount());
+                  (realAllFragments == IS5SequenceFragmentInfo.NULL ? 0 : realAllFragments.fragmentAfterCount());
               // Время с которого начинаются фрагменты найденные в базе
               long realStartTime =
-                  (realAllFragments == ISequenceFragmentInfo.NULL ? currTime : realAllFragments.interval().endTime());
+                  (realAllFragments == IS5SequenceFragmentInfo.NULL ? currTime : realAllFragments.interval().endTime());
               // Реальная фрагментация (полученная из базы) до текущего времени
               allFragments = new S5SequenceFragmentInfo( tableName, gwid, realStartTime, currTime, realCount );
               unionAllFragments.put( gwid, allFragments );
@@ -681,7 +681,7 @@ class S5SequenceLazyWriter<S extends IS5Sequence<V>, V extends ITemporal<?>>
   private class UnionThread
       extends S5AbstractWriteThread {
 
-    private final ISequenceFragmentInfo  fragmentInfo;
+    private final IS5SequenceFragmentInfo  fragmentInfo;
     private final S5SequenceUnionStat<V> stat;
 
     /**
@@ -693,7 +693,7 @@ class S5SequenceLazyWriter<S extends IS5Sequence<V>, V extends ITemporal<?>>
      * @param aLogger {@link ILogger} журнал
      * @throws TsNullArgumentRtException любой аргумент = null
      */
-    UnionThread( ISequenceFragmentInfo aFragmentInfo, IOptionSet aArgs, S5SequenceUnionStat<V> aStatistics,
+    UnionThread( IS5SequenceFragmentInfo aFragmentInfo, IOptionSet aArgs, S5SequenceUnionStat<V> aStatistics,
         ILogger aLogger ) {
       super( aLogger );
       TsNullArgumentRtException.checkNulls( aArgs, aFragmentInfo, aStatistics );

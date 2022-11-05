@@ -17,8 +17,8 @@ import org.toxsoft.uskat.s5.server.sequences.impl.S5SequenceBlock;
  * @author mvk
  * @param <V> тип значения последовательности
  */
-public interface ISequenceFactory<V extends ITemporal<?>>
-    extends ISequenceValueFactory {
+public interface IS5SequenceFactory<V extends ITemporal<?>>
+    extends IS5SequenceValueFactory {
 
   /**
    * Список имен таблиц базы данных в которых возможно хранение значений данных
@@ -44,31 +44,31 @@ public interface ISequenceFactory<V extends ITemporal<?>>
    * @param aGwid {@link Gwid} идентификатор данного
    * @param aInterval {@link IQueryInterval} интервал времени последовательности, подробности смотри в
    *          {@link IS5Sequence#interval()}
-   * @param aBlocks {@link Iterable}&lt;{@link ISequenceBlockEdit}&gt; список блоков представляющих последовательность
+   * @param aBlocks {@link Iterable}&lt;{@link IS5SequenceBlockEdit}&gt; список блоков представляющих последовательность
    * @return {@link IS5SequenceEdit} последовательность с возможностью редактирования
    * @throw {@link TsNullArgumentRtException} любой аргумент = null
    */
-  IS5SequenceEdit<V> createSequence( Gwid aGwid, IQueryInterval aInterval, Iterable<ISequenceBlockEdit<V>> aBlocks );
+  IS5SequenceEdit<V> createSequence( Gwid aGwid, IQueryInterval aInterval, Iterable<IS5SequenceBlockEdit<V>> aBlocks );
 
   /**
    * Создает блок значений данного
    *
    * @param aGwid {@link Gwid} идентификатор данного
    * @param aValues {@link ITimedList}&lt;{@link ITemporal}&gt; список значений
-   * @return {@link ISequenceBlockEdit} блок значений с возможностью редактирования
+   * @return {@link IS5SequenceBlockEdit} блок значений с возможностью редактирования
    * @throws TsNullArgumentRtException любой аргумент = null
    * @throws TsIllegalArgumentRtException количество значений в блоке = 0
    */
-  ISequenceBlockEdit<V> createBlock( Gwid aGwid, ITimedList<V> aValues );
+  IS5SequenceBlockEdit<V> createBlock( Gwid aGwid, ITimedList<V> aValues );
 
   /**
    * Создает блок значений данного из текущей записи курсора dbms
    *
    * @param aBlockImplClassName String полное имя класса реализации блока значений, наследника {@link S5SequenceBlock}
    * @param aResultSet {@link ResultSet} курсор dbms
-   * @return {@link ISequenceBlock} блок значений с возможностью редактирования
+   * @return {@link IS5SequenceBlock} блок значений с возможностью редактирования
    * @throws TsNullArgumentRtException любой аргумент = null
    */
-  ISequenceBlockEdit<V> createBlock( String aBlockImplClassName, ResultSet aResultSet );
+  IS5SequenceBlockEdit<V> createBlock( String aBlockImplClassName, ResultSet aResultSet );
 
 }

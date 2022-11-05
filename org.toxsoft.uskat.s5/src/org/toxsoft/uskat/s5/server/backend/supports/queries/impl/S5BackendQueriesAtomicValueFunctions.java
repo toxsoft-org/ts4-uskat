@@ -22,8 +22,8 @@ import org.toxsoft.core.tslib.utils.Pair;
 import org.toxsoft.core.tslib.utils.errors.*;
 import org.toxsoft.core.tslib.utils.logs.ILogger;
 import org.toxsoft.uskat.core.api.hqserv.IDtoQueryParam;
-import org.toxsoft.uskat.s5.server.backend.supports.histdata.impl.sequences.ITemporalValueImporter;
 import org.toxsoft.uskat.s5.server.backend.supports.queries.IS5BackendQueriesFunction;
+import org.toxsoft.uskat.s5.server.sequences.IS5SequenceCursor;
 
 /**
  * Функции обработки атомарных значений
@@ -57,6 +57,7 @@ class S5BackendQueriesAtomicValueFunctions
   private final EAtomicType                          type;
   private final ITimeInterval                        interval;
   private final long                                 aggregationStep;
+  private final long                                 aggregationStart;
   private final long                                 factAggregationStep;
   private final boolean                              repeatByEmpty;
   private final S5BackendQueriesCounter              rawCounter;
@@ -101,7 +102,7 @@ class S5BackendQueriesAtomicValueFunctions
    * @param aType тип значений
    * @param aInterval {@link ITimeInterval} интервал запрашиваемых данных
    * @param aRawCounter {@link S5BackendQueriesCounter} счетчик "сырых" значений
-   * @param aValuesCounter {@link S5BackendQueriesCounter} счетчик агрегированных значений для всего запроса
+   * @param rawValuesCounter {@link S5BackendQueriesCounter} счетчик агрегированных значений для всего запроса
    * @param aOptions {@link IOptionSet} параметры выполнения запроса
    * @param aLogger {@link ILogger} журнал
    * @throws TsNullArgumentRtException аргумент = null
@@ -109,9 +110,9 @@ class S5BackendQueriesAtomicValueFunctions
    * @throws TsIllegalArgumentRtException недопустимый тип значений для агрегации
    */
   S5BackendQueriesAtomicValueFunctions( String aParamId, IDtoQueryParam aArg, EAtomicType aType,
-      ITimeInterval aInterval, S5BackendQueriesCounter aRawCounter, S5BackendQueriesCounter aValuesCounter,
+      ITimeInterval aInterval, S5BackendQueriesCounter aRawCounter, S5BackendQueriesCounter rawValuesCounter,
       IOptionSet aOptions, ILogger aLogger ) {
-    TsNullArgumentRtException.checkNulls( aArg, aType, aInterval, aValuesCounter, aOptions );
+    TsNullArgumentRtException.checkNulls( aArg, aType, aInterval, rawValuesCounter, aOptions );
     arg = new Pair<>( aParamId, aArg );
     switch( aArg.funcId() ) {
       case EMPTY_STRING:
@@ -150,6 +151,8 @@ class S5BackendQueriesAtomicValueFunctions
     interval = aInterval;
     // Интервал агрегации. 0: на всем интервале
     aggregationStep = HQFUNC_ARG_AGGREGAION_INTERVAL.getValue( aArg.funcArgs() ).asLong();
+    // Время начала агрегации
+    aggregationStart = HQFUNC_ARG_AGGREGAION_START.getValue( aArg.funcArgs() ).asLong();
     // Фактический интервал(мсек) агрегации. +1: включительно
     factAggregationStep = (aggregationStep == 0 ? interval.endTime() - interval.startTime() + 1 : aggregationStep);
     // Повтор предыдущего значения если на текущем интервале агрегации нет значений
@@ -172,7 +175,7 @@ class S5BackendQueriesAtomicValueFunctions
     // Общий счетчик сырых значений
     rawCounter = aRawCounter;
     // Общий счетчик обработанных значений
-    valuesCounter = aValuesCounter;
+    valuesCounter = rawValuesCounter;
     // Максимальное количество значений в ответе
     answerSize = RESULT_COUNT_MAX;
     // Журнал
@@ -187,12 +190,43 @@ class S5BackendQueriesAtomicValueFunctions
     return arg;
   }
 
-  @SuppressWarnings( "unchecked" )
   @Override
-  public <T extends ITemporal<?>> ITimedList<T> nextValue( ITemporalValueImporter aValue ) {
-    TsNullArgumentRtException.checkNull( aValue );
+  public <T extends ITemporal<?>> ITimedList<T> evaluate( IS5SequenceCursor<?> aCursor ) {
+    TsNullArgumentRtException.checkNull( aCursor );
+    // Результат
+    ITimedListEdit<T> retValue = new TimedList<>();
+    // Установка курсора на начало последовательности
+    // TODO: Отработать aggregationStart
+    aCursor.setTime( interval.startTime() );
+    // Обработка значений курсора
+    while( aCursor.hasNextValue() ) {
+      // Следующее raw-значение последовательности
+      ITemporalAtomicValue value = (ITemporalAtomicValue)aCursor.nextValue();
+      // Фильтрация
+      if( filter.accept( value.value() ) ) {
+        retValue.addAll( nextValue( value ) );
+      }
+    }
+    // Обработка последнего значения
+    retValue.addAll( nextValue( null ) );
+    // Результат
+    return retValue;
+  }
+
+  // ------------------------------------------------------------------------------------
+  // Внутренние методы
+  //
+  /**
+   * Обработка текущего "сырого" значения
+   *
+   * @param aValue {@link ITemporalAtomicValue} текущее "сырое" значение. null: завершение обработки
+   * @param <T> тип значения
+   * @return {@link ITimedList} список обработанных значений
+   */
+  @SuppressWarnings( "unchecked" )
+  private <T extends ITemporal<?>> ITimedList<T> nextValue( ITemporalAtomicValue aValue ) {
     rawCounter.add( 1 );
-    if( aValue == ITemporalValueImporter.NULL ) {
+    if( aValue == null ) {
       // У последовательности больше нет значений. Формирование последнего значения
       addValue();
       // Дополнение по необходимости пустыми значениями
@@ -200,23 +234,24 @@ class S5BackendQueriesAtomicValueFunctions
       // Передача сформированного результата
       return (ITimedList<T>)result;
     }
-    if( !aValue.isAssigned() ) {
+    IAtomicValue cursorValue = aValue.value();
+    if( !cursorValue.isAssigned() ) {
       // null-значения не обрабатываются
       return (ITimedList<T>)EMPTY_TIMED_LIST;
     }
     if( func == EKnownFunc.NONE ) {
       // Нет агрегации. Просто повторяем входные значения
-      // IAtomicValue value = (aValue.isAssigned() ? AvUtils.avInt( aValue, type ) : IAtomicValue.NULL);
+      // IAtomicValue value = (rawValue.isAssigned() ? AvUtils.avInt( rawValue, type ) : IAtomicValue.NULL);
       IAtomicValue value = IAtomicValue.NULL;
-      if( aValue.isAssigned() ) {
+      if( cursorValue.isAssigned() ) {
         value = switch( type ) {
           case NONE -> IAtomicValue.NULL;
-          case BOOLEAN -> AvUtils.avBool( aValue.asBool() );
-          case FLOATING -> AvUtils.avFloat( aValue.asFloat() );
-          case INTEGER -> AvUtils.avInt( aValue.asInt() );
-          case TIMESTAMP -> AvUtils.avTimestamp( aValue.asLong() );
-          case STRING -> AvUtils.avStr( aValue.asString() );
-          case VALOBJ -> AvUtils.avValobj( aValue.asValobj() );
+          case BOOLEAN -> AvUtils.avBool( cursorValue.asBool() );
+          case FLOATING -> AvUtils.avFloat( cursorValue.asFloat() );
+          case INTEGER -> AvUtils.avInt( cursorValue.asInt() );
+          case TIMESTAMP -> AvUtils.avTimestamp( cursorValue.asLong() );
+          case STRING -> AvUtils.avStr( cursorValue.asString() );
+          case VALOBJ -> AvUtils.avValobj( cursorValue.asValobj() );
           default -> throw new TsNotAllEnumsUsedRtException();
         };
       }
@@ -243,7 +278,7 @@ class S5BackendQueriesAtomicValueFunctions
       // addEmptyValues( intervalStartTime - factAggregationStep );
     }
     // Метка времени попадает в интервал усреднения по завершению интервала
-    double value = aValue.asDouble();
+    double value = cursorValue.asDouble();
     switch( func ) {
       case NONE:
         // Недопустимое состояние
@@ -273,9 +308,6 @@ class S5BackendQueriesAtomicValueFunctions
     return (ITimedList<T>)EMPTY_TIMED_LIST;
   }
 
-  // ------------------------------------------------------------------------------------
-  // Внутренние методы
-  //
   /**
    * Создает агрегированное значение на интервале
    *

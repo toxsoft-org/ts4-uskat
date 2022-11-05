@@ -36,8 +36,8 @@ import org.toxsoft.uskat.s5.server.backend.supports.events.IS5BackendEventSingle
 import org.toxsoft.uskat.s5.server.backend.supports.events.sequences.IS5EventSequence;
 import org.toxsoft.uskat.s5.server.backend.supports.events.sequences.IS5EventSequenceEdit;
 import org.toxsoft.uskat.s5.server.frontend.IS5FrontendRear;
-import org.toxsoft.uskat.s5.server.sequences.ISequenceBlock;
-import org.toxsoft.uskat.s5.server.sequences.ISequenceFactory;
+import org.toxsoft.uskat.s5.server.sequences.IS5SequenceBlock;
+import org.toxsoft.uskat.s5.server.sequences.IS5SequenceFactory;
 import org.toxsoft.uskat.s5.server.sequences.impl.S5BackendSequenceSupportSingleton;
 import org.toxsoft.uskat.s5.server.sequences.impl.S5SequenceFactory;
 import org.toxsoft.uskat.s5.server.transactions.*;
@@ -169,13 +169,13 @@ public class S5BackendEventSingleton
 
     // Чтение событий
     long traceReadStartTime = System.currentTimeMillis();
-    IList<IS5EventSequence> sequences = readSequences( gwids, aInterval, ACCESS_TIMEOUT_DEFAULT );
+    IMap<Gwid, IS5EventSequence> sequences = readSequences( gwids, aInterval, ACCESS_TIMEOUT_DEFAULT );
     long traceReadEndTime = System.currentTimeMillis();
 
     // Фильтрация событий и формирование сводного(по объектам) результата запроса
     IListEdit<SkEvent> events = new ElemLinkedList<>();
     for( IS5EventSequence sequence : sequences ) {
-      for( ISequenceBlock<SkEvent> block : sequence.blocks() ) {
+      for( IS5SequenceBlock<SkEvent> block : sequence.blocks() ) {
         for( int index = 0, n = block.size(); index < n; index++ ) {
           SkEvent event = block.getValue( index );
           for( Gwid gwid : aNeededGwids ) {
@@ -290,7 +290,7 @@ public class S5BackendEventSingleton
   }
 
   @Override
-  protected ISequenceFactory<SkEvent> doCreateFactory() {
+  protected IS5SequenceFactory<SkEvent> doCreateFactory() {
     return new S5EventSequenceFactory( backend().initialConfig().impl(), sysdescrReader() );
   }
 

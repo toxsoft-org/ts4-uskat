@@ -60,19 +60,19 @@ public class S5SequenceThreadRead<S extends IS5Sequence<V>, V extends ITemporal<
     // Интервал запроса
     IQueryInterval interval = query.interval();
     // Фабрика значений
-    ISequenceFactory<V> factory = (ISequenceFactory<V>)query.factory();
+    IS5SequenceFactory<V> factory = (IS5SequenceFactory<V>)query.factory();
     long traceTimestamp = System.currentTimeMillis();
     long traceReadTimeout = 0;
     long traceCreateTimeout = 0;
     try {
       // Чтение блоков
-      IMap<Gwid, IList<ISequenceBlock<V>>> readBlocks = readBlocks( query, gwids );
+      IMap<Gwid, IList<IS5SequenceBlock<V>>> readBlocks = readBlocks( query, gwids );
       traceReadTimeout = System.currentTimeMillis() - traceTimestamp;
       traceTimestamp = System.currentTimeMillis();
       // Создание последовательностей
       for( int index = 0, n = readBlocks.keys().size(); index < n; index++ ) {
         Gwid gwid = readBlocks.keys().get( index );
-        IList<ISequenceBlockEdit<V>> blocks = (IList<ISequenceBlockEdit<V>>)(Object)readBlocks.values().get( index );
+        IList<IS5SequenceBlockEdit<V>> blocks = (IList<IS5SequenceBlockEdit<V>>)(Object)readBlocks.values().get( index );
         // Фактический интервал значений (может быть больше запрашиваемого так как могут быть значения ДО и ПОСЛЕ)
         long factStartTime = interval.startTime();
         long factEndTime = interval.endTime();
