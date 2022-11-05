@@ -113,7 +113,9 @@ public class SkCoreServObject
     ISkObjectCreator<?> getCreator( String aClassId ) {
       ISkObjectCreator<? extends SkObject> creator = objCreatorsByIds.findByKey( aClassId );
       if( creator == null ) {
-        for( TextMatcher rule : objCreatorsByRules.keys() ) {
+        // iterate in the reverse order, for rules registered later to override earlier ones
+        for( int i = objCreatorsByRules.size() - 1; i >= 0; i-- ) {
+          TextMatcher rule = objCreatorsByRules.keys().get( i );
           if( rule.match( aClassId ) ) {
             creator = objCreatorsByRules.getByKey( rule );
             break;

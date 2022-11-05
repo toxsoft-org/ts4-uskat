@@ -52,12 +52,12 @@ public interface ISkRefbookService
   /**
    * Defined (either creates new or changes existing) refbook.
    *
-   * @param aDpuRefbookInfo {@link IDtoObject} - information about refbook
+   * @param aDpuRefbookInfo {@link IDtoRefbookInfo} - information about refbook
    * @return {@link ISkRefbook} - created or edited refbook
    * @throws TsNullArgumentRtException any argument = <code>null</code>
    * @throws TsValidationFailedRtException validation failed
    */
-  ISkRefbook defineRefbook( IDtoObject aDpuRefbookInfo );
+  ISkRefbook defineRefbook( IDtoRefbookInfo aDpuRefbookInfo );
 
   /**
    * Removes refbook.

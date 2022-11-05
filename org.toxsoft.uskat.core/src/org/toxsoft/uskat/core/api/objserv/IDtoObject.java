@@ -1,6 +1,9 @@
 package org.toxsoft.uskat.core.api.objserv;
 
+import static org.toxsoft.uskat.core.ISkHardConstants.*;
+
 import org.toxsoft.core.tslib.av.opset.*;
+import org.toxsoft.core.tslib.bricks.strid.*;
 import org.toxsoft.core.tslib.gw.skid.*;
 
 /**
@@ -8,7 +11,8 @@ import org.toxsoft.core.tslib.gw.skid.*;
  *
  * @author hazard157
  */
-public interface IDtoObject {
+public interface IDtoObject
+    extends IStridable {
 
   /**
    * Returns the objct SKID.
@@ -30,6 +34,25 @@ public interface IDtoObject {
    * @return {@link IMappedSkids} - the map "rivet ID" - "riveted right objects SKIDs list"
    */
   IMappedSkids rivets();
+
+  // ------------------------------------------------------------------------------------
+  // IStridable
+  //
+
+  @Override
+  default String id() {
+    return skid().strid();
+  }
+
+  @Override
+  default String nmName() {
+    return attrs().getStr( AID_NAME );
+  }
+
+  @Override
+  default String description() {
+    return attrs().getStr( AID_DESCRIPTION );
+  }
 
   // ------------------------------------------------------------------------------------
   // inline methods for convinience

@@ -2,25 +2,19 @@ package org.toxsoft.uskat.core.impl.dto;
 
 import static org.toxsoft.core.tslib.utils.TsLibUtils.*;
 
-import org.toxsoft.core.tslib.av.opset.IOptionSet;
-import org.toxsoft.core.tslib.av.opset.impl.OptionSetKeeper;
-import org.toxsoft.core.tslib.bricks.keeper.AbstractEntityKeeper;
-import org.toxsoft.core.tslib.bricks.keeper.AbstractEntityKeeper.EEncloseMode;
-import org.toxsoft.core.tslib.bricks.keeper.IEntityKeeper;
-import org.toxsoft.core.tslib.bricks.strid.coll.IStridablesList;
-import org.toxsoft.core.tslib.bricks.strid.coll.IStridablesListEdit;
-import org.toxsoft.core.tslib.bricks.strid.coll.impl.StridablesList;
-import org.toxsoft.core.tslib.bricks.strid.impl.StridUtils;
-import org.toxsoft.core.tslib.bricks.strid.impl.StridableParameterizedSer;
-import org.toxsoft.core.tslib.bricks.strio.IStrioReader;
-import org.toxsoft.core.tslib.bricks.strio.IStrioWriter;
-import org.toxsoft.core.tslib.bricks.strio.impl.StrioUtils;
-import org.toxsoft.core.tslib.gw.IGwHardConstants;
-import org.toxsoft.core.tslib.utils.TsLibUtils;
-import org.toxsoft.core.tslib.utils.errors.TsIllegalArgumentRtException;
-import org.toxsoft.core.tslib.utils.errors.TsNullArgumentRtException;
-import org.toxsoft.uskat.core.api.sysdescr.ESkClassPropKind;
-import org.toxsoft.uskat.core.api.sysdescr.ISkClassInfo;
+import org.toxsoft.core.tslib.av.opset.*;
+import org.toxsoft.core.tslib.av.opset.impl.*;
+import org.toxsoft.core.tslib.bricks.keeper.*;
+import org.toxsoft.core.tslib.bricks.keeper.AbstractEntityKeeper.*;
+import org.toxsoft.core.tslib.bricks.strid.coll.*;
+import org.toxsoft.core.tslib.bricks.strid.coll.impl.*;
+import org.toxsoft.core.tslib.bricks.strid.impl.*;
+import org.toxsoft.core.tslib.bricks.strio.*;
+import org.toxsoft.core.tslib.bricks.strio.impl.*;
+import org.toxsoft.core.tslib.gw.*;
+import org.toxsoft.core.tslib.utils.*;
+import org.toxsoft.core.tslib.utils.errors.*;
+import org.toxsoft.uskat.core.api.sysdescr.*;
 import org.toxsoft.uskat.core.api.sysdescr.dto.*;
 
 /**
@@ -315,6 +309,7 @@ public class DtoClassInfo
   @Override
   public int hashCode() {
     int result = super.hashCode();
+    result = PRIME * result + parentId.hashCode();
     result = PRIME * result + attrInfos.hashCode();
     result = PRIME * result + rivetInfos.hashCode();
     result = PRIME * result + clobInfos.hashCode();
@@ -329,7 +324,8 @@ public class DtoClassInfo
   public boolean equals( Object aThat ) {
     if( super.equals( aThat ) ) {
       if( aThat instanceof DtoClassInfo that ) {
-        return this.attrInfos.equals( that.attrInfos ) && //
+        return this.parentId.equals( that.parentId ) && //
+            this.attrInfos.equals( that.attrInfos ) && //
             this.rivetInfos.equals( that.rivetInfos ) && //
             this.clobInfos.equals( that.clobInfos ) && //
             this.linkInfos.equals( that.linkInfos ) && //
