@@ -148,22 +148,34 @@ public class S5BackendCommandSingleton
       String instanceId = S5CommandIdGenerator.INSTANCE.nextId();
       // Команда
       DtoCommand command = new DtoCommand( currTime, instanceId, aCmdGwid, aAuthorSkid, aArgs );
+      // Добавленые состояния команды
+      ITimedListEdit<SkCommandState> newStates = new TimedList<>();
       if( frontend != null ) {
         // Изменение состояния на "исполняется"
         DtoCommandStateChangeInfo changeInfo =
             createChangeInfo( instanceId, currTime, EXECUTING, REASON_EXEC_BY_QUERY );
-        changeCommandState( command, new TimedList<>(), changeInfo );
+        changeCommandState( command, newStates, changeInfo );
         // Отправляем команду на исполнение
         frontend.onBackendMessage( BaMsgCommandsExecCmd.INSTANCE.makeMessage( command ) );
-        // Команда принята на исполнение
-        return new SkCommand( command );
+        // Команда принята на исполнение. Формирование результата
+        SkCommand retValue = new SkCommand( command );
+        // Добавление новых состояний (0-SENDING cостояние уже есть в команде)
+        for( int index = 1; index < newStates.size(); index++ ) {
+          retValue.papiAddState( newStates.get( index ) );
+        }
+        return retValue;
       }
       // Не найден исполнитель команды
       DtoCommandStateChangeInfo changeInfo =
           createChangeInfo( instanceId, currTime, UNHANDLED, REASON_EXECUTOR_NOT_FOUND );
-      changeCommandState( command, new TimedList<>(), changeInfo );
-      // Отказ от выполнения команды
-      return new SkCommand( command );
+      changeCommandState( command, newStates, changeInfo );
+      // Формирование результата
+      SkCommand retValue = new SkCommand( command );
+      // Добавление новых состояний (0-SENDING cостояние уже есть в команде)
+      for( int index = 1; index < newStates.size(); index++ ) {
+        retValue.papiAddState( newStates.get( index ) );
+      }
+      return retValue;
     }
     catch( Throwable e ) {
       // Неожиданная ошибка обработки

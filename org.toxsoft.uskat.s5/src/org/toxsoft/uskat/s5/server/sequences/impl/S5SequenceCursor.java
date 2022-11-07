@@ -3,7 +3,6 @@ package org.toxsoft.uskat.s5.server.sequences.impl;
 import org.toxsoft.core.tslib.bricks.time.ITemporal;
 import org.toxsoft.core.tslib.utils.errors.TsIllegalArgumentRtException;
 import org.toxsoft.core.tslib.utils.errors.TsNullArgumentRtException;
-import org.toxsoft.uskat.s5.server.backend.supports.histdata.impl.sequences.IS5HistDataBlock;
 import org.toxsoft.uskat.s5.server.sequences.*;
 
 /**
@@ -33,7 +32,7 @@ public class S5SequenceCursor<T extends ITemporal<?>>
   public S5SequenceCursor( IS5Sequence<?> aSequence ) {
     TsNullArgumentRtException.checkNull( aSequence );
     sequence = aSequence;
-    block = (sequence.blocks().size() > 0 ? (IS5HistDataBlock)sequence.blocks().get( 0 ) : null);
+    block = (sequence.blocks().size() > 0 ? (IS5SequenceBlock<?>)sequence.blocks().get( 0 ) : null);
     setTime( aSequence.interval().startTime() );
   }
 

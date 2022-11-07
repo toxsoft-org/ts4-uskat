@@ -19,22 +19,22 @@ import org.toxsoft.core.tslib.bricks.time.impl.TimedList;
 import org.toxsoft.core.tslib.utils.Pair;
 import org.toxsoft.core.tslib.utils.errors.*;
 import org.toxsoft.core.tslib.utils.logs.ILogger;
-import org.toxsoft.uskat.core.api.evserv.SkEvent;
+import org.toxsoft.uskat.core.api.cmdserv.IDtoCompletedCommand;
 import org.toxsoft.uskat.core.api.hqserv.IDtoQueryParam;
-import org.toxsoft.uskat.core.api.hqserv.filter.FilterEventParamVsConst;
+import org.toxsoft.uskat.core.api.hqserv.filter.FilterCommandArgVsConst;
 import org.toxsoft.uskat.s5.server.backend.supports.queries.IS5BackendQueriesFunction;
 import org.toxsoft.uskat.s5.server.sequences.IS5SequenceCursor;
 
 /**
- * Функции обработки последовательности событий
+ * Функции обработки последовательности команд
  *
  * @author mvk
  */
-class S5BackendQueriesEventsFunctions
+class S5BackendQueriesCommandsFunctions
     implements IS5BackendQueriesFunction {
 
   /**
-   * Максимльное количество событий в ответе
+   * Максимльное количество команд в ответе
    */
   private static final int RESULT_COUNT_MAX = 1000000;
 
@@ -46,26 +46,26 @@ class S5BackendQueriesEventsFunctions
   /**
    * Реестр фильтров, используемых правилами.
    */
-  private static final ITsFilterFactoriesRegistry<SkEvent> FILTER_FACTORIES_REGISTRY =
-      new TsFilterFactoriesRegistry<>( SkEvent.class );
+  private static final ITsFilterFactoriesRegistry<IDtoCompletedCommand> FILTER_FACTORIES_REGISTRY =
+      new TsFilterFactoriesRegistry<>( IDtoCompletedCommand.class );
 
   static {
-    FILTER_FACTORIES_REGISTRY.register( FilterEventParamVsConst.FACTORY );
+    FILTER_FACTORIES_REGISTRY.register( FilterCommandArgVsConst.FACTORY );
   }
 
-  private final Pair<String, IDtoQueryParam> arg;
-  private final ITimeInterval                interval;
-  private final long                         aggregationStep;
-  private final long                         aggregationStart;
-  private final long                         factAggregationStep;
-  private final boolean                      repeatByEmpty;
-  private final S5BackendQueriesCounter      rawCounter;
-  private final S5BackendQueriesCounter      valuesCounter;
-  private final int                          answerSize;
-  private final EKnownFunc                   func;
-  private final ITsFilter<SkEvent>           filter;
-  private final ITimedListEdit<ITemporal<?>> result    = new TimedList<>();
-  private IAtomicValue                       lastValue = IAtomicValue.NULL;
+  private final Pair<String, IDtoQueryParam>    arg;
+  private final ITimeInterval                   interval;
+  private final long                            aggregationStep;
+  private final long                            aggregationStart;
+  private final long                            factAggregationStep;
+  private final boolean                         repeatByEmpty;
+  private final S5BackendQueriesCounter         rawCounter;
+  private final S5BackendQueriesCounter         valuesCounter;
+  private final int                             answerSize;
+  private final EKnownFunc                      func;
+  private final ITsFilter<IDtoCompletedCommand> filter;
+  private final ITimedListEdit<ITemporal<?>>    result    = new TimedList<>();
+  private IAtomicValue                          lastValue = IAtomicValue.NULL;
 
   /**
    * Текущее начало интервала усреднения. Включительно
@@ -107,7 +107,7 @@ class S5BackendQueriesEventsFunctions
    * @throws TsIllegalArgumentRtException неверный интервал запроса
    * @throws TsIllegalArgumentRtException недопустимый тип значений для агрегации
    */
-  S5BackendQueriesEventsFunctions( String aParamId, IDtoQueryParam aArg, ITimeInterval aInterval,
+  S5BackendQueriesCommandsFunctions( String aParamId, IDtoQueryParam aArg, ITimeInterval aInterval,
       S5BackendQueriesCounter aRawCounter, S5BackendQueriesCounter rawValuesCounter, IOptionSet aOptions,
       ILogger aLogger ) {
     TsNullArgumentRtException.checkNulls( aArg, aInterval, rawValuesCounter, aOptions );
@@ -189,14 +189,14 @@ class S5BackendQueriesEventsFunctions
     // Обработка значений курсора
     while( aCursor.hasNextValue() ) {
       // Следующее raw-значение последовательности
-      SkEvent event = (SkEvent)aCursor.nextValue();
+      IDtoCompletedCommand command = (IDtoCompletedCommand)aCursor.nextValue();
       // Фильтрация
-      if( filter.accept( event ) ) {
-        retValue.addAll( nextEvent( event ) );
+      if( filter.accept( command ) ) {
+        retValue.addAll( nextCommand( command ) );
       }
     }
     // Обработка последнего значения
-    retValue.addAll( nextEvent( null ) );
+    retValue.addAll( nextCommand( null ) );
     // Результат
     return retValue;
   }
@@ -205,16 +205,16 @@ class S5BackendQueriesEventsFunctions
   // Внутренние методы
   //
   /**
-   * Обработка события последовательности
+   * Обработка команды последовательности
    *
-   * @param aEvent {@link SkEvent} событие. null: завершение обработки
+   * @param aCommand {@link IDtoCompletedCommand} команда. null: завершение обработки
    * @param <T> тип значения
-   * @return {@link ITimedList} список обработанных событий
+   * @return {@link ITimedList} список обработанных команд
    */
   @SuppressWarnings( "unchecked" )
-  private <T extends ITemporal<?>> ITimedList<T> nextEvent( SkEvent aEvent ) {
+  private <T extends ITemporal<?>> ITimedList<T> nextCommand( IDtoCompletedCommand aCommand ) {
     rawCounter.add( 1 );
-    if( aEvent == null ) {
+    if( aCommand == null ) {
       // У последовательности больше нет значений. Формирование последнего значения
       addValue();
       // Дополнение по необходимости пустыми значениями
@@ -239,11 +239,11 @@ class S5BackendQueriesEventsFunctions
       // default -> throw new TsNotAllEnumsUsedRtException();
       // };
       // }
-      result.add( aEvent );
+      result.add( aCommand );
       return (ITimedList<T>)EMPTY_TIMED_LIST;
     }
     // Метка времени нового значения
-    long timestamp = aEvent.timestamp();
+    long timestamp = aCommand.timestamp();
     if( timestamp > intervalEndTime ) {
       // Новое значение за интервалом. Завершаем текущий интервал получая агрегированное значение
       addValue();
