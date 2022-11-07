@@ -1,12 +1,17 @@
 package org.toxsoft.uskat.core.impl;
 
-import org.toxsoft.core.tslib.av.opset.*;
-import org.toxsoft.core.tslib.bricks.events.change.*;
-import org.toxsoft.core.tslib.bricks.time.*;
-import org.toxsoft.core.tslib.bricks.time.impl.*;
-import org.toxsoft.core.tslib.gw.gwid.*;
-import org.toxsoft.core.tslib.gw.skid.*;
-import org.toxsoft.core.tslib.utils.errors.*;
+import java.io.Serializable;
+
+import org.toxsoft.core.tslib.av.opset.IOptionSet;
+import org.toxsoft.core.tslib.bricks.events.change.GenericChangeEventer;
+import org.toxsoft.core.tslib.bricks.events.change.IGenericChangeEventer;
+import org.toxsoft.core.tslib.bricks.time.ITimedList;
+import org.toxsoft.core.tslib.bricks.time.ITimedListEdit;
+import org.toxsoft.core.tslib.bricks.time.impl.TimedList;
+import org.toxsoft.core.tslib.gw.gwid.Gwid;
+import org.toxsoft.core.tslib.gw.skid.Skid;
+import org.toxsoft.core.tslib.utils.errors.TsIllegalArgumentRtException;
+import org.toxsoft.core.tslib.utils.errors.TsNullArgumentRtException;
 import org.toxsoft.uskat.core.api.cmdserv.*;
 
 /**
@@ -15,13 +20,15 @@ import org.toxsoft.uskat.core.api.cmdserv.*;
  * @author hazard157
  */
 public final class SkCommand
-    implements ISkCommand {
+    implements ISkCommand, Serializable {
 
-  private final GenericChangeEventer eventer;
+  private static final long serialVersionUID = 157157L;
 
   private final IDtoCommand cmd;
 
   private final ITimedListEdit<SkCommandState> states = new TimedList<>();
+
+  private transient GenericChangeEventer eventer;
 
   /**
    * Constructor creates command with state {@link ESkCommandState#SENDING}.
@@ -33,7 +40,6 @@ public final class SkCommand
    */
   public SkCommand( IDtoCommand aCmd ) {
     cmd = TsNullArgumentRtException.checkNull( aCmd );
-    eventer = new GenericChangeEventer( this );
     states.add( new SkCommandState( aCmd.timestamp(), ESkCommandState.SENDING ) );
   }
 
@@ -103,7 +109,7 @@ public final class SkCommand
    */
   public void papiAddState( SkCommandState aNewState ) {
     states.add( aNewState );
-    eventer.fireChangeEvent();
+    eventer().fireChangeEvent();
   }
 
   // ------------------------------------------------------------------------------------
@@ -131,4 +137,13 @@ public final class SkCommand
     return cmd.hashCode();
   }
 
+  // ------------------------------------------------------------------------------------
+  // private methods
+  //
+  private GenericChangeEventer eventer() {
+    if( eventer == null ) {
+      eventer = new GenericChangeEventer( this );
+    }
+    return eventer;
+  }
 }
