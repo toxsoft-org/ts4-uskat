@@ -1,15 +1,18 @@
 package org.toxsoft.uskat.refbooks.lib;
 
-import org.toxsoft.core.tslib.bricks.events.*;
-import org.toxsoft.core.tslib.bricks.strid.coll.*;
-import org.toxsoft.core.tslib.bricks.time.*;
-import org.toxsoft.core.tslib.bricks.validator.*;
-import org.toxsoft.core.tslib.bricks.validator.impl.*;
-import org.toxsoft.core.tslib.utils.errors.*;
-import org.toxsoft.uskat.core.*;
-import org.toxsoft.uskat.core.api.*;
-import org.toxsoft.uskat.core.api.evserv.*;
-import org.toxsoft.uskat.core.api.objserv.*;
+import org.toxsoft.core.tslib.bricks.events.ITsEventer;
+import org.toxsoft.core.tslib.bricks.strid.coll.IStridablesList;
+import org.toxsoft.core.tslib.bricks.time.IQueryInterval;
+import org.toxsoft.core.tslib.bricks.time.ITimedList;
+import org.toxsoft.core.tslib.bricks.validator.ITsValidationSupport;
+import org.toxsoft.core.tslib.bricks.validator.impl.TsValidationFailedRtException;
+import org.toxsoft.core.tslib.utils.errors.TsItemNotFoundRtException;
+import org.toxsoft.core.tslib.utils.errors.TsNullArgumentRtException;
+import org.toxsoft.uskat.core.ISkHardConstants;
+import org.toxsoft.uskat.core.api.ISkService;
+import org.toxsoft.uskat.core.api.evserv.SkEvent;
+import org.toxsoft.uskat.core.api.objserv.ISkObjectServiceListener;
+import org.toxsoft.uskat.core.api.objserv.ISkObjectServiceValidator;
 
 /**
  * Refbooks support.
@@ -22,7 +25,7 @@ public interface ISkRefbookService
   /**
    * The service ID.
    */
-  String SERVICE_ID = ISkHardConstants.SK_CORE_SERVICE_ID_PREFIX + ".Clobs"; //$NON-NLS-1$
+  String SERVICE_ID = ISkHardConstants.SK_CORE_SERVICE_ID_PREFIX + ".Refbooks"; //$NON-NLS-1$
 
   /**
    * Finds the refbook.
