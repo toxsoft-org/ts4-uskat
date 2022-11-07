@@ -5,8 +5,8 @@ import static org.toxsoft.core.tslib.av.impl.DataDef.*;
 import static org.toxsoft.core.tslib.av.metainfo.IAvMetaConstants.*;
 import static org.toxsoft.uskat.s5.server.IS5Resources.*;
 import static org.toxsoft.uskat.s5.server.statistics.EStatisticInterval.*;
-import static org.toxsoft.uskat.s5.utils.S5ManifestUtils.*;
 
+import java.time.Month;
 import java.time.ZoneId;
 
 import org.toxsoft.core.tslib.av.EAtomicType;
@@ -59,7 +59,7 @@ public interface IS5ServerHardConstants
   /**
    * Версия сервера
    */
-  TsVersion version = new TsVersion( 4, 1, getBuildTime() );
+  TsVersion version = new TsVersion( 4, 1, 2022, Month.SEPTEMBER, 1 );
 
   // ------------------------------------------------------------------------------------
   // Опции s5-backend
