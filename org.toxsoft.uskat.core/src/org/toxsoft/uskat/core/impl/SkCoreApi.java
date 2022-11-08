@@ -131,6 +131,11 @@ public class SkCoreApi
     llCreators.addAll( backend.listBackendServicesCreators() );
     IList<ISkServiceCreator<? extends AbstractSkService>> llUser = REFDEF_USER_SERVICES.getRef( aArgs, IList.EMPTY );
     llCreators.addAll( llUser );
+    // thread separator service
+    ISkServiceCreator<? extends AbstractSkService> threadSeparator = REFDEF_THREAD_SEPARATOR.getRef( aArgs );
+    if( threadSeparator != null ) {
+      llCreators.add( threadSeparator );
+    }
     // fill map of the services
     for( ISkServiceCreator<? extends AbstractSkService> c : llCreators ) {
       AbstractSkService s;

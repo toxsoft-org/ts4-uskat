@@ -3,6 +3,7 @@ package org.toxsoft.uskat.s5.server.backend.addons;
 import static org.toxsoft.core.log4j.LoggerWrapper.*;
 import static org.toxsoft.core.tslib.av.impl.AvUtils.*;
 import static org.toxsoft.uskat.core.backend.ISkBackendHardConstant.*;
+import static org.toxsoft.uskat.core.impl.ISkCoreConfigConstants.*;
 import static org.toxsoft.uskat.s5.client.IS5ConnectionParams.*;
 import static org.toxsoft.uskat.s5.server.backend.addons.IS5Resources.*;
 import static org.toxsoft.uskat.s5.utils.threads.impl.S5Lockable.*;
@@ -172,8 +173,10 @@ public abstract class S5AbstractBackend<ADDON extends IS5BackendAddon>
     sessionID = new Skid( ISkSession.CLASS_ID, login.asString() + "." + stridGenerator.nextId() ); //$NON-NLS-1$
     // Получение блокировки соединения
     frontendLock = aArgs.getRef( IS5ConnectionParams.REF_CONNECTION_LOCK.refKey(), S5Lockable.class );
+    // Разделитель потоков между бекендом и фронтендом
+    ISkServiceCreator<? extends AbstractSkService> threadSeparator = REFDEF_THREAD_SEPARATOR.getRef( aArgs );
     // Доступ к ядру как разработчика
-    devCoreApi = (IDevCoreApi)aFrontend;
+    devCoreApi = (threadSeparator == null ? (IDevCoreApi)aFrontend : null);
     // Представленный фронтенд
     frontend = aFrontend;
     // Фронтенд с перехватом и обработкой сообщений внутри бекенда и его расширений
@@ -207,7 +210,6 @@ public abstract class S5AbstractBackend<ADDON extends IS5BackendAddon>
     };
     // Параметры создания бекенда
     openArgs = createContextForBackend( aArgs, sessionID );
-
     // Загручик классов
     classLoader = (aArgs.hasKey( REF_CLASSLOADER.refKey() ) ? //
         aArgs.getRef( REF_CLASSLOADER.refKey(), ClassLoader.class ) : //
@@ -216,15 +218,6 @@ public abstract class S5AbstractBackend<ADDON extends IS5BackendAddon>
     progressMonitor = (aArgs.hasKey( REF_MONITOR.refKey() ) ? //
         aArgs.getRef( REF_MONITOR.refKey(), IS5ProgressMonitor.class ) : //
         IS5ProgressMonitor.NULL);
-
-    // TODO: ??? в наследниках должна быть следующая реализация
-    // Читатель системного описания
-    // sysdescrReader = new SkSysdescrReader( () -> remote().baClasses().readClassInfos() );
-    // Результат инициализации соединения
-    // IS5SessionInitResult result = connection.sessionInitResult();
-    // Инициализация читателя системного описания
-    // sysdescrReader.setClassInfos( result.classInfos() );
-
     // Имя бекенда
     String name = "sessionID = " + sessionID.strid(); //$NON-NLS-1$
     // Задача (поток) обслуживания потребностей бекенда
@@ -469,13 +462,15 @@ public abstract class S5AbstractBackend<ADDON extends IS5BackendAddon>
     }
     frontend.onBackendMessage( aMessage );
 
-    // Отработка сообщений
-    lockWrite( frontendLock );
-    try {
-      devCoreApi.doJobInCoreMainThread();
-    }
-    finally {
-      unlockWrite( frontendLock );
+    if( devCoreApi != null ) {
+      // Отработка сообщений
+      lockWrite( frontendLock );
+      try {
+        devCoreApi.doJobInCoreMainThread();
+      }
+      finally {
+        unlockWrite( frontendLock );
+      }
     }
   }
 
