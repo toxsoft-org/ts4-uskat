@@ -4,7 +4,6 @@ import java.io.Serializable;
 
 import org.toxsoft.core.tslib.av.opset.IOptionSet;
 import org.toxsoft.core.tslib.bricks.events.change.GenericChangeEventer;
-import org.toxsoft.core.tslib.bricks.events.change.IGenericChangeEventer;
 import org.toxsoft.core.tslib.bricks.time.ITimedList;
 import org.toxsoft.core.tslib.bricks.time.ITimedListEdit;
 import org.toxsoft.core.tslib.bricks.time.impl.TimedList;
@@ -94,7 +93,10 @@ public final class SkCommand
   }
 
   @Override
-  public IGenericChangeEventer stateEventer() {
+  public GenericChangeEventer stateEventer() {
+    if( eventer == null ) {
+      eventer = new GenericChangeEventer( this );
+    }
     return eventer;
   }
 
@@ -109,7 +111,7 @@ public final class SkCommand
    */
   public void papiAddState( SkCommandState aNewState ) {
     states.add( aNewState );
-    eventer().fireChangeEvent();
+    stateEventer().fireChangeEvent();
   }
 
   // ------------------------------------------------------------------------------------
@@ -135,15 +137,5 @@ public final class SkCommand
   @Override
   public int hashCode() {
     return cmd.hashCode();
-  }
-
-  // ------------------------------------------------------------------------------------
-  // private methods
-  //
-  private GenericChangeEventer eventer() {
-    if( eventer == null ) {
-      eventer = new GenericChangeEventer( this );
-    }
-    return eventer;
   }
 }
