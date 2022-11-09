@@ -566,12 +566,23 @@ public class S5BackendQueriesSingleton
   private static void fireNextDataMessage( IS5FrontendRear aFrontend, String aQueryId,
       IStringMap<ITimedList<ITemporal<?>>> aValues, ESkQueryState aState ) {
     TsNullArgumentRtException.checkNulls( aFrontend, aQueryId, aValues );
-    IMapEdit<EGwidKind, IStringMap<ITimedList<ITemporal<?>>>> valuesByKinds = new ElemMap<>();
-
+    IMapEdit<EGwidKind, IStringMapEdit<ITimedList<ITemporal<?>>>> valuesByKinds = new ElemMap<>();
+    // Сортировка значений по типам
     for( String paramId : aValues.keys() ) {
       ITimedList<ITemporal<?>> values = aValues.getByKey( paramId );
       EGwidKind gwidKind = getGwidKind( values );
-
+      IStringMapEdit<ITimedList<ITemporal<?>>> kindValues = valuesByKinds.findByKey( gwidKind );
+      if( kindValues == null ) {
+        kindValues = new StringMap<>();
+        valuesByKinds.put( gwidKind, kindValues );
+      }
+      kindValues.put( paramId, values );
+    }
+    // Передача значений
+    for( int index = 0, n = valuesByKinds.size(); index < n; index++ ) {
+      EGwidKind gwidKind = valuesByKinds.keys().get( index );
+      ESkQueryState state = (index + 1 < n ? ESkQueryState.EXECUTING : aState);
+      fireNextDataMessage( aFrontend, aQueryId, gwidKind, valuesByKinds.getByKey( gwidKind ), state );
     }
   }
 
