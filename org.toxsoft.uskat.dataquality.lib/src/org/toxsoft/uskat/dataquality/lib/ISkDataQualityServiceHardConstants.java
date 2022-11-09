@@ -1,4 +1,4 @@
-package org.toxsoft.uskat.refbooks.lib;
+package org.toxsoft.uskat.dataquality.lib;
 
 /**
  * Unchangeable constants of the data quality service.

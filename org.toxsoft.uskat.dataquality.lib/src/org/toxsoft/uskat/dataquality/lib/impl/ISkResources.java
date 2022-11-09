@@ -1,4 +1,4 @@
-package org.toxsoft.uskat.refbooks.lib.impl;
+package org.toxsoft.uskat.dataquality.lib.impl;
 
 /**
  * Localizable resources.
