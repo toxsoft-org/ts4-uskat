@@ -13,6 +13,8 @@
    <bundle id="org.toxsoft.uskat.skadmin.dev"/>
    <bundle id="org.toxsoft.uskat.skadmin.logon"/>
    <bundle id="org.toxsoft.uskat.base.gui"/>   
+   <bundle id="org.toxsoft.uskat.dataquality.lib"/>   
+   <bundle id="org.toxsoft.uskat.dataquality.s5"/>   
 
    <!-- sources -->
    <bundle id="org.toxsoft.uskat.core.source"/>
@@ -23,5 +25,7 @@
    <bundle id="org.toxsoft.uskat.skadmin.dev.source"/>
    <bundle id="org.toxsoft.uskat.skadmin.logon.source"/>
    <bundle id="org.toxsoft.uskat.base.gui.source"/>   
+   <bundle id="org.toxsoft.uskat.dataquality.lib.source"/>   
+   <bundle id="org.toxsoft.uskat.dataquality.s5.source"/>   
 
 </site>
