@@ -131,7 +131,7 @@ abstract class S5SynchronizedResource<T> {
    *
    * @return {@link ReentrantReadWriteLock} блокировка
    */
-  protected final ReentrantReadWriteLock nativeLock() {
+  public final ReentrantReadWriteLock nativeLock() {
     return S5Lockable.nativeLock( lock );
   }
 }
