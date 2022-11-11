@@ -177,10 +177,6 @@ public abstract class S5BackendSupportSingleton
   // ------------------------------------------------------------------------------------
   // Переопределение методов S5SingletonBase
   //
-
-  /**
-   * JPA запрещает делать методы View финальными (final)
-   */
   @Override
   @TransactionAttribute( TransactionAttributeType.REQUIRED )
   public void saveConfiguration( IOptionSet aConfiguration ) {

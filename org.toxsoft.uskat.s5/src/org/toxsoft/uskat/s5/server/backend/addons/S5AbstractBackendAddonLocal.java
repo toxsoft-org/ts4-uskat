@@ -3,11 +3,13 @@ package org.toxsoft.uskat.s5.server.backend.addons;
 import org.toxsoft.core.log4j.LoggerWrapper;
 import org.toxsoft.core.tslib.bricks.events.msg.GtMessage;
 import org.toxsoft.core.tslib.bricks.strid.IStridable;
+import org.toxsoft.core.tslib.gw.skid.Skid;
 import org.toxsoft.core.tslib.utils.errors.TsIllegalArgumentRtException;
 import org.toxsoft.core.tslib.utils.errors.TsNullArgumentRtException;
 import org.toxsoft.core.tslib.utils.logs.ILogger;
 import org.toxsoft.uskat.core.backend.api.BackendAddonBase;
 import org.toxsoft.uskat.core.backend.api.IBackendAddon;
+import org.toxsoft.uskat.s5.common.sessions.ISkSession;
 import org.toxsoft.uskat.s5.server.frontend.IS5FrontendRear;
 import org.toxsoft.uskat.s5.server.statistics.IS5StatisticCounter;
 
@@ -67,6 +69,15 @@ public abstract class S5AbstractBackendAddonLocal
   // ------------------------------------------------------------------------------------
   // API для наследников
   //
+  /**
+   * Возвращает идентификатор сессии
+   *
+   * @return {@link Skid} идентификатор сессии {@link ISkSession#skid()}
+   */
+  protected final Skid sessionID() {
+    return owner().sessionID();
+  }
+
   /**
    * Возвращает модуль формирования статистики
    *
