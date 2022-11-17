@@ -340,8 +340,17 @@ public class SkCoreApi
     GtMessage msg;
     while( (msg = backendMessageQueue.getHeadOrNull()) != null ) {
       if( BackendMsgActiveChanged.INSTANCE.isOwnMessage( msg ) ) {
-        conn.changeState(
-            BackendMsgActiveChanged.INSTANCE.getActive( msg ) ? ESkConnState.ACTIVE : ESkConnState.INACTIVE );
+        boolean isActive = BackendMsgActiveChanged.INSTANCE.getActive( msg );
+        conn.changeState( isActive ? ESkConnState.ACTIVE : ESkConnState.INACTIVE );
+        for( int i = servicesMap.size() - 1; i >= 0; i-- ) {
+          try {
+            AbstractSkService s = servicesMap.values().get( i );
+            s.onBackendActiveStateChanged( isActive );
+          }
+          catch( Exception ex ) {
+            logger().error( ex );
+          }
+        }
         continue;
       }
       AbstractSkService s = servicesMap.findByKey( msg.topicId() );
