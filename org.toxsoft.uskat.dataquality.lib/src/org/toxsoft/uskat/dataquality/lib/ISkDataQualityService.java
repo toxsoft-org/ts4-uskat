@@ -1,4 +1,4 @@
-package org.toxsoft.uskat.refbooks.lib;
+package org.toxsoft.uskat.dataquality.lib;
 
 import org.toxsoft.core.tslib.av.IAtomicValue;
 import org.toxsoft.core.tslib.av.errors.AvTypeCastRtException;
@@ -260,13 +260,16 @@ public interface ISkDataQualityService
    * <p>
    * Нельзя редактировать встроенные тикеты, у которых {@link ISkDataQualityTicket#isBuiltin()} - <code>true</code>.
    *
+   * @param aTicketId String - идентификатор
+   * @param aName String - название
+   * @param aDescription String - описание
    * @param aDataType {@link IDataType} тип данных
    * @return {@link ISkDataQualityTicket} созданный или отредактированный пользовательский (не встроенный) тикет
    * @throws TsNullArgumentRtException аргумент = null
    * @throws TsIllegalArgumentRtException попытка редактирования втроенного тикета
    * @throws TsIllegalArgumentRtException у именнованного типа нет значения по умолчанию
    */
-  ISkDataQualityTicket defineTicket( IDataType aDataType );
+  ISkDataQualityTicket defineTicket( String aTicketId, String aName, String aDescription, IDataType aDataType );
 
   /**
    * Удаляет ранее созданный ярлык.

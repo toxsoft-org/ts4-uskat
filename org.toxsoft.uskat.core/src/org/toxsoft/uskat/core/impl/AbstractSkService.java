@@ -2,27 +2,30 @@ package org.toxsoft.uskat.core.impl;
 
 import static org.toxsoft.uskat.core.impl.ISkResources.*;
 
-import org.toxsoft.core.tslib.bricks.ctx.*;
-import org.toxsoft.core.tslib.bricks.events.msg.*;
-import org.toxsoft.core.tslib.bricks.strid.impl.*;
-import org.toxsoft.core.tslib.bricks.validator.*;
-import org.toxsoft.core.tslib.gw.gwid.*;
-import org.toxsoft.core.tslib.gw.skid.*;
-import org.toxsoft.core.tslib.utils.errors.*;
-import org.toxsoft.core.tslib.utils.logs.impl.*;
-import org.toxsoft.uskat.core.*;
-import org.toxsoft.uskat.core.api.*;
-import org.toxsoft.uskat.core.api.clobserv.*;
-import org.toxsoft.uskat.core.api.cmdserv.*;
-import org.toxsoft.uskat.core.api.evserv.*;
-import org.toxsoft.uskat.core.api.gwids.*;
+import org.toxsoft.core.tslib.bricks.ctx.ITsContextRo;
+import org.toxsoft.core.tslib.bricks.events.msg.GenericMessage;
+import org.toxsoft.core.tslib.bricks.events.msg.GtMessage;
+import org.toxsoft.core.tslib.bricks.strid.impl.StridUtils;
+import org.toxsoft.core.tslib.bricks.validator.ValidationResult;
+import org.toxsoft.core.tslib.gw.gwid.Gwid;
+import org.toxsoft.core.tslib.gw.skid.Skid;
+import org.toxsoft.core.tslib.utils.errors.TsIllegalStateRtException;
+import org.toxsoft.core.tslib.utils.errors.TsNullArgumentRtException;
+import org.toxsoft.core.tslib.utils.logs.impl.LoggerUtils;
+import org.toxsoft.uskat.core.ISkHardConstants;
+import org.toxsoft.uskat.core.api.ISkService;
+import org.toxsoft.uskat.core.api.clobserv.ISkClobService;
+import org.toxsoft.uskat.core.api.clobserv.ISkClobServiceValidator;
+import org.toxsoft.uskat.core.api.cmdserv.ISkCommandService;
+import org.toxsoft.uskat.core.api.evserv.ISkEventService;
+import org.toxsoft.uskat.core.api.gwids.ISkGwidService;
 import org.toxsoft.uskat.core.api.linkserv.*;
 import org.toxsoft.uskat.core.api.objserv.*;
-import org.toxsoft.uskat.core.api.rtdserv.*;
+import org.toxsoft.uskat.core.api.rtdserv.ISkRtdataService;
 import org.toxsoft.uskat.core.api.sysdescr.*;
-import org.toxsoft.uskat.core.api.sysdescr.dto.*;
-import org.toxsoft.uskat.core.connection.*;
-import org.toxsoft.uskat.core.devapi.*;
+import org.toxsoft.uskat.core.api.sysdescr.dto.IDtoClassInfo;
+import org.toxsoft.uskat.core.connection.ISkConnection;
+import org.toxsoft.uskat.core.devapi.IDevCoreApi;
 
 /**
  * {@link ISkService} implementation base.
@@ -356,6 +359,15 @@ public abstract class AbstractSkService
    */
   protected boolean onBackendMessage( GenericMessage aMessage ) {
     return false;
+  }
+
+  /**
+   * TODO:
+   *
+   * @param aIsActive
+   */
+  protected void onBackendActiveStateChanged( boolean aIsActive ) {
+    // nop
   }
 
   /**

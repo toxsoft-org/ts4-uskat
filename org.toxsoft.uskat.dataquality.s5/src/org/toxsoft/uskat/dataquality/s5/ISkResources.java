@@ -1,4 +1,4 @@
-package org.toxsoft.uskat.refbooks.lib.impl;
+package org.toxsoft.uskat.dataquality.s5;
 
 /**
  * Localizable resources.
@@ -7,5 +7,7 @@ package org.toxsoft.uskat.refbooks.lib.impl;
  */
 // @SuppressWarnings( "nls" )
 interface ISkResources {
-  // TODO:
+
+  // TODO L10N
+
 }

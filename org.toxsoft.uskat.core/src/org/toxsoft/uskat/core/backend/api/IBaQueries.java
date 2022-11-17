@@ -1,11 +1,11 @@
 package org.toxsoft.uskat.core.backend.api;
 
-import org.toxsoft.core.tslib.av.opset.*;
-import org.toxsoft.core.tslib.bricks.events.msg.*;
-import org.toxsoft.core.tslib.bricks.time.*;
-import org.toxsoft.core.tslib.coll.primtypes.*;
+import org.toxsoft.core.tslib.av.opset.IOptionSet;
+import org.toxsoft.core.tslib.bricks.events.msg.GenericMessage;
+import org.toxsoft.core.tslib.bricks.time.IQueryInterval;
+import org.toxsoft.core.tslib.coll.primtypes.IStringMap;
 import org.toxsoft.uskat.core.api.hqserv.*;
-import org.toxsoft.uskat.core.backend.*;
+import org.toxsoft.uskat.core.backend.ISkBackendHardConstant;
 
 /**
  * Backend addon for queries execution.
@@ -44,8 +44,8 @@ public interface IBaQueries
    * Starts query/statement execution.
    * <p>
    * While executing, backend sends {@link BaMsgQueryNextData} messages to the frontend until query execution is
-   * finished. Last message will contain flag {@link BaMsgQueryNextData#getIsFinished(GenericMessage)} set to
-   * <code>true</code>.
+   * finished. Last message will contain state {@link BaMsgQueryNextData#getState(GenericMessage)} set to
+   * <code>{@link ESkQueryState#READY}</code> or <code>{@link ESkQueryState#FAILED}</code>.
    *
    * @param aQueryId String - the query ID
    * @param aTimeInterval {@link IQueryInterval} - requested time interval

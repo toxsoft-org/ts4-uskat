@@ -1,6 +1,6 @@
 package org.toxsoft.uskat.core.impl;
 
-import org.toxsoft.uskat.core.api.hqserv.*;
+import org.toxsoft.uskat.core.api.hqserv.ISkHistoryQueryServiceConstants;
 
 /**
  * Localizable resources.
@@ -49,6 +49,8 @@ interface ISkResources {
   String STR_D_OP_DEF_CORE_LOG_SEVERITY = "Default log messages lowest severity to be logged";
   String STR_N_REF_USER_SERVICES        = "User services";
   String STR_D_REF_USER_SERVICES        = "List of user-specified core services creators";
+  String STR_N_REF_THREAD_SEPARATOR     = "Thread separator";
+  String STR_D_REF_THREAD_SEPARATOR     = "Thread separator between backend and frontend threads";
   String STR_N_REF_BACKEND_PROVIDER     = "Backend provider";
   String STR_D_REF_BACKEND_PROVIDER     = "Refernce to the of the USkat API backend instance creator";
 

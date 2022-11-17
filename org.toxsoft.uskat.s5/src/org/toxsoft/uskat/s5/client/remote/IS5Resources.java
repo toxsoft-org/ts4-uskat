@@ -24,8 +24,8 @@ interface IS5Resources {
       Messages.getString( "IS5Resources.ERR_NOT_FOUND_BACKEND_ADDONS_PROVIDER" );                               //$NON-NLS-1$
   String ERR_TRY_LOCK                          = Messages.getString( "IS5Resources.ERR_TRY_LOCK" );             //$NON-NLS-1$
   String ERR_ADDONS_NOT_FOUND                  = Messages.getString( "IS5Resources.ERR_ADDONS_NOT_FOUND" );     //$NON-NLS-1$
-  String ERR_ADDON_IMPL_NOT_FOUND              =
-      "createBackendAddons(...): addon class not found (client classpath). addonId = %s, addonClass= %s";       //$NON-NLS-1$
+  String ERR_BA_CREATOR_NOT_FOUND              =
+      "createBackendAddons(...): addon creator class not found (client classpath). addonId = %s, baClass= %s";  //$NON-NLS-1$
   String ERR_NOT_FOUND_INIT_IMPL_CONSTRUCTOR   =
       Messages.getString( "createBackendAddons(...): class = %s. constructor not found. cause = %s." );         //$NON-NLS-1$
   String ERR_NOT_FOUND_INIT_IMPL_INSTANTIATION =

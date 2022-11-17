@@ -8,6 +8,8 @@ import java.lang.reflect.InvocationTargetException;
 import org.toxsoft.core.tslib.av.opset.IOptionSet;
 import org.toxsoft.core.tslib.bricks.ctx.ITsContextRo;
 import org.toxsoft.core.tslib.bricks.strid.coll.IStridablesList;
+import org.toxsoft.core.tslib.bricks.strid.coll.IStridablesListEdit;
+import org.toxsoft.core.tslib.bricks.strid.coll.impl.StridablesList;
 import org.toxsoft.core.tslib.coll.helpers.ECrudOp;
 import org.toxsoft.core.tslib.coll.primtypes.IStringMap;
 import org.toxsoft.core.tslib.coll.primtypes.IStringMapEdit;
@@ -127,8 +129,8 @@ public final class S5BackendRemote
     if( !wasConnect ) {
       // Формирование сообщения о предстоящей инициализации расширений
       fireBackendMessage( S5BaBeforeInitMessages.INSTANCE.makeMessage() );
-      // Создание расширений используемых клиентом (определяется наличием jar-расширения в classpath клиента)
-      allAddons().putAll( createBackendAddonRemotes( classLoader(), aSource.backendAddonInfos(), logger() ) );
+      // Установка построителей расширений бекенда
+      setBaCreators( createBaCreators( classLoader(), aSource.baCreatorClasses(), logger() ) );
       // Формирование сообщения о проведенной инициализации расширений
       fireBackendMessage( S5BaAfterInitMessages.INSTANCE.makeMessage() );
     }
@@ -218,6 +220,17 @@ public final class S5BackendRemote
   }
 
   @Override
+  protected IStringMap<IS5BackendAddonRemote> doCreateAddons( IStridablesList<IS5BackendAddonCreator> aBaCreators ) {
+    IStringMapEdit<IS5BackendAddonRemote> retValue = new StringMap<>();
+    // Создание и установка аддонов бекенда
+    for( IS5BackendAddonCreator baCreator : aBaCreators ) {
+      IS5BackendAddonRemote ba = baCreator.createRemote( this );
+      retValue.put( ba.id(), ba );
+    }
+    return retValue;
+  }
+
+  @Override
   protected ISkBackendInfo doFindServerBackendInfo() {
     return (connection.state() == EConnectionState.CONNECTED ? session().getBackendInfo() : null);
   }
@@ -231,36 +244,34 @@ public final class S5BackendRemote
    * Если класс реализации расширения не найден в classpath клиента, то выводится предупреждение
    *
    * @param aClassLoader {@link ClassLoader} используемый загрузчик классов
-   * @param aAddonInfos {@link IStringMap}&lt;String&gt; карта описания расширений.
+   * @param aBaCreatorClasses {@link IStringMap}&lt;String&gt; карта имен классов построителей расширений бекенда.
    *          <p>
-   *          Ключ: идентификатор расширения {@link IS5BackendAddon};<br>
-   *          Значение: полное имя java-класса реализующий расширение {@link IS5BackendAddon};<br>
+   *          Ключ: идентификатор расширения {@link IS5BackendAddon#id()};<br>
+   *          Значение: полное имя java-класса реализующий расширение построитель расширения
+   *          {@link IS5BackendAddonCreator}.
    * @param aLogger {@link ILogger} журнал работы
-   * @param <T> тип бекенда
    * @return {@link IStridablesList}&lt;{@link IS5BackendAddon}&gt; список расширений бекенда.
    * @throws TsNullArgumentRtException любой аргумент = null
    */
   @SuppressWarnings( { "unchecked" } )
-  private <T extends IS5BackendAddonRemote> IStringMap<T> createBackendAddonRemotes( ClassLoader aClassLoader,
-      IStringMap<String> aAddonInfos, ILogger aLogger ) {
-    TsNullArgumentRtException.checkNulls( aClassLoader, aAddonInfos, aLogger );
-    IStringMapEdit<T> retValue = new StringMap<>();
-    for( String addonId : aAddonInfos.keys() ) {
-      String addonClassName = aAddonInfos.getByKey( addonId );
-      Class<T> implClassName = null;
+  private static IStridablesList<IS5BackendAddonCreator> createBaCreators( ClassLoader aClassLoader,
+      IStringMap<String> aBaCreatorClasses, ILogger aLogger ) {
+    TsNullArgumentRtException.checkNulls( aClassLoader, aBaCreatorClasses, aLogger );
+    IStridablesListEdit<IS5BackendAddonCreator> retValue = new StridablesList<>();
+    for( String addonId : aBaCreatorClasses.keys() ) {
+      String baCreatorClassName = aBaCreatorClasses.getByKey( addonId );
+      Class<IS5BackendAddonCreator> implClassName = null;
       try {
-        implClassName = (Class<T>)aClassLoader.loadClass( addonClassName );
+        implClassName = (Class<IS5BackendAddonCreator>)aClassLoader.loadClass( baCreatorClassName );
       }
       catch( @SuppressWarnings( "unused" ) ClassNotFoundException e ) {
-        // Предупреждение: класс расширения не найден в classpath клиента
-        aLogger.warning( ERR_ADDON_IMPL_NOT_FOUND, addonId, addonClassName );
+        // Предупреждение: класс построителя расширения не найден в classpath клиента
+        aLogger.warning( ERR_BA_CREATOR_NOT_FOUND, addonId, baCreatorClassName );
         continue;
       }
       try {
-        IS5BackendAddonCreator addonCreator = (IS5BackendAddonCreator)implClassName.getConstructor().newInstance();
-        // getClass() is owner class
-        T addon = (T)addonCreator.createRemote( this );
-        retValue.put( addon.id(), addon );
+        IS5BackendAddonCreator baCreator = implClassName.getConstructor().newInstance();
+        retValue.put( addonId, baCreator );
       }
       catch( NoSuchMethodException e ) {
         // Не найден открытый конструктор без параметров в классе реализации бекенда (IS5InitialImplementation)

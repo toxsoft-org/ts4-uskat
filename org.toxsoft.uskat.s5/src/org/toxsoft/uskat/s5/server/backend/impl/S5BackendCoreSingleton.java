@@ -369,7 +369,8 @@ public class S5BackendCoreSingleton
   }
 
   @Override
-  public ISkConnection getConnectionOrNull() {
+  public ISkConnection getConnection() {
+    TsIllegalArgumentRtException.checkFalse( isActive() );
     return connection;
   }
 
@@ -427,7 +428,7 @@ public class S5BackendCoreSingleton
   @Override
   @TransactionAttribute( TransactionAttributeType.SUPPORTS )
   public boolean isActive() {
-    return !isClosed();
+    return (connection != null && !isClosed());
   }
 
   @Override

@@ -5,6 +5,9 @@ import static org.toxsoft.core.tslib.av.impl.AvUtils.*;
 import org.toxsoft.core.tslib.av.opset.IOptionSet;
 import org.toxsoft.core.tslib.bricks.ctx.ITsContextRo;
 import org.toxsoft.core.tslib.bricks.strid.coll.IStridablesList;
+import org.toxsoft.core.tslib.coll.primtypes.IStringMap;
+import org.toxsoft.core.tslib.coll.primtypes.IStringMapEdit;
+import org.toxsoft.core.tslib.coll.primtypes.impl.StringMap;
 import org.toxsoft.core.tslib.utils.errors.TsNullArgumentRtException;
 import org.toxsoft.uskat.core.backend.ISkBackendHardConstant;
 import org.toxsoft.uskat.core.backend.ISkFrontendRear;
@@ -34,13 +37,9 @@ public final class S5BackendLocal
   public static final String BACKEND_ID = ISkBackendHardConstant.SKB_ID + ".s5.local"; //$NON-NLS-1$
 
   /**
-   * Построители расширений бекенда.
-   */
-  private final IStridablesList<IS5BackendAddonCreator> baCreators;
-  /**
    * Синглетон реализующий бекенд
    */
-  private final IS5BackendCoreSingleton                 backendSingleton;
+  private final IS5BackendCoreSingleton backendSingleton;
 
   /**
    * Менеджер сессий s5-сервера
@@ -53,17 +52,19 @@ public final class S5BackendLocal
    * @param aFrontend {@link ISkFrontendRear} - фронтенд, для которого создается бекенд
    * @param aArgs {@link ITsContextRo} - аргументы (ссылки и опции) создания бекенда
    * @param aBackendSingleton {@link IS5BackendCoreSingleton} - backend сервера
-   * @param aBackendAddonCreators {@link IStridablesList}&lt; {@link IS5BackendAddonCreator}&gt; список построителей
-   *          расширений бекенда.
+   * @param aBaCreators {@link IStridablesList}&lt; {@link IS5BackendAddonCreator}&gt; карта построителей.
+   *          <p>
+   *          Ключ: идентификатор расширения {@link IS5BackendAddon#id()};<br>
+   *          Значение: построитель расширения {@link IS5BackendAddonCreator}.
    * @throws TsNullArgumentRtException аргумент = null
    */
   S5BackendLocal( ISkFrontendRear aFrontend, ITsContextRo aArgs, IS5BackendCoreSingleton aBackendSingleton,
-      IStridablesList<IS5BackendAddonCreator> aBackendAddonCreators ) {
+      IStridablesList<IS5BackendAddonCreator> aBaCreators ) {
     super( aFrontend, aArgs, BACKEND_ID, IOptionSet.NULL );
-    TsNullArgumentRtException.checkNulls( aBackendSingleton, aBackendAddonCreators );
-    baCreators = aBackendAddonCreators;
+    TsNullArgumentRtException.checkNulls( aBackendSingleton, aBaCreators );
     backendSingleton = aBackendSingleton;
     sessionManager = TsNullArgumentRtException.checkNull( backendSingleton.sessionManager() );
+    setBaCreators( aBaCreators );
   }
 
   // ------------------------------------------------------------------------------------
@@ -93,12 +94,6 @@ public final class S5BackendLocal
     // Формирование сообщения о предстоящей инициализации расширений
     fireBackendMessage( S5BaBeforeInitMessages.INSTANCE.makeMessage() );
 
-    // Создание и установка аддонов бекенда
-    for( IS5BackendAddonCreator baCreator : baCreators ) {
-      IS5BackendAddonLocal ba = baCreator.createLocal( this );
-      allAddons().put( ba.id(), ba );
-    }
-
     // Создание локальной сессии
     String programName = IS5ConnectionParams.OP_LOCAL_MODULE.getValue( openArgs().params() ).asString();
     String userName = IS5ConnectionParams.OP_LOCAL_NODE.getValue( openArgs().params() ).asString();
@@ -119,6 +114,17 @@ public final class S5BackendLocal
   @Override
   protected boolean doIsLocal() {
     return true;
+  }
+
+  @Override
+  protected IStringMap<IS5BackendAddonLocal> doCreateAddons( IStridablesList<IS5BackendAddonCreator> aBaCreators ) {
+    IStringMapEdit<IS5BackendAddonLocal> retValue = new StringMap<>();
+    // Создание и установка аддонов бекенда
+    for( IS5BackendAddonCreator baCreator : aBaCreators ) {
+      IS5BackendAddonLocal ba = baCreator.createLocal( this );
+      retValue.put( ba.id(), ba );
+    }
+    return retValue;
   }
 
   @Override

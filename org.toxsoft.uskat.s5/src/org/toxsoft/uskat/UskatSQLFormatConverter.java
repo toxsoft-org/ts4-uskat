@@ -8,7 +8,7 @@ import org.toxsoft.core.tslib.utils.errors.TsNullArgumentRtException;
 import io.netty.util.CharsetUtil;
 
 /**
- * Конвертер текстового представления системного описания uskat
+ * Конвертер текстового представления системного описания uskat.
  *
  * @author mvk
  */

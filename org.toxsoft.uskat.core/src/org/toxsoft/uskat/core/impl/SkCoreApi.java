@@ -131,6 +131,11 @@ public class SkCoreApi
     llCreators.addAll( backend.listBackendServicesCreators() );
     IList<ISkServiceCreator<? extends AbstractSkService>> llUser = REFDEF_USER_SERVICES.getRef( aArgs, IList.EMPTY );
     llCreators.addAll( llUser );
+    // thread separator service
+    ISkServiceCreator<? extends AbstractSkService> threadSeparator = REFDEF_THREAD_SEPARATOR.getRef( aArgs );
+    if( threadSeparator != null ) {
+      llCreators.add( threadSeparator );
+    }
     // fill map of the services
     for( ISkServiceCreator<? extends AbstractSkService> c : llCreators ) {
       AbstractSkService s;
@@ -335,8 +340,17 @@ public class SkCoreApi
     GtMessage msg;
     while( (msg = backendMessageQueue.getHeadOrNull()) != null ) {
       if( BackendMsgActiveChanged.INSTANCE.isOwnMessage( msg ) ) {
-        conn.changeState(
-            BackendMsgActiveChanged.INSTANCE.getActive( msg ) ? ESkConnState.ACTIVE : ESkConnState.INACTIVE );
+        boolean isActive = BackendMsgActiveChanged.INSTANCE.getActive( msg );
+        conn.changeState( isActive ? ESkConnState.ACTIVE : ESkConnState.INACTIVE );
+        for( int i = servicesMap.size() - 1; i >= 0; i-- ) {
+          try {
+            AbstractSkService s = servicesMap.values().get( i );
+            s.onBackendActiveStateChanged( isActive );
+          }
+          catch( Exception ex ) {
+            logger().error( ex );
+          }
+        }
         continue;
       }
       AbstractSkService s = servicesMap.findByKey( msg.topicId() );

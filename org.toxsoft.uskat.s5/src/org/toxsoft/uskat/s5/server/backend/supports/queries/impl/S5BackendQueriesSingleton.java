@@ -207,8 +207,6 @@ public class S5BackendQueriesSingleton
       convoy = baData.openQueries.getByKey( aQueryId );
       convoy.exec( aTimeInterval );
     }
-    // Тип значений
-    EGwidKind gwidKind = null;
     // Прочитанные значения
     IStringMap<ITimedList<ITemporal<?>>> values = null;
     try {
@@ -238,16 +236,13 @@ public class S5BackendQueriesSingleton
           continue;
         }
         if( values == null ) {
-          // Сохранение результатов нового чтения
-          gwidKind = getGwidKind( reader );
           values = getValuesMap( functions, readerValues );
           continue;
         }
         if( values.size() > 0 ) {
           // Передача предыдущих значений (промежуточных)
-          fireNextDataMessage( aFrontend, aQueryId, gwidKind, values, ESkQueryState.EXECUTING );
+          fireNextDataMessage( aFrontend, aQueryId, values, ESkQueryState.EXECUTING );
           // Сохранение результатов нового чтения
-          gwidKind = getGwidKind( reader );
           values = getValuesMap( functions, readerValues );
         }
       }
@@ -259,13 +254,12 @@ public class S5BackendQueriesSingleton
         convoy.execFinished( true );
       }
       // Передача последних данных (даже если они не получены)
-      if( gwidKind == null ) {
+      if( values == null ) {
         // Данных нет - отправляем пустой ответ
-        gwidKind = EGwidKind.GW_RTDATA;
         values = IStringMap.EMPTY;
       }
       // Передача последних значений
-      fireNextDataMessage( aFrontend, aQueryId, gwidKind, values, ESkQueryState.READY );
+      fireNextDataMessage( aFrontend, aQueryId, values, ESkQueryState.READY );
       // Трасировка 3
       long traceTime3 = System.currentTimeMillis();
 
@@ -285,13 +279,12 @@ public class S5BackendQueriesSingleton
       TsException error = new TsException( e, ERR_EXEC_QUERY, aQueryId, cause( e ) );
       logger().error( error );
       // Передача последних данных (даже если они не получены)
-      if( gwidKind == null ) {
+      if( values == null ) {
         // Данных нет - отправляем пустой ответ
-        gwidKind = EGwidKind.GW_RTDATA;
         values = IStringMap.EMPTY;
       }
       // Передача последних значений
-      fireNextDataMessage( aFrontend, aQueryId, gwidKind, values, ESkQueryState.FAILED );
+      fireNextDataMessage( aFrontend, aQueryId, values, ESkQueryState.FAILED );
     }
   }
 
@@ -353,6 +346,23 @@ public class S5BackendQueriesSingleton
     throw new TsNotAllEnumsUsedRtException();
   }
 
+  private static EGwidKind getGwidKind( ITimedList<ITemporal<?>> aValues ) {
+    if( aValues == null || aValues.size() == 0 ) {
+      return EGwidKind.GW_RTDATA;
+    }
+    ITemporal<?> value = aValues.first();
+    if( value instanceof ITemporalAtomicValue ) {
+      return EGwidKind.GW_RTDATA;
+    }
+    if( value instanceof SkEvent ) {
+      return EGwidKind.GW_EVENT;
+    }
+    if( value instanceof IDtoCompletedCommand ) {
+      return EGwidKind.GW_CMD;
+    }
+    throw new TsNotAllEnumsUsedRtException();
+  }
+
   @SuppressWarnings( "unchecked" )
   private IS5SequenceReader<IS5Sequence<?>, ?> findReaderByGwidKind( EGwidKind aGwidKind ) {
     TsNullArgumentRtException.checkNull( aGwidKind );
@@ -401,15 +411,22 @@ public class S5BackendQueriesSingleton
       }
       switch( gwidKind ) {
         case GW_RTDATA:
+          // Добавление функций над атомарными значениями
           ISkClassInfo classInfo = sysdescrReader.getClassInfo( gwid.classId() );
           EAtomicType type = classInfo.rtdata().list().getByKey( gwid.propId() ).dataType().atomicType();
           functions.add( new S5BackendQueriesAtomicValueFunctions( paramId, param, type, interval, aRawCounter,
               aValuesCounter, options, logger() ) );
           break;
         case GW_EVENT:
-          throw new TsUnderDevelopmentRtException();
+          // Добавление функций над событиями
+          functions.add( new S5BackendQueriesEventsFunctions( paramId, param, interval, aRawCounter, aValuesCounter,
+              options, logger() ) );
+          break;
         case GW_CMD:
-          throw new TsUnderDevelopmentRtException();
+          // Добавление функций над командами
+          functions.add( new S5BackendQueriesCommandsFunctions( paramId, param, interval, aRawCounter, aValuesCounter,
+              options, logger() ) );
+          break;
         case GW_ATTR:
         case GW_CLASS:
         case GW_CLOB:
@@ -544,6 +561,29 @@ public class S5BackendQueriesSingleton
     logger().debug( MSG_FUNC_READ_SEQUENCE_TIME, Integer.valueOf( count ), traceTimeout );
     // Возвращаение результата
     return retValue;
+  }
+
+  private static void fireNextDataMessage( IS5FrontendRear aFrontend, String aQueryId,
+      IStringMap<ITimedList<ITemporal<?>>> aValues, ESkQueryState aState ) {
+    TsNullArgumentRtException.checkNulls( aFrontend, aQueryId, aValues );
+    IMapEdit<EGwidKind, IStringMapEdit<ITimedList<ITemporal<?>>>> valuesByKinds = new ElemMap<>();
+    // Сортировка значений по типам
+    for( String paramId : aValues.keys() ) {
+      ITimedList<ITemporal<?>> values = aValues.getByKey( paramId );
+      EGwidKind gwidKind = getGwidKind( values );
+      IStringMapEdit<ITimedList<ITemporal<?>>> kindValues = valuesByKinds.findByKey( gwidKind );
+      if( kindValues == null ) {
+        kindValues = new StringMap<>();
+        valuesByKinds.put( gwidKind, kindValues );
+      }
+      kindValues.put( paramId, values );
+    }
+    // Передача значений
+    for( int index = 0, n = valuesByKinds.size(); index < n; index++ ) {
+      EGwidKind gwidKind = valuesByKinds.keys().get( index );
+      ESkQueryState state = (index + 1 < n ? ESkQueryState.EXECUTING : aState);
+      fireNextDataMessage( aFrontend, aQueryId, gwidKind, valuesByKinds.getByKey( gwidKind ), state );
+    }
   }
 
   @SuppressWarnings( "unchecked" )

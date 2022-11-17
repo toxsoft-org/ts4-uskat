@@ -574,6 +574,9 @@
 
     <module>org.toxsoft.uskat.base.gui</module>
 
+    <module>org.toxsoft.uskat.dataquality.lib</module>
+    <module>org.toxsoft.uskat.dataquality.s5</module>
+
     <!-- <module>org.toxsoft.uskat.sysext.alarms</module>  
     <module>org.toxsoft.uskat.sysext.batchop</module> 
     <module>org.toxsoft.uskat.sysext.realtime</module> 

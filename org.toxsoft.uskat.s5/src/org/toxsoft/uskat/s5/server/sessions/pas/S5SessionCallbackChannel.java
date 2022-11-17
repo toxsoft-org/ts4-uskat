@@ -18,7 +18,7 @@ import org.toxsoft.core.tslib.gw.skid.Skid;
 import org.toxsoft.core.tslib.utils.errors.TsIllegalArgumentRtException;
 import org.toxsoft.core.tslib.utils.errors.TsNullArgumentRtException;
 import org.toxsoft.core.tslib.utils.logs.ILogger;
-import org.toxsoft.uskat.s5.client.remote.connection.pas.S5CallbackOnGetBackendAddonInfos;
+import org.toxsoft.uskat.s5.client.remote.connection.pas.S5CallbackOnGetBaCreatorClasses;
 import org.toxsoft.uskat.s5.common.sessions.ISkSession;
 import org.toxsoft.uskat.s5.server.IS5ServerHardConstants;
 import org.toxsoft.uskat.s5.server.sessions.IS5SessionManager;
@@ -123,7 +123,7 @@ public final class S5SessionCallbackChannel
   @Override
   protected boolean doInit() {
     // Передача информации о классе реализации бекенда сервера
-    S5CallbackOnGetBackendAddonInfos.send( this, initialImplementation.baCreators() );
+    S5CallbackOnGetBaCreatorClasses.send( this, initialImplementation.baCreators() );
     // Базовая обработка
     return super.doInit();
   }

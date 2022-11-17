@@ -86,6 +86,9 @@ public final class S5BaEventsSupport
     try {
       gwids.clear();
       for( Gwid gwid : aNeededGwids ) {
+        if( gwids.hasElem( gwid ) ) {
+          continue;
+        }
         switch( gwid.kind() ) {
           case GW_CLASS:
           case GW_EVENT:

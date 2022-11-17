@@ -312,12 +312,13 @@ public class S5SessionMessenger
    */
   private static void handleWriteError( S5SessionMessenger aWriter, Throwable aError, ILogger aLogger ) {
     TsNullArgumentRtException.checkNulls( aWriter, aError, aLogger );
+    aLogger.error( aError );
     try {
       // Любые ошибки записи вызывают завершение соединения с клиентом
       aWriter.sessionManager().closeRemoteSession( aWriter.sessionID() );
     }
-    catch( @SuppressWarnings( "unused" ) Throwable e2 ) {
-      aLogger.error( aError );
+    catch( Throwable e2 ) {
+      aLogger.error( e2 );
     }
   }
 }

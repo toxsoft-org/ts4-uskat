@@ -3,6 +3,7 @@ package org.toxsoft.uskat.s5.server.backend;
 import javax.ejb.Local;
 import javax.persistence.EntityManagerFactory;
 
+import org.toxsoft.core.tslib.utils.errors.TsIllegalArgumentRtException;
 import org.toxsoft.core.tslib.utils.errors.TsNullArgumentRtException;
 import org.toxsoft.uskat.core.backend.ISkBackend;
 import org.toxsoft.uskat.core.backend.api.ISkBackendInfo;
@@ -95,9 +96,10 @@ public interface IS5BackendCoreSingleton
    * <p>
    * Соединение может быть использована различными компонентами сервера в разделяемом режиме
    *
-   * @return {@link ISkConnection} потокобезопасное соединение с сервером. null: соединение не установлено
+   * @return {@link ISkConnection} потокобезопасное соединение с сервером.
+   * @throws TsIllegalArgumentRtException ядро поддержки не активно ({@link #isActive()} == false)
    */
-  ISkConnection getConnectionOrNull();
+  ISkConnection getConnection();
 
   /**
    * Устанавливает соединение с локальным узлом сервера

@@ -1,4 +1,4 @@
-package org.toxsoft.uskat.refbooks.lib;
+package org.toxsoft.uskat.dataquality.lib;
 
 import org.toxsoft.core.tslib.av.IAtomicValue;
 import org.toxsoft.core.tslib.av.metainfo.IDataType;
@@ -69,5 +69,4 @@ public interface ISkDataQualityTicket
   default IAtomicValue defaultValue() {
     return dataType().defaultValue();
   }
-
 }
