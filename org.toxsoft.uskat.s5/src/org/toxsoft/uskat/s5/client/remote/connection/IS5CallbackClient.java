@@ -9,6 +9,7 @@ import org.toxsoft.core.tslib.utils.ICloseable;
 import org.toxsoft.core.tslib.utils.errors.TsIllegalStateRtException;
 import org.toxsoft.core.tslib.utils.errors.TsNullArgumentRtException;
 import org.toxsoft.uskat.s5.server.backend.addons.IS5BackendAddon;
+import org.toxsoft.uskat.s5.server.backend.addons.IS5BackendAddonCreator;
 
 /**
  * Получатель обратных вызовов сервера
@@ -40,15 +41,17 @@ public interface IS5CallbackClient
   IPasTxChannel findChannel();
 
   /**
-   * Возвращает описания расширений {@link IS5BackendAddon} бекенда поддерживаемых сервером
+   * Возвращает карту имен классов построителей {@link IS5BackendAddonCreator} расширений {@link IS5BackendAddon}
+   * бекенда поддерживаемых сервером
    *
-   * @return {@link IStringMap}&lt;String&gt; карта описания расширений.
+   * @return {@link IStringMap}&lt;String&gt; карта классов.
    *         <p>
    *         Ключ: идентификатор расширения {@link IS5BackendAddon#id()};<br>
-   *         Значение: полное имя java-класса реализующий расширение {@link IS5BackendAddon};<br>
+   *         Значение: полное имя java-класса реализующий расширение построитель расширения
+   *         {@link IS5BackendAddonCreator};<br>
    * @throws TsIllegalStateRtException нет связи с сервером или конфигурация не получена
    */
-  IStringMap<String> backendAddonInfos();
+  IStringMap<String> baCreatorClasses();
 
   /**
    * Обновить топологию кластеров доступных клиенту

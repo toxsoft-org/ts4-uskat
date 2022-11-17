@@ -69,5 +69,4 @@ public interface ISkDataQualityTicket
   default IAtomicValue defaultValue() {
     return dataType().defaultValue();
   }
-
 }

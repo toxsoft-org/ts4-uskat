@@ -3,7 +3,6 @@ package org.toxsoft.uskat.concurrent;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import org.toxsoft.core.log4j.LoggerWrapper;
-import org.toxsoft.core.tslib.coll.primtypes.IStringMap;
 import org.toxsoft.core.tslib.coll.primtypes.IStringMapEdit;
 import org.toxsoft.core.tslib.coll.primtypes.impl.StringMap;
 import org.toxsoft.core.tslib.coll.synch.SynchronizedStringMap;
@@ -178,7 +177,7 @@ public final class S5SynchronizedCoreApi
   }
 
   @Override
-  public IStringMap<ISkService> services() {
+  public IStringMapEdit<ISkService> services() {
     return services;
   }
 

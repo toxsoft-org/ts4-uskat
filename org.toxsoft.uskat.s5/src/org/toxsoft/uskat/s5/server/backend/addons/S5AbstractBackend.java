@@ -18,10 +18,14 @@ import org.toxsoft.core.tslib.bricks.ctx.ITsContextRo;
 import org.toxsoft.core.tslib.bricks.ctx.impl.IAskParent;
 import org.toxsoft.core.tslib.bricks.ctx.impl.TsContext;
 import org.toxsoft.core.tslib.bricks.events.msg.*;
+import org.toxsoft.core.tslib.bricks.strid.coll.IStridablesList;
+import org.toxsoft.core.tslib.bricks.strid.coll.IStridablesListEdit;
+import org.toxsoft.core.tslib.bricks.strid.coll.impl.StridablesList;
 import org.toxsoft.core.tslib.bricks.strid.idgen.IStridGenerator;
 import org.toxsoft.core.tslib.bricks.strid.idgen.UuidStridGenerator;
 import org.toxsoft.core.tslib.coll.IListEdit;
 import org.toxsoft.core.tslib.coll.impl.ElemArrayList;
+import org.toxsoft.core.tslib.coll.primtypes.IStringMap;
 import org.toxsoft.core.tslib.coll.primtypes.IStringMapEdit;
 import org.toxsoft.core.tslib.coll.primtypes.impl.StringMap;
 import org.toxsoft.core.tslib.coll.synch.SynchronizedStringMap;
@@ -132,15 +136,18 @@ public abstract class S5AbstractBackend<ADDON extends IS5BackendAddon>
   private final S5BackendDoJobThread backendDojobThread;
 
   /**
+   * Карта построителей {@link IS5BackendAddonCreator} расширений {@link IS5BackendAddon} бекенда поддерживаемых
+   * сервером.
+   * <p>
+   * Ключ: идентификатор расширения {@link IS5BackendAddon#id()};<br>
+   * Значение: построитель расширения {@link IS5BackendAddonCreator}.
+   */
+  private final IStridablesListEdit<IS5BackendAddonCreator> baCreators = new StridablesList<>();
+
+  /**
    * Список расширений бекенда поддерживаемых сервером
    */
   private final IStringMapEdit<ADDON> allAddons = new SynchronizedStringMap<>( new StringMap<>() );
-
-  /**
-   * Список создателей служб поддерживаемых сервером
-   */
-  private final IListEdit<ISkServiceCreator<? extends AbstractSkService>> backendServicesCreators =
-      new ElemArrayList<>();
 
   /**
    * Признак завершенной инициализации
@@ -297,7 +304,15 @@ public abstract class S5AbstractBackend<ADDON extends IS5BackendAddon>
 
   @Override
   public final IListEdit<ISkServiceCreator<? extends AbstractSkService>> listBackendServicesCreators() {
-    return backendServicesCreators;
+    IListEdit<ISkServiceCreator<? extends AbstractSkService>> retValue = new ElemArrayList<>();
+    for( IS5BackendAddonCreator baCreator : baCreators.values() ) {
+      if( isCoreAddon( baCreator.id() ) ) {
+        // Встроенные в ядро службы есть всегда
+        continue;
+      }
+      retValue.add( baCreator.serviceCreator() );
+    }
+    return retValue;
   }
 
   @Override
@@ -394,6 +409,20 @@ public abstract class S5AbstractBackend<ADDON extends IS5BackendAddon>
   protected abstract boolean doIsLocal();
 
   /**
+   * Используя предоставленную карту построителей создает расширения бекенда
+   *
+   * @param aBaCreators {@link IStridablesList}&lt; {@link IS5BackendAddonCreator}&gt; карта построителей.
+   *          <p>
+   *          Ключ: идентификатор расширения {@link IS5BackendAddon#id()};<br>
+   *          Значение: построитель расширения {@link IS5BackendAddonCreator}.
+   * @return {@link IStringMapEdit}&lt;ADDON&gt; карта расширений бекенда;
+   *         <p>
+   *         Ключ: идентификатор расширения;<br>
+   *         Значение: s5-бекенд
+   */
+  protected abstract IStringMap<ADDON> doCreateAddons( IStridablesList<IS5BackendAddonCreator> aBaCreators );
+
+  /**
    * Возвращает значения параметров бекенда предоставляемых сервером
    *
    * @return {@link ISkBackendInfo} значения параметров бекенда или null если сервер недоступен
@@ -422,6 +451,21 @@ public abstract class S5AbstractBackend<ADDON extends IS5BackendAddon>
   }
 
   /**
+   * Устанавливает карту построителей {@link IS5BackendAddonCreator} расширений {@link IS5BackendAddon} бекенда
+   * поддерживаемых сервером.
+   *
+   * @param aBaCreators {@link IStridablesList}&lt; {@link IS5BackendAddonCreator}&gt; карта построителей.
+   *          <p>
+   *          Ключ: идентификатор расширения {@link IS5BackendAddon#id()};<br>
+   *          Значение: построитель расширения {@link IS5BackendAddonCreator}.
+   */
+  protected final void setBaCreators( IStridablesList<IS5BackendAddonCreator> aBaCreators ) {
+    TsNullArgumentRtException.checkNull( aBaCreators );
+    baCreators.setAll( aBaCreators );
+    allAddons.setAll( doCreateAddons( aBaCreators ) );
+  }
+
+  /**
    * Возвращает все расширения бекенда поддерживаемые сервером
    *
    * @return {@link IStringMapEdit}&lt;ADDON&gt; карта расширений бекенда;
@@ -429,7 +473,7 @@ public abstract class S5AbstractBackend<ADDON extends IS5BackendAddon>
    *         Ключ: идентификатор расширения;<br>
    *         Значение: s5-бекенд
    */
-  protected final IStringMapEdit<ADDON> allAddons() {
+  protected final IStringMap<ADDON> allAddons() {
     return allAddons;
   }
 
@@ -539,5 +583,26 @@ public abstract class S5AbstractBackend<ADDON extends IS5BackendAddon>
     ctx.params().setAll( aContext.params() );
     ctx.params().setValobj( IS5ConnectionParams.OP_SESSION_ID, aSessionID );
     return ctx;
+  }
+
+  /**
+   * Возвращает признак того, что расширение бекенда с указанным идентификатором входит в ядро
+   *
+   * @param aAddonId String идентификатор расширения
+   * @return boolean <b>true</b> расширение ядра;<b>false</b> не расширение ядра.
+   * @throws TsNullArgumentRtException аргумент = null
+   */
+  private static boolean isCoreAddon( String aAddonId ) {
+    TsNullArgumentRtException.checkNull( aAddonId );
+    return (//
+    aAddonId.equals( IBaClasses.ADDON_ID ) || //
+        aAddonId.equals( IBaObjects.ADDON_ID ) || //
+        aAddonId.equals( IBaLinks.ADDON_ID ) || //
+        aAddonId.equals( IBaClobs.ADDON_ID ) || //
+        aAddonId.equals( IBaRtdata.ADDON_ID ) || //
+        aAddonId.equals( IBaEvents.ADDON_ID ) || //
+        aAddonId.equals( IBaCommands.ADDON_ID ) || //
+        aAddonId.equals( IBaQueries.ADDON_ID ) //
+    ); //
   }
 }

@@ -5,6 +5,7 @@ import org.toxsoft.core.tslib.coll.primtypes.IStringMap;
 import org.toxsoft.core.tslib.utils.errors.*;
 import org.toxsoft.uskat.s5.server.backend.IS5BackendSession;
 import org.toxsoft.uskat.s5.server.backend.addons.IS5BackendAddon;
+import org.toxsoft.uskat.s5.server.backend.addons.IS5BackendAddonCreator;
 import org.toxsoft.uskat.s5.server.sessions.init.IS5SessionInitResult;
 import org.toxsoft.uskat.s5.server.sessions.init.S5SessionInitData;
 
@@ -16,22 +17,24 @@ import org.toxsoft.uskat.s5.server.sessions.init.S5SessionInitData;
 public interface IS5Connection {
 
   /**
-   * Возвращает текущее состояние соединения
+   * Возвращает текущее состояние соединения.
    *
-   * @return {@link EConnectionState} состояние соединения
+   * @return {@link EConnectionState} состояние соединения.
    */
   EConnectionState state();
 
   /**
-   * Возвращает описания расширений {@link IS5BackendAddon} бекенда поддерживаемых сервером
+   * Возвращает карту имен классов построителей {@link IS5BackendAddonCreator} расширений {@link IS5BackendAddon}
+   * бекенда поддерживаемых сервером.
    *
-   * @return {@link IStringMap}&lt;String&gt; карта описания расширений.
+   * @return {@link IStringMap}&lt;String&gt; карта классов.
    *         <p>
    *         Ключ: идентификатор расширения {@link IS5BackendAddon#id()};<br>
-   *         Значение: полное имя java-класса реализующий расширение {@link IS5BackendAddon};<br>
-   * @throws TsIllegalStateRtException нет связи с сервером или конфигурация не получена
+   *         Значение: полное имя java-класса реализующий расширение построитель расширения
+   *         {@link IS5BackendAddonCreator}.
+   * @throws TsIllegalStateRtException нет связи с сервером или конфигурация не получена.
    */
-  IStringMap<String> backendAddonInfos();
+  IStringMap<String> baCreatorClasses();
 
   /**
    * Возвращает данные инициализации сессии

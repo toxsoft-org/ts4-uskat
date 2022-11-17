@@ -5,8 +5,8 @@ import static org.toxsoft.core.pas.server.IPasServerParams.*;
 import static org.toxsoft.core.tslib.av.impl.AvUtils.*;
 import static org.toxsoft.core.tslib.av.metainfo.IAvMetaConstants.*;
 import static org.toxsoft.uskat.s5.client.remote.connection.pas.IS5Resources.*;
-import static org.toxsoft.uskat.s5.client.remote.connection.pas.S5CallbackOnGetBackendAddonInfos.*;
 import static org.toxsoft.uskat.s5.client.remote.connection.pas.S5CallbackOnBackendMessage.*;
+import static org.toxsoft.uskat.s5.client.remote.connection.pas.S5CallbackOnGetBaCreatorClasses.*;
 import static org.toxsoft.uskat.s5.server.IS5ImplementConstants.*;
 
 import java.net.InetSocketAddress;
@@ -31,6 +31,7 @@ import org.toxsoft.uskat.core.backend.ISkFrontendRear;
 import org.toxsoft.uskat.s5.client.IS5ConnectionParams;
 import org.toxsoft.uskat.s5.client.remote.connection.*;
 import org.toxsoft.uskat.s5.server.backend.addons.IS5BackendAddon;
+import org.toxsoft.uskat.s5.server.backend.addons.IS5BackendAddonCreator;
 import org.toxsoft.uskat.s5.server.sessions.pas.*;
 
 /**
@@ -77,12 +78,14 @@ public final class S5CallbackClient
   private boolean notificationEnabled;
 
   /**
-   * Список описаний расширений {@link IS5BackendAddon} бекенда поддерживаемых сервером
+   * Карта имен классов построителей {@link IS5BackendAddonCreator} расширений {@link IS5BackendAddon} бекенда
+   * поддерживаемых сервером
    * <p>
    * Ключ: идентификатор расширения {@link IS5BackendAddon#id()};<br>
-   * Значение: полное имя java-класса реализующий расширение {@link IS5BackendAddon};<br>
+   * Значение: карту имен классов построителей {@link IS5BackendAddonCreator} расширений {@link IS5BackendAddon} бекенда
+   * поддерживаемых сервером.
    */
-  private IStringMap<String> backendAddonInfos;
+  private IStringMap<String> baCreatorClasses;
 
   /**
    * Признак завершения работы соединения
@@ -190,8 +193,8 @@ public final class S5CallbackClient
   }
 
   @Override
-  public IStringMap<String> backendAddonInfos() {
-    return TsIllegalStateRtException.checkNull( backendAddonInfos );
+  public IStringMap<String> baCreatorClasses() {
+    return TsIllegalStateRtException.checkNull( baCreatorClasses );
   }
 
   @Override
@@ -417,12 +420,12 @@ public final class S5CallbackClient
     // Регистрация обработчиков
     ISkFrontendRear frontend = aConnection.frontend();
     retValue.registerNotificationHandler( ON_MESSAGE_METHOD, new S5CallbackOnBackendMessage( frontend ) );
-    retValue.registerNotificationHandler( ON_GET_BACKEND_ADDON_INFOS_METHOD, new S5CallbackOnGetBackendAddonInfos() {
+    retValue.registerNotificationHandler( ON_GET_BA_CREATOR_CLASSES_METHOD, new S5CallbackOnGetBaCreatorClasses() {
 
       @Override
-      protected void doWhenGetBackendAddonIds( IStringMap<String> aBackendAddonInfos ) {
+      protected void doWhenGetBaCreatorClasses( IStringMap<String> aBaCreatorClasses ) {
         // Получение от узла информации о реализации бекенда
-        aReader.backendAddonInfos = aBackendAddonInfos;
+        aReader.baCreatorClasses = aBaCreatorClasses;
         synchronized (aReader.pasClients) {
           IList<S5CallbackChannel> connected = getConnectedChannels( aReader.pasClients );
           if( connected.size() == aReader.pasClients.size() ) {

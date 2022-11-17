@@ -5,9 +5,10 @@ package org.toxsoft.uskat.dataquality.lib;
  *
  * @author hazard157
  */
-// @SuppressWarnings( "nls" )
+@SuppressWarnings( "nls" )
 interface ISkResources {
 
-  // TODO L10N
+  String STR_N_BA_DATA_QUALITY = "Data quality";
+  String STR_D_BA_DATA_QUALITY = "Data quality addon";
 
 }

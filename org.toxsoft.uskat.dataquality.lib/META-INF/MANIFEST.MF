@@ -8,4 +8,5 @@ Automatic-Module-Name: org.toxsoft.uskat.dataquality.lib
 Bundle-RequiredExecutionEnvironment: JavaSE-17
 Require-Bundle: org.toxsoft.core.tslib,
  org.toxsoft.uskat.core
-Export-Package: org.toxsoft.uskat.dataquality.lib
+Export-Package: org.toxsoft.uskat.dataquality.lib,
+ org.toxsoft.uskat.dataquality.lib.impl

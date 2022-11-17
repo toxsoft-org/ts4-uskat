@@ -41,10 +41,8 @@ class S5BaRtdataRemote
     // Установка конфигурации фронтенда
     frontend().frontendData().setBackendAddonData( IBaRtdata.ADDON_ID, baData );
     // Установка таймаутов
-    baData.currdataTimeout =
-        IS5ConnectionParams.OP_CURRDATA_TIMEOUT.getValue( aOwner.openArgs().params() ).asLong();
-    baData.histdataTimeout =
-        IS5ConnectionParams.OP_HISTDATA_TIMEOUT.getValue( aOwner.openArgs().params() ).asLong();
+    baData.currdataTimeout = IS5ConnectionParams.OP_CURRDATA_TIMEOUT.getValue( aOwner.openArgs().params() ).asLong();
+    baData.histdataTimeout = IS5ConnectionParams.OP_HISTDATA_TIMEOUT.getValue( aOwner.openArgs().params() ).asLong();
   }
 
   // ------------------------------------------------------------------------------------

@@ -48,7 +48,7 @@ import org.toxsoft.uskat.s5.utils.jobs.IS5ServerJob;
     // BACKEND_SYSDESCR_SINGLETON, // уже включено неявным образом
     // BACKEND_OBJECTS_SINGLETON, // уже включено неявным образом
     // BACKEND_LINKS_SINGLETON, // уже включено неявным образом
-    // BACKEND_LOBS_SINGLETON, //уже включено неявным образом
+    // BACKEND_CLOBS_SINGLETON, //уже включено неявным образом
     // BACKEND_EVENTS_SINGLETON, //уже включено неявным образом
     // BACKEND_COMMANDS_SINGLETON, //уже включено неявным образом
     // 2022-05-04 mvk события в ядре

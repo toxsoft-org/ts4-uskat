@@ -805,9 +805,9 @@ public final class S5Connection
   }
 
   @Override
-  public IStringMap<String> backendAddonInfos() {
+  public IStringMap<String> baCreatorClasses() {
     TsNullArgumentRtException.checkNull( callbackReader );
-    return callbackReader.backendAddonInfos();
+    return callbackReader.baCreatorClasses();
   }
 
   @Override
