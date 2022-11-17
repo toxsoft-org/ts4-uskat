@@ -1,5 +1,6 @@
 package org.toxsoft.uskat.base.gui.km5.sgw;
 
+import static org.toxsoft.core.tsgui.m5.IM5Constants.*;
 import static org.toxsoft.uskat.base.gui.km5.sgw.ISgwM5Constants.*;
 
 import org.toxsoft.core.tsgui.m5.model.*;
@@ -28,6 +29,8 @@ public class SgwSkObject
   public SgwSkObject( ISkConnection aConn ) {
     super( MID_SGW_SK_OBJECT, ISkObject.class, aConn );
     addFieldDefs( SKID, CLASS_ID, STRID, NAME, DESCRIPTION );
+    STRID.addFlags( M5FF_COLUMN );
+    DESCRIPTION.addFlags( M5FF_DETAIL );
   }
 
 }
