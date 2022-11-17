@@ -15,7 +15,7 @@ import org.toxsoft.core.tslib.coll.primtypes.IStringMap;
 import org.toxsoft.core.tslib.coll.primtypes.IStringMapEdit;
 import org.toxsoft.core.tslib.coll.primtypes.impl.StringMap;
 import org.toxsoft.core.tslib.utils.errors.*;
-import org.toxsoft.core.tslib.utils.logs.ILogger;
+import org.toxsoft.core.tslib.utils.logs.impl.LoggerUtils;
 import org.toxsoft.uskat.core.backend.ISkBackendHardConstant;
 import org.toxsoft.uskat.core.backend.ISkFrontendRear;
 import org.toxsoft.uskat.core.backend.api.*;
@@ -130,7 +130,7 @@ public final class S5BackendRemote
       // Формирование сообщения о предстоящей инициализации расширений
       fireBackendMessage( S5BaBeforeInitMessages.INSTANCE.makeMessage() );
       // Установка построителей расширений бекенда
-      setBaCreators( createBaCreators( classLoader(), aSource.baCreatorClasses(), logger() ) );
+      setBaCreators( createBaCreators( classLoader(), aSource.baCreatorClasses() ) );
       // Формирование сообщения о проведенной инициализации расширений
       fireBackendMessage( S5BaAfterInitMessages.INSTANCE.makeMessage() );
     }
@@ -249,14 +249,13 @@ public final class S5BackendRemote
    *          Ключ: идентификатор расширения {@link IS5BackendAddon#id()};<br>
    *          Значение: полное имя java-класса реализующий расширение построитель расширения
    *          {@link IS5BackendAddonCreator}.
-   * @param aLogger {@link ILogger} журнал работы
    * @return {@link IStridablesList}&lt;{@link IS5BackendAddon}&gt; список расширений бекенда.
    * @throws TsNullArgumentRtException любой аргумент = null
    */
   @SuppressWarnings( { "unchecked" } )
   private static IStridablesList<IS5BackendAddonCreator> createBaCreators( ClassLoader aClassLoader,
-      IStringMap<String> aBaCreatorClasses, ILogger aLogger ) {
-    TsNullArgumentRtException.checkNulls( aClassLoader, aBaCreatorClasses, aLogger );
+      IStringMap<String> aBaCreatorClasses ) {
+    TsNullArgumentRtException.checkNulls( aClassLoader, aBaCreatorClasses );
     IStridablesListEdit<IS5BackendAddonCreator> retValue = new StridablesList<>();
     for( String addonId : aBaCreatorClasses.keys() ) {
       String baCreatorClassName = aBaCreatorClasses.getByKey( addonId );
@@ -264,9 +263,9 @@ public final class S5BackendRemote
       try {
         implClassName = (Class<IS5BackendAddonCreator>)aClassLoader.loadClass( baCreatorClassName );
       }
-      catch( @SuppressWarnings( "unused" ) ClassNotFoundException e ) {
-        // Предупреждение: класс построителя расширения не найден в classpath клиента
-        aLogger.warning( ERR_BA_CREATOR_NOT_FOUND, addonId, baCreatorClassName );
+      catch( ClassNotFoundException e ) {
+        // Не найден класс построителя расширения бекенда в classpath клиента
+        LoggerUtils.errorLogger().error( e, ERR_BA_CREATOR_NOT_FOUND, addonId, baCreatorClassName );
         continue;
       }
       try {
