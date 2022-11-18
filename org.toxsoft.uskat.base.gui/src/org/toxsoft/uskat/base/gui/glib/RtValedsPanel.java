@@ -1,5 +1,6 @@
 package org.toxsoft.uskat.base.gui.glib;
 
+import org.eclipse.swt.*;
 import org.eclipse.swt.widgets.*;
 import org.toxsoft.core.tsgui.bricks.ctx.*;
 import org.toxsoft.core.tsgui.panels.*;
@@ -99,7 +100,7 @@ public class RtValedsPanel
    * @throws TsNullArgumentRtException any argument = <code>null</code>
    */
   public RtValedsPanel( Composite aParent, ITsGuiContext aContext, IdChain aSkConnId ) {
-    super( aParent, aContext );
+    super( aParent, aContext, SWT.DOUBLE_BUFFERED );
     if( aSkConnId != IdChain.NULL ) {
       skConn = connectionSupplier().getConn( aSkConnId );
     }
