@@ -9,6 +9,7 @@ import org.toxsoft.core.tslib.av.utils.IParameterized;
 import org.toxsoft.core.tslib.gw.gwid.Gwid;
 import org.toxsoft.core.tslib.utils.errors.*;
 import org.toxsoft.uskat.s5.server.backend.supports.histdata.impl.sequences.IS5HistDataBlock;
+import org.toxsoft.uskat.s5.server.backend.supports.histdata.impl.sequences.S5HistDataCursor;
 import org.toxsoft.uskat.s5.server.sequences.IS5SequenceCursor;
 import org.toxsoft.uskat.s5.server.sequences.impl.S5SequenceAsyncBlob;
 import org.toxsoft.uskat.s5.server.sequences.impl.S5SequenceAsyncBlock;
@@ -66,8 +67,7 @@ public abstract class S5HistDataAsyncBlock<BLOB_ARRAY, BLOB extends S5SequenceAs
   //
   @Override
   public IS5SequenceCursor<ITemporalAtomicValue> createCursor() {
-    // TODO:
-    throw new TsUnderDevelopmentRtException();
+    return new S5HistDataCursor( this );
   }
 
 }

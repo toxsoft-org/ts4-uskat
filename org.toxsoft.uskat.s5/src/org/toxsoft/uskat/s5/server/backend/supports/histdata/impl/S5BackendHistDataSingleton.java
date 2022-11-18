@@ -5,6 +5,7 @@ import static org.toxsoft.uskat.s5.server.IS5ImplementConstants.*;
 import static org.toxsoft.uskat.s5.server.backend.supports.histdata.IS5HistDataInterceptor.*;
 import static org.toxsoft.uskat.s5.server.backend.supports.histdata.impl.IS5Resources.*;
 
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 import javax.ejb.*;
@@ -21,6 +22,7 @@ import org.toxsoft.core.tslib.utils.Pair;
 import org.toxsoft.core.tslib.utils.errors.TsInternalErrorRtException;
 import org.toxsoft.core.tslib.utils.errors.TsNullArgumentRtException;
 import org.toxsoft.core.tslib.utils.logs.ELogSeverity;
+import org.toxsoft.core.tslib.utils.logs.ILogger;
 import org.toxsoft.uskat.s5.legacy.QueryInterval;
 import org.toxsoft.uskat.s5.server.backend.supports.histdata.*;
 import org.toxsoft.uskat.s5.server.backend.supports.histdata.impl.sequences.S5HistDataSequenceFactory;
@@ -122,10 +124,8 @@ public class S5BackendHistDataSingleton
         logger().debug( MSG_REJECT_HISTDATA_WRITE_BY_INTERCEPTORS );
         return;
       }
-      if( logger().isSeverityOn( ELogSeverity.INFO ) ) {
-        // Вывод в лог сохраняемых данных
-        logger().info( toStr( MSG_WRITE_HISTDATA_VALUES, aValues ) );
-      }
+      // Вывод в журнал сообщения об изменении значений
+      writeValuesToLog( logger(), aValues );
       // Карта последовательностей данных. Ключ: идентификатор данного; Значение: последовательность значений
       IListEdit<IS5HistDataSequence> sequences = new ElemLinkedList<>();
       for( Gwid gwid : aValues.keys() ) {
@@ -173,6 +173,33 @@ public class S5BackendHistDataSingleton
   // ------------------------------------------------------------------------------------
   // Внутренние методы
   //
+  // private void writeValuesToLog( IMap<Gwid, Pair<ITimeInterval, ITimedList<ITemporalAtomicValue>>> aValues ) {
+  // if( logger().isSeverityOn( ELogSeverity.INFO ) ) {
+  // // Вывод в лог сохраняемых данных
+  // logger().info( toStr( MSG_WRITE_HISTDATA_VALUES_DEBUG, aValues ) );
+  // }
+  // }
+
+  /**
+   * Вывод записанных значений в журнал
+   *
+   * @param aLogger {@link ILogger} журнал
+   * @param aValues {@link Map} карта значений
+   * @throws TsNullArgumentRtException любой аргумент = null
+   */
+  private static void writeValuesToLog( ILogger aLogger,
+      IMap<Gwid, Pair<ITimeInterval, ITimedList<ITemporalAtomicValue>>> aValues ) {
+    TsNullArgumentRtException.checkNulls( aLogger, aValues );
+    if( aLogger.isSeverityOn( ELogSeverity.DEBUG ) ) {
+      aLogger.debug( toStr( MSG_WRITE_HISTDATA_VALUES_DEBUG, aValues ) );
+      return;
+    }
+    if( aLogger.isSeverityOn( ELogSeverity.INFO ) ) {
+      aLogger.info( MSG_WRITE_HISTDATA_VALUES_INFO, Integer.valueOf( aValues.size() ) );
+      return;
+    }
+  }
+
   /**
    * Возвращает строку представляющую значения хранимых данных
    *

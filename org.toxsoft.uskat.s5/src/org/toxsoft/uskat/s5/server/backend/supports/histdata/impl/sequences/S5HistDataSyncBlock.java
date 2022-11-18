@@ -64,7 +64,6 @@ public abstract class S5HistDataSyncBlock<BLOB_ARRAY, BLOB extends S5SequenceSyn
   //
   @Override
   public IS5SequenceCursor<ITemporalAtomicValue> createCursor() {
-    // TODO:
-    throw new TsUnderDevelopmentRtException();
+    return new S5HistDataCursor( this );
   }
 }

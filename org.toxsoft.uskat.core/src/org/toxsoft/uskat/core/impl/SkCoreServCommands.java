@@ -2,29 +2,36 @@ package org.toxsoft.uskat.core.impl;
 
 import static org.toxsoft.uskat.core.impl.ISkResources.*;
 
-import org.toxsoft.core.tslib.av.*;
-import org.toxsoft.core.tslib.av.errors.*;
-import org.toxsoft.core.tslib.av.metainfo.*;
-import org.toxsoft.core.tslib.av.opset.*;
-import org.toxsoft.core.tslib.bricks.ctx.*;
-import org.toxsoft.core.tslib.bricks.events.change.*;
-import org.toxsoft.core.tslib.bricks.events.msg.*;
-import org.toxsoft.core.tslib.bricks.time.*;
-import org.toxsoft.core.tslib.coll.*;
-import org.toxsoft.core.tslib.coll.impl.*;
-import org.toxsoft.core.tslib.coll.primtypes.*;
-import org.toxsoft.core.tslib.coll.primtypes.impl.*;
+import org.toxsoft.core.tslib.av.IAtomicValue;
+import org.toxsoft.core.tslib.av.errors.AvTypeCastRtException;
+import org.toxsoft.core.tslib.av.impl.AvUtils;
+import org.toxsoft.core.tslib.av.metainfo.IDataDef;
+import org.toxsoft.core.tslib.av.opset.IOptionSet;
+import org.toxsoft.core.tslib.av.opset.IOptionSetEdit;
+import org.toxsoft.core.tslib.av.opset.impl.OptionSet;
+import org.toxsoft.core.tslib.bricks.ctx.ITsContextRo;
+import org.toxsoft.core.tslib.bricks.events.change.GenericChangeEventer;
+import org.toxsoft.core.tslib.bricks.events.change.IGenericChangeEventer;
+import org.toxsoft.core.tslib.bricks.events.msg.GenericMessage;
+import org.toxsoft.core.tslib.bricks.time.IQueryInterval;
+import org.toxsoft.core.tslib.bricks.time.ITimedList;
+import org.toxsoft.core.tslib.coll.IMapEdit;
+import org.toxsoft.core.tslib.coll.impl.ElemMap;
+import org.toxsoft.core.tslib.coll.primtypes.IStringMapEdit;
+import org.toxsoft.core.tslib.coll.primtypes.impl.StringMap;
 import org.toxsoft.core.tslib.gw.gwid.*;
-import org.toxsoft.core.tslib.gw.skid.*;
+import org.toxsoft.core.tslib.gw.skid.Skid;
 import org.toxsoft.core.tslib.utils.errors.*;
-import org.toxsoft.uskat.core.*;
+import org.toxsoft.uskat.core.ISkServiceCreator;
 import org.toxsoft.uskat.core.api.cmdserv.*;
-import org.toxsoft.uskat.core.api.objserv.*;
-import org.toxsoft.uskat.core.api.sysdescr.*;
-import org.toxsoft.uskat.core.api.sysdescr.dto.*;
+import org.toxsoft.uskat.core.api.objserv.ISkObject;
+import org.toxsoft.uskat.core.api.sysdescr.ESkClassPropKind;
+import org.toxsoft.uskat.core.api.sysdescr.ISkClassInfo;
+import org.toxsoft.uskat.core.api.sysdescr.dto.IDtoCmdInfo;
 import org.toxsoft.uskat.core.backend.api.*;
-import org.toxsoft.uskat.core.devapi.*;
-import org.toxsoft.uskat.core.impl.dto.*;
+import org.toxsoft.uskat.core.devapi.IDevCoreApi;
+import org.toxsoft.uskat.core.impl.dto.DtoCommand;
+import org.toxsoft.uskat.core.impl.dto.DtoCompletedCommand;
 
 /**
  * {@link ISkCommandService} implementation.
@@ -141,7 +148,19 @@ public class SkCoreServCommands
   private void handleMsgExecuteCommand( IDtoCommand aCommand ) {
     ISkCommandExecutor executor = findExecutorForGwid( aCommand.cmdGwid() );
     if( executor != null ) {
-      executor.executeCommand( aCommand );
+      // 2022-11-17 mvk +++
+      executingCmds.put( aCommand.instanceId(), new SkCommand( aCommand ) );
+      try {
+        executor.executeCommand( aCommand );
+      }
+      catch( Throwable e ) {
+        // 2022-11-17 mvk +++ TODO: оценить решение о такой обработке неожиданной ошибки
+        IOptionSetEdit params = new OptionSet();
+        String cause = e.getLocalizedMessage();
+        SkCommandState.OP_REASON.setValue( params, cause != null ? AvUtils.avStr( cause ) : IAtomicValue.NULL );
+        SkCommandState state = new SkCommandState( System.currentTimeMillis(), ESkCommandState.FAILED, params );
+        changeCommandState( new DtoCommandStateChangeInfo( aCommand.instanceId(), state ) );
+      }
     }
     else {
       logger().warning( FMT_LOG_WARN_UNHANDLED_CMD, aCommand.toString() );
