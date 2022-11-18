@@ -401,12 +401,8 @@ public class S5BackendCurrDataSingleton
       logger().info( MSG_REJECT_CURRDATA_WRITE_BY_INTERCEPTORS );
       return;
     }
-
-    // Оповещение об изменении значений
-    if( logger().isSeverityOn( ELogSeverity.INFO ) ) {
-      // Вывод в лог сохраняемых данных
-      logger().info( toStr( MSG_WRITE_CURRDATA_VALUES, newCachedValues ) );
-    }
+    // Вывод в журнал сообщения об изменении значений
+    writeValuesToLog( logger(), newCachedValues );
     // Запись значений в кэш
     valuesCache.putAll( newCachedValues );
 
@@ -581,6 +577,25 @@ public class S5BackendCurrDataSingleton
       }
     }
     return retValue;
+  }
+
+  /**
+   * Вывод записанных значений в журнал
+   *
+   * @param aLogger {@link ILogger} журнал
+   * @param aValues {@link Map} карта значений
+   * @throws TsNullArgumentRtException любой аргумент = null
+   */
+  private static void writeValuesToLog( ILogger aLogger, Map<Gwid, IAtomicValue> aValues ) {
+    TsNullArgumentRtException.checkNulls( aLogger, aValues );
+    if( aLogger.isSeverityOn( ELogSeverity.DEBUG ) ) {
+      aLogger.debug( toStr( MSG_WRITE_CURRDATA_VALUES_DEBUG, aValues ) );
+      return;
+    }
+    if( aLogger.isSeverityOn( ELogSeverity.INFO ) ) {
+      aLogger.info( MSG_WRITE_CURRDATA_VALUES_INFO, Integer.valueOf( aValues.size() ) );
+      return;
+    }
   }
 
   /**
