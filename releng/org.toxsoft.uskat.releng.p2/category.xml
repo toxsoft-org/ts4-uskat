@@ -6,6 +6,7 @@
       </description>
    </category-def>
    <bundle id="org.toxsoft.uskat.core"/>
+   <bundle id="org.toxsoft.uskat.backend.memtext"/>
    <bundle id="org.toxsoft.uskat.s5"/>
    <bundle id="org.toxsoft.uskat.s5.histdata10"/>
    <bundle id="org.toxsoft.uskat.skadmin.core"/>
@@ -18,6 +19,7 @@
 
    <!-- sources -->
    <bundle id="org.toxsoft.uskat.core.source"/>
+   <bundle id="org.toxsoft.uskat.backend.memtext.source"/>
    <bundle id="org.toxsoft.uskat.s5.source"/>
    <bundle id="org.toxsoft.uskat.s5.histdata10.source"/>
    <bundle id="org.toxsoft.uskat.skadmin.core.source"/>

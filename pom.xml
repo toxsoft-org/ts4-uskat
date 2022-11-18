@@ -565,6 +565,7 @@
   </profiles>
   <modules>
     <module>org.toxsoft.uskat.core</module>
+    <module>org.toxsoft.uskat.backend.memtext</module>
     <module>org.toxsoft.uskat.s5</module>  
     <module>org.toxsoft.uskat.s5.histdata10</module>  
     <module>org.toxsoft.uskat.skadmin.core</module>
