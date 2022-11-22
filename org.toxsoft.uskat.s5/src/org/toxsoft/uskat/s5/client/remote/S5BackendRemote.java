@@ -134,6 +134,8 @@ public final class S5BackendRemote
       // Формирование сообщения о проведенной инициализации расширений
       fireBackendMessage( S5BaAfterInitMessages.INSTANCE.makeMessage() );
     }
+    // Установка в данных инициализации сессии расширений бекенда поддерживаемых клиентом
+    sessionInitData().setBackendAddonIds( allAddons().keys() );
     // Формирование сообщения о предстоящем соединении с бекендом
     fireBackendMessage( S5BaBeforeConnectMessages.INSTANCE.makeMessage() );
   }

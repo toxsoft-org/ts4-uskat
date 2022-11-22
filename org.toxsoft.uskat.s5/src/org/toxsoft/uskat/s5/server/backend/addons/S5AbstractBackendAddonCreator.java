@@ -9,6 +9,7 @@ import javax.naming.NamingException;
 
 import org.toxsoft.core.tslib.bricks.strid.IStridable;
 import org.toxsoft.core.tslib.bricks.strid.impl.Stridable;
+import org.toxsoft.core.tslib.coll.IList;
 import org.toxsoft.core.tslib.coll.primtypes.IStringList;
 import org.toxsoft.core.tslib.coll.primtypes.IStringMap;
 import org.toxsoft.core.tslib.utils.Pair;
@@ -85,6 +86,11 @@ public abstract class S5AbstractBackendAddonCreator
     return doSupportSingletonIds();
   }
 
+  @Override
+  public final IList<IS5BackendAddonCreator> depends() {
+    return doDepends();
+  }
+
   // ------------------------------------------------------------------------------------
   // Абстрактные и шаблонные методы
   //
@@ -152,5 +158,15 @@ public abstract class S5AbstractBackendAddonCreator
    */
   protected IStringList doSupportSingletonIds() {
     return IStringList.EMPTY;
+  }
+
+  /**
+   * Возвращает построители расширений бекенда, от которых зависит построитель
+   *
+   * @return {@link IList}&lt;{@link IS5BackendAddonCreator}&gt; список зависимостей. Пустой список - зависимости только
+   *         от ядра.
+   */
+  protected IList<IS5BackendAddonCreator> doDepends() {
+    return IList.EMPTY;
   }
 }

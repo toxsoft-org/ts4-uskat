@@ -8,11 +8,13 @@ import org.toxsoft.core.tslib.av.impl.AvUtils;
 import org.toxsoft.core.tslib.av.opset.IOptionSet;
 import org.toxsoft.core.tslib.av.opset.IOptionSetEdit;
 import org.toxsoft.core.tslib.av.opset.impl.OptionSet;
-import org.toxsoft.core.tslib.coll.primtypes.IStringMapEdit;
+import org.toxsoft.core.tslib.coll.primtypes.*;
+import org.toxsoft.core.tslib.coll.primtypes.impl.StringArrayList;
 import org.toxsoft.core.tslib.coll.primtypes.impl.StringMap;
 import org.toxsoft.core.tslib.gw.skid.Skid;
 import org.toxsoft.core.tslib.utils.errors.TsIllegalArgumentRtException;
 import org.toxsoft.core.tslib.utils.errors.TsNullArgumentRtException;
+import org.toxsoft.uskat.core.backend.api.IBackendAddon;
 import org.toxsoft.uskat.s5.client.IS5ConnectionParams;
 import org.toxsoft.uskat.s5.client.remote.connection.S5ClusterTopology;
 import org.toxsoft.uskat.s5.common.sessions.ISkSession;
@@ -28,9 +30,10 @@ public final class S5SessionInitData
 
   private static final long serialVersionUID = 157157L;
 
-  private final IOptionSetEdit                      clientOptions     = new OptionSet();
-  private final S5ClusterTopology                   clusterTopology   = new S5ClusterTopology();
-  private final IStringMapEdit<IS5BackendAddonData> backendAddonDatas = new StringMap<>();
+  private final IOptionSetEdit                      clientOptions   = new OptionSet();
+  private final S5ClusterTopology                   clusterTopology = new S5ClusterTopology();
+  private final IStringListEdit                     baIds           = new StringArrayList( false );
+  private final IStringMapEdit<IS5BackendAddonData> baDatas         = new StringMap<>();
 
   /**
    * Конструктор
@@ -69,6 +72,17 @@ public final class S5SessionInitData
   }
 
   /**
+   * Устанавливает список расширений бекенда поддерживаемых клиентом.
+   *
+   * @param aIds {@link IStringList} список идентификаторов расширений бекенда {@link IBackendAddon#id()}.
+   * @throws TsNullArgumentRtException аргумент = null
+   */
+  public void setBackendAddonIds( IStringList aIds ) {
+    TsNullArgumentRtException.checkNull( aIds );
+    baIds.setAll( aIds );
+  }
+
+  /**
    * Устанавливает данные расширения бекенда
    * <p>
    * Если данные расширения уже были зарегистрированы, то они переопределяются.
@@ -84,7 +98,7 @@ public final class S5SessionInitData
       // Данные должны поддерживать сериализацию
       throw new TsIllegalArgumentRtException( ERR_MSG_ADDON_DATA_NO_SERIALIZABLE, aAddonId );
     }
-    backendAddonDatas.put( aAddonId, aData );
+    baDatas.put( aAddonId, aData );
   }
 
   // ------------------------------------------------------------------------------------
@@ -101,10 +115,15 @@ public final class S5SessionInitData
   }
 
   @Override
+  public IStringList baIds() {
+    return baIds;
+  }
+
+  @Override
   public <T extends IS5BackendAddonData> T findBackendAddonData( String aAddonId, Class<T> aAddonDataType ) {
     TsNullArgumentRtException.checkNulls( aAddonId, aAddonDataType );
     try {
-      return aAddonDataType.cast( backendAddonDatas.findByKey( aAddonId ) );
+      return aAddonDataType.cast( baDatas.findByKey( aAddonId ) );
     }
     catch( Exception ex ) {
       throw new TsIllegalArgumentRtException( ex, ex.getMessage() );

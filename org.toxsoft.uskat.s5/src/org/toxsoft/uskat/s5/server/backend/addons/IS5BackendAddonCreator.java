@@ -3,6 +3,7 @@ package org.toxsoft.uskat.s5.server.backend.addons;
 import javax.naming.Context;
 
 import org.toxsoft.core.tslib.bricks.strid.IStridable;
+import org.toxsoft.core.tslib.coll.IList;
 import org.toxsoft.core.tslib.coll.primtypes.IStringList;
 import org.toxsoft.core.tslib.utils.errors.TsNullArgumentRtException;
 import org.toxsoft.uskat.core.ISkServiceCreator;
@@ -63,4 +64,10 @@ public interface IS5BackendAddonCreator
    */
   IStringList supportSingletonIds();
 
+  /**
+   * Возвращает построители расширений бекенда, от которых зависит построитель
+   *
+   * @return {@link IList}&lt;{@link IS5BackendAddonCreator}&gt;
+   */
+  IList<IS5BackendAddonCreator> depends();
 }

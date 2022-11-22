@@ -349,9 +349,12 @@ public class S5BackendSession
       try {
         // Доступные расширения бекенда предоставляемые сервером
         IStridablesList<IS5BackendAddonCreator> baCreators = backendCoreSingleton.initialConfig().impl().baCreators();
-        for( String baCreatorId : baCreators.keys() ) {
-          IS5BackendAddonSessionControl baSessionCtrl =
-              baCreators.getByKey( baCreatorId ).createSessionControl( context );
+        for( String baId : baCreators.keys() ) {
+          if( !aInitData.baIds().hasElem( baId ) ) {
+            // Клиент не поддерживает расширение бекенда (классов расширения нет в classpath клиента)
+            continue;
+          }
+          IS5BackendAddonSessionControl baSessionCtrl = baCreators.getByKey( baId ).createSessionControl( context );
           if( baSessionCtrl == null ) {
             // Расширение не работает с сессиями
             continue;
