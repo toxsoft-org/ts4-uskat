@@ -118,14 +118,14 @@ public class S5BackendHistDataSingleton
   public void writeValues( IMap<Gwid, Pair<ITimeInterval, ITimedList<ITemporalAtomicValue>>> aValues ) {
     TsNullArgumentRtException.checkNulls( aValues );
     try {
+      // Время трассировки
+      long traceTime0 = System.currentTimeMillis();
       // Пред-вызов интерсепторов
       if( !callBeforeWriteHistData( interceptors, aValues ) ) {
         // Интерсепторы отклонили запись значений хранимых данных
         logger().debug( MSG_REJECT_HISTDATA_WRITE_BY_INTERCEPTORS );
         return;
       }
-      // Вывод в журнал сообщения об изменении значений
-      writeValuesToLog( logger(), aValues );
       // Карта последовательностей данных. Ключ: идентификатор данного; Значение: последовательность значений
       IListEdit<IS5HistDataSequence> sequences = new ElemLinkedList<>();
       for( Gwid gwid : aValues.keys() ) {
@@ -141,6 +141,9 @@ public class S5BackendHistDataSingleton
 
       // Пост-вызов интерсепторов
       callAfterWriteHistData( interceptors, aValues, logger() );
+
+      // Вывод в журнал сообщения об изменении значений
+      writeValuesToLog( logger(), aValues, System.currentTimeMillis() - traceTime0 );
     }
     catch( Throwable e ) {
       // Неожиданная ошибка записи хранимых данных
@@ -185,17 +188,18 @@ public class S5BackendHistDataSingleton
    *
    * @param aLogger {@link ILogger} журнал
    * @param aValues {@link Map} карта значений
+   * @param aTime long время (мсек) записи
    * @throws TsNullArgumentRtException любой аргумент = null
    */
   private static void writeValuesToLog( ILogger aLogger,
-      IMap<Gwid, Pair<ITimeInterval, ITimedList<ITemporalAtomicValue>>> aValues ) {
+      IMap<Gwid, Pair<ITimeInterval, ITimedList<ITemporalAtomicValue>>> aValues, long aTime ) {
     TsNullArgumentRtException.checkNulls( aLogger, aValues );
     if( aLogger.isSeverityOn( ELogSeverity.DEBUG ) ) {
-      aLogger.debug( toStr( MSG_WRITE_HISTDATA_VALUES_DEBUG, aValues ) );
+      aLogger.debug( toStr( MSG_WRITE_HISTDATA_VALUES_DEBUG, aValues, aTime ) );
       return;
     }
     if( aLogger.isSeverityOn( ELogSeverity.INFO ) ) {
-      aLogger.info( MSG_WRITE_HISTDATA_VALUES_INFO, Integer.valueOf( aValues.size() ) );
+      aLogger.info( MSG_WRITE_HISTDATA_VALUES_INFO, Integer.valueOf( aValues.size() ), Long.valueOf( aTime ) );
       return;
     }
   }
@@ -207,13 +211,14 @@ public class S5BackendHistDataSingleton
    * @param aValues
    *          {@link IMap}&lt;{@link Gwid},{@link Pair}&lt;{@link ITimeInterval},{@link ITimedList}&lt;{@link ITemporalAtomicValue}&gt;&gt;&gt;
    *          - значения
+   * @param aTime long время (мсек) записи
    * @return String строка представления значений данных
    */
   private static String toStr( String aMessage,
-      IMap<Gwid, Pair<ITimeInterval, ITimedList<ITemporalAtomicValue>>> aValues ) {
+      IMap<Gwid, Pair<ITimeInterval, ITimedList<ITemporalAtomicValue>>> aValues, long aTime ) {
     TsNullArgumentRtException.checkNull( aValues );
     StringBuilder sb = new StringBuilder();
-    sb.append( String.format( aMessage, Integer.valueOf( aValues.size() ) ) );
+    sb.append( String.format( aMessage, Integer.valueOf( aValues.size() ), Long.valueOf( aTime ) ) );
     for( Gwid gwid : aValues.keys() ) {
       Pair<ITimeInterval, ITimedList<ITemporalAtomicValue>> intervalValues = aValues.getByKey( gwid );
       ITimeInterval interval = intervalValues.left();

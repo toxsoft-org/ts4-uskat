@@ -360,6 +360,9 @@ public class S5BackendCurrDataSingleton
   public void writeValues( IMap<Gwid, IAtomicValue> aValues ) {
     TsNullArgumentRtException.checkNulls( aValues );
 
+    // Текущее время трассировки
+    long traceTime0 = System.currentTimeMillis();
+
     IMapEdit<Gwid, IAtomicValue> changedValues = new ElemMap<>();
     Map<Gwid, IAtomicValue> newCachedValues = new HashMap<>();
 
@@ -401,8 +404,6 @@ public class S5BackendCurrDataSingleton
       logger().info( MSG_REJECT_CURRDATA_WRITE_BY_INTERCEPTORS );
       return;
     }
-    // Вывод в журнал сообщения об изменении значений
-    writeValuesToLog( logger(), newCachedValues );
     // Запись значений в кэш
     valuesCache.putAll( newCachedValues );
 
@@ -411,6 +412,10 @@ public class S5BackendCurrDataSingleton
 
     // Текущее время
     long currTime = System.currentTimeMillis();
+
+    // Вывод в журнал сообщения об изменении значений
+    writeValuesToLog( logger(), newCachedValues, currTime - traceTime0 );
+
     // Проход по всем фронтендам и формирование их буферов передачи данных
     for( IS5FrontendRear frontend : backend().attachedFrontends() ) {
       // Данные расширения для сессии
@@ -584,16 +589,17 @@ public class S5BackendCurrDataSingleton
    *
    * @param aLogger {@link ILogger} журнал
    * @param aValues {@link Map} карта значений
+   * @param aTime long время (мсек) записи
    * @throws TsNullArgumentRtException любой аргумент = null
    */
-  private static void writeValuesToLog( ILogger aLogger, Map<Gwid, IAtomicValue> aValues ) {
+  private static void writeValuesToLog( ILogger aLogger, Map<Gwid, IAtomicValue> aValues, long aTime ) {
     TsNullArgumentRtException.checkNulls( aLogger, aValues );
     if( aLogger.isSeverityOn( ELogSeverity.DEBUG ) ) {
-      aLogger.debug( toStr( MSG_WRITE_CURRDATA_VALUES_DEBUG, aValues ) );
+      aLogger.debug( toStr( MSG_WRITE_CURRDATA_VALUES_DEBUG, aValues, aTime ) );
       return;
     }
     if( aLogger.isSeverityOn( ELogSeverity.INFO ) ) {
-      aLogger.info( MSG_WRITE_CURRDATA_VALUES_INFO, Integer.valueOf( aValues.size() ) );
+      aLogger.info( MSG_WRITE_CURRDATA_VALUES_INFO, Integer.valueOf( aValues.size() ), Long.valueOf( aTime ) );
       return;
     }
   }
@@ -606,12 +612,13 @@ public class S5BackendCurrDataSingleton
    *          <p>
    *          Ключ: {@link Gwid} идентификатор текущего данного;<br>
    *          Значение: {@link IAtomicValue} значение текущего данного
+   * @param aTime long время (мсек) записи
    * @return String строка представления значений текущих данных
    */
-  public static String toStr( String aMessage, Map<Gwid, IAtomicValue> aValues ) {
+  public static String toStr( String aMessage, Map<Gwid, IAtomicValue> aValues, long aTime ) {
     TsNullArgumentRtException.checkNulls( aValues );
     StringBuilder sb = new StringBuilder();
-    sb.append( String.format( aMessage, Integer.valueOf( aValues.size() ) ) );
+    sb.append( String.format( aMessage, Integer.valueOf( aValues.size() ), Long.valueOf( aTime ) ) );
     for( Gwid gwid : aValues.keySet() ) {
       IAtomicValue value = aValues.get( gwid );
       sb.append( String.format( MSG_CURRDATA_VALUE, gwid, value ) );

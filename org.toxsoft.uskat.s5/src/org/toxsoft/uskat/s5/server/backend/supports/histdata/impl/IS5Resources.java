@@ -16,8 +16,9 @@ interface IS5Resources {
   //
   String MSG_REJECT_HISTDATA_WRITE_BY_INTERCEPTORS =
       "Интерсепторы синглетона отклонили запись значений хранимых данных";
-  String MSG_WRITE_HISTDATA_VALUES_INFO            = "Запись хранимых значений (%d). Детали LogLevel=TRACE";
-  String MSG_WRITE_HISTDATA_VALUES_DEBUG           = "Запись хранимых значений данных(%d). Списки значений:";
+  String MSG_WRITE_HISTDATA_VALUES_INFO            =
+      "Запись хранимых значений (%d). Время %d (мсек). Для вывода значений LogLevel => TRACE";
+  String MSG_WRITE_HISTDATA_VALUES_DEBUG           = "Запись хранимых значений данных(%d). Время %d (мсек). Значения:";
   String MSG_HISTDATA_VALUE                        = "   %s=%s, count=%d";
   // ------------------------------------------------------------------------------------
   // Тексты ошибок
