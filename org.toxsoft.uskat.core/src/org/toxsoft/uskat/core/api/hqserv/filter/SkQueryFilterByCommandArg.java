@@ -10,60 +10,61 @@ import org.toxsoft.core.tslib.bricks.filter.impl.*;
 import org.toxsoft.core.tslib.bricks.strid.impl.StridUtils;
 import org.toxsoft.core.tslib.utils.errors.TsIllegalArgumentRtException;
 import org.toxsoft.core.tslib.utils.errors.TsNullArgumentRtException;
-import org.toxsoft.uskat.core.api.evserv.SkEvent;
+import org.toxsoft.uskat.core.api.cmdserv.IDtoCompletedCommand;
+import org.toxsoft.uskat.core.api.cmdserv.ISkCommand;
 
 /**
- * Фильтр сравнения одного из параметров {@link SkEvent#paramValues()} с константой.
+ * Фильтр сравнения одного из аргументов {@link ISkCommand#argValues()} с константой.
  * <p>
- * Отсутствие в {@link SkEvent#paramValues()} параметра {@link #paramId()} рассматривается как значение
+ * Отсутствие в {@link ISkCommand#argValues()} аргумента {@link #argId()} рассматривается как значение
  * {@link IAtomicValue#NULL}.
  *
  * @author hazard157
  */
-public final class FilterEventParamVsConst
-    implements ITsFilter<SkEvent> {
+public final class SkQueryFilterByCommandArg
+    implements ITsFilter<IDtoCompletedCommand> {
 
   /**
    * Идентификатор типа фильтра {@link ITsSingleFilterFactory#id()},
    */
-  public static final String TYPE_ID = STD_FILTERID_ID_PREFIX + ".EventParamVsConst"; //$NON-NLS-1$
+  public static final String TYPE_ID = STD_FILTERID_ID_PREFIX + ".CommandArg"; //$NON-NLS-1$
 
   /**
    * Фабрика создания фильтра из значений параметров.
    */
-  public static final ITsSingleFilterFactory<SkEvent> FACTORY =
-      new AbstractTsSingleFilterFactory<>( TYPE_ID, SkEvent.class ) {
+  public static final ITsSingleFilterFactory<IDtoCompletedCommand> FACTORY =
+      new AbstractTsSingleFilterFactory<>( TYPE_ID, IDtoCompletedCommand.class ) {
 
         @Override
-        protected ITsFilter<SkEvent> doCreateFilter( IOptionSet aParams ) {
-          String paramId = aParams.getStr( PID_PARAM_ID );
+        protected ITsFilter<IDtoCompletedCommand> doCreateFilter( IOptionSet aParams ) {
+          String argId = aParams.getStr( PID_ARG_ID );
           String opId = aParams.getStr( PID_OP );
           EAvCompareOp op = EAvCompareOp.findById( opId );
           IAtomicValue constant = aParams.getValue( PID_CONSTANT );
-          return new FilterEventParamVsConst( paramId, op, constant );
+          return new SkQueryFilterByCommandArg( argId, op, constant );
         }
       };
 
-  private static final String PID_PARAM_ID = "paramId";  //$NON-NLS-1$
+  private static final String PID_ARG_ID   = "argId";    //$NON-NLS-1$
   private static final String PID_OP       = "op";       //$NON-NLS-1$
   private static final String PID_CONSTANT = "constant"; //$NON-NLS-1$
 
-  private final String       paramId;
+  private final String       argId;
   private final EAvCompareOp op;
   private final IAtomicValue constant;
 
   /**
    * Конструктор.
    *
-   * @param aParamId String - идентификатор (ИД-путь) проверяемого параметра
+   * @param aArgId String - идентификатор (ИД-путь) проверяемого аргумента команды
    * @param aOp {@link EAvCompareOp} - способ сравнения
    * @param aConst {@link IAtomicValue} - константа для сравнения
    * @throws TsNullArgumentRtException любой аргумент = null
    * @throws TsIllegalArgumentRtException идентификатор не ИД-путь
    */
-  public FilterEventParamVsConst( String aParamId, EAvCompareOp aOp, IAtomicValue aConst ) {
+  public SkQueryFilterByCommandArg( String aArgId, EAvCompareOp aOp, IAtomicValue aConst ) {
     TsNullArgumentRtException.checkNulls( aOp, aConst );
-    paramId = StridUtils.checkValidIdPath( aParamId );
+    argId = StridUtils.checkValidIdPath( aArgId );
     op = aOp;
     constant = aConst;
   }
@@ -71,18 +72,18 @@ public final class FilterEventParamVsConst
   /**
    * Создает набор параметров {@link ITsCombiFilterParams} для создания фильтра фабрикой {@link #FACTORY}.
    *
-   * @param aParamId String - идентификатор (ИД-путь) проверяемого параметра события
+   * @param aArgId String - идентификатор (ИД-путь) проверяемого аргумента команды
    * @param aOp {@link EAvCompareOp} - способ сравнения
    * @param aConst {@link IAtomicValue} - константа для сравнения
    * @return {@link ITsCombiFilterParams} - параметры для создания фильтра фабрикой
    * @throws TsNullArgumentRtException любой аргумент = null
    * @throws TsIllegalArgumentRtException идентификатор не ИД-путь
    */
-  public static ITsCombiFilterParams makeFilterParams( String aParamId, EAvCompareOp aOp, IAtomicValue aConst ) {
-    StridUtils.checkValidIdPath( aParamId );
+  public static ITsCombiFilterParams makeFilterParams( String aArgId, EAvCompareOp aOp, IAtomicValue aConst ) {
+    StridUtils.checkValidIdPath( aArgId );
     TsNullArgumentRtException.checkNulls( aOp, aConst );
     ITsSingleFilterParams sp = TsSingleFilterParams.create( TYPE_ID, //
-        PID_PARAM_ID, aParamId, //
+        PID_ARG_ID, aArgId, //
         PID_OP, aOp.id(), //
         PID_CONSTANT, aConst //
     );
@@ -95,12 +96,12 @@ public final class FilterEventParamVsConst
   //
 
   /**
-   * Возвращает идентификатор проверяемого параметра.
+   * Возвращает идентификатор проверяемого аргумента команды.
    *
-   * @return String - идентификатор (ИД-путь) проверяемого параметра
+   * @return String - идентификатор (ИД-путь) проверяемого аргумента.
    */
-  public String paramId() {
-    return paramId;
+  public String argId() {
+    return argId;
   }
 
   /**
@@ -126,10 +127,10 @@ public final class FilterEventParamVsConst
   //
 
   @Override
-  public boolean accept( SkEvent aEvent ) {
+  public boolean accept( IDtoCompletedCommand aCommand ) {
     IAvComparator c = AvComparatorStrict.INSTANCE;
-    IAtomicValue paramVal = aEvent.paramValues().getValue( paramId, IAtomicValue.NULL );
-    return c.avCompare( paramVal, op, constant );
+    IAtomicValue argVal = aCommand.cmd().argValues().getValue( argId, IAtomicValue.NULL );
+    return c.avCompare( argVal, op, constant );
   }
 
 }
