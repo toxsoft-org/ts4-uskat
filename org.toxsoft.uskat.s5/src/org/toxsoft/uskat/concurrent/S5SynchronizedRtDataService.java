@@ -22,7 +22,8 @@ public final class S5SynchronizedRtDataService
     extends S5SynchronizedService<ISkRtdataService>
     implements ISkRtdataService {
 
-  private final S5SynchronizedEventer<ISkCurrDataChangeListener>   eventer;
+  private final S5SynchronizedEventer<ITsEventer<ISkCurrDataChangeListener>, ISkCurrDataChangeListener> eventer;
+
   private final IMapEdit<Gwid, S5SynchronizedReadCurrDataChannel>  readCurrdata  = new ElemMap<>();
   private final IMapEdit<Gwid, S5SynchronizedWriteCurrDataChannel> writeCurrdata = new ElemMap<>();
   private final IMapEdit<Gwid, S5SynchronizedWriteHistDataChannel> writeHistdata = new ElemMap<>();

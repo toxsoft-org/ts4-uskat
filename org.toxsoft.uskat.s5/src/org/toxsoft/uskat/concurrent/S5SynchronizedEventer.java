@@ -11,10 +11,11 @@ import org.toxsoft.core.tslib.utils.errors.TsNullArgumentRtException;
  * Синхронизация доступа к {@link ITsEventer} (декоратор)
  *
  * @author mvk
+ * @param <T> - тип защищаемого ресурса
  * @param <L> - интерфейс слушателя службы
  */
-public final class S5SynchronizedEventer<L>
-    extends S5SynchronizedResource<ITsEventer<L>>
+public class S5SynchronizedEventer<T extends ITsEventer<L>, L>
+    extends S5SynchronizedResource<T>
     implements ITsEventer<L> {
 
   private final IListEdit<L> listeners = new ElemLinkedList<>();
@@ -26,7 +27,7 @@ public final class S5SynchronizedEventer<L>
    * @param aLock {@link ReentrantReadWriteLock} блокировка доступа к ресурсу
    * @throws TsNullArgumentRtException любой аргумент = null
    */
-  public S5SynchronizedEventer( ITsEventer<L> aTarget, ReentrantReadWriteLock aLock ) {
+  public S5SynchronizedEventer( T aTarget, ReentrantReadWriteLock aLock ) {
     super( aTarget, aLock );
   }
 
@@ -34,8 +35,7 @@ public final class S5SynchronizedEventer<L>
   // S5SynchronizedResource
   //
   @Override
-  protected void doChangeTarget( ITsEventer<L> aPrevTarget, ITsEventer<L> aNewTarget,
-      ReentrantReadWriteLock aNewLock ) {
+  protected void doChangeTarget( T aPrevTarget, T aNewTarget, ReentrantReadWriteLock aNewLock ) {
     // Регистрация слушателей в новом соединении
     for( L listener : listeners ) {
       aNewTarget.addListener( listener );

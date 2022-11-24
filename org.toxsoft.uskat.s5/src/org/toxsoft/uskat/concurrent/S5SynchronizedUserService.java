@@ -21,8 +21,8 @@ public final class S5SynchronizedUserService
     extends S5SynchronizedService<ISkUserService>
     implements ISkUserService {
 
-  private final S5SynchronizedEventer<ISkUserServiceListener>            eventer;
-  private final S5SynchronizedValidationSupport<ISkUserServiceValidator> svs;
+  private final S5SynchronizedEventer<ITsEventer<ISkUserServiceListener>, ISkUserServiceListener> eventer;
+  private final S5SynchronizedValidationSupport<ISkUserServiceValidator>                          svs;
 
   /**
    * Конструктор

@@ -23,8 +23,8 @@ public final class S5SynchronizedObjectService
     extends S5SynchronizedService<ISkObjectService>
     implements ISkObjectService {
 
-  private final S5SynchronizedEventer<ISkObjectServiceListener>            eventer;
-  private final S5SynchronizedValidationSupport<ISkObjectServiceValidator> svs;
+  private final S5SynchronizedEventer<ITsEventer<ISkObjectServiceListener>, ISkObjectServiceListener> eventer;
+  private final S5SynchronizedValidationSupport<ISkObjectServiceValidator>                            svs;
 
   /**
    * Конструктор
@@ -34,7 +34,8 @@ public final class S5SynchronizedObjectService
    * @throws TsItemNotFoundRtException в соединении не найдена служба которую необходимо защитить
    */
   public S5SynchronizedObjectService( S5SynchronizedConnection aConnection ) {
-    this( (ISkObjectService)aConnection.getUnsynchronizedService( ISkObjectService.SERVICE_ID ), aConnection.nativeLock() );
+    this( (ISkObjectService)aConnection.getUnsynchronizedService( ISkObjectService.SERVICE_ID ),
+        aConnection.nativeLock() );
     aConnection.addService( this );
   }
 

@@ -25,7 +25,7 @@ public final class S5SynchronizedDataQualityService
     extends S5SynchronizedService<ISkDataQualityService>
     implements ISkDataQualityService {
 
-  private final S5SynchronizedEventer<ISkDataQualityChangeListener> eventer;
+  private final S5SynchronizedEventer<ITsEventer<ISkDataQualityChangeListener>, ISkDataQualityChangeListener> eventer;
 
   /**
    * Конструктор

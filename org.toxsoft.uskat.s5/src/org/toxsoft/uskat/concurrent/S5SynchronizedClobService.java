@@ -18,8 +18,8 @@ public final class S5SynchronizedClobService
     extends S5SynchronizedService<ISkClobService>
     implements ISkClobService {
 
-  private final S5SynchronizedEventer<ISkClobServiceListener>            eventer;
-  private final S5SynchronizedValidationSupport<ISkClobServiceValidator> svs;
+  private final S5SynchronizedEventer<ITsEventer<ISkClobServiceListener>, ISkClobServiceListener> eventer;
+  private final S5SynchronizedValidationSupport<ISkClobServiceValidator>                          svs;
 
   /**
    * Конструктор

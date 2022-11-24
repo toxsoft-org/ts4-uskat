@@ -20,8 +20,8 @@ public final class S5SynchronizedLinkService
     extends S5SynchronizedService<ISkLinkService>
     implements ISkLinkService {
 
-  private final S5SynchronizedEventer<ISkLinkServiceListener>            eventer;
-  private final S5SynchronizedValidationSupport<ISkLinkServiceValidator> svs;
+  private final S5SynchronizedEventer<ITsEventer<ISkLinkServiceListener>, ISkLinkServiceListener> eventer;
+  private final S5SynchronizedValidationSupport<ISkLinkServiceValidator>                          svs;
 
   /**
    * Конструктор

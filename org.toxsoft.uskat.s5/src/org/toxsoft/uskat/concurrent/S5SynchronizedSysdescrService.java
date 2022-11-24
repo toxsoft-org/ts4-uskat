@@ -19,8 +19,9 @@ public final class S5SynchronizedSysdescrService
     extends S5SynchronizedService<ISkSysdescr>
     implements ISkSysdescr {
 
+  private final S5SynchronizedEventer<ITsEventer<ISkSysdescrListener>, ISkSysdescrListener> eventer;
+
   private final S5SynchronizedClassHierarchyExplorer                  hierarchy;
-  private final S5SynchronizedEventer<ISkSysdescrListener>            eventer;
   private final S5SynchronizedValidationSupport<ISkSysdescrValidator> svs;
 
   /**
