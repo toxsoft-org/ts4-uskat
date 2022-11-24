@@ -10,7 +10,7 @@ import org.toxsoft.uskat.s5.server.frontend.IS5BackendAddonData;
  *
  * @author mvk
  */
-public class S5BaDataQuality
+public class S5BaDataQualityData
     implements IS5BackendAddonData, Serializable {
 
   private static final long serialVersionUID = 157157L;

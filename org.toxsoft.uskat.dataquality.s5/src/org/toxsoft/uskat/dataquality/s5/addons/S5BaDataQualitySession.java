@@ -64,14 +64,14 @@ public class S5BaDataQualitySession
   @Override
   protected void doAfterInit( S5SessionMessenger aMessenger, IS5SessionInitData aInitData,
       S5SessionInitResult aInitResult ) {
-    S5BaDataQuality baData = new S5BaDataQuality();
+    S5BaDataQualityData baData = new S5BaDataQualityData();
     frontend().frontendData().setBackendAddonData( IBaDataQuality.ADDON_ID, baData );
   }
 
   @Override
   protected void doBeforeClose() {
-    S5BaDataQuality baData =
-        frontend().frontendData().findBackendAddonData( IBaDataQuality.ADDON_ID, S5BaDataQuality.class );
+    S5BaDataQualityData baData =
+        frontend().frontendData().findBackendAddonData( IBaDataQuality.ADDON_ID, S5BaDataQualityData.class );
     // // Список идентификаторов открытых запросов
     // IStringList queryIds;
     // synchronized (baData) {

@@ -26,7 +26,7 @@ public final class S5BaDataQualityRemote
   /**
    * Данные конфигурации фронтенда для {@link IBaDataQuality}
    */
-  private final S5BaDataQuality baData = new S5BaDataQuality();
+  private final S5BaDataQualityData baData = new S5BaDataQualityData();
 
   /**
    * Constructor.
