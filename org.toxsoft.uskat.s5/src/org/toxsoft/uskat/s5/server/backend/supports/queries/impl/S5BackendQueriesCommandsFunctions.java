@@ -21,7 +21,7 @@ import org.toxsoft.core.tslib.utils.errors.*;
 import org.toxsoft.core.tslib.utils.logs.ILogger;
 import org.toxsoft.uskat.core.api.cmdserv.IDtoCompletedCommand;
 import org.toxsoft.uskat.core.api.hqserv.IDtoQueryParam;
-import org.toxsoft.uskat.core.api.hqserv.filter.FilterCommandArgVsConst;
+import org.toxsoft.uskat.core.api.hqserv.filter.SkQueryFilterByCommandArg;
 import org.toxsoft.uskat.s5.server.backend.supports.queries.IS5BackendQueriesFunction;
 import org.toxsoft.uskat.s5.server.sequences.IS5SequenceCursor;
 
@@ -46,11 +46,11 @@ class S5BackendQueriesCommandsFunctions
   /**
    * Реестр фильтров, используемых правилами.
    */
-  private static final ITsFilterFactoriesRegistry<IDtoCompletedCommand> FILTER_FACTORIES_REGISTRY =
+  private static final ITsFilterFactoriesRegistry<IDtoCompletedCommand> FILTER_REGISTRY =
       new TsFilterFactoriesRegistry<>( IDtoCompletedCommand.class );
 
   static {
-    FILTER_FACTORIES_REGISTRY.register( FilterCommandArgVsConst.FACTORY );
+    FILTER_REGISTRY.register( SkQueryFilterByCommandArg.FACTORY );
   }
 
   private final Pair<String, IDtoQueryParam>    arg;
@@ -134,7 +134,7 @@ class S5BackendQueriesCommandsFunctions
       default -> throw new TsNotAllEnumsUsedRtException();
     };
     // Фильтр "сырых" значений
-    filter = TsCombiFilter.create( aArg.filterParams(), FILTER_FACTORIES_REGISTRY );
+    filter = TsCombiFilter.create( aArg.filterParams(), FILTER_REGISTRY );
     // Интервал запроса
     interval = aInterval;
     // Интервал агрегации. 0: на всем интервале

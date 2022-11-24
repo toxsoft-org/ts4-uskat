@@ -21,7 +21,7 @@ import org.toxsoft.core.tslib.utils.errors.*;
 import org.toxsoft.core.tslib.utils.logs.ILogger;
 import org.toxsoft.uskat.core.api.evserv.SkEvent;
 import org.toxsoft.uskat.core.api.hqserv.IDtoQueryParam;
-import org.toxsoft.uskat.core.api.hqserv.filter.FilterEventParamVsConst;
+import org.toxsoft.uskat.core.api.hqserv.filter.SkQueryFilterByEventParam;
 import org.toxsoft.uskat.s5.server.backend.supports.queries.IS5BackendQueriesFunction;
 import org.toxsoft.uskat.s5.server.sequences.IS5SequenceCursor;
 
@@ -46,11 +46,11 @@ class S5BackendQueriesEventsFunctions
   /**
    * Реестр фильтров, используемых правилами.
    */
-  private static final ITsFilterFactoriesRegistry<SkEvent> FILTER_FACTORIES_REGISTRY =
+  private static final ITsFilterFactoriesRegistry<SkEvent> FILTER_REGISTRY =
       new TsFilterFactoriesRegistry<>( SkEvent.class );
 
   static {
-    FILTER_FACTORIES_REGISTRY.register( FilterEventParamVsConst.FACTORY );
+    FILTER_REGISTRY.register( SkQueryFilterByEventParam.FACTORY );
   }
 
   private final Pair<String, IDtoQueryParam> arg;
@@ -134,7 +134,7 @@ class S5BackendQueriesEventsFunctions
       default -> throw new TsNotAllEnumsUsedRtException();
     };
     // Фильтр "сырых" значений
-    filter = TsCombiFilter.create( aArg.filterParams(), FILTER_FACTORIES_REGISTRY );
+    filter = TsCombiFilter.create( aArg.filterParams(), FILTER_REGISTRY );
     // Интервал запроса
     interval = aInterval;
     // Интервал агрегации. 0: на всем интервале

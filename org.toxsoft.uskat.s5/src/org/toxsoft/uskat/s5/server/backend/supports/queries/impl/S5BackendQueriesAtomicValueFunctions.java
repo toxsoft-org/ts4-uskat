@@ -46,11 +46,11 @@ class S5BackendQueriesAtomicValueFunctions
   /**
    * Реестр фильтров, используемых правилами.
    */
-  private static final ITsFilterFactoriesRegistry<IAtomicValue> FILTER_FACTORIES_REGISTRY =
+  private static final ITsFilterFactoriesRegistry<IAtomicValue> FILTER_REGISTRY =
       new TsFilterFactoriesRegistry<>( IAtomicValue.class );
 
   static {
-    FILTER_FACTORIES_REGISTRY.register( StdFilterAtimicValueVsConst.FACTORY );
+    FILTER_REGISTRY.register( StdFilterAtimicValueVsConst.FACTORY );
   }
 
   private final Pair<String, IDtoQueryParam>         arg;
@@ -146,7 +146,7 @@ class S5BackendQueriesAtomicValueFunctions
       default -> throw new TsNotAllEnumsUsedRtException();
     };
     // Фильтр "сырых" значений
-    filter = TsCombiFilter.create( aArg.filterParams(), FILTER_FACTORIES_REGISTRY );
+    filter = TsCombiFilter.create( aArg.filterParams(), FILTER_REGISTRY );
     // Интервал запроса
     interval = aInterval;
     // Интервал агрегации. 0: на всем интервале
