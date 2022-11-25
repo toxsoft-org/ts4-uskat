@@ -67,8 +67,8 @@ import org.toxsoft.uskat.core.api.ISkService;
  * {@link #generateAlarm(String, Skid, Skid, byte, ISkAlarmFlacon)}. Появление тревоги отслеживается слушателем
  * {@link ISkAlarmServiceListener#onAlarm(ISkAlarm)}. Модели доставки, обнаружив появление нужной тревоги инициируют
  * нить извещения. По мере исполнения нити извещения, модули логируют этапы исполнения методом
- * {@link #addThreadHistoryItem(long, ISkAlarmThreadHistoryItem)}. Информацию о том, как проходил процесс
- * извещения по всем ниткам можно получить методом {@link #getAlarmHistory(long)}.
+ * {@link #addThreadHistoryItem(long, ISkAlarmThreadHistoryItem)}. Информацию о том, как проходил процесс извещения по
+ * всем ниткам можно получить методом {@link #getAlarmHistory(long)}.
  * <p>
  * Информация о разнородных данных, сочетание которых привело к возникновеню тревоги упаковывается в один флакон
  * {@link ISkAlarmFlacon}, и сохраняется вместе с тревогой. Получить эту информацию можно методом
@@ -88,7 +88,7 @@ public interface ISkAlarmService
   /**
    * The service ID.
    */
-  String SERVICE_ID = ISkHardConstants.SK_SYSEXT_SERVICE_ID_PREFIX + "Alarms"; //$NON-NLS-1$
+  String SERVICE_ID = ISkHardConstants.SK_SYSEXT_SERVICE_ID_PREFIX + ".Alarms"; //$NON-NLS-1$
 
   // ------------------------------------------------------------------------------------
   // Работа с описаниями тревог

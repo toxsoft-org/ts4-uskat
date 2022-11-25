@@ -16,6 +16,7 @@ import org.toxsoft.core.tslib.coll.IMapEdit;
 import org.toxsoft.core.tslib.coll.impl.ElemLinkedList;
 import org.toxsoft.core.tslib.coll.impl.ElemMap;
 import org.toxsoft.core.tslib.gw.skid.Skid;
+import org.toxsoft.core.tslib.gw.skid.SkidList;
 import org.toxsoft.core.tslib.utils.Pair;
 import org.toxsoft.core.tslib.utils.errors.TsNullArgumentRtException;
 import org.toxsoft.core.tslib.utils.logs.impl.LoggerUtils;
@@ -178,6 +179,8 @@ public class SkAlarmService
       dtoUser.attrs().setStr( ISkHardConstants.AID_DESCRIPTION, STR_D_ALARM_USER );
       dtoUser.attrs().setBool( ISkUserServiceHardConstants.ATRID_USER_IS_ENABLED, true );
       dtoUser.attrs().setBool( ISkUserServiceHardConstants.ATRID_USER_IS_HIDDEN, false );
+      dtoUser.links().map().put( ISkUserServiceHardConstants.LNKID_USER_ROLES,
+          new SkidList( ISkUserServiceHardConstants.SKID_ROLE_ROOT ) );
       userService.createUser( dtoUser, ALARM_USER_PASSWD );
     }
   }
