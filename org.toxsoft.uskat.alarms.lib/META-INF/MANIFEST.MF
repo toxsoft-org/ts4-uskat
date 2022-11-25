@@ -1,0 +1,14 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: USkat Alarms SkService library
+Bundle-SymbolicName: org.toxsoft.uskat.alarms.lib
+Bundle-Version: 1.0.0.qualifier
+Bundle-Vendor: toxsoft.org
+Automatic-Module-Name: org.toxsoft.uskat.alarms.lib
+Bundle-RequiredExecutionEnvironment: JavaSE-17
+Require-Bundle: org.toxsoft.core.tslib,
+ org.toxsoft.uskat.core
+Export-Package: org.toxsoft.uskat.alarms.lib,
+ org.toxsoft.uskat.alarms.lib.filters,
+ org.toxsoft.uskat.alarms.lib.flacon,
+ org.toxsoft.uskat.alarms.lib.impl
