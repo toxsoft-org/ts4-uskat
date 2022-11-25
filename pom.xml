@@ -577,6 +577,8 @@
 
     <module>org.toxsoft.uskat.dataquality.lib</module>
     <module>org.toxsoft.uskat.dataquality.s5</module>
+    <module>org.toxsoft.uskat.alarms.lib</module>
+    <module>org.toxsoft.uskat.alarms.s5</module>
 
     <!-- <module>org.toxsoft.uskat.sysext.alarms</module>  
     <module>org.toxsoft.uskat.sysext.batchop</module> 

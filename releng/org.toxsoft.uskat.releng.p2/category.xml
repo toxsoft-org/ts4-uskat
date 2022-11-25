@@ -16,6 +16,8 @@
    <bundle id="org.toxsoft.uskat.base.gui"/>   
    <bundle id="org.toxsoft.uskat.dataquality.lib"/>   
    <bundle id="org.toxsoft.uskat.dataquality.s5"/>   
+   <bundle id="org.toxsoft.uskat.alarms.lib"/>   
+   <bundle id="org.toxsoft.uskat.alarms.s5"/>   
 
    <!-- sources -->
    <bundle id="org.toxsoft.uskat.core.source"/>
@@ -29,5 +31,7 @@
    <bundle id="org.toxsoft.uskat.base.gui.source"/>   
    <bundle id="org.toxsoft.uskat.dataquality.lib.source"/>   
    <bundle id="org.toxsoft.uskat.dataquality.s5.source"/>   
+   <bundle id="org.toxsoft.uskat.alarms.lib.source"/>   
+   <bundle id="org.toxsoft.uskat.alarms.s5.source"/>   
 
 </site>
