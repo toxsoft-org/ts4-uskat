@@ -84,7 +84,7 @@ public class S5BaDataQualitySession
   }
 
   // ------------------------------------------------------------------------------------
-  // Реализация IS5BaDataQualitySession
+  // IS5BaDataQualitySession
   //
   @Override
   public IOptionSet getResourceMarks( Gwid aResource ) {

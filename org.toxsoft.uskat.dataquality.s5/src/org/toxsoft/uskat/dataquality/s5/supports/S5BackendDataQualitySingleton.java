@@ -202,7 +202,7 @@ public class S5BackendDataQualitySingleton
   }
 
   // ------------------------------------------------------------------------------------
-  // Реализация ISkBackendAddonDataQuality
+  // Реализация IS5BackendDataQualitySingleton
   //
   @Override
   public IOptionSet getResourceMarks( Gwid aResource ) {
