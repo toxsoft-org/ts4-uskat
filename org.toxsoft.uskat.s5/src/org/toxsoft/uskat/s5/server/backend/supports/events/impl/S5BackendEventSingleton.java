@@ -11,7 +11,6 @@ import java.util.concurrent.TimeUnit;
 
 import javax.ejb.*;
 
-import org.toxsoft.core.tslib.av.utils.IParameterized;
 import org.toxsoft.core.tslib.bricks.strid.coll.IStridablesList;
 import org.toxsoft.core.tslib.bricks.time.*;
 import org.toxsoft.core.tslib.bricks.time.impl.TimedList;
@@ -303,7 +302,7 @@ public class S5BackendEventSingleton
       IStridablesList<IDtoClassInfo> aDescendants ) {
     if( aPrevClassInfo.eventInfos().size() > 0 && aNewClassInfo.eventInfos().size() == 0 ) {
       // Удаление идентификаторов данных объектов у которых больше нет событий
-      IMapEdit<Gwid, IParameterized> gwidsEditor = ((S5SequenceFactory)factory()).gwidsEditor();
+      S5SequenceFactory factory = ((S5SequenceFactory)factory());
       // Список объектов изменившихся классов
       IList<IDtoObject> objs = S5TransactionUtils.txUpdatedClassObjs( transactionManager(), objectsBackend(),
           aNewClassInfo.id(), aDescendants );
@@ -311,7 +310,7 @@ public class S5BackendEventSingleton
         String classId = obj.classId();
         ISkClassInfo classInfo = sysdescrReader().getClassInfo( classId );
         if( classInfo.events().list().size() == 0 ) {
-          gwidsEditor.removeByKey( Gwid.createObj( classId, obj.strid() ) );
+          factory.removeTypeInfo( Gwid.createObj( classId, obj.strid() ) );
         }
       }
     }
@@ -320,16 +319,10 @@ public class S5BackendEventSingleton
   @Override
   @SuppressWarnings( { "rawtypes" } )
   protected void doBeforeDeleteClass( IDtoClassInfo aClassInfo ) {
-    String classId = aClassInfo.id();
     // Удаление идентификаторов данных объектов удаленного класса
     if( aClassInfo.eventInfos().size() > 0 ) {
       // Удаление идентификаторов данных объектов удаленного класса
-      IMapEdit<Gwid, IParameterized> gwidsEditor = ((S5SequenceFactory)factory()).gwidsEditor();
-      for( Gwid gwid : new ElemArrayList<>( gwidsEditor.keys() ) ) {
-        if( gwid.classId().equals( classId ) ) {
-          gwidsEditor.removeByKey( gwid );
-        }
-      }
+      ((S5SequenceFactory)factory()).removeTypeInfo( aClassInfo.id() );
     }
   }
 
@@ -339,7 +332,7 @@ public class S5BackendEventSingleton
       IMap<ISkClassInfo, IList<Pair<IDtoObject, IDtoObject>>> aUpdatedObjs,
       IMap<ISkClassInfo, IList<IDtoObject>> aCreatedObjs ) {
     // Удаление идентификаторов данных удаленных объектов
-    IMapEdit<Gwid, IParameterized> gwidsEditor = ((S5SequenceFactory)factory()).gwidsEditor();
+    S5SequenceFactory factory = ((S5SequenceFactory)factory());
     for( ISkClassInfo classInfo : aRemovedObjs.keys() ) {
       if( classInfo.events().list().size() == 0 ) {
         // У класса объекта нет событий
@@ -347,7 +340,7 @@ public class S5BackendEventSingleton
       }
       IList<IDtoObject> objs = aRemovedObjs.getByKey( classInfo );
       for( IDtoObject obj : objs ) {
-        gwidsEditor.removeByKey( Gwid.createObj( obj.classId(), obj.strid() ) );
+        factory.removeTypeInfo( Gwid.createObj( obj.classId(), obj.strid() ) );
       }
     }
   }

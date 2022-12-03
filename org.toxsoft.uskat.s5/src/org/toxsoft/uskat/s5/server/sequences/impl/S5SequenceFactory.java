@@ -23,7 +23,6 @@ import org.toxsoft.core.tslib.utils.Pair;
 import org.toxsoft.core.tslib.utils.TsLibUtils;
 import org.toxsoft.core.tslib.utils.errors.*;
 import org.toxsoft.uskat.s5.common.sysdescr.ISkSysdescrReader;
-import org.toxsoft.uskat.s5.legacy.SynchronizedMap;
 import org.toxsoft.uskat.s5.server.sequences.*;
 import org.toxsoft.uskat.s5.server.startup.IS5InitialImplementation;
 import org.toxsoft.uskat.s5.utils.collections.WrapperMap;
@@ -79,11 +78,12 @@ public abstract class S5SequenceFactory<V extends ITemporal<?>>
       new WrapperMap<>( new HashMap<String, Constructor<IS5SequenceBlockEdit<V>>>() );
 
   /**
-   * Карта идентификаторов данных.<br>
+   * Карта идентификаторов данных.
+   * <p>
    * Ключ: идентификатор данного;<br>
    * Значение: параметризованное описание типа данного
    */
-  private final IMapEdit<Gwid, IParameterized> allGwids = new SynchronizedMap<>( new ElemMap<>() );
+  private final IMapEdit<Gwid, IParameterized> allGwids = new ElemMap<>();
 
   /**
    * Конструктор
@@ -111,8 +111,43 @@ public abstract class S5SequenceFactory<V extends ITemporal<?>>
    *         Ключ: идентификатор данного;<br>
    *         Значение: параметризованное описание типа данного
    */
-  public final IMapEdit<Gwid, IParameterized> gwidsEditor() {
-    return allGwids;
+
+  // public final IMapEdit<Gwid, IParameterized> gwidsEditor() {
+  // return allGwids;
+  // }
+
+  /**
+   * Удалить описание данного по указанному {@link Gwid}-идентификатору.
+   * <p>
+   * Если описание не существует, то ничего не делает.
+   *
+   * @param aGwid {@link Gwid} идентифификатор данного
+   * @throws TsNullArgumentRtException аргумент = null
+   */
+  public void removeTypeInfo( Gwid aGwid ) {
+    TsNullArgumentRtException.checkNull( aGwid );
+    synchronized (allGwids) {
+      allGwids.removeByKey( aGwid );
+    }
+  }
+
+  /**
+   * Удалить описание данного по указанному идентификатору класса.
+   * <p>
+   * Если описание не существует, то ничего не делает.
+   *
+   * @param aClassId String идентифификатор класса
+   * @throws TsNullArgumentRtException аргумент = null
+   */
+  public void removeTypeInfo( String aClassId ) {
+    TsNullArgumentRtException.checkNull( aClassId );
+    synchronized (allGwids) {
+      for( Gwid gwid : allGwids.keys() ) {
+        if( gwid.classId().equals( aClassId ) ) {
+          allGwids.removeByKey( gwid );
+        }
+      }
+    }
   }
 
   // ------------------------------------------------------------------------------------
@@ -126,15 +161,17 @@ public abstract class S5SequenceFactory<V extends ITemporal<?>>
   @Override
   public final IParameterized typeInfo( Gwid aGwid ) {
     TsNullArgumentRtException.checkNull( aGwid );
-    IParameterized retValue = allGwids.findByKey( aGwid );
-    if( retValue != null ) {
-      // Идентификатор найден в кэше
+    synchronized (allGwids) {
+      IParameterized retValue = allGwids.findByKey( aGwid );
+      if( retValue != null ) {
+        // Идентификатор найден в кэше
+        return retValue;
+      }
+      // Идентификатор не найден, запрос у наследника
+      retValue = doTypeInfo( aGwid );
+      allGwids.put( aGwid, retValue );
       return retValue;
     }
-    // Идентификатор не найден, запрос у наследника
-    retValue = doTypeInfo( aGwid );
-    allGwids.put( aGwid, retValue );
-    return retValue;
   }
 
   @Override
@@ -319,7 +356,8 @@ public abstract class S5SequenceFactory<V extends ITemporal<?>>
    * Возвращает метод создания блока для указанного данного
    *
    * @param aBlockClass String полное имя класса реализации блока значений, наследник S5SequenceB
-   * @return {@link Method} метод сигнатуры: IS5SequenceBlockEdit&lt;I, E, V&gt; create( I aInfo, IList&ltV&gt; aValues )
+   * @return {@link Method} метод сигнатуры: IS5SequenceBlockEdit&lt;I, E, V&gt; create( I aInfo, IList&ltV&gt; aValues
+   *         )
    * @throws TsNullArgumentRtException аргумент = null
    * @throws TsIllegalArgumentRtException не найден метод
    */

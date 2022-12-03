@@ -14,11 +14,11 @@ import javax.ejb.*;
 import org.infinispan.Cache;
 import org.infinispan.commons.util.CloseableIterator;
 import org.toxsoft.core.tslib.av.opset.IOptionSet;
-import org.toxsoft.core.tslib.av.utils.IParameterized;
 import org.toxsoft.core.tslib.bricks.strid.coll.IStridablesList;
 import org.toxsoft.core.tslib.bricks.time.*;
 import org.toxsoft.core.tslib.bricks.time.impl.TimedList;
-import org.toxsoft.core.tslib.coll.*;
+import org.toxsoft.core.tslib.coll.IList;
+import org.toxsoft.core.tslib.coll.IMap;
 import org.toxsoft.core.tslib.coll.impl.ElemArrayList;
 import org.toxsoft.core.tslib.gw.gwid.*;
 import org.toxsoft.core.tslib.gw.skid.Skid;
@@ -339,7 +339,7 @@ public class S5BackendCommandSingleton
       IStridablesList<IDtoClassInfo> aDescendants ) {
     if( aPrevClassInfo.cmdInfos().size() > 0 && aNewClassInfo.cmdInfos().size() == 0 ) {
       // Удаление идентификаторов данных объектов у которых больше нет команд
-      IMapEdit<Gwid, IParameterized> gwidsEditor = ((S5SequenceFactory)factory()).gwidsEditor();
+      S5SequenceFactory factory = ((S5SequenceFactory)factory());
       // Список объектов изменившихся классов
       IList<IDtoObject> objs = S5TransactionUtils.txUpdatedClassObjs( transactionManager(), objectsBackend(),
           aNewClassInfo.id(), aDescendants );
@@ -347,7 +347,7 @@ public class S5BackendCommandSingleton
         String classId = obj.classId();
         ISkClassInfo classInfo = sysdescrReader().getClassInfo( classId );
         if( classInfo.cmds().list().size() == 0 ) {
-          gwidsEditor.removeByKey( Gwid.createObj( classId, obj.strid() ) );
+          factory.removeTypeInfo( Gwid.createObj( classId, obj.strid() ) );
         }
       }
     }
@@ -356,16 +356,10 @@ public class S5BackendCommandSingleton
   @Override
   @SuppressWarnings( { "rawtypes" } )
   protected void doBeforeDeleteClass( IDtoClassInfo aClassInfo ) {
-    String classId = aClassInfo.id();
     // Удаление идентификаторов данных объектов удаленного класса
     if( aClassInfo.cmdInfos().size() > 0 ) {
       // Удаление идентификаторов данных объектов удаленного класса
-      IMapEdit<Gwid, IParameterized> gwidsEditor = ((S5SequenceFactory)factory()).gwidsEditor();
-      for( Gwid gwid : new ElemArrayList<>( gwidsEditor.keys() ) ) {
-        if( gwid.classId().equals( classId ) ) {
-          gwidsEditor.removeByKey( gwid );
-        }
-      }
+      ((S5SequenceFactory)factory()).removeTypeInfo( aClassInfo.id() );
     }
   }
 
@@ -375,7 +369,7 @@ public class S5BackendCommandSingleton
       IMap<ISkClassInfo, IList<Pair<IDtoObject, IDtoObject>>> aUpdatedObjs,
       IMap<ISkClassInfo, IList<IDtoObject>> aCreatedObjs ) {
     // Удаление идентификаторов данных удаленных объектов
-    IMapEdit<Gwid, IParameterized> gwidsEditor = ((S5SequenceFactory)factory()).gwidsEditor();
+    S5SequenceFactory factory = ((S5SequenceFactory)factory());
     for( ISkClassInfo classInfo : aRemovedObjs.keys() ) {
       if( classInfo.cmds().list().size() == 0 ) {
         // У класса объекта нет команд
@@ -383,7 +377,7 @@ public class S5BackendCommandSingleton
       }
       IList<IDtoObject> objs = aRemovedObjs.getByKey( classInfo );
       for( IDtoObject obj : objs ) {
-        gwidsEditor.removeByKey( Gwid.createObj( obj.classId(), obj.strid() ) );
+        factory.removeTypeInfo( Gwid.createObj( obj.classId(), obj.strid() ) );
       }
     }
   }
