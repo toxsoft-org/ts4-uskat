@@ -107,28 +107,6 @@ public final class S5SynchronizedAlarmService
   }
 
   @Override
-  public ISkAlarmFlacon getAlarmFlacon( long aAlarmId ) {
-    lockWrite( this );
-    try {
-      return target().getAlarmFlacon( aAlarmId );
-    }
-    finally {
-      unlockWrite( this );
-    }
-  }
-
-  @Override
-  public ITimedList<ISkAlarmThreadHistoryItem> getAlarmHistory( long aAlarmId ) {
-    lockWrite( this );
-    try {
-      return target().getAlarmHistory( aAlarmId );
-    }
-    finally {
-      unlockWrite( this );
-    }
-  }
-
-  @Override
   public ITimedList<ISkAlarm> queryAlarms( ITimeInterval aTimeInterval, ITsCombiFilterParams aFilter ) {
     lockWrite( this );
     try {

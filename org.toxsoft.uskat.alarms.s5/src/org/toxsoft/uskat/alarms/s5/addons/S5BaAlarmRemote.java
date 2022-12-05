@@ -92,16 +92,6 @@ public final class S5BaAlarmRemote
   }
 
   @Override
-  public ISkAlarmFlacon getAlarmFlacon( long aAlarmId ) {
-    return session().getAlarmFlacon( aAlarmId );
-  }
-
-  @Override
-  public ITimedList<ISkAlarmThreadHistoryItem> getAlarmHistory( long aAlarmId ) {
-    return session().getAlarmHistory( aAlarmId );
-  }
-
-  @Override
   public ITimedList<ISkAlarm> queryAlarms( ITimeInterval aTimeInterval, ITsCombiFilterParams aFilter ) {
     TsNullArgumentRtException.checkNulls( aTimeInterval, aFilter );
     return session().queryAlarms( aTimeInterval, aFilter );

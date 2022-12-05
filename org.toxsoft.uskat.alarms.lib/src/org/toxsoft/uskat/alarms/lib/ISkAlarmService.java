@@ -68,17 +68,17 @@ import org.toxsoft.uskat.core.api.ISkService;
  * {@link ISkAlarmServiceListener#onAlarm(ISkAlarm)}. Модели доставки, обнаружив появление нужной тревоги инициируют
  * нить извещения. По мере исполнения нити извещения, модули логируют этапы исполнения методом
  * {@link #addThreadHistoryItem(long, ISkAlarmThreadHistoryItem)}. Информацию о том, как проходил процесс извещения по
- * всем ниткам можно получить методом {@link #getAlarmHistory(long)}.
+ * всем ниткам можно получить методом {@link ISkAlarm#history()}.
  * <p>
  * Информация о разнородных данных, сочетание которых привело к возникновеню тревоги упаковывается в один флакон
  * {@link ISkAlarmFlacon}, и сохраняется вместе с тревогой. Получить эту информацию можно методом
- * {@link #getAlarmFlacon(long)} .
+ * {@link ISkAlarm#flacon()} .
  * <p>
  * <h2>Работа с историей тревог</h2>
  * <p>
  * История тревог включает в себя как получение тревог, которые были в определенном интервале времени методом
  * {@link #queryAlarms(ITimeInterval, ITsCombiFilterParams)}, так и получение истории извещения (доставки) каждой
- * тревоги методом {@link #getAlarmHistory(long)}.
+ * тревоги методом {@link ISkAlarm#history()}.
  *
  * @author goga
  */
@@ -145,26 +145,6 @@ public interface ISkAlarmService
    */
   void addThreadHistoryItem( long aAlarmId, ISkAlarmThreadHistoryItem aItem );
 
-  /**
-   * Возвращает срез данных, вызвавший тревогу.
-   *
-   * @param aAlarmId long - идентификатор тревоги
-   * @return {@link ISkAlarmFlacon} - срез данных
-   * @throws TsItemNotFoundRtException нет тревоги с таким идентификатором
-   */
-  ISkAlarmFlacon getAlarmFlacon( long aAlarmId );
-
-  /**
-   * Возвращает историю отображения и обработки (квитирования) тревоги.
-   * <p>
-   * В зависимости о параметров в описании {@link ISkAlarmDef}, история может не вестись, и будет возвращен пустой
-   * список.
-   *
-   * @param aAlarmId long - идентификатор тревоги
-   * @return {@link ITimedList}&lt;{@link ISkAlarmThreadHistoryItem}&gt; - список собйтий обработки тревоги
-   */
-  ITimedList<ISkAlarmThreadHistoryItem> getAlarmHistory( long aAlarmId );
-
   // ------------------------------------------------------------------------------------
   // Работа с историей
   //
@@ -185,9 +165,6 @@ public interface ISkAlarmService
    * <li>{@link SkAlarmFilterByTimestamp}.</li>
    * </ul>
    * Для упрощения можно использовать утилитные методы создания параметров фильтра из {@link SkAlarmUtils}. *
-   * <p>
-   * Получить срез и историю изменения состояния тревог можно метдами {@link #getAlarmFlacon(long)} и
-   * {@link #getAlarmHistory(long)}.
    *
    * @param aTimeInterval {@link ITimeInterval} - интервал времени запроса
    * @param aFilter {@link ITsCombiFilterParams} - параметры фильтра выборки тревог

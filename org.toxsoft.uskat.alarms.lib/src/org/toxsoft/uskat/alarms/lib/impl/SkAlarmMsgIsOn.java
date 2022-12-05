@@ -1,6 +1,7 @@
 package org.toxsoft.uskat.alarms.lib.impl;
 
-import org.toxsoft.core.tslib.av.EAtomicType;
+import static org.toxsoft.core.tslib.av.impl.AvUtils.*;
+
 import org.toxsoft.core.tslib.bricks.events.msg.GenericMessage;
 import org.toxsoft.core.tslib.bricks.events.msg.GtMessage;
 import org.toxsoft.core.tslib.utils.errors.TsNullArgumentRtException;
@@ -29,7 +30,7 @@ public class SkAlarmMsgIsOn
 
   SkAlarmMsgIsOn() {
     super( ISkAlarmService.SERVICE_ID, MSG_ID );
-    defineArgNonValobj( ARGID_ALARM, EAtomicType.VALOBJ, true );
+    defineArgValobj( ARGID_ALARM, SkAlarm.KEEPER_ID, true );
   }
 
   /**
@@ -41,7 +42,7 @@ public class SkAlarmMsgIsOn
    */
   public GtMessage makeMessage( ISkAlarm aAlarm ) {
     TsNullArgumentRtException.checkNull( aAlarm );
-    return makeMessageVarargs( ARGID_ALARM, aAlarm );
+    return makeMessageVarargs( ARGID_ALARM, avValobj( aAlarm ) );
   }
 
   /**

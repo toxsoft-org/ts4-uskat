@@ -147,10 +147,12 @@ public class SkAlarmService
 
     void fireOnAlarm( ISkAlarm aAlarm ) {
       onAlarms.add( aAlarm );
+      doFirePendingEvents();
     }
 
     void fireOnAlarmChange( ISkAlarm aAlarm, ISkAlarmThreadHistoryItem aChange ) {
       onAlarmsChanges.add( new Pair<>( aAlarm, aChange ) );
+      doFirePendingEvents();
     }
   }
 
@@ -245,16 +247,6 @@ public class SkAlarmService
   public void addThreadHistoryItem( long aAlarmId, ISkAlarmThreadHistoryItem aItem ) {
     TsNullArgumentRtException.checkNull( aItem );
     backend().addThreadHistoryItem( aAlarmId, aItem );
-  }
-
-  @Override
-  public ISkAlarmFlacon getAlarmFlacon( long aAlarmId ) {
-    return backend().getAlarmFlacon( aAlarmId );
-  }
-
-  @Override
-  public ITimedList<ISkAlarmThreadHistoryItem> getAlarmHistory( long aAlarmId ) {
-    return backend().getAlarmHistory( aAlarmId );
   }
 
   @Override

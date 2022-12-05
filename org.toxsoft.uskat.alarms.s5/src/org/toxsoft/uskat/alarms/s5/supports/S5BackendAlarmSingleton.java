@@ -129,6 +129,7 @@ public class S5BackendAlarmSingleton
     return entityManager.find( S5AlarmDefEntity.class, aAlarmDefId );
   }
 
+  @TransactionAttribute( TransactionAttributeType.REQUIRED )
   @Override
   public void registerAlarmDef( ISkAlarmDef aSkAlarmDef ) {
     // Проверка контракта
@@ -139,6 +140,7 @@ public class S5BackendAlarmSingleton
     entityManager.flush();
   }
 
+  @TransactionAttribute( TransactionAttributeType.REQUIRED )
   @Override
   public ISkAlarm generateAlarm( String aAlarmDefId, Skid aAuthorId, Skid aUserId, byte aSublevel,
       ISkAlarmFlacon aSkAlarmFlacon ) {
@@ -148,13 +150,17 @@ public class S5BackendAlarmSingleton
     long timestamp = System.currentTimeMillis();
     long alarmId = generateAlarmId();
     // Создаем аларм
-    SkAlarm alarm = new SkAlarm( timestamp, alarmId, skAlarmDef.priority(), aSublevel, aAuthorId, aUserId, aAlarmDefId,
-        skAlarmDef.message() );
-    // Создаем сразу же сущность для хранения в БД
-    S5AlarmEntity alarmEntity = new S5AlarmEntity( alarm );
-    // устанавливаем его флакон
-    S5AlarmFlaconEntity flaconEntity = new S5AlarmFlaconEntity( aSkAlarmFlacon );
-    alarmEntity.setFlacon( flaconEntity );
+    S5AlarmEntity alarmEntity = new S5AlarmEntity( //
+        timestamp, //
+        alarmId, //
+        skAlarmDef.priority(), //
+        aSublevel, //
+        aAuthorId, //
+        aUserId, //
+        aAlarmDefId, //
+        skAlarmDef.message(), //
+        new S5AlarmFlaconEntity( aSkAlarmFlacon )//
+    );
 
     // Сохраняем аларм в БД
     entityManager.persist( alarmEntity );
@@ -176,7 +182,7 @@ public class S5BackendAlarmSingleton
       synchronized (baData) {
         for( ITsCombiFilterParams filterParams : baData.alarmFilters ) {
           ITsFilter<ISkAlarm> filter = TsCombiFilter.create( filterParams, FILTER_REGISTRY );
-          if( filter.accept( alarm ) ) {
+          if( filter.accept( alarmEntity ) ) {
             frontend.onBackendMessage( alarmMessage );
             break;
           }
@@ -186,15 +192,16 @@ public class S5BackendAlarmSingleton
     // История обработки
     if( listenersCount == 0 ) {
       // Нет заинтересованных, отмечаем это в истории обработки и гасим аларм и сохраняем его для истории
-      ISkAlarmThreadHistoryItem histItem = new SkAlarmAnnounceThreadHistoryItem( timestamp,
-          ISkAlarmThreadHistoryItem.ALARM_THREAD_NULL, IOptionSet.NULL );
+      ISkAlarmThreadHistoryItem histItem =
+          new SkAlarmThreadHistoryItem( timestamp, ISkAlarmThreadHistoryItem.ALARM_THREAD_NULL, IOptionSet.NULL );
       alarmEntity.addHistoryItem( histItem );
       entityManager.persist( alarmEntity );
       entityManager.flush();
     }
-    return alarm;
+    return alarmEntity;
   }
 
+  @TransactionAttribute( TransactionAttributeType.REQUIRED )
   @Override
   public void addAnnounceThreadHistoryItem( long aAlarmId, ISkAlarmThreadHistoryItem aItem ) {
     // находим нужный аларм
@@ -230,22 +237,6 @@ public class S5BackendAlarmSingleton
   }
 
   @Override
-  public ISkAlarmFlacon getAlarmFlacon( long aAlarmId ) {
-    // находим нужный аларм
-    S5AlarmEntity alarm = entityManager.find( S5AlarmEntity.class, Long.valueOf( aAlarmId ) );
-    return alarm.skAlarmFlacon();
-  }
-
-  @Override
-  public ITimedList<ISkAlarmThreadHistoryItem> getAlarmHistory( long aAlarmId ) {
-    // находим нужный аларм
-    S5AlarmEntity alarm = entityManager.find( S5AlarmEntity.class, Long.valueOf( aAlarmId ) );
-    // Выбираем по нему его историю
-    ITimedList<ISkAlarmThreadHistoryItem> retVal = alarm.history();
-    return retVal;
-  }
-
-  @Override
   public ITimedList<ISkAlarm> queryAlarms( ITimeInterval aTimeInterval, ITsCombiFilterParams aFilter ) {
     TimedList<ISkAlarm> retVal = new TimedList<>();
 
@@ -266,7 +257,10 @@ public class S5BackendAlarmSingleton
             alarmEntity.sublevel(), //
             alarmEntity.authorId(), //
             alarmEntity.userId(), alarmEntity.alarmDefId(), //
-            alarmEntity.message() ) //
+            alarmEntity.message(), //
+            alarmEntity.flacon(), //
+            alarmEntity.history() //
+        ) //
         );
       }
     }

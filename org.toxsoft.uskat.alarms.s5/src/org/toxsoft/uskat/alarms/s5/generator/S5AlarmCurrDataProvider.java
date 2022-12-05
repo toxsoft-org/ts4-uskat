@@ -67,7 +67,7 @@ public class S5AlarmCurrDataProvider
    */
   IAtomicValue getCurrDataValue( Skid aObjId, String aDataId ) {
     TsNullArgumentRtException.checkNull( aDataId );
-    Gwid gwid = Gwid.create( aObjId.classId(), aObjId.strid(), aDataId, null, null, null );
+    Gwid gwid = Gwid.createRtdata( aObjId.classId(), aObjId.strid(), aDataId );
     ISkReadCurrDataChannel channel = currdata.findByKey( gwid );
     if( channel == null ) {
       channel = rtdataService.createReadCurrDataChannels( new GwidList( gwid ) ).values().first();

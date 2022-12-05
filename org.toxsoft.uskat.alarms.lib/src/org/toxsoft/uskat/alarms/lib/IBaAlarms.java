@@ -88,26 +88,6 @@ public interface IBaAlarms {
    */
   void addThreadHistoryItem( long aAlarmId, ISkAlarmThreadHistoryItem aItem );
 
-  /**
-   * Возвращает срез данных, вызвавший тревогу.
-   *
-   * @param aAlarmId long - идентификатор тревоги
-   * @return {@link ISkAlarmFlacon} - срез данных
-   * @throws TsItemNotFoundRtException нет тревоги с таким идентификатором
-   */
-  ISkAlarmFlacon getAlarmFlacon( long aAlarmId );
-
-  /**
-   * Возвращает историю отображения и обработки (квитирования) тревоги.
-   * <p>
-   * В зависимости о параметров в описании {@link ISkAlarmDef}, история может не вестись, и будет возвращен пустой
-   * список.
-   *
-   * @param aAlarmId long - идентификатор тревоги
-   * @return {@link ITimedList}&lt;{@link ISkAlarmThreadHistoryItem}&gt; - список собйтий обработки тревоги
-   */
-  ITimedList<ISkAlarmThreadHistoryItem> getAlarmHistory( long aAlarmId );
-
   // ------------------------------------------------------------------------------------
   // Работа с историей
   //
@@ -128,9 +108,6 @@ public interface IBaAlarms {
    * <li>{@link SkAlarmFilterByTimestamp}.</li>
    * </ul>
    * Для упрощения можно использовать утилитные методы создания параметров фильтра из {@link SkAlarmUtils}. *
-   * <p>
-   * Получить срез и историю изменения состояния тревог можно метдами {@link #getAlarmFlacon(long)} и
-   * {@link #getAlarmHistory(long)}.
    *
    * @param aTimeInterval {@link ITimeInterval} - интервал времени запроса
    * @param aFilter {@link ITsCombiFilterParams} - параметры фильтра выборки тревог

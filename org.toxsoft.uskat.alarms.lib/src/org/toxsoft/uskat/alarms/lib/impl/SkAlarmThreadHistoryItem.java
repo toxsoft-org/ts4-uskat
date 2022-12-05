@@ -17,7 +17,7 @@ import org.toxsoft.uskat.alarms.lib.ISkAlarmThreadHistoryItem;
  *
  * @author mvk
  */
-public class SkAlarmAnnounceThreadHistoryItem
+public class SkAlarmThreadHistoryItem
     implements ISkAlarmThreadHistoryItem, Serializable {
 
   private static final long serialVersionUID = 157157L;
@@ -25,7 +25,7 @@ public class SkAlarmAnnounceThreadHistoryItem
   /**
    * Идентификатор регистрации хранителя {@link #KEEPER} в реестре {@link TsValobjUtils}.
    */
-  public static final String KEEPER_ID = "SkAlarmAnnounceThreadHistoryItem"; //$NON-NLS-1$
+  public static final String KEEPER_ID = "SkAlarmThreadHistoryItem"; //$NON-NLS-1$
 
   /**
    * Синглтон хранителя.
@@ -49,9 +49,8 @@ public class SkAlarmAnnounceThreadHistoryItem
           String announceThreadId = aSr.readQuotedString();
           aSr.ensureSeparatorChar();
           IOptionSet params = OptionSetKeeper.KEEPER.read( aSr );
-          return new SkAlarmAnnounceThreadHistoryItem( timestamp, announceThreadId, params );
+          return new SkAlarmThreadHistoryItem( timestamp, announceThreadId, params );
         }
-
       };
 
   /**
@@ -76,7 +75,7 @@ public class SkAlarmAnnounceThreadHistoryItem
    * @param aThreadId идентификатор (ИД-путь) нитки извещения
    * @param aParams параметры - параметры выполнения этапа
    */
-  public SkAlarmAnnounceThreadHistoryItem( long aTimestamp, String aThreadId, IOptionSet aParams ) {
+  public SkAlarmThreadHistoryItem( long aTimestamp, String aThreadId, IOptionSet aParams ) {
     timestamp = aTimestamp;
     threadId = aThreadId;
     params = OptionSetKeeper.KEEPER.ent2str( aParams );
@@ -85,7 +84,7 @@ public class SkAlarmAnnounceThreadHistoryItem
   /**
    * Конструктор без параметров
    */
-  protected SkAlarmAnnounceThreadHistoryItem() {
+  protected SkAlarmThreadHistoryItem() {
     // nop
   }
 

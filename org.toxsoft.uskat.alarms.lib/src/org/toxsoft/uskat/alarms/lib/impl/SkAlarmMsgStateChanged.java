@@ -1,6 +1,7 @@
 package org.toxsoft.uskat.alarms.lib.impl;
 
-import org.toxsoft.core.tslib.av.EAtomicType;
+import static org.toxsoft.core.tslib.av.impl.AvUtils.*;
+
 import org.toxsoft.core.tslib.bricks.events.msg.GenericMessage;
 import org.toxsoft.core.tslib.bricks.events.msg.GtMessage;
 import org.toxsoft.core.tslib.utils.errors.TsNullArgumentRtException;
@@ -30,8 +31,8 @@ public class SkAlarmMsgStateChanged
 
   SkAlarmMsgStateChanged() {
     super( ISkAlarmService.SERVICE_ID, MSG_ID );
-    defineArgNonValobj( ARGID_ALARM, EAtomicType.VALOBJ, true );
-    defineArgNonValobj( ARGID_THREAD_ITEM, EAtomicType.VALOBJ, true );
+    defineArgValobj( ARGID_ALARM, SkAlarm.KEEPER_ID, true );
+    defineArgValobj( ARGID_THREAD_ITEM, SkAlarmThreadHistoryItem.KEEPER_ID, true );
   }
 
   /**
@@ -45,8 +46,8 @@ public class SkAlarmMsgStateChanged
   public GtMessage makeMessage( ISkAlarm aAlarm, ISkAlarmThreadHistoryItem aThreadItem ) {
     TsNullArgumentRtException.checkNulls( aAlarm, aThreadItem );
     return makeMessageVarargs( //
-        ARGID_ALARM, aAlarm, //
-        ARGID_THREAD_ITEM, aThreadItem //
+        ARGID_ALARM, avValobj( aAlarm ), //
+        ARGID_THREAD_ITEM, avValobj( aThreadItem ) //
     );
   }
 

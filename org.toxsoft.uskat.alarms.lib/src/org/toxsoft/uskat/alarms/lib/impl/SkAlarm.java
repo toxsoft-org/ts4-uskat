@@ -8,19 +8,21 @@ import org.toxsoft.core.tslib.bricks.keeper.IEntityKeeper;
 import org.toxsoft.core.tslib.bricks.strid.impl.StridUtils;
 import org.toxsoft.core.tslib.bricks.strio.IStrioReader;
 import org.toxsoft.core.tslib.bricks.strio.IStrioWriter;
+import org.toxsoft.core.tslib.bricks.time.ITimedList;
 import org.toxsoft.core.tslib.bricks.time.impl.TimeUtils;
+import org.toxsoft.core.tslib.bricks.time.impl.TimedList;
 import org.toxsoft.core.tslib.gw.skid.Skid;
 import org.toxsoft.core.tslib.utils.TsLibUtils;
 import org.toxsoft.core.tslib.utils.errors.TsIllegalArgumentRtException;
 import org.toxsoft.core.tslib.utils.errors.TsNullArgumentRtException;
 import org.toxsoft.core.tslib.utils.valobj.TsValobjUtils;
-import org.toxsoft.uskat.alarms.lib.EAlarmPriority;
-import org.toxsoft.uskat.alarms.lib.ISkAlarm;
+import org.toxsoft.uskat.alarms.lib.*;
+import org.toxsoft.uskat.alarms.lib.flacon.ISkAlarmFlacon;
 
 /**
  * Неизменяемая реализация {@link ISkAlarm}.
  *
- * @author goga, dima
+ * @author mvk
  */
 public final class SkAlarm
     implements ISkAlarm, Serializable {
@@ -55,6 +57,10 @@ public final class SkAlarm
           aSw.writeQuotedString( aEntity.alarmDefId() );
           aSw.writeSeparatorChar();
           aSw.writeQuotedString( aEntity.message() );
+          aSw.writeSeparatorChar();
+          SkAlarmFlacon.KEEPER.write( aSw, aEntity.flacon() );
+          aSw.writeSeparatorChar();
+          SkAlarmThreadHistoryItem.KEEPER.writeColl( aSw, aEntity.history(), false ); // aIndented = false
         }
 
         @Override
@@ -74,20 +80,27 @@ public final class SkAlarm
           String alarmDefId = aSr.readQuotedString();
           aSr.ensureSeparatorChar();
           String message = aSr.readQuotedString();
-
-          return new SkAlarm( timestamp, alarmId, priority, sublevel, authorId, userId, alarmDefId, message );
+          aSr.ensureSeparatorChar();
+          ISkAlarmFlacon flacon = SkAlarmFlacon.KEEPER.readEnclosed( aSr );
+          aSr.ensureSeparatorChar();
+          ITimedList<ISkAlarmThreadHistoryItem> history =
+              new TimedList<>( SkAlarmThreadHistoryItem.KEEPER.readColl( aSr ) );
+          return new SkAlarm( timestamp, alarmId, priority, sublevel, authorId, userId, alarmDefId, message, flacon,
+              history );
         }
 
       };
 
-  private final long           timestamp;
-  private final long           alarmId;
-  private final Skid           authorId;
-  private final Skid           userId;
-  private final EAlarmPriority priority;
-  private final byte           sublevel;
-  private final String         alarmDefId;
-  private final String         message;
+  private final long                                  timestamp;
+  private final long                                  alarmId;
+  private final Skid                                  authorId;
+  private final Skid                                  userId;
+  private final EAlarmPriority                        priority;
+  private final byte                                  sublevel;
+  private final String                                alarmDefId;
+  private final String                                message;
+  private final ISkAlarmFlacon                        flacon;
+  private final ITimedList<ISkAlarmThreadHistoryItem> history;
 
   /**
    * Конструктор.
@@ -98,23 +111,28 @@ public final class SkAlarm
    * @param aSublevel byte - уточнение степени важности
    * @param aAuthorId {@link Skid} - идентификатор объекта - автора тревоги
    * @param aUserId {@link Skid} - идентификатор объекта пользователя
-   * @param aAlaremDefId String - идентификатор типа тревоги
+   * @param aAlarmDefId String - идентификатор типа тревоги
    * @param aMessage String - текстовое сообщение
+   * @param aFlacon {@link ISkAlarmFlacon} срез данных вызвавший аларм
+   * @param aHistory {@link ITimedList}&lt; {@link ISkAlarmThreadHistoryItem}&gt; история аларма
    * @throws TsNullArgumentRtException любой аргумент = null
    * @throws TsIllegalArgumentRtException aAlaremDefId не ИД-путь
    */
   public SkAlarm( long aTimestamp, long aAlarmId, EAlarmPriority aPriority, byte aSublevel, Skid aAuthorId,
-      Skid aUserId, String aAlaremDefId, String aMessage ) {
-    TsNullArgumentRtException.checkNulls( aPriority, aMessage );
-    StridUtils.checkValidIdPath( aAlaremDefId );
+      Skid aUserId, String aAlarmDefId, String aMessage, ISkAlarmFlacon aFlacon,
+      ITimedList<ISkAlarmThreadHistoryItem> aHistory ) {
+    TsNullArgumentRtException.checkNulls( aPriority, aMessage, aFlacon, aHistory );
+    StridUtils.checkValidIdPath( aAlarmDefId );
     timestamp = aTimestamp;
     alarmId = aAlarmId;
     authorId = aAuthorId;
     priority = aPriority;
     sublevel = aSublevel;
-    alarmDefId = aAlaremDefId;
+    alarmDefId = aAlarmDefId;
     userId = aUserId;
     message = aMessage;
+    flacon = aFlacon;
+    history = aHistory;
   }
 
   // ------------------------------------------------------------------------------------
@@ -164,6 +182,16 @@ public final class SkAlarm
   @Override
   public String message() {
     return message;
+  }
+
+  @Override
+  public ISkAlarmFlacon flacon() {
+    return flacon;
+  }
+
+  @Override
+  public ITimedList<ISkAlarmThreadHistoryItem> history() {
+    return history;
   }
 
   // ------------------------------------------------------------------------------------

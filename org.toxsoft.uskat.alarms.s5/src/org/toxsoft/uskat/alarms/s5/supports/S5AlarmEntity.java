@@ -9,6 +9,8 @@ import javax.persistence.*;
 import org.toxsoft.core.tslib.bricks.time.ITimedListEdit;
 import org.toxsoft.core.tslib.bricks.time.impl.TimedList;
 import org.toxsoft.core.tslib.gw.skid.Skid;
+import org.toxsoft.core.tslib.utils.errors.TsIllegalArgumentRtException;
+import org.toxsoft.core.tslib.utils.errors.TsNullArgumentRtException;
 import org.toxsoft.uskat.alarms.lib.*;
 import org.toxsoft.uskat.alarms.lib.flacon.ISkAlarmFlacon;
 
@@ -25,7 +27,7 @@ import org.toxsoft.uskat.alarms.lib.flacon.ISkAlarmFlacon;
 
 } )
 @Entity
-public class S5AlarmEntity
+class S5AlarmEntity
     implements ISkAlarm, Serializable {
 
   private static final long serialVersionUID = 157157L;
@@ -74,13 +76,13 @@ public class S5AlarmEntity
    */
   private String alarmDefId;
 
-  @OneToMany( fetch = FetchType.EAGER, cascade = CascadeType.ALL )
-  @JoinColumn( name = "alarm_id" )
-  private Collection<S5AlarmThreadHistoryItemEntity> historyItems = new ArrayList<>();
-
   @OneToOne( fetch = FetchType.EAGER, cascade = CascadeType.PERSIST )
   @JoinColumn( name = "flacon_id" )
   private S5AlarmFlaconEntity flacon;
+
+  @OneToMany( fetch = FetchType.EAGER, cascade = CascadeType.ALL )
+  @JoinColumn( name = "alarm_id" )
+  private Collection<S5AlarmThreadHistoryItemEntity> historyItems = new ArrayList<>();
 
   /**
    * Конструктор без параметров
@@ -90,23 +92,45 @@ public class S5AlarmEntity
   }
 
   /**
-   * Конструктор по ISkAlarm
+   * Конструктор.
    *
-   * @param aSkAlarm оригинальный аларм
+   * @param aTimestamp long - момент времени, когда была сгенерирована тревога
+   * @param aAlarmId long - идентификатор тревоги
+   * @param aPriority {@link EAlarmPriority} - важность
+   * @param aSublevel byte - уточнение степени важности
+   * @param aAuthorId {@link Skid} - идентификатор объекта - автора тревоги
+   * @param aUserId {@link Skid} - идентификатор объекта пользователя
+   * @param aAlarmDefId String - идентификатор типа тревоги
+   * @param aMessage String - текстовое сообщение
+   * @param aFlacon {@link S5AlarmFlaconEntity} срез данных вызвавший аларм
+   * @throws TsNullArgumentRtException любой аргумент = null
+   * @throws TsIllegalArgumentRtException aAlaremDefId не ИД-путь
    */
-  public S5AlarmEntity( ISkAlarm aSkAlarm ) {
-    alarmId = Long.valueOf( aSkAlarm.alarmId() );
-    timestamp = aSkAlarm.timestamp();
-    alarmDefId = aSkAlarm.alarmDefId();
-    priority = aSkAlarm.priority().id();
-    sublevel = aSkAlarm.sublevel();
-    message = aSkAlarm.message();
-    authorIdString = Skid.KEEPER.ent2str( aSkAlarm.authorId() );
-    userIdString = Skid.KEEPER.ent2str( aSkAlarm.userId() );
+  S5AlarmEntity( long aTimestamp, long aAlarmId, EAlarmPriority aPriority, byte aSublevel, Skid aAuthorId, Skid aUserId,
+      String aAlarmDefId, String aMessage, S5AlarmFlaconEntity aFlacon ) {
+    TsNullArgumentRtException.checkNulls( aAuthorId, aUserId, aAlarmDefId, aMessage, aFlacon );
+    timestamp = aTimestamp;
+    alarmId = Long.valueOf( aAlarmId );
+    alarmDefId = aAlarmDefId;
+    priority = aPriority.id();
+    sublevel = aSublevel;
+    message = aMessage;
+    authorIdString = Skid.KEEPER.ent2str( aAuthorId );
+    userIdString = Skid.KEEPER.ent2str( aUserId );
+    flacon = aFlacon;
+  }
+
+  /**
+   * Добавить элеемнт в историю обработки аларма
+   *
+   * @param aItem элемент истории обработки аларма
+   */
+  public void addHistoryItem( ISkAlarmThreadHistoryItem aItem ) {
+    historyItems.add( new S5AlarmThreadHistoryItemEntity( aItem ) );
   }
 
   // ------------------------------------------------------------------------------------
-  // Реализация интерфейса ISkAlarm
+  // ISkAlarm
   //
 
   @Override
@@ -159,44 +183,17 @@ public class S5AlarmEntity
     return message;
   }
 
-  /**
-   * Получить историю обработки аларма
-   *
-   * @return список элементов истории
-   */
+  @Override
+  public ISkAlarmFlacon flacon() {
+    return flacon;
+  }
+
+  @Override
   public ITimedListEdit<ISkAlarmThreadHistoryItem> history() {
-    // TODO пока просто в лоб
     TimedList<ISkAlarmThreadHistoryItem> retVal = new TimedList<>();
     for( ISkAlarmThreadHistoryItem item : historyItems ) {
       retVal.add( new S5AlarmThreadHistoryItemEntity( item ) );
     }
     return retVal;
-  }
-
-  /**
-   * Добавить элеемнт в историю обработки аларма
-   *
-   * @param aItem элемент истории обработки аларма
-   */
-  public void addHistoryItem( ISkAlarmThreadHistoryItem aItem ) {
-    historyItems.add( new S5AlarmThreadHistoryItemEntity( aItem ) );
-  }
-
-  /**
-   * Установить флакон аларма
-   *
-   * @param aSkAlarmFlacon флакон
-   */
-  public void setFlacon( ISkAlarmFlacon aSkAlarmFlacon ) {
-    flacon = new S5AlarmFlaconEntity( aSkAlarmFlacon );
-  }
-
-  /**
-   * Получить флакон аларма
-   *
-   * @return ISkAlarmFlacon флакон
-   */
-  public ISkAlarmFlacon skAlarmFlacon() {
-    return flacon;
   }
 }
