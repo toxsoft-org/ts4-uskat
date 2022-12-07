@@ -111,7 +111,7 @@ public abstract class S5AbstractBackend<ADDON extends IS5BackendAddon>
   /**
    * Значения параметров бекенда
    */
-  private final SkBackendInfo backendInfo;
+  private ISkBackendInfo backendInfo;
 
   /**
    * Генератор идентификаторов сессий, объектов {@link ISkSession}
@@ -247,7 +247,7 @@ public abstract class S5AbstractBackend<ADDON extends IS5BackendAddon>
   public final ISkBackendInfo getBackendInfo() {
     ISkBackendInfo serverBackendInfo = doFindServerBackendInfo();
     if( serverBackendInfo != null ) {
-      backendInfo.params().addAll( serverBackendInfo.params() );
+      backendInfo = serverBackendInfo;
     }
     return backendInfo;
   }
