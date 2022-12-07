@@ -224,13 +224,13 @@ public class S5BackendCoreSingleton
       logger().error( e );
     }
     // Параметры бекенда
-    IOptionSet backendConfigParams = initialConfig.impl().params();
+    IOptionSet initialConfigParams = initialConfig.impl().params();
     // Модуль реализующий бекенд
-    S5Module module = OP_BACKEND_MODULE.getValue( backendConfigParams ).asValobj();
+    S5Module module = OP_BACKEND_MODULE.getValue( initialConfigParams ).asValobj();
     // Описание бекенда
     backendInfo = new S5BackendInfo( module );
     // Перекрываем параметры
-    backendInfo.params().addAll( backendConfigParams );
+    backendInfo.params().addAll( initialConfigParams );
     // Время запуска сервера
     IS5ServerHardConstants.OP_BACKEND_START_TIME.setValue( backendInfo.params(),
         avTimestamp( System.currentTimeMillis() ) );

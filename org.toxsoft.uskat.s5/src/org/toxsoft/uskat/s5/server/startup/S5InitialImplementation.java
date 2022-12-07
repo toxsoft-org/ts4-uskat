@@ -74,8 +74,9 @@ public abstract class S5InitialImplementation
     aModule.params().setValobj( S5Module.DDEF_DEPENDS, depends );
 
     params = new OptionSet();
-    DDEF_NAME.setValue( params, avStr( aModule.id() ) );
-    DDEF_DESCRIPTION.setValue( params, avStr( aModule.description() ) );
+    params.setStr( TSID_ID, aModule.id() );
+    params.setStr( TSID_NAME, aModule.nmName() );
+    params.setStr( TSID_DESCRIPTION, aModule.description() );
 
     Skid serverId = new Skid( CLASS_SERVER, aModule.id() );
     Skid nodeId = Skid.NONE;
