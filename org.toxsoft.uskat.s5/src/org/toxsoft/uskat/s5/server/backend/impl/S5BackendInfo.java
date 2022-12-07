@@ -1,6 +1,6 @@
 package org.toxsoft.uskat.s5.server.backend.impl;
 
-import org.toxsoft.core.tslib.av.opset.IOptionSet;
+import org.toxsoft.core.tslib.bricks.strid.IStridableParameterized;
 import org.toxsoft.core.tslib.bricks.strid.impl.StridableParameterizedSer;
 import org.toxsoft.core.tslib.bricks.strio.IStrioWriter;
 import org.toxsoft.core.tslib.bricks.strio.chario.impl.CharOutputStreamAppendable;
@@ -23,12 +23,11 @@ public class S5BackendInfo
   /**
    * Конструктор.
    *
-   * @param aId String - backend ID
-   * @param aParams {@link IOptionSet} - {@link ISkBackendInfo#params()} initial values
+   * @param aStridable {@link IStridableParameterized} - backend stridable
    * @throws TsNullArgumentRtException any argument = <code>null</code>
    */
-  public S5BackendInfo( String aId, IOptionSet aParams ) {
-    super( aId, aParams );
+  public S5BackendInfo( IStridableParameterized aStridable ) {
+    super( aStridable );
   }
 
   // ------------------------------------------------------------------------------------

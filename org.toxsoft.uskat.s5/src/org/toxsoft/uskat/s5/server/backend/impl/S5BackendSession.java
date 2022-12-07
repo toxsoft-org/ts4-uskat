@@ -597,7 +597,7 @@ public class S5BackendSession
     // Запрос текущей информации о сервере (backend)
     ISkBackendInfo backendInfo = backendCoreSingleton.getInfo();
     // Формирование информации сессии бекенда
-    S5BackendInfo retValue = new S5BackendInfo( backendInfo.id(), backendInfo.params() );
+    S5BackendInfo retValue = new S5BackendInfo( backendInfo );
     // Идентификатор текущей сессии пользователя
     IS5ServerHardConstants.OP_BACKEND_SESSION_INFO.setValue( retValue.params(), avValobj( sessionInfo() ) );
 

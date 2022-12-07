@@ -140,7 +140,7 @@ public final class S5BackendLocal
     // Описание текущей сессии пользователя
     IS5SessionInfo sessionInfo = sessionData.info();
     // Формирование информации сессии бекенда
-    S5BackendInfo retValue = new S5BackendInfo( backendInfo.id(), backendInfo.params() );
+    S5BackendInfo retValue = new S5BackendInfo( backendInfo );
     // Идентификатор текущей сессии пользователя
     IS5ServerHardConstants.OP_BACKEND_SESSION_INFO.setValue( retValue.params(), avValobj( sessionInfo ) );
 
