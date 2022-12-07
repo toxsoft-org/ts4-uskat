@@ -36,7 +36,7 @@ import org.toxsoft.uskat.s5.server.sequences.IS5SequenceImplementation;
 /**
  * Базовая реализация {@link IS5InitialImplementation}.
  * <p>
- * Наследник обязан обеспечить наличие открытого конструктора без параметров
+ * Наследник обязан обеспечить наличие открытого конструктора без параметров.
  *
  * @author mvk
  */

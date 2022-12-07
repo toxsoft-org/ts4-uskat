@@ -22,8 +22,10 @@ import org.toxsoft.uskat.core.api.objserv.ISkObjectService;
 import org.toxsoft.uskat.core.api.rtdserv.ISkRtdataService;
 import org.toxsoft.uskat.core.api.sysdescr.ISkSysdescr;
 import org.toxsoft.uskat.core.api.users.ISkUserService;
+import org.toxsoft.uskat.core.backend.api.ISkBackendInfo;
 import org.toxsoft.uskat.core.devapi.IDevCoreApi;
 import org.toxsoft.uskat.core.impl.AbstractSkService;
+import org.toxsoft.uskat.core.impl.SkCoreApi;
 
 /**
  * Синхронизация доступа к {@link ISkCoreApi} (декоратор)
@@ -82,6 +84,22 @@ public final class S5SynchronizedCoreApi
     services.put( ISkUserService.SERVICE_ID, userService );
 
     services.put( gwidService.serviceId(), gwidService );
+  }
+
+  /**
+   * Returns information about backend instance.
+   *
+   * @return {@link ISkBackendInfo} - the backend info
+   */
+  public ISkBackendInfo getBackendInfo() {
+    lockWrite( this );
+    try {
+      SkCoreApi coreApi = (SkCoreApi)target();
+      return coreApi.backend().getBackendInfo();
+    }
+    finally {
+      unlockWrite( this );
+    }
   }
 
   // ------------------------------------------------------------------------------------

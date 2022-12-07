@@ -2,6 +2,7 @@ package org.toxsoft.uskat.s5.utils;
 
 import org.toxsoft.core.tslib.utils.errors.TsIllegalStateRtException;
 import org.toxsoft.core.tslib.utils.errors.TsNullArgumentRtException;
+import org.toxsoft.uskat.concurrent.S5SynchronizedCoreApi;
 import org.toxsoft.uskat.core.ISkCoreApi;
 import org.toxsoft.uskat.core.api.users.ISkUser;
 import org.toxsoft.uskat.core.impl.SkCoreApi;
@@ -25,6 +26,11 @@ public class S5ConnectionUtils {
    */
   public static String getConnectedUserLogin( ISkCoreApi aCoreApi ) {
     TsNullArgumentRtException.checkNull( aCoreApi );
+    if( aCoreApi instanceof S5SynchronizedCoreApi ) {
+      IS5SessionInfo sessionInfo = IS5ServerHardConstants.OP_BACKEND_SESSION_INFO
+          .getValue( ((S5SynchronizedCoreApi)aCoreApi).getBackendInfo().params() ).asValobj();
+      return sessionInfo.login();
+    }
     IS5SessionInfo sessionInfo = IS5ServerHardConstants.OP_BACKEND_SESSION_INFO
         .getValue( ((SkCoreApi)aCoreApi).backend().getBackendInfo().params() ).asValobj();
     return sessionInfo.login();
