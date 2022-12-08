@@ -16,7 +16,8 @@ import javax.persistence.*;
 import org.toxsoft.core.tslib.bricks.events.msg.GtMessage;
 import org.toxsoft.core.tslib.coll.IList;
 import org.toxsoft.core.tslib.gw.gwid.*;
-import org.toxsoft.core.tslib.utils.errors.*;
+import org.toxsoft.core.tslib.utils.errors.TsInternalErrorRtException;
+import org.toxsoft.core.tslib.utils.errors.TsNullArgumentRtException;
 import org.toxsoft.uskat.core.backend.api.IBaClobsMessages;
 import org.toxsoft.uskat.s5.server.backend.impl.S5BackendSupportSingleton;
 import org.toxsoft.uskat.s5.server.frontend.IS5FrontendRear;
@@ -112,10 +113,11 @@ public class S5BackendClobsSingleton
     retValue = callAfterReadClob( interceptors, aGwid, retValue );
 
     // Проверка выполнения контракта метода
-    if( retValue == null ) {
-      // lob не найден
-      throw new TsIllegalArgumentRtException( MSG_ERR_LOB_NOT_FOUND, aGwid );
-    }
+    // 2022-12-08 mvk по контракту если clob нет, то возвращается null
+    // if( retValue == null ) {
+    // // lob не найден
+    // throw new TsIllegalArgumentRtException( MSG_ERR_LOB_NOT_FOUND, aGwid );
+    // }
     return retValue;
   }
 

@@ -20,9 +20,8 @@ public interface IS5BackendClobsSingleton
    * Читает значение clob-данного из системы
    *
    * @param aGwid {@link Gwid} идентификатор конкретного clob-данного
-   * @return String текстовое представление lob-данного
+   * @return String текстовое представление lob-данного. null: данного нет в системе
    * @throws TsNullArgumentRtException любой аргумент = null
-   * @throws TsIllegalArgumentRtException данное не существует в системе
    */
   String readClob( Gwid aGwid );
 
