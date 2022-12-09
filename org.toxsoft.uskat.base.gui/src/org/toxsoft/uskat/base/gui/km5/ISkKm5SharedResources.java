@@ -5,7 +5,8 @@ package org.toxsoft.uskat.base.gui.km5;
  *
  * @author hazard157
  */
-interface ISkResources {
+@SuppressWarnings( "javadoc" )
+public interface ISkKm5SharedResources {
 
   /**
    * {@link KM5ModelBasic}

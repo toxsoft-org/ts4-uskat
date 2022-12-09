@@ -2,6 +2,7 @@ package org.toxsoft.uskat.base.gui.conn;
 
 import org.toxsoft.core.tsgui.bricks.ctx.*;
 import org.toxsoft.core.tsgui.m5.*;
+import org.toxsoft.core.tslib.bricks.events.*;
 import org.toxsoft.core.tslib.bricks.strid.more.*;
 import org.toxsoft.core.tslib.coll.*;
 import org.toxsoft.core.tslib.utils.*;
@@ -89,5 +90,12 @@ public interface ISkConnectionSupplier
   default ISkConnection getConn( IdChain aId ) {
     return allConns().getByKey( aId );
   }
+
+  /**
+   * Returns the service eventer.
+   *
+   * @return {@link ITsEventer}&lt;{@link ISkConnectionSupplierListener}&gt; - the eventer
+   */
+  ITsEventer<ISkConnectionSupplierListener> eventer();
 
 }

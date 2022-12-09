@@ -9,7 +9,7 @@ import org.toxsoft.uskat.core.api.sysdescr.*;
 /**
  * SGW - <b>S</b>imple <b>G</b>reen <b>W</b>orld entities M5 modelling constants.
  * <p>
- * It is isimple beacuase does not allows to modify entities (just to read) and not all properties are covered. Main
+ * It is simple beacuase does not allows to modify entities (just to read) and not all properties are covered. Main
  * purpose of SGW is to make easy to browse and select {@link Gwid} entities.
  *
  * @author hazard157

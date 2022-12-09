@@ -2,7 +2,7 @@ package org.toxsoft.uskat.base.gui.km5;
 
 import static org.toxsoft.core.tsgui.m5.IM5Constants.*;
 import static org.toxsoft.core.tslib.av.metainfo.IAvMetaConstants.*;
-import static org.toxsoft.uskat.base.gui.km5.ISkResources.*;
+import static org.toxsoft.uskat.base.gui.km5.ISkKm5SharedResources.*;
 import static org.toxsoft.uskat.core.ISkHardConstants.*;
 
 import org.toxsoft.core.tsgui.m5.gui.panels.impl.*;
@@ -103,7 +103,7 @@ public class KM5ModelBasic<T extends ISkObject>
   /**
    * Attribute {@link ISkObject#description()} - {@link ISkHardConstants#AID_DESCRIPTION}.
    */
-  public final KM5AttributeFieldDef<T> DESCRIPTION = new KM5AttributeFieldDef<>( AID_DESCRIPTION, DDEF_NAME ) {
+  public final KM5AttributeFieldDef<T> DESCRIPTION = new KM5AttributeFieldDef<>( AID_DESCRIPTION, DDEF_DESCRIPTION ) {
 
     @Override
     protected void doInit() {
