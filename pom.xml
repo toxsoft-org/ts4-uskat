@@ -574,7 +574,10 @@
     <module>org.toxsoft.uskat.skadmin.logon</module>
 
     <module>org.toxsoft.uskat.base.gui</module>
-
+     
+    <module>org.toxsoft.uskat.onews.lib</module>
+    <module>org.toxsoft.uskat.ggprefs.lib</module>
+    <module>org.toxsoft.uskat.ggprefs.gui</module>
     <module>org.toxsoft.uskat.dataquality.lib</module>
     <module>org.toxsoft.uskat.dataquality.s5</module>
     <module>org.toxsoft.uskat.alarms.lib</module>
