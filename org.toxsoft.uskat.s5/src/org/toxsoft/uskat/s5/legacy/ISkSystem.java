@@ -1,6 +1,7 @@
 package org.toxsoft.uskat.s5.legacy;
 
 import org.toxsoft.core.tslib.av.EAtomicType;
+import org.toxsoft.core.tslib.gw.skid.Skid;
 import org.toxsoft.uskat.core.api.objserv.ISkObject;
 import org.toxsoft.uskat.s5.common.sessions.ISkSession;
 
@@ -21,6 +22,11 @@ public interface ISkSystem
    * Идентификатор объекта системы.
    */
   String THIS_SYSTEM = "ThisSystem"; //$NON-NLS-1$
+
+  /**
+   * SKID of root role.
+   */
+  Skid SKID_THIS_SYSTEM = new Skid( CLASS_ID, THIS_SYSTEM );
 
   /**
    * Параметр события: логин пользователя.

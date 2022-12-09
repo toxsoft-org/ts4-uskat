@@ -27,6 +27,4 @@ interface ISkResources {
   //
   String ERR_ALARM_DEF_ALREADY_EXIST = "Аларм %s [authorId = %s] уже зарегистрирован для генерации";
 
-  String ERR_SILENT_MODE = "%s. Запрет генерации аларма после запуска сервера. Время до окончания запрета %d (мсек)";
-
 }

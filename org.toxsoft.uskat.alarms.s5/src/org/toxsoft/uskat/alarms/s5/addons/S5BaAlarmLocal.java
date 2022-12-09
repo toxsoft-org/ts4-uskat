@@ -112,16 +112,6 @@ public final class S5BaAlarmLocal
   }
 
   @Override
-  public ISkAlarmFlacon getAlarmFlacon( long aAlarmId ) {
-    return alarmsSupport.getAlarmFlacon( aAlarmId );
-  }
-
-  @Override
-  public ITimedList<ISkAlarmThreadHistoryItem> getAlarmHistory( long aAlarmId ) {
-    return alarmsSupport.getAlarmHistory( aAlarmId );
-  }
-
-  @Override
   public ITimedList<ISkAlarm> queryAlarms( ITimeInterval aTimeInterval, ITsCombiFilterParams aFilter ) {
     TsNullArgumentRtException.checkNulls( aTimeInterval, aFilter );
     return alarmsSupport.queryAlarms( aTimeInterval, aFilter );

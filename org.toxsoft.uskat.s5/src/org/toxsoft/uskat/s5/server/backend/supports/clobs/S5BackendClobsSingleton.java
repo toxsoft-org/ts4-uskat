@@ -13,9 +13,14 @@ import java.util.concurrent.TimeUnit;
 import javax.ejb.*;
 import javax.persistence.*;
 
+import org.toxsoft.core.tslib.bricks.events.msg.GtMessage;
+import org.toxsoft.core.tslib.coll.IList;
 import org.toxsoft.core.tslib.gw.gwid.*;
-import org.toxsoft.core.tslib.utils.errors.*;
+import org.toxsoft.core.tslib.utils.errors.TsInternalErrorRtException;
+import org.toxsoft.core.tslib.utils.errors.TsNullArgumentRtException;
+import org.toxsoft.uskat.core.backend.api.IBaClobsMessages;
 import org.toxsoft.uskat.s5.server.backend.impl.S5BackendSupportSingleton;
+import org.toxsoft.uskat.s5.server.frontend.IS5FrontendRear;
 import org.toxsoft.uskat.s5.server.interceptors.S5InterceptorSupport;
 
 /**
@@ -108,10 +113,11 @@ public class S5BackendClobsSingleton
     retValue = callAfterReadClob( interceptors, aGwid, retValue );
 
     // Проверка выполнения контракта метода
-    if( retValue == null ) {
-      // lob не найден
-      throw new TsIllegalArgumentRtException( MSG_ERR_LOB_NOT_FOUND, aGwid );
-    }
+    // 2022-12-08 mvk по контракту если clob нет, то возвращается null
+    // if( retValue == null ) {
+    // // lob не найден
+    // throw new TsIllegalArgumentRtException( MSG_ERR_LOB_NOT_FOUND, aGwid );
+    // }
     return retValue;
   }
 
@@ -134,6 +140,9 @@ public class S5BackendClobsSingleton
 
     // Пост-интерсепция
     callAfterWriteClobInterceptors( interceptors, aGwid, aValue );
+
+    // Оповещение об изменении данного
+    fireWhenClobChanged( backend().attachedFrontends(), aGwid );
 
     return retValue;
   }
@@ -223,4 +232,18 @@ public class S5BackendClobsSingleton
     return listLobIds().hasElem( aGwid );
   }
 
+  /**
+   * Формирование события: произошло изменение clob
+   *
+   * @param aFrontends {@link IS5FrontendRear} список фронтендов подключенных к бекенду
+   * @param aClobGwid {@link Gwid} идентификатор clob.
+   * @throws TsNullArgumentRtException аргумент = null
+   */
+  private static void fireWhenClobChanged( IList<IS5FrontendRear> aFrontends, Gwid aClobGwid ) {
+    TsNullArgumentRtException.checkNulls( aFrontends, aClobGwid );
+    GtMessage message = IBaClobsMessages.makeMessage( aClobGwid );
+    for( IS5FrontendRear frontend : aFrontends ) {
+      frontend.onBackendMessage( message );
+    }
+  }
 }

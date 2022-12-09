@@ -36,7 +36,7 @@ import org.toxsoft.uskat.s5.server.sequences.IS5SequenceImplementation;
 /**
  * Базовая реализация {@link IS5InitialImplementation}.
  * <p>
- * Наследник обязан обеспечить наличие открытого конструктора без параметров
+ * Наследник обязан обеспечить наличие открытого конструктора без параметров.
  *
  * @author mvk
  */
@@ -74,8 +74,9 @@ public abstract class S5InitialImplementation
     aModule.params().setValobj( S5Module.DDEF_DEPENDS, depends );
 
     params = new OptionSet();
-    DDEF_NAME.setValue( params, avStr( S5_SERVER_ID ) );
-    DDEF_DESCRIPTION.setValue( params, avStr( S5_SERVER_DESCR ) );
+    params.setStr( TSID_ID, aModule.id() );
+    params.setStr( TSID_NAME, aModule.nmName() );
+    params.setStr( TSID_DESCRIPTION, aModule.description() );
 
     Skid serverId = new Skid( CLASS_SERVER, aModule.id() );
     Skid nodeId = Skid.NONE;

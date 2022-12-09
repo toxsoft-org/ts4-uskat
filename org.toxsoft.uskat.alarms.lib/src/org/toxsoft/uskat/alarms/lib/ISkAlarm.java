@@ -1,7 +1,9 @@
 package org.toxsoft.uskat.alarms.lib;
 
 import org.toxsoft.core.tslib.bricks.time.ITemporal;
+import org.toxsoft.core.tslib.bricks.time.ITimedList;
 import org.toxsoft.core.tslib.gw.skid.Skid;
+import org.toxsoft.core.tslib.utils.errors.TsItemNotFoundRtException;
 import org.toxsoft.uskat.alarms.lib.flacon.ISkAlarmFlacon;
 import org.toxsoft.uskat.core.api.users.ISkUser;
 
@@ -88,5 +90,23 @@ public interface ISkAlarm
    * @return String - текст тревоги
    */
   String message();
+
+  /**
+   * Возвращает срез данных, вызвавший тревогу.
+   *
+   * @return {@link ISkAlarmFlacon} - срез данных
+   * @throws TsItemNotFoundRtException нет тревоги с таким идентификатором
+   */
+  ISkAlarmFlacon flacon();
+
+  /**
+   * Возвращает историю отображения и обработки (квитирования) тревоги.
+   * <p>
+   * В зависимости о параметров в описании {@link ISkAlarmDef}, история может не вестись, и будет возвращен пустой
+   * список.
+   *
+   * @return {@link ITimedList}&lt;{@link ISkAlarmThreadHistoryItem}&gt; - список собйтий обработки тревоги
+   */
+  ITimedList<ISkAlarmThreadHistoryItem> history();
 
 }
