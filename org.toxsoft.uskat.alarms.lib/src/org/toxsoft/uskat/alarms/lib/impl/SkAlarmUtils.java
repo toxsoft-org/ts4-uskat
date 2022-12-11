@@ -36,6 +36,7 @@ public final class SkAlarmUtils {
     aFilterRegistry.register( SkAlarmFilterByLevel.FACTORY );
     aFilterRegistry.register( SkAlarmFilterByMessage.FACTORY );
     aFilterRegistry.register( SkAlarmFilterByPriority.FACTORY );
+    aFilterRegistry.register( SkAlarmFilterByHistory.FACTORY );
     aFilterRegistry.register( SkAlarmFilterByTimestamp.FACTORY );
   }
 

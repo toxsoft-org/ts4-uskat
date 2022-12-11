@@ -32,6 +32,7 @@ public interface ISkAlarmEventer
    * <li>{@link SkAlarmFilterByLevel};</li>
    * <li>{@link SkAlarmFilterByMessage};</li>
    * <li>{@link SkAlarmFilterByPriority};</li>
+   * <li>{@link SkAlarmFilterByHistory};</li>
    * <li>{@link SkAlarmFilterByTimestamp}.</li>
    * </ul>
    * Для упрощения можно использовать утилитные методы создания параметров фильтра из {@link SkAlarmUtils}. *

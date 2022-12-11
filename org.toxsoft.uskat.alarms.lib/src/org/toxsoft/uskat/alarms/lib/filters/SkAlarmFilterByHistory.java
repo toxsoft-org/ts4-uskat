@@ -1,0 +1,219 @@
+package org.toxsoft.uskat.alarms.lib.filters;
+
+import static org.toxsoft.core.tslib.av.impl.AvUtils.*;
+import static org.toxsoft.core.tslib.bricks.filter.std.IStdTsFiltersConstants.*;
+
+import org.toxsoft.core.tslib.av.EAtomicType;
+import org.toxsoft.core.tslib.av.IAtomicValue;
+import org.toxsoft.core.tslib.av.math.*;
+import org.toxsoft.core.tslib.av.opset.IOptionSet;
+import org.toxsoft.core.tslib.bricks.filter.*;
+import org.toxsoft.core.tslib.bricks.filter.impl.*;
+import org.toxsoft.core.tslib.bricks.time.ITimedList;
+import org.toxsoft.core.tslib.utils.errors.TsIllegalArgumentRtException;
+import org.toxsoft.core.tslib.utils.errors.TsNullArgumentRtException;
+import org.toxsoft.uskat.alarms.lib.ISkAlarm;
+import org.toxsoft.uskat.alarms.lib.ISkAlarmThreadHistoryItem;
+
+/**
+ * Фильтр по полю {@link ISkAlarm#history()}.
+ *
+ * @author mvk
+ */
+public final class SkAlarmFilterByHistory
+    implements ITsFilter<ISkAlarm> {
+
+  /**
+   * Идентификатор типа фильтра {@link ITsSingleFilterFactory#id()},
+   */
+  public static final String TYPE_ID = STD_FILTERID_ID_PREFIX + ".AlarmFilterByHistory"; //$NON-NLS-1$
+
+  /**
+   * Фабрика создания фильтра из значений параметров.
+   */
+  public static final ITsSingleFilterFactory<ISkAlarm> FACTORY =
+      new AbstractTsSingleFilterFactory<>( TYPE_ID, ISkAlarm.class ) {
+
+        @Override
+        protected ITsFilter<ISkAlarm> doCreateFilter( IOptionSet aParams ) {
+          EAvCompareOp sizeOp = EAvCompareOp.findById( aParams.getStr( PID_SIZE_OP ) );
+          IAtomicValue sizeConstant = aParams.getValue( PID_SIZE_CONSTANT );
+          EAvCompareOp timeOp = EAvCompareOp.findById( aParams.getStr( PID_TIME_OP ) );
+          IAtomicValue timeConstant = aParams.getValue( PID_TIME_CONSTANT );
+          EAvCompareOp threadOp = EAvCompareOp.findById( aParams.getStr( PID_THREAD_OP ) );
+          IAtomicValue threadConstant = aParams.getValue( PID_THREAD_CONSTANT );
+          ParamValue[] paramValues = new ParamValue[aParams.size() - 6];
+          for( int index = 0, n = paramValues.length; index < n; index++ ) {
+            String id = aParams.getStr( PID_PARAM_ID + index );
+            EAvCompareOp op = EAvCompareOp.getById( aParams.getStr( PID_PARAM_ID + index ) );
+            IAtomicValue constant = aParams.getValue( PID_PARAM_CONSTANT + index );
+            paramValues[index] = new ParamValue( id, op, constant );
+          }
+          return new SkAlarmFilterByHistory( sizeOp, sizeConstant, timeOp, timeConstant, threadOp, threadConstant,
+              paramValues );
+        }
+      };
+
+  private static final String PID_SIZE_OP         = "sizeOp";         //$NON-NLS-1$
+  private static final String PID_SIZE_CONSTANT   = "sizeConstant";   //$NON-NLS-1$
+  private static final String PID_TIME_OP         = "timeOp";         //$NON-NLS-1$
+  private static final String PID_TIME_CONSTANT   = "timeConstant";   //$NON-NLS-1$
+  private static final String PID_THREAD_OP       = "threadOp";       //$NON-NLS-1$
+  private static final String PID_THREAD_CONSTANT = "threadConstant"; //$NON-NLS-1$
+
+  private static final String PID_PARAM_ID       = "paramId";       //$NON-NLS-1$
+  private static final String PID_PARAM_OP       = "paramOp";       //$NON-NLS-1$
+  private static final String PID_PARAM_CONSTANT = "paramConstant"; //$NON-NLS-1$
+
+  private final EAvCompareOp sizeOp;
+  private final IAtomicValue sizeConstant;
+  private final EAvCompareOp timeOp;
+  private final IAtomicValue timeConstant;
+  private final EAvCompareOp threadOp;
+  private final IAtomicValue threadConstant;
+  private final ParamValue[] paramValues;
+
+  /**
+   * Фильтрация по параметру {@link ISkAlarmThreadHistoryItem#params()}
+   */
+  public static class ParamValue {
+
+    private final String       id;
+    private final EAvCompareOp op;
+    private final IAtomicValue constant;
+
+    ParamValue( String aId, EAvCompareOp aOp, IAtomicValue aConstant ) {
+      TsNullArgumentRtException.checkNulls( aId, aOp, aConstant );
+      id = aId;
+      op = aOp;
+      constant = aConstant;
+    }
+
+    /**
+     * @return String Идентификатор параметра
+     */
+    public String id() {
+      return id;
+    }
+
+    /**
+     * @return {@link EAvCompareOp} операция сравнения
+     */
+    public EAvCompareOp op() {
+      return op;
+    }
+
+    /**
+     * @return {@link IAtomicValue} константа сравнения
+     */
+    public IAtomicValue constant() {
+      return constant;
+    }
+  }
+
+  /**
+   * Конструктор.
+   *
+   * @param aSizeOp {@link EAvCompareOp} - способ сравнения количества элементов в истории {@link ISkAlarm#history()}.
+   * @param aSizeConst {@link IAtomicValue} - константа для сравнения количества элементов в истории имеющая тип
+   *          {@link EAtomicType#INTEGER}
+   * @param aTimeOp {@link EAvCompareOp} - способ сравнения времени.
+   * @param aTimeConst {@link IAtomicValue} - константа для сравнения времени имеющая тип {@link EAtomicType#TIMESTAMP}
+   * @param aThreadOp {@link EAvCompareOp} - способ сравнения идентификатора нитки
+   * @param aThreadConst {@link IAtomicValue} - константа для сравнения идентификатора нитки имеющая тип
+   *          {@link EAtomicType#STRING}
+   * @param aParamValues {@link ParamValue}[] список параметров фильтрации по параметрам
+   *          {@link ISkAlarmThreadHistoryItem#params()}.
+   * @throws TsNullArgumentRtException любой аргумент = null
+   */
+  private SkAlarmFilterByHistory( EAvCompareOp aSizeOp, IAtomicValue aSizeConst, EAvCompareOp aTimeOp,
+      IAtomicValue aTimeConst, EAvCompareOp aThreadOp, IAtomicValue aThreadConst, ParamValue[] aParamValues ) {
+    TsNullArgumentRtException.checkNulls( aTimeOp, aTimeConst, aThreadOp, aThreadConst, aParamValues );
+    TsIllegalArgumentRtException.checkFalse( aSizeConst.atomicType() == EAtomicType.INTEGER );
+    TsIllegalArgumentRtException.checkFalse( aTimeConst.atomicType() == EAtomicType.TIMESTAMP );
+    TsIllegalArgumentRtException.checkFalse( aThreadConst.atomicType() == EAtomicType.STRING );
+    sizeOp = aSizeOp;
+    sizeConstant = aSizeConst;
+    timeOp = aTimeOp;
+    timeConstant = aTimeConst;
+    threadOp = aThreadOp;
+    threadConstant = aThreadConst;
+    paramValues = aParamValues;
+  }
+
+  /**
+   * Создает набор параметров {@link ITsCombiFilterParams} для создания фильтра фабрикой {@link #FACTORY}.
+   *
+   * @param aSizeOp {@link EAvCompareOp} - способ сравнения количества элементов в истории {@link ISkAlarm#history()}.
+   * @param aSizeConst {@link IAtomicValue} - константа для сравнения количества элементов в истории имеющая тип
+   *          {@link EAtomicType#INTEGER}
+   * @param aTimeOp {@link EAvCompareOp} - способ сравнения времени
+   * @param aTimeConst {@link IAtomicValue} - константа для сравнения времени имеющая тип {@link EAtomicType#TIMESTAMP}
+   * @param aThreadOp {@link EAvCompareOp} - способ сравнения идентификатора нитки
+   * @param aThreadConst {@link IAtomicValue} - константа для сравнения идентификатора нитки имеющая тип
+   *          {@link EAtomicType#STRING}
+   * @param aParamValues {@link ParamValue} параметры и значения в порядке: Имя Параметра
+   * @return {@link ITsCombiFilterParams} - параметры для создания фильтра фабрикой
+   * @throws TsNullArgumentRtException любой аргумент = null
+   */
+  public static ITsCombiFilterParams makeFilterParams( EAvCompareOp aSizeOp, IAtomicValue aSizeConst,
+      EAvCompareOp aTimeOp, IAtomicValue aTimeConst, EAvCompareOp aThreadOp, IAtomicValue aThreadConst,
+      ParamValue... aParamValues ) {
+    TsNullArgumentRtException.checkNulls( aSizeOp, aSizeConst, aTimeOp, aTimeConst, aThreadOp, aThreadConst,
+        aParamValues );
+    TsIllegalArgumentRtException.checkFalse( aSizeConst.atomicType() == EAtomicType.INTEGER );
+    TsIllegalArgumentRtException.checkFalse( aTimeConst.atomicType() == EAtomicType.TIMESTAMP );
+    TsIllegalArgumentRtException.checkFalse( aThreadConst.atomicType() == EAtomicType.STRING );
+    TsSingleFilterParams sp = TsSingleFilterParams.create( TYPE_ID, //
+        PID_SIZE_OP, aSizeOp.id(), //
+        PID_SIZE_CONSTANT, aSizeConst, //
+        PID_TIME_OP, aTimeOp.id(), //
+        PID_TIME_CONSTANT, aTimeConst, //
+        PID_THREAD_OP, aThreadOp.id(), //
+        PID_THREAD_CONSTANT, aThreadConst //
+    );
+    for( int index = 0, n = aParamValues.length; index < n; index++ ) {
+      ParamValue paramValue = aParamValues[index];
+      sp.params().setStr( PID_PARAM_ID + index, paramValue.id() );
+      sp.params().setStr( PID_PARAM_OP + index, paramValue.op.id() );
+      sp.params().setValue( PID_PARAM_CONSTANT + index, paramValue.constant() );
+    }
+    ITsCombiFilterParams p = TsCombiFilterParams.createSingle( sp );
+    return p;
+  }
+
+  // ------------------------------------------------------------------------------------
+  // ITsFilter
+  //
+  @Override
+  public boolean accept( ISkAlarm aAlarm ) {
+    IAvComparator c = AvComparatorStrict.INSTANCE;
+    ITimedList<ISkAlarmThreadHistoryItem> history = aAlarm.history();
+    if( !c.avCompare( avInt( history.size() ), sizeOp, sizeConstant ) ) {
+      return false;
+    }
+    nextThreadItem:
+    for( ISkAlarmThreadHistoryItem threadItem : history ) {
+      if( !c.avCompare( avTimestamp( threadItem.timestamp() ), timeOp, timeConstant ) ) {
+        continue;
+      }
+      if( !c.avCompare( avStr( threadItem.announceThreadId() ), threadOp, threadConstant ) ) {
+        continue;
+      }
+      IOptionSet params = threadItem.params();
+      for( ParamValue paramValue : paramValues ) {
+        String paramId = paramValue.id();
+        if( !params.hasKey( paramId ) ) {
+          continue nextThreadItem;
+        }
+        if( !c.avCompare( params.getByKey( paramId ), paramValue.op(), paramValue.constant() ) ) {
+          continue nextThreadItem;
+        }
+      }
+      // Все фильтры пройдены
+      return true;
+    }
+    return false;
+  }
+
+}
