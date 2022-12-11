@@ -25,7 +25,7 @@ public interface ISkDataQualityService
   /**
    * The service ID.
    */
-  String SERVICE_ID = ISkHardConstants.SK_CORE_SERVICE_ID_PREFIX + ".DataQualities"; //$NON-NLS-1$
+  String SERVICE_ID = ISkHardConstants.SK_SYSEXT_SERVICE_ID_PREFIX + ".DataQualities"; //$NON-NLS-1$
 
   /**
    * Идентификатор тикета(метки): "Нет связи с ресурсом"
