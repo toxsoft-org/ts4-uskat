@@ -13,9 +13,13 @@ import org.toxsoft.core.tslib.bricks.strid.coll.*;
 import org.toxsoft.core.tslib.bricks.strid.coll.impl.*;
 import org.toxsoft.core.tslib.bricks.validator.*;
 import org.toxsoft.core.tslib.bricks.validator.impl.*;
+import org.toxsoft.core.tslib.coll.*;
+import org.toxsoft.core.tslib.coll.impl.*;
 import org.toxsoft.core.tslib.gw.*;
 import org.toxsoft.core.tslib.gw.skid.*;
+import org.toxsoft.core.tslib.utils.errors.*;
 import org.toxsoft.core.tslib.utils.valobj.*;
+import org.toxsoft.uskat.core.*;
 import org.toxsoft.uskat.core.api.cmdserv.*;
 import org.toxsoft.uskat.core.api.evserv.*;
 import org.toxsoft.uskat.core.api.hqserv.*;
@@ -50,6 +54,36 @@ public class SkCoreUtils {
    */
   public static ISkConnection createConnection() {
     return new SkConnection();
+  }
+
+  // ------------------------------------------------------------------------------------
+  // Service creators registry
+  //
+
+  private static final IListEdit<ISkServiceCreator<? extends AbstractSkService>> registeredServiceCreatorsList =
+      new ElemArrayList<>();
+
+  /**
+   * Returns list of the registred Sk service creators.
+   *
+   * @return {@link IList}&lt;{@link ISkServiceCreator}&gt; - registered creators list
+   */
+  public static IList<ISkServiceCreator<? extends AbstractSkService>> listRegisteredSkServiceCreators() {
+    return new ElemArrayList<>( registeredServiceCreatorsList );
+  }
+
+  /**
+   * Registers sk service creator.
+   * <p>
+   * Attempt to register already registered creator is ignored.
+   *
+   * @param aCreator {@link ISkServiceCreator} - the creator to register
+   * @throws TsNullArgumentRtException any argument = <code>null</code>
+   */
+  public static void registerSkServiceCreator( ISkServiceCreator<? extends AbstractSkService> aCreator ) {
+    if( !registeredServiceCreatorsList.hasElem( aCreator ) ) {
+      registeredServiceCreatorsList.add( aCreator );
+    }
   }
 
   // ------------------------------------------------------------------------------------
@@ -213,10 +247,6 @@ public class SkCoreUtils {
     }
     return ll;
   }
-
-  // ------------------------------------------------------------------------------------
-  // Common task sets as single method
-  //
 
   /**
    * Prohibit inheritance.

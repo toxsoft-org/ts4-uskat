@@ -67,4 +67,9 @@ public interface IDtoObject
     return skid().strid();
   }
 
+  @SuppressWarnings( "javadoc" )
+  default String readableName() {
+    return nmName().isBlank() ? id() : nmName();
+  }
+
 }
