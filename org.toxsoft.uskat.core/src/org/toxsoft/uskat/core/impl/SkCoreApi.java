@@ -128,11 +128,17 @@ public class SkCoreApi
     if( llUser == null ) {
       llUser = SkCoreUtils.listRegisteredSkServiceCreators();
     }
-    llCreators.addAll( llUser );
+    for( ISkServiceCreator<? extends AbstractSkService> sc : llUser ) {
+      if( !llCreators.hasElem( sc ) ) {
+        llCreators.addAll( llUser );
+      }
+    }
     // thread separator service
     ISkServiceCreator<? extends AbstractSkService> threadSeparator = REFDEF_THREAD_SEPARATOR.getRef( aArgs );
     if( threadSeparator != null ) {
-      llCreators.add( threadSeparator );
+      if( !llCreators.hasElem( threadSeparator ) ) {
+        llCreators.add( threadSeparator );
+      }
     }
     // fill map of the services
     for( ISkServiceCreator<? extends AbstractSkService> c : llCreators ) {
