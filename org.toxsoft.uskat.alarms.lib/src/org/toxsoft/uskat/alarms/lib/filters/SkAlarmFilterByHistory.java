@@ -42,8 +42,9 @@ public final class SkAlarmFilterByHistory
           IAtomicValue timeConstant = aParams.getValue( PID_TIME_CONSTANT );
           EAvCompareOp threadOp = EAvCompareOp.findById( aParams.getStr( PID_THREAD_OP ) );
           IAtomicValue threadConstant = aParams.getValue( PID_THREAD_CONSTANT );
-          ParamValue[] paramValues = new ParamValue[aParams.size() - 6];
-          for( int index = 0, n = paramValues.length / 3; index < n; index++ ) {
+          int paramValuesSize = (aParams.size() - 6) / 3;
+          ParamValue[] paramValues = new ParamValue[paramValuesSize];
+          for( int index = 0; index < paramValuesSize; index++ ) {
             String id = aParams.getStr( PID_PARAM_ID + index );
             EAvCompareOp op = EAvCompareOp.getById( aParams.getStr( PID_PARAM_OP + index ) );
             IAtomicValue constant = aParams.getValue( PID_PARAM_CONSTANT + index );
