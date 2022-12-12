@@ -43,9 +43,9 @@ public final class SkAlarmFilterByHistory
           EAvCompareOp threadOp = EAvCompareOp.findById( aParams.getStr( PID_THREAD_OP ) );
           IAtomicValue threadConstant = aParams.getValue( PID_THREAD_CONSTANT );
           ParamValue[] paramValues = new ParamValue[aParams.size() - 6];
-          for( int index = 0, n = paramValues.length; index < n; index++ ) {
+          for( int index = 0, n = paramValues.length / 3; index < n; index++ ) {
             String id = aParams.getStr( PID_PARAM_ID + index );
-            EAvCompareOp op = EAvCompareOp.getById( aParams.getStr( PID_PARAM_ID + index ) );
+            EAvCompareOp op = EAvCompareOp.getById( aParams.getStr( PID_PARAM_OP + index ) );
             IAtomicValue constant = aParams.getValue( PID_PARAM_CONSTANT + index );
             paramValues[index] = new ParamValue( id, op, constant );
           }
@@ -82,7 +82,7 @@ public final class SkAlarmFilterByHistory
     private final EAvCompareOp op;
     private final IAtomicValue constant;
 
-    ParamValue( String aId, EAvCompareOp aOp, IAtomicValue aConstant ) {
+    public ParamValue( String aId, EAvCompareOp aOp, IAtomicValue aConstant ) {
       TsNullArgumentRtException.checkNulls( aId, aOp, aConstant );
       id = aId;
       op = aOp;
@@ -206,7 +206,11 @@ public final class SkAlarmFilterByHistory
         if( !params.hasKey( paramId ) ) {
           continue nextThreadItem;
         }
-        if( !c.avCompare( params.getByKey( paramId ), paramValue.op(), paramValue.constant() ) ) {
+        IAtomicValue value = params.findByKey( paramId );
+        if( value == null ) {
+          continue nextThreadItem;
+        }
+        if( !c.avCompare( value, paramValue.op(), paramValue.constant() ) ) {
           continue nextThreadItem;
         }
       }
