@@ -38,6 +38,7 @@ public final class SkAlarmFilterByHistory
         protected ITsFilter<ISkAlarm> doCreateFilter( IOptionSet aParams ) {
           EAvCompareOp sizeOp = EAvCompareOp.findById( aParams.getStr( PID_SIZE_OP ) );
           IAtomicValue sizeConstant = aParams.getValue( PID_SIZE_CONSTANT );
+          boolean testAll = aParams.getBool( PID_TEST_ALL );
           EAvCompareOp timeOp = EAvCompareOp.findById( aParams.getStr( PID_TIME_OP ) );
           IAtomicValue timeConstant = aParams.getValue( PID_TIME_CONSTANT );
           EAvCompareOp threadOp = EAvCompareOp.findById( aParams.getStr( PID_THREAD_OP ) );
@@ -50,13 +51,15 @@ public final class SkAlarmFilterByHistory
             IAtomicValue constant = aParams.getValue( PID_PARAM_CONSTANT + index );
             paramValues[index] = new ParamValue( id, op, constant );
           }
-          return new SkAlarmFilterByHistory( sizeOp, sizeConstant, timeOp, timeConstant, threadOp, threadConstant,
-              paramValues );
+          return new SkAlarmFilterByHistory( sizeOp, sizeConstant, testAll, timeOp, timeConstant, threadOp,
+              threadConstant, paramValues );
         }
       };
 
-  private static final String PID_SIZE_OP         = "sizeOp";         //$NON-NLS-1$
-  private static final String PID_SIZE_CONSTANT   = "sizeConstant";   //$NON-NLS-1$
+  private static final String PID_SIZE_OP       = "sizeOp";       //$NON-NLS-1$
+  private static final String PID_SIZE_CONSTANT = "sizeConstant"; //$NON-NLS-1$
+
+  private static final String PID_TEST_ALL        = "testAll";        //$NON-NLS-1$
   private static final String PID_TIME_OP         = "timeOp";         //$NON-NLS-1$
   private static final String PID_TIME_CONSTANT   = "timeConstant";   //$NON-NLS-1$
   private static final String PID_THREAD_OP       = "threadOp";       //$NON-NLS-1$
@@ -68,6 +71,7 @@ public final class SkAlarmFilterByHistory
 
   private final EAvCompareOp sizeOp;
   private final IAtomicValue sizeConstant;
+  private final boolean      testAll;
   private final EAvCompareOp timeOp;
   private final IAtomicValue timeConstant;
   private final EAvCompareOp threadOp;
@@ -83,6 +87,14 @@ public final class SkAlarmFilterByHistory
     private final EAvCompareOp op;
     private final IAtomicValue constant;
 
+    /**
+     * Конструктор
+     *
+     * @param aId String идентификатор параметра
+     * @param aOp {@link EAvCompareOp} операция сравнения
+     * @param aConstant {@link IAtomicValue} константа для сравнения
+     * @throws TsNullArgumentRtException любой аргумент = null
+     */
     public ParamValue( String aId, EAvCompareOp aOp, IAtomicValue aConstant ) {
       TsNullArgumentRtException.checkNulls( aId, aOp, aConstant );
       id = aId;
@@ -118,6 +130,8 @@ public final class SkAlarmFilterByHistory
    * @param aSizeOp {@link EAvCompareOp} - способ сравнения количества элементов в истории {@link ISkAlarm#history()}.
    * @param aSizeConst {@link IAtomicValue} - константа для сравнения количества элементов в истории имеющая тип
    *          {@link EAtomicType#INTEGER}
+   * @param aTestAll boolean <b>true</b> тестировать все элементы истории (логическое И); <b>false</b> тестировать до
+   *          первого проходящего фильтр (логическое ИЛИ).
    * @param aTimeOp {@link EAvCompareOp} - способ сравнения времени.
    * @param aTimeConst {@link IAtomicValue} - константа для сравнения времени имеющая тип {@link EAtomicType#TIMESTAMP}
    * @param aThreadOp {@link EAvCompareOp} - способ сравнения идентификатора нитки
@@ -127,7 +141,7 @@ public final class SkAlarmFilterByHistory
    *          {@link ISkAlarmThreadHistoryItem#params()}.
    * @throws TsNullArgumentRtException любой аргумент = null
    */
-  private SkAlarmFilterByHistory( EAvCompareOp aSizeOp, IAtomicValue aSizeConst, EAvCompareOp aTimeOp,
+  private SkAlarmFilterByHistory( EAvCompareOp aSizeOp, IAtomicValue aSizeConst, boolean aTestAll, EAvCompareOp aTimeOp,
       IAtomicValue aTimeConst, EAvCompareOp aThreadOp, IAtomicValue aThreadConst, ParamValue[] aParamValues ) {
     TsNullArgumentRtException.checkNulls( aTimeOp, aTimeConst, aThreadOp, aThreadConst, aParamValues );
     TsIllegalArgumentRtException.checkFalse( aSizeConst.atomicType() == EAtomicType.INTEGER );
@@ -135,6 +149,7 @@ public final class SkAlarmFilterByHistory
     TsIllegalArgumentRtException.checkFalse( aThreadConst.atomicType() == EAtomicType.STRING );
     sizeOp = aSizeOp;
     sizeConstant = aSizeConst;
+    testAll = aTestAll;
     timeOp = aTimeOp;
     timeConstant = aTimeConst;
     threadOp = aThreadOp;
@@ -149,6 +164,8 @@ public final class SkAlarmFilterByHistory
    * @param aSizeConst {@link IAtomicValue} - константа для сравнения количества элементов в истории имеющая тип
    *          {@link EAtomicType#INTEGER}
    * @param aTimeOp {@link EAvCompareOp} - способ сравнения времени
+   * @param aTestAll boolean <b>true</b> тестировать все элементы истории (логическое И); <b>false</b> тестировать до
+   *          первого проходящего фильтр (логическое ИЛИ).
    * @param aTimeConst {@link IAtomicValue} - константа для сравнения времени имеющая тип {@link EAtomicType#TIMESTAMP}
    * @param aThreadOp {@link EAvCompareOp} - способ сравнения идентификатора нитки
    * @param aThreadConst {@link IAtomicValue} - константа для сравнения идентификатора нитки имеющая тип
@@ -157,7 +174,7 @@ public final class SkAlarmFilterByHistory
    * @return {@link ITsCombiFilterParams} - параметры для создания фильтра фабрикой
    * @throws TsNullArgumentRtException любой аргумент = null
    */
-  public static ITsCombiFilterParams makeFilterParams( EAvCompareOp aSizeOp, IAtomicValue aSizeConst,
+  public static ITsCombiFilterParams makeFilterParams( EAvCompareOp aSizeOp, IAtomicValue aSizeConst, boolean aTestAll,
       EAvCompareOp aTimeOp, IAtomicValue aTimeConst, EAvCompareOp aThreadOp, IAtomicValue aThreadConst,
       ParamValue... aParamValues ) {
     TsNullArgumentRtException.checkNulls( aSizeOp, aSizeConst, aTimeOp, aTimeConst, aThreadOp, aThreadConst,
@@ -168,6 +185,7 @@ public final class SkAlarmFilterByHistory
     TsSingleFilterParams sp = TsSingleFilterParams.create( TYPE_ID, //
         PID_SIZE_OP, aSizeOp.id(), //
         PID_SIZE_CONSTANT, aSizeConst, //
+        PID_TEST_ALL, avBool( aTestAll ), //
         PID_TIME_OP, aTimeOp.id(), //
         PID_TIME_CONSTANT, aTimeConst, //
         PID_THREAD_OP, aThreadOp.id(), //
@@ -193,6 +211,8 @@ public final class SkAlarmFilterByHistory
     if( !c.avCompare( avInt( history.size() ), sizeOp, sizeConstant ) ) {
       return false;
     }
+    // Количество элементов прошедших фильтр
+    int passedCount = 0;
     nextThreadItem:
     for( ISkAlarmThreadHistoryItem threadItem : history ) {
       if( !c.avCompare( avTimestamp( threadItem.timestamp() ), timeOp, timeConstant ) ) {
@@ -216,9 +236,12 @@ public final class SkAlarmFilterByHistory
         }
       }
       // Все фильтры пройдены
-      return true;
+      if( !testAll ) {
+        return true;
+      }
+      passedCount++;
     }
-    return false;
+    return (passedCount == history.size());
   }
 
 }
