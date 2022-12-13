@@ -4,7 +4,7 @@ import static org.toxsoft.uskat.skadmin.core.plugins.IAdminResources.*;
 
 import org.toxsoft.core.tslib.utils.errors.TsIllegalStateRtException;
 import org.toxsoft.core.tslib.utils.errors.TsNullArgumentRtException;
-import org.toxsoft.uskat.legacy.plugins.IPluginInfo;
+import org.toxsoft.core.tslib.utils.plugins.IPluginInfo;
 import org.toxsoft.uskat.skadmin.core.impl.AbstractAdminCmdLibrary;
 
 /**
