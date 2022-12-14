@@ -246,11 +246,11 @@ class SkRriSection
     DDEF_NAME.setValue( attrs, avStr( aName ) );
     DDEF_DESCRIPTION.setValue( attrs, avStr( aDescription ) );
     attrs.setValobj( AID_RRI_SECTION_PARAMS, aParams );
-    DtoObject dpuObj =
+    DtoObject dtoObj =
         new DtoObject( new Skid( sectionObject.classId(), sectionObject.strid() ), attrs, IStringMap.EMPTY );
     try {
       rriService.pauseExternalValidation();
-      sectionObject = caOs.defineObject( dpuObj );
+      sectionObject = caOs.defineObject( dtoObj );
       eventer.fireSectionPropsChanged();
     }
     finally {
