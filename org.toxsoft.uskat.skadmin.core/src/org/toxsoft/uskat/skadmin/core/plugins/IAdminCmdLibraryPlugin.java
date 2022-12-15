@@ -1,7 +1,7 @@
 package org.toxsoft.uskat.skadmin.core.plugins;
 
 import org.toxsoft.core.tslib.utils.errors.TsNullArgumentRtException;
-import org.toxsoft.uskat.legacy.plugins.IPluginInfo;
+import org.toxsoft.core.tslib.utils.plugins.IPluginInfo;
 import org.toxsoft.uskat.skadmin.core.IAdminCmdLibrary;
 
 /**

@@ -1,7 +1,8 @@
 package org.toxsoft.uskat.alarms.lib;
 
-import org.toxsoft.core.tslib.av.opset.IOptionSet;
-import org.toxsoft.core.tslib.bricks.time.ITimestampable;
+import org.toxsoft.core.tslib.av.opset.*;
+import org.toxsoft.core.tslib.av.utils.*;
+import org.toxsoft.core.tslib.bricks.time.*;
 
 /**
  * Элемент истории выполнения этапов нитки оповещения по тревоге.
@@ -9,7 +10,7 @@ import org.toxsoft.core.tslib.bricks.time.ITimestampable;
  * @author goga
  */
 public interface ISkAlarmThreadHistoryItem
-    extends ITimestampable {
+    extends ITimestampable, IParameterized {
 
   /**
    * Идентификатор несуществующей нитки извещения
@@ -36,6 +37,7 @@ public interface ISkAlarmThreadHistoryItem
    *
    * @return {@link IOptionSet} - параметры выполнения этапа
    */
+  @Override
   IOptionSet params();
 
 }

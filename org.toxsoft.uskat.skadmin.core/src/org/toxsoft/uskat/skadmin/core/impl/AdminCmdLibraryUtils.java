@@ -16,11 +16,11 @@ import org.toxsoft.core.tslib.coll.impl.ElemLinkedBundleList;
 import org.toxsoft.core.tslib.coll.primtypes.IStringList;
 import org.toxsoft.core.tslib.utils.errors.*;
 import org.toxsoft.core.tslib.utils.logs.ILogger;
+import org.toxsoft.core.tslib.utils.plugins.IPluginInfo;
+import org.toxsoft.core.tslib.utils.plugins.IPluginsStorage;
+import org.toxsoft.core.tslib.utils.plugins.impl.PluginUtils;
 import org.toxsoft.uskat.legacy.plexy.EPlexyKind;
 import org.toxsoft.uskat.legacy.plexy.IPlexyValue;
-import org.toxsoft.uskat.legacy.plugins.IPluginInfo;
-import org.toxsoft.uskat.legacy.plugins.IPluginsStorage;
-import org.toxsoft.uskat.legacy.plugins.impl.PluginUtils;
 import org.toxsoft.uskat.skadmin.core.*;
 import org.toxsoft.uskat.skadmin.core.plugins.IAdminCmdLibraryPlugin;
 
