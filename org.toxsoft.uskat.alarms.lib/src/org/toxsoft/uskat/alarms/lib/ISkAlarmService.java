@@ -171,8 +171,7 @@ public interface ISkAlarmService
    * @return {@link ITimedList}&lt;{@link ISkAlarm}&gt; - список выбранных тревог
    * @throws TsNullArgumentRtException любой аргумент = null
    */
-  ITimedList<ISkAlarm> queryAlarms( ITimeInterval aTimeInterval, ITsCombiFilterParams aFilter, String aHistoryThreadId,
-      ITsCombiFilterParams aHistItemFilter );
+  ITimedList<ISkAlarm> queryAlarms( ITimeInterval aTimeInterval, ITsCombiFilterParams aFilter );
 
   /**
    * Возвращает средство работы с событиями от службы тревог.
