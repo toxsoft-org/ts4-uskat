@@ -53,8 +53,8 @@ class GuiGwPrefsSection
   // Implementation
   //
 
-  private IdChain makeClobId( Skid aObjSkid ) {
-    return new IdChain( ISkGuiGwPrefsService.SERVICE_ID, id(), aObjSkid.classId(), aObjSkid.strid() );
+  private IdChain sectionId() {
+    return new IdChain( ISkGuiGwPrefsService.SERVICE_ID, id() );
   }
 
   // ------------------------------------------------------------------------------------
@@ -112,9 +112,8 @@ class GuiGwPrefsSection
   public IOptionSet getOptions( Skid aObjSkid ) {
     // считаем опции (если есть) из хранилища
     IOptionSet clobOps = IOptionSet.NULL;
-    IdChain clobId = makeClobId( aObjSkid );
     ISkGwidDbService dbService = coreApi.gwidDbService();
-    ISkGwidDbSection dbSection = dbService.defineSection( clobId );
+    ISkGwidDbSection dbSection = dbService.defineSection( sectionId() );
     Gwid gwid = Gwid.createObj( aObjSkid );
     if( dbSection.hasClob( gwid ) ) {
       String clobString = dbSection.readClob( gwid );
@@ -167,9 +166,8 @@ class GuiGwPrefsSection
       newOps.setValue( d, av );
     }
 
-    IdChain clobId = makeClobId( aObjSkid );
     ISkGwidDbService dbService = coreApi.gwidDbService();
-    ISkGwidDbSection dbSection = dbService.defineSection( clobId );
+    ISkGwidDbSection dbSection = dbService.defineSection( sectionId() );
 
     String clobStr = OptionSetKeeper.KEEPER.ent2str( newOps );
     dbSection.writeClob( Gwid.createObj( aObjSkid ), clobStr );
