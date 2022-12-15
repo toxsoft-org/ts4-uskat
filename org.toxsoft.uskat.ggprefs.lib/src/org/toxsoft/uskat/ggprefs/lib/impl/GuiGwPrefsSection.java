@@ -13,18 +13,18 @@ import org.toxsoft.core.tslib.av.opset.IOptionSetEdit;
 import org.toxsoft.core.tslib.av.opset.impl.OptionSet;
 import org.toxsoft.core.tslib.av.opset.impl.OptionSetKeeper;
 import org.toxsoft.core.tslib.bricks.strid.coll.IStridablesList;
-import org.toxsoft.core.tslib.bricks.strid.more.IdPair;
+import org.toxsoft.core.tslib.bricks.strid.more.IdChain;
 import org.toxsoft.core.tslib.coll.primtypes.IStringListEdit;
 import org.toxsoft.core.tslib.coll.primtypes.impl.StringArrayList;
 import org.toxsoft.core.tslib.gw.gwid.Gwid;
 import org.toxsoft.core.tslib.gw.skid.Skid;
 import org.toxsoft.core.tslib.utils.ICloseable;
 import org.toxsoft.core.tslib.utils.errors.TsNullArgumentRtException;
-import org.toxsoft.uskat.core.ISkCoreApi;
-import org.toxsoft.uskat.core.api.clobserv.ISkClobService;
 import org.toxsoft.uskat.core.api.objserv.ISkObject;
-import org.toxsoft.uskat.ggprefs.lib.IGuiGwPrefsSection;
-import org.toxsoft.uskat.ggprefs.lib.IGuiGwPrefsSectionEventer;
+import org.toxsoft.uskat.core.devapi.gwiddb.ISkGwidDbSection;
+import org.toxsoft.uskat.core.devapi.gwiddb.ISkGwidDbService;
+import org.toxsoft.uskat.core.impl.SkCoreApi;
+import org.toxsoft.uskat.ggprefs.lib.*;
 
 /**
  * Внутрипакетная реализация {@link IGuiGwPrefsSection}.
@@ -34,13 +34,13 @@ import org.toxsoft.uskat.ggprefs.lib.IGuiGwPrefsSectionEventer;
 class GuiGwPrefsSection
     implements IGuiGwPrefsSection, ICloseable {
 
-  private final ISkCoreApi     coreApi;
+  private final SkCoreApi      coreApi;
   private final ISkObject      sectionObject;
   private final IOptionSet     sectionParams;
   private final OptionBindings bindingsHolder;
   private final SectionEventer eventer;
 
-  public GuiGwPrefsSection( ISkCoreApi aCoreApi, ISkObject aSectObj ) {
+  public GuiGwPrefsSection( SkCoreApi aCoreApi, ISkObject aSectObj ) {
     TsNullArgumentRtException.checkNulls( aCoreApi, aSectObj );
     coreApi = aCoreApi;
     sectionObject = aSectObj;
@@ -53,12 +53,8 @@ class GuiGwPrefsSection
   // Implementation
   //
 
-  private IdPair makeClobId( Skid aObjSkid ) {
-    String leftId = "GuiGwPrefsSection_" + id(); //$NON-NLS-1$
-    // 2021-10-07 mvk
-    // String rightId = StridUtils.str2id( aObjSkid.toString() );
-    String rightId = aObjSkid.classId() + '_' + aObjSkid.strid();
-    return new IdPair( leftId, rightId );
+  private IdChain makeClobId( Skid aObjSkid ) {
+    return new IdChain( ISkGuiGwPrefsService.SERVICE_ID, id(), aObjSkid.classId(), aObjSkid.strid() );
   }
 
   // ------------------------------------------------------------------------------------
@@ -116,14 +112,14 @@ class GuiGwPrefsSection
   public IOptionSet getOptions( Skid aObjSkid ) {
     // считаем опции (если есть) из хранилища
     IOptionSet clobOps = IOptionSet.NULL;
-    IdPair clobId = makeClobId( aObjSkid );
-    ISkClobService lobService = coreApi.clobService();
-
-    // TODO: 2022-12-09 mvk
-    // if( lobService.hasLob( clobId ) ) {
-    // String clobString = lobService.readClob( clobId );
-    // clobOps = OptionSetKeeper.KEEPER.str2ent( clobString );
-    // }
+    IdChain clobId = makeClobId( aObjSkid );
+    ISkGwidDbService dbService = coreApi.gwidDbService();
+    ISkGwidDbSection dbSection = dbService.defineSection( clobId );
+    Gwid gwid = Gwid.createObj( aObjSkid );
+    if( dbSection.hasClob( gwid ) ) {
+      String clobString = dbSection.readClob( gwid );
+      clobOps = OptionSetKeeper.KEEPER.str2ent( clobString );
+    }
     // формируем набор так, чтобы в нем были только известные опции
     IOptionSetEdit ops = new OptionSet();
     IStridablesList<IDataDef> defs = bindingsHolder.listOptionDefs( aObjSkid );
@@ -170,13 +166,13 @@ class GuiGwPrefsSection
       }
       newOps.setValue( d, av );
     }
-    // сохраним набор в CLOB-е
-    IdPair clobId = makeClobId( aObjSkid );
-    ISkClobService lobServ = coreApi.clobService();
-    String clobStr = OptionSetKeeper.KEEPER.ent2str( newOps );
 
-    // TODO: 2022-12-09 mvk
-    // lobServ.writeClob( clobId, clobStr );
+    IdChain clobId = makeClobId( aObjSkid );
+    ISkGwidDbService dbService = coreApi.gwidDbService();
+    ISkGwidDbSection dbSection = dbService.defineSection( clobId );
+
+    String clobStr = OptionSetKeeper.KEEPER.ent2str( newOps );
+    dbSection.writeClob( Gwid.createObj( aObjSkid ), clobStr );
 
     // генерируем нужные сообщения
     if( !changedOpIds.isEmpty() ) {
