@@ -105,4 +105,11 @@ public interface ISkBackendHardConstant {
 
   IStridable BAINF_QUERIES = new Stridable( BAID_QUERIES, STR_N_BA_QUERIES, STR_D_BA_QUERIES );
 
+  // ------------------------------------------------------------------------------------
+  // IBaGwidDb
+
+  String BAID_GWID_DB = SKB_ID + ".GwidDb"; //$NON-NLS-1$
+
+  IStridable BAINF_GWID_DB = new Stridable( BAID_GWID_DB, STR_N_BA_GWID_DB, STR_D_BA_GWID_DB );
+
 }
