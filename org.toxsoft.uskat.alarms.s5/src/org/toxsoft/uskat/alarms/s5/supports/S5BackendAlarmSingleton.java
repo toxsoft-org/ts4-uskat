@@ -239,7 +239,6 @@ public class S5BackendAlarmSingleton
   @Override
   public ITimedList<ISkAlarm> queryAlarms( ITimeInterval aTimeInterval, ITsCombiFilterParams aFilter ) {
     TimedList<ISkAlarm> retVal = new TimedList<>();
-
     // Запрос на данные
     Query query = entityManager.createNamedQuery( "S5AlarmEntity.queryAlarms" ); //$NON-NLS-1$
     query.setParameter( "startTime", Long.valueOf( aTimeInterval.startTime() ) ); //$NON-NLS-1$
@@ -250,18 +249,19 @@ public class S5BackendAlarmSingleton
     for( Iterator<?> iterator = query.getResultList().iterator(); iterator.hasNext(); ) {
       S5AlarmEntity alarmEntity = (S5AlarmEntity)iterator.next();
       if( filter.accept( alarmEntity ) ) {
-        retVal.add( new SkAlarm( //
-            alarmEntity.timestamp(), //
-            alarmEntity.alarmId(), //
-            alarmEntity.priority(), //
-            alarmEntity.sublevel(), //
-            alarmEntity.authorId(), //
-            alarmEntity.userId(), alarmEntity.alarmDefId(), //
-            alarmEntity.message(), //
-            alarmEntity.flacon(), //
-            alarmEntity.history() //
-        ) //
-        );
+        retVal.add( alarmEntity );
+        // retVal.add( new SkAlarm( //
+        // alarmEntity.timestamp(), //
+        // alarmEntity.alarmId(), //
+        // alarmEntity.priority(), //
+        // alarmEntity.sublevel(), //
+        // alarmEntity.authorId(), //
+        // alarmEntity.userId(), alarmEntity.alarmDefId(), //
+        // alarmEntity.message(), //
+        // alarmEntity.flacon(), //
+        // alarmEntity.history() //
+        // ) //
+        // )
       }
     }
     return retVal;

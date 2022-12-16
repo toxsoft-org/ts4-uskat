@@ -1,12 +1,12 @@
 package org.toxsoft.uskat.core.backend.api;
 
-import org.toxsoft.core.tslib.bricks.strid.more.*;
-import org.toxsoft.core.tslib.coll.*;
-import org.toxsoft.core.tslib.gw.gwid.*;
-import org.toxsoft.core.tslib.utils.errors.*;
-import org.toxsoft.uskat.core.backend.*;
-import org.toxsoft.uskat.core.devapi.*;
-import org.toxsoft.uskat.core.devapi.gwiddb.*;
+import org.toxsoft.core.tslib.bricks.strid.more.IdChain;
+import org.toxsoft.core.tslib.coll.IList;
+import org.toxsoft.core.tslib.gw.gwid.Gwid;
+import org.toxsoft.core.tslib.utils.errors.TsNullArgumentRtException;
+import org.toxsoft.uskat.core.backend.ISkBackendHardConstant;
+import org.toxsoft.uskat.core.devapi.IDevCoreApi;
+import org.toxsoft.uskat.core.devapi.gwiddb.ISkGwidDbService;
 
 /**
  * Backend addon: sectioned key-value (GWID-STRING) database management.
@@ -29,6 +29,15 @@ public interface IBaGwidDb
    * @return {@link IList}&lt;{@link IdChain}&gt; - the list of section IDs
    */
   IList<IdChain> listSectionIds();
+
+  /**
+   * Lists keys of existing values in database.
+   *
+   * @param aSectionId IdChain - the section ID
+   * @return {@link IList}&lt; {@link Gwid} &gt; - the keys list
+   * @throws TsNullArgumentRtException any argument = <code>null</code>
+   */
+  IList<Gwid> listKeys( IdChain aSectionId );
 
   /**
    * Read the value.
@@ -55,6 +64,17 @@ public interface IBaGwidDb
    * @throws TsNullArgumentRtException any argument = <code>null</code>
    */
   void writeValue( IdChain aSectionId, Gwid aKey, String aValue );
+
+  /**
+   * Removes the value from database.
+   * <p>
+   * Unexisting section or keys are ignored.
+   *
+   * @param aSectionId IdChain - the section ID
+   * @param aKey {@link Gwid} - the key
+   * @throws TsNullArgumentRtException any argument = <code>null</code>
+   */
+  void removeValue( IdChain aSectionId, Gwid aKey );
 
   /**
    * Removes section with all data.

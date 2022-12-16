@@ -1,16 +1,15 @@
 package org.toxsoft.uskat.alarms.lib;
 
-import org.toxsoft.core.tslib.bricks.filter.ITsCombiFilterParams;
-import org.toxsoft.core.tslib.bricks.strid.coll.IStridablesList;
-import org.toxsoft.core.tslib.bricks.time.ITimeInterval;
-import org.toxsoft.core.tslib.bricks.time.ITimedList;
-import org.toxsoft.core.tslib.gw.skid.Skid;
+import org.toxsoft.core.tslib.bricks.filter.*;
+import org.toxsoft.core.tslib.bricks.strid.coll.*;
+import org.toxsoft.core.tslib.bricks.time.*;
+import org.toxsoft.core.tslib.gw.skid.*;
 import org.toxsoft.core.tslib.utils.errors.*;
 import org.toxsoft.uskat.alarms.lib.filters.*;
-import org.toxsoft.uskat.alarms.lib.flacon.ISkAlarmFlacon;
-import org.toxsoft.uskat.alarms.lib.impl.SkAlarmUtils;
-import org.toxsoft.uskat.core.ISkHardConstants;
-import org.toxsoft.uskat.core.api.ISkService;
+import org.toxsoft.uskat.alarms.lib.flacon.*;
+import org.toxsoft.uskat.alarms.lib.impl.*;
+import org.toxsoft.uskat.core.*;
+import org.toxsoft.uskat.core.api.*;
 
 /**
  * Служба тревог.
@@ -162,6 +161,7 @@ public interface ISkAlarmService
    * <li>{@link SkAlarmFilterByLevel};</li>
    * <li>{@link SkAlarmFilterByMessage};</li>
    * <li>{@link SkAlarmFilterByPriority};</li>
+   * <li>{@link SkAlarmFilterByHistory};</li>
    * <li>{@link SkAlarmFilterByTimestamp}.</li>
    * </ul>
    * Для упрощения можно использовать утилитные методы создания параметров фильтра из {@link SkAlarmUtils}. *
