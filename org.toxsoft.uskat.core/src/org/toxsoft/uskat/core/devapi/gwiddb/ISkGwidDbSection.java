@@ -1,8 +1,9 @@
 package org.toxsoft.uskat.core.devapi.gwiddb;
 
-import org.toxsoft.core.tslib.coll.*;
-import org.toxsoft.core.tslib.gw.gwid.*;
-import org.toxsoft.core.tslib.utils.errors.*;
+import org.toxsoft.core.tslib.coll.IList;
+import org.toxsoft.core.tslib.gw.gwid.Gwid;
+import org.toxsoft.core.tslib.utils.errors.TsItemNotFoundRtException;
+import org.toxsoft.core.tslib.utils.errors.TsNullArgumentRtException;
 
 /**
  * This is simple database containing key-value entries.
@@ -48,6 +49,7 @@ public interface ISkGwidDbSection {
    *
    * @param aKey {@link Gwid} - the key
    * @return String - the read value or <code>null</code> if no entry exists in database
+   * @throws TsNullArgumentRtException any argument = <code>null</code>
    */
   String readClob( Gwid aKey );
 
