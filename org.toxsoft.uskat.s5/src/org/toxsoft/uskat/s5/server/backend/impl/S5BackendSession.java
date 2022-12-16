@@ -658,6 +658,11 @@ public class S5BackendSession
   }
 
   @Override
+  public IBaGwidDb baGwidDb() {
+    return findBackendAddon( IBaGwidDb.ADDON_ID, IBaGwidDb.class );
+  }
+
+  @Override
   public IList<ISkServiceCreator<? extends AbstractSkService>> listBackendServicesCreators() {
     IStridablesList<IS5BackendAddonCreator> baCreators = backendCoreSingleton.initialConfig().impl().baCreators();
     IListEdit<ISkServiceCreator<? extends AbstractSkService>> retValue = new ElemLinkedList<>();

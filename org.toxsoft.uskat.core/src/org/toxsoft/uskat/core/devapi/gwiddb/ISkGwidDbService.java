@@ -1,10 +1,12 @@
 package org.toxsoft.uskat.core.devapi.gwiddb;
 
-import org.toxsoft.core.tslib.bricks.strid.more.*;
-import org.toxsoft.core.tslib.coll.*;
-import org.toxsoft.core.tslib.utils.errors.*;
-import org.toxsoft.uskat.core.*;
-import org.toxsoft.uskat.core.api.*;
+import org.toxsoft.core.tslib.bricks.events.ITsEventer;
+import org.toxsoft.core.tslib.bricks.strid.more.IdChain;
+import org.toxsoft.core.tslib.coll.IList;
+import org.toxsoft.core.tslib.utils.errors.TsIllegalArgumentRtException;
+import org.toxsoft.core.tslib.utils.errors.TsNullArgumentRtException;
+import org.toxsoft.uskat.core.ISkHardConstants;
+import org.toxsoft.uskat.core.api.ISkService;
 
 /**
  * TODO WTF?
@@ -47,4 +49,10 @@ public interface ISkGwidDbService
    */
   void removeSection( IdChain aSectionId );
 
+  /**
+   * Returns the service eventer.
+   *
+   * @return {@link ITsEventer}&lt;{@link ISkGwidDbServiceListener}&gt; - the service eventer
+   */
+  ITsEventer<ISkGwidDbServiceListener> eventer();
 }
