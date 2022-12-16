@@ -11,6 +11,7 @@ import org.toxsoft.core.tslib.coll.*;
 import org.toxsoft.core.tslib.coll.helpers.ECrudOp;
 import org.toxsoft.core.tslib.coll.impl.ElemMap;
 import org.toxsoft.core.tslib.gw.gwid.Gwid;
+import org.toxsoft.core.tslib.utils.errors.TsItemNotFoundRtException;
 import org.toxsoft.core.tslib.utils.errors.TsNullArgumentRtException;
 import org.toxsoft.uskat.core.ISkServiceCreator;
 import org.toxsoft.uskat.core.backend.api.BaMsgGwidDbChanged;
@@ -152,6 +153,7 @@ public class SkCoreServGwidDb
       @Override
       public void writeClob( Gwid aKey, String aValue ) {
         TsNullArgumentRtException.checkNulls( aKey, aValue );
+        checkKeyExistence( aKey );
         ba().baGwidDb().writeValue( aSectionId, aKey, aValue );
       }
 
@@ -181,4 +183,16 @@ public class SkCoreServGwidDb
     return eventer;
   }
 
+  // ------------------------------------------------------------------------------------
+  // private methods
+  //
+  private void checkKeyExistence( Gwid aKey ) {
+    TsNullArgumentRtException.checkNull( aKey );
+    if( aKey.isMulti() ) {
+      throw new TsItemNotFoundRtException();
+    }
+    if( !coreApi().gwidService().exists( aKey ) ) {
+      throw new TsItemNotFoundRtException();
+    }
+  }
 }
