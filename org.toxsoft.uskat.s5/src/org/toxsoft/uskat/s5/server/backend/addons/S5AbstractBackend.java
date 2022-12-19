@@ -303,6 +303,11 @@ public abstract class S5AbstractBackend<ADDON extends IS5BackendAddon>
   }
 
   @Override
+  public final IBaGwidDb baGwidDb() {
+    return (IBaGwidDb)allAddons.getByKey( IBaGwidDb.ADDON_ID );
+  }
+
+  @Override
   public final IListEdit<ISkServiceCreator<? extends AbstractSkService>> listBackendServicesCreators() {
     IListEdit<ISkServiceCreator<? extends AbstractSkService>> retValue = new ElemArrayList<>();
     for( IS5BackendAddonCreator baCreator : baCreators.values() ) {

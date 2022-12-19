@@ -31,6 +31,8 @@ interface ISkResources {
   String STR_N_BA_OBJECTS  = "Objects";
   String STR_D_BA_OBJECTS  = "Objects addon";
   String STR_N_BA_QUERIES  = "Queries";
-  String STR_D_BA_QUERIES  = "Queriesaddon";
+  String STR_D_BA_QUERIES  = "Queries addon";
+  String STR_N_BA_GWID_DB  = "GwidDb";
+  String STR_D_BA_GWID_DB  = "GwidDb addon";
 
 }

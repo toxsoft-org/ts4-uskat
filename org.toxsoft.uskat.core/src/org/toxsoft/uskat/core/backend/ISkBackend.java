@@ -140,6 +140,13 @@ public interface ISkBackend
    */
   IBaQueries baQueries();
 
+  /**
+   * Returns backend addon for GWID-String key-value database.
+   *
+   * @return {@link IBaGwidDb} - history queries
+   */
+  IBaGwidDb baGwidDb();
+
   // ------------------------------------------------------------------------------------
   // Optional addons
   //

@@ -25,7 +25,7 @@ Export-Package: org.toxsoft.uskat.core,
  org.toxsoft.uskat.core.backend.api,
  org.toxsoft.uskat.core.connection,
  org.toxsoft.uskat.core.devapi,
- org.toxsoft.uskat.core.devapi.convoys,
+ org.toxsoft.uskat.core.devapi.gwiddb,
  org.toxsoft.uskat.core.impl,
  org.toxsoft.uskat.core.impl.dto,
  org.toxsoft.uskat.core.utils

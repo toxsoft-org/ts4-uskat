@@ -5,6 +5,7 @@ import org.toxsoft.core.tslib.utils.errors.*;
 import org.toxsoft.uskat.core.*;
 import org.toxsoft.uskat.core.api.sysdescr.*;
 import org.toxsoft.uskat.core.connection.*;
+import org.toxsoft.uskat.core.devapi.gwiddb.*;
 
 /**
  * Core API extensions for uskat service developers.
@@ -14,7 +15,12 @@ import org.toxsoft.uskat.core.connection.*;
 public interface IDevCoreApi
     extends ISkCoreApi {
 
-  // TODO objects locking ???
+  /**
+   * Returns the GWID-Steing key-value database for the developers.
+   *
+   * @return {@link ISkGwidDbService} - GWID-Steing key-value database
+   */
+  ISkGwidDbService gwidDbService();
 
   /**
    * Finds backend addon.

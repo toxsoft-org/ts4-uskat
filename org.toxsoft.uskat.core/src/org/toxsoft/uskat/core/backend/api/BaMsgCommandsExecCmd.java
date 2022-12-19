@@ -15,13 +15,13 @@ import org.toxsoft.uskat.core.impl.dto.*;
 public class BaMsgCommandsExecCmd
     extends AbstractBackendMessageBuilder {
 
-  
   /**
    * ID of the message.
    */
   public static final String MSG_ID = "ExecCmd"; //$NON-NLS-1$
+
   /**
-   * Singletone intance.
+   * Singletone instance.
    */
   public static final BaMsgCommandsExecCmd INSTANCE = new BaMsgCommandsExecCmd();
 

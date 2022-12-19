@@ -24,6 +24,7 @@ import org.toxsoft.uskat.core.api.sysdescr.ISkSysdescr;
 import org.toxsoft.uskat.core.api.users.ISkUserService;
 import org.toxsoft.uskat.core.backend.api.ISkBackendInfo;
 import org.toxsoft.uskat.core.devapi.IDevCoreApi;
+import org.toxsoft.uskat.core.devapi.gwiddb.ISkGwidDbService;
 import org.toxsoft.uskat.core.impl.AbstractSkService;
 import org.toxsoft.uskat.core.impl.SkCoreApi;
 
@@ -40,6 +41,7 @@ public final class S5SynchronizedCoreApi
   private final S5SynchronizedObjectService       objService;
   private final S5SynchronizedLinkService         linkService;
   private final S5SynchronizedClobService         clobService;
+  private final S5SynchronizedGwidDbService       gwidDbService;
   private final S5SynchronizedRtDataService       rtdService;
   private final S5SynchronizedCommandService      cmdService;
   private final S5SynchronizedEventService        eventService;
@@ -64,6 +66,8 @@ public final class S5SynchronizedCoreApi
     objService = new S5SynchronizedObjectService( aTarget.objService(), aLock );
     linkService = new S5SynchronizedLinkService( aTarget.linkService(), aLock );
     clobService = new S5SynchronizedClobService( aTarget.clobService(), aLock );
+    gwidDbService = new S5SynchronizedGwidDbService(
+        (ISkGwidDbService)aTarget.services().findByKey( ISkGwidDbService.SERVICE_ID ), aLock );
     rtdService = new S5SynchronizedRtDataService( aTarget.rtdService(), aLock );
     cmdService = new S5SynchronizedCommandService( aTarget.cmdService(), aLock );
     eventService = new S5SynchronizedEventService( aTarget.eventService(), aLock );
@@ -75,6 +79,7 @@ public final class S5SynchronizedCoreApi
     services.put( objService.serviceId(), objService );
     services.put( linkService.serviceId(), linkService );
     services.put( clobService.serviceId(), clobService );
+    services.put( gwidDbService.serviceId(), gwidDbService );
     services.put( rtdService.serviceId(), rtdService );
     services.put( cmdService.serviceId(), cmdService );
     services.put( eventService.serviceId(), eventService );
