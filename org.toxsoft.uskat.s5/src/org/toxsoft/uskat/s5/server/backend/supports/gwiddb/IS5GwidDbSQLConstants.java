@@ -29,7 +29,7 @@ interface IS5GwidDbSQLConstants {
    * <li>1. %s - Строковое представление ({@link IdPair#KEEPER}) секции;</li>
    */
   String QFRMT_GET_KEYS =
-      "SELECT gdbEntity FROM S5GwidDbEntity gdbEntity WHERE gdbEntity." + S5GwidDbID.FIELD_SECTION + "  = '%s'";
+      "SELECT " + S5GwidDbID.FIELD_GWID + " FROM S5GwidDbEntity WHERE " + S5GwidDbID.FIELD_SECTION + "='%s'";
 
   /**
    * Формат запроса получения идентификаторов lob-данных

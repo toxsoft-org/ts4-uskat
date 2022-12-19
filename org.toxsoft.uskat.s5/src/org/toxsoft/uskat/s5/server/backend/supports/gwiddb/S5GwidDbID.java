@@ -34,7 +34,7 @@ public class S5GwidDbID
   /**
    * Поле таблицы: идентификатор класса объекта
    */
-  public static final String FIELD_SECTION = "sectionId"; //$NON-NLS-1$
+  public static final String FIELD_SECTION = "section"; //$NON-NLS-1$
 
   /**
    * Поле таблицы: строковый идентификатор объекта, уникальный в классе

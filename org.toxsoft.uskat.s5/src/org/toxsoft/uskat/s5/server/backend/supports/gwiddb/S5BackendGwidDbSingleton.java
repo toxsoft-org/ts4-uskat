@@ -108,11 +108,11 @@ public class S5BackendGwidDbSingleton
     // Текст SQL-запроса
     String sql = format( QFRMT_GET_KEYS, IdChain.KEEPER.ent2str( aSectionId ) );
     // Запрос
-    TypedQuery<S5GwidDbEntity> query = entityManager.createQuery( sql, S5GwidDbEntity.class );
-    List<S5GwidDbEntity> entities = query.getResultList();
+    Query query = entityManager.createNativeQuery( sql );
+    List<String> keys = query.getResultList();
     GwidList retValue = new GwidList();
-    for( S5GwidDbEntity entiry : entities ) {
-      retValue.add( entiry.id().gwid() );
+    for( String key : keys ) {
+      retValue.add( Gwid.KEEPER.str2ent( key ) );
     }
     return retValue;
   }
