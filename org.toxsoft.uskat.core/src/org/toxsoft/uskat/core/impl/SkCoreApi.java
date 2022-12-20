@@ -129,6 +129,7 @@ public class SkCoreApi
     llCreators.add( SkCoreServHistQueryService.CREATOR );
     llCreators.add( SkCoreServUsers.CREATOR );
     llCreators.add( SkCoreServGwids.CREATOR );
+    llCreators.add( SkCoreServGwidDb.CREATOR );
     // backend and user-specified services
     llCreators.addAll( backend.listBackendServicesCreators() );
     IList<ISkServiceCreator<? extends AbstractSkService>> llUser = REFDEF_USER_SERVICES.getRef( aArgs, null );
