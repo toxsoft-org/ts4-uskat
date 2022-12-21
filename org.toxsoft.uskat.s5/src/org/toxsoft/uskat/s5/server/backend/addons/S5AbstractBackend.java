@@ -604,6 +604,7 @@ public abstract class S5AbstractBackend<ADDON extends IS5BackendAddon>
         aAddonId.equals( IBaObjects.ADDON_ID ) || //
         aAddonId.equals( IBaLinks.ADDON_ID ) || //
         aAddonId.equals( IBaClobs.ADDON_ID ) || //
+        aAddonId.equals( IBaGwidDb.ADDON_ID ) || //
         aAddonId.equals( IBaRtdata.ADDON_ID ) || //
         aAddonId.equals( IBaEvents.ADDON_ID ) || //
         aAddonId.equals( IBaCommands.ADDON_ID ) || //

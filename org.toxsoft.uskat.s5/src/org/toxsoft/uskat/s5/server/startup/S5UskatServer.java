@@ -15,6 +15,7 @@ import org.toxsoft.uskat.s5.server.backend.addons.classes.S5BaClassesCreator;
 import org.toxsoft.uskat.s5.server.backend.addons.clobs.S5BaClobsCreator;
 import org.toxsoft.uskat.s5.server.backend.addons.commands.S5BaCommandsCreator;
 import org.toxsoft.uskat.s5.server.backend.addons.events.S5BaEventsCreator;
+import org.toxsoft.uskat.s5.server.backend.addons.gwiddb.S5BaGwidDbCreator;
 import org.toxsoft.uskat.s5.server.backend.addons.links.S5BaLinksCreator;
 import org.toxsoft.uskat.s5.server.backend.addons.objects.S5BaObjectsCreator;
 import org.toxsoft.uskat.s5.server.backend.addons.queries.S5BaQueriesCreator;
@@ -68,6 +69,7 @@ public class S5UskatServer
   protected IStridablesList<IS5BackendAddonCreator> doProjectSpecificBaCreators() {
     return new StridablesList<>( //
         new S5BaClobsCreator(), //
+        new S5BaGwidDbCreator(), //
         new S5BaClassesCreator(), //
         new S5BaObjectsCreator(), //
         new S5BaLinksCreator(), //
