@@ -1,6 +1,8 @@
 package org.toxsoft.uskat.base.gui.conn;
 
+import org.eclipse.e4.core.contexts.*;
 import org.toxsoft.core.tsgui.bricks.ctx.*;
+import org.toxsoft.core.tsgui.bricks.ctx.impl.*;
 import org.toxsoft.core.tsgui.m5.*;
 import org.toxsoft.core.tslib.bricks.events.*;
 import org.toxsoft.core.tslib.bricks.strid.more.*;
@@ -95,9 +97,25 @@ public class SkConnectionSupplier
 
   /**
    * Constructor.
+   *
+   * @param aWinContext {@link IEclipseContext} - windows level context
+   * @throws TsNullArgumentRtException any argument = <code>null</code>
    */
-  public SkConnectionSupplier() {
-    // nop
+  public SkConnectionSupplier( IEclipseContext aWinContext ) {
+    internalReallyCreateConnectionInstance( IdChain.NULL, new TsGuiContext( aWinContext ) );
+    defKey = IdChain.NULL;
+  }
+
+  // ------------------------------------------------------------------------------------
+  // implementation
+  //
+
+  private ISkConnection internalReallyCreateConnectionInstance( IdChain aKey, ITsGuiContext aContext ) {
+    ISkConnection conn = SkCoreUtils.createConnection();
+    @SuppressWarnings( "unused" )
+    KM5Support km5 = new KM5Support( conn, aContext.get( IM5Domain.class ) );
+    connsMap.put( aKey, conn );
+    return conn;
   }
 
   // ------------------------------------------------------------------------------------
@@ -131,10 +149,7 @@ public class SkConnectionSupplier
     TsNullArgumentRtException.checkNull( aKey );
     TsIllegalArgumentRtException.checkTrue( aKey == IdChain.NULL );
     TsItemAlreadyExistsRtException.checkTrue( connsMap.hasKey( aKey ) );
-    ISkConnection conn = SkCoreUtils.createConnection();
-    @SuppressWarnings( "unused" )
-    KM5Support km5 = new KM5Support( conn, aContext.get( IM5Domain.class ) );
-    connsMap.put( aKey, conn );
+    ISkConnection conn = internalReallyCreateConnectionInstance( aKey, aContext );
     eventer.fireEvent( ECrudOp.CREATE, aKey );
     return conn;
   }
@@ -146,10 +161,13 @@ public class SkConnectionSupplier
 
   @Override
   public void removeConnection( IdChain aKey ) {
+    TsNullArgumentRtException.checkNull( aKey );
+    TsIllegalArgumentRtException.checkTrue( aKey == IdChain.NULL );
     ISkConnection conn = connsMap.findByKey( aKey );
     if( conn == null ) {
       return;
     }
+    TsIllegalStateRtException.checkTrue( conn.state().isOpen() );
     connsMap.removeByKey( aKey );
     if( defKey.equals( aKey ) ) {
       IdChain oldId = defKey;
@@ -170,16 +188,16 @@ public class SkConnectionSupplier
 
   @Override
   public void close() {
-    while( !connsMap.isEmpty() ) {
-      ISkConnection conn = connsMap.removeByKey( connsMap.keys().first() );
+    for( ISkConnection conn : connsMap.values() ) {
       try {
-        conn.close();
+        if( conn.state().isOpen() ) {
+          conn.close();
+        }
       }
       catch( Exception ex ) {
         LoggerUtils.errorLogger().error( ex );
       }
     }
-    eventer.fireEvent( ECrudOp.LIST, null );
   }
 
 }
