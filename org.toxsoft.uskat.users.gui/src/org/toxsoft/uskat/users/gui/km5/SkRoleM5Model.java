@@ -1,11 +1,18 @@
 package org.toxsoft.uskat.users.gui.km5;
 
 import static org.toxsoft.core.tsgui.m5.IM5Constants.*;
+import static org.toxsoft.core.tsgui.m5.gui.mpc.IMultiPaneComponentConstants.*;
+import static org.toxsoft.core.tslib.av.impl.AvUtils.*;
 import static org.toxsoft.uskat.core.ISkHardConstants.*;
 import static org.toxsoft.uskat.core.api.users.ISkUserServiceHardConstants.*;
 import static org.toxsoft.uskat.users.gui.ISkUsersGuiSharedResources.*;
 
+import org.toxsoft.core.tsgui.bricks.ctx.*;
+import org.toxsoft.core.tsgui.m5.gui.mpc.impl.*;
+import org.toxsoft.core.tsgui.m5.gui.panels.*;
+import org.toxsoft.core.tsgui.m5.gui.panels.impl.*;
 import org.toxsoft.core.tsgui.m5.model.*;
+import org.toxsoft.core.tsgui.m5.model.impl.*;
 import org.toxsoft.core.tslib.utils.errors.*;
 import org.toxsoft.uskat.base.gui.km5.*;
 import org.toxsoft.uskat.core.api.sysdescr.*;
@@ -47,6 +54,22 @@ class SkRoleM5Model
     NAME.setNameAndDescription( STR_N_FDEF_NAME, STR_D_FDEF_NAME );
     DESCRIPTION.setNameAndDescription( STR_N_FDEF_DESCR, STR_D_FDEF_DESCR );
     addFieldDefs( roleId, NAME, active, hidden, DESCRIPTION );
+    setPanelCreator( new M5DefaultPanelCreator<>() {
+
+      @Override
+      protected IM5CollectionPanel<ISkRole> doCreateCollEditPanel( ITsGuiContext aContext,
+          IM5ItemsProvider<ISkRole> aItemsProvider, IM5LifecycleManager<ISkRole> aLifecycleManager ) {
+        OPDEF_IS_ACTIONS_CRUD.setValue( aContext.params(), AV_TRUE );
+
+        // TODO add gouping by hidden status
+        // TODO add gouping by enable status
+
+        OPDEF_IS_SUPPORTS_TREE.setValue( aContext.params(), AV_FALSE );
+        MultiPaneComponentModown<ISkRole> mpc =
+            new MultiPaneComponentModown<>( aContext, SkRoleM5Model.this, aItemsProvider, aLifecycleManager );
+        return new M5CollectionPanelMpcModownWrapper<>( mpc, false );
+      }
+    } );
   }
 
   @Override

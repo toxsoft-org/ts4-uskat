@@ -2,8 +2,8 @@ package org.toxsoft.uskat.users.gui.km5;
 
 import static org.toxsoft.core.tsgui.bricks.actions.ITsStdActionDefs.*;
 import static org.toxsoft.core.tsgui.m5.gui.mpc.IMultiPaneComponentConstants.*;
-import static org.toxsoft.uskat.users.gui.ISkUsersGuiSharedResources.*;
 import static org.toxsoft.uskat.users.gui.ISkUsersGuiConstants.*;
+import static org.toxsoft.uskat.users.gui.ISkUsersGuiSharedResources.*;
 
 import org.toxsoft.core.tsgui.bricks.actions.*;
 import org.toxsoft.core.tsgui.bricks.ctx.*;
@@ -40,6 +40,9 @@ import org.toxsoft.uskat.users.gui.*;
 public class SkUserMpc
     extends MultiPaneComponentModown<ISkUser>
     implements ISkConnected {
+
+  // TODO add gouping by hidden status
+  // TODO add gouping by enable status
 
   static final ITsNodeKind<ISkUser> NK_USER = new TsNodeKind<>( "LeafUser", ISkUser.class, false ); //$NON-NLS-1$
   static final ITsNodeKind<ISkRole> NK_ROLE = new TsNodeKind<>( "NodeRole", ISkRole.class, true );  //$NON-NLS-1$

@@ -29,23 +29,23 @@ public interface ISkUsersGuiSharedResources {
   /**
    * {@link SkRoleM5Model}
    */
-  String STR_N_ROLE    = "Роль";
-  String STR_D_ROLE    = "Набор прав доступа в системе";
-  String STR_N_ROLE_ID = "ИД роли";
-  String STR_D_ROLE_ID = "Идентификатор роли";
+  String STR_N_ROLE    = Messages.getString( "STR_N_ROLE" );    //$NON-NLS-1$
+  String STR_D_ROLE    = Messages.getString( "STR_D_ROLE" );    //$NON-NLS-1$
+  String STR_N_ROLE_ID = Messages.getString( "STR_N_ROLE_ID" ); //$NON-NLS-1$
+  String STR_D_ROLE_ID = Messages.getString( "STR_D_ROLE_ID" ); //$NON-NLS-1$
 
   /**
    * {@link SkUserMpc}
    */
-  String STR_N_TMI_BY_ROLES = "По ролям";
-  String STR_D_TMI_BY_ROLES = "Группировка пользователей по ролям";
+  String STR_N_TMI_BY_ROLES = Messages.getString( "STR_N_TMI_BY_ROLES" ); //$NON-NLS-1$
+  String STR_D_TMI_BY_ROLES = Messages.getString( "STR_D_TMI_BY_ROLES" ); //$NON-NLS-1$
 
   /**
    * {@link ISkUsersGuiConstants}
    */
-  String STR_N_NO_HIDDEN_USERS = "Скрыть";
-  String STR_D_NO_HIDDEN_USERS = "Не показывать скрытых пользователей";
-  String STR_N_CHANGE_PASSWORD = "Пароль";
-  String STR_D_CHANGE_PASSWORD = "Показ диалога и ввод нового пароля пароля с подтверждением";
+  String STR_N_NO_HIDDEN_USERS = Messages.getString( "STR_N_NO_HIDDEN_USERS" ); //$NON-NLS-1$
+  String STR_D_NO_HIDDEN_USERS = Messages.getString( "STR_D_NO_HIDDEN_USERS" ); //$NON-NLS-1$
+  String STR_N_CHANGE_PASSWORD = Messages.getString( "STR_N_CHANGE_PASSWORD" ); //$NON-NLS-1$
+  String STR_D_CHANGE_PASSWORD = Messages.getString( "STR_D_CHANGE_PASSWORD" ); //$NON-NLS-1$
 
 }
