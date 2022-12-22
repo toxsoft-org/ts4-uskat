@@ -1,6 +1,5 @@
 package org.toxsoft.uskat.base.gui.glib;
 
-import org.eclipse.swt.widgets.*;
 import org.toxsoft.core.tsgui.bricks.ctx.*;
 import org.toxsoft.core.tsgui.bricks.stdevents.*;
 import org.toxsoft.core.tsgui.bricks.stdevents.impl.*;
@@ -28,11 +27,10 @@ public abstract class AbstractSkStdEventsProducerLazyPanel<E>
   /**
    * Constructor.
    *
-   * @param aParent {@link Composite} - parent component
    * @param aContext {@link ITsGuiContext} - the context
    * @throws TsNullArgumentRtException any argument = <code>null</code>
    */
-  public AbstractSkStdEventsProducerLazyPanel( Composite aParent, ITsGuiContext aContext ) {
+  public AbstractSkStdEventsProducerLazyPanel( ITsGuiContext aContext ) {
     this( aContext, null );
   }
 
