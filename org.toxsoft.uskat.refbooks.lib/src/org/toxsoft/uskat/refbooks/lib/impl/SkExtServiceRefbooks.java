@@ -5,7 +5,6 @@ import static org.toxsoft.core.tslib.av.metainfo.IAvMetaConstants.*;
 import static org.toxsoft.uskat.core.ISkHardConstants.*;
 import static org.toxsoft.uskat.refbooks.lib.ISkRefbookServiceHardConstants.*;
 import static org.toxsoft.uskat.refbooks.lib.impl.ISkResources.*;
-import static org.toxsoft.uskat.sysext.refbooks.ISkRefbookServiceHardConstants.*;
 
 import org.toxsoft.core.tslib.av.opset.*;
 import org.toxsoft.core.tslib.av.opset.impl.*;
@@ -22,6 +21,7 @@ import org.toxsoft.core.tslib.coll.impl.*;
 import org.toxsoft.core.tslib.coll.primtypes.*;
 import org.toxsoft.core.tslib.coll.primtypes.impl.*;
 import org.toxsoft.core.tslib.gw.*;
+import org.toxsoft.core.tslib.gw.gwid.*;
 import org.toxsoft.core.tslib.gw.skid.*;
 import org.toxsoft.core.tslib.utils.errors.*;
 import org.toxsoft.core.tslib.utils.logs.impl.*;
@@ -34,8 +34,6 @@ import org.toxsoft.uskat.core.devapi.*;
 import org.toxsoft.uskat.core.impl.*;
 import org.toxsoft.uskat.core.impl.dto.*;
 import org.toxsoft.uskat.refbooks.lib.*;
-import org.toxsoft.uskat.sysext.refbooks.*;
-import org.toxsoft.uskat.sysext.refbooks.impl.*;
 
 /**
  * {@link ISkRefbookService} implementation.
@@ -147,7 +145,7 @@ public class SkExtServiceRefbooks
     }
 
     @Override
-    public ValidationResult canDefineRefbook( IDtoClassInfo aRefbookInfo, ISkRefbook aExistingRefbook ) {
+    public ValidationResult canDefineRefbook( IDtoRefbookInfo aRefbookInfo, ISkRefbook aExistingRefbook ) {
       TsNullArgumentRtException.checkNull( aRefbookInfo );
       ValidationResult vr = ValidationResult.SUCCESS;
       for( ISkRefbookServiceValidator v : validatorsList() ) {
@@ -195,7 +193,7 @@ public class SkExtServiceRefbooks
   private final ISkRefbookServiceValidator builtinValidator = new ISkRefbookServiceValidator() {
 
     @Override
-    public ValidationResult canDefineRefbook( IDtoClassInfo aRefbookInfo, ISkRefbook aExistingRefbook ) {
+    public ValidationResult canDefineRefbook( IDtoRefbookInfo aRefbookInfo, ISkRefbook aExistingRefbook ) {
       IStridablesList<ISkRefbook> rbs = listRefbooks();
       ValidationResult vr = ValidationResult.SUCCESS;
       // создание нового справочника
@@ -386,20 +384,22 @@ public class SkExtServiceRefbooks
       ISkObjectService os = coreApi().objService();
       // create item class
       String itemClassId = makeItemClassIdFromRefbookId( aDpuRefbookInfo.id() );
-
       DtoClassInfo itemClassInf = new DtoClassInfo( itemClassId, IGwHardConstants.GW_ROOT_CLASS_ID, IOptionSet.NULL );
       OPDEF_SK_IS_SOURCE_CODE_DEFINED_CLASS.setValue( itemClassInf.params(), AV_TRUE );
-      itemClassInf.attrInfos().addAll( aDpuRefbookInfo.itemAttrInfos() );
-      itemClassInf.linkInfos().addAll( aDpuRefbookInfo.itemLinkInfos() );
+      itemClassInf.attrInfos().addAll( aDpuRefbookInfo.attrInfos() );
+      itemClassInf.linkInfos().addAll( aDpuRefbookInfo.linkInfos() );
+      itemClassInf.rivetInfos().addAll( aDpuRefbookInfo.rivetInfos() );
+      itemClassInf.clobInfos().addAll( aDpuRefbookInfo.clobInfos() );
       sd.defineClass( itemClassInf );
       // create refbook object
       IOptionSetEdit attrs = new OptionSet();
       DDEF_NAME.setValue( attrs, avStr( aDpuRefbookInfo.nmName() ) );
       DDEF_DESCRIPTION.setValue( attrs, avStr( aDpuRefbookInfo.description() ) );
-      OP_ATTR_ITEM_CLASS_ID.setValue( attrs, avStr( itemClassId ) );
-      DpuObject dpuRb =
-          new DpuObject( ISkRefbookServiceHardConstants.makeRefbookObjSkid( aDpuRefbookInfo.id() ), attrs );
-      rb = os.defineObject( dpuRb );
+      attrs.setStr( ATRINF_ITEM_CLASS_ID.id(), itemClassId );
+
+      Skid rbObjSkid = ISkRefbookServiceHardConstants.makeRefbookObjSkid( aDpuRefbookInfo.id() );
+      DtoObject rbDto = new DtoObject( rbObjSkid, attrs, IStringMap.EMPTY );
+      rb = os.defineObject( rbDto );
     }
     finally {
       resumeCoreValidation();
@@ -437,8 +437,10 @@ public class SkExtServiceRefbooks
 
   @Override
   public ITimedList<SkEvent> queryRefbookEditHistory( IQueryInterval aInterval, String aRefbookId ) {
-    // TODO реализовать SkExtServiceRefbooks.queryRefbookEditHistory()
-    throw new TsUnderDevelopmentRtException( "SkExtServiceRefbooks.queryRefbookEditHistory()" );
+    TsNullArgumentRtException.checkNull( aInterval );
+    Skid refbookSkid = makeRefbookObjSkid( aRefbookId );
+    Gwid gwid = Gwid.createEvent( refbookSkid.classId(), refbookSkid.strid(), EVID_REFBOOK_ITEM_CHANGE );
+    return eventService().queryObjEvents( aInterval, gwid );
   }
 
   @Override

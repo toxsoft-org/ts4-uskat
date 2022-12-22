@@ -8,8 +8,8 @@ import org.toxsoft.uskat.core.api.sysdescr.dto.*;
 /**
  * Information about refbook to be created.
  * <p>
- * This is much like {@link IDtoClassInfo} but without unneeded fields and the {@link #id()} is refbook identifier, not
- * the refbook or items class identifier.
+ * This is much like {@link IDtoClassInfo} but without unneeded real-time properties and the {@link #id()} is refbook
+ * identifier, not the refbook or items class identifier.
  *
  * @author goga
  */

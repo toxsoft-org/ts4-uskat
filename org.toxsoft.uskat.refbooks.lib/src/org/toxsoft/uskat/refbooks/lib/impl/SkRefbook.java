@@ -9,10 +9,10 @@ import org.toxsoft.core.tslib.coll.helpers.*;
 import org.toxsoft.core.tslib.coll.impl.*;
 import org.toxsoft.core.tslib.gw.gwid.*;
 import org.toxsoft.core.tslib.gw.skid.*;
-import org.toxsoft.uskat.core.api.linkserv.*;
 import org.toxsoft.uskat.core.api.objserv.*;
 import org.toxsoft.uskat.core.api.sysdescr.*;
 import org.toxsoft.uskat.core.impl.*;
+import org.toxsoft.uskat.core.impl.dto.*;
 import org.toxsoft.uskat.core.utils.*;
 import org.toxsoft.uskat.refbooks.lib.*;
 
@@ -115,13 +115,7 @@ class SkRefbook
     Skid skid = new Skid( itemClassId(), aItemInfo.strid() );
     ISkRefbookItem rbItem;
     try {
-      DpuObject dpuItem = new DpuObject( skid, aItemInfo.attrs() );
-      rbItem = coreApi().objService().defineObject( dpuItem );
-      // links
-      ISkLinkService ls = coreApi().linkService();
-      for( String lid : aLinks.keys() ) {
-        ls.defineLink( skid, lid, null, aLinks.getByKey( lid ) );
-      }
+      rbItem = DtoFullObject.defineFullObject( coreApi(), aItemInfo );
       fillEventWithNewValues( eventBuilder, rbItem );
     }
     finally {

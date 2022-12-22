@@ -3,7 +3,6 @@ package org.toxsoft.uskat.refbooks.lib;
 import org.toxsoft.core.tslib.bricks.validator.*;
 import org.toxsoft.core.tslib.utils.errors.*;
 import org.toxsoft.uskat.core.api.objserv.*;
-import org.toxsoft.uskat.core.api.sysdescr.dto.*;
 
 /**
  * Refbooks and items editing validation.
@@ -15,12 +14,12 @@ public interface ISkRefbookServiceValidator {
   /**
    * Checks if refbook may be defined.
    *
-   * @param aRefbookInfo {@link IDtoClassInfo} - information about refbook
+   * @param aRefbookInfo {@link IDtoRefbookInfo} - information about refbook
    * @param aExistingRefbook {@link ISkRefbook} - existing refbook or <code>null</code> when creating new
    * @return {@link ValidationResult} - the check result
    * @throws TsNullArgumentRtException any argument = <code>null</code>
    */
-  ValidationResult canDefineRefbook( IDtoClassInfo aRefbookInfo, ISkRefbook aExistingRefbook );
+  ValidationResult canDefineRefbook( IDtoRefbookInfo aRefbookInfo, ISkRefbook aExistingRefbook );
 
   /**
    * Chacks if refbook can be removed.
