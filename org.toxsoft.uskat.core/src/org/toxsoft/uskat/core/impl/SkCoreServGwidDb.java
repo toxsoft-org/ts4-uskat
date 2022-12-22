@@ -2,20 +2,18 @@ package org.toxsoft.uskat.core.impl;
 
 import static org.toxsoft.uskat.core.backend.api.BaMsgGwidDbChanged.*;
 
-import org.toxsoft.core.tslib.bricks.ctx.ITsContextRo;
-import org.toxsoft.core.tslib.bricks.events.AbstractTsEventer;
-import org.toxsoft.core.tslib.bricks.events.ITsEventer;
-import org.toxsoft.core.tslib.bricks.events.msg.GenericMessage;
-import org.toxsoft.core.tslib.bricks.strid.more.IdChain;
+import org.toxsoft.core.tslib.bricks.ctx.*;
+import org.toxsoft.core.tslib.bricks.events.*;
+import org.toxsoft.core.tslib.bricks.events.msg.*;
+import org.toxsoft.core.tslib.bricks.strid.more.*;
 import org.toxsoft.core.tslib.coll.*;
-import org.toxsoft.core.tslib.coll.helpers.ECrudOp;
-import org.toxsoft.core.tslib.coll.impl.ElemMap;
-import org.toxsoft.core.tslib.gw.gwid.Gwid;
-import org.toxsoft.core.tslib.utils.errors.TsItemNotFoundRtException;
-import org.toxsoft.core.tslib.utils.errors.TsNullArgumentRtException;
-import org.toxsoft.uskat.core.ISkServiceCreator;
-import org.toxsoft.uskat.core.backend.api.BaMsgGwidDbChanged;
-import org.toxsoft.uskat.core.devapi.IDevCoreApi;
+import org.toxsoft.core.tslib.coll.helpers.*;
+import org.toxsoft.core.tslib.coll.impl.*;
+import org.toxsoft.core.tslib.gw.gwid.*;
+import org.toxsoft.core.tslib.utils.errors.*;
+import org.toxsoft.uskat.core.*;
+import org.toxsoft.uskat.core.backend.api.*;
+import org.toxsoft.uskat.core.devapi.*;
 import org.toxsoft.uskat.core.devapi.gwiddb.*;
 
 /**
@@ -186,6 +184,7 @@ public class SkCoreServGwidDb
   // ------------------------------------------------------------------------------------
   // private methods
   //
+
   private void checkKeyExistence( Gwid aKey ) {
     TsNullArgumentRtException.checkNull( aKey );
     if( aKey.isMulti() ) {

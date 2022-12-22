@@ -4,7 +4,6 @@ import static org.toxsoft.uskat.core.api.users.ISkUserServiceHardConstants.*;
 
 import org.toxsoft.core.tslib.bricks.strid.coll.*;
 import org.toxsoft.uskat.core.api.objserv.*;
-import org.toxsoft.uskat.core.connection.*;
 
 /**
  * User - an entity allowed to connect to the Skat server.
@@ -32,9 +31,6 @@ public interface ISkUser
 
   /**
    * Returns the roles the user are allowed to log in.
-   * <p>
-   * At each login the user roles may be restricted by specifying the value of the argument
-   * {@link ISkConnectionConstants#ARGDEF_ROLES}.
    *
    * @return {@link IStridablesList}&lt;{@link ISkRole}&gt; - the user roles
    */

@@ -25,7 +25,5 @@ interface ISkResources {
   String STR_D_LOGIN    = "The user login name";
   String STR_N_PASSWORD = "Password";
   String STR_D_PASSWORD = "User password information";
-  String STR_N_ROLES    = "Roles";
-  String STR_D_ROLES    = "The user roles IDs list";
 
 }

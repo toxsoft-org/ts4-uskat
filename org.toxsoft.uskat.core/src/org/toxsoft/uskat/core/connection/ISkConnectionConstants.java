@@ -8,9 +8,6 @@ import static org.toxsoft.uskat.core.connection.ISkResources.*;
 
 import org.toxsoft.core.tslib.av.impl.*;
 import org.toxsoft.core.tslib.av.metainfo.*;
-import org.toxsoft.core.tslib.bricks.keeper.std.*;
-import org.toxsoft.core.tslib.coll.primtypes.*;
-import org.toxsoft.uskat.core.api.users.*;
 
 /**
  * ISkConnection related constants.
@@ -31,11 +28,6 @@ public interface ISkConnectionConstants {
    * ID of connection opening argument {@link #ARGDEF_PASSWORD}.
    */
   String ARGID_PASSWORD = SK_ID + "password"; //$NON-NLS-1$
-
-  /**
-   * ID of connection opening argument {@link #ARGDEF_ROLES}.
-   */
-  String ARGID_ROLES = SK_ID + "roles"; //$NON-NLS-1$
 
   /**
    * The user login name.<br>
@@ -59,22 +51,6 @@ public interface ISkConnectionConstants {
       TSID_NAME, STR_N_PASSWORD, //
       TSID_DESCRIPTION, STR_D_PASSWORD, //
       TSID_IS_MANDATORY, AV_TRUE //
-  );
-
-  /**
-   * Optional {@link IStringList} with user roles STRIDs.<br>
-   * Usage: each user has assocciated roles {@link ISkUser#listRoles()}, however at login time user roles may be
-   * restricted by specifying this argument. Only the roles listed in this argument will be assigned to the user to
-   * particular login. Note that STRIDs of the roles not listed in {@link ISkUser#listRoles()} are ignored. An mmpty
-   * list or no arguemtn value in this option is interpreted as if all roles are accepted.<br>
-   * Default value: {@link IStringList#EMPTY}<br>
-   */
-  IDataDef ARGDEF_ROLES = DataDef.create( ARGID_ROLES, VALOBJ, //
-      TSID_NAME, STR_N_ROLES, //
-      TSID_DESCRIPTION, STR_D_ROLES, //
-      TSID_KEEPER_ID, StringListKeeper.KEEPER_ID, //
-      TSID_DEFAULT_VALUE, StringListKeeper.AV_EMPTY_STRING_LIST, //
-      TSID_IS_MANDATORY, AV_FALSE //
   );
 
 }
