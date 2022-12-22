@@ -25,6 +25,8 @@
     <ant dir="../../org.toxsoft.uskat.skadmin.dev" antfile="${ts-scripts-dir}/ts-build-lib.xml" target="build-lib-jar" />
     <ant dir="../../org.toxsoft.uskat.skadmin.logon" antfile="${ts-scripts-dir}/ts-build-lib.xml" target="build-lib-jar" />
     <ant dir="../../org.toxsoft.uskat.base.gui" antfile="${ts-scripts-dir}/ts-build-lib.xml" target="build-lib-jar" />
+    <ant dir="../../org.toxsoft.uskat.users.mws" antfile="${ts-scripts-dir}/ts-build-lib.xml" target="build-lib-jar" />
+    <ant dir="../../org.toxsoft.uskat.users.gui" antfile="${ts-scripts-dir}/ts-build-lib.xml" target="build-lib-jar" />
     <ant dir="../../org.toxsoft.uskat.onews.lib" antfile="${ts-scripts-dir}/ts-build-lib.xml" target="build-lib-jar" />
     <ant dir="../../org.toxsoft.uskat.ggprefs.lib" antfile="${ts-scripts-dir}/ts-build-lib.xml" target="build-lib-jar" />
     <ant dir="../../org.toxsoft.uskat.ggprefs.gui" antfile="${ts-scripts-dir}/ts-build-lib.xml" target="build-lib-jar" />
@@ -32,6 +34,7 @@
     <ant dir="../../org.toxsoft.uskat.dataquality.s5" antfile="${ts-scripts-dir}/ts-build-lib.xml" target="build-lib-jar" />
     <ant dir="../../org.toxsoft.uskat.alarms.lib" antfile="${ts-scripts-dir}/ts-build-lib.xml" target="build-lib-jar" />
     <ant dir="../../org.toxsoft.uskat.alarms.s5" antfile="${ts-scripts-dir}/ts-build-lib.xml" target="build-lib-jar" />
+
   </target>
 
   <!-- ЦЕЛЬ: сборка plugin-ов -->
@@ -51,6 +54,8 @@
                                 org.toxsoft.uskat.skadmin.dev,
                                 org.toxsoft.uskat.skadmin.logon,
                                 org.toxsoft.uskat.base.gui,
+                                org.toxsoft.uskat.users.mws,
+                                org.toxsoft.uskat.users.gui,
                                 org.toxsoft.uskat.onews.lib,
                                 org.toxsoft.uskat.ggprefs.lib,
                                 org.toxsoft.uskat.ggprefs.gui,

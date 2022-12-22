@@ -574,7 +574,8 @@
     <module>org.toxsoft.uskat.skadmin.logon</module>
 
     <module>org.toxsoft.uskat.base.gui</module>
-     
+    <module>org.toxsoft.uskat.users.mws</module>
+    <module>org.toxsoft.uskat.users.gui</module>
     <module>org.toxsoft.uskat.onews.lib</module>
     <module>org.toxsoft.uskat.ggprefs.lib</module>
     <module>org.toxsoft.uskat.ggprefs.gui</module>
