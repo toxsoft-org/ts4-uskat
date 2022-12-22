@@ -26,13 +26,13 @@ public class QuantSkBaseGui
 
   @Override
   protected void doInitApp( IEclipseContext aAppContext ) {
-    connectionSupplier = new SkConnectionSupplier();
-    aAppContext.set( ISkConnectionSupplier.class, connectionSupplier );
+    // nop
   }
 
   @Override
   protected void doInitWin( IEclipseContext aWinContext ) {
-    // nop
+    connectionSupplier = new SkConnectionSupplier( aWinContext );
+    aWinContext.set( ISkConnectionSupplier.class, connectionSupplier );
   }
 
   @Override

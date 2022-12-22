@@ -9,7 +9,7 @@ import org.toxsoft.core.tslib.bricks.strid.more.*;
 import org.toxsoft.core.tslib.utils.errors.*;
 
 /**
- * {@link TsPanel} extension to work with a list of objects of the same type.
+ * {@link AbstractSkLazyPanel} extension to work with a list of objects of the same type.
  * <p>
  * Implements {@link ITsSelectionChangeEventProducer} and {@link ITsDoubleClickEventProducer}.
  * <p>
@@ -18,8 +18,8 @@ import org.toxsoft.core.tslib.utils.errors.*;
  * @author hazard157
  * @param <E> - type of the objects
  */
-public abstract class SkStdEventsProducerPanel<E>
-    extends SkPanel
+public abstract class AbstractSkStdEventsProducerLazyPanel<E>
+    extends AbstractSkLazyPanel
     implements ITsSelectionProvider<E>, ITsDoubleClickEventProducer<E> {
 
   protected final TsSelectionChangeEventHelper<E> selectionChangeEventHelper;
@@ -32,20 +32,19 @@ public abstract class SkStdEventsProducerPanel<E>
    * @param aContext {@link ITsGuiContext} - the context
    * @throws TsNullArgumentRtException any argument = <code>null</code>
    */
-  public SkStdEventsProducerPanel( Composite aParent, ITsGuiContext aContext ) {
-    this( aParent, aContext, null );
+  public AbstractSkStdEventsProducerLazyPanel( Composite aParent, ITsGuiContext aContext ) {
+    this( aContext, null );
   }
 
   /**
    * Constructor.
    *
-   * @param aParent {@link Composite} - parent component
    * @param aContext {@link ITsGuiContext} - the context
    * @param aUsedConnId {@link IdChain} - ID of connection to be used, may be <code>null</code>
    * @throws TsNullArgumentRtException any argument = <code>null</code>
    */
-  public SkStdEventsProducerPanel( Composite aParent, ITsGuiContext aContext, IdChain aUsedConnId ) {
-    super( aParent, aContext, aUsedConnId );
+  public AbstractSkStdEventsProducerLazyPanel( ITsGuiContext aContext, IdChain aUsedConnId ) {
+    super( aContext, aUsedConnId );
     selectionChangeEventHelper = new TsSelectionChangeEventHelper<>( this );
     doubleClickEventHelper = new TsDoubleClickEventHelper<>( this );
   }
