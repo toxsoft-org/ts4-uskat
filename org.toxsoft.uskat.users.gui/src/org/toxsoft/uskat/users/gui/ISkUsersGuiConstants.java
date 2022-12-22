@@ -2,7 +2,7 @@ package org.toxsoft.uskat.users.gui;
 
 import static org.toxsoft.core.tsgui.graphics.icons.ITsStdIconIds.*;
 import static org.toxsoft.uskat.core.ISkHardConstants.*;
-import static org.toxsoft.uskat.users.gui.ISkResources.*;
+import static org.toxsoft.uskat.users.gui.ISkUsersGuiSharedResources.*;
 
 import org.eclipse.e4.core.contexts.*;
 import org.toxsoft.core.tsgui.bricks.actions.*;

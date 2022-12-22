@@ -3,7 +3,7 @@ package org.toxsoft.uskat.users.gui.km5;
 import static org.toxsoft.core.tsgui.m5.IM5Constants.*;
 import static org.toxsoft.uskat.core.ISkHardConstants.*;
 import static org.toxsoft.uskat.core.api.users.ISkUserServiceHardConstants.*;
-import static org.toxsoft.uskat.users.gui.km5.ISkResources.*;
+import static org.toxsoft.uskat.users.gui.ISkUsersGuiSharedResources.*;
 
 import org.toxsoft.core.tsgui.m5.model.*;
 import org.toxsoft.core.tslib.utils.errors.*;

@@ -2,8 +2,8 @@ package org.toxsoft.uskat.users.gui.km5;
 
 import static org.toxsoft.core.tsgui.bricks.actions.ITsStdActionDefs.*;
 import static org.toxsoft.core.tsgui.m5.gui.mpc.IMultiPaneComponentConstants.*;
+import static org.toxsoft.uskat.users.gui.ISkUsersGuiSharedResources.*;
 import static org.toxsoft.uskat.users.gui.ISkUsersGuiConstants.*;
-import static org.toxsoft.uskat.users.gui.km5.ISkResources.*;
 
 import org.toxsoft.core.tsgui.bricks.actions.*;
 import org.toxsoft.core.tsgui.bricks.ctx.*;

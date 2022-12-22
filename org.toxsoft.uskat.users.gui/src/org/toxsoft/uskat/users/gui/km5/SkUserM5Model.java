@@ -5,7 +5,7 @@ import static org.toxsoft.core.tsgui.m5.gui.mpc.IMultiPaneComponentConstants.*;
 import static org.toxsoft.core.tslib.av.impl.AvUtils.*;
 import static org.toxsoft.uskat.core.ISkHardConstants.*;
 import static org.toxsoft.uskat.core.api.users.ISkUserServiceHardConstants.*;
-import static org.toxsoft.uskat.users.gui.km5.ISkResources.*;
+import static org.toxsoft.uskat.users.gui.ISkUsersGuiSharedResources.*;
 
 import org.toxsoft.core.tsgui.bricks.ctx.*;
 import org.toxsoft.core.tsgui.m5.gui.mpc.impl.*;
