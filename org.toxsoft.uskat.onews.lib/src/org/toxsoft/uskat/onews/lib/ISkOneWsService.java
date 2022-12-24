@@ -3,6 +3,7 @@ package org.toxsoft.uskat.onews.lib;
 import org.toxsoft.core.tslib.av.opset.*;
 import org.toxsoft.core.tslib.bricks.strid.*;
 import org.toxsoft.core.tslib.bricks.strid.coll.*;
+import org.toxsoft.core.tslib.bricks.validator.*;
 import org.toxsoft.core.tslib.bricks.validator.impl.*;
 import org.toxsoft.core.tslib.coll.*;
 import org.toxsoft.core.tslib.utils.errors.*;
@@ -128,16 +129,29 @@ public interface ISkOneWsService
 
   /**
    * Adds ability kind to the lisе of known ones - registers user-speicifed kind.
+   * <p>
+   * Existing ability kind with the same ID will be overwritten.
    *
    * @param aKind {@link IStridableParameterized} - ablity (component) kind description
+   * @throws TsNullArgumentRtException any argument = <code>null</code>
    */
   void defineAbilityKind( IStridableParameterized aKind );
 
   /**
-   * Adds ability to the lisе of known ones - registers user-speicifed OneWs component.
+   * Adds ability to the list of known ones - registers user-speicifed OneWs component.
+   * <p>
+   * Existing ability with the same ID will be overwritten.
    *
-   * @param aAbility {@link IOneWsAbility} - ablity (component) description
+   * @param aAbility {@link IOneWsAbility} - ability (component) description
+   * @throws TsNullArgumentRtException any argument = <code>null</code>
    */
   void defineAbility( IOneWsAbility aAbility );
+
+  /**
+   * Returns the service validator.
+   *
+   * @return {@link ITsValidationSupport}&lt;{@link ISkOneWsServiceValidator}&gt; - the service validator
+   */
+  ITsValidationSupport<ISkOneWsServiceValidator> svs();
 
 }

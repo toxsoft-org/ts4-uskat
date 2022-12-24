@@ -54,7 +54,7 @@ public class SkOneWsProfile
 
   @Override
   public boolean isBuiltinProfile() {
-    return skid().equals( OWS_SKID_PROFILE_ROOT ) || skid().equals( OWS_SKID_PROFILE_GUEST );
+    return OWS_BUILTIN_PROFILE_IDS.hasElem( id() );
   }
 
   @Override

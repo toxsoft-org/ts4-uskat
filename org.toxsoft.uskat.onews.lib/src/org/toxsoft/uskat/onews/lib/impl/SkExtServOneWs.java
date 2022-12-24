@@ -41,6 +41,175 @@ public class SkExtServOneWs
    */
   public static final ISkServiceCreator<AbstractSkService> CREATOR = SkExtServOneWs::new;
 
+  /**
+   * {@link ISkOneWsService#svs()} implementation.
+   *
+   * @author hazard157
+   */
+  static class Svs
+      extends AbstractTsValidationSupport<ISkOneWsServiceValidator>
+      implements ISkOneWsServiceValidator {
+
+    @Override
+    public ISkOneWsServiceValidator validator() {
+      return this;
+    }
+
+    @Override
+    public ValidationResult canSetRoleProfile( String aRoleId, String aProfileId ) {
+      ValidationResult vr = ValidationResult.SUCCESS;
+      for( ISkOneWsServiceValidator v : validatorsList() ) {
+        vr = ValidationResult.firstNonOk( vr, v.canSetRoleProfile( aRoleId, aProfileId ) );
+        if( vr.isError() ) {
+          break;
+        }
+      }
+      return vr;
+    }
+
+    @Override
+    public ValidationResult canCreateProfile( String aProfileId, IOptionSet aAttrs, IList<OneWsRule> aRules ) {
+      ValidationResult vr = ValidationResult.SUCCESS;
+      for( ISkOneWsServiceValidator v : validatorsList() ) {
+        vr = ValidationResult.firstNonOk( vr, v.canCreateProfile( aProfileId, aAttrs, aRules ) );
+        if( vr.isError() ) {
+          break;
+        }
+      }
+      return vr;
+    }
+
+    @Override
+    public ValidationResult canEditProfile( String aProfileId, IOptionSet aAttrs, IList<OneWsRule> aRules,
+        IOneWsProfile aExistingProfile ) {
+      ValidationResult vr = ValidationResult.SUCCESS;
+      for( ISkOneWsServiceValidator v : validatorsList() ) {
+        vr = ValidationResult.firstNonOk( vr, v.canEditProfile( aProfileId, aAttrs, aRules, aExistingProfile ) );
+        if( vr.isError() ) {
+          break;
+        }
+      }
+      return vr;
+    }
+
+    @Override
+    public ValidationResult canRemoveProfile( String aProfileId ) {
+      ValidationResult vr = ValidationResult.SUCCESS;
+      for( ISkOneWsServiceValidator v : validatorsList() ) {
+        vr = ValidationResult.firstNonOk( vr, v.canRemoveProfile( aProfileId ) );
+        if( vr.isError() ) {
+          break;
+        }
+      }
+      return vr;
+    }
+
+    @Override
+    public ValidationResult canDefineAbilityKind( IStridableParameterized aKind ) {
+      ValidationResult vr = ValidationResult.SUCCESS;
+      for( ISkOneWsServiceValidator v : validatorsList() ) {
+        vr = ValidationResult.firstNonOk( vr, v.canDefineAbilityKind( aKind ) );
+        if( vr.isError() ) {
+          break;
+        }
+      }
+      return vr;
+    }
+
+    @Override
+    public ValidationResult canDefineAbility( IOneWsAbility aAbility ) {
+      ValidationResult vr = ValidationResult.SUCCESS;
+      for( ISkOneWsServiceValidator v : validatorsList() ) {
+        vr = ValidationResult.firstNonOk( vr, v.canDefineAbility( aAbility ) );
+        if( vr.isError() ) {
+          break;
+        }
+      }
+      return vr;
+    }
+
+  }
+
+  private final ISkOneWsServiceValidator builtinValidator = new ISkOneWsServiceValidator() {
+
+    @Override
+    public ValidationResult canSetRoleProfile( String aRoleId, String aProfileId ) {
+      TsNullArgumentRtException.checkNulls( aRoleId, aProfileId );
+      if( !listProfiles().hasKey( aProfileId ) ) {
+        return ValidationResult.warn( FMT_ERR_PROFILE_NOT_EXISTS, aProfileId );
+      }
+      if( !userService().listRoles().hasKey( aRoleId ) ) {
+        return ValidationResult.warn( FMT_ERR_ROLE_NOT_EXISTS, aRoleId );
+      }
+      return ValidationResult.SUCCESS;
+    }
+
+    @Override
+    public ValidationResult canCreateProfile( String aProfileId, IOptionSet aAttrs, IList<OneWsRule> aRules ) {
+      TsNullArgumentRtException.checkNulls( aProfileId, aAttrs, aRules );
+      if( !listProfiles().hasKey( aProfileId ) ) {
+        return ValidationResult.warn( FMT_ERR_PROFILE_EXISTS, aProfileId );
+      }
+      if( !StridUtils.isValidIdPath( aProfileId ) ) {
+        return ValidationResult.warn( FMT_ERR_PROFILE_ID_NOT_IDPATH, aProfileId );
+      }
+      if( aRules.isEmpty() ) {
+        return ValidationResult.error( FMT_ERR_EMPTY_RULES, aProfileId );
+      }
+      return ValidationResult.SUCCESS;
+    }
+
+    @Override
+    public ValidationResult canEditProfile( String aProfileId, IOptionSet aAttrs, IList<OneWsRule> aRules,
+        IOneWsProfile aExistingProfile ) {
+      TsNullArgumentRtException.checkNulls( aProfileId, aAttrs, aRules, aExistingProfile );
+      if( OWS_BUILTIN_PROFILE_IDS.hasElem( aProfileId ) ) {
+        return ValidationResult.warn( FMT_ERR_ATTEMPT_CHANGE_BUILTIN_PROFILE, aProfileId );
+      }
+      if( !listProfiles().hasKey( aProfileId ) ) {
+        return ValidationResult.warn( FMT_ERR_PROFILE_NOT_EXISTS, aProfileId );
+      }
+      if( aRules.isEmpty() ) {
+        return ValidationResult.error( FMT_ERR_EMPTY_RULES, aProfileId );
+      }
+      return ValidationResult.SUCCESS;
+    }
+
+    @Override
+    public ValidationResult canRemoveProfile( String aProfileId ) {
+      TsNullArgumentRtException.checkNull( aProfileId );
+      if( OWS_BUILTIN_PROFILE_IDS.hasElem( aProfileId ) ) {
+        return ValidationResult.warn( FMT_ERR_ATTEMPT_REMOVE_BUILTIN_PROFILE, aProfileId );
+      }
+      if( !listProfiles().hasKey( aProfileId ) ) {
+        return ValidationResult.warn( FMT_WARN_PROFILE_NOT_EXISTS, aProfileId );
+      }
+      return ValidationResult.SUCCESS;
+    }
+
+    @Override
+    public ValidationResult canDefineAbilityKind( IStridableParameterized aKind ) {
+      TsNullArgumentRtException.checkNull( aKind );
+      if( BUILTIN_ABILITY_KINDS.hasKey( aKind.id() ) ) {
+        return ValidationResult.warn( FMT_ERR_ATTEMT_CHANGE_BUILTIN_KIND, aKind.id() );
+      }
+      if( listKnownAbilityKinds().hasKey( aKind.id() ) ) {
+        return ValidationResult.warn( FMT_WARN_ABILITY_KIND_EXISTS, aKind.id() );
+      }
+      return ValidationResult.SUCCESS;
+    }
+
+    @Override
+    public ValidationResult canDefineAbility( IOneWsAbility aAbility ) {
+      TsNullArgumentRtException.checkNull( aAbility );
+      if( listKnownAbilities().hasKey( aAbility.id() ) ) {
+        return ValidationResult.warn( FMT_WARN_ABILITY_EXISTS, aAbility.id() );
+      }
+      return ValidationResult.SUCCESS;
+    }
+
+  };
+
   private final ClassClaimingCoreValidator claimingValidator = new ClassClaimingCoreValidator();
 
   private final IStridablesListEdit<IStridableParameterized> knownAbilityKinds = new StridablesList<>();
@@ -56,6 +225,8 @@ public class SkExtServOneWs
   private static final String STR_N_GUEST_PROFILE = "Guest";                          //$NON-NLS-1$
   private static final String STR_D_GUEST_PROFILE = "Guest prfile allows nothing";    //$NON-NLS-1$
 
+  private final Svs svs = new Svs();
+
   /**
    * Constructor.
    *
@@ -63,6 +234,7 @@ public class SkExtServOneWs
    */
   public SkExtServOneWs( IDevCoreApi aCoreApi ) {
     super( SERVICE_ID, aCoreApi );
+    svs.addValidator( builtinValidator );
   }
 
   // ------------------------------------------------------------------------------------
@@ -145,27 +317,6 @@ public class SkExtServOneWs
     linkService().svs().resumeValidator( claimingValidator );
   }
 
-  private ValidationResult canDefineProfile( String aProfileId, IOptionSet aAttrs, IList<OneWsRule> aRules ) {
-    TsNullArgumentRtException.checkNulls( aProfileId, aAttrs, aRules );
-    IOneWsProfile p = findProfileById( aProfileId );
-    if( p != null && p.isBuiltinProfile() ) {
-      return ValidationResult.error( FMT_ERR_CAN_TOUCH_BUILTIN_PROFILE, aProfileId );
-    }
-    if( aRules.isEmpty() ) {
-      return ValidationResult.error( FMT_ERR_EMPTY_RULES, aProfileId );
-    }
-    return ValidationResult.SUCCESS;
-  }
-
-  private ValidationResult canRemoveProfile( String aProfileId ) {
-    TsNullArgumentRtException.checkNull( aProfileId );
-    IOneWsProfile p = findProfileById( aProfileId );
-    if( p != null && p.isBuiltinProfile() ) {
-      return ValidationResult.error( FMT_ERR_CAN_TOUCH_BUILTIN_PROFILE, aProfileId );
-    }
-    return ValidationResult.SUCCESS;
-  }
-
   // ------------------------------------------------------------------------------------
   // ISkOneWsService
   //
@@ -185,7 +336,7 @@ public class SkExtServOneWs
   @Override
   public IOneWsProfile getProfileByRoleId( String aRoleId ) {
     StridUtils.checkValidIdPath( aRoleId );
-    ISkRole role = coreApi().userService().findRole( aRoleId );
+    ISkRole role = coreApi().userService().getRole( aRoleId );
     TsItemNotFoundRtException.checkNull( role, FMT_ERR_NO_ROLE_ID, aRoleId );
     IDtoLinkRev lr = linkService().getLinkRev( IOneWsProfile.CLASS_ID, LNKID_ROLES, role.skid() );
     if( !lr.leftSkids().isEmpty() ) {
@@ -210,10 +361,8 @@ public class SkExtServOneWs
 
   @Override
   public void setRoleProfile( String aRoleId, String aProfileId ) {
-    TsNullArgumentRtException.checkNulls( aRoleId, aProfileId );
-    // check both role and profile exists
-    ISkRole role = coreApi().userService().findRole( aRoleId );
-    TsItemNotFoundRtException.checkNull( role, FMT_ERR_NO_ROLE_ID, aRoleId );
+    TsValidationFailedRtException.checkError( svs.validator().canSetRoleProfile( aRoleId, aProfileId ) );
+    ISkRole role = coreApi().userService().getRole( aRoleId );
     IOneWsProfile p = getProfileByRoleId( aRoleId );
     // start
     pauseCoreValidation();
@@ -221,7 +370,7 @@ public class SkExtServOneWs
       // if role is already assosiated to profile cancel association
       IDtoLinkRev lr = coreApi().linkService().getLinkRev( IOneWsProfile.CLASS_ID, LNKID_ROLES, role.skid() );
       if( !lr.leftSkids().isEmpty() ) {
-        // remove all associated profiles from role if they were because of some some error
+        // remove all associated profiles from role if they were because of some error
         for( Skid roleProfSkid : lr.leftSkids() ) {
           IDtoLinkFwd lf1 = linkService().getLinkFwd( roleProfSkid, LNKID_ROLES );
           IDtoLinkFwd lf2 = DtoLinkFwd.createCopyMinusSkid( lf1, role.skid() );
@@ -240,7 +389,14 @@ public class SkExtServOneWs
 
   @Override
   public IOneWsProfile defineProfile( String aProfileId, IOptionSet aAttrs, IList<OneWsRule> aRules ) {
-    TsValidationFailedRtException.checkError( canDefineProfile( aProfileId, aAttrs, aRules ) );
+    TsNullArgumentRtException.checkNulls( aProfileId, aAttrs, aRules );
+    IOneWsProfile oldProf = findProfileById( aProfileId );
+    if( oldProf != null ) {
+      TsValidationFailedRtException.checkError( svs.validator().canEditProfile( aProfileId, aAttrs, aRules, oldProf ) );
+    }
+    else {
+      TsValidationFailedRtException.checkError( svs.validator().canCreateProfile( aProfileId, aAttrs, aRules ) );
+    }
     Skid skid = new Skid( CLSID_OWS_PROFILE, aProfileId );
     DtoFullObject fobj = DtoFullObject.createDtoFullObject( skid, coreApi() );
     fobj.attrs().refreshSet( aAttrs );
@@ -256,7 +412,7 @@ public class SkExtServOneWs
 
   @Override
   public void removeProfile( String aProfileId ) {
-    TsValidationFailedRtException.checkError( canRemoveProfile( aProfileId ) );
+    TsValidationFailedRtException.checkError( svs.validator().canRemoveProfile( aProfileId ) );
     Skid skid = new Skid( CLSID_OWS_PROFILE, aProfileId );
     try {
       objServ().removeObject( skid );
@@ -268,12 +424,19 @@ public class SkExtServOneWs
 
   @Override
   public void defineAbilityKind( IStridableParameterized aKind ) {
+    TsValidationFailedRtException.checkError( svs.validator().canDefineAbilityKind( aKind ) );
     knownAbilityKinds.add( aKind );
   }
 
   @Override
   public void defineAbility( IOneWsAbility aAbility ) {
+    TsValidationFailedRtException.checkError( svs.validator().canDefineAbility( aAbility ) );
     knownAbilities.add( aAbility );
+  }
+
+  @Override
+  public ITsValidationSupport<ISkOneWsServiceValidator> svs() {
+    return svs;
   }
 
 }

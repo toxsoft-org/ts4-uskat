@@ -17,6 +17,7 @@ import org.toxsoft.core.tslib.bricks.strid.coll.impl.*;
 import org.toxsoft.core.tslib.bricks.strid.impl.*;
 import org.toxsoft.core.tslib.coll.basis.*;
 import org.toxsoft.core.tslib.coll.helpers.*;
+import org.toxsoft.core.tslib.coll.primtypes.*;
 import org.toxsoft.core.tslib.coll.primtypes.impl.*;
 import org.toxsoft.core.tslib.gw.skid.*;
 import org.toxsoft.uskat.core.api.sysdescr.dto.*;
@@ -65,6 +66,14 @@ public interface IOneWsConstants {
    * SKID of profile {@link #OWS_ID_PROFILE_GUEST}.
    */
   Skid OWS_SKID_PROFILE_GUEST = new Skid( CLSID_OWS_PROFILE, OWS_ID_PROFILE_GUEST );
+
+  /**
+   * Builtin profile IDs.
+   */
+  IStringList OWS_BUILTIN_PROFILE_IDS = new StringArrayList( //
+      OWS_ID_PROFILE_ROOT, //
+      OWS_ID_PROFILE_GUEST //
+  );
 
   /**
    * ID of builtin kind - ability to open perspectives.
