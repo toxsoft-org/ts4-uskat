@@ -1,5 +1,10 @@
 package org.toxsoft.uskat.onews.gui.panel;
 
+import static org.toxsoft.core.tslib.av.impl.AvUtils.*;
+import static org.toxsoft.core.tslib.av.math.EAvCompareOp.*;
+import static org.toxsoft.core.tslib.av.metainfo.IAvMetaConstants.*;
+import static org.toxsoft.uskat.onews.lib.EOwsPermission.*;
+
 import org.eclipse.swt.*;
 import org.eclipse.swt.custom.*;
 import org.eclipse.swt.widgets.*;
@@ -12,7 +17,11 @@ import org.toxsoft.core.tsgui.m5.model.*;
 import org.toxsoft.core.tsgui.utils.checkcoll.*;
 import org.toxsoft.core.tsgui.utils.layout.*;
 import org.toxsoft.core.tslib.bricks.events.change.*;
+import org.toxsoft.core.tslib.bricks.filter.*;
+import org.toxsoft.core.tslib.bricks.filter.std.paramed.*;
 import org.toxsoft.core.tslib.bricks.strid.more.*;
+import org.toxsoft.core.tslib.coll.*;
+import org.toxsoft.core.tslib.coll.impl.*;
 import org.toxsoft.core.tslib.utils.errors.*;
 import org.toxsoft.uskat.base.gui.glib.*;
 import org.toxsoft.uskat.onews.gui.km5.*;
@@ -24,7 +33,7 @@ import org.toxsoft.uskat.onews.lib.*;
  * Contains {@link SashForm} with:
  * <ul>
  * <li>left - an editable list of profiles {@link ISkOneWsService#listProfiles()};</li>
- * <li>right - chkable tree of the abilities {@link ISkOneWsService#listKnownAbilities()}.</li>
+ * <li>right - chekable tree of the abilities {@link ISkOneWsService#listKnownAbilities()}.</li>
  * </ul>
  *
  * @author hazard157
@@ -61,6 +70,10 @@ public class PanelOneWsProfilesEditor
   // implementation
   //
 
+  private ISkOneWsService ows() {
+    return skClobServ().coreApi().getService( ISkOneWsService.SERVICE_ID );
+  }
+
   /**
    * Handles selection change in the profiles list on the left.
    * <p>
@@ -71,9 +84,31 @@ public class PanelOneWsProfilesEditor
    * @param aSelectedItem {@link IOneWsProfile} - selected profile or <code>null</code>
    */
   void whenProfileSelectionChanged( Object aSource, IOneWsProfile aSelectedItem ) {
-
-    // TODO PanelProfilesEditor.whenTsSelectionChanged()
-
+    abilitiesPanel.checkSupport().checksChangeEventer().pauseFiring();
+    boolean enableEditing = false;
+    // clear all checks
+    abilitiesPanel.checkSupport().setAllItemsCheckState( false );
+    // set only needed checks
+    if( aSelectedItem != null ) {
+      IListEdit<IOneWsAbility> checkedAbilities = new ElemArrayList<>();
+      for( IOneWsAbility ability : ows().listKnownAbilities() ) {
+        for( OneWsRule wsRule : aSelectedItem.rules() ) {
+          if( wsRule.filter().accept( ability ) ) {
+            if( wsRule.permission() == EOwsPermission.ALLOW ) {
+              checkedAbilities.add( ability );
+              continue;
+            }
+          }
+        }
+      }
+      abilitiesPanel.checkSupport().setItemsCheckState( checkedAbilities, true );
+      enableEditing = !aSelectedItem.isBuiltinProfile();
+    }
+    /**
+     * FIXME disabling editing does not disable check state changing by mouse. Fix it!
+     */
+    abilitiesPanel.setEditable( enableEditing );
+    abilitiesPanel.checkSupport().checksChangeEventer().resumeFiring( false );
   }
 
   /**
@@ -85,9 +120,23 @@ public class PanelOneWsProfilesEditor
    * @param aSource Object - the event source
    */
   void whenAbilitiesCheckStateChanged( Object aSource ) {
-
-    // TODO PanelProfilesEditor.whenAbilitiesCheckStateChanged()
-
+    IOneWsProfile currProfile = profilesPanel.selectedItem();
+    if( currProfile == null ) {
+      return;
+    }
+    IListEdit<OneWsRule> newRules = new ElemArrayList<>();
+    /**
+     * For all checked items we'll create simple rule: ability with specified ID will be allowed.
+     * <p>
+     * TODO This is too simple but working approcah used as for now (December 2022). However will have to work
+     * onenhancement, more complex rules using not only ID of ability but also other #params() of it.
+     */
+    for( IOneWsAbility ability : abilitiesPanel.checkSupport().listCheckedItems( true ) ) {
+      ITsCombiFilterParams p = StdFilterOptionVsConst.makeFilterParams( TSID_ID, EQ, avStr( ability.id() ) );
+      OneWsRule wsRule = new OneWsRule( ability.nmName(), p, ALLOW );
+      newRules.add( wsRule );
+    }
+    ows().defineProfile( currProfile.id(), currProfile.attrs(), newRules );
   }
 
   // ------------------------------------------------------------------------------------
@@ -115,6 +164,7 @@ public class PanelOneWsProfilesEditor
     abilitiesPanel.checkSupport().checksChangeEventer().addListener( this::whenAbilitiesCheckStateChanged );
     // setup
     sfMain.setWeights( 5000, 5000 );
+    abilitiesPanel.setEditable( false ); // TODO see FIXME above
   }
 
   @Override

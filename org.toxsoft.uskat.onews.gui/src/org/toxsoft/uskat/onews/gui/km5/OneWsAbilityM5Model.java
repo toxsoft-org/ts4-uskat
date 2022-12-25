@@ -65,6 +65,7 @@ public class OneWsAbilityM5Model
         OPDEF_IS_SUPPORTS_TREE.setValue( aContext.params(), AV_TRUE );
         OPDEF_IS_SUPPORTS_CHECKS.setValue( aContext.params(), AV_TRUE );
         OPDEF_IS_FILTER_PANE.setValue( aContext.params(), AV_TRUE );
+        OPDEF_IS_DETAILS_PANE.setValue( aContext.params(), AV_TRUE );
         MultiPaneComponentModown<IOneWsAbility> mpc =
             new OneWsAbilityMpc( skConn(), aContext, model(), aItemsProvider );
         return new M5CollectionPanelMpcModownWrapper<>( mpc, false );
