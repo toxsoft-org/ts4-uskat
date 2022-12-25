@@ -158,6 +158,38 @@ public interface ISkObject
   <T extends ISkObject> IList<T> getRivetRevObjs( String aClassId, String aRivetId );
 
   // ------------------------------------------------------------------------------------
+  // CLOBs
+
+  /**
+   * Returnsa the CLOB value.
+   * <p>
+   * If CLOB was never written or is an empty String then returns <code>aDefaultValue</code>.
+   *
+   * @param aClobId String - the ClOB ID
+   * @param aDefaultValue String - default value may be <code>null</code>
+   * @return String - the CLOB value or <code>aDefaultValue</code> (hence may be <code>null</code>)
+   * @throws TsNullArgumentRtException any argument = <code>null</code>
+   * @throws TsItemNotFoundRtException no such CLOB is declared
+   * @throws TsIllegalStateRtException CLOB is too big for reading
+   */
+  String getClob( String aClobId, String aDefaultValue );
+
+  /**
+   * Returnsa the CLOB value.
+   * <p>
+   * Simple calls {@link #getClob(String, String)} with an empty string as <code>aDefaultValue</code>.
+   *
+   * @param aClobId String - the ClOB ID
+   * @return String - the CLOB value or an empty String
+   * @throws TsNullArgumentRtException any argument = <code>null</code>
+   * @throws TsItemNotFoundRtException no such CLOB is declared
+   * @throws TsIllegalStateRtException CLOB is too big for reading
+   */
+  default String getClob( String aClobId ) {
+    return getClob( aClobId, TsLibUtils.EMPTY_STRING );
+  }
+
+  // ------------------------------------------------------------------------------------
   //
 
   /**
@@ -330,6 +362,11 @@ class InternalNoneSkObject
 
   @Override
   public <T extends ISkObject> IList<T> getRivetRevObjs( String aClassId, String aRivetId ) {
+    throw new TsNullObjectErrorRtException();
+  }
+
+  @Override
+  public String getClob( String aClobId, String aDefaultValue ) {
     throw new TsNullObjectErrorRtException();
   }
 

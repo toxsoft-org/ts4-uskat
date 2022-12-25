@@ -5,6 +5,7 @@ import static org.toxsoft.uskat.core.ISkHardConstants.*;
 import org.toxsoft.core.tslib.av.opset.*;
 import org.toxsoft.core.tslib.av.opset.impl.*;
 import org.toxsoft.core.tslib.coll.*;
+import org.toxsoft.core.tslib.gw.gwid.*;
 import org.toxsoft.core.tslib.gw.skid.*;
 import org.toxsoft.core.tslib.utils.*;
 import org.toxsoft.core.tslib.utils.errors.*;
@@ -179,6 +180,13 @@ public class SkObject
   public ISkidList getRivetRevSkids( String aClassId, String aRivetId ) {
     // TODO реализовать SkObject.getRivetRevSkids()
     throw new TsUnderDevelopmentRtException( "SkObject.getRivetRevSkids()" );
+  }
+
+  @Override
+  public String getClob( String aClobId, String aDefaultValue ) {
+    Gwid gwid = Gwid.createClob( classId(), strid(), aClobId );
+    String clobValue = coreApi.clobService().readClob( gwid );
+    return clobValue.isEmpty() ? aDefaultValue : clobValue;
   }
 
   // ------------------------------------------------------------------------------------
