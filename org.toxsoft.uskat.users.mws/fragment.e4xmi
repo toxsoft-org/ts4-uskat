@@ -9,7 +9,7 @@
   </fragments>
   <fragments xsi:type="fragment:StringModelFragment" xmi:id="_9nvIUH0mEe2aYdBxjH_oCQ" featurename="children" parentElementId="org.toxsoft.mws.perspectivestack.main">
     <elements xsi:type="advanced:Perspective" xmi:id="_C0ObUH0nEe2aYdBxjH_oCQ" elementId="org.toxsoft.uskat.users.persp.main" label="%Persp_SkUsersMain" iconURI="platform:/plugin/org.toxsoft.uskat.users.gui/icons/is24x24/users-list.png" tooltip="%Persp_SkUsersMain_D">
-      <children xsi:type="basic:PartStack" xmi:id="_bOIJAH7VEe2WNKiL3-C_Lg" elementId="org.toxsoft.uskat.users.mws.partstack.0">
+      <children xsi:type="basic:PartStack" xmi:id="_bOIJAH7VEe2WNKiL3-C_Lg" elementId="org.toxsoft.uskat.users.partstack.main_extension">
         <children xsi:type="basic:Part" xmi:id="_beRd0H7VEe2WNKiL3-C_Lg" elementId="org.toxsoft.uskat.users.mws.part.part_skroleseditor" contributionURI="bundleclass://org.toxsoft.uskat.users.mws/org.toxsoft.uskat.users.mws.e4.uiparts.UipartSkRolesEditor" label="%Part_SkRolesEditor" iconURI="platform:/plugin/org.toxsoft.uskat.users.gui/icons/is24x24/roles-list.png" tooltip="%Part_SkRolesEditor_D"/>
         <children xsi:type="basic:Part" xmi:id="_4fBckIEMEe2tQ8e0_rZLbA" elementId="org.toxsoft.uskat.users.mws.part.part_skuserseditor" contributionURI="bundleclass://org.toxsoft.uskat.users.mws/org.toxsoft.uskat.users.mws.e4.uiparts.UipartSkUsersEditor" label="%Part_SkUsersEditor" iconURI="platform:/plugin/org.toxsoft.uskat.users.gui/icons/is24x24/users-list.png" tooltip="%Part_SkUsersEditor_D"/>
       </children>

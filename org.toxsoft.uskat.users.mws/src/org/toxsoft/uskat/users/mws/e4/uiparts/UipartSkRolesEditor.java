@@ -20,7 +20,7 @@ import org.toxsoft.uskat.users.mws.e4.service.*;
  * By default sets {@link PanelSkRolesEditor#getUsedConnectionId()} to <code>null</code> using Sk-connection
  * {@link ISkConnectionSupplier#defConn()} for roles management.
  * <p>
- * TODO add an ability to set {@link IdChain} of used connection
+ * TODO add an ability to specify {@link IdChain} of used connection
  *
  * @author hazard157
  */

@@ -14,7 +14,8 @@ public interface ISkUsersMwsConstants {
   // ------------------------------------------------------------------------------------
   // E4
 
-  String PERSPID_SK_USERS_MAIN = "org.toxsoft.uskat.users.persp.main"; //$NON-NLS-1$
+  String PERSPID_SK_USERS_MAIN               = "org.toxsoft.uskat.users.persp.main";               //$NON-NLS-1$
+  String PARTSTACKID_SK_USERS_MAIN_EXTENSION = "org.toxsoft.uskat.users.partstack.main_extension"; //$NON-NLS-1$
 
   // ------------------------------------------------------------------------------------
   // Icons
