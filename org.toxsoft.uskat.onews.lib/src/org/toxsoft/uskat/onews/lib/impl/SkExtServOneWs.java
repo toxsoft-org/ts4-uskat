@@ -267,6 +267,10 @@ public class SkExtServOneWs
       fobj.links().ensureSkidList( LNKID_ROLES ).add( ISkUserServiceHardConstants.SKID_ROLE_GUEST );
       DtoFullObject.defineFullObject( coreApi(), fobj );
     }
+    // add builtin kinds
+    for( IStridableParameterized k : BUILTIN_ABILITY_KINDS ) {
+      knownAbilityKinds.add( k );
+    }
     //
     sysdescr().svs().addValidator( claimingValidator );
     objServ().svs().addValidator( claimingValidator );

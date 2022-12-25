@@ -26,15 +26,15 @@ interface ISkResources {
    */
   String STR_N_KIND_ID             = Messages.getString( "STR_N_KIND_ID" );             //$NON-NLS-1$
   String STR_D_KIND_ID             = Messages.getString( "STR_D_KIND_ID" );             //$NON-NLS-1$
-  String STR_N_PERSPECTIVE_ABILITY = Messages.getString( "STR_N_PERSPECTIVE_ABILITY" ); //$NON-NLS-1$
-  String STR_D_PERSPECTIVE_ABILITY = Messages.getString( "STR_D_PERSPECTIVE_ABILITY" ); //$NON-NLS-1$
-  String STR_N_ACTION_ABILITY      = Messages.getString( "STR_N_ACTION_ABILITY" );      //$NON-NLS-1$
-  String STR_D_ACTION_ABILITY      = Messages.getString( "STR_D_ACTION_ABILITY" );      //$NON-NLS-1$
-  String STR_N_PROFILE_RULES       = Messages.getString( "STR_N_PROFILE_RULES" );       //$NON-NLS-1$
-  String STR_D_PROFILE_RULES       = Messages.getString( "STR_N_PROFILE_RULES" );       //$NON-NLS-1$
-  String STR_N_PROFILE_PARAMS      = Messages.getString( "STR_N_PROFILE_PARAMS" );      //$NON-NLS-1$
-  String STR_D_PROFILE_PARAMS      = Messages.getString( "STR_N_PROFILE_PARAMS" );      //$NON-NLS-1$
-  String STR_N_PROFILE_ROLES       = Messages.getString( "STR_N_PROFILE_ROLES" );       //$NON-NLS-1$
-  String STR_D_PROFILE_ROLES       = Messages.getString( "STR_N_PROFILE_ROLES" );       //$NON-NLS-1$
+  String STR_N_KIND_PERSPECTIVE    = Messages.getString( "STR_N_KIND_PERSPECTIVE" );    //$NON-NLS-1$
+  String STR_D_KIND_PERSPECTIVE    = Messages.getString( "STR_D_KIND_PERSPECTIVE" );    //$NON-NLS-1$
+  String STR_N_KIND_ACTION         = Messages.getString( "STR_N_KIND_ACTION" );         //$NON-NLS-1$
+  String STR_D_KIND_ACTION         = Messages.getString( "STR_D_KIND_ACTION" );         //$NON-NLS-1$
+  String STR_N_PROFILE_ATTR_RULES  = Messages.getString( "STR_N_PROFILE_ATTR_RULES" );  //$NON-NLS-1$
+  String STR_D_PROFILE_ATTR_RULES  = Messages.getString( "STR_N_PROFILE_ATTR_RULES" );  //$NON-NLS-1$
+  String STR_N_PROFILE_ATTR_PARAMS = Messages.getString( "STR_N_PROFILE_ATTR_PARAMS" ); //$NON-NLS-1$
+  String STR_D_PROFILE_ATTR_PARAMS = Messages.getString( "STR_N_PROFILE_ATTR_PARAMS" ); //$NON-NLS-1$
+  String STR_N_PROFILE_ATTR_ROLES  = Messages.getString( "STR_N_PROFILE_ATTR_ROLES" );  //$NON-NLS-1$
+  String STR_D_PROFILE_ATTR_ROLES  = Messages.getString( "STR_N_PROFILE_ATTR_ROLES" );  //$NON-NLS-1$
 
 }

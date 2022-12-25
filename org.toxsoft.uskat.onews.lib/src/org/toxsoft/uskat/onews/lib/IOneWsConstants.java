@@ -78,7 +78,7 @@ public interface IOneWsConstants {
   /**
    * ID of builtin kind - ability to open perspectives.
    */
-  String OWS_KINDID_PERSPECTIVE = OWS_ID + ".kind.perspective"; //$NON-NLS-1$
+  String OWS_KIND_ID_PERSPECTIVE = OWS_ID + ".kind.perspective"; //$NON-NLS-1$
 
   /**
    * ID of builtin kind - ability to run an action.
@@ -89,13 +89,13 @@ public interface IOneWsConstants {
    * List o builtin kinds.
    */
   IStridablesList<IStridableParameterized> BUILTIN_ABILITY_KINDS = new StridablesList<>( //
-      StridableParameterized.create( OWS_KINDID_PERSPECTIVE, //
-          TSID_NAME, STR_N_PERSPECTIVE_ABILITY, //
-          TSID_DESCRIPTION, STR_D_PERSPECTIVE_ABILITY //
+      StridableParameterized.create( OWS_KIND_ID_PERSPECTIVE, //
+          TSID_NAME, STR_N_KIND_PERSPECTIVE, //
+          TSID_DESCRIPTION, STR_D_KIND_PERSPECTIVE//
       ), //
       StridableParameterized.create( OWS_KIND_ID_ACTION, //
-          TSID_NAME, STR_N_ACTION_ABILITY, //
-          TSID_DESCRIPTION, STR_D_ACTION_ABILITY //
+          TSID_NAME, STR_N_KIND_ACTION, //
+          TSID_DESCRIPTION, STR_D_KIND_ACTION //
       ) //
   );
 
@@ -128,8 +128,8 @@ public interface IOneWsConstants {
    * {@link IEntityKeeper#coll2str(ITsCollection)}.
    */
   IDtoAttrInfo ATRINF_PROFILE_RULES = DtoAttrInfo.create2( ATRID_PROFILE_RULES, DDEF_STRING, //
-      TSID_NAME, STR_N_PROFILE_RULES, //
-      TSID_DESCRIPTION, STR_D_PROFILE_RULES, //
+      TSID_NAME, STR_N_PROFILE_ATTR_RULES, //
+      TSID_DESCRIPTION, STR_D_PROFILE_ATTR_RULES, //
       TSID_DEFAULT_VALUE, IEntityKeeper.STR_EMPTY_COLLECTION_REPRESENTATION //
   );
 
@@ -142,8 +142,8 @@ public interface IOneWsConstants {
    * Attribute {@link IOneWsProfile#params()}.
    */
   IDtoAttrInfo ATRINF_PROFILE_PARAMS = DtoAttrInfo.create2( ATRID_PROFILE_PARAMS, DDEF_VALOBJ, //
-      TSID_NAME, STR_N_PROFILE_PARAMS, //
-      TSID_DESCRIPTION, STR_D_PROFILE_PARAMS, //
+      TSID_NAME, STR_N_PROFILE_ATTR_PARAMS, //
+      TSID_DESCRIPTION, STR_D_PROFILE_ATTR_PARAMS, //
       TSID_DEFAULT_VALUE, OptionSetKeeper.AV_EMPTY_OPSET //
   );
 
@@ -157,8 +157,8 @@ public interface IOneWsConstants {
    */
   IDtoLinkInfo LNKINF_PROFILE_ROLES = DtoLinkInfo.create2( LNKID_ROLES, //
       new SingleStringList( ISkRole.CLASS_ID ), CollConstraint.NONE, //
-      TSID_NAME, STR_N_PROFILE_ROLES, //
-      TSID_DESCRIPTION, STR_D_PROFILE_ROLES //
+      TSID_NAME, STR_N_PROFILE_ATTR_ROLES, //
+      TSID_DESCRIPTION, STR_D_PROFILE_ATTR_ROLES //
   );
 
 }
