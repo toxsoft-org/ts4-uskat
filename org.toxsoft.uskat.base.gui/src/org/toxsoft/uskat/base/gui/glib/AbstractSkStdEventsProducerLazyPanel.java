@@ -70,17 +70,32 @@ public abstract class AbstractSkStdEventsProducerLazyPanel<E>
   }
 
   // ------------------------------------------------------------------------------------
-  // ITsSelectionChangeEventProducer
+  // ITsSelectionProvider
   //
 
   @Override
-  public void addTsSelectionListener( ITsSelectionChangeListener<E> aListener ) {
+  final public void addTsSelectionListener( ITsSelectionChangeListener<E> aListener ) {
     selectionChangeEventHelper.addTsSelectionListener( aListener );
   }
 
   @Override
-  public void removeTsSelectionListener( ITsSelectionChangeListener<E> aListener ) {
+  final public void removeTsSelectionListener( ITsSelectionChangeListener<E> aListener ) {
     selectionChangeEventHelper.removeTsSelectionListener( aListener );
+  }
+
+  @Override
+  public E selectedItem() {
+    if( isControlValid() ) {
+      return doGetSelectedItem();
+    }
+    return null;
+  }
+
+  @Override
+  public void setSelectedItem( E aItem ) {
+    if( isControlValid() ) {
+      doSetSelectedItem( aItem );
+    }
   }
 
   // ------------------------------------------------------------------------------------
@@ -88,13 +103,37 @@ public abstract class AbstractSkStdEventsProducerLazyPanel<E>
   //
 
   @Override
-  public void addTsDoubleClickListener( ITsDoubleClickListener<E> aListener ) {
+  final public void addTsDoubleClickListener( ITsDoubleClickListener<E> aListener ) {
     doubleClickEventHelper.addTsDoubleClickListener( aListener );
   }
 
   @Override
-  public void removeTsDoubleClickListener( ITsDoubleClickListener<E> aListener ) {
+  final public void removeTsDoubleClickListener( ITsDoubleClickListener<E> aListener ) {
     doubleClickEventHelper.removeTsDoubleClickListener( aListener );
   }
+
+  // ------------------------------------------------------------------------------------
+  // To implement
+  //
+
+  /**
+   * Implementation must return the selected item.
+   * <p>
+   * Called only when {@link #isControlValid()} = <code>true</code>, so there is no need to check if SWT controls of
+   * panel exist.
+   *
+   * @return &lt;E&gt; - currently selected element in this panel
+   */
+  protected abstract E doGetSelectedItem();
+
+  /**
+   * Implementation must set selected item.
+   * <p>
+   * Called only when {@link #isControlValid()} = <code>true</code>, so there is no need to check if SWT controls of
+   * panel exist.
+   *
+   * @param aItem &lt;E&gt; - the element to make selected
+   */
+  protected abstract void doSetSelectedItem( E aItem );
 
 }
