@@ -126,15 +126,33 @@ public class PanelOneWsProfilesEditor
     }
     IListEdit<OneWsRule> newRules = new ElemArrayList<>();
     /**
-     * For all checked items we'll create simple rule: ability with specified ID will be allowed.
-     * <p>
-     * TODO This is too simple but working approcah used as for now (December 2022). However will have to work
-     * onenhancement, more complex rules using not only ID of ability but also other #params() of it.
+     * Test if all abilities are checked or no ability is checked and set one rule RULE_ALLOW_ALL or RULE_DENY_ALL
+     * respectively. <br>
+     * TODO what to do if there is no abilities known? #newRules will be empty and couse an exception in defineProfile()
      */
-    for( IOneWsAbility ability : abilitiesPanel.checkSupport().listCheckedItems( true ) ) {
-      ITsCombiFilterParams p = StdFilterOptionVsConst.makeFilterParams( TSID_ID, EQ, avStr( ability.id() ) );
-      OneWsRule wsRule = new OneWsRule( ability.nmName(), p, ALLOW );
-      newRules.add( wsRule );
+    IList<IOneWsAbility> checkedItems = abilitiesPanel.checkSupport().listCheckedItems( true );
+    int allCount = ows().listKnownAbilities().size();
+    int checkedCount = checkedItems.size();
+    if( checkedCount == 0 ) {
+      newRules.add( OneWsRule.RULE_DENY_ALL );
+    }
+    else {
+      if( checkedCount == allCount ) {
+        newRules.add( OneWsRule.RULE_ALLOW_ALL );
+      }
+      else {
+        /**
+         * For all checked items we'll create simple rule: ability with specified ID will be allowed.
+         * <p>
+         * This is too simple but working approcah used as for now (December 2022). However will have to work
+         * onenhancement, more complex rules using not only ID of ability but also other #params() of it.
+         */
+        for( IOneWsAbility ability : checkedItems ) {
+          ITsCombiFilterParams p = StdFilterOptionVsConst.makeFilterParams( TSID_ID, EQ, avStr( ability.id() ) );
+          OneWsRule wsRule = new OneWsRule( ability.nmName(), p, ALLOW );
+          newRules.add( wsRule );
+        }
+      }
     }
     ows().defineProfile( currProfile.id(), currProfile.attrs(), newRules );
   }
