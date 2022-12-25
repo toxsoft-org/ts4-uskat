@@ -64,18 +64,13 @@ public class PanelSkUsersEditor
   //
 
   @Override
-  public ISkUser selectedItem() {
-    if( panelUsers != null ) {
-      return panelUsers.selectedItem();
-    }
-    return null;
+  protected ISkUser doGetSelectedItem() {
+    return panelUsers.selectedItem();
   }
 
   @Override
-  public void setSelectedItem( ISkUser aItem ) {
-    if( panelUsers != null ) {
-      panelUsers.setSelectedItem( aItem );
-    }
+  public void doSetSelectedItem( ISkUser aItem ) {
+    panelUsers.setSelectedItem( aItem );
   }
 
 }

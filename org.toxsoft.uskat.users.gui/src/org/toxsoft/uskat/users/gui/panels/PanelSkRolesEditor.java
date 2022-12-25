@@ -64,18 +64,13 @@ public class PanelSkRolesEditor
   //
 
   @Override
-  public ISkRole selectedItem() {
-    if( panelRoles != null ) {
-      return panelRoles.selectedItem();
-    }
-    return null;
+  protected ISkRole doGetSelectedItem() {
+    return panelRoles.selectedItem();
   }
 
   @Override
-  public void setSelectedItem( ISkRole aItem ) {
-    if( panelRoles != null ) {
-      panelRoles.setSelectedItem( aItem );
-    }
+  protected void doSetSelectedItem( ISkRole aItem ) {
+    panelRoles.setSelectedItem( aItem );
   }
 
 }
