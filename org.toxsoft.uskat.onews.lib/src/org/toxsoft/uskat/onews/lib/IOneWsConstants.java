@@ -6,7 +6,6 @@ import static org.toxsoft.core.tslib.av.metainfo.IAvMetaConstants.*;
 import static org.toxsoft.uskat.core.ISkHardConstants.*;
 import static org.toxsoft.uskat.onews.lib.ISkResources.*;
 
-import org.toxsoft.core.tslib.av.*;
 import org.toxsoft.core.tslib.av.impl.*;
 import org.toxsoft.core.tslib.av.metainfo.*;
 import org.toxsoft.core.tslib.av.opset.impl.*;
@@ -117,17 +116,16 @@ public interface IOneWsConstants {
   // Profile class
 
   /**
-   * ID of attribute {@link #ATRINF_PROFILE_RULES}
+   * ID of CLOB {@link #CLBINF_PROFILE_RULES}
    */
-  String ATRID_PROFILE_RULES = "rules"; //$NON-NLS-1$
+  String CLBID_PROFILE_RULES = "rules"; //$NON-NLS-1$
 
   /**
-   * Attribute {@link IOneWsProfile#rules()}.
+   * Clob {@link IOneWsProfile#rules()}.
    * <p>
-   * Important: this {@link EAtomicType#STRING} attribute stores list of {@link OneWsRule} stored by
-   * {@link IEntityKeeper#coll2str(ITsCollection)}.
+   * Important: this CLOB stores list of {@link OneWsRule} stored by {@link IEntityKeeper#coll2str(ITsCollection)}.
    */
-  IDtoAttrInfo ATRINF_PROFILE_RULES = DtoAttrInfo.create2( ATRID_PROFILE_RULES, DDEF_STRING, //
+  IDtoClobInfo CLBINF_PROFILE_RULES = DtoClobInfo.create2( CLBID_PROFILE_RULES, //
       TSID_NAME, STR_N_PROFILE_ATTR_RULES, //
       TSID_DESCRIPTION, STR_D_PROFILE_ATTR_RULES, //
       TSID_DEFAULT_VALUE, IEntityKeeper.STR_EMPTY_COLLECTION_REPRESENTATION //

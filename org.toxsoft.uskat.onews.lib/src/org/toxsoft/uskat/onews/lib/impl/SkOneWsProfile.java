@@ -59,7 +59,7 @@ public class SkOneWsProfile
 
   @Override
   public IList<OneWsRule> rules() {
-    String s = attrs().getStr( ATRID_PROFILE_RULES, IEntityKeeper.STR_EMPTY_COLLECTION_REPRESENTATION );
+    String s = getClob( CLBID_PROFILE_RULES, IEntityKeeper.STR_EMPTY_COLLECTION_REPRESENTATION );
     return OneWsRule.KEEPER.str2coll( s );
   }
 

@@ -252,7 +252,7 @@ public class SkExtServOneWs
       DtoFullObject fobj = DtoFullObject.createDtoFullObject( OWS_SKID_PROFILE_ROOT, coreApi() );
       fobj.attrs().setStr( AID_NAME, STR_N_ROOT_PROFILE );
       fobj.attrs().setStr( AID_DESCRIPTION, STR_D_ROOT_PROFILE );
-      fobj.attrs().setStr( ATRID_PROFILE_RULES,
+      fobj.clobs().put( CLBID_PROFILE_RULES,
           OneWsRule.KEEPER.coll2str( new SingleItemList<>( OneWsRule.RULE_ALLOW_ALL ) ) );
       fobj.links().ensureSkidList( LNKID_ROLES ).add( ISkUserServiceHardConstants.SKID_ROLE_ROOT );
       DtoFullObject.defineFullObject( coreApi(), fobj );
@@ -262,7 +262,7 @@ public class SkExtServOneWs
       DtoFullObject fobj = DtoFullObject.createDtoFullObject( OWS_SKID_PROFILE_GUEST, coreApi() );
       fobj.attrs().setStr( AID_NAME, STR_N_GUEST_PROFILE );
       fobj.attrs().setStr( AID_DESCRIPTION, STR_D_GUEST_PROFILE );
-      fobj.attrs().setStr( ATRID_PROFILE_RULES,
+      fobj.clobs().put( CLBID_PROFILE_RULES,
           OneWsRule.KEEPER.coll2str( new SingleItemList<>( OneWsRule.RULE_DENY_ALL ) ) );
       fobj.links().ensureSkidList( LNKID_ROLES ).add( ISkUserServiceHardConstants.SKID_ROLE_GUEST );
       DtoFullObject.defineFullObject( coreApi(), fobj );
@@ -303,8 +303,8 @@ public class SkExtServOneWs
     DtoClassInfo cinf = new DtoClassInfo( CLSID_OWS_PROFILE, GW_ROOT_CLASS_ID, IOptionSet.NULL );
     OPDEF_SK_IS_SOURCE_CODE_DEFINED_CLASS.setValue( cinf.params(), AV_TRUE );
     OPDEF_SK_IS_SOURCE_USKAT_CORE_CLASS.setValue( cinf.params(), AV_TRUE );
-    cinf.attrInfos().add( ATRINF_PROFILE_RULES );
     cinf.attrInfos().add( ATRINF_PROFILE_PARAMS );
+    cinf.clobInfos().add( CLBINF_PROFILE_RULES );
     cinf.linkInfos().add( LNKINF_PROFILE_ROLES );
     return cinf;
   }
@@ -404,10 +404,10 @@ public class SkExtServOneWs
     Skid skid = new Skid( CLSID_OWS_PROFILE, aProfileId );
     DtoFullObject fobj = DtoFullObject.createDtoFullObject( skid, coreApi() );
     fobj.attrs().refreshSet( aAttrs );
-    fobj.attrs().setStr( ATRID_PROFILE_RULES, OneWsRule.KEEPER.coll2str( aRules ) );
+    fobj.clobs().put( CLBID_PROFILE_RULES, OneWsRule.KEEPER.coll2str( aRules ) );
     pauseCoreValidation();
     try {
-      return objServ().defineObject( fobj );
+      return DtoFullObject.defineFullObject( coreApi(), fobj );
     }
     finally {
       resumeCoreValidation();
