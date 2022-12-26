@@ -17,6 +17,8 @@
    <bundle id="org.toxsoft.uskat.users.mws"/>   
    <bundle id="org.toxsoft.uskat.users.gui"/>   
    <bundle id="org.toxsoft.uskat.onews.lib"/>   
+   <bundle id="org.toxsoft.uskat.onews.mws"/>   
+   <bundle id="org.toxsoft.uskat.onews.gui"/>   
    <bundle id="org.toxsoft.uskat.ggprefs.lib"/>   
    <bundle id="org.toxsoft.uskat.ggprefs.gui"/>   
    <bundle id="org.toxsoft.uskat.dataquality.lib"/>   
@@ -37,6 +39,8 @@
    <bundle id="org.toxsoft.uskat.users.mws.source"/>   
    <bundle id="org.toxsoft.uskat.users.gui.source"/>   
    <bundle id="org.toxsoft.uskat.onews.lib.source"/>   
+   <bundle id="org.toxsoft.uskat.onews.mws.source"/>   
+   <bundle id="org.toxsoft.uskat.onews.gui.source"/>   
    <bundle id="org.toxsoft.uskat.ggprefs.lib.source"/>   
    <bundle id="org.toxsoft.uskat.ggprefs.gui.source"/>   
    <bundle id="org.toxsoft.uskat.dataquality.lib.source"/>   

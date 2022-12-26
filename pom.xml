@@ -577,6 +577,8 @@
     <module>org.toxsoft.uskat.users.mws</module>
     <module>org.toxsoft.uskat.users.gui</module>
     <module>org.toxsoft.uskat.onews.lib</module>
+    <module>org.toxsoft.uskat.onews.mws</module>
+    <module>org.toxsoft.uskat.onews.gui</module>
     <module>org.toxsoft.uskat.ggprefs.lib</module>
     <module>org.toxsoft.uskat.ggprefs.gui</module>
     <module>org.toxsoft.uskat.dataquality.lib</module>

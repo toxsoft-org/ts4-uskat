@@ -28,6 +28,8 @@
     <ant dir="../../org.toxsoft.uskat.users.mws" antfile="${ts-scripts-dir}/ts-build-lib.xml" target="build-lib-jar" />
     <ant dir="../../org.toxsoft.uskat.users.gui" antfile="${ts-scripts-dir}/ts-build-lib.xml" target="build-lib-jar" />
     <ant dir="../../org.toxsoft.uskat.onews.lib" antfile="${ts-scripts-dir}/ts-build-lib.xml" target="build-lib-jar" />
+    <ant dir="../../org.toxsoft.uskat.onews.mws" antfile="${ts-scripts-dir}/ts-build-lib.xml" target="build-lib-jar" />
+    <ant dir="../../org.toxsoft.uskat.onews.gui" antfile="${ts-scripts-dir}/ts-build-lib.xml" target="build-lib-jar" />
     <ant dir="../../org.toxsoft.uskat.ggprefs.lib" antfile="${ts-scripts-dir}/ts-build-lib.xml" target="build-lib-jar" />
     <ant dir="../../org.toxsoft.uskat.ggprefs.gui" antfile="${ts-scripts-dir}/ts-build-lib.xml" target="build-lib-jar" />
     <ant dir="../../org.toxsoft.uskat.dataquality.lib" antfile="${ts-scripts-dir}/ts-build-lib.xml" target="build-lib-jar" />
@@ -57,6 +59,8 @@
                                 org.toxsoft.uskat.users.mws,
                                 org.toxsoft.uskat.users.gui,
                                 org.toxsoft.uskat.onews.lib,
+                                org.toxsoft.uskat.onews.mws,
+                                org.toxsoft.uskat.onews.gui,
                                 org.toxsoft.uskat.ggprefs.lib,
                                 org.toxsoft.uskat.ggprefs.gui,
                                 org.toxsoft.uskat.dataquality.lib,
