@@ -87,7 +87,10 @@ public class MtbBaLinks
           aSw.decNewLine();
         }
         aSw.writeChar( CHAR_ARRAY_END );
-        aSw.writeSeparatorChar();
+        if( linkGwid != linksMap.keys().last() ) {
+          aSw.writeSeparatorChar();
+          aSw.writeEol();
+        }
       }
       aSw.decNewLine();
     }
