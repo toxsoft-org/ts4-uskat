@@ -1,6 +1,6 @@
 package org.toxsoft.uskat.onews.gui.km5;
 
-import static org.toxsoft.uskat.onews.gui.km5.ISkResources.*;
+import static org.toxsoft.uskat.onews.gui.ISkOneWsGuiSharedResources.*;
 
 import org.toxsoft.core.tsgui.bricks.ctx.*;
 import org.toxsoft.core.tsgui.bricks.tsnodes.*;

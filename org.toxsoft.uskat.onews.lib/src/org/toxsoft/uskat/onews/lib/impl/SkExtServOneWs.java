@@ -36,6 +36,8 @@ public class SkExtServOneWs
     extends AbstractSkService
     implements ISkOneWsService {
 
+  // TODO listen to roles list change and remove removed roles from the links right objects
+
   /**
    * Service creator singleton.
    */
@@ -367,7 +369,6 @@ public class SkExtServOneWs
   public void setRoleProfile( String aRoleId, String aProfileId ) {
     TsValidationFailedRtException.checkError( svs.validator().canSetRoleProfile( aRoleId, aProfileId ) );
     ISkRole role = coreApi().userService().getRole( aRoleId );
-    IOneWsProfile p = getProfileByRoleId( aRoleId );
     // start
     pauseCoreValidation();
     try {
@@ -378,13 +379,30 @@ public class SkExtServOneWs
         for( Skid roleProfSkid : lr.leftSkids() ) {
           IDtoLinkFwd lf1 = linkService().getLinkFwd( roleProfSkid, LNKID_ROLES );
           IDtoLinkFwd lf2 = DtoLinkFwd.createCopyMinusSkid( lf1, role.skid() );
-          coreApi().linkService().setLink( lf2.leftSkid(), lf2.linkId(), lf2.rightSkids() );
+          if( !lf1.equals( lf2 ) ) {
+            coreApi().linkService().setLink( lf2.leftSkid(), lf2.linkId(), lf2.rightSkids() );
+          }
         }
       }
       // add role to the profile
-      IDtoLinkFwd lf1 = coreApi().linkService().getLinkFwd( p.skid(), LNKID_ROLES );
+      IOneWsProfile profile = findProfileById( aProfileId );
+      IDtoLinkFwd lf1 = coreApi().linkService().getLinkFwd( profile.skid(), LNKID_ROLES );
+      // remove all unexisting roles if they were because of some error
+      if( !lf1.rightSkids().isEmpty() ) {
+        DtoLinkFwd lfCorrected = new DtoLinkFwd( lf1.gwid(), lf1.leftSkid(), ISkidList.EMPTY );
+        for( Skid roleSkid : lf1.rightSkids() ) {
+          if( objServ().find( roleSkid ) != null ) {
+            lfCorrected.rightSkids().add( roleSkid );
+          }
+        }
+        if( lfCorrected.rightSkids().size() != lf1.rightSkids().size() ) {
+          coreApi().linkService().setLink( lfCorrected );
+          lf1 = coreApi().linkService().getLinkFwd( profile.skid(), LNKID_ROLES );
+        }
+      }
+      // add aRoleId role to the link's right objects
       IDtoLinkFwd lf2 = DtoLinkFwd.createCopyPlusSkid( lf1, role.skid() );
-      coreApi().linkService().setLink( lf2.leftSkid(), lf2.linkId(), lf2.rightSkids() );
+      coreApi().linkService().setLink( lf2 );
     }
     finally {
       resumeCoreValidation();
