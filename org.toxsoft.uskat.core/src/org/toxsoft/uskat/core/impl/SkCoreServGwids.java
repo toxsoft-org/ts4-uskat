@@ -1,15 +1,17 @@
 package org.toxsoft.uskat.core.impl;
 
-import org.toxsoft.core.tslib.bricks.ctx.*;
-import org.toxsoft.core.tslib.coll.*;
-import org.toxsoft.core.tslib.coll.impl.*;
+import org.toxsoft.core.tslib.bricks.ctx.ITsContextRo;
+import org.toxsoft.core.tslib.coll.IListEdit;
+import org.toxsoft.core.tslib.coll.impl.ElemArrayList;
 import org.toxsoft.core.tslib.gw.gwid.*;
 import org.toxsoft.core.tslib.utils.errors.*;
-import org.toxsoft.uskat.core.*;
-import org.toxsoft.uskat.core.api.gwids.*;
-import org.toxsoft.uskat.core.api.sysdescr.*;
-import org.toxsoft.uskat.core.api.sysdescr.dto.*;
-import org.toxsoft.uskat.core.devapi.*;
+import org.toxsoft.uskat.core.ISkServiceCreator;
+import org.toxsoft.uskat.core.api.gwids.ISkGwidService;
+import org.toxsoft.uskat.core.api.sysdescr.ESkClassPropKind;
+import org.toxsoft.uskat.core.api.sysdescr.ISkClassInfo;
+import org.toxsoft.uskat.core.api.sysdescr.dto.IDtoCmdInfo;
+import org.toxsoft.uskat.core.api.sysdescr.dto.IDtoEventInfo;
+import org.toxsoft.uskat.core.devapi.IDevCoreApi;
 
 /**
  * {@link ISkGwidService} implementation.
@@ -154,18 +156,27 @@ public class SkCoreServGwids
         break;
       }
       case GW_ATTR: {
+        if( cinf.attrs().list().size() > 0 && aGwid.isPropMulti() ) {
+          break;
+        }
         if( !cinf.attrs().list().hasKey( aGwid.propId() ) ) {
           return false;
         }
         break;
       }
       case GW_CLOB: {
+        if( cinf.clobs().list().size() > 0 && aGwid.isPropMulti() ) {
+          break;
+        }
         if( !cinf.clobs().list().hasKey( aGwid.propId() ) ) {
           return false;
         }
         break;
       }
       case GW_CMD: {
+        if( cinf.cmds().list().size() > 0 && aGwid.isPropMulti() ) {
+          break;
+        }
         if( !cinf.cmds().list().hasKey( aGwid.propId() ) ) {
           return false;
         }
@@ -176,12 +187,18 @@ public class SkCoreServGwids
         if( cmdInfo == null ) {
           return false;
         }
+        if( cmdInfo.argDefs().size() > 0 && aGwid.isSubPropMulti() ) {
+          break;
+        }
         if( !cmdInfo.argDefs().hasKey( aGwid.subPropId() ) ) {
           return false;
         }
         break;
       }
       case GW_EVENT: {
+        if( cinf.events().list().size() > 0 && aGwid.isPropMulti() ) {
+          break;
+        }
         if( !cinf.events().list().hasKey( aGwid.propId() ) ) {
           return false;
         }
@@ -192,24 +209,36 @@ public class SkCoreServGwids
         if( evInfo == null ) {
           return false;
         }
+        if( evInfo.paramDefs().size() > 0 && aGwid.isSubPropMulti() ) {
+          break;
+        }
         if( !evInfo.paramDefs().hasKey( aGwid.subPropId() ) ) {
           return false;
         }
         break;
       }
       case GW_LINK: {
+        if( cinf.links().list().size() > 0 && aGwid.isPropMulti() ) {
+          break;
+        }
         if( !cinf.links().list().hasKey( aGwid.propId() ) ) {
           return false;
         }
         break;
       }
       case GW_RIVET: {
+        if( cinf.rivets().list().size() > 0 && aGwid.isPropMulti() ) {
+          break;
+        }
         if( !cinf.rivets().list().hasKey( aGwid.propId() ) ) {
           return false;
         }
         break;
       }
       case GW_RTDATA: {
+        if( cinf.rtdata().list().size() > 0 && aGwid.isPropMulti() ) {
+          break;
+        }
         if( !cinf.rtdata().list().hasKey( aGwid.propId() ) ) {
           return false;
         }
