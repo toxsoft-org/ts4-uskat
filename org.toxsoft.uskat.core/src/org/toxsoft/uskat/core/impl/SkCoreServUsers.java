@@ -586,6 +586,7 @@ public class SkCoreServUsers
   @Override
   public void removeRole( String aRoleId ) {
     TsValidationFailedRtException.checkError( svs().validator().canRemoveRole( aRoleId ) );
+    pauseCoreValidation();
     try {
       coreApi().objService().removeObject( new Skid( ISkRole.CLASS_ID, aRoleId ) );
     }
