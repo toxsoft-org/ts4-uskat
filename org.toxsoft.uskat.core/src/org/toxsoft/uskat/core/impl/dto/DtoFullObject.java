@@ -177,17 +177,15 @@ public final class DtoFullObject
     }
     // links - fill with Skid.NONE
     for( IDtoLinkInfo linf : classInfo.links().list() ) {
-      ISkidList rights = ISkidList.EMPTY;
+      SkidList rights = new SkidList();
       if( linf.linkConstraint().isExactCount() ) {
-        SkidList sl = new SkidList();
         for( int i = 0; i < linf.linkConstraint().maxCount(); i++ ) {
-          sl.add( Skid.NONE );
+          rights.add( Skid.NONE );
         }
-        rights = sl;
       }
       else {
         if( linf.linkConstraint().isEmptyProhibited() ) {
-          rights = new SkidList( Skid.NONE );
+          rights.add( Skid.NONE );
         }
       }
       dto.links().map().put( linf.id(), rights );
