@@ -1,7 +1,7 @@
 package org.toxsoft.uskat.s5.client.remote;
 
 /**
- * Константы, локализуемые ресурсы .
+ * Константы, локализуемые ресурсы.
  *
  * @author mvk
  */
