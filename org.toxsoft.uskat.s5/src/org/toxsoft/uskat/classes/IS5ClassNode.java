@@ -26,7 +26,7 @@ public interface IS5ClassNode
   // Связи
   //
   /**
-   * Связь: сервер/кластер, в рамках которого работает узел {@link IS5ClassServer}
+   * Связь: сервер/кластер, в рамках которого работает узел {@link IS5ClassServer}.
    */
   String LNKID_SERVER = "server";
 
