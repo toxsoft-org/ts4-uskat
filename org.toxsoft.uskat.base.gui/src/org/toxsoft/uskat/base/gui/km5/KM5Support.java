@@ -158,19 +158,9 @@ public final class KM5Support
    * @param aClassId String - affected class ID or <code>null</code> for batch changes {@link ECrudOp#LIST}
    */
   void updateDomain( ECrudOp aOp, String aClassId ) {
-    // on batch changes reinitialize whole domain like connection closes and then opens
-    // OPTIMIZE determine changed classes and process only changed ones
-    if( aOp == ECrudOp.LIST ) {
-      clearDomain();
-      initializeDomain();
-      return;
-    }
     // allow contributors to process changes
     for( KM5AbstractContributor u : contributorsList ) {
-      if( u.papiUpdateModel( aOp, aClassId ) ) {
-        // change was processed, nothing to be done
-        return;
-      }
+      u.papiUpdateModel( aOp, aClassId );
     }
   }
 

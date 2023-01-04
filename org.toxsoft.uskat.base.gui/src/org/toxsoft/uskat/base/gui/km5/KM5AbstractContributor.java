@@ -4,6 +4,7 @@ import org.toxsoft.core.tsgui.m5.*;
 import org.toxsoft.core.tslib.coll.helpers.*;
 import org.toxsoft.core.tslib.coll.primtypes.*;
 import org.toxsoft.core.tslib.utils.errors.*;
+import org.toxsoft.uskat.core.api.sysdescr.dto.*;
 import org.toxsoft.uskat.core.connection.*;
 import org.toxsoft.uskat.core.utils.*;
 
@@ -73,19 +74,17 @@ public abstract class KM5AbstractContributor
   /**
    * Implementation must update contributed M5-models on sysdescr change if needed.
    * <p>
-   * This method is never called for batch changes with {@link ECrudOp#LIST} value.
+   * Note: this method is called only when sk-class description was changed while connection is open. Hence if
+   * contributor models only unchangeable entities (like {@link IDtoAttrInfo} or Java code defined classes) then
+   * subclass does not needs to override this method.
    * <p>
-   * Returning <code>true</code> means that change was processed and nothing more is to be done by other contributors or
-   * by the caller {@link KM5Support}.
-   * <p>
-   * In base class returns <code>false</code>, there is no need to call superclass methodwhen overriding.
+   * In base class does nothing, there is no need to call superclass methodwhen overriding.
    *
    * @param aOp {@link ECrudOp} - the kind of change (never is {@link ECrudOp#LIST})
    * @param aClassId String - affected class ID
-   * @return boolean - <code>true</code> if this contributor processed change
    */
-  protected boolean papiUpdateModel( ECrudOp aOp, String aClassId ) {
-    return false;
+  protected void papiUpdateModel( ECrudOp aOp, String aClassId ) {
+    // nop
   }
 
   /**
