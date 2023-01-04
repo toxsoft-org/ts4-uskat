@@ -35,6 +35,11 @@ public interface ISkUsersGuiSharedResources {
   String STR_D_ROLE_ID = Messages.getString( "STR_D_ROLE_ID" ); //$NON-NLS-1$
 
   /**
+   * {@link SkUserM5LifecycleManager}
+   */
+  String MSG_ERR_LOGIN_NOT_IDPATH = Messages.getString( "MSG_ERR_LOGIN_NOT_IDPATH" ); //$NON-NLS-1$
+
+  /**
    * {@link SkUserMpc}
    */
   String STR_N_TMI_BY_ROLES = Messages.getString( "STR_N_TMI_BY_ROLES" ); //$NON-NLS-1$

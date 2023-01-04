@@ -2,8 +2,10 @@ package org.toxsoft.uskat.users.gui.km5;
 
 import static org.toxsoft.uskat.core.ISkHardConstants.*;
 import static org.toxsoft.uskat.core.api.users.ISkUserServiceHardConstants.*;
+import static org.toxsoft.uskat.users.gui.ISkUsersGuiSharedResources.*;
 
 import org.toxsoft.core.tsgui.m5.*;
+import org.toxsoft.core.tslib.bricks.strid.impl.*;
 import org.toxsoft.core.tslib.bricks.validator.*;
 import org.toxsoft.core.tslib.coll.*;
 import org.toxsoft.core.tslib.gw.skid.*;
@@ -25,7 +27,7 @@ import org.toxsoft.uskat.core.utils.*;
 public class SkUserM5LifecycleManager
     extends KM5LifecycleManagerBasic<ISkUser, ISkConnection> {
 
-  // TODO when editing user in roles selection dialog should be the hiddon roles be shown? maybe app pref?
+  // TODO when editing user in roles selection dialog should be the hiddin roles shown? maybe app pref?
 
   /**
    * Constructor.
@@ -52,8 +54,12 @@ public class SkUserM5LifecycleManager
 
   @Override
   protected ValidationResult doBeforeCreate( IM5Bunch<ISkUser> aValues ) {
-    IDtoFullObject dtoUsr = makeUserDto( aValues, coreApi() );
-    return userService().svs().validator().canCreateUser( dtoUsr );
+    String id = aValues.getAsAv( AID_STRID ).asString();
+    if( !StridUtils.isValidIdPath( id ) ) {
+      return ValidationResult.error( MSG_ERR_LOGIN_NOT_IDPATH );
+    }
+    IDtoFullObject dtoUser = makeUserDto( aValues, coreApi() );
+    return userService().svs().validator().canCreateUser( dtoUser );
   }
 
   @Override
@@ -64,14 +70,18 @@ public class SkUserM5LifecycleManager
 
   @Override
   protected ValidationResult doBeforeEdit( IM5Bunch<ISkUser> aValues ) {
-    IDtoFullObject dtoUsr = makeUserDto( aValues, coreApi() );
-    return userService().svs().validator().canEditUser( dtoUsr, aValues.originalEntity() );
+    String id = aValues.getAsAv( AID_STRID ).asString();
+    if( !StridUtils.isValidIdPath( id ) ) {
+      return ValidationResult.error( MSG_ERR_LOGIN_NOT_IDPATH );
+    }
+    IDtoFullObject dtoUser = makeUserDto( aValues, coreApi() );
+    return userService().svs().validator().canEditUser( dtoUser, aValues.originalEntity() );
   }
 
   @Override
   protected ISkUser doEdit( IM5Bunch<ISkUser> aValues ) {
-    IDtoFullObject dtoUsr = makeUserDto( aValues, coreApi() );
-    return userService().editUser( dtoUsr );
+    IDtoFullObject dtoUser = makeUserDto( aValues, coreApi() );
+    return userService().editUser( dtoUser );
   }
 
   @Override
