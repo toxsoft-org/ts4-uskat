@@ -74,7 +74,7 @@ public abstract class KM5AbstractContributor
   /**
    * Implementation must update contributed M5-models on sysdescr change if needed.
    * <p>
-   * Note: this method is called only when sk-class description was changed while connection is open. Hence if
+   * Note: this method is called only when sk-class description was changed while connection is open. Hence if subclass
    * contributor models only unchangeable entities (like {@link IDtoAttrInfo} or Java code defined classes) then
    * subclass does not needs to override this method.
    * <p>
