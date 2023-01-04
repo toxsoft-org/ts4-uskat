@@ -1,19 +1,18 @@
 package org.toxsoft.uskat.core.impl;
 
-import org.toxsoft.uskat.core.api.hqserv.ISkHistoryQueryServiceConstants;
+import org.toxsoft.uskat.core.api.hqserv.*;
 
 /**
  * Localizable resources.
  *
  * @author hazard157
  */
-@SuppressWarnings( "nls" )
 interface ISkResources {
 
   /**
    * Common messages.
    */
-  String FMT_ERR_NO_SUCH_CLASS = "Class '%s' does not exists";
+  String FMT_ERR_NO_SUCH_CLASS = Messages.getString( "FMT_ERR_NO_SUCH_CLASS" ); //$NON-NLS-1$
   String FMT_ERR_NO_SUCH_OBJ   = "Object '%s' does not exists";
 
   /**
