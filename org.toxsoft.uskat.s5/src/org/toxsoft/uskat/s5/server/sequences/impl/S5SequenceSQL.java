@@ -1166,8 +1166,8 @@ class S5SequenceSQL {
    * @param <V> тип значения последовательности
    * @throws TsNullArgumentRtException любой аргумент = null
    */
-  static <V extends ITemporal<?>> long findLastBlockEndTime( EntityManager aEntityManager, IS5SequenceFactory<V> aFactory,
-      Gwid aGwid ) {
+  static <V extends ITemporal<?>> long findLastBlockEndTime( EntityManager aEntityManager,
+      IS5SequenceFactory<V> aFactory, Gwid aGwid ) {
     TsNullArgumentRtException.checkNulls( aEntityManager, aFactory, aGwid );
     // Параметризованное описание типа данного
     IParameterized typeInfo = aFactory.typeInfo( aGwid );
@@ -1692,7 +1692,7 @@ class S5SequenceSQL {
     // Признак открытого начала
     boolean isStartOpen = (aInterval.type() == OSCE || aInterval.type() == OSOE);
     // Признак открытого завершения
-    boolean isEndOpen = (aInterval.type() == OSCE || aInterval.type() == OSOE);
+    boolean isEndOpen = (aInterval.type() == CSOE || aInterval.type() == OSOE);
 
     // Индекс первого значения в интервале, включительно
     // int firstIndex = (ist < aBlock.startTime() ? 0 : aBlock.firstByTime( ist ));
