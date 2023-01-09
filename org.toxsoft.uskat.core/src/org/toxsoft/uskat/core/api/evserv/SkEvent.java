@@ -1,16 +1,21 @@
 package org.toxsoft.uskat.core.api.evserv;
 
-import java.io.*;
+import java.io.Serializable;
 
-import org.toxsoft.core.tslib.av.opset.*;
+import org.toxsoft.core.tslib.av.opset.IOptionSet;
 import org.toxsoft.core.tslib.av.opset.impl.*;
-import org.toxsoft.core.tslib.bricks.keeper.*;
-import org.toxsoft.core.tslib.bricks.keeper.AbstractEntityKeeper.*;
-import org.toxsoft.core.tslib.bricks.strio.*;
-import org.toxsoft.core.tslib.bricks.time.*;
-import org.toxsoft.core.tslib.gw.gwid.*;
-import org.toxsoft.core.tslib.utils.*;
-import org.toxsoft.core.tslib.utils.errors.*;
+import org.toxsoft.core.tslib.bricks.keeper.AbstractEntityKeeper;
+import org.toxsoft.core.tslib.bricks.keeper.AbstractEntityKeeper.EEncloseMode;
+import org.toxsoft.core.tslib.bricks.keeper.IEntityKeeper;
+import org.toxsoft.core.tslib.bricks.strio.IStrioReader;
+import org.toxsoft.core.tslib.bricks.strio.IStrioWriter;
+import org.toxsoft.core.tslib.bricks.time.ITemporal;
+import org.toxsoft.core.tslib.bricks.time.impl.TimeUtils;
+import org.toxsoft.core.tslib.gw.gwid.EGwidKind;
+import org.toxsoft.core.tslib.gw.gwid.Gwid;
+import org.toxsoft.core.tslib.utils.TsLibUtils;
+import org.toxsoft.core.tslib.utils.errors.TsIllegalArgumentRtException;
+import org.toxsoft.core.tslib.utils.errors.TsNullArgumentRtException;
 
 /**
  * USkat system event.
@@ -137,7 +142,8 @@ public final class SkEvent
 
   @Override
   public String toString() {
-    return eventGwid.toString();
+    return TimeUtils.timestampToString( timestamp ) + ' ' + eventGwid.toString() + ' '
+        + OptionSetUtils.humanReadable( paramValues );
   }
 
   @Override
