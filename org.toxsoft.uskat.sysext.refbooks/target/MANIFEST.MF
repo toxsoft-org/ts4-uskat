@@ -1,0 +1,13 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: uskat SYSextension: Refbooks support
+Bundle-SymbolicName: org.toxsoft.uskat.sysext.refbooks
+Bundle-Version: 1.0.0.202205131048
+Bundle-Vendor: ToxSoft LLC
+Bundle-RequiredExecutionEnvironment: JavaSE-17
+Require-Bundle: org.toxsoft.core.tslib,ru.uskat.common,ru.uskat.core,ru.
+ uskat.backend,org.toxsoft.uskat.s5
+Export-Package: org.toxsoft.uskat.sysext.refbooks,org.toxsoft.uskat.syse
+ xt.refbooks.addon,org.toxsoft.uskat.sysext.refbooks.impl
+Automatic-Module-Name: org.toxsoft.uskat.sysext.refbooks
+

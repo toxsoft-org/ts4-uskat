@@ -1,0 +1,23 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: uskat SYSextension: realtime support
+Bundle-SymbolicName: org.toxsoft.uskat.sysext.realtime
+Bundle-Version: 1.0.0.202205131048
+Bundle-Vendor: ToxSoft LLC
+Automatic-Module-Name: org.toxsoft.uskat.sysext.realtime
+Bundle-RequiredExecutionEnvironment: JavaSE-17
+Require-Bundle: org.toxsoft.extlibs.wildfly,org.toxsoft.core.tslib,org.t
+ oxsoft.core.log4j,ru.uskat.common,ru.uskat.core,ru.uskat.backend,org.to
+ xsoft.uskat.s5,org.toxsoft.core.pas
+Export-Package: org.toxsoft.uskat.sysext.realtime,org.toxsoft.uskat.syse
+ xt.realtime.addon,org.toxsoft.uskat.sysext.realtime.impl,org.toxsoft.us
+ kat.sysext.realtime.pas,org.toxsoft.uskat.sysext.realtime.supports,org.
+ toxsoft.uskat.sysext.realtime.supports.commands,org.toxsoft.uskat.sysex
+ t.realtime.supports.commands.impl,org.toxsoft.uskat.sysext.realtime.sup
+ ports.commands.sequences,org.toxsoft.uskat.sysext.realtime.supports.cur
+ rdata,org.toxsoft.uskat.sysext.realtime.supports.currdata.cluster,org.t
+ oxsoft.uskat.sysext.realtime.supports.histdata,org.toxsoft.uskat.sysext
+ .realtime.supports.histdata.sequences,org.toxsoft.uskat.sysext.realtime
+ .supports.histdata.sequences.async,org.toxsoft.uskat.sysext.realtime.su
+ pports.histdata.sequences.sync
+

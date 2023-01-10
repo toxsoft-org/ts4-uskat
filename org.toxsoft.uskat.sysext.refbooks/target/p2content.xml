@@ -1,0 +1,85 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<units size='2'>
+  <unit id='org.toxsoft.uskat.sysext.refbooks' version='1.0.0.202205131048' singleton='false' generation='2'>
+    <update id='org.toxsoft.uskat.sysext.refbooks' range='[0.0.0,1.0.0.202205131048)' severity='0'/>
+    <properties size='5'>
+      <property name='org.eclipse.equinox.p2.name' value='uskat SYSextension: Refbooks support'/>
+      <property name='org.eclipse.equinox.p2.provider' value='ToxSoft LLC'/>
+      <property name='maven-groupId' value='org.toxsoft.uskat'/>
+      <property name='maven-artifactId' value='org.toxsoft.uskat.sysext.refbooks'/>
+      <property name='maven-version' value='1.0.0-SNAPSHOT'/>
+    </properties>
+    <provides size='7'>
+      <provided namespace='org.eclipse.equinox.p2.iu' name='org.toxsoft.uskat.sysext.refbooks' version='1.0.0.202205131048'/>
+      <provided namespace='osgi.bundle' name='org.toxsoft.uskat.sysext.refbooks' version='1.0.0.202205131048'/>
+      <provided namespace='java.package' name='org.toxsoft.uskat.sysext.refbooks' version='0.0.0'/>
+      <provided namespace='java.package' name='org.toxsoft.uskat.sysext.refbooks.addon' version='0.0.0'/>
+      <provided namespace='java.package' name='org.toxsoft.uskat.sysext.refbooks.impl' version='0.0.0'/>
+      <provided namespace='osgi.identity' name='org.toxsoft.uskat.sysext.refbooks' version='1.0.0.202205131048'>
+        <properties size='1'>
+          <property name='type' value='osgi.bundle'/>
+        </properties>
+      </provided>
+      <provided namespace='org.eclipse.equinox.p2.eclipse.type' name='bundle' version='1.0.0'/>
+    </provides>
+    <requires size='6'>
+      <required namespace='osgi.bundle' name='org.toxsoft.core.tslib' range='0.0.0'/>
+      <required namespace='osgi.bundle' name='ru.uskat.common' range='0.0.0'/>
+      <required namespace='osgi.bundle' name='ru.uskat.core' range='0.0.0'/>
+      <required namespace='osgi.bundle' name='ru.uskat.backend' range='0.0.0'/>
+      <required namespace='osgi.bundle' name='org.toxsoft.uskat.s5' range='0.0.0'/>
+      <requiredProperties namespace='osgi.ee' match='(&amp;(osgi.ee=JavaSE)(version=17))'>
+        <description>
+          org.toxsoft.uskat.sysext.refbooks
+        </description>
+      </requiredProperties>
+    </requires>
+    <artifacts size='1'>
+      <artifact classifier='osgi.bundle' id='org.toxsoft.uskat.sysext.refbooks' version='1.0.0.202205131048'/>
+    </artifacts>
+    <touchpoint id='org.eclipse.equinox.p2.osgi' version='1.0.0'/>
+    <touchpointData size='1'>
+      <instructions size='1'>
+        <instruction key='manifest'>
+          Bundle-SymbolicName: org.toxsoft.uskat.sysext.refbooks&#xA;Bundle-Version: 1.0.0.202205131048&#xA;
+        </instruction>
+      </instructions>
+    </touchpointData>
+  </unit>
+  <unit id='org.toxsoft.uskat.sysext.refbooks.source' version='1.0.0.202205131048' singleton='false'>
+    <update id='org.toxsoft.uskat.sysext.refbooks.source' range='[0.0.0,1.0.0.202205131048)' severity='0'/>
+    <properties size='9'>
+      <property name='df_LT.bundleVendor' value='ToxSoft LLC'/>
+      <property name='df_LT.bundleName' value='uskat SYSextension: Refbooks support Source'/>
+      <property name='org.eclipse.equinox.p2.name' value='%bundleName'/>
+      <property name='org.eclipse.equinox.p2.provider' value='%bundleVendor'/>
+      <property name='org.eclipse.equinox.p2.bundle.localization' value='OSGI-INF/l10n/bundle-src'/>
+      <property name='maven-groupId' value='org.toxsoft.uskat'/>
+      <property name='maven-artifactId' value='org.toxsoft.uskat.sysext.refbooks'/>
+      <property name='maven-version' value='1.0.0-SNAPSHOT'/>
+      <property name='maven-classifier' value='sources'/>
+    </properties>
+    <provides size='5'>
+      <provided namespace='org.eclipse.equinox.p2.iu' name='org.toxsoft.uskat.sysext.refbooks.source' version='1.0.0.202205131048'/>
+      <provided namespace='osgi.bundle' name='org.toxsoft.uskat.sysext.refbooks.source' version='1.0.0.202205131048'/>
+      <provided namespace='osgi.identity' name='org.toxsoft.uskat.sysext.refbooks.source' version='1.0.0.202205131048'>
+        <properties size='1'>
+          <property name='type' value='osgi.bundle'/>
+        </properties>
+      </provided>
+      <provided namespace='org.eclipse.equinox.p2.eclipse.type' name='source' version='1.0.0'/>
+      <provided namespace='org.eclipse.equinox.p2.localization' name='df_LT' version='1.0.0'/>
+    </provides>
+    <artifacts size='1'>
+      <artifact classifier='osgi.bundle' id='org.toxsoft.uskat.sysext.refbooks.source' version='1.0.0.202205131048'/>
+    </artifacts>
+    <touchpoint id='org.eclipse.equinox.p2.osgi' version='1.0.0'/>
+    <touchpointData size='1'>
+      <instructions size='1'>
+        <instruction key='manifest'>
+          Bundle-SymbolicName: org.toxsoft.uskat.sysext.refbooks.source&#xA;Bundle-Version: 1.0.0.202205131048&#xA;
+        </instruction>
+      </instructions>
+    </touchpointData>
+  </unit>
+</units>
