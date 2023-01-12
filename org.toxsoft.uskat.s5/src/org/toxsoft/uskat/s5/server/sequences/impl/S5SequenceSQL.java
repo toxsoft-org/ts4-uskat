@@ -1699,10 +1699,10 @@ class S5SequenceSQL {
     while( firstIndex > 0 ) { //
       long currTime = aBlock.timestamp( firstIndex );
       long nextTime = aBlock.timestamp( firstIndex - 1 );
-      String t0 = TimeUtils.timestampToString( currTime );
-      String t1 = TimeUtils.timestampToString( nextTime );
-      ITemporal v0 = aBlock.getValue( firstIndex );
-      ITemporal v1 = aBlock.getValue( firstIndex - 1 );
+      // String t0 = TimeUtils.timestampToString( currTime );
+      // String t1 = TimeUtils.timestampToString( nextTime );
+      // ITemporal v0 = aBlock.getValue( firstIndex );
+      // ITemporal v1 = aBlock.getValue( firstIndex - 1 );
       if( isStartOpen && currTime >= ist || //
           !isStartOpen && nextTime == ist ) {
         firstIndex--;
@@ -1718,10 +1718,10 @@ class S5SequenceSQL {
     while( lastIndex + 1 < aBlock.size() ) {
       long currTime = aBlock.timestamp( lastIndex );
       long nextTime = aBlock.timestamp( lastIndex + 1 );
-      ITemporal v0 = aBlock.getValue( lastIndex );
-      ITemporal v1 = aBlock.getValue( lastIndex + 1 );
-      String t0 = TimeUtils.timestampToString( currTime );
-      String t1 = TimeUtils.timestampToString( nextTime );
+      // ITemporal v0 = aBlock.getValue( lastIndex );
+      // ITemporal v1 = aBlock.getValue( lastIndex + 1 );
+      // String t0 = TimeUtils.timestampToString( currTime );
+      // String t1 = TimeUtils.timestampToString( nextTime );
       if( isEndOpen && currTime <= iet || //
           !isEndOpen && nextTime == iet ) {
         lastIndex++;
@@ -1730,11 +1730,21 @@ class S5SequenceSQL {
       }
       break;
     }
-
+    // Восстановление признаков
+    isStartOpen = (aInterval.type() == OSCE || aInterval.type() == OSOE);
+    isEndOpen = (aInterval.type() == CSOE || aInterval.type() == OSOE);
     // Список значений выбранных в указанном интервале. aAllowDuplicates = true
     ITimedListEdit<V> values = new S5FixedCapacityTimedList<>( lastIndex - firstIndex + 1, true );
     for( int index = firstIndex; index <= lastIndex; index++ ) {
-      values.add( aBlock.getValue( index ) );
+      V value = aBlock.getValue( index );
+      long timestamp = value.timestamp();
+      if( !isStartOpen && timestamp < ist ) {
+        continue;
+      }
+      if( !isEndOpen && iet < timestamp ) {
+        continue;
+      }
+      values.add( value );
     }
     // Создание блока с значениями которые находятся в блоке
     return aFactory.createBlock( aBlock.gwid(), values );
