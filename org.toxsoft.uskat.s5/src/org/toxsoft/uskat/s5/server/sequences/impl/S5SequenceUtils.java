@@ -9,6 +9,7 @@ import java.util.List;
 
 import org.toxsoft.core.tslib.av.utils.IParameterized;
 import org.toxsoft.core.tslib.bricks.time.*;
+import org.toxsoft.core.tslib.bricks.time.impl.QueryInterval;
 import org.toxsoft.core.tslib.bricks.time.impl.TimeUtils;
 import org.toxsoft.core.tslib.bricks.validator.IValResList;
 import org.toxsoft.core.tslib.bricks.validator.ValidationResult;
@@ -16,7 +17,6 @@ import org.toxsoft.core.tslib.bricks.validator.impl.ValResList;
 import org.toxsoft.core.tslib.coll.IList;
 import org.toxsoft.core.tslib.gw.gwid.Gwid;
 import org.toxsoft.core.tslib.utils.errors.*;
-import org.toxsoft.uskat.s5.legacy.QueryInterval;
 import org.toxsoft.uskat.s5.server.sequences.*;
 
 /**

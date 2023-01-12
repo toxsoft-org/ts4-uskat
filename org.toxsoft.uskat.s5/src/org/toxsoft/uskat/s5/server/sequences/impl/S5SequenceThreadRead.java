@@ -6,6 +6,7 @@ import static org.toxsoft.uskat.s5.server.sequences.impl.S5SequenceSQL.*;
 import static org.toxsoft.uskat.s5.server.sequences.impl.S5SequenceUtils.*;
 
 import org.toxsoft.core.tslib.bricks.time.*;
+import org.toxsoft.core.tslib.bricks.time.impl.QueryInterval;
 import org.toxsoft.core.tslib.coll.*;
 import org.toxsoft.core.tslib.coll.impl.ElemMap;
 import org.toxsoft.core.tslib.gw.gwid.Gwid;
@@ -13,7 +14,6 @@ import org.toxsoft.core.tslib.gw.gwid.IGwidList;
 import org.toxsoft.core.tslib.utils.TsLibUtils;
 import org.toxsoft.core.tslib.utils.errors.*;
 import org.toxsoft.core.tslib.utils.logs.ELogSeverity;
-import org.toxsoft.uskat.s5.legacy.QueryInterval;
 import org.toxsoft.uskat.s5.server.sequences.*;
 import org.toxsoft.uskat.s5.server.sequences.reader.IS5SequenceReadQuery;
 import org.toxsoft.uskat.s5.utils.threads.impl.S5AbstractReadThread;
@@ -72,7 +72,8 @@ public class S5SequenceThreadRead<S extends IS5Sequence<V>, V extends ITemporal<
       // Создание последовательностей
       for( int index = 0, n = readBlocks.keys().size(); index < n; index++ ) {
         Gwid gwid = readBlocks.keys().get( index );
-        IList<IS5SequenceBlockEdit<V>> blocks = (IList<IS5SequenceBlockEdit<V>>)(Object)readBlocks.values().get( index );
+        IList<IS5SequenceBlockEdit<V>> blocks =
+            (IList<IS5SequenceBlockEdit<V>>)(Object)readBlocks.values().get( index );
         // Фактический интервал значений (может быть больше запрашиваемого так как могут быть значения ДО и ПОСЛЕ)
         long factStartTime = interval.startTime();
         long factEndTime = interval.endTime();
