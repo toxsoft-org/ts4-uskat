@@ -8,7 +8,7 @@ import javax.ejb.*;
 
 import org.toxsoft.core.log4j.LoggerWrapper;
 import org.toxsoft.core.tslib.av.opset.IOptionSet;
-import org.toxsoft.core.tslib.bricks.time.IQueryInterval;
+import org.toxsoft.core.tslib.bricks.time.ITimeInterval;
 import org.toxsoft.core.tslib.bricks.time.ITimedList;
 import org.toxsoft.core.tslib.bricks.validator.ValidationResult;
 import org.toxsoft.core.tslib.gw.gwid.Gwid;
@@ -153,7 +153,7 @@ public class S5BaCommandsSession
 
   @TransactionAttribute( TransactionAttributeType.SUPPORTS )
   @Override
-  public ITimedList<IDtoCompletedCommand> queryObjCommands( IQueryInterval aInterval, Gwid aGwid ) {
+  public ITimedList<IDtoCompletedCommand> queryObjCommands( ITimeInterval aInterval, Gwid aGwid ) {
     TsNullArgumentRtException.checkNulls( aInterval, aGwid );
     return commandsSupport.queryObjCommands( aInterval, aGwid );
   }

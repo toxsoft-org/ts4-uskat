@@ -1,13 +1,14 @@
 package org.toxsoft.uskat.core.api.cmdserv;
 
-import org.toxsoft.core.tslib.av.opset.*;
-import org.toxsoft.core.tslib.bricks.events.change.*;
-import org.toxsoft.core.tslib.bricks.time.*;
+import org.toxsoft.core.tslib.av.opset.IOptionSet;
+import org.toxsoft.core.tslib.bricks.events.change.IGenericChangeEventer;
+import org.toxsoft.core.tslib.bricks.time.ITimeInterval;
+import org.toxsoft.core.tslib.bricks.time.ITimedList;
 import org.toxsoft.core.tslib.gw.gwid.*;
-import org.toxsoft.core.tslib.gw.skid.*;
+import org.toxsoft.core.tslib.gw.skid.Skid;
 import org.toxsoft.core.tslib.utils.errors.*;
-import org.toxsoft.uskat.core.*;
-import org.toxsoft.uskat.core.api.*;
+import org.toxsoft.uskat.core.ISkHardConstants;
+import org.toxsoft.uskat.core.api.ISkService;
 
 /**
  * Core service: command sending and processing support.
@@ -97,14 +98,14 @@ public interface ISkCommandService
    * <p>
    * Note: do not ask for long time interval, this method is synchronous and hence may freeze for a long time.
    *
-   * @param aInterval {@link IQueryInterval} - query time interval
+   * @param aInterval {@link ITimeInterval} - query time interval
    * @param aGwid {@link Gwid} - concrete GWID of the command (s)
    * @return {@link ITimedList}&lt;{@link IDtoCompletedCommand}&gt; - list of the queried entities
    * @throws TsNullArgumentRtException any argument = <code>null</code>
    * @throws TsIllegalArgumentRtException invalid GWID
    * @throws TsItemNotFoundRtException no such command exists in sysdescr
    */
-  ITimedList<IDtoCompletedCommand> queryObjCommands( IQueryInterval aInterval, Gwid aGwid );
+  ITimedList<IDtoCompletedCommand> queryObjCommands( ITimeInterval aInterval, Gwid aGwid );
 
   // ------------------------------------------------------------------------------------
   // Global GWIDs handling
