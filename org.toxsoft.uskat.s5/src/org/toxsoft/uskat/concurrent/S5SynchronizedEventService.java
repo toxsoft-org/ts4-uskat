@@ -2,7 +2,7 @@ package org.toxsoft.uskat.concurrent;
 
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
-import org.toxsoft.core.tslib.bricks.time.IQueryInterval;
+import org.toxsoft.core.tslib.bricks.time.ITimeInterval;
 import org.toxsoft.core.tslib.bricks.time.ITimedList;
 import org.toxsoft.core.tslib.coll.IMapEdit;
 import org.toxsoft.core.tslib.coll.impl.ElemMap;
@@ -100,7 +100,7 @@ public final class S5SynchronizedEventService
   }
 
   @Override
-  public ITimedList<SkEvent> queryObjEvents( IQueryInterval aInterval, Gwid aGwid ) {
+  public ITimedList<SkEvent> queryObjEvents( ITimeInterval aInterval, Gwid aGwid ) {
     lockWrite( this );
     try {
       return target().queryObjEvents( aInterval, aGwid );

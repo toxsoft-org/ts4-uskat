@@ -2,17 +2,18 @@ package org.toxsoft.uskat.core.impl;
 
 import static org.toxsoft.uskat.core.backend.api.IBaEventsMessages.*;
 
-import org.toxsoft.core.tslib.bricks.ctx.*;
-import org.toxsoft.core.tslib.bricks.events.msg.*;
-import org.toxsoft.core.tslib.bricks.time.*;
-import org.toxsoft.core.tslib.coll.*;
-import org.toxsoft.core.tslib.coll.impl.*;
+import org.toxsoft.core.tslib.bricks.ctx.ITsContextRo;
+import org.toxsoft.core.tslib.bricks.events.msg.GenericMessage;
+import org.toxsoft.core.tslib.bricks.time.ITimeInterval;
+import org.toxsoft.core.tslib.bricks.time.ITimedList;
+import org.toxsoft.core.tslib.coll.IMapEdit;
+import org.toxsoft.core.tslib.coll.impl.ElemMap;
 import org.toxsoft.core.tslib.gw.gwid.*;
 import org.toxsoft.core.tslib.utils.errors.*;
-import org.toxsoft.uskat.core.*;
+import org.toxsoft.uskat.core.ISkServiceCreator;
 import org.toxsoft.uskat.core.api.evserv.*;
-import org.toxsoft.uskat.core.api.sysdescr.*;
-import org.toxsoft.uskat.core.devapi.*;
+import org.toxsoft.uskat.core.api.sysdescr.ESkClassPropKind;
+import org.toxsoft.uskat.core.devapi.IDevCoreApi;
 
 /**
  * {@link ISkEventService} implementation.
@@ -184,7 +185,7 @@ public class SkCoreServEvents
   }
 
   @Override
-  public ITimedList<SkEvent> queryObjEvents( IQueryInterval aInterval, Gwid aGwid ) {
+  public ITimedList<SkEvent> queryObjEvents( ITimeInterval aInterval, Gwid aGwid ) {
     TsNullArgumentRtException.checkNulls( aInterval, aGwid );
     TsIllegalArgumentRtException.checkTrue( aGwid.kind() != EGwidKind.GW_EVENT );
     TsIllegalArgumentRtException.checkTrue( aGwid.isAbstract() );

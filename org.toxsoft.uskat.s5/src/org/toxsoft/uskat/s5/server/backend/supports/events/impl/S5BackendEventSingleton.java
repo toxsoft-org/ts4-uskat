@@ -134,7 +134,7 @@ public class S5BackendEventSingleton
 
   @Override
   @TransactionAttribute( TransactionAttributeType.SUPPORTS )
-  public ITimedList<SkEvent> queryEvents( IQueryInterval aInterval, IGwidList aNeededGwids ) {
+  public ITimedList<SkEvent> queryEvents( ITimeInterval aInterval, IGwidList aNeededGwids ) {
     TsNullArgumentRtException.checkNulls( aInterval, aNeededGwids );
     long traceStartTime = System.currentTimeMillis();
     // Подготовка списка идентификаторов запрашиваемых объектов. false: без повторов
@@ -168,7 +168,8 @@ public class S5BackendEventSingleton
 
     // Чтение событий
     long traceReadStartTime = System.currentTimeMillis();
-    IMap<Gwid, IS5EventSequence> sequences = readSequences( gwids, aInterval, ACCESS_TIMEOUT_DEFAULT );
+    IQueryInterval interval = new QueryInterval( EQueryIntervalType.CSCE, aInterval.startTime(), aInterval.endTime() );
+    IMap<Gwid, IS5EventSequence> sequences = readSequences( gwids, interval, ACCESS_TIMEOUT_DEFAULT );
     long traceReadEndTime = System.currentTimeMillis();
 
     // Фильтрация событий и формирование сводного(по объектам) результата запроса

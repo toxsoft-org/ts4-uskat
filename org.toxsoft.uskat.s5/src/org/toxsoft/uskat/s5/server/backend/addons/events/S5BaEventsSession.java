@@ -6,7 +6,7 @@ import java.util.concurrent.TimeUnit;
 
 import javax.ejb.*;
 
-import org.toxsoft.core.tslib.bricks.time.IQueryInterval;
+import org.toxsoft.core.tslib.bricks.time.ITimeInterval;
 import org.toxsoft.core.tslib.bricks.time.ITimedList;
 import org.toxsoft.core.tslib.gw.gwid.*;
 import org.toxsoft.core.tslib.utils.errors.TsNullArgumentRtException;
@@ -114,7 +114,7 @@ public class S5BaEventsSession
 
   @TransactionAttribute( TransactionAttributeType.SUPPORTS )
   @Override
-  public ITimedList<SkEvent> queryObjEvents( IQueryInterval aInterval, Gwid aGwid ) {
+  public ITimedList<SkEvent> queryObjEvents( ITimeInterval aInterval, Gwid aGwid ) {
     TsNullArgumentRtException.checkNulls( aInterval, aGwid );
     return eventsSupport.queryEvents( aInterval, new GwidList( aGwid ) );
   }
