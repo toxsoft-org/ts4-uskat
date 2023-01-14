@@ -2,17 +2,14 @@ package org.toxsoft.uskat.core.api.sysdescr;
 
 import static org.toxsoft.uskat.core.api.sysdescr.ISkResources.*;
 
-import org.toxsoft.core.tslib.bricks.keeper.IEntityKeeper;
-import org.toxsoft.core.tslib.bricks.keeper.std.StridableEnumKeeper;
-import org.toxsoft.core.tslib.bricks.strid.IStridable;
-import org.toxsoft.core.tslib.bricks.strid.coll.IStridablesList;
-import org.toxsoft.core.tslib.bricks.strid.coll.IStridablesListEdit;
-import org.toxsoft.core.tslib.bricks.strid.coll.impl.StridablesList;
-import org.toxsoft.core.tslib.gw.IGwHardConstants;
-import org.toxsoft.core.tslib.gw.gwid.EGwidKind;
-import org.toxsoft.core.tslib.gw.gwid.Gwid;
-import org.toxsoft.core.tslib.utils.errors.TsItemNotFoundRtException;
-import org.toxsoft.core.tslib.utils.errors.TsNullArgumentRtException;
+import org.toxsoft.core.tslib.bricks.keeper.*;
+import org.toxsoft.core.tslib.bricks.keeper.std.*;
+import org.toxsoft.core.tslib.bricks.strid.*;
+import org.toxsoft.core.tslib.bricks.strid.coll.*;
+import org.toxsoft.core.tslib.bricks.strid.coll.impl.*;
+import org.toxsoft.core.tslib.gw.*;
+import org.toxsoft.core.tslib.gw.gwid.*;
+import org.toxsoft.core.tslib.utils.errors.*;
 
 /**
  * The enumeration of XXX.
@@ -25,37 +22,37 @@ public enum ESkClassPropKind
   /**
    * Attribute.
    */
-  ATTR( IGwHardConstants.GW_KEYWORD_ATTR, STR_N_ATTR, STR_D_ATTR, EGwidKind.GW_ATTR ),
+  ATTR( IGwHardConstants.GW_KEYWORD_ATTR, STR_N_CPK_ATTR, STR_D_CPK_ATTR, EGwidKind.GW_ATTR ),
 
   /**
    * RT-data.
    */
-  RTDATA( IGwHardConstants.GW_KEYWORD_RTDATA, STR_N_RTDATA, STR_D_RTDATA, EGwidKind.GW_RTDATA ),
+  RTDATA( IGwHardConstants.GW_KEYWORD_RTDATA, STR_N_CPK_RTDATA, STR_D_CPK_RTDATA, EGwidKind.GW_RTDATA ),
 
   /**
    * Rivet - Склёпка.
    */
-  RIVET( IGwHardConstants.GW_KEYWORD_RIVET, STR_N_RIVET, STR_D_RIVET, EGwidKind.GW_RIVET ),
+  RIVET( IGwHardConstants.GW_KEYWORD_RIVET, STR_N_CPK_RIVET, STR_D_CPK_RIVET, EGwidKind.GW_RIVET ),
 
   /**
    * Link.
    */
-  LINK( IGwHardConstants.GW_KEYWORD_LINK, STR_N_LINK, STR_D_LINK, EGwidKind.GW_LINK ),
+  LINK( IGwHardConstants.GW_KEYWORD_LINK, STR_N_CPK_LINK, STR_D_CPK_LINK, EGwidKind.GW_LINK ),
 
   /**
    * Command.
    */
-  CMD( IGwHardConstants.GW_KEYWORD_CMD, STR_N_CMD, STR_D_CMD, EGwidKind.GW_CMD ),
+  CMD( IGwHardConstants.GW_KEYWORD_CMD, STR_N_CPK_CMD, STR_D_CPK_CMD, EGwidKind.GW_CMD ),
 
   /**
    * Event.
    */
-  EVENT( IGwHardConstants.GW_KEYWORD_EVENT, STR_N_EVENT, STR_D_EVENT, EGwidKind.GW_EVENT ),
+  EVENT( IGwHardConstants.GW_KEYWORD_EVENT, STR_N_CPK_EVENT, STR_D_CPK_EVENT, EGwidKind.GW_EVENT ),
 
   /**
    * CLOB.
    */
-  CLOB( IGwHardConstants.GW_KEYWORD_CLOB, STR_N_CLOB, STR_D_CLOB, EGwidKind.GW_CLOB ),
+  CLOB( IGwHardConstants.GW_KEYWORD_CLOB, STR_N_CPK_CLOB, STR_D_CPK_CLOB, EGwidKind.GW_CLOB ),
 
   ;
 

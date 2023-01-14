@@ -5,22 +5,21 @@ package org.toxsoft.uskat.core.api.sysdescr;
  *
  * @author hazard157
  */
-@SuppressWarnings( "nls" )
 interface ISkResources {
 
-  String STR_N_ATTR   = "Атрибут";
-  String STR_D_ATTR   = "Атрибут, данное с неизменяемым начением объекта этого класса";
-  String STR_N_RTDATA = "РВ-данное";
-  String STR_D_RTDATA = "Изменяемые в реальном времены данные объекта этого класса";
-  String STR_N_RIVET  = "Склёпка";
-  String STR_D_RIVET  = "Закрпеление объектов этого класса с объектами другого класса";
-  String STR_N_LINK   = "Связь";
-  String STR_D_LINK   = "Связь объекта этого класса с другими объектами";
-  String STR_N_CMD    = "Команда";
-  String STR_D_CMD    = "Команда, которая выполняется объектом этого класса";
-  String STR_N_EVENT  = "Событие";
-  String STR_D_EVENT  = "Событие, гененируемое объектом этого класса";
-  String STR_N_CLOB   = "CLOB";
-  String STR_D_CLOB   = "CLOB - большие текстовые данные";
+  String STR_N_CPK_ATTR   = Messages.getString( "STR_N_CPK_ATTR" );   //$NON-NLS-1$
+  String STR_D_CPK_ATTR   = Messages.getString( "STR_D_CPK_ATTR" );   //$NON-NLS-1$
+  String STR_N_CPK_RTDATA = Messages.getString( "STR_N_CPK_RTDATA" ); //$NON-NLS-1$
+  String STR_D_CPK_RTDATA = Messages.getString( "STR_D_CPK_RTDATA" ); //$NON-NLS-1$
+  String STR_N_CPK_RIVET  = Messages.getString( "STR_N_CPK_RIVET" );  //$NON-NLS-1$
+  String STR_D_CPK_RIVET  = Messages.getString( "STR_D_CPK_RIVET" );  //$NON-NLS-1$
+  String STR_N_CPK_LINK   = Messages.getString( "STR_N_CPK_LINK" );   //$NON-NLS-1$
+  String STR_D_CPK_LINK   = Messages.getString( "STR_D_CPK_LINK" );   //$NON-NLS-1$
+  String STR_N_CPK_CMD    = Messages.getString( "STR_N_CPK_CMD" );    //$NON-NLS-1$
+  String STR_D_CPK_CMD    = Messages.getString( "STR_D_CPK_CMD" );    //$NON-NLS-1$
+  String STR_N_CPK_EVENT  = Messages.getString( "STR_N_CPK_EVENT" );  //$NON-NLS-1$
+  String STR_D_CPK_EVENT  = Messages.getString( "STR_D_CPK_EVENT" );  //$NON-NLS-1$
+  String STR_N_CPK_CLOB   = Messages.getString( "STR_N_CPK_CLOB" );   //$NON-NLS-1$
+  String STR_D_CPK_CLOB   = Messages.getString( "STR_D_CPK_CLOB" );   //$NON-NLS-1$
 
 }
