@@ -27,7 +27,7 @@ import org.toxsoft.core.tslib.utils.errors.*;
  * Из методов редактирования поддерживает только добавление элементов методом {@link #put(int, Object)}, сотальные
  * методы редактирования приводят к исключению {@link TsUnsupportedFeatureRtException}.
  *
- * @author goga
+ * @author hazard157
  * @param <E> - тип эелементов в карте
  */
 public class FixedCapacityIntMap<E>

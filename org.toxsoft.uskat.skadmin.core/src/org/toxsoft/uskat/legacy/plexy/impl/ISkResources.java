@@ -3,7 +3,7 @@ package org.toxsoft.uskat.legacy.plexy.impl;
 /**
  * Локализуемые ресурсы.
  *
- * @author goga
+ * @author hazard157
  */
 @SuppressWarnings( "nls" )
 interface ISkResources {

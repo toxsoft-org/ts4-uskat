@@ -17,7 +17,7 @@ import org.toxsoft.uskat.core.api.objserv.ISkObjectServiceValidator;
 /**
  * Refbooks support.
  *
- * @author goga
+ * @author hazard157
  */
 public interface ISkRefbookService
     extends ISkService {

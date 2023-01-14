@@ -11,7 +11,7 @@ import org.toxsoft.uskat.legacy.plexy.IPlexyValue;
 /**
  * Базовый класс для реализации PlecyValueXxxImpl.
  *
- * @author goga
+ * @author hazard157
  */
 class AbstractPlexyValue
     implements IPlexyValue {

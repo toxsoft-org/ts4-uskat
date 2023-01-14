@@ -8,7 +8,7 @@ import org.toxsoft.uskat.legacy.plexy.EPlexyKind;
 /**
  * Реализация поекси-значения вида {@link EPlexyKind#OPSET}.
  *
- * @author goga
+ * @author hazard157
  */
 class PlexyValueOpsetImpl
     extends AbstractPlexyValue {

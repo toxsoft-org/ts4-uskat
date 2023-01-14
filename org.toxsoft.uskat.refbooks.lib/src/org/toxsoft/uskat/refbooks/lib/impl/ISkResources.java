@@ -3,7 +3,7 @@ package org.toxsoft.uskat.refbooks.lib.impl;
 /**
  * Localizable resources.
  *
- * @author goga
+ * @author hazard157
  */
 @SuppressWarnings( "nls" )
 interface ISkResources {

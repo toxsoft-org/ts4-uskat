@@ -74,7 +74,7 @@ public class SkCoreServRtdata
   /**
    * {@link ISkLinkService#eventer()} implementation.
    *
-   * @author goga
+   * @author hazard157
    */
   class Eventer
       extends AbstractTsEventer<ISkCurrDataChangeListener> {

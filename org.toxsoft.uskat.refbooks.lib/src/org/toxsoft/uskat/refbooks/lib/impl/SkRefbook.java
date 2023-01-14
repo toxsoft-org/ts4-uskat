@@ -19,7 +19,7 @@ import org.toxsoft.uskat.refbooks.lib.*;
 /**
  * {@link ISkRefbook} implementation.
  *
- * @author goga
+ * @author hazard157
  */
 class SkRefbook
     extends SkObject

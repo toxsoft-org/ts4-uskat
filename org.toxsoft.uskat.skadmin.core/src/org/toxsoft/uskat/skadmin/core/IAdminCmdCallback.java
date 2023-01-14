@@ -22,7 +22,7 @@ import org.toxsoft.uskat.legacy.plexy.IPlexyValue;
  * {@link #onNextStep(IList, long, long, boolean)} (0 или более раз), и обязательно - метод
  * {@link #afterEnd(IAdminCmdResult)}.
  *
- * @author goga
+ * @author hazard157
  */
 public interface IAdminCmdCallback {
 

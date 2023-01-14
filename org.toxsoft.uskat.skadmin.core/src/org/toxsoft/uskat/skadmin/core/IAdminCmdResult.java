@@ -8,7 +8,7 @@ import org.toxsoft.uskat.legacy.plexy.IPlexyValue;
 /**
  * Результат выполнения команды {@link IAdminCmdDef}.
  *
- * @author goga
+ * @author hazard157
  */
 public interface IAdminCmdResult {
 

@@ -9,7 +9,7 @@ import org.toxsoft.uskat.legacy.plexy.IPlexyType;
 /**
  * Реализация поекси-значения вида {@link EPlexyKind#SINGLE_REF}.
  *
- * @author goga
+ * @author hazard157
  */
 public class PlexyValueSingleRefImpl
     extends AbstractPlexyValue {

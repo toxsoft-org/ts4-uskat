@@ -12,7 +12,7 @@ import org.toxsoft.uskat.legacy.plexy.IPlexyType;
 /**
  * Реализация поекси-значения вида {@link EPlexyKind#VALUE_LIST}.
  *
- * @author goga
+ * @author hazard157
  */
 class PlexyValueValueListImpl
     extends AbstractPlexyValue {

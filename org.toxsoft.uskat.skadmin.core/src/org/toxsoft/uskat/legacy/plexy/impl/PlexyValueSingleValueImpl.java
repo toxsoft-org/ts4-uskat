@@ -11,7 +11,7 @@ import org.toxsoft.uskat.legacy.plexy.IPlexyType;
 /**
  * Реализация поекси-значения вида {@link EPlexyKind#SINGLE_VALUE}.
  *
- * @author goga
+ * @author hazard157
  */
 class PlexyValueSingleValueImpl
     extends AbstractPlexyValue {

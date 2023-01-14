@@ -19,7 +19,7 @@ import org.toxsoft.uskat.legacy.plexy.*;
 /**
  * Методы для работы с плекси-значениями.
  *
- * @author goga
+ * @author hazard157
  */
 public class PlexyValueUtils {
 

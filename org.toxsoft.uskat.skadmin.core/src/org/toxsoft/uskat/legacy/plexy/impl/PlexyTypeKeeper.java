@@ -11,7 +11,7 @@ import org.toxsoft.uskat.legacy.plexy.IPlexyType;
 /**
  * Хранитель значений объектов типа {@link IPlexyType}.
  *
- * @author goga
+ * @author hazard157
  */
 public class PlexyTypeKeeper
     extends AbstractEntityKeeper<IPlexyType> {

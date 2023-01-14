@@ -26,7 +26,7 @@ import org.toxsoft.uskat.legacy.plexy.*;
  * Обратите внимание, что невозможно соханить значение вида {@link EPlexyKind#isReference()}, если объекты класса
  * {@link IPlexyType#refClass()} не являются сериализуемым (не реализует {@link Serializable}).
  *
- * @author goga
+ * @author hazard157
  */
 public class PlexyValueKeeper
     extends AbstractEntityKeeper<IPlexyValue> {

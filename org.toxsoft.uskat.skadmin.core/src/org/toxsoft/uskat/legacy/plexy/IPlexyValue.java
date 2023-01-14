@@ -19,7 +19,7 @@ import org.toxsoft.uskat.legacy.plexy.impl.PlexyValueUtils;
  * <p>
  * Для создания экземпляров следует использовать методы {@link PlexyValueUtils}.pvXxx().
  *
- * @author goga
+ * @author hazard157
  */
 public interface IPlexyValue {
 

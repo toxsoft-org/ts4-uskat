@@ -11,7 +11,7 @@ import org.toxsoft.uskat.core.api.sysdescr.dto.*;
  * This is much like {@link IDtoClassInfo} but without unneeded real-time properties and the {@link #id()} is refbook
  * identifier, not the refbook or items class identifier.
  *
- * @author goga
+ * @author hazard157
  */
 public interface IDtoRefbookInfo
     extends IStridableParameterized {

@@ -17,7 +17,7 @@ import org.toxsoft.uskat.core.api.cmdserv.*;
 /**
  * {@link IDtoCommand} implementation.
  *
- * @author goga
+ * @author hazard157
  */
 public final class DtoCommand
     implements IDtoCommand, Serializable {
