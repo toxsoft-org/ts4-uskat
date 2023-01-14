@@ -1,12 +1,14 @@
 package org.toxsoft.uskat.core.backend.api;
 
-import org.toxsoft.core.tslib.av.opset.*;
-import org.toxsoft.core.tslib.bricks.time.*;
-import org.toxsoft.core.tslib.gw.gwid.*;
-import org.toxsoft.core.tslib.gw.skid.*;
+import org.toxsoft.core.tslib.av.opset.IOptionSet;
+import org.toxsoft.core.tslib.bricks.time.ITimeInterval;
+import org.toxsoft.core.tslib.bricks.time.ITimedList;
+import org.toxsoft.core.tslib.gw.gwid.Gwid;
+import org.toxsoft.core.tslib.gw.gwid.IGwidList;
+import org.toxsoft.core.tslib.gw.skid.Skid;
 import org.toxsoft.uskat.core.api.cmdserv.*;
-import org.toxsoft.uskat.core.backend.*;
-import org.toxsoft.uskat.core.impl.*;
+import org.toxsoft.uskat.core.backend.ISkBackendHardConstant;
+import org.toxsoft.uskat.core.impl.SkCommand;
 
 /**
  * Backend addon to wirk with commands.
@@ -75,10 +77,10 @@ public interface IBaCommands
   /**
    * Returns the object command history for specified time interval.
    *
-   * @param aInterval {@link IQueryInterval} - query time interval
+   * @param aInterval {@link ITimeInterval} - query time interval
    * @param aGwid {@link Gwid} - valid concrete command(s) GWID of one object
    * @return {@link ITimedList}&lt;{@link IDtoCompletedCommand}&gt; - list of the queried entities
    */
-  ITimedList<IDtoCompletedCommand> queryObjCommands( IQueryInterval aInterval, Gwid aGwid );
+  ITimedList<IDtoCompletedCommand> queryObjCommands( ITimeInterval aInterval, Gwid aGwid );
 
 }

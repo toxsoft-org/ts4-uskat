@@ -16,6 +16,7 @@ import org.infinispan.commons.util.CloseableIterator;
 import org.toxsoft.core.tslib.av.opset.IOptionSet;
 import org.toxsoft.core.tslib.bricks.strid.coll.IStridablesList;
 import org.toxsoft.core.tslib.bricks.time.*;
+import org.toxsoft.core.tslib.bricks.time.impl.QueryInterval;
 import org.toxsoft.core.tslib.bricks.time.impl.TimedList;
 import org.toxsoft.core.tslib.coll.IList;
 import org.toxsoft.core.tslib.coll.IMap;
@@ -34,7 +35,6 @@ import org.toxsoft.uskat.core.impl.SkCommand;
 import org.toxsoft.uskat.core.impl.dto.DtoCommand;
 import org.toxsoft.uskat.core.impl.dto.DtoCompletedCommand;
 import org.toxsoft.uskat.s5.common.sysdescr.ISkSysdescrReader;
-import org.toxsoft.uskat.s5.legacy.QueryInterval;
 import org.toxsoft.uskat.s5.server.backend.addons.commands.S5BaCommandsData;
 import org.toxsoft.uskat.s5.server.backend.addons.commands.S5BaCommandsSupport;
 import org.toxsoft.uskat.s5.server.backend.supports.commands.IS5BackendCommandSingleton;
@@ -243,25 +243,30 @@ public class S5BackendCommandSingleton
 
   @TransactionAttribute( TransactionAttributeType.SUPPORTS )
   @Override
-  public ITimedList<IDtoCompletedCommand> queryObjCommands( IQueryInterval aInterval, Gwid aObjId ) {
-    TsNullArgumentRtException.checkNulls( aInterval, aObjId );
+  public ITimedList<IDtoCompletedCommand> queryObjCommands( ITimeInterval aInterval, Gwid aGwid ) {
+    TsNullArgumentRtException.checkNulls( aInterval, aGwid );
     long traceStartTime = System.currentTimeMillis();
     // Подготовка списка идентификаторов запрашиваемых объектов. false: без повторов
-    if( aObjId.kind() != EGwidKind.GW_CLASS || aObjId.isAbstract() ) {
-      // По контракту принимаются только идентификаторы объектов
+    if( aGwid.kind() != EGwidKind.GW_CMD || aGwid.isAbstract() ) {
+      // По контракту принимаются только команды объектов
       return new TimedList<>();
     }
     // Чтение истории команд
     long traceReadStartTime = System.currentTimeMillis();
-    IMap<Gwid, IS5CommandSequence> sequences =
-        readSequences( new GwidList( aObjId ), aInterval, ACCESS_TIMEOUT_DEFAULT );
+    // Идентификаторы объектов команд
+    IGwidList objIds = new GwidList( Gwid.createObj( aGwid.skid() ) );
+    IQueryInterval interval = new QueryInterval( EQueryIntervalType.CSCE, aInterval.startTime(), aInterval.endTime() );
+    IMap<Gwid, IS5CommandSequence> sequences = readSequences( objIds, interval, ACCESS_TIMEOUT_DEFAULT );
     long traceReadEndTime = System.currentTimeMillis();
     // Фильтрация команд и формирование сводного(по объектам) результата запроса
     TimedList<IDtoCompletedCommand> commands = new TimedList<>();
     for( IS5CommandSequence sequence : sequences ) {
       for( IS5SequenceBlock<IDtoCompletedCommand> block : sequence.blocks() ) {
         for( int index = 0, n = block.size(); index < n; index++ ) {
-          commands.add( block.getValue( index ) );
+          IDtoCompletedCommand completedCmd = block.getValue( index );
+          if( completedCmd.cmd().cmdGwid().equals( aGwid ) ) {
+            commands.add( completedCmd );
+          }
         }
       }
     }
@@ -277,7 +282,7 @@ public class S5BackendCommandSingleton
     Long ft = Long.valueOf( traceResultTime - traceReadEndTime );
     Long at = Long.valueOf( traceResultTime - traceStartTime );
     // Завершено чтение истории команд
-    logger().info( MSG_READ_COMMANDS, aObjId, aInterval, rc, at, pt, rt, ft );
+    logger().info( MSG_READ_COMMANDS, aGwid, aInterval, rc, at, pt, rt, ft );
     return retValue;
   }
 

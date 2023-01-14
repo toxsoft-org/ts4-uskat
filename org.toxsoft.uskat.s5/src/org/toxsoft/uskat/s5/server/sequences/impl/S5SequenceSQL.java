@@ -20,8 +20,7 @@ import javax.persistence.*;
 
 import org.toxsoft.core.tslib.av.utils.IParameterized;
 import org.toxsoft.core.tslib.bricks.time.*;
-import org.toxsoft.core.tslib.bricks.time.impl.TimeInterval;
-import org.toxsoft.core.tslib.bricks.time.impl.TimeUtils;
+import org.toxsoft.core.tslib.bricks.time.impl.*;
 import org.toxsoft.core.tslib.coll.*;
 import org.toxsoft.core.tslib.coll.impl.ElemArrayList;
 import org.toxsoft.core.tslib.coll.impl.ElemMap;
@@ -31,7 +30,6 @@ import org.toxsoft.core.tslib.utils.Pair;
 import org.toxsoft.core.tslib.utils.errors.*;
 import org.toxsoft.core.tslib.utils.logs.ELogSeverity;
 import org.toxsoft.core.tslib.utils.logs.ILogger;
-import org.toxsoft.uskat.s5.legacy.QueryInterval;
 import org.toxsoft.uskat.s5.server.backend.supports.objects.S5ObjectEntity;
 import org.toxsoft.uskat.s5.server.sequences.*;
 import org.toxsoft.uskat.s5.server.sequences.reader.IS5SequenceReadQuery;
@@ -1695,29 +1693,58 @@ class S5SequenceSQL {
     boolean isEndOpen = (aInterval.type() == CSOE || aInterval.type() == OSOE);
 
     // Индекс первого значения в интервале, включительно
-    // int firstIndex = (ist < aBlock.startTime() ? 0 : aBlock.firstByTime( ist ));
     int firstIndex = (ist < aBlock.startTime() ? 0 : //
         aBlock.firstByTime( aBlock.endTime() < ist ? aBlock.endTime() : ist ));
     // Сдвиг индекса в прошлое в соответствии типом интервала
-    while( firstIndex > 0 && //
-        (isStartOpen && aBlock.timestamp( firstIndex ) >= ist
-            || !isStartOpen && aBlock.timestamp( firstIndex ) == ist) ) {
-      firstIndex--;
+    while( firstIndex > 0 ) { //
+      long currTime = aBlock.timestamp( firstIndex );
+      long nextTime = aBlock.timestamp( firstIndex - 1 );
+      // String t0 = TimeUtils.timestampToString( currTime );
+      // String t1 = TimeUtils.timestampToString( nextTime );
+      // ITemporal v0 = aBlock.getValue( firstIndex );
+      // ITemporal v1 = aBlock.getValue( firstIndex - 1 );
+      if( isStartOpen && currTime >= ist || //
+          !isStartOpen && nextTime == ist ) {
+        firstIndex--;
+        isStartOpen = (currTime > ist ? isStartOpen : false);
+        continue;
+      }
+      break;
     }
     // Индекс последнего значения в интервале, включительно
-    // int lastIndex = (aBlock.endTime() < iet ? aBlock.size() - 1 : aBlock.lastByTime( iet ));
     int lastIndex = (aBlock.endTime() < iet ? aBlock.size() - 1 : //
         aBlock.lastByTime( iet < aBlock.startTime() ? aBlock.startTime() : iet ));
     // Сдвиг индекса в будущее в соответствии типом интервала
-    while( lastIndex + 1 < aBlock.size() && //
-        (isEndOpen && aBlock.timestamp( lastIndex ) >= iet || !isEndOpen && aBlock.timestamp( lastIndex ) == iet) ) {
-      lastIndex++;
+    while( lastIndex + 1 < aBlock.size() ) {
+      long currTime = aBlock.timestamp( lastIndex );
+      long nextTime = aBlock.timestamp( lastIndex + 1 );
+      // ITemporal v0 = aBlock.getValue( lastIndex );
+      // ITemporal v1 = aBlock.getValue( lastIndex + 1 );
+      // String t0 = TimeUtils.timestampToString( currTime );
+      // String t1 = TimeUtils.timestampToString( nextTime );
+      if( isEndOpen && currTime <= iet || //
+          !isEndOpen && nextTime == iet ) {
+        lastIndex++;
+        isEndOpen = (currTime < iet ? isEndOpen : false);
+        continue;
+      }
+      break;
     }
-
+    // Восстановление признаков
+    isStartOpen = (aInterval.type() == OSCE || aInterval.type() == OSOE);
+    isEndOpen = (aInterval.type() == CSOE || aInterval.type() == OSOE);
     // Список значений выбранных в указанном интервале. aAllowDuplicates = true
     ITimedListEdit<V> values = new S5FixedCapacityTimedList<>( lastIndex - firstIndex + 1, true );
     for( int index = firstIndex; index <= lastIndex; index++ ) {
-      values.add( aBlock.getValue( index ) );
+      V value = aBlock.getValue( index );
+      long timestamp = value.timestamp();
+      if( !isStartOpen && timestamp < ist ) {
+        continue;
+      }
+      if( !isEndOpen && iet < timestamp ) {
+        continue;
+      }
+      values.add( value );
     }
     // Создание блока с значениями которые находятся в блоке
     return aFactory.createBlock( aBlock.gwid(), values );

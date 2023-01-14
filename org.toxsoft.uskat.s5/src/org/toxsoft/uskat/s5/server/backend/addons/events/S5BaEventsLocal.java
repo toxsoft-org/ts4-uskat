@@ -1,7 +1,7 @@
 package org.toxsoft.uskat.s5.server.backend.addons.events;
 
 import org.toxsoft.core.tslib.bricks.events.msg.GtMessage;
-import org.toxsoft.core.tslib.bricks.time.IQueryInterval;
+import org.toxsoft.core.tslib.bricks.time.ITimeInterval;
 import org.toxsoft.core.tslib.bricks.time.ITimedList;
 import org.toxsoft.core.tslib.gw.gwid.*;
 import org.toxsoft.core.tslib.utils.errors.TsNullArgumentRtException;
@@ -78,7 +78,7 @@ class S5BaEventsLocal
   }
 
   @Override
-  public ITimedList<SkEvent> queryObjEvents( IQueryInterval aInterval, Gwid aGwid ) {
+  public ITimedList<SkEvent> queryObjEvents( ITimeInterval aInterval, Gwid aGwid ) {
     return eventsSupport.queryEvents( aInterval, new GwidList( aGwid ) );
   }
 }

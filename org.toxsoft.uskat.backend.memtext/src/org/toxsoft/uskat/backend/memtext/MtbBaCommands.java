@@ -2,26 +2,34 @@ package org.toxsoft.uskat.backend.memtext;
 
 import static org.toxsoft.uskat.backend.memtext.IBackendMemtextConstants.*;
 
-import org.toxsoft.core.tslib.av.opset.*;
-import org.toxsoft.core.tslib.bricks.events.msg.*;
-import org.toxsoft.core.tslib.bricks.strid.idgen.*;
-import org.toxsoft.core.tslib.bricks.strio.*;
-import org.toxsoft.core.tslib.bricks.strio.impl.*;
-import org.toxsoft.core.tslib.bricks.time.*;
-import org.toxsoft.core.tslib.bricks.time.impl.*;
-import org.toxsoft.core.tslib.coll.*;
-import org.toxsoft.core.tslib.coll.derivative.*;
-import org.toxsoft.core.tslib.coll.impl.*;
-import org.toxsoft.core.tslib.coll.primtypes.*;
+import org.toxsoft.core.tslib.av.opset.IOptionSet;
+import org.toxsoft.core.tslib.bricks.events.msg.GtMessage;
+import org.toxsoft.core.tslib.bricks.strid.idgen.IStridGenerator;
+import org.toxsoft.core.tslib.bricks.strid.idgen.UuidStridGenerator;
+import org.toxsoft.core.tslib.bricks.strio.IStrioReader;
+import org.toxsoft.core.tslib.bricks.strio.IStrioWriter;
+import org.toxsoft.core.tslib.bricks.strio.impl.StrioUtils;
+import org.toxsoft.core.tslib.bricks.time.ITimeInterval;
+import org.toxsoft.core.tslib.bricks.time.ITimedList;
+import org.toxsoft.core.tslib.bricks.time.impl.TimeUtils;
+import org.toxsoft.core.tslib.bricks.time.impl.TimedList;
+import org.toxsoft.core.tslib.coll.IList;
+import org.toxsoft.core.tslib.coll.IListEdit;
+import org.toxsoft.core.tslib.coll.derivative.IRingBuffer;
+import org.toxsoft.core.tslib.coll.derivative.RingBuffer;
+import org.toxsoft.core.tslib.coll.impl.ElemLinkedBundleList;
+import org.toxsoft.core.tslib.coll.primtypes.IStringList;
 import org.toxsoft.core.tslib.gw.gwid.*;
-import org.toxsoft.core.tslib.gw.skid.*;
-import org.toxsoft.core.tslib.utils.*;
-import org.toxsoft.core.tslib.utils.errors.*;
-import org.toxsoft.uskat.core.api.cmdserv.*;
-import org.toxsoft.uskat.core.backend.*;
+import org.toxsoft.core.tslib.gw.skid.Skid;
+import org.toxsoft.core.tslib.utils.TsMiscUtils;
+import org.toxsoft.core.tslib.utils.errors.TsNullArgumentRtException;
+import org.toxsoft.uskat.core.api.cmdserv.DtoCommandStateChangeInfo;
+import org.toxsoft.uskat.core.api.cmdserv.IDtoCompletedCommand;
+import org.toxsoft.uskat.core.backend.ISkBackendHardConstant;
 import org.toxsoft.uskat.core.backend.api.*;
-import org.toxsoft.uskat.core.impl.*;
-import org.toxsoft.uskat.core.impl.dto.*;
+import org.toxsoft.uskat.core.impl.SkCommand;
+import org.toxsoft.uskat.core.impl.dto.DtoCommand;
+import org.toxsoft.uskat.core.impl.dto.DtoCompletedCommand;
 
 /**
  * {@link IBaCommands} implementation.
@@ -154,7 +162,7 @@ public class MtbBaCommands
   }
 
   @Override
-  public ITimedList<IDtoCompletedCommand> queryObjCommands( IQueryInterval aInterval, Gwid aGwid ) {
+  public ITimedList<IDtoCompletedCommand> queryObjCommands( ITimeInterval aInterval, Gwid aGwid ) {
     TimedList<IDtoCompletedCommand> result = new TimedList<>();
     for( IDtoCompletedCommand e : cmdsHistory.getItems() ) {
       if( TimeUtils.contains( aInterval, e.timestamp() ) ) {

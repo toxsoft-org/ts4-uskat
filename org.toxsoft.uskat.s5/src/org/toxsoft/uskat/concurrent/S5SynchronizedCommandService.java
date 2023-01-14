@@ -4,7 +4,7 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import org.toxsoft.core.tslib.av.opset.IOptionSet;
 import org.toxsoft.core.tslib.bricks.events.change.IGenericChangeEventer;
-import org.toxsoft.core.tslib.bricks.time.IQueryInterval;
+import org.toxsoft.core.tslib.bricks.time.ITimeInterval;
 import org.toxsoft.core.tslib.bricks.time.ITimedList;
 import org.toxsoft.core.tslib.coll.IMapEdit;
 import org.toxsoft.core.tslib.coll.impl.ElemMap;
@@ -115,7 +115,7 @@ public final class S5SynchronizedCommandService
   }
 
   @Override
-  public ITimedList<IDtoCompletedCommand> queryObjCommands( IQueryInterval aInterval, Gwid aGwid ) {
+  public ITimedList<IDtoCompletedCommand> queryObjCommands( ITimeInterval aInterval, Gwid aGwid ) {
     lockWrite( this );
     try {
       return target().queryObjCommands( aInterval, aGwid );

@@ -2,7 +2,7 @@ package org.toxsoft.uskat.s5.server.backend.supports.events;
 
 import javax.ejb.Local;
 
-import org.toxsoft.core.tslib.bricks.time.IQueryInterval;
+import org.toxsoft.core.tslib.bricks.time.ITimeInterval;
 import org.toxsoft.core.tslib.bricks.time.ITimedList;
 import org.toxsoft.core.tslib.coll.IMap;
 import org.toxsoft.core.tslib.gw.gwid.*;
@@ -53,11 +53,11 @@ public interface IS5BackendEventSingleton
    * объекта". Получается, что абстрактный мули-GWID запрашивает все события от всех объектов класса
    * {@link Gwid#classId()}.
    *
-   * @param aInterval {@link IQueryInterval} - запрошенный интервал времени
+   * @param aInterval {@link ITimeInterval} - запрошенный интервал времени
    * @param aNeededGwids {@link IGwidList} - список GWID-ов интересующих событий
    * @return {@link ITimedList}&lt;{@link SkEvent}&gt; - список запрошенных событий
    */
-  ITimedList<SkEvent> queryEvents( IQueryInterval aInterval, IGwidList aNeededGwids );
+  ITimedList<SkEvent> queryEvents( ITimeInterval aInterval, IGwidList aNeededGwids );
 
   /**
    * Реализация передачи сообщений в систему

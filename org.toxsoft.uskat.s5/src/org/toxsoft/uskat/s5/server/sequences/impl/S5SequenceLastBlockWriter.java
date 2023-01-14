@@ -19,20 +19,20 @@ import javax.transaction.UserTransaction;
 import org.toxsoft.core.tslib.av.opset.IOptionSet;
 import org.toxsoft.core.tslib.av.utils.IParameterized;
 import org.toxsoft.core.tslib.bricks.time.*;
+import org.toxsoft.core.tslib.bricks.time.impl.QueryInterval;
 import org.toxsoft.core.tslib.bricks.validator.IValResList;
 import org.toxsoft.core.tslib.bricks.validator.ValidationResult;
 import org.toxsoft.core.tslib.coll.IList;
 import org.toxsoft.core.tslib.coll.IMapEdit;
 import org.toxsoft.core.tslib.coll.impl.ElemArrayList;
 import org.toxsoft.core.tslib.coll.impl.ElemMap;
+import org.toxsoft.core.tslib.coll.synch.SynchronizedMap;
 import org.toxsoft.core.tslib.gw.gwid.Gwid;
 import org.toxsoft.core.tslib.gw.gwid.GwidList;
 import org.toxsoft.core.tslib.utils.errors.TsInternalErrorRtException;
 import org.toxsoft.core.tslib.utils.errors.TsNullArgumentRtException;
 import org.toxsoft.core.tslib.utils.logs.ELogSeverity;
 import org.toxsoft.core.tslib.utils.logs.ILogger;
-import org.toxsoft.uskat.s5.legacy.QueryInterval;
-import org.toxsoft.uskat.s5.legacy.SynchronizedMap;
 import org.toxsoft.uskat.s5.server.backend.IS5BackendCoreSingleton;
 import org.toxsoft.uskat.s5.server.sequences.*;
 import org.toxsoft.uskat.s5.server.sequences.writer.IS5SequenceWriter;
@@ -97,8 +97,8 @@ class S5SequenceLastBlockWriter<S extends IS5Sequence<V>, V extends ITemporal<?>
    */
   @SuppressWarnings( "unchecked" )
   @Override
-  protected IS5SequenceBlock<V> writeSequence( EntityManager aEntityManager, S aSequence, S5SequenceWriteStat aStatistics,
-      int aThreadIndex ) {
+  protected IS5SequenceBlock<V> writeSequence( EntityManager aEntityManager, S aSequence,
+      S5SequenceWriteStat aStatistics, int aThreadIndex ) {
     TsNullArgumentRtException.checkNulls( aEntityManager, aSequence, aStatistics );
 
     // TODO: mvkd

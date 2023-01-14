@@ -1,10 +1,11 @@
 package org.toxsoft.uskat.core.api.evserv;
 
-import org.toxsoft.core.tslib.bricks.time.*;
+import org.toxsoft.core.tslib.bricks.time.ITimeInterval;
+import org.toxsoft.core.tslib.bricks.time.ITimedList;
 import org.toxsoft.core.tslib.gw.gwid.*;
 import org.toxsoft.core.tslib.utils.errors.*;
-import org.toxsoft.uskat.core.*;
-import org.toxsoft.uskat.core.api.*;
+import org.toxsoft.uskat.core.ISkHardConstants;
+import org.toxsoft.uskat.core.api.ISkService;
 
 /**
  * Core service: object-generated events management.
@@ -82,13 +83,13 @@ public interface ISkEventService
    * <p>
    * Note: do not ask for long time interval, this method is synchronous and hence may freeze for a long time.
    *
-   * @param aInterval {@link IQueryInterval} - query time interval
+   * @param aInterval {@link ITimeInterval} - query time interval
    * @param aGwid {@link Gwid} - concrete GWID of event(s)
    * @return {@link ITimedList}&lt;{@link SkEvent}&gt; - list of the reuried events
    * @throws TsNullArgumentRtException any argument = <code>null</code>
    * @throws TsIllegalArgumentRtException invalid GWID
    * @throws TsItemNotFoundRtException no such event exists in sysdescr
    */
-  ITimedList<SkEvent> queryObjEvents( IQueryInterval aInterval, Gwid aGwid );
+  ITimedList<SkEvent> queryObjEvents( ITimeInterval aInterval, Gwid aGwid );
 
 }

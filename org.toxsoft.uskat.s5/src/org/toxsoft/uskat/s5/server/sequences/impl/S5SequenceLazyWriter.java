@@ -22,6 +22,7 @@ import org.toxsoft.core.tslib.av.opset.impl.OptionSet;
 import org.toxsoft.core.tslib.av.utils.IParameterized;
 import org.toxsoft.core.tslib.bricks.strid.impl.StridUtils;
 import org.toxsoft.core.tslib.bricks.time.*;
+import org.toxsoft.core.tslib.bricks.time.impl.QueryInterval;
 import org.toxsoft.core.tslib.bricks.time.impl.TimeInterval;
 import org.toxsoft.core.tslib.coll.*;
 import org.toxsoft.core.tslib.coll.derivative.IQueue;
@@ -31,7 +32,6 @@ import org.toxsoft.core.tslib.gw.gwid.*;
 import org.toxsoft.core.tslib.utils.errors.*;
 import org.toxsoft.core.tslib.utils.logs.ELogSeverity;
 import org.toxsoft.core.tslib.utils.logs.ILogger;
-import org.toxsoft.uskat.s5.legacy.QueryInterval;
 import org.toxsoft.uskat.s5.server.backend.IS5BackendCoreSingleton;
 import org.toxsoft.uskat.s5.server.sequences.*;
 import org.toxsoft.uskat.s5.server.sequences.maintenance.IS5SequenceUnionOptions;
@@ -268,8 +268,8 @@ class S5SequenceLazyWriter<S extends IS5Sequence<V>, V extends ITemporal<?>>
    * @throws TsIllegalStateRtException попытка конкуретного изменения данных последовательности
    */
   @SuppressWarnings( "unchecked" )
-  protected IS5SequenceBlock<V> writeSequence( EntityManager aEntityManager, S aSequence, S5SequenceWriteStat aStatistics,
-      int aThreadIndex ) {
+  protected IS5SequenceBlock<V> writeSequence( EntityManager aEntityManager, S aSequence,
+      S5SequenceWriteStat aStatistics, int aThreadIndex ) {
     TsNullArgumentRtException.checkNulls( aEntityManager, aSequence, aSequence );
     // Индекс потока
     Integer threadIndex = Integer.valueOf( aThreadIndex );
@@ -681,8 +681,8 @@ class S5SequenceLazyWriter<S extends IS5Sequence<V>, V extends ITemporal<?>>
   private class UnionThread
       extends S5AbstractWriteThread {
 
-    private final IS5SequenceFragmentInfo  fragmentInfo;
-    private final S5SequenceUnionStat<V> stat;
+    private final IS5SequenceFragmentInfo fragmentInfo;
+    private final S5SequenceUnionStat<V>  stat;
 
     /**
      * Создание асинхронной задачи объединения блоков последовательности данных

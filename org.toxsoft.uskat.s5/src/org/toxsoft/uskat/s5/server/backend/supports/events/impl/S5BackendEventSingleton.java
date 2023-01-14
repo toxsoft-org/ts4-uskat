@@ -13,6 +13,7 @@ import javax.ejb.*;
 
 import org.toxsoft.core.tslib.bricks.strid.coll.IStridablesList;
 import org.toxsoft.core.tslib.bricks.time.*;
+import org.toxsoft.core.tslib.bricks.time.impl.QueryInterval;
 import org.toxsoft.core.tslib.bricks.time.impl.TimedList;
 import org.toxsoft.core.tslib.coll.*;
 import org.toxsoft.core.tslib.coll.impl.*;
@@ -29,7 +30,6 @@ import org.toxsoft.uskat.core.api.sysdescr.dto.IDtoClassInfo;
 import org.toxsoft.uskat.core.backend.api.IBaEvents;
 import org.toxsoft.uskat.core.backend.api.IBaEventsMessages;
 import org.toxsoft.uskat.core.impl.SkEventList;
-import org.toxsoft.uskat.s5.legacy.QueryInterval;
 import org.toxsoft.uskat.s5.server.backend.addons.events.S5BaEventsData;
 import org.toxsoft.uskat.s5.server.backend.supports.events.IS5BackendEventSingleton;
 import org.toxsoft.uskat.s5.server.backend.supports.events.sequences.IS5EventSequence;
@@ -134,7 +134,7 @@ public class S5BackendEventSingleton
 
   @Override
   @TransactionAttribute( TransactionAttributeType.SUPPORTS )
-  public ITimedList<SkEvent> queryEvents( IQueryInterval aInterval, IGwidList aNeededGwids ) {
+  public ITimedList<SkEvent> queryEvents( ITimeInterval aInterval, IGwidList aNeededGwids ) {
     TsNullArgumentRtException.checkNulls( aInterval, aNeededGwids );
     long traceStartTime = System.currentTimeMillis();
     // Подготовка списка идентификаторов запрашиваемых объектов. false: без повторов
@@ -168,7 +168,8 @@ public class S5BackendEventSingleton
 
     // Чтение событий
     long traceReadStartTime = System.currentTimeMillis();
-    IMap<Gwid, IS5EventSequence> sequences = readSequences( gwids, aInterval, ACCESS_TIMEOUT_DEFAULT );
+    IQueryInterval interval = new QueryInterval( EQueryIntervalType.CSCE, aInterval.startTime(), aInterval.endTime() );
+    IMap<Gwid, IS5EventSequence> sequences = readSequences( gwids, interval, ACCESS_TIMEOUT_DEFAULT );
     long traceReadEndTime = System.currentTimeMillis();
 
     // Фильтрация событий и формирование сводного(по объектам) результата запроса
