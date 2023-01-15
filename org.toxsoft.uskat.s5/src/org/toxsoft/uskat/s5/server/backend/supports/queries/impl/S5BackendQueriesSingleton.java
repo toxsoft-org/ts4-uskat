@@ -16,6 +16,7 @@ import org.toxsoft.core.tslib.bricks.events.msg.GtMessage;
 import org.toxsoft.core.tslib.bricks.strid.idgen.IStridGenerator;
 import org.toxsoft.core.tslib.bricks.strid.idgen.UuidStridGenerator;
 import org.toxsoft.core.tslib.bricks.time.*;
+import org.toxsoft.core.tslib.bricks.time.impl.QueryInterval;
 import org.toxsoft.core.tslib.coll.*;
 import org.toxsoft.core.tslib.coll.impl.ElemArrayList;
 import org.toxsoft.core.tslib.coll.impl.ElemMap;
@@ -513,9 +514,14 @@ public class S5BackendQueriesSingleton
           throw new TsNotAllEnumsUsedRtException();
       }
     }
+    // Интервал запроса с открытыми границами может быть использован только для запроса атомарных значений
+    IQueryInterval interval = aInterval;
+    if( gwidKind != EGwidKind.GW_RTDATA && interval.type() != EQueryIntervalType.CSCE ) {
+      interval = new QueryInterval( EQueryIntervalType.CSCE, aInterval.startTime(), aInterval.endTime() );
+    }
     // Запрос данных внутри и на границах интервала
     IMap<Gwid, IS5Sequence<?>> sequences = aSequenceReader.readSequences( IS5FrontendRear.NULL, //
-        aQueryId, new GwidList( sequenceGwids.values() ), aInterval, ACCESS_TIMEOUT_DEFAULT );
+        aQueryId, new GwidList( sequenceGwids.values() ), interval, ACCESS_TIMEOUT_DEFAULT );
     // Исполнитель s5-потоков чтения данных
     S5ReadThreadExecutor<IList<ITimedList<ITemporal<?>>>> executor =
         new S5ReadThreadExecutor<>( readExecutor, logger() );

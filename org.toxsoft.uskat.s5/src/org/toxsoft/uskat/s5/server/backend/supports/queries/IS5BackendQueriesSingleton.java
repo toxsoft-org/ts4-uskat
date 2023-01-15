@@ -4,6 +4,7 @@ import javax.ejb.Local;
 
 import org.toxsoft.core.tslib.av.opset.IOptionSet;
 import org.toxsoft.core.tslib.bricks.events.msg.GenericMessage;
+import org.toxsoft.core.tslib.bricks.time.EQueryIntervalType;
 import org.toxsoft.core.tslib.bricks.time.IQueryInterval;
 import org.toxsoft.core.tslib.coll.primtypes.IStringMap;
 import org.toxsoft.uskat.core.api.hqserv.*;
@@ -46,6 +47,10 @@ public interface IS5BackendQueriesSingleton
    * While executing, backend sends {@link BaMsgQueryNextData} messages to the frontend until query execution is
    * finished. Last message will contain flag {@link BaMsgQueryNextData#getIsFinished(GenericMessage)} set to
    * <code>true</code>.
+   * <p>
+   * When querying commands or events, open intervals {@link EQueryIntervalType#isStartOpen()} = <b>true</b> and/or
+   * {@link EQueryIntervalType#isEndOpen()} = <b>true</b> ) are ignored and {@link EQueryIntervalType#CSCE} is used
+   * instead.
    *
    * @param aFrontend {@link IS5FrontendRear} query frontend.
    * @param aQueryId String - the query ID

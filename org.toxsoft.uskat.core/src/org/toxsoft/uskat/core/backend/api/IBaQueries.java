@@ -2,6 +2,7 @@ package org.toxsoft.uskat.core.backend.api;
 
 import org.toxsoft.core.tslib.av.opset.IOptionSet;
 import org.toxsoft.core.tslib.bricks.events.msg.GenericMessage;
+import org.toxsoft.core.tslib.bricks.time.EQueryIntervalType;
 import org.toxsoft.core.tslib.bricks.time.IQueryInterval;
 import org.toxsoft.core.tslib.coll.primtypes.IStringMap;
 import org.toxsoft.uskat.core.api.hqserv.*;
@@ -46,6 +47,10 @@ public interface IBaQueries
    * While executing, backend sends {@link BaMsgQueryNextData} messages to the frontend until query execution is
    * finished. Last message will contain state {@link BaMsgQueryNextData#getState(GenericMessage)} set to
    * <code>{@link ESkQueryState#READY}</code> or <code>{@link ESkQueryState#FAILED}</code>.
+   * <p>
+   * When querying commands or events, open intervals {@link EQueryIntervalType#isStartOpen()} = <b>true</b> and/or
+   * {@link EQueryIntervalType#isEndOpen()} = <b>true</b> ) are ignored and {@link EQueryIntervalType#CSCE} is used
+   * instead.
    *
    * @param aQueryId String - the query ID
    * @param aTimeInterval {@link IQueryInterval} - requested time interval
