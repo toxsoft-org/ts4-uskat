@@ -70,20 +70,26 @@ class BuiltinLastContributor
   protected void papiUpdateModel( ECrudOp aOp, String aClassId ) {
     switch( aOp ) {
       case CREATE: {
-        M5Model<? extends ISkObject> model = new KM5ModelGeneric<>( skSysdescr().getClassInfo( aClassId ), skConn() );
-        m5().addModel( model );
-        handledModels.add( model );
+        if( !m5().models().hasKey( aClassId ) ) {
+          M5Model<? extends ISkObject> model = new KM5ModelGeneric<>( skSysdescr().getClassInfo( aClassId ), skConn() );
+          m5().addModel( model );
+          handledModels.add( model );
+        }
         break;
       }
       case EDIT: {
-        M5Model<? extends ISkObject> model = new KM5ModelGeneric<>( skSysdescr().getClassInfo( aClassId ), skConn() );
-        m5().replaceModel( model );
-        handledModels.put( model );
+        if( handledModels.hasKey( aClassId ) ) {
+          M5Model<? extends ISkObject> model = new KM5ModelGeneric<>( skSysdescr().getClassInfo( aClassId ), skConn() );
+          m5().replaceModel( model );
+          handledModels.put( model ); // replaces existing model
+        }
         break;
       }
       case REMOVE: {
-        m5().removeModel( aClassId );
-        handledModels.removeById( aClassId );
+        if( handledModels.hasKey( aClassId ) ) {
+          m5().removeModel( aClassId );
+          handledModels.removeById( aClassId );
+        }
         break;
       }
       case LIST: {
