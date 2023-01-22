@@ -11,7 +11,6 @@ import org.toxsoft.core.tslib.bricks.strio.*;
 import org.toxsoft.core.tslib.bricks.strio.impl.*;
 import org.toxsoft.core.tslib.coll.helpers.*;
 import org.toxsoft.core.tslib.coll.primtypes.*;
-import org.toxsoft.core.tslib.coll.primtypes.impl.*;
 import org.toxsoft.core.tslib.gw.*;
 import org.toxsoft.core.tslib.utils.errors.*;
 import org.toxsoft.uskat.core.api.sysdescr.dto.*;
@@ -94,28 +93,50 @@ class MtbBaClasses
     return classInfos;
   }
 
+  /**
+   * FIXME in #writeClassInfos setChanged() must be called only once! <br>
+   * FIXME in #writeClassInfos setChanged() must NOT be called if there were no changes
+   */
+
   @Override
   public void writeClassInfos( IStringList aRemoveClassIds, IStridablesList<IDtoClassInfo> aUpdateClassInfos ) {
     internalCheck();
     TsIllegalArgumentRtException.checkTrue( aUpdateClassInfos.hasKey( IGwHardConstants.GW_ROOT_CLASS_ID ) );
+
     // prepare for frontend message
-    IStringListEdit removedClassIds = new StringLinkedBundleList();
-    IStringListEdit createdClassIds = new StringLinkedBundleList();
-    IStringListEdit editedClassIds = new StringLinkedBundleList();
+    int changesCount = 0;
+    ECrudOp op = null;
+    String changedId = null;
+
     // remove classes
     if( aRemoveClassIds != null ) {
       for( String classId : aRemoveClassIds ) {
         if( classInfos.removeById( classId ) != null ) {
-          removedClassIds.add( classId );
-          setChanged();
+          ++changesCount;
+          op = ECrudOp.REMOVE;
+          changedId = classId;
         }
       }
     }
     else {
-      if( !classInfos.isEmpty() ) {
-        removedClassIds.addAll( classInfos.ids() );
-        classInfos.clear();
-        setChanged();
+      switch( classInfos.size() ) {
+        case 0: {
+          break;
+        }
+        case 1: {
+          ++changesCount;
+          op = ECrudOp.REMOVE;
+          changedId = classInfos.ids().first();
+          classInfos.clear();
+          break;
+        }
+        default: {
+          changesCount = classInfos.size();
+          op = ECrudOp.LIST;
+          // changedId = null;
+          classInfos.clear();
+          break;
+        }
       }
     }
     // add/update classes
@@ -124,45 +145,32 @@ class MtbBaClasses
       if( !Objects.equals( inf, oldInf ) ) {
         if( oldInf != null ) {
           if( !oldInf.equals( inf ) ) {
-            editedClassIds.add( inf.id() );
+            ++changesCount;
+            op = ECrudOp.EDIT;
+            changedId = inf.id();
+            classInfos.put( inf );
           }
         }
         else {
-          createdClassIds.add( inf.id() );
+          ++changesCount;
+          op = ECrudOp.CREATE;
+          changedId = inf.id();
+          classInfos.put( inf );
         }
-        classInfos.put( inf );
-        setChanged();
       }
     }
     // inform frontend
-    int totalCount = removedClassIds.size() + editedClassIds.size() + createdClassIds.size();
-    switch( totalCount ) {
+    switch( changesCount ) {
       case 0: { // no changes, nothing to inform about
         // nop
         break;
       }
       case 1: { // single change causes single class event
-        ECrudOp op;
-        String classId;
-        if( !createdClassIds.isEmpty() ) {
-          op = ECrudOp.CREATE;
-          classId = createdClassIds.first();
-        }
-        else {
-          if( !editedClassIds.isEmpty() ) {
-            op = ECrudOp.EDIT;
-            classId = editedClassIds.first();
-          }
-          else {
-            op = ECrudOp.REMOVE;
-            classId = removedClassIds.first();
-          }
-        }
-        GtMessage msg = IBaClassesMessages.makeMessage( op, classId );
+        GtMessage msg = IBaClassesMessages.makeMessage( op, changedId );
         owner().frontend().onBackendMessage( msg );
         break;
       }
-      default: { // batch changes will fir ECrudOp.LIST event
+      default: { // batch changes will fire ECrudOp.LIST event
         GtMessage msg = IBaClassesMessages.makeMessage( ECrudOp.LIST, null );
         owner().frontend().onBackendMessage( msg );
         break;
