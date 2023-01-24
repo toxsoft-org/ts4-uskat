@@ -1,5 +1,6 @@
 package org.toxsoft.uskat.sded.gui.glib;
 
+import static org.toxsoft.uskat.base.gui.km5.sgw.ISgwM5Constants.*;
 import static org.toxsoft.uskat.sded.gui.km5.IKM5SdedConstants.*;
 
 import org.eclipse.swt.*;
@@ -10,10 +11,15 @@ import org.toxsoft.core.tsgui.bricks.ctx.impl.*;
 import org.toxsoft.core.tsgui.m5.*;
 import org.toxsoft.core.tsgui.m5.gui.panels.*;
 import org.toxsoft.core.tsgui.m5.model.*;
+import org.toxsoft.core.tsgui.panels.inpled.*;
 import org.toxsoft.core.tslib.bricks.strid.more.*;
+import org.toxsoft.core.tslib.coll.helpers.*;
 import org.toxsoft.uskat.base.gui.conn.*;
+import org.toxsoft.uskat.base.gui.glib.*;
+import org.toxsoft.uskat.core.api.sysdescr.*;
 import org.toxsoft.uskat.core.api.sysdescr.dto.*;
 import org.toxsoft.uskat.core.connection.*;
+import org.toxsoft.uskat.core.impl.dto.*;
 
 /**
  * Class editor - allows to create, edit and delete classes in Sysdescr.
@@ -27,11 +33,21 @@ import org.toxsoft.uskat.core.connection.*;
  * @author hazard157
  */
 public class SdedClassEditor
-    extends AbstractLazySkConnectedPanel<Control> {
+    extends AbstractSkLazyPanel {
 
-  private final IM5CollectionPanel<IDtoClassInfo> classesListPane;
-  private final IM5EntityPanel<IDtoClassInfo>     classEditPane;
-  // private final IM5CollectionPanel<IDtoClassInfo> classEditPane;
+  private final ISkSysdescrListener sysdescrListener = ( api, op, classId ) -> whenSysdescrChanged( op, classId );
+
+  private final IM5CollectionPanel<ISkClassInfo> classesListPane;
+  private final IM5EntityPanel<IDtoClassInfo>    classEditPane;
+  private final IInplaceEditorPanel              inplaceEditor;
+
+  /**
+   * When this flag is <code>true</code> selection events are ingored in the handler
+   * {@link #whenClassListSelectionChanges()}.
+   * <p>
+   * Flag set/reset in {@link #whenSysdescrChanged(ECrudOp, String)}.
+   */
+  private boolean ignoreSelectionChange = false;
 
   /**
    * Constrcutor.
@@ -44,30 +60,80 @@ public class SdedClassEditor
    */
   public SdedClassEditor( ITsGuiContext aContext, IdChain aSuppliedConnectionId ) {
     super( aContext, aSuppliedConnectionId );
-    IM5Model<IDtoClassInfo> modelDto = m5().getModel( MID_SDED_DTO_CLASS_INFO, IDtoClassInfo.class );
     // left pane
-    IM5LifecycleManager<IDtoClassInfo> lmSk = modelDto.getLifecycleManager( skConn() );
-    IM5ItemsProvider<IDtoClassInfo> ipSk = lmSk.itemsProvider();
+    IM5Model<ISkClassInfo> modelSk = m5().getModel( MID_SGW_CLASS_INFO, ISkClassInfo.class );
+    IM5LifecycleManager<ISkClassInfo> lmSk = modelSk.getLifecycleManager( skConn() );
+    IM5ItemsProvider<ISkClassInfo> ipSk = lmSk.itemsProvider();
     ITsGuiContext ctxSk = new TsGuiContext( tsContext() );
-    classesListPane = modelDto.panelCreator().createCollEditPanel( ctxSk, ipSk, lmSk );
-    classesListPane.addTsSelectionListener( ( s, i ) -> whenClassListSelectionChnages() );
+    classesListPane = modelSk.panelCreator().createCollEditPanel( ctxSk, ipSk, lmSk );
 
-    // TODO right pane
+    // right pane
+    IM5Model<IDtoClassInfo> modelDto = m5().getModel( MID_SDED_DTO_CLASS_INFO, IDtoClassInfo.class );
     IM5LifecycleManager<IDtoClassInfo> lmDto = modelDto.getLifecycleManager( skConn() );
     ITsGuiContext ctxDto = new TsGuiContext( tsContext() );
     classEditPane = modelDto.panelCreator().createEntityEditorPanel( ctxDto, lmDto );
-    // classEditPane = modelDto.panelCreator().createCollEditPanel( ctxDto, lmDto.itemsProvider(), lmDto );
+    classEditPane.setEditable( false );
+    AbstractInplaceContentPanel contentPanel = new InplaceM5EntityPanelWrapper<>( ctxDto, classEditPane );
+    inplaceEditor = new InplaceEditorPanel( aContext, contentPanel );
+  }
 
+  @Override
+  protected void doDispose() {
+    skSysdescr().eventer().removeListener( sysdescrListener );
   }
 
   // ------------------------------------------------------------------------------------
   // implementation
   //
 
-  private void whenClassListSelectionChnages() {
-    IDtoClassInfo sel = classesListPane.selectedItem();
-    classEditPane.setEntity( sel );
-    // classEditPane.setSelectedItem( dto );
+  /**
+   * Handles selection change in the left panel {@link #classesListPane}.
+   */
+  private void whenClassListSelectionChanges() {
+    if( ignoreSelectionChange ) {
+      return;
+    }
+    ISkClassInfo sel = classesListPane.selectedItem();
+    if( inplaceEditor.isEditing() ) {
+      inplaceEditor.cancelAndFinishEditing();
+    }
+    if( sel != null ) {
+      IDtoClassInfo dto = DtoClassInfo.createFromSk( sel, true );
+      classEditPane.setEntity( dto );
+    }
+    else {
+      classEditPane.setEntity( null );
+    }
+    inplaceEditor.refresh();
+  }
+
+  /**
+   * Handles class(es) changes in {@link ISkSysdescr}, is called from {@link ISkSysdescrListener}.
+   *
+   * @param aOp {@link ECrudOp} - the kind of change
+   * @param aClassId String - affected class ID or <code>null</code> for batch changes {@link ECrudOp#LIST}
+   */
+  private void whenSysdescrChanged( ECrudOp aOp, String aClassId ) {
+    ISkClassInfo sel = classesListPane.selectedItem();
+    // no selected class means that there is nothing in right panel, just refresh left panel
+    if( sel == null ) {
+      classesListPane.refresh();
+      return;
+    }
+    String selClassId = sel.id();
+    ignoreSelectionChange = true;
+    try {
+      classesListPane.refresh();
+      sel = skSysdescr().findClassInfo( selClassId );
+      classesListPane.setSelectedItem( sel );
+      if( inplaceEditor.isEditing() ) {
+        IDtoClassInfo dto = DtoClassInfo.createFromSk( sel, false );
+        classEditPane.setEntity( dto );
+      }
+    }
+    finally {
+      ignoreSelectionChange = false;
+    }
   }
 
   // ------------------------------------------------------------------------------------
@@ -75,18 +141,14 @@ public class SdedClassEditor
   //
 
   @Override
-  protected Control doCreateControl( Composite aParent ) {
+  protected void doInitGui( Composite aParent ) {
     SashForm sfMain = new SashForm( aParent, SWT.HORIZONTAL );
     classesListPane.createControl( sfMain );
-    classEditPane.createControl( sfMain );
+    inplaceEditor.createControl( sfMain );
     sfMain.setWeights( 3000, 7000 );
-    return sfMain;
-
-    // TsComposite board = new TsComposite( aParent );
-    // board.setLayout( new BorderLayout() );
-    // classEditPane.createControl( board );
-    //
-    // return board;
+    // setup
+    classesListPane.addTsSelectionListener( ( s, i ) -> whenClassListSelectionChanges() );
+    skSysdescr().eventer().addListener( sysdescrListener );
   }
 
 }

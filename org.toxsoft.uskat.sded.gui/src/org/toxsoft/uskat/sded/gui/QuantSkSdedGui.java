@@ -11,14 +11,14 @@ import org.toxsoft.uskat.sded.gui.km5.sded.*;
  *
  * @author hazard157
  */
-public class QuandSkSdedGui
+public class QuantSkSdedGui
     extends AbstractQuant {
 
   /**
    * Constructor.
    */
-  public QuandSkSdedGui() {
-    super( QuandSkSdedGui.class.getSimpleName() );
+  public QuantSkSdedGui() {
+    super( QuantSkSdedGui.class.getSimpleName() );
     KM5Utils.registerContributorCreator( KM5SdedContributor.CREATOR );
     KM5Utils.registerContributorCreator( KM5ObjedContributor.CREATOR );
   }

@@ -12,6 +12,7 @@ import org.toxsoft.core.tslib.bricks.strid.impl.*;
 import org.toxsoft.core.tslib.bricks.validator.*;
 import org.toxsoft.core.tslib.coll.*;
 import org.toxsoft.core.tslib.coll.impl.*;
+import org.toxsoft.core.tslib.gw.*;
 import org.toxsoft.core.tslib.utils.errors.*;
 import org.toxsoft.uskat.core.api.sysdescr.*;
 import org.toxsoft.uskat.core.api.sysdescr.dto.*;
@@ -51,7 +52,13 @@ class SdedDtoClassInfoM5LifecycleManager
     }
     params.setStr( FID_NAME, aValues.getAsAv( FID_NAME ).asString() );
     params.setStr( FID_DESCRIPTION, aValues.getAsAv( FID_DESCRIPTION ).asString() );
-    DtoClassInfo cinf = new DtoClassInfo( id, parentId, params );
+    DtoClassInfo cinf;
+    if( id.equals( IGwHardConstants.GW_ROOT_CLASS_ID ) ) {
+      cinf = new DtoClassInfo( params );
+    }
+    else {
+      cinf = new DtoClassInfo( id, parentId, params );
+    }
     cinf.attrInfos().setAll( model().SELF_ATTR_INFOS.getFieldValue( aValues ) );
     cinf.rtdataInfos().setAll( model().SELF_RTDATA_INFOS.getFieldValue( aValues ) );
     cinf.cmdInfos().setAll( model().SELF_CMD_INFOS.getFieldValue( aValues ) );
