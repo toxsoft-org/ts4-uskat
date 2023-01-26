@@ -3,6 +3,8 @@ package org.toxsoft.uskat.alarms.s5.generator;
 import java.util.function.Predicate;
 
 import org.toxsoft.core.tslib.av.IAtomicValue;
+import org.toxsoft.core.tslib.bricks.strid.impl.StridUtils;
+import org.toxsoft.core.tslib.bricks.validator.impl.TsValidationFailedRtException;
 import org.toxsoft.core.tslib.gw.skid.Skid;
 import org.toxsoft.core.tslib.utils.errors.TsNullArgumentRtException;
 import org.toxsoft.uskat.alarms.lib.ISkAlarm;
@@ -26,9 +28,11 @@ public class S5AlarmCurrDataPredicate
    * @param aDataId String строковый идентификатор данного
    * @param aValuePredicate {@link IS5AlarmAtomicValuePredicate} условие на значение текущего данного
    * @throws TsNullArgumentRtException любой аргумент = null
+   * @throws TsValidationFailedRtException aDataId не ИД-путь
    */
   public S5AlarmCurrDataPredicate( Skid aObjId, String aDataId, IS5AlarmAtomicValuePredicate aValuePredicate ) {
     TsNullArgumentRtException.checkNulls( aDataId, aValuePredicate );
+    StridUtils.checkValidIdPath( aDataId );
     objId = aObjId;
     dataId = aDataId;
     predicate = aValuePredicate;

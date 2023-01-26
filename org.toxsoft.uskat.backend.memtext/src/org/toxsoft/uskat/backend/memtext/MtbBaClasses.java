@@ -1,7 +1,5 @@
 package org.toxsoft.uskat.backend.memtext;
 
-import static org.toxsoft.uskat.core.ISkHardConstants.*;
-
 import java.util.*;
 
 import org.toxsoft.core.tslib.bricks.events.msg.*;
@@ -11,7 +9,6 @@ import org.toxsoft.core.tslib.bricks.strio.*;
 import org.toxsoft.core.tslib.bricks.strio.impl.*;
 import org.toxsoft.core.tslib.coll.helpers.*;
 import org.toxsoft.core.tslib.coll.primtypes.*;
-import org.toxsoft.core.tslib.coll.primtypes.impl.*;
 import org.toxsoft.core.tslib.gw.*;
 import org.toxsoft.core.tslib.utils.errors.*;
 import org.toxsoft.uskat.core.api.sysdescr.dto.*;
@@ -59,18 +56,21 @@ class MtbBaClasses
   @Override
   protected void doWrite( IStrioWriter aSw ) {
     StrioUtils.writeKeywordHeader( aSw, KW_CLASS_INFOS, true );
-    /**
-     * We'll remove classes defined by the core services.
-     */
-    IStridablesListEdit<IDtoClassInfo> toSave = new StridablesList<>();
-    for( IDtoClassInfo cinf : classInfos ) {
-      boolean isSrcCode = OPDEF_SK_IS_SOURCE_CODE_DEFINED_CLASS.getValue( cinf.params() ).asBool();
-      boolean isCoreClass = OPDEF_SK_IS_SOURCE_USKAT_CORE_CLASS.getValue( cinf.params() ).asBool();
-      if( !isSrcCode && !isCoreClass ) {
-        toSave.add( cinf );
-      }
-    }
-    DtoClassInfo.KEEPER.writeColl( aSw, toSave, true );
+
+    DtoClassInfo.KEEPER.writeColl( aSw, classInfos, true );
+
+    // /**
+    // * We'll remove classes defined by the core services.
+    // */
+    // IStridablesListEdit<IDtoClassInfo> toSave = new StridablesList<>();
+    // for( IDtoClassInfo cinf : classInfos ) {
+    // boolean isSrcCode = OPDEF_SK_IS_SOURCE_CODE_DEFINED_CLASS.getValue( cinf.params() ).asBool();
+    // boolean isCoreClass = OPDEF_SK_IS_SOURCE_USKAT_CORE_CLASS.getValue( cinf.params() ).asBool();
+    // if( !isSrcCode && !isCoreClass ) {
+    // toSave.add( cinf );
+    // }
+    // }
+    // DtoClassInfo.KEEPER.writeColl( aSw, toSave, true );
   }
 
   @Override
@@ -94,28 +94,50 @@ class MtbBaClasses
     return classInfos;
   }
 
+  /**
+   * FIXME in #writeClassInfos setChanged() must be called only once! <br>
+   * FIXME in #writeClassInfos setChanged() must NOT be called if there were no changes
+   */
+
   @Override
   public void writeClassInfos( IStringList aRemoveClassIds, IStridablesList<IDtoClassInfo> aUpdateClassInfos ) {
     internalCheck();
     TsIllegalArgumentRtException.checkTrue( aUpdateClassInfos.hasKey( IGwHardConstants.GW_ROOT_CLASS_ID ) );
+
     // prepare for frontend message
-    IStringListEdit removedClassIds = new StringLinkedBundleList();
-    IStringListEdit createdClassIds = new StringLinkedBundleList();
-    IStringListEdit editedClassIds = new StringLinkedBundleList();
+    int changesCount = 0;
+    ECrudOp op = null;
+    String changedId = null;
+
     // remove classes
     if( aRemoveClassIds != null ) {
       for( String classId : aRemoveClassIds ) {
         if( classInfos.removeById( classId ) != null ) {
-          removedClassIds.add( classId );
-          setChanged();
+          ++changesCount;
+          op = ECrudOp.REMOVE;
+          changedId = classId;
         }
       }
     }
     else {
-      if( !classInfos.isEmpty() ) {
-        removedClassIds.addAll( classInfos.ids() );
-        classInfos.clear();
-        setChanged();
+      switch( classInfos.size() ) {
+        case 0: {
+          break;
+        }
+        case 1: {
+          ++changesCount;
+          op = ECrudOp.REMOVE;
+          changedId = classInfos.ids().first();
+          classInfos.clear();
+          break;
+        }
+        default: {
+          changesCount = classInfos.size();
+          op = ECrudOp.LIST;
+          // changedId = null;
+          classInfos.clear();
+          break;
+        }
       }
     }
     // add/update classes
@@ -123,46 +145,30 @@ class MtbBaClasses
       IDtoClassInfo oldInf = classInfos.findByKey( inf.id() );
       if( !Objects.equals( inf, oldInf ) ) {
         if( oldInf != null ) {
-          if( !oldInf.equals( inf ) ) {
-            editedClassIds.add( inf.id() );
-          }
+          op = ECrudOp.EDIT;
         }
         else {
-          createdClassIds.add( inf.id() );
+          op = ECrudOp.CREATE;
         }
+        ++changesCount;
+        changedId = inf.id();
         classInfos.put( inf );
-        setChanged();
       }
     }
     // inform frontend
-    int totalCount = removedClassIds.size() + editedClassIds.size() + createdClassIds.size();
-    switch( totalCount ) {
+    switch( changesCount ) {
       case 0: { // no changes, nothing to inform about
         // nop
         break;
       }
       case 1: { // single change causes single class event
-        ECrudOp op;
-        String classId;
-        if( !createdClassIds.isEmpty() ) {
-          op = ECrudOp.CREATE;
-          classId = createdClassIds.first();
-        }
-        else {
-          if( !editedClassIds.isEmpty() ) {
-            op = ECrudOp.EDIT;
-            classId = editedClassIds.first();
-          }
-          else {
-            op = ECrudOp.REMOVE;
-            classId = removedClassIds.first();
-          }
-        }
-        GtMessage msg = IBaClassesMessages.makeMessage( op, classId );
+        setChanged();
+        GtMessage msg = IBaClassesMessages.makeMessage( op, changedId );
         owner().frontend().onBackendMessage( msg );
         break;
       }
-      default: { // batch changes will fir ECrudOp.LIST event
+      default: { // batch changes will fire ECrudOp.LIST event
+        setChanged();
         GtMessage msg = IBaClassesMessages.makeMessage( ECrudOp.LIST, null );
         owner().frontend().onBackendMessage( msg );
         break;
