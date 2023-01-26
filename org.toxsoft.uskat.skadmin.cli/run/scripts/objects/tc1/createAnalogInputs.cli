@@ -1,0 +1,400 @@
+b print.cli "Создание аналоговых входов нагнетателя №1 :"
+cd dev.objects
+
+# температура подшипников ТП1 - ТП9
+$tc1TP1   = createObject mcc.AnalogInput       tc1TP1
+$tc1TP1  -> setAttr  unitId   "T"
+$tc1TP1  -> setAttr  unit   "°С"
+$tc1TP1  -> setAttr  type   "Температура"
+$tc1TP1  -> setAttr  shortName   "ТП1"
+
+$tc1TP2   = createObject mcc.AnalogInput       tc1TP2
+$tc1TP2  -> setAttr  unitId   "T"
+$tc1TP2  -> setAttr  unit   "°С"
+$tc1TP2  -> setAttr  type   "Температура"
+$tc1TP2  -> setAttr  shortName   "ТП2"
+
+$tc1TP3   = createObject mcc.AnalogInput       tc1TP3
+$tc1TP3  -> setAttr  unitId   "T"
+$tc1TP3  -> setAttr  unit   "°С"
+$tc1TP3  -> setAttr  type   "Температура"
+$tc1TP3  -> setAttr  shortName   "ТП3"
+
+$tc1TP4   = createObject mcc.AnalogInput       tc1TP4
+$tc1TP4  -> setAttr  unitId   "T"
+$tc1TP4  -> setAttr  unit   "°С"
+$tc1TP4  -> setAttr  type   "Температура"
+$tc1TP4  -> setAttr  shortName   "ТП4"
+
+$tc1TP5   = createObject mcc.AnalogInput       tc1TP5
+$tc1TP5  -> setAttr  unitId   "T"
+$tc1TP5  -> setAttr  unit   "°С"
+$tc1TP5  -> setAttr  type   "Температура"
+$tc1TP5  -> setAttr  shortName   "ТП5"
+
+$tc1TP6   = createObject mcc.AnalogInput       tc1TP6
+$tc1TP6  -> setAttr  unitId   "T"
+$tc1TP6  -> setAttr  unit   "°С"
+$tc1TP6  -> setAttr  type   "Температура"
+$tc1TP6  -> setAttr  shortName   "ТП6"
+
+$tc1TP7   = createObject mcc.AnalogInput       tc1TP7
+$tc1TP7  -> setAttr  unitId   "T"
+$tc1TP7  -> setAttr  unit   "°С"
+$tc1TP7  -> setAttr  type   "Температура"
+$tc1TP7  -> setAttr  shortName   "ТП7"
+
+$tc1TP8   = createObject mcc.AnalogInput       tc1TP8
+$tc1TP8  -> setAttr  unitId   "T"
+$tc1TP8  -> setAttr  unit   "°С"
+$tc1TP8  -> setAttr  type   "Температура"
+$tc1TP8  -> setAttr  shortName   "ТП8"
+
+$tc1TP9   = createObject mcc.AnalogInput       tc1TP9
+$tc1TP9  -> setAttr  unitId   "T"
+$tc1TP9  -> setAttr  unit   "°С"
+$tc1TP9  -> setAttr  type   "Температура"
+$tc1TP9  -> setAttr  shortName   "ТП9"
+
+# вибрация ST1, ST2, ST3, ST4, ST5, ST6, ST7, ST8
+$tc1ST1   = createObject mcc.AnalogInput       tc1ST1
+$tc1ST1  -> setAttr  unitId   "mm/sec"
+$tc1ST1  -> setAttr  unit   "мм/сек"
+$tc1ST1  -> setAttr  type   "Вибрация"
+$tc1ST1  -> setAttr  shortName   "ST1"
+
+$tc1ST2   = createObject mcc.AnalogInput       tc1ST2
+$tc1ST2  -> setAttr  unitId   "mm/sec"
+$tc1ST2  -> setAttr  unit   "мм/сек"
+$tc1ST2  -> setAttr  type   "Вибрация"
+$tc1ST2  -> setAttr  shortName   "ST2"
+
+$tc1ST3   = createObject mcc.AnalogInput       tc1ST3
+$tc1ST3  -> setAttr  unitId   "mm/sec"
+$tc1ST3  -> setAttr  unit   "мм/сек"
+$tc1ST3  -> setAttr  type   "Вибрация"
+$tc1ST3  -> setAttr  shortName   "ST3"
+
+$tc1ST4   = createObject mcc.AnalogInput       tc1ST4
+$tc1ST4  -> setAttr  unitId   "mm/sec"
+$tc1ST4  -> setAttr  unit   "мм/сек"
+$tc1ST4  -> setAttr  type   "Вибрация"
+$tc1ST4  -> setAttr  shortName   "ST4"
+
+$tc1ST5   = createObject mcc.AnalogInput       tc1ST5
+$tc1ST5  -> setAttr  unitId   "mm/sec"
+$tc1ST5  -> setAttr  unit   "мм/сек"
+$tc1ST5  -> setAttr  type   "Вибрация"
+$tc1ST5  -> setAttr  shortName   "ST5"
+
+$tc1ST6   = createObject mcc.AnalogInput       tc1ST6
+$tc1ST6  -> setAttr  unitId   "mm/sec"
+$tc1ST6  -> setAttr  unit   "мм/сек"
+$tc1ST6  -> setAttr  type   "Вибрация"
+$tc1ST6  -> setAttr  shortName   "ST6"
+
+$tc1ST7   = createObject mcc.AnalogInput       tc1ST7
+$tc1ST7  -> setAttr  unitId   "mm/sec"
+$tc1ST7  -> setAttr  unit   "мм/сек"
+$tc1ST7  -> setAttr  type   "Вибрация"
+$tc1ST7  -> setAttr  shortName   "ST7"
+
+$tc1ST8   = createObject mcc.AnalogInput       tc1ST8
+$tc1ST8  -> setAttr  unitId   "mm/sec"
+$tc1ST8  -> setAttr  unit   "мм/сек"
+$tc1ST8  -> setAttr  type   "Вибрация"
+$tc1ST8  -> setAttr  shortName   "ST8"
+
+# Ток статора
+$tc1StatorCurrent = createObject mcc.AnalogInput       tc1StatorCurrent
+$tc1StatorCurrent  -> setAttr  unitId   "~A"
+$tc1StatorCurrent  -> setAttr  unit   "Ампер"
+$tc1StatorCurrent  -> setAttr  type   "Ток"
+$tc1StatorCurrent  -> setAttr  shortName   "I ст."
+
+# Ток ротора
+$tc1RotorCurrent = createObject mcc.AnalogInput       tc1RotorCurrent
+$tc1RotorCurrent  -> setAttr  unitId   "A"
+$tc1RotorCurrent  -> setAttr  unit   "Ампер"
+$tc1RotorCurrent  -> setAttr  type   "Ток"
+$tc1RotorCurrent  -> setAttr  shortName   "I рот."
+ 
+# Напряжение ротора
+$tc1RotorVoltage = createObject mcc.AnalogInput       tc1RotorVoltage
+$tc1RotorVoltage  -> setAttr  unitId   "V"
+$tc1RotorVoltage  -> setAttr  unit   "Вольт"
+$tc1RotorVoltage  -> setAttr  type   "Напряжение"
+$tc1RotorVoltage  -> setAttr  shortName   "U рот."
+   
+# Температура обмоток(Т1-Т6)
+$tc1MainEngineT1 = createObject mcc.AnalogInput       tc1MainEngineT1
+$tc1MainEngineT1  -> setAttr  unitId   "T"
+$tc1MainEngineT1  -> setAttr  unit   "°С"
+$tc1MainEngineT1  -> setAttr  type   "Температура"
+$tc1MainEngineT1  -> setAttr  shortName   "Т1"
+
+$tc1MainEngineT2 = createObject mcc.AnalogInput       tc1MainEngineT2
+$tc1MainEngineT2  -> setAttr  unitId   "T"
+$tc1MainEngineT2  -> setAttr  unit   "°С"
+$tc1MainEngineT2  -> setAttr  type   "Температура"
+$tc1MainEngineT2  -> setAttr  shortName   "Т2"
+
+$tc1MainEngineT3 = createObject mcc.AnalogInput       tc1MainEngineT3
+$tc1MainEngineT3  -> setAttr  unitId   "T"
+$tc1MainEngineT3  -> setAttr  unit   "°С"
+$tc1MainEngineT3  -> setAttr  type   "Температура"
+$tc1MainEngineT3  -> setAttr  shortName   "Т3"
+
+$tc1MainEngineT4 = createObject mcc.AnalogInput       tc1MainEngineT4
+$tc1MainEngineT4  -> setAttr  unitId   "T"
+$tc1MainEngineT4  -> setAttr  unit   "°С"
+$tc1MainEngineT4  -> setAttr  type   "Температура"
+$tc1MainEngineT4  -> setAttr  shortName   "Т4"
+
+$tc1MainEngineT5 = createObject mcc.AnalogInput       tc1MainEngineT5
+$tc1MainEngineT5  -> setAttr  unitId   "T"
+$tc1MainEngineT5  -> setAttr  unit   "°С"
+$tc1MainEngineT5  -> setAttr  type   "Температура"
+$tc1MainEngineT5  -> setAttr  shortName   "Т5"
+
+$tc1MainEngineT6 = createObject mcc.AnalogInput       tc1MainEngineT6
+$tc1MainEngineT6  -> setAttr  unitId   "T"
+$tc1MainEngineT6  -> setAttr  unit   "°С"
+$tc1MainEngineT6  -> setAttr  type   "Температура"
+$tc1MainEngineT6  -> setAttr  shortName   "Т6"
+
+# Температура холодного воздуха к двигателю (T7-T9)
+$tc1MainEngineT7 = createObject mcc.AnalogInput       tc1MainEngineT7
+$tc1MainEngineT7  -> setAttr  unitId   "T"
+$tc1MainEngineT7  -> setAttr  unit   "°С"
+$tc1MainEngineT7  -> setAttr  type   "Температура"
+$tc1MainEngineT7  -> setAttr  shortName   "Т7"
+
+$tc1MainEngineT8 = createObject mcc.AnalogInput       tc1MainEngineT8
+$tc1MainEngineT8  -> setAttr  unitId   "T"
+$tc1MainEngineT8  -> setAttr  unit   "°С"
+$tc1MainEngineT8  -> setAttr  type   "Температура"
+$tc1MainEngineT8  -> setAttr  shortName   "Т8"
+
+$tc1MainEngineT9 = createObject mcc.AnalogInput       tc1MainEngineT9
+$tc1MainEngineT9  -> setAttr  unitId   "T"
+$tc1MainEngineT9  -> setAttr  unit   "°С"
+$tc1MainEngineT9  -> setAttr  type   "Температура"
+$tc1MainEngineT9  -> setAttr  shortName   "Т9"
+
+# Температура наружного воздуха
+$tc1OutsideT   = createObject mcc.AnalogInput       tc1OutsideT
+$tc1OutsideT  -> setAttr  unitId   "T"
+$tc1OutsideT  -> setAttr  unit   "°С"
+$tc1OutsideT  -> setAttr  type   "Температура"
+$tc1OutsideT  -> setAttr  shortName   "Т нар.возд."
+
+# Влажность наружного воздуха
+$tc1OutsideM   = createObject mcc.AnalogInput       tc1OutsideM
+$tc1OutsideM  -> setAttr  unitId   "RН"
+$tc1OutsideM  -> setAttr  unit   "%"
+$tc1OutsideM  -> setAttr  type   "Относитительная влажность"
+$tc1OutsideM  -> setAttr  shortName   "Влажн.возд"
+
+# Температура воздуха до охладителя TA1,TA3,TA5
+$tc1TA1   = createObject mcc.AnalogInput       tc1TA1
+$tc1TA1  -> setAttr  unitId   "T"
+$tc1TA1  -> setAttr  unit   "°С"
+$tc1TA1  -> setAttr  type   "Температура"
+$tc1TA1  -> setAttr  shortName   "ТВ1"
+
+$tc1TA3   = createObject mcc.AnalogInput       tc1TA3
+$tc1TA3  -> setAttr  unitId   "T"
+$tc1TA3  -> setAttr  unit   "°С"
+$tc1TA3  -> setAttr  type   "Температура"
+$tc1TA3  -> setAttr  shortName   "ТВ3"
+
+$tc1TA5   = createObject mcc.AnalogInput       tc1TA5
+$tc1TA5  -> setAttr  unitId   "T"
+$tc1TA5  -> setAttr  unit   "°С"
+$tc1TA5  -> setAttr  type   "Температура"
+$tc1TA5  -> setAttr  shortName   "ТВ5"
+
+# Температура воздуха после охладителя TA2,TA4,TA6
+$tc1TA2   = createObject mcc.AnalogInput       tc1TA2
+$tc1TA2  -> setAttr  unitId   "T"
+$tc1TA2  -> setAttr  unit   "°С"
+$tc1TA2  -> setAttr  type   "Температура"
+$tc1TA2  -> setAttr  shortName   "ТВ2"
+
+$tc1TA4   = createObject mcc.AnalogInput       tc1TA4
+$tc1TA4  -> setAttr  unitId   "T"
+$tc1TA4  -> setAttr  unit   "°С"
+$tc1TA4  -> setAttr  type   "Температура"
+$tc1TA4  -> setAttr  shortName   "ТВ4"
+
+$tc1TA6   = createObject mcc.AnalogInput       tc1TA6
+$tc1TA6  -> setAttr  unitId   "T"
+$tc1TA6  -> setAttr  unit   "°С"
+$tc1TA6  -> setAttr  type   "Температура"
+$tc1TA6  -> setAttr  shortName   "ТВ6"
+
+# Расход воздуха на всасывание
+$tc1AirConsumptionF11   = createObject mcc.AnalogInput       tc1AirConsumptionF11
+$tc1AirConsumptionF11  -> setAttr  unitId   "м3"
+$tc1AirConsumptionF11  -> setAttr  unit   "м.куб"
+$tc1AirConsumptionF11  -> setAttr  type   "Расход воздуха"
+$tc1AirConsumptionF11  -> setAttr  shortName   "F11"
+
+# давление воздуха в коллекторе
+$tc1CollectorAirP9   = createObject mcc.AnalogInput       tc1CollectorAirP9
+$tc1CollectorAirP9  -> setAttr  unitId   "Бар"
+$tc1CollectorAirP9  -> setAttr  unit   "Бар"
+$tc1CollectorAirP9  -> setAttr  type   "Давление"
+$tc1CollectorAirP9  -> setAttr  shortName   "P9"
+
+# Давление воздуха в магистрали P8
+$tc1AirContourP8   = createObject mcc.AnalogInput       tc1AirContourP8
+$tc1AirContourP8  -> setAttr  unitId   "Бар"
+$tc1AirContourP8  -> setAttr  unit   "Бар"
+$tc1AirContourP8  -> setAttr  type   "Давление"
+$tc1AirContourP8  -> setAttr  shortName   "P8"
+
+# Атмосферное давление воздуха P12
+$tc1AirContourP12   = createObject mcc.AnalogInput       tc1AirContourP12
+$tc1AirContourP12  -> setAttr  unitId   "Бар"
+$tc1AirContourP12  -> setAttr  unit   "Бар"
+$tc1AirContourP12  -> setAttr  type   "Давление"
+$tc1AirContourP12  -> setAttr  shortName   "P атм."
+
+# Давление на первой ступени сжатия
+$tc1AirContourStep1AirP21   = createObject mcc.AnalogInput       tc1AirContourStep1AirP21
+$tc1AirContourStep1AirP21  -> setAttr  unitId   "Бар"
+$tc1AirContourStep1AirP21  -> setAttr  unit   "Бар"
+$tc1AirContourStep1AirP21  -> setAttr  type   "Давление"
+$tc1AirContourStep1AirP21  -> setAttr  shortName   "P 1ст."
+
+# Давление на второй ступени сжатия
+$tc1AirContourStep2AirP22   = createObject mcc.AnalogInput       tc1AirContourStep2AirP22
+$tc1AirContourStep2AirP22  -> setAttr  unitId   "Бар"
+$tc1AirContourStep2AirP22  -> setAttr  unit   "Бар"
+$tc1AirContourStep2AirP22  -> setAttr  type   "Давление"
+$tc1AirContourStep2AirP22  -> setAttr  shortName   "P 2ст."
+
+# Разрежение воздуха на всасе
+$tc1AirContourP14  = createObject mcc.AnalogInput       tc1AirContourP14
+$tc1AirContourP14  -> setAttr  unitId   "Бар"
+$tc1AirContourP14  -> setAttr  unit   "Бар"
+$tc1AirContourP14  -> setAttr  type   "Разряжение"
+$tc1AirContourP14  -> setAttr  shortName   "Pазр. всасе"
+
+# Угол открытия дроссельной заслонки     
+$tc1AirContourThrottleValveDDZ   = createObject mcc.AnalogInput       tc1AirContourThrottleValveDDZ
+$tc1AirContourThrottleValveDDZ  -> setAttr  unitId   "градус"
+$tc1AirContourThrottleValveDDZ  -> setAttr  unit   "град."
+$tc1AirContourThrottleValveDDZ  -> setAttr  type   "Угол"
+$tc1AirContourThrottleValveDDZ  -> setAttr  shortName   "Угол откр.др.заслонки"
+
+# Угол открытия помпажного клапана     
+$tc1AirContourDPK  = createObject mcc.AnalogInput       tc1AirContourDPK
+$tc1AirContourDPK  -> setAttr  unitId   "%"
+$tc1AirContourDPK  -> setAttr  unit   "%"
+$tc1AirContourDPK  -> setAttr  type   "Угол"
+$tc1AirContourDPK  -> setAttr  shortName   "Угол откр.др.заслонки"
+
+
+# Давление масла на устройстве осевого сдвига 
+$tc1OilContourP1   = createObject mcc.AnalogInput       tc1OilContourP1
+$tc1OilContourP1  -> setAttr  unitId   "Бар"
+$tc1OilContourP1  -> setAttr  unit   "Бар"
+$tc1OilContourP1  -> setAttr  type   "Давление"
+$tc1OilContourP1  -> setAttr  shortName   "P1"
+
+# Давление масла на смазку подшипников  
+$tc1OilContourP2   = createObject mcc.AnalogInput       tc1OilContourP2
+$tc1OilContourP2  -> setAttr  unitId   "Бар"
+$tc1OilContourP2  -> setAttr  unit   "Бар"
+$tc1OilContourP2  -> setAttr  type   "Давление"
+$tc1OilContourP2  -> setAttr  shortName   "P1"
+
+# Давление масла на опорно-упорный подшипник   
+$tc1OilContourP4   = createObject mcc.AnalogInput       tc1OilContourP4
+$tc1OilContourP4  -> setAttr  unitId   "Бар"
+$tc1OilContourP4  -> setAttr  unit   "Бар"
+$tc1OilContourP4  -> setAttr  type   "Давление"
+$tc1OilContourP4  -> setAttr  shortName   "P4"
+
+# Давление масла до редукционного клапана    
+$tc1OilContourP5   = createObject mcc.AnalogInput       tc1OilContourP5
+$tc1OilContourP5  -> setAttr  unitId   "Бар"
+$tc1OilContourP5  -> setAttr  unit   "Бар"
+$tc1OilContourP5  -> setAttr  type   "Давление"
+$tc1OilContourP5  -> setAttr  shortName   "P5"
+
+# Температура масла до маслоохладителя    
+$tc1OilContourTM1   = createObject mcc.AnalogInput       tc1OilContourTM1
+$tc1OilContourTM1  -> setAttr  unitId   "T"
+$tc1OilContourTM1  -> setAttr  unit   "°С"
+$tc1OilContourTM1  -> setAttr  type   "Температура"
+$tc1OilContourTM1  -> setAttr  shortName   "ТМ1"
+
+# Температура масла после маслоохладителя    
+$tc1OilContourTM2   = createObject mcc.AnalogInput       tc1OilContourTM2
+$tc1OilContourTM2  -> setAttr  unitId   "T"
+$tc1OilContourTM2  -> setAttr  unit   "°С"
+$tc1OilContourTM2  -> setAttr  type   "Температура"
+$tc1OilContourTM2  -> setAttr  shortName   "ТМ2"
+
+# Температура масла в маслобаке   
+$tc1OilContourTM4   = createObject mcc.AnalogInput       tc1OilContourTM4
+$tc1OilContourTM4  -> setAttr  unitId   "T"
+$tc1OilContourTM4  -> setAttr  unit   "°С"
+$tc1OilContourTM4  -> setAttr  type   "Температура"
+$tc1OilContourTM4  -> setAttr  shortName   "ТМ4"
+
+# Температура охлаждающей воды TW7
+$tc1WaterContourTW7   = createObject mcc.AnalogInput       tc1WaterContourTW7
+$tc1WaterContourTW7  -> setAttr  unitId   "T"
+$tc1WaterContourTW7  -> setAttr  unit   "°С"
+$tc1WaterContourTW7  -> setAttr  type   "Температура"
+$tc1WaterContourTW7  -> setAttr  shortName   "Т охл.воды"
+
+# Давление охлаждающей воды
+$tc1WaterContourCoolingWaterP3   = createObject mcc.AnalogInput       tc1WaterContourCoolingWaterP3
+$tc1WaterContourCoolingWaterP3  -> setAttr  unitId   "Бар"
+$tc1WaterContourCoolingWaterP3  -> setAttr  unit   "Бар"
+$tc1WaterContourCoolingWaterP3  -> setAttr  type   "Давление"
+$tc1WaterContourCoolingWaterP3  -> setAttr  shortName   "P3"
+
+# Давление воды на В/О P31,P32,P33
+$tc1WaterContourP31 = createObject mcc.AnalogInput       tc1WaterContourP31
+$tc1WaterContourP31  -> setAttr  unitId   "Бар"
+$tc1WaterContourP31  -> setAttr  unit   "Бар"
+$tc1WaterContourP31  -> setAttr  type   "Давление"
+$tc1WaterContourP31  -> setAttr  shortName   "P31"
+
+$tc1WaterContourP32 = createObject mcc.AnalogInput       tc1WaterContourP32
+$tc1WaterContourP32  -> setAttr  unitId   "Бар"
+$tc1WaterContourP32  -> setAttr  unit   "Бар"
+$tc1WaterContourP32  -> setAttr  type   "Давление"
+$tc1WaterContourP32  -> setAttr  shortName   "P32"
+
+$tc1WaterContourP33 = createObject mcc.AnalogInput       tc1WaterContourP33
+$tc1WaterContourP33  -> setAttr  unitId   "Бар"
+$tc1WaterContourP33  -> setAttr  unit   "Бар"
+$tc1WaterContourP33  -> setAttr  type   "Давление"
+$tc1WaterContourP33  -> setAttr  shortName   "P33"
+
+# Давление воды на М/О P35,P36
+$tc1WaterContourP35 = createObject mcc.AnalogInput       tc1WaterContourP35
+$tc1WaterContourP35  -> setAttr  unitId   "Бар"
+$tc1WaterContourP35  -> setAttr  unit   "Бар"
+$tc1WaterContourP35  -> setAttr  type   "Давление"
+$tc1WaterContourP35  -> setAttr  shortName   "P35"
+
+$tc1WaterContourP36 = createObject mcc.AnalogInput       tc1WaterContourP36
+$tc1WaterContourP36  -> setAttr  unitId   "Бар"
+$tc1WaterContourP36  -> setAttr  unit   "Бар"
+$tc1WaterContourP36  -> setAttr  type   "Давление"
+$tc1WaterContourP36  -> setAttr  shortName   "P36"
+
+saveChanges
+
+
+
+

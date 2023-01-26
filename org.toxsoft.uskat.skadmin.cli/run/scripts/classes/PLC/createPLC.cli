@@ -1,0 +1,13 @@
+cd dev.classes
+
+createClass -classId  mcc.PLC  -parentId S5Object -name "Контроллер НУ" 
+
+addData -id ctrlToL2LostConnection -type Boolean -currdata -histdata   -n "Связь между мостом OPC и PLC" -d "Связь между мостом OPC и PLC"
+
+addLink -id content -maxCount 0 -classIds "S5Object" -n "Связь c элементами в/в" -d "Связь c элементами в/в"
+
+addEvent       -id ctrlToL2LostConnection -h  -n "Время потери/восстановления связи между мостом OPC и PLC"
+addEventParam  -ev ctrlToL2LostConnection -id on -type Integer
+
+saveChanges
+

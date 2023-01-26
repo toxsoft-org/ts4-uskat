@@ -1,0 +1,31 @@
+
+cd dev.classes
+
+createClass -classId mcc.SystemState -parentId S5Object -name "описание класса"
+
+addData -id starting -type Boolean -currdata  -histdata  -n "Запуск Автомат" -d "Запуск Автомат"
+addData -id stoping -type Boolean -currdata  -histdata  -n "Останов Автомат" -d "Останов Автомат"
+addData -id on -type Boolean -currdata  -histdata  -n "Нагнетатель включен" -d "Нагнетатель включен"
+addData -id off -type Boolean -currdata  -histdata  -n "Нагнетатель выключен" -d "Нагнетатель выключен"
+addData -id emergencyStop -type Boolean -currdata  -histdata  -n "Останов Аварийный" -d "Останов Аварийный"
+addData -id ready -type Boolean -currdata  -histdata  -n "Готов к запуску" -d "Готов к запуску"
+addData -id enableSiren -type Boolean -currdata  -histdata  -n "Разрешение сирены" -d "Разрешение сирены"
+addData -id step -type Integer -currdata  -histdata  -n "Текущий шаг алгоритма" -d "Текущий шаг алгоритма"
+
+addEvent       -id starting -h  -n "Запуск Автомат"
+addEventParam  -ev starting -id on -type Boolean
+addEvent       -id stoping -h  -n "Останов Автомат"
+addEventParam  -ev stoping -id on -type Boolean
+addEvent       -id on -h  -n "Нагнетатель включен"
+addEventParam  -ev on -id on -type Boolean
+addEvent       -id off -h  -n "Нагнетатель выключен"
+addEventParam  -ev off -id on -type Boolean
+addEvent       -id emergencyStop -h  -n "Останов Аварийный"
+addEventParam  -ev emergencyStop -id on -type Boolean
+addEvent       -id ready -h  -n "Готов к запуску"
+addEventParam  -ev ready -id on -type Boolean
+addEvent       -id enableSiren -h  -n "Разрешение сирены"
+addEventParam  -ev enableSiren -id on -type Boolean
+
+
+saveChanges

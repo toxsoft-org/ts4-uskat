@@ -1,0 +1,10 @@
+cd dev.classes
+
+createClass -classId  mcc.Discrets  -parentId S5Object -name "Дискретные" 
+
+addData -id lowOilLevel     -type Boolean -currdata -histdata   -n "Низкий уровень масла" -d "Низкий уровень масла"
+addData -id hightOilLevel   -type Boolean -currdata -histdata   -n "Высокий уровень масла" -d "Высокий уровень масла"
+addData -id oilFilterDirty  -type Boolean -currdata -histdata   -n "Масляный фильтр грязный" -d "Масляный фильтр грязный"
+
+saveChanges
+

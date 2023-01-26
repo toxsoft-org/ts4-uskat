@@ -1,0 +1,8 @@
+cd dev.classes
+
+createClass -classId  mcc.KIP  -parentId S5Object -name "КИП" 
+
+addLink -id content     -maxCount 0 -classIds "S5Object"  -name "Связь c сущностями составляющими КИП"
+
+saveChanges
+

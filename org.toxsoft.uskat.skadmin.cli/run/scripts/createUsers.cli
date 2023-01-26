@@ -1,0 +1,84 @@
+#
+# Создание пользователей
+#
+
+cd .
+cd users
+
+add         LocalS5Admin
+password    010101
+roles       guest, user, PowerUser
+description "Локальный администратор системы. Программа s5admin"
+active      true
+saveChanges
+
+add         RemoteS5Admin
+password    010101
+roles       guest, user, PowerUser
+description "Удаленный администратор системы. Программа s5admin"
+active      true
+saveChanges
+
+add         webapp
+password    010101
+roles       guest, user, PowerUser
+description "web-приложение системы"
+active      true
+saveChanges
+
+add         web
+password    010101
+roles       guest, user, PowerUser
+description "web-клиент (для отладки)"
+active      true
+saveChanges
+
+add         OPC2S5Bridge
+password    010101
+roles       guest, user, PowerUser
+description "Программа моста OPC - S5"
+active      true
+saveChanges
+
+cd .
+cd dev.objects
+# моста OPC - S5
+$bridgeOPC2S5   = createObject mcc.OPC2S5Bridge      bridgeOPC2S5
+$OPC2S5Bridge     = getObject s5.class.User   OPC2S5Bridge
+$bridgeOPC2S5, $OPC2S5Bridge -> setLink tmUser
+saveChanges
+
+cd .
+cd users
+
+# ==========================
+
+add         kovach
+password    "010101"
+roles       guest, user, PowerUser
+description "Ковач[Разработчик ТоксСофт]"
+active      true
+saveChanges
+
+add         egorov
+password    "010101"
+roles       guest, user, PowerUser
+description "Егоров[Разработчик ТоксСофт]"
+active      true
+saveChanges
+
+add         vs
+password    "010101"
+roles       guest, user, PowerUser
+description "Соломин[Разработчик ТоксСофт]"
+active      true
+saveChanges
+
+
+
+
+
+
+
+
+

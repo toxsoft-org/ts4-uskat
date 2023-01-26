@@ -1,0 +1,73 @@
+
+cd dev.classes
+
+createClass -classId mcc.AnalogEngine -parentId S5Object -name "описание класса"
+
+addData -id awpOpenStart -type Boolean -currdata  -histdata  -n "Пуск с АРМ на открытие" -d "Пуск с АРМ на открытие"
+addData -id awpOpenStop -type Boolean -currdata  -histdata  -n "Стоп с АРМ на открытие" -d "Стоп с АРМ на открытие"
+addData -id awpCloseStart -type Boolean -currdata  -histdata  -n "Пуск с АРМ на закрытие" -d "Пуск с АРМ на закрытие"
+addData -id awpCloseStop -type Boolean -currdata  -histdata  -n "Стоп с АРМ на закрытие" -d "Стоп с АРМ на закрытие"
+addData -id pnlOpenStart -type Boolean -currdata  -histdata  -n "Старт с панели на открытие " -d "Старт с панели на открытие "
+addData -id pnlOpenStop -type Boolean -currdata  -histdata  -n "Стоп с панели на открытие" -d "Стоп с панели на открытие"
+addData -id pnlCloseStart -type Boolean -currdata  -histdata  -n "Старт с панели на закрытие" -d "Старт с панели на закрытие"
+addData -id pnlCloseStop -type Boolean -currdata  -histdata  -n "Стоп с панели на закрытие" -d "Стоп с панели на закрытие"
+addData -id localOpenStart -type Boolean -currdata  -histdata  -n "Старт с ПРУ на открытие" -d "Старт с ПРУ на открытие"
+addData -id localOpenStop -type Boolean -currdata  -histdata  -n "Стоп с ПРУ на открытие" -d "Стоп с ПРУ на открытие"
+addData -id localCloseStart -type Boolean -currdata  -histdata  -n "Старт с ПРУ на закрытие" -d "Старт с ПРУ на закрытие"
+addData -id localCloseStop -type Boolean -currdata  -histdata  -n "Стоп с ПРУ на закрытие" -d "Стоп с ПРУ на закрытие"
+addData -id awpCtrl -type Boolean -currdata  -histdata  -n "Режим управления с АРМ" -d "Режим управления с АРМ"
+addData -id panelCtrl -type Boolean -currdata  -histdata  -n "Режим управления с панели" -d "Режим управления с панели"
+addData -id localCtrl -type Boolean -currdata  -histdata  -n "Режим управления по месту" -d "Режим управления по месту"
+addData -id autoCtrl -type Boolean -currdata  -histdata  -n "Режим управления автомат (от контроллера)" -d "Режим управления автомат (от контроллера)"
+addData -id confirmation -type Boolean -currdata  -histdata  -n "Квитирование аварий" -d "Квитирование аварий"
+addData -id imitation -type Boolean -currdata  -histdata  -n "«1» - включение режима имитации" -d "«1» - включение режима имитации"
+addData -id enabled -type Boolean -currdata  -histdata  -n "«1» - работа устройства разрешена" -d "«1» - работа устройства разрешена"
+addData -id alarm -type Boolean -currdata  -histdata  -n "Авария" -d "Авария"
+addData -id stateWord -type Integer -currdata  -histdata  -n "Слово состояния" -d "Слово состояния"
+addData -id angle -type Float -currdata  -histdata  -syncdata true -syncdataDelta 1000  -n "Угол открытия" -d "Угол открытия"
+
+addEvent       -id awpOpenStart -h  -n "Пуск с АРМ на открытие"
+addEventParam  -ev awpOpenStart -id on -type Boolean
+addEvent       -id awpOpenStop -h  -n "Стоп с АРМ на открытие"
+addEventParam  -ev awpOpenStop -id on -type Boolean
+addEvent       -id awpCloseStart -h  -n "Пуск с АРМ на закрытие"
+addEventParam  -ev awpCloseStart -id on -type Boolean
+addEvent       -id awpCloseStop -h  -n "Стоп с АРМ на закрытие"
+addEventParam  -ev awpCloseStop -id on -type Boolean
+addEvent       -id pnlOpenStart -h  -n "Старт с панели на открытие "
+addEventParam  -ev pnlOpenStart -id on -type Boolean
+addEvent       -id pnlOpenStop -h  -n "Стоп с панели на открытие"
+addEventParam  -ev pnlOpenStop -id on -type Boolean
+addEvent       -id pnlCloseStart -h  -n "Старт с панели на закрытие"
+addEventParam  -ev pnlCloseStart -id on -type Boolean
+addEvent       -id pnlCloseStop -h  -n "Стоп с панели на закрытие"
+addEventParam  -ev pnlCloseStop -id on -type Boolean
+addEvent       -id localOpenStart -h  -n "Старт с ПРУ на открытие"
+addEventParam  -ev localOpenStart -id on -type Boolean
+addEvent       -id localOpenStop -h  -n "Стоп с ПРУ на открытие"
+addEventParam  -ev localOpenStop -id on -type Boolean
+addEvent       -id localCloseStart -h  -n "Старт с ПРУ на закрытие"
+addEventParam  -ev localCloseStart -id on -type Boolean
+addEvent       -id localCloseStop -h  -n "Стоп с ПРУ на закрытие"
+addEventParam  -ev localCloseStop -id on -type Boolean
+addEvent       -id imitation -h  -n "24.6 Режим имитации"
+addEventParam  -ev imitation -id on -type Boolean
+addEvent       -id enabled -h  -n "24.7 Разрешение работы"
+addEventParam  -ev enabled -id on -type Boolean
+
+addCmd     -id awpOpenStart -n "Пуск с АРМ на открытие" -d "Пуск с АРМ на открытие"
+addCmdArg  -c awpOpenStart -id value -type Boolean
+addCmd     -id awpOpenStop -n "Стоп с АРМ на открытие" -d "Стоп с АРМ на открытие"
+addCmdArg  -c awpOpenStop -id value -type Boolean
+addCmd     -id awpCloseStart -n "Пуск с АРМ на закрытие" -d "Пуск с АРМ на закрытие"
+addCmdArg  -c awpCloseStart -id value -type Boolean
+addCmd     -id awpCloseStop -n "Стоп с АРМ на закрытие" -d "Стоп с АРМ на закрытие"
+addCmdArg  -c awpCloseStop -id value -type Boolean
+addCmd     -id confirmation -n "Квитирование аварий" -d "Квитирование аварий"
+addCmdArg  -c confirmation -id value -type Boolean
+addCmd     -id imitation -n "«1» - включение режима имитации" -d "«1» - включение режима имитации"
+addCmdArg  -c imitation -id value -type Boolean
+addCmd     -id enabled -n "«1» - работа устройства разрешена" -d "«1» - работа устройства разрешена"
+addCmdArg  -c enabled -id value -type Boolean
+
+saveChanges

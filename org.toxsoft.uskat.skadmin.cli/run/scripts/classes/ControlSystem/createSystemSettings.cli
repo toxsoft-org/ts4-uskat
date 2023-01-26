@@ -1,0 +1,15 @@
+
+cd dev.classes
+
+createClass -classId mcc.SystemSettings -parentId S5Object -name "описание класса"
+
+addData -id setOilTemp -type Float -currdata  -histdata  -n "Уставка температуры масла для разрешения пуска" -d "Уставка температуры масла для разрешения пуска"
+
+addEvent       -id setOilTemp -h  -n "Уставка температуры масла для разрешения пуска"
+addEventParam  -ev setOilTemp -id oldVal -type Float
+addEventParam  -ev setOilTemp -id newVal -type Float
+
+addCmd     -id setOilTemp -n "Уставка температуры масла для разрешения пуска" -d "Уставка температуры масла для разрешения пуска"
+addCmdArg  -c setOilTemp -id value -type Float
+
+saveChanges

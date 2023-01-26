@@ -1,0 +1,16 @@
+#
+# Скрипт создания описания системы VJ
+#
+
+# создание классов
+batch createClasses.cli
+
+# создание справочников и их элементов
+#batch createRefbooks.cli
+
+# создание объектов
+batch createObjects.cli
+
+#
+# создание пользователей
+#batch createUsers.cli

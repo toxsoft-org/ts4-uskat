@@ -1,0 +1,315 @@
+b print.cli "Создание нагнетателя №1 :"
+
+cd dev.objects
+$tc1Turbocharger = createObject mcc.Turbocharger tc1Turbocharger
+$tc1Turbocharger    ->  setAttr visName "Нагнетатель №1"
+
+# систему управления
+$tc1ControlSystem   = createObject mcc.ControlSystem       tc1ControlSystem
+$tc1ControlSystem    ->  setAttr visName "Cистема управления"
+
+# инициализируем связи системы управления
+
+# блокировки
+$tc1Blockings   = createObject mcc.Blockings       tc1Blockings
+$tc1Blockings    ->  setAttr visName "Блокировки"
+
+# защиты питания
+$tc1PwrProtection   = createObject mcc.PwrProtection       tc1PwrProtection
+$tc1PwrProtection    ->  setAttr visName "Защиты питания"
+
+# ППЗ
+$tc1AntiSurgeProtection   = createObject mcc.AntiSurgeProtection       tc1AntiSurgeProtection
+$tc1AntiSurgeProtection    ->  setAttr visName "ППЗ"
+
+# Рабочая точка
+$tc1OperPoint   = createObject mcc.OperPoint       tc1OperPoint
+$tc1OperPoint    ->  setAttr visName "Рабочая точка"
+
+# Настройки регуляторов
+$tc1RegulatorsSettings   = createObject mcc.RegulatorsSettings       tc1RegulatorsSettings
+$tc1RegulatorsSettings    ->  setAttr visName "Настройки регуляторов"
+
+# инициализируем связи настройки регуляторов
+# ДЗ
+$tc1ThrottleSettings   = createObject mcc.ThrottleSettings       tc1ThrottleSettings
+$tc1ThrottleSettings    ->  setAttr visName "ДЗ"
+
+# ПК
+$tc1SurgeValveSettings   = createObject mcc.SurgeValveSettings       tc1SurgeValveSettings
+$tc1SurgeValveSettings    ->  setAttr visName "ПК"
+
+# ПМН
+$tc1OilPumpSettings   = createObject mcc.OilPumpSettings       tc1OilPumpSettings
+$tc1OilPumpSettings    ->  setAttr visName "ПМН"
+
+$tc1RegulatorsSettings, $tc1ThrottleSettings, $tc1SurgeValveSettings, $tc1OilPumpSettings -> setLink content 
+
+# Этапы алгоритма
+$tc1AlgoStages   = createObject mcc.AlgoStages       tc1AlgoStages
+$tc1AlgoStages    ->  setAttr visName "Этапы алгорита"
+
+# Режимы
+$tc1Modes   = createObject mcc.Modes       tc1Modes
+$tc1Modes    ->  setAttr visName "Режимы"
+
+# Команды
+$tc1Commands   = createObject mcc.Commands       tc1Commands
+$tc1Commands    ->  setAttr visName "Команды"
+
+$tc1ControlSystem, $tc1Blockings, $tc1PwrProtection, $tc1AntiSurgeProtection, $tc1OperPoint, $tc1RegulatorsSettings, $tc1AlgoStages, $tc1Modes, $tc1Commands -> setLink content 
+
+# КИП
+$tc1KIP   = createObject mcc.KIP       tc1KIP
+$tc1KIP    ->  setAttr visName "КИП"
+
+# инициализируем связи КИП
+#  аналоги
+$tc1Analogs   = createObject mcc.Analogs       tc1Analogs
+$tc1Analogs    ->  setAttr visName "Аналоговые"
+
+$tc1TP1   = editObject mcc.AnalogInput       tc1TP1
+$tc1TP1   ->  setAttr visName "ТП1 Температура опорного подшипника компрессора"
+$tc1TP2   = editObject mcc.AnalogInput       tc1TP2
+$tc1TP2   ->  setAttr visName "ТП2 Температура опорно-упорного подшипника компрессора"
+$tc1TP3   = editObject mcc.AnalogInput       tc1TP3
+$tc1TP3   ->  setAttr visName "ТП3 Температура упорных колодок компрессора"
+$tc1TP4   = editObject mcc.AnalogInput       tc1TP4
+$tc1TP4   ->  setAttr visName "ТП4 Температура подшипника ведомого вала редуктора со стороны компрессора"
+$tc1TP5   = editObject mcc.AnalogInput       tc1TP5
+$tc1TP5   ->  setAttr visName "ТП5 Температура подшипника ведомого вала редуктора со стороны ГЭД "
+$tc1TP6   = editObject mcc.AnalogInput       tc1TP6
+$tc1TP6   ->  setAttr visName "ТП6 Температура подшипника ведущего вала редуктора со стороны компрессора"
+$tc1TP7   = editObject mcc.AnalogInput       tc1TP7
+$tc1TP7   ->  setAttr visName "ТП7 Температура подшипника ведущего вала редуктора со стороны ГЭД "
+$tc1TP8   = editObject mcc.AnalogInput       tc1TP8
+$tc1TP8   ->  setAttr visName "ТП8 Температура подшипника ГЭД со стороны редуктора "
+$tc1TP9   = editObject mcc.AnalogInput       tc1TP9
+$tc1TP9   ->  setAttr visName "ТП9 Температура подшипника ГЭД с торца "
+$tc1MainEngineT1   = editObject mcc.AnalogInput       tc1MainEngineT1
+$tc1MainEngineT1   ->  setAttr visName "Т1 Температура меди фазы 1 статора"
+$tc1MainEngineT2   = editObject mcc.AnalogInput       tc1MainEngineT2
+$tc1MainEngineT2   ->  setAttr visName "Т2 Температура меди фазы 2 статора"
+$tc1MainEngineT3   = editObject mcc.AnalogInput       tc1MainEngineT3
+$tc1MainEngineT3   ->  setAttr visName "Т3 Температура меди фазы 3 статора"
+$tc1MainEngineT4   = editObject mcc.AnalogInput       tc1MainEngineT4
+$tc1MainEngineT4   ->  setAttr visName "Т4 Температура стали фазы 1 статора "
+$tc1MainEngineT5   = editObject mcc.AnalogInput       tc1MainEngineT5
+$tc1MainEngineT5   ->  setAttr visName "Т5 Температура стали фазы 2 статора "
+$tc1MainEngineT6   = editObject mcc.AnalogInput       tc1MainEngineT6
+$tc1MainEngineT6   ->  setAttr visName "Т6 Температура стали фазы 3 статора "
+$tc1MainEngineT7   = editObject mcc.AnalogInput       tc1MainEngineT7
+$tc1MainEngineT7   ->  setAttr visName "Т7 Температура воздуха холодного к двигателю"
+$tc1MainEngineT8   = editObject mcc.AnalogInput       tc1MainEngineT8
+$tc1MainEngineT8   ->  setAttr visName "Т8 Температура воздуха холодного к двигателю"
+$tc1MainEngineT9   = editObject mcc.AnalogInput       tc1MainEngineT9
+$tc1MainEngineT9   ->  setAttr visName "Т9 Температура воздуха горячего от двигателя"
+$tc1TA1   = editObject mcc.AnalogInput       tc1TA1
+$tc1TA1   ->  setAttr visName "ТВ1 Температура воздуха до охладителя 1"
+$tc1TA2   = editObject mcc.AnalogInput       tc1TA2
+$tc1TA2   ->  setAttr visName "ТВ2 Температура воздуха после охладителя 1"
+$tc1TA3   = editObject mcc.AnalogInput       tc1TA3
+$tc1TA3   ->  setAttr visName "ТВ3 Температура воздуха до охладителя 2"
+$tc1TA4   = editObject mcc.AnalogInput       tc1TA4
+$tc1TA4   ->  setAttr visName "ТВ4 Температура воздуха после охладителя 2"
+$tc1TA5   = editObject mcc.AnalogInput       tc1TA5
+$tc1TA5   ->  setAttr visName "ТВ5 Температура воздуха до охладителя 3"
+$tc1TA6   = editObject mcc.AnalogInput       tc1TA6
+$tc1TA6   ->  setAttr visName "ТВ6 Температура воздуха после охладителя 3"
+$tc1WaterContourTW7   = editObject mcc.AnalogInput       tc1WaterContourTW7
+$tc1WaterContourTW7   ->  setAttr visName "ТВ7 Температура воды"
+$tc1OilContourTM1   = editObject mcc.AnalogInput       tc1OilContourTM1
+$tc1OilContourTM1   ->  setAttr visName "ТМ1 Температура масла до маслоохладителя"
+$tc1OilContourTM2   = editObject mcc.AnalogInput       tc1OilContourTM2
+$tc1OilContourTM2   ->  setAttr visName "ТМ2 Температура масла после маслоохладителя"
+$tc1OilContourTM4   = editObject mcc.AnalogInput       tc1OilContourTM4
+$tc1OilContourTM4   ->  setAttr visName "ТМ4 Температура масла в маслобаке"
+$tc1ST1   = editObject mcc.AnalogInput       tc1ST1
+$tc1ST1   ->  setAttr visName "ST1 Вибрация опорного подшипника компрессора"
+$tc1ST2   = editObject mcc.AnalogInput       tc1ST2
+$tc1ST2   ->  setAttr visName "ST2 Вибрация опорно-упорного подшипника компрессора"
+$tc1ST3   = editObject mcc.AnalogInput       tc1ST3
+$tc1ST3   ->  setAttr visName "ST3 Вибрация подшипника ведомого вала редуктора со стороны компрессора"
+$tc1ST4   = editObject mcc.AnalogInput       tc1ST4
+$tc1ST4   ->  setAttr visName "ST4 Вибрация подшипника ведомого вала редуктора со стороны ГЭД"
+$tc1ST5   = editObject mcc.AnalogInput       tc1ST5
+$tc1ST5   ->  setAttr visName "ST5 Вибрация подшипника ведущего вала редуктора со стороны компрессора"
+$tc1ST6   = editObject mcc.AnalogInput       tc1ST6
+$tc1ST6   ->  setAttr visName "ST6 Вибрация подшипника ведущего вала редуктора со стороны ГЭД"
+$tc1ST7   = editObject mcc.AnalogInput       tc1ST7
+$tc1ST7   ->  setAttr visName "ST7 Вибрация подшипника ГЭД со стороны редуктора"
+$tc1ST8   = editObject mcc.AnalogInput       tc1ST8
+$tc1ST8   ->  setAttr visName "ST8 Вибрация подшипника ГЭД с торца"
+$tc1OilContourP1   = editObject mcc.AnalogInput       tc1OilContourP1
+$tc1OilContourP1   ->  setAttr visName "P1 Давление масла на устройстве осевого сдвига"
+$tc1OilContourP2   = editObject mcc.AnalogInput       tc1OilContourP2
+$tc1OilContourP2   ->  setAttr visName "P2 Давление масла на смазку подшипника"
+$tc1WaterContourCoolingWaterP3   = editObject mcc.AnalogInput       tc1WaterContourCoolingWaterP3
+$tc1WaterContourCoolingWaterP3   ->  setAttr visName "P3 Давление воды на охлаждение"
+$tc1OilContourP4   = editObject mcc.AnalogInput       tc1OilContourP4
+$tc1OilContourP4   ->  setAttr visName "P4 Давление масла на оп/уп подшипнике"
+$tc1OilContourP5   = editObject mcc.AnalogInput       tc1OilContourP5
+$tc1OilContourP5   ->  setAttr visName "P5 Давление масла до редукционного клапана"
+$tc1AirContourP8   = editObject mcc.AnalogInput       tc1AirContourP8
+$tc1AirContourP8   ->  setAttr visName "P8 Давление воздуха до обратного клапана"
+$tc1CollectorAirP9   = editObject mcc.AnalogInput       tc1CollectorAirP9
+$tc1CollectorAirP9   ->  setAttr visName "P9 Давление воздуха в коллекторе"
+$tc1AirContourP12   = editObject mcc.AnalogInput       tc1AirContourP12
+$tc1AirContourP12   ->  setAttr visName "P12 Давление воздуха наружного"
+$tc1AirContourP14   = editObject mcc.AnalogInput       tc1AirContourP14
+$tc1AirContourP14   ->  setAttr visName "P14 Разрежение на всасе"
+$tc1AirConsumptionF11   = editObject mcc.AnalogInput       tc1AirConsumptionF11
+$tc1AirConsumptionF11   ->  setAttr visName "F11 Расход воздуха на всасе"
+$tc1AirContourStep1AirP21   = editObject mcc.AnalogInput       tc1AirContourStep1AirP21
+$tc1AirContourStep1AirP21   ->  setAttr visName "P21 Давление воздуха 1 ступени"
+$tc1AirContourStep2AirP22   = editObject mcc.AnalogInput       tc1AirContourStep2AirP22
+$tc1AirContourStep2AirP22   ->  setAttr visName "P22 Давление воздуха 2 ступени"
+$tc1WaterContourP31   = editObject mcc.AnalogInput       tc1WaterContourP31
+$tc1WaterContourP31   ->  setAttr visName "P31 Давление воды на В/О-1"
+$tc1WaterContourP32   = editObject mcc.AnalogInput       tc1WaterContourP32
+$tc1WaterContourP32   ->  setAttr visName "P32 Давление воды на В/О-2"
+$tc1WaterContourP33   = editObject mcc.AnalogInput       tc1WaterContourP33
+$tc1WaterContourP33   ->  setAttr visName "P33 Давление воды на В/О-3"
+$tc1WaterContourP35   = editObject mcc.AnalogInput       tc1WaterContourP35
+$tc1WaterContourP35   ->  setAttr visName "P35 Давление воды на М/О-1"
+$tc1WaterContourP36   = editObject mcc.AnalogInput       tc1WaterContourP36
+$tc1WaterContourP36   ->  setAttr visName "P36 Давление воды на М/О-2"
+$tc1OutsideT   = editObject mcc.AnalogInput       tc1OutsideT
+$tc1OutsideT   ->  setAttr visName "TT12 Температура наружного воздуха"
+$tc1OutsideM   = editObject mcc.AnalogInput       tc1OutsideM
+$tc1OutsideM   ->  setAttr visName "TQ12 Влажность наружного воздуха"
+$tc1AirContourThrottleValveDDZ   = editObject mcc.AnalogInput       tc1AirContourThrottleValveDDZ
+$tc1AirContourThrottleValveDDZ   ->  setAttr visName "Положение дроссельной заслонки"
+$tc1AirContourDPK   = editObject mcc.AnalogInput       tc1AirContourDPK
+$tc1AirContourDPK   ->  setAttr visName "Положение помпажного клапана"
+
+# Новые аналоги. Управление дроссельной заслонкой     
+$tc1ThrottlelVlvCtrl  = createObject mcc.AnalogInput       tc1ThrottlelVlvCtrl
+$tc1ThrottlelVlvCtrl  -> setAttr visName "Управление дроссельной заслонкой"
+$tc1ThrottlelVlvCtrl  -> setAttr  unitId   "%"
+$tc1ThrottlelVlvCtrl  -> setAttr  unit   "%"
+$tc1ThrottlelVlvCtrl  -> setAttr  type   "Процент"
+$tc1ThrottlelVlvCtrl  -> setAttr  shortName   "Процент от 50Гц"
+
+
+# Новые аналоги. Управление помпажным клапаном    
+$tc1SurgeVlvCtrl  = createObject mcc.AnalogInput       tc1SurgeVlvCtrl
+$tc1SurgeVlvCtrl  -> setAttr visName "Управление помпажным клапаном"
+$tc1SurgeVlvCtrl  -> setAttr  unitId   "%"
+$tc1SurgeVlvCtrl  -> setAttr  unit   "%"
+$tc1SurgeVlvCtrl  -> setAttr  type   "Процент"
+$tc1SurgeVlvCtrl  -> setAttr  shortName   "Процент от 50Гц"
+
+$tc1StatorCurrent   = editObject mcc.AnalogInput       tc1StatorCurrent
+$tc1StatorCurrent   ->  setAttr visName "IS Ток статора"
+$tc1RotorCurrent   = editObject mcc.AnalogInput       tc1RotorCurrent
+$tc1RotorCurrent   ->  setAttr visName "IR Ток ротора"
+$tc1RotorVoltage   = editObject mcc.AnalogInput       tc1RotorVoltage
+$tc1RotorVoltage   ->  setAttr visName "UR Напряжение ротора"
+
+$tc1Analogs, \
+         $tc1TP1, \
+         $tc1TP2, \
+         $tc1TP3, \
+         $tc1TP4, \
+         $tc1TP5, \
+         $tc1TP6, \
+         $tc1TP7, \
+         $tc1TP8, \
+         $tc1TP9, \
+         $tc1MainEngineT1, \
+         $tc1MainEngineT2, \
+         $tc1MainEngineT3, \
+         $tc1MainEngineT4, \
+         $tc1MainEngineT5, \
+         $tc1MainEngineT6, \
+         $tc1MainEngineT7, \
+         $tc1MainEngineT8, \
+         $tc1MainEngineT9, \
+         $tc1TA1, \
+         $tc1TA2, \
+         $tc1TA3, \
+         $tc1TA4, \
+         $tc1TA5, \
+         $tc1TA6, \
+         $tc1WaterContourTW7, \
+         $tc1OilContourTM1, \
+         $tc1OilContourTM2, \
+         $tc1OilContourTM4, \
+         $tc1ST1, \
+         $tc1ST2, \
+         $tc1ST3, \
+         $tc1ST4, \
+         $tc1ST5, \
+         $tc1ST6, \
+         $tc1ST7, \
+         $tc1ST8, \
+         $tc1OilContourP1, \
+         $tc1OilContourP2, \
+         $tc1WaterContourCoolingWaterP3, \
+         $tc1OilContourP4, \
+         $tc1OilContourP5, \
+         $tc1AirContourP8, \
+         $tc1CollectorAirP9, \
+         $tc1AirContourP12, \
+         $tc1AirContourP14, \
+         $tc1AirConsumptionF11, \
+         $tc1AirContourStep1AirP21, \
+         $tc1AirContourStep2AirP22, \
+         $tc1WaterContourP31, \
+         $tc1WaterContourP32, \
+         $tc1WaterContourP33, \
+         $tc1WaterContourP35, \
+         $tc1WaterContourP36, \
+         $tc1OutsideT, \
+         $tc1OutsideM, \
+         $tc1AirContourThrottleValveDDZ, \
+         $tc1AirContourDPK, \
+         $tc1ThrottlelVlvCtrl, \
+         $tc1SurgeVlvCtrl, \
+         $tc1StatorCurrent, \
+         $tc1RotorCurrent, \
+         $tc1RotorVoltage \
+    -> setLink content 
+
+
+$tc1Discrets   = createObject mcc.Discrets       tc1Discrets
+$tc1Discrets    ->  setAttr visName "Дискретные"
+
+$tc1KIP, $tc1Analogs, $tc1Discrets  -> setLink content 
+
+# Оборудование
+$tc1Hardware   = createObject mcc.Hardware       tc1Hardware
+$tc1Hardware    ->  setAttr visName "Оборудование"
+
+# инициализируем связи Оборудование
+#  ТВУ
+$tc1ThyristorExiter   = createObject mcc.ThyristorExiter       tc1ThyristorExiter
+$tc1ThyristorExiter    ->  setAttr visName "ТВУ"
+
+# Высоковольтный выключатель
+$tc1MainSwitch   = createObject mcc.MainSwitch       tc1MainSwitch
+$tc1MainSwitch    ->  setAttr visName "Высоковольтный выключатель"
+
+# Задвижка нагнетания
+$tc1PressureValve   = createObject mcc.PressureValve       tc1PressureValve
+$tc1PressureValve    ->  setAttr visName "Задвижка нагнетания"
+
+# Помпажный клапан
+$tc1SurgeValve   = createObject mcc.SurgeValve       tc1SurgeValve
+$tc1SurgeValve    ->  setAttr visName "Помпажный клапан"
+
+# Дроссельная заслонка
+$tc1ThrottleValve   = createObject mcc.ThrottleValve       tc1ThrottleValve
+$tc1ThrottleValve    ->  setAttr visName "Дроссельная заслонка"
+
+# Пусковой маслонасос
+$tc1OilPump   = createObject mcc.IrreversibleEngine       tc1OilPump
+$tc1OilPump    ->  setAttr visName "Пусковой маслонасос"
+
+$tc1Hardware, $tc1ThyristorExiter, $tc1MainSwitch, $tc1PressureValve, $tc1SurgeValve, $tc1ThrottleValve, $tc1OilPump  -> setLink content 
+
+$tc1Turbocharger, $tc1ControlSystem, $tc1KIP, $tc1Hardware  -> setLink content 
+
+saveChanges
+

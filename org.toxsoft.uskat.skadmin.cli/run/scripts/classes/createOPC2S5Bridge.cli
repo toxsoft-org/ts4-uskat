@@ -1,0 +1,18 @@
+cd dev.classes
+
+createClass -classId  mcc.OPC2S5Bridge  -parentId S5Object -name "Мост OPC 2 S5" 
+
+addData -id alive  -type Boolean -currdata -histdata  -n "мост работает и на связи"
+
+addLink -id tmUser       -maxCount 1 -classIds "s5.class.User"  -n "Пользователь MCC" -d "Пользователь МСС"
+
+addCmd  -id start -n "Запустить мост" -d "Запустить программу моста"
+addCmd  -id quit  -n "Завершить работу" -d "Завершить работу программы моста"
+addCmdArg  -c quit    -id RetCode    -type Integer -n "код возврата"
+addCmdArg  -c quit    -id Msg        -type String  -n "сообщение о причине завершения программы"
+
+addEvent -id died    -h -name "мост перестал посылать данные" 
+addEvent -id alive   -h -name "мост снова на связи" 
+
+saveChanges
+

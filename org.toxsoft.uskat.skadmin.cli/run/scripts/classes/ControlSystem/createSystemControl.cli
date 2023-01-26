@@ -1,0 +1,46 @@
+
+cd dev.classes
+
+createClass -classId mcc.SystemControl -parentId S5Object -name "описание класса"
+
+addData -id apwCtrl -type Boolean -currdata  -histdata  -n "Управление с АРМа" -d "Управление с АРМа"
+addData -id panelCtrl -type Boolean -currdata  -histdata  -n "Управление с панели" -d "Управление с панели"
+addData -id localCtrl -type Boolean -currdata  -histdata  -n "Управление местное" -d "Управление местное"
+addData -id autoCtrl -type Boolean -currdata  -histdata  -n "Управление автомат" -d "Управление автомат"
+addData -id setApwCtrl -type Boolean -currdata  -histdata  -n "Установить управление с АРМа" -d "Установить управление с АРМа"
+addData -id setPanelCtrl -type Boolean -currdata  -histdata  -n "Установить управление с панели" -d "Установить управление с панели"
+addData -id setLocalCtrl -type Boolean -currdata  -histdata  -n "Установить управление местное" -d "Установить управление местное"
+addData -id setAutoCtrl -type Boolean -currdata  -histdata  -n "Установить управление автомат" -d "Установить управление автомат"
+addData -id confirmation -type Boolean -currdata  -histdata  -n "Квитирование" -d "Квитирование"
+addData -id start -type Boolean -currdata  -histdata  -n "Кнопка «Старт АВТ»" -d "Кнопка «Старт АВТ»"
+addData -id stop -type Boolean -currdata  -histdata  -n "Кнопка «Стоп АВТ»" -d "Кнопка «Стоп АВТ»"
+
+addEvent       -id apwCtrl -h  -n "Управление с АРМа"
+addEventParam  -ev apwCtrl -id on -type Boolean
+addEvent       -id panelCtrl -h  -n "Управление с панели"
+addEventParam  -ev panelCtrl -id on -type Boolean
+addEvent       -id localCtrl -h  -n "Управление местное"
+addEventParam  -ev localCtrl -id on -type Boolean
+addEvent       -id autoCtrl -h  -n "Управление автомат"
+addEventParam  -ev autoCtrl -id on -type Boolean
+addEvent       -id start -h  -n "Кнопка «Старт АВТ»"
+addEventParam  -ev start -id on -type Boolean
+addEvent       -id stop -h  -n "Кнопка «Стоп АВТ»"
+addEventParam  -ev stop -id on -type Boolean
+
+addCmd     -id setApwCtrl -n "Установить управление с АРМа" -d "Установить управление с АРМа"
+addCmdArg  -c setApwCtrl -id value -type Boolean
+addCmd     -id setPanelCtrl -n "Установить управление с панели" -d "Установить управление с панели"
+addCmdArg  -c setPanelCtrl -id value -type Boolean
+addCmd     -id setLocalCtrl -n "Установить управление местное" -d "Установить управление местное"
+addCmdArg  -c setLocalCtrl -id value -type Boolean
+addCmd     -id setAutoCtrl -n "Установить управление автомат" -d "Установить управление автомат"
+addCmdArg  -c setAutoCtrl -id value -type Boolean
+addCmd     -id confirmation -n "Квитирование" -d "Квитирование"
+addCmdArg  -c confirmation -id value -type Boolean
+addCmd     -id start -n "Кнопка «Старт АВТ»" -d "Кнопка «Старт АВТ»"
+addCmdArg  -c start -id value -type Boolean
+addCmd     -id stop -n "Кнопка «Стоп АВТ»" -d "Кнопка «Стоп АВТ»"
+addCmdArg  -c stop -id value -type Boolean
+
+saveChanges

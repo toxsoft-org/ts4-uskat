@@ -1,0 +1,30 @@
+
+cd dev.classes
+
+createClass -classId mcc.OilPumpReg -parentId S5Object -name "описание класса"
+
+addData -id currentValue -type Float -currdata  -histdata  -syncdata true -syncdataDelta 1000  -n "Давление масла на напоре" -d "Давление масла на напоре"
+addData -id setPointMin -type Float -currdata  -histdata  -n "Уставка включения" -d "Уставка включения"
+addData -id setPointMax -type Float -currdata  -histdata  -n "Уставка отключения" -d "Уставка отключения"
+addData -id auto -type Boolean -currdata  -histdata  -n "Регулятор в автомате" -d "Регулятор в автомате"
+addData -id on -type Boolean -currdata  -histdata  -n "Команда включения от регулятора" -d "Команда включения от регулятора"
+
+addEvent       -id setPointMin -h  -n "Уставка включения"
+addEventParam  -ev setPointMin -id oldVal -type Float
+addEventParam  -ev setPointMin -id newVal -type Float
+addEvent       -id setPointMax -h  -n "Уставка отключения"
+addEventParam  -ev setPointMax -id oldVal -type Float
+addEventParam  -ev setPointMax -id newVal -type Float
+addEvent       -id auto -h  -n "Регулятор в автомате"
+addEventParam  -ev auto -id on -type Boolean
+addEvent       -id on -h  -n "Команда включения от регулятора"
+addEventParam  -ev on -id on -type Boolean
+
+addCmd     -id setPointMin -n "Уставка включения" -d "Уставка включения"
+addCmdArg  -c setPointMin -id value -type Float
+addCmd     -id setPointMax -n "Уставка отключения" -d "Уставка отключения"
+addCmdArg  -c setPointMax -id value -type Float
+addCmd     -id auto -n "Регулятор в автомате" -d "Регулятор в автомате"
+addCmdArg  -c auto -id value -type Boolean
+
+saveChanges

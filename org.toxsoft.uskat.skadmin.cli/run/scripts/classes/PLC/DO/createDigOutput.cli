@@ -1,0 +1,24 @@
+
+cd dev.classes
+
+createClass -classId mcc.DigOutput -parentId S5Object -name "описание класса"
+
+addData -id physicalValue -type Boolean -currdata  -histdata  -n "Выходной сигнал от программы" -d "Выходной сигнал от программы"
+addData -id imitationValue -type Boolean -currdata  -histdata  -n "Выходной сигнал СИМУЛЯЦИЯ" -d "Выходной сигнал СИМУЛЯЦИЯ"
+addData -id imitation -type Boolean -currdata  -histdata  -n "«1» - включение режима симуляции" -d "«1» - включение режима симуляции"
+addData -id invert -type Boolean -currdata  -histdata  -n "Инвертировать выходной сигнал" -d "Инвертировать выходной сигнал"
+addData -id currentValue -type Boolean -currdata  -histdata  -n "Выходное значение для OPC-сервера" -d "Выходное значение для OPC-сервера"
+
+addEvent       -id imitation -h  -n "«1» - включение режима симуляции"
+addEventParam  -ev imitation -id on -type Boolean
+addEvent       -id invert -h  -n "Инвертировать выходной сигнал"
+addEventParam  -ev invert -id on -type Boolean
+
+addCmd     -id imitationValue -n "Выходной сигнал СИМУЛЯЦИЯ" -d "Выходной сигнал СИМУЛЯЦИЯ"
+addCmdArg  -c imitationValue -id value -type Boolean
+addCmd     -id imitation -n "«1» - включение режима симуляции" -d "«1» - включение режима симуляции"
+addCmdArg  -c imitation -id value -type Boolean
+addCmd     -id invert -n "Инвертировать выходной сигнал" -d "Инвертировать выходной сигнал"
+addCmdArg  -c invert -id value -type Boolean
+
+saveChanges

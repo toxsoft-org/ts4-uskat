@@ -1,0 +1,8 @@
+cd dev.classes
+
+createClass -classId  mcc.Hardware  -parentId S5Object -name "Оборудование" 
+
+addLink -id content     -maxCount 0 -classIds "S5Object"     -name "Связь с сущностями составляющими оборудование"
+
+saveChanges
+

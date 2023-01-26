@@ -1,0 +1,30 @@
+
+cd dev.classes
+
+createClass -classId mcc.DigInput -parentId S5Object -name "описание класса"
+
+addData -id physicalValue -type Boolean -currdata  -histdata  -n "Входной сигнал с модуля" -d "Входной сигнал с модуля"
+addData -id imitationValue -type Boolean -currdata  -histdata  -n "Входной сигнал СИМУЛЯЦИЯ" -d "Входной сигнал СИМУЛЯЦИЯ"
+addData -id imitation -type Boolean -currdata  -histdata  -n "«1» - включение режима симуляции" -d "«1» - включение режима симуляции"
+addData -id invert -type Boolean -currdata  -histdata  -n "Инвертировать входной сигнал" -d "Инвертировать входной сигнал"
+addData -id currentValue -type Boolean -currdata  -histdata  -n "Входное обработанное значение" -d "Входное обработанное значение"
+addData -id filterConst -type Integer -currdata  -histdata  -n "Время фильтрации (дсек, 1=0,1сек)" -d "Время фильтрации (дсек, 1=0,1сек)"
+
+addEvent       -id imitation -h  -n "«1» - включение режима симуляции"
+addEventParam  -ev imitation -id on -type Boolean
+addEvent       -id invert -h  -n "Инвертировать входной сигнал"
+addEventParam  -ev invert -id on -type Boolean
+addEvent       -id filterConst -h  -n "Время фильтрации (дсек, 1=0,1сек)"
+addEventParam  -ev filterConst -id oldVal -type Integer
+addEventParam  -ev filterConst -id newVal -type Integer
+
+addCmd     -id imitationValue -n "Входной сигнал СИМУЛЯЦИЯ" -d "Входной сигнал СИМУЛЯЦИЯ"
+addCmdArg  -c imitationValue -id value -type Boolean
+addCmd     -id imitation -n "«1» - включение режима симуляции" -d "«1» - включение режима симуляции"
+addCmdArg  -c imitation -id value -type Boolean
+addCmd     -id invert -n "Инвертировать входной сигнал" -d "Инвертировать входной сигнал"
+addCmdArg  -c invert -id value -type Boolean
+addCmd     -id filterConst -n "Время фильтрации (дсек, 1=0,1сек)" -d "Время фильтрации (дсек, 1=0,1сек)"
+addCmdArg  -c filterConst -id value -type Integer
+
+saveChanges

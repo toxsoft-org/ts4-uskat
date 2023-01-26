@@ -1,0 +1,88 @@
+
+cd dev.classes
+
+createClass -classId mcc.IrreversibleEngine -parentId S5Object -name "описание класса"
+
+addData -id awpStart -type Boolean -currdata  -histdata  -n "Пуск с АРМ" -d "Пуск с АРМ"
+addData -id awpStop -type Boolean -currdata  -histdata  -n "Стоп с АРМ" -d "Стоп с АРМ"
+addData -id panelStart -type Boolean -currdata  -histdata  -n "Пуск с панели" -d "Пуск с панели"
+addData -id panelStop -type Boolean -currdata  -histdata  -n "Стоп с панели" -d "Стоп с панели"
+addData -id localStart -type Boolean -currdata  -histdata  -n "Пуск с ПРУ" -d "Пуск с ПРУ"
+addData -id localStop -type Boolean -currdata  -histdata  -n "Стоп с ПРУ" -d "Стоп с ПРУ"
+addData -id controllerStart -type Boolean -currdata  -histdata  -n "Пуск с контроллера" -d "Пуск с контроллера"
+addData -id controllerStop -type Boolean -currdata  -histdata  -n "Стоп с контроллера  " -d "Стоп с контроллера  "
+addData -id awpCtrl -type Boolean -currdata  -histdata  -n "Режим управления с АРМ" -d "Режим управления с АРМ"
+addData -id panelCtrl -type Boolean -currdata  -histdata  -n "Режим управления с панели" -d "Режим управления с панели"
+addData -id localCtrl -type Boolean -currdata  -histdata  -n "Режим управления по месту" -d "Режим управления по месту"
+addData -id autoCtrl -type Boolean -currdata  -histdata  -n "Режим управления автомат (от контроллера)" -d "Режим управления автомат (от контроллера)"
+addData -id confirmation -type Boolean -currdata  -histdata  -n "Квитирование аварий" -d "Квитирование аварий"
+addData -id enabled -type Boolean -currdata  -histdata  -n "«1» - работа устройства разрешена" -d "«1» - работа устройства разрешена"
+addData -id auxOn -type Boolean -currdata  -histdata  -n "Сработал ДК на включение" -d "Сработал ДК на включение"
+addData -id pwrOn -type Boolean -currdata  -histdata  -n "Питание в норме" -d "Питание в норме"
+addData -id imitation -type Boolean -currdata  -histdata  -n "«1» - включение режима имитации работы" -d "«1» - включение режима имитации работы"
+addData -id auxTime -type Integer -currdata  -histdata  -n "Время на срабатывание доп.контакта пускателя" -d "Время на срабатывание доп.контакта пускателя"
+addData -id output2On -type Boolean -currdata  -histdata  -n "Выход на дискретный вывод" -d "Выход на дискретный вывод"
+addData -id on -type Boolean -currdata  -histdata  -n "Двигатель включен логически" -d "Двигатель включен логически"
+addData -id alarm -type Boolean -currdata  -histdata  -n "Авария" -d "Авария"
+addData -id stateWord -type Integer -currdata  -histdata  -n "Слово состояния" -d "Слово состояния"
+addData -id errorWord -type Integer -currdata  -histdata  -n "Слово ошибок" -d "Слово ошибок"
+addData -id hourMeterMin -type Integer -currdata  -histdata  -n "Счётчик моточасов (мин) (отображение, сброс)" -d "Счётчик моточасов (мин) (отображение, сброс)"
+addData -id startCount -type Integer -currdata  -histdata  -n "Количество запусков" -d "Количество запусков"
+
+addEvent       -id awpStart -h  -n "Пуск с АРМ"
+addEventParam  -ev awpStart -id on -type Boolean
+addEvent       -id awpStop -h  -n "Стоп с АРМ"
+addEventParam  -ev awpStop -id on -type Boolean
+addEvent       -id panelStart -h  -n "Пуск с панели"
+addEventParam  -ev panelStart -id on -type Boolean
+addEvent       -id panelStop -h  -n "Стоп с панели"
+addEventParam  -ev panelStop -id on -type Boolean
+addEvent       -id localStart -h  -n "Пуск с ПРУ"
+addEventParam  -ev localStart -id on -type Boolean
+addEvent       -id localStop -h  -n "Стоп с ПРУ"
+addEventParam  -ev localStop -id on -type Boolean
+addEvent       -id controllerStart -h  -n "Пуск с контроллера"
+addEventParam  -ev controllerStart -id on -type Boolean
+addEvent       -id controllerStop -h  -n "Стоп с контроллера  "
+addEventParam  -ev controllerStop -id on -type Boolean
+addEvent       -id auxTime -h  -n "Время на срабатывание доп.контакта пускателя"
+addEventParam  -ev auxTime -id oldVal -type Integer
+addEventParam  -ev auxTime -id newVal -type Integer
+addEvent       -id imitation -h  -n "14.6 Включен режим имитации"
+addEventParam  -ev imitation -id on -type Boolean
+addEvent       -id enabled -h  -n "14.7 Разрешение работы"
+addEventParam  -ev enabled -id on -type Boolean
+addEvent       -id on -h  -n "15.0 Двигатель запущен"
+addEventParam  -ev on -id on -type Boolean
+addEvent       -id PowerSupplyNorm -h  -n "15.7 Питание в норме"
+addEventParam  -ev PowerSupplyNorm -id on -type Boolean
+addEvent       -id switchOnFailure -h  -n "17.0 Не включился"
+addEventParam  -ev switchOnFailure -id on -type Boolean
+addEvent       -id switchOffFailure -h  -n "17.1 Не выключился"
+addEventParam  -ev switchOffFailure -id on -type Boolean
+addEvent       -id noPowerSupply -h  -n "17.7 Нет напряжения питания"
+addEventParam  -ev noPowerSupply -id on -type Boolean
+addEvent       -id hourMeterMs -h  -n "Счётчик моточасов (мсек) (только сброс)"
+addEventParam  -ev hourMeterMs -id oldVal -type Integer
+addEventParam  -ev hourMeterMs -id newVal -type Integer
+
+addCmd     -id awpStart -n "Пуск с АРМ" -d "Пуск с АРМ"
+addCmdArg  -c awpStart -id value -type Boolean
+addCmd     -id awpStop -n "Стоп с АРМ" -d "Стоп с АРМ"
+addCmdArg  -c awpStop -id value -type Boolean
+addCmd     -id confirmation -n "Квитирование аварий" -d "Квитирование аварий"
+addCmdArg  -c confirmation -id value -type Boolean
+addCmd     -id enabled -n "«1» - работа устройства разрешена" -d "«1» - работа устройства разрешена"
+addCmdArg  -c enabled -id value -type Boolean
+addCmd     -id imitation -n "«1» - включение режима имитации работы" -d "«1» - включение режима имитации работы"
+addCmdArg  -c imitation -id value -type Boolean
+addCmd     -id auxTime -n "Время на срабатывание доп.контакта пускателя" -d "Время на срабатывание доп.контакта пускателя"
+addCmdArg  -c auxTime -id value -type Integer
+addCmd     -id hourMeterMs -n "Счётчик моточасов (мсек) (только сброс)" -d "Счётчик моточасов (мсек) (только сброс)"
+addCmdArg  -c hourMeterMs -id value -type Integer
+addCmd     -id hourMeterMin -n "Счётчик моточасов (мин) (отображение, сброс)" -d "Счётчик моточасов (мин) (отображение, сброс)"
+addCmdArg  -c hourMeterMin -id value -type Integer
+addCmd     -id startCount -n "Количество запусков" -d "Количество запусков"
+addCmdArg  -c startCount -id value -type Integer
+
+saveChanges

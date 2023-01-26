@@ -1,0 +1,145 @@
+
+cd dev.classes
+
+createClass -classId mcc.ReversibleEngine -parentId S5Object -name "описание класса"
+
+addData -id awpOpenStart -type Boolean -currdata  -histdata  -n "Пуск с АРМ на открытие" -d "Пуск с АРМ на открытие"
+addData -id awpOpenStop -type Boolean -currdata  -histdata  -n "Стоп с АРМ на открытие" -d "Стоп с АРМ на открытие"
+addData -id awpCloseStart -type Boolean -currdata  -histdata  -n "Пуск с АРМ на закрытие" -d "Пуск с АРМ на закрытие"
+addData -id awpCloseStop -type Boolean -currdata  -histdata  -n "Стоп с АРМ на закрытие" -d "Стоп с АРМ на закрытие"
+addData -id pnlOpenStart -type Boolean -currdata  -histdata  -n "Старт с панели на открытие " -d "Старт с панели на открытие "
+addData -id pnlOpenStop -type Boolean -currdata  -histdata  -n "Стоп с панели на открытие" -d "Стоп с панели на открытие"
+addData -id pnlCloseStart -type Boolean -currdata  -histdata  -n "Старт с панели на закрытие" -d "Старт с панели на закрытие"
+addData -id pnlCloseStop -type Boolean -currdata  -histdata  -n "Стоп с панели на закрытие" -d "Стоп с панели на закрытие"
+addData -id localOpenStart -type Boolean -currdata  -histdata  -n "Старт с ПРУ на открытие" -d "Старт с ПРУ на открытие"
+addData -id localOpenStop -type Boolean -currdata  -histdata  -n "Стоп с ПРУ на открытие" -d "Стоп с ПРУ на открытие"
+addData -id localCloseStart -type Boolean -currdata  -histdata  -n "Старт с ПРУ на закрытие" -d "Старт с ПРУ на закрытие"
+addData -id localCloseStop -type Boolean -currdata  -histdata  -n "Стоп с ПРУ на закрытие" -d "Стоп с ПРУ на закрытие"
+addData -id ctrlOpenStart -type Boolean -currdata  -histdata  -n "Старт с контроллера на открытие" -d "Старт с контроллера на открытие"
+addData -id ctrlOpenStop -type Boolean -currdata  -histdata  -n "Стоп с контроллера на открытие" -d "Стоп с контроллера на открытие"
+addData -id ctrlCloseStart -type Boolean -currdata  -histdata  -n "Старт с контроллера на закрытие" -d "Старт с контроллера на закрытие"
+addData -id ctrlCloseStop -type Boolean -currdata  -histdata  -n "Стоп с контроллера на закрытие" -d "Стоп с контроллера на закрытие"
+addData -id awpCtrl -type Boolean -currdata  -histdata  -n "Режим управления с АРМ" -d "Режим управления с АРМ"
+addData -id panelCtrl -type Boolean -currdata  -histdata  -n "Режим управления с панели" -d "Режим управления с панели"
+addData -id localCtrl -type Boolean -currdata  -histdata  -n "Режим управления по месту" -d "Режим управления по месту"
+addData -id autoCtrl -type Boolean -currdata  -histdata  -n "Режим управления автомат (от контроллера)" -d "Режим управления автомат (от контроллера)"
+addData -id pwrOn -type Boolean -currdata  -histdata  -n "Питание в норме" -d "Питание в норме"
+addData -id confirmation -type Boolean -currdata  -histdata  -n "Квитирование аварий" -d "Квитирование аварий"
+addData -id imitation -type Boolean -currdata  -histdata  -n "«1» - включение режима имитации" -d "«1» - включение режима имитации"
+addData -id limitSwitchOpen -type Boolean -currdata  -histdata  -n "Сработал КВ на открытие" -d "Сработал КВ на открытие"
+addData -id limitSwitchClose -type Boolean -currdata  -histdata  -n "Сработал КВ на закрытие" -d "Сработал КВ на закрытие"
+addData -id auxOpen -type Boolean -currdata  -histdata  -n "Сработал ДК на открытие" -d "Сработал ДК на открытие"
+addData -id auxClose -type Boolean -currdata  -histdata  -n "Сработал ДК на закрытие" -d "Сработал ДК на закрытие"
+addData -id overloadOpen -type Boolean -currdata  -histdata  -n "Сработала моментная муфта открытия" -d "Сработала моментная муфта открытия"
+addData -id overloadClose -type Boolean -currdata  -histdata  -n "Сработала моментная муфта закрытия" -d "Сработала моментная муфта закрытия"
+addData -id openTime -type Integer -currdata  -histdata  -n "Время открытия задвижки" -d "Время открытия задвижки"
+addData -id closeTime -type Integer -currdata  -histdata  -n "Время закрытия задвижки" -d "Время закрытия задвижки"
+addData -id auxTime -type Integer -currdata  -histdata  -n "Время срабатывания доп.контакта" -d "Время срабатывания доп.контакта"
+addData -id enabled -type Boolean -currdata  -histdata  -n "«1» - работа устройства разрешена" -d "«1» - работа устройства разрешена"
+addData -id output2Open -type Boolean -currdata  -histdata  -n "Сигнал на открытие" -d "Сигнал на открытие"
+addData -id output2Close -type Boolean -currdata  -histdata  -n "Сигнал на закрытие" -d "Сигнал на закрытие"
+addData -id open -type Boolean -currdata  -histdata  -n "Открывается логически" -d "Открывается логически"
+addData -id close -type Boolean -currdata  -histdata  -n "Закрывается логически" -d "Закрывается логически"
+addData -id alarm -type Boolean -currdata  -histdata  -n "Авария" -d "Авария"
+addData -id stateWord -type Integer -currdata  -histdata  -n "Слово состояния" -d "Слово состояния"
+addData -id errorWord -type Integer -currdata  -histdata  -n "Слово ошибок" -d "Слово ошибок"
+addData -id hourMeterMin -type Integer -currdata  -histdata  -n "Счётчик моточасов (мин) (отображение, сброс)" -d "Счётчик моточасов (мин) (отображение, сброс)"
+addData -id startCount -type Integer -currdata  -histdata  -n "Количество включений" -d "Количество включений"
+
+addEvent       -id awpOpenStart -h  -n "Пуск с АРМ на открытие"
+addEventParam  -ev awpOpenStart -id on -type Boolean
+addEvent       -id awpOpenStop -h  -n "Стоп с АРМ на открытие"
+addEventParam  -ev awpOpenStop -id on -type Boolean
+addEvent       -id awpCloseStart -h  -n "Пуск с АРМ на закрытие"
+addEventParam  -ev awpCloseStart -id on -type Boolean
+addEvent       -id awpCloseStop -h  -n "Стоп с АРМ на закрытие"
+addEventParam  -ev awpCloseStop -id on -type Boolean
+addEvent       -id pnlOpenStart -h  -n "Старт с панели на открытие "
+addEventParam  -ev pnlOpenStart -id on -type Boolean
+addEvent       -id pnlOpenStop -h  -n "Стоп с панели на открытие"
+addEventParam  -ev pnlOpenStop -id on -type Boolean
+addEvent       -id pnlCloseStart -h  -n "Старт с панели на закрытие"
+addEventParam  -ev pnlCloseStart -id on -type Boolean
+addEvent       -id pnlCloseStop -h  -n "Стоп с панели на закрытие"
+addEventParam  -ev pnlCloseStop -id on -type Boolean
+addEvent       -id localOpenStart -h  -n "Старт с ПРУ на открытие"
+addEventParam  -ev localOpenStart -id on -type Boolean
+addEvent       -id localOpenStop -h  -n "Стоп с ПРУ на открытие"
+addEventParam  -ev localOpenStop -id on -type Boolean
+addEvent       -id localCloseStart -h  -n "Старт с ПРУ на закрытие"
+addEventParam  -ev localCloseStart -id on -type Boolean
+addEvent       -id localCloseStop -h  -n "Стоп с ПРУ на закрытие"
+addEventParam  -ev localCloseStop -id on -type Boolean
+addEvent       -id ctrlOpenStart -h  -n "Старт с контроллера на открытие"
+addEventParam  -ev ctrlOpenStart -id on -type Boolean
+addEvent       -id ctrlOpenStop -h  -n "Стоп с контроллера на открытие"
+addEventParam  -ev ctrlOpenStop -id on -type Boolean
+addEvent       -id ctrlCloseStart -h  -n "Старт с контроллера на закрытие"
+addEventParam  -ev ctrlCloseStart -id on -type Boolean
+addEvent       -id ctrlCloseStop -h  -n "Стоп с контроллера на закрытие"
+addEventParam  -ev ctrlCloseStop -id on -type Boolean
+addEvent       -id limitSwitchOpen -h  -n "Сработал КВ на открытие"
+addEventParam  -ev limitSwitchOpen -id on -type Boolean
+addEvent       -id limitSwitchClose -h  -n "Сработал КВ на закрытие"
+addEventParam  -ev limitSwitchClose -id on -type Boolean
+addEvent       -id openTime -h  -n "Время открытия задвижки"
+addEventParam  -ev openTime -id oldVal -type Integer
+addEventParam  -ev openTime -id newVal -type Integer
+addEvent       -id closeTime -h  -n "Время закрытия задвижки"
+addEventParam  -ev closeTime -id oldVal -type Integer
+addEventParam  -ev closeTime -id newVal -type Integer
+addEvent       -id auxTime -h  -n "Время срабатывания доп.контакта"
+addEventParam  -ev auxTime -id oldVal -type Integer
+addEventParam  -ev auxTime -id newVal -type Integer
+addEvent       -id imitation -h  -n "24.6 Режим имитации"
+addEventParam  -ev imitation -id on -type Boolean
+addEvent       -id enabled -h  -n "24.7 Разрешение работы"
+addEventParam  -ev enabled -id on -type Boolean
+addEvent       -id PowerSupplyNorm -h  -n "25.7 Питание в норме"
+addEventParam  -ev PowerSupplyNorm -id on -type Boolean
+addEvent       -id openFailure -h  -n "26.2 Не открылась"
+addEventParam  -ev openFailure -id on -type Boolean
+addEvent       -id closeFailure -h  -n "26.3 Не закрылась"
+addEventParam  -ev closeFailure -id on -type Boolean
+addEvent       -id openOnFailure -h  -n "27.0 Не включился на открытие"
+addEventParam  -ev openOnFailure -id on -type Boolean
+addEvent       -id openOffFailure -h  -n "27.1 Не выключился на открытие"
+addEventParam  -ev openOffFailure -id on -type Boolean
+addEvent       -id closeOnFailure -h  -n "27.2 Не включился на закрытие"
+addEventParam  -ev closeOnFailure -id on -type Boolean
+addEvent       -id closeOffFailure -h  -n "27.3 Не выключился на открытие"
+addEventParam  -ev closeOffFailure -id on -type Boolean
+addEvent       -id noPowerSupply -h  -n "27.7 Нет напряжения питания"
+addEventParam  -ev noPowerSupply -id on -type Boolean
+addEvent       -id hourMeterMs -h  -n "Счётчик моточасов (мсек) (только сброс)"
+addEventParam  -ev hourMeterMs -id oldVal -type Integer
+addEventParam  -ev hourMeterMs -id newVal -type Integer
+
+addCmd     -id awpOpenStart -n "Пуск с АРМ на открытие" -d "Пуск с АРМ на открытие"
+addCmdArg  -c awpOpenStart -id value -type Boolean
+addCmd     -id awpOpenStop -n "Стоп с АРМ на открытие" -d "Стоп с АРМ на открытие"
+addCmdArg  -c awpOpenStop -id value -type Boolean
+addCmd     -id awpCloseStart -n "Пуск с АРМ на закрытие" -d "Пуск с АРМ на закрытие"
+addCmdArg  -c awpCloseStart -id value -type Boolean
+addCmd     -id awpCloseStop -n "Стоп с АРМ на закрытие" -d "Стоп с АРМ на закрытие"
+addCmdArg  -c awpCloseStop -id value -type Boolean
+addCmd     -id confirmation -n "Квитирование аварий" -d "Квитирование аварий"
+addCmdArg  -c confirmation -id value -type Boolean
+addCmd     -id imitation -n "«1» - включение режима имитации" -d "«1» - включение режима имитации"
+addCmdArg  -c imitation -id value -type Boolean
+addCmd     -id openTime -n "Время открытия задвижки" -d "Время открытия задвижки"
+addCmdArg  -c openTime -id value -type Integer
+addCmd     -id closeTime -n "Время закрытия задвижки" -d "Время закрытия задвижки"
+addCmdArg  -c closeTime -id value -type Integer
+addCmd     -id auxTime -n "Время срабатывания доп.контакта" -d "Время срабатывания доп.контакта"
+addCmdArg  -c auxTime -id value -type Integer
+addCmd     -id enabled -n "«1» - работа устройства разрешена" -d "«1» - работа устройства разрешена"
+addCmdArg  -c enabled -id value -type Boolean
+addCmd     -id hourMeterMs -n "Счётчик моточасов (мсек) (только сброс)" -d "Счётчик моточасов (мсек) (только сброс)"
+addCmdArg  -c hourMeterMs -id value -type Integer
+addCmd     -id hourMeterMin -n "Счётчик моточасов (мин) (отображение, сброс)" -d "Счётчик моточасов (мин) (отображение, сброс)"
+addCmdArg  -c hourMeterMin -id value -type Integer
+addCmd     -id startCount -n "Количество включений" -d "Количество включений"
+addCmdArg  -c startCount -id value -type Integer
+
+saveChanges

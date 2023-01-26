@@ -1,0 +1,31 @@
+
+cd dev.classes
+
+createClass -classId mcc.AnalogOutput -parentId S5Object -name "описание класса"
+
+addData -id currentValue -type Float -currdata  -histdata  -syncdata true -syncdataDelta 1000  -n "Текущее значение" -d "Текущее значение"
+addData -id imitationValue -type Float -currdata  -histdata  -n "Значение для имитации" -d "Значение для имитации"
+addData -id y1 -type Float -currdata  -histdata  -n "Верхняя граница шкалы параметра" -d "Верхняя граница шкалы параметра"
+addData -id y0 -type Float -currdata  -histdata  -n "Нижняя граница шкалы параметра" -d "Нижняя граница шкалы параметра"
+addData -id imitation -type Boolean -currdata  -histdata  -n "«1» - включение режима имитации работы" -d "«1» - включение режима имитации работы"
+addData -id currentValueDAC -type Integer -currdata  -histdata  -syncdata true -syncdataDelta 1000  -n "Текущее значение ЦАП" -d "Текущее значение ЦАП"
+
+addEvent       -id y1 -h  -n "Верхняя граница шкалы параметра"
+addEventParam  -ev y1 -id oldVal -type Float
+addEventParam  -ev y1 -id newVal -type Float
+addEvent       -id y0 -h  -n "Нижняя граница шкалы параметра"
+addEventParam  -ev y0 -id oldVal -type Float
+addEventParam  -ev y0 -id newVal -type Float
+addEvent       -id imitation -h  -n "«1» - включение режима имитации работы"
+addEventParam  -ev imitation -id on -type Boolean
+
+addCmd     -id imitationValue -n "Значение для имитации" -d "Значение для имитации"
+addCmdArg  -c imitationValue -id value -type Float
+addCmd     -id y1 -n "Верхняя граница шкалы параметра" -d "Верхняя граница шкалы параметра"
+addCmdArg  -c y1 -id value -type Float
+addCmd     -id y0 -n "Нижняя граница шкалы параметра" -d "Нижняя граница шкалы параметра"
+addCmdArg  -c y0 -id value -type Float
+addCmd     -id imitation -n "«1» - включение режима имитации работы" -d "«1» - включение режима имитации работы"
+addCmdArg  -c imitation -id value -type Boolean
+
+saveChanges
