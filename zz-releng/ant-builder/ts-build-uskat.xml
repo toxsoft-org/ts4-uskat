@@ -34,9 +34,6 @@
     <ant dir="../../org.toxsoft.uskat.ggprefs.gui" antfile="${ts-scripts-dir}/ts-build-lib.xml" target="build-lib-jar" />
     <ant dir="../../org.toxsoft.uskat.dataquality.lib" antfile="${ts-scripts-dir}/ts-build-lib.xml" target="build-lib-jar" />
     <ant dir="../../org.toxsoft.uskat.dataquality.s5" antfile="${ts-scripts-dir}/ts-build-lib.xml" target="build-lib-jar" />
-    <ant dir="../../org.toxsoft.uskat.alarms.lib" antfile="${ts-scripts-dir}/ts-build-lib.xml" target="build-lib-jar" />
-    <ant dir="../../org.toxsoft.uskat.alarms.s5" antfile="${ts-scripts-dir}/ts-build-lib.xml" target="build-lib-jar" />
-
   </target>
 
   <!-- ЦЕЛЬ: сборка plugin-ов -->
@@ -64,9 +61,7 @@
                                 org.toxsoft.uskat.ggprefs.lib,
                                 org.toxsoft.uskat.ggprefs.gui,
                                 org.toxsoft.uskat.dataquality.lib,
-                                org.toxsoft.uskat.dataquality.s5,
-                                org.toxsoft.uskat.alarms.lib,
-                                org.toxsoft.uskat.alarms.s5"
+                                org.toxsoft.uskat.dataquality.s5"
                        useworkspacecompiledclasses="true"
                        useJARFormat="true" />
   </target>

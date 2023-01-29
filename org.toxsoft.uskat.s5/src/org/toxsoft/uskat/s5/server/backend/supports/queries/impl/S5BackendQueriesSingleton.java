@@ -590,6 +590,10 @@ public class S5BackendQueriesSingleton
       ESkQueryState state = (index + 1 < n ? ESkQueryState.EXECUTING : aState);
       fireNextDataMessage( aFrontend, aQueryId, gwidKind, valuesByKinds.getByKey( gwidKind ), state );
     }
+    if( valuesByKinds.size() == 0 ) {
+      // Передача состояния без значений
+      fireNextDataMessage( aFrontend, aQueryId, EGwidKind.GW_RTDATA, IStringMap.EMPTY, aState );
+    }
   }
 
   @SuppressWarnings( "unchecked" )
