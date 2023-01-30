@@ -122,6 +122,9 @@ public class S5HistDataCursor
     //
     @Override
     public String toString() {
+      if( !isAssigned() ) {
+        return "UNASSIGNED"; //$NON-NLS-1$
+      }
       switch( atomicType() ) {
         case NONE:
           return KTOR;
@@ -256,7 +259,8 @@ public class S5HistDataCursor
   //
   @Override
   public String toString() {
-    return TimeUtils.timestampToString( timestamp() ) + (atomicValue == null ? "<<null>>" : atomicValue.toString()); //$NON-NLS-1$
+    return TimeUtils.timestampToString( timestamp() ) + ' '
+        + (atomicValue == null ? "<<null>>" : atomicValue.toString()); //$NON-NLS-1$
   }
 
   @Override
