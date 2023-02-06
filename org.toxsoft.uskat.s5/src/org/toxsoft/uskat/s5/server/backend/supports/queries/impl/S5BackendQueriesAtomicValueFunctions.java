@@ -194,7 +194,7 @@ class S5BackendQueriesAtomicValueFunctions
   @Override
   public <T extends ITemporal<?>> ITimedList<T> evaluate( IS5SequenceCursor<?> aCursor ) {
     TsNullArgumentRtException.checkNull( aCursor );
-    StringBuilder sbLog = (logger.isSeverityOn( ELogSeverity.INFO ) ? new StringBuilder() : null);
+    StringBuilder sbLog = (logger.isSeverityOn( ELogSeverity.DEBUG ) ? new StringBuilder() : null);
     // Результат
     ITimedListEdit<T> retValue = new TimedList<>();
     // Установка курсора на начало последовательности
@@ -218,7 +218,7 @@ class S5BackendQueriesAtomicValueFunctions
     retValue.addAll( nextValue( null ) );
     // Вывод журнала
     if( sbLog != null ) {
-      logger.info( "evaluate(...): %s, result count = %d, values =\n%s", arg.right().dataGwid(), //$NON-NLS-1$
+      logger.debug( "evaluate(...): %s, result count = %d, values =\n%s", arg.right().dataGwid(), //$NON-NLS-1$
           Integer.valueOf( retValue.size() ), sbLog.toString() );
     }
     // Результат
