@@ -243,10 +243,15 @@ public class SkCoreServSysdescr
 
     private ValidationResult checkInfo( IDtoClassInfo aDtoClassInfo ) {
       ValidationResult vr = ValidationResult.SUCCESS;
+      // warn if class ID is IStridable.NONE_ID
+      String id = aDtoClassInfo.id();
+      if( id.equals( IStridable.NONE_ID ) ) {
+        vr = ValidationResult.warn( FMT_WARN_UNWANTED_CLASS_ID, id );
+      }
       // warn if class name is not set or set to default string
       String name = aDtoClassInfo.params().getStr( TSID_NAME, TsLibUtils.EMPTY_STRING );
       if( name.isEmpty() || name.equals( DEFAULT_NAME ) ) {
-        vr = ValidationResult.warn( FMT_WARN_EMPTY_CLASS_NAME, aDtoClassInfo.id() );
+        vr = ValidationResult.firstNonOk( vr, ValidationResult.warn( FMT_WARN_EMPTY_CLASS_NAME, aDtoClassInfo.id() ) );
       }
       return vr;
     }
@@ -258,7 +263,7 @@ public class SkCoreServSysdescr
         ISkClassProps<?> p = aParent.props( k );
         propIds.addAll( p.list().ids() );
       }
-      // TODO FIXME error if diff kind of props has the same ID
+      // error if diff kind of props has the same ID
       for( ESkClassPropKind k : ESkClassPropKind.asList() ) {
         for( IDtoClassPropInfoBase p : aClassInfo.propInfos( k ) ) {
           if( propIds.hasElem( p.id() ) ) {
@@ -344,15 +349,16 @@ public class SkCoreServSysdescr
           }
         }
         // FIXME check changed properties
-        ValidationResult vr = ValidationResult.SUCCESS;
-        for( IDtoClassPropInfoBase p : diff.getByKey( EDiffNature.DIFF ) ) {
-          // check that changed property is compatible with existing one so that exsiting values in DB will remain
-        }
-        // check no duplicate prop IDs at all
-        vr = ValidationResult.firstNonOk( vr, checkUniquePropIds( aClassInfo, aOldInfo.parent() ) );
-        if( vr.isError() ) {
-          return vr;
-        }
+        // FIXME GOGA 2023-02-10 error!
+        // ValidationResult vr = ValidationResult.SUCCESS;
+        // for( IDtoClassPropInfoBase p : diff.getByKey( EDiffNature.DIFF ) ) {
+        // // check that changed property is compatible with existing one so that exsiting values in DB will remain
+        // }
+        // // check no duplicate prop IDs at all
+        // vr = ValidationResult.firstNonOk( vr, checkUniquePropIds( aClassInfo, aOldInfo.parent() ) );
+        // if( vr.isError() ) {
+        // return vr;
+        // }
       }
       return checkInfo( aClassInfo );
     }
