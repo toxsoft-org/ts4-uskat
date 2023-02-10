@@ -119,6 +119,7 @@ interface ISkResources {
    * {@link SkCoreServSysdescr}
    */
   String FMT_WARN_ORPHAN_CLASS             = "Ignoring an orphan class loaded from backend (class ID: '%s')";
+  String FMT_WARN_UNWANTED_CLASS_ID        = "Class ID has unwanted value '%s'";
   String FMT_WARN_EMPTY_CLASS_NAME         = "Желательно задать имя класса с идентификатором %s";
   String FMT_ERR_CLASS_HAS_PROP_ID         = "Свойство с идентификатором %s уже существует в классе";
   String FMT_ERR_CLASS_ALREADY_EXISTS      = "Класс с идентификатором %s уже существует";
