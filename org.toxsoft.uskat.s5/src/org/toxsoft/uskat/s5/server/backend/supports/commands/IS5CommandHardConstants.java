@@ -40,7 +40,7 @@ public interface IS5CommandHardConstants
       TSID_NAME, STR_N_EXECUTION_TIMEOUT, //
       TSID_DESCRIPTION, STR_D_EXECUTION_TIMEOUT, //
       TSID_IS_NULL_ALLOWED, AV_FALSE, //
-      TSID_DEFAULT_VALUE, avInt( 3000 ) );
+      TSID_DEFAULT_VALUE, avInt( 10000 ) );
 
   /**
    * Опция {@link IDtoCmdInfo#params()}: полное имя java-класса реализации блока.

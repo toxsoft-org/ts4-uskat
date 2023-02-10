@@ -45,8 +45,8 @@ public interface IS5BackendQueriesSingleton
    * Starts query/statement execution.
    * <p>
    * While executing, backend sends {@link BaMsgQueryNextData} messages to the frontend until query execution is
-   * finished. Last message will contain flag {@link BaMsgQueryNextData#getIsFinished(GenericMessage)} set to
-   * <code>true</code>.
+   * finished. Last message will contain flag {@link BaMsgQueryNextData#getState(GenericMessage)} set to
+   * <code>{@link ESkQueryState#READY}</code> or <code>{@link ESkQueryState#FAILED}</code>.
    * <p>
    * When querying commands or events, open intervals {@link EQueryIntervalType#isStartOpen()} = <b>true</b> and/or
    * {@link EQueryIntervalType#isEndOpen()} = <b>true</b> ) are ignored and {@link EQueryIntervalType#CSCE} is used

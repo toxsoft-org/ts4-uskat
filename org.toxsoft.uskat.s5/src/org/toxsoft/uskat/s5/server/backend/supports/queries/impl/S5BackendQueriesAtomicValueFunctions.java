@@ -19,7 +19,9 @@ import org.toxsoft.core.tslib.bricks.filter.std.av.StdFilterAtimicValueVsConst;
 import org.toxsoft.core.tslib.bricks.time.*;
 import org.toxsoft.core.tslib.bricks.time.impl.TimedList;
 import org.toxsoft.core.tslib.utils.Pair;
+import org.toxsoft.core.tslib.utils.TsLibUtils;
 import org.toxsoft.core.tslib.utils.errors.*;
+import org.toxsoft.core.tslib.utils.logs.ELogSeverity;
 import org.toxsoft.core.tslib.utils.logs.ILogger;
 import org.toxsoft.uskat.core.api.hqserv.IDtoQueryParam;
 import org.toxsoft.uskat.s5.server.backend.supports.queries.IS5BackendQueriesFunction;
@@ -91,7 +93,6 @@ class S5BackendQueriesAtomicValueFunctions
   /**
    * Журнал
    */
-  @SuppressWarnings( "unused" )
   private final ILogger logger;
 
   /**
@@ -193,6 +194,7 @@ class S5BackendQueriesAtomicValueFunctions
   @Override
   public <T extends ITemporal<?>> ITimedList<T> evaluate( IS5SequenceCursor<?> aCursor ) {
     TsNullArgumentRtException.checkNull( aCursor );
+    StringBuilder sbLog = (logger.isSeverityOn( ELogSeverity.DEBUG ) ? new StringBuilder() : null);
     // Результат
     ITimedListEdit<T> retValue = new TimedList<>();
     // Установка курсора на начало последовательности
@@ -202,13 +204,23 @@ class S5BackendQueriesAtomicValueFunctions
     while( aCursor.hasNextValue() ) {
       // Следующее raw-значение последовательности
       ITemporalAtomicValue value = (ITemporalAtomicValue)aCursor.nextValue();
+      // Признак того, что значение было допущено фильтрами для обработки
+      boolean accepted = filter.accept( value.value() );
       // Фильтрация
-      if( filter.accept( value.value() ) ) {
+      if( accepted ) {
         retValue.addAll( nextValue( value ) );
+      }
+      if( sbLog != null ) {
+        sbLog.append( String.format( "%s %s\n", value, accepted ? TsLibUtils.EMPTY_STRING : " FILTERED!" ) ); //$NON-NLS-1$//$NON-NLS-2$
       }
     }
     // Обработка последнего значения
     retValue.addAll( nextValue( null ) );
+    // Вывод журнала
+    if( sbLog != null ) {
+      logger.debug( "evaluate(...): %s, result count = %d, values =\n%s", arg.right().dataGwid(), //$NON-NLS-1$
+          Integer.valueOf( retValue.size() ), sbLog.toString() );
+    }
     // Результат
     return retValue;
   }

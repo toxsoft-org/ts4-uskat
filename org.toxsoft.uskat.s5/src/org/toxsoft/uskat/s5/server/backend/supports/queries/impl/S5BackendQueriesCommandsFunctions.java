@@ -16,6 +16,7 @@ import org.toxsoft.core.tslib.bricks.filter.impl.TsCombiFilter;
 import org.toxsoft.core.tslib.bricks.filter.impl.TsFilterFactoriesRegistry;
 import org.toxsoft.core.tslib.bricks.time.*;
 import org.toxsoft.core.tslib.bricks.time.impl.TimedList;
+import org.toxsoft.core.tslib.gw.gwid.Gwid;
 import org.toxsoft.core.tslib.utils.Pair;
 import org.toxsoft.core.tslib.utils.errors.*;
 import org.toxsoft.core.tslib.utils.logs.ILogger;
@@ -53,10 +54,11 @@ class S5BackendQueriesCommandsFunctions
     FILTER_REGISTRY.register( SkQueryFilterByCommandArg.FACTORY );
   }
 
-  private final Pair<String, IDtoQueryParam>    arg;
-  private final ITimeInterval                   interval;
-  private final long                            aggregationStep;
-  private final long                            aggregationStart;
+  private final Pair<String, IDtoQueryParam> arg;
+  private final Gwid                         dataGwid;
+  private final ITimeInterval                interval;
+  private final long                         aggregationStep;
+  // private final long aggregationStart;
   private final long                            factAggregationStep;
   private final boolean                         repeatByEmpty;
   private final S5BackendQueriesCounter         rawCounter;
@@ -112,6 +114,7 @@ class S5BackendQueriesCommandsFunctions
       ILogger aLogger ) {
     TsNullArgumentRtException.checkNulls( aArg, aInterval, rawValuesCounter, aOptions );
     arg = new Pair<>( aParamId, aArg );
+    dataGwid = arg.right().dataGwid();
     switch( aArg.funcId() ) {
       case EMPTY_STRING:
         break;
@@ -140,7 +143,7 @@ class S5BackendQueriesCommandsFunctions
     // Интервал агрегации. 0: на всем интервале
     aggregationStep = HQFUNC_ARG_AGGREGAION_INTERVAL.getValue( aArg.funcArgs() ).asLong();
     // Время начала агрегации
-    aggregationStart = HQFUNC_ARG_AGGREGAION_START.getValue( aArg.funcArgs() ).asLong();
+    // aggregationStart = HQFUNC_ARG_AGGREGAION_START.getValue( aArg.funcArgs() ).asLong();
     // Фактический интервал(мсек) агрегации. +1: включительно
     factAggregationStep = (aggregationStep == 0 ? interval.endTime() - interval.startTime() + 1 : aggregationStep);
     // Повтор предыдущего значения если на текущем интервале агрегации нет значений
@@ -190,7 +193,11 @@ class S5BackendQueriesCommandsFunctions
     while( aCursor.hasNextValue() ) {
       // Следующее raw-значение последовательности
       IDtoCompletedCommand command = (IDtoCompletedCommand)aCursor.nextValue();
-      // Фильтрация
+      // Фильтр по идетификатору команды
+      if( !command.cmd().cmdGwid().equals( dataGwid ) ) {
+        continue;
+      }
+      // Фильтрация клиента
       if( filter.accept( command ) ) {
         retValue.addAll( nextCommand( command ) );
       }

@@ -515,8 +515,8 @@
       <modules>
         <!-- TODO rcp-библиотеки -->
 
-        <module>releng/org.toxsoft.uskat.releng.p2.rcp</module>
-        <module>releng/org.toxsoft.uskat.releng.ant.rcp</module>
+        <module>zz-releng/org.toxsoft.uskat.releng.p2.rcp</module>
+        <module>zz-releng/org.toxsoft.uskat.releng.ant.rcp</module>
       </modules>
     </profile>
     <profile>
@@ -558,8 +558,8 @@
       <modules>                                           
         <!-- TODO rap-библиотеки -->
  
-        <module>releng/org.toxsoft.uskat.releng.p2.rap</module>
-        <module>releng/org.toxsoft.uskat.releng.ant.rap</module>
+        <module>zz-releng/org.toxsoft.uskat.releng.p2.rap</module>
+        <module>zz-releng/org.toxsoft.uskat.releng.ant.rap</module>
      </modules>
     </profile>
   </profiles>
@@ -583,10 +583,12 @@
     <module>org.toxsoft.uskat.ggprefs.gui</module>
     <module>org.toxsoft.uskat.dataquality.lib</module>
     <module>org.toxsoft.uskat.dataquality.s5</module>
+<!--
     <module>org.toxsoft.uskat.alarms.lib</module>
     <module>org.toxsoft.uskat.alarms.s5</module>
+-->
 
-    <!-- <module>org.toxsoft.uskat.sysext.alarms</module>  
+<!--
     <module>org.toxsoft.uskat.sysext.batchop</module> 
     <module>org.toxsoft.uskat.sysext.realtime</module> 
     <module>org.toxsoft.uskat.sysext.refbooks</module>
@@ -597,8 +599,8 @@
     <module>ru.uskat.core</module>
     <module>ru.uskat.backend</module>
 --> 
-    <module>releng/org.toxsoft.uskat.releng.p2</module>
-    <module>releng/org.toxsoft.uskat.releng.ant</module>
+    <module>zz-releng/org.toxsoft.uskat.releng.p2</module>
+    <module>zz-releng/org.toxsoft.uskat.releng.ant</module>
   </modules>
 
   <distributionManagement>
