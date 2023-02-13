@@ -2,7 +2,6 @@ package org.toxsoft.uskat.s5.server.backend.supports.queries.impl;
 
 import static org.toxsoft.core.tslib.utils.TsLibUtils.*;
 import static org.toxsoft.uskat.core.api.hqserv.ISkHistoryQueryServiceConstants.*;
-import static org.toxsoft.uskat.core.impl.SkAsynchronousQuery.*;
 import static org.toxsoft.uskat.s5.server.backend.supports.queries.impl.IS5Resources.*;
 
 import org.toxsoft.core.tslib.av.EAtomicType;
@@ -14,8 +13,11 @@ import org.toxsoft.core.tslib.bricks.filter.ITsFilter;
 import org.toxsoft.core.tslib.bricks.filter.ITsFilterFactoriesRegistry;
 import org.toxsoft.core.tslib.bricks.filter.impl.TsCombiFilter;
 import org.toxsoft.core.tslib.bricks.filter.impl.TsFilterFactoriesRegistry;
-import org.toxsoft.core.tslib.bricks.time.*;
-import org.toxsoft.core.tslib.bricks.time.impl.TimedList;
+import org.toxsoft.core.tslib.bricks.time.ITemporal;
+import org.toxsoft.core.tslib.bricks.time.ITimeInterval;
+import org.toxsoft.core.tslib.coll.IList;
+import org.toxsoft.core.tslib.coll.IListEdit;
+import org.toxsoft.core.tslib.coll.impl.ElemLinkedList;
 import org.toxsoft.core.tslib.gw.gwid.Gwid;
 import org.toxsoft.core.tslib.utils.Pair;
 import org.toxsoft.core.tslib.utils.errors.*;
@@ -66,7 +68,7 @@ class S5BackendQueriesCommandsFunctions
   private final int                             answerSize;
   private final EKnownFunc                      func;
   private final ITsFilter<IDtoCompletedCommand> filter;
-  private final ITimedListEdit<ITemporal<?>>    result    = new TimedList<>();
+  private final IListEdit<ITemporal<?>>         result    = new ElemLinkedList<>();
   private IAtomicValue                          lastValue = IAtomicValue.NULL;
 
   /**
@@ -182,10 +184,10 @@ class S5BackendQueriesCommandsFunctions
   }
 
   @Override
-  public <T extends ITemporal<?>> ITimedList<T> evaluate( IS5SequenceCursor<?> aCursor ) {
+  public <T> IList<T> evaluate( IS5SequenceCursor<?> aCursor ) {
     TsNullArgumentRtException.checkNull( aCursor );
     // Результат
-    ITimedListEdit<T> retValue = new TimedList<>();
+    IListEdit<T> retValue = new ElemLinkedList<>();
     // Установка курсора на начало последовательности
     // TODO: Отработать aggregationStart
     aCursor.setTime( interval.startTime() );
@@ -216,10 +218,10 @@ class S5BackendQueriesCommandsFunctions
    *
    * @param aCommand {@link IDtoCompletedCommand} команда. null: завершение обработки
    * @param <T> тип значения
-   * @return {@link ITimedList} список обработанных команд
+   * @return {@link IList} список обработанных команд
    */
   @SuppressWarnings( "unchecked" )
-  private <T extends ITemporal<?>> ITimedList<T> nextCommand( IDtoCompletedCommand aCommand ) {
+  private <T> IList<T> nextCommand( IDtoCompletedCommand aCommand ) {
     rawCounter.add( 1 );
     if( aCommand == null ) {
       // У последовательности больше нет значений. Формирование последнего значения
@@ -227,7 +229,7 @@ class S5BackendQueriesCommandsFunctions
       // Дополнение по необходимости пустыми значениями
       // addEmptyValues( interval.endTime() );
       // Передача сформированного результата
-      return (ITimedList<T>)result;
+      return (IList<T>)result;
     }
     // SkEvent cursorEvent = aEvent;
     if( func == EKnownFunc.NONE ) {
@@ -247,7 +249,7 @@ class S5BackendQueriesCommandsFunctions
       // };
       // }
       result.add( aCommand );
-      return (ITimedList<T>)EMPTY_TIMED_LIST;
+      return IList.EMPTY;
     }
     // Метка времени нового значения
     long timestamp = aCommand.timestamp();
@@ -276,7 +278,7 @@ class S5BackendQueriesCommandsFunctions
       default -> throw new TsNotAllEnumsUsedRtException();
     };
     intervalCount++;
-    return (ITimedList<T>)EMPTY_TIMED_LIST;
+    return IList.EMPTY;
   }
 
   /**

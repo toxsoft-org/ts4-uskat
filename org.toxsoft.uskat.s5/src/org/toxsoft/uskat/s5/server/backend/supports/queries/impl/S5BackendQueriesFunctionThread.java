@@ -3,7 +3,8 @@ package org.toxsoft.uskat.s5.server.backend.supports.queries.impl;
 import static org.toxsoft.uskat.s5.common.IS5CommonResources.*;
 import static org.toxsoft.uskat.s5.server.backend.supports.queries.impl.IS5Resources.*;
 
-import org.toxsoft.core.tslib.bricks.time.*;
+import org.toxsoft.core.tslib.bricks.time.IQueryInterval;
+import org.toxsoft.core.tslib.bricks.time.ITemporal;
 import org.toxsoft.core.tslib.coll.IList;
 import org.toxsoft.core.tslib.coll.IListEdit;
 import org.toxsoft.core.tslib.coll.impl.ElemArrayList;
@@ -24,11 +25,11 @@ import org.toxsoft.uskat.s5.utils.threads.impl.S5AbstractReadThread;
  * @author mvk
  */
 public class S5BackendQueriesFunctionThread
-    extends S5AbstractReadThread<IList<ITimedList<ITemporal<?>>>> {
+    extends S5AbstractReadThread<IList<IList<ITemporal<?>>>> {
 
-  private final IS5Sequence<?>                      sequence;
-  private final IList<IS5BackendQueriesFunction>    functions;
-  private final IListEdit<ITimedList<ITemporal<?>>> result;
+  private final IS5Sequence<?>                   sequence;
+  private final IList<IS5BackendQueriesFunction> functions;
+  private final IListEdit<IList<ITemporal<?>>>   result;
 
   /**
    * Создание асинхронной задачи выполнения функций обработки значений данного
@@ -79,7 +80,7 @@ public class S5BackendQueriesFunctionThread
         // Функция обработки
         IS5BackendQueriesFunction function = functions.get( index );
         // Значения-результат
-        ITimedList<ITemporal<?>> values = function.evaluate( cursor );
+        IList<ITemporal<?>> values = function.evaluate( cursor );
         // Обработка значений последовательности
         result.addAll( values );
         // Количество обработанных значений
@@ -110,7 +111,7 @@ public class S5BackendQueriesFunctionThread
   }
 
   @Override
-  public IList<ITimedList<ITemporal<?>>> result() {
+  public IList<IList<ITemporal<?>>> result() {
     return result;
   }
 
@@ -124,7 +125,7 @@ public class S5BackendQueriesFunctionThread
    * @return String текстовое представление
    * @throws TsNullArgumentRtException аргумент = null
    */
-  private static String valuesToString( IList<ITimedList<ITemporal<?>>> aValues ) {
+  private static String valuesToString( IList<IList<ITemporal<?>>> aValues ) {
     TsNullArgumentRtException.checkNull( aValues );
     StringBuilder sb = new StringBuilder();
     for( int index = 0, n = aValues.size(); index < n; index++ ) {

@@ -209,7 +209,7 @@ public class S5BackendQueriesSingleton
       convoy.exec( aTimeInterval );
     }
     // Прочитанные значения
-    IStringMap<ITimedList<ITemporal<?>>> values = null;
+    IStringMap<IList<ITemporal<?>>> values = null;
     try {
       // Счетчик считанных(сырых) значений
       S5BackendQueriesCounter rawCounter = new S5BackendQueriesCounter();
@@ -227,7 +227,7 @@ public class S5BackendQueriesSingleton
         // Функции обработки данных читателя
         IList<IS5BackendQueriesFunction> functions = queryFunctions.getByKey( reader );
         // Чтение значений функциями
-        IList<ITimedList<ITemporal<?>>> readerValues = readByFunctions( aQueryId, reader, functions, interval );
+        IList<IList<ITemporal<?>>> readerValues = readByFunctions( aQueryId, reader, functions, interval );
         if( convoy.state() != ESkQueryState.EXECUTING ) {
           // Отмена выполнения запроса
           logger().error( ERR_CANCEL_QUERY, "execQuery(...)", aQueryId, TsLibUtils.EMPTY_STRING ); //$NON-NLS-1$
@@ -347,7 +347,7 @@ public class S5BackendQueriesSingleton
     throw new TsNotAllEnumsUsedRtException();
   }
 
-  private static EGwidKind getGwidKind( ITimedList<ITemporal<?>> aValues ) {
+  private static EGwidKind getGwidKind( IList<ITemporal<?>> aValues ) {
     if( aValues == null || aValues.size() == 0 ) {
       return EGwidKind.GW_RTDATA;
     }
@@ -379,9 +379,9 @@ public class S5BackendQueriesSingleton
     return null;
   }
 
-  private static IStringMap<ITimedList<ITemporal<?>>> getValuesMap( IList<IS5BackendQueriesFunction> aFunctions,
-      IList<ITimedList<ITemporal<?>>> aValues ) {
-    IStringMapEdit<ITimedList<ITemporal<?>>> retValue = new StringMap<>();
+  private static IStringMap<IList<ITemporal<?>>> getValuesMap( IList<IS5BackendQueriesFunction> aFunctions,
+      IList<IList<ITemporal<?>>> aValues ) {
+    IStringMapEdit<IList<ITemporal<?>>> retValue = new StringMap<>();
     for( int index = 0, n = aFunctions.size(); index < n; index++ ) {
       String paramName = aFunctions.get( index ).arg().left();
       retValue.put( paramName, aValues.get( index ) );
@@ -451,13 +451,13 @@ public class S5BackendQueriesSingleton
    * @param aFunctions {@link IList}&lt;{@link IS5BackendQueriesFunction}&gt; список функций обработки.
    * @param aInterval {@link IQueryInterval} интервал запрашиваемых данных
    * @throws TsIllegalArgumentRtException aStartTime > aEndTime
-   * @return {@link IList}&lt;{@link ITimedList}&lt;{@link ITemporal}&gt;&gt; список списков обработанных значений
-   *         данных. Порядок и количество первого списка соответствует списку функций обработки.
+   * @return {@link IList}&lt;{@link IList}&lt;{@link ITemporal}&gt;&gt; список списков обработанных значений данных.
+   *         Порядок и количество первого списка соответствует списку функций обработки.
    * @throws TsNullArgumentRtException аргумент = null
    * @throws TsIllegalArgumentRtException количество запрашиваемых данных не соответствует количеству агрегаторов
    * @throws TsIllegalArgumentRtException неверный интервал запроса
    */
-  private IList<ITimedList<ITemporal<?>>> readByFunctions( String aQueryId,
+  private IList<IList<ITemporal<?>>> readByFunctions( String aQueryId,
       IS5SequenceReader<IS5Sequence<?>, ?> aSequenceReader, IList<IS5BackendQueriesFunction> aFunctions,
       IQueryInterval aInterval ) {
     TsNullArgumentRtException.checkNulls( aQueryId, aSequenceReader, aFunctions, aInterval );
@@ -523,8 +523,7 @@ public class S5BackendQueriesSingleton
     IMap<Gwid, IS5Sequence<?>> sequences = aSequenceReader.readSequences( IS5FrontendRear.NULL, //
         aQueryId, new GwidList( sequenceGwids.values() ), interval, ACCESS_TIMEOUT_DEFAULT );
     // Исполнитель s5-потоков чтения данных
-    S5ReadThreadExecutor<IList<ITimedList<ITemporal<?>>>> executor =
-        new S5ReadThreadExecutor<>( readExecutor, logger() );
+    S5ReadThreadExecutor<IList<IList<ITemporal<?>>>> executor = new S5ReadThreadExecutor<>( readExecutor, logger() );
     for( int index = 0, n = functionGwids.size(); index < n; index++ ) {
       // Идентификатор данных в функции
       Gwid gwid = functionGwids.get( index );
@@ -544,10 +543,10 @@ public class S5BackendQueriesSingleton
     // Запуск потоков (с ожиданием завершения, c поднятием исключений на ошибках потоков)
     executor.run( true, true );
     // Результаты чтения и обработки
-    IList<IList<ITimedList<ITemporal<?>>>> executorsResults = executor.results();
+    IList<IList<IList<ITemporal<?>>>> executorsResults = executor.results();
 
     // Формирование результата
-    IListEdit<ITimedList<ITemporal<?>>> retValue = new ElemArrayList<>( count );
+    IListEdit<IList<ITemporal<?>>> retValue = new ElemArrayList<>( count );
     for( int index = 0; index < count; index++ ) {
       // Функция обработки данного
       IS5BackendQueriesFunction function = aFunctions.get( index );
@@ -570,14 +569,14 @@ public class S5BackendQueriesSingleton
   }
 
   private static void fireNextDataMessage( IS5FrontendRear aFrontend, String aQueryId,
-      IStringMap<ITimedList<ITemporal<?>>> aValues, ESkQueryState aState ) {
+      IStringMap<IList<ITemporal<?>>> aValues, ESkQueryState aState ) {
     TsNullArgumentRtException.checkNulls( aFrontend, aQueryId, aValues );
-    IMapEdit<EGwidKind, IStringMapEdit<ITimedList<ITemporal<?>>>> valuesByKinds = new ElemMap<>();
+    IMapEdit<EGwidKind, IStringMapEdit<IList<ITemporal<?>>>> valuesByKinds = new ElemMap<>();
     // Сортировка значений по типам
     for( String paramId : aValues.keys() ) {
-      ITimedList<ITemporal<?>> values = aValues.getByKey( paramId );
+      IList<ITemporal<?>> values = aValues.getByKey( paramId );
       EGwidKind gwidKind = getGwidKind( values );
-      IStringMapEdit<ITimedList<ITemporal<?>>> kindValues = valuesByKinds.findByKey( gwidKind );
+      IStringMapEdit<IList<ITemporal<?>>> kindValues = valuesByKinds.findByKey( gwidKind );
       if( kindValues == null ) {
         kindValues = new StringMap<>();
         valuesByKinds.put( gwidKind, kindValues );
@@ -598,22 +597,22 @@ public class S5BackendQueriesSingleton
 
   @SuppressWarnings( "unchecked" )
   private static void fireNextDataMessage( IS5FrontendRear aFrontend, String aQueryId, EGwidKind aGwidKind,
-      IStringMap<ITimedList<ITemporal<?>>> aValues, ESkQueryState aState ) {
+      IStringMap<IList<ITemporal<?>>> aValues, ESkQueryState aState ) {
     TsNullArgumentRtException.checkNulls( aFrontend, aQueryId, aGwidKind, aValues );
 
     GtMessage message = null;
     switch( aGwidKind ) {
       case GW_RTDATA:
         message = BaMsgQueryNextData.INSTANCE.makeMessageAtomicValues( aQueryId,
-            (IStringMap<ITimedList<ITemporalAtomicValue>>)(Object)aValues, aState );
+            (IStringMap<IList<ITemporalAtomicValue>>)(Object)aValues, aState );
         break;
       case GW_EVENT:
-        message = BaMsgQueryNextData.INSTANCE.makeMessageEvents( aQueryId,
-            (IStringMap<ITimedList<SkEvent>>)(Object)aValues, aState );
+        message = BaMsgQueryNextData.INSTANCE.makeMessageEvents( aQueryId, (IStringMap<IList<SkEvent>>)(Object)aValues,
+            aState );
         break;
       case GW_CMD:
         message = BaMsgQueryNextData.INSTANCE.makeMessageCommands( aQueryId,
-            (IStringMap<ITimedList<IDtoCompletedCommand>>)(Object)aValues, aState );
+            (IStringMap<IList<IDtoCompletedCommand>>)(Object)aValues, aState );
         break;
       case GW_ATTR:
       case GW_CLASS:

@@ -15,6 +15,7 @@ import org.toxsoft.core.tslib.bricks.events.msg.IGtMessageListener;
 import org.toxsoft.core.tslib.coll.primtypes.IStringMapEdit;
 import org.toxsoft.core.tslib.coll.primtypes.impl.StringMap;
 import org.toxsoft.core.tslib.utils.errors.TsNullArgumentRtException;
+import org.toxsoft.core.tslib.utils.logs.impl.LoggerUtils;
 import org.toxsoft.uskat.core.backend.ISkFrontendRear;
 
 /**
@@ -92,7 +93,13 @@ public final class S5CallbackOnBackendMessage
     }
     String topicId = aNotification.params().getByKey( MSG_TOPIC ).asString();
     String msgId = aNotification.params().getByKey( MSG_ID ).asString();
-    IOptionSet msgArgs = OptionSetKeeper.KEEPER.str2ent( aNotification.params().getByKey( MSG_ARGS ).asString() );
+    String valueStr = aNotification.params().getByKey( MSG_ARGS ).asString();
+    long st = System.currentTimeMillis();
+    IOptionSet msgArgs = OptionSetKeeper.KEEPER.str2ent( valueStr );
+    long et = System.currentTimeMillis();
+    LoggerUtils.defaultLogger().info(
+        "S5CallbackOnBackendMessage::notify( ... ): topicId = %s, msgId = %s, valueStrLength = %d, read msgArgs time = %d (msec)", // //$NON-NLS-1$
+        topicId, msgId, Integer.valueOf( valueStr.length() ), Long.valueOf( et - st ) );
     // Передача сообщения на обработку
     frontend.onBackendMessage( new GtMessage( topicId, msgId, msgArgs ) );
   }

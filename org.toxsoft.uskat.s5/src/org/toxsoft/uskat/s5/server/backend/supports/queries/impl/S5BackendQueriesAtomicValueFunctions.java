@@ -2,7 +2,6 @@ package org.toxsoft.uskat.s5.server.backend.supports.queries.impl;
 
 import static org.toxsoft.core.tslib.utils.TsLibUtils.*;
 import static org.toxsoft.uskat.core.api.hqserv.ISkHistoryQueryServiceConstants.*;
-import static org.toxsoft.uskat.core.impl.SkAsynchronousQuery.*;
 import static org.toxsoft.uskat.s5.server.backend.supports.queries.impl.IS5Resources.*;
 
 import org.toxsoft.core.tslib.av.EAtomicType;
@@ -16,8 +15,10 @@ import org.toxsoft.core.tslib.bricks.filter.ITsFilterFactoriesRegistry;
 import org.toxsoft.core.tslib.bricks.filter.impl.TsCombiFilter;
 import org.toxsoft.core.tslib.bricks.filter.impl.TsFilterFactoriesRegistry;
 import org.toxsoft.core.tslib.bricks.filter.std.av.StdFilterAtimicValueVsConst;
-import org.toxsoft.core.tslib.bricks.time.*;
-import org.toxsoft.core.tslib.bricks.time.impl.TimedList;
+import org.toxsoft.core.tslib.bricks.time.ITimeInterval;
+import org.toxsoft.core.tslib.coll.IList;
+import org.toxsoft.core.tslib.coll.IListEdit;
+import org.toxsoft.core.tslib.coll.impl.ElemLinkedList;
 import org.toxsoft.core.tslib.utils.Pair;
 import org.toxsoft.core.tslib.utils.TsLibUtils;
 import org.toxsoft.core.tslib.utils.errors.*;
@@ -55,20 +56,20 @@ class S5BackendQueriesAtomicValueFunctions
     FILTER_REGISTRY.register( StdFilterAtimicValueVsConst.FACTORY );
   }
 
-  private final Pair<String, IDtoQueryParam>         arg;
-  private final EAtomicType                          type;
-  private final ITimeInterval                        interval;
-  private final long                                 aggregationStep;
-  private final long                                 aggregationStart;
-  private final long                                 factAggregationStep;
-  private final boolean                              repeatByEmpty;
-  private final S5BackendQueriesCounter              rawCounter;
-  private final S5BackendQueriesCounter              valuesCounter;
-  private final int                                  answerSize;
-  private final EKnownFunc                           func;
-  private final ITsFilter<IAtomicValue>              filter;
-  private final ITimedListEdit<ITemporalAtomicValue> result    = new TimedList<>();
-  private IAtomicValue                               lastValue = IAtomicValue.NULL;
+  private final Pair<String, IDtoQueryParam>    arg;
+  private final EAtomicType                     type;
+  private final ITimeInterval                   interval;
+  private final long                            aggregationStep;
+  private final long                            aggregationStart;
+  private final long                            factAggregationStep;
+  private final boolean                         repeatByEmpty;
+  private final S5BackendQueriesCounter         rawCounter;
+  private final S5BackendQueriesCounter         valuesCounter;
+  private final int                             answerSize;
+  private final EKnownFunc                      func;
+  private final ITsFilter<IAtomicValue>         filter;
+  private final IListEdit<ITemporalAtomicValue> result    = new ElemLinkedList<>();
+  private IAtomicValue                          lastValue = IAtomicValue.NULL;
 
   /**
    * Текущее начало интервала усреднения. Включительно
@@ -192,11 +193,11 @@ class S5BackendQueriesAtomicValueFunctions
   }
 
   @Override
-  public <T extends ITemporal<?>> ITimedList<T> evaluate( IS5SequenceCursor<?> aCursor ) {
+  public <T> IList<T> evaluate( IS5SequenceCursor<?> aCursor ) {
     TsNullArgumentRtException.checkNull( aCursor );
     StringBuilder sbLog = (logger.isSeverityOn( ELogSeverity.DEBUG ) ? new StringBuilder() : null);
     // Результат
-    ITimedListEdit<T> retValue = new TimedList<>();
+    IListEdit<T> retValue = new ElemLinkedList<>();
     // Установка курсора на начало последовательности
     // TODO: Отработать aggregationStart
     aCursor.setTime( interval.startTime() );
@@ -233,10 +234,10 @@ class S5BackendQueriesAtomicValueFunctions
    *
    * @param aValue {@link ITemporalAtomicValue} текущее "сырое" значение. null: завершение обработки
    * @param <T> тип значения
-   * @return {@link ITimedList} список обработанных значений
+   * @return {@link IList} список обработанных значений
    */
   @SuppressWarnings( "unchecked" )
-  private <T extends ITemporal<?>> ITimedList<T> nextValue( ITemporalAtomicValue aValue ) {
+  private <T> IList<T> nextValue( ITemporalAtomicValue aValue ) {
     rawCounter.add( 1 );
     if( aValue == null ) {
       // У последовательности больше нет значений. Формирование последнего значения
@@ -244,12 +245,12 @@ class S5BackendQueriesAtomicValueFunctions
       // Дополнение по необходимости пустыми значениями
       // addEmptyValues( interval.endTime() );
       // Передача сформированного результата
-      return (ITimedList<T>)result;
+      return (IList<T>)result;
     }
     IAtomicValue cursorValue = aValue.value();
     if( !cursorValue.isAssigned() ) {
       // null-значения не обрабатываются
-      return (ITimedList<T>)EMPTY_TIMED_LIST;
+      return IList.EMPTY;
     }
     if( func == EKnownFunc.NONE ) {
       // Нет агрегации. Просто повторяем входные значения
@@ -268,7 +269,7 @@ class S5BackendQueriesAtomicValueFunctions
         };
       }
       result.add( new TemporalAtomicValue( aValue.timestamp(), value ) );
-      return (ITimedList<T>)EMPTY_TIMED_LIST;
+      return IList.EMPTY;
     }
     // Метка времени нового значения
     long timestamp = aValue.timestamp();
@@ -317,7 +318,7 @@ class S5BackendQueriesAtomicValueFunctions
         throw new TsNotAllEnumsUsedRtException();
     }
     intervalCount++;
-    return (ITimedList<T>)EMPTY_TIMED_LIST;
+    return IList.EMPTY;
   }
 
   /**

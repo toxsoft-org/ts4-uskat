@@ -190,7 +190,8 @@ public class S5BackendObjectsSingleton
     // Пост-интерсепция
     callAfterReadObjects( interceptors, aClassIds, retValue );
 
-    return retValue;
+    // Формирование результата, чтобы избежать ошибок маршалинга ElemLinkedList на больших коллекциях
+    return new ElemArrayList<>( retValue );
   }
 
   @Override
@@ -214,7 +215,8 @@ public class S5BackendObjectsSingleton
     // Пост-интерсепция
     callAfterReadObjectsByIds( interceptors, aSkids, retValue );
 
-    return retValue;
+    // Формирование результата, чтобы избежать ошибок маршалинга ElemLinkedList на больших коллекциях
+    return new ElemArrayList<>( retValue );
   }
 
   @SuppressWarnings( "unchecked" )

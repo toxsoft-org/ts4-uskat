@@ -1,7 +1,6 @@
 package org.toxsoft.uskat.s5.server.backend.supports.queries;
 
-import org.toxsoft.core.tslib.bricks.time.ITemporal;
-import org.toxsoft.core.tslib.bricks.time.ITimedList;
+import org.toxsoft.core.tslib.coll.IList;
 import org.toxsoft.core.tslib.utils.Pair;
 import org.toxsoft.core.tslib.utils.errors.TsNullArgumentRtException;
 import org.toxsoft.uskat.core.api.hqserv.IDtoQueryParam;
@@ -32,9 +31,9 @@ public interface IS5BackendQueriesFunction {
    *
    * @param aCursor {@link IS5SequenceCursor} курсор последовательности значений
    * @param <T> тип значений
-   * @return {@link ITimedList} список обработанных значений
+   * @return {@link IList} список обработанных значений
    * @throws TsNullArgumentRtException аргумент = null
    */
-  <T extends ITemporal<?>> ITimedList<T> evaluate( IS5SequenceCursor<?> aCursor );
+  <T> IList<T> evaluate( IS5SequenceCursor<?> aCursor );
 
 }
