@@ -12,6 +12,7 @@ import org.toxsoft.core.tslib.coll.primtypes.impl.StringMap;
 import org.toxsoft.core.tslib.gw.gwid.*;
 import org.toxsoft.core.tslib.utils.errors.TsNotAllEnumsUsedRtException;
 import org.toxsoft.core.tslib.utils.errors.TsNullArgumentRtException;
+import org.toxsoft.core.tslib.utils.logs.impl.LoggerUtils;
 import org.toxsoft.uskat.core.ISkServiceCreator;
 import org.toxsoft.uskat.core.api.cmdserv.IDtoCompletedCommand;
 import org.toxsoft.uskat.core.api.evserv.SkEvent;
@@ -84,7 +85,13 @@ public class SkCoreServHistQueryService
       case GW_RIVET:
         return false;
       case GW_RTDATA:
+        long st = System.currentTimeMillis();
+        LoggerUtils.defaultLogger().info( "SkCoreServHistQueryService.onBackendMessage(...) NextData recv" ); //$NON-NLS-1$
         IStringMap<ITimedList<ITemporalAtomicValue>> values = BaMsgQueryNextData.INSTANCE.getAtomicValues( aMessage );
+        long et = System.currentTimeMillis();
+        LoggerUtils.defaultLogger().info(
+            "SkCoreServHistQueryService.onBackendMessage(...) values read time = %d (msec)", // //$NON-NLS-1$
+            Long.valueOf( et - st ) );
         query.nextData( (IStringMap<ITimedList<ITemporal<?>>>)(Object)values, state );
         break;
       case GW_EVENT:
