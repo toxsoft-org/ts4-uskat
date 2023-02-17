@@ -58,11 +58,6 @@ public class SdedDtoAttrInfoM5Model
     private IDtoAttrInfo makeAttrInfo( IM5Bunch<IDtoAttrInfo> aValues ) {
       String id = aValues.getAsAv( FID_ID ).asString();
       IDataType dataType = DATA_TYPE.getFieldValue( aValues );
-
-      // DEBUG ---
-      TsInternalErrorRtException.checkNull( dataType );
-      // ---
-
       IOptionSetEdit params = new OptionSet();
       if( aValues.originalEntity() != null ) {
         params.setAll( aValues.originalEntity().params() );

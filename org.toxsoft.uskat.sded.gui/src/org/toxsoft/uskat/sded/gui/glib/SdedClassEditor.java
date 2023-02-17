@@ -1,6 +1,5 @@
 package org.toxsoft.uskat.sded.gui.glib;
 
-import static org.toxsoft.uskat.base.gui.km5.sgw.ISgwM5Constants.*;
 import static org.toxsoft.uskat.sded.gui.km5.IKM5SdedConstants.*;
 
 import org.eclipse.swt.*;
@@ -61,7 +60,7 @@ public class SdedClassEditor
   public SdedClassEditor( ITsGuiContext aContext, IdChain aSuppliedConnectionId ) {
     super( aContext, aSuppliedConnectionId );
     // left pane
-    IM5Model<ISkClassInfo> modelSk = m5().getModel( MID_SGW_CLASS_INFO, ISkClassInfo.class );
+    IM5Model<ISkClassInfo> modelSk = m5().getModel( MID_SDED_SK_CLASS_INFO, ISkClassInfo.class );
     IM5LifecycleManager<ISkClassInfo> lmSk = modelSk.getLifecycleManager( skConn() );
     IM5ItemsProvider<ISkClassInfo> ipSk = lmSk.itemsProvider();
     ITsGuiContext ctxSk = new TsGuiContext( tsContext() );
@@ -98,7 +97,7 @@ public class SdedClassEditor
       inplaceEditor.cancelAndFinishEditing();
     }
     if( sel != null ) {
-      IDtoClassInfo dto = DtoClassInfo.createFromSk( sel, true );
+      IDtoClassInfo dto = DtoClassInfo.createFromSk( sel, false );
       classEditPane.setEntity( dto );
     }
     else {

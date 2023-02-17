@@ -48,6 +48,7 @@ public class KM5SdedContributor
     modelsList.add( new SdedDtoCmdInfoM5Model( skConn() ) );
     modelsList.add( new SdedDtoEvInfoM5Model( skConn() ) );
     modelsList.add( new SdedDtoClassInfoM5Model( skConn() ) );
+    modelsList.add( new SdedSkClassInfoM5Model( skConn() ) );
     return modelsList;
   }
 

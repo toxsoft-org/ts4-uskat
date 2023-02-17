@@ -9,7 +9,6 @@ import org.toxsoft.core.tslib.bricks.strid.impl.*;
 import org.toxsoft.core.tslib.utils.errors.*;
 import org.toxsoft.uskat.core.api.sysdescr.*;
 import org.toxsoft.uskat.core.api.sysdescr.dto.*;
-import org.toxsoft.uskat.core.impl.dto.*;
 import org.toxsoft.uskat.refbooks.lib.*;
 
 /**
@@ -21,10 +20,10 @@ public class DtoRefbookInfo
     extends StridableParameterized
     implements IDtoRefbookInfo {
 
-  private final IStridablesListEdit<DtoAttrInfo>  attrInfos  = new StridablesList<>();
-  private final IStridablesListEdit<DtoClobInfo>  clobInfos  = new StridablesList<>();
-  private final IStridablesListEdit<DtoRivetInfo> rivetInfos = new StridablesList<>();
-  private final IStridablesListEdit<DtoLinkInfo>  linkInfos  = new StridablesList<>();
+  private final IStridablesListEdit<IDtoAttrInfo>  attrInfos  = new StridablesList<>();
+  private final IStridablesListEdit<IDtoClobInfo>  clobInfos  = new StridablesList<>();
+  private final IStridablesListEdit<IDtoRivetInfo> rivetInfos = new StridablesList<>();
+  private final IStridablesListEdit<IDtoLinkInfo>  linkInfos  = new StridablesList<>();
 
   /**
    * Constructor.
@@ -61,28 +60,24 @@ public class DtoRefbookInfo
   // IDtoRefbookInfo
   //
 
-  @SuppressWarnings( { "rawtypes", "unchecked" } )
   @Override
   public IStridablesListEdit<IDtoAttrInfo> attrInfos() {
-    return (IStridablesListEdit)attrInfos;
+    return attrInfos;
   }
 
-  @SuppressWarnings( { "rawtypes", "unchecked" } )
   @Override
   public IStridablesListEdit<IDtoRivetInfo> rivetInfos() {
-    return (IStridablesListEdit)rivetInfos;
+    return rivetInfos;
   }
 
-  @SuppressWarnings( { "rawtypes", "unchecked" } )
   @Override
   public IStridablesListEdit<IDtoLinkInfo> linkInfos() {
-    return (IStridablesListEdit)linkInfos;
+    return linkInfos;
   }
 
-  @SuppressWarnings( { "rawtypes", "unchecked" } )
   @Override
   public IStridablesListEdit<IDtoClobInfo> clobInfos() {
-    return (IStridablesListEdit)clobInfos;
+    return clobInfos;
   }
 
   @SuppressWarnings( { "rawtypes", "unchecked" } )

@@ -396,7 +396,6 @@ public class SkExtServiceRefbooks
       DDEF_NAME.setValue( attrs, avStr( aDpuRefbookInfo.nmName() ) );
       DDEF_DESCRIPTION.setValue( attrs, avStr( aDpuRefbookInfo.description() ) );
       attrs.setStr( ATRINF_ITEM_CLASS_ID.id(), itemClassId );
-
       Skid rbObjSkid = ISkRefbookServiceHardConstants.makeRefbookObjSkid( aDpuRefbookInfo.id() );
       DtoObject rbDto = new DtoObject( rbObjSkid, attrs, IStringMap.EMPTY );
       rb = os.defineObject( rbDto );

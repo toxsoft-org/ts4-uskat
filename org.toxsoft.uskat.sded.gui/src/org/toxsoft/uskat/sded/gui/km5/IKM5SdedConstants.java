@@ -1,9 +1,9 @@
 package org.toxsoft.uskat.sded.gui.km5;
 
-import static org.toxsoft.uskat.core.ISkHardConstants.*;
+import static org.toxsoft.uskat.sded.gui.ISkSdedGuiConstants.*;
 
 /**
- * M5-modelling constants for SDED.
+ * M5-modeling constants for SDED.
  *
  * @author hazard157
  * @author dima
@@ -11,11 +11,7 @@ import static org.toxsoft.uskat.core.ISkHardConstants.*;
 @SuppressWarnings( "javadoc" )
 public interface IKM5SdedConstants {
 
-  /**
-   * Prefix of SDED IDs.
-   */
-  String SDED_ID = SK_ID + ".sded"; //$NON-NLS-1$
-
+  String MID_SDED_SK_CLASS_INFO   = SDED_ID + ".SkClassInfo";    //$NON-NLS-1$
   String MID_SDED_DTO_CLASS_INFO  = SDED_ID + ".DtoClassInfo";   //$NON-NLS-1$
   String MID_SDED_ATTR_INFO       = SDED_ID + ".AttrInfo";       //$NON-NLS-1$
   String MID_SDED_RIVET_INFO      = SDED_ID + ".RivetInfo";      //$NON-NLS-1$
@@ -25,6 +21,8 @@ public interface IKM5SdedConstants {
   String MID_SDED_CMD_INFO        = SDED_ID + ".CmdInfo";        //$NON-NLS-1$
   String MID_SDED_EVENT_INFO      = SDED_ID + ".EventInfo";      //$NON-NLS-1$
   String MID_SDED_COLL_CONSTRAINT = SDED_ID + ".CollConstraint"; //$NON-NLS-1$
+
+  String MID_SDED_SK_OBJECT = SDED_ID + ".SkObject"; //$NON-NLS-1$
 
   String FID_CLASS_ID       = "classId";      //$NON-NLS-1$
   String FID_PARENT_ID      = "parentId";     //$NON-NLS-1$

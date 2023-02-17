@@ -10,10 +10,14 @@ import static org.toxsoft.uskat.sded.gui.km5.ISkSdedKm5SharedResources.*;
 
 import org.toxsoft.core.tsgui.m5.model.*;
 import org.toxsoft.core.tsgui.m5.model.impl.*;
+import org.toxsoft.core.tsgui.m5.std.models.misc.*;
 import org.toxsoft.core.tslib.av.*;
+import org.toxsoft.core.tslib.bricks.strid.coll.*;
 import org.toxsoft.core.tslib.coll.*;
+import org.toxsoft.core.tslib.gw.*;
 import org.toxsoft.core.tslib.utils.errors.*;
 import org.toxsoft.uskat.base.gui.km5.*;
+import org.toxsoft.uskat.core.api.sysdescr.*;
 import org.toxsoft.uskat.core.api.sysdescr.dto.*;
 import org.toxsoft.uskat.core.connection.*;
 
@@ -49,19 +53,27 @@ public class SdedDtoClassInfoM5Model
   /**
    * Attribute {@link IDtoClassInfo#parentId()}.
    */
-  public final IM5AttributeFieldDef<IDtoClassInfo> PARENT_ID = new M5AttributeFieldDef<>( FID_PARENT_ID, DDEF_STRING ) {
+  public final IM5SingleLookupFieldDef<IDtoClassInfo, String> PARENT_ID =
+      new M5SingleLookupFieldDef<>( FID_PARENT_ID, StringM5Model.MODEL_ID ) {
 
-    @Override
-    protected void doInit() {
-      setNameAndDescription( STR_N_PARENT_ID, STR_D_PARENT_ID );
-      setFlags( M5FF_INVARIANT | M5FF_DETAIL );
-    }
+        @Override
+        protected void doInit() {
+          setNameAndDescription( STR_N_PARENT_ID, STR_D_PARENT_ID );
+          setFlags( M5FF_INVARIANT | M5FF_DETAIL );
+          setDefaultValue( IGwHardConstants.GW_ROOT_CLASS_ID );
+          setLookupProvider( () -> {
+            IStridablesList<ISkClassInfo> llAll = skSysdescr().listClasses();
 
-    protected IAtomicValue doGetFieldValue( IDtoClassInfo aEntity ) {
-      return avStr( aEntity.parentId() );
-    }
+            // TODO Auto-generated method stub
+            return llAll.keys();
+          } );
+        }
 
-  };
+        protected String doGetFieldValue( IDtoClassInfo aEntity ) {
+          return aEntity.parentId();
+        }
+
+      };
 
   /**
    * Attribute {@link IDtoClassInfo#nmName()}.
@@ -239,6 +251,7 @@ public class SdedDtoClassInfoM5Model
    */
   public SdedDtoClassInfoM5Model( ISkConnection aConn ) {
     super( MID_SDED_DTO_CLASS_INFO, IDtoClassInfo.class, aConn );
+    setNameAndDescription( STR_N_M5M_CLASS, STR_D_M5M_CLASS );
     addFieldDefs( CLASS_ID, NAME, PARENT_ID, DESCRIPTION, //
         SELF_ATTR_INFOS, //
         SELF_RIVET_INFOS, //

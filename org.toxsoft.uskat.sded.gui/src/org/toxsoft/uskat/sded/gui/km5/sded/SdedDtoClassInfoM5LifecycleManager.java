@@ -45,7 +45,7 @@ class SdedDtoClassInfoM5LifecycleManager
 
   private IDtoClassInfo makeDtoClassInfo( IM5Bunch<IDtoClassInfo> aValues ) {
     String id = aValues.getAsAv( FID_CLASS_ID ).asString();
-    String parentId = aValues.getAsAv( FID_PARENT_ID ).asString();
+    String parentId = aValues.getAs( FID_PARENT_ID, String.class );
     IOptionSetEdit params = new OptionSet();
     if( aValues.originalEntity() != null ) {
       params.setAll( aValues.originalEntity().params() );
@@ -77,7 +77,7 @@ class SdedDtoClassInfoM5LifecycleManager
     if( !StridUtils.isValidIdPath( id ) ) {
       return ValidationResult.error( FMT_ERR_ID_NOT_IDPATH, id );
     }
-    String parentId = aValues.getAsAv( FID_PARENT_ID ).asString();
+    String parentId = aValues.getAs( FID_PARENT_ID, String.class );
     if( !StridUtils.isValidIdPath( parentId ) ) {
       // FIXME ???
       return ValidationResult.error( FMT_ERR_ID_NOT_IDPATH, parentId );

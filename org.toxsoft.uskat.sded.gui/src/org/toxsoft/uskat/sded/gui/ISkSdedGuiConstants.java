@@ -1,6 +1,12 @@
 package org.toxsoft.uskat.sded.gui;
 
+import static org.toxsoft.core.tsgui.graphics.icons.ITsStdIconIds.*;
+import static org.toxsoft.core.tslib.av.metainfo.IAvMetaConstants.*;
+import static org.toxsoft.uskat.core.ISkHardConstants.*;
+import static org.toxsoft.uskat.sded.gui.km5.ISkSdedKm5SharedResources.*;
+
 import org.eclipse.e4.core.contexts.*;
+import org.toxsoft.core.tsgui.bricks.actions.*;
 import org.toxsoft.core.tsgui.graphics.icons.*;
 
 /**
@@ -10,6 +16,11 @@ import org.toxsoft.core.tsgui.graphics.icons.*;
  */
 @SuppressWarnings( "javadoc" )
 public interface ISkSdedGuiConstants {
+
+  /**
+   * Prefix of SDED IDs.
+   */
+  String SDED_ID = SK_ID + ".sded"; //$NON-NLS-1$
 
   // ------------------------------------------------------------------------------------
   // Icons
@@ -33,6 +44,17 @@ public interface ISkSdedGuiConstants {
   String ICONID_SDED_OBJ_DATA      = "sded-obj-data";     //$NON-NLS-1$
   String ICONID_SDED_OBJ_CMD       = "sded-obj-cmd";      //$NON-NLS-1$
   String ICONID_SDED_OBJ_EVENT     = "sded-obj-event";    //$NON-NLS-1$
+
+  // ------------------------------------------------------------------------------------
+  // Actions
+
+  String ACTID_HIDE_CLAIMED_CLASSES = SDED_ID + ".HideClaimedClasses"; //$NON-NLS-1$
+
+  TsActionDef ACDEF_HIDE_CLAIMED_CLASSES = TsActionDef.ofCheck1( ACTID_HIDE_CLAIMED_CLASSES, //
+      TSID_NAME, STR_N_HIDE_CLAIMED_CLASSES, //
+      TSID_DESCRIPTION, STR_D_HIDE_CLAIMED_CLASSES, //
+      TSID_ICON_ID, ICONID_VIEW_FILTER //
+  );
 
   /**
    * Constants registration.

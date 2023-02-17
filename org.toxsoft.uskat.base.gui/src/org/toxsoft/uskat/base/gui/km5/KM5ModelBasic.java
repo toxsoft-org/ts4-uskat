@@ -15,24 +15,24 @@ import org.toxsoft.uskat.core.connection.*;
 import org.toxsoft.uskat.core.utils.*;
 
 /**
- * Base class of all KM5 modelled Sk-objects.
+ * Base class of all KM5 modeled Sk-objects.
  * <p>
  * This class only declares {@link ISkObject} attributes and introduces an {@link ISkConnected} implementation
  * {@link #skConn()}. This class assumes that the Sk-connection, the same as used in domain must be supplied in
- * constructor to allow easyly write initialization code in subclass constructors. This class does <b>not</b> adds any
+ * constructor to allow easily write initialization code in subclass constructors. This class does <b>not</b> adds any
  * M5-field definition, lifecycle manager or custom GUI panels. Single purpose is to be the very base of other
  * implementations.
  * <p>
- * This class is intended to create M5-models of service classes in {@link M5AbstractCollectionPanel} implemetation like
- * {@link ISkUser} or refbooks, etc. <i>Service classes</i> means classes claimed and owned by Sk-services other that
- * {@link ISkSysdescr}. See {@link ISkSysdescr#determineClassClaimingServiceId(String)}.
+ * This class is intended to create M5-models of service classes in {@link M5AbstractCollectionPanel} implementation
+ * like {@link ISkUser} or refbooks, etc. <i>Service classes</i> means classes claimed and owned by Sk-services other
+ * that {@link ISkSysdescr}. See {@link ISkSysdescr#determineClassClaimingServiceId(String)}.
  * <p>
  * For subject area classes claimed by {@link ISkSysdescr} use {@link KM5ModelGeneric}.
  *
  * @see ISkSysdescr#determineClassClaimingServiceId(String)
  * @see KM5ModelGeneric
  * @author hazard157
- * @param <T> - modelled entity type
+ * @param <T> - modeled entity type
  */
 public class KM5ModelBasic<T extends ISkObject>
     extends KM5ConnectedModelBase<T> {
@@ -78,8 +78,6 @@ public class KM5ModelBasic<T extends ISkObject>
 
   /**
    * Attribute {@link ISkObject#nmName()} - {@link ISkHardConstants#AID_NAME}.
-   * <p>
-   * Никогда не возвращает неотображаемую пустую строку, если имя пустое, то возвращает идентификатор.
    */
   public final KM5AttributeFieldDef<T> NAME = new KM5AttributeFieldDef<>( AID_NAME, DDEF_NAME ) {
 

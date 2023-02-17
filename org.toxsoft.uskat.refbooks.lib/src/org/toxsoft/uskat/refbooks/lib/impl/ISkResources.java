@@ -9,7 +9,7 @@ package org.toxsoft.uskat.refbooks.lib.impl;
 interface ISkResources {
 
   /**
-   * {@link SkRefbookService}
+   * {@link SkExtServiceRefbooks}
    */
   String FMT_ERR_CLASS_IS_REFBOOK_OWNED     = "Класс %s управляется службой справочников";
   String FMT_ERR_OBJ_CLASS_IS_REFBOOK_OWNED = "Объекты класса %s управляются службой справочников";
