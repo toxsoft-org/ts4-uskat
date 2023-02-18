@@ -4,6 +4,7 @@ import org.toxsoft.core.tsgui.bricks.ctx.*;
 import org.toxsoft.core.tsgui.m5.*;
 import org.toxsoft.core.tslib.bricks.events.*;
 import org.toxsoft.core.tslib.bricks.strid.more.*;
+import org.toxsoft.core.tslib.bricks.validator.*;
 import org.toxsoft.core.tslib.coll.*;
 import org.toxsoft.core.tslib.utils.*;
 import org.toxsoft.core.tslib.utils.errors.*;
@@ -120,6 +121,16 @@ public interface ISkConnectionSupplier
   default ISkConnection getConn( IdChain aId ) {
     return allConns().getByKey( aId );
   }
+
+  // ------------------------------------------------------------------------------------
+  // Service support
+
+  /**
+   * Returns the service validator.
+   *
+   * @return {@link ITsValidationSupport}&lt;{@link ISkConnectionSupplierValidator}&gt; - the service validator
+   */
+  ITsValidationSupport<ISkConnectionSupplierValidator> svs();
 
   /**
    * Returns the service eventer.

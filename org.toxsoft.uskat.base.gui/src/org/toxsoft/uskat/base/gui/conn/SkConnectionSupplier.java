@@ -1,11 +1,15 @@
 package org.toxsoft.uskat.base.gui.conn;
 
+import static org.toxsoft.uskat.base.gui.conn.ISkResources.*;
+
 import org.eclipse.e4.core.contexts.*;
 import org.toxsoft.core.tsgui.bricks.ctx.*;
 import org.toxsoft.core.tsgui.bricks.ctx.impl.*;
 import org.toxsoft.core.tsgui.m5.*;
 import org.toxsoft.core.tslib.bricks.events.*;
 import org.toxsoft.core.tslib.bricks.strid.more.*;
+import org.toxsoft.core.tslib.bricks.validator.*;
+import org.toxsoft.core.tslib.bricks.validator.impl.*;
 import org.toxsoft.core.tslib.coll.*;
 import org.toxsoft.core.tslib.coll.helpers.*;
 import org.toxsoft.core.tslib.coll.impl.*;
@@ -23,6 +27,57 @@ import org.toxsoft.uskat.core.impl.*;
 public class SkConnectionSupplier
     implements ISkConnectionSupplier {
 
+  /**
+   * {@link ISkConnectionSupplier#svs()} implementation.
+   *
+   * @author hazard157
+   */
+  static class Svs
+      extends AbstractTsValidationSupport<ISkConnectionSupplierValidator>
+      implements ISkConnectionSupplierValidator {
+
+    @Override
+    public ISkConnectionSupplierValidator validator() {
+      return this;
+    }
+
+    @Override
+    public ValidationResult canSetDefaultConnection( IdChain aKey ) {
+      TsNullArgumentRtException.checkNull( aKey );
+      ValidationResult vr = ValidationResult.SUCCESS;
+      for( ISkConnectionSupplierValidator v : validatorsList() ) {
+        vr = ValidationResult.firstNonOk( vr, v.canSetDefaultConnection( aKey ) );
+      }
+      return vr;
+    }
+
+    @Override
+    public ValidationResult canCreateConnection( IdChain aKey, ITsGuiContext aContext ) {
+      TsNullArgumentRtException.checkNulls( aKey, aContext );
+      ValidationResult vr = ValidationResult.SUCCESS;
+      for( ISkConnectionSupplierValidator v : validatorsList() ) {
+        vr = ValidationResult.firstNonOk( vr, v.canCreateConnection( aKey, aContext ) );
+      }
+      return vr;
+    }
+
+    @Override
+    public ValidationResult canRemoveConnection( IdChain aKey ) {
+      TsNullArgumentRtException.checkNull( aKey );
+      ValidationResult vr = ValidationResult.SUCCESS;
+      for( ISkConnectionSupplierValidator v : validatorsList() ) {
+        vr = ValidationResult.firstNonOk( vr, v.canRemoveConnection( aKey ) );
+      }
+      return vr;
+    }
+
+  }
+
+  /**
+   * {@link ISkConnectionSupplier#eventer()} implementation.
+   *
+   * @author hazard157
+   */
   class Eventer
       extends AbstractTsEventer<ISkConnectionSupplierListener> {
 
@@ -89,6 +144,44 @@ public class SkConnectionSupplier
 
   }
 
+  /**
+   * Builtin validator.
+   */
+  private final ISkConnectionSupplierValidator builtinValidator = new ISkConnectionSupplierValidator() {
+
+    @Override
+    public ValidationResult canSetDefaultConnection( IdChain aKey ) {
+      if( !connsMap.hasKey( aKey ) ) {
+        return ValidationResult.error( FMT_ERR_NO_SUCH_CONN_ID, aKey.canonicalString() );
+      }
+      if( aKey.equals( defKey ) ) {
+        return ValidationResult.warn( FMT_WARN_ALREADY_DEF_CONN, aKey.canonicalString() );
+      }
+      return ValidationResult.SUCCESS;
+    }
+
+    @Override
+    public ValidationResult canRemoveConnection( IdChain aKey ) {
+      if( aKey == IdChain.NULL ) {
+        return ValidationResult.error( MSG_ERR_CANT_REMOVE_NULL_ID );
+      }
+      if( !connsMap.hasKey( aKey ) ) {
+        return ValidationResult.warn( FMT_WARN_NO_SUCH_CONN_ID, aKey.canonicalString() );
+      }
+      return ValidationResult.SUCCESS;
+    }
+
+    @Override
+    public ValidationResult canCreateConnection( IdChain aKey, ITsGuiContext aContext ) {
+      if( connsMap.hasKey( aKey ) ) {
+        return ValidationResult.error( FMT_ERR_CONN_ID_EXISTS, aKey.canonicalString() );
+      }
+      return ValidationResult.SUCCESS;
+    }
+
+  };
+
+  private final Svs     svs     = new Svs();
   private final Eventer eventer = new Eventer();
 
   private final IMapEdit<IdChain, ISkConnection> connsMap = new ElemMap<>();
@@ -104,6 +197,7 @@ public class SkConnectionSupplier
   public SkConnectionSupplier( IEclipseContext aWinContext ) {
     internalReallyCreateConnectionInstance( IdChain.NULL, new TsGuiContext( aWinContext ) );
     defKey = IdChain.NULL;
+    svs.addValidator( builtinValidator );
   }
 
   // ------------------------------------------------------------------------------------
@@ -124,13 +218,12 @@ public class SkConnectionSupplier
 
   @Override
   public ISkConnection defConn() {
-    return connsMap.findByKey( defKey );
+    return connsMap.getByKey( defKey );
   }
 
   @Override
   public ISkConnection setDefaultConnection( IdChain aKey ) {
-    TsNullArgumentRtException.checkNull( aKey );
-    TsItemNotFoundRtException.checkFalse( connsMap.hasKey( aKey ) );
+    TsValidationFailedRtException.checkError( svs.canSetDefaultConnection( aKey ) );
     if( !defKey.equals( aKey ) ) {
       IdChain oldId = defKey;
       defKey = aKey;
@@ -146,9 +239,7 @@ public class SkConnectionSupplier
 
   @Override
   public ISkConnection createConnection( IdChain aKey, ITsGuiContext aContext ) {
-    TsNullArgumentRtException.checkNull( aKey );
-    TsIllegalArgumentRtException.checkTrue( aKey == IdChain.NULL );
-    TsItemAlreadyExistsRtException.checkTrue( connsMap.hasKey( aKey ) );
+    TsValidationFailedRtException.checkError( svs.canCreateConnection( aKey, aContext ) );
     ISkConnection conn = internalReallyCreateConnectionInstance( aKey, aContext );
     eventer.fireEvent( ECrudOp.CREATE, aKey );
     return conn;
@@ -161,8 +252,7 @@ public class SkConnectionSupplier
 
   @Override
   public void removeConnection( IdChain aKey ) {
-    TsNullArgumentRtException.checkNull( aKey );
-    TsIllegalArgumentRtException.checkTrue( aKey == IdChain.NULL );
+    TsValidationFailedRtException.checkError( svs.canRemoveConnection( aKey ) );
     ISkConnection conn = connsMap.findByKey( aKey );
     if( conn == null ) {
       return;
@@ -175,6 +265,11 @@ public class SkConnectionSupplier
       eventer.fireDefChanged( oldId );
     }
     eventer.fireEvent( ECrudOp.CREATE, aKey );
+  }
+
+  @Override
+  public ITsValidationSupport<ISkConnectionSupplierValidator> svs() {
+    return svs;
   }
 
   @Override
