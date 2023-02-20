@@ -6,3 +6,5 @@ encoding//src/org/toxsoft/uskat/core/api/sysdescr/messages_ru_RU.properties=UTF-
 encoding//src/org/toxsoft/uskat/core/api/users/messages.properties=UTF-8
 encoding//src/org/toxsoft/uskat/core/api/users/messages_ka_GE.properties=UTF-8
 encoding//src/org/toxsoft/uskat/core/api/users/messages_ru_RU.properties=UTF-8
+encoding//src/org/toxsoft/uskat/core/backend/metainf/messages_ka_GE.properties=UTF-8
+encoding//src/org/toxsoft/uskat/core/backend/metainf/messages_ru_RU.properties=UTF-8
