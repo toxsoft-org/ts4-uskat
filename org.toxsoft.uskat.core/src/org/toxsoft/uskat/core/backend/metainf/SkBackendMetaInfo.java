@@ -14,13 +14,12 @@ import org.toxsoft.core.tslib.bricks.validator.*;
 import org.toxsoft.core.tslib.coll.primtypes.*;
 import org.toxsoft.core.tslib.coll.primtypes.impl.*;
 import org.toxsoft.core.tslib.utils.errors.*;
-import org.toxsoft.uskat.core.backend.*;
 
 /**
  * {@link ISkBackendMetaInfo} implementation.
  * <p>
  * Class may be instantiated directly or subclass may be created to perform additional checks in
- * {@link #doCheckArguments(ITsContext)}.
+ * {@link #doCheckArguments(ITsContextRo)}.
  *
  * @author hazard157
  */
@@ -30,7 +29,6 @@ public non-sealed class SkBackendMetaInfo
 
   private final IStridablesListEdit<IDataDef>       ops  = new StridablesList<>();
   private final IStringMapEdit<ITsContextRefDef<?>> refs = new StringMap<>();
-  private final ISkBackendProvider                  provider;
 
   /**
    * Constructor.
@@ -38,14 +36,11 @@ public non-sealed class SkBackendMetaInfo
    * @param aId String - provider ID (an IDpath)
    * @param aName String - short name
    * @param aDescription String - description
-   * @param aProvider {@link ISkBackendProvider} - this backend provider
    * @throws TsNullArgumentRtException any argument = <code>null</code>
    * @throws TsIllegalArgumentRtException ID is not an IDpath
    */
-  public SkBackendMetaInfo( String aId, String aName, String aDescription, ISkBackendProvider aProvider ) {
+  public SkBackendMetaInfo( String aId, String aName, String aDescription ) {
     super( aId, aName, aDescription );
-    TsNullArgumentRtException.checkNull( aProvider );
-    provider = aProvider;
   }
 
   // ------------------------------------------------------------------------------------
@@ -63,7 +58,7 @@ public non-sealed class SkBackendMetaInfo
   }
 
   @Override
-  final public ValidationResult checkArguments( ITsContext aArgs ) {
+  final public ValidationResult checkArguments( ITsContextRo aArgs ) {
     TsNullArgumentRtException.checkNull( aArgs );
     // check mandatory option present
     for( IDataDef dd : ops ) {
@@ -103,17 +98,12 @@ public non-sealed class SkBackendMetaInfo
     return doCheckArguments( aArgs );
   }
 
-  @Override
-  public ISkBackendProvider provider() {
-    return provider;
-  }
-
   // ------------------------------------------------------------------------------------
   // To override
   //
 
   /**
-   * The subclass may perform additional checks in {@link #checkArguments(ITsContext)}.
+   * The subclass may perform additional checks in {@link #checkArguments(ITsContextRo)}.
    * <p>
    * <code>aArgs</code> is already checked that has all mandatory options and references of the valid type. Only
    * backend-specific additional checks have to be performed here.
@@ -121,10 +111,10 @@ public non-sealed class SkBackendMetaInfo
    * In the base class simply returns {@link ValidationResult#SUCCESS}, there is no need to call superclass method when
    * overriding.
    *
-   * @param aArgs {@link ITsContext} - the arguments
+   * @param aArgs {@link ITsContextRo} - the arguments
    * @return {@link ValidationResult} - the check result
    */
-  protected ValidationResult doCheckArguments( ITsContext aArgs ) {
+  protected ValidationResult doCheckArguments( ITsContextRo aArgs ) {
     return ValidationResult.SUCCESS;
   }
 

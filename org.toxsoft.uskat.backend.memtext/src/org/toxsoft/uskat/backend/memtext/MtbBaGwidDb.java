@@ -1,7 +1,10 @@
 package org.toxsoft.uskat.backend.memtext;
 
 import org.toxsoft.core.tslib.bricks.strid.more.*;
+import org.toxsoft.core.tslib.bricks.strio.*;
 import org.toxsoft.core.tslib.coll.*;
+import org.toxsoft.core.tslib.coll.primtypes.*;
+import org.toxsoft.core.tslib.coll.primtypes.impl.*;
 import org.toxsoft.core.tslib.gw.gwid.*;
 import org.toxsoft.core.tslib.utils.errors.*;
 import org.toxsoft.uskat.core.backend.*;
@@ -15,6 +18,11 @@ import org.toxsoft.uskat.core.backend.api.*;
 public class MtbBaGwidDb
     extends MtbAbstractAddon
     implements IBaGwidDb {
+
+  /**
+   * CLOBs as "section ID" - "IdChain.canonicalString()" - "CLOB".
+   */
+  private final IStringMapEdit<IStringMapEdit<String>> clobsMap = new StringMap<>();
 
   /**
    * Constructor.
@@ -32,12 +40,22 @@ public class MtbBaGwidDb
 
   @Override
   public void close() {
-    clear();
+    // nop
   }
 
   @Override
   public void clear() {
-    // nop
+    clobsMap.clear();
+  }
+
+  @Override
+  protected void doWrite( IStrioWriter aSw ) {
+    // TODO Auto-generated method stub
+  }
+
+  @Override
+  protected void doRead( IStrioReader aSr ) {
+    // TODO Auto-generated method stub
   }
 
   // ------------------------------------------------------------------------------------

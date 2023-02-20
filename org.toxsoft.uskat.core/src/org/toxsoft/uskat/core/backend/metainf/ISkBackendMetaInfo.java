@@ -7,7 +7,6 @@ import org.toxsoft.core.tslib.bricks.strid.coll.*;
 import org.toxsoft.core.tslib.bricks.validator.*;
 import org.toxsoft.core.tslib.coll.primtypes.*;
 import org.toxsoft.core.tslib.utils.errors.*;
-import org.toxsoft.uskat.core.backend.*;
 import org.toxsoft.uskat.core.backend.api.*;
 import org.toxsoft.uskat.core.connection.*;
 
@@ -37,19 +36,12 @@ public sealed interface ISkBackendMetaInfo
   IStringMap<ITsContextRefDef<?>> argRefs();
 
   /**
-   * Checks the arguments of the Sk-connection openening by the method {@link ISkConnection#open(ITsContextRo)}.
+   * Checks the arguments of the Sk-connection opening by the method {@link ISkConnection#open(ITsContextRo)}.
    *
-   * @param aArgs {@link ITsContext} - the arguments
+   * @param aArgs {@link ITsContextRo} - the arguments
    * @return {@link ValidationResult} - the check result
    * @throws TsNullArgumentRtException any argument = <code>null</code>
    */
-  ValidationResult checkArguments( ITsContext aArgs );
-
-  /**
-   * Returns reference to the backend provider singleton.
-   *
-   * @return {@link ISkBackendProvider} - the backend provider
-   */
-  ISkBackendProvider provider();
+  ValidationResult checkArguments( ITsContextRo aArgs );
 
 }

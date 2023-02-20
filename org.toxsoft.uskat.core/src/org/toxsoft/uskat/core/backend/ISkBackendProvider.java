@@ -2,6 +2,7 @@ package org.toxsoft.uskat.core.backend;
 
 import org.toxsoft.core.tslib.bricks.ctx.*;
 import org.toxsoft.core.tslib.utils.errors.*;
+import org.toxsoft.uskat.core.backend.metainf.*;
 import org.toxsoft.uskat.core.connection.*;
 
 /**
@@ -12,7 +13,14 @@ import org.toxsoft.uskat.core.connection.*;
 public interface ISkBackendProvider {
 
   /**
-   * Cretaes, initializes and returns the instance of the backend.
+   * Returns descriptive meta-information about backend.
+   *
+   * @return {@link ISkBackendMetaInfo} - meta-information about backend
+   */
+  ISkBackendMetaInfo getMetaInfo();
+
+  /**
+   * Creates, initializes and returns the instance of the backend.
    * <p>
    * <code>aArgs</code> is the same argument that is passed to the {@link ISkConnection#open(ITsContextRo)}.
    * <p>

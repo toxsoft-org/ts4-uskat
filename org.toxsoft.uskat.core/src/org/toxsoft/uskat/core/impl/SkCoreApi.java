@@ -3,39 +3,35 @@ package org.toxsoft.uskat.core.impl;
 import static org.toxsoft.uskat.core.impl.ISkCoreConfigConstants.*;
 import static org.toxsoft.uskat.core.impl.ISkResources.*;
 
-import org.toxsoft.core.tslib.av.opset.IOptionSet;
-import org.toxsoft.core.tslib.bricks.ctx.ITsContextRo;
-import org.toxsoft.core.tslib.bricks.events.msg.GtMessage;
-import org.toxsoft.core.tslib.coll.IList;
-import org.toxsoft.core.tslib.coll.IListEdit;
+import org.toxsoft.core.tslib.av.opset.*;
+import org.toxsoft.core.tslib.bricks.ctx.*;
+import org.toxsoft.core.tslib.bricks.events.msg.*;
+import org.toxsoft.core.tslib.bricks.validator.impl.*;
+import org.toxsoft.core.tslib.coll.*;
 import org.toxsoft.core.tslib.coll.derivative.*;
-import org.toxsoft.core.tslib.coll.impl.ElemArrayList;
-import org.toxsoft.core.tslib.coll.primtypes.IStringMap;
-import org.toxsoft.core.tslib.coll.primtypes.IStringMapEdit;
-import org.toxsoft.core.tslib.coll.primtypes.impl.StringMap;
-import org.toxsoft.core.tslib.utils.ICloseable;
+import org.toxsoft.core.tslib.coll.impl.*;
+import org.toxsoft.core.tslib.coll.primtypes.*;
+import org.toxsoft.core.tslib.coll.primtypes.impl.*;
+import org.toxsoft.core.tslib.utils.*;
 import org.toxsoft.core.tslib.utils.errors.*;
-import org.toxsoft.core.tslib.utils.logs.impl.LoggerUtils;
-import org.toxsoft.uskat.core.ISkCoreApi;
-import org.toxsoft.uskat.core.ISkServiceCreator;
-import org.toxsoft.uskat.core.api.ISkService;
-import org.toxsoft.uskat.core.api.clobserv.ISkClobService;
-import org.toxsoft.uskat.core.api.cmdserv.ISkCommandService;
-import org.toxsoft.uskat.core.api.evserv.ISkEventService;
-import org.toxsoft.uskat.core.api.gwids.ISkGwidService;
-import org.toxsoft.uskat.core.api.hqserv.ISkHistoryQueryService;
-import org.toxsoft.uskat.core.api.linkserv.ISkLinkService;
-import org.toxsoft.uskat.core.api.objserv.ISkObjectService;
-import org.toxsoft.uskat.core.api.rtdserv.ISkRtdataService;
-import org.toxsoft.uskat.core.api.sysdescr.ISkSysdescr;
-import org.toxsoft.uskat.core.api.users.ISkUserService;
+import org.toxsoft.core.tslib.utils.logs.impl.*;
+import org.toxsoft.uskat.core.*;
+import org.toxsoft.uskat.core.api.*;
+import org.toxsoft.uskat.core.api.clobserv.*;
+import org.toxsoft.uskat.core.api.cmdserv.*;
+import org.toxsoft.uskat.core.api.evserv.*;
+import org.toxsoft.uskat.core.api.gwids.*;
+import org.toxsoft.uskat.core.api.hqserv.*;
+import org.toxsoft.uskat.core.api.linkserv.*;
+import org.toxsoft.uskat.core.api.objserv.*;
+import org.toxsoft.uskat.core.api.rtdserv.*;
+import org.toxsoft.uskat.core.api.sysdescr.*;
+import org.toxsoft.uskat.core.api.users.*;
 import org.toxsoft.uskat.core.backend.*;
-import org.toxsoft.uskat.core.backend.api.BackendMsgActiveChanged;
-import org.toxsoft.uskat.core.connection.ESkConnState;
-import org.toxsoft.uskat.core.connection.ISkConnection;
-import org.toxsoft.uskat.core.devapi.ICoreL10n;
-import org.toxsoft.uskat.core.devapi.IDevCoreApi;
-import org.toxsoft.uskat.core.devapi.gwiddb.ISkGwidDbService;
+import org.toxsoft.uskat.core.backend.api.*;
+import org.toxsoft.uskat.core.connection.*;
+import org.toxsoft.uskat.core.devapi.*;
+import org.toxsoft.uskat.core.devapi.gwiddb.*;
 
 /**
  * An {@link ISkCoreApi} and {@link IDevCoreApi} implementation.
@@ -106,8 +102,9 @@ public class SkCoreApi
     coreL10n = new CoreL10n( aArgs );
     // create backend
     ISkBackendProvider bp = REFDEF_BACKEND_PROVIDER.getRef( aArgs );
+    TsValidationFailedRtException.checkError( bp.getMetaInfo().checkArguments( aArgs ) );
     backend = bp.createBackend( this, aArgs );
-    // if needed сreate thread-safe queue
+    // if needed create thread-safe queue
     if( ISkBackendHardConstant.OPDEF_SKBI_NEED_THREAD_SAFE_FRONTEND.getValue( backend.getBackendInfo().params() )
         .asBool() ) {
       backendMessageQueue = new SynchronizedQueueWrapper<>( new Queue<>() );

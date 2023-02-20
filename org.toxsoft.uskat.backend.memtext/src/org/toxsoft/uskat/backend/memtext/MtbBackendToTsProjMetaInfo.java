@@ -1,7 +1,7 @@
 package org.toxsoft.uskat.backend.memtext;
 
 import static org.toxsoft.uskat.backend.memtext.ISkResources.*;
-import static org.toxsoft.uskat.backend.memtext.MtbBackendToFile.*;
+import static org.toxsoft.uskat.backend.memtext.MtbBackendToTsProj.*;
 
 import org.toxsoft.core.tslib.bricks.ctx.*;
 import org.toxsoft.core.tslib.bricks.validator.*;
@@ -12,18 +12,17 @@ import org.toxsoft.uskat.core.backend.metainf.*;
  *
  * @author hazard157
  */
-class MtbBackendToFileMetaInfo
+class MtbBackendToTsProjMetaInfo
     extends MtbAbstractMetaInfo {
 
   /**
    * The instance singleton.
    */
-  static final ISkBackendMetaInfo INSTANCE = new MtbBackendToFileMetaInfo();
+  static final ISkBackendMetaInfo INSTANCE = new MtbBackendToTsProjMetaInfo();
 
-  private MtbBackendToFileMetaInfo() {
+  private MtbBackendToTsProjMetaInfo() {
     super( BACKEND_ID, STR_N_BACKEND_MEMTEXT_TO_FILE, STR_D_BACKEND_MEMTEXT_TO_FILE );
-    argOps().add( MtbBackendToFile.OPDEF_FILE_PATH );
-    argOps().add( MtbBackendToFile.OPDEF_AUTO_SAVE_SECS );
+    argOps().add( MtbBackendToTsProj.OPDEF_PDU_ID );
     argOps().add( IBackendMemtextConstants.OPDEF_NOT_STORED_OBJ_CLASS_IDS );
     argOps().add( IBackendMemtextConstants.OPDEF_IS_EVENTS_STORED );
     argOps().add( IBackendMemtextConstants.OPDEF_MAX_EVENTS_COUNT );
@@ -31,12 +30,12 @@ class MtbBackendToFileMetaInfo
     argOps().add( IBackendMemtextConstants.OPDEF_MAX_CMDS_COUNT );
     argOps().add( IBackendMemtextConstants.OPDEF_HISTORY_DEPTH_HOURS );
     argOps().add( IBackendMemtextConstants.OPDEF_CURR_DATA_10MS_TICKS );
+    argRefs().put( MtbBackendToTsProj.REFDEF_PROJECT.refKey(), MtbBackendToTsProj.REFDEF_PROJECT );
   }
 
   @Override
   protected ValidationResult doDoCheckArguments( ITsContextRo aArgs ) {
-    // TODO error if file OPDEF_FILE_PATH is not accessible for writing
-    // TODO warn if file OPDEF_FILE_PATH does not exists
+    // TODO error if file OPDEF_PDU_ID is not an IDpath
     return ValidationResult.SUCCESS;
   }
 

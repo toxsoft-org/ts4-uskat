@@ -19,6 +19,7 @@ import org.toxsoft.core.txtproj.lib.*;
 import org.toxsoft.core.txtproj.lib.impl.*;
 import org.toxsoft.uskat.core.backend.*;
 import org.toxsoft.uskat.core.backend.api.*;
+import org.toxsoft.uskat.core.backend.metainf.*;
 
 /**
  * {@link MtbAbstractBackend} implementation which stores data as {@link IProjDataUnit} in {@link ITsProject}.
@@ -31,7 +32,18 @@ public class MtbBackendToTsProj
   /**
    * The backend provider singleton.
    */
-  public static final ISkBackendProvider PROVIDER = MtbBackendToTsProj::new;
+  public static final ISkBackendProvider PROVIDER = new ISkBackendProvider() {
+
+    @Override
+    public ISkBackendMetaInfo getMetaInfo() {
+      return MtbBackendToTsProjMetaInfo.INSTANCE;
+    }
+
+    @Override
+    public ISkBackend createBackend( ISkFrontendRear aFrontend, ITsContextRo aArgs ) {
+      return new MtbBackendToTsProj( aFrontend, aArgs );
+    }
+  };
 
   /**
    * ID of this backend returned as {@link ISkBackendInfo#id()}.
