@@ -27,13 +27,14 @@ public interface IBackendMemtextConstants {
   // Common for all addons
 
   /**
-   * Backend arg: objects of the listed classs IDs will not be stored.
+   * Backend arg: objects of the listed classes IDs will not be stored.
    * <p>
    * More precisely, objects will be removed on backend close. When backend is working objects are stored in memory.
    */
   IDataDef OPDEF_NOT_STORED_OBJ_CLASS_IDS = DataDef.create( SKB_ID_MEMTEXT + ".NotStoredObjClassIds", VALOBJ, //$NON-NLS-1$
       TSID_NAME, STR_N_NOT_STORED_OBJ_CLASS_IDS, //
       TSID_DESCRIPTION, STR_D_NOT_STORED_OBJ_CLASS_IDS, //
+      TSID_IS_MANDATORY, AV_FALSE, //
       TSID_KEEPER_ID, avStr( StringListKeeper.KEEPER_ID ), //
       TSID_DEFAULT_VALUE, avValobj( IStringList.EMPTY, StringListKeeper.KEEPER, StringListKeeper.KEEPER_ID ) //
   );
@@ -42,11 +43,12 @@ public interface IBackendMemtextConstants {
   // IBaEvents addon
 
   /**
-   * Backend arg: determines if events history is stored permamnently.
+   * Backend arg: determines if events history is stored permanently.
    */
   IDataDef OPDEF_IS_EVENTS_STORED = DataDef.create( SKB_ID_MEMTEXT + ".IsEventsStored", BOOLEAN, //$NON-NLS-1$
       TSID_NAME, STR_N_IS_EVENTS_STORED, //
       TSID_DESCRIPTION, STR_D_IS_EVENTS_STORED, //
+      TSID_IS_MANDATORY, AV_FALSE, //
       TSID_DEFAULT_VALUE, AV_TRUE //
   );
 
@@ -68,6 +70,7 @@ public interface IBackendMemtextConstants {
       TSID_DESCRIPTION, STR_D_MAX_EVENTS_COUNT, //
       TSID_MIN_INCLUSIVE, avInt( MIN_MAX_EVENTS_COUNT ), //
       TSID_MAX_INCLUSIVE, avInt( MAX_MAX_EVENTS_COUNT ), //
+      TSID_IS_MANDATORY, AV_FALSE, //
       TSID_DEFAULT_VALUE, avInt( 86_400 ) //
   );
 
@@ -75,11 +78,12 @@ public interface IBackendMemtextConstants {
   // IBaCommands addon
 
   /**
-   * Backend arg: determines if commands history is stored permamnently.
+   * Backend arg: determines if commands history is stored permanently.
    */
   IDataDef OPDEF_IS_CMDS_STORED = DataDef.create( SKB_ID_MEMTEXT + ".IsCommandsStored", BOOLEAN, //$NON-NLS-1$
       TSID_NAME, STR_N_IS_CMDS_STORED, //
       TSID_DESCRIPTION, STR_D_IS_CMDS_STORED, //
+      TSID_IS_MANDATORY, AV_FALSE, //
       TSID_DEFAULT_VALUE, AV_TRUE //
   );
 
@@ -99,6 +103,7 @@ public interface IBackendMemtextConstants {
   IDataDef OPDEF_MAX_CMDS_COUNT = DataDef.create( SKB_ID_MEMTEXT + ".MaxCommandsCount", INTEGER, //$NON-NLS-1$
       TSID_NAME, STR_N_MAX_CMDS_COUNT, //
       TSID_DESCRIPTION, STR_D_MAX_CMDS_COUNT, //
+      TSID_IS_MANDATORY, AV_FALSE, //
       TSID_MIN_INCLUSIVE, avInt( MIN_MAX_CMDS_COUNT ), //
       TSID_MAX_INCLUSIVE, avInt( MAX_MAX_CMDS_COUNT ), //
       TSID_DEFAULT_VALUE, avInt( 1000 ) //
@@ -123,6 +128,7 @@ public interface IBackendMemtextConstants {
   IDataDef OPDEF_HISTORY_DEPTH_HOURS = DataDef.create( SKB_ID_MEMTEXT + ".HistoryDepthHours", INTEGER, //$NON-NLS-1$
       TSID_NAME, STR_N_HISTORY_DEPTH_HOURS, //
       TSID_DESCRIPTION, STR_D_HISTORY_DEPTH_HOURS, //
+      TSID_IS_MANDATORY, AV_FALSE, //
       TSID_MIN_INCLUSIVE, avInt( MIN_HISTORY_DEPTH_HOURS ), //
       TSID_MAX_INCLUSIVE, avInt( MAX_HISTORY_DEPTH_HOURS ), //
       TSID_DEFAULT_VALUE, avInt( 24 ) // 1 day
@@ -144,6 +150,7 @@ public interface IBackendMemtextConstants {
   IDataDef OPDEF_CURR_DATA_10MS_TICKS = DataDef.create( SKB_ID_MEMTEXT + "CurrDataCheck10MsTicks", INTEGER, //$NON-NLS-1$
       TSID_NAME, STR_N_CURR_DATA_10MS_TICKS, //
       TSID_DESCRIPTION, STR_D_CURR_DATA_10MS_TICKS, //
+      TSID_IS_MANDATORY, AV_FALSE, //
       TSID_MIN_INCLUSIVE, avInt( MIN_CURR_DATA_10MS_TICKS ), //
       TSID_MAX_INCLUSIVE, avInt( MAX_CURR_DATA_10MS_TICKS ), //
       TSID_DEFAULT_VALUE, avInt( 25 ) // 250 msec means 4 times per second

@@ -28,9 +28,9 @@ public non-sealed class SkBackendMetaInfo
     extends Stridable
     implements ISkBackendMetaInfo {
 
-  private final IStridablesListEdit<IDataDef>   ops  = new StridablesList<>();
-  private final IStringMap<ITsContextRefDef<?>> refs = new StringMap<>();
-  private final ISkBackendProvider              provider;
+  private final IStridablesListEdit<IDataDef>       ops  = new StridablesList<>();
+  private final IStringMapEdit<ITsContextRefDef<?>> refs = new StringMap<>();
+  private final ISkBackendProvider                  provider;
 
   /**
    * Constructor.
@@ -58,7 +58,7 @@ public non-sealed class SkBackendMetaInfo
   }
 
   @Override
-  final public IStringMap<ITsContextRefDef<?>> argRefs() {
+  final public IStringMapEdit<ITsContextRefDef<?>> argRefs() {
     return refs;
   }
 

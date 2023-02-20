@@ -38,6 +38,12 @@ interface ISkResources {
   String FMT_ERR_NO_FILE_NAME_SPECIFIED = "Не задан параметр %s: имя текстового файла хранения данных";
 
   /**
+   * {@link MtbBackendToFileMetaInfo}
+   */
+  String STR_N_BACKEND_MEMTEXT_TO_FILE = "Meemtext to file";
+  String STR_D_BACKEND_MEMTEXT_TO_FILE = "USkat data stored as the text file";
+
+  /**
    * {@link MtbBackendToTsProj}
    */
   String STR_N_OP_PDU_ID    = "Раздел проекта";

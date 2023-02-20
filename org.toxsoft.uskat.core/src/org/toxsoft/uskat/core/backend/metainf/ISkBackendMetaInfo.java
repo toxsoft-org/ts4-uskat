@@ -8,13 +8,14 @@ import org.toxsoft.core.tslib.bricks.validator.*;
 import org.toxsoft.core.tslib.coll.primtypes.*;
 import org.toxsoft.core.tslib.utils.errors.*;
 import org.toxsoft.uskat.core.backend.*;
+import org.toxsoft.uskat.core.backend.api.*;
 import org.toxsoft.uskat.core.connection.*;
 
 /**
  * Meta-information about backend usage and creation arguments.
  * <p>
- * The ID {@link #id()} (as well as {@link #nmName()} and {@link #description()}) is used simply to distinguish backends
- * in the multi-backend environments such as SkIDE.
+ * The {@link #id()} must be the same as the {@link ISkBackendInfo#id()}. The name {@link #nmName()} and
+ * {@link #description()} is used simply to distinguish backends in the multi-backend environments such as SkIDE.
  *
  * @author hazard157
  */
