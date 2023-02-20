@@ -12,6 +12,8 @@ interface IS5Resources {
   //
   String STR_N_BACKEND_ADDONS = Messages.getString( "IS5Resources.STR_N_BACKEND_ADDONS" ); //$NON-NLS-1$
   String STR_D_BACKEND_ADDONS = Messages.getString( "IS5Resources.STR_D_BACKEND_ADDONS" ); //$NON-NLS-1$
+  String STR_BACKEND_NAME     = "S5RemoteBackendProvider";                                 //$NON-NLS-1$
+  String STR_BACKEND_DESCR    = "S5RemoteBackendProvider";                                 //$NON-NLS-1$
 
   // ------------------------------------------------------------------------------------
   // Тексты ошибок
