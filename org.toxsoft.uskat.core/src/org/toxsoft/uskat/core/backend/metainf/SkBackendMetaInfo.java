@@ -77,7 +77,7 @@ public non-sealed class SkBackendMetaInfo
     for( IDataDef dd : ops ) {
       if( aArgs.params().hasKey( dd.id() ) ) {
         IAtomicValue opVal = aArgs.params().getValue( dd.id() );
-        if( AvTypeCastRtException.canAssign( dd.atomicType(), opVal.atomicType() ) ) {
+        if( !AvTypeCastRtException.canAssign( dd.atomicType(), opVal.atomicType() ) ) {
           return ValidationResult.error( FMT_ERR_OP_TYPE_MISMATCH, dd.id(), dd.atomicType().id(),
               opVal.atomicType().id() );
         }
