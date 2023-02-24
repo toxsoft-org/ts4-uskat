@@ -6,6 +6,7 @@ import static org.toxsoft.uskat.core.backend.metainf.ISkResources.*;
 import org.toxsoft.core.tslib.av.*;
 import org.toxsoft.core.tslib.av.errors.*;
 import org.toxsoft.core.tslib.av.metainfo.*;
+import org.toxsoft.core.tslib.av.opset.*;
 import org.toxsoft.core.tslib.bricks.ctx.*;
 import org.toxsoft.core.tslib.bricks.strid.coll.*;
 import org.toxsoft.core.tslib.bricks.strid.coll.impl.*;
@@ -58,30 +59,41 @@ public non-sealed class SkBackendMetaInfo
   }
 
   @Override
-  final public ValidationResult checkArguments( ITsContextRo aArgs ) {
-    TsNullArgumentRtException.checkNull( aArgs );
+  public ValidationResult checkOptions( IOptionSet aArgOptions ) {
+    TsNullArgumentRtException.checkNull( aArgOptions );
     // check mandatory option present
     for( IDataDef dd : ops ) {
-      if( dd.isMandatory() && !aArgs.params().hasKey( dd.id() ) ) {
+      if( dd.isMandatory() && !aArgOptions.hasKey( dd.id() ) ) {
         return ValidationResult.error( FMT_ERR_NO_MANDATORY_OP, dd.id(), dd.nmName() );
       }
     }
     // check mandatory references present
     for( ITsContextRefDef<?> rd : refs ) {
-      if( rd.isMandatory() && !aArgs.hasKey( rd.refKey() ) ) {
+      if( rd.isMandatory() && !aArgOptions.hasKey( rd.refKey() ) ) {
         String rdName = DDEF_NAME.getValue( rd.params() ).asString();
         return ValidationResult.error( FMT_ERR_NO_MANDATORY_REF, rd.refKey(), rdName );
       }
     }
     // check option values against defined types
     for( IDataDef dd : ops ) {
-      if( aArgs.params().hasKey( dd.id() ) ) {
-        IAtomicValue opVal = aArgs.params().getValue( dd.id() );
+      if( aArgOptions.hasKey( dd.id() ) ) {
+        IAtomicValue opVal = aArgOptions.getValue( dd.id() );
         if( !AvTypeCastRtException.canAssign( dd.atomicType(), opVal.atomicType() ) ) {
           return ValidationResult.error( FMT_ERR_OP_TYPE_MISMATCH, dd.id(), dd.atomicType().id(),
               opVal.atomicType().id() );
         }
       }
+    }
+    return doCheckOptions( aArgOptions );
+  }
+
+  @Override
+  final public ValidationResult checkArguments( ITsContextRo aArgs ) {
+    TsNullArgumentRtException.checkNull( aArgs );
+    // check options
+    ValidationResult vr = checkOptions( aArgs.params() );
+    if( vr.isError() ) {
+      return vr;
     }
     // check references values against defined types
     for( ITsContextRefDef<?> rd : refs ) {
@@ -95,7 +107,7 @@ public non-sealed class SkBackendMetaInfo
         }
       }
     }
-    return doCheckArguments( aArgs );
+    return ValidationResult.firstNonOk( vr, doCheckArguments( aArgs ) );
   }
 
   // ------------------------------------------------------------------------------------
@@ -103,10 +115,25 @@ public non-sealed class SkBackendMetaInfo
   //
 
   /**
-   * The subclass may perform additional checks in {@link #checkArguments(ITsContextRo)}.
+   * The subclass may perform additional checks in {@link #checkOptions(IOptionSet)}.
    * <p>
    * <code>aArgs</code> is already checked that has all mandatory options and references of the valid type. Only
    * backend-specific additional checks have to be performed here.
+   * <p>
+   * In the base class simply returns {@link ValidationResult#SUCCESS}, there is no need to call superclass method when
+   * overriding.
+   *
+   * @param aArgOptions {@link IOptionSet} - the arguments options
+   * @return {@link ValidationResult} - the check result
+   */
+  protected ValidationResult doCheckOptions( IOptionSet aArgOptions ) {
+    return ValidationResult.SUCCESS;
+  }
+
+  /**
+   * The subclass may perform additional checks in {@link #checkArguments(ITsContextRo)}.
+   * <p>
+   * <code>aArgs</code> is already checked by {@link #checkOptions(IOptionSet)}.
    * <p>
    * In the base class simply returns {@link ValidationResult#SUCCESS}, there is no need to call superclass method when
    * overriding.

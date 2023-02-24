@@ -1,6 +1,7 @@
 package org.toxsoft.uskat.core.backend.metainf;
 
 import org.toxsoft.core.tslib.av.metainfo.*;
+import org.toxsoft.core.tslib.av.opset.*;
 import org.toxsoft.core.tslib.bricks.ctx.*;
 import org.toxsoft.core.tslib.bricks.strid.*;
 import org.toxsoft.core.tslib.bricks.strid.coll.*;
@@ -36,7 +37,18 @@ public sealed interface ISkBackendMetaInfo
   IStringMap<ITsContextRefDef<?>> argRefs();
 
   /**
+   * Checks the argumentoptions of the Sk-connection opening by the method {@link ISkConnection#open(ITsContextRo)}.
+   *
+   * @param aArgOptions {@link IOptionSet} - the arguments options
+   * @return {@link ValidationResult} - the check result
+   * @throws TsNullArgumentRtException any argument = <code>null</code>
+   */
+  ValidationResult checkOptions( IOptionSet aArgOptions );
+
+  /**
    * Checks the arguments of the Sk-connection opening by the method {@link ISkConnection#open(ITsContextRo)}.
+   * <p>
+   * In addition to {@link #checkOptions(IOptionSet)} also checks references in the context, if needed.
    *
    * @param aArgs {@link ITsContextRo} - the arguments
    * @return {@link ValidationResult} - the check result
