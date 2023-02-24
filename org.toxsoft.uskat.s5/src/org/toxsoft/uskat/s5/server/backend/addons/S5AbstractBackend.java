@@ -31,6 +31,7 @@ import org.toxsoft.core.tslib.coll.primtypes.impl.StringMap;
 import org.toxsoft.core.tslib.coll.synch.SynchronizedStringMap;
 import org.toxsoft.core.tslib.gw.skid.Skid;
 import org.toxsoft.core.tslib.utils.errors.TsNullArgumentRtException;
+import org.toxsoft.core.tslib.utils.logs.ELogSeverity;
 import org.toxsoft.core.tslib.utils.logs.ILogger;
 import org.toxsoft.uskat.core.ISkServiceCreator;
 import org.toxsoft.uskat.core.backend.ISkFrontendRear;
@@ -499,7 +500,11 @@ public abstract class S5AbstractBackend<ADDON extends IS5BackendAddon>
    */
   protected final void fireBackendMessage( GtMessage aMessage ) {
     TsNullArgumentRtException.checkNull( aMessage );
-    logger.info( "onBackendMessage recevied: %s", aMessage ); //$NON-NLS-1$
+    // 2023-02-13 mvk иногда в сообщения бывают большие массивы значений (например, результаты отчета)
+    // поэтому вывод в журнал только в отладочном режиме
+    if( logger.isSeverityOn( ELogSeverity.DEBUG ) ) {
+      logger.info( "onBackendMessage recevied: %s", aMessage ); //$NON-NLS-1$
+    }
     lockWrite( frontendLock );
     try {
       for( IS5BackendAddon addon : allAddons ) {
