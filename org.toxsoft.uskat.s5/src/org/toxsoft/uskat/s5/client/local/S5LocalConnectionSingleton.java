@@ -23,6 +23,7 @@ import org.toxsoft.uskat.core.backend.ISkBackend;
 import org.toxsoft.uskat.core.backend.ISkFrontendRear;
 import org.toxsoft.uskat.core.backend.metainf.ISkBackendMetaInfo;
 import org.toxsoft.uskat.core.backend.metainf.SkBackendMetaInfo;
+import org.toxsoft.uskat.core.connection.ESkAuthentificationType;
 import org.toxsoft.uskat.core.connection.ISkConnection;
 import org.toxsoft.uskat.core.impl.ISkCoreConfigConstants;
 import org.toxsoft.uskat.core.impl.SkCoreUtils;
@@ -185,7 +186,7 @@ public class S5LocalConnectionSingleton
   //
   @Override
   public ISkBackendMetaInfo getMetaInfo() {
-    SkBackendMetaInfo retValue = new SkBackendMetaInfo( id(), nmName(), description() );
+    SkBackendMetaInfo retValue = new SkBackendMetaInfo( id(), nmName(), description(), ESkAuthentificationType.NONE );
     retValue.argOps().add( IS5ConnectionParams.OP_LOCAL_NODE );
     retValue.argOps().add( IS5ConnectionParams.OP_LOCAL_MODULE );
     retValue.argOps().add( IS5ConnectionParams.OP_CONNECT_TIMEOUT );

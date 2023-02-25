@@ -7,6 +7,7 @@ import org.toxsoft.core.tslib.utils.errors.TsNullArgumentRtException;
 import org.toxsoft.uskat.core.backend.*;
 import org.toxsoft.uskat.core.backend.metainf.ISkBackendMetaInfo;
 import org.toxsoft.uskat.core.backend.metainf.SkBackendMetaInfo;
+import org.toxsoft.uskat.core.connection.ESkAuthentificationType;
 import org.toxsoft.uskat.s5.client.IS5ConnectionParams;
 
 /**
@@ -33,9 +34,8 @@ public class S5RemoteBackendProvider
   //
   @Override
   public ISkBackendMetaInfo getMetaInfo() {
-    SkBackendMetaInfo retValue = new SkBackendMetaInfo( ID, STR_BACKEND_NAME, STR_BACKEND_DESCR );
-    retValue.argOps().add( IS5ConnectionParams.OP_USERNAME );
-    retValue.argOps().add( IS5ConnectionParams.OP_PASSWORD );
+    SkBackendMetaInfo retValue =
+        new SkBackendMetaInfo( ID, STR_BACKEND_NAME, STR_BACKEND_DESCR, ESkAuthentificationType.SIMPLE );
     retValue.argOps().add( IS5ConnectionParams.OP_HOSTS );
     retValue.argOps().add( IS5ConnectionParams.OP_CONNECT_TIMEOUT );
     retValue.argOps().add( IS5ConnectionParams.OP_FAILURE_TIMEOUT );
