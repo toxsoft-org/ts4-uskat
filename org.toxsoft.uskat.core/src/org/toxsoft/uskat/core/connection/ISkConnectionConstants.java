@@ -8,6 +8,8 @@ import static org.toxsoft.uskat.core.connection.ISkResources.*;
 
 import org.toxsoft.core.tslib.av.impl.*;
 import org.toxsoft.core.tslib.av.metainfo.*;
+import org.toxsoft.core.tslib.bricks.strid.coll.*;
+import org.toxsoft.core.tslib.bricks.strid.coll.impl.*;
 
 /**
  * ISkConnection related constants.
@@ -51,6 +53,14 @@ public interface ISkConnectionConstants {
       TSID_NAME, STR_N_PASSWORD, //
       TSID_DESCRIPTION, STR_D_PASSWORD, //
       TSID_IS_MANDATORY, AV_TRUE //
+  );
+
+  /**
+   * All argument options needed for {@link ESkAuthentificationType#SIMPLE}.
+   */
+  IStridablesList<IDataDef> ALL_SIMPLE_AUTHENTIFICATION_ARGS = new StridablesList<>( //
+      ARGDEF_LOGIN, //
+      ARGDEF_PASSWORD //
   );
 
 }

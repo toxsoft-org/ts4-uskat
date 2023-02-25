@@ -4,6 +4,7 @@ import org.toxsoft.core.tslib.bricks.ctx.*;
 import org.toxsoft.core.tslib.bricks.validator.*;
 import org.toxsoft.core.tslib.utils.errors.*;
 import org.toxsoft.uskat.core.backend.metainf.*;
+import org.toxsoft.uskat.core.connection.*;
 
 /**
  * Base of {@link ISkBackendMetaInfo} implementation for all memtext backends.
@@ -23,7 +24,7 @@ public abstract class MtbAbstractMetaInfo
    * @throws TsIllegalArgumentRtException ID is not an IDpath
    */
   public MtbAbstractMetaInfo( String aId, String aName, String aDescription ) {
-    super( aId, aName, aDescription );
+    super( aId, aName, aDescription, ESkAuthentificationType.NONE );
   }
 
   @Override

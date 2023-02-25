@@ -25,6 +25,7 @@ import org.toxsoft.uskat.core.api.evserv.*;
 import org.toxsoft.uskat.core.api.hqserv.*;
 import org.toxsoft.uskat.core.api.sysdescr.*;
 import org.toxsoft.uskat.core.api.sysdescr.dto.*;
+import org.toxsoft.uskat.core.backend.metainf.*;
 import org.toxsoft.uskat.core.connection.*;
 import org.toxsoft.uskat.core.impl.dto.*;
 
@@ -45,6 +46,7 @@ public class SkCoreUtils {
     TsValobjUtils.registerKeeper( DtoCommandStateChangeInfo.KEEPER_ID, DtoCommandStateChangeInfo.KEEPER );
     TsValobjUtils.registerKeeper( DtoCommand.KEEPER_ID, DtoCommand.KEEPER );
     TsValobjUtils.registerKeeper( DtoCompletedCommand.KEEPER_ID, DtoCompletedCommand.KEEPER );
+    TsValobjUtils.registerKeeper( ESkAuthentificationType.KEEPER_ID, ESkAuthentificationType.KEEPER );
   }
 
   /**

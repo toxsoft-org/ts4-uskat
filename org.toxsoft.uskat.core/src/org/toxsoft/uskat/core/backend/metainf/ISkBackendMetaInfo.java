@@ -37,7 +37,14 @@ public sealed interface ISkBackendMetaInfo
   IStringMap<ITsContextRefDef<?>> argRefs();
 
   /**
-   * Checks the argumentoptions of the Sk-connection opening by the method {@link ISkConnection#open(ITsContextRo)}.
+   * Returns authentification type requred by the backend.
+   *
+   * @return
+   */
+  ESkAuthentificationType getAuthentificationType();
+
+  /**
+   * Checks the argument options of the Sk-connection opening by the method {@link ISkConnection#open(ITsContextRo)}.
    *
    * @param aArgOptions {@link IOptionSet} - the arguments options
    * @return {@link ValidationResult} - the check result

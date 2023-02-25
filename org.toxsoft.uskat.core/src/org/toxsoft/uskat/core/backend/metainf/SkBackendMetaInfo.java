@@ -3,10 +3,9 @@ package org.toxsoft.uskat.core.backend.metainf;
 import static org.toxsoft.core.tslib.av.metainfo.IAvMetaConstants.*;
 import static org.toxsoft.uskat.core.backend.metainf.ISkResources.*;
 
-import org.toxsoft.core.tslib.av.*;
-import org.toxsoft.core.tslib.av.errors.*;
 import org.toxsoft.core.tslib.av.metainfo.*;
 import org.toxsoft.core.tslib.av.opset.*;
+import org.toxsoft.core.tslib.av.opset.impl.*;
 import org.toxsoft.core.tslib.bricks.ctx.*;
 import org.toxsoft.core.tslib.bricks.strid.coll.*;
 import org.toxsoft.core.tslib.bricks.strid.coll.impl.*;
@@ -15,6 +14,7 @@ import org.toxsoft.core.tslib.bricks.validator.*;
 import org.toxsoft.core.tslib.coll.primtypes.*;
 import org.toxsoft.core.tslib.coll.primtypes.impl.*;
 import org.toxsoft.core.tslib.utils.errors.*;
+import org.toxsoft.uskat.core.connection.*;
 
 /**
  * {@link ISkBackendMetaInfo} implementation.
@@ -28,8 +28,9 @@ public non-sealed class SkBackendMetaInfo
     extends Stridable
     implements ISkBackendMetaInfo {
 
-  private final IStridablesListEdit<IDataDef>       ops  = new StridablesList<>();
-  private final IStringMapEdit<ITsContextRefDef<?>> refs = new StringMap<>();
+  private final IStridablesListEdit<IDataDef>       opDefs  = new StridablesList<>();
+  private final IStringMapEdit<ITsContextRefDef<?>> refDefs = new StringMap<>();
+  private final ESkAuthentificationType             authentificationType;
 
   /**
    * Constructor.
@@ -37,11 +38,14 @@ public non-sealed class SkBackendMetaInfo
    * @param aId String - provider ID (an IDpath)
    * @param aName String - short name
    * @param aDescription String - description
+   * @param aAuthType {@link ESkAuthentificationType} - required authentification type
    * @throws TsNullArgumentRtException any argument = <code>null</code>
    * @throws TsIllegalArgumentRtException ID is not an IDpath
    */
-  public SkBackendMetaInfo( String aId, String aName, String aDescription ) {
+  public SkBackendMetaInfo( String aId, String aName, String aDescription, ESkAuthentificationType aAuthType ) {
     super( aId, aName, aDescription );
+    TsNullArgumentRtException.checkNull( aAuthType );
+    authentificationType = aAuthType;
   }
 
   // ------------------------------------------------------------------------------------
@@ -50,41 +54,26 @@ public non-sealed class SkBackendMetaInfo
 
   @Override
   final public IStridablesListEdit<IDataDef> argOps() {
-    return ops;
+    return opDefs;
   }
 
   @Override
   final public IStringMapEdit<ITsContextRefDef<?>> argRefs() {
-    return refs;
+    return refDefs;
+  }
+
+  @Override
+  final public ESkAuthentificationType getAuthentificationType() {
+    return authentificationType;
   }
 
   @Override
   public ValidationResult checkOptions( IOptionSet aArgOptions ) {
-    TsNullArgumentRtException.checkNull( aArgOptions );
-    // check mandatory option present
-    for( IDataDef dd : ops ) {
-      if( dd.isMandatory() && !aArgOptions.hasKey( dd.id() ) ) {
-        return ValidationResult.error( FMT_ERR_NO_MANDATORY_OP, dd.id(), dd.nmName() );
-      }
+    ValidationResult vr = OptionSetUtils.validateOptionSet( aArgOptions, opDefs );
+    if( vr.isError() ) {
+      return vr;
     }
-    // check mandatory references present
-    for( ITsContextRefDef<?> rd : refs ) {
-      if( rd.isMandatory() && !aArgOptions.hasKey( rd.refKey() ) ) {
-        String rdName = DDEF_NAME.getValue( rd.params() ).asString();
-        return ValidationResult.error( FMT_ERR_NO_MANDATORY_REF, rd.refKey(), rdName );
-      }
-    }
-    // check option values against defined types
-    for( IDataDef dd : ops ) {
-      if( aArgOptions.hasKey( dd.id() ) ) {
-        IAtomicValue opVal = aArgOptions.getValue( dd.id() );
-        if( !AvTypeCastRtException.canAssign( dd.atomicType(), opVal.atomicType() ) ) {
-          return ValidationResult.error( FMT_ERR_OP_TYPE_MISMATCH, dd.id(), dd.atomicType().id(),
-              opVal.atomicType().id() );
-        }
-      }
-    }
-    return doCheckOptions( aArgOptions );
+    return ValidationResult.firstNonOk( vr, doCheckOptions( aArgOptions ) );
   }
 
   @Override
@@ -95,8 +84,15 @@ public non-sealed class SkBackendMetaInfo
     if( vr.isError() ) {
       return vr;
     }
+    // check mandatory references present
+    for( ITsContextRefDef<?> rd : refDefs ) {
+      if( rd.isMandatory() && !aArgs.hasKey( rd.refKey() ) ) {
+        String rdName = DDEF_NAME.getValue( rd.params() ).asString();
+        return ValidationResult.error( FMT_ERR_NO_MANDATORY_REF, rd.refKey(), rdName );
+      }
+    }
     // check references values against defined types
-    for( ITsContextRefDef<?> rd : refs ) {
+    for( ITsContextRefDef<?> rd : refDefs ) {
       if( aArgs.hasKey( rd.refKey() ) ) {
         Object ref = aArgs.get( rd.refKey() );
         Class<?> expectedType = rd.refClass();
