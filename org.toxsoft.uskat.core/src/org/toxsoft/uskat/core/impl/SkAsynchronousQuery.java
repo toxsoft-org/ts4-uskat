@@ -12,6 +12,7 @@ import org.toxsoft.core.tslib.bricks.time.impl.TimedList;
 import org.toxsoft.core.tslib.coll.primtypes.IStringMap;
 import org.toxsoft.core.tslib.gw.gwid.Gwid;
 import org.toxsoft.core.tslib.gw.gwid.IGwidList;
+import org.toxsoft.core.tslib.utils.TsLibUtils;
 import org.toxsoft.core.tslib.utils.errors.*;
 import org.toxsoft.core.tslib.utils.logs.impl.LoggerUtils;
 import org.toxsoft.uskat.core.api.hqserv.ESkQueryState;
@@ -34,8 +35,9 @@ public abstract class SkAsynchronousQuery
   private final String                     queryId;
   private final IOptionSet                 options;
   private final SkCoreServHistQueryService service;
-  private final GenericChangeEventer       eventer = new GenericChangeEventer( this );
-  private ESkQueryState                    state   = UNPREPARED;
+  private final GenericChangeEventer       eventer      = new GenericChangeEventer( this );
+  private ESkQueryState                    state        = UNPREPARED;
+  private String                           stateMessage = TsLibUtils.EMPTY_STRING;
 
   private long queryTimestamp = System.currentTimeMillis();
 
@@ -77,6 +79,11 @@ public abstract class SkAsynchronousQuery
       }
     }
     return state;
+  }
+
+  @Override
+  public String stateMessage() {
+    return stateMessage;
   }
 
   @Override
@@ -141,12 +148,13 @@ public abstract class SkAsynchronousQuery
    *
    * @param aValues {@link IStringMap}&lt;{@link ITimedList}&lt;{@link ITemporal}&gt;&gt; - the values map
    * @param aState {@link ESkQueryState} - query state
+   * @param aStateMessage String - query state message
    * @throws TsNullArgumentRtException argument = null
    */
-  void nextData( IStringMap<ITimedList<ITemporal<?>>> aValues, ESkQueryState aState ) {
+  void nextData( IStringMap<ITimedList<ITemporal<?>>> aValues, ESkQueryState aState, String aStateMessage ) {
     TsNullArgumentRtException.checkNulls( aValues, aState );
     doNextData( aValues, aState );
-    changeState( aState );
+    changeState( aState, aStateMessage );
   }
 
   // ------------------------------------------------------------------------------------
@@ -184,11 +192,20 @@ public abstract class SkAsynchronousQuery
    * @throws TsNullArgumentRtException аргумент = nll
    */
   protected final void changeState( ESkQueryState aState ) {
-    TsNullArgumentRtException.checkNull( aState );
-    if( aState == state ) {
-      return;
-    }
+    changeState( aState, TsLibUtils.EMPTY_STRING );
+  }
+
+  /**
+   * Изменить состояние запроса
+   *
+   * @param aState {@link ESkQueryState} новое состояние
+   * @param aStateMessage String текстовая информация по новому состоянию
+   * @throws TsNullArgumentRtException аргумент = nll
+   */
+  protected final void changeState( ESkQueryState aState, String aStateMessage ) {
+    TsNullArgumentRtException.checkNulls( aState, aStateMessage );
     state = aState;
+    stateMessage = aStateMessage;
     eventer.fireChangeEvent();
   }
 

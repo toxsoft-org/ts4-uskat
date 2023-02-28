@@ -2,7 +2,6 @@ package org.toxsoft.uskat.core.backend.api;
 
 import static org.toxsoft.core.tslib.av.EAtomicType.*;
 import static org.toxsoft.core.tslib.av.impl.AvUtils.*;
-import static org.toxsoft.core.tslib.av.metainfo.IAvMetaConstants.*;
 import static org.toxsoft.core.tslib.bricks.strio.IStrioHardConstants.*;
 
 import org.toxsoft.core.tslib.av.temporal.ITemporalAtomicValue;
@@ -18,6 +17,7 @@ import org.toxsoft.core.tslib.bricks.strio.impl.StrioWriter;
 import org.toxsoft.core.tslib.bricks.time.ITimedList;
 import org.toxsoft.core.tslib.bricks.time.impl.TimedList;
 import org.toxsoft.core.tslib.coll.IList;
+import org.toxsoft.core.tslib.coll.impl.ElemLinkedBundleList;
 import org.toxsoft.core.tslib.coll.impl.TsCollectionsUtils;
 import org.toxsoft.core.tslib.coll.primtypes.IStringMap;
 import org.toxsoft.core.tslib.coll.primtypes.IStringMapEdit;
@@ -49,17 +49,19 @@ public class BaMsgQueryNextData
    */
   public static final BaMsgQueryNextData INSTANCE = new BaMsgQueryNextData();
 
-  private static final String ARGID_STATE    = "state";   //$NON-NLS-1$
-  private static final String ARGID_QUERY_ID = "queryId"; //$NON-NLS-1$
-  private static final String ARGID_KIND     = "kind";    //$NON-NLS-1$
-  private static final String ARGID_VALUES   = "values";  //$NON-NLS-1$
+  private static final String ARGID_STATE         = "state";    //$NON-NLS-1$
+  private static final String ARGID_STATE_MESSAGE = "stateMsg"; //$NON-NLS-1$
+  private static final String ARGID_QUERY_ID      = "queryId";  //$NON-NLS-1$
+  private static final String ARGID_KIND          = "kind";     //$NON-NLS-1$
+  private static final String ARGID_VALUES        = "values";   //$NON-NLS-1$
 
   BaMsgQueryNextData() {
     super( ISkHistoryQueryService.SERVICE_ID, MSG_ID );
     defineArgNonValobj( ARGID_QUERY_ID, STRING, true );
     defineArgValobj( ARGID_KIND, EGwidKind.KEEPER_ID, true );
     defineArgNonValobj( ARGID_VALUES, STRING, true );
-    defineArgNonValobj( ARGID_STATE, STRING, false, TSID_DEFAULT_VALUE, AV_FALSE );
+    defineArgNonValobj( ARGID_STATE, STRING, true );
+    defineArgNonValobj( ARGID_STATE_MESSAGE, STRING, true );
   }
 
   /**
@@ -68,11 +70,12 @@ public class BaMsgQueryNextData
    * @param aQueryId String - the query ID
    * @param aValues {@link IStringMap}&lt;{@link IList}&lt;{@link ITemporalAtomicValue}&gt;&gt; - the values map
    * @param aState {@link ESkQueryState} - current query state
+   * @param aStateMessage String - current query state message
    * @return {@link GtMessage} - created instance of the message
    * @throws TsNullArgumentRtException any argument = <code>null</code>
    */
   public GtMessage makeMessageAtomicValues( String aQueryId, IStringMap<IList<ITemporalAtomicValue>> aValues,
-      ESkQueryState aState ) {
+      ESkQueryState aState, String aStateMessage ) {
     StringBuilder sb = new StringBuilder();
     IStrioWriter sw = new StrioWriter( new CharOutputStreamAppendable( sb ) );
     sw.writeChar( CHAR_ARRAY_BEGIN );
@@ -94,7 +97,8 @@ public class BaMsgQueryNextData
         ARGID_QUERY_ID, avStr( aQueryId ), //
         ARGID_KIND, avValobj( EGwidKind.GW_RTDATA ), //
         ARGID_VALUES, sb.toString(), //
-        ARGID_STATE, avValobj( aState ) //
+        ARGID_STATE, avValobj( aState ), //
+        ARGID_STATE_MESSAGE, avStr( aStateMessage ) //
     );
   }
 
@@ -104,10 +108,12 @@ public class BaMsgQueryNextData
    * @param aQueryId String - the query ID
    * @param aValues {@link IStringMap}&lt;{@link IList}&lt;{@link SkEvent}&gt;&gt; - the events map
    * @param aState {@link ESkQueryState} - current query state
+   * @param aStateMessage String - current query state message
    * @return {@link GtMessage} - created instance of the message
    * @throws TsNullArgumentRtException any argument = <code>null</code>
    */
-  public GtMessage makeMessageEvents( String aQueryId, IStringMap<IList<SkEvent>> aValues, ESkQueryState aState ) {
+  public GtMessage makeMessageEvents( String aQueryId, IStringMap<IList<SkEvent>> aValues, ESkQueryState aState,
+      String aStateMessage ) {
     StringBuilder sb = new StringBuilder();
     IStrioWriter sw = new StrioWriter( new CharOutputStreamAppendable( sb ) );
     sw.writeChar( CHAR_ARRAY_BEGIN );
@@ -129,7 +135,8 @@ public class BaMsgQueryNextData
         ARGID_QUERY_ID, avStr( aQueryId ), //
         ARGID_KIND, avValobj( EGwidKind.GW_EVENT ), //
         ARGID_VALUES, sb.toString(), //
-        ARGID_STATE, avValobj( aState ) //
+        ARGID_STATE, avValobj( aState ), //
+        ARGID_STATE_MESSAGE, avStr( aStateMessage ) //
     );
   }
 
@@ -139,11 +146,12 @@ public class BaMsgQueryNextData
    * @param aQueryId String - the query ID
    * @param aValues {@link IStringMap}&lt;{@link IList}&lt;{@link IDtoCompletedCommand}&gt;&gt; - the commands map
    * @param aState {@link ESkQueryState} - current query state
+   * @param aStateMessage String - current query state message
    * @return {@link GtMessage} - created instance of the message
    * @throws TsNullArgumentRtException any argument = <code>null</code>
    */
   public GtMessage makeMessageCommands( String aQueryId, IStringMap<IList<IDtoCompletedCommand>> aValues,
-      ESkQueryState aState ) {
+      ESkQueryState aState, String aStateMessage ) {
     StringBuilder sb = new StringBuilder();
     IStrioWriter sw = new StrioWriter( new CharOutputStreamAppendable( sb ) );
     sw.writeChar( CHAR_ARRAY_BEGIN );
@@ -165,7 +173,8 @@ public class BaMsgQueryNextData
         ARGID_QUERY_ID, avStr( aQueryId ), //
         ARGID_KIND, avValobj( EGwidKind.GW_CMD ), //
         ARGID_VALUES, sb.toString(), //
-        ARGID_STATE, avValobj( aState ) //
+        ARGID_STATE, avValobj( aState ), //
+        ARGID_STATE_MESSAGE, avStr( aStateMessage ) //
     );
   }
 
@@ -183,10 +192,20 @@ public class BaMsgQueryNextData
    * Extracts is state argument from the message.
    *
    * @param aMsg {@link GenericMessage} - the message
-   * @return boolean - argument extracted from the message
+   * @return {@link ESkQueryState} - argument extracted from the message
    */
   public ESkQueryState getState( GenericMessage aMsg ) {
     return getArg( aMsg, ARGID_STATE ).asValobj();
+  }
+
+  /**
+   * Extracts is state message argument from the message.
+   *
+   * @param aMsg {@link GenericMessage} - the message
+   * @return String - argument extracted from the message
+   */
+  public String getStateMessage( GenericMessage aMsg ) {
+    return getArg( aMsg, ARGID_STATE_MESSAGE ).asString();
   }
 
   /**
@@ -274,8 +293,16 @@ public class BaMsgQueryNextData
     return map;
   }
 
-  private static int getBundleCapacity( int aCollectionSize ) {
+  /**
+   * Проводит расчет максимального размера фрагмента (bundle capacity) для коллекций {@link ElemLinkedBundleList} для
+   * эффективного доступа по индексу.
+   *
+   * @param aCollectionSize int размер коллекции
+   * @return int размер фрагмента
+   */
+  public static int getBundleCapacity( int aCollectionSize ) {
     return Math.max( TsCollectionsUtils.MIN_BUNDLE_CAPACITY,
         Math.min( TsCollectionsUtils.MAX_BUNDLE_CAPACITY, aCollectionSize ) );
   }
+
 }

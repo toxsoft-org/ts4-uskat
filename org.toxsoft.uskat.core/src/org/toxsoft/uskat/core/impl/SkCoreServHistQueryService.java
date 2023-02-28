@@ -75,6 +75,7 @@ public class SkCoreServHistQueryService
     }
     EGwidKind kind = BaMsgQueryNextData.INSTANCE.getGwidKind( aMessage );
     ESkQueryState state = BaMsgQueryNextData.INSTANCE.getState( aMessage );
+    String stateMessage = BaMsgQueryNextData.INSTANCE.getStateMessage( aMessage );
     switch( kind ) {
       case GW_ATTR:
       case GW_CLASS:
@@ -92,15 +93,15 @@ public class SkCoreServHistQueryService
         LoggerUtils.defaultLogger().info(
             "SkCoreServHistQueryService.onBackendMessage(...) values read time = %d (msec)", // //$NON-NLS-1$
             Long.valueOf( et - st ) );
-        query.nextData( (IStringMap<ITimedList<ITemporal<?>>>)(Object)values, state );
+        query.nextData( (IStringMap<ITimedList<ITemporal<?>>>)(Object)values, state, stateMessage );
         break;
       case GW_EVENT:
         IStringMap<ITimedList<SkEvent>> events = BaMsgQueryNextData.INSTANCE.getEvents( aMessage );
-        query.nextData( (IStringMap<ITimedList<ITemporal<?>>>)(Object)events, state );
+        query.nextData( (IStringMap<ITimedList<ITemporal<?>>>)(Object)events, state, stateMessage );
         break;
       case GW_CMD:
         IStringMap<ITimedList<IDtoCompletedCommand>> commands = BaMsgQueryNextData.INSTANCE.getCommands( aMessage );
-        query.nextData( (IStringMap<ITimedList<ITemporal<?>>>)(Object)commands, state );
+        query.nextData( (IStringMap<ITimedList<ITemporal<?>>>)(Object)commands, state, stateMessage );
         break;
       default:
         throw new TsNotAllEnumsUsedRtException();

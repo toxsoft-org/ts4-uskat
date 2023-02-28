@@ -44,6 +44,13 @@ public interface ISkAsynchronousQuery
   ESkQueryState state();
 
   /**
+   * Returns current query state message.
+   *
+   * @return String - message. May be is empty
+   */
+  String stateMessage();
+
+  /**
    * Queries the data for the specified time interval.
    * <p>
    * Mathod shall not ba called when {@link #state()} is {@link ESkQueryState#UNPREPARED},
