@@ -9,7 +9,6 @@ import org.toxsoft.core.tslib.coll.impl.ElemMap;
 import org.toxsoft.core.tslib.utils.TsLibUtils;
 import org.toxsoft.core.tslib.utils.errors.*;
 import org.toxsoft.core.tslib.utils.logs.ILogger;
-import org.toxsoft.uskat.s5.server.IS5ImplementConstants;
 
 /**
  * Базовая реализация блокируемого ресурса
@@ -38,7 +37,9 @@ public class S5Lockable {
   /**
    * Таймаут (мсек) попытки захвата блокировки по умолчанию
    */
-  private static long accessTimeoutDefault = IS5ImplementConstants.ACCESS_TIMEOUT_DEFAULT;
+  // TODO: 2023-02-17 mvkd
+  // private static long accessTimeoutDefault = IS5ImplementConstants.ACCESS_TIMEOUT_DEFAULT;
+  private static long accessTimeoutDefault = 30 * 1000;
 
   /**
    * Карта блокировок
@@ -105,7 +106,8 @@ public class S5Lockable {
    */
   public static void setAccessTimeoutDefault( long aTimeout ) {
     TsIllegalArgumentRtException.checkTrue( aTimeout <= 0 );
-    accessTimeoutDefault = aTimeout;
+    // TODO: 2023-02-17 mvkd
+    // accessTimeoutDefault = aTimeout;
   }
 
   // ------------------------------------------------------------------------------------

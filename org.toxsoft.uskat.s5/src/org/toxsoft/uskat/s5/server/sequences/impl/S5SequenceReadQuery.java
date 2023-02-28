@@ -1,14 +1,15 @@
 package org.toxsoft.uskat.s5.server.sequences.impl;
 
 import static org.toxsoft.core.log4j.LoggerWrapper.*;
-import static org.toxsoft.uskat.s5.utils.threads.impl.S5Lockable.*;
 
-import java.sql.Connection;
-import java.sql.Statement;
+import java.sql.*;
+
+import javax.persistence.Version;
 
 import org.toxsoft.core.tslib.bricks.time.IQueryInterval;
 import org.toxsoft.core.tslib.coll.IListEdit;
 import org.toxsoft.core.tslib.coll.impl.ElemArrayList;
+import org.toxsoft.core.tslib.coll.synch.SynchronizedListEdit;
 import org.toxsoft.core.tslib.utils.TsLibUtils;
 import org.toxsoft.core.tslib.utils.errors.TsIllegalArgumentRtException;
 import org.toxsoft.core.tslib.utils.errors.TsNullArgumentRtException;
@@ -16,7 +17,6 @@ import org.toxsoft.core.tslib.utils.logs.ILogger;
 import org.toxsoft.uskat.s5.server.frontend.IS5FrontendRear;
 import org.toxsoft.uskat.s5.server.sequences.IS5SequenceFactory;
 import org.toxsoft.uskat.s5.server.sequences.reader.IS5SequenceReadQuery;
-import org.toxsoft.uskat.s5.utils.threads.impl.S5Lockable;
 
 /**
  * Реализация {@link IS5SequenceReadQuery}
@@ -26,16 +26,16 @@ import org.toxsoft.uskat.s5.utils.threads.impl.S5Lockable;
 final class S5SequenceReadQuery
     implements IS5SequenceReadQuery {
 
-  private final IS5FrontendRear      frontend;
-  private final String               id;
-  private final IQueryInterval       interval;
-  private final IS5SequenceFactory<?>  factory;
-  private final Connection           connection;
-  private final long                 maxExecutionTimeout;
-  private final IListEdit<Statement> statements = new ElemArrayList<>( false );
-  private final S5Lockable           lock       = new S5Lockable();
-  private boolean                    closed;
-  private final ILogger              logger     = getLogger( getClass() );
+  private final IS5FrontendRear       frontend;
+  private final String                id;
+  private final IQueryInterval        interval;
+  private final IS5SequenceFactory<?> factory;
+  private final Connection            connection;
+  private final long                  maxExecutionTimeout;
+  private final IListEdit<Statement>  statements = new SynchronizedListEdit<>( new ElemArrayList<>( false ) );
+  private boolean                     closed;
+  private volatile Thread             thread;
+  private final ILogger               logger     = getLogger( getClass() );
 
   /**
    * Конструктор
@@ -92,18 +92,17 @@ final class S5SequenceReadQuery
   }
 
   @Override
+  public boolean isClosed() {
+    return closed;
+  }
+
+  @Override
   public void addStatement( Statement aStatement ) {
     if( aStatement == null ) {
       throw new TsNullArgumentRtException();
     }
     TsIllegalArgumentRtException.checkTrue( closed );
-    lockWrite( lock );
-    try {
-      statements.add( aStatement );
-    }
-    finally {
-      unlockWrite( lock );
-    }
+    statements.add( aStatement );
   }
 
   @Override
@@ -111,13 +110,14 @@ final class S5SequenceReadQuery
     if( aStatement == null ) {
       throw new TsNullArgumentRtException();
     }
-    lockWrite( lock );
-    try {
-      statements.remove( aStatement );
-    }
-    finally {
-      unlockWrite( lock );
-    }
+    statements.remove( aStatement );
+  }
+
+  @Override
+  @Version
+  public void setThread( Thread aThread ) {
+    TsNullArgumentRtException.checkNull( aThread );
+    thread = aThread;
   }
 
   // ------------------------------------------------------------------------------------
@@ -128,22 +128,25 @@ final class S5SequenceReadQuery
     if( closed ) {
       return;
     }
-    lockWrite( lock );
-    try {
-      closed = true;
-      for( Statement statement : statements ) {
-        try {
-          statement.cancel();
-        }
-        catch( Throwable e ) {
-          logger.error( e );
-        }
+    for( Statement statement : statements.copyTo( new ElemArrayList<>() ) ) {
+      try {
+        statement.cancel();
       }
-      statements.clear();
+      catch( Throwable e ) {
+        logger.error( e );
+      }
     }
-    finally {
-      unlockWrite( lock );
+    try {
+      connection.close();
     }
+    catch( SQLException e ) {
+      logger.error( e );
+    }
+    statements.clear();
+    if( thread != null ) {
+      thread.interrupt();
+    }
+    closed = true;
   }
 
   // ------------------------------------------------------------------------------------

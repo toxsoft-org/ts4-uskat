@@ -11,6 +11,8 @@ import org.toxsoft.core.tslib.coll.impl.ElemArrayList;
 import org.toxsoft.core.tslib.gw.gwid.Gwid;
 import org.toxsoft.core.tslib.utils.errors.*;
 import org.toxsoft.core.tslib.utils.logs.ELogSeverity;
+import org.toxsoft.uskat.s5.server.backend.addons.queries.ES5QueriesConvoyState;
+import org.toxsoft.uskat.s5.server.backend.addons.queries.S5BaQueriesConvoy;
 import org.toxsoft.uskat.s5.server.backend.supports.histdata.IS5HistDataSequence;
 import org.toxsoft.uskat.s5.server.backend.supports.queries.IS5BackendQueriesFunction;
 import org.toxsoft.uskat.s5.server.sequences.*;
@@ -27,6 +29,7 @@ import org.toxsoft.uskat.s5.utils.threads.impl.S5AbstractReadThread;
 public class S5BackendQueriesFunctionThread
     extends S5AbstractReadThread<IList<IList<ITemporal<?>>>> {
 
+  private final S5BaQueriesConvoy                query;
   private final IS5Sequence<?>                   sequence;
   private final IList<IS5BackendQueriesFunction> functions;
   private final IListEdit<IList<ITemporal<?>>>   result;
@@ -34,13 +37,16 @@ public class S5BackendQueriesFunctionThread
   /**
    * Создание асинхронной задачи выполнения функций обработки значений данного
    *
+   * @param aQuery {@link S5BaQueriesConvoy} конвой-объекта запроса
    * @param aSequence {@link IS5HistDataSequence} исходная последовательность данных
    * @param aFunctions {@link IList }&lt;{@link IS5BackendQueriesFunction}&gt; список функций обработки значений
    * @throws TsNullArgumentRtException любой аргумент = null
    * @throws TsIllegalArgumentRtException недопустимый интервал времени
    */
-  public S5BackendQueriesFunctionThread( IS5Sequence<?> aSequence, IList<IS5BackendQueriesFunction> aFunctions ) {
-    TsNullArgumentRtException.checkNulls( aSequence, aFunctions );
+  public S5BackendQueriesFunctionThread( S5BaQueriesConvoy aQuery, IS5Sequence<?> aSequence,
+      IList<IS5BackendQueriesFunction> aFunctions ) {
+    TsNullArgumentRtException.checkNulls( aQuery, aSequence, aFunctions );
+    query = aQuery;
     sequence = aSequence;
     functions = new ElemArrayList<>( aFunctions );
     int count = aFunctions.size();
@@ -77,6 +83,10 @@ public class S5BackendQueriesFunctionThread
       int resultValueCount = 0;
       // Проход по всем функциям поставляя значения блока для обработки
       for( int index = 0; index < count; index++ ) {
+        if( query.state() != ES5QueriesConvoyState.EXECUTING ) {
+          // Запрос был отменен
+          break;
+        }
         // Функция обработки
         IS5BackendQueriesFunction function = functions.get( index );
         // Значения-результат

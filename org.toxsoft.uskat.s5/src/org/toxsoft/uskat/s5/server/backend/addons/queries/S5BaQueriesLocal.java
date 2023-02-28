@@ -1,5 +1,7 @@
 package org.toxsoft.uskat.s5.server.backend.addons.queries;
 
+import static org.toxsoft.uskat.s5.server.backend.addons.queries.IS5Resources.*;
+
 import org.toxsoft.core.tslib.av.opset.IOptionSet;
 import org.toxsoft.core.tslib.bricks.events.msg.GtMessage;
 import org.toxsoft.core.tslib.bricks.time.IQueryInterval;
@@ -94,7 +96,7 @@ class S5BaQueriesLocal
   @Override
   public void cancel( String aQueryId ) {
     TsNullArgumentRtException.checkNull( aQueryId );
-    queriesSupport.cancel( frontend(), aQueryId );
+    queriesSupport.cancel( frontend(), aQueryId, MSG_BY_USER );
   }
 
   @Override

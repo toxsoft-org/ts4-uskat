@@ -60,6 +60,13 @@ public interface IS5SequenceReadQuery
   Connection connection();
 
   /**
+   * Возвращает признак того, выполнение запроса было завершено вызовом {@link #close()}.
+   *
+   * @return <b>true</b> выполнение запроса завершено
+   */
+  boolean isClosed();
+
+  /**
    * Добавление в запрос подзапроса получения данных
    *
    * @param aStatement {@link Statement} подзапрос
@@ -74,4 +81,12 @@ public interface IS5SequenceReadQuery
    * @throws TsNullArgumentRtException аргумент = null
    */
   void removeStatement( Statement aStatement );
+
+  /**
+   * Устанавливает поток в рамках которого выполняется запрос
+   *
+   * @param aThread {@link Thread} поток
+   * @throws TsNullArgumentRtException аргумент = null
+   */
+  void setThread( Thread aThread );
 }

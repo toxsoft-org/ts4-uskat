@@ -1,6 +1,7 @@
 package org.toxsoft.uskat.s5.server.backend.addons.queries;
 
 import static org.toxsoft.uskat.s5.server.IS5ImplementConstants.*;
+import static org.toxsoft.uskat.s5.server.backend.addons.queries.IS5Resources.*;
 
 import java.util.concurrent.TimeUnit;
 
@@ -121,7 +122,7 @@ public class S5BaQueriesSession
   public void cancel( String aQueryId ) {
     TsNullArgumentRtException.checkNull( aQueryId );
     // Отмена запроса
-    queriesSupport.cancel( frontend(), aQueryId );
+    queriesSupport.cancel( frontend(), aQueryId, MSG_BY_USER );
     // Сохранение измененной сессии в кластере сервера
     writeSessionData();
   }

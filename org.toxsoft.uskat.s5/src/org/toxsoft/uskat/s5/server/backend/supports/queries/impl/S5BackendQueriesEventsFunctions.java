@@ -25,6 +25,8 @@ import org.toxsoft.core.tslib.utils.logs.ILogger;
 import org.toxsoft.uskat.core.api.evserv.SkEvent;
 import org.toxsoft.uskat.core.api.hqserv.IDtoQueryParam;
 import org.toxsoft.uskat.core.api.hqserv.filter.SkQueryFilterByEventParam;
+import org.toxsoft.uskat.s5.server.backend.addons.queries.ES5QueriesConvoyState;
+import org.toxsoft.uskat.s5.server.backend.addons.queries.S5BaQueriesConvoy;
 import org.toxsoft.uskat.s5.server.backend.supports.queries.IS5BackendQueriesFunction;
 import org.toxsoft.uskat.s5.server.sequences.IS5SequenceCursor;
 
@@ -56,6 +58,7 @@ class S5BackendQueriesEventsFunctions
     FILTER_REGISTRY.register( SkQueryFilterByEventParam.FACTORY );
   }
 
+  private final S5BaQueriesConvoy            query;
   private final Pair<String, IDtoQueryParam> arg;
   private final Gwid                         dataGwid;
   private final ITimeInterval                interval;
@@ -100,6 +103,7 @@ class S5BackendQueriesEventsFunctions
   /**
    * Конструктор
    *
+   * @param aQuery {@link S5BaQueriesConvoy} конвой-объект запроса
    * @param aParamId String идентификатор параметра
    * @param aArg {@link IDtoQueryParam} агумент запроса
    * @param aInterval {@link ITimeInterval} интервал запрашиваемых данных
@@ -111,10 +115,11 @@ class S5BackendQueriesEventsFunctions
    * @throws TsIllegalArgumentRtException неверный интервал запроса
    * @throws TsIllegalArgumentRtException недопустимый тип значений для агрегации
    */
-  S5BackendQueriesEventsFunctions( String aParamId, IDtoQueryParam aArg, ITimeInterval aInterval,
-      S5BackendQueriesCounter aRawCounter, S5BackendQueriesCounter rawValuesCounter, IOptionSet aOptions,
-      ILogger aLogger ) {
-    TsNullArgumentRtException.checkNulls( aArg, aInterval, rawValuesCounter, aOptions );
+  S5BackendQueriesEventsFunctions( S5BaQueriesConvoy aQuery, String aParamId, IDtoQueryParam aArg,
+      ITimeInterval aInterval, S5BackendQueriesCounter aRawCounter, S5BackendQueriesCounter rawValuesCounter,
+      IOptionSet aOptions, ILogger aLogger ) {
+    TsNullArgumentRtException.checkNulls( aQuery, aArg, aInterval, rawValuesCounter, aOptions );
+    query = aQuery;
     arg = new Pair<>( aParamId, aArg );
     dataGwid = arg.right().dataGwid();
     switch( aArg.funcId() ) {
@@ -193,6 +198,10 @@ class S5BackendQueriesEventsFunctions
     aCursor.setTime( interval.startTime() );
     // Обработка значений курсора
     while( aCursor.hasNextValue() ) {
+      if( query.state() != ES5QueriesConvoyState.EXECUTING ) {
+        // Запрос был отменен
+        break;
+      }
       // Следующее raw-значение последовательности
       SkEvent event = (SkEvent)aCursor.nextValue();
       // Фильтр по идетификатору события

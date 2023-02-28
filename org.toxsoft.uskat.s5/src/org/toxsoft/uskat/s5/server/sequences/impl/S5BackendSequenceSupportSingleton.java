@@ -605,6 +605,7 @@ public abstract class S5BackendSequenceSupportSingleton<S extends IS5Sequence<V>
       IS5SequenceReadQuery query =
           new S5SequenceReadQuery( aFrontend, aQueryId, aInterval, factory, dbConnection, aTimeout );
       readQueries.put( aQueryId, query );
+      logger().info( "readSequences(...): put query. aQueryId = %s", aQueryId ); //$NON-NLS-1$
       try {
         // Исполнитель s5-потоков чтения данных
         S5ReadThreadExecutor<IMap<Gwid, S>> executor = new S5ReadThreadExecutor<>( readExecutor, logger() );
@@ -641,6 +642,7 @@ public abstract class S5BackendSequenceSupportSingleton<S extends IS5Sequence<V>
       }
       finally {
         readQueries.removeByKey( aQueryId );
+        logger().info( "readSequences(...): query is completed. aQueryId = %s", aQueryId ); //$NON-NLS-1$
       }
     }
     catch( SQLException e ) {

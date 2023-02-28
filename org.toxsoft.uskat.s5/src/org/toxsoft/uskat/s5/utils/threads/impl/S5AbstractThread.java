@@ -20,6 +20,7 @@ import org.toxsoft.uskat.s5.utils.threads.IS5ThreadExecutor;
 public abstract class S5AbstractThread<THREAD_TYPE extends IS5Thread>
     implements IS5Thread {
 
+  private Thread                               thread;
   private S5AbstactThreadExecutor<THREAD_TYPE> manager;
   private int                                  threadIndex;
   private volatile EState                      state = EState.WAIT;
@@ -117,6 +118,7 @@ public abstract class S5AbstractThread<THREAD_TYPE extends IS5Thread>
     // TODO: mvkd: 2018-04-10: профилирование показало, что Thread.setName является тяжелым вызовом (30%)
     // Thread.currentThread().setName( format( THREAD_ID_FORMAT, this, Integer.valueOf( threadIndex ) ) );
     startTime = System.currentTimeMillis();
+    thread = Thread.currentThread();
     try {
       EState prevState = trySetState( EState.RUNNING );
       if( prevState != EState.WAIT ) {
@@ -152,6 +154,9 @@ public abstract class S5AbstractThread<THREAD_TYPE extends IS5Thread>
     }
     catch( Throwable e ) {
       error = new S5RuntimeException( e, ERR_THREAD_CANCEL, cause( e ) );
+    }
+    if( thread != null ) {
+      thread.interrupt();
     }
   }
 

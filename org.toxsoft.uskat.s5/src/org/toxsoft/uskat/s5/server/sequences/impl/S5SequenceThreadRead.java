@@ -65,6 +65,8 @@ public class S5SequenceThreadRead<S extends IS5Sequence<V>, V extends ITemporal<
     long traceReadTimeout = 0;
     long traceCreateTimeout = 0;
     try {
+      // Установка потока выполняющего запрос
+      query.setThread( Thread.currentThread() );
       // Чтение блоков
       IMap<Gwid, IList<IS5SequenceBlock<V>>> readBlocks = readBlocks( query, gwids );
       traceReadTimeout = System.currentTimeMillis() - traceTimestamp;

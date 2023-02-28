@@ -102,22 +102,23 @@ public abstract class S5AbstactThreadExecutor<THREAD_TYPE extends IS5Thread>
    *
    * @param aThreadIndex int индекс потока в исполнителе
    */
-  // final synchronized void threadCompleted( int aThreadIndex ) {
   final void threadCompleted( int aThreadIndex ) {
     // Формируем сигнал для разблокирования потоков ожидающих изменения значения state
+    THREAD_TYPE thread = threads.get( aThreadIndex );
+    IS5Thread.EState state = thread.state();
+    // Расчет времени выполнения (для информации)
+    String duration = "???"; //$NON-NLS-1$
+    if( thread.startTime() != TimeUtils.MAX_TIMESTAMP && thread.endTime() != TimeUtils.MAX_TIMESTAMP ) {
+      duration = String.valueOf( thread.endTime() - thread.startTime() );
+    }
+    logger.debug( MSG_THREAD_FINISH, Integer.valueOf( aThreadIndex ), state, duration );
+    if( state == IS5Thread.EState.ERROR && error == null ) {
+      // При выполнении потока произошла ошибка. Запоминаем первую чтобы выдать ее при завершении работы исполнителя
+      error = thread.error();
+      // Требуем завершить работу всех потоков
+      cancelThreads();
+    }
     synchronized (completedCountSignal) {
-      THREAD_TYPE thread = threads.get( aThreadIndex );
-      IS5Thread.EState state = thread.state();
-      // Расчет времени выполнения (для информации)
-      String duration = "???"; //$NON-NLS-1$
-      if( thread.startTime() != TimeUtils.MAX_TIMESTAMP && thread.endTime() != TimeUtils.MAX_TIMESTAMP ) {
-        duration = String.valueOf( thread.endTime() - thread.startTime() );
-      }
-      logger.debug( MSG_THREAD_FINISH, Integer.valueOf( aThreadIndex ), state, duration );
-      if( state == IS5Thread.EState.ERROR && error == null ) {
-        // При выполнении потока произошла ошибка. Запоминаем первую чтобы выдать ее при завершении работы исполнителя
-        error = thread.error();
-      }
       completedCount++;
       if( completed() || (throwable && error != null) ) {
         // Завершение работы если все потоки завершили работу или в потоке поизошла ошибка и включен режим throwable
@@ -222,9 +223,10 @@ public abstract class S5AbstactThreadExecutor<THREAD_TYPE extends IS5Thread>
         while( !completed() ) {
           try {
             completedCountSignal.wait( 1000 );
-            logger.debug( MSG_THREADS_STATE, rtc, Long.valueOf( threadCompletedCount() ) );
+            logger.warning( MSG_THREADS_STATE, rtc, Long.valueOf( threadCompletedCount() ) );
           }
           catch( InterruptedException e ) {
+            cancelThreads();
             logger.error( e );
           }
         }
@@ -246,15 +248,22 @@ public abstract class S5AbstactThreadExecutor<THREAD_TYPE extends IS5Thread>
       return;
     }
     closed = true;
-    // Проходим по всем потокам и отменить выполнение
-    for( int index = 0, n = threads.size(); index < n; index++ ) {
-      threads.get( index ).cancel();
-    }
+    // Завершение работы потоков
+    cancelThreads();
     // Проходим по всем потокам и требуем завершить выполнение
     for( int index = 0, n = threads.size(); index < n; index++ ) {
       threads.get( index ).close();
     }
     doClose();
     logger.debug( MSG_THREAD_MANAGER_FINISH );
+  }
+
+  /**
+   * Посылает всем потокам сигнал об отмене выполнения
+   */
+  private void cancelThreads() {
+    for( int index = 0, n = threads.size(); index < n; index++ ) {
+      threads.get( index ).cancel();
+    }
   }
 }

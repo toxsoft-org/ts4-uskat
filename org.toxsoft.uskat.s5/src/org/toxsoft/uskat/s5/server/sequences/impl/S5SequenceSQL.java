@@ -768,6 +768,13 @@ class S5SequenceSQL {
     try {
       Connection connection = aQuery.connection();
       try( Statement statement = connection.createStatement(); ) {
+        if( aQuery.isClosed() ) {
+          // Выполнение запроса было отменено
+          return IMap.EMPTY;
+        }
+        if( aQuery.maxExecutionTimeout() > 1000 ) {
+          // statement.setQueryTimeout( (int)(aQuery.maxExecutionTimeout() / 1000) );
+        }
         aQuery.addStatement( statement );
         try {
           try( ResultSet rs = statement.executeQuery( sql ); ) {
@@ -777,9 +784,6 @@ class S5SequenceSQL {
             // statement.setPoolable( false );
             // statement.setMaxRows( infoCount );
             // statement.setFetchSize( infoCount );
-            if( aQuery.maxExecutionTimeout() > 1000 ) {
-              statement.setQueryTimeout( (int)(aQuery.maxExecutionTimeout() / 1000) );
-            }
             // 2022-10-09 mvk
             // for( boolean hasData = rs.first(); hasData; hasData = rs.next() ) {
             while( rs.next() ) {
@@ -811,6 +815,7 @@ class S5SequenceSQL {
         finally {
           aQuery.removeStatement( statement );
         }
+
       }
       // Формирование результата
       IMapEdit<Gwid, IListEdit<IS5SequenceBlock<V>>> retValue = new ElemMap<>();

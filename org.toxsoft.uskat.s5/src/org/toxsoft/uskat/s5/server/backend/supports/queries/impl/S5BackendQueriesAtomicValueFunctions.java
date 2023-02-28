@@ -25,6 +25,8 @@ import org.toxsoft.core.tslib.utils.errors.*;
 import org.toxsoft.core.tslib.utils.logs.ELogSeverity;
 import org.toxsoft.core.tslib.utils.logs.ILogger;
 import org.toxsoft.uskat.core.api.hqserv.IDtoQueryParam;
+import org.toxsoft.uskat.s5.server.backend.addons.queries.ES5QueriesConvoyState;
+import org.toxsoft.uskat.s5.server.backend.addons.queries.S5BaQueriesConvoy;
 import org.toxsoft.uskat.s5.server.backend.supports.queries.IS5BackendQueriesFunction;
 import org.toxsoft.uskat.s5.server.sequences.IS5SequenceCursor;
 
@@ -56,6 +58,7 @@ class S5BackendQueriesAtomicValueFunctions
     FILTER_REGISTRY.register( StdFilterAtimicValueVsConst.FACTORY );
   }
 
+  private final S5BaQueriesConvoy               query;
   private final Pair<String, IDtoQueryParam>    arg;
   private final EAtomicType                     type;
   private final ITimeInterval                   interval;
@@ -99,6 +102,7 @@ class S5BackendQueriesAtomicValueFunctions
   /**
    * Конструктор
    *
+   * @param aQuery {@link S5BaQueriesConvoy} конвой-объект запроса
    * @param aParamId String идентификатор параметра
    * @param aArg {@link IDtoQueryParam} агумент запроса
    * @param aType тип значений
@@ -111,10 +115,11 @@ class S5BackendQueriesAtomicValueFunctions
    * @throws TsIllegalArgumentRtException неверный интервал запроса
    * @throws TsIllegalArgumentRtException недопустимый тип значений для агрегации
    */
-  S5BackendQueriesAtomicValueFunctions( String aParamId, IDtoQueryParam aArg, EAtomicType aType,
-      ITimeInterval aInterval, S5BackendQueriesCounter aRawCounter, S5BackendQueriesCounter rawValuesCounter,
-      IOptionSet aOptions, ILogger aLogger ) {
-    TsNullArgumentRtException.checkNulls( aArg, aType, aInterval, rawValuesCounter, aOptions );
+  S5BackendQueriesAtomicValueFunctions( S5BaQueriesConvoy aQuery, String aParamId, IDtoQueryParam aArg,
+      EAtomicType aType, ITimeInterval aInterval, S5BackendQueriesCounter aRawCounter,
+      S5BackendQueriesCounter rawValuesCounter, IOptionSet aOptions, ILogger aLogger ) {
+    TsNullArgumentRtException.checkNulls( aQuery, aArg, aType, aInterval, rawValuesCounter, aOptions );
+    query = aQuery;
     arg = new Pair<>( aParamId, aArg );
     switch( aArg.funcId() ) {
       case EMPTY_STRING:
@@ -203,6 +208,10 @@ class S5BackendQueriesAtomicValueFunctions
     aCursor.setTime( interval.startTime() );
     // Обработка значений курсора
     while( aCursor.hasNextValue() ) {
+      if( query.state() != ES5QueriesConvoyState.EXECUTING ) {
+        // Запрос был отменен
+        break;
+      }
       // Следующее raw-значение последовательности
       ITemporalAtomicValue value = (ITemporalAtomicValue)aCursor.nextValue();
       // Признак того, что значение было допущено фильтрами для обработки

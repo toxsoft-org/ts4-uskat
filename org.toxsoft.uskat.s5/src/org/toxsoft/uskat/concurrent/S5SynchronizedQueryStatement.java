@@ -104,6 +104,17 @@ public final class S5SynchronizedQueryStatement
   }
 
   @Override
+  public String stateMessage() {
+    lockWrite( this );
+    try {
+      return target().stateMessage();
+    }
+    finally {
+      unlockWrite( this );
+    }
+  }
+
+  @Override
   public void prepare( String aSkatQl, IStringMap<IAtomicValue> aArgs ) {
     lockWrite( this );
     try {

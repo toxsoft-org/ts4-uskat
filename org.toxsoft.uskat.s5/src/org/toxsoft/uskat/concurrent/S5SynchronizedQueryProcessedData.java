@@ -102,6 +102,17 @@ public final class S5SynchronizedQueryProcessedData
   }
 
   @Override
+  public String stateMessage() {
+    lockWrite( this );
+    try {
+      return target().stateMessage();
+    }
+    finally {
+      unlockWrite( this );
+    }
+  }
+
+  @Override
   public void exec( IQueryInterval aQueryInterval ) {
     lockWrite( this );
     try {

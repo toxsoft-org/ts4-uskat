@@ -105,6 +105,17 @@ public final class S5SynchronizedQueryRawHistory
   }
 
   @Override
+  public String stateMessage() {
+    lockWrite( this );
+    try {
+      return target().stateMessage();
+    }
+    finally {
+      unlockWrite( this );
+    }
+  }
+
+  @Override
   public IGwidList listGwids() {
     lockWrite( this );
     try {

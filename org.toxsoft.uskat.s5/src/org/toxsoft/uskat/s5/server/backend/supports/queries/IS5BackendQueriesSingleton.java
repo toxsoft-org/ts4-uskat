@@ -72,8 +72,9 @@ public interface IS5BackendQueriesSingleton
    *
    * @param aFrontend {@link IS5FrontendRear} query frontend.
    * @param aQueryId String - the query ID
+   * @param aReason String - reason of query cancel
    */
-  void cancel( IS5FrontendRear aFrontend, String aQueryId );
+  void cancel( IS5FrontendRear aFrontend, String aQueryId, String aReason );
 
   /**
    * Closes the open query/statement.
