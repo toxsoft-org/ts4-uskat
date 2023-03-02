@@ -176,7 +176,7 @@ public class S5BackendQueriesSingleton
           // Признак того что запрос находится в выполнении
           boolean processing = (convoy.state() == ES5QueriesConvoyState.EXECUTING);
           // Проверка превышения времени выполнения запроса
-          if( processing && currTime - convoy.createTime() > timeout ) {
+          if( timeout > 0 && processing && currTime - convoy.createTime() > timeout ) {
             if( closingQueriesMap == null ) {
               closingQueriesMap = new ElemMap<>();
             }
