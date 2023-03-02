@@ -50,21 +50,25 @@ public class SkQueryProgressDialogUtils {
       public int open() {
         Thread thread = new Thread( () -> {
           aShell.getDisplay().asyncExec( () -> {
-            progressIndicator.beginTask( 100 );
-          } );
-          long sleep = aTimeout / 100;
-          for( int index = 0; index < 100; index++ ) {
-            aShell.getDisplay().asyncExec( () -> {
-              if( progressIndicator.isDisposed() ) {
-                return;
-              }
-              progressIndicator.worked( 1 );
-            } );
-            try {
-              Thread.sleep( sleep );
+            if( aTimeout >= 0 ) {
+              progressIndicator.beginTask( 1000 );
             }
-            catch( InterruptedException e ) {
-              LoggerUtils.errorLogger().error( e );
+          } );
+          if( aTimeout >= 0 ) {
+            long sleep = aTimeout / 1000;
+            for( int index = 0; index < 1000; index++ ) {
+              aShell.getDisplay().asyncExec( () -> {
+                if( progressIndicator.isDisposed() ) {
+                  return;
+                }
+                progressIndicator.worked( 1 );
+              } );
+              try {
+                Thread.sleep( sleep );
+              }
+              catch( InterruptedException e ) {
+                LoggerUtils.errorLogger().error( e );
+              }
             }
           }
         } );
