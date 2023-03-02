@@ -23,7 +23,7 @@ import org.toxsoft.uskat.s5.server.backend.messages.*;
 import org.toxsoft.uskat.s5.server.sessions.*;
 
 /**
- * Локальный s5-backend
+ * Локальный s5-backend.
  *
  * @author mvk
  */
