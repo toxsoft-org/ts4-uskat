@@ -37,7 +37,7 @@ public final class S5BackendLocal
   public static final String BACKEND_ID = ISkBackendHardConstant.SKB_ID + ".s5.local"; //$NON-NLS-1$
 
   /**
-   * Синглетон реализующий бекенд
+   * Синглетон реализующий бекенд.
    */
   private final IS5BackendCoreSingleton backendSingleton;
 
