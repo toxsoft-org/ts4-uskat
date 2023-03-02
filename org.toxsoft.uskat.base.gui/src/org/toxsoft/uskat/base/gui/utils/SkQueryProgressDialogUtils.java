@@ -53,6 +53,9 @@ public class SkQueryProgressDialogUtils {
             if( aTimeout >= 0 ) {
               progressIndicator.beginTask( 1000 );
             }
+            else {
+              progressIndicator.beginAnimatedTask();
+            }
           } );
           if( aTimeout >= 0 ) {
             long sleep = aTimeout / 1000;
