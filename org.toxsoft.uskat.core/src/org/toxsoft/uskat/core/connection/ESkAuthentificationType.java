@@ -3,6 +3,7 @@ package org.toxsoft.uskat.core.connection;
 import static org.toxsoft.uskat.core.connection.ISkConnectionConstants.*;
 import static org.toxsoft.uskat.core.connection.ISkResources.*;
 
+import org.toxsoft.core.tslib.av.metainfo.*;
 import org.toxsoft.core.tslib.av.opset.*;
 import org.toxsoft.core.tslib.av.opset.impl.*;
 import org.toxsoft.core.tslib.bricks.keeper.*;
@@ -25,13 +26,13 @@ public enum ESkAuthentificationType
    * No authentification required.
    */
   NONE( "none", STR_N_SAT_NONE, STR_N_SAT_NONE, //$NON-NLS-1$
-      ITsValidator.PASS ),
+      IStridablesList.EMPTY ),
 
   /**
    * Simple authentification using login and password.
    */
   SIMPLE( "simple", STR_N_SAT_SIMPLE, STR_N_SAT_SIMPLE, //$NON-NLS-1$
-      ops -> OptionSetUtils.validateOptionSet( ops, ALL_SIMPLE_AUTHENTIFICATION_ARGS ) ),
+      ALL_SIMPLE_AUTHENTIFICATION_ARGS ),
 
   ;
 
@@ -48,16 +49,16 @@ public enum ESkAuthentificationType
 
   private static IStridablesListEdit<ESkAuthentificationType> list = null;
 
-  private final String                   id;
-  private final String                   name;
-  private final String                   description;
-  private final ITsValidator<IOptionSet> validator;
+  private final String                    id;
+  private final String                    name;
+  private final String                    description;
+  private final IStridablesList<IDataDef> optionDefs;
 
-  ESkAuthentificationType( String aId, String aName, String aDescription, ITsValidator<IOptionSet> aValidator ) {
+  ESkAuthentificationType( String aId, String aName, String aDescription, IStridablesList<IDataDef> aOptions ) {
     id = aId;
     name = aName;
     description = aDescription;
-    validator = aValidator;
+    optionDefs = aOptions;
   }
 
   // --------------------------------------------------------------------------
@@ -86,12 +87,21 @@ public enum ESkAuthentificationType
   @Override
   public ValidationResult validate( IOptionSet aValue ) {
     TsNullArgumentRtException.checkNull( aValue );
-    return validator.validate( aValue );
+    return OptionSetUtils.validateOptionSet( aValue, optionDefs );
   }
 
   // ----------------------------------------------------------------------------------
   // API
   //
+
+  /**
+   * Returns the definitions of the options needed for this authentification type.
+   *
+   * @return {@link IStridablesList}&lt;{@link IDataDef}&gt; - authentification option defs
+   */
+  public IStridablesList<IDataDef> authentificationOptionDefs() {
+    return optionDefs;
+  }
 
   /**
    * Returns all constants in single list.

@@ -219,12 +219,7 @@ class CoreL10n
    * @param aArgs {@link ITsContextRo} - аргументы установления соединения
    */
   public CoreL10n( ITsContextRo aArgs ) {
-    if( aArgs.params().hasValue( OPDEF_LOCALE ) ) {
-      locale = OPDEF_LOCALE.getValue( aArgs.params() ).asValobj();
-    }
-    else {
-      locale = Locale.getDefault();
-    }
+    locale = aArgs.params().getValue( OPDEF_LOCALE.id(), avValobj( Locale.getDefault() ) ).asValobj();
     String strRootDir = OPDEF_L10N_FILES_DIR.getValue( aArgs.params() ).asString();
     l10nFilesRoot = new File( strRootDir );
     // проверим наличие нужной директории локали
