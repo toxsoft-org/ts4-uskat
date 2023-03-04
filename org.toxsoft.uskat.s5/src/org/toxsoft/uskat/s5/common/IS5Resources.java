@@ -30,4 +30,9 @@ interface IS5Resources {
   String ERR_TRY_LOCK                  = Messages.getString( "IS5Resources.ERR_TRY_LOCK" );                  //$NON-NLS-1$
   String ERR_FRONTEND_CALLER_INTERRUPT = Messages.getString( "IS5Resources.ERR_FRONTEND_CALLER_INTERRUPT" ); //$NON-NLS-1$
   String ERR_DOJOB_THREAD_INTERRUPT    = Messages.getString( "IS5Resources.ERR_DOJOB_THREAD_INTERRUPT" );    //$NON-NLS-1$
+
+  String MSG_ERR_BLANK_ADDRESS   = Messages.getString( "MSG_ERR_BLANK_ADDRESS" );   //$NON-NLS-1$
+  String FMT_ERR_INV_ADDRESS_URL = Messages.getString( "FMT_ERR_INV_ADDRESS_URL" ); //$NON-NLS-1$
+  String FMT_ERR_INV_PORN_NO     = Messages.getString( "FMT_ERR_INV_PORN_NO" );     //$NON-NLS-1$
+
 }
