@@ -2,14 +2,13 @@ package org.toxsoft.uskat.s5.common;
 
 import static org.toxsoft.core.tslib.bricks.strio.IStrioHardConstants.*;
 
-import org.toxsoft.core.tslib.bricks.keeper.AbstractEntityKeeper;
-import org.toxsoft.core.tslib.bricks.keeper.AbstractEntityKeeper.EEncloseMode;
-import org.toxsoft.core.tslib.bricks.keeper.IEntityKeeper;
-import org.toxsoft.core.tslib.bricks.strio.IStrioReader;
-import org.toxsoft.core.tslib.bricks.strio.IStrioWriter;
-import org.toxsoft.core.tslib.coll.impl.ElemLinkedList;
-import org.toxsoft.core.tslib.utils.errors.TsNullArgumentRtException;
-import org.toxsoft.core.tslib.utils.valobj.TsValobjUtils;
+import org.toxsoft.core.tslib.bricks.keeper.*;
+import org.toxsoft.core.tslib.bricks.keeper.AbstractEntityKeeper.*;
+import org.toxsoft.core.tslib.bricks.strio.*;
+import org.toxsoft.core.tslib.coll.*;
+import org.toxsoft.core.tslib.coll.impl.*;
+import org.toxsoft.core.tslib.utils.errors.*;
+import org.toxsoft.core.tslib.utils.valobj.*;
 
 /**
  * Список {@link S5Host}
@@ -62,6 +61,23 @@ public final class S5HostList
           return result;
         }
       };
+
+  /**
+   * Constructor.
+   */
+  public S5HostList() {
+    // nop
+  }
+
+  /**
+   * The copy constructor.
+   *
+   * @param aSource {@link IList}&lt;{@link S5Host}&gt; - the list of hosts
+   * @throws TsNullArgumentRtException any argument = <code>null</code>
+   */
+  public S5HostList( IList<S5Host> aSource ) {
+    setAll( aSource );
+  }
 
   /**
    * Возвращает текстовое представление описания хостов
