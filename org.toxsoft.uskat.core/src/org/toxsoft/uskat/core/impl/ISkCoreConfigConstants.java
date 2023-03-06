@@ -6,18 +6,20 @@ import static org.toxsoft.core.tslib.av.metainfo.IAvMetaConstants.*;
 import static org.toxsoft.uskat.core.ISkHardConstants.*;
 import static org.toxsoft.uskat.core.impl.ISkResources.*;
 
-import org.toxsoft.core.tslib.av.impl.DataDef;
-import org.toxsoft.core.tslib.av.metainfo.IDataDef;
-import org.toxsoft.core.tslib.bricks.ctx.ITsContextRefDef;
-import org.toxsoft.core.tslib.bricks.ctx.ITsContextRo;
-import org.toxsoft.core.tslib.bricks.ctx.impl.TsContextRefDef;
-import org.toxsoft.core.tslib.bricks.keeper.std.LocaleKeeper;
-import org.toxsoft.core.tslib.coll.IList;
-import org.toxsoft.core.tslib.utils.logs.ELogSeverity;
-import org.toxsoft.uskat.core.ISkCoreApi;
-import org.toxsoft.uskat.core.ISkServiceCreator;
-import org.toxsoft.uskat.core.backend.ISkBackendProvider;
-import org.toxsoft.uskat.core.connection.ISkConnection;
+import java.util.*;
+
+import org.toxsoft.core.tslib.av.impl.*;
+import org.toxsoft.core.tslib.av.metainfo.*;
+import org.toxsoft.core.tslib.bricks.ctx.*;
+import org.toxsoft.core.tslib.bricks.ctx.impl.*;
+import org.toxsoft.core.tslib.bricks.keeper.std.*;
+import org.toxsoft.core.tslib.bricks.strid.coll.*;
+import org.toxsoft.core.tslib.bricks.strid.coll.impl.*;
+import org.toxsoft.core.tslib.coll.*;
+import org.toxsoft.core.tslib.utils.logs.*;
+import org.toxsoft.uskat.core.*;
+import org.toxsoft.uskat.core.backend.*;
+import org.toxsoft.uskat.core.connection.*;
 
 /**
  * USkat core implementation-specific constants and options.
@@ -47,7 +49,8 @@ public interface ISkCoreConfigConstants {
   IDataDef OPDEF_LOCALE = DataDef.create( SK_ID + "Locale", VALOBJ, //$NON-NLS-1$
       TSID_NAME, STR_N_OP_LOCALE, //
       TSID_DESCRIPTION, STR_N_OP_LOCALE, //
-      TSID_KEEPER_ID, LocaleKeeper.KEEPER_ID //
+      TSID_KEEPER_ID, LocaleKeeper.KEEPER_ID, //
+      TSID_DEFAULT_VALUE, avValobj( Locale.getDefault(), LocaleKeeper.KEEPER, LocaleKeeper.KEEPER_ID ) //
   );
 
   /**
@@ -61,6 +64,15 @@ public interface ISkCoreConfigConstants {
       TSID_DESCRIPTION, STR_N_OP_DEF_CORE_LOG_SEVERITY, //
       TSID_KEEPER_ID, ELogSeverity.KEEPER_ID, //
       TSID_DEFAULT_VALUE, avValobj( ELogSeverity.DEBUG, ELogSeverity.KEEPER, ELogSeverity.KEEPER_ID ) //
+  );
+
+  /**
+   * All USkat core implementation-specific connection opening arguments.
+   */
+  IStridablesList<IDataDef> ALL_SK_CORE_CFG_PARAMS = new StridablesList<>( //
+      OPDEF_DEF_CORE_LOG_SEVERITY, //
+      OPDEF_LOCALE, //
+      OPDEF_L10N_FILES_DIR //
   );
 
   /**

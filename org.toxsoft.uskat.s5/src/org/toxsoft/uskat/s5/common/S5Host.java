@@ -1,19 +1,21 @@
 package org.toxsoft.uskat.s5.common;
 
-import java.io.Serializable;
+import static org.toxsoft.uskat.s5.common.IS5Resources.*;
 
-import org.toxsoft.core.tslib.bricks.keeper.AbstractEntityKeeper;
-import org.toxsoft.core.tslib.bricks.keeper.AbstractEntityKeeper.EEncloseMode;
-import org.toxsoft.core.tslib.bricks.keeper.IEntityKeeper;
+import java.io.*;
+import java.net.*;
+
+import org.toxsoft.core.tslib.bricks.keeper.*;
+import org.toxsoft.core.tslib.bricks.keeper.AbstractEntityKeeper.*;
 import org.toxsoft.core.tslib.bricks.strio.*;
-import org.toxsoft.core.tslib.bricks.strio.chario.impl.CharInputStreamString;
-import org.toxsoft.core.tslib.bricks.strio.impl.StrioReader;
-import org.toxsoft.core.tslib.coll.IList;
-import org.toxsoft.core.tslib.coll.IListEdit;
-import org.toxsoft.core.tslib.coll.impl.ElemArrayList;
-import org.toxsoft.core.tslib.utils.TsLibUtils;
-import org.toxsoft.core.tslib.utils.errors.TsNullArgumentRtException;
-import org.toxsoft.core.tslib.utils.valobj.TsValobjUtils;
+import org.toxsoft.core.tslib.bricks.strio.chario.impl.*;
+import org.toxsoft.core.tslib.bricks.strio.impl.*;
+import org.toxsoft.core.tslib.bricks.validator.*;
+import org.toxsoft.core.tslib.coll.*;
+import org.toxsoft.core.tslib.coll.impl.*;
+import org.toxsoft.core.tslib.utils.*;
+import org.toxsoft.core.tslib.utils.errors.*;
+import org.toxsoft.core.tslib.utils.valobj.*;
 
 /**
  * Адресная информация о хосте
@@ -55,6 +57,9 @@ public final class S5Host
    */
   private static final String TO_STRING_FORMAT = "%s:%d"; //$NON-NLS-1$
 
+  private static final int MIN_PORT = 0;
+  private static final int MAX_PORT = 65535;
+
   private final String address;
   private final int    port;
 
@@ -90,7 +95,7 @@ public final class S5Host
   }
 
   // ------------------------------------------------------------------------------------
-  // Реализация Object
+  // Object
   //
   @Override
   public String toString() {
@@ -202,4 +207,32 @@ public final class S5Host
     }
     return sb.toString();
   }
+
+  /**
+   * Check arguments for S5Host instance creation.
+   *
+   * @param aAddress String - the network address of the S5 server host machine (like 127.0.0.1 or acme.com)
+   * @param aPort int - the number of the TCP/UDP port of the S5 server host machine (like 8080)
+   * @return {@link ValidationResult} - the validation result
+   * @throws TsNullArgumentRtException any argument = <code>null</code>
+   */
+  public static ValidationResult validateS5HostArgs( String aAddress, int aPort ) {
+    TsNullArgumentRtException.checkNull( aAddress );
+    if( aAddress.isBlank() ) {
+      return ValidationResult.error( MSG_ERR_BLANK_ADDRESS );
+    }
+    try {
+      @SuppressWarnings( "unused" )
+      URL url = new URL( aAddress );
+    }
+    catch( MalformedURLException ex ) {
+      return ValidationResult.error( FMT_ERR_INV_ADDRESS_URL, aAddress, ex.getLocalizedMessage() );
+    }
+    if( aPort < MIN_PORT || aPort > MAX_PORT ) {
+      return ValidationResult.error( FMT_ERR_INV_PORN_NO, Integer.valueOf( aPort ), //
+          Integer.valueOf( MIN_PORT ), Integer.valueOf( MAX_PORT ) );
+    }
+    return ValidationResult.SUCCESS;
+  }
+
 }

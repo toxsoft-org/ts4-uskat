@@ -28,8 +28,8 @@ public class SgwSkObject
    */
   public SgwSkObject( ISkConnection aConn ) {
     super( MID_SGW_SK_OBJECT, ISkObject.class, aConn );
-    addFieldDefs( SKID, CLASS_ID, STRID, NAME, DESCRIPTION );
-    STRID.addFlags( M5FF_COLUMN );
+    addFieldDefs( CLASS_ID, STRID, NAME, SKID, DESCRIPTION );
+    SKID.addFlags( M5FF_COLUMN );
     DESCRIPTION.addFlags( M5FF_DETAIL );
   }
 

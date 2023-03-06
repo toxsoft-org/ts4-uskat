@@ -2,7 +2,9 @@ package org.toxsoft.uskat.base.gui;
 
 import org.eclipse.e4.core.contexts.*;
 import org.toxsoft.core.tsgui.bricks.quant.*;
+import org.toxsoft.core.tsgui.m5.*;
 import org.toxsoft.uskat.base.gui.conn.*;
+import org.toxsoft.uskat.base.gui.conn.cfg.m5.*;
 import org.toxsoft.uskat.base.gui.km5.*;
 import org.toxsoft.uskat.base.gui.km5.sgw.*;
 
@@ -33,6 +35,9 @@ public class QuantSkBaseGui
   protected void doInitWin( IEclipseContext aWinContext ) {
     connectionSupplier = new SkConnectionSupplier( aWinContext );
     aWinContext.set( ISkConnectionSupplier.class, connectionSupplier );
+    //
+    IM5Domain m5 = aWinContext.get( IM5Domain.class );
+    m5.addModel( new ConnectionConfigM5Model() );
   }
 
   @Override

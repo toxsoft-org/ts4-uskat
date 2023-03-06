@@ -7,17 +7,17 @@ import static org.toxsoft.core.tslib.av.metainfo.IAvMetaConstants.*;
 import static org.toxsoft.core.tslib.bricks.ctx.impl.TsContextRefDef.create;
 import static org.toxsoft.uskat.s5.client.IS5Resources.*;
 
-import java.time.Month;
+import java.time.*;
 
-import org.toxsoft.core.tslib.av.EAtomicType;
-import org.toxsoft.core.tslib.av.impl.AvUtils;
-import org.toxsoft.core.tslib.av.metainfo.IDataDef;
-import org.toxsoft.core.tslib.bricks.ctx.ITsContextRefDef;
-import org.toxsoft.core.tslib.gw.skid.Skid;
-import org.toxsoft.core.tslib.utils.TsVersion;
-import org.toxsoft.uskat.s5.common.S5HostList;
-import org.toxsoft.uskat.s5.utils.progress.IS5ProgressMonitor;
-import org.toxsoft.uskat.s5.utils.threads.impl.S5Lockable;
+import org.toxsoft.core.tslib.av.*;
+import org.toxsoft.core.tslib.av.impl.*;
+import org.toxsoft.core.tslib.av.metainfo.*;
+import org.toxsoft.core.tslib.bricks.ctx.*;
+import org.toxsoft.core.tslib.gw.skid.*;
+import org.toxsoft.core.tslib.utils.*;
+import org.toxsoft.uskat.s5.common.*;
+import org.toxsoft.uskat.s5.utils.progress.*;
+import org.toxsoft.uskat.s5.utils.threads.impl.*;
 
 /**
  * Параметры соединения с s5
@@ -128,6 +128,7 @@ public interface IS5ConnectionParams {
       TSID_NAME, N_HOSTS, //
       TSID_DESCRIPTION, D_HOSTS, //
       TSID_IS_NULL_ALLOWED, AV_FALSE, //
+      TSID_KEEPER_ID, S5HostList.KEEPER_ID, //
       TSID_DEFAULT_VALUE, avValobj( new S5HostList() ) );
 
   // ------------------------------------------------------------------------------------

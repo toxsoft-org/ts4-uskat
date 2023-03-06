@@ -39,7 +39,7 @@ public sealed interface ISkBackendMetaInfo
   /**
    * Returns authentification type requred by the backend.
    *
-   * @return
+   * @return {@link ESkAuthentificationType} - authentification type
    */
   ESkAuthentificationType getAuthentificationType();
 

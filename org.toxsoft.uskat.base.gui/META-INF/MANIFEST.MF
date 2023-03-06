@@ -24,6 +24,8 @@ Automatic-Module-Name: org.toxsoft.uskat.base.gui
 Bundle-ActivationPolicy: lazy
 Export-Package: org.toxsoft.uskat.base.gui,
  org.toxsoft.uskat.base.gui.conn,
+ org.toxsoft.uskat.base.gui.conn.cfg,
+ org.toxsoft.uskat.base.gui.conn.cfg.m5,
  org.toxsoft.uskat.base.gui.e4.uiparts,
  org.toxsoft.uskat.base.gui.glib,
  org.toxsoft.uskat.base.gui.km5,
