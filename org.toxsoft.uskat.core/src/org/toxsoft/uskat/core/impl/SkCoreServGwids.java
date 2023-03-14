@@ -1,16 +1,21 @@
 package org.toxsoft.uskat.core.impl;
 
+import org.toxsoft.core.tslib.av.metainfo.IDataDef;
 import org.toxsoft.core.tslib.bricks.ctx.ITsContextRo;
 import org.toxsoft.core.tslib.coll.IListEdit;
 import org.toxsoft.core.tslib.coll.impl.ElemArrayList;
+import org.toxsoft.core.tslib.coll.primtypes.IStringList;
+import org.toxsoft.core.tslib.coll.primtypes.IStringListEdit;
+import org.toxsoft.core.tslib.coll.primtypes.impl.StringArrayList;
 import org.toxsoft.core.tslib.gw.gwid.*;
+import org.toxsoft.core.tslib.gw.skid.*;
 import org.toxsoft.core.tslib.utils.errors.*;
 import org.toxsoft.uskat.core.ISkServiceCreator;
 import org.toxsoft.uskat.core.api.gwids.ISkGwidService;
+import org.toxsoft.uskat.core.api.objserv.ISkObjectService;
 import org.toxsoft.uskat.core.api.sysdescr.ESkClassPropKind;
 import org.toxsoft.uskat.core.api.sysdescr.ISkClassInfo;
-import org.toxsoft.uskat.core.api.sysdescr.dto.IDtoCmdInfo;
-import org.toxsoft.uskat.core.api.sysdescr.dto.IDtoEventInfo;
+import org.toxsoft.uskat.core.api.sysdescr.dto.*;
 import org.toxsoft.uskat.core.devapi.IDevCoreApi;
 
 /**
@@ -259,17 +264,265 @@ public class SkCoreServGwids
   @Override
   public GwidList expandGwid( Gwid aGwid ) {
     GwidList gl = new GwidList();
+
     if( aGwid.isMulti() ) {
-
-      // TODO SkCoreServGwids.expandGwid()
-
-    }
-    else {
-      if( exists( aGwid ) ) {
-        gl.add( aGwid );
+      ISkidList objIds = expandObjIds( coreApi().objService(), aGwid );
+      if( !aGwid.isProp() && !aGwid.isSubProp() ) {
+        // aGwid не может быть здесь абстрактным
+        TsNullArgumentRtException.checkNull( objIds );
+        return expandGwid( gl, aGwid, objIds, null );
       }
+      ISkClassInfo classInfo = coreApi().sysdescr().getClassInfo( aGwid.classId() );
+      IStringList propIds = expandPropIds( classInfo, aGwid );
+      return expandGwid( gl, aGwid, objIds, propIds );
+    }
+    if( exists( aGwid ) ) {
+      gl.add( aGwid );
     }
     return gl;
   }
 
+  private static ISkidList expandObjIds( ISkObjectService aObjService, Gwid aGwid ) {
+    TsNullArgumentRtException.checkNulls( aObjService, aGwid );
+    if( aGwid.isAbstract() ) {
+      return null;
+    }
+    if( aGwid.isStridMulti() ) {
+      // aIncludeSubclasses = true
+      return aObjService.listSkids( aGwid.classId(), true );
+    }
+    return new SkidList( aGwid.skid() );
+  }
+
+  private static IStringList expandPropIds( ISkClassInfo aClassInfo, Gwid aGwid ) {
+    TsNullArgumentRtException.checkNulls( aClassInfo, aGwid );
+    IStringListEdit retValue = new StringArrayList();
+    switch( aGwid.kind() ) {
+      case GW_ATTR:
+        if( !aGwid.isPropMulti() ) {
+          retValue.add( aGwid.propId() );
+          break;
+        }
+        for( IDtoAttrInfo info : aClassInfo.attrs().list() ) {
+          retValue.add( info.id() );
+        }
+        break;
+      case GW_RIVET:
+        if( !aGwid.isPropMulti() ) {
+          retValue.add( aGwid.propId() );
+          break;
+        }
+        for( IDtoRivetInfo info : aClassInfo.rivets().list() ) {
+          retValue.add( info.id() );
+        }
+        break;
+      case GW_LINK:
+        if( !aGwid.isPropMulti() ) {
+          retValue.add( aGwid.propId() );
+          break;
+        }
+        for( IDtoLinkInfo info : aClassInfo.links().list() ) {
+          retValue.add( info.id() );
+        }
+        break;
+      case GW_CLOB:
+        if( !aGwid.isPropMulti() ) {
+          retValue.add( aGwid.propId() );
+          break;
+        }
+        for( IDtoClobInfo info : aClassInfo.clobs().list() ) {
+          retValue.add( info.id() );
+        }
+        break;
+      case GW_CMD:
+        if( !aGwid.isPropMulti() ) {
+          retValue.add( aGwid.propId() );
+          break;
+        }
+        for( IDtoCmdInfo info : aClassInfo.cmds().list() ) {
+          retValue.add( info.id() );
+        }
+        break;
+      case GW_EVENT:
+        if( !aGwid.isPropMulti() ) {
+          retValue.add( aGwid.propId() );
+          break;
+        }
+        for( IDtoEventInfo info : aClassInfo.events().list() ) {
+          retValue.add( info.id() );
+        }
+        break;
+      case GW_RTDATA:
+        if( !aGwid.isPropMulti() ) {
+          retValue.add( aGwid.propId() );
+          break;
+        }
+        for( IDtoRtdataInfo info : aClassInfo.rtdata().list() ) {
+          retValue.add( info.id() );
+        }
+        break;
+      case GW_CMD_ARG:
+        if( !aGwid.isSubPropMulti() ) {
+          retValue.add( aGwid.subPropId() );
+          break;
+        }
+        for( IDataDef info : aClassInfo.cmds().list().getByKey( aGwid.propId() ).argDefs() ) {
+          retValue.add( info.id() );
+        }
+        break;
+      case GW_EVENT_PARAM:
+        if( !aGwid.isSubPropMulti() ) {
+          retValue.add( aGwid.subPropId() );
+          break;
+        }
+        for( IDataDef info : aClassInfo.events().list().getByKey( aGwid.propId() ).paramDefs() ) {
+          retValue.add( info.id() );
+        }
+        break;
+      case GW_CLASS:
+        throw new TsInternalErrorRtException();
+      default:
+        throw new TsNotAllEnumsUsedRtException();
+
+    }
+    return retValue;
+  }
+
+  private static GwidList expandGwid( GwidList aGwids, Gwid aGwid, ISkidList aObjIds, IStringList aPropIds ) {
+    TsNullArgumentRtException.checkNulls( aGwids, aGwid );
+    String classId = aGwid.classId();
+    // Формирование результата
+    switch( aGwid.kind() ) {
+      case GW_CLASS:
+        if( aObjIds != null ) {
+          for( Skid objId : aObjIds ) {
+            aGwids.add( Gwid.createObj( objId ) );
+          }
+          break;
+        }
+        aGwids.add( aGwid );
+        break;
+      case GW_ATTR:
+        if( aObjIds != null ) {
+          for( Skid objId : aObjIds ) {
+            for( String id : aPropIds ) {
+              aGwids.add( Gwid.createAttr( classId, objId.strid(), id ) );
+            }
+          }
+          break;
+        }
+        for( String id : aPropIds ) {
+          aGwids.add( Gwid.createAttr( classId, id ) );
+        }
+        break;
+      case GW_RIVET:
+        if( aObjIds != null ) {
+          for( Skid objId : aObjIds ) {
+            for( String id : aPropIds ) {
+              aGwids.add( Gwid.createRivet( classId, objId.strid(), id ) );
+            }
+          }
+          break;
+        }
+        for( String id : aPropIds ) {
+          aGwids.add( Gwid.createRivet( classId, id ) );
+        }
+        break;
+      case GW_LINK:
+        if( aObjIds != null ) {
+          for( Skid objId : aObjIds ) {
+            for( String id : aPropIds ) {
+              aGwids.add( Gwid.createLink( classId, objId.strid(), id ) );
+            }
+          }
+          break;
+        }
+        for( String id : aPropIds ) {
+          aGwids.add( Gwid.createLink( classId, id ) );
+        }
+        break;
+      case GW_CLOB:
+        if( aObjIds != null ) {
+          for( Skid objId : aObjIds ) {
+            for( String id : aPropIds ) {
+              aGwids.add( Gwid.createClob( classId, objId.strid(), id ) );
+            }
+          }
+          break;
+        }
+        for( String id : aPropIds ) {
+          aGwids.add( Gwid.createClob( classId, id ) );
+        }
+        break;
+      case GW_CMD:
+        if( aObjIds != null ) {
+          for( Skid objId : aObjIds ) {
+            for( String id : aPropIds ) {
+              aGwids.add( Gwid.createCmd( classId, objId.strid(), id ) );
+            }
+          }
+          break;
+        }
+        for( String id : aPropIds ) {
+          aGwids.add( Gwid.createCmd( classId, id ) );
+        }
+        break;
+      case GW_EVENT:
+        if( aObjIds != null ) {
+          for( Skid objId : aObjIds ) {
+            for( String id : aPropIds ) {
+              aGwids.add( Gwid.createEvent( classId, objId.strid(), id ) );
+            }
+          }
+          break;
+        }
+        for( String id : aPropIds ) {
+          aGwids.add( Gwid.createEvent( classId, id ) );
+        }
+        break;
+      case GW_RTDATA:
+        if( aObjIds != null ) {
+          for( Skid objId : aObjIds ) {
+            for( String id : aPropIds ) {
+              aGwids.add( Gwid.createRtdata( classId, objId.strid(), id ) );
+            }
+          }
+          break;
+        }
+        for( String id : aPropIds ) {
+          aGwids.add( Gwid.createRtdata( classId, id ) );
+        }
+        break;
+      case GW_CMD_ARG:
+        if( aObjIds != null ) {
+          for( Skid objId : aObjIds ) {
+            for( String id : aPropIds ) {
+              aGwids.add( Gwid.createCmdArg( classId, objId.strid(), aGwid.propId(), id ) );
+            }
+          }
+          break;
+        }
+        for( String id : aPropIds ) {
+          aGwids.add( Gwid.createCmdArg( classId, aGwid.propId(), id ) );
+        }
+        break;
+      case GW_EVENT_PARAM:
+        if( aObjIds != null ) {
+          for( Skid objId : aObjIds ) {
+            for( String id : aPropIds ) {
+              aGwids.add( Gwid.createEventParam( classId, objId.strid(), aGwid.propId(), id ) );
+            }
+          }
+          break;
+        }
+        for( String id : aPropIds ) {
+          aGwids.add( Gwid.createEventParam( classId, aGwid.propId(), id ) );
+        }
+        break;
+      default:
+        throw new TsNotAllEnumsUsedRtException();
+
+    }
+    return aGwids;
+  }
 }
