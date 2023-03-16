@@ -1,6 +1,7 @@
 package org.toxsoft.uskat.s5.server.backend.supports.queries;
 
 import org.toxsoft.core.tslib.coll.IList;
+import org.toxsoft.core.tslib.gw.gwid.Gwid;
 import org.toxsoft.core.tslib.utils.Pair;
 import org.toxsoft.core.tslib.utils.errors.TsNullArgumentRtException;
 import org.toxsoft.uskat.core.api.hqserv.IDtoQueryParam;
@@ -29,11 +30,12 @@ public interface IS5BackendQueriesFunction {
   /**
    * Обработка значений последовательности
    *
-   * @param aCursor {@link IS5SequenceCursor} курсор последовательности значений
+   * @param aCursors {@link IList}&lt;{@link IS5SequenceCursor}&gt; список курсоров последовательности значений. Если
+   *          данные запрашивались по конкретному {@link Gwid} то в списке только один курсор.
    * @param <T> тип значений
    * @return {@link IList} список обработанных значений
    * @throws TsNullArgumentRtException аргумент = null
    */
-  <T> IList<T> evaluate( IS5SequenceCursor<?> aCursor );
+  <T> IList<T> evaluate( IList<IS5SequenceCursor<?>> aCursors );
 
 }

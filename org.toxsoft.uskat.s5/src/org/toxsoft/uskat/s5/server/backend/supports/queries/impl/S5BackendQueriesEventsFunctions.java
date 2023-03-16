@@ -17,6 +17,7 @@ import org.toxsoft.core.tslib.bricks.time.ITemporal;
 import org.toxsoft.core.tslib.bricks.time.ITimeInterval;
 import org.toxsoft.core.tslib.coll.IList;
 import org.toxsoft.core.tslib.coll.IListEdit;
+import org.toxsoft.core.tslib.coll.impl.ElemArrayList;
 import org.toxsoft.core.tslib.coll.impl.ElemLinkedList;
 import org.toxsoft.core.tslib.gw.gwid.Gwid;
 import org.toxsoft.core.tslib.utils.Pair;
@@ -189,23 +190,28 @@ class S5BackendQueriesEventsFunctions
   }
 
   @Override
-  public <T> IList<T> evaluate( IS5SequenceCursor<?> aCursor ) {
-    TsNullArgumentRtException.checkNull( aCursor );
-    // Результат
+  public <T> IList<T> evaluate( IList<IS5SequenceCursor<?>> aCursors ) {
+    TsNullArgumentRtException.checkNull( aCursors );
+    // Инициализация курсоров и создание их хранителей
+    ElemArrayList<S5CursorHolder<SkEvent>> holders = new ElemArrayList<>();
+    for( IS5SequenceCursor<?> cursor : aCursors ) {
+      // Установка курсора на начало последовательности
+      // TODO: Отработать aggregationStart
+      cursor.setTime( interval.startTime() );
+      // Создание хранителей
+      holders.add( new S5CursorHolder<>( cursor ) );
+    }
+    // Формирование результата
     IListEdit<T> retValue = new ElemLinkedList<>();
-    // Установка курсора на начало последовательности
-    // TODO: Отработать aggregationStart
-    aCursor.setTime( interval.startTime() );
     // Обработка значений курсора
-    while( aCursor.hasNextValue() ) {
+    for( SkEvent event = S5CursorHolder.nextValueOrNull( holders ); event != null; event =
+        S5CursorHolder.nextValueOrNull( holders ) ) {
       if( query.state() != ES5QueriesConvoyState.EXECUTING ) {
         // Запрос был отменен
         break;
       }
-      // Следующее raw-значение последовательности
-      SkEvent event = (SkEvent)aCursor.nextValue();
       // Фильтр по идетификатору события
-      if( !event.eventGwid().equals( dataGwid ) ) {
+      if( !filterByGwid( dataGwid, event ) ) {
         continue;
       }
       // Фильтрация клиента
@@ -320,6 +326,29 @@ class S5BackendQueriesEventsFunctions
     lastValue = createValue( EAtomicType.INTEGER, intervalValue );
     result.add( new TemporalAtomicValue( intervalStartTime, lastValue ) );
     valuesCounter.add( 1 );
+  }
+
+  /**
+   * Фильтрует события по {@link Gwid}
+   *
+   * @param aDataGwid {@link Gwid} идентификтор допустимых событий. Допускается {@link Gwid#isMulti()} = true.
+   * @param aEvent {@link SkEvent} событие
+   * @return boolean <b>true</b> событие проходит фильтр. <b>false</b> событие не проходит фильтр.
+   */
+  private static boolean filterByGwid( Gwid aDataGwid, SkEvent aEvent ) {
+    if( !aDataGwid.isMulti() ) {
+      return aEvent.eventGwid().equals( aDataGwid );
+    }
+    if( !aDataGwid.isStridMulti() && aDataGwid.isPropMulti() ) {
+      return aEvent.eventGwid().skid().equals( aDataGwid.skid() );
+    }
+    if( aDataGwid.isStridMulti() && !aDataGwid.isPropMulti() ) {
+      return aEvent.eventGwid().propId().equals( aDataGwid.propId() );
+    }
+    if( !aDataGwid.isStridMulti() || !aDataGwid.isPropMulti() ) {
+      throw new TsInternalErrorRtException();
+    }
+    return true;
   }
 
   /**

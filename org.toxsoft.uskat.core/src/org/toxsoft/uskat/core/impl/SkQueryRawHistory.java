@@ -16,6 +16,7 @@ import org.toxsoft.core.tslib.coll.primtypes.impl.StringMap;
 import org.toxsoft.core.tslib.gw.gwid.*;
 import org.toxsoft.core.tslib.utils.errors.TsNullArgumentRtException;
 import org.toxsoft.uskat.core.api.hqserv.*;
+import org.toxsoft.uskat.core.backend.api.BaMsgQueryNextData;
 import org.toxsoft.uskat.core.impl.dto.DtoQueryParam;
 
 /**
@@ -62,13 +63,15 @@ public final class SkQueryRawHistory
           gwid.kind() != EGwidKind.GW_CMD ) {
         continue;
       }
-      for( Gwid concreteGwid : expandGwid( gwid ) ) {
-        String funcId = EMPTY_STRING;
-        IOptionSet funcArgs = IOptionSet.NULL;
-        IDtoQueryParam param = DtoQueryParam.create( concreteGwid, ITsCombiFilterParams.ALL, funcId, funcArgs );
-        args.put( concreteGwid, param );
-        params.put( concreteGwid.asString(), param );
-      }
+      // 2023-03-12 TODO: mvkd
+      // for( Gwid concreteGwid : expandGwid( gwid ) ) {
+      Gwid concreteGwid = gwid;
+      String funcId = EMPTY_STRING;
+      IOptionSet funcArgs = IOptionSet.NULL;
+      IDtoQueryParam param = DtoQueryParam.create( concreteGwid, ITsCombiFilterParams.ALL, funcId, funcArgs );
+      args.put( concreteGwid, param );
+      params.put( concreteGwid.asString(), param );
+      // }
     }
     backend().prepareQuery( queryId(), params );
     changeState( ESkQueryState.PREPARED );
@@ -103,11 +106,12 @@ public final class SkQueryRawHistory
     for( String k : aValues.keys() ) {
       Gwid gwid = Gwid.of( k );
       ITimedListEdit<ITemporal<?>> v = argsDatas.findByKey( gwid );
+      ITimedList<ITemporal<?>> nextData = aValues.getByKey( k );
       if( v == null ) {
-        v = new TimedList<>();
+        v = new TimedList<>( BaMsgQueryNextData.getBundleCapacity( nextData.size() ) );
         argsDatas.put( gwid, v );
       }
-      v.addAll( aValues.getByKey( k ) );
+      v.addAll( nextData );
     }
   }
 

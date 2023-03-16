@@ -198,22 +198,28 @@ class S5BackendQueriesAtomicValueFunctions
   }
 
   @Override
-  public <T> IList<T> evaluate( IS5SequenceCursor<?> aCursor ) {
-    TsNullArgumentRtException.checkNull( aCursor );
+  public <T> IList<T> evaluate( IList<IS5SequenceCursor<?>> aCursors ) {
+    TsNullArgumentRtException.checkNull( aCursors );
+    if( aCursors.size() > 1 ) {
+      throw new TsUnderDevelopmentRtException(
+          "S5BackendQueriesAtomicValueFunctions.evalute(...): multi-gwid handling not implemented yet" );
+    }
     StringBuilder sbLog = (logger.isSeverityOn( ELogSeverity.DEBUG ) ? new StringBuilder() : null);
+    // Курсор
+    IS5SequenceCursor<?> cursor = aCursors.first();
     // Результат
     IListEdit<T> retValue = new ElemLinkedList<>();
     // Установка курсора на начало последовательности
     // TODO: Отработать aggregationStart
-    aCursor.setTime( interval.startTime() );
+    cursor.setTime( interval.startTime() );
     // Обработка значений курсора
-    while( aCursor.hasNextValue() ) {
+    while( cursor.hasNextValue() ) {
       if( query.state() != ES5QueriesConvoyState.EXECUTING ) {
         // Запрос был отменен
         break;
       }
       // Следующее raw-значение последовательности
-      ITemporalAtomicValue value = (ITemporalAtomicValue)aCursor.nextValue();
+      ITemporalAtomicValue value = (ITemporalAtomicValue)cursor.nextValue();
       // Признак того, что значение было допущено фильтрами для обработки
       boolean accepted = filter.accept( value.value() );
       // Фильтрация

@@ -73,12 +73,12 @@ public final class SkQueryProcessedData
   protected void doNextData( IStringMap<ITimedList<ITemporal<?>>> aValues, ESkQueryState aState ) {
     for( String k : aValues.keys() ) {
       ITimedListEdit<ITemporal<?>> v = argsDatas.findByKey( k );
-      ITimedList<ITemporal<?>> s = aValues.getByKey( k );
+      ITimedList<ITemporal<?>> nextData = aValues.getByKey( k );
       if( v == null ) {
-        v = new TimedList<>( BaMsgQueryNextData.getBundleCapacity( s.size() ) );
+        v = new TimedList<>( BaMsgQueryNextData.getBundleCapacity( nextData.size() ) );
         argsDatas.put( k, v );
       }
-      v.addAll( s );
+      v.addAll( nextData );
     }
   }
 

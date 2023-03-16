@@ -1,11 +1,12 @@
 package org.toxsoft.uskat.core.api.hqserv;
 
-import org.toxsoft.core.tslib.av.opset.*;
-import org.toxsoft.core.tslib.av.temporal.*;
-import org.toxsoft.core.tslib.bricks.filter.*;
-import org.toxsoft.core.tslib.bricks.time.*;
-import org.toxsoft.core.tslib.gw.gwid.*;
-import org.toxsoft.uskat.core.api.evserv.*;
+import org.toxsoft.core.tslib.av.opset.IOptionSet;
+import org.toxsoft.core.tslib.av.temporal.ITemporalAtomicValue;
+import org.toxsoft.core.tslib.bricks.filter.ITsCombiFilterParams;
+import org.toxsoft.core.tslib.bricks.time.ITimedList;
+import org.toxsoft.core.tslib.gw.gwid.EGwidKind;
+import org.toxsoft.core.tslib.gw.gwid.Gwid;
+import org.toxsoft.uskat.core.api.evserv.SkEvent;
 
 /**
  * Single data argument to be queried by {@link ISkQueryProcessedData}.
@@ -39,7 +40,7 @@ public interface IDtoQueryParam {
    * Only GWIDs of kind {@link EGwidKind#GW_RTDATA}, {@link EGwidKind#GW_CMD} and {@link EGwidKind#GW_EVENT} are
    * allowed.
    *
-   * @return {@link Gwid} - the concrete single (non-multi) GWID of allowed kind
+   * @return {@link Gwid} - the concrete single or multi GWID of allowed kind
    */
   Gwid dataGwid();
 
