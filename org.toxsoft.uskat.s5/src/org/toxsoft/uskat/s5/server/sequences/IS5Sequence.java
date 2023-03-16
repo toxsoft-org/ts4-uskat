@@ -66,6 +66,22 @@ public interface IS5Sequence<V extends ITemporal<?>> {
   IList<IS5SequenceBlock<V>> blocks();
 
   /**
+   * Возвращает количество значений в блоке
+   *
+   * @return int количество значений
+   */
+  default int valuesQtty() {
+    int retValue = 0;
+    IList<IS5SequenceBlock<V>> blocks = blocks();
+    // Количество считанных блоков
+    for( int blockIndex = 0, n = blocks.size(); blockIndex < n; blockIndex++ ) {
+      // Подсчет считанных значений
+      retValue += blocks.get( blockIndex ).size();
+    }
+    return retValue;
+  }
+
+  /**
    * Находит индекс блока в диапазон которого попадает указанная метка времени. Если такого блока нет, то возвращает
    * индекс ближайшего блока к искомой метке. Если блоков нет, то -1
    * <p>
