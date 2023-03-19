@@ -203,12 +203,17 @@ class S5BackendQueriesEventsFunctions
     }
     // Формирование результата
     IListEdit<T> retValue = new ElemLinkedList<>();
+
+    long lastTime = Long.MIN_VALUE;
     // Обработка значений курсора
     for( SkEvent event = S5CursorHolder.nextValueOrNull( holders ); event != null; event =
         S5CursorHolder.nextValueOrNull( holders ) ) {
       if( query.state() != ES5QueriesConvoyState.EXECUTING ) {
         // Запрос был отменен
         break;
+      }
+      if( event.timestamp() < lastTime ) {
+        throw new TsInternalErrorRtException();
       }
       // Фильтр по идетификатору события
       if( !filterByGwid( dataGwid, event ) ) {

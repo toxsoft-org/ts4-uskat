@@ -294,7 +294,11 @@ public class S5BackendQueriesSingleton
         values = IStringMap.EMPTY;
       }
       // Выполнение завершено. aSuccess = true
-      convoy.execFinished( true );
+      convoy.execFinished( convoy.state() == ES5QueriesConvoyState.EXECUTING );
+      // Обработка ошибки выполнения запроса
+      if( convoy.state() != ES5QueriesConvoyState.READY ) {
+        throw new TsException( convoy.stateMessage() );
+      }
       // Передача последних значений
       convoy.setStateMessage( MSG_SEND_RESULT_VALUES );
       fireNextDataMessage( aFrontend, aQueryId, ESkQueryState.EXECUTING, MSG_SEND_RESULT_VALUES );
