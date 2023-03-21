@@ -17,8 +17,6 @@ import org.toxsoft.core.tslib.bricks.strio.impl.StrioWriter;
 import org.toxsoft.core.tslib.bricks.time.ITimedList;
 import org.toxsoft.core.tslib.bricks.time.impl.TimedList;
 import org.toxsoft.core.tslib.coll.IList;
-import org.toxsoft.core.tslib.coll.impl.ElemLinkedBundleList;
-import org.toxsoft.core.tslib.coll.impl.TsCollectionsUtils;
 import org.toxsoft.core.tslib.coll.primtypes.IStringMap;
 import org.toxsoft.core.tslib.coll.primtypes.IStringMapEdit;
 import org.toxsoft.core.tslib.coll.primtypes.impl.StringMap;
@@ -30,6 +28,7 @@ import org.toxsoft.uskat.core.api.evserv.SkEvent;
 import org.toxsoft.uskat.core.api.hqserv.ESkQueryState;
 import org.toxsoft.uskat.core.api.hqserv.ISkHistoryQueryService;
 import org.toxsoft.uskat.core.impl.dto.DtoCompletedCommand;
+import org.toxsoft.uskat.core.utils.SkTimedListUtils;
 
 /**
  * {@link IBaQueries} message builder: next portion of data delivered from backend to frontend.
@@ -235,7 +234,7 @@ public class BaMsgQueryNextData
       do {
         String k = sr.readQuotedString();
         sr.ensureSeparatorChar();
-        int bundleCapacity = getBundleCapacity( sr.readInt() );
+        int bundleCapacity = SkTimedListUtils.getBundleCapacity( sr.readInt() );
         sr.ensureSeparatorChar();
         map.put( k, TemporalAtomicValueKeeper.KEEPER.readColl( sr, new TimedList<>( bundleCapacity ) ) );
       } while( sr.readArrayNext() );
@@ -260,7 +259,7 @@ public class BaMsgQueryNextData
       do {
         String k = sr.readQuotedString();
         sr.ensureSeparatorChar();
-        int bundleCapacity = getBundleCapacity( sr.readInt() );
+        int bundleCapacity = SkTimedListUtils.getBundleCapacity( sr.readInt() );
         sr.ensureSeparatorChar();
         map.put( k, SkEvent.KEEPER.readColl( sr, new TimedList<>( bundleCapacity ) ) );
       } while( sr.readArrayNext() );
@@ -285,24 +284,12 @@ public class BaMsgQueryNextData
       do {
         String k = sr.readQuotedString();
         sr.ensureSeparatorChar();
-        int bundleCapacity = getBundleCapacity( sr.readInt() );
+        int bundleCapacity = SkTimedListUtils.getBundleCapacity( sr.readInt() );
         sr.ensureSeparatorChar();
         map.put( k, DtoCompletedCommand.KEEPER.readColl( sr, new TimedList<>( bundleCapacity ) ) );
       } while( sr.readArrayNext() );
     }
     return map;
-  }
-
-  /**
-   * Проводит расчет максимального размера фрагмента (bundle capacity) для коллекций {@link ElemLinkedBundleList} для
-   * эффективного доступа по индексу.
-   *
-   * @param aCollectionSize int размер коллекции
-   * @return int размер фрагмента
-   */
-  public static int getBundleCapacity( int aCollectionSize ) {
-    return Math.max( TsCollectionsUtils.MIN_BUNDLE_CAPACITY,
-        Math.min( TsCollectionsUtils.MAX_BUNDLE_CAPACITY, aCollectionSize ) );
   }
 
 }

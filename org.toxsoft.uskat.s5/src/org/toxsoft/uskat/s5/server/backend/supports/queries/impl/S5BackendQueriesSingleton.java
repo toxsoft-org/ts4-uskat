@@ -19,18 +19,21 @@ import org.toxsoft.core.tslib.bricks.strid.idgen.UuidStridGenerator;
 import org.toxsoft.core.tslib.bricks.time.*;
 import org.toxsoft.core.tslib.bricks.time.impl.QueryInterval;
 import org.toxsoft.core.tslib.coll.*;
-import org.toxsoft.core.tslib.coll.impl.ElemArrayList;
-import org.toxsoft.core.tslib.coll.impl.ElemMap;
+import org.toxsoft.core.tslib.coll.impl.*;
 import org.toxsoft.core.tslib.coll.primtypes.*;
 import org.toxsoft.core.tslib.coll.primtypes.impl.StringLinkedBundleList;
 import org.toxsoft.core.tslib.coll.primtypes.impl.StringMap;
 import org.toxsoft.core.tslib.gw.gwid.*;
+import org.toxsoft.core.tslib.gw.skid.Skid;
 import org.toxsoft.core.tslib.utils.TsLibUtils;
 import org.toxsoft.core.tslib.utils.errors.*;
+import org.toxsoft.uskat.core.ISkCoreApi;
 import org.toxsoft.uskat.core.api.cmdserv.IDtoCompletedCommand;
 import org.toxsoft.uskat.core.api.evserv.SkEvent;
+import org.toxsoft.uskat.core.api.gwids.ISkGwidService;
 import org.toxsoft.uskat.core.api.hqserv.ESkQueryState;
 import org.toxsoft.uskat.core.api.hqserv.IDtoQueryParam;
+import org.toxsoft.uskat.core.api.objserv.ISkObjectService;
 import org.toxsoft.uskat.core.api.sysdescr.ISkClassInfo;
 import org.toxsoft.uskat.core.backend.api.BaMsgQueryNextData;
 import org.toxsoft.uskat.core.backend.api.IBaQueries;
@@ -291,7 +294,11 @@ public class S5BackendQueriesSingleton
         values = IStringMap.EMPTY;
       }
       // Выполнение завершено. aSuccess = true
-      convoy.execFinished( true );
+      convoy.execFinished( convoy.state() == ES5QueriesConvoyState.EXECUTING );
+      // Обработка ошибки выполнения запроса
+      if( convoy.state() != ES5QueriesConvoyState.READY ) {
+        throw new TsException( convoy.stateMessage() );
+      }
       // Передача последних значений
       convoy.setStateMessage( MSG_SEND_RESULT_VALUES );
       fireNextDataMessage( aFrontend, aQueryId, ESkQueryState.EXECUTING, MSG_SEND_RESULT_VALUES );
@@ -578,23 +585,41 @@ public class S5BackendQueriesSingleton
     }
     long traceStartTime = System.currentTimeMillis();
 
+    // Ядро локального соединения
+    ISkCoreApi coreApi = backend().getConnection().coreApi();
+    // Служба объектов
+    ISkObjectService objService = coreApi.objService();
+    // Служба gwid-идентификаторов
+    ISkGwidService gwidService = coreApi.gwidService();
     // Список описаний запрашиваемых данных
     IGwidList functionGwids = new GwidList( functionsByGwids.keys() );
     // Карта идентификторов запрашиваемых данных.
-    // Ключ: идентификатор данных в функции, значение: идентификатор данных в последовательности
-    IMapEdit<Gwid, Gwid> sequenceGwids = new ElemMap<>();
+    // Ключ: идентификатор данных в функции, значение: список идентификаторов данных в последовательности
+    IMapEdit<Gwid, IGwidList> sequenceGwidsByFunctions = new ElemMap<>();
     // Тип данных
     EGwidKind gwidKind = getGwidKind( aSequenceReader );
     // Формирование карты: идентификатор данного функции => идентификатор данного последовательности
     for( Gwid functionGwid : functionGwids ) {
       switch( gwidKind ) {
         case GW_RTDATA:
-          sequenceGwids.put( functionGwid, functionGwid );
+          if( functionGwid.isMulti() ) {
+            sequenceGwidsByFunctions.put( functionGwid, gwidService.expandGwid( functionGwid ) );
+            break;
+          }
+          sequenceGwidsByFunctions.put( functionGwid, new GwidList( functionGwid ) );
           break;
         case GW_EVENT:
         case GW_CMD:
-          Gwid sequenceGwid = Gwid.createObj( functionGwid.skid() );
-          sequenceGwids.put( functionGwid, sequenceGwid );
+          if( functionGwid.isStridMulti() ) {
+            GwidList gwids = new GwidList();
+            // aIncludeSubclasses = true
+            for( Skid objId : objService.listSkids( functionGwid.classId(), true ) ) {
+              gwids.add( Gwid.createObj( objId ) );
+            }
+            sequenceGwidsByFunctions.put( functionGwid, gwids );
+            break;
+          }
+          sequenceGwidsByFunctions.put( functionGwid, new GwidList( Gwid.createObj( functionGwid.skid() ) ) );
           break;
         case GW_ATTR:
         case GW_CLASS:
@@ -625,9 +650,13 @@ public class S5BackendQueriesSingleton
     fireNextDataMessage( frontend, queryId, ESkQueryState.EXECUTING, message );
     aQuery.setStateMessage( message );
 
+    // Идентификаторы запрашиваемых значений
+    GwidList gwids = new GwidList();
+    for( IGwidList sequenceGwids : sequenceGwidsByFunctions.values() ) {
+      gwids.addAll( sequenceGwids );
+    }
     // Запрос данных внутри и на границах интервала
-    IMap<Gwid, IS5Sequence<?>> sequences = aSequenceReader.readSequences( frontend, //
-        queryId, new GwidList( sequenceGwids.values() ), interval, timeout );
+    IMap<Gwid, IS5Sequence<?>> sequences = aSequenceReader.readSequences( frontend, queryId, gwids, interval, timeout );
 
     // Установка текущего сообщения о состоянии
     message = getRawProcessingStr( gwidKind );
@@ -638,15 +667,18 @@ public class S5BackendQueriesSingleton
     S5ReadThreadExecutor<IList<IList<ITemporal<?>>>> executor = new S5ReadThreadExecutor<>( readExecutor, logger() );
     for( int index = 0, n = functionGwids.size(); index < n; index++ ) {
       // Идентификатор данных в функции
-      Gwid gwid = functionGwids.get( index );
+      Gwid functionGwid = functionGwids.get( index );
       // Идентификатор данных в последовательности
-      Gwid sequenceGwid = sequenceGwids.getByKey( gwid );
+      IGwidList sequenceGwids = sequenceGwidsByFunctions.getByKey( functionGwid );
       // Последовательность значений данного
-      IS5Sequence<?> sequence = sequences.getByKey( sequenceGwid );
+      IListEdit<IS5Sequence<?>> functionSequences = new ElemLinkedList<>();
+      for( Gwid sequenceGwid : sequenceGwids ) {
+        functionSequences.add( sequences.getByKey( sequenceGwid ) );
+      }
       // Функции значений данного
-      IListEdit<IS5BackendQueriesFunction> functions = functionsByGwids.getByKey( gwid );
+      IListEdit<IS5BackendQueriesFunction> functions = functionsByGwids.getByKey( functionGwid );
       // Регистрация потока
-      executor.add( new S5BackendQueriesFunctionThread( aQuery, sequence, functions ) );
+      executor.add( new S5BackendQueriesFunctionThread( aQuery, functionSequences, functions ) );
     }
     // Журнал
     Integer tc = Integer.valueOf( executor.threadCount() );

@@ -189,21 +189,26 @@ class S5BackendQueriesCommandsFunctions
   }
 
   @Override
-  public <T> IList<T> evaluate( IS5SequenceCursor<?> aCursor ) {
-    TsNullArgumentRtException.checkNull( aCursor );
+  public <T> IList<T> evaluate( IList<IS5SequenceCursor<?>> aCursors ) {
+    TsNullArgumentRtException.checkNull( aCursors );
+    if( aCursors.size() > 1 ) {
+      throw new TsUnderDevelopmentRtException(
+          "S5BackendQueriesCommandsFunctions.evalute(...): multi-gwid handling not implemented yet" );
+    }
+    IS5SequenceCursor<?> cursor = aCursors.first();
     // Результат
     IListEdit<T> retValue = new ElemLinkedList<>();
     // Установка курсора на начало последовательности
     // TODO: Отработать aggregationStart
-    aCursor.setTime( interval.startTime() );
+    cursor.setTime( interval.startTime() );
     // Обработка значений курсора
-    while( aCursor.hasNextValue() ) {
+    while( cursor.hasNextValue() ) {
       if( query.state() != ES5QueriesConvoyState.EXECUTING ) {
         // Запрос был отменен
         break;
       }
       // Следующее raw-значение последовательности
-      IDtoCompletedCommand command = (IDtoCompletedCommand)aCursor.nextValue();
+      IDtoCompletedCommand command = (IDtoCompletedCommand)cursor.nextValue();
       // Фильтр по идетификатору команды
       if( !command.cmd().cmdGwid().equals( dataGwid ) ) {
         continue;
