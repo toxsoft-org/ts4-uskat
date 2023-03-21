@@ -10,7 +10,7 @@ import org.toxsoft.core.tslib.coll.primtypes.IStringMapEdit;
 import org.toxsoft.core.tslib.coll.primtypes.impl.StringMap;
 import org.toxsoft.core.tslib.utils.errors.TsNullArgumentRtException;
 import org.toxsoft.uskat.core.api.hqserv.*;
-import org.toxsoft.uskat.core.backend.api.BaMsgQueryNextData;
+import org.toxsoft.uskat.core.utils.SkTimedListUtils;
 
 /**
  * {@link ISkQueryProcessedData} implementation.
@@ -75,7 +75,7 @@ public final class SkQueryProcessedData
       ITimedListEdit<ITemporal<?>> v = argsDatas.findByKey( k );
       ITimedList<ITemporal<?>> nextData = aValues.getByKey( k );
       if( v == null ) {
-        v = new TimedList<>( BaMsgQueryNextData.getBundleCapacity( nextData.size() ) );
+        v = new TimedList<>( SkTimedListUtils.getBundleCapacity( nextData.size() ) );
         argsDatas.put( k, v );
       }
       v.addAll( nextData );
