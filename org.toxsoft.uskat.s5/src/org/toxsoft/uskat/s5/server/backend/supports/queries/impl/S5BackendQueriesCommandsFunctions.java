@@ -17,11 +17,13 @@ import org.toxsoft.core.tslib.bricks.time.ITemporal;
 import org.toxsoft.core.tslib.bricks.time.ITimeInterval;
 import org.toxsoft.core.tslib.coll.IList;
 import org.toxsoft.core.tslib.coll.IListEdit;
+import org.toxsoft.core.tslib.coll.impl.ElemArrayList;
 import org.toxsoft.core.tslib.coll.impl.ElemLinkedList;
 import org.toxsoft.core.tslib.gw.gwid.Gwid;
 import org.toxsoft.core.tslib.utils.Pair;
 import org.toxsoft.core.tslib.utils.errors.*;
 import org.toxsoft.core.tslib.utils.logs.ILogger;
+import org.toxsoft.uskat.core.api.cmdserv.IDtoCommand;
 import org.toxsoft.uskat.core.api.cmdserv.IDtoCompletedCommand;
 import org.toxsoft.uskat.core.api.hqserv.IDtoQueryParam;
 import org.toxsoft.uskat.core.api.hqserv.filter.SkQueryFilterByCommandArg;
@@ -191,26 +193,32 @@ class S5BackendQueriesCommandsFunctions
   @Override
   public <T> IList<T> evaluate( IList<IS5SequenceCursor<?>> aCursors ) {
     TsNullArgumentRtException.checkNull( aCursors );
-    if( aCursors.size() > 1 ) {
-      throw new TsUnderDevelopmentRtException(
-          "S5BackendQueriesCommandsFunctions.evalute(...): multi-gwid handling not implemented yet" );
+    TsNullArgumentRtException.checkNull( aCursors );
+    // Инициализация курсоров и создание их хранителей
+    ElemArrayList<S5CursorHolder<IDtoCompletedCommand>> holders = new ElemArrayList<>();
+    for( IS5SequenceCursor<?> cursor : aCursors ) {
+      // Установка курсора на начало последовательности
+      // TODO: Отработать aggregationStart
+      cursor.setTime( interval.startTime() );
+      // Создание хранителей
+      holders.add( new S5CursorHolder<>( cursor ) );
     }
-    IS5SequenceCursor<?> cursor = aCursors.first();
-    // Результат
+    // Формирование результата
     IListEdit<T> retValue = new ElemLinkedList<>();
-    // Установка курсора на начало последовательности
-    // TODO: Отработать aggregationStart
-    cursor.setTime( interval.startTime() );
+
+    long lastTime = Long.MIN_VALUE;
     // Обработка значений курсора
-    while( cursor.hasNextValue() ) {
+    for( IDtoCompletedCommand command = S5CursorHolder.nextValueOrNull( holders ); command != null; command =
+        S5CursorHolder.nextValueOrNull( holders ) ) {
       if( query.state() != ES5QueriesConvoyState.EXECUTING ) {
         // Запрос был отменен
         break;
       }
-      // Следующее raw-значение последовательности
-      IDtoCompletedCommand command = (IDtoCompletedCommand)cursor.nextValue();
-      // Фильтр по идетификатору команды
-      if( !command.cmd().cmdGwid().equals( dataGwid ) ) {
+      if( command.timestamp() < lastTime ) {
+        throw new TsInternalErrorRtException();
+      }
+      // Фильтр по идетификатору события
+      if( !filterByGwid( dataGwid, command.cmd() ) ) {
         continue;
       }
       // Фильтрация клиента
@@ -222,6 +230,38 @@ class S5BackendQueriesCommandsFunctions
     retValue.addAll( nextCommand( null ) );
     // Результат
     return retValue;
+
+    // if( aCursors.size() > 1 ) {
+    // throw new TsUnderDevelopmentRtException(
+    // "S5BackendQueriesCommandsFunctions.evalute(...): multi-gwid handling not implemented yet" );
+    // }
+    // IS5SequenceCursor<?> cursor = aCursors.first();
+    // // Результат
+    // IListEdit<T> retValue = new ElemLinkedList<>();
+    // // Установка курсора на начало последовательности
+    // // TODO: Отработать aggregationStart
+    // cursor.setTime( interval.startTime() );
+    // // Обработка значений курсора
+    // while( cursor.hasNextValue() ) {
+    // if( query.state() != ES5QueriesConvoyState.EXECUTING ) {
+    // // Запрос был отменен
+    // break;
+    // }
+    // // Следующее raw-значение последовательности
+    // IDtoCompletedCommand command = (IDtoCompletedCommand)cursor.nextValue();
+    // // Фильтр по идетификатору команды
+    // if( !command.cmd().cmdGwid().equals( dataGwid ) ) {
+    // continue;
+    // }
+    // // Фильтрация клиента
+    // if( filter.accept( command ) ) {
+    // retValue.addAll( nextCommand( command ) );
+    // }
+    // }
+    // // Обработка последнего значения
+    // retValue.addAll( nextCommand( null ) );
+    // // Результат
+    // return retValue;
   }
 
   // ------------------------------------------------------------------------------------
@@ -325,6 +365,29 @@ class S5BackendQueriesCommandsFunctions
     lastValue = createValue( EAtomicType.INTEGER, intervalValue );
     result.add( new TemporalAtomicValue( intervalStartTime, lastValue ) );
     valuesCounter.add( 1 );
+  }
+
+  /**
+   * Фильтрует команды по {@link Gwid}
+   *
+   * @param aDataGwid {@link Gwid} идентификтор допустимых команд. Допускается {@link Gwid#isMulti()} = true.
+   * @param aCommand {@link IDtoCommand} команда
+   * @return boolean <b>true</b> команда проходит фильтр. <b>false</b> команда не проходит фильтр.
+   */
+  private static boolean filterByGwid( Gwid aDataGwid, IDtoCommand aCommand ) {
+    if( !aDataGwid.isMulti() ) {
+      return aCommand.cmdGwid().equals( aDataGwid );
+    }
+    if( !aDataGwid.isStridMulti() && aDataGwid.isPropMulti() ) {
+      return aCommand.cmdGwid().skid().equals( aDataGwid.skid() );
+    }
+    if( aDataGwid.isStridMulti() && !aDataGwid.isPropMulti() ) {
+      return aCommand.cmdGwid().propId().equals( aDataGwid.propId() );
+    }
+    if( !aDataGwid.isStridMulti() || !aDataGwid.isPropMulti() ) {
+      throw new TsInternalErrorRtException();
+    }
+    return true;
   }
 
   /**
