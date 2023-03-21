@@ -10,13 +10,13 @@ import org.toxsoft.core.tslib.utils.logs.impl.LoggerUtils;
  *
  * @author mvk
  */
-public class SkProgressDialog
+public class SkQueryDialog
     extends ProgressMonitorDialog
-    implements ISkProgressCancelProducer {
+    implements ISkQueryCancelProducer {
 
   private String                   dialogName;
   private long                     timeout;
-  private ISkProgressCancelHandler cancelHandler;
+  private ISkQueryCancelHandler cancelHandler;
 
   /**
    * Конструктор
@@ -26,18 +26,18 @@ public class SkProgressDialog
    * @param aTimeout long таймаут ожидания (мсек). < 0: бесконечно
    * @throws TsNullArgumentRtException любой аргумент = null
    */
-  public SkProgressDialog( Shell aShell, String aDialogName, long aTimeout ) {
+  public SkQueryDialog( Shell aShell, String aDialogName, long aTimeout ) {
     super( TsNullArgumentRtException.checkNull( aShell ) );
     dialogName = TsNullArgumentRtException.checkNull( aDialogName );
     timeout = aTimeout;
   }
 
   // ------------------------------------------------------------------------------------
-  // ISkProgressCancelProducer
+  // ISkQueryCancelProducer
   //
   @Override
-  public ISkProgressCancelHandler setCancelHandler( ISkProgressCancelHandler aCancelHandler ) {
-    ISkProgressCancelHandler prevHandler = cancelHandler;
+  public ISkQueryCancelHandler setCancelHandler( ISkQueryCancelHandler aCancelHandler ) {
+    ISkQueryCancelHandler prevHandler = cancelHandler;
     cancelHandler = aCancelHandler;
     return prevHandler;
   }

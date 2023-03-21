@@ -5,7 +5,7 @@ package org.toxsoft.uskat.base.gui.glib.query;
  *
  * @author mvk
  */
-public interface ISkProgressCancelHandler {
+public interface ISkQueryCancelHandler {
 
   /**
    * Отменить операцию
