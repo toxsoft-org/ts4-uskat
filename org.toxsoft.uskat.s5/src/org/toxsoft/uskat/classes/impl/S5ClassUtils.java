@@ -73,57 +73,49 @@ public class S5ClassUtils {
     TsNullArgumentRtException.checkNull( aCoreApi );
     ISkSysdescr cm = aCoreApi.sysdescr();
     // IS5ClassServer
-    if( cm.findClassInfo( IS5ClassServer.CLASS_ID ) == null ) {
-      DtoClassInfo sci = new DtoClassInfo( //
-          IS5ClassServer.CLASS_ID, //
-          IGwHardConstants.GW_ROOT_CLASS_ID, //
-          OptionSetUtils.createOpSet( //
-              DDEF_NAME, STR_N_CLASS_SERVER, //
-              DDEF_DESCRIPTION, STR_D_CLASS_SERVER //
-          ) );
-      cm.defineClass( sci );
-    }
+    DtoClassInfo sci = new DtoClassInfo( //
+        IS5ClassServer.CLASS_ID, //
+        IGwHardConstants.GW_ROOT_CLASS_ID, //
+        OptionSetUtils.createOpSet( //
+            DDEF_NAME, STR_N_CLASS_SERVER, //
+            DDEF_DESCRIPTION, STR_D_CLASS_SERVER //
+        ) );
+    cm.defineClass( sci );
 
     // IS5ClassNode
-    if( cm.findClassInfo( IS5ClassNode.CLASS_ID ) == null ) {
-      DtoClassInfo sci = new DtoClassInfo( //
-          IS5ClassNode.CLASS_ID, //
-          IGwHardConstants.GW_ROOT_CLASS_ID, //
-          OptionSetUtils.createOpSet( //
-              DDEF_NAME, STR_N_CLASS_NODE, //
-              DDEF_DESCRIPTION, STR_D_CLASS_NODE //
-          ) );
-      sci.linkInfos().addAll( //
-          LNKINF_NODE_SERVER //
-      );
-      cm.defineClass( sci );
-    }
+    sci = new DtoClassInfo( //
+        IS5ClassNode.CLASS_ID, //
+        IGwHardConstants.GW_ROOT_CLASS_ID, //
+        OptionSetUtils.createOpSet( //
+            DDEF_NAME, STR_N_CLASS_NODE, //
+            DDEF_DESCRIPTION, STR_D_CLASS_NODE //
+        ) );
+    sci.linkInfos().addAll( //
+        LNKINF_NODE_SERVER //
+    );
+    cm.defineClass( sci );
 
     // IS5ClassBackend
-    if( cm.findClassInfo( IS5ClassBackend.CLASS_ID ) == null ) {
-      DtoClassInfo sci = new DtoClassInfo( //
-          IS5ClassBackend.CLASS_ID, //
-          IGwHardConstants.GW_ROOT_CLASS_ID, //
-          OptionSetUtils.createOpSet( //
-              DDEF_NAME, STR_N_CLASS_BACKEND, //
-              DDEF_DESCRIPTION, STR_D_CLASS_BACKEND //
-          ) );
-      sci.linkInfos().addAll( //
-          LNKINF_BACKEND_NODE //
-      );
-      cm.defineClass( sci );
-    }
+    sci = new DtoClassInfo( //
+        IS5ClassBackend.CLASS_ID, //
+        IGwHardConstants.GW_ROOT_CLASS_ID, //
+        OptionSetUtils.createOpSet( //
+            DDEF_NAME, STR_N_CLASS_BACKEND, //
+            DDEF_DESCRIPTION, STR_D_CLASS_BACKEND //
+        ) );
+    sci.linkInfos().addAll( //
+        LNKINF_BACKEND_NODE //
+    );
+    cm.defineClass( sci );
 
     // IS5ClassHistorableBackend
-    if( cm.findClassInfo( IS5ClassHistorableBackend.CLASS_ID ) == null ) {
-      DtoClassInfo sci = new DtoClassInfo( //
-          IS5ClassHistorableBackend.CLASS_ID, //
-          IS5ClassBackend.CLASS_ID, OptionSetUtils.createOpSet( //
-              DDEF_NAME, STR_N_CLASS_HISTORABLE_BACKEND, //
-              DDEF_DESCRIPTION, STR_D_CLASS_HISTORABLE_BACKEND //
-          ) );
-      cm.defineClass( sci );
-    }
+    sci = new DtoClassInfo( //
+        IS5ClassHistorableBackend.CLASS_ID, //
+        IS5ClassBackend.CLASS_ID, OptionSetUtils.createOpSet( //
+            DDEF_NAME, STR_N_CLASS_HISTORABLE_BACKEND, //
+            DDEF_DESCRIPTION, STR_D_CLASS_HISTORABLE_BACKEND //
+        ) );
+    cm.defineClass( sci );
   }
 
   /**

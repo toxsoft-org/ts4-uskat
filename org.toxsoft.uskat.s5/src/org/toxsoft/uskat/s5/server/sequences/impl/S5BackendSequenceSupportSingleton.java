@@ -858,13 +858,10 @@ public abstract class S5BackendSequenceSupportSingleton<S extends IS5Sequence<V>
     Skid nodeId = nodeId();
     // Полный (с именем узла) идентификатор backend
     Skid backendId = backendId();
-    // Проверка существования backend как объекта системы
-    IS5ClassHistorableBackend backend = objectService.find( backendId );
-    if( backend == null ) {
-      // Бекенд не найден. Создание бекенда как объекта системы
-      backend = objectService.defineObject( new DtoObject( backendId, IOptionSet.NULL, IStringMap.EMPTY ) );
-      linkService.defineLink( backendId, IS5ClassBackend.LNKID_NODE, ISkidList.EMPTY, new SkidList( nodeId ) );
-    }
+    // Создание/обновление бекенда как объекта системы
+    objectService.defineObject( new DtoObject( backendId, IOptionSet.NULL, IStringMap.EMPTY ) );
+    linkService.defineLink( backendId, IS5ClassBackend.LNKID_NODE, ISkidList.EMPTY, new SkidList( nodeId ) );
+
     if( statisticWriter != null ) {
       // Завершение работы предыдущего писателя статистики
       statisticWriter.close();
