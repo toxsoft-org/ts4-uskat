@@ -1,4 +1,7 @@
 eclipse.preferences.version=1
+encoding//src/org/toxsoft/uskat/base/gui/conn/cfg/m5/messages.properties=UTF-8
+encoding//src/org/toxsoft/uskat/base/gui/conn/cfg/m5/messages_ka_GE.properties=UTF-8
+encoding//src/org/toxsoft/uskat/base/gui/conn/cfg/m5/messages_ru_RU.properties=UTF-8
 encoding//src/org/toxsoft/uskat/base/gui/conn/messages_ka_GE.properties=UTF-8
 encoding//src/org/toxsoft/uskat/base/gui/conn/messages_ru_RU.properties=UTF-8
 encoding//src/org/toxsoft/uskat/core/api/cmdserv/messages_ka_GE.properties=UTF-8

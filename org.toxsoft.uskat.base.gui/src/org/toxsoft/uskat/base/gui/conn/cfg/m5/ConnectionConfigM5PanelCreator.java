@@ -1,13 +1,9 @@
 package org.toxsoft.uskat.base.gui.conn.cfg.m5;
 
-import static org.toxsoft.core.tsgui.m5.IM5Constants.*;
-import static org.toxsoft.core.tsgui.m5.gui.mpc.IMultiPaneComponentConstants.*;
-import static org.toxsoft.core.tslib.av.impl.AvUtils.*;
 import static org.toxsoft.uskat.base.gui.conn.cfg.m5.IConnectionConfigM5Constants.*;
 
 import org.toxsoft.core.tsgui.bricks.ctx.*;
 import org.toxsoft.core.tsgui.m5.*;
-import org.toxsoft.core.tsgui.m5.gui.mpc.impl.*;
 import org.toxsoft.core.tsgui.m5.gui.panels.*;
 import org.toxsoft.core.tsgui.m5.gui.panels.impl.*;
 import org.toxsoft.core.tsgui.m5.model.*;
@@ -15,9 +11,7 @@ import org.toxsoft.core.tsgui.m5.model.impl.*;
 import org.toxsoft.core.tsgui.valed.api.*;
 import org.toxsoft.core.tsgui.valed.controls.basic.*;
 import org.toxsoft.core.tslib.av.opset.*;
-import org.toxsoft.core.tslib.bricks.strid.idgen.*;
 import org.toxsoft.uskat.base.gui.conn.cfg.*;
-import org.toxsoft.uskat.core.*;
 
 /**
  * Panel creator for {@link ConnectionConfigM5Model}.
@@ -70,10 +64,6 @@ public class ConnectionConfigM5PanelCreator
 
   }
 
-  private static final String CONN_CFG_ID_PREFIX = ISkHardConstants.SK_ID + "_ConnCfg"; //$NON-NLS-1$
-
-  private final IStridGenerator idGen = new UuidStridGenerator( UuidStridGenerator.createState( CONN_CFG_ID_PREFIX ) );
-
   /**
    * Constructor.
    */
@@ -85,22 +75,6 @@ public class ConnectionConfigM5PanelCreator
   protected IM5EntityPanel<IConnectionConfig> doCreateEntityEditorPanel( ITsGuiContext aContext,
       IM5LifecycleManager<IConnectionConfig> aLifecycleManager ) {
     return new M5DefaultEntityControlledPanel<>( aContext, model(), aLifecycleManager, new Controller() );
-  }
-
-  @Override
-  protected IM5CollectionPanel<IConnectionConfig> doCreateCollEditPanel( ITsGuiContext aContext,
-      IM5ItemsProvider<IConnectionConfig> aItemsProvider, IM5LifecycleManager<IConnectionConfig> aLifecycleManager ) {
-    OPDEF_IS_ACTIONS_CRUD.setValue( aContext.params(), AV_TRUE );
-    MultiPaneComponentModown<IConnectionConfig> mpc =
-        new MultiPaneComponentModown<>( aContext, model(), aItemsProvider, aLifecycleManager ) {
-
-          @Override
-          protected void doAdjustEntityCreationInitialValues( IM5BunchEdit<IConnectionConfig> aValues ) {
-            String id = idGen.nextId();
-            aValues.set( FID_ID, avStr( id ) );
-          }
-        };
-    return new M5CollectionPanelMpcModownWrapper<>( mpc, false );
   }
 
 }

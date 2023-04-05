@@ -1,6 +1,7 @@
 package org.toxsoft.uskat.base.gui.conn.cfg.m5;
 
 import static org.toxsoft.core.tsgui.m5.IM5Constants.*;
+import static org.toxsoft.core.tslib.av.impl.AvUtils.*;
 import static org.toxsoft.core.tslib.av.metainfo.IAvMetaConstants.*;
 import static org.toxsoft.uskat.base.gui.conn.cfg.m5.IConnectionConfigM5Constants.*;
 
@@ -23,7 +24,7 @@ import org.toxsoft.uskat.core.*;
 class ConnectionConfigM5LifecycleManager
     extends M5LifecycleManager<IConnectionConfig, IConnectionConfigService> {
 
-  private static final String CONN_CFG_ID_PREFIX = ISkHardConstants.SK_ID + "_ConnCfg"; //$NON-NLS-1$
+  private static final String CONN_CFG_ID_PREFIX = ISkHardConstants.SK_ID + ".ConnCfg"; //$NON-NLS-1$
 
   private final IStridGenerator idGen = new UuidStridGenerator( UuidStridGenerator.createState( CONN_CFG_ID_PREFIX ) );
 
@@ -56,6 +57,12 @@ class ConnectionConfigM5LifecycleManager
   // ------------------------------------------------------------------------------------
   // M5LifecycleManager
   //
+
+  @Override
+  protected void doSetupNewItemValues( IM5BunchEdit<IConnectionConfig> aValues ) {
+    String id = idGen.nextId();
+    aValues.set( FID_ID, avStr( id ) );
+  }
 
   @Override
   protected ValidationResult doBeforeCreate( IM5Bunch<IConnectionConfig> aValues ) {

@@ -86,12 +86,12 @@ public class MtbBackendToTsProj
       implements ICloseable {
 
     public PduBackend() {
-      MtbBackendToTsProj.this.genericChangeEventer().addListener( genericChangeEventer );
+      MtbBackendToTsProj.this.genericChangeEventer().addListener( genericChangeEventer() );
     }
 
     @Override
     public void close() {
-      MtbBackendToTsProj.this.genericChangeEventer().removeListener( genericChangeEventer );
+      MtbBackendToTsProj.this.genericChangeEventer().removeListener( genericChangeEventer() );
     }
 
     @Override

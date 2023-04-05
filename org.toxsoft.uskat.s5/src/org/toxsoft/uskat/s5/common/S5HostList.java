@@ -1,7 +1,5 @@
 package org.toxsoft.uskat.s5.common;
 
-import static org.toxsoft.core.tslib.bricks.strio.IStrioHardConstants.*;
-
 import org.toxsoft.core.tslib.bricks.keeper.*;
 import org.toxsoft.core.tslib.bricks.keeper.AbstractEntityKeeper.*;
 import org.toxsoft.core.tslib.bricks.strio.*;
@@ -33,32 +31,13 @@ public final class S5HostList
 
         @Override
         protected void doWrite( IStrioWriter aSw, S5HostList aEntity ) {
-          aSw.writeChar( CHAR_SET_BEGIN );
-          aSw.writeInt( aEntity.size() );
-          aSw.writeChar( CHAR_ARRAY_BEGIN );
-          for( int i = 0, n = aEntity.size(); i < n; i++ ) {
-            S5Host v = aEntity.get( i );
-            S5Host.KEEPER.write( aSw, v );
-            if( i < n - 1 ) {
-              aSw.writeChar( CHAR_ITEM_SEPARATOR );
-            }
-            aSw.writeEol();
-          }
-          aSw.writeChar( CHAR_ARRAY_END );
-          aSw.writeChar( CHAR_SET_END );
+          S5Host.KEEPER.writeColl( aSw, aEntity, false );
         }
 
         @Override
         protected S5HostList doRead( IStrioReader aSr ) {
-          aSr.ensureChar( CHAR_SET_BEGIN );
-          S5HostList result = new S5HostList();
-          if( aSr.readArrayBegin() ) {
-            do {
-              result.add( S5Host.KEEPER.read( aSr ) );
-            } while( aSr.readArrayNext() );
-          }
-          aSr.ensureChar( CHAR_SET_END );
-          return result;
+          IList<S5Host> ll = S5Host.KEEPER.readColl( aSr );
+          return new S5HostList( ll );
         }
       };
 

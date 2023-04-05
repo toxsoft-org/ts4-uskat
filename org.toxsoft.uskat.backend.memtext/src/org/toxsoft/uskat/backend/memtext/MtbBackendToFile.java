@@ -57,6 +57,9 @@ public class MtbBackendToFile
       DataDef.create( MtbBackendToFile.class.getSimpleName() + ".FilePath", STRING, //$NON-NLS-1$
           TSID_NAME, STR_N_OP_FILE_PATH, //
           TSID_DESCRIPTION, STR_D_OP_FILE_PATH, //
+          // this option must match constants from TSGUI
+          "ts.valed.option.EditorFactoryName", "ts.valed.AvStringFile", //$NON-NLS-1$//$NON-NLS-2$
+          "ts.valed.option.File.IsOpenDialog", AV_TRUE, //
           TSID_IS_MANDATORY, AV_TRUE //
       );
 

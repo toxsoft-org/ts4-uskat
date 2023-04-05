@@ -41,12 +41,14 @@ public final class S5Host
         @Override
         protected void doWrite( IStrioWriter aSw, S5Host aEntity ) {
           aSw.writeQuotedString( aEntity.address );
+          aSw.writeSeparatorChar();
           aSw.writeInt( aEntity.port );
         }
 
         @Override
         protected S5Host doRead( IStrioReader aSr ) {
           String address = aSr.readQuotedString();
+          aSr.ensureSeparatorChar();
           int port = aSr.readInt();
           return new S5Host( address, port );
         }
@@ -223,7 +225,7 @@ public final class S5Host
     }
     try {
       @SuppressWarnings( "unused" )
-      URL url = new URL( aAddress );
+      URL url = new URL( "http://" + aAddress ); //$NON-NLS-1$
     }
     catch( MalformedURLException ex ) {
       return ValidationResult.error( FMT_ERR_INV_ADDRESS_URL, aAddress, ex.getLocalizedMessage() );

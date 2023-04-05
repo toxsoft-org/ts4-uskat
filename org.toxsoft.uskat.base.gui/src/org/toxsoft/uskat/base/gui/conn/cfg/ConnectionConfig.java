@@ -6,6 +6,7 @@ import org.toxsoft.core.tslib.bricks.keeper.*;
 import org.toxsoft.core.tslib.bricks.keeper.AbstractEntityKeeper.*;
 import org.toxsoft.core.tslib.bricks.strid.impl.*;
 import org.toxsoft.core.tslib.bricks.strio.*;
+import org.toxsoft.core.tslib.utils.*;
 import org.toxsoft.core.tslib.utils.errors.*;
 
 /**
@@ -30,6 +31,7 @@ public final class ConnectionConfig
           // id, providerId
           aSw.writeAsIs( aEntity.id() );
           aSw.writeSeparatorChar();
+          aSw.writeEol();
           aSw.writeAsIs( aEntity.providerId() );
           aSw.writeSeparatorChar();
           aSw.writeEol();
@@ -87,6 +89,36 @@ public final class ConnectionConfig
   @Override
   public IOptionSet opValues() {
     return values;
+  }
+
+  // ------------------------------------------------------------------------------------
+  // Object
+  //
+
+  @Override
+  public String toString() {
+    return super.toString() + ' ' + providerId + ' ' + values.toString();
+  }
+
+  @Override
+  public boolean equals( Object aThat ) {
+    if( aThat == this ) {
+      return true;
+    }
+    if( aThat instanceof ConnectionConfig that ) {
+      if( super.equals( that ) ) {
+        return providerId.equals( that.providerId ) && this.values.equals( that.values );
+      }
+    }
+    return false;
+  }
+
+  @Override
+  public int hashCode() {
+    int result = super.hashCode();
+    result = TsLibUtils.PRIME * result + providerId.hashCode();
+    result = TsLibUtils.PRIME * result + values.hashCode();
+    return result;
   }
 
 }
