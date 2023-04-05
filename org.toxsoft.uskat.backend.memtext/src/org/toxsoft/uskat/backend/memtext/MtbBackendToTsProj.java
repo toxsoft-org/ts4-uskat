@@ -6,20 +6,24 @@ import static org.toxsoft.core.tslib.av.metainfo.IAvMetaConstants.*;
 import static org.toxsoft.core.tslib.bricks.strio.IStrioHardConstants.*;
 import static org.toxsoft.uskat.backend.memtext.ISkResources.*;
 
-import org.toxsoft.core.tslib.av.impl.*;
-import org.toxsoft.core.tslib.av.metainfo.*;
-import org.toxsoft.core.tslib.av.opset.*;
-import org.toxsoft.core.tslib.bricks.ctx.*;
-import org.toxsoft.core.tslib.bricks.ctx.impl.*;
-import org.toxsoft.core.tslib.bricks.strid.impl.*;
-import org.toxsoft.core.tslib.bricks.strio.*;
-import org.toxsoft.core.tslib.utils.*;
-import org.toxsoft.core.tslib.utils.errors.*;
-import org.toxsoft.core.txtproj.lib.*;
-import org.toxsoft.core.txtproj.lib.impl.*;
+import org.toxsoft.core.tslib.av.impl.DataDef;
+import org.toxsoft.core.tslib.av.metainfo.IDataDef;
+import org.toxsoft.core.tslib.av.opset.IOptionSet;
+import org.toxsoft.core.tslib.bricks.ctx.ITsContextRefDef;
+import org.toxsoft.core.tslib.bricks.ctx.ITsContextRo;
+import org.toxsoft.core.tslib.bricks.ctx.impl.TsContextRefDef;
+import org.toxsoft.core.tslib.bricks.strid.impl.StridUtils;
+import org.toxsoft.core.tslib.bricks.strio.IStrioReader;
+import org.toxsoft.core.tslib.bricks.strio.IStrioWriter;
+import org.toxsoft.core.tslib.utils.ICloseable;
+import org.toxsoft.core.tslib.utils.errors.TsIllegalArgumentRtException;
+import org.toxsoft.core.tslib.utils.errors.TsNullArgumentRtException;
+import org.toxsoft.core.txtproj.lib.IProjDataUnit;
+import org.toxsoft.core.txtproj.lib.ITsProject;
+import org.toxsoft.core.txtproj.lib.impl.AbstractProjDataUnit;
 import org.toxsoft.uskat.core.backend.*;
-import org.toxsoft.uskat.core.backend.api.*;
-import org.toxsoft.uskat.core.backend.metainf.*;
+import org.toxsoft.uskat.core.backend.api.ISkBackendInfo;
+import org.toxsoft.uskat.core.backend.metainf.ISkBackendMetaInfo;
 
 /**
  * {@link MtbAbstractBackend} implementation which stores data as {@link IProjDataUnit} in {@link ITsProject}.
