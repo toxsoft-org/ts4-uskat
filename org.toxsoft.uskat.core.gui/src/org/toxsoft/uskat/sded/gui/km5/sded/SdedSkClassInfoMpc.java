@@ -1,0 +1,187 @@
+package org.toxsoft.uskat.sded.gui.km5.sded;
+
+import static org.toxsoft.core.tsgui.bricks.actions.ITsStdActionDefs.*;
+import static org.toxsoft.uskat.sded.gui.ISkSdedGuiConstants.*;
+import static org.toxsoft.uskat.sded.gui.km5.IKM5SdedConstants.*;
+import static org.toxsoft.uskat.sded.gui.km5.ISkSdedKm5SharedResources.*;
+
+import org.toxsoft.core.tsgui.bricks.actions.*;
+import org.toxsoft.core.tsgui.bricks.ctx.*;
+import org.toxsoft.core.tsgui.bricks.tsnodes.*;
+import org.toxsoft.core.tsgui.bricks.tstree.tmm.*;
+import org.toxsoft.core.tsgui.graphics.icons.*;
+import org.toxsoft.core.tsgui.m5.*;
+import org.toxsoft.core.tsgui.m5.gui.mpc.*;
+import org.toxsoft.core.tsgui.m5.gui.mpc.impl.*;
+import org.toxsoft.core.tsgui.m5.model.*;
+import org.toxsoft.core.tsgui.panels.toolbar.*;
+import org.toxsoft.core.tslib.bricks.strid.coll.*;
+import org.toxsoft.core.tslib.bricks.strid.coll.impl.*;
+import org.toxsoft.core.tslib.coll.*;
+import org.toxsoft.core.tslib.coll.impl.*;
+import org.toxsoft.core.tslib.coll.primtypes.*;
+import org.toxsoft.core.tslib.coll.primtypes.impl.*;
+import org.toxsoft.core.tslib.gw.*;
+import org.toxsoft.core.tslib.utils.errors.*;
+import org.toxsoft.uskat.core.api.sysdescr.*;
+import org.toxsoft.uskat.core.connection.*;
+import org.toxsoft.uskat.core.utils.*;
+
+/**
+ * {@link IMultiPaneComponent} implementation for {@link ISkClassInfo} collection editor.
+ *
+ * @author hazard157
+ */
+class SdedSkClassInfoMpc
+    extends MultiPaneComponentModown<ISkClassInfo>
+    implements ISkConnected {
+
+  public static final String TMIID_BY_HIERARCHY = "ByHierarchy"; //$NON-NLS-1$
+
+  public static final ITsNodeKind<ISkClassInfo> NK_CLASS = new TsNodeKind<>( "SkClass", //$NON-NLS-1$
+      ISkClassInfo.class, true, ICONID_SDED_CLASS );
+
+  static class TreeMakerByHierarchy
+      implements ITsTreeMaker<ISkClassInfo> {
+
+    private DefaultTsNode<ISkClassInfo> getParentNode( ISkClassInfo aCinf,
+        IStringMapEdit<DefaultTsNode<ISkClassInfo>> aAllMap, IStridablesList<ISkClassInfo> aAllItems ) {
+      DefaultTsNode<ISkClassInfo> parentNode = aAllMap.findByKey( aCinf.parentId() );
+      if( parentNode != null ) {
+        return parentNode;
+      }
+      ISkClassInfo parentClass = aAllItems.getByKey( aCinf.id() );
+      DefaultTsNode<ISkClassInfo> grandpaNode = getParentNode( parentClass, aAllMap, aAllItems );
+      parentNode = new DefaultTsNode<>( NK_CLASS, grandpaNode, parentClass );
+      aAllMap.put( parentClass.id(), parentNode );
+      grandpaNode.addNode( parentNode );
+      return parentNode;
+    }
+
+    @Override
+    public IList<ITsNode> makeRoots( ITsNode aRootNode, IList<ISkClassInfo> aItems ) {
+      IStridablesList<ISkClassInfo> allItems = new StridablesList<>( aItems );
+      DefaultTsNode<ISkClassInfo> skRoot =
+          new DefaultTsNode<>( NK_CLASS, aRootNode, allItems.getByKey( IGwHardConstants.GW_ROOT_CLASS_ID ) );
+      IStringMapEdit<DefaultTsNode<ISkClassInfo>> allMap = new StringMap<>();
+      allMap.put( skRoot.entity().id(), skRoot );
+      for( ISkClassInfo cinf : allItems ) {
+        if( cinf.id().equals( IGwHardConstants.GW_ROOT_CLASS_ID ) ) {
+          continue;
+        }
+        DefaultTsNode<ISkClassInfo> parentNode = getParentNode( cinf, allMap, allItems );
+        DefaultTsNode<ISkClassInfo> classNode = new DefaultTsNode<>( NK_CLASS, parentNode, cinf );
+        allMap.put( cinf.id(), classNode );
+        parentNode.addNode( classNode );
+      }
+      return new SingleItemList<>( skRoot );
+    }
+
+    @Override
+    public boolean isItemNode( ITsNode aNode ) {
+      return aNode.kind() == NK_CLASS;
+    }
+
+  }
+
+  SdedSkClassInfoMpc( ITsGuiContext aContext, IM5Model<ISkClassInfo> aModel,
+      IM5ItemsProvider<ISkClassInfo> aItemsProvider, IM5LifecycleManager<ISkClassInfo> aLifecycleManager ) {
+    super( aContext, aModel, aItemsProvider, aLifecycleManager );
+    TreeModeInfo<ISkClassInfo> tmiByHierarchy = new TreeModeInfo<>( TMIID_BY_HIERARCHY, //
+        STR_N_TMI_BY_HIERARCHY, STR_D_TMI_BY_HIERARCHY, null, new TreeMakerByHierarchy() );
+    treeModeManager().addTreeMode( tmiByHierarchy );
+  }
+
+  // ------------------------------------------------------------------------------------
+  // MultiPaneComponentModown
+  //
+
+  @Override
+  protected ITsToolbar doCreateToolbar( ITsGuiContext aContext, String aName, EIconSize aIconSize,
+      IListEdit<ITsActionDef> aActs ) {
+    aActs.add( ACDEF_SEPARATOR );
+    aActs.add( ACDEF_HIDE_CLAIMED_CLASSES );
+    return super.doCreateToolbar( aContext, aName, aIconSize, aActs );
+  }
+
+  @Override
+  protected void doProcessAction( String aActionId ) {
+    switch( aActionId ) {
+      case ACTID_HIDE_CLAIMED_CLASSES: {
+        refresh();
+        break;
+      }
+      default:
+        throw new TsNotAllEnumsUsedRtException( aActionId );
+    }
+  }
+
+  @Override
+  protected void doAfterCreateControls() {
+    toolbar().setActionChecked( ACTID_HIDE_CLAIMED_CLASSES, true );
+  }
+
+  @Override
+  protected void doUpdateActionsState( boolean aIsAlive, boolean aIsSel, ISkClassInfo aSel ) {
+    // can NOT edit: 1) root class, 2) claimed by service
+    boolean canEdit = false;
+    if( aSel != null ) {
+      if( !aSel.id().equals( IGwHardConstants.GW_ROOT_CLASS_ID ) ) {
+        String claiminServiceId = skSysdescr().determineClassClaimingServiceId( aSel.id() );
+        if( claiminServiceId.equals( ISkSysdescr.SERVICE_ID ) ) {
+          canEdit = true;
+        }
+      }
+    }
+    toolbar().setActionEnabled( ACTID_EDIT, canEdit );
+  }
+
+  @Override
+  protected void doAdjustEntityCreationInitialValues( IM5BunchEdit<ISkClassInfo> aValues ) {
+    ISkClassInfo sel = tree().selectedItem();
+    String parentId = IGwHardConstants.GW_ROOT_CLASS_ID;
+    if( sel != null ) {
+      parentId = sel.id();
+    }
+    aValues.set( FID_PARENT_ID, parentId );
+  }
+
+  @Override
+  protected void doFillTree() {
+    IStridablesList<ISkClassInfo> allItems = new StridablesList<>( itemsProvider().listItems() );
+    if( toolbar().isActionChecked( ACTID_HIDE_CLAIMED_CLASSES ) ) {
+      IStridablesListEdit<ISkClassInfo> visibleItems = new StridablesList<>();
+      // add SYSDESCR owned classes with all parents
+      for( ISkClassInfo cinf : allItems ) {
+        String claimingServiceId = skSysdescr().determineClassClaimingServiceId( cinf.id() );
+        if( claimingServiceId.equals( ISkSysdescr.SERVICE_ID ) ) {
+          if( !visibleItems.hasKey( cinf.id() ) ) {
+            visibleItems.add( cinf );
+            String parentId = cinf.parentId();
+            while( !parentId.isEmpty() ) {
+              ISkClassInfo pinf = allItems.getByKey( parentId );
+              if( !visibleItems.hasKey( pinf.id() ) ) {
+                visibleItems.add( pinf );
+              }
+              parentId = pinf.parentId();
+            }
+          }
+        }
+      }
+      tree().items().setAll( visibleItems );
+    }
+    else {
+      tree().items().setAll( allItems );
+    }
+  }
+
+  // ------------------------------------------------------------------------------------
+  // ISkConnected
+  //
+
+  @Override
+  public ISkConnection skConn() {
+    return model().domain().tsContext().get( ISkConnection.class );
+  }
+
+}
