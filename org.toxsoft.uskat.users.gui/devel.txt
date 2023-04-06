@@ -1,2 +1,0 @@
-
-Separate "Change password" action and password dialog vith validation
