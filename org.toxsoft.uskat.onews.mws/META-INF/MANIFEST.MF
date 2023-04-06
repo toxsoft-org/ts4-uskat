@@ -24,7 +24,7 @@ Require-Bundle: javax.inject,
  org.toxsoft.core.tslib,
  org.toxsoft.core.tsgui,
  org.toxsoft.uskat.core,
- org.toxsoft.uskat.base.gui,
+ org.toxsoft.uskat.core.gui,
  org.toxsoft.uskat.onews.lib,
  org.toxsoft.uskat.onews.gui,
  org.toxsoft.uskat.users.mws

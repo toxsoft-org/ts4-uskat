@@ -16,11 +16,10 @@ Require-Bundle: javax.annotation,
  org.toxsoft.core.tslib,
  org.toxsoft.core.singlesrc.rcp,
  org.toxsoft.core.tsgui,
- org.toxsoft.core.tsgui.ved,
  org.toxsoft.core.tsgui.mws,
  org.toxsoft.core.txtproj.lib,
  org.toxsoft.uskat.core,
- org.toxsoft.uskat.base.gui
+ org.toxsoft.uskat.core.gui
 Bundle-RequiredExecutionEnvironment: JavaSE-17
 Automatic-Module-Name: org.toxsoft.uskat.mnemo.gui
 Bundle-ActivationPolicy: lazy

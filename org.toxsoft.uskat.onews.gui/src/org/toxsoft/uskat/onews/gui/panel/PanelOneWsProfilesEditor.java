@@ -25,8 +25,8 @@ import org.toxsoft.core.tslib.bricks.strid.more.*;
 import org.toxsoft.core.tslib.coll.*;
 import org.toxsoft.core.tslib.coll.impl.*;
 import org.toxsoft.core.tslib.utils.errors.*;
-import org.toxsoft.uskat.base.gui.glib.*;
 import org.toxsoft.uskat.core.api.users.*;
+import org.toxsoft.uskat.core.gui.glib.*;
 import org.toxsoft.uskat.onews.gui.km5.*;
 import org.toxsoft.uskat.onews.lib.*;
 

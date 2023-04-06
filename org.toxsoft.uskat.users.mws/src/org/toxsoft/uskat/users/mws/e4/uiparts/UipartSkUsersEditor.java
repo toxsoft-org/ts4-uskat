@@ -8,9 +8,9 @@ import org.toxsoft.core.tsgui.bricks.stdevents.*;
 import org.toxsoft.core.tsgui.mws.services.currentity.*;
 import org.toxsoft.core.tsgui.widgets.*;
 import org.toxsoft.core.tslib.bricks.strid.more.*;
-import org.toxsoft.uskat.base.gui.conn.*;
-import org.toxsoft.uskat.base.gui.e4.uiparts.*;
 import org.toxsoft.uskat.core.api.users.*;
+import org.toxsoft.uskat.core.gui.conn.*;
+import org.toxsoft.uskat.core.gui.e4.uiparts.*;
 import org.toxsoft.uskat.users.gui.panels.*;
 import org.toxsoft.uskat.users.mws.e4.service.*;
 

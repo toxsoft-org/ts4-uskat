@@ -2,7 +2,7 @@ package org.toxsoft.uskat.onews.gui;
 
 import org.eclipse.e4.core.contexts.*;
 import org.toxsoft.core.tsgui.bricks.quant.*;
-import org.toxsoft.uskat.base.gui.km5.*;
+import org.toxsoft.uskat.core.gui.km5.*;
 import org.toxsoft.uskat.core.impl.*;
 import org.toxsoft.uskat.onews.gui.km5.*;
 import org.toxsoft.uskat.onews.lib.impl.*;

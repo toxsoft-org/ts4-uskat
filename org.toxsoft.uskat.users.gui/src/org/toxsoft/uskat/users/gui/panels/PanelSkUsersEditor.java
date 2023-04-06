@@ -12,8 +12,8 @@ import org.toxsoft.core.tsgui.m5.model.*;
 import org.toxsoft.core.tsgui.utils.layout.*;
 import org.toxsoft.core.tslib.bricks.strid.more.*;
 import org.toxsoft.core.tslib.utils.errors.*;
-import org.toxsoft.uskat.base.gui.glib.*;
 import org.toxsoft.uskat.core.api.users.*;
+import org.toxsoft.uskat.core.gui.glib.*;
 import org.toxsoft.uskat.users.gui.km5.*;
 
 /**
