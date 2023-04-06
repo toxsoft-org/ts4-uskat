@@ -6,6 +6,8 @@ import org.toxsoft.core.tsgui.m5.*;
 import org.toxsoft.uskat.core.gui.conn.*;
 import org.toxsoft.uskat.core.gui.conn.cfg.m5.*;
 import org.toxsoft.uskat.core.gui.km5.*;
+import org.toxsoft.uskat.core.gui.km5.sded.objed.*;
+import org.toxsoft.uskat.core.gui.km5.sded.sded.*;
 import org.toxsoft.uskat.core.gui.km5.sgw.*;
 
 /**
@@ -24,6 +26,8 @@ public class QuantSkBaseGui
   public QuantSkBaseGui() {
     super( QuantSkBaseGui.class.getSimpleName() );
     KM5Utils.registerContributorCreator( KM5SgwContributor.CREATOR );
+    KM5Utils.registerContributorCreator( KM5SdedContributor.CREATOR );
+    KM5Utils.registerContributorCreator( KM5ObjedContributor.CREATOR );
   }
 
   @Override
@@ -33,6 +37,8 @@ public class QuantSkBaseGui
 
   @Override
   protected void doInitWin( IEclipseContext aWinContext ) {
+    ISkCoreGuiConstants.init( aWinContext );
+    //
     connectionSupplier = new SkConnectionSupplier( aWinContext );
     aWinContext.set( ISkConnectionSupplier.class, connectionSupplier );
     //
