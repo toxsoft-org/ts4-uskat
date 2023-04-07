@@ -15,7 +15,7 @@ import org.toxsoft.uskat.core.gui.km5.sgw.*;
  *
  * @author hazard157
  */
-public class QuantSkBaseGui
+public class QuantSkCoreGui
     extends AbstractQuant {
 
   private ISkConnectionSupplier connectionSupplier = null;
@@ -23,8 +23,8 @@ public class QuantSkBaseGui
   /**
    * Constructor.
    */
-  public QuantSkBaseGui() {
-    super( QuantSkBaseGui.class.getSimpleName() );
+  public QuantSkCoreGui() {
+    super( QuantSkCoreGui.class.getSimpleName() );
     KM5Utils.registerContributorCreator( KM5SgwContributor.CREATOR );
     KM5Utils.registerContributorCreator( KM5SdedContributor.CREATOR );
     KM5Utils.registerContributorCreator( KM5ObjedContributor.CREATOR );
