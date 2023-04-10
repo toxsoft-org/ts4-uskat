@@ -83,7 +83,7 @@ public final class S5Connection
   /**
    * Тайматут (мсек) ожидания блокировки соединения
    */
-  private static final long LOCK_TIMEOUT = 1000;
+  private static final long LOCK_TIMEOUT = 10000;
 
   /**
    * Параметры создания сессии
@@ -118,7 +118,8 @@ public final class S5Connection
   /**
    * Блокировка доступа к ресурсам соединения
    */
-  private final S5Lockable      lock;
+  private final S5Lockable lock;
+
   /**
    * frontend
    */
@@ -420,10 +421,15 @@ public final class S5Connection
     }
   }
 
+  // TODO: 2023-04-10 mvkd
+  // boolean debug = false;
+
   /**
    * Устанавливает признак того, что необходимо восстановить сессию соединения с сервером
    */
   public void restoreSessionQuery() {
+    // TODO: 2023-04-10 mvkd
+    // debug = true;
     // // 2020-07-23 mvk завершаем работу потока восстановления связи
     // Thread reconnectThread = reconnectThread;
     // if( reconnectThread != null ) {
@@ -436,14 +442,21 @@ public final class S5Connection
     // }
     // Принудительно завершаем все текущие вызовы
     logger.warning( ERR_RESTORE_CONNECTION_CALL_CLOSE_REMOTE );
-    handlingUnexpectedBreak();
     // 2021-01-19 mvk fix-попытка ошибки восстановления связи с сервером
     for( ;; ) {
       // Пробуем получить блокировку
       if( !tryLockWrite( lock, LOCK_TIMEOUT ) ) {
         // Ошибка получения блокировки
         logger.warning( ERR_RESTORE_CONNECTION_TRY_LOCK, lock );
+        // Попытка разблокировать потоки удерживающие блокировку
+        lockThreadInterrupt( lock );
         // Если возможно, то прерываем поток поиска сервера
+        // Thread lt = lockThread;
+        // if( lt != null ) {
+        // // Прерывание потока блокировки
+        // logger.warning( ERR_RESTORE_CONNECTION_LOCK_INTERRUPT, lt );
+        // lt.interrupt();
+        // }
         Thread lt = lookupApiThread;
         if( lt != null ) {
           // Прерывание потока поиска API сервера
@@ -452,6 +465,7 @@ public final class S5Connection
         }
         continue;
       }
+      handlingUnexpectedBreak();
       try {
         if( closingNow || state == EConnectionState.DISCONNECTED ) {
           // Соединение в состоянии деактивации или уже стало неактивным
@@ -696,6 +710,22 @@ public final class S5Connection
       // // Вызов метода - БЕЗОПАСНЕН под lockWrite. Ошибки можно не перехватывать
       // reconnectThread.shutdownQuery();
       // reconnectThread = null;
+      // }
+
+      // TODO: 2023-04-10 mvkd
+      // if( debug ) {
+      // while( true ) {
+      // try {
+      // LoggerUtils.errorLogger().error( "tryConnect(): debug halt 2" );
+      // Thread.sleep( 1000000 );
+      // }
+      // catch( InterruptedException ex ) {
+      // debug = false;
+      // LoggerUtils.errorLogger().error( "tryConnect(): debug halt rise InterruptedException" );
+      // throw new TsUnderDevelopmentRtException( ex );
+      // }
+      // // nop
+      // }
       // }
     }
     finally {

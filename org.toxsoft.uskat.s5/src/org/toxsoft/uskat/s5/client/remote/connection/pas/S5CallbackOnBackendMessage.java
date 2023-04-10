@@ -93,9 +93,9 @@ public final class S5CallbackOnBackendMessage
     String topicId = aNotification.params().getByKey( MSG_TOPIC ).asString();
     String msgId = aNotification.params().getByKey( MSG_ID ).asString();
     String valueStr = aNotification.params().getByKey( MSG_ARGS ).asString();
-    long st = System.currentTimeMillis();
+    // long st = System.currentTimeMillis();
     IOptionSet msgArgs = OptionSetKeeper.KEEPER.str2ent( valueStr );
-    long et = System.currentTimeMillis();
+    // long et = System.currentTimeMillis();
 
     // LoggerUtils.defaultLogger().info(
     // "S5CallbackOnBackendMessage::notify( ... ): topicId = %s, msgId = %s, valueStrLength = %d, read msgArgs time = %d

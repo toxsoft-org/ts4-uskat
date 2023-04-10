@@ -125,6 +125,7 @@ interface IS5Resources {
       "%s. run(): Не найдена блокировка соединения в пуле блокировок. Завершение потока восстановления соединения";     //$NON-NLS-1$
   String ERR_RESTORE_CONNECTION_TRY_LOCK          = "restoreSessionQuery(): ошибка получения блокировки %s.";           //$NON-NLS-1$
   String ERR_RESTORE_CONNECTION_CALL_CLOSE_REMOTE = "restoreSessionQuery(): call handlingUnexpectedBreak()";            //$NON-NLS-1$
+  String ERR_RESTORE_CONNECTION_LOCK_INTERRUPT    = "restoreSessionQuery(): lockThread.interrupt()";                    //$NON-NLS-1$
   String ERR_RESTORE_CONNECTION_LOOKUP_INTERRUPT  = "restoreSessionQuery(): lookupApiThread.interrupt()";               //$NON-NLS-1$
 
   String MSG_CONNECTION_THREAD_TRY_INTERRUPT = Messages.getString( "IS5Resources.MSG_CONNECTION_THREAD_TRY_INTERRUPT" ); //$NON-NLS-1$

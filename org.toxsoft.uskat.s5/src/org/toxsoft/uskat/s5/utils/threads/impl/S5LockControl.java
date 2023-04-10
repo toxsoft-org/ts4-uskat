@@ -76,13 +76,13 @@ final class S5LockControl {
       if( !lock.readLock().tryLock( aAccessTimeout, MILLISECONDS ) ) {
         throwLockException( ERR_READ, this, aAccessTimeout );
       }
-      if( LOCK_TRACING ) {
-        synchronized (this) {
-          IListEdit<StackTraceElement[]> reads = readsByThreads.findByKey( thread );
-          if( reads == null ) {
-            reads = new ElemLinkedList<>();
-            readsByThreads.put( thread, reads );
-          }
+      synchronized (this) {
+        IListEdit<StackTraceElement[]> reads = readsByThreads.findByKey( thread );
+        if( reads == null ) {
+          reads = new ElemLinkedList<>();
+          readsByThreads.put( thread, reads );
+        }
+        if( LOCK_TRACING ) {
           reads.add( thread.getStackTrace() );
           // Вывод в журнал
           debug( this, "tryLockRead" ); //$NON-NLS-1$
@@ -105,14 +105,14 @@ final class S5LockControl {
     if( !lock.readLock().tryLock() ) {
       return false;
     }
-    if( LOCK_TRACING ) {
-      synchronized (this) {
-        Thread thread = Thread.currentThread();
-        IListEdit<StackTraceElement[]> reads = readsByThreads.findByKey( thread );
-        if( reads == null ) {
-          reads = new ElemLinkedList<>();
-          readsByThreads.put( thread, reads );
-        }
+    synchronized (this) {
+      Thread thread = Thread.currentThread();
+      IListEdit<StackTraceElement[]> reads = readsByThreads.findByKey( thread );
+      if( reads == null ) {
+        reads = new ElemLinkedList<>();
+        readsByThreads.put( thread, reads );
+      }
+      if( LOCK_TRACING ) {
         reads.add( thread.getStackTrace() );
         // Вывод в журнал
         debug( this, "tryLockRead" ); //$NON-NLS-1$
@@ -135,13 +135,13 @@ final class S5LockControl {
       if( !lock.readLock().tryLock( aAccessTimeout, MILLISECONDS ) ) {
         return false;
       }
-      if( LOCK_TRACING ) {
-        synchronized (this) {
-          IListEdit<StackTraceElement[]> reads = readsByThreads.findByKey( thread );
-          if( reads == null ) {
-            reads = new ElemLinkedList<>();
-            readsByThreads.put( thread, reads );
-          }
+      synchronized (this) {
+        IListEdit<StackTraceElement[]> reads = readsByThreads.findByKey( thread );
+        if( reads == null ) {
+          reads = new ElemLinkedList<>();
+          readsByThreads.put( thread, reads );
+        }
+        if( LOCK_TRACING ) {
           reads.add( thread.getStackTrace() );
           // Вывод в журнал
           debug( this, "tryLockRead" ); //$NON-NLS-1$
@@ -200,13 +200,13 @@ final class S5LockControl {
       if( !lock.writeLock().tryLock( aAccessTimeout, MILLISECONDS ) ) {
         throwLockException( ERR_WRITE, this, aAccessTimeout );
       }
-      if( LOCK_TRACING ) {
-        synchronized (this) {
-          IListEdit<StackTraceElement[]> writes = writesByThreads.findByKey( thread );
-          if( writes == null ) {
-            writes = new ElemLinkedList<>();
-            writesByThreads.put( thread, writes );
-          }
+      synchronized (this) {
+        IListEdit<StackTraceElement[]> writes = writesByThreads.findByKey( thread );
+        if( writes == null ) {
+          writes = new ElemLinkedList<>();
+          writesByThreads.put( thread, writes );
+        }
+        if( LOCK_TRACING ) {
           writes.add( thread.getStackTrace() );
           // Вывод в журнал
           debug( this, "tryLockWrite" ); //$NON-NLS-1$
@@ -238,13 +238,13 @@ final class S5LockControl {
     if( !lock.writeLock().tryLock() && !lock.writeLock().tryLock() ) {
       return false;
     }
-    if( LOCK_TRACING ) {
-      synchronized (this) {
-        IListEdit<StackTraceElement[]> writes = writesByThreads.findByKey( thread );
-        if( writes == null ) {
-          writes = new ElemLinkedList<>();
-          writesByThreads.put( thread, writes );
-        }
+    synchronized (this) {
+      IListEdit<StackTraceElement[]> writes = writesByThreads.findByKey( thread );
+      if( writes == null ) {
+        writes = new ElemLinkedList<>();
+        writesByThreads.put( thread, writes );
+      }
+      if( LOCK_TRACING ) {
         writes.add( thread.getStackTrace() );
         // Вывод в журнал
         debug( this, "tryLockWrite" ); //$NON-NLS-1$
@@ -275,13 +275,13 @@ final class S5LockControl {
       if( !lock.writeLock().tryLock() && !lock.writeLock().tryLock( aAccessTimeout, MILLISECONDS ) ) {
         return false;
       }
-      if( LOCK_TRACING ) {
-        synchronized (this) {
-          IListEdit<StackTraceElement[]> writes = writesByThreads.findByKey( thread );
-          if( writes == null ) {
-            writes = new ElemLinkedList<>();
-            writesByThreads.put( thread, writes );
-          }
+      synchronized (this) {
+        IListEdit<StackTraceElement[]> writes = writesByThreads.findByKey( thread );
+        if( writes == null ) {
+          writes = new ElemLinkedList<>();
+          writesByThreads.put( thread, writes );
+        }
+        if( LOCK_TRACING ) {
           writes.add( thread.getStackTrace() );
           // Вывод в журнал
           debug( this, "tryLockWrite" ); //$NON-NLS-1$
@@ -314,6 +314,24 @@ final class S5LockControl {
     lock.writeLock().unlock();
     // Вывод в журнал
     debug( this, "unlockWrite" ); //$NON-NLS-1$
+  }
+
+  /**
+   * Делает попытку разблокировать ресурс через прерывание потоков владельцев блокировки
+   */
+  void lockThreadInterrupt() {
+    synchronized (this) {
+      logger.warning( ERR_INTERRUPT_THREADS, this, Integer.valueOf( readsByThreads.keys().size() ),
+          Integer.valueOf( writesByThreads.keys().size() ) );
+      for( Thread thread : writesByThreads.keys() ) {
+        logger.warning( ERR_INTERRUPT_WRITE_THREAD, this, thread );
+        thread.interrupt();
+      }
+      for( Thread thread : readsByThreads.keys() ) {
+        logger.warning( ERR_INTERRUPT_WRITE_THREAD, this, thread );
+        thread.interrupt();
+      }
+    }
   }
 
   /**

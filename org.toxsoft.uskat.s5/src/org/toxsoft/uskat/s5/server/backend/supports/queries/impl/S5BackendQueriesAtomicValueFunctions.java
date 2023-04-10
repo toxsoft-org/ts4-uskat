@@ -63,6 +63,7 @@ class S5BackendQueriesAtomicValueFunctions
   private final EAtomicType                     type;
   private final ITimeInterval                   interval;
   private final long                            aggregationStep;
+  @SuppressWarnings( "unused" )
   private final long                            aggregationStart;
   private final long                            factAggregationStep;
   private final boolean                         repeatByEmpty;
@@ -202,7 +203,7 @@ class S5BackendQueriesAtomicValueFunctions
     TsNullArgumentRtException.checkNull( aCursors );
     if( aCursors.size() > 1 ) {
       throw new TsUnderDevelopmentRtException(
-          "S5BackendQueriesAtomicValueFunctions.evalute(...): multi-gwid handling not implemented yet" );
+          "S5BackendQueriesAtomicValueFunctions.evalute(...): multi-gwid handling not implemented yet" ); //$NON-NLS-1$
     }
     StringBuilder sbLog = (logger.isSeverityOn( ELogSeverity.DEBUG ) ? new StringBuilder() : null);
     // Курсор

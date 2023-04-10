@@ -253,6 +253,13 @@ public class S5Lockable {
   }
 
   /**
+   * Делает попытку разблокировать ресурс через прерывание потоков владельцев блокировки
+   */
+  protected final void lockThreadInterrupt() {
+    control.lockThreadInterrupt();
+  }
+
+  /**
    * Возвращает native-блокировку
    *
    * @return {@link ReentrantReadWriteLock} блокировка
@@ -366,6 +373,17 @@ public class S5Lockable {
   public static final void unlockWrite( S5Lockable aLocable ) {
     TsNullArgumentRtException.checkNull( aLocable );
     aLocable.unlockWrite();
+  }
+
+  /**
+   * Делает попытку разблокировать ресурс через прерывание потоков владельцев блокировки
+   *
+   * @param aLocable блокируемый ресурс
+   * @throws TsNullArgumentRtException аргумент = null
+   */
+  public static final void lockThreadInterrupt( S5Lockable aLocable ) {
+    TsNullArgumentRtException.checkNull( aLocable );
+    aLocable.lockThreadInterrupt();
   }
 
   /**
