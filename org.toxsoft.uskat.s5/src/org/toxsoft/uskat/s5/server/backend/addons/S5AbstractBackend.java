@@ -242,6 +242,10 @@ public abstract class S5AbstractBackend<ADDON extends IS5BackendAddon>
   public final void initialize() {
     doInitialize();
     inited = true;
+    if( isActive() ) {
+      // Формирование сообщения об изменении состояния бекенда: active = true
+      fireBackendMessage( BackendMsgActiveChanged.INSTANCE.makeMessage( true ) );
+    }
   }
 
   @Override
