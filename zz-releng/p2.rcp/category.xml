@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<site>
+   <category-def name="org.toxsoft.uskat.releng.category" label="org.toxsoft.uskat.releng Category">
+      <description>
+         org.toxsoft.uskat.releng Category
+      </description>
+   </category-def>
+   <!-- TODO: -->
+   <!-- <bundle id="org.toxsoft.uskat.???"/> -->
+
+   <!-- sources -->
+   <!-- TODO: -->
+   <!-- <bundle id="org.toxsoft.uskat.???.source"/> -->
+
+</site>

@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <parent>
+      <groupId>org.toxsoft.uskat</groupId>
+      <artifactId>org.toxsoft.uskat.releng</artifactId>
+      <version>1.0.0-SNAPSHOT</version>
+      <relativePath>../../pom.xml</relativePath>
+  </parent>
+  <artifactId>org.toxsoft.uskat.releng.ant.rap</artifactId>
+  <packaging>pom</packaging>
+
+  <build>
+    <plugins>
+      <plugin>
+        <artifactId>maven-antrun-plugin</artifactId>
+        <version>3.0.0</version>
+        <executions>
+          <execution>
+            <id>task0</id>
+            <!-- a lifecycle phase: https://maven.apache.org/ref/3.6.3/maven-core/lifecycles.html -->
+            <phase>compile</phase>
+            <configuration>
+              <target>
+
+                <echo message="call ant task: ../ant-builder/ts-build-rap.xml (make toxsoft jar-libs)" level="info" /> 
+                <ant dir="../ant-builder" antfile="ts-build-rap.xml" target="build-lib-jar" inheritAll="false" inheritRefs="false" useNativeBasedir="true" /> 
+
+              </target>
+            </configuration>
+            <goals>
+              <goal>run</goal>
+            </goals>
+          </execution>
+          <execution>
+            <id>task1</id>
+            <!-- a lifecycle phase: https://maven.apache.org/ref/3.6.3/maven-core/lifecycles.html -->
+            <phase>install</phase>
+            <configuration>
+              <target>
+
+                <echo message="call ant task: delete old plugins from ts4-targets (rap)" level="info" /> 
+                <delete failonerror="false">
+                   <fileset dir="../../../ts4-targets/ts4-target-uskat/rap/plugins" includes="*.*" excludes="*.txt" />
+                </delete>
+
+                <echo message="call ant task: copy new plugins to ts4-targets (rap)" level="info" /> 
+                <copy todir="../../../ts4-targets/ts4-target-uskat/rap/plugins" failonerror="false">
+                   <fileset file="../p2.rap/target/repository/plugins/*.*"/>
+                </copy>    
+
+              </target>
+            </configuration>
+            <goals>
+              <goal>run</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+    </plugins>
+  </build>
+</project>

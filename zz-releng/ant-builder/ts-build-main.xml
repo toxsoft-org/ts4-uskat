@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!-- main библиотеки и плагины -->
+<project name="ts4-build-main" default="build">
+
+  <!-- директория расположения общих сборочных скриптов -->
+  <property name="ts-scripts-dir" location="../../../ts4-targets/ts4-definitions/scripts" />
+
+  <!-- загрузка общих параметров -->
+  <loadproperties srcFile="${ts-scripts-dir}/ts-build-commons.properties" />
+
+  <!-- перед вызовом общих скриптов сборки следует задать директории назначения библиотек и плагинов -->
+  <property name="ts-dest-dir-libs" location="../${ts.target-uskat-lib}" />
+  <property name="ts-dest-dir-plugins" location="../${ts.target-uskat-main}" />
+
+  <!-- ЦЕЛЬ: lib.jar библиотек -->
+  <!-- TODO: -->
+  <target name="build-lib-jar" depends="clean" description="Сборка общих плагинов">
+    <ant dir="../../org.toxsoft.uskat.core" antfile="${ts-scripts-dir}/ts-build-lib.xml" target="build-lib-jar" />
+    <ant dir="../../org.toxsoft.uskat.core.gui" antfile="${ts-scripts-dir}/ts-build-lib.xml" target="build-lib-jar" />
+    <ant dir="../../org.toxsoft.uskat.backend.memtext" antfile="${ts-scripts-dir}/ts-build-lib.xml" target="build-lib-jar" />
+    <ant dir="../../org.toxsoft.uskat.s5" antfile="${ts-scripts-dir}/ts-build-lib.xml" target="build-lib-jar" />
+    <ant dir="../../org.toxsoft.uskat.s5.histdata10" antfile="${ts-scripts-dir}/ts-build-lib.xml" target="build-lib-jar" />
+    <ant dir="../../org.toxsoft.uskat.skadmin.core" antfile="${ts-scripts-dir}/ts-build-lib.xml" target="build-lib-jar" />
+    <ant dir="../../org.toxsoft.uskat.skadmin.cli" antfile="${ts-scripts-dir}/ts-build-lib.xml" target="build-lib-jar" />
+    <ant dir="../../org.toxsoft.uskat.skadmin.dev" antfile="${ts-scripts-dir}/ts-build-lib.xml" target="build-lib-jar" />
+    <ant dir="../../org.toxsoft.uskat.skadmin.logon" antfile="${ts-scripts-dir}/ts-build-lib.xml" target="build-lib-jar" />
+  </target>
+
+  <!-- ЦЕЛЬ: сборка plugin-ов -->
+  <target name="build" depends="build-lib-jar" description="Сборка общих плагинов">
+    <!-- сборка plugin-ов -->
+    <!-- TODO: -->
+    <pde.exportPlugins destination="${ts-dest-dir-plugins}"
+                       exportSource="true"
+                       exportSourceBundle="false"
+                       exportType="directory"
+                       plugins="org.toxsoft.uskat.core,
+                                org.toxsoft.uskat.core.gui,
+                                org.toxsoft.uskat.backend.memtext,
+                                org.toxsoft.uskat.s5,
+                                org.toxsoft.uskat.s5.histdata10,
+                                org.toxsoft.uskat.skadmin.core,
+                                org.toxsoft.uskat.skadmin.cli,
+                                org.toxsoft.uskat.skadmin.dev,
+                                org.toxsoft.uskat.skadmin.logon"
+                       useworkspacecompiledclasses="true"
+                       useJARFormat="true" />
+  </target>
+
+  <!-- ЦЕЛЬ: очистка -->
+  <target name="clean" description="Удаление старых версии">
+    <delete>
+      <fileset dir="${ts-dest-dir-libs}" includes="org.toxsoft.uskat.*" />
+      <fileset dir="${ts-dest-dir-plugins}/plugins" includes="org.toxsoft.uskat.*" />   
+    </delete>
+  </target>
+
+</project>

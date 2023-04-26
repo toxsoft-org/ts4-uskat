@@ -515,8 +515,8 @@
       <modules>
         <!-- TODO rcp-библиотеки -->
 
-        <module>zz-releng/org.toxsoft.uskat.releng.p2.rcp</module>
-        <module>zz-releng/org.toxsoft.uskat.releng.ant.rcp</module>
+        <module>zz-releng/p2.rcp</module>
+        <module>zz-releng/ant.rcp</module>
       </modules>
     </profile>
     <profile>
@@ -558,8 +558,8 @@
       <modules>                                           
         <!-- TODO rap-библиотеки -->
  
-        <module>zz-releng/org.toxsoft.uskat.releng.p2.rap</module>
-        <module>zz-releng/org.toxsoft.uskat.releng.ant.rap</module>
+        <module>zz-releng/p2.rap</module>
+        <module>zz-releng/ant.rap</module>
      </modules>
     </profile>
   </profiles>
@@ -574,8 +574,9 @@
     <module>org.toxsoft.uskat.skadmin.dev</module>
     <module>org.toxsoft.uskat.skadmin.logon</module>
 
-    <module>zz-releng/org.toxsoft.uskat.releng.p2</module>
-    <module>zz-releng/org.toxsoft.uskat.releng.ant</module>
+    <module>zz-releng/p2.main</module>
+    <module>zz-releng/ant.main</module>
+
   </modules>
 
   <distributionManagement>
