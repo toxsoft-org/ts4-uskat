@@ -10,6 +10,7 @@
   <loadproperties srcFile="${ts-scripts-dir}/ts-build-commons.properties" />
 
   <!-- директория собранных плагинов -->
+  <property name="ts-dest-dir-libs" location="../${ts.target-uskat-lib}" />
   <property name="ts-dest-dir-plugins" location="../${ts.target-uskat-rcp}" />
 
   <!-- ЦЕЛЬ: lib.jar библиотек -->
