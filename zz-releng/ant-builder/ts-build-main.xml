@@ -17,7 +17,6 @@
   <!-- TODO: -->
   <target name="build-lib-jar" depends="clean" description="Сборка общих плагинов">
     <ant dir="../../org.toxsoft.uskat.core" antfile="${ts-scripts-dir}/ts-build-lib.xml" target="build-lib-jar" />
-    <ant dir="../../org.toxsoft.uskat.core.gui" antfile="${ts-scripts-dir}/ts-build-lib.xml" target="build-lib-jar" />
     <ant dir="../../org.toxsoft.uskat.backend.memtext" antfile="${ts-scripts-dir}/ts-build-lib.xml" target="build-lib-jar" />
     <ant dir="../../org.toxsoft.uskat.s5" antfile="${ts-scripts-dir}/ts-build-lib.xml" target="build-lib-jar" />
     <ant dir="../../org.toxsoft.uskat.s5.histdata10" antfile="${ts-scripts-dir}/ts-build-lib.xml" target="build-lib-jar" />
@@ -36,7 +35,6 @@
                        exportSourceBundle="false"
                        exportType="directory"
                        plugins="org.toxsoft.uskat.core,
-                                org.toxsoft.uskat.core.gui,
                                 org.toxsoft.uskat.backend.memtext,
                                 org.toxsoft.uskat.s5,
                                 org.toxsoft.uskat.s5.histdata10,

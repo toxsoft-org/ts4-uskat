@@ -514,6 +514,7 @@
       </build>
       <modules>
         <!-- TODO rcp-библиотеки -->
+        <module>org.toxsoft.uskat.core.gui</module>
 
         <module>zz-releng/p2.rcp</module>
         <module>zz-releng/ant.rcp</module>
@@ -565,7 +566,6 @@
   </profiles>
   <modules>
     <module>org.toxsoft.uskat.core</module>
-    <module>org.toxsoft.uskat.core.gui</module>
     <module>org.toxsoft.uskat.backend.memtext</module>
     <module>org.toxsoft.uskat.s5</module>  
     <module>org.toxsoft.uskat.s5.histdata10</module>  

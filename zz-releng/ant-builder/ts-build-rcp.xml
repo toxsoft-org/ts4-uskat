@@ -16,7 +16,7 @@
   <!-- ЦЕЛЬ: lib.jar библиотек -->
   <target name="build-lib-jar" depends="clean" description="Сборка общих плагинов">
     <!-- TODO: -->
-    <!-- <ant dir="../../org.toxsoft.core.singlesrc.rcp" antfile="${ts-scripts-dir}/ts-build-lib.xml" target="build-lib-jar" /> -->
+    <ant dir="../../org.toxsoft.uskat.core.gui" antfile="${ts-scripts-dir}/ts-build-lib.xml" target="build-lib-jar" />
   </target>
 
   <!-- ЦЕЛЬ: сборка -->
@@ -27,7 +27,7 @@
                        exportSource="true"
                        exportSourceBundle="false"
                        exportType="directory"
-                       plugins="org.toxsoft.uskat.???"
+                       plugins="org.toxsoft.uskat.core.gui"
                        useworkspacecompiledclasses="true"
                        useJARFormat="true" />
   </target>

@@ -6,10 +6,10 @@
       </description>
    </category-def>
    <!-- TODO: -->
-   <!-- <bundle id="org.toxsoft.uskat.???"/> -->
+   <bundle id="org.toxsoft.uskat.core.gui"/>   
 
    <!-- sources -->
    <!-- TODO: -->
-   <!-- <bundle id="org.toxsoft.uskat.???.source"/> -->
+   <bundle id="org.toxsoft.uskat.core.gui.source"/>   
 
 </site>
