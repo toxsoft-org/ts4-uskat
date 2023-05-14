@@ -27,9 +27,9 @@ import org.toxsoft.uskat.core.gui.km5.*;
  * <li>default connection always exists, so {@link #defConn()} always returns with non-<code>null</code> value while
  * {@link #getConn(IdChain)} may throw an item not found exception;</li>
  * <li>user may create additional connections only by {@link #createConnection(IdChain, ITsGuiContext)} method;</li>
- * <li>coneection supplier does <b>not</b> manages connection state. Opening or closing connections is out of scope of
+ * <li>connection supplier does <b>not</b> manages connection state. Opening or closing connections is out of scope of
  * this interface;</li>
- * <li>all connections are stored with accosiated key of type {@link IdChain};</li>
+ * <li>all connections are stored with associated key of type {@link IdChain};</li>
  * <li>zzz.</li>
  * </ul>
  * <p>
@@ -44,7 +44,7 @@ public interface ISkConnectionSupplier
   /**
    * Returns the default connection if defined.
    * <p>
-   * Inititlly default connection is created and has the key {@link #getDefaultConnectionKey()} = {@link IdChain#NULL}.
+   * Initially default connection is created and has the key {@link #getDefaultConnectionKey()} = {@link IdChain#NULL}.
    *
    * @return {@link ISkConnection} - default connection, never is <code>null</code>
    */
@@ -53,7 +53,7 @@ public interface ISkConnectionSupplier
   /**
    * Returns the key of the default connection.
    * <p>
-   * Inintially default connection key is {@link IdChain#NULL}.
+   * Initially default connection key is {@link IdChain#NULL}.
    *
    * @return {@link IdChain} - the key of the default connection or {@link IdChain#NULL}
    */
@@ -83,9 +83,9 @@ public interface ISkConnectionSupplier
   ISkConnection createConnection( IdChain aKey, ITsGuiContext aContext );
 
   /**
-   * Return sll connections instances.
+   * Return all connections instances.
    * <p>
-   * Returned map cntains at least one entry with the key {@link IdChain#NULL}.
+   * Returned map contains at least one entry with the key {@link IdChain#NULL}.
    *
    * @return {@link IMap}&lt;{@link IdChain},{@link ISkConnection}&lt; - map "connection key" - "connection instance"
    */

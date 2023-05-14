@@ -4,6 +4,7 @@ import static org.toxsoft.core.tsgui.m5.IM5Constants.*;
 import static org.toxsoft.core.tslib.av.impl.AvUtils.*;
 import static org.toxsoft.core.tslib.av.metainfo.IAvMetaConstants.*;
 import static org.toxsoft.uskat.core.gui.conn.cfg.m5.IConnectionConfigM5Constants.*;
+import static org.toxsoft.uskat.core.gui.conn.cfg.m5.ISkResources.*;
 
 import org.toxsoft.core.tsgui.m5.*;
 import org.toxsoft.core.tsgui.m5.model.impl.*;
@@ -66,6 +67,10 @@ class ConnectionConfigM5LifecycleManager
 
   @Override
   protected ValidationResult doBeforeCreate( IM5Bunch<IConnectionConfig> aValues ) {
+    String providerId = aValues.getAs( FID_PROVIDER_ID, String.class );
+    if( providerId == null ) {
+      return ValidationResult.error( MSG_ERR_NO_CC_PROVIDER );
+    }
     ConnectionConfig cfg = makeConfig( aValues );
     return master().svs().validator().canAddConfig( master(), cfg );
   }
@@ -79,6 +84,10 @@ class ConnectionConfigM5LifecycleManager
 
   @Override
   protected ValidationResult doBeforeEdit( IM5Bunch<IConnectionConfig> aValues ) {
+    String providerId = aValues.getAs( FID_PROVIDER_ID, String.class );
+    if( providerId == null ) {
+      return ValidationResult.error( MSG_ERR_NO_CC_PROVIDER );
+    }
     ConnectionConfig cfg = makeConfig( aValues );
     return master().svs().validator().canReplaceConfig( master(), cfg, aValues.originalEntity() );
   }

@@ -26,7 +26,7 @@ import org.toxsoft.core.tslib.utils.errors.*;
  *
  * @author hazard157
  */
-public class ConnectionConfigService
+public final class ConnectionConfigService
     implements IConnectionConfigService {
 
   /**

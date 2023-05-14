@@ -3,7 +3,9 @@ package org.toxsoft.uskat.core.gui;
 import org.eclipse.e4.core.contexts.*;
 import org.toxsoft.core.tsgui.bricks.quant.*;
 import org.toxsoft.core.tsgui.m5.*;
+import org.toxsoft.core.tsgui.valed.api.*;
 import org.toxsoft.uskat.core.gui.conn.*;
+import org.toxsoft.uskat.core.gui.conn.cfg.*;
 import org.toxsoft.uskat.core.gui.conn.cfg.m5.*;
 import org.toxsoft.uskat.core.gui.km5.*;
 import org.toxsoft.uskat.core.gui.km5.sded.objed.*;
@@ -32,7 +34,8 @@ public class QuantSkCoreGui
 
   @Override
   protected void doInitApp( IEclipseContext aAppContext ) {
-    // nop
+    IConnectionConfigService ccService = new ConnectionConfigService();
+    aAppContext.set( IConnectionConfigService.class, ccService );
   }
 
   @Override
@@ -44,6 +47,9 @@ public class QuantSkCoreGui
     //
     IM5Domain m5 = aWinContext.get( IM5Domain.class );
     m5.addModel( new ConnectionConfigM5Model() );
+    //
+    IValedControlFactoriesRegistry facReg = aWinContext.get( IValedControlFactoriesRegistry.class );
+    facReg.registerFactory( ValedProviderIdCombo.FACTORY );
   }
 
   @Override

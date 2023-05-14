@@ -13,7 +13,7 @@ import org.toxsoft.core.tslib.utils.errors.*;
  *
  * @author hazard157
  */
-public interface IConnectionConfigService {
+public sealed interface IConnectionConfigService permits ConnectionConfigService {
 
   /**
    * Returns all defined connection configuration.
