@@ -1,0 +1,27 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: USKat S5 backend GUI library
+Bundle-SymbolicName: org.toxsoft.uskat.backend.s5.gui
+Bundle-Version: 1.0.0.qualifier
+Bundle-Activator: org.toxsoft.uskat.backend.s5.gui.Activator
+Bundle-Vendor: toxsoft.org
+Require-Bundle: javax.annotation,
+ javax.inject,
+ org.eclipse.core.runtime,
+ org.eclipse.ui;resolution:=optional,
+ org.eclipse.rap.ui;resolution:=optional,
+ org.eclipse.e4.core.contexts,
+ org.eclipse.e4.core.di,
+ org.eclipse.e4.ui.model.workbench,
+ org.eclipse.e4.ui.workbench,
+ org.toxsoft.core.tslib,
+ org.toxsoft.core.tsgui,
+ org.toxsoft.uskat.core,
+ org.toxsoft.uskat.core.gui,
+ org.toxsoft.uskat.s5
+Bundle-RequiredExecutionEnvironment: JavaSE-17
+Automatic-Module-Name: org.toxsoft.uskat.backend.s5.gui
+Bundle-ActivationPolicy: lazy
+Export-Package: org.toxsoft.uskat.backend.s5.gui,
+ org.toxsoft.uskat.backend.s5.gui.m5,
+ org.toxsoft.uskat.backend.s5.gui.m5.hostlist
