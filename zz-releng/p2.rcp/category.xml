@@ -7,9 +7,11 @@
    </category-def>
    <!-- TODO: -->
    <bundle id="org.toxsoft.uskat.core.gui"/>   
+   <bundle id="org.toxsoft.uskat.backend.s5.gui"/>   
 
    <!-- sources -->
    <!-- TODO: -->
    <bundle id="org.toxsoft.uskat.core.gui.source"/>   
+   <bundle id="org.toxsoft.uskat.backend.s5.gui.source"/>   
 
 </site>
