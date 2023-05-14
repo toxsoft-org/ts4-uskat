@@ -50,6 +50,8 @@ import org.toxsoft.uskat.core.impl.dto.*;
 class CoreL10n
     implements ICoreL10n {
 
+  // TODO add warning if any GWID is localized in more than one file
+
   // ------------------------------------------------------------------------------------
   // В директориипо имени локали localeFilesRoot находятся следующие файлы, в которых хранятся соответствующие L10nItem
   // Любое количество файлов, совпадающих с шаблоном, будут обработаны

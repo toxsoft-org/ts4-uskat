@@ -15,7 +15,7 @@ public interface ISkConnection
     extends ICloseable {
 
   /**
-   * Determnines the current (at the moment of method call) connection state.
+   * Determines the current (at the moment of method call) connection state.
    *
    * @return {@link ESkConnState} - the connection state
    */
