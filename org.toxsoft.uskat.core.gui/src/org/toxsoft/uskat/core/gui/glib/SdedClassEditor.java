@@ -72,7 +72,7 @@ public class SdedClassEditor
     classEditPane = modelDto.panelCreator().createEntityEditorPanel( ctxDto, lmDto );
     classEditPane.setEditable( false );
     AbstractInplaceContentPanel contentPanel = new InplaceM5EntityPanelWrapper<>( ctxDto, classEditPane );
-    inplaceEditor = new InplaceEditorPanel( aContext, contentPanel );
+    inplaceEditor = new InplaceContainerPanel( aContext, contentPanel );
   }
 
   @Override

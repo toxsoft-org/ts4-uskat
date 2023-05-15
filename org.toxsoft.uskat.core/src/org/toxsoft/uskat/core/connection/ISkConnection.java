@@ -29,7 +29,7 @@ public interface ISkConnection
    * @param aArgs {@link ITsContextRo} - the connection arguments (options and references)
    * @throws TsNullArgumentRtException any argument = <code>null</code>
    * @throws TsIllegalStateRtException connection is already open
-   * @throws TsItemNotFoundRtException manadory argument is missed
+   * @throws TsItemNotFoundRtException mandatory argument is missed
    */
   void open( ITsContextRo aArgs );
 
