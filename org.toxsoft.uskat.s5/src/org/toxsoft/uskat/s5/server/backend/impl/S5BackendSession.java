@@ -47,9 +47,12 @@ import org.toxsoft.uskat.core.api.evserv.SkEvent;
 import org.toxsoft.uskat.core.api.objserv.IDtoObject;
 import org.toxsoft.uskat.core.api.users.ISkUser;
 import org.toxsoft.uskat.core.api.users.ISkUserServiceHardConstants;
+import org.toxsoft.uskat.core.backend.ISkBackendHardConstant;
 import org.toxsoft.uskat.core.backend.ISkFrontendRear;
 import org.toxsoft.uskat.core.backend.api.*;
+import org.toxsoft.uskat.core.connection.ESkAuthentificationType;
 import org.toxsoft.uskat.core.impl.AbstractSkService;
+import org.toxsoft.uskat.core.impl.SkLoggedUserInfo;
 import org.toxsoft.uskat.core.impl.dto.DtoObject;
 import org.toxsoft.uskat.s5.client.remote.connection.S5ClusterTopology;
 import org.toxsoft.uskat.s5.common.sessions.IS5SessionInfo;
@@ -596,10 +599,16 @@ public class S5BackendSession
   public ISkBackendInfo getBackendInfo() {
     // Запрос текущей информации о сервере (backend)
     ISkBackendInfo backendInfo = backendCoreSingleton.getInfo();
+    // Информация о сессии
+    IS5SessionInfo sessionInfo = sessionInfo();
     // Формирование информации сессии бекенда
     S5BackendInfo retValue = new S5BackendInfo( backendInfo );
+    // Информация о зарегистрированном пользователе
+    SkLoggedUserInfo loggedUserInfo = new SkLoggedUserInfo( new Skid( ISkUser.CLASS_ID, sessionInfo.login() ),
+        ISkUserServiceHardConstants.SKID_ROLE_ROOT, ESkAuthentificationType.SIMPLE );
+    ISkBackendHardConstant.OPDEF_SKBI_LOGGED_USER.setValue( retValue.params(), avValobj( loggedUserInfo ) );
     // Идентификатор текущей сессии пользователя
-    IS5ServerHardConstants.OP_BACKEND_SESSION_INFO.setValue( retValue.params(), avValobj( sessionInfo() ) );
+    IS5ServerHardConstants.OP_BACKEND_SESSION_INFO.setValue( retValue.params(), avValobj( sessionInfo ) );
 
     return retValue;
   }

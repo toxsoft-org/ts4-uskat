@@ -21,6 +21,7 @@ import org.toxsoft.uskat.core.api.linkserv.ISkLinkService;
 import org.toxsoft.uskat.core.api.objserv.ISkObjectService;
 import org.toxsoft.uskat.core.api.rtdserv.ISkRtdataService;
 import org.toxsoft.uskat.core.api.sysdescr.ISkSysdescr;
+import org.toxsoft.uskat.core.api.users.ISkLoggedUserInfo;
 import org.toxsoft.uskat.core.api.users.ISkUserService;
 import org.toxsoft.uskat.core.backend.api.ISkBackendInfo;
 import org.toxsoft.uskat.core.devapi.IDevCoreApi;
@@ -237,4 +238,14 @@ public final class S5SynchronizedCoreApi
     throw new TsUnsupportedFeatureRtException();
   }
 
+  @Override
+  public ISkLoggedUserInfo getCurrentUserInfo() {
+    lockWrite( this );
+    try {
+      return target().getCurrentUserInfo();
+    }
+    finally {
+      unlockWrite( this );
+    }
+  }
 }

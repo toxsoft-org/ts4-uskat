@@ -6,10 +6,10 @@ import static org.toxsoft.core.tslib.av.metainfo.IAvMetaConstants.*;
 import static org.toxsoft.uskat.core.ISkHardConstants.*;
 import static org.toxsoft.uskat.core.backend.ISkResources.*;
 
-import org.toxsoft.core.tslib.av.impl.*;
-import org.toxsoft.core.tslib.av.metainfo.*;
-import org.toxsoft.core.tslib.bricks.strid.*;
-import org.toxsoft.core.tslib.bricks.strid.impl.*;
+import org.toxsoft.core.tslib.av.impl.DataDef;
+import org.toxsoft.core.tslib.av.metainfo.IDataDef;
+import org.toxsoft.core.tslib.bricks.strid.IStridable;
+import org.toxsoft.core.tslib.bricks.strid.impl.Stridable;
 
 /**
  * Constants common for all backends.
@@ -27,8 +27,14 @@ public interface ISkBackendHardConstant {
   // ------------------------------------------------------------------------------------
   // ISkBackendInfo
 
+  String OPID_SKBI_LOGGED_USER               = SKBI_ID + ".LoggedUser";             //$NON-NLS-1$
   String OPID_SKBI_MAX_CLOB_LENGTH           = SKBI_ID + ".MaxClobLength";          //$NON-NLS-1$
   String OPID_SKBI_NEED_THREAD_SAFE_FRONTEND = SKBI_ID + ".NeedThreadSafeFrontend"; //$NON-NLS-1$
+
+  IDataDef OPDEF_SKBI_LOGGED_USER = DataDef.create( OPID_SKBI_LOGGED_USER, VALOBJ, //
+      TSID_NAME, STR_N_SKBI_LOGGED_USER, //
+      TSID_DESCRIPTION, STR_D_SKBI_LOGGED_USER //
+  );
 
   IDataDef OPDEF_SKBI_MAX_CLOB_LENGTH = DataDef.create( OPID_SKBI_MAX_CLOB_LENGTH, INTEGER, //
       TSID_NAME, STR_N_SKBI_MAX_CLOB_LENGTH, //

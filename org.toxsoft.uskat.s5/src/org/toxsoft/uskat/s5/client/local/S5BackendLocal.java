@@ -8,11 +8,16 @@ import org.toxsoft.core.tslib.bricks.strid.coll.IStridablesList;
 import org.toxsoft.core.tslib.coll.primtypes.IStringMap;
 import org.toxsoft.core.tslib.coll.primtypes.IStringMapEdit;
 import org.toxsoft.core.tslib.coll.primtypes.impl.StringMap;
+import org.toxsoft.core.tslib.gw.skid.Skid;
 import org.toxsoft.core.tslib.utils.errors.TsNullArgumentRtException;
+import org.toxsoft.uskat.core.api.users.ISkUser;
+import org.toxsoft.uskat.core.api.users.ISkUserServiceHardConstants;
 import org.toxsoft.uskat.core.backend.ISkBackendHardConstant;
 import org.toxsoft.uskat.core.backend.ISkFrontendRear;
 import org.toxsoft.uskat.core.backend.api.BackendMsgActiveChanged;
 import org.toxsoft.uskat.core.backend.api.ISkBackendInfo;
+import org.toxsoft.uskat.core.connection.ESkAuthentificationType;
+import org.toxsoft.uskat.core.impl.SkLoggedUserInfo;
 import org.toxsoft.uskat.s5.client.IS5ConnectionParams;
 import org.toxsoft.uskat.s5.common.sessions.IS5SessionInfo;
 import org.toxsoft.uskat.s5.server.IS5ServerHardConstants;
@@ -141,6 +146,10 @@ public final class S5BackendLocal
     IS5SessionInfo sessionInfo = sessionData.info();
     // Формирование информации сессии бекенда
     S5BackendInfo retValue = new S5BackendInfo( backendInfo );
+    // Информация о зарегистрированном пользователе
+    SkLoggedUserInfo loggedUserInfo = new SkLoggedUserInfo( new Skid( ISkUser.CLASS_ID, sessionInfo.login() ),
+        ISkUserServiceHardConstants.SKID_ROLE_ROOT, ESkAuthentificationType.SIMPLE );
+    ISkBackendHardConstant.OPDEF_SKBI_LOGGED_USER.setValue( retValue.params(), avValobj( loggedUserInfo ) );
     // Идентификатор текущей сессии пользователя
     IS5ServerHardConstants.OP_BACKEND_SESSION_INFO.setValue( retValue.params(), avValobj( sessionInfo ) );
 

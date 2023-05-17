@@ -29,6 +29,7 @@ import org.toxsoft.uskat.core.api.linkserv.ISkLinkService;
 import org.toxsoft.uskat.core.api.objserv.ISkObjectService;
 import org.toxsoft.uskat.core.api.rtdserv.ISkRtdataService;
 import org.toxsoft.uskat.core.api.sysdescr.ISkSysdescr;
+import org.toxsoft.uskat.core.api.users.ISkLoggedUserInfo;
 import org.toxsoft.uskat.core.api.users.ISkUserService;
 import org.toxsoft.uskat.core.backend.*;
 import org.toxsoft.uskat.core.backend.api.BackendMsgActiveChanged;
@@ -314,6 +315,11 @@ public class SkCoreApi
     internalInitService( s );
     servicesMap.put( s.serviceId(), s );
     return s;
+  }
+
+  @Override
+  public ISkLoggedUserInfo getCurrentUserInfo() {
+    return ISkBackendHardConstant.OPDEF_SKBI_LOGGED_USER.getValue( backend.getBackendInfo().params() ).asValobj();
   }
 
   // ------------------------------------------------------------------------------------
