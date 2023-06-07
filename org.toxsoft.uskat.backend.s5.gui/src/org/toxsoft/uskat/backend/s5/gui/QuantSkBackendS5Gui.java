@@ -5,6 +5,8 @@ import org.toxsoft.core.tsgui.bricks.quant.*;
 import org.toxsoft.core.tsgui.m5.*;
 import org.toxsoft.core.tsgui.valed.api.*;
 import org.toxsoft.uskat.backend.s5.gui.m5.hostlist.*;
+import org.toxsoft.uskat.backend.s5.gui.utils.*;
+import org.toxsoft.uskat.core.gui.conn.cfg.*;
 import org.toxsoft.uskat.s5.utils.*;
 
 /**
@@ -25,7 +27,8 @@ public class QuantSkBackendS5Gui
 
   @Override
   protected void doInitApp( IEclipseContext aAppContext ) {
-    //
+    ConnectionConfigService ccService = (ConnectionConfigService)aAppContext.get( IConnectionConfigService.class );
+    ccService.registerPovider( S5ConnectionConfigProvider.INSTANCE );
   }
 
   @Override
