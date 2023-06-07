@@ -14,6 +14,8 @@ import org.toxsoft.uskat.core.connection.*;
 /**
  * The backend-specific connection configurations provider.
  * <p>
+ * Provider must be registered by {@link IConnectionConfigService#registerPovider(IConnectionConfigProvider)}.
+ * <p>
  * To open Sk-connection there are two set of arguments:
  * <ul>
  * <li>backend specific arguments - are most important part of the arguments;</li>

@@ -8,6 +8,7 @@ import org.toxsoft.uskat.core.gui.conn.*;
 import org.toxsoft.uskat.core.gui.conn.cfg.*;
 import org.toxsoft.uskat.core.gui.conn.cfg.m5.*;
 import org.toxsoft.uskat.core.gui.km5.*;
+import org.toxsoft.uskat.core.gui.km5.first.*;
 import org.toxsoft.uskat.core.gui.km5.sded.objed.*;
 import org.toxsoft.uskat.core.gui.km5.sded.sded.*;
 import org.toxsoft.uskat.core.gui.km5.sgw.*;
@@ -27,6 +28,7 @@ public class QuantSkCoreGui
    */
   public QuantSkCoreGui() {
     super( QuantSkCoreGui.class.getSimpleName() );
+    KM5Utils.registerContributorCreator( KM5FirstContributor.CREATOR );
     KM5Utils.registerContributorCreator( KM5SgwContributor.CREATOR );
     KM5Utils.registerContributorCreator( KM5SdedContributor.CREATOR );
     KM5Utils.registerContributorCreator( KM5ObjedContributor.CREATOR );

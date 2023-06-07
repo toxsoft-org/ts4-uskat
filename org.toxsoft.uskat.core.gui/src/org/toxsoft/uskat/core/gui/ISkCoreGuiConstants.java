@@ -44,6 +44,9 @@ public interface ISkCoreGuiConstants {
   String ICONID_SDED_OBJ_DATA      = "sded-obj-data";     //$NON-NLS-1$
   String ICONID_SDED_OBJ_CMD       = "sded-obj-cmd";      //$NON-NLS-1$
   String ICONID_SDED_OBJ_EVENT     = "sded-obj-event";    //$NON-NLS-1$
+  String ICONID_USKAT_SERVER       = "uskat-server";      //$NON-NLS-1$
+  String ICONID_USKAT_CONNECT      = "uskat-connect";     //$NON-NLS-1$
+  String ICONID_USKAT_DISONNECT    = "uskat-disconnect";  //$NON-NLS-1$
 
   // ------------------------------------------------------------------------------------
   // Actions

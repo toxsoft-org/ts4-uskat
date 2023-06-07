@@ -48,7 +48,7 @@ public class SdedClassEditor
   private boolean ignoreSelectionChange = false;
 
   /**
-   * Constrcutor.
+   * Constructor.
    * <p>
    * Panel will use {@link ISkConnection} with the given ID from {@link ISkConnectionSupplier#getConn(IdChain)}. If
    * <code>aSuppliedConnectionId</code> = <code>null</code>, then {@link ISkConnectionSupplier#defConn()} will be used.

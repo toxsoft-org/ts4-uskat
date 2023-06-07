@@ -33,7 +33,7 @@ public class InplaceM5EntityPanelWrapper<T>
   /**
    * Constructor.
    * <p>
-   * Constructos stores reference to the context, does not creates copy.
+   * Constructor stores reference to the context, does not creates copy.
    *
    * @param aContext {@link ITsGuiContext} - the context
    * @param aM5Panel {@link IM5EntityPanel} - the wrapped panel

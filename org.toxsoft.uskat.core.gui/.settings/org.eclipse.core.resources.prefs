@@ -9,3 +9,6 @@ encoding//src/org/toxsoft/uskat/core/gui/conn/cfg/m5/messages_ka_GE.properties=U
 encoding//src/org/toxsoft/uskat/core/gui/conn/cfg/m5/messages_ru_RU.properties=UTF-8
 encoding//src/org/toxsoft/uskat/core/gui/conn/messages_ka_GE.properties=UTF-8
 encoding//src/org/toxsoft/uskat/core/gui/conn/messages_ru_RU.properties=UTF-8
+encoding//src/org/toxsoft/uskat/core/gui/e4/handlers/messages.properties=UTF-8
+encoding//src/org/toxsoft/uskat/core/gui/e4/handlers/messages_ka_GE.properties=UTF-8
+encoding//src/org/toxsoft/uskat/core/gui/e4/handlers/messages_ru_RU.properties=UTF-8

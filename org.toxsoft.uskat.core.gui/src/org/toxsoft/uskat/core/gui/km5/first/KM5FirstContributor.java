@@ -1,4 +1,4 @@
-package org.toxsoft.uskat.core.gui.km5.sded.sded;
+package org.toxsoft.uskat.core.gui.km5.first;
 
 import org.toxsoft.core.tsgui.m5.*;
 import org.toxsoft.core.tsgui.m5.model.impl.*;
@@ -6,22 +6,24 @@ import org.toxsoft.core.tslib.bricks.strid.coll.*;
 import org.toxsoft.core.tslib.bricks.strid.coll.impl.*;
 import org.toxsoft.core.tslib.coll.helpers.*;
 import org.toxsoft.core.tslib.coll.primtypes.*;
+import org.toxsoft.core.tslib.gw.gwid.*;
+import org.toxsoft.core.tslib.gw.skid.*;
 import org.toxsoft.core.tslib.utils.errors.*;
 import org.toxsoft.uskat.core.connection.*;
 import org.toxsoft.uskat.core.gui.km5.*;
 
 /**
- * Contributes M5-models for templates entities.
+ * Contributes very basic M5-models like {@link Gwid} and {@link Skid}.
  *
- * @author dima
+ * @author hazard157
  */
-public class KM5SdedContributor
+public class KM5FirstContributor
     extends KM5AbstractContributor {
 
   /**
    * Creator singleton.
    */
-  public static final IKM5ContributorCreator CREATOR = KM5SdedContributor::new;
+  public static final IKM5ContributorCreator CREATOR = KM5FirstContributor::new;
 
   /**
    * Constructor.
@@ -30,7 +32,7 @@ public class KM5SdedContributor
    * @param aDomain {@link IM5Domain} - connection domain
    * @throws TsNullArgumentRtException any argument = <code>null</code>
    */
-  public KM5SdedContributor( ISkConnection aConn, IM5Domain aDomain ) {
+  public KM5FirstContributor( ISkConnection aConn, IM5Domain aDomain ) {
     super( aConn, aDomain );
   }
 
@@ -40,15 +42,9 @@ public class KM5SdedContributor
 
   private IStridablesListEdit<M5Model<?>> internalCreateAllModels() {
     IStridablesListEdit<M5Model<?>> modelsList = new StridablesList<>();
-    modelsList.add( new SdedDtoAttrInfoM5Model( skConn() ) );
-    modelsList.add( new SdedDtoRtdataInfoM5Model( skConn() ) );
-    modelsList.add( new SdedDtoClobInfoM5Model( skConn() ) );
-    modelsList.add( new SdedDtoRivetInfoM5Model( skConn() ) );
-    modelsList.add( new SdedDtoLinkInfoM5Model( skConn() ) );
-    modelsList.add( new SdedDtoCmdInfoM5Model( skConn() ) );
-    modelsList.add( new SdedDtoEvInfoM5Model( skConn() ) );
-    modelsList.add( new SdedDtoClassInfoM5Model( skConn() ) );
-    modelsList.add( new SdedSkClassInfoM5Model( skConn() ) );
+    // FIXME
+    // modelsList.add( new GwidKM5Model( skConn() ) );
+    // modelsList.add( new SkidKM5Model( skConn() ) );
     return modelsList;
   }
 
