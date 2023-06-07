@@ -30,13 +30,15 @@ public non-sealed class ConnectionConfigProvider
   private final ISkBackendMetaInfo backInfo;
 
   /**
-   * Constructor.
+   * Constructor for subclasses.
    *
    * @param aSource {@link ISkBackendProvider} - underlying backend provider
    * @param aParams {@link IOptionSet} - values of {@link #params()}
    * @throws TsNullArgumentRtException any argument = <code>null</code>
    */
-  public ConnectionConfigProvider( ISkBackendProvider aSource, IOptionSet aParams ) {
+  // TODO MUST be protected
+  public // temporary code
+  ConnectionConfigProvider( ISkBackendProvider aSource, IOptionSet aParams ) {
     TsNullArgumentRtException.checkNulls( aSource, aParams );
     backendProvider = aSource;
     backInfo = backendProvider.getMetaInfo();

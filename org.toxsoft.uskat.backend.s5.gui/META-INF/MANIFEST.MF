@@ -24,4 +24,5 @@ Automatic-Module-Name: org.toxsoft.uskat.backend.s5.gui
 Bundle-ActivationPolicy: lazy
 Export-Package: org.toxsoft.uskat.backend.s5.gui,
  org.toxsoft.uskat.backend.s5.gui.m5,
- org.toxsoft.uskat.backend.s5.gui.m5.hostlist
+ org.toxsoft.uskat.backend.s5.gui.m5.hostlist,
+ org.toxsoft.uskat.backend.s5.gui.utils

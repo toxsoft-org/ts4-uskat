@@ -33,8 +33,9 @@ public class S5ConnectionConfigProvider
 
   @Override
   protected void doProcessArgs( ITsContext aSkConnArgs ) {
-    // TODO Auto-generated method stub
-    super.doProcessArgs( aSkConnArgs );
+
+    // TODO S5ConnectionConfigProvider.doProcessArgs()
+
   }
 
 }
