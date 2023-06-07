@@ -104,7 +104,7 @@ public interface ISkHardConstants {
   }
 
   /**
-   * Flags that class is definerd at runtime.<br>
+   * Flags that class is defined at runtime.<br>
    * Type: {@link EAtomicType#BOOLEAN}<br>
    * Usage: this option is not mandatory however it is very strongly recommended to set it to <code>true</code> for
    * classes, defined on runtime be the Javca source code. There is no need to save/restore such classes info, or there
@@ -120,7 +120,7 @@ public interface ISkHardConstants {
   );
 
   /**
-   * Flags that class is definerd at runtime by core service.<br>
+   * Flags that class is defined at runtime by core service.<br>
    * Type: {@link EAtomicType#BOOLEAN}<br>
    * Usage: this is additional to {@link #OPDEF_SK_IS_SOURCE_CODE_DEFINED_CLASS} option. <br>
    * This option must be specified in {@link IDtoClassInfo#params()}.<br>

@@ -3,29 +3,24 @@ package org.toxsoft.uskat.backend.memtext;
 import static org.toxsoft.core.tslib.av.impl.AvUtils.*;
 import static org.toxsoft.uskat.core.backend.ISkBackendHardConstant.*;
 
-import org.toxsoft.core.tslib.av.IAtomicValue;
-import org.toxsoft.core.tslib.av.opset.IOptionSet;
-import org.toxsoft.core.tslib.av.opset.IOptionSetEdit;
-import org.toxsoft.core.tslib.av.opset.impl.OptionSet;
-import org.toxsoft.core.tslib.bricks.ctx.ITsContextRo;
+import org.toxsoft.core.tslib.av.*;
+import org.toxsoft.core.tslib.av.opset.*;
+import org.toxsoft.core.tslib.av.opset.impl.*;
+import org.toxsoft.core.tslib.bricks.ctx.*;
 import org.toxsoft.core.tslib.bricks.events.change.*;
-import org.toxsoft.core.tslib.bricks.keeper.IKeepableEntity;
-import org.toxsoft.core.tslib.bricks.strio.IStrioReader;
-import org.toxsoft.core.tslib.bricks.strio.IStrioWriter;
-import org.toxsoft.core.tslib.coll.IListEdit;
-import org.toxsoft.core.tslib.coll.basis.ITsClearable;
-import org.toxsoft.core.tslib.coll.impl.ElemArrayList;
-import org.toxsoft.core.tslib.coll.primtypes.IStringList;
-import org.toxsoft.core.tslib.coll.primtypes.IStringMapEdit;
-import org.toxsoft.core.tslib.coll.primtypes.impl.StringMap;
-import org.toxsoft.core.tslib.utils.errors.TsIllegalArgumentRtException;
-import org.toxsoft.core.tslib.utils.errors.TsNullArgumentRtException;
-import org.toxsoft.uskat.core.ISkServiceCreator;
-import org.toxsoft.uskat.core.api.users.ISkUserServiceHardConstants;
-import org.toxsoft.uskat.core.backend.ISkBackend;
-import org.toxsoft.uskat.core.backend.ISkFrontendRear;
+import org.toxsoft.core.tslib.bricks.keeper.*;
+import org.toxsoft.core.tslib.bricks.strio.*;
+import org.toxsoft.core.tslib.coll.*;
+import org.toxsoft.core.tslib.coll.basis.*;
+import org.toxsoft.core.tslib.coll.impl.*;
+import org.toxsoft.core.tslib.coll.primtypes.*;
+import org.toxsoft.core.tslib.coll.primtypes.impl.*;
+import org.toxsoft.core.tslib.utils.errors.*;
+import org.toxsoft.uskat.core.*;
+import org.toxsoft.uskat.core.api.users.*;
+import org.toxsoft.uskat.core.backend.*;
 import org.toxsoft.uskat.core.backend.api.*;
-import org.toxsoft.uskat.core.connection.ESkAuthentificationType;
+import org.toxsoft.uskat.core.connection.*;
 import org.toxsoft.uskat.core.impl.*;
 
 /**
@@ -101,7 +96,7 @@ public abstract class MtbAbstractBackend
     OPDEF_SKBI_LOGGED_USER.setValue( backendInfoValue,
         avValobj( new SkLoggedUserInfo( ISkUserServiceHardConstants.SKID_USER_ROOT,
             ISkUserServiceHardConstants.SKID_ROLE_ROOT, ESkAuthentificationType.SIMPLE ) ) );
-    OPDEF_SKBI_NEED_THREAD_SAFE_FRONTEND.setValue( backendInfoValue, AV_TRUE );
+    OPDEF_SKBI_NEED_THREAD_SAFE_FRONTEND.setValue( backendInfoValue, AV_FALSE );
     backendInfo = new SkBackendInfo( aBackendId, System.currentTimeMillis(), backendInfoValue );
 
   }

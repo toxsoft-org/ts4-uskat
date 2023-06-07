@@ -6,9 +6,9 @@ import org.toxsoft.core.tslib.gw.skid.*;
 /**
  * Extends information about object with CLOBs and links.
  * <p>
- * Note: fields may contain only part of data about object. For example there may be only part of the attributs or CLOBs
- * of the real object. This is just data container, not an existing object representation. But cooman practice is to
- * create {@link IDtoFullObject} with all attributes and rivets while CLOBs and links may be event empty.
+ * Note: fields may contain only part of data about object. For example there may be only part of the attributes or
+ * CLOBs of the real object. This is just data container, not an existing object representation. But common practice is
+ * to create {@link IDtoFullObject} with all attributes and rivets while CLOBs and links may be left empty.
  *
  * @author hazard157
  */

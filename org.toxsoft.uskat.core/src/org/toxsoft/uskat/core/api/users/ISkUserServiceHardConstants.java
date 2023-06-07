@@ -35,7 +35,7 @@ public interface ISkUserServiceHardConstants {
   String ROLE_ID_ROOT = "rootRole"; //$NON-NLS-1$
 
   /**
-   * Unremovable administrative role.
+   * Nonremovable administrative role.
    * <p>
    * This role rights as defined for guest by the administrator.
    * <p>

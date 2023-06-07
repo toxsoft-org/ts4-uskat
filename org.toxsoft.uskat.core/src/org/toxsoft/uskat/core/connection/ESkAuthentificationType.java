@@ -106,7 +106,8 @@ public enum ESkAuthentificationType
   /**
    * Returns all constants in single list.
    *
-   * @return {@link IStridablesList}&lt; {@link ESkAuthentificationType} &gt; - list of constants in order of declaraion
+   * @return {@link IStridablesList}&lt; {@link ESkAuthentificationType} &gt; - list of constants in order of
+   *         declaration
    */
   public static IStridablesList<ESkAuthentificationType> asList() {
     if( list == null ) {

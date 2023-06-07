@@ -45,7 +45,7 @@ public class SkCoreServUsers
   public static final ISkServiceCreator<AbstractSkService> CREATOR = SkCoreServUsers::new;
 
   /**
-   * Builtin objects name/description is always in english, no need to localize in Java code.
+   * Builtin objects name/description is always in English, no need to localize in Java code.
    * <p>
    * As usual, localization may be done by means of {@link CoreL10n}.
    */
@@ -461,9 +461,7 @@ public class SkCoreServUsers
    *
    * @return {@link IDtoClassInfo} - {@link ISkUser#CLASS_ID} class info
    */
-  // 2022-08-21 mvk для сервера требуется чтобы класс ISkUser бы до первого подключения к серверу
   public static IDtoClassInfo internalCreateUserClassDto() {
-    // private static IDtoClassInfo internalCreateUserClassDto() {
     DtoClassInfo cinf = new DtoClassInfo( CLSID_USER, GW_ROOT_CLASS_ID, IOptionSet.NULL );
     OPDEF_SK_IS_SOURCE_CODE_DEFINED_CLASS.setValue( cinf.params(), AV_TRUE );
     OPDEF_SK_IS_SOURCE_USKAT_CORE_CLASS.setValue( cinf.params(), AV_TRUE );
@@ -487,6 +485,10 @@ public class SkCoreServUsers
     linkService().svs().resumeValidator( claimingValidator );
     clobService().svs().resumeValidator( claimingValidator );
   }
+
+  /**
+   * TODO listen to the server/backend messages to generate eventer messages
+   */
 
   // ------------------------------------------------------------------------------------
   // ISkUserService
@@ -541,7 +543,7 @@ public class SkCoreServUsers
     TsValidationFailedRtException.checkError( validationSupport.canEditUser( aDtoUser, oldUser ) );
     pauseCoreValidation();
     try {
-      // edit object retaining previuos password hash
+      // edit object retaining previous password hash
       DtoFullObject dtoUser = new DtoFullObject( aDtoUser );
       dtoUser.attrs().setStr( ATRID_PASSWORD_HASH, oldUser.attrs().getStr( ATRID_PASSWORD_HASH ) );
       return DtoFullObject.defineFullObject( coreApi(), aDtoUser );

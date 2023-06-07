@@ -15,9 +15,9 @@ public interface IDtoObject
     extends IStridable {
 
   /**
-   * Returns the objct SKID.
+   * Returns the object SKID.
    *
-   * @return {@link Skid} - the objct SKID
+   * @return {@link Skid} - the object SKID
    */
   Skid skid();
 
@@ -55,7 +55,7 @@ public interface IDtoObject
   }
 
   // ------------------------------------------------------------------------------------
-  // inline methods for convinience
+  // inline methods for convenience
 
   @SuppressWarnings( "javadoc" )
   default String classId() {
