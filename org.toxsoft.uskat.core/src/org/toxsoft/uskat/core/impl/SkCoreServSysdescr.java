@@ -4,27 +4,34 @@ import static org.toxsoft.core.tslib.av.metainfo.IAvMetaConstants.*;
 import static org.toxsoft.uskat.core.backend.api.IBaClassesMessages.*;
 import static org.toxsoft.uskat.core.impl.ISkResources.*;
 
-import org.toxsoft.core.tslib.bricks.ctx.*;
-import org.toxsoft.core.tslib.bricks.events.*;
-import org.toxsoft.core.tslib.bricks.events.msg.*;
-import org.toxsoft.core.tslib.bricks.strid.*;
-import org.toxsoft.core.tslib.bricks.strid.coll.*;
-import org.toxsoft.core.tslib.bricks.strid.coll.impl.*;
-import org.toxsoft.core.tslib.bricks.validator.*;
+import org.toxsoft.core.tslib.bricks.ctx.ITsContextRo;
+import org.toxsoft.core.tslib.bricks.events.AbstractTsEventer;
+import org.toxsoft.core.tslib.bricks.events.ITsEventer;
+import org.toxsoft.core.tslib.bricks.events.msg.GenericMessage;
+import org.toxsoft.core.tslib.bricks.strid.IStridable;
+import org.toxsoft.core.tslib.bricks.strid.coll.IStridablesList;
+import org.toxsoft.core.tslib.bricks.strid.coll.IStridablesListEdit;
+import org.toxsoft.core.tslib.bricks.strid.coll.impl.StridablesList;
+import org.toxsoft.core.tslib.bricks.validator.ITsValidationSupport;
+import org.toxsoft.core.tslib.bricks.validator.ValidationResult;
 import org.toxsoft.core.tslib.bricks.validator.impl.*;
-import org.toxsoft.core.tslib.coll.*;
-import org.toxsoft.core.tslib.coll.helpers.*;
-import org.toxsoft.core.tslib.coll.primtypes.*;
-import org.toxsoft.core.tslib.coll.primtypes.impl.*;
-import org.toxsoft.core.tslib.gw.*;
-import org.toxsoft.core.tslib.utils.*;
-import org.toxsoft.core.tslib.utils.diff.*;
-import org.toxsoft.core.tslib.utils.errors.*;
-import org.toxsoft.core.tslib.utils.logs.impl.*;
-import org.toxsoft.uskat.core.*;
+import org.toxsoft.core.tslib.coll.IMap;
+import org.toxsoft.core.tslib.coll.helpers.ECrudOp;
+import org.toxsoft.core.tslib.coll.primtypes.IStringList;
+import org.toxsoft.core.tslib.coll.primtypes.IStringListEdit;
+import org.toxsoft.core.tslib.coll.primtypes.impl.SingleStringList;
+import org.toxsoft.core.tslib.coll.primtypes.impl.StringArrayList;
+import org.toxsoft.core.tslib.gw.IGwHardConstants;
+import org.toxsoft.core.tslib.utils.TsLibUtils;
+import org.toxsoft.core.tslib.utils.diff.DiffUtils;
+import org.toxsoft.core.tslib.utils.diff.EDiffNature;
+import org.toxsoft.core.tslib.utils.errors.TsNullArgumentRtException;
+import org.toxsoft.core.tslib.utils.logs.impl.LoggerUtils;
+import org.toxsoft.uskat.core.ISkServiceCreator;
 import org.toxsoft.uskat.core.api.sysdescr.*;
-import org.toxsoft.uskat.core.api.sysdescr.dto.*;
-import org.toxsoft.uskat.core.devapi.*;
+import org.toxsoft.uskat.core.api.sysdescr.dto.IDtoClassInfo;
+import org.toxsoft.uskat.core.api.sysdescr.dto.IDtoClassPropInfoBase;
+import org.toxsoft.uskat.core.devapi.IDevCoreApi;
 
 /**
  * {@link ISkSysdescr} implementation.
@@ -338,7 +345,9 @@ public class SkCoreServSysdescr
         for( IDtoClassPropInfoBase p : diff.getByKey( EDiffNature.LEFT ) ) {
           // check new properties are not declared in ancestors (super classes)
           ISkClassInfo superDeclarer = aOldInfo.props( k ).findSuperDeclarer( p.id() );
-          if( superDeclarer != null ) {
+          // 2023-06-14 mvk ---+++
+          // if( superDeclarer != null ) {
+          if( superDeclarer != null && !superDeclarer.id().equals( aClassInfo.id() ) ) {
             return ValidationResult.error( FMT_ERR_DUP_PROP_IN_SUPER, k.nmName(), p.id(), superDeclarer.id() );
           }
           // check new properties are not declared in descendants (sub classes)
