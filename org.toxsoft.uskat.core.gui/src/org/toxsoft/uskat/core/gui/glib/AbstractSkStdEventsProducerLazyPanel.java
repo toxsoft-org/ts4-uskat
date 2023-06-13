@@ -6,13 +6,14 @@ import org.toxsoft.core.tsgui.bricks.stdevents.impl.*;
 import org.toxsoft.core.tsgui.panels.*;
 import org.toxsoft.core.tslib.bricks.strid.more.*;
 import org.toxsoft.core.tslib.utils.errors.*;
+import org.toxsoft.uskat.core.gui.conn.*;
 
 /**
  * {@link AbstractSkLazyPanel} extension to work with a list of objects of the same type.
  * <p>
  * Implements {@link ITsSelectionChangeEventProducer} and {@link ITsDoubleClickEventProducer}.
  * <p>
- * This panel may be used instead os {@link TsStdEventsProducerPanel} in USkat applications.
+ * This panel may be used instead of {@link TsStdEventsProducerPanel} in USkat applications.
  *
  * @author hazard157
  * @param <E> - type of the objects
@@ -26,6 +27,8 @@ public abstract class AbstractSkStdEventsProducerLazyPanel<E>
 
   /**
    * Constructor.
+   * <p>
+   * Used connection ID is initialized to <code>null</code> thus using {@link ISkConnectionSupplier#defConn()}.
    *
    * @param aContext {@link ITsGuiContext} - the context
    * @throws TsNullArgumentRtException any argument = <code>null</code>

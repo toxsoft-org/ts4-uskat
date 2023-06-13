@@ -29,8 +29,8 @@ import org.toxsoft.uskat.core.utils.*;
  * <ul>
  * <li>implements {@link ISkConnected};</li>
  * <li>supports used connection choosing by specifying {@link IdChain} key for {@link ISkConnectionSupplier};</li>
- * <li>overriden {@link #m5()} returns {@link IM5Domain} from {@link ISkConnection#scope() skConn().scope()} rather than
- * root domain from the application context.</li>
+ * <li>overridden {@link #m5()} returns {@link IM5Domain} from {@link ISkConnection#scope() skConn().scope()} rather
+ * than root domain from the application context.</li>
  * </ul>
  * By default connection with ID {@link IdChain#NULL} is used that is default connection
  * {@link ISkConnectionSupplier#defConn()}.
