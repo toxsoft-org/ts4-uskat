@@ -22,7 +22,7 @@ import org.toxsoft.core.tslib.av.utils.IParameterized;
 import org.toxsoft.core.tslib.bricks.time.*;
 import org.toxsoft.core.tslib.bricks.time.impl.*;
 import org.toxsoft.core.tslib.coll.*;
-import org.toxsoft.core.tslib.coll.impl.ElemArrayList;
+import org.toxsoft.core.tslib.coll.impl.ElemLinkedList;
 import org.toxsoft.core.tslib.coll.impl.ElemMap;
 import org.toxsoft.core.tslib.coll.primtypes.IStringMap;
 import org.toxsoft.core.tslib.gw.gwid.*;
@@ -47,6 +47,11 @@ class S5SequenceSQL {
    * Журанл
    */
   private static ILogger logger = getLogger( S5SequenceSQL.class );
+
+  /**
+   * Оператор объединения SQL запросов
+   */
+  private static final String UNION_ALL = "union all";
 
   // ------------------------------------------------------------------------------------
   // Тесты SQL-запросов
@@ -679,22 +684,10 @@ class S5SequenceSQL {
   @SuppressWarnings( { "unchecked", "resource" } )
   static <V extends ITemporal<?>> IMap<Gwid, IList<IS5SequenceBlock<V>>> readBlocks( IS5SequenceReadQuery aQuery,
       IGwidList aGwids ) {
-    // 2020-10-30 mvkd
-    // GwidList aGwids = new GwidList();
-    // for( int index = 0, n = aGwids1.size(); index < n; index++ ) {
-    // if( index > 0 ) {
-    // break;
-    // }
-    // Gwid gwid = aGwids1.get( index );
-    // if( gwid.toString().indexOf( "startTime" ) >= 0 ) {
-    // System.err.println( "S5SequenceSQL.readBlock. find startTime" );
-    // }
-    // aGwids.add( gwid );
-    // }
     TsNullArgumentRtException.checkNulls( aQuery, aGwids );
     // Количество запрашиваемых данных
-    int count = aGwids.size();
-    if( count == 0 ) {
+    int gwidSize = aGwids.size();
+    if( gwidSize == 0 ) {
       // Частный случай пустой запрос. Формирование пустого результата
       IMapEdit<Gwid, IListEdit<IS5SequenceBlock<V>>> retValue = new ElemMap<>();
       for( Gwid gwid : aGwids ) {
@@ -702,69 +695,38 @@ class S5SequenceSQL {
       }
       return (IMap<Gwid, IList<IS5SequenceBlock<V>>>)(Object)retValue;
     }
-    // Фабрика формирования значений
-    IS5SequenceFactory<V> factory = (IS5SequenceFactory<V>)aQuery.factory();
-    // Список описаний типов данных
-    IListEdit<IParameterized> typeInfos = new ElemArrayList<>( aGwids.size() );
-    for( Gwid gwid : aGwids ) {
-      // TODO: 2020-12-07 mvkd
-      // if( gwid.toString().equals( "tm.TrackChain[argTrackChain176a]$rtdata(routeNumber)" ) ) {
-      typeInfos.add( factory.typeInfo( gwid ) );
-      // }
+
+    StringBuilder sb = new StringBuilder();
+    // Формирование подзапросов для каждого параметра
+    for( int index = 0, n = aGwids.size(); index < n; index++ ) {
+      Gwid gwid = aGwids.get( index );
+      sb.append( '(' );
+      sb.append( prepareReadSQLForOne( aQuery, gwid ) );
+      sb.append( ')' );
+      if( index + 1 < n ) {
+        sb.append( UNION_ALL );
+      }
     }
-    // TODO: 2020-12-07 mvkd
-    // if( typeInfos.size() == 0 ) {
-    // return IMap.EMPTY;
-    // }
-    // Имя класса реализации блока
-    String blockImplClass = blockImplClassFromInfos( typeInfos );
-    // Имя класса реализации blob
-    String blobImplClass = blobImplClassFromInfos( typeInfos );
+    // Текст запроса
+    String sql = sb.toString();
     // Журнал
-    String infoStr = format( MSG_INFO, blockImplClass, Integer.valueOf( count ) );
+    String infoStr = format( MSG_INFO_COUNT, Integer.valueOf( gwidSize ) );
     // Интервал запроса
     IQueryInterval interval = aQuery.interval();
-    EQueryIntervalType intervalType = interval.type();
-
-    // TODO:
-    // 2020-10-30 mvkd
-    // if( intervalType != CSCE ) {
-    // logger.error(
-    // "S5SequenceSQL.readBlocks(): обработка запроса по типу %s находится в отладке. Запрос выполняется для CSCE",
-    // intervalType );
-    // intervalType = CSCE;
-    // }
-    // 2020-10-31 mvk
-    // Подготовка запроса
-    String sql = "select * from(";
-    if( intervalType == OSCE || intervalType == OSOE ) {
-      // Запрос данных перед интервалом
-      sql += "(" + prepareReadBeforeSQL( blockImplClass, blobImplClass, aGwids, interval.startTime() ) + ")union";
-    }
-    // Запрос данных на интервале
-    sql += "(" + prepareReadSQL( blockImplClass, blobImplClass, aGwids, interval ) + ")";
-    if( intervalType == CSOE || intervalType == OSOE ) {
-      // Запрос данных после интервала
-      sql += "union(" + prepareReadAfterSQL( blockImplClass, blobImplClass, aGwids, interval.endTime() ) + ")";
-    }
-    // 2020-10-31 mvk
-    sql += ") as v order by v." + FIELD_START_TIME;
-    // 2019-09-19 mvk mariadb 10.4.8, ошибка "Duplicate column name 'id'" - не понятно как это раньше работало! )))
-    // sql += "order by startTime";
-    // if( intervalType != CSCE ) {
-    // sql += "order by " + FIELD_START_TIME;
-    // }
     // Вывод текста запроса в журнал
     logger.debug( MSG_READ_BLOCK_SQL, infoStr, interval, sql );
+    logger.debug( MSG_READ_BLOCK_SQL_SIZE, Integer.valueOf( sql.length() ) );
     // Фактическое время начала данных
     long factStartTime = TimeUtils.MAX_TIMESTAMP;
     // Фактическое время завершения данных
     long factEndTime = TimeUtils.MIN_TIMESTAMP;
-    // Возвращаемый результат
-    IListEdit<IS5SequenceBlock<V>> readedBlocks = new ElemArrayList<>( count );
     // Запрос
     long traceQueryStartTime = System.currentTimeMillis();
     long traceStartTime = traceQueryStartTime;
+    // Количество прочитанных блоков
+    int readBlockCount = 0;
+    // Формирование результата
+    IMapEdit<Gwid, IListEdit<IS5SequenceBlock<V>>> retValue = new ElemMap<>();
     try {
       Connection connection = aQuery.connection();
       try( Statement statement = connection.createStatement(); ) {
@@ -784,24 +746,36 @@ class S5SequenceSQL {
             // statement.setPoolable( false );
             // statement.setMaxRows( infoCount );
             // statement.setFetchSize( infoCount );
-            // 2022-10-09 mvk
-            // for( boolean hasData = rs.first(); hasData; hasData = rs.next() ) {
+            IS5SequenceFactory<V> factory = (IS5SequenceFactory<V>)aQuery.factory();
             while( rs.next() ) {
+              // Идентификатор данного значения которого находятся в блоке
+              Gwid gwid = Gwid.KEEPER.str2ent( rs.getString( S5DataID.FIELD_GWID ) );
+              // Описание типа данного
+              IParameterized typeInfo = factory.typeInfo( gwid );
+              // Имя класса реализации блока
+              String blockImplClass = blockImplClassFromInfo( typeInfo );
+              // Формирование блока
               IS5SequenceBlock<V> block = factory.createBlock( blockImplClass, rs );
-              if( readedBlocks.size() > 0 && readedBlocks.get( readedBlocks.size() - 1 ).equals( block ) ) {
-                // throw new TsInternalErrorRtException();
-                logger.warning( "Повтор чтения блока %s. Игнорирование. sql(%d) = \n%s", block,
-                    Integer.valueOf( sql.length() ), sql );
-                continue;
-              }
               // Обработка блока согласно интервалу (чтобы в блоке не было лишних данных)
-              block = trim( factory, interval, block );
-              if( block == IS5SequenceBlock.NULL ) {
+              block = trimOrNull( factory, interval, block );
+              if( block == null ) {
                 // Все значения блока вне интервала
                 continue;
               }
+              IListEdit<IS5SequenceBlock<V>> readBlocks = retValue.findByKey( gwid );
+              if( readBlocks == null ) {
+                readBlocks = new ElemLinkedList<>();
+                retValue.put( gwid, readBlocks );
+              }
+              if( readBlocks.size() > 0 && readBlocks.get( readBlocks.size() - 1 ).equals( block ) ) {
+                // Допустимая ситуация так как мы используем "union all" чтобы ускорить выполнение запроса
+                logger.debug( "Повтор чтения блока %s. Игнорирование. sql(%d) = \n%s", block,
+                    Integer.valueOf( sql.length() ), sql );
+                continue;
+              }
+              readBlockCount++;
               // Формирование списка считанных блоков
-              readedBlocks.add( block );
+              readBlocks.add( block );
               // Формирование меток времени фактического интервала данных
               if( block.startTime() < factStartTime ) {
                 factStartTime = block.startTime();
@@ -817,20 +791,12 @@ class S5SequenceSQL {
         }
 
       }
-      // Формирование результата
-      IMapEdit<Gwid, IListEdit<IS5SequenceBlock<V>>> retValue = new ElemMap<>();
-      for( Gwid gwid : aGwids ) {
-        retValue.put( gwid, new ElemArrayList<>( readedBlocks.size() ) );
-      }
-      for( IS5SequenceBlock<V> block : readedBlocks ) {
-        retValue.getByKey( block.gwid() ).add( block );
-      }
       long currTime = System.currentTimeMillis();
       ITimeInterval factInterval = ITimeInterval.NULL;
       if( factStartTime != TimeUtils.MAX_TIMESTAMP && factEndTime != TimeUtils.MIN_TIMESTAMP ) {
         factInterval = new TimeInterval( factStartTime, factEndTime );
       }
-      Integer c = Integer.valueOf( readedBlocks.size() );
+      Integer c = Integer.valueOf( readBlockCount );
       Long ta = Long.valueOf( currTime - traceQueryStartTime );
       Long tq = Long.valueOf( traceStartTime - traceQueryStartTime );
       Long th = Long.valueOf( currTime - traceStartTime );
@@ -1270,11 +1236,6 @@ class S5SequenceSQL {
    * <p>
    * Примечание: сделано без форматирования, так как используется в циклах формирования конечного sql-запроса
    */
-  // TODO:
-  // 2020-10-31 mvkd
-  // private static final String QFRMT_NATIVE_JOIN_BLOCKS = "select * from %s as b1 inner join (%s) as b2 on(" //
-  // + "(b1." + FIELD_GWID + "=b2." + FIELD_GWID + ")AND(b1." + FIELD_START_TIME + "=b2." + FIELD_START_TIME + ")" + //
-  // ") order by " + "b1." + FIELD_START_TIME;
   private static final String QFRMT_NATIVE_JOIN_ASYNC_BLOCKS =                                                          //
       "select d.*, b." + FIELD_END_TIME + ", b." + FIELD_DEBUG_START_TIME + ", b." + FIELD_DEBUG_END_TIME + ", b."
           + FIELD_SIZE + " " +                                                                                          //
@@ -1287,9 +1248,6 @@ class S5SequenceSQL {
           "from %s as d inner join (%s) as b on("                                                                       //
           + "(d." + FIELD_GWID + "=b." + FIELD_GWID + ")AND(d." + FIELD_START_TIME + "=b." + FIELD_START_TIME + ")" +   //
           ") order by " + "d." + FIELD_START_TIME;
-  // private static final String QFRMT_NATIVE_JOIN_BLOCKS =
-  // "select * from %s as b1 inner join (%s) as b2 on b1." + FIELD_GWID + "=b2." + FIELD_GWID + " and b1."
-  // + FIELD_START_TIME + "=b2." + FIELD_START_TIME + " order by startTime";
 
   /**
    * Формат NATIVE(!)-запроса последнего блока интервал времени которого находится перед(или в нем) указанным временем
@@ -1346,120 +1304,69 @@ class S5SequenceSQL {
           + "(" + FIELD_START_TIME + "<=%d)and(" + FIELD_END_TIME + ">=%d))order by " + FIELD_START_TIME;
 
   /**
-   * Подготовливает SQL запрос на поиск ближайших блоков для каждого указанного данного у которого есть значение на
-   * указанной метке времени или перед ней
+   * Подготовливает SQL запрос чтения блоков для указанного данного
    *
-   * @param aBlockImplClass String полное имя класса реализации блока значений
-   * @param aBlobImplClass String полное имя класса реализации blob значений
-   * @param aGwids {@link IGwidList} список идентификаторов данных
-   * @param aTimestamp long метка времени (мсек с начала эпохи) перед которой или на которой проводится поиск блока со
-   *          значением
+   * @param aQuery {@link IS5SequenceReadQuery} запрос чтения хранимых данных.
+   * @param aGwid {@link Gwid} идентификатор данного.
    * @return String текст SQL запроса.
    * @throws TsNullArgumentRtException любой аргумент = null
    */
-  private static String prepareReadBeforeSQL( String aBlockImplClass, String aBlobImplClass, IGwidList aGwids,
-      long aTimestamp ) {
-    TsNullArgumentRtException.checkNulls( aBlobImplClass, aBlobImplClass, aGwids );
-    String blockTableName = getLast( aBlockImplClass );
-    String blobTableName = getLast( aBlobImplClass );
+  private static String prepareReadSQLForOne( IS5SequenceReadQuery aQuery, Gwid aGwid ) {
+    TsNullArgumentRtException.checkNulls( aQuery, aGwid );
+    // Фабрика формирования значений
+    IS5SequenceFactory<?> factory = aQuery.factory();
+    // Описание типа данного
+    IParameterized typeInfo = factory.typeInfo( aGwid );
+    // Имя класса реализации блока
+    String blockImplClass = blockImplClassFromInfo( typeInfo );
+    // Имя класса реализации blob
+    String blobImplClass = blobImplClassFromInfo( typeInfo );
+    // Имя таблицы блоков
+    String blockTableName = getLast( blockImplClass );
+    // Имя таблицы blob
+    String blobTableName = getLast( blobImplClass );
+    // Интервал запроса
+    IQueryInterval interval = aQuery.interval();
+    // Тип интервала запроса
+    EQueryIntervalType intervalType = interval.type();
+    // Время начала запроса
+    Long startTime = Long.valueOf( interval.startTime() );
+    if( startTime.longValue() == MIN_TIMESTAMP ) {
+      startTime = Long.valueOf( MIN_TIMESTAMP + 1 );
+    }
+    if( startTime.longValue() == MAX_TIMESTAMP ) {
+      startTime = Long.valueOf( MAX_TIMESTAMP - 1 );
+    }
+    // Время завершения запроса
+    Long endTime = Long.valueOf( interval.endTime() );
+    if( endTime.longValue() == MIN_TIMESTAMP ) {
+      endTime = Long.valueOf( MIN_TIMESTAMP + 1 );
+    }
+    if( endTime.longValue() == MAX_TIMESTAMP ) {
+      endTime = Long.valueOf( MAX_TIMESTAMP - 1 );
+    }
     // Загрузка блоков последовательности
-    Long time = Long.valueOf( aTimestamp );
-    if( aTimestamp == MIN_TIMESTAMP ) {
-      time = Long.valueOf( MIN_TIMESTAMP + 1 );
-    }
-    if( aTimestamp == MAX_TIMESTAMP ) {
-      time = Long.valueOf( MAX_TIMESTAMP - 1 );
-    }
     StringBuilder sb = new StringBuilder();
-    for( int index = 0, n = aGwids.size(); index < n; index++ ) {
-      Gwid gwid = aGwids.get( index );
-      String subSql = format( QFRMT_NATIVE_BLOCKS_BEFORE_TIME_SUB, blockTableName, gwid, time, time, time );
+    // Запрос значений до интервала
+    if( intervalType == OSCE || intervalType == OSOE ) {
       sb.append( "(" );
-      sb.append( subSql );
+      sb.append(
+          format( QFRMT_NATIVE_BLOCKS_BEFORE_TIME_SUB, blockTableName, aGwid, startTime, startTime, startTime ) );
+      sb.append( ")" + UNION_ALL );
+    }
+    // Запрос значений внутри интервала включительно
+    sb.append( "(" );
+    sb.append( format( QFRMT_NATIVE_BLOCKS_SUB, blockTableName, aGwid, startTime, endTime, startTime, endTime,
+        startTime, endTime ) );
+    sb.append( ")" );
+    // Запрос значений после интервала
+    if( intervalType == CSOE || intervalType == OSOE ) {
+      sb.append( UNION_ALL + "(" );
+      sb.append( format( QFRMT_NATIVE_BLOCKS_AFTER_TIME_SUB, blockTableName, aGwid, endTime, endTime, endTime ) );
       sb.append( ")" );
-      if( index + 1 < n ) {
-        sb.append( "union all" );
-      }
     }
     // Добавление в запрос оператора объединения подзапросов
-    return addJoinOpertatorToSQL( aBlockImplClass, blobTableName, sb.toString() );
-  }
-
-  /**
-   * Подготовливает SQL запрос на поиск ближайших блоков для каждого указанного данного у которого есть значение на
-   * указанной метке времени или после нее
-   *
-   * @param aBlockImplClass String полное имя класса реализации блока значений
-   * @param aBlobImplClass String полное имя класса реализации blob значений
-   * @param aGwids {@link IGwidList} список идентификаторов данных
-   * @param aTimestamp long метка времени (мсек с начала эпохи) перед которой или на которой проводится поиск блока со
-   *          значением
-   * @return String текст SQL запроса.
-   * @throws TsNullArgumentRtException любой аргумент = null
-   */
-  private static String prepareReadAfterSQL( String aBlockImplClass, String aBlobImplClass, IGwidList aGwids,
-      long aTimestamp ) {
-    TsNullArgumentRtException.checkNulls( aBlobImplClass, aBlobImplClass, aGwids );
-    String blockTableName = getLast( aBlockImplClass );
-    String blobTableName = getLast( aBlobImplClass );
-    // Загрузка блоков последовательности
-    Long time = Long.valueOf( aTimestamp );
-    if( aTimestamp == MIN_TIMESTAMP ) {
-      time = Long.valueOf( MIN_TIMESTAMP + 1 );
-    }
-    if( aTimestamp == MAX_TIMESTAMP ) {
-      time = Long.valueOf( MAX_TIMESTAMP - 1 );
-    }
-    StringBuilder sb = new StringBuilder();
-    for( int index = 0, n = aGwids.size(); index < n; index++ ) {
-      Gwid gwid = aGwids.get( index );
-      String subSql = format( QFRMT_NATIVE_BLOCKS_AFTER_TIME_SUB, blockTableName, gwid, time, time, time );
-      sb.append( "(" );
-      sb.append( subSql );
-      sb.append( ")" );
-      if( index + 1 < n ) {
-        sb.append( "union all" );
-      }
-    }
-    // Добавление в запрос оператора объединения подзапросов
-    return addJoinOpertatorToSQL( aBlockImplClass, blobTableName, sb.toString() );
-  }
-
-  /**
-   * Подготовливает SQL запрос на получение блоков в указанном интервале
-   *
-   * @param aBlockImplClass String полное имя класса реализации блока значений
-   * @param aBlobImplClass String полное имя класса реализации blob значений
-   * @param aGwids {@link IGwidList} список идентификаторов данных
-   * @param aInterval {@link ITimeInterval} интервал запроса
-   * @return String текст SQL запроса.
-   * @throws TsNullArgumentRtException любой аргумент = null
-   */
-  private static String prepareReadSQL( String aBlockImplClass, String aBlobImplClass, IGwidList aGwids,
-      ITimeInterval aInterval ) {
-    TsNullArgumentRtException.checkNulls( aBlobImplClass, aBlobImplClass, aGwids, aInterval );
-    String blockTableName = getLast( aBlockImplClass );
-    String blobTableName = getLast( aBlobImplClass );
-    // Загрузка блоков последовательности
-    long startTime = aInterval.startTime();
-    long endTime = aInterval.endTime();
-    startTime = (startTime == MIN_TIMESTAMP ? startTime + 1 : startTime);
-    endTime = (endTime == MAX_TIMESTAMP ? endTime - 1 : endTime);
-    Long st = Long.valueOf( startTime );
-    Long et = Long.valueOf( endTime );
-    StringBuilder sb = new StringBuilder();
-    for( int index = 0, n = aGwids.size(); index < n; index++ ) {
-      Gwid gwid = aGwids.get( index );
-      String subSql = format( QFRMT_NATIVE_BLOCKS_SUB, blockTableName, gwid, st, et, st, et, st, et );
-      sb.append( "(" );
-      sb.append( subSql );
-      sb.append( ")" );
-      if( index + 1 < n ) {
-        sb.append( "union all" );
-      }
-    }
-    // Добавление в запрос оператора объединения подзапросов
-    return addJoinOpertatorToSQL( aBlockImplClass, blobTableName, sb.toString() );
+    return addJoinOpertatorToSQL( blockImplClass, blobTableName, sb.toString() );
   }
 
   /**
@@ -1491,49 +1398,26 @@ class S5SequenceSQL {
   /**
    * Возвращает полное имя класса реализации блока
    *
-   * @param aTypeInfos {@link IList}&lt;{@link IParameterized}&gt; список параметризованных описаний данных.
+   * @param aTypeInfo {@link IParameterized} параметризованное описание данного.
    * @return String полное имя класса реализации
    * @throws TsNullArgumentRtException аргумент = null
-   * @throws TsIllegalStateRtException пустой список описаний данных
-   * @throws TsIllegalStateRtException блоки значений реализуются более чем одним классом
    */
-  private static String blockImplClassFromInfos( IList<IParameterized> aTypeInfos ) {
-    TsNullArgumentRtException.checkNull( aTypeInfos );
-    TsIllegalArgumentRtException.checkFalse( aTypeInfos.size() > 0 );
-    String retValue = null;
-    for( IParameterized typeInfo : aTypeInfos ) {
-      String blockImplClass = OP_BLOCK_IMPL_CLASS.getValue( typeInfo.params() ).asString();
-      if( retValue == null ) {
-        retValue = blockImplClass;
-        continue;
-      }
-      TsIllegalArgumentRtException.checkFalse( retValue.equals( blockImplClass ) );
-    }
-    return retValue;
+  private static String blockImplClassFromInfo( IParameterized aTypeInfo ) {
+    TsNullArgumentRtException.checkNull( aTypeInfo );
+    String blockImplClass = OP_BLOCK_IMPL_CLASS.getValue( aTypeInfo.params() ).asString();
+    return blockImplClass;
   }
 
   /**
    * Возвращает полное имя класса реализации blob
    *
-   * @param aTypeInfos {@link IList}&lt;{@link IParameterized}&gt; список параметризованных описаний данных.
+   * @param aTypeInfo {@link IParameterized} параметризованное описание данного.
    * @return String полное имя класса реализации
    * @throws TsNullArgumentRtException аргумент = null
-   * @throws TsIllegalStateRtException пустой список описаний данных
-   * @throws TsIllegalStateRtException blob значений реализуются более чем одним классом
    */
-  private static String blobImplClassFromInfos( IList<IParameterized> aTypeInfos ) {
-    TsNullArgumentRtException.checkNull( aTypeInfos );
-    TsIllegalArgumentRtException.checkFalse( aTypeInfos.size() > 0 );
-    String retValue = null;
-    for( IParameterized typeInfo : aTypeInfos ) {
-      String blockImplClass = OP_BLOB_IMPL_CLASS.getValue( typeInfo.params() ).asString();
-      if( retValue == null ) {
-        retValue = blockImplClass;
-        continue;
-      }
-      TsIllegalArgumentRtException.checkFalse( retValue.equals( blockImplClass ) );
-    }
-    return retValue;
+  private static String blobImplClassFromInfo( IParameterized aTypeInfo ) {
+    String blockImplClass = OP_BLOB_IMPL_CLASS.getValue( aTypeInfo.params() ).asString();
+    return blockImplClass;
   }
 
   /**
@@ -1677,12 +1561,11 @@ class S5SequenceSQL {
    * @param aFactory {@link IS5SequenceFactory} фабрика формирования последовательности
    * @param aInterval {@link IQueryInterval} интервал запроса последовательности
    * @param aBlock {@link IS5SequenceBlock} блок
-   * @return {@link IS5SequenceBlock} блок результат. {@link IS5SequenceBlock#NULL}: все значения блока не попадают в
-   *         интервал
+   * @return {@link IS5SequenceBlock} блок результат. null: все значения блока не попадают в интервал
    * @param <V> тип значений блока
    * @throws TsNullArgumentRtException любой аргумент = null
    */
-  private static <V extends ITemporal<?>> IS5SequenceBlock<V> trim( IS5SequenceFactory<V> aFactory,
+  private static <V extends ITemporal<?>> IS5SequenceBlock<V> trimOrNull( IS5SequenceFactory<V> aFactory,
       IQueryInterval aInterval, IS5SequenceBlock<V> aBlock ) {
     TsNullArgumentRtException.checkNulls( aFactory, aInterval, aBlock );
     IParameterized typeInfo = aFactory.typeInfo( aBlock.gwid() );
@@ -1704,10 +1587,6 @@ class S5SequenceSQL {
     while( firstIndex > 0 ) { //
       long currTime = aBlock.timestamp( firstIndex );
       long nextTime = aBlock.timestamp( firstIndex - 1 );
-      // String t0 = TimeUtils.timestampToString( currTime );
-      // String t1 = TimeUtils.timestampToString( nextTime );
-      // ITemporal v0 = aBlock.getValue( firstIndex );
-      // ITemporal v1 = aBlock.getValue( firstIndex - 1 );
       if( isStartOpen && currTime >= ist || //
           !isStartOpen && nextTime == ist ) {
         firstIndex--;
@@ -1723,10 +1602,6 @@ class S5SequenceSQL {
     while( lastIndex + 1 < aBlock.size() ) {
       long currTime = aBlock.timestamp( lastIndex );
       long nextTime = aBlock.timestamp( lastIndex + 1 );
-      // ITemporal v0 = aBlock.getValue( lastIndex );
-      // ITemporal v1 = aBlock.getValue( lastIndex + 1 );
-      // String t0 = TimeUtils.timestampToString( currTime );
-      // String t1 = TimeUtils.timestampToString( nextTime );
       if( isEndOpen && currTime <= iet || //
           !isEndOpen && nextTime == iet ) {
         lastIndex++;
@@ -1750,6 +1625,9 @@ class S5SequenceSQL {
         continue;
       }
       values.add( value );
+    }
+    if( values.size() == 0 ) {
+      return null;
     }
     // Создание блока с значениями которые находятся в блоке
     return aFactory.createBlock( aBlock.gwid(), values );

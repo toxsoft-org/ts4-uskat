@@ -8,6 +8,8 @@ import static org.toxsoft.uskat.s5.common.IS5CommonResources.*;
 import static org.toxsoft.uskat.s5.server.IS5ServerHardConstants.*;
 import static org.toxsoft.uskat.s5.server.sequences.IS5SequenceHardConstants.*;
 import static org.toxsoft.uskat.s5.server.sequences.impl.IS5Resources.*;
+import static org.toxsoft.uskat.s5.server.sequences.impl.S5SequenceSQL.*;
+import static org.toxsoft.uskat.s5.server.sequences.impl.S5SequenceUtils.*;
 
 import java.sql.Connection;
 import java.sql.SQLException;
@@ -27,7 +29,6 @@ import org.jboss.ejb3.annotation.TransactionTimeout;
 import org.toxsoft.core.tslib.av.opset.IOptionSet;
 import org.toxsoft.core.tslib.av.opset.IOptionSetEdit;
 import org.toxsoft.core.tslib.av.opset.impl.OptionSet;
-import org.toxsoft.core.tslib.av.utils.IParameterized;
 import org.toxsoft.core.tslib.bricks.strid.coll.IStridablesList;
 import org.toxsoft.core.tslib.bricks.strid.idgen.IStridGenerator;
 import org.toxsoft.core.tslib.bricks.strid.idgen.UuidStridGenerator;
@@ -71,7 +72,6 @@ import org.toxsoft.uskat.s5.server.statistics.EStatisticInterval;
 import org.toxsoft.uskat.s5.server.statistics.S5StatisticWriter;
 import org.toxsoft.uskat.s5.utils.platform.S5ServerPlatformUtils;
 import org.toxsoft.uskat.s5.utils.schedules.*;
-import org.toxsoft.uskat.s5.utils.threads.impl.S5ReadThreadExecutor;
 
 /**
  * Базовая (абстрактная) реализация синглетона поддержки бекенда обрабатывающего последовательности данных
@@ -572,8 +572,6 @@ public abstract class S5BackendSequenceSupportSingleton<S extends IS5Sequence<V>
     }
     long traceStartTime = System.currentTimeMillis();
     int count = aGwids.size();
-    // Идентификаторов данных по реализациям. Ключ: полное имя реализации. Значение: список идентификаторовданных
-    IStringMapEdit<GwidList> gwidsByImpls = new StringMap<>();
     // Список данных принятых в обработку
     Set<Gwid> readingGwids = new HashSet<>();
     for( Gwid gwid : aGwids ) {
@@ -584,20 +582,6 @@ public abstract class S5BackendSequenceSupportSingleton<S extends IS5Sequence<V>
       }
       // Данное принимается в обработку
       readingGwids.add( gwid );
-      // Описание данного
-      IParameterized typeInfo = factory().typeInfo( gwid );
-      String blockImplClassName = OP_BLOCK_IMPL_CLASS.getValue( typeInfo.params() ).asString();
-      GwidList gwids = gwidsByImpls.findByKey( blockImplClassName );
-      if( gwids == null ) {
-        gwids = new GwidList();
-        gwidsByImpls.put( blockImplClassName, gwids );
-      }
-      if( gwids.hasElem( gwid ) ) {
-        // gwid указан в списке запроса несколько раз
-        logger().warning( ERR_GWID_DOUBLE_ON_READ, gwid );
-        continue;
-      }
-      gwids.add( gwid );
     }
     // Соединение с dmbs
     try( Connection dbConnection = dataSource.getConnection() ) {
@@ -607,27 +591,12 @@ public abstract class S5BackendSequenceSupportSingleton<S extends IS5Sequence<V>
       readQueries.put( aQueryId, query );
       logger().info( "readSequences(...): put query. aQueryId = %s", aQueryId ); //$NON-NLS-1$
       try {
-        // Исполнитель s5-потоков чтения данных
-        S5ReadThreadExecutor<IMap<Gwid, S>> executor = new S5ReadThreadExecutor<>( readExecutor, logger() );
-        // Результат выполнения запроса
-        IMapEdit<Gwid, S> results = new ElemMap<>();
-        for( int index = 0, n = gwidsByImpls.size(); index < n; index++ ) {
-          IGwidList gwids = gwidsByImpls.values().get( index );
-          // Регистрация потока
-          S5SequenceThreadRead<S, V> thread = new S5SequenceThreadRead<>( query, gwids );
-          executor.add( thread );
-        }
-        // Запуск потоков (с ожиданием завершения, c поднятием исключений на ошибках потоков)
-        executor.run( true, true );
-        // Результат запроса
-        IList<IMap<Gwid, S>> executorResults = executor.results();
-        for( IMap<Gwid, S> result : executorResults ) {
-          results.putAll( result );
-        }
+        // Запрос последовтельностей значений
+        IMap<Gwid, S> readSequences = readSequences( query, new GwidList( readingGwids.toArray( new Gwid[0] ) ) );
         // Формирование окончательного результата
         IMapEdit<Gwid, S> retValue = new ElemMap<>();
         for( Gwid gwid : aGwids ) {
-          S sequence = results.findByKey( gwid );
+          S sequence = readSequences.findByKey( gwid );
           if( sequence == null ) {
             // Нет данных
             IQueryInterval interval = new QueryInterval( CSCE, aInterval.startTime(), aInterval.endTime() );
@@ -1334,6 +1303,77 @@ public abstract class S5BackendSequenceSupportSingleton<S extends IS5Sequence<V>
   // ------------------------------------------------------------------------------------
   // Внутренние методы
   //
+  /**
+   * Читает последовательности значений
+   *
+   * @param aQuery {@link IS5SequenceReadQuery} запрос чтения хранимых данных
+   * @param aGwids {@link IGwidList} список идентификаторов данных.
+   * @return {@link IMap}&lt;{@link Gwid},S&lt;V&gt;&gt; карта прочитанных последовательностей.<br>
+   *         Ключ: идентификатор данного<br>
+   *         Значение: последовательность значений данного.
+   * @throws TsNullArgumentRtException любой аргумент = null
+   */
+  @SuppressWarnings( "unchecked" )
+  private IMap<Gwid, S> readSequences( IS5SequenceReadQuery aQuery, IGwidList aGwids ) {
+    TsNullArgumentRtException.checkNulls( aQuery, aGwids );
+    String table = (aGwids.size() > 0 ? gwidsToString( aGwids, 3 ) : TsLibUtils.EMPTY_STRING);
+    String infoStr = String.format( MSG_INFO, table, Integer.valueOf( aGwids.size() ) );
+    // Интервал запроса
+    IQueryInterval interval = aQuery.interval();
+    long traceTimestamp = System.currentTimeMillis();
+    long traceReadTimeout = 0;
+    long traceCreateTimeout = 0;
+    try {
+      // Установка потока выполняющего запрос
+      aQuery.setThread( Thread.currentThread() );
+      // Чтение блоков
+      IMap<Gwid, IList<IS5SequenceBlock<V>>> readBlocks = readBlocks( aQuery, aGwids );
+      traceReadTimeout = System.currentTimeMillis() - traceTimestamp;
+      traceTimestamp = System.currentTimeMillis();
+      // Результат
+      IMapEdit<Gwid, S> retValue = new ElemMap<>();
+      // Создание последовательностей
+      for( int index = 0, n = readBlocks.keys().size(); index < n; index++ ) {
+        Gwid gwid = readBlocks.keys().get( index );
+        IList<IS5SequenceBlockEdit<V>> blocks =
+            (IList<IS5SequenceBlockEdit<V>>)(Object)readBlocks.values().get( index );
+        // Фактический интервал значений (может быть больше запрашиваемого так как могут быть значения ДО и ПОСЛЕ)
+        long factStartTime = interval.startTime();
+        long factEndTime = interval.endTime();
+        if( blocks.size() > 0 ) {
+          long startTime = blocks.get( 0 ).startTime();
+          long endTime = blocks.get( blocks.size() - 1 ).endTime();
+          if( startTime < factStartTime ) {
+            factStartTime = startTime;
+          }
+          if( factEndTime < endTime ) {
+            factEndTime = endTime;
+          }
+        }
+        IQueryInterval factInterval = new QueryInterval( EQueryIntervalType.CSCE, factStartTime, factEndTime );
+        IS5SequenceEdit<V> sequence = factory.createSequence( gwid, factInterval, blocks );
+        // 2020-12-07 mvk ???
+        // if( interval.equals( factInterval ) == false ) {
+        // sequence.setInterval( interval );
+        // }
+        retValue.put( gwid, (S)sequence );
+      }
+      traceCreateTimeout = System.currentTimeMillis() - traceTimestamp;
+      // Журнал
+      if( logger().isSeverityOn( ELogSeverity.DEBUG ) ) {
+        Long ta = Long.valueOf( System.currentTimeMillis() - traceTimestamp );
+        Long tr = Long.valueOf( traceReadTimeout );
+        Long tc = Long.valueOf( traceCreateTimeout );
+        String s = sequencesToString( retValue.values() );
+        logger().debug( MSG_READ_SEQUENCES_FINISH, infoStr, interval, ta, tr, tc, s );
+      }
+      return retValue;
+    }
+    catch( RuntimeException e ) {
+      throw new TsInternalErrorRtException( e, ERR_SEQUENCE_READ_UNEXPECTED, infoStr, interval, cause( e ) );
+    }
+  }
+
   /**
    * Проводит исправление хранения последовательностей значений указанных данных
    *

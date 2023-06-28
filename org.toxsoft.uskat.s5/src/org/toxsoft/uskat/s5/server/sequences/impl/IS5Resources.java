@@ -125,6 +125,7 @@ interface IS5Resources {
   String MSG_READ_BLOCK_BEFORE_START = Messages.getString( "IS5Resources.MSG_READ_BLOCK_BEFORE_START" ); //$NON-NLS-1$
   String MSG_READ_BLOCK_BEFORE_END   = Messages.getString( "IS5Resources.MSG_READ_BLOCK_BEFORE_END" );   //$NON-NLS-1$
   String MSG_READ_BLOCK_SQL          = Messages.getString( "IS5Resources.MSG_READ_BLOCK_SQL" );          //$NON-NLS-1$
+  String MSG_READ_BLOCK_SQL_SIZE     = "SQL size = %d chars";                                            //$NON-NLS-1$
   String MSG_READ_BLOCK_START        = Messages.getString( "IS5Resources.MSG_READ_BLOCK_START" );        //$NON-NLS-1$
   String MSG_READ_BLOCK_END          = Messages.getString( "IS5Resources.MSG_READ_BLOCK_END" );          //$NON-NLS-1$
   String MSG_READ_BLOCK_AFTER_SQL    = Messages.getString( "IS5Resources.MSG_READ_BLOCK_AFTER_SQL" );    //$NON-NLS-1$
@@ -322,10 +323,10 @@ interface IS5Resources {
   // ------------------------------------------------------------------------------------
   // Строки сообщений
   //
-  String MSG_READ_THREAD_FINISH  = Messages.getString( "IS5Resources.MSG_READ_THREAD_FINISH" );  //$NON-NLS-1$
-  String MSG_WRITE_THREAD_FINISH = Messages.getString( "IS5Resources.MSG_WRITE_THREAD_FINISH" ); //$NON-NLS-1$
-  String MSG_WAIT_LOCK_GWID      = Messages.getString( "IS5Resources.MSG_WAIT_LOCK_GWID" );      //$NON-NLS-1$
-  String MSG_WAIT_LOCK_INFOES    = Messages.getString( "IS5Resources.MSG_WAIT_LOCK_INFOES" );    //$NON-NLS-1$
+  String MSG_READ_SEQUENCES_FINISH = Messages.getString( "IS5Resources.MSG_READ_SEQUENCES_FINISH" ); //$NON-NLS-1$
+  String MSG_WRITE_THREAD_FINISH   = Messages.getString( "IS5Resources.MSG_WRITE_THREAD_FINISH" );   //$NON-NLS-1$
+  String MSG_WAIT_LOCK_GWID        = Messages.getString( "IS5Resources.MSG_WAIT_LOCK_GWID" );        //$NON-NLS-1$
+  String MSG_WAIT_LOCK_INFOES      = Messages.getString( "IS5Resources.MSG_WAIT_LOCK_INFOES" );      //$NON-NLS-1$
 
   // ------------------------------------------------------------------------------------
   // Тексты ошибок
