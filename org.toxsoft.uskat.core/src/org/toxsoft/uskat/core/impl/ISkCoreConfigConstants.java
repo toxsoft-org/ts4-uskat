@@ -6,20 +6,22 @@ import static org.toxsoft.core.tslib.av.metainfo.IAvMetaConstants.*;
 import static org.toxsoft.uskat.core.ISkHardConstants.*;
 import static org.toxsoft.uskat.core.impl.ISkResources.*;
 
-import java.util.*;
+import java.util.Locale;
 
-import org.toxsoft.core.tslib.av.impl.*;
-import org.toxsoft.core.tslib.av.metainfo.*;
-import org.toxsoft.core.tslib.bricks.ctx.*;
-import org.toxsoft.core.tslib.bricks.ctx.impl.*;
-import org.toxsoft.core.tslib.bricks.keeper.std.*;
-import org.toxsoft.core.tslib.bricks.strid.coll.*;
-import org.toxsoft.core.tslib.bricks.strid.coll.impl.*;
-import org.toxsoft.core.tslib.coll.*;
-import org.toxsoft.core.tslib.utils.logs.*;
-import org.toxsoft.uskat.core.*;
-import org.toxsoft.uskat.core.backend.*;
-import org.toxsoft.uskat.core.connection.*;
+import org.toxsoft.core.tslib.av.impl.DataDef;
+import org.toxsoft.core.tslib.av.metainfo.IDataDef;
+import org.toxsoft.core.tslib.bricks.ctx.ITsContextRefDef;
+import org.toxsoft.core.tslib.bricks.ctx.ITsContextRo;
+import org.toxsoft.core.tslib.bricks.ctx.impl.TsContextRefDef;
+import org.toxsoft.core.tslib.bricks.keeper.std.LocaleKeeper;
+import org.toxsoft.core.tslib.bricks.strid.coll.IStridablesList;
+import org.toxsoft.core.tslib.bricks.strid.coll.impl.StridablesList;
+import org.toxsoft.core.tslib.coll.IList;
+import org.toxsoft.core.tslib.utils.logs.ELogSeverity;
+import org.toxsoft.uskat.core.ISkCoreApi;
+import org.toxsoft.uskat.core.ISkServiceCreator;
+import org.toxsoft.uskat.core.backend.ISkBackendProvider;
+import org.toxsoft.uskat.core.connection.ISkConnection;
 
 /**
  * USkat core implementation-specific constants and options.
@@ -95,6 +97,16 @@ public interface ISkCoreConfigConstants {
   ITsContextRefDef<IList> REFDEF_USER_SERVICES = TsContextRefDef.create( IList.class, //
       TSID_NAME, STR_N_REF_USER_SERVICES, //
       TSID_DESCRIPTION, STR_D_REF_USER_SERVICES, //
+      TSID_IS_MANDATORY, AV_FALSE //
+  );
+
+  /**
+   * {@link ISkConnection#open(ITsContextRo)} argument: user-specified connection thread.<br>
+   * Usage: All calls to the API must be made within the specified thread.
+   */
+  ITsContextRefDef<Thread> REFDEF_API_THREAD = TsContextRefDef.create( Thread.class, //
+      TSID_NAME, STR_N_REF_API_THREAD, //
+      TSID_DESCRIPTION, STR_D_REF_API_THREAD, //
       TSID_IS_MANDATORY, AV_FALSE //
   );
 
