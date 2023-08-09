@@ -5,33 +5,39 @@ import static org.toxsoft.uskat.core.ISkHardConstants.*;
 import static org.toxsoft.uskat.core.backend.api.IBaObjectsMessages.*;
 import static org.toxsoft.uskat.core.impl.ISkResources.*;
 
-import org.toxsoft.core.tslib.av.*;
-import org.toxsoft.core.tslib.av.errors.*;
-import org.toxsoft.core.tslib.av.opset.*;
-import org.toxsoft.core.tslib.bricks.ctx.*;
-import org.toxsoft.core.tslib.bricks.events.*;
-import org.toxsoft.core.tslib.bricks.events.msg.*;
-import org.toxsoft.core.tslib.bricks.strid.coll.*;
-import org.toxsoft.core.tslib.bricks.strid.coll.impl.*;
-import org.toxsoft.core.tslib.bricks.strid.impl.*;
-import org.toxsoft.core.tslib.bricks.validator.*;
-import org.toxsoft.core.tslib.bricks.validator.impl.*;
+import org.toxsoft.core.tslib.av.EAtomicType;
+import org.toxsoft.core.tslib.av.IAtomicValue;
+import org.toxsoft.core.tslib.av.errors.AvTypeCastRtException;
+import org.toxsoft.core.tslib.av.opset.IOptionSet;
+import org.toxsoft.core.tslib.bricks.ctx.ITsContextRo;
+import org.toxsoft.core.tslib.bricks.events.AbstractTsEventer;
+import org.toxsoft.core.tslib.bricks.events.ITsEventer;
+import org.toxsoft.core.tslib.bricks.events.msg.GenericMessage;
+import org.toxsoft.core.tslib.bricks.strid.coll.IStridablesList;
+import org.toxsoft.core.tslib.bricks.strid.coll.impl.StridablesList;
+import org.toxsoft.core.tslib.bricks.strid.impl.StridUtils;
+import org.toxsoft.core.tslib.bricks.validator.ITsValidationSupport;
+import org.toxsoft.core.tslib.bricks.validator.ValidationResult;
+import org.toxsoft.core.tslib.bricks.validator.impl.AbstractTsValidationSupport;
+import org.toxsoft.core.tslib.bricks.validator.impl.TsValidationFailedRtException;
 import org.toxsoft.core.tslib.coll.*;
-import org.toxsoft.core.tslib.coll.helpers.*;
+import org.toxsoft.core.tslib.coll.helpers.ECrudOp;
 import org.toxsoft.core.tslib.coll.impl.*;
-import org.toxsoft.core.tslib.coll.primtypes.*;
-import org.toxsoft.core.tslib.coll.primtypes.impl.*;
-import org.toxsoft.core.tslib.gw.gwid.*;
+import org.toxsoft.core.tslib.coll.primtypes.IStringMapEdit;
+import org.toxsoft.core.tslib.coll.primtypes.impl.StringMap;
+import org.toxsoft.core.tslib.gw.gwid.Gwid;
 import org.toxsoft.core.tslib.gw.skid.*;
 import org.toxsoft.core.tslib.utils.errors.*;
-import org.toxsoft.core.tslib.utils.logs.impl.*;
-import org.toxsoft.core.tslib.utils.txtmatch.*;
-import org.toxsoft.uskat.core.*;
+import org.toxsoft.core.tslib.utils.logs.impl.LoggerUtils;
+import org.toxsoft.core.tslib.utils.txtmatch.TextMatcher;
+import org.toxsoft.uskat.core.ISkHardConstants;
+import org.toxsoft.uskat.core.ISkServiceCreator;
 import org.toxsoft.uskat.core.api.objserv.*;
-import org.toxsoft.uskat.core.api.sysdescr.*;
-import org.toxsoft.uskat.core.api.sysdescr.dto.*;
-import org.toxsoft.uskat.core.devapi.*;
-import org.toxsoft.uskat.core.impl.dto.*;
+import org.toxsoft.uskat.core.api.sysdescr.ISkClassInfo;
+import org.toxsoft.uskat.core.api.sysdescr.dto.IDtoAttrInfo;
+import org.toxsoft.uskat.core.api.sysdescr.dto.IDtoRivetInfo;
+import org.toxsoft.uskat.core.devapi.IDevCoreApi;
+import org.toxsoft.uskat.core.impl.dto.DtoObject;
 
 /**
  * {@link ISkObjectService} implementation.
@@ -531,6 +537,7 @@ public class SkCoreServObject
   @SuppressWarnings( "unchecked" )
   @Override
   public <T extends ISkObject> T find( Skid aSkid ) {
+    checkThread();
     TsNullArgumentRtException.checkNull( aSkid );
     coreApi().papiCheckIsOpen();
     SkObject sko = objsCache.find( aSkid );
@@ -549,6 +556,7 @@ public class SkCoreServObject
   @SuppressWarnings( "unchecked" )
   @Override
   public <T extends ISkObject> T get( Skid aSkid ) {
+    checkThread();
     coreApi().papiCheckIsOpen();
     ISkObject sko = find( aSkid );
     TsItemNotFoundRtException.checkNull( sko, FMT_ERR_NO_SUCH_OBJ, aSkid.toString() );
@@ -557,6 +565,7 @@ public class SkCoreServObject
 
   @Override
   public ISkidList listSkids( String aClassId, boolean aIncludeSubclasses ) {
+    checkThread();
     coreApi().papiCheckIsOpen();
     ISkClassInfo cinf = coreApi().sysdescr().getClassInfo( aClassId );
     IStridablesList<ISkClassInfo> classesList;
@@ -577,6 +586,7 @@ public class SkCoreServObject
   @SuppressWarnings( "unchecked" )
   @Override
   public <T extends ISkObject> IList<T> listObjs( String aClassId, boolean aIncludeSubclasses ) {
+    checkThread();
     TsNullArgumentRtException.checkNull( aClassId );
     coreApi().papiCheckIsOpen();
     ISkClassInfo cinf = sysdescr().getClassInfo( aClassId );
@@ -605,6 +615,7 @@ public class SkCoreServObject
 
   @Override
   public IList<ISkObject> getObjs( ISkidList aSkids ) {
+    checkThread();
     TsNullArgumentRtException.checkNull( aSkids );
     coreApi().papiCheckIsOpen();
     IList<IDtoObject> dpuObjs = coreApi().l10n().l10nObjectsList( ba().baObjects().readObjectsByIds( aSkids ) );
@@ -625,6 +636,7 @@ public class SkCoreServObject
   @SuppressWarnings( "unchecked" )
   @Override
   public <T extends ISkObject> T defineObject( IDtoObject aDtoObject ) {
+    checkThread();
     // check preconditions
     TsNullArgumentRtException.checkNull( aDtoObject );
     coreApi().papiCheckIsOpen();
@@ -658,6 +670,7 @@ public class SkCoreServObject
 
   @Override
   public void removeObject( Skid aSkid ) {
+    checkThread();
     coreApi().papiCheckIsOpen();
     TsValidationFailedRtException.checkError( validationSupport.canRemoveObject( aSkid ) );
     objsCache.remove( aSkid );
@@ -666,18 +679,21 @@ public class SkCoreServObject
 
   @Override
   public ISkidList getRivetRev( String aClassId, String aRivetId, Skid aRightSkid ) {
+    checkThread();
     // TODO реализовать SkCoreServObject.getRivetRev()
     throw new TsUnderDevelopmentRtException( "SkCoreServObject.getRivetRev()" );
   }
 
   @Override
   public IMap<Gwid, ISkidList> getAllRivetsRev( Skid aRightSkid ) {
+    checkThread();
     // TODO реализовать SkCoreServObject.getRivetRev()
     throw new TsUnderDevelopmentRtException( "SkCoreServObject.getRivetRev()" );
   }
 
   @Override
   public void removeObjects( ISkidList aSkids ) {
+    checkThread();
     coreApi().papiCheckIsOpen();
     TsValidationFailedRtException.checkError( validationSupport.canRemoveObjects( aSkids ) );
     for( Skid s : aSkids ) {
@@ -688,6 +704,7 @@ public class SkCoreServObject
 
   @Override
   public void registerObjectCreator( TextMatcher aRule, ISkObjectCreator<?> aCreator ) {
+    checkThread();
     objsCreators.registerObjectCreator( aRule, aCreator );
   }
 

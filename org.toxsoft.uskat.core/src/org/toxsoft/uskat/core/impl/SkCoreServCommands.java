@@ -191,6 +191,7 @@ public class SkCoreServCommands
 
   @Override
   public ISkCommand sendCommand( Gwid aCmdGwid, Skid aAuthorSkid, IOptionSet aArgs ) {
+    checkThread();
     // check preconditions
     TsNullArgumentRtException.checkNulls( aCmdGwid, aAuthorSkid, aArgs );
     TsIllegalArgumentRtException.checkFalse( aCmdGwid.kind() == EGwidKind.GW_CMD );
@@ -228,6 +229,7 @@ public class SkCoreServCommands
 
   @Override
   public void registerExecutor( ISkCommandExecutor aExecutor, IGwidList aCmdGwids ) {
+    checkThread();
     TsNullArgumentRtException.checkNulls( aExecutor, aCmdGwids );
     registeredExecutors.put( aExecutor, aCmdGwids );
     IGwidList allGwids = calcHandledCommandGwids();
@@ -236,6 +238,7 @@ public class SkCoreServCommands
 
   @Override
   public void unregisterExecutor( ISkCommandExecutor aExecutor ) {
+    checkThread();
     if( registeredExecutors.removeByKey( aExecutor ) != null ) {
       IGwidList allGwids = calcHandledCommandGwids();
       ba().baCommands().setHandledCommandGwids( allGwids );
@@ -244,6 +247,7 @@ public class SkCoreServCommands
 
   @Override
   public void changeCommandState( DtoCommandStateChangeInfo aStateChangeInfo ) {
+    checkThread();
     TsNullArgumentRtException.checkNull( aStateChangeInfo );
     TsItemNotFoundRtException.checkFalse( executingCmds.hasKey( aStateChangeInfo.instanceId() ) );
     switch( aStateChangeInfo.state().state() ) {
@@ -264,6 +268,7 @@ public class SkCoreServCommands
 
   @Override
   public ITimedList<IDtoCompletedCommand> queryObjCommands( ITimeInterval aInterval, Gwid aGwid ) {
+    checkThread();
     TsNullArgumentRtException.checkNulls( aInterval, aGwid );
     TsIllegalArgumentRtException.checkTrue( aGwid.kind() != EGwidKind.GW_CMD );
     TsIllegalArgumentRtException.checkTrue( aGwid.isAbstract() );
@@ -274,6 +279,7 @@ public class SkCoreServCommands
 
   @Override
   public IGwidList listGloballyHandledCommandGwids() {
+    checkThread();
     return ba().baCommands().listGloballyHandledCommandGwids();
   }
 

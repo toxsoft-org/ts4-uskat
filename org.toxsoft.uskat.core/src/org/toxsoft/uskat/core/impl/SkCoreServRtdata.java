@@ -61,6 +61,7 @@ public class SkCoreServRtdata
 
     @Override
     final public boolean isOk() {
+      checkThread();
       if( !isInited() ) {
         return false;
       }
@@ -309,6 +310,7 @@ public class SkCoreServRtdata
 
   @Override
   public IMap<Gwid, ISkReadCurrDataChannel> createReadCurrDataChannels( IGwidList aGwids ) {
+    checkThread();
     TsNullArgumentRtException.checkNull( aGwids );
     TsIllegalStateRtException.checkFalse( isInited() );
     IMapEdit<Gwid, ISkReadCurrDataChannel> result = new ElemMap<>();
@@ -361,6 +363,7 @@ public class SkCoreServRtdata
 
     @Override
     public void close() {
+      checkThread();
       if( cdWriteChannelsMap.hasElem( this ) ) {
         cdWriteChannelsMap.removeByKey( gwid );
       }
@@ -368,6 +371,7 @@ public class SkCoreServRtdata
 
     @Override
     public void setValue( IAtomicValue aValue ) {
+      checkThread();
       TsIllegalStateRtException.checkFalse( isOk() );
       TsNullArgumentRtException.checkNull( aValue );
       AvTypeCastRtException.checkCanAssign( atomicType, aValue.atomicType() );
@@ -383,6 +387,7 @@ public class SkCoreServRtdata
 
   @Override
   public IMap<Gwid, ISkWriteCurrDataChannel> createWriteCurrDataChannels( IGwidList aGwids1 ) {
+    checkThread();
     TsNullArgumentRtException.checkNull( aGwids1 );
     TsIllegalStateRtException.checkFalse( isInited() );
     IMapEdit<Gwid, ISkWriteCurrDataChannel> result = new ElemMap<>();
@@ -434,6 +439,7 @@ public class SkCoreServRtdata
 
     @Override
     public void close() {
+      checkThread();
       if( hdWriteChannelsMap.hasElem( this ) ) {
         hdWriteChannelsMap.removeByKey( gwid );
       }
@@ -441,6 +447,7 @@ public class SkCoreServRtdata
 
     @Override
     public void writeValues( ITimeInterval aInterval, ITimedList<ITemporalAtomicValue> aValues ) {
+      checkThread();
       TsIllegalStateRtException.checkFalse( isOk() );
       TsNullArgumentRtException.checkNulls( aInterval, aValues );
       ITimeInterval interval = aValues.getInterval();
@@ -463,6 +470,7 @@ public class SkCoreServRtdata
 
   @Override
   public IMap<Gwid, ISkWriteHistDataChannel> createWriteHistDataChannels( IGwidList aGwids ) {
+    checkThread();
     TsNullArgumentRtException.checkNull( aGwids );
     IMapEdit<Gwid, ISkWriteHistDataChannel> result = new ElemMap<>();
     // for all valid GWId either get exiting or create new channel
@@ -480,6 +488,7 @@ public class SkCoreServRtdata
 
   @Override
   public ITimedList<ITemporalAtomicValue> queryObjRtdata( IQueryInterval aInterval, Gwid aGwid ) {
+    checkThread();
     TsNullArgumentRtException.checkNulls( aInterval, aGwid );
     TsIllegalArgumentRtException.checkTrue( aGwid.kind() != EGwidKind.GW_RTDATA );
     TsIllegalArgumentRtException.checkTrue( aGwid.isAbstract() );

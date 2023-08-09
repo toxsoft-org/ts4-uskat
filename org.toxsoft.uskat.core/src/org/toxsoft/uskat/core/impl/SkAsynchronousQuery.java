@@ -70,6 +70,7 @@ public abstract class SkAsynchronousQuery
 
   @Override
   public ESkQueryState state() {
+    checkThread();
     if( state == EXECUTING ) {
       // Таймаут (мсек) выполнения запроса
       long timeout = OP_SK_MAX_EXECUTION_TIME.getValue( options ).asLong();
@@ -88,6 +89,7 @@ public abstract class SkAsynchronousQuery
 
   @Override
   public void exec( IQueryInterval aInterval ) {
+    checkThread();
     TsNullArgumentRtException.checkNull( aInterval );
     checkInvalidState( this, UNPREPARED, EXECUTING, CLOSED );
     queryTimestamp = System.currentTimeMillis();
@@ -104,6 +106,7 @@ public abstract class SkAsynchronousQuery
 
   @Override
   public void cancel() {
+    checkThread();
     if( state == CLOSED ) {
       throw new TsIllegalArgumentRtException( FMT_ERR_QUERY_INVALID_STATE, this, state );
     }
@@ -121,6 +124,7 @@ public abstract class SkAsynchronousQuery
 
   @Override
   public void close() {
+    checkThread();
     if( state() == CLOSED ) {
       return;
     }
@@ -207,6 +211,15 @@ public abstract class SkAsynchronousQuery
     state = aState;
     stateMessage = aStateMessage;
     eventer.fireChangeEvent();
+  }
+
+  /**
+   * Проверяет что вызов производится из API-потока
+   *
+   * @throws TsIllegalStateRtException invalid thread access
+   */
+  protected final void checkThread() {
+    service.checkThread();
   }
 
   // ------------------------------------------------------------------------------------

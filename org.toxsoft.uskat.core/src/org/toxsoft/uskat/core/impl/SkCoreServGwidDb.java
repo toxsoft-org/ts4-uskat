@@ -2,18 +2,20 @@ package org.toxsoft.uskat.core.impl;
 
 import static org.toxsoft.uskat.core.backend.api.BaMsgGwidDbChanged.*;
 
-import org.toxsoft.core.tslib.bricks.ctx.*;
-import org.toxsoft.core.tslib.bricks.events.*;
-import org.toxsoft.core.tslib.bricks.events.msg.*;
-import org.toxsoft.core.tslib.bricks.strid.more.*;
+import org.toxsoft.core.tslib.bricks.ctx.ITsContextRo;
+import org.toxsoft.core.tslib.bricks.events.AbstractTsEventer;
+import org.toxsoft.core.tslib.bricks.events.ITsEventer;
+import org.toxsoft.core.tslib.bricks.events.msg.GenericMessage;
+import org.toxsoft.core.tslib.bricks.strid.more.IdChain;
 import org.toxsoft.core.tslib.coll.*;
-import org.toxsoft.core.tslib.coll.helpers.*;
-import org.toxsoft.core.tslib.coll.impl.*;
-import org.toxsoft.core.tslib.gw.gwid.*;
-import org.toxsoft.core.tslib.utils.errors.*;
-import org.toxsoft.uskat.core.*;
-import org.toxsoft.uskat.core.backend.api.*;
-import org.toxsoft.uskat.core.devapi.*;
+import org.toxsoft.core.tslib.coll.helpers.ECrudOp;
+import org.toxsoft.core.tslib.coll.impl.ElemMap;
+import org.toxsoft.core.tslib.gw.gwid.Gwid;
+import org.toxsoft.core.tslib.utils.errors.TsItemNotFoundRtException;
+import org.toxsoft.core.tslib.utils.errors.TsNullArgumentRtException;
+import org.toxsoft.uskat.core.ISkServiceCreator;
+import org.toxsoft.uskat.core.backend.api.BaMsgGwidDbChanged;
+import org.toxsoft.uskat.core.devapi.IDevCoreApi;
 import org.toxsoft.uskat.core.devapi.gwiddb.*;
 
 /**
@@ -129,27 +131,32 @@ public class SkCoreServGwidDb
 
   @Override
   public IList<IdChain> listSectionIds() {
+    checkThread();
     return ba().baGwidDb().listSectionIds();
   }
 
   @Override
   public ISkGwidDbSection defineSection( IdChain aSectionId ) {
+    checkThread();
     TsNullArgumentRtException.checkNull( aSectionId );
     return new ISkGwidDbSection() {
 
       @Override
       public IList<Gwid> listKeys() {
+        checkThread();
         return ba().baGwidDb().listKeys( aSectionId );
       }
 
       @Override
       public boolean hasClob( Gwid aKey ) {
+        checkThread();
         TsNullArgumentRtException.checkNull( aKey );
         return listKeys().hasElem( aKey );
       }
 
       @Override
       public void writeClob( Gwid aKey, String aValue ) {
+        checkThread();
         TsNullArgumentRtException.checkNulls( aKey, aValue );
         checkKeyExistence( aKey );
         ba().baGwidDb().writeValue( aSectionId, aKey, aValue );
@@ -157,12 +164,14 @@ public class SkCoreServGwidDb
 
       @Override
       public String readClob( Gwid aKey ) {
+        checkThread();
         TsNullArgumentRtException.checkNull( aKey );
         return ba().baGwidDb().readValue( aSectionId, aKey );
       }
 
       @Override
       public void removeClob( Gwid aKey ) {
+        checkThread();
         TsNullArgumentRtException.checkNull( aKey );
         ba().baGwidDb().removeValue( aSectionId, aKey );
       }
@@ -172,6 +181,7 @@ public class SkCoreServGwidDb
 
   @Override
   public void removeSection( IdChain aSectionId ) {
+    checkThread();
     TsNullArgumentRtException.checkNull( aSectionId );
     ba().baGwidDb().removeSection( aSectionId );
   }

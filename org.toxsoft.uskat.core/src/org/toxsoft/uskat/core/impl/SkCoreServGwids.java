@@ -65,6 +65,7 @@ public class SkCoreServGwids
 
   @Override
   public boolean covers( Gwid aGeneral, Gwid aTested, ESkClassPropKind aKind ) {
+    checkThread();
     TsNullArgumentRtException.checkNulls( aGeneral, aTested, aKind );
     if( !aTested.isMulti() ) {
       return coversSingle( aGeneral, aTested, aKind );
@@ -88,6 +89,7 @@ public class SkCoreServGwids
 
   @Override
   public boolean coversSingle( Gwid aGeneral, Gwid aTested, ESkClassPropKind aKind ) {
+    checkThread();
     TsNullArgumentRtException.checkNulls( aGeneral, aTested, aKind );
     TsIllegalArgumentRtException.checkTrue( aTested.isMulti() );
     // consider only class properties
@@ -121,6 +123,7 @@ public class SkCoreServGwids
 
   @Override
   public boolean updateGwidsOfIntereset( IListEdit<Gwid> aList, Gwid aToAdd, ESkClassPropKind aKind ) {
+    checkThread();
     TsNullArgumentRtException.checkNulls( aList, aToAdd, aKind );
     // check if list already has more general GWID when new one
     for( Gwid g : aList ) {
@@ -145,6 +148,7 @@ public class SkCoreServGwids
 
   @Override
   public boolean exists( Gwid aGwid ) {
+    checkThread();
     TsNullArgumentRtException.checkNull( aGwid );
     // check if class exists
     ISkClassInfo cinf = sysdescr().findClassInfo( aGwid.classId() );
@@ -263,6 +267,7 @@ public class SkCoreServGwids
 
   @Override
   public GwidList expandGwid( Gwid aGwid ) {
+    checkThread();
     GwidList gl = new GwidList();
 
     if( aGwid.isMulti() ) {

@@ -115,6 +115,7 @@ public class SkCoreServHistQueryService
   //
   @Override
   public ISkQueryRawHistory createHistoricQuery( IOptionSet aOptions ) {
+    checkThread();
     TsNullArgumentRtException.checkNull( aOptions );
     SkQueryRawHistory retValue = new SkQueryRawHistory( this, aOptions );
     openQueries.put( retValue.queryId(), retValue );
@@ -123,6 +124,7 @@ public class SkCoreServHistQueryService
 
   @Override
   public ISkQueryProcessedData createProcessedQuery( IOptionSet aOptions ) {
+    checkThread();
     TsNullArgumentRtException.checkNull( aOptions );
     SkQueryProcessedData retValue = new SkQueryProcessedData( this, aOptions );
     openQueries.put( retValue.queryId(), retValue );
@@ -132,6 +134,7 @@ public class SkCoreServHistQueryService
   @SuppressWarnings( "unchecked" )
   @Override
   public IStringMap<ISkAsynchronousQuery> listOpenQueries() {
+    checkThread();
     return new StringMap<>( (IStringMap<ISkAsynchronousQuery>)(Object)openQueries );
   }
 

@@ -45,6 +45,7 @@ public final class SkQueryProcessedData
 
   @Override
   public void prepare( IStringMap<IDtoQueryParam> aArgs ) {
+    checkThread();
     TsNullArgumentRtException.checkNull( aArgs );
     checkInvalidState( this, EXECUTING, CLOSED );
     args.setAll( aArgs );
@@ -55,6 +56,7 @@ public final class SkQueryProcessedData
 
   @Override
   public boolean isArgDataReady( String aArgDataId ) {
+    checkThread();
     TsNullArgumentRtException.checkNull( aArgDataId );
     return argsDatas.hasKey( aArgDataId );
   }
@@ -62,6 +64,7 @@ public final class SkQueryProcessedData
   @SuppressWarnings( "unchecked" )
   @Override
   public <V extends ITemporal<V>> ITimedList<V> getArgData( String aArgDataId ) {
+    checkThread();
     Object retValue = argsDatas.findByKey( aArgDataId );
     return (retValue != null ? (ITimedList<V>)retValue : (ITimedList<V>)EMPTY_TIMED_LIST);
   }

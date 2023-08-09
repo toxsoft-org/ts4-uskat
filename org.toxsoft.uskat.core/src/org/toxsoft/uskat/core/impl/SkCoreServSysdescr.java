@@ -57,6 +57,7 @@ public class SkCoreServSysdescr
 
     @Override
     public boolean isSuperclassOf( String aClassId, String aSubclassId ) {
+      checkThread();
       TsNullArgumentRtException.checkNulls( aClassId, aSubclassId );
       ISkClassInfo cinf = findClassInfo( aClassId );
       if( cinf != null ) {
@@ -67,6 +68,7 @@ public class SkCoreServSysdescr
 
     @Override
     public boolean isAssignableFrom( String aClassId, String aSubclassId ) {
+      checkThread();
       TsNullArgumentRtException.checkNulls( aClassId, aSubclassId );
       ISkClassInfo cinf = findClassInfo( aClassId );
       if( cinf != null ) {
@@ -77,6 +79,7 @@ public class SkCoreServSysdescr
 
     @Override
     public boolean isSubclassOf( String aClassId, String aSuperclassId ) {
+      checkThread();
       TsNullArgumentRtException.checkNulls( aClassId, aSuperclassId );
       ISkClassInfo cinf = findClassInfo( aClassId );
       if( cinf != null ) {
@@ -87,6 +90,7 @@ public class SkCoreServSysdescr
 
     @Override
     public boolean isAssignableTo( String aClassId, String aSuperclassId ) {
+      checkThread();
       TsNullArgumentRtException.checkNulls( aClassId, aSuperclassId );
       ISkClassInfo cinf = findClassInfo( aClassId );
       if( cinf != null ) {
@@ -97,6 +101,7 @@ public class SkCoreServSysdescr
 
     @Override
     public boolean isOfClass( String aClassId, IStringList aClassIdsList ) {
+      checkThread();
       TsNullArgumentRtException.checkNulls( aClassId, aClassIdsList );
       ISkClassInfo cinf = findClassInfo( aClassId );
       if( cinf != null ) {
@@ -107,6 +112,7 @@ public class SkCoreServSysdescr
 
     @Override
     public String findCommonRootClassId( IStringList aClassIds ) {
+      checkThread();
       TsNullArgumentRtException.checkNull( aClassIds );
       // search for first existing class ID
       ISkClassInfo h = null;
@@ -541,6 +547,7 @@ public class SkCoreServSysdescr
 
   @Override
   public IStridablesList<ISkClassInfo> listClasses() {
+    checkThread();
     coreApi().papiCheckIsOpen();
     internalRefreshCacheIfNeeded();
     return cachedClassesList;
@@ -548,6 +555,7 @@ public class SkCoreServSysdescr
 
   @Override
   public ISkClassInfo defineClass( IDtoClassInfo aDtoClassInfo ) {
+    checkThread();
     TsNullArgumentRtException.checkNull( aDtoClassInfo );
     coreApi().papiCheckIsOpen();
     // validate operation
@@ -570,6 +578,7 @@ public class SkCoreServSysdescr
 
   @Override
   public void removeClass( String aClassId ) {
+    checkThread();
     coreApi().papiCheckIsOpen();
     TsValidationFailedRtException.checkError( validationSupport.canRemoveClass( aClassId ) );
     // remove from backend
@@ -585,6 +594,7 @@ public class SkCoreServSysdescr
 
   @Override
   public String determineClassClaimingServiceId( String aClassId ) {
+    checkThread();
     return coreApi().determineClassClaimingServiceId( aClassId );
   }
 

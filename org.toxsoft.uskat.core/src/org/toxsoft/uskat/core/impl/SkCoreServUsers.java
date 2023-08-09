@@ -7,28 +7,29 @@ import static org.toxsoft.uskat.core.ISkHardConstants.*;
 import static org.toxsoft.uskat.core.api.users.ISkUserServiceHardConstants.*;
 import static org.toxsoft.uskat.core.impl.ISkResources.*;
 
-import org.toxsoft.core.tslib.av.*;
-import org.toxsoft.core.tslib.av.impl.*;
-import org.toxsoft.core.tslib.av.metainfo.*;
-import org.toxsoft.core.tslib.av.opset.*;
-import org.toxsoft.core.tslib.bricks.ctx.*;
-import org.toxsoft.core.tslib.bricks.events.*;
-import org.toxsoft.core.tslib.bricks.strid.coll.*;
-import org.toxsoft.core.tslib.bricks.strid.coll.impl.*;
+import org.toxsoft.core.tslib.av.EAtomicType;
+import org.toxsoft.core.tslib.av.impl.DataType;
+import org.toxsoft.core.tslib.av.metainfo.IDataType;
+import org.toxsoft.core.tslib.av.opset.IOptionSet;
+import org.toxsoft.core.tslib.bricks.ctx.ITsContextRo;
+import org.toxsoft.core.tslib.bricks.events.AbstractTsEventer;
+import org.toxsoft.core.tslib.bricks.events.ITsEventer;
+import org.toxsoft.core.tslib.bricks.strid.coll.IStridablesList;
+import org.toxsoft.core.tslib.bricks.strid.coll.impl.StridablesList;
 import org.toxsoft.core.tslib.bricks.validator.*;
 import org.toxsoft.core.tslib.bricks.validator.impl.*;
-import org.toxsoft.core.tslib.coll.*;
-import org.toxsoft.core.tslib.coll.helpers.*;
+import org.toxsoft.core.tslib.coll.IList;
+import org.toxsoft.core.tslib.coll.helpers.ECrudOp;
 import org.toxsoft.core.tslib.gw.skid.*;
 import org.toxsoft.core.tslib.utils.errors.*;
-import org.toxsoft.core.tslib.utils.logs.impl.*;
-import org.toxsoft.uskat.core.*;
+import org.toxsoft.core.tslib.utils.logs.impl.LoggerUtils;
+import org.toxsoft.uskat.core.ISkServiceCreator;
 import org.toxsoft.uskat.core.api.objserv.*;
-import org.toxsoft.uskat.core.api.sysdescr.dto.*;
+import org.toxsoft.uskat.core.api.sysdescr.dto.IDtoClassInfo;
 import org.toxsoft.uskat.core.api.users.*;
-import org.toxsoft.uskat.core.devapi.*;
+import org.toxsoft.uskat.core.devapi.IDevCoreApi;
 import org.toxsoft.uskat.core.impl.dto.*;
-import org.toxsoft.uskat.core.utils.*;
+import org.toxsoft.uskat.core.utils.SkHelperUtils;
 
 /**
  * {@link ISkUserService} implementation.
@@ -520,6 +521,7 @@ public class SkCoreServUsers
 
   @Override
   public ISkUser createUser( IDtoFullObject aDtoUser, String aPassword ) {
+    checkThread();
     TsValidationFailedRtException.checkError( passwordValidator.validate( aPassword ) );
     TsValidationFailedRtException.checkError( validationSupport.canCreateUser( aDtoUser ) );
     pauseCoreValidation();
@@ -536,6 +538,7 @@ public class SkCoreServUsers
 
   @Override
   public ISkUser editUser( IDtoFullObject aDtoUser ) {
+    checkThread();
     TsNullArgumentRtException.checkNull( aDtoUser );
     TsIllegalArgumentRtException.checkFalse( aDtoUser.classId().equals( ISkUser.CLASS_ID ) );
     ISkUser oldUser = objServ().find( aDtoUser.skid() );
@@ -555,6 +558,7 @@ public class SkCoreServUsers
 
   @Override
   public ISkRole defineRole( IDtoObject aDtoRole ) {
+    checkThread();
     TsNullArgumentRtException.checkNull( aDtoRole );
     TsIllegalArgumentRtException.checkFalse( aDtoRole.classId().equals( ISkRole.CLASS_ID ) );
     ISkRole oldRole = objServ().find( aDtoRole.skid() );
@@ -575,6 +579,7 @@ public class SkCoreServUsers
 
   @Override
   public void removeUser( String aUserId ) {
+    checkThread();
     TsValidationFailedRtException.checkError( svs().validator().canRemoveUser( aUserId ) );
     pauseCoreValidation();
     try {
@@ -587,6 +592,7 @@ public class SkCoreServUsers
 
   @Override
   public void removeRole( String aRoleId ) {
+    checkThread();
     TsValidationFailedRtException.checkError( svs().validator().canRemoveRole( aRoleId ) );
     pauseCoreValidation();
     try {
@@ -599,6 +605,7 @@ public class SkCoreServUsers
 
   @Override
   public ISkUser setUserEnabled( String aUserId, boolean aEnabled ) {
+    checkThread();
     TsNullArgumentRtException.checkNull( aUserId );
     TsItemNotFoundRtException.checkNull( findUser( aUserId ) );
     Skid skid = new Skid( ISkUser.CLASS_ID, aUserId );
@@ -609,6 +616,7 @@ public class SkCoreServUsers
 
   @Override
   public ISkUser setUserHidden( String aUserId, boolean aHidden ) {
+    checkThread();
     TsNullArgumentRtException.checkNull( aUserId );
     TsItemNotFoundRtException.checkNull( findUser( aUserId ) );
     Skid skid = new Skid( ISkUser.CLASS_ID, aUserId );
@@ -619,6 +627,7 @@ public class SkCoreServUsers
 
   @Override
   public ISkUser setUserPassword( String aUserId, String aPassword ) {
+    checkThread();
     TsNullArgumentRtException.checkNull( aUserId );
     TsItemNotFoundRtException.checkNull( findUser( aUserId ) );
     TsValidationFailedRtException.checkError( passwordValidator.validate( aPassword ) );
@@ -630,6 +639,7 @@ public class SkCoreServUsers
 
   @Override
   public ISkUser setUserRoles( String aUserId, IStridablesList<ISkRole> aRoles ) {
+    checkThread();
     TsNullArgumentRtException.checkNull( aUserId );
     TsItemNotFoundRtException.checkNull( findUser( aUserId ) );
     Skid skid = new Skid( ISkUser.CLASS_ID, aUserId );

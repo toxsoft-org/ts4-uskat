@@ -47,11 +47,13 @@ public final class SkQueryRawHistory
   //
   @Override
   public IGwidList listGwids() {
+    checkThread();
     return new GwidList( args.keys() );
   }
 
   @Override
   public IGwidList prepare( IGwidList aGwids ) {
+    checkThread();
     TsNullArgumentRtException.checkNull( aGwids );
     checkInvalidState( this, EXECUTING, CLOSED );
     args.clear();
@@ -81,6 +83,7 @@ public final class SkQueryRawHistory
   @SuppressWarnings( "unchecked" )
   @Override
   public <V extends ITemporal<V>> ITimedList<V> get( Gwid aGwid ) {
+    checkThread();
     TsNullArgumentRtException.checkNull( aGwid );
     if( state() != READY ) {
       return (ITimedList<V>)EMPTY_TIMED_LIST;
@@ -92,6 +95,7 @@ public final class SkQueryRawHistory
   @SuppressWarnings( "unchecked" )
   @Override
   public <T extends ITemporal<T>> IMap<Gwid, ITimedList<T>> getAll() {
+    checkThread();
     if( state() != READY ) {
       return IMap.EMPTY;
     }

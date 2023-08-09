@@ -150,6 +150,7 @@ public class SkCoreServEvents
 
   @Override
   public void fireEvent( SkEvent aEvent ) {
+    checkThread();
     TsNullArgumentRtException.checkNull( aEvent );
     SkEventList events = new SkEventList();
     events.add( aEvent );
@@ -158,6 +159,7 @@ public class SkCoreServEvents
 
   @Override
   public void registerHandler( IGwidList aNeededGwids, ISkEventHandler aEventHandler ) {
+    checkThread();
     TsNullArgumentRtException.checkNulls( aNeededGwids, aEventHandler );
     if( !aNeededGwids.isEmpty() ) {
       // get or create GWIDs list of intereset
@@ -179,6 +181,7 @@ public class SkCoreServEvents
 
   @Override
   public void unregisterHandler( ISkEventHandler aEventHandler ) {
+    checkThread();
     if( handlersMap.removeByKey( aEventHandler ) != null ) {
       updateBackendSubscription();
     }
@@ -186,6 +189,7 @@ public class SkCoreServEvents
 
   @Override
   public ITimedList<SkEvent> queryObjEvents( ITimeInterval aInterval, Gwid aGwid ) {
+    checkThread();
     TsNullArgumentRtException.checkNulls( aInterval, aGwid );
     TsIllegalArgumentRtException.checkTrue( aGwid.kind() != EGwidKind.GW_EVENT );
     TsIllegalArgumentRtException.checkTrue( aGwid.isAbstract() );

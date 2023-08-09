@@ -18,11 +18,12 @@ interface ISkResources {
   /**
    * {@link AbstractSkService}
    */
-  String FMT_INFO_SERVICE_INIT       = "Service %s: init() called";
-  String FMT_INFO_SERVICE_CLOSE      = "Service %s: close() called";
-  String FMT_WARN_INV_SERVICE_GT_MSG = "Service %s: received invalid message with topic ID '%s'";
-  String FMT_WARN_UNKNOWN_MSG        = "Service %s: received message with unknown message ID '%s'";
-  String FMT_ERR_CLAIM_VIOLATION     = "Entities of class ID %s are claimed by service %s";
+  String FMT_INFO_SERVICE_INIT         = "Service %s: init() called";
+  String FMT_INFO_SERVICE_CLOSE        = "Service %s: close() called";
+  String FMT_WARN_INV_SERVICE_GT_MSG   = "Service %s: received invalid message with topic ID '%s'";
+  String FMT_WARN_UNKNOWN_MSG          = "Service %s: received message with unknown message ID '%s'";
+  String FMT_ERR_CLAIM_VIOLATION       = "Entities of class ID %s are claimed by service %s";
+  String FMT_ERR_INVALID_THREAD_ACCESS = "Invalid thread access";
 
   /**
    * {@link CoreL10n}

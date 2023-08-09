@@ -3,28 +3,36 @@ package org.toxsoft.uskat.core.impl;
 import static org.toxsoft.uskat.core.backend.api.IBaLinksMessages.*;
 import static org.toxsoft.uskat.core.impl.ISkResources.*;
 
-import java.util.*;
+import java.util.Objects;
 
-import org.toxsoft.core.tslib.bricks.ctx.*;
-import org.toxsoft.core.tslib.bricks.events.*;
-import org.toxsoft.core.tslib.bricks.events.msg.*;
-import org.toxsoft.core.tslib.bricks.validator.*;
-import org.toxsoft.core.tslib.bricks.validator.impl.*;
-import org.toxsoft.core.tslib.coll.*;
-import org.toxsoft.core.tslib.coll.impl.*;
+import org.toxsoft.core.tslib.bricks.ctx.ITsContextRo;
+import org.toxsoft.core.tslib.bricks.events.AbstractTsEventer;
+import org.toxsoft.core.tslib.bricks.events.ITsEventer;
+import org.toxsoft.core.tslib.bricks.events.msg.GenericMessage;
+import org.toxsoft.core.tslib.bricks.validator.ITsValidationSupport;
+import org.toxsoft.core.tslib.bricks.validator.ValidationResult;
+import org.toxsoft.core.tslib.bricks.validator.impl.AbstractTsValidationSupport;
+import org.toxsoft.core.tslib.bricks.validator.impl.TsValidationFailedRtException;
+import org.toxsoft.core.tslib.coll.IListEdit;
+import org.toxsoft.core.tslib.coll.impl.ElemArrayList;
+import org.toxsoft.core.tslib.coll.impl.SingleItemList;
 import org.toxsoft.core.tslib.coll.primtypes.*;
-import org.toxsoft.core.tslib.coll.primtypes.impl.*;
+import org.toxsoft.core.tslib.coll.primtypes.impl.StringMap;
 import org.toxsoft.core.tslib.gw.gwid.*;
-import org.toxsoft.core.tslib.gw.skid.*;
-import org.toxsoft.core.tslib.utils.errors.*;
-import org.toxsoft.core.tslib.utils.logs.impl.*;
-import org.toxsoft.uskat.core.*;
+import org.toxsoft.core.tslib.gw.skid.ISkidList;
+import org.toxsoft.core.tslib.gw.skid.Skid;
+import org.toxsoft.core.tslib.utils.errors.TsItemNotFoundRtException;
+import org.toxsoft.core.tslib.utils.errors.TsNullArgumentRtException;
+import org.toxsoft.core.tslib.utils.logs.impl.LoggerUtils;
+import org.toxsoft.uskat.core.ISkServiceCreator;
 import org.toxsoft.uskat.core.api.linkserv.*;
-import org.toxsoft.uskat.core.api.objserv.*;
-import org.toxsoft.uskat.core.api.sysdescr.*;
-import org.toxsoft.uskat.core.api.sysdescr.dto.*;
-import org.toxsoft.uskat.core.devapi.*;
-import org.toxsoft.uskat.core.impl.dto.*;
+import org.toxsoft.uskat.core.api.objserv.ISkObject;
+import org.toxsoft.uskat.core.api.objserv.ISkObjectService;
+import org.toxsoft.uskat.core.api.sysdescr.ISkClassInfo;
+import org.toxsoft.uskat.core.api.sysdescr.dto.IDtoLinkInfo;
+import org.toxsoft.uskat.core.devapi.IDevCoreApi;
+import org.toxsoft.uskat.core.impl.dto.DtoLinkFwd;
+import org.toxsoft.uskat.core.impl.dto.DtoLinkRev;
 
 /**
  * {@link ISkLinkService} implementation.
@@ -219,6 +227,7 @@ public class SkCoreServLinks
 
   @Override
   public IDtoLinkFwd getLinkFwd( Skid aLeftSkid, String aLinkId ) {
+    checkThread();
     TsNullArgumentRtException.checkNulls( aLeftSkid, aLinkId );
     coreApi().papiCheckIsOpen();
     // check left object exists
@@ -238,6 +247,7 @@ public class SkCoreServLinks
 
   @Override
   public IStringMap<IDtoLinkFwd> getAllLinksFwd( Skid aLeftSkid ) {
+    checkThread();
     coreApi().papiCheckIsOpen();
     // check left object exists
     ISkObject left = coreApi().objService().find( aLeftSkid );
@@ -258,6 +268,7 @@ public class SkCoreServLinks
 
   @Override
   public IDtoLinkRev getLinkRev( String aClassId, String aLinkId, Skid aRightSkid ) {
+    checkThread();
     TsNullArgumentRtException.checkNulls( aClassId, aLinkId, aRightSkid );
     coreApi().papiCheckIsOpen();
     // find declaring class and by the way check that link exists
@@ -290,6 +301,7 @@ public class SkCoreServLinks
 
   @Override
   public IDtoLinkFwd defineLink( Skid aLeftSkid, String aLinkId, ISkidList aRemovedSkids, ISkidList aAddedSkids ) {
+    checkThread();
     TsNullArgumentRtException.checkNulls( aLinkId, aLeftSkid, aAddedSkids );
     coreApi().papiCheckIsOpen();
     // check left object exists
@@ -337,6 +349,7 @@ public class SkCoreServLinks
 
   @Override
   public void removeLinks( Skid aLeftSkid ) {
+    checkThread();
     TsNullArgumentRtException.checkNull( aLeftSkid );
     coreApi().papiCheckIsOpen();
     // check left object exists
