@@ -6,6 +6,7 @@ import org.toxsoft.core.tslib.bricks.time.ITimedList;
 import org.toxsoft.core.tslib.gw.gwid.Gwid;
 import org.toxsoft.core.tslib.gw.gwid.IGwidList;
 import org.toxsoft.core.tslib.utils.errors.TsNullArgumentRtException;
+import org.toxsoft.core.tslib.utils.logs.ELogSeverity;
 import org.toxsoft.uskat.core.api.evserv.ISkEventList;
 import org.toxsoft.uskat.core.api.evserv.SkEvent;
 import org.toxsoft.uskat.core.backend.ISkBackendHardConstant;
@@ -61,6 +62,14 @@ class S5BaEventsRemote
   @Override
   public void fireEvents( ISkEventList aEvents ) {
     TsNullArgumentRtException.checkNull( aEvents );
+    if( logger().isSeverityOn( ELogSeverity.INFO ) ) {
+      StringBuilder sb = new StringBuilder();
+      for( SkEvent event : aEvents ) {
+        sb.append( event );
+        sb.append( "\n" ); //$NON-NLS-1$
+      }
+      logger().info( "fireEvents(...): %s", sb.toString() ); //$NON-NLS-1$
+    }
     session().fireEvents( aEvents );
   }
 

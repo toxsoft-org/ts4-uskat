@@ -23,6 +23,7 @@ import org.toxsoft.core.tslib.gw.skid.Skid;
 import org.toxsoft.core.tslib.utils.Pair;
 import org.toxsoft.core.tslib.utils.errors.TsNotAllEnumsUsedRtException;
 import org.toxsoft.core.tslib.utils.errors.TsNullArgumentRtException;
+import org.toxsoft.core.tslib.utils.logs.ELogSeverity;
 import org.toxsoft.uskat.core.api.evserv.SkEvent;
 import org.toxsoft.uskat.core.api.objserv.IDtoObject;
 import org.toxsoft.uskat.core.api.sysdescr.ISkClassInfo;
@@ -215,6 +216,16 @@ public class S5BackendEventSingleton
       try {
         // Список событий для передачи frontend
         ITimedList<SkEvent> events = aEvents.getByKey( fireRaiser );
+
+        if( logger().isSeverityOn( ELogSeverity.INFO ) ) {
+          StringBuilder sb = new StringBuilder();
+          for( SkEvent event : events ) {
+            sb.append( event );
+            sb.append( "\n" ); //$NON-NLS-1$
+          }
+          logger().info( "fireEvents(...): %s", sb.toString() ); //$NON-NLS-1$
+        }
+
         // Формирование последовательностей событий по объектам
         IList<IS5EventSequence> sequences = createEventSequences( factory(), events );
         // Cохранение событий в базе данных
