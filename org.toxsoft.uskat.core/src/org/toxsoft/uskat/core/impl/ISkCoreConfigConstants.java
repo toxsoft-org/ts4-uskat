@@ -115,9 +115,10 @@ public interface ISkCoreConfigConstants {
    * Usage: TODO:
    */
   @SuppressWarnings( "rawtypes" )
-  ITsContextRefDef<ISkServiceCreator> REFDEF_THREAD_SEPARATOR = TsContextRefDef.create( ISkServiceCreator.class, //
-      TSID_NAME, STR_N_REF_THREAD_SEPARATOR, //
-      TSID_DESCRIPTION, STR_D_REF_THREAD_SEPARATOR, //
-      TSID_IS_MANDATORY, AV_FALSE //
-  );
+  ITsContextRefDef<ISkServiceCreator> REFDEF_THREAD_SEPARATOR =
+      TsContextRefDef.create( ISkServiceCreator.class, //
+          TSID_NAME, STR_N_REF_THREAD_SEPARATOR, //
+          TSID_DESCRIPTION, STR_D_REF_THREAD_SEPARATOR, //
+          TSID_IS_MANDATORY, AV_FALSE //
+      );
 }

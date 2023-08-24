@@ -178,4 +178,9 @@ interface ISkResources {
   String FMT_ERR_QUERY_TIMEOUT       = "Cancel query by timeout error. Try change -"
       + ISkHistoryQueryServiceConstants.OP_SK_MAX_EXECUTION_TIME.id() + " value to up (%d))";
 
+  /**
+   * {@link SkSwtThreadSeparator}
+   */
+  String ERR_API_THREAD_UNDEF = "uskat API thread not defined (ISkCoreConfigConstants.REFDEF_API_THREAD = ???)"; //$NON-NLS-1$
+
 }
