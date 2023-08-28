@@ -560,9 +560,10 @@ class S5SequenceSQL {
    * @param aGwid {@link Gwid} идентификатор данного
    * @param aInterval {@link IQueryInterval} интервал удаляемых блоков
    * @param <V> тип значения последовательности
+   * @return int количество удаленных блоков
    * @throws TsNullArgumentRtException любой аргумент = null
    */
-  static <V extends ITemporal<?>> void removeBlocks( EntityManager aEntityManager, IS5SequenceFactory<V> aFactory,
+  static <V extends ITemporal<?>> int removeBlocks( EntityManager aEntityManager, IS5SequenceFactory<V> aFactory,
       Gwid aGwid, IQueryInterval aInterval ) {
     TsNullArgumentRtException.checkNulls( aEntityManager, aFactory, aGwid, aInterval );
     // Параметризованное описание типа данного
@@ -588,7 +589,8 @@ class S5SequenceSQL {
     try {
       // Выполнение запроса
       Query query = aEntityManager.createNativeQuery( sql );
-      query.executeUpdate();
+      int retCode = query.executeUpdate();
+      return retCode;
     }
     catch( RuntimeException e ) {
       throw new TsIllegalArgumentRtException( e, ERR_REMOVE_BLOCK, aGwid, aInterval, cause( e ) );
@@ -1525,7 +1527,7 @@ class S5SequenceSQL {
       "select " + FIELD_GWID + " from %s group by " + FIELD_GWID;
 
   /**
-   * Возвращает список идентификаторов всех данных которые храняться в базе данных
+   * Возвращает список идентификаторов всех данных которые хранятся в базе данных
    *
    * @param aEntityManager {@link EntityManager} менеджер постоянства
    * @param aTableNames {@link IList}&lt;{@link Pair}&lt;String,String&gt;&gt; список пар таблиц реализации блоков

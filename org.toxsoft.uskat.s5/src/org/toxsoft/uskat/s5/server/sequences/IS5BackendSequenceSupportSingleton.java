@@ -12,8 +12,7 @@ import org.toxsoft.uskat.s5.server.backend.impl.IS5BackendCoreInterceptor;
 import org.toxsoft.uskat.s5.server.backend.supports.objects.IS5ObjectsInterceptor;
 import org.toxsoft.uskat.s5.server.backend.supports.sysdescr.IS5ClassesInterceptor;
 import org.toxsoft.uskat.s5.server.sequences.impl.S5Sequence;
-import org.toxsoft.uskat.s5.server.sequences.maintenance.IS5SequenceUnionStat;
-import org.toxsoft.uskat.s5.server.sequences.maintenance.IS5SequenceValidationStat;
+import org.toxsoft.uskat.s5.server.sequences.maintenance.*;
 import org.toxsoft.uskat.s5.server.sequences.reader.IS5SequenceReader;
 
 /**
@@ -59,6 +58,17 @@ public interface IS5BackendSequenceSupportSingleton<S extends IS5Sequence<V>, V 
    * @throws TsIllegalArgumentRtException количество потоков <= 0
    */
   IS5SequenceUnionStat union( String aAuthor, IOptionSet aArgs );
+
+  /**
+   * Запуск задачи удаления блоков последовательности значений данных
+   *
+   * @param aAuthor String автор задачи (для журнала)
+   * @param aArgs {@link IOptionSet} аргументы для удаления блоков.
+   * @return {@link IS5SequenceUnionStat} статистика процесса удаления
+   * @throws TsNullArgumentRtException любой аргумент = null
+   * @throws TsIllegalArgumentRtException количество потоков <= 0
+   */
+  IS5SequenceRemoveStat remove( String aAuthor, IOptionSet aArgs );
 
   /**
    * Запуск задачи проверки блоков ВСЕХ данных и восстановления их состояния

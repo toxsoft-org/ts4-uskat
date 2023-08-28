@@ -29,7 +29,7 @@ final class S5SequenceUniterThread
   private boolean          working;
 
   /**
-   * Создание асинхронной задачи проверки блоков последовательности данных
+   * Создание асинхронной задачи дефрагментации блоков последовательности данных
    *
    * @param aService {@link IS5BackendSequenceSupportSingleton} сиглетон службы хранимых данных
    * @param aAuthor String автор задачи

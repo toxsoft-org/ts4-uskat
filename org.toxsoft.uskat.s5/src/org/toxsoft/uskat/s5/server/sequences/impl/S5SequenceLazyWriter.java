@@ -34,8 +34,7 @@ import org.toxsoft.core.tslib.utils.logs.ELogSeverity;
 import org.toxsoft.core.tslib.utils.logs.ILogger;
 import org.toxsoft.uskat.s5.server.backend.IS5BackendCoreSingleton;
 import org.toxsoft.uskat.s5.server.sequences.*;
-import org.toxsoft.uskat.s5.server.sequences.maintenance.IS5SequenceUnionOptions;
-import org.toxsoft.uskat.s5.server.sequences.maintenance.IS5SequenceValidationOptions;
+import org.toxsoft.uskat.s5.server.sequences.maintenance.*;
 import org.toxsoft.uskat.s5.server.sequences.writer.IS5SequenceWriter;
 import org.toxsoft.uskat.s5.utils.collections.WrapperMap;
 import org.toxsoft.uskat.s5.utils.threads.impl.*;
@@ -43,8 +42,9 @@ import org.toxsoft.uskat.s5.utils.threads.impl.*;
 /**
  * Реализация писателя значений последовательностей данных {@link IS5SequenceWriter}
  * <p>
- * Писатель реализует "ленивое" сохранение блоков и предполагает, что для окончательной их обработки будет вызываться
- * процесс дефрагментации {@link IS5SequenceWriter#union(IOptionSet)}.
+ * Писатель реализует "ленивое" сохранение блоков (в том смысле, что просто пишет данные в БД, не пытаясь их сразу
+ * объединить с данными уже хранимыми в БД) и предполагает, что для окончательной их обработки будет вызываться процесс
+ * дефрагментации {@link IS5SequenceWriter#union(IOptionSet)}.
  *
  * @author mvk
  * @param <S> тип последовательности значений данного
@@ -81,6 +81,16 @@ class S5SequenceLazyWriter<S extends IS5Sequence<V>, V extends ITemporal<?>>
    * Блокировка доступа к данным дефрагментации: {@link #unionCandidates}, {@link #unionCandidateFragments}
    */
   private final S5Lockable unionLock = new S5Lockable();
+
+  /**
+   * Список идентификаторов данных требующих проверки на удаление в автоматическом режиме
+   */
+  private final IQueue<Gwid> removeCandidates = new Queue<>();
+
+  /**
+   * Блокировка доступа к данным на удаление: {@link #removeCandidates}
+   */
+  private final S5Lockable removeLock = new S5Lockable();
 
   /**
    * Создает писатель последовательностей
@@ -122,10 +132,10 @@ class S5SequenceLazyWriter<S extends IS5Sequence<V>, V extends ITemporal<?>>
         // Размещение в списке для последующего завершения
         ems.add( em );
         // Описания данного
-        I fragmentInfo = aInfoes.get( index );
+        I info = aInfoes.get( index );
         S sequence = aSequences.get( index );
         // Поток
-        IS5WriteThread thread = new WriteThread( em, fragmentInfo, sequence, aStatistics, logger );
+        IS5WriteThread thread = new WriteThread( em, info, sequence, aStatistics, logger );
         // Регистрация потока
         executor.add( thread );
       }
@@ -145,20 +155,22 @@ class S5SequenceLazyWriter<S extends IS5Sequence<V>, V extends ITemporal<?>>
     }
     // Добавить записанные данные на дефрагментацию
     addUnionCandidates( aSequences );
+    // Добавляем записанные данные на проверку удаления
+    addRemoveCandidates( aSequences );
   }
 
   @Override
   public S5SequenceUnionStat<V> doUnion( IOptionSet aArgs ) {
     // Журнал для потоков
     ILogger uniterLogger = LoggerWrapper.getLogger( LOG_UNITER_ID );
-    // Состояние задачи объединения данного
+    // Состояние задачи дефрагментации данного
     S5SequenceUnionStat<V> statistics = new S5SequenceUnionStat<>();
     IOptionSetEdit args = new OptionSet( aArgs );
     // Признак ручного или автоматического объединения данных
-    boolean isAuto = !args.hasValue( IS5SequenceUnionOptions.INTERVAL );
+    boolean isAuto = !args.hasValue( IS5SequenceUnionOptions.UNION_INTERVAL );
     // Список данных для объединения
     IList<IS5SequenceFragmentInfo> infoes =
-        (!isAuto ? prepareManual( args ) : prepareAuto( args, statistics, uniterLogger ));
+        (!isAuto ? prepareDefragmentManual( args ) : prepareDefragmentAuto( args, statistics, uniterLogger ));
     // Текущий размер очереди на дефрагментацию
     int queueSize = getUnionQueueSize();
     // Установки общих данных статистики
@@ -172,7 +184,7 @@ class S5SequenceLazyWriter<S extends IS5Sequence<V>, V extends ITemporal<?>>
     // Вывод в журнал
     Integer c = Integer.valueOf( infoes.size() );
     Integer q = Integer.valueOf( queueSize );
-    ITimeInterval interval = IS5SequenceUnionOptions.INTERVAL.getValue( args ).asValobj();
+    ITimeInterval interval = IS5SequenceUnionOptions.UNION_INTERVAL.getValue( args ).asValobj();
     uniterLogger.info( MSG_UNION_START_THREAD, c, q, interval );
     // Исполнитель s5-потоков записи данных
     S5WriteThreadExecutor executor = new S5WriteThreadExecutor( unionExecutor(), uniterLogger );
@@ -184,6 +196,46 @@ class S5SequenceLazyWriter<S extends IS5Sequence<V>, V extends ITemporal<?>>
     executor.run( true, false );
     // Оповещение наследников о проведение дефрагментации блоков
     onUnionEvent( args, infoes, uniterLogger );
+    return statistics;
+  }
+
+  @Override
+  protected S5SequenceRemoveStat<V> doRemove( IOptionSet aArgs ) {
+    // Журнал для потоков
+    ILogger removeLogger = LoggerWrapper.getLogger( LOG_REMOVER_ID );
+    // Состояние задачи удаления данного
+    S5SequenceRemoveStat<V> statistics = new S5SequenceRemoveStat<>();
+    IOptionSetEdit args = new OptionSet( aArgs );
+    // Признак ручного или автоматического объединения данных
+    boolean isAuto = !args.hasValue( IS5SequenceRemoveOptions.REMOVE_INTERVAL );
+    // Список данных для удаления
+    IList<IS5SequenceRemoveInfo> infoes =
+        (!isAuto ? prepareRemoveManual( args ) : prepareRemoveAuto( args, statistics, removeLogger ));
+    // Текущий размер очереди на дефрагментацию
+    int queueSize = getUnionQueueSize();
+    // Установки общих данных статистики
+    statistics.setInfoes( infoes != null ? infoes : IList.EMPTY );
+    statistics.setQueueSize( queueSize );
+    // Проверка возможности провести дефрагментацию
+    if( infoes == null || infoes.size() == 0 ) {
+      // Запрет выполнять объединение
+      return statistics;
+    }
+    // Вывод в журнал
+    Integer c = Integer.valueOf( infoes.size() );
+    Integer q = Integer.valueOf( queueSize );
+    ITimeInterval interval = IS5SequenceRemoveOptions.REMOVE_INTERVAL.getValue( args ).asValobj();
+    removeLogger.info( MSG_REMOVE_START_THREAD, c, q, interval );
+    // Исполнитель s5-потоков записи данных
+    S5WriteThreadExecutor executor = new S5WriteThreadExecutor( removeExecutor(), removeLogger );
+    for( IS5SequenceRemoveInfo info : infoes ) {
+      // Регистрация потока
+      executor.add( new RemoveThread( info, args, statistics, removeLogger ) );
+    }
+    // Запуск потоков (с ожиданием, без поднятия исключений на ошибках потоков)
+    executor.run( true, false );
+    // Оповещение наследников о проведении удаления блоков
+    onRemoveEvent( args, infoes, removeLogger );
     return statistics;
   }
 
@@ -250,6 +302,29 @@ class S5SequenceLazyWriter<S extends IS5Sequence<V>, V extends ITemporal<?>>
     }
     finally {
       unlockWrite( unionLock );
+    }
+  }
+
+  /***
+   * Добавить кандидатов для процесса удаления
+   *
+   * @param aSequences {@link IList}&lt;S&gt; список последовательностей для проверки дефрагментации
+   * @throws TsNullArgumentRtException аргумент = null
+   */
+  protected final void addRemoveCandidates( IList<S> aSequences ) {
+    TsNullArgumentRtException.checkNull( aSequences );
+    long currTime = System.currentTimeMillis();
+    lockWrite( removeLock );
+    try {
+      for( S sequence : aSequences ) {
+        Gwid gwid = sequence.gwid();
+        if( !removeCandidates.hasElem( gwid ) ) {
+          removeCandidates.putTail( gwid );
+        }
+      }
+    }
+    finally {
+      unlockWrite( removeLock );
     }
   }
 
@@ -340,7 +415,7 @@ class S5SequenceLazyWriter<S extends IS5Sequence<V>, V extends ITemporal<?>>
       return null;
     }
     // Синхронизация с dbms. Удаление блоков
-    removeBlocksFromDbms( aEntityManager, sequenceFactory(), gwid, removedBlocks, dbmsStat );
+    removeBlocksFromDbms( aEntityManager, removedBlocks, dbmsStat );
     // Синхронизация с dbms. Добавление/обновление блоков блоков
     writeBlocksToDbms( aEntityManager, target.blocks(), logger(), dbmsStat );
     // Вывод журнал
@@ -369,6 +444,17 @@ class S5SequenceLazyWriter<S extends IS5Sequence<V>, V extends ITemporal<?>>
     TsNullArgumentRtException.checkNulls( aArgs, aInfoes, aLogger );
   }
 
+  /**
+   * Событие: проведено удаление значений данных.
+   *
+   * @param aArgs {@link IOptionSet} аргументы для объединения блоков (смотри {@link IS5SequenceRemoveOptions}).
+   * @param aInfoes {@link IList}&lt;I&gt; описания данных удаленных значений
+   * @param aLogger {@link ILogger} журнал работы
+   */
+  protected void onRemoveEvent( IOptionSet aArgs, IList<IS5SequenceRemoveInfo> aInfoes, ILogger aLogger ) {
+    TsNullArgumentRtException.checkNulls( aArgs, aInfoes, aLogger );
+  }
+
   // ------------------------------------------------------------------------------------
   // Внутренняя реализация
   //
@@ -389,13 +475,13 @@ class S5SequenceLazyWriter<S extends IS5Sequence<V>, V extends ITemporal<?>>
   }
 
   /**
-   * Возращает описания и добавляет необходимые параметры для выполнения объединения в ручном режиме
+   * Возращает описания и добавляет необходимые параметры для выполнения дефрагментации по запросу
    *
    * @param aArgs {@link IOptionSetEdit} аргументы для дефрагментации блоков
-   * @return {@link IList}&lt;I&gt; список описаний данных для объединения
+   * @return {@link IList}&lt;IS5SequenceFragmentInfo&gt; список описаний фрагментированности данных
    * @throws TsNullArgumentRtException аргумент = null
    */
-  private IList<IS5SequenceFragmentInfo> prepareManual( IOptionSetEdit aArgs ) {
+  private IList<IS5SequenceFragmentInfo> prepareDefragmentManual( IOptionSetEdit aArgs ) {
     TsNullArgumentRtException.checkNull( aArgs );
     // Менеджер постоянства
     EntityManager em = entityManagerFactory().createEntityManager();
@@ -406,12 +492,12 @@ class S5SequenceLazyWriter<S extends IS5Sequence<V>, V extends ITemporal<?>>
       IListEdit<IS5SequenceFragmentInfo> infoes = new ElemArrayList<>( allGwids.size() );
       // Идентификаторы данных. null: неопределены
       IGwidList gwids = null;
-      if( aArgs.hasValue( IS5SequenceUnionOptions.GWIDS ) ) {
-        gwids = IS5SequenceUnionOptions.GWIDS.getValue( aArgs ).asValobj();
+      if( aArgs.hasValue( IS5SequenceUnionOptions.UNION_GWIDS ) ) {
+        gwids = IS5SequenceUnionOptions.UNION_GWIDS.getValue( aArgs ).asValobj();
       }
       // Интервал дефрагментации
-      ITimeInterval interval = IS5SequenceUnionOptions.INTERVAL.getValue( aArgs ).asValobj();
-      // Указан список объединяемых данных
+      ITimeInterval interval = IS5SequenceUnionOptions.UNION_INTERVAL.getValue( aArgs ).asValobj();
+      // Указан список данных
       for( Gwid gwid : allGwids ) {
         if( gwids == null || gwids.size() == 0 || gwids.hasElem( gwid ) ) {
           String tableName = tableName( sequenceFactory(), gwid );
@@ -426,7 +512,7 @@ class S5SequenceLazyWriter<S extends IS5Sequence<V>, V extends ITemporal<?>>
   }
 
   /**
-   * Возращает описания и добавляет необходимые параметры для выполнения объединения в автоматическом режиме
+   * Возращает описания и добавляет необходимые параметры для выполнения дефрагментации в автоматическом режиме
    *
    * @param aArgs {@link IOptionSetEdit} аргументы для дефрагментации блоков .
    * @param aStatistics {@link S5SequenceUnionStat} статистика с возможностью редактирования
@@ -434,23 +520,23 @@ class S5SequenceLazyWriter<S extends IS5Sequence<V>, V extends ITemporal<?>>
    * @return {@link IList}&lt;IS5SequenceFragmentInfo&gt; список описаний фрагментированности данных
    * @throws TsNullArgumentRtException любой аргумент = null
    */
-  private IList<IS5SequenceFragmentInfo> prepareAuto( IOptionSetEdit aArgs, S5SequenceUnionStat<V> aStatistics,
-      ILogger aLogger ) {
+  private IList<IS5SequenceFragmentInfo> prepareDefragmentAuto( IOptionSetEdit aArgs,
+      S5SequenceUnionStat<V> aStatistics, ILogger aLogger ) {
     TsNullArgumentRtException.checkNulls( aArgs, aLogger );
     // Фабрика последовательностей
     IS5SequenceFactory<V> factory = sequenceFactory();
     // Смещение дефрагментации от текущего времении
-    long offset = IS5SequenceUnionOptions.AUTO_OFFSET.getValue( aArgs ).asLong();
+    long offset = IS5SequenceUnionOptions.UNION_AUTO_OFFSET.getValue( aArgs ).asLong();
     // Максимальное время фрагментации
-    long fragmentTimeout = IS5SequenceUnionOptions.AUTO_FRAGMENT_TIMEOUT.getValue( aArgs ).asLong();
+    long fragmentTimeout = IS5SequenceUnionOptions.UNION_AUTO_FRAGMENT_TIMEOUT.getValue( aArgs ).asLong();
     // // Минимальное количество блоков для принудительного объединения
-    // int fragmentCountMin = IS5SequenceUnionOptions.AUTO_FRAGMENT_COUNT_MIN.getValue( aArgs ).asInt();
+    // int fragmentCountMin = IS5SequenceUnionOptions.UNION_AUTO_FRAGMENT_COUNT_MIN.getValue( aArgs ).asInt();
     // // Максимальное количество блоков для принудительного объединения
-    // int fragmentCountMax = IS5SequenceUnionOptions.AUTO_FRAGMENT_COUNT_MAX.getValue( aArgs ).asInt();
+    // int fragmentCountMax = IS5SequenceUnionOptions.UNION_AUTO_FRAGMENT_COUNT_MAX.getValue( aArgs ).asInt();
     // Максимальное количество потоков дефрагментации
-    int threadCount = IS5SequenceUnionOptions.AUTO_THREADS_COUNT.getValue( aArgs ).asInt();
+    int threadCount = IS5SequenceUnionOptions.UNION_AUTO_THREADS_COUNT.getValue( aArgs ).asInt();
     // Мощность поиска дефрагментации
-    int lookupCountMax = IS5SequenceUnionOptions.AUTO_LOOKUP_COUNT.getValue( aArgs ).asInt();
+    int lookupCountMax = IS5SequenceUnionOptions.UNION_AUTO_LOOKUP_COUNT.getValue( aArgs ).asInt();
     // Текущее время
     long currTime = System.currentTimeMillis();
     // Время завершения интервала дефрагментации
@@ -459,6 +545,202 @@ class S5SequenceLazyWriter<S extends IS5Sequence<V>, V extends ITemporal<?>>
     // Возвращаемый результат
     IListEdit<IS5SequenceFragmentInfo> retValue = new ElemArrayList<>();
     // Текущее количество выполненных операций поиска дефрагментации
+    int lookupCount = 0;
+    try {
+      while( true ) {
+        if( lookupCountMax > 0 && lookupCount >= lookupCountMax ) {
+          // Установлено ограничение по количество операций поиска за один проход
+          break;
+        }
+        // Счетчик операций поиска
+        lookupCount++;
+        // Идентификатор данного
+        Gwid gwid = null;
+        // Дефрагментация полученая записью при ожидании процесса дефрагментации
+        S5SequenceFragmentInfo candiateFragments = null;
+        // Общая дефрагментация данного с момента прошлого процесса дефрагментации. null: дефрагментация неопределена
+        S5SequenceFragmentInfo allFragments = null;
+        lockWrite( unionLock );
+        try {
+          gwid = unionCandidates.peekHeadOrNull();
+          if( gwid != null ) {
+            // Создаем потоко-независимую копию дефрагментации данного
+            candiateFragments = new S5SequenceFragmentInfo( unionCandidateFragments.getByKey( gwid ) );
+            IS5SequenceFragmentInfo tmp = unionAllFragments.findByKey( gwid );
+            if( tmp != null ) {
+              allFragments = new S5SequenceFragmentInfo( tmp );
+            }
+          }
+        }
+        finally {
+          unlockWrite( unionLock );
+        }
+        if( gwid == null ) {
+          // Нет данных для дефрагментации
+          break;
+        }
+        // Параметризованное описание типа данного
+        IParameterized typeInfo = factory.typeInfo( gwid );
+        // Минимальное количество блоков для принудительного объединения
+        int fragmentCountMin = OP_BLOCK_SIZE_MAX.getValue( typeInfo.params() ).asInt();
+        // Максимальное количество блоков для принудительного объединения
+        int fragmentCountMax = fragmentCountMin;
+        // Количество текущих фрагментов
+        int fragmentCount = (allFragments != null ? allFragments.fragmentCount() : 0)
+            + (candiateFragments != null ? candiateFragments.fragmentCount() : 0);
+        // Реальное количество фрагментов полученных чтением из базы данных
+        IS5SequenceFragmentInfo realAllFragments = IS5SequenceFragmentInfo.NULL;
+        // Вывод трасировки в журнал
+        logger().debug( MSG_GWID_FRAGMENT_COUNT, gwid, Integer.valueOf( lookupCount ),
+            Integer.valueOf( fragmentCount ) );
+        // Анализ фрагментации
+        if( allFragments == null || (fragmentCountMin < 0 || fragmentCount >= fragmentCountMin) ) {
+          // Фрагментация с момента прошлого процесса дефрагментации данного неопределена или накопилось много
+          // фрагментов (по записи) которые могут быть дефрагментированы. Запрос к базе для получения реальной
+          // дефрагментации. Максимальное количество значений в блоке:
+          int maxSize = OP_BLOCK_SIZE_MAX.getValue( typeInfo.params() ).asInt();
+          // Фактическая дефрагментация данного полученная чтением из базы данных
+          // Внимание! Несмотря на легковесность SQL-запроса, при интенсивной работе с dbms может вызвать задержку
+          realAllFragments = findFragmentationTime( em, factory, gwid, fragmentEndTime, maxSize, fragmentCountMin,
+              fragmentCountMax, fragmentTimeout );
+          // Обновление статистики
+          aStatistics.addLookupCount();
+          // // Обновление количества фрагментов
+          // if( realAllFragments != IS5SequenceFragmentInfo.NULL ) {
+          // fragmentCount = realAllFragments.fragmentCount();
+          // }
+        }
+        // Признак необходимости провести дефрагментацию
+        boolean needDefragmentation =
+            (realAllFragments != IS5SequenceFragmentInfo.NULL && realAllFragments.fragmentCount() > 0);
+        // Признак того, что дефрагментированная последовательность выбрана полностью
+        boolean fragmentCompleted =
+            (!needDefragmentation || fragmentCountMax < 0 || realAllFragments.fragmentCount() < fragmentCountMax);
+        lockWrite( unionLock );
+        try {
+          if( !needDefragmentation || fragmentCompleted ) {
+            // Данное поставлено на обработку (дефрагментацию)
+            unionCandidates.getHeadOrNull();
+            unionCandidateFragments.removeByKey( gwid );
+          }
+          if( !fragmentCompleted ) {
+            // Будет произведена повторная попытка дефрагментации. Блоки дефрагментации сбрасываются
+            String tableName = tableName( sequenceFactory(), gwid );
+            long startTime = System.currentTimeMillis();
+            long endTime = startTime;
+            unionCandidateFragments.put( gwid, new S5SequenceFragmentInfo( tableName, gwid, startTime, endTime, 0 ) );
+          }
+          if( !needDefragmentation ) {
+            // Накопленных фрагментов недостаточно для процесса дефрагментации
+            if( allFragments == null ) {
+              // Таблица хранения значений данного
+              String tableName = tableName( sequenceFactory(), gwid );
+              // Количество фрагментов найденных в базе, но недостаточно для дефрагментации
+              int realCount =
+                  (realAllFragments == IS5SequenceFragmentInfo.NULL ? 0 : realAllFragments.fragmentAfterCount());
+              // Время с которого начинаются фрагменты найденные в базе
+              long realStartTime =
+                  (realAllFragments == IS5SequenceFragmentInfo.NULL ? currTime : realAllFragments.interval().endTime());
+              // Реальная фрагментация (полученная из базы) до текущего времени
+              allFragments = new S5SequenceFragmentInfo( tableName, gwid, realStartTime, currTime, realCount );
+              unionAllFragments.put( gwid, allFragments );
+              continue;
+            }
+            // Перемещение накопленных с момента прошлой проверки фрагментов
+            long endTime = System.currentTimeMillis();
+            long startTime = allFragments.interval().startTime();
+            allFragments.setInterval( (startTime <= endTime ? startTime : endTime), endTime );
+            allFragments.setFragmentCount( fragmentCount );
+            unionAllFragments.put( gwid, allFragments );
+            continue;
+          }
+          // Следующий проход (после дефрагментации) требуем повторить запрос фрагментации из базы
+          unionAllFragments.removeByKey( gwid );
+        }
+        finally {
+          unlockWrite( unionLock );
+        }
+        // Добавление в результат
+        retValue.add( realAllFragments );
+        aLogger.debug( MSG_UNION_AUTO_ADD_INFO, gwid );
+        if( !fragmentCompleted ) {
+          // Требуется повторная дефрагментация
+          aLogger.debug( MSG_UNION_AUTO_REPEAT, gwid );
+          break;
+        }
+        if( retValue.size() >= threadCount ) {
+          // Сформировано необходимое количество данных для дефрагментации
+          break;
+        }
+      }
+      return retValue;
+    }
+    finally {
+      em.close();
+    }
+  }
+
+  /**
+   * Возращает описания и добавляет необходимые параметры для выполнения удаления данных по запросу
+   *
+   * @param aArgs {@link IOptionSetEdit} аргументы для удаления блоков
+   * @return {@link IList}&lt;IS5SequenceFragmentInfo&gt; список описаний фрагментированности данных
+   * @throws TsNullArgumentRtException аргумент = null
+   */
+  private IList<IS5SequenceRemoveInfo> prepareRemoveManual( IOptionSetEdit aArgs ) {
+    TsNullArgumentRtException.checkNull( aArgs );
+    // Менеджер постоянства
+    EntityManager em = entityManagerFactory().createEntityManager();
+    try {
+      // Запрос всех идентификаторов данных которые есть в базе данных
+      IGwidList allGwids = getAllGwids( em, sequenceFactory().tableNames() );
+      // Информация о фрагментации
+      IListEdit<IS5SequenceRemoveInfo> infoes = new ElemArrayList<>( allGwids.size() );
+      // Идентификаторы данных. null: неопределены
+      IGwidList gwids = null;
+      if( aArgs.hasValue( IS5SequenceRemoveOptions.REMOVE_GWIDS ) ) {
+        gwids = IS5SequenceRemoveOptions.REMOVE_GWIDS.getValue( aArgs ).asValobj();
+      }
+      // Интервал дефрагментации
+      ITimeInterval interval = IS5SequenceRemoveOptions.REMOVE_INTERVAL.getValue( aArgs ).asValobj();
+      // Указан список удаляемых данных
+      for( Gwid gwid : allGwids ) {
+        if( gwids == null || gwids.size() == 0 || gwids.hasElem( gwid ) ) {
+          String tableName = tableName( sequenceFactory(), gwid );
+          infoes.add( new S5SequenceRemoveInfo( tableName, gwid, interval ) );
+        }
+      }
+      return infoes;
+    }
+    finally {
+      em.close();
+    }
+  }
+
+  /**
+   * Возращает описания и добавляет необходимые параметры для выполнения удаления в автоматическом режиме
+   *
+   * @param aArgs {@link IOptionSetEdit} аргументы для удаления блоков .
+   * @param aStatistics {@link S5SequenceRemoveStat} статистика с возможностью редактирования
+   * @param aLogger {@link ILogger} журнал
+   * @return {@link IList}&lt;IS5SequenceRemoveInfo&gt; список описаний фрагментированности данных
+   * @throws TsNullArgumentRtException любой аргумент = null
+   */
+  private IList<IS5SequenceRemoveInfo> prepareRemoveAuto( IOptionSetEdit aArgs, S5SequenceRemoveStat<V> aStatistics,
+      ILogger aLogger ) {
+    TsNullArgumentRtException.checkNulls( aArgs, aLogger );
+    // Фабрика последовательностей
+    IS5SequenceFactory<V> factory = sequenceFactory();
+    // Максимальное количество потоков удаления
+    int threadCount = IS5SequenceRemoveOptions.REMOVE_AUTO_THREADS_COUNT.getValue( aArgs ).asInt();
+    // Мощность поиска удаляемых данных
+    int lookupCountMax = IS5SequenceRemoveOptions.REMOVE_AUTO_LOOKUP_COUNT.getValue( aArgs ).asInt();
+    // Текущее время
+    long currTime = System.currentTimeMillis();
+    EntityManager em = entityManagerFactory().createEntityManager();
+    // Возвращаемый результат
+    IListEdit<IS5SequenceFragmentInfo> retValue = new ElemArrayList<>();
+    // Текущее количество выполненных операций поиска удаляемых данных
     int lookupCount = 0;
     try {
       while( true ) {
@@ -674,30 +956,30 @@ class S5SequenceLazyWriter<S extends IS5Sequence<V>, V extends ITemporal<?>>
   }
 
   /**
-   * Асинхронная задача объединения блоков последовательности данного
+   * Асинхронная задача дефрагментации блоков последовательности данного
    *
    * @author mvk
    */
   private class UnionThread
       extends S5AbstractWriteThread {
 
-    private final IS5SequenceFragmentInfo fragmentInfo;
+    private final IS5SequenceFragmentInfo info;
     private final S5SequenceUnionStat<V>  stat;
 
     /**
-     * Создание асинхронной задачи объединения блоков последовательности данных
+     * Создание асинхронной задачи дефрагментации блоков последовательности данных
      *
-     * @param aArgs {@link IOptionSet} аргументы для объединения блоков (смотри {@link IS5SequenceUnionOptions}).
-     * @param aFragmentInfo I описание фрагментации данных
+     * @param aArgs {@link IOptionSet} аргументы для дефрагментации блоков (смотри {@link IS5SequenceUnionOptions}).
+     * @param aInfo I описание фрагментации данных
      * @param aStatistics {@link S5SequenceUnionStat} статистика выполнения задачи
      * @param aLogger {@link ILogger} журнал
      * @throws TsNullArgumentRtException любой аргумент = null
      */
-    UnionThread( IS5SequenceFragmentInfo aFragmentInfo, IOptionSet aArgs, S5SequenceUnionStat<V> aStatistics,
+    UnionThread( IS5SequenceFragmentInfo aInfo, IOptionSet aArgs, S5SequenceUnionStat<V> aStatistics,
         ILogger aLogger ) {
       super( aLogger );
-      TsNullArgumentRtException.checkNulls( aArgs, aFragmentInfo, aStatistics );
-      fragmentInfo = aFragmentInfo;
+      TsNullArgumentRtException.checkNulls( aArgs, aInfo, aStatistics );
+      info = aInfo;
       stat = aStatistics;
     }
 
@@ -709,7 +991,7 @@ class S5SequenceLazyWriter<S extends IS5Sequence<V>, V extends ITemporal<?>>
       EntityManager em = entityManagerFactory().createEntityManager();
       try {
         // Идентификатор данного
-        Gwid gwid = fragmentInfo.gwid();
+        Gwid gwid = info.gwid();
         // Список блокируемых данных
         IGwidList lockedGwids = new GwidList( gwid );
         // Блокировка доступа к данным (false: без проверки текущий транзакции)
@@ -722,8 +1004,8 @@ class S5SequenceLazyWriter<S extends IS5Sequence<V>, V extends ITemporal<?>>
             try {
               // Присоединение менеджера постоянства к транзкации
               em.joinTransaction();
-              // Объединение блоков на интервале
-              S5SequenceUnionStat<V> result = unionInterval( em, gwid, fragmentInfo.interval(), logger() );
+              // Дефрагментация блоков на интервале
+              S5SequenceUnionStat<V> result = unionInterval( em, gwid, info.interval(), logger() );
               stat.addDbmsMerged( result.dbmsMergedCount() );
               stat.addDbmsRemoved( result.dbmsRemovedCount() );
               stat.addValues( result.valueCount() );
@@ -739,7 +1021,94 @@ class S5SequenceLazyWriter<S extends IS5Sequence<V>, V extends ITemporal<?>>
           }
           catch( Throwable e ) {
             stat.addErrors( 1 );
-            logger().error( e, ERR_ASYNC_UNION_TASK, fragmentInfo, cause( e ) );
+            logger().error( e, ERR_ASYNC_UNION_TASK, info, cause( e ) );
+          }
+        }
+        finally {
+          unlockGwids( lockedGwids );
+        }
+      }
+      finally {
+        em.close();
+      }
+    }
+
+    @Override
+    protected void doCancel() {
+      // nop
+    }
+
+    // ------------------------------------------------------------------------------------
+    // Внутренняя реализация
+    //
+  }
+
+  /**
+   * Асинхронная задача удаления блоков последовательности данного
+   *
+   * @author mvk
+   */
+  private class RemoveThread
+      extends S5AbstractWriteThread {
+
+    private final IS5SequenceRemoveInfo   info;
+    private final S5SequenceRemoveStat<V> stat;
+
+    /**
+     * Создание асинхронной задачи удаления блоков последовательности данных
+     *
+     * @param aArgs {@link IOptionSet} аргументы для удаления блоков (смотри {@link IS5SequenceRemoveOptions}).
+     * @param aInfo I описание удаления данных
+     * @param aStatistics {@link S5SequenceRemoveStat} статистика выполнения задачи
+     * @param aLogger {@link ILogger} журнал
+     * @throws TsNullArgumentRtException любой аргумент = null
+     */
+    RemoveThread( IS5SequenceRemoveInfo aInfo, IOptionSet aArgs, S5SequenceRemoveStat<V> aStatistics,
+        ILogger aLogger ) {
+      super( aLogger );
+      TsNullArgumentRtException.checkNulls( aArgs, aInfo, aStatistics );
+      info = aInfo;
+      stat = aStatistics;
+    }
+
+    // ------------------------------------------------------------------------------------
+    // Реализация абстрактных методов S5AbstractThread
+    //
+    @Override
+    protected void doRun() {
+      EntityManager em = entityManagerFactory().createEntityManager();
+      try {
+        // Идентификатор данного
+        Gwid gwid = info.gwid();
+        // Список блокируемых данных
+        IGwidList lockedGwids = new GwidList( gwid );
+        // Блокировка доступа к данным (false: без проверки текущий транзакции)
+        tryLockGwids( lockedGwids, false );
+        try {
+          try {
+            UserTransaction tx = InitialContext.doLookup( USER_TRANSACTION_JNDI );
+            // Открываем транзакцию
+            tx.begin();
+            try {
+              // Присоединение менеджера постоянства к транзкации
+              em.joinTransaction();
+              // Удаление блоков на интервале
+              S5SequenceRemoveStat<V> result = removeInterval( em, gwid, info.interval(), logger() );
+              stat.addDbmsRemoved( result.dbmsRemovedCount() );
+              stat.addValues( result.valueCount() );
+              stat.addErrors( result.errorCount() );
+              // Завершаем транзакцию
+              tx.commit();
+            }
+            catch( Throwable e ) {
+              // Откат транзакции на любой ошибке
+              tx.rollback();
+              throw e;
+            }
+          }
+          catch( Throwable e ) {
+            stat.addErrors( 1 );
+            logger().error( e, ERR_ASYNC_REMOVE_TASK, info, cause( e ) );
           }
         }
         finally {

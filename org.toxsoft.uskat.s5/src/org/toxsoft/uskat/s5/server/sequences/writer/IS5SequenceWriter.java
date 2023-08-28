@@ -46,6 +46,17 @@ public interface IS5SequenceWriter<S extends IS5Sequence<V>, V extends ITemporal
   IS5SequenceUnionStat union( IOptionSet aArgs );
 
   /**
+   * Удаление блоков последовательностей
+   * <p>
+   * Ничего не делает, если писателю не требуется регламент
+   *
+   * @param aArgs {@link IOptionSet} аргументы для удаления блоков (смотри {@link IS5SequenceRemoveOptions}).
+   * @return {@link IS5SequenceRemoveStat} статистика процесса удаления
+   * @throws TsNullArgumentRtException аргумент = null
+   */
+  IS5SequenceRemoveStat remove( IOptionSet aArgs );
+
+  /**
    * Выполняет проверку/исправление блоков последовательностей
    *
    * @param aArgs {@link IOptionSet} аргументы для проверки блоков (смотри {@link IS5SequenceValidationOptions}).

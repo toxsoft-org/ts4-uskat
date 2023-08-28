@@ -10,6 +10,7 @@ import java.util.concurrent.TimeUnit;
 
 import javax.ejb.*;
 
+import org.toxsoft.core.tslib.av.opset.IOptionSet;
 import org.toxsoft.core.tslib.av.temporal.ITemporalAtomicValue;
 import org.toxsoft.core.tslib.bricks.time.*;
 import org.toxsoft.core.tslib.bricks.time.impl.QueryInterval;
@@ -30,6 +31,7 @@ import org.toxsoft.uskat.s5.server.interceptors.S5InterceptorSupport;
 import org.toxsoft.uskat.s5.server.sequences.IS5SequenceBlockEdit;
 import org.toxsoft.uskat.s5.server.sequences.IS5SequenceFactory;
 import org.toxsoft.uskat.s5.server.sequences.impl.S5BackendSequenceSupportSingleton;
+import org.toxsoft.uskat.s5.server.sequences.maintenance.IS5SequenceRemoveStat;
 import org.toxsoft.uskat.s5.utils.jobs.IS5ServerJob;
 
 /**
@@ -227,5 +229,11 @@ public class S5BackendHistDataSingleton
       sb.append( String.format( MSG_HISTDATA_VALUE, gwid, interval, count ) );
     }
     return sb.toString();
+  }
+
+  @Override
+  public IS5SequenceRemoveStat remove( String aAuthor, IOptionSet aArgs ) {
+    // TODO Auto-generated method stub
+    return null;
   }
 }

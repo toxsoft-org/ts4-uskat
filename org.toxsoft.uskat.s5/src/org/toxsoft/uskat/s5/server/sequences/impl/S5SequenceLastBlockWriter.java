@@ -258,7 +258,7 @@ class S5SequenceLastBlockWriter<S extends IS5Sequence<V>, V extends ITemporal<?>
       int writedCount = aSequence.blocks().size();
 
       // Синхронизация с dbms: удаление блоков
-      removeBlocksFromDbms( aEntityManager, sequenceFactory(), gwid, removedBlocks, dbmsStat );
+      removeBlocksFromDbms( aEntityManager, removedBlocks, dbmsStat );
       // Синхронизация с dbms: добавление/обновление блоков
       writeBlocksToDbms( aEntityManager, target.blocks(), logger(), dbmsStat );
       // Вывод журнал
@@ -355,6 +355,8 @@ class S5SequenceLastBlockWriter<S extends IS5Sequence<V>, V extends ITemporal<?>
     executor.run( true, true );
     // Добавляем записанные данные на проверку дефрагментации
     addUnionCandidates( aSequences );
+    // Добавляем записанные данные на проверку удаления
+    addRemoveCandidates( aSequences );
   }
 
   @Override

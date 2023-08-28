@@ -89,9 +89,14 @@ public abstract class S5AbstractSequenceWriter<S extends IS5Sequence<V>, V exten
   private final ManagedExecutorService writeExecutor;
 
   /**
-   * Исполнитель потоков объединения
+   * Исполнитель потоков дефрагментации
    */
   private final ManagedExecutorService unionExecutor;
+
+  /**
+   * Исполнитель потоков удаления
+   */
+  private final ManagedExecutorService removeExecutor;
 
   /**
    * Исполнитель потоков объединения
@@ -161,8 +166,10 @@ public abstract class S5AbstractSequenceWriter<S extends IS5Sequence<V>, V exten
     TsNullArgumentRtException.checkNulls( aBackendCore, aSequenceFactory );
     // Поиск исполнителя потоков объединения блоков
     writeExecutor = S5ServiceSingletonUtils.lookupExecutor( WRITE_EXECUTOR_JNDI );
-    // Поиск исполнителя потоков объединения блоков
+    // Поиск исполнителя потоков дефрагментации блоков
     unionExecutor = S5ServiceSingletonUtils.lookupExecutor( UNION_EXECUTOR_JNDI );
+    // Поиск исполнителя потоков удаления блоков
+    removeExecutor = S5ServiceSingletonUtils.lookupExecutor( REMOVE_EXECUTOR_JNDI );
     // Поиск исполнителя потоков проверки блоков
     validationExecutor = S5ServiceSingletonUtils.lookupExecutor( VALIDATION_EXECUTOR_JNDI );
     // Управление транзакциями
@@ -230,12 +237,21 @@ public abstract class S5AbstractSequenceWriter<S extends IS5Sequence<V>, V exten
   }
 
   /**
-   * Возвращает исполнителя потоков для объединения блоков
+   * Возвращает исполнителя потоков для дефрагментации блоков
    *
    * @return {@link ManagedExecutorService} исполнитель потоков
    */
   protected final ManagedExecutorService unionExecutor() {
     return unionExecutor;
+  }
+
+  /**
+   * Возвращает исполнителя потоков для удаления блоков
+   *
+   * @return {@link ManagedExecutorService} исполнитель потоков
+   */
+  protected final ManagedExecutorService removeExecutor() {
+    return removeExecutor;
   }
 
   /**
@@ -456,16 +472,14 @@ public abstract class S5AbstractSequenceWriter<S extends IS5Sequence<V>, V exten
    * Удаляет из базы данных все блоки покрывающие интервал указанным списком
    *
    * @param aEntityManager {@link EntityManager} менеджер постоянства
-   * @param aFactory {@link IS5SequenceFactory} фабрика формирования последовательностей
-   * @param aGwid {@link Gwid} идентификатор данного
    * @param aRemovedBlocks {@link IList} список блоков
    * @param aStat {@link S5DbmsStatistics} статистика работы
    * @param <V> тип значения последовательности
    * @throws TsNullArgumentRtException любой аргумент = null
    */
   protected final static <V extends ITemporal<?>> void removeBlocksFromDbms( EntityManager aEntityManager,
-      IS5SequenceFactory<V> aFactory, Gwid aGwid, IList<IS5SequenceBlock<V>> aRemovedBlocks, S5DbmsStatistics aStat ) {
-    TsNullArgumentRtException.checkNulls( aEntityManager, aFactory, aGwid, aRemovedBlocks, aStat );
+      IList<IS5SequenceBlock<V>> aRemovedBlocks, S5DbmsStatistics aStat ) {
+    TsNullArgumentRtException.checkNulls( aEntityManager, aRemovedBlocks, aStat );
     if( aRemovedBlocks.size() == 0 ) {
       return;
     }
@@ -504,31 +518,31 @@ public abstract class S5AbstractSequenceWriter<S extends IS5Sequence<V>, V exten
   }
 
   /**
-   * Проводит объединение блоков в указанном интервале
+   * Проводит дефрагментацию блоков в указанном интервале
    *
    * @param aEntityManager {@link EntityManager} менеджер постоянства
    * @param aGwid {@link Gwid} идентификатор данного
    * @param aInterval {@link ITimeInterval} интервал дефрагментации
    * @param aLogger {@link ILogger} журнал работы
-   * @return {@link S5SequenceUnionStat} статистика объединения
+   * @return {@link S5SequenceUnionStat} статистика дефрагментации
    * @throws TsNullArgumentRtException любой аргумент = null
-   * @throws TsInternalErrorRtException внутренняя ошибка объединения блоков
+   * @throws TsInternalErrorRtException внутренняя ошибка дефрагментации блоков
    */
   protected final S5SequenceUnionStat<V> unionInterval( EntityManager aEntityManager, Gwid aGwid,
       ITimeInterval aInterval, ILogger aLogger ) {
     TsNullArgumentRtException.checkNulls( aEntityManager, aGwid, aInterval, aLogger );
-    // Состояние задачи объединения данного
+    // Состояние задачи дефрагментации данного
     S5SequenceUnionStat<V> unionState = new S5SequenceUnionStat<>();
     try {
       long startTime = aInterval.startTime();
       long endTime = aInterval.endTime();
-      // Количество полных дней в объединении
+      // Количество полных дней в дефрагментации
       Integer dayCount = Integer.valueOf( (int)((endTime - startTime) / 1000 / 60 / 60 / 24) );
       // Текущее время сервера
       long currTime = System.currentTimeMillis();
       // Номер прохода
       int unionPass = 0;
-      // Текущее количество ошибок попыток объединения
+      // Текущее количество ошибок попыток дефрагментации
       int unionErrorCount = 0;
       while( true ) {
         try {
@@ -539,30 +553,30 @@ public abstract class S5AbstractSequenceWriter<S extends IS5Sequence<V>, V exten
           }
           unionPass++;
           if( unionPass > SEQUENCE_UNION_PASS_MAX ) {
-            // Слишком много попыток объединения блоков.
+            // Слишком много попыток дефрагментации блоков.
             aLogger.warning( ERR_UNION_PASS_MAX, aGwid, dayCount, Long.valueOf( SEQUENCE_UNION_PASS_MAX ) );
             break;
           }
           unionErrorCount = 0;
         }
         catch( RuntimeException e ) {
-          // Ошибка объединения блоков
+          // Ошибка дефрагментации блоков
           Integer tc = Integer.valueOf( unionErrorCount );
           Integer up = Integer.valueOf( unionPass );
           if( unionErrorCount < SEQUENCE_UNION_TRY_HEAP_COUNT ) {
-            // Требуем повторить объединение
+            // Требуем повторить дефрагментацию
             aLogger.warning( ERR_AUTO_UNION_PASS_RETRY, aGwid, tc, up, dayCount, aInterval, cause( e ) );
             unionErrorCount++;
             unionState.addErrors( 1 );
             continue;
           }
           String errMsg = String.format( ERR_AUTO_CANT_UNION_PASS, aGwid, up, dayCount, aInterval, cause( e ) );
-          // Использованы все попытки объединения блоков. Объединение невозможно.
+          // Использованы все попытки дефрагментации блоков. Дефрагментация невозможна.
           aLogger.error( errMsg );
           throw new TsInternalErrorRtException( e, errMsg );
         }
       }
-      // Вывод информации о завершенном объединении
+      // Вывод информации о завершенной дефрагментации
       Long duration = Long.valueOf( (System.currentTimeMillis() - currTime) / 1000 );
       Long unitedL = Long.valueOf( unionState.dbmsMergedCount() );
       Long removedL = Long.valueOf( unionState.dbmsRemovedCount() );
@@ -579,6 +593,76 @@ public abstract class S5AbstractSequenceWriter<S extends IS5Sequence<V>, V exten
         aEntityManager.detach( unionState.lastUnitedBlockOrNull() );
       }
     }
+  }
+
+  /**
+   * Проводит удаление блоков в указанном интервале
+   *
+   * @param aEntityManager {@link EntityManager} менеджер постоянства
+   * @param aGwid {@link Gwid} идентификатор данного
+   * @param aInterval {@link ITimeInterval} интервал удаления
+   * @param aLogger {@link ILogger} журнал работы
+   * @return {@link S5SequenceRemoveStat} статистика удаления
+   * @throws TsNullArgumentRtException любой аргумент = null
+   * @throws TsInternalErrorRtException внутренняя ошибка удаления блоков
+   */
+  protected final S5SequenceRemoveStat<V> removeInterval( EntityManager aEntityManager, Gwid aGwid,
+      ITimeInterval aInterval, ILogger aLogger ) {
+    TsNullArgumentRtException.checkNulls( aEntityManager, aGwid, aInterval, aLogger );
+    // Состояние задачи удаления данного
+    S5SequenceRemoveStat<V> removeState = new S5SequenceRemoveStat<>();
+
+    long startTime = aInterval.startTime();
+    long endTime = aInterval.endTime();
+    // Количество полных дней в дефрагментации
+    Integer dayCount = Integer.valueOf( (int)((endTime - startTime) / 1000 / 60 / 60 / 24) );
+    // Текущее время сервера
+    long currTime = System.currentTimeMillis();
+    // Номер прохода
+    int unionPass = 0;
+    // Текущее количество ошибок попыток объединения
+    int unionErrorCount = 0;
+    while( true ) {
+      try {
+        boolean completed = tryUnion( aEntityManager, unionPass, aGwid, aInterval, removeState );
+        if( completed ) {
+          // Обработка завершена
+          break;
+        }
+        unionPass++;
+        if( unionPass > SEQUENCE_UNION_PASS_MAX ) {
+          // Слишком много попыток объединения блоков.
+          aLogger.warning( ERR_UNION_PASS_MAX, aGwid, dayCount, Long.valueOf( SEQUENCE_UNION_PASS_MAX ) );
+          break;
+        }
+        unionErrorCount = 0;
+      }
+      catch( RuntimeException e ) {
+        // Ошибка объединения блоков
+        Integer tc = Integer.valueOf( unionErrorCount );
+        Integer up = Integer.valueOf( unionPass );
+        if( unionErrorCount < SEQUENCE_UNION_TRY_HEAP_COUNT ) {
+          // Требуем повторить объединение
+          aLogger.warning( ERR_AUTO_UNION_PASS_RETRY, aGwid, tc, up, dayCount, aInterval, cause( e ) );
+          unionErrorCount++;
+          removeState.addErrors( 1 );
+          continue;
+        }
+        String errMsg = String.format( ERR_AUTO_CANT_UNION_PASS, aGwid, up, dayCount, aInterval, cause( e ) );
+        // Использованы все попытки объединения блоков. Объединение невозможно.
+        aLogger.error( errMsg );
+        throw new TsInternalErrorRtException( e, errMsg );
+      }
+    }
+    // Вывод информации о завершенном объединении
+    Long duration = Long.valueOf( (System.currentTimeMillis() - currTime) / 1000 );
+    Long removedL = Long.valueOf( removeState.dbmsRemovedCount() );
+    Integer size = Integer.valueOf( removeState.valueCount() );
+    Long errors = Long.valueOf( removeState.errorCount() );
+    if( size.intValue() > 0 ) {
+      aLogger.debug( MSG_REMOVE_FINISH, aGwid, dayCount, aInterval, removedL, size, errors, duration );
+    }
+    return removeState;
   }
 
   /**
@@ -725,7 +809,7 @@ public abstract class S5AbstractSequenceWriter<S extends IS5Sequence<V>, V exten
         if( aCanRemove || aCanUpdate ) {
           // Удаление блоков которые невозможно восстановить
           if( aCanRemove ) {
-            removeBlocksFromDbms( em, factory, aGwid, removedBlocks, dbmsStat );
+            removeBlocksFromDbms( em, removedBlocks, dbmsStat );
           }
           // Обновление восстановленных блоков
           if( aCanUpdate ) {
@@ -832,6 +916,14 @@ public abstract class S5AbstractSequenceWriter<S extends IS5Sequence<V>, V exten
   protected abstract S5SequenceUnionStat<V> doUnion( IOptionSet aArgs );
 
   /**
+   * Шаблонный метод удаления данных последовательностей
+   *
+   * @param aArgs {@link IOptionSet}&gt; аргументы для удаления блоков (смотри {@link IS5SequenceRemoveOptions}).
+   * @return {@link IS5SequenceRemoveStat} статистика процесса удаления
+   */
+  protected abstract S5SequenceRemoveStat<V> doRemove( IOptionSet aArgs );
+
+  /**
    * Шаблонный метод проверки целостности данных последовательности
    *
    * @param aArgs {@link IOptionSet} аргументы для проверки блоков (смотри {@link IS5SequenceValidationOptions}).
@@ -891,6 +983,12 @@ public abstract class S5AbstractSequenceWriter<S extends IS5Sequence<V>, V exten
   public final S5SequenceUnionStat<V> union( IOptionSet aArgs ) {
     TsNullArgumentRtException.checkNulls( aArgs );
     return doUnion( aArgs );
+  }
+
+  @Override
+  public final S5SequenceRemoveStat<V> remove( IOptionSet aArgs ) {
+    TsNullArgumentRtException.checkNulls( aArgs );
+    return doRemove( aArgs );
   }
 
   @Override
@@ -1072,7 +1170,7 @@ public abstract class S5AbstractSequenceWriter<S extends IS5Sequence<V>, V exten
       // Статистика
       S5DbmsStatistics dbmsStat = new S5DbmsStatistics();
       // Удаление блоков значения которые были добавлены в другие блоки
-      removeBlocksFromDbms( em, factory, aGwid, removedBlocks, dbmsStat );
+      removeBlocksFromDbms( em, removedBlocks, dbmsStat );
       // Создание/обновление блоков в базе данных
       writeBlocksToDbms( em, target.blocks(), logger(), dbmsStat );
 

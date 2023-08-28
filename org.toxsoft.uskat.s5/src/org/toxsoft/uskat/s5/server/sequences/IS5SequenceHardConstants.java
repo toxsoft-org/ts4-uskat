@@ -90,6 +90,20 @@ public interface IS5SequenceHardConstants
       TSID_IS_NULL_ALLOWED, AV_FALSE, //
       TSID_DEFAULT_VALUE, avInt( 8 ) );
 
+  /**
+   * Опция {@link IS5Sequence#typeInfo()}: гарантированное время (секунды) хранения значений.
+   * <p>
+   * Определяет время хранения значений хранимых данных. По факту система может хранить данные более долгий период
+   * (определяется реализацией), но не меньший.
+   * <p>
+   * Тип: {@link EAtomicType#INTEGER}
+   */
+  IDataDef OP_VALUE_STORAGE_DEPTH = create( SEQUENCE_PREFIX + ".ValueStorageDepth", EAtomicType.INTEGER, //
+      TSID_NAME, STR_N_VALUE_STORAGE_DEPTH, //
+      TSID_DESCRIPTION, STR_D_VALUE_STORAGE_DEPTH, //
+      TSID_IS_NULL_ALLOWED, AV_FALSE, //
+      TSID_DEFAULT_VALUE, avInt( 60 * 60 * 24 * 365 * 10 ) ); // по умолчанию 10 лет
+
   // ------------------------------------------------------------------------------------
   // Константы
   //
@@ -135,6 +149,11 @@ public interface IS5SequenceHardConstants
   String UNION_EXECUTOR_JNDI = "java:jboss/ee/concurrency/executor/s5/sequence/union"; //$NON-NLS-1$
 
   /**
+   * JNDI-имя исполнителя асинхронных задач удаления значений блоков {@link ManagedExecutorService}
+   */
+  String REMOVE_EXECUTOR_JNDI = "java:jboss/ee/concurrency/executor/s5/sequence/remove"; //$NON-NLS-1$
+
+  /**
    * JNDI-имя исполнителя асинхронных задач проверки блоков {@link ManagedExecutorService}
    */
   String VALIDATION_EXECUTOR_JNDI = "java:jboss/ee/concurrency/executor/s5/sequence/validation"; //$NON-NLS-1$
@@ -153,6 +172,11 @@ public interface IS5SequenceHardConstants
    * Идентификатор журнала писателя для дефрагментации
    */
   String LOG_UNITER_ID = "S5SequenceUniter";
+
+  /**
+   * Идентификатор журнала писателя для удаления данных
+   */
+  String LOG_REMOVER_ID = "S5SequenceRemover";
 
   /**
    * Идентификатор журнала писателя для дефрагментации
