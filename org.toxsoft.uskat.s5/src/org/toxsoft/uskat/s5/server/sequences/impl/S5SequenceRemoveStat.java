@@ -32,12 +32,7 @@ final class S5SequenceRemoveStat<V extends ITemporal<?>>
   /**
    * Общее количество удаленных блоков
    */
-  private int dbmsRemovedCount = 0;
-
-  /**
-   * Общее количество удаленных значений
-   */
-  private int valueCount = 0;
+  private int removedCount = 0;
 
   /**
    * Количество ошибок удаления блоков
@@ -63,13 +58,8 @@ final class S5SequenceRemoveStat<V extends ITemporal<?>>
   }
 
   @Override
-  public int dbmsRemovedCount() {
-    return dbmsRemovedCount;
-  }
-
-  @Override
-  public int valueCount() {
-    return valueCount;
+  public int removedCount() {
+    return removedCount;
   }
 
   @Override
@@ -108,17 +98,8 @@ final class S5SequenceRemoveStat<V extends ITemporal<?>>
    *
    * @param aRemoved int количество блоков
    */
-  void addDbmsRemoved( int aRemoved ) {
-    dbmsRemovedCount += aRemoved;
-  }
-
-  /**
-   * Добавляет количество обработанных значений блоков
-   *
-   * @param aValue int количество значений
-   */
-  void addValues( int aValue ) {
-    valueCount += aValue;
+  void addRemoved( int aRemoved ) {
+    removedCount += aRemoved;
   }
 
   /**

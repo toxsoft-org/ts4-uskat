@@ -29,14 +29,7 @@ public interface IS5SequenceRemoveStat {
    *
    * @return int количество блоков
    */
-  int dbmsRemovedCount();
-
-  /**
-   * Возвращает общее количество обработанных значений
-   *
-   * @return int количество обработанных значений блоков
-   */
-  int valueCount();
+  int removedCount();
 
   /**
    * Возвращает общее количество ошибок возникших при дефрагментации

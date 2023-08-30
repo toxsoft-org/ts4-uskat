@@ -96,7 +96,7 @@ public abstract class S5AbstractSequenceWriter<S extends IS5Sequence<V>, V exten
   /**
    * Исполнитель потоков удаления
    */
-  private final ManagedExecutorService removeExecutor;
+  // private final ManagedExecutorService removeExecutor;
 
   /**
    * Исполнитель потоков объединения
@@ -169,7 +169,7 @@ public abstract class S5AbstractSequenceWriter<S extends IS5Sequence<V>, V exten
     // Поиск исполнителя потоков дефрагментации блоков
     unionExecutor = S5ServiceSingletonUtils.lookupExecutor( UNION_EXECUTOR_JNDI );
     // Поиск исполнителя потоков удаления блоков
-    removeExecutor = S5ServiceSingletonUtils.lookupExecutor( REMOVE_EXECUTOR_JNDI );
+    // removeExecutor = S5ServiceSingletonUtils.lookupExecutor( REMOVE_EXECUTOR_JNDI );
     // Поиск исполнителя потоков проверки блоков
     validationExecutor = S5ServiceSingletonUtils.lookupExecutor( VALIDATION_EXECUTOR_JNDI );
     // Управление транзакциями
@@ -250,9 +250,9 @@ public abstract class S5AbstractSequenceWriter<S extends IS5Sequence<V>, V exten
    *
    * @return {@link ManagedExecutorService} исполнитель потоков
    */
-  protected final ManagedExecutorService removeExecutor() {
-    return removeExecutor;
-  }
+  // protected final ManagedExecutorService removeExecutor() {
+  // return removeExecutor;
+  // }
 
   /**
    * Возвращает исполнителя потоков для проверки блоков
@@ -618,50 +618,24 @@ public abstract class S5AbstractSequenceWriter<S extends IS5Sequence<V>, V exten
     Integer dayCount = Integer.valueOf( (int)((endTime - startTime) / 1000 / 60 / 60 / 24) );
     // Текущее время сервера
     long currTime = System.currentTimeMillis();
-    // Номер прохода
-    int unionPass = 0;
-    // Текущее количество ошибок попыток объединения
-    int unionErrorCount = 0;
-    while( true ) {
-      try {
-        boolean completed = tryUnion( aEntityManager, unionPass, aGwid, aInterval, removeState );
-        if( completed ) {
-          // Обработка завершена
-          break;
-        }
-        unionPass++;
-        if( unionPass > SEQUENCE_UNION_PASS_MAX ) {
-          // Слишком много попыток объединения блоков.
-          aLogger.warning( ERR_UNION_PASS_MAX, aGwid, dayCount, Long.valueOf( SEQUENCE_UNION_PASS_MAX ) );
-          break;
-        }
-        unionErrorCount = 0;
-      }
-      catch( RuntimeException e ) {
-        // Ошибка объединения блоков
-        Integer tc = Integer.valueOf( unionErrorCount );
-        Integer up = Integer.valueOf( unionPass );
-        if( unionErrorCount < SEQUENCE_UNION_TRY_HEAP_COUNT ) {
-          // Требуем повторить объединение
-          aLogger.warning( ERR_AUTO_UNION_PASS_RETRY, aGwid, tc, up, dayCount, aInterval, cause( e ) );
-          unionErrorCount++;
-          removeState.addErrors( 1 );
-          continue;
-        }
-        String errMsg = String.format( ERR_AUTO_CANT_UNION_PASS, aGwid, up, dayCount, aInterval, cause( e ) );
-        // Использованы все попытки объединения блоков. Объединение невозможно.
-        aLogger.error( errMsg );
-        throw new TsInternalErrorRtException( e, errMsg );
-      }
+    try {
+      int removed = S5SequenceSQL.removeBlocks( aEntityManager, sequenceFactory(), aGwid,
+          new QueryInterval( EQueryIntervalType.CSCE, aInterval.startTime(), aInterval.endTime() ) );
+      removeState.addRemoved( removed );
+    }
+    catch( RuntimeException e ) {
+      // Ошибка удаления блоков
+      removeState.addErrors( 1 );
+      String errMsg = String.format( ERR_REMOVE_BLOCK, aGwid, aInterval, cause( e ) );
+      // Использованы все попытки объединения блоков. Объединение невозможно.
+      aLogger.error( errMsg );
+      throw new TsInternalErrorRtException( e, errMsg );
     }
     // Вывод информации о завершенном объединении
     Long duration = Long.valueOf( (System.currentTimeMillis() - currTime) / 1000 );
-    Long removedL = Long.valueOf( removeState.dbmsRemovedCount() );
-    Integer size = Integer.valueOf( removeState.valueCount() );
+    Long removedBlocks = Long.valueOf( removeState.removedCount() );
     Long errors = Long.valueOf( removeState.errorCount() );
-    if( size.intValue() > 0 ) {
-      aLogger.debug( MSG_REMOVE_FINISH, aGwid, dayCount, aInterval, removedL, size, errors, duration );
-    }
+    aLogger.debug( MSG_REMOVE_FINISH, aGwid, dayCount, aInterval, removedBlocks, errors, duration );
     return removeState;
   }
 

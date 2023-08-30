@@ -180,7 +180,7 @@ public abstract class S5BackendSequenceSupportSingleton<S extends IS5Sequence<V>
   /**
    * Последний запущенный поток удаления блоков последовательностей. null: неопределен
    */
-  private S5SequenceUniterThread removeThread;
+  private S5SequenceRemoveThread removeThread;
 
   /**
    * Таймер обновления статистики
@@ -309,10 +309,10 @@ public abstract class S5BackendSequenceSupportSingleton<S extends IS5Sequence<V>
     uniterThread = new S5SequenceUniterThread( getBusinessObject(), MSG_UNION_AUTHOR_SCHEDULE, uniterLogger );
     unionExecutor.execute( uniterThread );
 
-    // Поиск исполнителя потоков объединения блоков
-    removeExecutor = S5ServiceSingletonUtils.lookupExecutor( UNION_EXECUTOR_JNDI );
-    // Запуск потока дефрагментации
-    removeThread = new S5SequenceUniterThread( getBusinessObject(), MSG_UNION_AUTHOR_SCHEDULE, removeLogger );
+    // Поиск исполнителя потоков удаления блоков
+    removeExecutor = S5ServiceSingletonUtils.lookupExecutor( REMOVE_EXECUTOR_JNDI );
+    // Запуск потока удаления блоков
+    removeThread = new S5SequenceRemoveThread( getBusinessObject(), MSG_REMOVE_AUTHOR_SCHEDULE, removeLogger );
     removeExecutor.execute( removeThread );
 
     // Бизнес интерфейс синглетона
@@ -327,8 +327,10 @@ public abstract class S5BackendSequenceSupportSingleton<S extends IS5Sequence<V>
     sysdescrReader = sysdescrBackend.getReader();
     // Инициализация статегии записи последовательностей
     sequenceWriter = new S5SequenceLastBlockWriter<>( backend(), factory() );
-    // Инициализация таймера запуска задачи объединения блоков исторических данных
+    // Инициализация таймера запуска задачи дефрагментации значений
     updateUnionTimers();
+    // Инициализация таймера запуска задачи удаления данных
+    updateRemoveTimers();
     // Формирование таймера обновления статистики
     long statisticsUpdateInterval = EStatisticInterval.SECOND.milli();
     TimerConfig tc = new TimerConfig( "StatisticsTimer", false ); //$NON-NLS-1$
@@ -844,8 +846,7 @@ public abstract class S5BackendSequenceSupportSingleton<S extends IS5Sequence<V>
         stat.onEvent( STAT_HISTORABLE_BACKEND_REMOVE_COUNT, AV_1 );
         stat.onEvent( STAT_HISTORABLE_BACKEND_REMOVE_LOOKUP_COUNT, avInt( removeStat.lookupCount() ) );
         stat.onEvent( STAT_HISTORABLE_BACKEND_REMOVE_THREAD_COUNT, avInt( removeStat.infoes().size() ) );
-        stat.onEvent( STAT_HISTORABLE_BACKEND_REMOVE_VALUE_COUNT, avInt( removeStat.valueCount() ) );
-        stat.onEvent( STAT_HISTORABLE_BACKEND_REMOVE_REMOVED_COUNT, avInt( removeStat.dbmsRemovedCount() ) );
+        stat.onEvent( STAT_HISTORABLE_BACKEND_REMOVE_REMOVED_COUNT, avInt( removeStat.removedCount() ) );
         stat.onEvent( STAT_HISTORABLE_BACKEND_REMOVE_ERROR_COUNT, avInt( removeStat.errorCount() ) );
       }
       // Журнал
@@ -864,11 +865,10 @@ public abstract class S5BackendSequenceSupportSingleton<S extends IS5Sequence<V>
           threaded += "]"; //$NON-NLS-1$
         }
         Integer lc = Integer.valueOf( removeStat.lookupCount() );
-        Integer rc = Integer.valueOf( removeStat.dbmsRemovedCount() );
-        Integer vc = Integer.valueOf( removeStat.valueCount() );
+        Integer rc = Integer.valueOf( removeStat.removedCount() );
         Integer ec = Integer.valueOf( removeStat.errorCount() );
         Integer qs = Integer.valueOf( removeStat.queueSize() );
-        removeLogger.info( MSG_REMOVE_TASK_FINISH, id(), aAuthor, lc, tc, threaded, rc, vc, ec, qs, d );
+        removeLogger.info( MSG_REMOVE_TASK_FINISH, id(), aAuthor, lc, tc, threaded, rc, ec, qs, d );
       }
       // Информация об проведенной операции удаления значений данных
       IList<IS5SequenceRemoveInfo> removeInfos = removeStat.infoes();
@@ -1621,7 +1621,7 @@ public abstract class S5BackendSequenceSupportSingleton<S extends IS5Sequence<V>
       }
       try {
         TimerConfig tc = new TimerConfig(
-            String.format( "UnionTimer[%s]", S5ScheduleExpressionKeeper.KEEPER.ent2str( schedule ) ), false ); //$NON-NLS-1$
+            String.format( "RemoveTimer[%s]", S5ScheduleExpressionKeeper.KEEPER.ent2str( schedule ) ), false ); //$NON-NLS-1$
         newTimer = timerService.createCalendarTimer( (ScheduleExpression)schedule, tc );
         removeTimers.add( newTimer );
         logger().info( MSG_CREATE_REMOVE_TIMER, schedule );

@@ -49,9 +49,7 @@ interface IS5Resources {
   String MSG_REMOVE_TASK_FINISH           = Messages.getString( "IS5Resources.MSG_REMOVE_TASK_FINISH" )              //$NON-NLS-1$
       + Messages.getString( "IS5Resources.MSG_REMOVE_TASK_FINISH___1" ) +                                            // //$NON-NLS-1$
       Messages.getString( "IS5Resources.MSG_REMOVE_TASK_FINISH___2" ) +                                              // //$NON-NLS-1$
-      Messages.getString( "IS5Resources.MSG_REMOVE_TASK_FINISH___3" ) +                                              // //$NON-NLS-1$
       Messages.getString( "IS5Resources.MSG_REMOVE_TASK_FINISH___4" ) +                                              // //$NON-NLS-1$
-      Messages.getString( "IS5Resources.MSG_REMOVE_TASK_FINISH___5" ) +                                              // //$NON-NLS-1$
       Messages.getString( "IS5Resources.MSG_REMOVE_TASK_FINISH___6" ) +                                              // //$NON-NLS-1$
       Messages.getString( "IS5Resources.MSG_REMOVE_TASK_FINISH___7" ) +                                              // //$NON-NLS-1$
       Messages.getString( "IS5Resources.MSG_REMOVE_TASK_FINISH___8" );                                               //$NON-NLS-1$
@@ -86,6 +84,10 @@ interface IS5Resources {
   String MSG_UNION_AUTO_ADD_INFO       = Messages.getString( "IS5Resources.MSG_UNION_AUTO_ADD_INFO" );       //$NON-NLS-1$
   String MSG_UNION_AUTO_REPEAT         = Messages.getString( "IS5Resources.MSG_UNION_AUTO_REPEAT" );         //$NON-NLS-1$
 
+  String MSG_REMOVE_AUTHOR_SCHEDULE = "Плановое удаление значений по календарю"; //$NON-NLS-1$
+
+  String MSG_REMOVE_AUTO_ADD_INFO = "Планирование удаления значений данного в автоматическом режиме: %s"; //$NON-NLS-1$
+
   String MSG_LAST_VALUES_ASYNC_QUERY = Messages.getString( "IS5Resources.MSG_LAST_VALUES_ASYNC_QUERY" ); //$NON-NLS-1$
   String MSG_LAST_VALUE_ASYNC_QUERY  = Messages.getString( "IS5Resources.MSG_LAST_VALUE_ASYNC_QUERY" );  //$NON-NLS-1$
 
@@ -111,25 +113,26 @@ interface IS5Resources {
 
   String MSG_SYNC_ADD_NULLS = Messages.getString( "IS5Resources.MSG_SYNC_ADD_NULLS" ); //$NON-NLS-1$
 
-  String MSG_LAST_BLOCK_LOAD_START      = Messages.getString( "IS5Resources.MSG_LAST_BLOCK_LOAD_START" );      //$NON-NLS-1$
-  String MSG_BLOCKS_RECEVIED            = Messages.getString( "IS5Resources.MSG_BLOCKS_RECEVIED" );            //$NON-NLS-1$
-  String MSG_BLOCKS_UNIONED             = Messages.getString( "IS5Resources.MSG_BLOCKS_UNIONED" );             //$NON-NLS-1$
-  String MSG_LAST_BLOCK_LOADED          = Messages.getString( "IS5Resources.MSG_LAST_BLOCK_LOADED" );          //$NON-NLS-1$
-  String MSG_LAST_BLOCK_NOT_FOUND       = Messages.getString( "IS5Resources.MSG_LAST_BLOCK_NOT_FOUND" );       //$NON-NLS-1$
-  String MSG_LAST_BLOCK_LOAD_FINISH     = Messages.getString( "IS5Resources.MSG_LAST_BLOCK_LOAD_FINISH" );     //$NON-NLS-1$
-  String MSG_LAST_BLOCK                 = Messages.getString( "IS5Resources.MSG_LAST_BLOCK" );                 //$NON-NLS-1$
-  String MSG_NOT_LAST_BLOCK             = Messages.getString( "IS5Resources.MSG_NOT_LAST_BLOCK" );             //$NON-NLS-1$
-  String MSG_LOOKUP_LAST_BLOCK          = Messages.getString( "IS5Resources.MSG_LOOKUP_LAST_BLOCK" );          //$NON-NLS-1$
-  String MSG_USE_LAST_BLOCK             = Messages.getString( "IS5Resources.MSG_USE_LAST_BLOCK" );             //$NON-NLS-1$
-  String MSG_ADD_NEW_BLOCKS             = Messages.getString( "IS5Resources.MSG_ADD_NEW_BLOCKS" );             //$NON-NLS-1$
-  String MSG_DETECT_CHANGES_LAST_VALUES = Messages.getString( "IS5Resources.MSG_DETECT_CHANGES_LAST_VALUES" ); //$NON-NLS-1$
-  String MSG_REMOVE_REPEAT_VALUES       = Messages.getString( "IS5Resources.MSG_REMOVE_REPEAT_VALUES" );       //$NON-NLS-1$
-  String MSG_CANT_USE_LAST_BLOCK        = Messages.getString( "IS5Resources.MSG_CANT_USE_LAST_BLOCK" );        //$NON-NLS-1$
-  String MSG_CANT_USE_TX_BLOCK          = Messages.getString( "IS5Resources.MSG_CANT_USE_TX_BLOCK" );          //$NON-NLS-1$
-  String MSG_REMOVE_LAST_BY_BEFORE      = Messages.getString( "IS5Resources.MSG_REMOVE_LAST_BY_BEFORE" );      //$NON-NLS-1$
-  String MSG_REMOVE_LAST_BY_UNION       = Messages.getString( "IS5Resources.MSG_REMOVE_LAST_BY_UNION" );       //$NON-NLS-1$
-  String MSG_TX_COMMIT                  = Messages.getString( "IS5Resources.MSG_TX_COMMIT" );                  //$NON-NLS-1$
-  String MSG_TX_ROLLBACK                = Messages.getString( "IS5Resources.MSG_TX_ROLLBACK" );                //$NON-NLS-1$
+  String MSG_LAST_BLOCK_LOAD_START      = Messages.getString( "IS5Resources.MSG_LAST_BLOCK_LOAD_START" );        //$NON-NLS-1$
+  String MSG_BLOCKS_RECEVIED            = Messages.getString( "IS5Resources.MSG_BLOCKS_RECEVIED" );              //$NON-NLS-1$
+  String MSG_BLOCKS_UNIONED             = Messages.getString( "IS5Resources.MSG_BLOCKS_UNIONED" );               //$NON-NLS-1$
+  String MSG_LAST_BLOCK_LOADED          = Messages.getString( "IS5Resources.MSG_LAST_BLOCK_LOADED" );            //$NON-NLS-1$
+  String MSG_LAST_BLOCK_NOT_FOUND       = Messages.getString( "IS5Resources.MSG_LAST_BLOCK_NOT_FOUND" );         //$NON-NLS-1$
+  String MSG_LAST_BLOCK_LOAD_FINISH     = Messages.getString( "IS5Resources.MSG_LAST_BLOCK_LOAD_FINISH" );       //$NON-NLS-1$
+  String MSG_LAST_BLOCK                 = Messages.getString( "IS5Resources.MSG_LAST_BLOCK" );                   //$NON-NLS-1$
+  String MSG_NOT_LAST_BLOCK             = Messages.getString( "IS5Resources.MSG_NOT_LAST_BLOCK" );               //$NON-NLS-1$
+  String MSG_LOOKUP_LAST_BLOCK          = Messages.getString( "IS5Resources.MSG_LOOKUP_LAST_BLOCK" );            //$NON-NLS-1$
+  String MSG_USE_LAST_BLOCK             = Messages.getString( "IS5Resources.MSG_USE_LAST_BLOCK" );               //$NON-NLS-1$
+  String MSG_ADD_NEW_BLOCKS             = Messages.getString( "IS5Resources.MSG_ADD_NEW_BLOCKS" );               //$NON-NLS-1$
+  String MSG_DETECT_CHANGES_LAST_VALUES = Messages.getString( "IS5Resources.MSG_DETECT_CHANGES_LAST_VALUES" );   //$NON-NLS-1$
+  String MSG_REMOVE_REPEAT_VALUES       = Messages.getString( "IS5Resources.MSG_REMOVE_REPEAT_VALUES" );         //$NON-NLS-1$
+  String MSG_CANT_USE_LAST_BLOCK        = Messages.getString( "IS5Resources.MSG_CANT_USE_LAST_BLOCK" );          //$NON-NLS-1$
+  String MSG_CANT_USE_TX_BLOCK          = Messages.getString( "IS5Resources.MSG_CANT_USE_TX_BLOCK" );            //$NON-NLS-1$
+  String MSG_REMOVE_LAST_BY_BEFORE      = Messages.getString( "IS5Resources.MSG_REMOVE_LAST_BY_BEFORE" );        //$NON-NLS-1$
+  String MSG_REMOVE_LAST_BY_UNION       = Messages.getString( "IS5Resources.MSG_REMOVE_LAST_BY_UNION" );         //$NON-NLS-1$
+  String MSG_REMOVE_LAST_BY_REMOVE      = "%s. Завершение удаления значений данного. Удаление последнего блока"; //$NON-NLS-1$
+  String MSG_TX_COMMIT                  = Messages.getString( "IS5Resources.MSG_TX_COMMIT" );                    //$NON-NLS-1$
+  String MSG_TX_ROLLBACK                = Messages.getString( "IS5Resources.MSG_TX_ROLLBACK" );                  //$NON-NLS-1$
 
   String MSG_EMPTY_BLOCK                 = Messages.getString( "IS5Resources.MSG_EMPTY_BLOCK" );                 //$NON-NLS-1$
   String MSG_EMPTY_SEQUENCE              = Messages.getString( "IS5Resources.MSG_EMPTY_SEQUENCE" );              //$NON-NLS-1$
@@ -247,6 +250,7 @@ interface IS5Resources {
   String ERR_SEQUENCE_CROSSED_BLOCK_SIZES_READ =
       Messages.getString( "IS5Resources.ERR_SEQUENCE_CROSSED_BLOCK_SIZES_READ" );                                        //$NON-NLS-1$
   String ERR_READ_OUT_OF_MEMORY                = Messages.getString( "IS5Resources.ERR_READ_OUT_OF_MEMORY" );            //$NON-NLS-1$
+  String ERR_READ_OUT_OF_MEMORY2               = "%s. Недостаточно памяти для чтения блоков. Причина: %s";               //$NON-NLS-1$
   String ERR_READ_UNEXPECTED                   = Messages.getString( "IS5Resources.ERR_READ_UNEXPECTED" );               //$NON-NLS-1$
   String ERR_IMPL_BLOCK_NOT_FOUND              = Messages.getString( "IS5Resources.ERR_IMPL_BLOCK_NOT_FOUND" );          //$NON-NLS-1$
   String ERR_READ_LAST_SEQUENCE_UNEXPECTED     = Messages.getString( "IS5Resources.ERR_READ_LAST_SEQUENCE_UNEXPECTED" ); //$NON-NLS-1$

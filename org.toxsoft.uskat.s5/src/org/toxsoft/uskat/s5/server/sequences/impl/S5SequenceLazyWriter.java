@@ -22,13 +22,13 @@ import org.toxsoft.core.tslib.av.opset.impl.OptionSet;
 import org.toxsoft.core.tslib.av.utils.IParameterized;
 import org.toxsoft.core.tslib.bricks.strid.impl.StridUtils;
 import org.toxsoft.core.tslib.bricks.time.*;
-import org.toxsoft.core.tslib.bricks.time.impl.QueryInterval;
-import org.toxsoft.core.tslib.bricks.time.impl.TimeInterval;
+import org.toxsoft.core.tslib.bricks.time.impl.*;
 import org.toxsoft.core.tslib.coll.*;
 import org.toxsoft.core.tslib.coll.derivative.IQueue;
 import org.toxsoft.core.tslib.coll.derivative.Queue;
 import org.toxsoft.core.tslib.coll.impl.ElemArrayList;
 import org.toxsoft.core.tslib.gw.gwid.*;
+import org.toxsoft.core.tslib.utils.Pair;
 import org.toxsoft.core.tslib.utils.errors.*;
 import org.toxsoft.core.tslib.utils.logs.ELogSeverity;
 import org.toxsoft.core.tslib.utils.logs.ILogger;
@@ -88,6 +88,15 @@ class S5SequenceLazyWriter<S extends IS5Sequence<V>, V extends ITemporal<?>>
   private final IQueue<Gwid> removeCandidates = new Queue<>();
 
   /**
+   * Карта запланированных операций удаления данных.
+   * <p>
+   * Ключ: идентификатор данного;<br>
+   * Значение: описание для процесса удаления {@link S5SequenceRemoveInfo}
+   */
+  private final IMapEdit<Gwid, S5SequenceRemoveInfo> removeCandidateInfos =
+      new WrapperMap<>( new HashMap<Gwid, S5SequenceRemoveInfo>() );
+
+  /**
    * Блокировка доступа к данным на удаление: {@link #removeCandidates}
    */
   private final S5Lockable removeLock = new S5Lockable();
@@ -99,8 +108,37 @@ class S5SequenceLazyWriter<S extends IS5Sequence<V>, V extends ITemporal<?>>
    * @param aSequenceFactory {@link IS5SequenceFactory} фабрика последовательностей блоков
    * @throws TsNullArgumentRtException аргумент = null
    */
+  @SuppressWarnings( "unchecked" )
   S5SequenceLazyWriter( IS5BackendCoreSingleton aBackendCore, IS5SequenceFactory<V> aSequenceFactory ) {
     super( aBackendCore, aSequenceFactory );
+    // После запуска требуется проверить все данные на необходимость удаления
+    // Менеджер постоянства
+    EntityManager em = entityManagerFactory().createEntityManager();
+    try {
+      for( Pair<String, String> tableName : sequenceFactory().tableNames() ) {
+        IGwidList gwids = getAllGwids( em, new ElemArrayList<>( tableName ) );
+        logger().debug( "all gwids (%d): ", Integer.valueOf( gwids.size() ) ); //$NON-NLS-1$
+        for( int index = 0, n = gwids.size(); index < n; index++ ) {
+          Gwid gwid = gwids.get( index );
+          // Параметризованное описание типа данного
+          try {
+            IParameterized typeInfo = sequenceFactory().typeInfo( gwid );
+            if( !removeCandidates.hasElem( gwid ) ) {
+              removeCandidates.putTail( gwid );
+              logger().debug( "\n gwid[%d] = %s ", Integer.valueOf( index ), gwid ); //$NON-NLS-1$
+            }
+          }
+          catch( TsItemNotFoundRtException e ) {
+            // В базе находятся данные которых нет в системном описании (БД взята с другого компьютера)
+            logger().error( "The data %s (table = %s) does not exist in the system. They must be removed manually.", //$NON-NLS-1$
+                gwid, tableName );
+          }
+        }
+      }
+    }
+    finally {
+      em.close();
+    }
   }
 
   // ------------------------------------------------------------------------------------
@@ -169,31 +207,40 @@ class S5SequenceLazyWriter<S extends IS5Sequence<V>, V extends ITemporal<?>>
     // Признак ручного или автоматического объединения данных
     boolean isAuto = !args.hasValue( IS5SequenceUnionOptions.UNION_INTERVAL );
     // Список данных для объединения
-    IList<IS5SequenceFragmentInfo> infoes =
-        (!isAuto ? prepareDefragmentManual( args ) : prepareDefragmentAuto( args, statistics, uniterLogger ));
-    // Текущий размер очереди на дефрагментацию
-    int queueSize = getUnionQueueSize();
-    // Установки общих данных статистики
-    statistics.setInfoes( infoes != null ? infoes : IList.EMPTY );
-    statistics.setQueueSize( queueSize );
-    // Проверка возможности провести дефрагментацию
-    if( infoes == null || infoes.size() == 0 ) {
-      // Запрет выполнять объединение
-      return statistics;
+    IList<IS5SequenceFragmentInfo> infoes = IList.EMPTY;
+    // Создание менеджера постоянства
+    EntityManager em = entityManagerFactory().createEntityManager();
+    try {
+      // Список данных для объединения
+      infoes =
+          (!isAuto ? prepareDefragmentManual( em, args ) : prepareDefragmentAuto( em, args, statistics, uniterLogger ));
+      // Текущий размер очереди на дефрагментацию
+      int queueSize = getUnionQueueSize();
+      // Установки общих данных статистики
+      statistics.setInfoes( infoes != null ? infoes : IList.EMPTY );
+      statistics.setQueueSize( queueSize );
+      // Проверка возможности провести дефрагментацию
+      if( infoes == null || infoes.size() == 0 ) {
+        // Запрет выполнять объединение
+        return statistics;
+      }
+      // Вывод в журнал
+      Integer c = Integer.valueOf( infoes.size() );
+      Integer q = Integer.valueOf( queueSize );
+      ITimeInterval interval = IS5SequenceUnionOptions.UNION_INTERVAL.getValue( args ).asValobj();
+      uniterLogger.info( MSG_UNION_START_THREAD, c, q, interval );
+      // Исполнитель s5-потоков записи данных
+      S5WriteThreadExecutor executor = new S5WriteThreadExecutor( unionExecutor(), uniterLogger );
+      for( IS5SequenceFragmentInfo info : infoes ) {
+        // Регистрация потока
+        executor.add( new UnionThread( info, args, statistics, uniterLogger ) );
+      }
+      // Запуск потоков (с ожиданием, без поднятия исключений на ошибках потоков)
+      executor.run( true, false );
     }
-    // Вывод в журнал
-    Integer c = Integer.valueOf( infoes.size() );
-    Integer q = Integer.valueOf( queueSize );
-    ITimeInterval interval = IS5SequenceUnionOptions.UNION_INTERVAL.getValue( args ).asValobj();
-    uniterLogger.info( MSG_UNION_START_THREAD, c, q, interval );
-    // Исполнитель s5-потоков записи данных
-    S5WriteThreadExecutor executor = new S5WriteThreadExecutor( unionExecutor(), uniterLogger );
-    for( IS5SequenceFragmentInfo info : infoes ) {
-      // Регистрация потока
-      executor.add( new UnionThread( info, args, statistics, uniterLogger ) );
+    finally {
+      em.close();
     }
-    // Запуск потоков (с ожиданием, без поднятия исключений на ошибках потоков)
-    executor.run( true, false );
     // Оповещение наследников о проведение дефрагментации блоков
     onUnionEvent( args, infoes, uniterLogger );
     return statistics;
@@ -208,32 +255,48 @@ class S5SequenceLazyWriter<S extends IS5Sequence<V>, V extends ITemporal<?>>
     IOptionSetEdit args = new OptionSet( aArgs );
     // Признак ручного или автоматического объединения данных
     boolean isAuto = !args.hasValue( IS5SequenceRemoveOptions.REMOVE_INTERVAL );
-    // Список данных для удаления
-    IList<IS5SequenceRemoveInfo> infoes =
-        (!isAuto ? prepareRemoveManual( args ) : prepareRemoveAuto( args, statistics, removeLogger ));
-    // Текущий размер очереди на дефрагментацию
-    int queueSize = getUnionQueueSize();
-    // Установки общих данных статистики
-    statistics.setInfoes( infoes != null ? infoes : IList.EMPTY );
-    statistics.setQueueSize( queueSize );
-    // Проверка возможности провести дефрагментацию
-    if( infoes == null || infoes.size() == 0 ) {
-      // Запрет выполнять объединение
-      return statistics;
+    // Описания удаляемых данных
+    IList<IS5SequenceRemoveInfo> infoes = IList.EMPTY;
+    // Создание менеджера постоянства
+    EntityManager em = entityManagerFactory().createEntityManager();
+    try {
+      // Формирование описания данных
+      infoes = (!isAuto ? prepareRemoveManual( em, args ) : prepareRemoveAuto( em, args, statistics, removeLogger ));
+      // Текущий размер очереди на дефрагментацию
+      int queueSize = getRemoveQueueSize();
+      // Установки общих данных статистики
+      statistics.setInfoes( infoes != null ? infoes : IList.EMPTY );
+      statistics.setQueueSize( queueSize );
+      // Проверка возможности провести дефрагментацию
+      if( infoes == null || infoes.size() == 0 ) {
+        // Запрет выполнять объединение
+        return statistics;
+      }
+      // Вывод в журнал
+      Integer c = Integer.valueOf( infoes.size() );
+      Integer q = Integer.valueOf( queueSize );
+      ITimeInterval interval = IS5SequenceRemoveOptions.REMOVE_INTERVAL.getValue( args ).asValobj();
+      removeLogger.info( MSG_REMOVE_START_THREAD, c, q, interval );
+
+      for( IS5SequenceRemoveInfo info : infoes ) {
+        // Удаление блоков на интервале
+        S5SequenceRemoveStat<V> result = removeInterval( em, info.gwid(), info.removeInterval(), logger() );
+        statistics.addRemoved( result.removedCount() );
+        statistics.addErrors( result.errorCount() );
+      }
     }
-    // Вывод в журнал
-    Integer c = Integer.valueOf( infoes.size() );
-    Integer q = Integer.valueOf( queueSize );
-    ITimeInterval interval = IS5SequenceRemoveOptions.REMOVE_INTERVAL.getValue( args ).asValobj();
-    removeLogger.info( MSG_REMOVE_START_THREAD, c, q, interval );
-    // Исполнитель s5-потоков записи данных
-    S5WriteThreadExecutor executor = new S5WriteThreadExecutor( removeExecutor(), removeLogger );
-    for( IS5SequenceRemoveInfo info : infoes ) {
-      // Регистрация потока
-      executor.add( new RemoveThread( info, args, statistics, removeLogger ) );
+    finally {
+      em.close();
     }
-    // Запуск потоков (с ожиданием, без поднятия исключений на ошибках потоков)
-    executor.run( true, false );
+    // // Исполнитель s5-потоков записи данных
+    // S5WriteThreadExecutor executor = new S5WriteThreadExecutor( removeExecutor(), removeLogger );
+    // for( IS5SequenceRemoveInfo info : infoes ) {
+    // // Регистрация потока
+    // executor.add( new RemoveThread( info, args, statistics, removeLogger ) );
+    // }
+    // // Запуск потоков (с ожиданием, без поднятия исключений на ошибках потоков)
+    // executor.run( true, false );
+
     // Оповещение наследников о проведении удаления блоков
     onRemoveEvent( args, infoes, removeLogger );
     return statistics;
@@ -477,50 +540,45 @@ class S5SequenceLazyWriter<S extends IS5Sequence<V>, V extends ITemporal<?>>
   /**
    * Возращает описания и добавляет необходимые параметры для выполнения дефрагментации по запросу
    *
+   * @param aEntityManager {@link EntityManager} менеджер постоянства
    * @param aArgs {@link IOptionSetEdit} аргументы для дефрагментации блоков
    * @return {@link IList}&lt;IS5SequenceFragmentInfo&gt; список описаний фрагментированности данных
    * @throws TsNullArgumentRtException аргумент = null
    */
-  private IList<IS5SequenceFragmentInfo> prepareDefragmentManual( IOptionSetEdit aArgs ) {
+  private IList<IS5SequenceFragmentInfo> prepareDefragmentManual( EntityManager aEntityManager, IOptionSetEdit aArgs ) {
     TsNullArgumentRtException.checkNull( aArgs );
-    // Менеджер постоянства
-    EntityManager em = entityManagerFactory().createEntityManager();
-    try {
-      // Запрос всех идентификаторов данных которые есть в базе данных
-      IGwidList allGwids = getAllGwids( em, sequenceFactory().tableNames() );
-      // Информация о фрагментации
-      IListEdit<IS5SequenceFragmentInfo> infoes = new ElemArrayList<>( allGwids.size() );
-      // Идентификаторы данных. null: неопределены
-      IGwidList gwids = null;
-      if( aArgs.hasValue( IS5SequenceUnionOptions.UNION_GWIDS ) ) {
-        gwids = IS5SequenceUnionOptions.UNION_GWIDS.getValue( aArgs ).asValobj();
-      }
-      // Интервал дефрагментации
-      ITimeInterval interval = IS5SequenceUnionOptions.UNION_INTERVAL.getValue( aArgs ).asValobj();
-      // Указан список данных
-      for( Gwid gwid : allGwids ) {
-        if( gwids == null || gwids.size() == 0 || gwids.hasElem( gwid ) ) {
-          String tableName = tableName( sequenceFactory(), gwid );
-          infoes.add( new S5SequenceFragmentInfo( tableName, gwid, interval, -1 ) );
-        }
-      }
-      return infoes;
+    // Запрос всех идентификаторов данных которые есть в базе данных
+    IGwidList allGwids = getAllGwids( aEntityManager, sequenceFactory().tableNames() );
+    // Информация о фрагментации
+    IListEdit<IS5SequenceFragmentInfo> infoes = new ElemArrayList<>( allGwids.size() );
+    // Идентификаторы данных. null: неопределены
+    IGwidList gwids = null;
+    if( aArgs.hasValue( IS5SequenceUnionOptions.UNION_GWIDS ) ) {
+      gwids = IS5SequenceUnionOptions.UNION_GWIDS.getValue( aArgs ).asValobj();
     }
-    finally {
-      em.close();
+    // Интервал дефрагментации
+    ITimeInterval interval = IS5SequenceUnionOptions.UNION_INTERVAL.getValue( aArgs ).asValobj();
+    // Указан список данных
+    for( Gwid gwid : allGwids ) {
+      if( gwids == null || gwids.size() == 0 || gwids.hasElem( gwid ) ) {
+        String tableName = tableName( sequenceFactory(), gwid );
+        infoes.add( new S5SequenceFragmentInfo( tableName, gwid, interval, -1 ) );
+      }
     }
+    return infoes;
   }
 
   /**
    * Возращает описания и добавляет необходимые параметры для выполнения дефрагментации в автоматическом режиме
    *
+   * @param aEntityManager {@link EntityManager} менеджер постоянства
    * @param aArgs {@link IOptionSetEdit} аргументы для дефрагментации блоков .
    * @param aStatistics {@link S5SequenceUnionStat} статистика с возможностью редактирования
    * @param aLogger {@link ILogger} журнал
    * @return {@link IList}&lt;IS5SequenceFragmentInfo&gt; список описаний фрагментированности данных
    * @throws TsNullArgumentRtException любой аргумент = null
    */
-  private IList<IS5SequenceFragmentInfo> prepareDefragmentAuto( IOptionSetEdit aArgs,
+  private IList<IS5SequenceFragmentInfo> prepareDefragmentAuto( EntityManager aEntityManager, IOptionSetEdit aArgs,
       S5SequenceUnionStat<V> aStatistics, ILogger aLogger ) {
     TsNullArgumentRtException.checkNulls( aArgs, aLogger );
     // Фабрика последовательностей
@@ -541,194 +599,184 @@ class S5SequenceLazyWriter<S extends IS5Sequence<V>, V extends ITemporal<?>>
     long currTime = System.currentTimeMillis();
     // Время завершения интервала дефрагментации
     long fragmentEndTime = currTime - offset;
-    EntityManager em = entityManagerFactory().createEntityManager();
     // Возвращаемый результат
     IListEdit<IS5SequenceFragmentInfo> retValue = new ElemArrayList<>();
     // Текущее количество выполненных операций поиска дефрагментации
     int lookupCount = 0;
-    try {
-      while( true ) {
-        if( lookupCountMax > 0 && lookupCount >= lookupCountMax ) {
-          // Установлено ограничение по количество операций поиска за один проход
-          break;
-        }
-        // Счетчик операций поиска
-        lookupCount++;
-        // Идентификатор данного
-        Gwid gwid = null;
-        // Дефрагментация полученая записью при ожидании процесса дефрагментации
-        S5SequenceFragmentInfo candiateFragments = null;
-        // Общая дефрагментация данного с момента прошлого процесса дефрагментации. null: дефрагментация неопределена
-        S5SequenceFragmentInfo allFragments = null;
-        lockWrite( unionLock );
-        try {
-          gwid = unionCandidates.peekHeadOrNull();
-          if( gwid != null ) {
-            // Создаем потоко-независимую копию дефрагментации данного
-            candiateFragments = new S5SequenceFragmentInfo( unionCandidateFragments.getByKey( gwid ) );
-            IS5SequenceFragmentInfo tmp = unionAllFragments.findByKey( gwid );
-            if( tmp != null ) {
-              allFragments = new S5SequenceFragmentInfo( tmp );
-            }
+    while( true ) {
+      if( lookupCountMax > 0 && lookupCount >= lookupCountMax ) {
+        // Установлено ограничение по количество операций поиска за один проход
+        break;
+      }
+      // Счетчик операций поиска
+      lookupCount++;
+      // Идентификатор данного
+      Gwid gwid = null;
+      // Дефрагментация полученая записью при ожидании процесса дефрагментации
+      S5SequenceFragmentInfo candiateFragments = null;
+      // Общая дефрагментация данного с момента прошлого процесса дефрагментации. null: дефрагментация неопределена
+      S5SequenceFragmentInfo allFragments = null;
+      lockWrite( unionLock );
+      try {
+        gwid = unionCandidates.peekHeadOrNull();
+        if( gwid != null ) {
+          // Создаем потоко-независимую копию дефрагментации данного
+          candiateFragments = new S5SequenceFragmentInfo( unionCandidateFragments.getByKey( gwid ) );
+          IS5SequenceFragmentInfo tmp = unionAllFragments.findByKey( gwid );
+          if( tmp != null ) {
+            allFragments = new S5SequenceFragmentInfo( tmp );
           }
         }
-        finally {
-          unlockWrite( unionLock );
+      }
+      finally {
+        unlockWrite( unionLock );
+      }
+      if( gwid == null ) {
+        // Нет данных для дефрагментации
+        break;
+      }
+      // Параметризованное описание типа данного
+      IParameterized typeInfo = factory.typeInfo( gwid );
+      // Минимальное количество блоков для принудительного объединения
+      int fragmentCountMin = OP_BLOCK_SIZE_MAX.getValue( typeInfo.params() ).asInt();
+      // Максимальное количество блоков для принудительного объединения
+      int fragmentCountMax = fragmentCountMin;
+      // Количество текущих фрагментов
+      int fragmentCount = (allFragments != null ? allFragments.fragmentCount() : 0)
+          + (candiateFragments != null ? candiateFragments.fragmentCount() : 0);
+      // Реальное количество фрагментов полученных чтением из базы данных
+      IS5SequenceFragmentInfo realAllFragments = IS5SequenceFragmentInfo.NULL;
+      // Вывод трасировки в журнал
+      logger().debug( MSG_GWID_FRAGMENT_COUNT, gwid, Integer.valueOf( lookupCount ), Integer.valueOf( fragmentCount ) );
+      // Анализ фрагментации
+      if( allFragments == null || (fragmentCountMin < 0 || fragmentCount >= fragmentCountMin) ) {
+        // Фрагментация с момента прошлого процесса дефрагментации данного неопределена или накопилось много
+        // фрагментов (по записи) которые могут быть дефрагментированы. Запрос к базе для получения реальной
+        // дефрагментации. Максимальное количество значений в блоке:
+        int maxSize = OP_BLOCK_SIZE_MAX.getValue( typeInfo.params() ).asInt();
+        // Фактическая дефрагментация данного полученная чтением из базы данных
+        // Внимание! Несмотря на легковесность SQL-запроса, при интенсивной работе с dbms может вызвать задержку
+        realAllFragments = findFragmentationTime( aEntityManager, factory, gwid, fragmentEndTime, maxSize,
+            fragmentCountMin, fragmentCountMax, fragmentTimeout );
+        // Обновление статистики
+        aStatistics.addLookupCount();
+        // // Обновление количества фрагментов
+        // if( realAllFragments != IS5SequenceFragmentInfo.NULL ) {
+        // fragmentCount = realAllFragments.fragmentCount();
+        // }
+      }
+      // Признак необходимости провести дефрагментацию
+      boolean needDefragmentation =
+          (realAllFragments != IS5SequenceFragmentInfo.NULL && realAllFragments.fragmentCount() > 0);
+      // Признак того, что дефрагментированная последовательность выбрана полностью
+      boolean fragmentCompleted =
+          (!needDefragmentation || fragmentCountMax < 0 || realAllFragments.fragmentCount() < fragmentCountMax);
+      lockWrite( unionLock );
+      try {
+        if( !needDefragmentation || fragmentCompleted ) {
+          // Данное поставлено на обработку (дефрагментацию)
+          unionCandidates.getHeadOrNull();
+          unionCandidateFragments.removeByKey( gwid );
         }
-        if( gwid == null ) {
-          // Нет данных для дефрагментации
-          break;
+        if( !fragmentCompleted ) {
+          // Будет произведена повторная попытка дефрагментации. Блоки дефрагментации сбрасываются
+          String tableName = tableName( sequenceFactory(), gwid );
+          long startTime = System.currentTimeMillis();
+          long endTime = startTime;
+          unionCandidateFragments.put( gwid, new S5SequenceFragmentInfo( tableName, gwid, startTime, endTime, 0 ) );
         }
-        // Параметризованное описание типа данного
-        IParameterized typeInfo = factory.typeInfo( gwid );
-        // Минимальное количество блоков для принудительного объединения
-        int fragmentCountMin = OP_BLOCK_SIZE_MAX.getValue( typeInfo.params() ).asInt();
-        // Максимальное количество блоков для принудительного объединения
-        int fragmentCountMax = fragmentCountMin;
-        // Количество текущих фрагментов
-        int fragmentCount = (allFragments != null ? allFragments.fragmentCount() : 0)
-            + (candiateFragments != null ? candiateFragments.fragmentCount() : 0);
-        // Реальное количество фрагментов полученных чтением из базы данных
-        IS5SequenceFragmentInfo realAllFragments = IS5SequenceFragmentInfo.NULL;
-        // Вывод трасировки в журнал
-        logger().debug( MSG_GWID_FRAGMENT_COUNT, gwid, Integer.valueOf( lookupCount ),
-            Integer.valueOf( fragmentCount ) );
-        // Анализ фрагментации
-        if( allFragments == null || (fragmentCountMin < 0 || fragmentCount >= fragmentCountMin) ) {
-          // Фрагментация с момента прошлого процесса дефрагментации данного неопределена или накопилось много
-          // фрагментов (по записи) которые могут быть дефрагментированы. Запрос к базе для получения реальной
-          // дефрагментации. Максимальное количество значений в блоке:
-          int maxSize = OP_BLOCK_SIZE_MAX.getValue( typeInfo.params() ).asInt();
-          // Фактическая дефрагментация данного полученная чтением из базы данных
-          // Внимание! Несмотря на легковесность SQL-запроса, при интенсивной работе с dbms может вызвать задержку
-          realAllFragments = findFragmentationTime( em, factory, gwid, fragmentEndTime, maxSize, fragmentCountMin,
-              fragmentCountMax, fragmentTimeout );
-          // Обновление статистики
-          aStatistics.addLookupCount();
-          // // Обновление количества фрагментов
-          // if( realAllFragments != IS5SequenceFragmentInfo.NULL ) {
-          // fragmentCount = realAllFragments.fragmentCount();
-          // }
-        }
-        // Признак необходимости провести дефрагментацию
-        boolean needDefragmentation =
-            (realAllFragments != IS5SequenceFragmentInfo.NULL && realAllFragments.fragmentCount() > 0);
-        // Признак того, что дефрагментированная последовательность выбрана полностью
-        boolean fragmentCompleted =
-            (!needDefragmentation || fragmentCountMax < 0 || realAllFragments.fragmentCount() < fragmentCountMax);
-        lockWrite( unionLock );
-        try {
-          if( !needDefragmentation || fragmentCompleted ) {
-            // Данное поставлено на обработку (дефрагментацию)
-            unionCandidates.getHeadOrNull();
-            unionCandidateFragments.removeByKey( gwid );
-          }
-          if( !fragmentCompleted ) {
-            // Будет произведена повторная попытка дефрагментации. Блоки дефрагментации сбрасываются
+        if( !needDefragmentation ) {
+          // Накопленных фрагментов недостаточно для процесса дефрагментации
+          if( allFragments == null ) {
+            // Таблица хранения значений данного
             String tableName = tableName( sequenceFactory(), gwid );
-            long startTime = System.currentTimeMillis();
-            long endTime = startTime;
-            unionCandidateFragments.put( gwid, new S5SequenceFragmentInfo( tableName, gwid, startTime, endTime, 0 ) );
-          }
-          if( !needDefragmentation ) {
-            // Накопленных фрагментов недостаточно для процесса дефрагментации
-            if( allFragments == null ) {
-              // Таблица хранения значений данного
-              String tableName = tableName( sequenceFactory(), gwid );
-              // Количество фрагментов найденных в базе, но недостаточно для дефрагментации
-              int realCount =
-                  (realAllFragments == IS5SequenceFragmentInfo.NULL ? 0 : realAllFragments.fragmentAfterCount());
-              // Время с которого начинаются фрагменты найденные в базе
-              long realStartTime =
-                  (realAllFragments == IS5SequenceFragmentInfo.NULL ? currTime : realAllFragments.interval().endTime());
-              // Реальная фрагментация (полученная из базы) до текущего времени
-              allFragments = new S5SequenceFragmentInfo( tableName, gwid, realStartTime, currTime, realCount );
-              unionAllFragments.put( gwid, allFragments );
-              continue;
-            }
-            // Перемещение накопленных с момента прошлой проверки фрагментов
-            long endTime = System.currentTimeMillis();
-            long startTime = allFragments.interval().startTime();
-            allFragments.setInterval( (startTime <= endTime ? startTime : endTime), endTime );
-            allFragments.setFragmentCount( fragmentCount );
+            // Количество фрагментов найденных в базе, но недостаточно для дефрагментации
+            int realCount =
+                (realAllFragments == IS5SequenceFragmentInfo.NULL ? 0 : realAllFragments.fragmentAfterCount());
+            // Время с которого начинаются фрагменты найденные в базе
+            long realStartTime =
+                (realAllFragments == IS5SequenceFragmentInfo.NULL ? currTime : realAllFragments.interval().endTime());
+            // Реальная фрагментация (полученная из базы) до текущего времени
+            allFragments = new S5SequenceFragmentInfo( tableName, gwid, realStartTime, currTime, realCount );
             unionAllFragments.put( gwid, allFragments );
             continue;
           }
-          // Следующий проход (после дефрагментации) требуем повторить запрос фрагментации из базы
-          unionAllFragments.removeByKey( gwid );
+          // Перемещение накопленных с момента прошлой проверки фрагментов
+          long endTime = System.currentTimeMillis();
+          long startTime = allFragments.interval().startTime();
+          allFragments.setInterval( (startTime <= endTime ? startTime : endTime), endTime );
+          allFragments.setFragmentCount( fragmentCount );
+          unionAllFragments.put( gwid, allFragments );
+          continue;
         }
-        finally {
-          unlockWrite( unionLock );
-        }
-        // Добавление в результат
-        retValue.add( realAllFragments );
-        aLogger.debug( MSG_UNION_AUTO_ADD_INFO, gwid );
-        if( !fragmentCompleted ) {
-          // Требуется повторная дефрагментация
-          aLogger.debug( MSG_UNION_AUTO_REPEAT, gwid );
-          break;
-        }
-        if( retValue.size() >= threadCount ) {
-          // Сформировано необходимое количество данных для дефрагментации
-          break;
-        }
+        // Следующий проход (после дефрагментации) требуем повторить запрос фрагментации из базы
+        unionAllFragments.removeByKey( gwid );
       }
-      return retValue;
+      finally {
+        unlockWrite( unionLock );
+      }
+      // Добавление в результат
+      retValue.add( realAllFragments );
+      aLogger.debug( MSG_UNION_AUTO_ADD_INFO, gwid );
+      if( !fragmentCompleted ) {
+        // Требуется повторная дефрагментация
+        aLogger.debug( MSG_UNION_AUTO_REPEAT, gwid );
+        break;
+      }
+      if( retValue.size() >= threadCount ) {
+        // Сформировано необходимое количество данных для дефрагментации
+        break;
+      }
     }
-    finally {
-      em.close();
-    }
+    return retValue;
   }
 
   /**
    * Возращает описания и добавляет необходимые параметры для выполнения удаления данных по запросу
    *
+   * @param aEntityManager {@link EntityManager} менеджер постоянства
    * @param aArgs {@link IOptionSetEdit} аргументы для удаления блоков
    * @return {@link IList}&lt;IS5SequenceFragmentInfo&gt; список описаний фрагментированности данных
    * @throws TsNullArgumentRtException аргумент = null
    */
-  private IList<IS5SequenceRemoveInfo> prepareRemoveManual( IOptionSetEdit aArgs ) {
-    TsNullArgumentRtException.checkNull( aArgs );
-    // Менеджер постоянства
-    EntityManager em = entityManagerFactory().createEntityManager();
-    try {
-      // Запрос всех идентификаторов данных которые есть в базе данных
-      IGwidList allGwids = getAllGwids( em, sequenceFactory().tableNames() );
-      // Информация о фрагментации
-      IListEdit<IS5SequenceRemoveInfo> infoes = new ElemArrayList<>( allGwids.size() );
-      // Идентификаторы данных. null: неопределены
-      IGwidList gwids = null;
-      if( aArgs.hasValue( IS5SequenceRemoveOptions.REMOVE_GWIDS ) ) {
-        gwids = IS5SequenceRemoveOptions.REMOVE_GWIDS.getValue( aArgs ).asValobj();
-      }
-      // Интервал дефрагментации
-      ITimeInterval interval = IS5SequenceRemoveOptions.REMOVE_INTERVAL.getValue( aArgs ).asValobj();
-      // Указан список удаляемых данных
-      for( Gwid gwid : allGwids ) {
-        if( gwids == null || gwids.size() == 0 || gwids.hasElem( gwid ) ) {
-          String tableName = tableName( sequenceFactory(), gwid );
-          infoes.add( new S5SequenceRemoveInfo( tableName, gwid, interval ) );
-        }
-      }
-      return infoes;
+  private IList<IS5SequenceRemoveInfo> prepareRemoveManual( EntityManager aEntityManager, IOptionSetEdit aArgs ) {
+    TsNullArgumentRtException.checkNulls( aEntityManager, aArgs );
+    // Запрос всех идентификаторов данных которые есть в базе данных
+    IGwidList allGwids = getAllGwids( aEntityManager, sequenceFactory().tableNames() );
+    // Информация о фрагментации
+    IListEdit<IS5SequenceRemoveInfo> infoes = new ElemArrayList<>( allGwids.size() );
+    // Идентификаторы данных. null: неопределены
+    IGwidList gwids = null;
+    if( aArgs.hasValue( IS5SequenceRemoveOptions.REMOVE_GWIDS ) ) {
+      gwids = IS5SequenceRemoveOptions.REMOVE_GWIDS.getValue( aArgs ).asValobj();
     }
-    finally {
-      em.close();
+    // Интервал удаления
+    ITimeInterval interval = IS5SequenceRemoveOptions.REMOVE_INTERVAL.getValue( aArgs ).asValobj();
+    // Указан список удаляемых данных
+    for( Gwid gwid : allGwids ) {
+      if( gwids == null || gwids.size() == 0 || gwids.hasElem( gwid ) ) {
+        String tableName = tableName( sequenceFactory(), gwid );
+        S5SequenceRemoveInfo info = new S5SequenceRemoveInfo( tableName, gwid );
+        info.setRemoveInterval( interval );
+        infoes.add( info );
+      }
     }
+    return infoes;
   }
 
   /**
    * Возращает описания и добавляет необходимые параметры для выполнения удаления в автоматическом режиме
    *
+   * @param aEntityManager {@link EntityManager} менеджер постоянства
    * @param aArgs {@link IOptionSetEdit} аргументы для удаления блоков .
    * @param aStatistics {@link S5SequenceRemoveStat} статистика с возможностью редактирования
    * @param aLogger {@link ILogger} журнал
    * @return {@link IList}&lt;IS5SequenceRemoveInfo&gt; список описаний фрагментированности данных
    * @throws TsNullArgumentRtException любой аргумент = null
    */
-  private IList<IS5SequenceRemoveInfo> prepareRemoveAuto( IOptionSetEdit aArgs, S5SequenceRemoveStat<V> aStatistics,
-      ILogger aLogger ) {
-    TsNullArgumentRtException.checkNulls( aArgs, aLogger );
+  private IList<IS5SequenceRemoveInfo> prepareRemoveAuto( EntityManager aEntityManager, IOptionSetEdit aArgs,
+      S5SequenceRemoveStat<V> aStatistics, ILogger aLogger ) {
+    TsNullArgumentRtException.checkNulls( aEntityManager, aArgs, aStatistics, aLogger );
     // Фабрика последовательностей
     IS5SequenceFactory<V> factory = sequenceFactory();
     // Максимальное количество потоков удаления
@@ -737,143 +785,85 @@ class S5SequenceLazyWriter<S extends IS5Sequence<V>, V extends ITemporal<?>>
     int lookupCountMax = IS5SequenceRemoveOptions.REMOVE_AUTO_LOOKUP_COUNT.getValue( aArgs ).asInt();
     // Текущее время
     long currTime = System.currentTimeMillis();
-    EntityManager em = entityManagerFactory().createEntityManager();
     // Возвращаемый результат
-    IListEdit<IS5SequenceFragmentInfo> retValue = new ElemArrayList<>();
+    IListEdit<IS5SequenceRemoveInfo> retValue = new ElemArrayList<>();
     // Текущее количество выполненных операций поиска удаляемых данных
     int lookupCount = 0;
-    try {
-      while( true ) {
-        if( lookupCountMax > 0 && lookupCount >= lookupCountMax ) {
-          // Установлено ограничение по количество операций поиска за один проход
-          break;
-        }
-        // Счетчик операций поиска
-        lookupCount++;
-        // Идентификатор данного
-        Gwid gwid = null;
-        // Дефрагментация полученая записью при ожидании процесса дефрагментации
-        S5SequenceFragmentInfo candiateFragments = null;
-        // Общая дефрагментация данного с момента прошлого процесса дефрагментации. null: дефрагментация неопределена
-        S5SequenceFragmentInfo allFragments = null;
-        lockWrite( unionLock );
-        try {
-          gwid = unionCandidates.peekHeadOrNull();
-          if( gwid != null ) {
-            // Создаем потоко-независимую копию дефрагментации данного
-            candiateFragments = new S5SequenceFragmentInfo( unionCandidateFragments.getByKey( gwid ) );
-            IS5SequenceFragmentInfo tmp = unionAllFragments.findByKey( gwid );
-            if( tmp != null ) {
-              allFragments = new S5SequenceFragmentInfo( tmp );
-            }
-          }
-        }
-        finally {
-          unlockWrite( unionLock );
-        }
+    while( true ) {
+      if( lookupCountMax > 0 && lookupCount >= lookupCountMax ) {
+        // Установлено ограничение по количество операций поиска за один проход
+        break;
+      }
+      // Счетчик операций поиска
+      lookupCount++;
+      // Обновление статистики
+      aStatistics.addLookupCount();
+      // Идентификатор данного
+      Gwid gwid = null;
+      // Параметризованное описание типа данного
+      IParameterized typeInfo = null;
+      // Описание процесса удаления текущего данного
+      S5SequenceRemoveInfo candiateInfo = null;
+
+      lockWrite( removeLock );
+      try {
+        gwid = removeCandidates.getHeadOrNull();
         if( gwid == null ) {
-          // Нет данных для дефрагментации
+          // Больше нет данных для удаления
           break;
         }
         // Параметризованное описание типа данного
-        IParameterized typeInfo = factory.typeInfo( gwid );
-        // Минимальное количество блоков для принудительного объединения
-        int fragmentCountMin = OP_BLOCK_SIZE_MAX.getValue( typeInfo.params() ).asInt();
-        // Максимальное количество блоков для принудительного объединения
-        int fragmentCountMax = fragmentCountMin;
-        // Количество текущих фрагментов
-        int fragmentCount = (allFragments != null ? allFragments.fragmentCount() : 0)
-            + (candiateFragments != null ? candiateFragments.fragmentCount() : 0);
-        // Реальное количество фрагментов полученных чтением из базы данных
-        IS5SequenceFragmentInfo realAllFragments = IS5SequenceFragmentInfo.NULL;
-        // Вывод трасировки в журнал
-        logger().debug( MSG_GWID_FRAGMENT_COUNT, gwid, Integer.valueOf( lookupCount ),
-            Integer.valueOf( fragmentCount ) );
-        // Анализ фрагментации
-        if( allFragments == null || (fragmentCountMin < 0 || fragmentCount >= fragmentCountMin) ) {
-          // Фрагментация с момента прошлого процесса дефрагментации данного неопределена или накопилось много
-          // фрагментов (по записи) которые могут быть дефрагментированы. Запрос к базе для получения реальной
-          // дефрагментации. Максимальное количество значений в блоке:
-          int maxSize = OP_BLOCK_SIZE_MAX.getValue( typeInfo.params() ).asInt();
-          // Фактическая дефрагментация данного полученная чтением из базы данных
-          // Внимание! Несмотря на легковесность SQL-запроса, при интенсивной работе с dbms может вызвать задержку
-          realAllFragments = findFragmentationTime( em, factory, gwid, fragmentEndTime, maxSize, fragmentCountMin,
-              fragmentCountMax, fragmentTimeout );
-          // Обновление статистики
-          aStatistics.addLookupCount();
-          // // Обновление количества фрагментов
-          // if( realAllFragments != IS5SequenceFragmentInfo.NULL ) {
-          // fragmentCount = realAllFragments.fragmentCount();
-          // }
+        typeInfo = factory.typeInfo( gwid );
+        // Поиск описания процесса удаления данного
+        candiateInfo = removeCandidateInfos.findByKey( gwid );
+        if( candiateInfo == null ) {
+          // Таблица базы данных значений данного
+          String tableName = tableName( sequenceFactory(), gwid );
+          // Создание описания процесса удаления
+          candiateInfo = new S5SequenceRemoveInfo( tableName, gwid );
+          removeCandidateInfos.put( gwid, candiateInfo );
         }
-        // Признак необходимости провести дефрагментацию
-        boolean needDefragmentation =
-            (realAllFragments != IS5SequenceFragmentInfo.NULL && realAllFragments.fragmentCount() > 0);
-        // Признак того, что дефрагментированная последовательность выбрана полностью
-        boolean fragmentCompleted =
-            (!needDefragmentation || fragmentCountMax < 0 || realAllFragments.fragmentCount() < fragmentCountMax);
-        lockWrite( unionLock );
-        try {
-          if( !needDefragmentation || fragmentCompleted ) {
-            // Данное поставлено на обработку (дефрагментацию)
-            unionCandidates.getHeadOrNull();
-            unionCandidateFragments.removeByKey( gwid );
-          }
-          if( !fragmentCompleted ) {
-            // Будет произведена повторная попытка дефрагментации. Блоки дефрагментации сбрасываются
-            String tableName = tableName( sequenceFactory(), gwid );
-            long startTime = System.currentTimeMillis();
-            long endTime = startTime;
-            unionCandidateFragments.put( gwid, new S5SequenceFragmentInfo( tableName, gwid, startTime, endTime, 0 ) );
-          }
-          if( !needDefragmentation ) {
-            // Накопленных фрагментов недостаточно для процесса дефрагментации
-            if( allFragments == null ) {
-              // Таблица хранения значений данного
-              String tableName = tableName( sequenceFactory(), gwid );
-              // Количество фрагментов найденных в базе, но недостаточно для дефрагментации
-              int realCount =
-                  (realAllFragments == IS5SequenceFragmentInfo.NULL ? 0 : realAllFragments.fragmentAfterCount());
-              // Время с которого начинаются фрагменты найденные в базе
-              long realStartTime =
-                  (realAllFragments == IS5SequenceFragmentInfo.NULL ? currTime : realAllFragments.interval().endTime());
-              // Реальная фрагментация (полученная из базы) до текущего времени
-              allFragments = new S5SequenceFragmentInfo( tableName, gwid, realStartTime, currTime, realCount );
-              unionAllFragments.put( gwid, allFragments );
-              continue;
-            }
-            // Перемещение накопленных с момента прошлой проверки фрагментов
-            long endTime = System.currentTimeMillis();
-            long startTime = allFragments.interval().startTime();
-            allFragments.setInterval( (startTime <= endTime ? startTime : endTime), endTime );
-            allFragments.setFragmentCount( fragmentCount );
-            unionAllFragments.put( gwid, allFragments );
-            continue;
-          }
-          // Следующий проход (после дефрагментации) требуем повторить запрос фрагментации из базы
-          unionAllFragments.removeByKey( gwid );
+        // Глубина хранения данного
+        long deep = IS5SequenceHardConstants.OP_VALUE_STORAGE_DEPTH.getValue( typeInfo.params() ).asLong();
+        // Текущий интервал удаления значений
+        candiateInfo.setRemoveInterval( new TimeInterval( TimeUtils.MIN_TIMESTAMP + 1, currTime - deep * 1000 ) );
+      }
+      finally {
+        unlockWrite( removeLock );
+      }
+      // Попытка найти интервал первого блока значений данного
+      ITimeInterval firstBlockInterval = S5SequenceSQL.findFirstBlockTimeInterval( aEntityManager, factory, gwid );
+      // Обработка интервала найденного блока
+      lockWrite( removeLock );
+      try {
+        // Обновление информации о первом блоке в описании
+        candiateInfo.setFirstBlockInterval( firstBlockInterval );
+        // Обработка времени значений первого блока данного
+        if( firstBlockInterval == ITimeInterval.NULL ) {
+          // В базе нет значений данного
+          removeCandidateInfos.removeByKey( gwid );
+          continue;
         }
-        finally {
-          unlockWrite( unionLock );
-        }
-        // Добавление в результат
-        retValue.add( realAllFragments );
-        aLogger.debug( MSG_UNION_AUTO_ADD_INFO, gwid );
-        if( !fragmentCompleted ) {
-          // Требуется повторная дефрагментация
-          aLogger.debug( MSG_UNION_AUTO_REPEAT, gwid );
-          break;
-        }
-        if( retValue.size() >= threadCount ) {
-          // Сформировано необходимое количество данных для дефрагментации
-          break;
+        if( candiateInfo.removeInterval().endTime() < firstBlockInterval.endTime() ) {
+          // Первый блок не находится полностью в интервале удаления. Откладываем проверку на удаление
+          removeCandidates.putTail( gwid );
+          continue;
         }
       }
-      return retValue;
+      finally {
+        unlockWrite( removeLock );
+      }
+      // Добавление в результат
+      retValue.add( candiateInfo );
+      // Журнал
+      aLogger.debug( MSG_REMOVE_AUTO_ADD_INFO, candiateInfo );
+      // Проверка на завершение
+      if( retValue.size() >= threadCount ) {
+        // Сформировано необходимое количество данных для дефрагментации
+        break;
+      }
     }
-    finally {
-      em.close();
-    }
+    return retValue;
   }
 
   /**
@@ -1093,9 +1083,8 @@ class S5SequenceLazyWriter<S extends IS5Sequence<V>, V extends ITemporal<?>>
               // Присоединение менеджера постоянства к транзкации
               em.joinTransaction();
               // Удаление блоков на интервале
-              S5SequenceRemoveStat<V> result = removeInterval( em, gwid, info.interval(), logger() );
-              stat.addDbmsRemoved( result.dbmsRemovedCount() );
-              stat.addValues( result.valueCount() );
+              S5SequenceRemoveStat<V> result = removeInterval( em, gwid, info.removeInterval(), logger() );
+              stat.addRemoved( result.removedCount() );
               stat.addErrors( result.errorCount() );
               // Завершаем транзакцию
               tx.commit();
@@ -1238,4 +1227,18 @@ class S5SequenceLazyWriter<S extends IS5Sequence<V>, V extends ITemporal<?>>
     }
   }
 
+  /**
+   * Возвращает текущий размер очереди на удаление значений данных
+   *
+   * @return int размер очереди
+   */
+  private int getRemoveQueueSize() {
+    lockRead( removeLock );
+    try {
+      return removeCandidates.size();
+    }
+    finally {
+      unlockRead( removeLock );
+    }
+  }
 }

@@ -957,6 +957,62 @@ class S5SequenceSQL {
   }
 
   /**
+   * Формат запроса интервала первого блока значений хранимого в БД
+   * <p>
+   * <li>1. %s - имя таблицы блока, например, S5HistDataAsyncBlock;</li>
+   * <li>2. %s - идентификатор данного (gwid);</li>
+   */
+  private static final String QFRMT_FIRST_BLOCK_TIME_INTERVAL = //
+      "select " + FIELD_START_TIME + ',' + FIELD_END_TIME + " from %s where" //
+          + "(" + FIELD_GWID + "='%s')"//
+          + "order by " + FIELD_START_TIME;
+
+  /**
+   * Проводится первого блока значений и возвращает его интервал времени
+   *
+   * @param aEntityManager {@link EntityManager} менеджер постоянства
+   * @param aFactory {@link IS5SequenceFactory} фабрика формирования последовательностей
+   * @param aGwid {@link Gwid} идентификатор данного
+   * @return {@link ITimeInterval} интервал первого блока значений. {@link ITimeInterval#NULL}: блок не найден (нет
+   *         значений)
+   * @param <V> тип значения последовательности
+   * @throws TsNullArgumentRtException любой аргумент = null
+   */
+  static <V extends ITemporal<?>> ITimeInterval findFirstBlockTimeInterval( EntityManager aEntityManager,
+      IS5SequenceFactory<V> aFactory, Gwid aGwid ) {
+    TsNullArgumentRtException.checkNulls( aEntityManager, aFactory, aGwid );
+    // Параметризованное описание типа данного
+    IParameterized typeInfo = aFactory.typeInfo( aGwid );
+    // Имя таблицы
+    String tableName = getLast( OP_BLOCK_IMPL_CLASS.getValue( typeInfo.params() ).asString() );
+    // Текст SQL-запроса
+    String sql = format( QFRMT_FIRST_BLOCK_TIME_INTERVAL, tableName, aGwid );
+    try {
+      // Выполнение запроса
+      Query query = aEntityManager.createNativeQuery( sql );
+      // Ограничение выборки
+      query.setFirstResult( 0 );
+      query.setMaxResults( 1 );
+      // Запрос данных
+      List<Object> entities = query.getResultList();
+      if( entities.size() == 0 ) {
+        // Нет данных
+        return ITimeInterval.NULL;
+      }
+      Object[] obj = (Object[])entities.get( 0 );
+      BigInteger startTime = (BigInteger)obj[0];
+      BigInteger endTime = (BigInteger)obj[1];
+      long stl = startTime.longValue();
+      long etl = endTime.longValue();
+      ITimeInterval retValue = new TimeInterval( stl, etl );
+      return retValue;
+    }
+    catch( RuntimeException e ) {
+      throw new TsInternalErrorRtException( e, ERR_READ_OUT_OF_MEMORY2, aGwid, cause( e ) );
+    }
+  }
+
+  /**
    * Формат запроса времени последнего блока более чем указанный размер
    * <p>
    * Интервал открытый с начала, закрытый по завершению
@@ -1544,11 +1600,12 @@ class S5SequenceSQL {
       // Текст SQL-запроса
       String sql = format( QFRMT_GET_GWIDS, tableName );
       // Выполнение запроса
-      Query query = aEntityManager.createNativeQuery( sql, String.class );
+      Query query = aEntityManager.createNativeQuery( sql );
       // Запрос данных
-      List<String> entities = query.getResultList();
-      for( String entity : entities ) {
-        retValue.add( Gwid.KEEPER.str2ent( entity ) );
+      List<Object> entities = query.getResultList();
+      for( Object entity : entities ) {
+        Gwid gwid = Gwid.KEEPER.str2ent( (String)entity );
+        retValue.add( gwid );
       }
     }
     return retValue;

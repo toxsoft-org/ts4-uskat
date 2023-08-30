@@ -360,23 +360,44 @@ class S5SequenceLastBlockWriter<S extends IS5Sequence<V>, V extends ITemporal<?>
   }
 
   @Override
-  protected void onUnionEvent( IOptionSet aArgs, IList<IS5SequenceFragmentInfo> aFragmentInfoes, ILogger aLogger ) {
-    for( IS5SequenceFragmentInfo fragmentInfo : aFragmentInfoes ) {
+  protected void onUnionEvent( IOptionSet aArgs, IList<IS5SequenceFragmentInfo> aInfoes, ILogger aLogger ) {
+    for( IS5SequenceFragmentInfo info : aInfoes ) {
       // Идентификатор данного
-      Gwid gwid = fragmentInfo.gwid();
+      Gwid gwid = info.gwid();
       // Последний блок значений данного
       IS5SequenceBlock<V> lastBlock = lastBlocks.findByKey( gwid );
       if( lastBlock == null ) {
         // В данный момент для данного не хранится последний блок значений
         continue;
       }
-      if( fragmentInfo.interval().endTime() < lastBlock.startTime() ) {
+      if( info.interval().endTime() < lastBlock.startTime() ) {
         // Блок значений остается актуальным
         continue;
       }
-      // Блок значений мог попасть под объединение. Удаляем его из своего списка
+      // Блок значений мог попасть под дефрагментацию. Удаляем его из своего списка
       lastBlocks.removeByKey( gwid );
-      aLogger.warning( MSG_REMOVE_LAST_BY_UNION, fragmentInfo );
+      aLogger.warning( MSG_REMOVE_LAST_BY_UNION, info );
+    }
+  }
+
+  @Override
+  protected void onRemoveEvent( IOptionSet aArgs, IList<IS5SequenceRemoveInfo> aInfoes, ILogger aLogger ) {
+    for( IS5SequenceRemoveInfo info : aInfoes ) {
+      // Идентификатор данного
+      Gwid gwid = info.gwid();
+      // Последний блок значений данного
+      IS5SequenceBlock<V> lastBlock = lastBlocks.findByKey( gwid );
+      if( lastBlock == null ) {
+        // В данный момент для данного не хранится последний блок значений
+        continue;
+      }
+      if( info.removeInterval().endTime() < lastBlock.startTime() ) {
+        // Блок значений остается актуальным
+        continue;
+      }
+      // Блок значений мог попасть под удаление. Удаляем его из своего списка
+      lastBlocks.removeByKey( gwid );
+      aLogger.warning( MSG_REMOVE_LAST_BY_REMOVE, info );
     }
   }
 

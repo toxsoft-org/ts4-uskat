@@ -934,20 +934,6 @@ public interface IS5ServerHardConstants
 
   /**
    * Параметр статистики поддержки бекенда формирующий хранимые данные (данное {@link IS5ClassHistorableBackend}):
-   * Количество обработанных значений данных при удалении данных
-   * <p>
-   * Тип: {@link EAtomicType#INTEGER}
-   */
-  S5StatisticParamInfo STAT_HISTORABLE_BACKEND_REMOVE_VALUE_COUNT = S5StatisticParamInfo.create( //
-      STAT_BACKEND_NODE_ID_START + "RemoveValueCount", //
-      EStatisticFunc.SUMMA, //
-      new StridablesList<>( MINUTE, HOUR, DAY ), //
-      EAtomicType.INTEGER, avInt( 0 ), //
-      TSID_NAME, STR_N_STAT_HISTORABLE_BACKEND_REMOVE_VALUE_COUNT, //
-      TSID_DESCRIPTION, STR_D_STAT_HISTORABLE_BACKEND_REMOVE_VALUE_COUNT );
-
-  /**
-   * Параметр статистики поддержки бекенда формирующий хранимые данные (данное {@link IS5ClassHistorableBackend}):
    * Количество удаленных (removed) блоков при удалении данных
    * <p>
    * Тип: {@link EAtomicType#INTEGER}
@@ -991,6 +977,8 @@ public interface IS5ServerHardConstants
       STAT_HISTORABLE_BACKEND_DEFRAGMENT_COUNT, //
       STAT_HISTORABLE_BACKEND_DEFRAGMENT_LOOKUP_COUNT, //
       STAT_HISTORABLE_BACKEND_DEFRAGMENT_THREAD_COUNT, //
+      STAT_HISTORABLE_BACKEND_DEFRAGMENT_VALUE_COUNT, //
+      STAT_HISTORABLE_BACKEND_DEFRAGMENT_MERGED_COUNT, //
       STAT_HISTORABLE_BACKEND_DEFRAGMENT_REMOVED_COUNT, //
       STAT_HISTORABLE_BACKEND_DEFRAGMENT_ERROR_COUNT, //
       STAT_HISTORABLE_BACKEND_REMOVE_COUNT, //

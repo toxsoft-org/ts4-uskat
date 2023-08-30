@@ -13,8 +13,7 @@ import org.toxsoft.core.tslib.utils.errors.TsNullObjectErrorRtException;
  *
  * @author mvk
  */
-public interface IS5SequenceRemoveInfo
-    extends Comparable<ITimeInterval> {
+public interface IS5SequenceRemoveInfo {
 
   /**
    * Информация об отсутствии удаления
@@ -40,7 +39,14 @@ public interface IS5SequenceRemoveInfo
    *
    * @return {@link ITimeInterval} интервал значений последовательности
    */
-  ITimeInterval interval();
+  ITimeInterval removeInterval();
+
+  /**
+   * Возвращает интервал времени первого блока значений данного хранимого в БД
+   *
+   * @return {@link ITimeInterval} интервал времени. {@link ITimeInterval#NULL}: блок не найден (нет значений)
+   */
+  ITimeInterval firstBlockInterval();
 }
 
 /**
@@ -78,16 +84,13 @@ class InternalNullSequenceRemoveInfo
   }
 
   @Override
-  public ITimeInterval interval() {
+  public ITimeInterval removeInterval() {
     throw new TsNullObjectErrorRtException();
   }
 
-  // ------------------------------------------------------------------------------------
-  // Реализация Comparable
-  //
   @Override
-  public int compareTo( ITimeInterval aO ) {
-    return 0;
+  public ITimeInterval firstBlockInterval() {
+    throw new TsNullObjectErrorRtException();
   }
 
   // ------------------------------------------------------------------------------------
