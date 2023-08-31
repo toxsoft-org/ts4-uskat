@@ -102,6 +102,7 @@ public interface IS5SequenceHardConstants
       TSID_NAME, STR_N_VALUE_STORAGE_DEPTH, //
       TSID_DESCRIPTION, STR_D_VALUE_STORAGE_DEPTH, //
       TSID_IS_NULL_ALLOWED, AV_FALSE, //
+      // TODO: mvkd 2023-08-30
       // TSID_DEFAULT_VALUE, avInt( 60 * 60 * 24 * 365 * 10 ) ); // по умолчанию 10 лет
       TSID_DEFAULT_VALUE, avInt( 60 * 5 ) ); // 5 минут
 

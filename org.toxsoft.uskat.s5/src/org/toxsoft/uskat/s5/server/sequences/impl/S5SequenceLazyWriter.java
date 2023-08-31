@@ -785,82 +785,100 @@ class S5SequenceLazyWriter<S extends IS5Sequence<V>, V extends ITemporal<?>>
     int lookupCountMax = IS5SequenceRemoveOptions.REMOVE_AUTO_LOOKUP_COUNT.getValue( aArgs ).asInt();
     // Текущее время
     long currTime = System.currentTimeMillis();
+    // Список данных добавляемых в на проверку
+    GwidList newCandidates = new GwidList();
     // Возвращаемый результат
     IListEdit<IS5SequenceRemoveInfo> retValue = new ElemArrayList<>();
     // Текущее количество выполненных операций поиска удаляемых данных
     int lookupCount = 0;
-    while( true ) {
-      if( lookupCountMax > 0 && lookupCount >= lookupCountMax ) {
-        // Установлено ограничение по количество операций поиска за один проход
-        break;
-      }
-      // Счетчик операций поиска
-      lookupCount++;
-      // Обновление статистики
-      aStatistics.addLookupCount();
-      // Идентификатор данного
-      Gwid gwid = null;
-      // Параметризованное описание типа данного
-      IParameterized typeInfo = null;
-      // Описание процесса удаления текущего данного
-      S5SequenceRemoveInfo candiateInfo = null;
-
-      lockWrite( removeLock );
-      try {
-        gwid = removeCandidates.getHeadOrNull();
-        if( gwid == null ) {
-          // Больше нет данных для удаления
+    try {
+      while( true ) {
+        if( lookupCountMax > 0 && lookupCount >= lookupCountMax ) {
+          // Установлено ограничение по количество операций поиска за один проход
           break;
         }
+        // Счетчик операций поиска
+        lookupCount++;
+        // Обновление статистики
+        aStatistics.addLookupCount();
+        // Идентификатор данного
+        Gwid gwid = null;
         // Параметризованное описание типа данного
-        typeInfo = factory.typeInfo( gwid );
-        // Поиск описания процесса удаления данного
-        candiateInfo = removeCandidateInfos.findByKey( gwid );
-        if( candiateInfo == null ) {
-          // Таблица базы данных значений данного
-          String tableName = tableName( sequenceFactory(), gwid );
-          // Создание описания процесса удаления
-          candiateInfo = new S5SequenceRemoveInfo( tableName, gwid );
-          removeCandidateInfos.put( gwid, candiateInfo );
+        IParameterized typeInfo = null;
+        // Описание процесса удаления текущего данного
+        S5SequenceRemoveInfo candiateInfo = null;
+
+        lockWrite( removeLock );
+        try {
+          gwid = removeCandidates.getHeadOrNull();
+          if( gwid == null ) {
+            // Больше нет данных для удаления
+            break;
+          }
+          // Параметризованное описание типа данного
+          typeInfo = factory.typeInfo( gwid );
+          // Поиск описания процесса удаления данного
+          candiateInfo = removeCandidateInfos.findByKey( gwid );
+          if( candiateInfo == null ) {
+            // Таблица базы данных значений данного
+            String tableName = tableName( sequenceFactory(), gwid );
+            // Создание описания процесса удаления
+            candiateInfo = new S5SequenceRemoveInfo( tableName, gwid );
+            removeCandidateInfos.put( gwid, candiateInfo );
+          }
+          // Глубина хранения данного
+          long deep = IS5SequenceHardConstants.OP_VALUE_STORAGE_DEPTH.getValue( typeInfo.params() ).asLong();
+          // Текущий интервал удаления значений
+          candiateInfo.setRemoveInterval( new TimeInterval( TimeUtils.MIN_TIMESTAMP + 1, currTime - deep * 1000 ) );
         }
-        // Глубина хранения данного
-        long deep = IS5SequenceHardConstants.OP_VALUE_STORAGE_DEPTH.getValue( typeInfo.params() ).asLong();
-        // Текущий интервал удаления значений
-        candiateInfo.setRemoveInterval( new TimeInterval( TimeUtils.MIN_TIMESTAMP + 1, currTime - deep * 1000 ) );
-      }
-      finally {
-        unlockWrite( removeLock );
-      }
-      // Попытка найти интервал первого блока значений данного
-      ITimeInterval firstBlockInterval = S5SequenceSQL.findFirstBlockTimeInterval( aEntityManager, factory, gwid );
-      // Обработка интервала найденного блока
-      lockWrite( removeLock );
-      try {
-        // Обновление информации о первом блоке в описании
-        candiateInfo.setFirstBlockInterval( firstBlockInterval );
-        // Обработка времени значений первого блока данного
-        if( firstBlockInterval == ITimeInterval.NULL ) {
-          // В базе нет значений данного
-          removeCandidateInfos.removeByKey( gwid );
-          continue;
+        finally {
+          unlockWrite( removeLock );
         }
-        if( candiateInfo.removeInterval().endTime() < firstBlockInterval.endTime() ) {
-          // Первый блок не находится полностью в интервале удаления. Откладываем проверку на удаление
-          removeCandidates.putTail( gwid );
-          continue;
+        // Попытка найти интервал первого блока значений данного
+        ITimeInterval firstBlockInterval = S5SequenceSQL.findFirstBlockTimeInterval( aEntityManager, factory, gwid );
+        // Обработка интервала найденного блока
+        lockWrite( removeLock );
+        try {
+          // Обновление информации о первом блоке в описании
+          candiateInfo.setFirstBlockInterval( firstBlockInterval );
+          // Обработка времени значений первого блока данного
+          if( firstBlockInterval == ITimeInterval.NULL ) {
+            // В базе нет значений данного
+            removeCandidateInfos.removeByKey( gwid );
+            continue;
+          }
+          if( candiateInfo.removeInterval().endTime() < firstBlockInterval.endTime() ) {
+            // Первый блок не находится полностью в интервале удаления. Откладываем проверку на удаление
+            newCandidates.add( gwid );
+            continue;
+          }
+        }
+        finally {
+          unlockWrite( removeLock );
+        }
+        // Добавление в результат
+        retValue.add( candiateInfo );
+        // Журнал
+        aLogger.debug( MSG_REMOVE_AUTO_ADD_INFO, candiateInfo );
+        // Проверка на завершение
+        if( retValue.size() >= threadCount ) {
+          // Сформировано необходимое количество данных для дефрагментации
+          break;
         }
       }
-      finally {
-        unlockWrite( removeLock );
-      }
-      // Добавление в результат
-      retValue.add( candiateInfo );
-      // Журнал
-      aLogger.debug( MSG_REMOVE_AUTO_ADD_INFO, candiateInfo );
-      // Проверка на завершение
-      if( retValue.size() >= threadCount ) {
-        // Сформировано необходимое количество данных для дефрагментации
-        break;
+    }
+    finally {
+      if( newCandidates.size() > 0 ) {
+        // Добавление кандидатов найденных после проверки
+        lockWrite( removeLock );
+        try {
+          for( Gwid gwid : newCandidates ) {
+            removeCandidates.putTail( gwid );
+          }
+        }
+        finally {
+          unlockWrite( removeLock );
+        }
       }
     }
     return retValue;

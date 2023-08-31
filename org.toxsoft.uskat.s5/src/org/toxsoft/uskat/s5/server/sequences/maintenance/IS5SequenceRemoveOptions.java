@@ -43,7 +43,9 @@ public interface IS5SequenceRemoveOptions {
       TSID_NAME, N_REMOVE_THREADS_COUNT, //
       TSID_DESCRIPTION, D_REMOVE_THREADS_COUNT, //
       TSID_IS_NULL_ALLOWED, AV_FALSE, //
-      TSID_DEFAULT_VALUE, AV_1 );
+      // TODO: mvkd 2023-08-30
+      // TSID_DEFAULT_VALUE, AV_1 );
+      TSID_DEFAULT_VALUE, avInt( 100 ) );
 
   /**
    * Максимальное количество проверяемых данных на предмет необходимости удаления за один проход. <= 0: без ограничения

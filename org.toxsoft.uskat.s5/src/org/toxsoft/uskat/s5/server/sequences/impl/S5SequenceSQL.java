@@ -481,72 +481,26 @@ class S5SequenceSQL {
   }
 
   /**
-   * Формат запроса удаления блоков данного по идентификатору данного в указанном интервале или на его границах
+   * Формат запроса удаления блоков данного по идентификатору данного полностью попадающий в указанном интервале
    * <p>
-   * Интервал закрытый с начала, закрытый по завершению
-   * <p>
-   * <li>1. %s - имя таблицы блока, например, S5HistDataAsyncBlock;</li>
-   * <li>2. %s - идентификатор данного (gwid);</li>
-   * <li>3. %d - время начала запроса (startTime).</li>
-   * <li>4. %d - время завершения запроса (endTime).</li>
+   * <li>1. %s - имя таблицы blob, например, S5HistDataAsyncBlob;</li>
+   * <li>2. %s - имя таблицы блока, например, S5HistDataAsyncBlock;</li>
+   * <li>3. %s - имя таблицы blob, например, S5HistDataAsyncBlob;</li>
+   * <li>4. %s - имя таблицы блока, например, S5HistDataAsyncBlock;</li>
+   * <li>5. %s - имя таблицы blob, например, S5HistDataAsyncBlob;</li>
+   * <li>6. %s - имя таблицы блока, например, S5HistDataAsyncBlock;</li>
+   * <li>7. %s - имя таблицы blob, например, S5HistDataAsyncBlob;</li>
+   * <li>8. %s - идентификатор данного (gwid);</li>
+   * <li>9. %s - имя таблицы блока, например, S5HistDataAsyncBlock;</li>
+   * <li>10. %d - время начала запроса (startTime).</li>
+   * <li>11. %s - имя таблицы блока, например, S5HistDataAsyncBlock;</li>
+   * <li>12. %d - время завершения запроса (endTime).</li>
    */
-  private static final String QFRMT_CSCE_DELETE = "delete from %s where" //
-      + "(" + FIELD_GWID + "='%s')and" //
-      + "(%d<=" + FIELD_START_TIME + ")and(" + FIELD_END_TIME + "<=%d)";
-
-  /**
-   * Формат запроса удаления блоков данного по идентификатору данного в указанном интервале или на его границах
-   * <p>
-   * Интервал открытый с начала, открытый по завершению
-   * <p>
-   * <li>1. %s - имя таблицы блока, например, S5HistDataAsyncBlock;</li>
-   * <li>2. %s - идентификатор данного (gwid);</li>
-   * <li>3. %d - время начала запроса (startTime).</li>
-   * <li>4. %d - время завершения запроса (endTime).</li>
-   * <li>5. %d - время начала запроса (startTime).</li>
-   * <li>6. %d - время завершения запроса (endTime).</li>
-   * <li>7. %d - время начала запроса (startTime).</li>
-   * <li>8. %d - время завершения запроса (endTime).</li>
-   */
-  private static final String QFRMT_OSOE_DELETE = "delete from %s where" //
-      + "(" + FIELD_GWID + "='%s')and" //
-      + "((%d<=" + FIELD_START_TIME + ")and(" + FIELD_START_TIME + "<=%d)or"//
-      + "(%d<=" + FIELD_END_TIME + ")and(" + FIELD_END_TIME + "<=%d)or" //
-      + "(%d<=" + FIELD_START_TIME + ")and(" + FIELD_END_TIME + "<=%d))";
-
-  /**
-   * Формат запроса удаления блоков данного по идентификатору данного в указанном интервале или на его границах
-   * <p>
-   * Интервал закрытый с начала, открытый по завершению
-   * <p>
-   * <li>1. %s - имя таблицы блока, например, S5HistDataAsyncBlock;</li>
-   * <li>2. %s - идентификатор данного (gwid);</li>
-   * <li>3. %d - время начала запроса (startTime).</li>
-   * <li>4. %d - время завершения запроса (endTime).</li>
-   * <li>5. %d - время начала запроса (startTime).</li>
-   * <li>6. %d - время завершения запроса (endTime).</li>
-   */
-  private static final String QFRMT_CSOE_DELETE = "delete from %s where"//
-      + "(" + FIELD_GWID + "='%s')and" //
-      + "((%d<=" + FIELD_END_TIME + ")and(" + FIELD_END_TIME + "<=%d)or" //
-      + "(%d<= " + FIELD_START_TIME + ")and(" + FIELD_END_TIME + "<=%d))";
-
-  /**
-   * Формат запроса удаления блоков данного по идентификатору данного в указанном интервале или на его границах
-   * <p>
-   * Интервал открытый с начала, закрытый по завершению
-   * <p>
-   * <li>1. %s - имя таблицы блока, например, S5HistDataAsyncBlock;</li>
-   * <li>2. %s - идентификатор данного (gwid);</li>
-   * <li>3. %d - время начала запроса (startTime).</li>
-   * <li>4. %d - время завершения запроса (endTime).</li>
-   * <li>5. %d - время начала запроса (startTime).</li>
-   * <li>6. %d - время завершения запроса (endTime).</li>
-   */
-  private static final String QFRMT_OSCE_DELETE = "delete from %s where" //
-      + "(" + FIELD_GWID + "='%s')and" //
-      + "((%d<=" + FIELD_START_TIME + ")and(" + FIELD_START_TIME + "<=%d)or"//
-      + "(%d<=" + FIELD_START_TIME + ")and(" + FIELD_END_TIME + "<=%d))";
+  private static final String QFRMT_DELETE_BLOCKS = "delete %s,%s " //
+      + "from %s "//
+      + "INNER JOIN %s " //
+      + "where(%s.gwid = %s.gwid)and(%s.gwid = '%s')and" //
+      + "(%s." + FIELD_START_TIME + ">=%d)and(%s." + FIELD_END_TIME + "<=%d)";
 
   /**
    * Удаляет блоки данного в указанном интервале
@@ -558,13 +512,13 @@ class S5SequenceSQL {
    * @param aEntityManager {@link EntityManager} менеджер постоянства
    * @param aFactory {@link IS5SequenceFactory} фабрика формирования последовательностей
    * @param aGwid {@link Gwid} идентификатор данного
-   * @param aInterval {@link IQueryInterval} интервал удаляемых блоков
+   * @param aInterval {@link ITimeInterval} интервал удаляемых блоков
    * @param <V> тип значения последовательности
    * @return int количество удаленных блоков
    * @throws TsNullArgumentRtException любой аргумент = null
    */
   static <V extends ITemporal<?>> int removeBlocks( EntityManager aEntityManager, IS5SequenceFactory<V> aFactory,
-      Gwid aGwid, IQueryInterval aInterval ) {
+      Gwid aGwid, ITimeInterval aInterval ) {
     TsNullArgumentRtException.checkNulls( aEntityManager, aFactory, aGwid, aInterval );
     // Параметризованное описание типа данного
     IParameterized typeInfo = aFactory.typeInfo( aGwid );
@@ -573,19 +527,20 @@ class S5SequenceSQL {
     long endTime = aInterval.endTime();
     startTime = (startTime == MIN_TIMESTAMP ? startTime + 1 : startTime);
     endTime = (endTime == MAX_TIMESTAMP ? endTime - 1 : endTime);
-    // Имя таблицы
-    String tableName = getLast( OP_BLOCK_IMPL_CLASS.getValue( typeInfo.params() ).asString() );
+    // Имя таблицы реализации блоков
+    String blockImplTableName = getLast( OP_BLOCK_IMPL_CLASS.getValue( typeInfo.params() ).asString() );
+    // Имя таблицы реализации blob
+    String blobImplTableName = getLast( OP_BLOB_IMPL_CLASS.getValue( typeInfo.params() ).asString() );
     Long st = Long.valueOf( startTime );
     Long et = Long.valueOf( endTime );
     // Текст SQL-запроса
-    String sql = EMPTY_STRING;
-    sql = switch( aInterval.type() ) {
-      case CSCE -> format( QFRMT_CSCE_DELETE, tableName, aGwid, st, et );
-      case OSOE -> format( QFRMT_OSOE_DELETE, tableName, aGwid, st, et, st, et, st, et );
-      case CSOE -> format( QFRMT_CSOE_DELETE, tableName, aGwid, st, et, st, et );
-      case OSCE -> format( QFRMT_OSCE_DELETE, tableName, aGwid, st, et, st, et );
-      default -> throw new TsNotAllEnumsUsedRtException();
-    };
+    String sql = format( QFRMT_DELETE_BLOCKS, //
+        blobImplTableName, blockImplTableName, //
+        blobImplTableName, blockImplTableName, //
+        blobImplTableName, blockImplTableName, //
+        blobImplTableName, aGwid, //
+        blockImplTableName, st, //
+        blockImplTableName, et );
     try {
       // Выполнение запроса
       Query query = aEntityManager.createNativeQuery( sql );
