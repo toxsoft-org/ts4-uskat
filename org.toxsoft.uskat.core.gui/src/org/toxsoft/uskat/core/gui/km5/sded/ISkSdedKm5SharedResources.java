@@ -86,4 +86,12 @@ public interface ISkSdedKm5SharedResources {
   String STR_N_HIDE_CLAIMED_CLASSES = Messages.getString( "STR_N_HIDE_CLAIMED_CLASSES" ); //$NON-NLS-1$
   String STR_D_HIDE_CLAIMED_CLASSES = Messages.getString( "STR_D_HIDE_CLAIMED_CLASSES" ); //$NON-NLS-1$
 
+  /**
+   * {@link SdedDtoFullObjectM5Model}
+   */
+  String STR_N_OBJECT_NAME        = "Название";
+  String STR_D_OBJECT_NAME        = "Название объекта";
+  String STR_N_OBJECT_DESCRIPTION = "Описание";
+  String STR_D_OBJECT_DESCRIPTION = "Описание объекта";
+
 }
