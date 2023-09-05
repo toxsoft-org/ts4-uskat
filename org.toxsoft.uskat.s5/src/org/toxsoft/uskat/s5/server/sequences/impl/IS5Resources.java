@@ -86,7 +86,9 @@ interface IS5Resources {
 
   String MSG_REMOVE_AUTHOR_SCHEDULE = "Плановое удаление значений по календарю"; //$NON-NLS-1$
 
-  String MSG_REMOVE_AUTO_ADD_INFO = "Планирование удаления значений данного в автоматическом режиме: %s"; //$NON-NLS-1$
+  String MSG_REMOVE_AUTO_ADD_INFO  = "Планирование удаления значений данного в автоматическом режиме: %s";                                                                          //$NON-NLS-1$
+  String ERR_DB_SCHEME_NOT_DEFINED =
+      "OP_BACKEND_DB_SCHEME_NAME is not defined. Set the parameter value in the server class implementation (S5InitialImplementation) in the doProjectSpecificParams(...) method."; //$NON-NLS-1$
 
   String MSG_LAST_VALUES_ASYNC_QUERY = Messages.getString( "IS5Resources.MSG_LAST_VALUES_ASYNC_QUERY" ); //$NON-NLS-1$
   String MSG_LAST_VALUE_ASYNC_QUERY  = Messages.getString( "IS5Resources.MSG_LAST_VALUE_ASYNC_QUERY" );  //$NON-NLS-1$
@@ -273,6 +275,9 @@ interface IS5Resources {
   String ERR_CANCEL_REMOVE_TIMER               = Messages.getString( "IS5Resources.ERR_CANCEL_REMOVE_TIMER" );           //$NON-NLS-1$
   String ERR_STOP_UNKNOW_TIMER                 = Messages.getString( "IS5Resources.ERR_STOP_UNKNOW_TIMER" );             //$NON-NLS-1$
   String ERR_QUERY_DOJOB                       = Messages.getString( "IS5Resources.ERR_QUERY_DOJOB" );                   //$NON-NLS-1$
+
+  String MSG_ADD_PARTITION = "%s.%s. Добавление раздела %s.";                     //$NON-NLS-1$
+  String ERR_ADD_PARTITION = "%s.%s. Ошибка добавления разделов %s. Причина: %s"; //$NON-NLS-1$
 
   String ERR_DATAID_NOT_FOUND = Messages.getString( "IS5Resources.ERR_DATAID_NOT_FOUND" ); //$NON-NLS-1$
 

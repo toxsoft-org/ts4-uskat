@@ -187,9 +187,10 @@ class S5SequenceLazyWriter<S extends IS5Sequence<V>, V extends ITemporal<?>>
       }
     }
     */
-    //@formatter:on
+    // Запись значений
     for( int index = 0, n = aSequences.size(); index < n; index++ ) {
-      writeSequence( aEntityManager, aSequences.get( index ), aStatistics, index );
+      S sequence = aSequences.get( index );
+      writeSequence( aEntityManager, sequence, aStatistics, index );
     }
     // Добавить записанные данные на дефрагментацию
     addUnionCandidates( aSequences );
@@ -252,6 +253,7 @@ class S5SequenceLazyWriter<S extends IS5Sequence<V>, V extends ITemporal<?>>
     ILogger removeLogger = LoggerWrapper.getLogger( LOG_REMOVER_ID );
     // Состояние задачи удаления данного
     S5SequenceRemoveStat<V> statistics = new S5SequenceRemoveStat<>();
+    // Аргументы запроса
     IOptionSetEdit args = new OptionSet( aArgs );
     // Признак ручного или автоматического объединения данных
     boolean isAuto = !args.hasValue( IS5SequenceRemoveOptions.REMOVE_INTERVAL );

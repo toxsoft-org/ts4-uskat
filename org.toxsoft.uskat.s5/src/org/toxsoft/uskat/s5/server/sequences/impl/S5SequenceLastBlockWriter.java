@@ -516,6 +516,8 @@ class S5SequenceLastBlockWriter<S extends IS5Sequence<V>, V extends ITemporal<?>
             try {
               // Присоединение менеджера постоянства к транзкации
               em.joinTransaction();
+              // Подготовка разделов для записи
+              preparePartitionsForWrite( em, sequences );
               // Запись последовательностей
               for( S sequence : sequences ) {
                 writeSequence( em, sequence, stat, 0 );

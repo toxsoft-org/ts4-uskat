@@ -80,6 +80,7 @@ public class S5EventSequenceFactory
     copyValue( params, IS5EventHardConstants.OP_BLOB_IMPL_CLASS, IS5SequenceHardConstants.OP_BLOB_IMPL_CLASS );
     copyValue( params, IS5EventHardConstants.OP_BLOCK_SIZE_MAX, IS5SequenceHardConstants.OP_BLOCK_SIZE_MAX );
     copyValue( params, IS5EventHardConstants.OP_VALUE_SIZE_MAX, IS5SequenceHardConstants.OP_VALUE_SIZE_MAX );
+    copyValue( params, IS5EventHardConstants.OP_VALUE_STORAGE_DEPTH, IS5SequenceHardConstants.OP_VALUE_STORAGE_DEPTH );
     return typeInfo;
   }
 

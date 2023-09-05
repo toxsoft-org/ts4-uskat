@@ -91,7 +91,7 @@ public interface IS5SequenceHardConstants
       TSID_DEFAULT_VALUE, avInt( 8 ) );
 
   /**
-   * Опция {@link IS5Sequence#typeInfo()}: гарантированное время (секунды) хранения значений.
+   * Опция {@link IS5Sequence#typeInfo()} : гарантированное время (сутки) хранения значений.
    * <p>
    * Определяет время хранения значений хранимых данных. По факту система может хранить данные более долгий период
    * (определяется реализацией), но не меньший.
@@ -103,8 +103,8 @@ public interface IS5SequenceHardConstants
       TSID_DESCRIPTION, STR_D_VALUE_STORAGE_DEPTH, //
       TSID_IS_NULL_ALLOWED, AV_FALSE, //
       // TODO: mvkd 2023-08-30
-      // TSID_DEFAULT_VALUE, avInt( 60 * 60 * 24 * 365 * 10 ) ); // по умолчанию 10 лет
-      TSID_DEFAULT_VALUE, avInt( 60 * 5 ) ); // 5 минут
+      // TSID_DEFAULT_VALUE, avInt( 365 * 10 ) ); // по умолчанию 10 лет
+      TSID_DEFAULT_VALUE, avInt( 7 ) ); // неделя
 
   // ------------------------------------------------------------------------------------
   // Константы

@@ -26,6 +26,7 @@ import javax.persistence.PersistenceContext;
 import javax.sql.DataSource;
 
 import org.jboss.ejb3.annotation.TransactionTimeout;
+import org.toxsoft.core.tslib.av.IAtomicValue;
 import org.toxsoft.core.tslib.av.opset.IOptionSet;
 import org.toxsoft.core.tslib.av.opset.IOptionSetEdit;
 import org.toxsoft.core.tslib.av.opset.impl.OptionSet;
@@ -261,7 +262,11 @@ public abstract class S5BackendSequenceSupportSingleton<S extends IS5Sequence<V>
   //
   @Override
   protected IOptionSet doCreateConfiguration() {
-    return new OptionSet();
+    IOptionSetEdit retValue = new OptionSet();
+    // Неизменяемые параметры конфигурации службы
+    retValue.setValue( OP_BACKEND_DB_SCHEME_NAME,
+        OP_BACKEND_DB_SCHEME_NAME.getValue( backend().initialConfig().impl().params() ) );
+    return retValue;
   }
 
   @Override
@@ -282,6 +287,16 @@ public abstract class S5BackendSequenceSupportSingleton<S extends IS5Sequence<V>
       // Изменение календарей дефрагментации
       updateRemoveTimers();
     }
+  }
+
+  @Override
+  public void saveConfiguration( IOptionSet aConfiguration ) {
+    TsNullArgumentRtException.checkNull( aConfiguration );
+    IOptionSetEdit factConfiguration = new OptionSet( aConfiguration );
+    // Неизменяемые параметры конфигурации службы
+    factConfiguration.setValue( OP_BACKEND_DB_SCHEME_NAME,
+        OP_BACKEND_DB_SCHEME_NAME.getValue( backend().initialConfig().impl().params() ) );
+    super.saveConfiguration( factConfiguration );
   }
 
   // ------------------------------------------------------------------------------------
@@ -831,6 +846,11 @@ public abstract class S5BackendSequenceSupportSingleton<S extends IS5Sequence<V>
   @Override
   public IS5SequenceRemoveStat remove( String aAuthor, IOptionSet aArgs ) {
     TsNullArgumentRtException.checkNulls( aAuthor, aArgs );
+    IAtomicValue dbScheme = OP_BACKEND_DB_SCHEME_NAME.getValue( aArgs );
+    if( !dbScheme.isAssigned() ) {
+      // Не определено имя схемы базы данных в реализации сервера
+      throw new TsIllegalArgumentRtException( ERR_DB_SCHEME_NOT_DEFINED );
+    }
     if( logger().isSeverityOn( ELogSeverity.DEBUG ) ) {
       // Запуск задачи удаления
       logger().debug( MSG_SINGLETON_REMOVE_TASK_START );
@@ -1583,6 +1603,11 @@ public abstract class S5BackendSequenceSupportSingleton<S extends IS5Sequence<V>
     if( OP_BACKEND_DATA_WRITE_DISABLE.getValue( backend().initialConfig().impl().params() ).asBool() ) {
       // Запрет записи хранимых данных
       return;
+    }
+    IAtomicValue dbScheme = OP_BACKEND_DB_SCHEME_NAME.getValue( backend().initialConfig().impl().params() );
+    if( !dbScheme.isAssigned() ) {
+      // Не определено имя схемы базы данных в реализации сервера
+      logger().error( ERR_DB_SCHEME_NOT_DEFINED );
     }
     IListEdit<Timer> oldTimers = new ElemArrayList<>( removeTimers );
     // Опции службы

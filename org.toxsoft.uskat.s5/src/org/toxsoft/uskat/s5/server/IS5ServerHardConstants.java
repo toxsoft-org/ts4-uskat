@@ -10,6 +10,7 @@ import java.time.Month;
 import java.time.ZoneId;
 
 import org.toxsoft.core.tslib.av.EAtomicType;
+import org.toxsoft.core.tslib.av.IAtomicValue;
 import org.toxsoft.core.tslib.av.metainfo.IDataDef;
 import org.toxsoft.core.tslib.bricks.strid.coll.IStridablesList;
 import org.toxsoft.core.tslib.bricks.strid.coll.impl.StridablesList;
@@ -158,6 +159,17 @@ public interface IS5ServerHardConstants
       TSID_DESCRIPTION, STR_D_BACKEND_MODULE, //
       TSID_IS_NULL_ALLOWED, AV_FALSE, //
       TSID_DEFAULT_VALUE, avValobj( new S5Module( "fooModule" ) ) );
+
+  /**
+   * Параметр {@link ISkBackendInfo#params()}: схема базы данных сервера в СУБД
+   * <p>
+   * Тип: {@link EAtomicType#STRING}
+   */
+  IDataDef OP_BACKEND_DB_SCHEME_NAME = create( S5_BACKEND_ID_START + "DbSchemeName", EAtomicType.STRING, //$NON-NLS-1$
+      TSID_NAME, STR_N_BACKEND_DB_SCHEME_NAME, //
+      TSID_DESCRIPTION, STR_D_BACKEND_DB_SCHEME_NAME, //
+      TSID_IS_NULL_ALLOWED, AV_FALSE, //
+      TSID_DEFAULT_VALUE, IAtomicValue.NULL );
 
   /**
    * Параметр {@link ISkBackendInfo#params()}: Идентификатор зоны времени, по которому работает сервер
