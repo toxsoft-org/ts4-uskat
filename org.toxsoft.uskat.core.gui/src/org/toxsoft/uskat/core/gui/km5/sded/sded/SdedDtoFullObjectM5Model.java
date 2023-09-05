@@ -8,7 +8,9 @@ import static org.toxsoft.uskat.core.gui.km5.sded.ISkSdedKm5SharedResources.*;
 import org.toxsoft.core.tsgui.m5.*;
 import org.toxsoft.core.tsgui.m5.model.*;
 import org.toxsoft.core.tsgui.m5.model.impl.*;
+import org.toxsoft.core.tsgui.m5.std.models.av.*;
 import org.toxsoft.core.tslib.av.*;
+import org.toxsoft.core.tslib.av.misc.*;
 import org.toxsoft.core.tslib.coll.*;
 import org.toxsoft.core.tslib.coll.impl.*;
 import org.toxsoft.core.tslib.gw.*;
@@ -34,6 +36,9 @@ import org.toxsoft.uskat.core.gui.km5.sded.*;
  */
 public class SdedDtoFullObjectM5Model
     extends KM5ConnectedModelBase<IDtoFullObject> {
+
+  static final String FID_ATTRS = "fid.attrs"; //$NON-NLS-1$
+  static final String FID_LINKS = "fid.links"; //$NON-NLS-1$
 
   /**
    * Attribute {@link IDtoFullObject#skid() } String ID
@@ -91,26 +96,6 @@ public class SdedDtoFullObjectM5Model
       };
 
   /**
-   * Field contains of list attrs {@link IDtoFullObject#attrs()}.
-   */
-  // public final M5AttributeFieldDef<IDtoFullObject> ATTRS = new M5AttributeFieldDef<>( FID_ATTRS, VALOBJ, //
-  // TSID_KEEPER_ID, OptionSetKeeper.KEEPER_ID, //
-  // OPID_EDITOR_FACTORY_NAME, ValedAvValobjSkidEditor.FACTORY_NAME //
-  // ) {
-  //
-  // @Override
-  // protected void doInit() {
-  // setNameAndDescription( STR_N_DTO_ATTR_INFOS, STR_D_DTO_ATTR_INFOS );
-  // setFlags( 0 );
-  // }
-  //
-  // protected IAtomicValue doGetFieldValue( IDtoFullObject aEntity ) {
-  // return avValobj( aEntity.attrs() );
-  // }
-  //
-  // };
-
-  /**
    * LM class for this model.
    * <p>
    * Allows only enumeration of classes, no editing is allowed.
@@ -129,7 +114,7 @@ public class SdedDtoFullObjectM5Model
     // implementation
     //
 
-    private IDtoFullObject makeDtoClassInfo( IM5Bunch<IDtoFullObject> aValues ) {
+    private IDtoFullObject makeDtoFullObject( IM5Bunch<IDtoFullObject> aValues ) {
       // String id = aValues.getAsAv( FID_CLASS_ID ).asString();
       // String parentId = aValues.getAsAv( FID_PARENT_ID ).asString();
       // IOptionSetEdit params = new OptionSet();
@@ -154,13 +139,13 @@ public class SdedDtoFullObjectM5Model
 
     @Override
     protected IDtoFullObject doCreate( IM5Bunch<IDtoFullObject> aValues ) {
-      IDtoFullObject dtoClassInfo = makeDtoClassInfo( aValues );
+      IDtoFullObject dtoClassInfo = makeDtoFullObject( aValues );
       return dtoClassInfo;
     }
 
     @Override
     protected IDtoFullObject doEdit( IM5Bunch<IDtoFullObject> aValues ) {
-      IDtoFullObject dtoClassInfo = makeDtoClassInfo( aValues );
+      IDtoFullObject dtoClassInfo = makeDtoFullObject( aValues );
       return dtoClassInfo;
     }
 
@@ -194,44 +179,70 @@ public class SdedDtoFullObjectM5Model
     ISkClassProps<IDtoAttrInfo> attrInfoes = aClassInfo.attrs();
     ISkClassProps<IDtoLinkInfo> linkInfoes = aClassInfo.links();
     ElemArrayList<IM5FieldDef<IDtoFullObject, ?>> fieldDefs = new ElemArrayList<>();
-    // На лету создаем все значимые поля объекта
+    // На лету создаем модель полей атрибутов объекта
     createAttrFieldDefs( attrInfoes, fieldDefs );
     // Затем поля для отображения связей
     createLinkFieldDefs( linkInfoes, fieldDefs );
     // Поля созданные "на лету"
     addFieldDefs( fieldDefs );
 
-    // setPanelCreator( panelCreator );
+    setPanelCreator( new SdedDtoFullObjectM5PanelCreator() );
   }
 
   /**
-   * По описанию атрибута элемента справочника создает описание поля для M5
+   * По описанию атрибутов объекта создает описание поля для M5
    *
    * @param aAttrInfoes - описания атрибутов
    * @param aFieldDefs - описания полей M5
    */
-  private void createAttrFieldDefs( ISkClassProps<IDtoAttrInfo> aAttrInfoes,
+  private static void createAttrFieldDefs( ISkClassProps<IDtoAttrInfo> aAttrInfoes,
       ElemArrayList<IM5FieldDef<IDtoFullObject, ?>> aFieldDefs ) {
-    for( IDtoAttrInfo attrInfo : aAttrInfoes.list() ) {
-      // пропустим существующие атрибуты
-      if( fieldDefs().hasKey( attrInfo.id() ) || (attrInfo.id().indexOf( "skid" ) >= 0)
-          || (attrInfo.id().indexOf( "strid" ) >= 0) || (attrInfo.id().indexOf( "classId" ) >= 0) ) {
-        continue;
-      }
-      M5AttributeFieldDef<IDtoFullObject> fd = new M5AttributeFieldDef<>( attrInfo.id(), attrInfo.dataType() ) {
+    M5MultiModownFieldDef<IDtoFullObject, IdValue> fd =
+        new M5MultiModownFieldDef<>( FID_ATTRS, IdValueM5Model.MODEL_ID ) {
 
-        @Override
-        protected void doInit() {
-          setNameAndDescription( attrInfo.nmName(), attrInfo.description() );
-          setFlags( M5FF_COLUMN );
-        }
+          @Override
+          protected void doInit() {
+            setNameAndDescription( STR_N_ATTRS, STR_D_ATTRS );
+            setFlags( M5FF_DETAIL );
+          }
 
-        protected IAtomicValue doGetFieldValue( IDtoFullObject aEntity ) {
-          return aEntity.attrs().getValue( attrInfo.id() );
-        }
-      };
-      aFieldDefs.add( fd );
-    }
+          protected IList<IdValue> doGetFieldValue( IDtoFullObject aEntity ) {
+            return IdValue.makeIdValuesCollFromOptionSet( aEntity.attrs() ).values();
+          }
+
+        };
+    aFieldDefs.add( fd );
+  }
+
+  /**
+   * По описанию связей объекта создает описание поля для M5
+   *
+   * @param aLinkInfoes - описания связей
+   * @param aFieldDefs - описания полей M5
+   */
+  private static void createLinkFieldDefs( ISkClassProps<IDtoLinkInfo> aLinkInfoes,
+      ElemArrayList<IM5FieldDef<IDtoFullObject, ?>> aFieldDefs ) {
+    M5MultiModownFieldDef<IDtoFullObject, IMappedSkids> fd =
+        new M5MultiModownFieldDef<>( FID_LINKS, MappedSkidsM5Model.M5MODEL_ID ) {
+
+          @Override
+          protected void doInit() {
+            setNameAndDescription( STR_N_LINKS, STR_D_LINKS );
+            setFlags( M5FF_DETAIL );
+          }
+
+          protected IList<IMappedSkids> doGetFieldValue( IDtoFullObject aEntity ) {
+            IListEdit<IMappedSkids> retVal = new ElemArrayList<>();
+            for( String key : aEntity.links().map().keys() ) {
+              MappedSkids map = new MappedSkids();
+              map.ensureSkidList( key, aEntity.links().map().getByKey( key ) );
+              retVal.add( map );
+            }
+            return retVal;
+          }
+
+        };
+    aFieldDefs.add( fd );
   }
 
   /**
@@ -240,18 +251,18 @@ public class SdedDtoFullObjectM5Model
    * @param aLinkInfoes описание полей связей объекта
    * @param aFieldDefs список описаний полей для M5
    */
-  private void createLinkFieldDefs( ISkClassProps<IDtoLinkInfo> aLinkInfoes,
-      ElemArrayList<IM5FieldDef<IDtoFullObject, ?>> aFieldDefs ) {
-    for( IDtoLinkInfo linkInfo : aLinkInfoes.list() ) {
-      // Связи множественные и связи одиночные обрабатываем по разному
-      if( linkInfo.linkConstraint().maxCount() == 1 ) {
-        aFieldDefs.add( singleLinkFieldDef( linkInfo ) );
-      }
-      else {
-        aFieldDefs.add( multyLinkField( linkInfo ) );
-      }
-    }
-  }
+  // private void createLinkFieldDefs( ISkClassProps<IDtoLinkInfo> aLinkInfoes,
+  // ElemArrayList<IM5FieldDef<IDtoFullObject, ?>> aFieldDefs ) {
+  // for( IDtoLinkInfo linkInfo : aLinkInfoes.list() ) {
+  // // Связи множественные и связи одиночные обрабатываем по разному
+  // if( linkInfo.linkConstraint().maxCount() == 1 ) {
+  // aFieldDefs.add( singleLinkFieldDef( linkInfo ) );
+  // }
+  // else {
+  // aFieldDefs.add( multyLinkField( linkInfo ) );
+  // }
+  // }
+  // }
 
   /**
    * Создает описание поля связи 1-1

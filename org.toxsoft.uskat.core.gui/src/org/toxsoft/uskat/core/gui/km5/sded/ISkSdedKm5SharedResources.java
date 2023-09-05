@@ -89,9 +89,17 @@ public interface ISkSdedKm5SharedResources {
   /**
    * {@link SdedDtoFullObjectM5Model}
    */
-  String STR_N_OBJECT_NAME        = "Название";
-  String STR_D_OBJECT_NAME        = "Название объекта";
-  String STR_N_OBJECT_DESCRIPTION = "Описание";
-  String STR_D_OBJECT_DESCRIPTION = "Описание объекта";
+  String STR_N_OBJECT_NAME              = "Название";
+  String STR_D_OBJECT_NAME              = "Название объекта";
+  String STR_N_OBJECT_DESCRIPTION       = "Описание";
+  String STR_D_OBJECT_DESCRIPTION       = "Описание объекта";
+  String STR_N_ATTRS                    = "атрибуты";
+  String STR_D_ATTRS                    = "Описание атрибутов";
+  String STR_N_LINKS                    = "связи";
+  String STR_D_LINKS                    = "Описание связей";
+  String STR_N_MAPPED_SKIDS_LINK_ID     = "link id";
+  String STR_D_MAPPED_SKIDS_LINK_ID     = "id связи объекта";
+  String STR_N_MAPPED_SKIDS_RIGHT_SKIDS = "right Skids";
+  String STR_D_MAPPED_SKIDS_RIGHT_SKIDS = "right Skids по связи объекта";
 
 }
