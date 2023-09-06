@@ -52,6 +52,7 @@ public class KM5SdedContributor
     modelsList.add( new SdedSkClassInfoM5Model( skConn() ) );
     modelsList.add( new SdedSkObjectM5Model( skConn() ) );
     modelsList.add( new MappedSkidsM5Model( skConn() ) );
+    modelsList.add( new StringMapStringM5Model( skConn() ) );
 
     return modelsList;
   }

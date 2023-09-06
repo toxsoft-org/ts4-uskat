@@ -21,7 +21,7 @@ import org.toxsoft.uskat.core.connection.*;
 import org.toxsoft.uskat.core.gui.km5.*;
 
 /**
- * M5-model of the {@link ISkidList}.
+ * M5-model of the {@link IMappedSkids}.
  *
  * @author dima
  */
@@ -69,9 +69,11 @@ public class MappedSkidsM5Model
   public M5AttributeFieldDef<IMappedSkids> RIGHT_SKIDS = new M5AttributeFieldDef<>( FID_RIGHT_SKIDS, VALOBJ, //
       TSID_NAME, STR_N_MAPPED_SKIDS_RIGHT_SKIDS, //
       TSID_DESCRIPTION, STR_D_MAPPED_SKIDS_RIGHT_SKIDS, //
-      TSID_KEEPER_ID, SkidListKeeper.KEEPER_ID/*
-                                               * , // OPID_EDITOR_FACTORY_NAME, ValedAvValobjSkidListEditor.FACTORY_NAME
-                                               */
+      TSID_KEEPER_ID, SkidListKeeper.KEEPER_ID //
+
+  /*
+   * FIXME , // OPID_EDITOR_FACTORY_NAME, ValedAvValobjSkidListEditor.FACTORY_NAME
+   */
   ) {
 
     @Override

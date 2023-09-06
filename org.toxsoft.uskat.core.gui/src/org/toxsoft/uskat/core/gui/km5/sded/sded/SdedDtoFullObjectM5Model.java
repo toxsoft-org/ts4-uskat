@@ -13,6 +13,8 @@ import org.toxsoft.core.tslib.av.*;
 import org.toxsoft.core.tslib.av.misc.*;
 import org.toxsoft.core.tslib.coll.*;
 import org.toxsoft.core.tslib.coll.impl.*;
+import org.toxsoft.core.tslib.coll.primtypes.*;
+import org.toxsoft.core.tslib.coll.primtypes.impl.*;
 import org.toxsoft.core.tslib.gw.*;
 import org.toxsoft.core.tslib.gw.skid.*;
 import org.toxsoft.core.tslib.utils.*;
@@ -37,8 +39,10 @@ import org.toxsoft.uskat.core.gui.km5.sded.*;
 public class SdedDtoFullObjectM5Model
     extends KM5ConnectedModelBase<IDtoFullObject> {
 
-  static final String FID_ATTRS = "fid.attrs"; //$NON-NLS-1$
-  static final String FID_LINKS = "fid.links"; //$NON-NLS-1$
+  static final String FID_ATTRS  = "fid.attrs";  //$NON-NLS-1$
+  static final String FID_LINKS  = "fid.links";  //$NON-NLS-1$
+  static final String FID_RIVETS = "fid.rivets"; //$NON-NLS-1$
+  static final String FID_CLOBS  = "fid.clobs";  //$NON-NLS-1$
 
   /**
    * Attribute {@link IDtoFullObject#skid() } String ID
@@ -178,11 +182,17 @@ public class SdedDtoFullObjectM5Model
     addFieldDefs( NAME, DESCRIPTION );
     ISkClassProps<IDtoAttrInfo> attrInfoes = aClassInfo.attrs();
     ISkClassProps<IDtoLinkInfo> linkInfoes = aClassInfo.links();
+    ISkClassProps<IDtoClobInfo> clobInfoes = aClassInfo.clobs();
+    ISkClassProps<IDtoRivetInfo> rivetInfoes = aClassInfo.rivets();
     ElemArrayList<IM5FieldDef<IDtoFullObject, ?>> fieldDefs = new ElemArrayList<>();
     // На лету создаем модель полей атрибутов объекта
     createAttrFieldDefs( attrInfoes, fieldDefs );
     // Затем поля для отображения связей
     createLinkFieldDefs( linkInfoes, fieldDefs );
+    // Затем поля для отображения clob
+    createClobFieldDefs( clobInfoes, fieldDefs );
+    // Затем поля для отображения заклепок
+    createRivetFieldDefs( rivetInfoes, fieldDefs );
     // Поля созданные "на лету"
     addFieldDefs( fieldDefs );
 
@@ -236,6 +246,68 @@ public class SdedDtoFullObjectM5Model
             for( String key : aEntity.links().map().keys() ) {
               MappedSkids map = new MappedSkids();
               map.ensureSkidList( key, aEntity.links().map().getByKey( key ) );
+              retVal.add( map );
+            }
+            return retVal;
+          }
+
+        };
+    aFieldDefs.add( fd );
+  }
+
+  /**
+   * По описанию заклепок объекта создает описание поля для M5
+   *
+   * @param aRivetInfoes - описания заклепок
+   * @param aFieldDefs - описания полей M5
+   */
+  private static void createRivetFieldDefs( ISkClassProps<IDtoRivetInfo> aRivetInfoes,
+      ElemArrayList<IM5FieldDef<IDtoFullObject, ?>> aFieldDefs ) {
+    M5MultiModownFieldDef<IDtoFullObject, IMappedSkids> fd =
+        new M5MultiModownFieldDef<>( FID_RIVETS, MappedSkidsM5Model.M5MODEL_ID ) {
+
+          @Override
+          protected void doInit() {
+            setNameAndDescription( STR_N_RIVETS, STR_D_RIVETS );
+            setFlags( M5FF_DETAIL );
+          }
+
+          protected IList<IMappedSkids> doGetFieldValue( IDtoFullObject aEntity ) {
+            IListEdit<IMappedSkids> retVal = new ElemArrayList<>();
+            for( String key : aEntity.rivets().map().keys() ) {
+              MappedSkids map = new MappedSkids();
+              map.ensureSkidList( key, aEntity.rivets().map().getByKey( key ) );
+              retVal.add( map );
+            }
+            return retVal;
+          }
+
+        };
+    aFieldDefs.add( fd );
+  }
+
+  /**
+   * По описанию clobs объекта создает описание поля для M5
+   *
+   * @param aClobInfoes - описания clobs
+   * @param aFieldDefs - описания полей M5
+   */
+  private static void createClobFieldDefs( ISkClassProps<IDtoClobInfo> aClobInfoes,
+      ElemArrayList<IM5FieldDef<IDtoFullObject, ?>> aFieldDefs ) {
+    M5MultiModownFieldDef<IDtoFullObject, IStringMap<String>> fd =
+        new M5MultiModownFieldDef<>( FID_CLOBS, StringMapStringM5Model.M5MODEL_ID ) {
+
+          @Override
+          protected void doInit() {
+            setNameAndDescription( STR_N_CLOBS, STR_D_CLOBS );
+            setFlags( M5FF_DETAIL );
+          }
+
+          protected IList<IStringMap<String>> doGetFieldValue( IDtoFullObject aEntity ) {
+            IListEdit<IStringMap<String>> retVal = new ElemArrayList<>();
+            for( String key : aEntity.clobs().keys() ) {
+              IStringMapEdit<String> map = new StringMap<>();
+              map.put( key, aEntity.clobs().getByKey( key ) );
               retVal.add( map );
             }
             return retVal;
