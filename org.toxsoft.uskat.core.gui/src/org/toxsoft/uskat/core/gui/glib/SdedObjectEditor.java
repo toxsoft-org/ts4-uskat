@@ -8,6 +8,7 @@ import org.toxsoft.core.tsgui.bricks.ctx.impl.*;
 import org.toxsoft.core.tsgui.m5.*;
 import org.toxsoft.core.tsgui.m5.gui.panels.*;
 import org.toxsoft.core.tsgui.m5.model.*;
+import org.toxsoft.core.tsgui.panels.inpled.*;
 import org.toxsoft.core.tsgui.utils.layout.*;
 import org.toxsoft.core.tslib.bricks.strid.more.*;
 import org.toxsoft.uskat.core.api.objserv.*;
@@ -89,11 +90,16 @@ public class SdedObjectEditor
     IM5LifecycleManager<IDtoFullObject> lmObj = modelObj.getLifecycleManager( skConn() );
     ITsGuiContext ctxObj = new TsGuiContext( tsContext() );
     objEditPane = modelObj.panelCreator().createEntityEditorPanel( ctxObj, lmObj );
-    // objEditPane = modelObj.panelCreator().createEntityViewerPanel( ctxObj );
+    objEditPane.setEditable( false );
+
+    // оборачиваем в специальный контейнер
+    AbstractInplaceContentPanel contentPanel = new InplaceM5EntityPanelWrapper<>( ctxObj, objEditPane );
+    IInplaceEditorPanel inplaceEditor = new InplaceContainerPanel( tsContext(), contentPanel );
+    Control iec = inplaceEditor.createControl( tabFolder );
 
     CTabItem tabItem = new CTabItem( tabFolder, SWT.CLOSE );
     tabItem.setText( tabTitle );
-    tabItem.setControl( objEditPane.createControl( tabFolder ) );
+    tabItem.setControl( iec );
     objEditPane.setEntity( aSelection );
     return tabItem;
   }
@@ -106,6 +112,7 @@ public class SdedObjectEditor
   protected void doInitGui( Composite aParent ) {
     SashForm sfMain = new SashForm( aParent, SWT.HORIZONTAL );
     objectListPane.createControl( sfMain );
+
     // right pane
     tabFolder = new CTabFolder( sfMain, SWT.BORDER );
     tabFolder.setLayout( new BorderLayout() );
