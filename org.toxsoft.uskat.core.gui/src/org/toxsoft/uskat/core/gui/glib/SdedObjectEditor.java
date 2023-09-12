@@ -88,6 +88,7 @@ public class SdedObjectEditor
         new SdedDtoFullObjectM5Model( skConn(), skConn().coreApi().sysdescr().findClassInfo( aSelection.classId() ) );
 
     m5().initTemporaryModel( modelObj );
+    // Внимание! В логике работы подразумевается что в названии закладки есть подстрока: skid().toString()
     String tabTitle = String.format( "%s (%s)", aSelection.nmName(), aSelection.skid().toString() ); //$NON-NLS-1$
     // поищем в существующих
     for( CTabItem ti : tabFolder.getItems() ) {
@@ -142,7 +143,7 @@ public class SdedObjectEditor
           case CREATE:
           case EDIT: {
             // TODO проверить!
-            // при создании и редактировании обновим элемент
+            // при создании и редактировании объекта обновим элемент
             IDtoFullObject dtoFobj = DtoFullObject.createDtoFullObject( aSkid, skConn().coreApi() );
             IM5EntityPanel<IDtoFullObject> objEditPane = (IM5EntityPanel<IDtoFullObject>)ti.getData();
             objEditPane.setEntity( dtoFobj );
