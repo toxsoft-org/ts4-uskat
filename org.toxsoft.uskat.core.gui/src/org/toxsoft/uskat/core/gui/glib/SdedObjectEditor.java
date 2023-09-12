@@ -11,6 +11,8 @@ import org.toxsoft.core.tsgui.m5.model.*;
 import org.toxsoft.core.tsgui.panels.inpled.*;
 import org.toxsoft.core.tsgui.utils.layout.*;
 import org.toxsoft.core.tslib.bricks.strid.more.*;
+import org.toxsoft.core.tslib.coll.helpers.*;
+import org.toxsoft.core.tslib.gw.skid.*;
 import org.toxsoft.uskat.core.api.objserv.*;
 import org.toxsoft.uskat.core.connection.*;
 import org.toxsoft.uskat.core.gui.conn.*;
@@ -32,8 +34,9 @@ import org.toxsoft.uskat.core.impl.dto.*;
 public class SdedObjectEditor
     extends AbstractSkLazyPanel {
 
+  private final ISkObjectServiceListener objServiceListener = ( api, op, aSkid ) -> whenObjectsChanged( op, aSkid );
+
   private final IM5CollectionPanel<ISkObject> objectListPane;
-  private IM5EntityPanel<IDtoFullObject>      objEditPane;
   private CTabFolder                          tabFolder;
 
   /**
@@ -54,15 +57,20 @@ public class SdedObjectEditor
     ITsGuiContext ctxSk = new TsGuiContext( tsContext() );
 
     objectListPane = modelSk.panelCreator().createCollEditPanel( ctxSk, ipSk, lmSk );
-    objectListPane.addTsSelectionListener( ( s, i ) -> whenObjectListSelectionChnages() );
+    objectListPane.addTsSelectionListener( ( s, i ) -> whenObjectListSelectionChanges() );
 
+  }
+
+  @Override
+  protected void doDispose() {
+    skObjServ().eventer().removeListener( objServiceListener );
   }
 
   // ------------------------------------------------------------------------------------
   // implementation
   //
 
-  private void whenObjectListSelectionChnages() {
+  private void whenObjectListSelectionChanges() {
     ISkObject sel = objectListPane.selectedItem();
 
     if( sel != null ) {
@@ -89,7 +97,7 @@ public class SdedObjectEditor
     }
     IM5LifecycleManager<IDtoFullObject> lmObj = modelObj.getLifecycleManager( skConn() );
     ITsGuiContext ctxObj = new TsGuiContext( tsContext() );
-    objEditPane = modelObj.panelCreator().createEntityEditorPanel( ctxObj, lmObj );
+    IM5EntityPanel<IDtoFullObject> objEditPane = modelObj.panelCreator().createEntityEditorPanel( ctxObj, lmObj );
     objEditPane.setEditable( false );
 
     // оборачиваем в специальный контейнер
@@ -100,6 +108,8 @@ public class SdedObjectEditor
     CTabItem tabItem = new CTabItem( tabFolder, SWT.CLOSE );
     tabItem.setText( tabTitle );
     tabItem.setControl( iec );
+    // запоминаем ссылку на свой редактор
+    tabItem.setData( objEditPane );
     objEditPane.setEntity( aSelection );
     return tabItem;
   }
@@ -117,6 +127,38 @@ public class SdedObjectEditor
     tabFolder = new CTabFolder( sfMain, SWT.BORDER );
     tabFolder.setLayout( new BorderLayout() );
     sfMain.setWeights( 3000, 7000 );
+    skObjServ().eventer().addListener( objServiceListener );
+  }
+
+  private Object whenObjectsChanged( ECrudOp aOp, Skid aSkid ) {
+    // обновим левый список объектов
+    objectListPane.refresh();
+    // теперь поищем в открытых закладках изменившийся объект
+    for( CTabItem ti : tabFolder.getItems() ) {
+      int skidIndex = ti.getText().indexOf( aSkid.toString() );
+      if( skidIndex >= 0 ) {
+        // нашли нужную закладку
+        switch( aOp ) {
+          case CREATE:
+          case EDIT: {
+            // TODO проверить!
+            // при создании и редактировании обновим элемент
+            IDtoFullObject dtoFobj = DtoFullObject.createDtoFullObject( aSkid, skConn().coreApi() );
+            IM5EntityPanel<IDtoFullObject> objEditPane = (IM5EntityPanel<IDtoFullObject>)ti.getData();
+            objEditPane.setEntity( dtoFobj );
+            break;
+          }
+          case REMOVE: {
+            // при удалении объекта закроем закладку
+            ti.dispose();
+            break;
+          }
+          case LIST:
+          default:
+        }
+      }
+    }
+    return null;
   }
 
 }
