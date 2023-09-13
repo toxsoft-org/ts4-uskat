@@ -26,8 +26,7 @@ import org.toxsoft.core.tslib.av.utils.IParameterized;
 import org.toxsoft.core.tslib.bricks.strid.impl.StridUtils;
 import org.toxsoft.core.tslib.bricks.strio.IStrioHardConstants;
 import org.toxsoft.core.tslib.bricks.time.*;
-import org.toxsoft.core.tslib.bricks.time.impl.QueryInterval;
-import org.toxsoft.core.tslib.bricks.time.impl.TimedList;
+import org.toxsoft.core.tslib.bricks.time.impl.*;
 import org.toxsoft.core.tslib.bricks.validator.ValidationResult;
 import org.toxsoft.core.tslib.coll.*;
 import org.toxsoft.core.tslib.coll.impl.ElemArrayList;
@@ -37,6 +36,7 @@ import org.toxsoft.core.tslib.coll.primtypes.impl.StringMap;
 import org.toxsoft.core.tslib.coll.synch.SynchronizedListEdit;
 import org.toxsoft.core.tslib.gw.gwid.Gwid;
 import org.toxsoft.core.tslib.gw.gwid.GwidList;
+import org.toxsoft.core.tslib.utils.Pair;
 import org.toxsoft.core.tslib.utils.errors.*;
 import org.toxsoft.core.tslib.utils.logs.ILogger;
 import org.toxsoft.uskat.s5.server.backend.IS5BackendCoreSingleton;
@@ -217,6 +217,21 @@ public abstract class S5AbstractSequenceWriter<S extends IS5Sequence<V>, V exten
     clusterManager.addCommandHandler( clusterUnlockGwidsCmd.method(), clusterUnlockGwidsCmd );
     // Журнал
     logger = getLogger( LOG_WRITER_ID );
+    // Схема базы данных сервера
+    IAtomicValue dbScheme = OP_BACKEND_DB_SCHEME_NAME.getValue( initialConfig().impl().params() );
+    if( !dbScheme.isAssigned() ) {
+      // Не определено имя схемы базы данных в реализации сервера
+      throw new TsIllegalArgumentRtException( ERR_DB_SCHEME_NOT_DEFINED );
+    }
+    // Менеджер постоянства
+    EntityManager em = entityManagerFactory().createEntityManager();
+    try {
+      // После запуска требуется проверить все таблицы на необходимость удаления. Загружаем все разделы
+      loadAllTablePartitions( em, dbScheme.asString() );
+    }
+    finally {
+      em.close();
+    }
   }
 
   // ------------------------------------------------------------------------------------
@@ -319,6 +334,26 @@ public abstract class S5AbstractSequenceWriter<S extends IS5Sequence<V>, V exten
    */
   protected final IS5SequenceFactory<V> sequenceFactory() {
     return sequenceFactory;
+  }
+
+  /**
+   * Возвращает карту разделов таблиц хранения данных.
+   * <p>
+   *
+   * @return {@link IMapEdit} карта с возможностью удаления. Ключ: имя таблицы хранения блоков значения;<br>
+   *         Значение: список описаний разделов (партиций) таблицы
+   */
+  protected final IMapEdit<String, ITimedListEdit<S5SequencePartitionInfo>> partitionInfosByTable() {
+    return partitionInfosByTable;
+  }
+
+  /**
+   * Возвращает блокировку доступа к данным на удаление: {@link #partitionInfosByTable()}
+   *
+   * @return {@link S5Lockable} блокировка
+   */
+  protected final S5Lockable partitionInfoLock() {
+    return partitionInfoLock;
   }
 
   /**
@@ -476,34 +511,6 @@ public abstract class S5AbstractSequenceWriter<S extends IS5Sequence<V>, V exten
         String blobTable = StridUtils.getLast( S5SequenceSQL.blobImplClassFromInfo( typeInfo ) );
         prepareTablePartition( aEntityManager, scheme, blockTable, interval, depth, createPartitions, addPartitions );
         prepareTablePartition( aEntityManager, scheme, blobTable, interval, depth, createPartitions, addPartitions );
-
-        //
-        // ITimedListEdit<S5SequencePartitionInfo> partitionInfos = partitionInfosByTable.findByKey( blockImplClass );
-        // if( partitionInfos == null ) {
-        // partitionInfos = new TimedList<>( readPartitions( aEntityManager, scheme, blockImplClass ) );
-        // partitionInfosByTable.put( blockImplClass, partitionInfos );
-        // partitionInfosByTable.put( blobImplClass, new TimedList<>() );
-        // StringBuilder sb = new StringBuilder();
-        // for( S5SequencePartitionInfo info : partitionInfos ) {
-        // sb.append( '\n' );
-        // sb.append( info );
-        // }
-        // logger().info( "%s.%s: partitions: %s", scheme, blobImplClass, sb.toString() );
-        // }
-        // // Список описаний новых разделов котоорые необходимо сохранить в базе данных
-        // IList<S5SequencePartitionInfo> newInfos = getNewPartitionsForInterval( partitionInfos, interval, depth );
-        // if( newInfos.size() > 0 ) {
-        // // Признак необходимости добавления раздела в таблице без разделов
-        // boolean creating = (partitionInfos.size() == 0);
-        // if( creating ) {
-        // creatingPartitions.put( blockImplClass, newInfos );
-        // creatingPartitions.put( blobImplClass, newInfos );
-        // }
-        // else {
-        // addPartitions.put( blockImplClass, newInfos );
-        // addPartitions.put( blobImplClass, newInfos );
-        // }
-        // }
       }
     }
     finally {
@@ -756,40 +763,48 @@ public abstract class S5AbstractSequenceWriter<S extends IS5Sequence<V>, V exten
    * Проводит удаление блоков в указанном интервале
    *
    * @param aEntityManager {@link EntityManager} менеджер постоянства
-   * @param aGwid {@link Gwid} идентификатор данного
-   * @param aInterval {@link ITimeInterval} интервал удаления
+   * @param aRemoveInfo {@link IS5SequenceRemoveInfo} описание для удаления
    * @param aLogger {@link ILogger} журнал работы
    * @return {@link S5SequenceRemoveStat} статистика удаления
    * @throws TsNullArgumentRtException любой аргумент = null
    * @throws TsInternalErrorRtException внутренняя ошибка удаления блоков
    */
-  protected final S5SequenceRemoveStat<V> removeInterval( EntityManager aEntityManager, Gwid aGwid,
-      ITimeInterval aInterval, ILogger aLogger ) {
-    TsNullArgumentRtException.checkNulls( aEntityManager, aGwid, aInterval, aLogger );
+  protected final S5SequenceRemoveStat<V> dropPartitions( EntityManager aEntityManager,
+      IS5SequenceRemoveInfo aRemoveInfo, ILogger aLogger ) {
+    TsNullArgumentRtException.checkNulls( aEntityManager, aRemoveInfo, aLogger );
     // Состояние задачи удаления данного
     S5SequenceRemoveStat<V> removeState = new S5SequenceRemoveStat<>();
-
-    long startTime = aInterval.startTime();
-    long endTime = aInterval.endTime();
-    // Количество полных дней в дефрагментации
-    Integer dayCount = Integer.valueOf( (int)((endTime - startTime) / 1000 / 60 / 60 / 24) );
+    if( aRemoveInfo.partitionInfos().size() == 0 ) {
+      return removeState;
+    }
+    // Схема базы данных сервера
+    String scheme = OP_BACKEND_DB_SCHEME_NAME.getValue( initialConfig().impl().params() ).asString();
+    // Таблица
+    String tableName = aRemoveInfo.tableName();
+    long startTime = aRemoveInfo.partitionInfos().first().interval().startTime();
+    long endTime = aRemoveInfo.partitionInfos().last().interval().endTime();
     // Текущее время сервера
     long currTime = System.currentTimeMillis();
-    try {
-      int removed = S5SequenceSQL.removeBlocks( aEntityManager, sequenceFactory(), aGwid,
-          new QueryInterval( EQueryIntervalType.CSCE, aInterval.startTime(), aInterval.endTime() ) );
-      removeState.addRemoved( removed );
+    for( S5SequencePartitionInfo partitionInfo : aRemoveInfo.partitionInfos() ) {
+      String partitionName = partitionInfo.partitionName();
+      try {
+        removeState.addRemoved( dropPartition( aEntityManager, scheme, tableName, partitionName ) );
+      }
+      catch( RuntimeException e ) {
+        // Ошибка удаления раздела
+        removeState.addErrors( 1 );
+        aLogger.error( e, String.format( ERR_DROP_PARTITION, scheme, tableName, partitionName, cause( e ) ) );
+      }
     }
-    catch( RuntimeException e ) {
-      // Ошибка удаления блоков
-      removeState.addErrors( 1 );
-      aLogger.error( e, String.format( ERR_REMOVE_BLOCK, aGwid, aInterval, cause( e ) ) );
-    }
+    // Полный интервал удаленных разделов
+    ITimeInterval interval = new TimeInterval( startTime, endTime );
+    // Количество полных дней в дефрагментации
+    Integer dayCount = Integer.valueOf( (int)((endTime - startTime) / 1000 / 60 / 60 / 24) );
     // Вывод информации о завершенном объединении
     Long duration = Long.valueOf( (System.currentTimeMillis() - currTime) / 1000 );
     Long removedBlocks = Long.valueOf( removeState.removedCount() );
     Long errors = Long.valueOf( removeState.errorCount() );
-    aLogger.debug( MSG_REMOVE_FINISH, aGwid, dayCount, aInterval, removedBlocks, errors, duration );
+    aLogger.debug( MSG_REMOVE_FINISH, scheme, tableName, dayCount, interval, removedBlocks, errors, duration );
     return removeState;
   }
 
@@ -1340,6 +1355,48 @@ public abstract class S5AbstractSequenceWriter<S extends IS5Sequence<V>, V exten
   }
 
   /**
+   * Загрузка текущих разделов всех таблиц в карту разделов
+   *
+   * @param aEntityManager {@link EntityManager} менеджер постоянства
+   * @param aScheme String схема базы данных с которой работает сервер
+   * @throws TsNullArgumentRtException любой аргумент = null
+   */
+  private void loadAllTablePartitions( EntityManager aEntityManager, String aScheme ) {
+    TsNullArgumentRtException.checkNulls( aEntityManager, aScheme );
+    // Обработка разделов таблиц
+    lockWrite( partitionInfoLock );
+    try {
+      for( Pair<String, String> tableNames : sequenceFactory().tableNames() ) {
+        loadTablePartitions( aEntityManager, aScheme, tableNames.left() );
+        loadTablePartitions( aEntityManager, aScheme, tableNames.right() );
+      }
+    }
+    finally {
+      unlockWrite( partitionInfoLock );
+    }
+  }
+
+  /**
+   * Загрузка текущих разделов таблицы в карту разделов
+   *
+   * @param aEntityManager {@link EntityManager} менеджер постоянства
+   * @param aScheme String схема базы данных с которой работает сервер
+   * @param aTable String имя таблицы
+   * @throws TsNullArgumentRtException любой аргумент = null
+   */
+  private void loadTablePartitions( EntityManager aEntityManager, String aScheme, String aTable ) {
+    ITimedListEdit<S5SequencePartitionInfo> partitionInfos =
+        new TimedList<>( readPartitions( aEntityManager, aScheme, aTable ) );
+    partitionInfosByTable.put( aTable, partitionInfos );
+    StringBuilder sb = new StringBuilder();
+    for( S5SequencePartitionInfo info : partitionInfos ) {
+      sb.append( '\n' );
+      sb.append( info );
+    }
+    logger().info( "%s.%s: partitions: %s", aScheme, aTable, sb.toString() ); //$NON-NLS-1$
+  }
+
+  /**
    * Подготовка разделов таблицы к работе
    *
    * @param aEntityManager {@link EntityManager} менеджер постоянства
@@ -1368,16 +1425,44 @@ public abstract class S5AbstractSequenceWriter<S extends IS5Sequence<V>, V exten
     }
     // Список описаний новых разделов котоорые необходимо сохранить в базе данных
     IList<S5SequencePartitionInfo> newInfos = getNewPartitionsForInterval( partitionInfos, aInterval, aDepth );
-    if( newInfos.size() > 0 ) {
-      // Признак необходимости добавления раздела в таблице без разделов
-      boolean creating = (partitionInfos.size() == 0);
-      if( creating ) {
-        aCreatingPartitions.put( aTable, newInfos );
-      }
-      else {
-        aAddPartitions.put( aTable, newInfos );
+    if( newInfos.size() == 0 ) {
+      // Новые разделы не требуются
+      return;
+    }
+    // Признак необходимости добавления раздела в таблице без разделов
+    boolean creating = (partitionInfos.size() == 0 && !aCreatingPartitions.hasKey( aTable ));
+    if( creating ) {
+      aCreatingPartitions.put( aTable, newInfos );
+      return;
+    }
+    // Добавление разделов в таблицы с уже существующими разделами (с обработкой дублей)
+    IListEdit<S5SequencePartitionInfo> infos = (IListEdit<S5SequencePartitionInfo>)aAddPartitions.findByKey( aTable );
+    if( infos == null ) {
+      // aAllowDuplicates == false
+      infos = new ElemArrayList<>( false );
+      aAddPartitions.put( aTable, infos );
+    }
+    infos.addAll( newInfos );
+  }
+
+  /**
+   * Возвращает общее количество разделов таблиц
+   *
+   * @return int текущее количество разделов
+   */
+  protected final int allTablePartitionCount() {
+    int retValue = 0;
+    // Обработка разделов таблиц
+    lockWrite( partitionInfoLock );
+    try {
+      for( String tableName : partitionInfosByTable.keys() ) {
+        retValue += partitionInfosByTable.getByKey( tableName ).size();
       }
     }
+    finally {
+      unlockWrite( partitionInfoLock );
+    }
+    return retValue;
   }
 
   /**

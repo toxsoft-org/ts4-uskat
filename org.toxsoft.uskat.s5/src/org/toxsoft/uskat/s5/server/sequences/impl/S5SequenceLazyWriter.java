@@ -3,6 +3,7 @@ package org.toxsoft.uskat.s5.server.sequences.impl;
 import static java.lang.String.*;
 import static org.toxsoft.uskat.s5.common.IS5CommonResources.*;
 import static org.toxsoft.uskat.s5.server.IS5ImplementConstants.*;
+import static org.toxsoft.uskat.s5.server.IS5ServerHardConstants.*;
 import static org.toxsoft.uskat.s5.server.sequences.IS5SequenceHardConstants.*;
 import static org.toxsoft.uskat.s5.server.sequences.impl.IS5Resources.*;
 import static org.toxsoft.uskat.s5.server.sequences.impl.S5SequenceSQL.*;
@@ -28,7 +29,6 @@ import org.toxsoft.core.tslib.coll.derivative.IQueue;
 import org.toxsoft.core.tslib.coll.derivative.Queue;
 import org.toxsoft.core.tslib.coll.impl.ElemArrayList;
 import org.toxsoft.core.tslib.gw.gwid.*;
-import org.toxsoft.core.tslib.utils.Pair;
 import org.toxsoft.core.tslib.utils.errors.*;
 import org.toxsoft.core.tslib.utils.logs.ELogSeverity;
 import org.toxsoft.core.tslib.utils.logs.ILogger;
@@ -83,21 +83,16 @@ class S5SequenceLazyWriter<S extends IS5Sequence<V>, V extends ITemporal<?>>
   private final S5Lockable unionLock = new S5Lockable();
 
   /**
-   * Список идентификаторов данных требующих проверки на удаление в автоматическом режиме
-   */
-  private final IQueue<Gwid> removeCandidates = new Queue<>();
-
-  /**
    * Карта запланированных операций удаления данных.
    * <p>
    * Ключ: идентификатор данного;<br>
    * Значение: описание для процесса удаления {@link S5SequenceRemoveInfo}
    */
-  private final IMapEdit<Gwid, S5SequenceRemoveInfo> removeCandidateInfos =
+  private final IMapEdit<Gwid, S5SequenceRemoveInfo> removeInfos =
       new WrapperMap<>( new HashMap<Gwid, S5SequenceRemoveInfo>() );
 
   /**
-   * Блокировка доступа к данным на удаление: {@link #removeCandidates}
+   * Блокировка доступа к данным на удаление: {@link #removeInfos}
    */
   private final S5Lockable removeLock = new S5Lockable();
 
@@ -111,34 +106,6 @@ class S5SequenceLazyWriter<S extends IS5Sequence<V>, V extends ITemporal<?>>
   @SuppressWarnings( "unchecked" )
   S5SequenceLazyWriter( IS5BackendCoreSingleton aBackendCore, IS5SequenceFactory<V> aSequenceFactory ) {
     super( aBackendCore, aSequenceFactory );
-    // После запуска требуется проверить все данные на необходимость удаления
-    // Менеджер постоянства
-    EntityManager em = entityManagerFactory().createEntityManager();
-    try {
-      for( Pair<String, String> tableName : sequenceFactory().tableNames() ) {
-        IGwidList gwids = getAllGwids( em, new ElemArrayList<>( tableName ) );
-        logger().debug( "all gwids (%d): ", Integer.valueOf( gwids.size() ) ); //$NON-NLS-1$
-        for( int index = 0, n = gwids.size(); index < n; index++ ) {
-          Gwid gwid = gwids.get( index );
-          // Параметризованное описание типа данного
-          try {
-            IParameterized typeInfo = sequenceFactory().typeInfo( gwid );
-            if( !removeCandidates.hasElem( gwid ) ) {
-              removeCandidates.putTail( gwid );
-              logger().debug( "\n gwid[%d] = %s ", Integer.valueOf( index ), gwid ); //$NON-NLS-1$
-            }
-          }
-          catch( TsItemNotFoundRtException e ) {
-            // В базе находятся данные которых нет в системном описании (БД взята с другого компьютера)
-            logger().error( "The data %s (table = %s) does not exist in the system. They must be removed manually.", //$NON-NLS-1$
-                gwid, tableName );
-          }
-        }
-      }
-    }
-    finally {
-      em.close();
-    }
   }
 
   // ------------------------------------------------------------------------------------
@@ -194,8 +161,6 @@ class S5SequenceLazyWriter<S extends IS5Sequence<V>, V extends ITemporal<?>>
     }
     // Добавить записанные данные на дефрагментацию
     addUnionCandidates( aSequences );
-    // Добавляем записанные данные на проверку удаления
-    addRemoveCandidates( aSequences );
   }
 
   @Override
@@ -265,10 +230,10 @@ class S5SequenceLazyWriter<S extends IS5Sequence<V>, V extends ITemporal<?>>
       // Формирование описания данных
       infoes = (!isAuto ? prepareRemoveManual( em, args ) : prepareRemoveAuto( em, args, statistics, removeLogger ));
       // Текущий размер очереди на дефрагментацию
-      int queueSize = getRemoveQueueSize();
+      int partitionCount = allTablePartitionCount();
       // Установки общих данных статистики
       statistics.setInfoes( infoes != null ? infoes : IList.EMPTY );
-      statistics.setQueueSize( queueSize );
+      statistics.setQueueSize( partitionCount );
       // Проверка возможности провести дефрагментацию
       if( infoes == null || infoes.size() == 0 ) {
         // Запрет выполнять объединение
@@ -276,13 +241,13 @@ class S5SequenceLazyWriter<S extends IS5Sequence<V>, V extends ITemporal<?>>
       }
       // Вывод в журнал
       Integer c = Integer.valueOf( infoes.size() );
-      Integer q = Integer.valueOf( queueSize );
+      Integer q = Integer.valueOf( partitionCount );
       ITimeInterval interval = IS5SequenceRemoveOptions.REMOVE_INTERVAL.getValue( args ).asValobj();
       removeLogger.info( MSG_REMOVE_START_THREAD, c, q, interval );
 
       for( IS5SequenceRemoveInfo info : infoes ) {
-        // Удаление блоков на интервале
-        S5SequenceRemoveStat<V> result = removeInterval( em, info.gwid(), info.removeInterval(), logger() );
+        // Удаление разделов
+        S5SequenceRemoveStat<V> result = dropPartitions( em, info, logger() );
         statistics.addRemoved( result.removedCount() );
         statistics.addErrors( result.errorCount() );
       }
@@ -367,29 +332,6 @@ class S5SequenceLazyWriter<S extends IS5Sequence<V>, V extends ITemporal<?>>
     }
     finally {
       unlockWrite( unionLock );
-    }
-  }
-
-  /***
-   * Добавить кандидатов для процесса удаления
-   *
-   * @param aSequences {@link IList}&lt;S&gt; список последовательностей для проверки дефрагментации
-   * @throws TsNullArgumentRtException аргумент = null
-   */
-  protected final void addRemoveCandidates( IList<S> aSequences ) {
-    TsNullArgumentRtException.checkNull( aSequences );
-    long currTime = System.currentTimeMillis();
-    lockWrite( removeLock );
-    try {
-      for( S sequence : aSequences ) {
-        Gwid gwid = sequence.gwid();
-        if( !removeCandidates.hasElem( gwid ) ) {
-          removeCandidates.putTail( gwid );
-        }
-      }
-    }
-    finally {
-      unlockWrite( removeLock );
     }
   }
 
@@ -512,12 +454,13 @@ class S5SequenceLazyWriter<S extends IS5Sequence<V>, V extends ITemporal<?>>
   /**
    * Событие: проведено удаление значений данных.
    *
+   *
    * @param aArgs {@link IOptionSet} аргументы для объединения блоков (смотри {@link IS5SequenceRemoveOptions}).
-   * @param aInfoes {@link IList}&lt;I&gt; описания данных удаленных значений
+   * @param aInfos {@link IList}&lt; {@link IS5SequenceRemoveInfo}&gt; список описаний данных для удаления.
    * @param aLogger {@link ILogger} журнал работы
    */
-  protected void onRemoveEvent( IOptionSet aArgs, IList<IS5SequenceRemoveInfo> aInfoes, ILogger aLogger ) {
-    TsNullArgumentRtException.checkNulls( aArgs, aInfoes, aLogger );
+  protected void onRemoveEvent( IOptionSet aArgs, IList<IS5SequenceRemoveInfo> aInfos, ILogger aLogger ) {
+    TsNullArgumentRtException.checkNulls( aArgs, aInfos );
   }
 
   // ------------------------------------------------------------------------------------
@@ -743,27 +686,43 @@ class S5SequenceLazyWriter<S extends IS5Sequence<V>, V extends ITemporal<?>>
    */
   private IList<IS5SequenceRemoveInfo> prepareRemoveManual( EntityManager aEntityManager, IOptionSetEdit aArgs ) {
     TsNullArgumentRtException.checkNulls( aEntityManager, aArgs );
-    // Запрос всех идентификаторов данных которые есть в базе данных
-    IGwidList allGwids = getAllGwids( aEntityManager, sequenceFactory().tableNames() );
-    // Информация о фрагментации
-    IListEdit<IS5SequenceRemoveInfo> infoes = new ElemArrayList<>( allGwids.size() );
     // Идентификаторы данных. null: неопределены
     IGwidList gwids = null;
     if( aArgs.hasValue( IS5SequenceRemoveOptions.REMOVE_GWIDS ) ) {
       gwids = IS5SequenceRemoveOptions.REMOVE_GWIDS.getValue( aArgs ).asValobj();
     }
+    // Схема базы данных сервера
+    String scheme = OP_BACKEND_DB_SCHEME_NAME.getValue( initialConfig().impl().params() ).asString();
     // Интервал удаления
     ITimeInterval interval = IS5SequenceRemoveOptions.REMOVE_INTERVAL.getValue( aArgs ).asValobj();
-    // Указан список удаляемых данных
-    for( Gwid gwid : allGwids ) {
-      if( gwids == null || gwids.size() == 0 || gwids.hasElem( gwid ) ) {
-        String tableName = tableName( sequenceFactory(), gwid );
-        S5SequenceRemoveInfo info = new S5SequenceRemoveInfo( tableName, gwid );
-        info.setRemoveInterval( interval );
-        infoes.add( info );
+
+    IListEdit<IS5SequenceRemoveInfo> retValue = new ElemArrayList<>( false);
+    lockWrite( partitionInfoLock() );
+    try {
+      _nextTable:
+      for( String tableName : partitionInfosByTable().keys() ) {
+        IList<S5SequencePartitionInfo> partitionInfos = partitionInfosByTable().getByKey( tableName );
+        IGwidList partitionGwids = getAllPartitionGwids( aEntityManager, scheme, tableName, partitionInfos );
+        IListEdit<S5SequencePartitionInfo> removePartitionInfos = new ElemArrayList<>();
+        //Формирование списка удаляемых разделов
+        for( S5SequencePartitionInfo partitionInfo : partitionInfos ) {
+          if( TimeUtils.contains( interval, partitionInfo.interval()  ) ){
+            removePartitionInfos.add( partitionInfo );
+          }
+        }
+        //Формирование списка удаляемых данных
+        for( Gwid gwid : partitionGwids ) {
+          if( gwids == null || gwids.size() == 0 || gwids.hasElem( gwid ) ) {
+            S5SequenceRemoveInfo info = new S5SequenceRemoveInfo( tableName, partitionGwids, removePartitionInfos );
+            retValue.add( info );
+            continue _nextTable;
+          }
+        }
       }
+    }finally {
+      unlockWrite( partitionInfoLock() );
     }
-    return infoes;
+    return retValue;
   }
 
   /**
@@ -781,6 +740,8 @@ class S5SequenceLazyWriter<S extends IS5Sequence<V>, V extends ITemporal<?>>
     TsNullArgumentRtException.checkNulls( aEntityManager, aArgs, aStatistics, aLogger );
     // Фабрика последовательностей
     IS5SequenceFactory<V> factory = sequenceFactory();
+    // Схема базы данных сервера
+    String scheme = OP_BACKEND_DB_SCHEME_NAME.getValue( initialConfig().impl().params() ).asString();
     // Максимальное количество потоков удаления
     int threadCount = IS5SequenceRemoveOptions.REMOVE_AUTO_THREADS_COUNT.getValue( aArgs ).asInt();
     // Мощность поиска удаляемых данных
@@ -790,7 +751,7 @@ class S5SequenceLazyWriter<S extends IS5Sequence<V>, V extends ITemporal<?>>
     // Список данных добавляемых в на проверку
     GwidList newCandidates = new GwidList();
     // Возвращаемый результат
-    IListEdit<IS5SequenceRemoveInfo> retValue = new ElemArrayList<>();
+    IListEdit<IS5SequenceRemoveInfo> retValue = new ElemArrayList<>( false );
     // Текущее количество выполненных операций поиска удаляемых данных
     int lookupCount = 0;
     try {
@@ -803,6 +764,35 @@ class S5SequenceLazyWriter<S extends IS5Sequence<V>, V extends ITemporal<?>>
         lookupCount++;
         // Обновление статистики
         aStatistics.addLookupCount();
+
+
+        lockWrite( partitionInfoLock() );
+        try {
+          _nextTable:
+          for( String tableName : partitionInfosByTable().keys() ) {
+            IList<S5SequencePartitionInfo> partitionInfos = partitionInfosByTable().getByKey( tableName );
+            IGwidList partitionGwids = getAllPartitionGwids( aEntityManager, scheme, tableName, partitionInfos );
+            IListEdit<S5SequencePartitionInfo> removePartitionInfos = new ElemArrayList<>();
+            //Формирование списка удаляемых разделов
+            for( S5SequencePartitionInfo partitionInfo : partitionInfos ) {
+              if( TimeUtils.contains( interval, partitionInfo.interval()  ) ){
+                removePartitionInfos.add( partitionInfo );
+              }
+            }
+            //Формирование списка удаляемых данных
+            for( Gwid gwid : partitionGwids ) {
+              if( gwids == null || gwids.size() == 0 || gwids.hasElem( gwid ) ) {
+                S5SequenceRemoveInfo info = new S5SequenceRemoveInfo( tableName, partitionGwids, removePartitionInfos );
+                retValue.add( info );
+                continue _nextTable;
+              }
+            }
+          }
+        }finally {
+          unlockWrite( partitionInfoLock() );
+        }
+
+
         // Идентификатор данного
         Gwid gwid = null;
         // Параметризованное описание типа данного
@@ -820,13 +810,13 @@ class S5SequenceLazyWriter<S extends IS5Sequence<V>, V extends ITemporal<?>>
           // Параметризованное описание типа данного
           typeInfo = factory.typeInfo( gwid );
           // Поиск описания процесса удаления данного
-          candiateInfo = removeCandidateInfos.findByKey( gwid );
+          candiateInfo = removeInfos.findByKey( gwid );
           if( candiateInfo == null ) {
             // Таблица базы данных значений данного
             String tableName = tableName( sequenceFactory(), gwid );
             // Создание описания процесса удаления
             candiateInfo = new S5SequenceRemoveInfo( tableName, gwid );
-            removeCandidateInfos.put( gwid, candiateInfo );
+            removeInfos.put( gwid, candiateInfo );
           }
           // Глубина хранения данного
           long deep = IS5SequenceHardConstants.OP_VALUE_STORAGE_DEPTH.getValue( typeInfo.params() ).asLong();
@@ -846,7 +836,7 @@ class S5SequenceLazyWriter<S extends IS5Sequence<V>, V extends ITemporal<?>>
           // Обработка времени значений первого блока данного
           if( firstBlockInterval == ITimeInterval.NULL ) {
             // В базе нет значений данного
-            removeCandidateInfos.removeByKey( gwid );
+            removeInfos.removeByKey( gwid );
             continue;
           }
           if( candiateInfo.removeInterval().endTime() < firstBlockInterval.endTime() ) {
@@ -1054,92 +1044,6 @@ class S5SequenceLazyWriter<S extends IS5Sequence<V>, V extends ITemporal<?>>
   }
 
   /**
-   * Асинхронная задача удаления блоков последовательности данного
-   *
-   * @author mvk
-   */
-  private class RemoveThread
-      extends S5AbstractWriteThread {
-
-    private final IS5SequenceRemoveInfo   info;
-    private final S5SequenceRemoveStat<V> stat;
-
-    /**
-     * Создание асинхронной задачи удаления блоков последовательности данных
-     *
-     * @param aArgs {@link IOptionSet} аргументы для удаления блоков (смотри {@link IS5SequenceRemoveOptions}).
-     * @param aInfo I описание удаления данных
-     * @param aStatistics {@link S5SequenceRemoveStat} статистика выполнения задачи
-     * @param aLogger {@link ILogger} журнал
-     * @throws TsNullArgumentRtException любой аргумент = null
-     */
-    RemoveThread( IS5SequenceRemoveInfo aInfo, IOptionSet aArgs, S5SequenceRemoveStat<V> aStatistics,
-        ILogger aLogger ) {
-      super( aLogger );
-      TsNullArgumentRtException.checkNulls( aArgs, aInfo, aStatistics );
-      info = aInfo;
-      stat = aStatistics;
-    }
-
-    // ------------------------------------------------------------------------------------
-    // Реализация абстрактных методов S5AbstractThread
-    //
-    @Override
-    protected void doRun() {
-      EntityManager em = entityManagerFactory().createEntityManager();
-      try {
-        // Идентификатор данного
-        Gwid gwid = info.gwid();
-        // Список блокируемых данных
-        IGwidList lockedGwids = new GwidList( gwid );
-        // Блокировка доступа к данным (false: без проверки текущий транзакции)
-        tryLockGwids( lockedGwids, false );
-        try {
-          try {
-            UserTransaction tx = InitialContext.doLookup( USER_TRANSACTION_JNDI );
-            // Открываем транзакцию
-            tx.begin();
-            try {
-              // Присоединение менеджера постоянства к транзкации
-              em.joinTransaction();
-              // Удаление блоков на интервале
-              S5SequenceRemoveStat<V> result = removeInterval( em, gwid, info.removeInterval(), logger() );
-              stat.addRemoved( result.removedCount() );
-              stat.addErrors( result.errorCount() );
-              // Завершаем транзакцию
-              tx.commit();
-            }
-            catch( Throwable e ) {
-              // Откат транзакции на любой ошибке
-              tx.rollback();
-              throw e;
-            }
-          }
-          catch( Throwable e ) {
-            stat.addErrors( 1 );
-            logger().error( e, ERR_ASYNC_REMOVE_TASK, info, cause( e ) );
-          }
-        }
-        finally {
-          unlockGwids( lockedGwids );
-        }
-      }
-      finally {
-        em.close();
-      }
-    }
-
-    @Override
-    protected void doCancel() {
-      // nop
-    }
-
-    // ------------------------------------------------------------------------------------
-    // Внутренняя реализация
-    //
-  }
-
-  /**
    * Асинхронная задача проверки блоков последовательности данного
    *
    * @author mvk
@@ -1244,21 +1148,6 @@ class S5SequenceLazyWriter<S extends IS5Sequence<V>, V extends ITemporal<?>>
     }
     finally {
       unlockRead( unionLock );
-    }
-  }
-
-  /**
-   * Возвращает текущий размер очереди на удаление значений данных
-   *
-   * @return int размер очереди
-   */
-  private int getRemoveQueueSize() {
-    lockRead( removeLock );
-    try {
-      return removeCandidates.size();
-    }
-    finally {
-      unlockRead( removeLock );
     }
   }
 }

@@ -137,7 +137,7 @@ public final class S5SequencePartitionInfo
     IListEdit<S5SequencePartitionInfo> retValue = new ElemLinkedList<>();
     if( aInfos.size() == 0 ) {
       // Частный случай, еще нет разделов
-      return splitIntervals( aInterval, aDepth );
+      return createPartitionInfosForInterval( aInterval.startTime(), aInterval.endTime(), aDepth );
     }
     // Опреределние текущего интервала разделов
     ITimeInterval partitionInterval =
@@ -145,10 +145,16 @@ public final class S5SequencePartitionInfo
     // Формирование новых интервалов разделов
     Pair<ITimeInterval, ITimeInterval> newIntervals = TimeUtils.subtract( aInterval, partitionInterval );
     if( newIntervals.left() != null ) {
-      retValue.addAll( splitIntervals( newIntervals.left(), aDepth ) );
+      ITimeInterval interval = newIntervals.left();
+      long startTime = interval.startTime();
+      long endTime = interval.endTime() + 1;
+      retValue.addAll( createPartitionInfosForInterval( startTime, endTime, aDepth ) );
     }
     if( newIntervals.right() != null ) {
-      retValue.addAll( splitIntervals( newIntervals.right(), aDepth ) );
+      ITimeInterval interval = newIntervals.right();
+      long startTime = interval.startTime() - 1;
+      long endTime = interval.endTime();
+      retValue.addAll( createPartitionInfosForInterval( startTime, endTime, aDepth ) );
     }
     return retValue;
   }
@@ -181,24 +187,27 @@ public final class S5SequencePartitionInfo
   // Внутренняя реализация
   //
   /**
-   * Разделяет указанный интервал на серию интервалов не более указанной глубины
+   * Создает описания разделов для указанного интервала
    *
-   * @param aInterval {@link ITimeInterval} исходный интервал
+   * @param aStartTime long метка времени (мсек с начала эпохи) начала интервала
+   * @param aEndTime long метка времени (мсек с начала эпохи) завершения интервала
    * @param aDepth int глубина(в сутках) хранения значений (размер разделов)
    * @return {@link IList}&lt; {@link S5SequencePartitionInfo}&gt; список интервалов
    * @throws TsNullArgumentRtException аргумент = null
    */
-  private static IList<S5SequencePartitionInfo> splitIntervals( ITimeInterval aInterval, int aDepth ) {
-    TsNullArgumentRtException.checkNull( aInterval );
+  private static IList<S5SequencePartitionInfo> createPartitionInfosForInterval( long aStartTime, long aEndTime,
+      int aDepth ) {
     long msecInDay = 1000 * 60 * 60 * 24;
     IListEdit<S5SequencePartitionInfo> retValue = new ElemLinkedList<>();
-    long startTime = allignByDay( aInterval.startTime(), 0 );
+    long startTime = allignByDay( aStartTime, 0 );
     long endTime;
+    // Глубина хранения значений в разделе. Если глубина хранения значений < 30 дней, то глубина 1 сутки. Иначе - месяц
+    int partitionDepth = (aDepth > 30 ? 30 : 1);
     do {
-      endTime = startTime + aDepth * msecInDay;
+      endTime = startTime + partitionDepth * msecInDay;
       retValue.add( new S5SequencePartitionInfo( new TimeInterval( startTime, endTime ) ) );
-      startTime = startTime + aDepth * msecInDay;
-    } while( endTime < aInterval.endTime() );
+      startTime = startTime + partitionDepth * msecInDay;
+    } while( endTime < aEndTime );
     return retValue;
   }
 

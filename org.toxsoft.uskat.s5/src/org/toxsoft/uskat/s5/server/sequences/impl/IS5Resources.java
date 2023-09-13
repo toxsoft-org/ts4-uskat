@@ -276,8 +276,9 @@ interface IS5Resources {
   String ERR_STOP_UNKNOW_TIMER                 = Messages.getString( "IS5Resources.ERR_STOP_UNKNOW_TIMER" );             //$NON-NLS-1$
   String ERR_QUERY_DOJOB                       = Messages.getString( "IS5Resources.ERR_QUERY_DOJOB" );                   //$NON-NLS-1$
 
-  String MSG_ADD_PARTITION = "%s.%s. Добавление раздела %s.";                     //$NON-NLS-1$
-  String ERR_ADD_PARTITION = "%s.%s. Ошибка добавления разделов %s. Причина: %s"; //$NON-NLS-1$
+  String MSG_ADD_PARTITION  = "%s.%s. Добавление раздела %s.";                    //$NON-NLS-1$
+  String ERR_ADD_PARTITION  = "%s.%s. Ошибка добавления раздела %s. Причина: %s"; //$NON-NLS-1$
+  String ERR_DROP_PARTITION = "%s.%s. Ошибка удаления раздела %s. Причина: %s";   //$NON-NLS-1$
 
   String ERR_DATAID_NOT_FOUND = Messages.getString( "IS5Resources.ERR_DATAID_NOT_FOUND" ); //$NON-NLS-1$
 

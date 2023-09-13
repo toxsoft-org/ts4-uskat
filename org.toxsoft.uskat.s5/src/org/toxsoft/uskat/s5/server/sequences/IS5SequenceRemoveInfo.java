@@ -3,10 +3,11 @@ package org.toxsoft.uskat.s5.server.sequences;
 import java.io.ObjectStreamException;
 import java.io.Serializable;
 
-import org.toxsoft.core.tslib.bricks.time.ITimeInterval;
-import org.toxsoft.core.tslib.gw.gwid.Gwid;
+import org.toxsoft.core.tslib.coll.IList;
+import org.toxsoft.core.tslib.gw.gwid.IGwidList;
 import org.toxsoft.core.tslib.utils.TsLibUtils;
 import org.toxsoft.core.tslib.utils.errors.TsNullObjectErrorRtException;
+import org.toxsoft.uskat.s5.server.sequences.impl.S5SequencePartitionInfo;
 
 /**
  * Информация об удалении значений данного
@@ -28,25 +29,18 @@ public interface IS5SequenceRemoveInfo {
   String tableName();
 
   /**
-   * Возвращает идентификатор данного
+   * Список идентификаторов данных в удляемых таблицах
    *
-   * @return {@link Gwid} идентификатор данного
+   * @return {@link IGwidList} список идентификаторов данных
    */
-  Gwid gwid();
+  IGwidList gwids();
 
   /**
-   * Возвращает интервал в котором находятся удаляемые значения последовательности
+   * Возвращает список описаний удаляемых разделов
    *
-   * @return {@link ITimeInterval} интервал значений последовательности
+   * @return {@link IList}&lt;{@link S5SequencePartitionInfo}&gt; список описаний разделов
    */
-  ITimeInterval removeInterval();
-
-  /**
-   * Возвращает интервал времени первого блока значений данного хранимого в БД
-   *
-   * @return {@link ITimeInterval} интервал времени. {@link ITimeInterval#NULL}: блок не найден (нет значений)
-   */
-  ITimeInterval firstBlockInterval();
+  IList<S5SequencePartitionInfo> partitionInfos();
 }
 
 /**
@@ -79,17 +73,12 @@ class InternalNullSequenceRemoveInfo
   }
 
   @Override
-  public Gwid gwid() {
+  public IGwidList gwids() {
     throw new TsNullObjectErrorRtException();
   }
 
   @Override
-  public ITimeInterval removeInterval() {
-    throw new TsNullObjectErrorRtException();
-  }
-
-  @Override
-  public ITimeInterval firstBlockInterval() {
+  public IList<S5SequencePartitionInfo> partitionInfos() {
     throw new TsNullObjectErrorRtException();
   }
 

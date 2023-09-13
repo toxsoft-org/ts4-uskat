@@ -1449,14 +1449,14 @@ class S5SequenceSQL {
    * Формирует запрос создания записи в таблице базы данных
    *
    * @param aEntityManager {@link EntityManager} менеджер постоянства
-   * @param aTableName String имя таблицы
+   * @param aTable String имя таблицы
    * @param aParams {@link IStringMap}&lt;Object&gt; карта параметров запроса.<br>
    *          Ключ: имя поля таблицы;Значение: значение поля.
    * @return {@link Query} созданный запрос
    * @throws TsNullArgumentRtException любой аргумент = null
    */
-  static Query createInsertQuery( EntityManager aEntityManager, String aTableName, IStringMap<Object> aParams ) {
-    TsNullArgumentRtException.checkNulls( aEntityManager, aTableName, aParams );
+  static Query createInsertQuery( EntityManager aEntityManager, String aTable, IStringMap<Object> aParams ) {
+    TsNullArgumentRtException.checkNulls( aEntityManager, aTable, aParams );
     // Построители формальных и фактических параметров
     StringBuilder formalParams = new StringBuilder();
     StringBuilder factParams = new StringBuilder();
@@ -1470,7 +1470,7 @@ class S5SequenceSQL {
       }
     }
     // Текст SQL-запроса
-    String sql = format( QFRMT_INSERT_ROW, aTableName, formalParams.toString(), factParams.toString() );
+    String sql = format( QFRMT_INSERT_ROW, aTable, formalParams.toString(), factParams.toString() );
     Query query = aEntityManager.createNativeQuery( sql );
     for( String fieldName : aParams.keys() ) {
       query.setParameter( fieldName, aParams.getByKey( fieldName ) );
@@ -1493,16 +1493,16 @@ class S5SequenceSQL {
    * Формирует запрос создания записи в таблице базы данных
    *
    * @param aEntityManager {@link EntityManager} менеджер постоянства
-   * @param aTableName String имя таблицы
+   * @param aTable String имя таблицы
    * @param aParams {@link IStringMap}&lt;Object&gt; карта параметров запроса.<br>
    *          Ключ: имя поля таблицы;Значение: значение поля.
    * @param aId {@link S5DataID} первичный ключ редактируемой записи
    * @return {@link Query} созданный запрос
    * @throws TsNullArgumentRtException любой аргумент = null
    */
-  static Query createUpdateQuery( EntityManager aEntityManager, String aTableName, IStringMap<Object> aParams,
+  static Query createUpdateQuery( EntityManager aEntityManager, String aTable, IStringMap<Object> aParams,
       S5DataID aId ) {
-    TsNullArgumentRtException.checkNulls( aEntityManager, aTableName, aParams, aId );
+    TsNullArgumentRtException.checkNulls( aEntityManager, aTable, aParams, aId );
     // Построители формальных и фактических параметров
     StringBuilder factParams = new StringBuilder();
     for( int index = 0, n = aParams.size(); index < n; index++ ) {
@@ -1515,7 +1515,7 @@ class S5SequenceSQL {
       }
     }
     // Текст SQL-запроса
-    String sql = format( QFRMT_UPDATE_ROW, aTableName, factParams.toString() );
+    String sql = format( QFRMT_UPDATE_ROW, aTable, factParams.toString() );
     Query query = aEntityManager.createNativeQuery( sql );
     for( String fieldName : aParams.keys() ) {
       query.setParameter( fieldName, aParams.getByKey( fieldName ) );
@@ -1541,15 +1541,15 @@ class S5SequenceSQL {
    * Возвращает список идентификаторов всех данных которые хранятся в базе данных
    *
    * @param aEntityManager {@link EntityManager} менеджер постоянства
-   * @param aTableNames {@link IList}&lt;{@link Pair}&lt;String,String&gt;&gt; список пар таблиц реализации блоков
+   * @param aTables {@link IList}&lt;{@link Pair}&lt;String,String&gt;&gt; список пар таблиц реализации блоков
    *          ({@link Pair#left()}) и их blob {@link Pair#right()}
    * @return {@link IGwidList} список идентификаторов
    * @throws TsNullArgumentRtException аргумент = null
    */
-  static IGwidList getAllGwids( EntityManager aEntityManager, IList<Pair<String, String>> aTableNames ) {
-    TsNullArgumentRtException.checkNulls( aEntityManager, aTableNames );
+  static IGwidList getAllGwids( EntityManager aEntityManager, IList<Pair<String, String>> aTables ) {
+    TsNullArgumentRtException.checkNulls( aEntityManager, aTables );
     GwidList retValue = new GwidList();
-    for( Pair<String, String> pair : aTableNames ) {
+    for( Pair<String, String> pair : aTables ) {
       // Имя таблицы
       String tableName = pair.left();
       // Текст SQL-запроса
@@ -1567,12 +1567,58 @@ class S5SequenceSQL {
   }
 
   /**
+   * Формат NATIVE(!)-запроса всех gwid в указанной таблице в указанных разделах
+   * <p>
+   * <li>1. %s - имя таблицы блока, например, S5HistDataAsyncBooleanEnity;</li>
+   * <li>2. %s - идентификатор данного (gwid);</li>
+   * <li>3. %s - список идентификаторов разделов через ','.</li>
+   * <p>
+   * Примечание: сделано без форматирования, так как используется в циклах формирования конечного sql-запроса
+   */
+  private static final String QFRMT_GET_GWIDS_BY_PARTITIONS = //
+      "select " + FIELD_GWID + " from %s.%s partition(%s)group by " + FIELD_GWID;
+
+  /**
+   * Возвращает список идентификаторов всех данных которые хранятся в базе данных
+   *
+   * @param aEntityManager {@link EntityManager} менеджер постоянства
+   * @param aScheme String имя схемы базы данных сервера
+   * @param aTable String имя таблицы в которой находятся разделы
+   * @param aPartitionInfos {@link IList}&lt;{@link S5SequencePartitionInfo}&gt; список описаний разделов
+   * @return {@link IGwidList} список идентификаторов
+   * @throws TsNullArgumentRtException аргумент = null
+   */
+  static IGwidList getAllPartitionGwids( EntityManager aEntityManager, String aScheme, String aTable,
+      IList<S5SequencePartitionInfo> aPartitionInfos ) {
+    TsNullArgumentRtException.checkNulls( aEntityManager, aScheme, aTable, aPartitionInfos );
+    StringBuilder partitionIds = new StringBuilder();
+    for( int index = 0, n = aPartitionInfos.size(); index < n; index++ ) {
+      partitionIds.append( aPartitionInfos.get( index ).partitionName() );
+      if( index + 1 < n ) {
+        partitionIds.append( ',' );
+      }
+    }
+    GwidList retValue = new GwidList();
+    // Текст SQL-запроса
+    String sql = format( QFRMT_GET_GWIDS_BY_PARTITIONS, aScheme, aTable, partitionIds.toString() );
+    // Выполнение запроса
+    Query query = aEntityManager.createNativeQuery( sql );
+    // Запрос данных
+    List<Object> entities = query.getResultList();
+    for( Object entity : entities ) {
+      Gwid gwid = Gwid.KEEPER.str2ent( (String)entity );
+      retValue.add( gwid );
+    }
+    return retValue;
+  }
+
+  /**
    * Запрос получения разделов (партиций) указанной таблицы
    * <p>
    * <li>1. %s - Имя схемы базы данных ;</li>
    * <li>2. %s - Имя таблицы;</li>
    */
-  static final String QFRMT_GET_TABLE_PARTIONS = //
+  static final String QFRMT_GET_PARTIONS = //
       "select distinct partition_name,partition_description from information_schema.partitions " //
           + "where table_schema='%s' and table_name='%s';";
 
@@ -1580,17 +1626,16 @@ class S5SequenceSQL {
    * Возвращает список идентификаторов всех данных которые хранятся в базе данных
    *
    * @param aEntityManager {@link EntityManager} менеджер постоянства
-   * @param aSchemeName String имя схемы базы данных сервера
-   * @param aTableName String имя таблицы в которой находятся разделы
+   * @param aScheme String имя схемы базы данных сервера
+   * @param aTable String имя таблицы в которой находятся разделы
    * @return {@link IList}&lt;{@link S5SequencePartitionInfo}&gt; список описаний разделов
    * @throws TsNullArgumentRtException аргумент = null
    */
-  static IList<S5SequencePartitionInfo> readPartitions( EntityManager aEntityManager, String aSchemeName,
-      String aTableName ) {
-    TsNullArgumentRtException.checkNulls( aEntityManager, aSchemeName, aTableName );
+  static IList<S5SequencePartitionInfo> readPartitions( EntityManager aEntityManager, String aScheme, String aTable ) {
+    TsNullArgumentRtException.checkNulls( aEntityManager, aScheme, aTable );
     IListEdit<S5SequencePartitionInfo> retValue = new ElemLinkedList<>();
     // Текст SQL-запроса
-    String sql = format( QFRMT_GET_TABLE_PARTIONS, aSchemeName, aTableName );
+    String sql = format( QFRMT_GET_PARTIONS, aScheme, aTable );
     // Выполнение запроса
     Query query = aEntityManager.createNativeQuery( sql );
     // Запрос данных
@@ -1603,6 +1648,15 @@ class S5SequenceSQL {
       Object[] partitionRow = (Object[])entity;
       String partitionName = (String)partitionRow[0];
       String endTimeStr = (String)partitionRow[1];
+      if( partitionName == null ) {
+        logger.debug( "schemeName = %s, aTableName = %s. entity = %s. partitionName = null", aScheme, aTable, entity );
+        continue;
+      }
+      if( endTimeStr == null ) {
+        logger.debug( "schemeName = %s, aTableName = %s. partitionName = %s. entity = %s. endTimeStr = null", aScheme,
+            aTable, partitionName, entity );
+        continue;
+      }
       long endTime = ("MAXVALUE".equals( endTimeStr ) ? TimeUtils.MAX_TIMESTAMP : Long.parseLong( endTimeStr ));
       retValue.add( new S5SequencePartitionInfo( partitionName, endTime ) );
     }
@@ -1617,7 +1671,7 @@ class S5SequenceSQL {
    * <li>3. %s - Имя раздела;</li>
    * <li>3. %s - метка времени завершения интервала времени значений раздела;</li>
    */
-  static final String QFRMT_CREATE_TABLE_PARTIONS = //
+  static final String QFRMT_CREATE_PARTION = //
       "alter table %s.%s partition by range columns(" + FIELD_START_TIME + ") (" //
           + "partition %s values less than(%d)" //
           + ");";
@@ -1630,7 +1684,7 @@ class S5SequenceSQL {
    * <li>3. %s - Имя раздела;</li>
    * <li>3. %s - метка времени завершения интервала времени значений раздела;</li>
    */
-  static final String QFRMT_ADD_TABLE_PARTIONS = //
+  static final String QFRMT_ADD_PARTION = //
       "alter table %s.%s add partition (" //
           + "partition %s values less than(%d)" //
           + ");";
@@ -1639,20 +1693,20 @@ class S5SequenceSQL {
    * Добавляет указанный раздел в указанную таблицу
    *
    * @param aEntityManager {@link EntityManager} менеджер постоянства
-   * @param aSchemeName String имя схемы базы данных сервера
-   * @param aTableName String имя таблицы в которой находятся разделы
-   * @param aPartitionInfo {@link S5SequencePartitionInfo} описание раздела
+   * @param aScheme String имя схемы базы данных сервера
+   * @param aTable String имя таблицы в которой находятся разделы
+   * @param aInfo {@link S5SequencePartitionInfo} описание раздела
    * @param aCreating boolean <true> добавить раздел в таблицу в которой не было разделов; <b>false</b> добавить раздел
    *          в таблицу с уже существующими разделами.
    * @return int количество удаленных блоков
    * @throws TsNullArgumentRtException любой аргумент = null
    */
-  static int addPartition( EntityManager aEntityManager, String aSchemeName, String aTableName,
-      S5SequencePartitionInfo aPartitionInfo, boolean aCreating ) {
-    TsNullArgumentRtException.checkNulls( aEntityManager, aSchemeName, aTableName, aPartitionInfo );
+  static int addPartition( EntityManager aEntityManager, String aScheme, String aTable, S5SequencePartitionInfo aInfo,
+      boolean aCreating ) {
+    TsNullArgumentRtException.checkNulls( aEntityManager, aScheme, aTable, aInfo );
     // Текст SQL-запроса
-    String sql = format( aCreating ? QFRMT_CREATE_TABLE_PARTIONS : QFRMT_ADD_TABLE_PARTIONS, //
-        aSchemeName, aTableName, aPartitionInfo.partitionName(), Long.valueOf( aPartitionInfo.interval().endTime() ) );
+    String sql = format( aCreating ? QFRMT_CREATE_PARTION : QFRMT_ADD_PARTION, //
+        aScheme, aTable, aInfo.partitionName(), Long.valueOf( aInfo.interval().endTime() ) );
     try {
       // Выполнение запроса
       Query query = aEntityManager.createNativeQuery( sql );
@@ -1661,8 +1715,44 @@ class S5SequenceSQL {
     }
     catch( RuntimeException e ) {
       // Ошибка добавления разделов
-      throw new TsIllegalArgumentRtException( e, ERR_ADD_PARTITION, aSchemeName, aTableName, aPartitionInfo,
-          cause( e ) );
+      throw new TsIllegalArgumentRtException( e, ERR_ADD_PARTITION, aScheme, aTable, aInfo, cause( e ) );
+    }
+  }
+
+  /**
+   * Запрос на удаление раздела (партиции) из указанной таблицы
+   * <p>
+   * <li>1. %s - Имя схемы базы данных ;</li>
+   * <li>2. %s - Имя таблицы;</li>
+   * <li>3. %s - Имя раздела;</li>
+   * <li>3. %s - метка времени завершения интервала времени значений раздела;</li>
+   */
+  static final String QFRMT_DROP_PARTION = //
+      "alter table %s.%s drop partition %s;";
+
+  /**
+   * Удаляет указанный раздел из указанной таблицы
+   *
+   * @param aEntityManager {@link EntityManager} менеджер постоянства
+   * @param aScheme String имя схемы базы данных сервера
+   * @param aTable String имя таблицы в которой находятся разделы
+   * @param aPartition String имя раздела
+   * @return int количество удаленных блоков
+   * @throws TsNullArgumentRtException любой аргумент = null
+   */
+  static int dropPartition( EntityManager aEntityManager, String aScheme, String aTable, String aPartition ) {
+    TsNullArgumentRtException.checkNulls( aEntityManager, aScheme, aTable );
+    // Текст SQL-запроса
+    String sql = format( QFRMT_DROP_PARTION, aScheme, aTable, aPartition );
+    try {
+      // Выполнение запроса
+      Query query = aEntityManager.createNativeQuery( sql );
+      int retCode = query.executeUpdate();
+      return retCode;
+    }
+    catch( RuntimeException e ) {
+      // Ошибка удаления раздела
+      throw new TsIllegalArgumentRtException( e, ERR_DROP_PARTITION, aScheme, aTable, aPartition, cause( e ) );
     }
   }
 

@@ -2,8 +2,8 @@ package org.toxsoft.uskat.s5.server.sequences.impl;
 
 import java.io.Serializable;
 
-import org.toxsoft.core.tslib.bricks.time.ITimeInterval;
-import org.toxsoft.core.tslib.gw.gwid.Gwid;
+import org.toxsoft.core.tslib.coll.IList;
+import org.toxsoft.core.tslib.gw.gwid.IGwidList;
 import org.toxsoft.core.tslib.utils.TsLibUtils;
 import org.toxsoft.core.tslib.utils.errors.TsIllegalArgumentRtException;
 import org.toxsoft.core.tslib.utils.errors.TsNullArgumentRtException;
@@ -19,47 +19,24 @@ public class S5SequenceRemoveInfo
 
   private static final long serialVersionUID = 157157L;
 
-  private final String  tableName;
-  private final Gwid    gwid;
-  private ITimeInterval removeInterval     = ITimeInterval.NULL;
-  private ITimeInterval firstBlockInterval = ITimeInterval.NULL;
+  private final String                         tableName;
+  private final IGwidList                      gwids;
+  private final IList<S5SequencePartitionInfo> partitionInfos;
 
   /**
    * Конструктор
    *
    * @param aTableName String имя таблицы хранения данного
-   * @param aGwid {@link Gwid} идентификатор данного
+   * @param aGwids {@link IGwidList} список идентификаторов данных удаляемы таблиц
+   * @param aPartitionInfos {@link IList}&lt;{@link S5SequencePartitionInfo}&gt; список описаний удалямых разделов
    * @throws TsNullArgumentRtException любой аргумент = null
    * @throws TsIllegalArgumentRtException aStartTime > aEndTime
    */
-  public S5SequenceRemoveInfo( String aTableName, Gwid aGwid ) {
-    TsNullArgumentRtException.checkNulls( aTableName, aGwid );
+  public S5SequenceRemoveInfo( String aTableName, IGwidList aGwids, IList<S5SequencePartitionInfo> aPartitionInfos ) {
+    TsNullArgumentRtException.checkNulls( aTableName, aPartitionInfos );
     tableName = aTableName;
-    gwid = aGwid;
-  }
-
-  // ------------------------------------------------------------------------------------
-  // Открытое API
-  //
-  /**
-   * Устанавливает интервал в котором находятся удаляемые значения
-   *
-   * @param aRemoveInterval {@link ITimeInterval} интервал удаляемых значений, {@link ITimeInterval#NULL}: пустой
-   *          интервал.
-   * @throws TsNullArgumentRtException аргумент = null
-   */
-  public void setRemoveInterval( ITimeInterval aRemoveInterval ) {
-    TsNullArgumentRtException.checkNull( aRemoveInterval );
-    removeInterval = aRemoveInterval;
-  }
-
-  /**
-   * Устанавливает интервал первого блока значений хранимого в БД.
-   *
-   * @param aInterval {@link ITimeInterval} интервал. {@link ITimeInterval#NULL}: нет блока (нет значений).
-   */
-  public void setFirstBlockInterval( ITimeInterval aInterval ) {
-    firstBlockInterval = aInterval;
+    gwids = aGwids;
+    partitionInfos = aPartitionInfos;
   }
 
   // ------------------------------------------------------------------------------------
@@ -71,18 +48,13 @@ public class S5SequenceRemoveInfo
   }
 
   @Override
-  public Gwid gwid() {
-    return gwid;
+  public IGwidList gwids() {
+    return gwids;
   }
 
   @Override
-  public ITimeInterval removeInterval() {
-    return removeInterval;
-  }
-
-  @Override
-  public ITimeInterval firstBlockInterval() {
-    return firstBlockInterval;
+  public IList<S5SequencePartitionInfo> partitionInfos() {
+    return partitionInfos;
   }
 
   // ------------------------------------------------------------------------------------
@@ -90,16 +62,15 @@ public class S5SequenceRemoveInfo
   //
   @Override
   public String toString() {
-    return tableName + ':' + gwid.toString() + '[' + removeInterval + ',' + firstBlockInterval + ']';
+    return tableName + ':' + partitionInfos;
   }
 
   @Override
   public int hashCode() {
     int result = TsLibUtils.INITIAL_HASH_CODE;
     result = TsLibUtils.PRIME * result + tableName.hashCode();
-    result = TsLibUtils.PRIME * result + gwid.hashCode();
-    result = TsLibUtils.PRIME * result + removeInterval.hashCode();
-    result = TsLibUtils.PRIME * result + firstBlockInterval.hashCode();
+    result = TsLibUtils.PRIME * result + gwids.hashCode();
+    result = TsLibUtils.PRIME * result + partitionInfos.hashCode();
     return result;
   }
 
@@ -118,13 +89,10 @@ public class S5SequenceRemoveInfo
     if( !tableName.equals( other.tableName() ) ) {
       return false;
     }
-    if( !gwid.equals( other.gwid() ) ) {
+    if( !gwids.equals( other.gwids() ) ) {
       return false;
     }
-    if( !removeInterval.equals( other.removeInterval() ) ) {
-      return false;
-    }
-    if( !firstBlockInterval.equals( other.firstBlockInterval() ) ) {
+    if( !partitionInfos.equals( other.partitionInfos() ) ) {
       return false;
     }
     return true;
