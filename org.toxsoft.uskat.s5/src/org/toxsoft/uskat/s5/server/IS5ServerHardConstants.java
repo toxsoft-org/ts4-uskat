@@ -57,7 +57,7 @@ public interface IS5ServerHardConstants
   String S5_SERVER_DESCR = STR_D_S5_SERVER_INFO;
 
   /**
-   * Версия сервера
+   * Версия сервера.
    */
   TsVersion version = new TsVersion( 4, 17, 2023, Month.SEPTEMBER, 25 );
 
