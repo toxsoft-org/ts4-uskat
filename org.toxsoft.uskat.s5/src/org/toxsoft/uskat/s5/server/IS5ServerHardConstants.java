@@ -47,7 +47,7 @@ public interface IS5ServerHardConstants
   String S5_SERVER_ID = "org.toxsoft.uskat.s5.server";
 
   /**
-   * Имя модуля реализующего skat-s5 сервер
+   * Имя модуля реализующего skat-s5 сервер.
    */
   String S5_SERVER_NAME = STR_N_S5_SERVER_INFO;
 
