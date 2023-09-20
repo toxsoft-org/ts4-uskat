@@ -52,7 +52,7 @@ public interface IS5ServerHardConstants
   String S5_SERVER_NAME = STR_N_S5_SERVER_INFO;
 
   /**
-   * Описание модуля реализующего skat-s5 сервер
+   * Описание модуля реализующего skat-s5 сервер.
    */
   String S5_SERVER_DESCR = STR_D_S5_SERVER_INFO;
 
