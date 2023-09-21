@@ -42,7 +42,7 @@ public interface IS5ServerHardConstants
   // Идентификация
   //
   /**
-   * Идентификатор модуля реализующего сервер
+   * Идентификатор модуля реализующего сервер.
    */
   String S5_SERVER_ID = "org.toxsoft.uskat.s5.server";
 
