@@ -71,7 +71,7 @@ public class KM5ModelBasic<T extends ISkObject>
     @Override
     protected void doInit() {
       setNameAndDescription( STR_N_FDEF_STRID, STR_D_FDEF_STRID );
-      setFlags( M5FF_INVARIANT );
+      setFlags( M5FF_COLUMN | M5FF_INVARIANT );
     }
 
   };

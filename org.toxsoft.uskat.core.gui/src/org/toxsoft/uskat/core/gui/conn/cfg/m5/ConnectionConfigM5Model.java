@@ -81,6 +81,7 @@ public class ConnectionConfigM5Model
       setValedEditor( ValedOptionSet.FACTORY_NAME );
       setDefaultValue( IOptionSet.NULL );
       params().setBool( IValedControlConstants.OPDEF_IS_WIDTH_FIXED, false );
+      params().setInt( IValedControlConstants.OPDEF_VERTICAL_SPAN, 6 );
     }
 
     protected IOptionSet doGetFieldValue( IConnectionConfig aEntity ) {

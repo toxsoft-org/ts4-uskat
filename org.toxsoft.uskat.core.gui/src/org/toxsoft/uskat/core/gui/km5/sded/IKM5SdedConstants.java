@@ -13,6 +13,7 @@ public interface IKM5SdedConstants {
 
   String MID_SDED_SK_CLASS_INFO   = SDED_ID + ".SkClassInfo";    //$NON-NLS-1$
   String MID_SDED_DTO_CLASS_INFO  = SDED_ID + ".DtoClassInfo";   //$NON-NLS-1$
+  String MID_SDED_DTO_FULL_OBJECT = SDED_ID + ".DtoFullObject";  //$NON-NLS-1$
   String MID_SDED_ATTR_INFO       = SDED_ID + ".AttrInfo";       //$NON-NLS-1$
   String MID_SDED_RIVET_INFO      = SDED_ID + ".RivetInfo";      //$NON-NLS-1$
   String MID_SDED_CLOB_INFO       = SDED_ID + ".ClobInfo";       //$NON-NLS-1$

@@ -43,24 +43,24 @@ public interface IS5ServerHardConstants
   // Идентификация
   //
   /**
-   * Идентификатор модуля реализующего сервер
+   * Идентификатор модуля реализующего сервер.
    */
   String S5_SERVER_ID = "org.toxsoft.uskat.s5.server";
 
   /**
-   * Имя модуля реализующего skat-s5 сервер
+   * Имя модуля реализующего skat-s5 сервер.
    */
   String S5_SERVER_NAME = STR_N_S5_SERVER_INFO;
 
   /**
-   * Описание модуля реализующего skat-s5 сервер
+   * Описание модуля реализующего skat-s5 сервер.
    */
   String S5_SERVER_DESCR = STR_D_S5_SERVER_INFO;
 
   /**
-   * Версия сервера
+   * Версия сервера.
    */
-  TsVersion version = new TsVersion( 4, 15, 2023, Month.MAY, 25 );
+  TsVersion version = new TsVersion( 4, 17, 2023, Month.SEPTEMBER, 25 );
 
   // ------------------------------------------------------------------------------------
   // Опции s5-backend

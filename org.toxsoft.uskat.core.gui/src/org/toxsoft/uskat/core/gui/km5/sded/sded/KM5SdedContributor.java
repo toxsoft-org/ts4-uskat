@@ -9,6 +9,7 @@ import org.toxsoft.core.tslib.coll.primtypes.*;
 import org.toxsoft.core.tslib.utils.errors.*;
 import org.toxsoft.uskat.core.connection.*;
 import org.toxsoft.uskat.core.gui.km5.*;
+import org.toxsoft.uskat.core.gui.km5.sded.objed.*;
 
 /**
  * Contributes M5-models for templates entities.
@@ -49,6 +50,10 @@ public class KM5SdedContributor
     modelsList.add( new SdedDtoEvInfoM5Model( skConn() ) );
     modelsList.add( new SdedDtoClassInfoM5Model( skConn() ) );
     modelsList.add( new SdedSkClassInfoM5Model( skConn() ) );
+    modelsList.add( new SdedSkObjectM5Model( skConn() ) );
+    modelsList.add( new MappedSkidsM5Model( skConn() ) );
+    modelsList.add( new StringMapStringM5Model( skConn() ) );
+
     return modelsList;
   }
 

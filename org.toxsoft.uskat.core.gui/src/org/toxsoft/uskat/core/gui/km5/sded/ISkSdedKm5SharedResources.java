@@ -86,4 +86,32 @@ public interface ISkSdedKm5SharedResources {
   String STR_N_HIDE_CLAIMED_CLASSES = Messages.getString( "STR_N_HIDE_CLAIMED_CLASSES" ); //$NON-NLS-1$
   String STR_D_HIDE_CLAIMED_CLASSES = Messages.getString( "STR_D_HIDE_CLAIMED_CLASSES" ); //$NON-NLS-1$
 
+  /**
+   * {@link SdedDtoFullObjectM5Model}
+   */
+  String STR_N_OBJECT_NAME              = "Название";
+  String STR_D_OBJECT_NAME              = "Название объекта";
+  String STR_N_OBJECT_DESCRIPTION       = "Описание";
+  String STR_D_OBJECT_DESCRIPTION       = "Описание объекта";
+  String STR_N_ATTRS                    = "атрибуты";
+  String STR_D_ATTRS                    = "Описание атрибутов";
+  String STR_N_CLOBS                    = "clobs";
+  String STR_D_CLOBS                    = "Описание clobs";
+  String STR_N_LINKS                    = "связи";
+  String STR_D_LINKS                    = "Описание связей";
+  String STR_N_RIVETS                   = "rivets";
+  String STR_D_RIVETS                   = "Описание заклепок";
+  String STR_N_MAPPED_SKIDS_LINK_ID     = "link id";
+  String STR_D_MAPPED_SKIDS_LINK_ID     = "id связи объекта";
+  String STR_N_MAPPED_SKIDS_RIGHT_SKIDS = "right Skids";
+  String STR_D_MAPPED_SKIDS_RIGHT_SKIDS = "right Skids по связи объекта";
+
+  /**
+   * {@link StringMapStringM5Model}
+   */
+  String STR_N_CLOB_KEY = "clob key";
+  String STR_D_CLOB_KEY = "Ключ для clob";
+  String STR_N_CLOB_VAL = "clob value";
+  String STR_D_CLOB_VAL = "Значение clob'а";
+
 }
