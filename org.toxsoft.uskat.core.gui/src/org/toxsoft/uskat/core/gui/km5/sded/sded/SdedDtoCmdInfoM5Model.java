@@ -13,6 +13,7 @@ import org.toxsoft.core.tslib.av.metainfo.*;
 import org.toxsoft.core.tslib.av.opset.*;
 import org.toxsoft.core.tslib.av.opset.impl.*;
 import org.toxsoft.core.tslib.bricks.strid.coll.*;
+import org.toxsoft.core.tslib.bricks.strid.coll.impl.*;
 import org.toxsoft.core.tslib.utils.errors.*;
 import org.toxsoft.uskat.core.api.sysdescr.dto.*;
 import org.toxsoft.uskat.core.connection.*;
@@ -56,9 +57,10 @@ public class SdedDtoCmdInfoM5Model
       super( aModel );
     }
 
-    private IDtoCmdInfo makeAttrInfo( IM5Bunch<IDtoCmdInfo> aValues ) {
+    private IDtoCmdInfo makeCmdInfo( IM5Bunch<IDtoCmdInfo> aValues ) {
       String id = aValues.getAsAv( FID_ID ).asString();
-      IStridablesList<IDataDef> dataDefs = (IStridablesList<IDataDef>)ARG_DEFS.getFieldValue( aValues );
+
+      StridablesList<IDataDef> dataDefs = new StridablesList<>( ARG_DEFS.getFieldValue( aValues ) );
 
       IOptionSetEdit params = new OptionSet();
       if( aValues.originalEntity() != null ) {
@@ -72,12 +74,12 @@ public class SdedDtoCmdInfoM5Model
 
     @Override
     protected IDtoCmdInfo doCreate( IM5Bunch<IDtoCmdInfo> aValues ) {
-      return makeAttrInfo( aValues );
+      return makeCmdInfo( aValues );
     }
 
     @Override
     protected IDtoCmdInfo doEdit( IM5Bunch<IDtoCmdInfo> aValues ) {
-      return makeAttrInfo( aValues );
+      return makeCmdInfo( aValues );
     }
 
     @Override
