@@ -356,6 +356,8 @@ interface IS5Resources {
   String ERR_NOT_IMPORT_DATA        = Messages.getString( "IS5Resources.ERR_NOT_IMPORT_DATA" );        //$NON-NLS-1$
   String ERR_CAST_VALUE             = Messages.getString( "IS5Resources.ERR_CAST_VALUE" );             //$NON-NLS-1$
 
+  String ERR_UNEXPECT_DOJOB_ERROR = "unexpected doJob error. cause = %s"; //$NON-NLS-1$
+
   // THREADS
   // ------------------------------------------------------------------------------------
   // Строки сообщений

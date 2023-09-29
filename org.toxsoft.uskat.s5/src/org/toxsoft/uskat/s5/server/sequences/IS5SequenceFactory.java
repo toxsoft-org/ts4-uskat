@@ -21,7 +21,7 @@ public interface IS5SequenceFactory<V extends ITemporal<?>>
     extends IS5SequenceValueFactory {
 
   /**
-   * Список имен таблиц базы данных в которых возможно хранение значений данных
+   * Возвращает список имен таблиц базы данных в которых возможно хранение значений данных
    *
    * @return {@link IList}&lt;{@link Pair}&gt; список пар определяющих хранение блока ({@link Pair#left()}) и его blob
    *         (({@link Pair#right()}))

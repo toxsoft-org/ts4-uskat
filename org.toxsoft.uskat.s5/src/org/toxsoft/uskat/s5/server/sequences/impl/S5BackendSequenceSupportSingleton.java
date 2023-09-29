@@ -404,7 +404,8 @@ public abstract class S5BackendSequenceSupportSingleton<S extends IS5Sequence<V>
       logger().debug( MSG_TIMER_EVENT_START, aTimer.getInfo() );
     }
     try {
-
+      // Фоновая задача писателя
+      sequenceWriter.doJob();
       // Обновление писателя статистики если он определен
       S5StatisticWriter stat = statisticWriter;
       if( stat != null ) {

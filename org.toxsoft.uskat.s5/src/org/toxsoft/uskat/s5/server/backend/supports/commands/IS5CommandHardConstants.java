@@ -78,16 +78,4 @@ public interface IS5CommandHardConstants
    */
   IDataDef OP_VALUE_SIZE_MAX =
       createOption( COMMANDS_PREFIX, IS5SequenceHardConstants.OP_VALUE_SIZE_MAX, avInt( 100 ) );
-
-  /**
-   * Опция {@link ISkClassInfo#params()} : гарантированное время (сутки) хранения истории команд.
-   * <p>
-   * Определяет время хранения истории команд. По факту система может хранить данные более долгий период (определяется
-   * реализацией), но не меньший.
-   * <p>
-   * Тип: {@link EAtomicType#INTEGER}
-   */
-  IDataDef OP_VALUE_STORAGE_DEPTH =
-      createOption( COMMANDS_PREFIX, IS5SequenceHardConstants.OP_VALUE_STORAGE_DEPTH, avInt( 365 * 10 ) ); // по
-                                                                                                           // умолчанию
 }

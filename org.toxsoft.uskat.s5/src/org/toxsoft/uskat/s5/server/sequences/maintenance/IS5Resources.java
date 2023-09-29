@@ -43,8 +43,8 @@ interface IS5Resources {
   String D_REMOVE_INTERVAL = Messages.getString( "IS5Resources.D_REMOVE_INTERVAL" ); //$NON-NLS-1$
   String N_REMOVE_INTERVAL = Messages.getString( "IS5Resources.N_REMOVE_INTERVAL" ); //$NON-NLS-1$
 
-  String D_REMOVE_GWIDS = Messages.getString( "IS5Resources.D_REMOVE_GWIDS" ); //$NON-NLS-1$
-  String N_REMOVE_GWIDS = Messages.getString( "IS5Resources.N_REMOVE_GWIDS" ); //$NON-NLS-1$
+  String D_REMOVE_FROM_TABLES = Messages.getString( "IS5Resources.D_REMOVE_FROM_TABLES" ); //$NON-NLS-1$
+  String N_REMOVE_FROM_TABLES = Messages.getString( "IS5Resources.N_REMOVE_FROM_TABLES" ); //$NON-NLS-1$
 
   String D_REMOVE_THREADS_COUNT = Messages.getString( "IS5Resources.D_REMOVE_THREADS_COUNT" ); //$NON-NLS-1$
   String N_REMOVE_THREADS_COUNT = Messages.getString( "IS5Resources.N_REMOVE_THREADS_COUNT" ); //$NON-NLS-1$

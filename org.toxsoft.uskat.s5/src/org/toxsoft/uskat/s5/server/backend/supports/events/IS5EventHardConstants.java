@@ -62,16 +62,4 @@ public interface IS5EventHardConstants
    * определяться как: {@link #OP_VALUE_SIZE_MAX} + 8(количество байт в метке времени)
    */
   IDataDef OP_VALUE_SIZE_MAX = createOption( EVENTS_PREFIX, IS5SequenceHardConstants.OP_VALUE_SIZE_MAX, avInt( 100 ) );
-
-  /**
-   * Опция {@link ISkClassInfo#params()} : гарантированное время (сутки) хранения истории событий.
-   * <p>
-   * Определяет время хранения событий. По факту система может хранить данные более долгий период (определяется
-   * реализацией), но не меньший.
-   * <p>
-   * Тип: {@link EAtomicType#INTEGER}
-   */
-  IDataDef OP_VALUE_STORAGE_DEPTH =
-      createOption( EVENTS_PREFIX, IS5SequenceHardConstants.OP_VALUE_STORAGE_DEPTH, avInt( 365 * 10 ) ); // по умолчанию
-                                                                                                         // 10 лет
 }

@@ -1579,7 +1579,7 @@ class S5SequenceSQL {
       "select " + FIELD_GWID + " from %s.%s partition(%s)group by " + FIELD_GWID;
 
   /**
-   * Возвращает список идентификаторов всех данных которые хранятся в базе данных
+   * Возвращает список идентификаторов всех данных которые хранятся в таблице базы данных
    *
    * @param aEntityManager {@link EntityManager} менеджер постоянства
    * @param aScheme String имя схемы базы данных сервера

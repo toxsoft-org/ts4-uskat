@@ -90,22 +90,6 @@ public interface IS5SequenceHardConstants
       TSID_IS_NULL_ALLOWED, AV_FALSE, //
       TSID_DEFAULT_VALUE, avInt( 8 ) );
 
-  /**
-   * Опция {@link IS5Sequence#typeInfo()} : гарантированное время (сутки) хранения значений.
-   * <p>
-   * Определяет время хранения значений хранимых данных. По факту система может хранить данные более долгий период
-   * (определяется реализацией), но не меньший.
-   * <p>
-   * Тип: {@link EAtomicType#INTEGER}
-   */
-  IDataDef OP_VALUE_STORAGE_DEPTH = create( SEQUENCE_PREFIX + ".ValueStorageDepth", EAtomicType.INTEGER, //
-      TSID_NAME, STR_N_VALUE_STORAGE_DEPTH, //
-      TSID_DESCRIPTION, STR_D_VALUE_STORAGE_DEPTH, //
-      TSID_IS_NULL_ALLOWED, AV_FALSE, //
-      // TODO: mvkd 2023-08-30
-      // TSID_DEFAULT_VALUE, avInt( 365 * 10 ) ); // по умолчанию 10 лет
-      TSID_DEFAULT_VALUE, avInt( 7 ) ); // неделя
-
   // ------------------------------------------------------------------------------------
   // Константы
   //

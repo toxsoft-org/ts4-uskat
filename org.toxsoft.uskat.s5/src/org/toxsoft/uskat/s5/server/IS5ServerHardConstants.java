@@ -172,6 +172,22 @@ public interface IS5ServerHardConstants
       TSID_DEFAULT_VALUE, IAtomicValue.NULL );
 
   /**
+   * Параметр {@link ISkBackendInfo#params()}: : гарантированное время (сутки) хранения данных.
+   * <p>
+   * Определяет время хранения значений исторических данных, событий и истории команд. По факту система может хранить
+   * данные более долгий период (определяется реализацией), но не меньший.
+   * <p>
+   * Тип: {@link EAtomicType#INTEGER}
+   */
+  IDataDef OP_VALUE_STORAGE_DEPTH = create( S5_BACKEND_ID_START + "DbDepth", EAtomicType.INTEGER, //$NON-NLS-1$
+      TSID_NAME, STR_N_BACKEND_DB_DEPTH, //
+      TSID_DESCRIPTION, STR_D_BACKEND_DB_DEPTH, //
+      TSID_IS_NULL_ALLOWED, AV_FALSE, //
+      // 2023-09-29 TODO: mvkd:
+      // TSID_DEFAULT_VALUE, avInt( 10 * 365 ) ); // По умолчанию: 10 лет
+      TSID_DEFAULT_VALUE, avInt( 3 ) ); // Для отладки: 3 суток
+
+  /**
    * Параметр {@link ISkBackendInfo#params()}: Идентификатор зоны времени, по которому работает сервер
    * <p>
    * Тип: {@link EAtomicType#STRING} содержит {@link ZoneId#getId()}

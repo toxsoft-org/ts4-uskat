@@ -3,6 +3,7 @@ package org.toxsoft.uskat.s5.server.sequences.impl;
 import static org.toxsoft.core.log4j.LoggerWrapper.*;
 import static org.toxsoft.core.tslib.bricks.time.impl.TimeUtils.*;
 import static org.toxsoft.uskat.s5.common.IS5CommonResources.*;
+import static org.toxsoft.uskat.s5.server.IS5ImplementConstants.*;
 import static org.toxsoft.uskat.s5.server.IS5ServerHardConstants.*;
 import static org.toxsoft.uskat.s5.server.sequences.IS5SequenceHardConstants.*;
 import static org.toxsoft.uskat.s5.server.sequences.impl.IS5Resources.*;
@@ -15,27 +16,31 @@ import static org.toxsoft.uskat.s5.utils.threads.impl.S5Lockable.*;
 import java.util.*;
 
 import javax.enterprise.concurrent.ManagedExecutorService;
+import javax.naming.InitialContext;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
+import javax.transaction.UserTransaction;
 
+import org.toxsoft.core.log4j.LoggerWrapper;
 import org.toxsoft.core.pas.tj.ITjValue;
 import org.toxsoft.core.pas.tj.impl.TjUtils;
 import org.toxsoft.core.tslib.av.IAtomicValue;
 import org.toxsoft.core.tslib.av.opset.IOptionSet;
+import org.toxsoft.core.tslib.av.opset.IOptionSetEdit;
+import org.toxsoft.core.tslib.av.opset.impl.OptionSet;
 import org.toxsoft.core.tslib.av.utils.IParameterized;
-import org.toxsoft.core.tslib.bricks.strid.impl.StridUtils;
 import org.toxsoft.core.tslib.bricks.strio.IStrioHardConstants;
 import org.toxsoft.core.tslib.bricks.time.*;
 import org.toxsoft.core.tslib.bricks.time.impl.*;
 import org.toxsoft.core.tslib.bricks.validator.ValidationResult;
 import org.toxsoft.core.tslib.coll.*;
+import org.toxsoft.core.tslib.coll.derivative.IQueue;
+import org.toxsoft.core.tslib.coll.derivative.Queue;
 import org.toxsoft.core.tslib.coll.impl.ElemArrayList;
-import org.toxsoft.core.tslib.coll.primtypes.IStringMap;
-import org.toxsoft.core.tslib.coll.primtypes.IStringMapEdit;
+import org.toxsoft.core.tslib.coll.primtypes.*;
 import org.toxsoft.core.tslib.coll.primtypes.impl.StringMap;
 import org.toxsoft.core.tslib.coll.synch.SynchronizedListEdit;
-import org.toxsoft.core.tslib.gw.gwid.Gwid;
-import org.toxsoft.core.tslib.gw.gwid.GwidList;
+import org.toxsoft.core.tslib.gw.gwid.*;
 import org.toxsoft.core.tslib.utils.Pair;
 import org.toxsoft.core.tslib.utils.errors.*;
 import org.toxsoft.core.tslib.utils.logs.ILogger;
@@ -171,6 +176,21 @@ public abstract class S5AbstractSequenceWriter<S extends IS5Sequence<V>, V exten
    * Блокировка доступа к данным на удаление: {@link #partitionInfosByTable}
    */
   private final S5Lockable partitionInfoLock = new S5Lockable();
+
+  /**
+   * Список запланированных операций удаления данных
+   */
+  private final IQueue<IS5SequenceRemoveInfo> removeCandidates = new Queue<>();
+
+  /**
+   * Блокировка доступа к данным на удаление: {@link #removeCandidates}
+   */
+  private final S5Lockable removeCandidatesLock = new S5Lockable();
+
+  /**
+   * Время (мсек с начала эпохи) последней проверки разделов таблиц
+   */
+  private long lastCheckPartitionTime = System.currentTimeMillis();
 
   /**
    * Журнал
@@ -478,92 +498,50 @@ public abstract class S5AbstractSequenceWriter<S extends IS5Sequence<V>, V exten
   }
 
   /**
-   * Подготовить (если необходимо) разделы таблиц для записи значений последовательностей
+   * Формирует список описаний для удаления разделов из таблиц
    *
    * @param aEntityManager {@link EntityManager} менеджер постоянства
-   * @param aSequences {@link IList} список последовательностей значений для записи
+   * @param aUserTables {@link IStringList} список имен таблиц в которых удаляются разделы. Пустой список: все таблицы
+   * @param aInterval {@link ITimeInterval} интервал в который должны полностью попадать удаляемые разделы
+   * @return {@link IList} список описаний удаляемых разделов
    * @throws TsNullArgumentRtException любой аргумент = null
    */
-  protected final void preparePartitionsForWrite( EntityManager aEntityManager, IList<S> aSequences ) {
-    TsNullArgumentRtException.checkNulls( aEntityManager, aSequences );
-    //@formatter:on
+  protected final IList<IS5SequenceRemoveInfo> getRemoveInfoList( EntityManager aEntityManager, IStringList aUserTables,
+      ITimeInterval aInterval ) {
+    TsNullArgumentRtException.checkNulls( aEntityManager, aUserTables, aInterval );
     // Схема базы данных сервера
-    IAtomicValue dbScheme = OP_BACKEND_DB_SCHEME_NAME.getValue( initialConfig().impl().params() );
-    if( !dbScheme.isAssigned() ) {
-      // Не определено имя схемы базы данных в реализации сервера
-      throw new TsIllegalArgumentRtException( ERR_DB_SCHEME_NOT_DEFINED );
-    }
-    String scheme = dbScheme.asString();
-    // Карта описаний разделов добавляемых таблицы без разделов. Ключ: имя таблицы.
-    IStringMapEdit<IList<S5SequencePartitionInfo>> createPartitions = new StringMap<>();
-    // Карта описаний разделов добавляемых в таблицы с существующими разделами. Ключ: имя таблицы.
-    IStringMapEdit<IList<S5SequencePartitionInfo>> addPartitions = new StringMap<>();
-    // Обработка разделов таблиц
+    String scheme = OP_BACKEND_DB_SCHEME_NAME.getValue( initialConfig().impl().params() ).asString();
+    IListEdit<IS5SequenceRemoveInfo> retValue = new ElemArrayList<>( false );
     lockWrite( partitionInfoLock );
     try {
-      for( int index = 0, n = aSequences.size(); index < n; index++ ) {
-        S sequence = aSequences.get( index );
-        ITimeInterval interval = sequence.interval();
-        Gwid gwid = sequence.gwid();
-        IParameterized typeInfo = sequenceFactory().typeInfo( gwid );
-        int depth = IS5SequenceHardConstants.OP_VALUE_STORAGE_DEPTH.getValue( typeInfo.params() ).asInt();
-        String blockTable = StridUtils.getLast( S5SequenceSQL.blockImplClassFromInfo( typeInfo ) );
-        String blobTable = StridUtils.getLast( S5SequenceSQL.blobImplClassFromInfo( typeInfo ) );
-        prepareTablePartition( aEntityManager, scheme, blockTable, interval, depth, createPartitions, addPartitions );
-        prepareTablePartition( aEntityManager, scheme, blobTable, interval, depth, createPartitions, addPartitions );
+      _nextTable:
+      for( String tableName : partitionInfosByTable.keys() ) {
+        if( aUserTables.size() > 0 && !aUserTables.hasElem( tableName ) ) {
+          // Пользователь указал таблицы, но текущей нет в этом списке
+          continue _nextTable;
+        }
+        IList<S5SequencePartitionInfo> partitionInfos = partitionInfosByTable.getByKey( tableName );
+        IListEdit<S5SequencePartitionInfo> removePartitionInfos = new ElemArrayList<>();
+        // Формирование списка удаляемых разделов
+        for( S5SequencePartitionInfo partitionInfo : partitionInfos ) {
+          if( TimeUtils.contains( aInterval, partitionInfo.interval() ) ) {
+            removePartitionInfos.add( partitionInfo );
+          }
+        }
+        if( removePartitionInfos.size() == 0 ) {
+          // Нет удаляемых разделов
+          continue _nextTable;
+        }
+        // Идентификаторы данных таблицы
+        IGwidList partitionGwids = getAllPartitionGwids( aEntityManager, scheme, tableName, partitionInfos );
+        // Формирование списка удаляемых данных
+        retValue.add( new S5SequenceRemoveInfo( tableName, partitionGwids, removePartitionInfos ) );
       }
     }
     finally {
       unlockWrite( partitionInfoLock );
     }
-    if( createPartitions.size() == 0 && addPartitions.size() == 0 ) {
-      // Нет необходимости создавать новые разделы
-      return;
-    }
-    // Текущая таблица базы данных. null: нет таблицы
-    String tablename = null;
-    // Текущий добавляемый раздел. null: нет раздела
-    S5SequencePartitionInfo partitionInfo = null;
-    try {
-      for( String table : createPartitions.keys() ) {
-        for( S5SequencePartitionInfo info : createPartitions.getByKey( table ) ) {
-          tablename = table;
-          partitionInfo = info;
-          logger().info( MSG_ADD_PARTITION, scheme, table, info );
-          S5SequenceSQL.addPartition( aEntityManager, scheme, table, info, true );
-        }
-      }
-      for( String table : addPartitions.keys() ) {
-        for( S5SequencePartitionInfo info : addPartitions.getByKey( table ) ) {
-          tablename = table;
-          partitionInfo = info;
-          logger().info( MSG_ADD_PARTITION, scheme, table, info );
-          S5SequenceSQL.addPartition( aEntityManager, scheme, table, info, false );
-        }
-      }
-      tablename = null;
-      partitionInfo = null;
-    }
-    catch( Throwable e ) {
-      String t = tablename != null ? tablename : "???"; //$NON-NLS-1$
-      String p = partitionInfo != null ? partitionInfo.toString() : "???"; //$NON-NLS-1$
-      logger().error( e, ERR_ADD_PARTITION, scheme, t, p, cause( e ) );
-    }
-    // Обработка разделов таблиц
-    lockWrite( partitionInfoLock );
-    try {
-      for( String table : createPartitions.keys() ) {
-        ITimedListEdit<S5SequencePartitionInfo> partitionInfos = partitionInfosByTable.findByKey( table );
-        partitionInfos.addAll( createPartitions.getByKey( table ) );
-      }
-      for( String table : addPartitions.keys() ) {
-        ITimedListEdit<S5SequencePartitionInfo> partitionInfos = partitionInfosByTable.findByKey( table );
-        partitionInfos.addAll( addPartitions.getByKey( table ) );
-      }
-    }
-    finally {
-      unlockWrite( partitionInfoLock );
-    }
+    return retValue;
   }
 
   /**
@@ -785,6 +763,7 @@ public abstract class S5AbstractSequenceWriter<S extends IS5Sequence<V>, V exten
     long endTime = aRemoveInfo.partitionInfos().last().interval().endTime();
     // Текущее время сервера
     long currTime = System.currentTimeMillis();
+    // Удаление разделов из базы данных
     for( S5SequencePartitionInfo partitionInfo : aRemoveInfo.partitionInfos() ) {
       String partitionName = partitionInfo.partitionName();
       try {
@@ -795,6 +774,17 @@ public abstract class S5AbstractSequenceWriter<S extends IS5Sequence<V>, V exten
         removeState.addErrors( 1 );
         aLogger.error( e, String.format( ERR_DROP_PARTITION, scheme, tableName, partitionName, cause( e ) ) );
       }
+    }
+    // Удаление разделов из кэша описаний разделов
+    lockWrite( partitionInfoLock );
+    try {
+      ITimedListEdit<S5SequencePartitionInfo> partitionInfos = partitionInfosByTable.findByKey( tableName );
+      for( S5SequencePartitionInfo partitionInfo : aRemoveInfo.partitionInfos() ) {
+        partitionInfos.remove( partitionInfo );
+      }
+    }
+    finally {
+      unlockWrite( partitionInfoLock );
     }
     // Полный интервал удаленных разделов
     ITimeInterval interval = new TimeInterval( startTime, endTime );
@@ -1059,20 +1049,23 @@ public abstract class S5AbstractSequenceWriter<S extends IS5Sequence<V>, V exten
   protected abstract S5SequenceUnionStat<V> doUnion( IOptionSet aArgs );
 
   /**
-   * Шаблонный метод удаления данных последовательностей
-   *
-   * @param aArgs {@link IOptionSet}&gt; аргументы для удаления блоков (смотри {@link IS5SequenceRemoveOptions}).
-   * @return {@link IS5SequenceRemoveStat} статистика процесса удаления
-   */
-  protected abstract S5SequenceRemoveStat<V> doRemove( IOptionSet aArgs );
-
-  /**
    * Шаблонный метод проверки целостности данных последовательности
    *
    * @param aArgs {@link IOptionSet} аргументы для проверки блоков (смотри {@link IS5SequenceValidationOptions}).
    * @return {@link IS5SequenceValidationStat} статистика процесса проверки
    */
   protected abstract S5SequenceValidationStat doValidation( IOptionSet aArgs );
+
+  /**
+   * Событие: проведено удаление значений данных.
+   *
+   * @param aArgs {@link IOptionSet} аргументы для объединения блоков (смотри {@link IS5SequenceRemoveOptions}).
+   * @param aInfos {@link IList}&lt; {@link IS5SequenceRemoveInfo}&gt; список описаний данных для удаления.
+   * @param aLogger {@link ILogger} журнал работы
+   */
+  protected void onRemoveEvent( IOptionSet aArgs, IList<IS5SequenceRemoveInfo> aInfos, ILogger aLogger ) {
+    TsNullArgumentRtException.checkNulls( aArgs, aInfos );
+  }
 
   // ------------------------------------------------------------------------------------
   // Реализация IS5SequenceWriter
@@ -1132,7 +1125,50 @@ public abstract class S5AbstractSequenceWriter<S extends IS5Sequence<V>, V exten
   @Override
   public final S5SequenceRemoveStat<V> remove( IOptionSet aArgs ) {
     TsNullArgumentRtException.checkNulls( aArgs );
-    return doRemove( aArgs );
+    // Журнал для потоков
+    ILogger removeLogger = LoggerWrapper.getLogger( LOG_REMOVER_ID );
+    // Состояние задачи удаления данного
+    S5SequenceRemoveStat<V> statistics = new S5SequenceRemoveStat<>();
+    // Аргументы запроса
+    IOptionSetEdit args = new OptionSet( aArgs );
+    // Признак ручного или автоматического объединения данных
+    boolean isAuto = !args.hasValue( IS5SequenceRemoveOptions.REMOVE_INTERVAL );
+    // Описания удаляемых данных
+    IList<IS5SequenceRemoveInfo> infoes = IList.EMPTY;
+    // Создание менеджера постоянства
+    EntityManager em = entityManagerFactory().createEntityManager();
+    try {
+      // Формирование описания данных
+      infoes = (!isAuto ? prepareRemoveManual( em, args ) : prepareRemoveAuto( em, args, statistics, removeLogger ));
+      // Текущий размер очереди на дефрагментацию
+      int partitionCount = removeCandidatesCount();
+      // Установки общих данных статистики
+      statistics.setInfoes( infoes != null ? infoes : IList.EMPTY );
+      statistics.setQueueSize( partitionCount );
+      // Проверка возможности провести дефрагментацию
+      if( infoes == null || infoes.size() == 0 ) {
+        // Запрет выполнять объединение
+        return statistics;
+      }
+      // Вывод в журнал
+      Integer c = Integer.valueOf( infoes.size() );
+      Integer q = Integer.valueOf( partitionCount );
+      ITimeInterval interval = IS5SequenceRemoveOptions.REMOVE_INTERVAL.getValue( args ).asValobj();
+      removeLogger.info( MSG_REMOVE_START_THREAD, c, q, interval );
+
+      for( IS5SequenceRemoveInfo info : infoes ) {
+        // Удаление разделов
+        S5SequenceRemoveStat<V> result = dropPartitions( em, info, logger() );
+        statistics.addRemoved( result.removedCount() );
+        statistics.addErrors( result.errorCount() );
+      }
+    }
+    finally {
+      em.close();
+    }
+    // Оповещение наследников о проведении удаления блоков
+    onRemoveEvent( args, infoes, removeLogger );
+    return statistics;
   }
 
   @Override
@@ -1142,7 +1178,69 @@ public abstract class S5AbstractSequenceWriter<S extends IS5Sequence<V>, V exten
   }
 
   // ------------------------------------------------------------------------------------
-  // Реализация интерфейса IS5TransactionListener
+  // ICooperativeMultiTaskable
+  //
+  @Override
+  public void doJob() {
+    // Текущее время
+    long currTime = System.currentTimeMillis();
+    // мсек в сутках
+    long msecInDay = 24 * 60 * 60 * 1000;
+    if( currTime - lastCheckPartitionTime < msecInDay ) {
+      // Проверка разделов проводится один раз в сутки
+      return;
+    }
+    EntityManager em = entityManagerFactory().createEntityManager();
+    try {
+      try {
+        UserTransaction tx = InitialContext.doLookup( USER_TRANSACTION_JNDI );
+        // Открываем транзакцию
+        tx.begin();
+        try {
+          // Присоединение менеджера постоянства к транзкации
+          em.joinTransaction();
+
+          // Создание разделов в таблицах для нового интервала
+          ITimeInterval writeInterval = new TimeInterval( currTime - msecInDay, currTime + msecInDay );
+          preparePartitionsForInterval( em, writeInterval );
+
+          // Глубина хранения значений
+          int depth = OP_VALUE_STORAGE_DEPTH.getValue( initialConfig().impl().params() ).asInt();
+          ITimeInterval removeInterval = new TimeInterval( TimeUtils.MIN_TIMESTAMP, currTime - depth * msecInDay );
+          // Формирование очереди на удаление разделов. aUserTables = IStringList.EMPTY (все таблицы)
+          IList<IS5SequenceRemoveInfo> removeInfos = getRemoveInfoList( em, IStringList.EMPTY, removeInterval );
+          lockWrite( removeCandidatesLock );
+          try {
+            for( IS5SequenceRemoveInfo info : removeInfos ) {
+              removeCandidates.putTail( info );
+            }
+          }
+          finally {
+            unlockWrite( removeCandidatesLock );
+          }
+
+          // Завершаем транзакцию
+          tx.commit();
+          // Фиксация времени последней обработки
+          lastCheckPartitionTime = currTime;
+        }
+        catch( Throwable e ) {
+          // Откат транзакции на любой ошибке
+          tx.rollback();
+          throw e;
+        }
+      }
+      catch( Throwable e ) {
+        throw new TsInternalErrorRtException( e, ERR_UNEXPECT_DOJOB_ERROR, cause( e ) );
+      }
+    }
+    finally {
+      em.close();
+    }
+  }
+
+  // ------------------------------------------------------------------------------------
+  // IS5TransactionListener
   //
   @Override
   public void checkCommitResources( IS5Transaction aTransaction ) {
@@ -1397,6 +1495,92 @@ public abstract class S5AbstractSequenceWriter<S extends IS5Sequence<V>, V exten
   }
 
   /**
+   * Подготовить (если необходимо) разделы таблиц для записи значений последовательностей
+   *
+   * @param aEntityManager {@link EntityManager} менеджер постоянства
+   * @param aInterval {@link ITimeInterval} интервал для которого должны быть подготовлены разделы
+   * @throws TsNullArgumentRtException любой аргумент = null
+   */
+  private void preparePartitionsForInterval( EntityManager aEntityManager, ITimeInterval aInterval ) {
+    TsNullArgumentRtException.checkNulls( aEntityManager, aInterval );
+    // Схема базы данных сервера
+    IAtomicValue dbScheme = OP_BACKEND_DB_SCHEME_NAME.getValue( initialConfig().impl().params() );
+    if( !dbScheme.isAssigned() ) {
+      // Не определено имя схемы базы данных в реализации сервера
+      throw new TsIllegalArgumentRtException( ERR_DB_SCHEME_NOT_DEFINED );
+    }
+    // Схема базы данных
+    String scheme = dbScheme.asString();
+    // Глубина хранения значений
+    int depth = OP_VALUE_STORAGE_DEPTH.getValue( initialConfig().impl().params() ).asInt();
+    // Карта описаний разделов добавляемых таблицы без разделов. Ключ: имя таблицы.
+    IStringMapEdit<IList<S5SequencePartitionInfo>> createPartitions = new StringMap<>();
+    // Карта описаний разделов добавляемых в таблицы с существующими разделами. Ключ: имя таблицы.
+    IStringMapEdit<IList<S5SequencePartitionInfo>> addPartitions = new StringMap<>();
+    // Обработка разделов таблиц
+    lockWrite( partitionInfoLock );
+    try {
+      for( Pair<String, String> tables : sequenceFactory.tableNames() ) {
+        String blockTable = tables.left();
+        String blobTable = tables.right();
+        prepareTablePartition( aEntityManager, scheme, blockTable, aInterval, depth, createPartitions, addPartitions );
+        prepareTablePartition( aEntityManager, scheme, blobTable, aInterval, depth, createPartitions, addPartitions );
+      }
+    }
+    finally {
+      unlockWrite( partitionInfoLock );
+    }
+    if( createPartitions.size() == 0 && addPartitions.size() == 0 ) {
+      // Нет необходимости создавать новые разделы
+      return;
+    }
+    // Текущая таблица базы данных. null: нет таблицы
+    String tablename = null;
+    // Текущий добавляемый раздел. null: нет раздела
+    S5SequencePartitionInfo partitionInfo = null;
+    try {
+      for( String table : createPartitions.keys() ) {
+        for( S5SequencePartitionInfo info : createPartitions.getByKey( table ) ) {
+          tablename = table;
+          partitionInfo = info;
+          logger().info( MSG_ADD_PARTITION, scheme, table, info );
+          S5SequenceSQL.addPartition( aEntityManager, scheme, table, info, true );
+        }
+      }
+      for( String table : addPartitions.keys() ) {
+        for( S5SequencePartitionInfo info : addPartitions.getByKey( table ) ) {
+          tablename = table;
+          partitionInfo = info;
+          logger().info( MSG_ADD_PARTITION, scheme, table, info );
+          S5SequenceSQL.addPartition( aEntityManager, scheme, table, info, false );
+        }
+      }
+      tablename = null;
+      partitionInfo = null;
+    }
+    catch( Throwable e ) {
+      String t = tablename != null ? tablename : "???"; //$NON-NLS-1$
+      String p = partitionInfo != null ? partitionInfo.toString() : "???"; //$NON-NLS-1$
+      logger().error( e, ERR_ADD_PARTITION, scheme, t, p, cause( e ) );
+    }
+    // Обработка разделов таблиц
+    lockWrite( partitionInfoLock );
+    try {
+      for( String table : createPartitions.keys() ) {
+        ITimedListEdit<S5SequencePartitionInfo> partitionInfos = partitionInfosByTable.findByKey( table );
+        partitionInfos.addAll( createPartitions.getByKey( table ) );
+      }
+      for( String table : addPartitions.keys() ) {
+        ITimedListEdit<S5SequencePartitionInfo> partitionInfos = partitionInfosByTable.findByKey( table );
+        partitionInfos.addAll( addPartitions.getByKey( table ) );
+      }
+    }
+    finally {
+      unlockWrite( partitionInfoLock );
+    }
+  }
+
+  /**
    * Подготовка разделов таблицы к работе
    *
    * @param aEntityManager {@link EntityManager} менеджер постоянства
@@ -1446,21 +1630,103 @@ public abstract class S5AbstractSequenceWriter<S extends IS5Sequence<V>, V exten
   }
 
   /**
-   * Возвращает общее количество разделов таблиц
+   * Возвращает общее заданий в очереди на удаление разделов
    *
    * @return int текущее количество разделов
    */
-  protected final int allTablePartitionCount() {
-    int retValue = 0;
+  protected final int removeCandidatesCount() {
     // Обработка разделов таблиц
-    lockWrite( partitionInfoLock );
+    lockWrite( removeCandidatesLock );
     try {
-      for( String tableName : partitionInfosByTable.keys() ) {
-        retValue += partitionInfosByTable.getByKey( tableName ).size();
-      }
+      return removeCandidates.size();
     }
     finally {
-      unlockWrite( partitionInfoLock );
+      unlockWrite( removeCandidatesLock );
+    }
+  }
+
+  /**
+   * Возращает описания и добавляет необходимые параметры для выполнения удаления данных по запросу
+   *
+   * @param aEntityManager {@link EntityManager} менеджер постоянства
+   * @param aArgs {@link IOptionSetEdit} аргументы для удаления блоков
+   * @return {@link IList}&lt;IS5SequenceFragmentInfo&gt; список описаний фрагментированности данных
+   * @throws TsNullArgumentRtException аргумент = null
+   */
+  protected final IList<IS5SequenceRemoveInfo> prepareRemoveManual( EntityManager aEntityManager,
+      IOptionSetEdit aArgs ) {
+    TsNullArgumentRtException.checkNulls( aEntityManager, aArgs );
+    // Идентификаторы данных. null: неопределены
+    IStringList userTables = IStringList.EMPTY;
+    if( aArgs.hasValue( IS5SequenceRemoveOptions.REMOVE_FROM_TABLES ) ) {
+      userTables = IS5SequenceRemoveOptions.REMOVE_FROM_TABLES.getValue( aArgs ).asValobj();
+    }
+    // Интервал удаления
+    ITimeInterval interval = IS5SequenceRemoveOptions.REMOVE_INTERVAL.getValue( aArgs ).asValobj();
+
+    return getRemoveInfoList( aEntityManager, userTables, interval );
+  }
+
+  /**
+   * Возращает описания и добавляет необходимые параметры для выполнения удаления в автоматическом режиме
+   *
+   * @param aEntityManager {@link EntityManager} менеджер постоянства
+   * @param aArgs {@link IOptionSetEdit} аргументы для удаления блоков .
+   * @param aStatistics {@link S5SequenceRemoveStat} статистика с возможностью редактирования
+   * @param aLogger {@link ILogger} журнал
+   * @return {@link IList}&lt;IS5SequenceRemoveInfo&gt; список описаний фрагментированности данных
+   * @throws TsNullArgumentRtException любой аргумент = null
+   */
+  protected final IList<IS5SequenceRemoveInfo> prepareRemoveAuto( EntityManager aEntityManager, IOptionSetEdit aArgs,
+      S5SequenceRemoveStat<V> aStatistics, ILogger aLogger ) {
+    TsNullArgumentRtException.checkNulls( aEntityManager, aArgs, aStatistics, aLogger );
+    // Фабрика последовательностей
+    IS5SequenceFactory<V> factory = sequenceFactory();
+    // Схема базы данных сервера
+    String scheme = OP_BACKEND_DB_SCHEME_NAME.getValue( initialConfig().impl().params() ).asString();
+    // Максимальное количество потоков удаления
+    int threadCount = IS5SequenceRemoveOptions.REMOVE_AUTO_THREADS_COUNT.getValue( aArgs ).asInt();
+    // Мощность поиска удаляемых данных
+    int lookupCountMax = IS5SequenceRemoveOptions.REMOVE_AUTO_LOOKUP_COUNT.getValue( aArgs ).asInt();
+    // Текущее время
+    long currTime = System.currentTimeMillis();
+    // Список данных добавляемых в на проверку
+    GwidList newCandidates = new GwidList();
+    // Возвращаемый результат
+    IListEdit<IS5SequenceRemoveInfo> retValue = new ElemArrayList<>( false );
+    // Текущее количество выполненных операций поиска удаляемых данных
+    int lookupCount = 0;
+    while( true ) {
+      if( lookupCountMax > 0 && lookupCount >= lookupCountMax ) {
+        // Установлено ограничение по количество операций поиска за один проход
+        break;
+      }
+      // Счетчик операций поиска
+      lookupCount++;
+      // Обновление статистики
+      aStatistics.addLookupCount();
+
+      lockWrite( removeCandidatesLock );
+      try {
+        // Описание процесса удаления текущего данного
+        IS5SequenceRemoveInfo candiateInfo = removeCandidates.getHeadOrNull();
+        if( candiateInfo == null ) {
+          // Больше нет данных для удаления
+          break;
+        }
+        // Добавление в результат
+        retValue.add( candiateInfo );
+        // Журнал
+        aLogger.debug( MSG_REMOVE_AUTO_ADD_INFO, candiateInfo );
+        // Проверка на завершение
+        if( retValue.size() >= threadCount ) {
+          // Сформировано необходимое количество данных для дефрагментации
+          break;
+        }
+      }
+      finally {
+        unlockWrite( removeCandidatesLock );
+      }
     }
     return retValue;
   }

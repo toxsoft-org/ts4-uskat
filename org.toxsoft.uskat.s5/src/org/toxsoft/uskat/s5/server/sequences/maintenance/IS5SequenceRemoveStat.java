@@ -25,9 +25,9 @@ public interface IS5SequenceRemoveStat {
   int lookupCount();
 
   /**
-   * Возвращает количество блоков удаленных из dbms
+   * Возвращает количество разделов таблиц удаленных из dbms
    *
-   * @return int количество блоков
+   * @return int количество разделов
    */
   int removedCount();
 

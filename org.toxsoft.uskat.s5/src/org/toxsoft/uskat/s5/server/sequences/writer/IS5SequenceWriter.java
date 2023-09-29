@@ -3,6 +3,7 @@ package org.toxsoft.uskat.s5.server.sequences.writer;
 import javax.persistence.EntityManager;
 
 import org.toxsoft.core.tslib.av.opset.IOptionSet;
+import org.toxsoft.core.tslib.bricks.ICooperativeMultiTaskable;
 import org.toxsoft.core.tslib.bricks.time.ITemporal;
 import org.toxsoft.core.tslib.coll.IList;
 import org.toxsoft.core.tslib.utils.ICloseable;
@@ -18,7 +19,7 @@ import org.toxsoft.uskat.s5.server.sequences.maintenance.*;
  * @param <V> тип значения последовательности
  */
 public interface IS5SequenceWriter<S extends IS5Sequence<V>, V extends ITemporal<?>>
-    extends ICloseable {
+    extends ICooperativeMultiTaskable, ICloseable {
 
   /**
    * Запись в dbms значений последовательности данных

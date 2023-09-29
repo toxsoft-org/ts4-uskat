@@ -7,9 +7,9 @@ import static org.toxsoft.core.tslib.av.metainfo.IAvMetaConstants.*;
 import static org.toxsoft.uskat.s5.server.sequences.maintenance.IS5Resources.*;
 
 import org.toxsoft.core.tslib.av.metainfo.IDataDef;
+import org.toxsoft.core.tslib.bricks.keeper.std.StringListKeeper;
 import org.toxsoft.core.tslib.bricks.time.ITimeInterval;
-import org.toxsoft.core.tslib.gw.gwid.Gwid;
-import org.toxsoft.core.tslib.gw.gwid.GwidList;
+import org.toxsoft.core.tslib.coll.primtypes.IStringList;
 
 /**
  * Описание параметров(опций) для команды удаления блоков последовательности
@@ -28,13 +28,15 @@ public interface IS5SequenceRemoveOptions {
       TSID_DEFAULT_VALUE, avValobj( ITimeInterval.NULL ) );
 
   /**
-   * Список идентификаторов данных ({@link Gwid}) которые необходимо удалять. Если список не указан, то все данные
+   * Список имен таблиц блоков которые необходимо удалять. Если список не указан, то все таблицы
    */
-  IDataDef REMOVE_GWIDS = create( "s5.sequence.remove.ids", VALOBJ, //$NON-NLS-1$
-      TSID_NAME, N_REMOVE_GWIDS, //
-      TSID_DESCRIPTION, D_REMOVE_GWIDS, //
+  IDataDef REMOVE_FROM_TABLES = create( "s5.sequence.remove.tables", VALOBJ, //$NON-NLS-1$
+      TSID_NAME, N_REMOVE_FROM_TABLES, //
+      TSID_DESCRIPTION, D_REMOVE_FROM_TABLES, //
       TSID_IS_NULL_ALLOWED, AV_FALSE, //
-      TSID_DEFAULT_VALUE, avValobj( new GwidList() ) );
+      TSID_KEEPER_ID, avStr( StringListKeeper.KEEPER_ID ), //
+      TSID_DEFAULT_VALUE, avValobj( IStringList.EMPTY, StringListKeeper.KEEPER, StringListKeeper.KEEPER_ID ) //
+  );
 
   /**
    * Максимальное количество потоков удаления данных запускаемых в автоматическом режиме
