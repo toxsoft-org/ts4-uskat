@@ -30,17 +30,17 @@ class SdedSkObjectM5LifecycleManager
 
   @Override
   protected ValidationResult doBeforeRemove( ISkObject aEntity ) {
-    return skSysdescr().svs().validator().canRemoveClass( aEntity.id() );
+    return skObjServ().svs().validator().canRemoveObject( aEntity.skid() );
   }
 
   @Override
   protected void doRemove( ISkObject aEntity ) {
-    skSysdescr().removeClass( aEntity.id() );
+    skObjServ().removeObject( aEntity.skid() );
   }
 
   @Override
   protected IList<ISkObject> doListEntities() {
-    return master().coreApi().objService().listObjs( "SkObject", true );
+    return skObjServ().listObjs( "SkObject", true );
   }
 
   // ------------------------------------------------------------------------------------
