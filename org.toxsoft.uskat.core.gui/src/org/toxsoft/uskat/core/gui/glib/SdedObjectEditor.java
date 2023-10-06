@@ -14,6 +14,7 @@ import org.toxsoft.core.tslib.bricks.strid.more.*;
 import org.toxsoft.core.tslib.coll.helpers.*;
 import org.toxsoft.core.tslib.gw.skid.*;
 import org.toxsoft.uskat.core.api.objserv.*;
+import org.toxsoft.uskat.core.api.sysdescr.*;
 import org.toxsoft.uskat.core.connection.*;
 import org.toxsoft.uskat.core.gui.conn.*;
 import org.toxsoft.uskat.core.gui.km5.sded.*;
@@ -35,6 +36,8 @@ public class SdedObjectEditor
     extends AbstractSkLazyPanel {
 
   private final ISkObjectServiceListener objServiceListener = ( api, op, aSkid ) -> whenObjectsChanged( op, aSkid );
+  private final ISkSysdescrListener      sysdescrListener   =
+      ( api, op, classId ) -> whenSysdescrChanged( op, classId );
 
   private final IM5CollectionPanel<ISkObject> objectListPane;
   private CTabFolder                          tabFolder;
@@ -64,6 +67,7 @@ public class SdedObjectEditor
   @Override
   protected void doDispose() {
     skObjServ().eventer().removeListener( objServiceListener );
+    skSysdescr().eventer().removeListener( sysdescrListener );
   }
 
   // ------------------------------------------------------------------------------------
@@ -89,7 +93,7 @@ public class SdedObjectEditor
 
     m5().initTemporaryModel( modelObj );
     // Внимание! В логике работы подразумевается что в названии закладки есть подстрока: skid().toString()
-    String tabTitle = String.format( "%s (%s)", aSelection.nmName(), aSelection.skid().toString() ); //$NON-NLS-1$
+    String tabTitle = String.format( "%s ( %s )", aSelection.nmName(), aSelection.skid().toString() ); //$NON-NLS-1$
     // поищем в существующих
     for( CTabItem ti : tabFolder.getItems() ) {
       if( ti.getText().compareTo( tabTitle ) == 0 ) {
@@ -129,6 +133,7 @@ public class SdedObjectEditor
     tabFolder.setLayout( new BorderLayout() );
     sfMain.setWeights( 3000, 7000 );
     skObjServ().eventer().addListener( objServiceListener );
+    skSysdescr().eventer().addListener( sysdescrListener );
   }
 
   private Object whenObjectsChanged( ECrudOp aOp, Skid aSkid ) {
@@ -160,6 +165,34 @@ public class SdedObjectEditor
       }
     }
     return null;
+  }
+
+  /**
+   * Handles class(es) changes in {@link ISkSysdescr}, is called from {@link ISkSysdescrListener}.
+   *
+   * @param aOp {@link ECrudOp} - the kind of change
+   * @param aClassId String - affected class ID or <code>null</code> for batch changes {@link ECrudOp#LIST}
+   */
+  private void whenSysdescrChanged( ECrudOp aOp, String aClassId ) {
+    // обновим левый список объектов
+    objectListPane.refresh();
+    for( CTabItem ti : tabFolder.getItems() ) {
+      int skidIndex = ti.getText().indexOf( aClassId );
+      if( skidIndex >= 0 ) {
+        // нашли нужную закладку
+        switch( aOp ) {
+          case CREATE:
+          case EDIT:
+          case REMOVE: {
+            // при изменении класса объекта закроем закладку
+            ti.dispose();
+            break;
+          }
+          case LIST:
+          default:
+        }
+      }
+    }
   }
 
 }
