@@ -37,5 +37,8 @@ public class S5ServiceSingletonUtils {
     catch( NamingException e ) {
       throw new TsIllegalArgumentRtException( e, MSG_ERR_EXECUTOR_NOT_FOUND, aJndiExecutorName, cause( e ) );
     }
+    catch( Throwable e ) {
+      throw new TsIllegalArgumentRtException( e, MSG_ERR_EXECUTOR_UNEXPECTED, aJndiExecutorName, cause( e ) );
+    }
   }
 }

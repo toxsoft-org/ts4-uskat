@@ -40,30 +40,32 @@ public interface IS5SequenceWriter<S extends IS5Sequence<V>, V extends ITemporal
    * <p>
    * Ничего не делает, если писателю не требуется регламент
    *
+   * @param aAuthor String автор задачи (для журнала)
    * @param aArgs {@link IOptionSet} аргументы для дефрагментации блоков (смотри {@link IS5SequenceUnionOptions}).
    * @return {@link IS5SequenceUnionStat} статистика процесса объединения
    * @throws TsNullArgumentRtException аргумент = null
    */
-  IS5SequenceUnionStat union( IOptionSet aArgs );
+  IS5SequenceUnionStat union( String aAuthor, IOptionSet aArgs );
 
   /**
-   * Удаление блоков последовательностей
+   * Выполнение операций над разделами таблиц
    * <p>
-   * Ничего не делает, если писателю не требуется регламент
+   * Ничего не делает, если писателю не требуется выполнять операции над разделами
    *
-   * @param aArgs {@link IOptionSet} аргументы для удаления блоков (смотри {@link IS5SequenceRemoveOptions}).
-   * @return {@link IS5SequenceRemoveStat} статистика процесса удаления
+   * @param aAuthor String автор задачи (для журнала)
+   * @param aArgs {@link IOptionSet} аргументы для операций над разделами (смотри {@link IS5SequencePartitionOptions}).
+   * @return {@link IS5SequencePartitionStat} статистика процесса выполнения операций
    * @throws TsNullArgumentRtException аргумент = null
    */
-  IS5SequenceRemoveStat remove( IOptionSet aArgs );
+  IS5SequencePartitionStat partition( String aAuthor, IOptionSet aArgs );
 
   /**
    * Выполняет проверку/исправление блоков последовательностей
    *
+   * @param aAuthor String автор задачи (для журнала)
    * @param aArgs {@link IOptionSet} аргументы для проверки блоков (смотри {@link IS5SequenceValidationOptions}).
    * @return {@link IS5SequenceValidationStat} статистика процесса проверки
    * @throws TsNullArgumentRtException аргумент = null
    */
-  IS5SequenceValidationStat validation( IOptionSet aArgs );
-
+  IS5SequenceValidationStat validation( String aAuthor, IOptionSet aArgs );
 }

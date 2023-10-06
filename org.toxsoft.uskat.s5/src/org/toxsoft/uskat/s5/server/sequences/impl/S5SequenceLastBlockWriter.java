@@ -35,6 +35,7 @@ import org.toxsoft.core.tslib.utils.logs.ELogSeverity;
 import org.toxsoft.core.tslib.utils.logs.ILogger;
 import org.toxsoft.uskat.s5.server.backend.IS5BackendCoreSingleton;
 import org.toxsoft.uskat.s5.server.sequences.*;
+import org.toxsoft.uskat.s5.server.sequences.maintenance.S5PartitionOperation;
 import org.toxsoft.uskat.s5.server.sequences.writer.IS5SequenceWriter;
 import org.toxsoft.uskat.s5.server.transactions.ETransactionStatus;
 import org.toxsoft.uskat.s5.server.transactions.IS5Transaction;
@@ -75,12 +76,14 @@ class S5SequenceLastBlockWriter<S extends IS5Sequence<V>, V extends ITemporal<?>
   /**
    * Создает писатель последовательностей
    *
+   * @param aOwnerName String имя владельца писателя
    * @param aBackendCore {@link IS5BackendCoreSingleton} ядро бекенда сервера
    * @param aSequenceFactory {@link IS5SequenceFactory} фабрика последовательностей блоков
    * @throws TsNullArgumentRtException аргумент = null
    */
-  S5SequenceLastBlockWriter( IS5BackendCoreSingleton aBackendCore, IS5SequenceFactory<V> aSequenceFactory ) {
-    super( aBackendCore, aSequenceFactory );
+  S5SequenceLastBlockWriter( String aOwnerName, IS5BackendCoreSingleton aBackendCore,
+      IS5SequenceFactory<V> aSequenceFactory ) {
+    super( aOwnerName, aBackendCore, aSequenceFactory );
   }
 
   // ------------------------------------------------------------------------------------
@@ -379,20 +382,24 @@ class S5SequenceLastBlockWriter<S extends IS5Sequence<V>, V extends ITemporal<?>
   }
 
   @Override
-  protected void onRemoveEvent( IOptionSet aArgs, IList<IS5SequenceRemoveInfo> aInfos, ILogger aLogger ) {
-    for( IS5SequenceRemoveInfo info : aInfos ) {
-      if( info.partitionInfos().size() == 0 ) {
+  protected void onPartitionEvent( IOptionSet aArgs, IList<S5PartitionOperation> aOps, ILogger aLogger ) {
+    if( lastBlocks == null ) {
+      // Вызов операции обработки разделов из конструктора базового класса (до создания класса-наследника)
+      return;
+    }
+    for( S5PartitionOperation op : aOps ) {
+      if( op.removePartitions().size() == 0 ) {
         // Нет удаляемых разделов
         continue;
       }
-      for( Gwid gwid : info.gwids() ) {
+      for( Gwid gwid : op.gwids() ) {
         // Последний блок значений данного
         IS5SequenceBlock<V> lastBlock = lastBlocks.findByKey( gwid );
         if( lastBlock == null ) {
           // В данный момент для данного не хранится последний блок значений
           continue;
         }
-        if( info.partitionInfos().last().interval().endTime() < lastBlock.startTime() ) {
+        if( op.removePartitions().last().interval().endTime() < lastBlock.startTime() ) {
           // Блок значений остается актуальным
           continue;
         }

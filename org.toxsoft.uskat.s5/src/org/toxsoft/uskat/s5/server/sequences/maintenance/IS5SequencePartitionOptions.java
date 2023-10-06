@@ -12,25 +12,25 @@ import org.toxsoft.core.tslib.bricks.time.ITimeInterval;
 import org.toxsoft.core.tslib.coll.primtypes.IStringList;
 
 /**
- * Описание параметров(опций) для команды удаления блоков последовательности
+ * Описание параметров(опций) для команды выполнения операций над разделами
  *
  * @author mvk
  */
-public interface IS5SequenceRemoveOptions {
+public interface IS5SequencePartitionOptions {
 
   /**
-   * Интервал удаления. Если интервал не указан, то процесс автоматически определяет требуемый интервал
+   * Интервал удаления разделов. Если интервал не указан, то процесс автоматически определяет требуемый интервал
    */
-  IDataDef REMOVE_INTERVAL = create( "s5.sequence.remove.interval", VALOBJ, //$NON-NLS-1$
+  IDataDef REMOVE_INTERVAL = create( "s5.sequence.partition.remove.interval", VALOBJ, //$NON-NLS-1$
       TSID_NAME, N_REMOVE_INTERVAL, //
       TSID_DESCRIPTION, D_REMOVE_INTERVAL, //
       TSID_IS_NULL_ALLOWED, AV_FALSE, //
       TSID_DEFAULT_VALUE, avValobj( ITimeInterval.NULL ) );
 
   /**
-   * Список имен таблиц блоков которые необходимо удалять. Если список не указан, то все таблицы
+   * Список имен таблиц разделы которых будут обработаны. Если список не указан, то все таблицы
    */
-  IDataDef REMOVE_FROM_TABLES = create( "s5.sequence.remove.tables", VALOBJ, //$NON-NLS-1$
+  IDataDef TABLES = create( "s5.sequence.partition.tables", VALOBJ, //$NON-NLS-1$
       TSID_NAME, N_REMOVE_FROM_TABLES, //
       TSID_DESCRIPTION, D_REMOVE_FROM_TABLES, //
       TSID_IS_NULL_ALLOWED, AV_FALSE, //
@@ -39,9 +39,10 @@ public interface IS5SequenceRemoveOptions {
   );
 
   /**
-   * Максимальное количество потоков удаления данных запускаемых в автоматическом режиме
+   * Максимальное количество потоков обработки операций над разделами запускаемых в автоматическом режиме. <= 0: без
+   * ограничения
    */
-  IDataDef REMOVE_AUTO_THREADS_COUNT = create( "s5.sequence.remove.auto.threads_count", INTEGER, //$NON-NLS-1$
+  IDataDef AUTO_THREADS_COUNT = create( "s5.sequence.partition.auto.threads_count", INTEGER, //$NON-NLS-1$
       TSID_NAME, N_REMOVE_THREADS_COUNT, //
       TSID_DESCRIPTION, D_REMOVE_THREADS_COUNT, //
       TSID_IS_NULL_ALLOWED, AV_FALSE, //
@@ -50,9 +51,10 @@ public interface IS5SequenceRemoveOptions {
   // TSID_DEFAULT_VALUE, avInt( 100 ) );
 
   /**
-   * Максимальное количество проверяемых данных на предмет необходимости удаления за один проход. <= 0: без ограничения
+   * Максимальное количество проверяемых таблиц на предмет необходимости запуска операции над разделами за один проход.
+   * <= 0: без ограничения
    */
-  IDataDef REMOVE_AUTO_LOOKUP_COUNT = create( "s5.sequence.remove.auto.lookup_count", INTEGER, //$NON-NLS-1$
+  IDataDef AUTO_LOOKUP_COUNT = create( "s5.sequence.partition.auto.lookup_count", INTEGER, //$NON-NLS-1$
       TSID_NAME, N_REMOVE_LOOKUP_COUNT, //
       TSID_DESCRIPTION, D_REMOVE_LOOKUP_COUNT, //
       TSID_IS_NULL_ALLOWED, AV_FALSE, //

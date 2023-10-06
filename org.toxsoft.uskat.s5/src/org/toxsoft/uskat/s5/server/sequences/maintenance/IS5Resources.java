@@ -38,7 +38,7 @@ interface IS5Resources {
   String N_LOOKUP_COUNT = Messages.getString( "IS5Resources.N_LOOKUP_COUNT" ); //$NON-NLS-1$
 
   // ------------------------------------------------------------------------------------
-  // Строковые константы IS5SequenceRemoveOptions
+  // Строковые константы IS5SequencePartitionOptions
   //
   String D_REMOVE_INTERVAL = Messages.getString( "IS5Resources.D_REMOVE_INTERVAL" ); //$NON-NLS-1$
   String N_REMOVE_INTERVAL = Messages.getString( "IS5Resources.N_REMOVE_INTERVAL" ); //$NON-NLS-1$

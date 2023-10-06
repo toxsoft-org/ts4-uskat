@@ -1,4 +1,4 @@
-package org.toxsoft.uskat.s5.server.sequences.impl;
+package org.toxsoft.uskat.s5.server.sequences.maintenance;
 
 import static java.lang.String.*;
 
@@ -15,12 +15,12 @@ import org.toxsoft.core.tslib.utils.TsLibUtils;
 import org.toxsoft.core.tslib.utils.errors.TsNullArgumentRtException;
 
 /**
- * Информация о разделе (партиция) таблицы
+ * Информация о разделе (partition) таблицы
  */
-public final class S5SequencePartitionInfo
+public final class S5Partition
     implements ITimestampable {
 
-  private final String        partitionName;
+  private final String        name;
   private final ITimeInterval interval;
 
   /**
@@ -30,9 +30,9 @@ public final class S5SequencePartitionInfo
    * @param aEndTime long метка времени завершения интервал времени значений хранимых в разделе
    * @throws TsNullArgumentRtException любой аргумент = null
    */
-  S5SequencePartitionInfo( String aPartitionName, long aEndTime ) {
+  public S5Partition( String aPartitionName, long aEndTime ) {
     TsNullArgumentRtException.checkNull( aPartitionName );
-    partitionName = aPartitionName;
+    name = aPartitionName;
     interval = new TimeInterval( stringToPartitionTime( aPartitionName ), aEndTime );
   }
 
@@ -42,9 +42,9 @@ public final class S5SequencePartitionInfo
    * @param aInterval {@link ITimeInterval} интервал времени значений хранимых в разделе
    * @throws TsNullArgumentRtException любой аргумент = null
    */
-  S5SequencePartitionInfo( ITimeInterval aInterval ) {
+  public S5Partition( ITimeInterval aInterval ) {
     TsNullArgumentRtException.checkNull( aInterval );
-    partitionName = partitionTimeToString( aInterval.startTime() );
+    name = partitionTimeToString( aInterval.startTime() );
     interval = aInterval;
   }
 
@@ -56,8 +56,8 @@ public final class S5SequencePartitionInfo
    *
    * @return String имя
    */
-  public String partitionName() {
-    return partitionName;
+  public String name() {
+    return name;
   }
 
   /**
@@ -82,13 +82,13 @@ public final class S5SequencePartitionInfo
   //
   @Override
   public String toString() {
-    return format( "%s [%s]", partitionName, interval ); //$NON-NLS-1$
+    return format( "%s [%s]", name, interval ); //$NON-NLS-1$
   }
 
   @Override
   public int hashCode() {
     int result = TsLibUtils.INITIAL_HASH_CODE;
-    result = TsLibUtils.PRIME * result + partitionName.hashCode();
+    result = TsLibUtils.PRIME * result + name.hashCode();
     result = TsLibUtils.PRIME * result + interval.hashCode();
     return result;
   }
@@ -104,8 +104,8 @@ public final class S5SequencePartitionInfo
     if( getClass() != aObject.getClass() ) {
       return false;
     }
-    S5SequencePartitionInfo other = (S5SequencePartitionInfo)aObject;
-    if( !partitionName.equals( other.partitionName() ) ) {
+    S5Partition other = (S5Partition)aObject;
+    if( !name.equals( other.name() ) ) {
       return false;
     }
     if( interval.equals( other.interval() ) ) {
@@ -115,41 +115,42 @@ public final class S5SequencePartitionInfo
   }
 
   // ------------------------------------------------------------------------------------
-  // API пакета
+  // Открытое API
   //
   /**
-   * Возвращает список разделов которые необходимо сохранить в БД чтобы указанный интервал значений находится в
+   * Возвращает список разделов которые необходимо сохранить в БД чтобы указанный интервал значений находился в
    * указанных разделах
    *
-   * @param aInfos {@link ITimedList}&lt;{@link S5SequencePartitionInfo}&gt; список описаний разделов
+   * @param aPartitions {@link ITimedList}&lt;{@link S5Partition}&gt; список существующих разделов
    * @param aInterval {@link ITimeInterval} интервал значений
    * @param aDepth int глубина(в сутках) хранения значений (размер разделов)
    * @return {@link IList} список новых разделов.
    * @throws TsNullArgumentRtException любой аргумент = null
    */
-  static IList<S5SequencePartitionInfo> getNewPartitionsForInterval( ITimedList<S5SequencePartitionInfo> aInfos,
+  public static IList<S5Partition> getNewPartitionsForInterval( ITimedList<S5Partition> aPartitions,
       ITimeInterval aInterval, int aDepth ) {
-    TsNullArgumentRtException.checkNulls( aInfos, aInterval );
-    if( intervalWithinPartitions( aInfos, aInterval ) ) {
+    TsNullArgumentRtException.checkNulls( aPartitions, aInterval );
+    if( intervalWithinPartitions( aPartitions, aInterval ) ) {
       return IList.EMPTY;
     }
     // Результат
-    IListEdit<S5SequencePartitionInfo> retValue = new ElemLinkedList<>();
-    if( aInfos.size() == 0 ) {
+    IListEdit<S5Partition> retValue = new ElemLinkedList<>();
+    if( aPartitions.size() == 0 ) {
       // Частный случай, еще нет разделов
       return createPartitionInfosForInterval( aInterval.startTime(), aInterval.endTime(), aDepth );
     }
     // Опреределние текущего интервала разделов
     ITimeInterval partitionInterval =
-        new TimeInterval( aInfos.first().interval().startTime(), aInfos.last().interval().endTime() );
+        new TimeInterval( aPartitions.first().interval().startTime(), aPartitions.last().interval().endTime() );
     // Формирование новых интервалов разделов
     Pair<ITimeInterval, ITimeInterval> newIntervals = TimeUtils.subtract( aInterval, partitionInterval );
-    if( newIntervals.left() != null ) {
-      ITimeInterval interval = newIntervals.left();
-      long startTime = interval.startTime();
-      long endTime = interval.endTime() + 1;
-      retValue.addAll( createPartitionInfosForInterval( startTime, endTime, aDepth ) );
-    }
+    // 2023-10-04: mvk: нельзя создавать разделы "слева" ДО уже существующих в dbms разделов таблицы (ограничение SQL)
+    // if( newIntervals.left() != null ) {
+    // ITimeInterval interval = newIntervals.left();
+    // long startTime = interval.startTime();
+    // long endTime = interval.endTime() + 1;
+    // retValue.addAll( createPartitionInfosForInterval( startTime, endTime, aDepth ) );
+    // }
     if( newIntervals.right() != null ) {
       ITimeInterval interval = newIntervals.right();
       long startTime = interval.startTime() - 1;
@@ -159,16 +160,19 @@ public final class S5SequencePartitionInfo
     return retValue;
   }
 
+  // ------------------------------------------------------------------------------------
+  // Внутренняя реализация
+  //
   /**
    * Возвращает признак того, что указанный интервал значений находится в указанных разделах
    *
-   * @param aInfos {@link ITimedList}&lt;{@link S5SequencePartitionInfo}&gt; список описаний разделов
+   * @param aInfos {@link ITimedList}&lt;{@link S5Partition}&gt; список описаний разделов
    * @param aInterval {@link ITimeInterval} интервал значений
    * @return boolean <b>true</b> интервал значений попадает в разделы;<b>false</b> интервал значений не попадает в
    *         разделы.
    * @throws TsNullArgumentRtException любой аргумент = null
    */
-  static boolean intervalWithinPartitions( ITimedList<S5SequencePartitionInfo> aInfos, ITimeInterval aInterval ) {
+  private static boolean intervalWithinPartitions( ITimedList<S5Partition> aInfos, ITimeInterval aInterval ) {
     TsNullArgumentRtException.checkNulls( aInfos, aInterval );
     if( aInfos.size() == 0 ) {
       return false;
@@ -177,35 +181,31 @@ public final class S5SequencePartitionInfo
       // Частный случай (наиболее вероятный) - интервал попадает в последний раздел
       return true;
     }
-    // Составляем общий интервал разделов и делаем проверку для нго
+    // Составляем совокупный интервал разделов и делаем проверку для него
     long startTime = aInfos.first().interval().startTime();
     long endTime = aInfos.last().interval().endTime();
     return TimeUtils.contains( new TimeInterval( startTime, endTime ), aInterval );
   }
 
-  // ------------------------------------------------------------------------------------
-  // Внутренняя реализация
-  //
   /**
    * Создает описания разделов для указанного интервала
    *
    * @param aStartTime long метка времени (мсек с начала эпохи) начала интервала
    * @param aEndTime long метка времени (мсек с начала эпохи) завершения интервала
    * @param aDepth int глубина(в сутках) хранения значений (размер разделов)
-   * @return {@link IList}&lt; {@link S5SequencePartitionInfo}&gt; список интервалов
+   * @return {@link IList}&lt; {@link S5Partition}&gt; список интервалов
    * @throws TsNullArgumentRtException аргумент = null
    */
-  private static IList<S5SequencePartitionInfo> createPartitionInfosForInterval( long aStartTime, long aEndTime,
-      int aDepth ) {
+  private static IList<S5Partition> createPartitionInfosForInterval( long aStartTime, long aEndTime, int aDepth ) {
     long msecInDay = 1000 * 60 * 60 * 24;
-    IListEdit<S5SequencePartitionInfo> retValue = new ElemLinkedList<>();
+    IListEdit<S5Partition> retValue = new ElemLinkedList<>();
     long startTime = allignByDay( aStartTime, 0 );
     long endTime;
     // Глубина хранения значений в разделе. Если глубина хранения значений < 30 дней, то глубина 1 сутки. Иначе - месяц
     int partitionDepth = (aDepth > 30 ? 30 : 1);
     do {
       endTime = startTime + partitionDepth * msecInDay;
-      retValue.add( new S5SequencePartitionInfo( new TimeInterval( startTime, endTime ) ) );
+      retValue.add( new S5Partition( new TimeInterval( startTime, endTime ) ) );
       startTime = startTime + partitionDepth * msecInDay;
     } while( endTime < aEndTime );
     return retValue;

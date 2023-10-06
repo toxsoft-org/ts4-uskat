@@ -45,7 +45,7 @@ import org.toxsoft.uskat.s5.utils.threads.impl.*;
  * <p>
  * Писатель реализует "ленивое" сохранение блоков (в том смысле, что просто пишет данные в БД, не пытаясь их сразу
  * объединить с данными уже хранимыми в БД) и предполагает, что для окончательной их обработки будет вызываться процесс
- * дефрагментации {@link IS5SequenceWriter#union(IOptionSet)}.
+ * дефрагментации {@link IS5SequenceWriter#union(String, IOptionSet)}.
  *
  * @author mvk
  * @param <S> тип последовательности значений данного
@@ -86,12 +86,14 @@ class S5SequenceLazyWriter<S extends IS5Sequence<V>, V extends ITemporal<?>>
   /**
    * Создает писатель последовательностей
    *
+   * @param aOwnerName String имя владельца писателя
    * @param aBackendCore {@link IS5BackendCoreSingleton} ядро бекенда сервера
    * @param aSequenceFactory {@link IS5SequenceFactory} фабрика последовательностей блоков
    * @throws TsNullArgumentRtException аргумент = null
    */
-  S5SequenceLazyWriter( IS5BackendCoreSingleton aBackendCore, IS5SequenceFactory<V> aSequenceFactory ) {
-    super( aBackendCore, aSequenceFactory );
+  S5SequenceLazyWriter( String aOwnerName, IS5BackendCoreSingleton aBackendCore,
+      IS5SequenceFactory<V> aSequenceFactory ) {
+    super( aOwnerName, aBackendCore, aSequenceFactory );
   }
 
   // ------------------------------------------------------------------------------------

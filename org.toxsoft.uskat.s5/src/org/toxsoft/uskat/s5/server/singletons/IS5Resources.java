@@ -32,6 +32,7 @@ interface IS5Resources {
   String MSG_ERR_EXECUTOR_NOT_FOUND       = Messages.getString( "IS5Resources.MSG_ERR_EXECUTOR_NOT_FOUND" );       //$NON-NLS-1$
   String MSG_ERR_SEQUENCE_CACHE_NOT_FOUND = Messages.getString( "IS5Resources.MSG_ERR_SEQUENCE_CACHE_NOT_FOUND" ); //$NON-NLS-1$
   String MSG_ERR_WRONG_CONFIG_TYPE        = Messages.getString( "IS5Resources.MSG_ERR_WRONG_CONFIG_TYPE" );        //$NON-NLS-1$
+  String MSG_ERR_EXECUTOR_UNEXPECTED      = "try lookup %s. unexpected error: %s";                                 //$NON-NLS-1$
 
   String MSG_ERR_REGISTER_TRANSACTION = Messages.getString( "IS5Resources.MSG_ERR_REGISTER_TRANSACTION" ); //$NON-NLS-1$
   String MSG_ERR_METHOD_NOT_FOUND     = Messages.getString( "IS5Resources.MSG_ERR_METHOD_NOT_FOUND" );     //$NON-NLS-1$

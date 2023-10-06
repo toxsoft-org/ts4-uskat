@@ -60,7 +60,7 @@ public interface IS5BackendSequenceSupportSingleton<S extends IS5Sequence<V>, V 
   IS5SequenceUnionStat union( String aAuthor, IOptionSet aArgs );
 
   /**
-   * Запуск задачи удаления блоков последовательности значений данных
+   * Запуск задачи обработки разделов таблиц значений храненимых данных
    *
    * @param aAuthor String автор задачи (для журнала)
    * @param aArgs {@link IOptionSet} аргументы для удаления блоков.
@@ -68,7 +68,7 @@ public interface IS5BackendSequenceSupportSingleton<S extends IS5Sequence<V>, V 
    * @throws TsNullArgumentRtException любой аргумент = null
    * @throws TsIllegalArgumentRtException количество потоков <= 0
    */
-  IS5SequenceRemoveStat remove( String aAuthor, IOptionSet aArgs );
+  IS5SequencePartitionStat partition( String aAuthor, IOptionSet aArgs );
 
   /**
    * Запуск задачи проверки блоков ВСЕХ данных и восстановления их состояния

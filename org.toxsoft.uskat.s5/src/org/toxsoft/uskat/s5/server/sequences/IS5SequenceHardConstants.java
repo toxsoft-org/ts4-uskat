@@ -135,9 +135,9 @@ public interface IS5SequenceHardConstants
   String UNION_EXECUTOR_JNDI = "java:jboss/ee/concurrency/executor/s5/sequence/union"; //$NON-NLS-1$
 
   /**
-   * JNDI-имя исполнителя асинхронных задач удаления значений блоков {@link ManagedExecutorService}
+   * JNDI-имя исполнителя асинхронных задач обработки разделов таблиц {@link ManagedExecutorService}
    */
-  String REMOVE_EXECUTOR_JNDI = "java:jboss/ee/concurrency/executor/s5/sequence/remove"; //$NON-NLS-1$
+  String PARTITION_EXECUTOR_JNDI = "java:jboss/ee/concurrency/executor/s5/sequence/partition"; //$NON-NLS-1$
 
   /**
    * JNDI-имя исполнителя асинхронных задач проверки блоков {@link ManagedExecutorService}
@@ -160,9 +160,9 @@ public interface IS5SequenceHardConstants
   String LOG_UNITER_ID = "S5SequenceUniter";
 
   /**
-   * Идентификатор журнала писателя для удаления данных
+   * Идентификатор журнала писателя для обработки разделов таблиц
    */
-  String LOG_REMOVER_ID = "S5SequenceRemover";
+  String LOG_PARTITION_ID = "S5SequencePartition";
 
   /**
    * Идентификатор журнала писателя для дефрагментации

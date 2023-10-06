@@ -1,21 +1,20 @@
 package org.toxsoft.uskat.s5.server.sequences.maintenance;
 
 import org.toxsoft.core.tslib.coll.IList;
-import org.toxsoft.uskat.s5.server.sequences.IS5SequenceRemoveInfo;
 
 /**
- * Статистика выполнения процесса дефрагментации хранимых данных
+ * Статистика выполнения процесса выполнения операций над разделами таблиц хранимых данных
  *
  * @author mvk
  */
-public interface IS5SequenceRemoveStat {
+public interface IS5SequencePartitionStat {
 
   /**
-   * Возвращает список описаний данных поступивших в запрос на удаление
+   * Возвращает список описаний операций над разделами таблиц
    *
-   * @return {@link IList}&lt;{@link IS5SequenceRemoveInfo}&gt; список описаний удаляемых данных
+   * @return {@link IList}&lt;{@link S5PartitionOperation}&gt; список описаний операций над разделами таблиц
    */
-  IList<IS5SequenceRemoveInfo> infoes();
+  IList<S5PartitionOperation> operations();
 
   /**
    * Возвращает общее количество проанализированных последовательностей при поиске значений для удаления
@@ -25,11 +24,25 @@ public interface IS5SequenceRemoveStat {
   int lookupCount();
 
   /**
+   * Возвращает количество добавленных разделов таблиц
+   *
+   * @return int количество разделов
+   */
+  int addedCount();
+
+  /**
    * Возвращает количество разделов таблиц удаленных из dbms
    *
    * @return int количество разделов
    */
-  int removedCount();
+  int removedPartitionCount();
+
+  /**
+   * Возвращает количество блоков удаленных из dbms
+   *
+   * @return int количество блоков
+   */
+  int removedBlockCount();
 
   /**
    * Возвращает общее количество ошибок возникших при дефрагментации

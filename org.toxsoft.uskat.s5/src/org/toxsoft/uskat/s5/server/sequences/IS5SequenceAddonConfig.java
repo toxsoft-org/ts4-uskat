@@ -19,7 +19,7 @@ import org.toxsoft.uskat.s5.utils.schedules.S5ScheduleUtils;
  */
 @SuppressWarnings( "nls" )
 public interface IS5SequenceAddonConfig
-    extends IS5BackendAddonConfig, IS5SequenceUnionOptions, IS5SequenceRemoveOptions, IS5SequenceValidationOptions {
+    extends IS5BackendAddonConfig, IS5SequenceUnionOptions, IS5SequencePartitionOptions, IS5SequenceValidationOptions {
 
   /**
    * Максимальное значение load average (загрузка системы) при котором возможно проведение записи значений
@@ -56,18 +56,18 @@ public interface IS5SequenceAddonConfig
    * Максимальное значение load average (загрузка системы) при котором возможно проведение удаление значений
    * последовательностей
    */
-  IDataDef REMOVE_LOAD_AVERAGE_MAX = create( "s5.sequence.remove.load_average_max", FLOATING, //$NON-NLS-1$
-      TSID_NAME, N_REMOVE_LOAD_AVERAGE_MAX, //
-      TSID_DESCRIPTION, D_REMOVE_LOAD_AVERAGE_MAX, //
+  IDataDef PARTITION_LOAD_AVERAGE_MAX = create( "s5.sequence.partition.load_average_max", FLOATING, //$NON-NLS-1$
+      TSID_NAME, N_PARTITION_LOAD_AVERAGE_MAX, //
+      TSID_DESCRIPTION, D_PARTITION_LOAD_AVERAGE_MAX, //
       TSID_IS_NULL_ALLOWED, AV_FALSE, //
       TSID_DEFAULT_VALUE, avFloat( 0.7 ) );
 
   /**
    * Календари проведения удаления значений
    */
-  IDataDef REMOVE_CALENDARS = create( "s5.sequence.remove.calendars", VALOBJ, //$NON-NLS-1$
-      TSID_NAME, N_REMOVE_CALENDARS, //
-      TSID_DESCRIPTION, D_REMOVE_CALENDARS, //
+  IDataDef PARTITION_CALENDARS = create( "s5.sequence.partition.calendars", VALOBJ, //$NON-NLS-1$
+      TSID_NAME, N_PARTITION_CALENDARS, //
+      TSID_DESCRIPTION, D_PARTITION_CALENDARS, //
       TSID_IS_NULL_ALLOWED, AV_FALSE, //
       TSID_DEFAULT_VALUE, avValobj( new S5ScheduleExpressionList( //
           S5ScheduleUtils.createSchedule( "*", "*", "*", "*/60" ) ) )//

@@ -14,11 +14,11 @@ import org.toxsoft.uskat.s5.utils.threads.impl.S5AbstractWriteThread;
 import org.toxsoft.uskat.s5.utils.threads.impl.S5Lockable;
 
 /**
- * Поток асинхронной задачи удаления блоков последовательностей данных
+ * Поток асинхронной задачи обработки разделов таблиц значений храненимых данных
  *
  * @author mvk
  */
-final class S5SequenceRemoveThread
+final class S5SequencePartitionThread
     extends S5AbstractWriteThread {
 
   private final IS5BackendSequenceSupportSingleton<?, ?> service;
@@ -29,14 +29,14 @@ final class S5SequenceRemoveThread
   private boolean          working;
 
   /**
-   * Создание асинхронной задачи удаления блоков последовательности данных
+   * Создание асинхронной задачи обработки разделов
    *
    * @param aService {@link IS5BackendSequenceSupportSingleton} сиглетон службы хранимых данных
    * @param aAuthor String автор задачи
    * @param aLogger {@link ILogger} журнал
    * @throws TsNullArgumentRtException любой аргумент = null
    */
-  S5SequenceRemoveThread( IS5BackendSequenceSupportSingleton<?, ?> aService, String aAuthor, ILogger aLogger ) {
+  S5SequencePartitionThread( IS5BackendSequenceSupportSingleton<?, ?> aService, String aAuthor, ILogger aLogger ) {
     super( aLogger );
     TsNullArgumentRtException.checkNulls( aService, aAuthor );
     service = aService;
@@ -86,8 +86,8 @@ final class S5SequenceRemoveThread
       }
       if( working ) {
         try {
-          IOptionSet removeOptions = service.configuration();
-          service.remove( author, removeOptions );
+          IOptionSet options = service.configuration();
+          service.partition( author, options );
         }
         catch( ConcurrentAccessTimeoutException e ) {
           // Ошибка доступа к модулю проводящему удаление:

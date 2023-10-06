@@ -169,19 +169,19 @@ public abstract class S5BackendSequenceSupportSingleton<S extends IS5Sequence<V>
   private S5SequenceUniterThread uniterThread;
 
   /**
-   * Таймеры расписания задачи удаления блоков
+   * Таймеры расписания задачи обработки разделов таблиц значений хранимых данных
    */
-  private IListEdit<Timer> removeTimers = new ElemArrayList<>();
+  private IListEdit<Timer> partitionTimers = new ElemArrayList<>();
 
   /**
-   * Исполнитель потоков удаления
+   * Исполнитель потоков обработки разделов таблиц
    */
-  private ManagedExecutorService removeExecutor;
+  private ManagedExecutorService partitionExecutor;
 
   /**
-   * Последний запущенный поток удаления блоков последовательностей. null: неопределен
+   * Последний запущенный поток обработки разделов таблиц. null: неопределен
    */
-  private S5SequenceRemoveThread removeThread;
+  private S5SequencePartitionThread partitionThread;
 
   /**
    * Таймер обновления статистики
@@ -236,14 +236,9 @@ public abstract class S5BackendSequenceSupportSingleton<S extends IS5Sequence<V>
   private ILogger uniterLogger = getLogger( LOG_UNITER_ID );
 
   /**
-   * Журнал удаления значений последовательностей
+   * Журнал обработки разделов таблиц
    */
-  private ILogger removeLogger = getLogger( LOG_REMOVER_ID );
-
-  /**
-   * Журнал проверки последовательностей
-   */
-  private ILogger validatorLogger = getLogger( LOG_VALIDATOR_ID );
+  private ILogger partitionLogger = getLogger( LOG_PARTITION_ID );
 
   /**
    * Конструктор для наследников.
@@ -280,12 +275,12 @@ public abstract class S5BackendSequenceSupportSingleton<S extends IS5Sequence<V>
       updateUnionTimers();
     }
     S5ScheduleExpressionList prevRemoveCalendars =
-        IS5SequenceAddonConfig.REMOVE_CALENDARS.getValue( aPrevConfig ).asValobj();
+        IS5SequenceAddonConfig.PARTITION_CALENDARS.getValue( aPrevConfig ).asValobj();
     S5ScheduleExpressionList newRemoveCalendars =
-        IS5SequenceAddonConfig.REMOVE_CALENDARS.getValue( aNewConfig ).asValobj();
+        IS5SequenceAddonConfig.PARTITION_CALENDARS.getValue( aNewConfig ).asValobj();
     if( !newRemoveCalendars.equals( prevRemoveCalendars ) ) {
       // Изменение календарей дефрагментации
-      updateRemoveTimers();
+      updatePartitionTimers();
     }
   }
 
@@ -325,10 +320,11 @@ public abstract class S5BackendSequenceSupportSingleton<S extends IS5Sequence<V>
     unionExecutor.execute( uniterThread );
 
     // Поиск исполнителя потоков удаления блоков
-    removeExecutor = S5ServiceSingletonUtils.lookupExecutor( REMOVE_EXECUTOR_JNDI );
+    partitionExecutor = S5ServiceSingletonUtils.lookupExecutor( PARTITION_EXECUTOR_JNDI );
     // Запуск потока удаления блоков
-    removeThread = new S5SequenceRemoveThread( getBusinessObject(), MSG_REMOVE_AUTHOR_SCHEDULE, removeLogger );
-    removeExecutor.execute( removeThread );
+    partitionThread =
+        new S5SequencePartitionThread( getBusinessObject(), MSG_PARTITION_AUTHOR_SCHEDULE, partitionLogger );
+    partitionExecutor.execute( partitionThread );
 
     // Бизнес интерфейс синглетона
     IS5BackendSequenceSupportSingleton<S, V> singletonView = getBusinessObject();
@@ -341,11 +337,11 @@ public abstract class S5BackendSequenceSupportSingleton<S extends IS5Sequence<V>
     // Читатель системного описания
     sysdescrReader = sysdescrBackend.getReader();
     // Инициализация статегии записи последовательностей
-    sequenceWriter = new S5SequenceLastBlockWriter<>( backend(), factory() );
+    sequenceWriter = new S5SequenceLastBlockWriter<>( id(), backend(), factory() );
     // Инициализация таймера запуска задачи дефрагментации значений
     updateUnionTimers();
-    // Инициализация таймера запуска задачи удаления данных
-    updateRemoveTimers();
+    // Инициализация таймера запуска задачи обработки разделов таблиц
+    updatePartitionTimers();
     // Формирование таймера обновления статистики
     long statisticsUpdateInterval = EStatisticInterval.SECOND.milli();
     TimerConfig tc = new TimerConfig( "StatisticsTimer", false ); //$NON-NLS-1$
@@ -367,7 +363,7 @@ public abstract class S5BackendSequenceSupportSingleton<S extends IS5Sequence<V>
     // Завершение потока дефрагментации
     uniterThread.close();
     // Завершение потока удаления значений
-    removeThread.close();
+    partitionThread.close();
     // Завершение работы таймеров
     dbmsStatisticsTimer.cancel();
     for( Timer timer : unionTimers ) {
@@ -426,7 +422,6 @@ public abstract class S5BackendSequenceSupportSingleton<S extends IS5Sequence<V>
       // Текущая загрузка системы
       double loadAverage = S5ServerPlatformUtils.loadAverage();
 
-      // Получаем бизнес интерфейс синглетона, чтобы вызов doUnionTask выполнялся вне транзакции
       for( int index = 0, n = unionTimers.size(); index < n; index++ ) {
         Timer timer = unionTimers.get( index );
         if( timer.equals( aTimer ) ) {
@@ -450,24 +445,23 @@ public abstract class S5BackendSequenceSupportSingleton<S extends IS5Sequence<V>
           break;
         }
       }
-      // Получаем бизнес интерфейс синглетона, чтобы вызов doRemoveTask выполнялся вне транзакции
-      for( int index = 0, n = removeTimers.size(); index < n; index++ ) {
-        Timer timer = removeTimers.get( index );
+      for( int index = 0, n = partitionTimers.size(); index < n; index++ ) {
+        Timer timer = partitionTimers.get( index );
         if( timer.equals( aTimer ) ) {
           // Опции службы
           IOptionSet config = configuration();
-          // Максимальная загрузка системы при которой возможно удаление данных
-          final double loadAverageMax = IS5SequenceAddonConfig.REMOVE_LOAD_AVERAGE_MAX.getValue( config ).asDouble();
+          // Максимальная загрузка системы при которой возможна обработка разделов таблиц
+          final double loadAverageMax = IS5SequenceAddonConfig.PARTITION_LOAD_AVERAGE_MAX.getValue( config ).asDouble();
           if( loadAverage > loadAverageMax ) {
-            // Загруженность системы не позволяет провести удаление значений
+            // Загруженность системы не позволяет провести обработку разделов таблиц
             Double la = Double.valueOf( loadAverage );
-            removeLogger.warning( ERR_REMOVE_DISABLE_BY_LOAD_AVERAGE, id(), la );
+            partitionLogger.warning( ERR_PARTITION_DISABLE_BY_LOAD_AVERAGE, id(), la );
             break;
           }
-          // Запуск потока дефрагментации
-          if( !removeThread.tryStart() ) {
-            // Запрет дефрагментации значений по календарю (незавершен предыдущий процесс)
-            removeLogger.warning( ERR_REMOVE_DISABLE_BY_PREV_UNITER, id() );
+          // Запуск потока обработки разделов таблиц
+          if( !partitionThread.tryStart() ) {
+            // Запрет обработки таблиц по календарю (незавершен предыдущий процесс)
+            partitionLogger.warning( ERR_PARTITION_DISABLE_BY_PREV, id() );
             break;
           }
           break;
@@ -782,10 +776,8 @@ public abstract class S5BackendSequenceSupportSingleton<S extends IS5Sequence<V>
       logger().debug( MSG_SINGLETON_UNION_TASK_START );
     }
     try {
-      // Время запуска операции
-      long traceStartTime = System.currentTimeMillis();
       // Запуск процесса регламента
-      IS5SequenceUnionStat unionStat = sequenceWriter.union( aArgs );
+      IS5SequenceUnionStat unionStat = sequenceWriter.union( aAuthor, aArgs );
       // Формирование статистики
       S5StatisticWriter stat = statisticWriter;
       if( stat != null ) {
@@ -796,29 +788,6 @@ public abstract class S5BackendSequenceSupportSingleton<S extends IS5Sequence<V>
         stat.onEvent( STAT_HISTORABLE_BACKEND_DEFRAGMENT_MERGED_COUNT, avInt( unionStat.dbmsMergedCount() ) );
         stat.onEvent( STAT_HISTORABLE_BACKEND_DEFRAGMENT_REMOVED_COUNT, avInt( unionStat.dbmsRemovedCount() ) );
         stat.onEvent( STAT_HISTORABLE_BACKEND_DEFRAGMENT_ERROR_COUNT, avInt( unionStat.errorCount() ) );
-      }
-      // Журнал
-      if( unionStat.infoes().size() > 0 || unionStat.queueSize() > 0 ) {
-        // Список описаний данных в запросе на дефрагментацию
-        IList<IS5SequenceFragmentInfo> fragmentInfoes = unionStat.infoes();
-        // Вывод статистики
-        Long d = Long.valueOf( (System.currentTimeMillis() - traceStartTime) / 1000 );
-        Integer tc = Integer.valueOf( fragmentInfoes.size() );
-        String threaded = TsLibUtils.EMPTY_STRING;
-        if( fragmentInfoes.size() > 0 ) {
-          threaded = "[" + fragmentInfoes.get( 0 ).toString(); //$NON-NLS-1$
-          if( fragmentInfoes.size() > 1 ) {
-            threaded += ", ..."; //$NON-NLS-1$
-          }
-          threaded += "]"; //$NON-NLS-1$
-        }
-        Integer lc = Integer.valueOf( unionStat.lookupCount() );
-        Integer mc = Integer.valueOf( unionStat.dbmsMergedCount() );
-        Integer rc = Integer.valueOf( unionStat.dbmsRemovedCount() );
-        Integer vc = Integer.valueOf( unionStat.valueCount() );
-        Integer ec = Integer.valueOf( unionStat.errorCount() );
-        Integer qs = Integer.valueOf( unionStat.queueSize() );
-        uniterLogger.info( MSG_UNION_TASK_FINISH, id(), aAuthor, lc, tc, threaded, mc, rc, vc, ec, qs, d );
       }
       // Информация о данных в проведенной дефрагментации
       IList<IS5SequenceFragmentInfo> fragmentInfos = unionStat.infoes();
@@ -845,7 +814,7 @@ public abstract class S5BackendSequenceSupportSingleton<S extends IS5Sequence<V>
   @TransactionTimeout( value = SEQUENCE_UNION_TRANSACTION_TIMEOUT_DEFAULT, unit = TimeUnit.MILLISECONDS )
   @Lock( LockType.READ )
   @Override
-  public IS5SequenceRemoveStat remove( String aAuthor, IOptionSet aArgs ) {
+  public IS5SequencePartitionStat partition( String aAuthor, IOptionSet aArgs ) {
     TsNullArgumentRtException.checkNulls( aAuthor, aArgs );
     IAtomicValue dbScheme = OP_BACKEND_DB_SCHEME_NAME.getValue( aArgs );
     if( !dbScheme.isAssigned() ) {
@@ -853,55 +822,30 @@ public abstract class S5BackendSequenceSupportSingleton<S extends IS5Sequence<V>
       throw new TsIllegalArgumentRtException( ERR_DB_SCHEME_NOT_DEFINED );
     }
     if( logger().isSeverityOn( ELogSeverity.DEBUG ) ) {
-      // Запуск задачи удаления
-      logger().debug( MSG_SINGLETON_REMOVE_TASK_START );
+      // Запуск задачи обработки разделов
+      logger().debug( MSG_SINGLETON_PARTITION_TASK_START );
     }
     try {
-      // Время запуска операции
-      long traceStartTime = System.currentTimeMillis();
       // Запуск процесса регламента
-      IS5SequenceRemoveStat removeStat = sequenceWriter.remove( aArgs );
+      IS5SequencePartitionStat partitionStat = sequenceWriter.partition( aAuthor, aArgs );
       // Формирование статистики
       S5StatisticWriter stat = statisticWriter;
       if( stat != null ) {
-        stat.onEvent( STAT_HISTORABLE_BACKEND_REMOVE_COUNT, AV_1 );
-        stat.onEvent( STAT_HISTORABLE_BACKEND_REMOVE_LOOKUP_COUNT, avInt( removeStat.lookupCount() ) );
-        stat.onEvent( STAT_HISTORABLE_BACKEND_REMOVE_THREAD_COUNT, avInt( removeStat.infoes().size() ) );
-        stat.onEvent( STAT_HISTORABLE_BACKEND_REMOVE_REMOVED_COUNT, avInt( removeStat.removedCount() ) );
-        stat.onEvent( STAT_HISTORABLE_BACKEND_REMOVE_ERROR_COUNT, avInt( removeStat.errorCount() ) );
+        stat.onEvent( STAT_HISTORABLE_BACKEND_PARTITIONS_TASKS_COUNT, AV_1 );
+        stat.onEvent( STAT_HISTORABLE_BACKEND_PARTITIONS_LOOKUP_COUNT, avInt( partitionStat.lookupCount() ) );
+        stat.onEvent( STAT_HISTORABLE_BACKEND_PARTITIONS_THREAD_COUNT, avInt( partitionStat.operations().size() ) );
+        stat.onEvent( STAT_HISTORABLE_BACKEND_PARTITIONS_ADDED_COUNT, avInt( partitionStat.addedCount() ) );
+        stat.onEvent( STAT_HISTORABLE_BACKEND_PARTITIONS_REMOVED_COUNT,
+            avInt( partitionStat.removedPartitionCount() ) );
+        stat.onEvent( STAT_HISTORABLE_BACKEND_PARTITIONS_BLOCKS_REMOVED_COUNT,
+            avInt( partitionStat.removedBlockCount() ) );
+        stat.onEvent( STAT_HISTORABLE_BACKEND_PARTITIONS_ERROR_COUNT, avInt( partitionStat.errorCount() ) );
       }
-      // Журнал
-      if( removeStat.infoes().size() > 0 || removeStat.queueSize() > 0 ) {
-        // Список описаний данных в запросе на удаление
-        IList<IS5SequenceRemoveInfo> removeInfoes = removeStat.infoes();
-        // Вывод статистики
-        Long d = Long.valueOf( (System.currentTimeMillis() - traceStartTime) / 1000 );
-        Integer tc = Integer.valueOf( removeInfoes.size() );
-        String threaded = TsLibUtils.EMPTY_STRING;
-        if( removeInfoes.size() > 0 ) {
-          threaded = "[" + removeInfoes.get( 0 ).toString(); //$NON-NLS-1$
-          if( removeInfoes.size() > 1 ) {
-            threaded += ", ..."; //$NON-NLS-1$
-          }
-          threaded += "]"; //$NON-NLS-1$
-        }
-        Integer lc = Integer.valueOf( removeStat.lookupCount() );
-        Integer rc = Integer.valueOf( removeStat.removedCount() );
-        Integer ec = Integer.valueOf( removeStat.errorCount() );
-        Integer qs = Integer.valueOf( removeStat.queueSize() );
-        removeLogger.info( MSG_REMOVE_TASK_FINISH, id(), aAuthor, lc, tc, threaded, rc, ec, qs, d );
-      }
-      // Информация об проведенной операции удаления значений данных
-      IList<IS5SequenceRemoveInfo> removeInfos = removeStat.infoes();
-      // Обработка ошибок целостности
-      if( removeStat.errorCount() == 0 || removeInfos.size() == 0 ) {
-        return removeStat;
-      }
-      return removeStat;
+      return partitionStat;
     }
     finally {
       // Завершение задачи дефрагментации
-      logger().debug( MSG_SINGLETON_REMOVE_TASK_FINISH );
+      logger().debug( MSG_SINGLETON_PARTITION_TASK_FINISH );
     }
   }
 
@@ -911,22 +855,8 @@ public abstract class S5BackendSequenceSupportSingleton<S extends IS5Sequence<V>
   public IS5SequenceValidationStat validation( String aAuthor, IOptionSet aArgs ) {
     TsNullArgumentRtException.checkNulls( aAuthor, aArgs );
     logger().info( MSG_VALIDATION_TASK_START, aAuthor );
-    // Время запуска операции
-    long startTime = System.currentTimeMillis();
     // Запуск процесса проверки
-    IS5SequenceValidationStat statistics = sequenceWriter.validation( aArgs );
-    // Вывод статистики
-    Long i = Long.valueOf( statistics.infoCount() );
-    Long a = Long.valueOf( statistics.processedCount() );
-    Long w = Long.valueOf( statistics.warnCount() );
-    Long e = Long.valueOf( statistics.errCount() );
-    Long u = Long.valueOf( statistics.dbmsMergedCount() );
-    Long r = Long.valueOf( statistics.dbmsRemovedCount() );
-    Long n = Long.valueOf( statistics.nonOptimalCount() );
-    Long v = Long.valueOf( statistics.valuesCount() );
-    Long d = Long.valueOf( (System.currentTimeMillis() - startTime) / 1000 );
-    validatorLogger.info( MSG_VALIDATION_TASK_FINISH, aAuthor, i, a, w, e, u, r, n, v, d );
-    return statistics;
+    return sequenceWriter.validation( aAuthor, aArgs );
   }
 
   // ------------------------------------------------------------------------------------
@@ -1598,9 +1528,9 @@ public abstract class S5BackendSequenceSupportSingleton<S extends IS5Sequence<V>
   }
 
   /**
-   * Обновление таймеров удаления значений по календарю
+   * Обновление таймеров обработки разделов таблиц по календарю
    */
-  private void updateRemoveTimers() {
+  private void updatePartitionTimers() {
     if( OP_BACKEND_DATA_WRITE_DISABLE.getValue( backend().initialConfig().impl().params() ).asBool() ) {
       // Запрет записи хранимых данных
       return;
@@ -1610,31 +1540,31 @@ public abstract class S5BackendSequenceSupportSingleton<S extends IS5Sequence<V>
       // Не определено имя схемы базы данных в реализации сервера
       logger().error( ERR_DB_SCHEME_NOT_DEFINED );
     }
-    IListEdit<Timer> oldTimers = new ElemArrayList<>( removeTimers );
+    IListEdit<Timer> oldTimers = new ElemArrayList<>( partitionTimers );
     // Опции службы
     IOptionSet config = configuration();
     // Текущие календари конфигурации
-    S5ScheduleExpressionList calendars = IS5SequenceAddonConfig.REMOVE_CALENDARS.getValue( config ).asValobj();
+    S5ScheduleExpressionList calendars = IS5SequenceAddonConfig.PARTITION_CALENDARS.getValue( config ).asValobj();
     // Удаление календарей которые больше не используется
     for( Timer timer : oldTimers ) {
       ScheduleExpression schedule = timer.getSchedule();
       try {
         if( !calendars.hasElem( new S5ScheduleExpression( schedule ) ) ) {
           timer.cancel();
-          removeTimers.remove( timer );
-          logger().info( MSG_CANCEL_REMOVE_TIMER, schedule );
+          partitionTimers.remove( timer );
+          logger().info( MSG_CANCEL_PARTITION_TIMER, schedule );
           continue;
         }
       }
       catch( Exception e ) {
-        logger().error( ERR_CANCEL_REMOVE_TIMER, schedule, cause( e ) );
+        logger().error( ERR_CANCEL_PARTITION_TIMER, schedule, cause( e ) );
       }
     }
     // Проверка текущих таймеров и создание если они неопределены
     for( int index = 0, n = calendars.size(); index < n; index++ ) {
       IScheduleExpression schedule = calendars.get( index );
       Timer newTimer = null;
-      for( Timer timer : removeTimers ) {
+      for( Timer timer : partitionTimers ) {
         if( schedule.equals( new S5ScheduleExpression( timer.getSchedule() ) ) ) {
           // Таймер найден
           newTimer = timer;
@@ -1649,12 +1579,12 @@ public abstract class S5BackendSequenceSupportSingleton<S extends IS5Sequence<V>
         TimerConfig tc = new TimerConfig(
             String.format( "RemoveTimer[%s]", S5ScheduleExpressionKeeper.KEEPER.ent2str( schedule ) ), false ); //$NON-NLS-1$
         newTimer = timerService.createCalendarTimer( (ScheduleExpression)schedule, tc );
-        removeTimers.add( newTimer );
-        logger().info( MSG_CREATE_REMOVE_TIMER, schedule );
+        partitionTimers.add( newTimer );
+        logger().info( MSG_CREATE_PARTITION_TIMER, schedule );
       }
       catch( Exception e ) {
         // Ошибка создания таймера задачи объединения
-        logger().error( ERR_CREATE_REMOVE_TIMER, schedule, cause( e ) );
+        logger().error( ERR_CREATE_PARTITION_TIMER, schedule, cause( e ) );
       }
     }
   }

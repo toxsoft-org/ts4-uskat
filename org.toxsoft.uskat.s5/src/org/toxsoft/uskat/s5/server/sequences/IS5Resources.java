@@ -37,11 +37,11 @@ interface IS5Resources {
   String D_UNION_CALENDARS = Messages.getString( "IS5Resources.D_UNION_CALENDARS" ); //$NON-NLS-1$
   String N_UNION_CALENDARS = Messages.getString( "IS5Resources.N_UNION_CALENDARS" ); //$NON-NLS-1$
 
-  String D_REMOVE_LOAD_AVERAGE_MAX = Messages.getString( "IS5Resources.D_REMOVE_LOAD_AVERAGE_MAX" ); //$NON-NLS-1$
-  String N_REMOVE_LOAD_AVERAGE_MAX = Messages.getString( "IS5Resources.N_REMOVE_LOAD_AVERAGE_MAX" ); //$NON-NLS-1$
+  String D_PARTITION_LOAD_AVERAGE_MAX = Messages.getString( "IS5Resources.D_PARTITION_LOAD_AVERAGE_MAX" ); //$NON-NLS-1$
+  String N_PARTITION_LOAD_AVERAGE_MAX = Messages.getString( "IS5Resources.N_PARTITION_LOAD_AVERAGE_MAX" ); //$NON-NLS-1$
 
-  String D_REMOVE_CALENDARS = Messages.getString( "IS5Resources.D_REMOVE_CALENDARS" ); //$NON-NLS-1$
-  String N_REMOVE_CALENDARS = Messages.getString( "IS5Resources.N_REMOVE_CALENDARS" ); //$NON-NLS-1$
+  String D_PARTITION_CALENDARS = Messages.getString( "IS5Resources.D_PARTITION_CALENDARS" ); //$NON-NLS-1$
+  String N_PARTITION_CALENDARS = Messages.getString( "IS5Resources.N_PARTITION_CALENDARS" ); //$NON-NLS-1$
 
   // ------------------------------------------------------------------------------------
   // Строки сообщений
