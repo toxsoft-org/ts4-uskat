@@ -87,6 +87,14 @@ public interface ISkSdedKm5SharedResources {
   String STR_D_HIDE_CLAIMED_CLASSES = Messages.getString( "STR_D_HIDE_CLAIMED_CLASSES" ); //$NON-NLS-1$
 
   /**
+   * {@link SdedDtoLinkInfoM5Model}
+   */
+  String STR_LINK_CLASS_IDS     = Messages.getString( "STR_LINK_CLASS_IDS" );     //$NON-NLS-1$
+  String STR_LINK_CLASS_IDS_D   = Messages.getString( "STR_LINK_CLASS_IDS_D" );   //$NON-NLS-1$
+  String STR_LINK_CONSTRAINTS   = Messages.getString( "STR_LINK_CONSTRAINTS" );   //$NON-NLS-1$
+  String STR_LINK_CONSTRAINTS_D = Messages.getString( "STR_LINK_CONSTRAINTS_D" ); //$NON-NLS-1$
+
+  /**
    * {@link SdedDtoFullObjectM5Model}
    */
   String STR_N_OBJECT_NAME              = "Название";

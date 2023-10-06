@@ -35,6 +35,11 @@ public class SdedDtoRtdataInfoM5Model
   public final IM5SingleModownFieldDef<IDtoRtdataInfo, IDataType> DATA_TYPE =
       new M5SingleModownFieldDef<>( FID_DATA_TYPE, DataTypeM5Model.MODEL_ID ) {
 
+        @Override
+        protected void doInit() {
+          setNameAndDescription( STR_N_DATA_TYPE, STR_D_DATA_TYPE );
+        }
+
         protected IDataType doGetFieldValue( IDtoRtdataInfo aEntity ) {
           return aEntity.dataType();
         }
