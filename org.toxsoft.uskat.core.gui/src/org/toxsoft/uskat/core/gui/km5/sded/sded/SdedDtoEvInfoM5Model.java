@@ -11,6 +11,7 @@ import org.toxsoft.core.tsgui.m5.*;
 import org.toxsoft.core.tsgui.m5.model.*;
 import org.toxsoft.core.tsgui.m5.model.impl.*;
 import org.toxsoft.core.tsgui.m5.std.models.av.*;
+import org.toxsoft.core.tsgui.valed.api.*;
 import org.toxsoft.core.tslib.av.*;
 import org.toxsoft.core.tslib.av.metainfo.*;
 import org.toxsoft.core.tslib.av.opset.*;
@@ -57,6 +58,8 @@ public class SdedDtoEvInfoM5Model
         protected void doInit() {
           setNameAndDescription( STR_N_PARAM_DEFS, STR_D_PARAM_DEFS );
           setFlags( M5FF_DETAIL );
+          params().setInt( IValedControlConstants.OPDEF_VERTICAL_SPAN, 5 );
+
         }
 
         protected IStridablesList<IDataDef> doGetFieldValue( IDtoEventInfo aEntity ) {
