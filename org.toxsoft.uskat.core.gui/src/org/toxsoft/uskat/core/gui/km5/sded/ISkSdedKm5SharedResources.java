@@ -47,14 +47,22 @@ public interface ISkSdedKm5SharedResources {
   /**
    * {@link SdedDtoCmdInfoM5Model}
    */
-  String STR_N_ARG_DEFS = Messages.getString( "STR_N_ARG_DEFS" ); //$NON-NLS-1$
-  String STR_D_ARG_DEFS = Messages.getString( "STR_D_ARG_DEFS" ); //$NON-NLS-1$
+  String STR_N_ARG_DEFS           = Messages.getString( "STR_N_ARG_DEFS" );           //$NON-NLS-1$
+  String STR_D_ARG_DEFS           = Messages.getString( "STR_D_ARG_DEFS" );           //$NON-NLS-1$
+  String STR_ADD_CMD_DLG_CAPTION  = Messages.getString( "STR_ADD_CMD_DLG_CAPTION" );  //$NON-NLS-1$
+  String STR_ADD_CMD_DLG_TITLE    = Messages.getString( "STR_ADD_CMD_DLG_TITLE" );    //$NON-NLS-1$
+  String STR_EDIT_CMD_DLG_CAPTION = Messages.getString( "STR_EDIT_CMD_DLG_CAPTION" ); //$NON-NLS-1$
+  String STR_EDIT_CMD_DLG_TITLE   = Messages.getString( "STR_EDIT_CMD_DLG_TITLE" );   //$NON-NLS-1$
 
   /**
    * {@link SdedDtoEvInfoM5Model}
    */
-  String STR_N_PARAM_DEFS = Messages.getString( "STR_N_PARAM_DEFS" ); //$NON-NLS-1$
-  String STR_D_PARAM_DEFS = Messages.getString( "STR_D_PARAM_DEFS" ); //$NON-NLS-1$
+  String STR_N_PARAM_DEFS         = Messages.getString( "STR_N_PARAM_DEFS" );         //$NON-NLS-1$
+  String STR_D_PARAM_DEFS         = Messages.getString( "STR_D_PARAM_DEFS" );         //$NON-NLS-1$
+  String STR_ADD_EVT_DLG_CAPTION  = Messages.getString( "STR_ADD_EVT_DLG_CAPTION" );  //$NON-NLS-1$
+  String STR_ADD_EVT_DLG_TITLE    = Messages.getString( "STR_ADD_EVT_DLG_TITLE" );    //$NON-NLS-1$
+  String STR_EDIT_EVT_DLG_CAPTION = Messages.getString( "STR_EDIT_EVT_DLG_CAPTION" ); //$NON-NLS-1$
+  String STR_EDIT_EVT_DLG_TITLE   = Messages.getString( "STR_EDIT_EVT_DLG_TITLE" );   //$NON-NLS-1$
 
   /**
    * {@link SdedDtoRivetInfoM5Model}

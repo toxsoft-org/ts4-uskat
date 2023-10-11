@@ -1,13 +1,19 @@
 package org.toxsoft.uskat.core.gui.km5.sded.sded;
 
 import static org.toxsoft.core.tsgui.m5.IM5Constants.*;
+import static org.toxsoft.core.tsgui.m5.gui.mpc.IMultiPaneComponentConstants.*;
 import static org.toxsoft.core.tslib.av.impl.AvUtils.*;
 import static org.toxsoft.core.tslib.av.metainfo.IAvMetaConstants.*;
 import static org.toxsoft.uskat.core.api.sysdescr.ESkClassPropKind.*;
 import static org.toxsoft.uskat.core.gui.km5.sded.IKM5SdedConstants.*;
 import static org.toxsoft.uskat.core.gui.km5.sded.ISkSdedKm5SharedResources.*;
 
+import org.toxsoft.core.tsgui.bricks.ctx.*;
+import org.toxsoft.core.tsgui.dialogs.datarec.*;
 import org.toxsoft.core.tsgui.m5.*;
+import org.toxsoft.core.tsgui.m5.gui.mpc.impl.*;
+import org.toxsoft.core.tsgui.m5.gui.panels.*;
+import org.toxsoft.core.tsgui.m5.gui.panels.impl.*;
 import org.toxsoft.core.tsgui.m5.model.*;
 import org.toxsoft.core.tsgui.m5.model.impl.*;
 import org.toxsoft.core.tsgui.m5.std.models.av.*;
@@ -16,6 +22,7 @@ import org.toxsoft.core.tslib.av.*;
 import org.toxsoft.core.tslib.av.metainfo.*;
 import org.toxsoft.core.tslib.av.opset.*;
 import org.toxsoft.core.tslib.av.opset.impl.*;
+import org.toxsoft.core.tslib.bricks.geometry.impl.*;
 import org.toxsoft.core.tslib.bricks.strid.coll.*;
 import org.toxsoft.core.tslib.utils.errors.*;
 import org.toxsoft.uskat.core.api.sysdescr.dto.*;
@@ -123,6 +130,34 @@ public class SdedDtoEvInfoM5Model
     super( MID_SDED_EVENT_INFO, IDtoEventInfo.class, aConn );
     setNameAndDescription( EVENT.nmName(), EVENT.description() );
     addFieldDefs( IS_HIST, PARAM_DEFS );
+    setPanelCreator( new M5DefaultPanelCreator<>() {
+
+      protected IM5CollectionPanel<IDtoEventInfo> doCreateCollEditPanel( ITsGuiContext aContext,
+          IM5ItemsProvider<IDtoEventInfo> aItemsProvider, IM5LifecycleManager<IDtoEventInfo> aLifecycleManager ) {
+        OPDEF_IS_ACTIONS_CRUD.setValue( aContext.params(), AV_TRUE );
+        MultiPaneComponentModown<IDtoEventInfo> mpc =
+            new MultiPaneComponentModown<>( aContext, model(), aItemsProvider, aLifecycleManager ) {
+
+              protected ITsDialogInfo doCreateDialogInfoToEditItem( IDtoEventInfo aItem ) {
+                TsDialogInfo retVal =
+                    new TsDialogInfo( aContext, getShell(), STR_EDIT_EVT_DLG_CAPTION, STR_EDIT_EVT_DLG_TITLE, 0 );
+                retVal.setMinSize( new TsPoint( -30, -60 ) );
+                return retVal;
+              }
+
+              protected ITsDialogInfo doCreateDialogInfoToAddItem() {
+                TsDialogInfo retVal =
+                    new TsDialogInfo( aContext, getShell(), STR_ADD_EVT_DLG_CAPTION, STR_ADD_EVT_DLG_TITLE, 0 );
+                retVal.setMinSize( new TsPoint( -30, -60 ) );
+
+                return retVal;
+              }
+            };
+        return new M5CollectionPanelMpcModownWrapper<>( mpc, false );
+      }
+
+    } );
+
   }
 
   @Override

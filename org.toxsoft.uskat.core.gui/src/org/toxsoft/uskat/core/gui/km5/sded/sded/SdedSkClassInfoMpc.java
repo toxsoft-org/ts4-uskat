@@ -123,6 +123,7 @@ class SdedSkClassInfoMpc
 
   @Override
   protected void doUpdateActionsState( boolean aIsAlive, boolean aIsSel, ISkClassInfo aSel ) {
+    // FIXME dima 10.10.23 здесь где-то ошибка которая плавает, не могу воспроизвести
     // can NOT edit: 1) root class, 2) claimed by service
     boolean canEdit = false;
     if( aSel != null ) {
