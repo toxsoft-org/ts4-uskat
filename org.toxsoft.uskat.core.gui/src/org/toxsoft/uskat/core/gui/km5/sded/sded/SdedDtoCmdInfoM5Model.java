@@ -126,7 +126,7 @@ public class SdedDtoCmdInfoM5Model
 
               protected ITsDialogInfo doCreateDialogInfoToAddItem() {
                 TsDialogInfo retVal =
-                    new TsDialogInfo( aContext, getShell(), STR_ADD_CMD_DLG_CAPTION, STR_ADD_CMD_DLG_CAPTION, 0 );
+                    new TsDialogInfo( aContext, getShell(), STR_ADD_CMD_DLG_CAPTION, STR_ADD_CMD_DLG_TITLE, 0 );
                 retVal.setMinSize( new TsPoint( -30, -60 ) );
 
                 return retVal;
