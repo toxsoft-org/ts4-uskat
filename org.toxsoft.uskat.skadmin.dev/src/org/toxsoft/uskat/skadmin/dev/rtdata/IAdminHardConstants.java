@@ -187,8 +187,8 @@ interface IAdminHardConstants {
 
   String ARG_UNION_IDS_ID    = "ids";
   String ARG_UNION_IDS_ALIAS = "";
-  String ARG_UNION_IDS_NAME  = IS5SequenceUnionOptions.GWIDS.nmName();
-  String ARG_UNION_IDS_DESCR = IS5SequenceUnionOptions.GWIDS.description();
+  String ARG_UNION_IDS_NAME  = IS5SequenceUnionOptions.UNION_GWIDS.nmName();
+  String ARG_UNION_IDS_DESCR = IS5SequenceUnionOptions.UNION_GWIDS.description();
 
   String MSG_UNION_FINISH = "Завершение задачи объединения блоков последовательностей.\n" + //
       "Проанализировано   : %d\n" + //

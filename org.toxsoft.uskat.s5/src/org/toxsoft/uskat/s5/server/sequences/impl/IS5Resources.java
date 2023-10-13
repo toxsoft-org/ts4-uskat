@@ -23,9 +23,16 @@ interface IS5Resources {
   String BLOB_ASYNC_TO_STRING_FORMAT = Messages.getString( "IS5Resources.BLOB_ASYNC_TO_STRING_FORMAT" ); //$NON-NLS-1$
 
   // ------------------------------------------------------------------------------------
+  // Строки константы
+  //
+  String STR_DO_PARTITION = "doPartition"; //$NON-NLS-1$
+  String STR_DO_JOB       = "doJob";       //$NON-NLS-1$
+
+  // ------------------------------------------------------------------------------------
   // Строки сообщений
   //
-  String MSG_ERROR_QUERY                 = Messages.getString( "IS5Resources.MSG_ERROR_QUERY" );                   //$NON-NLS-1$
+  String MSG_ERROR_QUERY = Messages.getString( "IS5Resources.MSG_ERROR_QUERY" ); //$NON-NLS-1$
+
   String MSG_UNION_START_THREAD          = Messages.getString( "IS5Resources.MSG_UNION_START_THREAD" );            //$NON-NLS-1$
   String MSG_SINGLETON_UNION_TASK_START  = Messages.getString( "IS5Resources.MSG_SINGLETON_UNION_TASK_START" );    //$NON-NLS-1$
   String MSG_SINGLETON_UNION_TASK_FINISH = Messages.getString( "IS5Resources.MSG_SINGLETON_UNION_TASK_FINISH" );   //$NON-NLS-1$
@@ -41,30 +48,58 @@ interface IS5Resources {
   String MSG_UNION_START                 = Messages.getString( "IS5Resources.MSG_UNION_START" );                   //$NON-NLS-1$
   String MSG_UNION_FINISH                = Messages.getString( "IS5Resources.MSG_UNION_FINISH" );                  //$NON-NLS-1$
   String MSG_UNION_PASS_FINISH           = Messages.getString( "IS5Resources.MSG_UNION_PASS_FINISH" );             //$NON-NLS-1$
-  String MSG_VALIDATION_UPDATE           = Messages.getString( "IS5Resources.MSG_VALIDATION_UPDATE" );             //$NON-NLS-1$
-  String MSG_VALIDATION_REMOVE           = Messages.getString( "IS5Resources.MSG_VALIDATION_REMOVE" );             //$NON-NLS-1$
-  String MSG_VALIDATION_REMOVE_UNORDER   = Messages.getString( "IS5Resources.MSG_VALIDATION_REMOVE_UNORDER" );     //$NON-NLS-1$
-  String MSG_VALIDATION_FINISH           = Messages.getString( "IS5Resources.MSG_VALIDATION_FINISH" );             //$NON-NLS-1$
-  String MSG_CREATE_QUERY                = Messages.getString( "IS5Resources.MSG_CREATE_QUERY" );                  //$NON-NLS-1$
-  String MSG_EXECUTE_SUB_QUERY           = Messages.getString( "IS5Resources.MSG_EXECUTE_SUB_QUERY" );             //$NON-NLS-1$
-  String MSG_FINISH_QUERY                = Messages.getString( "IS5Resources.MSG_FINISH_QUERY" );                  //$NON-NLS-1$
-  String MSG_START_EXECUTE_QUERY         = Messages.getString( "IS5Resources.MSG_START_EXECUTE_QUERY" );           //$NON-NLS-1$
-  String MSG_FINISH_EXECUTE_QUERY        = Messages.getString( "IS5Resources.MSG_FINISH_EXECUTE_QUERY" );          //$NON-NLS-1$
-  String MSG_READ_BEFORE_SEQUENCE_TIME   = Messages.getString( "IS5Resources.MSG_READ_BEFORE_SEQUENCE_TIME" );     //$NON-NLS-1$
-  String MSG_READ_SEQUENCE_TIME          = Messages.getString( "IS5Resources.MSG_READ_SEQUENCE_TIME" );            //$NON-NLS-1$
-  String MSG_WRITE_SEQUENCE_TIME         = Messages.getString( "IS5Resources.MSG_WRITE_SEQUENCE_TIME" );           //$NON-NLS-1$
-  String MSG_FIND_START_TIME             = Messages.getString( "IS5Resources.MSG_FIND_START_TIME" );               //$NON-NLS-1$
-  String MSG_FIND_END_TIME               = Messages.getString( "IS5Resources.MSG_FIND_END_TIME" );                 //$NON-NLS-1$
-  String MSG_CALC_AVAILABLE_BLOCK        = Messages.getString( "IS5Resources.MSG_CALC_AVAILABLE_BLOCK" );          //$NON-NLS-1$
-  String MSG_CREATE_UNION_TIMER          = Messages.getString( "IS5Resources.MSG_CREATE_UNION_TIMER" );            //$NON-NLS-1$
-  String MSG_CANCEL_UNION_TIMER          = Messages.getString( "IS5Resources.MSG_CANCEL_UNION_TIMER" );            //$NON-NLS-1$
-  String MSG_AUTO_VALIDATION_AUTHOR      = Messages.getString( "IS5Resources.MSG_AUTO_VALIDATION_AUTHOR" );        //$NON-NLS-1$
-  String MSG_UNION_AUTHOR_INIT           = Messages.getString( "IS5Resources.MSG_UNION_AUTHOR_INIT" );             //$NON-NLS-1$
-  String MSG_UNION_AUTHOR_SCHEDULE       = Messages.getString( "IS5Resources.MSG_UNION_AUTHOR_SCHEDULE" );         //$NON-NLS-1$
-  String MSG_UNION_AUTO_OFF              = Messages.getString( "IS5Resources.MSG_UNION_AUTO_OFF" );                //$NON-NLS-1$
-  String MSG_UNION_AUTO_INTERVAL         = Messages.getString( "IS5Resources.MSG_UNION_AUTO_INTERVAL" );           //$NON-NLS-1$
-  String MSG_UNION_AUTO_ADD_INFO         = Messages.getString( "IS5Resources.MSG_UNION_AUTO_ADD_INFO" );           //$NON-NLS-1$
-  String MSG_UNION_AUTO_REPEAT           = Messages.getString( "IS5Resources.MSG_UNION_AUTO_REPEAT" );             //$NON-NLS-1$
+
+  String MSG_PARTITION_START_THREAD          = Messages.getString( "IS5Resources.MSG_PARTITION_START_THREAD" );            //$NON-NLS-1$
+  String MSG_SINGLETON_PARTITION_TASK_START  = Messages.getString( "IS5Resources.MSG_SINGLETON_PARTITION_TASK_START" );    //$NON-NLS-1$
+  String MSG_SINGLETON_PARTITION_TASK_FINISH = Messages.getString( "IS5Resources.MSG_SINGLETON_PARTITION_TASK_FINISH" );   //$NON-NLS-1$
+  String MSG_PARTITION_TASK_FINISH           = Messages.getString( "IS5Resources.MSG_PARTITION_TASK_FINISH" )              //$NON-NLS-1$
+      + Messages.getString( "IS5Resources.MSG_PARTITION_TASK_FINISH___1" ) +                                               // //$NON-NLS-1$
+      Messages.getString( "IS5Resources.MSG_PARTITION_TASK_FINISH___2" ) +                                                 // //$NON-NLS-1$
+      Messages.getString( "IS5Resources.MSG_PARTITION_TASK_FINISH___3" ) +                                                 // //$NON-NLS-1$
+      Messages.getString( "IS5Resources.MSG_PARTITION_TASK_FINISH___40" ) +                                                // //$NON-NLS-1$
+      Messages.getString( "IS5Resources.MSG_PARTITION_TASK_FINISH___4" ) +                                                 // //$NON-NLS-1$
+      Messages.getString( "IS5Resources.MSG_PARTITION_TASK_FINISH___6" ) +                                                 // //$NON-NLS-1$
+      Messages.getString( "IS5Resources.MSG_PARTITION_TASK_FINISH___7" ) +                                                 // //$NON-NLS-1$
+      Messages.getString( "IS5Resources.MSG_PARTITION_TASK_FINISH___8" );                                                  //$NON-NLS-1$
+  String MSG_PARTITION_START                 = "%s. start partition handle. aAuthor = %s.";                                //$NON-NLS-1$
+  String MSG_PARTITION_FINISH                = Messages.getString( "IS5Resources.MSG_PARTITION_FINISH" );                  //$NON-NLS-1$
+  String MSG_PARTITION_PASS_FINISH           = Messages.getString( "IS5Resources.MSG_PARTITION_PASS_FINISH" );             //$NON-NLS-1$
+
+  String MSG_VALIDATION_UPDATE         = Messages.getString( "IS5Resources.MSG_VALIDATION_UPDATE" );         //$NON-NLS-1$
+  String MSG_VALIDATION_REMOVE         = Messages.getString( "IS5Resources.MSG_VALIDATION_REMOVE" );         //$NON-NLS-1$
+  String MSG_VALIDATION_REMOVE_UNORDER = Messages.getString( "IS5Resources.MSG_VALIDATION_REMOVE_UNORDER" ); //$NON-NLS-1$
+  String MSG_VALIDATION_FINISH         = Messages.getString( "IS5Resources.MSG_VALIDATION_FINISH" );         //$NON-NLS-1$
+  String MSG_CREATE_QUERY              = Messages.getString( "IS5Resources.MSG_CREATE_QUERY" );              //$NON-NLS-1$
+  String MSG_EXECUTE_SUB_QUERY         = Messages.getString( "IS5Resources.MSG_EXECUTE_SUB_QUERY" );         //$NON-NLS-1$
+  String MSG_FINISH_QUERY              = Messages.getString( "IS5Resources.MSG_FINISH_QUERY" );              //$NON-NLS-1$
+  String MSG_START_EXECUTE_QUERY       = Messages.getString( "IS5Resources.MSG_START_EXECUTE_QUERY" );       //$NON-NLS-1$
+  String MSG_FINISH_EXECUTE_QUERY      = Messages.getString( "IS5Resources.MSG_FINISH_EXECUTE_QUERY" );      //$NON-NLS-1$
+  String MSG_READ_BEFORE_SEQUENCE_TIME = Messages.getString( "IS5Resources.MSG_READ_BEFORE_SEQUENCE_TIME" ); //$NON-NLS-1$
+  String MSG_READ_SEQUENCE_TIME        = Messages.getString( "IS5Resources.MSG_READ_SEQUENCE_TIME" );        //$NON-NLS-1$
+  String MSG_WRITE_SEQUENCE_TIME       = Messages.getString( "IS5Resources.MSG_WRITE_SEQUENCE_TIME" );       //$NON-NLS-1$
+  String MSG_FIND_START_TIME           = Messages.getString( "IS5Resources.MSG_FIND_START_TIME" );           //$NON-NLS-1$
+  String MSG_FIND_END_TIME             = Messages.getString( "IS5Resources.MSG_FIND_END_TIME" );             //$NON-NLS-1$
+  String MSG_CALC_AVAILABLE_BLOCK      = Messages.getString( "IS5Resources.MSG_CALC_AVAILABLE_BLOCK" );      //$NON-NLS-1$
+  String MSG_CREATE_UNION_TIMER        = Messages.getString( "IS5Resources.MSG_CREATE_UNION_TIMER" );        //$NON-NLS-1$
+  String MSG_CANCEL_UNION_TIMER        = Messages.getString( "IS5Resources.MSG_CANCEL_UNION_TIMER" );        //$NON-NLS-1$
+  String MSG_CREATE_PARTITION_TIMER    = Messages.getString( "IS5Resources.MSG_CREATE_PARTITION_TIMER" );    //$NON-NLS-1$
+  String MSG_CANCEL_PARTITION_TIMER    = Messages.getString( "IS5Resources.MSG_CANCEL_PARTITION_TIMER" );    //$NON-NLS-1$
+  String MSG_AUTO_VALIDATION_AUTHOR    = Messages.getString( "IS5Resources.MSG_AUTO_VALIDATION_AUTHOR" );    //$NON-NLS-1$
+  String MSG_UNION_AUTHOR_INIT         = Messages.getString( "IS5Resources.MSG_UNION_AUTHOR_INIT" );         //$NON-NLS-1$
+  String MSG_UNION_AUTHOR_SCHEDULE     = Messages.getString( "IS5Resources.MSG_UNION_AUTHOR_SCHEDULE" );     //$NON-NLS-1$
+  String MSG_UNION_AUTO_OFF            = Messages.getString( "IS5Resources.MSG_UNION_AUTO_OFF" );            //$NON-NLS-1$
+  String MSG_UNION_AUTO_INTERVAL       = Messages.getString( "IS5Resources.MSG_UNION_AUTO_INTERVAL" );       //$NON-NLS-1$
+  String MSG_UNION_AUTO_ADD_INFO       = Messages.getString( "IS5Resources.MSG_UNION_AUTO_ADD_INFO" );       //$NON-NLS-1$
+  String MSG_UNION_AUTO_REPEAT         = Messages.getString( "IS5Resources.MSG_UNION_AUTO_REPEAT" );         //$NON-NLS-1$
+
+  String MSG_PARTITION_AUTHOR_INIT     = "Обработка разделов таблиц после перезапуска";     //$NON-NLS-1$
+  String MSG_PARTITION_AUTHOR_SCHEDULE = "Плановое обработка разделов таблиц по календарю"; //$NON-NLS-1$
+
+  String MSG_PARTITION_PLAN_CREATE = "%s. %s.%s. Планирование создания разделов таблиц в автоматическом режиме: %s";                                                                //$NON-NLS-1$
+  String MSG_PARTITION_PLAN_ADD    = "%s. %s.%s. Планирование добавления разделов таблиц в автоматическом режиме: %s";                                                              //$NON-NLS-1$
+  String MSG_PARTITION_PLAN_REMOVE = "%s. %s.%s. Планирование удаления разделов таблиц в автоматическом режиме: %s";                                                                //$NON-NLS-1$
+  String ERR_DB_SCHEME_NOT_DEFINED =
+      "OP_BACKEND_DB_SCHEME_NAME is not defined. Set the parameter value in the server class implementation (S5InitialImplementation) in the doProjectSpecificParams(...) method."; //$NON-NLS-1$
 
   String MSG_LAST_VALUES_ASYNC_QUERY = Messages.getString( "IS5Resources.MSG_LAST_VALUES_ASYNC_QUERY" ); //$NON-NLS-1$
   String MSG_LAST_VALUE_ASYNC_QUERY  = Messages.getString( "IS5Resources.MSG_LAST_VALUE_ASYNC_QUERY" );  //$NON-NLS-1$
@@ -91,25 +126,26 @@ interface IS5Resources {
 
   String MSG_SYNC_ADD_NULLS = Messages.getString( "IS5Resources.MSG_SYNC_ADD_NULLS" ); //$NON-NLS-1$
 
-  String MSG_LAST_BLOCK_LOAD_START      = Messages.getString( "IS5Resources.MSG_LAST_BLOCK_LOAD_START" );      //$NON-NLS-1$
-  String MSG_BLOCKS_RECEVIED            = Messages.getString( "IS5Resources.MSG_BLOCKS_RECEVIED" );            //$NON-NLS-1$
-  String MSG_BLOCKS_UNIONED             = Messages.getString( "IS5Resources.MSG_BLOCKS_UNIONED" );             //$NON-NLS-1$
-  String MSG_LAST_BLOCK_LOADED          = Messages.getString( "IS5Resources.MSG_LAST_BLOCK_LOADED" );          //$NON-NLS-1$
-  String MSG_LAST_BLOCK_NOT_FOUND       = Messages.getString( "IS5Resources.MSG_LAST_BLOCK_NOT_FOUND" );       //$NON-NLS-1$
-  String MSG_LAST_BLOCK_LOAD_FINISH     = Messages.getString( "IS5Resources.MSG_LAST_BLOCK_LOAD_FINISH" );     //$NON-NLS-1$
-  String MSG_LAST_BLOCK                 = Messages.getString( "IS5Resources.MSG_LAST_BLOCK" );                 //$NON-NLS-1$
-  String MSG_NOT_LAST_BLOCK             = Messages.getString( "IS5Resources.MSG_NOT_LAST_BLOCK" );             //$NON-NLS-1$
-  String MSG_LOOKUP_LAST_BLOCK          = Messages.getString( "IS5Resources.MSG_LOOKUP_LAST_BLOCK" );          //$NON-NLS-1$
-  String MSG_USE_LAST_BLOCK             = Messages.getString( "IS5Resources.MSG_USE_LAST_BLOCK" );             //$NON-NLS-1$
-  String MSG_ADD_NEW_BLOCKS             = Messages.getString( "IS5Resources.MSG_ADD_NEW_BLOCKS" );             //$NON-NLS-1$
-  String MSG_DETECT_CHANGES_LAST_VALUES = Messages.getString( "IS5Resources.MSG_DETECT_CHANGES_LAST_VALUES" ); //$NON-NLS-1$
-  String MSG_REMOVE_REPEAT_VALUES       = Messages.getString( "IS5Resources.MSG_REMOVE_REPEAT_VALUES" );       //$NON-NLS-1$
-  String MSG_CANT_USE_LAST_BLOCK        = Messages.getString( "IS5Resources.MSG_CANT_USE_LAST_BLOCK" );        //$NON-NLS-1$
-  String MSG_CANT_USE_TX_BLOCK          = Messages.getString( "IS5Resources.MSG_CANT_USE_TX_BLOCK" );          //$NON-NLS-1$
-  String MSG_REMOVE_LAST_BY_BEFORE      = Messages.getString( "IS5Resources.MSG_REMOVE_LAST_BY_BEFORE" );      //$NON-NLS-1$
-  String MSG_REMOVE_LAST_BY_UNION       = Messages.getString( "IS5Resources.MSG_REMOVE_LAST_BY_UNION" );       //$NON-NLS-1$
-  String MSG_TX_COMMIT                  = Messages.getString( "IS5Resources.MSG_TX_COMMIT" );                  //$NON-NLS-1$
-  String MSG_TX_ROLLBACK                = Messages.getString( "IS5Resources.MSG_TX_ROLLBACK" );                //$NON-NLS-1$
+  String MSG_LAST_BLOCK_LOAD_START      = Messages.getString( "IS5Resources.MSG_LAST_BLOCK_LOAD_START" );        //$NON-NLS-1$
+  String MSG_BLOCKS_RECEVIED            = Messages.getString( "IS5Resources.MSG_BLOCKS_RECEVIED" );              //$NON-NLS-1$
+  String MSG_BLOCKS_UNIONED             = Messages.getString( "IS5Resources.MSG_BLOCKS_UNIONED" );               //$NON-NLS-1$
+  String MSG_LAST_BLOCK_LOADED          = Messages.getString( "IS5Resources.MSG_LAST_BLOCK_LOADED" );            //$NON-NLS-1$
+  String MSG_LAST_BLOCK_NOT_FOUND       = Messages.getString( "IS5Resources.MSG_LAST_BLOCK_NOT_FOUND" );         //$NON-NLS-1$
+  String MSG_LAST_BLOCK_LOAD_FINISH     = Messages.getString( "IS5Resources.MSG_LAST_BLOCK_LOAD_FINISH" );       //$NON-NLS-1$
+  String MSG_LAST_BLOCK                 = Messages.getString( "IS5Resources.MSG_LAST_BLOCK" );                   //$NON-NLS-1$
+  String MSG_NOT_LAST_BLOCK             = Messages.getString( "IS5Resources.MSG_NOT_LAST_BLOCK" );               //$NON-NLS-1$
+  String MSG_LOOKUP_LAST_BLOCK          = Messages.getString( "IS5Resources.MSG_LOOKUP_LAST_BLOCK" );            //$NON-NLS-1$
+  String MSG_USE_LAST_BLOCK             = Messages.getString( "IS5Resources.MSG_USE_LAST_BLOCK" );               //$NON-NLS-1$
+  String MSG_ADD_NEW_BLOCKS             = Messages.getString( "IS5Resources.MSG_ADD_NEW_BLOCKS" );               //$NON-NLS-1$
+  String MSG_DETECT_CHANGES_LAST_VALUES = Messages.getString( "IS5Resources.MSG_DETECT_CHANGES_LAST_VALUES" );   //$NON-NLS-1$
+  String MSG_REMOVE_REPEAT_VALUES       = Messages.getString( "IS5Resources.MSG_REMOVE_REPEAT_VALUES" );         //$NON-NLS-1$
+  String MSG_CANT_USE_LAST_BLOCK        = Messages.getString( "IS5Resources.MSG_CANT_USE_LAST_BLOCK" );          //$NON-NLS-1$
+  String MSG_CANT_USE_TX_BLOCK          = Messages.getString( "IS5Resources.MSG_CANT_USE_TX_BLOCK" );            //$NON-NLS-1$
+  String MSG_REMOVE_LAST_BY_BEFORE      = Messages.getString( "IS5Resources.MSG_REMOVE_LAST_BY_BEFORE" );        //$NON-NLS-1$
+  String MSG_REMOVE_LAST_BY_UNION       = Messages.getString( "IS5Resources.MSG_REMOVE_LAST_BY_UNION" );         //$NON-NLS-1$
+  String MSG_REMOVE_LAST_BY_REMOVE      = "%s. Завершение удаления значений данного. Удаление последнего блока"; //$NON-NLS-1$
+  String MSG_TX_COMMIT                  = Messages.getString( "IS5Resources.MSG_TX_COMMIT" );                    //$NON-NLS-1$
+  String MSG_TX_ROLLBACK                = Messages.getString( "IS5Resources.MSG_TX_ROLLBACK" );                  //$NON-NLS-1$
 
   String MSG_EMPTY_BLOCK                 = Messages.getString( "IS5Resources.MSG_EMPTY_BLOCK" );                 //$NON-NLS-1$
   String MSG_EMPTY_SEQUENCE              = Messages.getString( "IS5Resources.MSG_EMPTY_SEQUENCE" );              //$NON-NLS-1$
@@ -227,6 +263,7 @@ interface IS5Resources {
   String ERR_SEQUENCE_CROSSED_BLOCK_SIZES_READ =
       Messages.getString( "IS5Resources.ERR_SEQUENCE_CROSSED_BLOCK_SIZES_READ" );                                        //$NON-NLS-1$
   String ERR_READ_OUT_OF_MEMORY                = Messages.getString( "IS5Resources.ERR_READ_OUT_OF_MEMORY" );            //$NON-NLS-1$
+  String ERR_READ_OUT_OF_MEMORY2               = "%s. Недостаточно памяти для чтения блоков. Причина: %s";               //$NON-NLS-1$
   String ERR_READ_UNEXPECTED                   = Messages.getString( "IS5Resources.ERR_READ_UNEXPECTED" );               //$NON-NLS-1$
   String ERR_IMPL_BLOCK_NOT_FOUND              = Messages.getString( "IS5Resources.ERR_IMPL_BLOCK_NOT_FOUND" );          //$NON-NLS-1$
   String ERR_READ_LAST_SEQUENCE_UNEXPECTED     = Messages.getString( "IS5Resources.ERR_READ_LAST_SEQUENCE_UNEXPECTED" ); //$NON-NLS-1$
@@ -245,8 +282,20 @@ interface IS5Resources {
   String ERR_REMOVE_BLOCK_OBJID_DATAID         = Messages.getString( "IS5Resources.ERR_REMOVE_BLOCK_OBJID_DATAID" );     //$NON-NLS-1$
   String ERR_CREATE_UNION_TIMER                = Messages.getString( "IS5Resources.ERR_CREATE_UNION_TIMER" );            //$NON-NLS-1$
   String ERR_CANCEL_UNION_TIMER                = Messages.getString( "IS5Resources.ERR_CANCEL_UNION_TIMER" );            //$NON-NLS-1$
+  String ERR_CREATE_PARTITION_TIMER            = Messages.getString( "IS5Resources.ERR_CREATE_PARTITION_TIMER" );        //$NON-NLS-1$
+  String ERR_CANCEL_PARTITION_TIMER            = Messages.getString( "IS5Resources.ERR_CANCEL_PARTITION_TIMER" );        //$NON-NLS-1$
   String ERR_STOP_UNKNOW_TIMER                 = Messages.getString( "IS5Resources.ERR_STOP_UNKNOW_TIMER" );             //$NON-NLS-1$
   String ERR_QUERY_DOJOB                       = Messages.getString( "IS5Resources.ERR_QUERY_DOJOB" );                   //$NON-NLS-1$
+
+  String MSG_ADD_PARTITION                  = "%s. %s.%s. Добавление раздела %s.";                                   //$NON-NLS-1$
+  String MSG_REMOVE_PARTITION               = "%s. %s.%s. Удаление раздела %s.";                                     //$NON-NLS-1$
+  String ERR_PARTITION_OP                   = "%s. Неожиданная ошибка обработки разделов операции: %s. Причина: %s"; //$NON-NLS-1$
+  String ERR_REPLAIN_PARTITION_OPS_BY_ERROR =
+      "%s. При обработке разделов произошли ошибки. Планирование повтора обработки";                                 //$NON-NLS-1$
+  String ERR_ADD_PARTITION                  = "%s. %s.%s. Ошибка добавления раздела %s. Причина: %s";                //$NON-NLS-1$
+  String ERR_ADD_PARTITION2                 = "%s.%s. Ошибка добавления раздела %s. Причина: %s";                    //$NON-NLS-1$
+  String ERR_DROP_PARTITION                 = "%s. %s.%s. Ошибка удаления раздела %s. Причина: %s";                  //$NON-NLS-1$
+  String ERR_DROP_PARTITION2                = "%s.%s. Ошибка удаления раздела %s. Причина: %s";                      //$NON-NLS-1$
 
   String ERR_DATAID_NOT_FOUND = Messages.getString( "IS5Resources.ERR_DATAID_NOT_FOUND" ); //$NON-NLS-1$
 
@@ -265,6 +314,9 @@ interface IS5Resources {
   String ERR_ASYNC_UNION_TASK          = Messages.getString( "IS5Resources.ERR_ASYNC_UNION_TASK" );          //$NON-NLS-1$
   String ERR_ASYNC_UNION_THREAD        = Messages.getString( "IS5Resources.ERR_ASYNC_UNION_THREAD" );        //$NON-NLS-1$
   String ERR_ASYNC_UNION_THREAD_BUSY   = "%s. Ошибка доступа к %s проводящему дефрагментацию. Причина: %s";  //$NON-NLS-1$
+  String ERR_ASYNC_REMOVE_TASK         = Messages.getString( "IS5Resources.ERR_ASYNC_REMOVE_TASK" );         //$NON-NLS-1$
+  String ERR_ASYNC_REMOVE_THREAD       = Messages.getString( "IS5Resources.ERR_ASYNC_REMOVE_THREAD" );       //$NON-NLS-1$
+  String ERR_ASYNC_REMOVE_THREAD_BUSY  = "%s. Ошибка доступа к %s проводящему удаление. Причина: %s";        //$NON-NLS-1$
   String ERR_ASYNC_VALIDATION_TASK     = Messages.getString( "IS5Resources.ERR_ASYNC_VALIDATION_TASK" );     //$NON-NLS-1$
   String ERR_ASYNC_LAST_VALUES_TASK    = Messages.getString( "IS5Resources.ERR_ASYNC_LAST_VALUES_TASK" );    //$NON-NLS-1$
   String ERR_VALIDATION_MERGE          = Messages.getString( "IS5Resources.ERR_VALIDATION_MERGE" );          //$NON-NLS-1$
@@ -291,20 +343,29 @@ interface IS5Resources {
 
   String ERR_NOT_OPEN_TX = Messages.getString( "IS5Resources.ERR_NOT_OPEN_TX" ); //$NON-NLS-1$
 
-  String MSG_SPLIT_BLOCK            = Messages.getString( "IS5Resources.MSG_SPLIT_BLOCK" );            //$NON-NLS-1$
+  String MSG_SPLIT_BLOCK = Messages.getString( "IS5Resources.MSG_SPLIT_BLOCK" ); //$NON-NLS-1$
+
   String ERR_WRONG_FIRST_LAST_ORDER = Messages.getString( "IS5Resources.ERR_WRONG_FIRST_LAST_ORDER" ); //$NON-NLS-1$
   String ERR_WRONG_ORDER            = Messages.getString( "IS5Resources.ERR_WRONG_ORDER" );            //$NON-NLS-1$
 
-  String ERR_UNION_DISABLE_BY_LOAD_AVERAGE = Messages.getString( "IS5Resources.ERR_UNION_DISABLE_BY_LOAD_AVERAGE" ); //$NON-NLS-1$
-  String ERR_UNION_DISABLE_BY_PREV_UNITER  = Messages.getString( "IS5Resources.ERR_UNION_DISABLE_BY_PREV_UNITER" );  //$NON-NLS-1$
-  String ERR_WRITE_DISABLE_BY_LOAD_AVERAGE = Messages.getString( "IS5Resources.ERR_WRITE_DISABLE_BY_LOAD_AVERAGE" ); //$NON-NLS-1$
-  String ERR_STATISTICS_DISABLED           = Messages.getString( "IS5Resources.ERR_STATISTICS_DISABLED" );           //$NON-NLS-1$
-  String ERR_STATISTICS_NOT_READY          =
+  String ERR_WRITE_DISABLE_BY_LOAD_AVERAGE     = Messages.getString( "IS5Resources.ERR_WRITE_DISABLE_BY_LOAD_AVERAGE" ); //$NON-NLS-1$
+  String ERR_UNION_DISABLE_BY_LOAD_AVERAGE     = Messages.getString( "IS5Resources.ERR_UNION_DISABLE_BY_LOAD_AVERAGE" ); //$NON-NLS-1$
+  String ERR_UNION_DISABLE_BY_PREV_UNITER      = Messages.getString( "IS5Resources.ERR_UNION_DISABLE_BY_PREV_UNITER" );  //$NON-NLS-1$
+  String ERR_PARTITION_DISABLE_BY_LOAD_AVERAGE =
+      Messages.getString( "IS5Resources.ERR_PARTITION_DISABLE_BY_LOAD_AVERAGE" );                                        //$NON-NLS-1$
+  String ERR_PARTITION_DISABLE_BY_PREV         = Messages.getString( "IS5Resources.ERR_PARTITION_DISABLE_BY_PREV" );     //$NON-NLS-1$
+  String ERR_PARTITION_HADNLE_ALREADY_STARTED  = "%s. Обработка разделов таблиц уже выполняется (%s).";                  //$NON-NLS-1$
+  String ERR_PARTITION_NOT_INIT                =
+      "%s. Отклонен запрос на выполнение обработки разделов таблиц. Автор %s. Причина: Инициализация SequenceWriter";    //$NON-NLS-1$
+  String ERR_PARTITION_PLAN_CREATED_ALREADY    = "%s. %s: раздел уже запланирован для добавления (aCreatingPartitions)"; //$NON-NLS-1$
+  String ERR_PARTITION_PLAN_ADDED_ALREADY      = "%s. %s: раздел уже запланирован для добавления (aAddedPartitions)";    //$NON-NLS-1$
+  String ERR_STATISTICS_DISABLED               = Messages.getString( "IS5Resources.ERR_STATISTICS_DISABLED" );           //$NON-NLS-1$
+  String ERR_STATISTICS_NOT_READY              =
       // <<<<<<< HEAD
-      Messages.getString( "IS5Resources.ERR_STATISTICS_NOT_READY" );                                                 //$NON-NLS-1$
-  String ERR_SEQUENCE_IMPL_NOT_FOUND       = Messages.getString( "IS5Resources.ERR_SEQUENCE_IMPL_NOT_FOUND" );       //$NON-NLS-1$
-  String ERR_REMOTE_ACCESS                 = Messages.getString( "IS5Resources.ERR_REMOTE_ACCESS" );                 //$NON-NLS-1$
-  String ERR_QUERY_IS_ALREADY_EXECUTE      = Messages.getString( "IS5Resources.ERR_QUERY_IS_ALREADY_EXECUTE" );      //$NON-NLS-1$
+      Messages.getString( "IS5Resources.ERR_STATISTICS_NOT_READY" );                                                     //$NON-NLS-1$
+  String ERR_SEQUENCE_IMPL_NOT_FOUND           = Messages.getString( "IS5Resources.ERR_SEQUENCE_IMPL_NOT_FOUND" );       //$NON-NLS-1$
+  String ERR_REMOTE_ACCESS                     = Messages.getString( "IS5Resources.ERR_REMOTE_ACCESS" );                 //$NON-NLS-1$
+  String ERR_QUERY_IS_ALREADY_EXECUTE          = Messages.getString( "IS5Resources.ERR_QUERY_IS_ALREADY_EXECUTE" );      //$NON-NLS-1$
   // ======="%s. Объект статистики %s [%s] не готов для использования. Формирование статистики записи хранимых данных
   // отключено";
   // String ERR_SEQUENCE_IMPL_NOT_FOUND = "Не найден класс реализации хранения последовательности значений '%s'";
@@ -318,6 +379,8 @@ interface IS5Resources {
   String ERR_NOT_CURSOR_IMPORT_DATA = Messages.getString( "IS5Resources.ERR_NOT_CURSOR_IMPORT_DATA" ); //$NON-NLS-1$
   String ERR_NOT_IMPORT_DATA        = Messages.getString( "IS5Resources.ERR_NOT_IMPORT_DATA" );        //$NON-NLS-1$
   String ERR_CAST_VALUE             = Messages.getString( "IS5Resources.ERR_CAST_VALUE" );             //$NON-NLS-1$
+
+  String ERR_UNEXPECT_DOJOB_ERROR = "unexpected doJob error. cause = %s"; //$NON-NLS-1$
 
   // THREADS
   // ------------------------------------------------------------------------------------

@@ -12,7 +12,6 @@ import org.toxsoft.core.tslib.bricks.time.IQueryInterval;
 import org.toxsoft.core.tslib.coll.IList;
 import org.toxsoft.core.tslib.coll.impl.ElemArrayList;
 import org.toxsoft.core.tslib.gw.gwid.Gwid;
-import org.toxsoft.core.tslib.utils.Pair;
 import org.toxsoft.core.tslib.utils.errors.TsIllegalStateRtException;
 import org.toxsoft.core.tslib.utils.errors.TsNullArgumentRtException;
 import org.toxsoft.uskat.core.api.cmdserv.IDtoCompletedCommand;
@@ -57,8 +56,7 @@ public class S5CommandSequenceFactory
   // Реализация шаблонных методов S5SequenceFactory
   //
   @Override
-  @SuppressWarnings( "unchecked" )
-  protected IList<Pair<String, String>> doTableNames() {
+  protected IList<IS5SequenceTableNames> doTableNames() {
     return new ElemArrayList<>( //
         tableNames( S5CommandBlock.class, S5CommandBlob.class ) );
   }

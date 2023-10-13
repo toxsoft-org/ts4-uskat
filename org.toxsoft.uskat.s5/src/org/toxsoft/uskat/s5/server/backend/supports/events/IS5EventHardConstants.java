@@ -5,7 +5,7 @@ import static org.toxsoft.uskat.s5.utils.IS5HardConstants.*;
 
 import org.toxsoft.core.tslib.av.EAtomicType;
 import org.toxsoft.core.tslib.av.metainfo.IDataDef;
-import org.toxsoft.uskat.core.api.sysdescr.dto.IDtoEventInfo;
+import org.toxsoft.uskat.core.api.sysdescr.ISkClassInfo;
 import org.toxsoft.uskat.s5.server.backend.supports.events.impl.S5EventBlob;
 import org.toxsoft.uskat.s5.server.backend.supports.events.impl.S5EventBlock;
 import org.toxsoft.uskat.s5.server.sequences.IS5SequenceHardConstants;
@@ -29,7 +29,7 @@ public interface IS5EventHardConstants
   String EVENTS_PREFIX = "s5.events"; //$NON-NLS-1$
 
   /**
-   * Опция {@link IDtoEventInfo#params()}: полное имя java-класса реализации блока.
+   * Опция {@link ISkClassInfo#params()}: полное имя java-класса реализации блока.
    * <p>
    * Тип: {@link EAtomicType#STRING}
    */
@@ -37,7 +37,7 @@ public interface IS5EventHardConstants
       avStr( S5EventBlock.class.getName() ) );
 
   /**
-   * Опция {@link IDtoEventInfo#params()}: полное имя java-класса реализации blob значений.
+   * Опция {@link ISkClassInfo#params()}: полное имя java-класса реализации blob значений.
    * <p>
    * Тип: {@link EAtomicType#STRING}
    */
@@ -45,14 +45,14 @@ public interface IS5EventHardConstants
       createOption( EVENTS_PREFIX, IS5SequenceHardConstants.OP_BLOB_IMPL_CLASS, avStr( S5EventBlob.class.getName() ) );
 
   /**
-   * Опция {@link IDtoEventInfo#params()}: количество значений в одном блоке.
+   * Опция {@link ISkClassInfo#params()}: количество значений в одном блоке.
    * <p>
    * Тип: {@link EAtomicType#INTEGER}
    */
   IDataDef OP_BLOCK_SIZE_MAX = createOption( EVENTS_PREFIX, IS5SequenceHardConstants.OP_BLOCK_SIZE_MAX, avInt( 500 ) );
 
   /**
-   * Опция {@link IDtoEventInfo#params()}: максимальный размер одного значения (байты).
+   * Опция {@link ISkClassInfo#params()}: максимальный размер одного значения (байты).
    * <p>
    * Тип: {@link EAtomicType#INTEGER}
    * <p>
@@ -62,5 +62,4 @@ public interface IS5EventHardConstants
    * определяться как: {@link #OP_VALUE_SIZE_MAX} + 8(количество байт в метке времени)
    */
   IDataDef OP_VALUE_SIZE_MAX = createOption( EVENTS_PREFIX, IS5SequenceHardConstants.OP_VALUE_SIZE_MAX, avInt( 100 ) );
-
 }

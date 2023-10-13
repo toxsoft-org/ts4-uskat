@@ -35,6 +35,7 @@ import org.toxsoft.core.tslib.utils.logs.ELogSeverity;
 import org.toxsoft.core.tslib.utils.logs.ILogger;
 import org.toxsoft.uskat.s5.server.backend.IS5BackendCoreSingleton;
 import org.toxsoft.uskat.s5.server.sequences.*;
+import org.toxsoft.uskat.s5.server.sequences.maintenance.S5PartitionOperation;
 import org.toxsoft.uskat.s5.server.sequences.writer.IS5SequenceWriter;
 import org.toxsoft.uskat.s5.server.transactions.ETransactionStatus;
 import org.toxsoft.uskat.s5.server.transactions.IS5Transaction;
@@ -75,12 +76,14 @@ class S5SequenceLastBlockWriter<S extends IS5Sequence<V>, V extends ITemporal<?>
   /**
    * Создает писатель последовательностей
    *
+   * @param aOwnerName String имя владельца писателя
    * @param aBackendCore {@link IS5BackendCoreSingleton} ядро бекенда сервера
    * @param aSequenceFactory {@link IS5SequenceFactory} фабрика последовательностей блоков
    * @throws TsNullArgumentRtException аргумент = null
    */
-  S5SequenceLastBlockWriter( IS5BackendCoreSingleton aBackendCore, IS5SequenceFactory<V> aSequenceFactory ) {
-    super( aBackendCore, aSequenceFactory );
+  S5SequenceLastBlockWriter( String aOwnerName, IS5BackendCoreSingleton aBackendCore,
+      IS5SequenceFactory<V> aSequenceFactory ) {
+    super( aOwnerName, aBackendCore, aSequenceFactory );
   }
 
   // ------------------------------------------------------------------------------------
@@ -258,7 +261,7 @@ class S5SequenceLastBlockWriter<S extends IS5Sequence<V>, V extends ITemporal<?>
       int writedCount = aSequence.blocks().size();
 
       // Синхронизация с dbms: удаление блоков
-      removeBlocksFromDbms( aEntityManager, sequenceFactory(), gwid, removedBlocks, dbmsStat );
+      removeBlocksFromDbms( aEntityManager, removedBlocks, dbmsStat );
       // Синхронизация с dbms: добавление/обновление блоков
       writeBlocksToDbms( aEntityManager, target.blocks(), logger(), dbmsStat );
       // Вывод журнал
@@ -358,23 +361,52 @@ class S5SequenceLastBlockWriter<S extends IS5Sequence<V>, V extends ITemporal<?>
   }
 
   @Override
-  protected void onUnionEvent( IOptionSet aArgs, IList<IS5SequenceFragmentInfo> aFragmentInfoes, ILogger aLogger ) {
-    for( IS5SequenceFragmentInfo fragmentInfo : aFragmentInfoes ) {
+  protected void onUnionEvent( IOptionSet aArgs, IList<IS5SequenceFragmentInfo> aInfoes, ILogger aLogger ) {
+    for( IS5SequenceFragmentInfo info : aInfoes ) {
       // Идентификатор данного
-      Gwid gwid = fragmentInfo.gwid();
+      Gwid gwid = info.gwid();
       // Последний блок значений данного
       IS5SequenceBlock<V> lastBlock = lastBlocks.findByKey( gwid );
       if( lastBlock == null ) {
         // В данный момент для данного не хранится последний блок значений
         continue;
       }
-      if( fragmentInfo.interval().endTime() < lastBlock.startTime() ) {
+      if( info.interval().endTime() < lastBlock.startTime() ) {
         // Блок значений остается актуальным
         continue;
       }
-      // Блок значений мог попасть под объединение. Удаляем его из своего списка
+      // Блок значений мог попасть под дефрагментацию. Удаляем его из своего списка
       lastBlocks.removeByKey( gwid );
-      aLogger.warning( MSG_REMOVE_LAST_BY_UNION, fragmentInfo );
+      aLogger.warning( MSG_REMOVE_LAST_BY_UNION, info );
+    }
+  }
+
+  @Override
+  protected void onPartitionEvent( IOptionSet aArgs, IList<S5PartitionOperation> aOps, ILogger aLogger ) {
+    if( lastBlocks == null ) {
+      // Вызов операции обработки разделов из конструктора базового класса (до создания класса-наследника)
+      return;
+    }
+    for( S5PartitionOperation op : aOps ) {
+      if( op.removePartitions().size() == 0 ) {
+        // Нет удаляемых разделов
+        continue;
+      }
+      for( Gwid gwid : op.gwids() ) {
+        // Последний блок значений данного
+        IS5SequenceBlock<V> lastBlock = lastBlocks.findByKey( gwid );
+        if( lastBlock == null ) {
+          // В данный момент для данного не хранится последний блок значений
+          continue;
+        }
+        if( op.removePartitions().last().interval().endTime() < lastBlock.startTime() ) {
+          // Блок значений остается актуальным
+          continue;
+        }
+        // Блок значений мог попасть под удаление. Удаляем его из своего списка
+        lastBlocks.removeByKey( gwid );
+        aLogger.warning( MSG_REMOVE_LAST_BY_REMOVE, lastBlock );
+      }
     }
   }
 

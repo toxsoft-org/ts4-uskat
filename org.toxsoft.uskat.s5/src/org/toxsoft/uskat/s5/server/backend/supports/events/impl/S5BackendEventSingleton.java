@@ -42,6 +42,7 @@ import org.toxsoft.uskat.s5.server.sequences.impl.S5BackendSequenceSupportSingle
 import org.toxsoft.uskat.s5.server.sequences.impl.S5SequenceFactory;
 import org.toxsoft.uskat.s5.server.transactions.*;
 import org.toxsoft.uskat.s5.utils.collections.S5FixedCapacityTimedList;
+import org.toxsoft.uskat.s5.utils.jobs.IS5ServerJob;
 
 /**
  * Реализация синглетона {@link IS5BackendEventSingleton}
@@ -61,7 +62,7 @@ import org.toxsoft.uskat.s5.utils.collections.S5FixedCapacityTimedList;
 @Lock( LockType.READ )
 public class S5BackendEventSingleton
     extends S5BackendSequenceSupportSingleton<IS5EventSequence, SkEvent>
-    implements IS5BackendEventSingleton, IS5TransactionListener {
+    implements IS5BackendEventSingleton, IS5TransactionListener, IS5ServerJob {
 
   private static final long serialVersionUID = 157157L;
 
@@ -69,6 +70,11 @@ public class S5BackendEventSingleton
    * Имя синглетона в контейнере сервера для организации зависимостей (@DependsOn)
    */
   public static final String BACKEND_EVENTS_ID = "S5BackendEventSingleton"; //$NON-NLS-1$
+
+  /**
+   * Интервал выполнения doJob (мсек)
+   */
+  private static final long DOJOB_INTERVAL = 1000;
 
   /**
    * Конструктор.
@@ -84,6 +90,8 @@ public class S5BackendEventSingleton
   protected void doInitSupport() {
     // Инициализация базового класса
     super.doInitSupport();
+    // Запуск doJob
+    addOwnDoJob( DOJOB_INTERVAL );
   }
 
   @Override

@@ -6,7 +6,6 @@ import org.toxsoft.core.tslib.av.utils.IParameterized;
 import org.toxsoft.core.tslib.bricks.time.*;
 import org.toxsoft.core.tslib.coll.IList;
 import org.toxsoft.core.tslib.gw.gwid.Gwid;
-import org.toxsoft.core.tslib.utils.Pair;
 import org.toxsoft.core.tslib.utils.errors.TsIllegalArgumentRtException;
 import org.toxsoft.core.tslib.utils.errors.TsNullArgumentRtException;
 import org.toxsoft.uskat.s5.server.sequences.impl.S5SequenceBlock;
@@ -21,12 +20,11 @@ public interface IS5SequenceFactory<V extends ITemporal<?>>
     extends IS5SequenceValueFactory {
 
   /**
-   * Список имен таблиц базы данных в которых возможно хранение значений данных
+   * Возвращает список имен таблиц базы данных в которых возможно хранение значений данных
    *
-   * @return {@link IList}&lt;{@link Pair}&gt; список пар определяющих хранение блока ({@link Pair#left()}) и его blob
-   *         (({@link Pair#right()}))
+   * @return {@link IList}&lt;{@link IS5SequenceTableNames}&gt; список пар определяющих хранение блока и его blob
    */
-  IList<Pair<String, String>> tableNames();
+  IList<IS5SequenceTableNames> tableNames();
 
   /**
    * Возвращает описание типа для указанного данного

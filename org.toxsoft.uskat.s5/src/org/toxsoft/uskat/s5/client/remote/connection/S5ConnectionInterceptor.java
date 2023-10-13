@@ -218,7 +218,7 @@ class S5ConnectionInterceptor
     // now recreate the returned EJB home proxy with the EJB client context identifier
     try {
       final Object ejbProxy = aOriginalResult;
-      // // we *don't* change the locator of the original proxy
+      // // we *don'debug* change the locator of the original proxy
       final EJBLocator<?> ejbLocator = EJBClient.getLocatorFor( ejbProxy );
       Object ejb = EJBClient.createProxy3( ejbLocator, aContextSupplier );
       return ejb;

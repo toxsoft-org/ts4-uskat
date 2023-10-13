@@ -21,7 +21,6 @@ import org.toxsoft.core.tslib.coll.IList;
 import org.toxsoft.core.tslib.coll.IListEdit;
 import org.toxsoft.core.tslib.coll.impl.ElemArrayList;
 import org.toxsoft.core.tslib.gw.gwid.Gwid;
-import org.toxsoft.core.tslib.utils.Pair;
 import org.toxsoft.core.tslib.utils.TsLibUtils;
 import org.toxsoft.core.tslib.utils.errors.*;
 import org.toxsoft.uskat.core.api.sysdescr.ISkClassInfo;
@@ -128,7 +127,7 @@ public final class S5HistDataSequenceFactory
   // Реализация шаблонных методов S5SequenceFactory
   //
   @Override
-  protected IList<Pair<String, String>> doTableNames() {
+  protected IList<IS5SequenceTableNames> doTableNames() {
     IListEdit<IS5SequenceImplementation> impls = new ElemArrayList<>( false );
     // Проектные описания реализаций
     impls.addAll( initialConfig().getHistDataImplementations() );
@@ -158,7 +157,7 @@ public final class S5HistDataSequenceFactory
     impls.add( new S5SequenceImplementation( S5HistDataSyncValobjEntity.class, S5HistDataSyncValobjBlobEntity.class ) );
     // TODO: остальные встроенные типы
 
-    IListEdit<Pair<String, String>> retValue = new ElemArrayList<>( impls.size() );
+    IListEdit<IS5SequenceTableNames> retValue = new ElemArrayList<>( impls.size() );
     for( IS5SequenceImplementation impl : impls ) {
       int tableCount = impl.tableCount();
       if( tableCount == 1 ) {
