@@ -13,7 +13,9 @@ import org.toxsoft.core.tsgui.m5.model.impl.*;
 import org.toxsoft.core.tsgui.m5.std.models.misc.*;
 import org.toxsoft.core.tslib.av.*;
 import org.toxsoft.core.tslib.bricks.strid.coll.*;
+import org.toxsoft.core.tslib.bricks.strid.coll.impl.*;
 import org.toxsoft.core.tslib.coll.*;
+import org.toxsoft.core.tslib.coll.impl.*;
 import org.toxsoft.core.tslib.gw.*;
 import org.toxsoft.core.tslib.utils.errors.*;
 import org.toxsoft.uskat.core.api.sysdescr.*;
@@ -124,7 +126,26 @@ public class SdedDtoClassInfoM5Model
         }
 
         protected IList<IDtoAttrInfo> doGetFieldValue( IDtoClassInfo aEntity ) {
-          return aEntity.attrInfos();
+          // тут выделяем только те которые принадлежат непосредственно этому классу
+          ISkClassInfo clsInfo = skSysdescr().findClassInfo( aEntity.id() );
+          ISkClassProps<IDtoAttrInfo> attrs = clsInfo.attrs();
+          IStridablesList<IDtoAttrInfo> listSelf = attrs.listSelf();
+          IStridablesList<IDtoAttrInfo> listAll = attrs.list();
+          // теперь оставляем только не свои
+          StridablesList<IDtoAttrInfo> haired = new StridablesList<>();
+          for( IDtoAttrInfo attrInfo : listAll ) {
+            if( !listSelf.hasKey( attrInfo.id() ) ) {
+              haired.add( attrInfo );
+            }
+          }
+          // теперь оставляем только те которые свои и новые
+          IListEdit<IDtoAttrInfo> retVal = new ElemArrayList<>();
+          for( IDtoAttrInfo entityAttrInfo : aEntity.attrInfos() ) {
+            if( !haired.hasKey( entityAttrInfo.id() ) ) {
+              retVal.add( entityAttrInfo );
+            }
+          }
+          return retVal;
         }
 
       };

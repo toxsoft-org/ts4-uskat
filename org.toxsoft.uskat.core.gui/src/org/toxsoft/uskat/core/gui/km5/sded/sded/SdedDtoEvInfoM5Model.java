@@ -24,6 +24,7 @@ import org.toxsoft.core.tslib.av.opset.*;
 import org.toxsoft.core.tslib.av.opset.impl.*;
 import org.toxsoft.core.tslib.bricks.geometry.impl.*;
 import org.toxsoft.core.tslib.bricks.strid.coll.*;
+import org.toxsoft.core.tslib.bricks.strid.coll.impl.*;
 import org.toxsoft.core.tslib.utils.errors.*;
 import org.toxsoft.uskat.core.api.sysdescr.dto.*;
 import org.toxsoft.uskat.core.connection.*;
@@ -91,7 +92,7 @@ public class SdedDtoEvInfoM5Model
       String id = aValues.getAsAv( FID_ID ).asString();
       IAtomicValue isHist = IS_HIST.getFieldValue( aValues );
 
-      IStridablesList<IDataDef> dataDefs = (IStridablesList<IDataDef>)PARAM_DEFS.getFieldValue( aValues );
+      StridablesList<IDataDef> dataDefs = new StridablesList<>( PARAM_DEFS.getFieldValue( aValues ) );
 
       IOptionSetEdit params = new OptionSet();
       if( aValues.originalEntity() != null ) {
