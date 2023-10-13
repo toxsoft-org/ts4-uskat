@@ -1652,6 +1652,12 @@ public abstract class S5AbstractSequenceWriter<S extends IS5Sequence<V>, V exten
           em.close();
         }
       }
+      // Оповещение наследников о проведении удаления блоков
+      onPartitionEvent( args, ops, partitionLogger );
+      return statistics;
+    }
+    finally {
+      // Обработка ошибок
       if( statistics.errorCount() > 0 ) {
         // Запрос повторить операции обработки всех таблиц
         partitionLogger.warning( ERR_REPLAIN_PARTITION_OPS_BY_ERROR, ownerName() );
@@ -1667,11 +1673,6 @@ public abstract class S5AbstractSequenceWriter<S extends IS5Sequence<V>, V exten
         lastCheckPartitionDay--;
         planAllTablesPartitionsCheck();
       }
-      // Оповещение наследников о проведении удаления блоков
-      onPartitionEvent( args, ops, partitionLogger );
-      return statistics;
-    }
-    finally {
       // Журнал
       if( statistics.operations().size() > 0 || statistics.queueSize() > 0 ) {
         // Список выполненных операций
