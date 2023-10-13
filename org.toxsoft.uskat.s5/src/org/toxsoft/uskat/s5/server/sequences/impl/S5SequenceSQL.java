@@ -1547,12 +1547,12 @@ class S5SequenceSQL {
    * @return {@link IGwidList} список идентификаторов
    * @throws TsNullArgumentRtException аргумент = null
    */
-  static IGwidList getAllGwids( EntityManager aEntityManager, IList<Pair<String, String>> aTables ) {
+  static IGwidList getAllGwids( EntityManager aEntityManager, IList<IS5SequenceTableNames> aTables ) {
     TsNullArgumentRtException.checkNulls( aEntityManager, aTables );
     GwidList retValue = new GwidList();
-    for( Pair<String, String> pair : aTables ) {
+    for( IS5SequenceTableNames tableNames : aTables ) {
       // Имя таблицы
-      String tableName = pair.left();
+      String tableName = tableNames.blockTableName();
       // Текст SQL-запроса
       String sql = format( QFRMT_GET_GWIDS, tableName );
       // Выполнение запроса
@@ -1721,6 +1721,44 @@ class S5SequenceSQL {
   }
 
   /**
+   * Формат NATIVE(!)-запроса количества строк в указанной таблице в указанных разделах
+   * <p>
+   * <li>1. %s - имя таблицы блока, например, S5HistDataAsyncBooleanEnity;</li>
+   * <li>2. %s - идентификатор данного (gwid);</li>
+   * <li>3. %s - список идентификаторов разделов через ','.</li>
+   * <p>
+   * Примечание: сделано без форматирования, так как используется в циклах формирования конечного sql-запроса
+   */
+  private static final String QFRMT_GET_COUNT_FOR_PARTITION = //
+      "select count(*) from %s.%s partition(%s);";
+
+  /**
+   * Возвращает количество строк в разделе таблицы базе данных
+   *
+   * @param aEntityManager {@link EntityManager} менеджер постоянства
+   * @param aScheme String имя схемы базы данных сервера
+   * @param aTable String имя таблицы в которой находятся разделы
+   * @param aPartition String имя раздела
+   * @return int количество строк в разделе
+   * @throws TsNullArgumentRtException любой аргумент = null
+   */
+  static int getPartitionRowCount( EntityManager aEntityManager, String aScheme, String aTable, String aPartition ) {
+    TsNullArgumentRtException.checkNulls( aEntityManager, aScheme, aTable, aPartition );
+    // Текст SQL-запроса
+    String sql = format( QFRMT_GET_COUNT_FOR_PARTITION, aScheme, aTable, aPartition );
+    // Выполнение запроса
+    Query query = aEntityManager.createNativeQuery( sql );
+    // Запрос данных
+    List<BigInteger> entities = query.getResultList();
+    if( entities.size() == 0 ) {
+      // Нет данных
+      return 0;
+    }
+    BigInteger retValue = entities.get( 0 );
+    return retValue.intValue();
+  }
+
+  /**
    * Запрос на удаление раздела (партиции) из указанной таблицы
    * <p>
    * <li>1. %s - Имя схемы базы данных ;</li>
@@ -1742,14 +1780,15 @@ class S5SequenceSQL {
    * @throws TsNullArgumentRtException любой аргумент = null
    */
   static int dropPartition( EntityManager aEntityManager, String aScheme, String aTable, String aPartition ) {
-    TsNullArgumentRtException.checkNulls( aEntityManager, aScheme, aTable );
+    TsNullArgumentRtException.checkNulls( aEntityManager, aScheme, aTable, aPartition );
+    int rowCount = getPartitionRowCount( aEntityManager, aScheme, aTable, aPartition );
     // Текст SQL-запроса
     String sql = format( QFRMT_DROP_PARTION, aScheme, aTable, aPartition );
     try {
       // Выполнение запроса
       Query query = aEntityManager.createNativeQuery( sql );
-      int retCode = query.executeUpdate();
-      return retCode;
+      query.executeUpdate();
+      return rowCount;
     }
     catch( RuntimeException e ) {
       // Ошибка удаления раздела

@@ -349,6 +349,12 @@ public abstract class S5BackendSequenceSupportSingleton<S extends IS5Sequence<V>
   }
 
   @Override
+  public void doJob() {
+    // Фоновая задача писателя
+    sequenceWriter.doJob();
+  }
+
+  @Override
   protected void doCloseSupport() {
     // Выполнение завершения наследниками
     super.doClose();
@@ -400,8 +406,6 @@ public abstract class S5BackendSequenceSupportSingleton<S extends IS5Sequence<V>
       logger().debug( MSG_TIMER_EVENT_START, aTimer.getInfo() );
     }
     try {
-      // Фоновая задача писателя
-      sequenceWriter.doJob();
       // Обновление писателя статистики если он определен
       S5StatisticWriter stat = statisticWriter;
       if( stat != null ) {
@@ -458,6 +462,7 @@ public abstract class S5BackendSequenceSupportSingleton<S extends IS5Sequence<V>
             partitionLogger.warning( ERR_PARTITION_DISABLE_BY_LOAD_AVERAGE, id(), la );
             break;
           }
+          // System.err.println( "doTimerEventHandle" );
           // Запуск потока обработки разделов таблиц
           if( !partitionThread.tryStart() ) {
             // Запрет обработки таблиц по календарю (незавершен предыдущий процесс)

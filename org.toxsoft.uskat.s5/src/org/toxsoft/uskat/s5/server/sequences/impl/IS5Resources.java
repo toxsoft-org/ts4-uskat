@@ -23,6 +23,12 @@ interface IS5Resources {
   String BLOB_ASYNC_TO_STRING_FORMAT = Messages.getString( "IS5Resources.BLOB_ASYNC_TO_STRING_FORMAT" ); //$NON-NLS-1$
 
   // ------------------------------------------------------------------------------------
+  // Строки константы
+  //
+  String STR_DO_PARTITION = "doPartition"; //$NON-NLS-1$
+  String STR_DO_JOB       = "doJob";       //$NON-NLS-1$
+
+  // ------------------------------------------------------------------------------------
   // Строки сообщений
   //
   String MSG_ERROR_QUERY = Messages.getString( "IS5Resources.MSG_ERROR_QUERY" ); //$NON-NLS-1$
@@ -55,6 +61,7 @@ interface IS5Resources {
       Messages.getString( "IS5Resources.MSG_PARTITION_TASK_FINISH___6" ) +                                                 // //$NON-NLS-1$
       Messages.getString( "IS5Resources.MSG_PARTITION_TASK_FINISH___7" ) +                                                 // //$NON-NLS-1$
       Messages.getString( "IS5Resources.MSG_PARTITION_TASK_FINISH___8" );                                                  //$NON-NLS-1$
+  String MSG_PARTITION_START                 = "%s. start partition handle. aAuthor = %s.";                                //$NON-NLS-1$
   String MSG_PARTITION_FINISH                = Messages.getString( "IS5Resources.MSG_PARTITION_FINISH" );                  //$NON-NLS-1$
   String MSG_PARTITION_PASS_FINISH           = Messages.getString( "IS5Resources.MSG_PARTITION_PASS_FINISH" );             //$NON-NLS-1$
 
@@ -280,11 +287,15 @@ interface IS5Resources {
   String ERR_STOP_UNKNOW_TIMER                 = Messages.getString( "IS5Resources.ERR_STOP_UNKNOW_TIMER" );             //$NON-NLS-1$
   String ERR_QUERY_DOJOB                       = Messages.getString( "IS5Resources.ERR_QUERY_DOJOB" );                   //$NON-NLS-1$
 
-  String MSG_ADD_PARTITION   = "%s. %s.%s. Добавление раздела %s.";                    //$NON-NLS-1$
-  String ERR_ADD_PARTITION   = "%s. %s.%s. Ошибка добавления раздела %s. Причина: %s"; //$NON-NLS-1$
-  String ERR_ADD_PARTITION2  = "%s.%s. Ошибка добавления раздела %s. Причина: %s";     //$NON-NLS-1$
-  String ERR_DROP_PARTITION  = "%s. %s.%s. Ошибка удаления раздела %s. Причина: %s";   //$NON-NLS-1$
-  String ERR_DROP_PARTITION2 = "%s.%s. Ошибка удаления раздела %s. Причина: %s";       //$NON-NLS-1$
+  String MSG_ADD_PARTITION                  = "%s. %s.%s. Добавление раздела %s.";                                   //$NON-NLS-1$
+  String MSG_REMOVE_PARTITION               = "%s. %s.%s. Удаление раздела %s.";                                     //$NON-NLS-1$
+  String ERR_PARTITION_OP                   = "%s. Неожиданная ошибка обработки разделов операции: %s. Причина: %s"; //$NON-NLS-1$
+  String ERR_REPLAIN_PARTITION_OPS_BY_ERROR =
+      "%s. При обработке разделов произошли ошибки. Планирование повтора обработки";                                 //$NON-NLS-1$
+  String ERR_ADD_PARTITION                  = "%s. %s.%s. Ошибка добавления раздела %s. Причина: %s";                //$NON-NLS-1$
+  String ERR_ADD_PARTITION2                 = "%s.%s. Ошибка добавления раздела %s. Причина: %s";                    //$NON-NLS-1$
+  String ERR_DROP_PARTITION                 = "%s. %s.%s. Ошибка удаления раздела %s. Причина: %s";                  //$NON-NLS-1$
+  String ERR_DROP_PARTITION2                = "%s.%s. Ошибка удаления раздела %s. Причина: %s";                      //$NON-NLS-1$
 
   String ERR_DATAID_NOT_FOUND = Messages.getString( "IS5Resources.ERR_DATAID_NOT_FOUND" ); //$NON-NLS-1$
 
@@ -332,7 +343,8 @@ interface IS5Resources {
 
   String ERR_NOT_OPEN_TX = Messages.getString( "IS5Resources.ERR_NOT_OPEN_TX" ); //$NON-NLS-1$
 
-  String MSG_SPLIT_BLOCK            = Messages.getString( "IS5Resources.MSG_SPLIT_BLOCK" );            //$NON-NLS-1$
+  String MSG_SPLIT_BLOCK = Messages.getString( "IS5Resources.MSG_SPLIT_BLOCK" ); //$NON-NLS-1$
+
   String ERR_WRONG_FIRST_LAST_ORDER = Messages.getString( "IS5Resources.ERR_WRONG_FIRST_LAST_ORDER" ); //$NON-NLS-1$
   String ERR_WRONG_ORDER            = Messages.getString( "IS5Resources.ERR_WRONG_ORDER" );            //$NON-NLS-1$
 
@@ -342,6 +354,11 @@ interface IS5Resources {
   String ERR_PARTITION_DISABLE_BY_LOAD_AVERAGE =
       Messages.getString( "IS5Resources.ERR_PARTITION_DISABLE_BY_LOAD_AVERAGE" );                                        //$NON-NLS-1$
   String ERR_PARTITION_DISABLE_BY_PREV         = Messages.getString( "IS5Resources.ERR_PARTITION_DISABLE_BY_PREV" );     //$NON-NLS-1$
+  String ERR_PARTITION_HADNLE_ALREADY_STARTED  = "%s. Обработка разделов таблиц уже выполняется (%s).";                  //$NON-NLS-1$
+  String ERR_PARTITION_NOT_INIT                =
+      "%s. Отклонен запрос на выполнение обработки разделов таблиц. Автор %s. Причина: Инициализация SequenceWriter";    //$NON-NLS-1$
+  String ERR_PARTITION_PLAN_CREATED_ALREADY    = "%s. %s: раздел уже запланирован для добавления (aCreatingPartitions)"; //$NON-NLS-1$
+  String ERR_PARTITION_PLAN_ADDED_ALREADY      = "%s. %s: раздел уже запланирован для добавления (aAddedPartitions)";    //$NON-NLS-1$
   String ERR_STATISTICS_DISABLED               = Messages.getString( "IS5Resources.ERR_STATISTICS_DISABLED" );           //$NON-NLS-1$
   String ERR_STATISTICS_NOT_READY              =
       // <<<<<<< HEAD
