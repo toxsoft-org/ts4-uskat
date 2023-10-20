@@ -15,6 +15,7 @@ import org.toxsoft.uskat.core.backend.api.*;
 import org.toxsoft.uskat.s5.client.IS5ConnectionParams;
 import org.toxsoft.uskat.s5.server.backend.addons.IS5BackendRemote;
 import org.toxsoft.uskat.s5.server.backend.addons.S5AbstractBackendAddonRemote;
+import org.toxsoft.uskat.s5.server.backend.messages.S5BaBeforeConnectMessages;
 
 /**
  * Remote {@link IBaRtdata} implementation.
@@ -50,7 +51,9 @@ class S5BaRtdataRemote
   //
   @Override
   public void onBackendMessage( GtMessage aMessage ) {
-    // nop
+    if( aMessage.messageId().equals( S5BaBeforeConnectMessages.MSG_ID ) ) {
+      owner().sessionInitData().setBackendAddonData( IBaRtdata.ADDON_ID, baData );
+    }
   }
 
   @Override

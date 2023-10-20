@@ -75,7 +75,15 @@ public class S5BaRtdataSession
   @Override
   protected void doAfterInit( S5SessionMessenger aMessenger, IS5SessionInitData aInitData,
       S5SessionInitResult aInitResult ) {
-    S5BaRtdataData baData = new S5BaRtdataData();
+    // 2023-10-20 mvk ---+++
+    // S5BaRtdataData baData = new S5BaRtdataData();
+    // frontend().frontendData().setBackendAddonData( IBaRtdata.ADDON_ID, baData );
+    S5BaRtdataData baData = aInitData.findBackendAddonData( IBaRtdata.ADDON_ID, S5BaRtdataData.class );
+    if( baData == null ) {
+      // Клиент не поддерживает реальное время (работу с текущими данными)
+      baData = new S5BaRtdataData();
+    }
+    // Установка в данных сессии конфигурации реального времени
     frontend().frontendData().setBackendAddonData( IBaRtdata.ADDON_ID, baData );
     // Регистрация слушателя событий от фронтенда
     frontend().gtMessageEventer().addListener( aMessage -> {

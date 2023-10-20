@@ -424,6 +424,7 @@ public class S5BackendCurrDataSingleton
         // фронтенд не поддерживает обработку текущих данных
         continue;
       }
+      GtMessage message = null;
       synchronized (baData) {
         for( Gwid gwid : changedValues.keys() ) {
           if( baData.currdataGwidsToFrontend.hasElem( gwid ) ) {
@@ -434,6 +435,16 @@ public class S5BackendCurrDataSingleton
             baData.currdataToFrontend.put( gwid, changedValues.getByKey( gwid ) );
           }
         }
+        if( baData.currdataTimeout <= 0 ) {
+          // Немедленная передача текущих значений фронтенду
+          message = BaMsgRtdataCurrData.INSTANCE.makeMessage( baData.currdataToFrontend );
+          baData.currdataToFrontend.clear();
+          baData.lastCurrdataToFrontendTime = currTime;
+        }
+      }
+      if( message != null ) {
+        // Немедленная передача текущих значений фронтенду
+        frontend.onBackendMessage( message );
       }
     }
   }
