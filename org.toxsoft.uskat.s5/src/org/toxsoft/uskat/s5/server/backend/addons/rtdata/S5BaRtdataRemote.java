@@ -62,15 +62,15 @@ class S5BaRtdataRemote
     GtMessage currDataMessage = null;
     GtMessage histDataMessage = null;
     synchronized (baData) {
-      if( baData.currdataToBackend.size() > 0
-          && currTime - baData.lastCurrdataToBackendTime > baData.currdataTimeout ) {
+      if( baData.currdataToBackend.size() > 0 && //
+          (baData.currdataTimeout <= 0 || currTime - baData.lastCurrdataToBackendTime > baData.currdataTimeout) ) {
         // Отправка значений текущих данных от фронтенда в бекенд
         currDataMessage = BaMsgRtdataCurrData.INSTANCE.makeMessage( baData.currdataToBackend );
         baData.currdataToBackend.clear();
         baData.lastCurrdataToBackendTime = currTime;
       }
-      if( baData.histdataToBackend.size() > 0
-          && currTime - baData.lastHistdataToBackendTime > baData.histdataTimeout ) {
+      if( baData.histdataToBackend.size() > 0 && //
+          (baData.histdataTimeout <= 0 || currTime - baData.lastHistdataToBackendTime > baData.histdataTimeout) ) {
         // Отправка значений хранимых данных от фронтенда в бекенд
         histDataMessage = BaMsgRtdataHistData.INSTANCE.makeMessage( baData.histdataToBackend );
         baData.histdataToBackend.clear();
@@ -114,6 +114,8 @@ class S5BaRtdataRemote
       }
       baData.currdataToBackend.put( aGwid, aValue );
     }
+    // Выполнение doJob для обработки немедленной отправки (baData.currdataTimeout <= 0)
+    doJob();
   }
 
   @Override
@@ -135,6 +137,8 @@ class S5BaRtdataRemote
       }
       baData.histdataToBackend.put( aGwid, newValues );
     }
+    // Выполнение doJob для обработки немедленной отправки (baData.histdataTimeout <= 0)
+    doJob();
   }
 
   @Override
