@@ -126,19 +126,19 @@ public class SdedDtoClassInfoM5Model
         }
 
         protected IList<IDtoAttrInfo> doGetFieldValue( IDtoClassInfo aEntity ) {
-            StridablesList<IDtoAttrInfo> haired = new StridablesList<>();
+          StridablesList<IDtoAttrInfo> haired = new StridablesList<>();
           // тут выделяем только те которые принадлежат непосредственно этому классу
           ISkClassInfo clsInfo = skSysdescr().findClassInfo( aEntity.id() );
-          if(clsInfo != null) {
-          ISkClassProps<IDtoAttrInfo> attrs = clsInfo.attrs();
-          IStridablesList<IDtoAttrInfo> listSelf = attrs.listSelf();
-          IStridablesList<IDtoAttrInfo> listAll = attrs.list();
-          // теперь оставляем только не свои
-          for( IDtoAttrInfo attrInfo : listAll ) {
-            if( !listSelf.hasKey( attrInfo.id() ) ) {
-              haired.add( attrInfo );
+          if( clsInfo != null ) {
+            ISkClassProps<IDtoAttrInfo> attrs = clsInfo.attrs();
+            IStridablesList<IDtoAttrInfo> listSelf = attrs.listSelf();
+            IStridablesList<IDtoAttrInfo> listAll = attrs.list();
+            // теперь оставляем только не свои
+            for( IDtoAttrInfo attrInfo : listAll ) {
+              if( !listSelf.hasKey( attrInfo.id() ) ) {
+                haired.add( attrInfo );
+              }
             }
-          }
           }
           // теперь оставляем только те которые свои и вновь добавленные
           IListEdit<IDtoAttrInfo> retVal = new ElemArrayList<>();
@@ -166,16 +166,18 @@ public class SdedDtoClassInfoM5Model
         }
 
         protected IList<IDtoRtdataInfo> doGetFieldValue( IDtoClassInfo aEntity ) {
-          // тут выделяем только те которые принадлежат непосредственно этому классу
-          ISkClassInfo clsInfo = skSysdescr().findClassInfo( aEntity.id() );
-          ISkClassProps<IDtoRtdataInfo> rtdata = clsInfo.rtdata();
-          IStridablesList<IDtoRtdataInfo> listSelf = rtdata.listSelf();
-          IStridablesList<IDtoRtdataInfo> listAll = rtdata.list();
           // теперь оставляем только не свои
           StridablesList<IDtoRtdataInfo> haired = new StridablesList<>();
-          for( IDtoRtdataInfo rtDataInfo : listAll ) {
-            if( !listSelf.hasKey( rtDataInfo.id() ) ) {
-              haired.add( rtDataInfo );
+          // тут выделяем только те которые принадлежат непосредственно этому классу
+          ISkClassInfo clsInfo = skSysdescr().findClassInfo( aEntity.id() );
+          if( clsInfo != null ) {
+            ISkClassProps<IDtoRtdataInfo> rtdata = clsInfo.rtdata();
+            IStridablesList<IDtoRtdataInfo> listSelf = rtdata.listSelf();
+            IStridablesList<IDtoRtdataInfo> listAll = rtdata.list();
+            for( IDtoRtdataInfo rtDataInfo : listAll ) {
+              if( !listSelf.hasKey( rtDataInfo.id() ) ) {
+                haired.add( rtDataInfo );
+              }
             }
           }
           // теперь оставляем только те которые свои и вновь добавленные
@@ -204,16 +206,18 @@ public class SdedDtoClassInfoM5Model
         }
 
         protected IList<IDtoLinkInfo> doGetFieldValue( IDtoClassInfo aEntity ) {
+          StridablesList<IDtoLinkInfo> haired = new StridablesList<>();
           // тут выделяем только те которые принадлежат непосредственно этому классу
           ISkClassInfo clsInfo = skSysdescr().findClassInfo( aEntity.id() );
-          ISkClassProps<IDtoLinkInfo> links = clsInfo.links();
-          IStridablesList<IDtoLinkInfo> listSelf = links.listSelf();
-          IStridablesList<IDtoLinkInfo> listAll = links.list();
-          // теперь оставляем только не свои
-          StridablesList<IDtoLinkInfo> haired = new StridablesList<>();
-          for( IDtoLinkInfo linkInfo : listAll ) {
-            if( !listSelf.hasKey( linkInfo.id() ) ) {
-              haired.add( linkInfo );
+          if( clsInfo != null ) {
+            ISkClassProps<IDtoLinkInfo> links = clsInfo.links();
+            IStridablesList<IDtoLinkInfo> listSelf = links.listSelf();
+            IStridablesList<IDtoLinkInfo> listAll = links.list();
+            // теперь оставляем только не свои
+            for( IDtoLinkInfo linkInfo : listAll ) {
+              if( !listSelf.hasKey( linkInfo.id() ) ) {
+                haired.add( linkInfo );
+              }
             }
           }
           // теперь оставляем только те которые свои и вновь добавленные
@@ -242,16 +246,18 @@ public class SdedDtoClassInfoM5Model
         }
 
         protected IList<IDtoCmdInfo> doGetFieldValue( IDtoClassInfo aEntity ) {
+          StridablesList<IDtoCmdInfo> haired = new StridablesList<>();
           // тут выделяем только те которые принадлежат непосредственно этому классу
           ISkClassInfo clsInfo = skSysdescr().findClassInfo( aEntity.id() );
-          ISkClassProps<IDtoCmdInfo> cmds = clsInfo.cmds();
-          IStridablesList<IDtoCmdInfo> listSelf = cmds.listSelf();
-          IStridablesList<IDtoCmdInfo> listAll = cmds.list();
-          // теперь оставляем только не свои
-          StridablesList<IDtoCmdInfo> haired = new StridablesList<>();
-          for( IDtoCmdInfo cmdInfo : listAll ) {
-            if( !listSelf.hasKey( cmdInfo.id() ) ) {
-              haired.add( cmdInfo );
+          if( clsInfo != null ) {
+            ISkClassProps<IDtoCmdInfo> cmds = clsInfo.cmds();
+            IStridablesList<IDtoCmdInfo> listSelf = cmds.listSelf();
+            IStridablesList<IDtoCmdInfo> listAll = cmds.list();
+            // теперь оставляем только не свои
+            for( IDtoCmdInfo cmdInfo : listAll ) {
+              if( !listSelf.hasKey( cmdInfo.id() ) ) {
+                haired.add( cmdInfo );
+              }
             }
           }
           // теперь оставляем только те которые свои и вновь добавленные
@@ -280,16 +286,18 @@ public class SdedDtoClassInfoM5Model
         }
 
         protected IList<IDtoEventInfo> doGetFieldValue( IDtoClassInfo aEntity ) {
+          StridablesList<IDtoEventInfo> haired = new StridablesList<>();
           // тут выделяем только те которые принадлежат непосредственно этому классу
           ISkClassInfo clsInfo = skSysdescr().findClassInfo( aEntity.id() );
-          ISkClassProps<IDtoEventInfo> events = clsInfo.events();
-          IStridablesList<IDtoEventInfo> listSelf = events.listSelf();
-          IStridablesList<IDtoEventInfo> listAll = events.list();
-          // теперь оставляем только не свои
-          StridablesList<IDtoEventInfo> haired = new StridablesList<>();
-          for( IDtoEventInfo evInfo : listAll ) {
-            if( !listSelf.hasKey( evInfo.id() ) ) {
-              haired.add( evInfo );
+          if( clsInfo != null ) {
+            ISkClassProps<IDtoEventInfo> events = clsInfo.events();
+            IStridablesList<IDtoEventInfo> listSelf = events.listSelf();
+            IStridablesList<IDtoEventInfo> listAll = events.list();
+            // теперь оставляем только не свои
+            for( IDtoEventInfo evInfo : listAll ) {
+              if( !listSelf.hasKey( evInfo.id() ) ) {
+                haired.add( evInfo );
+              }
             }
           }
           // теперь оставляем только те которые свои и вновь добавленные
@@ -318,16 +326,18 @@ public class SdedDtoClassInfoM5Model
         }
 
         protected IList<IDtoRivetInfo> doGetFieldValue( IDtoClassInfo aEntity ) {
+          StridablesList<IDtoRivetInfo> haired = new StridablesList<>();
           // тут выделяем только те которые принадлежат непосредственно этому классу
           ISkClassInfo clsInfo = skSysdescr().findClassInfo( aEntity.id() );
-          ISkClassProps<IDtoRivetInfo> rivets = clsInfo.rivets();
-          IStridablesList<IDtoRivetInfo> listSelf = rivets.listSelf();
-          IStridablesList<IDtoRivetInfo> listAll = rivets.list();
-          // теперь оставляем только не свои
-          StridablesList<IDtoRivetInfo> haired = new StridablesList<>();
-          for( IDtoRivetInfo rivetInfo : listAll ) {
-            if( !listSelf.hasKey( rivetInfo.id() ) ) {
-              haired.add( rivetInfo );
+          if( clsInfo != null ) {
+            ISkClassProps<IDtoRivetInfo> rivets = clsInfo.rivets();
+            IStridablesList<IDtoRivetInfo> listSelf = rivets.listSelf();
+            IStridablesList<IDtoRivetInfo> listAll = rivets.list();
+            // теперь оставляем только не свои
+            for( IDtoRivetInfo rivetInfo : listAll ) {
+              if( !listSelf.hasKey( rivetInfo.id() ) ) {
+                haired.add( rivetInfo );
+              }
             }
           }
           // теперь оставляем только те которые свои и вновь добавленные
@@ -356,16 +366,18 @@ public class SdedDtoClassInfoM5Model
         }
 
         protected IList<IDtoClobInfo> doGetFieldValue( IDtoClassInfo aEntity ) {
+          StridablesList<IDtoClobInfo> haired = new StridablesList<>();
           // тут выделяем только те которые принадлежат непосредственно этому классу
           ISkClassInfo clsInfo = skSysdescr().findClassInfo( aEntity.id() );
-          ISkClassProps<IDtoClobInfo> clobs = clsInfo.clobs();
-          IStridablesList<IDtoClobInfo> listSelf = clobs.listSelf();
-          IStridablesList<IDtoClobInfo> listAll = clobs.list();
-          // теперь оставляем только не свои
-          StridablesList<IDtoClobInfo> haired = new StridablesList<>();
-          for( IDtoClobInfo clobInfo : listAll ) {
-            if( !listSelf.hasKey( clobInfo.id() ) ) {
-              haired.add( clobInfo );
+          if( clsInfo != null ) {
+            ISkClassProps<IDtoClobInfo> clobs = clsInfo.clobs();
+            IStridablesList<IDtoClobInfo> listSelf = clobs.listSelf();
+            IStridablesList<IDtoClobInfo> listAll = clobs.list();
+            // теперь оставляем только не свои
+            for( IDtoClobInfo clobInfo : listAll ) {
+              if( !listSelf.hasKey( clobInfo.id() ) ) {
+                haired.add( clobInfo );
+              }
             }
           }
           // теперь оставляем только те которые свои и вновь добавленные
