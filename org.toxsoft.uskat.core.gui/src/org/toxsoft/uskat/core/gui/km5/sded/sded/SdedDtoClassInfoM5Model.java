@@ -126,17 +126,19 @@ public class SdedDtoClassInfoM5Model
         }
 
         protected IList<IDtoAttrInfo> doGetFieldValue( IDtoClassInfo aEntity ) {
+            StridablesList<IDtoAttrInfo> haired = new StridablesList<>();
           // тут выделяем только те которые принадлежат непосредственно этому классу
           ISkClassInfo clsInfo = skSysdescr().findClassInfo( aEntity.id() );
+          if(clsInfo != null) {
           ISkClassProps<IDtoAttrInfo> attrs = clsInfo.attrs();
           IStridablesList<IDtoAttrInfo> listSelf = attrs.listSelf();
           IStridablesList<IDtoAttrInfo> listAll = attrs.list();
           // теперь оставляем только не свои
-          StridablesList<IDtoAttrInfo> haired = new StridablesList<>();
           for( IDtoAttrInfo attrInfo : listAll ) {
             if( !listSelf.hasKey( attrInfo.id() ) ) {
               haired.add( attrInfo );
             }
+          }
           }
           // теперь оставляем только те которые свои и вновь добавленные
           IListEdit<IDtoAttrInfo> retVal = new ElemArrayList<>();
