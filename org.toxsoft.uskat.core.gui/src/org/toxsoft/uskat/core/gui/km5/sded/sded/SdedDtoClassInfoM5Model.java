@@ -151,7 +151,10 @@ public class SdedDtoClassInfoM5Model
           // }
           // }
           ISkClassInfo clsInfo = skSysdescr().findClassInfo( aEntity.id() );
-          return getPropsFieldValue( aEntity, clsInfo::attrs, aEntity::attrInfos );
+          if( clsInfo != null ) {
+            return getPropsFieldValue( aEntity, clsInfo::attrs, aEntity::attrInfos );
+          }
+          return aEntity.attrInfos();
         }
       };
 
@@ -193,7 +196,10 @@ public class SdedDtoClassInfoM5Model
           // }
           // return retVal;
           ISkClassInfo clsInfo = skSysdescr().findClassInfo( aEntity.id() );
-          return getPropsFieldValue( aEntity, clsInfo::rtdata, aEntity::rtdataInfos );
+          if( clsInfo != null ) {
+            return getPropsFieldValue( aEntity, clsInfo::rtdata, aEntity::rtdataInfos );
+          }
+          return aEntity.rtdataInfos();
         }
 
       };
@@ -236,7 +242,10 @@ public class SdedDtoClassInfoM5Model
           // }
           // return retVal;
           ISkClassInfo clsInfo = skSysdescr().findClassInfo( aEntity.id() );
-          return getPropsFieldValue( aEntity, clsInfo::links, aEntity::linkInfos );
+          if( clsInfo != null ) {
+            return getPropsFieldValue( aEntity, clsInfo::links, aEntity::linkInfos );
+          }
+          return aEntity.linkInfos();
         }
 
       };
@@ -279,7 +288,10 @@ public class SdedDtoClassInfoM5Model
           // }
           // return retVal;
           ISkClassInfo clsInfo = skSysdescr().findClassInfo( aEntity.id() );
-          return getPropsFieldValue( aEntity, clsInfo::cmds, aEntity::cmdInfos );
+          if( clsInfo != null ) {
+            return getPropsFieldValue( aEntity, clsInfo::cmds, aEntity::cmdInfos );
+          }
+          return aEntity.cmdInfos();
         }
 
       };
@@ -322,7 +334,10 @@ public class SdedDtoClassInfoM5Model
           // }
           // return retVal;
           ISkClassInfo clsInfo = skSysdescr().findClassInfo( aEntity.id() );
-          return getPropsFieldValue( aEntity, clsInfo::events, aEntity::eventInfos );
+          if( clsInfo != null ) {
+            return getPropsFieldValue( aEntity, clsInfo::events, aEntity::eventInfos );
+          }
+          return aEntity.eventInfos();
         }
 
       };
@@ -365,7 +380,11 @@ public class SdedDtoClassInfoM5Model
           // }
           // return retVal;
           ISkClassInfo clsInfo = skSysdescr().findClassInfo( aEntity.id() );
-          return getPropsFieldValue( aEntity, clsInfo::rivets, aEntity::rivetInfos );
+          if( clsInfo != null ) {
+            return getPropsFieldValue( aEntity, clsInfo::rivets, aEntity::rivetInfos );
+          }
+          return aEntity.rivetInfos();
+
         }
 
       };
@@ -408,7 +427,10 @@ public class SdedDtoClassInfoM5Model
           // }
           // return retVal;
           ISkClassInfo clsInfo = skSysdescr().findClassInfo( aEntity.id() );
-          return getPropsFieldValue( aEntity, clsInfo::clobs, aEntity::clobInfos );
+          if( clsInfo != null ) {
+            return getPropsFieldValue( aEntity, clsInfo::clobs, aEntity::clobInfos );
+          }
+          return aEntity.clobInfos();
         }
 
       };

@@ -39,6 +39,11 @@ public class S5SequenceBlob<BLOCK extends S5SequenceBlock<?, ?, ?>, BLOB_ARRAY, 
   private static final long serialVersionUID = 157157L;
 
   /**
+   * Поле таблицы: время (мсек с начала эпохи) завершения данных (включительно)
+   */
+  public static final String FIELD_END_TIME = S5SequenceBlock.FIELD_END_TIME;
+
+  /**
    * Значения блока
    */
   public static final String FIELD_VALUES = "_values"; //$NON-NLS-1$
@@ -48,6 +53,16 @@ public class S5SequenceBlob<BLOCK extends S5SequenceBlock<?, ?, ?>, BLOB_ARRAY, 
    */
   @EmbeddedId
   private S5DataID id;
+
+  /**
+   * Время (мсек с начала эпохи) окончания данных (включительно)
+   */
+  @Column( name = FIELD_END_TIME, //
+      insertable = true,
+      updatable = true,
+      nullable = false,
+      unique = false )
+  private Long endTime;
 
   /**
    * Блок
@@ -80,11 +95,12 @@ public class S5SequenceBlob<BLOCK extends S5SequenceBlock<?, ?, ?>, BLOB_ARRAY, 
    * Конструктор blob для нового блока
    *
    * @param aValues BLOB_ARRAY массив значений
+   * @param aEndTime long время (мсек с начала эпохи) завершения данных (включительно)
    * @throws TsNullArgumentRtException аргумент = null
    */
-  protected S5SequenceBlob( BLOB_ARRAY aValues ) {
+  protected S5SequenceBlob( BLOB_ARRAY aValues, long aEndTime ) {
     TsNullArgumentRtException.checkNull( aValues );
-    setValues( aValues );
+    setValues( aValues, aEndTime );
   }
 
   /**
@@ -98,6 +114,7 @@ public class S5SequenceBlob<BLOCK extends S5SequenceBlock<?, ?, ?>, BLOB_ARRAY, 
   protected S5SequenceBlob( ResultSet aResultSet ) {
     try {
       id = new S5DataID( aResultSet );
+      endTime = Long.valueOf( aResultSet.getLong( FIELD_END_TIME ) );
       if( getGenericClass( 1 ) != byte[].class ) {
         try( InputStream is = aResultSet.getBinaryStream( FIELD_VALUES ) ) {
           _values = ((BLOB_ARRAY_HOLDER)new ObjectInputStream( is ).readObject());
@@ -188,12 +205,14 @@ public class S5SequenceBlob<BLOCK extends S5SequenceBlock<?, ?, ?>, BLOB_ARRAY, 
    * Установка значений blob
    *
    * @param aValues BLOB_ARRAY массив значений blob
+   * @param aEndTime long время (мсек с начала эпохи) завершения данных (включительно)
    * @throws TsNullArgumentRtException аргумент = null
    */
-  final void setValues( BLOB_ARRAY aValues ) {
+  final void setValues( BLOB_ARRAY aValues, long aEndTime ) {
     TsNullArgumentRtException.checkNull( aValues );
     values = aValues;
     _values = doSerialize( aValues );
+    endTime = Long.valueOf( aEndTime );
   }
 
   /**

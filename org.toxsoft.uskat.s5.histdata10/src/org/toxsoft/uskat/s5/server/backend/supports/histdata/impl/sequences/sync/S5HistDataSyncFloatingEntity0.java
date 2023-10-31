@@ -71,7 +71,7 @@ public class S5HistDataSyncFloatingEntity0
       prevWriteIndex = nextWriteIndex;
       prev = next;
     }
-    S5HistDataSyncFloatingBlobEntity0 blob = new S5HistDataSyncFloatingBlobEntity0( values );
+    S5HistDataSyncFloatingBlobEntity0 blob = new S5HistDataSyncFloatingBlobEntity0( values, endTime );
     return new S5HistDataSyncFloatingEntity0( aTypeInfo, aGwid, startTime, blob );
   }
 
@@ -123,8 +123,8 @@ public class S5HistDataSyncFloatingEntity0
   //
   @Override
   protected IS5SequenceBlockEdit<ITemporalAtomicValue> doCreateBlock( IParameterized aTypeInfo, long aStartTime,
-      double[] aValues ) {
-    S5HistDataSyncFloatingBlobEntity0 blob = new S5HistDataSyncFloatingBlobEntity0( aValues );
+      long aEndTime, double[] aValues ) {
+    S5HistDataSyncFloatingBlobEntity0 blob = new S5HistDataSyncFloatingBlobEntity0( aValues, aEndTime );
     return new S5HistDataSyncFloatingEntity0( aTypeInfo, gwid(), aStartTime, blob );
   }
 
