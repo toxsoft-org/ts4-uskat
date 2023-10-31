@@ -1,11 +1,13 @@
 package org.toxsoft.uskat.core.api.sysdescr.dto;
 
 import org.toxsoft.core.tslib.av.metainfo.*;
+import org.toxsoft.uskat.core.utils.*;
 
 /**
  * Information about attribute property of class.
  * <p>
- * Note: option values from {@link #params()} override values from {@link #dataType()} parameters.
+ * Note: option values from {@link #params()} override values from {@link #dataType()} parameters. For convenience
+ * method {@link SkHelperUtils#getConstraint(IDtoAttrInfo, String)} may be used.
  *
  * @author hazard157
  */

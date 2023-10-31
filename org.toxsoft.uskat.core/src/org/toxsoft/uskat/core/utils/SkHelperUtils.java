@@ -2,6 +2,8 @@ package org.toxsoft.uskat.core.utils;
 
 import java.security.*;
 
+import org.toxsoft.core.tslib.av.*;
+import org.toxsoft.core.tslib.av.metainfo.*;
 import org.toxsoft.core.tslib.coll.*;
 import org.toxsoft.core.tslib.coll.basis.*;
 import org.toxsoft.core.tslib.coll.impl.*;
@@ -10,6 +12,7 @@ import org.toxsoft.core.tslib.utils.*;
 import org.toxsoft.core.tslib.utils.errors.*;
 import org.toxsoft.uskat.core.*;
 import org.toxsoft.uskat.core.api.objserv.*;
+import org.toxsoft.uskat.core.api.sysdescr.dto.*;
 
 /**
  * Helper methods to woth with USkat core.
@@ -19,6 +22,48 @@ import org.toxsoft.uskat.core.api.objserv.*;
  * @author hazard157
  */
 public class SkHelperUtils {
+
+  /**
+   * Returns the data type constraint for the attribute.
+   * <p>
+   * Data type constraints are stored in {@link IDataType#params()} and {@link IDtoRtdataInfo#params()}. The constraint
+   * in {@link IDtoRtdataInfo#params()} has priority ("overrides") constraint with the same ID from
+   * {@link IDtoAttrInfo#dataType()}.
+   *
+   * @param aInfo {@link IDtoAttrInfo} - the attribute info
+   * @param aConstraintId String - the constraint ID
+   * @return {@link IAtomicValue} - the constraint value or {@link IAtomicValue#NULL} if none found
+   * @throws TsNullArgumentRtException any argument = <code>null</code>
+   */
+  public static IAtomicValue getConstraint( IDtoAttrInfo aInfo, String aConstraintId ) {
+    TsNullArgumentRtException.checkNulls( aInfo, aConstraintId );
+    IAtomicValue av = aInfo.params().getValue( aConstraintId, IAtomicValue.NULL );
+    if( av == IAtomicValue.NULL ) {
+      av = aInfo.dataType().params().getValue( aConstraintId, IAtomicValue.NULL );
+    }
+    return av;
+  }
+
+  /**
+   * Returns the data type constraint for the RTdata.
+   * <p>
+   * Data type constraints are stored in {@link IDataType#params()} and {@link IDtoRtdataInfo#params()}. The constraint
+   * in {@link IDtoRtdataInfo#params()} has priority ("overrides") constraint with the same ID from
+   * {@link IDtoRtdataInfo#dataType()}.
+   *
+   * @param aInfo {@link IDtoRtdataInfo} - the RTdata info
+   * @param aConstraintId String - the constraint ID
+   * @return {@link IAtomicValue} - the constraint value or {@link IAtomicValue#NULL} if none found
+   * @throws TsNullArgumentRtException any argument = <code>null</code>
+   */
+  public static IAtomicValue getConstraint( IDtoRtdataInfo aInfo, String aConstraintId ) {
+    TsNullArgumentRtException.checkNulls( aInfo, aConstraintId );
+    IAtomicValue av = aInfo.params().getValue( aConstraintId, IAtomicValue.NULL );
+    if( av == IAtomicValue.NULL ) {
+      av = aInfo.dataType().params().getValue( aConstraintId, IAtomicValue.NULL );
+    }
+    return av;
+  }
 
   /**
    * Returns hexadecimal string representation of the argument MD5 digest.
