@@ -137,7 +137,7 @@ public abstract class S5SequenceSyncBlock<V extends ITemporal<?>, BLOB_ARRAY, BL
   protected final IS5SequenceBlockEdit<V> doCreateBlock( IParameterized aTypeInfo, long aStartTime, long aEndTime,
       int aStartIndex, int aEndIndex, BLOB_ARRAY aValues ) {
     // Создание конкретного блока
-    return doCreateBlock( aTypeInfo, aStartTime, aValues );
+    return doCreateBlock( aTypeInfo, aStartTime, aEndTime, aValues );
   }
 
   @Override
@@ -345,10 +345,11 @@ public abstract class S5SequenceSyncBlock<V extends ITemporal<?>, BLOB_ARRAY, BL
    *
    * @param aTypeInfo {@link IParameterized} параметризованное описание типа данного
    * @param aStartTime long время(мсек с начала эпохи) начала значений в блоке (включительно)
+   * @param aEndTime long время (мсек с начала эпохи) завершения данных (включительно)
    * @param aValues BLOB_ARRAY массив значений блока
    * @return {@link IS5SequenceBlockEdit} созданный блок
    */
-  protected abstract IS5SequenceBlockEdit<V> doCreateBlock( IParameterized aTypeInfo, long aStartTime,
+  protected abstract IS5SequenceBlockEdit<V> doCreateBlock( IParameterized aTypeInfo, long aStartTime, long aEndTime,
       BLOB_ARRAY aValues );
 
   // ------------------------------------------------------------------------------------

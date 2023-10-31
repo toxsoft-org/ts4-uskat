@@ -1469,7 +1469,9 @@ public abstract class S5AbstractSequenceWriter<S extends IS5Sequence<V>, V exten
       sb.append( '\n' );
       sb.append( info );
     }
-    logger().info( "%s.%s: partitions: %s", aScheme, aTable, sb.toString() ); //$NON-NLS-1$
+    // Журнал для операций над разделами
+    ILogger partitionLogger = LoggerWrapper.getLogger( LOG_PARTITION_ID );
+    partitionLogger.info( "%s. %s.%s: partitions: %s", ownerName(), aScheme, aTable, sb.toString() ); //$NON-NLS-1$
   }
 
   /**
@@ -1585,6 +1587,9 @@ public abstract class S5AbstractSequenceWriter<S extends IS5Sequence<V>, V exten
           EntityManager em = entityManagerFactory().createEntityManager();
           try {
             String scheme = OP_BACKEND_DB_SCHEME_NAME.getValue( initialConfig().impl().params() ).asString();
+            IAtomicValue depth = OP_DB_STORAGE_DEPTH.getValue( initialConfig().impl().params() );
+            partitionLogger.info( "%s. loadTablePartitions(...): scheme = %s. depth = %s (days)", ownerName(), scheme, //$NON-NLS-1$
+                depth );
             for( IS5SequenceTableNames tableNames : sequenceFactory().tableNames() ) {
               loadTablePartitions( em, scheme, tableNames.blockTableName() );
               loadTablePartitions( em, scheme, tableNames.blobTableName() );

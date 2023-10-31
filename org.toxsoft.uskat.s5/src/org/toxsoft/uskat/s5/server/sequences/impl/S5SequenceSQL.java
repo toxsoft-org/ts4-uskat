@@ -1673,7 +1673,7 @@ class S5SequenceSQL {
    * <li>3. %s - метка времени завершения интервала времени значений раздела;</li>
    */
   static final String QFRMT_CREATE_PARTION = //
-      "alter table %s.%s partition by range columns(" + FIELD_START_TIME + ") (" //
+      "alter table %s.%s partition by range columns(" + FIELD_END_TIME + ") (" //
           + "partition %s values less than(%d)" //
           + ");";
 

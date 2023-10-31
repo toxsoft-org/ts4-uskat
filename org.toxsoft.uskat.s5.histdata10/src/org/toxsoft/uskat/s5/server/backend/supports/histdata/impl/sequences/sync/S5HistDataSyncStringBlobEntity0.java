@@ -30,10 +30,11 @@ public class S5HistDataSyncStringBlobEntity0
    * Конструктор blob для нового блока (идентификатор формируется автоматически)
    *
    * @param aValues String[] массив значений
+   * @param aEndTime long время (мсек с начала эпохи) завершения данных (включительно)
    * @throws TsNullArgumentRtException аргумент = null
    */
-  S5HistDataSyncStringBlobEntity0( String[] aValues ) {
-    super( aValues );
+  S5HistDataSyncStringBlobEntity0( String[] aValues, long aEndTime ) {
+    super( aValues, aEndTime );
   }
 
   /**
