@@ -31,11 +31,10 @@ public class S5SequenceSyncBlob<BLOCK extends S5SequenceSyncBlock<?, ?, ?>, BLOB
    * Конструктор blob для нового блока (идентификатор формируется автоматически)
    *
    * @param aValues BLOB_ARRAY массив значений
-   * @param aEndTime long время (мсек с начала эпохи) завершения данных (включительно)
    * @throws TsNullArgumentRtException любой аргумент = null
    */
-  protected S5SequenceSyncBlob( BLOB_ARRAY aValues, long aEndTime ) {
-    super( aValues, aEndTime );
+  protected S5SequenceSyncBlob( BLOB_ARRAY aValues ) {
+    super( aValues );
   }
 
   /**

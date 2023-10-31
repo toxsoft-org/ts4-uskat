@@ -75,8 +75,8 @@ public abstract class S5SequenceBlock<V extends ITemporal<?>, BLOB_ARRAY, BLOB e
   /**
    * Имя статического метода создания блока значений.
    * <p>
-   * TODO: ??? Метод имеет сигнатуру IS5SequenceBlockEdit&lt;V&gt;create( I aInfo, IList&ltV&gt; aValues ) и
-   * определяется в конечных наследниках
+   * TODO: ??? Метод имеет сигнатуру IS5SequenceBlockEdit&lt;V&gt;create( I aInfo, IList&ltV&gt; aValues ) и определяется
+   * в конечных наследниках
    */
   public static final String BLOCK_CREATE_METHOD = "create"; //$NON-NLS-1$
 
@@ -451,8 +451,7 @@ public abstract class S5SequenceBlock<V extends ITemporal<?>, BLOB_ARRAY, BLOB e
   }
 
   @Override
-  public final int uniteBlocks( IS5SequenceFactory<V> aFactory, IList<IS5SequenceBlockEdit<V>> aBlocks,
-      ILogger aLogger ) {
+  public final int uniteBlocks( IS5SequenceFactory<V> aFactory, IList<IS5SequenceBlockEdit<V>> aBlocks, ILogger aLogger ) {
     TsNullArgumentRtException.checkNulls( aFactory, aBlocks, aLogger );
     return doUniteBlocks( aFactory, aBlocks, aLogger );
   }
@@ -697,13 +696,12 @@ public abstract class S5SequenceBlock<V extends ITemporal<?>, BLOB_ARRAY, BLOB e
     TsNullArgumentRtException.checkNull( aValues );
     int newSize = Array.getLength( aValues );
     TsNullArgumentRtException.checkFalse( newSize > 0, ERR_WRONG_SIZE );
+    _blob.setValues( aValues );
     size = Integer.valueOf( newSize ); // выставляем size, чтобы избежать ошибки "cannot be null"
-    long et = timestamp( newSize - 1 );
-    _blob.setValues( aValues, et );
-    endTime = Long.valueOf( et );
+    endTime = Long.valueOf( timestamp( newSize - 1 ) );
     // TODO: mvkd: только для отладки
     debugStartTime = new Timestamp( startTime() );
-    debugEndTime = new Timestamp( et );
+    debugEndTime = new Timestamp( endTime.longValue() );
     // Вызов методов установки наследника
     doSetValues( aValues );
     // Установка признака изменения значений для существующего блока
@@ -728,7 +726,7 @@ public abstract class S5SequenceBlock<V extends ITemporal<?>, BLOB_ARRAY, BLOB e
     TsNullArgumentRtException.checkNull( aSource );
     TsIllegalArgumentRtException.checkFalse( id.equals( aSource.id ) );
     TsIllegalArgumentRtException.checkTrue( created );
-    _blob.setValues( (BLOB_ARRAY)aSource.values(), aSource.endTime.longValue() );
+    _blob.setValues( (BLOB_ARRAY)aSource.values() );
     size = aSource.size;
     endTime = aSource.endTime;
     // TODO: mvkd: только для отладки

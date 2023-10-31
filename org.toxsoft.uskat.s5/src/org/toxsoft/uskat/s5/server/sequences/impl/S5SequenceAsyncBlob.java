@@ -94,7 +94,7 @@ public class S5SequenceAsyncBlob<BLOCK extends S5SequenceAsyncBlock<?, ?, ?>, BL
    * @throws TsNullArgumentRtException любой аргумент = null
    */
   protected S5SequenceAsyncBlob( long[] aTimestamps, BLOB_ARRAY aValues ) {
-    super( aValues, aTimestamps[aTimestamps.length - 1] );
+    super( aValues );
     setTimestamps( aTimestamps );
   }
 

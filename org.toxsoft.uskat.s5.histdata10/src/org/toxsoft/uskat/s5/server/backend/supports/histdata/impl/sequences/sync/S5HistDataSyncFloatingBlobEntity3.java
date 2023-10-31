@@ -30,11 +30,10 @@ public class S5HistDataSyncFloatingBlobEntity3
    * Конструктор blob для нового блока (идентификатор формируется автоматически)
    *
    * @param aValues double[] массив значений
-   * @param aEndTime long время (мсек с начала эпохи) завершения данных (включительно)
    * @throws TsNullArgumentRtException аргумент = null
    */
-  S5HistDataSyncFloatingBlobEntity3( double[] aValues, long aEndTime ) {
-    super( aValues, aEndTime );
+  S5HistDataSyncFloatingBlobEntity3( double[] aValues ) {
+    super( aValues );
   }
 
   /**
