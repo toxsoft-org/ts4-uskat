@@ -50,6 +50,15 @@ public class SdedSkObjectMpc
 
   static final String TMID_GROUP_BY_CLASS = "GroupByClass"; //$NON-NLS-1$
 
+  private ISkClassInfo selClass = null;
+
+  /**
+   * @return selected class info {@link ISkClassInfo}
+   */
+  public ISkClassInfo getSelClass() {
+    return selClass;
+  }
+
   /**
    * Класс узла дерева, содержащий в качестве пользовательского объекта - описание класса.
    *
@@ -214,6 +223,7 @@ public class SdedSkObjectMpc
   protected void doUpdateActionsState( boolean aIsAlive, boolean aIsSel, ISkObject aSel ) {
     // can NOT edit: 1) root class, 2) claimed by service
     boolean canEdit = true;
+    boolean canAdd = false;
     // if( aSel != null ) {
     // if( !aSel.id().equals( IGwHardConstants.GW_ROOT_CLASS_ID ) ) {
     // String claiminServiceId = skSysdescr().determineClassClaimingServiceId( aSel.id() );
@@ -222,7 +232,16 @@ public class SdedSkObjectMpc
     // }
     // }
     // }
+    ITsNode selNode = (ITsNode)tree().console().selectedNode();
+    if( selNode != null ) {
+      if( selNode.kind() == NK_CLASS ) {
+        selClass = (ISkClassInfo)selNode.entity();
+        canAdd = true;
+        canEdit = false;
+      }
+    }
     toolbar().setActionEnabled( ACTID_EDIT, canEdit );
+    toolbar().setActionEnabled( ACTID_ADD, canAdd );
   }
 
   // @Override
