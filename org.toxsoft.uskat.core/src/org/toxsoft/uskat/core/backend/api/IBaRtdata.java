@@ -46,7 +46,7 @@ public interface IBaRtdata
   /**
    * Updates the actual value of the current data.
    * <p>
-   * Note: GWID must be prviously configured for writing by {@link #configureCurrDataWriter(IGwidList)}.
+   * Note: GWID must be previously configured for writing by {@link #configureCurrDataWriter(IGwidList)}.
    *
    * @param aGwid {@link Gwid} - concrete GWID of RTdata with {@link IDtoRtdataInfo#isCurr()} = <code>true</code>
    * @param aValue {@link IAtomicValue} - current value of RTdata

@@ -84,8 +84,8 @@ public class MtbBaRtdata
     @Override
     public void run() {
       /**
-       * we'll invoke code every TICK_MSECS * INVOKE_TICKS milleconds, however for responsiveness we'll check #needStop
-       * flag every TICK_MSECS milliseconds.
+       * we'll invoke code every TICK_MSECS * INVOKE_TICKS milliseconds, however for responsiveness we'll check
+       * #needStop flag every TICK_MSECS milliseconds.
        */
       int ticksCounter = 0;
       // run until thread stop is requested
@@ -93,7 +93,7 @@ public class MtbBaRtdata
         try {
           Thread.sleep( INTERNAL_THREAD_TICK_MSECS );
           if( ++ticksCounter >= internalThreadInvokeTicks ) {
-            // following code runs every TICK_MSECS * INVOKE_TICKS milleconds
+            // following code runs every TICK_MSECS * INVOKE_TICKS milliseconds
             ticksCounter = 0;
             // check for new currdata values and message them to the frontend
             cdLock.writeLock().lock();
@@ -329,7 +329,7 @@ public class MtbBaRtdata
   }
 
   /**
-   * Writes to destination list historical values.
+   * Writes historical values to destination list.
    * <p>
    * Note on implementation:
    * <ul>
@@ -435,7 +435,7 @@ public class MtbBaRtdata
       internalConfigureCurrDataReadWrite();
     }
     finally {
-      cdLock.writeLock().lock();
+      cdLock.writeLock().unlock();
     }
   }
 
@@ -447,7 +447,7 @@ public class MtbBaRtdata
       internalConfigureCurrDataReadWrite();
     }
     finally {
-      cdLock.writeLock().lock();
+      cdLock.writeLock().unlock();
     }
   }
 
@@ -455,7 +455,7 @@ public class MtbBaRtdata
   public void writeCurrData( Gwid aGwid, IAtomicValue aValue ) {
     cdLock.writeLock().lock();
     try {
-      if( !cdMap.hasElem( aValue ) ) {
+      if( !cdMap.hasKey( aGwid ) ) {
         return;
       }
       cdMap.put( aGwid, aValue );
