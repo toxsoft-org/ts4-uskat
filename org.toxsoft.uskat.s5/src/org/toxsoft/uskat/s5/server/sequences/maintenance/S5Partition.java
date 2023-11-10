@@ -118,6 +118,41 @@ public final class S5Partition
   // Открытое API
   //
   /**
+   * Проводит расчет времени начала раздела для значений с указанной меткой времени
+   *
+   * @param aTime long метка времени (мсек с начала эпохи) значения
+   * @param aDepth int глубина(в сутках) хранения значений (размер разделов)
+   * @return long время (мсек с начала эпохи) начала раздела
+   */
+  public static long calcPartitionStartTime( long aTime, int aDepth ) {
+    if( needMonthPartition( aDepth ) ) {
+      // Разделы с глубиной хранения один месяц
+      return allignByMonth( aTime );
+    }
+    // Разделы с глубиной хранения одни сутки
+    return allignByDay( aTime );
+  }
+
+  /**
+   * Проводит расчет времени завершения раздела для значений с указанной меткой времени
+   *
+   * @param aTime long метка времени (мсек с начала эпохи) значения
+   * @param aDepth int глубина(в сутках) хранения значений (размер разделов)
+   * @return long время (мсек с начала эпохи) завершения раздела
+   */
+  public static long calcPartitionEndTime( long aTime, int aDepth ) {
+    long startTime = calcPartitionStartTime( aTime, aDepth );
+    if( needMonthPartition( aDepth ) ) {
+      // Глубина хранения в разделе 1 месяц.
+      return allignByNextMonth( aTime );
+    }
+    // Количество мсек в сутках
+    long msecInDay = 1000 * 60 * 60 * 24;
+    // Глубина хранения в разделе 1 сутки
+    return calcPartitionStartTime( startTime + msecInDay, aDepth );
+  }
+
+  /**
    * Возвращает список разделов которые необходимо сохранить в БД чтобы указанный интервал значений находился в
    * указанных разделах
    *
@@ -164,6 +199,18 @@ public final class S5Partition
   // Внутренняя реализация
   //
   /**
+   * Возвращает признак того, что для указанной глубины хранения требуются разделы с глубиной хранения один месяц, в
+   * противном случае одни сутки.
+   *
+   * @param aDepth int глубина(в сутках) хранения значений (размер разделов)
+   * @return boolean <b>true</b> требуется разделы с месячным хранением; <b>false</b> требуются разделы с суточным
+   *         хранением.
+   */
+  private static boolean needMonthPartition( int aDepth ) {
+    return (aDepth > 30);
+  }
+
+  /**
    * Возвращает признак того, что указанный интервал значений находится в указанных разделах
    *
    * @param aInfos {@link ITimedList}&lt;{@link S5Partition}&gt; список описаний разделов
@@ -197,16 +244,13 @@ public final class S5Partition
    * @throws TsNullArgumentRtException аргумент = null
    */
   private static IList<S5Partition> createPartitionInfosForInterval( long aStartTime, long aEndTime, int aDepth ) {
-    long msecInDay = 1000 * 60 * 60 * 24;
     IListEdit<S5Partition> retValue = new ElemLinkedList<>();
-    long startTime = allignByDay( aStartTime, 0 );
+    long startTime = calcPartitionStartTime( aStartTime, aDepth );
     long endTime;
-    // Глубина хранения значений в разделе. Если глубина хранения значений < 30 дней, то глубина 1 сутки. Иначе - месяц
-    int partitionDepth = (aDepth > 30 ? 30 : 1);
     do {
-      endTime = startTime + partitionDepth * msecInDay;
+      endTime = calcPartitionEndTime( startTime, aDepth );
       retValue.add( new S5Partition( new TimeInterval( startTime, endTime ) ) );
-      startTime = startTime + partitionDepth * msecInDay;
+      startTime = endTime;
     } while( endTime < aEndTime );
     return retValue;
   }
@@ -215,14 +259,52 @@ public final class S5Partition
    * Выравнивание метки времени по началу суток
    *
    * @param aTime long метка времени (мсек с начала эпохи)
-   * @param aAddDays int количество дней прибавляемых к результату
    * @return long метка времени выравненная по началу суток путем отброса часов, минут, секунд и миллисекунд.
    */
-  private static long allignByDay( long aTime, int aAddDays ) {
-    long msecInDay = 1000 * 60 * 60 * 24;
+  private static long allignByDay( long aTime ) {
     Calendar c = Calendar.getInstance();
-    c.setTimeInMillis( aTime + aAddDays * msecInDay );
+    c.setTimeInMillis( aTime );
+    // c.set( Calendar.DATE, c.getActualMinimum( Calendar.DAY_OF_YEAR ) );
+
     c.set( Calendar.AM_PM, 0 );
+    c.set( Calendar.HOUR, 0 );
+    c.set( Calendar.MINUTE, 0 );
+    c.set( Calendar.SECOND, 0 );
+    c.set( Calendar.MILLISECOND, 0 );
+    return c.getTimeInMillis();
+  }
+
+  /**
+   * Выравнивание метки времени по началу месяца
+   *
+   * @param aTime long метка времени (мсек с начала эпохи)
+   * @return long метка времени выравненная по началу месяца путем отброса часов, минут, секунд и миллисекунд.
+   */
+  private static long allignByMonth( long aTime ) {
+    Calendar c = Calendar.getInstance();
+    c.setTimeInMillis( aTime );
+    c.set( Calendar.AM_PM, 0 );
+    c.set( Calendar.DAY_OF_MONTH, 1 );
+    c.set( Calendar.HOUR, 0 );
+    c.set( Calendar.MINUTE, 0 );
+    c.set( Calendar.SECOND, 0 );
+    c.set( Calendar.MILLISECOND, 0 );
+    return c.getTimeInMillis();
+  }
+
+  /**
+   * Выравнивание метки времени по началу следующего месяца
+   *
+   * @param aTime long метка времени (мсек с начала эпохи)
+   * @return long метка времени выравненная по началу следующего месяца путем добавления месяца к указанному времени и
+   *         отброса часов, минут, секунд и миллисекунд.
+   */
+  private static long allignByNextMonth( long aTime ) {
+    Calendar c = Calendar.getInstance();
+    c.setTimeInMillis( aTime );
+    c.add( Calendar.MONTH, 1 );
+    c.set( Calendar.AM_PM, 0 );
+    c.set( Calendar.DAY_OF_MONTH, 1 );
     c.set( Calendar.HOUR, 0 );
     c.set( Calendar.MINUTE, 0 );
     c.set( Calendar.SECOND, 0 );
@@ -266,32 +348,37 @@ public final class S5Partition
   //
   @SuppressWarnings( { "nls", "javadoc" } )
   public static void main( String[] aArgs ) {
-    // long currTime = TimeUtils.readTimestamp( "2021-02-03_13:05:06" );
-    long currTime = System.currentTimeMillis();
-    System.out.println( "currTime = " + TimeUtils.timestampToString( currTime ) );
+    testCalcStartEndTimes( "2021-02-03_13:05:06", 7 );
+    testCalcStartEndTimes( "2021-03-31_13:05:06", 7 );
+    testCalcStartEndTimes( "2021-02-28_13:05:06", 7 );
+    testCalcStartEndTimes( "2021-03-31_13:05:06", 60 );
+    testCalcStartEndTimes( "2021-03-01_13:05:06", 60 );
 
-    String partitionTimeStr = partitionTimeToString( currTime );
-    System.out.println( "partitionTimeStr = " + partitionTimeStr );
+    testPartitionForInterval( "2021-03-01_13:05:06", "2021-03-11_20:05:06", 7 );
+    testPartitionForInterval( "2021-03-01_13:05:06", "2021-05-11_20:05:06", 365 * 5 );
+  }
 
-    long partitionTime = stringToPartitionTime( partitionTimeStr );
-    System.out.println( "partitionTime = " + TimeUtils.timestampToString( partitionTime ) );
+  @SuppressWarnings( "nls" )
+  private static void testCalcStartEndTimes( String aTime, int aDepth ) {
+    long time = TimeUtils.readTimestamp( aTime );
+    long startTime = calcPartitionStartTime( time, aDepth );
+    long endTime = calcPartitionEndTime( time, aDepth );
+    System.out.println( "time = " + TimeUtils.timestampToString( time ) + ", aDepth = " + aDepth + //
+        ", startTime = " + partitionTimeToString( startTime ) + //
+        ", endTime = " + partitionTimeToString( endTime ) //
+    );
+  }
 
-    long msecInDay = 1000 * 60 * 60 * 24;
-    // Частный случай, еще нет разделов
-    long startTime = (currTime / msecInDay) * msecInDay;
-    long startTime2 = currTime - msecInDay;
-    long endTime = (currTime / msecInDay + 1) * msecInDay;
-
-    System.out.println( "startTime = " + TimeUtils.timestampToString( startTime ) );
-    System.out.println( "startTime2 = " + TimeUtils.timestampToString( startTime2 ) );
-    System.out.println( "endTime = " + TimeUtils.timestampToString( endTime ) );
-
-    long startTime3 = allignByDay( currTime, 0 );
-    long endTime3 = allignByDay( startTime3, 0 );
-    System.out.println( "startTime3 = " + TimeUtils.timestampToString( startTime3 ) );
-    System.out.println( "endTime3 = " + TimeUtils.timestampToString( endTime3 ) );
-
-    long startTime4 = allignByDay( currTime, 1 );
-    System.out.println( "startTime4 = " + TimeUtils.timestampToString( startTime4 ) );
+  @SuppressWarnings( "nls" )
+  private static void testPartitionForInterval( String aStartTime, String aEndTime, int aDepth ) {
+    System.out.println( "aStartTime = " + aStartTime + ", aEndTime = " + aEndTime + ", aDepth = " + aDepth );
+    long startTime = TimeUtils.readTimestamp( aStartTime );
+    long endTime = TimeUtils.readTimestamp( aEndTime );
+    IList<S5Partition> partitions = createPartitionInfosForInterval( startTime, endTime, aDepth );
+    for( int index = 0, n = partitions.size(); index < n; index++ ) {
+      S5Partition partition = partitions.get( index );
+      System.out.println( "partitions[" + index + "] = " + partition ); //$NON-NLS-1$
+    }
+    System.out.println( "==============================================" );
   }
 }

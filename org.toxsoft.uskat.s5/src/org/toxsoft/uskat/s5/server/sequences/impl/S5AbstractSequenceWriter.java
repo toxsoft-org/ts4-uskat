@@ -723,21 +723,10 @@ public abstract class S5AbstractSequenceWriter<S extends IS5Sequence<V>, V exten
     // Текущее время сервера
     long currTime = System.currentTimeMillis();
 
-    for( S5Partition partition : aPartitionOp.createPartitions() ) {
-      try {
-        aLogger.info( MSG_ADD_PARTITION, ownerName(), scheme, tableName, partition );
-        S5SequenceSQL.addPartition( aEntityManager, scheme, tableName, partition, true );
-        retValue.addAdded( 1 );
-      }
-      catch( Throwable e ) {
-        retValue.addErrors( 1 );
-        aLogger.error( e, ERR_ADD_PARTITION, ownerName(), scheme, tableName, partition, cause( e ) );
-      }
-    }
     for( S5Partition partition : aPartitionOp.addPartitions() ) {
       try {
         aLogger.info( MSG_ADD_PARTITION, ownerName(), scheme, tableName, partition );
-        S5SequenceSQL.addPartition( aEntityManager, scheme, tableName, partition, false );
+        S5SequenceSQL.addPartition( aEntityManager, scheme, tableName, partition );
         retValue.addAdded( 1 );
       }
       catch( Throwable e ) {
@@ -759,7 +748,7 @@ public abstract class S5AbstractSequenceWriter<S extends IS5Sequence<V>, V exten
         retValue.addRemovedPartitions( 1 );
         int removedBlocks = dropPartition( aEntityManager, scheme, tableName, partitionName );
         if( removedBlocks > 0 ) {
-          aLogger.info( "%s. dropPartition(...). removedBlocks = %d", ownerName(), removedBlocks ); //$NON-NLS-1$
+          aLogger.info( "%s. dropPartition(...). removedBlocks = %d", ownerName(), Integer.valueOf( removedBlocks ) ); //$NON-NLS-1$
         }
         retValue.addRemovedBlocks( removedBlocks );
       }
@@ -778,7 +767,6 @@ public abstract class S5AbstractSequenceWriter<S extends IS5Sequence<V>, V exten
         tablePartitions = new TimedList<>();
         partitionsByTable.put( tableName, tablePartitions );
       }
-      tablePartitions.addAll( aPartitionOp.createPartitions() );
       tablePartitions.addAll( aPartitionOp.addPartitions() );
       for( S5Partition partitionInfo : aPartitionOp.removePartitions() ) {
         tablePartitions.remove( partitionInfo );
@@ -1481,8 +1469,8 @@ public abstract class S5AbstractSequenceWriter<S extends IS5Sequence<V>, V exten
     // Текущий день года
     int dayOfYear = c.get( Calendar.DAY_OF_YEAR );
     // int dayOfYear = c.get( Calendar.MINUTE );
-    int hour = c.get( Calendar.HOUR_OF_DAY );
-    int minute = c.get( Calendar.MINUTE );
+    // int hour = c.get( Calendar.HOUR_OF_DAY );
+    // int minute = c.get( Calendar.MINUTE );
 
     // dayOfYear = 284;
     // logger().info( "%s. lastCheckPartitionDay = %d, dayOfYear = %d, hour = %d, min = %d, size() = %d", ownerName(),
@@ -1518,14 +1506,11 @@ public abstract class S5AbstractSequenceWriter<S extends IS5Sequence<V>, V exten
    * @param aTable String имя таблицы
    * @param aInterval {@link ITimeInterval} интервал значений сохраняемых в базу данны
    * @param aDepth int глубина (сутки) хранения значений
-   * @param aCreatingPartitions {@link IListEdit} редактируемый список добавляемых разделов для таблиц без разделов
    * @param aAddPartitions {@link IListEdit} редактируемый список добавляемых разделов для таблиц с разделами
    */
   private void prepareTablePartition( EntityManager aEntityManager, String aScheme, String aTable,
-      ITimeInterval aInterval, int aDepth, IListEdit<S5Partition> aCreatingPartitions,
-      IListEdit<S5Partition> aAddPartitions ) {
-    TsNullArgumentRtException.checkNulls( aEntityManager, aScheme, aTable, aInterval, aCreatingPartitions,
-        aAddPartitions );
+      ITimeInterval aInterval, int aDepth, IListEdit<S5Partition> aAddPartitions ) {
+    TsNullArgumentRtException.checkNulls( aEntityManager, aScheme, aTable, aInterval, aAddPartitions );
     ITimedListEdit<S5Partition> partitions = partitionsByTable.findByKey( aTable );
     if( partitions == null ) {
       partitions = new TimedList<>( readPartitions( aEntityManager, aScheme, aTable ) );
@@ -1543,18 +1528,7 @@ public abstract class S5AbstractSequenceWriter<S extends IS5Sequence<V>, V exten
       // Новые разделы не требуются
       return;
     }
-    // Признак необходимости добавления раздела в таблице без разделов
-    boolean creating = (partitions.size() == 0);
-    if( creating ) {
-      for( S5Partition partition : newPartitions ) {
-        if( aCreatingPartitions.hasElem( partition ) ) {
-          logger().warning( ERR_PARTITION_PLAN_CREATED_ALREADY, ownerName(), partition );
-        }
-        aCreatingPartitions.add( partition );
-      }
-      return;
-    }
-    // Добавление разделов в таблицы с уже существующими разделами (с обработкой дублей)
+    // Добавление разделов в таблицы (с обработкой дублей)
     for( S5Partition partition : newPartitions ) {
       if( aAddPartitions.hasElem( partition ) ) {
         logger().warning( ERR_PARTITION_PLAN_ADDED_ALREADY, ownerName(), partition );
@@ -1820,29 +1794,20 @@ public abstract class S5AbstractSequenceWriter<S extends IS5Sequence<V>, V exten
       String blockTable = candidate.blockTableName();
       // Имя таблицы blob
       String blobTable = candidate.blobTableName();
-      // Карта описаний разделов добавляемых таблицы без разделов. Ключ: имя таблицы.
-      IListEdit<S5Partition> createPartitions = new ElemLinkedList<>();
-      // Карта описаний разделов добавляемых в таблицы с существующими разделами. Ключ: имя таблицы.
+      // Карта описаний разделов добавляемых в таблицы. Ключ: имя таблицы.
       IListEdit<S5Partition> addPartitions = new ElemLinkedList<>();
       lockWrite( partitionsByTableLock );
       try {
-        // Формирование списков добавляемых разделов
-        createPartitions.clear();
         addPartitions.clear();
-        prepareTablePartition( aEntityManager, scheme, blockTable, writeInterval, depth, createPartitions,
-            addPartitions );
+        prepareTablePartition( aEntityManager, scheme, blockTable, writeInterval, depth, addPartitions );
         // Список удаляемых разделов
         IList<S5Partition> removePartitions =
             findRemovePartitions( aEntityManager, scheme, blockTable, removeInterval );
-        if( createPartitions.size() > 0 || addPartitions.size() > 0 || removePartitions.size() > 0 ) {
+        if( addPartitions.size() > 0 || removePartitions.size() > 0 ) {
           S5PartitionOperation op = new S5PartitionOperation( blockTable );
-          op.createPartitions().addAll( createPartitions );
           op.addPartitions().addAll( addPartitions );
           op.removePartitions().addAll( removePartitions );
           retValue.addAll( op );
-          if( createPartitions.size() > 0 ) {
-            aLogger.debug( MSG_PARTITION_PLAN_CREATE, ownerName(), scheme, blockTable, op.createPartitions() );
-          }
           if( addPartitions.size() > 0 ) {
             aLogger.debug( MSG_PARTITION_PLAN_ADD, ownerName(), scheme, blockTable, op.addPartitions() );
           }
@@ -1851,21 +1816,15 @@ public abstract class S5AbstractSequenceWriter<S extends IS5Sequence<V>, V exten
           }
         }
         // Формирование списков добавляемых разделов
-        createPartitions.clear();
         addPartitions.clear();
-        prepareTablePartition( aEntityManager, scheme, blobTable, writeInterval, depth, createPartitions,
-            addPartitions );
+        prepareTablePartition( aEntityManager, scheme, blobTable, writeInterval, depth, addPartitions );
         // Список удаляемых разделов
         removePartitions = findRemovePartitions( aEntityManager, scheme, blobTable, removeInterval );
-        if( createPartitions.size() > 0 || addPartitions.size() > 0 || removePartitions.size() > 0 ) {
+        if( addPartitions.size() > 0 || removePartitions.size() > 0 ) {
           S5PartitionOperation op = new S5PartitionOperation( blobTable );
-          op.createPartitions().addAll( createPartitions );
           op.addPartitions().addAll( addPartitions );
           op.removePartitions().addAll( removePartitions );
           retValue.addAll( op );
-          if( createPartitions.size() > 0 ) {
-            aLogger.debug( MSG_PARTITION_PLAN_CREATE, ownerName(), scheme, blobTable, op.createPartitions() );
-          }
           if( addPartitions.size() > 0 ) {
             aLogger.debug( MSG_PARTITION_PLAN_ADD, ownerName(), scheme, blobTable, op.addPartitions() );
           }

@@ -49,7 +49,9 @@ public interface IS5SequenceAddonConfig
       TSID_DESCRIPTION, D_UNION_CALENDARS, //
       TSID_IS_NULL_ALLOWED, AV_FALSE, //
       TSID_DEFAULT_VALUE, avValobj( new S5ScheduleExpressionList( //
-          S5ScheduleUtils.createSchedule( "*", "*", "*", "*/5" ) ) )//
+          // TODO: 2023-11-10 mvkd перегрузка хранимыми данными gubaha-stend
+          // S5ScheduleUtils.createSchedule( "*", "*", "*", "*/5" ) ) )//
+          S5ScheduleUtils.createSchedule( "*", "*", "*", "*" ) ) )//
   );
 
   /**

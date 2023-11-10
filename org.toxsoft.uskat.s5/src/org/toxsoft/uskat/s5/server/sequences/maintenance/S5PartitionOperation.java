@@ -22,7 +22,6 @@ public final class S5PartitionOperation
   private static final long serialVersionUID = 157157L;
 
   private final String                 tableName;
-  private final IListEdit<S5Partition> createPartitions = new ElemLinkedList<>();
   private final IListEdit<S5Partition> addPartitions    = new ElemLinkedList<>();
   private final IListEdit<S5Partition> removePartitions = new ElemLinkedList<>();
   private final GwidList               removeGwids      = new GwidList();
@@ -58,15 +57,6 @@ public final class S5PartitionOperation
    */
   public IGwidList gwids() {
     return removeGwids;
-  }
-
-  /**
-   * Возвращает список разделов добавляемых в таблицу БЕЗ разделов
-   *
-   * @return {@link IList}&lt;{@link S5Partition}&gt; список добавляемых разделов
-   */
-  public IListEdit<S5Partition> createPartitions() {
-    return createPartitions;
   }
 
   /**

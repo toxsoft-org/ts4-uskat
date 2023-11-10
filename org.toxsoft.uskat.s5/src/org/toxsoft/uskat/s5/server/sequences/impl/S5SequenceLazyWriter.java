@@ -500,12 +500,21 @@ class S5SequenceLazyWriter<S extends IS5Sequence<V>, V extends ITemporal<?>>
         // Нет данных для дефрагментации
         break;
       }
+      boolean d = gwid.asString().equals( "s5.Node[hermes.pc]$rtdata(s5.node.statistic.PasSend.min)" );
+      if( !d ) {
+//        unionCandidates.getHeadOrNull();
+//        unionCandidateFragments.removeByKey( gwid );
+//        continue;
+      }
+      if( d ) {
+        System.out.println();
+      }
       // Параметризованное описание типа данного
       IParameterized typeInfo = factory.typeInfo( gwid );
       // Минимальное количество блоков для принудительного объединения
-      int fragmentCountMin = OP_BLOCK_SIZE_MAX.getValue( typeInfo.params() ).asInt();
+      int defragmentCount = OP_BLOCK_SIZE_MAX.getValue( typeInfo.params() ).asInt();
       // Максимальное количество блоков для принудительного объединения
-      int fragmentCountMax = fragmentCountMin;
+//      int fragmentCountMax = fragmentCountMin;
       // Количество текущих фрагментов
       int fragmentCount = (allFragments != null ? allFragments.fragmentCount() : 0)
           + (candiateFragments != null ? candiateFragments.fragmentCount() : 0);
@@ -513,16 +522,36 @@ class S5SequenceLazyWriter<S extends IS5Sequence<V>, V extends ITemporal<?>>
       IS5SequenceFragmentInfo realAllFragments = IS5SequenceFragmentInfo.NULL;
       // Вывод трасировки в журнал
       logger().debug( MSG_GWID_FRAGMENT_COUNT, gwid, Integer.valueOf( lookupCount ), Integer.valueOf( fragmentCount ) );
+
+//      if( d ) {
+        logger().info( "prepareAuto(...): gwid = %s, max = %d, fragmentCount = %d, allFragmentsCount = %s",
+            gwid, Integer.valueOf( defragmentCount ), Integer.valueOf( fragmentCount ), allFragments != null ? allFragments.fragmentCount() : "N/A" );
+//      }
+
       // Анализ фрагментации
-      if( allFragments == null || (fragmentCountMin < 0 || fragmentCount >= fragmentCountMin) ) {
+      if( allFragments == null || (defragmentCount < 0 || fragmentCount >= defragmentCount) ) {
         // Фрагментация с момента прошлого процесса дефрагментации данного неопределена или накопилось много
         // фрагментов (по записи) которые могут быть дефрагментированы. Запрос к базе для получения реальной
         // дефрагментации. Максимальное количество значений в блоке:
-        int maxSize = OP_BLOCK_SIZE_MAX.getValue( typeInfo.params() ).asInt();
+        //int maxSize = OP_BLOCK_SIZE_MAX.getValue( typeInfo.params() ).asInt();
         // Фактическая дефрагментация данного полученная чтением из базы данных
         // Внимание! Несмотря на легковесность SQL-запроса, при интенсивной работе с dbms может вызвать задержку
-        realAllFragments = findFragmentationTime( aEntityManager, factory, gwid, fragmentEndTime, maxSize,
-            fragmentCountMin, fragmentCountMax, fragmentTimeout );
+        realAllFragments = findFragmentationTime( aEntityManager, factory, gwid, fragmentEndTime, defragmentCount,
+            defragmentCount, defragmentCount, fragmentTimeout );
+        // 2023-11-08 mvk ---+++
+        lockWrite( unionLock );
+        try {
+          if( realAllFragments != IS5SequenceFragmentInfo.NULL ) {
+             allFragments = new S5SequenceFragmentInfo( realAllFragments );
+             unionAllFragments.put( gwid, allFragments );
+          }
+          else {
+            unionAllFragments.removeByKey( gwid );
+          }
+        }
+        finally {
+          unlockWrite( unionLock );
+        }
         // Обновление статистики
         aStatistics.addLookupCount();
         // // Обновление количества фрагментов
@@ -532,10 +561,12 @@ class S5SequenceLazyWriter<S extends IS5Sequence<V>, V extends ITemporal<?>>
       }
       // Признак необходимости провести дефрагментацию
       boolean needDefragmentation =
-          (realAllFragments != IS5SequenceFragmentInfo.NULL && realAllFragments.fragmentCount() > 0);
+          // 2023-11-08 mvk ---+++
+//          (realAllFragments != IS5SequenceFragmentInfo.NULL && realAllFragments.fragmentCount() > 0);
+      (realAllFragments != IS5SequenceFragmentInfo.NULL && realAllFragments.fragmentCount() >= defragmentCount );
       // Признак того, что дефрагментированная последовательность выбрана полностью
       boolean fragmentCompleted =
-          (!needDefragmentation || fragmentCountMax < 0 || realAllFragments.fragmentCount() < fragmentCountMax);
+          (!needDefragmentation || defragmentCount < 0 || realAllFragments.fragmentCount() < defragmentCount);
       lockWrite( unionLock );
       try {
         if( !needDefragmentation || fragmentCompleted ) {

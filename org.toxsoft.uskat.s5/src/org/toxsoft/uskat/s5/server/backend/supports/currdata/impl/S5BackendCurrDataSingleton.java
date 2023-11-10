@@ -605,6 +605,13 @@ public class S5BackendCurrDataSingleton
    */
   private static void writeValuesToLog( ILogger aLogger, Map<Gwid, IAtomicValue> aValues, long aTime ) {
     TsNullArgumentRtException.checkNulls( aLogger, aValues );
+    if( (aLogger.isSeverityOn( ELogSeverity.DEBUG ) || aLogger.isSeverityOn( ELogSeverity.INFO ))
+        && aValues.size() == 1 ) {
+      Gwid gwid = aValues.keySet().iterator().next();
+      IAtomicValue value = aValues.get( gwid );
+      aLogger.info( MSG_WRITE_CURRDATA_VALUE, gwid, value );
+      return;
+    }
     if( aLogger.isSeverityOn( ELogSeverity.DEBUG ) ) {
       aLogger.debug( toStr( MSG_WRITE_CURRDATA_VALUES_DEBUG, aValues, aTime ) );
       return;
