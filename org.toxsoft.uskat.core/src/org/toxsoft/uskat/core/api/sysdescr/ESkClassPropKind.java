@@ -7,8 +7,10 @@ import org.toxsoft.core.tslib.bricks.keeper.std.*;
 import org.toxsoft.core.tslib.bricks.strid.*;
 import org.toxsoft.core.tslib.bricks.strid.coll.*;
 import org.toxsoft.core.tslib.bricks.strid.coll.impl.*;
+import org.toxsoft.core.tslib.bricks.strid.impl.*;
 import org.toxsoft.core.tslib.gw.*;
 import org.toxsoft.core.tslib.gw.gwid.*;
+import org.toxsoft.core.tslib.gw.skid.*;
 import org.toxsoft.core.tslib.utils.errors.*;
 
 /**
@@ -110,6 +112,36 @@ public enum ESkClassPropKind
    */
   public EGwidKind gwidKind() {
     return gwidKind;
+  }
+
+  /**
+   * Creates the abstract GWID of the class property.
+   *
+   * @param aClassId String - the class ID
+   * @param aPropId String - the property ID
+   * @return {@link Gwid} - created GWID
+   * @throws TsNullArgumentRtException any argument = <code>null</code>
+   * @throws TsIllegalArgumentRtException any ID is not an IDpath
+   */
+  public Gwid createAbstractGwid( String aClassId, String aPropId ) {
+    StridUtils.checkValidIdPath( aClassId );
+    StridUtils.checkValidIdPath( aPropId );
+    return Gwid.create( aClassId, null, id, aPropId, null, null );
+  }
+
+  /**
+   * Creates the concrete GWID of the class property.
+   *
+   * @param aSkid {@link Skid} - the object SKID
+   * @param aPropId String - the property ID
+   * @return {@link Gwid} - created GWID
+   * @throws TsNullArgumentRtException any argument = <code>null</code>
+   * @throws TsIllegalArgumentRtException ID is not an IDpath
+   */
+  public Gwid createConcreteGwid( Skid aSkid, String aPropId ) {
+    TsNullArgumentRtException.checkNull( aSkid );
+    StridUtils.checkValidIdPath( aPropId );
+    return Gwid.create( aSkid.classId(), aSkid.strid(), id, aPropId, null, null );
   }
 
   /**
