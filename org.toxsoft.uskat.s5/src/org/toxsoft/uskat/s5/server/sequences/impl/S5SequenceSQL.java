@@ -992,7 +992,6 @@ class S5SequenceSQL {
    * @param aFactory {@link IS5SequenceFactory} фабрика формирования последовательностей
    * @param aGwid {@link Gwid} идентификатор данного
    * @param aToTime long (время мсек с начала эпохи) до которого проводить поиск фрагментированных блоков (включительно)
-   * @param aMaxSize int размер блока меньше которого блок считается фрагментированным
    * @param aFragmentCountMin int минимальное количество блоков которые требуется для дефрагментации. <= 0: отключено
    * @param aFragmentCountMax int максимальное количество блоков которые требуетя для дефрагментации. <= 0: отключено
    * @param aFragmentTimeout long время (мсек) между блоками больше которого проводится принудительная дефрагментация.
@@ -1004,8 +1003,8 @@ class S5SequenceSQL {
    * @throws TsIllegalArgumentRtException aFragmentCountMax = 1
    */
   static <V extends ITemporal<?>> IS5SequenceFragmentInfo findFragmentationTime( EntityManager aEntityManager,
-      IS5SequenceFactory<V> aFactory, Gwid aGwid, long aToTime, int aMaxSize, int aFragmentCountMin,
-      int aFragmentCountMax, long aFragmentTimeout ) {
+      IS5SequenceFactory<V> aFactory, Gwid aGwid, long aToTime, int aFragmentCountMin, int aFragmentCountMax,
+      long aFragmentTimeout ) {
     TsNullArgumentRtException.checkNulls( aEntityManager, aFactory, aGwid );
     TsInternalErrorRtException.checkTrue( aFragmentCountMax == 1 );
     // Параметризованное описание типа данного
@@ -1063,14 +1062,12 @@ class S5SequenceSQL {
       long allFirstEndTime = MIN_TIMESTAMP;
       // Признак необходимости выполнить дефрагментацию так как есть "старые" блоки
       boolean tooLateBlocks = false;
-      // Двойной размер блоков
-      int doubleMaxSize = 2 * aMaxSize;
       for( int index = 0; index < startsTimesSizesListSize; index++ ) {
         Object[] bts = startsTimesSizesList.get( index );
         long startTime = ((BigInteger)bts[0]).longValue();
         long endTime = ((BigInteger)bts[1]).longValue();
         int size = ((Integer)bts[2]).intValue();
-        if( size >= aMaxSize ) {
+        if( size < 0 ) {
           // Найден полный блок с которым невозможно объединение
           allSize = 0;
           allUnionableCount = 0;
@@ -1078,7 +1075,7 @@ class S5SequenceSQL {
           tooLateBlocks = false;
           continue;
         }
-        if( allSize + size >= doubleMaxSize && allUnionableCount < 2 ) {
+        if( allSize + size >= aFragmentCountMax && allUnionableCount < 2 ) {
           // Невозможно объединить два соседних блока
           fragmentStartTime = startTime;
           fragmentEndTime = endTime;
@@ -1091,7 +1088,7 @@ class S5SequenceSQL {
         fragmentEndTime = endTime;
         allSize += size;
         allUnionableCount++;
-        if( allSize >= aMaxSize ) {
+        if( allSize >= aFragmentCountMax ) {
           // Найдено необходимое количество блоков
           break;
         }
@@ -1113,7 +1110,7 @@ class S5SequenceSQL {
       }
       // Признак того, что количество блоков годных для объединения слишком большое
       boolean tooManyBlocks = (aFragmentCountMin > 0 && allUnionableCount > aFragmentCountMin);
-      if( !tooLateBlocks && !tooManyBlocks && allSize < aMaxSize ) {
+      if( !tooLateBlocks && !tooManyBlocks && allSize < aFragmentCountMin ) {
         // Недостаточно значений для объединения
         return new S5SequenceFragmentInfo( tableName, aGwid, fragmentStartTime, fragmentStartTime, -1,
             allSize + allAfterSize );

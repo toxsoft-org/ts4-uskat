@@ -257,7 +257,7 @@ class S5SequenceLazyWriter<S extends IS5Sequence<V>, V extends ITemporal<?>>
           unionCandidateFragments.put( gwid, fragmentInfo );
           unionCandidates.putTail( gwid );
         }
-        fragmentInfo.setFragmentCount( fragmentInfo.fragmentCount() + 1 );
+        fragmentInfo.setFragmentCount( fragmentInfo.fragmentCount() + S5SequenceUtils.getValuesCount( sequence ) );
         fragmentInfo.setInterval( fragmentInfo.interval().startTime(), currTime );
       }
     }
@@ -500,15 +500,17 @@ class S5SequenceLazyWriter<S extends IS5Sequence<V>, V extends ITemporal<?>>
         // Нет данных для дефрагментации
         break;
       }
-      boolean d = gwid.asString().equals( "s5.Node[hermes.pc]$rtdata(s5.node.statistic.PasSend.min)" );
-      if( !d ) {
+
+//      boolean d = gwid.asString().equals( "s5.Node[hermes.pc]$rtdata(s5.node.statistic.PasSend.min)" );
+//      if( !d ) {
 //        unionCandidates.getHeadOrNull();
 //        unionCandidateFragments.removeByKey( gwid );
 //        continue;
-      }
-      if( d ) {
-        System.out.println();
-      }
+//      }
+//      if( d ) {
+//        System.out.println();
+//      }
+
       // Параметризованное описание типа данного
       IParameterized typeInfo = factory.typeInfo( gwid );
       // Минимальное количество блоков для принудительного объединения
@@ -536,8 +538,10 @@ class S5SequenceLazyWriter<S extends IS5Sequence<V>, V extends ITemporal<?>>
         //int maxSize = OP_BLOCK_SIZE_MAX.getValue( typeInfo.params() ).asInt();
         // Фактическая дефрагментация данного полученная чтением из базы данных
         // Внимание! Несмотря на легковесность SQL-запроса, при интенсивной работе с dbms может вызвать задержку
-        realAllFragments = findFragmentationTime( aEntityManager, factory, gwid, fragmentEndTime, defragmentCount,
-            defragmentCount, defragmentCount, fragmentTimeout );
+        int fragmentMin = defragmentCount;
+        int fragmentMax = 10 * defragmentCount;
+        realAllFragments = findFragmentationTime( aEntityManager, factory, gwid, fragmentEndTime,
+            fragmentMin, fragmentMax, fragmentTimeout );
         // 2023-11-08 mvk ---+++
         lockWrite( unionLock );
         try {
