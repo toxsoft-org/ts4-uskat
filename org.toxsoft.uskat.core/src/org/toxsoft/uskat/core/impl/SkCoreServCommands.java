@@ -163,7 +163,17 @@ public class SkCoreServCommands
       }
     }
     else {
-      logger().warning( FMT_LOG_WARN_UNHANDLED_CMD, aCommand.toString() );
+      // 2023-11-11 mvk +++ TODO: оценить решение о такой обработке неизвестной команды
+      String cause = String.format( FMT_LOG_WARN_UNHANDLED_CMD, aCommand.toString() );
+      // Журнал
+      logger().warning( cause );
+      // Передача ошибки через бекенд
+      IOptionSetEdit params = new OptionSet();
+      SkCommandState.OP_REASON.setValue( params, cause != null ? AvUtils.avStr( cause ) : IAtomicValue.NULL );
+      SkCommandState state = new SkCommandState( System.currentTimeMillis(), ESkCommandState.UNHANDLED, params );
+      // Нельзя использовать changeCommandState(...) он открыт для клиента и запрещает состояние UNHANDLED
+      // changeCommandState( new DtoCommandStateChangeInfo( aCommand.instanceId(), state ) );
+      ba().baCommands().changeCommandState( new DtoCommandStateChangeInfo( aCommand.instanceId(), state ) );
     }
   }
 
