@@ -38,7 +38,7 @@ import org.toxsoft.uskat.core.utils.*;
  * @author hazard157
  */
 public abstract class AbstractSkLazyPanel
-    extends AbstractLazyPanel<Composite>
+    extends AbstractLazyPanel<Control>
     implements ISkConnected {
 
   /**
@@ -188,7 +188,7 @@ public abstract class AbstractSkLazyPanel
     if( newConn != null ) {
       newConn.addConnectionListener( connectionListener );
       if( newConn.state().isOpen() ) {
-        doInitGui( getControl() );
+        doInitGui( getBackplane() );
       }
     }
   }
@@ -205,7 +205,7 @@ public abstract class AbstractSkLazyPanel
     boolean nowOpen = skConn().state().isOpen();
     if( wasOpen != nowOpen ) {
       if( nowOpen ) {
-        doInitGui( getControl() );
+        doInitGui( getBackplane() );
       }
       else {
         disposeBoardContent();
@@ -218,17 +218,17 @@ public abstract class AbstractSkLazyPanel
       return;
     }
     // dispose all childs of this panel
-    getControl().setLayoutDeferred( true );
+    getBackplane().setLayoutDeferred( true );
     try {
       doDisposeGui();
-      Control[] childs = getControl().getChildren();
+      Control[] childs = getBackplane().getChildren();
       for( Control c : childs ) {
         c.dispose();
       }
     }
     finally {
-      getControl().setLayoutDeferred( false );
-      getControl().getParent().layout( true, true );
+      getBackplane().setLayoutDeferred( false );
+      getBackplane().getParent().layout( true, true );
     }
   }
 
@@ -267,10 +267,21 @@ public abstract class AbstractSkLazyPanel
   //
 
   /**
+   * Returns the backplane - permanent {@link Composite} used as lazy panel implementation.
+   * <p>
+   * Returns the same reference as {@link #getControl()}, but casted to the {@link Composite}.
+   *
+   * @return {@link Composite} - the backplane, lazy control implementing SWT control
+   */
+  public Composite getBackplane() {
+    return Composite.class.cast( getControl() );
+  }
+
+  /**
    * Determines if panel content exists.
    * <p>
    * Note: {@link #getControl()} after calling {@link #createControl(Composite)} always returns non-<code>null</code>
-   * reference ro the permanent backplane. That's why this method determines if user created content exists on
+   * reference to the permanent backplane. That's why this method determines if user created content exists on
    * backplane.
    *
    * @return boolean - <code>true</code> if user-created content exists (is not disposed)
@@ -279,7 +290,7 @@ public abstract class AbstractSkLazyPanel
     if( getControl() == null ) {
       return false;
     }
-    return getControl().getChildren().length > 0;
+    return getBackplane().getChildren().length > 0;
   }
 
   // ------------------------------------------------------------------------------------

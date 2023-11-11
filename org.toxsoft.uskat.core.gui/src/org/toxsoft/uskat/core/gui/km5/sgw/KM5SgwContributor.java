@@ -26,8 +26,10 @@ public class KM5SgwContributor
       MID_SGW_SK_OBJECT, //
       MID_SGW_CLASS_INFO, //
       MID_SGW_RTDATA_INFO, //
+      MID_SGW_RIVET_INFO, //
       MID_SGW_CMD_INFO, //
       MID_SGW_EVENT_INFO, //
+      MID_SGW_CLOB_INFO, //
       MID_SGW_ATTR_INFO //
   );
 
@@ -47,8 +49,10 @@ public class KM5SgwContributor
     m5().addModel( new SgwSkObject( skConn() ) );
     m5().addModel( new SgwSkClassInfoM5Model( skConn() ) );
     m5().addModel( new SgwDtoRtdataInfoM5Model( skConn() ) );
+    m5().addModel( new SgwDtoRivetInfoM5Model( skConn() ) );
     m5().addModel( new SgwDtoCmdInfoM5Model( skConn() ) );
     m5().addModel( new SgwDtoEventInfoM5Model( skConn() ) );
+    m5().addModel( new SgwDtoClobInfoM5Model( skConn() ) );
     m5().addModel( new SgwDtoAttrInfoM5Model( skConn() ) );
     return CONRTIBUTED_MODEL_IDS;
   }
