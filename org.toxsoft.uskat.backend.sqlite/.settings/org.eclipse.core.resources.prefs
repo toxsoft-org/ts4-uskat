@@ -1,3 +1,13 @@
 eclipse.preferences.version=1
-encoding//src/org/toxsoft/uskat/backend/sqlite/l10n/messages_ka_GE.properties=UTF-8
-encoding//src/org/toxsoft/uskat/backend/sqlite/l10n/messages_ru_RU.properties=UTF-8
+encoding//src/org/toxsoft/uskat/core/api/cmdserv/messages_ka_GE.properties=UTF-8
+encoding//src/org/toxsoft/uskat/core/api/cmdserv/messages_ru_RU.properties=UTF-8
+encoding//src/org/toxsoft/uskat/core/api/sysdescr/messages_ka_GE.properties=UTF-8
+encoding//src/org/toxsoft/uskat/core/api/sysdescr/messages_ru_RU.properties=UTF-8
+encoding//src/org/toxsoft/uskat/core/api/users/messages.properties=UTF-8
+encoding//src/org/toxsoft/uskat/core/api/users/messages_ka_GE.properties=UTF-8
+encoding//src/org/toxsoft/uskat/core/api/users/messages_ru_RU.properties=UTF-8
+encoding//src/org/toxsoft/uskat/core/backend/metainf/messages_ka_GE.properties=UTF-8
+encoding//src/org/toxsoft/uskat/core/backend/metainf/messages_ru_RU.properties=UTF-8
+encoding//src/org/toxsoft/uskat/core/connection/messages.properties=UTF-8
+encoding//src/org/toxsoft/uskat/core/connection/messages_ka_GE.properties=UTF-8
+encoding//src/org/toxsoft/uskat/core/connection/messages_ru_RU.properties=UTF-8
