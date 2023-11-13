@@ -106,8 +106,8 @@ public class SdedObjectEditor
     objEditPane.setEditable( false );
 
     // оборачиваем в специальный контейнер
-    AbstractInplaceContentPanel contentPanel = new InplaceM5EntityPanelWrapper<>( ctxObj, objEditPane );
-    IInplaceEditorPanel inplaceEditor = new InplaceContainerPanel( tsContext(), contentPanel );
+    AbstractContentPanel contentPanel = new InplaceContentM5EntityPanelWrapper<>( ctxObj, objEditPane );
+    IInplaceEditorPanel inplaceEditor = new InplaceEditorContainerPanel( tsContext(), contentPanel );
     Control iec = inplaceEditor.createControl( tabFolder );
 
     CTabItem tabItem = new CTabItem( tabFolder, SWT.CLOSE );
