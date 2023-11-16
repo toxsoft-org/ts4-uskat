@@ -96,8 +96,10 @@ interface IS5Resources {
   String MSG_PARTITION_AUTHOR_SCHEDULE = "Плановое обработка разделов таблиц по календарю"; //$NON-NLS-1$
 
   String MSG_PARTITION_PLAN_CREATE = "%s. %s.%s. Планирование создания разделов таблиц в автоматическом режиме: %s";                                                                //$NON-NLS-1$
-  String MSG_PARTITION_PLAN_ADD    = "%s. %s.%s. Планирование добавления разделов таблиц в автоматическом режиме: %s";                                                              //$NON-NLS-1$
-  String MSG_PARTITION_PLAN_REMOVE = "%s. %s.%s. Планирование удаления разделов таблиц в автоматическом режиме: %s";                                                                //$NON-NLS-1$
+  String MSG_PARTITION_PLAN_ADD    =
+      "%s. %s.%s. depth = %d суток. Планирование добавления разделов таблиц в автоматическом режиме: %s";                                                                           //$NON-NLS-1$
+  String MSG_PARTITION_PLAN_REMOVE =
+      "%s. %s.%s. depth = %d суток. Планирование удаления разделов таблиц в автоматическом режиме: %s";                                                                             //$NON-NLS-1$
   String ERR_DB_SCHEME_NOT_DEFINED =
       "OP_BACKEND_DB_SCHEME_NAME is not defined. Set the parameter value in the server class implementation (S5InitialImplementation) in the doProjectSpecificParams(...) method."; //$NON-NLS-1$
 
