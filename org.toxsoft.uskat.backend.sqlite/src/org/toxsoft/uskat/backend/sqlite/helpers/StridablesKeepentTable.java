@@ -108,8 +108,7 @@ public class StridablesKeepentTable<T extends IStridable> {
    * Creates table (if not exists) to store the pair STRID - KEEPER created text.
    */
   public void createTable() {
-    String sql = "CREATE TABLE IF NOT EXISTS " + tableName + //$NON-NLS-1$
-        " (\n" //$NON-NLS-1$
+    String sql = "CREATE TABLE IF NOT EXISTS '" + tableName + "' (\n" //$NON-NLS-1$ //$NON-NLS-2$
         + "    Id string PRIMARY KEY,\n" //$NON-NLS-1$
         + "    KeepEnt text NOT NULL\n" //$NON-NLS-1$
         + ");"; //$NON-NLS-1$
@@ -123,7 +122,7 @@ public class StridablesKeepentTable<T extends IStridable> {
    * @return &lt;T&gt; - found entity or <code>null</code>
    */
   public T find( String aId ) {
-    String sql = "SELECT KeepEnt FROM " + tableName + " WHERE Id = '" + aId + "';"; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+    String sql = "SELECT KeepEnt FROM '" + tableName + "' WHERE Id = '" + aId + "';"; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
     try( ResultSet rs = execQuery( sql ) ) {
       if( rs.next() ) {
         String keepent = cseStr( rs.getString( "KeepEnt" ) ); //$NON-NLS-1$
@@ -143,7 +142,7 @@ public class StridablesKeepentTable<T extends IStridable> {
    * @return {@link IStridablesList}&lt;T&gt; - read entities
    */
   public IStridablesList<T> readTable() {
-    String sql = "SELECT * FROM " + tableName + ";"; //$NON-NLS-1$//$NON-NLS-2$
+    String sql = "SELECT * FROM '" + tableName + "';"; //$NON-NLS-1$//$NON-NLS-2$
     try( ResultSet rs = execQuery( sql ) ) {
       IStridablesListEdit<T> ll = new StridablesList<>();
       while( rs.next() ) {
@@ -167,9 +166,9 @@ public class StridablesKeepentTable<T extends IStridable> {
    * @return {@link IStridablesList}&lt;T&gt; - read entities
    */
   public IStridablesList<T> readByIds( IStringList aIds ) {
-    StringBuilder sb = new StringBuilder( "SELECT KeepEnt FROM " ); //$NON-NLS-1$
+    StringBuilder sb = new StringBuilder( "SELECT KeepEnt FROM '" ); //$NON-NLS-1$
     sb.append( tableName );
-    sb.append( " WHERE id IN ( " ); //$NON-NLS-1$
+    sb.append( "' WHERE id IN ( " ); //$NON-NLS-1$
     for( String id : aIds ) {
       sb.append( "'" ); //$NON-NLS-1$
       sb.append( id );
@@ -195,6 +194,31 @@ public class StridablesKeepentTable<T extends IStridable> {
   }
 
   /**
+   * Removes one row from the table.
+   *
+   * @param aId String - an ID of the entity to remove
+   */
+  public void removeRow( String aId ) {
+    execSql( "DELETE FROM '" + tableName + "' WHERE Id = '" + aId + "';" ); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+  }
+
+  /**
+   * Whites (INSERT or REPLACE) single entity to the table.
+   *
+   * @param aEntity &lt;T&gt; - the entity to write
+   * @return boolean - determines whether the entity was created rather than edited<br>
+   *         <b>true</b> - the entity did not exist and it was created;<br>
+   *         <b>false</b> - existing entity was updated.
+   */
+  public boolean insertOrUpdateRow( T aEntity ) {
+    boolean wasCreated = find( aEntity.id() ) != null;
+    String keepent = escStr( keeper.ent2str( aEntity ) );
+    execSql( "INSERT OR REPLACE INTO '" + tableName + //$NON-NLS-1$
+        "' (Id,KeepEnt) VALUES ('" + aEntity.id() + "','" + keepent + "');" ); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+    return wasCreated;
+  }
+
+  /**
    * Writes to the table.
    * <p>
    * Warning: if argument <code>aToRemove</code> is <code>null</code>, table will be cleared and then new data inserted!
@@ -206,7 +230,7 @@ public class StridablesKeepentTable<T extends IStridable> {
     TsNullArgumentRtException.checkNull( aToDefine );
     // remove
     if( aToRemove == null ) {
-      execSql( "DELETE FROM " + tableName + ";" ); //$NON-NLS-1$ //$NON-NLS-2$
+      execSql( "DELETE FROM '" + tableName + "';" ); //$NON-NLS-1$ //$NON-NLS-2$
     }
     else {
       if( !aToRemove.isEmpty() ) {
@@ -231,9 +255,9 @@ public class StridablesKeepentTable<T extends IStridable> {
     if( aToDefine.isEmpty() ) {
       return;
     }
-    StringBuilder sb = new StringBuilder( "INSERT OR REPLACE INTO " ); //$NON-NLS-1$
+    StringBuilder sb = new StringBuilder( "INSERT OR REPLACE INTO '" ); //$NON-NLS-1$
     sb.append( tableName );
-    sb.append( " (Id,KeepEnt) VALUES " ); //$NON-NLS-1$
+    sb.append( "' (Id,KeepEnt) VALUES " ); //$NON-NLS-1$
     for( int i = 0, count = aToDefine.size(); i < count; i++ ) {
       sb.append( "('" ); //$NON-NLS-1$
       T entity = aToDefine.get( i );
@@ -256,7 +280,7 @@ public class StridablesKeepentTable<T extends IStridable> {
    * Deletes all records from the specified table.
    */
   public void clearTable() {
-    execSql( "DELETE FROM " + tableName + ";" ); //$NON-NLS-1$//$NON-NLS-2$
+    execSql( "DELETE FROM '" + tableName + "';" ); //$NON-NLS-1$//$NON-NLS-2$
   }
 
 }
