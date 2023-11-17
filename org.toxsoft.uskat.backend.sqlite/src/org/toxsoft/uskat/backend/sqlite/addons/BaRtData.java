@@ -9,7 +9,7 @@ import org.toxsoft.uskat.core.backend.*;
 import org.toxsoft.uskat.core.backend.api.*;
 
 /**
- * {@link IBaRtData} implementation for {@link SkBackendSqlite}.
+ * {@link IBaRtdata} implementation for {@link SkBackendSqlite}.
  *
  * @author hazard157
  */

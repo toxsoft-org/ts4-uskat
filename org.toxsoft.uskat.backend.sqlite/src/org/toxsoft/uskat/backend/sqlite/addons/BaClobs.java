@@ -4,8 +4,8 @@ import java.sql.*;
 
 import org.toxsoft.core.tslib.bricks.events.msg.*;
 import org.toxsoft.core.tslib.gw.gwid.*;
-import org.toxsoft.core.tslib.utils.errors.*;
 import org.toxsoft.uskat.backend.sqlite.*;
+import org.toxsoft.uskat.backend.sqlite.helpers.*;
 import org.toxsoft.uskat.core.backend.*;
 import org.toxsoft.uskat.core.backend.api.*;
 
@@ -26,11 +26,11 @@ public class BaClobs
 
   /**
    * TODO remove records for the removed Sk-Objects
-   * <p>
-   * FIXME generate events
    */
 
   private static final String CLOBS_TABLE = "SkClobs"; //$NON-NLS-1$
+
+  private IdClobTable table = null;
 
   /**
    * Constructor.
@@ -45,14 +45,28 @@ public class BaClobs
   // AbstractAddon
   //
 
+  @SuppressWarnings( "resource" )
   @Override
   protected void doInit() {
-    // create table if not exists
-    String sql = "CREATE TABLE IF NOT EXISTS " + CLOBS_TABLE + " (\n" //$NON-NLS-1$ //$NON-NLS-2$
-        + "    ClobGwid string PRIMARY KEY,\n" //$NON-NLS-1$
-        + "    ClobString text NOT NULL\n" //$NON-NLS-1$
-        + ");"; //$NON-NLS-1$
-    execSql( sql );
+    DatabaseMetaData md;
+    try {
+      md = sqlConn().getMetaData();
+    }
+    catch( SQLException ex ) {
+      throw new SkSqlRtException( ex );
+    }
+    try( ResultSet rs = md.getTables( null, null, CLOBS_TABLE, null ) ) {
+      while( rs.next() ) {
+        table = new IdClobTable( CLOBS_TABLE, stmt() );
+      }
+    }
+    catch( SQLException ex1 ) {
+      throw new SkSqlRtException( ex1 );
+    }
+    if( table == null ) {
+      table = new IdClobTable( CLOBS_TABLE, stmt() );
+      table.createTable();
+    }
   }
 
   @Override
@@ -62,7 +76,7 @@ public class BaClobs
 
   @Override
   public void clear() {
-    execSql( "DELETE FROM " + CLOBS_TABLE + ";" ); //$NON-NLS-1$//$NON-NLS-2$
+    table.clearTable();
   }
 
   // ------------------------------------------------------------------------------------
@@ -87,34 +101,13 @@ public class BaClobs
 
   @Override
   public String readClob( Gwid aGwid ) {
-    String sql = "SELECT ClobString FROM " + CLOBS_TABLE //$NON-NLS-1$
-        + " WHERE ClobGwid = '" + aGwid.asString() //$NON-NLS-1$
-        + "';"; //$NON-NLS-1$
-    try( ResultSet rs = execQuery( sql ) ) {
-      while( rs.next() ) {
-        return cseStr( rs.getString( 1 ) );
-      }
-      return null;
-    }
-    catch( SQLException ex ) {
-      throw new SkSqlRtException( ex );
-    }
+    return table.find( aGwid.asString() );
   }
 
   @Override
   public void writeClob( Gwid aGwid, String aClob ) {
-    TsNullArgumentRtException.checkNull( aClob );
-    String gwidStr = aGwid.asString();
-    StringBuilder sb = new StringBuilder( "INSERT OR REPLACE INTO " ); //$NON-NLS-1$
-    sb.append( CLOBS_TABLE );
-    sb.append( " (ClobGwid,ClobString) VALUES ('" ); //$NON-NLS-1$
-    sb.append( gwidStr );
-    sb.append( "','" ); //$NON-NLS-1$
-    sb.append( escStr( aClob ) );
-    sb.append( "');" ); //$NON-NLS-1$
-    String sql = sb.toString();
-    execSql( sql );
-    GtMessage msg = IBaClobsMessages.makeMessage( aGwid );
+    table.writeTable( aClob, aClob );
+    GtMessage msg = BaMsgClobsChanged.BUILDER.makeMessage( aGwid );
     owner().frontend().onBackendMessage( msg );
   }
 

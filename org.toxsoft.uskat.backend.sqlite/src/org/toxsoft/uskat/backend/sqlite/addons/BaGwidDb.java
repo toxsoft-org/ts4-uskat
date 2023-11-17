@@ -2,8 +2,10 @@ package org.toxsoft.uskat.backend.sqlite.addons;
 
 import java.sql.*;
 
+import org.toxsoft.core.tslib.bricks.events.msg.*;
 import org.toxsoft.core.tslib.bricks.strid.more.*;
 import org.toxsoft.core.tslib.coll.*;
+import org.toxsoft.core.tslib.coll.helpers.*;
 import org.toxsoft.core.tslib.coll.impl.*;
 import org.toxsoft.core.tslib.coll.primtypes.*;
 import org.toxsoft.core.tslib.coll.primtypes.impl.*;
@@ -157,7 +159,11 @@ public class BaGwidDb
   @Override
   public void writeValue( IdChain aSectionId, Gwid aKey, String aValue ) {
     IdClobTable table = ensureTableForSection( aSectionId );
+    boolean wasRow = table.hasClob( aKey.asString() );
     table.writeTable( aKey.asString(), aValue );
+    ECrudOp op = wasRow ? ECrudOp.EDIT : ECrudOp.CREATE;
+    GtMessage msg = BaMsgGwidDbChanged.BUILDER.makeMessage( aSectionId, op, aKey );
+    owner().frontend().onBackendMessage( msg );
   }
 
   @Override
@@ -165,7 +171,12 @@ public class BaGwidDb
     String tableName = makeTableName( aSectionId );
     IdClobTable table = tablesByName.findByKey( tableName );
     if( table != null ) {
-      table.removeRow( aKey.asString() );
+      String key = aKey.asString();
+      if( table.hasClob( key ) ) {
+        table.removeRow( key );
+        GtMessage msg = BaMsgGwidDbChanged.BUILDER.makeMessage( aSectionId, ECrudOp.REMOVE, aKey );
+        owner().frontend().onBackendMessage( msg );
+      }
     }
   }
 
@@ -176,6 +187,8 @@ public class BaGwidDb
     if( table != null ) {
       table.dropTable();
       tablesByName.removeByKey( tableName );
+      GtMessage msg = BaMsgGwidDbChanged.BUILDER.makeMessage( aSectionId, ECrudOp.LIST, null );
+      owner().frontend().onBackendMessage( msg );
     }
   }
 

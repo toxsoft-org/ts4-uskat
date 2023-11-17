@@ -203,7 +203,7 @@ public class StridablesKeepentTable<T extends IStridable> {
   }
 
   /**
-   * Whites (INSERT or REPLACE) single entity to the table.
+   * Writes (INSERT or REPLACE) single entity to the table.
    *
    * @param aEntity &lt;T&gt; - the entity to write
    * @return boolean - determines whether the entity was created rather than edited<br>
@@ -211,7 +211,7 @@ public class StridablesKeepentTable<T extends IStridable> {
    *         <b>false</b> - existing entity was updated.
    */
   public boolean insertOrUpdateRow( T aEntity ) {
-    boolean wasCreated = find( aEntity.id() ) != null;
+    boolean wasCreated = find( aEntity.id() ) == null;
     String keepent = escStr( keeper.ent2str( aEntity ) );
     execSql( "INSERT OR REPLACE INTO '" + tableName + //$NON-NLS-1$
         "' (Id,KeepEnt) VALUES ('" + aEntity.id() + "','" + keepent + "');" ); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$

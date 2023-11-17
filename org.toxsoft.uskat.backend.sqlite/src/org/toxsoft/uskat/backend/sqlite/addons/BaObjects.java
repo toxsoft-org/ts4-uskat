@@ -177,7 +177,6 @@ public class BaObjects
     return ll;
   }
 
-  @SuppressWarnings( "resource" )
   @Override
   public void writeObjects( ISkidList aRemoveSkids, IList<IDtoObject> aUpdateObjects ) {
     // clear all tables if requested

@@ -18,12 +18,12 @@ public class BaMsgGwidDbChanged
     extends AbstractBackendMessageBuilder {
 
   /**
-   * ID of the message.
+   * The message ID.
    */
   public static final String MSG_ID = "DbChanged"; //$NON-NLS-1$
 
   /**
-   * Singletone instance.
+   * The builder singleton.
    */
   public static final BaMsgGwidDbChanged BUILDER = new BaMsgGwidDbChanged();
 
@@ -31,7 +31,7 @@ public class BaMsgGwidDbChanged
   private static final String ARGID_CRUD_OP    = "CrudOp";    //$NON-NLS-1$
   private static final String ARGID_KEY        = "Key";       //$NON-NLS-1$
 
-  BaMsgGwidDbChanged() {
+  private BaMsgGwidDbChanged() {
     super( ISkGwidDbService.SERVICE_ID, MSG_ID );
     defineArgValobj( ARGID_SECTION_ID, IdChain.KEEPER_ID, true );
     defineArgValobj( ARGID_CRUD_OP, ECrudOp.KEEPER_ID, true );

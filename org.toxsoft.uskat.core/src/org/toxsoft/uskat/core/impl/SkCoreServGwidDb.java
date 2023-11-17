@@ -1,7 +1,5 @@
 package org.toxsoft.uskat.core.impl;
 
-import static org.toxsoft.uskat.core.backend.api.BaMsgGwidDbChanged.*;
-
 import org.toxsoft.core.tslib.bricks.ctx.*;
 import org.toxsoft.core.tslib.bricks.events.*;
 import org.toxsoft.core.tslib.bricks.events.msg.*;
@@ -110,17 +108,16 @@ public class SkCoreServGwidDb
 
   @Override
   protected boolean onBackendMessage( GenericMessage aMessage ) {
-    switch( aMessage.messageId() ) {
-      case MSG_ID: {
+    return switch( aMessage.messageId() ) {
+      case BaMsgGwidDbChanged.MSG_ID -> {
         IdChain sectionId = BaMsgGwidDbChanged.BUILDER.getSectionId( aMessage );
         Gwid key = BaMsgGwidDbChanged.BUILDER.getKey( aMessage );
         ECrudOp op = BaMsgGwidDbChanged.BUILDER.getCrudOp( aMessage );
         eventer.fireGwidDbChangeEvent( sectionId, key, op );
-        return true;
+        yield true;
       }
-      default:
-        return false;
-    }
+      default -> false;
+    };
   }
 
   // ------------------------------------------------------------------------------------
