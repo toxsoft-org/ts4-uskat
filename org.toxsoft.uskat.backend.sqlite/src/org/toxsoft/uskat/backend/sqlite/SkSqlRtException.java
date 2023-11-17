@@ -16,27 +16,22 @@ public class SkSqlRtException
 
   /**
    * Constructor for wrapper exception.
-   * <p>
-   * Message string is created using {@link String#format(String, Object...)}.
    *
    * @param aCause Throwable - cause, may be <code>null</code>
-   * @param aMessageFormat String - message format string
-   * @param aMsgArgs Object[] - optional arguments for message string
+   * @param aSql String - SQL query causing exception
    */
-  public SkSqlRtException( Throwable aCause, String aMessageFormat, Object... aMsgArgs ) {
-    super( aCause, aMessageFormat, aMsgArgs );
+  public SkSqlRtException( Throwable aCause, String aSql ) {
+    super( aCause, aSql );
   }
 
   /**
    * Constructor.
    * <p>
-   * Message string is created using {@link String#format(String, Object...)}.
    *
-   * @param aMessageFormat String - message format string
-   * @param aMsgArgs Object[] - optional arguments for message string
+   * @param aSql String - SQL query causing exception
    */
-  public SkSqlRtException( String aMessageFormat, Object... aMsgArgs ) {
-    super( aMessageFormat, aMsgArgs );
+  public SkSqlRtException( String aSql ) {
+    super( aSql );
   }
 
   /**

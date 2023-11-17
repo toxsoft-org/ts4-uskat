@@ -35,7 +35,7 @@ public class StridablesKeepentTable<T extends IStridable> {
   /**
    * Constructor.
    * <p>
-   * Note: this class foes <b>not</b> holds the statement, so statement must be closed by the caller.
+   * Note: this class does <b>not</b> holds the statement, so statement must be closed by the caller.
    *
    * @param aTableName String - the table name
    * @param aStmt {@link Statement} - the SQL-statement to use
