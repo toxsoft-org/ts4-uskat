@@ -224,6 +224,21 @@ public class SkCoreServRtdata
         channel.setValue( newValues.getByKey( g ) );
       }
     }
+    // update curr data values (cache) out channels
+    for( Gwid g : newValues.keys() ) {
+      SkWriteCurrDataChannel channel = cdWriteChannelsMap.findByKey( g );
+      if( channel != null ) {
+
+        // TODO: 2023-11-19 mvkd
+        Gwid testGwid = Gwid.of( "AnalogInput[TP1]$rtdata(rtdPhysicalValue)" );
+        if( g.equals( testGwid ) ) {
+          logger().error( "update cache currdata: %s: newValue = %s, prevValue = %s", g, newValues.getByKey( g ),
+              channel.value );
+        }
+
+        channel.value = newValues.getByKey( g );
+      }
+    }
     // fire new data event
     eventer.fireCurrData( newValues );
     return true;
@@ -346,6 +361,7 @@ public class SkCoreServRtdata
       implements ISkWriteCurrDataChannel {
 
     private final EAtomicType atomicType;
+    private IAtomicValue      value = null;
 
     SkWriteCurrDataChannel( Gwid aGwid ) {
       super( aGwid );
@@ -370,8 +386,20 @@ public class SkCoreServRtdata
     public void setValue( IAtomicValue aValue ) {
       TsIllegalStateRtException.checkFalse( isOk() );
       TsNullArgumentRtException.checkNull( aValue );
+      if( value != null && value.equals( aValue ) ) {
+        return;
+      }
+
+      // TODO: 2023-11-19 mvkd
+      Gwid testGwid = Gwid.of( "AnalogInput[TP1]$rtdata(rtdPhysicalValue)" );
+      if( gwid().equals( testGwid ) ) {
+        logger().error( "send currdata: %s: aValue = %s, prevValue = %s", gwid(), aValue, value );
+      }
+
       AvTypeCastRtException.checkCanAssign( atomicType, aValue.atomicType() );
       ba().baRtdata().writeCurrData( gwid, aValue );
+      // write success. cache last value
+      value = aValue;
     }
 
   }
