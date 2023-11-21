@@ -47,7 +47,6 @@ import org.toxsoft.uskat.s5.common.sessions.ISkSession;
 import org.toxsoft.uskat.s5.legacy.ISkSystem;
 import org.toxsoft.uskat.s5.server.IS5ServerHardConstants;
 import org.toxsoft.uskat.s5.server.backend.IS5BackendCoreSingleton;
-import org.toxsoft.uskat.s5.server.backend.impl.S5AccessDeniedException;
 import org.toxsoft.uskat.s5.server.backend.supports.events.IS5BackendEventSingleton;
 import org.toxsoft.uskat.s5.server.backend.supports.links.IS5BackendLinksSingleton;
 import org.toxsoft.uskat.s5.server.backend.supports.objects.IS5BackendObjectsSingleton;
@@ -381,11 +380,13 @@ public class S5SessionManager
     TsNullArgumentRtException.checkNull( aSession );
     long currTime = System.currentTimeMillis();
 
+    // TODO: 2023-11-21 mvk: ts4, проверить необходимость этого
     // Контроль за частотой подключения к серверу
-    if( currTime - lastCreateSessionTimeout < CREATE_SESSION_TIMEOUT ) {
-      // Доступ запрещен - сервер перегружен
-      throw new S5AccessDeniedException( ERR_SERVER_OVERLOAD, Integer.valueOf( remoteOpenSessionCache.size() ) );
-    }
+    // if( currTime - lastCreateSessionTimeout < CREATE_SESSION_TIMEOUT ) {
+    // // Доступ запрещен - сервер перегружен
+    // throw new S5AccessDeniedException( ERR_SERVER_OVERLOAD, Integer.valueOf( remoteOpenSessionCache.size() ) );
+    // }
+
     lastCreateSessionTimeout = currTime;
 
     startCacheBatch( remoteOpenSessionCache );
