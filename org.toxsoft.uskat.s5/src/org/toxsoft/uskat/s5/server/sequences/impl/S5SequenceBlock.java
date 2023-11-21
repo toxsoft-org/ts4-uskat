@@ -75,8 +75,8 @@ public abstract class S5SequenceBlock<V extends ITemporal<?>, BLOB_ARRAY, BLOB e
   /**
    * Имя статического метода создания блока значений.
    * <p>
-   * TODO: ??? Метод имеет сигнатуру IS5SequenceBlockEdit&lt;V&gt;create( I aInfo, IList&ltV&gt; aValues ) и определяется
-   * в конечных наследниках
+   * TODO: ??? Метод имеет сигнатуру IS5SequenceBlockEdit&lt;V&gt;create( I aInfo, IList&ltV&gt; aValues ) и
+   * определяется в конечных наследниках
    */
   public static final String BLOCK_CREATE_METHOD = "create"; //$NON-NLS-1$
 
@@ -97,7 +97,7 @@ public abstract class S5SequenceBlock<V extends ITemporal<?>, BLOB_ARRAY, BLOB e
   private Long endTime;
 
   /**
-   * Количество элементов в блоке
+   * Количество элементов в блоке. < 0: если значения блока были объединены с другими блоками (дефрагментация)
    */
   @Column( name = FIELD_SIZE, //
       insertable = true,
@@ -286,7 +286,7 @@ public abstract class S5SequenceBlock<V extends ITemporal<?>, BLOB_ARRAY, BLOB e
 
   @Override
   public final int size() {
-    return size.intValue();
+    return Math.abs( size.intValue() );
   }
 
   @Override
@@ -451,9 +451,15 @@ public abstract class S5SequenceBlock<V extends ITemporal<?>, BLOB_ARRAY, BLOB e
   }
 
   @Override
-  public final int uniteBlocks( IS5SequenceFactory<V> aFactory, IList<IS5SequenceBlockEdit<V>> aBlocks, ILogger aLogger ) {
+  public final int uniteBlocks( IS5SequenceFactory<V> aFactory, IList<IS5SequenceBlockEdit<V>> aBlocks,
+      ILogger aLogger ) {
     TsNullArgumentRtException.checkNulls( aFactory, aBlocks, aLogger );
-    return doUniteBlocks( aFactory, aBlocks, aLogger );
+    int retValue = doUniteBlocks( aFactory, aBlocks, aLogger );
+    if( retValue > 0 ) {
+      // Установка признака того, что была проведена дефрагментация
+      size = Integer.valueOf( -size() );
+    }
+    return retValue;
   }
 
   @Override
@@ -476,7 +482,7 @@ public abstract class S5SequenceBlock<V extends ITemporal<?>, BLOB_ARRAY, BLOB e
     int result = TsLibUtils.INITIAL_HASH_CODE;
     result = TsLibUtils.PRIME * result + id.hashCode();
     result = TsLibUtils.PRIME * result + (int)(endTime.longValue() ^ (endTime.longValue() >>> 32));
-    result = TsLibUtils.PRIME * result + (int)(size.longValue() ^ (size.longValue() >>> 32));
+    result = TsLibUtils.PRIME * result + (size() ^ (size() >>> 32));
     return result;
   }
 
@@ -494,7 +500,7 @@ public abstract class S5SequenceBlock<V extends ITemporal<?>, BLOB_ARRAY, BLOB e
     if( endTime.longValue() != other.endTime() ) {
       return false;
     }
-    if( size.longValue() != other.size() ) {
+    if( size() != other.size() ) {
       return false;
     }
     return true;
@@ -697,7 +703,8 @@ public abstract class S5SequenceBlock<V extends ITemporal<?>, BLOB_ARRAY, BLOB e
     int newSize = Array.getLength( aValues );
     TsNullArgumentRtException.checkFalse( newSize > 0, ERR_WRONG_SIZE );
     _blob.setValues( aValues );
-    size = Integer.valueOf( newSize ); // выставляем size, чтобы избежать ошибки "cannot be null"
+    // выставляем size, чтобы избежать ошибки "cannot be null"
+    size = Integer.valueOf( size == null || size.intValue() > 0 ? newSize : -newSize );
     endTime = Long.valueOf( timestamp( newSize - 1 ) );
     // TODO: mvkd: только для отладки
     debugStartTime = new Timestamp( startTime() );

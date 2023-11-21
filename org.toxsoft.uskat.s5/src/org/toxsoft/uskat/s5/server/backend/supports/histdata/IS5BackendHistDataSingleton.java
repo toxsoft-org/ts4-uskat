@@ -22,7 +22,9 @@ public interface IS5BackendHistDataSingleton
     extends IS5BackendSequenceSupportSingleton<IS5HistDataSequence, ITemporalAtomicValue> {
 
   /**
-   * Записывает значения хранимых данных
+   * Асинхронная запись значений хранимых данных
+   * <p>
+   * Управление возвращается немедленно, без ожидания записи данных в базу данных.
    * <p>
    * Внимание: большое значение имеет интервал времени за который записываются значения: aValues.left() -
    * {@link ITimeInterval} . Метод предполагает, что в аргументе за заданный интервал содержатся <b>все</b> значения.
@@ -36,7 +38,26 @@ public interface IS5BackendHistDataSingleton
    *          - значения
    * @throws TsNullArgumentRtException любой аргумент = null
    */
-  void writeValues( IMap<Gwid, Pair<ITimeInterval, ITimedList<ITemporalAtomicValue>>> aValues );
+  void asyncWriteValues( IMap<Gwid, Pair<ITimeInterval, ITimedList<ITemporalAtomicValue>>> aValues );
+
+  /**
+   * Синхронная запись значений хранимых данных.
+   * <p>
+   * Управление возвращается после записи значений в базу данных или при возникновении ошибки записи.
+   * <p>
+   * Внимание: большое значение имеет интервал времени за который записываются значения: aValues.left() -
+   * {@link ITimeInterval} . Метод предполагает, что в аргументе за заданный интервал содержатся <b>все</b> значения.
+   * Например, если интервал сутки, а список пустой, это означает что за заданный интервал значение не менялось.
+   * <p>
+   * Идентификатором данного может быть только конкретный (с идентификатором объекта) {@link Gwid}-ы имеющий вид
+   * {@link EGwidKind#GW_RTDATA}. Все другие идентификаторы молча игнорируются.
+   *
+   * @param aValues
+   *          {@link IMap}&lt;{@link Gwid},{@link Pair}&lt;{@link ITimeInterval},{@link ITimedList}&lt;{@link ITemporalAtomicValue}&gt;&gt;&gt;
+   *          - значения
+   * @throws TsNullArgumentRtException любой аргумент = null
+   */
+  void syncWriteValues( IMap<Gwid, Pair<ITimeInterval, ITimedList<ITemporalAtomicValue>>> aValues );
 
   /**
    * Возвращает историю значений по указанному данном за указанный период времени

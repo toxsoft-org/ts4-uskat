@@ -8,7 +8,6 @@ import static org.toxsoft.uskat.s5.server.sequences.IS5SequenceHardConstants.*;
 import static org.toxsoft.uskat.s5.server.sequences.impl.IS5Resources.*;
 import static org.toxsoft.uskat.s5.server.sequences.impl.S5SequenceSQL.*;
 import static org.toxsoft.uskat.s5.server.sequences.impl.S5SequenceUtils.*;
-import static org.toxsoft.uskat.s5.server.sequences.maintenance.S5Partition.*;
 import static org.toxsoft.uskat.s5.server.transactions.ES5TransactionResources.*;
 import static org.toxsoft.uskat.s5.utils.threads.impl.S5Lockable.*;
 
@@ -202,10 +201,11 @@ public abstract class S5AbstractSequenceWriter<S extends IS5Sequence<V>, V exten
    */
   private final S5Lockable partitionWorkingLock = new S5Lockable();
 
+  private volatile String partitionWorkingLockOwner = "???"; //$NON-NLS-1$
   /**
    * Журнал
    */
-  private final ILogger logger;
+  private final ILogger   logger;
 
   static {
     // Запрет записей последовательностей в базу
@@ -482,33 +482,6 @@ public abstract class S5AbstractSequenceWriter<S extends IS5Sequence<V>, V exten
   }
 
   /**
-   * Формирует список описания для удаления разделов из таблицы
-   *
-   * @param aEntityManager {@link EntityManager} менеджер постоянства
-   * @param aScheme String схема базы данных сервера
-   * @param aTableName String таблица базы данных
-   * @param aInterval {@link ITimeInterval} интервал в который должны полностью попадать удаляемые разделы
-   * @return {@link IList};&lt;{@link S5Partition}&gt; разделы для удаления
-   * @throws TsNullArgumentRtException любой аргумент = null
-   */
-  protected final IList<S5Partition> findRemovePartitions( EntityManager aEntityManager, String aScheme,
-      String aTableName, ITimeInterval aInterval ) {
-    TsNullArgumentRtException.checkNulls( aEntityManager, aScheme, aTableName, aInterval );
-    IList<S5Partition> partitionInfos = partitionsByTable.getByKey( aTableName );
-    IListEdit<S5Partition> retValue = IList.EMPTY;
-    // Формирование списка удаляемых разделов
-    for( S5Partition partitionInfo : partitionInfos ) {
-      if( TimeUtils.contains( aInterval, partitionInfo.interval() ) ) {
-        if( retValue == IList.EMPTY ) {
-          retValue = new ElemLinkedList<>();
-        }
-        retValue.add( partitionInfo );
-      }
-    }
-    return retValue;
-  }
-
-  /**
    * Сохраняет блоки в dbms
    *
    * @param aEntityManager {@link EntityManager} менеджер постоянства
@@ -723,21 +696,10 @@ public abstract class S5AbstractSequenceWriter<S extends IS5Sequence<V>, V exten
     // Текущее время сервера
     long currTime = System.currentTimeMillis();
 
-    for( S5Partition partition : aPartitionOp.createPartitions() ) {
-      try {
-        aLogger.info( MSG_ADD_PARTITION, ownerName(), scheme, tableName, partition );
-        S5SequenceSQL.addPartition( aEntityManager, scheme, tableName, partition, true );
-        retValue.addAdded( 1 );
-      }
-      catch( Throwable e ) {
-        retValue.addErrors( 1 );
-        aLogger.error( e, ERR_ADD_PARTITION, ownerName(), scheme, tableName, partition, cause( e ) );
-      }
-    }
     for( S5Partition partition : aPartitionOp.addPartitions() ) {
       try {
         aLogger.info( MSG_ADD_PARTITION, ownerName(), scheme, tableName, partition );
-        S5SequenceSQL.addPartition( aEntityManager, scheme, tableName, partition, false );
+        S5SequenceSQL.addPartition( aEntityManager, scheme, tableName, partition );
         retValue.addAdded( 1 );
       }
       catch( Throwable e ) {
@@ -759,7 +721,7 @@ public abstract class S5AbstractSequenceWriter<S extends IS5Sequence<V>, V exten
         retValue.addRemovedPartitions( 1 );
         int removedBlocks = dropPartition( aEntityManager, scheme, tableName, partitionName );
         if( removedBlocks > 0 ) {
-          aLogger.info( "%s. dropPartition(...). removedBlocks = %d", ownerName(), removedBlocks ); //$NON-NLS-1$
+          aLogger.info( "%s. dropPartition(...). removedBlocks = %d", ownerName(), Integer.valueOf( removedBlocks ) ); //$NON-NLS-1$
         }
         retValue.addRemovedBlocks( removedBlocks );
       }
@@ -778,7 +740,6 @@ public abstract class S5AbstractSequenceWriter<S extends IS5Sequence<V>, V exten
         tablePartitions = new TimedList<>();
         partitionsByTable.put( tableName, tablePartitions );
       }
-      tablePartitions.addAll( aPartitionOp.createPartitions() );
       tablePartitions.addAll( aPartitionOp.addPartitions() );
       for( S5Partition partitionInfo : aPartitionOp.removePartitions() ) {
         tablePartitions.remove( partitionInfo );
@@ -1131,50 +1092,63 @@ public abstract class S5AbstractSequenceWriter<S extends IS5Sequence<V>, V exten
     TsNullArgumentRtException.checkNulls( aArgs );
     // Время запуска операции
     long traceStartTime = System.currentTimeMillis();
+    // Журнал для операций над разделами
+    ILogger uniterLogger = LoggerWrapper.getLogger( LOG_UNITER_ID );
+    // Запрещено одновременно выполнять обработку разделов и дефрагментацию
+    if( !tryLockWrite( partitionWorkingLock, 10 ) ) {
+      // Запрет выполнения дерфагментации. Выполняется обработка разделов
+      uniterLogger.info( ERR_REJECT_HANDLE, ownerName(), STR_DO_DEFRAG, partitionWorkingLockOwner );
+      return new S5SequenceUnionStat<>();
+    }
+    partitionWorkingLockOwner = STR_DO_DEFRAG;
     // Запуск операции
     S5SequenceUnionStat<V> retValue = doUnion( aArgs );
-    // Журнал
-    if( retValue.infoes().size() > 0 || retValue.queueSize() > 0 ) {
-      // Список описаний данных в запросе на дефрагментацию
-      IList<IS5SequenceFragmentInfo> fragmentInfoes = retValue.infoes();
-      // Вывод статистики
-      Long d = Long.valueOf( (System.currentTimeMillis() - traceStartTime) / 1000 );
-      Integer tc = Integer.valueOf( fragmentInfoes.size() );
-      String threaded = TsLibUtils.EMPTY_STRING;
-      if( fragmentInfoes.size() > 0 ) {
-        threaded = "[" + fragmentInfoes.get( 0 ).toString(); //$NON-NLS-1$
-        if( fragmentInfoes.size() > 1 ) {
-          threaded += ", ..."; //$NON-NLS-1$
+    try {
+      // Журнал
+      if( retValue.infoes().size() > 0 || retValue.queueSize() > 0 ) {
+        // Список описаний данных в запросе на дефрагментацию
+        IList<IS5SequenceFragmentInfo> fragmentInfoes = retValue.infoes();
+        // Вывод статистики
+        Long d = Long.valueOf( (System.currentTimeMillis() - traceStartTime) / 1000 );
+        Integer tc = Integer.valueOf( fragmentInfoes.size() );
+        String threaded = TsLibUtils.EMPTY_STRING;
+        if( fragmentInfoes.size() > 0 ) {
+          threaded = "[" + fragmentInfoes.get( 0 ).toString(); //$NON-NLS-1$
+          if( fragmentInfoes.size() > 1 ) {
+            threaded += ", ..."; //$NON-NLS-1$
+          }
+          threaded += "]"; //$NON-NLS-1$
         }
-        threaded += "]"; //$NON-NLS-1$
+        // Журнал
+        Integer lc = Integer.valueOf( retValue.lookupCount() );
+        Integer mc = Integer.valueOf( retValue.dbmsMergedCount() );
+        Integer rc = Integer.valueOf( retValue.dbmsRemovedCount() );
+        Integer vc = Integer.valueOf( retValue.valueCount() );
+        Integer ec = Integer.valueOf( retValue.errorCount() );
+        Integer qs = Integer.valueOf( retValue.queueSize() );
+        uniterLogger.info( MSG_UNION_TASK_FINISH, ownerName(), aAuthor, lc, tc, threaded, mc, rc, vc, ec, qs, d );
       }
-      // Журнал для операций над разделами
-      ILogger uniterLogger = LoggerWrapper.getLogger( LOG_UNITER_ID );
-      Integer lc = Integer.valueOf( retValue.lookupCount() );
-      Integer mc = Integer.valueOf( retValue.dbmsMergedCount() );
-      Integer rc = Integer.valueOf( retValue.dbmsRemovedCount() );
-      Integer vc = Integer.valueOf( retValue.valueCount() );
-      Integer ec = Integer.valueOf( retValue.errorCount() );
-      Integer qs = Integer.valueOf( retValue.queueSize() );
-      uniterLogger.info( MSG_UNION_TASK_FINISH, ownerName(), aAuthor, lc, tc, threaded, mc, rc, vc, ec, qs, d );
+      return retValue;
     }
-    return retValue;
+    finally {
+      unlockWrite( partitionWorkingLock );
+    }
   }
 
   @Override
   public synchronized final S5SequencePartitionStat<V> partition( String aAuthor, IOptionSet aArgs ) {
     // Попытка захвата блокировки для выполнения обработки
-    if( lastCheckPartitionDay < 0 || !tryLockWrite( partitionWorkingLock, 10 ) ) {
-      // Проводится инициализация S5SequenceWriter
-      ILogger partitionLogger = LoggerWrapper.getLogger( LOG_PARTITION_ID );
-      partitionLogger.warning( ERR_PARTITION_NOT_INIT, ownerName(), aAuthor );
-      return new S5SequencePartitionStat<>();
-    }
+    // if( lastCheckPartitionDay < 0 || !tryLockWrite( partitionWorkingLock, 10 ) ) {
+    // // Проводится инициализация S5SequenceWriter
+    // ILogger partitionLogger = LoggerWrapper.getLogger( LOG_PARTITION_ID );
+    // partitionLogger.warning( ERR_PARTITION_NOT_INIT, ownerName(), aAuthor );
+    // return new S5SequencePartitionStat<>();
+    // }
     try {
       return doPartition( aAuthor, aArgs );
     }
     finally {
-      unlockWrite( partitionWorkingLock );
+      // unlockWrite( partitionWorkingLock );
     }
   }
 
@@ -1208,9 +1182,10 @@ public abstract class S5AbstractSequenceWriter<S extends IS5Sequence<V>, V exten
     if( !tryLockWrite( partitionWorkingLock, 10 ) ) {
       // Журнал для операций над разделами
       ILogger partitionLogger = LoggerWrapper.getLogger( LOG_PARTITION_ID );
-      partitionLogger.info( ERR_PARTITION_HADNLE_ALREADY_STARTED, ownerName(), STR_DO_JOB );
+      partitionLogger.info( ERR_REJECT_HANDLE, ownerName(), STR_DO_JOB, partitionWorkingLockOwner );
       return;
     }
+    partitionWorkingLockOwner = STR_DO_JOB;
     try {
       if( lastCheckPartitionDay < 0 ) {
         // Состояние после перезапуска сервера. Принудительная проверка разделов всех таблиц в ускоренном порядке
@@ -1481,8 +1456,8 @@ public abstract class S5AbstractSequenceWriter<S extends IS5Sequence<V>, V exten
     // Текущий день года
     int dayOfYear = c.get( Calendar.DAY_OF_YEAR );
     // int dayOfYear = c.get( Calendar.MINUTE );
-    int hour = c.get( Calendar.HOUR_OF_DAY );
-    int minute = c.get( Calendar.MINUTE );
+    // int hour = c.get( Calendar.HOUR_OF_DAY );
+    // int minute = c.get( Calendar.MINUTE );
 
     // dayOfYear = 284;
     // logger().info( "%s. lastCheckPartitionDay = %d, dayOfYear = %d, hour = %d, min = %d, size() = %d", ownerName(),
@@ -1510,59 +1485,6 @@ public abstract class S5AbstractSequenceWriter<S extends IS5Sequence<V>, V exten
     }
   }
 
-  /**
-   * Подготовка разделов таблицы к работе
-   *
-   * @param aEntityManager {@link EntityManager} менеджер постоянства
-   * @param aScheme String схема базы данных с которой работает сервер
-   * @param aTable String имя таблицы
-   * @param aInterval {@link ITimeInterval} интервал значений сохраняемых в базу данны
-   * @param aDepth int глубина (сутки) хранения значений
-   * @param aCreatingPartitions {@link IListEdit} редактируемый список добавляемых разделов для таблиц без разделов
-   * @param aAddPartitions {@link IListEdit} редактируемый список добавляемых разделов для таблиц с разделами
-   */
-  private void prepareTablePartition( EntityManager aEntityManager, String aScheme, String aTable,
-      ITimeInterval aInterval, int aDepth, IListEdit<S5Partition> aCreatingPartitions,
-      IListEdit<S5Partition> aAddPartitions ) {
-    TsNullArgumentRtException.checkNulls( aEntityManager, aScheme, aTable, aInterval, aCreatingPartitions,
-        aAddPartitions );
-    ITimedListEdit<S5Partition> partitions = partitionsByTable.findByKey( aTable );
-    if( partitions == null ) {
-      partitions = new TimedList<>( readPartitions( aEntityManager, aScheme, aTable ) );
-      partitionsByTable.put( aTable, partitions );
-      StringBuilder sb = new StringBuilder();
-      for( S5Partition info : partitions ) {
-        sb.append( '\n' );
-        sb.append( info );
-      }
-      logger().info( "%s.%s: partitions: %s", aScheme, aTable, sb.toString() ); //$NON-NLS-1$
-    }
-    // Список описаний новых разделов которые необходимо сохранить в базе данных
-    IList<S5Partition> newPartitions = getNewPartitionsForInterval( partitions, aInterval, aDepth );
-    if( newPartitions.size() == 0 ) {
-      // Новые разделы не требуются
-      return;
-    }
-    // Признак необходимости добавления раздела в таблице без разделов
-    boolean creating = (partitions.size() == 0);
-    if( creating ) {
-      for( S5Partition partition : newPartitions ) {
-        if( aCreatingPartitions.hasElem( partition ) ) {
-          logger().warning( ERR_PARTITION_PLAN_CREATED_ALREADY, ownerName(), partition );
-        }
-        aCreatingPartitions.add( partition );
-      }
-      return;
-    }
-    // Добавление разделов в таблицы с уже существующими разделами (с обработкой дублей)
-    for( S5Partition partition : newPartitions ) {
-      if( aAddPartitions.hasElem( partition ) ) {
-        logger().warning( ERR_PARTITION_PLAN_ADDED_ALREADY, ownerName(), partition );
-      }
-      aAddPartitions.add( partition );
-    }
-  }
-
   private S5SequencePartitionStat<V> doPartition( String aAuthor, IOptionSet aArgs ) {
     TsNullArgumentRtException.checkNulls( aArgs );
     // Журнал для операций над разделами
@@ -1574,9 +1496,10 @@ public abstract class S5AbstractSequenceWriter<S extends IS5Sequence<V>, V exten
     // Попытка захвата блокировки для выполнения обработки
     if( !tryLockWrite( partitionWorkingLock, 10 ) ) {
       // Обработка таблиц уже выполняется
-      partitionLogger.warning( ERR_PARTITION_HADNLE_ALREADY_STARTED, ownerName(), STR_DO_PARTITION );
+      partitionLogger.warning( ERR_REJECT_HANDLE, ownerName(), STR_DO_PARTITION, partitionWorkingLockOwner );
       return statistics;
     }
+    partitionWorkingLockOwner = STR_DO_PARTITION;
     try {
       // Проверка и если требуется загрузка текущих разделов всех таблиц
       lockWrite( partitionsByTableLock );
@@ -1702,6 +1625,61 @@ public abstract class S5AbstractSequenceWriter<S extends IS5Sequence<V>, V exten
   }
 
   /**
+   * Проводит поиск разделов которые необходимо добавить в dbms
+   *
+   * @param aEntityManager {@link EntityManager} менеджер постоянства
+   * @param aScheme String схема базы данных с которой работает сервер
+   * @param aTable String имя таблицы
+   * @param aInterval {@link ITimeInterval} интервал значений сохраняемых в базу данны
+   * @param aDepth int глубина (сутки) хранения значений
+   * @return {@link IList}&lt; {@link S5Partition}&gt; список добавляемых разделов
+   */
+  private IList<S5Partition> findAddPartitions( EntityManager aEntityManager, String aScheme, String aTable,
+      ITimeInterval aInterval, int aDepth ) {
+    TsNullArgumentRtException.checkNulls( aEntityManager, aScheme, aTable, aInterval );
+    ITimedListEdit<S5Partition> partitions = partitionsByTable.findByKey( aTable );
+    if( partitions == null ) {
+      partitions = new TimedList<>( readPartitions( aEntityManager, aScheme, aTable ) );
+      partitionsByTable.put( aTable, partitions );
+      StringBuilder sb = new StringBuilder();
+      for( S5Partition info : partitions ) {
+        sb.append( '\n' );
+        sb.append( info );
+      }
+      logger().info( "%s.%s: partitions: %s", aScheme, aTable, sb.toString() ); //$NON-NLS-1$
+    }
+    // Список описаний новых разделов которые необходимо сохранить в базе данных
+    return S5Partition.getNewPartitionsForInterval( partitions, aInterval, aDepth );
+  }
+
+  /**
+   * Формирует список описания для удаления разделов из таблицы
+   *
+   * @param aEntityManager {@link EntityManager} менеджер постоянства
+   * @param aScheme String схема базы данных сервера
+   * @param aTableName String таблица базы данных
+   * @param aInterval {@link ITimeInterval} интервал в который должны полностью попадать удаляемые разделы
+   * @return {@link IList};&lt;{@link S5Partition}&gt; разделы для удаления
+   * @throws TsNullArgumentRtException любой аргумент = null
+   */
+  private IList<S5Partition> findRemovePartitions( EntityManager aEntityManager, String aScheme, String aTableName,
+      ITimeInterval aInterval ) {
+    TsNullArgumentRtException.checkNulls( aEntityManager, aScheme, aTableName, aInterval );
+    IList<S5Partition> partitionInfos = partitionsByTable.getByKey( aTableName );
+    IListEdit<S5Partition> retValue = IList.EMPTY;
+    // Формирование списка удаляемых разделов
+    for( S5Partition partitionInfo : partitionInfos ) {
+      if( TimeUtils.contains( aInterval, partitionInfo.interval() ) ) {
+        if( retValue == IList.EMPTY ) {
+          retValue = new ElemLinkedList<>();
+        }
+        retValue.add( partitionInfo );
+      }
+    }
+    return retValue;
+  }
+
+  /**
    * Возвращает общее заданий в очереди на проверку необходимости выполнения операций над разделами в авт.режиме
    *
    * @return int текущее количество заданий
@@ -1775,8 +1753,6 @@ public abstract class S5AbstractSequenceWriter<S extends IS5Sequence<V>, V exten
     TsNullArgumentRtException.checkNulls( aEntityManager, aArgs, aStatistics, aLogger );
     // Схема базы данных сервера
     String scheme = OP_BACKEND_DB_SCHEME_NAME.getValue( initialConfig().impl().params() ).asString();
-    // Глубина хранения значений
-    int depth = OP_DB_STORAGE_DEPTH.getValue( initialConfig().impl().params() ).asInt();
     // Максимальное количество потоков удаления
     int threadCount = IS5SequencePartitionOptions.AUTO_THREADS_COUNT.getValue( aArgs ).asInt();
     // Мощность поиска удаляемых данных
@@ -1787,8 +1763,6 @@ public abstract class S5AbstractSequenceWriter<S extends IS5Sequence<V>, V exten
     long msecInDay = 24 * 60 * 60 * 1000;
     // Интервал записи создаваемых разделов в таблицах (двойной, упреждение)
     ITimeInterval writeInterval = new TimeInterval( currTime, currTime + 2 * msecInDay );
-    // Интервал удаления
-    ITimeInterval removeInterval = new TimeInterval( TimeUtils.MIN_TIMESTAMP, currTime - depth * msecInDay );
     // Возвращаемый результат
     IListEdit<S5PartitionOperation> retValue = new ElemArrayList<>( false );
     // Текущее количество выполненных операций поиска удаляемых данных
@@ -1820,57 +1794,48 @@ public abstract class S5AbstractSequenceWriter<S extends IS5Sequence<V>, V exten
       String blockTable = candidate.blockTableName();
       // Имя таблицы blob
       String blobTable = candidate.blobTableName();
-      // Карта описаний разделов добавляемых таблицы без разделов. Ключ: имя таблицы.
-      IListEdit<S5Partition> createPartitions = new ElemLinkedList<>();
-      // Карта описаний разделов добавляемых в таблицы с существующими разделами. Ключ: имя таблицы.
-      IListEdit<S5Partition> addPartitions = new ElemLinkedList<>();
       lockWrite( partitionsByTableLock );
       try {
-        // Формирование списков добавляемых разделов
-        createPartitions.clear();
-        addPartitions.clear();
-        prepareTablePartition( aEntityManager, scheme, blockTable, writeInterval, depth, createPartitions,
-            addPartitions );
+        // Глубина хранения значений
+        int depth = sequenceFactory().getTableDepth( blockTable );
+        // Интервал удаления
+        ITimeInterval removeInterval = new TimeInterval( TimeUtils.MIN_TIMESTAMP, currTime - depth * msecInDay );
+        // Список добавляемых разделов
+        IList<S5Partition> addPartitions =
+            findAddPartitions( aEntityManager, scheme, blockTable, writeInterval, depth );
         // Список удаляемых разделов
         IList<S5Partition> removePartitions =
             findRemovePartitions( aEntityManager, scheme, blockTable, removeInterval );
-        if( createPartitions.size() > 0 || addPartitions.size() > 0 || removePartitions.size() > 0 ) {
+        if( addPartitions.size() > 0 || removePartitions.size() > 0 ) {
           S5PartitionOperation op = new S5PartitionOperation( blockTable );
-          op.createPartitions().addAll( createPartitions );
           op.addPartitions().addAll( addPartitions );
           op.removePartitions().addAll( removePartitions );
           retValue.addAll( op );
-          if( createPartitions.size() > 0 ) {
-            aLogger.debug( MSG_PARTITION_PLAN_CREATE, ownerName(), scheme, blockTable, op.createPartitions() );
-          }
           if( addPartitions.size() > 0 ) {
-            aLogger.debug( MSG_PARTITION_PLAN_ADD, ownerName(), scheme, blockTable, op.addPartitions() );
+            aLogger.debug( MSG_PARTITION_PLAN_ADD, ownerName(), scheme, blockTable, Integer.valueOf( depth ),
+                op.addPartitions() );
           }
           if( removePartitions.size() > 0 ) {
-            aLogger.debug( MSG_PARTITION_PLAN_REMOVE, ownerName(), scheme, blockTable, op.removePartitions() );
+            aLogger.debug( MSG_PARTITION_PLAN_REMOVE, ownerName(), scheme, blockTable, Integer.valueOf( depth ),
+                op.removePartitions() );
           }
         }
-        // Формирование списков добавляемых разделов
-        createPartitions.clear();
-        addPartitions.clear();
-        prepareTablePartition( aEntityManager, scheme, blobTable, writeInterval, depth, createPartitions,
-            addPartitions );
+        // Список добавляемых разделов
+        addPartitions = findAddPartitions( aEntityManager, scheme, blobTable, writeInterval, depth );
         // Список удаляемых разделов
         removePartitions = findRemovePartitions( aEntityManager, scheme, blobTable, removeInterval );
-        if( createPartitions.size() > 0 || addPartitions.size() > 0 || removePartitions.size() > 0 ) {
+        if( addPartitions.size() > 0 || removePartitions.size() > 0 ) {
           S5PartitionOperation op = new S5PartitionOperation( blobTable );
-          op.createPartitions().addAll( createPartitions );
           op.addPartitions().addAll( addPartitions );
           op.removePartitions().addAll( removePartitions );
           retValue.addAll( op );
-          if( createPartitions.size() > 0 ) {
-            aLogger.debug( MSG_PARTITION_PLAN_CREATE, ownerName(), scheme, blobTable, op.createPartitions() );
-          }
           if( addPartitions.size() > 0 ) {
-            aLogger.debug( MSG_PARTITION_PLAN_ADD, ownerName(), scheme, blobTable, op.addPartitions() );
+            aLogger.debug( MSG_PARTITION_PLAN_ADD, ownerName(), scheme, blobTable, Integer.valueOf( depth ),
+                op.addPartitions() );
           }
           if( removePartitions.size() > 0 ) {
-            aLogger.debug( MSG_PARTITION_PLAN_REMOVE, ownerName(), scheme, blobTable, op.removePartitions() );
+            aLogger.debug( MSG_PARTITION_PLAN_REMOVE, ownerName(), scheme, blobTable, Integer.valueOf( depth ),
+                op.removePartitions() );
           }
         }
       }

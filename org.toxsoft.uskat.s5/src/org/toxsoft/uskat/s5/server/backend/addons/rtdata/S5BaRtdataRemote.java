@@ -66,6 +66,14 @@ class S5BaRtdataRemote
           (baData.currdataTimeout <= 0 || currTime - baData.lastCurrdataToBackendTime > baData.currdataTimeout) ) {
         // Отправка значений текущих данных от фронтенда в бекенд
         currDataMessage = BaMsgRtdataCurrData.INSTANCE.makeMessage( baData.currdataToBackend );
+
+        // TODO: 2023-11-19 mvkd
+        Gwid testGwid = Gwid.of( "AnalogInput[TP1]$rtdata(rtdPhysicalValue)" );
+        IAtomicValue testValue = baData.currdataToBackend.findByKey( testGwid );
+        if( testValue != null ) {
+          logger().error( "send currdata: %s = %s", testGwid, testValue );
+        }
+
         baData.currdataToBackend.clear();
         baData.lastCurrdataToBackendTime = currTime;
       }
@@ -96,12 +104,14 @@ class S5BaRtdataRemote
   @Override
   public void configureCurrDataReader( IGwidList aRtdGwids ) {
     TsNullArgumentRtException.checkNull( aRtdGwids );
+    baData.currdataGwidsToFrontend.setAll( aRtdGwids );
     session().configureCurrDataReader( aRtdGwids );
   }
 
   @Override
   public void configureCurrDataWriter( IGwidList aRtdGwids ) {
     TsNullArgumentRtException.checkNull( aRtdGwids );
+    baData.currdataGwidsToBackend.setAll( aRtdGwids );
     session().configureCurrDataWriter( aRtdGwids );
   }
 

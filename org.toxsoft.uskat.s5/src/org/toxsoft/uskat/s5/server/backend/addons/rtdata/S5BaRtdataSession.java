@@ -17,6 +17,7 @@ import org.toxsoft.core.tslib.gw.gwid.Gwid;
 import org.toxsoft.core.tslib.gw.gwid.IGwidList;
 import org.toxsoft.core.tslib.utils.Pair;
 import org.toxsoft.core.tslib.utils.errors.TsNullArgumentRtException;
+import org.toxsoft.core.tslib.utils.logs.impl.LoggerUtils;
 import org.toxsoft.uskat.core.backend.ISkBackendHardConstant;
 import org.toxsoft.uskat.core.backend.api.*;
 import org.toxsoft.uskat.s5.server.IS5ServerHardConstants;
@@ -85,13 +86,23 @@ public class S5BaRtdataSession
     }
     // Установка в данных сессии конфигурации реального времени
     frontend().frontendData().setBackendAddonData( IBaRtdata.ADDON_ID, baData );
+
+    // TODO: 2023-11-19 mvkd
+    Gwid testGwid = Gwid.of( "AnalogInput[TP1]$rtdata(rtdPhysicalValue)" );
+    IAtomicValue testValue = baData.currdataToBackend.findByKey( testGwid );
+    boolean readPresent = baData.currdataGwidsToFrontend.hasElem( testGwid );
+    boolean writePresent = baData.currdataGwidsToBackend.hasElem( testGwid );
+    LoggerUtils.defaultLogger().info(
+        "S5BaRtDataSession.doAfterInit(...): testGwid = %s:  readPresent = %s, writePresent = %s, value = %s", testGwid,
+        Boolean.valueOf( readPresent ), Boolean.valueOf( writePresent ), testValue );
+
     // Регистрация слушателя событий от фронтенда
     frontend().gtMessageEventer().addListener( aMessage -> {
       // Получение значений текущих данных от фронтенда для записи в бекенда
       if( aMessage.messageId().equals( BaMsgRtdataCurrData.MSG_ID ) ) {
         IMap<Gwid, IAtomicValue> values = BaMsgRtdataCurrData.INSTANCE.getNewValues( aMessage );
         // Запись новых значений текущих данных
-        currDataSupport.writeValues( values );
+        currDataSupport.writeValues( frontend(), values );
         // Обработка статистики приема пакета текущих данных
         statisticCounter().onEvent( IS5ServerHardConstants.STAT_SESSION_RECEVIED_CURRDATA, AV_1 );
         return;
@@ -99,8 +110,8 @@ public class S5BaRtdataSession
       if( aMessage.messageId().equals( BaMsgRtdataHistData.MSG_ID ) ) {
         IMap<Gwid, Pair<ITimeInterval, ITimedList<ITemporalAtomicValue>>> values =
             BaMsgRtdataHistData.INSTANCE.getNewValues( aMessage );
-        // Запись новых значений хранимых данных
-        histDataSupport.writeValues( values );
+        // Запись новых значений хранимых данных проводится асинхронно, чтобы не замедлять потоки текущих данных
+        histDataSupport.asyncWriteValues( values );
         // Обработка статистики приема пакета текущих данных
         statisticCounter().onEvent( IS5ServerHardConstants.STAT_SESSION_RECEVIED_HISTDATA, AV_1 );
         return;
@@ -137,7 +148,7 @@ public class S5BaRtdataSession
   public void writeCurrData( Gwid aGwid, IAtomicValue aValue ) {
     TsNullArgumentRtException.checkNulls( aGwid, aValue );
     IMap<Gwid, IAtomicValue> values = new ElemMap<>();
-    currDataSupport.writeValues( values );
+    currDataSupport.writeValues( frontend(), values );
   }
 
   // Клиент не должен использовать этот метод - текущие данные поступают через IGtMessageListener.onGenericTopicMessage(
@@ -149,7 +160,7 @@ public class S5BaRtdataSession
     TsNullArgumentRtException.checkNulls( aGwid, aInterval, aValues );
     IMapEdit<Gwid, Pair<ITimeInterval, ITimedList<ITemporalAtomicValue>>> values = new ElemMap<>();
     values.put( aGwid, new Pair<>( aInterval, aValues ) );
-    histDataSupport.writeValues( values );
+    histDataSupport.syncWriteValues( values );
   }
 
   @TransactionAttribute( TransactionAttributeType.SUPPORTS )

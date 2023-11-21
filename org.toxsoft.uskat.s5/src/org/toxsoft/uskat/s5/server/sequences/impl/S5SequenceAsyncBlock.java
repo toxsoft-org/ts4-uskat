@@ -1,5 +1,6 @@
 package org.toxsoft.uskat.s5.server.sequences.impl;
 
+import static org.toxsoft.core.tslib.bricks.strid.impl.StridUtils.*;
 import static org.toxsoft.core.tslib.bricks.time.impl.TimeUtils.*;
 import static org.toxsoft.uskat.s5.common.IS5CommonResources.*;
 import static org.toxsoft.uskat.s5.server.sequences.IS5SequenceHardConstants.*;
@@ -24,6 +25,7 @@ import org.toxsoft.core.tslib.utils.errors.*;
 import org.toxsoft.core.tslib.utils.logs.ILogger;
 import org.toxsoft.uskat.s5.server.sequences.IS5SequenceBlockEdit;
 import org.toxsoft.uskat.s5.server.sequences.IS5SequenceFactory;
+import org.toxsoft.uskat.s5.server.sequences.maintenance.S5Partition;
 import org.toxsoft.uskat.s5.utils.indexes.ILongKey;
 
 /**
@@ -288,6 +290,7 @@ public abstract class S5SequenceAsyncBlock<V extends ITemporal<?>, BLOB_ARRAY, B
       // Не с чем объединять
       return 0;
     }
+    // Новая метка времени завершения данных в блоке
     long newEndTime = endTime();
     // Идентификатор данного
     Gwid gwid = gwid();
@@ -297,6 +300,14 @@ public abstract class S5SequenceAsyncBlock<V extends ITemporal<?>, BLOB_ARRAY, B
     int newSize = size();
     // Двойной максимальный размер блока
     int doubleMaxSize = 2 * OP_BLOCK_SIZE_MAX.getValue( typeInfo.params() ).asInt();
+
+    // Имя таблицы хранения блоков
+    String blockTableName = getLast( OP_BLOCK_IMPL_CLASS.getValue( typeInfo.params() ).asString() );
+    // Глубина хранения значений в таблице
+    int depth = aFactory.getTableDepth( blockTableName );
+    // Максимальное время завершения данных в блоке с учетом механизма хранения блоков в разделах таблиц
+    long nextPartitionTime = S5Partition.calcPartitionEndTime( newEndTime, depth );
+
     // Количество объединенных блоков
     int unionedCount = 0;
     for( int index = 0, n = aBlocks.size(); index < n; index++ ) {
@@ -308,6 +319,11 @@ public abstract class S5SequenceAsyncBlock<V extends ITemporal<?>, BLOB_ARRAY, B
       if( blockSize == 0 ) {
         // Блок пустой
         continue;
+      }
+      if( blockEndTime >= nextPartitionTime ) {
+        // Завершение блока попадает в другой раздел таблицы хранения блоков. Объединение с ним невозможно так как
+        // невозможно обеспечить гарантию глубины хранения значений в БД
+        break;
       }
       if( newSize + blockSize >= doubleMaxSize ) {
         // Блок не может быть объединен, так как будет превышен максимальный размер блока

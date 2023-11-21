@@ -46,9 +46,9 @@ public interface IS5SequencePartitionOptions {
       TSID_NAME, N_REMOVE_THREADS_COUNT, //
       TSID_DESCRIPTION, D_REMOVE_THREADS_COUNT, //
       TSID_IS_NULL_ALLOWED, AV_FALSE, //
-      // TODO: mvkd 2023-08-30
-      TSID_DEFAULT_VALUE, AV_1 );
-  // TSID_DEFAULT_VALUE, avInt( 100 ) );
+      // 2023-11-18 mvk
+      // TSID_DEFAULT_VALUE, AV_1 );
+      TSID_DEFAULT_VALUE, AV_N1 );
 
   /**
    * Максимальное количество проверяемых таблиц на предмет необходимости запуска операции над разделами за один проход.
@@ -58,5 +58,7 @@ public interface IS5SequencePartitionOptions {
       TSID_NAME, N_REMOVE_LOOKUP_COUNT, //
       TSID_DESCRIPTION, D_REMOVE_LOOKUP_COUNT, //
       TSID_IS_NULL_ALLOWED, AV_FALSE, //
-      TSID_DEFAULT_VALUE, avInt( 100 ) );
+      // 2023-11-18 mvk
+      // TSID_DEFAULT_VALUE, avInt( 100 ) );
+      TSID_DEFAULT_VALUE, AV_N1 );
 }

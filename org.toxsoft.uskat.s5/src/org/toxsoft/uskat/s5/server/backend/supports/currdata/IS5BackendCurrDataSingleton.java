@@ -109,12 +109,13 @@ public interface IS5BackendCurrDataSingleton
   /**
    * Записывает значения текущих данных в систему.
    *
+   * @param aFrontend {@link IS5FrontendRear} фронтенд сформировавший запрос
    * @param aValues {@link IMap}&lt;{@link Gwid},{@link IAtomicValue}&gt; карта значений данных;<br>
    *          Ключ: идентификатор данного;<br>
    *          Значение: значение данного.
-   * @throws TsNullArgumentRtException аргумент = null
+   * @throws TsNullArgumentRtException любой аргумент = null
    */
-  void writeValues( IMap<Gwid, IAtomicValue> aValues );
+  void writeValues( IS5FrontendRear aFrontend, IMap<Gwid, IAtomicValue> aValues );
 
   // ------------------------------------------------------------------------------------
   // Интерсепция

@@ -112,10 +112,18 @@ public class S5BackendHistDataSingleton
   // ------------------------------------------------------------------------------------
   // Реализация IS5BackendHistDataSingleton
   //
+  // TODO: 2023-11-18 mvkd +++
+  @Asynchronous
+  @TransactionAttribute( TransactionAttributeType.REQUIRED )
+  @Override
+  public void asyncWriteValues( IMap<Gwid, Pair<ITimeInterval, ITimedList<ITemporalAtomicValue>>> aValues ) {
+    syncWriteValues( aValues );
+  }
+
   @SuppressWarnings( "unchecked" )
   @TransactionAttribute( TransactionAttributeType.REQUIRED )
   @Override
-  public void writeValues( IMap<Gwid, Pair<ITimeInterval, ITimedList<ITemporalAtomicValue>>> aValues ) {
+  public void syncWriteValues( IMap<Gwid, Pair<ITimeInterval, ITimedList<ITemporalAtomicValue>>> aValues ) {
     TsNullArgumentRtException.checkNulls( aValues );
     try {
       // Время трассировки

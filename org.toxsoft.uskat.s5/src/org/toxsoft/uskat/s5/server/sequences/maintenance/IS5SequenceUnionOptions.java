@@ -6,6 +6,7 @@ import static org.toxsoft.core.tslib.av.impl.DataDef.*;
 import static org.toxsoft.core.tslib.av.metainfo.IAvMetaConstants.*;
 import static org.toxsoft.uskat.s5.server.sequences.maintenance.IS5Resources.*;
 
+import org.toxsoft.core.tslib.av.impl.AvUtils;
 import org.toxsoft.core.tslib.av.metainfo.IDataDef;
 import org.toxsoft.core.tslib.bricks.time.ITimeInterval;
 import org.toxsoft.core.tslib.gw.gwid.Gwid;
@@ -44,7 +45,7 @@ public interface IS5SequenceUnionOptions {
       TSID_NAME, N_UNION_OFFSET, //
       TSID_DESCRIPTION, D_UNION_OFFSET, //
       TSID_IS_NULL_ALLOWED, AV_FALSE, //
-      TSID_DEFAULT_VALUE, AV_0 );
+      TSID_DEFAULT_VALUE, AvUtils.avInt( 10 * 60 * 1000 ) );
 
   /**
    * Максимальное время (мсек) между фрагментированными блоками больше которого производится принудительная

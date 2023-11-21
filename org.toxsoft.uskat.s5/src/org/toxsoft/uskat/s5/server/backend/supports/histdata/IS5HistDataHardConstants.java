@@ -61,6 +61,7 @@ public interface IS5HistDataHardConstants
    */
   IDataDef OP_BLOCK_SIZE_MAX =
       createOption( HISTDATA_PREFIX, IS5SequenceHardConstants.OP_BLOCK_SIZE_MAX, avInt( 5000 ) );
+  // createOption( HISTDATA_PREFIX, IS5SequenceHardConstants.OP_BLOCK_SIZE_MAX, avInt( 5 ) );
 
   /**
    * Опция {@link IDtoRtdataInfo#params()}: максимальный размер одного значения (байты).

@@ -10,7 +10,9 @@ import org.toxsoft.core.log4j.LoggerWrapper;
 import org.toxsoft.core.tslib.av.opset.IOptionSet;
 import org.toxsoft.core.tslib.av.opset.impl.OptionSetKeeper;
 import org.toxsoft.core.tslib.utils.errors.TsNullArgumentRtException;
+import org.toxsoft.core.tslib.utils.logs.ILogger;
 import org.toxsoft.core.tslib.utils.logs.impl.LoggerUtils;
+import org.toxsoft.uskat.s5.server.backend.addons.S5AbstractBackend;
 import org.toxsoft.uskat.s5.server.transactions.S5TransactionManager;
 
 /**
@@ -43,8 +45,9 @@ public class S5InitialSingleton
    * Пустой конструктор.
    */
   public S5InitialSingleton() {
-    LoggerUtils.setDefaultLogger( LoggerWrapper.getLogger( "out" ) ); //$NON-NLS-1$
-    LoggerUtils.setErrorLogger( LoggerWrapper.getLogger( "error" ) ); //$NON-NLS-1$
+    ILogger logger = LoggerWrapper.getLogger( S5AbstractBackend.S5_USKAT_CORE_LOGGER );
+    LoggerUtils.setDefaultLogger( logger );
+    LoggerUtils.setErrorLogger( logger );
   }
 
   // ------------------------------------------------------------------------------------

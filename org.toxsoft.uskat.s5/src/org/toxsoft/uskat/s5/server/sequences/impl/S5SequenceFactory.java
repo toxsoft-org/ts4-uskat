@@ -3,6 +3,7 @@ package org.toxsoft.uskat.s5.server.sequences.impl;
 import static java.lang.String.*;
 import static org.toxsoft.core.tslib.bricks.strid.impl.StridUtils.*;
 import static org.toxsoft.uskat.s5.common.IS5CommonResources.*;
+import static org.toxsoft.uskat.s5.server.IS5ServerHardConstants.*;
 import static org.toxsoft.uskat.s5.server.sequences.IS5SequenceHardConstants.*;
 import static org.toxsoft.uskat.s5.server.sequences.impl.IS5Resources.*;
 import static org.toxsoft.uskat.s5.utils.threads.impl.S5Lockable.*;
@@ -155,6 +156,19 @@ public abstract class S5SequenceFactory<V extends ITemporal<?>>
   @Override
   public final IList<IS5SequenceTableNames> tableNames() {
     return doTableNames();
+  }
+
+  @Override
+  public final int getTableDepth( String aTableName ) {
+    TsNullArgumentRtException.checkNull( aTableName );
+    for( IS5SequenceTableNames tables : tableNames() ) {
+      if( tables.blockTableName().equals( aTableName ) || tables.blobTableName().equals( aTableName ) ) {
+        int retValue = OP_DB_STORAGE_DEPTH.getValue( initialConfig().params() ).asInt();
+        return retValue;
+      }
+    }
+    // Таблица не существует
+    throw new TsItemNotFoundRtException( ERR_TABLE_NOT_EXSIST, aTableName );
   }
 
   @Override

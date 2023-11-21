@@ -26,6 +26,7 @@ interface IS5Resources {
   // Строки константы
   //
   String STR_DO_PARTITION = "doPartition"; //$NON-NLS-1$
+  String STR_DO_DEFRAG    = "doDefrag";    //$NON-NLS-1$
   String STR_DO_JOB       = "doJob";       //$NON-NLS-1$
 
   // ------------------------------------------------------------------------------------
@@ -96,8 +97,10 @@ interface IS5Resources {
   String MSG_PARTITION_AUTHOR_SCHEDULE = "Плановое обработка разделов таблиц по календарю"; //$NON-NLS-1$
 
   String MSG_PARTITION_PLAN_CREATE = "%s. %s.%s. Планирование создания разделов таблиц в автоматическом режиме: %s";                                                                //$NON-NLS-1$
-  String MSG_PARTITION_PLAN_ADD    = "%s. %s.%s. Планирование добавления разделов таблиц в автоматическом режиме: %s";                                                              //$NON-NLS-1$
-  String MSG_PARTITION_PLAN_REMOVE = "%s. %s.%s. Планирование удаления разделов таблиц в автоматическом режиме: %s";                                                                //$NON-NLS-1$
+  String MSG_PARTITION_PLAN_ADD    =
+      "%s. %s.%s. depth = %d суток. Планирование добавления разделов таблиц в автоматическом режиме: %s";                                                                           //$NON-NLS-1$
+  String MSG_PARTITION_PLAN_REMOVE =
+      "%s. %s.%s. depth = %d суток. Планирование удаления разделов таблиц в автоматическом режиме: %s";                                                                             //$NON-NLS-1$
   String ERR_DB_SCHEME_NOT_DEFINED =
       "OP_BACKEND_DB_SCHEME_NAME is not defined. Set the parameter value in the server class implementation (S5InitialImplementation) in the doProjectSpecificParams(...) method."; //$NON-NLS-1$
 
@@ -161,12 +164,13 @@ interface IS5Resources {
   String MSG_READ_BLOCK_BEFORE_START = Messages.getString( "IS5Resources.MSG_READ_BLOCK_BEFORE_START" ); //$NON-NLS-1$
   String MSG_READ_BLOCK_BEFORE_END   = Messages.getString( "IS5Resources.MSG_READ_BLOCK_BEFORE_END" );   //$NON-NLS-1$
   String MSG_READ_BLOCK_SQL          = Messages.getString( "IS5Resources.MSG_READ_BLOCK_SQL" );          //$NON-NLS-1$
-  String MSG_READ_BLOCK_SQL_SIZE     = "SQL size = %d chars";                                            //$NON-NLS-1$
-  String MSG_READ_BLOCK_START        = Messages.getString( "IS5Resources.MSG_READ_BLOCK_START" );        //$NON-NLS-1$
-  String MSG_READ_BLOCK_END          = Messages.getString( "IS5Resources.MSG_READ_BLOCK_END" );          //$NON-NLS-1$
-  String MSG_READ_BLOCK_AFTER_SQL    = Messages.getString( "IS5Resources.MSG_READ_BLOCK_AFTER_SQL" );    //$NON-NLS-1$
-  String MSG_READ_BLOCK_AFTER_START  = Messages.getString( "IS5Resources.MSG_READ_BLOCK_AFTER_START" );  //$NON-NLS-1$
-  String MSG_READ_BLOCK_AFTER_END    = Messages.getString( "IS5Resources.MSG_READ_BLOCK_AFTER_END" );    //$NON-NLS-1$
+
+  String MSG_READ_BLOCK_SQL_SIZE    = "SQL size = %d chars";                                           //$NON-NLS-1$
+  String MSG_READ_BLOCK_START       = Messages.getString( "IS5Resources.MSG_READ_BLOCK_START" );       //$NON-NLS-1$
+  String MSG_READ_BLOCK_END         = Messages.getString( "IS5Resources.MSG_READ_BLOCK_END" );         //$NON-NLS-1$
+  String MSG_READ_BLOCK_AFTER_SQL   = Messages.getString( "IS5Resources.MSG_READ_BLOCK_AFTER_SQL" );   //$NON-NLS-1$
+  String MSG_READ_BLOCK_AFTER_START = Messages.getString( "IS5Resources.MSG_READ_BLOCK_AFTER_START" ); //$NON-NLS-1$
+  String MSG_READ_BLOCK_AFTER_END   = Messages.getString( "IS5Resources.MSG_READ_BLOCK_AFTER_END" );   //$NON-NLS-1$
 
   // <<<<<<< HEAD
   String MSG_FIND_TIME_BEFORE_SQL    = Messages.getString( "IS5Resources.MSG_FIND_TIME_BEFORE_SQL" );    //$NON-NLS-1$
@@ -287,8 +291,11 @@ interface IS5Resources {
   String ERR_STOP_UNKNOW_TIMER                 = Messages.getString( "IS5Resources.ERR_STOP_UNKNOW_TIMER" );             //$NON-NLS-1$
   String ERR_QUERY_DOJOB                       = Messages.getString( "IS5Resources.ERR_QUERY_DOJOB" );                   //$NON-NLS-1$
 
-  String MSG_ADD_PARTITION                  = "%s. %s.%s. Добавление раздела %s.";                                   //$NON-NLS-1$
-  String MSG_REMOVE_PARTITION               = "%s. %s.%s. Удаление раздела %s.";                                     //$NON-NLS-1$
+  String MSG_ADD_PARTITION     = "%s. %s.%s. Добавление раздела %s.";                               //$NON-NLS-1$
+  String MSG_ADD_PARTITION_SQL =
+      "addPartition(aScheme=%s, aTable=%s, aInfo=%s), creating=%s. Cформирован SQL-запрос:\n   %s"; //$NON-NLS-1$
+  String MSG_REMOVE_PARTITION  = "%s. %s.%s. Удаление раздела %s.";                                 //$NON-NLS-1$
+
   String ERR_PARTITION_OP                   = "%s. Неожиданная ошибка обработки разделов операции: %s. Причина: %s"; //$NON-NLS-1$
   String ERR_REPLAIN_PARTITION_OPS_BY_ERROR =
       "%s. При обработке разделов произошли ошибки. Планирование повтора обработки";                                 //$NON-NLS-1$
@@ -354,7 +361,7 @@ interface IS5Resources {
   String ERR_PARTITION_DISABLE_BY_LOAD_AVERAGE =
       Messages.getString( "IS5Resources.ERR_PARTITION_DISABLE_BY_LOAD_AVERAGE" );                                        //$NON-NLS-1$
   String ERR_PARTITION_DISABLE_BY_PREV         = Messages.getString( "IS5Resources.ERR_PARTITION_DISABLE_BY_PREV" );     //$NON-NLS-1$
-  String ERR_PARTITION_HADNLE_ALREADY_STARTED  = "%s. Обработка разделов таблиц уже выполняется (%s).";                  //$NON-NLS-1$
+  String ERR_REJECT_HANDLE                     = "%s. Запрет обработки %s. Выполняется %s.";                             //$NON-NLS-1$
   String ERR_PARTITION_NOT_INIT                =
       "%s. Отклонен запрос на выполнение обработки разделов таблиц. Автор %s. Причина: Инициализация SequenceWriter";    //$NON-NLS-1$
   String ERR_PARTITION_PLAN_CREATED_ALREADY    = "%s. %s: раздел уже запланирован для добавления (aCreatingPartitions)"; //$NON-NLS-1$
@@ -381,6 +388,8 @@ interface IS5Resources {
   String ERR_CAST_VALUE             = Messages.getString( "IS5Resources.ERR_CAST_VALUE" );             //$NON-NLS-1$
 
   String ERR_UNEXPECT_DOJOB_ERROR = "unexpected doJob error. cause = %s"; //$NON-NLS-1$
+
+  String ERR_TABLE_NOT_EXSIST = "Table %s is not exsist"; //$NON-NLS-1$
 
   // THREADS
   // ------------------------------------------------------------------------------------

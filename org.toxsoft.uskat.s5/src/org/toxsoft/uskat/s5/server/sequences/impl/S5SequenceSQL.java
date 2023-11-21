@@ -981,7 +981,7 @@ class S5SequenceSQL {
   private static final String QFRMT_FIRST_FRAGMENTED_TIME = //
       "select " + FIELD_END_TIME + " from %s where" //
           + "(" + FIELD_GWID + "='%s')and"//
-          + "(" + FIELD_START_TIME + "<=%d)and(" + FIELD_SIZE + ">=%d)" //
+          + "(" + FIELD_START_TIME + "<=%d)and(" + FIELD_SIZE + "<0)" //
           + " order by " + FIELD_START_TIME + " desc";
 
   /**
@@ -992,7 +992,6 @@ class S5SequenceSQL {
    * @param aFactory {@link IS5SequenceFactory} фабрика формирования последовательностей
    * @param aGwid {@link Gwid} идентификатор данного
    * @param aToTime long (время мсек с начала эпохи) до которого проводить поиск фрагментированных блоков (включительно)
-   * @param aMaxSize int размер блока меньше которого блок считается фрагментированным
    * @param aFragmentCountMin int минимальное количество блоков которые требуется для дефрагментации. <= 0: отключено
    * @param aFragmentCountMax int максимальное количество блоков которые требуетя для дефрагментации. <= 0: отключено
    * @param aFragmentTimeout long время (мсек) между блоками больше которого проводится принудительная дефрагментация.
@@ -1004,19 +1003,18 @@ class S5SequenceSQL {
    * @throws TsIllegalArgumentRtException aFragmentCountMax = 1
    */
   static <V extends ITemporal<?>> IS5SequenceFragmentInfo findFragmentationTime( EntityManager aEntityManager,
-      IS5SequenceFactory<V> aFactory, Gwid aGwid, long aToTime, int aMaxSize, int aFragmentCountMin,
-      int aFragmentCountMax, long aFragmentTimeout ) {
+      IS5SequenceFactory<V> aFactory, Gwid aGwid, long aToTime, int aFragmentCountMin, int aFragmentCountMax,
+      long aFragmentTimeout ) {
     TsNullArgumentRtException.checkNulls( aEntityManager, aFactory, aGwid );
     TsInternalErrorRtException.checkTrue( aFragmentCountMax == 1 );
     // Параметризованное описание типа данного
     IParameterized typeInfo = aFactory.typeInfo( aGwid );
     // WORKAROUND: нельзя давать в SQL запросы константы MIN_TIMESTAMP, MIN_TIMESTAMP ???
     Long t = Long.valueOf( aToTime );
-    Long s = Long.valueOf( aMaxSize );
     // Имя таблицы
     String tableName = getLast( OP_BLOCK_IMPL_CLASS.getValue( typeInfo.params() ).asString() );
     // Выполнение запроса поиск времени первого фрагментированного блока
-    String sql = format( QFRMT_FIRST_FRAGMENTED_TIME, tableName, aGwid, t, s );
+    String sql = format( QFRMT_FIRST_FRAGMENTED_TIME, tableName, aGwid, t );
     try {
       Query query = aEntityManager.createNativeQuery( sql );
       // Ограничение выборки
@@ -1060,21 +1058,16 @@ class S5SequenceSQL {
       int allSize = 0;
       // Общее количество блоков годных для объединения
       int allUnionableCount = 0;
-      // Общее количество фрагментов (непроверенных) найденных после завершения поиска
-      int allUnionableAfterCount = startsTimesSizesListSize;
       // Метка времени завершения предыдущего блока. MIN_TIMESTAMP: неопределено
       long allFirstEndTime = MIN_TIMESTAMP;
       // Признак необходимости выполнить дефрагментацию так как есть "старые" блоки
       boolean tooLateBlocks = false;
-      // Двойной размер блоков
-      int doubleMaxSize = 2 * aMaxSize;
       for( int index = 0; index < startsTimesSizesListSize; index++ ) {
         Object[] bts = startsTimesSizesList.get( index );
-        allUnionableAfterCount = startsTimesSizesListSize - index - 1;
         long startTime = ((BigInteger)bts[0]).longValue();
         long endTime = ((BigInteger)bts[1]).longValue();
         int size = ((Integer)bts[2]).intValue();
-        if( size >= aMaxSize ) {
+        if( size < 0 ) {
           // Найден полный блок с которым невозможно объединение
           allSize = 0;
           allUnionableCount = 0;
@@ -1082,7 +1075,7 @@ class S5SequenceSQL {
           tooLateBlocks = false;
           continue;
         }
-        if( allSize + size >= doubleMaxSize && allUnionableCount < 2 ) {
+        if( allSize + size >= aFragmentCountMax && allUnionableCount < 2 ) {
           // Невозможно объединить два соседних блока
           fragmentStartTime = startTime;
           fragmentEndTime = endTime;
@@ -1095,7 +1088,7 @@ class S5SequenceSQL {
         fragmentEndTime = endTime;
         allSize += size;
         allUnionableCount++;
-        if( aFragmentCountMax > 0 && allUnionableCount >= aFragmentCountMax ) {
+        if( allSize >= aFragmentCountMax ) {
           // Найдено необходимое количество блоков
           break;
         }
@@ -1106,21 +1099,29 @@ class S5SequenceSQL {
         // Проверка признака: слишком большой интервал между завершением предыдущего блока и началом следующего
         tooLateBlocks = tooLateBlocks || (aFragmentTimeout > 0 && (startTime - allFirstEndTime) > aFragmentTimeout);
       }
+      // Общее количество фрагментов (непроверенных) найденных после завершения поиска
+      int allUnionableAfterCount = startsTimesSizesListSize - allUnionableCount;
+      // Общее количество значений фрагментированных блоков найденных после завершения поиска
+      int allAfterSize = 0;
+      for( int index = allUnionableAfterCount; index < startsTimesSizesListSize; index++ ) {
+        Object[] bts = startsTimesSizesList.get( index );
+        int size = ((Integer)bts[2]).intValue();
+        allAfterSize += size;
+      }
       // Признак того, что количество блоков годных для объединения слишком большое
       boolean tooManyBlocks = (aFragmentCountMin > 0 && allUnionableCount > aFragmentCountMin);
-      if( !tooLateBlocks && !tooManyBlocks && allSize < aMaxSize ) {
+      if( !tooLateBlocks && !tooManyBlocks && allSize < aFragmentCountMin ) {
         // Недостаточно значений для объединения
         return new S5SequenceFragmentInfo( tableName, aGwid, fragmentStartTime, fragmentStartTime, -1,
-            allUnionableCount + allUnionableAfterCount );
+            allSize + allAfterSize );
       }
       if( fragmentStartTime >= aToTime ) {
         // Нет интервала для дефрагментации
         return new S5SequenceFragmentInfo( tableName, aGwid, fragmentStartTime, fragmentStartTime, -1,
-            allUnionableCount + allUnionableAfterCount );
+            allSize + allAfterSize );
       }
       // Формирование результата
-      return new S5SequenceFragmentInfo( tableName, aGwid, fragmentStartTime, fragmentEndTime, allUnionableCount,
-          allUnionableAfterCount );
+      return new S5SequenceFragmentInfo( tableName, aGwid, fragmentStartTime, fragmentEndTime, allSize, allAfterSize );
     }
     catch( RuntimeException e ) {
       String time = timestampToString( aToTime );
@@ -1697,18 +1698,18 @@ class S5SequenceSQL {
    * @param aScheme String имя схемы базы данных сервера
    * @param aTable String имя таблицы в которой находятся разделы
    * @param aInfo {@link S5Partition} описание раздела
-   * @param aCreating boolean <true> добавить раздел в таблицу в которой не было разделов; <b>false</b> добавить раздел
-   *          в таблицу с уже существующими разделами.
    * @return int количество удаленных блоков
    * @throws TsNullArgumentRtException любой аргумент = null
    */
-  static int addPartition( EntityManager aEntityManager, String aScheme, String aTable, S5Partition aInfo,
-      boolean aCreating ) {
+  static int addPartition( EntityManager aEntityManager, String aScheme, String aTable, S5Partition aInfo ) {
     TsNullArgumentRtException.checkNulls( aEntityManager, aScheme, aTable, aInfo );
+    boolean creating = (readPartitions( aEntityManager, aScheme, aTable ).size() == 0);
     // Текст SQL-запроса
-    String sql = format( aCreating ? QFRMT_CREATE_PARTION : QFRMT_ADD_PARTION, //
+    String sql = format( creating ? QFRMT_CREATE_PARTION : QFRMT_ADD_PARTION, //
         aScheme, aTable, aInfo.name(), Long.valueOf( aInfo.interval().endTime() ) );
     try {
+      // Журнал
+      logger.info( MSG_ADD_PARTITION_SQL, aScheme, aTable, aInfo, Boolean.valueOf( creating ), sql );
       // Выполнение запроса
       Query query = aEntityManager.createNativeQuery( sql );
       int retCode = query.executeUpdate();

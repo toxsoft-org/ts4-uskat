@@ -25,6 +25,7 @@ interface IS5Resources {
   String MSG_WRITE_CURRDATA_VALUES_INFO            =
       "Запись текущих значений (%d). Время %d (мсек). Для вывода значений LogLevel => TRACE";
   String MSG_WRITE_CURRDATA_VALUES_DEBUG           = "Запись текущих значений (%d). Время %d (мсек). Значения:";
+  String MSG_WRITE_CURRDATA_VALUE                  = "Запись текущего значения: %s=%s";
   String MSG_CURRDATA_VALUE                        = "   %s=%s";
 
   // ------------------------------------------------------------------------------------
