@@ -201,10 +201,11 @@ public abstract class S5AbstractSequenceWriter<S extends IS5Sequence<V>, V exten
    */
   private final S5Lockable partitionWorkingLock = new S5Lockable();
 
+  private volatile String partitionWorkingLockOwner = "???"; //$NON-NLS-1$
   /**
    * Журнал
    */
-  private final ILogger logger;
+  private final ILogger   logger;
 
   static {
     // Запрет записей последовательностей в базу
@@ -1091,50 +1092,63 @@ public abstract class S5AbstractSequenceWriter<S extends IS5Sequence<V>, V exten
     TsNullArgumentRtException.checkNulls( aArgs );
     // Время запуска операции
     long traceStartTime = System.currentTimeMillis();
+    // Журнал для операций над разделами
+    ILogger uniterLogger = LoggerWrapper.getLogger( LOG_UNITER_ID );
+    // Запрещено одновременно выполнять обработку разделов и дефрагментацию
+    if( !tryLockWrite( partitionWorkingLock, 10 ) ) {
+      // Запрет выполнения дерфагментации. Выполняется обработка разделов
+      uniterLogger.info( ERR_REJECT_HANDLE, ownerName(), STR_DO_DEFRAG, partitionWorkingLockOwner );
+      return new S5SequenceUnionStat<>();
+    }
+    partitionWorkingLockOwner = STR_DO_DEFRAG;
     // Запуск операции
     S5SequenceUnionStat<V> retValue = doUnion( aArgs );
-    // Журнал
-    if( retValue.infoes().size() > 0 || retValue.queueSize() > 0 ) {
-      // Список описаний данных в запросе на дефрагментацию
-      IList<IS5SequenceFragmentInfo> fragmentInfoes = retValue.infoes();
-      // Вывод статистики
-      Long d = Long.valueOf( (System.currentTimeMillis() - traceStartTime) / 1000 );
-      Integer tc = Integer.valueOf( fragmentInfoes.size() );
-      String threaded = TsLibUtils.EMPTY_STRING;
-      if( fragmentInfoes.size() > 0 ) {
-        threaded = "[" + fragmentInfoes.get( 0 ).toString(); //$NON-NLS-1$
-        if( fragmentInfoes.size() > 1 ) {
-          threaded += ", ..."; //$NON-NLS-1$
+    try {
+      // Журнал
+      if( retValue.infoes().size() > 0 || retValue.queueSize() > 0 ) {
+        // Список описаний данных в запросе на дефрагментацию
+        IList<IS5SequenceFragmentInfo> fragmentInfoes = retValue.infoes();
+        // Вывод статистики
+        Long d = Long.valueOf( (System.currentTimeMillis() - traceStartTime) / 1000 );
+        Integer tc = Integer.valueOf( fragmentInfoes.size() );
+        String threaded = TsLibUtils.EMPTY_STRING;
+        if( fragmentInfoes.size() > 0 ) {
+          threaded = "[" + fragmentInfoes.get( 0 ).toString(); //$NON-NLS-1$
+          if( fragmentInfoes.size() > 1 ) {
+            threaded += ", ..."; //$NON-NLS-1$
+          }
+          threaded += "]"; //$NON-NLS-1$
         }
-        threaded += "]"; //$NON-NLS-1$
+        // Журнал
+        Integer lc = Integer.valueOf( retValue.lookupCount() );
+        Integer mc = Integer.valueOf( retValue.dbmsMergedCount() );
+        Integer rc = Integer.valueOf( retValue.dbmsRemovedCount() );
+        Integer vc = Integer.valueOf( retValue.valueCount() );
+        Integer ec = Integer.valueOf( retValue.errorCount() );
+        Integer qs = Integer.valueOf( retValue.queueSize() );
+        uniterLogger.info( MSG_UNION_TASK_FINISH, ownerName(), aAuthor, lc, tc, threaded, mc, rc, vc, ec, qs, d );
       }
-      // Журнал для операций над разделами
-      ILogger uniterLogger = LoggerWrapper.getLogger( LOG_UNITER_ID );
-      Integer lc = Integer.valueOf( retValue.lookupCount() );
-      Integer mc = Integer.valueOf( retValue.dbmsMergedCount() );
-      Integer rc = Integer.valueOf( retValue.dbmsRemovedCount() );
-      Integer vc = Integer.valueOf( retValue.valueCount() );
-      Integer ec = Integer.valueOf( retValue.errorCount() );
-      Integer qs = Integer.valueOf( retValue.queueSize() );
-      uniterLogger.info( MSG_UNION_TASK_FINISH, ownerName(), aAuthor, lc, tc, threaded, mc, rc, vc, ec, qs, d );
+      return retValue;
     }
-    return retValue;
+    finally {
+      unlockWrite( partitionWorkingLock );
+    }
   }
 
   @Override
   public synchronized final S5SequencePartitionStat<V> partition( String aAuthor, IOptionSet aArgs ) {
     // Попытка захвата блокировки для выполнения обработки
-    if( lastCheckPartitionDay < 0 || !tryLockWrite( partitionWorkingLock, 10 ) ) {
-      // Проводится инициализация S5SequenceWriter
-      ILogger partitionLogger = LoggerWrapper.getLogger( LOG_PARTITION_ID );
-      partitionLogger.warning( ERR_PARTITION_NOT_INIT, ownerName(), aAuthor );
-      return new S5SequencePartitionStat<>();
-    }
+    // if( lastCheckPartitionDay < 0 || !tryLockWrite( partitionWorkingLock, 10 ) ) {
+    // // Проводится инициализация S5SequenceWriter
+    // ILogger partitionLogger = LoggerWrapper.getLogger( LOG_PARTITION_ID );
+    // partitionLogger.warning( ERR_PARTITION_NOT_INIT, ownerName(), aAuthor );
+    // return new S5SequencePartitionStat<>();
+    // }
     try {
       return doPartition( aAuthor, aArgs );
     }
     finally {
-      unlockWrite( partitionWorkingLock );
+      // unlockWrite( partitionWorkingLock );
     }
   }
 
@@ -1168,9 +1182,10 @@ public abstract class S5AbstractSequenceWriter<S extends IS5Sequence<V>, V exten
     if( !tryLockWrite( partitionWorkingLock, 10 ) ) {
       // Журнал для операций над разделами
       ILogger partitionLogger = LoggerWrapper.getLogger( LOG_PARTITION_ID );
-      partitionLogger.info( ERR_PARTITION_HADNLE_ALREADY_STARTED, ownerName(), STR_DO_JOB );
+      partitionLogger.info( ERR_REJECT_HANDLE, ownerName(), STR_DO_JOB, partitionWorkingLockOwner );
       return;
     }
+    partitionWorkingLockOwner = STR_DO_JOB;
     try {
       if( lastCheckPartitionDay < 0 ) {
         // Состояние после перезапуска сервера. Принудительная проверка разделов всех таблиц в ускоренном порядке
@@ -1481,9 +1496,10 @@ public abstract class S5AbstractSequenceWriter<S extends IS5Sequence<V>, V exten
     // Попытка захвата блокировки для выполнения обработки
     if( !tryLockWrite( partitionWorkingLock, 10 ) ) {
       // Обработка таблиц уже выполняется
-      partitionLogger.warning( ERR_PARTITION_HADNLE_ALREADY_STARTED, ownerName(), STR_DO_PARTITION );
+      partitionLogger.warning( ERR_REJECT_HANDLE, ownerName(), STR_DO_PARTITION, partitionWorkingLockOwner );
       return statistics;
     }
+    partitionWorkingLockOwner = STR_DO_PARTITION;
     try {
       // Проверка и если требуется загрузка текущих разделов всех таблиц
       lockWrite( partitionsByTableLock );

@@ -34,7 +34,7 @@ public class S5BaRtdataData
   public long currdataTimeout = IS5ConnectionParams.OP_CURRDATA_TIMEOUT.defaultValue().asLong();
 
   /**
-   * Идентификаторы данных передаваемые в бекендт
+   * Идентификаторы данных передаваемые в бекенд
    */
   public final GwidList currdataGwidsToBackend = new GwidList();
 
@@ -74,7 +74,8 @@ public class S5BaRtdataData
   /**
    * Значения хранимых данных готовых для передачи
    */
-  public final IMapEdit<Gwid, Pair<ITimeInterval, ITimedList<ITemporalAtomicValue>>> histdataToBackend = new ElemMap<>();
+  public final IMapEdit<Gwid, Pair<ITimeInterval, ITimedList<ITemporalAtomicValue>>> histdataToBackend =
+      new ElemMap<>();
 
   /**
    * Время последней передачи хранимых данных в бекенд

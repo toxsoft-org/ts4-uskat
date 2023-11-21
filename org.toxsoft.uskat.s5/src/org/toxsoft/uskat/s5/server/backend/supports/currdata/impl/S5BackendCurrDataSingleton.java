@@ -357,8 +357,8 @@ public class S5BackendCurrDataSingleton
 
   @TransactionAttribute( TransactionAttributeType.SUPPORTS )
   @Override
-  public void writeValues( IMap<Gwid, IAtomicValue> aValues ) {
-    TsNullArgumentRtException.checkNulls( aValues );
+  public void writeValues( IS5FrontendRear aFrontend, IMap<Gwid, IAtomicValue> aValues ) {
+    TsNullArgumentRtException.checkNulls( aFrontend, aValues );
 
     // Текущее время трассировки
     long traceTime0 = System.currentTimeMillis();
@@ -427,7 +427,11 @@ public class S5BackendCurrDataSingleton
       GtMessage message = null;
       synchronized (baData) {
         for( Gwid gwid : changedValues.keys() ) {
-          if( baData.currdataGwidsToFrontend.hasElem( gwid ) ) {
+          if(
+          // фронтенд подписан на чтение значений текущих данного
+          baData.currdataGwidsToFrontend.hasElem( gwid ) ||
+          // фронтенд формирует значения текущего данного, но не он их изменил
+              (frontend != aFrontend && baData.currdataGwidsToBackend.hasElem( gwid )) ) {
             if( baData.currdataToFrontend.size() == 0 ) {
               // При добавлении первого данного обнуляем отсчет времени
               baData.lastCurrdataToFrontendTime = currTime;
