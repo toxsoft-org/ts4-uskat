@@ -16,6 +16,7 @@ import org.toxsoft.core.tslib.coll.IMapEdit;
 import org.toxsoft.core.tslib.coll.impl.ElemMap;
 import org.toxsoft.core.tslib.gw.gwid.*;
 import org.toxsoft.core.tslib.utils.errors.*;
+import org.toxsoft.core.tslib.utils.logs.ELogSeverity;
 import org.toxsoft.core.tslib.utils.logs.impl.LoggerUtils;
 import org.toxsoft.uskat.core.ISkServiceCreator;
 import org.toxsoft.uskat.core.api.linkserv.ISkLinkService;
@@ -230,10 +231,12 @@ public class SkCoreServRtdata
       if( channel != null ) {
 
         // TODO: 2023-11-19 mvkd
-        Gwid testGwid = Gwid.of( "AnalogInput[TP1]$rtdata(rtdPhysicalValue)" );
-        if( g.equals( testGwid ) ) {
-          logger().error( "update cache currdata: %s: newValue = %s, prevValue = %s", g, newValues.getByKey( g ),
-              channel.value );
+        if( logger().isSeverityOn( ELogSeverity.DEBUG ) ) {
+          Gwid testGwid = Gwid.of( "AnalogInput[TP1]$rtdata(rtdPhysicalValue)" );
+          if( g.equals( testGwid ) ) {
+            logger().debug( "update cache currdata: %s: newValue = %s, prevValue = %s", g, newValues.getByKey( g ),
+                channel.value );
+          }
         }
 
         channel.value = newValues.getByKey( g );
@@ -391,9 +394,11 @@ public class SkCoreServRtdata
       }
 
       // TODO: 2023-11-19 mvkd
-      Gwid testGwid = Gwid.of( "AnalogInput[TP1]$rtdata(rtdPhysicalValue)" );
-      if( gwid().equals( testGwid ) ) {
-        logger().error( "send currdata: %s: aValue = %s, prevValue = %s", gwid(), aValue, value );
+      if( logger().isSeverityOn( ELogSeverity.DEBUG ) ) {
+        Gwid testGwid = Gwid.of( "AnalogInput[TP1]$rtdata(rtdPhysicalValue)" );
+        if( gwid().equals( testGwid ) ) {
+          logger().debug( "send currdata: %s: aValue = %s, prevValue = %s", gwid(), aValue, value );
+        }
       }
 
       AvTypeCastRtException.checkCanAssign( atomicType, aValue.atomicType() );
