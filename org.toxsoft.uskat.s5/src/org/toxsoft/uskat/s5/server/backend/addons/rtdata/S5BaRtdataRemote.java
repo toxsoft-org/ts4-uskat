@@ -10,6 +10,7 @@ import org.toxsoft.core.tslib.gw.gwid.Gwid;
 import org.toxsoft.core.tslib.gw.gwid.IGwidList;
 import org.toxsoft.core.tslib.utils.Pair;
 import org.toxsoft.core.tslib.utils.errors.TsNullArgumentRtException;
+import org.toxsoft.core.tslib.utils.logs.ELogSeverity;
 import org.toxsoft.uskat.core.backend.ISkBackendHardConstant;
 import org.toxsoft.uskat.core.backend.api.*;
 import org.toxsoft.uskat.s5.client.IS5ConnectionParams;
@@ -68,10 +69,12 @@ class S5BaRtdataRemote
         currDataMessage = BaMsgRtdataCurrData.INSTANCE.makeMessage( baData.currdataToBackend );
 
         // TODO: 2023-11-19 mvkd
-        Gwid testGwid = Gwid.of( "AnalogInput[TP1]$rtdata(rtdPhysicalValue)" );
-        IAtomicValue testValue = baData.currdataToBackend.findByKey( testGwid );
-        if( testValue != null ) {
-          logger().error( "send currdata: %s = %s", testGwid, testValue );
+        if( logger().isSeverityOn( ELogSeverity.DEBUG ) ) {
+          Gwid testGwid = Gwid.of( "AnalogInput[TP1]$rtdata(rtdPhysicalValue)" );
+          IAtomicValue testValue = baData.currdataToBackend.findByKey( testGwid );
+          if( testValue != null ) {
+            logger().debug( "send currdata: %s = %s", testGwid, testValue );
+          }
         }
 
         baData.currdataToBackend.clear();
