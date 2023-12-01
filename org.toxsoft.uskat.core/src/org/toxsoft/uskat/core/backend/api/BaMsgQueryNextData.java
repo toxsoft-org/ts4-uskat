@@ -4,31 +4,22 @@ import static org.toxsoft.core.tslib.av.EAtomicType.*;
 import static org.toxsoft.core.tslib.av.impl.AvUtils.*;
 import static org.toxsoft.core.tslib.bricks.strio.IStrioHardConstants.*;
 
-import org.toxsoft.core.tslib.av.temporal.ITemporalAtomicValue;
-import org.toxsoft.core.tslib.av.temporal.TemporalAtomicValueKeeper;
-import org.toxsoft.core.tslib.bricks.events.msg.GenericMessage;
-import org.toxsoft.core.tslib.bricks.events.msg.GtMessage;
-import org.toxsoft.core.tslib.bricks.strio.IStrioReader;
-import org.toxsoft.core.tslib.bricks.strio.IStrioWriter;
-import org.toxsoft.core.tslib.bricks.strio.chario.impl.CharInputStreamString;
-import org.toxsoft.core.tslib.bricks.strio.chario.impl.CharOutputStreamAppendable;
-import org.toxsoft.core.tslib.bricks.strio.impl.StrioReader;
-import org.toxsoft.core.tslib.bricks.strio.impl.StrioWriter;
-import org.toxsoft.core.tslib.bricks.time.ITimedList;
-import org.toxsoft.core.tslib.bricks.time.impl.TimedList;
-import org.toxsoft.core.tslib.coll.IList;
-import org.toxsoft.core.tslib.coll.primtypes.IStringMap;
-import org.toxsoft.core.tslib.coll.primtypes.IStringMapEdit;
-import org.toxsoft.core.tslib.coll.primtypes.impl.StringMap;
-import org.toxsoft.core.tslib.gw.gwid.EGwidKind;
-import org.toxsoft.core.tslib.utils.errors.TsNullArgumentRtException;
-import org.toxsoft.core.tslib.utils.errors.TsUnsupportedFeatureRtException;
-import org.toxsoft.uskat.core.api.cmdserv.IDtoCompletedCommand;
-import org.toxsoft.uskat.core.api.evserv.SkEvent;
-import org.toxsoft.uskat.core.api.hqserv.ESkQueryState;
-import org.toxsoft.uskat.core.api.hqserv.ISkHistoryQueryService;
-import org.toxsoft.uskat.core.impl.dto.DtoCompletedCommand;
-import org.toxsoft.uskat.core.utils.SkTimedListUtils;
+import org.toxsoft.core.tslib.av.temporal.*;
+import org.toxsoft.core.tslib.bricks.events.msg.*;
+import org.toxsoft.core.tslib.bricks.strio.*;
+import org.toxsoft.core.tslib.bricks.strio.chario.impl.*;
+import org.toxsoft.core.tslib.bricks.strio.impl.*;
+import org.toxsoft.core.tslib.bricks.time.*;
+import org.toxsoft.core.tslib.bricks.time.impl.*;
+import org.toxsoft.core.tslib.coll.*;
+import org.toxsoft.core.tslib.coll.primtypes.*;
+import org.toxsoft.core.tslib.coll.primtypes.impl.*;
+import org.toxsoft.core.tslib.gw.gwid.*;
+import org.toxsoft.core.tslib.utils.errors.*;
+import org.toxsoft.uskat.core.api.cmdserv.*;
+import org.toxsoft.uskat.core.api.evserv.*;
+import org.toxsoft.uskat.core.api.hqserv.*;
+import org.toxsoft.uskat.core.impl.dto.*;
 
 /**
  * {@link IBaQueries} message builder: next portion of data delivered from backend to frontend.
@@ -234,7 +225,7 @@ public class BaMsgQueryNextData
       do {
         String k = sr.readQuotedString();
         sr.ensureSeparatorChar();
-        int bundleCapacity = SkTimedListUtils.getBundleCapacity( sr.readInt() );
+        int bundleCapacity = sr.readInt();
         sr.ensureSeparatorChar();
         map.put( k, TemporalAtomicValueKeeper.KEEPER.readColl( sr, new TimedList<>( bundleCapacity ) ) );
       } while( sr.readArrayNext() );
@@ -259,7 +250,7 @@ public class BaMsgQueryNextData
       do {
         String k = sr.readQuotedString();
         sr.ensureSeparatorChar();
-        int bundleCapacity = SkTimedListUtils.getBundleCapacity( sr.readInt() );
+        int bundleCapacity = sr.readInt();
         sr.ensureSeparatorChar();
         map.put( k, SkEvent.KEEPER.readColl( sr, new TimedList<>( bundleCapacity ) ) );
       } while( sr.readArrayNext() );
@@ -284,7 +275,7 @@ public class BaMsgQueryNextData
       do {
         String k = sr.readQuotedString();
         sr.ensureSeparatorChar();
-        int bundleCapacity = SkTimedListUtils.getBundleCapacity( sr.readInt() );
+        int bundleCapacity = sr.readInt();
         sr.ensureSeparatorChar();
         map.put( k, DtoCompletedCommand.KEEPER.readColl( sr, new TimedList<>( bundleCapacity ) ) );
       } while( sr.readArrayNext() );
