@@ -42,34 +42,19 @@ public interface ISkConnectionSupplier
     extends ICloseable {
 
   /**
+   * The ID of {@link #defConn()} is a key to get default connection from {@link #allConns()} map.
+   */
+  IdChain DEF_CONN_ID = IdChain.NULL;
+
+  /**
    * Returns the default connection if defined.
    * <p>
-   * Initially default connection is created and has the key {@link #getDefaultConnectionKey()} = {@link IdChain#NULL}.
+   * This method always returns the same reference to the default connection. Default connection get also be retrieved
+   * by the key {@link #DEF_CONN_ID} from the {@link #allConns()} map.
    *
    * @return {@link ISkConnection} - default connection, never is <code>null</code>
    */
   ISkConnection defConn();
-
-  /**
-   * Returns the key of the default connection.
-   * <p>
-   * Initially default connection key is {@link IdChain#NULL}.
-   *
-   * @return {@link IdChain} - the key of the default connection or {@link IdChain#NULL}
-   */
-  IdChain getDefaultConnectionKey();
-
-  /**
-   * Chooses the connection to be used as default one - {@link #defConn()}.
-   * <p>
-   * {@link IdChain#NULL} argument resets {@link #defConn()} to the automatically created instance.
-   *
-   * @param aKey {@link IdChain} - the key or {@link IdChain#NULL} to reset
-   * @return {@link ISkConnection} - connection that became the default one or <code>null</code>
-   * @throws TsNullArgumentRtException any argument = <code>null</code>
-   * @throws TsItemNotFoundRtException no connection with the specified key
-   */
-  ISkConnection setDefaultConnection( IdChain aKey );
 
   /**
    * Creates the connection instance with the specified key.

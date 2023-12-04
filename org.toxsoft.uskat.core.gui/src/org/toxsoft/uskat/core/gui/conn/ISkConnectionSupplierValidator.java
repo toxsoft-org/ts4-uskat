@@ -13,15 +13,6 @@ import org.toxsoft.core.tslib.utils.errors.*;
 public interface ISkConnectionSupplierValidator {
 
   /**
-   * Check if the connection can be chhosen as the default one.
-   *
-   * @param aKey {@link IdChain} - the key or {@link IdChain#NULL} to reset
-   * @return {@link ValidationResult} - the check result
-   * @throws TsNullArgumentRtException any argument = <code>null</code>
-   */
-  ValidationResult canSetDefaultConnection( IdChain aKey );
-
-  /**
    * Checks if the connection can be created.
    *
    * @param aKey {@link IdChain} - connection key
