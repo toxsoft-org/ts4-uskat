@@ -12,7 +12,7 @@ import org.toxsoft.uskat.core.utils.*;
  * This class implements {@link ISkConnected} interface
  *
  * @author hazard157
- * @param <T> - modelled entity type
+ * @param <T> - modeled entity type
  */
 public class KM5ConnectedModelBase<T>
     extends M5Model<T>

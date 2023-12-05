@@ -10,7 +10,6 @@ import org.toxsoft.core.tsgui.panels.lazy.*;
 import org.toxsoft.core.tsgui.utils.checkstate.*;
 import org.toxsoft.core.tsgui.utils.layout.*;
 import org.toxsoft.core.tslib.bricks.strid.more.*;
-import org.toxsoft.core.tslib.coll.helpers.*;
 import org.toxsoft.core.tslib.utils.errors.*;
 import org.toxsoft.uskat.core.connection.*;
 import org.toxsoft.uskat.core.gui.conn.*;
@@ -20,7 +19,7 @@ import org.toxsoft.uskat.core.utils.*;
  * {@link AbstractLazyPanel} extension to work with USkat API.
  * <p>
  * The panel content must be created in {@link #doInitGui(Composite)}. This method is called when connection is or
- * becames open. Panel implementation handles connection reference and connsction state change. When connection closes
+ * becomes open. Panel implementation handles connection reference and connsction state change. When connection closes
  * or reference to the connection changes to other connection, content is disposed by calling internal method
  * {@link #disposeBoardContent()} and after, when connection becames active {@link #doInitGui(Composite)} is called
  * again.
@@ -44,21 +43,9 @@ public abstract class AbstractSkLazyPanel
   /**
    * Detects if our {@link #skConn()} reference changed and call {@link #whenConnectionReferenceChanged(ISkConnection)}.
    */
-  private final ISkConnectionSupplierListener connectionSupplierListener = new ISkConnectionSupplierListener() {
-
-    @Override
-    public void onDefaulConnectionChanged( ISkConnectionSupplier aSource, IdChain aOldId ) {
-      // if we are using ISkConnectionSupplier.defConn() then process as connection reference change
-      if( usedConnId == null ) {
-        whenConnectionReferenceChanged( lastConnection );
-      }
-    }
-
-    @Override
-    public void onConnectionsListChanged( ISkConnectionSupplier aSource, ECrudOp aOp, IdChain aConnId ) {
-      if( aConnId == null || aConnId.equals( usedConnId ) ) {
-        whenConnectionReferenceChanged( lastConnection );
-      }
+  private final ISkConnectionSupplierListener connectionSupplierListener = ( aSource, aOp, aConnId ) -> {
+    if( aConnId == null || aConnId.equals( this.usedConnId ) ) {
+      whenConnectionReferenceChanged( this.lastConnection );
     }
   };
 
@@ -243,7 +230,7 @@ public abstract class AbstractSkLazyPanel
    * {@link ISkConnectionSupplier#getConn(IdChain)}. If connection ID is <code>null</code> then
    * {@link ISkConnectionSupplier#defConn()} is returned.
    *
-   * @return {@link IdChain} - used onnection ID or <code>null</code> for {@link ISkConnectionSupplier#defConn()}
+   * @return {@link IdChain} - used connection ID or <code>null</code> for {@link ISkConnectionSupplier#defConn()}
    */
   public IdChain getUsedConnectionId() {
     return usedConnId;
@@ -300,7 +287,7 @@ public abstract class AbstractSkLazyPanel
   /**
    * Subclass must create content of this panel.
    * <p>
-   * Perent composite <code>aParent</code> has layout set to {@link BorderLayout}.
+   * Parent composite <code>aParent</code> has layout set to {@link BorderLayout}.
    *
    * @param aParent {@link Composite} - the parent
    */
@@ -309,7 +296,7 @@ public abstract class AbstractSkLazyPanel
   /**
    * Subclass must release resource and reset internal references indicating that no content exists.
    * <p>
-   * Called when GUI content of the panel isdisposed. Also called when this panel is disposed.
+   * Called when GUI content of the panel is disposed. Also called when this panel is disposed.
    */
   protected void doDisposeGui() {
     // nop
