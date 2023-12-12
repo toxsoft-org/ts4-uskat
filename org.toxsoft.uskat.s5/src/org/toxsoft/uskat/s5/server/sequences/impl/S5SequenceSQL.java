@@ -27,6 +27,7 @@ import org.toxsoft.core.tslib.coll.impl.ElemMap;
 import org.toxsoft.core.tslib.coll.primtypes.IStringMap;
 import org.toxsoft.core.tslib.gw.gwid.*;
 import org.toxsoft.core.tslib.utils.Pair;
+import org.toxsoft.core.tslib.utils.TsLibUtils;
 import org.toxsoft.core.tslib.utils.errors.*;
 import org.toxsoft.core.tslib.utils.logs.ELogSeverity;
 import org.toxsoft.core.tslib.utils.logs.ILogger;
@@ -1692,6 +1693,19 @@ class S5SequenceSQL {
           + ");";
 
   /**
+   * Запрос на добавление раздела (партиции) в указанную таблицу
+   * <p>
+   * <li>1. %s - Имя схемы базы данных ;</li>
+   * <li>2. %s - Имя таблицы;</li>
+   * <li>3. %s - Имя раздела;</li>
+   * <li>3. %s - метка времени завершения интервала времени значений раздела;</li>
+   */
+  static final String QFRMT_REORGANIZE_PARTION = //
+      "alter table %s.%s reorganize partition %s into(" //
+          + "partition %s values less than(%d)" //
+          + ");";
+
+  /**
    * Добавляет указанный раздел в указанную таблицу
    *
    * @param aEntityManager {@link EntityManager} менеджер постоянства
@@ -1703,10 +1717,40 @@ class S5SequenceSQL {
    */
   static int addPartition( EntityManager aEntityManager, String aScheme, String aTable, S5Partition aInfo ) {
     TsNullArgumentRtException.checkNulls( aEntityManager, aScheme, aTable, aInfo );
-    boolean creating = (readPartitions( aEntityManager, aScheme, aTable ).size() == 0);
+    // Существующие разделы
+    IList<S5Partition> partitions = readPartitions( aEntityManager, aScheme, aTable );
+    // Признак того, в таблице нет разделов
+    boolean creating = (partitions.size() == 0);
+    // Список разделов которые пересекаются с создаваемым разделом
+    IListEdit<S5Partition> reorginizePartitions = new ElemLinkedList<>();
+    // Формирования списка реорганизуемых (удаляемых) разделов в пользу создаваемого раздела
+    for( S5Partition partition : partitions ) {
+      if( TimeUtils.intersects( partition.interval(), aInfo.interval() ) ) {
+        reorginizePartitions.add( partition );
+      }
+    }
     // Текст SQL-запроса
-    String sql = format( creating ? QFRMT_CREATE_PARTION : QFRMT_ADD_PARTION, //
-        aScheme, aTable, aInfo.name(), Long.valueOf( aInfo.interval().endTime() ) );
+    String sql = TsLibUtils.EMPTY_STRING;
+    if( reorginizePartitions.size() == 0 ) {
+      // Создание раздела в таблице без разделов или уже с разделами
+      sql = format( creating ? QFRMT_CREATE_PARTION : QFRMT_ADD_PARTION, //
+          aScheme, aTable, aInfo.name(), Long.valueOf( aInfo.interval().endTime() ) );
+    }
+    if( reorginizePartitions.size() > 0 ) {
+      // Создание раздела в таблице с разделами которые пересекаются с добавляемым разделом
+      StringBuilder sb = new StringBuilder();
+      int index = 0;
+      for( S5Partition partition : reorginizePartitions ) {
+        sb.append( partition.name() );
+        if( ++index < reorginizePartitions.size() ) {
+          sb.append( ',' );
+        }
+      }
+      String fromPartitions = sb.toString();
+      String toPartition = aInfo.name();
+      sql = format( QFRMT_REORGANIZE_PARTION, //
+          aScheme, aTable, fromPartitions, toPartition, Long.valueOf( aInfo.interval().endTime() ) );
+    }
     try {
       // Журнал
       logger.info( MSG_ADD_PARTITION_SQL, aScheme, aTable, aInfo, Boolean.valueOf( creating ), sql );
