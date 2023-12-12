@@ -1434,9 +1434,10 @@ public abstract class S5AbstractSequenceWriter<S extends IS5Sequence<V>, V exten
    * @param aEntityManager {@link EntityManager} менеджер постоянства
    * @param aScheme String схема базы данных с которой работает сервер
    * @param aTable String имя таблицы
+   * @param aDepth int глубина (в сутках) хранения значений
    * @throws TsNullArgumentRtException любой аргумент = null
    */
-  private void loadTablePartitions( EntityManager aEntityManager, String aScheme, String aTable ) {
+  private void loadTablePartitions( EntityManager aEntityManager, String aScheme, String aTable, int aDepth ) {
     ITimedListEdit<S5Partition> partitionInfos = new TimedList<>( readPartitions( aEntityManager, aScheme, aTable ) );
     partitionsByTable.put( aTable, partitionInfos );
     StringBuilder sb = new StringBuilder();
@@ -1444,7 +1445,7 @@ public abstract class S5AbstractSequenceWriter<S extends IS5Sequence<V>, V exten
       sb.append( '\n' );
       sb.append( info );
     }
-    logger().info( "%s.%s: partitions: %s", aScheme, aTable, sb.toString() ); //$NON-NLS-1$
+    logger().info( "%s.%s: depth = %d, partitions: %s", aScheme, aTable, Integer.valueOf( aDepth ), sb.toString() ); //$NON-NLS-1$
   }
 
   /**
@@ -1509,8 +1510,10 @@ public abstract class S5AbstractSequenceWriter<S extends IS5Sequence<V>, V exten
           try {
             String scheme = OP_BACKEND_DB_SCHEME_NAME.getValue( initialConfig().impl().params() ).asString();
             for( IS5SequenceTableNames tableNames : sequenceFactory().tableNames() ) {
-              loadTablePartitions( em, scheme, tableNames.blockTableName() );
-              loadTablePartitions( em, scheme, tableNames.blobTableName() );
+              int blockDepth = sequenceFactory().getTableDepth( tableNames.blockTableName() );
+              int blobDepth = sequenceFactory().getTableDepth( tableNames.blobTableName() );
+              loadTablePartitions( em, scheme, tableNames.blockTableName(), blockDepth );
+              loadTablePartitions( em, scheme, tableNames.blobTableName(), blobDepth );
             }
           }
           finally {
