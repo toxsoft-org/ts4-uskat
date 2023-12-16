@@ -78,10 +78,10 @@ public abstract class KM5AbstractContributor
    * contributor models only unchangeable entities (like {@link IDtoAttrInfo} or Java code defined classes) then
    * subclass does not needs to override this method.
    * <p>
-   * In base class does nothing, there is no need to call superclass methodwhen overriding.
+   * In base class does nothing, there is no need to call superclass method when overriding.
    *
-   * @param aOp {@link ECrudOp} - the kind of change (never is {@link ECrudOp#LIST})
-   * @param aClassId String - affected class ID
+   * @param aOp {@link ECrudOp} - the kind of change
+   * @param aClassId String - affected class ID or <code>null</code>
    */
   protected void papiUpdateModel( ECrudOp aOp, String aClassId ) {
     // nop
