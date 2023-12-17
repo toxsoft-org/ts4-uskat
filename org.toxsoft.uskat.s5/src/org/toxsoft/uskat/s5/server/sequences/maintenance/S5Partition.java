@@ -174,7 +174,7 @@ public final class S5Partition
       // Частный случай, еще нет разделов
       return createPartitionInfosForInterval( aInterval.startTime(), aInterval.endTime(), aDepth );
     }
-    // Опреределние текущего интервала разделов
+    // Определение текущего интервала разделов
     ITimeInterval partitionInterval =
         new TimeInterval( aPartitions.first().interval().startTime(), aPartitions.last().interval().endTime() );
     // Формирование новых интервалов разделов
