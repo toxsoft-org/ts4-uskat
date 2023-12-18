@@ -11,6 +11,7 @@ import org.toxsoft.core.tsgui.m5.model.impl.*;
 import org.toxsoft.core.tsgui.m5.std.models.misc.*;
 import org.toxsoft.core.tslib.av.opset.*;
 import org.toxsoft.core.tslib.av.opset.impl.*;
+import org.toxsoft.core.tslib.bricks.validator.*;
 import org.toxsoft.core.tslib.coll.*;
 import org.toxsoft.core.tslib.coll.helpers.*;
 import org.toxsoft.core.tslib.coll.impl.*;
@@ -90,6 +91,30 @@ public class SdedDtoLinkInfoM5Model
 
     public LifecycleManager( IM5Model<IDtoLinkInfo> aModel ) {
       super( aModel );
+    }
+
+    @Override
+    protected ValidationResult doBeforeCreate( IM5Bunch<IDtoLinkInfo> aValues ) {
+      // сначала базовый класс
+      ValidationResult retVal = super.doBeforeCreate( aValues );
+      if( !retVal.isOk() ) {
+        return retVal;
+      }
+      // поле имя обязательно
+      String linkName = aValues.getAsAv( FID_NAME ).asString();
+      if( linkName.isBlank() ) {
+        return ValidationResult.error( FMT_ERR_NO_NAME );
+      }
+      if( linkName.startsWith( "<" ) ) { //$NON-NLS-1$
+        return ValidationResult.error( FMT_ERR_NEED_VALID_NAME );
+      }
+
+      // далее поле ограничений
+      CollConstraint cc = LINK_CONSTRAINT.getFieldValue( aValues );
+      if( cc == null ) {
+        return ValidationResult.error( FMT_ERR_NO_CONSTRAINTS );
+      }
+      return ValidationResult.SUCCESS;
     }
 
     private IDtoLinkInfo makeDtoLinkInfo( IM5Bunch<IDtoLinkInfo> aValues ) {

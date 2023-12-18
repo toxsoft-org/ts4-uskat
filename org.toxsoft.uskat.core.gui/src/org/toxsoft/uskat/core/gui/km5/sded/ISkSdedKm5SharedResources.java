@@ -97,10 +97,13 @@ public interface ISkSdedKm5SharedResources {
   /**
    * {@link SdedDtoLinkInfoM5Model}
    */
-  String STR_LINK_CLASS_IDS     = Messages.getString( "STR_LINK_CLASS_IDS" );     //$NON-NLS-1$
-  String STR_LINK_CLASS_IDS_D   = Messages.getString( "STR_LINK_CLASS_IDS_D" );   //$NON-NLS-1$
-  String STR_LINK_CONSTRAINTS   = Messages.getString( "STR_LINK_CONSTRAINTS" );   //$NON-NLS-1$
-  String STR_LINK_CONSTRAINTS_D = Messages.getString( "STR_LINK_CONSTRAINTS_D" ); //$NON-NLS-1$
+  String STR_LINK_CLASS_IDS      = Messages.getString( "STR_LINK_CLASS_IDS" );     //$NON-NLS-1$
+  String STR_LINK_CLASS_IDS_D    = Messages.getString( "STR_LINK_CLASS_IDS_D" );   //$NON-NLS-1$
+  String STR_LINK_CONSTRAINTS    = Messages.getString( "STR_LINK_CONSTRAINTS" );   //$NON-NLS-1$
+  String STR_LINK_CONSTRAINTS_D  = Messages.getString( "STR_LINK_CONSTRAINTS_D" ); //$NON-NLS-1$
+  String FMT_ERR_NO_CONSTRAINTS  = "Задайте ограничения связи";
+  String FMT_ERR_NO_NAME         = "Пусто имя недопустимо";
+  String FMT_ERR_NEED_VALID_NAME = "Задайте имя связи";
 
   /**
    * {@link SdedDtoFullObjectM5Model}
