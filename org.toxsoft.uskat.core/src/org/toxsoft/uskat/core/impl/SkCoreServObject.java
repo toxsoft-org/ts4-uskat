@@ -90,6 +90,18 @@ public class SkCoreServObject
       cache.removeByKey( aSkid );
     }
 
+    void removeByClass( String aClassId ) {
+      SkidList toRemove = new SkidList();
+      for( Skid s : cache.keys() ) {
+        if( s.classId().equals( aClassId ) ) {
+          toRemove.add( s );
+        }
+      }
+      for( Skid s : toRemove ) {
+        cache.removeByKey( s );
+      }
+    }
+
     void clear() {
       cache.clear();
     }
@@ -388,6 +400,29 @@ public class SkCoreServObject
 
   };
 
+  /**
+   * Updates objects class when Sk-class changes.
+   */
+  private final ISkSysdescrListener sysdescrListener = ( aCoreApi, aOp, aClassId ) -> {
+    switch( aOp ) {
+      case CREATE: {
+        // nop
+        break;
+      }
+      case EDIT:
+      case REMOVE: {
+        this.objsCache.removeByClass( aClassId );
+        break;
+      }
+      case LIST: {
+        this.objsCache.clear();
+        break;
+      }
+      default:
+        throw new TsNotAllEnumsUsedRtException( aOp.id() );
+    }
+  };
+
   final ObjsCache         objsCache         = new ObjsCache();
   final ObjsCreators      objsCreators      = new ObjsCreators();
   final Eventer           eventer           = new Eventer();
@@ -409,7 +444,7 @@ public class SkCoreServObject
 
   @Override
   protected void doInit( ITsContextRo aArgs ) {
-    // nop
+    sysdescr().eventer().addListener( sysdescrListener );
   }
 
   @Override
@@ -420,16 +455,15 @@ public class SkCoreServObject
 
   @Override
   protected boolean onBackendMessage( GenericMessage aMessage ) {
-    switch( aMessage.messageId() ) {
-      case MSGID_OBJECTS_CHANGE: {
+    return switch( aMessage.messageId() ) {
+      case MSGID_OBJECTS_CHANGE -> {
         ECrudOp op = extractCrudOp( aMessage );
         Skid skid = extractSkid( aMessage );
         eventer.fireObjectsChanged( op, skid );
-        return true;
+        yield true;
       }
-      default:
-        return false;
-    }
+      default -> false;
+    };
   }
 
   // ------------------------------------------------------------------------------------
