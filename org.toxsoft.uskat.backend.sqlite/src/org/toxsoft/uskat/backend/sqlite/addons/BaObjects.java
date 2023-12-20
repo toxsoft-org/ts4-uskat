@@ -121,7 +121,8 @@ public class BaObjects
   }
 
   private void internalRemoveSingleObject( Skid aSkid ) {
-    StridablesKeepentTable<IDtoObject> table = tablesByName.findByKey( aSkid.classId() );
+    String tableName = makeTableName( aSkid.classId() );
+    StridablesKeepentTable<IDtoObject> table = tablesByName.findByKey( tableName );
     if( table != null ) {
       table.removeRow( aSkid.strid() );
       GtMessage msg = IBaObjectsMessages.makeMessage( ECrudOp.REMOVE, aSkid );
