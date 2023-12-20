@@ -30,7 +30,6 @@ import org.toxsoft.uskat.core.api.objserv.IDtoObject;
 import org.toxsoft.uskat.core.api.sysdescr.dto.IDtoClassInfo;
 import org.toxsoft.uskat.core.api.users.ISkUser;
 import org.toxsoft.uskat.core.api.users.ISkUserServiceHardConstants;
-import org.toxsoft.uskat.core.impl.SkCoreServUsers;
 import org.toxsoft.uskat.core.impl.dto.*;
 import org.toxsoft.uskat.s5.common.sessions.ISkSession;
 import org.toxsoft.uskat.s5.legacy.ISkSystem;
@@ -227,7 +226,7 @@ public class S5SessionUtils {
     }
     // Создание класса пользователя
     if( !classes.hasKey( ISkUser.CLASS_ID ) ) {
-      newClasses.add( SkCoreServUsers.internalCreateUserClassDto() );
+      newClasses.add( ISkUserServiceHardConstants.internalCreateUserClassDto() );
     }
     // Создание класса сессия
     if( !classes.hasKey( ISkSession.CLASS_ID ) ) {
