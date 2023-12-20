@@ -88,7 +88,7 @@ public class KM5MultiLinkFieldDef
   }
 
   // ------------------------------------------------------------------------------------
-  // ISkStdContextReferences
+  // ISkConnected
   //
 
   @Override

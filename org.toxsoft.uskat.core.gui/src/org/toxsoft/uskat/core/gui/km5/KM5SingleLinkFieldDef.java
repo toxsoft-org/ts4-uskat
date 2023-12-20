@@ -54,7 +54,6 @@ public class KM5SingleLinkFieldDef
     super( aLinkInfo.id(), IGwHardConstants.GW_ROOT_CLASS_ID ); // ИД модели уточняется в specifyItemModelId()
     TsIllegalArgumentRtException.checkTrue( aLinkInfo.linkConstraint().maxCount() != 1 );
     linkInfo = aLinkInfo;
-    TsInternalErrorRtException.checkTrue( linkInfo.linkConstraint().maxCount() != 1 );
     String name = linkInfo.nmName().isEmpty() ? linkInfo.id() : linkInfo.nmName();
     setNameAndDescription( name, linkInfo.description() );
     setFlags( M5FF_DETAIL );
@@ -100,7 +99,7 @@ public class KM5SingleLinkFieldDef
   }
 
   // ------------------------------------------------------------------------------------
-  // ISkStdContextReferences
+  // ISkConnected
   //
 
   @Override
