@@ -2,8 +2,11 @@ package org.toxsoft.uskat.core.api.users;
 
 import static org.toxsoft.core.tslib.av.impl.AvUtils.*;
 import static org.toxsoft.core.tslib.av.metainfo.IAvMetaConstants.*;
+import static org.toxsoft.core.tslib.gw.IGwHardConstants.*;
+import static org.toxsoft.uskat.core.ISkHardConstants.*;
 import static org.toxsoft.uskat.core.api.users.ISkResources.*;
 
+import org.toxsoft.core.tslib.av.opset.impl.*;
 import org.toxsoft.core.tslib.coll.helpers.*;
 import org.toxsoft.core.tslib.coll.primtypes.impl.*;
 import org.toxsoft.core.tslib.gw.skid.*;
@@ -28,14 +31,14 @@ public interface ISkUserServiceHardConstants {
   String CLSID_ROLE = ISkHardConstants.SK_ID + ".Role"; //$NON-NLS-1$
 
   /**
-   * Unremovable administrative role.
+   * Non-removable administrative role.
    * <p>
    * This role always have all the right.
    */
   String ROLE_ID_ROOT = "rootRole"; //$NON-NLS-1$
 
   /**
-   * Nonremovable administrative role.
+   * Non-removable administrative role.
    * <p>
    * This role rights as defined for guest by the administrator.
    * <p>
@@ -67,8 +70,8 @@ public interface ISkUserServiceHardConstants {
    * Attribute {@link ISkRole#isEnabled()}.
    */
   IDtoAttrInfo ATRINF_ROLE_IS_ENABLED = DtoAttrInfo.create2( ATRID_ROLE_IS_ENABLED, DDEF_TS_BOOL, //
-      TSID_NAME, STR_N_ROLE_IS_ENABLED, //
-      TSID_DESCRIPTION, STR_D_ROLE_IS_ENABLED, //
+      TSID_NAME, STR_ROLE_IS_ENABLED, //
+      TSID_DESCRIPTION, STR_ROLE_IS_ENABLED_D, //
       TSID_DEFAULT_VALUE, AV_TRUE //
   );
 
@@ -76,8 +79,8 @@ public interface ISkUserServiceHardConstants {
    * Attribute {@link ISkRole#isHidden()}.
    */
   IDtoAttrInfo ATRINF_ROLE_IS_HIDDEN = DtoAttrInfo.create2( ATRID_ROLE_IS_HIDDEN, DDEF_TS_BOOL, //
-      TSID_NAME, STR_N_ROLE_IS_HIDDEN, //
-      TSID_DESCRIPTION, STR_D_ROLE_IS_HIDDEN, //
+      TSID_NAME, STR_ROLE_IS_HIDDEN, //
+      TSID_DESCRIPTION, STR_ROLE_IS_HIDDEN_D, //
       TSID_DEFAULT_VALUE, AV_FALSE //
   );
 
@@ -144,8 +147,8 @@ public interface ISkUserServiceHardConstants {
    * Internal attribute storing password hash code calculated by {@link SkHelperUtils#getPasswordHashCode(String)}.
    */
   IDtoAttrInfo ATRINF_PASSWORD_HASH = DtoAttrInfo.create2( ATRID_PASSWORD_HASH, DDEF_STRING, //
-      TSID_NAME, STR_N_PASSWORD, //
-      TSID_DESCRIPTION, STR_D_PASSWORD, //
+      TSID_NAME, STR_PASSWORD, //
+      TSID_DESCRIPTION, STR_PASSWORD_D, //
       TSID_DEFAULT_VALUE, AV_STR_EMPTY //
   );
 
@@ -153,8 +156,8 @@ public interface ISkUserServiceHardConstants {
    * Attribute {@link ISkUser#isEnabled()}.
    */
   IDtoAttrInfo ATRINF_USER_IS_ENABLED = DtoAttrInfo.create2( ATRID_USER_IS_ENABLED, DDEF_TS_BOOL, //
-      TSID_NAME, STR_N_USER_IS_ENABLED, //
-      TSID_DESCRIPTION, STR_D_USER_IS_ENABLED, //
+      TSID_NAME, STR_USER_IS_ENABLED, //
+      TSID_DESCRIPTION, STR_USER_IS_ENABLED_D, //
       TSID_DEFAULT_VALUE, AV_TRUE //
   );
 
@@ -162,8 +165,8 @@ public interface ISkUserServiceHardConstants {
    * Attribute {@link ISkUser#isHidden()}.
    */
   IDtoAttrInfo ATRINF_USER_IS_HIDDEN = DtoAttrInfo.create2( ATRID_USER_IS_HIDDEN, DDEF_TS_BOOL, //
-      TSID_NAME, STR_N_USER_IS_HIDDEN, //
-      TSID_DESCRIPTION, STR_D_USER_IS_HIDDEN, //
+      TSID_NAME, STR_USER_IS_HIDDEN, //
+      TSID_DESCRIPTION, STR_USER_IS_HIDDEN_D, //
       TSID_DEFAULT_VALUE, AV_FALSE //
   );
 
@@ -172,8 +175,44 @@ public interface ISkUserServiceHardConstants {
    */
   IDtoLinkInfo LNKINF_USER_ROLES = DtoLinkInfo.create2( LNKID_USER_ROLES, //
       new SingleStringList( CLSID_ROLE ), new CollConstraint( 0, false, true, true ), //
-      TSID_NAME, STR_N_ROLES, //
-      TSID_DESCRIPTION, STR_D_ROLES //
+      TSID_NAME, STR_ALLOWED_ROLES, //
+      TSID_DESCRIPTION, STR_ALLOWED_ROLES_D //
   );
+
+  /**
+   * Creates DTO of {@link ISkRole#CLASS_ID} class.
+   *
+   * @return {@link IDtoClassInfo} - {@link ISkRole#CLASS_ID} class info
+   */
+  static IDtoClassInfo internalCreateRoleClassDto() {
+    DtoClassInfo cinf = new DtoClassInfo( CLSID_ROLE, GW_ROOT_CLASS_ID, OptionSetUtils.createOpSet( //
+        TSID_NAME, STR_ROLE, //
+        TSID_DESCRIPTION, STR_ROLE_D //
+    ) );
+    OPDEF_SK_IS_SOURCE_CODE_DEFINED_CLASS.setValue( cinf.params(), AV_TRUE );
+    OPDEF_SK_IS_SOURCE_USKAT_CORE_CLASS.setValue( cinf.params(), AV_TRUE );
+    cinf.attrInfos().add( ATRINF_ROLE_IS_ENABLED );
+    cinf.attrInfos().add( ATRINF_ROLE_IS_HIDDEN );
+    return cinf;
+  }
+
+  /**
+   * Creates DTO of {@link ISkUser#CLASS_ID} class.
+   *
+   * @return {@link IDtoClassInfo} - {@link ISkUser#CLASS_ID} class info
+   */
+  static IDtoClassInfo internalCreateUserClassDto() {
+    DtoClassInfo cinf = new DtoClassInfo( CLSID_USER, GW_ROOT_CLASS_ID, OptionSetUtils.createOpSet( //
+        TSID_NAME, STR_USER, //
+        TSID_DESCRIPTION, STR_USER_D //
+    ) );
+    OPDEF_SK_IS_SOURCE_CODE_DEFINED_CLASS.setValue( cinf.params(), AV_TRUE );
+    OPDEF_SK_IS_SOURCE_USKAT_CORE_CLASS.setValue( cinf.params(), AV_TRUE );
+    cinf.attrInfos().add( ATRINF_PASSWORD_HASH );
+    cinf.attrInfos().add( ATRINF_USER_IS_ENABLED );
+    cinf.attrInfos().add( ATRINF_USER_IS_HIDDEN );
+    cinf.linkInfos().add( LNKINF_USER_ROLES );
+    return cinf;
+  }
 
 }
