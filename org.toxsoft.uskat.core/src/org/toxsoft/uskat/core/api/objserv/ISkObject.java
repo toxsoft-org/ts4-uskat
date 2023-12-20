@@ -107,7 +107,31 @@ public interface ISkObject
   }
 
   /**
-   * Return SKID of single rivet (rivet with max 1 object riveted).
+   * Returns SKIDs of the rivet.
+   *
+   * @param aRivetId String - the rivet ID
+   * @return {@rivet ISkidList} - riveted object SKIDs
+   * @throws TsItemNotFoundRtException no such rivet or object exists
+   */
+  default ISkidList getMultiRivetSkids( String aRivetId ) {
+    return rivets().map().getByKey( aRivetId );
+  }
+
+  /**
+   * Returns objects of the rivet.
+   *
+   * @param <T> - expected type of the object
+   * @param aRivetId String - the rivet ID
+   * @return {@rivet ISkObject} - riveted objects
+   * @throws TsItemNotFoundRtException no such rivet or object exists
+   */
+  @SuppressWarnings( { "unchecked", "rawtypes" } )
+  default <T extends ISkObject> IList<T> getMultiRivets( String aRivetId ) {
+    return (IList)coreApi().objService().getObjs( getMultiRivetSkids( aRivetId ) );
+  }
+
+  /**
+   * Returns SKID of single rivet (rivet with max 1 object riveted).
    * <p>
    * If rivet is empty or there are more than 1 riveted object, method returns <code>null</code>.
    *
@@ -120,7 +144,7 @@ public interface ISkObject
   }
 
   /**
-   * Return object of single rivet (rivet with max 1 object riveted).
+   * Returns object of single rivet (rivet with max 1 object riveted).
    * <p>
    * If rivet is empty or there are more than 1 riveted object, method returns <code>null</code>. Also returns
    * <code>null</code> if object of riveted SKID does not exists.
@@ -193,7 +217,7 @@ public interface ISkObject
   //
 
   /**
-   * Return SKID of single link (link with max 1 object linked).
+   * Returns SKID of single link (link with max 1 object linked).
    * <p>
    * If link is empty or there are more than 1 linked object, method returns <code>null</code>.
    *
@@ -204,7 +228,7 @@ public interface ISkObject
   Skid getSingleLinkSkid( String aLinkId );
 
   /**
-   * Return object of single link (link with max 1 object linked).
+   * Returns object of single link (link with max 1 object linked).
    * <p>
    * If link is empty or there are more than 1 linked object, method returns <code>null</code>. Also returns
    * <code>null</code> if object of linked SKID does not exists.
