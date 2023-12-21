@@ -496,7 +496,7 @@ public class SkCoreServObject
     }
     // initialize rivets from aObjectDto or by Skid.NONE
     for( IDtoRivetInfo rinf : aClassInfo.rivets().list() ) {
-      ISkidList rivet = sko.rivets().map().findByKey( rinf.id() );
+      ISkidList rivet = aObjectDto.rivets().map().findByKey( rinf.id() );
       if( rivet == null ) {
         rivet = SkidList.createNones( rinf.count() );
       }
@@ -506,7 +506,7 @@ public class SkCoreServObject
   }
 
   /**
-   * Creates {@link DtoObject} to ba saved to the backend.
+   * Creates {@link DtoObject} to be saved to the backend.
    * <p>
    * For size optimization, created instance:
    * <ul>
