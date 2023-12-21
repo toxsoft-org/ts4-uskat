@@ -10,19 +10,19 @@ import org.toxsoft.uskat.core.api.objserv.*;
 import org.toxsoft.uskat.core.api.sysdescr.dto.*;
 
 /**
- * Класс описания атрибута
+ * M5-field for {@link ISkObject} attribute.
  *
  * @author hazard157
- * @param <T> - modelled entity type
+ * @param <T> - modeled entity type
  */
 public class KM5AttributeFieldDef<T extends ISkObject>
     extends M5AttributeFieldDef<T> {
 
   /**
-   * Конструктор из описания атрибута объекта {@link IDtoAttrInfo}.
+   * Constructor from {@link IDtoAttrInfo}.
    *
-   * @param aAttrInfo {@link IDtoAttrInfo} - описание атрибута
-   * @throws TsNullArgumentRtException любой аргумент = null
+   * @param aAttrInfo {@link IDtoAttrInfo} - the attribute info
+   * @throws TsNullArgumentRtException any argument = <code>null</code>
    */
   public KM5AttributeFieldDef( IDtoAttrInfo aAttrInfo ) {
     this( aAttrInfo.id(), aAttrInfo.dataType() );
@@ -31,16 +31,17 @@ public class KM5AttributeFieldDef<T extends ISkObject>
   }
 
   /**
-   * Конструктор для создания полей, не существующих в {@link ISkObject}.
+   * Constructor for fields not existing in {@link ISkObject}.
    *
-   * @param aId String - идентификатор поля (ИД-путь)
-   * @param aAttrType {@link IDataType} - тип данных атрибута
-   * @throws TsNullArgumentRtException любой аргумент = null
-   * @throws TsIllegalArgumentRtException aId не ИД-путь
+   * @param aId String - the field ID
+   * @param aAttrType {@link IDataType} - the attribute data type
+   * @throws TsNullArgumentRtException any argument = <code>null</code>
+   * @throws TsIllegalArgumentRtException ID is not an IDpath
    */
   public KM5AttributeFieldDef( String aId, IDataType aAttrType ) {
     super( aId, aAttrType );
-    // if no default format string for boolean AV, set it as chek mark
+    // TODO do we need this hack?
+    // if no default format string for boolean AV, set it as check mark
     if( atomicType() == EAtomicType.BOOLEAN ) {
       if( !params().hasValue( TSID_FORMAT_STRING ) ) {
         params().setStr( TSID_FORMAT_STRING, FMT_BOOL_CHECK );

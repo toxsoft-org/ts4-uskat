@@ -510,8 +510,8 @@ public class SkCoreServObject
    * <p>
    * For size optimization, created instance:
    * <ul>
-   * <li>does not have system attibute values in the set {@link IDtoObject#attrs()};</li>
-   * <li>does not includes attributes with default values - they will be restored from attribut info at load time.</li>
+   * <li>does not have system attribute values in the set {@link IDtoObject#attrs()};</li>
+   * <li>does not includes attributes with default values - they will be restored from attribute info at load time.</li>
    * </ul>
    *
    * @param aSkObj {@link ISkObject} - the source

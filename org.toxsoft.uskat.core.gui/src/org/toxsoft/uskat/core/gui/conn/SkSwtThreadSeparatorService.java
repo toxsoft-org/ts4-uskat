@@ -15,12 +15,10 @@ import org.toxsoft.uskat.core.impl.*;
 /**
  * USkat-service: MWS-based GUI client side service to ensure {@link IDevCoreApi#doJobInCoreMainThread()} calls.
  * <p>
- * <h3>Usage:</h3> put the the following references
- * in the argument of the connection opening{@link ISkConnection#open(ITsContextRo)}
+ * <h3>Usage:</h3> put the the following references in the argument of the connection
+ * opening{@link ISkConnection#open(ITsContextRo)} TODO ???
  * <p>
- * 
- *  to the
- * {@link ITsGuiTimersService} in the opening arguments as the {@link #REFDEF_TSGUI_TIMER_SERVICE}
+ * to the {@link ITsGuiTimersService} in the opening arguments as the {@link #REFDEF_TSGUI_TIMER_SERVICE}
  * <p>
  * immediately after opening connection, add the service to the connection by calling
  * {@link ISkCoreApi#addService(ISkServiceCreator) coreApi.addService(SwtThreadSeparatorService.CREATOR)}.
