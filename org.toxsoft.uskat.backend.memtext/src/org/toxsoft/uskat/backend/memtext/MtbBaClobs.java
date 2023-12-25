@@ -95,7 +95,7 @@ class MtbBaClobs
     if( !Objects.equals( clobsMap.findByKey( aGwid ), aClob ) ) {
       clobsMap.put( aGwid, aClob );
       setChanged();
-      GtMessage msg = IBaClobsMessages.makeMessage( aGwid );
+      GtMessage msg = BaMsgClobsChanged.BUILDER.makeMessage( aGwid );
       owner().frontend().onBackendMessage( msg );
     }
   }

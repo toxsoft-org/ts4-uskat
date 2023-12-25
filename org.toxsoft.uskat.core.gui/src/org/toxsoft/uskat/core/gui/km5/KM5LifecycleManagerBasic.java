@@ -8,7 +8,7 @@ import org.toxsoft.uskat.core.connection.*;
 import org.toxsoft.uskat.core.utils.*;
 
 /**
- * Basic lifcycle manager of all KM5 modelled Sk-classes.
+ * Basic lifcycle manager of all KM5 modeled Sk-classes.
  * <p>
  * Like {@link KM5ModelBasic}, this is very basic implementation to be used with {@link KM5ModelBasic}. For subject area
  * classes use {@link KM5LifecycleManagerGeneric} instead.
@@ -16,7 +16,7 @@ import org.toxsoft.uskat.core.utils.*;
  * @see KM5LifecycleManagerGeneric
  * @see KM5ModelBasic
  * @author hazard157
- * @param <T> - modelled entity type
+ * @param <T> - modeled entity type
  * @param <M> - M5 master-object type
  */
 public class KM5LifecycleManagerBasic<T extends ISkObject, M>

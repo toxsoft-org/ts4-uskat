@@ -25,6 +25,7 @@ import org.toxsoft.uskat.core.*;
 import org.toxsoft.uskat.core.api.sysdescr.*;
 import org.toxsoft.uskat.core.api.sysdescr.dto.*;
 import org.toxsoft.uskat.core.devapi.*;
+import org.toxsoft.uskat.core.impl.dto.*;
 
 /**
  * {@link ISkSysdescr} implementation.
@@ -510,16 +511,15 @@ public class SkCoreServSysdescr
 
   @Override
   protected boolean onBackendMessage( GenericMessage aMessage ) {
-    switch( aMessage.messageId() ) {
-      case MSGID_SYSDESCR_CHANGE: {
+    return switch( aMessage.messageId() ) {
+      case MSGID_SYSDESCR_CHANGE -> {
         ECrudOp op = extractCrudOp( aMessage );
         String classId = extractClassId( aMessage );
         eventer.fireClassInfosChanged( op, classId );
-        return true;
+        yield true;
       }
-      default:
-        return false;
-    }
+      default -> false;
+    };
   }
 
   // ------------------------------------------------------------------------------------
@@ -553,6 +553,11 @@ public class SkCoreServSysdescr
     ISkClassInfo cInfo = listClasses().findByKey( aDtoClassInfo.id() );
     // validate the editing of existing class
     if( cInfo != null ) {
+      // do not edit existing class if is the same
+      IDtoClassInfo existngClassDto = DtoClassInfo.createFromSk( cInfo, true );
+      if( existngClassDto.equals( aDtoClassInfo ) ) {
+        return cInfo;
+      }
       TsValidationFailedRtException.checkError( validationSupport.canEditClass( aDtoClassInfo, cInfo ) );
     }
     // validate the creation of the new class

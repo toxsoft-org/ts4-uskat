@@ -3,6 +3,7 @@ package org.toxsoft.uskat.s5.server.sequences.impl;
 import static java.lang.String.*;
 import static org.toxsoft.core.tslib.bricks.strid.impl.StridUtils.*;
 import static org.toxsoft.uskat.s5.common.IS5CommonResources.*;
+import static org.toxsoft.uskat.s5.server.IS5ServerHardConstants.*;
 import static org.toxsoft.uskat.s5.server.sequences.IS5SequenceHardConstants.*;
 import static org.toxsoft.uskat.s5.server.sequences.impl.IS5Resources.*;
 import static org.toxsoft.uskat.s5.utils.threads.impl.S5Lockable.*;
@@ -19,7 +20,6 @@ import org.toxsoft.core.tslib.coll.IList;
 import org.toxsoft.core.tslib.coll.IMapEdit;
 import org.toxsoft.core.tslib.coll.impl.ElemMap;
 import org.toxsoft.core.tslib.gw.gwid.Gwid;
-import org.toxsoft.core.tslib.utils.Pair;
 import org.toxsoft.core.tslib.utils.TsLibUtils;
 import org.toxsoft.core.tslib.utils.errors.*;
 import org.toxsoft.uskat.s5.common.sysdescr.ISkSysdescrReader;
@@ -154,8 +154,21 @@ public abstract class S5SequenceFactory<V extends ITemporal<?>>
   // Реализация IS5SequenceFactory
   //
   @Override
-  public final IList<Pair<String, String>> tableNames() {
+  public final IList<IS5SequenceTableNames> tableNames() {
     return doTableNames();
+  }
+
+  @Override
+  public final int getTableDepth( String aTableName ) {
+    TsNullArgumentRtException.checkNull( aTableName );
+    for( IS5SequenceTableNames tables : tableNames() ) {
+      if( tables.blockTableName().equals( aTableName ) || tables.blobTableName().equals( aTableName ) ) {
+        int retValue = OP_DB_STORAGE_DEPTH.getValue( initialConfig().params() ).asInt();
+        return retValue;
+      }
+    }
+    // Таблица не существует
+    throw new TsItemNotFoundRtException( ERR_TABLE_NOT_EXSIST, aTableName );
   }
 
   @Override
@@ -263,10 +276,10 @@ public abstract class S5SequenceFactory<V extends ITemporal<?>>
    *
    * @param aBlockClass {@link Class} класс реализации блока
    * @param aBlobClass {@link Class} класс реализации blob
-   * @return {@link Pair}&lt;String,String&gt; пара имен таблиц хранения значений данных
+   * @return {@link IS5SequenceTableNames} пара имен таблиц хранения значений данных
    * @throws TsNullArgumentRtException аргумент = null
    */
-  protected static final Pair<String, String> tableNames( Class<? extends S5SequenceBlock<?, ?, ?>> aBlockClass,
+  protected static final IS5SequenceTableNames tableNames( Class<? extends S5SequenceBlock<?, ?, ?>> aBlockClass,
       Class<? extends S5SequenceBlob<?, ?, ?>> aBlobClass ) {
     TsNullArgumentRtException.checkNulls( aBlockClass, aBlobClass );
     return tableNames( aBlockClass.getName(), aBlobClass.getName() );
@@ -277,12 +290,12 @@ public abstract class S5SequenceFactory<V extends ITemporal<?>>
    *
    * @param aBlockClassName String полное имя класса реализации блока
    * @param aBlobClassName String полное имя класса реализации blob
-   * @return {@link Pair}&lt;String,String&gt; пара имен таблиц хранения значений данных
+   * @return {@link IS5SequenceTableNames} пара имен таблиц хранения значений данных
    * @throws TsNullArgumentRtException аргумент = null
    */
-  protected static final Pair<String, String> tableNames( String aBlockClassName, String aBlobClassName ) {
+  protected static final IS5SequenceTableNames tableNames( String aBlockClassName, String aBlobClassName ) {
     TsNullArgumentRtException.checkNulls( aBlockClassName, aBlobClassName );
-    return new Pair<>( getLast( aBlockClassName ), getLast( aBlobClassName ) );
+    return new S5SequenceTableNames( getLast( aBlockClassName ), getLast( aBlobClassName ) );
   }
 
   // ------------------------------------------------------------------------------------
@@ -291,10 +304,9 @@ public abstract class S5SequenceFactory<V extends ITemporal<?>>
   /**
    * Список имен таблиц базы данных в которых возможно хранение значений данных
    *
-   * @return {@link IList}&lt;{@link Pair}&gt; список пар определяющих хранение блока ({@link Pair#left()}) и его blob
-   *         (({@link Pair#right()}))
+   * @return {@link IList}&lt;{@link IS5SequenceTableNames}&gt; список пар определяющих хранение блока и его blob
    */
-  protected abstract IList<Pair<String, String>> doTableNames();
+  protected abstract IList<IS5SequenceTableNames> doTableNames();
 
   /**
    * Возвращает описание типа для указанного данного

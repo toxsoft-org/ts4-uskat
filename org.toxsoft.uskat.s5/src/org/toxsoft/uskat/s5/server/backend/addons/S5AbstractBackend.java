@@ -33,6 +33,7 @@ import org.toxsoft.core.tslib.gw.skid.Skid;
 import org.toxsoft.core.tslib.utils.errors.TsNullArgumentRtException;
 import org.toxsoft.core.tslib.utils.logs.ELogSeverity;
 import org.toxsoft.core.tslib.utils.logs.ILogger;
+import org.toxsoft.core.tslib.utils.logs.impl.LoggerUtils;
 import org.toxsoft.uskat.core.ISkServiceCreator;
 import org.toxsoft.uskat.core.backend.ISkFrontendRear;
 import org.toxsoft.uskat.core.backend.api.*;
@@ -59,6 +60,11 @@ public abstract class S5AbstractBackend<ADDON extends IS5BackendAddon>
     implements IS5Backend {
 
   private static final long LOCK_TIMEOUT = 1000;
+
+  /**
+   * Идентификатор журнала используемый по умолчанию
+   */
+  public static final String S5_USKAT_CORE_LOGGER = "S5USkatCore"; //$NON-NLS-1$
 
   /**
    * API разработчика ядра
@@ -156,6 +162,11 @@ public abstract class S5AbstractBackend<ADDON extends IS5BackendAddon>
   private boolean inited;
 
   /**
+   * Журнал uskat core
+   */
+  private final ILogger uskatLogger = getLogger( S5_USKAT_CORE_LOGGER );
+
+  /**
    * Статическая инициализация
    */
   static {
@@ -175,6 +186,15 @@ public abstract class S5AbstractBackend<ADDON extends IS5BackendAddon>
   public S5AbstractBackend( ISkFrontendRear aFrontend, ITsContextRo aArgs, String aBackendId,
       IOptionSet aBackendInfoValue ) {
     TsNullArgumentRtException.checkNulls( aArgs, aFrontend, aBackendId, aBackendInfoValue );
+    // Замена журнала по умолчанию
+    if( !LoggerUtils.defaultLogger().equals( uskatLogger ) ) {
+      LoggerUtils.setDefaultLogger( uskatLogger );
+      LoggerUtils.defaultLogger().info( MSG_CHANGE_DEFAULT_LOGGER, S5_USKAT_CORE_LOGGER );
+    }
+    if( !LoggerUtils.errorLogger().equals( uskatLogger ) ) {
+      LoggerUtils.setErrorLogger( uskatLogger );
+      LoggerUtils.errorLogger().info( MSG_CHANGE_ERROR_LOGGER, S5_USKAT_CORE_LOGGER );
+    }
     // Параметры аутентификации
     IAtomicValue login = IS5ConnectionParams.OP_USERNAME.getValue( aArgs.params() );
     // Формирование идентификатора сессии
@@ -348,6 +368,15 @@ public abstract class S5AbstractBackend<ADDON extends IS5BackendAddon>
   //
   @Override
   public void doJob() {
+    // Восстановление журнала по умолчанию
+    if( !LoggerUtils.defaultLogger().equals( uskatLogger ) ) {
+      LoggerUtils.setDefaultLogger( uskatLogger );
+      LoggerUtils.defaultLogger().error( MSG_RESTORE_DEFAULT_LOGGER, S5_USKAT_CORE_LOGGER );
+    }
+    if( !LoggerUtils.errorLogger().equals( uskatLogger ) ) {
+      LoggerUtils.setErrorLogger( uskatLogger );
+      LoggerUtils.errorLogger().error( MSG_RESTORE_ERROR_LOGGER, S5_USKAT_CORE_LOGGER );
+    }
     // 2020-10-12 mvk doJob + mainLock
     if( !tryLockWrite( frontendLock, LOCK_TIMEOUT ) ) {
       // Ошибка получения блокировки

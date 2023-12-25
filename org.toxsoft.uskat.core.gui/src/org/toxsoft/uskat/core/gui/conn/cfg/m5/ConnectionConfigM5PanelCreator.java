@@ -33,6 +33,14 @@ public class ConnectionConfigM5PanelCreator
     }
 
     @Override
+    public void afterSetValues( IM5Bunch<IConnectionConfig> aValues ) {
+      String providerId = (String)editors().getByKey( FID_PROVIDER_ID ).getValue();
+      prepareValusEditor( providerId );
+      ValedOptionSet vops = getEditor( FID_VALUES, ValedOptionSet.class );
+      vops.setValue( lastValues().getAs( FID_VALUES, IOptionSet.class ) );
+    }
+
+    @Override
     public boolean doProcessEditorValueChange( IValedControl<?> aEditor, IM5FieldDef<IConnectionConfig, ?> aFieldDef,
         boolean aEditFinished ) {
       switch( aFieldDef.id() ) {

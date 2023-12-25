@@ -8,7 +8,7 @@ import static org.toxsoft.uskat.s5.utils.IS5HardConstants.*;
 
 import org.toxsoft.core.tslib.av.EAtomicType;
 import org.toxsoft.core.tslib.av.metainfo.IDataDef;
-import org.toxsoft.uskat.core.api.sysdescr.dto.IDtoCmdInfo;
+import org.toxsoft.uskat.core.api.sysdescr.ISkClassInfo;
 import org.toxsoft.uskat.s5.server.backend.supports.commands.impl.S5CommandBlob;
 import org.toxsoft.uskat.s5.server.backend.supports.commands.impl.S5CommandBlock;
 import org.toxsoft.uskat.s5.server.sequences.IS5SequenceHardConstants;
@@ -32,7 +32,7 @@ public interface IS5CommandHardConstants
   String COMMANDS_PREFIX = "s5.commands"; //$NON-NLS-1$
 
   /**
-   * Опция {@link IDtoCmdInfo#params()}: время ожидания завершения выполнения команды (мсек).
+   * Опция {@link ISkClassInfo#params()}: время ожидания завершения выполнения команды (мсек).
    * <p>
    * Тип: {@link EAtomicType#INTEGER}
    */
@@ -43,7 +43,7 @@ public interface IS5CommandHardConstants
       TSID_DEFAULT_VALUE, avInt( 10000 ) );
 
   /**
-   * Опция {@link IDtoCmdInfo#params()}: полное имя java-класса реализации блока.
+   * Опция {@link ISkClassInfo#params()}: полное имя java-класса реализации блока.
    * <p>
    * Тип: {@link EAtomicType#STRING}
    */
@@ -51,7 +51,7 @@ public interface IS5CommandHardConstants
       avStr( S5CommandBlock.class.getName() ) );
 
   /**
-   * Опция {@link IDtoCmdInfo#params()}: полное имя java-класса реализации blob значений.
+   * Опция {@link ISkClassInfo#params()}: полное имя java-класса реализации blob значений.
    * <p>
    * Тип: {@link EAtomicType#STRING}
    */
@@ -59,7 +59,7 @@ public interface IS5CommandHardConstants
       avStr( S5CommandBlob.class.getName() ) );
 
   /**
-   * Опция {@link IDtoCmdInfo#params()}: количество значений в одном блоке.
+   * Опция {@link ISkClassInfo#params()}: количество значений в одном блоке.
    * <p>
    * Тип: {@link EAtomicType#INTEGER}
    */
@@ -67,7 +67,7 @@ public interface IS5CommandHardConstants
       createOption( COMMANDS_PREFIX, IS5SequenceHardConstants.OP_BLOCK_SIZE_MAX, avInt( 500 ) );
 
   /**
-   * Опция {@link IDtoCmdInfo#params()}: максимальный размер одного значения (байты).
+   * Опция {@link ISkClassInfo#params()}: максимальный размер одного значения (байты).
    * <p>
    * Тип: {@link EAtomicType#INTEGER}
    * <p>

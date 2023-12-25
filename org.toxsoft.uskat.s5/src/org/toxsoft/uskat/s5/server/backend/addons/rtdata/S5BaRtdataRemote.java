@@ -10,11 +10,13 @@ import org.toxsoft.core.tslib.gw.gwid.Gwid;
 import org.toxsoft.core.tslib.gw.gwid.IGwidList;
 import org.toxsoft.core.tslib.utils.Pair;
 import org.toxsoft.core.tslib.utils.errors.TsNullArgumentRtException;
+import org.toxsoft.core.tslib.utils.logs.ELogSeverity;
 import org.toxsoft.uskat.core.backend.ISkBackendHardConstant;
 import org.toxsoft.uskat.core.backend.api.*;
 import org.toxsoft.uskat.s5.client.IS5ConnectionParams;
 import org.toxsoft.uskat.s5.server.backend.addons.IS5BackendRemote;
 import org.toxsoft.uskat.s5.server.backend.addons.S5AbstractBackendAddonRemote;
+import org.toxsoft.uskat.s5.server.backend.messages.S5BaBeforeConnectMessages;
 
 /**
  * Remote {@link IBaRtdata} implementation.
@@ -50,7 +52,9 @@ class S5BaRtdataRemote
   //
   @Override
   public void onBackendMessage( GtMessage aMessage ) {
-    // nop
+    if( aMessage.messageId().equals( S5BaBeforeConnectMessages.MSG_ID ) ) {
+      owner().sessionInitData().setBackendAddonData( IBaRtdata.ADDON_ID, baData );
+    }
   }
 
   @Override
@@ -59,15 +63,25 @@ class S5BaRtdataRemote
     GtMessage currDataMessage = null;
     GtMessage histDataMessage = null;
     synchronized (baData) {
-      if( baData.currdataToBackend.size() > 0
-          && currTime - baData.lastCurrdataToBackendTime > baData.currdataTimeout ) {
+      if( baData.currdataToBackend.size() > 0 && //
+          (baData.currdataTimeout <= 0 || currTime - baData.lastCurrdataToBackendTime > baData.currdataTimeout) ) {
         // Отправка значений текущих данных от фронтенда в бекенд
         currDataMessage = BaMsgRtdataCurrData.INSTANCE.makeMessage( baData.currdataToBackend );
+
+        // TODO: 2023-11-19 mvkd
+        if( logger().isSeverityOn( ELogSeverity.DEBUG ) ) {
+          Gwid testGwid = Gwid.of( "AnalogInput[TP1]$rtdata(rtdPhysicalValue)" );
+          IAtomicValue testValue = baData.currdataToBackend.findByKey( testGwid );
+          if( testValue != null ) {
+            logger().debug( "send currdata: %s = %s", testGwid, testValue );
+          }
+        }
+
         baData.currdataToBackend.clear();
         baData.lastCurrdataToBackendTime = currTime;
       }
-      if( baData.histdataToBackend.size() > 0
-          && currTime - baData.lastHistdataToBackendTime > baData.histdataTimeout ) {
+      if( baData.histdataToBackend.size() > 0 && //
+          (baData.histdataTimeout <= 0 || currTime - baData.lastHistdataToBackendTime > baData.histdataTimeout) ) {
         // Отправка значений хранимых данных от фронтенда в бекенд
         histDataMessage = BaMsgRtdataHistData.INSTANCE.makeMessage( baData.histdataToBackend );
         baData.histdataToBackend.clear();
@@ -93,12 +107,14 @@ class S5BaRtdataRemote
   @Override
   public void configureCurrDataReader( IGwidList aRtdGwids ) {
     TsNullArgumentRtException.checkNull( aRtdGwids );
+    baData.currdataGwidsToFrontend.setAll( aRtdGwids );
     session().configureCurrDataReader( aRtdGwids );
   }
 
   @Override
   public void configureCurrDataWriter( IGwidList aRtdGwids ) {
     TsNullArgumentRtException.checkNull( aRtdGwids );
+    baData.currdataGwidsToBackend.setAll( aRtdGwids );
     session().configureCurrDataWriter( aRtdGwids );
   }
 
@@ -111,6 +127,8 @@ class S5BaRtdataRemote
       }
       baData.currdataToBackend.put( aGwid, aValue );
     }
+    // Выполнение doJob для обработки немедленной отправки (baData.currdataTimeout <= 0)
+    doJob();
   }
 
   @Override
@@ -132,6 +150,8 @@ class S5BaRtdataRemote
       }
       baData.histdataToBackend.put( aGwid, newValues );
     }
+    // Выполнение doJob для обработки немедленной отправки (baData.histdataTimeout <= 0)
+    doJob();
   }
 
   @Override

@@ -10,7 +10,6 @@ import org.toxsoft.core.tsgui.panels.lazy.*;
 import org.toxsoft.core.tsgui.utils.checkstate.*;
 import org.toxsoft.core.tsgui.utils.layout.*;
 import org.toxsoft.core.tslib.bricks.strid.more.*;
-import org.toxsoft.core.tslib.coll.helpers.*;
 import org.toxsoft.core.tslib.utils.errors.*;
 import org.toxsoft.uskat.core.connection.*;
 import org.toxsoft.uskat.core.gui.conn.*;
@@ -20,7 +19,7 @@ import org.toxsoft.uskat.core.utils.*;
  * {@link AbstractLazyPanel} extension to work with USkat API.
  * <p>
  * The panel content must be created in {@link #doInitGui(Composite)}. This method is called when connection is or
- * becames open. Panel implementation handles connection reference and connsction state change. When connection closes
+ * becomes open. Panel implementation handles connection reference and connsction state change. When connection closes
  * or reference to the connection changes to other connection, content is disposed by calling internal method
  * {@link #disposeBoardContent()} and after, when connection becames active {@link #doInitGui(Composite)} is called
  * again.
@@ -38,27 +37,15 @@ import org.toxsoft.uskat.core.utils.*;
  * @author hazard157
  */
 public abstract class AbstractSkLazyPanel
-    extends AbstractLazyPanel<Composite>
+    extends AbstractLazyPanel<Control>
     implements ISkConnected {
 
   /**
    * Detects if our {@link #skConn()} reference changed and call {@link #whenConnectionReferenceChanged(ISkConnection)}.
    */
-  private final ISkConnectionSupplierListener connectionSupplierListener = new ISkConnectionSupplierListener() {
-
-    @Override
-    public void onDefaulConnectionChanged( ISkConnectionSupplier aSource, IdChain aOldId ) {
-      // if we are using ISkConnectionSupplier.defConn() then process as connection reference change
-      if( usedConnId == null ) {
-        whenConnectionReferenceChanged( lastConnection );
-      }
-    }
-
-    @Override
-    public void onConnectionsListChanged( ISkConnectionSupplier aSource, ECrudOp aOp, IdChain aConnId ) {
-      if( aConnId == null || aConnId.equals( usedConnId ) ) {
-        whenConnectionReferenceChanged( lastConnection );
-      }
+  private final ISkConnectionSupplierListener connectionSupplierListener = ( aSource, aOp, aConnId ) -> {
+    if( aConnId == null || aConnId.equals( this.usedConnId ) ) {
+      whenConnectionReferenceChanged( this.lastConnection );
     }
   };
 
@@ -188,7 +175,7 @@ public abstract class AbstractSkLazyPanel
     if( newConn != null ) {
       newConn.addConnectionListener( connectionListener );
       if( newConn.state().isOpen() ) {
-        doInitGui( getControl() );
+        doInitGui( getBackplane() );
       }
     }
   }
@@ -205,7 +192,7 @@ public abstract class AbstractSkLazyPanel
     boolean nowOpen = skConn().state().isOpen();
     if( wasOpen != nowOpen ) {
       if( nowOpen ) {
-        doInitGui( getControl() );
+        doInitGui( getBackplane() );
       }
       else {
         disposeBoardContent();
@@ -218,17 +205,17 @@ public abstract class AbstractSkLazyPanel
       return;
     }
     // dispose all childs of this panel
-    getControl().setLayoutDeferred( true );
+    getBackplane().setLayoutDeferred( true );
     try {
       doDisposeGui();
-      Control[] childs = getControl().getChildren();
+      Control[] childs = getBackplane().getChildren();
       for( Control c : childs ) {
         c.dispose();
       }
     }
     finally {
-      getControl().setLayoutDeferred( false );
-      getControl().getParent().layout( true, true );
+      getBackplane().setLayoutDeferred( false );
+      getBackplane().getParent().layout( true, true );
     }
   }
 
@@ -243,7 +230,7 @@ public abstract class AbstractSkLazyPanel
    * {@link ISkConnectionSupplier#getConn(IdChain)}. If connection ID is <code>null</code> then
    * {@link ISkConnectionSupplier#defConn()} is returned.
    *
-   * @return {@link IdChain} - used onnection ID or <code>null</code> for {@link ISkConnectionSupplier#defConn()}
+   * @return {@link IdChain} - used connection ID or <code>null</code> for {@link ISkConnectionSupplier#defConn()}
    */
   public IdChain getUsedConnectionId() {
     return usedConnId;
@@ -267,10 +254,21 @@ public abstract class AbstractSkLazyPanel
   //
 
   /**
+   * Returns the backplane - permanent {@link Composite} used as lazy panel implementation.
+   * <p>
+   * Returns the same reference as {@link #getControl()}, but casted to the {@link Composite}.
+   *
+   * @return {@link Composite} - the backplane, lazy control implementing SWT control
+   */
+  public Composite getBackplane() {
+    return Composite.class.cast( getControl() );
+  }
+
+  /**
    * Determines if panel content exists.
    * <p>
    * Note: {@link #getControl()} after calling {@link #createControl(Composite)} always returns non-<code>null</code>
-   * reference ro the permanent backplane. That's why this method determines if user created content exists on
+   * reference to the permanent backplane. That's why this method determines if user created content exists on
    * backplane.
    *
    * @return boolean - <code>true</code> if user-created content exists (is not disposed)
@@ -279,7 +277,7 @@ public abstract class AbstractSkLazyPanel
     if( getControl() == null ) {
       return false;
     }
-    return getControl().getChildren().length > 0;
+    return getBackplane().getChildren().length > 0;
   }
 
   // ------------------------------------------------------------------------------------
@@ -289,7 +287,7 @@ public abstract class AbstractSkLazyPanel
   /**
    * Subclass must create content of this panel.
    * <p>
-   * Perent composite <code>aParent</code> has layout set to {@link BorderLayout}.
+   * Parent composite <code>aParent</code> has layout set to {@link BorderLayout}.
    *
    * @param aParent {@link Composite} - the parent
    */
@@ -298,7 +296,7 @@ public abstract class AbstractSkLazyPanel
   /**
    * Subclass must release resource and reset internal references indicating that no content exists.
    * <p>
-   * Called when GUI content of the panel isdisposed. Also called when this panel is disposed.
+   * Called when GUI content of the panel is disposed. Also called when this panel is disposed.
    */
   protected void doDisposeGui() {
     // nop

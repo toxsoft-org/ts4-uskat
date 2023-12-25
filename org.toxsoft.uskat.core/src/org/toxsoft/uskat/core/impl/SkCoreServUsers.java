@@ -2,7 +2,6 @@ package org.toxsoft.uskat.core.impl;
 
 import static org.toxsoft.core.tslib.av.impl.AvUtils.*;
 import static org.toxsoft.core.tslib.av.metainfo.IAvMetaConstants.*;
-import static org.toxsoft.core.tslib.gw.IGwHardConstants.*;
 import static org.toxsoft.uskat.core.ISkHardConstants.*;
 import static org.toxsoft.uskat.core.api.users.ISkUserServiceHardConstants.*;
 import static org.toxsoft.uskat.core.impl.ISkResources.*;
@@ -10,7 +9,6 @@ import static org.toxsoft.uskat.core.impl.ISkResources.*;
 import org.toxsoft.core.tslib.av.EAtomicType;
 import org.toxsoft.core.tslib.av.impl.DataType;
 import org.toxsoft.core.tslib.av.metainfo.IDataType;
-import org.toxsoft.core.tslib.av.opset.IOptionSet;
 import org.toxsoft.core.tslib.bricks.ctx.ITsContextRo;
 import org.toxsoft.core.tslib.bricks.events.AbstractTsEventer;
 import org.toxsoft.core.tslib.bricks.events.ITsEventer;
@@ -28,7 +26,8 @@ import org.toxsoft.uskat.core.api.objserv.*;
 import org.toxsoft.uskat.core.api.sysdescr.dto.IDtoClassInfo;
 import org.toxsoft.uskat.core.api.users.*;
 import org.toxsoft.uskat.core.devapi.IDevCoreApi;
-import org.toxsoft.uskat.core.impl.dto.*;
+import org.toxsoft.uskat.core.impl.dto.DtoFullObject;
+import org.toxsoft.uskat.core.impl.dto.DtoObject;
 import org.toxsoft.uskat.core.utils.SkHelperUtils;
 
 /**
@@ -44,20 +43,6 @@ public class SkCoreServUsers
    * Service creator singleton.
    */
   public static final ISkServiceCreator<AbstractSkService> CREATOR = SkCoreServUsers::new;
-
-  /**
-   * Builtin objects name/description is always in English, no need to localize in Java code.
-   * <p>
-   * As usual, localization may be done by means of {@link CoreL10n}.
-   */
-  private static final String STR_N_ROOT_ROLE  = "Superuser";        //$NON-NLS-1$
-  private static final String STR_D_ROOT_ROLE  = "Superuser role";   //$NON-NLS-1$
-  private static final String STR_N_GUEST_ROLE = "Guest";            //$NON-NLS-1$
-  private static final String STR_D_GUEST_ROLE = "Guest role";       //$NON-NLS-1$
-  private static final String STR_N_ROOT_USER  = "Root";             //$NON-NLS-1$
-  private static final String STR_D_ROOT_USER  = "Root - superuser"; //$NON-NLS-1$
-  private static final String STR_N_GUEST_USER = "Guest";            //$NON-NLS-1$
-  private static final String STR_D_GUEST_USER = "Guest user";       //$NON-NLS-1$
 
   /**
    * {@link ISkUserService#svs()} implementation.
@@ -390,18 +375,18 @@ public class SkCoreServUsers
     objServ().registerObjectCreator( ISkUser.CLASS_ID, SkUser.CREATOR );
     // create role rootRole
     DtoObject objRoleRoot = DtoObject.createDtoObject( SKID_ROLE_ROOT, coreApi() );
-    objRoleRoot.attrs().setStr( AID_NAME, STR_N_ROOT_ROLE );
-    objRoleRoot.attrs().setStr( AID_DESCRIPTION, STR_D_ROOT_ROLE );
+    objRoleRoot.attrs().setStr( AID_NAME, STR_ROOT_ROLE );
+    objRoleRoot.attrs().setStr( AID_DESCRIPTION, STR_ROOT_ROLE_D );
     objServ().defineObject( objRoleRoot );
     // create role guestRole
     DtoObject objRoleGuest = DtoObject.createDtoObject( SKID_ROLE_GUEST, coreApi() );
-    objRoleGuest.attrs().setStr( AID_NAME, STR_N_GUEST_ROLE );
-    objRoleGuest.attrs().setStr( AID_DESCRIPTION, STR_D_GUEST_ROLE );
+    objRoleGuest.attrs().setStr( AID_NAME, STR_GUEST_ROLE );
+    objRoleGuest.attrs().setStr( AID_DESCRIPTION, STR_GUEST_ROLE_D );
     objServ().defineObject( objRoleGuest );
     // create user root
     DtoObject objUserRoot = DtoObject.createDtoObject( SKID_USER_ROOT, coreApi() );
-    objUserRoot.attrs().setStr( AID_NAME, STR_N_ROOT_USER );
-    objUserRoot.attrs().setStr( AID_DESCRIPTION, STR_D_ROOT_USER );
+    objUserRoot.attrs().setStr( AID_NAME, STR_ROOT_USER );
+    objUserRoot.attrs().setStr( AID_DESCRIPTION, STR_ROOT_USER_D );
     // if password is not set (or was reset) specify the builtin default password
     if( objUserRoot.attrs().getStr( ATRID_PASSWORD_HASH ).isEmpty() ) {
       objUserRoot.attrs().setStr( ATRID_PASSWORD_HASH, SkHelperUtils.getPasswordHashCode( INITIAL_ROOT_PASSWORD ) );
@@ -410,8 +395,8 @@ public class SkCoreServUsers
     linkService().setLink( skoRootUser.skid(), LNKID_USER_ROLES, new SkidList( objRoleRoot.skid() ) );
     // create user guest
     DtoObject objUserGuest = DtoObject.createDtoObject( SKID_USER_GUEST, coreApi() );
-    objUserGuest.attrs().setStr( AID_NAME, STR_N_GUEST_USER );
-    objUserGuest.attrs().setStr( AID_DESCRIPTION, STR_D_GUEST_USER );
+    objUserGuest.attrs().setStr( AID_NAME, STR_GUEST_USER );
+    objUserGuest.attrs().setStr( AID_DESCRIPTION, STR_GUEST_USER_D );
     ISkObject skoGuestUser = objServ().defineObject( objUserGuest );
     linkService().setLink( skoGuestUser.skid(), LNKID_USER_ROLES, new SkidList( objRoleGuest.skid() ) );
     //
@@ -442,36 +427,6 @@ public class SkCoreServUsers
   IDataType DT_PASSWORD = DataType.create( EAtomicType.STRING, //
       TSID_DEFAULT_VALUE, AV_STR_EMPTY //
   );
-
-  /**
-   * Creates DTO of {@link ISkRole#CLASS_ID} class.
-   *
-   * @return {@link IDtoClassInfo} - {@link ISkRole#CLASS_ID} class info
-   */
-  private static IDtoClassInfo internalCreateRoleClassDto() {
-    DtoClassInfo cinf = new DtoClassInfo( CLSID_ROLE, GW_ROOT_CLASS_ID, IOptionSet.NULL );
-    OPDEF_SK_IS_SOURCE_CODE_DEFINED_CLASS.setValue( cinf.params(), AV_TRUE );
-    OPDEF_SK_IS_SOURCE_USKAT_CORE_CLASS.setValue( cinf.params(), AV_TRUE );
-    cinf.attrInfos().add( ATRINF_ROLE_IS_ENABLED );
-    cinf.attrInfos().add( ATRINF_ROLE_IS_HIDDEN );
-    return cinf;
-  }
-
-  /**
-   * Creates DTO of {@link ISkUser#CLASS_ID} class.
-   *
-   * @return {@link IDtoClassInfo} - {@link ISkUser#CLASS_ID} class info
-   */
-  public static IDtoClassInfo internalCreateUserClassDto() {
-    DtoClassInfo cinf = new DtoClassInfo( CLSID_USER, GW_ROOT_CLASS_ID, IOptionSet.NULL );
-    OPDEF_SK_IS_SOURCE_CODE_DEFINED_CLASS.setValue( cinf.params(), AV_TRUE );
-    OPDEF_SK_IS_SOURCE_USKAT_CORE_CLASS.setValue( cinf.params(), AV_TRUE );
-    cinf.attrInfos().add( ATRINF_PASSWORD_HASH );
-    cinf.attrInfos().add( ATRINF_USER_IS_ENABLED );
-    cinf.attrInfos().add( ATRINF_USER_IS_HIDDEN );
-    cinf.linkInfos().add( LNKINF_USER_ROLES );
-    return cinf;
-  }
 
   private void pauseCoreValidation() {
     sysdescr().svs().pauseValidator( claimingValidator );

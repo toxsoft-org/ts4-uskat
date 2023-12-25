@@ -8,12 +8,16 @@ import static org.toxsoft.uskat.core.gui.ISkCoreGuiConstants.*;
 import static org.toxsoft.uskat.core.gui.km5.sded.IKM5SdedConstants.*;
 import static org.toxsoft.uskat.core.gui.km5.sded.ISkSdedKm5SharedResources.*;
 
+import java.util.function.*;
+
 import org.toxsoft.core.tsgui.m5.model.*;
 import org.toxsoft.core.tsgui.m5.model.impl.*;
 import org.toxsoft.core.tsgui.m5.std.models.misc.*;
 import org.toxsoft.core.tslib.av.*;
 import org.toxsoft.core.tslib.bricks.strid.coll.*;
+import org.toxsoft.core.tslib.bricks.strid.coll.impl.*;
 import org.toxsoft.core.tslib.coll.*;
+import org.toxsoft.core.tslib.coll.impl.*;
 import org.toxsoft.core.tslib.gw.*;
 import org.toxsoft.core.tslib.utils.errors.*;
 import org.toxsoft.uskat.core.api.sysdescr.*;
@@ -124,9 +128,34 @@ public class SdedDtoClassInfoM5Model
         }
 
         protected IList<IDtoAttrInfo> doGetFieldValue( IDtoClassInfo aEntity ) {
+          // old boilerplate version
+          // StridablesList<IDtoAttrInfo> haired = new StridablesList<>();
+          // тут выделяем только те которые принадлежат непосредственно этому классу
+          // ISkClassInfo clsInfo = skSysdescr().findClassInfo( aEntity.id() );
+          // if( clsInfo != null ) {
+          // ISkClassProps<IDtoAttrInfo> attrs = clsInfo.attrs();
+          // IStridablesList<IDtoAttrInfo> listSelf = attrs.listSelf();
+          // IStridablesList<IDtoAttrInfo> listAll = attrs.list();
+          // // теперь оставляем только не свои
+          // for( IDtoAttrInfo attrInfo : listAll ) {
+          // if( !listSelf.hasKey( attrInfo.id() ) ) {
+          // haired.add( attrInfo );
+          // }
+          // }
+          // }
+          // // теперь оставляем только те которые свои и вновь добавленные
+          // IListEdit<IDtoAttrInfo> retVal = new ElemArrayList<>();
+          // for( IDtoAttrInfo entityAttrInfo : aEntity.attrInfos() ) {
+          // if( !haired.hasKey( entityAttrInfo.id() ) ) {
+          // retVal.add( entityAttrInfo );
+          // }
+          // }
+          ISkClassInfo clsInfo = skSysdescr().findClassInfo( aEntity.id() );
+          if( clsInfo != null ) {
+            return getPropsFieldValue( aEntity, clsInfo::attrs, aEntity::attrInfos );
+          }
           return aEntity.attrInfos();
         }
-
       };
 
   /**
@@ -143,6 +172,33 @@ public class SdedDtoClassInfoM5Model
         }
 
         protected IList<IDtoRtdataInfo> doGetFieldValue( IDtoClassInfo aEntity ) {
+          // old boilerplate version
+          // теперь оставляем только не свои
+          // StridablesList<IDtoRtdataInfo> haired = new StridablesList<>();
+          // тут выделяем только те которые принадлежат непосредственно этому классу
+          // ISkClassInfo clsInfo = skSysdescr().findClassInfo( aEntity.id() );
+          // if( clsInfo != null ) {
+          // ISkClassProps<IDtoRtdataInfo> rtdata = clsInfo.rtdata();
+          // IStridablesList<IDtoRtdataInfo> listSelf = rtdata.listSelf();
+          // IStridablesList<IDtoRtdataInfo> listAll = rtdata.list();
+          // for( IDtoRtdataInfo rtDataInfo : listAll ) {
+          // if( !listSelf.hasKey( rtDataInfo.id() ) ) {
+          // haired.add( rtDataInfo );
+          // }
+          // }
+          // }
+          // // теперь оставляем только те которые свои и вновь добавленные
+          // IListEdit<IDtoRtdataInfo> retVal = new ElemArrayList<>();
+          // for( IDtoRtdataInfo entityRtDataInfo : aEntity.rtdataInfos() ) {
+          // if( !haired.hasKey( entityRtDataInfo.id() ) ) {
+          // retVal.add( entityRtDataInfo );
+          // }
+          // }
+          // return retVal;
+          ISkClassInfo clsInfo = skSysdescr().findClassInfo( aEntity.id() );
+          if( clsInfo != null ) {
+            return getPropsFieldValue( aEntity, clsInfo::rtdata, aEntity::rtdataInfos );
+          }
           return aEntity.rtdataInfos();
         }
 
@@ -162,6 +218,33 @@ public class SdedDtoClassInfoM5Model
         }
 
         protected IList<IDtoLinkInfo> doGetFieldValue( IDtoClassInfo aEntity ) {
+          // old boilerplate version
+          // StridablesList<IDtoLinkInfo> haired = new StridablesList<>();
+          // // тут выделяем только те которые принадлежат непосредственно этому классу
+          // ISkClassInfo clsInfo = skSysdescr().findClassInfo( aEntity.id() );
+          // if( clsInfo != null ) {
+          // ISkClassProps<IDtoLinkInfo> links = clsInfo.links();
+          // IStridablesList<IDtoLinkInfo> listSelf = links.listSelf();
+          // IStridablesList<IDtoLinkInfo> listAll = links.list();
+          // // теперь оставляем только не свои
+          // for( IDtoLinkInfo linkInfo : listAll ) {
+          // if( !listSelf.hasKey( linkInfo.id() ) ) {
+          // haired.add( linkInfo );
+          // }
+          // }
+          // }
+          // // теперь оставляем только те которые свои и вновь добавленные
+          // IListEdit<IDtoLinkInfo> retVal = new ElemArrayList<>();
+          // for( IDtoLinkInfo entityLinkInfo : aEntity.linkInfos() ) {
+          // if( !haired.hasKey( entityLinkInfo.id() ) ) {
+          // retVal.add( entityLinkInfo );
+          // }
+          // }
+          // return retVal;
+          ISkClassInfo clsInfo = skSysdescr().findClassInfo( aEntity.id() );
+          if( clsInfo != null ) {
+            return getPropsFieldValue( aEntity, clsInfo::links, aEntity::linkInfos );
+          }
           return aEntity.linkInfos();
         }
 
@@ -181,6 +264,33 @@ public class SdedDtoClassInfoM5Model
         }
 
         protected IList<IDtoCmdInfo> doGetFieldValue( IDtoClassInfo aEntity ) {
+          // old boilerplate version
+          // StridablesList<IDtoCmdInfo> haired = new StridablesList<>();
+          // // тут выделяем только те которые принадлежат непосредственно этому классу
+          // ISkClassInfo clsInfo = skSysdescr().findClassInfo( aEntity.id() );
+          // if( clsInfo != null ) {
+          // ISkClassProps<IDtoCmdInfo> cmds = clsInfo.cmds();
+          // IStridablesList<IDtoCmdInfo> listSelf = cmds.listSelf();
+          // IStridablesList<IDtoCmdInfo> listAll = cmds.list();
+          // // теперь оставляем только не свои
+          // for( IDtoCmdInfo cmdInfo : listAll ) {
+          // if( !listSelf.hasKey( cmdInfo.id() ) ) {
+          // haired.add( cmdInfo );
+          // }
+          // }
+          // }
+          // // теперь оставляем только те которые свои и вновь добавленные
+          // IListEdit<IDtoCmdInfo> retVal = new ElemArrayList<>();
+          // for( IDtoCmdInfo entityCmdInfo : aEntity.cmdInfos() ) {
+          // if( !haired.hasKey( entityCmdInfo.id() ) ) {
+          // retVal.add( entityCmdInfo );
+          // }
+          // }
+          // return retVal;
+          ISkClassInfo clsInfo = skSysdescr().findClassInfo( aEntity.id() );
+          if( clsInfo != null ) {
+            return getPropsFieldValue( aEntity, clsInfo::cmds, aEntity::cmdInfos );
+          }
           return aEntity.cmdInfos();
         }
 
@@ -200,6 +310,33 @@ public class SdedDtoClassInfoM5Model
         }
 
         protected IList<IDtoEventInfo> doGetFieldValue( IDtoClassInfo aEntity ) {
+          // old boilerplate version
+          // StridablesList<IDtoEventInfo> haired = new StridablesList<>();
+          // // тут выделяем только те которые принадлежат непосредственно этому классу
+          // ISkClassInfo clsInfo = skSysdescr().findClassInfo( aEntity.id() );
+          // if( clsInfo != null ) {
+          // ISkClassProps<IDtoEventInfo> events = clsInfo.events();
+          // IStridablesList<IDtoEventInfo> listSelf = events.listSelf();
+          // IStridablesList<IDtoEventInfo> listAll = events.list();
+          // // теперь оставляем только не свои
+          // for( IDtoEventInfo evInfo : listAll ) {
+          // if( !listSelf.hasKey( evInfo.id() ) ) {
+          // haired.add( evInfo );
+          // }
+          // }
+          // }
+          // // теперь оставляем только те которые свои и вновь добавленные
+          // IListEdit<IDtoEventInfo> retVal = new ElemArrayList<>();
+          // for( IDtoEventInfo entityEvInfo : aEntity.eventInfos() ) {
+          // if( !haired.hasKey( entityEvInfo.id() ) ) {
+          // retVal.add( entityEvInfo );
+          // }
+          // }
+          // return retVal;
+          ISkClassInfo clsInfo = skSysdescr().findClassInfo( aEntity.id() );
+          if( clsInfo != null ) {
+            return getPropsFieldValue( aEntity, clsInfo::events, aEntity::eventInfos );
+          }
           return aEntity.eventInfos();
         }
 
@@ -219,7 +356,35 @@ public class SdedDtoClassInfoM5Model
         }
 
         protected IList<IDtoRivetInfo> doGetFieldValue( IDtoClassInfo aEntity ) {
+          // old boilerplate version
+          // StridablesList<IDtoRivetInfo> haired = new StridablesList<>();
+          // // тут выделяем только те которые принадлежат непосредственно этому классу
+          // ISkClassInfo clsInfo = skSysdescr().findClassInfo( aEntity.id() );
+          // if( clsInfo != null ) {
+          // ISkClassProps<IDtoRivetInfo> rivets = clsInfo.rivets();
+          // IStridablesList<IDtoRivetInfo> listSelf = rivets.listSelf();
+          // IStridablesList<IDtoRivetInfo> listAll = rivets.list();
+          // // теперь оставляем только не свои
+          // for( IDtoRivetInfo rivetInfo : listAll ) {
+          // if( !listSelf.hasKey( rivetInfo.id() ) ) {
+          // haired.add( rivetInfo );
+          // }
+          // }
+          // }
+          // // теперь оставляем только те которые свои и вновь добавленные
+          // IListEdit<IDtoRivetInfo> retVal = new ElemArrayList<>();
+          // for( IDtoRivetInfo entityRivetInfo : aEntity.rivetInfos() ) {
+          // if( !haired.hasKey( entityRivetInfo.id() ) ) {
+          // retVal.add( entityRivetInfo );
+          // }
+          // }
+          // return retVal;
+          ISkClassInfo clsInfo = skSysdescr().findClassInfo( aEntity.id() );
+          if( clsInfo != null ) {
+            return getPropsFieldValue( aEntity, clsInfo::rivets, aEntity::rivetInfos );
+          }
           return aEntity.rivetInfos();
+
         }
 
       };
@@ -238,6 +403,33 @@ public class SdedDtoClassInfoM5Model
         }
 
         protected IList<IDtoClobInfo> doGetFieldValue( IDtoClassInfo aEntity ) {
+          // old boilerplate version
+          // StridablesList<IDtoClobInfo> haired = new StridablesList<>();
+          // // тут выделяем только те которые принадлежат непосредственно этому классу
+          // ISkClassInfo clsInfo = skSysdescr().findClassInfo( aEntity.id() );
+          // if( clsInfo != null ) {
+          // ISkClassProps<IDtoClobInfo> clobs = clsInfo.clobs();
+          // IStridablesList<IDtoClobInfo> listSelf = clobs.listSelf();
+          // IStridablesList<IDtoClobInfo> listAll = clobs.list();
+          // // теперь оставляем только не свои
+          // for( IDtoClobInfo clobInfo : listAll ) {
+          // if( !listSelf.hasKey( clobInfo.id() ) ) {
+          // haired.add( clobInfo );
+          // }
+          // }
+          // }
+          // // теперь оставляем только те которые свои и вновь добавленные
+          // IListEdit<IDtoClobInfo> retVal = new ElemArrayList<>();
+          // for( IDtoClobInfo entityClobInfo : aEntity.clobInfos() ) {
+          // if( !haired.hasKey( entityClobInfo.id() ) ) {
+          // retVal.add( entityClobInfo );
+          // }
+          // }
+          // return retVal;
+          ISkClassInfo clsInfo = skSysdescr().findClassInfo( aEntity.id() );
+          if( clsInfo != null ) {
+            return getPropsFieldValue( aEntity, clsInfo::clobs, aEntity::clobInfos );
+          }
           return aEntity.clobInfos();
         }
 
@@ -276,6 +468,42 @@ public class SdedDtoClassInfoM5Model
   @Override
   protected IM5LifecycleManager<IDtoClassInfo> doCreateLifecycleManager( Object aMaster ) {
     return new SdedDtoClassInfoM5LifecycleManager( this, ISkConnection.class.cast( aMaster ) );
+  }
+
+  /**
+   * Код с исползованием Java 8 features устраняет boilerplate code выделения свойст собсвенно класса без свойств его
+   * предков
+   *
+   * @param <T> шаблон свойства класса
+   * @param aEntity - описание класса
+   * @param aClassPropsSupplier функция поставщик описания конкретного свойства класса
+   * @param aListPropsSupplier функция поставщик списка значений свойств
+   * @return список значений собственных свойств
+   */
+  protected <T extends IDtoClassPropInfoBase> IListEdit<T> getPropsFieldValue( IDtoClassInfo aEntity,
+      Supplier<ISkClassProps<T>> aClassPropsSupplier, Supplier<IStridablesList<T>> aListPropsSupplier ) {
+    StridablesList<T> haired = new StridablesList<>();
+    // тут выделяем только те которые принадлежат непосредственно этому классу
+    ISkClassInfo clsInfo = skSysdescr().findClassInfo( aEntity.id() );
+    if( clsInfo != null ) {
+      ISkClassProps<T> props = aClassPropsSupplier.get();
+      IStridablesList<T> listSelf = props.listSelf();
+      IStridablesList<T> listAll = props.list();
+      // теперь оставляем только не свои
+      for( T propInfo : listAll ) {
+        if( !listSelf.hasKey( propInfo.id() ) ) {
+          haired.add( propInfo );
+        }
+      }
+    }
+    // теперь оставляем только те которые свои и вновь добавленные
+    IListEdit<T> retVal = new ElemArrayList<>();
+    for( T entityPropInfo : aListPropsSupplier.get() ) {
+      if( !haired.hasKey( entityPropInfo.id() ) ) {
+        retVal.add( entityPropInfo );
+      }
+    }
+    return retVal;
   }
 
 }

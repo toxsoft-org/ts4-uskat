@@ -76,7 +76,7 @@ public final class KM5Support
   private final ISkSysdescrListener classServiceListener = ( core, op, cid ) -> updateDomain( op, cid );
 
   private static final IStridGenerator domainIdGenerator = new SynchronizedStridGeneratorWrapper( //
-      new SimpleStridGenaretor( SimpleStridGenaretor.createState( M5_DOMAIN_ID_PREFIX, 0, 4 ) ) //
+      new SimpleStridGenerator( SimpleStridGenerator.createState( M5_DOMAIN_ID_PREFIX, 0, 4 ) ) //
   );
 
   private final ISkConnection skConn;

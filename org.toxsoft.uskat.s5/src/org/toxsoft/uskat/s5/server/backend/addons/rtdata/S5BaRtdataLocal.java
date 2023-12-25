@@ -68,7 +68,7 @@ class S5BaRtdataLocal
       if( aMessage.messageId().equals( BaMsgRtdataCurrData.MSG_ID ) ) {
         IMap<Gwid, IAtomicValue> values = BaMsgRtdataCurrData.INSTANCE.getNewValues( aMessage );
         // Запись новых значений текущих данных
-        currDataSupport.writeValues( values );
+        currDataSupport.writeValues( frontend(), values );
         // Обработка статистики приема пакета текущих данных
         statisticCounter().onEvent( IS5ServerHardConstants.STAT_SESSION_RECEVIED_CURRDATA, AV_1 );
         return;
@@ -76,8 +76,8 @@ class S5BaRtdataLocal
       if( aMessage.messageId().equals( BaMsgRtdataHistData.MSG_ID ) ) {
         IMap<Gwid, Pair<ITimeInterval, ITimedList<ITemporalAtomicValue>>> values =
             BaMsgRtdataHistData.INSTANCE.getNewValues( aMessage );
-        // Запись новых значений хранимых данных
-        histDataSupport.writeValues( values );
+        // Запись новых значений хранимых данных проводится асинхронно, чтобы не замедлять потоки текущих данных
+        histDataSupport.asyncWriteValues( values );
         // Обработка статистики приема пакета текущих данных
         statisticCounter().onEvent( IS5ServerHardConstants.STAT_SESSION_RECEVIED_HISTDATA, AV_1 );
         return;

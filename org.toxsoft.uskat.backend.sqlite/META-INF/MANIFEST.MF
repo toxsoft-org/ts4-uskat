@@ -1,0 +1,15 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Sqlite
+Bundle-SymbolicName: org.toxsoft.uskat.backend.sqlite
+Bundle-Version: 1.0.0.qualifier
+Automatic-Module-Name: org.toxsoft.uskat.backend.sqlite
+Bundle-RequiredExecutionEnvironment: JavaSE-17
+Require-Bundle: org.toxsoft.extlibs.sqlite-jdbc,
+ org.toxsoft.core.tslib,
+ org.toxsoft.uskat.core
+Export-Package: org.toxsoft.uskat.backend.sqlite,
+ org.toxsoft.uskat.backend.sqlite.addons,
+ org.toxsoft.uskat.backend.sqlite.helpers,
+ org.toxsoft.uskat.backend.sqlite.l10n
+Eclipse-RegisterBuddy: org.toxsoft.extlibs.sqlite-jdbc

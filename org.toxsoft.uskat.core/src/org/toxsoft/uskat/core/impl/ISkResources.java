@@ -159,11 +159,22 @@ interface ISkResources {
   String MSG_ERR_CANT_DEL_ROOT_ROLE  = "Нельзя удалить роль суперпользователя";
   String MSG_ERR_CANT_DEL_GUEST_ROLE = "Нельзя удалить гостевую роль";
 
+  // ------------------------------------------------------------------------------------
+  // USkat entities are defined only in English, l10n done via USkat localization service
+  String STR_ROOT_ROLE    = "Superuser";        //$NON-NLS-1$
+  String STR_ROOT_ROLE_D  = "Superuser role";   //$NON-NLS-1$
+  String STR_GUEST_ROLE   = "Guest";            //$NON-NLS-1$
+  String STR_GUEST_ROLE_D = "Guest role";       //$NON-NLS-1$
+  String STR_ROOT_USER    = "Root";             //$NON-NLS-1$
+  String STR_ROOT_USER_D  = "Root - superuser"; //$NON-NLS-1$
+  String STR_GUEST_USER   = "Guest";            //$NON-NLS-1$
+  String STR_GUEST_USER_D = "Guest user";       //$NON-NLS-1$
+
   /**
    * {@link SkCoreUtils}
    */
-  String STR_N_ROOT_CLASS    = "Корневой класс";
-  String STR_D_ROOT_CLASS    = "Корневой класс иерархии классов USkat";
+  String STR_ROOT_CLASS      = Messages.getString( "STR_ROOT_CLASS" );                          //$NON-NLS-1$
+  String STR_ROOT_CLASS_D    = Messages.getString( "STR_ROOT_CLASS_D" );                        //$NON-NLS-1$
   String STR_N_ATTR_SKID     = "Skid";
   String STR_D_ATTR_SKID     = "Тип данных, содержащий Skid идентификатор";
   String STR_N_ATTR_CLASS_ID = "ClassId";

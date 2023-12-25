@@ -75,6 +75,9 @@ class S5BaClassesLocal
   @Override
   public void writeClassInfos( IStringList aRemoveClassIds, IStridablesList<IDtoClassInfo> aUpdateClassInfos ) {
     TsNullArgumentRtException.checkNulls( aRemoveClassIds, aUpdateClassInfos );
+    // Проверка и если необходимо обновление кэша
+    sysdescrReader.invalidateCacheIfNeed( aRemoveClassIds, aUpdateClassInfos );
+    // Запись в бекенд
     sysdescrSupport.writeClassInfos( aRemoveClassIds, aUpdateClassInfos );
   }
 }

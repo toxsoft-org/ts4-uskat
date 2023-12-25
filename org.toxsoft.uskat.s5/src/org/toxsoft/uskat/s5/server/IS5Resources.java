@@ -32,6 +32,13 @@ interface IS5Resources {
   String STR_N_BACKEND_MODULE = Messages.getString( "IS5Resources.STR_N_BACKEND_MODULE" ); //$NON-NLS-1$
   String STR_D_BACKEND_MODULE = Messages.getString( "IS5Resources.STR_D_BACKEND_MODULE" ); //$NON-NLS-1$
 
+  String STR_N_BACKEND_DB_SCHEME_NAME = "database scheme"; //$NON-NLS-1$
+  String STR_D_BACKEND_DB_SCHEME_NAME = "database scheme"; //$NON-NLS-1$
+
+  String STR_N_BACKEND_DB_STORAGE_DEPTH = "database depth";                                                                                                                                                      //$NON-NLS-1$
+  String STR_D_BACKEND_DB_STORAGE_DEPTH =
+      "Determines the storage time (in days) for historical data values, events, and command history. In fact, the system can store data for a longer period (determined by the implementation), but not less."; //$NON-NLS-1$
+
   String STR_N_BACKEND_ZONE_ID = "Зона времени";
   String STR_D_BACKEND_ZONE_ID = "Идентификатор зоны времени, по которому работает сервер";
 
@@ -197,32 +204,61 @@ interface IS5Resources {
 
   String STR_D_STAT_HISTORABLE_BACKEND_DEFRAGMENT_COUNT = "Количество выполненных дефрагментаций";
 
-  String STR_N_STAT_HISTORABLE_BACKEND_FRAGMENT_LOOKUP_COUNT = "Проанализировано";
+  String STR_N_STAT_HISTORABLE_BACKEND_DEFRAGMENT_LOOKUP_COUNT = "Проанализировано";
 
-  String STR_D_STAT_HISTORABLE_BACKEND_FRAGMENT_LOOKUP_COUNT =
+  String STR_D_STAT_HISTORABLE_BACKEND_DEFRAGMENT_LOOKUP_COUNT =
       "Количество проанализированных данных при поиске дефрагментации";
 
-  String STR_N_STAT_HISTORABLE_BACKEND_FRAGMENT_THREAD_COUNT = "Обработано";
+  String STR_N_STAT_HISTORABLE_BACKEND_DEFRAGMENT_THREAD_COUNT = "Обработано";
 
-  String STR_D_STAT_HISTORABLE_BACKEND_FRAGMENT_THREAD_COUNT = "Количество обработанных данных при дефрагментации";
+  String STR_D_STAT_HISTORABLE_BACKEND_DEFRAGMENT_THREAD_COUNT = "Количество обработанных данных при дефрагментации";
 
-  String STR_N_STAT_HISTORABLE_BACKEND_FRAGMENT_VALUE_COUNT = "Значений";
+  String STR_N_STAT_HISTORABLE_BACKEND_DEFRAGMENT_VALUE_COUNT = "Значений";
 
-  String STR_D_STAT_HISTORABLE_BACKEND_FRAGMENT_VALUE_COUNT = "Количество обработанных значений при дефрагментации";
+  String STR_D_STAT_HISTORABLE_BACKEND_DEFRAGMENT_VALUE_COUNT = "Количество обработанных значений при дефрагментации";
 
-  String STR_N_STAT_HISTORABLE_BACKEND_FRAGMENT_MERGED_COUNT = "Обновлено";
+  String STR_N_STAT_HISTORABLE_BACKEND_DEFRAGMENT_MERGED_COUNT = "Обновлено";
 
-  String STR_D_STAT_HISTORABLE_BACKEND_FRAGMENT_MERGED_COUNT =
+  String STR_D_STAT_HISTORABLE_BACKEND_DEFRAGMENT_MERGED_COUNT =
       "Количество обновленных блоков (merged) при дефрагментации";
 
-  String STR_N_STAT_HISTORABLE_BACKEND_FRAGMENT_REMOVED_COUNT = "Удалено";
+  String STR_N_STAT_HISTORABLE_BACKEND_DEFRAGMENT_REMOVED_COUNT = "Удалено";
 
-  String STR_D_STAT_HISTORABLE_BACKEND_FRAGMENT_REMOVED_COUNT =
+  String STR_D_STAT_HISTORABLE_BACKEND_DEFRAGMENT_REMOVED_COUNT =
       "Количество удаленных блоков (removed) при дефрагментации";
 
-  String STR_N_STAT_HISTORABLE_BACKEND_FRAGMENT_ERROR_COUNT = "Ошибки";
+  String STR_N_STAT_HISTORABLE_BACKEND_DEFRAGMENT_ERROR_COUNT = "Ошибки";
 
-  String STR_D_STAT_HISTORABLE_BACKEND_FRAGMENT_ERROR_COUNT = "Количество ошибок дефрагментации";
+  String STR_D_STAT_HISTORABLE_BACKEND_DEFRAGMENT_ERROR_COUNT = "Количество ошибок дефрагментации";
+
+  String STR_N_STAT_HISTORABLE_BACKEND_PARTITIONS_TASKS_COUNT = "Обработок";
+
+  String STR_D_STAT_HISTORABLE_BACKEND_PARTITIONS_TASKS_COUNT = "Количество выполненных обработок разделов таблиц";
+
+  String STR_N_STAT_HISTORABLE_BACKEND_PARTITIONS_LOOKUP_COUNT = "Проверено";
+
+  String STR_D_STAT_HISTORABLE_BACKEND_PARTITIONS_LOOKUP_COUNT = "Количество проверенных таблиц";
+
+  String STR_N_STAT_HISTORABLE_BACKEND_PARTITIONS_THREAD_COUNT = "Операций";
+
+  String STR_D_STAT_HISTORABLE_BACKEND_PARTITIONS_THREAD_COUNT = "Количество операций обработки разделов таблиц";
+
+  String STR_N_STAT_HISTORABLE_BACKEND_PARTITIONS_ADDED_COUNT = "Добавлено";
+
+  String STR_D_STAT_HISTORABLE_BACKEND_PARTITIONS_ADDED_COUNT = "Количество добавленных разделов таблиц";
+
+  String STR_N_STAT_HISTORABLE_BACKEND_PARTITIONS_REMOVED_COUNT = "Удалено разделов";
+
+  String STR_D_STAT_HISTORABLE_BACKEND_PARTITIONS_REMOVED_COUNT = "Количество удаленных разделов таблиц";
+
+  String STR_N_STAT_HISTORABLE_BACKEND_PARTITIONS_BLOCKS_REMOVED_COUNT = "Удалено блоков";
+
+  String STR_D_STAT_HISTORABLE_BACKEND_PARTITIONS_BLOCKS_REMOVED_COUNT =
+      "Количество удаленных блоков при удалении разделов таблиц";
+
+  String STR_N_STAT_HISTORABLE_BACKEND_PARTITIONS_ERROR_COUNT = "Ошибки";
+
+  String STR_D_STAT_HISTORABLE_BACKEND_PARTITIONS_ERROR_COUNT = "Количество ошибок обработки разделов таблиц";
 
   // ------------------------------------------------------------------------------------
   // Константы

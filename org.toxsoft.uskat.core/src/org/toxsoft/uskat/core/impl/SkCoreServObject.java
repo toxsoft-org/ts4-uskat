@@ -34,6 +34,7 @@ import org.toxsoft.uskat.core.ISkHardConstants;
 import org.toxsoft.uskat.core.ISkServiceCreator;
 import org.toxsoft.uskat.core.api.objserv.*;
 import org.toxsoft.uskat.core.api.sysdescr.ISkClassInfo;
+import org.toxsoft.uskat.core.api.sysdescr.ISkSysdescrListener;
 import org.toxsoft.uskat.core.api.sysdescr.dto.IDtoAttrInfo;
 import org.toxsoft.uskat.core.api.sysdescr.dto.IDtoRivetInfo;
 import org.toxsoft.uskat.core.devapi.IDevCoreApi;
@@ -94,6 +95,18 @@ public class SkCoreServObject
 
     void remove( Skid aSkid ) {
       cache.removeByKey( aSkid );
+    }
+
+    void removeByClass( String aClassId ) {
+      SkidList toRemove = new SkidList();
+      for( Skid s : cache.keys() ) {
+        if( s.classId().equals( aClassId ) ) {
+          toRemove.add( s );
+        }
+      }
+      for( Skid s : toRemove ) {
+        cache.removeByKey( s );
+      }
     }
 
     void clear() {
@@ -394,6 +407,29 @@ public class SkCoreServObject
 
   };
 
+  /**
+   * Updates objects class when Sk-class changes.
+   */
+  private final ISkSysdescrListener sysdescrListener = ( aCoreApi, aOp, aClassId ) -> {
+    switch( aOp ) {
+      case CREATE: {
+        // nop
+        break;
+      }
+      case EDIT:
+      case REMOVE: {
+        this.objsCache.removeByClass( aClassId );
+        break;
+      }
+      case LIST: {
+        this.objsCache.clear();
+        break;
+      }
+      default:
+        throw new TsNotAllEnumsUsedRtException( aOp.id() );
+    }
+  };
+
   final ObjsCache         objsCache         = new ObjsCache();
   final ObjsCreators      objsCreators      = new ObjsCreators();
   final Eventer           eventer           = new Eventer();
@@ -415,7 +451,7 @@ public class SkCoreServObject
 
   @Override
   protected void doInit( ITsContextRo aArgs ) {
-    // nop
+    sysdescr().eventer().addListener( sysdescrListener );
   }
 
   @Override
@@ -426,16 +462,15 @@ public class SkCoreServObject
 
   @Override
   protected boolean onBackendMessage( GenericMessage aMessage ) {
-    switch( aMessage.messageId() ) {
-      case MSGID_OBJECTS_CHANGE: {
+    return switch( aMessage.messageId() ) {
+      case MSGID_OBJECTS_CHANGE -> {
         ECrudOp op = extractCrudOp( aMessage );
         Skid skid = extractSkid( aMessage );
         eventer.fireObjectsChanged( op, skid );
-        return true;
+        yield true;
       }
-      default:
-        return false;
-    }
+      default -> false;
+    };
   }
 
   // ------------------------------------------------------------------------------------
@@ -468,7 +503,7 @@ public class SkCoreServObject
     }
     // initialize rivets from aObjectDto or by Skid.NONE
     for( IDtoRivetInfo rinf : aClassInfo.rivets().list() ) {
-      ISkidList rivet = sko.rivets().map().findByKey( rinf.id() );
+      ISkidList rivet = aObjectDto.rivets().map().findByKey( rinf.id() );
       if( rivet == null ) {
         rivet = SkidList.createNones( rinf.count() );
       }
@@ -478,12 +513,12 @@ public class SkCoreServObject
   }
 
   /**
-   * Creates {@link DtoObject} to ba saved to the backend.
+   * Creates {@link DtoObject} to be saved to the backend.
    * <p>
    * For size optimization, created instance:
    * <ul>
-   * <li>does not have system attibute values in the set {@link IDtoObject#attrs()};</li>
-   * <li>does not includes attributes with default values - they will be restored from attribut info at load time.</li>
+   * <li>does not have system attribute values in the set {@link IDtoObject#attrs()};</li>
+   * <li>does not includes attributes with default values - they will be restored from attribute info at load time.</li>
    * </ul>
    *
    * @param aSkObj {@link ISkObject} - the source
@@ -665,6 +700,8 @@ public class SkCoreServObject
     // save object
     objsCache.put( sko );
     internalWriteSkObjectToBackend( sko );
+    // dima 09.10.23 пропущен вызов и потому не мушаопс
+    coreApi().doJobInCoreMainThread();
     return (T)sko;
   }
 
@@ -675,6 +712,8 @@ public class SkCoreServObject
     TsValidationFailedRtException.checkError( validationSupport.canRemoveObject( aSkid ) );
     objsCache.remove( aSkid );
     internalRemoveObjects( new SkidList( aSkid ) );
+    // dima 09.10.23 пропущен вызов и потому не мушаопс
+    coreApi().doJobInCoreMainThread();
   }
 
   @Override

@@ -17,7 +17,7 @@
 
 
         <appender name="CONSOLE" class="org.apache.log4j.ConsoleAppender">
-                <param name="Threshold" value="WARN" />
+                <param name="Threshold" value="INFO" />
                 <param name="Target" value="System.out" />
 
                 <layout class="org.apache.log4j.PatternLayout">
@@ -27,6 +27,14 @@
 
         <category name="org.toxsoft">
                 <priority value="TRACE" />
+        </category>
+
+        <category name="org.toxsoft.core.pas">
+                <priority value="TRACE" />
+        </category>
+
+        <category name="org.toxsoft.uskat.s5.server.backend.addons.events.S5BaEventsRemote">
+                <priority value="INFO" />
         </category>
 
         <category name="org.xnio">

@@ -1,6 +1,7 @@
 package org.toxsoft.uskat.backend.s5.gui.m5.hostlist;
 
 import static org.toxsoft.core.tsgui.valed.api.IValedControlConstants.*;
+import static org.toxsoft.core.tslib.av.impl.AvUtils.*;
 
 import org.toxsoft.core.tsgui.bricks.ctx.*;
 import org.toxsoft.core.tsgui.valed.api.*;
@@ -66,6 +67,7 @@ public class ValedAvValobjS5HostList
    */
   public ValedAvValobjS5HostList( ITsGuiContext aTsContext ) {
     super( aTsContext, ValedS5HostList.FACTORY );
+    params().setValueIfNull( OPDEF_IS_HEIGHT_FIXED.id(), AV_TRUE );
   }
 
 }

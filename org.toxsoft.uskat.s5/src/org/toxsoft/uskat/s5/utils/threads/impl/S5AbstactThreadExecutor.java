@@ -223,7 +223,7 @@ public abstract class S5AbstactThreadExecutor<THREAD_TYPE extends IS5Thread>
         while( !completed() ) {
           try {
             completedCountSignal.wait( 1000 );
-            logger.warning( MSG_THREADS_STATE, rtc, Long.valueOf( threadCompletedCount() ) );
+            logger.info( MSG_THREADS_STATE, rtc, Long.valueOf( threadCompletedCount() ) );
           }
           catch( InterruptedException e ) {
             cancelThreads();

@@ -3,6 +3,7 @@ package org.toxsoft.uskat.core.gui.km5.sded.sded;
 import static org.toxsoft.core.tsgui.m5.IM5Constants.*;
 import static org.toxsoft.uskat.core.api.sysdescr.ESkClassPropKind.*;
 import static org.toxsoft.uskat.core.gui.km5.sded.IKM5SdedConstants.*;
+import static org.toxsoft.uskat.core.gui.km5.sded.ISkSdedKm5SharedResources.*;
 
 import org.toxsoft.core.tsgui.m5.*;
 import org.toxsoft.core.tsgui.m5.model.*;
@@ -10,6 +11,7 @@ import org.toxsoft.core.tsgui.m5.model.impl.*;
 import org.toxsoft.core.tsgui.m5.std.models.misc.*;
 import org.toxsoft.core.tslib.av.opset.*;
 import org.toxsoft.core.tslib.av.opset.impl.*;
+import org.toxsoft.core.tslib.bricks.validator.*;
 import org.toxsoft.core.tslib.coll.*;
 import org.toxsoft.core.tslib.coll.helpers.*;
 import org.toxsoft.core.tslib.coll.impl.*;
@@ -46,6 +48,11 @@ public class SdedDtoLinkInfoM5Model
   public final IM5MultiLookupKeyFieldDef<IDtoLinkInfo, ISkClassInfo> CLASS_IDS = new M5MultiLookupKeyFieldDef<>(
       FID_RIGHT_CLASS_IDS, ISgwM5Constants.MID_SGW_CLASS_INFO, ISgwM5Constants.FID_CLASS_ID, ISkClassInfo.class ) {
 
+    @Override
+    protected void doInit() {
+      setNameAndDescription( STR_LINK_CLASS_IDS, STR_LINK_CLASS_IDS_D );
+    }
+
     protected IList<ISkClassInfo> doGetFieldValue( IDtoLinkInfo aEntity ) {
       IStringList classes = aEntity.rightClassIds();
       IListEdit<ISkClassInfo> retVal = new ElemArrayList<>();
@@ -63,6 +70,11 @@ public class SdedDtoLinkInfoM5Model
   public final IM5SingleModownFieldDef<IDtoLinkInfo, CollConstraint> LINK_CONSTRAINT =
       new M5SingleModownFieldDef<>( FID_LINK_CONSTRAINT, CollConstraintM5Model.MODEL_ID ) {
 
+        @Override
+        protected void doInit() {
+          setNameAndDescription( STR_LINK_CONSTRAINTS, STR_LINK_CONSTRAINTS_D );
+        }
+
         protected CollConstraint doGetFieldValue( IDtoLinkInfo aEntity ) {
           return aEntity.linkConstraint();
         }
@@ -79,6 +91,30 @@ public class SdedDtoLinkInfoM5Model
 
     public LifecycleManager( IM5Model<IDtoLinkInfo> aModel ) {
       super( aModel );
+    }
+
+    @Override
+    protected ValidationResult doBeforeCreate( IM5Bunch<IDtoLinkInfo> aValues ) {
+      // сначала базовый класс
+      ValidationResult retVal = super.doBeforeCreate( aValues );
+      if( !retVal.isOk() ) {
+        return retVal;
+      }
+      // поле имя обязательно
+      String linkName = aValues.getAsAv( FID_NAME ).asString();
+      if( linkName.isBlank() ) {
+        return ValidationResult.error( FMT_ERR_NO_NAME );
+      }
+      if( linkName.startsWith( "<" ) ) { //$NON-NLS-1$
+        return ValidationResult.error( FMT_ERR_NEED_VALID_NAME );
+      }
+
+      // далее поле ограничений
+      CollConstraint cc = LINK_CONSTRAINT.getFieldValue( aValues );
+      if( cc == null ) {
+        return ValidationResult.error( FMT_ERR_NO_CONSTRAINTS );
+      }
+      return ValidationResult.SUCCESS;
     }
 
     private IDtoLinkInfo makeDtoLinkInfo( IM5Bunch<IDtoLinkInfo> aValues ) {
@@ -127,7 +163,7 @@ public class SdedDtoLinkInfoM5Model
   public SdedDtoLinkInfoM5Model( ISkConnection aConn ) {
     super( MID_SDED_LINK_INFO, IDtoLinkInfo.class, aConn );
     setNameAndDescription( LINK.nmName(), LINK.description() );
-    addFieldDefs( CLASS_IDS, LINK_CONSTRAINT );
+    addFieldDefs( LINK_CONSTRAINT, CLASS_IDS );
   }
 
   @Override

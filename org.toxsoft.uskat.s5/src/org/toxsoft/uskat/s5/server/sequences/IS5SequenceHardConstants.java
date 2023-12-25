@@ -135,6 +135,11 @@ public interface IS5SequenceHardConstants
   String UNION_EXECUTOR_JNDI = "java:jboss/ee/concurrency/executor/s5/sequence/union"; //$NON-NLS-1$
 
   /**
+   * JNDI-имя исполнителя асинхронных задач обработки разделов таблиц {@link ManagedExecutorService}
+   */
+  String PARTITION_EXECUTOR_JNDI = "java:jboss/ee/concurrency/executor/s5/sequence/partition"; //$NON-NLS-1$
+
+  /**
    * JNDI-имя исполнителя асинхронных задач проверки блоков {@link ManagedExecutorService}
    */
   String VALIDATION_EXECUTOR_JNDI = "java:jboss/ee/concurrency/executor/s5/sequence/validation"; //$NON-NLS-1$
@@ -153,6 +158,11 @@ public interface IS5SequenceHardConstants
    * Идентификатор журнала писателя для дефрагментации
    */
   String LOG_UNITER_ID = "S5SequenceUniter";
+
+  /**
+   * Идентификатор журнала писателя для обработки разделов таблиц
+   */
+  String LOG_PARTITION_ID = "S5SequencePartition";
 
   /**
    * Идентификатор журнала писателя для дефрагментации

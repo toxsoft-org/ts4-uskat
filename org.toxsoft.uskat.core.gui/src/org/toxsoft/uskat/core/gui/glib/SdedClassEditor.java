@@ -71,8 +71,8 @@ public class SdedClassEditor
     ITsGuiContext ctxDto = new TsGuiContext( tsContext() );
     classEditPane = modelDto.panelCreator().createEntityEditorPanel( ctxDto, lmDto );
     classEditPane.setEditable( false );
-    AbstractInplaceContentPanel contentPanel = new InplaceM5EntityPanelWrapper<>( ctxDto, classEditPane );
-    inplaceEditor = new InplaceContainerPanel( aContext, contentPanel );
+    AbstractContentPanel contentPanel = new InplaceContentM5EntityPanelWrapper<>( ctxDto, classEditPane );
+    inplaceEditor = new InplaceEditorContainerPanel( aContext, contentPanel );
   }
 
   @Override

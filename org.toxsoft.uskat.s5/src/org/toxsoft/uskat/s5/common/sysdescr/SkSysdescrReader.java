@@ -7,8 +7,7 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 import org.toxsoft.core.tslib.bricks.strid.coll.IStridablesList;
 import org.toxsoft.core.tslib.bricks.strid.coll.IStridablesListEdit;
 import org.toxsoft.core.tslib.bricks.strid.coll.impl.StridablesList;
-import org.toxsoft.core.tslib.coll.primtypes.IStringMap;
-import org.toxsoft.core.tslib.coll.primtypes.IStringMapEdit;
+import org.toxsoft.core.tslib.coll.primtypes.*;
 import org.toxsoft.core.tslib.coll.primtypes.impl.StringMap;
 import org.toxsoft.core.tslib.gw.IGwHardConstants;
 import org.toxsoft.core.tslib.utils.errors.TsNullArgumentRtException;
@@ -97,6 +96,32 @@ public class SkSysdescrReader
     }
     finally {
       classesLock.writeLock().unlock();
+    }
+  }
+
+  /**
+   * Сбрасывает кэш если необходимо
+   *
+   * @param aRemoveClassIds {@link IStringList} - идентификаторы удаляемых классов
+   * @param aUpdateClassInfos {@link IStridablesList}&lt;{@link IDtoClassInfo}&gt; - обновляемые или добавляемые классы
+   * @throws TsNullArgumentRtException любой аргумент = null
+   */
+  public void invalidateCacheIfNeed( IStringList aRemoveClassIds, IStridablesList<IDtoClassInfo> aUpdateClassInfos ) {
+    TsNullArgumentRtException.checkNulls( aRemoveClassIds, aUpdateClassInfos );
+    IStridablesList<IDtoClassInfo> cacheClassInfos = readClassInfos();
+    boolean needInvalidate = (aRemoveClassIds.size() > 0);
+    // Определение признака необходимости сброса кэша системного описания
+    for( IDtoClassInfo updateClassInfo : aUpdateClassInfos ) {
+      if( needInvalidate ) {
+        break;
+      }
+      IDtoClassInfo cacheClassInfo = cacheClassInfos.findByKey( updateClassInfo.id() );
+      if( cacheClassInfo == null || !cacheClassInfo.equals( updateClassInfo ) ) {
+        needInvalidate = true;
+      }
+    }
+    if( needInvalidate ) {
+      invalidateCache();
     }
   }
 

@@ -5,7 +5,6 @@ import static org.toxsoft.core.tslib.av.impl.AvUtils.*;
 import static org.toxsoft.uskat.core.gui.km5.sded.IKM5SdedConstants.*;
 
 import org.toxsoft.core.tsgui.bricks.ctx.*;
-import org.toxsoft.core.tsgui.m5.gui.mpc.impl.*;
 import org.toxsoft.core.tsgui.m5.gui.panels.*;
 import org.toxsoft.core.tsgui.m5.gui.panels.impl.*;
 import org.toxsoft.core.tsgui.m5.model.*;
@@ -43,8 +42,10 @@ public class SdedSkObjectM5Model
         OPDEF_IS_ACTIONS_HIDE_PANES.setValue( aContext.params(), AV_TRUE );
         OPDEF_IS_FILTER_PANE.setValue( aContext.params(), AV_TRUE );
         OPDEF_IS_SUPPORTS_TREE.setValue( aContext.params(), AV_TRUE );
-        MultiPaneComponentModown<ISkObject> mpc =
-            new SdedSkObjectMpc( aContext, model(), aItemsProvider, aLifecycleManager );
+        SdedSkObjectMpc mpc = new SdedSkObjectMpc( aContext, model(), aItemsProvider, aLifecycleManager );
+        if( aLifecycleManager instanceof SdedSkObjectM5LifecycleManager ) {
+          ((SdedSkObjectM5LifecycleManager)aLifecycleManager).setMpc( mpc );
+        }
         return new M5CollectionPanelMpcModownWrapper<>( mpc, false );
       }
 
@@ -57,7 +58,8 @@ public class SdedSkObjectM5Model
 
   @Override
   protected IM5LifecycleManager<ISkObject> doCreateDefaultLifecycleManager() {
-    return new SdedSkObjectM5LifecycleManager( this, skConn() );
+    SdedSkObjectM5LifecycleManager retVal = new SdedSkObjectM5LifecycleManager( this, skConn() );
+    return retVal;
   }
 
   @Override

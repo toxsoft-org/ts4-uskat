@@ -5,7 +5,7 @@ import org.toxsoft.core.tslib.bricks.strid.more.*;
 import org.toxsoft.core.tslib.coll.helpers.*;
 
 /**
- * Listsner to changes in {@link ISkConnectionSupplier}.
+ * Listener to changes in {@link ISkConnectionSupplier}.
  * <p>
  * Note: listens to the supplier events, not the connection state change events.
  *
@@ -35,13 +35,5 @@ public interface ISkConnectionSupplierListener {
    * @param aConnId {@link IdChain} - related connection id or <code>null</code> for {@link ECrudOp#LIST}
    */
   void onConnectionsListChanged( ISkConnectionSupplier aSource, ECrudOp aOp, IdChain aConnId );
-
-  /**
-   * Called when default connection {@link ISkConnectionSupplier#defConn()} changes.
-   *
-   * @param aSource {@link ISkConnectionSupplier} - the event source
-   * @param aOldId {@link IdChain} - ID of the default connection vefore change
-   */
-  void onDefaulConnectionChanged( ISkConnectionSupplier aSource, IdChain aOldId );
 
 }

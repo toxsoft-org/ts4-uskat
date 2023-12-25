@@ -133,6 +133,7 @@ public class S5SessionMessenger
           @Override
           protected void onFrontendMessage( GtMessage aMessage ) {
             logger.info( "onFrontendMessage recevied: %s", aMessage ); //$NON-NLS-1$
+            // // TODO: 2023-11-18 mvkd
             S5SessionInfo.onReceviedEvent( statistics() );
             eventer.sendMessage( aMessage );
           }

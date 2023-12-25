@@ -3,14 +3,15 @@ package org.toxsoft.uskat.core.gui.km5.sgw;
 import static org.toxsoft.uskat.core.ISkHardConstants.*;
 
 import org.toxsoft.core.tslib.gw.gwid.*;
+import org.toxsoft.core.tslib.gw.skid.*;
 import org.toxsoft.uskat.core.api.objserv.*;
 import org.toxsoft.uskat.core.api.sysdescr.*;
 
 /**
- * SGW - <b>S</b>imple <b>G</b>reen <b>W</b>orld entities M5 modelling constants.
+ * SGW - <b>S</b>imple <b>G</b>reen <b>W</b>orld entities M5 modeling constants.
  * <p>
- * It is simple beacuase does not allows to modify entities (just to read) and not all properties are covered. Main
- * purpose of SGW is to make easy to browse and select {@link Gwid} entities.
+ * It is simple because does not allows to modify entities (just to read) and not all properties are covered. Main
+ * purpose of SGW is to make easy to browse and select {@link Gwid} and {@link Skid}.
  *
  * @author hazard157
  */
@@ -46,5 +47,17 @@ public interface ISgwM5Constants {
   String FID_IS_CURR   = "isCurr";   //$NON-NLS-1$
   String FID_IS_HIST   = "isHist";   //$NON-NLS-1$
   String FID_IS_SYNC   = "isSync";   //$NON-NLS-1$
+
+  static String sgwGetClassPropModelId( ESkClassPropKind aKind ) {
+    return switch( aKind ) {
+      case ATTR -> MID_SGW_ATTR_INFO;
+      case CLOB -> MID_SGW_CLOB_INFO;
+      case CMD -> MID_SGW_CMD_INFO;
+      case EVENT -> MID_SGW_EVENT_INFO;
+      case LINK -> MID_SGW_LINK_INFO;
+      case RIVET -> MID_SGW_RIVET_INFO;
+      case RTDATA -> MID_SGW_RTDATA_INFO;
+    };
+  }
 
 }

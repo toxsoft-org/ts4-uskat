@@ -3,6 +3,7 @@ package org.toxsoft.uskat.s5.server.sequences.writer;
 import javax.persistence.EntityManager;
 
 import org.toxsoft.core.tslib.av.opset.IOptionSet;
+import org.toxsoft.core.tslib.bricks.ICooperativeMultiTaskable;
 import org.toxsoft.core.tslib.bricks.time.ITemporal;
 import org.toxsoft.core.tslib.coll.IList;
 import org.toxsoft.core.tslib.utils.ICloseable;
@@ -18,7 +19,7 @@ import org.toxsoft.uskat.s5.server.sequences.maintenance.*;
  * @param <V> тип значения последовательности
  */
 public interface IS5SequenceWriter<S extends IS5Sequence<V>, V extends ITemporal<?>>
-    extends ICloseable {
+    extends ICooperativeMultiTaskable, ICloseable {
 
   /**
    * Запись в dbms значений последовательности данных
@@ -39,19 +40,32 @@ public interface IS5SequenceWriter<S extends IS5Sequence<V>, V extends ITemporal
    * <p>
    * Ничего не делает, если писателю не требуется регламент
    *
+   * @param aAuthor String автор задачи (для журнала)
    * @param aArgs {@link IOptionSet} аргументы для дефрагментации блоков (смотри {@link IS5SequenceUnionOptions}).
    * @return {@link IS5SequenceUnionStat} статистика процесса объединения
    * @throws TsNullArgumentRtException аргумент = null
    */
-  IS5SequenceUnionStat union( IOptionSet aArgs );
+  IS5SequenceUnionStat union( String aAuthor, IOptionSet aArgs );
+
+  /**
+   * Выполнение операций над разделами таблиц
+   * <p>
+   * Ничего не делает, если писателю не требуется выполнять операции над разделами
+   *
+   * @param aAuthor String автор задачи (для журнала)
+   * @param aArgs {@link IOptionSet} аргументы для операций над разделами (смотри {@link IS5SequencePartitionOptions}).
+   * @return {@link IS5SequencePartitionStat} статистика процесса выполнения операций
+   * @throws TsNullArgumentRtException аргумент = null
+   */
+  IS5SequencePartitionStat partition( String aAuthor, IOptionSet aArgs );
 
   /**
    * Выполняет проверку/исправление блоков последовательностей
    *
+   * @param aAuthor String автор задачи (для журнала)
    * @param aArgs {@link IOptionSet} аргументы для проверки блоков (смотри {@link IS5SequenceValidationOptions}).
    * @return {@link IS5SequenceValidationStat} статистика процесса проверки
    * @throws TsNullArgumentRtException аргумент = null
    */
-  IS5SequenceValidationStat validation( IOptionSet aArgs );
-
+  IS5SequenceValidationStat validation( String aAuthor, IOptionSet aArgs );
 }

@@ -1,6 +1,7 @@
 package org.toxsoft.uskat.core.gui.km5.sded.sded;
 
 import static org.toxsoft.core.tsgui.m5.IM5Constants.*;
+import static org.toxsoft.core.tsgui.m5.valeds.IM5ValedConstants.*;
 import static org.toxsoft.core.tslib.av.impl.AvUtils.*;
 import static org.toxsoft.core.tslib.av.metainfo.IAvMetaConstants.*;
 import static org.toxsoft.uskat.core.api.sysdescr.ESkClassPropKind.*;
@@ -11,6 +12,7 @@ import org.toxsoft.core.tsgui.m5.*;
 import org.toxsoft.core.tsgui.m5.model.*;
 import org.toxsoft.core.tsgui.m5.model.impl.*;
 import org.toxsoft.core.tsgui.m5.std.models.av.*;
+import org.toxsoft.core.tsgui.valed.api.*;
 import org.toxsoft.core.tslib.av.*;
 import org.toxsoft.core.tslib.av.metainfo.*;
 import org.toxsoft.core.tslib.av.opset.*;
@@ -34,6 +36,14 @@ public class SdedDtoRtdataInfoM5Model
    */
   public final IM5SingleModownFieldDef<IDtoRtdataInfo, IDataType> DATA_TYPE =
       new M5SingleModownFieldDef<>( FID_DATA_TYPE, DataTypeM5Model.MODEL_ID ) {
+
+        @Override
+        protected void doInit() {
+          setNameAndDescription( STR_N_DATA_TYPE, STR_D_DATA_TYPE );
+          params().setBool( TSID_IS_NULL_ALLOWED, false );
+          params().setStr( M5_VALED_OPDEF_WIDGET_TYPE_ID, M5VWTID_INPLACE );
+          params().setInt( IValedControlConstants.OPDEF_VERTICAL_SPAN, 10 );
+        }
 
         protected IDataType doGetFieldValue( IDtoRtdataInfo aEntity ) {
           return aEntity.dataType();
@@ -123,7 +133,7 @@ public class SdedDtoRtdataInfoM5Model
   public SdedDtoRtdataInfoM5Model( ISkConnection aConn ) {
     super( MID_SDED_RTDATA_INFO, IDtoRtdataInfo.class, aConn );
     setNameAndDescription( RTDATA.nmName(), RTDATA.description() );
-    addFieldDefs( DATA_TYPE, IS_CURR, IS_HIST, IS_SYNC, SYNC_DELTA_T );
+    addFieldDefs( IS_CURR, IS_HIST, IS_SYNC, SYNC_DELTA_T, DATA_TYPE );
   }
 
   class LifecycleManager

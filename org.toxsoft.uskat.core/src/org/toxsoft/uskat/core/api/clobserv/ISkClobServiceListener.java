@@ -6,9 +6,9 @@ import org.toxsoft.uskat.core.*;
 /**
  * Listen to the CLOB changes.
  * <p>
- * Please note that listener informs only about CLOB content change. By denition, CLOBs are created and removed as part
- * of the object when object is created or removed. Also note that CLOB content change does not leads to object change
- * event.
+ * Please note that listener informs only about CLOB content change. By definition, CLOBs are created and removed as
+ * part of the object when object is created or removed. Also note that CLOB content change does not leads to object
+ * change event.
  *
  * @author hazard157
  */

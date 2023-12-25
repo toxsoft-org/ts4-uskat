@@ -14,7 +14,7 @@ import org.toxsoft.uskat.core.impl.*;
 // TODO TRANSLATE
 
 /**
- * Локализатор сущностей ядра.
+ * The USkat core entities localization.
  * <p>
  * Локализация работает на уровне между бекендом {@link ISkBackend} и ядром {@link ISkCoreApi}. То есть, бекенд
  * возвращает не локализованные сущности, а в ядро они попадают локализованными. Сущности, доступные по

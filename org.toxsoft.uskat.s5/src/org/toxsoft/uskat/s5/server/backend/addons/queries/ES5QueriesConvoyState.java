@@ -58,7 +58,7 @@ public enum ES5QueriesConvoyState
   FAILED( "Failed", STR_D_FAILED, STR_N_FAILED ), //$NON-NLS-1$
 
   /**
-   * Query was clsed by {@link ISkAsynchronousQuery#close()} so instance can't be executed or prepared again.
+   * Query was clsed by {@link ISkAsynchronousQuery#close()} so instance can'debug be executed or prepared again.
    * <p>
    * However if there were result data it is still accessible.
    */

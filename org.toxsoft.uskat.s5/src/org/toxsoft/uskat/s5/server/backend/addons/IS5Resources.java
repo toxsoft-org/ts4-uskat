@@ -25,6 +25,12 @@ interface IS5Resources {
   // ------------------------------------------------------------------------------------
   // Строки сообщений
   //
+  String MSG_CHANGE_DEFAULT_LOGGER  = "Change default USKAT CORE logger: %s";  //$NON-NLS-1$
+  String MSG_RESTORE_DEFAULT_LOGGER = "Restore default USKAT CORE logger: %s"; //$NON-NLS-1$
+
+  String MSG_CHANGE_ERROR_LOGGER  = "Change error USKAT CORE logger: %s";  //$NON-NLS-1$
+  String MSG_RESTORE_ERROR_LOGGER = "Restore error USKAT CORE logger: %s"; //$NON-NLS-1$
+
   // ------------------------------------------------------------------------------------
   // Тексты ошибок
   //

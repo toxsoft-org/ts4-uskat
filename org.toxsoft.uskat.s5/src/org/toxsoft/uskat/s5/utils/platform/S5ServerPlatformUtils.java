@@ -241,10 +241,10 @@ public class S5ServerPlatformUtils {
         Long percentage = Long.valueOf( ((used.longValue() * 100) / max.longValue()) );
         int mb = 1024 * 1024;
         sb.append( format( "nnt commited :  %d MB\n", Long.valueOf( commited.longValue() / mb ) ) );
-        sb.append( format( "t init       :  %d MB\n", Long.valueOf( init.longValue() / mb ) ) );
-        sb.append( format( "t max        :  %d MB\n", Long.valueOf( max.longValue() / mb ) ) );
-        sb.append( format( "t used       :  %d MB\n", Long.valueOf( used.longValue() / mb ) ) );
-        sb.append( format( "t percentage :  %d\n", percentage ) );
+        sb.append( format( "debug init       :  %d MB\n", Long.valueOf( init.longValue() / mb ) ) );
+        sb.append( format( "debug max        :  %d MB\n", Long.valueOf( max.longValue() / mb ) ) );
+        sb.append( format( "debug used       :  %d MB\n", Long.valueOf( used.longValue() / mb ) ) );
+        sb.append( format( "debug percentage :  %d\n", percentage ) );
       }
       return sb.toString();
     }

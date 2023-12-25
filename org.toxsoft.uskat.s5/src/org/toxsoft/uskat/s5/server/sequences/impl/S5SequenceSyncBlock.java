@@ -1,5 +1,6 @@
 package org.toxsoft.uskat.s5.server.sequences.impl;
 
+import static org.toxsoft.core.tslib.bricks.strid.impl.StridUtils.*;
 import static org.toxsoft.core.tslib.bricks.time.impl.TimeUtils.*;
 import static org.toxsoft.uskat.s5.server.sequences.IS5SequenceHardConstants.*;
 import static org.toxsoft.uskat.s5.server.sequences.impl.IS5Resources.*;
@@ -20,6 +21,7 @@ import org.toxsoft.core.tslib.gw.gwid.Gwid;
 import org.toxsoft.core.tslib.utils.errors.*;
 import org.toxsoft.core.tslib.utils.logs.ILogger;
 import org.toxsoft.uskat.s5.server.sequences.*;
+import org.toxsoft.uskat.s5.server.sequences.maintenance.S5Partition;
 
 /**
  * Блок хранения синхронных данных.
@@ -197,6 +199,14 @@ public abstract class S5SequenceSyncBlock<V extends ITemporal<?>, BLOB_ARRAY, BL
     int newSize = size();
     // Двойной максимальный размер блока
     int doubleMaxSize = 2 * OP_BLOCK_SIZE_MAX.getValue( typeInfo.params() ).asInt();
+
+    // Имя таблицы хранения блоков
+    String blockTableName = getLast( OP_BLOCK_IMPL_CLASS.getValue( typeInfo.params() ).asString() );
+    // Глубина хранения значений в таблице
+    int depth = aFactory.getTableDepth( blockTableName );
+    // Максимальное время завершения данных в блоке с учетом механизма хранения блоков в разделах таблиц
+    long nextPartitionTime = S5Partition.calcPartitionEndTime( newEndTime, depth );
+
     // Индекс блока с которого необходимо проводить объединение
     int unionFrom = 0;
     // Количество блоков годных для объединения
@@ -212,6 +222,11 @@ public abstract class S5SequenceSyncBlock<V extends ITemporal<?>, BLOB_ARRAY, BL
       if( blockSize == 0 ) {
         // Блок пустой
         continue;
+      }
+      if( blockEndTime >= nextPartitionTime ) {
+        // Завершение блока попадает в другой раздел таблицы хранения блоков. Объединение с ним невозможно так как
+        // невозможно обеспечить гарантию глубины хранения значений в БД
+        break;
       }
       if( newSize + blockSize >= doubleMaxSize ) {
         // Блок не может быть объединен, так как будет вдвое превышен максимальный размер блока

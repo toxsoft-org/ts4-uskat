@@ -42,16 +42,6 @@ public class SkConnectionSupplier
     }
 
     @Override
-    public ValidationResult canSetDefaultConnection( IdChain aKey ) {
-      TsNullArgumentRtException.checkNull( aKey );
-      ValidationResult vr = ValidationResult.SUCCESS;
-      for( ISkConnectionSupplierValidator v : validatorsList() ) {
-        vr = ValidationResult.firstNonOk( vr, v.canSetDefaultConnection( aKey ) );
-      }
-      return vr;
-    }
-
-    @Override
     public ValidationResult canCreateConnection( IdChain aKey, ITsGuiContext aContext ) {
       TsNullArgumentRtException.checkNulls( aKey, aContext );
       ValidationResult vr = ValidationResult.SUCCESS;
@@ -81,48 +71,28 @@ public class SkConnectionSupplier
   class Eventer
       extends AbstractTsEventer<ISkConnectionSupplierListener> {
 
-    private ECrudOp op           = null;
-    private IdChain connId       = null;
-    private IdChain oldDefConnId = null;
+    private ECrudOp op     = null;
+    private IdChain connId = null;
 
     @Override
     protected boolean doIsPendingEvents() {
-      return op != null || oldDefConnId != null;
+      return op != null;
     }
 
     @Override
     protected void doFirePendingEvents() {
       reallyFireEvent( op, connId );
-      reallyFireDefChanged( oldDefConnId );
     }
 
     @Override
     protected void doClearPendingEvents() {
       op = null;
       connId = null;
-      oldDefConnId = null;
     }
 
     private void reallyFireEvent( ECrudOp aOp, IdChain aConnId ) {
       for( ISkConnectionSupplierListener l : listeners() ) {
         l.onConnectionsListChanged( SkConnectionSupplier.this, aOp, aConnId );
-      }
-    }
-
-    private void reallyFireDefChanged( IdChain aOldDefConnId ) {
-      for( ISkConnectionSupplierListener l : listeners() ) {
-        l.onDefaulConnectionChanged( SkConnectionSupplier.this, aOldDefConnId );
-      }
-    }
-
-    void fireDefChanged( IdChain aOldDefConnId ) {
-      if( isFiringPaused() ) {
-        if( oldDefConnId == null ) { // remember only firs change of def connection change
-          oldDefConnId = aOldDefConnId;
-        }
-      }
-      else {
-        reallyFireDefChanged( aOldDefConnId );
       }
     }
 
@@ -150,19 +120,8 @@ public class SkConnectionSupplier
   private final ISkConnectionSupplierValidator builtinValidator = new ISkConnectionSupplierValidator() {
 
     @Override
-    public ValidationResult canSetDefaultConnection( IdChain aKey ) {
-      if( !connsMap.hasKey( aKey ) ) {
-        return ValidationResult.error( FMT_ERR_NO_SUCH_CONN_ID, aKey.canonicalString() );
-      }
-      if( aKey.equals( defKey ) ) {
-        return ValidationResult.warn( FMT_WARN_ALREADY_DEF_CONN, aKey.canonicalString() );
-      }
-      return ValidationResult.SUCCESS;
-    }
-
-    @Override
     public ValidationResult canRemoveConnection( IdChain aKey ) {
-      if( aKey == IdChain.NULL ) {
+      if( aKey == DEF_CONN_ID ) {
         return ValidationResult.error( MSG_ERR_CANT_REMOVE_NULL_ID );
       }
       if( !connsMap.hasKey( aKey ) ) {
@@ -186,8 +145,6 @@ public class SkConnectionSupplier
 
   private final IMapEdit<IdChain, ISkConnection> connsMap = new ElemMap<>();
 
-  private IdChain defKey = IdChain.NULL;
-
   /**
    * Constructor.
    *
@@ -195,8 +152,7 @@ public class SkConnectionSupplier
    * @throws TsNullArgumentRtException any argument = <code>null</code>
    */
   public SkConnectionSupplier( IEclipseContext aWinContext ) {
-    internalReallyCreateConnectionInstance( IdChain.NULL, new TsGuiContext( aWinContext ) );
-    defKey = IdChain.NULL;
+    internalReallyCreateConnectionInstance( DEF_CONN_ID, new TsGuiContext( aWinContext ) );
     svs.addValidator( builtinValidator );
   }
 
@@ -218,23 +174,7 @@ public class SkConnectionSupplier
 
   @Override
   public ISkConnection defConn() {
-    return connsMap.getByKey( defKey );
-  }
-
-  @Override
-  public ISkConnection setDefaultConnection( IdChain aKey ) {
-    TsValidationFailedRtException.checkError( svs.canSetDefaultConnection( aKey ) );
-    if( !defKey.equals( aKey ) ) {
-      IdChain oldId = defKey;
-      defKey = aKey;
-      eventer.fireDefChanged( oldId );
-    }
-    return defConn();
-  }
-
-  @Override
-  public IdChain getDefaultConnectionKey() {
-    return defKey;
+    return connsMap.getByKey( DEF_CONN_ID );
   }
 
   @Override
@@ -259,11 +199,6 @@ public class SkConnectionSupplier
     }
     TsIllegalStateRtException.checkTrue( conn.state().isOpen() );
     connsMap.removeByKey( aKey );
-    if( defKey.equals( aKey ) ) {
-      IdChain oldId = defKey;
-      defKey = IdChain.NULL;
-      eventer.fireDefChanged( oldId );
-    }
     eventer.fireEvent( ECrudOp.CREATE, aKey );
   }
 

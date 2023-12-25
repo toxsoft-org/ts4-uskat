@@ -10,6 +10,7 @@ import java.time.Month;
 import java.time.ZoneId;
 
 import org.toxsoft.core.tslib.av.EAtomicType;
+import org.toxsoft.core.tslib.av.IAtomicValue;
 import org.toxsoft.core.tslib.av.metainfo.IDataDef;
 import org.toxsoft.core.tslib.bricks.strid.coll.IStridablesList;
 import org.toxsoft.core.tslib.bricks.strid.coll.impl.StridablesList;
@@ -42,24 +43,24 @@ public interface IS5ServerHardConstants
   // Идентификация
   //
   /**
-   * Идентификатор модуля реализующего сервер
+   * Идентификатор модуля реализующего сервер.
    */
   String S5_SERVER_ID = "org.toxsoft.uskat.s5.server";
 
   /**
-   * Имя модуля реализующего skat-s5 сервер
+   * Имя модуля реализующего skat-s5 сервер.
    */
   String S5_SERVER_NAME = STR_N_S5_SERVER_INFO;
 
   /**
-   * Описание модуля реализующего skat-s5 сервер
+   * Описание модуля реализующего skat-s5 сервер.
    */
   String S5_SERVER_DESCR = STR_D_S5_SERVER_INFO;
 
   /**
-   * Версия сервера
+   * Версия сервера.
    */
-  TsVersion version = new TsVersion( 4, 15, 2023, Month.MAY, 25 );
+  TsVersion version = new TsVersion( 4, 21, 2023, Month.DECEMBER, 2 );
 
   // ------------------------------------------------------------------------------------
   // Опции s5-backend
@@ -158,6 +159,33 @@ public interface IS5ServerHardConstants
       TSID_DESCRIPTION, STR_D_BACKEND_MODULE, //
       TSID_IS_NULL_ALLOWED, AV_FALSE, //
       TSID_DEFAULT_VALUE, avValobj( new S5Module( "fooModule" ) ) );
+
+  /**
+   * Параметр {@link ISkBackendInfo#params()}: схема базы данных сервера в СУБД
+   * <p>
+   * Тип: {@link EAtomicType#STRING}
+   */
+  IDataDef OP_BACKEND_DB_SCHEME_NAME = create( S5_BACKEND_ID_START + "DbSchemeName", EAtomicType.STRING, //$NON-NLS-1$
+      TSID_NAME, STR_N_BACKEND_DB_SCHEME_NAME, //
+      TSID_DESCRIPTION, STR_D_BACKEND_DB_SCHEME_NAME, //
+      TSID_IS_NULL_ALLOWED, AV_FALSE, //
+      TSID_DEFAULT_VALUE, IAtomicValue.NULL );
+
+  /**
+   * Параметр {@link ISkBackendInfo#params()}: : гарантированное время (сутки) хранения данных.
+   * <p>
+   * Определяет время хранения значений исторических данных, событий и истории команд. По факту система может хранить
+   * данные более долгий период (определяется реализацией), но не меньший.
+   * <p>
+   * Тип: {@link EAtomicType#INTEGER}
+   */
+  IDataDef OP_DB_STORAGE_DEPTH = create( S5_BACKEND_ID_START + "DbStorageDepth", EAtomicType.INTEGER, //$NON-NLS-1$
+      TSID_NAME, STR_N_BACKEND_DB_STORAGE_DEPTH, //
+      TSID_DESCRIPTION, STR_D_BACKEND_DB_STORAGE_DEPTH, //
+      TSID_IS_NULL_ALLOWED, AV_FALSE, //
+      // 2023-09-29 TODO: mvkd:
+      // TSID_DEFAULT_VALUE, avInt( 10 * 365 ) ); // По умолчанию: 10 лет
+      TSID_DEFAULT_VALUE, avInt( 3 ) ); // Для отладки: 3 суток
 
   /**
    * Параметр {@link ISkBackendInfo#params()}: Идентификатор зоны времени, по которому работает сервер
@@ -812,13 +840,13 @@ public interface IS5ServerHardConstants
    * <p>
    * Тип: {@link EAtomicType#INTEGER}
    */
-  S5StatisticParamInfo STAT_HISTORABLE_BACKEND_FRAGMENT_LOOKUP_COUNT = S5StatisticParamInfo.create( //
-      STAT_BACKEND_NODE_ID_START + "FragmentLookupCount", //
+  S5StatisticParamInfo STAT_HISTORABLE_BACKEND_DEFRAGMENT_LOOKUP_COUNT = S5StatisticParamInfo.create( //
+      STAT_BACKEND_NODE_ID_START + "DefragmentLookupCount", //
       EStatisticFunc.SUMMA, //
       new StridablesList<>( MINUTE, HOUR, DAY ), //
       EAtomicType.INTEGER, avInt( 0 ), //
-      TSID_NAME, STR_N_STAT_HISTORABLE_BACKEND_FRAGMENT_LOOKUP_COUNT, //
-      TSID_DESCRIPTION, STR_D_STAT_HISTORABLE_BACKEND_FRAGMENT_LOOKUP_COUNT );
+      TSID_NAME, STR_N_STAT_HISTORABLE_BACKEND_DEFRAGMENT_LOOKUP_COUNT, //
+      TSID_DESCRIPTION, STR_D_STAT_HISTORABLE_BACKEND_DEFRAGMENT_LOOKUP_COUNT );
 
   /**
    * Параметр статистики поддержки бекенда формирующий хранимые данные (данное {@link IS5ClassHistorableBackend}):
@@ -826,13 +854,13 @@ public interface IS5ServerHardConstants
    * <p>
    * Тип: {@link EAtomicType#INTEGER}
    */
-  S5StatisticParamInfo STAT_HISTORABLE_BACKEND_FRAGMENT_THREAD_COUNT = S5StatisticParamInfo.create( //
-      STAT_BACKEND_NODE_ID_START + "FragmentThreadCount", //
+  S5StatisticParamInfo STAT_HISTORABLE_BACKEND_DEFRAGMENT_THREAD_COUNT = S5StatisticParamInfo.create( //
+      STAT_BACKEND_NODE_ID_START + "DefragmentThreadCount", //
       EStatisticFunc.SUMMA, //
       new StridablesList<>( MINUTE, HOUR, DAY ), //
       EAtomicType.INTEGER, avInt( 0 ), //
-      TSID_NAME, STR_N_STAT_HISTORABLE_BACKEND_FRAGMENT_THREAD_COUNT, //
-      TSID_DESCRIPTION, STR_D_STAT_HISTORABLE_BACKEND_FRAGMENT_THREAD_COUNT );
+      TSID_NAME, STR_N_STAT_HISTORABLE_BACKEND_DEFRAGMENT_THREAD_COUNT, //
+      TSID_DESCRIPTION, STR_D_STAT_HISTORABLE_BACKEND_DEFRAGMENT_THREAD_COUNT );
 
   /**
    * Параметр статистики поддержки бекенда формирующий хранимые данные (данное {@link IS5ClassHistorableBackend}):
@@ -840,13 +868,13 @@ public interface IS5ServerHardConstants
    * <p>
    * Тип: {@link EAtomicType#INTEGER}
    */
-  S5StatisticParamInfo STAT_HISTORABLE_BACKEND_FRAGMENT_VALUE_COUNT = S5StatisticParamInfo.create( //
-      STAT_BACKEND_NODE_ID_START + "FragmentThreadCount", //
+  S5StatisticParamInfo STAT_HISTORABLE_BACKEND_DEFRAGMENT_VALUE_COUNT = S5StatisticParamInfo.create( //
+      STAT_BACKEND_NODE_ID_START + "DefragmentValueCount", //
       EStatisticFunc.SUMMA, //
       new StridablesList<>( MINUTE, HOUR, DAY ), //
       EAtomicType.INTEGER, avInt( 0 ), //
-      TSID_NAME, STR_N_STAT_HISTORABLE_BACKEND_FRAGMENT_VALUE_COUNT, //
-      TSID_DESCRIPTION, STR_D_STAT_HISTORABLE_BACKEND_FRAGMENT_VALUE_COUNT );
+      TSID_NAME, STR_N_STAT_HISTORABLE_BACKEND_DEFRAGMENT_VALUE_COUNT, //
+      TSID_DESCRIPTION, STR_D_STAT_HISTORABLE_BACKEND_DEFRAGMENT_VALUE_COUNT );
 
   /**
    * Параметр статистики поддержки бекенда формирующий хранимые данные (данное {@link IS5ClassHistorableBackend}):
@@ -854,13 +882,13 @@ public interface IS5ServerHardConstants
    * <p>
    * Тип: {@link EAtomicType#INTEGER}
    */
-  S5StatisticParamInfo STAT_HISTORABLE_BACKEND_FRAGMENT_MERGED_COUNT = S5StatisticParamInfo.create( //
-      STAT_BACKEND_NODE_ID_START + "FragmentThreadCount", //
+  S5StatisticParamInfo STAT_HISTORABLE_BACKEND_DEFRAGMENT_MERGED_COUNT = S5StatisticParamInfo.create( //
+      STAT_BACKEND_NODE_ID_START + "DefragmentMergedCount", //
       EStatisticFunc.SUMMA, //
       new StridablesList<>( MINUTE, HOUR, DAY ), //
       EAtomicType.INTEGER, avInt( 0 ), //
-      TSID_NAME, STR_N_STAT_HISTORABLE_BACKEND_FRAGMENT_MERGED_COUNT, //
-      TSID_DESCRIPTION, STR_D_STAT_HISTORABLE_BACKEND_FRAGMENT_MERGED_COUNT );
+      TSID_NAME, STR_N_STAT_HISTORABLE_BACKEND_DEFRAGMENT_MERGED_COUNT, //
+      TSID_DESCRIPTION, STR_D_STAT_HISTORABLE_BACKEND_DEFRAGMENT_MERGED_COUNT );
 
   /**
    * Параметр статистики поддержки бекенда формирующий хранимые данные (данное {@link IS5ClassHistorableBackend}):
@@ -868,13 +896,13 @@ public interface IS5ServerHardConstants
    * <p>
    * Тип: {@link EAtomicType#INTEGER}
    */
-  S5StatisticParamInfo STAT_HISTORABLE_BACKEND_FRAGMENT_REMOVED_COUNT = S5StatisticParamInfo.create( //
-      STAT_BACKEND_NODE_ID_START + "FragmentRemovedCount", //
+  S5StatisticParamInfo STAT_HISTORABLE_BACKEND_DEFRAGMENT_REMOVED_COUNT = S5StatisticParamInfo.create( //
+      STAT_BACKEND_NODE_ID_START + "DefragmentRemovedCount", //
       EStatisticFunc.SUMMA, //
       new StridablesList<>( MINUTE, HOUR, DAY ), //
       EAtomicType.INTEGER, avInt( 0 ), //
-      TSID_NAME, STR_N_STAT_HISTORABLE_BACKEND_FRAGMENT_REMOVED_COUNT, //
-      TSID_DESCRIPTION, STR_D_STAT_HISTORABLE_BACKEND_FRAGMENT_REMOVED_COUNT );
+      TSID_NAME, STR_N_STAT_HISTORABLE_BACKEND_DEFRAGMENT_REMOVED_COUNT, //
+      TSID_DESCRIPTION, STR_D_STAT_HISTORABLE_BACKEND_DEFRAGMENT_REMOVED_COUNT );
 
   /**
    * Параметр статистики поддержки бекенда формирующий хранимые данные (данное {@link IS5ClassHistorableBackend}):
@@ -882,13 +910,111 @@ public interface IS5ServerHardConstants
    * <p>
    * Тип: {@link EAtomicType#INTEGER}
    */
-  S5StatisticParamInfo STAT_HISTORABLE_BACKEND_FRAGMENT_ERROR_COUNT = S5StatisticParamInfo.create( //
-      STAT_BACKEND_NODE_ID_START + "FragmentErrorCount", //
+  S5StatisticParamInfo STAT_HISTORABLE_BACKEND_DEFRAGMENT_ERROR_COUNT = S5StatisticParamInfo.create( //
+      STAT_BACKEND_NODE_ID_START + "DefragmentErrorCount", //
       EStatisticFunc.SUMMA, //
       new StridablesList<>( MINUTE, HOUR, DAY ), //
       EAtomicType.INTEGER, avInt( 0 ), //
-      TSID_NAME, STR_N_STAT_HISTORABLE_BACKEND_FRAGMENT_ERROR_COUNT, //
-      TSID_DESCRIPTION, STR_D_STAT_HISTORABLE_BACKEND_FRAGMENT_ERROR_COUNT );
+      TSID_NAME, STR_N_STAT_HISTORABLE_BACKEND_DEFRAGMENT_ERROR_COUNT, //
+      TSID_DESCRIPTION, STR_D_STAT_HISTORABLE_BACKEND_DEFRAGMENT_ERROR_COUNT );
+
+  /**
+   * Параметр статистики поддержки бекенда формирующий хранимые данные (данное {@link IS5ClassHistorableBackend}):
+   * Количество выполненных обработок разделов таблиц
+   * <p>
+   * Тип: {@link EAtomicType#INTEGER}
+   */
+  S5StatisticParamInfo STAT_HISTORABLE_BACKEND_PARTITIONS_TASKS_COUNT = S5StatisticParamInfo.create( //
+      STAT_BACKEND_NODE_ID_START + "PartitionTaskCount", //
+      EStatisticFunc.COUNT, //
+      new StridablesList<>( MINUTE, HOUR, DAY ), //
+      EAtomicType.INTEGER, avInt( 0 ), //
+      TSID_NAME, STR_N_STAT_HISTORABLE_BACKEND_PARTITIONS_TASKS_COUNT, //
+      TSID_DESCRIPTION, STR_D_STAT_HISTORABLE_BACKEND_PARTITIONS_TASKS_COUNT );
+
+  /**
+   * Параметр статистики поддержки бекенда формирующий хранимые данные (данное {@link IS5ClassHistorableBackend}):
+   * Количество проверенных таблиц
+   * <p>
+   * Тип: {@link EAtomicType#INTEGER}
+   */
+  S5StatisticParamInfo STAT_HISTORABLE_BACKEND_PARTITIONS_LOOKUP_COUNT = S5StatisticParamInfo.create( //
+      STAT_BACKEND_NODE_ID_START + "PartitionLookupCount", //
+      EStatisticFunc.SUMMA, //
+      new StridablesList<>( MINUTE, HOUR, DAY ), //
+      EAtomicType.INTEGER, avInt( 0 ), //
+      TSID_NAME, STR_N_STAT_HISTORABLE_BACKEND_PARTITIONS_LOOKUP_COUNT, //
+      TSID_DESCRIPTION, STR_D_STAT_HISTORABLE_BACKEND_PARTITIONS_LOOKUP_COUNT );
+
+  /**
+   * Параметр статистики поддержки бекенда формирующий хранимые данные (данное {@link IS5ClassHistorableBackend}):
+   * Количество операций обработки разделов таблиц
+   * <p>
+   * Тип: {@link EAtomicType#INTEGER}
+   */
+  S5StatisticParamInfo STAT_HISTORABLE_BACKEND_PARTITIONS_THREAD_COUNT = S5StatisticParamInfo.create( //
+      STAT_BACKEND_NODE_ID_START + "PartitionThreadCount", //
+      EStatisticFunc.SUMMA, //
+      new StridablesList<>( MINUTE, HOUR, DAY ), //
+      EAtomicType.INTEGER, avInt( 0 ), //
+      TSID_NAME, STR_N_STAT_HISTORABLE_BACKEND_PARTITIONS_THREAD_COUNT, //
+      TSID_DESCRIPTION, STR_D_STAT_HISTORABLE_BACKEND_PARTITIONS_THREAD_COUNT );
+
+  /**
+   * Параметр статистики поддержки бекенда формирующий хранимые данные (данное {@link IS5ClassHistorableBackend}):
+   * Количество добавленных разделов таблиц
+   * <p>
+   * Тип: {@link EAtomicType#INTEGER}
+   */
+  S5StatisticParamInfo STAT_HISTORABLE_BACKEND_PARTITIONS_ADDED_COUNT = S5StatisticParamInfo.create( //
+      STAT_BACKEND_NODE_ID_START + "PartitionAddedCount", //
+      EStatisticFunc.SUMMA, //
+      new StridablesList<>( MINUTE, HOUR, DAY ), //
+      EAtomicType.INTEGER, avInt( 0 ), //
+      TSID_NAME, STR_N_STAT_HISTORABLE_BACKEND_PARTITIONS_ADDED_COUNT, //
+      TSID_DESCRIPTION, STR_D_STAT_HISTORABLE_BACKEND_PARTITIONS_ADDED_COUNT );
+
+  /**
+   * Параметр статистики поддержки бекенда формирующий хранимые данные (данное {@link IS5ClassHistorableBackend}):
+   * Количество удаленных разделов таблиц
+   * <p>
+   * Тип: {@link EAtomicType#INTEGER}
+   */
+  S5StatisticParamInfo STAT_HISTORABLE_BACKEND_PARTITIONS_REMOVED_COUNT = S5StatisticParamInfo.create( //
+      STAT_BACKEND_NODE_ID_START + "PartitionRemoved", //
+      EStatisticFunc.SUMMA, //
+      new StridablesList<>( MINUTE, HOUR, DAY ), //
+      EAtomicType.INTEGER, avInt( 0 ), //
+      TSID_NAME, STR_N_STAT_HISTORABLE_BACKEND_PARTITIONS_REMOVED_COUNT, //
+      TSID_DESCRIPTION, STR_D_STAT_HISTORABLE_BACKEND_PARTITIONS_REMOVED_COUNT );
+
+  /**
+   * Параметр статистики поддержки бекенда формирующий хранимые данные (данное {@link IS5ClassHistorableBackend}):
+   * Количество удаленных блоков при удалении разделов таблиц
+   * <p>
+   * Тип: {@link EAtomicType#INTEGER}
+   */
+  S5StatisticParamInfo STAT_HISTORABLE_BACKEND_PARTITIONS_BLOCKS_REMOVED_COUNT = S5StatisticParamInfo.create( //
+      STAT_BACKEND_NODE_ID_START + "PartitionBlocksRemoved", //
+      EStatisticFunc.SUMMA, //
+      new StridablesList<>( MINUTE, HOUR, DAY ), //
+      EAtomicType.INTEGER, avInt( 0 ), //
+      TSID_NAME, STR_N_STAT_HISTORABLE_BACKEND_PARTITIONS_BLOCKS_REMOVED_COUNT, //
+      TSID_DESCRIPTION, STR_D_STAT_HISTORABLE_BACKEND_PARTITIONS_BLOCKS_REMOVED_COUNT );
+
+  /**
+   * Параметр статистики поддержки бекенда формирующий хранимые данные (данное {@link IS5ClassHistorableBackend}):
+   * Количество ошибок обработки разделов таблиц
+   * <p>
+   * Тип: {@link EAtomicType#INTEGER}
+   */
+  S5StatisticParamInfo STAT_HISTORABLE_BACKEND_PARTITIONS_ERROR_COUNT = S5StatisticParamInfo.create( //
+      STAT_BACKEND_NODE_ID_START + "PartitionErrorCount", //
+      EStatisticFunc.SUMMA, //
+      new StridablesList<>( MINUTE, HOUR, DAY ), //
+      EAtomicType.INTEGER, avInt( 0 ), //
+      TSID_NAME, STR_N_STAT_HISTORABLE_BACKEND_PARTITIONS_ERROR_COUNT, //
+      TSID_DESCRIPTION, STR_D_STAT_HISTORABLE_BACKEND_PARTITIONS_ERROR_COUNT );
 
   /**
    * Список всех параметров статистики поддержки бекенда формирующий хранимые данные (данные {@link IS5ClassNode})
@@ -905,9 +1031,18 @@ public interface IS5ServerHardConstants
       STAT_HISTORABLE_BACKEND_REMOVED_TIME, //
       STAT_HISTORABLE_BACKEND_ERROR_COUNT, //
       STAT_HISTORABLE_BACKEND_DEFRAGMENT_COUNT, //
-      STAT_HISTORABLE_BACKEND_FRAGMENT_LOOKUP_COUNT, //
-      STAT_HISTORABLE_BACKEND_FRAGMENT_THREAD_COUNT, //
-      STAT_HISTORABLE_BACKEND_FRAGMENT_REMOVED_COUNT, //
-      STAT_HISTORABLE_BACKEND_FRAGMENT_ERROR_COUNT //
+      STAT_HISTORABLE_BACKEND_DEFRAGMENT_LOOKUP_COUNT, //
+      STAT_HISTORABLE_BACKEND_DEFRAGMENT_THREAD_COUNT, //
+      STAT_HISTORABLE_BACKEND_DEFRAGMENT_VALUE_COUNT, //
+      STAT_HISTORABLE_BACKEND_DEFRAGMENT_MERGED_COUNT, //
+      STAT_HISTORABLE_BACKEND_DEFRAGMENT_REMOVED_COUNT, //
+      STAT_HISTORABLE_BACKEND_DEFRAGMENT_ERROR_COUNT, //
+      STAT_HISTORABLE_BACKEND_PARTITIONS_TASKS_COUNT, //
+      STAT_HISTORABLE_BACKEND_PARTITIONS_LOOKUP_COUNT, //
+      STAT_HISTORABLE_BACKEND_PARTITIONS_THREAD_COUNT, //
+      STAT_HISTORABLE_BACKEND_PARTITIONS_ADDED_COUNT, //
+      STAT_HISTORABLE_BACKEND_PARTITIONS_REMOVED_COUNT, //
+      STAT_HISTORABLE_BACKEND_PARTITIONS_BLOCKS_REMOVED_COUNT, //
+      STAT_HISTORABLE_BACKEND_PARTITIONS_ERROR_COUNT //
   );
 }

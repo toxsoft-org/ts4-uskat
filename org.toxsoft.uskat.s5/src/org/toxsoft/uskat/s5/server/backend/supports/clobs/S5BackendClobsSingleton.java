@@ -6,22 +6,21 @@ import static org.toxsoft.uskat.s5.server.backend.supports.clobs.IS5ClobsInterce
 import static org.toxsoft.uskat.s5.server.backend.supports.clobs.IS5Resources.*;
 import static org.toxsoft.uskat.s5.server.backend.supports.clobs.IS5SQLConstants.*;
 
-import java.io.UnsupportedEncodingException;
-import java.util.List;
-import java.util.concurrent.TimeUnit;
+import java.io.*;
+import java.util.*;
+import java.util.concurrent.*;
 
 import javax.ejb.*;
 import javax.persistence.*;
 
-import org.toxsoft.core.tslib.bricks.events.msg.GtMessage;
-import org.toxsoft.core.tslib.coll.IList;
+import org.toxsoft.core.tslib.bricks.events.msg.*;
+import org.toxsoft.core.tslib.coll.*;
 import org.toxsoft.core.tslib.gw.gwid.*;
-import org.toxsoft.core.tslib.utils.errors.TsInternalErrorRtException;
-import org.toxsoft.core.tslib.utils.errors.TsNullArgumentRtException;
-import org.toxsoft.uskat.core.backend.api.IBaClobsMessages;
-import org.toxsoft.uskat.s5.server.backend.impl.S5BackendSupportSingleton;
-import org.toxsoft.uskat.s5.server.frontend.IS5FrontendRear;
-import org.toxsoft.uskat.s5.server.interceptors.S5InterceptorSupport;
+import org.toxsoft.core.tslib.utils.errors.*;
+import org.toxsoft.uskat.core.backend.api.*;
+import org.toxsoft.uskat.s5.server.backend.impl.*;
+import org.toxsoft.uskat.s5.server.frontend.*;
+import org.toxsoft.uskat.s5.server.interceptors.*;
 
 /**
  * Реализация {@link IS5BackendClobsSingleton}.
@@ -241,7 +240,7 @@ public class S5BackendClobsSingleton
    */
   private static void fireWhenClobChanged( IList<IS5FrontendRear> aFrontends, Gwid aClobGwid ) {
     TsNullArgumentRtException.checkNulls( aFrontends, aClobGwid );
-    GtMessage message = IBaClobsMessages.makeMessage( aClobGwid );
+    GtMessage message = BaMsgClobsChanged.BUILDER.makeMessage( aClobGwid );
     for( IS5FrontendRear frontend : aFrontends ) {
       frontend.onBackendMessage( message );
     }

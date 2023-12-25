@@ -50,6 +50,64 @@ public class SdedSkObjectMpc
 
   static final String TMID_GROUP_BY_CLASS = "GroupByClass"; //$NON-NLS-1$
 
+  private ISkClassInfo selClass = null;
+
+  /**
+   * @return selected class info {@link ISkClassInfo}
+   */
+  public ISkClassInfo getSelClass() {
+    return selClass;
+  }
+
+  /**
+   * Класс узла дерева, содержащий в качестве пользовательского объекта - описание класса.
+   *
+   * @author dima
+   */
+  static class SkClassInfoTsNode
+      extends DefaultTsNode<ISkClassInfo> {
+
+    private int hashCode = 0;
+
+    public SkClassInfoTsNode( ITsNode aParent, ISkClassInfo aEntity ) {
+      super( NK_CLASS, aParent, aEntity );
+    }
+
+    @Override
+    protected String doGetName() {
+      return entity().id();
+    }
+
+    @Override
+    public int hashCode() {
+      if( hashCode == 0 ) {
+        hashCode = 31 * entity().hashCode();
+        if( parent() != null ) {
+          hashCode += parent().hashCode();
+        }
+      }
+      return hashCode;
+    }
+
+    @SuppressWarnings( "rawtypes" )
+    @Override
+    public boolean equals( Object obj ) {
+      if( !(obj instanceof DefaultTsNode node) ) {
+        return false;
+      }
+
+      if( !entity().equals( node.entity() ) ) {
+        return false;
+      }
+
+      if( parent() == null ) {
+        return node.parent() == null;
+      }
+
+      return parent().equals( node.parent() );
+    }
+  }
+
   static class TreeMakerByClass
       implements ITsTreeMaker<ISkObject> {
 
@@ -67,7 +125,8 @@ public class SdedSkObjectMpc
       }
       ISkClassInfo parentClass = aAllItems.getByKey( aCinf.id() );
       DefaultTsNode<ISkClassInfo> grandpaNode = getParentNode( parentClass, aAllMap, aAllItems );
-      parentNode = new DefaultTsNode<>( NK_CLASS, grandpaNode, parentClass );
+      // parentNode = new DefaultTsNode<>( NK_CLASS, grandpaNode, parentClass );
+      parentNode = new SkClassInfoTsNode( grandpaNode, parentClass );
       aAllMap.put( parentClass.id(), parentNode );
       grandpaNode.addNode( parentNode );
       return parentNode;
@@ -90,7 +149,8 @@ public class SdedSkObjectMpc
           continue;
         }
         if( skClassInfo.parent().id().equals( IGwHardConstants.GW_ROOT_CLASS_ID ) ) {
-          DefaultTsNode<ISkClassInfo> skRoot = new DefaultTsNode<>( NK_CLASS, aRootNode, skClassInfo );
+          // DefaultTsNode<ISkClassInfo> skRoot = new DefaultTsNode<>( NK_CLASS, aRootNode, skClassInfo );
+          DefaultTsNode<ISkClassInfo> skRoot = new SkClassInfoTsNode( aRootNode, skClassInfo );
           allMap.put( skRoot.entity().id(), skRoot );
           retVal.add( skRoot );
         }
@@ -103,7 +163,8 @@ public class SdedSkObjectMpc
           continue;
         }
         DefaultTsNode<ISkClassInfo> parentNode = getParentNode( cinf, allMap, allItems );
-        DefaultTsNode<ISkClassInfo> classNode = new DefaultTsNode<>( NK_CLASS, parentNode, cinf );
+        // DefaultTsNode<ISkClassInfo> classNode = new DefaultTsNode<>( NK_CLASS, parentNode, cinf );
+        DefaultTsNode<ISkClassInfo> classNode = new SkClassInfoTsNode( parentNode, cinf );
         allMap.put( cinf.id(), classNode );
         parentNode.addNode( classNode );
       }
@@ -162,6 +223,7 @@ public class SdedSkObjectMpc
   protected void doUpdateActionsState( boolean aIsAlive, boolean aIsSel, ISkObject aSel ) {
     // can NOT edit: 1) root class, 2) claimed by service
     boolean canEdit = true;
+    boolean canAdd = false;
     // if( aSel != null ) {
     // if( !aSel.id().equals( IGwHardConstants.GW_ROOT_CLASS_ID ) ) {
     // String claiminServiceId = skSysdescr().determineClassClaimingServiceId( aSel.id() );
@@ -170,7 +232,16 @@ public class SdedSkObjectMpc
     // }
     // }
     // }
+    ITsNode selNode = (ITsNode)tree().console().selectedNode();
+    if( selNode != null ) {
+      if( selNode.kind() == NK_CLASS ) {
+        selClass = (ISkClassInfo)selNode.entity();
+        canAdd = true;
+        canEdit = false;
+      }
+    }
     toolbar().setActionEnabled( ACTID_EDIT, canEdit );
+    toolbar().setActionEnabled( ACTID_ADD, canAdd );
   }
 
   // @Override

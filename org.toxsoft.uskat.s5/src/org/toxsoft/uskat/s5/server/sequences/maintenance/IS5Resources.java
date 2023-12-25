@@ -38,6 +38,21 @@ interface IS5Resources {
   String N_LOOKUP_COUNT = Messages.getString( "IS5Resources.N_LOOKUP_COUNT" ); //$NON-NLS-1$
 
   // ------------------------------------------------------------------------------------
+  // Строковые константы IS5SequencePartitionOptions
+  //
+  String D_REMOVE_INTERVAL = Messages.getString( "IS5Resources.D_REMOVE_INTERVAL" ); //$NON-NLS-1$
+  String N_REMOVE_INTERVAL = Messages.getString( "IS5Resources.N_REMOVE_INTERVAL" ); //$NON-NLS-1$
+
+  String D_REMOVE_FROM_TABLES = Messages.getString( "IS5Resources.D_REMOVE_FROM_TABLES" ); //$NON-NLS-1$
+  String N_REMOVE_FROM_TABLES = Messages.getString( "IS5Resources.N_REMOVE_FROM_TABLES" ); //$NON-NLS-1$
+
+  String D_REMOVE_THREADS_COUNT = Messages.getString( "IS5Resources.D_REMOVE_THREADS_COUNT" ); //$NON-NLS-1$
+  String N_REMOVE_THREADS_COUNT = Messages.getString( "IS5Resources.N_REMOVE_THREADS_COUNT" ); //$NON-NLS-1$
+
+  String D_REMOVE_LOOKUP_COUNT = Messages.getString( "IS5Resources.D_REMOVE_LOOKUP_COUNT" ); //$NON-NLS-1$
+  String N_REMOVE_LOOKUP_COUNT = Messages.getString( "IS5Resources.N_REMOVE_LOOKUP_COUNT" ); //$NON-NLS-1$
+
+  // ------------------------------------------------------------------------------------
   // Строковые константы IS5SequenceValidationOptions
   //
   String D_VALID_REPAIR = Messages.getString( "IS5Resources.D_VALID_REPAIR" ); //$NON-NLS-1$

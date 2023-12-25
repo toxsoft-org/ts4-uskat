@@ -1,7 +1,6 @@
 package org.toxsoft.uskat.core.impl;
 
 import static org.toxsoft.uskat.core.backend.ISkBackendHardConstant.*;
-import static org.toxsoft.uskat.core.backend.api.IBaClobsMessages.*;
 import static org.toxsoft.uskat.core.impl.ISkResources.*;
 
 import org.toxsoft.core.tslib.bricks.ctx.ITsContextRo;
@@ -22,6 +21,7 @@ import org.toxsoft.uskat.core.ISkServiceCreator;
 import org.toxsoft.uskat.core.api.clobserv.*;
 import org.toxsoft.uskat.core.api.objserv.ISkObjectService;
 import org.toxsoft.uskat.core.api.sysdescr.ISkClassInfo;
+import org.toxsoft.uskat.core.backend.api.BaMsgClobsChanged;
 import org.toxsoft.uskat.core.devapi.IDevCoreApi;
 
 /**
@@ -172,15 +172,14 @@ public class SkCoreServClobs
 
   @Override
   protected boolean onBackendMessage( GenericMessage aMessage ) {
-    switch( aMessage.messageId() ) {
-      case MSGID_CLOB_CHANGE: {
-        Gwid clobGwid = extractClobGwid( aMessage );
+    return switch( aMessage.messageId() ) {
+      case BaMsgClobsChanged.MSG_ID -> {
+        Gwid clobGwid = BaMsgClobsChanged.BUILDER.getClobGwid( aMessage );
         eventer.fireClobsChangedEvent( clobGwid );
-        return true;
+        yield true;
       }
-      default:
-        return false;
-    }
+      default -> false;
+    };
   }
 
   // ------------------------------------------------------------------------------------

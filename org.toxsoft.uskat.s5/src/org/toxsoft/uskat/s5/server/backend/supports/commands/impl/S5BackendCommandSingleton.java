@@ -289,6 +289,7 @@ public class S5BackendCommandSingleton
   // ------------------------------------------------------------------------------------
   // Реализация IS5ServerJob
   //
+  @TransactionAttribute( TransactionAttributeType.REQUIRED )
   @Override
   public void doJob() {
     super.doJob();

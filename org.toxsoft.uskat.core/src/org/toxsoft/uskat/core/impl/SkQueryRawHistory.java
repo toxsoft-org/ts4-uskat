@@ -3,21 +3,18 @@ package org.toxsoft.uskat.core.impl;
 import static org.toxsoft.core.tslib.utils.TsLibUtils.*;
 import static org.toxsoft.uskat.core.api.hqserv.ESkQueryState.*;
 
-import org.toxsoft.core.tslib.av.opset.IOptionSet;
-import org.toxsoft.core.tslib.bricks.filter.ITsCombiFilterParams;
+import org.toxsoft.core.tslib.av.opset.*;
+import org.toxsoft.core.tslib.bricks.filter.*;
 import org.toxsoft.core.tslib.bricks.time.*;
-import org.toxsoft.core.tslib.bricks.time.impl.TimedList;
-import org.toxsoft.core.tslib.coll.IMap;
-import org.toxsoft.core.tslib.coll.IMapEdit;
-import org.toxsoft.core.tslib.coll.impl.ElemMap;
-import org.toxsoft.core.tslib.coll.primtypes.IStringMap;
-import org.toxsoft.core.tslib.coll.primtypes.IStringMapEdit;
-import org.toxsoft.core.tslib.coll.primtypes.impl.StringMap;
+import org.toxsoft.core.tslib.bricks.time.impl.*;
+import org.toxsoft.core.tslib.coll.*;
+import org.toxsoft.core.tslib.coll.impl.*;
+import org.toxsoft.core.tslib.coll.primtypes.*;
+import org.toxsoft.core.tslib.coll.primtypes.impl.*;
 import org.toxsoft.core.tslib.gw.gwid.*;
-import org.toxsoft.core.tslib.utils.errors.TsNullArgumentRtException;
+import org.toxsoft.core.tslib.utils.errors.*;
 import org.toxsoft.uskat.core.api.hqserv.*;
-import org.toxsoft.uskat.core.impl.dto.DtoQueryParam;
-import org.toxsoft.uskat.core.utils.SkTimedListUtils;
+import org.toxsoft.uskat.core.impl.dto.*;
 
 /**
  * {@link ISkQueryProcessedData} implementation.
@@ -112,7 +109,7 @@ public final class SkQueryRawHistory
       ITimedListEdit<ITemporal<?>> v = argsDatas.findByKey( gwid );
       ITimedList<ITemporal<?>> nextData = aValues.getByKey( k );
       if( v == null ) {
-        v = new TimedList<>( SkTimedListUtils.getBundleCapacity( nextData.size() ) );
+        v = new TimedList<>( nextData.size() );
         argsDatas.put( gwid, v );
       }
       v.addAll( nextData );

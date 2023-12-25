@@ -25,6 +25,9 @@ public abstract class SkMwsAbstractPart
     extends MwsAbstractPart
     implements ISkGuiContextable {
 
+  /**
+   * Create/destroy visual content as the connection opens/closes.
+   */
   private final ISkConnectionListener connectionListener = ( aSource, aOldState ) -> {
     switch( aSource.state() ) {
       case ACTIVE: {
@@ -54,10 +57,10 @@ public abstract class SkMwsAbstractPart
   private final IdChain suppliedConnectionId;
 
   /**
-   * Basement - a composite is created when constructing a uipart and exists until it is disposed.
+   * Basement - a composite is created when constructing a UIpart and exists until it is disposed.
    * <p>
-   * It is needed in order not to remember the parent {@link Composite} for the uipart, since the E4 can change the
-   * parent when dragging the uipart.
+   * It is needed in order not to remember the parent {@link Composite} for the UIpart, since the E4 can change the
+   * parent when dragging the UIpart.
    */
   TsComposite basement = null;
 
@@ -72,8 +75,8 @@ public abstract class SkMwsAbstractPart
   /**
    * Constructor.
    * <p>
-   * Uipart created with this constructor uses {@link ISkConnectionSupplier#defConn()} connection unless
-   * {@link #skConn()} is overriden.
+   * UIpart created with this constructor uses {@link ISkConnectionSupplier#defConn()} connection unless
+   * {@link #skConn()} is overridden.
    */
   public SkMwsAbstractPart() {
     this( null );
@@ -82,8 +85,8 @@ public abstract class SkMwsAbstractPart
   /**
    * Specifies which connection to use from the {@link ISkConnectionSupplier}.
    * <p>
-   * Uipart created with this constructor uses {@link ISkConnectionSupplier#getConn(IdChain)} connection unless
-   * {@link #skConn()} is overriden.
+   * UIpart created with this constructor uses {@link ISkConnectionSupplier#getConn(IdChain)} connection unless
+   * {@link #skConn()} is overridden.
    *
    * @param aSuppliedConnectionId {@link IdChain} - connection ID or <code>null</code> for default
    */
@@ -102,18 +105,18 @@ public abstract class SkMwsAbstractPart
     disposableBackplane = new TsComposite( basement, SWT.NONE );
     disposableBackplane.setLayout( new BorderLayout() );
     disposableBackplane.setLayoutData( BorderLayout.CENTER );
-    // попытка создать пользовательское содержимое
+    // trying to create custom content
     try {
       doCreateContent( disposableBackplane );
     }
     catch( Exception ex ) {
-      // в случае ошибки уничтожим пользовательское содержимое - не надо захламлять вью
+      // in case of an error, we will destroy the user content - no need to clutter up the UIpart
       LoggerUtils.errorLogger().error( ex );
       TsDialogUtils.error( getShell(), ex );
       internalDisposeContent();
       return;
     }
-    // если пользователь не стал создавать содержимое (по своим соображениям), подчистим подложку тоже
+    // if the user did not create content (for his own reasons), we will clean the background too
     if( disposableBackplane.getChildren().length == 0 ) {
       internalDisposeContent();
       return;
@@ -125,21 +128,21 @@ public abstract class SkMwsAbstractPart
     if( basement.isDisposed() || disposableBackplane == null ) {
       return;
     }
-    // дадим возможность пользователю "подчистить" ресурсы
+    // clean up resources
     try {
       doBeforeDisposeContent();
     }
     catch( Exception ex ) {
       LoggerUtils.errorLogger().error( ex );
     }
-    // уничтожим визуальные компоненты
+    // destroy visual components
     try {
       disposableBackplane.dispose();
     }
     catch( Exception ex ) {
       LoggerUtils.errorLogger().error( ex );
     }
-    // сброс в начальное состояние
+    // reset to initial state
     try {
       doAfterDisposeContent();
     }
@@ -163,7 +166,7 @@ public abstract class SkMwsAbstractPart
     catch( Exception ex1 ) {
       LoggerUtils.errorLogger().error( ex1 );
 
-      // FIXME create errorneous content
+      // FIXME create content displaying the error ?
       throw new TsUnderDevelopmentRtException();
     }
 
@@ -190,7 +193,7 @@ public abstract class SkMwsAbstractPart
   /**
    * Returns connection by ID specified in constructor.
    * <p>
-   * Subclass may override to implement other strategy but not that connecton must NOT be changed afetr part creation.
+   * Subclass may override to implement other strategy but not that connector must NOT be changed after part creation.
    */
   @Override
   public ISkConnection skConn() {
@@ -224,11 +227,11 @@ public abstract class SkMwsAbstractPart
   protected abstract void doCreateContent( TsComposite aParent );
 
   /**
-   * Subclass may reklease resources allocated in {@link #doCreateContent(TsComposite)}, if any.
+   * Subclass may release resources allocated in {@link #doCreateContent(TsComposite)}, if any.
    * <p>
    * USkat connection is close at this moment.
    * <p>
-   * There is no need to dispose SWT content of the view, it will be disposed by base class. Only additional reources,
+   * There is no need to dispose SWT content of the view, it will be disposed by base class. Only additional resources,
    * if any were allocated, is needed to release here.
    * <p>
    * Does nothing in the base class, there is no need to call the superclass method when overriding.
@@ -238,7 +241,7 @@ public abstract class SkMwsAbstractPart
   }
 
   /**
-   * Subclass has abiltity to preform addition action afetr content is disposed.
+   * Subclass has ability to perform addition action after content is disposed.
    * <p>
    * USkat connection is close at this moment.
    * <p>

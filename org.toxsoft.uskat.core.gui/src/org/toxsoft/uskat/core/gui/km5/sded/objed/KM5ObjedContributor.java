@@ -30,7 +30,7 @@ public class KM5ObjedContributor
    * @param aDomain {@link IM5Domain} - connection domain
    * @throws TsNullArgumentRtException any argument = <code>null</code>
    */
-  public KM5ObjedContributor( ISkConnection aConn, IM5Domain aDomain ) {
+  KM5ObjedContributor( ISkConnection aConn, IM5Domain aDomain ) {
     super( aConn, aDomain );
   }
 

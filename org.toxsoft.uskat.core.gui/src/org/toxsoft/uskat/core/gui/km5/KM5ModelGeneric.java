@@ -12,20 +12,20 @@ import org.toxsoft.uskat.core.api.sysdescr.dto.*;
 import org.toxsoft.uskat.core.connection.*;
 
 /**
- * Base class for subject area Sk-classes modelling.
+ * Base class for subject area Sk-classes modeling.
  * <p>
  * This is M5-model of classes claimed by {@link ISkSysdescr}. For other service classes use {@link KM5ModelBasic}
  * instead.
  * <p>
- * This model creates M5-model with all M5-modellable properties (attributes, rivets, CLOBs and links) defined. Default
- * lifycle manager and GUI panels are also provided.
+ * This model creates M5-model with all M5-modelable properties (attributes, rivets, CLOBs and links) defined. Default
+ * lifecycle manager and GUI panels are also provided.
  * <p>
- * This class may be used to dierctly create models or to be subclassed.
+ * This class may be used to directly create models or to be subclassed.
  *
  * @see ISkSysdescr#determineClassClaimingServiceId(String)
  * @see KM5ModelGeneric
  * @author hazard157
- * @param <T> - modelled entity type
+ * @param <T> - modeled entity type
  */
 public class KM5ModelGeneric<T extends ISkObject>
     extends KM5ModelBasic<T> {
@@ -33,7 +33,7 @@ public class KM5ModelGeneric<T extends ISkObject>
   /**
    * Constructor.
    *
-   * @param aClassId String - ID of Sk-class to be modelled
+   * @param aClassId String - ID of Sk-class to be modeled
    * @param aConn {@link ISkConnection} - Sk-connection to be used in constructor
    * @throws TsNullArgumentRtException any argument = <code>null</code>
    * @throws TsItemNotFoundRtException no such class in {@link ISkSysdescr}
@@ -45,7 +45,7 @@ public class KM5ModelGeneric<T extends ISkObject>
   /**
    * Constructor.
    *
-   * @param aClassInfo {@link ISkClassInfo} - description of the Sk-class to be modelled
+   * @param aClassInfo {@link ISkClassInfo} - description of the Sk-class to be modeled
    * @param aConn {@link ISkConnection} - Sk-connection to be used in constructor
    * @throws TsNullArgumentRtException any argument = <code>null</code>
    */
@@ -61,8 +61,22 @@ public class KM5ModelGeneric<T extends ISkObject>
         fdefs.add( new KM5AttributeFieldDef<>( ainf ) );
       }
     }
-    // FIXME rivets
-    // FIXME clobs
+    // rivets
+    for( IDtoRivetInfo linf : aClassInfo.rivets().list() ) {
+      IM5FieldDef<? extends ISkObject, ?> fd;
+      if( linf.count() == 1 ) {
+        fd = new KM5SingleRivetFieldDef( linf );
+      }
+      else {
+        fd = new KM5MultiRivetFieldDef( linf );
+      }
+      fdefs.add( fd );
+    }
+    // CLOBs
+    for( IDtoClobInfo inf : aClassInfo.clobs().list() ) {
+      IM5FieldDef<? extends ISkObject, String> fd = new KM5ClobFieldDef<>( inf );
+      fdefs.add( fd );
+    }
     // links
     for( IDtoLinkInfo linf : aClassInfo.links().list() ) {
       IM5FieldDef<? extends ISkObject, ?> fd;
@@ -75,8 +89,8 @@ public class KM5ModelGeneric<T extends ISkObject>
       fdefs.add( fd );
     }
     addFieldDefs( (IStridablesList)fdefs );
-    // set deafule GUI panels creator
-    setPanelCreator( new KM5GenericPanelCreator<T>() );
+    // set default GUI panels creator
+    setPanelCreator( new KM5GenericPanelCreator<>() );
   }
 
   @Override
