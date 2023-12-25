@@ -8,8 +8,10 @@ import org.toxsoft.core.tslib.bricks.validator.*;
 import org.toxsoft.core.tslib.coll.*;
 import org.toxsoft.core.tslib.utils.*;
 import org.toxsoft.core.tslib.utils.errors.*;
+import org.toxsoft.uskat.core.*;
 import org.toxsoft.uskat.core.connection.*;
 import org.toxsoft.uskat.core.gui.km5.*;
+import org.toxsoft.uskat.core.impl.*;
 
 /**
  * Manages {@link ISkConnection} instances in the MWS application.
@@ -88,6 +90,28 @@ public interface ISkConnectionSupplier
    * @throws TsIllegalStateRtException connection is open
    */
   void removeConnection( IdChain aKey );
+
+  /**
+   * Returns list of the registered Sk-service creators.
+   * <p>
+   * Every connection in {@link #allConns()}, including default one {@link #defConn()} will have all registered services
+   * added to the core API.
+   *
+   * @return {@link IList}&lt;{@link ISkServiceCreator}&gt; - registered creators list
+   */
+  IList<ISkServiceCreator<? extends AbstractSkService>> listRegisteredSkServiceCreators();
+
+  /**
+   * Registers Sk-service creator.
+   * <p>
+   * Attempt to register already registered creator is ignored.
+   * <p>
+   * The registered service will be added to the open connections also.
+   *
+   * @param aCreator {@link ISkServiceCreator} - the creator to register
+   * @throws TsNullArgumentRtException any argument = <code>null</code>
+   */
+  void registerSkServiceCreator( ISkServiceCreator<? extends AbstractSkService> aCreator );
 
   /**
    * Closes all open connections but does not removes them from {@link #allConns()}.

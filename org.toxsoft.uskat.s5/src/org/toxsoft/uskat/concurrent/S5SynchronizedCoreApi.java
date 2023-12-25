@@ -1,33 +1,29 @@
 package org.toxsoft.uskat.concurrent;
 
-import java.util.concurrent.locks.ReentrantReadWriteLock;
+import java.util.concurrent.locks.*;
 
-import org.toxsoft.core.log4j.LoggerWrapper;
-import org.toxsoft.core.tslib.coll.primtypes.IStringMapEdit;
-import org.toxsoft.core.tslib.coll.primtypes.impl.StringMap;
-import org.toxsoft.core.tslib.coll.synch.SynchronizedStringMap;
-import org.toxsoft.core.tslib.utils.errors.TsNullArgumentRtException;
-import org.toxsoft.core.tslib.utils.errors.TsUnsupportedFeatureRtException;
-import org.toxsoft.core.tslib.utils.logs.ILogger;
-import org.toxsoft.uskat.core.ISkCoreApi;
-import org.toxsoft.uskat.core.ISkServiceCreator;
-import org.toxsoft.uskat.core.api.ISkService;
-import org.toxsoft.uskat.core.api.clobserv.ISkClobService;
-import org.toxsoft.uskat.core.api.cmdserv.ISkCommandService;
-import org.toxsoft.uskat.core.api.evserv.ISkEventService;
-import org.toxsoft.uskat.core.api.gwids.ISkGwidService;
-import org.toxsoft.uskat.core.api.hqserv.ISkHistoryQueryService;
-import org.toxsoft.uskat.core.api.linkserv.ISkLinkService;
-import org.toxsoft.uskat.core.api.objserv.ISkObjectService;
-import org.toxsoft.uskat.core.api.rtdserv.ISkRtdataService;
-import org.toxsoft.uskat.core.api.sysdescr.ISkSysdescr;
-import org.toxsoft.uskat.core.api.users.ISkLoggedUserInfo;
-import org.toxsoft.uskat.core.api.users.ISkUserService;
-import org.toxsoft.uskat.core.backend.api.ISkBackendInfo;
-import org.toxsoft.uskat.core.devapi.IDevCoreApi;
-import org.toxsoft.uskat.core.devapi.gwiddb.ISkGwidDbService;
-import org.toxsoft.uskat.core.impl.AbstractSkService;
-import org.toxsoft.uskat.core.impl.SkCoreApi;
+import org.toxsoft.core.log4j.*;
+import org.toxsoft.core.tslib.coll.primtypes.*;
+import org.toxsoft.core.tslib.coll.primtypes.impl.*;
+import org.toxsoft.core.tslib.coll.synch.*;
+import org.toxsoft.core.tslib.utils.errors.*;
+import org.toxsoft.core.tslib.utils.logs.*;
+import org.toxsoft.uskat.core.*;
+import org.toxsoft.uskat.core.api.*;
+import org.toxsoft.uskat.core.api.clobserv.*;
+import org.toxsoft.uskat.core.api.cmdserv.*;
+import org.toxsoft.uskat.core.api.evserv.*;
+import org.toxsoft.uskat.core.api.gwids.*;
+import org.toxsoft.uskat.core.api.hqserv.*;
+import org.toxsoft.uskat.core.api.linkserv.*;
+import org.toxsoft.uskat.core.api.objserv.*;
+import org.toxsoft.uskat.core.api.rtdserv.*;
+import org.toxsoft.uskat.core.api.sysdescr.*;
+import org.toxsoft.uskat.core.api.users.*;
+import org.toxsoft.uskat.core.backend.api.*;
+import org.toxsoft.uskat.core.devapi.*;
+import org.toxsoft.uskat.core.devapi.gwiddb.*;
+import org.toxsoft.uskat.core.impl.*;
 
 /**
  * Синхронизация доступа к {@link ISkCoreApi} (декоратор)

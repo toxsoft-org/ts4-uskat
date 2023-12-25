@@ -1,20 +1,19 @@
 package org.toxsoft.uskat.core;
 
-import org.toxsoft.core.tslib.coll.primtypes.IStringMap;
+import org.toxsoft.core.tslib.coll.primtypes.*;
 import org.toxsoft.core.tslib.utils.errors.*;
-import org.toxsoft.uskat.core.api.ISkService;
-import org.toxsoft.uskat.core.api.clobserv.ISkClobService;
-import org.toxsoft.uskat.core.api.cmdserv.ISkCommandService;
-import org.toxsoft.uskat.core.api.evserv.ISkEventService;
-import org.toxsoft.uskat.core.api.gwids.ISkGwidService;
-import org.toxsoft.uskat.core.api.hqserv.ISkHistoryQueryService;
-import org.toxsoft.uskat.core.api.linkserv.ISkLinkService;
-import org.toxsoft.uskat.core.api.objserv.ISkObjectService;
-import org.toxsoft.uskat.core.api.rtdserv.ISkRtdataService;
-import org.toxsoft.uskat.core.api.sysdescr.ISkSysdescr;
-import org.toxsoft.uskat.core.api.users.ISkLoggedUserInfo;
-import org.toxsoft.uskat.core.api.users.ISkUserService;
-import org.toxsoft.uskat.core.impl.AbstractSkService;
+import org.toxsoft.uskat.core.api.*;
+import org.toxsoft.uskat.core.api.clobserv.*;
+import org.toxsoft.uskat.core.api.cmdserv.*;
+import org.toxsoft.uskat.core.api.evserv.*;
+import org.toxsoft.uskat.core.api.gwids.*;
+import org.toxsoft.uskat.core.api.hqserv.*;
+import org.toxsoft.uskat.core.api.linkserv.*;
+import org.toxsoft.uskat.core.api.objserv.*;
+import org.toxsoft.uskat.core.api.rtdserv.*;
+import org.toxsoft.uskat.core.api.sysdescr.*;
+import org.toxsoft.uskat.core.api.users.*;
+import org.toxsoft.uskat.core.impl.*;
 
 /**
  * USkat core API.

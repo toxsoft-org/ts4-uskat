@@ -15,7 +15,6 @@ import org.toxsoft.core.tslib.bricks.ctx.impl.*;
 import org.toxsoft.core.tslib.bricks.keeper.std.*;
 import org.toxsoft.core.tslib.bricks.strid.coll.*;
 import org.toxsoft.core.tslib.bricks.strid.coll.impl.*;
-import org.toxsoft.core.tslib.coll.*;
 import org.toxsoft.core.tslib.utils.logs.*;
 import org.toxsoft.uskat.core.*;
 import org.toxsoft.uskat.core.backend.*;
@@ -83,19 +82,6 @@ public interface ISkCoreConfigConstants {
       TSID_NAME, STR_N_REF_BACKEND_PROVIDER, //
       TSID_DESCRIPTION, STR_D_REF_BACKEND_PROVIDER, //
       TSID_IS_MANDATORY, AV_TRUE //
-  );
-
-  /**
-   * {@link ISkConnection#open(ITsContextRo)} argument: user-specified core services creators list. <br>
-   * Usage: this non-mandatory option provides {@link IList}&lt;{@link ISkServiceCreator}&gt; of the services user needs
-   * to be present immediately after connection opens. Note that user-specified service may be added to the USkat core
-   * at any time using {@link ISkCoreApi#addService(ISkServiceCreator)} method.
-   */
-  @SuppressWarnings( "rawtypes" )
-  ITsContextRefDef<IList> REFDEF_USER_SERVICES = TsContextRefDef.create( IList.class, //
-      TSID_NAME, STR_N_REF_USER_SERVICES, //
-      TSID_DESCRIPTION, STR_D_REF_USER_SERVICES, //
-      TSID_IS_MANDATORY, AV_FALSE //
   );
 
   /**

@@ -15,6 +15,7 @@ import org.toxsoft.core.tslib.coll.helpers.*;
 import org.toxsoft.core.tslib.coll.impl.*;
 import org.toxsoft.core.tslib.utils.errors.*;
 import org.toxsoft.core.tslib.utils.logs.impl.*;
+import org.toxsoft.uskat.core.*;
 import org.toxsoft.uskat.core.connection.*;
 import org.toxsoft.uskat.core.gui.km5.*;
 import org.toxsoft.uskat.core.impl.*;
@@ -140,6 +141,9 @@ public class SkConnectionSupplier
 
   };
 
+  private static final IListEdit<ISkServiceCreator<? extends AbstractSkService>> registeredServiceCreatorsList =
+      new ElemArrayList<>();
+
   private final Svs     svs     = new Svs();
   private final Eventer eventer = new Eventer();
 
@@ -200,6 +204,31 @@ public class SkConnectionSupplier
     TsIllegalStateRtException.checkTrue( conn.state().isOpen() );
     connsMap.removeByKey( aKey );
     eventer.fireEvent( ECrudOp.CREATE, aKey );
+  }
+
+  /**
+   * Returns list of the registered Sk-service creators.
+   *
+   * @return {@link IList}&lt;{@link ISkServiceCreator}&gt; - registered creators list
+   */
+  @Override
+  public IList<ISkServiceCreator<? extends AbstractSkService>> listRegisteredSkServiceCreators() {
+    return new ElemArrayList<>( registeredServiceCreatorsList );
+  }
+
+  /**
+   * Registers Sk-service creator.
+   * <p>
+   * Attempt to register already registered creator is ignored.
+   *
+   * @param aCreator {@link ISkServiceCreator} - the creator to register
+   * @throws TsNullArgumentRtException any argument = <code>null</code>
+   */
+  @Override
+  public void registerSkServiceCreator( ISkServiceCreator<? extends AbstractSkService> aCreator ) {
+    if( !registeredServiceCreatorsList.hasElem( aCreator ) ) {
+      registeredServiceCreatorsList.add( aCreator );
+    }
   }
 
   @Override

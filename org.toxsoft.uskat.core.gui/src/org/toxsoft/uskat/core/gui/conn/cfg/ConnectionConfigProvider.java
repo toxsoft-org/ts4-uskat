@@ -48,8 +48,7 @@ public non-sealed class ConnectionConfigProvider
     opDefs.addAll( backInfo.argOps() );
     opDefs.addAll( backendMetaInfo().getAuthentificationType().authentificationOptionDefs() );
 
-    // TODO REFDEF_USER_SERVICES
-    // TODO REFDEF_THREAD_SEPARATOR
+    // TODO REFDEF_THREAD_SEPARATOR and other referencs ?
 
   }
 

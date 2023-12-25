@@ -66,7 +66,7 @@ public class SkCoreUtils {
       new ElemArrayList<>();
 
   /**
-   * Returns list of the registred Sk service creators.
+   * Returns list of the registered Sk-service creators.
    *
    * @return {@link IList}&lt;{@link ISkServiceCreator}&gt; - registered creators list
    */
@@ -75,7 +75,7 @@ public class SkCoreUtils {
   }
 
   /**
-   * Registers sk service creator.
+   * Registers Sk-service creator.
    * <p>
    * Attempt to register already registered creator is ignored.
    *
@@ -145,7 +145,7 @@ public class SkCoreUtils {
   /**
    * Checks if class to be used does not violates Sysdescr integrity.
    * <p>
-   * Check is preformed if <code>aClassDto</code> duplicates any property from any superclass.
+   * Check is performed if <code>aClassDto</code> duplicates any property from any superclass.
    *
    * @param aClassDto {@link IDtoClassInfo} - info about class to be used in Sysdescr
    * @param aAncestors {@link IStridablesList}&lt;{@link IDtoClassInfo}&gt; - list wilh all ansestors
@@ -226,10 +226,10 @@ public class SkCoreUtils {
   }
 
   /**
-   * Builds class infos hierarchy tree from supplyed list of class DTOs.
+   * Builds class infos hierarchy tree from suppled list of class DTOs.
    * <p>
    * Method implementation uses {@link #makeHierarchyTreeOfClassDtos(IStridablesList, ValResList)} to prepare valid list
-   * of DTOs. Note thst some classes from source list may be silently ommited from resulting list.
+   * of DTOs. Note that some classes from source list may be silently omitted from resulting list.
    *
    * @param aClassDtos {@link IStridablesListEdit}&lt;{@link IDtoClassInfo}&gt; - source list
    * @return {@link IStridablesListEdit}&lt;{@link ISkClassInfo}&gt; - valid hierarchy tree classes list
@@ -243,7 +243,7 @@ public class SkCoreUtils {
       SkClassInfo cinf = new SkClassInfo( cdto, ll.findByKey( cdto.parentId() ), classDtos );
       ll.add( cinf );
     }
-    // finish SkCLassInfo instance initialiation
+    // finish SkCLassInfo instance initialization
     for( ISkClassInfo cinf : ll ) {
       ((SkClassInfo)cinf).papiInitClassHierarchy( ll );
     }
