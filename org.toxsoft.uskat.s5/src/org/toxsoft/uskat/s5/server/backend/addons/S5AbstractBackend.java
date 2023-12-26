@@ -3,7 +3,6 @@ package org.toxsoft.uskat.s5.server.backend.addons;
 import static org.toxsoft.core.log4j.LoggerWrapper.*;
 import static org.toxsoft.core.tslib.av.impl.AvUtils.*;
 import static org.toxsoft.uskat.core.backend.ISkBackendHardConstant.*;
-import static org.toxsoft.uskat.core.impl.ISkCoreConfigConstants.*;
 import static org.toxsoft.uskat.s5.client.IS5ConnectionParams.*;
 import static org.toxsoft.uskat.s5.server.backend.addons.IS5Resources.*;
 import static org.toxsoft.uskat.s5.utils.threads.impl.S5Lockable.*;
@@ -38,7 +37,6 @@ import org.toxsoft.uskat.core.ISkServiceCreator;
 import org.toxsoft.uskat.core.backend.ISkFrontendRear;
 import org.toxsoft.uskat.core.backend.api.*;
 import org.toxsoft.uskat.core.connection.ISkConnection;
-import org.toxsoft.uskat.core.devapi.IDevCoreApi;
 import org.toxsoft.uskat.core.impl.AbstractSkService;
 import org.toxsoft.uskat.core.impl.SkBackendInfo;
 import org.toxsoft.uskat.s5.client.IS5ConnectionParams;
@@ -73,7 +71,7 @@ public abstract class S5AbstractBackend<ADDON extends IS5BackendAddon>
    * является грязным хаком. Предполагается, что метод {@link IDevCoreApi#doJobInCoreMainThread()} будет вызываться
    * косвенно клиентом. "Как и когда" - тема для обсуждения с goga.
    */
-  private final IDevCoreApi devCoreApi;
+  // private final IDevCoreApi devCoreApi;
 
   /**
    * Представленный клиентом фронтенд с которым работает бекенд
@@ -201,10 +199,6 @@ public abstract class S5AbstractBackend<ADDON extends IS5BackendAddon>
     sessionID = new Skid( ISkSession.CLASS_ID, login.asString() + "." + stridGenerator.nextId() ); //$NON-NLS-1$
     // Получение блокировки соединения
     frontendLock = aArgs.getRef( IS5ConnectionParams.REF_CONNECTION_LOCK.refKey(), S5Lockable.class );
-    // Разделитель потоков между бекендом и фронтендом
-    ISkServiceCreator<? extends AbstractSkService> threadSeparator = REFDEF_THREAD_SYNCHRONIZER.getRef( aArgs );
-    // Доступ к ядру как разработчика
-    devCoreApi = (threadSeparator == null ? (IDevCoreApi)aFrontend : null);
     // Представленный фронтенд
     frontend = aFrontend;
     // Фронтенд с перехватом и обработкой сообщений внутри бекенда и его расширений
@@ -548,17 +542,6 @@ public abstract class S5AbstractBackend<ADDON extends IS5BackendAddon>
       unlockWrite( frontendLock );
     }
     frontend.onBackendMessage( aMessage );
-
-    if( devCoreApi != null ) {
-      // Отработка сообщений
-      lockWrite( frontendLock );
-      try {
-        devCoreApi.doJobInCoreMainThread();
-      }
-      finally {
-        unlockWrite( frontendLock );
-      }
-    }
   }
 
   /**
