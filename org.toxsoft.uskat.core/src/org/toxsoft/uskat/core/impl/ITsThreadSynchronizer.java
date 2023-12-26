@@ -3,7 +3,7 @@ package org.toxsoft.uskat.core.impl;
 import org.toxsoft.core.tslib.utils.errors.TsNullArgumentRtException;
 
 /**
- * Invoker solves the tasks of sharing data access between client threads and uskat by one thread.
+ * Synchronizer of API function calls between system and client threads.
  *
  * @author mvk
  */
