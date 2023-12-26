@@ -2,7 +2,8 @@ package org.toxsoft.uskat.core.gui.conn;
 
 import org.eclipse.swt.widgets.Display;
 import org.toxsoft.core.tslib.utils.errors.TsNullArgumentRtException;
-import org.toxsoft.uskat.core.impl.ITsThreadSynchronizer;
+
+import core.tslib.bricks.synchronize.ITsThreadSynchronizer;
 
 /**
  * Реализация {@link ITsThreadSynchronizer} для GUI (SWT)

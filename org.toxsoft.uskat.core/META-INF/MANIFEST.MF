@@ -7,7 +7,8 @@ Bundle-Vendor: toxsoft.org
 Automatic-Module-Name: org.toxsoft.uskat.core
 Bundle-RequiredExecutionEnvironment: JavaSE-17
 Require-Bundle: org.toxsoft.core.tslib
-Export-Package: org.toxsoft.uskat.core,
+Export-Package: core.tslib.bricks.synchronize,
+ org.toxsoft.uskat.core,
  org.toxsoft.uskat.core.api,
  org.toxsoft.uskat.core.api.clobserv,
  org.toxsoft.uskat.core.api.cmdserv,

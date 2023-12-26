@@ -29,6 +29,8 @@ import org.toxsoft.uskat.core.connection.ISkConnection;
 import org.toxsoft.uskat.core.devapi.IDevCoreApi;
 import org.toxsoft.uskat.core.devapi.gwiddb.ISkGwidDbService;
 
+import core.tslib.bricks.synchronize.ITsThreadSynchronizer;
+
 /**
  * {@link ISkService} implementation base.
  * <p>

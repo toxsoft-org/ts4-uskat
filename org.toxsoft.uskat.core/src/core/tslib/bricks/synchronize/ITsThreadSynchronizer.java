@@ -1,4 +1,4 @@
-package org.toxsoft.uskat.core.impl;
+package core.tslib.bricks.synchronize;
 
 import org.toxsoft.core.tslib.utils.errors.TsNullArgumentRtException;
 

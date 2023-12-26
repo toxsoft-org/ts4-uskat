@@ -38,6 +38,8 @@ import org.toxsoft.uskat.core.devapi.ICoreL10n;
 import org.toxsoft.uskat.core.devapi.IDevCoreApi;
 import org.toxsoft.uskat.core.devapi.gwiddb.ISkGwidDbService;
 
+import core.tslib.bricks.synchronize.ITsThreadSynchronizer;
+
 /**
  * An {@link ISkCoreApi} and {@link IDevCoreApi} implementation.
  *

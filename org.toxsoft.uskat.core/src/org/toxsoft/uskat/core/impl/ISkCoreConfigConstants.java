@@ -20,6 +20,8 @@ import org.toxsoft.core.tslib.utils.logs.ELogSeverity;
 import org.toxsoft.uskat.core.backend.ISkBackendProvider;
 import org.toxsoft.uskat.core.connection.ISkConnection;
 
+import core.tslib.bricks.synchronize.ITsThreadSynchronizer;
+
 /**
  * USkat core implementation-specific constants and options.
  * <p>

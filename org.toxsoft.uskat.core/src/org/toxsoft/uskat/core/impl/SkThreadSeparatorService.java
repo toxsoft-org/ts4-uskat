@@ -15,6 +15,8 @@ import org.toxsoft.core.tslib.utils.errors.TsNullArgumentRtException;
 import org.toxsoft.uskat.core.ISkServiceCreator;
 import org.toxsoft.uskat.core.devapi.IDevCoreApi;
 
+import core.tslib.bricks.synchronize.ITsThreadSynchronizer;
+
 /**
  * Implementation of thread separation service.
  * <p>
