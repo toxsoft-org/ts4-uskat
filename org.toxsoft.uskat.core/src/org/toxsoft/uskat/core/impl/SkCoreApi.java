@@ -7,7 +7,6 @@ import org.toxsoft.core.tslib.av.opset.IOptionSet;
 import org.toxsoft.core.tslib.bricks.ctx.ITsContextRo;
 import org.toxsoft.core.tslib.bricks.events.msg.GtMessage;
 import org.toxsoft.core.tslib.bricks.validator.impl.TsValidationFailedRtException;
-import org.toxsoft.core.tslib.coll.IList;
 import org.toxsoft.core.tslib.coll.IListEdit;
 import org.toxsoft.core.tslib.coll.derivative.*;
 import org.toxsoft.core.tslib.coll.impl.ElemArrayList;
@@ -120,7 +119,7 @@ public class SkCoreApi
     }
     backend.initialize();
     // prepare services to be created
-    IListEdit<ISkServiceCreator<? extends AbstractSkService>> llCreators = new ElemArrayList<>();
+    IListEdit<ISkServiceCreator<? extends AbstractSkService>> llCreators = new ElemArrayList<>( 100, false );
     // mandatory built-in services
     llCreators.add( SkCoreServSysdescr.CREATOR );
     llCreators.add( SkCoreServObject.CREATOR );
@@ -135,21 +134,11 @@ public class SkCoreApi
     llCreators.add( SkCoreServGwidDb.CREATOR );
     // backend and user-specified services
     llCreators.addAll( backend.listBackendServicesCreators() );
-    IList<ISkServiceCreator<? extends AbstractSkService>> llUser = REFDEF_USER_SERVICES.getRef( aArgs, null );
-    if( llUser == null ) {
-      llUser = SkCoreUtils.listRegisteredSkServiceCreators();
-    }
-    for( ISkServiceCreator<? extends AbstractSkService> sc : llUser ) {
-      if( !llCreators.hasElem( sc ) ) {
-        llCreators.addAll( llUser );
-      }
-    }
+    llCreators.addAll( SkCoreUtils.listRegisteredSkServiceCreators() );
     // thread separator service
-    ISkServiceCreator<? extends AbstractSkService> threadSeparator = REFDEF_THREAD_SEPARATOR.getRef( aArgs );
-    if( threadSeparator != null ) {
-      if( !llCreators.hasElem( threadSeparator ) ) {
-        llCreators.add( threadSeparator );
-      }
+    ITsThreadSynchronizer threadSynchronize = REFDEF_THREAD_SYNCHRONIZER.getRef( aArgs );
+    if( threadSynchronize != null ) {
+      llCreators.add( SkThreadSeparatorService.CREATOR );
     }
     // fill map of the services
     for( ISkServiceCreator<? extends AbstractSkService> c : llCreators ) {

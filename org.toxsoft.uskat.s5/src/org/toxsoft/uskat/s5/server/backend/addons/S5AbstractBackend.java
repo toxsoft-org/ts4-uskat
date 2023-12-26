@@ -202,7 +202,7 @@ public abstract class S5AbstractBackend<ADDON extends IS5BackendAddon>
     // Получение блокировки соединения
     frontendLock = aArgs.getRef( IS5ConnectionParams.REF_CONNECTION_LOCK.refKey(), S5Lockable.class );
     // Разделитель потоков между бекендом и фронтендом
-    ISkServiceCreator<? extends AbstractSkService> threadSeparator = REFDEF_THREAD_SEPARATOR.getRef( aArgs );
+    ISkServiceCreator<? extends AbstractSkService> threadSeparator = REFDEF_THREAD_SYNCHRONIZER.getRef( aArgs );
     // Доступ к ядру как разработчика
     devCoreApi = (threadSeparator == null ? (IDevCoreApi)aFrontend : null);
     // Представленный фронтенд

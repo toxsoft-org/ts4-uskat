@@ -7,6 +7,7 @@ import org.toxsoft.uskat.core.api.hqserv.ISkHistoryQueryServiceConstants;
  *
  * @author hazard157
  */
+@SuppressWarnings( "nls" )
 interface ISkResources {
 
   /**
@@ -47,12 +48,8 @@ interface ISkResources {
   String STR_D_OP_LOCALE                = "Locale for core entitties localization";
   String STR_N_OP_DEF_CORE_LOG_SEVERITY = "Log severity";
   String STR_D_OP_DEF_CORE_LOG_SEVERITY = "Default log messages lowest severity to be logged";
-  String STR_N_REF_USER_SERVICES        = "User services";
-  String STR_D_REF_USER_SERVICES        = "List of user-specified core services creators";
-  String STR_N_REF_API_THREAD           = "API thread";
-  String STR_D_REF_API_THREAD           = "All calls to the API must be made within the specified thread";
-  String STR_N_REF_THREAD_SEPARATOR     = "Thread separator";
-  String STR_D_REF_THREAD_SEPARATOR     = "Thread separator between backend and frontend threads";
+  String STR_N_REF_THREAD_SYNCHRONIZER  = "Thread synchronizer";
+  String STR_D_REF_THREAD_SYNCHRONIZER  = "Thread synchronizer between backend and frontend threads";
   String STR_N_REF_BACKEND_PROVIDER     = "Backend provider";
   String STR_D_REF_BACKEND_PROVIDER     = "Refernce to the of the USkat API backend instance creator";
 
@@ -190,7 +187,7 @@ interface ISkResources {
       + ISkHistoryQueryServiceConstants.OP_SK_MAX_EXECUTION_TIME.id() + " value to up (%d))";
 
   /**
-   * {@link SkSwtThreadSeparator}
+   * {@link SkThreadSeparatorService}
    */
   String ERR_API_THREAD_UNDEF = "uskat API thread not defined (ISkCoreConfigConstants.REFDEF_API_THREAD = ???)"; //$NON-NLS-1$
 

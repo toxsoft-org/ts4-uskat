@@ -16,10 +16,7 @@ import org.toxsoft.core.tslib.bricks.ctx.impl.TsContextRefDef;
 import org.toxsoft.core.tslib.bricks.keeper.std.LocaleKeeper;
 import org.toxsoft.core.tslib.bricks.strid.coll.IStridablesList;
 import org.toxsoft.core.tslib.bricks.strid.coll.impl.StridablesList;
-import org.toxsoft.core.tslib.coll.IList;
 import org.toxsoft.core.tslib.utils.logs.ELogSeverity;
-import org.toxsoft.uskat.core.ISkCoreApi;
-import org.toxsoft.uskat.core.ISkServiceCreator;
 import org.toxsoft.uskat.core.backend.ISkBackendProvider;
 import org.toxsoft.uskat.core.connection.ISkConnection;
 
@@ -88,37 +85,13 @@ public interface ISkCoreConfigConstants {
   );
 
   /**
-   * {@link ISkConnection#open(ITsContextRo)} argument: user-specified core services creators list. <br>
-   * Usage: this non-mandatory option provides {@link IList}&lt;{@link ISkServiceCreator}&gt; of the services user needs
-   * to be present immediately after connection opens. Note that user-specified service may be added to the USkat core
-   * at any time using {@link ISkCoreApi#addService(ISkServiceCreator)} method.
-   */
-  @SuppressWarnings( "rawtypes" )
-  ITsContextRefDef<IList> REFDEF_USER_SERVICES = TsContextRefDef.create( IList.class, //
-      TSID_NAME, STR_N_REF_USER_SERVICES, //
-      TSID_DESCRIPTION, STR_D_REF_USER_SERVICES, //
-      TSID_IS_MANDATORY, AV_FALSE //
-  );
-
-  /**
-   * {@link ISkConnection#open(ITsContextRo)} argument: user-specified connection thread.<br>
-   * Usage: All calls to the API must be made within the specified thread.
-   */
-  ITsContextRefDef<Thread> REFDEF_API_THREAD = TsContextRefDef.create( Thread.class, //
-      TSID_NAME, STR_N_REF_API_THREAD, //
-      TSID_DESCRIPTION, STR_D_REF_API_THREAD, //
-      TSID_IS_MANDATORY, AV_FALSE //
-  );
-
-  /**
-   * {@link ISkConnection#open(ITsContextRo)} argument: user-specified thread separator service creator. <br>
+   * service creator. <br>
    * Usage: TODO:
    */
-  @SuppressWarnings( "rawtypes" )
-  ITsContextRefDef<ISkServiceCreator> REFDEF_THREAD_SEPARATOR =
-      TsContextRefDef.create( ISkServiceCreator.class, //
-          TSID_NAME, STR_N_REF_THREAD_SEPARATOR, //
-          TSID_DESCRIPTION, STR_D_REF_THREAD_SEPARATOR, //
+  ITsContextRefDef<ITsThreadSynchronizer> REFDEF_THREAD_SYNCHRONIZER =
+      TsContextRefDef.create( ITsThreadSynchronizer.class, //
+          TSID_NAME, STR_N_REF_THREAD_SYNCHRONIZER, //
+          TSID_DESCRIPTION, STR_D_REF_THREAD_SYNCHRONIZER, //
           TSID_IS_MANDATORY, AV_FALSE //
       );
 }

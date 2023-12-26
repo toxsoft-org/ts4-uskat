@@ -129,7 +129,9 @@ public abstract class AbstractSkService
   protected AbstractSkService( String aId, IDevCoreApi aCoreApi ) {
     serviceId = StridUtils.checkValidIdPath( aId );
     coreApi = SkCoreApi.class.cast( aCoreApi );
-    thread = ISkCoreConfigConstants.REFDEF_API_THREAD.getRef( aCoreApi.openArgs(), null );
+    ITsThreadSynchronizer synchronizer =
+        ISkCoreConfigConstants.REFDEF_THREAD_SYNCHRONIZER.getRef( aCoreApi.openArgs(), null );
+    thread = (synchronizer != null ? synchronizer.thread() : null);
     logger = new CoreLogger( LoggerUtils.defaultLogger(), aCoreApi.openArgs() );
   }
 
@@ -389,7 +391,7 @@ public abstract class AbstractSkService
   /**
    * TODO:
    *
-   * @param aIsActive
+   * @param aIsActive - the backens activity state
    */
   protected void onBackendActiveStateChanged( boolean aIsActive ) {
     // nop

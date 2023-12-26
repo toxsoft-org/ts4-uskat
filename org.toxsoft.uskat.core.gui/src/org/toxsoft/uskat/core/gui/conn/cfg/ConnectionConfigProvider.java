@@ -49,7 +49,7 @@ public non-sealed class ConnectionConfigProvider
     opDefs.addAll( backendMetaInfo().getAuthentificationType().authentificationOptionDefs() );
 
     // TODO REFDEF_USER_SERVICES
-    // TODO REFDEF_THREAD_SEPARATOR
+    // TODO REFDEF_THREAD_SYNCHRONIZER
 
   }
 
