@@ -106,7 +106,7 @@ public class BaClobs
 
   @Override
   public void writeClob( Gwid aGwid, String aClob ) {
-    table.writeTable( aClob, aClob );
+    table.writeTable( aGwid.asString(), aClob );
     GtMessage msg = BaMsgClobsChanged.BUILDER.makeMessage( aGwid );
     owner().frontend().onBackendMessage( msg );
   }
