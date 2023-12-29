@@ -9,6 +9,7 @@ import org.toxsoft.core.tslib.coll.*;
 import org.toxsoft.core.tslib.coll.impl.*;
 import org.toxsoft.core.tslib.coll.primtypes.*;
 import org.toxsoft.core.tslib.utils.errors.*;
+import org.toxsoft.uskat.core.*;
 import org.toxsoft.uskat.core.api.sysdescr.*;
 import org.toxsoft.uskat.core.api.sysdescr.dto.*;
 
@@ -36,6 +37,7 @@ class SkClassInfo
 
     private final ESkClassPropKind   kind;
     private final IStridablesList<T> itemsAll;
+    private final IStridablesList<T> itemsNonSysAll;
     private final IStridablesList<T> itemsSelf;
 
     SkClassProps( ESkClassPropKind aKind, IStridablesList<IDtoClassInfo> aList ) {
@@ -52,6 +54,28 @@ class SkClassInfo
       }
       kind = aKind;
       itemsAll = llAll;
+      switch( kind ) {
+        case ATTR: {
+          IStridablesListEdit<T> ll = new StridablesList<>();
+          for( T t : llAll ) {
+            if( !ISkHardConstants.isSkSysAttr( IDtoAttrInfo.class.cast( t ) ) ) {
+              ll.add( t );
+            }
+          }
+          itemsNonSysAll = ll;
+          break;
+        }
+        case CLOB:
+        case CMD:
+        case EVENT:
+        case LINK:
+        case RIVET:
+        case RTDATA:
+          itemsNonSysAll = llAll;
+          break;
+        default:
+          throw new TsNotAllEnumsUsedRtException();
+      }
       itemsSelf = llSelf;
     }
 
@@ -63,6 +87,11 @@ class SkClassInfo
     @Override
     public IStridablesList<T> list() {
       return itemsAll;
+    }
+
+    @Override
+    public IStridablesList<T> listNonSys() {
+      return itemsNonSysAll;
     }
 
     @Override

@@ -1,6 +1,7 @@
 package org.toxsoft.uskat.core.api.sysdescr;
 
 import org.toxsoft.core.tslib.bricks.strid.coll.*;
+import org.toxsoft.uskat.core.*;
 import org.toxsoft.uskat.core.api.sysdescr.dto.*;
 
 /**
@@ -24,6 +25,16 @@ public interface ISkClassProps<T extends IDtoClassPropInfoBase> {
    * @return IStridablesList&lt;T&gt; - properties of this class
    */
   IStridablesList<T> list();
+
+  /**
+   * Lists all non-system properties of this class.
+   * <p>
+   * Currently (as of 2023-12-29) system properties are known only for attributes. The attribute with
+   * {@link ISkHardConstants#isSkSysAttr(IDtoAttrInfo)} = <code>true</code> are considered system attributes.
+   *
+   * @return IStridablesList&lt;T&gt; - non-system properties of this class
+   */
+  IStridablesList<T> listNonSys();
 
   /**
    * Lists the properties declared by this class only, without parent properties.
