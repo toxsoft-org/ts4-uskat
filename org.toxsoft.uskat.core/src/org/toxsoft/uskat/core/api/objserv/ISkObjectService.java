@@ -98,7 +98,7 @@ public interface ISkObjectService
   IList<ISkObject> getObjs( ISkidList aSkids );
 
   /**
-   * Cretes new or updates an existing object.
+   * Creates new or updates an existing object.
    *
    * @param <T> - expected type of the object
    * @param aDtoObject {@link IDtoObject} - the object data
