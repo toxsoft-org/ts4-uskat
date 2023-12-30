@@ -7,17 +7,16 @@ import static org.toxsoft.core.tslib.av.metainfo.IAvMetaConstants.*;
 import static org.toxsoft.core.tslib.bricks.ctx.impl.TsContextRefDef.create;
 import static org.toxsoft.uskat.s5.client.IS5Resources.*;
 
-import java.time.*;
+import java.time.Month;
 
-import org.toxsoft.core.tslib.av.*;
-import org.toxsoft.core.tslib.av.impl.*;
-import org.toxsoft.core.tslib.av.metainfo.*;
-import org.toxsoft.core.tslib.bricks.ctx.*;
-import org.toxsoft.core.tslib.gw.skid.*;
-import org.toxsoft.core.tslib.utils.*;
-import org.toxsoft.uskat.s5.common.*;
-import org.toxsoft.uskat.s5.utils.progress.*;
-import org.toxsoft.uskat.s5.utils.threads.impl.*;
+import org.toxsoft.core.tslib.av.EAtomicType;
+import org.toxsoft.core.tslib.av.impl.AvUtils;
+import org.toxsoft.core.tslib.av.metainfo.IDataDef;
+import org.toxsoft.core.tslib.bricks.ctx.ITsContextRefDef;
+import org.toxsoft.core.tslib.gw.skid.Skid;
+import org.toxsoft.core.tslib.utils.TsVersion;
+import org.toxsoft.uskat.s5.common.S5HostList;
+import org.toxsoft.uskat.s5.utils.progress.IS5ProgressMonitor;
 
 /**
  * Параметры соединения с s5
@@ -234,10 +233,10 @@ public interface IS5ConnectionParams {
    * <p>
    * Тип: {@link S5Lockable}
    */
-  ITsContextRefDef<S5Lockable> REF_CONNECTION_LOCK = create( "connectionLock", S5Lockable.class, //$NON-NLS-1$
-      TSID_NAME, N_CONNECTION_LOCK, //
-      TSID_DESCRIPTION, D_CONNECTION_LOCK, //
-      TSID_IS_NULL_ALLOWED, AV_TRUE );
+  // ITsContextRefDef<S5Lockable> REF_CONNECTION_LOCK = create( "connectionLock", S5Lockable.class, //$NON-NLS-1$
+  // TSID_NAME, N_CONNECTION_LOCK, //
+  // TSID_DESCRIPTION, D_CONNECTION_LOCK, //
+  // TSID_IS_NULL_ALLOWED, AV_TRUE );
 
   /**
    * Параметр: Загрузчик классов используемый соединением

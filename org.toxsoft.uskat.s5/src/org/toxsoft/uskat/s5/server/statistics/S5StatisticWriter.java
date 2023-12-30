@@ -31,9 +31,12 @@ import org.toxsoft.uskat.core.api.sysdescr.ISkClassInfo;
 import org.toxsoft.uskat.core.api.sysdescr.ISkSysdescr;
 import org.toxsoft.uskat.core.api.sysdescr.dto.*;
 import org.toxsoft.uskat.core.connection.ISkConnection;
+import org.toxsoft.uskat.core.impl.SkThreadSeparatorService;
 import org.toxsoft.uskat.core.impl.dto.DtoClassInfo;
 import org.toxsoft.uskat.core.impl.dto.DtoRtdataInfo;
 import org.toxsoft.uskat.s5.utils.threads.impl.S5Lockable;
+
+import core.tslib.bricks.synchronize.ITsThreadSynchronizer;
 
 /**
  * Статистика параметров сохраняемая в системе
@@ -42,6 +45,11 @@ import org.toxsoft.uskat.s5.utils.threads.impl.S5Lockable;
  */
 public class S5StatisticWriter
     implements IS5StatisticCounter {
+
+  /**
+   * Синхронизатор API
+   */
+  private final ITsThreadSynchronizer synchronizer;
 
   /**
    * Статистика
@@ -74,6 +82,8 @@ public class S5StatisticWriter
   public S5StatisticWriter( ISkConnection aConnection, Skid aStatisticObjId,
       IStridablesList<S5StatisticParamInfo> aInfos ) {
     TsNullArgumentRtException.checkNulls( aConnection, aStatisticObjId );
+    synchronizer =
+        (ITsThreadSynchronizer)aConnection.coreApi().services().getByKey( SkThreadSeparatorService.SERVICE_ID );
     stat = new S5Statistic( aInfos ) {
 
       @Override
@@ -174,13 +184,15 @@ public class S5StatisticWriter
       // Не найдены каналы для данного. Например, когда интервал ALL не используется в статистике
       return;
     }
-    // Запись текущих данных
-    channels.left().setValue( aValue );
-
-    // Запись хранимых данных
     ITimeInterval interval = new TimeInterval( currTime, currTime );
     ITimedList<ITemporalAtomicValue> values = new TimedList<>( new TemporalAtomicValue( currTime, aValue ) );
-    channels.right().writeValues( interval, values );
+    // Запись значений в соединение
+    synchronizer.syncExec( () -> {
+      // Запись текущих данных
+      channels.left().setValue( aValue );
+      // Запись хранимых данных
+      channels.right().writeValues( interval, values );
+    } );
   }
 
   /**

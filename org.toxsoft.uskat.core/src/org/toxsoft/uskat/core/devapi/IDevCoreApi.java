@@ -1,11 +1,13 @@
 package org.toxsoft.uskat.core.devapi;
 
-import org.toxsoft.core.tslib.bricks.ctx.*;
-import org.toxsoft.core.tslib.utils.errors.*;
-import org.toxsoft.uskat.core.*;
-import org.toxsoft.uskat.core.api.sysdescr.*;
-import org.toxsoft.uskat.core.connection.*;
-import org.toxsoft.uskat.core.devapi.gwiddb.*;
+import org.toxsoft.core.tslib.bricks.ctx.ITsContextRo;
+import org.toxsoft.core.tslib.utils.errors.TsNullArgumentRtException;
+import org.toxsoft.uskat.core.ISkCoreApi;
+import org.toxsoft.uskat.core.api.sysdescr.ISkSysdescr;
+import org.toxsoft.uskat.core.connection.ISkConnection;
+import org.toxsoft.uskat.core.devapi.gwiddb.ISkGwidDbService;
+
+import core.tslib.bricks.synchronize.ITsThreadSynchronizer;
 
 /**
  * Core API extensions for uskat service developers.
@@ -58,6 +60,9 @@ public interface IDevCoreApi
    * @throws TsNullArgumentRtException any argument = <code>null</code>
    */
   String determineClassClaimingServiceId( String aClassId );
+
+  // FIXME comment!
+  ITsThreadSynchronizer synchronizer();
 
   // FIXME comment!
   void doJobInCoreMainThread();

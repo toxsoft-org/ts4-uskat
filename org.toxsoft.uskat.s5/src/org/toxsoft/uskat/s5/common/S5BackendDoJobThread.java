@@ -13,11 +13,15 @@ import org.toxsoft.core.tslib.utils.errors.TsNullArgumentRtException;
 import org.toxsoft.core.tslib.utils.logs.ELogSeverity;
 import org.toxsoft.core.tslib.utils.logs.ILogger;
 
+import core.tslib.bricks.synchronize.TsThreadSynchronizer;
+
 /**
  * Задача (поток) обслуживания потребностей бекенда {@link ICooperativeMultiTaskable#doJob()}
  *
  * @author mvk
+ * @deprecated use {@link TsThreadSynchronizer}
  */
+@Deprecated
 public final class S5BackendDoJobThread
     implements Runnable, ICloseable {
 

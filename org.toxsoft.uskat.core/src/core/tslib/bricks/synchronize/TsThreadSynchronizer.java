@@ -1,8 +1,7 @@
 package core.tslib.bricks.synchronize;
 
-import java.util.concurrent.*;
+import java.util.concurrent.Executor;
 
-import org.toxsoft.core.tslib.bricks.ICooperativeMultiTaskable;
 import org.toxsoft.core.tslib.utils.errors.TsIllegalStateRtException;
 import org.toxsoft.core.tslib.utils.errors.TsNullArgumentRtException;
 
@@ -12,22 +11,56 @@ import org.toxsoft.core.tslib.utils.errors.TsNullArgumentRtException;
  * @author mvk
  */
 public final class TsThreadSynchronizer
-    implements ITsThreadSynchronizer, ICooperativeMultiTaskable {
+    implements ITsThreadSynchronizer {
 
-  private final Thread                   doJobThread;
-  private final Synchronizer             synchronizer;
-  private final ScheduledExecutorService timerService;
+  private TsSynchronizer synchronizer;
 
   /**
-   * Констурктор
+   * Default constructor.
+   */
+  public TsThreadSynchronizer() {
+    synchronizer = new TsSynchronizer();
+  }
+
+  /**
+   * Constructor with specify synchronized doJob thread.
    *
    * @param aDoJobThread {@link Thread} synchronized doJob thread
    * @throws TsNullArgumentRtException arg = null
    */
   public TsThreadSynchronizer( Thread aDoJobThread ) {
-    doJobThread = TsNullArgumentRtException.checkNull( aDoJobThread );
-    synchronizer = new Synchronizer( aDoJobThread );
-    timerService = Executors.newScheduledThreadPool( 1 );
+    TsNullArgumentRtException.checkNull( aDoJobThread );
+    synchronizer = new TsSynchronizer( aDoJobThread );
+  }
+
+  /**
+   * Constructor with specify synchronized ExecutorService.
+   *
+   * @param aExecutor {@link Executor} executor of synchronized doJob thread
+   * @throws TsNullArgumentRtException arg = null
+   */
+  public TsThreadSynchronizer( Executor aExecutor ) {
+    TsNullArgumentRtException.checkNull( aExecutor );
+    synchronizer = new TsSynchronizer( aExecutor );
+  }
+
+  /**
+   * Set new executor for synchronizer
+   *
+   * @param aExecutor {@link Executor} executor
+   * @throws TsNullArgumentRtException arg = null
+   */
+  public void setExecutor( Executor aExecutor ) {
+    TsNullArgumentRtException.checkNull( aExecutor );
+    synchronizer.close();
+    synchronizer = new TsSynchronizer( aExecutor );
+  }
+
+  /**
+   * Free all resources and close synchronizer.
+   */
+  public void close() {
+    synchronizer.close();
   }
 
   // ------------------------------------------------------------------------------------
@@ -35,7 +68,7 @@ public final class TsThreadSynchronizer
   //
   @Override
   public Thread thread() {
-    return doJobThread;
+    return synchronizer.thread();
   }
 
   @Override
@@ -53,7 +86,7 @@ public final class TsThreadSynchronizer
   @Override
   public void timerExec( int aMilliseconds, Runnable aRunnable ) {
     TsNullArgumentRtException.checkNull( aRunnable );
-    timerService.schedule( aRunnable, aMilliseconds, TimeUnit.MILLISECONDS );
+    synchronizer.timerExec( aMilliseconds, aRunnable );
   }
 
   // ------------------------------------------------------------------------------------
@@ -61,8 +94,9 @@ public final class TsThreadSynchronizer
   //
   @Override
   public void doJob() {
-    TsIllegalStateRtException.checkFalse( Thread.currentThread() == doJobThread );
-    synchronizer.runAsyncMessages();
+    TsIllegalStateRtException.checkFalse( thread().equals( Thread.currentThread() ) );
+    // aAll = true
+    synchronizer.runAsyncMessages( true );
   }
 
   // ------------------------------------------------------------------------------------

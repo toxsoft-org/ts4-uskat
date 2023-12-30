@@ -4,7 +4,6 @@ import static org.toxsoft.core.tslib.av.impl.AvUtils.*;
 import static org.toxsoft.core.tslib.bricks.validator.ValidationResult.*;
 import static org.toxsoft.core.tslib.utils.TsLibUtils.*;
 import static org.toxsoft.uskat.legacy.plexy.impl.PlexyValueUtils.*;
-import static org.toxsoft.uskat.s5.utils.threads.impl.S5Lockable.*;
 import static org.toxsoft.uskat.skadmin.core.EAdminCmdContextNames.*;
 import static org.toxsoft.uskat.skadmin.dev.rtdata.AdminCurrdataUtils.*;
 import static org.toxsoft.uskat.skadmin.dev.rtdata.IAdminHardConstants.*;
@@ -26,7 +25,6 @@ import org.toxsoft.core.tslib.coll.primtypes.IStringMap;
 import org.toxsoft.core.tslib.gw.gwid.*;
 import org.toxsoft.core.tslib.gw.skid.ISkidList;
 import org.toxsoft.core.tslib.utils.errors.TsNullArgumentRtException;
-import org.toxsoft.uskat.concurrent.S5SynchronizedConnection;
 import org.toxsoft.uskat.core.ISkCoreApi;
 import org.toxsoft.uskat.core.api.hqserv.*;
 import org.toxsoft.uskat.core.api.objserv.ISkObjectService;
@@ -53,7 +51,7 @@ public class AdminCmdRead
   /**
    * Соединение выполняемой команды
    */
-  private static S5SynchronizedConnection connection = null;
+  private static ISkConnection connection = null;
 
   /**
    * Обратный вызов выполняемой команды
@@ -176,7 +174,7 @@ public class AdminCmdRead
 
   @Override
   public void doExec( IStringMap<IPlexyValue> aArgValues, IAdminCmdCallback aCallback ) {
-    connection = (S5SynchronizedConnection)argSingleRef( CTX_SK_CONNECTION );
+    connection = (ISkConnection)argSingleRef( CTX_SK_CONNECTION );
     try {
       connection.addConnectionListener( connectionListener );
       callback = aCallback;
@@ -292,14 +290,8 @@ public class AdminCmdRead
           }
         }
         IMap<Gwid, ISkReadCurrDataChannel> newChannels = null;
-        lockWrite( connection.getLock() );
-        try {
-          // Создание новых каналов (добавление в карту backgroundChannels проводится в onCurrData(...)
-          newChannels = currdata.createReadCurrDataChannels( newChannelGwids );
-        }
-        finally {
-          unlockWrite( connection.getLock() );
-        }
+        // Создание новых каналов (добавление в карту backgroundChannels проводится в onCurrData(...)
+        newChannels = currdata.createReadCurrDataChannels( newChannelGwids );
         // Ожидание значений
         if( !waitValues( newChannels, readTimeout.asLong() ) ) {
           // Завершение работы созданных каналов

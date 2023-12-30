@@ -50,11 +50,12 @@ public class SkCoreApi
 
   private final IStringMapEdit<AbstractSkService> servicesMap = new StringMap<>();
 
-  private final ITsContextRo openArgs;
-  private final SkConnection conn;
-  private final CoreL10n     coreL10n;
-  private final CoreLogger   logger;
-  private final ISkBackend   backend;
+  private final ITsContextRo          openArgs;
+  private final SkConnection          conn;
+  private final ITsThreadSynchronizer synchronizer;
+  private final CoreL10n              coreL10n;
+  private final CoreLogger            logger;
+  private final ISkBackend            backend;
 
   private final SkCoreServSysdescr         sysdescr;
   private final SkCoreServObject           objService;
@@ -106,6 +107,7 @@ public class SkCoreApi
     logger = new CoreLogger( LoggerUtils.defaultLogger(), aArgs );
     openArgs = aArgs;
     conn = aConn;
+    synchronizer = REFDEF_THREAD_SYNCHRONIZER.getRef( aArgs );
     coreL10n = new CoreL10n( aArgs );
     // create backend
     ISkBackendProvider bp = REFDEF_BACKEND_PROVIDER.getRef( aArgs );
@@ -138,28 +140,28 @@ public class SkCoreApi
     llCreators.addAll( backend.listBackendServicesCreators() );
     llCreators.addAll( SkCoreUtils.listRegisteredSkServiceCreators() );
     // thread separator service
-    ITsThreadSynchronizer threadSynchronize = REFDEF_THREAD_SYNCHRONIZER.getRef( aArgs );
-    if( threadSynchronize != null ) {
-      llCreators.add( SkThreadSeparatorService.CREATOR );
-    }
+    llCreators.add( SkThreadSeparatorService.CREATOR );
+
     // fill map of the services
-    for( ISkServiceCreator<? extends AbstractSkService> c : llCreators ) {
-      AbstractSkService s;
-      try {
-        s = c.createService( this );
+    synchronizer.syncExec( () -> {
+      for( ISkServiceCreator<? extends AbstractSkService> c : llCreators ) {
+        AbstractSkService s;
+        try {
+          s = c.createService( this );
+        }
+        catch( Exception ex ) {
+          logger().error( ex );
+          throw new TsInternalErrorRtException( ex, FMT_ERR_CANT_CREATE_SERVICE, c.getClass().getName() );
+        }
+        if( servicesMap.hasKey( s.serviceId() ) ) {
+          RuntimeException ex =
+              new TsItemAlreadyExistsRtException( FMT_ERR_DUP_SERVICE_ID, c.getClass().getName(), s.serviceId() );
+          logger().error( ex );
+          throw ex;
+        }
+        servicesMap.put( s.serviceId(), s );
       }
-      catch( Exception ex ) {
-        logger().error( ex );
-        throw new TsInternalErrorRtException( ex, FMT_ERR_CANT_CREATE_SERVICE, c.getClass().getName() );
-      }
-      if( servicesMap.hasKey( s.serviceId() ) ) {
-        RuntimeException ex =
-            new TsItemAlreadyExistsRtException( FMT_ERR_DUP_SERVICE_ID, c.getClass().getName(), s.serviceId() );
-        logger().error( ex );
-        throw ex;
-      }
-      servicesMap.put( s.serviceId(), s );
-    }
+    } );
     // init mandatory service refs
     sysdescr = getService( ISkSysdescr.SERVICE_ID );
     objService = getService( ISkObjectService.SERVICE_ID );
@@ -173,10 +175,12 @@ public class SkCoreApi
     gwidService = getService( ISkGwidService.SERVICE_ID );
     gwidDbService = getService( ISkGwidDbService.SERVICE_ID );
     // initialize services
-    for( int i = 0; i < servicesMap.size(); i++ ) {
-      AbstractSkService s = servicesMap.values().get( i );
-      internalInitService( s );
-    }
+    synchronizer.syncExec( () -> {
+      for( int i = 0; i < servicesMap.size(); i++ ) {
+        AbstractSkService s = servicesMap.values().get( i );
+        internalInitService( s );
+      }
+    } );
     inited = true;
   }
 
@@ -350,6 +354,11 @@ public class SkCoreApi
       }
     }
     return ISkSysdescr.SERVICE_ID;
+  }
+
+  @Override
+  public ITsThreadSynchronizer synchronizer() {
+    return synchronizer;
   }
 
   @Override

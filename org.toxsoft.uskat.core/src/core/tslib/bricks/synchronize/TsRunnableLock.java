@@ -7,14 +7,16 @@ import org.toxsoft.core.tslib.utils.logs.impl.LoggerUtils;
  *
  * @author mvk
  */
-class RunnableLock {
+class TsRunnableLock {
 
   Runnable  runnable;
+  long      timestamp;
   Thread    thread;
   Throwable throwable;
 
-  RunnableLock( Runnable aRunnable ) {
+  TsRunnableLock( Runnable aRunnable, int aDelay ) {
     runnable = aRunnable;
+    timestamp = System.currentTimeMillis() + aDelay;
   }
 
   boolean done() {

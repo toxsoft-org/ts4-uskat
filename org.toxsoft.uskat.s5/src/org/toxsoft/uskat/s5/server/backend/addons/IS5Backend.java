@@ -1,6 +1,5 @@
 package org.toxsoft.uskat.s5.server.backend.addons;
 
-import org.toxsoft.core.tslib.bricks.ICooperativeMultiTaskable;
 import org.toxsoft.core.tslib.bricks.events.msg.GtMessage;
 import org.toxsoft.core.tslib.gw.skid.Skid;
 import org.toxsoft.core.tslib.utils.errors.TsNullArgumentRtException;
@@ -13,7 +12,7 @@ import org.toxsoft.uskat.s5.common.sessions.ISkSession;
  * @author mvk
  */
 public interface IS5Backend
-    extends ISkBackend, ICooperativeMultiTaskable {
+    extends ISkBackend {
 
   /**
    * Возвращает идентификатор сессии под которой подключен бекенд

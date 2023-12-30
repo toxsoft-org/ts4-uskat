@@ -10,14 +10,19 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import javax.ejb.*;
+import javax.enterprise.concurrent.ManagedExecutorService;
 
 import org.toxsoft.core.tslib.bricks.ctx.ITsContext;
 import org.toxsoft.core.tslib.bricks.ctx.ITsContextRo;
 import org.toxsoft.core.tslib.bricks.ctx.impl.TsContext;
 import org.toxsoft.core.tslib.bricks.strid.coll.IStridablesList;
+import org.toxsoft.core.tslib.coll.IMapEdit;
+import org.toxsoft.core.tslib.coll.impl.ElemArrayList;
+import org.toxsoft.core.tslib.coll.impl.ElemMap;
+import org.toxsoft.core.tslib.coll.synch.SynchronizedMap;
 import org.toxsoft.core.tslib.utils.TsLibUtils;
 import org.toxsoft.core.tslib.utils.errors.TsNullArgumentRtException;
-import org.toxsoft.uskat.concurrent.S5SynchronizedConnection;
+import org.toxsoft.uskat.core.api.sysdescr.ISkClassInfo;
 import org.toxsoft.uskat.core.api.users.ISkUserServiceHardConstants;
 import org.toxsoft.uskat.core.backend.ISkBackend;
 import org.toxsoft.uskat.core.backend.ISkFrontendRear;
@@ -25,18 +30,21 @@ import org.toxsoft.uskat.core.backend.metainf.ISkBackendMetaInfo;
 import org.toxsoft.uskat.core.backend.metainf.SkBackendMetaInfo;
 import org.toxsoft.uskat.core.connection.ESkAuthentificationType;
 import org.toxsoft.uskat.core.connection.ISkConnection;
-import org.toxsoft.uskat.core.impl.ISkCoreConfigConstants;
-import org.toxsoft.uskat.core.impl.SkCoreUtils;
+import org.toxsoft.uskat.core.impl.*;
 import org.toxsoft.uskat.s5.client.IS5ConnectionParams;
 import org.toxsoft.uskat.s5.server.IS5ImplementConstants;
 import org.toxsoft.uskat.s5.server.backend.IS5BackendCoreSingleton;
 import org.toxsoft.uskat.s5.server.backend.addons.IS5BackendAddonCreator;
 import org.toxsoft.uskat.s5.server.cluster.IS5ClusterCommandHandler;
 import org.toxsoft.uskat.s5.server.cluster.IS5ClusterManager;
+import org.toxsoft.uskat.s5.server.singletons.S5ServiceSingletonUtils;
 import org.toxsoft.uskat.s5.server.singletons.S5SingletonBase;
 import org.toxsoft.uskat.s5.server.startup.IS5InitialImplementSingleton;
 import org.toxsoft.uskat.s5.server.startup.IS5InitialImplementation;
 import org.toxsoft.uskat.s5.utils.jobs.IS5ServerJob;
+
+import core.tslib.bricks.synchronize.ITsThreadSynchronizer;
+import core.tslib.bricks.synchronize.TsThreadSynchronizer;
 
 /**
  * Реализация синглтона {@link IS5LocalConnectionSingleton}.
@@ -71,6 +79,11 @@ public class S5LocalConnectionSingleton
   private static final long serialVersionUID = 157157L;
 
   /**
+   * JNDI-имя исполнителя асинхронных задач записи блоков {@link ManagedExecutorService}
+   */
+  public static final String EXECUTOR_JNDI = "java:jboss/ee/concurrency/executor/s5/uskat/api"; //$NON-NLS-1$
+
+  /**
    * Имя синглетона в контейнере сервера для организации зависимостей (@DependsOn)
    */
   public static final String LOCAL_CONNECTION_ID = "S5LocalConnectionSingleton"; //$NON-NLS-1$
@@ -79,6 +92,11 @@ public class S5LocalConnectionSingleton
    * Таймаут(мсек) между выполнением фоновых задач синглетона
    */
   private static final long DO_JOB_TIMEOUT = 1000;
+
+  /**
+   * Служба управления вызовами API {@link #EXECUTOR_JNDI}
+   */
+  private ManagedExecutorService executorService;
 
   /**
    * Менеджер управления кластером s5-сервера
@@ -109,9 +127,18 @@ public class S5LocalConnectionSingleton
   private IS5ClusterCommandHandler whenObjectsChangedHandler;
 
   /**
+   * Карта синхронизаторов соединений которые должны быть заменены на фоновые.
+   * <p>
+   * Ключ: имя соединения (потока). Значение: синхронизатор
+   */
+  private IMapEdit<String, TsThreadSynchronizer> synchronizersForReplacing = new SynchronizedMap<>( new ElemMap<>() );
+
+  /**
    * Метка времени последнего выполнения doJob
    */
   private long doJobTimestamp;
+
+  private ISkConnection d;
 
   /**
    * Конструктор
@@ -128,6 +155,8 @@ public class S5LocalConnectionSingleton
   //
   @Override
   protected void doInit() {
+    // Поиск исполнителя потоков объединения блоков
+    executorService = S5ServiceSingletonUtils.lookupExecutor( EXECUTOR_JNDI );
     // Прием сообщений кластера
     whenSysdecrChangedHandler = new S5ClusterCommandWhenSysdescrChanged( backend );
     whenObjectsChangedHandler = new S5ClusterCommandWhenObjectsChanged( backend );
@@ -172,12 +201,21 @@ public class S5LocalConnectionSingleton
     IS5ConnectionParams.OP_LOCAL_MODULE.setValue( ctx.params(), avStr( moduleName ) );
     IS5ConnectionParams.OP_LOCAL_NODE.setValue( ctx.params(), avStr( moduleNode ) );
 
-    // Имя блокировки
-    String lockName = "locConn[" + moduleName + "@" + moduleNode + "]";
+    // Текущий поток используется только для открытия соединения
+    TsThreadSynchronizer synchronizer = new TsThreadSynchronizer( Thread.currentThread() );
+    ISkCoreConfigConstants.REFDEF_THREAD_SYNCHRONIZER.setRef( ctx, synchronizer );
 
-    ISkConnection connection =
-        S5SynchronizedConnection.createSynchronizedConnection( SkCoreUtils.createConnection(), aLock, lockName );
+    // Имя соединения
+    String connectionName = "locConn[" + moduleName + "@" + moduleNode + "]";
+    // Создание соединения
+    ISkConnection connection = SkCoreUtils.createConnection();
+    // S5SynchronizedConnection.createSynchronizedConnection( SkCoreUtils.createConnection(), aLock, lockName );
     connection.open( ctx );
+    // Сохранение соединения в списке открытых соединений
+    synchronizersForReplacing.put( connectionName, synchronizer );
+
+    d = connection;
+
     return connection;
   }
 
@@ -214,6 +252,14 @@ public class S5LocalConnectionSingleton
   @Override
   public void doJob() {
     super.doJob();
+    // Замена на штатный исполнитель потоков
+    for( String connectionName : synchronizersForReplacing.keys().copyTo( new ElemArrayList<>() ) ) {
+      TsThreadSynchronizer synchronizer = synchronizersForReplacing.getByKey( connectionName );
+      synchronizer.setExecutor( executorService );
+      synchronizer.thread().setName( connectionName );
+      synchronizersForReplacing.removeByKey( connectionName );
+    }
+
     // Текущее время
     long currTime = System.currentTimeMillis();
     // if( currTime - doJobTimestamp < SECOND.interval() ) {
@@ -223,5 +269,26 @@ public class S5LocalConnectionSingleton
     }
     doJobTimestamp = currTime;
     // TODO:
+
+    if( d != null ) {
+      ITsThreadSynchronizer service =
+          (ITsThreadSynchronizer)d.coreApi().services().getByKey( SkThreadSeparatorService.SERVICE_ID );
+
+      logger().info( "call asyncExec: start" );
+      service.asyncExec( () -> {
+        for( ISkClassInfo clazz : d.coreApi().sysdescr().listClasses() ) {
+          logger().info( "clazz = %s", clazz.id() ); //$NON-NLS-1$
+        }
+      } );
+      logger().info( "call asyncExec: finish" );
+
+      // logger().info( "call timerExec: start" );
+      // service.timerExec( 500, () -> {
+      // for( ISkClassInfo clazz : d.coreApi().sysdescr().listClasses() ) {
+      // logger().info( "clazz = %s", clazz.id() ); //$NON-NLS-1$
+      // }
+      // } );
+      // logger().info( "call timerExec: finish" );
+    }
   }
 }

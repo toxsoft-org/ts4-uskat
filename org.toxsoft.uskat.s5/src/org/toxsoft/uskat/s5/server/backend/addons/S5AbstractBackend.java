@@ -3,6 +3,7 @@ package org.toxsoft.uskat.s5.server.backend.addons;
 import static org.toxsoft.core.log4j.LoggerWrapper.*;
 import static org.toxsoft.core.tslib.av.impl.AvUtils.*;
 import static org.toxsoft.uskat.core.backend.ISkBackendHardConstant.*;
+import static org.toxsoft.uskat.core.impl.ISkCoreConfigConstants.*;
 import static org.toxsoft.uskat.s5.client.IS5ConnectionParams.*;
 import static org.toxsoft.uskat.s5.server.backend.addons.IS5Resources.*;
 import static org.toxsoft.uskat.s5.utils.threads.impl.S5Lockable.*;
@@ -11,7 +12,6 @@ import org.toxsoft.core.tslib.av.IAtomicValue;
 import org.toxsoft.core.tslib.av.opset.IOptionSet;
 import org.toxsoft.core.tslib.av.opset.IOptionSetEdit;
 import org.toxsoft.core.tslib.av.opset.impl.OptionSet;
-import org.toxsoft.core.tslib.bricks.ICooperativeMultiTaskable;
 import org.toxsoft.core.tslib.bricks.ctx.ITsContext;
 import org.toxsoft.core.tslib.bricks.ctx.ITsContextRo;
 import org.toxsoft.core.tslib.bricks.ctx.impl.IAskParent;
@@ -40,13 +40,14 @@ import org.toxsoft.uskat.core.connection.ISkConnection;
 import org.toxsoft.uskat.core.impl.AbstractSkService;
 import org.toxsoft.uskat.core.impl.SkBackendInfo;
 import org.toxsoft.uskat.s5.client.IS5ConnectionParams;
-import org.toxsoft.uskat.s5.common.S5BackendDoJobThread;
 import org.toxsoft.uskat.s5.common.sessions.ISkSession;
 import org.toxsoft.uskat.s5.server.backend.messages.S5BaBeforeCloseMessages;
 import org.toxsoft.uskat.s5.server.frontend.*;
 import org.toxsoft.uskat.s5.utils.S5ValobjUtils;
 import org.toxsoft.uskat.s5.utils.progress.IS5ProgressMonitor;
 import org.toxsoft.uskat.s5.utils.threads.impl.S5Lockable;
+
+import core.tslib.bricks.synchronize.ITsThreadSynchronizer;
 
 /**
  * Абстрактная реализация s5-бекенда
@@ -55,9 +56,12 @@ import org.toxsoft.uskat.s5.utils.threads.impl.S5Lockable;
  * @param <ADDON> тип расширения
  */
 public abstract class S5AbstractBackend<ADDON extends IS5BackendAddon>
-    implements IS5Backend {
+    implements IS5Backend, Runnable {
 
-  private static final long LOCK_TIMEOUT = 1000;
+  /**
+   * Таймаут (мсек) фоновой обработки аддонов
+   */
+  private static final int ADDON_DOJOB_TIMEOUT = 10;
 
   /**
    * Идентификатор журнала используемый по умолчанию
@@ -138,7 +142,11 @@ public abstract class S5AbstractBackend<ADDON extends IS5BackendAddon>
   /**
    * Задача (поток) обслуживания потребностей бекенда {@link ICooperativeMultiTaskable#doJob()}
    */
-  private final S5BackendDoJobThread backendDojobThread;
+  // private final S5BackendDoJobThread backendDojobThread;
+  /**
+   * Синхронизатор обращения к uskat
+   */
+  private final ITsThreadSynchronizer synchronizer;
 
   /**
    * Карта построителей {@link IS5BackendAddonCreator} расширений {@link IS5BackendAddon} бекенда поддерживаемых
@@ -198,7 +206,8 @@ public abstract class S5AbstractBackend<ADDON extends IS5BackendAddon>
     // Формирование идентификатора сессии
     sessionID = new Skid( ISkSession.CLASS_ID, login.asString() + "." + stridGenerator.nextId() ); //$NON-NLS-1$
     // Получение блокировки соединения
-    frontendLock = aArgs.getRef( IS5ConnectionParams.REF_CONNECTION_LOCK.refKey(), S5Lockable.class );
+    // frontendLock = aArgs.getRef( IS5ConnectionParams.REF_CONNECTION_LOCK.refKey(), S5Lockable.class );
+    frontendLock = new S5Lockable();
     // Представленный фронтенд
     frontend = aFrontend;
     // Фронтенд с перехватом и обработкой сообщений внутри бекенда и его расширений
@@ -242,8 +251,16 @@ public abstract class S5AbstractBackend<ADDON extends IS5BackendAddon>
         IS5ProgressMonitor.NULL);
     // Имя бекенда
     String name = "sessionID = " + sessionID.strid(); //$NON-NLS-1$
+
     // Задача (поток) обслуживания потребностей бекенда
-    backendDojobThread = new S5BackendDoJobThread( name, this );
+    // backendDojobThread = new S5BackendDoJobThread( name, this );
+
+    // Синхронизация обращения к uskat
+    synchronizer = REFDEF_THREAD_SYNCHRONIZER.getRef( aArgs );
+    synchronizer.thread().setName( name );
+    // Запуск фоновой задачи обработки аддонов
+    synchronizer.timerExec( ADDON_DOJOB_TIMEOUT, this );
+
     IOptionSetEdit backendInfoValue = new OptionSet( aBackendInfoValue );
     OPDEF_SKBI_NEED_THREAD_SAFE_FRONTEND.setValue( backendInfoValue, AV_TRUE );
     backendInfo = new SkBackendInfo( aBackendId, System.currentTimeMillis(), backendInfoValue );
@@ -358,11 +375,10 @@ public abstract class S5AbstractBackend<ADDON extends IS5BackendAddon>
   }
 
   // ------------------------------------------------------------------------------------
-  // ICooperativeMultiTaskable
+  // Runnable
   //
   @Override
-  public void doJob() {
-    // Восстановление журнала по умолчанию
+  public void run() {
     if( !LoggerUtils.defaultLogger().equals( uskatLogger ) ) {
       LoggerUtils.setDefaultLogger( uskatLogger );
       LoggerUtils.defaultLogger().error( MSG_RESTORE_DEFAULT_LOGGER, S5_USKAT_CORE_LOGGER );
@@ -371,23 +387,10 @@ public abstract class S5AbstractBackend<ADDON extends IS5BackendAddon>
       LoggerUtils.setErrorLogger( uskatLogger );
       LoggerUtils.errorLogger().error( MSG_RESTORE_ERROR_LOGGER, S5_USKAT_CORE_LOGGER );
     }
-    // 2020-10-12 mvk doJob + mainLock
-    if( !tryLockWrite( frontendLock, LOCK_TIMEOUT ) ) {
-      // Ошибка получения блокировки
-      logger.warning( ERR_TRY_LOCK, frontendLock, frontendRear );
-      return;
+    for( IS5BackendAddon addon : allAddons ) {
+      addon.doJob();
     }
-    // Получен доступ к блокировке.
-    try {
-      for( IS5BackendAddon addon : allAddons ) {
-        // 2022-08-22 mvk doJob + mainLock
-        addon.doJob();
-      }
-    }
-    finally {
-      // Разблокировка доступа к SkConnection
-      unlockWrite( frontendLock );
-    }
+    synchronizer.timerExec( ADDON_DOJOB_TIMEOUT, this );
   }
 
   // ------------------------------------------------------------------------------------
@@ -401,7 +404,7 @@ public abstract class S5AbstractBackend<ADDON extends IS5BackendAddon>
     // Завершение работы наследниками
     doClose();
     // Завершение работы базового класса
-    backendDojobThread.close();
+    // backendDojobThread.close();
     // 2021-03-23 mvk
     // Вызов frontendCaller.close() установил состояние 'interrupted' которое может не дать должны образом выполниться
     // следующему connection.closeSession() если close() вызывается из потоков frontendCaller.doJob или

@@ -112,10 +112,10 @@ public abstract class AbstractSkService
 
   }
 
-  private final String     serviceId;
-  private final SkCoreApi  coreApi;
-  private final Thread     thread;
-  private final CoreLogger logger;
+  private final String                serviceId;
+  private final SkCoreApi             coreApi;
+  private final ITsThreadSynchronizer synchronizer;
+  private final CoreLogger            logger;
 
   private boolean inited = false;
 
@@ -131,9 +131,7 @@ public abstract class AbstractSkService
   protected AbstractSkService( String aId, IDevCoreApi aCoreApi ) {
     serviceId = StridUtils.checkValidIdPath( aId );
     coreApi = SkCoreApi.class.cast( aCoreApi );
-    ITsThreadSynchronizer synchronizer =
-        ISkCoreConfigConstants.REFDEF_THREAD_SYNCHRONIZER.getRef( aCoreApi.openArgs(), null );
-    thread = (synchronizer != null ? synchronizer.thread() : null);
+    synchronizer = aCoreApi.synchronizer();
     logger = new CoreLogger( LoggerUtils.defaultLogger(), aCoreApi.openArgs() );
   }
 
@@ -180,7 +178,7 @@ public abstract class AbstractSkService
    * @throws TsIllegalStateRtException invalid thread access
    */
   final public void checkThread() {
-    if( thread != null && thread != Thread.currentThread() ) {
+    if( synchronizer != null && synchronizer.thread().equals( Thread.currentThread() ) == false ) {
       throw new TsIllegalStateRtException( FMT_ERR_INVALID_THREAD_ACCESS );
     }
   }

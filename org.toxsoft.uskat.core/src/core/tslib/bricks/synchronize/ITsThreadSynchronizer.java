@@ -1,13 +1,15 @@
 package core.tslib.bricks.synchronize;
 
+import org.toxsoft.core.tslib.bricks.ICooperativeMultiTaskable;
 import org.toxsoft.core.tslib.utils.errors.TsNullArgumentRtException;
 
 /**
- * Synchronizer of API function calls between system and client threads.
+ * TsSynchronizer of API function calls between system and client threads.
  *
  * @author mvk
  */
-public interface ITsThreadSynchronizer {
+public interface ITsThreadSynchronizer
+    extends ICooperativeMultiTaskable {
 
   /**
    * Returns the thread in which the functions of API are called
@@ -23,7 +25,6 @@ public interface ITsThreadSynchronizer {
    *
    * @param aRunnable code to run on the uskat thread
    * @throws TsNullArgumentRtException argument = null
-   * @see #syncExec
    */
   void asyncExec( Runnable aRunnable );
 
@@ -33,19 +34,20 @@ public interface ITsThreadSynchronizer {
    *
    * @param aRunnable code to run on the uskat thread
    * @throws TsNullArgumentRtException argument = null
-   * @see #asyncExec
    */
   void syncExec( Runnable aRunnable );
 
   /**
-   * Causes the <code>run()</code> method of the runnable to be invoked {@link #thread()} after the specified number of
-   * milliseconds have elapsed. If milliseconds is less than zero, the runnable is not executed.
+   * Causes the <code>run()</code> method of the runnable to be invoked by the user-interface thread after the specified
+   * number of milliseconds have elapsed. If milliseconds is less than zero, the runnable is not executed.
+   * <p>
+   * Note that at the time the runnable is invoked, widgets that have the receiver as their display may have been
+   * disposed. Therefore, it is necessary to check for this case inside the runnable before accessing the widget.
+   * </p>
    *
    * @param aMilliseconds the delay before running the runnable
-   * @param aRunnable code to run on the uskat thread
+   * @param aRunnable code to run on the user-interface thread
    * @throws TsNullArgumentRtException argument = null
-   * @see #asyncExec
    */
   void timerExec( int aMilliseconds, Runnable aRunnable );
-
 }

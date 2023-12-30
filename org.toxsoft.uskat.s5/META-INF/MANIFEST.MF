@@ -16,7 +16,6 @@ Bundle-RequiredExecutionEnvironment: JavaSE-17
 Export-Package: org.toxsoft.uskat,
  org.toxsoft.uskat.classes,
  org.toxsoft.uskat.classes.impl,
- org.toxsoft.uskat.concurrent,
  org.toxsoft.uskat.s5.client,
  org.toxsoft.uskat.s5.client.local,
  org.toxsoft.uskat.s5.client.remote,

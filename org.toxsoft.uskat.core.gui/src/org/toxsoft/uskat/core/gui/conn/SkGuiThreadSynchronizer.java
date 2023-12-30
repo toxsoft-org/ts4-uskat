@@ -1,6 +1,7 @@
 package org.toxsoft.uskat.core.gui.conn;
 
 import org.eclipse.swt.widgets.Display;
+import org.toxsoft.core.tslib.utils.errors.TsIllegalStateRtException;
 import org.toxsoft.core.tslib.utils.errors.TsNullArgumentRtException;
 
 import core.tslib.bricks.synchronize.ITsThreadSynchronizer;
@@ -16,7 +17,7 @@ public final class SkGuiThreadSynchronizer
   private final Display display;
 
   /**
-   * Констурктор
+   * Конструктор
    *
    * @param aDisplay {@link Display} дисплей
    * @throws TsNullArgumentRtException аргумент = null
@@ -49,6 +50,15 @@ public final class SkGuiThreadSynchronizer
   public void timerExec( int aMilliseconds, Runnable aRunnable ) {
     TsNullArgumentRtException.checkNull( aRunnable );
     display.timerExec( aMilliseconds, aRunnable );
+  }
+
+  // ------------------------------------------------------------------------------------
+  // ICooperativeMultiTaskable
+  //
+  @Override
+  public void doJob() {
+    TsIllegalStateRtException.checkFalse( thread().equals( Thread.currentThread() ) );
+    display.readAndDispatch();
   }
 
 }
