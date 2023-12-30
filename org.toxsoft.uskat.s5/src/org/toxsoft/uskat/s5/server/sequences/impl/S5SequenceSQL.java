@@ -1725,6 +1725,10 @@ class S5SequenceSQL {
     IListEdit<S5Partition> reorginizePartitions = new ElemLinkedList<>();
     // Формирования списка реорганизуемых (удаляемых) разделов в пользу создаваемого раздела
     for( S5Partition partition : partitions ) {
+      if( partition.interval().endTime() == aInfo.interval().startTime() ) {
+        // Новый раздел создается сразу же за существущим
+        continue;
+      }
       if( TimeUtils.intersects( partition.interval(), aInfo.interval() ) ) {
         reorginizePartitions.add( partition );
       }
