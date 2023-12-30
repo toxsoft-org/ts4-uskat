@@ -349,17 +349,17 @@ class CoreL10n
     }
   }
 
-  // приведение типов в этом методе - хак, но что делать...
+  // casting to DtoXxx from IDtoXxx is a hack, I know
   private void internalL10nClassInfo( DtoClassInfo aCinf ) {
     Gwid g;
     L10nItem l10;
-    // сам класс
+    // the class itself
     g = Gwid.createClass( aCinf.id() );
     l10 = ldClassesMap.findByKey( g );
     if( l10 != null ) {
       l10.update( aCinf.params() );
     }
-    // атрибуты
+    // attributes
     for( IDtoAttrInfo inf : aCinf.attrInfos() ) {
       g = Gwid.createAttr( aCinf.id(), inf.id() );
       l10 = ldClassesMap.findByKey( g );
@@ -367,7 +367,15 @@ class CoreL10n
         l10.update( ((DtoAttrInfo)inf).params() );
       }
     }
-    // связи
+    // rivets
+    for( IDtoRivetInfo inf : aCinf.rivetInfos() ) {
+      g = Gwid.createRivet( aCinf.id(), inf.id() );
+      l10 = ldClassesMap.findByKey( g );
+      if( l10 != null ) {
+        l10.update( ((DtoRivetInfo)inf).params() );
+      }
+    }
+    // links
     for( IDtoLinkInfo inf : aCinf.linkInfos() ) {
       g = Gwid.createLink( aCinf.id(), inf.id() );
       l10 = ldClassesMap.findByKey( g );
@@ -375,7 +383,7 @@ class CoreL10n
         l10.update( ((DtoLinkInfo)inf).params() );
       }
     }
-    // РВ-данные
+    // RT-data
     for( IDtoRtdataInfo inf : aCinf.rtdataInfos() ) {
       g = Gwid.createRtdata( aCinf.id(), inf.id() );
       l10 = ldClassesMap.findByKey( g );
@@ -383,14 +391,14 @@ class CoreL10n
         l10.update( ((DtoRtdataInfo)inf).params() );
       }
     }
-    // команды
+    // commands
     for( IDtoCmdInfo inf : aCinf.cmdInfos() ) {
       g = Gwid.createCmd( aCinf.id(), inf.id() );
       l10 = ldClassesMap.findByKey( g );
       if( l10 != null ) {
         l10.update( ((DtoCmdInfo)inf).params() );
       }
-      // аргументы команды
+      // command arguments
       for( IDataDef dd : inf.argDefs() ) {
         g = Gwid.createCmdArg( aCinf.id(), inf.id(), dd.id() );
         l10 = ldClassesMap.findByKey( g );
@@ -399,14 +407,14 @@ class CoreL10n
         }
       }
     }
-    // команды
+    // events
     for( IDtoEventInfo inf : aCinf.eventInfos() ) {
       g = Gwid.createEvent( aCinf.id(), inf.id() );
       l10 = ldClassesMap.findByKey( g );
       if( l10 != null ) {
         l10.update( ((DtoEventInfo)inf).params() );
       }
-      // аргументы команды
+      // event parameters
       for( IDataDef dd : inf.paramDefs() ) {
         g = Gwid.createEventParam( aCinf.id(), inf.id(), dd.id() );
         l10 = ldClassesMap.findByKey( g );

@@ -158,7 +158,7 @@ public class IdClobTable {
   public void writeTable( String aId, String aClob ) {
     StringBuilder sb = new StringBuilder( "INSERT OR REPLACE INTO '" ); //$NON-NLS-1$
     sb.append( tableName );
-    sb.append( "' (Id,KeepEnt) VALUES ('" ); //$NON-NLS-1$
+    sb.append( "' (Id,Clob) VALUES ('" ); //$NON-NLS-1$
     sb.append( aId );
     sb.append( "','" ); //$NON-NLS-1$
     sb.append( escStr( aClob ) );

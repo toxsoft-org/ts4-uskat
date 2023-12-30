@@ -36,10 +36,27 @@ public class SkHelperUtils {
    * @throws TsNullArgumentRtException any argument = <code>null</code>
    */
   public static IAtomicValue getConstraint( IDtoAttrInfo aInfo, String aConstraintId ) {
-    TsNullArgumentRtException.checkNulls( aInfo, aConstraintId );
+    return getConstraint( aInfo, aConstraintId, IAtomicValue.NULL );
+  }
+
+  /**
+   * Returns the data type constraint for the attribute.
+   * <p>
+   * Data type constraints are stored in {@link IDataType#params()} and {@link IDtoRtdataInfo#params()}. The constraint
+   * in {@link IDtoRtdataInfo#params()} has priority ("overrides") constraint with the same ID from
+   * {@link IDtoAttrInfo#dataType()}.
+   *
+   * @param aInfo {@link IDtoAttrInfo} - the attribute info
+   * @param aConstraintId String - the constraint ID
+   * @param aDefaultValue {@link IAtomicValue} - value to return when no constraint found
+   * @return {@link IAtomicValue} - the constraint value or <code>aDefaultValue1</code> if none found
+   * @throws TsNullArgumentRtException any argument = <code>null</code>
+   */
+  public static IAtomicValue getConstraint( IDtoAttrInfo aInfo, String aConstraintId, IAtomicValue aDefaultValue ) {
+    TsNullArgumentRtException.checkNulls( aInfo, aConstraintId, aDefaultValue );
     IAtomicValue av = aInfo.params().getValue( aConstraintId, IAtomicValue.NULL );
     if( av == IAtomicValue.NULL ) {
-      av = aInfo.dataType().params().getValue( aConstraintId, IAtomicValue.NULL );
+      av = aInfo.dataType().params().getValue( aConstraintId, aDefaultValue );
     }
     return av;
   }
@@ -57,10 +74,27 @@ public class SkHelperUtils {
    * @throws TsNullArgumentRtException any argument = <code>null</code>
    */
   public static IAtomicValue getConstraint( IDtoRtdataInfo aInfo, String aConstraintId ) {
-    TsNullArgumentRtException.checkNulls( aInfo, aConstraintId );
+    return getConstraint( aInfo, aConstraintId, IAtomicValue.NULL );
+  }
+
+  /**
+   * Returns the data type constraint for the RTdata.
+   * <p>
+   * Data type constraints are stored in {@link IDataType#params()} and {@link IDtoRtdataInfo#params()}. The constraint
+   * in {@link IDtoRtdataInfo#params()} has priority ("overrides") constraint with the same ID from
+   * {@link IDtoRtdataInfo#dataType()}.
+   *
+   * @param aInfo {@link IDtoRtdataInfo} - the RTdata info
+   * @param aConstraintId String - the constraint ID
+   * @param aDefaultValue {@link IAtomicValue} - value to return when no constraint found
+   * @return {@link IAtomicValue} - the constraint value or <code>aDefaultValue1</code> if none found
+   * @throws TsNullArgumentRtException any argument = <code>null</code>
+   */
+  public static IAtomicValue getConstraint( IDtoRtdataInfo aInfo, String aConstraintId, IAtomicValue aDefaultValue ) {
+    TsNullArgumentRtException.checkNulls( aInfo, aConstraintId, aDefaultValue );
     IAtomicValue av = aInfo.params().getValue( aConstraintId, IAtomicValue.NULL );
     if( av == IAtomicValue.NULL ) {
-      av = aInfo.dataType().params().getValue( aConstraintId, IAtomicValue.NULL );
+      av = aInfo.dataType().params().getValue( aConstraintId, aDefaultValue );
     }
     return av;
   }
