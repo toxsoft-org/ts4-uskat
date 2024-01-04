@@ -15,6 +15,7 @@ import org.toxsoft.core.tslib.utils.logs.impl.LoggerUtils;
 final class TsSynchronizer {
 
   private Object           startLock   = new Object();
+  private Object           finishLock  = new Object();
   private Thread           doJobThread;
   private boolean          isInternalThread;
   private int              messageCount;
@@ -83,11 +84,49 @@ final class TsSynchronizer {
   }
 
   /**
+   * Set(change) internal executor.
+   *
+   * @param aExecutor {@link Executor} executor of synchronized doJob thread
+   * @throws TsNullArgumentRtException argument = null
+   */
+  void setExecutor( Executor aExecutor ) {
+    TsNullArgumentRtException.checkNull( aExecutor );
+    if( isInternalThread ) {
+      // we can query shutdown for internal thread only
+      synchronized (finishLock) {
+        try {
+          queryShutdown = true;
+          doJobThread.interrupt();
+          // Wait thread start and setup doJobThread
+          finishLock.wait();
+        }
+        catch( InterruptedException ex ) {
+          LoggerUtils.errorLogger().error( ex );
+        }
+      }
+    }
+    isInternalThread = true;
+    queryShutdown = false;
+    synchronized (startLock) {
+      aExecutor.execute( new InternalDoJobTask() );
+      try {
+        // Wait thread start and setup doJobThread
+        startLock.wait();
+      }
+      catch( InterruptedException ex ) {
+        LoggerUtils.errorLogger().error( ex );
+      }
+    }
+  }
+
+  /**
    * Free all resources and close synchronizer.
    */
   void close() {
-    queryShutdown = true;
-    doJobThread.interrupt();
+    if( isInternalThread ) {
+      queryShutdown = true;
+      doJobThread.interrupt();
+    }
   }
 
   /**
@@ -222,19 +261,36 @@ final class TsSynchronizer {
 
   private TsRunnableLock removeFirst() {
     long currTime = System.currentTimeMillis();
+
+    // synchronized (messageLock) {
+    // if (messageCount == 0) return null;
+    // TsRunnableLock lock = messages [0];
+    // System.arraycopy (messages, 1, messages, 0, --messageCount);
+    // messages [messageCount] = null;
+    // if (messageCount == 0) {
+    // if (messages.length > MESSAGE_LIMIT) messages = null;
+    // }
+    // return lock;
+    // }
+
     synchronized (messageLock) {
       if( messageCount == 0 ) {
         return null;
       }
-      for( int index = 0, n = messageCount; index < n; index++ ) {
+      for( int index = 0, n = messages.length; index < n; index++ ) {
         TsRunnableLock lock = messages[index];
+        if( lock == null ) {
+          // lock has been processed already
+          continue;
+        }
         if( lock.timestamp > currTime ) {
+          // lock is not ready yet
           continue;
         }
         if( index + 1 < n ) {
-          System.arraycopy( messages, index + 1, messages, index, --messageCount );
+          System.arraycopy( messages, index + 1, messages, index, n - index - 1 );
         }
-        messages[messageCount] = null;
+        messages[--messageCount] = null;
         if( messageCount == 0 ) {
           if( messages.length > MESSAGE_LIMIT ) {
             messages = null;
@@ -269,9 +325,15 @@ final class TsSynchronizer {
             messageLock.wait();
           }
           catch( Throwable e ) {
+            // clear interrupted flag
+            Thread.interrupted();
             LoggerUtils.errorLogger().error( e );
           }
         }
+      }
+      synchronized (finishLock) {
+        // Thread finish notification
+        finishLock.notifyAll();
       }
     }
   }

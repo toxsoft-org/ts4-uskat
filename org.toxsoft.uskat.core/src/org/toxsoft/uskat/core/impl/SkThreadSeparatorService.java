@@ -67,6 +67,7 @@ public class SkThreadSeparatorService
   @Override
   final protected void doInit( ITsContextRo aArgs ) {
     doJobTimeout = OP_DOJOB_TIMEOUT.getValue( aArgs.params() ).asInt();
+    // TODO: mvkd
     if( doJobTimeout >= 0 ) {
       // Автоматическое выполнение doJob
       timerExec( doJobTimeout, this );

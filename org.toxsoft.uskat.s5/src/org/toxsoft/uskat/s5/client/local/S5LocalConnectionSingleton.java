@@ -6,6 +6,7 @@ import static org.toxsoft.uskat.s5.client.local.S5ClusterCommandWhenObjectsChang
 import static org.toxsoft.uskat.s5.client.local.S5ClusterCommandWhenSysdescrChanged.*;
 import static org.toxsoft.uskat.s5.server.IS5ImplementConstants.*;
 
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
@@ -22,6 +23,7 @@ import org.toxsoft.core.tslib.coll.impl.ElemMap;
 import org.toxsoft.core.tslib.coll.synch.SynchronizedMap;
 import org.toxsoft.core.tslib.utils.TsLibUtils;
 import org.toxsoft.core.tslib.utils.errors.TsNullArgumentRtException;
+import org.toxsoft.core.tslib.utils.logs.impl.LoggerUtils;
 import org.toxsoft.uskat.core.api.sysdescr.ISkClassInfo;
 import org.toxsoft.uskat.core.api.users.ISkUserServiceHardConstants;
 import org.toxsoft.uskat.core.backend.ISkBackend;
@@ -96,7 +98,7 @@ public class S5LocalConnectionSingleton
   /**
    * Служба управления вызовами API {@link #EXECUTOR_JNDI}
    */
-  private ManagedExecutorService executorService;
+  private ExecutorService executorService;
 
   /**
    * Менеджер управления кластером s5-сервера
@@ -138,8 +140,6 @@ public class S5LocalConnectionSingleton
    */
   private long doJobTimestamp;
 
-  private ISkConnection d;
-
   /**
    * Конструктор
    */
@@ -157,6 +157,7 @@ public class S5LocalConnectionSingleton
   protected void doInit() {
     // Поиск исполнителя потоков объединения блоков
     executorService = S5ServiceSingletonUtils.lookupExecutor( EXECUTOR_JNDI );
+    // executorService = Executors.newFixedThreadPool( 1024 );
     // Прием сообщений кластера
     whenSysdecrChangedHandler = new S5ClusterCommandWhenSysdescrChanged( backend );
     whenObjectsChangedHandler = new S5ClusterCommandWhenObjectsChanged( backend );
@@ -214,7 +215,7 @@ public class S5LocalConnectionSingleton
     // Сохранение соединения в списке открытых соединений
     synchronizersForReplacing.put( connectionName, synchronizer );
 
-    d = connection;
+    debugConnection = connection;
 
     return connection;
   }
@@ -249,6 +250,35 @@ public class S5LocalConnectionSingleton
   // ------------------------------------------------------------------------------------
   // Реализация IS5ServerJob
   //
+  private ISkConnection debugConnection;
+  private DebugRunnable debugRunnable;
+  private int           debugCounter;
+
+  private class DebugRunnable
+      implements Runnable {
+
+    @Override
+    public void run() {
+      try {
+        debugCounter++;
+        logger().info( "call timerExec: start (%d). thread = '%s'", Integer.valueOf( debugCounter ),
+            Thread.currentThread().getName() );
+        ITsThreadSynchronizer service =
+            (ITsThreadSynchronizer)debugConnection.coreApi().services().getByKey( SkThreadSeparatorService.SERVICE_ID );
+        for( ISkClassInfo clazz : debugConnection.coreApi().sysdescr().listClasses() ) {
+          logger().info( "clazz = %s", clazz.id() ); //$NON-NLS-1$
+        }
+        service.timerExec( 100, debugRunnable );
+        logger().info( "call timerExec: finish (%d). thread = '%s'", Integer.valueOf( debugCounter ),
+            Thread.currentThread().getName() );
+      }
+      catch( Throwable e ) {
+        LoggerUtils.defaultLogger().error( e );
+      }
+    }
+
+  }
+
   @Override
   public void doJob() {
     super.doJob();
@@ -270,21 +300,43 @@ public class S5LocalConnectionSingleton
     doJobTimestamp = currTime;
     // TODO:
 
-    if( d != null ) {
+    if( debugConnection != null ) {
       ITsThreadSynchronizer service =
-          (ITsThreadSynchronizer)d.coreApi().services().getByKey( SkThreadSeparatorService.SERVICE_ID );
+          (ITsThreadSynchronizer)debugConnection.coreApi().services().getByKey( SkThreadSeparatorService.SERVICE_ID );
+      if( debugRunnable == null ) {
+        debugRunnable = new DebugRunnable();
+        logger().info( "call timerExec: start (0)" );
+        service.timerExec( 100, debugRunnable );
+        service.timerExec( 100, debugRunnable );
+        service.timerExec( 100, debugRunnable );
+        service.timerExec( 100, debugRunnable );
+        service.timerExec( 100, debugRunnable );
+        logger().info( "call timerExec: finish (0)" );
+      }
 
-      logger().info( "call asyncExec: start" );
+      logger().info( "call asyncExec: start (%d). thread = '%s'", Integer.valueOf( debugCounter ),
+          Thread.currentThread().getName() );
       service.asyncExec( () -> {
-        for( ISkClassInfo clazz : d.coreApi().sysdescr().listClasses() ) {
+        for( ISkClassInfo clazz : debugConnection.coreApi().sysdescr().listClasses() ) {
           logger().info( "clazz = %s", clazz.id() ); //$NON-NLS-1$
         }
       } );
-      logger().info( "call asyncExec: finish" );
+      logger().info( "call asyncExec: finish (%d). thread = '%s'", Integer.valueOf( debugCounter ),
+          Thread.currentThread().getName() );
+
+      logger().info( "call syncExec: start (%d). thread = '%s'", Integer.valueOf( debugCounter ),
+          Thread.currentThread().getName() );
+      service.syncExec( () -> {
+        for( ISkClassInfo clazz : debugConnection.coreApi().sysdescr().listClasses() ) {
+          logger().info( "clazz = %s", clazz.id() ); //$NON-NLS-1$
+        }
+      } );
+      logger().info( "call syncExec: finish (%d). thread = '%s'", Integer.valueOf( debugCounter ),
+          Thread.currentThread().getName() );
 
       // logger().info( "call timerExec: start" );
       // service.timerExec( 500, () -> {
-      // for( ISkClassInfo clazz : d.coreApi().sysdescr().listClasses() ) {
+      // for( ISkClassInfo clazz : debugConnection.coreApi().sysdescr().listClasses() ) {
       // logger().info( "clazz = %s", clazz.id() ); //$NON-NLS-1$
       // }
       // } );

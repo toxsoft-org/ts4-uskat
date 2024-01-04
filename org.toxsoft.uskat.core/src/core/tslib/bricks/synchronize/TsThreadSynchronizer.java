@@ -52,8 +52,7 @@ public final class TsThreadSynchronizer
    */
   public void setExecutor( Executor aExecutor ) {
     TsNullArgumentRtException.checkNull( aExecutor );
-    synchronizer.close();
-    synchronizer = new TsSynchronizer( aExecutor );
+    synchronizer.setExecutor( aExecutor );
   }
 
   /**
