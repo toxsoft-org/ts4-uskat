@@ -97,7 +97,7 @@ final class TsSynchronizer {
         try {
           queryShutdown = true;
           doJobThread.interrupt();
-          // Wait thread start and setup doJobThread
+          // Wait thread finish
           finishLock.wait();
         }
         catch( InterruptedException ex ) {
