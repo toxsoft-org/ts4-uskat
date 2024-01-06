@@ -11,6 +11,7 @@ import org.toxsoft.core.tslib.av.metainfo.IDataDef;
 import org.toxsoft.core.tslib.bricks.ctx.ITsContextRo;
 import org.toxsoft.core.tslib.utils.errors.TsIllegalStateRtException;
 import org.toxsoft.core.tslib.utils.errors.TsNullArgumentRtException;
+import org.toxsoft.uskat.core.ISkCoreApi;
 import org.toxsoft.uskat.core.ISkServiceCreator;
 import org.toxsoft.uskat.core.devapi.IDevCoreApi;
 
@@ -128,4 +129,20 @@ public class SkThreadSeparatorService
     devCoreApi.synchronizer().doJob();
   }
 
+  // ------------------------------------------------------------------------------------
+  // utilites
+  //
+  /**
+   * Returns coreApi call synchronizer.
+   *
+   * @param aCoreApi {@link ISkCoreApi} core API
+   * @return {@link ITsThreadSynchronizer} synchronizer
+   * @throws TsNullArgumentRtException any null agrument
+   */
+  public static ITsThreadSynchronizer synchronizer( ISkCoreApi aCoreApi ) {
+    TsNullArgumentRtException.checkNull( aCoreApi );
+    ITsThreadSynchronizer service =
+        (ITsThreadSynchronizer)aCoreApi.services().getByKey( SkThreadSeparatorService.SERVICE_ID );
+    return service;
+  }
 }

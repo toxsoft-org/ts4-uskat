@@ -301,22 +301,21 @@ public class S5LocalConnectionSingleton
     // TODO:
 
     if( debugConnection != null ) {
-      ITsThreadSynchronizer service =
-          (ITsThreadSynchronizer)debugConnection.coreApi().services().getByKey( SkThreadSeparatorService.SERVICE_ID );
+      ITsThreadSynchronizer synchronizer = SkThreadSeparatorService.synchronizer( debugConnection.coreApi() );
       if( debugRunnable == null ) {
         debugRunnable = new DebugRunnable();
         logger().info( "call timerExec: start (0)" );
-        service.timerExec( 100, debugRunnable );
-        service.timerExec( 100, debugRunnable );
-        service.timerExec( 100, debugRunnable );
-        service.timerExec( 100, debugRunnable );
-        service.timerExec( 100, debugRunnable );
+        synchronizer.timerExec( 100, debugRunnable );
+        synchronizer.timerExec( 100, debugRunnable );
+        synchronizer.timerExec( 100, debugRunnable );
+        synchronizer.timerExec( 100, debugRunnable );
+        synchronizer.timerExec( 100, debugRunnable );
         logger().info( "call timerExec: finish (0)" );
       }
 
       logger().info( "call asyncExec: start (%d). thread = '%s'", Integer.valueOf( debugCounter ),
           Thread.currentThread().getName() );
-      service.asyncExec( () -> {
+      synchronizer.asyncExec( () -> {
         for( ISkClassInfo clazz : debugConnection.coreApi().sysdescr().listClasses() ) {
           logger().info( "clazz = %s", clazz.id() ); //$NON-NLS-1$
         }
@@ -326,7 +325,7 @@ public class S5LocalConnectionSingleton
 
       logger().info( "call syncExec: start (%d). thread = '%s'", Integer.valueOf( debugCounter ),
           Thread.currentThread().getName() );
-      service.syncExec( () -> {
+      synchronizer.syncExec( () -> {
         for( ISkClassInfo clazz : debugConnection.coreApi().sysdescr().listClasses() ) {
           logger().info( "clazz = %s", clazz.id() ); //$NON-NLS-1$
         }
