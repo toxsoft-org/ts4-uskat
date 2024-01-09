@@ -47,7 +47,7 @@ import org.toxsoft.uskat.s5.utils.S5ValobjUtils;
 import org.toxsoft.uskat.s5.utils.progress.IS5ProgressMonitor;
 import org.toxsoft.uskat.s5.utils.threads.impl.S5Lockable;
 
-import core.tslib.bricks.synchronize.ITsThreadSynchronizer;
+import core.tslib.bricks.synchronize.ITsThreadExecutor;
 
 /**
  * Абстрактная реализация s5-бекенда
@@ -146,7 +146,7 @@ public abstract class S5AbstractBackend<ADDON extends IS5BackendAddon>
   /**
    * Синхронизатор обращения к uskat
    */
-  private final ITsThreadSynchronizer synchronizer;
+  private final ITsThreadExecutor synchronizer;
 
   /**
    * Карта построителей {@link IS5BackendAddonCreator} расширений {@link IS5BackendAddon} бекенда поддерживаемых
@@ -256,7 +256,7 @@ public abstract class S5AbstractBackend<ADDON extends IS5BackendAddon>
     // backendDojobThread = new S5BackendDoJobThread( name, this );
 
     // Синхронизация обращения к uskat
-    synchronizer = REFDEF_THREAD_SYNCHRONIZER.getRef( aArgs );
+    synchronizer = REFDEF_THREAD_EXECUTOR.getRef( aArgs );
     synchronizer.thread().setName( name );
     // Запуск фоновой задачи обработки аддонов
     synchronizer.timerExec( ADDON_DOJOB_TIMEOUT, this );

@@ -31,12 +31,12 @@ import org.toxsoft.uskat.core.api.sysdescr.ISkClassInfo;
 import org.toxsoft.uskat.core.api.sysdescr.ISkSysdescr;
 import org.toxsoft.uskat.core.api.sysdescr.dto.*;
 import org.toxsoft.uskat.core.connection.ISkConnection;
-import org.toxsoft.uskat.core.impl.SkThreadSeparatorService;
+import org.toxsoft.uskat.core.impl.SkThreadExecutorService;
 import org.toxsoft.uskat.core.impl.dto.DtoClassInfo;
 import org.toxsoft.uskat.core.impl.dto.DtoRtdataInfo;
 import org.toxsoft.uskat.s5.utils.threads.impl.S5Lockable;
 
-import core.tslib.bricks.synchronize.ITsThreadSynchronizer;
+import core.tslib.bricks.synchronize.ITsThreadExecutor;
 
 /**
  * Статистика параметров сохраняемая в системе
@@ -49,7 +49,7 @@ public class S5StatisticWriter
   /**
    * Синхронизатор API
    */
-  private final ITsThreadSynchronizer synchronizer;
+  private final ITsThreadExecutor synchronizer;
 
   /**
    * Статистика
@@ -83,7 +83,7 @@ public class S5StatisticWriter
       IStridablesList<S5StatisticParamInfo> aInfos ) {
     TsNullArgumentRtException.checkNulls( aConnection, aStatisticObjId );
     synchronizer =
-        (ITsThreadSynchronizer)aConnection.coreApi().services().getByKey( SkThreadSeparatorService.SERVICE_ID );
+        (ITsThreadExecutor)aConnection.coreApi().services().getByKey( SkThreadExecutorService.SERVICE_ID );
     stat = new S5Statistic( aInfos ) {
 
       @Override

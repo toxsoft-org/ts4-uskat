@@ -20,7 +20,7 @@ import org.toxsoft.core.tslib.utils.logs.ELogSeverity;
 import org.toxsoft.uskat.core.backend.ISkBackendProvider;
 import org.toxsoft.uskat.core.connection.ISkConnection;
 
-import core.tslib.bricks.synchronize.ITsThreadSynchronizer;
+import core.tslib.bricks.synchronize.ITsThreadExecutor;
 
 /**
  * USkat core implementation-specific constants and options.
@@ -90,10 +90,10 @@ public interface ISkCoreConfigConstants {
    * service creator. <br>
    * Usage: TODO:
    */
-  ITsContextRefDef<ITsThreadSynchronizer> REFDEF_THREAD_SYNCHRONIZER =
-      TsContextRefDef.create( ITsThreadSynchronizer.class, //
-          TSID_NAME, STR_N_REF_THREAD_SYNCHRONIZER, //
-          TSID_DESCRIPTION, STR_D_REF_THREAD_SYNCHRONIZER, //
-          TSID_IS_MANDATORY, AV_FALSE //
+  ITsContextRefDef<ITsThreadExecutor> REFDEF_THREAD_EXECUTOR =
+      TsContextRefDef.create( ITsThreadExecutor.class, //
+          TSID_NAME, STR_N_REF_THREAD_EXECUTOR, //
+          TSID_DESCRIPTION, STR_D_REF_THREAD_EXECUTOR, //
+          TSID_IS_MANDATORY, AV_TRUE //
       );
 }

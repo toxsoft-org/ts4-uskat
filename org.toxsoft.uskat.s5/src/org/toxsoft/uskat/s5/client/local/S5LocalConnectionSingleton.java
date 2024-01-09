@@ -45,8 +45,8 @@ import org.toxsoft.uskat.s5.server.startup.IS5InitialImplementSingleton;
 import org.toxsoft.uskat.s5.server.startup.IS5InitialImplementation;
 import org.toxsoft.uskat.s5.utils.jobs.IS5ServerJob;
 
-import core.tslib.bricks.synchronize.ITsThreadSynchronizer;
-import core.tslib.bricks.synchronize.TsThreadSynchronizer;
+import core.tslib.bricks.synchronize.ITsThreadExecutor;
+import core.tslib.bricks.synchronize.TsThreadExecutor;
 
 /**
  * Реализация синглтона {@link IS5LocalConnectionSingleton}.
@@ -133,7 +133,7 @@ public class S5LocalConnectionSingleton
    * <p>
    * Ключ: имя соединения (потока). Значение: синхронизатор
    */
-  private IMapEdit<String, TsThreadSynchronizer> synchronizersForReplacing = new SynchronizedMap<>( new ElemMap<>() );
+  private IMapEdit<String, TsThreadExecutor> initExecutors = new SynchronizedMap<>( new ElemMap<>() );
 
   /**
    * Метка времени последнего выполнения doJob
@@ -203,17 +203,16 @@ public class S5LocalConnectionSingleton
     IS5ConnectionParams.OP_LOCAL_NODE.setValue( ctx.params(), avStr( moduleNode ) );
 
     // Текущий поток используется только для открытия соединения
-    TsThreadSynchronizer synchronizer = new TsThreadSynchronizer( Thread.currentThread() );
-    ISkCoreConfigConstants.REFDEF_THREAD_SYNCHRONIZER.setRef( ctx, synchronizer );
+    TsThreadExecutor executor = new TsThreadExecutor( Thread.currentThread() );
+    ISkCoreConfigConstants.REFDEF_THREAD_EXECUTOR.setRef( ctx, executor );
 
     // Имя соединения
     String connectionName = "locConn[" + moduleName + "@" + moduleNode + "]";
     // Создание соединения
     ISkConnection connection = SkCoreUtils.createConnection();
-    // S5SynchronizedConnection.createSynchronizedConnection( SkCoreUtils.createConnection(), aLock, lockName );
     connection.open( ctx );
     // Сохранение соединения в списке открытых соединений
-    synchronizersForReplacing.put( connectionName, synchronizer );
+    initExecutors.put( connectionName, executor );
 
     debugConnection = connection;
 
@@ -263,8 +262,8 @@ public class S5LocalConnectionSingleton
         debugCounter++;
         logger().info( "call timerExec: start (%d). thread = '%s'", Integer.valueOf( debugCounter ),
             Thread.currentThread().getName() );
-        ITsThreadSynchronizer service =
-            (ITsThreadSynchronizer)debugConnection.coreApi().services().getByKey( SkThreadSeparatorService.SERVICE_ID );
+        ITsThreadExecutor service =
+            (ITsThreadExecutor)debugConnection.coreApi().services().getByKey( SkThreadExecutorService.SERVICE_ID );
         for( ISkClassInfo clazz : debugConnection.coreApi().sysdescr().listClasses() ) {
           logger().info( "clazz = %s", clazz.id() ); //$NON-NLS-1$
         }
@@ -283,11 +282,11 @@ public class S5LocalConnectionSingleton
   public void doJob() {
     super.doJob();
     // Замена на штатный исполнитель потоков
-    for( String connectionName : synchronizersForReplacing.keys().copyTo( new ElemArrayList<>() ) ) {
-      TsThreadSynchronizer synchronizer = synchronizersForReplacing.getByKey( connectionName );
+    for( String connectionName : initExecutors.keys().copyTo( new ElemArrayList<>() ) ) {
+      TsThreadExecutor synchronizer = initExecutors.getByKey( connectionName );
       synchronizer.setExecutor( executorService );
       synchronizer.thread().setName( connectionName );
-      synchronizersForReplacing.removeByKey( connectionName );
+      initExecutors.removeByKey( connectionName );
     }
 
     // Текущее время
@@ -301,7 +300,7 @@ public class S5LocalConnectionSingleton
     // TODO:
 
     if( debugConnection != null ) {
-      ITsThreadSynchronizer synchronizer = SkThreadSeparatorService.synchronizer( debugConnection.coreApi() );
+      ITsThreadExecutor synchronizer = SkThreadExecutorService.getExecutor( debugConnection.coreApi() );
       if( debugRunnable == null ) {
         debugRunnable = new DebugRunnable();
         logger().info( "call timerExec: start (0)" );

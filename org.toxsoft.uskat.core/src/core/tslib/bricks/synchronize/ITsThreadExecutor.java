@@ -4,11 +4,11 @@ import org.toxsoft.core.tslib.bricks.ICooperativeMultiTaskable;
 import org.toxsoft.core.tslib.utils.errors.TsNullArgumentRtException;
 
 /**
- * TsSynchronizer of API function calls between system and client threads.
+ * Еxecutor of API calls in one thread.
  *
  * @author mvk
  */
-public interface ITsThreadSynchronizer
+public interface ITsThreadExecutor
     extends ICooperativeMultiTaskable {
 
   /**

@@ -29,7 +29,7 @@ import org.toxsoft.uskat.core.connection.ISkConnection;
 import org.toxsoft.uskat.core.devapi.IDevCoreApi;
 import org.toxsoft.uskat.core.devapi.gwiddb.ISkGwidDbService;
 
-import core.tslib.bricks.synchronize.ITsThreadSynchronizer;
+import core.tslib.bricks.synchronize.ITsThreadExecutor;
 
 /**
  * {@link ISkService} implementation base.
@@ -112,10 +112,10 @@ public abstract class AbstractSkService
 
   }
 
-  private final String                serviceId;
-  private final SkCoreApi             coreApi;
-  private final ITsThreadSynchronizer synchronizer;
-  private final CoreLogger            logger;
+  private final String            serviceId;
+  private final SkCoreApi         coreApi;
+  private final ITsThreadExecutor executor;
+  private final CoreLogger        logger;
 
   private boolean inited = false;
 
@@ -131,7 +131,7 @@ public abstract class AbstractSkService
   protected AbstractSkService( String aId, IDevCoreApi aCoreApi ) {
     serviceId = StridUtils.checkValidIdPath( aId );
     coreApi = SkCoreApi.class.cast( aCoreApi );
-    synchronizer = aCoreApi.synchronizer();
+    executor = aCoreApi.executor();
     logger = new CoreLogger( LoggerUtils.defaultLogger(), aCoreApi.openArgs() );
   }
 
@@ -178,7 +178,7 @@ public abstract class AbstractSkService
    * @throws TsIllegalStateRtException invalid thread access
    */
   final public void checkThread() {
-    if( synchronizer != null && synchronizer.thread().equals( Thread.currentThread() ) == false ) {
+    if( !executor.thread().equals( Thread.currentThread() ) ) {
       throw new TsIllegalStateRtException( FMT_ERR_INVALID_THREAD_ACCESS );
     }
   }

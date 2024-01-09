@@ -13,13 +13,13 @@ import org.toxsoft.core.tslib.utils.errors.TsNullArgumentRtException;
 import org.toxsoft.core.tslib.utils.logs.ELogSeverity;
 import org.toxsoft.core.tslib.utils.logs.ILogger;
 
-import core.tslib.bricks.synchronize.TsThreadSynchronizer;
+import core.tslib.bricks.synchronize.TsThreadExecutor;
 
 /**
  * Задача (поток) обслуживания потребностей бекенда {@link ICooperativeMultiTaskable#doJob()}
  *
  * @author mvk
- * @deprecated use {@link TsThreadSynchronizer}
+ * @deprecated use {@link TsThreadExecutor}
  */
 @Deprecated
 public final class S5BackendDoJobThread

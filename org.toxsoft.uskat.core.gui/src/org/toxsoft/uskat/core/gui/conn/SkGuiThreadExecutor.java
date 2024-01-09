@@ -4,15 +4,15 @@ import org.eclipse.swt.widgets.Display;
 import org.toxsoft.core.tslib.utils.errors.TsIllegalStateRtException;
 import org.toxsoft.core.tslib.utils.errors.TsNullArgumentRtException;
 
-import core.tslib.bricks.synchronize.ITsThreadSynchronizer;
+import core.tslib.bricks.synchronize.ITsThreadExecutor;
 
 /**
- * Реализация {@link ITsThreadSynchronizer} для GUI (SWT)
+ * Реализация {@link ITsThreadExecutor} для GUI (SWT)
  *
  * @author mvk
  */
-public final class SkGuiThreadSynchronizer
-    implements ITsThreadSynchronizer {
+public final class SkGuiThreadExecutor
+    implements ITsThreadExecutor {
 
   private final Display display;
 
@@ -22,12 +22,12 @@ public final class SkGuiThreadSynchronizer
    * @param aDisplay {@link Display} дисплей
    * @throws TsNullArgumentRtException аргумент = null
    */
-  public SkGuiThreadSynchronizer( Display aDisplay ) {
+  public SkGuiThreadExecutor( Display aDisplay ) {
     display = TsNullArgumentRtException.checkNull( aDisplay );
   }
 
   // ------------------------------------------------------------------------------------
-  // ITsThreadSynchronizer
+  // ITsThreadExecutor
   //
   @Override
   public Thread thread() {

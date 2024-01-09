@@ -15,28 +15,28 @@ import org.toxsoft.uskat.core.ISkCoreApi;
 import org.toxsoft.uskat.core.ISkServiceCreator;
 import org.toxsoft.uskat.core.devapi.IDevCoreApi;
 
-import core.tslib.bricks.synchronize.ITsThreadSynchronizer;
+import core.tslib.bricks.synchronize.ITsThreadExecutor;
 
 /**
- * Implementation of thread separation service.
+ * Implementation of {@link ITsThreadExecutor} as uskat-service.
  * <p>
  * Solves the tasks of sharing data access between client threads and uskat.
  *
  * @author mvk
  */
-public class SkThreadSeparatorService
+public class SkThreadExecutorService
     extends AbstractSkService
-    implements ITsThreadSynchronizer, Runnable {
+    implements ITsThreadExecutor, Runnable {
 
   /**
    * The service ID.
    */
-  public static final String SERVICE_ID = "SkThreadSeparatorService"; //$NON-NLS-1$
+  public static final String SERVICE_ID = "SkThreadExecutorService"; //$NON-NLS-1$
 
   /**
    * Service creator singleton.
    */
-  public static final ISkServiceCreator<AbstractSkService> CREATOR = SkThreadSeparatorService::new;
+  public static final ISkServiceCreator<AbstractSkService> CREATOR = SkThreadExecutorService::new;
 
   /**
    * Mandotary context parameter: dojob timeout (msec)
@@ -57,7 +57,7 @@ public class SkThreadSeparatorService
    *
    * @param aCoreApi {@link IDevCoreApi} - owner core API implementation
    */
-  protected SkThreadSeparatorService( IDevCoreApi aCoreApi ) {
+  protected SkThreadExecutorService( IDevCoreApi aCoreApi ) {
     super( SERVICE_ID, aCoreApi );
     devCoreApi = aCoreApi;
   }
@@ -81,29 +81,29 @@ public class SkThreadSeparatorService
   }
 
   // ------------------------------------------------------------------------------------
-  // ITsThreadSynchronizer
+  // ITsThreadExecutor
   //
   @Override
   public Thread thread() {
-    return devCoreApi.synchronizer().thread();
+    return devCoreApi.executor().thread();
   }
 
   @Override
   public void asyncExec( Runnable aRunnable ) {
     TsNullArgumentRtException.checkNull( aRunnable );
-    devCoreApi.synchronizer().asyncExec( aRunnable );
+    devCoreApi.executor().asyncExec( aRunnable );
   }
 
   @Override
   public void syncExec( Runnable aRunnable ) {
     TsNullArgumentRtException.checkNull( aRunnable );
-    devCoreApi.synchronizer().syncExec( aRunnable );
+    devCoreApi.executor().syncExec( aRunnable );
   }
 
   @Override
   public void timerExec( int aMilliseconds, Runnable aRunnable ) {
     TsNullArgumentRtException.checkNull( aRunnable );
-    devCoreApi.synchronizer().timerExec( aMilliseconds, aRunnable );
+    devCoreApi.executor().timerExec( aMilliseconds, aRunnable );
   }
 
   // ------------------------------------------------------------------------------------
@@ -126,23 +126,22 @@ public class SkThreadSeparatorService
     // Отработка сообщений от backend
     devCoreApi.doJobInCoreMainThread();
     // Фоновая работа синхронизатора. Обработка запросов asyncExec(...)
-    devCoreApi.synchronizer().doJob();
+    devCoreApi.executor().doJob();
   }
 
   // ------------------------------------------------------------------------------------
   // utilites
   //
   /**
-   * Returns coreApi call synchronizer.
+   * Returns executor of API calls in one thread.
    *
    * @param aCoreApi {@link ISkCoreApi} core API
-   * @return {@link ITsThreadSynchronizer} synchronizer
+   * @return {@link ITsThreadExecutor} executor
    * @throws TsNullArgumentRtException any null agrument
    */
-  public static ITsThreadSynchronizer synchronizer( ISkCoreApi aCoreApi ) {
+  public static ITsThreadExecutor getExecutor( ISkCoreApi aCoreApi ) {
     TsNullArgumentRtException.checkNull( aCoreApi );
-    ITsThreadSynchronizer service =
-        (ITsThreadSynchronizer)aCoreApi.services().getByKey( SkThreadSeparatorService.SERVICE_ID );
+    ITsThreadExecutor service = (ITsThreadExecutor)aCoreApi.services().getByKey( SkThreadExecutorService.SERVICE_ID );
     return service;
   }
 }

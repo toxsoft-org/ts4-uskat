@@ -6,19 +6,19 @@ import org.toxsoft.core.tslib.utils.errors.TsIllegalStateRtException;
 import org.toxsoft.core.tslib.utils.errors.TsNullArgumentRtException;
 
 /**
- * Implementation {@link ITsThreadSynchronizer} for server and console apps
+ * Implementation {@link ITsThreadExecutor} for server and console apps
  *
  * @author mvk
  */
-public final class TsThreadSynchronizer
-    implements ITsThreadSynchronizer {
+public final class TsThreadExecutor
+    implements ITsThreadExecutor {
 
   private TsSynchronizer synchronizer;
 
   /**
    * Default constructor.
    */
-  public TsThreadSynchronizer() {
+  public TsThreadExecutor() {
     synchronizer = new TsSynchronizer();
   }
 
@@ -28,7 +28,7 @@ public final class TsThreadSynchronizer
    * @param aDoJobThread {@link Thread} synchronized doJob thread
    * @throws TsNullArgumentRtException arg = null
    */
-  public TsThreadSynchronizer( Thread aDoJobThread ) {
+  public TsThreadExecutor( Thread aDoJobThread ) {
     TsNullArgumentRtException.checkNull( aDoJobThread );
     synchronizer = new TsSynchronizer( aDoJobThread );
   }
@@ -39,7 +39,7 @@ public final class TsThreadSynchronizer
    * @param aExecutor {@link Executor} executor of synchronized doJob thread
    * @throws TsNullArgumentRtException arg = null
    */
-  public TsThreadSynchronizer( Executor aExecutor ) {
+  public TsThreadExecutor( Executor aExecutor ) {
     TsNullArgumentRtException.checkNull( aExecutor );
     synchronizer = new TsSynchronizer( aExecutor );
   }
@@ -63,7 +63,7 @@ public final class TsThreadSynchronizer
   }
 
   // ------------------------------------------------------------------------------------
-  // ITsThreadSynchronizer
+  // ITsThreadExecutor
   //
   @Override
   public Thread thread() {
