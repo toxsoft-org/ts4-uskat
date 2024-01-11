@@ -13,7 +13,7 @@ public interface ISkBackendInfo
   /**
    * Returns the backend start time.
    *
-   * @return long - the backend start time (millisecons after epoch)
+   * @return long - the backend start time (milliseconds after epoch)
    */
   long startTime();
 
