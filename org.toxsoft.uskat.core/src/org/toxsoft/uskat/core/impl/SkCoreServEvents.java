@@ -2,18 +2,17 @@ package org.toxsoft.uskat.core.impl;
 
 import static org.toxsoft.uskat.core.backend.api.IBaEventsMessages.*;
 
-import org.toxsoft.core.tslib.bricks.ctx.ITsContextRo;
-import org.toxsoft.core.tslib.bricks.events.msg.GenericMessage;
-import org.toxsoft.core.tslib.bricks.time.ITimeInterval;
-import org.toxsoft.core.tslib.bricks.time.ITimedList;
-import org.toxsoft.core.tslib.coll.IMapEdit;
-import org.toxsoft.core.tslib.coll.impl.ElemMap;
+import org.toxsoft.core.tslib.bricks.ctx.*;
+import org.toxsoft.core.tslib.bricks.events.msg.*;
+import org.toxsoft.core.tslib.bricks.time.*;
+import org.toxsoft.core.tslib.coll.*;
+import org.toxsoft.core.tslib.coll.impl.*;
 import org.toxsoft.core.tslib.gw.gwid.*;
 import org.toxsoft.core.tslib.utils.errors.*;
-import org.toxsoft.uskat.core.ISkServiceCreator;
+import org.toxsoft.uskat.core.*;
 import org.toxsoft.uskat.core.api.evserv.*;
-import org.toxsoft.uskat.core.api.sysdescr.ESkClassPropKind;
-import org.toxsoft.uskat.core.devapi.IDevCoreApi;
+import org.toxsoft.uskat.core.api.sysdescr.*;
+import org.toxsoft.uskat.core.devapi.*;
 
 /**
  * {@link ISkEventService} implementation.
@@ -56,15 +55,14 @@ public class SkCoreServEvents
 
   @Override
   protected boolean onBackendMessage( GenericMessage aMessage ) {
-    switch( aMessage.messageId() ) {
-      case MSGID_SK_EVENTS: {
+    return switch( aMessage.messageId() ) {
+      case MSGID_SK_EVENTS -> {
         ISkEventList evList = extractSkEventsList( aMessage );
         callEventHandlers( evList );
-        return true;
+        yield true;
       }
-      default:
-        return false;
-    }
+      default -> false;
+    };
   }
 
   // ------------------------------------------------------------------------------------
@@ -153,6 +151,14 @@ public class SkCoreServEvents
     TsNullArgumentRtException.checkNull( aEvent );
     SkEventList events = new SkEventList();
     events.add( aEvent );
+    ba().baEvents().fireEvents( events );
+  }
+
+  @Override
+  public void fireEvents( IList<SkEvent> aEvents ) {
+    TsNullArgumentRtException.checkNull( aEvents );
+    SkEventList events = new SkEventList();
+    events.addAll( aEvents );
     ba().baEvents().fireEvents( events );
   }
 

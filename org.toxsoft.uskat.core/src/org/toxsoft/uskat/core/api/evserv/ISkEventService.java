@@ -1,11 +1,11 @@
 package org.toxsoft.uskat.core.api.evserv;
 
-import org.toxsoft.core.tslib.bricks.time.ITimeInterval;
-import org.toxsoft.core.tslib.bricks.time.ITimedList;
+import org.toxsoft.core.tslib.bricks.time.*;
+import org.toxsoft.core.tslib.coll.*;
 import org.toxsoft.core.tslib.gw.gwid.*;
 import org.toxsoft.core.tslib.utils.errors.*;
-import org.toxsoft.uskat.core.ISkHardConstants;
-import org.toxsoft.uskat.core.api.ISkService;
+import org.toxsoft.uskat.core.*;
+import org.toxsoft.uskat.core.api.*;
 
 /**
  * Core service: object-generated events management.
@@ -21,15 +21,26 @@ public interface ISkEventService
   String SERVICE_ID = ISkHardConstants.SK_CORE_SERVICE_ID_PREFIX + ".Events"; //$NON-NLS-1$
 
   /**
-   * Generates an event.
+   * Generates (fires) an event.
    *
-   * @param aEvent {@link SkEvent} - генерируемое событие
+   * @param aEvent {@link SkEvent} - the event to fire
    * @throws TsNullArgumentRtException any argument = <code>null</code>
    * @throws TsItemNotFoundRtException no such object
    * @throws TsItemNotFoundRtException no such event is defined
    * @throws TsIllegalArgumentRtException invalid event parameter
    */
   void fireEvent( SkEvent aEvent );
+
+  /**
+   * Generates (fires) a multiple events at once.
+   *
+   * @param aEvents {@link IList}&lt;{@link SkEvent}&gt; - the events to fire
+   * @throws TsNullArgumentRtException any argument = <code>null</code>
+   * @throws TsItemNotFoundRtException no such object
+   * @throws TsItemNotFoundRtException no such event is defined
+   * @throws TsIllegalArgumentRtException invalid event parameter
+   */
+  void fireEvents( IList<SkEvent> aEvents );
 
   /**
    * Registers a handler, that is, subscribes to events of interest.
