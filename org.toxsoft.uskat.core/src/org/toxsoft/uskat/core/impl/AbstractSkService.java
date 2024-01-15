@@ -358,8 +358,7 @@ public abstract class AbstractSkService
   /**
    * Subclass may handle message from the backend.
    * <p>
-   * Base inmplementation simply returns <code>false</code>. When overridoing there is no need to call superclass
-   * method.
+   * Base implementation simply returns <code>false</code>. When overriding there is no need to call superclass method.
    * <p>
    * If method returns <code>false</code> caller base class will log an "unhandled message" warning.
    *
