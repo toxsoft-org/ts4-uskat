@@ -22,6 +22,8 @@ import org.toxsoft.uskat.legacy.plexy.IPlexyType;
 import org.toxsoft.uskat.s5.client.remote.connection.IS5Connection;
 import org.toxsoft.uskat.s5.common.S5Host;
 
+import core.tslib.bricks.synchronize.ITsThreadExecutor;
+
 /**
  * Известные имена параметров контекста выполнения команд {@link IAdminCmdContext}.
  * <p>
@@ -65,6 +67,12 @@ public enum EAdminCmdContextNames
    */
   CTX_APPLICATION_DIR( "ru.uskat.s5.admin.application.home", E_CN_D_APPLICATION_DIR, E_CN_N_APPLICATION_DIR, //$NON-NLS-1$
       PT_SINGLE_STRING ),
+
+  /**
+   * Исполнитель запросов к API в одном потоке.
+   */
+  CTX_THREAD_EXECUTOR( "threadExecutor", E_CN_D_THREAD_EXECUTOR, E_CN_N_THREAD_EXECUTOR, ITsThreadExecutor.class, //$NON-NLS-1$
+      false ),
 
   /**
    * Соединение с сервером.

@@ -140,13 +140,9 @@ public abstract class S5AbstractBackend<ADDON extends IS5BackendAddon>
   private ILogger logger = getLogger( getClass() );
 
   /**
-   * Задача (поток) обслуживания потребностей бекенда {@link ICooperativeMultiTaskable#doJob()}
+   * Исполнитель запросов к соединению
    */
-  // private final S5BackendDoJobThread backendDojobThread;
-  /**
-   * Синхронизатор обращения к uskat
-   */
-  private final ITsThreadExecutor synchronizer;
+  private final ITsThreadExecutor threadExecutor;
 
   /**
    * Карта построителей {@link IS5BackendAddonCreator} расширений {@link IS5BackendAddon} бекенда поддерживаемых
@@ -256,10 +252,10 @@ public abstract class S5AbstractBackend<ADDON extends IS5BackendAddon>
     // backendDojobThread = new S5BackendDoJobThread( name, this );
 
     // Синхронизация обращения к uskat
-    synchronizer = REFDEF_THREAD_EXECUTOR.getRef( aArgs );
-    synchronizer.thread().setName( name );
+    threadExecutor = REFDEF_THREAD_EXECUTOR.getRef( aArgs );
+    threadExecutor.thread().setName( name );
     // Запуск фоновой задачи обработки аддонов
-    synchronizer.timerExec( ADDON_DOJOB_TIMEOUT, this );
+    threadExecutor.timerExec( ADDON_DOJOB_TIMEOUT, this );
 
     IOptionSetEdit backendInfoValue = new OptionSet( aBackendInfoValue );
     OPDEF_SKBI_NEED_THREAD_SAFE_FRONTEND.setValue( backendInfoValue, AV_TRUE );
@@ -390,7 +386,7 @@ public abstract class S5AbstractBackend<ADDON extends IS5BackendAddon>
     for( IS5BackendAddon addon : allAddons ) {
       addon.doJob();
     }
-    synchronizer.timerExec( ADDON_DOJOB_TIMEOUT, this );
+    threadExecutor.timerExec( ADDON_DOJOB_TIMEOUT, this );
   }
 
   // ------------------------------------------------------------------------------------

@@ -1,13 +1,5 @@
 package org.toxsoft.uskat.core.impl;
 
-import static org.toxsoft.core.tslib.av.EAtomicType.*;
-import static org.toxsoft.core.tslib.av.impl.AvUtils.*;
-import static org.toxsoft.core.tslib.av.impl.DataDef.*;
-import static org.toxsoft.core.tslib.av.metainfo.IAvMetaConstants.*;
-
-import org.toxsoft.core.tslib.av.EAtomicType;
-import org.toxsoft.core.tslib.av.impl.AvUtils;
-import org.toxsoft.core.tslib.av.metainfo.IDataDef;
 import org.toxsoft.core.tslib.bricks.ctx.ITsContextRo;
 import org.toxsoft.core.tslib.utils.errors.TsIllegalStateRtException;
 import org.toxsoft.core.tslib.utils.errors.TsNullArgumentRtException;
@@ -26,7 +18,7 @@ import core.tslib.bricks.synchronize.ITsThreadExecutor;
  */
 public class SkThreadExecutorService
     extends AbstractSkService
-    implements ITsThreadExecutor, Runnable {
+    implements ITsThreadExecutor {
 
   /**
    * The service ID.
@@ -38,19 +30,19 @@ public class SkThreadExecutorService
    */
   public static final ISkServiceCreator<AbstractSkService> CREATOR = SkThreadExecutorService::new;
 
-  /**
-   * Mandotary context parameter: dojob timeout (msec)
-   * <p>
-   * Тип: {@link EAtomicType#INTEGER}
-   */
-  public static final IDataDef OP_DOJOB_TIMEOUT = create( SERVICE_ID + ".DoJobTimeout", INTEGER, //$NON-NLS-1$
-      TSID_NAME, "Timeout", // //$NON-NLS-1$
-      TSID_DESCRIPTION, "Dojob timeout (msec)", // //$NON-NLS-1$
-      TSID_IS_NULL_ALLOWED, AV_FALSE, //
-      TSID_DEFAULT_VALUE, AvUtils.avInt( 100 ) );
+  // /**
+  // * Mandotary context parameter: dojob timeout (msec)
+  // * <p>
+  // * Тип: {@link EAtomicType#INTEGER}
+  // */
+  // public static final IDataDef OP_DOJOB_TIMEOUT = create( SERVICE_ID + ".DoJobTimeout", INTEGER, //$NON-NLS-1$
+  // TSID_NAME, "Timeout", // //$NON-NLS-1$
+  // TSID_DESCRIPTION, "Dojob timeout (msec)", // //$NON-NLS-1$
+  // TSID_IS_NULL_ALLOWED, AV_FALSE, //
+  // TSID_DEFAULT_VALUE, AvUtils.avInt( -1 ) );
 
   private final IDevCoreApi devCoreApi;
-  private int               doJobTimeout;
+  // private int doJobTimeout;
 
   /**
    * Constructor.
@@ -67,12 +59,12 @@ public class SkThreadExecutorService
   //
   @Override
   final protected void doInit( ITsContextRo aArgs ) {
-    doJobTimeout = OP_DOJOB_TIMEOUT.getValue( aArgs.params() ).asInt();
-    // TODO: mvkd
-    if( doJobTimeout >= 0 ) {
-      // Автоматическое выполнение doJob
-      timerExec( doJobTimeout, this );
-    }
+    // doJobTimeout = OP_DOJOB_TIMEOUT.getValue( aArgs.params() ).asInt();
+    // // TODO: mvkd
+    // if( doJobTimeout >= 0 ) {
+    // // Автоматическое выполнение doJob
+    // timerExec( doJobTimeout, this );
+    // }
   }
 
   @Override
@@ -109,12 +101,12 @@ public class SkThreadExecutorService
   // ------------------------------------------------------------------------------------
   // Runnable
   //
-  @Override
-  public void run() {
-    // Автоматическое выполнение doJob
-    doJob();
-    timerExec( doJobTimeout, this );
-  }
+  // @Override
+  // public void run() {
+  // // Автоматическое выполнение doJob
+  // doJob();
+  // timerExec( doJobTimeout, this );
+  // }
 
   // ------------------------------------------------------------------------------------
   // ICooperativeMultiTaskable
@@ -123,8 +115,6 @@ public class SkThreadExecutorService
   public void doJob() {
     // Внимание! doJob может вызваться в ручную только из потока соединения (синхронизатора)
     TsIllegalStateRtException.checkFalse( thread().equals( Thread.currentThread() ) );
-    // Отработка сообщений от backend
-    devCoreApi.doJobInCoreMainThread();
     // Фоновая работа синхронизатора. Обработка запросов asyncExec(...)
     devCoreApi.executor().doJob();
   }

@@ -2,6 +2,7 @@ package org.toxsoft.uskat.skadmin.cli;
 
 import static org.toxsoft.uskat.skadmin.cli.AdminColors.*;
 import static org.toxsoft.uskat.skadmin.cli.IAdminAnsiConstants.*;
+import static org.toxsoft.uskat.skadmin.core.EAdminCmdContextNames.*;
 
 import java.io.IOException;
 import java.util.Timer;
@@ -10,8 +11,11 @@ import java.util.TimerTask;
 import org.toxsoft.core.tslib.bricks.strio.IStrioHardConstants;
 import org.toxsoft.core.tslib.coll.IList;
 import org.toxsoft.core.tslib.utils.errors.*;
+import org.toxsoft.core.tslib.utils.logs.impl.LoggerUtils;
 import org.toxsoft.uskat.skadmin.cli.parsers.*;
+import org.toxsoft.uskat.skadmin.core.IAdminCmdContext;
 
+import core.tslib.bricks.synchronize.ITsThreadExecutor;
 import scala.tools.jline.console.*;
 
 /**
@@ -28,14 +32,19 @@ public class AdminConsoleTeminal
   private static final long SYNTAX_COLORING_TIMEOUT = 300;
 
   /**
-   * Признак необходимости подсветки синтаксиса
+   * Контекст
    */
-  private final boolean syntaxHighlighting;
+  private final IAdminCmdContext context;
 
   /**
    * Парсер синтаксического анализа. null: парсер отключен
    */
   private IAdminCmdSyntaxParser syntaxParser;
+
+  /**
+   * Признак необходимости подсветки синтаксиса
+   */
+  private final boolean syntaxHighlighting;
 
   /**
    * Признак необходимости подсветки синтаксиса парсера
@@ -60,16 +69,20 @@ public class AdminConsoleTeminal
   /**
    * Конструктор
    *
+   * @param aContext {@link IAdminCmdContext} контекст
    * @param aSyntaxParser {@link IAdminCmdSyntaxParser} - синтаксический анализатор командной строки
    * @param aSyntaxHighlighting boolean <b>true</b> c подсветкой синтаксиса; <b>false</b> без подсветки синтаксиса.
+   * @throws TsNullArgumentRtException любой аргумент null
    * @throws IOException ошибка создания терминала
    */
-  public AdminConsoleTeminal( IAdminCmdSyntaxParser aSyntaxParser, boolean aSyntaxHighlighting )
+  public AdminConsoleTeminal( IAdminCmdContext aContext, IAdminCmdSyntaxParser aSyntaxParser,
+      boolean aSyntaxHighlighting )
       throws IOException {
     super();
-    TsNullArgumentRtException.checkNull( aSyntaxParser );
+    TsNullArgumentRtException.checkNulls( aContext, aSyntaxParser );
     // Таймер обновления в режиме "daemon"
     updateTimer = new Timer( true );
+    context = aContext;
     syntaxParser = aSyntaxParser;
     syntaxHighlighting = aSyntaxHighlighting;
   }
@@ -260,10 +273,15 @@ public class AdminConsoleTeminal
     waitShowSyntax = true;
   }
 
+  void showCmdSyntax() {
+    ITsThreadExecutor threadExecutor = (ITsThreadExecutor)context.paramValue( CTX_THREAD_EXECUTOR ).singleRef();
+    threadExecutor.syncExec( this::showCmdSyntaxImpl );
+  }
+
   /**
    * Отображение синтаксиса введенной команды
    */
-  void showCmdSyntax() {
+  void showCmdSyntaxImpl() {
     if( syntaxParser == null ) {
       // Парсер не установлен
       return;
@@ -354,32 +372,32 @@ public class AdminConsoleTeminal
     }
     waitShowSyntax = false;
   }
-}
-
-/**
- * Задача таймера: раскраска синтаксиса команды
- */
-class SyntaxColoringTimerTask
-    extends TimerTask {
-
-  private final AdminConsoleTeminal reader;
 
   /**
-   * Конструктор
-   *
-   * @param aReader AdminConsoleReader - читатель консоли
-   * @throws TsNullArgumentRtException аргумент = null
+   * Задача таймера: раскраска синтаксиса команды
    */
-  SyntaxColoringTimerTask( AdminConsoleTeminal aReader ) {
-    TsNullArgumentRtException.checkNulls( aReader );
-    reader = aReader;
-  }
+  private final class SyntaxColoringTimerTask
+      extends TimerTask {
 
-  // ------------------------------------------------------------------------------------
-  // Реализация Runnable
-  //
-  @Override
-  public void run() {
-    reader.showCmdSyntax();
+    private final AdminConsoleTeminal reader;
+
+    /**
+     * Конструктор
+     *
+     * @param aReader AdminConsoleReader - читатель консоли
+     * @throws TsNullArgumentRtException аргумент = null
+     */
+    SyntaxColoringTimerTask( AdminConsoleTeminal aReader ) {
+      TsNullArgumentRtException.checkNulls( aReader );
+      reader = aReader;
+    }
+
+    // ------------------------------------------------------------------------------------
+    // Реализация Runnable
+    //
+    @Override
+    public void run() {
+      showCmdSyntax();
+    }
   }
 }

@@ -25,6 +25,8 @@ import org.toxsoft.uskat.s5.client.remote.connection.EConnectionState;
 import org.toxsoft.uskat.s5.client.remote.connection.IS5Connection;
 import org.toxsoft.uskat.skadmin.core.*;
 
+import core.tslib.bricks.synchronize.ITsThreadExecutor;
+
 /**
  * Менеджер библиотек
  *
@@ -147,8 +149,21 @@ class AdminCmdLibraryManager
     return retValue;
   }
 
+  private IList<IPlexyValue> lastPossibleValues = null;
+
   @Override
-  public IList<IPlexyValue> getPossibleValues( String aCmdId, String aArgId, IStringMap<IPlexyValue> aArgValues ) {
+  public synchronized IList<IPlexyValue> getPossibleValues( String aCmdId, String aArgId,
+      IStringMap<IPlexyValue> aArgValues ) {
+
+    ITsThreadExecutor threadExecutor = (ITsThreadExecutor)context.paramValue( CTX_THREAD_EXECUTOR ).singleRef();
+    threadExecutor.syncExec( () -> lastPossibleValues = getPossibleValuesImpl( aCmdId, aArgId, aArgValues ) );
+
+    IList<IPlexyValue> retValue = lastPossibleValues;
+
+    return retValue;
+  }
+
+  private IList<IPlexyValue> getPossibleValuesImpl( String aCmdId, String aArgId, IStringMap<IPlexyValue> aArgValues ) {
     TsNullArgumentRtException.checkNulls( aCmdId, aArgId, aArgValues );
     // Получение библиотеки выполняющей команду
     IAdminCmdLibrary library = libraryByCmds.findByKey( aCmdId );

@@ -32,6 +32,8 @@ import org.toxsoft.uskat.s5.utils.S5ValobjUtils;
 import org.toxsoft.uskat.skadmin.core.*;
 import org.toxsoft.uskat.skadmin.core.impl.AbstractAdminCmd;
 
+import core.tslib.bricks.synchronize.ITsThreadExecutor;
+
 /**
  * Команда администрирования: вход пользователя на skat-s5-сервер
  *
@@ -48,6 +50,8 @@ public class AdminCmdConnect
    * Конструктор
    */
   public AdminCmdConnect() {
+    // Контекст: исполнитель запросов в одном потоке
+    addArg( CTX_THREAD_EXECUTOR );
     // Имя пользователя
     addArg( ARG_CONNECT_USER );
     // Пароль пользователя
@@ -120,6 +124,7 @@ public class AdminCmdConnect
 
   @Override
   public void doExec( IStringMap<IPlexyValue> aArgValues, IAdminCmdCallback aCallback ) {
+    ITsThreadExecutor threadExecutor = argSingleRef( CTX_THREAD_EXECUTOR );
     // Параметры команды
     String login = argSingleValue( ARG_CONNECT_USER ).asString();
     String password = argSingleValue( ARG_CONNECT_PASSWORD ).asString();
@@ -166,8 +171,10 @@ public class AdminCmdConnect
       connection.addConnectionListener( AdminCmdGetConnection.CURRENT_CONNECTION_LISTENER );
 
       ITsContext ctx = new TsContext();
-      // сначала откроем соединение
+      // Настройка параметров будущего соединения
       ISkCoreConfigConstants.REFDEF_BACKEND_PROVIDER.setRef( ctx, new S5RemoteBackendProvider() );
+      ISkCoreConfigConstants.REFDEF_THREAD_EXECUTOR.setRef( ctx, threadExecutor );
+
       IS5ConnectionParams.OP_USERNAME.setValue( ctx.params(), avStr( login ) );
       IS5ConnectionParams.OP_PASSWORD.setValue( ctx.params(), avStr( password ) );
 
@@ -178,9 +185,8 @@ public class AdminCmdConnect
       IS5ConnectionParams.OP_FAILURE_TIMEOUT.setValue( ctx.params(), failureTimeout );
       IS5ConnectionParams.OP_CURRDATA_TIMEOUT.setValue( ctx.params(), currdataTimeout );
       IS5ConnectionParams.OP_HISTDATA_TIMEOUT.setValue( ctx.params(), histdataTimeout );
-      // IS5ConnectionParams.REF_CONNECTION_LOCK.setRef( ctx, new S5Lockable() );
 
-      // SkUtils.OP_EXT_SERV_PROVIDER_CLASS.setValue( ctx.params(), initializator );
+      // Создание соединения
       connection.open( ctx );
       setContextParamValue( CTX_SK_CORE_API, pvSingleRef( connection.coreApi() ) );
       setContextParamValue( CTX_SK_HOSTS, pvSingleRef( new S5Host( hostnames.first(), ports.first().intValue() ) ) );

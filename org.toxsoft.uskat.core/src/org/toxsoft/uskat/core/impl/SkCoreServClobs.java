@@ -207,7 +207,6 @@ public class SkCoreServClobs
     catch( Exception ex ) {
       throw new TsIoRtException( ex, FMT_ERR_CLOB_TO_BACKEND, aGwid.toString() );
     }
-    coreApi().doJobInCoreMainThread();
   }
 
   @Override

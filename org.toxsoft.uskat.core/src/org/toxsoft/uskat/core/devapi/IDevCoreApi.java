@@ -64,7 +64,4 @@ public interface IDevCoreApi
   // FIXME comment!
   ITsThreadExecutor executor();
 
-  // FIXME comment!
-  void doJobInCoreMainThread();
-
 }

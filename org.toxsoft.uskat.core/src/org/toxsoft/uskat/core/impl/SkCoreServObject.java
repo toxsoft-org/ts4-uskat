@@ -700,8 +700,6 @@ public class SkCoreServObject
     // save object
     objsCache.put( sko );
     internalWriteSkObjectToBackend( sko );
-    // dima 09.10.23 пропущен вызов и потому не мушаопс
-    coreApi().doJobInCoreMainThread();
     return (T)sko;
   }
 
@@ -712,8 +710,6 @@ public class SkCoreServObject
     TsValidationFailedRtException.checkError( validationSupport.canRemoveObject( aSkid ) );
     objsCache.remove( aSkid );
     internalRemoveObjects( new SkidList( aSkid ) );
-    // dima 09.10.23 пропущен вызов и потому не мушаопс
-    coreApi().doJobInCoreMainThread();
   }
 
   @Override

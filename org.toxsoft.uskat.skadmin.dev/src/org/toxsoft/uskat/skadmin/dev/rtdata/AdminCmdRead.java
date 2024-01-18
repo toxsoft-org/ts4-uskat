@@ -22,7 +22,8 @@ import org.toxsoft.core.tslib.coll.*;
 import org.toxsoft.core.tslib.coll.impl.*;
 import org.toxsoft.core.tslib.coll.primtypes.IStringList;
 import org.toxsoft.core.tslib.coll.primtypes.IStringMap;
-import org.toxsoft.core.tslib.gw.gwid.*;
+import org.toxsoft.core.tslib.gw.gwid.Gwid;
+import org.toxsoft.core.tslib.gw.gwid.GwidList;
 import org.toxsoft.core.tslib.gw.skid.ISkidList;
 import org.toxsoft.core.tslib.utils.errors.TsNullArgumentRtException;
 import org.toxsoft.uskat.core.ISkCoreApi;
@@ -61,36 +62,35 @@ public class AdminCmdRead
   /**
    * Карта каналов чтения текущих данных открытых в фоновом режиме
    */
-  private static final IMapEdit<ISkConnection, IMapEdit<Gwid, ISkReadCurrDataChannel>> backgroundChannels =
-      new ElemMap<>();
+  private static final IMapEdit<ISkConnection, IMapEdit<Gwid, ISkReadCurrDataChannel>> cdChannels = new ElemMap<>();
 
   /**
-   * Карта каналов готовых для чтения текущих данных открытых в фоновом режиме
+   * Карта каналов готовых для чтения текущих данных
    */
-  private static final IMapEdit<ISkConnection, IListEdit<Gwid>> backgroundReadyChannels = new ElemMap<>();
+  private static final IMapEdit<ISkConnection, IListEdit<Gwid>> cdGwids = new ElemMap<>();
 
   /**
    * Слушатель изменений значений currdata
    */
-  private static final ISkCurrDataChangeListener currdataListener = aRtdMap -> {
+  private static final ISkCurrDataChangeListener cdListener = aRtdMap -> {
     String time = TimeUtils.timestampToString( System.currentTimeMillis() );
     for( Gwid gwid : aRtdMap.keys() ) {
       IAtomicValue value = aRtdMap.getByKey( gwid );
       print( '\n' + MSG_CMD_READ_VALUE, time, gwid, value );
     }
     // Ожидание значений созданных каналов
-    synchronized (backgroundChannels) {
+    synchronized (cdChannels) {
       if( connection == null ) {
         return;
       }
-      IListEdit<Gwid> channels = backgroundReadyChannels.findByKey( connection );
+      IListEdit<Gwid> channels = cdGwids.findByKey( connection );
       if( channels == null ) {
         channels = new ElemArrayList<>( false );
-        backgroundReadyChannels.put( connection, channels );
+        cdGwids.put( connection, channels );
       }
       channels.addAll( aRtdMap.keys() );
       // Оповещение об изменении в таблице открытых каналов
-      backgroundChannels.notifyAll();
+      cdChannels.notifyAll();
     }
 
   };
@@ -99,8 +99,8 @@ public class AdminCmdRead
    * Слушатель изменений состояния соединений
    */
   private static final ISkConnectionListener connectionListener = ( aSource, aOldState ) -> {
-    backgroundChannels.removeByKey( aSource );
-    backgroundReadyChannels.removeByKey( aSource );
+    cdChannels.removeByKey( aSource );
+    cdGwids.removeByKey( aSource );
   };
 
   /**
@@ -199,13 +199,13 @@ public class AdminCmdRead
       // Служба текущих данных
       ISkRtdataService currdata = coreApi.rtdService();
       // Регистрация(перегистрация слушателя) текущих данных
-      currdata.eventer().addListener( currdataListener );
+      currdata.eventer().addListener( cdListener );
       // Каналы уже открытые на текущем соединении
-      IMapEdit<Gwid, ISkReadCurrDataChannel> channels = backgroundChannels.findByKey( connection );
+      IMapEdit<Gwid, ISkReadCurrDataChannel> channels = cdChannels.findByKey( connection );
       if( channels == null ) {
         channels = new ElemMap<>();
-        backgroundChannels.put( connection, channels );
-        backgroundReadyChannels.put( connection, new ElemArrayList<>( false ) );
+        cdChannels.put( connection, channels );
+        cdGwids.put( connection, new ElemArrayList<>( false ) );
       }
       try {
         if( classId.equals( EMPTY_STRING ) ) {
@@ -229,8 +229,8 @@ public class AdminCmdRead
             addResultInfo( "\n" + MSG_CMD_READ_VALUE, time, channel.gwid(), value ); //$NON-NLS-1$
             channel.close();
           }
-          backgroundChannels.removeByKey( connection );
-          backgroundReadyChannels.removeByKey( connection );
+          cdChannels.removeByKey( connection );
+          cdGwids.removeByKey( connection );
           IPlexyValue pxValue = pvSingleRef( value );
           setContextParamValue( CTX_SK_ATOMIC_VALUE, pxValue );
           resultOk( pxValue );
@@ -290,39 +290,40 @@ public class AdminCmdRead
           }
         }
         IMap<Gwid, ISkReadCurrDataChannel> newChannels = null;
-        // Создание новых каналов (добавление в карту backgroundChannels проводится в onCurrData(...)
+        // Создание новых каналов (добавление в карту cdChannels проводится в onCurrData(...)
         newChannels = currdata.createReadCurrDataChannels( newChannelGwids );
         // Ожидание значений
-        if( !waitValues( newChannels, readTimeout.asLong() ) ) {
-          // Завершение работы созданных каналов
-          for( ISkReadCurrDataChannel channel : newChannels ) {
-            channel.close();
-          }
-          // Завершение ожидания значений по таймауту
-          addResultError( ERR_CMD_READ_TIMEOUT );
-          resultFail();
-          return;
-        }
+
+        // if( !waitValues( newChannels, readTimeout.asLong() ) ) {
+        // // Завершение работы созданных каналов
+        // for( ISkReadCurrDataChannel channel : newChannels ) {
+        // channel.close();
+        // }
+        // // Завершение ожидания значений по таймауту
+        // addResultError( ERR_CMD_READ_TIMEOUT );
+        // resultFail();
+        // return;
+        // }
         // Добавление вновь добавленных каналов в кэша
         channels.putAll( newChannels );
-        // Готовые каналы соединения
-        IListEdit<Gwid> readyChannelIds = backgroundReadyChannels.getByKey( connection );
-        // Вывод текущих значений
-        for( Gwid gwid : gwids ) {
-          ISkReadCurrDataChannel channel = channels.getByKey( gwid );
-          // Вывод текущего значения канала
-          value = channel.getValue();
-          addResultInfo( "\n" + MSG_CMD_READ_VALUE, time, gwid, value ); //$NON-NLS-1$
-          if( close ) {
-            channel.close();
-            channels.removeByKey( gwid );
-            readyChannelIds.remove( gwid );
-          }
-        }
-        if( close ) {
-          // Вызов с пустым списком "заставит" фронтенд отказаться от подписки на данные в бекенде
-          currdata.createReadCurrDataChannels( IGwidList.EMPTY );
-        }
+        // // Готовые каналы соединения
+        // IListEdit<Gwid> readyChannelIds = cdGwids.getByKey( connection );
+        // // Вывод текущих значений
+        // for( Gwid gwid : gwids ) {
+        // ISkReadCurrDataChannel channel = channels.getByKey( gwid );
+        // // Вывод текущего значения канала
+        // value = channel.getValue();
+        // addResultInfo( "\n" + MSG_CMD_READ_VALUE, time, gwid, value ); //$NON-NLS-1$
+        // if( close ) {
+        // channel.close();
+        // channels.removeByKey( gwid );
+        // readyChannelIds.remove( gwid );
+        // }
+        // }
+        // if( close ) {
+        // // Вызов с пустым списком "заставит" фронтенд отказаться от подписки на данные в бекенде
+        // currdata.createReadCurrDataChannels( IGwidList.EMPTY );
+        // }
 
         addResultInfo( "\n\n" + MSG_CMD_TIME, Long.valueOf( System.currentTimeMillis() - startTime ) ); //$NON-NLS-1$
 
@@ -431,17 +432,17 @@ public class AdminCmdRead
   private static boolean waitValues( IMap<Gwid, ISkReadCurrDataChannel> aNewChannels, long aTimeout )
       throws InterruptedException {
     TsNullArgumentRtException.checkNull( aNewChannels );
-    synchronized (backgroundChannels) {
-      IList<Gwid> readyChannelIds = backgroundReadyChannels.getByKey( connection );
-      IMapEdit<Gwid, ISkReadCurrDataChannel> newChannels = backgroundChannels.getByKey( connection );
+    synchronized (cdChannels) {
+      IList<Gwid> readyChannelIds = cdGwids.getByKey( connection );
+      IMapEdit<Gwid, ISkReadCurrDataChannel> newChannels = cdChannels.getByKey( connection );
       if( newChannels == null ) {
         newChannels = new ElemMap<>();
-        backgroundChannels.put( connection, newChannels );
+        cdChannels.put( connection, newChannels );
       }
       for( Gwid gwid : aNewChannels.keys() ) {
         if( !readyChannelIds.hasElem( gwid ) ) {
           // Канал еще не получил значение, ожидание
-          backgroundChannels.wait( aTimeout );
+          cdChannels.wait( aTimeout );
           // Проверка получения значения
           if( !readyChannelIds.hasElem( gwid ) ) {
             return false;

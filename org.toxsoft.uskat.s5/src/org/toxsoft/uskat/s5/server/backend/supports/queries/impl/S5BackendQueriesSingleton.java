@@ -37,6 +37,7 @@ import org.toxsoft.uskat.core.api.objserv.ISkObjectService;
 import org.toxsoft.uskat.core.api.sysdescr.ISkClassInfo;
 import org.toxsoft.uskat.core.backend.api.BaMsgQueryNextData;
 import org.toxsoft.uskat.core.backend.api.IBaQueries;
+import org.toxsoft.uskat.core.impl.SkThreadExecutorService;
 import org.toxsoft.uskat.s5.common.sysdescr.ISkSysdescrReader;
 import org.toxsoft.uskat.s5.server.backend.addons.queries.*;
 import org.toxsoft.uskat.s5.server.backend.impl.S5BackendSupportSingleton;
@@ -54,6 +55,8 @@ import org.toxsoft.uskat.s5.server.sequences.reader.IS5SequenceReader;
 import org.toxsoft.uskat.s5.server.singletons.S5ServiceSingletonUtils;
 import org.toxsoft.uskat.s5.utils.jobs.IS5ServerJob;
 import org.toxsoft.uskat.s5.utils.threads.impl.S5ReadThreadExecutor;
+
+import core.tslib.bricks.synchronize.ITsThreadExecutor;
 
 /**
  * Реализация синглетона {@link IS5BackendQueriesSingleton}
@@ -587,6 +590,8 @@ public class S5BackendQueriesSingleton
 
     // Ядро локального соединения
     ISkCoreApi coreApi = backend().getConnection().coreApi();
+    // Испольнитель запросов соединения в одном потоке
+    ITsThreadExecutor treadExecutor = SkThreadExecutorService.getExecutor( coreApi );
     // Служба объектов
     ISkObjectService objService = coreApi.objService();
     // Служба gwid-идентификаторов
@@ -603,7 +608,8 @@ public class S5BackendQueriesSingleton
       switch( gwidKind ) {
         case GW_RTDATA:
           if( functionGwid.isMulti() ) {
-            sequenceGwidsByFunctions.put( functionGwid, gwidService.expandGwid( functionGwid ) );
+            treadExecutor
+                .syncExec( () -> sequenceGwidsByFunctions.put( functionGwid, gwidService.expandGwid( functionGwid ) ) );
             break;
           }
           sequenceGwidsByFunctions.put( functionGwid, new GwidList( functionGwid ) );
@@ -612,10 +618,12 @@ public class S5BackendQueriesSingleton
         case GW_CMD:
           if( functionGwid.isStridMulti() ) {
             GwidList gwids = new GwidList();
-            // aIncludeSubclasses = true
-            for( Skid objId : objService.listSkids( functionGwid.classId(), true ) ) {
-              gwids.add( Gwid.createObj( objId ) );
-            }
+            treadExecutor.syncExec( () -> {
+              // aIncludeSubclasses = true
+              for( Skid objId : objService.listSkids( functionGwid.classId(), true ) ) {
+                gwids.add( Gwid.createObj( objId ) );
+              }
+            } );
             sequenceGwidsByFunctions.put( functionGwid, gwids );
             break;
           }

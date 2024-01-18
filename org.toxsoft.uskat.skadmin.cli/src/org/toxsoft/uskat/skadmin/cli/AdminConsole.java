@@ -59,6 +59,7 @@ import org.toxsoft.uskat.skadmin.core.*;
 import org.toxsoft.uskat.skadmin.core.impl.AbstractAdminCmdLibrary;
 import org.toxsoft.uskat.skadmin.core.impl.AdminCmdResult;
 
+import core.tslib.bricks.synchronize.TsThreadExecutor;
 import scala.tools.jline.console.history.FileHistory;
 import scala.tools.jline.console.history.PersistentHistory;
 
@@ -95,6 +96,7 @@ class AdminConsole
    */
   private static final long READ_CONSOLE_TIMEOUT = 100;
 
+  private final TsThreadExecutor     threadExecutor;
   private final IAdminCmdLibrary     library;
   private final AdminConsoleTeminal  terminal;
   private final AdminCmdSyntaxParser syntaxParser;
@@ -148,11 +150,14 @@ class AdminConsole
       // Ошибка чтения файла параметров контекста
       readContextError = e;
     }
+    // Исполнитель запросов в одном потоке
+    threadExecutor = new TsThreadExecutor();
     // Контекст выполнения команд
     IAdminCmdContext context = library.context();
     // Формирование параметров контеста связанных с окружением запуска
     context.setParamValue( CTX_APPLICATION_DIR, pvSingleValue( avStr( applicationDir ) ), true );
     context.setParamValue( CTX_PLUGIN_PATHS, pvSingleValue( avValobj( pluginPaths ) ), true );
+    context.setParamValue( CTX_THREAD_EXECUTOR, pvSingleRef( threadExecutor ), true );
     // Слушаем контекст выполнения команд
     context.addContextListener( new ContextListener() );
     // Синтаксический анализатор для подсветки синтаксиса
@@ -161,7 +166,7 @@ class AdminConsole
     executeParser = new AdminCmdSyntaxParser( library );
     // Инициализация терминала
     AnsiConsole.systemInstall();
-    terminal = createTerminal( syntaxParser, readEnv( S5ADMIN_ENV_SYNTAX_HIGHLIGHTING, AV_TRUE ).asBool() );
+    terminal = createTerminal( context, syntaxParser, readEnv( S5ADMIN_ENV_SYNTAX_HIGHLIGHTING, AV_TRUE ).asBool() );
     // Автодополнение
     completer = new AdminCmdCompleter( library, sectionId );
     terminal.addCompleter( completer );
@@ -210,16 +215,21 @@ class AdminConsole
         }
       }
       try {
-        // Чтение строки из терминала
         String line = terminal.readLine();
         if( line == null || line.trim().length() == 0 ) {
-          Thread.sleep( READ_CONSOLE_TIMEOUT );
           continue;
         }
         // Сохранение истории команд в файле
         ((PersistentHistory)terminal.getHistory()).flush();
         // Выполнение командной строки с возможностью "довода" значений аргументов
-        execute( line, true );
+        threadExecutor.syncExec( () -> {
+          try {
+            execute( line, true );
+          }
+          catch( Throwable e ) {
+            logger.error( e );
+          }
+        } );
       }
       catch( IOException e ) {
         throw new TsInternalErrorRtException( e, e.getLocalizedMessage() );
@@ -262,7 +272,8 @@ class AdminConsole
 
   @Override
   protected void doClose() {
-    // nop
+    // Завершение работы исполнителя запросов в одном потоке
+    threadExecutor.close();
   }
 
   // ------------------------------------------------------------------------------------
@@ -734,15 +745,17 @@ class AdminConsole
   /**
    * Создает терминал консоли
    *
+   * @param aContext {@link IAdminCmdContext} контекст
    * @param aSyntaxParser {@link IAdminCmdSyntaxParser} - синтаксический анализатор командной строки
    * @param aSyntaxHighlighting boolean <b>true</b> c подсветкой синтаксиса; <b>false</b> без подсветки синтаксиса.
    * @return {@link AdminConsoleTeminal} - терминал консоли
+   * @throws TsNullArgumentRtException любой аргумент = null
    */
-  private static AdminConsoleTeminal createTerminal( IAdminCmdSyntaxParser aSyntaxParser,
+  private static AdminConsoleTeminal createTerminal( IAdminCmdContext aContext, IAdminCmdSyntaxParser aSyntaxParser,
       boolean aSyntaxHighlighting ) {
-    TsNullArgumentRtException.checkNull( aSyntaxParser );
+    TsNullArgumentRtException.checkNulls( aContext, aSyntaxParser );
     try {
-      AdminConsoleTeminal retValue = new AdminConsoleTeminal( aSyntaxParser, aSyntaxHighlighting );
+      AdminConsoleTeminal retValue = new AdminConsoleTeminal( aContext, aSyntaxParser, aSyntaxHighlighting );
       // История команд
       FileHistory history = new FileHistory( new File( CONSOLE_HISTORY_FILE ) );
       history.setMaxSize( CONSOLE_HISTORY_SIZE );

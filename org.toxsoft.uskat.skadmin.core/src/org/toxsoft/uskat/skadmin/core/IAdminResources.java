@@ -61,10 +61,12 @@ interface IAdminResources {
   String E_CN_N_BS_OBJS = "Объекты";
   String E_CN_D_BS_OBJS = "Список бизнес объектов системы";
 
+  String E_CN_N_THREAD_EXECUTOR   = "ITsThreadExecutor";
+  String E_CN_D_THREAD_EXECUTOR   = "Исполнитель запросов в одном потоке (ITsThreadExecutor)";
   String E_CN_N_SK_CONNECTION     = "skConnection";
   String E_CN_D_SK_CONNECTION     = "Подключение к серверу skat.s5";
-  String E_CN_N_PAS_CLIENT    = "pasClient";
-  String E_CN_D_PAS_CLIENT    = "Клиент сервера PAS (Public Access Server)";
+  String E_CN_N_PAS_CLIENT        = "pasClient";
+  String E_CN_D_PAS_CLIENT        = "Клиент сервера PAS (Public Access Server)";
   String E_CN_N_CORE_API          = "API";
   String E_CN_D_CORE_API          = "API сервера skat.s5";
   String E_CN_N_HOST              = "Адрес";
