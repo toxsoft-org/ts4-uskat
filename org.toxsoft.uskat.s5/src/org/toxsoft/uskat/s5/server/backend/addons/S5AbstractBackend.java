@@ -358,7 +358,7 @@ public abstract class S5AbstractBackend<ADDON extends IS5BackendAddon>
   }
 
   @Override
-  public final void onFrontendMessage( GtMessage aMessage ) {
+  public final void sendBackendMessage( GtMessage aMessage ) {
     TsNullArgumentRtException.checkNull( aMessage );
     eventer.sendMessage( aMessage );
   }
