@@ -8,6 +8,7 @@ import org.toxsoft.core.tslib.av.opset.*;
 import org.toxsoft.core.tslib.av.opset.impl.*;
 import org.toxsoft.core.tslib.bricks.ctx.*;
 import org.toxsoft.core.tslib.bricks.events.change.*;
+import org.toxsoft.core.tslib.bricks.events.msg.*;
 import org.toxsoft.core.tslib.bricks.keeper.*;
 import org.toxsoft.core.tslib.bricks.strio.*;
 import org.toxsoft.core.tslib.coll.*;
@@ -257,6 +258,11 @@ public abstract class MtbAbstractBackend
     TsNullArgumentRtException.checkNulls( aAddonId, aExpectedType );
     Object rawAddon = allAddons.findByKey( aAddonId );
     return aExpectedType.cast( rawAddon );
+  }
+
+  @Override
+  public void sendBackendMessage( GtMessage aMessage ) {
+    frontend.onBackendMessage( aMessage );
   }
 
   // ------------------------------------------------------------------------------------

@@ -24,8 +24,8 @@ import org.toxsoft.uskat.core.impl.*;
  * <li>Execution threads. Some backend implementations may have internal execution threads and may want to send message
  * to the frontend from the internal thread. Such backends inform their counterpart with the
  * {@link ISkBackendHardConstant#OPDEF_SKBI_NEED_THREAD_SAFE_FRONTEND} option set to <code>true</code> in
- * {@link ISkBackendInfo#params()}. Because core API impementation (class {@link SkCoreApi} and it's reap part
- * {@link ISkFrontendRear}) is single-threaded by defaul, the threads must be separated by supplying ensuring that
+ * {@link ISkBackendInfo#params()}. Because core API implementation (class {@link SkCoreApi} and it's reap part
+ * {@link ISkFrontendRear}) is single-threaded by default, the threads must be separated by supplying ensuring that
  * {@link ISkFrontendRear} method calls are thread-safe.</li>
  * </ul>
  *
@@ -166,8 +166,27 @@ public interface ISkBackend
    * @param aExpectedType {@link Class}&lt;T&gt; - expected interface of the addons
    * @return &lt;T&gt; - found addon or <code>null</code> if no such optional addon exists
    * @throws TsNullArgumentRtException any argument = <code>null</code>
-   * @throws ClassCastException addon was found but not of excpected type
+   * @throws ClassCastException addon was found but not of expected type
    */
   <T> T findBackendAddon( String aAddonId, Class<T> aExpectedType );
+
+  // ------------------------------------------------------------------------------------
+  // Messages
+  //
+
+  /**
+   * Instructs the backend to send the specified message to all CoreAPI instances.
+   * <p>
+   * Main purpose of this method is to allow Sk-service implementations to send messages to other instances of the same
+   * service. For example, the refbooks service may inform all other instances about changes in refbooks.
+   * <p>
+   * Local backends (that is backends without servers) simply call {@link ISkFrontendRear#onBackendMessage(GtMessage)}.
+   * Server-based backends distribute the message to all active (working instances of) backends via the server to call
+   * {@link ISkFrontendRear#onBackendMessage(GtMessage)} method of the frontend.
+   *
+   * @param aMessage {@link GtMessage} - message to be send to all connected frontends
+   * @throws TsNullArgumentRtException any argument = <code>null</code>
+   */
+  void sendBackendMessage( GtMessage aMessage );
 
 }

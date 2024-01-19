@@ -10,6 +10,7 @@ import java.sql.*;
 import org.toxsoft.core.tslib.av.opset.*;
 import org.toxsoft.core.tslib.av.opset.impl.*;
 import org.toxsoft.core.tslib.bricks.ctx.*;
+import org.toxsoft.core.tslib.bricks.events.msg.*;
 import org.toxsoft.core.tslib.coll.*;
 import org.toxsoft.core.tslib.coll.impl.*;
 import org.toxsoft.core.tslib.coll.primtypes.*;
@@ -262,6 +263,11 @@ public class SkBackendSqlite
     TsNullArgumentRtException.checkNulls( aAddonId, aExpectedType );
     Object rawAddon = allAddons.findByKey( aAddonId );
     return aExpectedType.cast( rawAddon );
+  }
+
+  @Override
+  public void sendBackendMessage( GtMessage aMessage ) {
+    frontend.onBackendMessage( aMessage );
   }
 
 }

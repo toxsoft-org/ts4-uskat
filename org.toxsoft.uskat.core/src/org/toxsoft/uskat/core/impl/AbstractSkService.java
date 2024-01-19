@@ -2,6 +2,7 @@ package org.toxsoft.uskat.core.impl;
 
 import static org.toxsoft.uskat.core.impl.ISkResources.*;
 
+import org.toxsoft.core.tslib.av.opset.*;
 import org.toxsoft.core.tslib.bricks.ctx.*;
 import org.toxsoft.core.tslib.bricks.events.msg.*;
 import org.toxsoft.core.tslib.bricks.strid.impl.*;
@@ -166,12 +167,31 @@ public abstract class AbstractSkService
   }
 
   /**
-   * Returns the inidividual logger for this service.
+   * Returns the individual logger for this service.
    *
    * @return {@link CoreLogger} - service logger
    */
   final public CoreLogger logger() {
     return logger;
+  }
+
+  /**
+   * Sends message to the sibling instances of this service.
+   * <p>
+   * The topic ID of the sent {@link GtMessage} will the the {@link #serviceId()} of this service. The message ID and
+   * the arguments are determined and are specific to this service.
+   * <p>
+   * Siblings are instances of this service running in other CoreAPI of the same server. For local backends service does
+   * not have any siblings.
+   *
+   * @param aMessageId String - the message ID (an IDpath)
+   * @param aArgs {@link IOptionSet} - the message arguments
+   * @throws TsNullArgumentRtException any argument = <code>null</code>
+   * @throws TsIllegalArgumentRtException message ID is not an IDpath
+   */
+  final public void sendMessageToSiblings( String aMessageId, IOptionSet aArgs ) {
+    GtMessage msg = new GtMessage( serviceId, aMessageId, aArgs );
+    coreApi.backend().sendBackendMessage( msg );
   }
 
   // ------------------------------------------------------------------------------------
@@ -226,14 +246,14 @@ public abstract class AbstractSkService
   }
 
   /**
-   * Handles mesaage from backend.
+   * Handles message from backend.
    * <p>
    * Method simple checks if topic is of this service and passes message to the implementation as
    * {@link GenericMessage}, that is the message without topic.
    *
    * @param aMessage {@link GtMessage} - the message from backend
    */
-  public final void papiOnBackendMessage( GtMessage aMessage ) {
+  final public void papiOnBackendMessage( GtMessage aMessage ) {
     if( !aMessage.topicId().equals( serviceId ) ) {
       logger().warning( FMT_WARN_INV_SERVICE_GT_MSG, serviceId, aMessage.topicId() );
       return;
@@ -370,20 +390,17 @@ public abstract class AbstractSkService
   }
 
   /**
-   * TODO:
+   * Implementation may perform actions when backend activity state changes.
+   * <p>
+   * This method is meaningful only for backend which may became temporarily inactive while Sk-connection remains open.
+   * For example, when connection to the server is temporarily lost. Most local backends (which uses file storage in
+   * local file system) this method is never called because they are always active.
+   * <p>
+   * Base implementatation does nothing, there is no need to call superclass method when overriding.
    *
-   * @param aIsActive
+   * @param aIsActive boolean - backend activity state
    */
   protected void onBackendActiveStateChanged( boolean aIsActive ) {
-    // nop
-  }
-
-  /**
-   * Subclass may process backend state change.
-   *
-   * @param aActive boolean - the backens activity state
-   */
-  protected void doWhenBackendStateChanged( boolean aActive ) {
     // nop
   }
 
