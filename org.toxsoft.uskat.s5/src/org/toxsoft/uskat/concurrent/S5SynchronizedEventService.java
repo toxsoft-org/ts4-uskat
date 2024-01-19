@@ -1,14 +1,12 @@
 package org.toxsoft.uskat.concurrent;
 
-import java.util.concurrent.locks.ReentrantReadWriteLock;
+import java.util.concurrent.locks.*;
 
-import org.toxsoft.core.tslib.bricks.time.ITimeInterval;
-import org.toxsoft.core.tslib.bricks.time.ITimedList;
-import org.toxsoft.core.tslib.coll.IMapEdit;
-import org.toxsoft.core.tslib.coll.impl.ElemMap;
+import org.toxsoft.core.tslib.bricks.time.*;
+import org.toxsoft.core.tslib.coll.*;
+import org.toxsoft.core.tslib.coll.impl.*;
 import org.toxsoft.core.tslib.gw.gwid.*;
-import org.toxsoft.core.tslib.utils.errors.TsItemNotFoundRtException;
-import org.toxsoft.core.tslib.utils.errors.TsNullArgumentRtException;
+import org.toxsoft.core.tslib.utils.errors.*;
 import org.toxsoft.uskat.core.api.evserv.*;
 
 /**
@@ -64,6 +62,17 @@ public final class S5SynchronizedEventService
     lockWrite( this );
     try {
       target().fireEvent( aEvent );
+    }
+    finally {
+      unlockWrite( this );
+    }
+  }
+
+  @Override
+  public void fireEvents( IList<SkEvent> aEvents ) {
+    lockWrite( this );
+    try {
+      target().fireEvents( aEvents );
     }
     finally {
       unlockWrite( this );

@@ -23,7 +23,7 @@ public final class DtoLinkRev
   private static final long serialVersionUID = 157157L;
 
   /**
-   * Keeper singlton.
+   * Keeper singleton.
    */
   public static final IEntityKeeper<IDtoLinkRev> KEEPER =
       new AbstractEntityKeeper<>( IDtoLinkRev.class, EEncloseMode.ENCLOSES_BASE_CLASS, null ) {
