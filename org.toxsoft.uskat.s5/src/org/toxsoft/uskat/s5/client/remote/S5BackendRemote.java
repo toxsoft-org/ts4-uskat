@@ -69,9 +69,13 @@ public final class S5BackendRemote
     connection = new S5Connection( sessionID(), classLoader(), frontend(), frontendLock() );
     connection.addConnectionListener( this );
     // Слушаем сообщения фроненда и передаем их бекенду через pas-канал
-    eventer().addListener( aMessage -> {
-      // Передача сообщения серверу
-      S5CallbackOnFrontendMessage.send( connection.callbackTxChannel(), aMessage );
+    broadcastEventer().addListener( aMessage -> {
+      // Передача сообщения серверу. aBroadcast = true
+      S5CallbackOnFrontendMessage.send( connection.callbackTxChannel(), aMessage, true );
+    } );
+    frontendEventer().addListener( aMessage -> {
+      // Передача сообщения серверу. aBroadcast = false
+      S5CallbackOnFrontendMessage.send( connection.callbackTxChannel(), aMessage, false );
     } );
     // Соединение открывается в doInitialize
   }

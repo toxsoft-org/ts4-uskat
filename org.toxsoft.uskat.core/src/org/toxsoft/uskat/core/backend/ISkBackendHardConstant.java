@@ -23,7 +23,7 @@ public interface ISkBackendHardConstant {
   String SKB_ID  = SK_ID + ".backend"; //$NON-NLS-1$
   String SKBI_ID = SKB_ID + ".info";   //$NON-NLS-1$
 
-  int DEFAULT_MAX_CLOB_LENGTH = 100_000;
+  int DEFAULT_MAX_CLOB_LENGTH = 10_000_000;
 
   // ------------------------------------------------------------------------------------
   // ISkBackendInfo

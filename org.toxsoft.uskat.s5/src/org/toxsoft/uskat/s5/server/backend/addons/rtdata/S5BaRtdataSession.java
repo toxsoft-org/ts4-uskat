@@ -97,7 +97,7 @@ public class S5BaRtdataSession
         Boolean.valueOf( readPresent ), Boolean.valueOf( writePresent ), testValue );
 
     // Регистрация слушателя событий от фронтенда
-    frontend().gtMessageEventer().addListener( aMessage -> {
+    frontend().frontendEventer().addListener( aMessage -> {
       // Получение значений текущих данных от фронтенда для записи в бекенда
       if( aMessage.messageId().equals( BaMsgRtdataCurrData.MSG_ID ) ) {
         IMap<Gwid, IAtomicValue> values = BaMsgRtdataCurrData.INSTANCE.getNewValues( aMessage );

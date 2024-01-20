@@ -9,8 +9,7 @@ import org.toxsoft.core.tslib.bricks.strid.impl.StridUtils;
 import org.toxsoft.core.tslib.bricks.validator.ValidationResult;
 import org.toxsoft.core.tslib.gw.gwid.Gwid;
 import org.toxsoft.core.tslib.gw.skid.Skid;
-import org.toxsoft.core.tslib.utils.errors.TsIllegalStateRtException;
-import org.toxsoft.core.tslib.utils.errors.TsNullArgumentRtException;
+import org.toxsoft.core.tslib.utils.errors.*;
 import org.toxsoft.core.tslib.utils.logs.impl.LoggerUtils;
 import org.toxsoft.uskat.core.ISkHardConstants;
 import org.toxsoft.uskat.core.api.ISkService;
@@ -173,7 +172,6 @@ public abstract class AbstractSkService
   }
 
   /**
-   * Throws and exception if the calling thread is not a API-thread.
    *
    * @throws TsIllegalStateRtException invalid thread access
    */
@@ -184,12 +182,32 @@ public abstract class AbstractSkService
   }
 
   /**
-   * Returns the inidividual logger for this service.
+   * Returns the inidividual logger for this service. ======= Returns the individual logger for this service. >>>>>>>
+   * refs/heads/main
    *
    * @return {@link CoreLogger} - service logger
    */
   final public CoreLogger logger() {
     return logger;
+  }
+
+  /**
+   * Sends message to the sibling instances of this service.
+   * <p>
+   * The topic ID of the sent {@link GtMessage} must the the {@link #serviceId()} of this service. The message ID and
+   * the arguments are determined and are specific to this service.
+   * <p>
+   * Siblings are instances of this service running in other CoreAPI of the same server. For local backends service does
+   * not have any siblings.
+   *
+   * @param aMessage String - the message to send
+   * @throws TsNullArgumentRtException any argument = <code>null</code>
+   * @throws TsIllegalArgumentRtException message ID {@link GtMessage#messageId()} is not equal to {@link #serviceId()}
+   */
+  final public void sendMessageToSiblings( GtMessage aMessage ) {
+    TsNullArgumentRtException.checkNull( aMessage );
+    TsIllegalArgumentRtException.checkFalse( aMessage.messageId().equals( serviceId() ) );
+    coreApi.backend().sendBackendMessage( aMessage );
   }
 
   // ------------------------------------------------------------------------------------
@@ -244,14 +262,14 @@ public abstract class AbstractSkService
   }
 
   /**
-   * Handles mesaage from backend.
+   * Handles message from backend.
    * <p>
    * Method simple checks if topic is of this service and passes message to the implementation as
    * {@link GenericMessage}, that is the message without topic.
    *
    * @param aMessage {@link GtMessage} - the message from backend
    */
-  public final void papiOnBackendMessage( GtMessage aMessage ) {
+  final public void papiOnBackendMessage( GtMessage aMessage ) {
     if( !aMessage.topicId().equals( serviceId ) ) {
       logger().warning( FMT_WARN_INV_SERVICE_GT_MSG, serviceId, aMessage.topicId() );
       return;
@@ -376,8 +394,7 @@ public abstract class AbstractSkService
   /**
    * Subclass may handle message from the backend.
    * <p>
-   * Base inmplementation simply returns <code>false</code>. When overridoing there is no need to call superclass
-   * method.
+   * Base implementation simply returns <code>false</code>. When overriding there is no need to call superclass method.
    * <p>
    * If method returns <code>false</code> caller base class will log an "unhandled message" warning.
    *
@@ -389,20 +406,17 @@ public abstract class AbstractSkService
   }
 
   /**
-   * TODO:
+   * Implementation may perform actions when backend activity state changes.
+   * <p>
+   * This method is meaningful only for backend which may became temporarily inactive while Sk-connection remains open.
+   * For example, when connection to the server is temporarily lost. Most local backends (which uses file storage in
+   * local file system) this method is never called because they are always active.
+   * <p>
+   * Base implementatation does nothing, there is no need to call superclass method when overriding. <<<<<<< HEAD
    *
-   * @param aIsActive - the backens activity state
+   * @param aIsActive boolean - backend activity state >>>>>>> refs/heads/main
    */
   protected void onBackendActiveStateChanged( boolean aIsActive ) {
-    // nop
-  }
-
-  /**
-   * Subclass may process backend state change.
-   *
-   * @param aActive boolean - the backens activity state
-   */
-  protected void doWhenBackendStateChanged( boolean aActive ) {
     // nop
   }
 
