@@ -85,7 +85,7 @@ public abstract class S5CallbackOnFrontendMessage
     String topicId = aNotification.params().getByKey( MSG_TOPIC ).asString();
     String msgId = aNotification.params().getByKey( MSG_ID ).asString();
     IOptionSet msgArgs = OptionSetKeeper.KEEPER.str2ent( aNotification.params().getByKey( MSG_ARGS ).asString() );
-    boolean broadcast = (aNotification.params().getByKey( MSG_ID ).asNumber().intValue() > 0);
+    boolean broadcast = (aNotification.params().getByKey( MSG_BROADCAST ).asNumber().intValue() > 0);
     // Передача сообщения на обработку
     onFrontendMessage( new GtMessage( topicId, msgId, msgArgs ), broadcast );
   }
