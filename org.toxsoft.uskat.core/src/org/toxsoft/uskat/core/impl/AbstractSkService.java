@@ -2,7 +2,6 @@ package org.toxsoft.uskat.core.impl;
 
 import static org.toxsoft.uskat.core.impl.ISkResources.*;
 
-import org.toxsoft.core.tslib.av.opset.*;
 import org.toxsoft.core.tslib.bricks.ctx.*;
 import org.toxsoft.core.tslib.bricks.events.msg.*;
 import org.toxsoft.core.tslib.bricks.strid.impl.*;
@@ -178,20 +177,20 @@ public abstract class AbstractSkService
   /**
    * Sends message to the sibling instances of this service.
    * <p>
-   * The topic ID of the sent {@link GtMessage} will the the {@link #serviceId()} of this service. The message ID and
+   * The topic ID of the sent {@link GtMessage} must the the {@link #serviceId()} of this service. The message ID and
    * the arguments are determined and are specific to this service.
    * <p>
    * Siblings are instances of this service running in other CoreAPI of the same server. For local backends service does
    * not have any siblings.
    *
-   * @param aMessageId String - the message ID (an IDpath)
-   * @param aArgs {@link IOptionSet} - the message arguments
+   * @param aMessage String - the message to send
    * @throws TsNullArgumentRtException any argument = <code>null</code>
-   * @throws TsIllegalArgumentRtException message ID is not an IDpath
+   * @throws TsIllegalArgumentRtException message ID {@link GtMessage#messageId()} is not equal to {@link #serviceId()}
    */
-  final public void sendMessageToSiblings( String aMessageId, IOptionSet aArgs ) {
-    GtMessage msg = new GtMessage( serviceId, aMessageId, aArgs );
-    coreApi.backend().sendBackendMessage( msg );
+  final public void sendMessageToSiblings( GtMessage aMessage ) {
+    TsNullArgumentRtException.checkNull( aMessage );
+    TsIllegalArgumentRtException.checkFalse( aMessage.messageId().equals( serviceId() ) );
+    coreApi.backend().sendBackendMessage( aMessage );
   }
 
   // ------------------------------------------------------------------------------------

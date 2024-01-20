@@ -25,7 +25,7 @@ public class BaMsgClobsChanged
    */
   public static final BaMsgClobsChanged BUILDER = new BaMsgClobsChanged();
 
-  private static final String ARGID_CLOB_GWID = "CrudOp"; //$NON-NLS-1$
+  private static final String ARGID_CLOB_GWID = "ClobGwid"; //$NON-NLS-1$
 
   private BaMsgClobsChanged() {
     super( ISkClobService.SERVICE_ID, MSG_ID );
