@@ -27,6 +27,7 @@ import org.toxsoft.core.tslib.av.opset.IOptionSet;
 import org.toxsoft.core.tslib.av.opset.IOptionSetEdit;
 import org.toxsoft.core.tslib.av.opset.impl.OptionSet;
 import org.toxsoft.core.tslib.bricks.ctx.ITsContextRo;
+import org.toxsoft.core.tslib.bricks.events.msg.GtMessage;
 import org.toxsoft.core.tslib.bricks.strid.coll.IStridablesList;
 import org.toxsoft.core.tslib.bricks.time.impl.TimeUtils;
 import org.toxsoft.core.tslib.bricks.time.impl.TimedList;
@@ -690,6 +691,13 @@ public class S5BackendSession
     catch( Exception ex ) {
       throw new TsIllegalArgumentRtException( ex, ex.getMessage() );
     }
+  }
+
+  @Override
+  public void sendBackendMessage( GtMessage aMessage ) {
+    TsNullArgumentRtException.checkNull( aMessage );
+    // Метод вызывается через PAS-канал
+    throw new TsUnsupportedFeatureRtException();
   }
 
   // ------------------------------------------------------------------------------------
