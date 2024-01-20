@@ -42,8 +42,9 @@ public class S5SessionMessenger
   private final IS5BackendCoreSingleton backendCoreSingleton;
   private volatile S5SessionData        sessionData;
   private S5SessionCallbackChannel      channel;
-  private final GtMessageEventer        eventer = new GtMessageEventer();
-  private final ILogger                 logger  = getLogger( getClass() );
+  private final GtMessageEventer        broadcastEventer = new GtMessageEventer();
+  private final GtMessageEventer        frontendEventer  = new GtMessageEventer();
+  private final ILogger                 logger           = getLogger( getClass() );
 
   /**
    * Менеджер сессий
@@ -131,11 +132,15 @@ public class S5SessionMessenger
         new S5CallbackOnFrontendMessage() {
 
           @Override
-          protected void onFrontendMessage( GtMessage aMessage ) {
+          protected void onFrontendMessage( GtMessage aMessage, boolean aBroadcast ) {
             logger.info( "onFrontendMessage recevied: %s", aMessage ); //$NON-NLS-1$
             // // TODO: 2023-11-18 mvkd
             S5SessionInfo.onReceviedEvent( statistics() );
-            eventer.sendMessage( aMessage );
+            if( aBroadcast ) {
+              broadcastEventer.sendMessage( aMessage );
+              return;
+            }
+            frontendEventer.sendMessage( aMessage );
           }
         } );
 
@@ -202,8 +207,13 @@ public class S5SessionMessenger
   }
 
   @Override
-  public IGtMessageEventer gtMessageEventer() {
-    return eventer;
+  public IGtMessageEventer broadcastEventer() {
+    return broadcastEventer;
+  }
+
+  @Override
+  public IGtMessageEventer frontendEventer() {
+    return frontendEventer;
   }
 
   // ------------------------------------------------------------------------------------

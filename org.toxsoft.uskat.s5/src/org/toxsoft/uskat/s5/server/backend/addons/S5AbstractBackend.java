@@ -96,9 +96,14 @@ public abstract class S5AbstractBackend<ADDON extends IS5BackendAddon>
   private final IS5FrontendRear frontendRear;
 
   /**
+   * Механизм широковещательной рассылки сообщений от фронтенда к бекенду и всем фронтендам
+   */
+  private final GtMessageEventer broadcastEventer = new GtMessageEventer();
+
+  /**
    * Механизм формирования сообщений от фронтенда к бекенду
    */
-  private final GtMessageEventer eventer = new GtMessageEventer();
+  private final GtMessageEventer frontendEventer = new GtMessageEventer();
 
   /**
    * Блокировка доступа к frontendRear
@@ -231,8 +236,13 @@ public abstract class S5AbstractBackend<ADDON extends IS5BackendAddon>
       }
 
       @Override
-      public IGtMessageEventer gtMessageEventer() {
-        return eventer;
+      public IGtMessageEventer broadcastEventer() {
+        return broadcastEventer;
+      }
+
+      @Override
+      public IGtMessageEventer frontendEventer() {
+        return frontendEventer;
       }
 
     };
@@ -360,7 +370,13 @@ public abstract class S5AbstractBackend<ADDON extends IS5BackendAddon>
   @Override
   public final void sendBackendMessage( GtMessage aMessage ) {
     TsNullArgumentRtException.checkNull( aMessage );
-    eventer.sendMessage( aMessage );
+    broadcastEventer.sendMessage( aMessage );
+  }
+
+  @Override
+  public final void onFrontendMessage( GtMessage aMessage ) {
+    TsNullArgumentRtException.checkNull( aMessage );
+    frontendEventer.sendMessage( aMessage );
   }
 
   // ------------------------------------------------------------------------------------
@@ -562,12 +578,21 @@ public abstract class S5AbstractBackend<ADDON extends IS5BackendAddon>
   }
 
   /**
+   * Возвращает механизм широковещательной рассылки сообщений от фронтенда к бекенду и всем фронтендам
+   *
+   * @return {@link GtMessageEventer} механизм сообщений
+   */
+  protected final IGtMessageEventer broadcastEventer() {
+    return broadcastEventer;
+  }
+
+  /**
    * Возвращает механизм передачи сообщений от фронтенда к бекенду
    *
    * @return {@link GtMessageEventer} механизм сообщений
    */
-  protected final IGtMessageEventer eventer() {
-    return eventer;
+  protected final IGtMessageEventer frontendEventer() {
+    return frontendEventer;
   }
 
   /**

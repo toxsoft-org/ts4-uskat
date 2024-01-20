@@ -413,6 +413,11 @@ public class S5BackendSession
           logger().error( e, ERR_UNEXPECTED_EXTENSION_INIT, addonId, cause( e ) );
         }
       }
+      // Получение и обработка широковещательных сообщений бекенда от фронтенда
+      messenger.broadcastEventer().addListener( aMessage -> {
+        backendCoreSingleton.onBroadcastMessage( aMessage );
+      } );
+
       // 2021-04-10 mvk
       // Сохранение информации о пользователе в кэше
       sessionManager.createRemoteSession( session );

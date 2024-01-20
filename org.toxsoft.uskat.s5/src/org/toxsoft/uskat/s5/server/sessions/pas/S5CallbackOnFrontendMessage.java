@@ -44,6 +44,11 @@ public abstract class S5CallbackOnFrontendMessage
    */
   private static final String MSG_ARGS = "args"; //$NON-NLS-1$
 
+  /**
+   * Признак широковещаетельного сообщения
+   */
+  private static final String MSG_BROADCAST = "broadcast"; //$NON-NLS-1$
+
   // ------------------------------------------------------------------------------------
   // Открытые методы
   //
@@ -52,14 +57,17 @@ public abstract class S5CallbackOnFrontendMessage
    *
    * @param aChannel {@link IPasTxChannel} канал передачи
    * @param aMessage {@link GtMessage} сообщение.
+   * @param aBroadcast boolean <b>true</b> широковещательное сообщение (бекенду и фронтендам). <b>false</b> только
+   *          бекенду
    * @throws TsNullArgumentRtException любой аргумент = null
    */
-  public static void send( IPasTxChannel aChannel, GtMessage aMessage ) {
+  public static void send( IPasTxChannel aChannel, GtMessage aMessage, boolean aBroadcast ) {
     TsNullArgumentRtException.checkNulls( aChannel, aMessage );
     IStringMapEdit<ITjValue> notifyParams = new StringMap<>();
     notifyParams.put( MSG_TOPIC, createString( aMessage.topicId() ) );
     notifyParams.put( MSG_ID, createString( aMessage.messageId() ) );
     notifyParams.put( MSG_ARGS, createString( OptionSetKeeper.KEEPER.ent2str( aMessage.args() ) ) );
+    notifyParams.put( MSG_BROADCAST, createNumber( aBroadcast ? 1 : 0 ) );
     // Передача по каналу
     aChannel.sendNotification( ON_MESSAGE_METHOD, notifyParams );
   }
@@ -77,14 +85,15 @@ public abstract class S5CallbackOnFrontendMessage
     String topicId = aNotification.params().getByKey( MSG_TOPIC ).asString();
     String msgId = aNotification.params().getByKey( MSG_ID ).asString();
     IOptionSet msgArgs = OptionSetKeeper.KEEPER.str2ent( aNotification.params().getByKey( MSG_ARGS ).asString() );
+    boolean broadcast = (aNotification.params().getByKey( MSG_ID ).asNumber().intValue() > 0);
     // Передача сообщения на обработку
-    onFrontendMessage( new GtMessage( topicId, msgId, msgArgs ) );
+    onFrontendMessage( new GtMessage( topicId, msgId, msgArgs ), broadcast );
   }
 
   // ------------------------------------------------------------------------------------
   // Абстрактные методы для реализации наследником
   //
-  protected abstract void onFrontendMessage( GtMessage aMessage );
+  protected abstract void onFrontendMessage( GtMessage aMessage, boolean aBroadcast );
 
   // ------------------------------------------------------------------------------------
   // Внутренние методы

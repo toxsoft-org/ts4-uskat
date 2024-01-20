@@ -3,6 +3,7 @@ package org.toxsoft.uskat.s5.server.backend;
 import javax.ejb.Local;
 import javax.persistence.EntityManagerFactory;
 
+import org.toxsoft.core.tslib.bricks.events.msg.GtMessage;
 import org.toxsoft.core.tslib.utils.errors.TsIllegalArgumentRtException;
 import org.toxsoft.core.tslib.utils.errors.TsNullArgumentRtException;
 import org.toxsoft.uskat.core.backend.ISkBackend;
@@ -136,4 +137,12 @@ public interface IS5BackendCoreSingleton
    * @throws TsNullArgumentRtException аргумент = null
    */
   void removeBackendCoreInterceptor( IS5BackendCoreInterceptor aInterceptor );
+
+  /**
+   * Принять и обработать широковещаетльное сообщение.
+   *
+   * @param aMessage {@link GtMessage} - сообщение
+   * @throws TsNullArgumentRtException аргумент = null
+   */
+  void onBroadcastMessage( GtMessage aMessage );
 }

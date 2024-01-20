@@ -89,10 +89,10 @@ class S5BaRtdataRemote
       }
     }
     if( currDataMessage != null ) {
-      owner().sendBackendMessage( currDataMessage );
+      owner().onFrontendMessage( currDataMessage );
     }
     if( histDataMessage != null ) {
-      owner().sendBackendMessage( histDataMessage );
+      owner().onFrontendMessage( histDataMessage );
     }
   }
 

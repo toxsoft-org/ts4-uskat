@@ -63,7 +63,7 @@ class S5BaRtdataLocal
     // Установка конфигурации фронтенда
     frontend().frontendData().setBackendAddonData( IBaRtdata.ADDON_ID, baData );
     // Регистрация слушателя событий от фронтенда
-    frontend().gtMessageEventer().addListener( aMessage -> {
+    frontend().frontendEventer().addListener( aMessage -> {
       // Получение значений текущих данных от фронтенда для записи в бекенда
       if( aMessage.messageId().equals( BaMsgRtdataCurrData.MSG_ID ) ) {
         IMap<Gwid, IAtomicValue> values = BaMsgRtdataCurrData.INSTANCE.getNewValues( aMessage );
@@ -120,10 +120,10 @@ class S5BaRtdataLocal
       }
     }
     if( currDataMessage != null ) {
-      owner().sendBackendMessage( currDataMessage );
+      owner().onFrontendMessage( currDataMessage );
     }
     if( histDataMessage != null ) {
-      owner().sendBackendMessage( histDataMessage );
+      owner().onFrontendMessage( histDataMessage );
     }
   }
 

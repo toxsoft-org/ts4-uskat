@@ -18,7 +18,7 @@ import org.toxsoft.uskat.s5.common.sessions.ISkSession;
  * @author mvk
  */
 public interface IS5FrontendRear
-    extends ISkFrontendRear, IGtMessageEventCapable {
+    extends ISkFrontendRear {
 
   /**
    * Несуществующий фронтенд
@@ -45,6 +45,20 @@ public interface IS5FrontendRear
    * @return {@link IS5FrontendData} данные фронтенда
    */
   IS5FrontendData frontendData();
+
+  /**
+   * Возвращает механизм широковещательной рассылки сообщений от фронтенда к бекенду и всем фронтендам
+   *
+   * @return {@link IGtMessageEventer} - механизм рассылки
+   */
+  IGtMessageEventer broadcastEventer();
+
+  /**
+   * Возвращает механизм рассылки сообщений от фронтенда бекенду
+   *
+   * @return {@link IGtMessageEventer} - механизм рассылки
+   */
+  IGtMessageEventer frontendEventer();
 }
 
 /**
@@ -56,7 +70,8 @@ class InternalNullFrontendRear
   private static final long serialVersionUID = 157157L;
 
   private transient S5FrontendData    frontendData;
-  private transient IGtMessageEventer eventer;
+  private transient IGtMessageEventer siblingsEventer;
+  private transient IGtMessageEventer frontendEventer;
 
   /**
    * Метод корректно восстанавливает сериализированный {@link IS5FrontendRear#NULL}.
@@ -97,11 +112,19 @@ class InternalNullFrontendRear
   }
 
   @Override
-  public IGtMessageEventer gtMessageEventer() {
-    if( eventer == null ) {
-      eventer = new GtMessageEventer();
+  public IGtMessageEventer broadcastEventer() {
+    if( siblingsEventer == null ) {
+      siblingsEventer = new GtMessageEventer();
     }
-    return eventer;
+    return siblingsEventer;
+  }
+
+  @Override
+  public IGtMessageEventer frontendEventer() {
+    if( frontendEventer == null ) {
+      frontendEventer = new GtMessageEventer();
+    }
+    return frontendEventer;
   }
 
   // ------------------------------------------------------------------------------------

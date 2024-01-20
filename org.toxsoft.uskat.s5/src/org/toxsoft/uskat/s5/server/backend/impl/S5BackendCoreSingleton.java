@@ -20,6 +20,7 @@ import javax.sql.DataSource;
 
 import org.toxsoft.core.tslib.av.IAtomicValue;
 import org.toxsoft.core.tslib.av.opset.IOptionSet;
+import org.toxsoft.core.tslib.bricks.events.msg.GtMessage;
 import org.toxsoft.core.tslib.coll.IList;
 import org.toxsoft.core.tslib.coll.primtypes.IStringList;
 import org.toxsoft.core.tslib.coll.primtypes.IStringMapEdit;
@@ -421,6 +422,16 @@ public class S5BackendCoreSingleton
   public void removeBackendCoreInterceptor( IS5BackendCoreInterceptor aInterceptor ) {
     TsNullArgumentRtException.checkNull( aInterceptor );
     interceptors.remove( aInterceptor );
+  }
+
+  @Override
+  @TransactionAttribute( TransactionAttributeType.SUPPORTS )
+  public void onBroadcastMessage( GtMessage aMessage ) {
+    TsNullArgumentRtException.checkNull( aMessage );
+    // Передача широковещательного сообщения всем фронтендам
+    for( IS5FrontendRear frontend : attachedFrontends() ) {
+      frontend.onBackendMessage( aMessage );
+    }
   }
 
   // ------------------------------------------------------------------------------------
