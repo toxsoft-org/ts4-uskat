@@ -105,7 +105,9 @@ public class SkCoreServGwids
       }
     }
     // tested GWID is not subclass of the general GWID - return false
-    if( sysdescr().hierarchy().isAssignableFrom( aGeneral.classId(), aTested.classId() ) ) {
+    // TODO: mvk ---+++
+    // if( sysdescr().hierarchy().isAssignableFrom( aGeneral.classId(), aTested.classId() ) ) {
+    if( !sysdescr().hierarchy().isAssignableFrom( aGeneral.classId(), aTested.classId() ) ) {
       return false;
     }
     // if property ID is specified then check for it
