@@ -63,7 +63,7 @@ public interface IS5ServerHardConstants
   TsVersion version = new TsVersion( 4, 22, 2024, Month.JANUARY, 22 );
 
   // ------------------------------------------------------------------------------------
-  // Опции s5-backend
+  // Опции s5-backend.
   //
   /**
    * IDpath prefix of the all s5 identifiers.
