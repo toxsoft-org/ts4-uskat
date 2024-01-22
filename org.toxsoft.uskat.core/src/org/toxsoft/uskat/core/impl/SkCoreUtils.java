@@ -43,15 +43,15 @@ public class SkCoreUtils {
    * Initializes static stuff, must be called once before any USkat usage.
    */
   public static void initialize() {
-    TsValobjUtils.registerKeeper( SkEvent.KEEPER_ID, SkEvent.KEEPER );
-    TsValobjUtils.registerKeeper( SkEventList.KEEPER_ID, SkEventList.KEEPER );
-    TsValobjUtils.registerKeeper( ESkQueryState.KEEPER_ID, ESkQueryState.KEEPER );
-    TsValobjUtils.registerKeeper( SkCommandState.KEEPER_ID, SkCommandState.KEEPER );
-    TsValobjUtils.registerKeeper( DtoCommandStateChangeInfo.KEEPER_ID, DtoCommandStateChangeInfo.KEEPER );
-    TsValobjUtils.registerKeeper( DtoCommand.KEEPER_ID, DtoCommand.KEEPER );
-    TsValobjUtils.registerKeeper( DtoCompletedCommand.KEEPER_ID, DtoCompletedCommand.KEEPER );
-    TsValobjUtils.registerKeeper( ESkAuthentificationType.KEEPER_ID, ESkAuthentificationType.KEEPER );
-    TsValobjUtils.registerKeeper( SkLoggedUserInfo.KEEPER_ID, SkLoggedUserInfo.KEEPER );
+    TsValobjUtils.registerKeeperIfNone( SkEvent.KEEPER_ID, SkEvent.KEEPER );
+    TsValobjUtils.registerKeeperIfNone( SkEventList.KEEPER_ID, SkEventList.KEEPER );
+    TsValobjUtils.registerKeeperIfNone( ESkQueryState.KEEPER_ID, ESkQueryState.KEEPER );
+    TsValobjUtils.registerKeeperIfNone( SkCommandState.KEEPER_ID, SkCommandState.KEEPER );
+    TsValobjUtils.registerKeeperIfNone( DtoCommandStateChangeInfo.KEEPER_ID, DtoCommandStateChangeInfo.KEEPER );
+    TsValobjUtils.registerKeeperIfNone( DtoCommand.KEEPER_ID, DtoCommand.KEEPER );
+    TsValobjUtils.registerKeeperIfNone( DtoCompletedCommand.KEEPER_ID, DtoCompletedCommand.KEEPER );
+    TsValobjUtils.registerKeeperIfNone( ESkAuthentificationType.KEEPER_ID, ESkAuthentificationType.KEEPER );
+    TsValobjUtils.registerKeeperIfNone( SkLoggedUserInfo.KEEPER_ID, SkLoggedUserInfo.KEEPER );
   }
 
   /**
