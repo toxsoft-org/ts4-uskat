@@ -175,169 +175,157 @@ public class AdminCmdRead
   @Override
   public void doExec( IStringMap<IPlexyValue> aArgValues, IAdminCmdCallback aCallback ) {
     connection = (ISkConnection)argSingleRef( CTX_SK_CONNECTION );
+    connection.addConnectionListener( connectionListener );
+    callback = aCallback;
+    ISkCoreApi coreApi = connection.coreApi();
+    String classId = argSingleValue( ARG_CLASSID ).asString();
+    String objStrid = argSingleValue( ARG_STRID ).asString();
+    String dataId = argSingleValue( ARG_DATAID ).asString();
+    if( objStrid.equals( EMPTY_STRING ) ) {
+      objStrid = MULTI;
+    }
+    if( dataId.equals( EMPTY_STRING ) ) {
+      dataId = MULTI;
+    }
+    boolean close = argSingleValue( ARG_READ_CLOSE ).asBool();
+    IAtomicValue readStartTime = argSingleValue( ARG_READ_START_TIME );
+    IAtomicValue readEndTime = argSingleValue( ARG_READ_END_TIME );
+    IAtomicValue readType = argSingleValue( ARG_READ_TYPE );
+    IAtomicValue readTimeout = argSingleValue( ARG_READ_TIMEOUT );
+    if( !readTimeout.isAssigned() ) {
+      readTimeout = avInt( 10000 );
+    }
+    // Служба текущих данных
+    ISkRtdataService currdata = coreApi.rtdService();
+    // Регистрация(перегистрация слушателя) текущих данных
+    currdata.eventer().addListener( cdListener );
+    // Каналы уже открытые на текущем соединении
+    IMapEdit<Gwid, ISkReadCurrDataChannel> channels = cdChannels.findByKey( connection );
+    if( channels == null ) {
+      channels = new ElemMap<>();
+      cdChannels.put( connection, channels );
+      cdGwids.put( connection, new ElemArrayList<>( false ) );
+    }
     try {
-      connection.addConnectionListener( connectionListener );
-      callback = aCallback;
-      ISkCoreApi coreApi = connection.coreApi();
-      String classId = argSingleValue( ARG_CLASSID ).asString();
-      String objStrid = argSingleValue( ARG_STRID ).asString();
-      String dataId = argSingleValue( ARG_DATAID ).asString();
-      if( objStrid.equals( EMPTY_STRING ) ) {
-        objStrid = MULTI;
-      }
-      if( dataId.equals( EMPTY_STRING ) ) {
-        dataId = MULTI;
-      }
-      boolean close = argSingleValue( ARG_READ_CLOSE ).asBool();
-      IAtomicValue readStartTime = argSingleValue( ARG_READ_START_TIME );
-      IAtomicValue readEndTime = argSingleValue( ARG_READ_END_TIME );
-      IAtomicValue readType = argSingleValue( ARG_READ_TYPE );
-      IAtomicValue readTimeout = argSingleValue( ARG_READ_TIMEOUT );
-      if( !readTimeout.isAssigned() ) {
-        readTimeout = avInt( 10000 );
-      }
-      // Служба текущих данных
-      ISkRtdataService currdata = coreApi.rtdService();
-      // Регистрация(перегистрация слушателя) текущих данных
-      currdata.eventer().addListener( cdListener );
-      // Каналы уже открытые на текущем соединении
-      IMapEdit<Gwid, ISkReadCurrDataChannel> channels = cdChannels.findByKey( connection );
-      if( channels == null ) {
-        channels = new ElemMap<>();
-        cdChannels.put( connection, channels );
-        cdGwids.put( connection, new ElemArrayList<>( false ) );
-      }
-      try {
-        if( classId.equals( EMPTY_STRING ) ) {
-          if( !close ) {
-            // Нет команды
-            IPlexyValue pxValue = pvSingleRef( IAtomicValue.NULL );
-            setContextParamValue( CTX_SK_ATOMIC_VALUE, pxValue );
-            resultOk( pxValue );
-            return;
-          }
-          // Закрываются все каналы
-          long startTime = System.currentTimeMillis();
-          // Время в текстовом виде
-          String time = TimeUtils.timestampToString( startTime );
-          // Значение текущего данного прочитанное из последнего канала
-          IAtomicValue value = IAtomicValue.NULL;
-          // Чтение каналов
-          addResultInfo( "\n" + MSG_CMD_READ, time, Integer.valueOf( channels.size() ) ); //$NON-NLS-1$
-          for( ISkReadCurrDataChannel channel : channels ) {
-            value = channel.getValue();
-            addResultInfo( "\n" + MSG_CMD_READ_VALUE, time, channel.gwid(), value ); //$NON-NLS-1$
-            channel.close();
-          }
-          cdChannels.removeByKey( connection );
-          cdGwids.removeByKey( connection );
-          IPlexyValue pxValue = pvSingleRef( value );
+      if( classId.equals( EMPTY_STRING ) ) {
+        if( !close ) {
+          // Нет команды
+          IPlexyValue pxValue = pvSingleRef( IAtomicValue.NULL );
           setContextParamValue( CTX_SK_ATOMIC_VALUE, pxValue );
           resultOk( pxValue );
           return;
         }
-        // Получение идентификаторов текущих данных. currdata = true, histdata = false
-        IList<Gwid> gwids = getDataGwids( coreApi, classId, objStrid, dataId, true, false );
-
-        if( readStartTime.isAssigned() ) {
-          if( !readEndTime.isAssigned() ) {
-            readEndTime = avTimestamp( System.currentTimeMillis() );
-          }
-          if( !readType.isAssigned() ) {
-            readType = avStr( EQueryIntervalType.CSCE.id() );
-          }
-          // Чтение хранимых данных
-          IOptionSetEdit options = new OptionSet();
-          // 2022-09-19 mvk ---
-          // options.setValue( ISkRtdataHardConstants.OP_SK_HDQUERY_CHECK_VALID_GWIDS, avBool( false ) );
-          options.setValue( ISkHistoryQueryServiceConstants.OP_SK_MAX_EXECUTION_TIME, readTimeout );
-
-          // Служба запросов данных
-          ISkHistoryQueryService histdata = coreApi.hqService();
-
-          ISkQueryRawHistory query = histdata.createHistoricQuery( options );
-          try {
-            query.genericChangeEventer().addListener( new AdminHistDataQueryChangeListener( query, callback ) );
-            query.prepare( new GwidList( gwids ) );
-            synchronized (query) {
-              EQueryIntervalType rt = EQueryIntervalType.findById( readType.asString() );
-              long st = readStartTime.asLong();
-              long et = readEndTime.asLong();
-              query.exec( new QueryInterval( rt, st, et ) );
-              query.wait( readTimeout.asLong() );
-            }
-          }
-          finally {
-            query.close();
-          }
-        }
-        // Время начала чтения значений
+        // Закрываются все каналы
         long startTime = System.currentTimeMillis();
         // Время в текстовом виде
         String time = TimeUtils.timestampToString( startTime );
         // Значение текущего данного прочитанное из последнего канала
         IAtomicValue value = IAtomicValue.NULL;
-        // Создание или чтение каналов
-        print( "\n" + (close ? MSG_CMD_READ : MSG_CMD_READ_CREATE), time, Integer.valueOf( gwids.size() ) ); //$NON-NLS-1$
-        // Список идентфикаторов создаваемых каналов
-        GwidList newChannelGwids = new GwidList();
-        for( Gwid gwid : gwids ) {
-          ISkReadCurrDataChannel channel = channels.findByKey( gwid );
-          // Признак необходимости создать новый канал
-          boolean needNewChannel = (channel == null || !channel.isOk());
-          if( needNewChannel ) {
-            newChannelGwids.add( gwid );
-          }
+        // Чтение каналов
+        addResultInfo( "\n" + MSG_CMD_READ, time, Integer.valueOf( channels.size() ) ); //$NON-NLS-1$
+        for( ISkReadCurrDataChannel channel : channels ) {
+          value = channel.getValue();
+          addResultInfo( "\n" + MSG_CMD_READ_VALUE, time, channel.gwid(), value ); //$NON-NLS-1$
+          channel.close();
         }
-        IMap<Gwid, ISkReadCurrDataChannel> newChannels = null;
-        // Создание новых каналов (добавление в карту cdChannels проводится в onCurrData(...)
-        newChannels = currdata.createReadCurrDataChannels( newChannelGwids );
-        // Ожидание значений
-
-        // if( !waitValues( newChannels, readTimeout.asLong() ) ) {
-        // // Завершение работы созданных каналов
-        // for( ISkReadCurrDataChannel channel : newChannels ) {
-        // channel.close();
-        // }
-        // // Завершение ожидания значений по таймауту
-        // addResultError( ERR_CMD_READ_TIMEOUT );
-        // resultFail();
-        // return;
-        // }
-        // Добавление вновь добавленных каналов в кэша
-        channels.putAll( newChannels );
-        // // Готовые каналы соединения
-        // IListEdit<Gwid> readyChannelIds = cdGwids.getByKey( connection );
-        // // Вывод текущих значений
-        // for( Gwid gwid : gwids ) {
-        // ISkReadCurrDataChannel channel = channels.getByKey( gwid );
-        // // Вывод текущего значения канала
-        // value = channel.getValue();
-        // addResultInfo( "\n" + MSG_CMD_READ_VALUE, time, gwid, value ); //$NON-NLS-1$
-        // if( close ) {
-        // channel.close();
-        // channels.removeByKey( gwid );
-        // readyChannelIds.remove( gwid );
-        // }
-        // }
-        // if( close ) {
-        // // Вызов с пустым списком "заставит" фронтенд отказаться от подписки на данные в бекенде
-        // currdata.createReadCurrDataChannels( IGwidList.EMPTY );
-        // }
-
-        addResultInfo( "\n\n" + MSG_CMD_TIME, Long.valueOf( System.currentTimeMillis() - startTime ) ); //$NON-NLS-1$
-
+        cdChannels.removeByKey( connection );
+        cdGwids.removeByKey( connection );
+        currdata.eventer().removeListener( cdListener );
         IPlexyValue pxValue = pvSingleRef( value );
         setContextParamValue( CTX_SK_ATOMIC_VALUE, pxValue );
         resultOk( pxValue );
+        return;
       }
-      catch( Throwable e ) {
-        addResultError( e );
-        resultFail();
+      // Получение идентификаторов текущих данных. currdata = true, histdata = false
+      IList<Gwid> gwids = getDataGwids( coreApi, classId, objStrid, dataId, true, false );
+
+      if( readStartTime.isAssigned() ) {
+        if( !readEndTime.isAssigned() ) {
+          readEndTime = avTimestamp( System.currentTimeMillis() );
+        }
+        if( !readType.isAssigned() ) {
+          readType = avStr( EQueryIntervalType.CSCE.id() );
+        }
+        // Чтение хранимых данных
+        IOptionSetEdit options = new OptionSet();
+        // 2022-09-19 mvk ---
+        // options.setValue( ISkRtdataHardConstants.OP_SK_HDQUERY_CHECK_VALID_GWIDS, avBool( false ) );
+        options.setValue( ISkHistoryQueryServiceConstants.OP_SK_MAX_EXECUTION_TIME, readTimeout );
+
+        // Служба запросов данных
+        ISkHistoryQueryService histdata = coreApi.hqService();
+
+        ISkQueryRawHistory query = histdata.createHistoricQuery( options );
+        // try {
+        query.genericChangeEventer().addListener( new AdminHistDataQueryChangeListener( query, callback ) );
+        query.prepare( new GwidList( gwids ) );
+        // synchronized (query) {
+        EQueryIntervalType rt = EQueryIntervalType.findById( readType.asString() );
+        long st = readStartTime.asLong();
+        long et = readEndTime.asLong();
+        query.exec( new QueryInterval( rt, st, et ) );
+        // query.wait( readTimeout.asLong() );
+        // }
+        // }
+        // finally {
+        // query.close();
+        // }
       }
+      // Время начала чтения значений
+      long startTime = System.currentTimeMillis();
+      // Время в текстовом виде
+      String time = TimeUtils.timestampToString( startTime );
+      // Значение текущего данного прочитанное из последнего канала
+      IAtomicValue value = IAtomicValue.NULL;
+      // Создание или чтение каналов
+      print( "\n" + (close ? MSG_CMD_READ : MSG_CMD_READ_CREATE), time, Integer.valueOf( gwids.size() ) ); //$NON-NLS-1$
+      // Список идентфикаторов создаваемых каналов
+      GwidList newChannelGwids = new GwidList();
+      for( Gwid gwid : gwids ) {
+        ISkReadCurrDataChannel channel = channels.findByKey( gwid );
+        // Признак необходимости создать новый канал
+        boolean needNewChannel = (channel == null || !channel.isOk());
+        if( needNewChannel ) {
+          newChannelGwids.add( gwid );
+        }
+      }
+      IMap<Gwid, ISkReadCurrDataChannel> newChannels = null;
+      // Создание новых каналов (добавление в карту cdChannels проводится в onCurrData(...)
+      newChannels = currdata.createReadCurrDataChannels( newChannelGwids );
+      // Добавление вновь добавленных каналов в кэша
+      channels.putAll( newChannels );
+      // Готовые каналы соединения
+      IListEdit<Gwid> readyChannelIds = cdGwids.getByKey( connection );
+      // Вывод уже полученных значений
+      for( Gwid gwid : gwids ) {
+        ISkReadCurrDataChannel channel = channels.getByKey( gwid );
+        // Вывод текущего значения канала
+        value = channel.getValue();
+        addResultInfo( "\n" + MSG_CMD_READ_VALUE, time, gwid, value ); //$NON-NLS-1$
+      }
+
+      if( close ) {
+        // Завершение работы каналов
+        for( Gwid gwid : gwids ) {
+          ISkReadCurrDataChannel channel = channels.removeByKey( gwid );
+          if( channel != null ) {
+            channel.close();
+          }
+          readyChannelIds.remove( gwid );
+        }
+        if( channels.size() == 0 ) {
+          currdata.eventer().removeListener( cdListener );
+        }
+      }
+      addResultInfo( "\n\n" + MSG_CMD_TIME, Long.valueOf( System.currentTimeMillis() - startTime ) ); //$NON-NLS-1$
+
+      IPlexyValue pxValue = pvSingleRef( value );
+      setContextParamValue( CTX_SK_ATOMIC_VALUE, pxValue );
+      resultOk( pxValue );
     }
-    finally {
-      connection = null;
+    catch( Throwable e ) {
+      addResultError( e );
+      resultFail();
     }
   }
 
@@ -429,30 +417,30 @@ public class AdminCmdRead
    * @return boolean <b>true</b> значение получено;<b>false</b> значение не получено
    * @throws InterruptedException прерывание ожидания
    */
-  private static boolean waitValues( IMap<Gwid, ISkReadCurrDataChannel> aNewChannels, long aTimeout )
-      throws InterruptedException {
-    TsNullArgumentRtException.checkNull( aNewChannels );
-    synchronized (cdChannels) {
-      IList<Gwid> readyChannelIds = cdGwids.getByKey( connection );
-      IMapEdit<Gwid, ISkReadCurrDataChannel> newChannels = cdChannels.getByKey( connection );
-      if( newChannels == null ) {
-        newChannels = new ElemMap<>();
-        cdChannels.put( connection, newChannels );
-      }
-      for( Gwid gwid : aNewChannels.keys() ) {
-        if( !readyChannelIds.hasElem( gwid ) ) {
-          // Канал еще не получил значение, ожидание
-          cdChannels.wait( aTimeout );
-          // Проверка получения значения
-          if( !readyChannelIds.hasElem( gwid ) ) {
-            return false;
-          }
-          newChannels.put( gwid, aNewChannels.getByKey( gwid ) );
-        }
-      }
-    }
-    return true;
-  }
+  // private static boolean waitValues( IMap<Gwid, ISkReadCurrDataChannel> aNewChannels, long aTimeout )
+  // throws InterruptedException {
+  // TsNullArgumentRtException.checkNull( aNewChannels );
+  // synchronized (cdChannels) {
+  // IList<Gwid> readyChannelIds = cdGwids.getByKey( connection );
+  // IMapEdit<Gwid, ISkReadCurrDataChannel> newChannels = cdChannels.getByKey( connection );
+  // if( newChannels == null ) {
+  // newChannels = new ElemMap<>();
+  // cdChannels.put( connection, newChannels );
+  // }
+  // for( Gwid gwid : aNewChannels.keys() ) {
+  // if( !readyChannelIds.hasElem( gwid ) ) {
+  // // Канал еще не получил значение, ожидание
+  // cdChannels.wait( aTimeout );
+  // // Проверка получения значения
+  // if( !readyChannelIds.hasElem( gwid ) ) {
+  // return false;
+  // }
+  // newChannels.put( gwid, aNewChannels.getByKey( gwid ) );
+  // }
+  // }
+  // }
+  // return true;
+  // }
 
   /**
    * Вывести сообщение в callback клиента

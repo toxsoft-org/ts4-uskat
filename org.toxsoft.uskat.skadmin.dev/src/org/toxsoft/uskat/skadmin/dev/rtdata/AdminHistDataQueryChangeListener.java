@@ -77,9 +77,10 @@ class AdminHistDataQueryChangeListener
         }
       case FAILED:
       case CLOSED:
-        synchronized (query) {
-          query.notifyAll();
-        }
+        // synchronized (query) {
+        // query.notifyAll();
+        // }
+        query.close();
         break;
       default:
         throw new TsNotAllEnumsUsedRtException();
