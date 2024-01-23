@@ -8,6 +8,7 @@ import org.toxsoft.uskat.core.api.cmdserv.DtoCommandStateChangeInfo;
 import org.toxsoft.uskat.core.api.hqserv.ESkQueryState;
 import org.toxsoft.uskat.core.connection.ESkAuthentificationType;
 import org.toxsoft.uskat.core.connection.ESkConnState;
+import org.toxsoft.uskat.core.impl.SkCoreUtils;
 import org.toxsoft.uskat.core.impl.SkLoggedUserInfo;
 import org.toxsoft.uskat.core.impl.dto.DtoCommand;
 import org.toxsoft.uskat.s5.client.remote.connection.S5ClusterTopology;
@@ -29,6 +30,8 @@ public class S5ValobjUtils {
    * Регистрация известных хранителей
    */
   public static void registerS5Keepers() {
+    SkCoreUtils.initialize();
+
     TsValobjUtils.registerKeeperIfNone( ESkAuthentificationType.KEEPER_ID, ESkAuthentificationType.KEEPER );
     TsValobjUtils.registerKeeperIfNone( SkLoggedUserInfo.KEEPER_ID, SkLoggedUserInfo.KEEPER );
 

@@ -28,7 +28,6 @@ import org.toxsoft.uskat.s5.client.IS5ConnectionParams;
 import org.toxsoft.uskat.s5.client.remote.S5RemoteBackendProvider;
 import org.toxsoft.uskat.s5.common.*;
 import org.toxsoft.uskat.s5.server.IS5ServerHardConstants;
-import org.toxsoft.uskat.s5.utils.S5ValobjUtils;
 import org.toxsoft.uskat.skadmin.core.*;
 import org.toxsoft.uskat.skadmin.core.impl.AbstractAdminCmd;
 
@@ -41,10 +40,6 @@ import core.tslib.bricks.synchronize.ITsThreadExecutor;
  */
 public class AdminCmdConnect
     extends AbstractAdminCmd {
-
-  static {
-    S5ValobjUtils.registerS5Keepers();
-  }
 
   /**
    * Конструктор
