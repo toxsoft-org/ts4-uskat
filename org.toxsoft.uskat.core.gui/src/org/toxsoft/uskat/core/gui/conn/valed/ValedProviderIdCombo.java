@@ -1,4 +1,4 @@
-package org.toxsoft.uskat.core.gui.conn.cfg.m5;
+package org.toxsoft.uskat.core.gui.conn.valed;
 
 import static org.toxsoft.core.tsgui.valed.api.IValedControlConstants.*;
 import static org.toxsoft.core.tslib.av.impl.AvUtils.*;
@@ -14,10 +14,8 @@ import org.toxsoft.core.tslib.utils.*;
 import org.toxsoft.core.tslib.utils.errors.*;
 import org.toxsoft.uskat.core.gui.conn.cfg.*;
 
-// TODO TRANSLATE
-
 /**
- * Выпадающий список (combo-box) выбора идентификатора одного из {@link IConnectionConfigService#listProviders()}.
+ * Combo box to select ID from the {@link IConnectionConfigService#listProviders()}.
  *
  * @author hazard157
  */
@@ -25,15 +23,13 @@ public class ValedProviderIdCombo
     extends ValedComboSelector<String> {
 
   /**
-   * Название фабрики, с которым она зарегистрирована в {@link ValedControlFactoriesRegistry}.
-   * <p>
-   * Напомним, что автоматическая регистрация с именем класса фабрики тоже работает.
+   * The factory name.
    */
   @SuppressWarnings( "hiding" )
   public static final String FACTORY_NAME = VALED_EDNAME_PREFIX + ".ValedProviderIdCombo"; //$NON-NLS-1$
 
   /**
-   * Экземпляр-синглтон фабрики.
+   * The factory singleton.
    */
   @SuppressWarnings( "hiding" )
   public static final AbstractValedControlFactory FACTORY = new AbstractValedControlFactory( FACTORY_NAME ) {
@@ -50,10 +46,10 @@ public class ValedProviderIdCombo
   };
 
   /**
-   * Конструктор.
+   * Constructor.
    *
-   * @param aContext {@link ITsGuiContext} - контекст редактора
-   * @throws TsNullArgumentRtException аргумент = null
+   * @param aContext {@link ITsGuiContext} - the editor context
+   * @throws TsNullArgumentRtException any argument = <code>null</code>
    */
   public ValedProviderIdCombo( ITsGuiContext aContext ) {
     super( prerpareContext( aContext ) );
