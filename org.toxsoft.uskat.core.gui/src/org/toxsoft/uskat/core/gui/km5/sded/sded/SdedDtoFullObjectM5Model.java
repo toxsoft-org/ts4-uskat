@@ -22,7 +22,6 @@ import org.toxsoft.core.tslib.gw.skid.*;
 import org.toxsoft.core.tslib.utils.*;
 import org.toxsoft.core.tslib.utils.errors.*;
 import org.toxsoft.core.tslib.utils.logs.impl.*;
-import org.toxsoft.uskat.core.*;
 import org.toxsoft.uskat.core.api.linkserv.*;
 import org.toxsoft.uskat.core.api.objserv.*;
 import org.toxsoft.uskat.core.api.sysdescr.*;
@@ -128,13 +127,8 @@ public class SdedDtoFullObjectM5Model
       IOptionSetEdit attrs = new OptionSet();
       attrs.setStr( FID_NAME, aValues.getAsAv( FID_NAME ).asString() );
       attrs.setStr( FID_DESCRIPTION, aValues.getAsAv( FID_DESCRIPTION ).asString() );
-      ISkClassInfo cInfo = coreApi().sysdescr().getClassInfo( classId );
-      // занесем значения атрибутов
-      for( IDtoAttrInfo attrInfo : cInfo.attrs().list() ) {
-        if( !ISkHardConstants.isSkSysAttr( attrInfo ) ) {
-          attrs.setValue( attrInfo.id(), aValues.getAsAv( attrInfo.id() ) );
-        }
-      }
+      IList<IdValue> attrVals = aValues.getAs( FID_ATTRS, IList.class );
+      IdValue.fillOptionSetFromIdValuesColl( attrVals, attrs );
 
       IDtoObject dtoObj = new DtoObject( aValues.originalEntity().skid(), attrs, IStringMap.EMPTY );
 
