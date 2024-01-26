@@ -11,6 +11,7 @@ import org.toxsoft.uskat.core.gui.km5.*;
 import org.toxsoft.uskat.core.gui.km5.first.*;
 import org.toxsoft.uskat.core.gui.km5.sded.objed.*;
 import org.toxsoft.uskat.core.gui.km5.sded.sded.*;
+import org.toxsoft.uskat.core.gui.km5.sded.sded.editors.*;
 import org.toxsoft.uskat.core.gui.km5.sgw.*;
 
 /**
@@ -52,6 +53,9 @@ public class QuantSkCoreGui
     //
     IValedControlFactoriesRegistry facReg = aWinContext.get( IValedControlFactoriesRegistry.class );
     facReg.registerFactory( ValedProviderIdCombo.FACTORY );
+    facReg.registerFactory( ValedSkidListEditor.FACTORY );
+    facReg.registerFactory( ValedAvValobjSkidListEditor.FACTORY );
+
   }
 
   @Override

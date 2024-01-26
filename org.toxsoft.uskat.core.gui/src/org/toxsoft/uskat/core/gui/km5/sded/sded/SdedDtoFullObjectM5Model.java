@@ -11,6 +11,8 @@ import org.toxsoft.core.tsgui.m5.model.impl.*;
 import org.toxsoft.core.tsgui.m5.std.models.av.*;
 import org.toxsoft.core.tslib.av.*;
 import org.toxsoft.core.tslib.av.misc.*;
+import org.toxsoft.core.tslib.av.opset.*;
+import org.toxsoft.core.tslib.av.opset.impl.*;
 import org.toxsoft.core.tslib.coll.*;
 import org.toxsoft.core.tslib.coll.impl.*;
 import org.toxsoft.core.tslib.coll.primtypes.*;
@@ -20,6 +22,7 @@ import org.toxsoft.core.tslib.gw.skid.*;
 import org.toxsoft.core.tslib.utils.*;
 import org.toxsoft.core.tslib.utils.errors.*;
 import org.toxsoft.core.tslib.utils.logs.impl.*;
+import org.toxsoft.uskat.core.*;
 import org.toxsoft.uskat.core.api.linkserv.*;
 import org.toxsoft.uskat.core.api.objserv.*;
 import org.toxsoft.uskat.core.api.sysdescr.*;
@@ -27,6 +30,7 @@ import org.toxsoft.uskat.core.api.sysdescr.dto.*;
 import org.toxsoft.uskat.core.connection.*;
 import org.toxsoft.uskat.core.gui.km5.*;
 import org.toxsoft.uskat.core.gui.km5.sded.*;
+import org.toxsoft.uskat.core.impl.dto.*;
 
 /**
  * M5-model of the {@link IDtoFullObject}.
@@ -43,6 +47,8 @@ public class SdedDtoFullObjectM5Model
   static final String FID_LINKS  = "fid.links";  //$NON-NLS-1$
   static final String FID_RIVETS = "fid.rivets"; //$NON-NLS-1$
   static final String FID_CLOBS  = "fid.clobs";  //$NON-NLS-1$
+
+  private final String classId;
 
   /**
    * Attribute {@link IDtoFullObject#skid() } String ID
@@ -119,38 +125,59 @@ public class SdedDtoFullObjectM5Model
     //
 
     private IDtoFullObject makeDtoFullObject( IM5Bunch<IDtoFullObject> aValues ) {
-      // String id = aValues.getAsAv( FID_CLASS_ID ).asString();
-      // String parentId = aValues.getAsAv( FID_PARENT_ID ).asString();
-      // IOptionSetEdit params = new OptionSet();
-      // if( aValues.originalEntity() != null ) {
-      // params.setAll( aValues.originalEntity().params() );
+      IOptionSetEdit attrs = new OptionSet();
+      attrs.setStr( FID_NAME, aValues.getAsAv( FID_NAME ).asString() );
+      attrs.setStr( FID_DESCRIPTION, aValues.getAsAv( FID_DESCRIPTION ).asString() );
+      ISkClassInfo cInfo = coreApi().sysdescr().getClassInfo( classId );
+      // занесем значения атрибутов
+      for( IDtoAttrInfo attrInfo : cInfo.attrs().list() ) {
+        if( !ISkHardConstants.isSkSysAttr( attrInfo ) ) {
+          attrs.setValue( attrInfo.id(), aValues.getAsAv( attrInfo.id() ) );
+        }
+      }
+
+      IDtoObject dtoObj = new DtoObject( aValues.originalEntity().skid(), attrs, IStringMap.EMPTY );
+
+      // создаем карту связей
+      IStringMap<ISkidList> links = linksFromBunch( aValues );
+      // TODO implements CLOB support
+      DtoFullObject retVal = new DtoFullObject( dtoObj, IStringMap.EMPTY, links );
+      // создаем карту заклепок
+      // IStringMap<ISkidList> rivets = rivetsFromBunch( aValues );
+      // retVal.rivets().map().putAll( rivets );
+      return retVal;
+    }
+
+    private IStringMapEdit<ISkidList> linksFromBunch( IM5Bunch<IDtoFullObject> aValues ) {
+      // занесем значения связей
+      IList<IMappedSkids> mappedSkidsList = aValues.get( FID_LINKS );
+      IStringMapEdit<ISkidList> linksMap = new StringMap<>();
+      for( IMappedSkids mappedSkid : mappedSkidsList ) {
+        for( String linkId : mappedSkid.map().keys() ) {
+          linksMap.put( linkId, mappedSkid.map().getByKey( linkId ) );
+        }
+      }
+
+      // IMappedSkids mappedSkids = aValues.get( FID_LINKS );
+      // IStringMapEdit<ISkidList> linksMap = new StringMap<>();
+      // for( String linkId : mappedSkids.map().keys() ) {
+      // linksMap.put( linkId, mappedSkids.map().getByKey( linkId ) );
       // }
-      // params.setStr( FID_NAME, aValues.getAsAv( FID_NAME ).asString() );
-      // params.setStr( FID_DESCRIPTION, aValues.getAsAv( FID_DESCRIPTION ).asString() );
-      // DtoClassInfo cinf = new DtoClassInfo( id, parentId, params );
-      // cinf.attrInfos().setAll( SELF_ATTR_INFOS.getFieldValue( aValues ) );
-      // cinf.rtdataInfos().setAll( SELF_RTDATA_INFOS.getFieldValue( aValues ) );
-      // cinf.cmdInfos().setAll( SELF_CMD_INFOS.getFieldValue( aValues ) );
-      // cinf.eventInfos().setAll( SELF_EVENT_INFOS.getFieldValue( aValues ) );
-      // cinf.linkInfos().setAll( SELF_LINK_INFOS.getFieldValue( aValues ) );
-      // cinf.rivetInfos().setAll( SELF_RIVET_INFOS.getFieldValue( aValues ) );
-      //
-      // // TODO SdedSkClassInfoM5LifecycleManager.makeDtoClassInfo()
-      //
-      // return cinf;
-      return null;
+      return linksMap;
     }
 
     @Override
     protected IDtoFullObject doCreate( IM5Bunch<IDtoFullObject> aValues ) {
-      IDtoFullObject dtoClassInfo = makeDtoFullObject( aValues );
-      return dtoClassInfo;
+      IDtoFullObject dtoFullObject = makeDtoFullObject( aValues );
+      master().coreApi().objService().defineObject( dtoFullObject );
+      return dtoFullObject;
     }
 
     @Override
     protected IDtoFullObject doEdit( IM5Bunch<IDtoFullObject> aValues ) {
-      IDtoFullObject dtoClassInfo = makeDtoFullObject( aValues );
-      return dtoClassInfo;
+      IDtoFullObject dtoFullObject = makeDtoFullObject( aValues );
+      master().coreApi().objService().defineObject( dtoFullObject );
+      return dtoFullObject;
     }
 
     @Override
@@ -180,6 +207,7 @@ public class SdedDtoFullObjectM5Model
   public SdedDtoFullObjectM5Model( ISkConnection aConn, ISkClassInfo aClassInfo ) {
     super( IKM5SdedConstants.MID_SDED_DTO_FULL_OBJECT, IDtoFullObject.class, aConn );
     addFieldDefs( NAME, DESCRIPTION );
+    classId = aClassInfo.id();
     ISkClassProps<IDtoAttrInfo> attrInfoes = aClassInfo.attrs();
     ISkClassProps<IDtoLinkInfo> linkInfoes = aClassInfo.links();
     ISkClassProps<IDtoClobInfo> clobInfoes = aClassInfo.clobs();
@@ -232,6 +260,7 @@ public class SdedDtoFullObjectM5Model
    */
   private static void createLinkFieldDefs( ISkClassProps<IDtoLinkInfo> aLinkInfoes,
       ElemArrayList<IM5FieldDef<IDtoFullObject, ?>> aFieldDefs ) {
+    // old but working version
     M5MultiModownFieldDef<IDtoFullObject, IMappedSkids> fd =
         new M5MultiModownFieldDef<>( FID_LINKS, MappedSkidsM5Model.M5MODEL_ID ) {
 
@@ -252,6 +281,47 @@ public class SdedDtoFullObjectM5Model
           }
 
         };
+    // ugly variant 1
+    // M5MultiModownFieldDef<IDtoFullObject, IdValue> fd =
+    // new M5MultiModownFieldDef<>( FID_LINKS, IdValueM5Model.MODEL_ID ) {
+    //
+    // @Override
+    // protected void doInit() {
+    // setNameAndDescription( STR_N_LINKS, STR_D_LINKS );
+    // setFlags( M5FF_COLUMN );
+    // }
+    //
+    // protected IList<IdValue> doGetFieldValue( IDtoFullObject aEntity ) {
+    // IStringMapEdit<IdValue> map = new StringMap<>();
+    // for( String key : aEntity.links().map().keys() ) {
+    // IAtomicValue value = AvUtils.avValobj( aEntity.links().map().getByKey( key ) );
+    // IdValue idv = new IdValue( key, value );
+    // map.put( key, idv );
+    // }
+    // return map.values();
+    // }
+    //
+    // };
+
+    // ugly variant 2
+    // M5SingleModownFieldDef<IDtoFullObject, IMappedSkids> fd =
+    // new M5SingleModownFieldDef<>( FID_LINKS, MappedSkidsM5Model.M5MODEL_ID ) {
+    //
+    // @Override
+    // protected void doInit() {
+    // setNameAndDescription( STR_N_LINKS, STR_D_LINKS );
+    // setFlags( M5FF_DETAIL );
+    // }
+    //
+    // protected IMappedSkids doGetFieldValue( IDtoFullObject aEntity ) {
+    // MappedSkids retVal = new MappedSkids();
+    // for( String key : aEntity.links().map().keys() ) {
+    // retVal.ensureSkidList( key, aEntity.links().map().getByKey( key ) );
+    // }
+    // return retVal;
+    // }
+    //
+    // };
     aFieldDefs.add( fd );
   }
 
