@@ -133,4 +133,13 @@ public interface ISkSdedKm5SharedResources {
   String STR_N_CLOB_VAL = "clob value";
   String STR_D_CLOB_VAL = "Значение clob'а";
 
+  /**
+   * {@link LinkIdSkidListM5Model}
+   */
+  String STR_N_LINK_ID            = "ID связи";
+  String STR_D_LINK_ID            = "ID связи из описания класса";
+  String STR_N_LINKED_SKIDS       = "Привязанные объекты";
+  String STR_D_LINKED_SKIDS       = "Привязанные объекты";
+  String STR_N_M5M_LINKIDSKIDLIST = "ID связи - список Skid объектов";
+  String STR_D_M5M_LINKIDSKIDLIST = "Пара связь -> список привязанных объектов ";
 }

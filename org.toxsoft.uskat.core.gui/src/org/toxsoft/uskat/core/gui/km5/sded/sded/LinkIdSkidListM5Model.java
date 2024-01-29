@@ -6,6 +6,7 @@ import static org.toxsoft.core.tslib.ITsHardConstants.*;
 import static org.toxsoft.core.tslib.av.EAtomicType.*;
 import static org.toxsoft.core.tslib.av.impl.AvUtils.*;
 import static org.toxsoft.core.tslib.av.metainfo.IAvMetaConstants.*;
+import static org.toxsoft.uskat.core.gui.km5.sded.ISkSdedKm5SharedResources.*;
 
 import org.toxsoft.core.tsgui.m5.*;
 import org.toxsoft.core.tsgui.m5.model.*;
@@ -43,7 +44,7 @@ public class LinkIdSkidListM5Model
 
     @Override
     protected void doInit() {
-      setNameAndDescription( "linkId", "link ID" );
+      setNameAndDescription( STR_N_LINK_ID, STR_D_LINK_ID );
       setDefaultValue( DEFAULT_ID_AV );
       setFlags( M5FF_COLUMN );
     }
@@ -59,8 +60,8 @@ public class LinkIdSkidListM5Model
    * Attribute {@link LinkIdSkidList#skidList()}
    */
   public final M5AttributeFieldDef<LinkIdSkidList> SKID_LIST = new M5AttributeFieldDef<>( FID_SKID_LIST, VALOBJ, //
-      TSID_NAME, "SkidList", //
-      TSID_DESCRIPTION, "SkidList", //
+      TSID_NAME, STR_N_LINKED_SKIDS, //
+      TSID_DESCRIPTION, STR_D_LINKED_SKIDS, //
       TSID_KEEPER_ID, SkidListKeeper.KEEPER_ID, //
       OPID_EDITOR_FACTORY_NAME, ValedAvValobjSkidListEditor.FACTORY_NAME //
   ) {
@@ -120,7 +121,7 @@ public class LinkIdSkidListM5Model
    */
   public LinkIdSkidListM5Model() {
     super( MODEL_ID, LinkIdSkidList.class );
-    setNameAndDescription( "LinkIdSkidList", "LinkIdSkidList" );
+    setNameAndDescription( STR_N_M5M_LINKIDSKIDLIST, STR_D_M5M_LINKIDSKIDLIST );
     addFieldDefs( LINK_ID, SKID_LIST );
   }
 
