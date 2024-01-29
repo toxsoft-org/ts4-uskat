@@ -125,17 +125,23 @@ public class SdedDtoFullObjectM5Model
 
     private IDtoFullObject makeDtoFullObject( IM5Bunch<IDtoFullObject> aValues ) {
       IOptionSetEdit attrs = new OptionSet();
+
+      // обрабатываем новые имя и описание
       attrs.setStr( FID_NAME, aValues.getAsAv( FID_NAME ).asString() );
       attrs.setStr( FID_DESCRIPTION, aValues.getAsAv( FID_DESCRIPTION ).asString() );
+      // обрабатываем новые значения атрибутов
       IList<IdValue> attrVals = aValues.getAs( FID_ATTRS, IList.class );
       IdValue.fillOptionSetFromIdValuesColl( attrVals, attrs );
 
       IDtoObject dtoObj = new DtoObject( aValues.originalEntity().skid(), attrs, IStringMap.EMPTY );
 
       // создаем карту связей
-      IStringMap<ISkidList> links = linksFromBunch( aValues );
+      // IStringMap<ISkidList> links = linksFromBunch( aValues );
+      IList<LinkIdSkidList> linkVals = aValues.getAs( FID_LINKS, IList.class );
+      MappedSkids links = new MappedSkids();
+      LinkIdSkidList.fillMappedSkidFromLinkIdSkidList( linkVals, links );
       // TODO implements CLOB support
-      DtoFullObject retVal = new DtoFullObject( dtoObj, IStringMap.EMPTY, links );
+      DtoFullObject retVal = new DtoFullObject( dtoObj, IStringMap.EMPTY, links.map() );
       // создаем карту заклепок
       // IStringMap<ISkidList> rivets = rivetsFromBunch( aValues );
       // retVal.rivets().map().putAll( rivets );
@@ -255,8 +261,8 @@ public class SdedDtoFullObjectM5Model
   private static void createLinkFieldDefs( ISkClassProps<IDtoLinkInfo> aLinkInfoes,
       ElemArrayList<IM5FieldDef<IDtoFullObject, ?>> aFieldDefs ) {
     // old but working version
-    M5MultiModownFieldDef<IDtoFullObject, IMappedSkids> fd =
-        new M5MultiModownFieldDef<>( FID_LINKS, MappedSkidsM5Model.M5MODEL_ID ) {
+    M5MultiModownFieldDef<IDtoFullObject, LinkIdSkidList> fd =
+        new M5MultiModownFieldDef<>( FID_LINKS, LinkIdSkidListM5Model.MODEL_ID ) {
 
           @Override
           protected void doInit() {
@@ -264,14 +270,8 @@ public class SdedDtoFullObjectM5Model
             setFlags( M5FF_DETAIL );
           }
 
-          protected IList<IMappedSkids> doGetFieldValue( IDtoFullObject aEntity ) {
-            IListEdit<IMappedSkids> retVal = new ElemArrayList<>();
-            for( String key : aEntity.links().map().keys() ) {
-              MappedSkids map = new MappedSkids();
-              map.ensureSkidList( key, aEntity.links().map().getByKey( key ) );
-              retVal.add( map );
-            }
-            return retVal;
+          protected IList<LinkIdSkidList> doGetFieldValue( IDtoFullObject aEntity ) {
+            return LinkIdSkidList.makeLinkIdSkidListCollFromMappedSkid( (MappedSkids)aEntity.links() ).values();
           }
 
         };
