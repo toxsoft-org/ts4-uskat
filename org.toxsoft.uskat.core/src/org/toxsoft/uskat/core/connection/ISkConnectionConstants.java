@@ -30,7 +30,8 @@ public interface ISkConnectionConstants {
   /**
    * ID of connection opening argument {@link #ARGDEF_PASSWORD}.
    */
-  String ARGID_PASSWORD = SK_ID + "password"; //$NON-NLS-1$
+  // FIXME String ARGID_PASSWORD = SK_ID + "password"; //$NON-NLS-1$
+  String ARGID_PASSWORD = "password"; //$NON-NLS-1$
 
   /**
    * ID of connection opening argument {@link #ARGDEF_ROLE}.
