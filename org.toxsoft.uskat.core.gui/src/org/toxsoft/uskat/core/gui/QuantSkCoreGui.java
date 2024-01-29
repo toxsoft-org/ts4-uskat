@@ -35,7 +35,7 @@ public class QuantSkCoreGui
     KM5Utils.registerContributorCreator( KM5SgwContributor.CREATOR );
     KM5Utils.registerContributorCreator( KM5SdedContributor.CREATOR );
     KM5Utils.registerContributorCreator( KM5ObjedContributor.CREATOR );
-    TsValobjUtils.registerKeeper( LinkIdSkidList.KEEPER_ID, LinkIdSkidList.KEEPER );
+    TsValobjUtils.registerKeeperIfNone( LinkIdSkidList.KEEPER_ID, LinkIdSkidList.KEEPER );
   }
 
   @Override
