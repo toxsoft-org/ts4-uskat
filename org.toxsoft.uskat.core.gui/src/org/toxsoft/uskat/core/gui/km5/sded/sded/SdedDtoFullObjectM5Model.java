@@ -116,8 +116,7 @@ public class SdedDtoFullObjectM5Model
       // TODO implements CLOB support
       DtoFullObject retVal = new DtoFullObject( dtoObj, IStringMap.EMPTY, links.map() );
       // создаем карту заклепок
-      // IStringMap<ISkidList> rivets = rivetsFromBunch( aValues );
-      IList<LinkIdSkidList> rivetVals = aValues.getAs( FID_LINKS, IList.class );
+      IList<LinkIdSkidList> rivetVals = aValues.getAs( FID_RIVETS, IList.class );
       MappedSkids rivets = new MappedSkids();
       LinkIdSkidList.fillMappedSkidFromLinkIdSkidList( rivetVals, rivets );
       retVal.rivets().map().putAll( rivets.map() );
