@@ -127,14 +127,14 @@ public class SdedDtoFullObjectM5Model
     @Override
     protected IDtoFullObject doCreate( IM5Bunch<IDtoFullObject> aValues ) {
       IDtoFullObject dtoFullObject = makeDtoFullObject( aValues );
-      master().coreApi().objService().defineObject( dtoFullObject );
+      DtoFullObject.defineFullObject( master().coreApi(), dtoFullObject );
       return dtoFullObject;
     }
 
     @Override
     protected IDtoFullObject doEdit( IM5Bunch<IDtoFullObject> aValues ) {
       IDtoFullObject dtoFullObject = makeDtoFullObject( aValues );
-      master().coreApi().objService().defineObject( dtoFullObject );
+      DtoFullObject.defineFullObject( master().coreApi(), dtoFullObject );
       return dtoFullObject;
     }
 
