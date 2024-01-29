@@ -1,6 +1,6 @@
 package org.toxsoft.uskat.core.gui.e4.handlers;
 
-import static org.toxsoft.uskat.core.gui.conn.cfg.m5.IConnectionConfigM5Constants.*;
+import static org.toxsoft.uskat.core.gui.conn.m5.IConnectionConfigM5Constants.*;
 import static org.toxsoft.uskat.core.gui.e4.handlers.ISkResources.*;
 
 import org.eclipse.e4.core.contexts.*;

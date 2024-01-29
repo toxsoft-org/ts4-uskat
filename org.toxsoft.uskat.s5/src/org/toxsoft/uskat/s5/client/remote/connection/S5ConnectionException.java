@@ -11,7 +11,7 @@ import org.toxsoft.uskat.s5.client.IS5ConnectionParams;
  * Кроме сообщения об ошибке содержит в себе детальную информацию о несостоявщемся подключении (адрес сервера, имя
  * пользователя и т.п.).
  *
- * @author goga
+ * @author hazard157
  */
 public class S5ConnectionException
     extends TsRuntimeException {

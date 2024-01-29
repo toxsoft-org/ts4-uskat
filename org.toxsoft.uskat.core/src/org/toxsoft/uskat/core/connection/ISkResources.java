@@ -1,7 +1,5 @@
 package org.toxsoft.uskat.core.connection;
 
-import org.toxsoft.uskat.core.backend.metainf.Messages;
-
 /**
  * Localizable resources.
  *
@@ -31,9 +29,11 @@ interface ISkResources {
   /**
    * {@link ISkConnectionConstants}
    */
-  String STR_N_LOGIN    = "Login";
-  String STR_D_LOGIN    = "The user login name";
-  String STR_N_PASSWORD = "Password";
-  String STR_D_PASSWORD = "User password information";
+  String STR_LOGIN      = Messages.getString( "STR_LOGIN" );      //$NON-NLS-1$
+  String STR_LOGIN_D    = Messages.getString( "STR_LOGIN_D" );    //$NON-NLS-1$
+  String STR_PASSWORD   = Messages.getString( "STR_PASSWORD" );   //$NON-NLS-1$
+  String STR_PASSWORD_D = Messages.getString( "STR_PASSWORD_D" ); //$NON-NLS-1$
+  String STR_ROLE       = Messages.getString( "STR_ROLE" );       //$NON-NLS-1$
+  String STR_ROLE_D     = Messages.getString( "STR_ROLE_D" );     //$NON-NLS-1$
 
 }

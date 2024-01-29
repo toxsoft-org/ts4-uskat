@@ -7,7 +7,8 @@ import org.toxsoft.core.tsgui.valed.api.*;
 import org.toxsoft.core.tslib.utils.valobj.*;
 import org.toxsoft.uskat.core.gui.conn.*;
 import org.toxsoft.uskat.core.gui.conn.cfg.*;
-import org.toxsoft.uskat.core.gui.conn.cfg.m5.*;
+import org.toxsoft.uskat.core.gui.conn.m5.*;
+import org.toxsoft.uskat.core.gui.conn.valed.*;
 import org.toxsoft.uskat.core.gui.km5.*;
 import org.toxsoft.uskat.core.gui.km5.first.*;
 import org.toxsoft.uskat.core.gui.km5.sded.objed.*;
@@ -54,10 +55,12 @@ public class QuantSkCoreGui
     m5.addModel( new ConnectionConfigM5Model() );
     //
     IValedControlFactoriesRegistry facReg = aWinContext.get( IValedControlFactoriesRegistry.class );
+    facReg.registerFactory( ValedAvStringProviderIdCombo.FACTORY );
     facReg.registerFactory( ValedProviderIdCombo.FACTORY );
+    facReg.registerFactory( ValedAvStringConnConfIdCombo.FACTORY );
+    facReg.registerFactory( ValedConnConfIdCombo.FACTORY );
     facReg.registerFactory( ValedSkidListEditor.FACTORY );
     facReg.registerFactory( ValedAvValobjSkidListEditor.FACTORY );
-
   }
 
   @Override

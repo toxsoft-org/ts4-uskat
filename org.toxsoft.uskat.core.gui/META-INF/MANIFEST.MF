@@ -48,7 +48,7 @@ Export-Package: org.toxsoft.uskat.core.gui;
    org.toxsoft.core.tslib.bricks.strid.coll,
    org.toxsoft.core.tslib.bricks.events,
    org.toxsoft.core.tslib.bricks.validator",
- org.toxsoft.uskat.core.gui.conn.cfg.m5;
+ org.toxsoft.uskat.core.gui.conn.m5;
   uses:="org.toxsoft.core.tsgui.valed.impl,
    org.toxsoft.core.tsgui.m5.gui.panels,
    org.toxsoft.core.tsgui.bricks.ctx,
@@ -61,6 +61,7 @@ Export-Package: org.toxsoft.uskat.core.gui;
    org.toxsoft.core.tslib.bricks.validator,
    org.toxsoft.core.tsgui.m5.model,
    org.toxsoft.uskat.core.gui.conn.cfg",
+ org.toxsoft.uskat.core.gui.conn.valed,
  org.toxsoft.uskat.core.gui.e4.handlers,
  org.toxsoft.uskat.core.gui.e4.uiparts;
   uses:="org.toxsoft.uskat.core.gui.utils,
@@ -89,6 +90,7 @@ Export-Package: org.toxsoft.uskat.core.gui;
    org.toxsoft.core.tsgui.bricks.stdevents.impl,
    org.toxsoft.core.tsgui.panels,
    org.toxsoft.uskat.core.api.rtdserv",
+ org.toxsoft.uskat.core.gui.glib.gwidsel,
  org.toxsoft.uskat.core.gui.glib.query;
   uses:="org.eclipse.core.runtime,
    org.toxsoft.uskat.core.api.hqserv,

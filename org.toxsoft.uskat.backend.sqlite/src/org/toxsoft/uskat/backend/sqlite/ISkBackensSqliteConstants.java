@@ -29,6 +29,13 @@ public interface ISkBackensSqliteConstants {
   IDataDef OPDEF_DB_FILE_NAME = DataDef.create( OPID_DB_FILE_NAME, STRING, //
       TSID_NAME, STR_OP_DB_FILE_NAME, //
       TSID_DESCRIPTION, STR_OP_DB_FILE_NAME_D, //
+
+      // TODO --- we don't want to include
+      "org.toxsoft.valed.option.EditorFactoryName", "ts.valed.AvStringFile", //
+      "org.toxsoft.valed.option.File.IsOpenDialog", AV_TRUE, //
+
+      // ---
+
       TSID_DEFAULT_VALUE, avStr( DEFAULT_DB_FILE_NAME ) //
   );
 

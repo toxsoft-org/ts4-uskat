@@ -14,7 +14,7 @@ import org.toxsoft.core.tslib.av.opset.impl.OptionSetKeeper;
  * <p>
  * Эта сущность используется внутри пакета, и не предназначена для использования клиентами.
  *
- * @author goga
+ * @author hazard157
  */
 @Entity
 public class S5ServiceConfigEntity {

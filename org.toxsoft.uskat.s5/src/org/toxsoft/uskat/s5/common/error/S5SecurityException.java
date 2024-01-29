@@ -5,7 +5,7 @@ import static org.toxsoft.uskat.s5.common.error.IS5Resources.*;
 /**
  * Ошибка прав доступа, запрет ситсемы безопасности.
  * 
- * @author goga
+ * @author hazard157
  */
 public class S5SecurityException
     extends S5RuntimeException {

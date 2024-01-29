@@ -1,6 +1,6 @@
-package org.toxsoft.uskat.core.gui.conn.cfg.m5;
+package org.toxsoft.uskat.core.gui.conn.m5;
 
-import static org.toxsoft.uskat.core.gui.conn.cfg.m5.IConnectionConfigM5Constants.*;
+import static org.toxsoft.uskat.core.gui.conn.m5.IConnectionConfigM5Constants.*;
 
 import org.toxsoft.core.tsgui.bricks.ctx.*;
 import org.toxsoft.core.tsgui.m5.*;

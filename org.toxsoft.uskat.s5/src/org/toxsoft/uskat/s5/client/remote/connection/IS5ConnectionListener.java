@@ -10,7 +10,7 @@ import org.toxsoft.core.tslib.utils.errors.TsNullObjectErrorRtException;
 /**
  * Слушатель изменения состояния подключения к серверу.
  *
- * @author goga
+ * @author hazard157
  * @author mvk
  */
 public interface IS5ConnectionListener {

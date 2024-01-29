@@ -7,7 +7,7 @@ import org.toxsoft.core.tslib.utils.errors.TsRuntimeException;
 /**
  * Базовая не проверяемая ошибка в коде сервера S5.
  *
- * @author goga
+ * @author hazard157
  */
 public class S5RuntimeException
     extends TsRuntimeException {

@@ -26,7 +26,7 @@ import org.toxsoft.uskat.core.impl.*;
  * TODO do we need to use this service automatically in {@link SkConnectionSupplier} ???
  *
  * @author mvk
- * @author goga
+ * @author hazard157
  */
 public final class SkSwtThreadSeparatorService
     extends AbstractSkService {
