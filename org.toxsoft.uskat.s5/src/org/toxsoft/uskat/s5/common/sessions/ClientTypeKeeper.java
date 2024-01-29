@@ -8,7 +8,7 @@ import org.toxsoft.core.tslib.bricks.strio.IStrioWriter;
 /**
  * Хранитель объектов типа {@link EClientType}.
  *
- * @author goga
+ * @author hazard157
  */
 public class ClientTypeKeeper
     extends AbstractEntityKeeper<EClientType> {

@@ -18,7 +18,7 @@ import org.toxsoft.uskat.s5.common.sessions.ISkSession;
  * <p>
  * Это неизменяемый класс.
  *
- * @author goga
+ * @author hazard157
  * @author mvk
  */
 public final class S5SessionIdentity {

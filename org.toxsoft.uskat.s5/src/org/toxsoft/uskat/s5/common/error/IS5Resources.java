@@ -3,7 +3,7 @@ package org.toxsoft.uskat.s5.common.error;
 /**
  * Локализуемые ресурсы.
  *
- * @author goga
+ * @author hazard157
  */
 interface IS5Resources {
 

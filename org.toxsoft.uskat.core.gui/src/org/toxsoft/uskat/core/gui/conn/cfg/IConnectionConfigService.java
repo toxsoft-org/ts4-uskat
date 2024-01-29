@@ -13,12 +13,13 @@ import org.toxsoft.core.tslib.utils.errors.*;
  *
  * @author hazard157
  */
-public sealed interface IConnectionConfigService permits ConnectionConfigService {
+public sealed interface IConnectionConfigService
+    permits ConnectionConfigService {
 
   /**
    * Returns all defined connection configuration.
    *
-   * @return IStridablesList:lt;{@link IConnectionConfig}&gt; - the list of defined connection configuration
+   * @return IStridablesList&lt;{@link IConnectionConfig}&gt; - the list of defined connection configuration
    */
   IStridablesList<IConnectionConfig> listConfigs();
 
@@ -46,7 +47,7 @@ public sealed interface IConnectionConfigService permits ConnectionConfigService
   /**
    * Returns all registered connection configuration providers.
    *
-   * @return IStridablesList:lt;{@link IConnectionConfigProvider}&gt; - the list of registered providers
+   * @return IStridablesList&lt;{@link IConnectionConfigProvider}&gt; - the list of registered providers
    */
   IStridablesList<IConnectionConfigProvider> listProviders();
 

@@ -11,7 +11,7 @@ import org.toxsoft.core.tslib.utils.errors.TsNullArgumentRtException;
  * <p>
  * Этот интерфейс нужен только для реализации служб сервера. Для клиентов он не нужен.
  *
- * @author goga
+ * @author hazard157
  */
 @Local
 public interface IS5InitialSingleton {

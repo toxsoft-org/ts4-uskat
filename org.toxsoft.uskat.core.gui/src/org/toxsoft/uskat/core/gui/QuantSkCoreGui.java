@@ -52,7 +52,10 @@ public class QuantSkCoreGui
     m5.addModel( new ConnectionConfigM5Model() );
     //
     IValedControlFactoriesRegistry facReg = aWinContext.get( IValedControlFactoriesRegistry.class );
+    facReg.registerFactory( ValedAvStringProviderIdCombo.FACTORY );
     facReg.registerFactory( ValedProviderIdCombo.FACTORY );
+    facReg.registerFactory( ValedAvStringConnConfIdCombo.FACTORY );
+    facReg.registerFactory( ValedConnConfIdCombo.FACTORY );
   }
 
   @Override

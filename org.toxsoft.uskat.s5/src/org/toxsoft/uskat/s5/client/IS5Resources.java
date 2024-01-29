@@ -3,7 +3,7 @@ package org.toxsoft.uskat.s5.client;
 /**
  * Локализуемые ресурсы подсистемы подключения к серверу.
  *
- * @author goga
+ * @author hazard157
  */
 interface IS5Resources {
 

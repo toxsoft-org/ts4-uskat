@@ -459,6 +459,15 @@ public class SkCoreServObject
       case MSGID_OBJECTS_CHANGE -> {
         ECrudOp op = extractCrudOp( aMessage );
         Skid skid = extractSkid( aMessage );
+        if( skid != null ) {
+          // if created by this service, object is already in cache, if sibling service - remove() has no sense
+          if( op != ECrudOp.CREATE ) {
+            objsCache.remove( skid );
+          }
+        }
+        else {
+          objsCache.clear();
+        }
         eventer.fireObjectsChanged( op, skid );
         yield true;
       }
@@ -621,7 +630,7 @@ public class SkCoreServObject
     else {
       classesList = new StridablesList<>( cinf );
     }
-    // FIXME search objects in cache
+    // OPTIMIZE search objects in cache ???
     IList<IDtoObject> dpuObjs = coreApi().l10n().l10nObjectsList( ba().baObjects().readObjects( classesList.ids() ) );
     // aAllowDuplicates = false
     IListEdit<ISkObject> ll = new ElemLinkedBundleList<>( 256, false );

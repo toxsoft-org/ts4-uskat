@@ -1,4 +1,5 @@
 package org.toxsoft.uskat.core.gui.conn.valed;
+//public class ValedAvStringConnConfIdCombo {
 
 import static org.toxsoft.core.tsgui.valed.api.IValedControlConstants.*;
 import static org.toxsoft.core.tslib.av.impl.AvUtils.*;
@@ -11,17 +12,17 @@ import org.toxsoft.core.tslib.av.*;
 import org.toxsoft.core.tslib.utils.errors.*;
 
 /**
- * Wraps {@link ValedProviderIdCombo} to edit {@link EAtomicType#STRING} atomic value.
+ * Wraps {@link ValedConnConfIdCombo} to edit {@link EAtomicType#STRING} atomic value.
  *
  * @author hazard157
  */
-public class ValedAvStringProviderIdCombo
+public class ValedAvStringConnConfIdCombo
     extends AbstractAvWrapperValedControl<String> {
 
   /**
    * The factory name.
    */
-  public static final String FACTORY_NAME = VALED_EDNAME_PREFIX + ".AvStringProviderIdCombo"; //$NON-NLS-1$
+  public static final String FACTORY_NAME = VALED_EDNAME_PREFIX + ".AvStringConnConfIdCombo"; //$NON-NLS-1$
 
   /**
    * The factory class.
@@ -38,7 +39,7 @@ public class ValedAvStringProviderIdCombo
     @SuppressWarnings( "unchecked" )
     @Override
     protected IValedControl<IAtomicValue> doCreateEditor( ITsGuiContext aContext ) {
-      return new ValedAvStringProviderIdCombo( aContext );
+      return new ValedAvStringConnConfIdCombo( aContext );
     }
 
   }
@@ -54,8 +55,8 @@ public class ValedAvStringProviderIdCombo
    * @param aTsContext {@link ITsGuiContext} - the editor context
    * @throws TsNullArgumentRtException any argument = <code>null</code>
    */
-  public ValedAvStringProviderIdCombo( ITsGuiContext aTsContext ) {
-    super( aTsContext, EAtomicType.STRING, ValedProviderIdCombo.FACTORY );
+  public ValedAvStringConnConfIdCombo( ITsGuiContext aTsContext ) {
+    super( aTsContext, EAtomicType.STRING, ValedConnConfIdCombo.FACTORY );
   }
 
   // ------------------------------------------------------------------------------------
