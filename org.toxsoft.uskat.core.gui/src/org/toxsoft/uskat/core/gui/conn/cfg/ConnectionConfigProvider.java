@@ -105,8 +105,7 @@ public non-sealed class ConnectionConfigProvider
   @Override
   public void fillArgs( ITsContext aSkConnArgs, IOptionSet aOptions ) {
     TsNullArgumentRtException.checkNull( aSkConnArgs );
-    TsValidationFailedRtException.checkError( validateOpValues( aOptions ) );
-    // all options
+    // ашдд цшер щзешщтыoptions
     for( IDataDef opdef : opDefs ) {
       if( aOptions.hasValue( opdef.id() ) ) {
         aSkConnArgs.params().setValue( opdef, aOptions.getValue( opdef ) );
@@ -115,6 +114,8 @@ public non-sealed class ConnectionConfigProvider
         aSkConnArgs.params().setValue( opdef, opdef.defaultValue() );
       }
     }
+    // check options validity
+    TsValidationFailedRtException.checkError( validateOpValues( aOptions ) );
     // known references
     REFDEF_BACKEND_PROVIDER.setRef( aSkConnArgs, backendProvider );
     // additional processing
