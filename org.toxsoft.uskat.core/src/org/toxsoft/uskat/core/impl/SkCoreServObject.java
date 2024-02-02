@@ -509,6 +509,9 @@ public class SkCoreServObject
       if( rivet == null ) {
         rivet = SkidList.createNones( rinf.count() );
       }
+      else {
+        rivet = new SkidList( rivet );
+      }
       sko.rivets().map().put( rinf.id(), rivet );
     }
     return sko;
