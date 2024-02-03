@@ -24,14 +24,14 @@ import org.toxsoft.uskat.core.utils.*;
  * {@link KM5Support} updates M5-models of the changed entities by the {@link #updateDomain(ECrudOp, String)} method.
  * When connection closes domain is cleared by the {@link #clearDomain()} method.
  * <p>
- * Note: activation/deactivation of connection does not changes domain, only connection open/close matters.
+ * Note: activation/de-activation of connection does not changes domain, only connection open/close matters.
  * <p>
  * Binding also means that connection and domain know about each other. {@link ISkConnection#scope()} contains reference
  * to the {@link KM5Support} and {@link IM5Domain} while {@link IM5Domain#tsContext()} holds references to the
  * {@link ISkConnection} and to the {@link KM5Support}.
  * <p>
  * <b>Important note:</b> created domain {@link #m5()} is not intended to have models other than created by this class.
- * All other models may be removed at random modemt of time. If other models are needed, they may be added either in the
+ * All other models may be removed at random moment of time. If other models are needed, they may be added either in the
  * parent domain or by the registered {@link KM5AbstractContributor}.
  *
  * @author hazard157

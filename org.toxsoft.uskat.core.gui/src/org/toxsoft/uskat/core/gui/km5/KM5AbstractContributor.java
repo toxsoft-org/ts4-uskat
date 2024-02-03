@@ -51,7 +51,7 @@ public abstract class KM5AbstractContributor
    * Returns the bind domain created in constructor.
    * <p>
    * <b>Important note:</b> created domain {@link #m5()} is not intended to have models other than created by this
-   * class. All other models may be removed at random modemt of time. If other models are needed, they may be added
+   * class. All other models may be removed at random moment of time. If other models are needed, they may be added
    * either in the parent domain or by the registered {@link KM5AbstractContributor}.
    *
    * @return {@link IM5Domain} - the domain bind to the connection {@link #skConn()}
