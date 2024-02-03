@@ -189,7 +189,7 @@ public abstract class AbstractSkService
    */
   final public void sendMessageToSiblings( GtMessage aMessage ) {
     TsNullArgumentRtException.checkNull( aMessage );
-    TsIllegalArgumentRtException.checkFalse( aMessage.messageId().equals( serviceId() ) );
+    TsIllegalArgumentRtException.checkFalse( aMessage.topicId().equals( serviceId() ) );
     coreApi.backend().sendBackendMessage( aMessage );
   }
 
