@@ -1,5 +1,7 @@
 package org.toxsoft.uskat.backend.memtext;
 
+import static org.toxsoft.uskat.core.ISkHardConstants.*;
+
 import java.util.*;
 
 import org.toxsoft.core.tslib.bricks.events.msg.*;
@@ -9,6 +11,7 @@ import org.toxsoft.core.tslib.bricks.strio.*;
 import org.toxsoft.core.tslib.bricks.strio.impl.*;
 import org.toxsoft.core.tslib.coll.helpers.*;
 import org.toxsoft.core.tslib.coll.primtypes.*;
+import org.toxsoft.core.tslib.coll.primtypes.impl.*;
 import org.toxsoft.core.tslib.gw.*;
 import org.toxsoft.core.tslib.utils.errors.*;
 import org.toxsoft.uskat.core.api.sysdescr.dto.*;
@@ -45,7 +48,20 @@ class MtbBaClasses
 
   @Override
   public void close() {
-    // nop
+    // GOGA 2024-02-02 --- do NOT save classes defined by the Java code
+    IStringListEdit cidsToRemove = new StringArrayList();
+    for( IDtoClassInfo cinf : classInfos ) {
+      // try to remove
+      if( OPDEF_SK_IS_SOURCE_CODE_DEFINED_CLASS.getValue( cinf.params() ).asBool() ) {
+        if( !hasNonSourceCodeSubclass( cinf ) ) {
+          cidsToRemove.add( cinf.id() );
+        }
+      }
+    }
+    for( String cid : cidsToRemove ) {
+      classInfos.removeById( cid );
+    }
+    // ---
   }
 
   @Override
@@ -78,6 +94,21 @@ class MtbBaClasses
     StrioUtils.ensureKeywordHeader( aSr, KW_CLASS_INFOS );
     classInfos.clear();
     DtoClassInfo.KEEPER.readColl( aSr, classInfos );
+  }
+
+  private boolean hasNonSourceCodeSubclass( IDtoClassInfo aClassInfo ) {
+    for( IDtoClassInfo cinfSub : classInfos ) {
+      if( cinfSub.parentId().equals( aClassInfo.id() ) ) {
+        if( !OPDEF_SK_IS_SOURCE_CODE_DEFINED_CLASS.getValue( cinfSub.params() ).asBool() ) {
+          return true;
+        }
+        boolean hasNonJavaSubSub = hasNonSourceCodeSubclass( aClassInfo );
+        if( hasNonJavaSubSub ) {
+          return true;
+        }
+      }
+    }
+    return false;
   }
 
   @Override

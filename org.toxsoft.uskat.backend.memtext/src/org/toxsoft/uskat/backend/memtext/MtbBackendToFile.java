@@ -58,8 +58,8 @@ public class MtbBackendToFile
           TSID_NAME, STR_N_OP_FILE_PATH, //
           TSID_DESCRIPTION, STR_D_OP_FILE_PATH, //
           // this option must match constants from TSGUI
-          "ts.valed.option.EditorFactoryName", "ts.valed.AvStringFile", //$NON-NLS-1$//$NON-NLS-2$
-          "ts.valed.option.File.IsOpenDialog", AV_TRUE, //
+          "org.toxsoft.valed.option.EditorFactoryName", "ts.valed.AvStringFile", //$NON-NLS-1$//$NON-NLS-2$
+          "org.toxsoft.valed.option.File.IsOpenDialog", AV_TRUE, //
           TSID_IS_MANDATORY, AV_TRUE //
       );
 
