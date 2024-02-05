@@ -11,22 +11,21 @@ import org.toxsoft.core.tsgui.m5.model.impl.*;
 import org.toxsoft.core.tsgui.m5.std.models.av.*;
 import org.toxsoft.core.tslib.av.*;
 import org.toxsoft.core.tslib.av.misc.*;
+import org.toxsoft.core.tslib.av.opset.*;
+import org.toxsoft.core.tslib.av.opset.impl.*;
 import org.toxsoft.core.tslib.coll.*;
 import org.toxsoft.core.tslib.coll.impl.*;
 import org.toxsoft.core.tslib.coll.primtypes.*;
 import org.toxsoft.core.tslib.coll.primtypes.impl.*;
-import org.toxsoft.core.tslib.gw.*;
 import org.toxsoft.core.tslib.gw.skid.*;
-import org.toxsoft.core.tslib.utils.*;
 import org.toxsoft.core.tslib.utils.errors.*;
-import org.toxsoft.core.tslib.utils.logs.impl.*;
-import org.toxsoft.uskat.core.api.linkserv.*;
 import org.toxsoft.uskat.core.api.objserv.*;
 import org.toxsoft.uskat.core.api.sysdescr.*;
 import org.toxsoft.uskat.core.api.sysdescr.dto.*;
 import org.toxsoft.uskat.core.connection.*;
 import org.toxsoft.uskat.core.gui.km5.*;
 import org.toxsoft.uskat.core.gui.km5.sded.*;
+import org.toxsoft.uskat.core.impl.dto.*;
 
 /**
  * M5-model of the {@link IDtoFullObject}.
@@ -43,26 +42,6 @@ public class SdedDtoFullObjectM5Model
   static final String FID_LINKS  = "fid.links";  //$NON-NLS-1$
   static final String FID_RIVETS = "fid.rivets"; //$NON-NLS-1$
   static final String FID_CLOBS  = "fid.clobs";  //$NON-NLS-1$
-
-  /**
-   * Attribute {@link IDtoFullObject#skid() } String ID
-   */
-  // public M5AttributeFieldDef<IDtoFullObject> SKID = new M5AttributeFieldDef<>( FID_SKID, VALOBJ, //
-  // TSID_KEEPER_ID, Skid.KEEPER_ID, //
-  // OPID_EDITOR_FACTORY_NAME, ValedAvValobjSkidEditor.FACTORY_NAME //
-  // ) {
-  //
-  // @Override
-  // protected void doInit() {
-  // setNameAndDescription( STR_N_PARAM_SKID, STR_D_PARAM_SKID );
-  // setFlags( M5FF_INVARIANT | M5FF_COLUMN );
-  // }
-  //
-  // protected IAtomicValue doGetFieldValue( IDtoFullObject aEntity ) {
-  // return avValobj( aEntity.skid() );
-  // }
-  //
-  // };
 
   /**
    * Attribute {@link IDtoFullObject#nmName()}.
@@ -119,53 +98,48 @@ public class SdedDtoFullObjectM5Model
     //
 
     private IDtoFullObject makeDtoFullObject( IM5Bunch<IDtoFullObject> aValues ) {
-      // String id = aValues.getAsAv( FID_CLASS_ID ).asString();
-      // String parentId = aValues.getAsAv( FID_PARENT_ID ).asString();
-      // IOptionSetEdit params = new OptionSet();
-      // if( aValues.originalEntity() != null ) {
-      // params.setAll( aValues.originalEntity().params() );
-      // }
-      // params.setStr( FID_NAME, aValues.getAsAv( FID_NAME ).asString() );
-      // params.setStr( FID_DESCRIPTION, aValues.getAsAv( FID_DESCRIPTION ).asString() );
-      // DtoClassInfo cinf = new DtoClassInfo( id, parentId, params );
-      // cinf.attrInfos().setAll( SELF_ATTR_INFOS.getFieldValue( aValues ) );
-      // cinf.rtdataInfos().setAll( SELF_RTDATA_INFOS.getFieldValue( aValues ) );
-      // cinf.cmdInfos().setAll( SELF_CMD_INFOS.getFieldValue( aValues ) );
-      // cinf.eventInfos().setAll( SELF_EVENT_INFOS.getFieldValue( aValues ) );
-      // cinf.linkInfos().setAll( SELF_LINK_INFOS.getFieldValue( aValues ) );
-      // cinf.rivetInfos().setAll( SELF_RIVET_INFOS.getFieldValue( aValues ) );
-      //
-      // // TODO SdedSkClassInfoM5LifecycleManager.makeDtoClassInfo()
-      //
-      // return cinf;
-      return null;
+      IOptionSetEdit attrs = new OptionSet();
+
+      // обрабатываем новые имя и описание
+      attrs.setStr( FID_NAME, aValues.getAsAv( FID_NAME ).asString() );
+      attrs.setStr( FID_DESCRIPTION, aValues.getAsAv( FID_DESCRIPTION ).asString() );
+      // обрабатываем новые значения атрибутов
+      IList<IdValue> attrVals = aValues.getAs( FID_ATTRS, IList.class );
+      IdValue.fillOptionSetFromIdValuesColl( attrVals, attrs );
+
+      IDtoObject dtoObj = new DtoObject( aValues.originalEntity().skid(), attrs, IStringMap.EMPTY );
+
+      // создаем карту связей
+      IList<LinkIdSkidList> linkVals = aValues.getAs( FID_LINKS, IList.class );
+      MappedSkids links = new MappedSkids();
+      LinkIdSkidList.fillMappedSkidFromLinkIdSkidList( linkVals, links );
+      // TODO implements CLOB support
+      DtoFullObject retVal = new DtoFullObject( dtoObj, IStringMap.EMPTY, links.map() );
+      // создаем карту заклепок
+      IList<LinkIdSkidList> rivetVals = aValues.getAs( FID_RIVETS, IList.class );
+      MappedSkids rivets = new MappedSkids();
+      LinkIdSkidList.fillMappedSkidFromLinkIdSkidList( rivetVals, rivets );
+      retVal.rivets().map().putAll( rivets.map() );
+      return retVal;
     }
 
     @Override
     protected IDtoFullObject doCreate( IM5Bunch<IDtoFullObject> aValues ) {
-      IDtoFullObject dtoClassInfo = makeDtoFullObject( aValues );
-      return dtoClassInfo;
+      IDtoFullObject dtoFullObject = makeDtoFullObject( aValues );
+      DtoFullObject.defineFullObject( master().coreApi(), dtoFullObject );
+      return dtoFullObject;
     }
 
     @Override
     protected IDtoFullObject doEdit( IM5Bunch<IDtoFullObject> aValues ) {
-      IDtoFullObject dtoClassInfo = makeDtoFullObject( aValues );
-      return dtoClassInfo;
+      IDtoFullObject dtoFullObject = makeDtoFullObject( aValues );
+      DtoFullObject.defineFullObject( master().coreApi(), dtoFullObject );
+      return dtoFullObject;
     }
 
     @Override
     protected void doRemove( IDtoFullObject aEntity ) {
       // nop
-    }
-
-    @Override
-    protected IList<IDtoFullObject> doListEntities() {
-      IList<ISkClassInfo> skClassesList = master().coreApi().sysdescr().listClasses();
-      IListEdit<IDtoFullObject> retVal = new ElemArrayList<>();
-      for( ISkClassInfo skInf : skClassesList ) {
-        // IDtoFullObject dtoInf = DtoClassInfo.createFromSk( skInf, true );
-      }
-      return retVal;
     }
 
   } // class LifecycleManager
@@ -232,8 +206,9 @@ public class SdedDtoFullObjectM5Model
    */
   private static void createLinkFieldDefs( ISkClassProps<IDtoLinkInfo> aLinkInfoes,
       ElemArrayList<IM5FieldDef<IDtoFullObject, ?>> aFieldDefs ) {
-    M5MultiModownFieldDef<IDtoFullObject, IMappedSkids> fd =
-        new M5MultiModownFieldDef<>( FID_LINKS, MappedSkidsM5Model.M5MODEL_ID ) {
+
+    M5MultiModownFieldDef<IDtoFullObject, LinkIdSkidList> fd =
+        new M5MultiModownFieldDef<>( FID_LINKS, LinkIdSkidListM5Model.MODEL_ID ) {
 
           @Override
           protected void doInit() {
@@ -241,14 +216,8 @@ public class SdedDtoFullObjectM5Model
             setFlags( M5FF_DETAIL );
           }
 
-          protected IList<IMappedSkids> doGetFieldValue( IDtoFullObject aEntity ) {
-            IListEdit<IMappedSkids> retVal = new ElemArrayList<>();
-            for( String key : aEntity.links().map().keys() ) {
-              MappedSkids map = new MappedSkids();
-              map.ensureSkidList( key, aEntity.links().map().getByKey( key ) );
-              retVal.add( map );
-            }
-            return retVal;
+          protected IList<LinkIdSkidList> doGetFieldValue( IDtoFullObject aEntity ) {
+            return LinkIdSkidList.makeLinkIdSkidListCollFromMappedSkid( (MappedSkids)aEntity.links() ).values();
           }
 
         };
@@ -263,8 +232,8 @@ public class SdedDtoFullObjectM5Model
    */
   private static void createRivetFieldDefs( ISkClassProps<IDtoRivetInfo> aRivetInfoes,
       ElemArrayList<IM5FieldDef<IDtoFullObject, ?>> aFieldDefs ) {
-    M5MultiModownFieldDef<IDtoFullObject, IMappedSkids> fd =
-        new M5MultiModownFieldDef<>( FID_RIVETS, MappedSkidsM5Model.M5MODEL_ID ) {
+    M5MultiModownFieldDef<IDtoFullObject, LinkIdSkidList> fd =
+        new M5MultiModownFieldDef<>( FID_RIVETS, LinkIdSkidListM5Model.MODEL_ID ) {
 
           @Override
           protected void doInit() {
@@ -272,14 +241,8 @@ public class SdedDtoFullObjectM5Model
             setFlags( M5FF_DETAIL );
           }
 
-          protected IList<IMappedSkids> doGetFieldValue( IDtoFullObject aEntity ) {
-            IListEdit<IMappedSkids> retVal = new ElemArrayList<>();
-            for( String key : aEntity.rivets().map().keys() ) {
-              MappedSkids map = new MappedSkids();
-              map.ensureSkidList( key, aEntity.rivets().map().getByKey( key ) );
-              retVal.add( map );
-            }
-            return retVal;
+          protected IList<LinkIdSkidList> doGetFieldValue( IDtoFullObject aEntity ) {
+            return LinkIdSkidList.makeLinkIdSkidListCollFromMappedSkid( (MappedSkids)aEntity.rivets() ).values();
           }
 
         };
@@ -315,199 +278,6 @@ public class SdedDtoFullObjectM5Model
 
         };
     aFieldDefs.add( fd );
-  }
-
-  /**
-   * Создает описание полей связей. Различает обработку связей 1-1 и 1-много
-   *
-   * @param aLinkInfoes описание полей связей объекта
-   * @param aFieldDefs список описаний полей для M5
-   */
-  // private void createLinkFieldDefs( ISkClassProps<IDtoLinkInfo> aLinkInfoes,
-  // ElemArrayList<IM5FieldDef<IDtoFullObject, ?>> aFieldDefs ) {
-  // for( IDtoLinkInfo linkInfo : aLinkInfoes.list() ) {
-  // // Связи множественные и связи одиночные обрабатываем по разному
-  // if( linkInfo.linkConstraint().maxCount() == 1 ) {
-  // aFieldDefs.add( singleLinkFieldDef( linkInfo ) );
-  // }
-  // else {
-  // aFieldDefs.add( multyLinkField( linkInfo ) );
-  // }
-  // }
-  // }
-
-  /**
-   * Создает описание поля связи 1-1
-   *
-   * @param aLinkInfo описание связи
-   * @return описание поля связи 1-1
-   */
-  private IM5FieldDef<IDtoFullObject, ISkObject> singleLinkFieldDef( IDtoLinkInfo aLinkInfo ) {
-    M5SingleLookupFieldDef<IDtoFullObject, ISkObject> retVal =
-        new M5SingleLookupFieldDef<>( aLinkInfo.id(), IGwHardConstants.GW_ROOT_CLASS_ID ) {
-
-          @Override
-          protected void doInit() {
-            setNameAndDescription( aLinkInfo.nmName(), aLinkInfo.description() );
-          }
-
-          /**
-           * Допускаем возможность того, что поле не инициализировано
-           */
-          @Override
-          public boolean canUserSelectNull() {
-            return false;
-          }
-
-          /**
-           * Отображает список объектов по данной связи
-           * <p>
-           *
-           * @param aEntity &lt;T&gt; - экземпляр моделированого объекта
-           * @return String - отображаемый текст
-           */
-          @Override
-          protected String doGetFieldValueName( IDtoFullObject aEntity ) {
-            if( skConn() == null || skConn().state() != ESkConnState.ACTIVE ) {
-              return TsLibUtils.EMPTY_STRING;
-            }
-            try {
-              ISkLinkService ls = skConn().coreApi().linkService();
-              ISkidList linkIds =
-                  ls.getLinkFwd( new Skid( aEntity.classId(), aEntity.id() ), aLinkInfo.id() ).rightSkids();
-              ISkObjectService os = skConn().coreApi().objService();
-              IList<ISkObject> linkedObjs = os.getObjs( linkIds );
-              return linkedObjs.isEmpty() ? TsLibUtils.EMPTY_STRING : linkedObjs.first().nmName();
-            }
-            catch( Exception ex ) {
-              LoggerUtils.errorLogger().error( ex );
-            }
-            return TsLibUtils.EMPTY_STRING;
-          }
-
-          @Override
-          protected ISkObject doGetFieldValue( IDtoFullObject aEntity ) {
-            if( skConn() == null || skConn().state() != ESkConnState.ACTIVE ) {
-              return ISkObject.NONE;
-            }
-            try {
-              ISkLinkService ls = skConn().coreApi().linkService();
-              ISkidList linkIds =
-                  ls.getLinkFwd( new Skid( aEntity.classId(), aEntity.id() ), aLinkInfo.id() ).rightSkids();
-              ISkObjectService os = skConn().coreApi().objService();
-              IList<ISkObject> linkedObjs = os.getObjs( linkIds );
-              if( linkedObjs.isEmpty() ) {
-                return ISkObject.NONE;
-              }
-              return linkedObjs.first();
-            }
-            catch( Exception ex ) {
-              LoggerUtils.errorLogger().error( ex );
-              return ISkObject.NONE;
-            }
-          }
-
-          @Override
-          public IM5LookupProvider<ISkObject> lookupProvider() {
-            return () -> baseListItems( aLinkInfo );
-          }
-        };
-    retVal.setFlags( M5FF_COLUMN );
-    return retVal;
-  }
-
-  /**
-   * По описанию связи получить список связанных объектов
-   *
-   * @param aLinkInfo описание связи
-   * @return список связанных объектов
-   */
-  IList<ISkObject> baseListItems( IDtoLinkInfo aLinkInfo ) {
-    ISkObjectService os = skConn().coreApi().objService();
-    IListEdit<ISkObject> lookupObjs = new ElemLinkedBundleList<>();
-    for( String classId : aLinkInfo.rightClassIds() ) {
-      lookupObjs.addAll( os.listObjs( classId, true ) );
-    }
-    return lookupObjs;
-  }
-
-  /**
-   * Создает поле описание связи 1-много
-   *
-   * @param aLinkInfo описание связи
-   * @return поле описание связи 1-много
-   */
-  private IM5FieldDef<IDtoFullObject, ?> multyLinkField( IDtoLinkInfo aLinkInfo ) {
-    M5MultiLookupFieldDef<IDtoFullObject, ISkObject> retVal =
-        new M5MultiLookupFieldDef<>( aLinkInfo.id(), IGwHardConstants.GW_ROOT_CLASS_ID ) {
-
-          @Override
-          protected void doInit() {
-            setNameAndDescription( aLinkInfo.nmName(), aLinkInfo.description() );
-          }
-
-          /**
-           * Отображает список объектов по данной связи
-           * <p>
-           *
-           * @param aEntity &lt;T&gt; - экземпляр моделированого объекта
-           * @return String - отображаемый текст
-           */
-          @Override
-          protected String doGetFieldValueName( IDtoFullObject aEntity ) {
-            if( skConn() == null || skConn().state() != ESkConnState.ACTIVE ) {
-              return TsLibUtils.EMPTY_STRING;
-            }
-            try {
-              ISkLinkService ls = skConn().coreApi().linkService();
-              ISkidList linkIds =
-                  ls.getLinkFwd( new Skid( aEntity.classId(), aEntity.id() ), aLinkInfo.id() ).rightSkids();
-              ISkObjectService os = skConn().coreApi().objService();
-              IList<ISkObject> linkedObjs = os.getObjs( linkIds );
-              StringBuilder sb = new StringBuilder();
-              for( ISkObject obj : linkedObjs ) {
-                sb.append( obj.nmName() + ", " ); //$NON-NLS-1$
-              }
-              // выкусываем финальную запятую
-              if( sb.length() > 0 ) {
-                return sb.substring( 0, sb.length() - 2 );
-              }
-            }
-            catch( Exception ex ) {
-              LoggerUtils.errorLogger().error( ex );
-            }
-            return TsLibUtils.EMPTY_STRING;
-          }
-
-          @Override
-          protected IList<ISkObject> doGetFieldValue( IDtoFullObject aEntity ) {
-            if( skConn() == null || skConn().state() != ESkConnState.ACTIVE ) {
-              return IList.EMPTY;
-            }
-            try {
-              ISkLinkService ls = skConn().coreApi().linkService();
-              ISkidList linkIds =
-                  ls.getLinkFwd( new Skid( aEntity.classId(), aEntity.id() ), aLinkInfo.id() ).rightSkids();
-              ISkObjectService os = skConn().coreApi().objService();
-              IList<ISkObject> linkedObjs = os.getObjs( linkIds );
-              if( linkedObjs.isEmpty() ) {
-                return IList.EMPTY;
-              }
-              return linkedObjs;
-            }
-            catch( Exception ex ) {
-              LoggerUtils.errorLogger().error( ex );
-              return IList.EMPTY;
-            }
-          }
-
-          @Override
-          public IM5LookupProvider<ISkObject> lookupProvider() {
-            return () -> baseListItems( aLinkInfo );
-          }
-        };
-    retVal.setFlags( M5FF_COLUMN );
-    return retVal;
   }
 
   // ------------------------------------------------------------------------------------

@@ -1,5 +1,7 @@
 package org.toxsoft.uskat.backend.memtext;
 
+import static org.toxsoft.uskat.core.ISkHardConstants.*;
+
 import java.util.*;
 
 import org.toxsoft.core.tslib.bricks.events.msg.*;
@@ -45,7 +47,21 @@ class MtbBaClasses
 
   @Override
   public void close() {
-    // nop
+    // GOGA 2024-02-02 --- do NOT save classes defined by the Java code
+    // GOGA 2024-02-03 --- restore, it is an error!
+    // IStringListEdit cidsToRemove = new StringArrayList();
+    // for( IDtoClassInfo cinf : classInfos ) {
+    // // try to remove
+    // if( OPDEF_SK_IS_SOURCE_CODE_DEFINED_CLASS.getValue( cinf.params() ).asBool() ) {
+    // if( !hasNonSourceCodeSubclass( cinf ) ) {
+    // cidsToRemove.add( cinf.id() );
+    // }
+    // }
+    // }
+    // for( String cid : cidsToRemove ) {
+    // classInfos.removeById( cid );
+    // }
+    // ---
   }
 
   @Override
@@ -78,6 +94,21 @@ class MtbBaClasses
     StrioUtils.ensureKeywordHeader( aSr, KW_CLASS_INFOS );
     classInfos.clear();
     DtoClassInfo.KEEPER.readColl( aSr, classInfos );
+  }
+
+  private boolean hasNonSourceCodeSubclass( IDtoClassInfo aClassInfo ) {
+    for( IDtoClassInfo cinfSub : classInfos ) {
+      if( cinfSub.parentId().equals( aClassInfo.id() ) ) {
+        if( !OPDEF_SK_IS_SOURCE_CODE_DEFINED_CLASS.getValue( cinfSub.params() ).asBool() ) {
+          return true;
+        }
+        boolean hasNonJavaSubSub = hasNonSourceCodeSubclass( aClassInfo );
+        if( hasNonJavaSubSub ) {
+          return true;
+        }
+      }
+    }
+    return false;
   }
 
   @Override

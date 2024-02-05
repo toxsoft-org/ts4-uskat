@@ -22,7 +22,7 @@ import org.toxsoft.uskat.core.connection.ISkConnection;
  * {@link ISkObjectService#listObjs(String, boolean)}, но это будет слишком ресурсоемко - там будем масса объектов
  * сессии, которые давно завершились.
  *
- * @author goga
+ * @author hazard157
  */
 public interface ISkSession
     extends ISkObject {

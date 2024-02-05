@@ -1,4 +1,4 @@
-package org.toxsoft.uskat.core.gui.conn.cfg.m5;
+package org.toxsoft.uskat.core.gui.conn.valed;
 
 import static org.toxsoft.core.tsgui.valed.api.IValedControlConstants.*;
 import static org.toxsoft.core.tslib.av.impl.AvUtils.*;
@@ -14,26 +14,22 @@ import org.toxsoft.core.tslib.utils.*;
 import org.toxsoft.core.tslib.utils.errors.*;
 import org.toxsoft.uskat.core.gui.conn.cfg.*;
 
-// TODO TRANSLATE
-
 /**
- * Выпадающий список (combo-box) выбора идентификатора одного из {@link IConnectionConfigService#listProviders()}.
+ * Combo box to select ID from the {@link IConnectionConfigService#listConfigs()}.
  *
  * @author hazard157
  */
-public class ValedProviderIdCombo
+public class ValedConnConfIdCombo
     extends ValedComboSelector<String> {
 
   /**
-   * Название фабрики, с которым она зарегистрирована в {@link ValedControlFactoriesRegistry}.
-   * <p>
-   * Напомним, что автоматическая регистрация с именем класса фабрики тоже работает.
+   * The factory name.
    */
   @SuppressWarnings( "hiding" )
-  public static final String FACTORY_NAME = VALED_EDNAME_PREFIX + ".ValedProviderIdCombo"; //$NON-NLS-1$
+  public static final String FACTORY_NAME = VALED_EDNAME_PREFIX + ".ValedConnConfIdCombo"; //$NON-NLS-1$
 
   /**
-   * Экземпляр-синглтон фабрики.
+   * The factory singleton.
    */
   @SuppressWarnings( "hiding" )
   public static final AbstractValedControlFactory FACTORY = new AbstractValedControlFactory( FACTORY_NAME ) {
@@ -41,7 +37,7 @@ public class ValedProviderIdCombo
     @SuppressWarnings( "unchecked" )
     @Override
     protected IValedControl<String> doCreateEditor( ITsGuiContext aContext ) {
-      AbstractValedControl<String, Combo> e = new ValedProviderIdCombo( aContext );
+      AbstractValedControl<String, Combo> e = new ValedConnConfIdCombo( aContext );
       e.setParamIfNull( OPDEF_IS_HEIGHT_FIXED, AV_TRUE );
       e.setParamIfNull( OPDEF_IS_WIDTH_FIXED, AV_FALSE );
       return e;
@@ -50,12 +46,12 @@ public class ValedProviderIdCombo
   };
 
   /**
-   * Конструктор.
+   * Constructor.
    *
-   * @param aContext {@link ITsGuiContext} - контекст редактора
-   * @throws TsNullArgumentRtException аргумент = null
+   * @param aContext {@link ITsGuiContext} - the editor context
+   * @throws TsNullArgumentRtException any argument = <code>null</code>
    */
-  public ValedProviderIdCombo( ITsGuiContext aContext ) {
+  public ValedConnConfIdCombo( ITsGuiContext aContext ) {
     super( prerpareContext( aContext ) );
   }
 
@@ -65,13 +61,13 @@ public class ValedProviderIdCombo
       if( aItem == null ) {
         return TsLibUtils.EMPTY_STRING;
       }
-      IConnectionConfigProvider p = ccs.listProviders().findByKey( aItem );
+      IConnectionConfig p = ccs.listConfigs().findByKey( aItem );
       if( p != null ) {
-        return StridUtils.printf( StridUtils.FORMAT_ID_NAME, p );
+        return StridUtils.printf( StridUtils.FORMAT_NAME, p );
       }
       return aItem;
     } );
-    REFDEF_ITEMS_PROVIDER.setRef( aContext, () -> ccs.listProviders().keys() );
+    REFDEF_ITEMS_PROVIDER.setRef( aContext, () -> ccs.listConfigs().keys() );
     return aContext;
   }
 

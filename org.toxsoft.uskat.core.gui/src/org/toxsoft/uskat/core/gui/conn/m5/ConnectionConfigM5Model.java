@@ -1,8 +1,8 @@
-package org.toxsoft.uskat.core.gui.conn.cfg.m5;
+package org.toxsoft.uskat.core.gui.conn.m5;
 
 import static org.toxsoft.core.tsgui.m5.IM5Constants.*;
-import static org.toxsoft.uskat.core.gui.conn.cfg.m5.IConnectionConfigM5Constants.*;
-import static org.toxsoft.uskat.core.gui.conn.cfg.m5.ISkResources.*;
+import static org.toxsoft.uskat.core.gui.conn.m5.IConnectionConfigM5Constants.*;
+import static org.toxsoft.uskat.core.gui.conn.m5.ISkResources.*;
 
 import org.toxsoft.core.tsgui.m5.*;
 import org.toxsoft.core.tsgui.m5.model.*;
@@ -13,6 +13,7 @@ import org.toxsoft.core.tsgui.valed.controls.basic.*;
 import org.toxsoft.core.tslib.av.opset.*;
 import org.toxsoft.core.tslib.utils.errors.*;
 import org.toxsoft.uskat.core.gui.conn.cfg.*;
+import org.toxsoft.uskat.core.gui.conn.valed.*;
 
 /**
  * M5-model of {@link IConnectionConfig}.

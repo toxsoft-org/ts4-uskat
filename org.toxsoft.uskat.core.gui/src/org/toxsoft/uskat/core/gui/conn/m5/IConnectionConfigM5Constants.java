@@ -1,4 +1,4 @@
-package org.toxsoft.uskat.core.gui.conn.cfg.m5;
+package org.toxsoft.uskat.core.gui.conn.m5;
 
 import org.toxsoft.uskat.core.*;
 

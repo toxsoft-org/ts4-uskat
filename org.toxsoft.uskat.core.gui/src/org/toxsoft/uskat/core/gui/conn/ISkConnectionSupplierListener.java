@@ -16,7 +16,7 @@ public interface ISkConnectionSupplierListener {
   /**
    * Called when connections map {@link ISkConnectionSupplier#allConns()} changes.
    * <p>
-   * Method is classed in cases:
+   * Method is called in cases:
    * <ul>
    * <li>{@link ISkConnectionSupplier#createConnection(IdChain, ITsGuiContext)
    * createConnection(<b>aConnId</b>,aContext)} - calls this method with arguments
