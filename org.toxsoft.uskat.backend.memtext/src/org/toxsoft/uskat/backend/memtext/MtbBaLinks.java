@@ -166,7 +166,7 @@ public class MtbBaLinks
    */
   private Gwid internalRemoveLink( Gwid aLinkGwid, Skid aLeftSkid ) {
     Gwid concreteGwidOfTheRemovedLink = null;
-    IMapEdit<Skid, IDtoLinkFwd> map = linksMap.removeByKey( aLinkGwid );
+    IMapEdit<Skid, IDtoLinkFwd> map = linksMap.findByKey( aLinkGwid );
     if( map != null ) {
       if( map.removeByKey( aLeftSkid ) != null ) {
         concreteGwidOfTheRemovedLink = Gwid.createLink( aLeftSkid.classId(), aLeftSkid.strid(), aLinkGwid.propId() );
@@ -270,7 +270,7 @@ public class MtbBaLinks
     internalCheck();
     GwidList changedConcreteGwids = new GwidList();
     for( IDtoLinkFwd lf : aLinks ) {
-      // remove link if enpty specified
+      // remove link if < specified
       if( lf.rightSkids().isEmpty() ) {
         Gwid g = internalRemoveLink( lf.gwid(), lf.leftSkid() );
         if( g != null && !changedConcreteGwids.hasElem( g ) ) {
