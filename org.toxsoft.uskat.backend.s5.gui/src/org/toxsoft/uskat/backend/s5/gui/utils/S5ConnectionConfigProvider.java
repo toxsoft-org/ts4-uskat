@@ -3,12 +3,12 @@ package org.toxsoft.uskat.backend.s5.gui.utils;
 import static org.toxsoft.core.tslib.av.metainfo.IAvMetaConstants.*;
 import static org.toxsoft.uskat.backend.s5.gui.utils.ISkResources.*;
 
-import org.toxsoft.core.tslib.av.opset.impl.*;
-import org.toxsoft.core.tslib.bricks.ctx.*;
-import org.toxsoft.uskat.core.gui.conn.cfg.*;
-import org.toxsoft.uskat.s5.client.*;
-import org.toxsoft.uskat.s5.client.remote.*;
-import org.toxsoft.uskat.s5.utils.threads.impl.*;
+import org.toxsoft.core.tslib.av.opset.impl.OptionSetUtils;
+import org.toxsoft.core.tslib.bricks.ctx.ITsContext;
+import org.toxsoft.uskat.core.gui.conn.cfg.ConnectionConfigProvider;
+import org.toxsoft.uskat.core.gui.conn.cfg.IConnectionConfigProvider;
+import org.toxsoft.uskat.s5.client.IS5ConnectionParams;
+import org.toxsoft.uskat.s5.client.remote.S5RemoteBackendProvider;
 
 /**
  * {@link IConnectionConfigProvider} implementation for connection to the S5 backend.
@@ -35,7 +35,6 @@ public class S5ConnectionConfigProvider
 
   @Override
   protected void doProcessArgs( ITsContext aSkConnArgs ) {
-    IS5ConnectionParams.REF_CONNECTION_LOCK.setRef( aSkConnArgs, new S5Lockable() );
     IS5ConnectionParams.REF_CLASSLOADER.setRef( aSkConnArgs, getClass().getClassLoader() );
   }
 
