@@ -147,17 +147,17 @@ public class SkCoreServLinks
       }
     }
     // check number of right objects against link constraints
-    ValidationResult vr = lInfo.linkConstraint().checkErrorSize( aNewLink.rightSkids() );
+    ValidationResult vr = lInfo.linkConstraint().validateErrorSize( aNewLink.rightSkids() );
     if( vr.isError() ) {
       return vr;
     }
     // check duplicate right objects against link constraints
-    vr = ValidationResult.firstNonOk( vr, lInfo.linkConstraint().checkErrorDups( aNewLink.rightSkids() ) );
+    vr = ValidationResult.firstNonOk( vr, lInfo.linkConstraint().validateErrorDups( aNewLink.rightSkids() ) );
     if( vr.isError() ) {
       return vr;
     }
     // check right objects list's emptyness against link constraints
-    return ValidationResult.firstNonOk( vr, lInfo.linkConstraint().checkWarnEmpty( aNewLink.rightSkids() ) );
+    return ValidationResult.firstNonOk( vr, lInfo.linkConstraint().validateWarnEmpty( aNewLink.rightSkids() ) );
   };
 
   final Eventer           eventer           = new Eventer();
