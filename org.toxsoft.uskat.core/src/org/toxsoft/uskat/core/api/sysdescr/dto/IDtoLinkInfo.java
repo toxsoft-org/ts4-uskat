@@ -19,7 +19,7 @@ public interface IDtoLinkInfo
   IStringList rightClassIds();
 
   /**
-   * Returns the contraint on linked objects.
+   * Returns the constraint on linked objects.
    *
    * @return {@link CollConstraint} - the constraint
    */

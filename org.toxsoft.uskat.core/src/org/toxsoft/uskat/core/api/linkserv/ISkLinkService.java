@@ -22,7 +22,7 @@ public interface ISkLinkService
   /**
    * Service ID.
    */
-  String SERVICE_ID = ISkHardConstants.SK_CORE_SERVICE_ID_PREFIX + "Links"; //$NON-NLS-1$
+  String SERVICE_ID = ISkHardConstants.SK_CORE_SERVICE_ID_PREFIX + ".Links"; //$NON-NLS-1$
 
   /**
    * Returns the forward link.
