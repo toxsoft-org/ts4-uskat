@@ -25,7 +25,7 @@ import org.toxsoft.uskat.s5.client.remote.connection.EConnectionState;
 import org.toxsoft.uskat.s5.client.remote.connection.IS5Connection;
 import org.toxsoft.uskat.skadmin.core.*;
 
-import core.tslib.bricks.synchronize.ITsThreadExecutor;
+import core.tslib.bricks.threadexecutor.ITsThreadExecutor;
 
 /**
  * Менеджер библиотек

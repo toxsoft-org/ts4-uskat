@@ -13,7 +13,7 @@ import org.toxsoft.core.tslib.utils.logs.impl.LoggerUtils;
 import org.toxsoft.uskat.core.api.hqserv.ISkAsynchronousQuery;
 import org.toxsoft.uskat.core.api.hqserv.ISkHistoryQueryServiceConstants;
 
-import core.tslib.bricks.synchronize.ITsThreadExecutor;
+import core.tslib.bricks.threadexecutor.ITsThreadExecutor;
 
 /**
  * Диалог прогресса выполнения операции

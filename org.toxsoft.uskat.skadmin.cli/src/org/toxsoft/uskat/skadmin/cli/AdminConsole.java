@@ -59,7 +59,7 @@ import org.toxsoft.uskat.skadmin.core.*;
 import org.toxsoft.uskat.skadmin.core.impl.AbstractAdminCmdLibrary;
 import org.toxsoft.uskat.skadmin.core.impl.AdminCmdResult;
 
-import core.tslib.bricks.synchronize.TsThreadExecutor;
+import core.tslib.bricks.threadexecutor.TsThreadExecutor;
 import scala.tools.jline.console.history.FileHistory;
 import scala.tools.jline.console.history.PersistentHistory;
 

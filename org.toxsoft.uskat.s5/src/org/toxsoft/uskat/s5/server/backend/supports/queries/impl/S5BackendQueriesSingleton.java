@@ -56,7 +56,7 @@ import org.toxsoft.uskat.s5.server.singletons.S5ServiceSingletonUtils;
 import org.toxsoft.uskat.s5.utils.jobs.IS5ServerJob;
 import org.toxsoft.uskat.s5.utils.threads.impl.S5ReadThreadExecutor;
 
-import core.tslib.bricks.synchronize.ITsThreadExecutor;
+import core.tslib.bricks.threadexecutor.ITsThreadExecutor;
 
 /**
  * Реализация синглетона {@link IS5BackendQueriesSingleton}

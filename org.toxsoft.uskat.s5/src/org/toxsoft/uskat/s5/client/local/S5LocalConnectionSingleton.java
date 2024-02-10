@@ -44,7 +44,7 @@ import org.toxsoft.uskat.s5.server.startup.IS5InitialImplementSingleton;
 import org.toxsoft.uskat.s5.server.startup.IS5InitialImplementation;
 import org.toxsoft.uskat.s5.utils.jobs.IS5ServerJob;
 
-import core.tslib.bricks.synchronize.TsThreadExecutor;
+import core.tslib.bricks.threadexecutor.TsThreadExecutor;
 
 /**
  * Реализация синглтона {@link IS5LocalConnectionSingleton}.

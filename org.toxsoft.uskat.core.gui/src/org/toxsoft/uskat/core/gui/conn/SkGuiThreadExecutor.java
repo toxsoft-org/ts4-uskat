@@ -4,7 +4,7 @@ import org.eclipse.swt.widgets.Display;
 import org.toxsoft.core.tslib.utils.errors.TsIllegalStateRtException;
 import org.toxsoft.core.tslib.utils.errors.TsNullArgumentRtException;
 
-import core.tslib.bricks.synchronize.ITsThreadExecutor;
+import core.tslib.bricks.threadexecutor.ITsThreadExecutor;
 
 /**
  * Реализация {@link ITsThreadExecutor} для GUI (SWT)

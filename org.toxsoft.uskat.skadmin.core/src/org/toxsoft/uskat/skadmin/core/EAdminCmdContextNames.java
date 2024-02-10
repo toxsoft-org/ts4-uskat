@@ -22,7 +22,7 @@ import org.toxsoft.uskat.legacy.plexy.IPlexyType;
 import org.toxsoft.uskat.s5.client.remote.connection.IS5Connection;
 import org.toxsoft.uskat.s5.common.S5Host;
 
-import core.tslib.bricks.synchronize.ITsThreadExecutor;
+import core.tslib.bricks.threadexecutor.ITsThreadExecutor;
 
 /**
  * Известные имена параметров контекста выполнения команд {@link IAdminCmdContext}.

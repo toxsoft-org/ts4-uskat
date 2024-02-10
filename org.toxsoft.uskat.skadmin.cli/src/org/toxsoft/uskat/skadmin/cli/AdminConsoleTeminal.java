@@ -15,7 +15,7 @@ import org.toxsoft.core.tslib.utils.logs.impl.LoggerUtils;
 import org.toxsoft.uskat.skadmin.cli.parsers.*;
 import org.toxsoft.uskat.skadmin.core.IAdminCmdContext;
 
-import core.tslib.bricks.synchronize.ITsThreadExecutor;
+import core.tslib.bricks.threadexecutor.ITsThreadExecutor;
 import scala.tools.jline.console.*;
 
 /**

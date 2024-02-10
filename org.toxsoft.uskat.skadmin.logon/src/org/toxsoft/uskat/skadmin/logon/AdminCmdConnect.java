@@ -31,7 +31,7 @@ import org.toxsoft.uskat.s5.server.IS5ServerHardConstants;
 import org.toxsoft.uskat.skadmin.core.*;
 import org.toxsoft.uskat.skadmin.core.impl.AbstractAdminCmd;
 
-import core.tslib.bricks.synchronize.ITsThreadExecutor;
+import core.tslib.bricks.threadexecutor.ITsThreadExecutor;
 
 /**
  * Команда администрирования: вход пользователя на skat-s5-сервер

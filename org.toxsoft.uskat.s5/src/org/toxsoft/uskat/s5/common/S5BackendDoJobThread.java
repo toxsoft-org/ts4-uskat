@@ -13,7 +13,7 @@ import org.toxsoft.core.tslib.utils.errors.TsNullArgumentRtException;
 import org.toxsoft.core.tslib.utils.logs.ELogSeverity;
 import org.toxsoft.core.tslib.utils.logs.ILogger;
 
-import core.tslib.bricks.synchronize.TsThreadExecutor;
+import core.tslib.bricks.threadexecutor.TsThreadExecutor;
 
 /**
  * Задача (поток) обслуживания потребностей бекенда {@link ICooperativeMultiTaskable#doJob()}

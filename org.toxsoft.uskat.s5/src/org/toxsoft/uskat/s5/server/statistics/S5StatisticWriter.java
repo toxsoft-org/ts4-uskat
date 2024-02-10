@@ -36,7 +36,7 @@ import org.toxsoft.uskat.core.impl.dto.DtoClassInfo;
 import org.toxsoft.uskat.core.impl.dto.DtoRtdataInfo;
 import org.toxsoft.uskat.s5.utils.threads.impl.S5Lockable;
 
-import core.tslib.bricks.synchronize.ITsThreadExecutor;
+import core.tslib.bricks.threadexecutor.ITsThreadExecutor;
 
 /**
  * Статистика параметров сохраняемая в системе

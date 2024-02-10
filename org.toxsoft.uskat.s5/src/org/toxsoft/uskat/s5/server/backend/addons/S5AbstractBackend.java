@@ -47,7 +47,7 @@ import org.toxsoft.uskat.s5.utils.S5ValobjUtils;
 import org.toxsoft.uskat.s5.utils.progress.IS5ProgressMonitor;
 import org.toxsoft.uskat.s5.utils.threads.impl.S5Lockable;
 
-import core.tslib.bricks.synchronize.ITsThreadExecutor;
+import core.tslib.bricks.threadexecutor.ITsThreadExecutor;
 
 /**
  * Абстрактная реализация s5-бекенда
