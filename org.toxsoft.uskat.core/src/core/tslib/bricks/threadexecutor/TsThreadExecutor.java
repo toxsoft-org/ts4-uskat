@@ -56,6 +56,17 @@ public final class TsThreadExecutor
   }
 
   /**
+   * Set new thread for synchronizer
+   *
+   * @param aThread {@link Thread} thread
+   * @throws TsNullArgumentRtException arg = null
+   */
+  public void setThread( Thread aThread ) {
+    TsNullArgumentRtException.checkNull( aThread );
+    synchronizer.setThread( aThread );
+  }
+
+  /**
    * Free all resources and close synchronizer.
    */
   public void close() {

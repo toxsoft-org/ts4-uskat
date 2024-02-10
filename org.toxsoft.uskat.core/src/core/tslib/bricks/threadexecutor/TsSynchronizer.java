@@ -120,6 +120,33 @@ final class TsSynchronizer {
   }
 
   /**
+   * Set(change) internal thread.
+   *
+   * @param aThread {@link Thread} the new doJob thread
+   * @throws TsNullArgumentRtException argument = null
+   */
+  void setThread( Thread aThread ) {
+    TsNullArgumentRtException.checkNull( aThread );
+    if( isInternalThread ) {
+      // we can query shutdown for internal thread only
+      synchronized (finishLock) {
+        try {
+          queryShutdown = true;
+          doJobThread.interrupt();
+          // Wait thread finish
+          finishLock.wait();
+        }
+        catch( InterruptedException ex ) {
+          LoggerUtils.errorLogger().error( ex );
+        }
+      }
+    }
+    isInternalThread = false;
+    queryShutdown = false;
+    doJobThread = aThread;
+  }
+
+  /**
    * Free all resources and close synchronizer.
    */
   void close() {
@@ -327,7 +354,7 @@ final class TsSynchronizer {
           catch( Throwable e ) {
             // clear interrupted flag
             Thread.interrupted();
-            LoggerUtils.errorLogger().error( e );
+            // LoggerUtils.errorLogger().error( e );
           }
         }
       }
