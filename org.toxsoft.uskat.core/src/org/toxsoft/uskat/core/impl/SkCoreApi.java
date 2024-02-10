@@ -107,8 +107,15 @@ public class SkCoreApi
     llCreators.add( SkCoreServGwids.CREATOR );
     llCreators.add( SkCoreServGwidDb.CREATOR );
     // backend and user-specified services
-    llCreators.addAll( backend.listBackendServicesCreators() );
-    llCreators.addAll( SkCoreUtils.listRegisteredSkServiceCreators() );
+    // TODO: 2024-02-10 mvk ElemArrayList do not working for aAllowDuplicates = false, ElemArrayList.addAll( ... ) 
+//    llCreators.addAll( backend.listBackendServicesCreators() );
+//    llCreators.addAll( SkCoreUtils.listRegisteredSkServiceCreators() );
+    for( ISkServiceCreator<? extends AbstractSkService> creator : backend.listBackendServicesCreators() ) {
+    	llCreators.add( creator );	
+    }
+    for( ISkServiceCreator<? extends AbstractSkService> creator : SkCoreUtils.listRegisteredSkServiceCreators() ) {
+    	llCreators.add( creator );	
+    }
     // thread separator service
     llCreators.add( SkThreadExecutorService.CREATOR );
 
@@ -293,7 +300,7 @@ public class SkCoreApi
 
   @Override
   public void onBackendMessage( GtMessage aMessage ) {
-    executor.syncExec( () -> {
+	 executor.syncExec( () -> {
       if( BackendMsgActiveChanged.INSTANCE.isOwnMessage( aMessage ) ) {
         if( !inited ) {
           return;
