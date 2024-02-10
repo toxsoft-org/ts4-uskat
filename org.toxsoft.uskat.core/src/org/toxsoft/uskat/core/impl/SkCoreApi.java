@@ -37,7 +37,7 @@ import org.toxsoft.uskat.core.devapi.ICoreL10n;
 import org.toxsoft.uskat.core.devapi.IDevCoreApi;
 import org.toxsoft.uskat.core.devapi.gwiddb.ISkGwidDbService;
 
-import core.tslib.bricks.synchronize.ITsThreadExecutor;
+import core.tslib.bricks.threadexecutor.ITsThreadExecutor;
 
 /**
  * An {@link ISkCoreApi} and {@link IDevCoreApi} implementation.

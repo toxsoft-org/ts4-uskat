@@ -7,7 +7,7 @@ import org.toxsoft.uskat.core.ISkCoreApi;
 import org.toxsoft.uskat.core.ISkServiceCreator;
 import org.toxsoft.uskat.core.devapi.IDevCoreApi;
 
-import core.tslib.bricks.synchronize.ITsThreadExecutor;
+import core.tslib.bricks.threadexecutor.ITsThreadExecutor;
 
 /**
  * Implementation of {@link ITsThreadExecutor} as uskat-service.

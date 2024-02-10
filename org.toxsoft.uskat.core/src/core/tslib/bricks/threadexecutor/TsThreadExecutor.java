@@ -1,4 +1,4 @@
-package core.tslib.bricks.synchronize;
+package core.tslib.bricks.threadexecutor;
 
 import java.util.concurrent.Executor;
 
