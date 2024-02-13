@@ -30,19 +30,10 @@ public class SkThreadExecutorService
    */
   public static final ISkServiceCreator<AbstractSkService> CREATOR = SkThreadExecutorService::new;
 
-  // /**
-  // * Mandotary context parameter: dojob timeout (msec)
-  // * <p>
-  // * Тип: {@link EAtomicType#INTEGER}
-  // */
-  // public static final IDataDef OP_DOJOB_TIMEOUT = create( SERVICE_ID + ".DoJobTimeout", INTEGER, //$NON-NLS-1$
-  // TSID_NAME, "Timeout", // //$NON-NLS-1$
-  // TSID_DESCRIPTION, "Dojob timeout (msec)", // //$NON-NLS-1$
-  // TSID_IS_NULL_ALLOWED, AV_FALSE, //
-  // TSID_DEFAULT_VALUE, AvUtils.avInt( -1 ) );
-
-  private final IDevCoreApi devCoreApi;
-  // private int doJobTimeout;
+  /**
+   * Thread executor
+   */
+  private final ITsThreadExecutor threadExecutor;
 
   /**
    * Constructor.
@@ -51,7 +42,7 @@ public class SkThreadExecutorService
    */
   protected SkThreadExecutorService( IDevCoreApi aCoreApi ) {
     super( SERVICE_ID, aCoreApi );
-    devCoreApi = aCoreApi;
+    threadExecutor = aCoreApi.executor();
   }
 
   // ------------------------------------------------------------------------------------
@@ -59,12 +50,7 @@ public class SkThreadExecutorService
   //
   @Override
   final protected void doInit( ITsContextRo aArgs ) {
-    // doJobTimeout = OP_DOJOB_TIMEOUT.getValue( aArgs.params() ).asInt();
-    // // TODO: mvkd
-    // if( doJobTimeout >= 0 ) {
-    // // Автоматическое выполнение doJob
-    // timerExec( doJobTimeout, this );
-    // }
+    // nop
   }
 
   @Override
@@ -77,36 +63,26 @@ public class SkThreadExecutorService
   //
   @Override
   public Thread thread() {
-    return devCoreApi.executor().thread();
+    return threadExecutor.thread();
   }
 
   @Override
   public void asyncExec( Runnable aRunnable ) {
     TsNullArgumentRtException.checkNull( aRunnable );
-    devCoreApi.executor().asyncExec( aRunnable );
+    threadExecutor.asyncExec( aRunnable );
   }
 
   @Override
   public void syncExec( Runnable aRunnable ) {
     TsNullArgumentRtException.checkNull( aRunnable );
-    devCoreApi.executor().syncExec( aRunnable );
+    threadExecutor.syncExec( aRunnable );
   }
 
   @Override
   public void timerExec( int aMilliseconds, Runnable aRunnable ) {
     TsNullArgumentRtException.checkNull( aRunnable );
-    devCoreApi.executor().timerExec( aMilliseconds, aRunnable );
+    threadExecutor.timerExec( aMilliseconds, aRunnable );
   }
-
-  // ------------------------------------------------------------------------------------
-  // Runnable
-  //
-  // @Override
-  // public void run() {
-  // // Автоматическое выполнение doJob
-  // doJob();
-  // timerExec( doJobTimeout, this );
-  // }
 
   // ------------------------------------------------------------------------------------
   // ICooperativeMultiTaskable
@@ -116,7 +92,7 @@ public class SkThreadExecutorService
     // Внимание! doJob может вызваться в ручную только из потока соединения (синхронизатора)
     TsIllegalStateRtException.checkFalse( thread().equals( Thread.currentThread() ) );
     // Фоновая работа синхронизатора. Обработка запросов asyncExec(...)
-    devCoreApi.executor().doJob();
+    threadExecutor.doJob();
   }
 
   // ------------------------------------------------------------------------------------
