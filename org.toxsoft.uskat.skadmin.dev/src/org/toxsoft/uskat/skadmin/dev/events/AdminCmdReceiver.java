@@ -9,15 +9,17 @@ import org.toxsoft.core.tslib.coll.IList;
 import org.toxsoft.core.tslib.coll.impl.ElemArrayList;
 import org.toxsoft.core.tslib.coll.primtypes.IStringList;
 import org.toxsoft.core.tslib.coll.primtypes.IStringMap;
-import org.toxsoft.core.tslib.gw.gwid.Gwid;
-import org.toxsoft.core.tslib.gw.gwid.GwidList;
+import org.toxsoft.core.tslib.gw.gwid.*;
 import org.toxsoft.core.tslib.utils.errors.TsNullArgumentRtException;
 import org.toxsoft.uskat.core.ISkCoreApi;
 import org.toxsoft.uskat.core.api.evserv.*;
+import org.toxsoft.uskat.core.impl.SkThreadExecutorService;
 import org.toxsoft.uskat.legacy.plexy.IPlexyType;
 import org.toxsoft.uskat.legacy.plexy.IPlexyValue;
 import org.toxsoft.uskat.skadmin.core.IAdminCmdCallback;
 import org.toxsoft.uskat.skadmin.core.impl.AbstractAdminCmd;
+
+import core.tslib.bricks.threadexecutor.ITsThreadExecutor;
 
 /**
  * Команда s5admin: прием событий системы
@@ -89,37 +91,25 @@ public class AdminCmdReceiver
     // API сервера
     ISkCoreApi coreApi = argSingleRef( CTX_SK_CORE_API );
     ISkEventService eventService = coreApi.eventService();
-    try {
-      // Идентификаторы принимаемых событий
-      GwidList gwids = new GwidList();
-      for( String gwid : argStrList( ARG_RECV_GWIDS ) ) {
-        gwids.add( Gwid.KEEPER.str2ent( gwid ) );
-      }
-      int timeout = argSingleValue( ARG_RECV_TIMEOUT ).asInt();
+    // Идентификаторы принимаемых событий
+    GwidList gwids = new GwidList();
+    for( String gwid : argStrList( ARG_RECV_GWIDS ) ) {
+      gwids.add( Gwid.KEEPER.str2ent( gwid ) );
+    }
+    int timeout = argSingleValue( ARG_RECV_TIMEOUT ).asInt();
 
-      // Установка обработчика событий
-      eventService.registerHandler( gwids, this );
-      try {
-        long startTime = lastEventTimestamp = System.currentTimeMillis();
-        while( System.currentTimeMillis() - lastEventTimestamp < timeout ) {
-          Thread.sleep( timeout - (System.currentTimeMillis() - lastEventTimestamp) );
-        }
-        long delta = (System.currentTimeMillis() - startTime) / 1000;
-        addResultInfo( MSG_CMD_TIME, Long.valueOf( delta ) );
-        resultOk();
-      }
-      catch( Throwable e ) {
-        addResultError( e );
-        resultFail();
-      }
-      finally {
-        // Удаление обработчика событий
-        eventService.unregisterHandler( this );
-      }
-    }
-    finally {
-      // nop
-    }
+    ITsThreadExecutor threadExecutor = SkThreadExecutorService.getExecutor( coreApi );
+    // Установка обработчика событий
+    eventService.registerHandler( gwids, this );
+    // Таймер удаления обработчика событий
+    threadExecutor.timerExec( timeout, () -> {
+      eventService.unregisterHandler( AdminCmdReceiver.this );
+      println( MSG_DEREG_EVENT_LISTENER, gwidsToStr( gwids ) );
+    } );
+    //
+    println( MSG_REG_EVENT_LISTENER, Integer.valueOf( timeout ), gwidsToStr( gwids ) );
+    // Команда выполняется после выхода еще timeout (msec)
+    resultOk();
   }
 
   @Override
@@ -168,5 +158,21 @@ public class AdminCmdReceiver
    */
   private void print( String aMessage, Object... aArgs ) {
     callback.onNextStep( new ElemArrayList<>( info( aMessage, aArgs ) ), 0, 0, false );
+  }
+
+  /**
+   * Вывод списка gwid в строку
+   *
+   * @param aGwids {@link IGwidList} список gwid
+   * @return String текстовое представление списка
+   */
+  private static String gwidsToStr( IGwidList aGwids ) {
+    StringBuilder sb = new StringBuilder();
+    for( int index = 0, n = aGwids.size(); index < n; index++ ) {
+      sb.append( ' ' );
+      sb.append( aGwids.get( index ) );
+      sb.append( '\n' );
+    }
+    return sb.toString();
   }
 }

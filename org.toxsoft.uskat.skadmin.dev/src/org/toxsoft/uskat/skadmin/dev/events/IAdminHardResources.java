@@ -79,11 +79,13 @@ interface IAdminHardResources {
   String MSG_INFO_CMD_ARGS_INFO      = "| %-20.20s| %-20s| %-60.60s\n";
   String MSG_INFO_CMD_ARGS_INFO_FREE = "| %-20s| %-20s| %-60s\n";
 
-  String MSG_CLS_INFO_CMD_RES    = "\n Команда успешно выполнена: %s\n Результаты выполнения:\n";
-  String MSG_INFO_CMD_RES_LEGEND = "| Время                 | Состояние           | Сообщение\n";
-  String MSG_INFO_CMD_RES_INFO   = "|%-23s| %-20s| %s\n";
-  String MSG_EVENT_FIRED         = "Cобытие %s отправлено в систему";
-  String MSG_RECV_EVENT          = "Получение события : %s";
+  String MSG_CLS_INFO_CMD_RES     = "\n Команда успешно выполнена: %s\n Результаты выполнения:\n";
+  String MSG_INFO_CMD_RES_LEGEND  = "| Время                 | Состояние           | Сообщение\n";
+  String MSG_INFO_CMD_RES_INFO    = "|%-23s| %-20s| %s\n";
+  String MSG_EVENT_FIRED          = "Cобытие %s отправлено в систему";
+  String MSG_REG_EVENT_LISTENER   = "Установка слушателя событий на %d msec(). События: \n%s";
+  String MSG_DEREG_EVENT_LISTENER = "\nУдаление слушателя событий. События: \n%s";
+  String MSG_RECV_EVENT           = "Получение события : %s";
 
   // ------------------------------------------------------------------------------------
   // Ошибки
