@@ -439,7 +439,7 @@ public class S5BackendCurrDataSingleton
             baData.currdataToFrontend.put( gwid, changedValues.getByKey( gwid ) );
           }
         }
-        if( baData.currdataTimeout <= 0 ) {
+        if( baData.currdataToFrontend.size() > 0 && baData.currdataTimeout <= 0 ) {
           // Немедленная передача текущих значений фронтенду
           message = BaMsgRtdataCurrData.INSTANCE.makeMessage( baData.currdataToFrontend );
           baData.currdataToFrontend.clear();
