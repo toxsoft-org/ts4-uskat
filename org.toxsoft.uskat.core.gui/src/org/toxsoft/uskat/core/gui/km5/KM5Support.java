@@ -32,7 +32,7 @@ import org.toxsoft.uskat.core.utils.*;
  * <p>
  * <b>Important note:</b> created domain {@link #m5()} is not intended to have models other than created by this class.
  * All other models may be removed at random moment of time. If other models are needed, they may be added either in the
- * parent domain or by the registered {@link KM5AbstractContributor}.
+ * parent domain or may be the registered {@link KM5AbstractContributor}.
  *
  * @author hazard157
  */
