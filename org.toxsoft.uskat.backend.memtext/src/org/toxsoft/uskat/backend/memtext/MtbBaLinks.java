@@ -82,7 +82,10 @@ public class MtbBaLinks
             aSw.writeChar( CHAR_EQUAL );
             IDtoLinkFwd lf = map.getByKey( leftSkid );
             Skid.KEEPER.writeColl( aSw, lf.rightSkids(), false );
-            aSw.writeSeparatorChar();
+            if( leftSkid != map.keys().last() ) {
+              aSw.writeSeparatorChar();
+              aSw.writeEol();
+            }
           }
           aSw.decNewLine();
         }
