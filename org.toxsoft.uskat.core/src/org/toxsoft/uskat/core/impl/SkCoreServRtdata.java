@@ -425,7 +425,7 @@ public class SkCoreServRtdata
     TsIllegalStateRtException.checkFalse( isInited() );
     IMapEdit<Gwid, ISkWriteCurrDataChannel> result = new ElemMap<>();
     // for all valid GWId either get exiting or create new channel
-    IGwidList gwids = toValidRtdataGwids( aGwids1, true );
+    IGwidList gwids = toValidRtdataGwids( aGwids1, false );
     for( Gwid g : gwids ) {
       SkWriteCurrDataChannel channel = cdWriteChannelsMap.findByKey( g );
       if( channel == null ) {
