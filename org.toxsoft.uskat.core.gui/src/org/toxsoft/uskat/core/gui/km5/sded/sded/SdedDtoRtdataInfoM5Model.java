@@ -14,6 +14,7 @@ import org.toxsoft.core.tsgui.m5.model.impl.*;
 import org.toxsoft.core.tsgui.m5.std.models.av.*;
 import org.toxsoft.core.tsgui.valed.api.*;
 import org.toxsoft.core.tslib.av.*;
+import org.toxsoft.core.tslib.av.impl.AvUtils;
 import org.toxsoft.core.tslib.av.metainfo.*;
 import org.toxsoft.core.tslib.av.opset.*;
 import org.toxsoft.core.tslib.av.opset.impl.*;
@@ -115,6 +116,7 @@ public class SdedDtoRtdataInfoM5Model
         protected void doInit() {
           setNameAndDescription( STR_N_SYNC_DELTA_T, STR_D_SYNC_DELTA_T );
           setFlags( M5FF_DETAIL );
+          setDefaultValue( AvUtils.AV_1 );
         }
 
         @Override
