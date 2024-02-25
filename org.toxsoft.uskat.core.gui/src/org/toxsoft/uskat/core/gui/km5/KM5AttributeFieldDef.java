@@ -35,11 +35,12 @@ public class KM5AttributeFieldDef<T extends ISkObject>
    *
    * @param aId String - the field ID
    * @param aAttrType {@link IDataType} - the attribute data type
+   * @param aIdsAndValues Object[] - identifier / value pairs overrides {@link IDataType#params()}
    * @throws TsNullArgumentRtException any argument = <code>null</code>
    * @throws TsIllegalArgumentRtException ID is not an IDpath
    */
-  public KM5AttributeFieldDef( String aId, IDataType aAttrType ) {
-    super( aId, aAttrType );
+  public KM5AttributeFieldDef( String aId, IDataType aAttrType, Object... aIdsAndValues ) {
+    super( aId, aAttrType, aIdsAndValues );
     // TODO do we need this hack?
     // if no default format string for boolean AV, set it as check mark
     if( atomicType() == EAtomicType.BOOLEAN ) {

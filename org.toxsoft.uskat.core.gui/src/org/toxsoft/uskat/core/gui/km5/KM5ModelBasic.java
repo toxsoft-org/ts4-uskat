@@ -1,6 +1,7 @@
 package org.toxsoft.uskat.core.gui.km5;
 
 import static org.toxsoft.core.tsgui.m5.IM5Constants.*;
+import static org.toxsoft.core.tslib.av.impl.AvUtils.*;
 import static org.toxsoft.core.tslib.av.metainfo.IAvMetaConstants.*;
 import static org.toxsoft.uskat.core.ISkHardConstants.*;
 import static org.toxsoft.uskat.core.gui.km5.ISkKm5SharedResources.*;
@@ -40,52 +41,38 @@ public class KM5ModelBasic<T extends ISkObject>
   /**
    * Attribute {@link ISkObject#classId()} - {@link ISkHardConstants#AID_CLASS_ID}.
    */
-  public final KM5AttributeFieldDef<T> SKID = new KM5AttributeFieldDef<>( ISkHardConstants.AID_SKID, DDEF_VALOBJ ) {
-
-    @Override
-    protected void doInit() {
-      setNameAndDescription( STR_N_FDEF_SKID, STR_D_FDEF_SKID );
-      setFlags( M5FF_HIDDEN | M5FF_INVARIANT );
-    }
-
-  };
+  public final KM5AttributeFieldDef<T> SKID = new KM5AttributeFieldDef<>( ISkHardConstants.AID_SKID, DDEF_VALOBJ, //
+      TSID_NAME, STR_N_FDEF_SKID, //
+      TSID_DESCRIPTION, STR_D_FDEF_SKID, //
+      M5_OPDEF_FLAGS, avInt( M5FF_HIDDEN | M5FF_INVARIANT ) //
+  );
 
   /**
    * Attribute {@link ISkObject#classId()} - {@link ISkHardConstants#AID_CLASS_ID}.
    */
-  public final KM5AttributeFieldDef<T> CLASS_ID = new KM5AttributeFieldDef<>( AID_CLASS_ID, DDEF_IDPATH ) {
-
-    @Override
-    protected void doInit() {
-      setNameAndDescription( STR_N_FDEF_CLASS_ID, STR_D_FDEF_CLASS_ID );
-      setFlags( M5FF_INVARIANT );
-    }
-
-  };
+  public final KM5AttributeFieldDef<T> CLASS_ID = new KM5AttributeFieldDef<>( AID_CLASS_ID, DDEF_IDPATH, //
+      TSID_NAME, STR_N_FDEF_CLASS_ID, //
+      TSID_DESCRIPTION, STR_D_FDEF_CLASS_ID, //
+      M5_OPDEF_FLAGS, avInt( M5FF_INVARIANT ) //
+  );
 
   /**
    * Attribute {@link ISkObject#strid()} - {@link ISkHardConstants#AID_STRID}.
    */
-  public final KM5AttributeFieldDef<T> STRID = new KM5AttributeFieldDef<>( AID_STRID, DDEF_IDPATH ) {
-
-    @Override
-    protected void doInit() {
-      setNameAndDescription( STR_N_FDEF_STRID, STR_D_FDEF_STRID );
-      setFlags( M5FF_COLUMN | M5FF_INVARIANT );
-    }
-
-  };
+  public final KM5AttributeFieldDef<T> STRID = new KM5AttributeFieldDef<>( AID_STRID, DDEF_IDPATH, //
+      TSID_NAME, STR_N_FDEF_STRID, //
+      TSID_DESCRIPTION, STR_D_FDEF_STRID, //
+      M5_OPDEF_FLAGS, avInt( M5FF_COLUMN | M5FF_INVARIANT ) //
+  );
 
   /**
    * Attribute {@link ISkObject#nmName()} - {@link ISkHardConstants#AID_NAME}.
    */
-  public final KM5AttributeFieldDef<T> NAME = new KM5AttributeFieldDef<>( AID_NAME, DDEF_NAME ) {
-
-    @Override
-    protected void doInit() {
-      setNameAndDescription( STR_N_FDEF_NAME, STR_D_FDEF_NAME );
-      setFlags( M5FF_COLUMN );
-    }
+  public final KM5AttributeFieldDef<T> NAME = new KM5AttributeFieldDef<>( AID_NAME, DDEF_NAME, //
+      TSID_NAME, STR_N_FDEF_NAME, //
+      TSID_DESCRIPTION, STR_D_FDEF_NAME, //
+      M5_OPDEF_FLAGS, avInt( M5FF_COLUMN ) //
+  ) {
 
     @Override
     protected String doGetFieldValueName( T aEntity ) {
@@ -101,15 +88,11 @@ public class KM5ModelBasic<T extends ISkObject>
   /**
    * Attribute {@link ISkObject#description()} - {@link ISkHardConstants#AID_DESCRIPTION}.
    */
-  public final KM5AttributeFieldDef<T> DESCRIPTION = new KM5AttributeFieldDef<>( AID_DESCRIPTION, DDEF_DESCRIPTION ) {
-
-    @Override
-    protected void doInit() {
-      setNameAndDescription( STR_N_FDEF_DESCRIPTION, STR_D_FDEF_DESCRIPTION );
-      setFlags( M5FF_DETAIL );
-    }
-
-  };
+  public final KM5AttributeFieldDef<T> DESCRIPTION = new KM5AttributeFieldDef<>( AID_DESCRIPTION, DDEF_DESCRIPTION, //
+      TSID_NAME, STR_N_FDEF_DESCRIPTION, //
+      TSID_DESCRIPTION, STR_D_FDEF_DESCRIPTION, //
+      M5_OPDEF_FLAGS, avInt( M5FF_DETAIL ) //
+  );
 
   /**
    * Constructor.
