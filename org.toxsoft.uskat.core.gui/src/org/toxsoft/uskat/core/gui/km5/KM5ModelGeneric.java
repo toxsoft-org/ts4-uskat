@@ -23,7 +23,7 @@ import org.toxsoft.uskat.core.connection.*;
  * This class may be used to directly create models or to be subclassed.
  *
  * @see ISkSysdescr#determineClassClaimingServiceId(String)
- * @see KM5ModelGeneric
+ * @see KM5ModelBasic
  * @author hazard157
  * @param <T> - modeled entity type
  */
