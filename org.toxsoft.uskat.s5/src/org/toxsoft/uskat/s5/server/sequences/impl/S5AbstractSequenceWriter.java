@@ -1308,6 +1308,8 @@ public abstract class S5AbstractSequenceWriter<S extends IS5Sequence<V>, V exten
     boolean isSync = OP_IS_SYNC.getValue( typeInfo.params() ).asBool();
     // Интервал (мсек) синхронных значений. Для асинхронных: 1
     long syncDT = (isSync ? OP_SYNC_DT.getValue( typeInfo.params() ).asLong() : 1);
+    // Минимальный размер блока
+    // int blockSizeMin = OP_BLOCK_SIZE_MIN.getValue( typeInfo.params() ).asInt();
     // Максимальный размер блока
     int blockSizeMax = OP_BLOCK_SIZE_MAX.getValue( typeInfo.params() ).asInt();
 
@@ -1328,7 +1330,7 @@ public abstract class S5AbstractSequenceWriter<S extends IS5Sequence<V>, V exten
     // Получаем размеры блоков в указанном диапазоне, но не более SEQUENCE_READ_COUNT_MAX
     List<Integer> blkSizes = loadBlockSizes( em, factory, aGwid, interval, 0, SEQUENCE_READ_COUNT_MAX );
     // Признак необходимости провести фрагментацию одного найденного блока
-    boolean needFragmentation = (blkSizes.size() == 1 && blkSizes.get( 0 ).intValue() > 2 * blockSizeMax);
+    boolean needFragmentation = (blkSizes.size() == 1 && blkSizes.get( 0 ).intValue() > blockSizeMax);
     if( blkSizes.size() <= 1 && !needFragmentation ) {
       // Больше нет блоков для объединения
       if( blkSizes.size() == 1 ) {

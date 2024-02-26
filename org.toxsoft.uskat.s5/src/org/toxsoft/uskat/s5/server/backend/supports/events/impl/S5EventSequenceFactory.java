@@ -76,6 +76,7 @@ public class S5EventSequenceFactory
     // Установка значений опций значениями подсистемы
     copyValue( params, IS5EventHardConstants.OP_BLOCK_IMPL_CLASS, IS5SequenceHardConstants.OP_BLOCK_IMPL_CLASS );
     copyValue( params, IS5EventHardConstants.OP_BLOB_IMPL_CLASS, IS5SequenceHardConstants.OP_BLOB_IMPL_CLASS );
+    copyValue( params, IS5EventHardConstants.OP_BLOCK_SIZE_MIN, IS5SequenceHardConstants.OP_BLOCK_SIZE_MIN );
     copyValue( params, IS5EventHardConstants.OP_BLOCK_SIZE_MAX, IS5SequenceHardConstants.OP_BLOCK_SIZE_MAX );
     copyValue( params, IS5EventHardConstants.OP_VALUE_SIZE_MAX, IS5SequenceHardConstants.OP_VALUE_SIZE_MAX );
     return typeInfo;

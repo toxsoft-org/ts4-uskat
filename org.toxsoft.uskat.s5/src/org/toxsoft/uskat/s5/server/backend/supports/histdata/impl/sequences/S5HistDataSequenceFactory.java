@@ -201,6 +201,7 @@ public final class S5HistDataSequenceFactory
     IS5SequenceHardConstants.OP_BLOCK_IMPL_CLASS.setValue( params, avStr( impl.blockClassName() ) );
     IS5SequenceHardConstants.OP_BLOB_IMPL_CLASS.setValue( params, avStr( impl.blobClassName() ) );
     // Установка значений опций значениями подсистемы если они уже не представлены в описании данного
+    copyValueIfAbsent( params, OP_BLOCK_SIZE_MIN, IS5SequenceHardConstants.OP_BLOCK_SIZE_MIN );
     copyValueIfAbsent( params, OP_BLOCK_SIZE_MAX, IS5SequenceHardConstants.OP_BLOCK_SIZE_MAX );
     copyValueIfAbsent( params, OP_VALUE_SIZE_MAX, IS5SequenceHardConstants.OP_VALUE_SIZE_MAX );
 

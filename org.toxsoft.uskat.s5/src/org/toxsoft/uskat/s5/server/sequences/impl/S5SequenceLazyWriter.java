@@ -513,8 +513,10 @@ class S5SequenceLazyWriter<S extends IS5Sequence<V>, V extends ITemporal<?>>
 
       // Параметризованное описание типа данного
       IParameterized typeInfo = factory.typeInfo( gwid );
-      // Минимальное количество блоков для принудительного объединения
-      int defragmentCount = OP_BLOCK_SIZE_MAX.getValue( typeInfo.params() ).asInt();
+      // Минимальное количество значений в дефрагментированном блоке
+      int blockSizeMin = OP_BLOCK_SIZE_MIN.getValue( typeInfo.params() ).asInt();
+      // Максимальное количество значений в дефрагментированном блоке
+      int blockSizeMax = OP_BLOCK_SIZE_MAX.getValue( typeInfo.params() ).asInt();
       // Максимальное количество блоков для принудительного объединения
 //      int fragmentCountMax = fragmentCountMin;
       // Количество текущих фрагментов
@@ -527,19 +529,19 @@ class S5SequenceLazyWriter<S extends IS5Sequence<V>, V extends ITemporal<?>>
 
 //      if( d ) {
         logger().info( "prepareAuto(...): gwid = %s, max = %d, fragmentCount = %d, allFragmentsCount = %s",
-            gwid, Integer.valueOf( defragmentCount ), Integer.valueOf( fragmentCount ), allFragments != null ? allFragments.fragmentCount() : "N/A" );
+            gwid, Integer.valueOf( blockSizeMin ), Integer.valueOf( fragmentCount ), allFragments != null ? allFragments.fragmentCount() : "N/A" );
 //      }
 
       // Анализ фрагментации
-      if( allFragments == null || (defragmentCount < 0 || fragmentCount >= defragmentCount) ) {
+      if( allFragments == null || (blockSizeMin < 0 || fragmentCount >= blockSizeMin) ) {
         // Фрагментация с момента прошлого процесса дефрагментации данного неопределена или накопилось много
         // фрагментов (по записи) которые могут быть дефрагментированы. Запрос к базе для получения реальной
         // дефрагментации. Максимальное количество значений в блоке:
-        //int maxSize = OP_BLOCK_SIZE_MAX.getValue( typeInfo.params() ).asInt();
+        //int maxSize = OP_BLOCK_SIZE_MIN.getValue( typeInfo.params() ).asInt();
         // Фактическая дефрагментация данного полученная чтением из базы данных
         // Внимание! Несмотря на легковесность SQL-запроса, при интенсивной работе с dbms может вызвать задержку
-        int fragmentMin = defragmentCount;
-        int fragmentMax = 10 * defragmentCount;
+        int fragmentMin = blockSizeMin;
+        int fragmentMax = blockSizeMax;
         realAllFragments = findFragmentationTime( aEntityManager, factory, gwid, fragmentEndTime,
             fragmentMin, fragmentMax, fragmentTimeout );
         // 2023-11-08 mvk ---+++
@@ -567,10 +569,10 @@ class S5SequenceLazyWriter<S extends IS5Sequence<V>, V extends ITemporal<?>>
       boolean needDefragmentation =
           // 2023-11-08 mvk ---+++
 //          (realAllFragments != IS5SequenceFragmentInfo.NULL && realAllFragments.fragmentCount() > 0);
-      (realAllFragments != IS5SequenceFragmentInfo.NULL && realAllFragments.fragmentCount() >= defragmentCount );
+      (realAllFragments != IS5SequenceFragmentInfo.NULL && realAllFragments.fragmentCount() >= blockSizeMin );
       // Признак того, что дефрагментированная последовательность выбрана полностью
       boolean fragmentCompleted =
-          (!needDefragmentation || defragmentCount < 0 || realAllFragments.fragmentCount() < defragmentCount);
+          (!needDefragmentation || blockSizeMin < 0 || realAllFragments.fragmentCount() < blockSizeMin);
       lockWrite( unionLock );
       try {
         if( !needDefragmentation || fragmentCompleted ) {

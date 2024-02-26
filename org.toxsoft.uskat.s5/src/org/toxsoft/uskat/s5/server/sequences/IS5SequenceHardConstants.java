@@ -66,7 +66,18 @@ public interface IS5SequenceHardConstants
       TSID_DEFAULT_VALUE, AV_STR_EMPTY );
 
   /**
-   * Опция {@link IS5Sequence#typeInfo()}: количество значений в одном блоке.
+   * Опция {@link IS5Sequence#typeInfo()}: минимальное количество значений в одном дефрагментированном блоке.
+   * <p>
+   * Тип: {@link EAtomicType#INTEGER}
+   */
+  IDataDef OP_BLOCK_SIZE_MIN = create( SEQUENCE_PREFIX + ".BlockSizeMin", EAtomicType.INTEGER, //
+      TSID_NAME, STR_N_BLOCK_SIZE_MIN, //
+      TSID_DESCRIPTION, STR_D_BLOCK_SIZE_MIN, //
+      TSID_IS_NULL_ALLOWED, AV_FALSE, //
+      TSID_DEFAULT_VALUE, avInt( 5000 ) );
+
+  /**
+   * Опция {@link IS5Sequence#typeInfo()}: максимальное количество значений в одном дефрагментированном блоке.
    * <p>
    * Тип: {@link EAtomicType#INTEGER}
    */
@@ -74,7 +85,7 @@ public interface IS5SequenceHardConstants
       TSID_NAME, STR_N_BLOCK_SIZE_MAX, //
       TSID_DESCRIPTION, STR_D_BLOCK_SIZE_MAX, //
       TSID_IS_NULL_ALLOWED, AV_FALSE, //
-      TSID_DEFAULT_VALUE, avInt( 5000 ) );
+      TSID_DEFAULT_VALUE, avInt( 50000 ) );
 
   /**
    * Опция {@link IS5Sequence#typeInfo()}: максимальный размер одного значения (байты).

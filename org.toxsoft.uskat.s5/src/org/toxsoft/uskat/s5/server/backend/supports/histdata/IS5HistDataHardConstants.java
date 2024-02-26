@@ -8,6 +8,7 @@ import static org.toxsoft.uskat.s5.utils.IS5HardConstants.*;
 
 import org.toxsoft.core.tslib.av.EAtomicType;
 import org.toxsoft.core.tslib.av.metainfo.IDataDef;
+import org.toxsoft.uskat.core.api.sysdescr.ISkClassInfo;
 import org.toxsoft.uskat.core.api.sysdescr.dto.IDtoRtdataInfo;
 import org.toxsoft.uskat.s5.server.sequences.IS5Sequence;
 import org.toxsoft.uskat.s5.server.sequences.IS5SequenceHardConstants;
@@ -55,13 +56,20 @@ public interface IS5HistDataHardConstants
   IDataDef OP_BLOB_IMPL_CLASS = createOption( HISTDATA_PREFIX, IS5SequenceHardConstants.OP_BLOB_IMPL_CLASS );
 
   /**
-   * Опция {@link IDtoRtdataInfo#params()}: количество значений в одном блоке.
+   * Опция {@link IDtoRtdataInfo#params()}: минимальное количество значений в одном дефрагментированном блоке.
+   * <p>
+   * Тип: {@link EAtomicType#INTEGER}
+   */
+  IDataDef OP_BLOCK_SIZE_MIN =
+      createOption( HISTDATA_PREFIX, IS5SequenceHardConstants.OP_BLOCK_SIZE_MIN, avInt( 5000 ) );
+
+  /**
+   * Опция {@link ISkClassInfo#params()}: максимальное количество значений в одном дефрагментированном блоке.
    * <p>
    * Тип: {@link EAtomicType#INTEGER}
    */
   IDataDef OP_BLOCK_SIZE_MAX =
-      createOption( HISTDATA_PREFIX, IS5SequenceHardConstants.OP_BLOCK_SIZE_MAX, avInt( 5000 ) );
-  // createOption( HISTDATA_PREFIX, IS5SequenceHardConstants.OP_BLOCK_SIZE_MAX, avInt( 5 ) );
+      createOption( HISTDATA_PREFIX, IS5SequenceHardConstants.OP_BLOCK_SIZE_MAX, avInt( 50000 ) );
 
   /**
    * Опция {@link IDtoRtdataInfo#params()}: максимальный размер одного значения (байты).

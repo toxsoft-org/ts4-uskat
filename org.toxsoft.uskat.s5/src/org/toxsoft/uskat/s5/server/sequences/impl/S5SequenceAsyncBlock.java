@@ -298,8 +298,8 @@ public abstract class S5SequenceAsyncBlock<V extends ITemporal<?>, BLOB_ARRAY, B
     IParameterized typeInfo = aFactory.typeInfo( gwid );
     // Новый размер блока
     int newSize = size();
-    // Двойной максимальный размер блока
-    int doubleMaxSize = 2 * OP_BLOCK_SIZE_MAX.getValue( typeInfo.params() ).asInt();
+    // Максимальное количество значений в дефрагментированном блоке
+    int blockSizeMax = OP_BLOCK_SIZE_MAX.getValue( typeInfo.params() ).asInt();
 
     // Имя таблицы хранения блоков
     String blockTableName = getLast( OP_BLOCK_IMPL_CLASS.getValue( typeInfo.params() ).asString() );
@@ -325,7 +325,7 @@ public abstract class S5SequenceAsyncBlock<V extends ITemporal<?>, BLOB_ARRAY, B
         // невозможно обеспечить гарантию глубины хранения значений в БД
         break;
       }
-      if( newSize + blockSize >= doubleMaxSize ) {
+      if( newSize + blockSize >= blockSizeMax ) {
         // Блок не может быть объединен, так как будет превышен максимальный размер блока
         break;
       }

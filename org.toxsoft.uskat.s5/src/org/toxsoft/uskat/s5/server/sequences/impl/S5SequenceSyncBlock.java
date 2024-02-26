@@ -197,8 +197,8 @@ public abstract class S5SequenceSyncBlock<V extends ITemporal<?>, BLOB_ARRAY, BL
     long syncDelta = syncDataDelta.longValue();
     // Новый размер блока
     int newSize = size();
-    // Двойной максимальный размер блока
-    int doubleMaxSize = 2 * OP_BLOCK_SIZE_MAX.getValue( typeInfo.params() ).asInt();
+    // Максимальное количество значений в одном дефрагментированном блоке
+    int blockSizeMax = OP_BLOCK_SIZE_MAX.getValue( typeInfo.params() ).asInt();
 
     // Имя таблицы хранения блоков
     String blockTableName = getLast( OP_BLOCK_IMPL_CLASS.getValue( typeInfo.params() ).asString() );
@@ -228,7 +228,7 @@ public abstract class S5SequenceSyncBlock<V extends ITemporal<?>, BLOB_ARRAY, BL
         // невозможно обеспечить гарантию глубины хранения значений в БД
         break;
       }
-      if( newSize + blockSize >= doubleMaxSize ) {
+      if( newSize + blockSize >= blockSizeMax ) {
         // Блок не может быть объединен, так как будет вдвое превышен максимальный размер блока
         break;
       }
@@ -277,7 +277,7 @@ public abstract class S5SequenceSyncBlock<V extends ITemporal<?>, BLOB_ARRAY, BL
         // Начало нового блока не соответствует ожидаемому. Определяем количество добавляемых NULL_SESSION значений
         int nullValueCount = (int)((blockStartTime - expectedStartTime) / blockSyncDelta);
         // Определяем можно ли дополнить блок null-значениями, чтобы потом в него добавить значения другого блока
-        if( newSize + nullValueCount + blockSize >= doubleMaxSize ) {
+        if( newSize + nullValueCount + blockSize >= blockSizeMax ) {
           // Добавить null-значения невозможно (двойное превышение размера блока)
           break;
         }
@@ -390,8 +390,8 @@ public abstract class S5SequenceSyncBlock<V extends ITemporal<?>, BLOB_ARRAY, BL
       // Пустая последовательность
       return 0;
     }
-    // Двойной максимальный размер блока
-    int doubleMaxSize = 2 * OP_BLOCK_SIZE_MAX.getValue( aTypeInfo.params() ).asInt();
+    // Максимальное количество значений в дефрагментированном блоке
+    int blockSizeMax = OP_BLOCK_SIZE_MAX.getValue( aTypeInfo.params() ).asInt();
     // Параметры предыдущего блока
     S5SequenceSyncBlock<V, ?, ?> firstBlock = aBlocks.get( 0 );
     long prevBlockEndTime = firstBlock.endTime();
@@ -438,8 +438,8 @@ public abstract class S5SequenceSyncBlock<V extends ITemporal<?>, BLOB_ARRAY, BL
         nonOptimalCount++;
       }
       // Признак того, что предыдущий блок является может быть использван для объединения
-      boolean prevUnionable = (prevBlockSize < doubleMaxSize
-          && (blockStartTime - prevBlockEndTime) / blockSyncDelta + blockSize < doubleMaxSize);
+      boolean prevUnionable = (prevBlockSize < blockSizeMax
+          && (blockStartTime - prevBlockEndTime) / blockSyncDelta + blockSize < blockSizeMax);
       if( prevUnionable && (prevBlockEndTime + blockSyncDelta) != blockStartTime ) {
         // Начало нового блока не соответствует ожидаемому
         Long dd = Long.valueOf( prevBlockSyncDelta );

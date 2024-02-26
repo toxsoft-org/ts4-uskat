@@ -59,12 +59,20 @@ public interface IS5CommandHardConstants
       avStr( S5CommandBlob.class.getName() ) );
 
   /**
-   * Опция {@link ISkClassInfo#params()}: количество значений в одном блоке.
+   * Опция {@link ISkClassInfo#params()}: минимальное количество значений в одном дефрагментированном блоке.
+   * <p>
+   * Тип: {@link EAtomicType#INTEGER}
+   */
+  IDataDef OP_BLOCK_SIZE_MIN =
+      createOption( COMMANDS_PREFIX, IS5SequenceHardConstants.OP_BLOCK_SIZE_MIN, avInt( 500 ) );
+
+  /**
+   * Опция {@link ISkClassInfo#params()}: максимальное количество значений в одном дефрагментированном блоке.
    * <p>
    * Тип: {@link EAtomicType#INTEGER}
    */
   IDataDef OP_BLOCK_SIZE_MAX =
-      createOption( COMMANDS_PREFIX, IS5SequenceHardConstants.OP_BLOCK_SIZE_MAX, avInt( 500 ) );
+      createOption( COMMANDS_PREFIX, IS5SequenceHardConstants.OP_BLOCK_SIZE_MAX, avInt( 5000 ) );
 
   /**
    * Опция {@link ISkClassInfo#params()}: максимальный размер одного значения (байты).

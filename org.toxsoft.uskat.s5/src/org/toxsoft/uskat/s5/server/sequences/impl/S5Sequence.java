@@ -504,10 +504,10 @@ public abstract class S5Sequence<V extends ITemporal<?>>
       // Нечего объединять
       return IList.EMPTY;
     }
-    // Количество значений полного блока (количество значений)
+    // Минимальное количество значений дефрагментированного блока
+    int blockSizeMin = OP_BLOCK_SIZE_MIN.getValue( typeInfo.params() ).asInt();
+    // Максимальное количество значений дефрагментированного блока
     int blockSizeMax = OP_BLOCK_SIZE_MAX.getValue( typeInfo.params() ).asInt();
-    // Двойной максимальный размерр блока
-    Integer doubleMaxSize = Integer.valueOf( 2 * blockSizeMax );
     // Количество блоков в последовательности
     int blockQtty = blocks.size();
     // Список всех блоков которые были объединены и должны быть выведены (удалены) из последовательности
@@ -519,12 +519,12 @@ public abstract class S5Sequence<V extends ITemporal<?>>
       // Блок с которым будет объединение
       IS5SequenceBlockEdit<V> targetBlock = blocks.get( targetIndex );
       try {
-        if( targetBlock.size() > doubleMaxSize.intValue() ) {
+        if( targetBlock.size() > blockSizeMax ) {
           // Количество в блоке больше допустимого более чем в 2 раза (изменилось описание). Требуется необъединять,
           // а разделить блок Разделяемый блок сохраняем в будущей последовательности
           safeAddBlock( typeInfo, gwid, newBlocks, targetBlock, uniterLogger() );
-          while( targetBlock.size() > doubleMaxSize.intValue() ) {
-            int nextBlockStartIndex = doubleMaxSize.intValue();
+          while( targetBlock.size() > blockSizeMax ) {
+            int nextBlockStartIndex = blockSizeMax;
             int nextBlockEndIndex = targetBlock.size() - 1;
             Integer oldSize = Integer.valueOf( targetBlock.size() );
             // Создаем новый блок
@@ -538,8 +538,8 @@ public abstract class S5Sequence<V extends ITemporal<?>>
             // Добавляем блок в последовательность
             safeAddBlock( typeInfo, gwid, newBlocks, newBlock, uniterLogger() );
             // Сообщение для журнала
-            uniterLogger().warning( MSG_SPLIT_BLOCK, typeInfo, oldSize, doubleMaxSize, Long.valueOf( blockSizeMax ),
-                targetBlock );
+            uniterLogger().warning( MSG_SPLIT_BLOCK, typeInfo, oldSize, Integer.valueOf( blockSizeMax ),
+                Long.valueOf( blockSizeMin ), targetBlock );
             // Меняем цель
             targetBlock = newBlock;
           }
