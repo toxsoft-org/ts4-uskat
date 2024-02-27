@@ -195,6 +195,21 @@ public class SdedSkObjectMpc
 
   }
 
+  /**
+   * Constructor - creates instance to view entities, not to edit.
+   *
+   * @param aContext {@link ITsGuiContext} - the context
+   * @param aModel {@link IM5Model} - the model
+   * @param aItemsProvider {@link IM5ItemsProvider} - the items provider or <code>null</code>
+   */
+  SdedSkObjectMpc( ITsGuiContext aContext, IM5Model<ISkObject> aModel, IM5ItemsProvider<ISkObject> aItemsProvider ) {
+    super( aContext, aModel, aItemsProvider );
+    TreeModeInfo<ISkObject> tmiByHierarchy = new TreeModeInfo<>( TMID_GROUP_BY_CLASS, STR_N_TMI_BY_HIERARCHY,
+        STR_D_TMI_BY_HIERARCHY, null, new TreeMakerByClass( coreApi() ) );
+    treeModeManager().addTreeMode( tmiByHierarchy );
+    treeModeManager().setCurrentMode( TMID_GROUP_BY_CLASS );
+  }
+
   // ------------------------------------------------------------------------------------
   // MultiPaneComponentModown
   //

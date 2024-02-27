@@ -7,12 +7,20 @@ import org.eclipse.swt.custom.*;
 import org.eclipse.swt.layout.*;
 import org.eclipse.swt.widgets.*;
 import org.toxsoft.core.tsgui.bricks.ctx.*;
+import org.toxsoft.core.tsgui.bricks.ctx.impl.*;
 import org.toxsoft.core.tsgui.dialogs.datarec.*;
+import org.toxsoft.core.tsgui.m5.*;
+import org.toxsoft.core.tsgui.m5.gui.*;
+import org.toxsoft.core.tsgui.m5.model.*;
 import org.toxsoft.core.tslib.bricks.validator.*;
 import org.toxsoft.core.tslib.coll.*;
+import org.toxsoft.core.tslib.coll.impl.*;
 import org.toxsoft.core.tslib.gw.skid.*;
 import org.toxsoft.core.tslib.utils.errors.*;
 import org.toxsoft.uskat.core.api.objserv.*;
+import org.toxsoft.uskat.core.connection.*;
+import org.toxsoft.uskat.core.gui.conn.*;
+import org.toxsoft.uskat.core.gui.km5.sded.*;
 
 /**
  * Панель для выбора {@link SkidList} wrapped by {@link AbstractTsDialogPanel}.
@@ -26,7 +34,7 @@ public class PanelSkidListSelector
   private ObjectCheckedListPanel skObjectCheckedListPanel;
 
   /**
-   * Конструктор панели, предназаначенной для вставки в диалог {@link TsDialog}.
+   * Конструктор панели, предназначенной для вставки в диалог {@link TsDialog}.
    *
    * @param aParent Composite - родительская компонента
    * @param aOwnerDialog TsDialog - родительский диалог
@@ -87,10 +95,33 @@ public class PanelSkidListSelector
    */
   public static final ISkidList selectSkids( ISkidList aSkidList, ITsGuiContext aContext ) {
     TsNullArgumentRtException.checkNull( aContext );
-    IDialogPanelCreator<ISkidList, ITsGuiContext> creator = PanelSkidListSelector::new;
-    ITsDialogInfo dlgInfo = new TsDialogInfo( aContext, DLG_T_SKID_LIST_SEL, STR_MSG_SKID_LIST_SELECTION );
-    TsDialog<ISkidList, ITsGuiContext> d = new TsDialog<>( dlgInfo, aSkidList, aContext, creator );
-    return d.execData();
+    // old version
+    // IDialogPanelCreator<ISkidList, ITsGuiContext> creator = PanelSkidListSelector::new;
+    // ITsDialogInfo dlgInfo = new TsDialogInfo( aContext, DLG_T_SKID_LIST_SEL, STR_MSG_SKID_LIST_SELECTION );
+    // TsDialog<ISkidList, ITsGuiContext> d = new TsDialog<>( dlgInfo, aSkidList, aContext, creator );
+    // return d.execData();
+    // new version
+    ISkConnectionSupplier connSupplier = aContext.get( ISkConnectionSupplier.class );
+    ISkConnection conn = connSupplier.defConn();
+    IM5Domain m5 = conn.scope().get( IM5Domain.class );
+
+    IM5Model<ISkObject> modelSk = m5.getModel( IKM5SdedConstants.MID_SDED_SK_OBJECT, ISkObject.class );
+    IM5LifecycleManager<ISkObject> lmSk = modelSk.getLifecycleManager( conn );
+    ITsGuiContext ctx = new TsGuiContext( aContext );
+    TsDialogInfo di = new TsDialogInfo( ctx, DLG_T_SKID_LIST_SEL, STR_MSG_SKID_LIST_SELECTION );
+    IListEdit<ISkObject> initObjs = new ElemArrayList<>();
+    for( Skid skid : aSkidList ) {
+      initObjs.add( conn.coreApi().objService().get( skid ) );
+    }
+    IList<ISkObject> selObjs = M5GuiUtils.askSelectItemsList( di, modelSk, initObjs, lmSk.itemsProvider() );
+    if( selObjs == null ) {
+      return ISkidList.EMPTY;
+    }
+    SkidList retVal = new SkidList();
+    for( ISkObject obj : selObjs ) {
+      retVal.add( obj.skid() );
+    }
+    return retVal;
   }
 
   @Override

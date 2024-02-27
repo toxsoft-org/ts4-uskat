@@ -49,6 +49,19 @@ public class SdedSkObjectM5Model
         return new M5CollectionPanelMpcModownWrapper<>( mpc, false );
       }
 
+      @Override
+      protected IM5CollectionPanel<ISkObject> doCreateCollChecksPanel( ITsGuiContext aContext,
+          IM5ItemsProvider<ISkObject> aItemsProvider ) {
+        OPDEF_IS_ACTIONS_CRUD.setValue( aContext.params(), AV_FALSE );
+        OPDEF_IS_ACTIONS_HIDE_PANES.setValue( aContext.params(), AV_TRUE );
+        OPDEF_IS_FILTER_PANE.setValue( aContext.params(), AV_TRUE );
+        OPDEF_IS_SUPPORTS_CHECKS.setValue( aContext.params(), AV_TRUE );
+        OPDEF_IS_SUPPORTS_TREE.setValue( aContext.params(), AV_TRUE );
+        SdedSkObjectMpc mpc = new SdedSkObjectMpc( aContext, model(), aItemsProvider );
+
+        return new M5CollectionPanelMpcModownWrapper<>( mpc, true );
+      }
+
     } );
   }
 

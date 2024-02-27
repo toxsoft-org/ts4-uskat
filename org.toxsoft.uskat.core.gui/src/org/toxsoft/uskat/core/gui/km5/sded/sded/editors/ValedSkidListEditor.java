@@ -5,14 +5,24 @@ import static org.toxsoft.core.tslib.av.impl.AvUtils.*;
 import static org.toxsoft.uskat.core.gui.km5.sded.sded.editors.ITsResources.*;
 
 import org.toxsoft.core.tsgui.bricks.ctx.*;
+import org.toxsoft.core.tsgui.bricks.ctx.impl.*;
+import org.toxsoft.core.tsgui.dialogs.datarec.*;
+import org.toxsoft.core.tsgui.m5.*;
+import org.toxsoft.core.tsgui.m5.gui.*;
+import org.toxsoft.core.tsgui.m5.model.*;
 import org.toxsoft.core.tsgui.valed.api.*;
 import org.toxsoft.core.tsgui.valed.controls.helpers.*;
 import org.toxsoft.core.tsgui.valed.impl.*;
 import org.toxsoft.core.tslib.bricks.validator.*;
+import org.toxsoft.core.tslib.coll.*;
+import org.toxsoft.core.tslib.coll.impl.*;
 import org.toxsoft.core.tslib.gw.skid.*;
 import org.toxsoft.core.tslib.utils.*;
 import org.toxsoft.core.tslib.utils.errors.*;
 import org.toxsoft.uskat.core.api.objserv.*;
+import org.toxsoft.uskat.core.connection.*;
+import org.toxsoft.uskat.core.gui.conn.*;
+import org.toxsoft.uskat.core.gui.km5.sded.*;
 
 /**
  * Allows to select {@link SkidList} by accessing {@link ISkObjectService}.
@@ -72,14 +82,48 @@ public class ValedSkidListEditor
   protected boolean doProcessButtonPress() {
     // create and dispaly SkidList selector
     SkidList initVal = canGetValue().isOk() ? getValue() : null;
-
-    SkidList selSkids = (SkidList)PanelSkidListSelector.selectSkids( initVal, tsContext() );
+    // old version
+    // SkidList selSkids = (SkidList)PanelSkidListSelector.selectSkids( initVal, tsContext() );
+    SkidList selSkids = (SkidList)selectSkids( initVal, tsContext() );
 
     if( selSkids != null ) {
       doSetUnvalidatedValue( selSkids );
       return true;
     }
     return false;
+  }
+
+  /**
+   * Выводит диалог выбора списка Skid'ов.
+   * <p>
+   *
+   * @param aSkidList {@link ISkidList} для инициализации
+   * @param aContext {@link ITsGuiContext} - контекст
+   * @return ISkidList - выбранные объекты или <b>null</b> в случает отказа от выбора
+   */
+  ISkidList selectSkids( ISkidList aSkidList, ITsGuiContext aContext ) {
+    TsNullArgumentRtException.checkNull( aContext );
+    ISkConnectionSupplier connSupplier = aContext.get( ISkConnectionSupplier.class );
+    ISkConnection conn = connSupplier.defConn();
+    IM5Domain m5 = conn.scope().get( IM5Domain.class );
+
+    IM5Model<ISkObject> modelSk = m5.getModel( IKM5SdedConstants.MID_SDED_SK_OBJECT, ISkObject.class );
+    IM5LifecycleManager<ISkObject> lmSk = modelSk.getLifecycleManager( conn );
+    ITsGuiContext ctx = new TsGuiContext( aContext );
+    TsDialogInfo di = new TsDialogInfo( ctx, DLG_T_SKID_LIST_SEL, STR_MSG_SKID_LIST_SELECTION );
+    IListEdit<ISkObject> initObjs = new ElemArrayList<>();
+    for( Skid skid : aSkidList ) {
+      initObjs.add( conn.coreApi().objService().get( skid ) );
+    }
+    IList<ISkObject> selObjs = M5GuiUtils.askSelectItemsList( di, modelSk, initObjs, lmSk.itemsProvider() );
+    if( selObjs == null ) {
+      return ISkidList.EMPTY;
+    }
+    SkidList retVal = new SkidList();
+    for( ISkObject obj : selObjs ) {
+      retVal.add( obj.skid() );
+    }
+    return retVal;
   }
 
   @Override
