@@ -342,7 +342,8 @@ public abstract class S5SequenceAsyncBlock<V extends ITemporal<?>, BLOB_ARRAY, B
       newSize += blockSize;
     }
     if( unionedCount == 0 ) {
-      // Невозможно объединить блок ни с одним из блоков
+      // Невозможно объединить блок ни с одним из блоков. Установка метки того, что данные блока дефрагментированы
+      setUnionMark();
       return unionedCount;
     }
     // Метки времени текущих значений блока
@@ -371,6 +372,8 @@ public abstract class S5SequenceAsyncBlock<V extends ITemporal<?>, BLOB_ARRAY, B
     // Сброс старого индекса
     timeKey = null;
     setValues( newValues );
+    // Установка метки того, что данные блока дефрагментированы
+    setUnionMark();
     // Возвращаем количество блоков с которыми произошло объединение
     return unionedCount;
   }

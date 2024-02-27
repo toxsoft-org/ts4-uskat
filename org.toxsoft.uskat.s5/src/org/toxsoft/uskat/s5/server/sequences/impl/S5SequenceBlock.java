@@ -455,10 +455,11 @@ public abstract class S5SequenceBlock<V extends ITemporal<?>, BLOB_ARRAY, BLOB e
       ILogger aLogger ) {
     TsNullArgumentRtException.checkNulls( aFactory, aBlocks, aLogger );
     int retValue = doUniteBlocks( aFactory, aBlocks, aLogger );
-    if( retValue > 0 ) {
-      // Установка признака того, что была проведена дефрагментация
-      size = Integer.valueOf( -size() );
-    }
+    // 2024-02-27 mvk --- (replace by setUnionMark())
+    // if( retValue > 0 ) {
+    // // Установка признака того, что была проведена дефрагментация
+    // size = Integer.valueOf( -size() );
+    // }
     return retValue;
   }
 
@@ -713,6 +714,18 @@ public abstract class S5SequenceBlock<V extends ITemporal<?>, BLOB_ARRAY, BLOB e
     doSetValues( aValues );
     // Установка признака изменения значений для существующего блока
     if( !created ) {
+      merged = true;
+    }
+  }
+
+  /**
+   * Установка пометки того, что данные в блоке были объединены с другими блоками и больше объединение не требуется
+   */
+  protected final void setUnionMark() {
+    if( size.intValue() > 0 ) {
+      // Установка признака того, что была проведена дефрагментация
+      size = Integer.valueOf( -size() );
+      // Установка признака изменения значений для существующего блока
       merged = true;
     }
   }

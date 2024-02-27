@@ -305,13 +305,16 @@ public abstract class S5SequenceSyncBlock<V extends ITemporal<?>, BLOB_ARRAY, BL
       newSize += blockSize;
     }
     if( readyUnionCount == 0 ) {
-      // Нет блоков с которыми можно провести объединение
+      // Нет блоков с которыми можно провести объединение. Установка метки того, что данные блока дефрагментированы
+      setUnionMark();
       return unionedCount;
     }
     // Формирование нового массива значений блока
     BLOB_ARRAY newValues = addBlocksValues( aFactory, typeInfo, blob().values(), aBlocks, unionFrom, readyUnionCount );
     // Установка новых значений блока
     setValues( newValues );
+    // Установка метки того, что данные блока дефрагментированы
+    setUnionMark();
     // Возвращаем количество блоков с которыми произошло объединение
     return unionedCount;
   }
