@@ -137,8 +137,9 @@ public class SdedDtoEvInfoM5Model
           IM5ItemsProvider<IDtoEventInfo> aItemsProvider, IM5LifecycleManager<IDtoEventInfo> aLifecycleManager ) {
         OPDEF_IS_ACTIONS_CRUD.setValue( aContext.params(), AV_TRUE );
         MultiPaneComponentModown<IDtoEventInfo> mpc =
-            new MultiPaneComponentModown<>( aContext, model(), aItemsProvider, aLifecycleManager ) {
+            new SdedDtoEvInfoM5Mpc( aContext, model(), aItemsProvider, aLifecycleManager ) {
 
+              @Override
               protected ITsDialogInfo doCreateDialogInfoToEditItem( IDtoEventInfo aItem ) {
                 TsDialogInfo retVal =
                     new TsDialogInfo( aContext, getShell(), STR_EDIT_EVT_DLG_CAPTION, STR_EDIT_EVT_DLG_TITLE, 0 );
@@ -146,6 +147,7 @@ public class SdedDtoEvInfoM5Model
                 return retVal;
               }
 
+              @Override
               protected ITsDialogInfo doCreateDialogInfoToAddItem() {
                 TsDialogInfo retVal =
                     new TsDialogInfo( aContext, getShell(), STR_ADD_EVT_DLG_CAPTION, STR_ADD_EVT_DLG_TITLE, 0 );

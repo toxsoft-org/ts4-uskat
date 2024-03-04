@@ -1,13 +1,19 @@
 package org.toxsoft.uskat.core.gui.km5.sded.sded;
 
 import static org.toxsoft.core.tsgui.m5.IM5Constants.*;
+import static org.toxsoft.core.tsgui.m5.gui.mpc.IMultiPaneComponentConstants.*;
 import static org.toxsoft.core.tsgui.m5.valeds.IM5ValedConstants.*;
+import static org.toxsoft.core.tslib.av.impl.AvUtils.*;
 import static org.toxsoft.core.tslib.av.metainfo.IAvMetaConstants.*;
 import static org.toxsoft.uskat.core.api.sysdescr.ESkClassPropKind.*;
 import static org.toxsoft.uskat.core.gui.km5.sded.IKM5SdedConstants.*;
 import static org.toxsoft.uskat.core.gui.km5.sded.ISkSdedKm5SharedResources.*;
 
+import org.toxsoft.core.tsgui.bricks.ctx.*;
 import org.toxsoft.core.tsgui.m5.*;
+import org.toxsoft.core.tsgui.m5.gui.mpc.impl.*;
+import org.toxsoft.core.tsgui.m5.gui.panels.*;
+import org.toxsoft.core.tsgui.m5.gui.panels.impl.*;
 import org.toxsoft.core.tsgui.m5.model.*;
 import org.toxsoft.core.tsgui.m5.model.impl.*;
 import org.toxsoft.core.tsgui.m5.std.models.av.*;
@@ -111,6 +117,20 @@ public class SdedDtoAttrInfoM5Model
     super( MID_SDED_ATTR_INFO, IDtoAttrInfo.class, aConn );
     setNameAndDescription( ATTR.nmName(), ATTR.description() );
     addFieldDefs( DATA_TYPE );
+
+    setPanelCreator( new M5DefaultPanelCreator<>() {
+
+      @Override
+      protected IM5CollectionPanel<IDtoAttrInfo> doCreateCollEditPanel( ITsGuiContext aContext,
+          IM5ItemsProvider<IDtoAttrInfo> aItemsProvider, IM5LifecycleManager<IDtoAttrInfo> aLifecycleManager ) {
+        OPDEF_IS_ACTIONS_CRUD.setValue( aContext.params(), AV_TRUE );
+        OPDEF_IS_FILTER_PANE.setValue( aContext.params(), AV_TRUE );
+        MultiPaneComponentModown<IDtoAttrInfo> mpc =
+            new SdedDtoAttrInfoM5Mpc( aContext, model(), aItemsProvider, aLifecycleManager );
+        return new M5CollectionPanelMpcModownWrapper<>( mpc, false );
+      }
+    } );
+
   }
 
   @Override
