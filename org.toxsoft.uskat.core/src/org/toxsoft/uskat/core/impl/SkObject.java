@@ -201,7 +201,7 @@ public class SkObject
   /**
    * Subclass may perform ore API dependent initialization.
    * <p>
-   * This method is called by {@link SkCoreServObject} imeediately after constructor when {@link #coreApi()} has been
+   * This method is called by {@link SkCoreServObject} immediately after constructor when {@link #coreApi()} has been
    * set.
    * <p>
    * Does nothing in base class, there is no need to call superclass method when overriding.
@@ -217,6 +217,22 @@ public class SkObject
   @Override
   public String toString() {
     return skid.toString();
+  }
+
+  @Override
+  final public boolean equals( Object aThat ) {
+    if( aThat == this ) {
+      return true;
+    }
+    if( aThat instanceof ISkObject that ) {
+      return this.skid.equals( that.skid() );
+    }
+    return false;
+  }
+
+  @Override
+  final public int hashCode() {
+    return skid.hashCode();
   }
 
 }

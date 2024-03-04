@@ -18,7 +18,12 @@ import org.toxsoft.uskat.core.impl.*;
  * <p>
  * Stridable identifier {@link #id()} returns object {@link #strid()}.
  * <p>
- * Note: any user implementation of {@link ISkObject} must be subclassed from {@link SkObject}.
+ * Notes:
+ * <ul>
+ * <li>any user implementation of {@link ISkObject} must be subclassed from {@link SkObject};</li>
+ * <li>method {@link SkObject#equals(Object)} is <code>final</code> and checks if two instances point to the same object
+ * in Green World.</li>
+ * </ul>
  *
  * @author hazard157
  */
