@@ -115,8 +115,9 @@ public class SdedDtoCmdInfoM5Model
           IM5ItemsProvider<IDtoCmdInfo> aItemsProvider, IM5LifecycleManager<IDtoCmdInfo> aLifecycleManager ) {
         OPDEF_IS_ACTIONS_CRUD.setValue( aContext.params(), AV_TRUE );
         MultiPaneComponentModown<IDtoCmdInfo> mpc =
-            new MultiPaneComponentModown<>( aContext, model(), aItemsProvider, aLifecycleManager ) {
+            new SdedDtoCmdInfoM5Mpc( aContext, model(), aItemsProvider, aLifecycleManager ) {
 
+              @Override
               protected ITsDialogInfo doCreateDialogInfoToEditItem( IDtoCmdInfo aItem ) {
                 TsDialogInfo retVal =
                     new TsDialogInfo( aContext, getShell(), STR_EDIT_CMD_DLG_CAPTION, STR_EDIT_CMD_DLG_TITLE, 0 );
@@ -124,6 +125,7 @@ public class SdedDtoCmdInfoM5Model
                 return retVal;
               }
 
+              @Override
               protected ITsDialogInfo doCreateDialogInfoToAddItem() {
                 TsDialogInfo retVal =
                     new TsDialogInfo( aContext, getShell(), STR_ADD_CMD_DLG_CAPTION, STR_ADD_CMD_DLG_TITLE, 0 );
@@ -134,7 +136,6 @@ public class SdedDtoCmdInfoM5Model
             };
         return new M5CollectionPanelMpcModownWrapper<>( mpc, false );
       }
-
     } );
 
   }

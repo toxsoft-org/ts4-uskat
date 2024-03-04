@@ -169,9 +169,15 @@ public abstract class S5AbstractBackend<ADDON extends IS5BackendAddon>
   private boolean inited;
 
   /**
+   * Признак завершенной работы
+   */
+  private boolean isClosed;
+
+  /**
    * Журнал uskat core
    */
   private final ILogger uskatLogger = getLogger( S5_USKAT_CORE_LOGGER );
+
 
   /**
    * Статическая инициализация
@@ -279,6 +285,7 @@ public abstract class S5AbstractBackend<ADDON extends IS5BackendAddon>
   public final void initialize() {
     doInitialize();
     inited = true;
+    isClosed = false;
     if( isActive() ) {
       // Формирование сообщения об изменении состояния бекенда: active = true
       fireBackendMessage( BackendMsgActiveChanged.INSTANCE.makeMessage( true ) );
@@ -391,6 +398,10 @@ public abstract class S5AbstractBackend<ADDON extends IS5BackendAddon>
   //
   @Override
   public void run() {
+	if( isClosed == true ) {
+		// backend завершил свою работу
+		return;
+	}
     if( !LoggerUtils.defaultLogger().equals( uskatLogger ) ) {
       LoggerUtils.setDefaultLogger( uskatLogger );
       LoggerUtils.defaultLogger().error( MSG_RESTORE_DEFAULT_LOGGER, S5_USKAT_CORE_LOGGER );
@@ -432,9 +443,10 @@ public abstract class S5AbstractBackend<ADDON extends IS5BackendAddon>
     finally {
       unlockWrite( frontendLock );
     }
-
     // 2020-10-12 mvk doJob + mainLock
     S5Lockable.removeLockableFromPool( nativeLock( frontendLock ) );
+    // Установка признака завершения работы
+    isClosed = true;
     // Запись в журнал
     logger.info( "S5AbstractBackend.close(): ... finished" ); //$NON-NLS-1$
   }
