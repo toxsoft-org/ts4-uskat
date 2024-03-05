@@ -64,9 +64,4 @@ class SdedDtoRtDataInfoM5Mpc
     }
   }
 
-  @Override
-  protected void doUpdateActionsState( boolean aIsAlive, boolean aIsSel, IDtoRtdataInfo aSel ) {
-    toolbar().setActionEnabled( ACTID_ADD_COPY, aIsSel );
-  }
-
 }

@@ -64,9 +64,4 @@ class SdedDtoEvInfoM5Mpc
     }
   }
 
-  @Override
-  protected void doUpdateActionsState( boolean aIsAlive, boolean aIsSel, IDtoEventInfo aSel ) {
-    toolbar().setActionEnabled( ACTID_ADD_COPY, aIsSel );
-  }
-
 }

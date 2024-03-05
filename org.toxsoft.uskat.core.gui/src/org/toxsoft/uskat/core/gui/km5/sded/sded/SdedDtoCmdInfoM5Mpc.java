@@ -64,9 +64,4 @@ class SdedDtoCmdInfoM5Mpc
     }
   }
 
-  @Override
-  protected void doUpdateActionsState( boolean aIsAlive, boolean aIsSel, IDtoCmdInfo aSel ) {
-    toolbar().setActionEnabled( ACTID_ADD_COPY, aIsSel );
-  }
-
 }
