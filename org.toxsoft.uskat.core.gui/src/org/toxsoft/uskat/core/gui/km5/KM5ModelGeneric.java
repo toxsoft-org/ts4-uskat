@@ -101,7 +101,7 @@ public class KM5ModelGeneric<T extends ISkObject>
 
   @Override
   protected IM5LifecycleManager<T> doCreateLifecycleManager( Object aMaster ) {
-    return new KM5LifecycleManagerGeneric<>( this, aMaster );
+    return new KM5LifecycleManagerGeneric<>( this, ISkConnection.class.cast( aMaster ) );
   }
 
   private static ISkClassInfo getClassInfo( String aClassId, ISkConnection aConnection ) {

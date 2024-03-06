@@ -17,10 +17,9 @@ import org.toxsoft.uskat.core.utils.*;
  * @see KM5ModelBasic
  * @author hazard157
  * @param <T> - modeled entity type
- * @param <M> - M5 master-object type
  */
-public class KM5LifecycleManagerBasic<T extends ISkObject, M>
-    extends M5LifecycleManager<T, M>
+public class KM5LifecycleManagerBasic<T extends ISkObject>
+    extends M5LifecycleManager<T, ISkConnection>
     implements ISkConnected {
 
   /**
@@ -29,12 +28,12 @@ public class KM5LifecycleManagerBasic<T extends ISkObject, M>
    * @param aModel {@link IM5Model}&lt;T&gt; - the model
    * @param aCanCreate boolean - entity creation support flags
    * @param aCanEdit boolean - entity editing support flags
-   * @param aCanRemove boolean - entity removingsupport flags
+   * @param aCanRemove boolean - entity removing support flags
    * @param aEnumeratable boolean - entity listing support flags
-   * @param aMaster &lt;M&gt; - master object, may be <code>null</code>
+   * @param aMaster {@link ISkConnection} - master object, may be <code>null</code>
    */
   public KM5LifecycleManagerBasic( IM5Model<T> aModel, boolean aCanCreate, boolean aCanEdit, boolean aCanRemove,
-      boolean aEnumeratable, M aMaster ) {
+      boolean aEnumeratable, ISkConnection aMaster ) {
     super( aModel, aCanCreate, aCanEdit, aCanRemove, aEnumeratable, aMaster );
   }
 
@@ -52,8 +51,8 @@ public class KM5LifecycleManagerBasic<T extends ISkObject, M>
   //
 
   @Override
-  public ISkConnection skConn() {
-    return tsContext().get( ISkConnection.class );
+  final public ISkConnection skConn() {
+    return master();
   }
 
 }

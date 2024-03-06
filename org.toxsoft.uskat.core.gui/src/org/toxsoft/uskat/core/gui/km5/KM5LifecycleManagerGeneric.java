@@ -15,11 +15,12 @@ import org.toxsoft.uskat.core.*;
 import org.toxsoft.uskat.core.api.objserv.*;
 import org.toxsoft.uskat.core.api.sysdescr.*;
 import org.toxsoft.uskat.core.api.sysdescr.dto.*;
+import org.toxsoft.uskat.core.connection.*;
 import org.toxsoft.uskat.core.impl.dto.*;
 import org.toxsoft.uskat.core.utils.*;
 
 /**
- * Lifecycle manager implementation base for subject area Sk-classes modelling.
+ * Lifecycle manager implementation base for subject area Sk-classes modeling.
  * <p>
  * This manager assumes that M5-model has the same ID as Sk-class ID {@link ISkClassInfo#id()}.
  * <p>
@@ -27,11 +28,10 @@ import org.toxsoft.uskat.core.utils.*;
  * {@link ISkObjectService}, а не в этом классе.
  *
  * @author hazard157
- * @param <T> - modelled entity type
- * @param <M> - M5 master-object type
+ * @param <T> - modeled entity type
  */
-public class KM5LifecycleManagerGeneric<T extends ISkObject, M>
-    extends KM5LifecycleManagerBasic<T, M> {
+public class KM5LifecycleManagerGeneric<T extends ISkObject>
+    extends KM5LifecycleManagerBasic<T> {
 
   /**
    * Constructor.
@@ -39,9 +39,9 @@ public class KM5LifecycleManagerGeneric<T extends ISkObject, M>
    * For {@link ISkSysdescr} claimed Sk-classes CRUD operations are always enabled.
    *
    * @param aModel {@link IM5Model}&lt;T&gt; - the model
-   * @param aMaster &lt;M&gt; - master object, may be <code>null</code>
+   * @param aMaster {@link ISkConnection} - master object, may be <code>null</code>
    */
-  public KM5LifecycleManagerGeneric( IM5Model<T> aModel, M aMaster ) {
+  public KM5LifecycleManagerGeneric( IM5Model<T> aModel, ISkConnection aMaster ) {
     super( aModel, true, true, true, true, aMaster );
   }
 
