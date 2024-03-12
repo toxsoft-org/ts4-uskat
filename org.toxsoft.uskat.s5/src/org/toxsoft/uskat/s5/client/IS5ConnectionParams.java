@@ -234,7 +234,7 @@ public interface IS5ConnectionParams {
       TSID_NAME, N_HISTDATA_BUFFER_SIZE, //
       TSID_DESCRIPTION, D_HISTDATA_BUFFER_SIZE, //
       TSID_IS_NULL_ALLOWED, AV_TRUE, //
-      TSID_DEFAULT_VALUE, avInt( 604800 ) ); // по умолчанию неделя секундных данных
+      TSID_DEFAULT_VALUE, avInt( 259_200 ) ); // по умолчанию 3 дня секундных данных
 
   // ------------------------------------------------------------------------------------
   // Параметры контекста соединения
