@@ -17,7 +17,6 @@ import org.toxsoft.core.tslib.gw.gwid.Gwid;
 import org.toxsoft.core.tslib.gw.gwid.IGwidList;
 import org.toxsoft.core.tslib.utils.Pair;
 import org.toxsoft.core.tslib.utils.errors.TsNullArgumentRtException;
-import org.toxsoft.core.tslib.utils.logs.impl.LoggerUtils;
 import org.toxsoft.uskat.core.backend.ISkBackendHardConstant;
 import org.toxsoft.uskat.core.backend.api.*;
 import org.toxsoft.uskat.s5.server.IS5ServerHardConstants;
@@ -88,13 +87,13 @@ public class S5BaRtdataSession
     frontend().frontendData().setBackendAddonData( IBaRtdata.ADDON_ID, baData );
 
     // TODO: 2023-11-19 mvkd
-    Gwid testGwid = Gwid.of( "AnalogInput[TP1]$rtdata(rtdPhysicalValue)" );
-    IAtomicValue testValue = baData.currdataToBackend.findByKey( testGwid );
-    boolean readPresent = baData.currdataGwidsToFrontend.hasElem( testGwid );
-    boolean writePresent = baData.currdataGwidsToBackend.hasElem( testGwid );
-    LoggerUtils.defaultLogger().info(
-        "S5BaRtDataSession.doAfterInit(...): testGwid = %s:  readPresent = %s, writePresent = %s, value = %s", testGwid,
-        Boolean.valueOf( readPresent ), Boolean.valueOf( writePresent ), testValue );
+    // Gwid testGwid = Gwid.of( "AnalogInput[TP1]$rtdata(rtdPhysicalValue)" );
+    // IAtomicValue testValue = baData.currdataToBackend.findByKey( testGwid );
+    // boolean readPresent = baData.currdataGwidsToFrontend.hasElem( testGwid );
+    // boolean writePresent = baData.currdataGwidsToBackend.hasElem( testGwid );
+    // LoggerUtils.defaultLogger().info(
+    // "S5BaRtDataSession.doAfterInit(...): testGwid = %s: readPresent = %s, writePresent = %s, value = %s", testGwid,
+    // Boolean.valueOf( readPresent ), Boolean.valueOf( writePresent ), testValue );
 
     // Регистрация слушателя событий от фронтенда
     frontend().frontendEventer().addListener( aMessage -> {

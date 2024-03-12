@@ -225,6 +225,17 @@ public interface IS5ConnectionParams {
       TSID_IS_NULL_ALLOWED, AV_TRUE, //
       TSID_DEFAULT_VALUE, avInt( 60000 ) );
 
+  /**
+   * Параметр: Максимальный размер буфера для накопления хранимых значений одного параметра в моменты отсутствия связи
+   * <p>
+   * Тип: {@link EAtomicType#INTEGER}
+   */
+  IDataDef OP_HISTDATA_BUFFER_SIZE = create( "histdataBufferSize", INTEGER, //$NON-NLS-1$
+      TSID_NAME, N_HISTDATA_BUFFER_SIZE, //
+      TSID_DESCRIPTION, D_HISTDATA_BUFFER_SIZE, //
+      TSID_IS_NULL_ALLOWED, AV_TRUE, //
+      TSID_DEFAULT_VALUE, avInt( 604800 ) ); // по умолчанию неделя секундных данных
+
   // ------------------------------------------------------------------------------------
   // Параметры контекста соединения
   //

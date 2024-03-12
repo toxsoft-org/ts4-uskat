@@ -10,7 +10,6 @@ import org.toxsoft.core.tslib.gw.gwid.Gwid;
 import org.toxsoft.core.tslib.gw.gwid.IGwidList;
 import org.toxsoft.core.tslib.utils.Pair;
 import org.toxsoft.core.tslib.utils.errors.TsNullArgumentRtException;
-import org.toxsoft.core.tslib.utils.logs.ELogSeverity;
 import org.toxsoft.uskat.core.backend.ISkBackendHardConstant;
 import org.toxsoft.uskat.core.backend.api.*;
 import org.toxsoft.uskat.s5.client.IS5ConnectionParams;
@@ -33,6 +32,11 @@ class S5BaRtdataRemote
   private final S5BaRtdataData baData = new S5BaRtdataData();
 
   /**
+   * Максимальный размер буфера хранимых данных
+   */
+  private final int histBufferSize;
+
+  /**
    * Constructor.
    *
    * @param aOwner {@link IS5BackendRemote} - the owner backend
@@ -45,6 +49,7 @@ class S5BaRtdataRemote
     // Установка таймаутов
     baData.currdataTimeout = IS5ConnectionParams.OP_CURRDATA_TIMEOUT.getValue( aOwner.openArgs().params() ).asLong();
     baData.histdataTimeout = IS5ConnectionParams.OP_HISTDATA_TIMEOUT.getValue( aOwner.openArgs().params() ).asLong();
+    histBufferSize = IS5ConnectionParams.OP_HISTDATA_BUFFER_SIZE.getValue( aOwner.openArgs().params() ).asInt();
   }
 
   // ------------------------------------------------------------------------------------
@@ -69,18 +74,19 @@ class S5BaRtdataRemote
         currDataMessage = BaMsgRtdataCurrData.INSTANCE.makeMessage( baData.currdataToBackend );
 
         // TODO: 2023-11-19 mvkd
-        if( logger().isSeverityOn( ELogSeverity.DEBUG ) ) {
-          Gwid testGwid = Gwid.of( "AnalogInput[TP1]$rtdata(rtdPhysicalValue)" );
-          IAtomicValue testValue = baData.currdataToBackend.findByKey( testGwid );
-          if( testValue != null ) {
-            logger().debug( "send currdata: %s = %s", testGwid, testValue );
-          }
-        }
+        // if( logger().isSeverityOn( ELogSeverity.DEBUG ) ) {
+        // Gwid testGwid = Gwid.of( "AnalogInput[TP1]$rtdata(rtdPhysicalValue)" );
+        // IAtomicValue testValue = baData.currdataToBackend.findByKey( testGwid );
+        // if( testValue != null ) {
+        // logger().debug( "send currdata: %s = %s", testGwid, testValue );
+        // }
+        // }
 
         baData.currdataToBackend.clear();
         baData.lastCurrdataToBackendTime = currTime;
       }
       if( baData.histdataToBackend.size() > 0 && //
+          owner().isActive() && //
           (baData.histdataTimeout <= 0 || currTime - baData.lastHistdataToBackendTime > baData.histdataTimeout) ) {
         // Отправка значений хранимых данных от фронтенда в бекенд
         histDataMessage = BaMsgRtdataHistData.INSTANCE.makeMessage( baData.histdataToBackend );
@@ -146,6 +152,10 @@ class S5BaRtdataRemote
         long endTime = Math.max( prevValues.left().endTime(), newValues.left().endTime() );
         TimedList<ITemporalAtomicValue> values = new TimedList<>( prevValues.right() );
         values.addAll( newValues.right() );
+        // Ограничение размера буфера значений параметра
+        if( values.size() - histBufferSize >= 0 ) {
+          values.removeRangeByIndex( 0, values.size() - histBufferSize );
+        }
         newValues = new Pair<>( new TimeInterval( startTime, endTime ), values );
       }
       baData.histdataToBackend.put( aGwid, newValues );
