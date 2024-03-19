@@ -41,12 +41,12 @@ public class S5BaRtdataData
   /**
    * Значения текущих данных готовых для передачи в бекенд
    */
-  public final IMapEdit<Gwid, IAtomicValue> currdataToBackend = new ElemMap<>();
+  transient public final IMapEdit<Gwid, IAtomicValue> currdataToBackend = new ElemMap<>();
 
   /**
    * Время последней передачи текущих данных в бекенд
    */
-  public long lastCurrdataToBackendTime = System.currentTimeMillis();
+  transient public long lastCurrdataToBackendTime = System.currentTimeMillis();
 
   /**
    * Идентификаторы данных передавамые в фронтенд
@@ -56,12 +56,12 @@ public class S5BaRtdataData
   /**
    * Значения текущих данных готовых для передачи в фроненд
    */
-  public final IMapEdit<Gwid, IAtomicValue> currdataToFrontend = new ElemMap<>();
+  transient public final IMapEdit<Gwid, IAtomicValue> currdataToFrontend = new ElemMap<>();
 
   /**
    * Время последней передачи текущих данных в фронтенд
    */
-  public long lastCurrdataToFrontendTime = System.currentTimeMillis();
+  transient public long lastCurrdataToFrontendTime = System.currentTimeMillis();
 
   // ------------------------------------------------------------------------------------
   // Хранимые данные
@@ -74,12 +74,12 @@ public class S5BaRtdataData
   /**
    * Значения хранимых данных готовых для передачи
    */
-  public final IMapEdit<Gwid, Pair<ITimeInterval, ITimedList<ITemporalAtomicValue>>> histdataToBackend =
+  transient public final IMapEdit<Gwid, Pair<ITimeInterval, ITimedList<ITemporalAtomicValue>>> histdataToBackend =
       new ElemMap<>();
 
   /**
    * Время последней передачи хранимых данных в бекенд
    */
-  public long lastHistdataToBackendTime = System.currentTimeMillis();
+  transient public long lastHistdataToBackendTime = System.currentTimeMillis();
 
 }
