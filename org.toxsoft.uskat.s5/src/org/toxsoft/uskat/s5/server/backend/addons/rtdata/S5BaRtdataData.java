@@ -55,13 +55,17 @@ public class S5BaRtdataData
 
   /**
    * Значения текущих данных готовых для передачи в фроненд
+   * <p>
+   * non-transient чтобы на сервере не требовалась инициализация
    */
-  transient public final IMapEdit<Gwid, IAtomicValue> currdataToFrontend = new ElemMap<>();
+  public final IMapEdit<Gwid, IAtomicValue> currdataToFrontend = new ElemMap<>();
 
   /**
    * Время последней передачи текущих данных в фронтенд
+   * <p>
+   * non-transient чтобы на сервере не требовалась инициализация
    */
-  transient public long lastCurrdataToFrontendTime = System.currentTimeMillis();
+  public long lastCurrdataToFrontendTime = System.currentTimeMillis();
 
   // ------------------------------------------------------------------------------------
   // Хранимые данные
