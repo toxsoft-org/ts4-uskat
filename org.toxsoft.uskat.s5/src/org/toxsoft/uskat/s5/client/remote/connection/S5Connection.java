@@ -1584,16 +1584,19 @@ public final class S5Connection
     }
     try {
       try {
-        // TODO: проверить актуальность следующего комментария:
-        // mvk: сервер закрывает сессию по своим событиям (по разрыву p2p, по таймауту, по "грязным" исключениям
-        // сессии). Делать вызов remoteBackend.close() - не нужно (приведет к конкуретному доступу на SFBS (API) и
-        // неизбежному
-        // появлению исключения или AccessTimeout или NoSuchMethod
         logger.debug( MSG_CALL_REMOTE_API_CLOSE, this );
         if( ejbClientContext != null ) {
           // Дерегистрация слушателя кластера контекста клиента
           S5ClusterNodeUtils.removeClusterTopologyListener( ejbClientContext, this );
         }
+        // TODO: проверить актуальность следующего комментария:
+        // mvk: сервер закрывает сессию по своим событиям (по разрыву p2p, по таймауту, по "грязным" исключениям
+        // сессии). Делать вызов remoteBackend.close() - не нужно (приведет к конкуретному доступу на SFBS (API) и
+        // неизбежному появлению исключения или AccessTimeout или NoSuchMethod
+
+        // 2024-03-20 mvk: --- при выгрузке сервера (исчез навсегда) - это может вызвать длительное ожидание
+        // (IS5ConnectionParams.FAILURE_TIMEOUT). minimal value = 1 msec
+        EJBClient.setInvocationTimeout( remoteBackend, 1, TimeUnit.MILLISECONDS );
         remoteBackend.close();
       }
       catch( Throwable e ) {
