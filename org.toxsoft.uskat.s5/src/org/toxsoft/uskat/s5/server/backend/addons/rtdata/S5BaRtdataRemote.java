@@ -69,6 +69,7 @@ class S5BaRtdataRemote
     GtMessage histDataMessage = null;
     synchronized (baData) {
       if( baData.currdataToBackend.size() > 0 && //
+          owner().isActive() && //
           (baData.currdataTimeout <= 0 || currTime - baData.lastCurrdataToBackendTime > baData.currdataTimeout) ) {
         // Отправка значений текущих данных от фронтенда в бекенд
         currDataMessage = BaMsgRtdataCurrData.INSTANCE.makeMessage( baData.currdataToBackend );
