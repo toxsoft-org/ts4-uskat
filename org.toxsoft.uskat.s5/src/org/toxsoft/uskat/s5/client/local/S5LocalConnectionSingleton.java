@@ -8,7 +8,6 @@ import static org.toxsoft.uskat.s5.server.IS5ImplementConstants.*;
 
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import javax.ejb.*;
 import javax.enterprise.concurrent.ManagedExecutorService;
@@ -178,14 +177,14 @@ public class S5LocalConnectionSingleton
   @TransactionAttribute( TransactionAttributeType.NOT_SUPPORTED )
   @Override
   public ISkConnection open( String aModuleName ) {
-    return open( aModuleName, new TsContext(), new ReentrantReadWriteLock() );
+    return open( aModuleName, new TsContext() );
   }
 
   @TransactionAttribute( TransactionAttributeType.NOT_SUPPORTED )
   @SuppressWarnings( "nls" )
   @Override
-  public ISkConnection open( String aModuleName, ITsContextRo aArgs, ReentrantReadWriteLock aLock ) {
-    TsNullArgumentRtException.checkNulls( aModuleName, aArgs, aLock );
+  public ISkConnection open( String aModuleName, ITsContextRo aArgs ) {
+    TsNullArgumentRtException.checkNulls( aModuleName, aArgs );
     IS5LocalConnectionProviderSingleton provider =
         sessionContext().getBusinessObject( IS5LocalConnectionProviderSingleton.class );
     // Узел кластера на котором работает модуль
