@@ -293,7 +293,9 @@ public class SkCoreApi
 
   @Override
   public void onBackendMessage( GtMessage aMessage ) {
-    executor.syncExec( () -> {
+    // 2024-04-07 mvk gateway local connection open error
+    // executor.syncExec( () -> {
+    executor.asyncExec( () -> {
       if( BackendMsgActiveChanged.INSTANCE.isOwnMessage( aMessage ) ) {
         if( !inited ) {
           return;

@@ -33,6 +33,10 @@
                 <priority value="TRACE" />
         </category>
 
+        <category name="org.toxsoft.uskat.s5.client.remote.S5BackendRemote">
+                <priority value="TRACE" />
+        </category>
+
         <category name="org.toxsoft.uskat.s5.server.backend.addons.events.S5BaEventsRemote">
                 <priority value="INFO" />
         </category>
