@@ -302,8 +302,8 @@ public class S5SessionManager
       }
 
     } );
-    // Проверка и, если необходимо, обовление sysdescr
-    S5SessionUtils.checkAndUpdateSysdecr( backendCoreSingleton );
+    // Проверка и, если необходимо, обновление sysdescr
+    S5SessionUtils.checkAndUpdateSysdecr( sysdescrSupport, objectsSupport );
     // Запуск фоновой задачи
     addOwnDoJob( DO_JOB_TIMEOUT );
   }

@@ -33,12 +33,9 @@ import org.toxsoft.uskat.core.api.users.ISkUserServiceHardConstants;
 import org.toxsoft.uskat.core.impl.dto.*;
 import org.toxsoft.uskat.s5.common.sessions.ISkSession;
 import org.toxsoft.uskat.s5.legacy.ISkSystem;
-import org.toxsoft.uskat.s5.server.backend.IS5BackendCoreSingleton;
 import org.toxsoft.uskat.s5.server.backend.impl.S5BackendSession;
 import org.toxsoft.uskat.s5.server.backend.supports.objects.IS5BackendObjectsSingleton;
-import org.toxsoft.uskat.s5.server.backend.supports.objects.S5BackendObjectsSingleton;
 import org.toxsoft.uskat.s5.server.backend.supports.sysdescr.IS5BackendSysDescrSingleton;
-import org.toxsoft.uskat.s5.server.backend.supports.sysdescr.S5BackendSysDescrSingleton;
 import org.toxsoft.uskat.s5.server.frontend.IS5FrontendRear;
 
 /**
@@ -92,17 +89,15 @@ public class S5SessionUtils {
   /**
    * Проверяет и, если необходимо, обновляет системное описание для работы менеджера сессий
    *
-   * @param aCoreSupport {@link IS5BackendObjectsSingleton} поддержка ядра сервера
+   * @param aSysdescrSupport {@link IS5BackendSysDescrSingleton} поддержка sysdescr
+   * @param aObjectsSupport {@link IS5BackendObjectsSingleton} поддержка objservice
    * @throws TsNullArgumentRtException любой аргумент = null
    */
-  static void checkAndUpdateSysdecr( IS5BackendCoreSingleton aCoreSupport ) {
-    TsNullArgumentRtException.checkNull( aCoreSupport );
-    IS5BackendSysDescrSingleton sysdescrSupport =
-        aCoreSupport.get( S5BackendSysDescrSingleton.BACKEND_SYSDESCR_ID, IS5BackendSysDescrSingleton.class );
-    IS5BackendObjectsSingleton objectsSupport =
-        aCoreSupport.get( S5BackendObjectsSingleton.BACKEND_OBJECTS_ID, IS5BackendObjectsSingleton.class );
+  static void checkAndUpdateSysdecr( IS5BackendSysDescrSingleton aSysdescrSupport,
+      IS5BackendObjectsSingleton aObjectsSupport ) {
+    TsNullArgumentRtException.checkNulls( aSysdescrSupport, aObjectsSupport );
     // Существующие классы
-    IStridablesList<IDtoClassInfo> classes = sysdescrSupport.readClassInfos();
+    IStridablesList<IDtoClassInfo> classes = aSysdescrSupport.readClassInfos();
     // Добавляемые класы
     IStridablesListEdit<IDtoClassInfo> newClasses = new StridablesList<>();
     // Создание класса система
@@ -286,22 +281,22 @@ public class S5SessionUtils {
     }
 
     if( newClasses.size() > 0 ) {
-      sysdescrSupport.writeClassInfos( IStringList.EMPTY, newClasses );
+      aSysdescrSupport.writeClassInfos( IStringList.EMPTY, newClasses );
     }
     // Создание объекта система
     Skid systemId = new Skid( ISkSystem.CLASS_ID, ISkSystem.THIS_SYSTEM );
-    if( objectsSupport.findObject( systemId ) == null ) {
+    if( aObjectsSupport.findObject( systemId ) == null ) {
       IDtoObject systemObj = new DtoObject( systemId, IOptionSet.NULL, IStringMap.EMPTY );
-      objectsSupport.writeObjects( IS5FrontendRear.NULL, ISkidList.EMPTY, new ElemArrayList<>( systemObj ), true );
+      aObjectsSupport.writeObjects( IS5FrontendRear.NULL, ISkidList.EMPTY, new ElemArrayList<>( systemObj ), true );
     }
     // Создание пользователя root
-    if( objectsSupport.findObject( ISkUserServiceHardConstants.SKID_USER_ROOT ) == null ) {
+    if( aObjectsSupport.findObject( ISkUserServiceHardConstants.SKID_USER_ROOT ) == null ) {
       IOptionSetEdit attrs = new OptionSet();
       attrs.setStr( AID_NAME, STR_N_ROOT_USER );
       attrs.setStr( AID_DESCRIPTION, STR_D_ROOT_USER );
       attrs.setStr( ISkUserServiceHardConstants.ATRID_PASSWORD_HASH, DEFAULT_ROOT_PASSWORD );
       IDtoObject root = new DtoObject( ISkUserServiceHardConstants.SKID_USER_ROOT, attrs, IStringMap.EMPTY );
-      objectsSupport.writeObjects( IS5FrontendRear.NULL, ISkidList.EMPTY, new ElemArrayList<>( root ), true );
+      aObjectsSupport.writeObjects( IS5FrontendRear.NULL, ISkidList.EMPTY, new ElemArrayList<>( root ), true );
     }
   }
 }

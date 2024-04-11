@@ -200,7 +200,8 @@ public class S5LocalConnectionSingleton
     IS5ConnectionParams.OP_LOCAL_NODE.setValue( ctx.params(), avStr( moduleNode ) );
 
     // Текущий поток используется только для открытия соединения
-    TsThreadExecutor executor = new TsThreadExecutor( Thread.currentThread() );
+    Thread thread = Thread.currentThread();
+    TsThreadExecutor executor = new TsThreadExecutor( thread );
     ISkCoreConfigConstants.REFDEF_THREAD_EXECUTOR.setRef( ctx, executor );
 
     // Имя соединения
