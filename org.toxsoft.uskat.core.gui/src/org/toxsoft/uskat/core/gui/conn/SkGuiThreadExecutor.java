@@ -49,7 +49,11 @@ public final class SkGuiThreadExecutor
   @Override
   public void timerExec( int aMilliseconds, Runnable aRunnable ) {
     TsNullArgumentRtException.checkNull( aRunnable );
-    display.timerExec( aMilliseconds, aRunnable );
+    if( display.getThread().equals( Thread.currentThread() ) ) {
+      display.timerExec( aMilliseconds, aRunnable );
+      return;
+    }
+    asyncExec( () -> display.timerExec( aMilliseconds, aRunnable ) );
   }
 
   // ------------------------------------------------------------------------------------
