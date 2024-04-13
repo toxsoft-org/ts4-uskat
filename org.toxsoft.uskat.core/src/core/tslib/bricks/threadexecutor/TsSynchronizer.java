@@ -351,7 +351,7 @@ final class TsSynchronizer {
             // suspend dojob thread - wait new calls
             messageLock.wait();
           }
-          catch( Throwable e ) {
+          catch( @SuppressWarnings( "unused" ) Throwable e ) {
             // clear interrupted flag
             Thread.interrupted();
             // LoggerUtils.errorLogger().error( e );
