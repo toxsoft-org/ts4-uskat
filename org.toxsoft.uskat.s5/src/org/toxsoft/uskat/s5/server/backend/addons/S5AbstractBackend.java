@@ -176,8 +176,7 @@ public abstract class S5AbstractBackend<ADDON extends IS5BackendAddon>
   /**
    * Журнал uskat core
    */
-  private final ILogger uskatLogger = getLogger( S5_USKAT_CORE_LOGGER );
-
+  private static final ILogger uskatLogger = getLogger( S5_USKAT_CORE_LOGGER );
 
   /**
    * Статическая инициализация
@@ -398,10 +397,10 @@ public abstract class S5AbstractBackend<ADDON extends IS5BackendAddon>
   //
   @Override
   public void run() {
-	if( isClosed == true ) {
-		// backend завершил свою работу
-		return;
-	}
+    if( isClosed ) {
+      // backend завершил свою работу
+      return;
+    }
     if( !LoggerUtils.defaultLogger().equals( uskatLogger ) ) {
       LoggerUtils.setDefaultLogger( uskatLogger );
       LoggerUtils.defaultLogger().error( MSG_RESTORE_DEFAULT_LOGGER, S5_USKAT_CORE_LOGGER );
