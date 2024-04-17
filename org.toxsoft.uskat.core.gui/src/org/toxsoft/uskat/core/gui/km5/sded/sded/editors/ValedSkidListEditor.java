@@ -117,7 +117,7 @@ public class ValedSkidListEditor
     }
     IList<ISkObject> selObjs = M5GuiUtils.askSelectItemsList( di, modelSk, initObjs, lmSk.itemsProvider() );
     if( selObjs == null ) {
-      return ISkidList.EMPTY;
+      return null;
     }
     SkidList retVal = new SkidList();
     for( ISkObject obj : selObjs ) {
