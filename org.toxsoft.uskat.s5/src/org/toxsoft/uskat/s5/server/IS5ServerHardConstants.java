@@ -60,7 +60,7 @@ public interface IS5ServerHardConstants
   /**
    * Версия сервера.
    */
-  TsVersion version = new TsVersion( 4, 25, 2024, Month.FEBRUARY, 10 );
+  TsVersion version = new TsVersion( 4, 26, 2024, Month.APRIL, 18 );
 
   // ------------------------------------------------------------------------------------
   // Опции s5-backend.
