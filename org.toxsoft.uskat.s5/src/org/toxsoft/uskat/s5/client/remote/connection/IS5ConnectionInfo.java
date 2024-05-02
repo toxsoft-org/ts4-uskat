@@ -55,6 +55,15 @@ public interface IS5ConnectionInfo {
    */
   long currDataTimeout();
 
+  /**
+   * Рекомендуемый таймаут передачи хранимых данных от сервера удаленным клиентам
+   * <p>
+   * Значение по умолчанию: <b>10000</b>
+   *
+   * @return long (мсек) таймаут между передачами значений хранимы данных. <=0: отправлять немедленно
+   */
+  long histDataTimeout();
+
 }
 
 /**
@@ -97,6 +106,11 @@ class InternalNullConnectionInfo
 
   @Override
   public long currDataTimeout() {
+    throw new TsNullObjectErrorRtException();
+  }
+
+  @Override
+  public long histDataTimeout() {
     throw new TsNullObjectErrorRtException();
   }
 
