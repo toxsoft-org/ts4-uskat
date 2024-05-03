@@ -1,7 +1,7 @@
 package org.toxsoft.uskat.core.api.sysdescr.dto;
 
-import org.toxsoft.core.tslib.av.metainfo.IDataDef;
-import org.toxsoft.core.tslib.bricks.strid.coll.IStridablesList;
+import org.toxsoft.core.tslib.av.metainfo.*;
+import org.toxsoft.core.tslib.bricks.strid.coll.*;
 
 /**
  * Information about event property of class.
@@ -19,9 +19,9 @@ public interface IDtoEventInfo
   boolean isHist();
 
   /**
-   * Returns ths identified parameter definitions.
+   * Returns the event parameter definitions.
    *
-   * @return {@link IStridablesList}&lt;{@link IDataDef}&gt; - the parameters data defs list
+   * @return {@link IStridablesList}&lt;{@link IDataDef}&gt; - the parameters data definitions list
    */
   IStridablesList<IDataDef> paramDefs();
 

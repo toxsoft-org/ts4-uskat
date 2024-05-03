@@ -35,7 +35,7 @@ public interface ICoreL10n {
   Locale locale();
 
   /**
-   * Determines if localization is truned on.
+   * Determines if localization is turned on.
    * <p>
    * Localization may be turned off using the {@link #setL10n(boolean)} method, as well as by incorrect settings, or
    * lack of resources for the requested locale or for other reasons, localization may not work at all. Note that even
@@ -81,7 +81,7 @@ public interface ICoreL10n {
    * <p>
    * Localizes {@link IDtoObject} supplied by the backend addon {@link IBaObjects}.
    * <p>
-   * If localization is turend off ({@link #isL10nOn()} = <code>false</code>), then returns the argument.
+   * If localization is turned off ({@link #isL10nOn()} = <code>false</code>), then returns the argument.
    * <p>
    * Two different methods {@link #l10nObject(IDtoObject)} and {@link #l10nObjectsList(IList)} exits for optimization
    * purposes.
@@ -96,7 +96,7 @@ public interface ICoreL10n {
    * <p>
    * Localizes {@link IDtoObject} supplied by the backend addon {@link IBaObjects}.
    * <p>
-   * If localization is turend off ({@link #isL10nOn()} = <code>false</code>), then returns the argument.
+   * If localization is turned off ({@link #isL10nOn()} = <code>false</code>), then returns the argument.
    * <p>
    * Two different methods {@link #l10nObject(IDtoObject)} and {@link #l10nObjectsList(IList)} exists for optimization
    * purposes.
