@@ -4,7 +4,7 @@ import org.toxsoft.core.tslib.av.*;
 import org.toxsoft.core.tslib.coll.primtypes.*;
 
 /**
- * Queries data useing SkatQL query language.
+ * Queries data using SkatQL query language.
  * <p>
  * FIXME as of 04/07/2022 this API is under early step of development !
  *

@@ -2,15 +2,12 @@ package org.toxsoft.uskat.core.gui.km5;
 
 import org.toxsoft.core.tsgui.m5.*;
 import org.toxsoft.core.tsgui.m5.model.impl.*;
-import org.toxsoft.core.tslib.av.*;
-import org.toxsoft.core.tslib.bricks.ctx.*;
 import org.toxsoft.core.tslib.bricks.strid.idgen.*;
 import org.toxsoft.core.tslib.coll.*;
 import org.toxsoft.core.tslib.coll.helpers.*;
 import org.toxsoft.core.tslib.coll.impl.*;
 import org.toxsoft.core.tslib.coll.primtypes.*;
 import org.toxsoft.core.tslib.coll.primtypes.impl.*;
-import org.toxsoft.core.tslib.utils.*;
 import org.toxsoft.core.tslib.utils.errors.*;
 import org.toxsoft.core.tslib.utils.logs.impl.*;
 import org.toxsoft.uskat.core.*;
@@ -104,28 +101,6 @@ public final class KM5Support
     // inform connection and domain about each other
     skConn.scope().put( IM5Domain.class, m5 );
     skConn.scope().put( KM5Support.class, this );
-
-    // DEBUG ---
-    m5.tsContext().addContextListener( new ITsContextListener() {
-
-      @Override
-      public <C extends ITsContextRo> void onContextRefChanged( C aSource, String aName, Object aRef ) {
-
-        TsTestUtils.nl();
-        TsTestUtils.pl( "=================================" ); //$NON-NLS-1$
-        TsTestUtils.pl( "=== M5 ctx ref change: refName= '%s'", aName ); //$NON-NLS-1$
-        TsTestUtils.pl( "=================================" ); //$NON-NLS-1$
-        TsTestUtils.nl();
-
-      }
-
-      @Override
-      public <C extends ITsContextRo> void onContextOpChanged( C aSource, String aId, IAtomicValue aValue ) {
-        // nop
-      }
-    } );
-    // ---
-
     m5.tsContext().put( ISkConnection.class, skConn );
     m5.tsContext().put( KM5Support.class, this );
     // create contributors

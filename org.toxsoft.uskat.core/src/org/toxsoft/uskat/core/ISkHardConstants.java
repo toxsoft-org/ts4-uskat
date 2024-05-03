@@ -1,5 +1,6 @@
 package org.toxsoft.uskat.core;
 
+import static org.toxsoft.core.tslib.ITsHardConstants.*;
 import static org.toxsoft.core.tslib.av.EAtomicType.*;
 import static org.toxsoft.core.tslib.av.impl.AvUtils.*;
 import static org.toxsoft.core.tslib.av.impl.DataDef.*;
@@ -24,6 +25,13 @@ public interface ISkHardConstants {
    * IDpath prefix of the all USkat identifiers.
    */
   String SK_ID = "sk"; //$NON-NLS-1$
+
+  /**
+   * IDpath prefix for full identifiers.
+   * <p>
+   * Full IDs are designed to be used in any namespace where Internet reverse naming guarantees uniquity of identifiers.
+   */
+  String USKAT_FULL_ID = TS_FULL_ID + ".uskat"; //$NON-NLS-1$
 
   /**
    * ID of the USkat core (not any particular service).
