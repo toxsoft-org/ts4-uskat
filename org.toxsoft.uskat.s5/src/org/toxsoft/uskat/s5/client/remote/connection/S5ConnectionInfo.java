@@ -44,6 +44,8 @@ public final class S5ConnectionInfo
           aSw.writeLong( aEntity.failureTimeout() );
           aSw.writeSeparatorChar();
           aSw.writeLong( aEntity.currDataTimeout() );
+          aSw.writeSeparatorChar();
+          aSw.writeLong( aEntity.histDataTimeout() );
         }
 
         @Override
@@ -56,6 +58,8 @@ public final class S5ConnectionInfo
           retValue.setFailureTimeout( aSr.readLong() );
           aSr.ensureSeparatorChar();
           retValue.setCurrDataTimeout( aSr.readLong() );
+          aSr.ensureSeparatorChar();
+          retValue.setHistDataTimeout( aSr.readLong() );
           return retValue;
         }
       };
@@ -64,6 +68,7 @@ public final class S5ConnectionInfo
   private long             connectTimeout  = 5000;
   private long             failureTimeout  = 3000;
   private long             currDataTimeout = 1000;
+  private long             histDataTimeout = 1000;
 
   /**
    * Конструктор описания
@@ -89,6 +94,7 @@ public final class S5ConnectionInfo
     setConnectTimeout( aSource.connectTimeout() );
     setFailureTimeout( aSource.failureTimeout() );
     setCurrDataTimeout( aSource.currDataTimeout() );
+    setHistDataTimeout( aSource.histDataTimeout() );
   }
 
   // ------------------------------------------------------------------------------------
@@ -132,13 +138,25 @@ public final class S5ConnectionInfo
   /**
    * Установить рекомендуемый таймаут передачи текущих данных от сервера клиенту.
    * <p>
-   * Значение по умолчанию: <b>300(мсек)</b>
+   * Значение по умолчанию: <b>1000(мсек)</b>
    *
    * @param aTimeout long таймаут (мсек). <=0: отправлять немедленно
    * @throws TsIllegalStateRtException редактор находится в нерабочем состоянии
    */
   public void setCurrDataTimeout( long aTimeout ) {
     currDataTimeout = aTimeout;
+  }
+
+  /**
+   * Установить рекомендуемый таймаут передачи хранимых данных от сервера клиенту.
+   * <p>
+   * Значение по умолчанию: <b>10000(мсек)</b>
+   *
+   * @param aTimeout long таймаут (мсек). <=0: отправлять немедленно
+   * @throws TsIllegalStateRtException редактор находится в нерабочем состоянии
+   */
+  public void setHistDataTimeout( long aTimeout ) {
+    histDataTimeout = aTimeout;
   }
 
   // ------------------------------------------------------------------------------------
@@ -164,6 +182,11 @@ public final class S5ConnectionInfo
     return currDataTimeout;
   }
 
+  @Override
+  public long histDataTimeout() {
+    return histDataTimeout;
+  }
+
   // ------------------------------------------------------------------------------------
   // Реализация Object
   //
@@ -179,6 +202,7 @@ public final class S5ConnectionInfo
     result = TsLibUtils.PRIME * result + (int)(connectTimeout ^ (connectTimeout >>> 32));
     result = TsLibUtils.PRIME * result + (int)(failureTimeout ^ (failureTimeout >>> 32));
     result = TsLibUtils.PRIME * result + (int)(currDataTimeout ^ (currDataTimeout >>> 32));
+    result = TsLibUtils.PRIME * result + (int)(histDataTimeout ^ (histDataTimeout >>> 32));
     return result;
   }
 
@@ -204,6 +228,9 @@ public final class S5ConnectionInfo
       return false;
     }
     if( currDataTimeout != other.currDataTimeout() ) {
+      return false;
+    }
+    if( histDataTimeout != other.histDataTimeout() ) {
       return false;
     }
     return true;
