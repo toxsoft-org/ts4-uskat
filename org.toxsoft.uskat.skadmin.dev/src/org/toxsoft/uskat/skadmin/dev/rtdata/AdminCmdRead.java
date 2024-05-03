@@ -297,7 +297,7 @@ public class AdminCmdRead
       // Готовые каналы соединения
       IListEdit<Gwid> readyChannelIds = cdGwids.getByKey( connection );
       // Вывод уже полученных значений
-      for( Gwid gwid : gwids ) {
+      for( Gwid gwid : newChannels.keys() ) {
         ISkReadCurrDataChannel channel = channels.getByKey( gwid );
         // Вывод текущего значения канала
         value = channel.getValue();
