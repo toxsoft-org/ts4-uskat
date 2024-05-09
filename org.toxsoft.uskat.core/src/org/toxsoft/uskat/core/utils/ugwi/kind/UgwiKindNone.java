@@ -24,7 +24,7 @@ public class UgwiKindNone
   /**
    * The singleton instance.
    */
-  public static final IUgwiKind INSTANCE = new UgwiKindNone();
+  public static final UgwiKind INSTANCE = new UgwiKindNone();
 
   /**
    * Constructor.

@@ -30,7 +30,7 @@ public class UgwiKindFile
   /**
    * The singleton instance.
    */
-  public static final IUgwiKind INSTANCE = new UgwiKindFile();
+  public static final UgwiKind INSTANCE = new UgwiKindFile();
 
   /**
    * Constructor.

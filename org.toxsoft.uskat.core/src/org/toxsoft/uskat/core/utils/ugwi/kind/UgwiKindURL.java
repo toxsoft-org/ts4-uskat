@@ -31,7 +31,7 @@ public class UgwiKindURL
   /**
    * The singleton instance.
    */
-  public static final IUgwiKind INSTANCE = new UgwiKindURL();
+  public static final UgwiKind INSTANCE = new UgwiKindURL();
 
   /**
    * Constructor.

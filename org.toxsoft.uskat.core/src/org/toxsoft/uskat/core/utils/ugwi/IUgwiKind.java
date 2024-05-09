@@ -58,9 +58,43 @@ public sealed interface IUgwiKind
    */
   ValidationResult validateUgwi( String aNamespace, String aEssence );
 
+  /**
+   * Returns the kind helper if any was registered.
+   * <p>
+   * Note: argument class must be exaclly the same as helper was reistered by {@link #registerHelper(Class, Object)}.
+   *
+   * @param <T> - expected type of the helper
+   * @param aHelperClass {@link Class}&lt;T&gt; - helper class used at registration time
+   * @return &lt;T&gt; - found helper or <code>null</code>
+   * @throws TsNullArgumentRtException any argument = <code>null</code>
+   * @throws ClassCastException found helper is not of requested type
+   */
+  <T> T findHelper( Class<T> aHelperClass );
+
+  /**
+   * Registers UGWI kind helper.
+   *
+   * @param <T> - type of the helper
+   * @param aHelperClass {@link Class}&lt;T&gt; - key class used for helper registration
+   * @param aHelper &lt;T&gt; - the helper instance
+   * @throws TsNullArgumentRtException any argument = <code>null</code>
+   * @throws TsItemAlreadyExistsRtException helper with specified key is already registered
+   * @throws ClassCastException found helper is not of specified type
+   */
+  <T> void registerHelper( Class<T> aHelperClass, T aHelper );
+
+  // ------------------------------------------------------------------------------------
+  // inline methods for convenience
+  //
+
   @SuppressWarnings( "javadoc" )
   default ValidationResult validateUgwi( String aEssence ) {
     return validateUgwi( EMPTY_STRING, aEssence );
+  }
+
+  @SuppressWarnings( "javadoc" )
+  default <T> T getHelper( Class<T> aHelperClass ) {
+    return TsItemNotFoundRtException.checkNull( findHelper( aHelperClass ) );
   }
 
 }

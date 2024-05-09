@@ -5,6 +5,8 @@ import static org.toxsoft.uskat.core.utils.ugwi.ITsResources.*;
 import org.toxsoft.core.tslib.av.opset.*;
 import org.toxsoft.core.tslib.bricks.strid.impl.*;
 import org.toxsoft.core.tslib.bricks.validator.*;
+import org.toxsoft.core.tslib.coll.*;
+import org.toxsoft.core.tslib.coll.impl.*;
 import org.toxsoft.core.tslib.utils.errors.*;
 
 /**
@@ -15,6 +17,8 @@ import org.toxsoft.core.tslib.utils.errors.*;
 public non-sealed class UgwiKind
     extends StridableParameterized
     implements IUgwiKind {
+
+  private final IMapEdit<Class<?>, Object> helpersMap = new ElemMap<>();
 
   /**
    * Constructor.
@@ -58,6 +62,23 @@ public non-sealed class UgwiKind
       }
     }
     return ValidationResult.firstNonOk( vr, doValidateEssence( aEssence ) );
+  }
+
+  @Override
+  final public <T> T findHelper( Class<T> aHelperClass ) {
+    TsNullArgumentRtException.checkNull( aHelperClass );
+    Object helper = helpersMap.findByKey( aHelperClass );
+    if( helper != null ) {
+      return aHelperClass.cast( helper );
+    }
+    return null;
+  }
+
+  @Override
+  final public <T> void registerHelper( Class<T> aHelperClass, T aHelper ) {
+    TsNullArgumentRtException.checkNulls( aHelperClass, aHelper );
+    TsItemAlreadyExistsRtException.checkTrue( helpersMap.hasKey( aHelperClass ) );
+    helpersMap.put( aHelperClass, aHelperClass.cast( aHelper ) );
   }
 
   // ------------------------------------------------------------------------------------

@@ -30,7 +30,7 @@ public class UgwiKindSkid
   /**
    * The singleton instance.
    */
-  public static final IUgwiKind INSTANCE = new UgwiKindSkid();
+  public static final UgwiKind INSTANCE = new UgwiKindSkid();
 
   /**
    * Constructor.
