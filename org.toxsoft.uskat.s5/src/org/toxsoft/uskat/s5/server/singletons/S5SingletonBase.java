@@ -15,7 +15,6 @@ import javax.ejb.*;
 import javax.enterprise.concurrent.ManagedExecutorService;
 
 import org.toxsoft.core.tslib.av.opset.IOptionSet;
-import org.toxsoft.core.tslib.av.opset.IOptionSetEdit;
 import org.toxsoft.core.tslib.av.opset.impl.OptionSet;
 import org.toxsoft.core.tslib.bricks.time.impl.TimeUtils;
 import org.toxsoft.core.tslib.coll.IList;
@@ -85,11 +84,6 @@ public class S5SingletonBase
    * Исполнитель потоков фоновых потоков s5-служб
    */
   private ManagedExecutorService doJobExecutor;
-
-  /**
-   * Опции конфигурации
-   */
-  private IOptionSet configurationOptions;
 
   /**
    * Поток вызова {@link IS5ServerJob#doJob()}
@@ -537,21 +531,12 @@ public class S5SingletonBase
   @Override
   @TransactionAttribute( TransactionAttributeType.SUPPORTS )
   public IOptionSet configuration() {
-    if( configurationOptions == null ) {
-      IOptionSetEdit newConfiguration = new OptionSet( doCreateConfiguration() );
-      IOptionSet configuration = initialSingleton.loadServiceConfig( id() );
-      if( configuration != null ) {
-        newConfiguration.addAll( configuration );
-      }
-      configurationOptions = newConfiguration;
+    IOptionSet retValue = initialSingleton.loadServiceConfig( id() );
+    if( retValue == null ) {
+      initialSingleton.saveServiceConfig( id(), doCreateConfiguration() );
     }
-    try {
-      return configurationOptions;
-    }
-    catch( Throwable e ) {
-      // Недопустимый тип конфиграции
-      throw new TsIllegalArgumentRtException( MSG_ERR_WRONG_CONFIG_TYPE, id(), cause( e ) );
-    }
+    retValue = initialSingleton.loadServiceConfig( id() );
+    return retValue;
   }
 
   @Override
@@ -559,11 +544,11 @@ public class S5SingletonBase
   public void saveConfiguration( IOptionSet aConfiguration ) {
     TsNullArgumentRtException.checkNull( aConfiguration );
     // Предыдущая конфигурация
-    IOptionSet prevConfiguration = configurationOptions;
+    IOptionSet prevConfiguration = configuration();
+    // Новая конфигурация
     IOptionSet newConfiguration = aConfiguration;
     // Установка новой конфигурации
     initialSingleton.saveServiceConfig( id(), newConfiguration );
-    configurationOptions = newConfiguration;
     // Извещение наследников об изменении конфигурации
     try {
       onConfigChanged( prevConfiguration, newConfiguration );
@@ -571,7 +556,6 @@ public class S5SingletonBase
     catch( RuntimeException e ) {
       // Откат установки конфигурации службы
       logger().error( e, MSG_ERR_SERVER_CONFIG_ROLLBACK, id(), cause( e ) );
-      configurationOptions = prevConfiguration;
       throw e;
     }
   }
