@@ -31,5 +31,6 @@ Export-Package: core.tslib.bricks.threadexecutor,
  org.toxsoft.uskat.core.impl,
  org.toxsoft.uskat.core.impl.dto,
  org.toxsoft.uskat.core.utils,
+ org.toxsoft.uskat.core.utils.msgen,
  org.toxsoft.uskat.core.utils.ugwi,
  org.toxsoft.uskat.core.utils.ugwi.kind

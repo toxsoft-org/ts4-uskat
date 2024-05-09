@@ -53,12 +53,12 @@ public final class DtoCommandStateChangeInfo
   /**
    * Constructor
    *
-   * @param aCommandId String - the command instance ID
+   * @param aCommandInstanceId String - the command instance ID
    * @param aState {@link SkCommandState} - new state of the command
    * @throws TsNullArgumentRtException any argument = <code>null</code>
    */
-  public DtoCommandStateChangeInfo( String aCommandId, SkCommandState aState ) {
-    commandId = StridUtils.checkValidIdPath( aCommandId );
+  public DtoCommandStateChangeInfo( String aCommandInstanceId, SkCommandState aState ) {
+    commandId = StridUtils.checkValidIdPath( aCommandInstanceId );
     state = TsNullArgumentRtException.checkNull( aState );
   }
 

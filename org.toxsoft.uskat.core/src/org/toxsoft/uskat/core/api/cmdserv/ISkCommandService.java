@@ -62,7 +62,7 @@ public interface ISkCommandService
    * @param aExecutor {@link ISkCommandExecutor} - the executor to be registered
    * @param aCmdGwids {@link IGwidList} - list of GWIDs the executor is responsible for
    * @throws TsNullArgumentRtException any argument = <code>null</code>
-   * @throws TsItemAlreadyExistsRtException the was an executor already ergistered for at lieast on GWID from the list
+   * @throws TsItemAlreadyExistsRtException the was an executor already registered for at least on GWID from the list
    */
   void registerExecutor( ISkCommandExecutor aExecutor, IGwidList aCmdGwids );
 

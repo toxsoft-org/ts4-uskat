@@ -19,7 +19,7 @@ public interface ISkGuiContextable
   /**
    * Returns {@link ISkConnection} - connection to the USkat system.
    * <p>
-   * This is the only method to be implementaed by subclass.
+   * This is the only method to be implemented by subclass.
    *
    * @return {@link ISkConnection} - connection to USkat.
    */

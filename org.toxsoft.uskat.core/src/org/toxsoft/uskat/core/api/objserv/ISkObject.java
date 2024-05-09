@@ -36,9 +36,9 @@ public interface ISkObject
   ISkObject NONE = new InternalNoneSkObject();
 
   /**
-   * Returns the objct SKID.
+   * Returns the object SKID.
    *
-   * @return {@link Skid} - the objct SKID
+   * @return {@link Skid} - the object SKID
    */
   Skid skid();
 

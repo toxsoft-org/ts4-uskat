@@ -162,6 +162,7 @@ public class SkConnectionSupplier
 
   private ISkConnection internalReallyCreateConnectionInstance( IdChain aKey, ITsGuiContext aContext ) {
     ISkConnection conn = SkCoreUtils.createConnection();
+    conn.scope().put( ITsGuiContext.class, aContext );
     @SuppressWarnings( "unused" )
     KM5Support km5 = new KM5Support( conn, aContext.get( IM5Domain.class ) );
     connsMap.put( aKey, conn );

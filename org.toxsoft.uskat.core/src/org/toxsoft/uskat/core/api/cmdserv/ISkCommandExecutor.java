@@ -9,7 +9,7 @@ import org.toxsoft.core.tslib.utils.errors.*;
  * In order to receive the commands intended for him, the executor must be registered in the service by method
  * {@link ISkCommandService#registerExecutor(ISkCommandExecutor, IGwidList)}.
  * <p>
- * Each executor is responsible for own set of obejcts and commands. Normally all the executors registered in the system
+ * Each executor is responsible for own set of objects and commands. Normally all the executors registered in the system
  * shall cover all commands for all objects.
  *
  * @author hazard157
