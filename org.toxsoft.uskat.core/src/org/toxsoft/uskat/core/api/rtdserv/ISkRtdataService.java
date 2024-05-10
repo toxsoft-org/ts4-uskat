@@ -56,6 +56,36 @@ public interface ISkRtdataService
   IMap<Gwid, ISkWriteCurrDataChannel> createWriteCurrDataChannels( IGwidList aGwids );
 
   /**
+   * Returns existing RTdata read channel.
+   * <p>
+   * Returns <code>null</code> if channel is not open or GWID does not denotes a real-time data.
+   * <p>
+   * Note: getting channel with this method does <b>not</b> requires it to be closed. It is assumed that someone else
+   * opens and closes the channel. Event more, invoking {@link ISkReadCurrDataChannel#close()} method has no effect on
+   * channel returned with this method.
+   *
+   * @param aGwid {@link Gwid} - requested RTdata GWID
+   * @return {@link ISkReadCurrDataChannel} - existing channel or <code>null</code>
+   * @throws TsNullArgumentRtException any argument = <code>null</code>
+   */
+  ISkReadCurrDataChannel findReadCurrDataChannel( Gwid aGwid );
+
+  /**
+   * Returns existing RTdata write channel.
+   * <p>
+   * Returns <code>null</code> if channel is not open or GWID does not denotes a real-time data.
+   * <p>
+   * Note: getting channel with this method does <b>not</b> requires it to be closed. It is assumed that someone else
+   * opens and closes the channel. Event more, invoking {@link ISkWriteCurrDataChannel#close()} method has no effect on
+   * channel returned with this method.
+   *
+   * @param aGwid {@link Gwid} - requested RTdata GWID
+   * @return {@link ISkWriteCurrDataChannel} - existing channel or <code>null</code>
+   * @throws TsNullArgumentRtException any argument = <code>null</code>
+   */
+  ISkWriteCurrDataChannel findWriteCurrDataChannel( Gwid aGwid );
+
+  /**
    * Returns current values change eventer.
    *
    * @return {@link ITsEventer}&lt;{@link ISkCurrDataChangeListener}&gt; - the eventer

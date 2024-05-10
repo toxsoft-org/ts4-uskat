@@ -262,6 +262,33 @@ public class SkCoreServRtdata
       extends SkRtdataChannel
       implements ISkReadCurrDataChannel {
 
+    /**
+     * {@link ISkReadCurrDataChannel} implementation to be returned by
+     * {@link ISkRtdataService#findReadCurrDataChannel(Gwid)}.
+     */
+    final ISkReadCurrDataChannel uncloseableChannel = new ISkReadCurrDataChannel() {
+
+      @Override
+      public void close() {
+        // nop
+      }
+
+      @Override
+      public boolean isOk() {
+        return SkReadCurrDataChannel.this.isOk();
+      }
+
+      @Override
+      public Gwid gwid() {
+        return SkReadCurrDataChannel.this.gwid();
+      }
+
+      @Override
+      public IAtomicValue getValue() {
+        return SkReadCurrDataChannel.this.getValue();
+      }
+    };
+
     private final EAtomicType atomicType;
     private IAtomicValue      value   = null;
     private int               counter = 0;
@@ -345,6 +372,15 @@ public class SkCoreServRtdata
     return result;
   }
 
+  @Override
+  public ISkReadCurrDataChannel findReadCurrDataChannel( Gwid aGwid ) {
+    SkReadCurrDataChannel ch = cdReadChannelsMap.findByKey( aGwid );
+    if( ch != null ) {
+      return ch.uncloseableChannel;
+    }
+    return null;
+  }
+
   // ------------------------------------------------------------------------------------
   // ------------------------------------------------------------------------------------
   // ------------------------------------------------------------------------------------
@@ -361,6 +397,34 @@ public class SkCoreServRtdata
   class SkWriteCurrDataChannel
       extends SkRtdataChannel
       implements ISkWriteCurrDataChannel {
+
+    /**
+     * {@link ISkWriteCurrDataChannel} implementation to be returned by
+     * {@link ISkRtdataService#findWriteCurrDataChannel(Gwid)}.
+     */
+    final ISkWriteCurrDataChannel uncloseableChannel = new ISkWriteCurrDataChannel() {
+
+      @Override
+      public void close() {
+        // nop
+      }
+
+      @Override
+      public boolean isOk() {
+        return SkWriteCurrDataChannel.this.isOk();
+      }
+
+      @Override
+      public Gwid gwid() {
+        return SkWriteCurrDataChannel.this.gwid();
+      }
+
+      @Override
+      public void setValue( IAtomicValue aValue ) {
+        SkWriteCurrDataChannel.this.setValue( aValue );
+      }
+
+    };
 
     private final EAtomicType atomicType;
     private IAtomicValue      value = null;
@@ -434,6 +498,15 @@ public class SkCoreServRtdata
     // inform backend
     ba().baRtdata().configureCurrDataWriter( new GwidList( cdWriteChannelsMap.keys() ) );
     return result;
+  }
+
+  @Override
+  public ISkWriteCurrDataChannel findWriteCurrDataChannel( Gwid aGwid ) {
+    SkWriteCurrDataChannel ch = cdWriteChannelsMap.findByKey( aGwid );
+    if( ch != null ) {
+      return ch.uncloseableChannel;
+    }
+    return null;
   }
 
   // ------------------------------------------------------------------------------------
