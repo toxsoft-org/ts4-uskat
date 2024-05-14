@@ -2,30 +2,27 @@ package org.toxsoft.uskat.core.impl;
 
 import static org.toxsoft.uskat.core.impl.ISkResources.*;
 
-import org.toxsoft.core.tslib.av.EAtomicType;
-import org.toxsoft.core.tslib.av.IAtomicValue;
-import org.toxsoft.core.tslib.av.errors.AvTypeCastRtException;
-import org.toxsoft.core.tslib.av.temporal.ITemporalAtomicValue;
-import org.toxsoft.core.tslib.bricks.ctx.ITsContextRo;
-import org.toxsoft.core.tslib.bricks.events.AbstractTsEventer;
-import org.toxsoft.core.tslib.bricks.events.ITsEventer;
-import org.toxsoft.core.tslib.bricks.events.msg.GenericMessage;
+import org.toxsoft.core.tslib.av.*;
+import org.toxsoft.core.tslib.av.errors.*;
+import org.toxsoft.core.tslib.av.temporal.*;
+import org.toxsoft.core.tslib.bricks.ctx.*;
+import org.toxsoft.core.tslib.bricks.events.*;
+import org.toxsoft.core.tslib.bricks.events.msg.*;
 import org.toxsoft.core.tslib.bricks.time.*;
-import org.toxsoft.core.tslib.coll.IMap;
-import org.toxsoft.core.tslib.coll.IMapEdit;
-import org.toxsoft.core.tslib.coll.impl.ElemMap;
+import org.toxsoft.core.tslib.coll.*;
+import org.toxsoft.core.tslib.coll.impl.*;
 import org.toxsoft.core.tslib.gw.gwid.*;
 import org.toxsoft.core.tslib.utils.errors.*;
-import org.toxsoft.core.tslib.utils.logs.ELogSeverity;
-import org.toxsoft.core.tslib.utils.logs.impl.LoggerUtils;
-import org.toxsoft.uskat.core.ISkServiceCreator;
-import org.toxsoft.uskat.core.api.linkserv.ISkLinkService;
-import org.toxsoft.uskat.core.api.objserv.ISkObject;
+import org.toxsoft.core.tslib.utils.logs.*;
+import org.toxsoft.core.tslib.utils.logs.impl.*;
+import org.toxsoft.uskat.core.*;
+import org.toxsoft.uskat.core.api.linkserv.*;
+import org.toxsoft.uskat.core.api.objserv.*;
 import org.toxsoft.uskat.core.api.rtdserv.*;
-import org.toxsoft.uskat.core.api.sysdescr.ISkClassInfo;
-import org.toxsoft.uskat.core.api.sysdescr.dto.IDtoRtdataInfo;
-import org.toxsoft.uskat.core.backend.api.BaMsgRtdataCurrData;
-import org.toxsoft.uskat.core.devapi.IDevCoreApi;
+import org.toxsoft.uskat.core.api.sysdescr.*;
+import org.toxsoft.uskat.core.api.sysdescr.dto.*;
+import org.toxsoft.uskat.core.backend.api.*;
+import org.toxsoft.uskat.core.devapi.*;
 
 /**
  * {@link ISkRtdataService} implementation.
@@ -144,7 +141,7 @@ public class SkCoreServRtdata
   /**
    * Makes the list of valid GWIDs from the argument list of arbitrary GWIDs.
    * <p>
-   * Dependiong on argument <code>aHistoric</code> includes only RTdata with either {@link IDtoRtdataInfo#isCurr()} or
+   * Depending on argument <code>aHistoric</code> includes only RTdata with either {@link IDtoRtdataInfo#isCurr()} or
    * {@link IDtoRtdataInfo#isHist()} flag set.
    * <p>
    * GWIDs is considered valid if it is concrete GWID of kind {@link EGwidKind#GW_RTDATA} and is not duplicated. Method
@@ -219,7 +216,7 @@ public class SkCoreServRtdata
   @Override
   protected boolean onBackendMessage( GenericMessage aMessage ) {
     IMap<Gwid, IAtomicValue> newValues = BaMsgRtdataCurrData.INSTANCE.getNewValues( aMessage );
-    // update curr data values in channels
+    // update current data values in channels
     for( Gwid g : newValues.keys() ) {
       SkReadCurrDataChannel channel = cdReadChannelsMap.findByKey( g );
       if( channel != null ) {
