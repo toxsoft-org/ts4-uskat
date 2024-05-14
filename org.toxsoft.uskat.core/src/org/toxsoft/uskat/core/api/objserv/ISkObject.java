@@ -2,6 +2,7 @@ package org.toxsoft.uskat.core.api.objserv;
 
 import java.io.*;
 
+import org.toxsoft.core.tslib.av.*;
 import org.toxsoft.core.tslib.av.opset.*;
 import org.toxsoft.core.tslib.bricks.strid.*;
 import org.toxsoft.core.tslib.coll.*;
@@ -9,6 +10,7 @@ import org.toxsoft.core.tslib.gw.skid.*;
 import org.toxsoft.core.tslib.utils.*;
 import org.toxsoft.core.tslib.utils.errors.*;
 import org.toxsoft.uskat.core.*;
+import org.toxsoft.uskat.core.api.rtdserv.*;
 import org.toxsoft.uskat.core.api.sysdescr.*;
 import org.toxsoft.uskat.core.api.sysdescr.dto.*;
 import org.toxsoft.uskat.core.impl.*;
@@ -178,7 +180,7 @@ public interface ISkObject
   /**
    * Returns objects of reverse rivet (left objects which have this object riveted).
    *
-   * @param <T> - конкретный тип возвращаемых объектов
+   * @param <T> - expected type of the objects
    * @param aClassId String - rivet class ID
    * @param aRivetId String - rivet ID
    * @return {@rivet IList}&lt;T&gt; - list of objects
@@ -190,7 +192,7 @@ public interface ISkObject
   // CLOBs
 
   /**
-   * Returnsa the CLOB value.
+   * Returns the CLOB value.
    * <p>
    * If CLOB was never written or is an empty String then returns <code>aDefaultValue</code>.
    *
@@ -204,7 +206,7 @@ public interface ISkObject
   String getClob( String aClobId, String aDefaultValue );
 
   /**
-   * Returnsa the CLOB value.
+   * Returns the CLOB value.
    * <p>
    * Simple calls {@link #getClob(String, String)} with an empty string as <code>aDefaultValue</code>.
    *
@@ -219,7 +221,37 @@ public interface ISkObject
   }
 
   // ------------------------------------------------------------------------------------
-  //
+  // RTdata
+
+  /**
+   * Returns current value of the RTdat if respective channel is open.
+   * <p>
+   * This method uses an open {@link ISkReadCurrDataChannel} to read the value. If channel is not open, simply returns
+   * <code>null</code>.
+   * <p>
+   * This method is intended to be used when someone else opens/closes the channel.
+   *
+   * @param aRtdataId String - the ID of the RTdata
+   * @return {@link IAtomicValue} - current value or <code>null</code>
+   */
+  IAtomicValue readRtdataIfOpen( String aRtdataId );
+
+  /**
+   * Sets current value of RTdata if write channel is open.
+   * <p>
+   * This method uses an open {@link ISkWriteCurrDataChannel} to read the value. If channel is not open, simply returns
+   * <code>null</code>.
+   * <p>
+   * This method is intended to be used when someone else opens/closes the channel.
+   *
+   * @param aRtdataId String - the ID of the RTdata
+   * @param aValue {@link IAtomicValue} - current value
+   * @throws TsNullArgumentRtException any argument = <code>null</code>
+   */
+  void writeRtdataIfOpen( String aRtdataId, IAtomicValue aValue );
+
+  // ------------------------------------------------------------------------------------
+  // Links
 
   /**
    * Returns SKID of single link (link with max 1 object linked).
@@ -396,6 +428,16 @@ class InternalNoneSkObject
 
   @Override
   public String getClob( String aClobId, String aDefaultValue ) {
+    throw new TsNullObjectErrorRtException();
+  }
+
+  @Override
+  public IAtomicValue readRtdataIfOpen( String aRtdataId ) {
+    throw new TsNullObjectErrorRtException();
+  }
+
+  @Override
+  public void writeRtdataIfOpen( String aRtdataId, IAtomicValue aValue ) {
     throw new TsNullObjectErrorRtException();
   }
 

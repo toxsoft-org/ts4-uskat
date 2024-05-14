@@ -2,9 +2,12 @@ package org.toxsoft.uskat.core.impl;
 
 import static org.toxsoft.uskat.core.ISkHardConstants.*;
 
+import org.toxsoft.core.tslib.av.*;
 import org.toxsoft.core.tslib.av.opset.*;
 import org.toxsoft.core.tslib.av.opset.impl.*;
 import org.toxsoft.core.tslib.coll.*;
+import org.toxsoft.core.tslib.coll.primtypes.*;
+import org.toxsoft.core.tslib.coll.primtypes.impl.*;
 import org.toxsoft.core.tslib.gw.gwid.*;
 import org.toxsoft.core.tslib.gw.skid.*;
 import org.toxsoft.core.tslib.utils.*;
@@ -12,6 +15,7 @@ import org.toxsoft.core.tslib.utils.errors.*;
 import org.toxsoft.uskat.core.*;
 import org.toxsoft.uskat.core.api.linkserv.*;
 import org.toxsoft.uskat.core.api.objserv.*;
+import org.toxsoft.uskat.core.api.rtdserv.*;
 
 /**
  * {@link ISkObject} implementation.
@@ -40,9 +44,18 @@ public class SkObject
   private final MappedSkids    rivets = new MappedSkids();
 
   /**
+   * The map of the RTdata ID <-> RTdata GWID.
+   * <p>
+   * The map is created at first call and used by the methods {@link #readRtdataIfOpen(String)} and
+   * {@link #writeRtdataIfOpen(String, IAtomicValue)}. The purpose of this method is to eliminate {@link Gwid} creation
+   * on every call of the method.
+   */
+  private transient IStringMapEdit<Gwid> rtDataGwids = null;
+
+  /**
    * Constructor.
    *
-   * @param aSkid {@link Skid} - идентификатор объекта
+   * @param aSkid {@link Skid} - the object SKID
    */
   protected SkObject( Skid aSkid ) {
     if( aSkid == null ) {
@@ -55,6 +68,22 @@ public class SkObject
     attrs.setValobj( AID_SKID, skid );
     attrs.setStr( AID_CLASS_ID, skid.classId() );
     attrs.setStr( AID_STRID, skid.strid() );
+  }
+
+  // ------------------------------------------------------------------------------------
+  // implementation
+  //
+
+  private Gwid internalRtDataIdToCachedGwid( String aRtdataId ) {
+    if( rtDataGwids == null ) {
+      rtDataGwids = new StringMap<>();
+    }
+    Gwid rtdGwid = rtDataGwids.findByKey( aRtdataId );
+    if( rtdGwid == null ) {
+      rtdGwid = Gwid.createRtdata( classId(), strid(), aRtdataId );
+      rtDataGwids.put( aRtdataId, rtdGwid );
+    }
+    return rtdGwid;
   }
 
   // ------------------------------------------------------------------------------------
@@ -189,8 +218,28 @@ public class SkObject
     return clobValue.isEmpty() ? aDefaultValue : clobValue;
   }
 
+  @Override
+  public IAtomicValue readRtdataIfOpen( String aRtdataId ) {
+    Gwid rtdGwid = internalRtDataIdToCachedGwid( aRtdataId );
+    ISkReadCurrDataChannel ch = coreApi.rtdService().findReadCurrDataChannel( rtdGwid );
+    if( ch != null ) {
+      return ch.getValue();
+    }
+    return null;
+  }
+
+  @Override
+  public void writeRtdataIfOpen( String aRtdataId, IAtomicValue aValue ) {
+    TsNullArgumentRtException.checkNull( aValue );
+    Gwid rtdGwid = internalRtDataIdToCachedGwid( aRtdataId );
+    ISkWriteCurrDataChannel ch = coreApi.rtdService().findWriteCurrDataChannel( rtdGwid );
+    if( ch != null ) {
+      ch.setValue( aValue );
+    }
+  }
+
   // ------------------------------------------------------------------------------------
-  // Overrideable
+  // To override/implement
   //
 
   @Override
