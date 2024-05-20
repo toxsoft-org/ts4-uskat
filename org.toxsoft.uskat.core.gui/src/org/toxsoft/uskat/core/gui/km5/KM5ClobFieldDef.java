@@ -20,7 +20,7 @@ public class KM5ClobFieldDef<T extends ISkObject>
   /**
    * Constructor.
    *
-   * @param aClobInfo {@link IDtoClobInfo} - the clob info
+   * @param aClobInfo {@link IDtoClobInfo} - the CLOB info
    * @throws TsNullArgumentRtException any argument = <code>null</code>
    */
   public KM5ClobFieldDef( IDtoClobInfo aClobInfo ) {

@@ -128,6 +128,10 @@ public final class KM5Support
    * Creates all models when connection opens.
    */
   void initializeDomain() {
+    // set domain name/description used for debug purposes
+    String name = skConn.backendInfo().nmName();
+    String description = skConn.backendInfo().description();
+    m5.setNameAndDescription( name, description );
     // create root Sk-class model
     M5Model<ISkObject> rootModel = new KM5RootClassModel( skConn );
     m5.addModel( rootModel );

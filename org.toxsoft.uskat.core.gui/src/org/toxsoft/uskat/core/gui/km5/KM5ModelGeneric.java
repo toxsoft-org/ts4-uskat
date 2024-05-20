@@ -1,10 +1,14 @@
 package org.toxsoft.uskat.core.gui.km5;
 
+import static org.toxsoft.core.tslib.av.metainfo.IAvMetaConstants.*;
+
 import org.toxsoft.core.tsgui.m5.*;
 import org.toxsoft.core.tsgui.m5.model.*;
+import org.toxsoft.core.tslib.bricks.keeper.*;
 import org.toxsoft.core.tslib.bricks.strid.coll.*;
 import org.toxsoft.core.tslib.bricks.strid.coll.impl.*;
 import org.toxsoft.core.tslib.utils.errors.*;
+import org.toxsoft.core.tslib.utils.valobj.*;
 import org.toxsoft.uskat.core.*;
 import org.toxsoft.uskat.core.api.objserv.*;
 import org.toxsoft.uskat.core.api.sysdescr.*;
@@ -74,6 +78,17 @@ public class KM5ModelGeneric<T extends ISkObject>
     }
     // CLOBs
     for( IDtoClobInfo inf : aClassInfo.clobs().list() ) {
+      // try to interpret as an atomic value-objects CLOB
+      String keeperId = inf.params().getStr( TSID_KEEPER_ID, null );
+      if( keeperId != null ) {
+        IEntityKeeper<?> keeper = TsValobjUtils.findKeeperById( keeperId );
+        if( keeper != null ) {
+          IM5FieldDef<? extends ISkObject, ?> fd = new KM5ClobValobjFieldDef<>( inf, keeper );
+          fdefs.add( fd );
+          continue;
+        }
+      }
+      // common CLOB as a String
       IM5FieldDef<? extends ISkObject, String> fd = new KM5ClobFieldDef<>( inf );
       fdefs.add( fd );
     }
