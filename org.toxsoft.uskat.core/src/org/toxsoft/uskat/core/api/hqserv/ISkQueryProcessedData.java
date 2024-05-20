@@ -32,12 +32,12 @@ public interface ISkQueryProcessedData
   /**
    * Prepares query to be executed.
    * <p>
-   * Data ID is not neccecarily to be an IDpath, any unique non-blank string is sufficient. For exmple,
+   * Data ID is not necessarily to be an IDpath, any unique non-blank string is sufficient. For example,
    * {@link Gwid#toString()} may be used as argument data ID.
    *
    * @param aArgs {@link IStringMap}&lt;{@link IDtoQueryParam}&gt; - map "arg dtadata ID" - "data parameter"
    * @throws TsNullArgumentRtException any argument = <code>null</code>
-   * @throws TsIllegalArgumentRtException somethiong illegal found in query arguments
+   * @throws TsIllegalArgumentRtException something illegal found in query arguments
    */
   void prepare( IStringMap<IDtoQueryParam> aArgs );
 
@@ -46,7 +46,7 @@ public interface ISkQueryProcessedData
   //
 
   /**
-   * Determines if result for the specified argumetn is ready.
+   * Determines if result for the specified argument is ready.
    * <p>
    * This method is useful when query {@link #state()} is {@link ESkQueryState#EXECUTING EXECUTING}. When query becames
    * {@link ESkQueryState#READY READY} this method will return <code>true</code> for all arguments.

@@ -6,7 +6,7 @@ import org.toxsoft.core.tslib.coll.primtypes.*;
 /**
  * Queries data using SkatQL query language.
  * <p>
- * FIXME as of 04/07/2022 this API is under early step of development !
+ * FIXME as of 2024-05-20 this API is under early step of development !
  *
  * @author hazard157
  */

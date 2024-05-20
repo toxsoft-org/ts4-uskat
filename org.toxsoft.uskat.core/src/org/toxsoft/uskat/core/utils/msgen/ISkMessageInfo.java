@@ -1,5 +1,7 @@
 package org.toxsoft.uskat.core.utils.msgen;
 
+import static org.toxsoft.core.tslib.utils.TsLibUtils.*;
+
 import org.toxsoft.core.tslib.av.opset.*;
 import org.toxsoft.core.tslib.av.opset.impl.*;
 import org.toxsoft.core.tslib.coll.primtypes.*;
@@ -13,6 +15,11 @@ import org.toxsoft.uskat.core.utils.ugwi.*;
  * @author hazard157
  */
 public interface ISkMessageInfo {
+
+  /**
+   * No message (empty string message) singleton.
+   */
+  ISkMessageInfo NONE = new SkMessageInfo( EMPTY_STRING );
 
   /**
    * Returns the format string for {@link OptionSetUtils#format(String, IOptionSet)}.

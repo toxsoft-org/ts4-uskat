@@ -1,15 +1,12 @@
 package org.toxsoft.uskat.core.api.hqserv;
 
-import org.toxsoft.core.tslib.av.opset.IOptionSet;
-import org.toxsoft.core.tslib.av.utils.IParameterized;
-import org.toxsoft.core.tslib.bricks.events.change.IGenericChangeEventCapable;
-import org.toxsoft.core.tslib.bricks.events.change.IGenericChangeListener;
-import org.toxsoft.core.tslib.bricks.time.EQueryIntervalType;
-import org.toxsoft.core.tslib.bricks.time.IQueryInterval;
-import org.toxsoft.core.tslib.utils.ICloseable;
-import org.toxsoft.core.tslib.utils.errors.TsIllegalStateRtException;
-import org.toxsoft.core.tslib.utils.errors.TsNullArgumentRtException;
-import org.toxsoft.uskat.core.ISkCoreApi;
+import org.toxsoft.core.tslib.av.opset.*;
+import org.toxsoft.core.tslib.av.utils.*;
+import org.toxsoft.core.tslib.bricks.events.change.*;
+import org.toxsoft.core.tslib.bricks.time.*;
+import org.toxsoft.core.tslib.utils.*;
+import org.toxsoft.core.tslib.utils.errors.*;
+import org.toxsoft.uskat.core.*;
 
 /**
  * The asynchronous data query base interface.
@@ -53,7 +50,7 @@ public interface ISkAsynchronousQuery
   /**
    * Queries the data for the specified time interval.
    * <p>
-   * Mathod shall not ba called when {@link #state()} is {@link ESkQueryState#UNPREPARED},
+   * Method shall not be called when {@link #state()} is {@link ESkQueryState#UNPREPARED},
    * {@link ESkQueryState#EXECUTING} or {@link ESkQueryState#CLOSED}.
    * <p>
    * When querying commands or events, open intervals {@link EQueryIntervalType#isStartOpen()} = <b>true</b> and/or
@@ -67,7 +64,7 @@ public interface ISkAsynchronousQuery
   void exec( IQueryInterval aInterval );
 
   /**
-   * Cancel the executng query.
+   * Cancel the executing query.
    * <p>
    * Has no effect is query is not in state of execution.
    */

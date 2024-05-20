@@ -117,14 +117,14 @@ public final class DtoFullObject
   }
 
   /**
-   * Creates editable {@link DtoFullObject} with all properties filles.
+   * Creates editable {@link DtoFullObject} with all properties filled.
    * <p>
    * If object with specified SKID exists then result will be filled by exiting properties, otherwise default or an
    * empty values will be applied.
    * <p>
    * Created instance does not have system attribute values in the {@link IDtoObject#attrs()} set.
    *
-   * @param aSkid {@link Skid} - objecvt SKID
+   * @param aSkid {@link Skid} - object SKID
    * @param aCoreApi {@link ISkSysdescr} - class info provider
    * @return {@link DtoFullObject} - created instance
    * @throws TsNullArgumentRtException any argument = <code>null</code>

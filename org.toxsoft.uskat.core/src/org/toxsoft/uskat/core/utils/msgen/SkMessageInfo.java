@@ -21,11 +21,6 @@ public final class SkMessageInfo
     implements ISkMessageInfo {
 
   /**
-   * No message (empty string message) singleton.
-   */
-  public static final ISkMessageInfo NONE = new SkMessageInfo( EMPTY_STRING );
-
-  /**
    * The registered keeper ID.
    */
   public static final String KEEPER_ID = "SkMessageInfo"; //$NON-NLS-1$
