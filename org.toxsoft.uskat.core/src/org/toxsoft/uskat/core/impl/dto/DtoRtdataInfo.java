@@ -5,6 +5,7 @@ import static org.toxsoft.uskat.core.impl.dto.IDtoHardConstants.*;
 
 import org.toxsoft.core.tslib.av.metainfo.*;
 import org.toxsoft.core.tslib.av.opset.*;
+import org.toxsoft.core.tslib.av.opset.impl.*;
 import org.toxsoft.core.tslib.bricks.keeper.*;
 import org.toxsoft.core.tslib.bricks.strid.impl.*;
 import org.toxsoft.core.tslib.utils.errors.*;
@@ -77,6 +78,28 @@ public final class DtoRtdataInfo
   public static DtoRtdataInfo create1( String aId, IDataType aDataType, boolean aIsCurr, boolean aIsHist,
       boolean aIsSync, long aDeltaT, IOptionSet aParams ) {
     DtoRtdataInfo ainf = new DtoRtdataInfo( aId, aParams );
+    ainf.setProps( aDataType, aIsCurr, aIsHist, aIsSync, aDeltaT );
+    return ainf;
+  }
+
+  /**
+   * Static constructor.
+   *
+   * @param aId String - the ID (IDpath)
+   * @param aDataType {@link IDataType} - data type
+   * @param aIsCurr boolean - the current data flag
+   * @param aIsHist boolean - historical data flag
+   * @param aIsSync boolean - the synchronous data flag
+   * @param aDeltaT long - the time interval in milliseconds
+   * @param aIdsAndValues Object[] - identifier / value pairs of parameters values
+   * @return {@link DtoRtdataInfo} - created instance
+   * @throws TsNullArgumentRtException any argument = <code>null</code>
+   * @throws TsIllegalArgumentRtException identifier is not an IDpath
+   * @throws TsIllegalArgumentRtException aDeltaT < 1
+   */
+  public static DtoRtdataInfo create2( String aId, IDataType aDataType, boolean aIsCurr, boolean aIsHist,
+      boolean aIsSync, long aDeltaT, Object... aIdsAndValues ) {
+    DtoRtdataInfo ainf = new DtoRtdataInfo( aId, OptionSetUtils.createOpSet( aIdsAndValues ) );
     ainf.setProps( aDataType, aIsCurr, aIsHist, aIsSync, aDeltaT );
     return ainf;
   }

@@ -6,10 +6,12 @@ import org.toxsoft.core.tslib.av.opset.*;
 import org.toxsoft.core.tslib.av.opset.impl.*;
 import org.toxsoft.core.tslib.bricks.keeper.*;
 import org.toxsoft.core.tslib.bricks.keeper.AbstractEntityKeeper.*;
+import org.toxsoft.core.tslib.bricks.strid.impl.*;
 import org.toxsoft.core.tslib.bricks.strio.*;
 import org.toxsoft.core.tslib.bricks.time.*;
 import org.toxsoft.core.tslib.bricks.time.impl.*;
 import org.toxsoft.core.tslib.gw.gwid.*;
+import org.toxsoft.core.tslib.gw.skid.*;
 import org.toxsoft.core.tslib.utils.*;
 import org.toxsoft.core.tslib.utils.errors.*;
 
@@ -83,6 +85,29 @@ public final class SkEvent
     else {
       paramValues = IOptionSet.NULL;
     }
+  }
+
+  private SkEvent( String aClassId, String aStrid, String aEventId, Object... aParams ) {
+    timestamp = System.currentTimeMillis();
+    eventGwid = Gwid.createEvent( aClassId, aStrid, aEventId );
+    paramValues = OptionSetUtils.createOpSet( aParams );
+  }
+
+  /**
+   * Static constructor.
+   *
+   * @param aSource {@link Skid} - event source object SKID
+   * @param aEventId String the event ID
+   * @param aParams Object[] - the event parameters as for {@link OptionSetUtils#createOpSet(Object...)}
+   * @return {@link SkEvent} - created instance
+   * @throws TsNullArgumentRtException any argument = <code>null</code>
+   * @throws TsIllegalArgumentRtException aEventId is not an IDpath
+   * @throws TsIllegalArgumentRtException {@link Gwid#isAbstract()} == <code>true</code>
+   */
+  public static SkEvent create( Skid aSource, String aEventId, Object... aParams ) {
+    TsNullArgumentRtException.checkNull( aSource );
+    StridUtils.checkValidIdPath( aEventId );
+    return new SkEvent( aEventId, aEventId, aEventId, aParams );
   }
 
   // ------------------------------------------------------------------------------------

@@ -21,10 +21,15 @@ public interface ISkObjectService
     extends ISkService {
 
   /**
+   * FIXME in object service:<br>
+   * add listeners by the class IDs, otherwise and LIST operation causes everything and everywhere to rebuild...
+   */
+
+  /**
    * TODO in object service:
    * <ul>
    * <li>convoy objects;</li>
-   * <li>object "owner" service or it is determited by class service?;</li>
+   * <li>object "owner" service or it is determined by class service?;</li>
    * </ul>
    */
 
@@ -46,7 +51,7 @@ public interface ISkObjectService
   /**
    * Returns an object by it's SKID.
    *
-   * @param <T> - конкретный Java-тип запрошенного объекта
+   * @param <T> - expected Java-type of the object
    * @param aSkid {@link Skid} - SKID of the object
    * @return &lt;T&gt; - the object
    * @throws TsNullArgumentRtException any argument = <code>null</code>
@@ -74,7 +79,7 @@ public interface ISkObjectService
    * And if <code>SomeClass</code> is not parent of <code>OtherClass</code>, returned list will contain instances of
    * different Java-classes.
    *
-   * @param <T> - extpected type of the objects
+   * @param <T> - expected Java-type of the objects
    * @param aClassId String - the objects class ID
    * @param aIncludeSubclasses boolean - <code>true</code> to include objects of all subclasses
    * @return {@link IList}&lt;T&gt; - list of the objects

@@ -164,6 +164,37 @@ public class DtoClassInfo
   }
 
   /**
+   * @param aId String - the class ID (IDpath)
+   * @param aParentId String - the parent ID (an IDpath)
+   * @param aParams {@link IOptionSet} - {@link #params()} initial values
+   * @param aAttrInfos {@link IStridablesListEdit}&lt; {@link IDtoAttrInfo}&lt; - attributes info list
+   * @param aClobInfos {@link IStridablesListEdit}&lt; {@link IDtoClobInfo}&lt; - CLOBs info list
+   * @param aRivetInfos {@link IStridablesListEdit}&lt; {@link IDtoRivetInfo}&lt; - rivets info list
+   * @param aLinkInfos {@link IStridablesListEdit}&lt; {@link IDtoLinkInfo}&lt; - links info list
+   * @param aRtdataInfos {@link IStridablesListEdit}&lt; {@link IDtoRtdataInfo}&lt; - RTdata info list
+   * @param aCmdInfos {@link IStridablesListEdit}&lt; {@link IDtoCmdInfo}&lt; - commands info list
+   * @param aEventInfos {@link IStridablesListEdit}&lt; {@link IDtoEventInfo}&lt; - link info list
+   * @return {@link IDtoClassInfo} - created instance
+   * @throws TsNullArgumentRtException any argument = <code>null</code>
+   * @throws TsIllegalArgumentRtException any ID is not an IDpath
+   */
+  public static IDtoClassInfo create( String aId, String aParentId, IOptionSet aParams,
+      IStridablesList<DtoAttrInfo> aAttrInfos, IStridablesList<DtoClobInfo> aClobInfos,
+      IStridablesList<DtoRivetInfo> aRivetInfos, IStridablesList<DtoLinkInfo> aLinkInfos,
+      IStridablesList<DtoRtdataInfo> aRtdataInfos, IStridablesList<DtoCmdInfo> aCmdInfos,
+      IStridablesList<DtoEventInfo> aEventInfos ) {
+    DtoClassInfo dto = new DtoClassInfo( aId, aParentId, aParams );
+    dto.attrInfos.setAll( aAttrInfos );
+    dto.clobInfos.setAll( aClobInfos );
+    dto.rivetInfos.setAll( aRivetInfos );
+    dto.rtdataInfos.setAll( aRtdataInfos );
+    dto.linkInfos.setAll( aLinkInfos );
+    dto.cmdInfos.setAll( aCmdInfos );
+    dto.eventInfos.setAll( aEventInfos );
+    return dto;
+  }
+
+  /**
    * Static copy constructor.
    *
    * @param aSource {@link IDtoClassInfo} - the source

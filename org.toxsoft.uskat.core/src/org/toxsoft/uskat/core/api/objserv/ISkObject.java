@@ -246,9 +246,10 @@ public interface ISkObject
    *
    * @param aRtdataId String - the ID of the RTdata
    * @param aValue {@link IAtomicValue} - current value
+   * @return boolean - the sign that channel was open and value written
    * @throws TsNullArgumentRtException any argument = <code>null</code>
    */
-  void writeRtdataIfOpen( String aRtdataId, IAtomicValue aValue );
+  boolean writeRtdataIfOpen( String aRtdataId, IAtomicValue aValue );
 
   // ------------------------------------------------------------------------------------
   // Links
@@ -309,7 +310,7 @@ public interface ISkObject
   /**
    * Returns objects of reverse link (left objects which have this object linked).
    *
-   * @param <T> - конкретный тип возвращаемых объектов
+   * @param <T> - expected type of the linked objects
    * @param aClassId String - link class ID
    * @param aLinkId String - link ID
    * @return {@link IList}&lt;T&gt; - list of objects
@@ -437,7 +438,7 @@ class InternalNoneSkObject
   }
 
   @Override
-  public void writeRtdataIfOpen( String aRtdataId, IAtomicValue aValue ) {
+  public boolean writeRtdataIfOpen( String aRtdataId, IAtomicValue aValue ) {
     throw new TsNullObjectErrorRtException();
   }
 

@@ -229,13 +229,15 @@ public class SkObject
   }
 
   @Override
-  public void writeRtdataIfOpen( String aRtdataId, IAtomicValue aValue ) {
+  public boolean writeRtdataIfOpen( String aRtdataId, IAtomicValue aValue ) {
     TsNullArgumentRtException.checkNull( aValue );
     Gwid rtdGwid = internalRtDataIdToCachedGwid( aRtdataId );
     ISkWriteCurrDataChannel ch = coreApi.rtdService().findWriteCurrDataChannel( rtdGwid );
     if( ch != null ) {
       ch.setValue( aValue );
+      return true;
     }
+    return false;
   }
 
   // ------------------------------------------------------------------------------------

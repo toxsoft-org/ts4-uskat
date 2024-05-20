@@ -70,14 +70,14 @@ public class SkCoreServEvents
   //
 
   /**
-   * Determines if event with <code>aEventGwid</code> is accepted by the GWIDs of intereset.
+   * Determines if event with <code>aEventGwid</code> is accepted by the GWIDs of interest.
    *
    * @param aEventGwid {@link Gwid} - the event GWID
-   * @param aInteresetGwids {@link IGwidList} - GWIDs of intereset
-   * @return boolean - event is of intereset flag
+   * @param aInteresetGwids {@link IGwidList} - GWIDs of interest
+   * @return boolean - event is of interest flag
    */
   private boolean isEventOfIntereset( Gwid aEventGwid, IGwidList aInteresetGwids ) {
-    // iterate over GWIDs of intereset
+    // iterate over GWIDs of interest
     for( Gwid g : aInteresetGwids ) {
       boolean b = gwidService().coversSingle( g, aEventGwid, ESkClassPropKind.EVENT );
       if( b ) {
@@ -168,7 +168,7 @@ public class SkCoreServEvents
     checkThread();
     TsNullArgumentRtException.checkNulls( aNeededGwids, aEventHandler );
     if( !aNeededGwids.isEmpty() ) {
-      // get or create GWIDs list of intereset
+      // get or create GWIDs list of interest
       GwidList ll = handlersMap.findByKey( aEventHandler );
       if( ll == null ) {
         ll = new GwidList();

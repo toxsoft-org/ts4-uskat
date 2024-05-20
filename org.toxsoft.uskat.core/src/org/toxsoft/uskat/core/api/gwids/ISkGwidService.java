@@ -58,7 +58,7 @@ public interface ISkGwidService
    *
    * @param aGeneral {@link Gwid} - probably more general GWID when GWID being tested
    * @param aTested {@link Gwid} - GWID being tested if is covered by aGeneral
-   * @param aKind {@link ESkClassPropKind} - kind of class propery
+   * @param aKind {@link ESkClassPropKind} - kind of class property
    * @return boolean - <code>true</code> when <code>aGeneral</code> is more general than <code>aTested</code> GWID
    * @throws TsNullArgumentRtException any argument = <code>null</code>
    */
@@ -72,7 +72,7 @@ public interface ISkGwidService
    *
    * @param aGeneral {@link Gwid} - probably more general GWID when GWID being tested
    * @param aTested {@link Gwid} - GWID being tested if is covered by aGeneral
-   * @param aKind {@link ESkClassPropKind} - kind of class propery
+   * @param aKind {@link ESkClassPropKind} - kind of class property
    * @return boolean - <code>true</code> when <code>aGeneral</code> is more general than <code>aTested</code> GWID
    * @throws TsNullArgumentRtException any argument = <code>null</code>
    * @throws TsIllegalArgumentRtException <code>aTested</code> is a multi GWID
@@ -87,7 +87,7 @@ public interface ISkGwidService
    *
    * @param aList {@link IListEdit}&lt;{@link Gwid}&gt; - list of GWIDs
    * @param aToAdd {@link Gwid} - the GWID to add
-   * @param aKind {@link ESkClassPropKind} - kind of class propery
+   * @param aKind {@link ESkClassPropKind} - kind of class property
    * @return boolean - indicates if list was changed
    * @throws TsNullArgumentRtException any argument = <code>null</code>
    */
