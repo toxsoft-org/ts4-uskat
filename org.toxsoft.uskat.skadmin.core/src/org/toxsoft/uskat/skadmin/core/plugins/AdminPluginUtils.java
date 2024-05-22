@@ -32,6 +32,11 @@ public class AdminPluginUtils {
   public static final IPlexyType PT_NONE = PlexyValueUtils.ptSingleValue( DT_NONE );
 
   /**
+   * Тип данных: {@link EAtomicType#STRING} без значения по умолчанию.
+   */
+  public static final IDataType DT_STRING = new DataType( EAtomicType.STRING );
+
+  /**
    * Тип данных: {@link EAtomicType#STRING}, значение по умолчанию - пустая строка.
    */
   public static final IDataType DT_STRING_EMPTY = createType( AvUtils.AV_STR_EMPTY );
@@ -50,6 +55,11 @@ public class AdminPluginUtils {
    * {@link IPlexyType}, соответствующий {@link #DT_STRING_NONE}.
    */
   public static final IPlexyType PT_STRING_NONE = PlexyValueUtils.ptSingleValue( DT_STRING_NONE );
+
+  /**
+   * Тип данных: {@link EAtomicType#BOOLEAN} без значения по умолчанию.
+   */
+  public static final IDataType DT_BOOLEAN = new DataType( EAtomicType.BOOLEAN );
 
   /**
    * Тип данных: {@link EAtomicType#BOOLEAN}, значение по умолчанию - false.
@@ -72,6 +82,11 @@ public class AdminPluginUtils {
   public static final IPlexyType PT_BOOLEAN_NULLABLE = PlexyValueUtils.ptSingleValue( DT_BOOLEAN_NULLABLE );
 
   /**
+   * Тип данных: {@link EAtomicType#INTEGER} без значения по умолчанию.
+   */
+  public static final IDataType DT_INTEGER = new DataType( EAtomicType.INTEGER );
+
+  /**
    * Тип данных: {@link EAtomicType#INTEGER} с возможностью быть {@link IAtomicValue#NULL}.
    */
   public static final IDataType DT_INTEGER_NULLABLE = createNonMandatoryType( EAtomicType.INTEGER );
@@ -82,6 +97,11 @@ public class AdminPluginUtils {
   public static final IPlexyType PT_INTEGER_NULLABLE = PlexyValueUtils.ptSingleValue( DT_INTEGER_NULLABLE );
 
   /**
+   * Тип данных: {@link EAtomicType#FLOATING} без значения по умолчанию.
+   */
+  public static final IDataType DT_FLOATING = new DataType( EAtomicType.FLOATING );
+
+  /**
    * Тип данных: {@link EAtomicType#FLOATING} с возможностью быть {@link IAtomicValue#NULL}.
    */
   public static final IDataType DT_FLOATING_NULLABLE = createNonMandatoryType( EAtomicType.FLOATING );
@@ -90,6 +110,11 @@ public class AdminPluginUtils {
    * {@link IPlexyType}, соответствующий {@link #DT_FLOATING_NULLABLE}.
    */
   public static final IPlexyType PT_FLOATING_NULLABLE = PlexyValueUtils.ptSingleValue( DT_FLOATING_NULLABLE );
+
+  /**
+   * Тип данных: {@link EAtomicType#TIMESTAMP} без значения по умолчанию.
+   */
+  public static final IDataType DT_TIMESTAMP = createNonMandatoryType( EAtomicType.TIMESTAMP );
 
   /**
    * Тип данных: {@link EAtomicType#TIMESTAMP} с возможностью быть {@link IAtomicValue#NULL}.
