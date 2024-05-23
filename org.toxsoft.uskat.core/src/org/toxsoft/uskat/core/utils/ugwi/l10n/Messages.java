@@ -1,4 +1,4 @@
-package org.toxsoft.uskat.core.utils.ugwi.kind;
+package org.toxsoft.uskat.core.utils.ugwi.l10n;
 
 import java.util.*;
 

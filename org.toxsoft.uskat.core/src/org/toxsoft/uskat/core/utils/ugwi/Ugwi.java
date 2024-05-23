@@ -1,7 +1,7 @@
 package org.toxsoft.uskat.core.utils.ugwi;
 
 import static org.toxsoft.core.tslib.utils.TsLibUtils.*;
-import static org.toxsoft.uskat.core.utils.ugwi.ITsResources.*;
+import static org.toxsoft.uskat.core.utils.ugwi.l10n.ITsUgwiSharedResources.*;
 
 import java.io.*;
 
@@ -12,7 +12,6 @@ import org.toxsoft.core.tslib.bricks.strio.*;
 import org.toxsoft.core.tslib.bricks.validator.*;
 import org.toxsoft.core.tslib.utils.*;
 import org.toxsoft.core.tslib.utils.errors.*;
-import org.toxsoft.uskat.core.utils.ugwi.kind.*;
 
 /**
  * UGWI stands for <b>U</b>Skat <b>G</b>reen <b>W</b>orld <b>I</b>dentifier.
@@ -47,10 +46,16 @@ import org.toxsoft.uskat.core.utils.ugwi.kind.*;
  * @author hazard157
  */
 public sealed class Ugwi
-    implements Serializable, Comparable<Ugwi>permits InternalNoneUgwi {
+    implements Serializable, Comparable<Ugwi>
+    permits InternalNoneUgwi {
 
   /**
-   * The only instance of {@link Ugwi} of kind {@link UgwiKindNone#KIND_ID} exists as this singleton.
+   * The registered kind ID.
+   */
+  public static final String KIND_ID_NONE = "none"; //$NON-NLS-1$
+
+  /**
+   * The only instance of {@link Ugwi} of kind {@link #KIND_ID_NONE } exists as this singleton.
    */
   public static final Ugwi NONE = new InternalNoneUgwi();
 
@@ -101,10 +106,10 @@ public sealed class Ugwi
    * Constructor for {@link #NONE} instance.
    */
   protected Ugwi() {
-    kindId = UgwiKindNone.KIND_ID;
+    kindId = KIND_ID_NONE;
     namespace = EMPTY_STRING;
     essence = EMPTY_STRING;
-    canonicalString = UgwiKindNone.KIND_ID;
+    canonicalString = KIND_ID_NONE;
   }
 
   private Ugwi( String aKindId, String aNamespace, String aEssence ) {
@@ -136,12 +141,12 @@ public sealed class Ugwi
    * @return {@link Ugwi} - created instance
    * @throws TsNullArgumentRtException any argument = <code>null</code>
    * @throws TsIllegalArgumentRtException kind is not an IDpath
-   * @throws TsIllegalArgumentRtException kind is {@link UgwiKindNone#KIND_ID}
+   * @throws TsIllegalArgumentRtException kind is {@link #KIND_ID_NONE}
    * @throws TsIllegalArgumentRtException namespace is not an IDpath or an empty string
    */
   public static Ugwi of( String aKindId, String aNamespace, String aEssence ) {
     StridUtils.checkValidIdPath( aKindId );
-    TsIllegalArgumentRtException.checkTrue( aKindId.equals( UgwiKindNone.KIND_ID ) );
+    TsIllegalArgumentRtException.checkTrue( aKindId.equals( KIND_ID_NONE ) );
     TsNullArgumentRtException.checkNulls( aNamespace, aEssence );
     if( !aNamespace.isEmpty() ) {
       StridUtils.checkValidIdPath( aNamespace );
@@ -156,7 +161,7 @@ public sealed class Ugwi
    * @param aEssence - UGWI essence must be a quoted string
    * @return {@link Ugwi} - created instance
    * @throws TsNullArgumentRtException any argument = <code>null</code>
-   * @throws TsIllegalArgumentRtException kind is {@link UgwiKindNone#KIND_ID}
+   * @throws TsIllegalArgumentRtException kind is {@link #KIND_ID_NONE}
    * @throws TsIllegalArgumentRtException kind is not an IDpath
    */
   public static Ugwi of( String aKindId, String aEssence ) {
@@ -182,7 +187,7 @@ public sealed class Ugwi
     aIns.defaultReadObject(); // only canonicalString is read
     String[] parts = parseCanonicalString( canonicalString );
     kindId = parts[0];
-    TsInternalErrorRtException.checkTrue( kindId.equals( UgwiKindNone.KIND_ID ) ); // NONE must not be here
+    TsInternalErrorRtException.checkTrue( kindId.equals( KIND_ID_NONE ) ); // NONE must not be here
     namespace = parts[1];
     essence = parts[2];
   }
@@ -313,7 +318,7 @@ public sealed class Ugwi
     int len = aS.length();
     // empty string stands for Ugwi.NONE
     if( len == 0 ) {
-      parts[0] = UgwiKindNone.KIND_ID;
+      parts[0] = KIND_ID_NONE;
       return parts;
     }
     // read kind ID
