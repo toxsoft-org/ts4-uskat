@@ -1,14 +1,13 @@
 package org.toxsoft.uskat.core.devapi.gwiddb;
 
-import org.toxsoft.core.tslib.coll.IList;
-import org.toxsoft.core.tslib.gw.gwid.Gwid;
-import org.toxsoft.core.tslib.utils.errors.TsItemNotFoundRtException;
-import org.toxsoft.core.tslib.utils.errors.TsNullArgumentRtException;
+import org.toxsoft.core.tslib.coll.*;
+import org.toxsoft.core.tslib.gw.gwid.*;
+import org.toxsoft.core.tslib.utils.errors.*;
 
 /**
  * This is simple database containing key-value entries.
  * <p>
- * Keys are the GWIDs or existing entities. Values are the String CLOBs. If some entitiy is removed from the system
+ * Keys are the GWIDs of existing entities. Values are the String CLOBs. If some entity is removed from the system
  * corresponding value will be removed from the database.
  *
  * @author hazard157
@@ -42,10 +41,9 @@ public interface ISkGwidDbSection {
   void writeClob( Gwid aKey, String aValue );
 
   /**
-   * Reads the value of the entry nder the specified key.
+   * Reads the value of the entry under the specified key.
    * <p>
-   * For unexisting entires returns <code>null</code>. &#64;param aKey {@link Gwid} - the key &#64;return String - read
-   * value or <code>null</code>
+   * For non-existing entries returns <code>null</code>.
    *
    * @param aKey {@link Gwid} - the key
    * @return String - the read value or <code>null</code> if no entry exists in database
@@ -56,7 +54,7 @@ public interface ISkGwidDbSection {
   /**
    * Removes the entry from database.
    * <p>
-   * Unexisting keys are ignored.
+   * Non-existing keys are ignored.
    *
    * @param aKey {@link Gwid} - the key
    * @throws TsNullArgumentRtException any argument = <code>null</code>

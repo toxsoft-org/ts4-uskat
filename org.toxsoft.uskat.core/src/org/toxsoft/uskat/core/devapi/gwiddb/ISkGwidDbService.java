@@ -1,12 +1,11 @@
 package org.toxsoft.uskat.core.devapi.gwiddb;
 
-import org.toxsoft.core.tslib.bricks.events.ITsEventer;
-import org.toxsoft.core.tslib.bricks.strid.more.IdChain;
-import org.toxsoft.core.tslib.coll.IList;
-import org.toxsoft.core.tslib.utils.errors.TsIllegalArgumentRtException;
-import org.toxsoft.core.tslib.utils.errors.TsNullArgumentRtException;
-import org.toxsoft.uskat.core.ISkHardConstants;
-import org.toxsoft.uskat.core.api.ISkService;
+import org.toxsoft.core.tslib.bricks.events.*;
+import org.toxsoft.core.tslib.bricks.strid.more.*;
+import org.toxsoft.core.tslib.coll.*;
+import org.toxsoft.core.tslib.utils.errors.*;
+import org.toxsoft.uskat.core.*;
+import org.toxsoft.uskat.core.api.*;
 
 /**
  * TODO WTF?
@@ -29,10 +28,10 @@ public interface ISkGwidDbService
   IList<IdChain> listSectionIds();
 
   /**
-   * Creates new or returns existig section.
+   * Creates new or returns existing section.
    * <p>
    * Sections are created by the Sk-services. It is recommended to use {@link IdChain}s with at least two branches:
-   * first bracnh is the creator service ID, and the second is meaningful name of the section.
+   * first branch is the creator service ID, and the second is meaningful name of the section.
    *
    * @param aSectionId {@link IdChain} - the section ID
    * @return {@link ISkGwidDbSection} - newly created or existing section
