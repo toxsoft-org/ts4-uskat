@@ -11,13 +11,10 @@ import org.toxsoft.core.tslib.bricks.strid.IStridable;
 import org.toxsoft.core.tslib.bricks.strid.impl.Stridable;
 import org.toxsoft.core.tslib.coll.IList;
 import org.toxsoft.core.tslib.coll.primtypes.IStringList;
-import org.toxsoft.core.tslib.coll.primtypes.IStringMap;
 import org.toxsoft.core.tslib.utils.Pair;
 import org.toxsoft.core.tslib.utils.errors.TsItemNotFoundRtException;
 import org.toxsoft.core.tslib.utils.errors.TsNullArgumentRtException;
 import org.toxsoft.uskat.core.ISkServiceCreator;
-import org.toxsoft.uskat.core.api.ISkService;
-import org.toxsoft.uskat.core.devapi.IDevCoreApi;
 import org.toxsoft.uskat.core.impl.AbstractSkService;
 import org.toxsoft.uskat.s5.server.backend.IS5BackendSupportSingleton;
 
@@ -101,19 +98,6 @@ public abstract class S5AbstractBackendAddonCreator
    * @throws TsNullArgumentRtException аргумент = null
    */
   protected abstract ISkServiceCreator<? extends AbstractSkService> doGetServiceCreator();
-
-  /**
-   * Создает и возвращает службы поддерживаемые расширением
-   *
-   * @param aCoreApi {@link IDevCoreApi} - API ядра
-   * @return {@link IStringMap}&lt;{@link AbstractSkService}&gt; карта служб.
-   *         <p>
-   *         Ключ: идентификатор службы {@link ISkService#serviceId()};<br>
-   *         Значение: реализация созданной службы.
-   */
-  protected IStringMap<AbstractSkService> doCreateServices( IDevCoreApi aCoreApi ) {
-    return IStringMap.EMPTY;
-  }
 
   /**
    * Возвращает классы создания сессии для удаленного доступа к расширению бекенда
