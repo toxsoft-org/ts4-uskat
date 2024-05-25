@@ -1,13 +1,13 @@
 package org.toxsoft.uskat.core.devapi;
 
-import org.toxsoft.core.tslib.bricks.ctx.*;
-import org.toxsoft.core.tslib.utils.errors.*;
-import org.toxsoft.uskat.core.*;
-import org.toxsoft.uskat.core.api.sysdescr.*;
-import org.toxsoft.uskat.core.connection.*;
-import org.toxsoft.uskat.core.devapi.gwiddb.*;
+import org.toxsoft.core.tslib.bricks.ctx.ITsContextRo;
+import org.toxsoft.core.tslib.utils.errors.TsNullArgumentRtException;
+import org.toxsoft.uskat.core.ISkCoreApi;
+import org.toxsoft.uskat.core.api.sysdescr.ISkSysdescr;
+import org.toxsoft.uskat.core.connection.ISkConnection;
+import org.toxsoft.uskat.core.devapi.gwiddb.ISkGwidDbService;
 
-import core.tslib.bricks.threadexecutor.*;
+import core.tslib.bricks.threadexecutor.ITsThreadExecutor;
 
 /**
  * Core API extensions for uskat service developers.
@@ -44,7 +44,7 @@ public interface IDevCoreApi
   ICoreL10n l10n();
 
   /**
-   * Returns arguments used in {@link ISkConnection#open(ITsContextRo)}.
+   * Returns arguemjnts used in {@link ISkConnection#open(ITsContextRo)}.
    *
    * @return {@link ITsContextRo} - connection opening arguments
    */
