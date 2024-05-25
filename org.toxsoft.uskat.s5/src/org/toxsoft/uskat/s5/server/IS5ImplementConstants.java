@@ -64,6 +64,11 @@ public interface IS5ImplementConstants
   long ACCESS_TIMEOUT_DEFAULT = 10 * 1000;
 
   /**
+   * Таймаут(мсек) транзакции по умолчанию
+   */
+  long TRANSACTION_TIMEOUT_DEFAULT = 10 * 1000;
+
+  /**
    * Таймаут(мсек) SFSB в течении которого он должны ответить на {@link IS5BackendSessionControl#verify()} прежде чем
    * будет вызвающий код будет определит, что SFSB занят
    */
