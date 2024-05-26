@@ -1,9 +1,9 @@
 package org.toxsoft.uskat.core.utils.msgen;
 
 import org.toxsoft.core.tslib.coll.primtypes.*;
+import org.toxsoft.core.tslib.gw.ugwi.*;
 import org.toxsoft.core.tslib.utils.errors.*;
 import org.toxsoft.uskat.core.*;
-import org.toxsoft.uskat.core.utils.ugwi.*;
 
 /**
  * Helper methods for USkat formatted message generation.

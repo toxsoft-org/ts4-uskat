@@ -1,4 +1,4 @@
-package org.toxsoft.uskat.core.gui.utils.ugwi;
+package org.toxsoft.uskat.core.gui.ugwi;
 
 import java.util.*;
 
@@ -6,8 +6,8 @@ import org.eclipse.swt.widgets.*;
 import org.toxsoft.core.tsgui.bricks.ctx.*;
 import org.toxsoft.core.tsgui.panels.generic.*;
 import org.toxsoft.core.tsgui.panels.lazy.*;
+import org.toxsoft.core.tslib.gw.ugwi.*;
 import org.toxsoft.core.tslib.utils.errors.*;
-import org.toxsoft.uskat.core.utils.ugwi.*;
 
 /**
  * {@link DefaultGenericUgwiEditorPanel} implementation of {@link IGenericSelectorPanel} to select UGWI.
@@ -15,7 +15,7 @@ import org.toxsoft.uskat.core.utils.ugwi.*;
  * Uses {@link DefaultGenericUgwiEditorPanel} to specify UGWI as a selected one.
  * <p>
  * Instance of this class is returned by the default implementation of
- * {@link IUgwiKindGuiHelper#createSelectorPanel(ITsGuiContext, boolean)}.
+ * {@link IUgwiKindGuiHelper#createUgwiSelectorPanel(ITsGuiContext)}.
  *
  * @author hazard157
  */
@@ -29,15 +29,19 @@ public class DefaultGenericUgwiSelectorPanel
    * Constructor.
    * <p>
    * Constructor stores reference to the context, does not creates copy.
+   * <p>
+   * Current implementation ignores <code>aViewer</code> value, creates an editable
+   * {@link DefaultGenericUgwiEditorPanel}.
    *
    * @param aContext {@link ITsGuiContext} - the context
    * @param aViewer boolean - the flag to create the viewer, not an editor
    * @param aUgwiKindGuiHelper {@link IUgwiKindGuiHelper} - panel creator UGWI kind
    * @throws TsNullArgumentRtException any argument = <code>null</code>
    */
-  public DefaultGenericUgwiSelectorPanel( ITsGuiContext aContext, boolean aViewer, IUgwiKindGuiHelper aUgwiKindGuiHelper ) {
+  public DefaultGenericUgwiSelectorPanel( ITsGuiContext aContext, boolean aViewer,
+      IUgwiKindGuiHelper aUgwiKindGuiHelper ) {
     super( aContext );
-    ugwiPanel = new DefaultGenericUgwiEditorPanel( tsContext(), aViewer, aUgwiKindGuiHelper );
+    ugwiPanel = new DefaultGenericUgwiEditorPanel( tsContext(), true, aUgwiKindGuiHelper );
   }
 
   // ------------------------------------------------------------------------------------

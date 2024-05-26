@@ -12,6 +12,7 @@ import org.toxsoft.uskat.core.api.linkserv.*;
 import org.toxsoft.uskat.core.api.objserv.*;
 import org.toxsoft.uskat.core.api.rtdserv.*;
 import org.toxsoft.uskat.core.api.sysdescr.*;
+import org.toxsoft.uskat.core.api.ugwis.*;
 import org.toxsoft.uskat.core.api.users.*;
 import org.toxsoft.uskat.core.impl.*;
 
@@ -91,6 +92,13 @@ public interface ISkCoreApi {
    * @return {@link ISkGwidService} - the GWID service
    */
   ISkGwidService gwidService();
+
+  /**
+   * Returns the UGWI service - helper methods collection to work with UGWIs in context of this system.
+   *
+   * @return {@link ISkUgwiService} - the UGWI service
+   */
+  ISkUgwiService ugwiService();
 
   // ------------------------------------------------------------------------------------
   // all services

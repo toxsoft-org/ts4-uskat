@@ -1,4 +1,4 @@
-package org.toxsoft.uskat.core.gui.utils.ugwi;
+package org.toxsoft.uskat.core.gui.ugwi;
 
 import org.eclipse.swt.*;
 import org.eclipse.swt.layout.*;
@@ -9,14 +9,16 @@ import org.toxsoft.core.tsgui.panels.lazy.*;
 import org.toxsoft.core.tslib.bricks.events.change.*;
 import org.toxsoft.core.tslib.bricks.validator.*;
 import org.toxsoft.core.tslib.bricks.validator.impl.*;
+import org.toxsoft.core.tslib.gw.ugwi.*;
 import org.toxsoft.core.tslib.utils.errors.*;
-import org.toxsoft.uskat.core.utils.ugwi.*;
 
 /**
  * Textual representation UGWI viewer/editor implementation of {@link IGenericEntityEditPanel} to display UGWI.
  * <p>
+ * Contains simple {@link Text} allwomg to view/edit canonical representation {@link Ugwi#canonicalString()}.
+ * <p>
  * Instance of this class is returned by the default implementation of
- * {@link IUgwiKindGuiHelper#createEntityPanel(ITsGuiContext, boolean)}.
+ * {@link IUgwiKindGuiHelper#createUgwiEntityPanel(ITsGuiContext, boolean)}.
  *
  * @author hazard157
  */

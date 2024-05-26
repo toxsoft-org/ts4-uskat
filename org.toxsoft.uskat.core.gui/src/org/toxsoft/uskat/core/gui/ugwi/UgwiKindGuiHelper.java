@@ -1,35 +1,37 @@
-package org.toxsoft.uskat.core.gui.utils.ugwi;
+package org.toxsoft.uskat.core.gui.ugwi;
 
 import org.toxsoft.core.tsgui.bricks.ctx.*;
 import org.toxsoft.core.tsgui.panels.generic.*;
 import org.toxsoft.core.tslib.av.opset.*;
 import org.toxsoft.core.tslib.bricks.validator.*;
+import org.toxsoft.core.tslib.gw.ugwi.*;
 import org.toxsoft.core.tslib.utils.errors.*;
-import org.toxsoft.uskat.core.utils.ugwi.*;
+import org.toxsoft.uskat.core.api.ugwis.*;
 
 /**
  * Base implementation of {@link IUgwiKindGuiHelper}.
  *
  * @author hazard157
+ * @param <T> - the UGWI content type
  */
-public non-sealed class UgwiKindGuiHelper
+public non-sealed class UgwiKindGuiHelper<T>
     implements IUgwiKindGuiHelper {
 
-  private final IUgwiKind kind;
+  private final AbstractUgwiKind<T> kind;
 
   /**
    * Constructor.
    *
-   * @param aKindId String - the registered kind ID
+   * @param aKind {@link AbstractUgwiKind}&lt;T&gt; - the UGWI kind
    * @throws TsNullArgumentRtException any argument = <code>null</code>
    * @throws TsItemNotFoundRtException kind of the specified ID is not registered
    */
-  public UgwiKindGuiHelper( String aKindId ) {
-    kind = UgwiUtils.getKind( aKindId );
+  public UgwiKindGuiHelper( AbstractUgwiKind<T> aKind ) {
+    kind = TsNullArgumentRtException.checkNull( aKind );
   }
 
   // ------------------------------------------------------------------------------------
-  // IStridableParameterized
+  // IStridable
   //
 
   @Override
@@ -47,10 +49,18 @@ public non-sealed class UgwiKindGuiHelper
     return kind.description();
   }
 
+  // ------------------------------------------------------------------------------------
+  // IParameterized
+  //
+
   @Override
   final public IOptionSet params() {
     return kind.params();
   }
+
+  // ------------------------------------------------------------------------------------
+  // IIconIdable
+  //
 
   @Override
   final public String iconId() {
@@ -61,14 +71,13 @@ public non-sealed class UgwiKindGuiHelper
   // IUgwiKindGuiHelper
   //
 
-  @SuppressWarnings( "unchecked" )
   @Override
-  final public <T extends IUgwiKind> T kind() {
-    return (T)kind;
+  final public AbstractUgwiKind<T> kind() {
+    return kind;
   }
 
   @Override
-  final public IGenericEntityEditPanel<Ugwi> createEntityPanel( ITsGuiContext aTsContext, boolean aViewer ) {
+  final public IGenericEntityEditPanel<Ugwi> createUgwiEntityPanel( ITsGuiContext aTsContext, boolean aViewer ) {
     TsNullArgumentRtException.checkNull( aTsContext );
     IGenericEntityEditPanel<Ugwi> p = doCreateEntityPanel( aTsContext, aViewer );
     TsInternalErrorRtException.checkNull( p );
@@ -76,9 +85,9 @@ public non-sealed class UgwiKindGuiHelper
   }
 
   @Override
-  final public IGenericSelectorPanel<Ugwi> createSelectorPanel( ITsGuiContext aTsContext, boolean aViewer ) {
+  final public IGenericSelectorPanel<Ugwi> createUgwiSelectorPanel( ITsGuiContext aTsContext ) {
     TsNullArgumentRtException.checkNull( aTsContext );
-    IGenericSelectorPanel<Ugwi> p = doCreateSelectorPanel( aTsContext, aViewer );
+    IGenericSelectorPanel<Ugwi> p = doCreateSelectorPanel( aTsContext, true );
     TsInternalErrorRtException.checkNull( p );
     return p;
   }

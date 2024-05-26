@@ -1,24 +1,25 @@
-package org.toxsoft.uskat.core.utils.ugwi;
+package org.toxsoft.uskat.core.api.ugwis;
 
 import static org.toxsoft.core.tslib.utils.TsLibUtils.*;
 
 import org.toxsoft.core.tslib.bricks.strid.*;
 import org.toxsoft.core.tslib.bricks.validator.*;
+import org.toxsoft.core.tslib.bricks.validator.impl.*;
+import org.toxsoft.core.tslib.gw.ugwi.*;
 import org.toxsoft.core.tslib.utils.errors.*;
 
 /**
- * The UGWI kind description.
+ * UGWI kind registrator handles the UGWI syntactic checks and registers {@link IUgwiKind} for Sk-connections.
  * <p>
- * The ID {@link #id()} as a kind ID of the {@link Ugwi}.
+ * Registrator implementations may add {@link Ugwi} instance creation methods with the kind-specific arguments.
  * <p>
- * User defined UGWI kinds must be registered by {@link UgwiUtils#registerKind(IUgwiKind)}for users of the UGWI to
- * handle UGWIs of different kinds. Note that {@link Ugwi} as a syntactical wrapper over canonical textual
- * representation does not uses {@link IUgwiKind}.
+ * The {@link #id()} is the same as {@link IUgwiKind#id()} and means the UGWI kind ID {@link Ugwi#kindId()}.
  *
  * @author hazard157
  */
-public sealed interface IUgwiKind
-    extends IStridableParameterized permits UgwiKind {
+public sealed interface ISkUgwiKindRegistrator
+    extends IStridableParameterized
+    permits AbstractUgwiKindRegistrator {
 
   /**
    * Checks if <code>aUgwi</code> is syntactically valid.
@@ -59,42 +60,40 @@ public sealed interface IUgwiKind
   ValidationResult validateUgwi( String aNamespace, String aEssence );
 
   /**
-   * Returns the kind helper if any was registered.
-   * <p>
-   * Note: argument class must be exaclly the same as helper was reistered by {@link #registerHelper(Class, Object)}.
+   * Creates UGWI of this kind.
    *
-   * @param <T> - expected type of the helper
-   * @param aHelperClass {@link Class}&lt;T&gt; - helper class used at registration time
-   * @return &lt;T&gt; - found helper or <code>null</code>
+   * @param aNamespace String - the namespace
+   * @param aEssence String - the essence
+   * @return {@link Ugwi} - created instance
    * @throws TsNullArgumentRtException any argument = <code>null</code>
-   * @throws ClassCastException found helper is not of requested type
+   * @throws TsValidationFailedRtException failed {@link #validateUgwi(String, String)}
    */
-  <T> T findHelper( Class<T> aHelperClass );
-
-  /**
-   * Registers UGWI kind helper.
-   *
-   * @param <T> - type of the helper
-   * @param aHelperClass {@link Class}&lt;T&gt; - key class used for helper registration
-   * @param aHelper &lt;T&gt; - the helper instance
-   * @throws TsNullArgumentRtException any argument = <code>null</code>
-   * @throws TsItemAlreadyExistsRtException helper with specified key is already registered
-   * @throws ClassCastException found helper is not of specified type
-   */
-  <T> void registerHelper( Class<T> aHelperClass, T aHelper );
+  Ugwi createUgwi( String aNamespace, String aEssence );
 
   // ------------------------------------------------------------------------------------
-  // inline methods for convenience
-  //
+  // Inline methods for convenience
 
-  @SuppressWarnings( "javadoc" )
+  /**
+   * Validates if UGWI (with the empty namespace) essence is valid for this kind.
+   *
+   * @param aEssence String - the essence
+   * @return {@link ValidationResult} - the check result
+   * @throws TsNullArgumentRtException any argument = <code>null</code>
+   */
   default ValidationResult validateUgwi( String aEssence ) {
     return validateUgwi( EMPTY_STRING, aEssence );
   }
 
-  @SuppressWarnings( "javadoc" )
-  default <T> T getHelper( Class<T> aHelperClass ) {
-    return TsItemNotFoundRtException.checkNull( findHelper( aHelperClass ) );
+  /**
+   * Creates UGWI (with the empty namespace) of this kind.
+   *
+   * @param aEssence String - the essence
+   * @return {@link Ugwi} - created instance
+   * @throws TsNullArgumentRtException any argument = <code>null</code>
+   * @throws TsValidationFailedRtException failed {@link #validateUgwi(String, String)}
+   */
+  default Ugwi createUgwi( String aEssence ) {
+    return createUgwi( EMPTY_STRING, aEssence );
   }
 
 }

@@ -1,24 +1,24 @@
-package org.toxsoft.uskat.core.utils.ugwi;
+package org.toxsoft.uskat.core.api.ugwis;
 
-import static org.toxsoft.uskat.core.utils.ugwi.ITsResources.*;
+import static org.toxsoft.uskat.core.api.ugwis.ISkResources.*;
 
 import org.toxsoft.core.tslib.av.opset.*;
 import org.toxsoft.core.tslib.bricks.strid.impl.*;
 import org.toxsoft.core.tslib.bricks.validator.*;
-import org.toxsoft.core.tslib.coll.*;
-import org.toxsoft.core.tslib.coll.impl.*;
+import org.toxsoft.core.tslib.bricks.validator.impl.*;
+import org.toxsoft.core.tslib.gw.ugwi.*;
 import org.toxsoft.core.tslib.utils.errors.*;
+import org.toxsoft.uskat.core.connection.*;
 
 /**
- * Base implementation of {@link IUgwiKind}.
+ * Basic implementation of {@link IUgwiKind}.
  *
  * @author hazard157
+ * @param <T> - the UGWI content type
  */
-public non-sealed class UgwiKind
+public non-sealed abstract class AbstractUgwiKindRegistrator<T>
     extends StridableParameterized
-    implements IUgwiKind {
-
-  private final IMapEdit<Class<?>, Object> helpersMap = new ElemMap<>();
+    implements ISkUgwiKindRegistrator {
 
   /**
    * Constructor.
@@ -28,7 +28,7 @@ public non-sealed class UgwiKind
    * @throws TsNullArgumentRtException any argument = <code>null</code>
    * @throws TsIllegalArgumentRtException ID is not an IDpath
    */
-  public UgwiKind( String aId, IOptionSet aParams ) {
+  public AbstractUgwiKindRegistrator( String aId, IOptionSet aParams ) {
     super( aId, aParams );
   }
 
@@ -65,20 +65,24 @@ public non-sealed class UgwiKind
   }
 
   @Override
-  final public <T> T findHelper( Class<T> aHelperClass ) {
-    TsNullArgumentRtException.checkNull( aHelperClass );
-    Object helper = helpersMap.findByKey( aHelperClass );
-    if( helper != null ) {
-      return aHelperClass.cast( helper );
-    }
-    return null;
+  final public Ugwi createUgwi( String aNamespace, String aEssence ) {
+    TsValidationFailedRtException.checkError( validateUgwi( aNamespace, aEssence ) );
+    return Ugwi.of( id(), aNamespace, aEssence );
   }
 
-  @Override
-  final public <T> void registerHelper( Class<T> aHelperClass, T aHelper ) {
-    TsNullArgumentRtException.checkNulls( aHelperClass, aHelper );
-    TsItemAlreadyExistsRtException.checkTrue( helpersMap.hasKey( aHelperClass ) );
-    helpersMap.put( aHelperClass, aHelperClass.cast( aHelper ) );
+  // ------------------------------------------------------------------------------------
+  // package API
+  //
+
+  /**
+   * Creates UWGI kind bound to the specified Sk-connection.
+   *
+   * @param aSkConn {@link ISkConnection} - the Sk-connection
+   * @return {@link AbstractUgwiKind} - created kind
+   */
+  AbstractUgwiKind<?> createUgwiKind( ISkConnection aSkConn ) {
+    TsNullArgumentRtException.checkNull( aSkConn );
+    return doCreateUgwiKind( aSkConn );
   }
 
   // ------------------------------------------------------------------------------------
@@ -99,16 +103,19 @@ public non-sealed class UgwiKind
   }
 
   /**
-   * Implementation may perform additional check of UGWI essence for syntactical validity.
-   * <p>
-   * In the base class returns {@link ValidationResult#SUCCESS}, there is no need to call superclass method when
-   * overriding.
+   * Implementation must perform check of UGWI essence for syntactical validity.
    *
    * @param aEssence String - the essence, never is <code>null</code>, may be an empty string
    * @return {@link Object} - found (created) entity or <code>null</code>
    */
-  protected ValidationResult doValidateEssence( String aEssence ) {
-    return ValidationResult.SUCCESS;
-  }
+  protected abstract ValidationResult doValidateEssence( String aEssence );
+
+  /**
+   * Creates UWGI kind bound to the specified Sk-connection.
+   *
+   * @param aSkConn {@link ISkConnection} - the Sk-connection, never is <code>null</code>
+   * @return {@link AbstractUgwiKind} - created kind
+   */
+  protected abstract AbstractUgwiKind<?> doCreateUgwiKind( ISkConnection aSkConn );
 
 }
