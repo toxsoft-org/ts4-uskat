@@ -33,7 +33,7 @@ import org.toxsoft.uskat.s5.server.statistics.*;
  *
  * @author mvk
  */
-public class S5SessionInfo
+public final class S5SessionInfo
     implements IS5SessionInfoEdit, Serializable {
 
   private static final long serialVersionUID = 157157L;
