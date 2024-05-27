@@ -177,11 +177,29 @@ public class AdminPluginUtils {
    * Формирует тип значения {@link IAtomicValue}
    *
    * @param aAtomicType {@link EAtomicType} - атомарный тип значения
-   * @param aDefaultValue String - значение по умолчанию
+   * @param aDefaultValue {@link IAtomicValue} - значение по умолчанию
    * @return {@link IDataType} тип значения {@link IAtomicValue}.
    * @throws TsNullArgumentRtException любой аргумент =null
    * @throws TsIllegalArgumentRtException значение по умолчанию не может быть приведено к типу {@link IAtomicValue}
    */
+  public static IDataType createType( EAtomicType aAtomicType, IAtomicValue aDefaultValue ) {
+    TsNullArgumentRtException.checkNulls( aAtomicType, aDefaultValue );
+    IOptionSetEdit ops = new OptionSet();
+    ops.setValue( TSID_DEFAULT_VALUE, aDefaultValue );
+    return new DataType( aAtomicType, ops );
+  }
+
+  /**
+   * Формирует тип значения {@link IAtomicValue}
+   *
+   * @param aAtomicType {@link EAtomicType} - атомарный тип значения
+   * @param aDefaultValue String - значение по умолчанию
+   * @return {@link IDataType} тип значения {@link IAtomicValue}.
+   * @throws TsNullArgumentRtException любой аргумент =null
+   * @throws TsIllegalArgumentRtException значение по умолчанию не может быть приведено к типу {@link IAtomicValue}
+   * @deprecated использовать вариант: {@link #createType(EAtomicType, IAtomicValue)}
+   */
+  @Deprecated
   public static IDataType createType( EAtomicType aAtomicType, String aDefaultValue ) {
     TsNullArgumentRtException.checkNulls( aAtomicType, aDefaultValue );
     IOptionSetEdit ops = new OptionSet();
