@@ -35,10 +35,9 @@ public interface IBaClobs
   /**
    * Writes the CLOB content.
    * <p>
-   * Sends an {@link IBaClobsMessages#MSGID_CLOB_CHANGE} message to the
-   * {@link ISkFrontendRear#onBackendMessage(GtMessage)}.
+   * Sends an {@link BaMsgClobsChanged#MSG_ID} message to the {@link ISkFrontendRear#onBackendMessage(GtMessage)}.
    *
-   * @param aGwid {@link Gwid} - concrete GWID of the clob
+   * @param aGwid {@link Gwid} - concrete GWID of the CLOB
    * @param aClob String - the CLOB content
    * @throws TsNullArgumentRtException any argument = <code>null</code>
    * @throws TsIllegalArgumentRtException CLOB is too big for reading
