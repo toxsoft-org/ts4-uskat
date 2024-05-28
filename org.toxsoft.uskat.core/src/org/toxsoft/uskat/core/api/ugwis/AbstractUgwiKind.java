@@ -6,9 +6,8 @@ import org.toxsoft.core.tslib.coll.*;
 import org.toxsoft.core.tslib.coll.impl.*;
 import org.toxsoft.core.tslib.gw.ugwi.*;
 import org.toxsoft.core.tslib.utils.errors.*;
-import org.toxsoft.uskat.core.connection.*;
+import org.toxsoft.uskat.core.*;
 import org.toxsoft.uskat.core.impl.*;
-import org.toxsoft.uskat.core.utils.*;
 
 /**
  * Basic implementation of {@link IUgwiKind}.
@@ -17,25 +16,25 @@ import org.toxsoft.uskat.core.utils.*;
  * @param <T> - the UGWI content type
  */
 public non-sealed abstract class AbstractUgwiKind<T>
-    implements IUgwiKind, ISkConnected {
+    implements IUgwiKind {
 
   private final IMapEdit<Class<?>, Object> helpersMap = new ElemMap<>();
 
   private final AbstractUgwiKindRegistrator<T> kindRegistrator;
-  private final ISkConnection                  skConn;
+  private final ISkCoreApi                     coreApi;
 
   /**
    * Constructor.
    *
    * @param aRegistrator {@link AbstractUgwiKindRegistrator} - the kind registrator
-   * @param aSkConn {@link ISkConnection} - Sk-connection this instance of UGWI kind is bound to
+   * @param aCoreApi {@link ISkCoreApi} - the core API
    * @throws TsNullArgumentRtException any argument = <code>null</code>
    * @throws TsIllegalArgumentRtException ID is not an IDpath
    */
-  public AbstractUgwiKind( AbstractUgwiKindRegistrator<T> aRegistrator, ISkConnection aSkConn ) {
-    TsNullArgumentRtException.checkNulls( aRegistrator, aSkConn );
+  public AbstractUgwiKind( AbstractUgwiKindRegistrator<T> aRegistrator, ISkCoreApi aCoreApi ) {
+    TsNullArgumentRtException.checkNulls( aRegistrator, aCoreApi );
     kindRegistrator = aRegistrator;
-    skConn = aSkConn;
+    coreApi = aCoreApi;
   }
 
   // ------------------------------------------------------------------------------------
@@ -76,15 +75,6 @@ public non-sealed abstract class AbstractUgwiKind<T>
   }
 
   // ------------------------------------------------------------------------------------
-  // ISkConnected
-  //
-
-  @Override
-  public ISkConnection skConn() {
-    return skConn;
-  }
-
-  // ------------------------------------------------------------------------------------
   // package API
   //
 
@@ -102,6 +92,19 @@ public non-sealed abstract class AbstractUgwiKind<T>
       return false;
     }
     return doCanRegister( aUgwiService );
+  }
+
+  // ------------------------------------------------------------------------------------
+  // API for subclasses
+  //
+
+  /**
+   * Retruns the core API this kind is created for.
+   *
+   * @return {@link ISkCoreApi} - the core API
+   */
+  public ISkCoreApi coreApi() {
+    return coreApi;
   }
 
   // ------------------------------------------------------------------------------------
@@ -158,8 +161,8 @@ public non-sealed abstract class AbstractUgwiKind<T>
    * Implementation may perform check if this kind can be registered by
    * {@link ISkUgwiService#registerKind(AbstractUgwiKind)}.
    * <p>
-   * For example, implementation may check if {@link SkCoreServUgwis#coreApi()} has the service <code>ISkXxxServce</code>
-   * needed to handle this kind of UGWI.
+   * For example, implementation may check if {@link SkCoreServUgwis#coreApi()} has the service
+   * <code>ISkXxxServce</code> needed to handle this kind of UGWI.
    * <p>
    * In the base class returns <code>true</code>, there is no need to call superclass method when overriding.
    *

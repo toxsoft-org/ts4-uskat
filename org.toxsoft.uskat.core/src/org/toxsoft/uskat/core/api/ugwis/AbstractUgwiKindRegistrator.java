@@ -8,7 +8,7 @@ import org.toxsoft.core.tslib.bricks.validator.*;
 import org.toxsoft.core.tslib.bricks.validator.impl.*;
 import org.toxsoft.core.tslib.gw.ugwi.*;
 import org.toxsoft.core.tslib.utils.errors.*;
-import org.toxsoft.uskat.core.connection.*;
+import org.toxsoft.uskat.core.*;
 
 /**
  * Basic implementation of {@link IUgwiKind}.
@@ -71,18 +71,32 @@ public non-sealed abstract class AbstractUgwiKindRegistrator<T>
   }
 
   // ------------------------------------------------------------------------------------
-  // package API
+  // class API
   //
 
   /**
    * Creates UWGI kind bound to the specified Sk-connection.
    *
-   * @param aSkConn {@link ISkConnection} - the Sk-connection
+   * @param aCoreApi {@link ISkCoreApi} - the core API
    * @return {@link AbstractUgwiKind} - created kind
    */
-  AbstractUgwiKind<?> createUgwiKind( ISkConnection aSkConn ) {
-    TsNullArgumentRtException.checkNull( aSkConn );
-    return doCreateUgwiKind( aSkConn );
+  public AbstractUgwiKind<?> createUgwiKind( ISkCoreApi aCoreApi ) {
+    TsNullArgumentRtException.checkNull( aCoreApi );
+    return doCreateUgwiKind( aCoreApi );
+  }
+
+  // ------------------------------------------------------------------------------------
+  // API for subclasses
+  //
+
+  /**
+   * Creates and returns result indicating general error of invalid essence format for this UGWI kind.
+   *
+   * @param aEssence String - the invalid essence
+   * @return {@link ValidationResult} - result to be returned by {@link #doValidateEssence(String)}
+   */
+  public ValidationResult makeGeneralInvalidEssenceVr( String aEssence ) {
+    return ValidationResult.error( MSG_ERR_INV_ESSENCE_FOR_KIND, id(), aEssence );
   }
 
   // ------------------------------------------------------------------------------------
@@ -113,9 +127,9 @@ public non-sealed abstract class AbstractUgwiKindRegistrator<T>
   /**
    * Creates UWGI kind bound to the specified Sk-connection.
    *
-   * @param aSkConn {@link ISkConnection} - the Sk-connection, never is <code>null</code>
+   * @param aCoreApi {@link ISkCoreApi} - the core API
    * @return {@link AbstractUgwiKind} - created kind
    */
-  protected abstract AbstractUgwiKind<?> doCreateUgwiKind( ISkConnection aSkConn );
+  protected abstract AbstractUgwiKind<?> doCreateUgwiKind( ISkCoreApi aCoreApi );
 
 }

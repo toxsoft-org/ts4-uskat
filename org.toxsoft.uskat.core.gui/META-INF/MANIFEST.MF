@@ -38,4 +38,6 @@ Export-Package: org.toxsoft.uskat.core.gui,
  org.toxsoft.uskat.core.gui.km5.sded.sded.editors,
  org.toxsoft.uskat.core.gui.km5.sgw,
  org.toxsoft.uskat.core.gui.ugwi,
+ org.toxsoft.uskat.core.gui.ugwi.gui,
+ org.toxsoft.uskat.core.gui.ugwi.kinds,
  org.toxsoft.uskat.core.gui.utils

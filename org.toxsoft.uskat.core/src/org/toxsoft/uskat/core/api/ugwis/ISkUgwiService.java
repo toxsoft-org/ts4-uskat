@@ -61,6 +61,20 @@ public interface ISkUgwiService
   <T> T findContentAs( Ugwi aUgwi, Class<T> aContentClass );
 
   /**
+   * Returns the specified helper for the specified kind if any was registered.
+   * <p>
+   * For unknown UGWI kinds returns {@link NullPointerException};
+   *
+   * @param <H> - expected type of the helper
+   * @param aUgwiKindId String - the kind of UGWI
+   * @param aHelperClass {@link Class}&lt;T&gt; - helper class used at registration time
+   * @return &lt;H&gt; - found helper or <code>null</code>
+   * @throws TsNullArgumentRtException any argument = <code>null</code>
+   * @throws ClassCastException found helper is not of requested type
+   */
+  <H> H findHelper( String aUgwiKindId, Class<H> aHelperClass );
+
+  /**
    * Adds kind to the known (registered) kinds list {@link #listKinds()}.
    * <p>
    * Notes:

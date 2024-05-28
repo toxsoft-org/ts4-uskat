@@ -1,4 +1,4 @@
-package org.toxsoft.uskat.core.gui.ugwi;
+package org.toxsoft.uskat.core.gui.ugwi.gui;
 
 import org.toxsoft.core.tsgui.bricks.ctx.*;
 import org.toxsoft.core.tsgui.panels.generic.*;

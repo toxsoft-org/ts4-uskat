@@ -1,9 +1,8 @@
-package org.toxsoft.uskat.core.gui.ugwi;
+package org.toxsoft.uskat.core.gui.ugwi.gui;
 
 import org.toxsoft.core.tsgui.bricks.ctx.*;
 import org.toxsoft.core.tsgui.panels.generic.*;
 import org.toxsoft.core.tslib.av.opset.*;
-import org.toxsoft.core.tslib.bricks.validator.*;
 import org.toxsoft.core.tslib.gw.ugwi.*;
 import org.toxsoft.core.tslib.utils.errors.*;
 import org.toxsoft.uskat.core.api.ugwis.*;
@@ -122,19 +121,6 @@ public non-sealed class UgwiKindGuiHelper<T>
    */
   protected IGenericSelectorPanel<Ugwi> doCreateSelectorPanel( ITsGuiContext aTsContext, boolean aViewer ) {
     return new DefaultGenericUgwiSelectorPanel( aTsContext, aViewer, this );
-  }
-
-  /**
-   * Implementation must check UGWI for syntactical validity.
-   * <p>
-   * In the base class returns {@link ValidationResult#SUCCESS}, there is no need to call superclass method when
-   * overriding.
-   *
-   * @param aUgwi {@link Ugwi} - the UGWI of this kind, never is <code>null</code>
-   * @return {@link Object} - found (created) entity or <code>null</code>
-   */
-  protected ValidationResult doValidateUgwi( Ugwi aUgwi ) {
-    return ValidationResult.SUCCESS;
   }
 
 }

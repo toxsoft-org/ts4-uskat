@@ -40,7 +40,10 @@ public class SkCoreServUgwis
 
   @Override
   protected void doInit( ITsContextRo aArgs ) {
-    // nop
+    for( AbstractUgwiKindRegistrator<?> ukr : SkUgwiUtils.listUgwiKindCreators() ) {
+      AbstractUgwiKind<?> uk = ukr.createUgwiKind( coreApi() );
+      coreApi().ugwiService().registerKind( uk );
+    }
   }
 
   @Override
@@ -86,6 +89,16 @@ public class SkCoreServUgwis
       return null;
     }
     return kind.findContentAs( aUgwi, aContentClass );
+  }
+
+  @Override
+  public <H> H findHelper( String aUgwiKindId, Class<H> aHelperClass ) {
+    TsNullArgumentRtException.checkNulls( aUgwiKindId, aHelperClass );
+    AbstractUgwiKind<?> kind = kindsList.findByKey( aUgwiKindId );
+    if( kind == null ) {
+      return null;
+    }
+    return kind.findHelper( aHelperClass );
   }
 
   @Override

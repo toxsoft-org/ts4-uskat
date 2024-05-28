@@ -6,7 +6,8 @@ import org.toxsoft.core.tslib.coll.*;
 import org.toxsoft.core.tslib.coll.impl.*;
 import org.toxsoft.core.tslib.coll.synch.*;
 import org.toxsoft.core.tslib.utils.errors.*;
-import org.toxsoft.uskat.core.connection.*;
+import org.toxsoft.uskat.core.*;
+import org.toxsoft.uskat.core.api.ugwis.kinds.*;
 
 /**
  * Helper static methods of UGWI handling.
@@ -22,19 +23,23 @@ public class SkUgwiUtils {
   private static final SynchronizedListEdit<AbstractUgwiKindRegistrator<?>> creatorsList =
       new SynchronizedListEdit<>( new ElemArrayList<>(), lock );
 
+  static {
+    creatorsList.add( UgwiRegistratorSkAttr.REGISTRATOR );
+    // TODO add all built-in registrators
+  }
+
   /**
    * Defines (creates and adds) registered UGWI kinds to {@link ISkUgwiService#listKinds()}.
    *
-   * @param aSkConn {@link ISkConnection} - the Sk-connection
+   * @param aCoreApi {@link ISkCoreApi} - the core API
    * @throws TsNullArgumentRtException any argument = <code>null</code>
    * @throws TsIllegalArgumentRtException connection is in closed state
    */
-  public static void defineKindsToTheSkConnection( ISkConnection aSkConn ) {
-    TsNullArgumentRtException.checkNull( aSkConn );
-    TsIllegalArgumentRtException.checkFalse( aSkConn.state().isOpen() );
-    ISkUgwiService ugwiService = aSkConn.coreApi().ugwiService();
+  public static void defineKindsToTheSkConnection( ISkCoreApi aCoreApi ) {
+    TsNullArgumentRtException.checkNull( aCoreApi );
+    ISkUgwiService ugwiService = aCoreApi.ugwiService();
     for( AbstractUgwiKindRegistrator<?> kr : creatorsList.copyTo( null ) ) {
-      AbstractUgwiKind<?> kind = kr.createUgwiKind( aSkConn );
+      AbstractUgwiKind<?> kind = kr.createUgwiKind( aCoreApi );
       ugwiService.registerKind( kind );
     }
   }

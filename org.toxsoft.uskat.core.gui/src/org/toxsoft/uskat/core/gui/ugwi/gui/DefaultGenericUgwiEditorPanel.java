@@ -1,4 +1,4 @@
-package org.toxsoft.uskat.core.gui.ugwi;
+package org.toxsoft.uskat.core.gui.ugwi.gui;
 
 import org.eclipse.swt.*;
 import org.eclipse.swt.layout.*;
