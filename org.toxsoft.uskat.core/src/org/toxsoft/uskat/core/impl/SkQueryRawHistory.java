@@ -69,7 +69,7 @@ public final class SkQueryRawHistory
       IOptionSet funcArgs = IOptionSet.NULL;
       IDtoQueryParam param = DtoQueryParam.create( concreteGwid, ITsCombiFilterParams.ALL, funcId, funcArgs );
       args.put( concreteGwid, param );
-      params.put( concreteGwid.asString(), param );
+      params.put( concreteGwid.canonicalString(), param );
       // }
     }
     backend().prepareQuery( queryId(), params );

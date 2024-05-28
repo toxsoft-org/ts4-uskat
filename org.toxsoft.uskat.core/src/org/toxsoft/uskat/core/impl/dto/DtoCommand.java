@@ -133,7 +133,7 @@ public final class DtoCommand
   @Override
   public String toString() {
     Long lt = Long.valueOf( timestamp );
-    return String.format( "%tF %tT %s %s %s", lt, lt, id, cmdGwid.asString(), authorSkid.toString() ); //$NON-NLS-1$
+    return String.format( "%tF %tT %s %s %s", lt, lt, id, cmdGwid.toString(), authorSkid.toString() ); //$NON-NLS-1$
   }
 
   @Override

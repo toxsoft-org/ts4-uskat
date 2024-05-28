@@ -150,6 +150,7 @@ public class SdedObjectEditor
             // TODO проверить!
             // при создании и редактировании объекта обновим элемент
             IDtoFullObject dtoFobj = DtoFullObject.createDtoFullObject( aSkid, skConn().coreApi() );
+            @SuppressWarnings( "unchecked" )
             IM5EntityPanel<IDtoFullObject> objEditPane = (IM5EntityPanel<IDtoFullObject>)ti.getData();
             objEditPane.setEntity( dtoFobj );
             break;

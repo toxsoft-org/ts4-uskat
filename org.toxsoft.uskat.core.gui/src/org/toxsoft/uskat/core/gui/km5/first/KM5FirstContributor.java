@@ -40,6 +40,7 @@ public class KM5FirstContributor
   // implementation
   //
 
+  @SuppressWarnings( "static-method" )
   private IStridablesListEdit<M5Model<?>> internalCreateAllModels() {
     IStridablesListEdit<M5Model<?>> modelsList = new StridablesList<>();
     // FIXME

@@ -6,6 +6,7 @@ import org.toxsoft.core.tsgui.m5.*;
 import org.toxsoft.core.tsgui.m5.model.impl.*;
 import org.toxsoft.core.tslib.bricks.validator.*;
 import org.toxsoft.core.tslib.coll.*;
+import org.toxsoft.core.tslib.gw.*;
 import org.toxsoft.core.tslib.gw.skid.*;
 import org.toxsoft.core.tslib.utils.errors.*;
 import org.toxsoft.uskat.core.*;
@@ -100,7 +101,7 @@ class SdedSkObjectM5LifecycleManager
 
   @Override
   protected IList<ISkObject> doListEntities() {
-    return skObjServ().listObjs( "SkObject", true );
+    return skObjServ().listObjs( IGwHardConstants.GW_ROOT_CLASS_ID, true );
   }
 
   // ------------------------------------------------------------------------------------

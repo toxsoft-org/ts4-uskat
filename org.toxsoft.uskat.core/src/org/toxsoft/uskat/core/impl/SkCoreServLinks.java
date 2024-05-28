@@ -3,36 +3,28 @@ package org.toxsoft.uskat.core.impl;
 import static org.toxsoft.uskat.core.backend.api.IBaLinksMessages.*;
 import static org.toxsoft.uskat.core.impl.ISkResources.*;
 
-import java.util.Objects;
+import java.util.*;
 
-import org.toxsoft.core.tslib.bricks.ctx.ITsContextRo;
-import org.toxsoft.core.tslib.bricks.events.AbstractTsEventer;
-import org.toxsoft.core.tslib.bricks.events.ITsEventer;
-import org.toxsoft.core.tslib.bricks.events.msg.GenericMessage;
-import org.toxsoft.core.tslib.bricks.validator.ITsValidationSupport;
-import org.toxsoft.core.tslib.bricks.validator.ValidationResult;
-import org.toxsoft.core.tslib.bricks.validator.impl.AbstractTsValidationSupport;
-import org.toxsoft.core.tslib.bricks.validator.impl.TsValidationFailedRtException;
-import org.toxsoft.core.tslib.coll.IListEdit;
-import org.toxsoft.core.tslib.coll.impl.ElemArrayList;
-import org.toxsoft.core.tslib.coll.impl.SingleItemList;
+import org.toxsoft.core.tslib.bricks.ctx.*;
+import org.toxsoft.core.tslib.bricks.events.*;
+import org.toxsoft.core.tslib.bricks.events.msg.*;
+import org.toxsoft.core.tslib.bricks.validator.*;
+import org.toxsoft.core.tslib.bricks.validator.impl.*;
+import org.toxsoft.core.tslib.coll.*;
+import org.toxsoft.core.tslib.coll.impl.*;
 import org.toxsoft.core.tslib.coll.primtypes.*;
-import org.toxsoft.core.tslib.coll.primtypes.impl.StringMap;
+import org.toxsoft.core.tslib.coll.primtypes.impl.*;
 import org.toxsoft.core.tslib.gw.gwid.*;
-import org.toxsoft.core.tslib.gw.skid.ISkidList;
-import org.toxsoft.core.tslib.gw.skid.Skid;
-import org.toxsoft.core.tslib.utils.errors.TsItemNotFoundRtException;
-import org.toxsoft.core.tslib.utils.errors.TsNullArgumentRtException;
-import org.toxsoft.core.tslib.utils.logs.impl.LoggerUtils;
-import org.toxsoft.uskat.core.ISkServiceCreator;
+import org.toxsoft.core.tslib.gw.skid.*;
+import org.toxsoft.core.tslib.utils.errors.*;
+import org.toxsoft.core.tslib.utils.logs.impl.*;
+import org.toxsoft.uskat.core.*;
 import org.toxsoft.uskat.core.api.linkserv.*;
-import org.toxsoft.uskat.core.api.objserv.ISkObject;
-import org.toxsoft.uskat.core.api.objserv.ISkObjectService;
-import org.toxsoft.uskat.core.api.sysdescr.ISkClassInfo;
-import org.toxsoft.uskat.core.api.sysdescr.dto.IDtoLinkInfo;
-import org.toxsoft.uskat.core.devapi.IDevCoreApi;
-import org.toxsoft.uskat.core.impl.dto.DtoLinkFwd;
-import org.toxsoft.uskat.core.impl.dto.DtoLinkRev;
+import org.toxsoft.uskat.core.api.objserv.*;
+import org.toxsoft.uskat.core.api.sysdescr.*;
+import org.toxsoft.uskat.core.api.sysdescr.dto.*;
+import org.toxsoft.uskat.core.devapi.*;
+import org.toxsoft.uskat.core.impl.dto.*;
 
 /**
  * {@link ISkLinkService} implementation.
@@ -198,15 +190,14 @@ public class SkCoreServLinks
 
   @Override
   protected boolean onBackendMessage( GenericMessage aMessage ) {
-    switch( aMessage.messageId() ) {
-      case MSGID_LINKS_CHANGE: {
+    return switch( aMessage.messageId() ) {
+      case MSGID_LINKS_CHANGE -> {
         IGwidList gwidList = extractGwidList( aMessage );
         eventer.fireLinksChanged( gwidList );
-        return true;
+        yield true;
       }
-      default:
-        return false;
-    }
+      default -> false;
+    };
   }
 
   // ------------------------------------------------------------------------------------
@@ -342,7 +333,7 @@ public class SkCoreServLinks
     if( !Objects.equals( oldLink, newLink ) ) {
       // validate link may be written
       TsValidationFailedRtException.checkError( validationSupport.canSetLink( oldLink, newLink ) );
-      ba().baLinks().writeLinksFwd( new SingleItemList<IDtoLinkFwd>( newLink ) );
+      ba().baLinks().writeLinksFwd( new SingleItemList<>( newLink ) );
     }
     return newLink;
   }

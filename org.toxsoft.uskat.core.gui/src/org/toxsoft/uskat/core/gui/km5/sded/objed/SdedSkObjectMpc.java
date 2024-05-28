@@ -89,7 +89,6 @@ public class SdedSkObjectMpc
       return hashCode;
     }
 
-    @SuppressWarnings( "rawtypes" )
     @Override
     public boolean equals( Object obj ) {
       if( !(obj instanceof DefaultTsNode node) ) {

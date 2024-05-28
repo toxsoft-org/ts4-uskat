@@ -23,6 +23,7 @@ import org.toxsoft.uskat.core.gui.km5.*;
  *
  * @author dima
  */
+@SuppressWarnings( "rawtypes" )
 public class StringMapStringM5Model
     extends KM5ConnectedModelBase<IStringMap> {
 
