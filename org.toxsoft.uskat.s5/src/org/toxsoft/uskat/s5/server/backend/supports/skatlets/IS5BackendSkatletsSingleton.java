@@ -11,7 +11,7 @@ import org.toxsoft.uskat.s5.server.backend.IS5BackendSupportSingleton;
  * @author mvk
  */
 @Local
-public interface IS5BackendSkatletBoxSingleton
+public interface IS5BackendSkatletsSingleton
     extends IS5BackendSupportSingleton {
 
   // nop

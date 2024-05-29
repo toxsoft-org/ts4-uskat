@@ -25,7 +25,7 @@ import org.toxsoft.uskat.s5.server.backend.impl.S5BackendSupportSingleton;
 import org.toxsoft.uskat.s5.utils.jobs.IS5ServerJob;
 
 /**
- * Реализация {@link IS5BackendSkatletBoxSingleton}.
+ * Реализация {@link IS5BackendSkatletsSingleton}.
  *
  * @author mvk
  */
@@ -40,16 +40,16 @@ import org.toxsoft.uskat.s5.utils.jobs.IS5ServerJob;
 @ConcurrencyManagement( ConcurrencyManagementType.CONTAINER )
 @AccessTimeout( value = ACCESS_TIMEOUT_DEFAULT, unit = TimeUnit.MILLISECONDS )
 @Lock( LockType.READ )
-public class S5BackendSkatletBoxSingleton
+public class S5BackendSkatletsSingleton
     extends S5BackendSupportSingleton
-    implements IS5BackendSkatletBoxSingleton, IS5ServerJob {
+    implements IS5BackendSkatletsSingleton, IS5ServerJob {
 
   private static final long serialVersionUID = 157157L;
 
   /**
    * Имя синглетона в контейнере сервера для организации зависимостей (@DependsOn)
    */
-  public static final String BACKEND_SKATLET_BOX_ID = "S5BackendSkatletBoxSingleton"; //$NON-NLS-1$
+  public static final String BACKEND_SKATLET_BOX_ID = "S5BackendSkatletsSingleton"; //$NON-NLS-1$
 
   /**
    * Идентификатор корневого контейнера компонентов синглетона
@@ -90,7 +90,7 @@ public class S5BackendSkatletBoxSingleton
   /**
    * Конструктор.
    */
-  public S5BackendSkatletBoxSingleton() {
+  public S5BackendSkatletsSingleton() {
     super( BACKEND_SKATLET_BOX_ID, STR_D_BACKEND_SKATLETS );
   }
 
@@ -153,7 +153,7 @@ public class S5BackendSkatletBoxSingleton
   }
 
   // ------------------------------------------------------------------------------------
-  // IS5BackendSkatletBoxSingleton
+  // IS5BackendSkatletsSingleton
   //
 
   // ------------------------------------------------------------------------------------
