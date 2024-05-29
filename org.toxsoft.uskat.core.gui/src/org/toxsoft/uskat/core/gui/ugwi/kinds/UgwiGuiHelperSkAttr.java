@@ -11,7 +11,7 @@ import org.toxsoft.uskat.core.gui.ugwi.*;
 import org.toxsoft.uskat.core.gui.ugwi.gui.*;
 
 /**
- * {@link IUgwiKindGuiHelper} implementation for {@link UgwiRegistratorSkAttr}.
+ * {@link IUgwiKindGuiHelper} implementation for {@link UgwiKindSkAttr}.
  *
  * @author hazard157
  */

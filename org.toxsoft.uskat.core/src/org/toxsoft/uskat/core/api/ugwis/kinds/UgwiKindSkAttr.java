@@ -26,7 +26,7 @@ import org.toxsoft.uskat.core.api.ugwis.*;
  *
  * @author hazard157
  */
-public class UgwiRegistratorSkAttr
+public class UgwiKindSkAttr
     extends AbstractUgwiKindRegistrator<IAtomicValue> {
 
   /**
@@ -82,12 +82,12 @@ public class UgwiRegistratorSkAttr
   /**
    * The registrator instance.
    */
-  public static final UgwiRegistratorSkAttr REGISTRATOR = new UgwiRegistratorSkAttr();
+  public static final UgwiKindSkAttr REGISTRATOR = new UgwiKindSkAttr();
 
   /**
    * Constructor.
    */
-  private UgwiRegistratorSkAttr() {
+  private UgwiKindSkAttr() {
     super( KIND_ID, OptionSetUtils.createOpSet( //
         TSID_NAME, STR_UK_ATTR, //
         TSID_DESCRIPTION, STR_UK_ATTR_D //
