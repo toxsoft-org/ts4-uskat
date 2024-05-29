@@ -8,7 +8,7 @@ package org.toxsoft.uskat.s5.server.backend.supports.queries.impl;
 @SuppressWarnings( "nls" )
 interface IS5Resources {
 
-  String STR_D_BACKEND_QUERIES = "Подджержка расширения бекенда: 'запросы к хранимым данным'";
+  String STR_D_BACKEND_QUERIES = "Поддержка расширения бекенда: 'запросы к хранимым данным'";
 
   String STR_QUERY_RAW_VALUES   = "Запрос значений хранимых данных (JDBC)."; // Request raw values (JDBC)
   String STR_QUERY_RAW_EVENTS   = "Запрос событий (JDBC).";
