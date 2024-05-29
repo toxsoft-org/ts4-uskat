@@ -1,17 +1,24 @@
 package core.tslib.bricks.threadexecutor;
 
-import java.util.concurrent.Executor;
+import java.util.concurrent.*;
 
-import org.toxsoft.core.tslib.utils.errors.TsIllegalStateRtException;
-import org.toxsoft.core.tslib.utils.errors.TsNullArgumentRtException;
+import org.toxsoft.core.tslib.utils.*;
+import org.toxsoft.core.tslib.utils.errors.*;
 
 /**
- * Implementation {@link ITsThreadExecutor} for server and console apps
+ * Implementation {@link ITsThreadExecutor} for server and console applications.
+ * <p>
+ * Common usage:
+ * <ul>
+ * <li>create instance {@link TsThreadExecutor} or ;</li>
+ * <li>from the <b><i>user thread</i></b> periodically call {@link #doJob()} method;</li>
+ * <li>after usage by calling {@link ICloseable#close() close()}.</li>
+ * </ul>
  *
  * @author mvk
  */
 public final class TsThreadExecutor
-    implements ITsThreadExecutor {
+    implements ITsThreadExecutor, ICloseable {
 
   private TsSynchronizer synchronizer;
 
@@ -66,9 +73,14 @@ public final class TsThreadExecutor
     synchronizer.setThread( aThread );
   }
 
+  // ------------------------------------------------------------------------------------
+  // ICloseable
+  //
+
   /**
    * Free all resources and close synchronizer.
    */
+  @Override
   public void close() {
     synchronizer.close();
   }
@@ -76,6 +88,7 @@ public final class TsThreadExecutor
   // ------------------------------------------------------------------------------------
   // ITsThreadExecutor
   //
+
   @Override
   public Thread thread() {
     return synchronizer.thread();

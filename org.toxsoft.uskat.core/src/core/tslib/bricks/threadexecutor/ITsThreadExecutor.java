@@ -1,7 +1,7 @@
 package core.tslib.bricks.threadexecutor;
 
-import org.toxsoft.core.tslib.bricks.ICooperativeMultiTaskable;
-import org.toxsoft.core.tslib.utils.errors.TsNullArgumentRtException;
+import org.toxsoft.core.tslib.bricks.*;
+import org.toxsoft.core.tslib.utils.errors.*;
 
 /**
  * Еxecutor of API calls in one thread.
@@ -12,9 +12,11 @@ public interface ITsThreadExecutor
     extends ICooperativeMultiTaskable {
 
   /**
-   * Returns the thread in which the functions of API are called
+   * Returns the thread in which the functions of API are called.
+   * <p>
+   * Warning: method {@link #doJob()} must be called from this thread!
    *
-   * @return {@link Thread} thread
+   * @return {@link Thread} - the execution thread
    */
   Thread thread();
 
@@ -24,7 +26,7 @@ public interface ITsThreadExecutor
    * completed.
    *
    * @param aRunnable code to run on the uskat thread
-   * @throws TsNullArgumentRtException argument = null
+   * @throws TsNullArgumentRtException any argument = <code>null</code>
    */
   void asyncExec( Runnable aRunnable );
 
@@ -33,17 +35,17 @@ public interface ITsThreadExecutor
    * opportunity. The thread which calls this method is suspended until the runnable completes.
    *
    * @param aRunnable code to run on the uskat thread
-   * @throws TsNullArgumentRtException argument = null
+   * @throws TsNullArgumentRtException any argument = <code>null</code>
    */
   void syncExec( Runnable aRunnable );
 
   /**
-   * Causes the <code>run()</code> method of the runnable to be invoked by the user-interface thread after the specified
+   * Causes the <code>run()</code> method of the runnable to be invoked by the {@link #thread()} after the specified
    * number of milliseconds have elapsed. If milliseconds is less than zero, the runnable is not executed.
    *
    * @param aMilliseconds the delay before running the runnable
    * @param aRunnable code to run on the user-interface thread
-   * @throws TsNullArgumentRtException argument = null
+   * @throws TsNullArgumentRtException any argument = <code>null</code>
    */
   void timerExec( int aMilliseconds, Runnable aRunnable );
 }

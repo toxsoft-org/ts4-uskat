@@ -1,10 +1,9 @@
 package org.toxsoft.uskat.core.gui.conn;
 
-import org.eclipse.swt.widgets.Display;
-import org.toxsoft.core.tslib.utils.errors.TsIllegalStateRtException;
-import org.toxsoft.core.tslib.utils.errors.TsNullArgumentRtException;
+import org.eclipse.swt.widgets.*;
+import org.toxsoft.core.tslib.utils.errors.*;
 
-import core.tslib.bricks.threadexecutor.ITsThreadExecutor;
+import core.tslib.bricks.threadexecutor.*;
 
 /**
  * Реализация {@link ITsThreadExecutor} для GUI (SWT)
@@ -17,10 +16,10 @@ public final class SkGuiThreadExecutor
   private final Display display;
 
   /**
-   * Конструктор
+   * Constructor.
    *
-   * @param aDisplay {@link Display} дисплей
-   * @throws TsNullArgumentRtException аргумент = null
+   * @param aDisplay {@link Display} -= the display
+   * @throws TsNullArgumentRtException any argument = <code>null</code>
    */
   public SkGuiThreadExecutor( Display aDisplay ) {
     display = TsNullArgumentRtException.checkNull( aDisplay );
@@ -29,6 +28,7 @@ public final class SkGuiThreadExecutor
   // ------------------------------------------------------------------------------------
   // ITsThreadExecutor
   //
+
   @Override
   public Thread thread() {
     return display.getThread();
@@ -59,6 +59,7 @@ public final class SkGuiThreadExecutor
   // ------------------------------------------------------------------------------------
   // ICooperativeMultiTaskable
   //
+
   @Override
   public void doJob() {
     TsIllegalStateRtException.checkFalse( thread().equals( Thread.currentThread() ) );
