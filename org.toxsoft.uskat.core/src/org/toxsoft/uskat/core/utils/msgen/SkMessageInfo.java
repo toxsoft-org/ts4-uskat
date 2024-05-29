@@ -110,7 +110,7 @@ public final class SkMessageInfo
 
   @Override
   public IStringMap<Ugwi> usedUgwies() {
-    return usedUgwies();
+    return usedUgwies;
   }
 
   // ------------------------------------------------------------------------------------
