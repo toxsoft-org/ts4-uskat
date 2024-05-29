@@ -1,15 +1,14 @@
 package org.toxsoft.uskat.s5.server.backend.addons.queries;
 
-import org.toxsoft.core.tslib.coll.primtypes.IStringList;
-import org.toxsoft.core.tslib.coll.primtypes.impl.StringArrayList;
-import org.toxsoft.core.tslib.utils.Pair;
-import org.toxsoft.uskat.core.ISkServiceCreator;
-import org.toxsoft.uskat.core.backend.ISkBackendHardConstant;
-import org.toxsoft.uskat.core.backend.api.IBaQueries;
-import org.toxsoft.uskat.core.impl.AbstractSkService;
-import org.toxsoft.uskat.core.impl.SkCoreServHistQueryService;
+import org.toxsoft.core.tslib.coll.primtypes.*;
+import org.toxsoft.core.tslib.coll.primtypes.impl.*;
+import org.toxsoft.core.tslib.utils.*;
+import org.toxsoft.uskat.core.*;
+import org.toxsoft.uskat.core.backend.*;
+import org.toxsoft.uskat.core.backend.api.*;
+import org.toxsoft.uskat.core.impl.*;
 import org.toxsoft.uskat.s5.server.backend.addons.*;
-import org.toxsoft.uskat.s5.server.backend.supports.queries.impl.S5BackendQueriesSingleton;
+import org.toxsoft.uskat.s5.server.backend.supports.queries.impl.*;
 
 /**
  * Построитель расширения бекенда {@link IBaQueries} для s5
@@ -31,7 +30,7 @@ public class S5BaQueriesCreator
   //
   @Override
   protected ISkServiceCreator<? extends AbstractSkService> doGetServiceCreator() {
-    return SkCoreServHistQueryService.CREATOR;
+    return SkCoreServHistQuery.CREATOR;
   }
 
   @Override

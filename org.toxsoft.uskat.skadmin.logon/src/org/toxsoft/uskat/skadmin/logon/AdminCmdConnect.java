@@ -7,31 +7,25 @@ import static org.toxsoft.uskat.skadmin.logon.AdminLogonUtils.*;
 import static org.toxsoft.uskat.skadmin.logon.IAdminHardConstants.*;
 import static org.toxsoft.uskat.skadmin.logon.IAdminResources.*;
 
-import org.toxsoft.core.tslib.av.IAtomicValue;
-import org.toxsoft.core.tslib.bricks.ctx.ITsContext;
-import org.toxsoft.core.tslib.bricks.ctx.impl.TsContext;
-import org.toxsoft.core.tslib.bricks.strid.coll.IStridablesList;
-import org.toxsoft.core.tslib.bricks.strid.coll.IStridablesListEdit;
-import org.toxsoft.core.tslib.bricks.strid.coll.impl.StridablesList;
-import org.toxsoft.core.tslib.coll.IList;
+import org.toxsoft.core.tslib.av.*;
+import org.toxsoft.core.tslib.bricks.ctx.*;
+import org.toxsoft.core.tslib.bricks.ctx.impl.*;
+import org.toxsoft.core.tslib.bricks.strid.coll.*;
+import org.toxsoft.core.tslib.bricks.strid.coll.impl.*;
+import org.toxsoft.core.tslib.bricks.threadexec.*;
+import org.toxsoft.core.tslib.coll.*;
 import org.toxsoft.core.tslib.coll.primtypes.*;
-import org.toxsoft.core.tslib.coll.primtypes.impl.IntArrayList;
-import org.toxsoft.core.tslib.coll.primtypes.impl.StringArrayList;
-import org.toxsoft.uskat.core.backend.api.ISkBackendInfo;
-import org.toxsoft.uskat.core.connection.ESkConnState;
-import org.toxsoft.uskat.core.connection.ISkConnection;
-import org.toxsoft.uskat.core.impl.ISkCoreConfigConstants;
-import org.toxsoft.uskat.core.impl.SkCoreUtils;
-import org.toxsoft.uskat.legacy.plexy.IPlexyType;
-import org.toxsoft.uskat.legacy.plexy.IPlexyValue;
-import org.toxsoft.uskat.s5.client.IS5ConnectionParams;
-import org.toxsoft.uskat.s5.client.remote.S5RemoteBackendProvider;
+import org.toxsoft.core.tslib.coll.primtypes.impl.*;
+import org.toxsoft.uskat.core.backend.api.*;
+import org.toxsoft.uskat.core.connection.*;
+import org.toxsoft.uskat.core.impl.*;
+import org.toxsoft.uskat.legacy.plexy.*;
+import org.toxsoft.uskat.s5.client.*;
+import org.toxsoft.uskat.s5.client.remote.*;
 import org.toxsoft.uskat.s5.common.*;
-import org.toxsoft.uskat.s5.server.IS5ServerHardConstants;
+import org.toxsoft.uskat.s5.server.*;
 import org.toxsoft.uskat.skadmin.core.*;
-import org.toxsoft.uskat.skadmin.core.impl.AbstractAdminCmd;
-
-import core.tslib.bricks.threadexecutor.ITsThreadExecutor;
+import org.toxsoft.uskat.skadmin.core.impl.*;
 
 /**
  * Команда администрирования: вход пользователя на skat-s5-сервер
