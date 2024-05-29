@@ -21,10 +21,12 @@ import org.toxsoft.uskat.core.api.ugwis.*;
  * UGWI kind: Sk-object attribute value.
  * <p>
  * Format is 3-branches {@link IdChain}: "classId/objStrid/attrId".
+ * <p>
+ * {@link ISkObject#attrs()} is used to retrieve Sk-object attribute value.
  *
  * @author hazard157
  */
-public class UgwiRegistratorSkAttr
+public class UgwiKindSkAttr
     extends AbstractUgwiKindRegistrator<IAtomicValue> {
 
   /**
@@ -41,6 +43,11 @@ public class UgwiRegistratorSkAttr
    * The index of the attribute ID in the {@link IdChain} made from {@link Ugwi#essence()}.
    */
   public static final int IDX_ATTR_ID = 2;
+
+  /**
+   * Number of branches in {@link IdChain}.
+   */
+  private static final int NUM_BRANCHES = 4;
 
   /**
    * {@link IUgwiKind} implementation.
@@ -70,17 +77,17 @@ public class UgwiRegistratorSkAttr
   /**
    * The UGWI kind ID.
    */
-  public static final String KIND_ID = SK_ID + ".attr"; //$NON-NLS-1$
+  public static final String KIND_ID = SK_ID + ".sk.attr"; //$NON-NLS-1$
 
   /**
    * The registrator instance.
    */
-  public static final UgwiRegistratorSkAttr REGISTRATOR = new UgwiRegistratorSkAttr();
+  public static final UgwiKindSkAttr REGISTRATOR = new UgwiKindSkAttr();
 
   /**
    * Constructor.
    */
-  private UgwiRegistratorSkAttr() {
+  private UgwiKindSkAttr() {
     super( KIND_ID, OptionSetUtils.createOpSet( //
         TSID_NAME, STR_UK_ATTR, //
         TSID_DESCRIPTION, STR_UK_ATTR_D //
@@ -96,7 +103,7 @@ public class UgwiRegistratorSkAttr
     if( IdChain.isValidCanonicalString( aEssence ) ) {
       IdChain chain = IdChain.of( aEssence );
       if( chain != IdChain.NULL ) {
-        if( chain.branches().size() == 3 ) {
+        if( chain.branches().size() == NUM_BRANCHES ) {
           return ValidationResult.SUCCESS;
         }
       }
@@ -139,6 +146,20 @@ public class UgwiRegistratorSkAttr
     TsValidationFailedRtException.checkError( REGISTRATOR.validateUgwi( aUgwi ) );
     IdChain chain = IdChain.of( aUgwi.essence() );
     return chain.branches().get( IDX_OBJ_STRID );
+  }
+
+  /**
+   * Extracts object SKID from the UGWI of this kind.
+   *
+   * @param aUgwi {@link Ugwi} - the UGWI
+   * @return {@link Skid} - the object SKID
+   * @throws TsNullArgumentRtException any argument = <code>null</code>
+   * @throws TsValidationFailedRtException invalid UGWI for this kind
+   */
+  public static Skid getSkid( Ugwi aUgwi ) {
+    TsValidationFailedRtException.checkError( REGISTRATOR.validateUgwi( aUgwi ) );
+    IdChain chain = IdChain.of( aUgwi.essence() );
+    return new Skid( chain.branches().get( IDX_CLASS_ID ), chain.branches().get( IDX_OBJ_STRID ) );
   }
 
   /**

@@ -20,6 +20,7 @@ import org.toxsoft.core.tslib.gw.skid.*;
 import org.toxsoft.core.tslib.utils.errors.*;
 import org.toxsoft.core.tslib.utils.valobj.*;
 import org.toxsoft.uskat.core.*;
+import org.toxsoft.uskat.core.api.*;
 import org.toxsoft.uskat.core.api.cmdserv.*;
 import org.toxsoft.uskat.core.api.evserv.*;
 import org.toxsoft.uskat.core.api.hqserv.*;
@@ -86,6 +87,35 @@ public class SkCoreUtils {
   public static void registerSkServiceCreator( ISkServiceCreator<? extends AbstractSkService> aCreator ) {
     if( !registeredServiceCreatorsList.hasElem( aCreator ) ) {
       registeredServiceCreatorsList.add( aCreator );
+    }
+  }
+
+  // ------------------------------------------------------------------------------------
+  // Core API handlers registry
+  //
+
+  private static final IListEdit<ISkCoreExternalHandler> registeredCoreApiHandlersList = new ElemArrayList<>();
+
+  /**
+   * Returns list of the registered Core API handlers.
+   *
+   * @return {@link IList}&lt;{@link ISkCoreExternalHandler}&gt; - registered handlers list
+   */
+  public static IList<ISkCoreExternalHandler> listRegisteredCoreApiHandlers() {
+    return new ElemArrayList<>( registeredCoreApiHandlersList );
+  }
+
+  /**
+   * Registers Core API handler.
+   * <p>
+   * Attempt to register already registered handler is ignored.
+   *
+   * @param aHandler {@link ISkCoreExternalHandler} - the handler to register
+   * @throws TsNullArgumentRtException any argument = <code>null</code>
+   */
+  public static void registerCoreApiHandler( ISkCoreExternalHandler aHandler ) {
+    if( !registeredCoreApiHandlersList.hasElem( aHandler ) ) {
+      registeredCoreApiHandlersList.add( aHandler );
     }
   }
 

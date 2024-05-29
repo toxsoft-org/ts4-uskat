@@ -45,7 +45,7 @@ public class SkUgwiGuiUtils {
   private static final IStringMapEdit<IListEdit<IRegistrator<?>>> helperRegistrators = new StringMap<>();
 
   static {
-    addRegistrator( UgwiRegistratorSkAttr.KIND_ID, UgwiGuiHelperSkAttr.REGISTRATOR );
+    addRegistrator( UgwiKindSkAttr.KIND_ID, UgwiGuiHelperSkAttr.REGISTRATOR );
     // TODO add all built-in helper registrators
   }
 

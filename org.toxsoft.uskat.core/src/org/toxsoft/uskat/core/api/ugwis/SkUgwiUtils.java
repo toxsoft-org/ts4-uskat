@@ -24,7 +24,7 @@ public class SkUgwiUtils {
       new SynchronizedListEdit<>( new ElemArrayList<>(), lock );
 
   static {
-    creatorsList.add( UgwiRegistratorSkAttr.REGISTRATOR );
+    creatorsList.add( UgwiKindSkAttr.REGISTRATOR );
     // TODO add all built-in registrators
   }
 
