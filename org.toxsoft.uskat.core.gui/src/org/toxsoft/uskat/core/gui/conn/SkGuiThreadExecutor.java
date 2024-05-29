@@ -1,9 +1,8 @@
 package org.toxsoft.uskat.core.gui.conn;
 
 import org.eclipse.swt.widgets.*;
+import org.toxsoft.core.tslib.bricks.threadexec.*;
 import org.toxsoft.core.tslib.utils.errors.*;
-
-import core.tslib.bricks.threadexecutor.*;
 
 /**
  * Реализация {@link ITsThreadExecutor} для GUI (SWT)

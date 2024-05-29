@@ -7,13 +7,12 @@ import org.toxsoft.core.tslib.av.impl.AvUtils;
 import org.toxsoft.core.tslib.av.opset.IOptionSetEdit;
 import org.toxsoft.core.tslib.av.opset.impl.OptionSet;
 import org.toxsoft.core.tslib.av.opset.impl.OptionSetUtils;
+import org.toxsoft.core.tslib.bricks.threadexec.*;
 import org.toxsoft.core.tslib.bricks.time.IQueryInterval;
 import org.toxsoft.core.tslib.utils.errors.*;
 import org.toxsoft.core.tslib.utils.logs.impl.LoggerUtils;
 import org.toxsoft.uskat.core.api.hqserv.ISkAsynchronousQuery;
 import org.toxsoft.uskat.core.api.hqserv.ISkHistoryQueryServiceConstants;
-
-import core.tslib.bricks.threadexecutor.ITsThreadExecutor;
 
 /**
  * Диалог прогресса выполнения операции

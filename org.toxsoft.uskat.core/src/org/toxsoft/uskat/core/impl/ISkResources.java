@@ -1,6 +1,6 @@
 package org.toxsoft.uskat.core.impl;
 
-import org.toxsoft.uskat.core.api.hqserv.ISkHistoryQueryServiceConstants;
+import org.toxsoft.uskat.core.api.hqserv.*;
 
 /**
  * Localizable resources.
