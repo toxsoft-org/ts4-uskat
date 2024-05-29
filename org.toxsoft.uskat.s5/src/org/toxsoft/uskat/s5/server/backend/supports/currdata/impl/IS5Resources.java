@@ -8,8 +8,8 @@ package org.toxsoft.uskat.s5.server.backend.supports.currdata.impl;
 @SuppressWarnings( "nls" )
 interface IS5Resources {
 
-  String STR_D_BACKEND_CURRDATA = "Подджержка расширения бекенда: 'доступ к текущим данным'";
-  String STR_D_BACKEND_HISTDATA = "Подджержка расширения бекенда: 'доступ к хранимым данным'";
+  String STR_D_BACKEND_CURRDATA = "Поддержка расширения бекенда: 'доступ к текущим данным'";
+  String STR_D_BACKEND_HISTDATA = "Поддержка расширения бекенда: 'доступ к хранимым данным'";
 
   // ------------------------------------------------------------------------------------
   // Строки сообщений
