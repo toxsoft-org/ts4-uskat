@@ -31,11 +31,11 @@ public final class SkQueryRawHistory
   /**
    * Constructor
    *
-   * @param aService {@link SkCoreServHistQueryService} the query service
+   * @param aService {@link SkCoreServHistQuery} the query service
    * @param aOptions {@link IOptionSet} - optional query execution parameters.
    * @throws TsNullArgumentRtException any argurment = null
    */
-  public SkQueryRawHistory( SkCoreServHistQueryService aService, IOptionSet aOptions ) {
+  public SkQueryRawHistory( SkCoreServHistQuery aService, IOptionSet aOptions ) {
     super( aService, aOptions );
   }
 

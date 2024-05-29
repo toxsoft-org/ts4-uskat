@@ -26,14 +26,14 @@ import org.toxsoft.uskat.core.devapi.IDevCoreApi;
  *
  * @author mvk
  */
-public class SkCoreServHistQueryService
+public class SkCoreServHistQuery
     extends AbstractSkCoreService
     implements ISkHistoryQueryService {
 
   /**
    * Service creator singleton.
    */
-  public static final ISkServiceCreator<AbstractSkService> CREATOR = SkCoreServHistQueryService::new;
+  public static final ISkServiceCreator<AbstractSkService> CREATOR = SkCoreServHistQuery::new;
 
   /**
    * Open queries
@@ -45,7 +45,7 @@ public class SkCoreServHistQueryService
    *
    * @param aCoreApi {@link IDevCoreApi} - owner core API implementation
    */
-  SkCoreServHistQueryService( IDevCoreApi aCoreApi ) {
+  SkCoreServHistQuery( IDevCoreApi aCoreApi ) {
     super( SERVICE_ID, aCoreApi );
   }
 

@@ -25,11 +25,11 @@ public final class SkQueryProcessedData
   /**
    * Constructor
    *
-   * @param aService {@link SkCoreServHistQueryService} the query service
+   * @param aService {@link SkCoreServHistQuery} the query service
    * @param aOptions {@link IOptionSet} - optional query execution parameters.
    * @throws TsNullArgumentRtException any argurment = null
    */
-  public SkQueryProcessedData( SkCoreServHistQueryService aService, IOptionSet aOptions ) {
+  public SkQueryProcessedData( SkCoreServHistQuery aService, IOptionSet aOptions ) {
     super( aService, aOptions );
   }
 

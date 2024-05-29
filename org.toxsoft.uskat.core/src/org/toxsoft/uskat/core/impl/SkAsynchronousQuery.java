@@ -34,7 +34,7 @@ public abstract class SkAsynchronousQuery
 
   private final String                     queryId;
   private final IOptionSet                 options;
-  private final SkCoreServHistQueryService service;
+  private final SkCoreServHistQuery service;
   private final GenericChangeEventer       eventer      = new GenericChangeEventer( this );
   private ESkQueryState                    state        = UNPREPARED;
   private String                           stateMessage = TsLibUtils.EMPTY_STRING;
@@ -44,11 +44,11 @@ public abstract class SkAsynchronousQuery
   /**
    * Constructor
    *
-   * @param aService {@link SkCoreServHistQueryService} the query service
+   * @param aService {@link SkCoreServHistQuery} the query service
    * @param aOptions {@link IOptionSet} - optional query execution parameters.
    * @throws TsNullArgumentRtException any argurment = null
    */
-  protected SkAsynchronousQuery( SkCoreServHistQueryService aService, IOptionSet aOptions ) {
+  protected SkAsynchronousQuery( SkCoreServHistQuery aService, IOptionSet aOptions ) {
     TsNullArgumentRtException.checkNulls( aService, aOptions );
     service = aService;
     options = aOptions;

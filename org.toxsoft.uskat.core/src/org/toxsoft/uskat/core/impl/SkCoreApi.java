@@ -52,18 +52,18 @@ public class SkCoreApi
   private final CoreLogger        logger;
   private final ISkBackend        backend;
 
-  private final SkCoreServSysdescr         sysdescr;
-  private final SkCoreServObject           objService;
-  private final SkCoreServClobs            clobService;
-  private final SkCoreServCommands         cmdService;
-  private final SkCoreServEvents           eventService;
-  private final SkCoreServLinks            linkService;
-  private final SkCoreServRtdata           rtdService;
-  private final SkCoreServHistQueryService hqService;
-  private final SkCoreServUsers            userService;
-  private final SkCoreServGwids            gwidService;
-  private final SkCoreServUgwis            ugwiService;
-  private final SkCoreServGwidDb           gwidDbService;
+  private final SkCoreServSysdescr  sysdescr;
+  private final SkCoreServObject    objService;
+  private final SkCoreServClobs     clobService;
+  private final SkCoreServCommands  cmdService;
+  private final SkCoreServEvents    eventService;
+  private final SkCoreServLinks     linkService;
+  private final SkCoreServRtdata    rtdService;
+  private final SkCoreServHistQuery hqService;
+  private final SkCoreServUsers     userService;
+  private final SkCoreServGwids     gwidService;
+  private final SkCoreServUgwis     ugwiService;
+  private final SkCoreServGwidDb    gwidDbService;
 
   private final IList<ISkCoreExternalHandler> coreApiHandlersList;
 
@@ -102,7 +102,7 @@ public class SkCoreApi
     llCreators.add( SkCoreServEvents.CREATOR );
     llCreators.add( SkCoreServLinks.CREATOR );
     llCreators.add( SkCoreServRtdata.CREATOR );
-    llCreators.add( SkCoreServHistQueryService.CREATOR );
+    llCreators.add( SkCoreServHistQuery.CREATOR );
     llCreators.add( SkCoreServUsers.CREATOR );
     llCreators.add( SkCoreServGwids.CREATOR );
     llCreators.add( SkCoreServUgwis.CREATOR );
@@ -154,19 +154,16 @@ public class SkCoreApi
       }
     } );
     inited = true;
-
-    // TODO add external handlers processing
-    // process external handlers in directorder
-    for( int i = 0, n = coreApiHandlersList.size(); i >= 0; i-- ) {
+    // process external handlers in direct order
+    for( int i = 0, n = coreApiHandlersList.size(); i < n; i++ ) {
       ISkCoreExternalHandler h = coreApiHandlersList.get( i );
       try {
-        h.processSkCoreShutdown( this );
+        h.processSkCoreInitialization( this );
       }
       catch( Exception ex ) {
         LoggerUtils.errorLogger().error( ex );
       }
     }
-
   }
 
   // ------------------------------------------------------------------------------------
@@ -188,6 +185,18 @@ public class SkCoreApi
       }
     }
     return aService;
+  }
+
+  private void callExternalBackendActivityChangeHandlers( boolean aBackendActive ) {
+    for( int i = 0, n = coreApiHandlersList.size(); i < n; i++ ) {
+      ISkCoreExternalHandler h = coreApiHandlersList.get( i );
+      try {
+        h.processSkBackendActiveStateChange( this, aBackendActive );
+      }
+      catch( Exception ex ) {
+        LoggerUtils.errorLogger().error( ex );
+      }
+    }
   }
 
   // ------------------------------------------------------------------------------------
@@ -313,9 +322,6 @@ public class SkCoreApi
 
   @Override
   public void onBackendMessage( GtMessage aMessage ) {
-
-    // TODO process handlers
-
     // 2024-04-07 mvk gateway local connection open error
     // executor.syncExec( () -> {
     executor.asyncExec( () -> {
@@ -334,6 +340,8 @@ public class SkCoreApi
             logger().error( ex );
           }
         }
+        // process external handlers
+        callExternalBackendActivityChangeHandlers( isActive );
         return;
       }
       AbstractSkService s2 = servicesMap.findByKey( aMessage.topicId() );
@@ -345,7 +353,6 @@ public class SkCoreApi
             aMessage.args() == IOptionSet.NULL ? "IOptionSet.NULL" : aMessage.args() ); //$NON-NLS-1$
       }
     } );
-
   }
 
   // ------------------------------------------------------------------------------------
