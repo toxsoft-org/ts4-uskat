@@ -5,6 +5,7 @@ import static org.toxsoft.uskat.core.ISkHardConstants.*;
 import static org.toxsoft.uskat.core.api.ugwis.kinds.ISkResources.*;
 
 import org.toxsoft.core.tslib.av.*;
+import org.toxsoft.core.tslib.av.metainfo.*;
 import org.toxsoft.core.tslib.av.opset.impl.*;
 import org.toxsoft.core.tslib.bricks.strid.impl.*;
 import org.toxsoft.core.tslib.bricks.strid.more.*;
@@ -15,7 +16,10 @@ import org.toxsoft.core.tslib.gw.ugwi.*;
 import org.toxsoft.core.tslib.utils.errors.*;
 import org.toxsoft.uskat.core.*;
 import org.toxsoft.uskat.core.api.objserv.*;
+import org.toxsoft.uskat.core.api.sysdescr.*;
+import org.toxsoft.uskat.core.api.sysdescr.dto.*;
 import org.toxsoft.uskat.core.api.ugwis.*;
+import org.toxsoft.uskat.core.api.ugwis.helpers.*;
 
 /**
  * UGWI kind: Sk-object attribute value.
@@ -47,7 +51,7 @@ public class UgwiKindSkAttr
   /**
    * Number of branches in {@link IdChain}.
    */
-  private static final int NUM_BRANCHES = 4;
+  private static final int NUM_BRANCHES = 3;
 
   /**
    * {@link IUgwiKind} implementation.
@@ -59,15 +63,37 @@ public class UgwiKindSkAttr
 
     Kind( AbstractUgwiKindRegistrator<IAtomicValue> aRegistrator, ISkCoreApi aCoreApi ) {
       super( aRegistrator, aCoreApi );
+      // create and register IUgwiAvHelper instance
+      AbstractUgwiAvHelperWithAv<IAtomicValue, Kind> avHelper = new AbstractUgwiAvHelperWithAv<>( this ) {
+
+        @Override
+        protected IAtomicValue doFindAtomicValue( Ugwi aUgwi ) {
+          return doFindContent( aUgwi );
+        }
+
+        @Override
+        protected IDataType doGetValueType( Ugwi aUgwi ) {
+          String classId = getClassId( aUgwi );
+          ISkClassInfo cinf = coreApi().sysdescr().findClassInfo( classId );
+          if( cinf != null ) {
+            String attrId = getAttrId( aUgwi );
+            IDtoAttrInfo ainf = cinf.attrs().list().findByKey( attrId );
+            if( ainf != null ) {
+              return ainf.dataType();
+            }
+          }
+          return null;
+        }
+      };
+      registerHelper( IUgwiAvHelper.class, avHelper );
     }
 
     @Override
-    protected IAtomicValue doFindContent( Ugwi aUgwi ) {
-      IdChain chain = IdChain.of( aUgwi.essence() );
-      Skid skid = new Skid( chain.branches().get( IDX_CLASS_ID ), chain.branches().get( IDX_OBJ_STRID ) );
+    public IAtomicValue doFindContent( Ugwi aUgwi ) {
+      Skid skid = getSkid( aUgwi );
       ISkObject sko = coreApi().objService().find( skid );
       if( sko != null ) {
-        return sko.attrs().getValue( chain.branches().get( IDX_ATTR_ID ), IAtomicValue.NULL );
+        return sko.attrs().getValue( getAttrId( aUgwi ), IAtomicValue.NULL );
       }
       return IAtomicValue.NULL;
     }

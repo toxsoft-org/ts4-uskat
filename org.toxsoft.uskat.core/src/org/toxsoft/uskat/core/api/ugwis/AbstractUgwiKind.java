@@ -7,6 +7,7 @@ import org.toxsoft.core.tslib.coll.impl.*;
 import org.toxsoft.core.tslib.gw.ugwi.*;
 import org.toxsoft.core.tslib.utils.errors.*;
 import org.toxsoft.uskat.core.*;
+import org.toxsoft.uskat.core.api.ugwis.helpers.*;
 import org.toxsoft.uskat.core.impl.*;
 
 /**
@@ -17,6 +18,8 @@ import org.toxsoft.uskat.core.impl.*;
  */
 public non-sealed abstract class AbstractUgwiKind<T>
     implements IUgwiKind {
+
+  // FIXME make kind ICloseable ?
 
   private final IMapEdit<Class<?>, Object> helpersMap = new ElemMap<>();
 
@@ -35,6 +38,7 @@ public non-sealed abstract class AbstractUgwiKind<T>
     TsNullArgumentRtException.checkNulls( aRegistrator, aCoreApi );
     kindRegistrator = aRegistrator;
     coreApi = aCoreApi;
+    helpersMap.put( IUgwiAvHelper.class, new UgwiAvHelperNone<>( this ) );
   }
 
   // ------------------------------------------------------------------------------------

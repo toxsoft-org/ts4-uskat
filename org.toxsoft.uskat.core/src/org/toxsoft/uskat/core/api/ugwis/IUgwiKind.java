@@ -7,6 +7,7 @@ import org.toxsoft.core.tslib.bricks.validator.*;
 import org.toxsoft.core.tslib.gw.gwid.*;
 import org.toxsoft.core.tslib.gw.ugwi.*;
 import org.toxsoft.core.tslib.utils.errors.*;
+import org.toxsoft.uskat.core.api.ugwis.helpers.*;
 
 /**
  * The UGWI kind description.
@@ -47,7 +48,7 @@ public sealed interface IUgwiKind
   ValidationResult validateUgwi( String aNamespace, String aEssence );
 
   /**
-   * Finds the content addresses by the UGWI.
+   * Finds the content addressed by the UGWI.
    *
    * @param aUgwi {@link Ugwi} - the UGWI
    * @return {@link Object} - the content or <code>null</code> if not found
@@ -85,6 +86,17 @@ public sealed interface IUgwiKind
   // inline methods for convenience
   // Note: inline methods may be re-implemented for the optimization reasons
   //
+
+  /**
+   * Returns {@link IUgwiAvHelper} for this kind.
+   * <p>
+   * This method always returns non-<code>null</code> helper.
+   *
+   * @return {@link IUgwiAvHelper} - the atomic value helper for this kind, never is null
+   */
+  default IUgwiAvHelper getAvHelper() {
+    return getHelper( IUgwiAvHelper.class );
+  }
 
   /**
    * Validates if UGWI components are valid for this kind assuming the empty namespace.
