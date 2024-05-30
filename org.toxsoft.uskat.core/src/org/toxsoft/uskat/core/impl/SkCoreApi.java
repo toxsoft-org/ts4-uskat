@@ -385,6 +385,11 @@ public class SkCoreApi
   }
 
   @Override
+  public ISkConnection skConn() {
+    return conn;
+  }
+
+  @Override
   public ITsThreadExecutor executor() {
     return executor;
   }
