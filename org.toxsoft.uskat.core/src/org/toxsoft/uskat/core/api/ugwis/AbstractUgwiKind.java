@@ -145,7 +145,6 @@ public non-sealed abstract class AbstractUgwiKind<T>
   @Override
   final public <H> void registerHelper( Class<H> aHelperClass, H aHelper ) {
     TsNullArgumentRtException.checkNulls( aHelperClass, aHelper );
-    TsItemAlreadyExistsRtException.checkTrue( helpersMap.hasKey( aHelperClass ) );
     helpersMap.put( aHelperClass, aHelperClass.cast( aHelper ) );
   }
 

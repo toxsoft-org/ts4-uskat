@@ -72,13 +72,13 @@ public sealed interface IUgwiKind
 
   /**
    * Registers UGWI kind helper.
+   * <p>
+   * Existing registered helper will be overwritten.
    *
    * @param <H> - type of the helper
    * @param aHelperClass {@link Class}&lt;T&gt; - key class used for helper registration
    * @param aHelper &lt;H&gt; - the helper instance
    * @throws TsNullArgumentRtException any argument = <code>null</code>
-   * @throws TsItemAlreadyExistsRtException helper with specified key is already registered
-   * @throws ClassCastException found helper is not of specified type
    */
   <H> void registerHelper( Class<H> aHelperClass, H aHelper );
 
