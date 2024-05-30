@@ -15,7 +15,7 @@ import org.toxsoft.uskat.core.api.objserv.*;
 import org.toxsoft.uskat.core.api.sysdescr.dto.*;
 
 /**
- * Helper methods to woth with USkat core.
+ * Helper methods for the USkat core.
  * <p>
  * Methods of this class perform common tasks for applications using {@link ISkCoreApi}.
  *

@@ -3,6 +3,7 @@ package org.toxsoft.uskat.core.api;
 import org.toxsoft.core.tslib.bricks.ctx.*;
 import org.toxsoft.uskat.core.*;
 import org.toxsoft.uskat.core.connection.*;
+import org.toxsoft.uskat.core.devapi.*;
 
 /**
  * Allows client code to perform actions during {@link ISkCoreApi} lifecycle.
@@ -16,14 +17,14 @@ public interface ISkCoreExternalHandler {
    * <p>
    * Method is called from {@link ISkConnection#open(ITsContextRo)} before method returns.
    *
-   * @param aCoreApi {@link ISkCoreApi} - the processed Core API
+   * @param aCoreApi {@link IDevCoreApi} - the processed Core API
    */
-  void processSkCoreInitialization( ISkCoreApi aCoreApi );
+  void processSkCoreInitialization( IDevCoreApi aCoreApi );
 
   /**
    * Implementation may optionally process when remote Sk-backend activity state changes.
    * <p>
-   * One called immediately after {@link #processSkCoreInitialization(ISkCoreApi)} from
+   * One called immediately after {@link #processSkCoreInitialization(IDevCoreApi)} from
    * {@link ISkConnection#open(ITsContextRo)} before method returns. Also called every time when backend activity state
    * actually changes.
    * <p>
