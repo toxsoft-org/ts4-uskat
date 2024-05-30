@@ -43,14 +43,14 @@ public interface ISkMessageInfo {
   IStringMap<Ugwi> usedUgwies();
 
   /**
-   * Formats the message string using {@link SkMessageUtils#format(ISkMessageInfo, ISkCoreApi)} method.
+   * Formats the message string using {@link SkMessageUtils#format(String, IStringMap, ISkCoreApi)} method.
    *
    * @param aCoreApi {@link ISkCoreApi} - USkat API used for the UGWI resolution
    * @return String - formatted message
    * @throws TsNullArgumentRtException any argument = <code>null</code>
    */
   default String makeMessage( ISkCoreApi aCoreApi ) {
-    return SkMessageUtils.format( this, aCoreApi );
+    return SkMessageUtils.format( fmtStr(), usedUgwies(), aCoreApi );
   }
 
 }
