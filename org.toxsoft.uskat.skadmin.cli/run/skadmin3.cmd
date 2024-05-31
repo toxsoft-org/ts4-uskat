@@ -13,12 +13,13 @@ set ADMIN_CLASSPATH=^
 :: ../dist/*
 
 set ADMIN_PLUGINPATH=^
-../../../ts4-targets/ts4-target-uskat/main/plugins
+../../../ts4-targets/ts4-target-uskat/main/plugins:^
+../../../ts4-targets/ts4-target-sitrol/rcp/plugins
 
 set ADMIN_USER=root
 set ADMIN_PASSWORD=1
 set ADMIN_HOST="localhost"
-set ADMIN_PORT=8180
+set ADMIN_PORT=8080
 set ADMIN_CONNECT_TIMEOUT=300000
 set ADMIN_FAILURE_TIMEOUT=500000
 set ADMIN_CURRDATA_TIMEOUT=-1
@@ -32,7 +33,7 @@ set _XMS_MEMORY=-Xms1024m
 set _XMX_MEMORY=-Xmx1024m
 set _CHARSET=-Dfile.encoding=CP866
 set _LOGGER=-Dlog4j.configuration=file:log4j.xml
-set _REMOTE_DEBUG=-Xdebug -Xnoagent -Xrunjdwp:transport=dt_socket,server=y,suspend=n,address=8002 
+set _REMOTE_DEBUG=-Xdebug -Xnoagent -Xrunjdwp:transport=dt_socket,server=y,suspend=n,address=8003 
 set _PROFILER_AGENT=
 
 %JAVA_HOME%\bin\java %_PLUGIN_PATHS% %_PROFILER_AGENT% %_REMOTE_DEBUG% %_CHARSET% %_LOGGER% %_XMS_MEMORY% %_XMX_MEMORY% %_CLASS_PATH% %_MAIN_CLASS% connect -user %ADMIN_USER% -password %ADMIN_PASSWORD% -host %ADMIN_HOST% -port %ADMIN_PORT% -connectTimeout %ADMIN_CONNECT_TIMEOUT% -failureTimeout %ADMIN_FAILURE_TIMEOUT% 

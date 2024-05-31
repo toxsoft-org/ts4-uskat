@@ -1,18 +1,21 @@
 @echo off
 
 :: set JAVA_HOME=C:\Program Files\Java\jdk-11.0.10
-set JAVA_HOME="C:\Program Files\Java\jdk-17.0.2"
+:: set JAVA_HOME="C:\Program Files\Java\jdk-17.0.2"
+set JAVA_HOME="C:\Program Files\Java\jdk-17.0.11_7.1_graalvm"
 
 :: Настройка окружения запуска
 set ADMIN_CLASSPATH=^
 ../../../ts4-targets/ts4-target-extlibs/lib/*;^
 ../../../ts4-targets/ts4-target-core/lib/*;^
 ../../../ts4-targets/ts4-target-uskat/lib/*;^
+../../../ts4-targets/ts4-target-skf-bridge/lib/*;^
 ../../../ts4-targets/ts4-target-sitrol/lib/*
 :: ../dist/*
 
 set ADMIN_PLUGINPATH=^
 ../../../ts4-targets/ts4-target-uskat/main/plugins:^
+../../../ts4-targets/ts4-target-skf-bridge/main/plugins:^
 ../../../ts4-targets/ts4-target-sitrol/rcp/plugins
 
 set ADMIN_USER=root
@@ -35,4 +38,4 @@ set _LOGGER=-Dlog4j.configuration=file:log4j.xml
 set _REMOTE_DEBUG=-Xdebug -Xnoagent -Xrunjdwp:transport=dt_socket,server=y,suspend=n,address=8000 
 set _PROFILER_AGENT=
 
-%JAVA_HOME%\bin\java %_PLUGIN_PATHS% %_PROFILER_AGENT% %_REMOTE_DEBUG% %_CHARSET% %_LOGGER% %_XMS_MEMORY% %_XMX_MEMORY% %_CLASS_PATH% %_MAIN_CLASS% connect -user %ADMIN_USER% -password %ADMIN_PASSWORD% -host %ADMIN_HOST% -port %ADMIN_PORT% -connectTimeout %ADMIN_CONNECT_TIMEOUT% -failureTimeout %ADMIN_FAILURE_TIMEOUT% 
+%JAVA_HOME%\bin\java --add-opens java.base/java.lang=ALL-UNNAMED %_PLUGIN_PATHS% %_PROFILER_AGENT% %_REMOTE_DEBUG% %_CHARSET% %_LOGGER% %_XMS_MEMORY% %_XMX_MEMORY% %_CLASS_PATH% %_MAIN_CLASS% connect -user %ADMIN_USER% -password %ADMIN_PASSWORD% -host %ADMIN_HOST% -port %ADMIN_PORT% -connectTimeout %ADMIN_CONNECT_TIMEOUT% -failureTimeout %ADMIN_FAILURE_TIMEOUT% 

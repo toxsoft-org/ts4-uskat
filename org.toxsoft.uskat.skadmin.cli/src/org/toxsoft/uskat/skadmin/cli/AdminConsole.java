@@ -2,6 +2,8 @@ package org.toxsoft.uskat.skadmin.cli;
 
 import static java.lang.String.*;
 import static org.toxsoft.core.tslib.av.impl.AvUtils.*;
+import static org.toxsoft.core.tslib.bricks.wub.IWubConstants.*;
+import static org.toxsoft.core.tslib.utils.plugins.IPluginsHardConstants.*;
 import static org.toxsoft.uskat.legacy.plexy.impl.PlexyValueUtils.*;
 import static org.toxsoft.uskat.skadmin.cli.AdminColors.*;
 import static org.toxsoft.uskat.skadmin.cli.AdminConsoleUtils.*;
@@ -12,42 +14,62 @@ import static org.toxsoft.uskat.skadmin.core.impl.AdminCmdLibraryUtils.*;
 import static scala.tools.jline.console.ConsoleReader.*;
 
 import java.io.*;
-import java.net.*;
-import java.text.*;
-import java.util.*;
-import java.util.jar.*;
+import java.net.URL;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Enumeration;
+import java.util.jar.Manifest;
 
-import org.fusesource.jansi.*;
-import org.toxsoft.core.log4j.*;
-import org.toxsoft.core.tslib.av.*;
-import org.toxsoft.core.tslib.av.impl.*;
-import org.toxsoft.core.tslib.av.metainfo.*;
-import org.toxsoft.core.tslib.av.opset.*;
-import org.toxsoft.core.tslib.av.opset.impl.*;
-import org.toxsoft.core.tslib.bricks.strid.*;
-import org.toxsoft.core.tslib.bricks.strid.impl.*;
-import org.toxsoft.core.tslib.bricks.strio.*;
-import org.toxsoft.core.tslib.bricks.threadexec.*;
-import org.toxsoft.core.tslib.bricks.validator.*;
-import org.toxsoft.core.tslib.coll.*;
-import org.toxsoft.core.tslib.coll.impl.*;
-import org.toxsoft.core.tslib.coll.primtypes.*;
-import org.toxsoft.core.tslib.coll.primtypes.impl.*;
-import org.toxsoft.core.tslib.utils.*;
+import org.fusesource.jansi.AnsiConsole;
+import org.toxsoft.core.log4j.LoggerWrapper;
+import org.toxsoft.core.tslib.av.EAtomicType;
+import org.toxsoft.core.tslib.av.IAtomicValue;
+import org.toxsoft.core.tslib.av.impl.AtomicValueKeeper;
+import org.toxsoft.core.tslib.av.impl.DataType;
+import org.toxsoft.core.tslib.av.metainfo.IAvMetaConstants;
+import org.toxsoft.core.tslib.av.metainfo.IDataType;
+import org.toxsoft.core.tslib.av.opset.IOptionSet;
+import org.toxsoft.core.tslib.av.opset.IOptionSetEdit;
+import org.toxsoft.core.tslib.av.opset.impl.OptionSet;
+import org.toxsoft.core.tslib.av.opset.impl.OptionSetKeeper;
+import org.toxsoft.core.tslib.bricks.ctx.impl.TsContext;
+import org.toxsoft.core.tslib.bricks.strid.IStridable;
+import org.toxsoft.core.tslib.bricks.strid.impl.StridUtils;
+import org.toxsoft.core.tslib.bricks.strio.IStrioHardConstants;
+import org.toxsoft.core.tslib.bricks.threadexec.TsThreadExecutor;
+import org.toxsoft.core.tslib.bricks.validator.ValidationResult;
+import org.toxsoft.core.tslib.bricks.wub.IWubBox;
+import org.toxsoft.core.tslib.bricks.wub.WubBox;
+import org.toxsoft.core.tslib.coll.IList;
+import org.toxsoft.core.tslib.coll.IListEdit;
+import org.toxsoft.core.tslib.coll.impl.ElemArrayList;
+import org.toxsoft.core.tslib.coll.primtypes.IStringList;
+import org.toxsoft.core.tslib.coll.primtypes.IStringMapEdit;
+import org.toxsoft.core.tslib.coll.primtypes.impl.StringArrayList;
+import org.toxsoft.core.tslib.coll.primtypes.impl.StringMap;
+import org.toxsoft.core.tslib.utils.TsLibUtils;
+import org.toxsoft.core.tslib.utils.TsVersion;
 import org.toxsoft.core.tslib.utils.errors.*;
-import org.toxsoft.core.tslib.utils.logs.*;
+import org.toxsoft.core.tslib.utils.logs.ILogger;
+import org.toxsoft.core.tslib.utils.plugins.impl.PluginBox;
+import org.toxsoft.core.tslib.utils.plugins.impl.PluginUnit;
 import org.toxsoft.uskat.core.connection.*;
 import org.toxsoft.uskat.legacy.plexy.*;
-import org.toxsoft.uskat.s5.common.*;
-import org.toxsoft.uskat.s5.common.sessions.*;
-import org.toxsoft.uskat.s5.server.*;
+import org.toxsoft.uskat.s5.common.S5Host;
+import org.toxsoft.uskat.s5.common.sessions.IS5SessionInfo;
+import org.toxsoft.uskat.s5.server.IS5ServerHardConstants;
 import org.toxsoft.uskat.skadmin.cli.cmds.*;
-import org.toxsoft.uskat.skadmin.cli.completion.*;
+import org.toxsoft.uskat.skadmin.cli.completion.AdminCmdCompleter;
+import org.toxsoft.uskat.skadmin.cli.completion.AdminCmdCompletionHandler;
 import org.toxsoft.uskat.skadmin.cli.parsers.*;
 import org.toxsoft.uskat.skadmin.core.*;
-import org.toxsoft.uskat.skadmin.core.impl.*;
+import org.toxsoft.uskat.skadmin.core.impl.AbstractAdminCmdLibrary;
+import org.toxsoft.uskat.skadmin.core.impl.AdminCmdResult;
+import org.toxsoft.uskat.skadmin.core.plugins.IAdminCmdLibraryPlugin;
 
-import scala.tools.jline.console.history.*;
+import scala.tools.jline.console.history.FileHistory;
+import scala.tools.jline.console.history.PersistentHistory;
 
 /**
  * Консоль
@@ -83,6 +105,7 @@ class AdminConsole
   private static final long READ_CONSOLE_TIMEOUT = 100;
 
   private final TsThreadExecutor     threadExecutor;
+  private final IWubBox              rootBox;
   private final IAdminCmdLibrary     library;
   private final AdminConsoleTeminal  terminal;
   private final AdminCmdSyntaxParser syntaxParser;
@@ -119,11 +142,30 @@ class AdminConsole
     for( String pluginPath : pluginPaths ) {
       logger.debug( "   " + pluginPath ); //$NON-NLS-1$
     }
+
+    // Создание, инициализация, загрузка контейнера плагинов
+    IOptionSetEdit params = new OptionSet();
+    OPDEF_UNIT_STOPPING_TIMEOUT_MSECS.setValue( params, avInt( 10000 ) );
+    // Контекст для инициализации контейнера скатлетов
+    TsContext environ = new TsContext();
+    PLUGIN_TYPE_ID.setValue( environ.params(), avStr( IAdminCmdLibraryPlugin.CMD_LIBRARY_PLUGIN_TYPE ) );
+    PLUGINS_DIR.setValue( environ.params(), avValobj( pluginPaths ) );
+    TMP_DIR.setValue( environ.params(), avStr( "temp" ) ); //$NON-NLS-1$
+    CLEAN_TMP_DIR.setValue( environ.params(), avBool( true ) );
+    // Создание контейнера плагинов
+    PluginBox<PluginUnit> pluginBox = new PluginBox<>( "pluginBox", params ); //$NON-NLS-1$
+    // Создание корневого контейнера...
+    rootBox = new WubBox( "rootBox", params ); //$NON-NLS-1$
+    // Добавление в корневой контейнер контейнера плагинов
+    rootBox.addUnit( pluginBox );
+    // ...инициализация...
+    rootBox.init( environ );
+    // ...запуск
+    rootBox.start();
+
     // Инициализация библиотеки команд
     IListEdit<IAdminCmdLibrary> libraries = new ElemArrayList<>();
-    for( String pluginPath : pluginPaths ) {
-      libraries.addAll( loadPluginLibraries( pluginPath, false ) );
-    }
+    libraries.addAll( loadPluginLibraries( pluginBox.listPlugins() ) );
     libraries.add( this );
     library = createAdminLibrary( libraries );
     @SuppressWarnings( "unused" )
@@ -190,6 +232,7 @@ class AdminConsole
    */
   public void run() {
     while( !shutdown ) {
+      rootBox.doJob();
       if( executing ) {
         // В данный момент выполняется команда
         try {

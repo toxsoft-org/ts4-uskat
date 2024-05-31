@@ -3,7 +3,6 @@ package org.toxsoft.uskat.skadmin.core.impl;
 import static org.toxsoft.core.log4j.LoggerWrapper.*;
 import static org.toxsoft.core.tslib.bricks.strio.IStrioHardConstants.*;
 import static org.toxsoft.uskat.skadmin.core.impl.IAdminResources.*;
-import static org.toxsoft.uskat.skadmin.core.plugins.IAdminCmdLibraryPlugin.*;
 
 import java.io.File;
 
@@ -17,8 +16,7 @@ import org.toxsoft.core.tslib.coll.primtypes.IStringList;
 import org.toxsoft.core.tslib.utils.errors.*;
 import org.toxsoft.core.tslib.utils.logs.ILogger;
 import org.toxsoft.core.tslib.utils.plugins.IPluginInfo;
-import org.toxsoft.core.tslib.utils.plugins.IPluginsStorage;
-import org.toxsoft.core.tslib.utils.plugins.impl.PluginUtils;
+import org.toxsoft.core.tslib.utils.plugins.impl.IPlugin;
 import org.toxsoft.uskat.legacy.plexy.EPlexyKind;
 import org.toxsoft.uskat.legacy.plexy.IPlexyValue;
 import org.toxsoft.uskat.skadmin.core.*;
@@ -50,31 +48,24 @@ public class AdminCmdLibraryUtils {
   }
 
   /**
-   * Загружает из плагинов библиотеки команд для s5admin
+   * Загружает из списка плагинов библиотеки команд для s5admin
    *
-   * @param aPluginDir String каталог размещения плагинов.
-   * @param aCheckExist boolean <b>true</b> проверять существование каталога. <b>false</b> не проверять существование
-   *          каталога.
+   * @param aPlugins список плагинов.
    * @return {@link IList}&lt;{@link IAdminCmdLibrary}&gt; список загруженных библиотек
    * @throws TsNullArgumentRtException аргумент = null
    * @throws TsIllegalArgumentRtException не найден java-класс реализации плагина библиотеки
    */
-  public static IList<IAdminCmdLibrary> loadPluginLibraries( String aPluginDir, boolean aCheckExist ) {
-    TsNullArgumentRtException.checkNull( aPluginDir );
+  public static IList<IAdminCmdLibrary> loadPluginLibraries( IList<IPlugin> aPlugins ) {
+    TsNullArgumentRtException.checkNull( aPlugins );
     IListEdit<IAdminCmdLibrary> libraries = new ElemLinkedBundleList<>();
-    File pluginDir = new File( aPluginDir );
-    if( !aCheckExist && !pluginDir.exists() ) {
-      // Задан режим не выдавать ошибки при отсутствии каталога
-      return libraries;
-    }
-    IPluginsStorage storage = PluginUtils.createPluginStorage( CMD_LIBRARY_PLUGIN_TYPE, pluginDir );
-    for( IPluginInfo pluginInfo : storage.listPlugins() ) {
+    for( IPlugin plugin : aPlugins ) {
+      IPluginInfo pluginInfo = plugin.info();
       try {
         // Загрузка плагина
-        IAdminCmdLibraryPlugin plugin = (IAdminCmdLibraryPlugin)storage.createPluginInstance( pluginInfo.pluginId() );
-        plugin.initPlugin( pluginInfo );
-        libraries.add( plugin );
-        logger.debug( MSG_LIBRARY_LOAD, plugin.getName() );
+        IAdminCmdLibraryPlugin instance = plugin.instance( IAdminCmdLibraryPlugin.class );
+        instance.initPlugin( pluginInfo );
+        libraries.add( instance );
+        logger.debug( MSG_LIBRARY_LOAD, instance.getName() );
       }
       catch( Throwable e ) {
         throw new TsIllegalArgumentRtException( e, ERR_LIBRARY_LOAD, pluginInfo.pluginId(), pluginInfo.pluginType() );

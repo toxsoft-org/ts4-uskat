@@ -52,7 +52,7 @@ public class SkatletUnit
 
   @Override
   protected boolean doQueryStop() {
-    return skatlet.queryStop();
+    return skatlet.queryStop() && super.doQueryStop();
   }
 
   @Override

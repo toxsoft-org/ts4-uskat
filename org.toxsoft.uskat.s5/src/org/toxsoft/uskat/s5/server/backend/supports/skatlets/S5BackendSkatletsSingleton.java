@@ -3,6 +3,7 @@ package org.toxsoft.uskat.s5.server.backend.supports.skatlets;
 import static org.toxsoft.core.tslib.av.impl.AvUtils.*;
 import static org.toxsoft.core.tslib.bricks.wub.IWubConstants.*;
 import static org.toxsoft.core.tslib.utils.plugins.IPluginsHardConstants.*;
+import static org.toxsoft.core.tslib.utils.plugins.impl.PluginUtils.*;
 import static org.toxsoft.uskat.core.devapi.ISkatlet.*;
 import static org.toxsoft.uskat.s5.server.IS5ImplementConstants.*;
 import static org.toxsoft.uskat.s5.server.backend.supports.skatlets.IS5Resources.*;
@@ -18,6 +19,7 @@ import org.toxsoft.core.tslib.bricks.ctx.impl.TsContext;
 import org.toxsoft.core.tslib.bricks.wub.WubBox;
 import org.toxsoft.core.tslib.coll.primtypes.impl.StringArrayList;
 import org.toxsoft.core.tslib.utils.logs.impl.LoggerUtils;
+import org.toxsoft.core.tslib.utils.plugins.impl.PluginBox;
 import org.toxsoft.uskat.core.connection.ISkConnection;
 import org.toxsoft.uskat.core.impl.SkatletBox;
 import org.toxsoft.uskat.s5.client.local.IS5LocalConnectionSingleton;
@@ -62,14 +64,29 @@ public class S5BackendSkatletsSingleton
   public static final String SKATLET_BOX_ID = "SkatletBox"; //$NON-NLS-1$
 
   /**
+   * Тип обрабатываемх плагинов
+   */
+  private static final String PLUGIN_TYPE = "Skatlet"; //$NON-NLS-1$
+
+  /**
+   * Рабочий каталог скатлетов
+   */
+  private static final String SKATLETS_DIR = ".." + File.separator + "skatlets"; //$NON-NLS-1$ //$NON-NLS-2$
+
+  /**
+   * Подкаталог {@link #SKATLETS_DIR} размещения плагинов скатлетов (*-skatlet.jar)
+   */
+  private static final String SKATLETS_DEPLOYMENTS_DIR = SKATLETS_DIR + File.separator + "deployments"; //$NON-NLS-1$
+
+  /**
+   * Подкаталог {@link #SKATLETS_DIR} размещения временных файлов для работы {@link PluginBox}.
+   */
+  private static final String SKATLETS_TEMP_DIR = SKATLETS_DIR + File.separator + "temp"; //$NON-NLS-1$
+
+  /**
    * Интервал выполнения doJob (мсек)
    */
   private static final long DOJOB_INTERVAL = 1000;
-
-  /**
-   * Время ожидания завершения работы контейнера (мсек)
-   */
-  private static final String SKATLETS_PATH = "../skatlets"; //$NON-NLS-1$
 
   /**
    * Время ожидания завершения работы контейнера (мсек)
@@ -105,14 +122,10 @@ public class S5BackendSkatletsSingleton
     // Создание соединения для контейнера скатлетов
     ISkConnection connection = localConnectionSingleton.open( id() );
 
-    // Каталог размещения скатлетов
-    File file = new File( SKATLETS_PATH );
-    if( !file.isDirectory() ) {
-      // Каталог не существует. Создание
-      file.mkdir();
-      // Запись в журнал
-      logger().warning( ERR_CREATE_SKATLET_DIR, SKATLETS_PATH );
-    }
+    // Проверка/настройка файловой системы
+    createIfDirNotExist( SKATLETS_DIR );
+    createIfDirNotExist( SKATLETS_DEPLOYMENTS_DIR );
+    createIfDirNotExist( SKATLETS_TEMP_DIR );
 
     // Параметры создания корневого контейнера и контейнера скатлетов
     IOptionSetEdit params = new OptionSet();
@@ -120,8 +133,11 @@ public class S5BackendSkatletsSingleton
 
     // Контекст для инициализации контейнера скатлетов
     TsContext environ = new TsContext();
+    PLUGIN_TYPE_ID.setValue( environ.params(), avStr( PLUGIN_TYPE ) );
+    PLUGINS_DIR.setValue( environ.params(), avValobj( new StringArrayList( SKATLETS_DEPLOYMENTS_DIR ) ) );
+    TMP_DIR.setValue( environ.params(), avStr( SKATLETS_TEMP_DIR ) );
+    CLEAN_TMP_DIR.setValue( environ.params(), avBool( true ) );
     REF_SK_CONNECTION.setRef( environ, connection );
-    PLUGIN_JAR_PATHS.setValue( environ.params(), avValobj( new StringArrayList( SKATLETS_PATH ) ) );
 
     // Создание корневого контейнера...
     rootBox = new WubBox( ROOT_BOX_ID, params );
@@ -157,13 +173,15 @@ public class S5BackendSkatletsSingleton
   //
 
   // ------------------------------------------------------------------------------------
-  // Реализация IS5ServerJob
+  // IS5ServerJob
   //
   @Override
   public void doJob() {
     // Обработка корневого контейнера
-    synchronized (rootBox) {
-      rootBox.doJob();
+    if( !rootBox.isStopped() ) {
+      synchronized (rootBox) {
+        rootBox.doJob();
+      }
     }
     // Вывод журнала
     logger().debug( MSG_DOJOB );
