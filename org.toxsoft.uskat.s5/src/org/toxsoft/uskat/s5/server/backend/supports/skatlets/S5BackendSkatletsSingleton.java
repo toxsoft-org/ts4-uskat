@@ -138,6 +138,7 @@ public class S5BackendSkatletsSingleton
     TMP_DIR.setValue( environ.params(), avStr( SKATLETS_TEMP_DIR ) );
     CLEAN_TMP_DIR.setValue( environ.params(), avBool( true ) );
     REF_SK_CONNECTION.setRef( environ, connection );
+    REF_LOGGER.setRef( environ, logger() );
 
     // Создание корневого контейнера...
     rootBox = new WubBox( ROOT_BOX_ID, params );

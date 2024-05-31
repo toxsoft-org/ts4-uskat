@@ -4,8 +4,7 @@ import org.toxsoft.core.tslib.av.opset.IOptionSet;
 import org.toxsoft.core.tslib.bricks.ctx.ITsContextRo;
 import org.toxsoft.core.tslib.bricks.strid.impl.StridableParameterized;
 import org.toxsoft.core.tslib.bricks.validator.ValidationResult;
-import org.toxsoft.core.tslib.utils.errors.TsIllegalArgumentRtException;
-import org.toxsoft.core.tslib.utils.errors.TsNullArgumentRtException;
+import org.toxsoft.core.tslib.utils.errors.*;
 import org.toxsoft.core.tslib.utils.logs.ILogger;
 import org.toxsoft.uskat.core.connection.ISkConnection;
 import org.toxsoft.uskat.core.devapi.ISkatlet;
@@ -19,8 +18,7 @@ public abstract class AbstractSkatlet
     extends StridableParameterized
     implements ISkatlet {
 
-  private ISkConnection connection;
-  private ILogger       logger;
+  private ITsContextRo environ;
 
   /**
    * Constructor.
@@ -41,9 +39,11 @@ public abstract class AbstractSkatlet
    * Возвращает соединение с которым работает скатлет
    *
    * @return {@link ISkConnection} соединение
+   * @throws TsIllegalStateRtException скатлет не инициализирован
    */
   protected final ISkConnection connection() {
-    return connection;
+    TsIllegalStateRtException.checkNull( environ );
+    return ISkatlet.REF_SK_CONNECTION.getRef( environ );
   }
 
   /**
@@ -52,7 +52,8 @@ public abstract class AbstractSkatlet
    * @return {@link ILogger} журнал
    */
   protected final ILogger logger() {
-    return logger;
+    TsIllegalStateRtException.checkNull( environ );
+    return ISkatlet.REF_LOGGER.getRef( environ );
   }
 
   // ------------------------------------------------------------------------------------
@@ -60,8 +61,7 @@ public abstract class AbstractSkatlet
   //
   @Override
   public final ValidationResult init( ITsContextRo aEnviron ) {
-    connection = ISkatlet.REF_SK_CONNECTION.getRef( aEnviron );
-    logger = ISkatlet.REF_LOGGER.getRef( aEnviron );
+    environ = aEnviron;
     return doInit( aEnviron );
   }
 

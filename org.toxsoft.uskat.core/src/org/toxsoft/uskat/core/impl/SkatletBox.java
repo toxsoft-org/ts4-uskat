@@ -39,8 +39,9 @@ public class SkatletBox
 
   @Override
   protected synchronized ValidationResult doInit( ITsContextRo aEnviron ) {
-    // Клиент обязан разместить в контексте соединение
+    // Клиент обязан разместить в контексте следующие параметры
     TsIllegalArgumentRtException.checkNull( ISkatlet.REF_SK_CONNECTION.getRef( aEnviron ) );
+    TsIllegalArgumentRtException.checkNull( ISkatlet.REF_LOGGER.getRef( aEnviron ) );
     return super.doInit( aEnviron );
   }
 

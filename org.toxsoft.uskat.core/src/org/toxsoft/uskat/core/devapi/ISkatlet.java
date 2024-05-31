@@ -12,7 +12,6 @@ import org.toxsoft.core.tslib.bricks.ctx.ITsContextRo;
 import org.toxsoft.core.tslib.bricks.strid.IStridableParameterized;
 import org.toxsoft.core.tslib.bricks.validator.ValidationResult;
 import org.toxsoft.core.tslib.utils.logs.ILogger;
-import org.toxsoft.core.tslib.utils.logs.impl.LoggerUtils;
 import org.toxsoft.uskat.core.connection.ISkConnection;
 import org.toxsoft.uskat.core.impl.SkatletBox;
 import org.toxsoft.uskat.core.impl.SkatletUnit;
@@ -48,8 +47,7 @@ public interface ISkatlet
       TSID_NAME, STR_N_SKATLET_LOGGER, //
       TSID_DESCRIPTION, STR_D_SKATLET_LOGGER, //
       TSID_IS_NULL_ALLOWED, AV_FALSE, //
-      TSID_IS_MANDATORY, AV_FALSE, //
-      TSID_DEFAULT_VALUE, avValobj( LoggerUtils.defaultLogger() ) //
+      TSID_IS_MANDATORY, AV_TRUE //
   );
 
   /**
