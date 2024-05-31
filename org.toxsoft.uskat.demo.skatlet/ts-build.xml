@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!-- ru.toxsoft.l2.dlm.tags.common -->
+
+<!-- создает плагин для Eclipse -->
+<project name="l2.dlm.tags_plugin" default="build">
+  <!-- это имя проекта -->
+  <property name="plugin.name" value="ru.toxsoft.l2.dlm.tags.common" />
+
+	<!-- это версия проекта -->
+	<property name="plugin.version" value="2,1" />
+
+	<!-- имя jar-файла собираемого для создания плагина (идентификатор и версия плагина) -->
+	<property name="jarfile.name" value="${plugin.name}-dlm.jar" />
+
+	<!-- это имя - идентификатор plugin-а -->
+	<property name="plugin.id" value="${plugin.name}" />
+
+	<!-- это имя проекта plugin-а -->
+	<property name="project.name" value="${plugin.name}" />
+
+	<!-- каталог откомпилированных класс-файлов -->
+	<property name="bin.dir" value="bin" />
+
+	<!-- каталог исходных текстов -->
+	<property name="src.dir" value="src" />
+
+	<tstamp>
+		<format property="TODAY" pattern="yyyy-MM-dd_HH:mm:ss" />
+	</tstamp>
+
+	<manifest file="dist/temp_META_INF_dir/MANIFEST.MF">
+		<attribute name="TsPluginContainerVersion" value="2" />
+		<section name="ru.toxsoft.l2.dlm.tags.common">
+			<attribute name="TsPluginVersion" value="{${plugin.version},${TODAY}}" />
+			<attribute name="TsPluginType" value="DLM" />
+			
+			<attribute name="TsPluginClassName" value="ru.toxsoft.l2.dlm.opc_bridge.DlmFactory" />
+			<attribute name="DlmName" value="Подгружаемый модуль НУ - мост opc" />
+			<attribute name="DeveloperPersons" value="Max" />
+			<attribute name="DeveloperCompany" value="ТоксСофт" />
+			<attribute name="Built-Date" value="${TODAY}" />
+		</section>
+	</manifest>
+
+	<target name="build_jar">
+		<jar destfile="dist/${jarfile.name}" manifest="dist/temp_META_INF_dir/MANIFEST.MF">
+			<metainf dir="dist/temp_META_INF_dir" />
+			<fileset dir="${bin.dir}">
+				<include name="ru/**/*.class" />
+			</fileset>
+			<fileset dir="${src.dir}">
+				<include name="ru/**/*.java" />
+			</fileset>
+		</jar>
+	</target>
+
+	<target name="build" description="Собирает всё" depends="build_jar">
+	</target>	 
+
+	<target name="clean" description="Удаляет собранные файлы">
+		<delete file="dist/${jarfile.name}" />
+		<delete>
+			<fileset dir="dist/temp_META_INF_dir" includes="*" />
+		</delete>
+	</target>
+
+</project>
