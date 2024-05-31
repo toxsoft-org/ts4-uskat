@@ -1,11 +1,11 @@
 package org.toxsoft.uskat.demo.skatlet;
 
-import org.toxsoft.core.log4j.LoggerWrapper;
-import org.toxsoft.core.tslib.av.opset.IOptionSet;
+import static org.toxsoft.core.tslib.av.metainfo.IAvMetaConstants.*;
+
+import org.toxsoft.core.tslib.av.opset.impl.OptionSetUtils;
 import org.toxsoft.core.tslib.bricks.ctx.ITsContextRo;
 import org.toxsoft.core.tslib.bricks.validator.ValidationResult;
-import org.toxsoft.core.tslib.utils.logs.ILogger;
-import org.toxsoft.uskat.core.devapi.ISkatlet;
+import org.toxsoft.uskat.core.impl.AbstractSkatlet;
 
 /**
  * Demo skatlet.
@@ -13,44 +13,40 @@ import org.toxsoft.uskat.core.devapi.ISkatlet;
  * @author mvk
  */
 public class DemoSkatlet
-    implements ISkatlet {
+    extends AbstractSkatlet {
 
-  private ITsContextRo environ;
-  private ILogger      logger = LoggerWrapper.getLogger( getClass() );
-
-  @Override
-  public String id() {
-    return "Demo"; //$NON-NLS-1$
+  /**
+   * Constructor.
+   */
+  public DemoSkatlet() {
+    super( "Demo", OptionSetUtils.createOpSet( //$NON-NLS-1$
+        TSID_NAME, "Demo skatlet", //$NON-NLS-1$
+        TSID_DESCRIPTION, "This is a demo skatlet" //$NON-NLS-1$
+    ) );
   }
 
+  // ------------------------------------------------------------------------------------
+  // AbstractSkatlet
+  //
   @Override
-  public String nmName() {
-    return "Demo skatlet"; //$NON-NLS-1$
-  }
-
-  @Override
-  public String description() {
-    return "This is a demo skatlet"; //$NON-NLS-1$
-  }
-
-  @Override
-  public IOptionSet params() {
-    return environ.params();
+  protected ValidationResult doInit( ITsContextRo aEnviron ) {
+    logger().info( "%s doInit(). connection = %s", id(), connection() ); //$NON-NLS-1$
+    return ValidationResult.SUCCESS;
   }
 
   @Override
   public void start() {
-    logger.info( "%s: start()", id() ); //$NON-NLS-1$
+    logger().info( "%s: start()", id() ); //$NON-NLS-1$
   }
 
   @Override
   public void doJob() {
-    logger.info( "%s: doJob()", id() ); //$NON-NLS-1$
+    logger().info( "%s: doJob()", id() ); //$NON-NLS-1$
   }
 
   @Override
   public boolean queryStop() {
-    logger.info( "%s: queryStop()", id() ); //$NON-NLS-1$
+    logger().info( "%s: queryStop()", id() ); //$NON-NLS-1$
     return true;
   }
 
@@ -61,14 +57,7 @@ public class DemoSkatlet
 
   @Override
   public void destroy() {
-    logger.info( "%s: destroy()", id() ); //$NON-NLS-1$
-  }
-
-  @Override
-  public ValidationResult init( ITsContextRo aEnviron ) {
-    environ = aEnviron;
-    logger.info( "%s: init(). connection = %s", id(), ISkatlet.REF_SK_CONNECTION.getRef( aEnviron ) ); //$NON-NLS-1$
-    return ValidationResult.SUCCESS;
+    logger().info( "%s: destroy()", id() ); //$NON-NLS-1$
   }
 
 }
