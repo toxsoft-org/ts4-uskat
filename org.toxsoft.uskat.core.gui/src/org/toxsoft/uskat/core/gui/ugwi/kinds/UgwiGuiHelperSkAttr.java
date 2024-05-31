@@ -27,11 +27,11 @@ public class UgwiGuiHelperSkAttr
   /**
    * Constructor.
    *
-   * @param aKind {@link AbstractUgwiKind}&lt;T&gt; - the UGWI kind
+   * @param aKind {@link AbstractSkUgwiKind}&lt;T&gt; - the UGWI kind
    * @throws TsNullArgumentRtException any argument = <code>null</code>
    * @throws TsItemNotFoundRtException kind of the specified ID is not registered
    */
-  public UgwiGuiHelperSkAttr( AbstractUgwiKind<IAtomicValue> aKind ) {
+  public UgwiGuiHelperSkAttr( AbstractSkUgwiKind<IAtomicValue> aKind ) {
     super( aKind );
   }
 

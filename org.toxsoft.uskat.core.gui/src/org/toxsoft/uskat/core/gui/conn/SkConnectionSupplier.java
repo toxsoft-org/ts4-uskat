@@ -13,13 +13,10 @@ import org.toxsoft.core.tslib.bricks.validator.impl.*;
 import org.toxsoft.core.tslib.coll.*;
 import org.toxsoft.core.tslib.coll.helpers.*;
 import org.toxsoft.core.tslib.coll.impl.*;
-import org.toxsoft.core.tslib.coll.primtypes.*;
 import org.toxsoft.core.tslib.utils.errors.*;
 import org.toxsoft.core.tslib.utils.logs.impl.*;
-import org.toxsoft.uskat.core.api.ugwis.*;
 import org.toxsoft.uskat.core.connection.*;
 import org.toxsoft.uskat.core.gui.km5.*;
-import org.toxsoft.uskat.core.gui.ugwi.*;
 import org.toxsoft.uskat.core.impl.*;
 
 /**
@@ -170,15 +167,15 @@ public class SkConnectionSupplier
     // initialize connection-specific M5 domain
     KM5Support km5 = new KM5Support( conn, aContext.get( IM5Domain.class ) );
     // initialize UGWI kind GUI-related helpers
-    IStringMap<IList<SkUgwiGuiUtils.IRegistrator<?>>> map = SkUgwiGuiUtils.getHelperRegistratorsMap();
-    for( String ugwiKindId : map.keys() ) {
-      AbstractUgwiKind<?> kind = (AbstractUgwiKind)conn.coreApi().ugwiService().listKinds().findByKey( ugwiKindId );
-      if( kind != null ) {
-        for( SkUgwiGuiUtils.IRegistrator r : map.getByKey( ugwiKindId ) ) {
-          r.registerHelpersForKind( kind );
-        }
-      }
-    }
+    // IStringMap<IList<SkUgwiGuiUtils.IRegistrator<?>>> map = SkUgwiGuiUtils.getHelperRegistratorsMap();
+    // for( String ugwiKindId : map.keys() ) {
+    // AbstractUgwiKind<?> kind = (AbstractUgwiKind)conn.coreApi().ugwiService().listKinds().findByKey( ugwiKindId );
+    // if( kind != null ) {
+    // for( SkUgwiGuiUtils.IRegistrator r : map.getByKey( ugwiKindId ) ) {
+    // r.registerHelpersForKind( kind );
+    // }
+    // }
+    // }
     connsMap.put( aKey, conn );
     return conn;
   }

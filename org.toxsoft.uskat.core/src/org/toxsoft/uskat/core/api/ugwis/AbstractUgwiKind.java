@@ -1,114 +1,35 @@
 package org.toxsoft.uskat.core.api.ugwis;
 
+import static org.toxsoft.uskat.core.api.ugwis.ISkResources.*;
+
 import org.toxsoft.core.tslib.av.opset.*;
+import org.toxsoft.core.tslib.bricks.strid.impl.*;
 import org.toxsoft.core.tslib.bricks.validator.*;
-import org.toxsoft.core.tslib.coll.*;
-import org.toxsoft.core.tslib.coll.impl.*;
+import org.toxsoft.core.tslib.bricks.validator.impl.*;
 import org.toxsoft.core.tslib.gw.ugwi.*;
 import org.toxsoft.core.tslib.utils.errors.*;
 import org.toxsoft.uskat.core.*;
-import org.toxsoft.uskat.core.api.ugwis.helpers.*;
-import org.toxsoft.uskat.core.impl.*;
 
 /**
- * Basic implementation of {@link IUgwiKind}.
+ * Basic implementation of {@link ISkUgwiKind}.
  *
  * @author hazard157
  * @param <T> - the UGWI content type
  */
 public non-sealed abstract class AbstractUgwiKind<T>
+    extends StridableParameterized
     implements IUgwiKind {
-
-  // FIXME make kind ICloseable ?
-
-  private final IMapEdit<Class<?>, Object> helpersMap = new ElemMap<>();
-
-  private final AbstractUgwiKindRegistrator<T> kindRegistrator;
-  private final ISkCoreApi                     coreApi;
 
   /**
    * Constructor.
    *
-   * @param aRegistrator {@link AbstractUgwiKindRegistrator} - the kind registrator
-   * @param aCoreApi {@link ISkCoreApi} - the core API
+   * @param aId String - the ID (IDpath)
+   * @param aParams {@link IOptionSet} - {@link #params()} initial values
    * @throws TsNullArgumentRtException any argument = <code>null</code>
    * @throws TsIllegalArgumentRtException ID is not an IDpath
    */
-  public AbstractUgwiKind( AbstractUgwiKindRegistrator<T> aRegistrator, ISkCoreApi aCoreApi ) {
-    TsNullArgumentRtException.checkNulls( aRegistrator, aCoreApi );
-    kindRegistrator = aRegistrator;
-    coreApi = aCoreApi;
-    helpersMap.put( IUgwiAvHelper.class, new UgwiAvHelperNone<>( this ) );
-  }
-
-  // ------------------------------------------------------------------------------------
-  // IStridable
-  //
-
-  @Override
-  public String id() {
-    return kindRegistrator.id();
-  }
-
-  @Override
-  public String nmName() {
-    return kindRegistrator.nmName();
-  }
-
-  @Override
-  public String description() {
-    return kindRegistrator.description();
-  }
-
-  // ------------------------------------------------------------------------------------
-  // IIconIdable
-  //
-
-  @Override
-  public String iconId() {
-    return kindRegistrator.iconId();
-  }
-
-  // ------------------------------------------------------------------------------------
-  // IParameterized
-  //
-
-  @Override
-  public IOptionSet params() {
-    return kindRegistrator.params();
-  }
-
-  // ------------------------------------------------------------------------------------
-  // package API
-  //
-
-  /**
-   * Determines if this kind can be registered.
-   * <p>
-   * USkat core implementation private method, only to be called by
-   * {@link SkCoreServUgwis#registerKind(AbstractUgwiKind)}.
-   *
-   * @param aUgwiService {@link SkCoreServUgwis} - the service to create UGWI kind in
-   * @return boolean - <code>true</code> if kind can be registered
-   */
-  final public boolean papiCanRegister( SkCoreServUgwis aUgwiService ) {
-    if( aUgwiService.listKinds().hasKey( id() ) ) {
-      return false;
-    }
-    return doCanRegister( aUgwiService );
-  }
-
-  // ------------------------------------------------------------------------------------
-  // API for subclasses
-  //
-
-  /**
-   * Retruns the core API this kind is created for.
-   *
-   * @return {@link ISkCoreApi} - the core API
-   */
-  public ISkCoreApi coreApi() {
-    return coreApi;
+  public AbstractUgwiKind( String aId, IOptionSet aParams ) {
+    super( aId, aParams );
   }
 
   // ------------------------------------------------------------------------------------
@@ -117,35 +38,65 @@ public non-sealed abstract class AbstractUgwiKind<T>
 
   @Override
   final public ValidationResult validateUgwi( Ugwi aUgwi ) {
-    return kindRegistrator.validateUgwi( aUgwi );
+    TsNullArgumentRtException.checkNull( aUgwi );
+    if( aUgwi == Ugwi.NONE ) {
+      return ValidationResult.SUCCESS;
+    }
+    if( !aUgwi.kindId().equals( id() ) ) {
+      return ValidationResult.error( FMT_ERR_UWGI_NOT_OF_THIS_KIND, aUgwi.kindId(), id() );
+    }
+    return validateUgwi( aUgwi.namespace(), aUgwi.essence() );
   }
 
   @Override
   final public ValidationResult validateUgwi( String aNamespace, String aEssence ) {
-    return kindRegistrator.validateUgwi( aNamespace, aEssence );
-  }
-
-  @Override
-  final public Object findContent( Ugwi aUgwi ) {
-    TsNullArgumentRtException.checkNull( aUgwi );
-    TsIllegalArgumentRtException.checkFalse( aUgwi.kindId().equals( id() ) );
-    return doFindContent( aUgwi );
-  }
-
-  @Override
-  final public <H> H findHelper( Class<H> aHelperClass ) {
-    TsNullArgumentRtException.checkNull( aHelperClass );
-    Object helper = helpersMap.findByKey( aHelperClass );
-    if( helper != null ) {
-      return aHelperClass.cast( helper );
+    TsNullArgumentRtException.checkNulls( aNamespace, aEssence );
+    ValidationResult vr = ValidationResult.SUCCESS;
+    if( !aNamespace.isEmpty() ) {
+      if( !StridUtils.isValidIdPath( aNamespace ) ) {
+        return ValidationResult.error( MSG_ERR_UGWI_NAMESPACE_NOT_IDPATH );
+      }
+      vr = doValidateNamespace( aNamespace );
+      if( vr.isError() ) {
+        return vr;
+      }
     }
-    return null;
+    return ValidationResult.firstNonOk( vr, doValidateEssence( aEssence ) );
   }
 
   @Override
-  final public <H> void registerHelper( Class<H> aHelperClass, H aHelper ) {
-    TsNullArgumentRtException.checkNulls( aHelperClass, aHelper );
-    helpersMap.put( aHelperClass, aHelperClass.cast( aHelper ) );
+  final public Ugwi createUgwi( String aNamespace, String aEssence ) {
+    TsValidationFailedRtException.checkError( validateUgwi( aNamespace, aEssence ) );
+    return Ugwi.of( id(), aNamespace, aEssence );
+  }
+
+  // ------------------------------------------------------------------------------------
+  // class API
+  //
+
+  /**
+   * Creates UWGI kind bound to the specified Sk-connection.
+   *
+   * @param aCoreApi {@link ISkCoreApi} - the core API
+   * @return {@link AbstractSkUgwiKind} - created kind
+   */
+  final public AbstractSkUgwiKind<?> createUgwiKind( ISkCoreApi aCoreApi ) {
+    TsNullArgumentRtException.checkNull( aCoreApi );
+    return doCreateUgwiKind( aCoreApi );
+  }
+
+  // ------------------------------------------------------------------------------------
+  // API for subclasses
+  //
+
+  /**
+   * Creates and returns result indicating general error of invalid essence format for this UGWI kind.
+   *
+   * @param aEssence String - the invalid essence
+   * @return {@link ValidationResult} - result to be returned by {@link #doValidateEssence(String)}
+   */
+  public ValidationResult makeGeneralInvalidEssenceVr( String aEssence ) {
+    return ValidationResult.error( MSG_ERR_INV_ESSENCE_FOR_KIND, id(), aEssence );
   }
 
   // ------------------------------------------------------------------------------------
@@ -153,27 +104,32 @@ public non-sealed abstract class AbstractUgwiKind<T>
   //
 
   /**
-   * Implementation must find and return the content addressed by the UGWI.
+   * Implementation may perform additional check of UGWI namespace for syntactical validity.
+   * <p>
+   * In the base class returns {@link ValidationResult#SUCCESS}, there is no need to call superclass method when
+   * overriding.
    *
-   * @param aUgwi {@link Ugwi} - the UGWI of the kind {@link #id()}
-   * @return {@link Object} - the content or <code>null</code> if not found
+   * @param aNamespace String - the namespace, valid IDpath, not an empty string
+   * @return {@link Object} - found (created) entity or <code>null</code>
    */
-  protected abstract T doFindContent( Ugwi aUgwi );
+  protected ValidationResult doValidateNamespace( String aNamespace ) {
+    return ValidationResult.SUCCESS;
+  }
 
   /**
-   * Implementation may perform check if this kind can be registered by
-   * {@link ISkUgwiService#registerKind(AbstractUgwiKind)}.
-   * <p>
-   * For example, implementation may check if {@link SkCoreServUgwis#coreApi()} has the service
-   * <code>ISkXxxServce</code> needed to handle this kind of UGWI.
-   * <p>
-   * In the base class returns <code>true</code>, there is no need to call superclass method when overriding.
+   * Implementation must perform check of UGWI essence for syntactical validity.
    *
-   * @param aUgwiService {@link SkCoreServUgwis} - the UGWI service
-   * @return boolean - <code>true</code> if kind can be registered
+   * @param aEssence String - the essence, never is <code>null</code>, may be an empty string
+   * @return {@link Object} - found (created) entity or <code>null</code>
    */
-  protected boolean doCanRegister( SkCoreServUgwis aUgwiService ) {
-    return true;
-  }
+  protected abstract ValidationResult doValidateEssence( String aEssence );
+
+  /**
+   * Creates UWGI kind bound to the specified Sk-connection.
+   *
+   * @param aCoreApi {@link ISkCoreApi} - the core API
+   * @return {@link AbstractSkUgwiKind} - created kind
+   */
+  protected abstract AbstractSkUgwiKind<?> doCreateUgwiKind( ISkCoreApi aCoreApi );
 
 }

@@ -4,19 +4,19 @@ import static org.toxsoft.core.tslib.utils.TsLibUtils.*;
 
 import org.toxsoft.core.tslib.bricks.strid.*;
 import org.toxsoft.core.tslib.bricks.validator.*;
-import org.toxsoft.core.tslib.gw.gwid.*;
+import org.toxsoft.core.tslib.bricks.validator.impl.*;
 import org.toxsoft.core.tslib.gw.ugwi.*;
 import org.toxsoft.core.tslib.utils.errors.*;
-import org.toxsoft.uskat.core.api.ugwis.helpers.*;
 
 /**
  * The UGWI kind description.
  * <p>
- * The ID {@link #id()} as a kind ID of the {@link Ugwi}.
+ * This interface is to be implemented by the Sk-connection independent kind singleton while {@link ISkUgwiKind} extends
+ * it with Sk-connection bound abilities.
  * <p>
- * UGWI kinds must be registered by {@link SkUgwiUtils#registerUgwiKindRegistrator(AbstractUgwiKindRegistrator)} for
- * users of the UGWI to handle UGWIs of different kinds. Note that {@link Ugwi} as a syntactical wrapper over canonical
- * textual representation does not uses {@link IUgwiKind}.
+ * The {@link #id()} is the same as {@link ISkUgwiKind#id()} and means the UGWI kind ID {@link Ugwi#kindId()}.
+ * <p>
+ * To be usable, created instances must be registered via {@link SkUgwiUtils#registerUgwiKind(AbstractUgwiKind)}.
  *
  * @author hazard157
  */
@@ -27,7 +27,14 @@ public sealed interface IUgwiKind
   /**
    * Checks if <code>aUgwi</code> is syntactically valid.
    * <p>
-   * Simply calls {@link ISkUgwiKindRegistrator#validateUgwi(Ugwi)}.
+   * Following checks are performed:
+   * <ul>
+   * <li>{@link Ugwi#kindId()} matches {@link #id()}. Argument {@link Ugwi#NONE} is allowed for any kind and returns
+   * <code>true</code>;</li>
+   * <li>calls {@link #validateUgwi(String, String)} to check {@link Ugwi#namespace()} and {@link Ugwi#essence()}.</li>
+   * </ul>
+   * <p>
+   * Syntactically valid UGWI does not guarantees existence of the addressed entity.
    *
    * @param aUgwi {@link Ugwi} - the entity identified
    * @return {@link ValidationResult} - the check result
@@ -38,7 +45,15 @@ public sealed interface IUgwiKind
   /**
    * Validates if UGWI components are valid for this kind.
    * <p>
-   * Simply calls {@link ISkUgwiKindRegistrator#validateUgwi(String, String)}.
+   * Following checks are performed:
+   * <ul>
+   * <li><code>aNamespace</code> has allowed value. Namespace is not checked for existence, only syntactical check is
+   * performed if kind uses additional constrains over the IDpath. For example, if namespace is interpreted as an
+   * Internet domain name, it is required IDpath to contain two or more component;</li>
+   * <li><code>aEssence</code> is checked for syntax validity.</li>
+   * </ul>
+   * <p>
+   * Empty string as a namespace is valid for any kind of UGWI.
    *
    * @param aNamespace String - the namespace
    * @param aEssence String - the essence
@@ -48,58 +63,21 @@ public sealed interface IUgwiKind
   ValidationResult validateUgwi( String aNamespace, String aEssence );
 
   /**
-   * Finds the content addressed by the UGWI.
+   * Creates UGWI of this kind.
    *
-   * @param aUgwi {@link Ugwi} - the UGWI
-   * @return {@link Object} - the content or <code>null</code> if not found
+   * @param aNamespace String - the namespace
+   * @param aEssence String - the essence
+   * @return {@link Ugwi} - created instance
    * @throws TsNullArgumentRtException any argument = <code>null</code>
-   * @throws TsIllegalArgumentRtException argument is not of expected kind
+   * @throws TsValidationFailedRtException failed {@link #validateUgwi(String, String)}
    */
-  Object findContent( Ugwi aUgwi );
-
-  /**
-   * Returns the kind helper if any was registered.
-   * <p>
-   * Note: argument class must be exactly the same as helper was registered by {@link #registerHelper(Class, Object)}.
-   *
-   * @param <H> - expected type of the helper
-   * @param aHelperClass {@link Class}&lt;T&gt; - helper class used at registration time
-   * @return &lt;H&gt; - found helper or <code>null</code>
-   * @throws TsNullArgumentRtException any argument = <code>null</code>
-   * @throws ClassCastException found helper is not of requested type
-   */
-  <H> H findHelper( Class<H> aHelperClass );
-
-  /**
-   * Registers UGWI kind helper.
-   * <p>
-   * Existing registered helper will be overwritten.
-   *
-   * @param <H> - type of the helper
-   * @param aHelperClass {@link Class}&lt;T&gt; - key class used for helper registration
-   * @param aHelper &lt;H&gt; - the helper instance
-   * @throws TsNullArgumentRtException any argument = <code>null</code>
-   */
-  <H> void registerHelper( Class<H> aHelperClass, H aHelper );
+  Ugwi createUgwi( String aNamespace, String aEssence );
 
   // ------------------------------------------------------------------------------------
-  // inline methods for convenience
-  // Note: inline methods may be re-implemented for the optimization reasons
-  //
+  // Inline methods for convenience
 
   /**
-   * Returns {@link IUgwiAvHelper} for this kind.
-   * <p>
-   * This method always returns non-<code>null</code> helper.
-   *
-   * @return {@link IUgwiAvHelper} - the atomic value helper for this kind, never is null
-   */
-  default IUgwiAvHelper getAvHelper() {
-    return getHelper( IUgwiAvHelper.class );
-  }
-
-  /**
-   * Validates if UGWI components are valid for this kind assuming the empty namespace.
+   * Validates if UGWI (with the empty namespace) essence is valid for this kind.
    *
    * @param aEssence String - the essence
    * @return {@link ValidationResult} - the check result
@@ -110,59 +88,15 @@ public sealed interface IUgwiKind
   }
 
   /**
-   * Returns the kind helper.
-   * <p>
-   * Note: argument class must be exactly the same as helper was registered by {@link #registerHelper(Class, Object)}.
+   * Creates UGWI (with the empty namespace) of this kind.
    *
-   * @param <H> - expected type of the helper
-   * @param aHelperClass {@link Class}&lt;T&gt; - helper class used at registration time
-   * @return &lt;T&gt; - found helper
+   * @param aEssence String - the essence
+   * @return {@link Ugwi} - created instance
    * @throws TsNullArgumentRtException any argument = <code>null</code>
-   * @throws ClassCastException found helper is not of requested type
-   * @throws TsItemNotFoundRtException no registered helper of the specified class
+   * @throws TsValidationFailedRtException failed {@link #validateUgwi(String, String)}
    */
-  default <H> H getHelper( Class<H> aHelperClass ) {
-    return TsItemNotFoundRtException.checkNull( findHelper( aHelperClass ) );
-  }
-
-  /**
-   * Determines if the content addresses by the UGWI exists.
-   *
-   * @param aUgwi {@link Ugwi} - the UGWI
-   * @return boolean - <code>true</code> if content exists so {@link #findContent(Ugwi)} returns non-<code>null</code>
-   * @throws TsNullArgumentRtException any argument = <code>null</code>
-   * @throws TsIllegalArgumentRtException argument is not of expected kind
-   */
-  default boolean isContent( Ugwi aUgwi ) {
-    return findContent( aUgwi ) != null;
-  }
-
-  /**
-   * Finds content as the specified class.
-   *
-   * @param <T> - expected type of the content
-   * @param aUgwi {@link Gwid} - the UGWI
-   * @param aContentClass {@link Class}&lt;T&gt; - expected class of the cntent
-   * @return {@link Object} - the content or <code>null</code> if not found
-   * @throws TsNullArgumentRtException any argument = <code>null</code>
-   * @throws ClassCastException content was found but not of expected type
-   */
-  default <T> T findContentAs( Ugwi aUgwi, Class<T> aContentClass ) {
-    TsNullArgumentRtException.checkNull( aContentClass );
-    return aContentClass.cast( findContent( aUgwi ) );
-  }
-
-  /**
-   * Returns the content addresses by the UGWI.
-   *
-   * @param aUgwi {@link Ugwi} - the UGWI
-   * @return {@link Object} - the content
-   * @throws TsNullArgumentRtException any argument = <code>null</code>
-   * @throws TsItemNotFoundRtException content not found
-   * @throws TsIllegalArgumentRtException argument is not of expected kind
-   */
-  default Object getContent( Ugwi aUgwi ) {
-    return TsItemNotFoundRtException.checkNull( findContent( aUgwi ) );
+  default Ugwi createUgwi( String aEssence ) {
+    return createUgwi( EMPTY_STRING, aEssence );
   }
 
 }

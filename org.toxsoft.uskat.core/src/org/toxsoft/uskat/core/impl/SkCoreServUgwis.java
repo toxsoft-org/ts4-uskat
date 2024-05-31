@@ -23,7 +23,7 @@ public class SkCoreServUgwis
    */
   public static final ISkServiceCreator<AbstractSkService> CREATOR = SkCoreServUgwis::new;
 
-  private final IStridablesListEdit<AbstractUgwiKind<?>> kindsList = new StridablesList<>();
+  private final IStridablesListEdit<AbstractSkUgwiKind<?>> kindsList = new StridablesList<>();
 
   /**
    * Constructor.
@@ -40,10 +40,7 @@ public class SkCoreServUgwis
 
   @Override
   protected void doInit( ITsContextRo aArgs ) {
-    for( AbstractUgwiKindRegistrator<?> ukr : SkUgwiUtils.listUgwiKindCreators() ) {
-      AbstractUgwiKind<?> uk = ukr.createUgwiKind( coreApi() );
-      coreApi().ugwiService().registerKind( uk );
-    }
+    // nop
   }
 
   @Override
@@ -57,14 +54,14 @@ public class SkCoreServUgwis
 
   @SuppressWarnings( { "rawtypes", "unchecked" } )
   @Override
-  public IStridablesList<IUgwiKind> listKinds() {
+  public IStridablesList<ISkUgwiKind> listKinds() {
     return (IStridablesList)kindsList;
   }
 
   @Override
   public boolean isContent( Ugwi aUgwi ) {
     TsNullArgumentRtException.checkNull( aUgwi );
-    AbstractUgwiKind<?> kind = kindsList.findByKey( aUgwi.kindId() );
+    AbstractSkUgwiKind<?> kind = kindsList.findByKey( aUgwi.kindId() );
     if( kind == null ) {
       return false;
     }
@@ -74,7 +71,7 @@ public class SkCoreServUgwis
   @Override
   public Object findContent( Ugwi aUgwi ) {
     TsNullArgumentRtException.checkNull( aUgwi );
-    AbstractUgwiKind<?> kind = kindsList.findByKey( aUgwi.kindId() );
+    AbstractSkUgwiKind<?> kind = kindsList.findByKey( aUgwi.kindId() );
     if( kind == null ) {
       return null;
     }
@@ -84,7 +81,7 @@ public class SkCoreServUgwis
   @Override
   public <T> T findContentAs( Ugwi aUgwi, Class<T> aContentClass ) {
     TsNullArgumentRtException.checkNull( aUgwi );
-    AbstractUgwiKind<?> kind = kindsList.findByKey( aUgwi.kindId() );
+    AbstractSkUgwiKind<?> kind = kindsList.findByKey( aUgwi.kindId() );
     if( kind == null ) {
       return null;
     }
@@ -94,7 +91,7 @@ public class SkCoreServUgwis
   @Override
   public <H> H findHelper( String aUgwiKindId, Class<H> aHelperClass ) {
     TsNullArgumentRtException.checkNulls( aUgwiKindId, aHelperClass );
-    AbstractUgwiKind<?> kind = kindsList.findByKey( aUgwiKindId );
+    AbstractSkUgwiKind<?> kind = kindsList.findByKey( aUgwiKindId );
     if( kind == null ) {
       return null;
     }
@@ -102,7 +99,7 @@ public class SkCoreServUgwis
   }
 
   @Override
-  public void registerKind( AbstractUgwiKind<?> aUgwiKind ) {
+  public void registerKind( AbstractSkUgwiKind<?> aUgwiKind ) {
     TsNullArgumentRtException.checkNull( aUgwiKind );
     if( aUgwiKind.papiCanRegister( this ) ) {
       kindsList.put( aUgwiKind );

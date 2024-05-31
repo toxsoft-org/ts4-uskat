@@ -32,11 +32,11 @@ public class SkUgwiGuiUtils {
      * Called by {@link ISkConnectionSupplier} when the connection is open.
      * <p>
      * Implementation must create helper instances and register for the specified kubd by
-     * {@link AbstractUgwiKind#registerHelper(Class, Object)}.
+     * {@link AbstractSkUgwiKind#registerHelper(Class, Object)}.
      *
-     * @param aKind {@link AbstractUgwiKind} - UGWI kind to register helper
+     * @param aKind {@link AbstractSkUgwiKind} - UGWI kind to register helper
      */
-    void registerHelpersForKind( AbstractUgwiKind<T> aKind );
+    void registerHelpersForKind( AbstractSkUgwiKind<T> aKind );
 
   }
 

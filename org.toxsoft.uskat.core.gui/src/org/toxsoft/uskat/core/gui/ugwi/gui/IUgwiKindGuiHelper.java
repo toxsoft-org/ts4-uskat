@@ -21,9 +21,9 @@ public sealed interface IUgwiKindGuiHelper
   /**
    * Returns the UGWI kind this helper is designed for.
    *
-   * @return {@link AbstractUgwiKind} - the UGWI kind
+   * @return {@link AbstractSkUgwiKind} - the UGWI kind
    */
-  AbstractUgwiKind<?> kind();
+  AbstractSkUgwiKind<?> kind();
 
   /**
    * Creates the kind-specific UGWI editor/viewer panel.

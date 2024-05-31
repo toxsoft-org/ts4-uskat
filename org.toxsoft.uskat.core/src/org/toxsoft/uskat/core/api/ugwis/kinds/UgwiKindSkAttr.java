@@ -19,7 +19,7 @@ import org.toxsoft.uskat.core.api.objserv.*;
 import org.toxsoft.uskat.core.api.sysdescr.*;
 import org.toxsoft.uskat.core.api.sysdescr.dto.*;
 import org.toxsoft.uskat.core.api.ugwis.*;
-import org.toxsoft.uskat.core.api.ugwis.helpers.*;
+import org.toxsoft.uskat.core.impl.*;
 
 /**
  * UGWI kind: Sk-object attribute value.
@@ -31,7 +31,7 @@ import org.toxsoft.uskat.core.api.ugwis.helpers.*;
  * @author hazard157
  */
 public class UgwiKindSkAttr
-    extends AbstractUgwiKindRegistrator<IAtomicValue> {
+    extends AbstractUgwiKind<IAtomicValue> {
 
   /**
    * The index of the class ID in the {@link IdChain} made from {@link Ugwi#essence()}.
@@ -54,38 +54,15 @@ public class UgwiKindSkAttr
   private static final int NUM_BRANCHES = 3;
 
   /**
-   * {@link IUgwiKind} implementation.
+   * {@link ISkUgwiKind} implementation.
    *
    * @author hazard157
    */
   public static class Kind
-      extends AbstractUgwiKind<IAtomicValue> {
+      extends AbstractSkUgwiKind<IAtomicValue> {
 
-    Kind( AbstractUgwiKindRegistrator<IAtomicValue> aRegistrator, ISkCoreApi aCoreApi ) {
+    Kind( AbstractUgwiKind<IAtomicValue> aRegistrator, ISkCoreApi aCoreApi ) {
       super( aRegistrator, aCoreApi );
-      // create and register IUgwiAvHelper instance
-      AbstractUgwiAvHelperWithAv<IAtomicValue, Kind> avHelper = new AbstractUgwiAvHelperWithAv<>( this ) {
-
-        @Override
-        protected IAtomicValue doFindAtomicValue( Ugwi aUgwi ) {
-          return doFindContent( aUgwi );
-        }
-
-        @Override
-        protected IDataType doGetValueType( Ugwi aUgwi ) {
-          String classId = getClassId( aUgwi );
-          ISkClassInfo cinf = coreApi().sysdescr().findClassInfo( classId );
-          if( cinf != null ) {
-            String attrId = getAttrId( aUgwi );
-            IDtoAttrInfo ainf = cinf.attrs().list().findByKey( attrId );
-            if( ainf != null ) {
-              return ainf.dataType();
-            }
-          }
-          return null;
-        }
-      };
-      registerHelper( IUgwiAvHelper.class, avHelper );
     }
 
     @Override
@@ -98,6 +75,35 @@ public class UgwiKindSkAttr
       return IAtomicValue.NULL;
     }
 
+    @Override
+    protected boolean doCanRegister( SkCoreServUgwis aUgwiService ) {
+      return true;
+    }
+
+    @Override
+    protected boolean doIsNaturalAtomicValue( Ugwi aUgwi ) {
+      return true;
+    }
+
+    @Override
+    protected IAtomicValue doFindAtomicValue( Ugwi aUgwi ) {
+      return doFindContent( aUgwi );
+    }
+
+    @Override
+    protected IDataType doGetAtomicValueDataType( Ugwi aUgwi ) {
+      String classId = getClassId( aUgwi );
+      ISkClassInfo cinf = coreApi().sysdescr().findClassInfo( classId );
+      if( cinf != null ) {
+        String attrId = getAttrId( aUgwi );
+        IDtoAttrInfo ainf = cinf.attrs().list().findByKey( attrId );
+        if( ainf != null ) {
+          return ainf.dataType();
+        }
+      }
+      return null;
+    }
+
   }
 
   /**
@@ -106,9 +112,9 @@ public class UgwiKindSkAttr
   public static final String KIND_ID = SK_ID + ".sk.attr"; //$NON-NLS-1$
 
   /**
-   * The registrator instance.
+   * The singleton instance.
    */
-  public static final UgwiKindSkAttr REGISTRATOR = new UgwiKindSkAttr();
+  public static final UgwiKindSkAttr INSTANCE = new UgwiKindSkAttr();
 
   /**
    * Constructor.
@@ -138,7 +144,7 @@ public class UgwiKindSkAttr
   }
 
   @Override
-  protected AbstractUgwiKind<?> doCreateUgwiKind( ISkCoreApi aSkConn ) {
+  protected AbstractSkUgwiKind<?> doCreateUgwiKind( ISkCoreApi aSkConn ) {
     return new Kind( this, aSkConn );
   }
 
@@ -155,9 +161,9 @@ public class UgwiKindSkAttr
    * @throws TsValidationFailedRtException invalid UGWI for this kind
    */
   public static String getClassId( Ugwi aUgwi ) {
-    TsValidationFailedRtException.checkError( REGISTRATOR.validateUgwi( aUgwi ) );
+    TsValidationFailedRtException.checkError( INSTANCE.validateUgwi( aUgwi ) );
     IdChain chain = IdChain.of( aUgwi.essence() );
-    return chain.branches().get( IDX_CLASS_ID );
+    return chain.get( IDX_CLASS_ID );
   }
 
   /**
@@ -169,9 +175,9 @@ public class UgwiKindSkAttr
    * @throws TsValidationFailedRtException invalid UGWI for this kind
    */
   public static String getObjStrid( Ugwi aUgwi ) {
-    TsValidationFailedRtException.checkError( REGISTRATOR.validateUgwi( aUgwi ) );
+    TsValidationFailedRtException.checkError( INSTANCE.validateUgwi( aUgwi ) );
     IdChain chain = IdChain.of( aUgwi.essence() );
-    return chain.branches().get( IDX_OBJ_STRID );
+    return chain.get( IDX_OBJ_STRID );
   }
 
   /**
@@ -183,9 +189,9 @@ public class UgwiKindSkAttr
    * @throws TsValidationFailedRtException invalid UGWI for this kind
    */
   public static Skid getSkid( Ugwi aUgwi ) {
-    TsValidationFailedRtException.checkError( REGISTRATOR.validateUgwi( aUgwi ) );
+    TsValidationFailedRtException.checkError( INSTANCE.validateUgwi( aUgwi ) );
     IdChain chain = IdChain.of( aUgwi.essence() );
-    return new Skid( chain.branches().get( IDX_CLASS_ID ), chain.branches().get( IDX_OBJ_STRID ) );
+    return new Skid( chain.get( IDX_CLASS_ID ), chain.get( IDX_OBJ_STRID ) );
   }
 
   /**
@@ -197,9 +203,9 @@ public class UgwiKindSkAttr
    * @throws TsValidationFailedRtException invalid UGWI for this kind
    */
   public static String getAttrId( Ugwi aUgwi ) {
-    TsValidationFailedRtException.checkError( REGISTRATOR.validateUgwi( aUgwi ) );
+    TsValidationFailedRtException.checkError( INSTANCE.validateUgwi( aUgwi ) );
     IdChain chain = IdChain.of( aUgwi.essence() );
-    return chain.branches().get( IDX_ATTR_ID );
+    return chain.get( IDX_ATTR_ID );
   }
 
   /**
