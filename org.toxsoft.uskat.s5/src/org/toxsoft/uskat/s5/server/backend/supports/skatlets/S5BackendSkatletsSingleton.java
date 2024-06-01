@@ -123,9 +123,9 @@ public class S5BackendSkatletsSingleton
     ISkConnection connection = localConnectionSingleton.open( id() );
 
     // Проверка/настройка файловой системы
-    createIfDirNotExist( SKATLETS_DIR );
-    createIfDirNotExist( SKATLETS_DEPLOYMENTS_DIR );
-    createIfDirNotExist( SKATLETS_TEMP_DIR );
+    createDirIfNotExist( SKATLETS_DIR );
+    createDirIfNotExist( SKATLETS_DEPLOYMENTS_DIR );
+    createDirIfNotExist( SKATLETS_TEMP_DIR );
 
     // Параметры создания корневого контейнера и контейнера скатлетов
     IOptionSetEdit params = new OptionSet();
