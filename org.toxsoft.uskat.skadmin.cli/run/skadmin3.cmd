@@ -13,8 +13,7 @@ set ADMIN_CLASSPATH=^
 :: ../dist/*
 
 set ADMIN_PLUGINPATH=^
-../../../ts4-targets/ts4-target-uskat/main/plugins:^
-../../../ts4-targets/ts4-target-sitrol/rcp/plugins
+../../../ts4-targets/ts4-target-uskat/main/plugins
 
 set ADMIN_USER=root
 set ADMIN_PASSWORD=1
