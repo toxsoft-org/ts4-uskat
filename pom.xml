@@ -571,10 +571,12 @@
     <module>org.toxsoft.uskat.backend.sqlite</module>
     <module>org.toxsoft.uskat.s5</module>  
     <module>org.toxsoft.uskat.s5.histdata10</module>  
+    <!--  <module>org.toxsoft.uskat.s5.schedules</module>  -->
     <module>org.toxsoft.uskat.skadmin.core</module>
     <module>org.toxsoft.uskat.skadmin.cli</module>
     <module>org.toxsoft.uskat.skadmin.dev</module>
     <module>org.toxsoft.uskat.skadmin.logon</module>
+    <module>org.toxsoft.uskat.demo.skatlet</module> 
 
     <module>zz-releng/p2.main</module>
     <module>zz-releng/ant.main</module>
