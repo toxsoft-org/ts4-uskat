@@ -45,11 +45,11 @@ public class SkUgwiUtils {
   };
 
   /**
-   * Returns all registered contributor creators.
+   * Returns all registered UGWI kinds.
    *
-   * @return {@link IList}&lt;{@link AbstractUgwiKind}&gt; - copy of the creators list
+   * @return {@link IList}&lt;{@link AbstractUgwiKind}&gt; - copy of the UGWI kinds list
    */
-  public static IList<AbstractUgwiKind<?>> listUgwiKindCreators() {
+  public static IList<AbstractUgwiKind<?>> listUgwiKinds() {
     return ugwiKindsList.copyTo( null );
   }
 

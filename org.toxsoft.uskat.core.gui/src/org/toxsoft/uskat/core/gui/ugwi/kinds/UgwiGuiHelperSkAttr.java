@@ -7,7 +7,6 @@ import org.toxsoft.core.tslib.gw.ugwi.*;
 import org.toxsoft.core.tslib.utils.errors.*;
 import org.toxsoft.uskat.core.api.ugwis.*;
 import org.toxsoft.uskat.core.api.ugwis.kinds.*;
-import org.toxsoft.uskat.core.gui.ugwi.*;
 import org.toxsoft.uskat.core.gui.ugwi.gui.*;
 
 /**
@@ -16,13 +15,13 @@ import org.toxsoft.uskat.core.gui.ugwi.gui.*;
  * @author hazard157
  */
 public class UgwiGuiHelperSkAttr
-    extends UgwiKindGuiHelper<IAtomicValue> {
+    extends UgwiKindGuiHelperBase<IAtomicValue> {
 
-  /**
-   * The registrator singleton.
-   */
-  public static final SkUgwiGuiUtils.IRegistrator<IAtomicValue> REGISTRATOR =
-      aKind -> aKind.registerHelper( IUgwiKindGuiHelper.class, new UgwiGuiHelperSkAttr( aKind ) );
+  // /**
+  // * The registrator singleton.
+  // */
+  // public static final SkUgwiGuiUtils.IRegistrator<IAtomicValue> REGISTRATOR =
+  // aKind -> aKind.registerHelper( IUgwiKindGuiHelper.class, new UgwiGuiHelperSkAttr( aKind ) );
 
   /**
    * Constructor.
