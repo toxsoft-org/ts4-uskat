@@ -117,6 +117,11 @@ public final class S5SessionInfo
   private volatile boolean  closeByRemote = false;
   private static ILogger    logger        = getLogger( S5SessionInfo.class );
 
+  static {
+    // Попытка заставить провести инициализацию открытых констант класса
+    logger.debug( "%s = %s", KEEPER_ID, KEEPER ); //$NON-NLS-1$
+  }
+
   /**
    * Конструктор
    *

@@ -6,33 +6,43 @@ import static org.toxsoft.uskat.s5.client.local.S5ClusterCommandWhenObjectsChang
 import static org.toxsoft.uskat.s5.client.local.S5ClusterCommandWhenSysdescrChanged.*;
 import static org.toxsoft.uskat.s5.server.IS5ImplementConstants.*;
 
-import java.util.concurrent.*;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.TimeUnit;
 
 import javax.ejb.*;
-import javax.enterprise.concurrent.*;
+import javax.enterprise.concurrent.ManagedExecutorService;
 
-import org.toxsoft.core.tslib.bricks.ctx.*;
-import org.toxsoft.core.tslib.bricks.ctx.impl.*;
-import org.toxsoft.core.tslib.bricks.strid.coll.*;
-import org.toxsoft.core.tslib.bricks.threadexec.*;
-import org.toxsoft.core.tslib.coll.*;
-import org.toxsoft.core.tslib.coll.impl.*;
-import org.toxsoft.core.tslib.coll.synch.*;
-import org.toxsoft.core.tslib.utils.*;
-import org.toxsoft.core.tslib.utils.errors.*;
-import org.toxsoft.uskat.core.api.users.*;
-import org.toxsoft.uskat.core.backend.*;
-import org.toxsoft.uskat.core.backend.metainf.*;
-import org.toxsoft.uskat.core.connection.*;
-import org.toxsoft.uskat.core.impl.*;
-import org.toxsoft.uskat.s5.client.*;
-import org.toxsoft.uskat.s5.server.*;
-import org.toxsoft.uskat.s5.server.backend.*;
-import org.toxsoft.uskat.s5.server.backend.addons.*;
-import org.toxsoft.uskat.s5.server.cluster.*;
-import org.toxsoft.uskat.s5.server.singletons.*;
-import org.toxsoft.uskat.s5.server.startup.*;
-import org.toxsoft.uskat.s5.utils.jobs.*;
+import org.toxsoft.core.tslib.bricks.ctx.ITsContext;
+import org.toxsoft.core.tslib.bricks.ctx.ITsContextRo;
+import org.toxsoft.core.tslib.bricks.ctx.impl.TsContext;
+import org.toxsoft.core.tslib.bricks.strid.coll.IStridablesList;
+import org.toxsoft.core.tslib.bricks.threadexec.TsThreadExecutor;
+import org.toxsoft.core.tslib.coll.IMapEdit;
+import org.toxsoft.core.tslib.coll.impl.ElemArrayList;
+import org.toxsoft.core.tslib.coll.impl.ElemMap;
+import org.toxsoft.core.tslib.coll.synch.SynchronizedMap;
+import org.toxsoft.core.tslib.utils.TsLibUtils;
+import org.toxsoft.core.tslib.utils.errors.TsNullArgumentRtException;
+import org.toxsoft.uskat.core.api.users.ISkUserServiceHardConstants;
+import org.toxsoft.uskat.core.backend.ISkBackend;
+import org.toxsoft.uskat.core.backend.ISkFrontendRear;
+import org.toxsoft.uskat.core.backend.metainf.ISkBackendMetaInfo;
+import org.toxsoft.uskat.core.backend.metainf.SkBackendMetaInfo;
+import org.toxsoft.uskat.core.connection.ESkAuthentificationType;
+import org.toxsoft.uskat.core.connection.ISkConnection;
+import org.toxsoft.uskat.core.impl.ISkCoreConfigConstants;
+import org.toxsoft.uskat.core.impl.SkCoreUtils;
+import org.toxsoft.uskat.s5.client.IS5ConnectionParams;
+import org.toxsoft.uskat.s5.server.IS5ImplementConstants;
+import org.toxsoft.uskat.s5.server.backend.IS5BackendCoreSingleton;
+import org.toxsoft.uskat.s5.server.backend.addons.IS5BackendAddonCreator;
+import org.toxsoft.uskat.s5.server.cluster.IS5ClusterCommandHandler;
+import org.toxsoft.uskat.s5.server.cluster.IS5ClusterManager;
+import org.toxsoft.uskat.s5.server.singletons.S5ServiceSingletonUtils;
+import org.toxsoft.uskat.s5.server.singletons.S5SingletonBase;
+import org.toxsoft.uskat.s5.server.startup.IS5InitialImplementSingleton;
+import org.toxsoft.uskat.s5.server.startup.IS5InitialImplementation;
+import org.toxsoft.uskat.s5.utils.jobs.IS5ServerJob;
 
 /**
  * Реализация синглтона {@link IS5LocalConnectionSingleton}.
@@ -187,6 +197,8 @@ public class S5LocalConnectionSingleton
     IS5ConnectionParams.OP_PASSWORD.setValue( ctx.params(), avStr( TsLibUtils.EMPTY_STRING ) );
     IS5ConnectionParams.OP_LOCAL_MODULE.setValue( ctx.params(), avStr( moduleName ) );
     IS5ConnectionParams.OP_LOCAL_NODE.setValue( ctx.params(), avStr( moduleNode ) );
+    IS5ConnectionParams.OP_CURRDATA_TIMEOUT.setValue( ctx.params(), avInt( 10 ) );
+    IS5ConnectionParams.OP_HISTDATA_TIMEOUT.setValue( ctx.params(), avInt( 10000 ) );
 
     // Текущий поток используется только для открытия соединения
     Thread thread = Thread.currentThread();
