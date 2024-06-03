@@ -130,4 +130,23 @@ public final class SkMessageInfo
     usedUgwies.put( aKey, aUgwi );
   }
 
+  // ------------------------------------------------------------------------------------
+  // Object
+  //
+
+  @Override
+  public String toString() {
+    StringBuilder retVal = new StringBuilder( "<enter format string>" );
+    if( !fmtStr.isBlank() ) {
+      retVal = retVal.append( fmtStr );
+    }
+    if( !usedUgwies.isEmpty() ) {
+      retVal = retVal.append( " " + usedUgwies.findByKey( usedUgwies.keys().first() ).canonicalString() );
+      if( usedUgwies.keys().size() > 1 ) {
+        retVal = retVal.append( " + ..." );
+      }
+    }
+    return retVal.toString();
+  }
+
 }
