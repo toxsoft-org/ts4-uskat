@@ -17,12 +17,6 @@ import org.toxsoft.uskat.core.gui.ugwi.gui.*;
 public class UgwiGuiHelperSkAttr
     extends UgwiKindGuiHelperBase<IAtomicValue> {
 
-  // /**
-  // * The registrator singleton.
-  // */
-  // public static final SkUgwiGuiUtils.IRegistrator<IAtomicValue> REGISTRATOR =
-  // aKind -> aKind.registerHelper( IUgwiKindGuiHelper.class, new UgwiGuiHelperSkAttr( aKind ) );
-
   /**
    * Constructor.
    *

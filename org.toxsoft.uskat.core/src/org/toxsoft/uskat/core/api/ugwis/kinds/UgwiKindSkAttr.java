@@ -127,7 +127,7 @@ public class UgwiKindSkAttr
   }
 
   // ------------------------------------------------------------------------------------
-  // AbstractUgwiKindRegistrator
+  // AbstractUgwiKind
   //
 
   @Override
