@@ -26,6 +26,7 @@ public class SkUgwiUtils {
 
   static {
     ugwiKindsList.add( UgwiKindSkAttr.INSTANCE );
+    ugwiKindsList.add( UgwiKindSkSkid.INSTANCE );
     // TODO add all built-in registrators
   }
 
