@@ -23,9 +23,9 @@ public interface ISkUgwiService
   /**
    * Returns all registered UGWI kinds.
    *
-   * @return {@link IStridablesList}&lt;{@link IUgwiKind}&gt; - list of registered kinds
+   * @return {@link IStridablesList}&lt;{@link ISkUgwiKind}&gt; - list of registered kinds
    */
-  IStridablesList<IUgwiKind> listKinds();
+  IStridablesList<ISkUgwiKind> listKinds();
 
   /**
    * Determines if content addressed by the UGWI exists in this UStake space.
@@ -80,15 +80,14 @@ public interface ISkUgwiService
    * Notes:
    * <ul>
    * <li>registered kinds are <b>not</b> stored permanently. UGWI kinds must be registered every time when the
-   * connection opens. In USkat GUI library there is an ability to automatically register all known by
-   * {@link SkUgwiUtils#listUgwiKindCreators()} kinds.;</li>
+   * connection opens;</li>
    * <li>some UGWI kinds will not be registered, for example if corresponding <code>ISkXxxService</code> is not present
    * in {@link ISkCoreApi#services()};</li>
    * <li>attempts to register kind with an existing kind ID are ignored.</li>
    * </ul>
    *
-   * @param aUgwiKind {@link AbstractUgwiKind} - the kind to register
+   * @param aUgwiKind {@link AbstractSkUgwiKind} - the kind to register
    */
-  void registerKind( AbstractUgwiKind<?> aUgwiKind );
+  void registerKind( AbstractSkUgwiKind<?> aUgwiKind );
 
 }

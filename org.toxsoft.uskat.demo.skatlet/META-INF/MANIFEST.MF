@@ -1,0 +1,17 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Demo skatlet
+Bundle-SymbolicName: org.toxsoft.uskat.demo.skatlet
+Bundle-Version: 1.0.0.qualifier
+Bundle-Vendor: ToxSoft
+Automatic-Module-Name: org.toxsoft.uskat.demo.skatlet
+Bundle-RequiredExecutionEnvironment: JavaSE-17
+Require-Bundle: org.toxsoft.extlibs.log4j,
+ org.toxsoft.core.tslib,
+ org.toxsoft.core.log4j,
+ org.toxsoft.uskat.core
+Export-Package: org.toxsoft.uskat.demo.skatlet
+TsPluginContainerVersion: 2
+TsPluginVersion: {2,1,2023-03-21_19:33:52}
+TsPluginType: Skatlet
+TsPluginClassName: org.toxsoft.uskat.demo.skatlet.DemoSkatlet

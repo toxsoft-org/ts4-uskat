@@ -26,6 +26,7 @@ import org.toxsoft.uskat.core.api.evserv.*;
 import org.toxsoft.uskat.core.api.hqserv.*;
 import org.toxsoft.uskat.core.api.sysdescr.*;
 import org.toxsoft.uskat.core.api.sysdescr.dto.*;
+import org.toxsoft.uskat.core.api.ugwis.*;
 import org.toxsoft.uskat.core.connection.*;
 import org.toxsoft.uskat.core.impl.dto.*;
 
@@ -35,6 +36,8 @@ import org.toxsoft.uskat.core.impl.dto.*;
  * @author hazard157
  */
 public class SkCoreUtils {
+
+  // TODO do we need thread-safety in registries below?
 
   /**
    * Initializes static stuff, must be called once before any USkat usage.
@@ -49,6 +52,8 @@ public class SkCoreUtils {
     TsValobjUtils.registerKeeperIfNone( DtoCompletedCommand.KEEPER_ID, DtoCompletedCommand.KEEPER );
     TsValobjUtils.registerKeeperIfNone( ESkAuthentificationType.KEEPER_ID, ESkAuthentificationType.KEEPER );
     TsValobjUtils.registerKeeperIfNone( SkLoggedUserInfo.KEEPER_ID, SkLoggedUserInfo.KEEPER );
+    //
+    registerCoreApiHandler( SkUgwiUtils.ugwisRegistrationHandler );
   }
 
   /**
@@ -102,7 +107,7 @@ public class SkCoreUtils {
    * @return {@link IList}&lt;{@link ISkCoreExternalHandler}&gt; - registered handlers list
    */
   public static IList<ISkCoreExternalHandler> listRegisteredCoreApiHandlers() {
-    return new ElemArrayList<>( registeredCoreApiHandlersList );
+    return registeredCoreApiHandlersList.copyTo( null );
   }
 
   /**

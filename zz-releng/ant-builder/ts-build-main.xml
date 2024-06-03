@@ -21,10 +21,14 @@
     <ant dir="../../org.toxsoft.uskat.backend.sqlite" antfile="${ts-scripts-dir}/ts-build-lib.xml" target="build-lib-jar" />
     <ant dir="../../org.toxsoft.uskat.s5" antfile="${ts-scripts-dir}/ts-build-lib.xml" target="build-lib-jar" />
     <ant dir="../../org.toxsoft.uskat.s5.histdata10" antfile="${ts-scripts-dir}/ts-build-lib.xml" target="build-lib-jar" />
+    <!-- <ant dir="../../org.toxsoft.uskat.s5.schedules" antfile="${ts-scripts-dir}/ts-build-lib.xml" target="build-lib-jar" /> -->
     <ant dir="../../org.toxsoft.uskat.skadmin.core" antfile="${ts-scripts-dir}/ts-build-lib.xml" target="build-lib-jar" />
     <ant dir="../../org.toxsoft.uskat.skadmin.cli" antfile="${ts-scripts-dir}/ts-build-lib.xml" target="build-lib-jar" />
     <ant dir="../../org.toxsoft.uskat.skadmin.dev" antfile="${ts-scripts-dir}/ts-build-lib.xml" target="build-lib-jar" />
     <ant dir="../../org.toxsoft.uskat.skadmin.logon" antfile="${ts-scripts-dir}/ts-build-lib.xml" target="build-lib-jar" />
+    <ant dir="../../org.toxsoft.uskat.demo.skatlet" antfile="${ts-scripts-dir}/ts-build-lib.xml" target="build-lib-jar">
+      <property name="lib.jar" value="org.toxsoft.uskat.demo-skatlet.jar" />
+    </ant>
   </target>
 
   <!-- ЦЕЛЬ: сборка plugin-ов -->

@@ -7,7 +7,6 @@ import org.toxsoft.core.tslib.gw.ugwi.*;
 import org.toxsoft.core.tslib.utils.errors.*;
 import org.toxsoft.uskat.core.api.ugwis.*;
 import org.toxsoft.uskat.core.api.ugwis.kinds.*;
-import org.toxsoft.uskat.core.gui.ugwi.*;
 import org.toxsoft.uskat.core.gui.ugwi.gui.*;
 
 /**
@@ -16,22 +15,22 @@ import org.toxsoft.uskat.core.gui.ugwi.gui.*;
  * @author hazard157
  */
 public class UgwiGuiHelperSkAttr
-    extends UgwiKindGuiHelper<IAtomicValue> {
+    extends UgwiKindGuiHelperBase<IAtomicValue> {
 
-  /**
-   * The registrator singleton.
-   */
-  public static final SkUgwiGuiUtils.IRegistrator<IAtomicValue> REGISTRATOR =
-      aKind -> aKind.registerHelper( IUgwiKindGuiHelper.class, new UgwiGuiHelperSkAttr( aKind ) );
+  // /**
+  // * The registrator singleton.
+  // */
+  // public static final SkUgwiGuiUtils.IRegistrator<IAtomicValue> REGISTRATOR =
+  // aKind -> aKind.registerHelper( IUgwiKindGuiHelper.class, new UgwiGuiHelperSkAttr( aKind ) );
 
   /**
    * Constructor.
    *
-   * @param aKind {@link AbstractUgwiKind}&lt;T&gt; - the UGWI kind
+   * @param aKind {@link AbstractSkUgwiKind}&lt;T&gt; - the UGWI kind
    * @throws TsNullArgumentRtException any argument = <code>null</code>
    * @throws TsItemNotFoundRtException kind of the specified ID is not registered
    */
-  public UgwiGuiHelperSkAttr( AbstractUgwiKind<IAtomicValue> aKind ) {
+  public UgwiGuiHelperSkAttr( AbstractSkUgwiKind<IAtomicValue> aKind ) {
     super( aKind );
   }
 

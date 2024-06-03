@@ -94,7 +94,7 @@ public class DefaultGenericUgwiEditorPanel
     ValidationResult vr = Ugwi.validateCanonicalString( s );
     if( !vr.isError() ) {
       Ugwi u = Ugwi.fromCanonicalString( s );
-      vr = ValidationResult.firstNonOk( vr, ugwiGuiHelper.kind().validateUgwi( u ) );
+      vr = ValidationResult.firstNonOk( vr, ugwiGuiHelper.kind().ugwiKind().validateUgwi( u ) );
       if( !vr.isError() ) {
         ugwi = u;
       }
