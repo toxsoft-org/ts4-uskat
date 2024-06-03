@@ -3,7 +3,7 @@ package org.toxsoft.uskat.core.api.ugwis.kinds;
 /**
  * Localizable resources.
  *
- * @author hazard157
+ * @author hazard157, vs
  */
 interface ISkResources {
 
@@ -12,4 +12,7 @@ interface ISkResources {
 
   String STR_PROP_SKID   = Messages.getString( "STR_PROP_SKID" );   //$NON-NLS-1$
   String STR_PROP_SKID_D = Messages.getString( "STR_PROP_SKID_D" ); //$NON-NLS-1$
+
+  String STR_UK_SKID   = Messages.getString( "STR_UK_SKID" );   //$NON-NLS-1$
+  String STR_UK_SKID_D = Messages.getString( "STR_UK_SKID_D" ); //$NON-NLS-1$
 }

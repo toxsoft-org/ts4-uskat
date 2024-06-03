@@ -102,8 +102,8 @@ public class UgwiKindSkSkid
    */
   private UgwiKindSkSkid() {
     super( KIND_ID, OptionSetUtils.createOpSet( //
-        TSID_NAME, STR_UK_ATTR, //
-        TSID_DESCRIPTION, STR_UK_ATTR_D //
+        TSID_NAME, STR_UK_SKID, //
+        TSID_DESCRIPTION, STR_UK_SKID_D //
     ) );
   }
 
