@@ -17,14 +17,10 @@ import org.toxsoft.core.tslib.av.opset.*;
 import org.toxsoft.core.tslib.bricks.ctx.*;
 import org.toxsoft.core.tslib.bricks.keeper.std.*;
 import org.toxsoft.core.tslib.coll.primtypes.*;
-import org.toxsoft.core.tslib.coll.primtypes.impl.*;
 import org.toxsoft.core.tslib.gw.ugwi.*;
 import org.toxsoft.core.tslib.utils.*;
 import org.toxsoft.core.tslib.utils.errors.*;
 import org.toxsoft.uskat.core.*;
-import org.toxsoft.uskat.core.api.ugwis.*;
-import org.toxsoft.uskat.core.connection.*;
-import org.toxsoft.uskat.core.gui.conn.*;
 import org.toxsoft.uskat.core.gui.ugwi.kinds.*;
 
 /**
@@ -108,27 +104,34 @@ public class ValedUgwiSelectorFactory
     super( aContext );
     setParamIfNull( OPDEF_IS_WIDTH_FIXED, AV_FALSE );
     setParamIfNull( OPDEF_IS_HEIGHT_FIXED, AV_FALSE );
-    // TODO if needed to increase height
+    // TODO if need to increase height
     // setParamIfNull( OPDEF_VERTICAL_SPAN, new AvIntegerShortImpl( 3 ) );
   }
 
   @Override
   protected boolean doProcessButtonPress() {
-    // FIXME for debug only
+    Ugwi selUgwi = Ugwi.NONE;
     TsNullArgumentRtException.checkNull( tsContext() );
-    ISkConnectionSupplier connSupplier = tsContext().get( ISkConnectionSupplier.class );
-    ISkConnection conn = connSupplier.defConn();
-    IStringListEdit kindIdList = new StringArrayList();
-    for( ISkUgwiKind kind : conn.coreApi().ugwiService().listKinds() ) {
-      kindIdList.add( kind.id() );
+    ISkCoreApi coreApi = REFDEF_CORE_API.getRef( tsContext(), null );
+    TsNullArgumentRtException.checkNull( coreApi );
+    // check what user want
+    if( tsContext().params().hasValue( OPDEF_SINGLE_UGWI_KIND_ID ) ) {
+      String ugwiKindId = tsContext().params().getStr( OPDEF_SINGLE_UGWI_KIND_ID );
+      selUgwi = PanelUgwiSelector.selectUgwiSingleKind( tsContext(), canGetValue().isOk() ? getValue() : null, coreApi,
+          ugwiKindId );
     }
-    OPDEF_UGWI_KIND_IDS_LIST.setValue( tsContext().params(), avValobj( kindIdList ) );
+    else
+      if( tsContext().params().hasValue( OPDEF_UGWI_KIND_IDS_LIST ) ) {
+        IStringList kindIdList = OPDEF_UGWI_KIND_IDS_LIST.getValue( tsContext().params() ).asValobj();
+        selUgwi = PanelUgwiSelector.selectUgwiListKinds( tsContext(), canGetValue().isOk() ? getValue() : null, coreApi,
+            kindIdList );
+      }
+      else {
+        throw new TsIllegalStateRtException(
+            "No Ugwi kind to select. Set any one of options:\n - OPDEF_SINGLE_UGWI_KIND_ID\n - OPDEF_UGWI_KIND_IDS_LIST" );
+      }
 
-    // create and dispaly Ugwi selector
-    Ugwi selUgwi = PanelUgwiSelector.selectUgwiListKinds( tsContext(), canGetValue().isOk() ? getValue() : null,
-        conn.coreApi(), kindIdList );
-
-    if( selUgwi != null ) {
+    if( selUgwi != null && !selUgwi.equals( Ugwi.NONE ) ) {
       doSetUnvalidatedValue( selUgwi );
       value = selUgwi;
       return true;

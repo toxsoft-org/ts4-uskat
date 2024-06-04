@@ -1,6 +1,7 @@
 package org.toxsoft.uskat.core.gui.ugwi.valed;
 
 import static org.toxsoft.core.tslib.av.impl.AvUtils.*;
+import static org.toxsoft.uskat.core.gui.ugwi.valed.ValedUgwiSelectorFactory.*;
 
 import org.eclipse.swt.*;
 import org.eclipse.swt.custom.*;
@@ -44,7 +45,7 @@ public class PanelUgwiSelector
    */
   public PanelUgwiSelector( Composite aParent, TsDialog<Ugwi, ITsGuiContext> aOwnerDialog ) {
     super( aParent, aOwnerDialog );
-    coreApi = ValedUgwiSelectorFactory.REFDEF_CORE_API.getRef( environ() );
+    coreApi = REFDEF_CORE_API.getRef( environ() );
     TsInternalErrorRtException.checkNull( coreApi );
     Composite bkPanel = new Composite( aParent, SWT.NONE );
     bkPanel.setLayoutData( BorderLayout.CENTER );
@@ -59,12 +60,12 @@ public class PanelUgwiSelector
     // place to the nort of parent
     kindBackPanel.setLayoutData( BorderLayout.NORTH );
     // get selection options
-    if( environ().params().hasValue( ValedUgwiSelectorFactory.OPDEF_SINGLE_UGWI_KIND_ID ) ) {
+    if( environ().params().hasValue( OPDEF_SINGLE_UGWI_KIND_ID ) ) {
       createSingleKindPanel( kindBackPanel );
       return;
     }
     else
-      if( environ().params().hasValue( ValedUgwiSelectorFactory.OPDEF_UGWI_KIND_IDS_LIST ) ) {
+      if( environ().params().hasValue( OPDEF_UGWI_KIND_IDS_LIST ) ) {
         createKindComboPanel( kindBackPanel );
         return;
       }
@@ -81,7 +82,7 @@ public class PanelUgwiSelector
     aBkPanel.setLayout( gl );
     CLabel l = new CLabel( aBkPanel, SWT.LEFT );
     l.setText( "Типы: " );
-    IStringList ugwiKindList = environ().params().getValobj( ValedUgwiSelectorFactory.OPDEF_UGWI_KIND_IDS_LIST );
+    IStringList ugwiKindList = environ().params().getValobj( OPDEF_UGWI_KIND_IDS_LIST );
     ITsVisualsProvider<String> visualsProvider = aItem -> aItem;
     ugwiKindsCombo = new ValedComboSelector<>( tsContext(), ugwiKindList, visualsProvider );
     ugwiKindsCombo.createControl( aBkPanel ).setLayoutData( new GridData( GridData.FILL, GridData.FILL, true, false ) );
@@ -109,7 +110,7 @@ public class PanelUgwiSelector
    * @param aBackPanel - back panel
    */
   private void createSingleKindPanel( Composite aBackPanel ) {
-    String ugwiKindId = environ().params().getValobj( ValedUgwiSelectorFactory.OPDEF_SINGLE_UGWI_KIND_ID );
+    String ugwiKindId = environ().params().getValobj( OPDEF_SINGLE_UGWI_KIND_ID );
     GridLayout gl = new GridLayout( 2, false );
     aBackPanel.setLayout( gl );
     CLabel l = new CLabel( aBackPanel, SWT.LEFT );
@@ -131,11 +132,11 @@ public class PanelUgwiSelector
   @Override
   protected void doSetDataRecord( Ugwi aUgwi ) {
     if( aUgwi != null ) {
-      if( environ().params().hasValue( ValedUgwiSelectorFactory.OPDEF_SINGLE_UGWI_KIND_ID ) ) {
+      if( environ().params().hasValue( OPDEF_SINGLE_UGWI_KIND_ID ) ) {
         fixedKindText.setText( aUgwi.kindId() );
       }
       else
-        if( environ().params().hasValue( ValedUgwiSelectorFactory.OPDEF_UGWI_KIND_IDS_LIST ) ) {
+        if( environ().params().hasValue( OPDEF_UGWI_KIND_IDS_LIST ) ) {
           ugwiKindsCombo.setSelectedItem( aUgwi.kindId() );
         }
       ugwSelector.setSelectedItem( aUgwi );
@@ -169,8 +170,8 @@ public class PanelUgwiSelector
   public static final Ugwi selectUgwiSingleKind( ITsGuiContext aContext, Ugwi aInitUgwi, ISkCoreApi aCoreApi,
       String aSingleUgwiKindId ) {
     TsNullArgumentRtException.checkNulls( aContext, aCoreApi );
-    ValedUgwiSelectorFactory.REFDEF_CORE_API.setRef( aContext, aCoreApi );
-    ValedUgwiSelectorFactory.OPDEF_SINGLE_UGWI_KIND_ID.setValue( aContext.params(), avStr( aSingleUgwiKindId ) );
+    REFDEF_CORE_API.setRef( aContext, aCoreApi );
+    OPDEF_SINGLE_UGWI_KIND_ID.setValue( aContext.params(), avStr( aSingleUgwiKindId ) );
 
     IDialogPanelCreator<Ugwi, ITsGuiContext> creator = PanelUgwiSelector::new;
     ITsDialogInfo dlgInfo = new TsDialogInfo( aContext, "Ugwi selector", "Select Ugwi and press Ok" );
@@ -191,8 +192,8 @@ public class PanelUgwiSelector
   public static final Ugwi selectUgwiListKinds( ITsGuiContext aContext, Ugwi aInitUgwi, ISkCoreApi aCoreApi,
       IStringList aUgwiKindIdList ) {
     TsNullArgumentRtException.checkNulls( aContext, aCoreApi );
-    ValedUgwiSelectorFactory.REFDEF_CORE_API.setRef( aContext, aCoreApi );
-    ValedUgwiSelectorFactory.OPDEF_UGWI_KIND_IDS_LIST.setValue( aContext.params(), avValobj( aUgwiKindIdList ) );
+    REFDEF_CORE_API.setRef( aContext, aCoreApi );
+    OPDEF_UGWI_KIND_IDS_LIST.setValue( aContext.params(), avValobj( aUgwiKindIdList ) );
 
     IDialogPanelCreator<Ugwi, ITsGuiContext> creator = PanelUgwiSelector::new;
     ITsDialogInfo dlgInfo = new TsDialogInfo( aContext, "Ugwi selector", "Select Ugwi and press Ok" );
