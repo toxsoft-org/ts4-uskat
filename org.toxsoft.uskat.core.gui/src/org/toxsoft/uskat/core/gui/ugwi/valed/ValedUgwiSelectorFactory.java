@@ -5,6 +5,7 @@ import static org.toxsoft.core.tslib.ITsHardConstants.*;
 import static org.toxsoft.core.tslib.av.EAtomicType.*;
 import static org.toxsoft.core.tslib.av.impl.AvUtils.*;
 import static org.toxsoft.core.tslib.av.metainfo.IAvMetaConstants.*;
+import static org.toxsoft.uskat.core.gui.ugwi.valed.ISkResources.*;
 
 import org.toxsoft.core.tsgui.bricks.ctx.*;
 import org.toxsoft.core.tsgui.bricks.ctx.impl.*;
@@ -63,14 +64,15 @@ public class ValedUgwiSelectorFactory
    * {@link ValedUgwiSelectorFactory#params()} option: ID of the Ugwi kind .
    */
   public static final IDataDef OPDEF_SINGLE_UGWI_KIND_ID = DataDef.create( OPID_SINGLE_UGWI_KIND_ID, STRING, //
+      // FIXME correct default type id
       TSID_DEFAULT_VALUE, UgwiGuiHelperSkSkid.NONE_ID );
 
   /**
    * {@link ValedUgwiSelectorFactory#params()} option: ID of the Ugwi kind .
    */
   public static final IDataDef OPDEF_UGWI_KIND_IDS_LIST = DataDef.create( OPID_UGWI_KIND_IDS_LIST, VALOBJ, //
-      TSID_NAME, "list of Ugwi kind ids", //
-      TSID_DESCRIPTION, "List of Ugwi kind ids applyable in that context", //
+      TSID_NAME, STR_N_UGWI_KIND_IDS_LIST, //
+      TSID_DESCRIPTION, STR_D_UGWI_KIND_IDS_LIST, //
       TSID_KEEPER_ID, StringListKeeper.KEEPER_ID, //
       TSID_DEFAULT_VALUE, avValobj( IStringList.EMPTY ) );
 
@@ -127,8 +129,7 @@ public class ValedUgwiSelectorFactory
             kindIdList );
       }
       else {
-        throw new TsIllegalStateRtException(
-            "No Ugwi kind to select. Set any one of options:\n - OPDEF_SINGLE_UGWI_KIND_ID\n - OPDEF_UGWI_KIND_IDS_LIST" );
+        throw new TsIllegalStateRtException( VALED_ERR_MSG_NO_UGWI_KIND );
       }
 
     if( selUgwi != null && !selUgwi.equals( Ugwi.NONE ) ) {

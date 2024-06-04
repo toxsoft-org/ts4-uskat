@@ -22,4 +22,11 @@ interface ISkResources {
    */
   String VALED_ERR_MSG_NO_UGWI_KIND =
       "No Ugwi kind to select from. Set any one of options:\n - OPDEF_SINGLE_UGWI_KIND_ID\n - OPDEF_UGWI_KIND_IDS_LIST";
+
+  /**
+   * {@link ValedUgwiSelectorFactory}
+   */
+  String STR_N_UGWI_KIND_IDS_LIST = "list of Ugwi kind ids";
+  String STR_D_UGWI_KIND_IDS_LIST = "List of Ugwi kind ids applayble in context";
+
 }
