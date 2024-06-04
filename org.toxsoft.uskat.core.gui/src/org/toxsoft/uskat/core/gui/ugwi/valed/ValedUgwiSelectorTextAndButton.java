@@ -14,6 +14,7 @@ import org.toxsoft.core.tslib.gw.ugwi.*;
 import org.toxsoft.core.tslib.utils.*;
 import org.toxsoft.core.tslib.utils.errors.*;
 import org.toxsoft.uskat.core.*;
+import org.toxsoft.uskat.core.gui.*;
 
 /**
  * Ugwi selector VALED.
@@ -72,7 +73,7 @@ public class ValedUgwiSelectorTextAndButton
   protected boolean doProcessButtonPress() {
     Ugwi selUgwi = Ugwi.NONE;
     TsNullArgumentRtException.checkNull( tsContext() );
-    ISkCoreApi coreApi = REFDEF_CORE_API.getRef( tsContext(), null );
+    ISkCoreApi coreApi = ISkCoreGuiConstants.REFDEF_SK_VALED_CORE_API.getRef( tsContext(), null );
     TsNullArgumentRtException.checkNull( coreApi );
     // check what user want
     if( tsContext().params().hasValue( OPDEF_SINGLE_UGWI_KIND_ID ) ) {

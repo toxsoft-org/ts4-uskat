@@ -1,13 +1,18 @@
 package org.toxsoft.uskat.core.gui;
 
 import static org.toxsoft.core.tsgui.graphics.icons.ITsStdIconIds.*;
+import static org.toxsoft.core.tslib.ITsHardConstants.*;
 import static org.toxsoft.core.tslib.av.metainfo.IAvMetaConstants.*;
 import static org.toxsoft.uskat.core.ISkHardConstants.*;
 import static org.toxsoft.uskat.core.gui.km5.sded.ISkSdedKm5SharedResources.*;
 
 import org.eclipse.e4.core.contexts.*;
 import org.toxsoft.core.tsgui.bricks.actions.*;
+import org.toxsoft.core.tsgui.bricks.ctx.impl.*;
 import org.toxsoft.core.tsgui.graphics.icons.*;
+import org.toxsoft.core.tslib.av.opset.*;
+import org.toxsoft.core.tslib.bricks.ctx.*;
+import org.toxsoft.uskat.core.*;
 
 /**
  * Plugin constants.
@@ -47,6 +52,17 @@ public interface ISkCoreGuiConstants {
   String ICONID_USKAT_SERVER       = "uskat-server";      //$NON-NLS-1$
   String ICONID_USKAT_CONNECT      = "uskat-connect";     //$NON-NLS-1$
   String ICONID_USKAT_DISCONNECT   = "uskat-disconnect";  //$NON-NLS-1$
+
+  // ------------------------------------------------------------------------------------
+  // Sk-related VALED constants
+  //
+
+  /**
+   * The reference in the context to initialize {@link ISkCoreApi} for VALEDs.
+   */
+  ITsContextRefDef<ISkCoreApi> REFDEF_SK_VALED_CORE_API =
+      new TsGuiContextRefDef<>( TS_FULL_ID + ".gui.ValedUgwiSelectorFactory.RefCoreApi", //$NON-NLS-1$
+          ISkCoreApi.class, IOptionSet.NULL );
 
   // ------------------------------------------------------------------------------------
   // Actions
