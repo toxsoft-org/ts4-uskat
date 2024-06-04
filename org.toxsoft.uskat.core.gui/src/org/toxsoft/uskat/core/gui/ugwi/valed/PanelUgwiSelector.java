@@ -20,6 +20,7 @@ import org.toxsoft.core.tslib.gw.ugwi.*;
 import org.toxsoft.core.tslib.utils.errors.*;
 import org.toxsoft.uskat.core.*;
 import org.toxsoft.uskat.core.api.ugwis.*;
+import org.toxsoft.uskat.core.gui.*;
 import org.toxsoft.uskat.core.gui.ugwi.gui.*;
 
 /**
@@ -47,7 +48,7 @@ public class PanelUgwiSelector
    */
   public PanelUgwiSelector( Composite aParent, TsDialog<Ugwi, ITsGuiContext> aOwnerDialog ) {
     super( aParent, aOwnerDialog );
-    coreApi = REFDEF_CORE_API.getRef( environ() );
+    coreApi = ISkCoreGuiConstants.REFDEF_SK_VALED_CORE_API.getRef( environ() );
     TsInternalErrorRtException.checkNull( coreApi );
     Composite bkPanel = new Composite( aParent, SWT.NONE );
     bkPanel.setLayoutData( BorderLayout.CENTER );
@@ -115,7 +116,7 @@ public class PanelUgwiSelector
    * @param aBackPanel - back panel
    */
   private void createSingleKindPanel( Composite aBackPanel ) {
-    currUgwiKindId = environ().params().getValobj( OPDEF_SINGLE_UGWI_KIND_ID );
+    currUgwiKindId = environ().params().getStr( OPDEF_SINGLE_UGWI_KIND_ID );
     GridLayout gl = new GridLayout( 2, false );
     aBackPanel.setLayout( gl );
     CLabel l = new CLabel( aBackPanel, SWT.LEFT );
@@ -177,7 +178,7 @@ public class PanelUgwiSelector
   public static final Ugwi selectUgwiSingleKind( ITsGuiContext aContext, Ugwi aInitUgwi, ISkCoreApi aCoreApi,
       String aSingleUgwiKindId ) {
     TsNullArgumentRtException.checkNulls( aContext, aCoreApi );
-    REFDEF_CORE_API.setRef( aContext, aCoreApi );
+    ISkCoreGuiConstants.REFDEF_SK_VALED_CORE_API.setRef( aContext, aCoreApi );
     OPDEF_SINGLE_UGWI_KIND_ID.setValue( aContext.params(), avStr( aSingleUgwiKindId ) );
 
     IDialogPanelCreator<Ugwi, ITsGuiContext> creator = PanelUgwiSelector::new;
@@ -199,7 +200,7 @@ public class PanelUgwiSelector
   public static final Ugwi selectUgwiListKinds( ITsGuiContext aContext, Ugwi aInitUgwi, ISkCoreApi aCoreApi,
       IStringList aUgwiKindIdList ) {
     TsNullArgumentRtException.checkNulls( aContext, aCoreApi );
-    REFDEF_CORE_API.setRef( aContext, aCoreApi );
+    ISkCoreGuiConstants.REFDEF_SK_VALED_CORE_API.setRef( aContext, aCoreApi );
     OPDEF_UGWI_KIND_IDS_LIST.setValue( aContext.params(), avValobj( aUgwiKindIdList ) );
 
     IDialogPanelCreator<Ugwi, ITsGuiContext> creator = PanelUgwiSelector::new;
