@@ -22,4 +22,7 @@ interface ISkResources {
   String STR_UK_RTDATA   = "Rtdata value";
   String STR_UK_RTDATA_D = "The Sk-object Rtdata vlaue";
 
+  String STR_UK_RIVET   = "Ugwi type - rivet";
+  String STR_UK_RIVET_D = "Ugwi type - ISkidList of the riveted objects";
+
 }

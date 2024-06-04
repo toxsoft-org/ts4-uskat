@@ -29,6 +29,7 @@ public class SkUgwiUtils {
     ugwiKindsList.add( UgwiKindSkRtdata.INSTANCE );
     ugwiKindsList.add( UgwiKindSkSkid.INSTANCE );
     ugwiKindsList.add( UgwiKindSkLink.INSTANCE );
+    ugwiKindsList.add( UgwiKindSkRivet.INSTANCE );
     // TODO add all built-in registrators
   }
 

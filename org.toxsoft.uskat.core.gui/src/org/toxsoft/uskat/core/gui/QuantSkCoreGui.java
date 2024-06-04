@@ -62,6 +62,7 @@ public class QuantSkCoreGui
     us.registerKind( UgwiKindSkRtdata.INSTANCE.createUgwiKind( aCoreApi ) );
     us.registerKind( UgwiKindSkSkid.INSTANCE.createUgwiKind( aCoreApi ) );
     us.registerKind( UgwiKindSkLink.INSTANCE.createUgwiKind( aCoreApi ) );
+    us.registerKind( UgwiKindSkRivet.INSTANCE.createUgwiKind( aCoreApi ) );
     // TODO add other builtin UGWI kind GUI helpers
   }
 
