@@ -92,9 +92,8 @@ public class QuantSkCoreGui
     facReg.registerFactory( ValedConnConfIdCombo.FACTORY );
     facReg.registerFactory( ValedSkidListEditor.FACTORY );
     facReg.registerFactory( ValedAvValobjSkidListEditor.FACTORY );
-    // FIXME dima, it seems to me the next two valed equal each other
     facReg.registerFactory( ValedUgwiSelectorTextAndButton.FACTORY );
-    facReg.registerFactory( ValedUgwiSelectorFactory.FACTORY );
+    facReg.registerFactory( ValedAvValobjUgwiSelectorTextAndButton.FACTORY );
 
   }
 
