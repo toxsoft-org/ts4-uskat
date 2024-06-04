@@ -1,6 +1,7 @@
 package org.toxsoft.uskat.core.gui.ugwi.valed;
 
 import static org.toxsoft.core.tslib.av.impl.AvUtils.*;
+import static org.toxsoft.uskat.core.gui.ugwi.valed.ISkResources.*;
 import static org.toxsoft.uskat.core.gui.ugwi.valed.ValedUgwiSelectorFactory.*;
 
 import org.eclipse.swt.*;
@@ -32,10 +33,11 @@ public class PanelUgwiSelector
 
   private Text                        fixedKindText;
   private ValedComboSelector<String>  ugwiKindsCombo;
-  private IUgwiKindGuiHelper          ugwiHelper;
   private Control                     selectPanel = null;
   private IGenericSelectorPanel<Ugwi> ugwSelector;
   private ISkCoreApi                  coreApi;
+  private Composite                   selectBackPanel;
+  private String                      currUgwiKindId;
 
   /**
    * Конструктор панели, предназначенной для вставки в диалог {@link TsDialog}.
@@ -69,7 +71,7 @@ public class PanelUgwiSelector
         createKindComboPanel( kindBackPanel );
         return;
       }
-    throw new TsIllegalStateRtException( "No Ugwi kind to select" );
+    throw new TsIllegalStateRtException( PANEL_ERR_MSG_NO_UGWI_KIND );
   }
 
   /**
@@ -81,23 +83,26 @@ public class PanelUgwiSelector
     GridLayout gl = new GridLayout( 2, false );
     aBkPanel.setLayout( gl );
     CLabel l = new CLabel( aBkPanel, SWT.LEFT );
-    l.setText( "Типы: " );
+    l.setText( STR_SINGLE_UGWI_KIND );
     IStringList ugwiKindList = environ().params().getValobj( OPDEF_UGWI_KIND_IDS_LIST );
     ITsVisualsProvider<String> visualsProvider = aItem -> aItem;
     ugwiKindsCombo = new ValedComboSelector<>( tsContext(), ugwiKindList, visualsProvider );
     ugwiKindsCombo.createControl( aBkPanel ).setLayoutData( new GridData( GridData.FILL, GridData.FILL, true, false ) );
-    ugwiKindsCombo.setSelectedItem( ugwiKindList.first() );
+    currUgwiKindId = ugwiKindList.first();
+    ugwiKindsCombo.setSelectedItem( currUgwiKindId );
 
     ugwiKindsCombo.eventer().addListener( ( aSource, aEditFinished ) -> {
-      String ugwiKindId = ugwiKindsCombo.selectedItem();
-      if( ugwiKindId != null ) {
-        ISkUgwiKind uKind = coreApi.ugwiService().listKinds().findByKey( ugwiKindId );
+      currUgwiKindId = ugwiKindsCombo.selectedItem();
+      if( currUgwiKindId != null ) {
+        ISkUgwiKind uKind = coreApi.ugwiService().listKinds().findByKey( currUgwiKindId );
         if( uKind != null ) {
           if( selectPanel != null ) {
             selectPanel.dispose();
           }
+          // recreate panel for selection
+          IUgwiKindGuiHelper ugwiHelper = coreApi.ugwiService().findHelper( currUgwiKindId, IUgwiKindGuiHelper.class );
           ugwSelector = ugwiHelper.createUgwiSelectorPanel( environ() );
-          selectPanel = ugwSelector.createControl( aBkPanel );
+          selectPanel = ugwSelector.createControl( selectBackPanel );
           aBkPanel.layout( true );
         }
       }
@@ -110,28 +115,30 @@ public class PanelUgwiSelector
    * @param aBackPanel - back panel
    */
   private void createSingleKindPanel( Composite aBackPanel ) {
-    String ugwiKindId = environ().params().getValobj( OPDEF_SINGLE_UGWI_KIND_ID );
+    currUgwiKindId = environ().params().getValobj( OPDEF_SINGLE_UGWI_KIND_ID );
     GridLayout gl = new GridLayout( 2, false );
     aBackPanel.setLayout( gl );
     CLabel l = new CLabel( aBackPanel, SWT.LEFT );
-    l.setText( "Тип: " );
+    l.setText( STR_LIST_UGWI_KINDS );
     fixedKindText = new Text( aBackPanel, SWT.BORDER );
     fixedKindText.setEditable( false );
     fixedKindText.setLayoutData( new GridData( SWT.FILL, SWT.LEFT, true, false ) );
-    fixedKindText.setText( ugwiKindId );
+    fixedKindText.setText( currUgwiKindId );
   }
 
   protected void initSelectPanel( Composite aParent ) {
-    Composite bkPanel = new Composite( aParent, SWT.NONE );
-    bkPanel.setLayoutData( BorderLayout.CENTER );
-    bkPanel.setLayout( new BorderLayout() );
+    selectBackPanel = new Composite( aParent, SWT.NONE );
+    selectBackPanel.setLayoutData( BorderLayout.CENTER );
+    selectBackPanel.setLayout( new BorderLayout() );
+    IUgwiKindGuiHelper ugwiHelper = coreApi.ugwiService().findHelper( currUgwiKindId, IUgwiKindGuiHelper.class );
     IGenericSelectorPanel<Ugwi> selector = ugwiHelper.createUgwiSelectorPanel( environ() );
-    selectPanel = selector.createControl( bkPanel );
+    selectPanel = selector.createControl( selectBackPanel );
   }
 
   @Override
   protected void doSetDataRecord( Ugwi aUgwi ) {
     if( aUgwi != null ) {
+      currUgwiKindId = aUgwi.kindId();
       if( environ().params().hasValue( OPDEF_SINGLE_UGWI_KIND_ID ) ) {
         fixedKindText.setText( aUgwi.kindId() );
       }
@@ -174,7 +181,7 @@ public class PanelUgwiSelector
     OPDEF_SINGLE_UGWI_KIND_ID.setValue( aContext.params(), avStr( aSingleUgwiKindId ) );
 
     IDialogPanelCreator<Ugwi, ITsGuiContext> creator = PanelUgwiSelector::new;
-    ITsDialogInfo dlgInfo = new TsDialogInfo( aContext, "Ugwi selector", "Select Ugwi and press Ok" );
+    ITsDialogInfo dlgInfo = new TsDialogInfo( aContext, DLG_CAPTION_STR, DLG_TITLE_STR );
     TsDialog<Ugwi, ITsGuiContext> d = new TsDialog<>( dlgInfo, aInitUgwi, aContext, creator );
     return d.execData();
   }
@@ -196,7 +203,7 @@ public class PanelUgwiSelector
     OPDEF_UGWI_KIND_IDS_LIST.setValue( aContext.params(), avValobj( aUgwiKindIdList ) );
 
     IDialogPanelCreator<Ugwi, ITsGuiContext> creator = PanelUgwiSelector::new;
-    ITsDialogInfo dlgInfo = new TsDialogInfo( aContext, "Ugwi selector", "Select Ugwi and press Ok" );
+    ITsDialogInfo dlgInfo = new TsDialogInfo( aContext, DLG_CAPTION_STR, DLG_TITLE_STR );
     TsDialog<Ugwi, ITsGuiContext> d = new TsDialog<>( dlgInfo, aInitUgwi, aContext, creator );
     return d.execData();
   }
