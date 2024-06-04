@@ -40,4 +40,5 @@ Export-Package: org.toxsoft.uskat.core.gui,
  org.toxsoft.uskat.core.gui.ugwi,
  org.toxsoft.uskat.core.gui.ugwi.gui,
  org.toxsoft.uskat.core.gui.ugwi.kinds,
+ org.toxsoft.uskat.core.gui.ugwi.valed,
  org.toxsoft.uskat.core.gui.utils

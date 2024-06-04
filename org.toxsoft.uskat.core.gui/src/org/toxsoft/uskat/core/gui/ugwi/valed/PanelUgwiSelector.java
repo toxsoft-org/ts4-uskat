@@ -116,7 +116,7 @@ public class PanelUgwiSelector
    * @param aBackPanel - back panel
    */
   private void createSingleKindPanel( Composite aBackPanel ) {
-    currUgwiKindId = environ().params().getValobj( OPDEF_SINGLE_UGWI_KIND_ID );
+    currUgwiKindId = environ().params().getStr( OPDEF_SINGLE_UGWI_KIND_ID );
     GridLayout gl = new GridLayout( 2, false );
     aBackPanel.setLayout( gl );
     CLabel l = new CLabel( aBackPanel, SWT.LEFT );
