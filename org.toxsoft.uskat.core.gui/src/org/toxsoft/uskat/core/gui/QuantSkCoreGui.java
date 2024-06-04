@@ -19,6 +19,7 @@ import org.toxsoft.uskat.core.gui.km5.sded.objed.*;
 import org.toxsoft.uskat.core.gui.km5.sded.sded.*;
 import org.toxsoft.uskat.core.gui.km5.sded.sded.editors.*;
 import org.toxsoft.uskat.core.gui.km5.sgw.*;
+import org.toxsoft.uskat.core.gui.ugwi.valed.*;
 import org.toxsoft.uskat.core.impl.*;
 
 /**
@@ -90,6 +91,10 @@ public class QuantSkCoreGui
     facReg.registerFactory( ValedConnConfIdCombo.FACTORY );
     facReg.registerFactory( ValedSkidListEditor.FACTORY );
     facReg.registerFactory( ValedAvValobjSkidListEditor.FACTORY );
+    // FIXME dima, it seems to me the next two valed equal each other
+    facReg.registerFactory( ValedUgwiSelectorTextAndButton.FACTORY );
+    facReg.registerFactory( ValedUgwiSelectorFactory.FACTORY );
+
   }
 
   @Override
