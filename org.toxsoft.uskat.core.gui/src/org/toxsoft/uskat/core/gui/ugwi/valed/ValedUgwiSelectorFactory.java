@@ -22,7 +22,7 @@ import org.toxsoft.core.tslib.gw.ugwi.*;
 import org.toxsoft.core.tslib.utils.*;
 import org.toxsoft.core.tslib.utils.errors.*;
 import org.toxsoft.uskat.core.*;
-import org.toxsoft.uskat.core.gui.ugwi.kinds.*;
+import org.toxsoft.uskat.core.api.ugwis.kinds.*;
 
 /**
  * Ugwi selector VALED.
@@ -65,7 +65,7 @@ public class ValedUgwiSelectorFactory
    */
   public static final IDataDef OPDEF_SINGLE_UGWI_KIND_ID = DataDef.create( OPID_SINGLE_UGWI_KIND_ID, STRING, //
       // FIXME correct default type id
-      TSID_DEFAULT_VALUE, UgwiGuiHelperSkSkid.NONE_ID );
+      TSID_DEFAULT_VALUE, UgwiKindSkAttr.KIND_ID );
 
   /**
    * {@link ValedUgwiSelectorFactory#params()} option: ID of the Ugwi kind .
