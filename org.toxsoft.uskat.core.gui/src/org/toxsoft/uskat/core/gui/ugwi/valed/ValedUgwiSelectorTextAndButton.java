@@ -2,6 +2,7 @@ package org.toxsoft.uskat.core.gui.ugwi.valed;
 
 import static org.toxsoft.core.tsgui.valed.api.IValedControlConstants.*;
 import static org.toxsoft.core.tslib.av.impl.AvUtils.*;
+import static org.toxsoft.uskat.core.gui.ugwi.valed.ISkResources.*;
 import static org.toxsoft.uskat.core.gui.ugwi.valed.ValedUgwiSelectorFactory.*;
 
 import org.toxsoft.core.tsgui.bricks.ctx.*;
@@ -86,8 +87,7 @@ public class ValedUgwiSelectorTextAndButton
             kindIdList );
       }
       else {
-        throw new TsIllegalStateRtException(
-            "No Ugwi kind to select from. Set any one of options:\n - OPDEF_SINGLE_UGWI_KIND_ID\n - OPDEF_UGWI_KIND_IDS_LIST" );
+        throw new TsIllegalStateRtException( VALED_ERR_MSG_NO_UGWI_KIND );
       }
 
     if( selUgwi != null && !selUgwi.equals( Ugwi.NONE ) ) {
