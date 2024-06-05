@@ -102,6 +102,9 @@ public class PanelUgwiSelector
           }
           // recreate panel for selection
           IUgwiKindGuiHelper ugwiHelper = coreApi.ugwiService().findHelper( currUgwiKindId, IUgwiKindGuiHelper.class );
+          if( ugwSelector != null ) {
+            ugwSelector.getControl().dispose();
+          }
           ugwSelector = ugwiHelper.createUgwiSelectorPanel( environ() );
           selectPanel = ugwSelector.createControl( selectBackPanel );
           aBkPanel.layout( true );
@@ -147,17 +150,26 @@ public class PanelUgwiSelector
         if( environ().params().hasValue( OPDEF_UGWI_KIND_IDS_LIST ) ) {
           ugwiKindsCombo.setSelectedItem( aUgwi.kindId() );
         }
-      ugwSelector.setSelectedItem( aUgwi );
+
+      // FIXME need to initialize ugwiSelector for specified kind
+
+      if( ugwSelector != null ) {
+        ugwSelector.setSelectedItem( aUgwi );
+      }
     }
   }
 
   @Override
   protected Ugwi doGetDataRecord() {
-    return ugwSelector.selectedItem();
+    if( ugwSelector != null ) {
+      return ugwSelector.selectedItem();
+    }
+    return null;
   }
 
   @Override
   protected ValidationResult doValidate() {
+    // TODO what if ugwiSelector == null ?
     return ValidationResult.SUCCESS;
   }
 
