@@ -5,10 +5,6 @@ import org.toxsoft.core.tsgui.bricks.quant.*;
 import org.toxsoft.core.tsgui.m5.*;
 import org.toxsoft.core.tsgui.valed.api.*;
 import org.toxsoft.core.tslib.utils.valobj.*;
-import org.toxsoft.uskat.core.api.*;
-import org.toxsoft.uskat.core.api.ugwis.*;
-import org.toxsoft.uskat.core.api.ugwis.kinds.*;
-import org.toxsoft.uskat.core.devapi.*;
 import org.toxsoft.uskat.core.gui.conn.*;
 import org.toxsoft.uskat.core.gui.conn.cfg.*;
 import org.toxsoft.uskat.core.gui.conn.m5.*;
@@ -20,7 +16,6 @@ import org.toxsoft.uskat.core.gui.km5.sded.sded.*;
 import org.toxsoft.uskat.core.gui.km5.sded.sded.editors.*;
 import org.toxsoft.uskat.core.gui.km5.sgw.*;
 import org.toxsoft.uskat.core.gui.ugwi.valed.*;
-import org.toxsoft.uskat.core.impl.*;
 
 /**
  * The library quant.
@@ -28,8 +23,7 @@ import org.toxsoft.uskat.core.impl.*;
  * @author hazard157
  */
 public class QuantSkCoreGui
-    extends AbstractQuant
-    implements ISkCoreExternalHandler {
+    extends AbstractQuant {
 
   private ISkConnectionSupplier connectionSupplier = null;
 
@@ -39,8 +33,6 @@ public class QuantSkCoreGui
   public QuantSkCoreGui() {
     super( QuantSkCoreGui.class.getSimpleName() );
     TsValobjUtils.registerKeeperIfNone( LinkIdSkidList.KEEPER_ID, LinkIdSkidList.KEEPER );
-    // register this quant as Core API handler
-    SkCoreUtils.registerCoreApiHandler( this );
 
     // FIXME --- change KM5 initialization to ISkCoreExternalHandler and move code to processSkCoreInitialization()
     KM5Utils.registerContributorCreator( KM5FirstContributor.CREATOR );
@@ -49,21 +41,6 @@ public class QuantSkCoreGui
     KM5Utils.registerContributorCreator( KM5ObjedContributor.CREATOR );
     // ---
 
-  }
-
-  // ------------------------------------------------------------------------------------
-  // ISkCoreExternalHandler
-  //
-
-  @Override
-  public void processSkCoreInitialization( IDevCoreApi aCoreApi ) {
-    ISkUgwiService us = aCoreApi.ugwiService();
-    us.registerKind( UgwiKindSkAttr.INSTANCE.createUgwiKind( aCoreApi ) );
-    us.registerKind( UgwiKindSkRtdata.INSTANCE.createUgwiKind( aCoreApi ) );
-    us.registerKind( UgwiKindSkSkid.INSTANCE.createUgwiKind( aCoreApi ) );
-    us.registerKind( UgwiKindSkLink.INSTANCE.createUgwiKind( aCoreApi ) );
-    us.registerKind( UgwiKindSkRivet.INSTANCE.createUgwiKind( aCoreApi ) );
-    // TODO add other builtin UGWI kind GUI helpers
   }
 
   // ------------------------------------------------------------------------------------
