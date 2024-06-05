@@ -50,12 +50,13 @@ public class PanelUgwiSelector
     super( aParent, aOwnerDialog );
     coreApi = ISkCoreGuiConstants.REFDEF_SK_VALED_CORE_API.getRef( environ() );
     TsInternalErrorRtException.checkNull( coreApi );
-    Composite bkPanel = new Composite( aParent, SWT.NONE );
-    bkPanel.setLayoutData( BorderLayout.CENTER );
+    BorderLayout borderLayout = new BorderLayout();
+    this.setLayout( borderLayout );
+
     // init Ugwi kind panel
-    initKindPanel( bkPanel );
+    initKindPanel( this );
     // init selection of concrete panel
-    initSelectPanel( bkPanel );
+    initSelectPanel( this );
   }
 
   private void initKindPanel( Composite aBkPanel ) {
@@ -102,6 +103,9 @@ public class PanelUgwiSelector
           }
           // recreate panel for selection
           IUgwiKindGuiHelper ugwiHelper = coreApi.ugwiService().findHelper( currUgwiKindId, IUgwiKindGuiHelper.class );
+          if( ugwSelector != null ) {
+            ugwSelector.getControl().dispose();
+          }
           ugwSelector = ugwiHelper.createUgwiSelectorPanel( environ() );
           selectPanel = ugwSelector.createControl( selectBackPanel );
           aBkPanel.layout( true );
@@ -120,7 +124,7 @@ public class PanelUgwiSelector
     GridLayout gl = new GridLayout( 2, false );
     aBackPanel.setLayout( gl );
     CLabel l = new CLabel( aBackPanel, SWT.LEFT );
-    l.setText( STR_LIST_UGWI_KINDS );
+    l.setText( STR_SINGLE_UGWI_KIND );
     fixedKindText = new Text( aBackPanel, SWT.BORDER );
     fixedKindText.setEditable( false );
     fixedKindText.setLayoutData( new GridData( SWT.FILL, SWT.LEFT, true, false ) );
@@ -132,21 +136,19 @@ public class PanelUgwiSelector
     selectBackPanel.setLayoutData( BorderLayout.CENTER );
     selectBackPanel.setLayout( new BorderLayout() );
     IUgwiKindGuiHelper ugwiHelper = coreApi.ugwiService().findHelper( currUgwiKindId, IUgwiKindGuiHelper.class );
-    IGenericSelectorPanel<Ugwi> selector = ugwiHelper.createUgwiSelectorPanel( environ() );
-    selectPanel = selector.createControl( selectBackPanel );
+    ugwSelector = ugwiHelper.createUgwiSelectorPanel( environ() );
+    selectPanel = ugwSelector.createControl( selectBackPanel );
   }
 
   @Override
   protected void doSetDataRecord( Ugwi aUgwi ) {
-    if( aUgwi != null ) {
-      currUgwiKindId = aUgwi.kindId();
+    if( aUgwi != null && !aUgwi.equals( Ugwi.NONE ) ) {
       if( environ().params().hasValue( OPDEF_SINGLE_UGWI_KIND_ID ) ) {
-        fixedKindText.setText( aUgwi.kindId() );
+        // nop
       }
-      else
-        if( environ().params().hasValue( OPDEF_UGWI_KIND_IDS_LIST ) ) {
-          ugwiKindsCombo.setSelectedItem( aUgwi.kindId() );
-        }
+      else {
+        ugwiKindsCombo.setSelectedItem( aUgwi.kindId() );
+      }
       ugwSelector.setSelectedItem( aUgwi );
     }
   }
