@@ -24,15 +24,15 @@ public class SkUgwiGuiUtils {
     ISkUgwiService uServ = aCoreApi.ugwiService();
     ISkUgwiKind uk;
     uk = uServ.listKinds().getByKey( UgwiKindSkAttr.KIND_ID );
-    uk.registerHelper( IUgwiKindGuiHelper.class, new UgwiGuiHelperSkAttr( (AbstractSkUgwiKind)uk.ugwiKind() ) );
+    uk.registerHelper( IUgwiKindGuiHelper.class, new UgwiGuiHelperSkAttr( (AbstractSkUgwiKind)uk ) );
     uk = uServ.listKinds().getByKey( UgwiKindSkLink.KIND_ID );
-    uk.registerHelper( IUgwiKindGuiHelper.class, new UgwiGuiHelperSkLink( (AbstractSkUgwiKind)uk.ugwiKind() ) );
+    uk.registerHelper( IUgwiKindGuiHelper.class, new UgwiGuiHelperSkLink( (AbstractSkUgwiKind)uk ) );
     uk = uServ.listKinds().getByKey( UgwiKindSkSkid.KIND_ID );
-    uk.registerHelper( IUgwiKindGuiHelper.class, new UgwiGuiHelperSkSkid( (AbstractSkUgwiKind)uk.ugwiKind() ) );
+    uk.registerHelper( IUgwiKindGuiHelper.class, new UgwiGuiHelperSkSkid( (AbstractSkUgwiKind)uk ) );
     uk = uServ.listKinds().getByKey( UgwiKindSkRivet.KIND_ID );
-    // uk.registerHelper( IUgwiKindGuiHelper.class, new UgwiGuiHelperSkRivet( (AbstractSkUgwiKind)uk.ugwiKind() ) );
+    // uk.registerHelper( IUgwiKindGuiHelper.class, new UgwiGuiHelperSkRivet( (AbstractSkUgwiKind)uk ) );
     uk = uServ.listKinds().getByKey( UgwiKindSkRtdata.KIND_ID );
-    // uk.registerHelper( IUgwiKindGuiHelper.class, new UgwiGuiHelperSkRtdata( (AbstractSkUgwiKind)uk.ugwiKind() ) );
+    // uk.registerHelper( IUgwiKindGuiHelper.class, new UgwiGuiHelperSkRtdata( (AbstractSkUgwiKind)uk ) );
 
     // TODO register all known GUI helpers
   };
