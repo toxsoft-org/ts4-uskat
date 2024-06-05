@@ -34,7 +34,7 @@ public class SkUgwiUtils {
   }
 
   /**
-   * Core handler to register all registered Sk-connection bound {@link ISkUgwiKind} when connection opens.
+   * Core handler to register all Sk-connection bound {@link ISkUgwiKind} when connection opens.
    * <p>
    * Note: not for users! Field is public for {@link SkCoreUtils} to access it.
    */

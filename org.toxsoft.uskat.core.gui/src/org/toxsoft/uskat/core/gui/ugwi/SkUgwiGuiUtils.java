@@ -1,5 +1,12 @@
 package org.toxsoft.uskat.core.gui.ugwi;
 
+import org.toxsoft.uskat.core.api.*;
+import org.toxsoft.uskat.core.api.ugwis.*;
+import org.toxsoft.uskat.core.api.ugwis.kinds.*;
+import org.toxsoft.uskat.core.gui.*;
+import org.toxsoft.uskat.core.gui.ugwi.gui.*;
+import org.toxsoft.uskat.core.gui.ugwi.kinds.*;
+
 /**
  * UGWI GUI support utilities.
  *
@@ -7,26 +14,29 @@ package org.toxsoft.uskat.core.gui.ugwi;
  */
 public class SkUgwiGuiUtils {
 
-  // /**
-  // * Client must implement this interface to automate adding of UGWI kind helpers.
-  // *
-  // * @author hazard157
-  // * @param <T> - the UGWI content type
-  // */
-  // public interface IRegistrator<T> {
-  //
-  // /**
-  // * Called by {@link ISkConnectionSupplier} when the connection is open.
-  // * <p>
-  // * Implementation must create helper instances and register for the specified kubd by
-  // * {@link AbstractSkUgwiKind#registerHelper(Class, Object)}.
-  // *
-  // * @param aKind {@link AbstractSkUgwiKind} - UGWI kind to register helper
-  // */
-  // void registerHelpersForKind( AbstractSkUgwiKind<T> aKind );
-  //
-  // }
-  //
+  /**
+   * Core handler to register all {@link IUgwiKindGuiHelper} when connection opens.
+   * <p>
+   * Note: not for users! Field is public for {@link QuantSkCoreGui} to access it.
+   */
+  @SuppressWarnings( { "unchecked", "rawtypes" } )
+  public static final ISkCoreExternalHandler guiHelpersRegistrator = aCoreApi -> {
+    ISkUgwiService uServ = aCoreApi.ugwiService();
+    ISkUgwiKind uk;
+    uk = uServ.listKinds().getByKey( UgwiKindSkAttr.KIND_ID );
+    uk.registerHelper( IUgwiKindGuiHelper.class, new UgwiGuiHelperSkAttr( (AbstractSkUgwiKind)uk.ugwiKind() ) );
+    uk = uServ.listKinds().getByKey( UgwiKindSkLink.KIND_ID );
+    uk.registerHelper( IUgwiKindGuiHelper.class, new UgwiGuiHelperSkLink( (AbstractSkUgwiKind)uk.ugwiKind() ) );
+    uk = uServ.listKinds().getByKey( UgwiKindSkSkid.KIND_ID );
+    uk.registerHelper( IUgwiKindGuiHelper.class, new UgwiGuiHelperSkSkid( (AbstractSkUgwiKind)uk.ugwiKind() ) );
+    uk = uServ.listKinds().getByKey( UgwiKindSkRivet.KIND_ID );
+    // uk.registerHelper( IUgwiKindGuiHelper.class, new UgwiGuiHelperSkRivet( (AbstractSkUgwiKind)uk.ugwiKind() ) );
+    uk = uServ.listKinds().getByKey( UgwiKindSkRtdata.KIND_ID );
+    // uk.registerHelper( IUgwiKindGuiHelper.class, new UgwiGuiHelperSkRtdata( (AbstractSkUgwiKind)uk.ugwiKind() ) );
+
+    // TODO register all known GUI helpers
+  };
+
   // private static final ReentrantReadWriteLock lock = new ReentrantReadWriteLock();
   //
   // private static final IStringMapEdit<IListEdit<IRegistrator<?>>> helperRegistrators = new StringMap<>();

@@ -15,7 +15,9 @@ import org.toxsoft.uskat.core.gui.km5.sded.objed.*;
 import org.toxsoft.uskat.core.gui.km5.sded.sded.*;
 import org.toxsoft.uskat.core.gui.km5.sded.sded.editors.*;
 import org.toxsoft.uskat.core.gui.km5.sgw.*;
+import org.toxsoft.uskat.core.gui.ugwi.*;
 import org.toxsoft.uskat.core.gui.ugwi.valed.*;
+import org.toxsoft.uskat.core.impl.*;
 
 /**
  * The library quant.
@@ -33,6 +35,7 @@ public class QuantSkCoreGui
   public QuantSkCoreGui() {
     super( QuantSkCoreGui.class.getSimpleName() );
     TsValobjUtils.registerKeeperIfNone( LinkIdSkidList.KEEPER_ID, LinkIdSkidList.KEEPER );
+    SkCoreUtils.registerCoreApiHandler( SkUgwiGuiUtils.guiHelpersRegistrator );
 
     // FIXME --- change KM5 initialization to ISkCoreExternalHandler and move code to processSkCoreInitialization()
     KM5Utils.registerContributorCreator( KM5FirstContributor.CREATOR );
