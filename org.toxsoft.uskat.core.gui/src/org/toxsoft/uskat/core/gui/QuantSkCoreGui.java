@@ -34,6 +34,7 @@ public class QuantSkCoreGui
    */
   public QuantSkCoreGui() {
     super( QuantSkCoreGui.class.getSimpleName() );
+    SkCoreUtils.initialize();
     TsValobjUtils.registerKeeperIfNone( LinkIdSkidList.KEEPER_ID, LinkIdSkidList.KEEPER );
     SkCoreUtils.registerCoreApiHandler( SkUgwiGuiUtils.guiHelpersRegistrator );
 
