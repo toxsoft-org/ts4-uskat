@@ -10,7 +10,7 @@ import org.toxsoft.uskat.core.connection.ISkConnection;
 import org.toxsoft.uskat.core.devapi.ISkatlet;
 
 /**
- * Абстрактная реализация скатлета
+ * Abstract skatlet implementation.
  *
  * @author mvk
  */
@@ -36,10 +36,10 @@ public abstract class AbstractSkatlet
   // API для наследников
   //
   /**
-   * Возвращает соединение с которым работает скатлет
+   * Skatlet's connection.
    *
-   * @return {@link ISkConnection} соединение
-   * @throws TsIllegalStateRtException скатлет не инициализирован
+   * @return {@link ISkConnection} connection.
+   * @throws TsIllegalStateRtException scatlet is not initialized.
    */
   protected final ISkConnection connection() {
     TsIllegalStateRtException.checkNull( environ );
@@ -47,9 +47,9 @@ public abstract class AbstractSkatlet
   }
 
   /**
-   * Возвращает журнал с которым работает скатлет
+   * Skatlet's logger.
    *
-   * @return {@link ILogger} журнал
+   * @return {@link ILogger} logger.
    */
   protected final ILogger logger() {
     TsIllegalStateRtException.checkNull( environ );
