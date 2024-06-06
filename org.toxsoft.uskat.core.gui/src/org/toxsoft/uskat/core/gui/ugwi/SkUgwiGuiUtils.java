@@ -25,6 +25,8 @@ public class SkUgwiGuiUtils {
     ISkUgwiKind uk;
     uk = uServ.listKinds().getByKey( UgwiKindSkAttr.KIND_ID );
     uk.registerHelper( IUgwiKindGuiHelper.class, new UgwiGuiHelperSkAttr( (AbstractSkUgwiKind)uk ) );
+    uk = uServ.listKinds().getByKey( UgwiKindSkCmd.KIND_ID );
+    uk.registerHelper( IUgwiKindGuiHelper.class, new UgwiGuiHelperSkCmd( (AbstractSkUgwiKind)uk ) );
     uk = uServ.listKinds().getByKey( UgwiKindSkLink.KIND_ID );
     uk.registerHelper( IUgwiKindGuiHelper.class, new UgwiGuiHelperSkLink( (AbstractSkUgwiKind)uk ) );
     uk = uServ.listKinds().getByKey( UgwiKindSkSkid.KIND_ID );

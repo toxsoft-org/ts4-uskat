@@ -27,7 +27,6 @@ import org.toxsoft.core.tsgui.utils.layout.*;
 import org.toxsoft.core.tsgui.widgets.*;
 import org.toxsoft.core.tslib.av.impl.*;
 import org.toxsoft.core.tslib.av.metainfo.*;
-import org.toxsoft.core.tslib.bricks.events.change.*;
 import org.toxsoft.core.tslib.bricks.validator.*;
 import org.toxsoft.core.tslib.bricks.validator.impl.*;
 import org.toxsoft.core.tslib.gw.gwid.*;
@@ -65,8 +64,6 @@ public class SingleSkPropUgwiSelectPanel
 
   private final ISkCoreApi coreApi; // never is null
 
-  private final GenericChangeEventer genericChangeEventer;
-
   private final ESkClassPropKind skClassPropKind;
 
   private final IM5CollectionPanel<ISkClassInfo>          panelClasses;
@@ -86,7 +83,6 @@ public class SingleSkPropUgwiSelectPanel
     super( aContext, aIsViewer );
     coreApi = ISkCoreGuiConstants.REFDEF_SK_VALED_CORE_API.getRef( aContext );
     TsInternalErrorRtException.checkNull( coreApi );
-    genericChangeEventer = new GenericChangeEventer( this );
     skClassPropKind = OPDEF_CLASS_PROP_KIND.getValue( tsContext().params() ).asValobj();
     // IM5Domain m5 = aContext.get( IM5Domain.class );
     ISkConnection conn = ((SkCoreApi)coreApi).skConn();
@@ -137,22 +133,14 @@ public class SingleSkPropUgwiSelectPanel
 
   @Override
   protected Ugwi doGetEntity() {
-    // TODO зачем два одинаковых метода
     return selectedItem();
   }
 
   @Override
   protected void doProcessSetEntity() {
-    // TODO это для чего
-    // if( specifiedEntity() == null ) {
-    // typeIdCombo.setValue( null );
-    // condParams.clear();
-    // paramsPanel.setOptionDefs( IStridablesList.EMPTY );
-    // return;
-    // }
-    // typeIdCombo.setValue( specifiedEntity().typeId() );
-    // condParams.setAll( specifiedEntity().params() );
-    // updateParamsPanelAccordingTpTypeId();
+    if( specifiedEntity() != null ) {
+      setSelectedItem( getEntity() );
+    }
   }
 
   @Override

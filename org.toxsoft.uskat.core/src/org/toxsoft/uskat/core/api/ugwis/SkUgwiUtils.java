@@ -27,6 +27,7 @@ public class SkUgwiUtils {
   static {
     ugwiKindsList.add( UgwiKindSkAttr.INSTANCE );
     ugwiKindsList.add( UgwiKindSkRtdata.INSTANCE );
+    ugwiKindsList.add( UgwiKindSkCmd.INSTANCE );
     ugwiKindsList.add( UgwiKindSkSkid.INSTANCE );
     ugwiKindsList.add( UgwiKindSkLink.INSTANCE );
     ugwiKindsList.add( UgwiKindSkRivet.INSTANCE );
