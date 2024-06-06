@@ -16,7 +16,7 @@ import org.toxsoft.uskat.core.api.ugwis.*;
  */
 public sealed interface IUgwiKindGuiHelper
     extends IStridableParameterized
-    permits UgwiKindGuiHelper {
+    permits UgwiKindGuiHelperBase {
 
   /**
    * Returns the UGWI kind this helper is designed for.

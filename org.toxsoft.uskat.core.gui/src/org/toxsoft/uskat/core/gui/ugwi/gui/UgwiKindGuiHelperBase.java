@@ -13,7 +13,7 @@ import org.toxsoft.uskat.core.api.ugwis.*;
  * @author hazard157
  * @param <T> - the UGWI content type
  */
-public non-sealed class UgwiKindGuiHelper<T>
+public non-sealed class UgwiKindGuiHelperBase<T>
     implements IUgwiKindGuiHelper {
 
   private final AbstractSkUgwiKind<T> kind;
@@ -25,7 +25,7 @@ public non-sealed class UgwiKindGuiHelper<T>
    * @throws TsNullArgumentRtException any argument = <code>null</code>
    * @throws TsItemNotFoundRtException kind of the specified ID is not registered
    */
-  public UgwiKindGuiHelper( AbstractSkUgwiKind<T> aKind ) {
+  public UgwiKindGuiHelperBase( AbstractSkUgwiKind<T> aKind ) {
     kind = TsNullArgumentRtException.checkNull( aKind );
   }
 

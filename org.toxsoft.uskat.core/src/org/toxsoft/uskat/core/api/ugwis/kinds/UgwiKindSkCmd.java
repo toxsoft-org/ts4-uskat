@@ -5,6 +5,7 @@ import static org.toxsoft.uskat.core.ISkHardConstants.*;
 import static org.toxsoft.uskat.core.api.ugwis.kinds.ISkResources.*;
 
 import org.toxsoft.core.tslib.av.*;
+import org.toxsoft.core.tslib.av.impl.*;
 import org.toxsoft.core.tslib.av.metainfo.*;
 import org.toxsoft.core.tslib.av.opset.impl.*;
 import org.toxsoft.core.tslib.bricks.strid.impl.*;
@@ -30,8 +31,8 @@ import org.toxsoft.uskat.core.impl.*;
  *
  * @author hazard157
  */
-public class UgwiKindSkAttr
-    extends AbstractUgwiKind<IAtomicValue> {
+public class UgwiKindSkCmd
+    extends AbstractUgwiKind<IDtoCmdInfo> {
 
   /**
    * The index of the class ID in the {@link IdChain} made from {@link Ugwi#essence()}.
@@ -46,7 +47,7 @@ public class UgwiKindSkAttr
   /**
    * The index of the attribute ID in the {@link IdChain} made from {@link Ugwi#essence()}.
    */
-  public static final int IDX_ATTR_ID = 2;
+  public static final int IDX_CMD_ID = 2;
 
   /**
    * Number of branches in {@link IdChain}.
@@ -59,20 +60,22 @@ public class UgwiKindSkAttr
    * @author hazard157
    */
   public static class Kind
-      extends AbstractSkUgwiKind<IAtomicValue> {
+      extends AbstractSkUgwiKind<IDtoCmdInfo> {
 
-    Kind( AbstractUgwiKind<IAtomicValue> aRegistrator, ISkCoreApi aCoreApi ) {
+    Kind( AbstractUgwiKind<IDtoCmdInfo> aRegistrator, ISkCoreApi aCoreApi ) {
       super( aRegistrator, aCoreApi );
     }
 
     @Override
-    public IAtomicValue doFindContent( Ugwi aUgwi ) {
-      Skid skid = getSkid( aUgwi );
-      ISkObject sko = coreApi().objService().find( skid );
-      if( sko != null ) {
-        return sko.attrs().getValue( getAttrId( aUgwi ), IAtomicValue.NULL );
+    public IDtoCmdInfo doFindContent( Ugwi aUgwi ) {
+      String classId = getClassId( aUgwi );
+      ISkClassInfo clsInfo = coreApi().sysdescr().findClassInfo( classId );
+      if( clsInfo != null ) {
+        if( clsInfo.cmds().list().hasKey( classId ) ) {
+          return clsInfo.cmds().list().getByKey( classId );
+        }
       }
-      return IAtomicValue.NULL;
+      return null;
     }
 
     @Override
@@ -82,25 +85,20 @@ public class UgwiKindSkAttr
 
     @Override
     protected boolean doIsNaturalAtomicValue( Ugwi aUgwi ) {
-      return true;
+      return false;
     }
 
     @Override
     protected IAtomicValue doFindAtomicValue( Ugwi aUgwi ) {
-      return doFindContent( aUgwi );
+      IDtoCmdInfo cmdInfo = doFindContent( aUgwi );
+      if( cmdInfo != null ) {
+        return AvUtils.avValobj( aUgwi );
+      }
+      return IAtomicValue.NULL;
     }
 
     @Override
     protected IDataType doGetAtomicValueDataType( Ugwi aUgwi ) {
-      String classId = getClassId( aUgwi );
-      ISkClassInfo cinf = coreApi().sysdescr().findClassInfo( classId );
-      if( cinf != null ) {
-        String attrId = getAttrId( aUgwi );
-        IDtoAttrInfo ainf = cinf.attrs().list().findByKey( attrId );
-        if( ainf != null ) {
-          return ainf.dataType();
-        }
-      }
       return null;
     }
 
@@ -109,20 +107,20 @@ public class UgwiKindSkAttr
   /**
    * The UGWI kind ID.
    */
-  public static final String KIND_ID = SK_ID + ".sk.attr"; //$NON-NLS-1$
+  public static final String KIND_ID = SK_ID + ".sk.cmd"; //$NON-NLS-1$
 
   /**
    * The singleton instance.
    */
-  public static final UgwiKindSkAttr INSTANCE = new UgwiKindSkAttr();
+  public static final UgwiKindSkCmd INSTANCE = new UgwiKindSkCmd();
 
   /**
    * Constructor.
    */
-  private UgwiKindSkAttr() {
+  private UgwiKindSkCmd() {
     super( KIND_ID, OptionSetUtils.createOpSet( //
-        TSID_NAME, STR_UK_ATTR, //
-        TSID_DESCRIPTION, STR_UK_ATTR_D //
+        TSID_NAME, STR_UK_CMD, //
+        TSID_DESCRIPTION, STR_UK_CMD_D //
     ) );
   }
 
@@ -202,10 +200,10 @@ public class UgwiKindSkAttr
    * @throws TsNullArgumentRtException any argument = <code>null</code>
    * @throws TsValidationFailedRtException invalid UGWI for this kind
    */
-  public static String getAttrId( Ugwi aUgwi ) {
+  public static String getCmdId( Ugwi aUgwi ) {
     TsValidationFailedRtException.checkError( INSTANCE.validateUgwi( aUgwi ) );
     IdChain chain = IdChain.of( aUgwi.essence() );
-    return chain.get( IDX_ATTR_ID );
+    return chain.get( IDX_CMD_ID );
   }
 
   /**
@@ -213,16 +211,16 @@ public class UgwiKindSkAttr
    *
    * @param aClassId String - class ID
    * @param aObjStrid String - object STRID
-   * @param aAttrId String - attribute ID
+   * @param aCmdId String - command ID
    * @return {@link Ugwi} - created UGWI
    * @throws TsNullArgumentRtException any argument = <code>null</code>
    * @throws TsIllegalArgumentRtException any ID is not an IDpath
    */
-  public static Ugwi makeUgwi( String aClassId, String aObjStrid, String aAttrId ) {
+  public static Ugwi makeUgwi( String aClassId, String aObjStrid, String aCmdId ) {
     StridUtils.checkValidIdPath( aClassId );
     StridUtils.checkValidIdPath( aObjStrid );
-    StridUtils.checkValidIdPath( aAttrId );
-    IdChain chain = new IdChain( aClassId, aObjStrid, aAttrId );
+    StridUtils.checkValidIdPath( aCmdId );
+    IdChain chain = new IdChain( aClassId, aObjStrid, aCmdId );
     return Ugwi.of( KIND_ID, chain.canonicalString() );
   }
 
@@ -230,16 +228,16 @@ public class UgwiKindSkAttr
    * Creates the UGWI of this kind.
    *
    * @param aObjSkid {@link Skid} - SKID of the object
-   * @param aAttrId String - attribute ID
+   * @param aCmdId String - command ID
    * @return {@link Ugwi} - created UGWI
    * @throws TsNullArgumentRtException any argument = <code>null</code>
    * @throws TsIllegalArgumentRtException any ID is not an IDpath
    */
-  public static Ugwi makeUgwi( Skid aObjSkid, String aAttrId ) {
+  public static Ugwi makeUgwi( Skid aObjSkid, String aCmdId ) {
     TsNullArgumentRtException.checkNull( aObjSkid );
     TsIllegalArgumentRtException.checkTrue( aObjSkid == Skid.NONE );
-    StridUtils.checkValidIdPath( aAttrId );
-    IdChain chain = new IdChain( aObjSkid.classId(), aObjSkid.strid(), aAttrId );
+    StridUtils.checkValidIdPath( aCmdId );
+    IdChain chain = new IdChain( aObjSkid.classId(), aObjSkid.strid(), aCmdId );
     return Ugwi.of( KIND_ID, chain.canonicalString() );
   }
 

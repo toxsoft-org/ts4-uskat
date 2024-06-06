@@ -26,11 +26,16 @@ public class SkUgwiUtils {
 
   static {
     ugwiKindsList.add( UgwiKindSkAttr.INSTANCE );
+    ugwiKindsList.add( UgwiKindSkRtdata.INSTANCE );
+    ugwiKindsList.add( UgwiKindSkCmd.INSTANCE );
+    ugwiKindsList.add( UgwiKindSkSkid.INSTANCE );
+    ugwiKindsList.add( UgwiKindSkLink.INSTANCE );
+    ugwiKindsList.add( UgwiKindSkRivet.INSTANCE );
     // TODO add all built-in registrators
   }
 
   /**
-   * Core handler to register all registered Sk-connection bound {@link ISkUgwiKind} when connection opens.
+   * Core handler to register all Sk-connection bound {@link ISkUgwiKind} when connection opens.
    * <p>
    * Note: not for users! Field is public for {@link SkCoreUtils} to access it.
    */
@@ -45,11 +50,11 @@ public class SkUgwiUtils {
   };
 
   /**
-   * Returns all registered contributor creators.
+   * Returns all registered UGWI kinds.
    *
-   * @return {@link IList}&lt;{@link AbstractUgwiKind}&gt; - copy of the creators list
+   * @return {@link IList}&lt;{@link AbstractUgwiKind}&gt; - copy of the UGWI kinds list
    */
-  public static IList<AbstractUgwiKind<?>> listUgwiKindCreators() {
+  public static IList<AbstractUgwiKind<?>> listUgwiKinds() {
     return ugwiKindsList.copyTo( null );
   }
 

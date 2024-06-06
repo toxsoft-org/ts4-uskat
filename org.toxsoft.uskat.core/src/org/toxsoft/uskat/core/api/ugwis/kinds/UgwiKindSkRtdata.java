@@ -11,26 +11,27 @@ import org.toxsoft.core.tslib.bricks.strid.impl.*;
 import org.toxsoft.core.tslib.bricks.strid.more.*;
 import org.toxsoft.core.tslib.bricks.validator.*;
 import org.toxsoft.core.tslib.bricks.validator.impl.*;
+import org.toxsoft.core.tslib.coll.*;
+import org.toxsoft.core.tslib.gw.gwid.*;
 import org.toxsoft.core.tslib.gw.skid.*;
 import org.toxsoft.core.tslib.gw.ugwi.*;
 import org.toxsoft.core.tslib.utils.errors.*;
 import org.toxsoft.uskat.core.*;
-import org.toxsoft.uskat.core.api.objserv.*;
+import org.toxsoft.uskat.core.api.rtdserv.*;
 import org.toxsoft.uskat.core.api.sysdescr.*;
 import org.toxsoft.uskat.core.api.sysdescr.dto.*;
 import org.toxsoft.uskat.core.api.ugwis.*;
 import org.toxsoft.uskat.core.impl.*;
 
 /**
- * UGWI kind: Sk-object attribute value.
+ * UGWI kind: Sk-object run time data value.
  * <p>
- * Format is 3-branches {@link IdChain}: "classId/objStrid/attrId".
+ * Format is 3-branches {@link IdChain}: "classId/objStrid/rtDataId".
  * <p>
- * {@link ISkObject#attrs()} is used to retrieve Sk-object attribute value.
  *
- * @author hazard157
+ * @author dima
  */
-public class UgwiKindSkAttr
+public class UgwiKindSkRtdata
     extends AbstractUgwiKind<IAtomicValue> {
 
   /**
@@ -44,9 +45,9 @@ public class UgwiKindSkAttr
   public static final int IDX_OBJ_STRID = 1;
 
   /**
-   * The index of the attribute ID in the {@link IdChain} made from {@link Ugwi#essence()}.
+   * The index of the rt data ID in the {@link IdChain} made from {@link Ugwi#essence()}.
    */
-  public static final int IDX_ATTR_ID = 2;
+  public static final int IDX_RTDATA_ID = 2;
 
   /**
    * Number of branches in {@link IdChain}.
@@ -56,7 +57,7 @@ public class UgwiKindSkAttr
   /**
    * {@link ISkUgwiKind} implementation.
    *
-   * @author hazard157
+   * @author dima
    */
   public static class Kind
       extends AbstractSkUgwiKind<IAtomicValue> {
@@ -67,10 +68,11 @@ public class UgwiKindSkAttr
 
     @Override
     public IAtomicValue doFindContent( Ugwi aUgwi ) {
-      Skid skid = getSkid( aUgwi );
-      ISkObject sko = coreApi().objService().find( skid );
-      if( sko != null ) {
-        return sko.attrs().getValue( getAttrId( aUgwi ), IAtomicValue.NULL );
+      IMap<Gwid, ISkReadCurrDataChannel> chMap =
+          coreApi().rtdService().createReadCurrDataChannels( new GwidList( getGwid( aUgwi ) ) );
+      ISkReadCurrDataChannel channel = chMap.values().first(); // open channel or null
+      if( channel != null ) {
+        return channel.getValue();
       }
       return IAtomicValue.NULL;
     }
@@ -95,10 +97,10 @@ public class UgwiKindSkAttr
       String classId = getClassId( aUgwi );
       ISkClassInfo cinf = coreApi().sysdescr().findClassInfo( classId );
       if( cinf != null ) {
-        String attrId = getAttrId( aUgwi );
-        IDtoAttrInfo ainf = cinf.attrs().list().findByKey( attrId );
-        if( ainf != null ) {
-          return ainf.dataType();
+        String rtDataId = getRtdataId( aUgwi );
+        IDtoRtdataInfo rtdInf = cinf.rtdata().list().findByKey( rtDataId );
+        if( rtdInf != null ) {
+          return rtdInf.dataType();
         }
       }
       return null;
@@ -109,20 +111,20 @@ public class UgwiKindSkAttr
   /**
    * The UGWI kind ID.
    */
-  public static final String KIND_ID = SK_ID + ".sk.attr"; //$NON-NLS-1$
+  public static final String KIND_ID = SK_ID + ".sk.rtdata"; //$NON-NLS-1$
 
   /**
    * The singleton instance.
    */
-  public static final UgwiKindSkAttr INSTANCE = new UgwiKindSkAttr();
+  public static final UgwiKindSkRtdata INSTANCE = new UgwiKindSkRtdata();
 
   /**
    * Constructor.
    */
-  private UgwiKindSkAttr() {
+  private UgwiKindSkRtdata() {
     super( KIND_ID, OptionSetUtils.createOpSet( //
-        TSID_NAME, STR_UK_ATTR, //
-        TSID_DESCRIPTION, STR_UK_ATTR_D //
+        TSID_NAME, STR_UK_RTDATA, //
+        TSID_DESCRIPTION, STR_UK_RTDATA_D //
     ) );
   }
 
@@ -195,17 +197,31 @@ public class UgwiKindSkAttr
   }
 
   /**
-   * Extracts attribute ID from the UGWI of this kind.
+   * Extracts Gwid from the UGWI of this kind.
    *
    * @param aUgwi {@link Ugwi} - the UGWI
-   * @return String - the attribute ID
+   * @return {@link Gwid} - the GWID
    * @throws TsNullArgumentRtException any argument = <code>null</code>
    * @throws TsValidationFailedRtException invalid UGWI for this kind
    */
-  public static String getAttrId( Ugwi aUgwi ) {
+  public static Gwid getGwid( Ugwi aUgwi ) {
     TsValidationFailedRtException.checkError( INSTANCE.validateUgwi( aUgwi ) );
     IdChain chain = IdChain.of( aUgwi.essence() );
-    return chain.get( IDX_ATTR_ID );
+    return Gwid.createRtdata( chain.get( IDX_CLASS_ID ), chain.get( IDX_OBJ_STRID ), chain.get( IDX_RTDATA_ID ) );
+  }
+
+  /**
+   * Extracts rtData ID from the UGWI of this kind.
+   *
+   * @param aUgwi {@link Ugwi} - the UGWI
+   * @return String - the rtData ID
+   * @throws TsNullArgumentRtException any argument = <code>null</code>
+   * @throws TsValidationFailedRtException invalid UGWI for this kind
+   */
+  public static String getRtdataId( Ugwi aUgwi ) {
+    TsValidationFailedRtException.checkError( INSTANCE.validateUgwi( aUgwi ) );
+    IdChain chain = IdChain.of( aUgwi.essence() );
+    return chain.get( IDX_RTDATA_ID );
   }
 
   /**
@@ -213,16 +229,16 @@ public class UgwiKindSkAttr
    *
    * @param aClassId String - class ID
    * @param aObjStrid String - object STRID
-   * @param aAttrId String - attribute ID
+   * @param aRtDataId String - rtdata ID
    * @return {@link Ugwi} - created UGWI
    * @throws TsNullArgumentRtException any argument = <code>null</code>
    * @throws TsIllegalArgumentRtException any ID is not an IDpath
    */
-  public static Ugwi makeUgwi( String aClassId, String aObjStrid, String aAttrId ) {
+  public static Ugwi makeUgwi( String aClassId, String aObjStrid, String aRtDataId ) {
     StridUtils.checkValidIdPath( aClassId );
     StridUtils.checkValidIdPath( aObjStrid );
-    StridUtils.checkValidIdPath( aAttrId );
-    IdChain chain = new IdChain( aClassId, aObjStrid, aAttrId );
+    StridUtils.checkValidIdPath( aRtDataId );
+    IdChain chain = new IdChain( aClassId, aObjStrid, aRtDataId );
     return Ugwi.of( KIND_ID, chain.canonicalString() );
   }
 
@@ -230,16 +246,16 @@ public class UgwiKindSkAttr
    * Creates the UGWI of this kind.
    *
    * @param aObjSkid {@link Skid} - SKID of the object
-   * @param aAttrId String - attribute ID
+   * @param aRtDataId String - rtdata ID
    * @return {@link Ugwi} - created UGWI
    * @throws TsNullArgumentRtException any argument = <code>null</code>
    * @throws TsIllegalArgumentRtException any ID is not an IDpath
    */
-  public static Ugwi makeUgwi( Skid aObjSkid, String aAttrId ) {
+  public static Ugwi makeUgwi( Skid aObjSkid, String aRtDataId ) {
     TsNullArgumentRtException.checkNull( aObjSkid );
     TsIllegalArgumentRtException.checkTrue( aObjSkid == Skid.NONE );
-    StridUtils.checkValidIdPath( aAttrId );
-    IdChain chain = new IdChain( aObjSkid.classId(), aObjSkid.strid(), aAttrId );
+    StridUtils.checkValidIdPath( aRtDataId );
+    IdChain chain = new IdChain( aObjSkid.classId(), aObjSkid.strid(), aRtDataId );
     return Ugwi.of( KIND_ID, chain.canonicalString() );
   }
 

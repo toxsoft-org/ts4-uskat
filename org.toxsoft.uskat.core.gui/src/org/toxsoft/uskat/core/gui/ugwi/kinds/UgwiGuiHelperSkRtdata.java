@@ -13,12 +13,12 @@ import org.toxsoft.uskat.core.api.ugwis.kinds.*;
 import org.toxsoft.uskat.core.gui.ugwi.gui.*;
 
 /**
- * {@link IUgwiKindGuiHelper} implementation for {@link UgwiKindSkAttr}.
+ * {@link IUgwiKindGuiHelper} implementation for {@link UgwiKindSkRtdata}.
  *
  * @author hazard157
  * @author dima
  */
-public class UgwiGuiHelperSkAttr
+public class UgwiGuiHelperSkRtdata
     extends UgwiKindGuiHelperBase<IAtomicValue> {
 
   /**
@@ -28,7 +28,7 @@ public class UgwiGuiHelperSkAttr
    * @throws TsNullArgumentRtException any argument = <code>null</code>
    * @throws TsItemNotFoundRtException kind of the specified ID is not registered
    */
-  public UgwiGuiHelperSkAttr( AbstractSkUgwiKind<IAtomicValue> aKind ) {
+  public UgwiGuiHelperSkRtdata( AbstractSkUgwiKind<IAtomicValue> aKind ) {
     super( aKind );
   }
 
@@ -38,9 +38,9 @@ public class UgwiGuiHelperSkAttr
 
   @Override
   protected IGenericEntityEditPanel<Ugwi> doCreateEntityPanel( ITsGuiContext aTsContext, boolean aViewer ) {
-    // set kind of prop (attr)
+    // set kind of prop (rt data)
     SingleSkPropUgwiSelectPanel.OPDEF_CLASS_PROP_KIND.setValue( aTsContext.params(),
-        avValobj( ESkClassPropKind.ATTR ) );
+        avValobj( ESkClassPropKind.RTDATA ) );
     return new SingleSkPropUgwiSelectPanel( aTsContext, aViewer );
   }
 
@@ -49,7 +49,7 @@ public class UgwiGuiHelperSkAttr
 
     // set kind of prop (attr)
     SingleSkPropUgwiSelectPanel.OPDEF_CLASS_PROP_KIND.setValue( aTsContext.params(),
-        avValobj( ESkClassPropKind.ATTR ) );
+        avValobj( ESkClassPropKind.RTDATA ) );
     return new SingleSkPropUgwiSelectPanel( aTsContext, aViewer );
   }
 
