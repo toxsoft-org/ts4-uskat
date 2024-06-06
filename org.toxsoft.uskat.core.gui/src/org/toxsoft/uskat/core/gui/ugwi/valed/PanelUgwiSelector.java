@@ -36,7 +36,7 @@ public class PanelUgwiSelector
   private ValedComboSelector<String>  ugwiKindsCombo;
   private Control                     selectPanel = null;
   private IGenericSelectorPanel<Ugwi> ugwSelector;
-  private ISkCoreApi                  coreApi;
+  private final ISkCoreApi            coreApi;
   private Composite                   selectBackPanel;
   private String                      currUgwiKindId;
 

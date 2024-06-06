@@ -1,10 +1,13 @@
 package org.toxsoft.uskat.core.gui.ugwi.kinds;
 
+import static org.toxsoft.core.tslib.av.impl.AvUtils.*;
+
 import org.toxsoft.core.tsgui.bricks.ctx.*;
 import org.toxsoft.core.tsgui.panels.generic.*;
 import org.toxsoft.core.tslib.av.*;
 import org.toxsoft.core.tslib.gw.ugwi.*;
 import org.toxsoft.core.tslib.utils.errors.*;
+import org.toxsoft.uskat.core.api.sysdescr.*;
 import org.toxsoft.uskat.core.api.ugwis.*;
 import org.toxsoft.uskat.core.api.ugwis.kinds.*;
 import org.toxsoft.uskat.core.gui.ugwi.gui.*;
@@ -43,9 +46,12 @@ public class UgwiGuiHelperSkAttr
   @Override
   protected IGenericSelectorPanel<Ugwi> doCreateSelectorPanel( ITsGuiContext aTsContext, boolean aViewer ) {
 
-    // TODO UgwiGuiHelperSkAttr.doCreateSelectorPanel()
+    //
+    SingleSkPropUgwiSelectPanel.OPDEF_CLASS_PROP_KIND.setValue( aTsContext.params(),
+        avValobj( ESkClassPropKind.ATTR ) );
+    return new SingleSkPropUgwiSelectPanel( aTsContext, aViewer );
 
-    return super.doCreateSelectorPanel( aTsContext, aViewer );
+    // return super.doCreateSelectorPanel( aTsContext, aViewer );
   }
 
 }
