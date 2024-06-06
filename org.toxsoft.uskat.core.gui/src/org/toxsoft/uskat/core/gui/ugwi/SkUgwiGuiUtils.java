@@ -34,7 +34,7 @@ public class SkUgwiGuiUtils {
     uk = uServ.listKinds().getByKey( UgwiKindSkRivet.KIND_ID );
     // uk.registerHelper( IUgwiKindGuiHelper.class, new UgwiGuiHelperSkRivet( (AbstractSkUgwiKind)uk ) );
     uk = uServ.listKinds().getByKey( UgwiKindSkRtdata.KIND_ID );
-    // uk.registerHelper( IUgwiKindGuiHelper.class, new UgwiGuiHelperSkRtdata( (AbstractSkUgwiKind)uk ) );
+    uk.registerHelper( IUgwiKindGuiHelper.class, new UgwiGuiHelperSkRtdata( (AbstractSkUgwiKind)uk ) );
 
     // TODO register all known GUI helpers
   };
