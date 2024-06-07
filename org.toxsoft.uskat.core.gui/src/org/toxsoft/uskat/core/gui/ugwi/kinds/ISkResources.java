@@ -17,4 +17,10 @@ interface ISkResources {
   String STR_N_CLASS_PROP_KIND = "Type of property";
   String STR_D_CLASS_PROP_KIND = "Type of class property";
 
+  /**
+   * {@link SingleSkidUgwiSelectPanel}
+   */
+  String STR_N_CLASS_IDS_LIST = "List of class ids";
+  String STR_D_CLASS_IDS_LIST = "List of class id for selection from";
+
 }
