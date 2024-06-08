@@ -13,6 +13,7 @@ import org.toxsoft.uskat.core.gui.ugwi.gui.*;
  * {@link IUgwiKindGuiHelper} implementation for {@link UgwiKindSkAttr}.
  *
  * @author hazard157
+ * @author dima
  */
 public class UgwiGuiHelperSkSkid
     extends UgwiKindGuiHelperBase<Skid> {
@@ -34,18 +35,12 @@ public class UgwiGuiHelperSkSkid
 
   @Override
   protected IGenericEntityEditPanel<Ugwi> doCreateEntityPanel( ITsGuiContext aTsContext, boolean aViewer ) {
-
-    // TODO UgwiGuiHelperSkAttr.doCreateEntityPanel()
-
-    return super.doCreateEntityPanel( aTsContext, aViewer );
+    return new SingleSkidUgwiSelectPanel( aTsContext, aViewer );
   }
 
   @Override
   protected IGenericSelectorPanel<Ugwi> doCreateSelectorPanel( ITsGuiContext aTsContext, boolean aViewer ) {
-
-    // TODO UgwiGuiHelperSkAttr.doCreateSelectorPanel()
-
-    return super.doCreateSelectorPanel( aTsContext, aViewer );
+    return new SingleSkidUgwiSelectPanel( aTsContext, aViewer );
   }
 
 }

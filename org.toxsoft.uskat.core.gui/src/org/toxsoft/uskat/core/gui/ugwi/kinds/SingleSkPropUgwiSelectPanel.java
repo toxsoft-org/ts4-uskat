@@ -171,31 +171,6 @@ public class SingleSkPropUgwiSelectPanel
     return board;
   }
 
-  // ------------------------------------------------------------------------------------
-  // API
-  //
-
-  /**
-   * Invokes dialog with {@link IPanelSingleCondInfo} for {@link Ugwi} editing.
-   *
-   * @param aDialogInfo {@link ITsDialogInfo} - the dialog window parameters
-   * @param aInitVal {@link Ugwi} - initial value or <code>null</code>
-   * @param aSkConnKey {@link IdChain} - key for {@link ISkConnectionSupplier} of the Sk-connection to use
-   * @return {@link Ugwi} - edited value or <code>null</code>
-   * @throws TsNullArgumentRtException any argument = <code>null</code>
-   */
-  public static Ugwi selectUgwi( ITsDialogInfo aDialogInfo, Ugwi aInitVal, IdChain aSkConnKey ) {
-    TsNullArgumentRtException.checkNulls( aDialogInfo );
-    setCtxSkConnKey( aDialogInfo.tsContext(), aSkConnKey );
-    IDialogPanelCreator<Ugwi, Object> creator = ( par, od ) //
-    -> new TsDialogGenericEntityEditPanel<>( par, od, ( aContext, aViewer ) -> {
-      SingleSkPropUgwiSelectPanel panel = new SingleSkPropUgwiSelectPanel( aContext, aViewer );
-      return panel;
-    } );
-    TsDialog<Ugwi, Object> d = new TsDialog<>( aDialogInfo, aInitVal, null, creator );
-    return d.execData();
-  }
-
   @Override
   public Ugwi selectedItem() {
     TsValidationFailedRtException.checkError( canGetEntity() );
@@ -233,13 +208,11 @@ public class SingleSkPropUgwiSelectPanel
   @Override
   public void addTsSelectionListener( ITsSelectionChangeListener<Ugwi> aListener ) {
     // TODO Auto-generated method stub
-
   }
 
   @Override
   public void removeTsSelectionListener( ITsSelectionChangeListener<Ugwi> aListener ) {
     // TODO Auto-generated method stub
-
   }
 
   @Override
@@ -306,6 +279,27 @@ public class SingleSkPropUgwiSelectPanel
    */
   public EGwidKind getGwidKind() {
     return skClassPropKind.gwidKind();
+  }
+
+  /**
+   * Invokes dialog with {@link IPanelSingleCondInfo} for {@link Ugwi} editing.
+   *
+   * @param aDialogInfo {@link ITsDialogInfo} - the dialog window parameters
+   * @param aInitVal {@link Ugwi} - initial value or <code>null</code>
+   * @param aSkConnKey {@link IdChain} - key for {@link ISkConnectionSupplier} of the Sk-connection to use
+   * @return {@link Ugwi} - edited value or <code>null</code>
+   * @throws TsNullArgumentRtException any argument = <code>null</code>
+   */
+  public static Ugwi selectUgwi( ITsDialogInfo aDialogInfo, Ugwi aInitVal, IdChain aSkConnKey ) {
+    TsNullArgumentRtException.checkNulls( aDialogInfo );
+    setCtxSkConnKey( aDialogInfo.tsContext(), aSkConnKey );
+    IDialogPanelCreator<Ugwi, Object> creator = ( par, od ) //
+    -> new TsDialogGenericEntityEditPanel<>( par, od, ( aContext, aViewer ) -> {
+      SingleSkPropUgwiSelectPanel panel = new SingleSkPropUgwiSelectPanel( aContext, aViewer );
+      return panel;
+    } );
+    TsDialog<Ugwi, Object> d = new TsDialog<>( aDialogInfo, aInitVal, null, creator );
+    return d.execData();
   }
 
 }

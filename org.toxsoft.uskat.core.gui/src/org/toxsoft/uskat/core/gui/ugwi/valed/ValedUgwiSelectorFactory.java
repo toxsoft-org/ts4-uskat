@@ -6,14 +6,10 @@ import static org.toxsoft.core.tslib.av.impl.AvUtils.*;
 import static org.toxsoft.core.tslib.av.metainfo.IAvMetaConstants.*;
 import static org.toxsoft.uskat.core.gui.ugwi.valed.ISkResources.*;
 
-import org.toxsoft.core.tsgui.bricks.ctx.impl.*;
 import org.toxsoft.core.tslib.av.impl.*;
 import org.toxsoft.core.tslib.av.metainfo.*;
-import org.toxsoft.core.tslib.av.opset.*;
-import org.toxsoft.core.tslib.bricks.ctx.*;
 import org.toxsoft.core.tslib.bricks.keeper.std.*;
 import org.toxsoft.core.tslib.coll.primtypes.*;
-import org.toxsoft.uskat.core.*;
 import org.toxsoft.uskat.core.api.ugwis.kinds.*;
 
 /**
@@ -41,9 +37,9 @@ public class ValedUgwiSelectorFactory {
   public static final String OPID_SINGLE_UGWI_KIND_ID = TS_ID + ".gui.ugwi.valed.UgwiSingleKindId"; //$NON-NLS-1$
 
   /**
-   * ID of option {@link #OPDEF_SINGLE_UGWI_KIND_ID}.
+   * ID of option {@link #OPDEF_UGWI_KIND_IDS_LIST}.
    */
-  public static final String OPID_UGWI_KIND_IDS_LIST = TS_ID + ".gui.ugwi.valed.UgwiSingleKindId"; //$NON-NLS-1$
+  public static final String OPID_UGWI_KIND_IDS_LIST = TS_ID + ".gui.ugwi.valed.UgwiKindIdsList"; //$NON-NLS-1$
 
   /**
    * {@link ValedUgwiSelectorFactory#params()} option: ID of the Ugwi kind .
@@ -53,7 +49,7 @@ public class ValedUgwiSelectorFactory {
       TSID_DEFAULT_VALUE, UgwiKindSkAttr.KIND_ID );
 
   /**
-   * {@link ValedUgwiSelectorFactory#params()} option: ID of the Ugwi kind .
+   * {@link ValedUgwiSelectorFactory#params()} option: List of ID of the Ugwi kind.
    */
   public static final IDataDef OPDEF_UGWI_KIND_IDS_LIST = DataDef.create( OPID_UGWI_KIND_IDS_LIST, VALOBJ, //
       TSID_NAME, STR_N_UGWI_KIND_IDS_LIST, //
