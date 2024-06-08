@@ -1,18 +1,23 @@
 package org.toxsoft.uskat.core.gui;
 
 import static org.toxsoft.core.tsgui.graphics.icons.ITsStdIconIds.*;
-import static org.toxsoft.core.tslib.ITsHardConstants.*;
+import static org.toxsoft.core.tslib.av.EAtomicType.*;
+import static org.toxsoft.core.tslib.av.impl.AvUtils.*;
 import static org.toxsoft.core.tslib.av.metainfo.IAvMetaConstants.*;
 import static org.toxsoft.uskat.core.ISkHardConstants.*;
 import static org.toxsoft.uskat.core.gui.km5.sded.ISkSdedKm5SharedResources.*;
 
 import org.eclipse.e4.core.contexts.*;
 import org.toxsoft.core.tsgui.bricks.actions.*;
-import org.toxsoft.core.tsgui.bricks.ctx.impl.*;
+import org.toxsoft.core.tsgui.bricks.ctx.*;
 import org.toxsoft.core.tsgui.graphics.icons.*;
-import org.toxsoft.core.tslib.av.opset.*;
-import org.toxsoft.core.tslib.bricks.ctx.*;
+import org.toxsoft.core.tslib.av.impl.*;
+import org.toxsoft.core.tslib.av.metainfo.*;
+import org.toxsoft.core.tslib.bricks.strid.more.*;
+import org.toxsoft.core.tslib.utils.errors.*;
 import org.toxsoft.uskat.core.*;
+import org.toxsoft.uskat.core.connection.*;
+import org.toxsoft.uskat.core.gui.conn.*;
 
 /**
  * Plugin constants.
@@ -54,21 +59,61 @@ public interface ISkCoreGuiConstants {
   String ICONID_USKAT_DISCONNECT   = "uskat-disconnect";  //$NON-NLS-1$
 
   // ------------------------------------------------------------------------------------
-  // Sk-related VALED constants
+  // TODO ???
   //
 
   /**
-   * The reference in the context to initialize {@link ISkCoreApi} for VALEDs.
+   * For all GUI components this option contains {@link IdChain} to get {@link ISkConnection} to work with.
+   * <p>
+   * The connection must be retrieved by {@link ISkConnectionSupplier#getConn(IdChain)}.
    */
-  ITsContextRefDef<ISkCoreApi> REFDEF_SK_VALED_CORE_API =
-      new TsGuiContextRefDef<>( TS_FULL_ID + ".gui.ValedUgwiSelectorFactory.RefCoreApi", //$NON-NLS-1$
-          ISkCoreApi.class, IOptionSet.NULL );
+  IDataDef OPDEF_SUPPLIED_SK_CONN_ID = DataDef.create( USKAT_FULL_ID + ".gui.SuppliedSkConnId", VALOBJ, //$NON-NLS-1$
+      TSID_IS_MANDATORY, AV_TRUE, //
+      TSID_IS_NULL_ALLOWED, AV_FALSE //
+  );
+
+  /**
+   * Returns Core API reference from the context using the key from option {@link #OPDEF_SUPPLIED_SK_CONN_ID}.
+   * <p>
+   * This is convenience method designed to simplify usage of the option {@link #OPDEF_SUPPLIED_SK_CONN_ID}.
+   *
+   * @param aContext {@link ITsGuiContext} - the context
+   * @return {@link ISkCoreApi} - the core API of the {@link ISkConnection} found by key
+   * @throws TsNullArgumentRtException any argument = <code>null</code>
+   * @throws TsItemNotFoundRtException no such key in the context
+   * @throws TsItemNotFoundRtException no such connection in {@link ISkConnectionSupplier}
+   */
+  static ISkCoreApi skCoreApi( ITsGuiContext aContext ) {
+    TsNullArgumentRtException.checkNull( aContext );
+    ISkConnection skConn = OPDEF_SUPPLIED_SK_CONN_ID.getValue( aContext.params() ).asValobj();
+    return skConn.coreApi();
+  }
+
+  /**
+   * Stores the the connection key in the context.
+   * <p>
+   * This is convenience method designed to simplify usage of the option {@link #OPDEF_SUPPLIED_SK_CONN_ID}.
+   *
+   * @param aContext {@link ITsGuiContext} - the context
+   * @param aSkConnKey {@link IdChain} - the key to be used with {@link ISkConnectionSupplier#getConn(IdChain)}
+   * @throws TsNullArgumentRtException any argument = <code>null</code>
+   */
+  static void setCtxSkConnKey( ITsGuiContext aContext, IdChain aSkConnKey ) {
+    TsNullArgumentRtException.checkNulls( aContext, aSkConnKey );
+    OPDEF_SUPPLIED_SK_CONN_ID.setValue( aContext.params(), avValobj( aSkConnKey ) );
+  }
 
   // ------------------------------------------------------------------------------------
   // Actions
 
+  /**
+   * ID of action {@link #ACDEF_HIDE_CLAIMED_CLASSES}.
+   */
   String ACTID_HIDE_CLAIMED_CLASSES = SDED_ID + ".HideClaimedClasses"; //$NON-NLS-1$
 
+  /**
+   * Hide/show uneditable classes owned by the internal services.
+   */
   TsActionDef ACDEF_HIDE_CLAIMED_CLASSES = TsActionDef.ofCheck1( ACTID_HIDE_CLAIMED_CLASSES, //
       TSID_NAME, STR_N_HIDE_CLAIMED_CLASSES, //
       TSID_DESCRIPTION, STR_D_HIDE_CLAIMED_CLASSES, //

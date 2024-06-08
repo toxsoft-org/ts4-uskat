@@ -2,6 +2,7 @@ package org.toxsoft.uskat.core.gui.ugwi.valed;
 
 import static org.toxsoft.core.tsgui.valed.api.IValedControlConstants.*;
 import static org.toxsoft.core.tslib.av.impl.AvUtils.*;
+import static org.toxsoft.uskat.core.gui.ISkCoreGuiConstants.*;
 import static org.toxsoft.uskat.core.gui.ugwi.valed.ISkResources.*;
 import static org.toxsoft.uskat.core.gui.ugwi.valed.ValedUgwiSelectorFactory.*;
 
@@ -9,12 +10,11 @@ import org.toxsoft.core.tsgui.bricks.ctx.*;
 import org.toxsoft.core.tsgui.valed.api.*;
 import org.toxsoft.core.tsgui.valed.controls.helpers.*;
 import org.toxsoft.core.tsgui.valed.impl.*;
+import org.toxsoft.core.tslib.bricks.strid.more.*;
 import org.toxsoft.core.tslib.coll.primtypes.*;
 import org.toxsoft.core.tslib.gw.ugwi.*;
 import org.toxsoft.core.tslib.utils.*;
 import org.toxsoft.core.tslib.utils.errors.*;
-import org.toxsoft.uskat.core.*;
-import org.toxsoft.uskat.core.gui.*;
 
 /**
  * Ugwi selector VALED.
@@ -72,20 +72,16 @@ public class ValedUgwiSelectorTextAndButton
   @Override
   protected boolean doProcessButtonPress() {
     Ugwi selUgwi = Ugwi.NONE;
-    TsNullArgumentRtException.checkNull( tsContext() );
-    ISkCoreApi coreApi = ISkCoreGuiConstants.REFDEF_SK_VALED_CORE_API.getRef( tsContext(), null );
-    TsNullArgumentRtException.checkNull( coreApi );
+    IdChain skConnKey = OPDEF_SUPPLIED_SK_CONN_ID.getValue( tsContext().params() ).asValobj();
     // check what user want
     if( tsContext().params().hasValue( OPDEF_SINGLE_UGWI_KIND_ID ) ) {
       String ugwiKindId = tsContext().params().getStr( OPDEF_SINGLE_UGWI_KIND_ID );
-      selUgwi = PanelUgwiSelector.selectUgwiSingleKind( tsContext(), canGetValue().isOk() ? getValue() : null, coreApi,
-          ugwiKindId );
+      selUgwi = PanelUgwiSelector.selectUgwiSingleKind( tsContext(), value, skConnKey, ugwiKindId );
     }
     else
       if( tsContext().params().hasValue( OPDEF_UGWI_KIND_IDS_LIST ) ) {
         IStringList kindIdList = OPDEF_UGWI_KIND_IDS_LIST.getValue( tsContext().params() ).asValobj();
-        selUgwi = PanelUgwiSelector.selectUgwiListKinds( tsContext(), canGetValue().isOk() ? getValue() : null, coreApi,
-            kindIdList );
+        selUgwi = PanelUgwiSelector.selectUgwiListKinds( tsContext(), value, skConnKey, kindIdList );
       }
       else {
         throw new TsIllegalStateRtException( VALED_ERR_MSG_NO_UGWI_KIND );

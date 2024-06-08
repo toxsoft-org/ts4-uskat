@@ -4,6 +4,7 @@ import static org.toxsoft.core.tslib.ITsHardConstants.*;
 import static org.toxsoft.core.tslib.av.EAtomicType.*;
 import static org.toxsoft.core.tslib.av.impl.AvUtils.*;
 import static org.toxsoft.core.tslib.av.metainfo.IAvMetaConstants.*;
+import static org.toxsoft.uskat.core.gui.ISkCoreGuiConstants.*;
 import static org.toxsoft.uskat.core.gui.km5.sgw.ISgwM5Constants.*;
 import static org.toxsoft.uskat.core.gui.ugwi.kinds.ISkResources.*;
 import static org.toxsoft.uskat.core.gui.ugwi.valed.ValedUgwiSelectorFactory.*;
@@ -27,6 +28,7 @@ import org.toxsoft.core.tsgui.utils.layout.*;
 import org.toxsoft.core.tsgui.widgets.*;
 import org.toxsoft.core.tslib.av.impl.*;
 import org.toxsoft.core.tslib.av.metainfo.*;
+import org.toxsoft.core.tslib.bricks.strid.more.*;
 import org.toxsoft.core.tslib.bricks.validator.*;
 import org.toxsoft.core.tslib.bricks.validator.impl.*;
 import org.toxsoft.core.tslib.gw.gwid.*;
@@ -37,7 +39,7 @@ import org.toxsoft.uskat.core.api.objserv.*;
 import org.toxsoft.uskat.core.api.sysdescr.*;
 import org.toxsoft.uskat.core.api.sysdescr.dto.*;
 import org.toxsoft.uskat.core.connection.*;
-import org.toxsoft.uskat.core.gui.*;
+import org.toxsoft.uskat.core.gui.conn.*;
 import org.toxsoft.uskat.core.impl.*;
 
 /**
@@ -81,7 +83,7 @@ public class SingleSkPropUgwiSelectPanel
    */
   public SingleSkPropUgwiSelectPanel( ITsGuiContext aContext, boolean aIsViewer ) {
     super( aContext, aIsViewer );
-    coreApi = ISkCoreGuiConstants.REFDEF_SK_VALED_CORE_API.getRef( aContext );
+    coreApi = skCoreApi( tsContext() );
     TsInternalErrorRtException.checkNull( coreApi );
     skClassPropKind = OPDEF_CLASS_PROP_KIND.getValue( tsContext().params() ).asValobj();
     // IM5Domain m5 = aContext.get( IM5Domain.class );
@@ -178,13 +180,13 @@ public class SingleSkPropUgwiSelectPanel
    *
    * @param aDialogInfo {@link ITsDialogInfo} - the dialog window parameters
    * @param aInitVal {@link Ugwi} - initial value or <code>null</code>
-   * @param aCoreApi {@link ISkCoreApi} - core API
+   * @param aSkConnKey {@link IdChain} - key for {@link ISkConnectionSupplier} of the Sk-connection to use
    * @return {@link Ugwi} - edited value or <code>null</code>
    * @throws TsNullArgumentRtException any argument = <code>null</code>
    */
-  public static Ugwi selectUgwi( ITsDialogInfo aDialogInfo, Ugwi aInitVal, ISkCoreApi aCoreApi ) {
+  public static Ugwi selectUgwi( ITsDialogInfo aDialogInfo, Ugwi aInitVal, IdChain aSkConnKey ) {
     TsNullArgumentRtException.checkNulls( aDialogInfo );
-    ISkCoreGuiConstants.REFDEF_SK_VALED_CORE_API.setRef( aDialogInfo.tsContext(), aCoreApi );
+    setCtxSkConnKey( aDialogInfo.tsContext(), aSkConnKey );
     IDialogPanelCreator<Ugwi, Object> creator = ( par, od ) //
     -> new TsDialogGenericEntityEditPanel<>( par, od, ( aContext, aViewer ) -> {
       SingleSkPropUgwiSelectPanel panel = new SingleSkPropUgwiSelectPanel( aContext, aViewer );
@@ -245,17 +247,10 @@ public class SingleSkPropUgwiSelectPanel
     // nop
   }
 
-  public ESkClassPropKind getClassPropKind() {
-    return skClassPropKind;
-  }
-
-  public EGwidKind getGwidKind() {
-    return skClassPropKind.gwidKind();
-  }
-
   // ------------------------------------------------------------------------------------
   // implementation
   //
+
   private void whenClassSelectionChanges() {
     panelProps.setSelectedItem( null );
     panelObjects.setSelectedItem( null );
@@ -285,6 +280,32 @@ public class SingleSkPropUgwiSelectPanel
       // TODO
       // fireTsDoubleClickEvent( getEntity() );
     }
+  }
+
+  // ------------------------------------------------------------------------------------
+  // API
+  //
+
+  /**
+   * Returns the property type of the class that this panel selects.
+   * <p>
+   * Corresponds with GWID kind returned by {@link #getGwidKind()}.
+   *
+   * @return {@link ESkClassPropKind} - the class property kind
+   */
+  public ESkClassPropKind getClassPropKind() {
+    return skClassPropKind;
+  }
+
+  /**
+   * Returns the GWID kind that this panel selects.
+   * <p>
+   * Corresponds with class property kind returned by {@link #getClassPropKind()}.
+   *
+   * @return {@link EGwidKind} - the GWID kind
+   */
+  public EGwidKind getGwidKind() {
+    return skClassPropKind.gwidKind();
   }
 
 }

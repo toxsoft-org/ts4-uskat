@@ -1,6 +1,7 @@
 package org.toxsoft.uskat.core.gui.ugwi.valed;
 
 import static org.toxsoft.core.tslib.av.impl.AvUtils.*;
+import static org.toxsoft.uskat.core.gui.ISkCoreGuiConstants.*;
 import static org.toxsoft.uskat.core.gui.ugwi.valed.ISkResources.*;
 import static org.toxsoft.uskat.core.gui.ugwi.valed.ValedUgwiSelectorFactory.*;
 
@@ -14,13 +15,14 @@ import org.toxsoft.core.tsgui.panels.generic.*;
 import org.toxsoft.core.tsgui.utils.*;
 import org.toxsoft.core.tsgui.utils.layout.*;
 import org.toxsoft.core.tsgui.valed.controls.basic.*;
+import org.toxsoft.core.tslib.bricks.strid.more.*;
 import org.toxsoft.core.tslib.bricks.validator.*;
 import org.toxsoft.core.tslib.coll.primtypes.*;
 import org.toxsoft.core.tslib.gw.ugwi.*;
 import org.toxsoft.core.tslib.utils.errors.*;
 import org.toxsoft.uskat.core.*;
 import org.toxsoft.uskat.core.api.ugwis.*;
-import org.toxsoft.uskat.core.gui.*;
+import org.toxsoft.uskat.core.gui.conn.*;
 import org.toxsoft.uskat.core.gui.ugwi.gui.*;
 
 /**
@@ -48,7 +50,8 @@ public class PanelUgwiSelector
    */
   public PanelUgwiSelector( Composite aParent, TsDialog<Ugwi, ITsGuiContext> aOwnerDialog ) {
     super( aParent, aOwnerDialog );
-    coreApi = ISkCoreGuiConstants.REFDEF_SK_VALED_CORE_API.getRef( environ() );
+    coreApi = skCoreApi( tsContext() );
+    // .REFDEF_SK_VALED_CORE_API.getRef( environ() );
     TsInternalErrorRtException.checkNull( coreApi );
     BorderLayout borderLayout = new BorderLayout();
     this.setLayout( borderLayout );
@@ -168,21 +171,20 @@ public class PanelUgwiSelector
   //
 
   /**
-   * Выводит диалог выбора Ugwi.
-   * <p>
+   * Invokes an UGWI selection dialog.
    *
-   * @param aContext {@link ITsGuiContext} - контекст
-   * @param aInitUgwi {@link Ugwi} для инициализации
-   * @param aCoreApi {@link ISkCoreApi} core API
+   * @param aContext {@link ITsGuiContext} - the context
+   * @param aInitUgwi {@link Ugwi} - initially selected UGWI or <code>null</code>
+   * @param aSkConnKey {@link IdChain} - key for {@link ISkConnectionSupplier} of the Sk-connection to use
    * @param aSingleUgwiKindId {@link String} kind id
-   * @return {@link Ugwi} - выбранный параметр <b>null</b> в случает отказа от редактирования
+   * @return {@link Ugwi} - selected UGWI or <code>null</code>
+   * @throws TsNullArgumentRtException any argument = <code>null</code>
    */
-  public static final Ugwi selectUgwiSingleKind( ITsGuiContext aContext, Ugwi aInitUgwi, ISkCoreApi aCoreApi,
+  public static final Ugwi selectUgwiSingleKind( ITsGuiContext aContext, Ugwi aInitUgwi, IdChain aSkConnKey,
       String aSingleUgwiKindId ) {
-    TsNullArgumentRtException.checkNulls( aContext, aCoreApi );
-    ISkCoreGuiConstants.REFDEF_SK_VALED_CORE_API.setRef( aContext, aCoreApi );
+    TsNullArgumentRtException.checkNulls( aContext, aSkConnKey );
+    setCtxSkConnKey( aContext, aSkConnKey );
     OPDEF_SINGLE_UGWI_KIND_ID.setValue( aContext.params(), avStr( aSingleUgwiKindId ) );
-
     IDialogPanelCreator<Ugwi, ITsGuiContext> creator = PanelUgwiSelector::new;
     ITsDialogInfo dlgInfo = new TsDialogInfo( aContext, DLG_CAPTION_STR, DLG_TITLE_STR );
     TsDialog<Ugwi, ITsGuiContext> d = new TsDialog<>( dlgInfo, aInitUgwi, aContext, creator );
@@ -190,21 +192,20 @@ public class PanelUgwiSelector
   }
 
   /**
-   * Выводит диалог выбора Ugwi.
-   * <p>
+   * Invokes an UGWI selection dialog.
    *
-   * @param aContext {@link ITsGuiContext} - контекст
-   * @param aInitUgwi {@link Ugwi} для инициализации
-   * @param aCoreApi {@link ISkCoreApi} core API
+   * @param aContext {@link ITsGuiContext} - the context
+   * @param aInitUgwi {@link Ugwi} - initially selected UGWI or <code>null</code>
+   * @param aSkConnKey {@link IdChain} - key for {@link ISkConnectionSupplier} of the Sk-connection to use
    * @param aUgwiKindIdList {@link String} kind id
-   * @return {@link Ugwi} - выбранный параметр <b>null</b> в случает отказа от редактирования
+   * @return {@link Ugwi} - selected UGWI or <code>null</code>
+   * @throws TsNullArgumentRtException any argument = <code>null</code>
    */
-  public static final Ugwi selectUgwiListKinds( ITsGuiContext aContext, Ugwi aInitUgwi, ISkCoreApi aCoreApi,
+  public static final Ugwi selectUgwiListKinds( ITsGuiContext aContext, Ugwi aInitUgwi, IdChain aSkConnKey,
       IStringList aUgwiKindIdList ) {
-    TsNullArgumentRtException.checkNulls( aContext, aCoreApi );
-    ISkCoreGuiConstants.REFDEF_SK_VALED_CORE_API.setRef( aContext, aCoreApi );
+    TsNullArgumentRtException.checkNulls( aContext, aSkConnKey );
+    setCtxSkConnKey( aContext, aSkConnKey );
     OPDEF_UGWI_KIND_IDS_LIST.setValue( aContext.params(), avValobj( aUgwiKindIdList ) );
-
     IDialogPanelCreator<Ugwi, ITsGuiContext> creator = PanelUgwiSelector::new;
     ITsDialogInfo dlgInfo = new TsDialogInfo( aContext, DLG_CAPTION_STR, DLG_TITLE_STR );
     TsDialog<Ugwi, ITsGuiContext> d = new TsDialog<>( dlgInfo, aInitUgwi, aContext, creator );
