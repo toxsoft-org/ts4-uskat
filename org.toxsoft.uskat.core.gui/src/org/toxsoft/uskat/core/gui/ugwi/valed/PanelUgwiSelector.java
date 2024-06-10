@@ -51,7 +51,6 @@ public class PanelUgwiSelector
   public PanelUgwiSelector( Composite aParent, TsDialog<Ugwi, ITsGuiContext> aOwnerDialog ) {
     super( aParent, aOwnerDialog );
     coreApi = skCoreApi( tsContext() );
-    // .REFDEF_SK_VALED_CORE_API.getRef( environ() );
     TsInternalErrorRtException.checkNull( coreApi );
     BorderLayout borderLayout = new BorderLayout();
     this.setLayout( borderLayout );

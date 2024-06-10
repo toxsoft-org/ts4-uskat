@@ -28,6 +28,7 @@ import org.toxsoft.core.tsgui.utils.layout.*;
 import org.toxsoft.core.tsgui.widgets.*;
 import org.toxsoft.core.tslib.av.impl.*;
 import org.toxsoft.core.tslib.av.metainfo.*;
+import org.toxsoft.core.tslib.bricks.strid.coll.*;
 import org.toxsoft.core.tslib.bricks.strid.more.*;
 import org.toxsoft.core.tslib.bricks.validator.*;
 import org.toxsoft.core.tslib.bricks.validator.impl.*;
@@ -233,6 +234,11 @@ public class SingleSkPropUgwiSelectPanel
       itemsProvider.items().setAll( coreApi.objService().listObjs( cinf.id(), true ) );
       panelObjects.setItemsProvider( itemsProvider );
       panelObjects.refresh();
+      // clear props list
+      M5DefaultItemsProvider<IDtoClassPropInfoBase> propItemsProvider = new M5DefaultItemsProvider<>();
+      propItemsProvider.items().setAll( IStridablesList.EMPTY );
+      panelProps.setItemsProvider( propItemsProvider );
+      panelProps.refresh();
     }
   }
 
