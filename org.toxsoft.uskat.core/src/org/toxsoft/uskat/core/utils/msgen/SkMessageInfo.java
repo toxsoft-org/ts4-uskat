@@ -136,12 +136,14 @@ public final class SkMessageInfo
 
   @Override
   public String toString() {
-    StringBuilder retVal = new StringBuilder( "<enter format string>" );
+    StringBuilder retVal = fmtStr.isBlank() ? new StringBuilder( "<enter format string>" ) : new StringBuilder();
     if( !fmtStr.isBlank() ) {
       retVal = retVal.append( fmtStr );
     }
     if( !usedUgwies.isEmpty() ) {
-      retVal = retVal.append( " used Ugwies: " + usedUgwies.findByKey( usedUgwies.keys().first() ).canonicalString() );
+      String par1Key = usedUgwies.keys().first();
+      String par1Ugwi = usedUgwies.findByKey( usedUgwies.keys().first() ).canonicalString();
+      retVal = retVal.append( " | used Ugwies: " + par1Key + "->" + par1Ugwi );
       if( usedUgwies.keys().size() > 1 ) {
         retVal = retVal.append( " + ..." );
       }
