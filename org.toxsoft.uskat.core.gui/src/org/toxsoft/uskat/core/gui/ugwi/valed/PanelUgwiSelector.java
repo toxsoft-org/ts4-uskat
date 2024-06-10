@@ -102,6 +102,7 @@ public class PanelUgwiSelector
         if( uKind != null ) {
           if( selectPanel != null ) {
             selectPanel.dispose();
+            selectPanel = null;
           }
           // recreate panel for selection
           IUgwiKindGuiHelper ugwiHelper = coreApi.ugwiService().findHelper( currUgwiKindId, IUgwiKindGuiHelper.class );
@@ -110,7 +111,7 @@ public class PanelUgwiSelector
           }
           ugwSelector = ugwiHelper.createUgwiSelectorPanel( environ() );
           selectPanel = ugwSelector.createControl( selectBackPanel );
-          aBkPanel.layout( true );
+          selectBackPanel.layout( true );
         }
       }
     } );
