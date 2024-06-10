@@ -12,7 +12,7 @@ import org.toxsoft.uskat.core.connection.ISkConnection;
 import org.toxsoft.uskat.core.devapi.ISkatlet;
 
 /**
- * Abstract skatlet implementation.
+ * Base skatlet implementation.
  *
  * @author mvk
  */
