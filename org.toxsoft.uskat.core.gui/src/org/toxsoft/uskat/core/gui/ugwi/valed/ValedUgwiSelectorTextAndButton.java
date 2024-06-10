@@ -2,7 +2,6 @@ package org.toxsoft.uskat.core.gui.ugwi.valed;
 
 import static org.toxsoft.core.tsgui.valed.api.IValedControlConstants.*;
 import static org.toxsoft.core.tslib.av.impl.AvUtils.*;
-import static org.toxsoft.uskat.core.gui.ISkCoreGuiConstants.*;
 import static org.toxsoft.uskat.core.gui.ugwi.valed.ISkResources.*;
 import static org.toxsoft.uskat.core.gui.ugwi.valed.ValedUgwiSelectorFactory.*;
 
@@ -10,7 +9,6 @@ import org.toxsoft.core.tsgui.bricks.ctx.*;
 import org.toxsoft.core.tsgui.valed.api.*;
 import org.toxsoft.core.tsgui.valed.controls.helpers.*;
 import org.toxsoft.core.tsgui.valed.impl.*;
-import org.toxsoft.core.tslib.bricks.strid.more.*;
 import org.toxsoft.core.tslib.coll.primtypes.*;
 import org.toxsoft.core.tslib.gw.ugwi.*;
 import org.toxsoft.core.tslib.utils.*;
@@ -72,16 +70,15 @@ public class ValedUgwiSelectorTextAndButton
   @Override
   protected boolean doProcessButtonPress() {
     Ugwi selUgwi = Ugwi.NONE;
-    IdChain skConnKey = OPDEF_SUPPLIED_SK_CONN_ID.getValue( tsContext().params() ).asValobj();
     // check what user want
     if( tsContext().params().hasValue( OPDEF_SINGLE_UGWI_KIND_ID ) ) {
       String ugwiKindId = tsContext().params().getStr( OPDEF_SINGLE_UGWI_KIND_ID );
-      selUgwi = PanelUgwiSelector.selectUgwiSingleKind( tsContext(), value, skConnKey, ugwiKindId );
+      selUgwi = PanelUgwiSelector.selectUgwiSingleKind( tsContext(), value, ugwiKindId );
     }
     else
       if( tsContext().params().hasValue( OPDEF_UGWI_KIND_IDS_LIST ) ) {
         IStringList kindIdList = OPDEF_UGWI_KIND_IDS_LIST.getValue( tsContext().params() ).asValobj();
-        selUgwi = PanelUgwiSelector.selectUgwiListKinds( tsContext(), value, skConnKey, kindIdList );
+        selUgwi = PanelUgwiSelector.selectUgwiListKinds( tsContext(), value, kindIdList );
       }
       else {
         throw new TsIllegalStateRtException( VALED_ERR_MSG_NO_UGWI_KIND );

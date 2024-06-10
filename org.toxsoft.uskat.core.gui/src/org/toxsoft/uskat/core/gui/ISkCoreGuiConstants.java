@@ -1,7 +1,6 @@
 package org.toxsoft.uskat.core.gui;
 
 import static org.toxsoft.core.tsgui.graphics.icons.ITsStdIconIds.*;
-import static org.toxsoft.core.tslib.av.EAtomicType.*;
 import static org.toxsoft.core.tslib.av.impl.AvUtils.*;
 import static org.toxsoft.core.tslib.av.metainfo.IAvMetaConstants.*;
 import static org.toxsoft.uskat.core.ISkHardConstants.*;
@@ -10,9 +9,8 @@ import static org.toxsoft.uskat.core.gui.km5.sded.ISkSdedKm5SharedResources.*;
 import org.eclipse.e4.core.contexts.*;
 import org.toxsoft.core.tsgui.bricks.actions.*;
 import org.toxsoft.core.tsgui.bricks.ctx.*;
+import org.toxsoft.core.tsgui.bricks.ctx.impl.*;
 import org.toxsoft.core.tsgui.graphics.icons.*;
-import org.toxsoft.core.tslib.av.impl.*;
-import org.toxsoft.core.tslib.av.metainfo.*;
 import org.toxsoft.core.tslib.bricks.strid.more.*;
 import org.toxsoft.core.tslib.utils.errors.*;
 import org.toxsoft.uskat.core.*;
@@ -63,19 +61,28 @@ public interface ISkCoreGuiConstants {
   //
 
   /**
-   * For all GUI components this option contains {@link IdChain} to get {@link ISkConnection} to work with.
+   * The reference key of the {@link #REFDEF_SUPPLIED_SK_CONN_ID}.
+   */
+  String REFID_SUPPLIED_SK_CONN_ID = USKAT_FULL_ID + ".gui.ctx_ref.SuppliedSkConnId"; //$NON-NLS-1$
+
+  /**
+   * For all GUI components this reference contains {@link IdChain} to get {@link ISkConnection} to work with.
    * <p>
    * The connection must be retrieved by {@link ISkConnectionSupplier#getConn(IdChain)}.
+   * <p>
+   * <b>Attention:</b> use methods {@link #skConnCtx(ITsGuiContext)} and {@link #skCoreApi(ITsGuiContext)} to get and
+   * {@link #setCtxSkConnKey(ITsGuiContext, IdChain)} to set reference value, do not use this reference directly.
    */
-  IDataDef OPDEF_SUPPLIED_SK_CONN_ID = DataDef.create( USKAT_FULL_ID + ".gui.SuppliedSkConnId", VALOBJ, //$NON-NLS-1$
+  ITsGuiContextRefDef<IdChain> REFDEF_SUPPLIED_SK_CONN_ID = TsGuiContextRefDef.create( REFID_SUPPLIED_SK_CONN_ID, //
+      IdChain.class, //
       TSID_IS_MANDATORY, AV_TRUE, //
       TSID_IS_NULL_ALLOWED, AV_FALSE //
   );
 
   /**
-   * Returns Core API reference from the context using the key from option {@link #OPDEF_SUPPLIED_SK_CONN_ID}.
+   * Returns Core API reference from the context using the {@link #REFDEF_SUPPLIED_SK_CONN_ID}.
    * <p>
-   * This is convenience method designed to simplify usage of the option {@link #OPDEF_SUPPLIED_SK_CONN_ID}.
+   * This is convenience method designed to simplify usage of the option {@link #REFDEF_SUPPLIED_SK_CONN_ID}.
    *
    * @param aContext {@link ITsGuiContext} - the context
    * @return {@link ISkCoreApi} - the core API of the {@link ISkConnection} found by key
@@ -85,16 +92,16 @@ public interface ISkCoreGuiConstants {
    */
   static ISkCoreApi skCoreApi( ITsGuiContext aContext ) {
     TsNullArgumentRtException.checkNull( aContext );
-    IdChain key = OPDEF_SUPPLIED_SK_CONN_ID.getValue( aContext.params() ).asValobj();
+    IdChain key = REFDEF_SUPPLIED_SK_CONN_ID.getRef( aContext );
     ISkConnectionSupplier cs = aContext.get( ISkConnectionSupplier.class );
     ISkConnection skConn = cs.getConn( key );
     return skConn.coreApi();
   }
 
   /**
-   * Returns Sk-connection reference from the context using the key from option {@link #OPDEF_SUPPLIED_SK_CONN_ID}.
+   * Returns Sk-connection reference from the context using the {@link #REFDEF_SUPPLIED_SK_CONN_ID}.
    * <p>
-   * This is convenience method designed to simplify usage of the option {@link #OPDEF_SUPPLIED_SK_CONN_ID}.
+   * This is convenience method designed to simplify usage of the {@link #REFDEF_SUPPLIED_SK_CONN_ID}.
    *
    * @param aContext {@link ITsGuiContext} - the context
    * @return {@link ISkConnection} - the {@link ISkConnection} found by key
@@ -104,16 +111,31 @@ public interface ISkCoreGuiConstants {
    */
   static ISkConnection skConnCtx( ITsGuiContext aContext ) {
     TsNullArgumentRtException.checkNull( aContext );
-    OPDEF_SUPPLIED_SK_CONN_ID.getValue( aContext.params() ).asValobj();
-    IdChain key = OPDEF_SUPPLIED_SK_CONN_ID.getValue( aContext.params() ).asValobj();
+    IdChain key = REFDEF_SUPPLIED_SK_CONN_ID.getRef( aContext );
     ISkConnectionSupplier cs = aContext.get( ISkConnectionSupplier.class );
     return cs.getConn( key );
   }
 
   /**
+   * Returns Sk-connection key from the context using the {@link #REFDEF_SUPPLIED_SK_CONN_ID}.
+   * <p>
+   * This is convenience method designed to simplify usage of the {@link #REFDEF_SUPPLIED_SK_CONN_ID}.
+   *
+   * @param aContext {@link ITsGuiContext} - the context
+   * @return {@link IdChain} - the Sk-connection key
+   * @throws TsNullArgumentRtException any argument = <code>null</code>
+   * @throws TsItemNotFoundRtException no such key in the context
+   * @throws TsItemNotFoundRtException no such connection in {@link ISkConnectionSupplier}
+   */
+  static IdChain skConnKeyCtx( ITsGuiContext aContext ) {
+    TsNullArgumentRtException.checkNull( aContext );
+    return REFDEF_SUPPLIED_SK_CONN_ID.getRef( aContext );
+  }
+
+  /**
    * Stores the the connection key in the context.
    * <p>
-   * This is convenience method designed to simplify usage of the option {@link #OPDEF_SUPPLIED_SK_CONN_ID}.
+   * This is convenience method designed to simplify usage of the {@link #REFDEF_SUPPLIED_SK_CONN_ID}.
    *
    * @param aContext {@link ITsGuiContext} - the context
    * @param aSkConnKey {@link IdChain} - the key to be used with {@link ISkConnectionSupplier#getConn(IdChain)}
@@ -121,7 +143,7 @@ public interface ISkCoreGuiConstants {
    */
   static void setCtxSkConnKey( ITsGuiContext aContext, IdChain aSkConnKey ) {
     TsNullArgumentRtException.checkNulls( aContext, aSkConnKey );
-    OPDEF_SUPPLIED_SK_CONN_ID.setValue( aContext.params(), avValobj( aSkConnKey ) );
+    REFDEF_SUPPLIED_SK_CONN_ID.setRef( aContext, aSkConnKey );
   }
 
   // ------------------------------------------------------------------------------------
