@@ -85,8 +85,29 @@ public interface ISkCoreGuiConstants {
    */
   static ISkCoreApi skCoreApi( ITsGuiContext aContext ) {
     TsNullArgumentRtException.checkNull( aContext );
-    ISkConnection skConn = OPDEF_SUPPLIED_SK_CONN_ID.getValue( aContext.params() ).asValobj();
+    IdChain key = OPDEF_SUPPLIED_SK_CONN_ID.getValue( aContext.params() ).asValobj();
+    ISkConnectionSupplier cs = aContext.get( ISkConnectionSupplier.class );
+    ISkConnection skConn = cs.getConn( key );
     return skConn.coreApi();
+  }
+
+  /**
+   * Returns Sk-connection reference from the context using the key from option {@link #OPDEF_SUPPLIED_SK_CONN_ID}.
+   * <p>
+   * This is convenience method designed to simplify usage of the option {@link #OPDEF_SUPPLIED_SK_CONN_ID}.
+   *
+   * @param aContext {@link ITsGuiContext} - the context
+   * @return {@link ISkConnection} - the {@link ISkConnection} found by key
+   * @throws TsNullArgumentRtException any argument = <code>null</code>
+   * @throws TsItemNotFoundRtException no such key in the context
+   * @throws TsItemNotFoundRtException no such connection in {@link ISkConnectionSupplier}
+   */
+  static ISkConnection skConnCtx( ITsGuiContext aContext ) {
+    TsNullArgumentRtException.checkNull( aContext );
+    OPDEF_SUPPLIED_SK_CONN_ID.getValue( aContext.params() ).asValobj();
+    IdChain key = OPDEF_SUPPLIED_SK_CONN_ID.getValue( aContext.params() ).asValobj();
+    ISkConnectionSupplier cs = aContext.get( ISkConnectionSupplier.class );
+    return cs.getConn( key );
   }
 
   /**
