@@ -1,6 +1,6 @@
 package org.toxsoft.uskat.core.impl;
 
-import org.toxsoft.uskat.core.api.hqserv.*;
+import org.toxsoft.uskat.core.api.hqserv.ISkHistoryQueryServiceConstants;
 
 /**
  * Localizable resources.
@@ -186,4 +186,12 @@ interface ISkResources {
   String FMT_ERR_QUERY_TIMEOUT       = "Cancel query by timeout error. Try change -"
       + ISkHistoryQueryServiceConstants.OP_SK_MAX_EXECUTION_TIME.id() + " value to up (%d))";
 
+  /**
+   * {@link SkatletBase}
+   */
+  String FMT_INFO_SKATLET_INIT       = "%s doInit(). connection = %s.";
+  String FMT_INFO_SKATLET_START      = "%s: start().";
+  String FMT_INFO_SKATLET_QUERY_STOP = "%s: queryStop().";
+  String FMT_INFO_SKATLET_DESTROY    = "%s: destroy().";
+  String FMT_INFO_SKATLET_DOJOB      = "%s: doJob().";
 }
