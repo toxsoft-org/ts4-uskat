@@ -41,6 +41,9 @@ public class UgwiGuiHelperSkRtdata
     // set kind of prop (rt data)
     SingleSkPropUgwiSelectPanel.OPDEF_CLASS_PROP_KIND.setValue( aTsContext.params(),
         avValobj( ESkClassPropKind.RTDATA ) );
+    SingleSkPropUgwiSelectPanel.OPDEF_SK_UGWI_KIND_ID.setValue( aTsContext.params(),
+        avStr( UgwiKindSkRtdata.KIND_ID ) );
+
     return new SingleSkPropUgwiSelectPanel( aTsContext, aViewer );
   }
 
@@ -50,6 +53,8 @@ public class UgwiGuiHelperSkRtdata
     // set kind of prop (attr)
     SingleSkPropUgwiSelectPanel.OPDEF_CLASS_PROP_KIND.setValue( aTsContext.params(),
         avValobj( ESkClassPropKind.RTDATA ) );
+    SingleSkPropUgwiSelectPanel.OPDEF_SK_UGWI_KIND_ID.setValue( aTsContext.params(),
+        avStr( UgwiKindSkRtdata.KIND_ID ) );
     return new SingleSkPropUgwiSelectPanel( aTsContext, aViewer );
   }
 

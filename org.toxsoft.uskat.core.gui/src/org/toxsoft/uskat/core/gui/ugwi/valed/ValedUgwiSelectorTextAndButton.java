@@ -100,6 +100,7 @@ public class ValedUgwiSelectorTextAndButton
     String txt = TsLibUtils.EMPTY_STRING;
     if( aValue != null ) {
       txt = aValue.toString();
+      value = aValue;
     }
     getTextControl().setText( txt );
   }

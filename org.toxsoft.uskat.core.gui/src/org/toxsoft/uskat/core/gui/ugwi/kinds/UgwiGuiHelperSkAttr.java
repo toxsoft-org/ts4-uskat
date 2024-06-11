@@ -41,6 +41,7 @@ public class UgwiGuiHelperSkAttr
     // set kind of prop (attr)
     SingleSkPropUgwiSelectPanel.OPDEF_CLASS_PROP_KIND.setValue( aTsContext.params(),
         avValobj( ESkClassPropKind.ATTR ) );
+    SingleSkPropUgwiSelectPanel.OPDEF_SK_UGWI_KIND_ID.setValue( aTsContext.params(), avStr( UgwiKindSkAttr.KIND_ID ) );
     return new SingleSkPropUgwiSelectPanel( aTsContext, aViewer );
   }
 
@@ -50,6 +51,7 @@ public class UgwiGuiHelperSkAttr
     // set kind of prop (attr)
     SingleSkPropUgwiSelectPanel.OPDEF_CLASS_PROP_KIND.setValue( aTsContext.params(),
         avValobj( ESkClassPropKind.ATTR ) );
+    SingleSkPropUgwiSelectPanel.OPDEF_SK_UGWI_KIND_ID.setValue( aTsContext.params(), avStr( UgwiKindSkAttr.KIND_ID ) );
     return new SingleSkPropUgwiSelectPanel( aTsContext, aViewer );
   }
 

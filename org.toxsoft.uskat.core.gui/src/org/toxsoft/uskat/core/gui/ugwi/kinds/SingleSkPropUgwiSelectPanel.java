@@ -7,7 +7,6 @@ import static org.toxsoft.core.tslib.av.metainfo.IAvMetaConstants.*;
 import static org.toxsoft.uskat.core.gui.ISkCoreGuiConstants.*;
 import static org.toxsoft.uskat.core.gui.km5.sgw.ISgwM5Constants.*;
 import static org.toxsoft.uskat.core.gui.ugwi.kinds.ISkResources.*;
-import static org.toxsoft.uskat.core.gui.ugwi.valed.ValedUgwiSelectorFactory.*;
 
 import org.eclipse.swt.*;
 import org.eclipse.swt.custom.*;
@@ -39,6 +38,7 @@ import org.toxsoft.uskat.core.*;
 import org.toxsoft.uskat.core.api.objserv.*;
 import org.toxsoft.uskat.core.api.sysdescr.*;
 import org.toxsoft.uskat.core.api.sysdescr.dto.*;
+import org.toxsoft.uskat.core.api.ugwis.kinds.*;
 import org.toxsoft.uskat.core.connection.*;
 import org.toxsoft.uskat.core.gui.conn.*;
 import org.toxsoft.uskat.core.impl.*;
@@ -64,6 +64,17 @@ public class SingleSkPropUgwiSelectPanel
       TSID_KEEPER_ID, ESkClassPropKind.KEEPER_ID, //
       TSID_DEFAULT_VALUE, avValobj( ESkClassPropKind.RTDATA ) //
   );
+
+  /**
+   * ID of option {@link #OPDEF_SK_UGWI_KIND_ID}.
+   */
+  public static final String OPID_SK_UGWI_KIND_ID = TS_ID + ".gui.ugwi.edit.UgwiSkKindId"; //$NON-NLS-1$
+
+  /**
+   * option: ID of the Sk Ugwi kind .
+   */
+  public static final IDataDef OPDEF_SK_UGWI_KIND_ID = DataDef.create( OPID_SK_UGWI_KIND_ID, STRING, //
+      TSID_DEFAULT_VALUE, UgwiKindSkRtdata.KIND_ID );
 
   private final ISkCoreApi coreApi; // never is null
 
@@ -179,7 +190,7 @@ public class SingleSkPropUgwiSelectPanel
     IDtoClassPropInfoBase selProp = panelProps.selectedItem();
     ESkClassPropKind kind = getClassPropKind();
     Gwid gwid = kind.createConcreteGwid( selObj.skid(), selProp.id() );
-    String ugwiKindId = tsContext().params().getStr( OPDEF_SINGLE_UGWI_KIND_ID );
+    String ugwiKindId = tsContext().params().getStr( OPDEF_SK_UGWI_KIND_ID );
     Ugwi retVal = Ugwi.of( ugwiKindId, gwid.canonicalString() );
     return retVal;
   }

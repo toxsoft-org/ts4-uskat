@@ -40,6 +40,7 @@ public class UgwiGuiHelperSkCmd
   protected IGenericEntityEditPanel<Ugwi> doCreateEntityPanel( ITsGuiContext aTsContext, boolean aViewer ) {
     // set kind of prop (cmd)
     SingleSkPropUgwiSelectPanel.OPDEF_CLASS_PROP_KIND.setValue( aTsContext.params(), avValobj( ESkClassPropKind.CMD ) );
+    SingleSkPropUgwiSelectPanel.OPDEF_SK_UGWI_KIND_ID.setValue( aTsContext.params(), avStr( UgwiKindSkCmd.KIND_ID ) );
     return new SingleSkPropUgwiSelectPanel( aTsContext, aViewer );
   }
 
@@ -48,6 +49,7 @@ public class UgwiGuiHelperSkCmd
 
     // set kind of prop (cmd)
     SingleSkPropUgwiSelectPanel.OPDEF_CLASS_PROP_KIND.setValue( aTsContext.params(), avValobj( ESkClassPropKind.CMD ) );
+    SingleSkPropUgwiSelectPanel.OPDEF_SK_UGWI_KIND_ID.setValue( aTsContext.params(), avStr( UgwiKindSkCmd.KIND_ID ) );
     return new SingleSkPropUgwiSelectPanel( aTsContext, aViewer );
   }
 
