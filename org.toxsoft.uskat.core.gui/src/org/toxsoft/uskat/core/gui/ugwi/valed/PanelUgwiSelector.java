@@ -15,14 +15,12 @@ import org.toxsoft.core.tsgui.panels.generic.*;
 import org.toxsoft.core.tsgui.utils.*;
 import org.toxsoft.core.tsgui.utils.layout.*;
 import org.toxsoft.core.tsgui.valed.controls.basic.*;
-import org.toxsoft.core.tslib.bricks.strid.more.*;
 import org.toxsoft.core.tslib.bricks.validator.*;
 import org.toxsoft.core.tslib.coll.primtypes.*;
 import org.toxsoft.core.tslib.gw.ugwi.*;
 import org.toxsoft.core.tslib.utils.errors.*;
 import org.toxsoft.uskat.core.*;
 import org.toxsoft.uskat.core.api.ugwis.*;
-import org.toxsoft.uskat.core.gui.conn.*;
 import org.toxsoft.uskat.core.gui.ugwi.gui.*;
 
 /**
@@ -175,15 +173,12 @@ public class PanelUgwiSelector
    *
    * @param aContext {@link ITsGuiContext} - the context
    * @param aInitUgwi {@link Ugwi} - initially selected UGWI or <code>null</code>
-   * @param aSkConnKey {@link IdChain} - key for {@link ISkConnectionSupplier} of the Sk-connection to use
    * @param aSingleUgwiKindId {@link String} kind id
    * @return {@link Ugwi} - selected UGWI or <code>null</code>
    * @throws TsNullArgumentRtException any argument = <code>null</code>
    */
-  public static final Ugwi selectUgwiSingleKind( ITsGuiContext aContext, Ugwi aInitUgwi, IdChain aSkConnKey,
-      String aSingleUgwiKindId ) {
-    TsNullArgumentRtException.checkNulls( aContext, aSkConnKey );
-    setCtxSkConnKey( aContext, aSkConnKey );
+  public static final Ugwi selectUgwiSingleKind( ITsGuiContext aContext, Ugwi aInitUgwi, String aSingleUgwiKindId ) {
+    TsNullArgumentRtException.checkNulls( aContext );
     OPDEF_SINGLE_UGWI_KIND_ID.setValue( aContext.params(), avStr( aSingleUgwiKindId ) );
     IDialogPanelCreator<Ugwi, ITsGuiContext> creator = PanelUgwiSelector::new;
     ITsDialogInfo dlgInfo = new TsDialogInfo( aContext, DLG_CAPTION_STR, DLG_TITLE_STR );
@@ -196,15 +191,12 @@ public class PanelUgwiSelector
    *
    * @param aContext {@link ITsGuiContext} - the context
    * @param aInitUgwi {@link Ugwi} - initially selected UGWI or <code>null</code>
-   * @param aSkConnKey {@link IdChain} - key for {@link ISkConnectionSupplier} of the Sk-connection to use
    * @param aUgwiKindIdList {@link String} kind id
    * @return {@link Ugwi} - selected UGWI or <code>null</code>
    * @throws TsNullArgumentRtException any argument = <code>null</code>
    */
-  public static final Ugwi selectUgwiListKinds( ITsGuiContext aContext, Ugwi aInitUgwi, IdChain aSkConnKey,
-      IStringList aUgwiKindIdList ) {
-    TsNullArgumentRtException.checkNulls( aContext, aSkConnKey );
-    setCtxSkConnKey( aContext, aSkConnKey );
+  public static final Ugwi selectUgwiListKinds( ITsGuiContext aContext, Ugwi aInitUgwi, IStringList aUgwiKindIdList ) {
+    TsNullArgumentRtException.checkNulls( aContext );
     OPDEF_UGWI_KIND_IDS_LIST.setValue( aContext.params(), avValobj( aUgwiKindIdList ) );
     IDialogPanelCreator<Ugwi, ITsGuiContext> creator = PanelUgwiSelector::new;
     ITsDialogInfo dlgInfo = new TsDialogInfo( aContext, DLG_CAPTION_STR, DLG_TITLE_STR );

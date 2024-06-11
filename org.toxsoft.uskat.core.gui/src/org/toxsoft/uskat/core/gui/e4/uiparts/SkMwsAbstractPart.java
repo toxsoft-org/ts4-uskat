@@ -1,5 +1,7 @@
 package org.toxsoft.uskat.core.gui.e4.uiparts;
 
+import static org.toxsoft.uskat.core.gui.ISkCoreGuiConstants.*;
+
 import org.eclipse.swt.*;
 import org.eclipse.swt.widgets.*;
 import org.toxsoft.core.tsgui.dialogs.*;
@@ -11,50 +13,40 @@ import org.toxsoft.core.tslib.bricks.strid.more.*;
 import org.toxsoft.core.tslib.utils.errors.*;
 import org.toxsoft.core.tslib.utils.logs.impl.*;
 import org.toxsoft.uskat.core.connection.*;
+import org.toxsoft.uskat.core.gui.*;
 import org.toxsoft.uskat.core.gui.conn.*;
 import org.toxsoft.uskat.core.gui.utils.*;
 
 /**
- * Base class for all viewes with content related to the USkat.
+ * Base class for all views with content related to the USkat.
  * <p>
- * This part does <b>not</b> support changin connection after part creation!
+ * Main idea is the GUI content exists only if specified Sk-connecion is open. If connection closes this base
+ * implementation disposes GUI content. So the subclass can be written under the assumption that the connection is
+ * always open. Just need to make sure that creation {@link #doCreateContent(TsComposite)} and diposal
+ * {@link #doAfterDisposeContent()}/{@link #doBeforeDisposeContent()} methods can be called multiple times as connection
+ * opens/closes.
+ * <p>
+ * This part does <b>not</b> support connection change after part creation!
  *
  * @author hazard157
  */
 public abstract class SkMwsAbstractPart
     extends MwsAbstractPart
-    implements ISkGuiContextable {
+    implements ISkGuiContextable, ISkConnectionListener {
 
   /**
-   * Create/destroy visual content as the connection opens/closes.
+   * Sk-connection key memorized in {@link #SkMwsAbstractPart(IdChain)} until {@link #doInit(Composite)}.
+   * <p>
+   * Value <code>null</code> means that constructor does not specified
    */
-  private final ISkConnectionListener connectionListener = ( aSource, aOldState ) -> {
-    switch( aSource.state() ) {
-      case ACTIVE: {
-        try {
-          internalCreateContent();
-        }
-        catch( Exception ex1 ) {
-          LoggerUtils.errorLogger().error( ex1 );
-        }
-        break;
-      }
-      case INACTIVE:
-      case CLOSED: {
-        try {
-          internalDisposeContent();
-        }
-        catch( Exception ex2 ) {
-          LoggerUtils.errorLogger().error( ex2 );
-        }
-        break;
-      }
-      default:
-        throw new TsNotAllEnumsUsedRtException();
-    }
-  };
+  private final IdChain skConnKeyMemorizedInConstructor;
 
-  private final IdChain suppliedConnectionId;
+  /**
+   * The connection used by the UIpart.
+   * <p>
+   * Connection is initialized by t
+   */
+  private ISkConnection skConn = null;
 
   /**
    * Basement - a composite is created when constructing a UIpart and exists until it is disposed.
@@ -75,8 +67,8 @@ public abstract class SkMwsAbstractPart
   /**
    * Constructor.
    * <p>
-   * UIpart created with this constructor uses {@link ISkConnectionSupplier#defConn()} connection unless
-   * {@link #skConn()} is overridden.
+   * UIpart created with this constructor uses connection specified by
+   * {@link ISkCoreGuiConstants#REFDEF_SUPPLIED_SK_CONN_ID}.
    */
   public SkMwsAbstractPart() {
     this( null );
@@ -85,13 +77,43 @@ public abstract class SkMwsAbstractPart
   /**
    * Specifies which connection to use from the {@link ISkConnectionSupplier}.
    * <p>
-   * UIpart created with this constructor uses {@link ISkConnectionSupplier#getConn(IdChain)} connection unless
-   * {@link #skConn()} is overridden.
+   * For non-<code>null</code> argument the reference {@link ISkCoreGuiConstants#REFDEF_SUPPLIED_SK_CONN_ID} is set to
+   * the {@link #partContext()}, so all content of the UIpart will use the specified connection key.
    *
-   * @param aSuppliedConnectionId {@link IdChain} - connection ID or <code>null</code> for default
+   * @param aSkConnKey {@link IdChain} - connection ID or <code>null</code> to use key that is already in the context
    */
-  public SkMwsAbstractPart( IdChain aSuppliedConnectionId ) {
-    suppliedConnectionId = aSuppliedConnectionId;
+  public SkMwsAbstractPart( IdChain aSkConnKey ) {
+    skConnKeyMemorizedInConstructor = aSkConnKey;
+  }
+
+  // ------------------------------------------------------------------------------------
+  // ISkConnectionListener
+  //
+
+  @Override
+  public void onSkConnectionStateChanged( ISkConnection aSource, ESkConnState aOldState ) {
+    boolean contentExists = disposableBackplane != null;
+    // ensure that for ACTIVE connection content is created
+    switch( aSource.state() ) {
+      case ACTIVE: {
+        if( !contentExists ) {
+          internalCreateContent();
+        }
+        break;
+      }
+      case CLOSED: {
+        if( contentExists ) {
+          internalDisposeContent();
+        }
+        break;
+      }
+      case INACTIVE: {
+        // do nothing: here we have just ACTIVE->INACTIVE state change
+        break;
+      }
+      default:
+        throw new TsNotAllEnumsUsedRtException( aSource.state().id() );
+    }
   }
 
   // ------------------------------------------------------------------------------------
@@ -159,22 +181,20 @@ public abstract class SkMwsAbstractPart
 
   @Override
   final protected void doInit( Composite aParent ) {
-    ISkConnection skConn;
-    try {
-      skConn = skConn();
+    // apply connection key if specified in constructor
+    if( skConnKeyMemorizedInConstructor != null ) {
+      REFDEF_SUPPLIED_SK_CONN_ID.setRef( partContext(), skConnKeyMemorizedInConstructor );
     }
-    catch( Exception ex1 ) {
-      LoggerUtils.errorLogger().error( ex1 );
-
-      // FIXME create content displaying the error ?
-      throw new TsUnderDevelopmentRtException();
-    }
-
-    skConn.addConnectionListener( connectionListener );
-
+    // initialize #skConn field
+    IdChain connKey = REFDEF_SUPPLIED_SK_CONN_ID.getRef( partContext() );
+    ISkConnectionSupplier connectionSupplier = partContext().get( ISkConnectionSupplier.class );
+    TsInternalErrorRtException.checkNull( connectionSupplier );
+    skConn = connectionSupplier.getConn( connKey );
+    skConn.addConnectionListener( this );
+    // create GUI basement
     basement = new TsComposite( aParent, SWT.NONE );
     basement.setLayout( new BorderLayout() );
-
+    // if connection is already active - create GUI, otherwise connection listener will create GUI
     if( skConn.state() == ESkConnState.ACTIVE ) {
       try {
         internalCreateContent();
@@ -183,24 +203,19 @@ public abstract class SkMwsAbstractPart
         LoggerUtils.errorLogger().error( ex );
       }
     }
-
+    // remove connection listener when UIpart is disposed
+    basement.addDisposeListener( e -> skConn.removeConnectionListener( this ) );
   }
 
   // ------------------------------------------------------------------------------------
   // ISkGuiContextable
   //
 
-  /**
-   * Returns connection by ID specified in constructor.
-   * <p>
-   * Subclass may override to implement other strategy but not that connector must NOT be changed after part creation.
-   */
   @Override
-  public ISkConnection skConn() {
-    if( suppliedConnectionId == null ) {
-      return connectionSupplier().defConn();
-    }
-    return connectionSupplier().getConn( suppliedConnectionId );
+  final public ISkConnection skConn() {
+    TsInternalErrorRtException.checkNull( skConn );
+    TsInternalErrorRtException.checkFalse( skConn.state().isOpen() );
+    return skConn;
   }
 
   @Override

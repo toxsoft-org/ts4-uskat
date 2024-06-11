@@ -1,9 +1,12 @@
 package org.toxsoft.uskat.core.gui;
 
+import static org.toxsoft.uskat.core.gui.ISkCoreGuiConstants.*;
+
 import org.eclipse.e4.core.contexts.*;
 import org.toxsoft.core.tsgui.bricks.quant.*;
 import org.toxsoft.core.tsgui.m5.*;
 import org.toxsoft.core.tsgui.valed.api.*;
+import org.toxsoft.core.tslib.bricks.strid.more.*;
 import org.toxsoft.core.tslib.utils.valobj.*;
 import org.toxsoft.uskat.core.gui.conn.*;
 import org.toxsoft.uskat.core.gui.conn.cfg.*;
@@ -55,6 +58,8 @@ public class QuantSkCoreGui
   protected void doInitApp( IEclipseContext aAppContext ) {
     IConnectionConfigService ccService = new ConnectionConfigService();
     aAppContext.set( IConnectionConfigService.class, ccService );
+    // specify default connection to be default for application
+    REFDEF_SUPPLIED_SK_CONN_ID.setRef( aAppContext, IdChain.NULL );
   }
 
   @Override

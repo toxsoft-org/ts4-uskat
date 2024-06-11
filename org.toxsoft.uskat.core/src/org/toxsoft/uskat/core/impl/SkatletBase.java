@@ -1,5 +1,7 @@
 package org.toxsoft.uskat.core.impl;
 
+import static org.toxsoft.uskat.core.impl.ISkResources.*;
+
 import org.toxsoft.core.tslib.av.opset.IOptionSet;
 import org.toxsoft.core.tslib.bricks.ctx.ITsContextRo;
 import org.toxsoft.core.tslib.bricks.strid.impl.StridableParameterized;
@@ -10,11 +12,11 @@ import org.toxsoft.uskat.core.connection.ISkConnection;
 import org.toxsoft.uskat.core.devapi.ISkatlet;
 
 /**
- * Abstract skatlet implementation.
+ * Base skatlet implementation.
  *
  * @author mvk
  */
-public abstract class AbstractSkatlet
+public abstract class SkatletBase
     extends StridableParameterized
     implements ISkatlet {
 
@@ -28,7 +30,7 @@ public abstract class AbstractSkatlet
    * @throws TsNullArgumentRtException any argument = <code>null</code>
    * @throws TsIllegalArgumentRtException ID is not an IDpath
    */
-  public AbstractSkatlet( String aId, IOptionSet aParams ) {
+  public SkatletBase( String aId, IOptionSet aParams ) {
     super( aId, aParams );
   }
 
@@ -74,5 +76,41 @@ public abstract class AbstractSkatlet
    * @param aEnviron {@link ITsContextRo} - the execution environment
    * @return {@link ValidationResult} - initialization success result
    */
-  protected abstract ValidationResult doInit( ITsContextRo aEnviron );
+  protected ValidationResult doInit( ITsContextRo aEnviron ) {
+    logger().info( FMT_INFO_SKATLET_INIT, id(), connection() );
+    return ValidationResult.SUCCESS;
+  }
+
+  // ------------------------------------------------------------------------------------
+  // IWorkerComponent
+  //
+  @Override
+  public void start() {
+    logger().info( FMT_INFO_SKATLET_START, id() );
+  }
+
+  @Override
+  public boolean queryStop() {
+    logger().info( FMT_INFO_SKATLET_QUERY_STOP, id() );
+    return true;
+  }
+
+  @Override
+  public boolean isStopped() {
+    return true;
+  }
+
+  @Override
+  public void destroy() {
+    logger().info( FMT_INFO_SKATLET_DESTROY, id() );
+  }
+
+  // ------------------------------------------------------------------------------------
+  // ICooperativeMultiTaskable
+  //
+  @Override
+  public void doJob() {
+    logger().info( FMT_INFO_SKATLET_DOJOB, id() );
+  }
+
 }
