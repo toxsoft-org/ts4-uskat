@@ -3,6 +3,7 @@ package org.toxsoft.uskat.core.utils;
 import org.toxsoft.uskat.core.*;
 import org.toxsoft.uskat.core.api.clobserv.*;
 import org.toxsoft.uskat.core.api.cmdserv.*;
+import org.toxsoft.uskat.core.api.evserv.*;
 import org.toxsoft.uskat.core.api.gwids.*;
 import org.toxsoft.uskat.core.api.hqserv.*;
 import org.toxsoft.uskat.core.api.linkserv.*;
@@ -68,6 +69,10 @@ public interface ISkConnected {
 
   default ISkCommandService skCmdServ() {
     return coreApi().cmdService();
+  }
+
+  default ISkEventService skEventServ() {
+    return coreApi().eventService();
   }
 
   // HERE add more convinience methods
