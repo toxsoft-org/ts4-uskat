@@ -29,7 +29,9 @@ interface ISkResources {
   String STR_D_IS_HIST           = Messages.getString( "STR_D_IS_HIST" );           //$NON-NLS-1$
   String STR_N_IS_SYNC           = Messages.getString( "STR_N_IS_SYNC" );           //$NON-NLS-1$
   String STR_D_IS_SYNC           = Messages.getString( "STR_D_IS_SYNC" );           //$NON-NLS-1$
-  String STR_N_PROP_DATA_TYPE    = Messages.getString("STR_N_PROP_DATA_TYPE"); //$NON-NLS-1$
-  String STR_D_PROP_DATA_TYPE    = Messages.getString("STR_D_PROP_DATA_TYPE"); //$NON-NLS-1$
+  String STR_N_PROP_DATA_TYPE    = Messages.getString( "STR_N_PROP_DATA_TYPE" );    //$NON-NLS-1$
+  String STR_D_PROP_DATA_TYPE    = Messages.getString( "STR_D_PROP_DATA_TYPE" );    //$NON-NLS-1$
+  String STR_N_HIDE_ASYNC        = Messages.getString("STR_N_HIDE_ASYNC"); //$NON-NLS-1$
+  String STR_D_HIDE_ASYNC        = Messages.getString("STR_D_HIDE_ASYNC"); //$NON-NLS-1$
 
 }
