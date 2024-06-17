@@ -1,5 +1,7 @@
 package org.toxsoft.uskat.core.gui.ugwi.glib;
 
+import org.toxsoft.uskat.core.gui.glib.gwidsel.*;
+
 /**
  * Localizable resources.
  *

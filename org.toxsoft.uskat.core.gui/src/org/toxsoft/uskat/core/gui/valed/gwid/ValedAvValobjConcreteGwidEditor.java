@@ -1,6 +1,6 @@
-package org.toxsoft.uskat.core.gui.valed;
+package org.toxsoft.uskat.core.gui.valed.gwid;
 
-import static org.toxsoft.core.tsgui.valed.api.IValedControlConstants.*;
+import static org.toxsoft.uskat.core.inner.ISkCoreGuiInnerSharedConstants.*;
 
 import org.toxsoft.core.tsgui.bricks.ctx.*;
 import org.toxsoft.core.tsgui.valed.api.*;
@@ -23,7 +23,7 @@ public class ValedAvValobjConcreteGwidEditor
   /**
    * The factory name.
    */
-  public static final String FACTORY_NAME = VALED_EDNAME_PREFIX + ".ValedAvValobjConcreteGwidEditor"; //$NON-NLS-1$
+  public static final String FACTORY_NAME = SKCGC_VALED_AV_VALOBJ_CONCRETE_GWID_EDITOR_NAME;
 
   /**
    * The factory class.

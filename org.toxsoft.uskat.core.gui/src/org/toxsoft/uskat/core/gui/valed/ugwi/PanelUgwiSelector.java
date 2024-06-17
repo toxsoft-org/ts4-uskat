@@ -1,9 +1,9 @@
-package org.toxsoft.uskat.core.gui.ugwi.valed;
+package org.toxsoft.uskat.core.gui.valed.ugwi;
 
 import static org.toxsoft.core.tslib.av.impl.AvUtils.*;
 import static org.toxsoft.uskat.core.gui.ISkCoreGuiConstants.*;
-import static org.toxsoft.uskat.core.gui.ugwi.valed.ISkResources.*;
-import static org.toxsoft.uskat.core.gui.ugwi.valed.ValedUgwiSelectorFactory.*;
+import static org.toxsoft.uskat.core.gui.valed.ugwi.ISkResources.*;
+import static org.toxsoft.uskat.core.gui.valed.ugwi.ValedUgwiSelector.*;
 
 import org.eclipse.swt.*;
 import org.eclipse.swt.custom.*;
@@ -29,7 +29,7 @@ import org.toxsoft.uskat.core.gui.ugwi.gui.*;
  *
  * @author dima
  */
-public class PanelUgwiSelector
+class PanelUgwiSelector
     extends AbstractTsDialogPanel<Ugwi, ITsGuiContext> {
 
   private Text                        fixedKindText;
@@ -41,10 +41,11 @@ public class PanelUgwiSelector
   private String                      currUgwiKindId;
 
   /**
-   * Конструктор панели, предназначенной для вставки в диалог {@link TsDialog}.
+   * Constructs panel as {@link TsDialog} content.
    *
-   * @param aParent Composite - родительская компонента
-   * @param aOwnerDialog TsDialog - родительский диалог
+   * @param aParent {@link Composite} - the parent composite
+   * @param aOwnerDialog {@link TsDialog} - the owner dialog
+   * @throws TsNullArgumentRtException any argument = <code>null</code>
    */
   public PanelUgwiSelector( Composite aParent, TsDialog<Ugwi, ITsGuiContext> aOwnerDialog ) {
     super( aParent, aOwnerDialog );

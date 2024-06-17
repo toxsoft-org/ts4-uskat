@@ -1,4 +1,4 @@
-package org.toxsoft.uskat.core.gui.valed;
+package org.toxsoft.uskat.core.gui.valed.gwid;
 
 import java.util.*;
 

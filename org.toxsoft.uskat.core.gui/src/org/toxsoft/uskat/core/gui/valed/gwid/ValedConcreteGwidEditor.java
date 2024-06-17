@@ -1,10 +1,11 @@
-package org.toxsoft.uskat.core.gui.valed;
+package org.toxsoft.uskat.core.gui.valed.gwid;
 
 import static org.toxsoft.core.tsgui.valed.api.IValedControlConstants.*;
 import static org.toxsoft.core.tslib.av.EAtomicType.*;
 import static org.toxsoft.core.tslib.av.impl.AvUtils.*;
 import static org.toxsoft.core.tslib.av.metainfo.IAvMetaConstants.*;
-import static org.toxsoft.uskat.core.gui.valed.ITsResources.*;
+import static org.toxsoft.uskat.core.gui.valed.gwid.ISkResources.*;
+import static org.toxsoft.uskat.core.inner.ISkCoreGuiInnerSharedConstants.*;
 
 import org.toxsoft.core.tsgui.bricks.ctx.*;
 import org.toxsoft.core.tsgui.dialogs.datarec.*;
@@ -13,14 +14,12 @@ import org.toxsoft.core.tsgui.valed.controls.helpers.*;
 import org.toxsoft.core.tsgui.valed.impl.*;
 import org.toxsoft.core.tslib.av.impl.*;
 import org.toxsoft.core.tslib.av.metainfo.*;
-import org.toxsoft.core.tslib.bricks.strid.more.*;
 import org.toxsoft.core.tslib.bricks.validator.*;
 import org.toxsoft.core.tslib.gw.gwid.*;
 import org.toxsoft.core.tslib.utils.*;
 import org.toxsoft.core.tslib.utils.errors.*;
 import org.toxsoft.uskat.core.api.objserv.*;
 import org.toxsoft.uskat.core.api.sysdescr.*;
-import org.toxsoft.uskat.core.gui.conn.*;
 import org.toxsoft.uskat.core.gui.glib.gwidsel.*;
 
 /**
@@ -35,12 +34,12 @@ public class ValedConcreteGwidEditor
   /**
    * The factory name.
    */
-  public static final String FACTORY_NAME = VALED_EDNAME_PREFIX + ".ConcreteGwidEditor"; //$NON-NLS-1$
+  public static final String FACTORY_NAME = SKCGC_VALED_CONCRETE_GWID_EDITOR_NAME;
 
   /**
    * Id for gwid kind option
    */
-  public static final String OPID_GWID_KIND = "gwidKind"; //$NON-NLS-1$
+  public static final String OPID_GWID_KIND = SKCGC_VALED_CONCRETE_GWID_EDITOR_NAME_OPID_GWID_KIND;
 
   /**
    * The gwid kind will be returned.
@@ -81,8 +80,8 @@ public class ValedConcreteGwidEditor
   /**
    * Constructor for subclasses.
    *
-   * @param aContext {@link ITsGuiContext} - the valed context
-   * @throws TsNullArgumentRtException аргумент = null
+   * @param aContext {@link ITsGuiContext} - the context
+   * @throws TsNullArgumentRtException any argument = <code>null</code>
    */
   public ValedConcreteGwidEditor( ITsGuiContext aContext ) {
     super( aContext );
@@ -96,14 +95,9 @@ public class ValedConcreteGwidEditor
     EGwidKind gwidKind = params().getValobj( OPDEF_GWID_KIND );
     ESkClassPropKind propKind = ESkClassPropKind.getById( gwidKind.id() );
     IGwidSelectorConstants.OPDEF_CLASS_PROP_KIND.setValue( params(), avValobj( propKind ) );
-    // get connection id
-    IdChain idChain = ISkConnectionSupplier.DEF_CONN_ID;
-    if( params().hasKey( SingleSkPropGwidSelectPanel.OPDEF_CONN_ID_CHAIN.id() ) ) {
-      idChain = SingleSkPropGwidSelectPanel.OPDEF_CONN_ID_CHAIN.getValue( params() ).asValobj();
-    }
-    // create and dispaly Gwid selector
+    // create and display Gwid selector
     ITsDialogInfo di = new TsDialogInfo( tsContext(), DLG_CAPTION_SELECT_GWID, DLG_TITLE_SELECT_GWID );
-    Gwid gwid = SingleSkPropGwidSelectPanel.selectGwid( di, canGetValue().isOk() ? getValue() : null, idChain );
+    Gwid gwid = SingleSkPropGwidSelectPanel.selectGwid( di, canGetValue().isOk() ? getValue() : null );
 
     if( gwid != null ) {
       doSetUnvalidatedValue( gwid );

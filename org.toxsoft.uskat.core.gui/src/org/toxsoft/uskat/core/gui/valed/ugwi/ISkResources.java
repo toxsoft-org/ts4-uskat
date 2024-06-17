@@ -1,4 +1,4 @@
-package org.toxsoft.uskat.core.gui.ugwi.valed;
+package org.toxsoft.uskat.core.gui.valed.ugwi;
 
 /**
  * Localizable resources.
@@ -20,13 +20,14 @@ interface ISkResources {
   /**
    * {@link ValedUgwiSelectorTextAndButton}
    */
-  String VALED_ERR_MSG_NO_UGWI_KIND =
-      "No Ugwi kind to select from. Set any one of options:\n - OPDEF_SINGLE_UGWI_KIND_ID\n - OPDEF_UGWI_KIND_IDS_LIST";
+  String MSG_ERR_INVALID_UGWI_CANONOCAL_STRING = "Ugwi canonical string is invalid or kind ID is not allowed";
 
   /**
-   * {@link ValedUgwiSelectorFactory}
+   * {@link ValedUgwiSelector}
    */
-  String STR_N_UGWI_KIND_IDS_LIST = "list of Ugwi kind ids";
-  String STR_D_UGWI_KIND_IDS_LIST = "List of Ugwi kind ids applayble in context";
+  String STR_SINGLE_UGWI_KIND_ID   = "UGWI kind";
+  String STR_SINGLE_UGWI_KIND_ID_D = "The kind ID of the UGWI to be edited";
+  String STR_UGWI_KIND_IDS_LIST    = "UGWI kinds";
+  String STR_UGWI_KIND_IDS_LIST_D  = "List of Ugwi kind IDs applayble in context";
 
 }

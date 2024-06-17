@@ -16,7 +16,8 @@ Require-Bundle: javax.annotation,
  org.eclipse.e4.ui.workbench,
  org.toxsoft.core.tslib,
  org.toxsoft.core.tsgui,
- org.toxsoft.uskat.core
+ org.toxsoft.uskat.core,
+ org.toxsoft.uskat.core.inner
 Bundle-RequiredExecutionEnvironment: JavaSE-17
 Automatic-Module-Name: org.toxsoft.uskat.base.gui
 Bundle-ActivationPolicy: lazy
@@ -38,8 +39,9 @@ Export-Package: org.toxsoft.uskat.core.gui,
  org.toxsoft.uskat.core.gui.km5.sded.sded.editors,
  org.toxsoft.uskat.core.gui.km5.sgw,
  org.toxsoft.uskat.core.gui.ugwi,
+ org.toxsoft.uskat.core.gui.ugwi.glib,
  org.toxsoft.uskat.core.gui.ugwi.gui,
  org.toxsoft.uskat.core.gui.ugwi.kinds,
- org.toxsoft.uskat.core.gui.ugwi.valed,
  org.toxsoft.uskat.core.gui.utils,
- org.toxsoft.uskat.core.gui.valed
+ org.toxsoft.uskat.core.gui.valed.gwid,
+ org.toxsoft.uskat.core.gui.valed.ugwi

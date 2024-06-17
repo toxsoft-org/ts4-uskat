@@ -1,4 +1,4 @@
-package org.toxsoft.uskat.core.gui.ugwi.valed;
+package org.toxsoft.uskat.core.gui.valed.gwid;
 
 import static org.toxsoft.core.tsgui.valed.api.IValedControlConstants.*;
 
@@ -7,23 +7,23 @@ import org.toxsoft.core.tsgui.valed.api.*;
 import org.toxsoft.core.tsgui.valed.controls.av.*;
 import org.toxsoft.core.tsgui.valed.impl.*;
 import org.toxsoft.core.tslib.av.*;
-import org.toxsoft.core.tslib.gw.ugwi.*;
+import org.toxsoft.core.tslib.gw.skid.*;
 import org.toxsoft.core.tslib.utils.errors.*;
 
 /**
- * {@link EAtomicType#VALOBJ} of type {@link Ugwi} editor - selector.
+ * {@link EAtomicType#VALOBJ} of type {@link Skid} editor.
  * <p>
- * Wraps over {@link ValedUgwiSelectorTextAndButton}.
+ * Wraps over {@link ValedSkidEditor}.
  *
  * @author hazard157
  */
-public class ValedAvValobjUgwiSelectorTextAndButton
-    extends AbstractAvValobjWrapperValedControl<Ugwi> {
+public class ValedAvValobjConcreteSkidEditor
+    extends AbstractAvValobjWrapperValedControl<Skid> {
 
   /**
    * The factory name.
    */
-  public static final String FACTORY_NAME = VALED_EDNAME_PREFIX + ".AvValobjUgwiSelectorTextAndButton"; //$NON-NLS-1$
+  public static final String FACTORY_NAME = VALED_EDNAME_PREFIX + ".AvValobjSkidEditor"; //$NON-NLS-1$
 
   /**
    * The factory class.
@@ -40,7 +40,7 @@ public class ValedAvValobjUgwiSelectorTextAndButton
     @SuppressWarnings( "unchecked" )
     @Override
     protected IValedControl<IAtomicValue> doCreateEditor( ITsGuiContext aContext ) {
-      return new ValedAvValobjUgwiSelectorTextAndButton( aContext );
+      return new ValedAvValobjConcreteSkidEditor( aContext );
     }
 
   }
@@ -56,8 +56,8 @@ public class ValedAvValobjUgwiSelectorTextAndButton
    * @param aTsContext {@link ITsGuiContext} - the editor context
    * @throws TsNullArgumentRtException any argument = <code>null</code>
    */
-  public ValedAvValobjUgwiSelectorTextAndButton( ITsGuiContext aTsContext ) {
-    super( aTsContext, ValedUgwiSelectorTextAndButton.FACTORY );
+  public ValedAvValobjConcreteSkidEditor( ITsGuiContext aTsContext ) {
+    super( aTsContext, ValedSkidEditor.FACTORY );
   }
 
 }

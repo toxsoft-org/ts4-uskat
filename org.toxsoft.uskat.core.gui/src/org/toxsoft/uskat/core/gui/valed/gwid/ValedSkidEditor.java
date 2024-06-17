@@ -1,8 +1,8 @@
-package org.toxsoft.uskat.core.gui.valed;
+package org.toxsoft.uskat.core.gui.valed.gwid;
 
 import static org.toxsoft.core.tsgui.valed.api.IValedControlConstants.*;
 import static org.toxsoft.core.tslib.av.impl.AvUtils.*;
-import static org.toxsoft.uskat.core.gui.valed.ITsResources.*;
+import static org.toxsoft.uskat.core.gui.valed.gwid.ISkResources.*;
 
 import org.toxsoft.core.tsgui.bricks.ctx.*;
 import org.toxsoft.core.tsgui.bricks.ctx.impl.*;

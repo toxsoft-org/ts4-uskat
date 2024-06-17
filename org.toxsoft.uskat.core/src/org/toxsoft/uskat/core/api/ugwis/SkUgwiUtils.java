@@ -2,9 +2,8 @@ package org.toxsoft.uskat.core.api.ugwis;
 
 import java.util.concurrent.locks.*;
 
-import org.toxsoft.core.tslib.coll.*;
-import org.toxsoft.core.tslib.coll.impl.*;
-import org.toxsoft.core.tslib.coll.synch.*;
+import org.toxsoft.core.tslib.bricks.strid.coll.*;
+import org.toxsoft.core.tslib.bricks.strid.coll.impl.*;
 import org.toxsoft.core.tslib.utils.errors.*;
 import org.toxsoft.uskat.core.api.*;
 import org.toxsoft.uskat.core.api.ugwis.kinds.*;
@@ -21,8 +20,8 @@ public class SkUgwiUtils {
 
   private static final ReentrantReadWriteLock lock = new ReentrantReadWriteLock();
 
-  private static final SynchronizedListEdit<AbstractUgwiKind<?>> ugwiKindsList =
-      new SynchronizedListEdit<>( new ElemArrayList<>(), lock );
+  private static final SynchronizedStridablesList<AbstractUgwiKind<?>> ugwiKindsList =
+      new SynchronizedStridablesList<>( new StridablesList<>(), lock );
 
   static {
     ugwiKindsList.add( UgwiKindSkAttr.INSTANCE );
@@ -52,14 +51,16 @@ public class SkUgwiUtils {
   /**
    * Returns all registered UGWI kinds.
    *
-   * @return {@link IList}&lt;{@link AbstractUgwiKind}&gt; - copy of the UGWI kinds list
+   * @return {@link IStridablesList}&lt;{@link AbstractUgwiKind}&gt; - copy of the UGWI kinds list
    */
-  public static IList<AbstractUgwiKind<?>> listUgwiKinds() {
+  public static IStridablesList<AbstractUgwiKind<?>> listUgwiKinds() {
     return ugwiKindsList.copyTo( null );
   }
 
   /**
    * Registers kind registrator to be used with all connections.
+   * <p>
+   * Does nothing if the king with same ID was already registered.
    *
    * @param aCreator {@link AbstractUgwiKind} - the creator
    * @throws TsNullArgumentRtException any argument = <code>null</code>

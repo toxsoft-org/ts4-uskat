@@ -1,13 +1,9 @@
-package org.toxsoft.uskat.core.gui.valed;
+package org.toxsoft.uskat.core.gui.valed.gwid;
 
-import static org.toxsoft.core.tslib.ITsHardConstants.*;
-import static org.toxsoft.core.tslib.av.EAtomicType.*;
 import static org.toxsoft.core.tslib.av.impl.AvUtils.*;
-import static org.toxsoft.core.tslib.av.metainfo.IAvMetaConstants.*;
 import static org.toxsoft.uskat.core.gui.ISkCoreGuiConstants.*;
 import static org.toxsoft.uskat.core.gui.km5.sgw.ISgwM5Constants.*;
-import static org.toxsoft.uskat.core.gui.ugwi.kinds.ISkResources.*;
-import static org.toxsoft.uskat.core.gui.valed.ITsResources.*;
+import static org.toxsoft.uskat.core.gui.valed.gwid.ISkResources.*;
 
 import org.eclipse.swt.*;
 import org.eclipse.swt.custom.*;
@@ -27,9 +23,7 @@ import org.toxsoft.core.tsgui.panels.generic.*;
 import org.toxsoft.core.tsgui.utils.layout.*;
 import org.toxsoft.core.tsgui.widgets.*;
 import org.toxsoft.core.tslib.av.impl.*;
-import org.toxsoft.core.tslib.av.metainfo.*;
 import org.toxsoft.core.tslib.bricks.strid.coll.*;
-import org.toxsoft.core.tslib.bricks.strid.more.*;
 import org.toxsoft.core.tslib.bricks.validator.*;
 import org.toxsoft.core.tslib.bricks.validator.impl.*;
 import org.toxsoft.core.tslib.gw.gwid.*;
@@ -39,7 +33,6 @@ import org.toxsoft.uskat.core.api.objserv.*;
 import org.toxsoft.uskat.core.api.sysdescr.*;
 import org.toxsoft.uskat.core.api.sysdescr.dto.*;
 import org.toxsoft.uskat.core.connection.*;
-import org.toxsoft.uskat.core.gui.conn.*;
 import org.toxsoft.uskat.core.gui.ugwi.kinds.*;
 import org.toxsoft.uskat.core.impl.*;
 
@@ -52,18 +45,6 @@ import org.toxsoft.uskat.core.impl.*;
 public class SingleSkPropGwidSelectPanel
     extends AbstractGenericEntityEditPanel<Gwid>
     implements IGenericSelectorPanel<Gwid> {
-
-  static String MPC_OP_ID = TS_ID + ".m5.gui.mpc"; //$NON-NLS-1$
-
-  /**
-   * id of ISkConnection to use in dialog
-   */
-  public static IDataDef OPDEF_CONN_ID_CHAIN = DataDef.create( MPC_OP_ID + ".IdChain", VALOBJ, //$NON-NLS-1$
-      TSID_NAME, STR_N_CONN_ID_CHAIN, //
-      TSID_DESCRIPTION, STR_D_CONN_ID_CHAIN, //
-      TSID_KEEPER_ID, IdChain.KEEPER_ID, //
-      TSID_DEFAULT_VALUE, avValobj( IdChain.NULL ) //
-  );
 
   private final ISkCoreApi coreApi; // never is null
 
@@ -289,13 +270,11 @@ public class SingleSkPropGwidSelectPanel
    *
    * @param aDialogInfo {@link ITsDialogInfo} - the dialog window parameters
    * @param aInitVal {@link Gwid} - initial value or <code>null</code>
-   * @param aSkConnKey {@link IdChain} - key for {@link ISkConnectionSupplier} of the Sk-connection to use
    * @return {@link Gwid} - edited value or <code>null</code>
    * @throws TsNullArgumentRtException any argument = <code>null</code>
    */
-  public static Gwid selectGwid( ITsDialogInfo aDialogInfo, Gwid aInitVal, IdChain aSkConnKey ) {
+  public static Gwid selectGwid( ITsDialogInfo aDialogInfo, Gwid aInitVal ) {
     TsNullArgumentRtException.checkNulls( aDialogInfo );
-    setCtxSkConnKey( aDialogInfo.tsContext(), aSkConnKey );
     IDialogPanelCreator<Gwid, Object> creator = ( par, od ) //
     -> new TsDialogGenericEntityEditPanel<>( par, od, ( aContext, aViewer ) -> {
       SingleSkPropGwidSelectPanel panel = new SingleSkPropGwidSelectPanel( aContext, aViewer );
