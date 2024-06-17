@@ -8,8 +8,7 @@ import org.toxsoft.core.tslib.coll.IMap;
 import org.toxsoft.core.tslib.coll.IMapEdit;
 import org.toxsoft.core.tslib.coll.impl.ElemMap;
 import org.toxsoft.core.tslib.coll.primtypes.IStringList;
-import org.toxsoft.core.tslib.gw.gwid.Gwid;
-import org.toxsoft.core.tslib.gw.gwid.GwidList;
+import org.toxsoft.core.tslib.gw.gwid.*;
 import org.toxsoft.core.tslib.gw.skid.Skid;
 import org.toxsoft.core.tslib.utils.ICloseable;
 import org.toxsoft.core.tslib.utils.errors.*;
@@ -74,6 +73,17 @@ public abstract class AbstractVirtDataWriter
   // ------------------------------------------------------------------------------------
   // API for subclasses
   //
+  /**
+   * Add read data
+   *
+   * @param aGwids {@link IStringList} list of read data IDs.
+   * @throws TsNullArgumentRtException any argument = null
+   */
+  protected final void addReadData( IGwidList aGwids ) {
+    TsNullArgumentRtException.checkNulls( aGwids );
+    readChannels.putAll( coreApi.rtdService().createReadCurrDataChannels( aGwids ) );
+  }
+
   /**
    * Read value.
    *
