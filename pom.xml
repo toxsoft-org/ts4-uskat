@@ -566,12 +566,13 @@
     </profile>
   </profiles>
   <modules>
+    <module>org.toxsoft.uskat.core.inner</module>
     <module>org.toxsoft.uskat.core</module>
     <module>org.toxsoft.uskat.backend.memtext</module>
     <module>org.toxsoft.uskat.backend.sqlite</module>
     <module>org.toxsoft.uskat.s5</module>  
     <module>org.toxsoft.uskat.s5.histdata10</module>  
-    <!--  <module>org.toxsoft.uskat.s5.schedules</module>  -->
+    <module>org.toxsoft.uskat.s5.schedules</module>
     <module>org.toxsoft.uskat.skadmin.core</module>
     <module>org.toxsoft.uskat.skadmin.cli</module>
     <module>org.toxsoft.uskat.skadmin.dev</module>

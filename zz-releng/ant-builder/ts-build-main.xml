@@ -16,12 +16,13 @@
   <!-- ЦЕЛЬ: lib.jar библиотек -->
   <!-- TODO: -->
   <target name="build-lib-jar" depends="clean" description="Сборка общих плагинов">
+    <ant dir="../../org.toxsoft.uskat.core.inner" antfile="${ts-scripts-dir}/ts-build-lib.xml" target="build-lib-jar" />
     <ant dir="../../org.toxsoft.uskat.core" antfile="${ts-scripts-dir}/ts-build-lib.xml" target="build-lib-jar" />
     <ant dir="../../org.toxsoft.uskat.backend.memtext" antfile="${ts-scripts-dir}/ts-build-lib.xml" target="build-lib-jar" />
     <ant dir="../../org.toxsoft.uskat.backend.sqlite" antfile="${ts-scripts-dir}/ts-build-lib.xml" target="build-lib-jar" />
     <ant dir="../../org.toxsoft.uskat.s5" antfile="${ts-scripts-dir}/ts-build-lib.xml" target="build-lib-jar" />
     <ant dir="../../org.toxsoft.uskat.s5.histdata10" antfile="${ts-scripts-dir}/ts-build-lib.xml" target="build-lib-jar" />
-    <!-- <ant dir="../../org.toxsoft.uskat.s5.schedules" antfile="${ts-scripts-dir}/ts-build-lib.xml" target="build-lib-jar" /> -->
+    <ant dir="../../org.toxsoft.uskat.s5.schedules" antfile="${ts-scripts-dir}/ts-build-lib.xml" target="build-lib-jar" /> 
     <ant dir="../../org.toxsoft.uskat.skadmin.core" antfile="${ts-scripts-dir}/ts-build-lib.xml" target="build-lib-jar" />
     <ant dir="../../org.toxsoft.uskat.skadmin.cli" antfile="${ts-scripts-dir}/ts-build-lib.xml" target="build-lib-jar" />
     <ant dir="../../org.toxsoft.uskat.skadmin.dev" antfile="${ts-scripts-dir}/ts-build-lib.xml" target="build-lib-jar" />
@@ -39,7 +40,8 @@
                        exportSource="true"
                        exportSourceBundle="false"
                        exportType="directory"
-                       plugins="org.toxsoft.uskat.core,
+                       plugins="org.toxsoft.uskat.core.inner,
+                                org.toxsoft.uskat.core,
                                 org.toxsoft.uskat.backend.memtext,
                                 org.toxsoft.uskat.backend.sqlite,
                                 org.toxsoft.uskat.s5,

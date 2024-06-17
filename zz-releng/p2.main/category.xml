@@ -5,6 +5,7 @@
          org.toxsoft.uskat.releng Category
       </description>
    </category-def>
+   <bundle id="org.toxsoft.uskat.core.inner"/>
    <bundle id="org.toxsoft.uskat.core"/>
    <bundle id="org.toxsoft.uskat.backend.memtext"/>
    <bundle id="org.toxsoft.uskat.backend.sqlite"/>
@@ -17,6 +18,7 @@
    <bundle id="org.toxsoft.uskat.skadmin.logon"/>
 
    <!-- sources -->
+   <bundle id="org.toxsoft.uskat.core.inner.source"/>
    <bundle id="org.toxsoft.uskat.core.source"/>
    <bundle id="org.toxsoft.uskat.backend.memtext.source"/>
    <bundle id="org.toxsoft.uskat.backend.sqlite.source"/>
