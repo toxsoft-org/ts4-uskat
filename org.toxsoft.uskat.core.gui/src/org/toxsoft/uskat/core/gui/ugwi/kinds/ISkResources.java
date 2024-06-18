@@ -5,7 +5,7 @@ package org.toxsoft.uskat.core.gui.ugwi.kinds;
  *
  * @author dima
  */
-interface ISkResources {
+public interface ISkResources {
 
   /**
    * {@link SingleSkPropUgwiSelectPanel}
