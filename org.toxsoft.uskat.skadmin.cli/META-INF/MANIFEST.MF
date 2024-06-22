@@ -4,7 +4,7 @@ Bundle-Name: skadmin Command Line Interface
 Bundle-SymbolicName: org.toxsoft.uskat.skadmin.cli
 Bundle-Version: 1.0.0.qualifier
 Bundle-Vendor: ToxSoft Ltd.
-Bundle-RequiredExecutionEnvironment: JavaSE-17
+Bundle-RequiredExecutionEnvironment: JavaSE-21
 Require-Bundle: org.toxsoft.extlibs.log4j,
  org.toxsoft.extlibs.jline,
  org.toxsoft.extlibs.wildfly,

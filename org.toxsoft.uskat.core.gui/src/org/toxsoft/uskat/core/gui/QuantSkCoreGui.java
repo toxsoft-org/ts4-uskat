@@ -81,6 +81,8 @@ public class QuantSkCoreGui
     facReg.registerFactory( ValedSkidListEditor.FACTORY );
     facReg.registerFactory( ValedAvValobjSkidListEditor.FACTORY );
     facReg.registerFactory( ValedAvValobjConcreteGwidEditor.FACTORY );
+    facReg.registerFactory( ValedAvUgwiSelectorTextAndButton.FACTORY );
+
     facReg.registerFactory( ValedUgwiSelector.FACTORY );
     facReg.registerFactory( ValedAvUgwiSelector.FACTORY );
 

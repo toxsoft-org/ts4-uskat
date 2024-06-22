@@ -5,23 +5,24 @@ import static org.toxsoft.uskat.core.gui.ISkCoreGuiConstants.*;
 import static org.toxsoft.uskat.core.gui.valed.ugwi.ISkResources.*;
 import static org.toxsoft.uskat.core.gui.valed.ugwi.ValedUgwiSelector.*;
 
-import org.eclipse.swt.*;
-import org.eclipse.swt.custom.*;
-import org.eclipse.swt.layout.*;
+import org.eclipse.swt.SWT;
+import org.eclipse.swt.custom.CLabel;
+import org.eclipse.swt.layout.GridData;
+import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.*;
-import org.toxsoft.core.tsgui.bricks.ctx.*;
+import org.toxsoft.core.tsgui.bricks.ctx.ITsGuiContext;
 import org.toxsoft.core.tsgui.dialogs.datarec.*;
-import org.toxsoft.core.tsgui.panels.generic.*;
-import org.toxsoft.core.tsgui.utils.*;
-import org.toxsoft.core.tsgui.utils.layout.*;
-import org.toxsoft.core.tsgui.valed.controls.basic.*;
-import org.toxsoft.core.tslib.bricks.validator.*;
-import org.toxsoft.core.tslib.coll.primtypes.*;
-import org.toxsoft.core.tslib.gw.ugwi.*;
+import org.toxsoft.core.tsgui.panels.generic.IGenericSelectorPanel;
+import org.toxsoft.core.tsgui.utils.ITsVisualsProvider;
+import org.toxsoft.core.tsgui.utils.layout.BorderLayout;
+import org.toxsoft.core.tsgui.valed.controls.basic.ValedComboSelector;
+import org.toxsoft.core.tslib.bricks.validator.ValidationResult;
+import org.toxsoft.core.tslib.coll.primtypes.IStringList;
+import org.toxsoft.core.tslib.gw.ugwi.Ugwi;
 import org.toxsoft.core.tslib.utils.errors.*;
-import org.toxsoft.uskat.core.*;
-import org.toxsoft.uskat.core.api.ugwis.*;
-import org.toxsoft.uskat.core.gui.ugwi.gui.*;
+import org.toxsoft.uskat.core.ISkCoreApi;
+import org.toxsoft.uskat.core.api.ugwis.ISkUgwiKind;
+import org.toxsoft.uskat.core.gui.ugwi.gui.IUgwiKindGuiHelper;
 
 /**
  * GUI panel for {@link Ugwi} selection.

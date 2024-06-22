@@ -28,11 +28,16 @@ class ValedUgwiSelectorTextAndButton
     extends AbstractValedTextAndButton<Ugwi> {
 
   /**
+   * The factory name.
+   */
+  public static final String FACTORY_NAME = VALED_EDNAME_PREFIX + ".AvValobjUgwiSelectorTextAndButton"; //$NON-NLS-1$
+
+  /**
    * Package-private factory singleton for {@link ValedAvUgwiSelectorTextAndButton} constructor.
    * <p>
    * This factory is <b>not</b> intended to be registered.
    */
-  static final IValedControlFactory FACTORY = new AbstractValedControlFactory( EMPTY_STRING ) {
+  static final IValedControlFactory FACTORY = new AbstractValedControlFactory( FACTORY_NAME ) {
 
     @SuppressWarnings( "unchecked" )
     @Override
