@@ -11,7 +11,7 @@
    <bundle id="org.toxsoft.uskat.backend.sqlite"/>
    <bundle id="org.toxsoft.uskat.s5"/>
    <bundle id="org.toxsoft.uskat.s5.histdata10"/>
-   <!-- <bundle id="org.toxsoft.uskat.s5.schedules"/> -->
+   <!-- <bundle id="org.toxsoft.uskat.s5.cron"/> -->
    <bundle id="org.toxsoft.uskat.skadmin.core"/>
    <bundle id="org.toxsoft.uskat.skadmin.cli"/>
    <bundle id="org.toxsoft.uskat.skadmin.dev"/>
@@ -24,7 +24,7 @@
    <bundle id="org.toxsoft.uskat.backend.sqlite.source"/>
    <bundle id="org.toxsoft.uskat.s5.source"/>
    <bundle id="org.toxsoft.uskat.s5.histdata10.source"/>
-   <!-- <bundle id="org.toxsoft.uskat.s5.schedules.source"/> -->
+   <!-- <bundle id="org.toxsoft.uskat.s5.cron.source"/> -->
    <bundle id="org.toxsoft.uskat.skadmin.core.source"/>
    <bundle id="org.toxsoft.uskat.skadmin.cli.source"/>
    <bundle id="org.toxsoft.uskat.skadmin.dev.source"/>
