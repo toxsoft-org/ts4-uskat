@@ -5,7 +5,7 @@ Bundle-SymbolicName: org.toxsoft.uskat.demo.skatlet
 Bundle-Version: 1.0.0.qualifier
 Bundle-Vendor: ToxSoft
 Automatic-Module-Name: org.toxsoft.uskat.demo.skatlet
-Bundle-RequiredExecutionEnvironment: JavaSE-17
+Bundle-RequiredExecutionEnvironment: JavaSE-21
 Require-Bundle: org.toxsoft.extlibs.log4j,
  org.toxsoft.core.tslib,
  org.toxsoft.core.log4j,

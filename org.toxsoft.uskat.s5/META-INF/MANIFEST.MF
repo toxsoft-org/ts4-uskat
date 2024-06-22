@@ -12,7 +12,7 @@ Require-Bundle: org.toxsoft.extlibs.log4j,
  org.toxsoft.uskat.core
 Eclipse-RegisterBuddy: org.toxsoft.extlibs.wildfly
 Eclipse-BuddyPolicy: registered
-Bundle-RequiredExecutionEnvironment: JavaSE-17
+Bundle-RequiredExecutionEnvironment: JavaSE-21
 Export-Package: org.toxsoft.uskat,
  org.toxsoft.uskat.classes,
  org.toxsoft.uskat.classes.impl,

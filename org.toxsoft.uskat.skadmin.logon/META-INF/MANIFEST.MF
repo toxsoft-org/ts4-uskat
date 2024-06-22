@@ -11,7 +11,7 @@ Require-Bundle: org.toxsoft.extlibs.wildfly,
  org.toxsoft.uskat.skadmin.core
 Export-Package: org.toxsoft.uskat.skadmin.logon,
  org.toxsoft.uskat.skadmin.logon.rules
-Bundle-RequiredExecutionEnvironment: JavaSE-17
+Bundle-RequiredExecutionEnvironment: JavaSE-21
 Automatic-Module-Name: org.toxsoft.uskat.skadmin.logon
 TsPluginContainerVersion: 2
 TsPluginVersion:    {4,0,2022-08-22_00:00:00}
