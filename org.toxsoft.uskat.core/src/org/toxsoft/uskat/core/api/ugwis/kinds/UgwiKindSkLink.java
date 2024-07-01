@@ -20,18 +20,15 @@ import org.toxsoft.core.tslib.gw.ugwi.*;
 import org.toxsoft.core.tslib.utils.errors.*;
 import org.toxsoft.uskat.core.*;
 import org.toxsoft.uskat.core.api.linkserv.*;
-import org.toxsoft.uskat.core.api.objserv.*;
 import org.toxsoft.uskat.core.api.ugwis.*;
 import org.toxsoft.uskat.core.impl.*;
 
 /**
- * UGWI kind: Sk-object attribute value.
+ * UGWI kind: Sk-object link.
  * <p>
- * Format is 3-branches {@link IdChain}: "classId/objStrid/attrId".
- * <p>
- * {@link ISkObject#attrs()} is used to retrieve Sk-object attribute value.
+ * Format is 3-branches {@link IdChain}: "classId/objStrid/linkId".
  *
- * @author hazard157
+ * @author hazard157, vs
  */
 public class UgwiKindSkLink
     extends AbstractUgwiKind<ISkidList> {
@@ -57,8 +54,6 @@ public class UgwiKindSkLink
   private static final int NUM_BRANCHES = 3;
 
   private static final IDataType DT_SKID_LIST = DataType.create( VALOBJ, //
-      // TSID_NAME, STR_PROP_SKID, //
-      // TSID_DESCRIPTION, STR_PROP_SKID_D, //
       TSID_KEEPER_ID, SkidListKeeper.KEEPER_ID, //
       TSID_DEFAULT_VALUE, avValobj( ISkidList.EMPTY ) //
   );

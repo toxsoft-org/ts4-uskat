@@ -16,20 +16,23 @@ import org.toxsoft.core.tslib.gw.skid.*;
 import org.toxsoft.core.tslib.gw.ugwi.*;
 import org.toxsoft.core.tslib.utils.errors.*;
 import org.toxsoft.uskat.core.*;
+import org.toxsoft.uskat.core.api.objserv.*;
 import org.toxsoft.uskat.core.api.sysdescr.*;
 import org.toxsoft.uskat.core.api.sysdescr.dto.*;
 import org.toxsoft.uskat.core.api.ugwis.*;
 import org.toxsoft.uskat.core.impl.*;
 
 /**
- * UGWI kind: Sk-object attribute info.
+ * UGWI kind: Sk-object rivet link info.
  * <p>
- * Format is 2-branches {@link IdChain}: "classId/attrId".
+ * Format is 2-branches {@link IdChain}: "classId/rivetId".
+ * <p>
+ * {@link ISkObject#rivets()} is used to retrieve Sk-object rivet link.
  *
  * @author vs
  */
-public class UgwiKindSkAttrInfo
-    extends AbstractUgwiKind<IDtoAttrInfo> {
+public class UgwiKindSkRivetInfo
+    extends AbstractUgwiKind<IDtoRivetInfo> {
 
   /**
    * The index of the class ID in the {@link IdChain} made from {@link Ugwi#essence()}.
@@ -37,9 +40,9 @@ public class UgwiKindSkAttrInfo
   public static final int IDX_CLASS_ID = 0;
 
   /**
-   * The index of the attribute ID in the {@link IdChain} made from {@link Ugwi#essence()}.
+   * The index of the link ID in the {@link IdChain} made from {@link Ugwi#essence()}.
    */
-  public static final int IDX_ATTR_ID = 1;
+  public static final int IDX_RIVET_ID = 1;
 
   /**
    * Number of branches in {@link IdChain}.
@@ -49,20 +52,20 @@ public class UgwiKindSkAttrInfo
   /**
    * {@link ISkUgwiKind} implementation.
    *
-   * @author hazard157
+   * @author vs
    */
   public static class Kind
-      extends AbstractSkUgwiKind<IDtoAttrInfo> {
+      extends AbstractSkUgwiKind<IDtoRivetInfo> {
 
-    Kind( AbstractUgwiKind<IDtoAttrInfo> aRegistrator, ISkCoreApi aCoreApi ) {
+    Kind( AbstractUgwiKind<IDtoRivetInfo> aRegistrator, ISkCoreApi aCoreApi ) {
       super( aRegistrator, aCoreApi );
     }
 
     @Override
-    public IDtoAttrInfo doFindContent( Ugwi aUgwi ) {
+    public IDtoRivetInfo doFindContent( Ugwi aUgwi ) {
       ISkClassInfo clsInfo = coreApi().sysdescr().findClassInfo( getClassId( aUgwi ) );
       if( clsInfo != null ) {
-        return clsInfo.attrs().list().getByKey( getAttrId( aUgwi ) );
+        return clsInfo.rivets().list().findByKey( getRivetId( aUgwi ) );
       }
       return null;
     }
@@ -79,24 +82,15 @@ public class UgwiKindSkAttrInfo
 
     @Override
     protected IAtomicValue doFindAtomicValue( Ugwi aUgwi ) {
-      IDtoAttrInfo attrInfo = doFindContent( aUgwi );
-      if( attrInfo != null ) {
-        return AvUtils.avValobj( attrInfo );
+      IDtoRivetInfo rivetInfo = doFindContent( aUgwi );
+      if( rivetInfo != null ) {
+        return AvUtils.avValobj( rivetInfo );
       }
       return IAtomicValue.NULL;
     }
 
     @Override
     protected IDataType doGetAtomicValueDataType( Ugwi aUgwi ) {
-      String classId = getClassId( aUgwi );
-      ISkClassInfo cinf = coreApi().sysdescr().findClassInfo( classId );
-      if( cinf != null ) {
-        String attrId = getAttrId( aUgwi );
-        IDtoAttrInfo ainf = cinf.attrs().list().findByKey( attrId );
-        if( ainf != null ) {
-          return ainf.dataType();
-        }
-      }
       return null;
     }
 
@@ -105,20 +99,20 @@ public class UgwiKindSkAttrInfo
   /**
    * The UGWI kind ID.
    */
-  public static final String KIND_ID = SK_ID + ".sk.attr.info"; //$NON-NLS-1$
+  public static final String KIND_ID = SK_ID + ".sk.rivet.info"; //$NON-NLS-1$
 
   /**
    * The singleton instance.
    */
-  public static final UgwiKindSkAttrInfo INSTANCE = new UgwiKindSkAttrInfo();
+  public static final UgwiKindSkRivetInfo INSTANCE = new UgwiKindSkRivetInfo();
 
   /**
    * Constructor.
    */
-  private UgwiKindSkAttrInfo() {
+  private UgwiKindSkRivetInfo() {
     super( KIND_ID, OptionSetUtils.createOpSet( //
-        TSID_NAME, STR_UK_ATTR, //
-        TSID_DESCRIPTION, STR_UK_ATTR_D //
+        TSID_NAME, STR_UK_RIVET, //
+        TSID_DESCRIPTION, STR_UK_RIVET_D //
     ) );
   }
 
@@ -163,52 +157,68 @@ public class UgwiKindSkAttrInfo
   }
 
   /**
-   * Extracts attribute ID from the UGWI of this kind.
+   * Extracts rivet ID from the UGWI of this kind.
    *
    * @param aUgwi {@link Ugwi} - the UGWI
-   * @return String - the attribute ID
+   * @return String - the rivet ID
    * @throws TsNullArgumentRtException any argument = <code>null</code>
    * @throws TsValidationFailedRtException invalid UGWI for this kind
    */
-  public static String getAttrId( Ugwi aUgwi ) {
+  public static String getRivetId( Ugwi aUgwi ) {
     TsValidationFailedRtException.checkError( INSTANCE.validateUgwi( aUgwi ) );
     IdChain chain = IdChain.of( aUgwi.essence() );
-    return chain.get( IDX_ATTR_ID );
+    return chain.get( IDX_RIVET_ID );
   }
 
   /**
-   * Creates the UGWI of UgwiKindSkAttr kind.
+   * Creates the UGWI of UgwiKindSkRivetInfo kind.
+   *
+   * @param aClassId String - class ID
+   * @param aRivetId String - rivet ID
+   * @return {@link Ugwi} - created UGWI
+   * @throws TsNullArgumentRtException any argument = <code>null</code>
+   * @throws TsIllegalArgumentRtException any ID is not an IDpath
+   */
+  public static Ugwi makeUgwi( String aClassId, String aRivetId ) {
+    StridUtils.checkValidIdPath( aClassId );
+    StridUtils.checkValidIdPath( aRivetId );
+    IdChain chain = new IdChain( aClassId, aRivetId );
+    return Ugwi.of( KIND_ID, chain.canonicalString() );
+  }
+
+  /**
+   * Creates the UGWI of UgwiKindSkRivet kind.
    *
    * @param aClassId String - class ID
    * @param aObjStrid String - object STRID
-   * @param aAttrId String - attribute ID
+   * @param aRivetId String - rivet ID
    * @return {@link Ugwi} - created UGWI
    * @throws TsNullArgumentRtException any argument = <code>null</code>
    * @throws TsIllegalArgumentRtException any ID is not an IDpath
    */
-  public static Ugwi makeUgwi( String aClassId, String aObjStrid, String aAttrId ) {
+  public static Ugwi makeUgwi( String aClassId, String aObjStrid, String aRivetId ) {
     StridUtils.checkValidIdPath( aClassId );
     StridUtils.checkValidIdPath( aObjStrid );
-    StridUtils.checkValidIdPath( aAttrId );
-    IdChain chain = new IdChain( aClassId, aObjStrid, aAttrId );
-    return Ugwi.of( UgwiKindSkAttr.KIND_ID, chain.canonicalString() );
+    StridUtils.checkValidIdPath( aRivetId );
+    IdChain chain = new IdChain( aClassId, aObjStrid, aRivetId );
+    return Ugwi.of( UgwiKindSkRivet.KIND_ID, chain.canonicalString() );
   }
 
   /**
-   * Creates the UGWI of UgwiKindSkAttr kind.
+   * Creates the UGWI of UgwiKindSkRivet kind.
    *
    * @param aObjSkid {@link Skid} - SKID of the object
-   * @param aAttrId String - attribute ID
+   * @param aRivetId String - rivet ID
    * @return {@link Ugwi} - created UGWI
    * @throws TsNullArgumentRtException any argument = <code>null</code>
    * @throws TsIllegalArgumentRtException any ID is not an IDpath
    */
-  public static Ugwi makeUgwi( Skid aObjSkid, String aAttrId ) {
+  public static Ugwi makeUgwi( Skid aObjSkid, String aRivetId ) {
     TsNullArgumentRtException.checkNull( aObjSkid );
     TsIllegalArgumentRtException.checkTrue( aObjSkid == Skid.NONE );
-    StridUtils.checkValidIdPath( aAttrId );
-    IdChain chain = new IdChain( aObjSkid.classId(), aObjSkid.strid(), aAttrId );
-    return Ugwi.of( UgwiKindSkAttr.KIND_ID, chain.canonicalString() );
+    StridUtils.checkValidIdPath( aRivetId );
+    IdChain chain = new IdChain( aObjSkid.classId(), aObjSkid.strid(), aRivetId );
+    return Ugwi.of( UgwiKindSkRivet.KIND_ID, chain.canonicalString() );
   }
 
 }

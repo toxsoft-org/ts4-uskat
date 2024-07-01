@@ -22,14 +22,14 @@ import org.toxsoft.uskat.core.api.ugwis.*;
 import org.toxsoft.uskat.core.impl.*;
 
 /**
- * UGWI kind: Sk-object attribute info.
+ * UGWI kind: Sk-object link info.
  * <p>
- * Format is 2-branches {@link IdChain}: "classId/attrId".
+ * Format is 2-branches {@link IdChain}: "classId/linkId".
  *
  * @author vs
  */
-public class UgwiKindSkAttrInfo
-    extends AbstractUgwiKind<IDtoAttrInfo> {
+public class UgwiKindSkLinkInfo
+    extends AbstractUgwiKind<IDtoLinkInfo> {
 
   /**
    * The index of the class ID in the {@link IdChain} made from {@link Ugwi#essence()}.
@@ -37,9 +37,9 @@ public class UgwiKindSkAttrInfo
   public static final int IDX_CLASS_ID = 0;
 
   /**
-   * The index of the attribute ID in the {@link IdChain} made from {@link Ugwi#essence()}.
+   * The index of the link ID in the {@link IdChain} made from {@link Ugwi#essence()}.
    */
-  public static final int IDX_ATTR_ID = 1;
+  public static final int IDX_LINK_ID = 1;
 
   /**
    * Number of branches in {@link IdChain}.
@@ -52,17 +52,17 @@ public class UgwiKindSkAttrInfo
    * @author hazard157
    */
   public static class Kind
-      extends AbstractSkUgwiKind<IDtoAttrInfo> {
+      extends AbstractSkUgwiKind<IDtoLinkInfo> {
 
-    Kind( AbstractUgwiKind<IDtoAttrInfo> aRegistrator, ISkCoreApi aCoreApi ) {
+    Kind( AbstractUgwiKind<IDtoLinkInfo> aRegistrator, ISkCoreApi aCoreApi ) {
       super( aRegistrator, aCoreApi );
     }
 
     @Override
-    public IDtoAttrInfo doFindContent( Ugwi aUgwi ) {
+    public IDtoLinkInfo doFindContent( Ugwi aUgwi ) {
       ISkClassInfo clsInfo = coreApi().sysdescr().findClassInfo( getClassId( aUgwi ) );
       if( clsInfo != null ) {
-        return clsInfo.attrs().list().getByKey( getAttrId( aUgwi ) );
+        return clsInfo.links().list().findByKey( getLinkId( aUgwi ) );
       }
       return null;
     }
@@ -79,24 +79,15 @@ public class UgwiKindSkAttrInfo
 
     @Override
     protected IAtomicValue doFindAtomicValue( Ugwi aUgwi ) {
-      IDtoAttrInfo attrInfo = doFindContent( aUgwi );
-      if( attrInfo != null ) {
-        return AvUtils.avValobj( attrInfo );
+      IDtoLinkInfo linkInfo = doFindContent( aUgwi );
+      if( linkInfo != null ) {
+        return AvUtils.avValobj( linkInfo );
       }
       return IAtomicValue.NULL;
     }
 
     @Override
     protected IDataType doGetAtomicValueDataType( Ugwi aUgwi ) {
-      String classId = getClassId( aUgwi );
-      ISkClassInfo cinf = coreApi().sysdescr().findClassInfo( classId );
-      if( cinf != null ) {
-        String attrId = getAttrId( aUgwi );
-        IDtoAttrInfo ainf = cinf.attrs().list().findByKey( attrId );
-        if( ainf != null ) {
-          return ainf.dataType();
-        }
-      }
       return null;
     }
 
@@ -105,20 +96,20 @@ public class UgwiKindSkAttrInfo
   /**
    * The UGWI kind ID.
    */
-  public static final String KIND_ID = SK_ID + ".sk.attr.info"; //$NON-NLS-1$
+  public static final String KIND_ID = SK_ID + ".sk.link.info"; //$NON-NLS-1$
 
   /**
    * The singleton instance.
    */
-  public static final UgwiKindSkAttrInfo INSTANCE = new UgwiKindSkAttrInfo();
+  public static final UgwiKindSkLinkInfo INSTANCE = new UgwiKindSkLinkInfo();
 
   /**
    * Constructor.
    */
-  private UgwiKindSkAttrInfo() {
+  private UgwiKindSkLinkInfo() {
     super( KIND_ID, OptionSetUtils.createOpSet( //
-        TSID_NAME, STR_UK_ATTR, //
-        TSID_DESCRIPTION, STR_UK_ATTR_D //
+        TSID_NAME, STR_UK_LINK, //
+        TSID_DESCRIPTION, STR_UK_LINK_D //
     ) );
   }
 
@@ -163,52 +154,68 @@ public class UgwiKindSkAttrInfo
   }
 
   /**
-   * Extracts attribute ID from the UGWI of this kind.
+   * Extracts link ID from the UGWI of this kind.
    *
    * @param aUgwi {@link Ugwi} - the UGWI
-   * @return String - the attribute ID
+   * @return String - the link ID
    * @throws TsNullArgumentRtException any argument = <code>null</code>
    * @throws TsValidationFailedRtException invalid UGWI for this kind
    */
-  public static String getAttrId( Ugwi aUgwi ) {
+  public static String getLinkId( Ugwi aUgwi ) {
     TsValidationFailedRtException.checkError( INSTANCE.validateUgwi( aUgwi ) );
     IdChain chain = IdChain.of( aUgwi.essence() );
-    return chain.get( IDX_ATTR_ID );
+    return chain.get( IDX_LINK_ID );
   }
 
   /**
-   * Creates the UGWI of UgwiKindSkAttr kind.
+   * Creates the UGWI of UgwiKindSkLinkInfo kind.
+   *
+   * @param aClassId String - class ID
+   * @param aLinkId String - link ID
+   * @return {@link Ugwi} - created UGWI
+   * @throws TsNullArgumentRtException any argument = <code>null</code>
+   * @throws TsIllegalArgumentRtException any ID is not an IDpath
+   */
+  public static Ugwi makeUgwi( String aClassId, String aLinkId ) {
+    StridUtils.checkValidIdPath( aClassId );
+    StridUtils.checkValidIdPath( aLinkId );
+    IdChain chain = new IdChain( aClassId, aLinkId );
+    return Ugwi.of( KIND_ID, chain.canonicalString() );
+  }
+
+  /**
+   * Creates the UGWI of UgwiKindSkLink kind.
    *
    * @param aClassId String - class ID
    * @param aObjStrid String - object STRID
-   * @param aAttrId String - attribute ID
+   * @param aLinkId String - link ID
    * @return {@link Ugwi} - created UGWI
    * @throws TsNullArgumentRtException any argument = <code>null</code>
    * @throws TsIllegalArgumentRtException any ID is not an IDpath
    */
-  public static Ugwi makeUgwi( String aClassId, String aObjStrid, String aAttrId ) {
+  public static Ugwi makeUgwi( String aClassId, String aObjStrid, String aLinkId ) {
     StridUtils.checkValidIdPath( aClassId );
     StridUtils.checkValidIdPath( aObjStrid );
-    StridUtils.checkValidIdPath( aAttrId );
-    IdChain chain = new IdChain( aClassId, aObjStrid, aAttrId );
-    return Ugwi.of( UgwiKindSkAttr.KIND_ID, chain.canonicalString() );
+    StridUtils.checkValidIdPath( aLinkId );
+    IdChain chain = new IdChain( aClassId, aObjStrid, aLinkId );
+    return Ugwi.of( UgwiKindSkLink.KIND_ID, chain.canonicalString() );
   }
 
   /**
-   * Creates the UGWI of UgwiKindSkAttr kind.
+   * Creates the UGWI of UgwiKindSkLink kind.
    *
    * @param aObjSkid {@link Skid} - SKID of the object
-   * @param aAttrId String - attribute ID
+   * @param aLinkId String - link ID
    * @return {@link Ugwi} - created UGWI
    * @throws TsNullArgumentRtException any argument = <code>null</code>
    * @throws TsIllegalArgumentRtException any ID is not an IDpath
    */
-  public static Ugwi makeUgwi( Skid aObjSkid, String aAttrId ) {
+  public static Ugwi makeUgwi( Skid aObjSkid, String aLinkId ) {
     TsNullArgumentRtException.checkNull( aObjSkid );
     TsIllegalArgumentRtException.checkTrue( aObjSkid == Skid.NONE );
-    StridUtils.checkValidIdPath( aAttrId );
-    IdChain chain = new IdChain( aObjSkid.classId(), aObjSkid.strid(), aAttrId );
-    return Ugwi.of( UgwiKindSkAttr.KIND_ID, chain.canonicalString() );
+    StridUtils.checkValidIdPath( aLinkId );
+    IdChain chain = new IdChain( aObjSkid.classId(), aObjSkid.strid(), aLinkId );
+    return Ugwi.of( UgwiKindSkLink.KIND_ID, chain.canonicalString() );
   }
 
 }

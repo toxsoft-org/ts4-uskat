@@ -55,8 +55,6 @@ public class UgwiKindSkRivet
   private static final int NUM_BRANCHES = 3;
 
   private static final IDataType DT_SKID_LIST = DataType.create( VALOBJ, //
-      // TSID_NAME, STR_PROP_SKID, //
-      // TSID_DESCRIPTION, STR_PROP_SKID_D, //
       TSID_KEEPER_ID, SkidListKeeper.KEEPER_ID, //
       TSID_DEFAULT_VALUE, avValobj( ISkidList.EMPTY ) //
   );
