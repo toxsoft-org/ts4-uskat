@@ -28,4 +28,6 @@ interface ISkResources {
   String STR_UK_RIVET   = "Ugwi type - rivet";
   String STR_UK_RIVET_D = "Ugwi type - ISkidList of the riveted objects";
 
+  String STR_UK_CLASS_INFO   = "Ugwi type - class";
+  String STR_UK_CLASS_INFO_D = "Ugwi type - class identifier";
 }

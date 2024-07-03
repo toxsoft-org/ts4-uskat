@@ -180,6 +180,22 @@ public class UgwiKindSkAttrInfo
    * Creates the UGWI of UgwiKindSkAttr kind.
    *
    * @param aClassId String - class ID
+   * @param aAttrId String - attribute ID
+   * @return {@link Ugwi} - created UGWI
+   * @throws TsNullArgumentRtException any argument = <code>null</code>
+   * @throws TsIllegalArgumentRtException any ID is not an IDpath
+   */
+  public static Ugwi makeUgwi( String aClassId, String aAttrId ) {
+    StridUtils.checkValidIdPath( aClassId );
+    StridUtils.checkValidIdPath( aAttrId );
+    IdChain chain = new IdChain( aClassId, aAttrId );
+    return Ugwi.of( KIND_ID, chain.canonicalString() );
+  }
+
+  /**
+   * Creates the UGWI of UgwiKindSkAttr kind.
+   *
+   * @param aClassId String - class ID
    * @param aObjStrid String - object STRID
    * @param aAttrId String - attribute ID
    * @return {@link Ugwi} - created UGWI
