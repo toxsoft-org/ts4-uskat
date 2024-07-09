@@ -7,8 +7,7 @@ import static org.toxsoft.uskat.core.gui.ISkCoreGuiConstants.*;
 import static org.toxsoft.uskat.core.gui.km5.sded.IKM5SdedConstants.*;
 import static org.toxsoft.uskat.core.gui.km5.sded.ISkSdedKm5SharedResources.*;
 
-import java.util.concurrent.*;
-
+import org.eclipse.swt.widgets.*;
 import org.toxsoft.core.tsgui.bricks.actions.*;
 import org.toxsoft.core.tsgui.bricks.ctx.*;
 import org.toxsoft.core.tsgui.bricks.tsnodes.*;
@@ -148,21 +147,24 @@ class SdedSkClassInfoMpc
 
   private void publicSelectedClass() {
     ISkClassInfo sel = tree().selectedItem();
-    ExampleServer server;
-    try {
-      server = new ExampleServer( skConn(), sel );
-      server.startup().get();
+    Display display = tsContext().get( Display.class );
+    display.asyncExec( () -> {
+      try {
+        ExampleServer server = new ExampleServer( skConn(), sel, display );
+        server.startup().get();
 
-      final CompletableFuture<Void> future = new CompletableFuture<>();
-
-      Runtime.getRuntime().addShutdownHook( new Thread( () -> future.complete( null ) ) );
-
-      future.get();
-    }
-    catch( Exception ex ) {
-      // TODO Auto-generated catch block
-      LoggerUtils.errorLogger().error( ex );
-    }
+        // final CompletableFuture<Void> future = new CompletableFuture<>();
+        //
+        // Runtime.getRuntime().addShutdownHook( new Thread( () -> future.complete( null ) ) );
+        //
+        // future.get();
+      }
+      catch( Exception ex ) {
+        // TODO Auto-generated catch block
+        LoggerUtils.errorLogger().error( ex );
+      }
+    } );
+    LoggerUtils.errorLogger().debug( "OPC UA server started!" ); //$NON-NLS-1$
 
   }
 

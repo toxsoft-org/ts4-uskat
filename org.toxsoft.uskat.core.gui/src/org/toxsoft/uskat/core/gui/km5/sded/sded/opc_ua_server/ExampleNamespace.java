@@ -13,6 +13,7 @@ package org.toxsoft.uskat.core.gui.km5.sded.sded.opc_ua_server;
 import static org.eclipse.milo.opcua.stack.core.types.builtin.unsigned.Unsigned.*;
 
 import java.util.*;
+import java.util.List;
 import java.util.function.*;
 import java.util.stream.*;
 
@@ -31,12 +32,14 @@ import org.eclipse.milo.opcua.sdk.server.nodes.filters.AttributeFilterContext.*;
 import org.eclipse.milo.opcua.sdk.server.util.*;
 import org.eclipse.milo.opcua.stack.core.*;
 import org.eclipse.milo.opcua.stack.core.types.builtin.*;
+import org.eclipse.milo.opcua.stack.core.types.builtin.DateTime;
 import org.eclipse.milo.opcua.stack.core.types.enumerated.*;
 import org.eclipse.milo.opcua.stack.core.types.structured.*;
+import org.eclipse.swt.widgets.*;
 import org.slf4j.*;
 import org.toxsoft.core.tslib.av.*;
-import org.toxsoft.core.tslib.av.impl.*;
 import org.toxsoft.core.tslib.av.metainfo.*;
+import org.toxsoft.core.tslib.bricks.threadexec.*;
 import org.toxsoft.core.tslib.coll.*;
 import org.toxsoft.core.tslib.coll.impl.*;
 import org.toxsoft.core.tslib.gw.gwid.*;
@@ -47,6 +50,7 @@ import org.toxsoft.uskat.core.api.rtdserv.*;
 import org.toxsoft.uskat.core.api.sysdescr.*;
 import org.toxsoft.uskat.core.api.sysdescr.dto.*;
 import org.toxsoft.uskat.core.connection.*;
+import org.toxsoft.uskat.core.impl.*;
 
 /**
  * USkat OPC UA public namespace
@@ -99,6 +103,9 @@ public class ExampleNamespace
   private volatile Thread  eventThread;
   private volatile boolean keepPostingEvents = true;
 
+  private volatile Thread  uskatCoreThread;
+  private volatile boolean keepDoJobUskat = true;
+
   private final Random random = new Random();
 
   private final DataTypeDictionaryManager dictionaryManager;
@@ -107,19 +114,43 @@ public class ExampleNamespace
 
   private final ISkConnection conn;
 
-  private final ISkClassInfo selClass;
+  private final ISkClassInfo      selClass;
+  private final ITsThreadExecutor threadExecutor;
+  private final Display           display;
 
-  ExampleNamespace( OpcUaServer server, ISkConnection aConnection, ISkClassInfo aClassInfo ) {
+  ExampleNamespace( OpcUaServer server, ISkConnection aConnection, ISkClassInfo aClassInfo, Display aDisplay ) {
     super( server, NAMESPACE_URI );
     conn = aConnection;
     selClass = aClassInfo;
     subscriptionModel = new SubscriptionModel( server, this );
     dictionaryManager = new DataTypeDictionaryManager( getNodeContext(), NAMESPACE_URI );
+    threadExecutor = SkThreadExecutorService.getExecutor( aConnection.coreApi() );
+    display = aDisplay;
 
     getLifecycleManager().addLifecycle( dictionaryManager );
     getLifecycleManager().addLifecycle( subscriptionModel );
 
     getLifecycleManager().addStartupTask( this::createAndAddNodes );
+
+    // getLifecycleManager().addLifecycle( new Lifecycle() {
+    //
+    // @Override
+    // public void startup() {
+    // startUskatCoreThread();
+    // }
+    //
+    // @Override
+    // public void shutdown() {
+    // try {
+    // keepDoJobUskat = false;
+    // uskatCoreThread.interrupt();
+    // uskatCoreThread.join();
+    // }
+    // catch( InterruptedException ignored ) {
+    // // ignored
+    // }
+    // }
+    // } );
 
     // getLifecycleManager().addLifecycle( new Lifecycle() {
     //
@@ -659,24 +690,31 @@ public class ExampleNamespace
     return retVal;
   }
 
-  // FIXME sample of get value from outer space )
+  /**
+   * Get actual rtData value
+   *
+   * @author dima
+   */
   public class RtDataHandler
       implements Function<GetAttributeContext, DataValue> {
 
-    IMap<Gwid, ISkReadCurrDataChannel> map;
-    final IDtoRtdataInfo               dataInfo;
+    final IDtoRtdataInfo           dataInfo;
+    private IAtomicValue           currVal;
+    private ISkReadCurrDataChannel channel;
 
     public RtDataHandler( Skid aSkid, IDtoRtdataInfo aDtoRtdataInfo ) {
       dataInfo = aDtoRtdataInfo;
       Gwid rtdGwid = Gwid.createRtdata( aSkid, dataInfo.id() );
 
-      map = conn.coreApi().rtdService().createReadCurrDataChannels( new GwidList( rtdGwid ) );
+      channel = conn.coreApi().rtdService().createReadCurrDataChannels( new GwidList( rtdGwid ) ).values().first();
+      currVal = channel.getValue();
     }
 
     @Override
-    public DataValue apply( GetAttributeContext i ) {
-      // IAtomicValue currVal = map.values().first().getValue();
-      IAtomicValue currVal = AvUtils.AV_TRUE;
+    public DataValue apply( GetAttributeContext aContext ) {
+      threadExecutor.syncExec( () -> {
+        currVal = channel.getValue();
+      } );
       Variant val = convertToOpc( currVal, dataInfo.dataType().atomicType() );
       return new DataValue( val );
     }
@@ -901,6 +939,27 @@ public class ExampleNamespace
   @Override
   public void onMonitoringModeChanged( List<MonitoredItem> monitoredItems ) {
     subscriptionModel.onMonitoringModeChanged( monitoredItems );
+  }
+
+  private void startUskatCoreThread() {
+    display.asyncExec( () -> {
+      while( keepDoJobUskat ) {
+        try {
+          threadExecutor.doJob();
+        }
+        catch( Throwable e ) {
+          logger.error( "Error creating EventNode: {}", e.getMessage(), e );
+        }
+
+        try {
+          // noinspection BusyWait
+          Thread.sleep( 1000 );
+        }
+        catch( InterruptedException ignored ) {
+          // ignored
+        }
+      }
+    } );
   }
 
 }

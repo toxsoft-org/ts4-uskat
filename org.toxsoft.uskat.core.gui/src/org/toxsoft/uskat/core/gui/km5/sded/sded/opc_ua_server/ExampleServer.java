@@ -18,6 +18,7 @@ import java.nio.file.*;
 import java.security.*;
 import java.security.cert.*;
 import java.util.*;
+import java.util.List;
 import java.util.concurrent.*;
 
 import org.bouncycastle.jce.provider.*;
@@ -29,11 +30,13 @@ import org.eclipse.milo.opcua.stack.core.*;
 import org.eclipse.milo.opcua.stack.core.security.*;
 import org.eclipse.milo.opcua.stack.core.transport.*;
 import org.eclipse.milo.opcua.stack.core.types.builtin.*;
+import org.eclipse.milo.opcua.stack.core.types.builtin.DateTime;
 import org.eclipse.milo.opcua.stack.core.types.enumerated.*;
 import org.eclipse.milo.opcua.stack.core.types.structured.*;
 import org.eclipse.milo.opcua.stack.core.util.*;
 import org.eclipse.milo.opcua.stack.server.EndpointConfiguration;
 import org.eclipse.milo.opcua.stack.server.security.*;
+import org.eclipse.swt.widgets.*;
 import org.slf4j.*;
 import org.toxsoft.uskat.core.api.sysdescr.*;
 import org.toxsoft.uskat.core.connection.*;
@@ -72,7 +75,7 @@ public class ExampleServer {
   private final OpcUaServer      server;
   private final ExampleNamespace exampleNamespace;
 
-  public ExampleServer( ISkConnection aISkConnection, ISkClassInfo aSel )
+  public ExampleServer( ISkConnection aISkConnection, ISkClassInfo aSel, Display aDisplay )
       throws Exception {
     Path securityTempDir = Paths.get( System.getProperty( "java.io.tmpdir" ), "server", "security" );
     Files.createDirectories( securityTempDir );
@@ -136,7 +139,7 @@ public class ExampleServer {
 
     server = new OpcUaServer( serverConfig );
 
-    exampleNamespace = new ExampleNamespace( server, aISkConnection, aSel );
+    exampleNamespace = new ExampleNamespace( server, aISkConnection, aSel, aDisplay );
     exampleNamespace.startup();
   }
 
