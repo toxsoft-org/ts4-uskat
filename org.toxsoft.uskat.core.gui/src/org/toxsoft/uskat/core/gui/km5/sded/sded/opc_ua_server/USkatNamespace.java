@@ -37,6 +37,7 @@ import org.toxsoft.core.tslib.coll.impl.*;
 import org.toxsoft.core.tslib.gw.gwid.*;
 import org.toxsoft.core.tslib.gw.skid.*;
 import org.toxsoft.core.tslib.utils.errors.*;
+import org.toxsoft.core.tslib.utils.logs.impl.*;
 import org.toxsoft.skf.rri.lib.*;
 import org.toxsoft.uskat.core.api.objserv.*;
 import org.toxsoft.uskat.core.api.rtdserv.*;
@@ -254,31 +255,41 @@ public class USkatNamespace
     folderNode.addReference(
         new Reference( folderNode.getNodeId(), Identifiers.Organizes, Identifiers.ObjectsFolder.expanded(), false ) );
 
-    // old version save for ... i don't know :)
+    // old version save for testing
     // addCustomObjectTypeAndInstance( folderNode );
 
     IStridablesList<ISkClassInfo> allItems = conn.coreApi().sysdescr().listClasses();
     IStridablesListEdit<ISkClassInfo> items2Public = new StridablesList<>();
     // add SYSDESCR owned classes with all parents
     for( ISkClassInfo cinf : allItems ) {
-      String claimingServiceId = conn.coreApi().sysdescr().determineClassClaimingServiceId( cinf.id() );
-      if( claimingServiceId.equals( ISkSysdescr.SERVICE_ID ) ) {
-        if( !items2Public.hasKey( cinf.id() ) ) {
-          items2Public.add( cinf );
-          String parentId = cinf.parentId();
-          while( !parentId.isEmpty() ) {
-            ISkClassInfo pinf = allItems.getByKey( parentId );
-            if( !items2Public.hasKey( pinf.id() ) ) {
-              items2Public.add( pinf );
-            }
-            parentId = pinf.parentId();
-          }
-        }
+      if( cinf.id().startsWith( "AnalogInput" ) || cinf.id().contains( "IrreversibleEngine" ) ) {
+        items2Public.add( cinf );
+        // String claimingServiceId = conn.coreApi().sysdescr().determineClassClaimingServiceId( cinf.id() );
+        // if( claimingServiceId.equals( ISkSysdescr.SERVICE_ID ) ) {
+        // if( !items2Public.hasKey( cinf.id() ) ) {
+        // items2Public.add( cinf );
+        // String parentId = cinf.parentId();
+        // while( !parentId.isEmpty() ) {
+        // ISkClassInfo pinf = allItems.getByKey( parentId );
+        // if( !items2Public.hasKey( pinf.id() ) ) {
+        // items2Public.add( pinf );
+        // }
+        // parentId = pinf.parentId();
+        // }
+        // }
+        // }
       }
     }
     // public classes and it's objects
     for( ISkClassInfo item : items2Public ) {
-      addClassObjectTypeAndInstance( folderNode, item );
+      // create classes sub folder
+      UaFolderNode subfolderNode = new UaFolderNode( getNodeContext(), newNodeId( "USkat/" + item.id() ),
+          newQualifiedName( item.id() ), LocalizedText.english( item.id() ) );
+
+      getNodeManager().addNode( subfolderNode );
+      folderNode.addOrganizes( subfolderNode );
+
+      addClassObjectTypeAndInstance( subfolderNode, item );
     }
   }
 
@@ -515,8 +526,8 @@ public class USkatNamespace
       // get all objects
       IList<ISkObject> objs = conn.coreApi().objService().listObjs( aClassInfo.id(), false );
       for( ISkObject obj : objs ) {
-        UaObjectNode objNode =
-            (UaObjectNode)getNodeFactory().createNode( newNodeId( "USkat/" + obj.id() ), objectTypeNode.getNodeId() );
+        UaObjectNode objNode = (UaObjectNode)getNodeFactory()
+            .createNode( newNodeId( "USkat/" + obj.classId() + "/" + obj.id() ), objectTypeNode.getNodeId() );
         objNode.setBrowseName( newQualifiedName( obj.id() ) );
         objNode.setDisplayName( LocalizedText.english( obj.nmName() ) );
         // Add forward and inverse references from the root folder.
@@ -526,12 +537,18 @@ public class USkatNamespace
             new Reference( objNode.getNodeId(), Identifiers.Organizes, aRootFolder.getNodeId().expanded(), false ) );
 
         List<UaNode> propNodes = objNode.getComponentNodes().stream().distinct().collect( Collectors.toList() );
-        int index = 0; // TODO
         for( UaNode prop : propNodes ) {
           if( prop instanceof UaVariableNode varNode ) {
-            IDtoRtdataInfo dataInfo = aClassInfo.rtdata().list().get( index++ );
-            varNode.getFilterChain().addLast( new AttributeLoggingFilter(),
-                AttributeFilters.getValue( new RtDataHandler( obj.skid(), dataInfo ) ) );
+            String rtDataId = prop.getDisplayName().getText();
+            if( aClassInfo.rtdata().list().hasKey( rtDataId ) ) {
+              IDtoRtdataInfo dataInfo = aClassInfo.rtdata().list().getByKey( rtDataId );
+              varNode.getFilterChain().addLast( new AttributeLoggingFilter(),
+                  AttributeFilters.getValue( new RtDataHandler( obj.skid(), dataInfo ) ) );
+            }
+            else {
+              LoggerUtils.errorLogger().error( "Class %s, can't map any RtData param to node with display name: %s",
+                  obj.classId(), prop.getDisplayName().getText() );
+            }
           }
         }
       }
