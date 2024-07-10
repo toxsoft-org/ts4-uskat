@@ -18,7 +18,8 @@ Require-Bundle: jakarta.inject.jakarta.inject-api,
  org.toxsoft.core.tsgui,
  org.toxsoft.uskat.core,
  org.toxsoft.uskat.core.inner,
- org.toxsoft.extlibs.milo
+ org.toxsoft.extlibs.milo,
+ org.toxsoft.skf.rri.lib
 Bundle-RequiredExecutionEnvironment: JavaSE-21
 Automatic-Module-Name: org.toxsoft.uskat.base.gui
 Bundle-ActivationPolicy: lazy

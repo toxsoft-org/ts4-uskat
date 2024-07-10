@@ -150,7 +150,7 @@ class SdedSkClassInfoMpc
     Display display = tsContext().get( Display.class );
     display.asyncExec( () -> {
       try {
-        ExampleServer server = new ExampleServer( skConn(), sel, display );
+        USkatOpcUaServer server = new USkatOpcUaServer( skConn(), sel, display );
         server.startup().get();
 
         // final CompletableFuture<Void> future = new CompletableFuture<>();

@@ -41,7 +41,7 @@ import org.slf4j.*;
 import org.toxsoft.uskat.core.api.sysdescr.*;
 import org.toxsoft.uskat.core.connection.*;
 
-public class ExampleServer {
+public class USkatOpcUaServer {
 
   private static final int TCP_BIND_PORT   = 12686;
   private static final int HTTPS_BIND_PORT = 8443;
@@ -72,10 +72,10 @@ public class ExampleServer {
   // future.get();
   // }
 
-  private final OpcUaServer      server;
-  private final ExampleNamespace exampleNamespace;
+  private final OpcUaServer    server;
+  private final USkatNamespace exampleNamespace;
 
-  public ExampleServer( ISkConnection aISkConnection, ISkClassInfo aSel, Display aDisplay )
+  public USkatOpcUaServer( ISkConnection aISkConnection, ISkClassInfo aSel, Display aDisplay )
       throws Exception {
     Path securityTempDir = Paths.get( System.getProperty( "java.io.tmpdir" ), "server", "security" );
     Files.createDirectories( securityTempDir );
@@ -139,7 +139,7 @@ public class ExampleServer {
 
     server = new OpcUaServer( serverConfig );
 
-    exampleNamespace = new ExampleNamespace( server, aISkConnection, aSel, aDisplay );
+    exampleNamespace = new USkatNamespace( server, aISkConnection, aSel );
     exampleNamespace.startup();
   }
 
@@ -156,7 +156,6 @@ public class ExampleServer {
     for( String bindAddress : bindAddresses ) {
       for( String hostname : hostnames ) {
         EndpointConfiguration.Builder builder = EndpointConfiguration.newBuilder().setBindAddress( bindAddress )
-            // .setHostname( hostname ).setPath( "/milo" ).setCertificate( certificate )
             .setHostname( hostname ).setPath( "/uskat" ).setCertificate( certificate )
             .addTokenPolicies( USER_TOKEN_POLICY_ANONYMOUS, USER_TOKEN_POLICY_USERNAME, USER_TOKEN_POLICY_X509 );
 
