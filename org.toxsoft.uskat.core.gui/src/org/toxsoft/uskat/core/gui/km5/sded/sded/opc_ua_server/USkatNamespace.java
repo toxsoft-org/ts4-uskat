@@ -208,6 +208,7 @@ public class USkatNamespace
   private final ISkClassInfo         selClass;
   private final ITsThreadExecutor    threadExecutor;
   private final IList<RtDataHandler> rtDataHandlers = new ElemArrayList<>();
+  private final ISkRriSection        rriSection;
 
   USkatNamespace( OpcUaServer server, ISkConnection aConnection, ISkClassInfo aClassInfo ) {
     super( server, NAMESPACE_URI );
@@ -217,6 +218,10 @@ public class USkatNamespace
     dictionaryManager = new DataTypeDictionaryManager( getNodeContext(), NAMESPACE_URI );
     // get executor to USkat server communicate with
     threadExecutor = SkThreadExecutorService.getExecutor( aConnection.coreApi() );
+    // init RRI section
+    ISkRegRefInfoService rriService =
+        (ISkRegRefInfoService)conn.coreApi().services().getByKey( ISkRegRefInfoService.SERVICE_ID );
+    rriSection = rriService.listSections().first();
 
     getLifecycleManager().addLifecycle( dictionaryManager );
     getLifecycleManager().addLifecycle( subscriptionModel );
@@ -262,7 +267,7 @@ public class USkatNamespace
     IStridablesListEdit<ISkClassInfo> items2Public = new StridablesList<>();
     // add SYSDESCR owned classes with all parents
     for( ISkClassInfo cinf : allItems ) {
-      if( cinf.id().startsWith( "AnalogInput" ) || cinf.id().contains( "IrreversibleEngine" ) ) {
+      if( cinf.id().startsWith( "AnalogInput" ) || cinf.id().startsWith( "IrreversibleEngine" ) ) {
         items2Public.add( cinf );
         // String claimingServiceId = conn.coreApi().sysdescr().determineClassClaimingServiceId( cinf.id() );
         // if( claimingServiceId.equals( ISkSysdescr.SERVICE_ID ) ) {
@@ -504,6 +509,26 @@ public class USkatNamespace
       rtDataNodes.add( dataNode );
     }
 
+    IListEdit<UaVariableNode> rriAttrNodes = new ElemArrayList<>();
+    IStridablesList<IDtoRriParamInfo> rriInfoes = rriSection.listParamInfoes( aClassInfo.id() );
+    for( IDtoRriParamInfo rriInfo : rriInfoes ) {
+      if( rriInfo.isLink() ) {
+        continue;
+      }
+      UaVariableNode rriAttrNode = UaVariableNode.builder( getNodeContext() )
+          .setNodeId( newNodeId( "ObjectTypes/" + typeName + "." + rriInfo.id() ) )
+          .setAccessLevel( AccessLevel.READ_WRITE ).setBrowseName( newQualifiedName( rriInfo.nmName() ) )
+          .setDisplayName( LocalizedText.english( rriInfo.id() ) )
+          .setDataType( getDataType( rriInfo.attrInfo().dataType() ) )
+          .setTypeDefinition( Identifiers.BaseDataVariableType ).build();
+
+      rriAttrNode.addReference( new Reference( rriAttrNode.getNodeId(), Identifiers.HasModellingRule,
+          Identifiers.ModellingRule_Mandatory.expanded(), true ) );
+
+      objectTypeNode.addComponent( rriAttrNode );
+      rriAttrNodes.add( rriAttrNode );
+    }
+
     // Tell the ObjectTypeManager about our new type.
     // This let's us use NodeFactory to instantiate instances of the type.
     getServer().getObjectTypeManager().registerObjectType( objectTypeNode.getNodeId(), UaObjectNode.class,
@@ -517,6 +542,9 @@ public class USkatNamespace
     getNodeManager().addNode( objectTypeNode );
     for( UaVariableNode dataNode : rtDataNodes ) {
       getNodeManager().addNode( dataNode );
+    }
+    for( UaVariableNode rriAttrNode : rriAttrNodes ) {
+      getNodeManager().addNode( rriAttrNode );
     }
 
     // Use NodeFactory to create instance of new type called selClass.id().
@@ -539,15 +567,23 @@ public class USkatNamespace
         List<UaNode> propNodes = objNode.getComponentNodes().stream().distinct().collect( Collectors.toList() );
         for( UaNode prop : propNodes ) {
           if( prop instanceof UaVariableNode varNode ) {
-            String rtDataId = prop.getDisplayName().getText();
-            if( aClassInfo.rtdata().list().hasKey( rtDataId ) ) {
-              IDtoRtdataInfo dataInfo = aClassInfo.rtdata().list().getByKey( rtDataId );
+            String propId = prop.getDisplayName().getText();
+            if( aClassInfo.rtdata().list().hasKey( propId ) ) {
+              IDtoRtdataInfo dataInfo = aClassInfo.rtdata().list().getByKey( propId );
               varNode.getFilterChain().addLast( new AttributeLoggingFilter(),
                   AttributeFilters.getValue( new RtDataHandler( obj.skid(), dataInfo ) ) );
             }
             else {
-              LoggerUtils.errorLogger().error( "Class %s, can't map any RtData param to node with display name: %s",
-                  obj.classId(), prop.getDisplayName().getText() );
+              if( rriInfoes.hasKey( propId ) ) {
+                IDtoRriParamInfo rriInfo = rriInfoes.getByKey( propId );
+                varNode.getFilterChain().addLast( new AttributeLoggingFilter(),
+                    AttributeFilters.getValue( new RriAttrHandler( obj.skid(), rriInfo ) ) );
+              }
+              else {
+                LoggerUtils.errorLogger().error(
+                    "Class %s, can't map any RtData or rri attribute param to node with display name: %s",
+                    obj.classId(), prop.getDisplayName().getText() );
+              }
             }
           }
         }
