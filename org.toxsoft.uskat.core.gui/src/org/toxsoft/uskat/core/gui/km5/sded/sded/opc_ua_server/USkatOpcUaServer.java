@@ -18,7 +18,6 @@ import java.nio.file.*;
 import java.security.*;
 import java.security.cert.*;
 import java.util.*;
-import java.util.List;
 import java.util.concurrent.*;
 
 import org.bouncycastle.jce.provider.*;
@@ -30,17 +29,20 @@ import org.eclipse.milo.opcua.stack.core.*;
 import org.eclipse.milo.opcua.stack.core.security.*;
 import org.eclipse.milo.opcua.stack.core.transport.*;
 import org.eclipse.milo.opcua.stack.core.types.builtin.*;
-import org.eclipse.milo.opcua.stack.core.types.builtin.DateTime;
 import org.eclipse.milo.opcua.stack.core.types.enumerated.*;
 import org.eclipse.milo.opcua.stack.core.types.structured.*;
 import org.eclipse.milo.opcua.stack.core.util.*;
 import org.eclipse.milo.opcua.stack.server.EndpointConfiguration;
 import org.eclipse.milo.opcua.stack.server.security.*;
-import org.eclipse.swt.widgets.*;
 import org.slf4j.*;
-import org.toxsoft.uskat.core.api.sysdescr.*;
 import org.toxsoft.uskat.core.connection.*;
 
+/**
+ * OPC UA serever implementation. <br>
+ * Completely based on sample {@link org.eclipse.milo.examples.server.ExampleServer}
+ *
+ * @author dima
+ */
 public class USkatOpcUaServer {
 
   private static final int TCP_BIND_PORT   = 12686;
@@ -73,9 +75,15 @@ public class USkatOpcUaServer {
   // }
 
   private final OpcUaServer    server;
-  private final USkatNamespace exampleNamespace;
+  private final USkatNamespace uskatNamespace;
 
-  public USkatOpcUaServer( ISkConnection aISkConnection, ISkClassInfo aSel, Display aDisplay )
+  /**
+   * Constructor.
+   *
+   * @param aConnection - USkat core API
+   * @throws Exception
+   */
+  public USkatOpcUaServer( ISkConnection aConnection )
       throws Exception {
     Path securityTempDir = Paths.get( System.getProperty( "java.io.tmpdir" ), "server", "security" );
     Files.createDirectories( securityTempDir );
@@ -131,16 +139,18 @@ public class USkatOpcUaServer {
         .setApplicationName( LocalizedText.english( "OPC UA USkat Server" ) ).setEndpoints( endpointConfigurations )
         .setBuildInfo( new BuildInfo( "urn:toxsoft:uskat:opcua-server", "ToxSoft Ltd.", "ToxSoft USkat OPC UA server",
             OpcUaServer.SDK_VERSION, "", DateTime.now() ) )
-        .setCertificateManager( certificateManager ).setTrustListManager( trustListManager )
-        .setCertificateValidator( certificateValidator ).setHttpsKeyPair( httpsKeyPair )
-        // .setHttpsCertificateChain( new X509Certificate[] { httpsCertificate } )
+        .setCertificateManager( certificateManager ) //
+        .setTrustListManager( trustListManager ) //
+        .setCertificateValidator( certificateValidator ) //
+        .setHttpsKeyPair( httpsKeyPair ) //
+        // FIXME .setHttpsCertificateChain( new X509Certificate[] { httpsCertificate } )
         .setIdentityValidator( new CompositeValidator( identityValidator, x509IdentityValidator ) )
         .setProductUri( "urn:toxsoft:uskat:opcua-server" ).build();
 
     server = new OpcUaServer( serverConfig );
 
-    exampleNamespace = new USkatNamespace( server, aISkConnection, aSel );
-    exampleNamespace.startup();
+    uskatNamespace = new USkatNamespace( server, aConnection );
+    uskatNamespace.startup();
   }
 
   private Set<EndpointConfiguration> createEndpointConfigurations( X509Certificate certificate ) {
@@ -209,7 +219,7 @@ public class USkatOpcUaServer {
   }
 
   public CompletableFuture<OpcUaServer> shutdown() {
-    exampleNamespace.shutdown();
+    uskatNamespace.shutdown();
 
     return server.shutdown();
   }

@@ -137,7 +137,7 @@ class SdedSkClassInfoMpc
         break;
       }
       case ACTID_PUBLIC_2_OPC_UA: {
-        publicSelectedClass();
+        publicUSkat2OPCUA();
         break;
       }
       default:
@@ -145,12 +145,11 @@ class SdedSkClassInfoMpc
     }
   }
 
-  private void publicSelectedClass() {
-    ISkClassInfo sel = tree().selectedItem();
+  private void publicUSkat2OPCUA() {
     Display display = tsContext().get( Display.class );
     display.asyncExec( () -> {
       try {
-        USkatOpcUaServer server = new USkatOpcUaServer( skConn(), sel, display );
+        USkatOpcUaServer server = new USkatOpcUaServer( skConn() );
         server.startup().get();
 
         // final CompletableFuture<Void> future = new CompletableFuture<>();

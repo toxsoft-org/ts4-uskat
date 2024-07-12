@@ -29,11 +29,13 @@ import org.eclipse.milo.opcua.stack.core.types.builtin.*;
 import org.slf4j.*;
 import org.toxsoft.core.tslib.av.*;
 import org.toxsoft.core.tslib.av.metainfo.*;
+import org.toxsoft.core.tslib.bricks.strid.*;
 import org.toxsoft.core.tslib.bricks.strid.coll.*;
 import org.toxsoft.core.tslib.bricks.strid.coll.impl.*;
 import org.toxsoft.core.tslib.bricks.threadexec.*;
 import org.toxsoft.core.tslib.coll.*;
 import org.toxsoft.core.tslib.coll.impl.*;
+import org.toxsoft.core.tslib.gw.*;
 import org.toxsoft.core.tslib.gw.gwid.*;
 import org.toxsoft.core.tslib.gw.skid.*;
 import org.toxsoft.core.tslib.utils.errors.*;
@@ -129,15 +131,11 @@ public class USkatNamespace
 
     private IAtomicValue           currVal;
     private final Gwid             rriGwid;
-    private final ISkRriSection    rriSection;
     private final IDtoRriParamInfo rriParamInfo;
 
     RriAttrHandler( Skid aSkid, IDtoRriParamInfo aDtoRriParamInfo ) {
       rriParamInfo = aDtoRriParamInfo;
       rriGwid = Gwid.createAttr( aSkid, rriParamInfo.id() );
-      ISkRegRefInfoService rriService =
-          (ISkRegRefInfoService)conn.coreApi().services().getByKey( ISkRegRefInfoService.SERVICE_ID );
-      rriSection = rriService.listSections().first();
 
       currVal = rriSection.getAttrParamValue( rriGwid.skid(), rriGwid.propId() );
     }
@@ -153,7 +151,8 @@ public class USkatNamespace
   }
 
   // FIXME change to toxsoft:uskat:concrete_project
-  public static final String NAMESPACE_URI = "urn:eclipse:milo:hello-world";
+  // public static final String NAMESPACE_URI = "urn:eclipse:milo:hello-world";
+  public static final String NAMESPACE_URI = "urn:toxsoft:uskat:mmk";
   public static final String USKAT_FOLDER  = "USkat";
 
   private static final Object[][] STATIC_SCALAR_NODES = { { "Boolean", Identifiers.Boolean, new Variant( false ) },
@@ -205,15 +204,13 @@ public class USkatNamespace
 
   private final ISkConnection conn;
 
-  private final ISkClassInfo         selClass;
   private final ITsThreadExecutor    threadExecutor;
   private final IList<RtDataHandler> rtDataHandlers = new ElemArrayList<>();
   private final ISkRriSection        rriSection;
 
-  USkatNamespace( OpcUaServer server, ISkConnection aConnection, ISkClassInfo aClassInfo ) {
+  USkatNamespace( OpcUaServer server, ISkConnection aConnection ) {
     super( server, NAMESPACE_URI );
     conn = aConnection;
-    selClass = aClassInfo;
     subscriptionModel = new SubscriptionModel( server, this );
     dictionaryManager = new DataTypeDictionaryManager( getNodeContext(), NAMESPACE_URI );
     // get executor to USkat server communicate with
@@ -265,151 +262,28 @@ public class USkatNamespace
 
     IStridablesList<ISkClassInfo> allItems = conn.coreApi().sysdescr().listClasses();
     IStridablesListEdit<ISkClassInfo> items2Public = new StridablesList<>();
-    // add SYSDESCR owned classes with all parents
     for( ISkClassInfo cinf : allItems ) {
-      if( cinf.id().startsWith( "AnalogInput" ) || cinf.id().startsWith( "IrreversibleEngine" ) ) {
+      if( cinf.id().equals( IGwHardConstants.GW_ROOT_CLASS_ID ) ) {
+        continue;
+      }
+      if( cinf.id().startsWith( "sk." ) ) {
+        continue;
+      }
+      String claimerId = conn.coreApi().sysdescr().determineClassClaimingServiceId( cinf.id() );
+      if( claimerId.equals( ISkSysdescr.SERVICE_ID ) ) {
         items2Public.add( cinf );
-        // String claimingServiceId = conn.coreApi().sysdescr().determineClassClaimingServiceId( cinf.id() );
-        // if( claimingServiceId.equals( ISkSysdescr.SERVICE_ID ) ) {
-        // if( !items2Public.hasKey( cinf.id() ) ) {
-        // items2Public.add( cinf );
-        // String parentId = cinf.parentId();
-        // while( !parentId.isEmpty() ) {
-        // ISkClassInfo pinf = allItems.getByKey( parentId );
-        // if( !items2Public.hasKey( pinf.id() ) ) {
-        // items2Public.add( pinf );
-        // }
-        // parentId = pinf.parentId();
-        // }
-        // }
-        // }
       }
     }
     // public classes and it's objects
     for( ISkClassInfo item : items2Public ) {
-      // create classes sub folder
-      UaFolderNode subfolderNode = new UaFolderNode( getNodeContext(), newNodeId( "USkat/" + item.id() ),
-          newQualifiedName( item.id() ), LocalizedText.english( item.id() ) );
+      // create classes subfolder
+      UaFolderNode subfolderNode = new UaFolderNode( getNodeContext(), newNodeId( USKAT_FOLDER + "/" + item.id() ),
+          newQualifiedName( getName4Browse( item ) ), LocalizedText.english( getName4Display( item ) ) );
 
       getNodeManager().addNode( subfolderNode );
       folderNode.addOrganizes( subfolderNode );
 
       addClassObjectTypeAndInstance( subfolderNode, item );
-    }
-  }
-
-  private void addCustomObjectTypeAndInstance( UaFolderNode rootFolder ) {
-    // Define a new ObjectType called "MyObjectType".
-    // UaObjectTypeNode objectTypeNode = UaObjectTypeNode.builder( getNodeContext() )
-    // .setNodeId( newNodeId( "ObjectTypes/MyObjectType" ) ).setBrowseName( newQualifiedName( "MyObjectType" ) )
-    // .setDisplayName( LocalizedText.english( "MyObjectType" ) ).setIsAbstract( false ).build();
-
-    // Define a new ObjectType called selClass.id()
-    String typeName = selClass.id();
-    UaObjectTypeNode objectTypeNode = UaObjectTypeNode.builder( getNodeContext() )
-        .setNodeId( newNodeId( "ObjectTypes/" + typeName ) ).setBrowseName( newQualifiedName( selClass.nmName() ) )
-        .setDisplayName( LocalizedText.english( typeName ) ).setIsAbstract( false ).build();
-
-    // // "Foo" and "Bar" are members. These nodes are what are called "instance declarations" by the spec.
-    // UaVariableNode foo = UaVariableNode.builder( getNodeContext() )
-    // .setNodeId( newNodeId( "ObjectTypes/MyObjectType.Foo" ) ).setAccessLevel( AccessLevel.READ_WRITE )
-    // .setBrowseName( newQualifiedName( "Foo" ) ).setDisplayName( LocalizedText.english( "Foo" ) )
-    // .setDataType( Identifiers.Int16 ).setTypeDefinition( Identifiers.BaseDataVariableType ).build();
-    //
-    // foo.addReference( new Reference( foo.getNodeId(), Identifiers.HasModellingRule,
-    // Identifiers.ModellingRule_Mandatory.expanded(), true ) );
-    //
-    // foo.setValue( new DataValue( new Variant( 0 ) ) );
-    // objectTypeNode.addComponent( foo );
-
-    IListEdit<UaVariableNode> dataNodes = new ElemArrayList<UaVariableNode>();
-    for( IDtoRtdataInfo dataInfo : selClass.rtdata().list() ) {
-      UaVariableNode dataNode = UaVariableNode.builder( getNodeContext() )
-          .setNodeId( newNodeId( "ObjectTypes/" + typeName + "." + dataInfo.id() ) )
-          .setAccessLevel( AccessLevel.READ_WRITE ).setBrowseName( newQualifiedName( dataInfo.nmName() ) )
-          .setDisplayName( LocalizedText.english( dataInfo.id() ) ).setDataType( getDataType( dataInfo.dataType() ) )
-          .setTypeDefinition( Identifiers.BaseDataVariableType ).build();
-
-      dataNode.addReference( new Reference( dataNode.getNodeId(), Identifiers.HasModellingRule,
-          Identifiers.ModellingRule_Mandatory.expanded(), true ) );
-
-      objectTypeNode.addComponent( dataNode );
-      dataNodes.add( dataNode );
-    }
-
-    // Tell the ObjectTypeManager about our new type.
-    // This let's us use NodeFactory to instantiate instances of the type.
-    getServer().getObjectTypeManager().registerObjectType( objectTypeNode.getNodeId(), UaObjectNode.class,
-        UaObjectNode::new );
-
-    // Add the inverse SubtypeOf relationship.
-    objectTypeNode.addReference( new Reference( objectTypeNode.getNodeId(), Identifiers.HasSubtype,
-        Identifiers.BaseObjectType.expanded(), false ) );
-
-    // Add type definition and declarations to address space.
-    getNodeManager().addNode( objectTypeNode );
-    for( UaVariableNode dataNode : dataNodes ) {
-      getNodeManager().addNode( dataNode );
-    }
-
-    // Use NodeFactory to create instance of new type called selClass.id().
-    // NodeFactory takes care of recursively instantiating class member nodes
-    // as well as adding all nodes to the address space.
-    try {
-      // get all objects
-      IList<ISkObject> objs = conn.coreApi().objService().listObjs( selClass.id(), false );
-      for( ISkObject obj : objs ) {
-        UaObjectNode objNode =
-            (UaObjectNode)getNodeFactory().createNode( newNodeId( "USkat/" + obj.id() ), objectTypeNode.getNodeId() );
-        objNode.setBrowseName( newQualifiedName( obj.id() ) );
-        objNode.setDisplayName( LocalizedText.english( obj.nmName() ) );
-        // Add forward and inverse references from the root folder.
-        rootFolder.addOrganizes( objNode );
-
-        objNode.addReference(
-            new Reference( objNode.getNodeId(), Identifiers.Organizes, rootFolder.getNodeId().expanded(), false ) );
-
-        List<UaNode> propNodes = objNode.getComponentNodes().stream().distinct().collect( Collectors.toList() );
-        int index = 0; // TODO
-        for( UaNode prop : propNodes ) {
-          if( prop instanceof UaVariableNode varNode ) {
-            DataValue dv = varNode.getValue();
-            IDtoRtdataInfo dataInfo = selClass.rtdata().list().get( index++ );
-            varNode.getFilterChain().addLast( new AttributeLoggingFilter(),
-                AttributeFilters.getValue( new RtDataHandler( obj.skid(), dataInfo ) ) );
-          }
-        }
-      }
-
-      // UaObjectNode myObject =
-      // (UaObjectNode)getNodeFactory().createNode( newNodeId( "USkat/" + typeName ), objectTypeNode.getNodeId() );
-      // myObject.setBrowseName( newQualifiedName( typeName ) );
-      // myObject.setDisplayName( LocalizedText.english( selClass.nmName() ) );
-      //
-      // // Add forward and inverse references from the root folder.
-      // rootFolder.addOrganizes( myObject );
-      //
-      // myObject.addReference(
-      // new Reference( myObject.getNodeId(), Identifiers.Organizes, rootFolder.getNodeId().expanded(), false ) );
-      //
-      // // get ref
-      // List<UaNode> props = myObject.getComponentNodes();
-      // for( UaNode prop : props ) {
-      // if( prop instanceof UaVariableNode varNode ) {
-      // DataValue dv = varNode.getValue();
-      // System.out.printf( " var = %s \n", dv.getValue().toString() );
-      // varNode.getFilterChain().addLast( new AttributeLoggingFilter(),
-      // AttributeFilters.getValue( ctx -> new DataValue( new Variant( init++ ) ) ) );
-      // for( int i = 0; i < 3; i++ ) {
-      // dv = varNode.getValue();
-      // logger.debug( "{}", dv.toString() );
-      // System.out.printf( " var = %s \n", dv.getValue().toString() );
-      // }
-      // }
-      // }
-    }
-    catch( UaException e ) {
-      logger.error( "Error creating MyObjectType instance: {}", e.getMessage(), e );
     }
   }
 
@@ -490,17 +364,21 @@ public class USkatNamespace
   private void addClassObjectTypeAndInstance( UaFolderNode aRootFolder, ISkClassInfo aClassInfo ) {
     // Define a new ObjectType
     String typeName = aClassInfo.id();
-    UaObjectTypeNode objectTypeNode = UaObjectTypeNode.builder( getNodeContext() )
-        .setNodeId( newNodeId( "ObjectTypes/" + typeName ) ).setBrowseName( newQualifiedName( aClassInfo.nmName() ) )
-        .setDisplayName( LocalizedText.english( typeName ) ).setIsAbstract( false ).build();
+    UaObjectTypeNode objectTypeNode = UaObjectTypeNode.builder( getNodeContext() ) //
+        .setNodeId( newNodeId( "ObjectTypes/" + typeName ) ) //
+        .setBrowseName( newQualifiedName( aClassInfo.nmName() ) ) //
+        .setDisplayName( LocalizedText.english( typeName ) ).setIsAbstract( false ) //
+        .build();
 
     IListEdit<UaVariableNode> rtDataNodes = new ElemArrayList<>();
     for( IDtoRtdataInfo dataInfo : aClassInfo.rtdata().list() ) {
       UaVariableNode dataNode = UaVariableNode.builder( getNodeContext() )
-          .setNodeId( newNodeId( "ObjectTypes/" + typeName + "." + dataInfo.id() ) )
-          .setAccessLevel( AccessLevel.READ_WRITE ).setBrowseName( newQualifiedName( dataInfo.nmName() ) )
-          .setDisplayName( LocalizedText.english( dataInfo.id() ) ).setDataType( getDataType( dataInfo.dataType() ) )
-          .setTypeDefinition( Identifiers.BaseDataVariableType ).build();
+          .setNodeId( newNodeId( "ObjectTypes/" + typeName + "." + getName4NodeId( dataInfo ) ) ) //
+          .setAccessLevel( AccessLevel.READ_WRITE ) //
+          .setBrowseName( newQualifiedName( getName4Browse( dataInfo ) ) ) //
+          .setDisplayName( LocalizedText.english( getName4Display( dataInfo ) ) ) //
+          .setDataType( getDataType( dataInfo.dataType() ) ) //
+          .setTypeDefinition( Identifiers.BaseDataVariableType ).build(); //
 
       dataNode.addReference( new Reference( dataNode.getNodeId(), Identifiers.HasModellingRule,
           Identifiers.ModellingRule_Mandatory.expanded(), true ) );
@@ -517,10 +395,12 @@ public class USkatNamespace
       }
       UaVariableNode rriAttrNode = UaVariableNode.builder( getNodeContext() )
           .setNodeId( newNodeId( "ObjectTypes/" + typeName + "." + rriInfo.id() ) )
-          .setAccessLevel( AccessLevel.READ_WRITE ).setBrowseName( newQualifiedName( rriInfo.nmName() ) )
-          .setDisplayName( LocalizedText.english( rriInfo.id() ) )
-          .setDataType( getDataType( rriInfo.attrInfo().dataType() ) )
-          .setTypeDefinition( Identifiers.BaseDataVariableType ).build();
+          .setAccessLevel( AccessLevel.READ_WRITE ) //
+          .setBrowseName( newQualifiedName( getName4Browse( rriInfo ) ) ) //
+          .setDisplayName( LocalizedText.english( getName4Display( rriInfo ) ) ) //
+          .setDataType( getDataType( rriInfo.attrInfo().dataType() ) ) //
+          .setTypeDefinition( Identifiers.BaseDataVariableType ) //
+          .build();
 
       rriAttrNode.addReference( new Reference( rriAttrNode.getNodeId(), Identifiers.HasModellingRule,
           Identifiers.ModellingRule_Mandatory.expanded(), true ) );
@@ -555,9 +435,9 @@ public class USkatNamespace
       IList<ISkObject> objs = conn.coreApi().objService().listObjs( aClassInfo.id(), false );
       for( ISkObject obj : objs ) {
         UaObjectNode objNode = (UaObjectNode)getNodeFactory()
-            .createNode( newNodeId( "USkat/" + obj.classId() + "/" + obj.id() ), objectTypeNode.getNodeId() );
-        objNode.setBrowseName( newQualifiedName( obj.id() ) );
-        objNode.setDisplayName( LocalizedText.english( obj.nmName() ) );
+            .createNode( newNodeId( USKAT_FOLDER + "/" + obj.classId() + "/" + obj.id() ), objectTypeNode.getNodeId() );
+        objNode.setBrowseName( newQualifiedName( getName4Browse( obj ) ) );
+        objNode.setDisplayName( LocalizedText.english( getName4Display( obj ) ) );
         // Add forward and inverse references from the root folder.
         aRootFolder.addOrganizes( objNode );
 
@@ -567,7 +447,7 @@ public class USkatNamespace
         List<UaNode> propNodes = objNode.getComponentNodes().stream().distinct().collect( Collectors.toList() );
         for( UaNode prop : propNodes ) {
           if( prop instanceof UaVariableNode varNode ) {
-            String propId = prop.getDisplayName().getText();
+            String propId = prop.getBrowseName().getName();
             if( aClassInfo.rtdata().list().hasKey( propId ) ) {
               IDtoRtdataInfo dataInfo = aClassInfo.rtdata().list().getByKey( propId );
               varNode.getFilterChain().addLast( new AttributeLoggingFilter(),
@@ -592,6 +472,18 @@ public class USkatNamespace
     catch( UaException e ) {
       logger.error( "Error creating MyObjectType instance: {}", e.getMessage(), e );
     }
+  }
+
+  private static String getName4Display( IStridable aPropInfo ) {
+    return aPropInfo.nmName();
+  }
+
+  private static String getName4Browse( IStridable aPropInfo ) {
+    return aPropInfo.id();
+  }
+
+  private static String getName4NodeId( IStridable aPropInfo ) {
+    return aPropInfo.id();
   }
 
 }
