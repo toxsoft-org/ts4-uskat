@@ -44,6 +44,25 @@ public class SdedDtoFullObjectM5Model
   static final String FID_CLOBS  = "fid.clobs";  //$NON-NLS-1$
 
   /**
+   * Attribute {@link IDtoFullObject#id()}
+   */
+  public final M5AttributeFieldDef<IDtoFullObject> ID = new M5AttributeFieldDef<>( FID_ID, DDEF_STRING ) {
+
+    @Override
+    protected void doInit() {
+      setNameAndDescription( STR_N_PROP_ID, STR_D_PROP_ID );
+      setDefaultValue( DEFAULT_ID_AV );
+      setFlags( M5FF_INVARIANT );
+    }
+
+    @Override
+    protected IAtomicValue doGetFieldValue( IDtoFullObject aEntity ) {
+      return avStr( aEntity.id() );
+    }
+
+  };
+
+  /**
    * Attribute {@link IDtoFullObject#nmName()}.
    */
   public final IM5AttributeFieldDef<IDtoFullObject> NAME = new M5AttributeFieldDef<>( FID_NAME, DDEF_NAME ) {
@@ -51,7 +70,6 @@ public class SdedDtoFullObjectM5Model
     @Override
     protected void doInit() {
       setNameAndDescription( STR_N_OBJECT_NAME, STR_D_OBJECT_NAME );
-      setFlags( M5FF_COLUMN );
     }
 
     protected IAtomicValue doGetFieldValue( IDtoFullObject aEntity ) {
@@ -69,7 +87,6 @@ public class SdedDtoFullObjectM5Model
         @Override
         protected void doInit() {
           setNameAndDescription( STR_N_OBJECT_DESCRIPTION, STR_D_OBJECT_DESCRIPTION );
-          setFlags( M5FF_COLUMN );
         }
 
         protected IAtomicValue doGetFieldValue( IDtoFullObject aEntity ) {
@@ -153,7 +170,7 @@ public class SdedDtoFullObjectM5Model
    */
   public SdedDtoFullObjectM5Model( ISkConnection aConn, ISkClassInfo aClassInfo ) {
     super( IKM5SdedConstants.MID_SDED_DTO_FULL_OBJECT, IDtoFullObject.class, aConn );
-    addFieldDefs( NAME, DESCRIPTION );
+    addFieldDefs( ID, NAME, DESCRIPTION );
     ISkClassProps<IDtoAttrInfo> attrInfoes = aClassInfo.attrs();
     ISkClassProps<IDtoLinkInfo> linkInfoes = aClassInfo.links();
     ISkClassProps<IDtoClobInfo> clobInfoes = aClassInfo.clobs();

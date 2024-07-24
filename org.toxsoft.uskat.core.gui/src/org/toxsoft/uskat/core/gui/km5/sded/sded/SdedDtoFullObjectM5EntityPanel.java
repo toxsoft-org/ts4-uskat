@@ -60,6 +60,7 @@ public class SdedDtoFullObjectM5EntityPanel
         case FID_CLASS_ID:
         case FID_PARENT_ID:
         case TSID_NAME:
+        case TSID_ID:
         case TSID_DESCRIPTION: {
           northBoardEditors.put( fieldId, editors().getByKey( fieldId ) );
           break;
