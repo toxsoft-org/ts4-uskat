@@ -5,24 +5,24 @@ import static org.toxsoft.uskat.core.gui.ISkCoreGuiConstants.*;
 import static org.toxsoft.uskat.core.gui.valed.ugwi.ISkResources.*;
 import static org.toxsoft.uskat.core.gui.valed.ugwi.ValedUgwiSelector.*;
 
-import org.eclipse.swt.SWT;
-import org.eclipse.swt.custom.CLabel;
-import org.eclipse.swt.layout.GridData;
-import org.eclipse.swt.layout.GridLayout;
+import org.eclipse.swt.*;
+import org.eclipse.swt.custom.*;
+import org.eclipse.swt.events.*;
+import org.eclipse.swt.layout.*;
 import org.eclipse.swt.widgets.*;
-import org.toxsoft.core.tsgui.bricks.ctx.ITsGuiContext;
+import org.toxsoft.core.tsgui.bricks.ctx.*;
 import org.toxsoft.core.tsgui.dialogs.datarec.*;
-import org.toxsoft.core.tsgui.panels.generic.IGenericSelectorPanel;
-import org.toxsoft.core.tsgui.utils.ITsVisualsProvider;
+import org.toxsoft.core.tsgui.panels.generic.*;
+import org.toxsoft.core.tsgui.utils.*;
 import org.toxsoft.core.tsgui.utils.layout.BorderLayout;
-import org.toxsoft.core.tsgui.valed.controls.basic.ValedComboSelector;
-import org.toxsoft.core.tslib.bricks.validator.ValidationResult;
-import org.toxsoft.core.tslib.coll.primtypes.IStringList;
-import org.toxsoft.core.tslib.gw.ugwi.Ugwi;
+import org.toxsoft.core.tsgui.valed.controls.basic.*;
+import org.toxsoft.core.tslib.bricks.validator.*;
+import org.toxsoft.core.tslib.coll.primtypes.*;
+import org.toxsoft.core.tslib.gw.ugwi.*;
 import org.toxsoft.core.tslib.utils.errors.*;
-import org.toxsoft.uskat.core.ISkCoreApi;
-import org.toxsoft.uskat.core.api.ugwis.ISkUgwiKind;
-import org.toxsoft.uskat.core.gui.ugwi.gui.IUgwiKindGuiHelper;
+import org.toxsoft.uskat.core.*;
+import org.toxsoft.uskat.core.api.ugwis.*;
+import org.toxsoft.uskat.core.gui.ugwi.gui.*;
 
 /**
  * GUI panel for {@link Ugwi} selection.
@@ -59,10 +59,24 @@ class PanelUgwiSelector
     initKindPanel( this );
     // init selection of concrete panel
     initSelectPanel( this );
+
+    btnEmpty = new Button( this, SWT.CHECK );
+    btnEmpty.setLayoutData( BorderLayout.SOUTH );
+    btnEmpty.setText( "Очистить (вернуть пустой UGWI)" );
+    btnEmpty.addSelectionListener( new SelectionAdapter() {
+
+      @Override
+      public void widgetSelected( SelectionEvent aEvent ) {
+        ugwSelector.getControl().setVisible( !btnEmpty.getSelection() );
+      }
+    } );
   }
+
+  Button btnEmpty;
 
   private void initKindPanel( Composite aBkPanel ) {
     Composite kindBackPanel = new Composite( aBkPanel, SWT.NONE );
+
     // place to the nort of parent
     kindBackPanel.setLayoutData( BorderLayout.NORTH );
     // get selection options
@@ -158,6 +172,9 @@ class PanelUgwiSelector
 
   @Override
   protected Ugwi doGetDataRecord() {
+    if( btnEmpty.getSelection() ) {
+      return Ugwi.NONE;
+    }
     return ugwSelector.selectedItem();
   }
 
