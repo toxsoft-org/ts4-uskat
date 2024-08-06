@@ -186,11 +186,10 @@ public class UgwiKindSkRtDataInfo
    * @throws TsNullArgumentRtException any argument = <code>null</code>
    * @throws TsIllegalArgumentRtException any ID is not an IDpath
    */
-  public static Ugwi makeUgwi( String aClassId, String aObjStrid, String aDataId ) {
+  public static Ugwi makeUgwi( String aClassId, String aDataId ) {
     StridUtils.checkValidIdPath( aClassId );
-    StridUtils.checkValidIdPath( aObjStrid );
     StridUtils.checkValidIdPath( aDataId );
-    IdChain chain = new IdChain( aClassId, aObjStrid, aDataId );
+    IdChain chain = new IdChain( aClassId, aDataId );
     return Ugwi.of( KIND_ID, chain.canonicalString() );
   }
 
