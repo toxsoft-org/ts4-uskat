@@ -18,7 +18,7 @@ import org.toxsoft.uskat.core.impl.*;
  * <li>All modification methods may throw additional exceptions. Backed API does not require backend to enforce any
  * validation when writing data to it. However particular backend may check data to be written and not allow to violate
  * the storage integrity;</li>
- * <li>Communication may be initiatied both by the frontend or the backend. The frontend simply calls methods of the
+ * <li>Communication may be initiated both by the frontend or the backend. The frontend simply calls methods of the
  * backend. The only way to communicate to frontend at the backends initiative is to send message via
  * {@link ISkFrontendRear#onBackendMessage(GtMessage)}.</li>
  * <li>Execution threads. Some backend implementations may have internal execution threads and may want to send message
