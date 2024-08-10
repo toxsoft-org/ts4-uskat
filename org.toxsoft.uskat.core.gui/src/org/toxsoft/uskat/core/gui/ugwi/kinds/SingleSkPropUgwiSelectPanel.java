@@ -189,10 +189,16 @@ public class SingleSkPropUgwiSelectPanel
     ISkObject selObj = panelObjects.selectedItem();
     IDtoClassPropInfoBase selProp = panelProps.selectedItem();
     ESkClassPropKind kind = getClassPropKind();
-    Gwid gwid = kind.createConcreteGwid( selObj.skid(), selProp.id() );
+    // Gwid gwid = kind.createConcreteGwid( selObj.skid(), selProp.id() );
     String ugwiKindId = tsContext().params().getStr( OPDEF_SK_UGWI_KIND_ID );
-    Ugwi retVal = Ugwi.of( ugwiKindId, gwid.canonicalString() );
-    return retVal;
+    return switch( ugwiKindId ) {
+      case UgwiKindSkAttr.KIND_ID -> UgwiKindSkAttr.makeUgwi( selObj.skid(), selProp.id() );
+      case UgwiKindSkAttrInfo.KIND_ID -> UgwiKindSkAttrInfo.makeUgwi( selObj.skid(), selProp.id() );
+      case UgwiKindSkRtdata.KIND_ID -> UgwiKindSkRtdata.makeUgwi( selObj.skid(), selProp.id() );
+      default -> throw new TsNotAllEnumsUsedRtException();
+    };
+    // Ugwi retVal = Ugwi.of( ugwiKindId, gwid.canonicalString() );
+    // return retVal;
   }
 
   @Override
