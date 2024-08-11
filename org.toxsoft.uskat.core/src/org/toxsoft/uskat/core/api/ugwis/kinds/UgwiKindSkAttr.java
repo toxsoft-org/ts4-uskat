@@ -11,6 +11,7 @@ import org.toxsoft.core.tslib.bricks.strid.impl.*;
 import org.toxsoft.core.tslib.bricks.strid.more.*;
 import org.toxsoft.core.tslib.bricks.validator.*;
 import org.toxsoft.core.tslib.bricks.validator.impl.*;
+import org.toxsoft.core.tslib.gw.gwid.*;
 import org.toxsoft.core.tslib.gw.skid.*;
 import org.toxsoft.core.tslib.gw.ugwi.*;
 import org.toxsoft.core.tslib.utils.errors.*;
@@ -206,6 +207,20 @@ public class UgwiKindSkAttr
     TsValidationFailedRtException.checkError( INSTANCE.validateUgwi( aUgwi ) );
     IdChain chain = IdChain.of( aUgwi.essence() );
     return chain.get( IDX_ATTR_ID );
+  }
+
+  /**
+   * Extracts Gwid from the UGWI of this kind.
+   *
+   * @param aUgwi {@link Ugwi} - the UGWI
+   * @return {@link Gwid} - the GWID
+   * @throws TsNullArgumentRtException any argument = <code>null</code>
+   * @throws TsValidationFailedRtException invalid UGWI for this kind
+   */
+  public static Gwid getGwid( Ugwi aUgwi ) {
+    TsValidationFailedRtException.checkError( INSTANCE.validateUgwi( aUgwi ) );
+    IdChain chain = IdChain.of( aUgwi.essence() );
+    return Gwid.createAttr( chain.get( IDX_CLASS_ID ), chain.get( IDX_OBJ_STRID ), chain.get( IDX_ATTR_ID ) );
   }
 
   /**

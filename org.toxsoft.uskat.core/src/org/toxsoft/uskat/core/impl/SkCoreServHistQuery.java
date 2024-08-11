@@ -143,7 +143,7 @@ public class SkCoreServHistQuery
    * @return {@link IBaQueries} query service backend.
    */
   final IBaQueries backend() {
-    return ba().findBackendAddon( IBaQueries.ADDON_ID, IBaQueries.class );
+    return ba().baQueries();
   }
 
   /**

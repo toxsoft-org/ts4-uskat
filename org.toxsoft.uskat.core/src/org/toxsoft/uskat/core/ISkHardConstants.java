@@ -93,8 +93,8 @@ public interface ISkHardConstants {
    * Default value: <code>false</code>
    */
   IDataDef OPDEF_SK_IS_SYS_ATTR = create( SK_ID + ".IsSysAttr", BOOLEAN, //$NON-NLS-1$
-      TSID_NAME, STR_N_IS_SYS_ATTR, //
-      TSID_DESCRIPTION, STR_D_IS_SYS_ATTR, //
+      TSID_NAME, STR_IS_SYS_ATTR, //
+      TSID_DESCRIPTION, STR_IS_SYS_ATTR_D, //
       TSID_IS_MANDATORY, AV_FALSE, //
       TSID_DEFAULT_VALUE, AV_FALSE //
   );
@@ -121,22 +121,36 @@ public interface ISkHardConstants {
    * Default value: <code>false</code>
    */
   IDataDef OPDEF_SK_IS_SOURCE_CODE_DEFINED_CLASS = create( SK_ID + ".IsSourceCodeDefinedClass", BOOLEAN, //$NON-NLS-1$
-      TSID_NAME, STR_N_CLASS_IS_CODE_DEFINED, //
-      TSID_DESCRIPTION, STR_D_CLASS_IS_CODE_DEFINED, //
+      TSID_NAME, STR_CLASS_IS_CODE_DEFINED, //
+      TSID_DESCRIPTION, STR_CLASS_IS_CODE_DEFINED_D, //
       TSID_IS_NULL_ALLOWED, AV_TRUE, //
       TSID_DEFAULT_VALUE, AV_FALSE //
   );
 
   /**
-   * Flags that class is defined at runtime by core service.<br>
+   * Flags that class is defined at runtime by core Sk-service.<br>
    * Type: {@link EAtomicType#BOOLEAN}<br>
    * Usage: this is additional to {@link #OPDEF_SK_IS_SOURCE_CODE_DEFINED_CLASS} option. <br>
    * This option must be specified in {@link IDtoClassInfo#params()}.<br>
    * Default value: <code>false</code>
    */
   IDataDef OPDEF_SK_IS_SOURCE_USKAT_CORE_CLASS = create( SK_ID + ".IsUskatCoreDefinedClass", BOOLEAN, //$NON-NLS-1$
-      TSID_NAME, STR_N_CLASS_IS_USKAT_CORE, //
-      TSID_DESCRIPTION, STR_D_CLASS_IS_USKAT_CORE, //
+      TSID_NAME, STR_CLASS_IS_USKAT_CORE, //
+      TSID_DESCRIPTION, STR_CLASS_IS_USKAT_CORE_D, //
+      TSID_IS_NULL_ALLOWED, AV_TRUE, //
+      TSID_DEFAULT_VALUE, AV_FALSE //
+  );
+
+  /**
+   * Flags that class is defined at runtime by extension Sk-service.<br>
+   * Type: {@link EAtomicType#BOOLEAN}<br>
+   * Usage: this is additional to {@link #OPDEF_SK_IS_SOURCE_CODE_DEFINED_CLASS} option. <br>
+   * This option must be specified in {@link IDtoClassInfo#params()}.<br>
+   * Default value: <code>false</code>
+   */
+  IDataDef OPDEF_SK_IS_SOURCE_USKAT_SYSEXT_CLASS = create( SK_ID + ".IsUskatSysextDefinedClass", BOOLEAN, //$NON-NLS-1$
+      TSID_NAME, STR_CLASS_IS_USKAT_SYSEXT, //
+      TSID_DESCRIPTION, STR_CLASS_IS_USKAT_SYSEXT_D, //
       TSID_IS_NULL_ALLOWED, AV_TRUE, //
       TSID_DEFAULT_VALUE, AV_FALSE //
   );
