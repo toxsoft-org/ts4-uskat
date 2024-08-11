@@ -1,19 +1,18 @@
 package org.toxsoft.uskat.s5.server.backend.supports.links;
 
 import org.toxsoft.core.tslib.coll.*;
-import org.toxsoft.core.tslib.coll.impl.ElemArrayList;
-import org.toxsoft.core.tslib.coll.primtypes.IStringList;
-import org.toxsoft.core.tslib.gw.gwid.Gwid;
-import org.toxsoft.core.tslib.gw.skid.ISkidList;
-import org.toxsoft.core.tslib.gw.skid.Skid;
-import org.toxsoft.core.tslib.utils.Pair;
-import org.toxsoft.core.tslib.utils.errors.TsNullArgumentRtException;
-import org.toxsoft.uskat.core.api.linkserv.IDtoLinkFwd;
-import org.toxsoft.uskat.core.api.objserv.IDtoObject;
-import org.toxsoft.uskat.core.api.sysdescr.ISkClassInfo;
-import org.toxsoft.uskat.core.api.sysdescr.dto.IDtoLinkInfo;
-import org.toxsoft.uskat.core.impl.dto.DtoLinkFwd;
-import org.toxsoft.uskat.s5.server.backend.supports.objects.IS5ObjectsInterceptor;
+import org.toxsoft.core.tslib.coll.impl.*;
+import org.toxsoft.core.tslib.coll.primtypes.*;
+import org.toxsoft.core.tslib.gw.gwid.*;
+import org.toxsoft.core.tslib.gw.skid.*;
+import org.toxsoft.core.tslib.utils.*;
+import org.toxsoft.core.tslib.utils.errors.*;
+import org.toxsoft.uskat.core.api.linkserv.*;
+import org.toxsoft.uskat.core.api.objserv.*;
+import org.toxsoft.uskat.core.api.sysdescr.*;
+import org.toxsoft.uskat.core.api.sysdescr.dto.*;
+import org.toxsoft.uskat.core.impl.dto.*;
+import org.toxsoft.uskat.s5.server.backend.supports.objects.*;
 
 /**
  * Интерсептор операций над объектами используемый {@link S5BackendLinksSingleton}
@@ -88,8 +87,10 @@ class S5ObjectsInterceptor
       for( ISkClassInfo classInfo : aRemovedObjs.keys() ) {
         for( IDtoObject obj : aRemovedObjs.getByKey( classInfo ) ) {
           for( IDtoLinkInfo link : classInfo.links().list() ) {
-            removedFwdLinks
-                .add( new DtoLinkFwd( Gwid.createLink( classInfo.id(), link.id() ), obj.skid(), ISkidList.EMPTY ) );
+            String linkId = link.id();
+            String linkClassId = classInfo.links().findSuperDeclarer( linkId ).id();
+            Gwid linkGwid = Gwid.createLink( linkClassId, linkId );
+            removedFwdLinks.add( new DtoLinkFwd( linkGwid, obj.skid(), ISkidList.EMPTY ) );
           }
         }
       }

@@ -6,30 +6,25 @@ import static org.toxsoft.uskat.s5.server.backend.supports.links.S5LinksSQL.*;
 import static org.toxsoft.uskat.s5.server.backend.supports.objects.S5BackendObjectsUtils.*;
 import static org.toxsoft.uskat.s5.server.transactions.ES5TransactionResources.*;
 
-import java.lang.reflect.Constructor;
-import java.util.List;
+import java.lang.reflect.*;
+import java.util.*;
 
-import javax.persistence.EntityManager;
+import javax.persistence.*;
 
-import org.toxsoft.core.tslib.bricks.strid.coll.IStridablesList;
-import org.toxsoft.core.tslib.bricks.strid.coll.IStridablesListEdit;
-import org.toxsoft.core.tslib.bricks.strid.coll.impl.StridablesList;
-import org.toxsoft.core.tslib.coll.IList;
-import org.toxsoft.core.tslib.coll.IListEdit;
-import org.toxsoft.core.tslib.coll.impl.ElemArrayList;
-import org.toxsoft.core.tslib.gw.gwid.Gwid;
-import org.toxsoft.core.tslib.gw.skid.ISkidList;
-import org.toxsoft.core.tslib.utils.TsLibUtils;
-import org.toxsoft.core.tslib.utils.errors.TsIllegalStateRtException;
-import org.toxsoft.core.tslib.utils.errors.TsNullArgumentRtException;
-import org.toxsoft.uskat.core.api.linkserv.IDtoLinkFwd;
-import org.toxsoft.uskat.core.api.linkserv.IDtoLinkRev;
-import org.toxsoft.uskat.core.api.objserv.IDtoObject;
-import org.toxsoft.uskat.core.api.sysdescr.dto.IDtoClassInfo;
-import org.toxsoft.uskat.core.api.sysdescr.dto.IDtoLinkInfo;
-import org.toxsoft.uskat.core.impl.dto.DtoLinkFwd;
-import org.toxsoft.uskat.s5.server.backend.supports.objects.IS5BackendObjectsSingleton;
-import org.toxsoft.uskat.s5.server.backend.supports.sysdescr.IS5ClassesInterceptor;
+import org.toxsoft.core.tslib.bricks.strid.coll.*;
+import org.toxsoft.core.tslib.bricks.strid.coll.impl.*;
+import org.toxsoft.core.tslib.coll.*;
+import org.toxsoft.core.tslib.coll.impl.*;
+import org.toxsoft.core.tslib.gw.gwid.*;
+import org.toxsoft.core.tslib.gw.skid.*;
+import org.toxsoft.core.tslib.utils.*;
+import org.toxsoft.core.tslib.utils.errors.*;
+import org.toxsoft.uskat.core.api.linkserv.*;
+import org.toxsoft.uskat.core.api.objserv.*;
+import org.toxsoft.uskat.core.api.sysdescr.dto.*;
+import org.toxsoft.uskat.core.impl.dto.*;
+import org.toxsoft.uskat.s5.server.backend.supports.objects.*;
+import org.toxsoft.uskat.s5.server.backend.supports.sysdescr.*;
 import org.toxsoft.uskat.s5.server.transactions.*;
 
 /**
@@ -118,8 +113,7 @@ class S5ClassesInterceptor
     // Удаление реализаций прямых связей из таблиц которые больше неопределены в классе
     for( IDtoLinkInfo link : removedLinks ) {
       for( IDtoObject obj : objs ) {
-        removedFwdLinks
-            .add( new DtoLinkFwd( Gwid.createLink( obj.classId(), link.id() ), obj.skid(), ISkidList.EMPTY ) );
+        removedFwdLinks.add( new DtoLinkFwd( Gwid.createLink( classId, link.id() ), obj.skid(), ISkidList.EMPTY ) );
       }
     }
     // Запись в базу данных. false: запретить перехват
