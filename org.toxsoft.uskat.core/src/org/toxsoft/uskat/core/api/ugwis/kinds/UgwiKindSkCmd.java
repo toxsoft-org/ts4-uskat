@@ -12,6 +12,7 @@ import org.toxsoft.core.tslib.bricks.strid.impl.*;
 import org.toxsoft.core.tslib.bricks.strid.more.*;
 import org.toxsoft.core.tslib.bricks.validator.*;
 import org.toxsoft.core.tslib.bricks.validator.impl.*;
+import org.toxsoft.core.tslib.gw.gwid.*;
 import org.toxsoft.core.tslib.gw.skid.*;
 import org.toxsoft.core.tslib.gw.ugwi.*;
 import org.toxsoft.core.tslib.utils.errors.*;
@@ -239,6 +240,40 @@ public class UgwiKindSkCmd
     StridUtils.checkValidIdPath( aCmdId );
     IdChain chain = new IdChain( aObjSkid.classId(), aObjSkid.strid(), aCmdId );
     return Ugwi.of( KIND_ID, chain.canonicalString() );
+  }
+
+  /**
+   * Extracts Gwid from the UGWI of this kind.
+   *
+   * @param aUgwi {@link Ugwi} - the UGWI
+   * @return {@link Gwid} - the GWID
+   * @throws TsNullArgumentRtException any argument = <code>null</code>
+   * @throws TsValidationFailedRtException invalid UGWI for this kind
+   */
+  public static Gwid getGwid( Ugwi aUgwi ) {
+    TsValidationFailedRtException.checkError( INSTANCE.validateUgwi( aUgwi ) );
+    IdChain chain = IdChain.of( aUgwi.essence() );
+    return Gwid.createCmd( chain.get( IDX_CLASS_ID ), chain.get( IDX_OBJ_STRID ), chain.get( IDX_CMD_ID ) );
+  }
+
+  /**
+   * Возвращает признак существования объекта и команды, на которые указывает {@link Ugwi}.<br>
+   *
+   * @param aUgwi {@link Ugwi} - ИД сущности
+   * @param aCoreApi {@link ISkCoreApi} - API сервера
+   * @return <b>true</b> - сущность есть<br>
+   *         <b>false</b> - сущность отсутствует
+   */
+  public static boolean isEntityExists( Ugwi aUgwi, ISkCoreApi aCoreApi ) {
+    if( INSTANCE.validateUgwi( aUgwi ) != ValidationResult.SUCCESS ) {
+      return false;
+    }
+    TsIllegalArgumentRtException.checkFalse( aUgwi.kindId().equals( KIND_ID ) );
+    ISkObject skObj = aCoreApi.objService().find( getSkid( aUgwi ) );
+    if( skObj != null ) {
+      return skObj.classInfo().cmds().list().hasKey( getCmdId( aUgwi ) );
+    }
+    return false;
   }
 
 }

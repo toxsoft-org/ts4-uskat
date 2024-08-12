@@ -196,4 +196,20 @@ public class UgwiKindSkSkid
     return Ugwi.of( KIND_ID, aObjSkid.canonicalString() );
   }
 
+  /**
+   * Возвращает признак существования объекта, на который указывает {@link Ugwi}.<br>
+   *
+   * @param aUgwi {@link Ugwi} - ИД сущности
+   * @param aCoreApi {@link ISkCoreApi} - API сервера
+   * @return <b>true</b> - сущность есть<br>
+   *         <b>false</b> - сущность отсутствует
+   */
+  public static boolean isEntityExists( Ugwi aUgwi, ISkCoreApi aCoreApi ) {
+    if( INSTANCE.validateUgwi( aUgwi ) != ValidationResult.SUCCESS ) {
+      return false;
+    }
+    TsIllegalArgumentRtException.checkFalse( aUgwi.kindId().equals( KIND_ID ) );
+    return aCoreApi.objService().find( getSkid( aUgwi ) ) != null;
+  }
+
 }
