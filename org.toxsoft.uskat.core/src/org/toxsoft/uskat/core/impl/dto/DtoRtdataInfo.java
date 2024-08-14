@@ -110,7 +110,7 @@ public final class DtoRtdataInfo
 
   @Override
   public ESkClassPropKind kind() {
-    return ESkClassPropKind.ATTR;
+    return ESkClassPropKind.RTDATA;
   }
 
   @SuppressWarnings( "unchecked" )
