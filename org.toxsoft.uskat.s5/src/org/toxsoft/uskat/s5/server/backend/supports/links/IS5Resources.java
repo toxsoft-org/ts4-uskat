@@ -43,4 +43,7 @@ interface IS5Resources {
   String ERR_WRITE_NEW_LINK         = Messages.getString( "IS5Resources.ERR_WRITE_NEW_LINK" );         //$NON-NLS-1$
   String ERR_WRITE_REMOVE_LINK      = Messages.getString( "IS5Resources.ERR_WRITE_REMOVE_LINK" );      //$NON-NLS-1$
   String ERR_NOT_FOUND_LINK_OBJ     = Messages.getString( "IS5Resources.ERR_NOT_FOUND_LINK_OBJ" );     //$NON-NLS-1$
+
+  String ERR_ATTEMPT_REMOVE_LINKS_BY_EDIT_CLASS =
+      "attempt to remove references between objects by editing the class %s. link = %s, rightObjs = %s: "; //$NON-NLS-1$
 }

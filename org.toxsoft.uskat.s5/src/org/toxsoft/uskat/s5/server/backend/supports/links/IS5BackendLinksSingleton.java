@@ -1,12 +1,14 @@
 package org.toxsoft.uskat.s5.server.backend.supports.links;
 
-import javax.ejb.Local;
+import java.util.*;
 
-import org.toxsoft.core.tslib.coll.IList;
-import org.toxsoft.core.tslib.utils.errors.TsNullArgumentRtException;
-import org.toxsoft.uskat.core.api.linkserv.IDtoLinkFwd;
-import org.toxsoft.uskat.core.backend.api.IBaLinks;
-import org.toxsoft.uskat.s5.server.backend.IS5BackendSupportSingleton;
+import javax.ejb.*;
+
+import org.toxsoft.core.tslib.coll.*;
+import org.toxsoft.core.tslib.utils.errors.*;
+import org.toxsoft.uskat.core.api.linkserv.*;
+import org.toxsoft.uskat.core.backend.api.*;
+import org.toxsoft.uskat.s5.server.backend.*;
 
 /**
  * Локальный интерфейс синглетона {@link IBaLinks} предоставляемый s5-сервером.
@@ -16,6 +18,25 @@ import org.toxsoft.uskat.s5.server.backend.IS5BackendSupportSingleton;
 @Local
 public interface IS5BackendLinksSingleton
     extends IBaLinks, IS5BackendSupportSingleton {
+
+  /**
+   * Возвращает все ПРЯМЫЕ связи всех объектов указанного класса без учета наследников
+   *
+   * @param aClassId String - идентификатор класса левого объекта связи
+   * @return {@link List}&lt;{@link IDtoLinkFwd}&gt; список прямых связей (один ко многим)
+   * @throws TsNullArgumentRtException аргумент = null
+   */
+  List<IDtoLinkFwd> getLinks( String aClassId );
+
+  /**
+   * Возвращает ПРЯМЫЕ связи всех объектов указанного класса без учета наследников
+   *
+   * @param aClassId String - идентификатор класса левого объекта связи
+   * @param aLinkId String - идентификатор связи
+   * @return {@link List}&lt;{@link IDtoLinkFwd}&gt; список прямых связей (один ко многим)
+   * @throws TsNullArgumentRtException аргумент = null
+   */
+  List<IDtoLinkFwd> getLinks( String aClassId, String aLinkId );
 
   /**
    * Stores links.
@@ -29,25 +50,6 @@ public interface IS5BackendLinksSingleton
    */
   void writeLinksFwd( IList<IDtoLinkFwd> aLinks, boolean aInterceptionEnabled );
 
-  // /**
-  // * Возвращает все ПРЯМЫЕ связи всех объектов указанного класса без учета наследников
-  // *
-  // * @param aClassId String - идентификатор класса левого объекта связи
-  // * @return {@link List}&lt;{@link IDtoLinkFwd}&gt; список прямых связей (один ко многим)
-  // * @throws TsNullArgumentRtException аргумент = null
-  // */
-  // List<IDtoLinkFwd> getLinks( String aClassId );
-  //
-  // /**
-  // * Возвращает ПРЯМЫЕ связи всех объектов указанного класса без учета наследников
-  // *
-  // * @param aClassId String - идентификатор класса левого объекта связи
-  // * @param aLinkId String - идентификатор связи
-  // * @return {@link List}&lt;{@link IDtoLinkFwd}&gt; список прямых связей (один ко многим)
-  // * @throws TsNullArgumentRtException аргумент = null
-  // */
-  // List<IDtoLinkFwd> getLinks( String aClassId, String aLinkId );
-  //
   // /**
   // * Задает (или удаляет) связи между объектами.
   // * <p>

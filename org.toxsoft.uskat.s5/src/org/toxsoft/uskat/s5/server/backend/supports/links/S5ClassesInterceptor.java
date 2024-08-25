@@ -1,6 +1,7 @@
 package org.toxsoft.uskat.s5.server.backend.supports.links;
 
 import static org.toxsoft.uskat.s5.server.IS5ServerHardConstants.*;
+import static org.toxsoft.uskat.s5.server.backend.supports.links.IS5Resources.*;
 import static org.toxsoft.uskat.s5.server.backend.supports.links.S5LinksReflectUtils.*;
 import static org.toxsoft.uskat.s5.server.backend.supports.links.S5LinksSQL.*;
 import static org.toxsoft.uskat.s5.server.backend.supports.objects.S5BackendObjectsUtils.*;
@@ -15,14 +16,12 @@ import org.toxsoft.core.tslib.bricks.strid.coll.*;
 import org.toxsoft.core.tslib.bricks.strid.coll.impl.*;
 import org.toxsoft.core.tslib.coll.*;
 import org.toxsoft.core.tslib.coll.impl.*;
-import org.toxsoft.core.tslib.gw.gwid.*;
 import org.toxsoft.core.tslib.gw.skid.*;
 import org.toxsoft.core.tslib.utils.*;
 import org.toxsoft.core.tslib.utils.errors.*;
 import org.toxsoft.uskat.core.api.linkserv.*;
 import org.toxsoft.uskat.core.api.objserv.*;
 import org.toxsoft.uskat.core.api.sysdescr.dto.*;
-import org.toxsoft.uskat.core.impl.dto.*;
 import org.toxsoft.uskat.s5.server.backend.supports.objects.*;
 import org.toxsoft.uskat.s5.server.backend.supports.sysdescr.*;
 import org.toxsoft.uskat.s5.server.transactions.*;
@@ -112,12 +111,19 @@ class S5ClassesInterceptor
     IListEdit<IDtoLinkFwd> removedFwdLinks = new ElemArrayList<>( removedLinks.size() * objs.size() );
     // Удаление реализаций прямых связей из таблиц которые больше неопределены в классе
     for( IDtoLinkInfo link : removedLinks ) {
-      for( IDtoObject obj : objs ) {
-        removedFwdLinks.add( new DtoLinkFwd( Gwid.createLink( classId, link.id() ), obj.skid(), ISkidList.EMPTY ) );
+      String linkId = link.id();
+      List<IDtoLinkFwd> objLinks = linksBackend.getLinks( classId, linkId );
+      for( IDtoLinkFwd objLink : objLinks ) {
+        // При редактировании класса запрещается менять описание установленных связей между объектами (удалять их)
+        TsIllegalArgumentRtException.checkTrue( objLink.rightSkids().size() > 0, ERR_ATTEMPT_REMOVE_LINKS_BY_EDIT_CLASS,
+            classId, link, rightObjsToString( objLink ) );
+        removedFwdLinks.add( objLink );
       }
     }
-    // Запись в базу данных. false: запретить перехват
-    linksBackend.writeLinksFwd( removedFwdLinks, false );
+    if( removedFwdLinks.size() > 0 ) {
+      // Запись в базу данных. false: запретить перехват
+      linksBackend.writeLinksFwd( removedFwdLinks, false );
+    }
   }
 
   @Override
@@ -224,4 +230,33 @@ class S5ClassesInterceptor
     }
     return true;
   }
+
+  /**
+   * Возвращает текстовое представление правых объектов связи
+   *
+   * @param aLink {@link IDtoLinkFwd} прямая связь объекта
+   * @return String текстовое представление списка правых объектов
+   * @throws TsNullArgumentRtException аргумент = null
+   */
+  private static String rightObjsToString( IDtoLinkFwd aLink ) {
+    TsNullArgumentRtException.checkNull( aLink );
+    StringBuilder sb = new StringBuilder();
+    int index = 0;
+    int n = aLink.rightSkids().size();
+    for( Skid obj : aLink.rightSkids() ) {
+      index++;
+      sb.append( obj );
+      if( index > 2 ) {
+        if( n > 3 ) {
+          sb.append( "..." ); //$NON-NLS-1$
+        }
+        break;
+      }
+      if( index < n ) {
+        sb.append( "," ); //$NON-NLS-1$
+      }
+    }
+    return sb.toString();
+  }
+
 }
