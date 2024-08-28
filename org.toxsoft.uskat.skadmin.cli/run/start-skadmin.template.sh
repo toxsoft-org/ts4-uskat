@@ -1,3 +1,6 @@
+#!/bin/bash
+export JAVA_HOME=/usr/lib/jvm/java-21-openjdk-amd64
+
 # Настройка окружения запуска
 ADMIN_CLASSPATH=\
 ../../../ts4-targets/ts4-target-extlibs/lib/*:\
@@ -7,9 +10,7 @@ ADMIN_CLASSPATH=\
 ../dist/*
 
 ADMIN_PLUGINPATH=\
-../../../ts4-targets/ts4-target-uskat/main:\
-../../../ts4-targets/ts4-target-sitrol/lib:\
-../../../ts4-targets/ts4-target-sitrol/main
+../../../ts4-targets/ts4-target-uskat/main/plugins
 
 ADMIN_USER=root
 ADMIN_PASSWORD=1
@@ -32,7 +33,7 @@ _LOGGER="-Dlog4j.configuration=file:log4j.xml"
 _REMOTE_DEBUG="-Xdebug -Xnoagent -Xrunjdwp:transport=dt_socket,server=y,suspend=n,address=8000"
 
 
-java $_PLUGIN_PATHS $_CHARSET $_LOGGER $_XMS_MEMORY $_XMX_MEMORY $_CLASS_PATH $_MAIN_CLASS connect -user $ADMIN_USER -password $ADMIN_PASSWORD -host $ADMIN_HOST -port $ADMIN_PORT -connectTimeout
+${JAVA_HOME}/bin/java $_PLUGIN_PATHS $_CHARSET $_LOGGER $_XMS_MEMORY $_XMX_MEMORY $_CLASS_PATH $_MAIN_CLASS connect -user $ADMIN_USER -password $ADMIN_PASSWORD -host $ADMIN_HOST -port $ADMIN_PORT -connectTimeout
 
 
 

@@ -1,0 +1,100 @@
+receiver -gwids "sk.Schedule[*]$event(*)"
+receiver -gwids "sk.Schedule[*]$event(*)" -timeout 300000
+cd sk.s5.schedules
+listSchedules
+removeSchedule test1
+y
+listSchedules
+removeSchedule test2
+y
+addSchedule -id test1 -seconds "0" -minutes "*" -hours "*" -descr "первое расписание" -name "первое"
+listSchedules
+addSchedule -id test1 -seconds "0" -minutes "*" -hours "*" -descr "первое расписание" -name "первое"
+addSchedule -id test1 -seconds "0" -minutes "0" -hours "*" -descr "первое расписание" -name "первое"
+addSchedule -id test1 -seconds "0" -minutes "0" -hours "0" -descr "первое расписание" -name "первое"
+exut
+exit
+cd sk.dev.events
+receiver -gwids "sk.Schedule[*]$event(*)" -timeout 600000
+cd sk.s5.schedules
+listSchedules
+addSchedule -id test1 -seconds "*" -minutes "*" -hours "*" -descr "первое расписание" -name "первое"
+removeSchedule test1
+y
+addSchedule -id test1 -seconds "*" -minutes "*" -hours "*" -descr "первое расписание" -name "первое"
+removeSchedule test1
+y
+addSchedule -id test1 -seconds "*" -minutes "*" -hours "*" -descr "первое расписание" -name "первое"
+cd sk.dev.events
+receiver -gwids "sk.Schedule[*]$event(*)" -timeout 600000
+cd sk.s5.schedules
+listSchedules
+removeSchedule test1
+y
+addSchedule 
+test1
+addSchedule -id test1 -seconds * -minutes * -hours *
+addSchedule -id test1 -seconds "10,20,30,40,50" -minutes * -hours *
+addSchedule -id test1 -seconds "*/5" -minutes * -hours *
+listSchedules
+exit
+cd sk.s5.schedules
+removeSchedule 
+cd sk.s5.schedules
+listSchedules
+exit
+info
+exit
+info
+cd sk.s5.schedules
+listSchedules
+addSchedule
+test1
+addSchedule
+test2
+addSchedule
+test3
+listSchedules
+exit
+cd sk.s5.schedules
+listSchedules
+exit
+cd sk.dev.rtdata
+read -classId IrreversibleEngine -strid VPU -dataId rtdState
+write -classId IrreversibleEngine -strid VPU -dataId 
+write -classId IrreversibleEngine -strid VPU -dataId rtdOn -value true
+write -classId IrreversibleEngine -strid VPU -dataId rtdErrorWord -value 0
+write -classId IrreversibleEngine -strid VPU -dataId rtdOn -value false
+write -classId IrreversibleEngine -strid VPU -dataId rtdErrorWord -value 1
+exit
+cd sk.dev.rtdata
+write -classId IrreversibleEngine -strid VPU -dataId rtdOn -value false
+read -classId IrreversibleEngine -strid VPU -dataId rtdState
+write -classId IrreversibleEngine -strid VPU -dataId rtdErrorWord -value 1
+write -classId IrreversibleEngine -strid VPU -dataId rtdErrorWord -value 0
+write -classId IrreversibleEngine -strid VPU -dataId rtdErrorWord -value 1
+write -classId IrreversibleEngine -strid VPU -dataId rtdErrorWord -value IAto
+write -classId IrreversibleEngine -strid VPU -dataId rtdErrorWord -value 1
+write -classId IrreversibleEngine -strid VPU -dataId rtdErrorWord -value 0
+cd sk.dev.rtdata
+read -classId IrreversibleEngine -strid VPU -dataId rtdState
+write -classId IrreversibleEngine -strid VPU -dataId rtdErrorWord -value 1
+write -classId IrreversibleEngine -strid VPU -dataId rtdOn -value false
+write -classId IrreversibleEngine -strid VPU -dataId rtdErrorWord -value 0
+write -classId IrreversibleEngine -strid VPU -dataId rtdOn -value true
+write -classId IrreversibleEngine -strid VPU -dataId rtdOn -value false
+exit
+cd sk.dev.rtdata
+read -classId IrreversibleEngine -strid VPU -dataId rtdState
+exit
+cd sk.dev.rtdata
+write -classId IrreversibleEngine -strid VPU -dataId rtdOn -value false
+write -classId IrreversibleEngine -strid VPU -dataId rtdErrorWord -value 0
+write -classId IrreversibleEngine -strid VPU -dataId rtdErrorWord -value 1
+write -classId IrreversibleEngine -strid VPU -dataId rtdErrorWord -value 2
+write -classId IrreversibleEngine -strid VPU -dataId rtdErrorWord -value 0
+write -classId IrreversibleEngine -strid VPU -dataId rtdErrorWord -value 1
+exit
+exot
+exit
+info
