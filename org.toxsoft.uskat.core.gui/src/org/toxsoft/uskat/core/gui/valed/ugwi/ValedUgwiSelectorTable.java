@@ -185,7 +185,9 @@ public class ValedUgwiSelectorTable
     panelObjects.setSelectedItem( null );
     panelClasses.setSelectedItem( null );
     if( aValue != null ) {
-      Gwid gwid = Gwid.of( aValue.essence() );
+      // dima 30.08.24
+      // Gwid gwid = Gwid.of( aItem.essence() );
+      Gwid gwid = SingleSkPropUgwiSelectPanel.ugwi2Gwid( aValue );
       ISkClassInfo cinf = coreApi.sysdescr().findClassInfo( gwid.classId() );
       if( cinf != null ) {
         panelClasses.setSelectedItem( cinf );

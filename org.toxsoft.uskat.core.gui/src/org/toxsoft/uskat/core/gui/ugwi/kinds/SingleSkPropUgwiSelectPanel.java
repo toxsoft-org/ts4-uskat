@@ -206,9 +206,9 @@ public class SingleSkPropUgwiSelectPanel
   public void setSelectedItem( Ugwi aItem ) {
     panelProps.setSelectedItem( null );
     panelObjects.setSelectedItem( null );
-    panelClasses.setSelectedItem( null );
     if( aItem != null ) {
-      Gwid gwid = Gwid.of( aItem.essence() );
+      // Gwid gwid = Gwid.of( aItem.essence() );
+      Gwid gwid = ugwi2Gwid( aItem );
       ISkClassInfo cinf = coreApi.sysdescr().findClassInfo( gwid.classId() );
       if( cinf != null ) {
         panelClasses.setSelectedItem( cinf );
@@ -222,6 +222,40 @@ public class SingleSkPropUgwiSelectPanel
         }
       }
     }
+  }
+
+  /**
+   * Create Gwid from Ugwi
+   *
+   * @param aItem - origanal Ugwi
+   * @return resulting Gwid
+   */
+  public static Gwid ugwi2Gwid( Ugwi aItem ) {
+    Gwid retVal = null;
+    switch( aItem.kindId() ) {
+      case UgwiKindSkAttr.KIND_ID -> {
+        retVal = UgwiKindSkAttr.getGwid( aItem );
+        break;
+      }
+      case UgwiKindSkRtdata.KIND_ID -> {
+        retVal = UgwiKindSkRtdata.getGwid( aItem );
+        break;
+      }
+      case UgwiKindSkCmd.KIND_ID -> {
+        retVal = UgwiKindSkCmd.getGwid( aItem );
+        break;
+      }
+      case UgwiKindSkLink.KIND_ID -> {
+        retVal = Gwid.createLink( UgwiKindSkLink.getSkid( aItem ), UgwiKindSkLink.getLinkId( aItem ) );
+        break;
+      }
+      case UgwiKindSkRivet.KIND_ID -> {
+        retVal = Gwid.createRivet( UgwiKindSkRivet.getSkid( aItem ), UgwiKindSkRivet.getRivetId( aItem ) );
+        break;
+      }
+      default -> throw new TsNotAllEnumsUsedRtException();
+    }
+    return retVal;
   }
 
   @Override
