@@ -41,6 +41,7 @@ import org.toxsoft.uskat.core.api.sysdescr.dto.*;
 import org.toxsoft.uskat.core.api.ugwis.kinds.*;
 import org.toxsoft.uskat.core.connection.*;
 import org.toxsoft.uskat.core.gui.conn.*;
+import org.toxsoft.uskat.core.gui.glib.gwidsel.*;
 import org.toxsoft.uskat.core.impl.*;
 
 /**
@@ -52,18 +53,6 @@ import org.toxsoft.uskat.core.impl.*;
 public class SingleSkPropUgwiSelectPanel
     extends AbstractGenericEntityEditPanel<Ugwi>
     implements IGenericSelectorPanel<Ugwi> {
-
-  static String MPC_OP_ID = TS_ID + ".m5.gui.mpc"; //$NON-NLS-1$
-
-  /**
-   * Class of property to select {@link ESkClassPropKind}
-   */
-  public static IDataDef OPDEF_CLASS_PROP_KIND = DataDef.create( MPC_OP_ID + ".SkClassPropKind", VALOBJ, //$NON-NLS-1$
-      TSID_NAME, STR_N_CLASS_PROP_KIND, //
-      TSID_DESCRIPTION, STR_D_CLASS_PROP_KIND, //
-      TSID_KEEPER_ID, ESkClassPropKind.KEEPER_ID, //
-      TSID_DEFAULT_VALUE, avValobj( ESkClassPropKind.RTDATA ) //
-  );
 
   /**
    * ID of option {@link #OPDEF_SK_UGWI_KIND_ID}.
@@ -97,7 +86,7 @@ public class SingleSkPropUgwiSelectPanel
     super( aContext, aIsViewer );
     coreApi = skCoreApi( tsContext() );
     TsInternalErrorRtException.checkNull( coreApi );
-    skClassPropKind = OPDEF_CLASS_PROP_KIND.getValue( tsContext().params() ).asValobj();
+    skClassPropKind = IGwidSelectorConstants.OPDEF_CLASS_PROP_KIND.getValue( tsContext().params() ).asValobj();
     // IM5Domain m5 = aContext.get( IM5Domain.class );
     ISkConnection conn = ((SkCoreApi)coreApi).skConn();
     IM5Domain m5 = conn.scope().get( IM5Domain.class );

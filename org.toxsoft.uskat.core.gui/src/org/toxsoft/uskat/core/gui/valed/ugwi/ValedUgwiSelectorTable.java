@@ -34,6 +34,7 @@ import org.toxsoft.uskat.core.api.objserv.*;
 import org.toxsoft.uskat.core.api.sysdescr.*;
 import org.toxsoft.uskat.core.api.sysdescr.dto.*;
 import org.toxsoft.uskat.core.connection.*;
+import org.toxsoft.uskat.core.gui.glib.gwidsel.*;
 import org.toxsoft.uskat.core.gui.ugwi.kinds.*;
 import org.toxsoft.uskat.core.impl.*;
 
@@ -81,7 +82,7 @@ public class ValedUgwiSelectorTable
 
     coreApi = skCoreApi( tsContext() );
     TsInternalErrorRtException.checkNull( coreApi );
-    skClassPropKind = SingleSkPropUgwiSelectPanel.OPDEF_CLASS_PROP_KIND.getValue( tsContext().params() ).asValobj();
+    skClassPropKind = IGwidSelectorConstants.OPDEF_CLASS_PROP_KIND.getValue( tsContext().params() ).asValobj();
     ISkConnection conn = ((SkCoreApi)coreApi).skConn();
     IM5Domain m5 = conn.scope().get( IM5Domain.class );
 
