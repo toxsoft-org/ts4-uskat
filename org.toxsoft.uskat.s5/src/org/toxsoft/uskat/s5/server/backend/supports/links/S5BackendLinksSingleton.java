@@ -9,39 +9,34 @@ import static org.toxsoft.uskat.s5.server.backend.supports.links.S5LinksReflectU
 import static org.toxsoft.uskat.s5.server.backend.supports.links.S5LinksSQL.*;
 import static org.toxsoft.uskat.s5.server.backend.supports.objects.S5BackendObjectsUtils.*;
 
-import java.lang.reflect.Constructor;
-import java.util.List;
-import java.util.concurrent.TimeUnit;
+import java.lang.reflect.*;
+import java.util.*;
+import java.util.concurrent.*;
 
-import javax.annotation.Resource;
+import javax.annotation.*;
 import javax.ejb.*;
-import javax.persistence.EntityManager;
-import javax.persistence.PersistenceContext;
-import javax.sql.DataSource;
+import javax.persistence.*;
+import javax.sql.*;
 
-import org.hibernate.TransientPropertyValueException;
+import org.hibernate.*;
 import org.toxsoft.core.tslib.coll.*;
-import org.toxsoft.core.tslib.coll.impl.ElemArrayList;
-import org.toxsoft.core.tslib.coll.impl.ElemMap;
-import org.toxsoft.core.tslib.coll.primtypes.IStringList;
-import org.toxsoft.core.tslib.coll.primtypes.IStringMapEdit;
-import org.toxsoft.core.tslib.coll.primtypes.impl.StringMap;
-import org.toxsoft.core.tslib.gw.gwid.Gwid;
+import org.toxsoft.core.tslib.coll.impl.*;
+import org.toxsoft.core.tslib.coll.primtypes.*;
+import org.toxsoft.core.tslib.coll.primtypes.impl.*;
+import org.toxsoft.core.tslib.gw.gwid.*;
 import org.toxsoft.core.tslib.gw.skid.*;
-import org.toxsoft.core.tslib.utils.Pair;
+import org.toxsoft.core.tslib.utils.*;
 import org.toxsoft.core.tslib.utils.errors.*;
-import org.toxsoft.core.tslib.utils.logs.ILogger;
-import org.toxsoft.uskat.core.api.linkserv.IDtoLinkFwd;
-import org.toxsoft.uskat.core.api.linkserv.IDtoLinkRev;
-import org.toxsoft.uskat.core.api.sysdescr.ISkClassInfo;
-import org.toxsoft.uskat.core.impl.dto.DtoLinkFwd;
-import org.toxsoft.uskat.core.impl.dto.DtoLinkRev;
-import org.toxsoft.uskat.s5.common.sysdescr.ISkSysdescrReader;
-import org.toxsoft.uskat.s5.server.backend.impl.S5BackendSupportSingleton;
-import org.toxsoft.uskat.s5.server.backend.supports.events.IS5BackendEventSingleton;
-import org.toxsoft.uskat.s5.server.backend.supports.objects.IS5BackendObjectsSingleton;
-import org.toxsoft.uskat.s5.server.backend.supports.sysdescr.IS5BackendSysDescrSingleton;
-import org.toxsoft.uskat.s5.server.interceptors.S5InterceptorSupport;
+import org.toxsoft.core.tslib.utils.logs.*;
+import org.toxsoft.uskat.core.api.linkserv.*;
+import org.toxsoft.uskat.core.api.sysdescr.*;
+import org.toxsoft.uskat.core.impl.dto.*;
+import org.toxsoft.uskat.s5.common.sysdescr.*;
+import org.toxsoft.uskat.s5.server.backend.impl.*;
+import org.toxsoft.uskat.s5.server.backend.supports.events.*;
+import org.toxsoft.uskat.s5.server.backend.supports.objects.*;
+import org.toxsoft.uskat.s5.server.backend.supports.sysdescr.*;
+import org.toxsoft.uskat.s5.server.interceptors.*;
 
 /**
  * Реализация {@link IS5BackendLinksSingleton}.
@@ -404,25 +399,25 @@ public class S5BackendLinksSingleton
     logger().info( MSG_WRITE_LINKS, rc, uc, cc, at, lt, it1, et1, et2, it2, et );
   }
 
-  // @Override
-  // @TransactionAttribute( TransactionAttributeType.SUPPORTS )
-  // public List<IDtoLinkFwd> getLinks( String aClassId ) {
-  // TsNullArgumentRtException.checkNull( aClassId );
-  // ISkClassInfo classInfo = sysdescrReader.getClassInfo( aClassId );
-  // // Класс реализации хранения значений объекта
-  // String linkImplClassName = OP_FWD_LINK_IMPL_CLASS.getValue( classInfo.params() ).asString();
-  // return getFwdLinksByClassId( entityManager, linkImplClassName, aClassId, TsLibUtils.EMPTY_STRING );
-  // }
-  //
-  // @Override
-  // @TransactionAttribute( TransactionAttributeType.SUPPORTS )
-  // public List<IDtoLinkFwd> getLinks( String aClassId, String aLinkId ) {
-  // TsNullArgumentRtException.checkNulls( aClassId, aLinkId );
-  // ISkClassInfo classInfo = sysdescrReader.getClassInfo( aClassId );
-  // // Класс реализации хранения значений объекта
-  // String linkImplClassName = OP_FWD_LINK_IMPL_CLASS.getValue( classInfo.params() ).asString();
-  // return getFwdLinksByClassId( entityManager, linkImplClassName, aClassId, aLinkId );
-  // }
+  @Override
+  @TransactionAttribute( TransactionAttributeType.SUPPORTS )
+  public List<IDtoLinkFwd> getLinks( String aClassId ) {
+    TsNullArgumentRtException.checkNull( aClassId );
+    ISkClassInfo classInfo = sysdescrReader.getClassInfo( aClassId );
+    // Класс реализации хранения значений объекта
+    String linkImplClassName = OP_FWD_LINK_IMPL_CLASS.getValue( classInfo.params() ).asString();
+    return getFwdLinksByClassId( entityManager, linkImplClassName, aClassId, TsLibUtils.EMPTY_STRING );
+  }
+
+  @Override
+  @TransactionAttribute( TransactionAttributeType.SUPPORTS )
+  public List<IDtoLinkFwd> getLinks( String aClassId, String aLinkId ) {
+    TsNullArgumentRtException.checkNulls( aClassId, aLinkId );
+    ISkClassInfo classInfo = sysdescrReader.getClassInfo( aClassId );
+    // Класс реализации хранения значений объекта
+    String linkImplClassName = OP_FWD_LINK_IMPL_CLASS.getValue( classInfo.params() ).asString();
+    return getFwdLinksByClassId( entityManager, linkImplClassName, aClassId, aLinkId );
+  }
 
   // ------------------------------------------------------------------------------------
   // Внутренние методы

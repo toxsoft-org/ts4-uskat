@@ -30,7 +30,7 @@ import org.toxsoft.uskat.core.gui.ugwi.gui.*;
  *
  * @author dima
  */
-class PanelUgwiSelector
+public class PanelUgwiSelector
     extends AbstractTsDialogPanel<Ugwi, ITsGuiContext> {
 
   private Text                        fixedKindText;
