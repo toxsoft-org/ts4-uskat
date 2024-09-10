@@ -38,6 +38,20 @@ public class SkPanel
   }
 
   /**
+   * Constructor using {@link ISkConnectionSupplier#defConn()} as a connection.
+   * <p>
+   * Constructor stores reference to the context, does not creates copy.
+   *
+   * @param aParent {@link Composite} - parent component
+   * @param aContext {@link ITsGuiContext} - the context
+   * @param aStyle int - SWT style
+   * @throws TsNullArgumentRtException any argument = <code>null</code>
+   */
+  public SkPanel( Composite aParent, ITsGuiContext aContext, int aStyle ) {
+    this( aParent, aContext, ISkConnectionSupplier.DEF_CONN_ID, aStyle );
+  }
+
+  /**
    * Constructor.
    * <p>
    * Constructor stores reference to the context, does not creates copy.
@@ -51,6 +65,25 @@ public class SkPanel
    */
   public SkPanel( Composite aParent, ITsGuiContext aContext, IdChain aUsedConnId ) {
     super( aParent, aContext );
+    usedConnId = TsNullArgumentRtException.checkNull( aUsedConnId );
+    connectionSupplier = tsContext().get( ISkConnectionSupplier.class );
+  }
+
+  /**
+   * Constructor.
+   * <p>
+   * Constructor stores reference to the context, does not creates copy.
+   * <p>
+   * The connection ID is the key to get connection from the {@link ISkConnectionSupplier#allConns()} map.
+   *
+   * @param aParent {@link Composite} - parent component
+   * @param aContext {@link ITsGuiContext} - the context
+   * @param aUsedConnId {@link IdChain} - ID of connection to be used
+   * @param aStyle int - SWT style
+   * @throws TsNullArgumentRtException any argument = <code>null</code>
+   */
+  public SkPanel( Composite aParent, ITsGuiContext aContext, IdChain aUsedConnId, int aStyle ) {
+    super( aParent, aContext, aStyle );
     usedConnId = TsNullArgumentRtException.checkNull( aUsedConnId );
     connectionSupplier = tsContext().get( ISkConnectionSupplier.class );
   }
