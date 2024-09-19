@@ -56,7 +56,7 @@ public class PanelUgwiSelector
     this.setLayout( borderLayout );
 
     // init Ugwi kind panel
-    initKindPanel( this );
+    initKindPanel( this, aOwnerDialog.getData() );
     // init selection of concrete panel
     initSelectPanel( this );
 
@@ -74,7 +74,7 @@ public class PanelUgwiSelector
 
   Button btnEmpty;
 
-  private void initKindPanel( Composite aBkPanel ) {
+  private void initKindPanel( Composite aBkPanel, Ugwi aUgwi ) {
     Composite kindBackPanel = new Composite( aBkPanel, SWT.NONE );
 
     // place to the nort of parent
@@ -86,7 +86,7 @@ public class PanelUgwiSelector
     }
     else
       if( environ().params().hasValue( OPDEF_UGWI_KIND_IDS_LIST ) ) {
-        createKindComboPanel( kindBackPanel );
+        createKindComboPanel( kindBackPanel, aUgwi );
         return;
       }
     throw new TsIllegalStateRtException( PANEL_ERR_MSG_NO_UGWI_KIND );
@@ -96,8 +96,9 @@ public class PanelUgwiSelector
    * Create panel to select Ugwi kind through combo
    *
    * @param aBkPanel - back panel
+   * @param aUgwi
    */
-  private void createKindComboPanel( Composite aBkPanel ) {
+  private void createKindComboPanel( Composite aBkPanel, Ugwi aUgwi ) {
     GridLayout gl = new GridLayout( 2, false );
     aBkPanel.setLayout( gl );
     CLabel l = new CLabel( aBkPanel, SWT.LEFT );
@@ -106,9 +107,8 @@ public class PanelUgwiSelector
     ITsVisualsProvider<String> visualsProvider = aItem -> aItem;
     ugwiKindsCombo = new ValedComboSelector<>( tsContext(), ugwiKindList, visualsProvider );
     ugwiKindsCombo.createControl( aBkPanel ).setLayoutData( new GridData( GridData.FILL, GridData.FILL, true, false ) );
-    currUgwiKindId = ugwiKindList.first();
-    ugwiKindsCombo.setSelectedItem( currUgwiKindId );
-
+    currUgwiKindId = aUgwi.kindId();
+    // сначала вешаем слушателя
     ugwiKindsCombo.eventer().addListener( ( aSource, aEditFinished ) -> {
       currUgwiKindId = ugwiKindsCombo.selectedItem();
       if( currUgwiKindId != null ) {
@@ -129,6 +129,9 @@ public class PanelUgwiSelector
         }
       }
     } );
+
+    // потом высталяем текущий UGWI
+    ugwiKindsCombo.setSelectedItem( currUgwiKindId );
   }
 
   /**
