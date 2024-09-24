@@ -1,15 +1,11 @@
 package org.toxsoft.uskat.skadmin.dev;
 
-import org.toxsoft.uskat.skadmin.core.plugins.AbstractPluginCmdLibrary;
-import org.toxsoft.uskat.skadmin.dev.commands.AdminCmdExecutor;
-import org.toxsoft.uskat.skadmin.dev.commands.AdminCmdSend;
-import org.toxsoft.uskat.skadmin.dev.events.AdminCmdFire;
-import org.toxsoft.uskat.skadmin.dev.events.AdminCmdReceiver;
-import org.toxsoft.uskat.skadmin.dev.objects.AdminCmdGetAttr;
-import org.toxsoft.uskat.skadmin.dev.objects.AdminCmdSetAttr;
+import org.toxsoft.uskat.skadmin.core.plugins.*;
+import org.toxsoft.uskat.skadmin.dev.commands.*;
+import org.toxsoft.uskat.skadmin.dev.events.*;
+import org.toxsoft.uskat.skadmin.dev.objects.*;
 import org.toxsoft.uskat.skadmin.dev.pas.*;
-import org.toxsoft.uskat.skadmin.dev.rtdata.AdminCmdRead;
-import org.toxsoft.uskat.skadmin.dev.rtdata.AdminCmdWrite;
+import org.toxsoft.uskat.skadmin.dev.rtdata.*;
 
 /**
  * Плагин s5admin: команды разработчика
@@ -37,6 +33,7 @@ public class AdminPluginDev
     // Объекты
     addCmd( new AdminCmdGetAttr() );
     addCmd( new AdminCmdSetAttr() );
+    addCmd( new AdminCmdRemoveObject() );
     // Данные
     addCmd( new AdminCmdRead() );
     addCmd( new AdminCmdWrite() );

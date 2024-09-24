@@ -4,9 +4,9 @@ import static org.toxsoft.core.tslib.utils.TsLibUtils.*;
 import static org.toxsoft.uskat.skadmin.core.plugins.AdminPluginUtils.*;
 import static org.toxsoft.uskat.skadmin.dev.objects.IAdminHardResources.*;
 
-import org.toxsoft.uskat.skadmin.core.IAdminCmdArgDef;
-import org.toxsoft.uskat.skadmin.core.impl.AdminCmdArgDef;
-import org.toxsoft.uskat.skadmin.dev.AdminPluginDev;
+import org.toxsoft.uskat.skadmin.core.*;
+import org.toxsoft.uskat.skadmin.core.impl.*;
+import org.toxsoft.uskat.skadmin.dev.*;
 
 /**
  * Константы пакета.
@@ -61,5 +61,13 @@ interface IAdminHardConstants {
    * Аргумент : Значение атрибута
    */
   IAdminCmdArgDef ARG_WRITE_VALUE = new AdminCmdArgDef( "value", PT_NONE, STR_ARG_SET_ATTR_VALUE );
+
+  // ------------------------------------------------------------------------------------
+  // AdminCmdRemoveObject
+  //
+  String CMD_REMOVE_OBJ_ID    = CMD_PATH_PREFIX + "removeObject";
+  String CMD_REMOVE_OBJ_ALIAS = EMPTY_STRING;
+  String CMD_REMOVE_OBJ_NAME  = EMPTY_STRING;
+  String CMD_REMOVE_OBJ_DESCR = STR_CMD_REMOVE_OBJ;
 
 }

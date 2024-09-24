@@ -1,14 +1,13 @@
 package org.toxsoft.uskat.skadmin.dev.objects;
 
-import org.toxsoft.core.tslib.bricks.strid.coll.IStridablesList;
-import org.toxsoft.core.tslib.coll.primtypes.IStringListEdit;
-import org.toxsoft.core.tslib.coll.primtypes.impl.StringArrayList;
+import org.toxsoft.core.tslib.bricks.strid.coll.*;
+import org.toxsoft.core.tslib.coll.primtypes.*;
+import org.toxsoft.core.tslib.coll.primtypes.impl.*;
 import org.toxsoft.core.tslib.gw.gwid.*;
-import org.toxsoft.core.tslib.gw.skid.ISkidList;
-import org.toxsoft.core.tslib.gw.skid.Skid;
-import org.toxsoft.core.tslib.utils.errors.TsNullArgumentRtException;
-import org.toxsoft.uskat.core.ISkCoreApi;
-import org.toxsoft.uskat.core.api.sysdescr.dto.IDtoAttrInfo;
+import org.toxsoft.core.tslib.gw.skid.*;
+import org.toxsoft.core.tslib.utils.errors.*;
+import org.toxsoft.uskat.core.*;
+import org.toxsoft.uskat.core.api.sysdescr.dto.*;
 
 /**
  * Вспомогательные методы пакета
@@ -16,6 +15,32 @@ import org.toxsoft.uskat.core.api.sysdescr.dto.IDtoAttrInfo;
  * @author mvk
  */
 class AdminObjectsUtils {
+
+  /**
+   * Возвращает список {@link Gwid}-идентификаторов объектов
+   *
+   * @param aCoreApi {@link ISkCoreApi} API соединения
+   * @param aClassId String идентификатор класса объектов
+   * @param aStrid String идентификатор объекта
+   * @return {@link ISkidList} список идентификторов объектов
+   * @throws TsNullArgumentRtException любой аргумент = null
+   */
+  static ISkidList getObjSkids( ISkCoreApi aCoreApi, String aClassId, String aStrid ) {
+    TsNullArgumentRtException.checkNulls( aCoreApi, aClassId, aStrid );
+    IStringListEdit strids = new StringArrayList( aStrid );
+    if( aStrid.equals( "*" ) ) {//$NON-NLS-1$
+      strids.clear();
+      ISkidList skids = aCoreApi.objService().listSkids( aClassId, true );
+      for( Skid skid : skids ) {
+        strids.add( skid.strid() );
+      }
+    }
+    SkidList retValue = new SkidList();
+    for( String strid : strids ) {
+      retValue.add( new Skid( aClassId, strid ) );
+    }
+    return retValue;
+  }
 
   /**
    * Возвращает список {@link Gwid}-идентификаторов атрибутов
