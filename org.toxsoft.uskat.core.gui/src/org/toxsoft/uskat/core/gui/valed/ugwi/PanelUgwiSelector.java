@@ -107,7 +107,12 @@ public class PanelUgwiSelector
     ITsVisualsProvider<String> visualsProvider = aItem -> aItem;
     ugwiKindsCombo = new ValedComboSelector<>( tsContext(), ugwiKindList, visualsProvider );
     ugwiKindsCombo.createControl( aBkPanel ).setLayoutData( new GridData( GridData.FILL, GridData.FILL, true, false ) );
-    currUgwiKindId = aUgwi.kindId();
+    if( aUgwi.equals( Ugwi.NONE ) ) {
+      currUgwiKindId = ugwiKindList.first();
+    }
+    else {
+      currUgwiKindId = aUgwi.kindId();
+    }
     // сначала вешаем слушателя
     ugwiKindsCombo.eventer().addListener( ( aSource, aEditFinished ) -> {
       currUgwiKindId = ugwiKindsCombo.selectedItem();
