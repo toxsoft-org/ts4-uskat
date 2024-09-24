@@ -31,9 +31,13 @@ import org.toxsoft.core.tslib.bricks.strid.coll.*;
 import org.toxsoft.core.tslib.bricks.strid.more.*;
 import org.toxsoft.core.tslib.bricks.validator.*;
 import org.toxsoft.core.tslib.bricks.validator.impl.*;
+import org.toxsoft.core.tslib.coll.*;
+import org.toxsoft.core.tslib.coll.impl.*;
 import org.toxsoft.core.tslib.gw.gwid.*;
 import org.toxsoft.core.tslib.gw.ugwi.*;
 import org.toxsoft.core.tslib.utils.errors.*;
+import org.toxsoft.skf.rri.lib.*;
+import org.toxsoft.skf.rri.lib.ugwi.*;
 import org.toxsoft.uskat.core.*;
 import org.toxsoft.uskat.core.api.objserv.*;
 import org.toxsoft.uskat.core.api.sysdescr.*;
@@ -41,6 +45,7 @@ import org.toxsoft.uskat.core.api.sysdescr.dto.*;
 import org.toxsoft.uskat.core.api.ugwis.kinds.*;
 import org.toxsoft.uskat.core.connection.*;
 import org.toxsoft.uskat.core.gui.conn.*;
+import org.toxsoft.uskat.core.gui.glib.gwidsel.*;
 import org.toxsoft.uskat.core.impl.*;
 
 /**
@@ -52,18 +57,6 @@ import org.toxsoft.uskat.core.impl.*;
 public class SingleSkPropUgwiSelectPanel
     extends AbstractGenericEntityEditPanel<Ugwi>
     implements IGenericSelectorPanel<Ugwi> {
-
-  static String MPC_OP_ID = TS_ID + ".m5.gui.mpc"; //$NON-NLS-1$
-
-  /**
-   * Class of property to select {@link ESkClassPropKind}
-   */
-  public static IDataDef OPDEF_CLASS_PROP_KIND = DataDef.create( MPC_OP_ID + ".SkClassPropKind", VALOBJ, //$NON-NLS-1$
-      TSID_NAME, STR_N_CLASS_PROP_KIND, //
-      TSID_DESCRIPTION, STR_D_CLASS_PROP_KIND, //
-      TSID_KEEPER_ID, ESkClassPropKind.KEEPER_ID, //
-      TSID_DEFAULT_VALUE, avValobj( ESkClassPropKind.RTDATA ) //
-  );
 
   /**
    * ID of option {@link #OPDEF_SK_UGWI_KIND_ID}.
@@ -83,6 +76,7 @@ public class SingleSkPropUgwiSelectPanel
   private final IM5CollectionPanel<ISkClassInfo>          panelClasses;
   private final IM5CollectionPanel<ISkObject>             panelObjects;
   private final IM5CollectionPanel<IDtoClassPropInfoBase> panelProps;
+  private Ugwi                                            initUgwi = null;
 
   /**
    * Constructor.
@@ -97,7 +91,7 @@ public class SingleSkPropUgwiSelectPanel
     super( aContext, aIsViewer );
     coreApi = skCoreApi( tsContext() );
     TsInternalErrorRtException.checkNull( coreApi );
-    skClassPropKind = OPDEF_CLASS_PROP_KIND.getValue( tsContext().params() ).asValobj();
+    skClassPropKind = IGwidSelectorConstants.OPDEF_CLASS_PROP_KIND.getValue( tsContext().params() ).asValobj();
     // IM5Domain m5 = aContext.get( IM5Domain.class );
     ISkConnection conn = ((SkCoreApi)coreApi).skConn();
     IM5Domain m5 = conn.scope().get( IM5Domain.class );
@@ -206,22 +200,75 @@ public class SingleSkPropUgwiSelectPanel
   public void setSelectedItem( Ugwi aItem ) {
     panelProps.setSelectedItem( null );
     panelObjects.setSelectedItem( null );
-    panelClasses.setSelectedItem( null );
     if( aItem != null ) {
-      Gwid gwid = Gwid.of( aItem.essence() );
+      // Gwid gwid = Gwid.of( aItem.essence() );
+      initUgwi = aItem;
+      Gwid gwid = ugwi2Gwid( aItem );
       ISkClassInfo cinf = coreApi.sysdescr().findClassInfo( gwid.classId() );
       if( cinf != null ) {
         panelClasses.setSelectedItem( cinf );
         if( !gwid.isAbstract() && !gwid.isMulti() ) {
           ISkObject obj = coreApi.objService().find( gwid.skid() );
           if( obj != null && gwid.isProp() ) {
+            // для НСИ атрибутов отдельная отработка
             panelObjects.setSelectedItem( obj );
-            IDtoClassPropInfoBase prop = cinf.props( getClassPropKind() ).list().findByKey( gwid.propId() );
-            panelProps.setSelectedItem( prop );
+            if( aItem.kindId().equals( UgwiKindRriAttr.KIND_ID ) ) {
+              IdChain chain = IdChain.of( aItem.essence() );
+              String sectId = chain.get( UgwiKindRriAttr.IDX_SECTION_ID );
+              ISkRegRefInfoService rriServ =
+                  (ISkRegRefInfoService)coreApi.getService( ISkRegRefInfoService.SERVICE_ID );
+              ISkRriSection rriSect = rriServ.findSection( sectId );
+              IStridablesList<IDtoRriParamInfo> rriParamInfoes = rriSect.listParamInfoes( cinf.id() );
+              IDtoRriParamInfo rriParamInfo = rriParamInfoes.findByKey( gwid.propId() );
+              IDtoClassPropInfoBase prop = rriParamInfo.attrInfo();
+              panelProps.setSelectedItem( prop );
+            }
+            else {
+              IDtoClassPropInfoBase prop = cinf.props( getClassPropKind() ).list().findByKey( gwid.propId() );
+              panelProps.setSelectedItem( prop );
+            }
           }
         }
       }
     }
+  }
+
+  /**
+   * Create Gwid from Ugwi
+   *
+   * @param aItem - origanal Ugwi
+   * @return resulting Gwid
+   */
+  public static Gwid ugwi2Gwid( Ugwi aItem ) {
+    Gwid retVal = null;
+    switch( aItem.kindId() ) {
+      case UgwiKindRriAttr.KIND_ID -> {
+        retVal = UgwiKindRriAttr.getGwid( aItem );
+        break;
+      }
+      case UgwiKindSkAttr.KIND_ID -> {
+        retVal = UgwiKindSkAttr.getGwid( aItem );
+        break;
+      }
+      case UgwiKindSkRtdata.KIND_ID -> {
+        retVal = UgwiKindSkRtdata.getGwid( aItem );
+        break;
+      }
+      case UgwiKindSkCmd.KIND_ID -> {
+        retVal = UgwiKindSkCmd.getGwid( aItem );
+        break;
+      }
+      case UgwiKindSkLink.KIND_ID -> {
+        retVal = Gwid.createLink( UgwiKindSkLink.getSkid( aItem ), UgwiKindSkLink.getLinkId( aItem ) );
+        break;
+      }
+      case UgwiKindSkRivet.KIND_ID -> {
+        retVal = Gwid.createRivet( UgwiKindSkRivet.getSkid( aItem ), UgwiKindSkRivet.getRivetId( aItem ) );
+        break;
+      }
+      default -> throw new TsNotAllEnumsUsedRtException();
+    }
+    return retVal;
   }
 
   @Override
@@ -266,7 +313,22 @@ public class SingleSkPropUgwiSelectPanel
     if( sel != null ) {
       M5DefaultItemsProvider<IDtoClassPropInfoBase> itemsProvider = new M5DefaultItemsProvider<>();
       ISkClassInfo cinf = panelClasses.selectedItem();
-      itemsProvider.items().setAll( cinf.props( getClassPropKind() ).list() );
+      // для НСИ атрибутов отдельная обработка
+      if( initUgwi != null && initUgwi.kindId().equals( UgwiKindRriAttr.KIND_ID ) ) {
+        IdChain chain = IdChain.of( initUgwi.essence() );
+        String sectId = chain.get( UgwiKindRriAttr.IDX_SECTION_ID );
+        ISkRegRefInfoService rriServ = (ISkRegRefInfoService)coreApi.getService( ISkRegRefInfoService.SERVICE_ID );
+        ISkRriSection rriSect = rriServ.findSection( sectId );
+        IStridablesList<IDtoRriParamInfo> rriParamInfoes = rriSect.listParamInfoes( cinf.id() );
+        IListEdit<IDtoClassPropInfoBase> params = new ElemArrayList<>();
+        for( IDtoRriParamInfo rriParamInfo : rriParamInfoes ) {
+          params.add( rriParamInfo.attrInfo() );
+        }
+        itemsProvider.items().setAll( params );
+      }
+      else {
+        itemsProvider.items().setAll( cinf.props( getClassPropKind() ).list() );
+      }
       panelProps.setItemsProvider( itemsProvider );
       panelProps.refresh();
     }

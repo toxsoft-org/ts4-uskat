@@ -10,6 +10,7 @@ import org.toxsoft.core.tslib.utils.errors.*;
 import org.toxsoft.uskat.core.api.sysdescr.*;
 import org.toxsoft.uskat.core.api.ugwis.*;
 import org.toxsoft.uskat.core.api.ugwis.kinds.*;
+import org.toxsoft.uskat.core.gui.glib.gwidsel.*;
 import org.toxsoft.uskat.core.gui.ugwi.gui.*;
 
 /**
@@ -39,7 +40,7 @@ public class UgwiGuiHelperSkCmd
   @Override
   protected IGenericEntityEditPanel<Ugwi> doCreateEntityPanel( ITsGuiContext aTsContext, boolean aViewer ) {
     // set kind of prop (cmd)
-    SingleSkPropUgwiSelectPanel.OPDEF_CLASS_PROP_KIND.setValue( aTsContext.params(), avValobj( ESkClassPropKind.CMD ) );
+    IGwidSelectorConstants.OPDEF_CLASS_PROP_KIND.setValue( aTsContext.params(), avValobj( ESkClassPropKind.CMD ) );
     SingleSkPropUgwiSelectPanel.OPDEF_SK_UGWI_KIND_ID.setValue( aTsContext.params(), avStr( UgwiKindSkCmd.KIND_ID ) );
     return new SingleSkPropUgwiSelectPanel( aTsContext, aViewer );
   }
@@ -48,7 +49,7 @@ public class UgwiGuiHelperSkCmd
   protected IGenericSelectorPanel<Ugwi> doCreateSelectorPanel( ITsGuiContext aTsContext, boolean aViewer ) {
 
     // set kind of prop (cmd)
-    SingleSkPropUgwiSelectPanel.OPDEF_CLASS_PROP_KIND.setValue( aTsContext.params(), avValobj( ESkClassPropKind.CMD ) );
+    IGwidSelectorConstants.OPDEF_CLASS_PROP_KIND.setValue( aTsContext.params(), avValobj( ESkClassPropKind.CMD ) );
     SingleSkPropUgwiSelectPanel.OPDEF_SK_UGWI_KIND_ID.setValue( aTsContext.params(), avStr( UgwiKindSkCmd.KIND_ID ) );
     return new SingleSkPropUgwiSelectPanel( aTsContext, aViewer );
   }

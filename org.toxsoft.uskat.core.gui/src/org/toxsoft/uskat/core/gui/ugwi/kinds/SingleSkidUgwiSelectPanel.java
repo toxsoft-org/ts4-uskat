@@ -198,7 +198,9 @@ public class SingleSkidUgwiSelectPanel
   public void setSelectedItem( Ugwi aItem ) {
     panelObjects.setSelectedItem( null );
     if( aItem != null ) {
-      Gwid gwid = Gwid.of( aItem.essence() );
+      // dima 30.08.24
+      // Gwid gwid = Gwid.of( aItem.essence() );
+      Gwid gwid = SingleSkPropUgwiSelectPanel.ugwi2Gwid( aItem );
       ISkObject obj = coreApi.objService().find( gwid.skid() );
       if( obj != null ) {
         panelObjects.setSelectedItem( obj );
