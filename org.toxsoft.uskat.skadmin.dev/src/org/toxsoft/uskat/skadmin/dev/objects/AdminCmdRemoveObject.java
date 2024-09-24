@@ -16,7 +16,6 @@ import org.toxsoft.core.tslib.gw.skid.*;
 import org.toxsoft.uskat.core.*;
 import org.toxsoft.uskat.core.api.objserv.*;
 import org.toxsoft.uskat.core.api.sysdescr.*;
-import org.toxsoft.uskat.core.api.sysdescr.dto.*;
 import org.toxsoft.uskat.core.connection.*;
 import org.toxsoft.uskat.legacy.plexy.*;
 import org.toxsoft.uskat.skadmin.core.*;
@@ -132,25 +131,6 @@ public class AdminCmdRemoveObject
       for( int index = 0, n = objList.size(); index < n; index++ ) {
         dataValue = AvUtils.avStr( objList.get( index ).strid() );
         plexyValue = pvSingleValue( dataValue );
-        values.add( plexyValue );
-      }
-      return values;
-    }
-    if( aArgId.equals( ARG_ATTRID.id() ) && aArgValues.keys().hasElem( ARG_CLASSID.id() ) ) {
-      String classId = aArgValues.getByKey( ARG_CLASSID.id() ).singleValue().asString();
-      ISkClassInfo classInfo = sysdescr.findClassInfo( classId );
-      if( classInfo == null ) {
-        return IList.EMPTY;
-      }
-      IStridablesList<IDtoAttrInfo> attrInfos = classInfo.attrs().list();
-      IListEdit<IPlexyValue> values = new ElemLinkedList<>();
-      // Значение '*'
-      IAtomicValue attrValue = AvUtils.avStr( MULTI );
-      IPlexyValue plexyValue = pvSingleValue( attrValue );
-      values.add( plexyValue );
-      for( IDtoAttrInfo attrInfo : attrInfos ) {
-        attrValue = AvUtils.avStr( attrInfo.id() );
-        plexyValue = pvSingleValue( attrValue );
         values.add( plexyValue );
       }
       return values;
