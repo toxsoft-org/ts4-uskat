@@ -1,0 +1,22 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: USkat Workstation Application Launcher
+Bundle-SymbolicName: org.toxsoft.uskat.ws.exe;singleton:=true
+Bundle-Version: 1.0.0.qualifier
+Bundle-Activator: org.toxsoft.uskat.ws.exe.Activator
+Bundle-Vendor: toxsoft.org
+Export-Package: org.toxsoft.uskat.ws.exe
+Require-Bundle: jakarta.inject.jakarta.inject-api,
+ jakarta.annotation-api,
+ org.eclipse.core.runtime,
+ org.eclipse.ui,
+ org.eclipse.e4.core.contexts,
+ org.eclipse.e4.core.di,
+ org.eclipse.e4.ui.model.workbench,
+ org.eclipse.e4.ui.workbench,
+ org.toxsoft.core.tslib,
+ org.toxsoft.core.singlesrc.rcp,
+ org.toxsoft.core.tsgui
+Bundle-RequiredExecutionEnvironment: JavaSE-21
+Automatic-Module-Name: org.toxsoft.uskat.ws.exe
+Bundle-ActivationPolicy: lazy

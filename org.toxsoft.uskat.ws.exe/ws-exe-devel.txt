@@ -1,0 +1,7 @@
+TODO
+--- create SkIDE plugin for deployment configuration 
+--- to display custom splash, use command line option "-showsplash path_to_file"
+--- Load TsApplicationInfo in MwsOsgiService from the specified file if any
+
+
+Add ability to load application icon from the

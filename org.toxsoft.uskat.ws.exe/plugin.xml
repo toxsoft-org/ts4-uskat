@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<plugin>
+
+   <extension
+         id="org.toxsoft.uskat.ws.exe.fragment"
+         point="org.eclipse.e4.workbench.model">
+      <fragment
+            uri="fragment.e4xmi"
+            apply="always">
+      </fragment>
+   </extension>
+   <extension
+         point="org.eclipse.core.runtime.products">
+      <product
+            application="org.toxsoft.uskat.ws.exe.product"
+            name="USkat WorkStation">
+         <property
+               name="applicationXMI"
+               value="platform:/plugin/org.toxsoft.core.tsgui.mws/Application.e4xmi">
+         </property>
+         <property
+               name="appName"
+               value="USkat WorkStation">
+         </property>
+      </product>
+   </extension>
+
+</plugin>
