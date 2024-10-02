@@ -22,6 +22,7 @@
     <ant dir="../../org.toxsoft.uskat.backend.sqlite" antfile="${ts-scripts-dir}/ts-build-lib.xml" target="build-lib-jar" />
     <ant dir="../../org.toxsoft.uskat.s5" antfile="${ts-scripts-dir}/ts-build-lib.xml" target="build-lib-jar" />
     <ant dir="../../org.toxsoft.uskat.s5.histdata10" antfile="${ts-scripts-dir}/ts-build-lib.xml" target="build-lib-jar" />
+    <ant dir="../../org.toxsoft.uskat.ws.exe" antfile="${ts-scripts-dir}/ts-build-lib.xml" target="build-lib-jar" />
     <!-- <ant dir="../../org.toxsoft.uskat.s5.cron" antfile="${ts-scripts-dir}/ts-build-lib.xml" target="build-lib-jar" /> --> 
     <ant dir="../../org.toxsoft.uskat.skadmin.core" antfile="${ts-scripts-dir}/ts-build-lib.xml" target="build-lib-jar" />
     <ant dir="../../org.toxsoft.uskat.skadmin.cli" antfile="${ts-scripts-dir}/ts-build-lib.xml" target="build-lib-jar" />
@@ -46,6 +47,7 @@
                                 org.toxsoft.uskat.backend.sqlite,
                                 org.toxsoft.uskat.s5,
                                 org.toxsoft.uskat.s5.histdata10,
+                                org.toxsoft.uskat.ws.exe,
                                 org.toxsoft.uskat.skadmin.core,
                                 org.toxsoft.uskat.skadmin.cli,
                                 org.toxsoft.uskat.skadmin.dev,
