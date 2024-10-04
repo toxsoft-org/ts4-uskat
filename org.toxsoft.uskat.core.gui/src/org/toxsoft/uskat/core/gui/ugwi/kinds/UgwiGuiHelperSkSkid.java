@@ -40,7 +40,8 @@ public class UgwiGuiHelperSkSkid
 
   @Override
   protected IGenericSelectorPanel<Ugwi> doCreateSelectorPanel( ITsGuiContext aTsContext, boolean aViewer ) {
-    return new SingleSkidUgwiSelectPanel( aTsContext, aViewer );
+    // Sol-- return new SingleSkidUgwiSelectPanel( aTsContext, aViewer );
+    return new SingleSkidUgwiSelectPanel2( aTsContext, aViewer ); // Sol++
   }
 
 }
