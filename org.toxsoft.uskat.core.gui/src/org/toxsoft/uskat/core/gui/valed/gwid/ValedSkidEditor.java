@@ -120,7 +120,13 @@ public class ValedSkidEditor
   @Override
   public ValidationResult canGetValue() {
     try {
-      Gwid g = Gwid.of( getTextControl().getText() );
+      // Skid.NONE - is acceptable value
+      String s = getTextControl().getText().trim();
+      if( s.equals( Skid.CANONICAL_STRING_NONE ) ) {
+        return ValidationResult.SUCCESS;
+      }
+      //
+      Gwid g = Gwid.of( s );
       if( g.kind() == EGwidKind.GW_CLASS && !g.isAbstract() ) {
         return ValidationResult.SUCCESS;
       }
@@ -138,7 +144,12 @@ public class ValedSkidEditor
 
   @Override
   protected Skid doGetUnvalidatedValue() {
-    return Gwid.of( getTextControl().getText() ).skid();
+    // Skid.NONE - is acceptable value
+    String s = getTextControl().getText().trim();
+    if( s.equals( Skid.CANONICAL_STRING_NONE ) ) {
+      return Skid.NONE;
+    }
+    return Gwid.of( s ).skid();
   }
 
   @Override
