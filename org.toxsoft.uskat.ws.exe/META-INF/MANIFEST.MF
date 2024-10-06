@@ -5,7 +5,8 @@ Bundle-SymbolicName: org.toxsoft.uskat.ws.exe;singleton:=true
 Bundle-Version: 1.0.0.qualifier
 Bundle-Activator: org.toxsoft.uskat.ws.exe.Activator
 Bundle-Vendor: toxsoft.org
-Export-Package: org.toxsoft.uskat.ws.exe
+Export-Package: org.toxsoft.uskat.ws.exe,
+ org.toxsoft.uskat.ws.exe.e4.addons
 Require-Bundle: jakarta.inject.jakarta.inject-api,
  jakarta.annotation-api,
  org.eclipse.core.runtime,

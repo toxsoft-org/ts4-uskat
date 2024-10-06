@@ -10,9 +10,10 @@
       </fragment>
    </extension>
    <extension
+         id="uskat_ws_exe_product"
          point="org.eclipse.core.runtime.products">
       <product
-            application="org.toxsoft.uskat.ws.exe.product"
+            application="org.eclipse.e4.ui.workbench.swt.E4Application"
             name="USkat WorkStation">
          <property
                name="applicationXMI"
