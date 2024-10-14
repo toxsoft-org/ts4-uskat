@@ -4,4 +4,4 @@ TODO
 --- Load TsApplicationInfo in MwsOsgiService from the specified file if any
 
 
-Add ability to load application icon from the
+Add ability to load application icon from the TsImageDescriptor

@@ -53,19 +53,19 @@ public interface ISkEventService
    * In particular, the following rules apply (from more general to more specific):
    * <ul>
    * <li>multi-object with multi event ID like <code>classid[*]$event(*)</code> - subscribes to all events of all events
-   * of all objects of the specified class and it's subclasses. Particulary GWID SkObject[*]$event(*) means subsciption
+   * of all objects of the specified class and it's subclasses. Particular GWID SkObject[*]$event(*) means subscription
    * to all events;</li>
    * <li>concrete GWID with multi event ID like <code>classid[obj_strid]$event(*)</code> - all events of the specified
    * object;</li>
    * <li>multi-object with the specified event ID like <code>classid[*]$event(good_event)</code> - subscribes to the
    * specified event of all objects of specified class and it's subclasses;</li>
-   * <li>concrete GWID with spcified event ID like classid[obj_strid]$event(good_event) - single event of the single
+   * <li>concrete GWID with specified event ID like classid[obj_strid]$event(good_event) - single event of the single
    * object.</li>
    * </ul>
    * <p>
    * Abstract GWID are considered as GWIDs with multi-objects.
    * <p>
-   * Empty list of GWIDs does nothing. Duplictae GWIDs and more specific GWIDs covered with more general ones are
+   * Empty list of GWIDs does nothing. Duplicate GWIDs and more specific GWIDs covered with more general ones are
    * removed from the internal list of GWIDs of interest.
    *
    * @param aNeededGwids {@link IGwidList} - list of GWIDs of interesting events
@@ -77,7 +77,7 @@ public interface ISkEventService
   /**
    * Unregisters the event handler.
    * <p>
-   * Method cancels all subsriptions of handler.
+   * Method cancels all subscriptions of handler.
    * <p>
    * If no such handler is registered, it does nothing.
    *
@@ -96,7 +96,7 @@ public interface ISkEventService
    *
    * @param aInterval {@link ITimeInterval} - query time interval
    * @param aGwid {@link Gwid} - concrete GWID of event(s)
-   * @return {@link ITimedList}&lt;{@link SkEvent}&gt; - list of the reuried events
+   * @return {@link ITimedList}&lt;{@link SkEvent}&gt; - list of the requested events
    * @throws TsNullArgumentRtException any argument = <code>null</code>
    * @throws TsIllegalArgumentRtException invalid GWID
    * @throws TsItemNotFoundRtException no such event exists in sysdescr

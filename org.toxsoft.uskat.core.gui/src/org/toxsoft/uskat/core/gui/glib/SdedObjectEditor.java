@@ -22,7 +22,7 @@ import org.toxsoft.uskat.core.gui.km5.sded.sded.*;
 import org.toxsoft.uskat.core.impl.dto.*;
 
 /**
- * Obect editor - allows to create, edit and delete objects in Sysdescr.
+ * Object editor - allows to create, edit and delete objects in Sysdescr.
  * <p>
  * Panel contents:
  * <ul>
