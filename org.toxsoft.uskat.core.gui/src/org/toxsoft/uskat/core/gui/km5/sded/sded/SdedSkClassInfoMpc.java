@@ -1,13 +1,10 @@
 package org.toxsoft.uskat.core.gui.km5.sded.sded;
 
 import static org.toxsoft.core.tsgui.bricks.actions.ITsStdActionDefs.*;
-import static org.toxsoft.core.tsgui.graphics.icons.ITsStdIconIds.*;
-import static org.toxsoft.core.tslib.av.metainfo.IAvMetaConstants.*;
 import static org.toxsoft.uskat.core.gui.ISkCoreGuiConstants.*;
 import static org.toxsoft.uskat.core.gui.km5.sded.IKM5SdedConstants.*;
 import static org.toxsoft.uskat.core.gui.km5.sded.ISkSdedKm5SharedResources.*;
 
-import org.eclipse.swt.widgets.*;
 import org.toxsoft.core.tsgui.bricks.actions.*;
 import org.toxsoft.core.tsgui.bricks.ctx.*;
 import org.toxsoft.core.tsgui.bricks.tsnodes.*;
@@ -26,10 +23,8 @@ import org.toxsoft.core.tslib.coll.primtypes.*;
 import org.toxsoft.core.tslib.coll.primtypes.impl.*;
 import org.toxsoft.core.tslib.gw.*;
 import org.toxsoft.core.tslib.utils.errors.*;
-import org.toxsoft.core.tslib.utils.logs.impl.*;
 import org.toxsoft.uskat.core.api.sysdescr.*;
 import org.toxsoft.uskat.core.connection.*;
-import org.toxsoft.uskat.core.gui.km5.sded.sded.opc_ua_server.*;
 import org.toxsoft.uskat.core.utils.*;
 
 /**
@@ -40,24 +35,6 @@ import org.toxsoft.uskat.core.utils.*;
 class SdedSkClassInfoMpc
     extends MultiPaneComponentModown<ISkClassInfo>
     implements ISkConnected {
-
-  // ------------------------------------------------------------------------------------
-  // dima 08.07.24
-  // action for debug
-
-  /**
-   * ID of action {@link #ACDEF_PUBLIC_2_OPC_UA}.
-   */
-  final String ACTID_PUBLIC_2_OPC_UA = SDED_ID + ".Public2OPC_UA"; //$NON-NLS-1$
-
-  /**
-   * Public selected class throught the OPC UA protocol.
-   */
-  TsActionDef ACDEF_PUBLIC_2_OPC_UA = TsActionDef.ofPush1( ACTID_PUBLIC_2_OPC_UA, //
-      TSID_NAME, "Public throught the OPC UA", //
-      TSID_DESCRIPTION, "Public throught the OPC UA", //
-      TSID_ICON_ID, ICONID_COLORS //
-  );
 
   public static final String TMIID_BY_HIERARCHY = "ByHierarchy"; //$NON-NLS-1$
 
@@ -124,8 +101,6 @@ class SdedSkClassInfoMpc
       IListEdit<ITsActionDef> aActs ) {
     aActs.add( ACDEF_SEPARATOR );
     aActs.add( ACDEF_HIDE_CLAIMED_CLASSES );
-    aActs.add( ACDEF_SEPARATOR );
-    aActs.add( ACDEF_PUBLIC_2_OPC_UA );
     return super.doCreateToolbar( aContext, aName, aIconSize, aActs );
   }
 
@@ -136,35 +111,9 @@ class SdedSkClassInfoMpc
         refresh();
         break;
       }
-      case ACTID_PUBLIC_2_OPC_UA: {
-        publicUSkat2OPCUA();
-        break;
-      }
       default:
         throw new TsNotAllEnumsUsedRtException( aActionId );
     }
-  }
-
-  private void publicUSkat2OPCUA() {
-    Display display = tsContext().get( Display.class );
-    display.asyncExec( () -> {
-      try {
-        USkatOpcUaServer server = new USkatOpcUaServer( skConn() );
-        server.startup().get();
-
-        // final CompletableFuture<Void> future = new CompletableFuture<>();
-        //
-        // Runtime.getRuntime().addShutdownHook( new Thread( () -> future.complete( null ) ) );
-        //
-        // future.get();
-      }
-      catch( Exception ex ) {
-        // TODO Auto-generated catch block
-        LoggerUtils.errorLogger().error( ex );
-      }
-    } );
-    LoggerUtils.errorLogger().debug( "OPC UA server started!" ); //$NON-NLS-1$
-
   }
 
   @Override

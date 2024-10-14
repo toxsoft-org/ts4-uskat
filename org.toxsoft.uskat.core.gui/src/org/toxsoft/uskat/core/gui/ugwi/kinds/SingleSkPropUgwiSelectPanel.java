@@ -31,13 +31,9 @@ import org.toxsoft.core.tslib.bricks.strid.coll.*;
 import org.toxsoft.core.tslib.bricks.strid.more.*;
 import org.toxsoft.core.tslib.bricks.validator.*;
 import org.toxsoft.core.tslib.bricks.validator.impl.*;
-import org.toxsoft.core.tslib.coll.*;
-import org.toxsoft.core.tslib.coll.impl.*;
 import org.toxsoft.core.tslib.gw.gwid.*;
 import org.toxsoft.core.tslib.gw.ugwi.*;
 import org.toxsoft.core.tslib.utils.errors.*;
-import org.toxsoft.skf.rri.lib.*;
-import org.toxsoft.skf.rri.lib.ugwi.*;
 import org.toxsoft.uskat.core.*;
 import org.toxsoft.uskat.core.api.objserv.*;
 import org.toxsoft.uskat.core.api.sysdescr.*;
@@ -210,23 +206,25 @@ public class SingleSkPropUgwiSelectPanel
         if( !gwid.isAbstract() && !gwid.isMulti() ) {
           ISkObject obj = coreApi.objService().find( gwid.skid() );
           if( obj != null && gwid.isProp() ) {
+            // FIXME --- GOGA temporary disabled to remove RRI dependency from SkIDE repository
             // для НСИ атрибутов отдельная отработка
-            panelObjects.setSelectedItem( obj );
-            if( aItem.kindId().equals( UgwiKindRriAttr.KIND_ID ) ) {
-              IdChain chain = IdChain.of( aItem.essence() );
-              String sectId = chain.get( UgwiKindRriAttr.IDX_SECTION_ID );
-              ISkRegRefInfoService rriServ =
-                  (ISkRegRefInfoService)coreApi.getService( ISkRegRefInfoService.SERVICE_ID );
-              ISkRriSection rriSect = rriServ.findSection( sectId );
-              IStridablesList<IDtoRriParamInfo> rriParamInfoes = rriSect.listParamInfoes( cinf.id() );
-              IDtoRriParamInfo rriParamInfo = rriParamInfoes.findByKey( gwid.propId() );
-              IDtoClassPropInfoBase prop = rriParamInfo.attrInfo();
-              panelProps.setSelectedItem( prop );
-            }
-            else {
-              IDtoClassPropInfoBase prop = cinf.props( getClassPropKind() ).list().findByKey( gwid.propId() );
-              panelProps.setSelectedItem( prop );
-            }
+            // panelObjects.setSelectedItem( obj );
+            // if( aItem.kindId().equals( UgwiKindRriAttr.KIND_ID ) ) {
+            // IdChain chain = IdChain.of( aItem.essence() );
+            // String sectId = chain.get( UgwiKindRriAttr.IDX_SECTION_ID );
+            // ISkRegRefInfoService rriServ =
+            // (ISkRegRefInfoService)coreApi.getService( ISkRegRefInfoService.SERVICE_ID );
+            // ISkRriSection rriSect = rriServ.findSection( sectId );
+            // IStridablesList<IDtoRriParamInfo> rriParamInfoes = rriSect.listParamInfoes( cinf.id() );
+            // IDtoRriParamInfo rriParamInfo = rriParamInfoes.findByKey( gwid.propId() );
+            // IDtoClassPropInfoBase prop = rriParamInfo.attrInfo();
+            // panelProps.setSelectedItem( prop );
+            // }
+            // else {
+            IDtoClassPropInfoBase prop = cinf.props( getClassPropKind() ).list().findByKey( gwid.propId() );
+            panelProps.setSelectedItem( prop );
+            // }
+            // ---
           }
         }
       }
@@ -242,10 +240,12 @@ public class SingleSkPropUgwiSelectPanel
   public static Gwid ugwi2Gwid( Ugwi aItem ) {
     Gwid retVal = null;
     switch( aItem.kindId() ) {
-      case UgwiKindRriAttr.KIND_ID -> {
-        retVal = UgwiKindRriAttr.getGwid( aItem );
-        break;
-      }
+      // FIXME --- GOGA temporary disabled to remove RRI dependency from SkIDE repository
+      // case UgwiKindRriAttr.KIND_ID -> {
+      // retVal = UgwiKindRriAttr.getGwid( aItem );
+      // break;
+      // }
+      // ---
       case UgwiKindSkAttr.KIND_ID -> {
         retVal = UgwiKindSkAttr.getGwid( aItem );
         break;
@@ -313,22 +313,26 @@ public class SingleSkPropUgwiSelectPanel
     if( sel != null ) {
       M5DefaultItemsProvider<IDtoClassPropInfoBase> itemsProvider = new M5DefaultItemsProvider<>();
       ISkClassInfo cinf = panelClasses.selectedItem();
+
+      // FIXME --- GOGA temporary disabled to remove RRI dependency from SkIDE repository
       // для НСИ атрибутов отдельная обработка
-      if( initUgwi != null && initUgwi.kindId().equals( UgwiKindRriAttr.KIND_ID ) ) {
-        IdChain chain = IdChain.of( initUgwi.essence() );
-        String sectId = chain.get( UgwiKindRriAttr.IDX_SECTION_ID );
-        ISkRegRefInfoService rriServ = (ISkRegRefInfoService)coreApi.getService( ISkRegRefInfoService.SERVICE_ID );
-        ISkRriSection rriSect = rriServ.findSection( sectId );
-        IStridablesList<IDtoRriParamInfo> rriParamInfoes = rriSect.listParamInfoes( cinf.id() );
-        IListEdit<IDtoClassPropInfoBase> params = new ElemArrayList<>();
-        for( IDtoRriParamInfo rriParamInfo : rriParamInfoes ) {
-          params.add( rriParamInfo.attrInfo() );
-        }
-        itemsProvider.items().setAll( params );
-      }
-      else {
-        itemsProvider.items().setAll( cinf.props( getClassPropKind() ).list() );
-      }
+      // if( initUgwi != null && initUgwi.kindId().equals( UgwiKindRriAttr.KIND_ID ) ) {
+      // IdChain chain = IdChain.of( initUgwi.essence() );
+      // String sectId = chain.get( UgwiKindRriAttr.IDX_SECTION_ID );
+      // ISkRegRefInfoService rriServ = (ISkRegRefInfoService)coreApi.getService( ISkRegRefInfoService.SERVICE_ID );
+      // ISkRriSection rriSect = rriServ.findSection( sectId );
+      // IStridablesList<IDtoRriParamInfo> rriParamInfoes = rriSect.listParamInfoes( cinf.id() );
+      // IListEdit<IDtoClassPropInfoBase> params = new ElemArrayList<>();
+      // for( IDtoRriParamInfo rriParamInfo : rriParamInfoes ) {
+      // params.add( rriParamInfo.attrInfo() );
+      // }
+      // itemsProvider.items().setAll( params );
+      // }
+      // else {
+      itemsProvider.items().setAll( cinf.props( getClassPropKind() ).list() );
+      // }
+      // ---
+
       panelProps.setItemsProvider( itemsProvider );
       panelProps.refresh();
     }
