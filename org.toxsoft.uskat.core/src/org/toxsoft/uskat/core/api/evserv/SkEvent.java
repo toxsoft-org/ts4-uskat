@@ -107,7 +107,7 @@ public final class SkEvent
   public static SkEvent create( Skid aSource, String aEventId, Object... aParams ) {
     TsNullArgumentRtException.checkNull( aSource );
     StridUtils.checkValidIdPath( aEventId );
-    return new SkEvent( aEventId, aEventId, aEventId, aParams );
+    return new SkEvent( aSource.classId(), aSource.strid(), aEventId, aParams );
   }
 
   // ------------------------------------------------------------------------------------
