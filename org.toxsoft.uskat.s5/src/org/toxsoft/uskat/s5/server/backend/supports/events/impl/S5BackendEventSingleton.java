@@ -7,42 +7,36 @@ import static org.toxsoft.uskat.s5.server.backend.addons.events.S5BaEventsUtils.
 import static org.toxsoft.uskat.s5.server.backend.supports.events.impl.IS5Resources.*;
 import static org.toxsoft.uskat.s5.server.transactions.ES5TransactionResources.*;
 
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.*;
 
 import javax.ejb.*;
 
-import org.toxsoft.core.tslib.bricks.strid.coll.IStridablesList;
+import org.toxsoft.core.tslib.bricks.strid.coll.*;
 import org.toxsoft.core.tslib.bricks.time.*;
-import org.toxsoft.core.tslib.bricks.time.impl.QueryInterval;
-import org.toxsoft.core.tslib.bricks.time.impl.TimedList;
+import org.toxsoft.core.tslib.bricks.time.impl.*;
 import org.toxsoft.core.tslib.coll.*;
 import org.toxsoft.core.tslib.coll.impl.*;
-import org.toxsoft.core.tslib.coll.primtypes.IStringList;
+import org.toxsoft.core.tslib.coll.primtypes.*;
 import org.toxsoft.core.tslib.gw.gwid.*;
-import org.toxsoft.core.tslib.gw.skid.Skid;
-import org.toxsoft.core.tslib.utils.Pair;
-import org.toxsoft.core.tslib.utils.errors.TsNotAllEnumsUsedRtException;
-import org.toxsoft.core.tslib.utils.errors.TsNullArgumentRtException;
-import org.toxsoft.core.tslib.utils.logs.ELogSeverity;
-import org.toxsoft.uskat.core.api.evserv.SkEvent;
-import org.toxsoft.uskat.core.api.objserv.IDtoObject;
-import org.toxsoft.uskat.core.api.sysdescr.ISkClassInfo;
-import org.toxsoft.uskat.core.api.sysdescr.dto.IDtoClassInfo;
-import org.toxsoft.uskat.core.backend.api.IBaEvents;
-import org.toxsoft.uskat.core.backend.api.IBaEventsMessages;
-import org.toxsoft.uskat.core.impl.SkEventList;
-import org.toxsoft.uskat.s5.server.backend.addons.events.S5BaEventsData;
-import org.toxsoft.uskat.s5.server.backend.supports.events.IS5BackendEventSingleton;
-import org.toxsoft.uskat.s5.server.backend.supports.events.sequences.IS5EventSequence;
-import org.toxsoft.uskat.s5.server.backend.supports.events.sequences.IS5EventSequenceEdit;
-import org.toxsoft.uskat.s5.server.frontend.IS5FrontendRear;
-import org.toxsoft.uskat.s5.server.sequences.IS5SequenceBlock;
-import org.toxsoft.uskat.s5.server.sequences.IS5SequenceFactory;
-import org.toxsoft.uskat.s5.server.sequences.impl.S5BackendSequenceSupportSingleton;
-import org.toxsoft.uskat.s5.server.sequences.impl.S5SequenceFactory;
+import org.toxsoft.core.tslib.gw.skid.*;
+import org.toxsoft.core.tslib.utils.*;
+import org.toxsoft.core.tslib.utils.errors.*;
+import org.toxsoft.core.tslib.utils.logs.*;
+import org.toxsoft.uskat.core.api.evserv.*;
+import org.toxsoft.uskat.core.api.objserv.*;
+import org.toxsoft.uskat.core.api.sysdescr.*;
+import org.toxsoft.uskat.core.api.sysdescr.dto.*;
+import org.toxsoft.uskat.core.backend.api.*;
+import org.toxsoft.uskat.core.impl.*;
+import org.toxsoft.uskat.s5.server.backend.addons.events.*;
+import org.toxsoft.uskat.s5.server.backend.supports.events.*;
+import org.toxsoft.uskat.s5.server.backend.supports.events.sequences.*;
+import org.toxsoft.uskat.s5.server.frontend.*;
+import org.toxsoft.uskat.s5.server.sequences.*;
+import org.toxsoft.uskat.s5.server.sequences.impl.*;
 import org.toxsoft.uskat.s5.server.transactions.*;
-import org.toxsoft.uskat.s5.utils.collections.S5FixedCapacityTimedList;
-import org.toxsoft.uskat.s5.utils.jobs.IS5ServerJob;
+import org.toxsoft.uskat.s5.utils.collections.*;
+import org.toxsoft.uskat.s5.utils.jobs.*;
 
 /**
  * Реализация синглетона {@link IS5BackendEventSingleton}
@@ -239,10 +233,11 @@ public class S5BackendEventSingleton
         // Cохранение событий в базе данных
         writeSequences( sequences );
         for( IS5FrontendRear frontend : backend().attachedFrontends() ) {
-          if( frontend.equals( fireRaiser ) ) {
-            // События не передаются frontend-у которые он отправил
-            continue;
-          }
+          // 2024-10-17 mvk --- события могут быть переданы ВСЕМ, определяется только подпиской 
+//          if( frontend.equals( fireRaiser ) ) {
+//            // События не передаются frontend-у которые он отправил
+//            continue;
+//          }
           // Фильтрация интересуемых событий
           SkEventList frontendEvents =
               frontend.frontendData().findBackendAddonData( IBaEvents.ADDON_ID, S5BaEventsData.class ).events
