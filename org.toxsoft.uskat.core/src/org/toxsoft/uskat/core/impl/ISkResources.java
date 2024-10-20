@@ -1,6 +1,6 @@
 package org.toxsoft.uskat.core.impl;
 
-import org.toxsoft.uskat.core.api.hqserv.ISkHistoryQueryServiceConstants;
+import org.toxsoft.uskat.core.api.hqserv.*;
 
 /**
  * Localizable resources.
@@ -24,7 +24,7 @@ interface ISkResources {
   String FMT_WARN_INV_SERVICE_GT_MSG   = "Service %s: received invalid message with topic ID '%s'";
   String FMT_WARN_UNKNOWN_MSG          = "Service %s: received message with unknown message ID '%s'";
   String FMT_ERR_CLAIM_VIOLATION       = "Entities of class ID %s are claimed by service %s";
-  String FMT_ERR_INVALID_THREAD_ACCESS = "Invalid thread access";
+  String FMT_ERR_INVALID_THREAD_ACCESS = "Invalid thread access (TsIllegalStateRtException)";
 
   /**
    * {@link CoreL10n}
