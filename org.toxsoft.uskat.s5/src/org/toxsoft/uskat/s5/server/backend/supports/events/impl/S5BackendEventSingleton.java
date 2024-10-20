@@ -225,7 +225,7 @@ public class S5BackendEventSingleton
             sb.append( event );
             sb.append( "\n" ); //$NON-NLS-1$
           }
-          logger().info( "fireEvents(...): %s", sb.toString() ); //$NON-NLS-1$
+          logger().info( "writeEventsImpl(...): fireEvents(...): %s", sb.toString() ); //$NON-NLS-1$
         }
 
         // Формирование последовательностей событий по объектам
@@ -233,11 +233,11 @@ public class S5BackendEventSingleton
         // Cохранение событий в базе данных
         writeSequences( sequences );
         for( IS5FrontendRear frontend : backend().attachedFrontends() ) {
-          // 2024-10-17 mvk --- события могут быть переданы ВСЕМ, определяется только подпиской 
-//          if( frontend.equals( fireRaiser ) ) {
-//            // События не передаются frontend-у которые он отправил
-//            continue;
-//          }
+          // 2024-10-17 mvk --- события могут быть переданы ВСЕМ, определяется только подпиской
+          // if( frontend.equals( fireRaiser ) ) {
+          // // События не передаются frontend-у которые он отправил
+          // continue;
+          // }
           // Фильтрация интересуемых событий
           SkEventList frontendEvents =
               frontend.frontendData().findBackendAddonData( IBaEvents.ADDON_ID, S5BaEventsData.class ).events
