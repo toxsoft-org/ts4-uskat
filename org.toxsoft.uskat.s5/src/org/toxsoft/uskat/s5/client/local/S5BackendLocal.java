@@ -2,28 +2,22 @@ package org.toxsoft.uskat.s5.client.local;
 
 import static org.toxsoft.core.tslib.av.impl.AvUtils.*;
 
-import org.toxsoft.core.tslib.av.opset.IOptionSet;
-import org.toxsoft.core.tslib.bricks.ctx.ITsContextRo;
-import org.toxsoft.core.tslib.bricks.strid.coll.IStridablesList;
-import org.toxsoft.core.tslib.coll.primtypes.IStringMap;
-import org.toxsoft.core.tslib.coll.primtypes.IStringMapEdit;
-import org.toxsoft.core.tslib.coll.primtypes.impl.StringMap;
-import org.toxsoft.core.tslib.gw.skid.Skid;
-import org.toxsoft.core.tslib.utils.errors.TsNullArgumentRtException;
-import org.toxsoft.uskat.core.api.users.ISkUser;
-import org.toxsoft.uskat.core.api.users.ISkUserServiceHardConstants;
-import org.toxsoft.uskat.core.backend.ISkBackendHardConstant;
-import org.toxsoft.uskat.core.backend.ISkFrontendRear;
-import org.toxsoft.uskat.core.backend.api.BackendMsgActiveChanged;
-import org.toxsoft.uskat.core.backend.api.ISkBackendInfo;
-import org.toxsoft.uskat.core.connection.ESkAuthentificationType;
-import org.toxsoft.uskat.core.impl.SkLoggedUserInfo;
-import org.toxsoft.uskat.s5.client.IS5ConnectionParams;
-import org.toxsoft.uskat.s5.common.sessions.IS5SessionInfo;
-import org.toxsoft.uskat.s5.server.IS5ServerHardConstants;
-import org.toxsoft.uskat.s5.server.backend.IS5BackendCoreSingleton;
+import org.toxsoft.core.tslib.av.opset.*;
+import org.toxsoft.core.tslib.bricks.ctx.*;
+import org.toxsoft.core.tslib.bricks.strid.coll.*;
+import org.toxsoft.core.tslib.coll.primtypes.*;
+import org.toxsoft.core.tslib.coll.primtypes.impl.*;
+import org.toxsoft.core.tslib.gw.skid.*;
+import org.toxsoft.core.tslib.utils.errors.*;
+import org.toxsoft.uskat.core.api.users.*;
+import org.toxsoft.uskat.core.backend.*;
+import org.toxsoft.uskat.core.backend.api.*;
+import org.toxsoft.uskat.core.connection.*;
+import org.toxsoft.uskat.core.impl.*;
+import org.toxsoft.uskat.s5.client.*;
+import org.toxsoft.uskat.s5.server.backend.*;
 import org.toxsoft.uskat.s5.server.backend.addons.*;
-import org.toxsoft.uskat.s5.server.backend.impl.S5BackendInfo;
+import org.toxsoft.uskat.s5.server.backend.impl.*;
 import org.toxsoft.uskat.s5.server.backend.messages.*;
 import org.toxsoft.uskat.s5.server.sessions.*;
 
@@ -136,23 +130,13 @@ public final class S5BackendLocal
   protected ISkBackendInfo doFindServerBackendInfo() {
     // Запрос текущей информации о сервере (backend)
     ISkBackendInfo backendInfo = backendSingleton.getInfo();
-    // Данные сессии
-    S5SessionData sessionData = sessionManager.findSessionData( sessionID() );
-    if( sessionData == null ) {
-      // Вызов информации бекенда ДО создания сессии. Такое возможно смотри SkCoreApi, создание бекенда
-      return backendInfo;
-    }
-    // Описание текущей сессии пользователя
-    IS5SessionInfo sessionInfo = sessionData.info();
     // Формирование информации сессии бекенда
     S5BackendInfo retValue = new S5BackendInfo( backendInfo );
     // Информация о зарегистрированном пользователе
-    SkLoggedUserInfo loggedUserInfo = new SkLoggedUserInfo( new Skid( ISkUser.CLASS_ID, sessionInfo.login() ),
-        ISkUserServiceHardConstants.SKID_ROLE_ROOT, ESkAuthentificationType.SIMPLE );
+    SkLoggedUserInfo loggedUserInfo =
+        new SkLoggedUserInfo( new Skid( ISkUser.CLASS_ID, ISkUserServiceHardConstants.USER_ID_ROOT ),
+            ISkUserServiceHardConstants.SKID_ROLE_ROOT, ESkAuthentificationType.SIMPLE );
     ISkBackendHardConstant.OPDEF_SKBI_LOGGED_USER.setValue( retValue.params(), avValobj( loggedUserInfo ) );
-    // Идентификатор текущей сессии пользователя
-    IS5ServerHardConstants.OP_BACKEND_SESSION_INFO.setValue( retValue.params(), avValobj( sessionInfo ) );
-
     return retValue;
   }
 
