@@ -31,6 +31,8 @@ interface IAdminHardResources {
   String MSG_CMD_READ_CREATE  = "%s | Создание %d каналов:";
   String MSG_CMD_READ         = "%s | Чтение %d каналов:";
   String MSG_CMD_READ_VALUE   = "%s | %s = %s";
+  String MSG_CMD_NOT_FOUND    = "%s | %s = NOT FOUND";
+  String MSG_CMD_NOT_READY    = "%s | %s = NOT READY";
   String ERR_CMD_READ_TIMEOUT = "\nЗавершение ожидания значений по таймауту";
   String MSG_CMD_QUERY_STATE  = "%s | состояние запроса = %s";
 

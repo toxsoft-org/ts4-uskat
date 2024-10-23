@@ -1,18 +1,19 @@
 package org.toxsoft.uskat.skadmin.dev.commands;
 
 import static org.toxsoft.core.tslib.av.EAtomicType.*;
+import static org.toxsoft.core.tslib.av.impl.AvUtils.*;
 import static org.toxsoft.core.tslib.bricks.strio.IStrioHardConstants.*;
 import static org.toxsoft.core.tslib.utils.TsLibUtils.*;
 import static org.toxsoft.uskat.legacy.plexy.impl.PlexyValueUtils.*;
 import static org.toxsoft.uskat.skadmin.core.plugins.AdminPluginUtils.*;
 import static org.toxsoft.uskat.skadmin.dev.commands.IAdminHardResources.*;
 
-import org.toxsoft.core.tslib.bricks.time.impl.TimeUtils;
-import org.toxsoft.uskat.core.api.cmdserv.ESkCommandState;
-import org.toxsoft.uskat.legacy.plexy.IPlexyType;
-import org.toxsoft.uskat.skadmin.core.IAdminCmdArgDef;
-import org.toxsoft.uskat.skadmin.core.impl.AdminCmdArgDef;
-import org.toxsoft.uskat.skadmin.dev.AdminPluginDev;
+import org.toxsoft.core.tslib.bricks.time.impl.*;
+import org.toxsoft.uskat.core.api.cmdserv.*;
+import org.toxsoft.uskat.legacy.plexy.*;
+import org.toxsoft.uskat.skadmin.core.*;
+import org.toxsoft.uskat.skadmin.core.impl.*;
+import org.toxsoft.uskat.skadmin.dev.*;
 
 /**
  * Константы пакета.
@@ -25,7 +26,7 @@ interface IAdminHardConstants {
   /**
    * Тип аргумента "состояние ответа команды"
    */
-  IPlexyType RESPONSE_STATE_TYPE = ptSingleValue( createType( STRING, ESkCommandState.SUCCESS.id() ) );
+  IPlexyType RESPONSE_STATE_TYPE = ptSingleValue( createType( STRING, avStr( ESkCommandState.SUCCESS.id() ) ) );
 
   /**
    * Префикс идентификаторов команд и их алиасов плагина
@@ -43,17 +44,17 @@ interface IAdminHardConstants {
   /**
    * Аргумент {@link AdminCmdSend}: Идентификатор класса объекта
    */
-  IAdminCmdArgDef ARG_SEND_CLASSID = new AdminCmdArgDef( "classId", DT_STRING_NULLABLE, STR_ARG_SEND_CLASSID );
+  IAdminCmdArgDef ARG_SEND_CLASSID = new AdminCmdArgDef( "classId", DT_STRING, STR_ARG_SEND_CLASSID );
 
   /**
    * Аргумент {@link AdminCmdSend}: Строковый идентификатор объекта класса
    */
-  IAdminCmdArgDef ARG_SEND_STRID = new AdminCmdArgDef( "strid", DT_STRING_NULLABLE, STR_ARG_SEND_STRID );
+  IAdminCmdArgDef ARG_SEND_STRID = new AdminCmdArgDef( "strid", DT_STRING, STR_ARG_SEND_STRID );
 
   /**
    * Аргумент {@link AdminCmdSend}: Идентификатор команды
    */
-  IAdminCmdArgDef ARG_SEND_CMDID = new AdminCmdArgDef( "cmdId", DT_STRING_NULLABLE, STR_ARG_SEND_CMDID );
+  IAdminCmdArgDef ARG_SEND_CMDID = new AdminCmdArgDef( "cmdId", DT_STRING, STR_ARG_SEND_CMDID );
 
   /**
    * Аргумент {@link AdminCmdSend}: Список аргументов команды
@@ -76,7 +77,7 @@ interface IAdminHardConstants {
    * Аргумент {@link AdminCmdSend}: Таймаут(мсек) ожидания завершения выполнения команды
    */
   IAdminCmdArgDef ARG_SEND_TIMEOUT =
-      new AdminCmdArgDef( "timeout", createType( INTEGER, "5000" ), STR_ARG_SEND_TIMEOUT );
+      new AdminCmdArgDef( "timeout", createType( INTEGER, avInt( 5000 ) ), STR_ARG_SEND_TIMEOUT );
 
   // ------------------------------------------------------------------------------------
   // AdminCmdExecutor
@@ -95,7 +96,7 @@ interface IAdminHardConstants {
    * Аргумент {@link AdminCmdExecutor}: Время ожидания команд(мсек)
    */
   IAdminCmdArgDef ARG_EXEC_TIMEOUT =
-      new AdminCmdArgDef( "timeout", createType( INTEGER, "6000" ), STR_ARG_EXEC_TIMEOUT );
+      new AdminCmdArgDef( "timeout", createType( INTEGER, avInt( 6000 ) ), STR_ARG_EXEC_TIMEOUT );
 
   /**
    * Аргумент {@link AdminCmdExecutor}: Состояние возвращаемое при получении команды
@@ -106,7 +107,7 @@ interface IAdminHardConstants {
    * Аргумент {@link AdminCmdExecutor}: Таймаут отправки ответного состояния команды (мсек)
    */
   IAdminCmdArgDef ARG_EXEC_RESPONSE_TIMEOUT =
-      new AdminCmdArgDef( "responseTimeout", createType( INTEGER, "100" ), STR_ARG_EXEC_RESPONSE_TIMEOUT );
+      new AdminCmdArgDef( "responseTimeout", createType( INTEGER, avInt( 100 ) ), STR_ARG_EXEC_RESPONSE_TIMEOUT );
 
   // ------------------------------------------------------------------------------------
   // Аргументы команды

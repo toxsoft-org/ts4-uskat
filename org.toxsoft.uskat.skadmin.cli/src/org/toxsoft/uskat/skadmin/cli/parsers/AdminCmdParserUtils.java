@@ -7,27 +7,23 @@ import static org.toxsoft.uskat.skadmin.cli.parsers.AdminCmdLexicalParser.*;
 import static org.toxsoft.uskat.skadmin.cli.parsers.IAdminResources.*;
 import static org.toxsoft.uskat.skadmin.core.impl.AdminCmdLibraryUtils.*;
 
-import org.toxsoft.core.tslib.av.EAtomicType;
-import org.toxsoft.core.tslib.av.IAtomicValue;
-import org.toxsoft.core.tslib.av.impl.AtomicValueKeeper;
-import org.toxsoft.core.tslib.av.impl.DataType;
-import org.toxsoft.core.tslib.av.metainfo.IDataType;
-import org.toxsoft.core.tslib.av.opset.IOptionSet;
-import org.toxsoft.core.tslib.av.opset.IOptionSetEdit;
-import org.toxsoft.core.tslib.av.opset.impl.OptionSet;
-import org.toxsoft.core.tslib.bricks.strid.impl.StridUtils;
+import org.toxsoft.core.tslib.av.*;
+import org.toxsoft.core.tslib.av.impl.*;
+import org.toxsoft.core.tslib.av.metainfo.*;
+import org.toxsoft.core.tslib.av.opset.*;
+import org.toxsoft.core.tslib.av.opset.impl.*;
+import org.toxsoft.core.tslib.bricks.strid.impl.*;
 import org.toxsoft.core.tslib.bricks.strio.*;
-import org.toxsoft.core.tslib.bricks.strio.chario.impl.CharInputStreamString;
-import org.toxsoft.core.tslib.bricks.strio.impl.StrioReader;
-import org.toxsoft.core.tslib.bricks.validator.ValidationResult;
-import org.toxsoft.core.tslib.coll.IList;
-import org.toxsoft.core.tslib.coll.IListEdit;
-import org.toxsoft.core.tslib.coll.impl.ElemLinkedList;
+import org.toxsoft.core.tslib.bricks.strio.chario.impl.*;
+import org.toxsoft.core.tslib.bricks.strio.impl.*;
+import org.toxsoft.core.tslib.bricks.validator.*;
+import org.toxsoft.core.tslib.coll.*;
+import org.toxsoft.core.tslib.coll.impl.*;
 import org.toxsoft.core.tslib.coll.primtypes.*;
-import org.toxsoft.core.tslib.coll.primtypes.impl.StringLinkedBundleList;
+import org.toxsoft.core.tslib.coll.primtypes.impl.*;
 import org.toxsoft.core.tslib.utils.errors.*;
 import org.toxsoft.uskat.legacy.plexy.*;
-import org.toxsoft.uskat.legacy.plexy.impl.PlexyValueUtils;
+import org.toxsoft.uskat.legacy.plexy.impl.*;
 import org.toxsoft.uskat.skadmin.core.*;
 
 /**
@@ -102,7 +98,9 @@ public class AdminCmdParserUtils {
       IListEdit<ValidationResult> aErrors ) {
     TsNullArgumentRtException.checkNulls( aCmdToken, aLibrary, aSectionId, aErrors );
     ETokenType type = aCmdToken.type();
-    if( type != ETokenType.VALUE ) {
+    // 2024-10-23 mvk
+    // if( type != ETokenType.VALUE ) {
+    if( type != ETokenType.ID ) {
       // Лексема команды должна представлять "значение", так как пользователь вводит ее без префиксов "--"
       aCmdToken.setType( ETokenType.UNDEF );
       aErrors.add( error( ERR_MSG_INVALID_CMD_ID ) );
@@ -754,6 +752,7 @@ public class AdminCmdParserUtils {
    * @return значение. null: ошибка чтения
    * @throws TsNullArgumentRtException любой аргумент null
    */
+  @SuppressWarnings( "unused" )
   public static IAtomicValue valueParse( IAdminCmdContext aContext, IAdminCmdToken aArgToken, IDataType aType,
       String aName, IListEdit<ValidationResult> aErrors ) {
     TsNullArgumentRtException.checkNulls( aContext, aArgToken, aType );
@@ -773,6 +772,8 @@ public class AdminCmdParserUtils {
       }
       data = contextValue.toString();
     }
+    // Именованное значение определяется через параметр контекста. Пустая строка: чтение неименнованного значения
+    String paramName = EMPTY_STRING;
     if( aArgToken.type() == ETokenType.NAMED_VALUE ) {
       // Лексема представляет именованное значение
       int valueIndex = data.indexOf( IStrioHardConstants.CHAR_EQUAL );
@@ -781,13 +782,14 @@ public class AdminCmdParserUtils {
         aErrors.add( error( ERR_MSG_NOT_FOUND_NAMED_VALUE, aName ) );
         return null;
       }
+      // Имя параметра
+      paramName = data.substring( 0, valueIndex );
       // Выделение подстроки значения
       data = data.substring( valueIndex + 1 ).trim();
       // Все кавычки используемые в значении именованного параметра сохраняются
       quoted = false;
       if( data.startsWith( EMPTY_STRING + AdminCmdLexicalParser.CHAR_CONTEXT_PREFIX ) ) {
         // Именованное значение определяется через параметр контекста
-        String paramName = data.substring( 1 );
         Object contextValue = aContext.paramValueOrNull( paramName );
         if( contextValue == null ) {
           token.setType( ETokenType.UNDEF );
@@ -809,6 +811,7 @@ public class AdminCmdParserUtils {
           return avFloat( Double.parseDouble( data ) );
         case STRING:
           return avStr( data );
+        case VALOBJ:
         case NONE:
           if( quoted ) {
             // Лексема была в кавычка;
@@ -819,18 +822,22 @@ public class AdminCmdParserUtils {
             return AtomicValueKeeper.KEEPER.str2ent( data );
           }
           catch( StrioRtException e ) {
+            String err = (paramName.length() == 0 ? String.format( ERR_MSG_INVALID_VALUE, aName, data )
+                : String.format( ERR_MSG_INVALID_PARAM_VALUE, aName, paramName, data ));
+            if( StridUtils.isValidIdPath( data ) ) {
+              // Строковые значения должны быть указанны в кавычках
+              err += ERR_MSG_NEED_STRING;
+            }
             // Ошибка чтения значения
             token.setType( ETokenType.UNDEF );
-            aErrors.add( error( e ) );
+            aErrors.add( error( err ) );
             return null;
           }
-        case VALOBJ:
-          throw new TsUnsupportedFeatureRtException();
         default:
           throw new TsNotAllEnumsUsedRtException();
       }
     }
-    catch( @SuppressWarnings( "unused" ) RuntimeException e ) {
+    catch( RuntimeException e ) {
       // Ошибка чтения значения
       token.setType( ETokenType.UNDEF );
       aErrors.add( error( ERR_MSG_INVALID_TYPE, aName, aType.atomicType().id() ) );

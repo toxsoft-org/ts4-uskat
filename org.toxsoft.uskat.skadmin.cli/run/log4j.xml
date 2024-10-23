@@ -30,11 +30,11 @@
         </category>
 
         <category name="org.toxsoft.core.pas">
-                <priority value="TRACE" />
+                <priority value="ERROR" />
         </category>
 
-        <category name="org.toxsoft.uskat.s5.client.remote.S5BackendRemote">
-                <priority value="TRACE" />
+        <category name="org.toxsoft.uskat.s5.client">
+                <priority value="ERROR" />
         </category>
 
         <category name="org.toxsoft.uskat.s5.server.backend.addons.events.S5BaEventsRemote">

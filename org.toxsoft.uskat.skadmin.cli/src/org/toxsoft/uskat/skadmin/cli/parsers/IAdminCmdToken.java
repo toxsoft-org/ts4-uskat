@@ -1,6 +1,6 @@
 package org.toxsoft.uskat.skadmin.cli.parsers;
 
-import org.toxsoft.core.tslib.utils.errors.TsIllegalStateRtException;
+import org.toxsoft.core.tslib.utils.errors.*;
 
 /**
  * Лексема лексического или синтаксического анализа командной строки

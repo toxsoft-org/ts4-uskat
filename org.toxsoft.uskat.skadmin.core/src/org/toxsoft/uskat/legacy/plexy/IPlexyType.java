@@ -1,14 +1,13 @@
 package org.toxsoft.uskat.legacy.plexy;
 
-import java.io.ObjectStreamException;
-import java.io.Serializable;
+import java.io.*;
 
-import org.toxsoft.core.tslib.av.IAtomicValue;
-import org.toxsoft.core.tslib.av.metainfo.IDataType;
-import org.toxsoft.core.tslib.av.opset.IOptionSet;
-import org.toxsoft.core.tslib.utils.errors.TsNullObjectErrorRtException;
-import org.toxsoft.core.tslib.utils.errors.TsUnsupportedFeatureRtException;
-import org.toxsoft.uskat.legacy.plexy.impl.PlexyValueUtils;
+import org.toxsoft.core.tslib.av.*;
+import org.toxsoft.core.tslib.av.impl.*;
+import org.toxsoft.core.tslib.av.metainfo.*;
+import org.toxsoft.core.tslib.av.opset.*;
+import org.toxsoft.core.tslib.utils.errors.*;
+import org.toxsoft.uskat.legacy.plexy.impl.*;
 
 /**
  * Плекси-тип.
@@ -57,6 +56,7 @@ class InternalNullPlexyType
     implements IPlexyType, Serializable {
 
   private static final long serialVersionUID = 157157L;
+  private IDataType         type             = DataType.create( EAtomicType.NONE );
 
   /**
    * Метод корректно восстанавливает сериализированный {@link IPlexyType#NONE}.
@@ -77,7 +77,7 @@ class InternalNullPlexyType
 
   @Override
   public IDataType dataType() {
-    throw new TsNullObjectErrorRtException();
+    return type;
   }
 
   @Override

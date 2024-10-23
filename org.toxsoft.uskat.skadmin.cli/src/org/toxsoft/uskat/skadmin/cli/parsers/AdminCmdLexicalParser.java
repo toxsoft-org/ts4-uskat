@@ -5,15 +5,15 @@ import static org.toxsoft.core.tslib.bricks.strio.impl.StrioUtils.*;
 import static org.toxsoft.core.tslib.utils.TsLibUtils.*;
 import static org.toxsoft.uskat.skadmin.cli.parsers.IAdminResources.*;
 
-import org.toxsoft.core.tslib.bricks.strid.impl.StridUtils;
+import org.toxsoft.core.tslib.av.*;
+import org.toxsoft.core.tslib.av.impl.*;
+import org.toxsoft.core.tslib.bricks.strid.impl.*;
 import org.toxsoft.core.tslib.bricks.strio.*;
-import org.toxsoft.core.tslib.bricks.strio.chario.impl.CharInputStreamString;
-import org.toxsoft.core.tslib.bricks.strio.impl.StrioReader;
-import org.toxsoft.core.tslib.coll.IList;
-import org.toxsoft.core.tslib.coll.IListEdit;
-import org.toxsoft.core.tslib.coll.impl.ElemLinkedList;
-import org.toxsoft.core.tslib.utils.errors.TsNotAllEnumsUsedRtException;
-import org.toxsoft.core.tslib.utils.errors.TsNullArgumentRtException;
+import org.toxsoft.core.tslib.bricks.strio.chario.impl.*;
+import org.toxsoft.core.tslib.bricks.strio.impl.*;
+import org.toxsoft.core.tslib.coll.*;
+import org.toxsoft.core.tslib.coll.impl.*;
+import org.toxsoft.core.tslib.utils.errors.*;
 
 /**
  * Лексический анализатор командной строки
@@ -27,6 +27,11 @@ public class AdminCmdLexicalParser
    * Лексемный читатель
    */
   private final StrioReader strioReader = new StrioReader( new CharInputStreamString() );
+
+  /**
+   * Текущая разбираемая строка
+   */
+  private String source;
 
   /**
    * Поправка текущей позиции возвращаемой: strioReader.getInput().currentPosition().charNo()
@@ -87,9 +92,10 @@ public class AdminCmdLexicalParser
   @Override
   public IList<IAdminCmdToken> parse( String aCmdLine ) {
     TsNullArgumentRtException.checkNull( aCmdLine );
-    strioReader.setInput( new CharInputStreamString( aCmdLine ) );
+    source = aCmdLine;
+    strioReader.setInput( new CharInputStreamString( source ) );
     strioReaderPositionDelta = 0;
-    IListEdit<IAdminCmdToken> tokens = new ElemLinkedList<>();
+    IListEdit<IAdminCmdToken> tokens = new ElemArrayList<>();
     char c = strioReader.peekChar( EStrioSkipMode.SKIP_BYPASSED );
     while( c != CHAR_EOF ) {
       // Предыдущая обработанная лексемма или null если такой не было
@@ -97,7 +103,7 @@ public class AdminCmdLexicalParser
       // Проверяем чтение оператора утверждения (=, >, <, =>, =<, ==, !=, ->)
       if( isStatement( aCmdLine, currentPosition() ) ) {
         // Чтение лексемы утверждения
-        c = readToken( tokens, ETokenType.STATEMENT, aCmdLine );
+        c = readToken( tokens, ETokenType.STATEMENT );
         // Прочитанная лексема (предположительно оператор утверждение)
         AdminCmdToken nextToken = (AdminCmdToken)(tokens.get( tokens.size() - 1 ));
         // Проверим, возможно, что производится чтение именованного значения (первое значение)
@@ -107,18 +113,18 @@ public class AdminCmdLexicalParser
           // прочитать именованное значение.
           tokens.removeByIndex( tokens.size() - 1 );
           tokens.removeByIndex( tokens.size() - 1 );
-          strioReader.setInput( new CharInputStreamString( aCmdLine, lastToken.startIndex() ) );
+          strioReader.setInput( new CharInputStreamString( source, lastToken.startIndex() ) );
           // Поправка позиции текущего символа
           strioReaderPositionDelta = lastToken.startIndex();
           // Чтение лексемы именованного значения
-          c = readToken( tokens, ETokenType.NAMED_VALUE, aCmdLine );
+          c = readToken( tokens, ETokenType.NAMED_VALUE );
         }
         continue;
       }
       switch( c ) {
         case CHAR_CONTEXT_PREFIX:
           // Параметр контекста (или список)
-          c = readToken( tokens, ETokenType.CONTEXT, aCmdLine );
+          c = readToken( tokens, ETokenType.CONTEXT );
           break;
         case CHAR_ID_PREFIX:
           // Префикс идентификатора или оператор применения параметров контекста (->)
@@ -128,17 +134,17 @@ public class AdminCmdLexicalParser
             // Нашли отрицательное число. Возвращаем в поток знак и первый символ числа
             strioReader.putCharBack();
             strioReader.putCharBack();
-            c = readToken( tokens, ETokenType.VALUE, aCmdLine );
+            c = readToken( tokens, ETokenType.VALUE );
             continue;
           }
           if( c == CHAR_ID_PREFIX ) {
             // Чтение идентификатора (каноническая форма)
-            c = readToken( tokens, ETokenType.ID, aCmdLine );
+            c = readToken( tokens, ETokenType.ID );
             continue;
           }
           // Возвращаем в поток символ и читаем идентификатор
           strioReader.putCharBack();
-          c = readToken( tokens, ETokenType.ID, aCmdLine );
+          c = readToken( tokens, ETokenType.ID );
           continue;
         default:
           if( strioReader.isDelimiterChar( c ) ) {
@@ -158,7 +164,7 @@ public class AdminCmdLexicalParser
                 lastToken.setType( prevType );
                 // Чтение значения (элемента списка)
                 ETokenType nextType = (c == CHAR_CONTEXT_PREFIX ? ETokenType.LIST_CONTEXT : ETokenType.LIST_VALUE);
-                c = readToken( tokens, nextType, aCmdLine );
+                c = readToken( tokens, nextType );
                 // Устанавливаем индекс элемента в списке
                 AdminCmdToken addedToken = (AdminCmdToken)tokens.get( tokens.size() - 1 );
                 if( addedToken.type() != ETokenType.UNDEF ) {
@@ -168,16 +174,16 @@ public class AdminCmdLexicalParser
               }
               if( lastTokenType == ETokenType.NAMED_VALUE ) {
                 // Считывание именованных параметров
-                c = readToken( tokens, ETokenType.NAMED_VALUE, aCmdLine );
+                c = readToken( tokens, ETokenType.NAMED_VALUE );
                 continue;
               }
             }
             // Символ ',' но до этого не было токена-значения
-            c = readToken( tokens, ETokenType.UNDEF, aCmdLine );
+            c = readToken( tokens, ETokenType.UNDEF );
             continue;
           }
           // Чтение значения
-          c = readToken( tokens, ETokenType.VALUE, aCmdLine );
+          c = readToken( tokens, (lastToken == null ? ETokenType.ID : ETokenType.VALUE) );
           continue;
       }
     }
@@ -192,11 +198,10 @@ public class AdminCmdLexicalParser
    *
    * @param aTokens {@link IListEdit} список токенов
    * @param aTokenType {@link ETokenType} - тип читаемого токена
-   * @param aSource String строка ввода
    * @return char - первый символ следующей лексемы после разделителя
    */
   @SuppressWarnings( "unused" )
-  private char readToken( IListEdit<IAdminCmdToken> aTokens, ETokenType aTokenType, String aSource ) {
+  private char readToken( IListEdit<IAdminCmdToken> aTokens, ETokenType aTokenType ) {
     ETokenType tokenType = aTokenType;
     int startPosition = currentPosition();
     char nextChar = strioReader.peekChar( EStrioSkipMode.SKIP_NONE );
@@ -205,7 +210,7 @@ public class AdminCmdLexicalParser
         // Лексема именованного значения не может завершится таким образом
         tokenType = ETokenType.UNDEF;
       }
-      // Неожиданное завершение строки (пустая лексема, без кавычек)
+      // Неожиданное завершение строки. aQuoted = false
       aTokens.add( new AdminCmdToken( tokenType, startPosition, startPosition, EMPTY_STRING, false ) );
       return strioReader.nextChar();
     }
@@ -219,7 +224,7 @@ public class AdminCmdLexicalParser
         // Чтение первого символа оператора утверждения
         data += strioReader.nextChar();
         // Читаем следующий символ, для двухсимвольных операторов
-        if( isStatement( aSource, currentPosition() ) ) {
+        if( isStatement( source, currentPosition() ) ) {
           // Второй символ тоже преставляет оператор - чтение двухсимвольного оператора
           data += strioReader.nextChar();
         }
@@ -239,9 +244,7 @@ public class AdminCmdLexicalParser
           }
           catch( StrioRtException e ) {
             // Нет завершающих кавычек
-            // 2022-09-23 mvk чтение строки с последнего апострофа до конца строки
-            // tokenType = ETokenType.UNDEF;
-            data = aSource.substring( aSource.lastIndexOf( '"' ) + 1 );
+            data = source.substring( source.lastIndexOf( '"' ) + 1 );
             tokenType = ETokenType.UNDEF;
             quoted = false;
           }
@@ -258,12 +261,15 @@ public class AdminCmdLexicalParser
           }
           break;
         }
-        data = strioReader.readUntilDelimiter();
+        // 2024-10-23 mvk ---+++
+        // data = strioReader.readUntilDelimiter();
+        data = readValue( strioReader );
         break;
       case NAMED_VALUE:
         // Имя параметра должно преставлять ИД-путь
-        data = strioReader.readUntilDelimiter();
-        String valueName = data;
+        // 2024-10-23 mvk ---+++
+        // data = strioReader.readUntilDelimiter();
+        String valueName = strioReader.readIdPath();
         if( !StridUtils.isValidIdPath( valueName ) ) {
           // Имя не ИД-путь
           tokenType = ETokenType.UNDEF;
@@ -301,19 +307,25 @@ public class AdminCmdLexicalParser
           }
         }
         if( !quoted && !superQuoted ) {
-          data = strioReader.readUntilDelimiter();
+          // 2024-10-23 mvk ---+++
+          // data = strioReader.readUntilDelimiter();
+          try {
+            data = readValue( strioReader );
+          }
+          catch( StrioRtException e ) {
+            // Ошибка формата
+            tokenType = ETokenType.UNDEF;
+          }
         }
-        int finishPosition = Math.min( aSource.length(), currentPosition() );
-        data = aSource.substring( startPosition, finishPosition );
+        int finishPosition = Math.min( source.length(), currentPosition() );
+        data = source.substring( startPosition, finishPosition );
         aTokens.add( new AdminCmdToken( tokenType, startPosition, finishPosition - 1, data, quoted || superQuoted ) );
         return strioReader.peekChar( EStrioSkipMode.SKIP_BYPASSED );
       default:
         throw new TsNotAllEnumsUsedRtException();
     }
     // Фиксация позиции лексемы
-    // 2022-09-10 mvk
-    // int finishPosition = currentPosition() - 1;
-    int finishPosition = currentPosition();
+    int finishPosition = currentPosition() - 1;
     if( finishPosition < startPosition ) {
       // Пустая лексема
       startPosition = -1;
@@ -324,10 +336,39 @@ public class AdminCmdLexicalParser
       startPosition++;
       finishPosition--;
     }
-    // 2022-09-10 mvk
     aTokens.add( new AdminCmdToken( tokenType, startPosition, finishPosition, data, quoted || superQuoted ) );
-    // aTokens.add( new AdminCmdToken( tokenType, startPosition - 1, finishPosition, data, quoted || superQuoted ) );
     return strioReader.peekChar( EStrioSkipMode.SKIP_BYPASSED );
+  }
+
+  /**
+   * Читает значение из потока и возвращает текстовое представление считанного значения
+   *
+   * @param aStrioReader {@link IStrioReader} читатель потока
+   * @return String считанная строка
+   * @throws TsNullArgumentRtException аргумент = null
+   * @throws StrioRtException ошибка формата атомарного значения
+   */
+  private String readValue( IStrioReader aStrioReader ) {
+    TsNullArgumentRtException.checkNull( aStrioReader );
+    String retValue;
+    try {
+      // Попытка прочитать атомарное значение, в том числе значения типа valobj
+      int fromPosition = currentPosition();
+      StrioReader sr = new StrioReader( new CharInputStreamString( source, fromPosition ) );
+      IAtomicValue value = AtomicValueReaderUtils.readAtomicValueOrException( sr );
+      retValue = AtomicValueKeeper.KEEPER.ent2str( value );
+      // Чтение атомарного значения успешно завершено. Перемещение указателя в исходном потоке
+      int toPosition = sr.currentPosition();
+      for( int index = 0; index < toPosition; index++ ) {
+        aStrioReader.nextChar();
+      }
+      return retValue;
+    }
+    catch( @SuppressWarnings( "unused" ) StrioRtException e ) {
+      // Неудачное чтение атомарного значения в формате AtomicValueKeeper.KEEPER - чтение будет проведено как строка
+    }
+    retValue = strioReader.readUntilDelimiter();
+    return retValue;
   }
 
   /**
@@ -443,9 +484,7 @@ public class AdminCmdLexicalParser
    * @return int текущая позиция символа
    */
   private int currentPosition() {
-    // 2022-09-20 mvk
-    // return strioReader.currentPosition() + strioReaderPositionDelta;
-    return strioReader.getInput().currentPosition().charNo() + strioReaderPositionDelta - 1;
+    return strioReader.currentPosition() + strioReaderPositionDelta;
   }
 
   // // ------------------------------------------------------------------------------------

@@ -9,37 +9,29 @@ import static org.toxsoft.uskat.skadmin.dev.rtdata.AdminCurrdataUtils.*;
 import static org.toxsoft.uskat.skadmin.dev.rtdata.IAdminHardConstants.*;
 import static org.toxsoft.uskat.skadmin.dev.rtdata.IAdminHardResources.*;
 
-import org.toxsoft.core.tslib.av.IAtomicValue;
-import org.toxsoft.core.tslib.av.opset.IOptionSetEdit;
-import org.toxsoft.core.tslib.av.opset.impl.OptionSet;
-import org.toxsoft.core.tslib.bricks.strid.coll.IStridablesList;
-import org.toxsoft.core.tslib.bricks.strid.coll.IStridablesListEdit;
-import org.toxsoft.core.tslib.bricks.strid.coll.impl.StridablesList;
-import org.toxsoft.core.tslib.bricks.time.EQueryIntervalType;
-import org.toxsoft.core.tslib.bricks.time.impl.QueryInterval;
-import org.toxsoft.core.tslib.bricks.time.impl.TimeUtils;
+import org.toxsoft.core.tslib.av.*;
+import org.toxsoft.core.tslib.av.opset.*;
+import org.toxsoft.core.tslib.av.opset.impl.*;
+import org.toxsoft.core.tslib.bricks.strid.coll.*;
+import org.toxsoft.core.tslib.bricks.strid.coll.impl.*;
+import org.toxsoft.core.tslib.bricks.time.*;
+import org.toxsoft.core.tslib.bricks.time.impl.*;
 import org.toxsoft.core.tslib.coll.*;
 import org.toxsoft.core.tslib.coll.impl.*;
-import org.toxsoft.core.tslib.coll.primtypes.IStringList;
-import org.toxsoft.core.tslib.coll.primtypes.IStringMap;
-import org.toxsoft.core.tslib.gw.gwid.Gwid;
-import org.toxsoft.core.tslib.gw.gwid.GwidList;
-import org.toxsoft.core.tslib.gw.skid.ISkidList;
-import org.toxsoft.core.tslib.utils.errors.TsNullArgumentRtException;
-import org.toxsoft.uskat.core.ISkCoreApi;
+import org.toxsoft.core.tslib.coll.primtypes.*;
+import org.toxsoft.core.tslib.gw.gwid.*;
+import org.toxsoft.core.tslib.gw.skid.*;
+import org.toxsoft.core.tslib.utils.errors.*;
+import org.toxsoft.uskat.core.*;
 import org.toxsoft.uskat.core.api.hqserv.*;
-import org.toxsoft.uskat.core.api.objserv.ISkObjectService;
+import org.toxsoft.uskat.core.api.objserv.*;
 import org.toxsoft.uskat.core.api.rtdserv.*;
-import org.toxsoft.uskat.core.api.sysdescr.ISkClassInfo;
-import org.toxsoft.uskat.core.api.sysdescr.ISkSysdescr;
-import org.toxsoft.uskat.core.api.sysdescr.dto.IDtoRtdataInfo;
-import org.toxsoft.uskat.core.connection.ISkConnection;
-import org.toxsoft.uskat.core.connection.ISkConnectionListener;
-import org.toxsoft.uskat.legacy.plexy.IPlexyType;
-import org.toxsoft.uskat.legacy.plexy.IPlexyValue;
-import org.toxsoft.uskat.skadmin.core.IAdminCmdCallback;
-import org.toxsoft.uskat.skadmin.core.IAdminCmdContextParam;
-import org.toxsoft.uskat.skadmin.core.impl.AbstractAdminCmd;
+import org.toxsoft.uskat.core.api.sysdescr.*;
+import org.toxsoft.uskat.core.api.sysdescr.dto.*;
+import org.toxsoft.uskat.core.connection.*;
+import org.toxsoft.uskat.legacy.plexy.*;
+import org.toxsoft.uskat.skadmin.core.*;
+import org.toxsoft.uskat.skadmin.core.impl.*;
 
 /**
  * Команда s5admin: Чтение значения текущего данного
@@ -297,8 +289,16 @@ public class AdminCmdRead
       // Готовые каналы соединения
       IListEdit<Gwid> readyChannelIds = cdGwids.getByKey( connection );
       // Вывод уже полученных значений
-      for( Gwid gwid : newChannels.keys() ) {
+      for( Gwid gwid : gwids ) {
         ISkReadCurrDataChannel channel = channels.getByKey( gwid );
+        if( channel == null ) {
+          addResultInfo( "\n" + MSG_CMD_NOT_FOUND, time, gwid ); //$NON-NLS-1$
+          continue;
+        }
+        if( !channel.isOk() ) {
+          addResultInfo( "\n" + MSG_CMD_NOT_READY, time, gwid ); //$NON-NLS-1$
+          continue;
+        }
         // Вывод текущего значения канала
         value = channel.getValue();
         addResultInfo( "\n" + MSG_CMD_READ_VALUE, time, gwid, value ); //$NON-NLS-1$

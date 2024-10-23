@@ -6,34 +6,29 @@ import static org.toxsoft.uskat.skadmin.core.EAdminCmdContextNames.*;
 import static org.toxsoft.uskat.skadmin.dev.commands.IAdminHardConstants.*;
 import static org.toxsoft.uskat.skadmin.dev.commands.IAdminHardResources.*;
 
-import org.toxsoft.core.tslib.av.IAtomicValue;
-import org.toxsoft.core.tslib.av.impl.AvUtils;
-import org.toxsoft.core.tslib.av.opset.IOptionSet;
-import org.toxsoft.core.tslib.bricks.events.change.IGenericChangeListener;
-import org.toxsoft.core.tslib.bricks.strid.coll.IStridablesList;
-import org.toxsoft.core.tslib.coll.IList;
-import org.toxsoft.core.tslib.coll.IListEdit;
-import org.toxsoft.core.tslib.coll.impl.ElemArrayList;
-import org.toxsoft.core.tslib.coll.primtypes.IStringList;
-import org.toxsoft.core.tslib.coll.primtypes.IStringMap;
-import org.toxsoft.core.tslib.gw.gwid.Gwid;
-import org.toxsoft.core.tslib.gw.skid.ISkidList;
-import org.toxsoft.core.tslib.gw.skid.Skid;
-import org.toxsoft.core.tslib.utils.TsLibUtils;
-import org.toxsoft.core.tslib.utils.errors.TsNullArgumentRtException;
-import org.toxsoft.uskat.core.ISkCoreApi;
+import org.toxsoft.core.tslib.av.*;
+import org.toxsoft.core.tslib.av.impl.*;
+import org.toxsoft.core.tslib.av.metainfo.*;
+import org.toxsoft.core.tslib.av.opset.*;
+import org.toxsoft.core.tslib.bricks.events.change.*;
+import org.toxsoft.core.tslib.bricks.strid.coll.*;
+import org.toxsoft.core.tslib.coll.*;
+import org.toxsoft.core.tslib.coll.impl.*;
+import org.toxsoft.core.tslib.coll.primtypes.*;
+import org.toxsoft.core.tslib.gw.gwid.*;
+import org.toxsoft.core.tslib.gw.skid.*;
+import org.toxsoft.core.tslib.utils.*;
+import org.toxsoft.core.tslib.utils.errors.*;
+import org.toxsoft.uskat.core.*;
 import org.toxsoft.uskat.core.api.cmdserv.*;
-import org.toxsoft.uskat.core.api.objserv.ISkObjectService;
-import org.toxsoft.uskat.core.api.sysdescr.ISkClassInfo;
-import org.toxsoft.uskat.core.api.sysdescr.ISkSysdescr;
-import org.toxsoft.uskat.core.api.sysdescr.dto.IDtoCmdInfo;
-import org.toxsoft.uskat.core.api.users.ISkUser;
-import org.toxsoft.uskat.core.connection.ISkConnection;
-import org.toxsoft.uskat.core.impl.SkCommand;
-import org.toxsoft.uskat.legacy.plexy.IPlexyType;
-import org.toxsoft.uskat.legacy.plexy.IPlexyValue;
-import org.toxsoft.uskat.skadmin.core.IAdminCmdCallback;
-import org.toxsoft.uskat.skadmin.core.impl.AbstractAdminCmd;
+import org.toxsoft.uskat.core.api.objserv.*;
+import org.toxsoft.uskat.core.api.sysdescr.*;
+import org.toxsoft.uskat.core.api.sysdescr.dto.*;
+import org.toxsoft.uskat.core.api.users.*;
+import org.toxsoft.uskat.core.impl.*;
+import org.toxsoft.uskat.legacy.plexy.*;
+import org.toxsoft.uskat.skadmin.core.*;
+import org.toxsoft.uskat.skadmin.core.impl.*;
 
 /**
  * Команда s5admin: отправка команды исполнителю
@@ -115,8 +110,8 @@ public class AdminCmdSend
   public void doExec( IStringMap<IPlexyValue> aArgValues, IAdminCmdCallback aCallback ) {
     callback = aCallback;
     // API сервера
-    ISkConnection connection = argSingleRef( CTX_SK_CONNECTION );
     ISkCoreApi coreApi = argSingleRef( CTX_SK_CORE_API );
+    ISkSysdescr sysdescr = coreApi.sysdescr();
     ISkCommandService commandService = coreApi.cmdService();
     try {
       // Аргументы команды
@@ -139,6 +134,17 @@ public class AdminCmdSend
         long startTime = System.currentTimeMillis();
         Gwid cmdGwid = Gwid.createCmd( classId, objStrid, cmdId );
         Skid authorSkid = new Skid( authorClassId.asString(), authorStrid.asString() );
+
+        ISkClassInfo classInfo = sysdescr.getClassInfo( classId );
+        IDtoCmdInfo cmdInfo = classInfo.cmds().list().findByKey( cmdId );
+        // check command arguments are valid
+        for( IDataDef argInfo : cmdInfo.argDefs() ) {
+          if( !args.hasKey( argInfo.id() ) ) {
+            println( MSG_COMMAND_ARG_NOT_FOUND, argInfo.id() );
+            resultFail();
+            return;
+          }
+        }
         synchronized (this) {
           commandFinished = false;
           // Выполнение

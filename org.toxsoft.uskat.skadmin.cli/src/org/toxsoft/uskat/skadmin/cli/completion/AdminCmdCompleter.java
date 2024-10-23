@@ -7,21 +7,19 @@ import static org.toxsoft.uskat.skadmin.cli.IAdminAnsiConstants.*;
 import static org.toxsoft.uskat.skadmin.cli.parsers.AdminCmdLexicalParser.*;
 import static org.toxsoft.uskat.skadmin.core.impl.AdminCmdLibraryUtils.*;
 
-import java.util.List;
+import java.util.*;
 
-import org.toxsoft.core.tslib.av.IAtomicValue;
-import org.toxsoft.core.tslib.bricks.strid.impl.StridUtils;
-import org.toxsoft.core.tslib.bricks.time.impl.TimeUtils;
-import org.toxsoft.core.tslib.coll.IList;
-import org.toxsoft.core.tslib.coll.primtypes.IStringList;
-import org.toxsoft.core.tslib.coll.primtypes.IStringMap;
+import org.toxsoft.core.tslib.av.*;
+import org.toxsoft.core.tslib.bricks.strid.impl.*;
+import org.toxsoft.core.tslib.bricks.time.impl.*;
+import org.toxsoft.core.tslib.coll.*;
+import org.toxsoft.core.tslib.coll.primtypes.*;
 import org.toxsoft.core.tslib.utils.errors.*;
-import org.toxsoft.uskat.legacy.plexy.EPlexyKind;
-import org.toxsoft.uskat.legacy.plexy.IPlexyValue;
+import org.toxsoft.uskat.legacy.plexy.*;
 import org.toxsoft.uskat.skadmin.cli.parsers.*;
 import org.toxsoft.uskat.skadmin.core.*;
 
-import scala.tools.jline.console.completer.Completer;
+import scala.tools.jline.console.completer.*;
 
 /**
  * Автодоплнение команд, (TODO: аргументов и их значений)
@@ -42,7 +40,6 @@ public class AdminCmdCompleter
    * @param aSectionId String - текущий раздел консоли
    */
   public AdminCmdCompleter( IAdminCmdLibrary aLibrary, String aSectionId ) {
-    super();
     TsNullArgumentRtException.checkNulls( aLibrary, aSectionId );
     library = aLibrary;
     parser = new AdminCmdSyntaxParser( aLibrary );
@@ -101,9 +98,6 @@ public class AdminCmdCompleter
         cursorTokenIndex = tokens.size() - 1;
       }
       IAdminCmdToken cursorToken = (cursorTokenIndex >= 0 ? tokens.get( cursorTokenIndex ) : null);
-      // System.out.println( "cursorToken = " + cursorToken + ", cursorTokenIndex = " + cursorTokenIndex +
-      // ", aCursor = "
-      // + aCursor + ", tokenType = " + cursorToken.type() );
       if( cursorToken != null && //
           (cursorToken.type() == ETokenType.CONTEXT || cursorToken.type() == ETokenType.LIST_CONTEXT
               || isContextToken( cursorToken )) ) {
@@ -136,7 +130,7 @@ public class AdminCmdCompleter
           IAdminCmdDef cmdDef = library.findCommand( parser.getCmdId() );
           IAdminCmdArgDef argDef = cmdDef.findArgument( prevToken.data() );
           if( cursorToken == null ) {
-            // Создаем лексему по текущей позиции курсора (пустая без кавычек)
+            // Создаем лексему по текущей позиции курсора. aQuoted = false
             cursorToken = new AdminCmdToken( ETokenType.VALUE, aCursor, aCursor, EMPTY_STRING, false );
           }
           return tryValueAdd( cursorToken, cmdDef.id(), argDef.id(), library, parser.getArgValues(), aCandidates );
@@ -157,7 +151,7 @@ public class AdminCmdCompleter
         if( nextArgIndex < argDefs.size() ) {
           IAdminCmdArgDef argDef = argDefs.get( nextArgIndex );
           if( cursorToken == null ) {
-            // Создаем лексему по текущей позиции курсора (пустая, без кавычек)
+            // Создаем лексему по текущей позиции курсора. aQuoted = false
             cursorToken = new AdminCmdToken( ETokenType.VALUE, aCursor, aCursor, EMPTY_STRING, false );
           }
           return tryValueAdd( cursorToken, cmdDef.id(), argDef.id(), library, parser.getArgValues(), aCandidates );
@@ -327,8 +321,6 @@ public class AdminCmdCompleter
   private static int getCursorTokenIndex( IList<IAdminCmdToken> aTokens, int aCursor ) {
     for( int index = 0, n = aTokens.size(); index < n; index++ ) {
       IAdminCmdToken token = aTokens.get( index );
-      // 2022-09-20 mvk
-      // if( token.startIndex() <= aCursor && aCursor - 1 <= token.finishIndex() ) {
       if( token.startIndex() <= aCursor && aCursor <= token.finishIndex() ) {
         return index;
       }

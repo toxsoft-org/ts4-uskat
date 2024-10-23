@@ -1,100 +1,100 @@
-receiver -gwids "sk.Schedule[*]$event(*)"
-receiver -gwids "sk.Schedule[*]$event(*)" -timeout 300000
-cd sk.s5.schedules
-listSchedules
-removeSchedule test1
+send -classId sk.Alarm -strid almCalibr_P1 -cmdId cmdAcknowledge -args ackAuthor
+send -classId sk.Alarm -strid almCalibr_P1 -cmdId cmdAcknowledge 
+exit
+cd sk.dev.commands
+send -classId sk.Alarm -strid almCalibr_P1 -cmdId cmdAcknowledge -args ackAuthorGwid=sk.User[root], ackComment=test
+send -classId sk.Alarm -strid almCalibr_P1 -cmdId cmdAcknowledge 
+exit
+cd sk.dev.commands
+send -classId sk.Alarm -strid almCalibr_P1 -cmdId cmdAcknowledge 
+send -classId sk.Alarm -strid almCalibr_P1 -cmdId cmdAcknowledge -args ackAuthorGwid=sk.User[root]
+send -classId sk.Alarm -strid almCalibr_P1 -cmdId cmdAcknowledge -args "ackAuthorGwid=sk.User[root]"
+send -classId sk.Alarm -strid almCalibr_P1 -cmdId cmdAcknowledge -exit
+exit
+cd sk.dev.commands
+send -classId sk.Alarm -strid almCalibr_P1 -cmdId cmdAcknowledge -args ackAuthorGwid=sk.User[root]
+учше
+exit
+$a=1
+$a
+cd sk.dev.commands
+send -classId sk.Alarm -strid almCalibr_P1 -cmdId cmdAcknowledge 
+send -classId sk.Alarm -strid almCalibr_P1 -cmdId cmdAcknowledge -args authorStrid=mvk
+send -classId sk.Alarm -strid almCalibr_P1 -cmdId cmdAcknowledge -args "authorStrid=mvk"
+send -classId sk.Alarm -strid almCalibr_P1 -cmdId cmdAcknowledge -args "authorStrid=mvk"e
+exit
+send -classId sk.Alarm -strid almCalibr_P1 -cmdId cmdAcknowledge -args "authorStrid=mvk"
+cd sk.dev.commands
+send -classId sk.Alarm -strid almCalibr_P1 -cmdId cmdAcknowledge -args "authorStrid=mvk"
+send -classId sk.Alarm -strid almCalibr_P1 -cmdId cmdAcknowledge -args authorStrid=mvk
+exit
+send -classId sk.Alarm -strid almCalibr_P1 -cmdId cmdAcknowledge -args authorStrid=mvk
+cd sk.dev.commands
+send -classId sk.Alarm -strid almCalibr_P1 -cmdId cmdAcknowledge -args authorStrid=mvk
+send -classId sk.Alarm -strid almCalibr_P1 -cmdId cmdAcknowledge -args authorStrid="mvk"
+send -classId sk.Alarm -strid almCalibr_P1 -cmdId cmdAcknowledge -args authorStrid="mvk",ackAuthorGwid="sk.Alarm[*]"
+send -classId sk.Alarm -strid almCalibr_P1 -cmdId cmdAcknowledge -args authorStrid="mvk",ackAuthorGwid="sk.Alarm[*]",ackComment="test"
+send -classId sk.Alarm -strid almCalibr_P1 -cmdId cmdAcknowledge -args authorStrid=mvk
+exit
+cd sk.dev.commands
+send -classId sk.Alarm -strid almCalibr_P1 -cmdId cmdAcknowledge -args authorStrid=mvk
+send -classId sk.Alarm -strid almCalibr_P1 -cmdId cmdAcknowledge -args authorStrid=
+send -classId sk.Alarm -strid almCalibr_P1 -cmdId cmdAcknowledge -args 
+send -classId sk.Alarm -strid almCalibr_P1 -cmdId cmdAcknowledge -args ackAuthorGwid="sk.User[root]"
+send -classId sk.Alarm -strid almCalibr_P1 -cmdId cmdAcknowledge -args ackAuthorGwid="sk.User[root]", ackComment="test"
+exit
+cd sk.dev.commands
+send -classId sk.Alarm -strid almCalibr_P1 -cmdId cmdAcknowledge -args ackAuthorGwid="sk.User[root]", ackComment="test"
+send -classId sk.Alarm -strid almCalibr_P1 -cmdId cmdAcknowledge -args ackAuthorGwid="sk.User[root]", ackComment={test}
+send -classId sk.Alarm -strid almCalibr_P1 -cmdId cmdAcknowledge -args ackAuthorGwid="sk.User[root]", ackComment="{test}"
+send -args ackComment="{test}"
+send -classId sk.Alarm 
+exit
+cd sk.dev.commands
+send -args ackComment="{test}"
+n
+send -args ackComment="{test}" -classId sk.Alarm -strid almCalibr_P1
 y
-listSchedules
-removeSchedule test2
-y
-addSchedule -id test1 -seconds "0" -minutes "*" -hours "*" -descr "первое расписание" -name "первое"
-listSchedules
-addSchedule -id test1 -seconds "0" -minutes "*" -hours "*" -descr "первое расписание" -name "первое"
-addSchedule -id test1 -seconds "0" -minutes "0" -hours "*" -descr "первое расписание" -name "первое"
-addSchedule -id test1 -seconds "0" -minutes "0" -hours "0" -descr "первое расписание" -name "первое"
-exut
+cmdAcknowledge
+send -args ackComment="{test}" -classId sk.Alarm -strid almCalibr_P1 -cmdId cmdAcknowledge
+send -args ackAuthorGwid={},ackComment="test" -classId sk.Alarm -strid almCalibr_P1 -cmdId cmdAcknowledge
+send -args ackAuthorGwid={}, ackComment="test" -classId sk.Alarm -strid almCalibr_P1 -cmdId cmdAcknowledge
 exit
-cd sk.dev.events
-receiver -gwids "sk.Schedule[*]$event(*)" -timeout 600000
-cd sk.s5.schedules
-listSchedules
-addSchedule -id test1 -seconds "*" -minutes "*" -hours "*" -descr "первое расписание" -name "первое"
-removeSchedule test1
-y
-addSchedule -id test1 -seconds "*" -minutes "*" -hours "*" -descr "первое расписание" -name "первое"
-removeSchedule test1
-y
-addSchedule -id test1 -seconds "*" -minutes "*" -hours "*" -descr "первое расписание" -name "первое"
-cd sk.dev.events
-receiver -gwids "sk.Schedule[*]$event(*)" -timeout 600000
-cd sk.s5.schedules
-listSchedules
-removeSchedule test1
-y
-addSchedule 
-test1
-addSchedule -id test1 -seconds * -minutes * -hours *
-addSchedule -id test1 -seconds "10,20,30,40,50" -minutes * -hours *
-addSchedule -id test1 -seconds "*/5" -minutes * -hours *
-listSchedules
+send -args ackAuthorGwid={}, ackComment="test" -classId sk.Alarm -strid almCalibr_P1 -cmdId cmdAcknowledge
+$a
+cd sk.dev.commands
 exit
-cd sk.s5.schedules
-removeSchedule 
-cd sk.s5.schedules
-listSchedules
-exit
-info
-exit
-info
-cd sk.s5.schedules
-listSchedules
-addSchedule
-test1
-addSchedule
-test2
-addSchedule
-test3
-listSchedules
-exit
-cd sk.s5.schedules
-listSchedules
-exit
+cd sk.dev.commands
+send -args ackAuthorGwid=0, ackComment="test" -classId sk.Alarm -strid almCalibr_P1 -cmdId cmdAcknowledge
+cd ..
 cd sk.dev.rtdata
-read -classId IrreversibleEngine -strid VPU -dataId rtdState
-write -classId IrreversibleEngine -strid VPU -dataId 
-write -classId IrreversibleEngine -strid VPU -dataId rtdOn -value true
-write -classId IrreversibleEngine -strid VPU -dataId rtdErrorWord -value 0
-write -classId IrreversibleEngine -strid VPU -dataId rtdOn -value false
-write -classId IrreversibleEngine -strid VPU -dataId rtdErrorWord -value 1
+read -classId sk.Alarm -strid * -dataId alert
+read -classId sk.Alarm -strid * -dataId *
+read -classId AnalogInput -strid * -dataId *
 exit
+cd sk.dev.commands
+$a = 1
+$a
+$a = 2
+$a
+$a = "test"
+$a
+$a = 0.23
+$a
+$a = {test}
+$a = 2024-10-20
+$a = 2024-10-20_23:00:00.334
+$a = {test}
+$a 
+$a=exit
+exit
+cd sk.dev.commands
+$a=12
+$a
+$a=@EAtomicType[INTEGER]
+$a
+cd sk.dev.commands
+send -classId sk.Alarm -strid almCalibr_P1 -cmdId cmdAcknowledge -args ackAuthorGwid=@Gwid[sk.User[root]], ackComment="test"
 cd sk.dev.rtdata
-write -classId IrreversibleEngine -strid VPU -dataId rtdOn -value false
-read -classId IrreversibleEngine -strid VPU -dataId rtdState
-write -classId IrreversibleEngine -strid VPU -dataId rtdErrorWord -value 1
-write -classId IrreversibleEngine -strid VPU -dataId rtdErrorWord -value 0
-write -classId IrreversibleEngine -strid VPU -dataId rtdErrorWord -value 1
-write -classId IrreversibleEngine -strid VPU -dataId rtdErrorWord -value IAto
-write -classId IrreversibleEngine -strid VPU -dataId rtdErrorWord -value 1
-write -classId IrreversibleEngine -strid VPU -dataId rtdErrorWord -value 0
-cd sk.dev.rtdata
-read -classId IrreversibleEngine -strid VPU -dataId rtdState
-write -classId IrreversibleEngine -strid VPU -dataId rtdErrorWord -value 1
-write -classId IrreversibleEngine -strid VPU -dataId rtdOn -value false
-write -classId IrreversibleEngine -strid VPU -dataId rtdErrorWord -value 0
-write -classId IrreversibleEngine -strid VPU -dataId rtdOn -value true
-write -classId IrreversibleEngine -strid VPU -dataId rtdOn -value false
-exit
-cd sk.dev.rtdata
-read -classId IrreversibleEngine -strid VPU -dataId rtdState
-exit
-cd sk.dev.rtdata
-write -classId IrreversibleEngine -strid VPU -dataId rtdOn -value false
-write -classId IrreversibleEngine -strid VPU -dataId rtdErrorWord -value 0
-write -classId IrreversibleEngine -strid VPU -dataId rtdErrorWord -value 1
-write -classId IrreversibleEngine -strid VPU -dataId rtdErrorWord -value 2
-write -classId IrreversibleEngine -strid VPU -dataId rtdErrorWord -value 0
-write -classId IrreversibleEngine -strid VPU -dataId rtdErrorWord -value 1
-exit
-exot
-exit
-info
+read -classId sk.Alarm
+read -classId sk.Alarm -strid * -dataId *
