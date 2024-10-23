@@ -45,11 +45,6 @@ public class AdminCmdSend
   private IAdminCmdCallback callback;
 
   /**
-   * Признак того, что выполнение команды завершено
-   */
-  private boolean commandFinished;
-
-  /**
    * Конструктор
    */
   public AdminCmdSend() {
@@ -69,8 +64,6 @@ public class AdminCmdSend
     addArg( ARG_SEND_AUTHOR_CLASSID );
     // Строковый идентификатор объекта автора команды (strid)
     addArg( ARG_SEND_AUTHOR_STRID );
-    // Таймаут(мсек) между отправкой следующей команды
-    addArg( ARG_SEND_TIMEOUT );
   }
 
   // ------------------------------------------------------------------------------------
@@ -129,7 +122,6 @@ public class AdminCmdSend
         // authorStrid = AvUtils.avStr( connection.sessionInfo().getUser().login() );
         authorStrid = AvUtils.avStr( "root" ); //$NON-NLS-1$
       }
-      int timeout = argSingleValue( ARG_SEND_TIMEOUT ).asInt();
       try {
         long startTime = System.currentTimeMillis();
         Gwid cmdGwid = Gwid.createCmd( classId, objStrid, cmdId );
@@ -146,24 +138,12 @@ public class AdminCmdSend
           }
         }
         synchronized (this) {
-          commandFinished = false;
           // Выполнение
           ISkCommand cmd = commandService.sendCommand( cmdGwid, authorSkid, args );
           // Установка слушателя команды
           cmd.stateEventer().addListener( this );
           // Команда отправлена на выполнение
           println( MSG_COMMAND_SEND, cmd.instanceId() );
-          // Ожидание выполнения
-          this.wait( timeout );
-          // Проверка завершения
-          if( !commandFinished ) {
-            // Команда не выполнена в установленное время и будет отменена
-            addResultError( ERR_CANT_EXECUTE_BY_TIMEOUT + '\n', cmdGwid, Long.valueOf( timeout ) );
-            SkCommandState cancelState = new SkCommandState( System.currentTimeMillis(), ESkCommandState.TIMEOUTED );
-            commandService.changeCommandState( new DtoCommandStateChangeInfo( cmd.instanceId(), cancelState ) );
-            resultFail();
-            return;
-          }
         }
         long delta = (System.currentTimeMillis() - startTime) / 1000;
         addResultInfo( MSG_CMD_TIME, Long.valueOf( delta ) );
@@ -264,8 +244,6 @@ public class AdminCmdSend
     println( MSG_COMMAND_STATE_CHANGED, sb.toString() );
     synchronized (this) {
       if( aCommand.state().state().isComplete() ) {
-        // Команда завершена
-        commandFinished = true;
         // Сигнал о завершении команды
         this.notifyAll();
       }

@@ -73,12 +73,6 @@ interface IAdminHardConstants {
   IAdminCmdArgDef ARG_SEND_AUTHOR_STRID =
       new AdminCmdArgDef( "authorStrid", DT_BOOLEAN_NULLABLE, STR_ARG_SEND_AUTHOR_STRID );
 
-  /**
-   * Аргумент {@link AdminCmdSend}: Таймаут(мсек) ожидания завершения выполнения команды
-   */
-  IAdminCmdArgDef ARG_SEND_TIMEOUT =
-      new AdminCmdArgDef( "timeout", createType( INTEGER, avInt( 5000 ) ), STR_ARG_SEND_TIMEOUT );
-
   // ------------------------------------------------------------------------------------
   // AdminCmdExecutor
   //
