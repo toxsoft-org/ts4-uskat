@@ -6,48 +6,40 @@ import static org.toxsoft.uskat.s5.server.IS5ImplementConstants.*;
 import static org.toxsoft.uskat.s5.server.backend.supports.commands.IS5CommandHardConstants.*;
 import static org.toxsoft.uskat.s5.server.backend.supports.commands.impl.IS5Resources.*;
 
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.*;
 
-import javax.annotation.Resource;
+import javax.annotation.*;
 import javax.ejb.*;
 
-import org.infinispan.Cache;
-import org.infinispan.commons.util.CloseableIterator;
-import org.toxsoft.core.tslib.av.opset.IOptionSet;
-import org.toxsoft.core.tslib.bricks.strid.coll.IStridablesList;
+import org.infinispan.*;
+import org.infinispan.commons.util.*;
+import org.toxsoft.core.tslib.av.opset.*;
+import org.toxsoft.core.tslib.bricks.strid.coll.*;
 import org.toxsoft.core.tslib.bricks.time.*;
-import org.toxsoft.core.tslib.bricks.time.impl.QueryInterval;
-import org.toxsoft.core.tslib.bricks.time.impl.TimedList;
-import org.toxsoft.core.tslib.coll.IList;
-import org.toxsoft.core.tslib.coll.IMap;
-import org.toxsoft.core.tslib.coll.impl.ElemArrayList;
+import org.toxsoft.core.tslib.bricks.time.impl.*;
+import org.toxsoft.core.tslib.coll.*;
+import org.toxsoft.core.tslib.coll.impl.*;
 import org.toxsoft.core.tslib.gw.gwid.*;
-import org.toxsoft.core.tslib.gw.skid.Skid;
-import org.toxsoft.core.tslib.utils.Pair;
+import org.toxsoft.core.tslib.gw.skid.*;
+import org.toxsoft.core.tslib.utils.*;
 import org.toxsoft.core.tslib.utils.errors.*;
 import org.toxsoft.uskat.core.api.cmdserv.*;
-import org.toxsoft.uskat.core.api.objserv.IDtoObject;
-import org.toxsoft.uskat.core.api.sysdescr.ISkClassInfo;
-import org.toxsoft.uskat.core.api.sysdescr.dto.IDtoClassInfo;
-import org.toxsoft.uskat.core.api.sysdescr.dto.IDtoCmdInfo;
+import org.toxsoft.uskat.core.api.objserv.*;
+import org.toxsoft.uskat.core.api.sysdescr.*;
+import org.toxsoft.uskat.core.api.sysdescr.dto.*;
 import org.toxsoft.uskat.core.backend.api.*;
-import org.toxsoft.uskat.core.impl.SkCommand;
-import org.toxsoft.uskat.core.impl.dto.DtoCommand;
-import org.toxsoft.uskat.core.impl.dto.DtoCompletedCommand;
-import org.toxsoft.uskat.s5.common.sysdescr.ISkSysdescrReader;
-import org.toxsoft.uskat.s5.server.backend.addons.commands.S5BaCommandsData;
-import org.toxsoft.uskat.s5.server.backend.addons.commands.S5BaCommandsSupport;
-import org.toxsoft.uskat.s5.server.backend.supports.commands.IS5BackendCommandSingleton;
-import org.toxsoft.uskat.s5.server.backend.supports.commands.sequences.IS5CommandSequence;
-import org.toxsoft.uskat.s5.server.backend.supports.commands.sequences.IS5CommandSequenceEdit;
-import org.toxsoft.uskat.s5.server.frontend.IS5FrontendRear;
-import org.toxsoft.uskat.s5.server.sequences.IS5SequenceBlock;
-import org.toxsoft.uskat.s5.server.sequences.IS5SequenceFactory;
-import org.toxsoft.uskat.s5.server.sequences.impl.S5BackendSequenceSupportSingleton;
-import org.toxsoft.uskat.s5.server.sequences.impl.S5SequenceFactory;
-import org.toxsoft.uskat.s5.server.transactions.S5TransactionUtils;
-import org.toxsoft.uskat.s5.utils.collections.S5FixedCapacityTimedList;
-import org.toxsoft.uskat.s5.utils.jobs.IS5ServerJob;
+import org.toxsoft.uskat.core.impl.*;
+import org.toxsoft.uskat.core.impl.dto.*;
+import org.toxsoft.uskat.s5.common.sysdescr.*;
+import org.toxsoft.uskat.s5.server.backend.addons.commands.*;
+import org.toxsoft.uskat.s5.server.backend.supports.commands.*;
+import org.toxsoft.uskat.s5.server.backend.supports.commands.sequences.*;
+import org.toxsoft.uskat.s5.server.frontend.*;
+import org.toxsoft.uskat.s5.server.sequences.*;
+import org.toxsoft.uskat.s5.server.sequences.impl.*;
+import org.toxsoft.uskat.s5.server.transactions.*;
+import org.toxsoft.uskat.s5.utils.collections.*;
+import org.toxsoft.uskat.s5.utils.jobs.*;
 
 /**
  * Реализация синглетона {@link IS5BackendCommandSingleton}
@@ -529,7 +521,7 @@ public class S5BackendCommandSingleton
       // Cохранение событий в базе данных
       IS5BackendCommandSingleton sequenceWriter =
           sessionContext().getBusinessObject( IS5BackendCommandSingleton.class );
-      sequenceWriter.writeSequences( new ElemArrayList<IS5CommandSequence>( sequence ) );
+      sequenceWriter.writeSequences( new ElemArrayList<>( sequence ) );
     }
     catch( Throwable e ) {
       logger().error( e );
