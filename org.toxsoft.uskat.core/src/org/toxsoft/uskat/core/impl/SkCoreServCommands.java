@@ -4,10 +4,8 @@ import static org.toxsoft.uskat.core.impl.ISkResources.*;
 
 import org.toxsoft.core.tslib.av.*;
 import org.toxsoft.core.tslib.av.errors.*;
-import org.toxsoft.core.tslib.av.impl.*;
 import org.toxsoft.core.tslib.av.metainfo.*;
 import org.toxsoft.core.tslib.av.opset.*;
-import org.toxsoft.core.tslib.av.opset.impl.*;
 import org.toxsoft.core.tslib.bricks.ctx.*;
 import org.toxsoft.core.tslib.bricks.events.change.*;
 import org.toxsoft.core.tslib.bricks.events.msg.*;
@@ -83,24 +81,23 @@ public class SkCoreServCommands
 
   @Override
   protected boolean onBackendMessage( GenericMessage aMessage ) {
-    switch( aMessage.messageId() ) {
-      case BaMsgCommandsExecCmd.MSG_ID: {
+    return switch( aMessage.messageId() ) {
+      case BaMsgCommandsExecCmd.MSG_ID -> {
         IDtoCommand cmd = BaMsgCommandsExecCmd.INSTANCE.getCmd( aMessage );
         handleMsgExecuteCommand( cmd );
-        return true;
+        yield true;
       }
-      case BaMsgCommandsChangeState.MSG_ID: {
+      case BaMsgCommandsChangeState.MSG_ID -> {
         DtoCommandStateChangeInfo stateChangeInfo = BaMsgCommandsChangeState.INSTANCE.getStateChangeInfo( aMessage );
         handleMsgCommandStateChanged( stateChangeInfo );
-        return true;
+        yield true;
       }
-      case BaMsgCommandsGloballyHandledGwidsChanged.MSG_ID: {
+      case BaMsgCommandsGloballyHandledGwidsChanged.MSG_ID -> {
         globallyHandledGwidsEventer.fireChangeEvent();
-        return true;
+        yield true;
       }
-      default:
-        return false;
-    }
+      default -> false;
+    };
   }
 
   // ------------------------------------------------------------------------------------
@@ -143,33 +140,18 @@ public class SkCoreServCommands
   private void handleMsgExecuteCommand( IDtoCommand aCommand ) {
     ISkCommandExecutor executor = findExecutorForGwid( aCommand.cmdGwid() );
     if( executor != null ) {
-      // 2022-11-17 mvk +++
       executingCmds.put( aCommand.instanceId(), new SkCommand( aCommand ) );
       try {
         executor.executeCommand( aCommand );
       }
       catch( Throwable e ) {
-        // 2022-11-17 mvk +++ TODO: оценить решение о такой обработке неожиданной ошибки
-        IOptionSetEdit params = new OptionSet();
-        String cause = e.getLocalizedMessage();
-        SkCommandState.OP_REASON.setValue( params, cause != null ? AvUtils.avStr( cause ) : IAtomicValue.NULL );
-        SkCommandState state = new SkCommandState( System.currentTimeMillis(), ESkCommandState.FAILED, params );
-        changeCommandState( new DtoCommandStateChangeInfo( aCommand.instanceId(), state ) );
+        // Журнал
+        logger().error( e, FMT_ERR_UNEXPECTED_EXECUTION, aCommand.toString() );
       }
+      return;
     }
-    else {
-      // 2023-11-11 mvk +++ TODO: оценить решение о такой обработке неизвестной команды
-      String cause = String.format( FMT_LOG_WARN_UNHANDLED_CMD, aCommand.toString() );
-      // Журнал
-      logger().warning( cause );
-      // Передача ошибки через бекенд
-      IOptionSetEdit params = new OptionSet();
-      SkCommandState.OP_REASON.setValue( params, cause != null ? AvUtils.avStr( cause ) : IAtomicValue.NULL );
-      SkCommandState state = new SkCommandState( System.currentTimeMillis(), ESkCommandState.UNHANDLED, params );
-      // Нельзя использовать changeCommandState(...) он открыт для клиента и запрещает состояние UNHANDLED
-      // changeCommandState( new DtoCommandStateChangeInfo( aCommand.instanceId(), state ) );
-      ba().baCommands().changeCommandState( new DtoCommandStateChangeInfo( aCommand.instanceId(), state ) );
-    }
+    // Журнал
+    logger().error( FMT_ERR_UNHANDLED_CMD, aCommand.toString() );
   }
 
   private void handleMsgCommandStateChanged( DtoCommandStateChangeInfo aStateChangeInfo ) {

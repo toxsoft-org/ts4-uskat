@@ -83,7 +83,8 @@ interface ISkResources {
   String FMT_ERR_CMD_CLASS_NOT_EXIST      = "Command class %s does not exist";
   String FMT_ERR_CMD_NOT_EXIST            = "Command %s does not exist in class %s";
   String FMT_ERR_CMD_AUTHOR_NOT_EXIST     = "Author %s does not exist";
-  String FMT_LOG_WARN_UNHANDLED_CMD       = "No executor found for command %s";                    //$NON-NLS-1$
+  String FMT_ERR_UNHANDLED_CMD            = "No executor found for command: %s";                   //$NON-NLS-1$
+  String FMT_ERR_UNEXPECTED_EXECUTION     = "Unexpected error while executing command: %s";        //$NON-NLS-1$
   String FMT_LOG_WARN_NO_STATE_CHANGE_CMD = "No executing command found for state change info %s"; //$NON-NLS-1$
 
   /**
