@@ -1,6 +1,7 @@
 package org.toxsoft.uskat.skadmin.cli.cmds;
 
 import static org.toxsoft.core.tslib.av.EAtomicType.*;
+import static org.toxsoft.core.tslib.av.impl.AvUtils.*;
 import static org.toxsoft.core.tslib.utils.TsLibUtils.*;
 import static org.toxsoft.uskat.legacy.plexy.impl.PlexyValueUtils.*;
 import static org.toxsoft.uskat.skadmin.cli.IAdminConsole.*;
@@ -10,25 +11,18 @@ import static org.toxsoft.uskat.skadmin.core.plugins.AdminPluginUtils.*;
 
 import java.io.*;
 
-import org.toxsoft.core.tslib.bricks.strid.IStridable;
-import org.toxsoft.core.tslib.bricks.strio.IStrioReader;
-import org.toxsoft.core.tslib.bricks.strio.IStrioWriter;
-import org.toxsoft.core.tslib.bricks.strio.chario.ICharInputStreamCloseable;
-import org.toxsoft.core.tslib.bricks.strio.chario.ICharOutputStream;
-import org.toxsoft.core.tslib.bricks.strio.chario.impl.CharInputStreamFile;
-import org.toxsoft.core.tslib.bricks.strio.chario.impl.CharOutputStreamWriter;
-import org.toxsoft.core.tslib.bricks.strio.impl.StrioReader;
-import org.toxsoft.core.tslib.bricks.strio.impl.StrioWriter;
-import org.toxsoft.core.tslib.coll.IList;
-import org.toxsoft.core.tslib.coll.IListEdit;
-import org.toxsoft.core.tslib.coll.impl.ElemArrayList;
-import org.toxsoft.core.tslib.coll.primtypes.IStringList;
-import org.toxsoft.core.tslib.coll.primtypes.IStringMap;
+import org.toxsoft.core.tslib.bricks.strid.*;
+import org.toxsoft.core.tslib.bricks.strio.*;
+import org.toxsoft.core.tslib.bricks.strio.chario.*;
+import org.toxsoft.core.tslib.bricks.strio.chario.impl.*;
+import org.toxsoft.core.tslib.bricks.strio.impl.*;
+import org.toxsoft.core.tslib.coll.*;
+import org.toxsoft.core.tslib.coll.impl.*;
+import org.toxsoft.core.tslib.coll.primtypes.*;
 import org.toxsoft.core.tslib.utils.errors.*;
-import org.toxsoft.uskat.legacy.plexy.IPlexyType;
-import org.toxsoft.uskat.legacy.plexy.IPlexyValue;
-import org.toxsoft.uskat.skadmin.cli.IAdminConsole;
-import org.toxsoft.uskat.skadmin.core.IAdminCmdCallback;
+import org.toxsoft.uskat.legacy.plexy.*;
+import org.toxsoft.uskat.skadmin.cli.*;
+import org.toxsoft.uskat.skadmin.core.*;
 
 /**
  * Команда консоли: 'Управление сигналами'
@@ -56,10 +50,10 @@ public class ConsoleCmdSignal
     addArg( ARG_SIGNAL_CMD_ID, ARG_SIGNAL_CMD_ALIAS, ARG_SIGNAL_CMD_NAME, PT_SINGLE_STRING, ARG_SIGNAL_CMD_DESCR );
     // Значение сигнала
     addArg( ARG_SIGNAL_VALUE_ID, ARG_SIGNAL_VALUE_ALIAS, ARG_SIGNAL_VALUE_NAME,
-        createType( STRING, ARG_SIGNAL_VALUE_DEFAULT ), ARG_SIGNAL_VALUE_DESCR );
+        createType( STRING, avStr( ARG_SIGNAL_VALUE_DEFAULT ) ), ARG_SIGNAL_VALUE_DESCR );
     // Таймаут(мсек) удержания или ожидания сигнала или его значения
     addArg( ARG_SIGNAL_TIMEOUT_ID, ARG_SIGNAL_TIMEOUT_ALIAS, ARG_SIGNAL_TIMEOUT_NAME,
-        createType( INTEGER, ARG_SIGNAL_TIMEOUT_DEFAULT ), ARG_SIGNAL_TIMEOUT_DESCR );
+        createType( INTEGER, avInt( Integer.parseInt( ARG_SIGNAL_TIMEOUT_DEFAULT ) ) ), ARG_SIGNAL_TIMEOUT_DESCR );
   }
 
   // ------------------------------------------------------------------------------------

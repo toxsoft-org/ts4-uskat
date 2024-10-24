@@ -76,7 +76,6 @@ public class AdminConsoleTeminal
   public AdminConsoleTeminal( IAdminCmdContext aContext, IAdminCmdSyntaxParser aSyntaxParser,
       boolean aSyntaxHighlighting )
       throws IOException {
-    super();
     TsNullArgumentRtException.checkNulls( aContext, aSyntaxParser );
     // Таймер обновления в режиме "daemon"
     updateTimer = new Timer( true );
@@ -377,8 +376,6 @@ public class AdminConsoleTeminal
   private final class SyntaxColoringTimerTask
       extends TimerTask {
 
-    private final AdminConsoleTeminal reader;
-
     /**
      * Конструктор
      *
@@ -387,7 +384,6 @@ public class AdminConsoleTeminal
      */
     SyntaxColoringTimerTask( AdminConsoleTeminal aReader ) {
       TsNullArgumentRtException.checkNulls( aReader );
-      reader = aReader;
     }
 
     // ------------------------------------------------------------------------------------

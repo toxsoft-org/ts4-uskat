@@ -2,6 +2,7 @@ package org.toxsoft.uskat.skadmin.cli.cmds;
 
 import static java.lang.String.*;
 import static org.toxsoft.core.tslib.av.EAtomicType.*;
+import static org.toxsoft.core.tslib.av.impl.AvUtils.*;
 import static org.toxsoft.core.tslib.utils.TsLibUtils.*;
 import static org.toxsoft.uskat.legacy.plexy.impl.PlexyValueUtils.*;
 import static org.toxsoft.uskat.skadmin.cli.AdminColors.*;
@@ -11,19 +12,18 @@ import static org.toxsoft.uskat.skadmin.cli.cmds.IAdminResources.*;
 import static org.toxsoft.uskat.skadmin.core.impl.AdminCmdLibraryUtils.*;
 import static org.toxsoft.uskat.skadmin.core.plugins.AdminPluginUtils.*;
 
-import org.toxsoft.core.tslib.av.IAtomicValue;
-import org.toxsoft.core.tslib.av.impl.AvUtils;
-import org.toxsoft.core.tslib.av.metainfo.IAvMetaConstants;
-import org.toxsoft.core.tslib.bricks.strid.impl.StridUtils;
-import org.toxsoft.core.tslib.bricks.strio.IStrioHardConstants;
-import org.toxsoft.core.tslib.coll.IList;
-import org.toxsoft.core.tslib.coll.IListEdit;
-import org.toxsoft.core.tslib.coll.impl.ElemArrayList;
+import org.toxsoft.core.tslib.av.*;
+import org.toxsoft.core.tslib.av.impl.*;
+import org.toxsoft.core.tslib.av.metainfo.*;
+import org.toxsoft.core.tslib.bricks.strid.impl.*;
+import org.toxsoft.core.tslib.bricks.strio.*;
+import org.toxsoft.core.tslib.coll.*;
+import org.toxsoft.core.tslib.coll.impl.*;
 import org.toxsoft.core.tslib.coll.primtypes.*;
-import org.toxsoft.core.tslib.coll.primtypes.impl.StringArrayList;
-import org.toxsoft.core.tslib.utils.errors.TsNullArgumentRtException;
+import org.toxsoft.core.tslib.coll.primtypes.impl.*;
+import org.toxsoft.core.tslib.utils.errors.*;
 import org.toxsoft.uskat.legacy.plexy.*;
-import org.toxsoft.uskat.skadmin.cli.IAdminConsole;
+import org.toxsoft.uskat.skadmin.cli.*;
 import org.toxsoft.uskat.skadmin.core.*;
 
 /**
@@ -44,8 +44,8 @@ public class ConsoleCmdHelp
     // Идентификатор команды по которой требуется справка. Пустая строка: по всем командам.
     addArg( HELP_ARG_CMD_ID, HELP_ARG_CMD_ALIAS, HELP_ARG_CMD_NAME, PT_SINGLE_STRING, HELP_ARG_CMD_DESCR );
     // Вывод справки по всем командам
-    addArg( HELP_ARG_ALL_ID, HELP_ARG_ALL_ALIAS, HELP_ARG_ALL_NAME, createType( BOOLEAN, HELP_ARG_ALL_DEFAULT ),
-        HELP_ARG_ALL_DESCR );
+    addArg( HELP_ARG_ALL_ID, HELP_ARG_ALL_ALIAS, HELP_ARG_ALL_NAME,
+        createType( BOOLEAN, avBool( Boolean.parseBoolean( HELP_ARG_ALL_DEFAULT ) ) ), HELP_ARG_ALL_DESCR );
   }
 
   // ------------------------------------------------------------------------------------

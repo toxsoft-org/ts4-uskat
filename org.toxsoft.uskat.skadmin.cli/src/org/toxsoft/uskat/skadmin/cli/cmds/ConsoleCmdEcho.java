@@ -1,21 +1,20 @@
 package org.toxsoft.uskat.skadmin.cli.cmds;
 
 import static org.toxsoft.core.tslib.av.EAtomicType.*;
+import static org.toxsoft.core.tslib.av.impl.AvUtils.*;
 import static org.toxsoft.uskat.legacy.plexy.impl.PlexyValueUtils.*;
 import static org.toxsoft.uskat.skadmin.cli.AdminColors.*;
 import static org.toxsoft.uskat.skadmin.cli.IAdminAnsiConstants.*;
 import static org.toxsoft.uskat.skadmin.cli.cmds.IAdminResources.*;
 import static org.toxsoft.uskat.skadmin.core.plugins.AdminPluginUtils.*;
 
-import org.toxsoft.core.tslib.bricks.strio.IStrioHardConstants;
-import org.toxsoft.core.tslib.coll.IList;
-import org.toxsoft.core.tslib.coll.primtypes.IStringList;
-import org.toxsoft.core.tslib.coll.primtypes.IStringMap;
-import org.toxsoft.core.tslib.utils.errors.TsNullArgumentRtException;
-import org.toxsoft.uskat.legacy.plexy.IPlexyType;
-import org.toxsoft.uskat.legacy.plexy.IPlexyValue;
-import org.toxsoft.uskat.skadmin.cli.IAdminConsole;
-import org.toxsoft.uskat.skadmin.core.IAdminCmdCallback;
+import org.toxsoft.core.tslib.bricks.strio.*;
+import org.toxsoft.core.tslib.coll.*;
+import org.toxsoft.core.tslib.coll.primtypes.*;
+import org.toxsoft.core.tslib.utils.errors.*;
+import org.toxsoft.uskat.legacy.plexy.*;
+import org.toxsoft.uskat.skadmin.cli.*;
+import org.toxsoft.uskat.skadmin.core.*;
 
 /**
  * Команда консоли: 'Эхо'
@@ -36,13 +35,14 @@ public class ConsoleCmdEcho
     addArg( ECHO_ARG_TEXT_ID, ECHO_ARG_TEXT_ALIAS, ECHO_ARG_TEXT_NAME, PT_LIST_STRING, ECHO_ARG_TEXT_DESCR );
     // Не выводить текст на экран
     addArg( ECHO_ARG_SILENT_ID, ECHO_ARG_SILENT_ALIAS, ECHO_ARG_SILENT_NAME,
-        createType( BOOLEAN, ECHO_ARG_SILENT_DEFAULT ), ECHO_ARG_SILENT_DESCR );
+        createType( BOOLEAN, avBool( Boolean.parseBoolean( ECHO_ARG_SILENT_DEFAULT ) ) ), ECHO_ARG_SILENT_DESCR );
     // Перевод строки
-    addArg( ECHO_ARG_EOL_ID, ECHO_ARG_EOL_ALIAS, ECHO_ARG_EOL_NAME, createType( BOOLEAN, ECHO_ARG_EOL_DEFAULT ),
-        ECHO_ARG_EOL_DESCR );
+    addArg( ECHO_ARG_EOL_ID, ECHO_ARG_EOL_ALIAS, ECHO_ARG_EOL_NAME,
+        createType( BOOLEAN, avBool( Boolean.parseBoolean( ECHO_ARG_EOL_DEFAULT ) ) ), ECHO_ARG_EOL_DESCR );
     // Дополнение пробелами до правой границы экрана
     addArg( ECHO_ARG_SPACE_TRAIL_ID, ECHO_ARG_SPACE_TRAIL_ALIAS, ECHO_ARG_SPACE_TRAIL_NAME,
-        createType( BOOLEAN, ECHO_ARG_SPACE_TRAIL_DEFAULT ), ECHO_ARG_SPACE_TRAIL_DESCR );
+        createType( BOOLEAN, avBool( Boolean.parseBoolean( ECHO_ARG_SPACE_TRAIL_DEFAULT ) ) ),
+        ECHO_ARG_SPACE_TRAIL_DESCR );
   }
 
   // ------------------------------------------------------------------------------------

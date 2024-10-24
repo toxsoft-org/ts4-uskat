@@ -2,6 +2,7 @@ package org.toxsoft.uskat.skadmin.cli.cmds;
 
 import static java.lang.String.*;
 import static org.toxsoft.core.tslib.av.EAtomicType.*;
+import static org.toxsoft.core.tslib.av.impl.AvUtils.*;
 import static org.toxsoft.core.tslib.utils.TsLibUtils.*;
 import static org.toxsoft.uskat.legacy.plexy.impl.PlexyValueUtils.*;
 import static org.toxsoft.uskat.skadmin.cli.AdminColors.*;
@@ -14,23 +15,19 @@ import static org.toxsoft.uskat.skadmin.core.plugins.AdminPluginUtils.*;
 
 import java.io.*;
 
-import org.toxsoft.core.tslib.av.IAtomicValue;
+import org.toxsoft.core.tslib.av.*;
 import org.toxsoft.core.tslib.av.math.*;
-import org.toxsoft.core.tslib.av.metainfo.IAvMetaConstants;
-import org.toxsoft.core.tslib.bricks.strid.IStridable;
-import org.toxsoft.core.tslib.bricks.validator.ValidationResult;
-import org.toxsoft.core.tslib.coll.IList;
-import org.toxsoft.core.tslib.coll.IListEdit;
-import org.toxsoft.core.tslib.coll.derivative.IStack;
-import org.toxsoft.core.tslib.coll.derivative.Stack;
-import org.toxsoft.core.tslib.coll.impl.ElemArrayList;
-import org.toxsoft.core.tslib.coll.impl.ElemLinkedList;
+import org.toxsoft.core.tslib.av.metainfo.*;
+import org.toxsoft.core.tslib.bricks.strid.*;
+import org.toxsoft.core.tslib.bricks.validator.*;
+import org.toxsoft.core.tslib.coll.*;
+import org.toxsoft.core.tslib.coll.derivative.*;
+import org.toxsoft.core.tslib.coll.impl.*;
 import org.toxsoft.core.tslib.coll.primtypes.*;
-import org.toxsoft.core.tslib.coll.primtypes.impl.StringLinkedBundleList;
+import org.toxsoft.core.tslib.coll.primtypes.impl.*;
 import org.toxsoft.core.tslib.utils.errors.*;
-import org.toxsoft.uskat.legacy.plexy.IPlexyType;
-import org.toxsoft.uskat.legacy.plexy.IPlexyValue;
-import org.toxsoft.uskat.skadmin.cli.IAdminConsole;
+import org.toxsoft.uskat.legacy.plexy.*;
+import org.toxsoft.uskat.skadmin.cli.*;
 import org.toxsoft.uskat.skadmin.cli.parsers.*;
 import org.toxsoft.uskat.skadmin.core.*;
 
@@ -75,10 +72,10 @@ public class ConsoleCmdBatch
     addArg( BATCH_ARG_ARGS_ID, BATCH_ARG_ARGS_ALIAS, BATCH_ARG_ARGS_NAME, PT_LIST_STRING, BATCH_ARG_ARGS_DESCR );
     // Кодировка текстового файла
     addArg( BATCH_ARG_CHARSET_ID, BATCH_ARG_CHARSET_ALIAS, BATCH_ARG_CHARSET_NAME,
-        createType( STRING, BATCH_ARG_CHARSET_DEFAULT ), BATCH_ARG_CHARSET_DESCR );
+        createType( STRING, avStr( BATCH_ARG_CHARSET_DEFAULT ) ), BATCH_ARG_CHARSET_DESCR );
     // Завершение работы консоли после выполнения команд
-    addArg( BATCH_ARG_EXIT_ID, BATCH_ARG_EXIT_ALIAS, BATCH_ARG_EXIT_NAME, createType( BOOLEAN, BATCH_ARG_EXIT_DEFAULT ),
-        BATCH_ARG_EXIT_DESCR );
+    addArg( BATCH_ARG_EXIT_ID, BATCH_ARG_EXIT_ALIAS, BATCH_ARG_EXIT_NAME,
+        createType( BOOLEAN, avBool( Boolean.parseBoolean( BATCH_ARG_EXIT_DEFAULT ) ) ), BATCH_ARG_EXIT_DESCR );
   }
 
   // ------------------------------------------------------------------------------------
@@ -114,7 +111,6 @@ public class ConsoleCmdBatch
     return IStringList.EMPTY;
   }
 
-  @SuppressWarnings( "resource" )
   @Override
   protected void doExec( IStringMap<IPlexyValue> aArgValues, IAdminCmdCallback aCallback ) {
     IAdminConsole console = getConsole();

@@ -483,7 +483,7 @@ interface IAdminResources {
           + COLOR_VALUE_LIST
           + " value3_item1"
           + COLOR_RESET
-          + "\n\n"
+          + ".\n\n"
           + "В упрощенной форме имена аргументов не указываются. Значения аргументов перечисляются в том же "
           + "порядке в котором они определены в описании команды. Аргументы с значениями по умолчанию могут быть "
           + "не указаны только в том случае, если за ними, в описании команды, нет аргументов со значениями обязательного "
@@ -501,8 +501,8 @@ interface IAdminResources {
           + COLOR_VALUE_LIST
           + " value3_item1"
           + COLOR_RESET
-          + "\n\n"
-          + "Формат значений аргументов допускает ввод логических, числовых, меток времени, строковых данных, а также их списков и именованных наборов. Далее приводится информация по вводу значений некоторых типов данных"
+          + ".\n\n"
+          + "Формат значений аргументов допускает ввод логических, числовых, меток времени, строковых данных, а также их списков и именованных наборов. Далее приводится информация по вводу значений некоторых типов данных. "
           + "\n\n"
           + COLOR_SINGLE_VALUE + "Timestamp" + COLOR_RESET + ": Метки времени вводятся в формате: " + COLOR_SINGLE_VALUE
           + "YYYY-MM-DD_HH:MM:SS.mmm" + COLOR_RESET + " или в одном из его сокращенных форм: "
@@ -529,12 +529,18 @@ interface IAdminResources {
           + COLOR_SINGLE_VALUE
           + "YYYY-MM-DD_HH:MM:SS"
           + COLOR_RESET
-          + "\n\n"
+          + ".\n\n"
+          + COLOR_SINGLE_VALUE + "Valobj" + COLOR_RESET + ": Значения вводятся в формате: " + COLOR_SINGLE_VALUE + "@KeeperId[keeperFormatString]" + COLOR_RESET
+          + ", где " + COLOR_SINGLE_VALUE + "KeeperId" + COLOR_RESET + " - идентификатор KEEPER, " + COLOR_SINGLE_VALUE + "keeperFormatString" + COLOR_RESET + " - строка представляющее значение в формате этого KEEPER. "
+          + "Например: " + COLOR_SINGLE_VALUE + "@Gwid[sk.User[root]]" + COLOR_RESET
+          + ". Особый случай представления значения " + COLOR_SINGLE_VALUE + "IAtomicValue.NULL" + COLOR_RESET + " которое вводится как: "
+          + COLOR_SINGLE_VALUE + "@{}" + COLOR_RESET
+          + ".\n\n"
           + COLOR_SINGLE_VALUE + "List" + COLOR_RESET + ": Список значений параметров вводятся в формате: "
           + COLOR_SINGLE_VALUE + COLOR_SINGLE_VALUE + "Значение_Параметра1"+ COLOR_RESET + ", "
           + COLOR_SINGLE_VALUE + "Значение_Параметра2"+ COLOR_RESET + ", ..."
           + COLOR_SINGLE_VALUE + "Значение_ПараметраN"+ COLOR_RESET
-          + "\n\n"
+          + ".\n\n"
           + COLOR_SINGLE_VALUE + "OptionSet" + COLOR_RESET + ": Именованные параметры вводятся в формате: "
           + COLOR_SINGLE_VALUE + "Имя_Параметра1"+ COLOR_RESET + "=" + COLOR_SINGLE_VALUE + "Значение_Параметра1"+ COLOR_RESET + ", "
           + COLOR_SINGLE_VALUE + "Имя_Параметра2"+ COLOR_RESET + "=" + COLOR_SINGLE_VALUE + "Значение_Параметра2"+ COLOR_RESET + ", ..."
@@ -542,41 +548,31 @@ interface IAdminResources {
           + ".\n\nЕсли в текстовом значении используются пробелы или спец.символы, то значение должно быть обрамлено кавычками: " + COLOR_SINGLE_VALUE + "\"строка\"" + COLOR_RESET
           + ". Если внутри строки находятся неэкранированные кавычки, то необходимо использовать super-кавычки: " + COLOR_SINGLE_VALUE + "'''строка'''" + COLOR_RESET
           + ".\n\nПри написании скриптов с командами для консоли рекомендуется "
-          + "всегда обрамлять кавычками строковые данные и использовать каноническую форму определения значений аргументов.\n\n"
-          //
-          //
-          + COLOR_ID
-          + "skadmin"
-          + COLOR_RESET
-          + " не форматирует вывод результатов формируемый командами. Вследствии этого, возможно некорректное отображение данных "
-          + "если ширина буфера консоли меньше чем ширина выводимых данных. Такая ситуация возможна, например, при выводе "
-          + "широкоформатных таблиц. Решением для "
-          + COLOR_ID
-          + "windows-систем"
-          + COLOR_RESET
-          + " является установка соответствующей ширины экранного буфера (рекомендуется значение 500 символов)"
-          + " в стандартных настройках окна "
-          + COLOR_ID
-          + "Windows"
-          + COLOR_RESET
-          + ". Для "
-          + COLOR_ID
-          + "*nix-систем skadmin-cli"
-          + COLOR_RESET
-          + " рекомендуется запускать под терминалом: "
-          + COLOR_ID
-          + "jessies terminator"
-          + COLOR_RESET
-          + " (лицензия GPL). Проект находится в активной фазе разработки, текущие дистрибутивы можно получить по адресу: "
-          + COLOR_SINGLE_VALUE
-          + "https://code.google.com/p/jessies/downloads/list"
-          + COLOR_RESET
-          + ". Терминал является кроссплатформенным(java) и поэтому может использоваться и для "
-          + COLOR_ID
-          + "windows-систем"
-          + COLOR_RESET
-
-          + ".\n\n"
+          + "всегда обрамлять кавычками строковые данные и использовать каноническую форму определения значений аргументов."
+          + "\n\n"
+          + "ПРИМЕРЫ."
+          + "\n1. Отправка команды:"
+          + "\n"
+          + COLOR_ID + "sk.dev.commands.send -classId "
+          + COLOR_SINGLE_VALUE + "sk.Alarm " + COLOR_RESET
+          + COLOR_ID + "-strid " + COLOR_RESET
+          + COLOR_SINGLE_VALUE + "almCalibr_P1 " + COLOR_RESET
+          + COLOR_ID + "-cmdId " + COLOR_RESET
+          + COLOR_SINGLE_VALUE + "cmdAcknowledge "  + COLOR_RESET
+          + COLOR_ID + "-args " + COLOR_RESET
+          + COLOR_VALUE_LIST + "ackAuthorGwid=@Gwid[sk.User[root]]"+ COLOR_RESET +", " + COLOR_VALUE_LIST + "ackComment=\"it's ok now\"" + COLOR_RESET
+          + "\n\n2. Прием ВСЕХ текущих данных ВСЕХ объектов класса " + COLOR_SINGLE_VALUE + "AnalogInput" + COLOR_RESET
+          + ":\n"
+          + COLOR_ID + "sk.dev.rtdata.read -classId "
+          + COLOR_SINGLE_VALUE + "AnalogInput " + COLOR_RESET
+          + COLOR_ID + "-strid " + COLOR_RESET
+          + COLOR_SINGLE_VALUE + "* " + COLOR_RESET
+          + COLOR_ID + "-dataId " + COLOR_RESET
+          + COLOR_SINGLE_VALUE + "*" + COLOR_RESET
+          + "\n\n3. Установка значения " + COLOR_SINGLE_VALUE + "IAtomicValue.NULL" + COLOR_RESET + " для контекстной переменной " + COLOR_SINGLE_REF + "$a" + COLOR_RESET
+          + ":\n"
+          + COLOR_SINGLE_REF + "$a" + COLOR_RESET + "=" + COLOR_SINGLE_VALUE + "@{}" + COLOR_RESET
+          + "\n\n"
           //
           //
           + "Справка по команде (упрощенная форма): " + COLOR_ID + "help" + COLOR_RESET + COLOR_SINGLE_VALUE

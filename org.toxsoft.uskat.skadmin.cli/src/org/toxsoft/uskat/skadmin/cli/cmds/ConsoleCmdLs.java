@@ -2,6 +2,7 @@ package org.toxsoft.uskat.skadmin.cli.cmds;
 
 import static java.lang.String.*;
 import static org.toxsoft.core.tslib.av.EAtomicType.*;
+import static org.toxsoft.core.tslib.av.impl.AvUtils.*;
 import static org.toxsoft.core.tslib.bricks.strid.impl.StridUtils.*;
 import static org.toxsoft.core.tslib.utils.TsLibUtils.*;
 import static org.toxsoft.uskat.skadmin.cli.AdminColors.*;
@@ -9,19 +10,15 @@ import static org.toxsoft.uskat.skadmin.cli.IAdminAnsiConstants.*;
 import static org.toxsoft.uskat.skadmin.cli.cmds.IAdminResources.*;
 import static org.toxsoft.uskat.skadmin.core.plugins.AdminPluginUtils.*;
 
-import org.toxsoft.core.tslib.av.EAtomicType;
-import org.toxsoft.core.tslib.bricks.strid.impl.StridUtils;
-import org.toxsoft.core.tslib.coll.IList;
-import org.toxsoft.core.tslib.coll.IListBasicEdit;
-import org.toxsoft.core.tslib.coll.impl.SortedElemLinkedBundleList;
-import org.toxsoft.core.tslib.coll.primtypes.IStringList;
-import org.toxsoft.core.tslib.coll.primtypes.IStringMap;
-import org.toxsoft.core.tslib.utils.errors.TsNullArgumentRtException;
-import org.toxsoft.uskat.legacy.plexy.IPlexyType;
-import org.toxsoft.uskat.legacy.plexy.IPlexyValue;
-import org.toxsoft.uskat.skadmin.cli.IAdminConsole;
-import org.toxsoft.uskat.skadmin.core.IAdminCmdCallback;
-import org.toxsoft.uskat.skadmin.core.IAdminCmdDef;
+import org.toxsoft.core.tslib.av.*;
+import org.toxsoft.core.tslib.bricks.strid.impl.*;
+import org.toxsoft.core.tslib.coll.*;
+import org.toxsoft.core.tslib.coll.impl.*;
+import org.toxsoft.core.tslib.coll.primtypes.*;
+import org.toxsoft.core.tslib.utils.errors.*;
+import org.toxsoft.uskat.legacy.plexy.*;
+import org.toxsoft.uskat.skadmin.cli.*;
+import org.toxsoft.uskat.skadmin.core.*;
 
 /**
  * Команда консоли: 'Вывод на экран идентификаторов разделов и команд доступных в текущем или указанном разделе'
@@ -40,10 +37,10 @@ public class ConsoleCmdLs
     super( aConsole );
     // Раздел по которому требуется вывести информацию. Пустая строка: вывод по текущему разделу
     addArg( LS_ARG_SECTION_ID, LS_ARG_SECTION_ALIAS, LS_ARG_SECTION_NAME,
-        createType( EAtomicType.STRING, EMPTY_STRING ), LS_ARG_SECTION_DESCR );
+        createType( EAtomicType.STRING, avStr( EMPTY_STRING ) ), LS_ARG_SECTION_DESCR );
     // Вывод описаний команд
     addArg( LS_ARG_DESCRIPTION_ID, LS_ARG_DESCRIPTION_ALIAS, LS_ARG_DESCRIPTION_NAME,
-        createType( BOOLEAN, LS_ARG_DESCRIPTION_DEFAULT ), LS_ARG_DESCRIPTION_DESCR );
+        createType( BOOLEAN, avBool( Boolean.parseBoolean( LS_ARG_DESCRIPTION_DEFAULT ) ) ), LS_ARG_DESCRIPTION_DESCR );
   }
 
   // ------------------------------------------------------------------------------------

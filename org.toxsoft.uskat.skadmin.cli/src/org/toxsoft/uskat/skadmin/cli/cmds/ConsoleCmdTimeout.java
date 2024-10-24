@@ -1,20 +1,18 @@
 package org.toxsoft.uskat.skadmin.cli.cmds;
 
 import static org.toxsoft.core.tslib.av.EAtomicType.*;
+import static org.toxsoft.core.tslib.av.impl.AvUtils.*;
 import static org.toxsoft.uskat.legacy.plexy.impl.PlexyValueUtils.*;
 import static org.toxsoft.uskat.skadmin.cli.cmds.IAdminResources.*;
 import static org.toxsoft.uskat.skadmin.core.plugins.AdminPluginUtils.*;
 
-import org.toxsoft.core.tslib.coll.IList;
-import org.toxsoft.core.tslib.coll.IListEdit;
-import org.toxsoft.core.tslib.coll.impl.ElemArrayList;
-import org.toxsoft.core.tslib.coll.primtypes.IStringList;
-import org.toxsoft.core.tslib.coll.primtypes.IStringMap;
-import org.toxsoft.uskat.legacy.plexy.IPlexyType;
-import org.toxsoft.uskat.legacy.plexy.IPlexyValue;
-import org.toxsoft.uskat.skadmin.cli.IAdminConsole;
-import org.toxsoft.uskat.skadmin.cli.cmds.ConsoleCmdSignal.ESignalCmd;
-import org.toxsoft.uskat.skadmin.core.IAdminCmdCallback;
+import org.toxsoft.core.tslib.coll.*;
+import org.toxsoft.core.tslib.coll.impl.*;
+import org.toxsoft.core.tslib.coll.primtypes.*;
+import org.toxsoft.uskat.legacy.plexy.*;
+import org.toxsoft.uskat.skadmin.cli.*;
+import org.toxsoft.uskat.skadmin.cli.cmds.ConsoleCmdSignal.*;
+import org.toxsoft.uskat.skadmin.core.*;
 
 /**
  * Команда консоли: 'Остановить выполнение потока на указанное время'
@@ -33,7 +31,7 @@ public class ConsoleCmdTimeout
     super( aConsole );
     // Таймаут(мсек) удержания или ожидания сигнала или его значения
     addArg( ARG_TIMEOUT_VALUE_ID, ARG_TIMEOUT_VALUE_ALIAS, ARG_TIMEOUT_VALUE_NAME,
-        createType( INTEGER, ARG_TIMEOUT_VALUE_DEFAULT ), ARG_TIMEOUT_VALUE_DESCR );
+        createType( INTEGER, avInt( Integer.parseInt( ARG_TIMEOUT_VALUE_DEFAULT ) ) ), ARG_TIMEOUT_VALUE_DESCR );
   }
 
   // ------------------------------------------------------------------------------------
