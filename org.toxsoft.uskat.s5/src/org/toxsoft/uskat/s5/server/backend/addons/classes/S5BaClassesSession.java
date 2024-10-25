@@ -2,22 +2,20 @@ package org.toxsoft.uskat.s5.server.backend.addons.classes;
 
 import static org.toxsoft.uskat.s5.server.IS5ImplementConstants.*;
 
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.*;
 
 import javax.ejb.*;
 
-import org.toxsoft.core.tslib.bricks.strid.coll.IStridablesList;
-import org.toxsoft.core.tslib.coll.primtypes.IStringList;
-import org.toxsoft.core.tslib.utils.errors.TsNullArgumentRtException;
-import org.toxsoft.uskat.core.api.sysdescr.dto.IDtoClassInfo;
-import org.toxsoft.uskat.core.backend.ISkBackendHardConstant;
-import org.toxsoft.uskat.core.backend.api.IBaClasses;
-import org.toxsoft.uskat.s5.server.backend.addons.IS5BackendAddonSessionControl;
-import org.toxsoft.uskat.s5.server.backend.addons.S5AbstractBackendAddonSession;
-import org.toxsoft.uskat.s5.server.backend.supports.sysdescr.IS5BackendSysDescrSingleton;
-import org.toxsoft.uskat.s5.server.sessions.init.IS5SessionInitData;
-import org.toxsoft.uskat.s5.server.sessions.init.S5SessionInitResult;
-import org.toxsoft.uskat.s5.server.sessions.pas.S5SessionMessenger;
+import org.toxsoft.core.tslib.bricks.strid.coll.*;
+import org.toxsoft.core.tslib.coll.primtypes.*;
+import org.toxsoft.core.tslib.utils.errors.*;
+import org.toxsoft.uskat.core.api.sysdescr.dto.*;
+import org.toxsoft.uskat.core.backend.*;
+import org.toxsoft.uskat.core.backend.api.*;
+import org.toxsoft.uskat.s5.server.backend.addons.*;
+import org.toxsoft.uskat.s5.server.backend.supports.sysdescr.*;
+import org.toxsoft.uskat.s5.server.sessions.init.*;
+import org.toxsoft.uskat.s5.server.sessions.pas.*;
 
 /**
  * Реализация сессии расширения бекенда {@link IS5BaClassesSession}.
@@ -29,7 +27,6 @@ import org.toxsoft.uskat.s5.server.sessions.pas.S5SessionMessenger;
 @AccessTimeout( value = ACCESS_TIMEOUT_DEFAULT, unit = TimeUnit.MILLISECONDS )
 @TransactionManagement( TransactionManagementType.CONTAINER )
 @TransactionAttribute( TransactionAttributeType.SUPPORTS )
-@SuppressWarnings( "unused" )
 public class S5BaClassesSession
     extends S5AbstractBackendAddonSession
     implements IS5BaClassesSession, IS5BackendAddonSessionControl {

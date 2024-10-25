@@ -1,13 +1,12 @@
 package org.toxsoft.uskat.s5.server.sequences;
 
-import org.toxsoft.core.tslib.av.utils.IParameterized;
-import org.toxsoft.core.tslib.bricks.time.ITemporal;
-import org.toxsoft.core.tslib.bricks.validator.IValResList;
-import org.toxsoft.core.tslib.coll.IList;
-import org.toxsoft.core.tslib.utils.errors.TsIllegalArgumentRtException;
-import org.toxsoft.core.tslib.utils.errors.TsNullArgumentRtException;
-import org.toxsoft.core.tslib.utils.logs.ILogger;
-import org.toxsoft.uskat.s5.server.sequences.impl.S5DataID;
+import org.toxsoft.core.tslib.av.utils.*;
+import org.toxsoft.core.tslib.bricks.time.*;
+import org.toxsoft.core.tslib.bricks.validator.vrl.*;
+import org.toxsoft.core.tslib.coll.*;
+import org.toxsoft.core.tslib.utils.errors.*;
+import org.toxsoft.core.tslib.utils.logs.*;
+import org.toxsoft.uskat.s5.server.sequences.impl.*;
 
 /**
  * Блок значений последовательности {@link IS5Sequence} с возможностью редактирования
@@ -58,8 +57,8 @@ public interface IS5SequenceBlockEdit<V extends ITemporal<?>>
    * Проводит валидацию (исправление содержимого блока) если это необходимо
    *
    * @param aTypeInfo {@link IParameterized} параметризованное описание типа данного
-   * @return {@link IValResList} результаты валидации
+   * @return {@link IVrList} результаты валидации
    * @throws TsNullArgumentRtException аргумент = null
    */
-  IValResList validation( IParameterized aTypeInfo );
+  IVrList validation( IParameterized aTypeInfo );
 }

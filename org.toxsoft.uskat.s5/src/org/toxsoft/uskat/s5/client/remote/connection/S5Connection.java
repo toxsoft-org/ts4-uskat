@@ -12,50 +12,44 @@ import static org.toxsoft.uskat.s5.utils.threads.impl.S5ThreadUtils.*;
 
 import java.net.*;
 import java.util.*;
-import java.util.concurrent.TimeUnit;
-import java.util.function.Supplier;
+import java.util.concurrent.*;
+import java.util.function.*;
 
-import javax.ejb.NoSuchEJBException;
+import javax.ejb.*;
 import javax.naming.*;
-import javax.security.sasl.SaslException;
+import javax.security.sasl.*;
 
 import org.jboss.ejb.client.*;
-import org.jboss.ejb.client.EJBClientContext.Builder;
-import org.jboss.ejb.protocol.remote.RemoteTransportProvider;
-import org.jboss.ejb.protocol.remote.S5ClusterNodeUtils;
-import org.jboss.ejb.protocol.remote.S5ClusterNodeUtils.IS5ClusterTopologyListener;
+import org.jboss.ejb.client.EJBClientContext.*;
+import org.jboss.ejb.protocol.remote.*;
+import org.jboss.ejb.protocol.remote.S5ClusterNodeUtils.*;
 import org.jboss.marshalling.Pair;
-import org.toxsoft.core.pas.common.IPasTxChannel;
-import org.toxsoft.core.tslib.av.opset.IOptionSet;
-import org.toxsoft.core.tslib.av.opset.IOptionSetEdit;
-import org.toxsoft.core.tslib.av.opset.impl.OptionSet;
-import org.toxsoft.core.tslib.coll.IListBasicEdit;
-import org.toxsoft.core.tslib.coll.IListEdit;
-import org.toxsoft.core.tslib.coll.impl.ElemArrayList;
-import org.toxsoft.core.tslib.coll.impl.ElemLinkedList;
-import org.toxsoft.core.tslib.coll.primtypes.IStringMap;
-import org.toxsoft.core.tslib.gw.skid.Skid;
-import org.toxsoft.core.tslib.utils.TsLibUtils;
+import org.toxsoft.core.pas.common.*;
+import org.toxsoft.core.tslib.av.opset.*;
+import org.toxsoft.core.tslib.av.opset.impl.*;
+import org.toxsoft.core.tslib.coll.*;
+import org.toxsoft.core.tslib.coll.impl.*;
+import org.toxsoft.core.tslib.coll.primtypes.*;
+import org.toxsoft.core.tslib.gw.skid.*;
+import org.toxsoft.core.tslib.utils.*;
 import org.toxsoft.core.tslib.utils.errors.*;
-import org.toxsoft.core.tslib.utils.logs.ILogger;
-import org.toxsoft.uskat.core.backend.ISkFrontendRear;
-import org.toxsoft.uskat.s5.client.remote.connection.pas.S5CallbackClient;
-import org.toxsoft.uskat.s5.common.S5Host;
-import org.toxsoft.uskat.s5.common.S5HostList;
-import org.toxsoft.uskat.s5.common.sessions.ISkSession;
-import org.toxsoft.uskat.s5.server.IS5ImplementConstants;
-import org.toxsoft.uskat.s5.server.backend.IS5BackendSession;
-import org.toxsoft.uskat.s5.server.backend.impl.S5BackendSession;
+import org.toxsoft.core.tslib.utils.logs.*;
+import org.toxsoft.uskat.core.backend.*;
+import org.toxsoft.uskat.s5.client.remote.connection.pas.*;
+import org.toxsoft.uskat.s5.common.*;
+import org.toxsoft.uskat.s5.common.sessions.*;
+import org.toxsoft.uskat.s5.server.*;
+import org.toxsoft.uskat.s5.server.backend.*;
+import org.toxsoft.uskat.s5.server.backend.impl.*;
 import org.toxsoft.uskat.s5.server.sessions.init.*;
-import org.toxsoft.uskat.s5.utils.progress.IS5ProgressMonitor;
-import org.toxsoft.uskat.s5.utils.threads.impl.S5Lockable;
-import org.wildfly.common.context.ContextManager;
-import org.wildfly.naming.client.NamingProvider;
-import org.wildfly.naming.client.ProviderEnvironment;
-import org.wildfly.naming.client.remote.RemoteNamingProviderFactory;
-import org.wildfly.naming.client.util.FastHashtable;
+import org.toxsoft.uskat.s5.utils.progress.*;
+import org.toxsoft.uskat.s5.utils.threads.impl.*;
+import org.wildfly.common.context.*;
+import org.wildfly.naming.client.*;
+import org.wildfly.naming.client.remote.*;
+import org.wildfly.naming.client.util.*;
 import org.wildfly.security.auth.client.*;
-import org.wildfly.security.sasl.SaslMechanismSelector;
+import org.wildfly.security.sasl.*;
 
 /**
  * Реализация соединение с сервером {@link IS5Connection}.
@@ -617,7 +611,7 @@ public final class S5Connection
           String addr = hosts.get( 0 ).address();
           int port = hosts.get( 0 ).port();
           S5ClusterNodeInfo node = new S5ClusterNodeInfo( "no_cluster", "standalone", addr, port ); //$NON-NLS-1$//$NON-NLS-2$
-          topology = new S5ClusterTopology( new ElemArrayList<IS5ClusterNodeInfo>( node ) );
+          topology = new S5ClusterTopology( new ElemArrayList<>( node ) );
         }
         // Установка узлов кластера к которым есть доступ у клиента
         sessionInitData.setClusterTopology( topology );

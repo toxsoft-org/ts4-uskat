@@ -8,28 +8,25 @@ import static org.toxsoft.uskat.s5.server.sequences.IS5SequenceHardConstants.*;
 import static org.toxsoft.uskat.s5.server.sequences.impl.IS5Resources.*;
 import static org.toxsoft.uskat.s5.server.sequences.impl.S5DataID.*;
 
-import java.io.Serializable;
+import java.io.*;
 import java.lang.reflect.Array;
-import java.sql.ResultSet;
-import java.sql.Timestamp;
-import java.util.Arrays;
+import java.sql.*;
+import java.util.*;
 
 import javax.persistence.*;
 
-import org.toxsoft.core.tslib.av.utils.IParameterized;
-import org.toxsoft.core.tslib.bricks.time.ITemporal;
-import org.toxsoft.core.tslib.bricks.time.impl.TimeUtils;
-import org.toxsoft.core.tslib.bricks.validator.IValResList;
-import org.toxsoft.core.tslib.bricks.validator.ValidationResult;
-import org.toxsoft.core.tslib.bricks.validator.impl.ValResList;
-import org.toxsoft.core.tslib.coll.IList;
-import org.toxsoft.core.tslib.coll.primtypes.IStringMap;
-import org.toxsoft.core.tslib.coll.primtypes.IStringMapEdit;
-import org.toxsoft.core.tslib.coll.primtypes.impl.StringMap;
-import org.toxsoft.core.tslib.gw.gwid.Gwid;
-import org.toxsoft.core.tslib.utils.TsLibUtils;
+import org.toxsoft.core.tslib.av.utils.*;
+import org.toxsoft.core.tslib.bricks.time.*;
+import org.toxsoft.core.tslib.bricks.time.impl.*;
+import org.toxsoft.core.tslib.bricks.validator.*;
+import org.toxsoft.core.tslib.bricks.validator.vrl.*;
+import org.toxsoft.core.tslib.coll.*;
+import org.toxsoft.core.tslib.coll.primtypes.*;
+import org.toxsoft.core.tslib.coll.primtypes.impl.*;
+import org.toxsoft.core.tslib.gw.gwid.*;
+import org.toxsoft.core.tslib.utils.*;
 import org.toxsoft.core.tslib.utils.errors.*;
-import org.toxsoft.core.tslib.utils.logs.ILogger;
+import org.toxsoft.core.tslib.utils.logs.*;
 import org.toxsoft.uskat.s5.server.sequences.*;
 
 /**
@@ -464,7 +461,7 @@ public abstract class S5SequenceBlock<V extends ITemporal<?>, BLOB_ARRAY, BLOB e
   }
 
   @Override
-  public final IValResList validation( IParameterized aTypeInfo ) {
+  public final IVrList validation( IParameterized aTypeInfo ) {
     TsNullArgumentRtException.checkNull( aTypeInfo );
     return doValidation( aTypeInfo );
   }
@@ -582,17 +579,19 @@ public abstract class S5SequenceBlock<V extends ITemporal<?>, BLOB_ARRAY, BLOB e
    * Важно: при переопределении наследник должен вызвать метод {@link #doValidation(IParameterized)} базового класса
    *
    * @param aTypeInfo {@link IParameterized} параметризованное описание типа данного
-   * @return {@link IValResList} результаты валидации
+   * @return {@link IVrList} результаты валидации
    */
-  protected IValResList doValidation( IParameterized aTypeInfo ) {
-    ValResList retValue = new ValResList();
+  protected IVrList doValidation( IParameterized aTypeInfo ) {
+    VrList retValue = new VrList();
     if( blob() == null ) {
       // Значения не определены. Критическая ошибка
       retValue.add( ValidationResult.error( ERR_VALIDATION_NULL_BLOB, this ) );
       return retValue;
     }
     // Проверка blob
-    retValue.addValResList( blob().validation() );
+    for( VrlItem item : blob().validation().items() ) {
+      retValue.add( item );
+    }
     // Проверка согласованности значений и описания блока
     BLOB_ARRAY values = values();
     if( values == null ) {

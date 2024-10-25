@@ -9,29 +9,24 @@ import static org.toxsoft.uskat.s5.client.remote.connection.pas.S5CallbackOnBack
 import static org.toxsoft.uskat.s5.client.remote.connection.pas.S5CallbackOnGetBaCreatorClasses.*;
 import static org.toxsoft.uskat.s5.server.IS5ImplementConstants.*;
 
-import java.net.InetSocketAddress;
-import java.util.concurrent.Executor;
+import java.net.*;
+import java.util.concurrent.*;
 
-import org.toxsoft.core.pas.client.PasClient;
+import org.toxsoft.core.pas.client.*;
 import org.toxsoft.core.pas.common.*;
-import org.toxsoft.core.tslib.av.opset.IOptionSet;
-import org.toxsoft.core.tslib.bricks.ICooperativeMultiTaskable;
-import org.toxsoft.core.tslib.bricks.ctx.ITsContext;
-import org.toxsoft.core.tslib.bricks.ctx.impl.TsContext;
-import org.toxsoft.core.tslib.coll.IList;
-import org.toxsoft.core.tslib.coll.IListEdit;
-import org.toxsoft.core.tslib.coll.impl.ElemArrayList;
-import org.toxsoft.core.tslib.coll.impl.ElemLinkedList;
-import org.toxsoft.core.tslib.coll.primtypes.IStringMap;
-import org.toxsoft.core.tslib.utils.errors.TsIllegalStateRtException;
-import org.toxsoft.core.tslib.utils.errors.TsNullArgumentRtException;
-import org.toxsoft.core.tslib.utils.logs.ELogSeverity;
-import org.toxsoft.core.tslib.utils.logs.ILogger;
-import org.toxsoft.uskat.core.backend.ISkFrontendRear;
-import org.toxsoft.uskat.s5.client.IS5ConnectionParams;
+import org.toxsoft.core.tslib.av.opset.*;
+import org.toxsoft.core.tslib.bricks.*;
+import org.toxsoft.core.tslib.bricks.ctx.*;
+import org.toxsoft.core.tslib.bricks.ctx.impl.*;
+import org.toxsoft.core.tslib.coll.*;
+import org.toxsoft.core.tslib.coll.impl.*;
+import org.toxsoft.core.tslib.coll.primtypes.*;
+import org.toxsoft.core.tslib.utils.errors.*;
+import org.toxsoft.core.tslib.utils.logs.*;
+import org.toxsoft.uskat.core.backend.*;
+import org.toxsoft.uskat.s5.client.*;
 import org.toxsoft.uskat.s5.client.remote.connection.*;
-import org.toxsoft.uskat.s5.server.backend.addons.IS5BackendAddon;
-import org.toxsoft.uskat.s5.server.backend.addons.IS5BackendAddonCreator;
+import org.toxsoft.uskat.s5.server.backend.addons.*;
 import org.toxsoft.uskat.s5.server.sessions.pas.*;
 
 /**
@@ -466,8 +461,7 @@ public final class S5CallbackClient
         }
       }
       // Проверка и если требуется завершение соединений с отключенными узлами кластера
-      for( PasClient<S5CallbackChannel> client : pasClients
-          .copyTo( new ElemArrayList<PasClient<S5CallbackChannel>>() ) ) {
+      for( PasClient<S5CallbackChannel> client : pasClients.copyTo( new ElemArrayList<>() ) ) {
         boolean needDisconnect = true;
         for( IS5ClusterNodeInfo node : aTopology.nodes() ) {
           if( node.address().equals( client.remoteAddress() ) && getPasPort( node ) == client.remotePort() ) {

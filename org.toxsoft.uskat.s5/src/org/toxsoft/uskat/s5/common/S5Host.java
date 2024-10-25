@@ -224,10 +224,9 @@ public final class S5Host
       return ValidationResult.error( MSG_ERR_BLANK_ADDRESS );
     }
     try {
-      @SuppressWarnings( "unused" )
-      URL url = new URL( "http://" + aAddress ); //$NON-NLS-1$
+      new URI( "http://" + aAddress ).toURL(); //$NON-NLS-1$
     }
-    catch( MalformedURLException ex ) {
+    catch( MalformedURLException | URISyntaxException ex ) {
       return ValidationResult.error( FMT_ERR_INV_ADDRESS_URL, aAddress, ex.getLocalizedMessage() );
     }
     if( aPort < MIN_PORT || aPort > MAX_PORT ) {
@@ -236,5 +235,4 @@ public final class S5Host
     }
     return ValidationResult.SUCCESS;
   }
-
 }

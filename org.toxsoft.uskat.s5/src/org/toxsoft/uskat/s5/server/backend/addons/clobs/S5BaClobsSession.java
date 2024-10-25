@@ -2,20 +2,18 @@ package org.toxsoft.uskat.s5.server.backend.addons.clobs;
 
 import static org.toxsoft.uskat.s5.server.IS5ImplementConstants.*;
 
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.*;
 
 import javax.ejb.*;
 
-import org.toxsoft.core.tslib.gw.gwid.Gwid;
-import org.toxsoft.core.tslib.utils.errors.TsNullArgumentRtException;
-import org.toxsoft.uskat.core.backend.ISkBackendHardConstant;
-import org.toxsoft.uskat.core.backend.api.IBaClobs;
-import org.toxsoft.uskat.s5.server.backend.addons.IS5BackendAddonSessionControl;
-import org.toxsoft.uskat.s5.server.backend.addons.S5AbstractBackendAddonSession;
-import org.toxsoft.uskat.s5.server.backend.supports.clobs.IS5BackendClobsSingleton;
-import org.toxsoft.uskat.s5.server.sessions.init.IS5SessionInitData;
-import org.toxsoft.uskat.s5.server.sessions.init.S5SessionInitResult;
-import org.toxsoft.uskat.s5.server.sessions.pas.S5SessionMessenger;
+import org.toxsoft.core.tslib.gw.gwid.*;
+import org.toxsoft.core.tslib.utils.errors.*;
+import org.toxsoft.uskat.core.backend.*;
+import org.toxsoft.uskat.core.backend.api.*;
+import org.toxsoft.uskat.s5.server.backend.addons.*;
+import org.toxsoft.uskat.s5.server.backend.supports.clobs.*;
+import org.toxsoft.uskat.s5.server.sessions.init.*;
+import org.toxsoft.uskat.s5.server.sessions.pas.*;
 
 /**
  * Реализация сессии расширения бекенда {@link IS5BaClobsSession}.
@@ -27,7 +25,6 @@ import org.toxsoft.uskat.s5.server.sessions.pas.S5SessionMessenger;
 @AccessTimeout( value = ACCESS_TIMEOUT_DEFAULT, unit = TimeUnit.MILLISECONDS )
 @TransactionManagement( TransactionManagementType.CONTAINER )
 @TransactionAttribute( TransactionAttributeType.SUPPORTS )
-@SuppressWarnings( "unused" )
 public class S5BaClobsSession
     extends S5AbstractBackendAddonSession
     implements IS5BaClobsSession, IS5BackendAddonSessionControl {

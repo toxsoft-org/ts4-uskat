@@ -4,22 +4,20 @@ import static org.toxsoft.core.tslib.bricks.validator.ValidationResult.*;
 import static org.toxsoft.uskat.s5.server.backend.addons.commands.IS5Resources.*;
 import static org.toxsoft.uskat.s5.utils.threads.impl.S5Lockable.*;
 
-import java.io.Serializable;
+import java.io.*;
 
-import org.toxsoft.core.tslib.bricks.time.ITimedList;
-import org.toxsoft.core.tslib.bricks.validator.IValResList;
-import org.toxsoft.core.tslib.bricks.validator.ValidationResult;
-import org.toxsoft.core.tslib.bricks.validator.impl.ValResList;
-import org.toxsoft.core.tslib.coll.primtypes.IStringListEdit;
-import org.toxsoft.core.tslib.coll.primtypes.impl.StringArrayList;
+import org.toxsoft.core.tslib.bricks.time.*;
+import org.toxsoft.core.tslib.bricks.validator.*;
+import org.toxsoft.core.tslib.bricks.validator.vrl.*;
+import org.toxsoft.core.tslib.coll.primtypes.*;
+import org.toxsoft.core.tslib.coll.primtypes.impl.*;
 import org.toxsoft.core.tslib.gw.gwid.*;
-import org.toxsoft.core.tslib.utils.errors.TsNotAllEnumsUsedRtException;
-import org.toxsoft.core.tslib.utils.errors.TsNullArgumentRtException;
+import org.toxsoft.core.tslib.utils.errors.*;
 import org.toxsoft.uskat.core.api.cmdserv.*;
-import org.toxsoft.uskat.core.api.sysdescr.ISkClassHierarchyExplorer;
-import org.toxsoft.uskat.s5.legacy.SkGwidUtils;
-import org.toxsoft.uskat.s5.server.backend.supports.commands.impl.S5CommandStateChangeInfoList;
-import org.toxsoft.uskat.s5.utils.threads.impl.S5Lockable;
+import org.toxsoft.uskat.core.api.sysdescr.*;
+import org.toxsoft.uskat.s5.legacy.*;
+import org.toxsoft.uskat.s5.server.backend.supports.commands.impl.*;
+import org.toxsoft.uskat.s5.utils.threads.impl.*;
 
 /**
  * Вспомогательный класс обработки комманд {@link IDtoCommand}.
@@ -177,9 +175,9 @@ public final class S5BaCommandsSupport
    * @return {@link ValidationResult} результат регистрации исполнителя
    * @throws TsNullArgumentRtException любой аргумент = null
    */
-  public IValResList setHandledCommandGwids( IGwidList aNeededGwids ) {
+  public IVrList setHandledCommandGwids( IGwidList aNeededGwids ) {
     TsNullArgumentRtException.checkNull( aNeededGwids );
-    ValResList retValue = new ValResList();
+    VrList retValue = new VrList();
     lockWrite( lock() );
     try {
       gwids.clear();

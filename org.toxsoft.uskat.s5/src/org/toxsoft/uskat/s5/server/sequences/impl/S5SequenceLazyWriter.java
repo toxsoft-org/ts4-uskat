@@ -8,36 +8,31 @@ import static org.toxsoft.uskat.s5.server.sequences.impl.IS5Resources.*;
 import static org.toxsoft.uskat.s5.server.sequences.impl.S5SequenceSQL.*;
 import static org.toxsoft.uskat.s5.utils.threads.impl.S5Lockable.*;
 
-import java.util.HashMap;
-import java.util.List;
+import java.util.*;
 
-import javax.naming.InitialContext;
-import javax.persistence.EntityManager;
-import javax.transaction.UserTransaction;
+import javax.naming.*;
+import javax.persistence.*;
+import javax.transaction.*;
 
-import org.toxsoft.core.log4j.LoggerWrapper;
-import org.toxsoft.core.tslib.av.opset.IOptionSet;
-import org.toxsoft.core.tslib.av.opset.IOptionSetEdit;
-import org.toxsoft.core.tslib.av.opset.impl.OptionSet;
-import org.toxsoft.core.tslib.av.utils.IParameterized;
-import org.toxsoft.core.tslib.bricks.strid.impl.StridUtils;
+import org.toxsoft.core.log4j.*;
+import org.toxsoft.core.tslib.av.opset.*;
+import org.toxsoft.core.tslib.av.opset.impl.*;
+import org.toxsoft.core.tslib.av.utils.*;
+import org.toxsoft.core.tslib.bricks.strid.impl.*;
 import org.toxsoft.core.tslib.bricks.time.*;
-import org.toxsoft.core.tslib.bricks.time.impl.QueryInterval;
-import org.toxsoft.core.tslib.bricks.time.impl.TimeInterval;
+import org.toxsoft.core.tslib.bricks.time.impl.*;
 import org.toxsoft.core.tslib.coll.*;
-import org.toxsoft.core.tslib.coll.derivative.IQueue;
+import org.toxsoft.core.tslib.coll.derivative.*;
 import org.toxsoft.core.tslib.coll.derivative.Queue;
-import org.toxsoft.core.tslib.coll.impl.ElemArrayList;
+import org.toxsoft.core.tslib.coll.impl.*;
 import org.toxsoft.core.tslib.gw.gwid.*;
 import org.toxsoft.core.tslib.utils.errors.*;
-import org.toxsoft.core.tslib.utils.logs.ELogSeverity;
-import org.toxsoft.core.tslib.utils.logs.ILogger;
-import org.toxsoft.uskat.s5.server.backend.IS5BackendCoreSingleton;
+import org.toxsoft.core.tslib.utils.logs.*;
+import org.toxsoft.uskat.s5.server.backend.*;
 import org.toxsoft.uskat.s5.server.sequences.*;
-import org.toxsoft.uskat.s5.server.sequences.maintenance.IS5SequenceUnionOptions;
-import org.toxsoft.uskat.s5.server.sequences.maintenance.IS5SequenceValidationOptions;
-import org.toxsoft.uskat.s5.server.sequences.writer.IS5SequenceWriter;
-import org.toxsoft.uskat.s5.utils.collections.WrapperMap;
+import org.toxsoft.uskat.s5.server.sequences.maintenance.*;
+import org.toxsoft.uskat.s5.server.sequences.writer.*;
+import org.toxsoft.uskat.s5.utils.collections.*;
 import org.toxsoft.uskat.s5.utils.threads.impl.*;
 
 /**
@@ -212,7 +207,6 @@ class S5SequenceLazyWriter<S extends IS5Sequence<V>, V extends ITemporal<?>>
       ILogger logger = LoggerWrapper.getLogger( LOG_VALIDATOR_ID );
       // Исполнитель s5-потоков проверки данных
       S5WriteThreadExecutor executor = new S5WriteThreadExecutor( validationExecutor(), logger );
-
       // Идентификаторы данных. null: неопределены
       IGwidList gwids = null;
       if( aArgs.hasValue( IS5SequenceValidationOptions.GWIDS ) ) {
@@ -528,8 +522,8 @@ class S5SequenceLazyWriter<S extends IS5Sequence<V>, V extends ITemporal<?>>
       logger().debug( MSG_GWID_FRAGMENT_COUNT, gwid, Integer.valueOf( lookupCount ), Integer.valueOf( fragmentCount ) );
 
 //      if( d ) {
-        logger().info( "prepareAuto(...): gwid = %s, max = %d, fragmentCount = %d, allFragmentsCount = %s",
-            gwid, Integer.valueOf( blockSizeMin ), Integer.valueOf( fragmentCount ), allFragments != null ? allFragments.fragmentCount() : "N/A" );
+//        logger().info( "prepareAuto(...): gwid = %s, max = %d, fragmentCount = %d, allFragmentsCount = %s",
+//            gwid, Integer.valueOf( blockSizeMin ), Integer.valueOf( fragmentCount ), allFragments != null ? allFragments.fragmentCount() : "N/A" );
 //      }
 
       // Анализ фрагментации

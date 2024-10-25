@@ -50,6 +50,8 @@ interface IS5Resources {
   String MSG_UNION_FINISH                = Messages.getString( "IS5Resources.MSG_UNION_FINISH" );                  //$NON-NLS-1$
   String MSG_UNION_PASS_FINISH           = Messages.getString( "IS5Resources.MSG_UNION_PASS_FINISH" );             //$NON-NLS-1$
 
+  String MSG_PARTITION_TASK_NOT_FOUND = "%s. There are no tasks for process partitions."; //$NON-NLS-1$
+
   String MSG_PARTITION_START_THREAD          = Messages.getString( "IS5Resources.MSG_PARTITION_START_THREAD" );            //$NON-NLS-1$
   String MSG_SINGLETON_PARTITION_TASK_START  = Messages.getString( "IS5Resources.MSG_SINGLETON_PARTITION_TASK_START" );    //$NON-NLS-1$
   String MSG_SINGLETON_PARTITION_TASK_FINISH = Messages.getString( "IS5Resources.MSG_SINGLETON_PARTITION_TASK_FINISH" );   //$NON-NLS-1$

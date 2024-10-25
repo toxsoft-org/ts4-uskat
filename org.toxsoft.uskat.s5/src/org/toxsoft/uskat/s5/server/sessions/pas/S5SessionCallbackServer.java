@@ -10,27 +10,23 @@ import static org.toxsoft.uskat.s5.server.sessions.pas.S5SessionCallbackInit.*;
 import static org.toxsoft.uskat.s5.server.sessions.pas.S5SessionCallbackVerify.*;
 import static org.toxsoft.uskat.s5.utils.platform.S5ServerPlatformUtils.*;
 
-import java.util.concurrent.ExecutorService;
+import java.util.concurrent.*;
 
-import org.toxsoft.core.pas.common.IPasParams;
-import org.toxsoft.core.pas.server.IPasServerParams;
-import org.toxsoft.core.pas.server.PasServer;
-import org.toxsoft.core.tslib.av.IAtomicValue;
-import org.toxsoft.core.tslib.av.metainfo.IAvMetaConstants;
-import org.toxsoft.core.tslib.bricks.ctx.impl.TsContext;
-import org.toxsoft.core.tslib.bricks.time.impl.TimeUtils;
-import org.toxsoft.core.tslib.coll.impl.ElemArrayList;
-import org.toxsoft.core.tslib.gw.skid.Skid;
-import org.toxsoft.core.tslib.gw.skid.SkidList;
-import org.toxsoft.core.tslib.utils.ICloseable;
-import org.toxsoft.core.tslib.utils.errors.TsNullArgumentRtException;
-import org.toxsoft.core.tslib.utils.logs.ELogSeverity;
-import org.toxsoft.core.tslib.utils.logs.ILogger;
-import org.toxsoft.uskat.s5.common.sessions.ISkSession;
-import org.toxsoft.uskat.s5.server.cluster.IS5ClusterManager;
-import org.toxsoft.uskat.s5.server.sessions.IS5SessionManager;
-import org.toxsoft.uskat.s5.server.sessions.S5SessionData;
-import org.toxsoft.uskat.s5.server.startup.IS5InitialImplementation;
+import org.toxsoft.core.pas.common.*;
+import org.toxsoft.core.pas.server.*;
+import org.toxsoft.core.tslib.av.*;
+import org.toxsoft.core.tslib.av.metainfo.*;
+import org.toxsoft.core.tslib.bricks.ctx.impl.*;
+import org.toxsoft.core.tslib.bricks.time.impl.*;
+import org.toxsoft.core.tslib.coll.impl.*;
+import org.toxsoft.core.tslib.gw.skid.*;
+import org.toxsoft.core.tslib.utils.*;
+import org.toxsoft.core.tslib.utils.errors.*;
+import org.toxsoft.core.tslib.utils.logs.*;
+import org.toxsoft.uskat.s5.common.sessions.*;
+import org.toxsoft.uskat.s5.server.cluster.*;
+import org.toxsoft.uskat.s5.server.sessions.*;
+import org.toxsoft.uskat.s5.server.startup.*;
 
 /**
  * Поставщик PAS-каналов для образования писателей обратных вызовов
@@ -72,11 +68,11 @@ public final class S5SessionCallbackServer
    *          конфигурация реализации бекенда сервера
    * @param aSessionManager {@link IS5SessionManager} менеджер сессий s5-сервера
    * @param aClusterManager {@link IS5ClusterManager} менеджер кластера s5-сервера
-   * @param aExecutor {@link ExecutorService} исполнитель потоков (PasServer.run())
+   * @param aExecutor {@link Executor} исполнитель потоков (PasServer.run())
    * @throws TsNullArgumentRtException любой аргумент = null
    */
   public S5SessionCallbackServer( IS5InitialImplementation aInitialImplementation, IS5SessionManager aSessionManager,
-      IS5ClusterManager aClusterManager, ExecutorService aExecutor ) {
+      IS5ClusterManager aClusterManager, Executor aExecutor ) {
     TsNullArgumentRtException.checkNulls( aInitialImplementation, aSessionManager, aClusterManager, aExecutor );
     sessionManager = aSessionManager;
 
@@ -119,7 +115,7 @@ public final class S5SessionCallbackServer
         SkidList sessionIds = new SkidList();
         // Проверка того, что все каналы имеют сессию
         for( S5SessionCallbackChannel channel : pasServer.channels()
-            .copyTo( new ElemArrayList<S5SessionCallbackChannel>( pasServer.channels().size() ) ) ) {
+            .copyTo( new ElemArrayList<>( pasServer.channels().size() ) ) ) {
           Skid sessionID = channel.getSessionID();
           if( sessionID == Skid.NONE && (currTime - channel.getCreationTimestamp() > WAIT_SESSION_TIMEOUT) ) {
             // Канал не имеет сессии и будет закрыт
@@ -182,7 +178,7 @@ public final class S5SessionCallbackServer
     // создания)
     S5SessionCallbackChannel retValue = null;
     for( S5SessionCallbackChannel channel : pasServer.channels()
-        .copyTo( new ElemArrayList<S5SessionCallbackChannel>( pasServer.channels().size() ) ) ) {
+        .copyTo( new ElemArrayList<>( pasServer.channels().size() ) ) ) {
       Skid sessionID = channel.getSessionID();
       if( sessionID.equals( aSessionID ) && //
           channel.getRemoteAddress().getHostAddress().equals( aRemoteAddr ) && //
@@ -238,7 +234,7 @@ public final class S5SessionCallbackServer
     TsNullArgumentRtException.checkNulls( aChannel, aSessionID );
     S5SessionMessenger messenger = sessionManager.findMessenger( aSessionID );
     for( S5SessionCallbackChannel channel : pasServer.channels()
-        .copyTo( new ElemArrayList<S5SessionCallbackChannel>( pasServer.channels().size() ) ) ) {
+        .copyTo( new ElemArrayList<>( pasServer.channels().size() ) ) ) {
       Skid sessionID = channel.getSessionID();
       if( sessionID == Skid.NONE ) {
         // Канал еще не имеет сессии

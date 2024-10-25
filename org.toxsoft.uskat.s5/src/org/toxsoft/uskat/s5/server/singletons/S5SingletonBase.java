@@ -7,32 +7,27 @@ import static org.toxsoft.uskat.s5.server.singletons.IS5Resources.*;
 import static org.toxsoft.uskat.s5.server.transactions.IS5TransactionDetectorSingleton.*;
 import static org.toxsoft.uskat.s5.utils.threads.impl.S5Lockable.*;
 
-import java.lang.reflect.Method;
-import java.util.concurrent.ExecutorService;
+import java.lang.reflect.*;
+import java.util.concurrent.*;
 
 import javax.annotation.*;
 import javax.ejb.*;
-import javax.enterprise.concurrent.ManagedExecutorService;
+import javax.enterprise.concurrent.*;
 
-import org.toxsoft.core.tslib.av.opset.IOptionSet;
-import org.toxsoft.core.tslib.av.opset.impl.OptionSet;
-import org.toxsoft.core.tslib.bricks.time.impl.TimeUtils;
-import org.toxsoft.core.tslib.coll.IList;
-import org.toxsoft.core.tslib.coll.IListEdit;
-import org.toxsoft.core.tslib.coll.impl.ElemArrayList;
-import org.toxsoft.core.tslib.utils.TsLibUtils;
-import org.toxsoft.core.tslib.utils.errors.TsIllegalArgumentRtException;
-import org.toxsoft.core.tslib.utils.errors.TsNullArgumentRtException;
-import org.toxsoft.core.tslib.utils.logs.ELogSeverity;
-import org.toxsoft.core.tslib.utils.logs.ILogger;
-import org.toxsoft.uskat.s5.legacy.S5Stridable;
-import org.toxsoft.uskat.s5.server.startup.IS5InitialSingleton;
-import org.toxsoft.uskat.s5.server.transactions.IS5TransactionDetectorSingleton;
-import org.toxsoft.uskat.s5.server.transactions.IS5TransactionManagerSingleton;
-import org.toxsoft.uskat.s5.utils.jobs.IS5ServerJob;
-import org.toxsoft.uskat.s5.utils.threads.IS5DoJobThread;
-import org.toxsoft.uskat.s5.utils.threads.impl.S5DoJobThread;
-import org.toxsoft.uskat.s5.utils.threads.impl.S5Lockable;
+import org.toxsoft.core.tslib.av.opset.*;
+import org.toxsoft.core.tslib.av.opset.impl.*;
+import org.toxsoft.core.tslib.bricks.time.impl.*;
+import org.toxsoft.core.tslib.coll.*;
+import org.toxsoft.core.tslib.coll.impl.*;
+import org.toxsoft.core.tslib.utils.*;
+import org.toxsoft.core.tslib.utils.errors.*;
+import org.toxsoft.core.tslib.utils.logs.*;
+import org.toxsoft.uskat.s5.legacy.*;
+import org.toxsoft.uskat.s5.server.startup.*;
+import org.toxsoft.uskat.s5.server.transactions.*;
+import org.toxsoft.uskat.s5.utils.jobs.*;
+import org.toxsoft.uskat.s5.utils.threads.*;
+import org.toxsoft.uskat.s5.utils.threads.impl.*;
 
 /**
  * Базовый класс для облегчения реализации синглтонов сервера.
@@ -241,9 +236,9 @@ public class S5SingletonBase
   /**
    * Возвращает исполнителя потоков фоновых потоков s5-служб
    *
-   * @return {@link ExecutorService} исполнитель потоков
+   * @return {@link Executor} исполнитель потоков
    */
-  protected final ExecutorService doJobExecutor() {
+  protected final Executor doJobExecutor() {
     return doJobExecutor;
   }
 

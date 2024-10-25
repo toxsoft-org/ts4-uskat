@@ -7,10 +7,9 @@ import static org.toxsoft.uskat.s5.client.remote.connection.S5Connection.*;
 import static org.toxsoft.uskat.s5.common.IS5CommonResources.*;
 import static org.toxsoft.uskat.s5.utils.threads.impl.S5Lockable.*;
 
-import org.toxsoft.core.tslib.utils.errors.TsNullArgumentRtException;
-import org.toxsoft.core.tslib.utils.logs.ELogSeverity;
-import org.toxsoft.core.tslib.utils.logs.ILogger;
-import org.toxsoft.uskat.s5.utils.threads.impl.S5Lockable;
+import org.toxsoft.core.tslib.utils.errors.*;
+import org.toxsoft.core.tslib.utils.logs.*;
+import org.toxsoft.uskat.s5.utils.threads.impl.*;
 
 /**
  * runtime-поток выполнения соединения s5
@@ -32,7 +31,7 @@ class S5ConnectionThread
    */
   S5ConnectionThread( S5Connection aConnection ) {
     TsNullArgumentRtException.checkNull( aConnection );
-    setName( format( THREAD_ID, getClass().getSimpleName(), Long.valueOf( getId() ) ) );
+    setName( format( THREAD_ID, getClass().getSimpleName(), Long.valueOf( threadId() ) ) );
     setDaemon( true );
     connection = aConnection;
     logger = getLogger( getClass() );

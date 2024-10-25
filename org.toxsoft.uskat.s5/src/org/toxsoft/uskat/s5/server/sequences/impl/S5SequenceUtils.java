@@ -5,17 +5,15 @@ import static org.toxsoft.core.tslib.bricks.time.impl.TimeUtils.*;
 import static org.toxsoft.uskat.s5.server.sequences.IS5SequenceHardConstants.*;
 import static org.toxsoft.uskat.s5.server.sequences.impl.IS5Resources.*;
 
-import java.util.List;
+import java.util.*;
 
-import org.toxsoft.core.tslib.av.utils.IParameterized;
+import org.toxsoft.core.tslib.av.utils.*;
 import org.toxsoft.core.tslib.bricks.time.*;
-import org.toxsoft.core.tslib.bricks.time.impl.QueryInterval;
-import org.toxsoft.core.tslib.bricks.time.impl.TimeUtils;
-import org.toxsoft.core.tslib.bricks.validator.IValResList;
-import org.toxsoft.core.tslib.bricks.validator.ValidationResult;
-import org.toxsoft.core.tslib.bricks.validator.impl.ValResList;
-import org.toxsoft.core.tslib.coll.IList;
-import org.toxsoft.core.tslib.gw.gwid.Gwid;
+import org.toxsoft.core.tslib.bricks.time.impl.*;
+import org.toxsoft.core.tslib.bricks.validator.*;
+import org.toxsoft.core.tslib.bricks.validator.vrl.*;
+import org.toxsoft.core.tslib.coll.*;
+import org.toxsoft.core.tslib.gw.gwid.*;
 import org.toxsoft.core.tslib.utils.errors.*;
 import org.toxsoft.uskat.s5.server.sequences.*;
 
@@ -177,7 +175,7 @@ public class S5SequenceUtils {
    *
    * @param aSequence {@link IS5Sequence} последовательность значений
    * @param aBlock {@link IS5SequenceBlock} блок значений
-   * @return {@link IValResList} результат проверки значений
+   * @return {@link IVrList} результат проверки значений
    * @param <S> тип последовательности значений данного
    * @param <V> тип значения последовательности
    * @throws TsNullArgumentRtException аргумент = null
@@ -185,9 +183,9 @@ public class S5SequenceUtils {
    * @throws TsIllegalArgumentRtException aFromPosition < 0 или aFromPosition >= aBlockSizes.size()
    * @throws TsIllegalArgumentRtException aFreeRatio <= 0 или aFreeRatio > 1
    */
-  public static <S extends IS5Sequence<V>, V extends ITemporal<?>> IValResList sequenceStartWithValues( S aSequence,
+  public static <S extends IS5Sequence<V>, V extends ITemporal<?>> IVrList sequenceStartWithValues( S aSequence,
       IS5SequenceBlock<V> aBlock ) {
-    ValResList retValue = new ValResList();
+    VrList retValue = new VrList();
     TsNullArgumentRtException.checkNulls( aSequence, aBlock );
     if( aBlock.size() == 0 ) {
       // Пустой блок

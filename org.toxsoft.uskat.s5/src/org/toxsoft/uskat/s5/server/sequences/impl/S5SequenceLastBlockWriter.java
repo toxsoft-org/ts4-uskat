@@ -9,39 +9,31 @@ import static org.toxsoft.uskat.s5.server.sequences.impl.IS5Resources.*;
 import static org.toxsoft.uskat.s5.server.sequences.impl.S5SequenceUtils.*;
 import static org.toxsoft.uskat.s5.server.transactions.ES5TransactionResources.*;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
-import javax.naming.InitialContext;
-import javax.persistence.EntityManager;
-import javax.transaction.UserTransaction;
+import javax.naming.*;
+import javax.persistence.*;
+import javax.transaction.*;
 
-import org.toxsoft.core.tslib.av.opset.IOptionSet;
-import org.toxsoft.core.tslib.av.utils.IParameterized;
+import org.toxsoft.core.tslib.av.opset.*;
+import org.toxsoft.core.tslib.av.utils.*;
 import org.toxsoft.core.tslib.bricks.time.*;
-import org.toxsoft.core.tslib.bricks.time.impl.QueryInterval;
-import org.toxsoft.core.tslib.bricks.validator.IValResList;
-import org.toxsoft.core.tslib.bricks.validator.ValidationResult;
-import org.toxsoft.core.tslib.coll.IList;
-import org.toxsoft.core.tslib.coll.IMapEdit;
-import org.toxsoft.core.tslib.coll.impl.ElemArrayList;
-import org.toxsoft.core.tslib.coll.impl.ElemMap;
-import org.toxsoft.core.tslib.coll.synch.SynchronizedMap;
-import org.toxsoft.core.tslib.gw.gwid.Gwid;
-import org.toxsoft.core.tslib.gw.gwid.GwidList;
-import org.toxsoft.core.tslib.utils.errors.TsInternalErrorRtException;
-import org.toxsoft.core.tslib.utils.errors.TsNullArgumentRtException;
-import org.toxsoft.core.tslib.utils.logs.ELogSeverity;
-import org.toxsoft.core.tslib.utils.logs.ILogger;
-import org.toxsoft.uskat.s5.server.backend.IS5BackendCoreSingleton;
+import org.toxsoft.core.tslib.bricks.time.impl.*;
+import org.toxsoft.core.tslib.bricks.validator.*;
+import org.toxsoft.core.tslib.bricks.validator.vrl.*;
+import org.toxsoft.core.tslib.coll.*;
+import org.toxsoft.core.tslib.coll.impl.*;
+import org.toxsoft.core.tslib.coll.synch.*;
+import org.toxsoft.core.tslib.gw.gwid.*;
+import org.toxsoft.core.tslib.utils.errors.*;
+import org.toxsoft.core.tslib.utils.logs.*;
+import org.toxsoft.uskat.s5.server.backend.*;
 import org.toxsoft.uskat.s5.server.sequences.*;
-import org.toxsoft.uskat.s5.server.sequences.maintenance.S5PartitionOperation;
-import org.toxsoft.uskat.s5.server.sequences.writer.IS5SequenceWriter;
-import org.toxsoft.uskat.s5.server.transactions.ETransactionStatus;
-import org.toxsoft.uskat.s5.server.transactions.IS5Transaction;
-import org.toxsoft.uskat.s5.utils.threads.IS5WriteThread;
-import org.toxsoft.uskat.s5.utils.threads.impl.S5AbstractWriteThread;
-import org.toxsoft.uskat.s5.utils.threads.impl.S5WriteThreadExecutor;
+import org.toxsoft.uskat.s5.server.sequences.maintenance.*;
+import org.toxsoft.uskat.s5.server.sequences.writer.*;
+import org.toxsoft.uskat.s5.server.transactions.*;
+import org.toxsoft.uskat.s5.utils.threads.*;
+import org.toxsoft.uskat.s5.utils.threads.impl.*;
 
 /**
  * Реализация писателя значений последовательностей данных {@link IS5SequenceWriter}
@@ -179,13 +171,13 @@ class S5SequenceLastBlockWriter<S extends IS5Sequence<V>, V extends ITemporal<?>
     boolean writeMergeWithRepeatValues = false;
     // Проверка того, что значения в начале последовательности повторяют значения в последнем блоке (перехлест)
     if( writeMerged ) {
-      IValResList resultList = S5SequenceUtils.sequenceStartWithValues( aSequence, lastBlock );
-      writeMergeWithRepeatValues = resultList.isOk();
+      IVrList resultList = S5SequenceUtils.sequenceStartWithValues( aSequence, lastBlock );
+      writeMergeWithRepeatValues = (resultList.getWorstType() == EValidationResultType.OK);
       if( !writeMergeWithRepeatValues && logger().isSeverityOn( ELogSeverity.DEBUG ) ) {
         // Вывод журнала по измененным значениям последнего блока
         StringBuilder sb = new StringBuilder();
-        for( ValidationResult result : resultList.results() ) {
-          sb.append( result + "\n" ); //$NON-NLS-1$
+        for( VrlItem item : resultList.items() ) {
+          sb.append( item.vr() + "\n" ); //$NON-NLS-1$
         }
         logger().debug( MSG_DETECT_CHANGES_LAST_VALUES, threadIndex, gwid, sb.toString() );
       }

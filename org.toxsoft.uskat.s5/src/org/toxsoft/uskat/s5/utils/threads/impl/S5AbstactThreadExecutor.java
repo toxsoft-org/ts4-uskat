@@ -3,18 +3,15 @@ package org.toxsoft.uskat.s5.utils.threads.impl;
 import static org.toxsoft.core.log4j.LoggerWrapper.*;
 import static org.toxsoft.uskat.s5.utils.threads.impl.IS5Resources.*;
 
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.ThreadFactory;
+import java.util.concurrent.*;
 
-import org.toxsoft.core.tslib.bricks.time.impl.TimeUtils;
-import org.toxsoft.core.tslib.coll.IList;
-import org.toxsoft.core.tslib.coll.IListEdit;
-import org.toxsoft.core.tslib.coll.impl.ElemArrayList;
+import org.toxsoft.core.tslib.bricks.time.impl.*;
+import org.toxsoft.core.tslib.coll.*;
+import org.toxsoft.core.tslib.coll.impl.*;
 import org.toxsoft.core.tslib.utils.errors.*;
-import org.toxsoft.core.tslib.utils.logs.ILogger;
-import org.toxsoft.uskat.s5.common.error.S5RuntimeException;
-import org.toxsoft.uskat.s5.utils.threads.IS5Thread;
-import org.toxsoft.uskat.s5.utils.threads.IS5ThreadExecutor;
+import org.toxsoft.core.tslib.utils.logs.*;
+import org.toxsoft.uskat.s5.common.error.*;
+import org.toxsoft.uskat.s5.utils.threads.*;
 
 /**
  * Абстрактная реализация исполнителя потоков {@link IS5ThreadExecutor}
@@ -26,7 +23,7 @@ public abstract class S5AbstactThreadExecutor<THREAD_TYPE extends IS5Thread>
     implements IS5ThreadExecutor<THREAD_TYPE> {
 
   private final ThreadFactory          threadFactory;
-  private final ExecutorService        executorService;
+  private final Executor               executor;
   private final IListEdit<THREAD_TYPE> threads;
   private volatile int                 completedCount;
   private Object                       completedCountSignal = new Object();
@@ -45,7 +42,7 @@ public abstract class S5AbstactThreadExecutor<THREAD_TYPE extends IS5Thread>
   protected S5AbstactThreadExecutor( ThreadFactory aThreadFactory ) {
     TsNullArgumentRtException.checkNull( aThreadFactory );
     threadFactory = aThreadFactory;
-    executorService = null;
+    executor = null;
     threads = new ElemArrayList<>();
     logger = getLogger( getClass() );
   }
@@ -60,7 +57,7 @@ public abstract class S5AbstactThreadExecutor<THREAD_TYPE extends IS5Thread>
   protected S5AbstactThreadExecutor( ThreadFactory aThreadFactory, ILogger aLogger ) {
     TsNullArgumentRtException.checkNulls( aThreadFactory, aLogger );
     threadFactory = aThreadFactory;
-    executorService = null;
+    executor = null;
     threads = new ElemArrayList<>();
     logger = aLogger;
   }
@@ -68,13 +65,13 @@ public abstract class S5AbstactThreadExecutor<THREAD_TYPE extends IS5Thread>
   /**
    * Конструктор
    *
-   * @param aExecutorService {@link ExecutorService} внешняя служба выполнения java-потоков
+   * @param aExecutor {@link ExecutorService} внешняя служба выполнения java-потоков
    * @throws TsNullArgumentRtException аргумент = null
    */
-  protected S5AbstactThreadExecutor( ExecutorService aExecutorService ) {
-    TsNullArgumentRtException.checkNull( aExecutorService );
+  protected S5AbstactThreadExecutor( Executor aExecutor ) {
+    TsNullArgumentRtException.checkNull( aExecutor );
     threadFactory = null;
-    executorService = aExecutorService;
+    executor = aExecutor;
     threads = new ElemArrayList<>();
     logger = getLogger( getClass() );
   }
@@ -82,14 +79,14 @@ public abstract class S5AbstactThreadExecutor<THREAD_TYPE extends IS5Thread>
   /**
    * Конструктор
    *
-   * @param aExecutorService {@link ExecutorService} внешняя служба выполнения java-потоков
+   * @param aExecutor {@link ExecutorService} внешняя служба выполнения java-потоков
    * @param aLogger {@link ILogger} журнал
    * @throws TsNullArgumentRtException любой аргумент = null
    */
-  protected S5AbstactThreadExecutor( ExecutorService aExecutorService, ILogger aLogger ) {
-    TsNullArgumentRtException.checkNulls( aExecutorService, aLogger );
+  protected S5AbstactThreadExecutor( Executor aExecutor, ILogger aLogger ) {
+    TsNullArgumentRtException.checkNulls( aExecutor, aLogger );
     threadFactory = null;
-    executorService = aExecutorService;
+    executor = aExecutor;
     threads = new ElemArrayList<>();
     logger = aLogger;
   }
@@ -212,8 +209,8 @@ public abstract class S5AbstactThreadExecutor<THREAD_TYPE extends IS5Thread>
       if( threadFactory != null ) {
         threadFactory.newThread( thread ).run();
       }
-      if( executorService != null ) {
-        executorService.execute( thread );
+      if( executor != null ) {
+        executor.execute( thread );
       }
     }
     if( aWait ) {

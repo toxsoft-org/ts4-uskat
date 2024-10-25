@@ -12,50 +12,45 @@ import static org.toxsoft.uskat.s5.server.transactions.ES5TransactionResources.*
 import static org.toxsoft.uskat.s5.utils.threads.impl.S5Lockable.*;
 
 import java.util.*;
+import java.util.concurrent.*;
 
-import javax.enterprise.concurrent.ManagedExecutorService;
-import javax.persistence.EntityManager;
-import javax.persistence.EntityManagerFactory;
+import javax.enterprise.concurrent.*;
+import javax.persistence.*;
 
-import org.toxsoft.core.log4j.LoggerWrapper;
-import org.toxsoft.core.pas.tj.ITjValue;
-import org.toxsoft.core.pas.tj.impl.TjUtils;
-import org.toxsoft.core.tslib.av.IAtomicValue;
-import org.toxsoft.core.tslib.av.impl.AvUtils;
-import org.toxsoft.core.tslib.av.opset.IOptionSet;
-import org.toxsoft.core.tslib.av.opset.IOptionSetEdit;
-import org.toxsoft.core.tslib.av.opset.impl.OptionSet;
-import org.toxsoft.core.tslib.av.utils.IParameterized;
-import org.toxsoft.core.tslib.bricks.strio.IStrioHardConstants;
+import org.toxsoft.core.log4j.*;
+import org.toxsoft.core.pas.tj.*;
+import org.toxsoft.core.pas.tj.impl.*;
+import org.toxsoft.core.tslib.av.*;
+import org.toxsoft.core.tslib.av.impl.*;
+import org.toxsoft.core.tslib.av.opset.*;
+import org.toxsoft.core.tslib.av.opset.impl.*;
+import org.toxsoft.core.tslib.av.utils.*;
+import org.toxsoft.core.tslib.bricks.strio.*;
 import org.toxsoft.core.tslib.bricks.time.*;
 import org.toxsoft.core.tslib.bricks.time.impl.*;
-import org.toxsoft.core.tslib.bricks.validator.ValidationResult;
+import org.toxsoft.core.tslib.bricks.validator.*;
+import org.toxsoft.core.tslib.bricks.validator.vrl.*;
 import org.toxsoft.core.tslib.coll.*;
-import org.toxsoft.core.tslib.coll.derivative.IQueue;
+import org.toxsoft.core.tslib.coll.derivative.*;
 import org.toxsoft.core.tslib.coll.derivative.Queue;
-import org.toxsoft.core.tslib.coll.impl.ElemArrayList;
-import org.toxsoft.core.tslib.coll.impl.ElemLinkedList;
-import org.toxsoft.core.tslib.coll.primtypes.IStringList;
-import org.toxsoft.core.tslib.coll.primtypes.IStringMap;
-import org.toxsoft.core.tslib.coll.synch.SynchronizedListEdit;
-import org.toxsoft.core.tslib.gw.gwid.Gwid;
-import org.toxsoft.core.tslib.gw.gwid.GwidList;
-import org.toxsoft.core.tslib.utils.TsLibUtils;
+import org.toxsoft.core.tslib.coll.impl.*;
+import org.toxsoft.core.tslib.coll.primtypes.*;
+import org.toxsoft.core.tslib.coll.synch.*;
+import org.toxsoft.core.tslib.gw.gwid.*;
+import org.toxsoft.core.tslib.utils.*;
 import org.toxsoft.core.tslib.utils.errors.*;
-import org.toxsoft.core.tslib.utils.logs.ILogger;
-import org.toxsoft.uskat.s5.server.backend.IS5BackendCoreSingleton;
-import org.toxsoft.uskat.s5.server.cluster.IS5ClusterCommand;
-import org.toxsoft.uskat.s5.server.cluster.IS5ClusterManager;
+import org.toxsoft.core.tslib.utils.logs.*;
+import org.toxsoft.uskat.s5.server.backend.*;
+import org.toxsoft.uskat.s5.server.cluster.*;
 import org.toxsoft.uskat.s5.server.sequences.*;
-import org.toxsoft.uskat.s5.server.sequences.cluster.S5ClusterCommandSequeneceUnlockGwids;
+import org.toxsoft.uskat.s5.server.sequences.cluster.*;
 import org.toxsoft.uskat.s5.server.sequences.maintenance.*;
-import org.toxsoft.uskat.s5.server.sequences.writer.IS5SequenceWriteStat;
-import org.toxsoft.uskat.s5.server.sequences.writer.IS5SequenceWriter;
-import org.toxsoft.uskat.s5.server.singletons.S5ServiceSingletonUtils;
-import org.toxsoft.uskat.s5.server.startup.IS5InitialImplementSingleton;
+import org.toxsoft.uskat.s5.server.sequences.writer.*;
+import org.toxsoft.uskat.s5.server.singletons.*;
+import org.toxsoft.uskat.s5.server.startup.*;
 import org.toxsoft.uskat.s5.server.transactions.*;
-import org.toxsoft.uskat.s5.utils.collections.WrapperMap;
-import org.toxsoft.uskat.s5.utils.threads.impl.S5Lockable;
+import org.toxsoft.uskat.s5.utils.collections.*;
+import org.toxsoft.uskat.s5.utils.threads.impl.*;
 
 /**
  * Абстрактная реализация писателя значений последовательностей данных {@link IS5SequenceWriter}
@@ -320,7 +315,7 @@ public abstract class S5AbstractSequenceWriter<S extends IS5Sequence<V>, V exten
    *
    * @return {@link ManagedExecutorService} исполнитель потоков
    */
-  protected final ManagedExecutorService writeExecutor() {
+  protected final Executor writeExecutor() {
     return writeExecutor;
   }
 
@@ -329,7 +324,7 @@ public abstract class S5AbstractSequenceWriter<S extends IS5Sequence<V>, V exten
    *
    * @return {@link ManagedExecutorService} исполнитель потоков
    */
-  protected final ManagedExecutorService unionExecutor() {
+  protected final Executor unionExecutor() {
     return unionExecutor;
   }
 
@@ -338,7 +333,7 @@ public abstract class S5AbstractSequenceWriter<S extends IS5Sequence<V>, V exten
    *
    * @return {@link ManagedExecutorService} исполнитель потоков
    */
-  protected final ManagedExecutorService validationExecutor() {
+  protected final Executor validationExecutor() {
     return validationExecutor;
   }
 
@@ -492,7 +487,6 @@ public abstract class S5AbstractSequenceWriter<S extends IS5Sequence<V>, V exten
    * @throws TsNullArgumentRtException любой аргумент = null
    * @throws TsIllegalStateRtException попытка конкуретного изменения данных последовательности
    */
-  @SuppressWarnings( "unchecked" )
   protected final static <V extends ITemporal<?>> void writeBlocksToDbms( EntityManager aEntityManager,
       Iterable<IS5SequenceBlock<V>> aBlocks, ILogger aLogger, S5DbmsStatistics aStat ) {
     TsNullArgumentRtException.checkNulls( aEntityManager, aBlocks, aLogger );
@@ -781,7 +775,6 @@ public abstract class S5AbstractSequenceWriter<S extends IS5Sequence<V>, V exten
    * @param aLogger {@link ILogger} журнал работы
    * @throws TsNullArgumentRtException любой аргумент = null
    */
-  @SuppressWarnings( "unchecked" )
   protected final void validationInterval( EntityManager aEntityManager, Gwid aGwid, IQueryInterval aInterval,
       S5SequenceValidationStat aState, boolean aCanUpdate, boolean aCanRemove, ILogger aLogger ) {
     TsNullArgumentRtException.checkNulls( aEntityManager, aGwid, aInterval, aState, aLogger );
@@ -861,24 +854,25 @@ public abstract class S5AbstractSequenceWriter<S extends IS5Sequence<V>, V exten
           }
           IS5SequenceBlockEdit<V> blockEdit = (IS5SequenceBlockEdit<V>)block;
           // Валидация блока
-          IList<ValidationResult> validationResults = blockEdit.validation( typeInfo ).results();
+          IList<VrlItem> validationResults = blockEdit.validation( typeInfo ).items();
           // Признак необходимости обновления блока
           boolean needUpdate = false;
           // Признак необходимости удаления блока
           boolean needRemove = false;
-          for( ValidationResult validationResult : validationResults ) {
-            if( validationResult.isOk() ) {
-              aLogger.debug( validationResult.message() );
+          for( VrlItem item : validationResults ) {
+            ValidationResult result = item.vr();
+            if( result.isOk() ) {
+              aLogger.debug( result.message() );
             }
-            if( validationResult.isWarning() ) {
+            if( result.isWarning() ) {
               needUpdate = true;
               warnQtty++;
-              aLogger.warning( validationResult.message() );
+              aLogger.warning( result.message() );
             }
-            if( validationResult.isError() ) {
+            if( result.isError() ) {
               needRemove = true;
               errQtty++;
-              aLogger.error( validationResult.message() );
+              aLogger.error( result.message() );
             }
           }
           if( needUpdate ) {
@@ -1550,7 +1544,7 @@ public abstract class S5AbstractSequenceWriter<S extends IS5Sequence<V>, V exten
       // Проверка возможности провести дефрагментацию
       if( ops == null || ops.size() == 0 ) {
         // Нет задач на обработку разделов
-        partitionLogger.info( "%s. нет задач на обработку разделов таблиц", ownerName() );
+        partitionLogger.info( MSG_PARTITION_TASK_NOT_FOUND, ownerName() );
         return statistics;
       }
       // Вывод в журнал

@@ -9,19 +9,16 @@ import static org.toxsoft.uskat.s5.server.sequences.impl.S5SequenceBlock.*;
 import static org.toxsoft.uskat.s5.server.sequences.impl.S5SequenceSQL.*;
 
 import java.io.*;
+import java.lang.reflect.*;
 import java.lang.reflect.Array;
-import java.lang.reflect.ParameterizedType;
-import java.sql.ResultSet;
+import java.sql.*;
 
 import javax.persistence.*;
 
-import org.toxsoft.core.tslib.bricks.validator.IValResList;
-import org.toxsoft.core.tslib.bricks.validator.impl.ValResList;
-import org.toxsoft.core.tslib.coll.primtypes.IStringMap;
-import org.toxsoft.core.tslib.coll.primtypes.IStringMapEdit;
-import org.toxsoft.core.tslib.coll.primtypes.impl.StringMap;
-import org.toxsoft.core.tslib.utils.errors.TsInternalErrorRtException;
-import org.toxsoft.core.tslib.utils.errors.TsNullArgumentRtException;
+import org.toxsoft.core.tslib.bricks.validator.vrl.*;
+import org.toxsoft.core.tslib.coll.primtypes.*;
+import org.toxsoft.core.tslib.coll.primtypes.impl.*;
+import org.toxsoft.core.tslib.utils.errors.*;
 
 /**
  * Абстрактная реализация хранения данных блоков в blob.
@@ -199,11 +196,11 @@ public class S5SequenceBlob<BLOCK extends S5SequenceBlock<?, ?, ?>, BLOB_ARRAY, 
   /**
    * Проводит валидацию (исправление содержимого blob) если это необходимо
    *
-   * @return {@link IValResList} результаты валидации
+   * @return {@link IVrList} результаты валидации
    */
   @SuppressWarnings( "static-method" )
-  final IValResList validation() {
-    return new ValResList();
+  final IVrList validation() {
+    return new VrList();
   }
 
   /**

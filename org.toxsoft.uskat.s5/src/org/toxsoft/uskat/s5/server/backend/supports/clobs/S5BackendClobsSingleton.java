@@ -130,7 +130,7 @@ public class S5BackendClobsSingleton
 
     boolean retValue = false;
     try {
-      S5ClobEntity clob = new S5ClobEntity( aGwid.asString(), aValue.getBytes( CHARSET_NAME ) );
+      S5ClobEntity clob = new S5ClobEntity( aGwid.canonicalString(), aValue.getBytes( CHARSET_NAME ) );
       retValue = writeClob( aGwid, clob );
     }
     catch( UnsupportedEncodingException e ) {
@@ -181,7 +181,7 @@ public class S5BackendClobsSingleton
   private S5ClobEntity findClob( Gwid aGwid ) {
     TsNullArgumentRtException.checkNull( aGwid );
     // Текст SQL-запроса
-    String sql = format( QFRMT_GET_LOB, aGwid.asString() );
+    String sql = format( QFRMT_GET_LOB, aGwid.canonicalString() );
     // Запрос
     TypedQuery<S5ClobEntity> query = entityManager.createQuery( sql, S5ClobEntity.class );
     List<S5ClobEntity> entities = query.getResultList();

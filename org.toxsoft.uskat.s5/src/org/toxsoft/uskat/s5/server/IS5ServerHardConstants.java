@@ -6,29 +6,26 @@ import static org.toxsoft.core.tslib.av.metainfo.IAvMetaConstants.*;
 import static org.toxsoft.uskat.s5.server.IS5Resources.*;
 import static org.toxsoft.uskat.s5.server.statistics.EStatisticInterval.*;
 
-import java.time.Month;
-import java.time.ZoneId;
+import java.time.*;
 
-import org.toxsoft.core.tslib.av.EAtomicType;
-import org.toxsoft.core.tslib.av.IAtomicValue;
-import org.toxsoft.core.tslib.av.metainfo.IDataDef;
-import org.toxsoft.core.tslib.bricks.strid.coll.IStridablesList;
-import org.toxsoft.core.tslib.bricks.strid.coll.impl.StridablesList;
-import org.toxsoft.core.tslib.coll.IList;
-import org.toxsoft.core.tslib.gw.skid.Skid;
-import org.toxsoft.core.tslib.utils.TsVersion;
+import org.toxsoft.core.tslib.av.*;
+import org.toxsoft.core.tslib.av.metainfo.*;
+import org.toxsoft.core.tslib.bricks.strid.coll.*;
+import org.toxsoft.core.tslib.bricks.strid.coll.impl.*;
+import org.toxsoft.core.tslib.coll.*;
+import org.toxsoft.core.tslib.gw.skid.*;
+import org.toxsoft.core.tslib.utils.*;
 import org.toxsoft.uskat.classes.*;
-import org.toxsoft.uskat.core.api.sysdescr.ISkClassInfo;
-import org.toxsoft.uskat.core.backend.api.ISkBackendInfo;
-import org.toxsoft.uskat.s5.client.remote.connection.S5ClusterTopology;
-import org.toxsoft.uskat.s5.common.S5Module;
-import org.toxsoft.uskat.s5.common.sessions.IS5SessionInfo;
-import org.toxsoft.uskat.s5.common.sessions.ISkSession;
+import org.toxsoft.uskat.core.api.sysdescr.*;
+import org.toxsoft.uskat.core.backend.api.*;
+import org.toxsoft.uskat.s5.client.remote.connection.*;
+import org.toxsoft.uskat.s5.common.*;
+import org.toxsoft.uskat.s5.common.sessions.*;
 import org.toxsoft.uskat.s5.server.entities.*;
-import org.toxsoft.uskat.s5.server.sessions.S5SessionsInfos;
+import org.toxsoft.uskat.s5.server.sessions.*;
 import org.toxsoft.uskat.s5.server.statistics.*;
-import org.toxsoft.uskat.s5.server.transactions.S5TransactionInfos;
-import org.toxsoft.uskat.s5.utils.IS5HardConstants;
+import org.toxsoft.uskat.s5.server.transactions.*;
+import org.toxsoft.uskat.s5.utils.*;
 
 /**
  * Константы реализации s5-сервера
@@ -60,7 +57,7 @@ public interface IS5ServerHardConstants
   /**
    * Версия сервера.
    */
-  TsVersion version = new TsVersion( 21, 1, 2024, Month.JUNE, 22 );
+  TsVersion version = new TsVersion( 22, 1, 2024, Month.OCTOBER, 24 );
 
   // ------------------------------------------------------------------------------------
   // Опции s5-backend.

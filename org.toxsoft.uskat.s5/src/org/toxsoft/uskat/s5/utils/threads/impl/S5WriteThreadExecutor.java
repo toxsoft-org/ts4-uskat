@@ -1,10 +1,9 @@
 package org.toxsoft.uskat.s5.utils.threads.impl;
 
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.ThreadFactory;
+import java.util.concurrent.*;
 
-import org.toxsoft.core.tslib.utils.errors.TsNullArgumentRtException;
-import org.toxsoft.core.tslib.utils.logs.ILogger;
+import org.toxsoft.core.tslib.utils.errors.*;
+import org.toxsoft.core.tslib.utils.logs.*;
 import org.toxsoft.uskat.s5.utils.threads.*;
 
 /**
@@ -40,22 +39,22 @@ public class S5WriteThreadExecutor
   /**
    * Конструктор
    *
-   * @param aExecutorService {@link ExecutorService} внешняя служба выполнения java-потоков
+   * @param aExecutor {@link ExecutorService} внешняя служба выполнения java-потоков
    * @throws TsNullArgumentRtException аргумент = null
    */
-  public S5WriteThreadExecutor( ExecutorService aExecutorService ) {
-    super( aExecutorService );
+  public S5WriteThreadExecutor( Executor aExecutor ) {
+    super( aExecutor );
   }
 
   /**
    * Конструктор
    *
-   * @param aExecutorService {@link ExecutorService} внешняя служба выполнения java-потоков
+   * @param aExecutor {@link ExecutorService} внешняя служба выполнения java-потоков
    * @param aLogger {@link ILogger} журнал
    * @throws TsNullArgumentRtException любой аргумент = null
    */
-  public S5WriteThreadExecutor( ExecutorService aExecutorService, ILogger aLogger ) {
-    super( aExecutorService, aLogger );
+  public S5WriteThreadExecutor( Executor aExecutor, ILogger aLogger ) {
+    super( aExecutor, aLogger );
   }
 
   // ------------------------------------------------------------------------------------

@@ -7,26 +7,23 @@ import static org.toxsoft.uskat.s5.server.sequences.IS5SequenceHardConstants.*;
 import static org.toxsoft.uskat.s5.server.sequences.impl.IS5Resources.*;
 
 import java.lang.reflect.Array;
-import java.sql.ResultSet;
-import java.util.Arrays;
+import java.sql.*;
+import java.util.*;
 
-import javax.persistence.MappedSuperclass;
-import javax.persistence.Transient;
+import javax.persistence.*;
 
-import org.toxsoft.core.tslib.av.utils.IParameterized;
-import org.toxsoft.core.tslib.bricks.time.ITemporal;
-import org.toxsoft.core.tslib.bricks.time.impl.TimeUtils;
-import org.toxsoft.core.tslib.bricks.validator.IValResList;
-import org.toxsoft.core.tslib.bricks.validator.ValidationResult;
-import org.toxsoft.core.tslib.bricks.validator.impl.ValResList;
-import org.toxsoft.core.tslib.coll.IList;
-import org.toxsoft.core.tslib.gw.gwid.Gwid;
+import org.toxsoft.core.tslib.av.utils.*;
+import org.toxsoft.core.tslib.bricks.time.*;
+import org.toxsoft.core.tslib.bricks.time.impl.*;
+import org.toxsoft.core.tslib.bricks.validator.*;
+import org.toxsoft.core.tslib.bricks.validator.vrl.*;
+import org.toxsoft.core.tslib.coll.*;
+import org.toxsoft.core.tslib.gw.gwid.*;
 import org.toxsoft.core.tslib.utils.errors.*;
-import org.toxsoft.core.tslib.utils.logs.ILogger;
-import org.toxsoft.uskat.s5.server.sequences.IS5SequenceBlockEdit;
-import org.toxsoft.uskat.s5.server.sequences.IS5SequenceFactory;
-import org.toxsoft.uskat.s5.server.sequences.maintenance.S5Partition;
-import org.toxsoft.uskat.s5.utils.indexes.ILongKey;
+import org.toxsoft.core.tslib.utils.logs.*;
+import org.toxsoft.uskat.s5.server.sequences.*;
+import org.toxsoft.uskat.s5.server.sequences.maintenance.*;
+import org.toxsoft.uskat.s5.utils.indexes.*;
 
 /**
  * Блок хранения асинхронных данных.
@@ -53,7 +50,6 @@ public abstract class S5SequenceAsyncBlock<V extends ITemporal<?>, BLOB_ARRAY, B
    * Конструктор без параметров (для JPA)
    */
   protected S5SequenceAsyncBlock() {
-    super();
   }
 
   /**
@@ -239,10 +235,9 @@ public abstract class S5SequenceAsyncBlock<V extends ITemporal<?>, BLOB_ARRAY, B
   }
 
   @Override
-  public IValResList doValidation( IParameterized aTypeInfo ) {
-    ValResList retValue = new ValResList();
-    retValue.addValResList( super.doValidation( aTypeInfo ) );
-    if( !retValue.isOk() ) {
+  public IVrList doValidation( IParameterized aTypeInfo ) {
+    VrList retValue = new VrList( super.doValidation( aTypeInfo ) );
+    if( retValue.getWorstType() != EValidationResultType.OK ) {
       return retValue;
     }
     int size = size();
@@ -491,16 +486,16 @@ public abstract class S5SequenceAsyncBlock<V extends ITemporal<?>, BLOB_ARRAY, B
   /**
    * Выполняет попытку восстановления массива меток значений
    *
-   * @param aValidationResult {@link ValResList} редактируемый список результатов обработки валидации
+   * @param aVrResult {@link VrList} редактируемый список результатов обработки валидации
    * @return {@link Boolean} <b>true</b> массив восстановлен;<b>false</b> неустранимая ошибка
    * @throws TsNullArgumentRtException аргумент = null
    */
-  private boolean tryRestoreTimestamps( ValResList aValidationResult ) {
-    TsNullArgumentRtException.checkNull( aValidationResult );
+  private boolean tryRestoreTimestamps( VrList aVrResult ) {
+    TsNullArgumentRtException.checkNull( aVrResult );
     // Метки времени текущих значений блока
     long[] timestamps = blob().timestamps();
     if( timestamps == null ) {
-      aValidationResult.add( ValidationResult.error( ERR_RESTORE_TIMESTAMPS, this, ERR_NULL_TIMESTAMPS ) );
+      aVrResult.add( ValidationResult.error( ERR_RESTORE_TIMESTAMPS, this, ERR_NULL_TIMESTAMPS ) );
       return false;
     }
     if( timestamps.length == size() ) {
@@ -510,7 +505,7 @@ public abstract class S5SequenceAsyncBlock<V extends ITemporal<?>, BLOB_ARRAY, B
       // Частный случай, пустой блок
       blob().setTimestamps( new long[0] );
       timeKey = null;
-      aValidationResult.add( ValidationResult.warn( ERR_RESTORE_TIMESTAMPS_SUCCESS, this ) );
+      aVrResult.add( ValidationResult.warn( ERR_RESTORE_TIMESTAMPS_SUCCESS, this ) );
       return true;
     }
     try {
@@ -522,12 +517,12 @@ public abstract class S5SequenceAsyncBlock<V extends ITemporal<?>, BLOB_ARRAY, B
       // Проверка меток времени на вхождение в диапазон блока и их порядка возрастания.
       checkTimestamps( gwid(), startTime(), endTime(), newTimestamps );
       blob().setTimestamps( newTimestamps );
-      aValidationResult.add( ValidationResult.warn( ERR_RESTORE_TIMESTAMPS_SUCCESS, this ) );
+      aVrResult.add( ValidationResult.warn( ERR_RESTORE_TIMESTAMPS_SUCCESS, this ) );
       timeKey = null;
       return true;
     }
     catch( Throwable e ) {
-      aValidationResult.add( ValidationResult.warn( ERR_RESTORE_TIMESTAMPS, this, cause( e ) ) );
+      aVrResult.add( ValidationResult.warn( ERR_RESTORE_TIMESTAMPS, this, cause( e ) ) );
       return false;
     }
   }
