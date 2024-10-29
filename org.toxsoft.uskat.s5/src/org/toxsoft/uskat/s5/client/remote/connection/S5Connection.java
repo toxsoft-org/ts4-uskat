@@ -656,8 +656,11 @@ public final class S5Connection
         logger.info( MSG_SET_INVOCATION_CREATE_TIMEOUT, Long.valueOf( createTimeout ) );
         EJBClient.setInvocationTimeout( remoteBackend, createTimeout, TimeUnit.MILLISECONDS );
 
+        // Вывод в журнал текущего загрузчика классов
+        logger.info( MSG_TRYCONNECT_USING_CLASSLOADER, Thread.currentThread().getContextClassLoader() );
         // Запрос соединения и его инициализация
-        sessionInitResult.setAll( remoteBackend.init( sessionInitData ) );
+        IS5SessionInitResult initResult = remoteBackend.init( sessionInitData );
+        sessionInitResult.setAll( initResult );
         logger.debug( MSG_INIT_REMOTE_API_FINISH, this );
 
         // 2020-07-23 mvk установка таймаута отказа соединения

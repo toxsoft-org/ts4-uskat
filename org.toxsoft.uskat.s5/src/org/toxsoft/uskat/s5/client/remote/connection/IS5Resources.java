@@ -1,6 +1,6 @@
 package org.toxsoft.uskat.s5.client.remote.connection;
 
-import org.toxsoft.uskat.s5.common.S5Host;
+import org.toxsoft.uskat.s5.common.*;
 
 /**
  * Локализуемые ресурсы подсистемы подключения к серверу.
@@ -58,7 +58,8 @@ interface IS5Resources {
 
   String MSG_LOOKUP_REMOTE_API_FINISH = Messages.getString( "IS5Resources.MSG_LOOKUP_REMOTE_API_FINISH" ); //$NON-NLS-1$
 
-  String MSG_INIT_REMOTE_API_FINISH = Messages.getString( "IS5Resources.MSG_INIT_REMOTE_API_FINISH" ); //$NON-NLS-1$
+  String MSG_TRYCONNECT_USING_CLASSLOADER = "tryConnect(...): classLoader = %s";                             //$NON-NLS-1$
+  String MSG_INIT_REMOTE_API_FINISH       = Messages.getString( "IS5Resources.MSG_INIT_REMOTE_API_FINISH" ); //$NON-NLS-1$
 
   String MSG_CONNECT_JMS_SERVER = Messages.getString( "IS5Resources.MSG_CONNECT_JMS_SERVER" ); //$NON-NLS-1$
   String MSG_START_JMS_START    = Messages.getString( "IS5Resources.MSG_START_JMS_START" );    //$NON-NLS-1$
