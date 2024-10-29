@@ -3,18 +3,16 @@ package org.toxsoft.uskat.s5.server.backend.supports.sysdescr;
 import static org.toxsoft.core.tslib.av.metainfo.IAvMetaConstants.*;
 import static org.toxsoft.uskat.s5.server.IS5ImplementConstants.*;
 
-import java.io.Serializable;
+import java.io.*;
 
 import javax.persistence.*;
 
-import org.toxsoft.core.tslib.av.opset.IOptionSet;
-import org.toxsoft.core.tslib.av.opset.IOptionSetEdit;
-import org.toxsoft.core.tslib.av.opset.impl.OptionSet;
-import org.toxsoft.core.tslib.av.opset.impl.OptionSetKeeper;
-import org.toxsoft.core.tslib.bricks.strid.impl.StridableParameterized;
-import org.toxsoft.core.tslib.utils.TsLibUtils;
-import org.toxsoft.core.tslib.utils.errors.TsNullArgumentRtException;
-import org.toxsoft.uskat.core.api.sysdescr.dto.IDtoClassInfo;
+import org.toxsoft.core.tslib.av.opset.*;
+import org.toxsoft.core.tslib.av.opset.impl.*;
+import org.toxsoft.core.tslib.bricks.strid.*;
+import org.toxsoft.core.tslib.utils.*;
+import org.toxsoft.core.tslib.utils.errors.*;
+import org.toxsoft.uskat.core.api.sysdescr.dto.*;
 
 /**
  * Реализация интерфейса {@link IDtoClassInfo} способная маппироваться на таблицу базы данных
@@ -148,7 +146,7 @@ public abstract class S5DtoClassPropInfoBaseEntity
     if( aThat == this ) {
       return true;
     }
-    if( aThat instanceof StridableParameterized that ) {
+    if( aThat instanceof IStridableParameterized that ) {
       return id().equals( that.id() ) && params().equals( that.params() );
     }
     return false;

@@ -3,16 +3,15 @@ package org.toxsoft.uskat.s5.server.backend.supports.objects;
 import static java.lang.String.*;
 import static org.toxsoft.core.tslib.av.metainfo.IAvMetaConstants.*;
 
-import org.toxsoft.core.tslib.av.IAtomicValue;
-import org.toxsoft.core.tslib.av.opset.IOptionSet;
-import org.toxsoft.core.tslib.av.utils.IParameterized;
-import org.toxsoft.core.tslib.bricks.strid.coll.IStridablesList;
-import org.toxsoft.core.tslib.bricks.strid.coll.IStridablesListEdit;
-import org.toxsoft.core.tslib.coll.IList;
+import org.toxsoft.core.tslib.av.*;
+import org.toxsoft.core.tslib.av.opset.*;
+import org.toxsoft.core.tslib.av.utils.*;
+import org.toxsoft.core.tslib.bricks.strid.coll.*;
+import org.toxsoft.core.tslib.coll.*;
 import org.toxsoft.core.tslib.gw.skid.*;
-import org.toxsoft.core.tslib.utils.errors.TsNullArgumentRtException;
-import org.toxsoft.uskat.core.api.objserv.IDtoObject;
-import org.toxsoft.uskat.core.api.sysdescr.dto.IDtoClassPropInfoBase;
+import org.toxsoft.core.tslib.utils.errors.*;
+import org.toxsoft.uskat.core.api.objserv.*;
+import org.toxsoft.uskat.core.api.sysdescr.dto.*;
 
 /**
  * Вспомогательные методы для работы с объектами и их атрибутами
@@ -20,6 +19,36 @@ import org.toxsoft.uskat.core.api.sysdescr.dto.IDtoClassPropInfoBase;
  * @author mvk
  */
 public class S5BackendObjectsUtils {
+
+  /**
+   * Формирует список добавленных и удаленных элементов класса (атрибуты, данные, связи, события, команды) из двух
+   * представленных списков - старая и новая редакция
+   * <p>
+   * Внимание! Проверка проводится только по идентификаторам элементов. Если необходимо провести полное сравнение
+   * элементов, то необходимо использовать {@link #loadSkidsChanges(ISkidList, ISkidList, SkidList, SkidList)}.
+   *
+   * @param <T> тип элемента
+   * @param aPrevPropInfos {@link IStridablesList}&lt;{@link IDtoClassPropInfoBase}&gt; список элементов (старая
+   *          редакция)
+   * @param aNewPropInfos {@link IStridablesList}&lt;{@link IDtoClassPropInfoBase}&gt; список элементов (новая редакция)
+   * @param aRemovedProps {@link IStridablesListEdit}&lt;{@link IDtoClassPropInfoBase}&gt; список удаленных элементов
+   * @param aAddedProps {@link IStridablesListEdit}&lt;{@link IDtoClassPropInfoBase}&gt; список добавленных элементов
+   * @throws TsNullArgumentRtException любой аргумент = null
+   */
+  public static <T extends IDtoClassPropInfoBase> void loadSysdescrChangedPropIds( IStridablesList<T> aPrevPropInfos,
+      IStridablesList<T> aNewPropInfos, IStridablesListEdit<T> aRemovedProps, IStridablesListEdit<T> aAddedProps ) {
+    TsNullArgumentRtException.checkNulls( aPrevPropInfos, aNewPropInfos, aRemovedProps, aAddedProps );
+    for( T propInfo : aPrevPropInfos ) {
+      if( !aNewPropInfos.hasKey( propInfo.id() ) ) {
+        aRemovedProps.put( propInfo );
+      }
+    }
+    for( T propInfo : aNewPropInfos ) {
+      if( !aPrevPropInfos.hasKey( propInfo.id() ) ) {
+        aAddedProps.put( propInfo );
+      }
+    }
+  }
 
   /**
    * Формирует список добавленных и удаленных элементов класса (атрибуты, данные, связи, события, команды) из двух

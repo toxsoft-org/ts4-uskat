@@ -86,14 +86,18 @@ class S5ClassesInterceptor
       IStridablesList<IDtoClassInfo> aDescendants ) {
     // Завершение перемещения реализации (объектов и/или их связей) если необходимо
     afterChangeImplIfNeed( txManager, entityManager, aNewClassInfo );
+
     // Идентификатор изменяемого класса
     String classId = aNewClassInfo.id();
     // Список удаленных связей
     IStridablesListEdit<IDtoLinkInfo> removedLinks = new StridablesList<>();
     // Список добавленных связей
     IStridablesListEdit<IDtoLinkInfo> addedLinks = new StridablesList<>();
-    // Анализ для формирования списка добавленных и удаленных связей
-    loadSysdescrChangedProps( aPrevClassInfo.linkInfos(), aNewClassInfo.linkInfos(), removedLinks, addedLinks );
+    // 2024-10-29 mvk ---+++
+    // Анализ для формирования списка добавленных и удаленных связей.
+    // loadSysdescrChangedProps( aPrevClassInfo.linkInfos(), aNewClassInfo.linkInfos(), removedLinks, addedLinks );
+    // Внимание! Анализ только по идентификаторам связей.
+    loadSysdescrChangedPropIds( aPrevClassInfo.linkInfos(), aNewClassInfo.linkInfos(), removedLinks, addedLinks );
 
     // TODO: отработать изменения ограничений по связи CollConstraint
 
