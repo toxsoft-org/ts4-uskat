@@ -46,8 +46,17 @@ class SdedSkClassInfoM5LifecycleManager
     params.setStr( FID_NAME, aValues.getAsAv( FID_NAME ).asString() );
     params.setStr( FID_DESCRIPTION, aValues.getAsAv( FID_DESCRIPTION ).asString() );
     DtoClassInfo cinf = new DtoClassInfo( id, parentId, params );
-
-    // TODO SdedSkClassInfoM5LifecycleManager.makeDtoClassInfo()
+    // в данном контексте пользователь может отредактировать только название и описание, а потому смело копируем все
+    // старые параметры
+    if( aValues.originalEntity() != null ) {
+      cinf.attrInfos().addAll( aValues.originalEntity().attrs().list() );
+      cinf.rtdataInfos().addAll( aValues.originalEntity().rtdata().list() );
+      cinf.cmdInfos().addAll( aValues.originalEntity().cmds().list() );
+      cinf.eventInfos().addAll( aValues.originalEntity().events().list() );
+      cinf.linkInfos().addAll( aValues.originalEntity().links().list() );
+      cinf.cmdInfos().addAll( aValues.originalEntity().cmds().list() );
+      cinf.clobInfos().addAll( aValues.originalEntity().clobs().list() );
+    }
 
     return cinf;
   }
