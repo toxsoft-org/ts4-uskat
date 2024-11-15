@@ -9,50 +9,45 @@ import static org.toxsoft.uskat.s5.server.backend.impl.IS5Resources.*;
 import static org.toxsoft.uskat.s5.utils.platform.S5ServerPlatformUtils.*;
 
 import java.sql.*;
-import java.time.ZoneId;
-import java.util.concurrent.TimeUnit;
+import java.time.*;
+import java.util.concurrent.*;
 
-import javax.annotation.Resource;
+import javax.annotation.*;
 import javax.ejb.*;
-import javax.persistence.EntityManagerFactory;
-import javax.persistence.PersistenceUnit;
-import javax.sql.DataSource;
+import javax.persistence.*;
+import javax.sql.*;
 
-import org.toxsoft.core.tslib.av.IAtomicValue;
-import org.toxsoft.core.tslib.av.opset.IOptionSet;
-import org.toxsoft.core.tslib.bricks.events.msg.GtMessage;
-import org.toxsoft.core.tslib.coll.IList;
-import org.toxsoft.core.tslib.coll.primtypes.IStringList;
-import org.toxsoft.core.tslib.coll.primtypes.IStringMapEdit;
-import org.toxsoft.core.tslib.coll.primtypes.impl.StringMap;
-import org.toxsoft.core.tslib.coll.synch.SynchronizedStringMap;
-import org.toxsoft.core.tslib.gw.skid.Skid;
+import org.toxsoft.core.tslib.av.*;
+import org.toxsoft.core.tslib.av.opset.*;
+import org.toxsoft.core.tslib.bricks.events.msg.*;
+import org.toxsoft.core.tslib.coll.*;
+import org.toxsoft.core.tslib.coll.primtypes.*;
+import org.toxsoft.core.tslib.coll.primtypes.impl.*;
+import org.toxsoft.core.tslib.coll.synch.*;
+import org.toxsoft.core.tslib.gw.skid.*;
 import org.toxsoft.core.tslib.utils.errors.*;
-import org.toxsoft.uskat.classes.IS5ClassNode;
-import org.toxsoft.uskat.core.backend.api.ISkBackendInfo;
-import org.toxsoft.uskat.core.connection.ISkConnection;
-import org.toxsoft.uskat.s5.common.S5Module;
-import org.toxsoft.uskat.s5.server.IS5ServerHardConstants;
-import org.toxsoft.uskat.s5.server.backend.IS5BackendCoreSingleton;
-import org.toxsoft.uskat.s5.server.backend.IS5BackendSupportSingleton;
-import org.toxsoft.uskat.s5.server.backend.addons.IS5BackendAddonCreator;
-import org.toxsoft.uskat.s5.server.backend.supports.clobs.IS5BackendClobsSingleton;
-import org.toxsoft.uskat.s5.server.backend.supports.links.IS5BackendLinksSingleton;
-import org.toxsoft.uskat.s5.server.backend.supports.objects.IS5BackendObjectsSingleton;
-import org.toxsoft.uskat.s5.server.backend.supports.sysdescr.IS5BackendSysDescrSingleton;
-import org.toxsoft.uskat.s5.server.cluster.IS5ClusterManager;
-import org.toxsoft.uskat.s5.server.frontend.IS5FrontendRear;
-import org.toxsoft.uskat.s5.server.interceptors.S5InterceptorSupport;
-import org.toxsoft.uskat.s5.server.sessions.IS5SessionManager;
-import org.toxsoft.uskat.s5.server.singletons.S5SingletonBase;
-import org.toxsoft.uskat.s5.server.startup.IS5InitialImplementSingleton;
-import org.toxsoft.uskat.s5.server.statistics.IS5StatisticCounter;
-import org.toxsoft.uskat.s5.server.statistics.S5StatisticWriter;
+import org.toxsoft.uskat.classes.*;
+import org.toxsoft.uskat.core.backend.api.*;
+import org.toxsoft.uskat.core.connection.*;
+import org.toxsoft.uskat.s5.common.*;
+import org.toxsoft.uskat.s5.server.*;
+import org.toxsoft.uskat.s5.server.backend.*;
+import org.toxsoft.uskat.s5.server.backend.addons.*;
+import org.toxsoft.uskat.s5.server.backend.supports.clobs.*;
+import org.toxsoft.uskat.s5.server.backend.supports.links.*;
+import org.toxsoft.uskat.s5.server.backend.supports.objects.*;
+import org.toxsoft.uskat.s5.server.backend.supports.sysdescr.*;
+import org.toxsoft.uskat.s5.server.cluster.*;
+import org.toxsoft.uskat.s5.server.frontend.*;
+import org.toxsoft.uskat.s5.server.interceptors.*;
+import org.toxsoft.uskat.s5.server.sessions.*;
+import org.toxsoft.uskat.s5.server.singletons.*;
+import org.toxsoft.uskat.s5.server.startup.*;
+import org.toxsoft.uskat.s5.server.statistics.*;
 import org.toxsoft.uskat.s5.server.transactions.*;
-import org.toxsoft.uskat.s5.utils.jobs.IS5ServerJob;
-import org.toxsoft.uskat.s5.utils.platform.S5PlatformInfo;
-import org.toxsoft.uskat.s5.utils.platform.S5ServerPlatformUtils;
-import org.toxsoft.uskat.s5.utils.threads.impl.S5Lockable;
+import org.toxsoft.uskat.s5.utils.jobs.*;
+import org.toxsoft.uskat.s5.utils.platform.*;
+import org.toxsoft.uskat.s5.utils.threads.impl.*;
 
 /**
  * Реализация синглтона {@link IS5BackendCoreSingleton}.
@@ -275,17 +270,19 @@ public class S5BackendCoreSingleton
   @TransactionAttribute( TransactionAttributeType.SUPPORTS )
   public ISkBackendInfo getInfo() {
     // Размещение текущей информации о сервере (backend)
-    try {
-      OP_BACKEND_ZONE_ID.setValue( backendInfo.params(), avStr( ZoneId.systemDefault().getId() ) );
-      OP_BACKEND_CURRENT_TIME.setValue( backendInfo.params(), avTimestamp( System.currentTimeMillis() ) );
-      OP_BACKEND_SESSIONS_INFOS.setValue( backendInfo.params(), avValobj( sessionManager().getInfos() ) );
-      OP_BACKEND_TRANSACTIONS_INFOS.setValue( backendInfo.params(), avValobj( txManager.getInfos() ) );
-      OP_BACKEND_HEAP_MEMORY_USAGE.setValue( backendInfo.params(), avStr( printHeapMemoryUsage() ) );
-      OP_BACKEND_NON_HEAP_MEMORY_USAGE.setValue( backendInfo.params(), avStr( printNonHeapMemoryUsage() ) );
-      OP_BACKEND_PLATFORM_INFO.setValue( backendInfo.params(), avStr( printOperatingSystemDetails() ) );
-    }
-    catch( Throwable e ) {
-      logger().error( e );
+    synchronized (backendInfo) {
+      try {
+        OP_BACKEND_ZONE_ID.setValue( backendInfo.params(), avStr( ZoneId.systemDefault().getId() ) );
+        OP_BACKEND_CURRENT_TIME.setValue( backendInfo.params(), avTimestamp( System.currentTimeMillis() ) );
+        OP_BACKEND_SESSIONS_INFOS.setValue( backendInfo.params(), avValobj( sessionManager().getInfos() ) );
+        OP_BACKEND_TRANSACTIONS_INFOS.setValue( backendInfo.params(), avValobj( txManager.getInfos() ) );
+        OP_BACKEND_HEAP_MEMORY_USAGE.setValue( backendInfo.params(), avStr( printHeapMemoryUsage() ) );
+        OP_BACKEND_NON_HEAP_MEMORY_USAGE.setValue( backendInfo.params(), avStr( printNonHeapMemoryUsage() ) );
+        OP_BACKEND_PLATFORM_INFO.setValue( backendInfo.params(), avStr( printOperatingSystemDetails() ) );
+      }
+      catch( Throwable e ) {
+        logger().error( e );
+      }
     }
 
     return backendInfo;
