@@ -1,12 +1,11 @@
 package org.toxsoft.uskat.s5.utils.threads.impl;
 
-import java.util.concurrent.ExecutorService;
+import java.util.concurrent.*;
 
-import org.toxsoft.core.tslib.utils.errors.TsIllegalArgumentRtException;
-import org.toxsoft.core.tslib.utils.errors.TsNullArgumentRtException;
-import org.toxsoft.core.tslib.utils.logs.ILogger;
-import org.toxsoft.uskat.s5.utils.jobs.IS5ServerJob;
-import org.toxsoft.uskat.s5.utils.threads.IS5DoJobThread;
+import org.toxsoft.core.tslib.utils.errors.*;
+import org.toxsoft.core.tslib.utils.logs.*;
+import org.toxsoft.uskat.s5.utils.jobs.*;
+import org.toxsoft.uskat.s5.utils.threads.*;
 
 /**
  * Абстрактная реализация потока записи данных s5-платформы
@@ -26,59 +25,58 @@ public class S5DoJobThread
    * Конструктор
    *
    * @param aName String имя потока
-   * @param aExecutorService {@link ExecutorService} служба управления потоками
+   * @param aExecutor {@link Executor} исполнитель в потоке
    * @param aJob {@link IS5ServerJob} фоновая задача сервера
    * @param aJobTimeout long таймаут (мсек) между вызывами задачи
    * @throws TsNullArgumentRtException любой аргумент = null
    * @throws TsIllegalArgumentRtException недопустимый таймаут (aJobTimeout <= 0)
    */
-  public S5DoJobThread( String aName, ExecutorService aExecutorService, IS5ServerJob aJob, long aJobTimeout ) {
-    this( aName, aExecutorService, aJob, -1, aJobTimeout );
+  public S5DoJobThread( String aName, Executor aExecutor, IS5ServerJob aJob, long aJobTimeout ) {
+    this( aName, aExecutor, aJob, -1, aJobTimeout );
   }
 
   /**
    * Конструктор
    *
    * @param aName String имя потока
-   * @param aExecutorService {@link ExecutorService} служба управления потоками
+   * @param aExecutor {@link Executor} исполнитель в потоке
    * @param aJob {@link IS5ServerJob} фоновая задача сервера
    * @param aJobTimeout long таймаут (мсек) между вызывами задачи
    * @param aLogger {@link ILogger} журнал потока
    * @throws TsNullArgumentRtException любой аргумент = null
    * @throws TsIllegalArgumentRtException недопустимый таймаут (aJobTimeout <= 0)
    */
-  public S5DoJobThread( String aName, ExecutorService aExecutorService, IS5ServerJob aJob, long aJobTimeout,
+  public S5DoJobThread( String aName, Executor aExecutor, IS5ServerJob aJob, long aJobTimeout,
       ILogger aLogger ) {
-    this( aName, aExecutorService, aJob, -1, aJobTimeout, aLogger );
+    this( aName, aExecutor, aJob, -1, aJobTimeout, aLogger );
   }
 
   /**
    * Конструктор
    *
    * @param aName String имя потока
-   * @param aExecutorService {@link ExecutorService} служба управления потоками
+   * @param aExecutor {@link ExecutorService} служба управления потоками
    * @param aJob {@link IS5ServerJob} фоновая задача сервера
    * @param aStartJobTimeout long таймаут (мсек) перед первым вызовом задачи. < 0: не используется
    * @param aJobTimeout long таймаут (мсек) между вызывами задачи
    * @throws TsNullArgumentRtException любой аргумент = null
    * @throws TsIllegalArgumentRtException недопустимый таймаут (aJobTimeout <= 0)
    */
-  public S5DoJobThread( String aName, ExecutorService aExecutorService, IS5ServerJob aJob, long aStartJobTimeout,
-      long aJobTimeout ) {
-    TsNullArgumentRtException.checkNulls( aName, aExecutorService, aJob );
+  public S5DoJobThread( String aName, Executor aExecutor, IS5ServerJob aJob, long aStartJobTimeout, long aJobTimeout ) {
+    TsNullArgumentRtException.checkNulls( aName, aExecutor, aJob );
     TsIllegalArgumentRtException.checkTrue( aJobTimeout <= 0 );
     name = aName;
     job = aJob;
     doJobStartTimeout = aStartJobTimeout;
     doJobTimeout = aJobTimeout;
-    aExecutorService.execute( this );
+    aExecutor.execute( this );
   }
 
   /**
    * Конструктор
    *
    * @param aName String имя потока
-   * @param aExecutorService {@link ExecutorService} служба управления потоками
+   * @param aExecutor {@link Executor} исполнитель в потоке
    * @param aJob {@link IS5ServerJob} фоновая задача сервера
    * @param aStartJobTimeout long таймаут (мсек) перед первым вызовом задачи. < 0: не используется
    * @param aJobTimeout long таймаут (мсек) между вызывами задачи
@@ -86,16 +84,16 @@ public class S5DoJobThread
    * @throws TsNullArgumentRtException любой аргумент = null
    * @throws TsIllegalArgumentRtException недопустимый таймаут (aJobTimeout <= 0)
    */
-  public S5DoJobThread( String aName, ExecutorService aExecutorService, IS5ServerJob aJob, long aStartJobTimeout,
-      long aJobTimeout, ILogger aLogger ) {
+  public S5DoJobThread( String aName, Executor aExecutor, IS5ServerJob aJob, long aStartJobTimeout, long aJobTimeout,
+      ILogger aLogger ) {
     super( aLogger );
-    TsNullArgumentRtException.checkNulls( aName, aExecutorService, aJob );
+    TsNullArgumentRtException.checkNulls( aName, aExecutor, aJob );
     TsIllegalArgumentRtException.checkTrue( aJobTimeout <= 0 );
     name = aName;
     job = aJob;
     doJobStartTimeout = aStartJobTimeout;
     doJobTimeout = aJobTimeout;
-    aExecutorService.execute( this );
+    aExecutor.execute( this );
   }
 
   // ------------------------------------------------------------------------------------
