@@ -160,6 +160,11 @@ public abstract class S5AbstractBackend<ADDON extends IS5BackendAddon>
   private boolean inited;
 
   /**
+   * Признак процесса завершения работы
+   */
+  private boolean isClosing;
+
+  /**
    * Признак завершенной работы
    */
   private boolean isClosed;
@@ -388,8 +393,8 @@ public abstract class S5AbstractBackend<ADDON extends IS5BackendAddon>
   //
   @Override
   public void run() {
-    if( isClosed ) {
-      // backend завершил свою работу
+    if( isClosed || isClosing ) {
+      // backend завершил или завершает свою работу
       return;
     }
     if( !LoggerUtils.defaultLogger().equals( uskatLogger ) ) {
@@ -402,6 +407,9 @@ public abstract class S5AbstractBackend<ADDON extends IS5BackendAddon>
     }
     for( IS5BackendAddon addon : allAddons ) {
       addon.doJob();
+      if( isClosed || isClosing ) {
+        return;
+      }
     }
     threadExecutor.timerExec( ADDON_DOJOB_TIMEOUT, this );
   }
@@ -411,13 +419,22 @@ public abstract class S5AbstractBackend<ADDON extends IS5BackendAddon>
   //
   @Override
   public final void close() {
+    if( isClosing || isClosed ) {
+      return;
+    }
     logger.info( "S5AbstractBackend.close(): starting ..." ); //$NON-NLS-1$
+    // Запуск процесса завершения работы
+    isClosing = true;
     // Формирование сообщения о предстоящем завершении работы
     fireBackendMessage( S5BaBeforeCloseMessages.INSTANCE.makeMessage() );
     // Завершение работы наследниками
     doClose();
     // Завершение работы базового класса
     // backendDojobThread.close();
+
+    // Выводим из блокировки текущие блокирующие операции
+    threadExecutor.thread().interrupt();
+
     // 2021-03-23 mvk
     // Вызов frontendCaller.close() установил состояние 'interrupted' которое может не дать должны образом выполниться
     // следующему connection.closeSession() если close() вызывается из потоков frontendCaller.doJob или
@@ -437,6 +454,7 @@ public abstract class S5AbstractBackend<ADDON extends IS5BackendAddon>
     S5Lockable.removeLockableFromPool( nativeLock( frontendLock ) );
     // Установка признака завершения работы
     isClosed = true;
+    isClosing = false;
     // Запись в журнал
     logger.info( "S5AbstractBackend.close(): ... finished" ); //$NON-NLS-1$
   }
