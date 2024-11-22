@@ -2,14 +2,14 @@ package org.toxsoft.uskat.core.impl;
 
 import static org.toxsoft.uskat.core.impl.ISkResources.*;
 
-import org.toxsoft.core.tslib.av.opset.IOptionSet;
-import org.toxsoft.core.tslib.bricks.ctx.ITsContextRo;
-import org.toxsoft.core.tslib.bricks.strid.impl.StridableParameterized;
-import org.toxsoft.core.tslib.bricks.validator.ValidationResult;
+import org.toxsoft.core.tslib.av.opset.*;
+import org.toxsoft.core.tslib.bricks.ctx.*;
+import org.toxsoft.core.tslib.bricks.strid.impl.*;
+import org.toxsoft.core.tslib.bricks.validator.*;
 import org.toxsoft.core.tslib.utils.errors.*;
-import org.toxsoft.core.tslib.utils.logs.ILogger;
-import org.toxsoft.uskat.core.connection.ISkConnection;
-import org.toxsoft.uskat.core.devapi.ISkatlet;
+import org.toxsoft.core.tslib.utils.logs.*;
+import org.toxsoft.uskat.core.connection.*;
+import org.toxsoft.uskat.core.devapi.*;
 
 /**
  * Base skatlet implementation.
@@ -38,14 +38,28 @@ public abstract class SkatletBase
   // API для наследников
   //
   /**
-   * Skatlet's connection.
+   * Skatlet's shared connection.
    *
    * @return {@link ISkConnection} connection.
    * @throws TsIllegalStateRtException scatlet is not initialized.
    */
-  protected final ISkConnection connection() {
+  protected final ISkConnection getSharedConnection() {
     TsIllegalStateRtException.checkNull( environ );
-    return ISkatlet.REF_SK_CONNECTION.getRef( environ );
+    return ISkatlet.REF_SKATLET_SUPPORT.getRef( environ ).getSharedConnection();
+  }
+
+  /**
+   * Skatlet's shared connection.
+   *
+   * @param aName String connection name.
+   * @param aArgs {@link ITsContextRo} connection config params.
+   * @return {@link ISkConnection} connection.
+   * @throws TsIllegalStateRtException scatlet is not initialized.
+   */
+  protected final ISkConnection createConnection( String aName, ITsContextRo aArgs ) {
+    TsNullArgumentRtException.checkNulls( aName, aArgs );
+    TsIllegalStateRtException.checkNull( environ );
+    return ISkatlet.REF_SKATLET_SUPPORT.getRef( environ ).createConnection( aName, aArgs );
   }
 
   /**
@@ -55,7 +69,7 @@ public abstract class SkatletBase
    */
   protected final ILogger logger() {
     TsIllegalStateRtException.checkNull( environ );
-    return ISkatlet.REF_LOGGER.getRef( environ );
+    return ISkatlet.REF_SKATLET_SUPPORT.getRef( environ ).logger();
   }
 
   // ------------------------------------------------------------------------------------
@@ -77,7 +91,7 @@ public abstract class SkatletBase
    * @return {@link ValidationResult} - initialization success result
    */
   protected ValidationResult doInit( ITsContextRo aEnviron ) {
-    logger().info( FMT_INFO_SKATLET_INIT, id(), connection() );
+    logger().info( FMT_INFO_SKATLET_INIT, id(), getSharedConnection() );
     return ValidationResult.SUCCESS;
   }
 

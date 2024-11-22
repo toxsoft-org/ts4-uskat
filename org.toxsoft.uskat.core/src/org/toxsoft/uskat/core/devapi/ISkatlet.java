@@ -5,16 +5,12 @@ import static org.toxsoft.core.tslib.av.metainfo.IAvMetaConstants.*;
 import static org.toxsoft.core.tslib.bricks.ctx.impl.TsContextRefDef.*;
 import static org.toxsoft.uskat.core.devapi.ISkResources.*;
 
-import org.toxsoft.core.tslib.bricks.ICooperativeMultiTaskable;
-import org.toxsoft.core.tslib.bricks.IWorkerComponent;
-import org.toxsoft.core.tslib.bricks.ctx.ITsContextRefDef;
-import org.toxsoft.core.tslib.bricks.ctx.ITsContextRo;
-import org.toxsoft.core.tslib.bricks.strid.IStridableParameterized;
-import org.toxsoft.core.tslib.bricks.validator.ValidationResult;
-import org.toxsoft.core.tslib.utils.logs.ILogger;
-import org.toxsoft.uskat.core.connection.ISkConnection;
-import org.toxsoft.uskat.core.impl.SkatletBox;
-import org.toxsoft.uskat.core.impl.SkatletUnit;
+import org.toxsoft.core.tslib.bricks.*;
+import org.toxsoft.core.tslib.bricks.ctx.*;
+import org.toxsoft.core.tslib.bricks.strid.*;
+import org.toxsoft.core.tslib.bricks.validator.*;
+import org.toxsoft.uskat.core.connection.*;
+import org.toxsoft.uskat.core.impl.*;
 
 /**
  * Загружаемый модуль (плагин) работающий в контексте соединения {@link ISkConnection}.
@@ -27,25 +23,13 @@ public interface ISkatlet
     extends IStridableParameterized, ICooperativeMultiTaskable, IWorkerComponent {
 
   /**
-   * Параметр контекста {@link #init(ITsContextRo)}: соединение в рамках которого работает скатлет.
+   * Параметр контекста {@link #init(ITsContextRo)}: API контейнера скатлета.
    * <p>
    * Тип: {@link ISkConnection}.
    */
-  ITsContextRefDef<ISkConnection> REF_SK_CONNECTION = create( "SkConnection", ISkConnection.class, //$NON-NLS-1$
-      TSID_NAME, STR_SKATLET_CONNECTION, //
-      TSID_DESCRIPTION, STR_SKATLET_CONNECTION_D, //
-      TSID_IS_NULL_ALLOWED, AV_FALSE, //
-      TSID_IS_MANDATORY, AV_TRUE //
-  );
-
-  /**
-   * Параметр контекста {@link #init(ITsContextRo)}: журнал используемый для работы скатлета.
-   * <p>
-   * Тип: {@link ILogger}.
-   */
-  ITsContextRefDef<ILogger> REF_LOGGER = create( "Logger", ILogger.class, //$NON-NLS-1$
-      TSID_NAME, STR_SKATLET_LOGGER, //
-      TSID_DESCRIPTION, STR_SKATLET_LOGGER_D, //
+  ITsContextRefDef<ISkatletSupport> REF_SKATLET_SUPPORT = create( "SkatletSupport", ISkatletSupport.class, //$NON-NLS-1$
+      TSID_NAME, STR_SKATLET_SUPPORT, //
+      TSID_DESCRIPTION, STR_SKATLET_SUPPORT_D, //
       TSID_IS_NULL_ALLOWED, AV_FALSE, //
       TSID_IS_MANDATORY, AV_TRUE //
   );

@@ -8,23 +8,23 @@ import static org.toxsoft.uskat.core.devapi.ISkatlet.*;
 import static org.toxsoft.uskat.s5.server.IS5ImplementConstants.*;
 import static org.toxsoft.uskat.s5.server.backend.supports.skatlets.IS5Resources.*;
 
-import java.io.File;
-import java.util.concurrent.TimeUnit;
+import java.io.*;
+import java.util.concurrent.*;
 
 import javax.ejb.*;
 
-import org.toxsoft.core.tslib.av.opset.IOptionSetEdit;
-import org.toxsoft.core.tslib.av.opset.impl.OptionSet;
-import org.toxsoft.core.tslib.bricks.ctx.impl.TsContext;
-import org.toxsoft.core.tslib.bricks.wub.WubBox;
-import org.toxsoft.core.tslib.coll.primtypes.impl.StringArrayList;
-import org.toxsoft.core.tslib.utils.logs.impl.LoggerUtils;
-import org.toxsoft.core.tslib.utils.plugins.impl.PluginBox;
-import org.toxsoft.uskat.core.connection.ISkConnection;
-import org.toxsoft.uskat.core.impl.SkatletBox;
-import org.toxsoft.uskat.s5.client.local.IS5LocalConnectionSingleton;
-import org.toxsoft.uskat.s5.server.backend.impl.S5BackendSupportSingleton;
-import org.toxsoft.uskat.s5.utils.jobs.IS5ServerJob;
+import org.toxsoft.core.tslib.av.opset.*;
+import org.toxsoft.core.tslib.av.opset.impl.*;
+import org.toxsoft.core.tslib.bricks.ctx.impl.*;
+import org.toxsoft.core.tslib.bricks.wub.*;
+import org.toxsoft.core.tslib.coll.primtypes.impl.*;
+import org.toxsoft.core.tslib.utils.logs.impl.*;
+import org.toxsoft.core.tslib.utils.plugins.impl.*;
+import org.toxsoft.uskat.core.connection.*;
+import org.toxsoft.uskat.core.impl.*;
+import org.toxsoft.uskat.s5.client.local.*;
+import org.toxsoft.uskat.s5.server.backend.impl.*;
+import org.toxsoft.uskat.s5.utils.jobs.*;
 
 /**
  * Реализация {@link IS5BackendSkatletsSingleton}.
@@ -100,6 +100,11 @@ public class S5BackendSkatletsSingleton
   private IS5LocalConnectionSingleton localConnectionSingleton;
 
   /**
+   * Разделяемое(общее) соединение между скатлетами
+   */
+  private ISkConnection sharedConnection;
+
+  /**
    * Корневой контейнер компонентов синглетона
    */
   private WubBox rootBox;
@@ -119,8 +124,8 @@ public class S5BackendSkatletsSingleton
     // Инициализация базового класса
     super.doInitSupport();
 
-    // Создание соединения для контейнера скатлетов
-    ISkConnection connection = localConnectionSingleton.open( id() );
+    // Создание общего соединения скатлетов
+    sharedConnection = localConnectionSingleton.open( id() );
 
     // Проверка/настройка файловой системы
     createDirIfNotExist( SKATLETS_DIR );
@@ -137,8 +142,7 @@ public class S5BackendSkatletsSingleton
     PLUGINS_DIR.setValue( environ.params(), avValobj( new StringArrayList( SKATLETS_DEPLOYMENTS_DIR ) ) );
     TMP_DIR.setValue( environ.params(), avStr( SKATLETS_TEMP_DIR ) );
     CLEAN_TMP_DIR.setValue( environ.params(), avBool( true ) );
-    REF_SK_CONNECTION.setRef( environ, connection );
-    REF_LOGGER.setRef( environ, logger() );
+    REF_SKATLET_SUPPORT.setRef( environ, new S5BackendSkatletSupport( localConnectionSingleton, sharedConnection ) );
 
     // Создание корневого контейнера...
     rootBox = new WubBox( ROOT_BOX_ID, params );
@@ -167,6 +171,7 @@ public class S5BackendSkatletsSingleton
         }
       }
     }
+    sharedConnection.close();
   }
 
   // ------------------------------------------------------------------------------------
