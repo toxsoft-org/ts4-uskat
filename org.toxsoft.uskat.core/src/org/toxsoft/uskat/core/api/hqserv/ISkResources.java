@@ -11,27 +11,27 @@ interface ISkResources {
   /**
    * {@link ESkQueryState}
    */
-  String STR_N_UNPREPARED = "Не определен";
-  String STR_D_UNPREPARED = "Начальное состояние";
-  String STR_N_PREPARED   = "Подготовлен";
-  String STR_D_PREPARED   = "Был выполнен ISkHistDataQuery#prepare(IGwidList) - запрос готов для выполнения";
-  String STR_N_EXECUTING  = "Выполняется";
-  String STR_D_EXECUTING  = "Запрос выполняется";
-  String STR_N_READY      = "Готов";
-  String STR_D_READY      = "Данные по запросу успешно получены";
-  String STR_N_FAILED     = "Ошибка";
-  String STR_D_FAILED     = "Данные не удалось получить (таймаут, нет связи и т.п.)";
-  String STR_N_CLOSED     = "Закрыт";
-  String STR_D_CLOSED     = "Уже был вызван close(), объект запроса (ISkHistDataQuery) следует выбросить";
+  String STR_UNPREPARED   = Messages.getString( "STR_UNPREPARED" );   //$NON-NLS-1$
+  String STR_UNPREPARED_D = Messages.getString( "STR_UNPREPARED_D" ); //$NON-NLS-1$
+  String STR_PREPARED     = Messages.getString( "STR_PREPARED" );     //$NON-NLS-1$
+  String STR_PREPARED_D   = Messages.getString( "STR_PREPARED_D" );   //$NON-NLS-1$
+  String STR_EXECUTING    = Messages.getString( "STR_EXECUTING" );    //$NON-NLS-1$
+  String STR_EXECUTING_D  = Messages.getString( "STR_EXECUTING_D" );  //$NON-NLS-1$
+  String STR_READY        = Messages.getString( "STR_READY" );        //$NON-NLS-1$
+  String STR_READY_D      = Messages.getString( "STR_READY_D" );      //$NON-NLS-1$
+  String STR_FAILED       = Messages.getString( "STR_FAILED" );       //$NON-NLS-1$
+  String STR_FAILED_D     = Messages.getString( "STR_FAILED_D" );     //$NON-NLS-1$
+  String STR_CLOSED       = Messages.getString( "STR_CLOSED" );       //$NON-NLS-1$
+  String STR_CLOSED_D     = Messages.getString( "STR_CLOSED_D" );     //$NON-NLS-1$
 
   /**
    * {@link ISkHistoryQueryServiceConstants}
    */
-  String STR_N_MAX_AGGREGATION_INTERVAL = "Aggregation interval";
-  String STR_D_MAX_AGGREGATION_INTERVAL = "Duration of the aggregation time interval (msec)";
-  String STR_N_MAX_AGGREGATION_START    = "Aggregation interval";
-  String STR_D_MAX_AGGREGATION_START    = "Duration of the aggregation time interval (msec)";
-  String STR_N_MAX_EXECUTION_TIME       = "Время(мсек)";
-  String STR_D_MAX_EXECUTION_TIME       = "Макс. время (мсек) выполнения запроса до принудительной отмены";
+  String STR_MAX_AGGREGATION_INTERVAL   = Messages.getString( "STR_MAX_AGGREGATION_INTERVAL" );   //$NON-NLS-1$
+  String STR_MAX_AGGREGATION_INTERVAL_D = Messages.getString( "STR_MAX_AGGREGATION_INTERVAL_D" ); //$NON-NLS-1$
+  String STR_MAX_AGGREGATION_START      = Messages.getString( "STR_MAX_AGGREGATION_START" );      //$NON-NLS-1$
+  String STR_MAX_AGGREGATION_START_D    = Messages.getString( "STR_MAX_AGGREGATION_START_D" );    //$NON-NLS-1$
+  String STR_MAX_EXECUTION_TIME         = Messages.getString( "STR_MAX_EXECUTION_TIME" );         //$NON-NLS-1$
+  String STR_MAX_EXECUTION_TIME_D       = Messages.getString( "STR_MAX_EXECUTION_TIME_D" );       //$NON-NLS-1$
 
 }

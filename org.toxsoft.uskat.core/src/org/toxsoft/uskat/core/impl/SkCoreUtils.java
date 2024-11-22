@@ -145,8 +145,8 @@ public class SkCoreUtils {
     // --- creating attributes
     // AID_SKID
     dpuRoot.attrInfos().add( DtoAttrInfo.create1( AID_SKID, DataType.create( VALOBJ, //
-        TSID_NAME, STR_N_ATTR_SKID, //
-        TSID_DESCRIPTION, STR_D_ATTR_SKID, //
+        TSID_NAME, STR_ATTR_SKID, //
+        TSID_DESCRIPTION, STR_ATTR_SKID_D, //
         TSID_KEEPER_ID, Skid.KEEPER_ID, //
         TSID_IS_NULL_ALLOWED, AV_FALSE, //
         TSID_DEFAULT_VALUE, avValobj( Skid.NONE ) //
@@ -155,8 +155,8 @@ public class SkCoreUtils {
     ) ) );
     // AID_CLASS_ID
     dpuRoot.attrInfos().add( DtoAttrInfo.create1( AID_CLASS_ID, DataType.create( STRING, //
-        TSID_NAME, STR_N_ATTR_CLASS_ID, //
-        TSID_DESCRIPTION, STR_D_ATTR_CLASS_ID, //
+        TSID_NAME, STR_ATTR_CLASS_ID, //
+        TSID_DESCRIPTION, STR_ATTR_CLASS_ID_D, //
         TSID_IS_NULL_ALLOWED, AV_FALSE, //
         TSID_DEFAULT_VALUE, avStr( Skid.NONE.classId() ) //
     ), OptionSetUtils.createOpSet( //
@@ -164,8 +164,8 @@ public class SkCoreUtils {
     ) ) );
     // AID_STRID
     dpuRoot.attrInfos().add( DtoAttrInfo.create1( AID_STRID, DataType.create( STRING, //
-        TSID_NAME, STR_N_ATTR_STRID, //
-        TSID_DESCRIPTION, STR_D_ATTR_STRID, //
+        TSID_NAME, STR_ATTR_STRID, //
+        TSID_DESCRIPTION, STR_ATTR_STRID_D, //
         TSID_IS_NULL_ALLOWED, AV_FALSE, //
         TSID_DEFAULT_VALUE, avStr( Skid.NONE.strid() ) //
     ), OptionSetUtils.createOpSet( //

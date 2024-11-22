@@ -8,33 +8,31 @@ package org.toxsoft.uskat.core.backend;
 @SuppressWarnings( "nls" )
 interface ISkResources {
 
-  String STR_N_SKBI_LOGGED_USER               = "User";
-  String STR_D_SKBI_LOGGED_USER               = "The information of current user";
-  String STR_N_SKBI_MAX_CLOB_LENGTH           = "Max CLOB";
-  String STR_D_SKBI_MAX_CLOB_LENGTH           = "Maximal number of characters in CLOB string storage backend";
-  String STR_N_SKBI_NEED_THREAD_SAFE_FRONTEND = "Thread-safety?";
-  String STR_D_SKBI_NEED_THREAD_SAFE_FRONTEND = "Backend need the thread-safe implementation of the frontend read API";
-
-  String STR_N_SKBI_BA_EVENTS_IS_HISTORY = "Events history?";
-  String STR_D_SKBI_BA_EVENTS_IS_HISTORY = "The flag indicates that backend supports events history";
-
-  String STR_N_BA_CLASSES  = "Classes";
-  String STR_D_BA_CLASSES  = "Classes info managemnt addon";
-  String STR_N_BA_CLOBS    = "Clobs";
-  String STR_D_BA_CLOBS    = "Clobs addon";
-  String STR_N_BA_EVENTS   = "Events";
-  String STR_D_BA_EVENTS   = "Events addon";
-  String STR_N_BA_LINKS    = "Links";
-  String STR_D_BA_LINKS    = "Links addon";
-  String STR_N_BA_RTDATA   = "RTdata";
-  String STR_D_BA_RTDATA   = "RTdata addon";
-  String STR_N_BA_COMMANDS = "Commands";
-  String STR_D_BA_COMMANDS = "Commands addon";
-  String STR_N_BA_OBJECTS  = "Objects";
-  String STR_D_BA_OBJECTS  = "Objects addon";
-  String STR_N_BA_QUERIES  = "Queries";
-  String STR_D_BA_QUERIES  = "Queries addon";
-  String STR_N_BA_GWID_DB  = "GwidDb";
-  String STR_D_BA_GWID_DB  = "GwidDb addon";
+  String STR_SKBI_LOGGED_USER                 = Messages.getString( "STR_SKBI_LOGGED_USER" );                 //$NON-NLS-1$
+  String STR_SKBI_LOGGED_USER_D               = Messages.getString( "STR_SKBI_LOGGED_USER_D" );               //$NON-NLS-1$
+  String STR_SKBI_MAX_CLOB_LENGTH             = Messages.getString( "STR_SKBI_MAX_CLOB_LENGTH" );             //$NON-NLS-1$
+  String STR_SKBI_MAX_CLOB_LENGTH_D           = Messages.getString( "STR_SKBI_MAX_CLOB_LENGTH_D" );           //$NON-NLS-1$
+  String STR_SKBI_NEED_THREAD_SAFE_FRONTEND   = Messages.getString( "STR_SKBI_NEED_THREAD_SAFE_FRONTEND" );   //$NON-NLS-1$
+  String STR_SKBI_NEED_THREAD_SAFE_FRONTEND_D = Messages.getString( "STR_SKBI_NEED_THREAD_SAFE_FRONTEND_D" ); //$NON-NLS-1$
+  String STR_SKBI_BA_EVENTS_IS_HISTORY        = Messages.getString( "STR_SKBI_BA_EVENTS_IS_HISTORY" );        //$NON-NLS-1$
+  String STR_SKBI_BA_EVENTS_IS_HISTORY_D      = Messages.getString( "STR_SKBI_BA_EVENTS_IS_HISTORY_D" );      //$NON-NLS-1$
+  String STR_BA_CLASSES                       = Messages.getString( "STR_BA_CLASSES" );                       //$NON-NLS-1$
+  String STR_BA_CLASSES_D                     = Messages.getString( "STR_BA_CLASSES_D" );                     //$NON-NLS-1$
+  String STR_BA_CLOBS                         = Messages.getString( "STR_BA_CLOBS" );                         //$NON-NLS-1$
+  String STR_BA_CLOBS_D                       = Messages.getString( "STR_BA_CLOBS_D" );                       //$NON-NLS-1$
+  String STR_BA_EVENTS                        = Messages.getString( "STR_BA_EVENTS" );                        //$NON-NLS-1$
+  String STR_BA_EVENTS_D                      = Messages.getString( "STR_BA_EVENTS_D" );                      //$NON-NLS-1$
+  String STR_BA_LINKS                         = Messages.getString( "STR_BA_LINKS" );                         //$NON-NLS-1$
+  String STR_BA_LINKS_D                       = Messages.getString( "STR_BA_LINKS_D" );                       //$NON-NLS-1$
+  String STR_BA_RTDATA                        = Messages.getString( "STR_BA_RTDATA" );                        //$NON-NLS-1$
+  String STR_BA_RTDATA_D                      = Messages.getString( "STR_BA_RTDATA_D" );                      //$NON-NLS-1$
+  String STR_BA_COMMANDS                      = Messages.getString( "STR_BA_COMMANDS" );                      //$NON-NLS-1$
+  String STR_BA_COMMANDS_D                    = Messages.getString( "STR_BA_COMMANDS_D" );                    //$NON-NLS-1$
+  String STR_BA_OBJECTS                       = Messages.getString( "STR_BA_OBJECTS" );                       //$NON-NLS-1$
+  String STR_BA_OBJECTS_D                     = Messages.getString( "STR_BA_OBJECTS_D" );                     //$NON-NLS-1$
+  String STR_BA_QUERIES                       = Messages.getString( "STR_BA_QUERIES" );                       //$NON-NLS-1$
+  String STR_BA_QUERIES_D                     = Messages.getString( "STR_BA_QUERIES_D" );                     //$NON-NLS-1$
+  String STR_BA_GWID_DB                       = Messages.getString( "STR_BA_GWID_DB" );                       //$NON-NLS-1$
+  String STR_BA_GWID_DB_D                     = Messages.getString( "STR_BA_GWID_DB_D" );                     //$NON-NLS-1$
 
 }

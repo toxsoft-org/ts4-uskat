@@ -35,8 +35,8 @@ public interface ISkCoreConfigConstants {
    * files.
    */
   IDataDef OPDEF_L10N_FILES_DIR = DataDef.create( SK_ID + "L10nFileDir", STRING, //$NON-NLS-1$
-      TSID_NAME, STR_N_OP_L10N_FILES_DIR, //
-      TSID_DESCRIPTION, STR_N_OP_L10N_FILES_DIR, //
+      TSID_NAME, STR_OP_L10N_FILES_DIR, //
+      TSID_DESCRIPTION, STR_OP_L10N_FILES_DIR, //
       TSID_DEFAULT_VALUE, avStr( "uskat-l10n" ) //$NON-NLS-1$
   );
 
@@ -46,8 +46,8 @@ public interface ISkCoreConfigConstants {
    * locale.
    */
   IDataDef OPDEF_LOCALE = DataDef.create( SK_ID + "Locale", VALOBJ, //$NON-NLS-1$
-      TSID_NAME, STR_N_OP_LOCALE, //
-      TSID_DESCRIPTION, STR_N_OP_LOCALE, //
+      TSID_NAME, STR_OP_LOCALE, //
+      TSID_DESCRIPTION, STR_OP_LOCALE, //
       TSID_KEEPER_ID, LocaleKeeper.KEEPER_ID, //
       TSID_DEFAULT_VALUE, avValobj( Locale.getDefault(), LocaleKeeper.KEEPER, LocaleKeeper.KEEPER_ID ) //
   );
@@ -59,8 +59,8 @@ public interface ISkCoreConfigConstants {
    * all messages, while {@link ELogSeverity#ERROR} will log only errors. Note that error messages can not be hidden.
    */
   IDataDef OPDEF_DEF_CORE_LOG_SEVERITY = DataDef.create( SK_ID + "DefaultCoreLogSeverity", VALOBJ, //$NON-NLS-1$
-      TSID_NAME, STR_N_OP_DEF_CORE_LOG_SEVERITY, //
-      TSID_DESCRIPTION, STR_N_OP_DEF_CORE_LOG_SEVERITY, //
+      TSID_NAME, STR_OP_DEF_CORE_LOG_SEVERITY, //
+      TSID_DESCRIPTION, STR_OP_DEF_CORE_LOG_SEVERITY, //
       TSID_KEEPER_ID, ELogSeverity.KEEPER_ID, //
       TSID_DEFAULT_VALUE, avValobj( ELogSeverity.DEBUG, ELogSeverity.KEEPER, ELogSeverity.KEEPER_ID ) //
   );
@@ -79,8 +79,8 @@ public interface ISkCoreConfigConstants {
    * Usage: this is mandatory option to create concrete backend of connection.
    */
   ITsContextRefDef<ISkBackendProvider> REFDEF_BACKEND_PROVIDER = TsContextRefDef.create( ISkBackendProvider.class, //
-      TSID_NAME, STR_N_REF_BACKEND_PROVIDER, //
-      TSID_DESCRIPTION, STR_D_REF_BACKEND_PROVIDER, //
+      TSID_NAME, STR_REF_BACKEND_PROVIDER, //
+      TSID_DESCRIPTION, STR_REF_BACKEND_PROVIDER_D, //
       TSID_IS_MANDATORY, AV_TRUE //
   );
 
@@ -90,8 +90,8 @@ public interface ISkCoreConfigConstants {
    */
   ITsContextRefDef<ITsThreadExecutor> REFDEF_THREAD_EXECUTOR =
       TsContextRefDef.create( ITsThreadExecutor.class, //
-          TSID_NAME, STR_N_REF_THREAD_EXECUTOR, //
-          TSID_DESCRIPTION, STR_D_REF_THREAD_EXECUTOR, //
+          TSID_NAME, STR_REF_THREAD_EXECUTOR, //
+          TSID_DESCRIPTION, STR_REF_THREAD_EXECUTOR_D, //
           TSID_IS_MANDATORY, AV_TRUE //
       );
 }

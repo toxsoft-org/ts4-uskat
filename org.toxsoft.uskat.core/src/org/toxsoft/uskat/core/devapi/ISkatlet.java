@@ -32,8 +32,8 @@ public interface ISkatlet
    * Тип: {@link ISkConnection}.
    */
   ITsContextRefDef<ISkConnection> REF_SK_CONNECTION = create( "SkConnection", ISkConnection.class, //$NON-NLS-1$
-      TSID_NAME, STR_N_SKATLET_CONNECTION, //
-      TSID_DESCRIPTION, STR_D_SKATLET_CONNECTION, //
+      TSID_NAME, STR_SKATLET_CONNECTION, //
+      TSID_DESCRIPTION, STR_SKATLET_CONNECTION_D, //
       TSID_IS_NULL_ALLOWED, AV_FALSE, //
       TSID_IS_MANDATORY, AV_TRUE //
   );
@@ -44,8 +44,8 @@ public interface ISkatlet
    * Тип: {@link ILogger}.
    */
   ITsContextRefDef<ILogger> REF_LOGGER = create( "Logger", ILogger.class, //$NON-NLS-1$
-      TSID_NAME, STR_N_SKATLET_LOGGER, //
-      TSID_DESCRIPTION, STR_D_SKATLET_LOGGER, //
+      TSID_NAME, STR_SKATLET_LOGGER, //
+      TSID_DESCRIPTION, STR_SKATLET_LOGGER_D, //
       TSID_IS_NULL_ALLOWED, AV_FALSE, //
       TSID_IS_MANDATORY, AV_TRUE //
   );

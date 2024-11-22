@@ -22,12 +22,12 @@ interface ISkResources {
   String STR_UK_CMD   = Messages.getString( "STR_UK_CMD" );   //$NON-NLS-1$
   String STR_UK_CMD_D = Messages.getString( "STR_UK_CMD_D" ); //$NON-NLS-1$
 
-  String STR_UK_RTDATA   = "Rtdata value";
-  String STR_UK_RTDATA_D = "The Sk-object Rtdata vlaue";
+  String STR_UK_RTDATA   = Messages.getString( "STR_UK_RTDATA" );   //$NON-NLS-1$
+  String STR_UK_RTDATA_D = Messages.getString( "STR_UK_RTDATA_D" ); //$NON-NLS-1$
 
-  String STR_UK_RIVET   = "Ugwi type - rivet";
-  String STR_UK_RIVET_D = "Ugwi type - ISkidList of the riveted objects";
+  String STR_UK_RIVET   = Messages.getString( "STR_UK_RIVET" );   //$NON-NLS-1$
+  String STR_UK_RIVET_D = Messages.getString( "STR_UK_RIVET_D" ); //$NON-NLS-1$
 
-  String STR_UK_CLASS_INFO   = "Ugwi type - class";
-  String STR_UK_CLASS_INFO_D = "Ugwi type - class identifier";
+  String STR_UK_CLASS_INFO   = Messages.getString( "STR_UK_CLASS_INFO" );   //$NON-NLS-1$
+  String STR_UK_CLASS_INFO_D = Messages.getString( "STR_UK_CLASS_INFO_D" ); //$NON-NLS-1$
 }

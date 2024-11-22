@@ -1,7 +1,5 @@
 package org.toxsoft.uskat.core.impl;
 
-import org.toxsoft.uskat.core.api.hqserv.*;
-
 /**
  * Localizable resources.
  *
@@ -14,185 +12,184 @@ interface ISkResources {
    * Common messages.
    */
   String FMT_ERR_NO_SUCH_CLASS = Messages.getString( "FMT_ERR_NO_SUCH_CLASS" ); //$NON-NLS-1$
-  String FMT_ERR_NO_SUCH_OBJ   = "Object '%s' does not exists";
+  String FMT_ERR_NO_SUCH_OBJ   = Messages.getString( "FMT_ERR_NO_SUCH_OBJ" );   //$NON-NLS-1$
 
   /**
    * {@link AbstractSkService}
    */
-  String FMT_INFO_SERVICE_INIT         = "Service %s: init() called";
-  String FMT_INFO_SERVICE_CLOSE        = "Service %s: close() called";
-  String FMT_WARN_INV_SERVICE_GT_MSG   = "Service %s: received invalid message with topic ID '%s'";
-  String FMT_WARN_UNKNOWN_MSG          = "Service %s: received message with unknown message ID '%s'";
-  String FMT_ERR_CLAIM_VIOLATION       = "Entities of class ID %s are claimed by service %s";
-  String FMT_ERR_INVALID_THREAD_ACCESS = "Invalid thread access (TsIllegalStateRtException)";
+  String FMT_INFO_SERVICE_INIT         = Messages.getString( "FMT_INFO_SERVICE_INIT" );         //$NON-NLS-1$
+  String FMT_INFO_SERVICE_CLOSE        = Messages.getString( "FMT_INFO_SERVICE_CLOSE" );        //$NON-NLS-1$
+  String FMT_WARN_INV_SERVICE_GT_MSG   = Messages.getString( "FMT_WARN_INV_SERVICE_GT_MSG" );   //$NON-NLS-1$
+  String FMT_WARN_UNKNOWN_MSG          = Messages.getString( "FMT_WARN_UNKNOWN_MSG" );          //$NON-NLS-1$
+  String FMT_ERR_CLAIM_VIOLATION       = Messages.getString( "FMT_ERR_CLAIM_VIOLATION" );       //$NON-NLS-1$
+  String FMT_ERR_INVALID_THREAD_ACCESS = Messages.getString( "FMT_ERR_INVALID_THREAD_ACCESS" ); //$NON-NLS-1$
 
   /**
    * {@link CoreL10n}
    */
-  String FMT_WARN_L10N_NO_ROOT_DIR      = "Локализация uskat не работает, недоступна директория %s";
-  String FMT_WARN_L10N_NO_LOCALE_DIR    = "Локализация uskat не работает, нет подпапки локали '%s' или '%s'";
-  String FMT_WARN_L10N_BAD_FILE         = "Нет доступа к файлу локализации %s";
-  String FMT_ERR_L10N_LOADING_FILE      = "Ошибка чтения из файла локализации %s";
-  String FMT_WARN_L10N_INV_DATA_TYPE_ID = "Недопустимый l10n идентификатор типа данного (%s)";
-  String FMT_WARN_L10N_INV_SDC_GWID_STR = "Недопустимый l10n Gwid в описании системы (%s)";
-  String FMT_WARN_L10N_INV_OBJ_SKID_STR = "Недопустимый l10n Skid объекта (%s)";
-  String FMT_LAST_READ_ITEM             = "Last item read was %s (%s)";
-  String MSG_NO_ITEMS_READ_YET          = "No items was read from file";
+  String FMT_WARN_L10N_NO_ROOT_DIR      = Messages.getString( "FMT_WARN_L10N_NO_ROOT_DIR" );      //$NON-NLS-1$
+  String FMT_WARN_L10N_NO_LOCALE_DIR    = Messages.getString( "FMT_WARN_L10N_NO_LOCALE_DIR" );    //$NON-NLS-1$
+  String FMT_WARN_L10N_BAD_FILE         = Messages.getString( "FMT_WARN_L10N_BAD_FILE" );         //$NON-NLS-1$
+  String FMT_ERR_L10N_LOADING_FILE      = Messages.getString( "FMT_ERR_L10N_LOADING_FILE" );      //$NON-NLS-1$
+  String FMT_WARN_L10N_INV_DATA_TYPE_ID = Messages.getString( "FMT_WARN_L10N_INV_DATA_TYPE_ID" ); //$NON-NLS-1$
+  String FMT_WARN_L10N_INV_SDC_GWID_STR = Messages.getString( "FMT_WARN_L10N_INV_SDC_GWID_STR" ); //$NON-NLS-1$
+  String FMT_WARN_L10N_INV_OBJ_SKID_STR = Messages.getString( "FMT_WARN_L10N_INV_OBJ_SKID_STR" ); //$NON-NLS-1$
+  String FMT_LAST_READ_ITEM             = Messages.getString( "FMT_LAST_READ_ITEM" );             //$NON-NLS-1$
+  String MSG_NO_ITEMS_READ_YET          = Messages.getString( "MSG_NO_ITEMS_READ_YET" );          //$NON-NLS-1$
 
   /**
    * {@link ISkCoreConfigConstants}.
    */
-  String STR_N_OP_L10N_FILES_DIR        = "L10n directory";
-  String STR_D_OP_L10N_FILES_DIR        = "Localization files root directory";
-  String STR_N_OP_LOCALE                = "Locale";
-  String STR_D_OP_LOCALE                = "Locale for core entitties localization";
-  String STR_N_OP_DEF_CORE_LOG_SEVERITY = "Log severity";
-  String STR_D_OP_DEF_CORE_LOG_SEVERITY = "Default log messages lowest severity to be logged";
-  String STR_N_REF_THREAD_EXECUTOR      = "Thread executor";
-  String STR_D_REF_THREAD_EXECUTOR      = "Еxecutor of API calls in one thread used by the connection";
-  String STR_N_REF_BACKEND_PROVIDER     = "Backend provider";
-  String STR_D_REF_BACKEND_PROVIDER     = "Refernce to the of the USkat API backend instance creator";
+  String STR_OP_L10N_FILES_DIR          = Messages.getString( "STR_OP_L10N_FILES_DIR" );          //$NON-NLS-1$
+  String STR_OP_L10N_FILES_DIR_D        = Messages.getString( "STR_OP_L10N_FILES_DIR_D" );        //$NON-NLS-1$
+  String STR_OP_LOCALE                  = Messages.getString( "STR_OP_LOCALE" );                  //$NON-NLS-1$
+  String STR_OP_LOCALE_D                = Messages.getString( "STR_OP_LOCALE_D" );                //$NON-NLS-1$
+  String STR_OP_DEF_CORE_LOG_SEVERITY   = Messages.getString( "STR_OP_DEF_CORE_LOG_SEVERITY" );   //$NON-NLS-1$
+  String STR_OP_DEF_CORE_LOG_SEVERITY_D = Messages.getString( "STR_OP_DEF_CORE_LOG_SEVERITY_D" ); //$NON-NLS-1$
+  String STR_REF_THREAD_EXECUTOR        = Messages.getString( "STR_REF_THREAD_EXECUTOR" );        //$NON-NLS-1$
+  String STR_REF_THREAD_EXECUTOR_D      = Messages.getString( "STR_REF_THREAD_EXECUTOR_D" );      //$NON-NLS-1$
+  String STR_REF_BACKEND_PROVIDER       = Messages.getString( "STR_REF_BACKEND_PROVIDER" );       //$NON-NLS-1$
+  String STR_REF_BACKEND_PROVIDER_D     = Messages.getString( "STR_REF_BACKEND_PROVIDER_D" );     //$NON-NLS-1$
 
   /**
    * {@link SkConnection}.
    */
-  String MSG_ERR_CONN_NOT_ACTIVE = "Connection is not active";
-  String MSG_ERR_CONN_IS_OPEN    = "Connection is already open";
+  String MSG_ERR_CONN_NOT_ACTIVE = Messages.getString( "MSG_ERR_CONN_NOT_ACTIVE" ); //$NON-NLS-1$
+  String MSG_ERR_CONN_IS_OPEN    = Messages.getString( "MSG_ERR_CONN_IS_OPEN" );    //$NON-NLS-1$
 
   /**
    * {@link SkCoreApi}
    */
-  String MSG_ERR_CONN_NOT_OPEN              = "Connection is closed";
-  String FMT_ERR_CANT_CREATE_SERVICE        = "Creator '%s' can not create service instance";
-  String FMT_ERR_DUP_SERVICE_ID             = "Creator '%s' tries to create service of existing ID '%s'";
-  String LOG_WARN_UNHANDLED_BACKEND_MESSAGE = "Unhandled message from backend, topicID= %s, messageId = %s, args = %s";
+  String MSG_ERR_CONN_NOT_OPEN              = Messages.getString( "MSG_ERR_CONN_NOT_OPEN" );              //$NON-NLS-1$
+  String FMT_ERR_CANT_CREATE_SERVICE        = Messages.getString( "FMT_ERR_CANT_CREATE_SERVICE" );        //$NON-NLS-1$
+  String FMT_ERR_DUP_SERVICE_ID             = Messages.getString( "FMT_ERR_DUP_SERVICE_ID" );             //$NON-NLS-1$
+  String LOG_WARN_UNHANDLED_BACKEND_MESSAGE = Messages.getString( "LOG_WARN_UNHANDLED_BACKEND_MESSAGE" ); //$NON-NLS-1$
 
   /**
    * {@link SkCoreServClobs}
    */
-  String FMT_ERR_NON_CLOB_GWID        = "Concrete GWID of CLOB was expected instead of '%s'";
-  String FMT_ERR_CLOB_CLASS_NOT_EXIST = "CLOB class %s does not exist";
-  String FMT_ERR_CLOB_NOT_EXIST       = "CLOB %s does not exist in class %s";
-  String FMT_ERR_CLOB_TOO_LONG        = "Clob length %d exceeds platforn restirction %d";
-  String FMT_ERR_CLOB_TO_BACKEND      = "Error writing CLOB (GWID='%s') to to the backend";
-  String FMT_ERR_NO_OBJ_OF_CLOB       = "Object '%s' for CLOB '%s' doesa not exists";
+  String FMT_ERR_NON_CLOB_GWID        = Messages.getString( "FMT_ERR_NON_CLOB_GWID" );        //$NON-NLS-1$
+  String FMT_ERR_CLOB_CLASS_NOT_EXIST = Messages.getString( "FMT_ERR_CLOB_CLASS_NOT_EXIST" ); //$NON-NLS-1$
+  String FMT_ERR_CLOB_NOT_EXIST       = Messages.getString( "FMT_ERR_CLOB_NOT_EXIST" );       //$NON-NLS-1$
+  String FMT_ERR_CLOB_TOO_LONG        = Messages.getString( "FMT_ERR_CLOB_TOO_LONG" );        //$NON-NLS-1$
+  String FMT_ERR_CLOB_TO_BACKEND      = Messages.getString( "FMT_ERR_CLOB_TO_BACKEND" );      //$NON-NLS-1$
+  String FMT_ERR_NO_OBJ_OF_CLOB       = Messages.getString( "FMT_ERR_NO_OBJ_OF_CLOB" );       //$NON-NLS-1$
 
   /**
    * {@link SkCoreServCommands}
    */
-  String FMT_ERR_CMD_CLASS_NOT_EXIST      = "Command class %s does not exist";
-  String FMT_ERR_CMD_NOT_EXIST            = "Command %s does not exist in class %s";
-  String FMT_ERR_CMD_AUTHOR_NOT_EXIST     = "Author %s does not exist";
-  String FMT_ERR_UNHANDLED_CMD            = "No executor found for command: %s";                   //$NON-NLS-1$
-  String FMT_ERR_UNEXPECTED_EXECUTION     = "Unexpected error while executing command: %s";        //$NON-NLS-1$
-  String FMT_LOG_WARN_NO_STATE_CHANGE_CMD = "No executing command found for state change info %s"; //$NON-NLS-1$
+  String FMT_ERR_CMD_CLASS_NOT_EXIST      = Messages.getString( "FMT_ERR_CMD_CLASS_NOT_EXIST" );      //$NON-NLS-1$
+  String FMT_ERR_CMD_NOT_EXIST            = Messages.getString( "FMT_ERR_CMD_NOT_EXIST" );            //$NON-NLS-1$
+  String FMT_ERR_CMD_AUTHOR_NOT_EXIST     = Messages.getString( "FMT_ERR_CMD_AUTHOR_NOT_EXIST" );     //$NON-NLS-1$
+  String FMT_ERR_UNHANDLED_CMD            = Messages.getString( "FMT_ERR_UNHANDLED_CMD" );            //$NON-NLS-1$
+  String FMT_ERR_UNEXPECTED_EXECUTION     = Messages.getString( "FMT_ERR_UNEXPECTED_EXECUTION" );     //$NON-NLS-1$
+  String FMT_LOG_WARN_NO_STATE_CHANGE_CMD = Messages.getString( "FMT_LOG_WARN_NO_STATE_CHANGE_CMD" ); //$NON-NLS-1$
 
   /**
    * {@link SkCoreServLinks}
    */
-  String FMT_ERR_NO_SUCH_LINK1           = "Link '%s' does not exists in class '%s'";
-  String FMT_ERR_NO_LINK_LEFT_OBJ        = "Left object %s of link %s does not exists";
-  String FMT_ERR_NO_LINK_RIGHT_OBJ_CLASS = "Class of right object %s of link %s does not exists";
-  String FMT_ERR_NO_LINK_RIGHT_OBJ_STRID = "Right object %s of link %s does not exists";
-  String FMT_ERR_RIGHT_OBJ_INV_CLASS     = "Right object %s is not allowed in link %s";
+  String FMT_ERR_NO_SUCH_LINK1           = Messages.getString( "FMT_ERR_NO_SUCH_LINK1" );           //$NON-NLS-1$
+  String FMT_ERR_NO_LINK_LEFT_OBJ        = Messages.getString( "FMT_ERR_NO_LINK_LEFT_OBJ" );        //$NON-NLS-1$
+  String FMT_ERR_NO_LINK_RIGHT_OBJ_CLASS = Messages.getString( "FMT_ERR_NO_LINK_RIGHT_OBJ_CLASS" ); //$NON-NLS-1$
+  String FMT_ERR_NO_LINK_RIGHT_OBJ_STRID = Messages.getString( "FMT_ERR_NO_LINK_RIGHT_OBJ_STRID" ); //$NON-NLS-1$
+  String FMT_ERR_RIGHT_OBJ_INV_CLASS     = Messages.getString( "FMT_ERR_RIGHT_OBJ_INV_CLASS" );     //$NON-NLS-1$
 
   /**
    * {@link SkCoreServObject}
    */
-  String FMT_ERR_INV_ATTR_TYPE      = "Object '%s', attribute '%s': value type '%s' is not assignable to the type '%s'";
-  String FMT_ERR_NO_ATTR_VAL        = "Object '%s': value of the attribute '%s' must be specified";
-  String FMT_ERR_NO_RIVET_CLASS     = "Object '%s', rivet '%s': right class '%s' does not exists";
-  String FMT_ERR_NO_RIVET           = "Object '%s': riveted objects of the rivet '%s' must be specified";
-  String FMT_ERR_INV_RIVET_COUNT    = "Object '%s', rivet '%s': number of riveted objects is %d instead of %d";
-  String FMT_ERR_INV_RIVET_OBJ_CLS  = "Object '%s', rivet '%s': right object '%s' is not of class '%s'";
-  String FMT_ERR_OBJ_ALREADY_EXISTS = "Object with SKID '%s' уже существует";
-  String FMT_ERR_CANT_CHANGE_SKID   = "Object '%s': can't change SKID";
-  String FMT_ERR_CANT_REMOVE_NO_OBJ = "Object '%s'^ does not exists, can not remove it";
+  String FMT_ERR_INV_ATTR_TYPE      = Messages.getString( "FMT_ERR_INV_ATTR_TYPE" );      //$NON-NLS-1$
+  String FMT_ERR_NO_ATTR_VAL        = Messages.getString( "FMT_ERR_NO_ATTR_VAL" );        //$NON-NLS-1$
+  String FMT_ERR_NO_RIVET_CLASS     = Messages.getString( "FMT_ERR_NO_RIVET_CLASS" );     //$NON-NLS-1$
+  String FMT_ERR_NO_RIVET           = Messages.getString( "FMT_ERR_NO_RIVET" );           //$NON-NLS-1$
+  String FMT_ERR_INV_RIVET_COUNT    = Messages.getString( "FMT_ERR_INV_RIVET_COUNT" );    //$NON-NLS-1$
+  String FMT_ERR_INV_RIVET_OBJ_CLS  = Messages.getString( "FMT_ERR_INV_RIVET_OBJ_CLS" );  //$NON-NLS-1$
+  String FMT_ERR_OBJ_ALREADY_EXISTS = Messages.getString( "FMT_ERR_OBJ_ALREADY_EXISTS" ); //$NON-NLS-1$
+  String FMT_ERR_CANT_CHANGE_SKID   = Messages.getString( "FMT_ERR_CANT_CHANGE_SKID" );   //$NON-NLS-1$
+  String FMT_ERR_CANT_REMOVE_NO_OBJ = Messages.getString( "FMT_ERR_CANT_REMOVE_NO_OBJ" ); //$NON-NLS-1$
 
   /**
    * {@link SkCoreServRtdata}
    */
-  String FMT_ERR_RTD_CHNL_INV_ATOMIC_TYPE         = "RtData channel %s: got %s value instead of %s";
-  String FMT_ERR_CDW_CHANNEL_HAS_NO_KEY           = "CurrDataWrite channel %s has no key(-1)";
-  String FMT_ERR_HDW_CHANNEL_WRONG_WRITE_INTERVAL = "History data write interval %s is less then values interval %s";
+  String FMT_ERR_RTD_CHNL_INV_ATOMIC_TYPE         = Messages.getString( "FMT_ERR_RTD_CHNL_INV_ATOMIC_TYPE" );         //$NON-NLS-1$
+  String FMT_ERR_CDW_CHANNEL_HAS_NO_KEY           = Messages.getString( "FMT_ERR_CDW_CHANNEL_HAS_NO_KEY" );           //$NON-NLS-1$
+  String FMT_ERR_HDW_CHANNEL_WRONG_WRITE_INTERVAL = Messages.getString( "FMT_ERR_HDW_CHANNEL_WRONG_WRITE_INTERVAL" ); //$NON-NLS-1$
 
   /**
    * {@link SkCoreServSysdescr}
    */
-  String FMT_WARN_ORPHAN_CLASS             = "Ignoring an orphan class loaded from backend (class ID: '%s')";
-  String FMT_WARN_UNWANTED_CLASS_ID        = "Class ID has unwanted value '%s'";
-  String FMT_WARN_EMPTY_CLASS_NAME         = "Желательно задать имя класса с идентификатором %s";
-  String FMT_ERR_CLASS_HAS_PROP_ID         = "Свойство с идентификатором %s уже существует в классе";
-  String FMT_ERR_CLASS_ALREADY_EXISTS      = "Класс с идентификатором %s уже существует";
-  String FMT_ERR_NO_PARENT_CLASS           = "Не существует родительского класса с идентификатором '%s'";
-  String FMT_ERR_DUP_PROP_IN_SUPER         = "%s '%s' is already declared in the ancestor class '%s'";
-  String FMT_ERR_DUP_PROP_IN_SUB           = "%s '%s' is already declared in the descendant classes '%s'";
-  String MSG_ERR_CANT_CHANGE_ROOT_CLASS    = "Нельзя редактировать корневой класс";
-  String FMT_ERR_CANT_CHANGE_CLASS_ID      = "Нельзя изменить идентификатор существующего класса %s";
-  String FMT_ERR_CANT_CHANGE_PARENT        = "Нельзя изменить родителя существующего класса %s";
-  String FMT_ERR_CANT_REMOVE_ABSENT_CLASS  = "Нельзя удалить не существующий класс %s";
-  String FMT_ERR_CANT_REMOVE_CHILDED_CLASS = "Нельзя удалить класс %s - у него есть наследники";
-  String MSG_ERR_CANT_REMOVE_ROOT_CLASS    = "Нельзя удалить корневой класс";
-  String FMT_ERR_INV_CLASS_LOAD_IGNORED    = "Class '%s' ignored: %s '%s' is already declared in class '%s'";
+  String FMT_WARN_ORPHAN_CLASS             = Messages.getString( "FMT_WARN_ORPHAN_CLASS" );             //$NON-NLS-1$
+  String FMT_WARN_UNWANTED_CLASS_ID        = Messages.getString( "FMT_WARN_UNWANTED_CLASS_ID" );        //$NON-NLS-1$
+  String FMT_WARN_EMPTY_CLASS_NAME         = Messages.getString( "FMT_WARN_EMPTY_CLASS_NAME" );         //$NON-NLS-1$
+  String FMT_ERR_CLASS_HAS_PROP_ID         = Messages.getString( "FMT_ERR_CLASS_HAS_PROP_ID" );         //$NON-NLS-1$
+  String FMT_ERR_CLASS_ALREADY_EXISTS      = Messages.getString( "FMT_ERR_CLASS_ALREADY_EXISTS" );      //$NON-NLS-1$
+  String FMT_ERR_NO_PARENT_CLASS           = Messages.getString( "FMT_ERR_NO_PARENT_CLASS" );           //$NON-NLS-1$
+  String FMT_ERR_DUP_PROP_IN_SUPER         = Messages.getString( "FMT_ERR_DUP_PROP_IN_SUPER" );         //$NON-NLS-1$
+  String FMT_ERR_DUP_PROP_IN_SUB           = Messages.getString( "FMT_ERR_DUP_PROP_IN_SUB" );           //$NON-NLS-1$
+  String MSG_ERR_CANT_CHANGE_ROOT_CLASS    = Messages.getString( "MSG_ERR_CANT_CHANGE_ROOT_CLASS" );    //$NON-NLS-1$
+  String FMT_ERR_CANT_CHANGE_CLASS_ID      = Messages.getString( "FMT_ERR_CANT_CHANGE_CLASS_ID" );      //$NON-NLS-1$
+  String FMT_ERR_CANT_CHANGE_PARENT        = Messages.getString( "FMT_ERR_CANT_CHANGE_PARENT" );        //$NON-NLS-1$
+  String FMT_ERR_CANT_REMOVE_ABSENT_CLASS  = Messages.getString( "FMT_ERR_CANT_REMOVE_ABSENT_CLASS" );  //$NON-NLS-1$
+  String FMT_ERR_CANT_REMOVE_CHILDED_CLASS = Messages.getString( "FMT_ERR_CANT_REMOVE_CHILDED_CLASS" ); //$NON-NLS-1$
+  String MSG_ERR_CANT_REMOVE_ROOT_CLASS    = Messages.getString( "MSG_ERR_CANT_REMOVE_ROOT_CLASS" );    //$NON-NLS-1$
+  String FMT_ERR_INV_CLASS_LOAD_IGNORED    = Messages.getString( "FMT_ERR_INV_CLASS_LOAD_IGNORED" );    //$NON-NLS-1$
 
   /**
    * {@link SkCoreServUsers}
    */
-  String MSG_ERR_PSWD_IS_BLANK          = "Не допускается пустой пароль";
-  String FMT_ERR_NOT_USER_DPU           = "Внутрненняя ошибка: DPU пользователя имеет класс '%s' вместо '%s'";
-  String FMT_ERR_DUP_USER               = "Пользователь с логином %s уже существет";
-  String MSG_ERR_NO_ROLES               = "Пользователю должна быть назначена хотя бы одна роль";
-  String FMT_ERR_INV_ROLES              = "Попытка назначить несуществующую роль %s";
-  String FMT_ERR_NOT_ROLE_DPU           = "Внутрненняя ошибка: DPU роли имеет класс '%s' вместо '%s'";
-  String FMT_ERR_DUP_ROLE               = "Роль с идентификатором %s уже существет";
-  String MSG_ERR_CANT_DISABLE_ROOT_USER = "Запрет отключения учетной записи суперпользователя";
-  String MSG_WARN_DISABLING_GUEST_USER  = "Нежелательно отклуючать учетную запись гостя";
-  String MSG_ERR_CANT_DISABLE_ROOT_ROLE = "Запрет отключения роли суперпользователя";
-  String MSG_WARN_DISABLING_GUEST_ROLE  = "Нежелательно отклуючать гостевую роль";
+  String MSG_ERR_PSWD_IS_BLANK          = Messages.getString( "MSG_ERR_PSWD_IS_BLANK" );          //$NON-NLS-1$
+  String FMT_ERR_NOT_USER_DPU           = Messages.getString( "FMT_ERR_NOT_USER_DPU" );           //$NON-NLS-1$
+  String FMT_ERR_DUP_USER               = Messages.getString( "FMT_ERR_DUP_USER" );               //$NON-NLS-1$
+  String MSG_ERR_NO_ROLES               = Messages.getString( "MSG_ERR_NO_ROLES" );               //$NON-NLS-1$
+  String FMT_ERR_INV_ROLES              = Messages.getString( "FMT_ERR_INV_ROLES" );              //$NON-NLS-1$
+  String FMT_ERR_NOT_ROLE_DPU           = Messages.getString( "FMT_ERR_NOT_ROLE_DPU" );           //$NON-NLS-1$
+  String FMT_ERR_DUP_ROLE               = Messages.getString( "FMT_ERR_DUP_ROLE" );               //$NON-NLS-1$
+  String MSG_ERR_CANT_DISABLE_ROOT_USER = Messages.getString( "MSG_ERR_CANT_DISABLE_ROOT_USER" ); //$NON-NLS-1$
+  String MSG_WARN_DISABLING_GUEST_USER  = Messages.getString( "MSG_WARN_DISABLING_GUEST_USER" );  //$NON-NLS-1$
+  String MSG_ERR_CANT_DISABLE_ROOT_ROLE = Messages.getString( "MSG_ERR_CANT_DISABLE_ROOT_ROLE" ); //$NON-NLS-1$
+  String MSG_WARN_DISABLING_GUEST_ROLE  = Messages.getString( "MSG_WARN_DISABLING_GUEST_ROLE" );  //$NON-NLS-1$
 
-  String FMT_WARN_CANT_DEL_NO_USER   = "Нельзя удалить несуществующего пользователя с логином '%s'";
-  String MSG_ERR_CANT_DEL_ROOT_USER  = "Нельзя удалить учетную запись суперпользователя";
-  String MSG_ERR_CANT_DEL_GUEST_USER = "Нельзя удалить гостевую учетную запись";
-  String FMT_WARN_CANT_DEL_NO_ROLE   = "Нельзя удалить несуществующую роль с идентификатором '%s'";
-  String MSG_ERR_CANT_DEL_ROOT_ROLE  = "Нельзя удалить роль суперпользователя";
-  String MSG_ERR_CANT_DEL_GUEST_ROLE = "Нельзя удалить гостевую роль";
+  String FMT_WARN_CANT_DEL_NO_USER   = Messages.getString( "FMT_WARN_CANT_DEL_NO_USER" );   //$NON-NLS-1$
+  String MSG_ERR_CANT_DEL_ROOT_USER  = Messages.getString( "MSG_ERR_CANT_DEL_ROOT_USER" );  //$NON-NLS-1$
+  String MSG_ERR_CANT_DEL_GUEST_USER = Messages.getString( "MSG_ERR_CANT_DEL_GUEST_USER" ); //$NON-NLS-1$
+  String FMT_WARN_CANT_DEL_NO_ROLE   = Messages.getString( "FMT_WARN_CANT_DEL_NO_ROLE" );   //$NON-NLS-1$
+  String MSG_ERR_CANT_DEL_ROOT_ROLE  = Messages.getString( "MSG_ERR_CANT_DEL_ROOT_ROLE" );  //$NON-NLS-1$
+  String MSG_ERR_CANT_DEL_GUEST_ROLE = Messages.getString( "MSG_ERR_CANT_DEL_GUEST_ROLE" ); //$NON-NLS-1$
 
   // ------------------------------------------------------------------------------------
   // USkat entities are defined only in English, l10n done via USkat localization service
-  String STR_ROOT_ROLE    = "Superuser";        //$NON-NLS-1$
-  String STR_ROOT_ROLE_D  = "Superuser role";   //$NON-NLS-1$
-  String STR_GUEST_ROLE   = "Guest";            //$NON-NLS-1$
-  String STR_GUEST_ROLE_D = "Guest role";       //$NON-NLS-1$
-  String STR_ROOT_USER    = "Root";             //$NON-NLS-1$
-  String STR_ROOT_USER_D  = "Root - superuser"; //$NON-NLS-1$
-  String STR_GUEST_USER   = "Guest";            //$NON-NLS-1$
-  String STR_GUEST_USER_D = "Guest user";       //$NON-NLS-1$
+  String STR_ROOT_ROLE    = Messages.getString( "STR_ROOT_ROLE" );    //$NON-NLS-1$
+  String STR_ROOT_ROLE_D  = Messages.getString( "STR_ROOT_ROLE_D" );  //$NON-NLS-1$
+  String STR_GUEST_ROLE   = Messages.getString( "STR_GUEST_ROLE" );   //$NON-NLS-1$
+  String STR_GUEST_ROLE_D = Messages.getString( "STR_GUEST_ROLE_D" ); //$NON-NLS-1$
+  String STR_ROOT_USER    = Messages.getString( "STR_ROOT_USER" );    //$NON-NLS-1$
+  String STR_ROOT_USER_D  = Messages.getString( "STR_ROOT_USER_D" );  //$NON-NLS-1$
+  String STR_GUEST_USER   = Messages.getString( "STR_GUEST_USER" );   //$NON-NLS-1$
+  String STR_GUEST_USER_D = Messages.getString( "STR_GUEST_USER_D" ); //$NON-NLS-1$
 
   /**
    * {@link SkCoreUtils}
    */
-  String STR_ROOT_CLASS      = Messages.getString( "STR_ROOT_CLASS" );                          //$NON-NLS-1$
-  String STR_ROOT_CLASS_D    = Messages.getString( "STR_ROOT_CLASS_D" );                        //$NON-NLS-1$
-  String STR_N_ATTR_SKID     = "Skid";
-  String STR_D_ATTR_SKID     = "Тип данных, содержащий Skid идентификатор";
-  String STR_N_ATTR_CLASS_ID = "ClassId";
-  String STR_D_ATTR_CLASS_ID = "Идентификатор класса объекта";
-  String STR_N_ATTR_STRID    = "Strid";
-  String STR_D_ATTR_STRID    = "Строковый идентификатор объекта (в уникальный в рамках класса)";
+  String STR_ROOT_CLASS      = Messages.getString( "STR_ROOT_CLASS" );      //$NON-NLS-1$
+  String STR_ROOT_CLASS_D    = Messages.getString( "STR_ROOT_CLASS_D" );    //$NON-NLS-1$
+  String STR_ATTR_SKID       = Messages.getString( "STR_ATTR_SKID" );       //$NON-NLS-1$
+  String STR_ATTR_SKID_D     = Messages.getString( "STR_ATTR_SKID_D" );     //$NON-NLS-1$
+  String STR_ATTR_CLASS_ID   = Messages.getString( "STR_ATTR_CLASS_ID" );   //$NON-NLS-1$
+  String STR_ATTR_CLASS_ID_D = Messages.getString( "STR_ATTR_CLASS_ID_D" ); //$NON-NLS-1$
+  String STR_ATTR_STRID      = Messages.getString( "STR_ATTR_STRID" );      //$NON-NLS-1$
+  String STR_ATTR_STRID_D    = Messages.getString( "STR_ATTR_STRID_D" );    //$NON-NLS-1$
 
   /**
    * {@link SkAsynchronousQuery}
    */
-  String FMT_ERR_QUERY_INVALID_STATE = "%s. query invalid state: %s";
-  String FMT_ERR_QUERY_TIMEOUT       = "Cancel query by timeout error. Try change -"
-      + ISkHistoryQueryServiceConstants.OP_SK_MAX_EXECUTION_TIME.id() + " value to up (%d))";
+  String FMT_ERR_QUERY_INVALID_STATE = Messages.getString( "FMT_ERR_QUERY_INVALID_STATE" ); //$NON-NLS-1$
+  String FMT_ERR_QUERY_TIMEOUT       = Messages.getString( "FMT_ERR_QUERY_TIMEOUT" );       //$NON-NLS-1$
 
   /**
    * {@link SkatletBase}
    */
-  String FMT_INFO_SKATLET_INIT       = "%s doInit(). connection = %s.";
-  String FMT_INFO_SKATLET_START      = "%s: start().";
-  String FMT_INFO_SKATLET_QUERY_STOP = "%s: queryStop().";
-  String FMT_INFO_SKATLET_DESTROY    = "%s: destroy().";
-  String FMT_INFO_SKATLET_DOJOB      = "%s: doJob().";
+  String FMT_INFO_SKATLET_INIT       = Messages.getString( "FMT_INFO_SKATLET_INIT" );       //$NON-NLS-1$
+  String FMT_INFO_SKATLET_START      = Messages.getString( "FMT_INFO_SKATLET_START" );      //$NON-NLS-1$
+  String FMT_INFO_SKATLET_QUERY_STOP = Messages.getString( "FMT_INFO_SKATLET_QUERY_STOP" ); //$NON-NLS-1$
+  String FMT_INFO_SKATLET_DESTROY    = Messages.getString( "FMT_INFO_SKATLET_DESTROY" );    //$NON-NLS-1$
+  String FMT_INFO_SKATLET_DOJOB      = Messages.getString( "FMT_INFO_SKATLET_DOJOB" );      //$NON-NLS-1$
 }

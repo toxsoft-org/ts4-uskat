@@ -21,17 +21,17 @@ public enum ESkConnState
   /**
    * Connection is closed (was not opened or already closed).
    */
-  CLOSED( "Closed", STR_N_CLOSED, STR_D_CLOSED, false, false ), //$NON-NLS-1$
+  CLOSED( "Closed", STR_CLOSED, STR_CLOSED_D, false, false ), //$NON-NLS-1$
 
   /**
    * Connection is open but temporary there is no contact with the server.
    */
-  INACTIVE( "Inactive", STR_N_INACTIVE, STR_D_INACTIVE, true, false ), //$NON-NLS-1$
+  INACTIVE( "Inactive", STR_INACTIVE, STR_INACTIVE_D, true, false ), //$NON-NLS-1$
 
   /**
    * Connection is open and active.
    */
-  ACTIVE( "Active", STR_N_ACTIVE, STR_D_ACTIVE, true, true ); //$NON-NLS-1$
+  ACTIVE( "Active", STR_ACTIVE, STR_ACTIVE_D, true, true ); //$NON-NLS-1$
 
   /**
    * Registered keeper ID.

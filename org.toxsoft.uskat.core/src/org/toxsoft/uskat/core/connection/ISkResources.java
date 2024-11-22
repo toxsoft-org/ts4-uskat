@@ -19,12 +19,12 @@ interface ISkResources {
   /**
    * {@link ESkConnState}
    */
-  String STR_N_CLOSED   = "Closed";
-  String STR_D_CLOSED   = "Connection is closed (was not opened or already closed)";
-  String STR_N_INACTIVE = "Inactive";
-  String STR_D_INACTIVE = "Connection is open but temporary there is no contact with the server";
-  String STR_N_ACTIVE   = "Active";
-  String STR_D_ACTIVE   = "Connection is open and active";
+  String STR_CLOSED     = Messages.getString( "STR_CLOSED" );     //$NON-NLS-1$
+  String STR_CLOSED_D   = Messages.getString( "STR_CLOSED_D" );   //$NON-NLS-1$
+  String STR_INACTIVE   = Messages.getString( "STR_INACTIVE" );   //$NON-NLS-1$
+  String STR_INACTIVE_D = Messages.getString( "STR_INACTIVE_D" ); //$NON-NLS-1$
+  String STR_ACTIVE     = Messages.getString( "STR_ACTIVE" );     //$NON-NLS-1$
+  String STR_ACTIVE_D   = Messages.getString( "STR_ACTIVE_D" );   //$NON-NLS-1$
 
   /**
    * {@link ISkConnectionConstants}

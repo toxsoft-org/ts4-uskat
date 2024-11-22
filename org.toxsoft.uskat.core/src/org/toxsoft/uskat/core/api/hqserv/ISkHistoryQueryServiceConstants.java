@@ -43,8 +43,8 @@ public interface ISkHistoryQueryServiceConstants {
    * Default value: no default for mandatory argument
    */
   IDataDef HQFUNC_ARG_AGGREGAION_INTERVAL = create( HQ_ID + "AggregationInterval", EAtomicType.INTEGER, //$NON-NLS-1$
-      TSID_NAME, STR_N_MAX_AGGREGATION_INTERVAL, //
-      TSID_DESCRIPTION, STR_D_MAX_AGGREGATION_INTERVAL, //
+      TSID_NAME, STR_MAX_AGGREGATION_INTERVAL, //
+      TSID_DESCRIPTION, STR_MAX_AGGREGATION_INTERVAL_D, //
       TSID_IS_NULL_ALLOWED, AV_FALSE, //
       TSID_DEFAULT_VALUE, avInt( 0 ) );
 
@@ -59,8 +59,8 @@ public interface ISkHistoryQueryServiceConstants {
    * Default value: 0 (epoch start at 01.01.1970 00:00:00.000)
    */
   IDataDef HQFUNC_ARG_AGGREGAION_START = create( HQ_ID + "AggregationStart", EAtomicType.TIMESTAMP, //$NON-NLS-1$
-      TSID_NAME, STR_N_MAX_AGGREGATION_START, //
-      TSID_DESCRIPTION, STR_D_MAX_AGGREGATION_START, //
+      TSID_NAME, STR_MAX_AGGREGATION_START, //
+      TSID_DESCRIPTION, STR_MAX_AGGREGATION_START_D, //
       TSID_IS_NULL_ALLOWED, AV_FALSE, //
       TSID_DEFAULT_VALUE, avTimestamp( TimeUtils.MIN_TIMESTAMP ) );
 
@@ -121,8 +121,8 @@ public interface ISkHistoryQueryServiceConstants {
    * Default value: <code>10000</code> (10 seconds)
    */
   IDataDef OP_SK_MAX_EXECUTION_TIME = create( HQ_ID + ".maxExecutionTime", INTEGER, //$NON-NLS-1$
-      TSID_NAME, STR_N_MAX_EXECUTION_TIME, //
-      TSID_DESCRIPTION, STR_D_MAX_EXECUTION_TIME, //
+      TSID_NAME, STR_MAX_EXECUTION_TIME, //
+      TSID_DESCRIPTION, STR_MAX_EXECUTION_TIME_D, //
       TSID_DEFAULT_VALUE, avInt( 10 * 1000 ) //
   );
 

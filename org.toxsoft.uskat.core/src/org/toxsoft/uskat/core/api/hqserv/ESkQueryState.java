@@ -21,7 +21,7 @@ public enum ESkQueryState
   /**
    * Initial state immediately after creation.
    */
-  UNPREPARED( "Unprepared", STR_D_UNPREPARED, STR_N_UNPREPARED ), //$NON-NLS-1$
+  UNPREPARED( "Unprepared", STR_UNPREPARED_D, STR_UNPREPARED ), //$NON-NLS-1$
 
   /**
    * State after call to query preparation method in {@link ISkAsynchronousQuery} implementation.
@@ -33,14 +33,14 @@ public enum ESkQueryState
    * Preparation method signature (like results getters) depends on the query itself and will be implemented in
    * interfaces subclassed from {@link ISkAsynchronousQuery}.
    */
-  PREPARED( "Prepared", STR_D_PREPARED, STR_N_PREPARED ), //$NON-NLS-1$
+  PREPARED( "Prepared", STR_PREPARED_D, STR_PREPARED ), //$NON-NLS-1$
 
   /**
    * State immediately after query start via {@link ISkAsynchronousQuery#exec(IQueryInterval)}.
    * <p>
    * Generally, query receives portions of data from server when in state of executing.
    */
-  EXECUTING( "Executing", STR_D_EXECUTING, STR_N_EXECUTING ), //$NON-NLS-1$
+  EXECUTING( "Executing", STR_EXECUTING_D, STR_EXECUTING ), //$NON-NLS-1$
 
   /**
    * State after query finished successfuly and data (query result) is ready.
@@ -48,19 +48,19 @@ public enum ESkQueryState
    * Result getter methids signature depends on the query itself and will be implemented in interfaces subclassed from
    * {@link ISkAsynchronousQuery}.
    */
-  READY( "Ready", STR_D_READY, STR_N_READY ), //$NON-NLS-1$
+  READY( "Ready", STR_READY_D, STR_READY ), //$NON-NLS-1$
 
   /**
    * Query execution failed, no result was received.
    */
-  FAILED( "Failed", STR_D_FAILED, STR_N_FAILED ), //$NON-NLS-1$
+  FAILED( "Failed", STR_FAILED_D, STR_FAILED ), //$NON-NLS-1$
 
   /**
    * Query was clsed by {@link ISkAsynchronousQuery#close()} so instance can't be executed or prepared again.
    * <p>
    * However if there were result data it is still accessible.
    */
-  CLOSED( "Closed", STR_D_CLOSED, STR_N_CLOSED ); //$NON-NLS-1$
+  CLOSED( "Closed", STR_CLOSED_D, STR_CLOSED ); //$NON-NLS-1$
 
   /**
    * Registered keeepr ID.
