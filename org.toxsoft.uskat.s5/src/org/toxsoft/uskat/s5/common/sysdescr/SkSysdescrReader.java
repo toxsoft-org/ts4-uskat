@@ -2,18 +2,19 @@ package org.toxsoft.uskat.s5.common.sysdescr;
 
 import static org.toxsoft.uskat.s5.common.sysdescr.ISkResources.*;
 
-import java.util.concurrent.locks.ReentrantReadWriteLock;
+import java.util.concurrent.locks.*;
 
-import org.toxsoft.core.tslib.bricks.strid.coll.IStridablesList;
-import org.toxsoft.core.tslib.bricks.strid.coll.IStridablesListEdit;
-import org.toxsoft.core.tslib.bricks.strid.coll.impl.StridablesList;
+import org.toxsoft.core.log4j.*;
+import org.toxsoft.core.tslib.bricks.strid.coll.*;
+import org.toxsoft.core.tslib.bricks.strid.coll.impl.*;
 import org.toxsoft.core.tslib.coll.primtypes.*;
-import org.toxsoft.core.tslib.coll.primtypes.impl.StringMap;
-import org.toxsoft.core.tslib.gw.IGwHardConstants;
-import org.toxsoft.core.tslib.utils.errors.TsNullArgumentRtException;
-import org.toxsoft.uskat.core.api.sysdescr.ISkClassInfo;
-import org.toxsoft.uskat.core.api.sysdescr.dto.IDtoClassInfo;
-import org.toxsoft.uskat.core.impl.SkCoreUtils;
+import org.toxsoft.core.tslib.coll.primtypes.impl.*;
+import org.toxsoft.core.tslib.gw.*;
+import org.toxsoft.core.tslib.utils.errors.*;
+import org.toxsoft.core.tslib.utils.logs.*;
+import org.toxsoft.uskat.core.api.sysdescr.*;
+import org.toxsoft.uskat.core.api.sysdescr.dto.*;
+import org.toxsoft.uskat.core.impl.*;
 
 /**
  * Реализация {@link ISkSysdescrReader}
@@ -50,6 +51,11 @@ public class SkSysdescrReader
   private final ReentrantReadWriteLock classesLock = new ReentrantReadWriteLock();
 
   /**
+   * Журнал
+   */
+  private final ILogger logger = LoggerWrapper.getLogger( getClass() );
+
+  /**
    * Конструктор
    *
    * @param aSysdescrDpuReader {@link ISkSysdescrDtoReader} dpu-читатель системного описания
@@ -78,6 +84,7 @@ public class SkSysdescrReader
       IStridablesList<ISkClassInfo> cil = SkCoreUtils.makeHierarchyTreeOfSkClasses( dtoClassInfos );
       for( String classId : cil.ids() ) {
         classInfos.put( classId, cil.getByKey( classId ) );
+        logger.info( "setClassInfos(): classInfos added class = %s", classId ); //$NON-NLS-1$
       }
     }
     finally {
@@ -93,6 +100,7 @@ public class SkSysdescrReader
     try {
       dtoClassInfos = null;
       classInfos = null;
+      logger.info( "invalidateCache(): dtoClassInfos = null, classInfos = null" ); //$NON-NLS-1$
     }
     finally {
       classesLock.writeLock().unlock();
