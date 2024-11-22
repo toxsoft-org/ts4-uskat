@@ -22,6 +22,9 @@ interface IS5Resources {
   String MSG_CREATE_USER_CLASS_FINISH    = Messages.getString( "IS5Resources.MSG_CREATE_USER_CLASS_FINISH" );    //$NON-NLS-1$
   String MSG_CREATE_SESSION_CLASS_START  = Messages.getString( "IS5Resources.MSG_CREATE_SESSION_CLASS_START" );  //$NON-NLS-1$
   String MSG_CREATE_SESSION_CLASS_FINISH = Messages.getString( "IS5Resources.MSG_CREATE_SESSION_CLASS_FINISH" ); //$NON-NLS-1$
+  String MSG_CREATED_CLASS               = "created class %s";                                                   //$NON-NLS-1$
+  String MSG_UPDATED_CLASS               = "updated class %s";                                                   //$NON-NLS-1$
+  String MSG_REMOVED_CLASS               = "removed class %s";                                                   //$NON-NLS-1$
 
   // ------------------------------------------------------------------------------------
   // Тексты ошибок

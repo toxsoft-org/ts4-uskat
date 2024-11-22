@@ -9,39 +9,36 @@ import static org.toxsoft.uskat.s5.server.backend.supports.sysdescr.S5ClassEntit
 import static org.toxsoft.uskat.s5.server.backend.supports.sysdescr.S5ClassesSQL.*;
 import static org.toxsoft.uskat.s5.server.transactions.ES5TransactionResources.*;
 
-import java.util.List;
-import java.util.concurrent.TimeUnit;
+import java.util.*;
+import java.util.concurrent.*;
 
 import javax.ejb.*;
 import javax.persistence.*;
 
-import org.hibernate.exception.ConstraintViolationException;
-import org.toxsoft.core.tslib.bricks.events.msg.GtMessage;
-import org.toxsoft.core.tslib.bricks.strid.IStridable;
-import org.toxsoft.core.tslib.bricks.strid.coll.IStridablesList;
-import org.toxsoft.core.tslib.bricks.strid.coll.IStridablesListEdit;
-import org.toxsoft.core.tslib.bricks.strid.coll.impl.StridablesList;
-import org.toxsoft.core.tslib.bricks.strid.impl.StridUtils;
-import org.toxsoft.core.tslib.coll.IList;
-import org.toxsoft.core.tslib.coll.helpers.ECrudOp;
-import org.toxsoft.core.tslib.coll.primtypes.IStringList;
-import org.toxsoft.core.tslib.coll.primtypes.IStringListEdit;
-import org.toxsoft.core.tslib.coll.primtypes.impl.StringLinkedBundleList;
-import org.toxsoft.core.tslib.gw.IGwHardConstants;
-import org.toxsoft.core.tslib.utils.TsLibUtils;
+import org.hibernate.exception.*;
+import org.toxsoft.core.tslib.bricks.events.msg.*;
+import org.toxsoft.core.tslib.bricks.strid.*;
+import org.toxsoft.core.tslib.bricks.strid.coll.*;
+import org.toxsoft.core.tslib.bricks.strid.coll.impl.*;
+import org.toxsoft.core.tslib.bricks.strid.impl.*;
+import org.toxsoft.core.tslib.coll.*;
+import org.toxsoft.core.tslib.coll.helpers.*;
+import org.toxsoft.core.tslib.coll.primtypes.*;
+import org.toxsoft.core.tslib.coll.primtypes.impl.*;
+import org.toxsoft.core.tslib.gw.*;
+import org.toxsoft.core.tslib.utils.*;
 import org.toxsoft.core.tslib.utils.errors.*;
-import org.toxsoft.uskat.core.api.sysdescr.ISkClassInfo;
-import org.toxsoft.uskat.core.api.sysdescr.dto.IDtoClassInfo;
-import org.toxsoft.uskat.core.backend.api.IBaClassesMessages;
-import org.toxsoft.uskat.core.impl.dto.DtoClassInfo;
-import org.toxsoft.uskat.s5.common.sysdescr.ISkSysdescrReader;
-import org.toxsoft.uskat.s5.server.backend.impl.S5BackendSupportSingleton;
-import org.toxsoft.uskat.s5.server.backend.supports.objects.IS5BackendObjectsSingleton;
-import org.toxsoft.uskat.s5.server.frontend.IS5FrontendRear;
-import org.toxsoft.uskat.s5.server.interceptors.S5InterceptorSupport;
-import org.toxsoft.uskat.s5.server.startup.IS5InitialImplementSingleton;
-import org.toxsoft.uskat.s5.server.transactions.IS5Transaction;
-import org.toxsoft.uskat.s5.server.transactions.IS5TransactionManagerSingleton;
+import org.toxsoft.uskat.core.api.sysdescr.*;
+import org.toxsoft.uskat.core.api.sysdescr.dto.*;
+import org.toxsoft.uskat.core.backend.api.*;
+import org.toxsoft.uskat.core.impl.dto.*;
+import org.toxsoft.uskat.s5.common.sysdescr.*;
+import org.toxsoft.uskat.s5.server.backend.impl.*;
+import org.toxsoft.uskat.s5.server.backend.supports.objects.*;
+import org.toxsoft.uskat.s5.server.frontend.*;
+import org.toxsoft.uskat.s5.server.interceptors.*;
+import org.toxsoft.uskat.s5.server.startup.*;
+import org.toxsoft.uskat.s5.server.transactions.*;
 
 /**
  * Реализация {@link IS5BackendObjectsSingleton}.
@@ -359,6 +356,8 @@ public class S5BackendSysDescrSingleton
         sysdescrReader.invalidateCache();
         // Пост-интерсепция
         callAfterDeleteClassInterceptors( classesInterceptors, entity );
+        // Журнал
+        logger().info( MSG_REMOVED_CLASS, entity.id() );
       }
       finally {
         // Очистка ресурсов текущей транзакции
@@ -416,6 +415,8 @@ public class S5BackendSysDescrSingleton
         sysdescrReader.invalidateCache();
         // Пост-интерсепция
         callAfterCreateClassInterceptors( classesInterceptors, newEntity );
+        // Журнал
+        logger().info( MSG_CREATED_CLASS, newEntity.id() );
         return true;
       }
       // Описание класса со старыми значениями
@@ -437,6 +438,8 @@ public class S5BackendSysDescrSingleton
       sysdescrReader.invalidateCache();
       // Пост-интерсепция
       callAfterUpdateClassInterceptors( classesInterceptors, prevEntity, newEntity, aDescendantClasses );
+      // Журнал
+      logger().info( MSG_UPDATED_CLASS, newEntity.id() );
     }
     finally {
       // Очистка ресурсов текущей транзакции
