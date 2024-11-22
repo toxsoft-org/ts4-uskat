@@ -35,9 +35,9 @@ import org.toxsoft.uskat.s5.utils.jobs.*;
 @Singleton
 @LocalBean
 @DependsOn( { //
-  LOCAL_CONNECTIION_SINGLETON, //
-  // Внимание! Чтобы использовать локальное соединение нужно минимальное описание системы для подключения (ISkUser):
-  PROJECT_INITIAL_SYSDESCR_SINGLETON //
+    LOCAL_CONNECTIION_SINGLETON, //
+    // Внимание! Чтобы использовать локальное соединение нужно минимальное описание системы для подключения (ISkUser):
+    PROJECT_INITIAL_SYSDESCR_SINGLETON //
 } )
 @TransactionManagement( TransactionManagementType.CONTAINER )
 @TransactionAttribute( TransactionAttributeType.SUPPORTS )
@@ -144,7 +144,8 @@ public class S5BackendSkatletsSingleton
     PLUGINS_DIR.setValue( environ.params(), avValobj( new StringArrayList( SKATLETS_DEPLOYMENTS_DIR ) ) );
     TMP_DIR.setValue( environ.params(), avStr( SKATLETS_TEMP_DIR ) );
     CLEAN_TMP_DIR.setValue( environ.params(), avBool( true ) );
-    REF_SKATLET_SUPPORT.setRef( environ, new S5BackendSkatletSupport( localConnectionSingleton, sharedConnection ) );
+    REF_SKATLET_SUPPORT.setRef( environ,
+        new S5BackendSkatletSupport( localConnectionSingleton, sharedConnection, logger() ) );
 
     // Создание корневого контейнера...
     rootBox = new WubBox( ROOT_BOX_ID, params );

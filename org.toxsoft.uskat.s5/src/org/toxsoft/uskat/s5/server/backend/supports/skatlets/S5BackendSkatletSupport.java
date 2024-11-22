@@ -2,7 +2,6 @@ package org.toxsoft.uskat.s5.server.backend.supports.skatlets;
 
 import static org.toxsoft.uskat.s5.common.IS5CommonResources.*;
 
-import org.toxsoft.core.log4j.*;
 import org.toxsoft.core.tslib.bricks.ctx.*;
 import org.toxsoft.core.tslib.utils.errors.*;
 import org.toxsoft.core.tslib.utils.logs.*;
@@ -20,7 +19,7 @@ class S5BackendSkatletSupport
 
   private final IS5LocalConnectionSingleton connectionFactory;
   private final SharedConnection            sharedConnection;
-  private final ILogger                     logger = LoggerWrapper.getLogger( getClass() );
+  private final ILogger                     logger;
 
   /**
    * Constructor.
@@ -29,10 +28,12 @@ class S5BackendSkatletSupport
    * @param aConnection {@link ISkConnection} разделяемое(общее) соединение скатлетов
    * @throws TsNullArgumentRtException любой аргумент = null
    */
-  S5BackendSkatletSupport( IS5LocalConnectionSingleton aConnectionFactory, ISkConnection aConnection ) {
-    TsNullArgumentRtException.checkNulls( aConnectionFactory, aConnection );
+  S5BackendSkatletSupport( IS5LocalConnectionSingleton aConnectionFactory, ISkConnection aConnection,
+      ILogger aLogger ) {
+    TsNullArgumentRtException.checkNulls( aConnectionFactory, aConnection, aLogger );
     connectionFactory = aConnectionFactory;
     sharedConnection = new SharedConnection( aConnection );
+    logger = aLogger;
   }
 
   // ------------------------------------------------------------------------------------
