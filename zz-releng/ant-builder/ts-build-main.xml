@@ -58,7 +58,7 @@
 
   <!-- ЦЕЛЬ: очистка -->
   <target name="clean" description="Удаление старых версии">
-    <delete>
+    <delete failonerror="false">
       <fileset dir="${ts-dest-dir-libs}" includes="org.toxsoft.uskat.*" />
       <fileset dir="${ts-dest-dir-plugins}/plugins" includes="org.toxsoft.uskat.*" />   
     </delete>
