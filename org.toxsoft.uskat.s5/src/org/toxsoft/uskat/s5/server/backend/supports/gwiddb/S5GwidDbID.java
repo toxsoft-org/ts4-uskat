@@ -4,18 +4,15 @@ import static org.toxsoft.uskat.s5.common.IS5CommonResources.*;
 import static org.toxsoft.uskat.s5.server.IS5ImplementConstants.*;
 import static org.toxsoft.uskat.s5.server.backend.supports.gwiddb.IS5Resources.*;
 
-import java.io.Serializable;
-import java.sql.ResultSet;
+import java.io.*;
+import java.sql.*;
 
-import javax.persistence.Column;
-import javax.persistence.Embeddable;
+import javax.persistence.*;
 
-import org.toxsoft.core.tslib.bricks.strid.more.IdChain;
-import org.toxsoft.core.tslib.bricks.strid.more.IdPair;
-import org.toxsoft.core.tslib.gw.gwid.Gwid;
-import org.toxsoft.core.tslib.utils.TsLibUtils;
-import org.toxsoft.core.tslib.utils.errors.TsInternalErrorRtException;
-import org.toxsoft.core.tslib.utils.errors.TsNullArgumentRtException;
+import org.toxsoft.core.tslib.bricks.strid.more.*;
+import org.toxsoft.core.tslib.gw.gwid.*;
+import org.toxsoft.core.tslib.utils.*;
+import org.toxsoft.core.tslib.utils.errors.*;
 
 /**
  * Первичный составной ключ {@link S5GwidDbEntity}.
@@ -49,7 +46,7 @@ public class S5GwidDbID
       insertable = true,
       updatable = false,
       unique = false,
-      columnDefinition = "varchar(" + STRID_LENGTH_MAX + ") character set utf8 collate utf8_bin" )
+      columnDefinition = "varchar(" + STRID_LENGTH_MAX + ")" )
   private String sectionId;
 
   /**
@@ -60,7 +57,7 @@ public class S5GwidDbID
       insertable = true,
       updatable = false,
       unique = false,
-      columnDefinition = "varchar(" + STRID_LENGTH_MAX + ") character set utf8 collate utf8_bin" )
+      columnDefinition = "varchar(" + STRID_LENGTH_MAX + ")" )
   private String gwid;
 
   private transient int hashCode = 0;

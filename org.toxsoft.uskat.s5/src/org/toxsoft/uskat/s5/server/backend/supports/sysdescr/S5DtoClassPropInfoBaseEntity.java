@@ -47,7 +47,7 @@ public abstract class S5DtoClassPropInfoBaseEntity
   @Column( insertable = true,
       updatable = false,
       nullable = false,
-      columnDefinition = "varchar(" + STRID_LENGTH_MAX + ") character set utf8 collate utf8_bin not null" )
+      columnDefinition = "varchar(" + STRID_LENGTH_MAX + ")" )
   private String id;
 
   /**

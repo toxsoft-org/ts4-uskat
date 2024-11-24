@@ -4,16 +4,14 @@ import static org.toxsoft.uskat.s5.common.IS5CommonResources.*;
 import static org.toxsoft.uskat.s5.server.IS5ImplementConstants.*;
 import static org.toxsoft.uskat.s5.server.backend.supports.objects.IS5Resources.*;
 
-import java.io.Serializable;
-import java.sql.ResultSet;
+import java.io.*;
+import java.sql.*;
 
-import javax.persistence.Column;
-import javax.persistence.Embeddable;
+import javax.persistence.*;
 
-import org.toxsoft.core.tslib.gw.skid.Skid;
-import org.toxsoft.core.tslib.utils.TsLibUtils;
-import org.toxsoft.core.tslib.utils.errors.TsInternalErrorRtException;
-import org.toxsoft.core.tslib.utils.errors.TsNullArgumentRtException;
+import org.toxsoft.core.tslib.gw.skid.*;
+import org.toxsoft.core.tslib.utils.*;
+import org.toxsoft.core.tslib.utils.errors.*;
 
 /**
  * Первичный составной ключ объекта
@@ -47,7 +45,7 @@ public class S5ObjectID
       insertable = true,
       updatable = false,
       unique = false,
-      columnDefinition = "varchar(" + STRID_LENGTH_MAX + ") character set utf8 collate utf8_bin" )
+      columnDefinition = "varchar(" + STRID_LENGTH_MAX + ")" )
   private String classId;
 
   /**
@@ -58,7 +56,7 @@ public class S5ObjectID
       insertable = true,
       updatable = false,
       unique = false,
-      columnDefinition = "varchar(" + STRID_LENGTH_MAX + ") character set utf8 collate utf8_bin" )
+      columnDefinition = "varchar(" + STRID_LENGTH_MAX + ")" )
   private String strid;
 
   private transient int hashCode = 0;

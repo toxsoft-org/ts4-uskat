@@ -6,17 +6,15 @@ import static org.toxsoft.uskat.s5.server.backend.supports.sysdescr.S5ClassesSQL
 
 import javax.persistence.*;
 
-import org.toxsoft.core.tslib.bricks.strid.coll.IStridablesList;
-import org.toxsoft.core.tslib.bricks.strid.coll.IStridablesListEdit;
-import org.toxsoft.core.tslib.bricks.strid.coll.impl.StridablesList;
-import org.toxsoft.core.tslib.coll.primtypes.IStringList;
-import org.toxsoft.core.tslib.utils.TsLibUtils;
-import org.toxsoft.core.tslib.utils.errors.TsItemAlreadyExistsRtException;
-import org.toxsoft.core.tslib.utils.errors.TsNullArgumentRtException;
-import org.toxsoft.uskat.core.api.sysdescr.ESkClassPropKind;
+import org.toxsoft.core.tslib.bricks.strid.coll.*;
+import org.toxsoft.core.tslib.bricks.strid.coll.impl.*;
+import org.toxsoft.core.tslib.coll.primtypes.*;
+import org.toxsoft.core.tslib.utils.*;
+import org.toxsoft.core.tslib.utils.errors.*;
+import org.toxsoft.uskat.core.api.sysdescr.*;
 import org.toxsoft.uskat.core.api.sysdescr.dto.*;
 import org.toxsoft.uskat.core.impl.dto.*;
-import org.toxsoft.uskat.s5.server.backend.supports.objects.S5ObjectEntity;
+import org.toxsoft.uskat.s5.server.backend.supports.objects.*;
 
 /**
  * Реализация интерфейса {@link IDtoClassInfo} способная маппироваться на таблицу базы данных
@@ -52,7 +50,7 @@ public class S5ClassEntity
   @Column( nullable = true,
       insertable = false,
       updatable = false,
-      columnDefinition = "varchar(" + STRID_LENGTH_MAX + ") character set utf8 collate utf8_bin default null" )
+      columnDefinition = "varchar(" + STRID_LENGTH_MAX + ")" )
   private String parentId;
 
   /**

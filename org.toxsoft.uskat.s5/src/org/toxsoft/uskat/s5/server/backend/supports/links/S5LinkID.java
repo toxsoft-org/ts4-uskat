@@ -5,17 +5,15 @@ import static org.toxsoft.uskat.s5.server.IS5ImplementConstants.*;
 import static org.toxsoft.uskat.s5.server.backend.supports.links.IS5Resources.*;
 import static org.toxsoft.uskat.s5.server.backend.supports.objects.S5ObjectID.*;
 
-import java.io.Serializable;
-import java.sql.ResultSet;
+import java.io.*;
+import java.sql.*;
 
-import javax.enterprise.concurrent.SkippedException;
-import javax.persistence.Column;
-import javax.persistence.Embeddable;
+import javax.enterprise.concurrent.*;
+import javax.persistence.*;
 
-import org.toxsoft.core.tslib.gw.skid.Skid;
-import org.toxsoft.core.tslib.utils.TsLibUtils;
-import org.toxsoft.core.tslib.utils.errors.TsInternalErrorRtException;
-import org.toxsoft.core.tslib.utils.errors.TsNullArgumentRtException;
+import org.toxsoft.core.tslib.gw.skid.*;
+import org.toxsoft.core.tslib.utils.*;
+import org.toxsoft.core.tslib.utils.errors.*;
 
 /**
  * Первичный составной ключ связи объекта
@@ -49,7 +47,7 @@ class S5LinkID
       insertable = true,
       updatable = false,
       unique = false,
-      columnDefinition = "varchar(" + STRID_LENGTH_MAX + ") character set utf8 collate utf8_bin" )
+      columnDefinition = "varchar(" + STRID_LENGTH_MAX + ")" )
   private String classId;
 
   /**
@@ -60,7 +58,7 @@ class S5LinkID
       insertable = true,
       updatable = false,
       unique = false,
-      columnDefinition = "varchar(" + STRID_LENGTH_MAX + ") character set utf8 collate utf8_bin" )
+      columnDefinition = "varchar(" + STRID_LENGTH_MAX + ")" )
   private String strid;
 
   /**
@@ -71,7 +69,7 @@ class S5LinkID
       insertable = true,
       updatable = false,
       unique = false,
-      columnDefinition = "varchar(" + STRID_LENGTH_MAX + ") character set utf8 collate utf8_bin" )
+      columnDefinition = "varchar(" + STRID_LENGTH_MAX + ")" )
   private String linkClassId;
 
   /**
@@ -82,7 +80,7 @@ class S5LinkID
       insertable = true,
       updatable = false,
       unique = false,
-      columnDefinition = "varchar(" + STRID_LENGTH_MAX + ") character set utf8 collate utf8_bin" )
+      columnDefinition = "varchar(" + STRID_LENGTH_MAX + ")" )
   private String linkId;
 
   private transient int hashCode = 0;
