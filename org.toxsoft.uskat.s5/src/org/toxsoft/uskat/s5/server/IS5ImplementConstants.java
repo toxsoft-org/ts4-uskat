@@ -52,13 +52,6 @@ public interface IS5ImplementConstants
   long STATEFULL_TIMEOUT = 2 * 60 * 1000;
 
   /**
-   * Таймаут(мсек) в котором сервер работает в режиме перегрузки после запуска
-   */
-  // TODO: mvkd
-  // long STARTUP_BOOST_TIMEOUT = 10 * 60 * 1000;
-  long STARTUP_BOOST_TIMEOUT = 1 * 60 * 1000;
-
-  /**
    * Таймаут(мсек) SFSB в течении которого при потоки ожидают освобождение бина
    */
   long ACCESS_TIMEOUT_DEFAULT = 10 * 1000;

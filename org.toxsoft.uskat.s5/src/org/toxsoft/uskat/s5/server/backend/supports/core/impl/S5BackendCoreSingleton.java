@@ -4,6 +4,8 @@ import static org.toxsoft.core.tslib.av.impl.AvUtils.*;
 import static org.toxsoft.core.tslib.utils.logs.ELogSeverity.*;
 import static org.toxsoft.uskat.s5.server.IS5ImplementConstants.*;
 import static org.toxsoft.uskat.s5.server.IS5ServerHardConstants.*;
+import static org.toxsoft.uskat.s5.server.backend.ES5ServerMode.*;
+import static org.toxsoft.uskat.s5.server.backend.supports.core.IS5BackendCoreConstants.*;
 import static org.toxsoft.uskat.s5.server.backend.supports.core.IS5BackendCoreInterceptor.*;
 import static org.toxsoft.uskat.s5.server.backend.supports.core.impl.IS5Resources.*;
 import static org.toxsoft.uskat.s5.utils.platform.S5ServerPlatformUtils.*;
@@ -181,7 +183,7 @@ public class S5BackendCoreSingleton
   /**
    * Текущее состояние сервера.
    */
-  private ES5ServerMode mode = ES5ServerMode.STARTING;
+  private ES5ServerMode mode = STARTING;
 
   /**
    * Метка времени (мсек с начала эпохи) последнего изменения состояния сервера
@@ -202,6 +204,14 @@ public class S5BackendCoreSingleton
    * Писатель статитистики объекта {@link IS5ClassNode}. null: нет соединения
    */
   private S5StatisticWriter statisticWriter;
+
+  /**
+   * Кэширование значений параметров конфигурации.
+   */
+  private long   startTimeMin;
+  private long   startTimeMax;
+  private double boostedAverage;
+  private double overloadAverage;
 
   /**
    * Конструктор.
@@ -243,6 +253,12 @@ public class S5BackendCoreSingleton
     // // builder.transaction().lockingMode( LockingMode.PESSIMISTIC );
     // builder.transaction().lockingMode( LockingMode.OPTIMISTIC );
 
+    IOptionSet configuration = configuration();
+    startTimeMin = CORE_START_TIME_MIN.getValue( configuration ).asLong();
+    startTimeMax = CORE_START_TIME_MAX.getValue( configuration ).asLong();
+    boostedAverage = CORE_BOOSTED_AVERAGE.getValue( configuration ).asDouble();
+    overloadAverage = CORE_OVERLOADED_AVERAGE.getValue( configuration ).asDouble();
+
     // Инициализация backend у менеджера сессий
     // 2022-08-21 mvk
     // sessionManager.setBackend( sessionContext().getBusinessObject( IS5BackendCoreSingleton.class ) );
@@ -271,7 +287,15 @@ public class S5BackendCoreSingleton
 
   @Override
   protected IStringList doConfigurationPathIds() {
-    return new StringArrayList( IS5BackendCoreConstants.ALL_CORE_OPDEFS.keys() );
+    return new StringArrayList( ALL_CORE_OPDEFS.keys() );
+  }
+
+  @Override
+  protected void onConfigChanged( IOptionSet aPrevConfig, IOptionSet aNewConfig ) {
+    startTimeMin = CORE_START_TIME_MIN.getValue( aNewConfig ).asLong();
+    startTimeMax = CORE_START_TIME_MAX.getValue( aNewConfig ).asLong();
+    boostedAverage = CORE_BOOSTED_AVERAGE.getValue( aNewConfig ).asDouble();
+    overloadAverage = CORE_OVERLOADED_AVERAGE.getValue( aNewConfig ).asDouble();
   }
 
   // ------------------------------------------------------------------------------------
@@ -554,9 +578,26 @@ public class S5BackendCoreSingleton
       stat.onEvent( STAT_BACKEND_NODE_OPEN_SESSION_MAX, avInt( sessionManager().openSessionCount() ) );
       stat.update();
     }
-    if( mode() == ES5ServerMode.STARTING && currTime - modeTime > STARTUP_BOOST_TIMEOUT ) {
-      // Перевод сервера из состояния загрузки в рабочий режим
-      setMode( ES5ServerMode.WORKING );
+    double la = loadAverage();
+    switch( mode() ) {
+      case STARTING:
+        if( currTime - modeTime >= startTimeMin && la < boostedAverage ) {
+          setMode( WORKING );
+        }
+        if( currTime - modeTime >= startTimeMax ) {
+          setMode( (la < boostedAverage ? WORKING : (la < overloadAverage ? BOOSTED : OVERLOADED)) );
+        }
+        break;
+      case WORKING:
+      case BOOSTED:
+      case OVERLOADED:
+        setMode( (la < boostedAverage ? WORKING : (la < overloadAverage ? BOOSTED : OVERLOADED)) );
+        break;
+      case SHUTDOWNING:
+      case OFF:
+        break;
+      default:
+        throw new TsNotAllEnumsUsedRtException();
     }
   }
 
