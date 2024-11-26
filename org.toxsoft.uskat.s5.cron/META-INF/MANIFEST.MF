@@ -1,0 +1,27 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: uskat s5 cron extension (service ISkCronService)
+Bundle-SymbolicName: org.toxsoft.uskat.s5.cron
+Bundle-Version: 1.0.0.qualifier
+Bundle-Vendor: ToxSoft Ltd.
+Require-Bundle: org.toxsoft.extlibs.log4j,
+ org.toxsoft.extlibs.wildfly,
+ org.toxsoft.core.tslib,
+ org.toxsoft.uskat.core,
+ org.toxsoft.uskat.s5,
+ org.toxsoft.uskat.skadmin.core
+Eclipse-RegisterBuddy: org.toxsoft.extlibs.wildfly
+Eclipse-BuddyPolicy: registered
+Bundle-RequiredExecutionEnvironment: JavaSE-17
+DynamicImport-Package: *
+Automatic-Module-Name: org.toxsoft.uskat.s5.cron
+TsPluginContainerVersion: 2
+TsPluginVersion:    {4,0,2022-08-22_00:00:00}
+TsPluginType:       skadmin.library
+TsPluginClassName:  org.toxsoft.uskat.s5.schedules.skadmin.AdminPluginSchedules
+Export-Package: org.toxsoft.uskat.s5.cron.addons,
+ org.toxsoft.uskat.s5.cron.lib,
+ org.toxsoft.uskat.s5.cron.lib.impl,
+ org.toxsoft.uskat.s5.cron.skadmin,
+ org.toxsoft.uskat.s5.cron.skadmin.cron,
+ org.toxsoft.uskat.s5.cron.supports
