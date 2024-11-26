@@ -10,6 +10,9 @@ interface IS5Resources {
   // ------------------------------------------------------------------------------------
   // Строковые константы IS5SequenceUnionOptions
   //
+  String D_UNION_CALENDARS = Messages.getString( "IS5Resources.D_UNION_CALENDARS" ); //$NON-NLS-1$
+  String N_UNION_CALENDARS = Messages.getString( "IS5Resources.N_UNION_CALENDARS" ); //$NON-NLS-1$
+
   String D_UNION_INTERVAL = Messages.getString( "IS5Resources.D_UNION_INTERVAL" ); //$NON-NLS-1$
   String N_UNION_INTERVAL = Messages.getString( "IS5Resources.N_UNION_INTERVAL" ); //$NON-NLS-1$
 
@@ -40,6 +43,9 @@ interface IS5Resources {
   // ------------------------------------------------------------------------------------
   // Строковые константы IS5SequencePartitionOptions
   //
+  String D_PARTITION_CALENDARS = Messages.getString( "IS5Resources.D_PARTITION_CALENDARS" ); //$NON-NLS-1$
+  String N_PARTITION_CALENDARS = Messages.getString( "IS5Resources.N_PARTITION_CALENDARS" ); //$NON-NLS-1$
+
   String D_REMOVE_INTERVAL = Messages.getString( "IS5Resources.D_REMOVE_INTERVAL" ); //$NON-NLS-1$
   String N_REMOVE_INTERVAL = Messages.getString( "IS5Resources.N_REMOVE_INTERVAL" ); //$NON-NLS-1$
 

@@ -1,8 +1,9 @@
 package org.toxsoft.uskat.s5.server.backend;
 
-import javax.ejb.Local;
+import javax.ejb.*;
 
-import org.toxsoft.uskat.s5.server.singletons.IS5Singleton;
+import org.toxsoft.uskat.s5.server.backend.supports.core.*;
+import org.toxsoft.uskat.s5.server.singletons.*;
 
 /**
  * Локальный интерфейс синглетона поддержки бекенда предоставляемого s5-сервером.
@@ -11,6 +12,6 @@ import org.toxsoft.uskat.s5.server.singletons.IS5Singleton;
  */
 @Local
 public interface IS5BackendSupportSingleton
-    extends IS5Singleton {
+    extends IS5Singleton, IS5BackendCoreInterceptor {
   // nop
 }

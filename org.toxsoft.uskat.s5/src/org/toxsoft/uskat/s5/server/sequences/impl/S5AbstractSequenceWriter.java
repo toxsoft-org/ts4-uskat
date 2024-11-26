@@ -8,6 +8,7 @@ import static org.toxsoft.uskat.s5.server.sequences.IS5SequenceHardConstants.*;
 import static org.toxsoft.uskat.s5.server.sequences.impl.IS5Resources.*;
 import static org.toxsoft.uskat.s5.server.sequences.impl.S5SequenceSQL.*;
 import static org.toxsoft.uskat.s5.server.sequences.impl.S5SequenceUtils.*;
+import static org.toxsoft.uskat.s5.server.sequences.maintenance.IS5SequencePartitionOptions.*;
 import static org.toxsoft.uskat.s5.server.transactions.ES5TransactionResources.*;
 import static org.toxsoft.uskat.s5.utils.threads.impl.S5Lockable.*;
 
@@ -40,7 +41,7 @@ import org.toxsoft.core.tslib.gw.gwid.*;
 import org.toxsoft.core.tslib.utils.*;
 import org.toxsoft.core.tslib.utils.errors.*;
 import org.toxsoft.core.tslib.utils.logs.*;
-import org.toxsoft.uskat.s5.server.backend.*;
+import org.toxsoft.uskat.s5.server.backend.supports.core.*;
 import org.toxsoft.uskat.s5.server.cluster.*;
 import org.toxsoft.uskat.s5.server.sequences.*;
 import org.toxsoft.uskat.s5.server.sequences.cluster.*;
@@ -1190,9 +1191,9 @@ public abstract class S5AbstractSequenceWriter<S extends IS5Sequence<V>, V exten
           // Обработка текущего состояния разделов
           IOptionSetEdit options = new OptionSet();
           // Максимальное количество потоков удаления (без ограничений)
-          IS5SequencePartitionOptions.AUTO_THREADS_COUNT.setValue( options, AvUtils.AV_N1 );
+          PARTITION_AUTO_THREADS_COUNT.setValue( options, AvUtils.AV_N1 );
           // Мощность поиска удаляемых данных (без ограничений)
-          IS5SequencePartitionOptions.AUTO_LOOKUP_COUNT.setValue( options, AvUtils.AV_N1 );
+          PARTITION_AUTO_LOOKUP_COUNT.setValue( options, AvUtils.AV_N1 );
           // Запуск операции проверки разделов
           doPartition( MSG_PARTITION_AUTHOR_INIT, options );
           return;
@@ -1523,7 +1524,7 @@ public abstract class S5AbstractSequenceWriter<S extends IS5Sequence<V>, V exten
       // Аргументы запроса
       IOptionSetEdit args = new OptionSet( aArgs );
       // Признак ручного или автоматического запроса операций над разделами
-      boolean isAuto = !args.hasValue( IS5SequencePartitionOptions.REMOVE_INTERVAL );
+      boolean isAuto = !args.hasValue( PARTITION_REMOVE_INTERVAL );
       // Список операций над разделами
       IList<S5PartitionOperation> ops = IList.EMPTY;
       // Создание менеджера постоянства
@@ -1550,7 +1551,7 @@ public abstract class S5AbstractSequenceWriter<S extends IS5Sequence<V>, V exten
       // Вывод в журнал
       Integer c = Integer.valueOf( ops.size() );
       Integer q = Integer.valueOf( partitionCount );
-      ITimeInterval interval = IS5SequencePartitionOptions.REMOVE_INTERVAL.getValue( args ).asValobj();
+      ITimeInterval interval = PARTITION_REMOVE_INTERVAL.getValue( args ).asValobj();
       partitionLogger.info( MSG_PARTITION_START_THREAD, ownerName(), c, q, interval );
 
       // 2023-10-07 TODO: mvkd
@@ -1706,11 +1707,11 @@ public abstract class S5AbstractSequenceWriter<S extends IS5Sequence<V>, V exten
     TsNullArgumentRtException.checkNulls( aEntityManager, aArgs );
     // Идентификаторы данных. null: неопределены
     IStringList userTables = IStringList.EMPTY;
-    if( aArgs.hasValue( IS5SequencePartitionOptions.TABLES ) ) {
-      userTables = IS5SequencePartitionOptions.TABLES.getValue( aArgs ).asValobj();
+    if( aArgs.hasValue( PARTITION_TABLES ) ) {
+      userTables = PARTITION_TABLES.getValue( aArgs ).asValobj();
     }
     // Интервал удаления
-    ITimeInterval interval = IS5SequencePartitionOptions.REMOVE_INTERVAL.getValue( aArgs ).asValobj();
+    ITimeInterval interval = PARTITION_REMOVE_INTERVAL.getValue( aArgs ).asValobj();
     // Схема базы данных сервера
     String scheme = OP_BACKEND_DB_SCHEME_NAME.getValue( initialConfig().impl().params() ).asString();
     // Результат
@@ -1753,9 +1754,9 @@ public abstract class S5AbstractSequenceWriter<S extends IS5Sequence<V>, V exten
     // Схема базы данных сервера
     String scheme = OP_BACKEND_DB_SCHEME_NAME.getValue( initialConfig().impl().params() ).asString();
     // Максимальное количество потоков удаления
-    int threadCount = IS5SequencePartitionOptions.AUTO_THREADS_COUNT.getValue( aArgs ).asInt();
+    int threadCount = PARTITION_AUTO_THREADS_COUNT.getValue( aArgs ).asInt();
     // Мощность поиска удаляемых данных
-    int lookupCountMax = IS5SequencePartitionOptions.AUTO_LOOKUP_COUNT.getValue( aArgs ).asInt();
+    int lookupCountMax = PARTITION_AUTO_LOOKUP_COUNT.getValue( aArgs ).asInt();
     // Текущее время
     long currTime = System.currentTimeMillis();
     // мсек в сутках

@@ -1,30 +1,28 @@
 package org.toxsoft.uskat.s5.server;
 
-import javax.ejb.StatefulTimeout;
-import javax.enterprise.concurrent.ManagedExecutorService;
-import javax.transaction.UserTransaction;
+import javax.ejb.*;
+import javax.enterprise.concurrent.*;
+import javax.transaction.*;
 
-import org.toxsoft.uskat.s5.client.local.S5LocalConnectionSingleton;
-import org.toxsoft.uskat.s5.server.backend.IS5BackendSession;
-import org.toxsoft.uskat.s5.server.backend.IS5BackendSessionControl;
-import org.toxsoft.uskat.s5.server.backend.impl.S5BackendCoreSingleton;
-import org.toxsoft.uskat.s5.server.backend.impl.S5BackendSession;
-import org.toxsoft.uskat.s5.server.backend.supports.clobs.S5BackendClobsSingleton;
-import org.toxsoft.uskat.s5.server.backend.supports.commands.impl.S5BackendCommandSingleton;
-import org.toxsoft.uskat.s5.server.backend.supports.currdata.impl.S5BackendCurrDataSingleton;
-import org.toxsoft.uskat.s5.server.backend.supports.events.impl.S5BackendEventSingleton;
-import org.toxsoft.uskat.s5.server.backend.supports.histdata.impl.S5BackendHistDataSingleton;
-import org.toxsoft.uskat.s5.server.backend.supports.links.S5BackendLinksSingleton;
-import org.toxsoft.uskat.s5.server.backend.supports.objects.S5BackendObjectsSingleton;
-import org.toxsoft.uskat.s5.server.backend.supports.objects.S5ObjectEntity;
-import org.toxsoft.uskat.s5.server.backend.supports.queries.impl.S5BackendQueriesSingleton;
-import org.toxsoft.uskat.s5.server.backend.supports.sysdescr.S5BackendSysDescrSingleton;
-import org.toxsoft.uskat.s5.server.cluster.S5ClusterManager;
-import org.toxsoft.uskat.s5.server.sessions.S5SessionManager;
-import org.toxsoft.uskat.s5.server.sessions.pas.S5SessionMessenger;
+import org.toxsoft.uskat.s5.client.local.*;
+import org.toxsoft.uskat.s5.server.backend.*;
+import org.toxsoft.uskat.s5.server.backend.impl.*;
+import org.toxsoft.uskat.s5.server.backend.supports.clobs.*;
+import org.toxsoft.uskat.s5.server.backend.supports.commands.impl.*;
+import org.toxsoft.uskat.s5.server.backend.supports.core.impl.*;
+import org.toxsoft.uskat.s5.server.backend.supports.currdata.impl.*;
+import org.toxsoft.uskat.s5.server.backend.supports.events.impl.*;
+import org.toxsoft.uskat.s5.server.backend.supports.histdata.impl.*;
+import org.toxsoft.uskat.s5.server.backend.supports.links.*;
+import org.toxsoft.uskat.s5.server.backend.supports.objects.*;
+import org.toxsoft.uskat.s5.server.backend.supports.queries.impl.*;
+import org.toxsoft.uskat.s5.server.backend.supports.sysdescr.*;
+import org.toxsoft.uskat.s5.server.cluster.*;
+import org.toxsoft.uskat.s5.server.sessions.*;
+import org.toxsoft.uskat.s5.server.sessions.pas.*;
 import org.toxsoft.uskat.s5.server.startup.*;
-import org.toxsoft.uskat.s5.server.transactions.S5TransactionManager;
-import org.toxsoft.uskat.s5.utils.IS5HardConstants;
+import org.toxsoft.uskat.s5.server.transactions.*;
+import org.toxsoft.uskat.s5.utils.*;
 
 /**
  * Константы реализации s5-сервера.
@@ -56,12 +54,19 @@ public interface IS5ImplementConstants
   /**
    * Таймаут(мсек) в котором сервер работает в режиме перегрузки после запуска
    */
-  long STARTUP_OVERLOAD_TIMEOUT = 10 * 60 * 1000;
+  // TODO: mvkd
+  // long STARTUP_BOOST_TIMEOUT = 10 * 60 * 1000;
+  long STARTUP_BOOST_TIMEOUT = 1 * 60 * 1000;
 
   /**
    * Таймаут(мсек) SFSB в течении которого при потоки ожидают освобождение бина
    */
   long ACCESS_TIMEOUT_DEFAULT = 10 * 1000;
+
+  /**
+   * Таймаут(мсек) SFSB в течении которого при потоки ожидают освобождение бина в режиме форсированной работы сервера
+   */
+  long ACCESS_BOOST_TIMEOUT = 60 * 1000;
 
   /**
    * Таймаут(мсек) транзакции по умолчанию

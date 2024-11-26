@@ -28,8 +28,8 @@ import org.toxsoft.uskat.s5.common.S5Module;
 import org.toxsoft.uskat.s5.common.S5ModuleList;
 import org.toxsoft.uskat.s5.common.sessions.ISkSession;
 import org.toxsoft.uskat.s5.server.IS5ServerHardConstants;
-import org.toxsoft.uskat.s5.server.backend.IS5BackendCoreSingleton;
 import org.toxsoft.uskat.s5.server.backend.addons.IS5BackendAddonCreator;
+import org.toxsoft.uskat.s5.server.backend.supports.core.*;
 import org.toxsoft.uskat.s5.server.entities.*;
 import org.toxsoft.uskat.s5.server.sequences.IS5SequenceImplementation;
 

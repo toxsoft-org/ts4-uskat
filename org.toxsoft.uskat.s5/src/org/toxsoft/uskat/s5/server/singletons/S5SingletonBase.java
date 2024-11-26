@@ -5,26 +5,33 @@ import static org.toxsoft.uskat.s5.common.IS5CommonResources.*;
 import static org.toxsoft.uskat.s5.server.IS5ImplementConstants.*;
 import static org.toxsoft.uskat.s5.server.singletons.IS5Resources.*;
 import static org.toxsoft.uskat.s5.server.transactions.IS5TransactionDetectorSingleton.*;
+import static org.toxsoft.uskat.s5.utils.IS5RegisteredConstants.*;
 import static org.toxsoft.uskat.s5.utils.threads.impl.S5Lockable.*;
 
 import java.lang.reflect.*;
+import java.util.*;
 import java.util.concurrent.*;
 
 import javax.annotation.*;
 import javax.ejb.*;
 import javax.enterprise.concurrent.*;
 
+import org.toxsoft.core.tslib.av.impl.*;
 import org.toxsoft.core.tslib.av.opset.*;
 import org.toxsoft.core.tslib.av.opset.impl.*;
+import org.toxsoft.core.tslib.bricks.strid.impl.*;
 import org.toxsoft.core.tslib.bricks.time.impl.*;
 import org.toxsoft.core.tslib.coll.*;
 import org.toxsoft.core.tslib.coll.impl.*;
+import org.toxsoft.core.tslib.coll.primtypes.*;
+import org.toxsoft.core.tslib.coll.primtypes.impl.*;
 import org.toxsoft.core.tslib.utils.*;
 import org.toxsoft.core.tslib.utils.errors.*;
 import org.toxsoft.core.tslib.utils.logs.*;
 import org.toxsoft.uskat.s5.legacy.*;
 import org.toxsoft.uskat.s5.server.startup.*;
 import org.toxsoft.uskat.s5.server.transactions.*;
+import org.toxsoft.uskat.s5.utils.*;
 import org.toxsoft.uskat.s5.utils.jobs.*;
 import org.toxsoft.uskat.s5.utils.threads.*;
 import org.toxsoft.uskat.s5.utils.threads.impl.*;
@@ -74,6 +81,11 @@ public class S5SingletonBase
    */
   @EJB
   private IS5TransactionManagerSingleton transactionSingleton;
+
+  /**
+   * Параметры конфигурации доступные только для чтения (Read Only)
+   */
+  private IOptionSet roConfiguration;
 
   /**
    * Исполнитель потоков фоновых потоков s5-служб
@@ -144,6 +156,8 @@ public class S5SingletonBase
   private void load() {
     // Запись в журнал
     logger.info( "load(...): start init %s", id() ); //$NON-NLS-1$
+    // Инициализация параметров конфигурации
+    initConfiguration();
     // Попытка явной регистрации текущей транзакции
     registerCurrentTransaction( "load", NO_METHOD_PARAMS ); //$NON-NLS-1$
     // Инициализация фоновых потоков
@@ -152,6 +166,59 @@ public class S5SingletonBase
     doInit();
     // Запись в журнал
     logger.info( "load(...): finish init %s", id() ); //$NON-NLS-1$
+  }
+
+  /**
+   * Подготовка к использованию конфигурации доступной только для чтения.
+   */
+  private void initConfiguration() {
+    Properties systemProperties = System.getProperties();
+    // Подготовка набора параметров доступных только для чтения
+    IOptionSetEdit roEdit = new OptionSet();
+    for( String id : ALL_REGISTERED_CONSTANTS.keys() ) {
+      for( String pathId : doConfigurationPathIds() ) {
+        if( pathId.length() == 0 || StridUtils.startsWithIdPath( id, pathId ) ) {
+          String value = systemProperties.getProperty( id );
+          if( value != null ) {
+            roEdit.put( id, AtomicValueKeeper.KEEPER.str2ent( value ) );
+          }
+        }
+      }
+    }
+    roConfiguration = roEdit;
+
+    // Загруженная конфигурация
+    IOptionSet loadedConfig = initialSingleton.loadServiceConfig( id() );
+    // Изменяемая конфигурация
+    IOptionSetEdit rwEdit = new OptionSet( loadedConfig == null ? doCreateConfiguration() : loadedConfig );
+    // ТРебование записать конфигурацию
+    boolean needWriteConfig = (loadedConfig == null);
+    //
+    for( String id : new StringArrayList( rwEdit.keys() ) ) {
+      if( !ALL_REGISTERED_CONSTANTS.ids().hasElem( id ) ) {
+        // Удаление не существующей константы
+        logger().warning( ERR_REMOVING_UNREGISTERED_CONSTANT, id );
+        rwEdit.remove( id );
+        needWriteConfig = true;
+        continue;
+      }
+      boolean foundPath = false;
+      for( String pathId : doConfigurationPathIds() ) {
+        if( pathId.length() == 0 || StridUtils.startsWithIdPath( id, pathId ) ) {
+          foundPath = true;
+          break;
+        }
+      }
+      if( !foundPath ) {
+        // Удаление константы которой нет в пути
+        logger().warning( ERR_REMOVING_CONSTANT_NOT_SPECIFIED_IN_PATH, id );
+        rwEdit.remove( id );
+        needWriteConfig = true;
+      }
+    }
+    if( needWriteConfig ) {
+      initialSingleton.saveServiceConfig( id(), rwEdit );
+    }
   }
 
   /**
@@ -412,6 +479,29 @@ public class S5SingletonBase
   // Методы для переопределения наследниками
   //
   /**
+   * Возвращает список путей в {@link IS5RegisteredConstants#ALL_REGISTERED_CONSTANTS} в которых находятся
+   * конфигурационные параметры подсистемы представляемые синглетоном.
+   * <p>
+   * Путь представляет часть полного пути в имени параметра. Например, для того чтобы конфигурационный параметр
+   * <b>uskat.s5.server.db.deep</b> мог использоваться в конфигурации необходимо определить любой из представленных
+   * путей:
+   * <ul>
+   * <li><b>uskat.backend.s5.server.db.deep</b> - конкретный одиночный параметр;</li>
+   * <li><b>uskat.backend.s5.server.db</b> - все параметры подсистемы базы данных сервера s5;</li>
+   * <li><b>uskat.backend.s5.server</b> - все параметры подсистемы базы данных сервера s5;</li>
+   * <li><b>uskat.backend.s5</b> - все параметры подсистемы s5;</li>
+   * <li><b>uskat.backend</b> - все параметры бекенда uskat;</li>
+   * <li><b>uskat.</b> - все параметры uskat;</li>
+   * <li><b></b> - все параметры системы.</li>
+   * </ul>
+   *
+   * @return {@link IStringList} пути параметров конфигурации.
+   */
+  protected IStringList doConfigurationPathIds() {
+    return new StringArrayList( id() );
+  }
+
+  /**
    * Создание конфигурации по умолчанию
    *
    * @return {@link IOptionSet} конфигурация по умолчанию
@@ -526,11 +616,11 @@ public class S5SingletonBase
   @Override
   @TransactionAttribute( TransactionAttributeType.SUPPORTS )
   public IOptionSet configuration() {
-    IOptionSet retValue = initialSingleton.loadServiceConfig( id() );
-    if( retValue == null ) {
-      initialSingleton.saveServiceConfig( id(), doCreateConfiguration() );
+    IOptionSetEdit retValue = new OptionSet( initialSingleton.loadServiceConfig( id() ) );
+    // Установка неизменяемых значений
+    for( String id : roConfiguration.keys() ) {
+      retValue.put( id, roConfiguration.getByKey( id ) );
     }
-    retValue = initialSingleton.loadServiceConfig( id() );
     return retValue;
   }
 

@@ -10,68 +10,60 @@ import static org.toxsoft.uskat.s5.server.sequences.IS5SequenceHardConstants.*;
 import static org.toxsoft.uskat.s5.server.sequences.impl.IS5Resources.*;
 import static org.toxsoft.uskat.s5.server.sequences.impl.S5SequenceSQL.*;
 import static org.toxsoft.uskat.s5.server.sequences.impl.S5SequenceUtils.*;
+import static org.toxsoft.uskat.s5.server.sequences.maintenance.IS5SequencePartitionOptions.*;
+import static org.toxsoft.uskat.s5.server.sequences.maintenance.IS5SequenceUnionOptions.*;
+import static org.toxsoft.uskat.s5.utils.platform.S5ServerPlatformUtils.*;
 
-import java.sql.Connection;
-import java.sql.SQLException;
-import java.util.HashSet;
-import java.util.Set;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.TimeUnit;
+import java.sql.*;
+import java.util.*;
+import java.util.concurrent.*;
 
-import javax.annotation.Resource;
+import javax.annotation.*;
 import javax.ejb.*;
-import javax.enterprise.concurrent.ManagedExecutorService;
-import javax.persistence.EntityManager;
-import javax.persistence.PersistenceContext;
-import javax.sql.DataSource;
+import javax.ejb.Timer;
+import javax.enterprise.concurrent.*;
+import javax.persistence.*;
+import javax.sql.*;
 
-import org.jboss.ejb3.annotation.TransactionTimeout;
-import org.toxsoft.core.tslib.av.IAtomicValue;
-import org.toxsoft.core.tslib.av.opset.IOptionSet;
-import org.toxsoft.core.tslib.av.opset.IOptionSetEdit;
-import org.toxsoft.core.tslib.av.opset.impl.OptionSet;
-import org.toxsoft.core.tslib.bricks.strid.coll.IStridablesList;
-import org.toxsoft.core.tslib.bricks.strid.idgen.IStridGenerator;
-import org.toxsoft.core.tslib.bricks.strid.idgen.UuidStridGenerator;
+import org.jboss.ejb3.annotation.*;
+import org.toxsoft.core.tslib.av.*;
+import org.toxsoft.core.tslib.av.opset.*;
+import org.toxsoft.core.tslib.av.opset.impl.*;
+import org.toxsoft.core.tslib.bricks.strid.coll.*;
+import org.toxsoft.core.tslib.bricks.strid.idgen.*;
 import org.toxsoft.core.tslib.bricks.time.*;
 import org.toxsoft.core.tslib.bricks.time.impl.*;
 import org.toxsoft.core.tslib.coll.*;
-import org.toxsoft.core.tslib.coll.impl.ElemArrayList;
-import org.toxsoft.core.tslib.coll.impl.ElemMap;
+import org.toxsoft.core.tslib.coll.impl.*;
 import org.toxsoft.core.tslib.coll.primtypes.*;
-import org.toxsoft.core.tslib.coll.primtypes.impl.StringArrayList;
-import org.toxsoft.core.tslib.coll.primtypes.impl.StringMap;
-import org.toxsoft.core.tslib.coll.synch.SynchronizedStringMap;
+import org.toxsoft.core.tslib.coll.primtypes.impl.*;
+import org.toxsoft.core.tslib.coll.synch.*;
 import org.toxsoft.core.tslib.gw.gwid.*;
 import org.toxsoft.core.tslib.gw.skid.*;
-import org.toxsoft.core.tslib.utils.Pair;
-import org.toxsoft.core.tslib.utils.TsLibUtils;
+import org.toxsoft.core.tslib.utils.*;
 import org.toxsoft.core.tslib.utils.errors.*;
-import org.toxsoft.core.tslib.utils.logs.ELogSeverity;
-import org.toxsoft.core.tslib.utils.logs.ILogger;
-import org.toxsoft.uskat.classes.IS5ClassBackend;
-import org.toxsoft.uskat.classes.IS5ClassHistorableBackend;
-import org.toxsoft.uskat.core.ISkCoreApi;
-import org.toxsoft.uskat.core.api.linkserv.ISkLinkService;
+import org.toxsoft.core.tslib.utils.logs.*;
+import org.toxsoft.uskat.classes.*;
+import org.toxsoft.uskat.core.*;
+import org.toxsoft.uskat.core.api.linkserv.*;
 import org.toxsoft.uskat.core.api.objserv.*;
-import org.toxsoft.uskat.core.api.sysdescr.ISkClassInfo;
-import org.toxsoft.uskat.core.api.sysdescr.dto.IDtoClassInfo;
-import org.toxsoft.uskat.core.connection.ISkConnection;
-import org.toxsoft.uskat.core.impl.dto.DtoObject;
-import org.toxsoft.uskat.s5.common.sysdescr.ISkSysdescrReader;
-import org.toxsoft.uskat.s5.legacy.S5LongArrayList;
-import org.toxsoft.uskat.s5.server.backend.impl.S5BackendSupportSingleton;
-import org.toxsoft.uskat.s5.server.backend.supports.objects.IS5BackendObjectsSingleton;
-import org.toxsoft.uskat.s5.server.backend.supports.sysdescr.IS5BackendSysDescrSingleton;
-import org.toxsoft.uskat.s5.server.frontend.IS5FrontendRear;
+import org.toxsoft.uskat.core.api.sysdescr.*;
+import org.toxsoft.uskat.core.api.sysdescr.dto.*;
+import org.toxsoft.uskat.core.connection.*;
+import org.toxsoft.uskat.core.impl.dto.*;
+import org.toxsoft.uskat.s5.common.sysdescr.*;
+import org.toxsoft.uskat.s5.legacy.*;
+import org.toxsoft.uskat.s5.server.backend.*;
+import org.toxsoft.uskat.s5.server.backend.impl.*;
+import org.toxsoft.uskat.s5.server.backend.supports.objects.*;
+import org.toxsoft.uskat.s5.server.backend.supports.sysdescr.*;
+import org.toxsoft.uskat.s5.server.frontend.*;
 import org.toxsoft.uskat.s5.server.sequences.*;
 import org.toxsoft.uskat.s5.server.sequences.maintenance.*;
-import org.toxsoft.uskat.s5.server.sequences.reader.IS5SequenceReadQuery;
+import org.toxsoft.uskat.s5.server.sequences.reader.*;
 import org.toxsoft.uskat.s5.server.sequences.writer.*;
-import org.toxsoft.uskat.s5.server.singletons.S5ServiceSingletonUtils;
-import org.toxsoft.uskat.s5.server.statistics.EStatisticInterval;
-import org.toxsoft.uskat.s5.server.statistics.S5StatisticWriter;
-import org.toxsoft.uskat.s5.utils.platform.S5ServerPlatformUtils;
+import org.toxsoft.uskat.s5.server.singletons.*;
+import org.toxsoft.uskat.s5.server.statistics.*;
 import org.toxsoft.uskat.s5.utils.schedules.*;
 
 /**
@@ -256,6 +248,15 @@ public abstract class S5BackendSequenceSupportSingleton<S extends IS5Sequence<V>
   // Реализация шаблонных методов S5ServiceSingletonBase
   //
   @Override
+  protected IStringList doConfigurationPathIds() {
+    IStringListEdit retValue = new StringArrayList();
+    retValue.addAll( IS5SequenceUnionOptions.ALL_UNION_OPDEFS.keys() );
+    retValue.addAll( IS5SequenceValidationOptions.ALL_VALIDATION_OPDEFS.keys() );
+    retValue.addAll( IS5SequencePartitionOptions.ALL_PARTITION_OPDEFS.keys() );
+    return retValue;
+  }
+
+  @Override
   protected IOptionSet doCreateConfiguration() {
     IOptionSetEdit retValue = new OptionSet();
     // Неизменяемые параметры конфигурации службы
@@ -266,18 +267,14 @@ public abstract class S5BackendSequenceSupportSingleton<S extends IS5Sequence<V>
 
   @Override
   protected void onConfigChanged( IOptionSet aPrevConfig, IOptionSet aNewConfig ) {
-    S5ScheduleExpressionList prevUnionCalendars =
-        IS5SequenceAddonConfig.UNION_CALENDARS.getValue( aPrevConfig ).asValobj();
-    S5ScheduleExpressionList newUnionCalendars =
-        IS5SequenceAddonConfig.UNION_CALENDARS.getValue( aNewConfig ).asValobj();
+    S5ScheduleExpressionList prevUnionCalendars = UNION_CALENDARS.getValue( aPrevConfig ).asValobj();
+    S5ScheduleExpressionList newUnionCalendars = UNION_CALENDARS.getValue( aNewConfig ).asValobj();
     if( !newUnionCalendars.equals( prevUnionCalendars ) ) {
       // Изменение календарей дефрагментации
       updateUnionTimers();
     }
-    S5ScheduleExpressionList prevRemoveCalendars =
-        IS5SequenceAddonConfig.PARTITION_CALENDARS.getValue( aPrevConfig ).asValobj();
-    S5ScheduleExpressionList newRemoveCalendars =
-        IS5SequenceAddonConfig.PARTITION_CALENDARS.getValue( aNewConfig ).asValobj();
+    S5ScheduleExpressionList prevRemoveCalendars = PARTITION_CALENDARS.getValue( aPrevConfig ).asValobj();
+    S5ScheduleExpressionList newRemoveCalendars = PARTITION_CALENDARS.getValue( aNewConfig ).asValobj();
     if( !newRemoveCalendars.equals( prevRemoveCalendars ) ) {
       // Изменение календарей дефрагментации
       updatePartitionTimers();
@@ -409,7 +406,7 @@ public abstract class S5BackendSequenceSupportSingleton<S extends IS5Sequence<V>
       // Обновление писателя статистики если он определен
       S5StatisticWriter stat = statisticWriter;
       if( stat != null ) {
-        // S5PlatformInfo pi = S5ServerPlatformUtils.getPlatformInfo();
+        // S5PlatformInfo pi = getPlatformInfo();
         // IAtomicValue loadAverage = dvFloat( pi.loadAverage() );
         // stat.onEvent( STAT_BACKEND_NODE_LOAD_AVERAGE, loadAverage );
         // stat.onEvent( STAT_BACKEND_NODE_LOAD_MAX, loadAverage );
@@ -423,28 +420,19 @@ public abstract class S5BackendSequenceSupportSingleton<S extends IS5Sequence<V>
         stat.update();
       }
 
-      // Текущая загрузка системы
-      double loadAverage = S5ServerPlatformUtils.loadAverage();
-
       for( int index = 0, n = unionTimers.size(); index < n; index++ ) {
         Timer timer = unionTimers.get( index );
         if( timer.equals( aTimer ) ) {
-          // Опции службы
-          IOptionSet config = configuration();
-          // Максимальная загрузка системы при которой возможна дефрагментация
-          final double loadAverageMax = IS5SequenceAddonConfig.UNION_LOAD_AVERAGE_MAX.getValue( config ).asDouble();
           // Проверка возможности выполнения дефрагментации при текущей загрузке системы
-          if( loadAverage > loadAverageMax ) {
+          if( serverMode() != ES5ServerMode.WORKING ) {
             // Загруженность системы не позволяет провести дефрагментацию значений
-            Double la = Double.valueOf( loadAverage );
-            uniterLogger.warning( ERR_UNION_DISABLE_BY_LOAD_AVERAGE, id(), la );
+            uniterLogger.warning( ERR_UNION_DISABLE_BY_LOAD_AVERAGE, id(), Double.valueOf( loadAverage() ) );
             break;
           }
           // Запуск потока дефрагментации
           if( !uniterThread.tryStart() ) {
             // Запрет дефрагментации значений по календарю (незавершен предыдущий процесс)
             uniterLogger.warning( ERR_UNION_DISABLE_BY_PREV_UNITER, id() );
-            break;
           }
           break;
         }
@@ -452,14 +440,9 @@ public abstract class S5BackendSequenceSupportSingleton<S extends IS5Sequence<V>
       for( int index = 0, n = partitionTimers.size(); index < n; index++ ) {
         Timer timer = partitionTimers.get( index );
         if( timer.equals( aTimer ) ) {
-          // Опции службы
-          IOptionSet config = configuration();
-          // Максимальная загрузка системы при которой возможна обработка разделов таблиц
-          final double loadAverageMax = IS5SequenceAddonConfig.PARTITION_LOAD_AVERAGE_MAX.getValue( config ).asDouble();
-          if( loadAverage > loadAverageMax ) {
-            // Загруженность системы не позволяет провести обработку разделов таблиц
-            Double la = Double.valueOf( loadAverage );
-            partitionLogger.warning( ERR_PARTITION_DISABLE_BY_LOAD_AVERAGE, id(), la );
+          if( serverMode() != ES5ServerMode.WORKING ) {
+            // Текущий режим запрещает проводить операцию
+            partitionLogger.warning( ERR_PARTITION_DISABLE_BY_LOAD_AVERAGE, id(), Double.valueOf( loadAverage() ) );
             break;
           }
           // System.err.println( "doTimerEventHandle" );
@@ -467,7 +450,6 @@ public abstract class S5BackendSequenceSupportSingleton<S extends IS5Sequence<V>
           if( !partitionThread.tryStart() ) {
             // Запрет обработки таблиц по календарю (незавершен предыдущий процесс)
             partitionLogger.warning( ERR_PARTITION_DISABLE_BY_PREV, id() );
-            break;
           }
           break;
         }
@@ -484,6 +466,27 @@ public abstract class S5BackendSequenceSupportSingleton<S extends IS5Sequence<V>
   @Override
   protected String doBackendClassId() {
     return IS5ClassHistorableBackend.CLASS_ID;
+  }
+
+  @Override
+  protected void doAfterSetSharedConnection( ISkConnection aOldConnection, ISkConnection aNewConnection ) {
+    ISkCoreApi coreApi = aNewConnection.coreApi();
+    ISkObjectService objectService = coreApi.objService();
+    ISkLinkService linkService = coreApi.linkService();
+    // Идентификатор узла
+    Skid nodeId = nodeId();
+    // Полный (с именем узла) идентификатор backend
+    Skid backendId = backendId();
+    // Создание/обновление бекенда как объекта системы
+    objectService.defineObject( new DtoObject( backendId, IOptionSet.NULL, IStringMap.EMPTY ) );
+    linkService.defineLink( backendId, IS5ClassBackend.LNKID_NODE, ISkidList.EMPTY, new SkidList( nodeId ) );
+
+    if( statisticWriter != null ) {
+      // Завершение работы предыдущего писателя статистики
+      statisticWriter.close();
+    }
+    // Создание писателя статистики узла сервера
+    statisticWriter = new S5StatisticWriter( aNewConnection, backendId, STAT_HISTORABLE_BACKEND_PARAMS );
   }
 
   // ------------------------------------------------------------------------------------
@@ -712,16 +715,10 @@ public abstract class S5BackendSequenceSupportSingleton<S extends IS5Sequence<V>
     // Формирование статистики
     S5StatisticWriter stat = statisticWriter;
     try {
-      // Опции службы
-      IOptionSet config = configuration();
-      // Max load average (загрузка системы) при котором возможно проведение записи значений последовательностей
-      final double loadAverageMax = IS5SequenceAddonConfig.WRITE_LOAD_AVERAGE_MAX.getValue( config ).asDouble();
       // Проверка возможности выполнения записи при текущей загрузке системы
-      double loadAverage = S5ServerPlatformUtils.loadAverage();
-      if( loadAverage > loadAverageMax ) {
-        // Загруженность системы не позволяет провести запись значений
-        Double la = Double.valueOf( loadAverage );
-        writeLogger.error( ERR_WRITE_DISABLE_BY_LOAD_AVERAGE, id(), la );
+      if( serverMode() == ES5ServerMode.OVERLOADED || serverMode() == ES5ServerMode.SHUTDOWNING ) {
+        // Текущий режим запрещает запись
+        writeLogger.error( ERR_WRITE_DISABLE_BY_LOAD_AVERAGE, id(), Double.valueOf( loadAverage() ) );
         return;
       }
       // Запись хранимых данных
@@ -803,7 +800,7 @@ public abstract class S5BackendSequenceSupportSingleton<S extends IS5Sequence<V>
       // Опции конфигурации
       IOptionSet config = configuration();
       // Признак требование проводить автоматическое восстановление целостности
-      final boolean autoRepair = IS5SequenceValidationOptions.AUTO_REPAIR.getValue( config ).asBool();
+      final boolean autoRepair = IS5SequenceValidationOptions.VALIDATION_AUTO_REPAIR.getValue( config ).asBool();
       if( !autoRepair ) {
         // При дефрагментации произошли ошибки. Разрешено автоматическое восстановление последовательностей
         repairSequences( fragmentInfos );
@@ -862,40 +859,6 @@ public abstract class S5BackendSequenceSupportSingleton<S extends IS5Sequence<V>
     logger().info( MSG_VALIDATION_TASK_START, aAuthor );
     // Запуск процесса проверки
     return sequenceWriter.validation( aAuthor, aArgs );
-  }
-
-  // ------------------------------------------------------------------------------------
-  // IS5BackendCoreInterceptor
-  //
-  @TransactionAttribute( TransactionAttributeType.MANDATORY )
-  @Lock( LockType.READ )
-  @Override
-  public boolean beforeSetConnection( ISkConnection aOldConnection, ISkConnection aNewConnection ) {
-    // nop
-    return true;
-  }
-
-  @TransactionAttribute( TransactionAttributeType.MANDATORY )
-  @Lock( LockType.READ )
-  @Override
-  public void afterSetConnection( ISkConnection aOldConnection, ISkConnection aNewConnection ) {
-    ISkCoreApi coreApi = aNewConnection.coreApi();
-    ISkObjectService objectService = coreApi.objService();
-    ISkLinkService linkService = coreApi.linkService();
-    // Идентификатор узла
-    Skid nodeId = nodeId();
-    // Полный (с именем узла) идентификатор backend
-    Skid backendId = backendId();
-    // Создание/обновление бекенда как объекта системы
-    objectService.defineObject( new DtoObject( backendId, IOptionSet.NULL, IStringMap.EMPTY ) );
-    linkService.defineLink( backendId, IS5ClassBackend.LNKID_NODE, ISkidList.EMPTY, new SkidList( nodeId ) );
-
-    if( statisticWriter != null ) {
-      // Завершение работы предыдущего писателя статистики
-      statisticWriter.close();
-    }
-    // Создание писателя статистики узла сервера
-    statisticWriter = new S5StatisticWriter( aNewConnection, backendId, STAT_HISTORABLE_BACKEND_PARAMS );
   }
 
   // ------------------------------------------------------------------------------------
@@ -1463,11 +1426,12 @@ public abstract class S5BackendSequenceSupportSingleton<S extends IS5Sequence<V>
     long currTime = System.currentTimeMillis();
     // Опции конфигурации
     IOptionSetEdit config = new OptionSet( configuration() );
-    // IS5SequenceValidationOptions.INTERVAL.set( vo, new TimeInterval( startTime, endTime ) );
-    IS5SequenceValidationOptions.INTERVAL.setValue( config, avValobj( new TimeInterval( startTime, currTime ) ) );
-    IS5SequenceValidationOptions.REPAIR.setValue( config,
-        avValobj( IS5SequenceValidationOptions.REPAIR.getValue( config ) ) );
-    IS5SequenceValidationOptions.GWIDS.setValue( config, avValobj( ids ) );
+    // IS5SequenceValidationOptions.VALIDATION_INTERVAL.set( vo, new TimeInterval( startTime, endTime ) );
+    IS5SequenceValidationOptions.VALIDATION_INTERVAL.setValue( config,
+        avValobj( new TimeInterval( startTime, currTime ) ) );
+    IS5SequenceValidationOptions.VALIDATION_REPAIR.setValue( config,
+        avValobj( IS5SequenceValidationOptions.VALIDATION_REPAIR.getValue( config ) ) );
+    IS5SequenceValidationOptions.VALIDATION_GWIDS.setValue( config, avValobj( ids ) );
     // Запуск операции восстановления
     validation( MSG_AUTO_VALIDATION_AUTHOR, config );
   }
@@ -1487,7 +1451,7 @@ public abstract class S5BackendSequenceSupportSingleton<S extends IS5Sequence<V>
     // Опции службы
     IOptionSet config = configuration();
     // Текущие календари конфигурации
-    S5ScheduleExpressionList calendars = IS5SequenceAddonConfig.UNION_CALENDARS.getValue( config ).asValobj();
+    S5ScheduleExpressionList calendars = UNION_CALENDARS.getValue( config ).asValobj();
     // Удаление календарей которые больше не используется
     for( Timer timer : oldTimers ) {
       ScheduleExpression schedule = timer.getSchedule();
@@ -1549,7 +1513,7 @@ public abstract class S5BackendSequenceSupportSingleton<S extends IS5Sequence<V>
     // Опции службы
     IOptionSet config = configuration();
     // Текущие календари конфигурации
-    S5ScheduleExpressionList calendars = IS5SequenceAddonConfig.PARTITION_CALENDARS.getValue( config ).asValobj();
+    S5ScheduleExpressionList calendars = PARTITION_CALENDARS.getValue( config ).asValobj();
     // Удаление календарей которые больше не используется
     for( Timer timer : oldTimers ) {
       ScheduleExpression schedule = timer.getSchedule();

@@ -25,7 +25,7 @@ import org.toxsoft.uskat.core.connection.ISkConnection;
 import org.toxsoft.uskat.core.impl.dto.DtoFullObject;
 import org.toxsoft.uskat.core.impl.dto.DtoObject;
 import org.toxsoft.uskat.s5.client.local.IS5LocalConnectionSingleton;
-import org.toxsoft.uskat.s5.server.backend.IS5BackendCoreSingleton;
+import org.toxsoft.uskat.s5.server.backend.supports.core.*;
 import org.toxsoft.uskat.s5.server.singletons.S5SingletonBase;
 
 /**
@@ -106,7 +106,7 @@ public abstract class S5InitialSysdescrSingleton
     // Проверка (и если необходимо создание) системного описания
     checkSysdescr();
     // Установка соединения для ядра сервера
-    backendCore.setConnection( connection );
+    backendCore.setSharedConnection( connection );
   }
 
   @Override

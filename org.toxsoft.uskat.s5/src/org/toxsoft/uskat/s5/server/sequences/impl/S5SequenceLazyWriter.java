@@ -6,6 +6,8 @@ import static org.toxsoft.uskat.s5.server.IS5ImplementConstants.*;
 import static org.toxsoft.uskat.s5.server.sequences.IS5SequenceHardConstants.*;
 import static org.toxsoft.uskat.s5.server.sequences.impl.IS5Resources.*;
 import static org.toxsoft.uskat.s5.server.sequences.impl.S5SequenceSQL.*;
+import static org.toxsoft.uskat.s5.server.sequences.maintenance.IS5SequenceUnionOptions.*;
+import static org.toxsoft.uskat.s5.server.sequences.maintenance.IS5SequenceValidationOptions.*;
 import static org.toxsoft.uskat.s5.utils.threads.impl.S5Lockable.*;
 
 import java.util.*;
@@ -28,7 +30,7 @@ import org.toxsoft.core.tslib.coll.impl.*;
 import org.toxsoft.core.tslib.gw.gwid.*;
 import org.toxsoft.core.tslib.utils.errors.*;
 import org.toxsoft.core.tslib.utils.logs.*;
-import org.toxsoft.uskat.s5.server.backend.*;
+import org.toxsoft.uskat.s5.server.backend.supports.core.*;
 import org.toxsoft.uskat.s5.server.sequences.*;
 import org.toxsoft.uskat.s5.server.sequences.maintenance.*;
 import org.toxsoft.uskat.s5.server.sequences.writer.*;
@@ -154,7 +156,7 @@ class S5SequenceLazyWriter<S extends IS5Sequence<V>, V extends ITemporal<?>>
     S5SequenceUnionStat<V> statistics = new S5SequenceUnionStat<>();
     IOptionSetEdit args = new OptionSet( aArgs );
     // Признак ручного или автоматического объединения данных
-    boolean isAuto = !args.hasValue( IS5SequenceUnionOptions.UNION_INTERVAL );
+    boolean isAuto = !args.hasValue( UNION_INTERVAL );
     // Список данных для объединения
     IList<IS5SequenceFragmentInfo> infoes = IList.EMPTY;
     // Создание менеджера постоянства
@@ -176,7 +178,7 @@ class S5SequenceLazyWriter<S extends IS5Sequence<V>, V extends ITemporal<?>>
       // Вывод в журнал
       Integer c = Integer.valueOf( infoes.size() );
       Integer q = Integer.valueOf( queueSize );
-      ITimeInterval interval = IS5SequenceUnionOptions.UNION_INTERVAL.getValue( args ).asValobj();
+      ITimeInterval interval = UNION_INTERVAL.getValue( args ).asValobj();
       uniterLogger.info( MSG_UNION_START_THREAD, c, q, interval );
       // Исполнитель s5-потоков записи данных
       S5WriteThreadExecutor executor = new S5WriteThreadExecutor( unionExecutor(), uniterLogger );
@@ -209,8 +211,8 @@ class S5SequenceLazyWriter<S extends IS5Sequence<V>, V extends ITemporal<?>>
       S5WriteThreadExecutor executor = new S5WriteThreadExecutor( validationExecutor(), logger );
       // Идентификаторы данных. null: неопределены
       IGwidList gwids = null;
-      if( aArgs.hasValue( IS5SequenceValidationOptions.GWIDS ) ) {
-        gwids = IS5SequenceValidationOptions.GWIDS.getValue( aArgs ).asValobj();
+      if( aArgs.hasValue( VALIDATION_GWIDS ) ) {
+        gwids = VALIDATION_GWIDS.getValue( aArgs ).asValobj();
       }
       if( gwids == null ) {
         // Запрос всех идентификаторов данных которые есть в базе данных
@@ -412,11 +414,11 @@ class S5SequenceLazyWriter<S extends IS5Sequence<V>, V extends ITemporal<?>>
     IListEdit<IS5SequenceFragmentInfo> infoes = new ElemArrayList<>( allGwids.size() );
     // Идентификаторы данных. null: неопределены
     IGwidList gwids = null;
-    if( aArgs.hasValue( IS5SequenceUnionOptions.UNION_GWIDS ) ) {
-      gwids = IS5SequenceUnionOptions.UNION_GWIDS.getValue( aArgs ).asValobj();
+    if( aArgs.hasValue( UNION_GWIDS ) ) {
+      gwids = UNION_GWIDS.getValue( aArgs ).asValobj();
     }
     // Интервал дефрагментации
-    ITimeInterval interval = IS5SequenceUnionOptions.UNION_INTERVAL.getValue( aArgs ).asValobj();
+    ITimeInterval interval = UNION_INTERVAL.getValue( aArgs ).asValobj();
     // Указан список данных
     for( Gwid gwid : allGwids ) {
       if( gwids == null || gwids.size() == 0 || gwids.hasElem( gwid ) ) {
@@ -443,17 +445,17 @@ class S5SequenceLazyWriter<S extends IS5Sequence<V>, V extends ITemporal<?>>
     // Фабрика последовательностей
     IS5SequenceFactory<V> factory = sequenceFactory();
     // Смещение дефрагментации от текущего времении
-    long offset = IS5SequenceUnionOptions.UNION_AUTO_OFFSET.getValue( aArgs ).asLong();
+    long offset = UNION_AUTO_OFFSET.getValue( aArgs ).asLong();
     // Максимальное время фрагментации
-    long fragmentTimeout = IS5SequenceUnionOptions.UNION_AUTO_FRAGMENT_TIMEOUT.getValue( aArgs ).asLong();
+    long fragmentTimeout = UNION_AUTO_FRAGMENT_TIMEOUT.getValue( aArgs ).asLong();
     // // Минимальное количество блоков для принудительного объединения
-    // int fragmentCountMin = IS5SequenceUnionOptions.UNION_AUTO_FRAGMENT_COUNT_MIN.getValue( aArgs ).asInt();
+    // int fragmentCountMin = UNION_AUTO_FRAGMENT_COUNT_MIN.getValue( aArgs ).asInt();
     // // Максимальное количество блоков для принудительного объединения
-    // int fragmentCountMax = IS5SequenceUnionOptions.UNION_AUTO_FRAGMENT_COUNT_MAX.getValue( aArgs ).asInt();
+    // int fragmentCountMax = UNION_AUTO_FRAGMENT_COUNT_MAX.getValue( aArgs ).asInt();
     // Максимальное количество потоков дефрагментации
-    int threadCount = IS5SequenceUnionOptions.UNION_AUTO_THREADS_COUNT.getValue( aArgs ).asInt();
+    int threadCount = UNION_AUTO_THREADS_COUNT.getValue( aArgs ).asInt();
     // Мощность поиска дефрагментации
-    int lookupCountMax = IS5SequenceUnionOptions.UNION_AUTO_LOOKUP_COUNT.getValue( aArgs ).asInt();
+    int lookupCountMax = UNION_AUTO_LOOKUP_COUNT.getValue( aArgs ).asInt();
     // Текущее время
     long currTime = System.currentTimeMillis();
     // Время завершения интервала дефрагментации
@@ -821,13 +823,13 @@ class S5SequenceLazyWriter<S extends IS5Sequence<V>, V extends ITemporal<?>>
       super( aLogger );
       TsNullArgumentRtException.checkNulls( aGwid, aArgs, aStatistics, aLogger );
       gwid = aGwid;
-      ITimeInterval ti = IS5SequenceValidationOptions.INTERVAL.getValue( aArgs ).asValobj();
+      ITimeInterval ti = VALIDATION_INTERVAL.getValue( aArgs ).asValobj();
       if( ti == null ) {
         ti = ITimeInterval.WHOLE;
       }
       interval = new QueryInterval( EQueryIntervalType.CSCE, ti.startTime(), ti.endTime() );
-      canRemove = IS5SequenceValidationOptions.FORCE_REPAIR.getValue( aArgs ).asBool();
-      canUpdate = IS5SequenceValidationOptions.REPAIR.getValue( aArgs ).asBool() || canRemove;
+      canRemove = VALIDATION_FORCE_REPAIR.getValue( aArgs ).asBool();
+      canUpdate = VALIDATION_REPAIR.getValue( aArgs ).asBool() || canRemove;
       stat = aStatistics;
     }
 

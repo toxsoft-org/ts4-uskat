@@ -1,11 +1,11 @@
-package org.toxsoft.uskat.s5.server.backend.impl;
+package org.toxsoft.uskat.s5.server.backend.supports.core.impl;
 
 import static org.toxsoft.core.tslib.av.impl.AvUtils.*;
 import static org.toxsoft.core.tslib.utils.logs.ELogSeverity.*;
 import static org.toxsoft.uskat.s5.server.IS5ImplementConstants.*;
 import static org.toxsoft.uskat.s5.server.IS5ServerHardConstants.*;
-import static org.toxsoft.uskat.s5.server.backend.impl.IS5BackendCoreInterceptor.*;
-import static org.toxsoft.uskat.s5.server.backend.impl.IS5Resources.*;
+import static org.toxsoft.uskat.s5.server.backend.supports.core.IS5BackendCoreInterceptor.*;
+import static org.toxsoft.uskat.s5.server.backend.supports.core.impl.IS5Resources.*;
 import static org.toxsoft.uskat.s5.utils.platform.S5ServerPlatformUtils.*;
 
 import java.sql.*;
@@ -20,6 +20,7 @@ import javax.sql.*;
 import org.toxsoft.core.tslib.av.*;
 import org.toxsoft.core.tslib.av.opset.*;
 import org.toxsoft.core.tslib.bricks.events.msg.*;
+import org.toxsoft.core.tslib.bricks.validator.vrl.*;
 import org.toxsoft.core.tslib.coll.*;
 import org.toxsoft.core.tslib.coll.primtypes.*;
 import org.toxsoft.core.tslib.coll.primtypes.impl.*;
@@ -33,7 +34,9 @@ import org.toxsoft.uskat.s5.common.*;
 import org.toxsoft.uskat.s5.server.*;
 import org.toxsoft.uskat.s5.server.backend.*;
 import org.toxsoft.uskat.s5.server.backend.addons.*;
+import org.toxsoft.uskat.s5.server.backend.impl.*;
 import org.toxsoft.uskat.s5.server.backend.supports.clobs.*;
+import org.toxsoft.uskat.s5.server.backend.supports.core.*;
 import org.toxsoft.uskat.s5.server.backend.supports.links.*;
 import org.toxsoft.uskat.s5.server.backend.supports.objects.*;
 import org.toxsoft.uskat.s5.server.backend.supports.sysdescr.*;
@@ -168,12 +171,22 @@ public class S5BackendCoreSingleton
   /**
    * Поддержка frontends
    */
-  private final S5FrontendsSupport frontendsSupport = new S5FrontendsSupport();
+  private final IS5FrontendAttachable frontendsSupport = new S5FrontendsSupport();
 
   /**
    * Поддержка интерсепторов операций проводимых над объектами
    */
   private final S5InterceptorSupport<IS5BackendCoreInterceptor> interceptors = new S5InterceptorSupport<>();
+
+  /**
+   * Текущее состояние сервера.
+   */
+  private ES5ServerMode mode = ES5ServerMode.STARTING;
+
+  /**
+   * Метка времени (мсек с начала эпохи) последнего изменения состояния сервера
+   */
+  private long modeTime = System.currentTimeMillis();
 
   /**
    * Информация о бекенде
@@ -189,11 +202,6 @@ public class S5BackendCoreSingleton
    * Писатель статитистики объекта {@link IS5ClassNode}. null: нет соединения
    */
   private S5StatisticWriter statisticWriter;
-
-  /**
-   * Время (мсек с начала эпохи) перехода синглетона/сервера в режим перегрузки данными
-   */
-  private long overloadModeStartTime;
 
   /**
    * Конструктор.
@@ -230,8 +238,6 @@ public class S5BackendCoreSingleton
     // Время запуска сервера
     IS5ServerHardConstants.OP_BACKEND_START_TIME.setValue( backendInfo.params(),
         avTimestamp( System.currentTimeMillis() ) );
-    // Переход в режим "overload"
-    startOverloadMode();
     // Установка режима работы с кэшем сессий (infinispan)
     // ConfigurationBuilder builder = new ConfigurationBuilder();
     // // builder.transaction().lockingMode( LockingMode.PESSIMISTIC );
@@ -261,6 +267,11 @@ public class S5BackendCoreSingleton
     // TODO: S5ServerLoginModule упразднен, нового пока нет.
     // S5ServerLoginModule.setEnabled( false );
     super.doClose();
+  }
+
+  @Override
+  protected IStringList doConfigurationPathIds() {
+    return new StringArrayList( IS5BackendCoreConstants.ALL_CORE_OPDEFS.keys() );
   }
 
   // ------------------------------------------------------------------------------------
@@ -367,25 +378,80 @@ public class S5BackendCoreSingleton
     }
   }
 
+  @Lock( LockType.WRITE )
   @Override
-  public ISkConnection getConnection() {
+  public boolean setMode( ES5ServerMode aMode ) {
+    TsNullArgumentRtException.checkNull( aMode );
+    if( mode == aMode ) {
+      return true;
+    }
+    ES5ServerMode oldMode = mode;
+    long oldTimeout = S5Lockable.accessTimeoutDefault();
+    // Пред-интерсепция
+    IVrList vr = callBeforeChangeServerModeInterceptors( interceptors, oldMode, aMode );
+    if( vr.firstWorstResult().isError() ) {
+      // Интерсепторы запретили выполнение операции
+      logger().error( ERR_REJECT_CHANGE_MODE, oldMode, aMode, vr.items() );
+      return false;
+    }
+    mode = aMode;
+    modeTime = System.currentTimeMillis();
+    switch( mode ) {
+      case STARTING:
+      case BOOSTED:
+      case OVERLOADED:
+        S5Lockable.setAccessTimeoutDefault( ACCESS_BOOST_TIMEOUT );
+        break;
+      case WORKING:
+      case SHUTDOWNING:
+      case OFF:
+        S5Lockable.setAccessTimeoutDefault( ACCESS_TIMEOUT_DEFAULT );
+        break;
+      default:
+        throw new TsNotAllEnumsUsedRtException();
+    }
+    // Пост-интерсепция
+    try {
+      callAfterChangeServerModeInterceptors( interceptors, oldMode, aMode );
+      logger().info( MSG_CHANGE_MODE, oldMode, aMode );
+    }
+    catch( Throwable e ) {
+      // Восстановление состояния на любой ошибке
+      mode = oldMode;
+      S5Lockable.setAccessTimeoutDefault( oldTimeout );
+      logger().error( e );
+      throw e;
+    }
+    return true;
+  }
+
+  @Override
+  public ES5ServerMode mode() {
+    return mode;
+  }
+
+  @Override
+  public ISkConnection getSharedConnection() {
     TsIllegalArgumentRtException.checkFalse( isActive() );
     return connection;
   }
 
+  @Lock( LockType.WRITE )
   @Override
-  public void setConnection( ISkConnection aConnection ) {
+  public void setSharedConnection( ISkConnection aConnection ) {
     TsNullArgumentRtException.checkNull( aConnection );
     ISkConnection oldConnection = connection;
     // Пред-интерсепция
-    if( !callBeforeSetConnectionInterceptors( interceptors, oldConnection, aConnection ) ) {
-      // Интерспоторы запретили выполнение операции
+    IVrList vr = callBeforeSetSharedConnectionInterceptors( interceptors, oldConnection, aConnection );
+    if( vr.firstWorstResult().isError() ) {
+      // Интерсепторы запретили выполнение операции
+      logger().error( ERR_REJECT_CHANGE_CONNECTION, oldConnection, aConnection, vr.items() );
       return;
     }
     connection = aConnection;
     // Пост-интерсепция
     try {
-      callAfterSetConnectionInterceptors( interceptors, oldConnection, aConnection );
+      callAfterSetSharedConnectionInterceptors( interceptors, oldConnection, aConnection );
     }
     catch( Throwable e ) {
       // Восстановление состояния на любой ошибке
@@ -488,9 +554,9 @@ public class S5BackendCoreSingleton
       stat.onEvent( STAT_BACKEND_NODE_OPEN_SESSION_MAX, avInt( sessionManager().openSessionCount() ) );
       stat.update();
     }
-    if( overloadModeStartTime > 0 && currTime - overloadModeStartTime > STARTUP_OVERLOAD_TIMEOUT ) {
-      // Завершение режима перегрузки данными
-      endOverloadMode();
+    if( mode() == ES5ServerMode.STARTING && currTime - modeTime > STARTUP_BOOST_TIMEOUT ) {
+      // Перевод сервера из состояния загрузки в рабочий режим
+      setMode( ES5ServerMode.WORKING );
     }
   }
 
@@ -503,32 +569,6 @@ public class S5BackendCoreSingleton
   // ------------------------------------------------------------------------------------
   // Внутренние методы
   //
-  /**
-   * Запуск режима перегрузки данными
-   */
-  private void startOverloadMode() {
-    if( overloadModeStartTime > 0 ) {
-      // Режим уже запущен
-      return;
-    }
-    overloadModeStartTime = System.currentTimeMillis();
-    // 2020-07-23 mvk нужно ли это ??? (из-за этого долго искал deadlock)
-    // S5Lockable.setAccessTimeoutDefault( STARTUP_OVERLOAD_TIMEOUT );
-    logger().info( MSG_START_OVERLOAD, Long.valueOf( STARTUP_OVERLOAD_TIMEOUT ) );
-  }
-
-  /**
-   * Выход из режима перегрузки данными
-   */
-  private void endOverloadMode() {
-    if( overloadModeStartTime <= 0 ) {
-      // Режим уже остановлен
-      return;
-    }
-    overloadModeStartTime = 0;
-    S5Lockable.setAccessTimeoutDefault( ACCESS_TIMEOUT_DEFAULT );
-    logger().info( MSG_END_OVERLOAD );
-  }
 
   /**
    * Проверяет, все ли сиглетоны поддержки необходимые для реализации бекенда, завершили загрузку
