@@ -423,7 +423,8 @@ public abstract class S5BackendSequenceSupportSingleton<S extends IS5Sequence<V>
           // Проверка возможности выполнения дефрагментации при текущей загрузке системы
           if( serverMode() != ES5ServerMode.WORKING ) {
             // Загруженность системы не позволяет провести дефрагментацию значений
-            uniterLogger.warning( ERR_UNION_DISABLE_BY_LOAD_AVERAGE, id(), Double.valueOf( loadAverage() ) );
+            uniterLogger.warning( ERR_UNION_DISABLE_BY_LOAD_AVERAGE, id(), serverMode(),
+                Double.valueOf( loadAverage() ) );
             break;
           }
           // Запуск потока дефрагментации
@@ -715,7 +716,7 @@ public abstract class S5BackendSequenceSupportSingleton<S extends IS5Sequence<V>
       // Проверка возможности выполнения записи при текущей загрузке системы
       if( serverMode() == ES5ServerMode.OVERLOADED || serverMode() == ES5ServerMode.SHUTDOWNING ) {
         // Текущий режим запрещает запись
-        writeLogger.error( ERR_WRITE_DISABLE_BY_LOAD_AVERAGE, id(), Double.valueOf( loadAverage() ) );
+        writeLogger.error( ERR_WRITE_DISABLE_BY_LOAD_AVERAGE, id(), serverMode(), Double.valueOf( loadAverage() ) );
         return;
       }
       // Запись хранимых данных

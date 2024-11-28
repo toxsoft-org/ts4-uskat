@@ -18,7 +18,7 @@ import org.toxsoft.uskat.s5.utils.*;
  * @author mvk
  */
 @SuppressWarnings( "nls" )
-public class S5BackendCoreConfig
+public final class S5BackendCoreConfig
     extends S5RegisteredConstants {
 
   /**
