@@ -1,12 +1,11 @@
 package org.toxsoft.uskat.s5.server.backend.supports.core.impl;
 
-import java.util.MissingResourceException;
-import java.util.ResourceBundle;
+import java.util.*;
 
 @SuppressWarnings( { "unused" } )
 class Messages {
 
-  private static final String BUNDLE_NAME = "org.toxsoft.uskat.s5.server.backend.impl.messages"; //$NON-NLS-1$
+  private static final String BUNDLE_NAME = Messages.class.getName().toLowerCase();
 
   private static final ResourceBundle RESOURCE_BUNDLE = ResourceBundle.getBundle( BUNDLE_NAME );
 

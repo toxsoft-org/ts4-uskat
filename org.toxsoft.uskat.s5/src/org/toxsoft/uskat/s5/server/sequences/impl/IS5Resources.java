@@ -98,13 +98,11 @@ interface IS5Resources {
   String MSG_PARTITION_AUTHOR_INIT     = "Обработка разделов таблиц после перезапуска";     //$NON-NLS-1$
   String MSG_PARTITION_AUTHOR_SCHEDULE = "Плановое обработка разделов таблиц по календарю"; //$NON-NLS-1$
 
-  String MSG_PARTITION_PLAN_CREATE = "%s. %s.%s. Планирование создания разделов таблиц в автоматическом режиме: %s";                                                                //$NON-NLS-1$
+  String MSG_PARTITION_PLAN_CREATE = "%s. %s.%s. Планирование создания разделов таблиц в автоматическом режиме: %s"; //$NON-NLS-1$
   String MSG_PARTITION_PLAN_ADD    =
-      "%s. %s.%s. depth = %d суток. Планирование добавления разделов таблиц в автоматическом режиме: %s";                                                                           //$NON-NLS-1$
+      "%s. %s.%s. depth = %d суток. Планирование добавления разделов таблиц в автоматическом режиме: %s";            //$NON-NLS-1$
   String MSG_PARTITION_PLAN_REMOVE =
-      "%s. %s.%s. depth = %d суток. Планирование удаления разделов таблиц в автоматическом режиме: %s";                                                                             //$NON-NLS-1$
-  String ERR_DB_SCHEME_NOT_DEFINED =
-      "OP_BACKEND_DB_SCHEME_NAME is not defined. Set the parameter value in the server class implementation (S5InitialImplementation) in the doProjectSpecificParams(...) method."; //$NON-NLS-1$
+      "%s. %s.%s. depth = %d суток. Планирование удаления разделов таблиц в автоматическом режиме: %s";              //$NON-NLS-1$
 
   String MSG_LAST_VALUES_ASYNC_QUERY = Messages.getString( "IS5Resources.MSG_LAST_VALUES_ASYNC_QUERY" ); //$NON-NLS-1$
   String MSG_LAST_VALUE_ASYNC_QUERY  = Messages.getString( "IS5Resources.MSG_LAST_VALUE_ASYNC_QUERY" );  //$NON-NLS-1$
@@ -295,7 +293,7 @@ interface IS5Resources {
 
   String MSG_ADD_PARTITION     = "%s. %s.%s. Добавление раздела %s.";                               //$NON-NLS-1$
   String MSG_ADD_PARTITION_SQL =
-      "addPartition(aScheme=%s, aTable=%s, aInfo=%s), creating=%s. Cформирован SQL-запрос:\n   %s"; //$NON-NLS-1$
+      "addPartition(aSchema=%s, aTable=%s, aInfo=%s), creating=%s. Cформирован SQL-запрос:\n   %s"; //$NON-NLS-1$
   String MSG_REMOVE_PARTITION  = "%s. %s.%s. Удаление раздела %s.";                                 //$NON-NLS-1$
 
   String ERR_PARTITION_OP                   = "%s. Неожиданная ошибка обработки разделов операции: %s. Причина: %s"; //$NON-NLS-1$

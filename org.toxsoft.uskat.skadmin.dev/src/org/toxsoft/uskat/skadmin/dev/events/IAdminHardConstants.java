@@ -1,18 +1,19 @@
 package org.toxsoft.uskat.skadmin.dev.events;
 
 import static org.toxsoft.core.tslib.av.EAtomicType.*;
+import static org.toxsoft.core.tslib.av.impl.AvUtils.*;
 import static org.toxsoft.core.tslib.bricks.strio.IStrioHardConstants.*;
 import static org.toxsoft.core.tslib.utils.TsLibUtils.*;
 import static org.toxsoft.uskat.legacy.plexy.impl.PlexyValueUtils.*;
+import static org.toxsoft.uskat.s5.server.sequences.maintenance.S5SequenceUnionConfig.*;
+import static org.toxsoft.uskat.s5.server.sequences.maintenance.S5SequenceValidationConfig.*;
 import static org.toxsoft.uskat.skadmin.core.plugins.AdminPluginUtils.*;
 import static org.toxsoft.uskat.skadmin.dev.events.IAdminHardResources.*;
 
-import org.toxsoft.core.tslib.bricks.time.impl.TimeUtils;
-import org.toxsoft.uskat.s5.server.sequences.maintenance.IS5SequenceUnionOptions;
-import org.toxsoft.uskat.s5.server.sequences.maintenance.IS5SequenceValidationOptions;
-import org.toxsoft.uskat.skadmin.core.IAdminCmdArgDef;
-import org.toxsoft.uskat.skadmin.core.impl.AdminCmdArgDef;
-import org.toxsoft.uskat.skadmin.dev.AdminPluginDev;
+import org.toxsoft.core.tslib.bricks.time.impl.*;
+import org.toxsoft.uskat.skadmin.core.*;
+import org.toxsoft.uskat.skadmin.core.impl.*;
+import org.toxsoft.uskat.skadmin.dev.*;
 
 /**
  * Константы пакета.
@@ -77,7 +78,7 @@ interface IAdminHardConstants {
    * Аргумент {@link AdminCmdReceiver}: Время ожидания событий(мсек)
    */
   IAdminCmdArgDef ARG_RECV_TIMEOUT =
-      new AdminCmdArgDef( "timeout", createType( INTEGER, "6000" ), STR_ARG_RECV_TIMEOUT );
+      new AdminCmdArgDef( "timeout", createType( INTEGER, avInt( 6000 ) ), STR_ARG_RECV_TIMEOUT );
 
   // ------------------------------------------------------------------------------------
   // AdminCmdQuery
@@ -130,21 +131,20 @@ interface IAdminHardConstants {
 
   String ARG_VALIDATION_REPAIR_ID      = "repair";
   String ARG_VALIDATION_REPAIR_ALIAS   = "r";
-  String ARG_VALIDATION_REPAIR_NAME    = IS5SequenceValidationOptions.REPAIR.nmName();
-  String ARG_VALIDATION_REPAIR_DESCR   = IS5SequenceValidationOptions.REPAIR.description();
-  String ARG_VALIDATION_REPAIR_DEFAULT = String.valueOf( IS5SequenceValidationOptions.REPAIR.defaultValue().asBool() );
+  String ARG_VALIDATION_REPAIR_NAME    = VALIDATION_REPAIR.nmName();
+  String ARG_VALIDATION_REPAIR_DESCR   = VALIDATION_REPAIR.description();
+  String ARG_VALIDATION_REPAIR_DEFAULT = String.valueOf( VALIDATION_REPAIR.defaultValue().asBool() );
 
   String ARG_VALIDATION_FORCE_REPAIR_ID      = "force";
   String ARG_VALIDATION_FORCE_REPAIR_ALIAS   = "f";
-  String ARG_VALIDATION_FORCE_REPAIR_NAME    = IS5SequenceValidationOptions.FORCE_REPAIR.nmName();
-  String ARG_VALIDATION_FORCE_REPAIR_DESCR   = IS5SequenceValidationOptions.FORCE_REPAIR.description();
-  String ARG_VALIDATION_FORCE_REPAIR_DEFAULT =
-      String.valueOf( IS5SequenceValidationOptions.FORCE_REPAIR.defaultValue().asBool() );
+  String ARG_VALIDATION_FORCE_REPAIR_NAME    = VALIDATION_FORCE_REPAIR.nmName();
+  String ARG_VALIDATION_FORCE_REPAIR_DESCR   = VALIDATION_FORCE_REPAIR.description();
+  String ARG_VALIDATION_FORCE_REPAIR_DEFAULT = String.valueOf( VALIDATION_FORCE_REPAIR.defaultValue().asBool() );
 
   String ARG_VALIDATION_IDS_ID    = "ids";
   String ARG_VALIDATION_IDS_ALIAS = "";
-  String ARG_VALIDATION_IDS_NAME  = IS5SequenceValidationOptions.GWIDS.nmName();
-  String ARG_VALIDATION_IDS_DESCR = IS5SequenceValidationOptions.GWIDS.description();
+  String ARG_VALIDATION_IDS_NAME  = VALIDATION_GWIDS.nmName();
+  String ARG_VALIDATION_IDS_DESCR = VALIDATION_GWIDS.description();
 
   String MSG_VALIDATION_FINISH = "Завершение задачи проверки блоков последовательностей.\n" + //
       "Всего данных        : %d\n" + //
@@ -167,8 +167,8 @@ interface IAdminHardConstants {
 
   String ARG_UNION_IDS_ID    = "ids";
   String ARG_UNION_IDS_ALIAS = "";
-  String ARG_UNION_IDS_NAME  = IS5SequenceUnionOptions.UNION_GWIDS.nmName();
-  String ARG_UNION_IDS_DESCR = IS5SequenceUnionOptions.UNION_GWIDS.description();
+  String ARG_UNION_IDS_NAME  = UNION_GWIDS.nmName();
+  String ARG_UNION_IDS_DESCR = UNION_GWIDS.description();
 
   String MSG_UNION_FINISH = "Завершение задачи объединения блоков последовательностей.\n" + //
       "Проанализировано   : %d\n" + //

@@ -10,7 +10,7 @@ import javax.enterprise.concurrent.*;
 import org.toxsoft.core.tslib.av.*;
 import org.toxsoft.core.tslib.av.metainfo.*;
 import org.toxsoft.uskat.core.impl.dto.*;
-import org.toxsoft.uskat.s5.server.backend.supports.core.*;
+import org.toxsoft.uskat.s5.server.sequences.maintenance.*;
 import org.toxsoft.uskat.s5.utils.*;
 
 /**
@@ -28,7 +28,7 @@ public interface IS5SequenceHardConstants
   /**
    * Префикс идентфикаторов подсистемы
    */
-  String SYBSYSTEM_ID_PREFIX = IS5BackendCoreConstants.SYBSYSTEM_ID_PREFIX + ".sequences";
+  String SYBSYSTEM_ID_PREFIX = S5DatabaseConfig.SYBSYSTEM_ID_PREFIX;
 
   /**
    * Опция {@link IS5Sequence#typeInfo()}: значения данного являются синхронными.

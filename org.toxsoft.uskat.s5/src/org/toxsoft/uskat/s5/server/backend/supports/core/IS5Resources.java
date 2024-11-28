@@ -9,7 +9,7 @@ package org.toxsoft.uskat.s5.server.backend.supports.core;
 interface IS5Resources {
 
   /**
-   * {@link IS5BackendCoreConstants}
+   * {@link S5BackendCoreConfig}
    */
   String STR_START_TIME_MIN   = "startTimeMin";
   String STR_START_TIME_MIN_D =

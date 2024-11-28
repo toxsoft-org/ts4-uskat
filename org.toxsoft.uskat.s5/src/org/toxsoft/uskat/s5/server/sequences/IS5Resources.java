@@ -28,8 +28,8 @@ interface IS5Resources {
   // ------------------------------------------------------------------------------------
   // Строковые константы IS5SequenceAddonConfig
   //
-  String STR_N_DB_SCHEME_NAME = "database scheme"; //$NON-NLS-1$
-  String STR_D_DB_SCHEME_NAME = "database scheme"; //$NON-NLS-1$
+  String STR_N_DB_SCHEMA_NAME = "database schema"; //$NON-NLS-1$
+  String STR_D_DB_SCHEMA_NAME = "database schema"; //$NON-NLS-1$
 
   // ------------------------------------------------------------------------------------
   // Строки сообщений

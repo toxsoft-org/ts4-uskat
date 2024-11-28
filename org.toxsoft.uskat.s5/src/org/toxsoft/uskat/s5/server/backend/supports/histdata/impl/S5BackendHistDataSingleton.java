@@ -5,32 +5,26 @@ import static org.toxsoft.uskat.s5.server.IS5ImplementConstants.*;
 import static org.toxsoft.uskat.s5.server.backend.supports.histdata.IS5HistDataInterceptor.*;
 import static org.toxsoft.uskat.s5.server.backend.supports.histdata.impl.IS5Resources.*;
 
-import java.util.Map;
-import java.util.concurrent.TimeUnit;
+import java.util.*;
+import java.util.concurrent.*;
 
 import javax.ejb.*;
 
-import org.toxsoft.core.tslib.av.temporal.ITemporalAtomicValue;
+import org.toxsoft.core.tslib.av.temporal.*;
 import org.toxsoft.core.tslib.bricks.time.*;
-import org.toxsoft.core.tslib.bricks.time.impl.QueryInterval;
-import org.toxsoft.core.tslib.coll.IListEdit;
-import org.toxsoft.core.tslib.coll.IMap;
-import org.toxsoft.core.tslib.coll.impl.ElemArrayList;
-import org.toxsoft.core.tslib.coll.impl.ElemLinkedList;
-import org.toxsoft.core.tslib.gw.gwid.Gwid;
-import org.toxsoft.core.tslib.gw.gwid.GwidList;
-import org.toxsoft.core.tslib.utils.Pair;
-import org.toxsoft.core.tslib.utils.errors.TsInternalErrorRtException;
-import org.toxsoft.core.tslib.utils.errors.TsNullArgumentRtException;
-import org.toxsoft.core.tslib.utils.logs.ELogSeverity;
-import org.toxsoft.core.tslib.utils.logs.ILogger;
+import org.toxsoft.core.tslib.bricks.time.impl.*;
+import org.toxsoft.core.tslib.coll.*;
+import org.toxsoft.core.tslib.coll.impl.*;
+import org.toxsoft.core.tslib.gw.gwid.*;
+import org.toxsoft.core.tslib.utils.*;
+import org.toxsoft.core.tslib.utils.errors.*;
+import org.toxsoft.core.tslib.utils.logs.*;
 import org.toxsoft.uskat.s5.server.backend.supports.histdata.*;
-import org.toxsoft.uskat.s5.server.backend.supports.histdata.impl.sequences.S5HistDataSequenceFactory;
-import org.toxsoft.uskat.s5.server.interceptors.S5InterceptorSupport;
-import org.toxsoft.uskat.s5.server.sequences.IS5SequenceBlockEdit;
-import org.toxsoft.uskat.s5.server.sequences.IS5SequenceFactory;
-import org.toxsoft.uskat.s5.server.sequences.impl.S5BackendSequenceSupportSingleton;
-import org.toxsoft.uskat.s5.utils.jobs.IS5ServerJob;
+import org.toxsoft.uskat.s5.server.backend.supports.histdata.impl.sequences.*;
+import org.toxsoft.uskat.s5.server.interceptors.*;
+import org.toxsoft.uskat.s5.server.sequences.*;
+import org.toxsoft.uskat.s5.server.sequences.impl.*;
+import org.toxsoft.uskat.s5.utils.jobs.*;
 
 /**
  * Реализация синглетона {@link IS5BackendHistDataSingleton}
@@ -106,7 +100,7 @@ public class S5BackendHistDataSingleton
 
   @Override
   protected IS5SequenceFactory<ITemporalAtomicValue> doCreateFactory() {
-    return new S5HistDataSequenceFactory( backend().initialConfig().impl(), sysdescrReader() );
+    return new S5HistDataSequenceFactory( backend().initialConfig().impl(), configuration(), sysdescrReader() );
   }
 
   // ------------------------------------------------------------------------------------

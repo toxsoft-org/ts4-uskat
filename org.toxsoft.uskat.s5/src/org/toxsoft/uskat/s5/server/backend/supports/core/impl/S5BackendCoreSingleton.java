@@ -5,7 +5,7 @@ import static org.toxsoft.core.tslib.utils.logs.ELogSeverity.*;
 import static org.toxsoft.uskat.s5.server.IS5ImplementConstants.*;
 import static org.toxsoft.uskat.s5.server.IS5ServerHardConstants.*;
 import static org.toxsoft.uskat.s5.server.backend.ES5ServerMode.*;
-import static org.toxsoft.uskat.s5.server.backend.supports.core.IS5BackendCoreConstants.*;
+import static org.toxsoft.uskat.s5.server.backend.supports.core.S5BackendCoreConfig.*;
 import static org.toxsoft.uskat.s5.server.backend.supports.core.IS5BackendCoreInterceptor.*;
 import static org.toxsoft.uskat.s5.server.backend.supports.core.impl.IS5Resources.*;
 import static org.toxsoft.uskat.s5.utils.platform.S5ServerPlatformUtils.*;
@@ -286,7 +286,7 @@ public class S5BackendCoreSingleton
   }
 
   @Override
-  protected IStringList doConfigurationPathIds() {
+  protected IStringList doConfigurationPaths() {
     return new StringArrayList( ALL_CORE_OPDEFS.keys() );
   }
 

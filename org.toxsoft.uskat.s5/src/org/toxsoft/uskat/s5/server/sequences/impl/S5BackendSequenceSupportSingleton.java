@@ -10,8 +10,11 @@ import static org.toxsoft.uskat.s5.server.sequences.IS5SequenceHardConstants.*;
 import static org.toxsoft.uskat.s5.server.sequences.impl.IS5Resources.*;
 import static org.toxsoft.uskat.s5.server.sequences.impl.S5SequenceSQL.*;
 import static org.toxsoft.uskat.s5.server.sequences.impl.S5SequenceUtils.*;
-import static org.toxsoft.uskat.s5.server.sequences.maintenance.IS5SequencePartitionOptions.*;
-import static org.toxsoft.uskat.s5.server.sequences.maintenance.IS5SequenceUnionOptions.*;
+import static org.toxsoft.uskat.s5.server.sequences.maintenance.S5DatabaseConfig.*;
+import static org.toxsoft.uskat.s5.server.sequences.maintenance.S5SequenceConfig.*;
+import static org.toxsoft.uskat.s5.server.sequences.maintenance.S5SequencePartitionConfig.*;
+import static org.toxsoft.uskat.s5.server.sequences.maintenance.S5SequenceUnionConfig.*;
+import static org.toxsoft.uskat.s5.server.sequences.maintenance.S5SequenceValidationConfig.*;
 import static org.toxsoft.uskat.s5.utils.platform.S5ServerPlatformUtils.*;
 
 import java.sql.*;
@@ -26,7 +29,6 @@ import javax.persistence.*;
 import javax.sql.*;
 
 import org.jboss.ejb3.annotation.*;
-import org.toxsoft.core.tslib.av.*;
 import org.toxsoft.core.tslib.av.opset.*;
 import org.toxsoft.core.tslib.av.opset.impl.*;
 import org.toxsoft.core.tslib.bricks.strid.coll.*;
@@ -248,21 +250,19 @@ public abstract class S5BackendSequenceSupportSingleton<S extends IS5Sequence<V>
   // Реализация шаблонных методов S5ServiceSingletonBase
   //
   @Override
-  protected IStringList doConfigurationPathIds() {
+  protected IStringList doConfigurationPaths() {
     IStringListEdit retValue = new StringArrayList();
-    retValue.addAll( IS5SequenceUnionOptions.ALL_UNION_OPDEFS.keys() );
-    retValue.addAll( IS5SequenceValidationOptions.ALL_VALIDATION_OPDEFS.keys() );
-    retValue.addAll( IS5SequencePartitionOptions.ALL_PARTITION_OPDEFS.keys() );
+    retValue.addAll( ALL_DATABASE_OPDEFS.keys() );
+    retValue.addAll( ALL_SEQUENCES_OPDEFS.keys() );
+    retValue.addAll( ALL_UNION_OPDEFS.keys() );
+    retValue.addAll( ALL_VALIDATION_OPDEFS.keys() );
+    retValue.addAll( ALL_PARTITION_OPDEFS.keys() );
     return retValue;
   }
 
   @Override
   protected IOptionSet doCreateConfiguration() {
-    IOptionSetEdit retValue = new OptionSet();
-    // Неизменяемые параметры конфигурации службы
-    retValue.setValue( OP_BACKEND_DB_SCHEME_NAME,
-        OP_BACKEND_DB_SCHEME_NAME.getValue( backend().initialConfig().impl().params() ) );
-    return retValue;
+    return super.doCreateConfiguration();
   }
 
   @Override
@@ -284,11 +284,8 @@ public abstract class S5BackendSequenceSupportSingleton<S extends IS5Sequence<V>
   @Override
   public void saveConfiguration( IOptionSet aConfiguration ) {
     TsNullArgumentRtException.checkNull( aConfiguration );
-    IOptionSetEdit factConfiguration = new OptionSet( aConfiguration );
-    // Неизменяемые параметры конфигурации службы
-    factConfiguration.setValue( OP_BACKEND_DB_SCHEME_NAME,
-        OP_BACKEND_DB_SCHEME_NAME.getValue( backend().initialConfig().impl().params() ) );
-    super.saveConfiguration( factConfiguration );
+    super.saveConfiguration( aConfiguration );
+    sequenceWriter.setConfiguration( aConfiguration );
   }
 
   // ------------------------------------------------------------------------------------
@@ -334,7 +331,7 @@ public abstract class S5BackendSequenceSupportSingleton<S extends IS5Sequence<V>
     // Читатель системного описания
     sysdescrReader = sysdescrBackend.getReader();
     // Инициализация статегии записи последовательностей
-    sequenceWriter = new S5SequenceLastBlockWriter<>( id(), backend(), factory() );
+    sequenceWriter = new S5SequenceLastBlockWriter<>( id(), backend(), factory(), configuration() );
     // Инициализация таймера запуска задачи дефрагментации значений
     updateUnionTimers();
     // Инициализация таймера запуска задачи обработки разделов таблиц
@@ -797,10 +794,8 @@ public abstract class S5BackendSequenceSupportSingleton<S extends IS5Sequence<V>
       if( unionStat.errorCount() == 0 || fragmentInfos.size() == 0 ) {
         return unionStat;
       }
-      // Опции конфигурации
-      IOptionSet config = configuration();
       // Признак требование проводить автоматическое восстановление целостности
-      final boolean autoRepair = IS5SequenceValidationOptions.VALIDATION_AUTO_REPAIR.getValue( config ).asBool();
+      final boolean autoRepair = VALIDATION_AUTO_REPAIR.getValue( configuration() ).asBool();
       if( !autoRepair ) {
         // При дефрагментации произошли ошибки. Разрешено автоматическое восстановление последовательностей
         repairSequences( fragmentInfos );
@@ -818,11 +813,6 @@ public abstract class S5BackendSequenceSupportSingleton<S extends IS5Sequence<V>
   @Override
   public IS5SequencePartitionStat partition( String aAuthor, IOptionSet aArgs ) {
     TsNullArgumentRtException.checkNulls( aAuthor, aArgs );
-    IAtomicValue dbScheme = OP_BACKEND_DB_SCHEME_NAME.getValue( aArgs );
-    if( !dbScheme.isAssigned() ) {
-      // Не определено имя схемы базы данных в реализации сервера
-      throw new TsIllegalArgumentRtException( ERR_DB_SCHEME_NOT_DEFINED );
-    }
     if( logger().isSeverityOn( ELogSeverity.DEBUG ) ) {
       // Запуск задачи обработки разделов
       logger().debug( MSG_SINGLETON_PARTITION_TASK_START );
@@ -1425,15 +1415,12 @@ public abstract class S5BackendSequenceSupportSingleton<S extends IS5Sequence<V>
     }
     long currTime = System.currentTimeMillis();
     // Опции конфигурации
-    IOptionSetEdit config = new OptionSet( configuration() );
-    // IS5SequenceValidationOptions.VALIDATION_INTERVAL.set( vo, new TimeInterval( startTime, endTime ) );
-    IS5SequenceValidationOptions.VALIDATION_INTERVAL.setValue( config,
-        avValobj( new TimeInterval( startTime, currTime ) ) );
-    IS5SequenceValidationOptions.VALIDATION_REPAIR.setValue( config,
-        avValobj( IS5SequenceValidationOptions.VALIDATION_REPAIR.getValue( config ) ) );
-    IS5SequenceValidationOptions.VALIDATION_GWIDS.setValue( config, avValobj( ids ) );
+    IOptionSetEdit configuration = new OptionSet( configuration() );
+    VALIDATION_INTERVAL.setValue( configuration, avValobj( new TimeInterval( startTime, currTime ) ) );
+    VALIDATION_REPAIR.setValue( configuration, avValobj( VALIDATION_REPAIR.getValue( configuration ) ) );
+    VALIDATION_GWIDS.setValue( configuration, avValobj( ids ) );
     // Запуск операции восстановления
-    validation( MSG_AUTO_VALIDATION_AUTHOR, config );
+    validation( MSG_AUTO_VALIDATION_AUTHOR, configuration );
   }
 
   // ------------------------------------------------------------------------------------
@@ -1448,10 +1435,8 @@ public abstract class S5BackendSequenceSupportSingleton<S extends IS5Sequence<V>
       return;
     }
     IListEdit<Timer> oldTimers = new ElemArrayList<>( unionTimers );
-    // Опции службы
-    IOptionSet config = configuration();
     // Текущие календари конфигурации
-    S5ScheduleExpressionList calendars = UNION_CALENDARS.getValue( config ).asValobj();
+    S5ScheduleExpressionList calendars = UNION_CALENDARS.getValue( configuration() ).asValobj();
     // Удаление календарей которые больше не используется
     for( Timer timer : oldTimers ) {
       ScheduleExpression schedule = timer.getSchedule();
@@ -1504,16 +1489,9 @@ public abstract class S5BackendSequenceSupportSingleton<S extends IS5Sequence<V>
       // Запрет записи хранимых данных
       return;
     }
-    IAtomicValue dbScheme = OP_BACKEND_DB_SCHEME_NAME.getValue( backend().initialConfig().impl().params() );
-    if( !dbScheme.isAssigned() ) {
-      // Не определено имя схемы базы данных в реализации сервера
-      logger().error( ERR_DB_SCHEME_NOT_DEFINED );
-    }
     IListEdit<Timer> oldTimers = new ElemArrayList<>( partitionTimers );
-    // Опции службы
-    IOptionSet config = configuration();
     // Текущие календари конфигурации
-    S5ScheduleExpressionList calendars = PARTITION_CALENDARS.getValue( config ).asValobj();
+    S5ScheduleExpressionList calendars = PARTITION_CALENDARS.getValue( configuration() ).asValobj();
     // Удаление календарей которые больше не используется
     for( Timer timer : oldTimers ) {
       ScheduleExpression schedule = timer.getSchedule();

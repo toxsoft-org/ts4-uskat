@@ -5,7 +5,7 @@ import static org.toxsoft.uskat.s5.common.IS5CommonResources.*;
 import static org.toxsoft.uskat.s5.server.IS5ImplementConstants.*;
 import static org.toxsoft.uskat.s5.server.singletons.IS5Resources.*;
 import static org.toxsoft.uskat.s5.server.transactions.IS5TransactionDetectorSingleton.*;
-import static org.toxsoft.uskat.s5.utils.IS5RegisteredConstants.*;
+import static org.toxsoft.uskat.s5.utils.S5RegisteredConstants.*;
 import static org.toxsoft.uskat.s5.utils.threads.impl.S5Lockable.*;
 
 import java.lang.reflect.*;
@@ -20,6 +20,8 @@ import org.toxsoft.core.tslib.av.impl.*;
 import org.toxsoft.core.tslib.av.opset.*;
 import org.toxsoft.core.tslib.av.opset.impl.*;
 import org.toxsoft.core.tslib.bricks.strid.impl.*;
+import org.toxsoft.core.tslib.bricks.strio.chario.impl.*;
+import org.toxsoft.core.tslib.bricks.strio.impl.*;
 import org.toxsoft.core.tslib.bricks.time.impl.*;
 import org.toxsoft.core.tslib.coll.*;
 import org.toxsoft.core.tslib.coll.impl.*;
@@ -172,15 +174,19 @@ public class S5SingletonBase
    * Подготовка к использованию конфигурации доступной только для чтения.
    */
   private void initConfiguration() {
+    // Пути параметров конфигурации
+    IStringList configurationPaths = doConfigurationPaths();
+    // Параметры окружения
     Properties systemProperties = System.getProperties();
     // Подготовка набора параметров доступных только для чтения
     IOptionSetEdit roEdit = new OptionSet();
-    for( String id : ALL_REGISTERED_CONSTANTS.keys() ) {
-      for( String pathId : doConfigurationPathIds() ) {
+    for( String id : allRegisteredConstants().keys() ) {
+      for( String pathId : configurationPaths ) {
         if( pathId.length() == 0 || StridUtils.startsWithIdPath( id, pathId ) ) {
           String value = systemProperties.getProperty( id );
           if( value != null ) {
-            roEdit.put( id, AtomicValueKeeper.KEEPER.str2ent( value ) );
+            StrioReader sr = new StrioReader( new CharInputStreamString( value, 0 ) );
+            roEdit.put( id, AtomicValueReaderUtils.readAtomicValueOrAsString( sr ) );
           }
         }
       }
@@ -195,7 +201,7 @@ public class S5SingletonBase
     boolean needWriteConfig = (loadedConfig == null);
     //
     for( String id : new StringArrayList( rwEdit.keys() ) ) {
-      if( !ALL_REGISTERED_CONSTANTS.ids().hasElem( id ) ) {
+      if( !allRegisteredConstants().ids().hasElem( id ) ) {
         // Удаление не существующей константы
         logger().warning( ERR_REMOVING_UNREGISTERED_CONSTANT, id );
         rwEdit.remove( id );
@@ -203,7 +209,7 @@ public class S5SingletonBase
         continue;
       }
       boolean foundPath = false;
-      for( String pathId : doConfigurationPathIds() ) {
+      for( String pathId : configurationPaths ) {
         if( pathId.length() == 0 || StridUtils.startsWithIdPath( id, pathId ) ) {
           foundPath = true;
           break;
@@ -479,7 +485,7 @@ public class S5SingletonBase
   // Методы для переопределения наследниками
   //
   /**
-   * Возвращает список путей в {@link IS5RegisteredConstants#ALL_REGISTERED_CONSTANTS} в которых находятся
+   * Возвращает список путей в {@link S5RegisteredConstants#allRegisteredConstants()} в которых находятся
    * конфигурационные параметры подсистемы представляемые синглетоном.
    * <p>
    * Путь представляет часть полного пути в имени параметра. Например, для того чтобы конфигурационный параметр
@@ -497,7 +503,7 @@ public class S5SingletonBase
    *
    * @return {@link IStringList} пути параметров конфигурации.
    */
-  protected IStringList doConfigurationPathIds() {
+  protected IStringList doConfigurationPaths() {
     return new StringArrayList( id() );
   }
 

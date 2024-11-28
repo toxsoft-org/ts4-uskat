@@ -35,7 +35,7 @@ public class AdminCmdReceiver
   /**
    * Метка получения последнего события
    */
-  private long lastEventTimestamp = System.currentTimeMillis();
+  // private long lastEventTimestamp = System.currentTimeMillis();
 
   /**
    * Конструктор
@@ -124,7 +124,7 @@ public class AdminCmdReceiver
         // Печать принятой команды
         println( MSG_RECV_EVENT, event );
         // Время получения команды
-        lastEventTimestamp = System.currentTimeMillis();
+        // lastEventTimestamp = System.currentTimeMillis();
       }
     }
     catch( Throwable e ) {

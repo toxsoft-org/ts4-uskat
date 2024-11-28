@@ -60,7 +60,7 @@ public interface IS5BackendSequenceSupportSingleton<S extends IS5Sequence<V>, V 
    * Запуск задачи обработки разделов таблиц значений храненимых данных
    *
    * @param aAuthor String автор задачи (для журнала)
-   * @param aArgs {@link IOptionSet} аргументы для удаления блоков.
+   * @param aArgs {@link IOptionSet} аргументы для выполнения обработки.
    * @return {@link IS5SequenceUnionStat} статистика процесса удаления
    * @throws TsNullArgumentRtException любой аргумент = null
    * @throws TsIllegalArgumentRtException количество потоков <= 0
