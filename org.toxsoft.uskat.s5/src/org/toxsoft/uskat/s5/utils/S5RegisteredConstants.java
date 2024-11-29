@@ -17,7 +17,7 @@ public class S5RegisteredConstants {
   /**
    * Все зарегистрированные константы системы
    */
-  private static final IStridablesList<IDataDef> registredConstants = new StridablesList<>();
+  private static final IStridablesList<IDataDef> allRegisteredConstants = new StridablesList<>();
 
   /**
    * Возвращает все зарегистированные константы в системе.
@@ -25,13 +25,13 @@ public class S5RegisteredConstants {
    * @return {@link IStridablesList}&lt;{@link IDataDef}&gt; список констант.
    */
   public static IStridablesList<IDataDef> allRegisteredConstants() {
-    synchronized (registredConstants) {
-      return new StridablesList<>( registredConstants );
+    synchronized (allRegisteredConstants) {
+      return new StridablesList<>( allRegisteredConstants );
     }
   }
 
   /**
-   * Создать и зарегистировать константу в системе {@link #registredConstants}.
+   * Создать и зарегистировать константу в системе {@link #allRegisteredConstants}.
    *
    * @param aId String - data identifier (IDpath)
    * @param aAtomicType {@link EAtomicType} - atomic type
@@ -41,13 +41,13 @@ public class S5RegisteredConstants {
    */
   static public IDataDef register( String aId, EAtomicType aAtomicType, Object... aIdsAndValues ) {
     IDataDef newConstant = DataDef.create( aId, aAtomicType, aIdsAndValues );
-    synchronized (registredConstants) {
-      IDataDef retValue = registredConstants.findByKey( newConstant.id() );
+    synchronized (allRegisteredConstants) {
+      IDataDef retValue = allRegisteredConstants.findByKey( newConstant.id() );
       if( retValue != null && !retValue.equals( newConstant ) ) {
         throw new TsItemAlreadyExistsRtException();
       }
       if( retValue == null ) {
-        ((IStridablesListEdit<IDataDef>)registredConstants).add( newConstant );
+        ((IStridablesListEdit<IDataDef>)allRegisteredConstants).add( newConstant );
         retValue = newConstant;
       }
       return retValue;
