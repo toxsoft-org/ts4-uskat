@@ -254,8 +254,8 @@ public class S5BackendCoreSingleton
     // builder.transaction().lockingMode( LockingMode.OPTIMISTIC );
 
     IOptionSet configuration = configuration();
-    startTimeMin = CORE_START_TIME_MIN.getValue( configuration ).asLong();
-    startTimeMax = CORE_START_TIME_MAX.getValue( configuration ).asLong();
+    startTimeMin = CORE_START_TIME_MIN.getValue( configuration ).asLong() * 1000;
+    startTimeMax = CORE_START_TIME_MAX.getValue( configuration ).asLong() * 1000;
     boostedAverage = CORE_BOOSTED_AVERAGE.getValue( configuration ).asDouble();
     overloadAverage = CORE_OVERLOADED_AVERAGE.getValue( configuration ).asDouble();
 
@@ -292,8 +292,8 @@ public class S5BackendCoreSingleton
 
   @Override
   protected void onConfigChanged( IOptionSet aPrevConfig, IOptionSet aNewConfig ) {
-    startTimeMin = CORE_START_TIME_MIN.getValue( aNewConfig ).asLong();
-    startTimeMax = CORE_START_TIME_MAX.getValue( aNewConfig ).asLong();
+    startTimeMin = CORE_START_TIME_MIN.getValue( aNewConfig ).asLong() * 1000;
+    startTimeMax = CORE_START_TIME_MAX.getValue( aNewConfig ).asLong() * 1000;
     boostedAverage = CORE_BOOSTED_AVERAGE.getValue( aNewConfig ).asDouble();
     overloadAverage = CORE_OVERLOADED_AVERAGE.getValue( aNewConfig ).asDouble();
   }
