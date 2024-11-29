@@ -3,30 +3,32 @@ package org.toxsoft.uskat.s5.server.sequences.impl;
 import static java.lang.String.*;
 import static org.toxsoft.core.tslib.bricks.strid.impl.StridUtils.*;
 import static org.toxsoft.uskat.s5.common.IS5CommonResources.*;
-import static org.toxsoft.uskat.s5.server.IS5ServerHardConstants.*;
 import static org.toxsoft.uskat.s5.server.sequences.IS5SequenceHardConstants.*;
 import static org.toxsoft.uskat.s5.server.sequences.impl.IS5Resources.*;
+import static org.toxsoft.uskat.s5.server.sequences.maintenance.S5DatabaseConfig.*;
 import static org.toxsoft.uskat.s5.utils.threads.impl.S5Lockable.*;
 
-import java.io.Serializable;
+import java.io.*;
 import java.lang.reflect.*;
-import java.sql.ResultSet;
-import java.util.HashMap;
+import java.sql.*;
+import java.util.*;
 
-import org.toxsoft.core.tslib.av.utils.IParameterized;
-import org.toxsoft.core.tslib.bricks.strid.impl.Stridable;
+import org.toxsoft.core.tslib.av.*;
+import org.toxsoft.core.tslib.av.opset.*;
+import org.toxsoft.core.tslib.av.utils.*;
+import org.toxsoft.core.tslib.bricks.strid.impl.*;
 import org.toxsoft.core.tslib.bricks.time.*;
-import org.toxsoft.core.tslib.coll.IList;
-import org.toxsoft.core.tslib.coll.IMapEdit;
-import org.toxsoft.core.tslib.coll.impl.ElemMap;
-import org.toxsoft.core.tslib.gw.gwid.Gwid;
-import org.toxsoft.core.tslib.utils.TsLibUtils;
+import org.toxsoft.core.tslib.coll.*;
+import org.toxsoft.core.tslib.coll.impl.*;
+import org.toxsoft.core.tslib.gw.gwid.*;
+import org.toxsoft.core.tslib.utils.*;
 import org.toxsoft.core.tslib.utils.errors.*;
-import org.toxsoft.uskat.s5.common.sysdescr.ISkSysdescrReader;
+import org.toxsoft.uskat.s5.common.sysdescr.*;
 import org.toxsoft.uskat.s5.server.sequences.*;
-import org.toxsoft.uskat.s5.server.startup.IS5InitialImplementation;
-import org.toxsoft.uskat.s5.utils.collections.WrapperMap;
-import org.toxsoft.uskat.s5.utils.threads.impl.S5Lockable;
+import org.toxsoft.uskat.s5.server.sequences.maintenance.*;
+import org.toxsoft.uskat.s5.server.startup.*;
+import org.toxsoft.uskat.s5.utils.collections.*;
+import org.toxsoft.uskat.s5.utils.threads.impl.*;
 
 /**
  * Абстрактная реализация фабрики последовательности
@@ -44,6 +46,11 @@ public abstract class S5SequenceFactory<V extends ITemporal<?>>
    * Начальная, неизменяемая, проектно-зависимая конфигурация
    */
   private final IS5InitialImplementation initialConfig;
+
+  /**
+   * Конфигурация подсистемы {@link S5SequenceConfig#SYBSYSTEM_ID_PREFIX}.
+   */
+  private final IOptionSet configuration;
 
   /**
    * Читатель системного описания
@@ -91,13 +98,15 @@ public abstract class S5SequenceFactory<V extends ITemporal<?>>
    * @param aId String идентификатор фабрики
    * @param aName String имя фабрики
    * @param aInitialConfig {@link IS5InitialImplementation} начальная, неизменяемая, проектно-зависимая конфигурация
+   * @param aConfiguration {@link IOptionSet} конфигурация подсистемы {@link S5SequenceConfig#SYBSYSTEM_ID_PREFIX}.
    * @param aSysdescrReader {@link ISkSysdescrReader} читатель системного описания
    * @throws TsNullArgumentRtException любой аргумент = null
    */
   protected S5SequenceFactory( String aId, String aName, IS5InitialImplementation aInitialConfig,
-      ISkSysdescrReader aSysdescrReader ) {
+      IOptionSet aConfiguration, ISkSysdescrReader aSysdescrReader ) {
     super( aId, aName, TsLibUtils.EMPTY_STRING );
     initialConfig = TsNullArgumentRtException.checkNull( aInitialConfig );
+    configuration = TsNullArgumentRtException.checkNull( aConfiguration );
     sysdescrReader = TsNullArgumentRtException.checkNull( aSysdescrReader );
   }
 
@@ -163,8 +172,12 @@ public abstract class S5SequenceFactory<V extends ITemporal<?>>
     TsNullArgumentRtException.checkNull( aTableName );
     for( IS5SequenceTableNames tables : tableNames() ) {
       if( tables.blockTableName().equals( aTableName ) || tables.blobTableName().equals( aTableName ) ) {
-        int retValue = OP_DB_STORAGE_DEPTH.getValue( initialConfig().params() ).asInt();
-        return retValue;
+        IAtomicValue retValue = configuration.findByKey( aTableName );
+        if( retValue == null ) {
+          // Глубина конкретной таблицы не найдена. Используется общая глубина хранения данных в базе данных.
+          retValue = DATABASE_DEPTH.getValue( configuration );
+        }
+        return retValue.asInt();
       }
     }
     // Таблица не существует
@@ -260,6 +273,15 @@ public abstract class S5SequenceFactory<V extends ITemporal<?>>
    */
   protected final IS5InitialImplementation initialConfig() {
     return initialConfig;
+  }
+
+  /**
+   * Возвращает конфигурацию подсистемы {@link S5SequenceConfig}.
+   *
+   * @return {@link IS5InitialImplementation} конфигурация подсистемы
+   */
+  protected final IOptionSet configuration() {
+    return configuration;
   }
 
   /**

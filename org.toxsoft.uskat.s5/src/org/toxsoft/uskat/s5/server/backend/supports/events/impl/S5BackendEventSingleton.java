@@ -305,7 +305,7 @@ public class S5BackendEventSingleton
 
   @Override
   protected IS5SequenceFactory<SkEvent> doCreateFactory() {
-    return new S5EventSequenceFactory( backend().initialConfig().impl(), sysdescrReader() );
+    return new S5EventSequenceFactory( backend().initialConfig().impl(), configuration(), sysdescrReader() );
   }
 
   // ------------------------------------------------------------------------------------

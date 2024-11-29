@@ -46,7 +46,7 @@ import org.toxsoft.uskat.s5.common.sessions.IS5SessionInfo;
 import org.toxsoft.uskat.s5.common.sessions.ISkSession;
 import org.toxsoft.uskat.s5.legacy.ISkSystem;
 import org.toxsoft.uskat.s5.server.IS5ServerHardConstants;
-import org.toxsoft.uskat.s5.server.backend.IS5BackendCoreSingleton;
+import org.toxsoft.uskat.s5.server.backend.supports.core.*;
 import org.toxsoft.uskat.s5.server.backend.supports.events.IS5BackendEventSingleton;
 import org.toxsoft.uskat.s5.server.backend.supports.links.IS5BackendLinksSingleton;
 import org.toxsoft.uskat.s5.server.backend.supports.objects.IS5BackendObjectsSingleton;

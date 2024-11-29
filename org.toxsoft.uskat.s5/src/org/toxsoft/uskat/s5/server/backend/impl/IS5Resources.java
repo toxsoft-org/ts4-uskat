@@ -7,18 +7,9 @@ package org.toxsoft.uskat.s5.server.backend.impl;
  */
 interface IS5Resources {
 
-  String STR_D_INIT_CONFIG  = Messages.getString( "IS5Resources.STR_D_INIT_CONFIG" );  //$NON-NLS-1$
-  String STR_D_BACKEND_CORE = Messages.getString( "IS5Resources.STR_D_BACKEND_CORE" ); //$NON-NLS-1$
-
   // ------------------------------------------------------------------------------------
   // Строки сообщений
   //
-  String MSG_CREATE_BACKEND = Messages.getString( "IS5Resources.MSG_CREATE_BACKEND" ); //$NON-NLS-1$
-  String MSG_INIT_BACKEND   = Messages.getString( "IS5Resources.MSG_INIT_BACKEND" );   //$NON-NLS-1$
-  String MSG_CLOSE_BACKEND  = Messages.getString( "IS5Resources.MSG_CLOSE_BACKEND" );  //$NON-NLS-1$
-  String MSG_START_OVERLOAD = Messages.getString( "IS5Resources.MSG_START_OVERLOAD" ); //$NON-NLS-1$
-  String MSG_END_OVERLOAD   = Messages.getString( "IS5Resources.MSG_END_OVERLOAD" );   //$NON-NLS-1$
-
   String MSG_CREATE_SESSION_REQUEST      = Messages.getString( "IS5Resources.MSG_CREATE_SESSION_REQUEST" );      //$NON-NLS-1$
   String MSG_SESSION_INITIALIZE          = "initialize session";                                                 //$NON-NLS-1$
   String MSG_SESSION_ACTIVATE            = Messages.getString( "IS5Resources.MSG_SESSION_ACTIVATE" );            //$NON-NLS-1$
@@ -45,9 +36,6 @@ interface IS5Resources {
   String ERR_BEFORE_REMOVE_ALREADY       = Messages.getString( "IS5Resources.ERR_BEFORE_REMOVE_ALREADY" );       //$NON-NLS-1$
   String ERR_UNEXPECTED_EXTENSION_CLOSE  = Messages.getString( "IS5Resources.ERR_UNEXPECTED_EXTENSION_CLOSE" );  //$NON-NLS-1$
   String ERR_API_UNEXPECTED_ERROR        = Messages.getString( "IS5Resources.ERR_API_UNEXPECTED_ERROR" );        //$NON-NLS-1$
-  String ERR_CALLBACK_NOT_FOUND          = Messages.getString( "IS5Resources.ERR_CALLBACK_NOT_FOUND" );          //$NON-NLS-1$
-  String ERR_SUPPORT_ALREADY_REGISTER    = Messages.getString( "IS5Resources.ERR_SUPPORT_ALREADY_REGISTER" );    //$NON-NLS-1$
-  String ERR_WRONG_PRINCIPAL             = Messages.getString( "IS5Resources.ERR_WRONG_PRINCIPAL" );             //$NON-NLS-1$
   String ERR_WRONG_USER                  = Messages.getString( "IS5Resources.ERR_WRONG_USER" );                  //$NON-NLS-1$
   String ERR_WRONG_VERSION               = Messages.getString( "IS5Resources.ERR_WRONG_VERSION" );               //$NON-NLS-1$
   String ERR_REJECT_CONNECT              = "Отказ подключения к системе клиента %s[%s:%s]. Причина: %s";         //$NON-NLS-1$

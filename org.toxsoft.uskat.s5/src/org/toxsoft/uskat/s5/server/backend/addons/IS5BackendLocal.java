@@ -1,6 +1,6 @@
 package org.toxsoft.uskat.s5.server.backend.addons;
 
-import org.toxsoft.uskat.s5.server.backend.IS5BackendCoreSingleton;
+import org.toxsoft.uskat.s5.server.backend.supports.core.*;
 
 /**
  * Локальный доступ к серверу

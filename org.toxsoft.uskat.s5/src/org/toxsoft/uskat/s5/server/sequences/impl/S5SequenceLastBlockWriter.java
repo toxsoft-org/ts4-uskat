@@ -27,7 +27,7 @@ import org.toxsoft.core.tslib.coll.synch.*;
 import org.toxsoft.core.tslib.gw.gwid.*;
 import org.toxsoft.core.tslib.utils.errors.*;
 import org.toxsoft.core.tslib.utils.logs.*;
-import org.toxsoft.uskat.s5.server.backend.*;
+import org.toxsoft.uskat.s5.server.backend.supports.core.*;
 import org.toxsoft.uskat.s5.server.sequences.*;
 import org.toxsoft.uskat.s5.server.sequences.maintenance.*;
 import org.toxsoft.uskat.s5.server.sequences.writer.*;
@@ -71,11 +71,12 @@ class S5SequenceLastBlockWriter<S extends IS5Sequence<V>, V extends ITemporal<?>
    * @param aOwnerName String имя владельца писателя
    * @param aBackendCore {@link IS5BackendCoreSingleton} ядро бекенда сервера
    * @param aSequenceFactory {@link IS5SequenceFactory} фабрика последовательностей блоков
+   * @param aConfiguration {@link IOptionSet} конфигурация подсистемы хранения данных/команд/событий.
    * @throws TsNullArgumentRtException аргумент = null
    */
   S5SequenceLastBlockWriter( String aOwnerName, IS5BackendCoreSingleton aBackendCore,
-      IS5SequenceFactory<V> aSequenceFactory ) {
-    super( aOwnerName, aBackendCore, aSequenceFactory );
+      IS5SequenceFactory<V> aSequenceFactory, IOptionSet aConfiguration ) {
+    super( aOwnerName, aBackendCore, aSequenceFactory, aConfiguration );
   }
 
   // ------------------------------------------------------------------------------------
@@ -374,7 +375,7 @@ class S5SequenceLastBlockWriter<S extends IS5Sequence<V>, V extends ITemporal<?>
   }
 
   @Override
-  protected void onPartitionEvent( IOptionSet aArgs, IList<S5PartitionOperation> aOps, ILogger aLogger ) {
+  protected void onPartitionEvent( IOptionSet aConfiguration, IList<S5PartitionOperation> aOps, ILogger aLogger ) {
     if( lastBlocks == null ) {
       // Вызов операции обработки разделов из конструктора базового класса (до создания класса-наследника)
       return;

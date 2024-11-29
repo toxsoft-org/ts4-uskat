@@ -32,13 +32,6 @@ interface IS5Resources {
   String STR_N_BACKEND_MODULE = Messages.getString( "IS5Resources.STR_N_BACKEND_MODULE" ); //$NON-NLS-1$
   String STR_D_BACKEND_MODULE = Messages.getString( "IS5Resources.STR_D_BACKEND_MODULE" ); //$NON-NLS-1$
 
-  String STR_N_BACKEND_DB_SCHEME_NAME = "database scheme"; //$NON-NLS-1$
-  String STR_D_BACKEND_DB_SCHEME_NAME = "database scheme"; //$NON-NLS-1$
-
-  String STR_N_BACKEND_DB_STORAGE_DEPTH = "database depth";                                                                                                                                                      //$NON-NLS-1$
-  String STR_D_BACKEND_DB_STORAGE_DEPTH =
-      "Determines the storage time (in days) for historical data values, events, and command history. In fact, the system can store data for a longer period (determined by the implementation), but not less."; //$NON-NLS-1$
-
   String STR_N_BACKEND_ZONE_ID = "Зона времени";
   String STR_D_BACKEND_ZONE_ID = "Идентификатор зоны времени, по которому работает сервер";
 

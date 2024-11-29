@@ -22,6 +22,10 @@ interface IS5Resources {
   String MSG_GC_START          = Messages.getString( "IS5Resources.MSG_GC_START" );          //$NON-NLS-1$
   String MSG_GC_FINISH         = Messages.getString( "IS5Resources.MSG_GC_FINISH" );         //$NON-NLS-1$
 
+  String ERR_REMOVING_UNREGISTERED_CONSTANT         = "initConfiguration(...): removing unregistered constant. id = %s"; //$NON-NLS-1$
+  String ERR_REMOVING_CONSTANT_NOT_SPECIFIED_IN_PATH =
+      "initConfiguration(...): removing constant not specified in path. id = %s";                                        //$NON-NLS-1$
+
   // ------------------------------------------------------------------------------------
   // Тексты ошибок
   //

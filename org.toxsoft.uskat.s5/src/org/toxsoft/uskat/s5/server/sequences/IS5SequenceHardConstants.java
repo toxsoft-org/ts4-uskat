@@ -5,12 +5,13 @@ import static org.toxsoft.core.tslib.av.impl.DataDef.*;
 import static org.toxsoft.core.tslib.av.metainfo.IAvMetaConstants.*;
 import static org.toxsoft.uskat.s5.server.sequences.IS5Resources.*;
 
-import javax.enterprise.concurrent.ManagedExecutorService;
+import javax.enterprise.concurrent.*;
 
-import org.toxsoft.core.tslib.av.EAtomicType;
-import org.toxsoft.core.tslib.av.metainfo.IDataDef;
-import org.toxsoft.uskat.core.impl.dto.IDtoHardConstants;
-import org.toxsoft.uskat.s5.utils.IS5HardConstants;
+import org.toxsoft.core.tslib.av.*;
+import org.toxsoft.core.tslib.av.metainfo.*;
+import org.toxsoft.uskat.core.impl.dto.*;
+import org.toxsoft.uskat.s5.server.sequences.maintenance.*;
+import org.toxsoft.uskat.s5.utils.*;
 
 /**
  * Константы по умолчанию определяющие работу механизма {@link IS5Sequence}.
@@ -25,9 +26,9 @@ public interface IS5SequenceHardConstants
   // Опции для параметризованного описания типов данных (aTypeInfo {@link IParameterized})
   //
   /**
-   * String prefix of the all s5 sequence identifiers.
+   * Префикс идентфикаторов подсистемы
    */
-  String SEQUENCE_PREFIX = "s5.sequenses";
+  String SYBSYSTEM_ID_PREFIX = S5DatabaseConfig.SYBSYSTEM_ID_PREFIX;
 
   /**
    * Опция {@link IS5Sequence#typeInfo()}: значения данного являются синхронными.
@@ -48,7 +49,7 @@ public interface IS5SequenceHardConstants
    * <p>
    * Тип: {@link EAtomicType#STRING}
    */
-  IDataDef OP_BLOCK_IMPL_CLASS = create( SEQUENCE_PREFIX + ".BlockImplClass", EAtomicType.STRING, //
+  IDataDef OP_BLOCK_IMPL_CLASS = create( SYBSYSTEM_ID_PREFIX + ".BlockImplClass", EAtomicType.STRING, //
       TSID_NAME, STR_N_BLOCK_IMPL_CLASS, //
       TSID_DESCRIPTION, STR_D_BLOCK_IMPL_CLASS, //
       TSID_IS_NULL_ALLOWED, AV_FALSE, //
@@ -59,7 +60,7 @@ public interface IS5SequenceHardConstants
    * <p>
    * Тип: {@link EAtomicType#STRING}
    */
-  IDataDef OP_BLOB_IMPL_CLASS = create( SEQUENCE_PREFIX + ".BlobImplClass", EAtomicType.STRING, //
+  IDataDef OP_BLOB_IMPL_CLASS = create( SYBSYSTEM_ID_PREFIX + ".BlobImplClass", EAtomicType.STRING, //
       TSID_NAME, STR_N_BLOB_IMPL_CLASS, //
       TSID_DESCRIPTION, STR_D_BLOB_IMPL_CLASS, //
       TSID_IS_NULL_ALLOWED, AV_FALSE, //
@@ -70,7 +71,7 @@ public interface IS5SequenceHardConstants
    * <p>
    * Тип: {@link EAtomicType#INTEGER}
    */
-  IDataDef OP_BLOCK_SIZE_MIN = create( SEQUENCE_PREFIX + ".BlockSizeMin", EAtomicType.INTEGER, //
+  IDataDef OP_BLOCK_SIZE_MIN = create( SYBSYSTEM_ID_PREFIX + ".BlockSizeMin", EAtomicType.INTEGER, //
       TSID_NAME, STR_N_BLOCK_SIZE_MIN, //
       TSID_DESCRIPTION, STR_D_BLOCK_SIZE_MIN, //
       TSID_IS_NULL_ALLOWED, AV_FALSE, //
@@ -81,7 +82,7 @@ public interface IS5SequenceHardConstants
    * <p>
    * Тип: {@link EAtomicType#INTEGER}
    */
-  IDataDef OP_BLOCK_SIZE_MAX = create( SEQUENCE_PREFIX + ".BlockSizeMax", EAtomicType.INTEGER, //
+  IDataDef OP_BLOCK_SIZE_MAX = create( SYBSYSTEM_ID_PREFIX + ".BlockSizeMax", EAtomicType.INTEGER, //
       TSID_NAME, STR_N_BLOCK_SIZE_MAX, //
       TSID_DESCRIPTION, STR_D_BLOCK_SIZE_MAX, //
       TSID_IS_NULL_ALLOWED, AV_FALSE, //
@@ -95,7 +96,7 @@ public interface IS5SequenceHardConstants
    * При использовании характеристики следует учитывать, что для асинхронных значений фактический размер значения будет
    * определяться как: {@link #OP_VALUE_SIZE_MAX} + 8(количество байт в метке времени)
    */
-  IDataDef OP_VALUE_SIZE_MAX = create( SEQUENCE_PREFIX + ".ValueSizeMax", EAtomicType.INTEGER, //
+  IDataDef OP_VALUE_SIZE_MAX = create( SYBSYSTEM_ID_PREFIX + ".ValueSizeMax", EAtomicType.INTEGER, //
       TSID_NAME, STR_N_VALUE_SIZE_MAX, //
       TSID_DESCRIPTION, STR_D_VALUE_SIZE_MAX, //
       TSID_IS_NULL_ALLOWED, AV_FALSE, //

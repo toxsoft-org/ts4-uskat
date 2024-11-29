@@ -581,7 +581,7 @@ public class S5BackendQueriesSingleton
     long traceStartTime = System.currentTimeMillis();
 
     // Ядро локального соединения
-    ISkCoreApi coreApi = backend().getConnection().coreApi();
+    ISkCoreApi coreApi = backend().getSharedConnection().coreApi();
     // Испольнитель запросов соединения в одном потоке
     ITsThreadExecutor treadExecutor = SkThreadExecutorService.getExecutor( coreApi );
     // Служба объектов

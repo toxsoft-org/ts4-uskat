@@ -7,9 +7,22 @@ package org.toxsoft.uskat.s5.server.sequences.maintenance;
  */
 interface IS5Resources {
 
-  // ------------------------------------------------------------------------------------
-  // Строковые константы IS5SequenceUnionOptions
-  //
+  /**
+   * {@link S5SequenceConfig}
+   */
+  String STR_N_BACKEND_DB_SCHEMA_NAME = "database schema"; //$NON-NLS-1$
+  String STR_D_BACKEND_DB_SCHEMA_NAME = "database schema"; //$NON-NLS-1$
+
+  String STR_N_BACKEND_DB_STORAGE_DEPTH = "database depth";                                                                                                                                                      //$NON-NLS-1$
+  String STR_D_BACKEND_DB_STORAGE_DEPTH =
+      "Determines the storage time (in days) for historical data values, events, and command history. In fact, the system can store data for a longer period (determined by the implementation), but not less."; //$NON-NLS-1$
+
+  /**
+   * {@link S5SequenceUnionConfig}
+   */
+  String D_UNION_CALENDARS = Messages.getString( "IS5Resources.D_UNION_CALENDARS" ); //$NON-NLS-1$
+  String N_UNION_CALENDARS = Messages.getString( "IS5Resources.N_UNION_CALENDARS" ); //$NON-NLS-1$
+
   String D_UNION_INTERVAL = Messages.getString( "IS5Resources.D_UNION_INTERVAL" ); //$NON-NLS-1$
   String N_UNION_INTERVAL = Messages.getString( "IS5Resources.N_UNION_INTERVAL" ); //$NON-NLS-1$
 
@@ -37,9 +50,12 @@ interface IS5Resources {
   String D_LOOKUP_COUNT = Messages.getString( "IS5Resources.D_LOOKUP_COUNT" ); //$NON-NLS-1$
   String N_LOOKUP_COUNT = Messages.getString( "IS5Resources.N_LOOKUP_COUNT" ); //$NON-NLS-1$
 
-  // ------------------------------------------------------------------------------------
-  // Строковые константы IS5SequencePartitionOptions
-  //
+  /**
+   * {@link S5SequencePartitionConfig}
+   */
+  String D_PARTITION_CALENDARS = Messages.getString( "IS5Resources.D_PARTITION_CALENDARS" ); //$NON-NLS-1$
+  String N_PARTITION_CALENDARS = Messages.getString( "IS5Resources.N_PARTITION_CALENDARS" ); //$NON-NLS-1$
+
   String D_REMOVE_INTERVAL = Messages.getString( "IS5Resources.D_REMOVE_INTERVAL" ); //$NON-NLS-1$
   String N_REMOVE_INTERVAL = Messages.getString( "IS5Resources.N_REMOVE_INTERVAL" ); //$NON-NLS-1$
 
@@ -52,9 +68,9 @@ interface IS5Resources {
   String D_REMOVE_LOOKUP_COUNT = Messages.getString( "IS5Resources.D_REMOVE_LOOKUP_COUNT" ); //$NON-NLS-1$
   String N_REMOVE_LOOKUP_COUNT = Messages.getString( "IS5Resources.N_REMOVE_LOOKUP_COUNT" ); //$NON-NLS-1$
 
-  // ------------------------------------------------------------------------------------
-  // Строковые константы IS5SequenceValidationOptions
-  //
+  /**
+   * {@link S5SequenceValidationConfig}
+   */
   String D_VALID_REPAIR = Messages.getString( "IS5Resources.D_VALID_REPAIR" ); //$NON-NLS-1$
   String N_VALID_REPAIR = Messages.getString( "IS5Resources.N_VALID_REPAIR" ); //$NON-NLS-1$
 
@@ -71,11 +87,11 @@ interface IS5Resources {
   String N_VALID_AUTO_REPAIR = Messages.getString( "IS5Resources.N_VALID_AUTO_REPAIR" ); //$NON-NLS-1$
 
   // ------------------------------------------------------------------------------------
-  // Строки сообщений
+  // Messages
   //
 
   // ------------------------------------------------------------------------------------
-  // Тексты ошибок
+  // Errors
   //
 
 }
