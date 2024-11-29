@@ -440,7 +440,8 @@ public abstract class S5BackendSequenceSupportSingleton<S extends IS5Sequence<V>
         if( timer.equals( aTimer ) ) {
           if( serverMode() != ES5ServerMode.WORKING ) {
             // Текущий режим запрещает проводить операцию
-            partitionLogger.warning( ERR_PARTITION_DISABLE_BY_LOAD_AVERAGE, id(), Double.valueOf( loadAverage() ) );
+            partitionLogger.warning( ERR_PARTITION_DISABLE_BY_LOAD_AVERAGE, id(), serverMode(),
+                Double.valueOf( loadAverage() ) );
             break;
           }
           // System.err.println( "doTimerEventHandle" );
