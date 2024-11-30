@@ -2,8 +2,9 @@ package org.toxsoft.uskat.s5.server.startup;
 
 import javax.persistence.*;
 
-import org.toxsoft.core.tslib.av.opset.IOptionSet;
-import org.toxsoft.core.tslib.av.opset.impl.OptionSetKeeper;
+import org.toxsoft.core.tslib.av.opset.*;
+import org.toxsoft.core.tslib.av.opset.impl.*;
+import org.toxsoft.uskat.s5.server.*;
 
 /**
  * Сущность для хранения конфигурации служб.
@@ -57,8 +58,9 @@ public class S5ServiceConfigEntity {
    *
    * @return String - текстовое представление {@link IOptionSet} конфигурации службы.
    */
-  @Column
-  @Lob
+  @Column( //
+      columnDefinition = IS5ImplementConstants.LOB_TEXT_TYPE //
+  )
   public String getServiceConfig() {
     return serviceConfig;
   }

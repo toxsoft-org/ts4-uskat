@@ -3,17 +3,17 @@ package org.toxsoft.uskat.s5.server.backend.supports.links;
 import static org.toxsoft.uskat.s5.common.IS5CommonResources.*;
 import static org.toxsoft.uskat.s5.server.backend.supports.links.IS5Resources.*;
 
-import java.io.ObjectStreamException;
-import java.io.Serializable;
-import java.sql.ResultSet;
+import java.io.*;
+import java.sql.*;
 
 import javax.persistence.*;
 
-import org.toxsoft.core.tslib.gw.gwid.Gwid;
+import org.toxsoft.core.tslib.gw.gwid.*;
 import org.toxsoft.core.tslib.gw.skid.*;
-import org.toxsoft.core.tslib.utils.TsLibUtils;
+import org.toxsoft.core.tslib.utils.*;
 import org.toxsoft.core.tslib.utils.errors.*;
-import org.toxsoft.uskat.core.api.linkserv.IDtoLinkFwd;
+import org.toxsoft.uskat.core.api.linkserv.*;
+import org.toxsoft.uskat.s5.server.*;
 
 /**
  * Реализация интерфейса {@link IDtoLinkFwd} способная маппироваться на таблицу базы данных
@@ -68,12 +68,13 @@ public abstract class S5LinkFwdEntity
   /**
    * Список правых объектов связи в строковом виде.
    */
-  @Lob
   @Column( name = FIELD_RIGHT_SKIDS_STRING, //
       nullable = false,
       insertable = true,
       updatable = true,
-      unique = false )
+      unique = false,
+      columnDefinition = IS5ImplementConstants.LOB_TEXT_TYPE //
+  )
   private String rightSkidsString;
 
   /**

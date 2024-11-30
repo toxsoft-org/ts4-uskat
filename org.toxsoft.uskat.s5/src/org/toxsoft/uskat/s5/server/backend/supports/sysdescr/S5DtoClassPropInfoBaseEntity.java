@@ -13,6 +13,7 @@ import org.toxsoft.core.tslib.bricks.strid.*;
 import org.toxsoft.core.tslib.utils.*;
 import org.toxsoft.core.tslib.utils.errors.*;
 import org.toxsoft.uskat.core.api.sysdescr.dto.*;
+import org.toxsoft.uskat.s5.server.*;
 
 /**
  * Реализация интерфейса {@link IDtoClassInfo} способная маппироваться на таблицу базы данных
@@ -53,8 +54,9 @@ public abstract class S5DtoClassPropInfoBaseEntity
   /**
    * Описание дополнительных параметров класса
    */
-  @Lob
-  @Column( nullable = false )
+  @Column( nullable = false, //
+      columnDefinition = IS5ImplementConstants.LOB_TEXT_TYPE //
+  )
   private String paramsString;
 
   /**

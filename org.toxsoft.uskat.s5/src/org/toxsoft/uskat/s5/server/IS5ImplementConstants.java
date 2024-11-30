@@ -202,6 +202,34 @@ public interface IS5ImplementConstants
   String BACKEND_SESSION_IMPLEMENTATION = S5BackendSession.class.getSimpleName();
 
   // ------------------------------------------------------------------------------------
+  // Константы СУБД
+  //
+  /**
+   * Тип используемый для определения полей СУБД имеющих текстовый тип. Например, код <br>
+   * <code>
+   * @Lob
+   * String text;
+   * </code><br>
+   * заменяется на код:<br>
+   * <code>
+   * &#64;Column( //
+   *   columnDefinition = IS5ImplementConstants.LOB_TEXT_TYPE
+   * )
+   * String text;
+   * </code>
+   * <p>
+   * Источники:
+   * <ul>
+   * <li>https://mariadb.com/kb/en/data-types/;</li>
+   * <li>https://www.postgresql.org/docs/current/datatype-character.html;</li>
+   * <li>https://www.baeldung.com/jpa-annotation-postgresql-text-type.</li>
+   * </ul>
+   */
+  String LOB_TEXT_TYPE = "TEXT"; // mysql size = 65,535, postgresql size = unlimited (?)
+  // String LOB_TEXT_TYPE = "MEDIUMTEXT"; // mysql size = 16,777,215
+  // String LOB_TEXT_TYPE = "LONGTEXT"; // mysql size = 4,294,967,295
+
+  // ------------------------------------------------------------------------------------
   // Ресурсы s5-backend и их JNDI
   //
   /**

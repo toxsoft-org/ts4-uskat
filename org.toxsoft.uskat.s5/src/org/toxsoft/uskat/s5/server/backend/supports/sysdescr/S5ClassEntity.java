@@ -14,6 +14,7 @@ import org.toxsoft.core.tslib.utils.errors.*;
 import org.toxsoft.uskat.core.api.sysdescr.*;
 import org.toxsoft.uskat.core.api.sysdescr.dto.*;
 import org.toxsoft.uskat.core.impl.dto.*;
+import org.toxsoft.uskat.s5.server.*;
 import org.toxsoft.uskat.s5.server.backend.supports.objects.*;
 
 /**
@@ -56,50 +57,57 @@ public class S5ClassEntity
   /**
    * Описание расширенных атрибутов класса
    */
-  @Lob
-  @Column( nullable = false )
+  @Column( nullable = false, //
+      columnDefinition = IS5ImplementConstants.LOB_TEXT_TYPE //
+  )
   private String attrString;
 
   /**
    * Описание расширенных склепок класса
    */
-  @Lob
-  @Column( nullable = false )
+  @Column( nullable = false, //
+      columnDefinition = IS5ImplementConstants.LOB_TEXT_TYPE //
+  )
   private String rivetString;
 
   /**
    * Описание расширенных связей класса (парсируемый буфер формата ...) формат
    */
-  @Lob
-  @Column( nullable = false )
+  @Column( nullable = false, //
+      columnDefinition = IS5ImplementConstants.LOB_TEXT_TYPE //
+  )
   private String linkString;
 
   /**
    * Описание данных класса
    */
-  @Lob
-  @Column( nullable = false )
+  @Column( nullable = false, //
+      columnDefinition = IS5ImplementConstants.LOB_TEXT_TYPE //
+  )
   private String rtdataString;
 
   /**
    * Описание команд класса
    */
-  @Lob
-  @Column( nullable = false )
+  @Column( nullable = false, //
+      columnDefinition = IS5ImplementConstants.LOB_TEXT_TYPE //
+  )
   private String cmdString;
 
   /**
    * Описание событий класса
    */
-  @Lob
-  @Column( nullable = false )
+  @Column( nullable = false, //
+      columnDefinition = IS5ImplementConstants.LOB_TEXT_TYPE //
+  )
   private String eventString;
 
   /**
    * Описание clob-ов класса
    */
-  @Lob
-  @Column( nullable = false )
+  @Column( nullable = false, //
+      columnDefinition = IS5ImplementConstants.LOB_TEXT_TYPE //
+  )
   private String clobString;
 
   /**
