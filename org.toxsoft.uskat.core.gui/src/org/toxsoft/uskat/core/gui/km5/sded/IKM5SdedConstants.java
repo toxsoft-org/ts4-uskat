@@ -2,6 +2,8 @@ package org.toxsoft.uskat.core.gui.km5.sded;
 
 import static org.toxsoft.uskat.core.gui.ISkCoreGuiConstants.*;
 
+import org.toxsoft.uskat.core.gui.km5.sded.objed.*;
+
 /**
  * M5-modeling constants for SDED.
  *
@@ -23,6 +25,9 @@ public interface IKM5SdedConstants {
   String MID_SDED_EVENT_INFO      = SDED_ID + ".EventInfo";      //$NON-NLS-1$
   String MID_SDED_COLL_CONSTRAINT = SDED_ID + ".CollConstraint"; //$NON-NLS-1$
 
+  /**
+   * ID of M5-model {@link SdedSkObjectM5Model}.
+   */
   String MID_SDED_SK_OBJECT = SDED_ID + ".SkObject"; //$NON-NLS-1$
 
   String FID_CLASS_ID       = "classId";      //$NON-NLS-1$

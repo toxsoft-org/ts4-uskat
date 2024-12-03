@@ -18,6 +18,9 @@ public interface IDtoEventInfo
    */
   boolean isHist();
 
+  // FIXME use format string like ISkMessageInfo for event human-readable string creation
+  // String fmtStr();
+
   /**
    * Returns the event parameter definitions.
    *

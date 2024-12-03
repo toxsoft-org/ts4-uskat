@@ -38,6 +38,7 @@ public class SkatletBox
   @Override
   protected synchronized ValidationResult doInit( ITsContextRo aEnviron ) {
     // Клиент обязан разместить в контексте следующие параметры
+    // TODO return validation error instead of the exception
     TsIllegalArgumentRtException.checkNull( ISkatlet.REF_SKATLET_SUPPORT.getRef( aEnviron ) );
     return super.doInit( aEnviron );
   }

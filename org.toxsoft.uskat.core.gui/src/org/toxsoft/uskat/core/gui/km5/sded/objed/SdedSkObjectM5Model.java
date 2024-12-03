@@ -15,10 +15,10 @@ import org.toxsoft.uskat.core.connection.*;
 import org.toxsoft.uskat.core.gui.km5.*;
 
 /**
- * M5-model of the {@link ISkObjectService}.
+ * M5-model of the {@link ISkObject}.
  * <p>
- * This model is designed to display any {@link ISkObject}. No editing or enumeration is provided, rather use own
- * {@link IM5ItemsProvider}.
+ * This model exposes only {@link ISkObject} properties: SKID, name and description. Model uses
+ * {@link SdedSkObjectM5LifecycleManager} allowing basic CRUD operations.
  *
  * @author hazard157
  */
