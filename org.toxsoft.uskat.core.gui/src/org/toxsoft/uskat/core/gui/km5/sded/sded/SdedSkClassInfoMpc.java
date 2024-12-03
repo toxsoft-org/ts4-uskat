@@ -1,6 +1,7 @@
 package org.toxsoft.uskat.core.gui.km5.sded.sded;
 
 import static org.toxsoft.core.tsgui.bricks.actions.ITsStdActionDefs.*;
+import static org.toxsoft.core.tslib.gw.IGwHardConstants.*;
 import static org.toxsoft.uskat.core.gui.ISkCoreGuiConstants.*;
 import static org.toxsoft.uskat.core.gui.km5.sded.IKM5SdedConstants.*;
 import static org.toxsoft.uskat.core.gui.km5.sded.ISkSdedKm5SharedResources.*;
@@ -41,40 +42,50 @@ class SdedSkClassInfoMpc
   public static final ITsNodeKind<ISkClassInfo> NK_CLASS = new TsNodeKind<>( "SkClass", //$NON-NLS-1$
       ISkClassInfo.class, true, ICONID_SDED_CLASS );
 
-  static class TreeMakerByHierarchy
+  /**
+   * Groups classes by the inheritance hierarchy.
+   *
+   * @author hazard157
+   */
+  class TreeMakerByHierarchy
       implements ITsTreeMaker<ISkClassInfo> {
 
     private DefaultTsNode<ISkClassInfo> getParentNode( ISkClassInfo aCinf,
-        IStringMapEdit<DefaultTsNode<ISkClassInfo>> aAllMap, IStridablesList<ISkClassInfo> aAllItems ) {
-      DefaultTsNode<ISkClassInfo> parentNode = aAllMap.findByKey( aCinf.parentId() );
+        IStringMapEdit<DefaultTsNode<ISkClassInfo>> aNodesMap, IStridablesList<ISkClassInfo> aAllClasses ) {
+      DefaultTsNode<ISkClassInfo> parentNode = aNodesMap.findByKey( aCinf.parentId() );
       if( parentNode != null ) {
         return parentNode;
       }
-      ISkClassInfo parentClass = aAllItems.getByKey( aCinf.id() );
-      DefaultTsNode<ISkClassInfo> grandpaNode = getParentNode( parentClass, aAllMap, aAllItems );
+      ISkClassInfo parentClass = aAllClasses.getByKey( aCinf.id() );
+      DefaultTsNode<ISkClassInfo> grandpaNode = getParentNode( parentClass, aNodesMap, aAllClasses );
       parentNode = new DefaultTsNode<>( NK_CLASS, grandpaNode, parentClass );
-      aAllMap.put( parentClass.id(), parentNode );
+      aNodesMap.put( parentClass.id(), parentNode );
       grandpaNode.addNode( parentNode );
       return parentNode;
     }
 
     @Override
-    public IList<ITsNode> makeRoots( ITsNode aRootNode, IList<ISkClassInfo> aItems ) {
-      IStridablesList<ISkClassInfo> allItems = new StridablesList<>( aItems );
-      DefaultTsNode<ISkClassInfo> skRoot =
-          new DefaultTsNode<>( NK_CLASS, aRootNode, allItems.getByKey( IGwHardConstants.GW_ROOT_CLASS_ID ) );
-      IStringMapEdit<DefaultTsNode<ISkClassInfo>> allMap = new StringMap<>();
-      allMap.put( skRoot.entity().id(), skRoot );
-      for( ISkClassInfo cinf : allItems ) {
+    public IList<ITsNode> makeRoots( ITsNode aRoot, IList<ISkClassInfo> aItems ) {
+      /**
+       * Note on implementation: argument aItems may contain filtered items where parents of the classes to be displayed
+       * are NOT in aItems. So implementation will create grouping nodes based on class infos found in ALL classes list.
+       */
+      IStridablesList<ISkClassInfo> allClasses = new StridablesList<>( tree().items() );
+      if( allClasses.isEmpty() ) {
+        return IList.EMPTY;
+      }
+      IStringMapEdit<DefaultTsNode<ISkClassInfo>> nodesMap = new StringMap<>();
+      nodesMap.put( GW_ROOT_CLASS_ID, new DefaultTsNode<>( NK_CLASS, aRoot, allClasses.getByKey( GW_ROOT_CLASS_ID ) ) );
+      for( ISkClassInfo cinf : aItems ) {
         if( cinf.id().equals( IGwHardConstants.GW_ROOT_CLASS_ID ) ) {
           continue;
         }
-        DefaultTsNode<ISkClassInfo> parentNode = getParentNode( cinf, allMap, allItems );
+        DefaultTsNode<ISkClassInfo> parentNode = getParentNode( cinf, nodesMap, allClasses );
         DefaultTsNode<ISkClassInfo> classNode = new DefaultTsNode<>( NK_CLASS, parentNode, cinf );
-        allMap.put( cinf.id(), classNode );
+        nodesMap.put( cinf.id(), classNode );
         parentNode.addNode( classNode );
       }
-      return new SingleItemList<>( skRoot );
+      return new SingleItemList<>( nodesMap.getByKey( GW_ROOT_CLASS_ID ) );
     }
 
     @Override
@@ -84,6 +95,14 @@ class SdedSkClassInfoMpc
 
   }
 
+  /**
+   * Constructor - creates instance to edit entities.
+   *
+   * @param aContext {@link ITsGuiContext} - the context
+   * @param aModel {@link IM5Model} - the model
+   * @param aItemsProvider {@link IM5ItemsProvider} - the items provider or <code>null</code>
+   * @param aLifecycleManager {@link IM5LifecycleManager} - the lifecycle manager or <code>null</code>
+   */
   SdedSkClassInfoMpc( ITsGuiContext aContext, IM5Model<ISkClassInfo> aModel,
       IM5ItemsProvider<ISkClassInfo> aItemsProvider, IM5LifecycleManager<ISkClassInfo> aLifecycleManager ) {
     super( aContext, aModel, aItemsProvider, aLifecycleManager );
@@ -118,7 +137,8 @@ class SdedSkClassInfoMpc
 
   @Override
   protected void doAfterCreateControls() {
-    toolbar().setActionChecked( ACTID_HIDE_CLAIMED_CLASSES, false );
+    toolbar().setActionChecked( ACTID_HIDE_CLAIMED_CLASSES, true );
+    treeModeManager().setCurrentMode( TMIID_BY_HIERARCHY );
   }
 
   @Override

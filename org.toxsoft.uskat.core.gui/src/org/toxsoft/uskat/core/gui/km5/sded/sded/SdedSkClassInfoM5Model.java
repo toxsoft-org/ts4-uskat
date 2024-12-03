@@ -130,6 +130,17 @@ public class SdedSkClassInfoM5Model
         return new M5CollectionPanelMpcModownWrapper<>( mpc, false );
       }
 
+      protected IM5CollectionPanel<ISkClassInfo> doCreateCollViewerPanel( ITsGuiContext aContext,
+          IM5ItemsProvider<ISkClassInfo> aItemsProvider ) {
+        OPDEF_IS_ACTIONS_HIDE_PANES.setValue( aContext.params(), AV_FALSE );
+        OPDEF_IS_ACTIONS_CRUD.setValue( aContext.params(), AV_FALSE );
+        OPDEF_IS_FILTER_PANE.setValue( aContext.params(), AV_TRUE );
+        OPDEF_IS_DETAILS_PANE.setValue( aContext.params(), AV_FALSE );
+        OPDEF_IS_SUMMARY_PANE.setValue( aContext.params(), AV_FALSE );
+        MultiPaneComponentModown<ISkClassInfo> mpc = new SdedSkClassInfoMpc( aContext, model(), aItemsProvider, null );
+        return new M5CollectionPanelMpcModownWrapper<>( mpc, true );
+      }
+
     } );
   }
 
