@@ -10,17 +10,17 @@ public interface ISkResources {
   /**
    * {@link SingleSkPropUgwiSelectPanel}
    */
-  String MSG_NO_SEL_CLASS = "No selected class";
-  String MSG_NO_SEL_OBJ   = "No selected object";
-  String MSG_NO_SEL_PROP  = "No selected property";
+  String MSG_NO_SEL_CLASS = Messages.getString( "MSG_NO_SEL_CLASS" ); //$NON-NLS-1$
+  String MSG_NO_SEL_OBJ   = Messages.getString( "MSG_NO_SEL_OBJ" );   //$NON-NLS-1$
+  String MSG_NO_SEL_PROP  = Messages.getString( "MSG_NO_SEL_PROP" );  //$NON-NLS-1$
 
-  String STR_N_CLASS_PROP_KIND = "Type of property";
-  String STR_D_CLASS_PROP_KIND = "Type of class property";
+  String STR_CLASS_PROP_KIND   = Messages.getString( "STR_CLASS_PROP_KIND" );   //$NON-NLS-1$
+  String STR_CLASS_PROP_KIND_D = Messages.getString( "STR_CLASS_PROP_KIND_D" ); //$NON-NLS-1$
 
   /**
    * {@link SingleSkidUgwiSelectPanel}
    */
-  String STR_N_CLASS_IDS_LIST = "List of class ids";
-  String STR_D_CLASS_IDS_LIST = "List of class id for selection from";
+  String STR_CLASS_IDS_LIST   = Messages.getString( "STR_CLASS_IDS_LIST" );   //$NON-NLS-1$
+  String STR_CLASS_IDS_LIST_D = Messages.getString( "STR_CLASS_IDS_LIST_D" ); //$NON-NLS-1$
 
 }

@@ -44,7 +44,7 @@ public class LinkIdSkidListM5Model
 
     @Override
     protected void doInit() {
-      setNameAndDescription( STR_N_LINK_ID, STR_D_LINK_ID );
+      setNameAndDescription( STR_LINK_ID, STR_LINK_ID_D );
       setDefaultValue( DEFAULT_ID_AV );
       setFlags( M5FF_COLUMN );
     }
@@ -60,8 +60,8 @@ public class LinkIdSkidListM5Model
    * Attribute {@link LinkIdSkidList#skidList()}
    */
   public final M5AttributeFieldDef<LinkIdSkidList> SKID_LIST = new M5AttributeFieldDef<>( FID_SKID_LIST, VALOBJ, //
-      TSID_NAME, STR_N_LINKED_SKIDS, //
-      TSID_DESCRIPTION, STR_D_LINKED_SKIDS, //
+      TSID_NAME, STR_LINKED_SKIDS, //
+      TSID_DESCRIPTION, STR_LINKED_SKIDS_D, //
       TSID_KEEPER_ID, SkidListKeeper.KEEPER_ID, //
       OPID_EDITOR_FACTORY_NAME, ValedAvValobjSkidListEditor.FACTORY_NAME //
   ) {
@@ -121,7 +121,7 @@ public class LinkIdSkidListM5Model
    */
   public LinkIdSkidListM5Model() {
     super( MODEL_ID, LinkIdSkidList.class );
-    setNameAndDescription( STR_N_M5M_LINKIDSKIDLIST, STR_D_M5M_LINKIDSKIDLIST );
+    setNameAndDescription( STR_M5M_LINKIDSKIDLIST, STR_M5M_LINKIDSKIDLIST_D );
     addFieldDefs( LINK_ID, SKID_LIST );
   }
 

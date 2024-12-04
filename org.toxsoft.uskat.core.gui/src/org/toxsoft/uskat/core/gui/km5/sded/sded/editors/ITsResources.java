@@ -12,20 +12,20 @@ public interface ITsResources {
   /**
    * {@link ValedDoubleSpinner}
    */
-  String STR_N_DOUBLE_SPINNER_FLOATING_DIGITS = "После запятой";
-  String STR_D_DOUBLE_SPINNER_FLOATING_DIGITS = "Количество знаков после запятой";
-  String STR_N_DOUBLE_SPINNER_STEP            = "Шаг";
-  String STR_D_DOUBLE_SPINNER_STEP            = "Шаг изменения значения стрелкой";
-  String STR_N_DOUBLE_SPINNER_PAGE_STEP       = "Скачок";
-  String STR_D_DOUBLE_SPINNER_PAGE_STEP       = "Шаг изменения значения клавишами PageUp/PageDown";
-  String FMT_ERR_INV_FLOATING_TEXT            = "Неверный формат представления вещественного числа";
-  String MSG_ERR_INV_GWID_FORMAT              = "Неверный формат представления Gwid";               //$NON-NLS-1$
-  String MSG_ERR_INV_SKID_FORMAT              = "Неверный формат представления Skid";               //$NON-NLS-1$
+  String STR_DOUBLE_SPINNER_FLOATING_DIGITS   = Messages.getString( "STR_DOUBLE_SPINNER_FLOATING_DIGITS" );   //$NON-NLS-1$
+  String STR_DOUBLE_SPINNER_FLOATING_DIGITS_D = Messages.getString( "STR_DOUBLE_SPINNER_FLOATING_DIGITS_D" ); //$NON-NLS-1$
+  String STR_DOUBLE_SPINNER_STEP              = Messages.getString( "STR_DOUBLE_SPINNER_STEP" );              //$NON-NLS-1$
+  String STR_DOUBLE_SPINNER_STEP_D            = Messages.getString( "STR_DOUBLE_SPINNER_STEP_D" );            //$NON-NLS-1$
+  String STR_DOUBLE_SPINNER_PAGE_STEP         = Messages.getString( "STR_DOUBLE_SPINNER_PAGE_STEP" );         //$NON-NLS-1$
+  String STR_DOUBLE_SPINNER_PAGE_STEP_D       = Messages.getString( "STR_DOUBLE_SPINNER_PAGE_STEP_D" );       //$NON-NLS-1$
+  String FMT_ERR_INV_FLOATING_TEXT            = Messages.getString( "FMT_ERR_INV_FLOATING_TEXT" );            //$NON-NLS-1$
+  String MSG_ERR_INV_GWID_FORMAT              = Messages.getString( "MSG_ERR_INV_GWID_FORMAT" );              //$NON-NLS-1$
+  String MSG_ERR_INV_SKID_FORMAT              = Messages.getString( "MSG_ERR_INV_SKID_FORMAT" );              //$NON-NLS-1$
 
   /**
    * {@link PanelSkidListSelector}
    */
-  String DLG_T_SKID_LIST_SEL         = "Выбор объектов";
-  String STR_MSG_SKID_LIST_SELECTION = "Выберите нужные объекты и нажмите Ok";
-  String MSG_ERR_NO_OBJ_SELECTED     = "Не выбран ни один объект";
+  String DLG_T_SKID_LIST_SEL         = Messages.getString( "DLG_T_SKID_LIST_SEL" );         //$NON-NLS-1$
+  String STR_MSG_SKID_LIST_SELECTION = Messages.getString( "STR_MSG_SKID_LIST_SELECTION" ); //$NON-NLS-1$
+  String MSG_ERR_NO_OBJ_SELECTED     = Messages.getString( "MSG_ERR_NO_OBJ_SELECTED" );     //$NON-NLS-1$
 }

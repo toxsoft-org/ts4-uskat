@@ -62,8 +62,8 @@ public class SingleSkidUgwiSelectPanel
    * {@link SingleSkidUgwiSelectPanel#OPDEF_CLASS_IDS_LIST} option: list ID of classes for selection from.
    */
   public static final IDataDef OPDEF_CLASS_IDS_LIST = DataDef.create( OPID_CLASS_IDS_LIST, VALOBJ, //
-      TSID_NAME, STR_N_CLASS_IDS_LIST, //
-      TSID_DESCRIPTION, STR_N_CLASS_IDS_LIST, //
+      TSID_NAME, STR_CLASS_IDS_LIST, //
+      TSID_DESCRIPTION, STR_CLASS_IDS_LIST, //
       TSID_KEEPER_ID, StringListKeeper.KEEPER_ID, //
       TSID_DEFAULT_VALUE, avValobj( IStringList.EMPTY ) );
 

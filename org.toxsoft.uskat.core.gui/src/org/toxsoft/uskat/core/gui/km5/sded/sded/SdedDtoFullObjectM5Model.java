@@ -69,7 +69,7 @@ public class SdedDtoFullObjectM5Model
 
     @Override
     protected void doInit() {
-      setNameAndDescription( STR_N_OBJECT_NAME, STR_D_OBJECT_NAME );
+      setNameAndDescription( STR_OBJECT_NAME, STR_OBJECT_NAME_D );
     }
 
     protected IAtomicValue doGetFieldValue( IDtoFullObject aEntity ) {
@@ -86,7 +86,7 @@ public class SdedDtoFullObjectM5Model
 
         @Override
         protected void doInit() {
-          setNameAndDescription( STR_N_OBJECT_DESCRIPTION, STR_D_OBJECT_DESCRIPTION );
+          setNameAndDescription( STR_OBJECT_DESCRIPTION, STR_OBJECT_DESCRIPTION_D );
         }
 
         protected IAtomicValue doGetFieldValue( IDtoFullObject aEntity ) {
@@ -203,7 +203,7 @@ public class SdedDtoFullObjectM5Model
 
           @Override
           protected void doInit() {
-            setNameAndDescription( STR_N_ATTRS, STR_D_ATTRS );
+            setNameAndDescription( STR_ATTRS, STR_ATTRS_D );
             setFlags( M5FF_DETAIL );
           }
 
@@ -229,7 +229,7 @@ public class SdedDtoFullObjectM5Model
 
           @Override
           protected void doInit() {
-            setNameAndDescription( STR_N_LINKS, STR_D_LINKS );
+            setNameAndDescription( STR_LINKS, STR_LINKS_D );
             setFlags( M5FF_DETAIL );
           }
 
@@ -254,7 +254,7 @@ public class SdedDtoFullObjectM5Model
 
           @Override
           protected void doInit() {
-            setNameAndDescription( STR_N_RIVETS, STR_D_RIVETS );
+            setNameAndDescription( STR_RIVETS, STR_RIVETS_D );
             setFlags( M5FF_DETAIL );
           }
 
@@ -279,7 +279,7 @@ public class SdedDtoFullObjectM5Model
 
           @Override
           protected void doInit() {
-            setNameAndDescription( STR_N_CLOBS, STR_D_CLOBS );
+            setNameAndDescription( STR_CLOBS, STR_CLOBS_D );
             setFlags( M5FF_DETAIL );
           }
 

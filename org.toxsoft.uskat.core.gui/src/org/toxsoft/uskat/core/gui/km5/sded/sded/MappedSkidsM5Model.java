@@ -46,8 +46,8 @@ public class MappedSkidsM5Model
    * Attribute {@link IMappedSkids#map() } id of link
    */
   public M5AttributeFieldDef<IMappedSkids> LINK_ID = new M5AttributeFieldDef<>( FID_LINK_ID, EAtomicType.STRING, //
-      TSID_NAME, STR_N_MAPPED_SKIDS_LINK_ID, //
-      TSID_DESCRIPTION, STR_N_MAPPED_SKIDS_LINK_ID, //
+      TSID_NAME, STR_MAPPED_SKIDS_LINK_ID, //
+      TSID_DESCRIPTION, STR_MAPPED_SKIDS_LINK_ID, //
       IValedControlConstants.OPID_EDITOR_FACTORY_NAME, ValedAvStringText.FACTORY_NAME ) {
 
     @Override
@@ -116,8 +116,8 @@ public class MappedSkidsM5Model
    * Attribute {@link IMappedSkids#map() } Green world ID
    */
   public M5AttributeFieldDef<IMappedSkids> RIGHT_SKIDS = new M5AttributeFieldDef<>( FID_RIGHT_SKIDS, EAtomicType.VALOBJ, //
-      TSID_NAME, STR_N_MAPPED_SKIDS_RIGHT_SKIDS, //
-      TSID_DESCRIPTION, STR_D_MAPPED_SKIDS_RIGHT_SKIDS, //
+      TSID_NAME, STR_MAPPED_SKIDS_RIGHT_SKIDS, //
+      TSID_DESCRIPTION, STR_MAPPED_SKIDS_RIGHT_SKIDS_D, //
       TSID_KEEPER_ID, SkidListKeeper.KEEPER_ID, //
       IValedControlConstants.OPID_EDITOR_FACTORY_NAME, ValedAvValobjSkidListEditor.FACTORY_NAME //
   ) {

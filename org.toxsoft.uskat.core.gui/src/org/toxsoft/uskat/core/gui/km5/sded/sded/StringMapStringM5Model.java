@@ -46,8 +46,8 @@ public class StringMapStringM5Model
    * Attribute map key
    */
   public M5AttributeFieldDef<IStringMap<String>> CLOB_KEY = new M5AttributeFieldDef<>( FID_MAP_KEY, EAtomicType.STRING, //
-      TSID_NAME, STR_N_CLOB_KEY, //
-      TSID_DESCRIPTION, STR_D_CLOB_KEY, //
+      TSID_NAME, STR_CLOB_KEY, //
+      TSID_DESCRIPTION, STR_CLOB_KEY_D, //
       OPID_EDITOR_FACTORY_NAME, ValedAvStringText.FACTORY_NAME ) {
 
     @Override
@@ -67,8 +67,8 @@ public class StringMapStringM5Model
    */
   public M5AttributeFieldDef<IStringMap<String>> CLOB_VALUE =
       new M5AttributeFieldDef<>( FID_MAP_VALUE_STR, EAtomicType.STRING, //
-          TSID_NAME, STR_N_CLOB_VAL, //
-          TSID_DESCRIPTION, STR_D_CLOB_VAL, //
+          TSID_NAME, STR_CLOB_VAL, //
+          TSID_DESCRIPTION, STR_CLOB_VAL_D, //
           OPID_EDITOR_FACTORY_NAME, ValedAvStringText.FACTORY_NAME ) {
 
         @Override
