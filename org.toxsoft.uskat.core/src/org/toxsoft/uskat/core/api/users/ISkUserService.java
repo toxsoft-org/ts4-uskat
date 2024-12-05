@@ -8,30 +8,31 @@ import org.toxsoft.core.tslib.utils.errors.*;
 import org.toxsoft.uskat.core.*;
 import org.toxsoft.uskat.core.api.*;
 import org.toxsoft.uskat.core.api.objserv.*;
+import org.toxsoft.uskat.core.api.users.ability.*;
 import org.toxsoft.uskat.core.connection.*;
 
 /**
- * The users and roles managment service.
+ * The users and roles management service.
  * <p>
  * The user {@link ISkUser} identifies both a person and a software component allowed to establish connection to the
  * USkat. The role is set of the rules and rights to access data and USkat functionality. Several roles may be
  * associated to the user.
  * <p>
- * This service is based on the following consepts:
+ * This service is based on the following concepts:
  * <ul>
- * <li>there alwayes exists the superuser (with ID {@link ISkUserServiceHardConstants#USER_ID_ROOT}) with associated
+ * <li>there always exists the superuser (with ID {@link ISkUserServiceHardConstants#USER_ID_ROOT}) with associated
  * super-role (with ID {@link ISkUserServiceHardConstants#ROLE_ID_ROOT}) both having all rights and access to the whole
- * funcionality of USkat. Nither super-user nor supr-role may be disabled;</li>
+ * functionality of USkat. Neither super-user nor supr-role may be disabled;</li>
  * <li>the user ID {@link ISkUser#id()} is the same as the user login {@link ISkUser#login()} and STRID of the used
  * object {@link ISkUser#strid()};</li>
  * <li>to open the connection mandatory arguments login and password ({@link ISkConnectionConstants#ARGDEF_LOGIN} and
  * {@link ISkConnectionConstants#ARGID_PASSWORD}) must be specified;</li>
  * <li>there always exists the guest user {@link ISkUserServiceHardConstants#USER_ID_GUEST} and the guest role
  * {@link ISkUserServiceHardConstants#ROLE_ID_GUEST} which simply does not allows any data or functionality it is asked
- * for. Other data and fucnctionality is allowed for guest role. Guest user roles can not be changed and iot has the
- * only role - the guest role. However, either guest user or guest role may be disabled;</li>
+ * for. Other data and functionality is allowed for guest role. Guest user roles can not be changed and it has the only
+ * role - the guest role. However, either guest user or guest role may be disabled;</li>
  * <li>the user may be temporarily disabled - {@link ISkUser#isEnabled()} = <code>false</code>. Disabled users are not
- * alloed to open the connection.</li>
+ * allowed to open the connection.</li>
  * </ul>
  *
  * @author hazard157
@@ -47,7 +48,7 @@ public interface ISkUserService
   /**
    * Returns the list of the existing users.
    * <p>
-   * Returns all usrs including the hidden ones. It's up to application to hide users with {@link ISkUser#isHidden()}
+   * Returns all users including the hidden ones. It's up to application to hide users with {@link ISkUser#isHidden()}
    * flags set.
    *
    * @return {@link IStridablesList}&lt;{@link ISkUser}&gt; - the list or users objects
@@ -107,6 +108,9 @@ public interface ISkUserService
 
   /**
    * Creates new or updates existing role.
+   * <p>
+   * Note: Role right to access abilities can not be changed by this method, use {@link #abilityManager()} instead.
+   * Initially created role has no abilities enables.
    *
    * @param aDtoRole {@link IDtoObject} - the role data
    * @return {@link ISkRole} - created/update role object
@@ -140,7 +144,7 @@ public interface ISkUserService
    * Any user may be disabled at any time except of builtin root user.
    *
    * @param aUserId String - user login that is user ID and {@link ISkObject#strid()}
-   * @param aEnabled boolean - enabledstate
+   * @param aEnabled boolean - enabled state
    * @return {@link ISkUser} - updated user object
    * @throws TsNullArgumentRtException any argument = <code>null</code>
    * @throws TsItemNotFoundRtException no such user
@@ -162,7 +166,7 @@ public interface ISkUserService
   ISkUser setUserHidden( String aUserId, boolean aHidden );
 
   /**
-   * Sets (changes) passord for the user specified by the login (ID).
+   * Sets (changes) password for the user specified by the login (ID).
    *
    * @param aUserId String - user login that is user ID and {@link ISkObject#strid()}
    * @param aPassword String - the new password
@@ -187,6 +191,13 @@ public interface ISkUserService
    * @throws TsValidationFailedRtException failed check of {@link ISkUserServiceValidator}
    */
   ISkUser setUserRoles( String aUserId, IStridablesList<ISkRole> aRoles );
+
+  /**
+   * Returns the means to manage role abilities.
+   *
+   * @return {@link ISkAbilityManager} - the ability manager
+   */
+  ISkAbilityManager abilityManager();
 
   /**
    * Returns the password validator.

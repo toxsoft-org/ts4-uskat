@@ -2,6 +2,7 @@ package org.toxsoft.uskat.core.api.users;
 
 import static org.toxsoft.uskat.core.api.users.ISkUserServiceHardConstants.*;
 
+import org.toxsoft.core.tslib.utils.errors.*;
 import org.toxsoft.uskat.core.api.objserv.*;
 
 /**
@@ -34,10 +35,24 @@ public interface ISkRole
    * Usually hidden roles holds system rights such as slave servers connected to master one, or control boxes directly
    * connected to servers.
    *
-   * @return boolean - <code>true</code> if the roleis visible not for system administrator, only for developer
+   * @return boolean - <code>true</code> if the role is visible not for system administrator, only for developer
    */
   default boolean isHidden() {
     return attrs().getBool( ATRID_ROLE_IS_HIDDEN );
+  }
+
+  /**
+   * Determines if role has access to the specified ability.
+   * <p>
+   * For unknown abilities method returns <code>false</code>.
+   *
+   * @param aAbilityId String - the ability ID
+   * @return boolean - <code>true</code> if role is allowed to use the specified ability
+   * @throws TsNullArgumentRtException any argument = <code>null</code>
+   */
+  default boolean isAbilityAllowed( String aAbilityId ) {
+    ISkUserService us = coreApi().getService( ISkUserService.SERVICE_ID );
+    return us.abilityManager().isAbilityAllowed( strid(), aAbilityId );
   }
 
 }
