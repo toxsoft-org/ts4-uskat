@@ -1613,29 +1613,50 @@ class S5SequenceSQL {
   }
 
   /**
-   * Запрос получения разделов (партиций) указанной таблицы
+   * Запрос получения разделов (партиций) указанной таблицы (движок {@link S5DatabaseConfig#DB_ENGINE_MARIADB} или
+   * {@link S5DatabaseConfig#DB_ENGINE_MYSQL}).
    * <p>
    * <li>1. %s - Имя схемы базы данных ;</li>
    * <li>2. %s - Имя таблицы;</li>
    */
-  static final String QFRMT_GET_PARTIONS = //
+  static final String QFRMT_GET_PARTIONS_MARIADB = //
       "select distinct partition_name,partition_description from information_schema.partitions " //
           + "where table_schema='%s' and table_name='%s';";
+
+  /**
+   * Запрос получения разделов (партиций) указанной таблицы (движок {@link S5DatabaseConfig#DB_ENGINE_POSTGRESQL})
+   * <p>
+   * <li>1. %s - Имя схемы базы данных ;</li>
+   * <li>2. %s - Имя таблицы;</li>
+   */
+  static final String QFRMT_GET_PARTIONS_POSTGRESQL = //
+      // "select partrelid from pg_partitioned_table";
+      "select * from s5classentity;";
 
   /**
    * Возвращает список идентификаторов всех данных которые хранятся в базе данных
    *
    * @param aEntityManager {@link EntityManager} менеджер постоянства
+   * @param aEngine String имя движка базы данных (смотри {@link S5DatabaseConfig})
    * @param aSchema String имя схемы базы данных сервера
    * @param aTable String имя таблицы в которой находятся разделы
    * @return {@link IList}&lt;{@link S5Partition}&gt; список описаний разделов
    * @throws TsNullArgumentRtException аргумент = null
    */
-  static IList<S5Partition> readPartitions( EntityManager aEntityManager, String aSchema, String aTable ) {
-    TsNullArgumentRtException.checkNulls( aEntityManager, aSchema, aTable );
+  static IList<S5Partition> readPartitions( EntityManager aEntityManager, String aEngine, String aSchema,
+      String aTable ) {
+    TsNullArgumentRtException.checkNulls( aEntityManager, aEngine, aSchema, aTable );
     IListEdit<S5Partition> retValue = new ElemLinkedList<>();
     // Текст SQL-запроса
-    String sql = format( QFRMT_GET_PARTIONS, aSchema, aTable );
+    String sql = format( QFRMT_GET_PARTIONS_MARIADB, aSchema, aTable );
+    if( aEngine.equals( S5DatabaseConfig.DB_ENGINE_POSTGRESQL ) ) {
+      // Запрос для postgresql
+      sql = format( QFRMT_GET_PARTIONS_POSTGRESQL, aSchema, aTable );
+    }
+    // TODO: mvkd+++
+//    if( true ) {
+//      return new ElemArrayList<>();
+//    }
     // Выполнение запроса
     Query query = aEntityManager.createNativeQuery( sql );
     // Запрос данных
@@ -1706,16 +1727,18 @@ class S5SequenceSQL {
    * Добавляет указанный раздел в указанную таблицу
    *
    * @param aEntityManager {@link EntityManager} менеджер постоянства
+   * @param aEngine String имя движка базы данных (смотри {@link S5DatabaseConfig})
    * @param aSchema String имя схемы базы данных сервера
    * @param aTable String имя таблицы в которой находятся разделы
    * @param aInfo {@link S5Partition} описание раздела
    * @return int количество удаленных блоков
    * @throws TsNullArgumentRtException любой аргумент = null
    */
-  static int addPartition( EntityManager aEntityManager, String aSchema, String aTable, S5Partition aInfo ) {
+  static int addPartition( EntityManager aEntityManager, String aEngine, String aSchema, String aTable,
+      S5Partition aInfo ) {
     TsNullArgumentRtException.checkNulls( aEntityManager, aSchema, aTable, aInfo );
     // Существующие разделы
-    IList<S5Partition> partitions = readPartitions( aEntityManager, aSchema, aTable );
+    IList<S5Partition> partitions = readPartitions( aEntityManager, aEngine, aSchema, aTable );
     // Признак того, в таблице нет разделов
     boolean creating = (partitions.size() == 0);
     // Список разделов которые пересекаются с создаваемым разделом
