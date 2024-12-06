@@ -24,6 +24,7 @@ import org.toxsoft.uskat.core.*;
 import org.toxsoft.uskat.core.api.objserv.*;
 import org.toxsoft.uskat.core.api.sysdescr.dto.*;
 import org.toxsoft.uskat.core.api.users.*;
+import org.toxsoft.uskat.core.api.users.ability.*;
 import org.toxsoft.uskat.core.devapi.*;
 import org.toxsoft.uskat.core.impl.dto.*;
 import org.toxsoft.uskat.core.utils.*;
@@ -334,6 +335,8 @@ public class SkCoreServUsers
 
   };
 
+  private final ISkAbilityManager abilityManager;
+
   private final ValidationSupport            validationSupport = new ValidationSupport();
   private final ITsCompoundValidator<String> passwordValidator = TsCompoundValidator.create( true, true );
   private final Eventer                      eventer           = new Eventer();
@@ -353,6 +356,7 @@ public class SkCoreServUsers
    */
   SkCoreServUsers( IDevCoreApi aCoreApi ) {
     super( SERVICE_ID, aCoreApi );
+    abilityManager = new SkAbilityManager( this );
     passwordValidator.addValidator( builtinPasswordValidator );
     validationSupport.addValidator( builtinValidator );
   }
@@ -397,6 +401,10 @@ public class SkCoreServUsers
     objUserGuest.attrs().setStr( AID_DESCRIPTION, STR_GUEST_USER_D );
     ISkObject skoGuestUser = objServ().defineObject( objUserGuest );
     linkService().setLink( skoGuestUser.skid(), LNKID_USER_ROLES, new SkidList( objRoleGuest.skid() ) );
+    // initialize ability management classes
+
+    // FIXME
+
     //
     sysdescr().svs().addValidator( claimingValidator );
     objServ().svs().addValidator( claimingValidator );
@@ -603,6 +611,11 @@ public class SkCoreServUsers
     }
     dto.links().map().put( LNKID_USER_ROLES, rolesList );
     return editUser( dto );
+  }
+
+  @Override
+  public ISkAbilityManager abilityManager() {
+    return abilityManager;
   }
 
   @Override

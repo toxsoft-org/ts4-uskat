@@ -23,7 +23,7 @@ import org.toxsoft.uskat.core.api.rtdserv.*;
  * Notes on subclassing:
  * <ul>
  * <li>it is legal to add some initialization code to the subclass constructor. However {@link #coreApi()} is not set in
- * constructor. {@link #doPostConstruct()} is the right place to prerform initialization which needs
+ * constructor. {@link #doPostConstruct()} is the right place to perform initialization which needs
  * {@link #coreApi()};</li>
  * <li>TODO ???.</li>
  * </ul>
