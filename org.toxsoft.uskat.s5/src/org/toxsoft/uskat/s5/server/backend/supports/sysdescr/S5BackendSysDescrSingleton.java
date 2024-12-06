@@ -14,7 +14,6 @@ import java.util.concurrent.*;
 
 import javax.ejb.*;
 import javax.persistence.*;
-import javax.transaction.*;
 
 import org.hibernate.exception.*;
 import org.toxsoft.core.tslib.bricks.events.msg.*;
