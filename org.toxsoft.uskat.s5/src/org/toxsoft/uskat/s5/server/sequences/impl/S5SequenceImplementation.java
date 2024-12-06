@@ -44,7 +44,7 @@ public final class S5SequenceImplementation
    * Для определения хранения значений данного в нескольких таблицах, указывается класс первой таблицы с индексом 0 и их
    * количество например:<br>
    * <code>
-   * IS5SequenceImplementation info = new S5SequenceImplementation( S5HistDataAsyncBooleanEnity.class, S5HistDataAsyncBooleanBlobEntity.class,  10 );
+   * IS5SequenceImplementation info = new S5SequenceImplementation( S5HistDataAsyncBooleanEntity.class, S5HistDataAsyncBooleanBlobEntity.class,  10 );
    * </code>
    *
    * @param aBlockClass Class класс реализации хранения блока последовательности значений

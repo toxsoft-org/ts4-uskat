@@ -130,7 +130,7 @@ public final class S5HistDataSequenceFactory
     impls.addAll( initialConfig().getHistDataImplementations() );
     // Встроенные описания реализаций
     impls.add(
-        new S5SequenceImplementation( S5HistDataAsyncBooleanEnity.class, S5HistDataAsyncBooleanBlobEntity.class ) );
+        new S5SequenceImplementation( S5HistDataAsyncBooleanEntity.class, S5HistDataAsyncBooleanBlobEntity.class ) );
     impls.add(
         new S5SequenceImplementation( S5HistDataAsyncIntegerEntity.class, S5HistDataAsyncIntegerBlobEntity.class ) );
     impls.add(
@@ -288,7 +288,7 @@ public final class S5HistDataSequenceFactory
       if( !aSync ) {
         // Таблицы с асинхронными значениями
         return switch( aType ) {
-          case BOOLEAN -> new S5SequenceImplementation( S5HistDataAsyncBooleanEnity.class,
+          case BOOLEAN -> new S5SequenceImplementation( S5HistDataAsyncBooleanEntity.class,
                           S5HistDataAsyncBooleanBlobEntity.class );
           case INTEGER -> new S5SequenceImplementation( S5HistDataAsyncIntegerEntity.class,
                           S5HistDataAsyncIntegerBlobEntity.class );
