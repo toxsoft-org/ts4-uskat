@@ -3,17 +3,16 @@ package org.toxsoft.uskat.s5.server.startup;
 import static org.toxsoft.uskat.s5.server.IS5ImplementConstants.*;
 
 import javax.ejb.*;
-import javax.persistence.EntityManager;
-import javax.persistence.PersistenceContext;
+import javax.persistence.*;
 
-import org.toxsoft.core.log4j.LoggerWrapper;
-import org.toxsoft.core.tslib.av.opset.IOptionSet;
-import org.toxsoft.core.tslib.av.opset.impl.OptionSetKeeper;
-import org.toxsoft.core.tslib.utils.errors.TsNullArgumentRtException;
-import org.toxsoft.core.tslib.utils.logs.ILogger;
-import org.toxsoft.core.tslib.utils.logs.impl.LoggerUtils;
-import org.toxsoft.uskat.s5.server.backend.addons.S5AbstractBackend;
-import org.toxsoft.uskat.s5.server.transactions.S5TransactionManager;
+import org.toxsoft.core.log4j.*;
+import org.toxsoft.core.tslib.av.opset.*;
+import org.toxsoft.core.tslib.av.opset.impl.*;
+import org.toxsoft.core.tslib.utils.errors.*;
+import org.toxsoft.core.tslib.utils.logs.*;
+import org.toxsoft.core.tslib.utils.logs.impl.*;
+import org.toxsoft.uskat.s5.server.backend.addons.*;
+import org.toxsoft.uskat.s5.server.transactions.*;
 
 /**
  * Начало выполнения кода сервера S5 - второй (после {@link S5TransactionManager}) стартующий синглтон.
@@ -59,7 +58,7 @@ public class S5InitialSingleton
   @Override
   public IOptionSet loadServiceConfig( String aServiceId ) {
     TsNullArgumentRtException.checkNull( aServiceId );
-    s5serviceconfigentity sc = entityManager.find( s5serviceconfigentity.class, aServiceId );
+    S5ServiceConfigEntity sc = entityManager.find( S5ServiceConfigEntity.class, aServiceId );
     if( sc == null ) {
       return null;
     }
@@ -72,9 +71,9 @@ public class S5InitialSingleton
   public void saveServiceConfig( String aServiceId, IOptionSet aServiceConfig ) {
     TsNullArgumentRtException.checkNull( aServiceId );
     String cfgString = OptionSetKeeper.KEEPER.ent2str( aServiceConfig );
-    s5serviceconfigentity sc = entityManager.find( s5serviceconfigentity.class, aServiceId );
+    S5ServiceConfigEntity sc = entityManager.find( S5ServiceConfigEntity.class, aServiceId );
     if( sc == null ) {
-      sc = new s5serviceconfigentity();
+      sc = new S5ServiceConfigEntity();
       sc.setServiceId( aServiceId );
       sc.setServiceConfig( cfgString );
       entityManager.persist( sc );
