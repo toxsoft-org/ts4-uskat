@@ -12,6 +12,7 @@ import org.toxsoft.core.tslib.coll.primtypes.impl.*;
 import org.toxsoft.core.tslib.gw.skid.*;
 import org.toxsoft.uskat.core.*;
 import org.toxsoft.uskat.core.api.sysdescr.dto.*;
+import org.toxsoft.uskat.core.api.users.ability.*;
 import org.toxsoft.uskat.core.impl.dto.*;
 import org.toxsoft.uskat.core.utils.*;
 
@@ -26,14 +27,14 @@ public interface ISkUserServiceHardConstants {
   // Role
 
   /**
-   * Role class ID.
+   * {@link ISkRole} class ID.
    */
   String CLSID_ROLE = ISkHardConstants.SK_ID + ".Role"; //$NON-NLS-1$
 
   /**
    * Non-removable administrative role.
    * <p>
-   * This role always have all the right.
+   * This role always have all the rights.
    */
   String ROLE_ID_ROOT = "rootRole"; //$NON-NLS-1$
 
@@ -84,16 +85,33 @@ public interface ISkUserServiceHardConstants {
       TSID_DEFAULT_VALUE, AV_FALSE //
   );
 
+  /**
+   * Creates DTO of {@link #CLSID_ROLE} class.
+   *
+   * @return {@link IDtoClassInfo} - {@link ISkRole#CLASS_ID} class info
+   */
+  static IDtoClassInfo internalCreateRoleClassDto() {
+    DtoClassInfo cinf = new DtoClassInfo( CLSID_ROLE, GW_ROOT_CLASS_ID, OptionSetUtils.createOpSet( //
+        TSID_NAME, STR_ROLE, //
+        TSID_DESCRIPTION, STR_ROLE_D //
+    ) );
+    OPDEF_SK_IS_SOURCE_CODE_DEFINED_CLASS.setValue( cinf.params(), AV_TRUE );
+    OPDEF_SK_IS_SOURCE_USKAT_CORE_CLASS.setValue( cinf.params(), AV_TRUE );
+    cinf.attrInfos().add( ATRINF_ROLE_IS_ENABLED );
+    cinf.attrInfos().add( ATRINF_ROLE_IS_HIDDEN );
+    return cinf;
+  }
+
   // ------------------------------------------------------------------------------------
   // User
 
   /**
-   * User class ID.
+   * {@link ISkUser} class ID.
    */
   String CLSID_USER = ISkHardConstants.SK_ID + ".User"; //$NON-NLS-1$
 
   /**
-   * Unremovable administrative account login.
+   * Non-removable administrative account login.
    * <p>
    * This account always has only one role {@link #ROLE_ID_ROOT}. This account can not be disabled.
    */
@@ -102,12 +120,12 @@ public interface ISkUserServiceHardConstants {
   /**
    * Initial password for root user.
    * <p>
-   * On freshly installed systems root user will have this password untill first password change.
+   * On freshly installed systems root user will have this password until first password change.
    */
   String INITIAL_ROOT_PASSWORD = "root"; //$NON-NLS-1$
 
   /**
-   * Unremovable guest account login.
+   * Non-removable guest account login.
    * <p>
    * This account may be disabled.
    */
@@ -180,24 +198,7 @@ public interface ISkUserServiceHardConstants {
   );
 
   /**
-   * Creates DTO of {@link ISkRole#CLASS_ID} class.
-   *
-   * @return {@link IDtoClassInfo} - {@link ISkRole#CLASS_ID} class info
-   */
-  static IDtoClassInfo internalCreateRoleClassDto() {
-    DtoClassInfo cinf = new DtoClassInfo( CLSID_ROLE, GW_ROOT_CLASS_ID, OptionSetUtils.createOpSet( //
-        TSID_NAME, STR_ROLE, //
-        TSID_DESCRIPTION, STR_ROLE_D //
-    ) );
-    OPDEF_SK_IS_SOURCE_CODE_DEFINED_CLASS.setValue( cinf.params(), AV_TRUE );
-    OPDEF_SK_IS_SOURCE_USKAT_CORE_CLASS.setValue( cinf.params(), AV_TRUE );
-    cinf.attrInfos().add( ATRINF_ROLE_IS_ENABLED );
-    cinf.attrInfos().add( ATRINF_ROLE_IS_HIDDEN );
-    return cinf;
-  }
-
-  /**
-   * Creates DTO of {@link ISkUser#CLASS_ID} class.
+   * Creates DTO of {@link #CLSID_USER} class.
    *
    * @return {@link IDtoClassInfo} - {@link ISkUser#CLASS_ID} class info
    */
@@ -212,6 +213,90 @@ public interface ISkUserServiceHardConstants {
     cinf.attrInfos().add( ATRINF_USER_IS_ENABLED );
     cinf.attrInfos().add( ATRINF_USER_IS_HIDDEN );
     cinf.linkInfos().add( LNKINF_USER_ROLES );
+    return cinf;
+  }
+
+  // ------------------------------------------------------------------------------------
+  // Ability and ability kind
+  //
+
+  /**
+   * {@link ISkAbility} class ID.
+   */
+  String CLSID_ABILITY = ISkHardConstants.SK_ID + ".Ability"; //$NON-NLS-1$
+
+  /**
+   * {@link ISkAbilityKind} class ID.
+   */
+  String CLSID_ABILITY_KIND = ISkHardConstants.SK_ID + ".AbilityKind"; //$NON-NLS-1$
+
+  /**
+   * ID of the attribute {@link #ATRID_ABILITY_IS_ENABLED}.
+   */
+  String ATRID_ABILITY_IS_ENABLED = "enabled"; //$NON-NLS-1$
+
+  /**
+   * ID of the link {@link #LNKINF_ABILITIES_OF_KIND}.
+   */
+  String LNKID_ABILITIES_OF_KIND = "abilities"; //$NON-NLS-1$
+
+  /**
+   * Attribute {@link ISkAbility#isEnabled()}.
+   */
+  IDtoAttrInfo ATRINF_ABILITY_IS_ENABLED = DtoAttrInfo.create2( ATRID_ABILITY_IS_ENABLED, DDEF_TS_BOOL, //
+      TSID_NAME, STR_ABILITY_IS_ENABLED, //
+      TSID_DESCRIPTION, STR_ABILITY_IS_ENABLED_D, //
+      TSID_DEFAULT_VALUE, AV_TRUE //
+  );
+
+  /**
+   * Link {@link ISkAbilityKind#listAbilities()}.
+   */
+  IDtoLinkInfo LNKINF_ABILITIES_OF_KIND = DtoLinkInfo.create2( LNKID_ABILITIES_OF_KIND, //
+      new SingleStringList( CLSID_ABILITY ), new CollConstraint( 0, false, true, true ), //
+      TSID_NAME, STR_ABILITIES_OF_KIND, //
+      TSID_DESCRIPTION, STR_ABILITIES_OF_KIND_D //
+  );
+
+  /**
+   * Built-in kind: for abilities with unspecified or non-existing kind IDs.
+   */
+  String ABILITY_KIND_ID_UNDEFINED = "kind.undefined"; //$NON-NLS-1$
+
+  /**
+   * Built-in kind: USkat core functionality.
+   */
+  String ABILITY_KIND_ID_USKAT_CORE = "kind.uskat_core"; //$NON-NLS-1$
+
+  /**
+   * Creates DTO of {@link #CLSID_ABILITY} class.
+   *
+   * @return {@link IDtoClassInfo} - {@link ISkAbility#CLASS_ID} class info
+   */
+  static IDtoClassInfo internalCreateAbilityClassDto() {
+    DtoClassInfo cinf = new DtoClassInfo( CLSID_ABILITY, GW_ROOT_CLASS_ID, OptionSetUtils.createOpSet( //
+        TSID_NAME, STR_ABILITY, //
+        TSID_DESCRIPTION, STR_ABILITY_D //
+    ) );
+    OPDEF_SK_IS_SOURCE_CODE_DEFINED_CLASS.setValue( cinf.params(), AV_TRUE );
+    OPDEF_SK_IS_SOURCE_USKAT_CORE_CLASS.setValue( cinf.params(), AV_TRUE );
+    cinf.attrInfos().add( ATRINF_ABILITY_IS_ENABLED );
+    return cinf;
+  }
+
+  /**
+   * Creates DTO of {@link #CLSID_ABILITY_KIND} class.
+   *
+   * @return {@link IDtoClassInfo} - {@link ISkAbilityKind#CLASS_ID} class info
+   */
+  static IDtoClassInfo internalCreateAbilityKindClassDto() {
+    DtoClassInfo cinf = new DtoClassInfo( CLSID_ABILITY_KIND, GW_ROOT_CLASS_ID, OptionSetUtils.createOpSet( //
+        TSID_NAME, STR_ABILITY_KIND, //
+        TSID_DESCRIPTION, STR_ABILITY_KIND_D //
+    ) );
+    OPDEF_SK_IS_SOURCE_CODE_DEFINED_CLASS.setValue( cinf.params(), AV_TRUE );
+    OPDEF_SK_IS_SOURCE_USKAT_CORE_CLASS.setValue( cinf.params(), AV_TRUE );
+    cinf.linkInfos().add( LNKINF_ABILITIES_OF_KIND );
     return cinf;
   }
 
