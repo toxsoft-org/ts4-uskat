@@ -2,13 +2,14 @@ package org.toxsoft.uskat.s5.utils.threads.impl;
 
 import static org.toxsoft.core.log4j.LoggerWrapper.*;
 
-import java.util.concurrent.locks.ReentrantReadWriteLock;
+import java.util.concurrent.locks.*;
 
-import org.toxsoft.core.tslib.coll.IMapEdit;
-import org.toxsoft.core.tslib.coll.impl.ElemMap;
-import org.toxsoft.core.tslib.utils.TsLibUtils;
+import org.toxsoft.core.tslib.coll.*;
+import org.toxsoft.core.tslib.coll.impl.*;
+import org.toxsoft.core.tslib.utils.*;
 import org.toxsoft.core.tslib.utils.errors.*;
-import org.toxsoft.core.tslib.utils.logs.ILogger;
+import org.toxsoft.core.tslib.utils.logs.*;
+import org.toxsoft.uskat.s5.server.*;
 
 /**
  * Базовая реализация блокируемого ресурса
@@ -37,9 +38,7 @@ public class S5Lockable {
   /**
    * Таймаут (мсек) попытки захвата блокировки по умолчанию
    */
-  // TODO: 2023-02-17 mvkd
-  // private static long accessTimeoutDefault = IS5ImplementConstants.ACCESS_TIMEOUT_DEFAULT;
-  private static long accessTimeoutDefault = 30 * 1000;
+  private static long accessTimeoutDefault = IS5ImplementConstants.ACCESS_TIMEOUT_DEFAULT;
 
   /**
    * Карта блокировок
@@ -106,8 +105,7 @@ public class S5Lockable {
    */
   public static void setAccessTimeoutDefault( long aTimeout ) {
     TsIllegalArgumentRtException.checkTrue( aTimeout <= 0 );
-    // TODO: 2023-02-17 mvkd
-    // accessTimeoutDefault = aTimeout;
+    accessTimeoutDefault = aTimeout;
   }
 
   // ------------------------------------------------------------------------------------

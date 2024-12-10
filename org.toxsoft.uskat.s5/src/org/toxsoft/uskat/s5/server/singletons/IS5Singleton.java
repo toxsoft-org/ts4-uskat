@@ -1,9 +1,10 @@
 package org.toxsoft.uskat.s5.server.singletons;
 
-import org.toxsoft.core.tslib.av.opset.IOptionSet;
-import org.toxsoft.core.tslib.bricks.strid.IStridable;
-import org.toxsoft.core.tslib.utils.errors.TsIllegalStateRtException;
-import org.toxsoft.core.tslib.utils.errors.TsNullArgumentRtException;
+import org.toxsoft.core.tslib.av.*;
+import org.toxsoft.core.tslib.av.metainfo.*;
+import org.toxsoft.core.tslib.av.opset.*;
+import org.toxsoft.core.tslib.bricks.strid.*;
+import org.toxsoft.core.tslib.utils.errors.*;
 
 /**
  * Базовый интерфейс всех синглтонов сервера S5.
@@ -12,6 +13,17 @@ import org.toxsoft.core.tslib.utils.errors.TsNullArgumentRtException;
  */
 public interface IS5Singleton
     extends IStridable {
+
+  /**
+   * Устанавливает значение константы конфигурации.
+   * <p>
+   * Внимание! Значение константы не сохраняется и используется до перезапуска сервера.
+   *
+   * @param aConstant {@link IDataDef} определение константы
+   * @param aValue {@link IAtomicValue} атомарное значение константы
+   * @throws TsNullArgumentRtException любой аргумент = null
+   */
+  void setConfigurationConstant( IDataDef aConstant, IAtomicValue aValue );
 
   /**
    * Возвращает конфигурацию службы
@@ -28,7 +40,7 @@ public interface IS5Singleton
    * <p>
    * Существующая конфигурация обновляется, несуществующая - создается.
    * <p>
-   * TODO: Генерирует сообщение S5ServerMsgServiceConfigChanged.
+   * Генерирует сообщение {@link S5SingletonBase#onConfigChanged(IOptionSet, IOptionSet)}.
    * <p>
    * После перезапуска сервера конфигурация загружается из базы данных.
    *

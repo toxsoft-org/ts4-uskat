@@ -6,6 +6,8 @@ import static org.toxsoft.uskat.s5.server.IS5ImplementConstants.*;
 import static org.toxsoft.uskat.s5.server.sequences.IS5SequenceHardConstants.*;
 import static org.toxsoft.uskat.s5.server.sequences.impl.IS5Resources.*;
 import static org.toxsoft.uskat.s5.server.sequences.impl.S5SequenceSQL.*;
+import static org.toxsoft.uskat.s5.server.sequences.maintenance.S5SequenceUnionConfig.*;
+import static org.toxsoft.uskat.s5.server.sequences.maintenance.S5SequenceValidationConfig.*;
 import static org.toxsoft.uskat.s5.utils.threads.impl.S5Lockable.*;
 
 import java.util.*;
@@ -16,7 +18,6 @@ import javax.transaction.*;
 
 import org.toxsoft.core.log4j.*;
 import org.toxsoft.core.tslib.av.opset.*;
-import org.toxsoft.core.tslib.av.opset.impl.*;
 import org.toxsoft.core.tslib.av.utils.*;
 import org.toxsoft.core.tslib.bricks.strid.impl.*;
 import org.toxsoft.core.tslib.bricks.time.*;
@@ -28,7 +29,7 @@ import org.toxsoft.core.tslib.coll.impl.*;
 import org.toxsoft.core.tslib.gw.gwid.*;
 import org.toxsoft.core.tslib.utils.errors.*;
 import org.toxsoft.core.tslib.utils.logs.*;
-import org.toxsoft.uskat.s5.server.backend.*;
+import org.toxsoft.uskat.s5.server.backend.supports.core.*;
 import org.toxsoft.uskat.s5.server.sequences.*;
 import org.toxsoft.uskat.s5.server.sequences.maintenance.*;
 import org.toxsoft.uskat.s5.server.sequences.writer.*;
@@ -84,11 +85,12 @@ class S5SequenceLazyWriter<S extends IS5Sequence<V>, V extends ITemporal<?>>
    * @param aOwnerName String имя владельца писателя
    * @param aBackendCore {@link IS5BackendCoreSingleton} ядро бекенда сервера
    * @param aSequenceFactory {@link IS5SequenceFactory} фабрика последовательностей блоков
+   * @param aConfiguration {@link IOptionSet} конфигурация подсистемы хранения данных/команд/событий.
    * @throws TsNullArgumentRtException аргумент = null
    */
-  S5SequenceLazyWriter( String aOwnerName, IS5BackendCoreSingleton aBackendCore,
-      IS5SequenceFactory<V> aSequenceFactory ) {
-    super( aOwnerName, aBackendCore, aSequenceFactory );
+  S5SequenceLazyWriter( String aOwnerName, IS5BackendCoreSingleton aBackendCore, IS5SequenceFactory<V> aSequenceFactory,
+      IOptionSet aConfiguration ) {
+    super( aOwnerName, aBackendCore, aSequenceFactory, aConfiguration );
   }
 
   // ------------------------------------------------------------------------------------
@@ -147,22 +149,23 @@ class S5SequenceLazyWriter<S extends IS5Sequence<V>, V extends ITemporal<?>>
   }
 
   @Override
-  public S5SequenceUnionStat<V> doUnion( IOptionSet aArgs ) {
+  public S5SequenceUnionStat<V> doUnion( IOptionSet aConfiguration ) {
     // Журнал для потоков
     ILogger uniterLogger = LoggerWrapper.getLogger( LOG_UNITER_ID );
     // Состояние задачи дефрагментации данного
     S5SequenceUnionStat<V> statistics = new S5SequenceUnionStat<>();
-    IOptionSetEdit args = new OptionSet( aArgs );
-    // Признак ручного или автоматического объединения данных
-    boolean isAuto = !args.hasValue( IS5SequenceUnionOptions.UNION_INTERVAL );
+    // Интервал дефрагментации. Если интервал не указан, то процесс автоматически определяет требуемый интервал
+    ITimeInterval interval = UNION_INTERVAL.getValue( aConfiguration ).asValobj();
+    // Признак ручного или автоматического объединения данных.
+    boolean isAuto = ( interval == ITimeInterval.NULL  );
     // Список данных для объединения
     IList<IS5SequenceFragmentInfo> infoes = IList.EMPTY;
     // Создание менеджера постоянства
     EntityManager em = entityManagerFactory().createEntityManager();
     try {
       // Список данных для объединения
-      infoes =
-          (!isAuto ? prepareDefragmentManual( em, args ) : prepareDefragmentAuto( em, args, statistics, uniterLogger ));
+      infoes = (!isAuto ? prepareDefragmentManual( em, aConfiguration ) :
+                          prepareDefragmentAuto( em, aConfiguration, statistics, uniterLogger ));
       // Текущий размер очереди на дефрагментацию
       int queueSize = getUnionQueueSize();
       // Установки общих данных статистики
@@ -176,13 +179,12 @@ class S5SequenceLazyWriter<S extends IS5Sequence<V>, V extends ITemporal<?>>
       // Вывод в журнал
       Integer c = Integer.valueOf( infoes.size() );
       Integer q = Integer.valueOf( queueSize );
-      ITimeInterval interval = IS5SequenceUnionOptions.UNION_INTERVAL.getValue( args ).asValobj();
       uniterLogger.info( MSG_UNION_START_THREAD, c, q, interval );
       // Исполнитель s5-потоков записи данных
       S5WriteThreadExecutor executor = new S5WriteThreadExecutor( unionExecutor(), uniterLogger );
       for( IS5SequenceFragmentInfo info : infoes ) {
         // Регистрация потока
-        executor.add( new UnionThread( info, args, statistics, uniterLogger ) );
+        executor.add( new UnionThread( info, aConfiguration, statistics, uniterLogger ) );
       }
       // Запуск потоков (с ожиданием, без поднятия исключений на ошибках потоков)
       executor.run( true, false );
@@ -191,13 +193,13 @@ class S5SequenceLazyWriter<S extends IS5Sequence<V>, V extends ITemporal<?>>
       em.close();
     }
     // Оповещение наследников о проведение дефрагментации блоков
-    onUnionEvent( args, infoes, uniterLogger );
+    onUnionEvent( aConfiguration, infoes, uniterLogger );
     return statistics;
   }
 
   @Override
-  public S5SequenceValidationStat doValidation( IOptionSet aArgs ) {
-    TsNullArgumentRtException.checkNull( aArgs );
+  public S5SequenceValidationStat doValidation( IOptionSet aConfiguration ) {
+    TsNullArgumentRtException.checkNull( aConfiguration );
     // Состояние задачи проверки блоков
     S5SequenceValidationStat statistics = new S5SequenceValidationStat();
     // Менеджер постоянства
@@ -207,17 +209,14 @@ class S5SequenceLazyWriter<S extends IS5Sequence<V>, V extends ITemporal<?>>
       ILogger logger = LoggerWrapper.getLogger( LOG_VALIDATOR_ID );
       // Исполнитель s5-потоков проверки данных
       S5WriteThreadExecutor executor = new S5WriteThreadExecutor( validationExecutor(), logger );
-      // Идентификаторы данных. null: неопределены
-      IGwidList gwids = null;
-      if( aArgs.hasValue( IS5SequenceValidationOptions.GWIDS ) ) {
-        gwids = IS5SequenceValidationOptions.GWIDS.getValue( aArgs ).asValobj();
-      }
-      if( gwids == null ) {
+      // Идентификаторы данных. Если список не указан, то все данные
+      IGwidList gwids = VALIDATION_GWIDS.getValue( aConfiguration ).asValobj();
+      if( gwids.size() == 0 ) {
         // Запрос всех идентификаторов данных которые есть в базе данных
         gwids = getAllGwids( em, sequenceFactory().tableNames() );
       }
       for( Gwid gwid : gwids ) {
-        executor.add( new ValidationThread( gwid, aArgs, statistics, logger ) );
+        executor.add( new ValidationThread( gwid, aConfiguration, statistics, logger ) );
       }
       // Запуск потоков (с ожиданием, без поднятия исключений на ошибках потоков)
       executor.run( true, false );
@@ -368,12 +367,12 @@ class S5SequenceLazyWriter<S extends IS5Sequence<V>, V extends ITemporal<?>>
   /**
    * Событие: проведена дефрагментация хранения значений данных.
    *
-   * @param aArgs {@link IOptionSet} аргументы для объединения блоков (смотри {@link IS5SequenceUnionOptions}).
+   * @param aConfiguration {@link IOptionSet} конфигурация подсистемы для объединения блоков (смотри {@link S5SequenceUnionConfig}).
    * @param aInfoes {@link IList}&lt;I&gt; описания данных для которых была проведена дефрагментация
    * @param aLogger {@link ILogger} журнал работы
    */
-  protected void onUnionEvent( IOptionSet aArgs, IList<IS5SequenceFragmentInfo> aInfoes, ILogger aLogger ) {
-    TsNullArgumentRtException.checkNulls( aArgs, aInfoes, aLogger );
+  protected void onUnionEvent( IOptionSet aConfiguration, IList<IS5SequenceFragmentInfo> aInfoes, ILogger aLogger ) {
+    TsNullArgumentRtException.checkNulls( aConfiguration, aInfoes, aLogger );
   }
 
 
@@ -400,23 +399,20 @@ class S5SequenceLazyWriter<S extends IS5Sequence<V>, V extends ITemporal<?>>
    * Возращает описания и добавляет необходимые параметры для выполнения дефрагментации по запросу
    *
    * @param aEntityManager {@link EntityManager} менеджер постоянства
-   * @param aArgs {@link IOptionSetEdit} аргументы для дефрагментации блоков
+   * @param aConfiguration {@link IOptionSet} конфигурация подсистемы для дефрагментации блоков
    * @return {@link IList}&lt;IS5SequenceFragmentInfo&gt; список описаний фрагментированности данных
    * @throws TsNullArgumentRtException аргумент = null
    */
-  private IList<IS5SequenceFragmentInfo> prepareDefragmentManual( EntityManager aEntityManager, IOptionSetEdit aArgs ) {
-    TsNullArgumentRtException.checkNull( aArgs );
+  private IList<IS5SequenceFragmentInfo> prepareDefragmentManual( EntityManager aEntityManager, IOptionSet aConfiguration ) {
+    TsNullArgumentRtException.checkNull( aConfiguration );
     // Запрос всех идентификаторов данных которые есть в базе данных
     IGwidList allGwids = getAllGwids( aEntityManager, sequenceFactory().tableNames() );
     // Информация о фрагментации
     IListEdit<IS5SequenceFragmentInfo> infoes = new ElemArrayList<>( allGwids.size() );
-    // Идентификаторы данных. null: неопределены
-    IGwidList gwids = null;
-    if( aArgs.hasValue( IS5SequenceUnionOptions.UNION_GWIDS ) ) {
-      gwids = IS5SequenceUnionOptions.UNION_GWIDS.getValue( aArgs ).asValobj();
-    }
+    // Идентификаторы данных. Если список не указан, то все данные
+    IGwidList gwids =  UNION_GWIDS.getValue( aConfiguration ).asValobj();
     // Интервал дефрагментации
-    ITimeInterval interval = IS5SequenceUnionOptions.UNION_INTERVAL.getValue( aArgs ).asValobj();
+    ITimeInterval interval = UNION_INTERVAL.getValue( aConfiguration ).asValobj();
     // Указан список данных
     for( Gwid gwid : allGwids ) {
       if( gwids == null || gwids.size() == 0 || gwids.hasElem( gwid ) ) {
@@ -431,29 +427,29 @@ class S5SequenceLazyWriter<S extends IS5Sequence<V>, V extends ITemporal<?>>
    * Возращает описания и добавляет необходимые параметры для выполнения дефрагментации в автоматическом режиме
    *
    * @param aEntityManager {@link EntityManager} менеджер постоянства
-   * @param aArgs {@link IOptionSetEdit} аргументы для дефрагментации блоков .
+   * @param aConfiguration {@link IOptionSet} конфигурация подсистема для дефрагментации блоков .
    * @param aStatistics {@link S5SequenceUnionStat} статистика с возможностью редактирования
    * @param aLogger {@link ILogger} журнал
    * @return {@link IList}&lt;IS5SequenceFragmentInfo&gt; список описаний фрагментированности данных
    * @throws TsNullArgumentRtException любой аргумент = null
    */
-  private IList<IS5SequenceFragmentInfo> prepareDefragmentAuto( EntityManager aEntityManager, IOptionSetEdit aArgs,
+  private IList<IS5SequenceFragmentInfo> prepareDefragmentAuto( EntityManager aEntityManager, IOptionSet aConfiguration,
       S5SequenceUnionStat<V> aStatistics, ILogger aLogger ) {
-    TsNullArgumentRtException.checkNulls( aArgs, aLogger );
+    TsNullArgumentRtException.checkNulls( aConfiguration, aLogger );
     // Фабрика последовательностей
     IS5SequenceFactory<V> factory = sequenceFactory();
     // Смещение дефрагментации от текущего времении
-    long offset = IS5SequenceUnionOptions.UNION_AUTO_OFFSET.getValue( aArgs ).asLong();
+    long offset = UNION_AUTO_OFFSET.getValue( aConfiguration ).asLong();
     // Максимальное время фрагментации
-    long fragmentTimeout = IS5SequenceUnionOptions.UNION_AUTO_FRAGMENT_TIMEOUT.getValue( aArgs ).asLong();
+    long fragmentTimeout = UNION_AUTO_FRAGMENT_TIMEOUT.getValue( aConfiguration ).asLong();
     // // Минимальное количество блоков для принудительного объединения
-    // int fragmentCountMin = IS5SequenceUnionOptions.UNION_AUTO_FRAGMENT_COUNT_MIN.getValue( aArgs ).asInt();
+    // int fragmentCountMin = UNION_AUTO_FRAGMENT_COUNT_MIN.getValue( aArgs ).asInt();
     // // Максимальное количество блоков для принудительного объединения
-    // int fragmentCountMax = IS5SequenceUnionOptions.UNION_AUTO_FRAGMENT_COUNT_MAX.getValue( aArgs ).asInt();
+    // int fragmentCountMax = UNION_AUTO_FRAGMENT_COUNT_MAX.getValue( aArgs ).asInt();
     // Максимальное количество потоков дефрагментации
-    int threadCount = IS5SequenceUnionOptions.UNION_AUTO_THREADS_COUNT.getValue( aArgs ).asInt();
+    int threadCount = UNION_AUTO_THREADS_COUNT.getValue( aConfiguration ).asInt();
     // Мощность поиска дефрагментации
-    int lookupCountMax = IS5SequenceUnionOptions.UNION_AUTO_LOOKUP_COUNT.getValue( aArgs ).asInt();
+    int lookupCountMax = UNION_AUTO_LOOKUP_COUNT.getValue( aConfiguration ).asInt();
     // Текущее время
     long currTime = System.currentTimeMillis();
     // Время завершения интервала дефрагментации
@@ -720,7 +716,7 @@ class S5SequenceLazyWriter<S extends IS5Sequence<V>, V extends ITemporal<?>>
     /**
      * Создание асинхронной задачи дефрагментации блоков последовательности данных
      *
-     * @param aArgs {@link IOptionSet} аргументы для дефрагментации блоков (смотри {@link IS5SequenceUnionOptions}).
+     * @param aArgs {@link IOptionSet} аргументы для дефрагментации блоков (смотри {@link S5SequenceUnionConfig}).
      * @param aInfo I описание фрагментации данных
      * @param aStatistics {@link S5SequenceUnionStat} статистика выполнения задачи
      * @param aLogger {@link ILogger} журнал
@@ -812,22 +808,22 @@ class S5SequenceLazyWriter<S extends IS5Sequence<V>, V extends ITemporal<?>>
      * Создание асинхронной задачи проверки блоков последовательности данных
      *
      * @param aGwid {@link Gwid} идентификатор данного
-     * @param aArgs {@link IOptionSet} аргументы для проверки блоков ).
+     * @param aConfiguration {@link IOptionSet} конфигурация подсистемы для проверки блоков.
      * @param aStatistics буфер для размещения результата выполнения задачи
      * @param aLogger {@link ILogger} журнал
      * @throws TsNullArgumentRtException любой аргумент = null
      */
-    ValidationThread( Gwid aGwid, IOptionSet aArgs, S5SequenceValidationStat aStatistics, ILogger aLogger ) {
+    ValidationThread( Gwid aGwid, IOptionSet aConfiguration, S5SequenceValidationStat aStatistics, ILogger aLogger ) {
       super( aLogger );
-      TsNullArgumentRtException.checkNulls( aGwid, aArgs, aStatistics, aLogger );
+      TsNullArgumentRtException.checkNulls( aGwid, aConfiguration, aStatistics, aLogger );
       gwid = aGwid;
-      ITimeInterval ti = IS5SequenceValidationOptions.INTERVAL.getValue( aArgs ).asValobj();
-      if( ti == null ) {
+      ITimeInterval ti = VALIDATION_INTERVAL.getValue( aConfiguration ).asValobj();
+      if( ti == ITimeInterval.NULL ) {
         ti = ITimeInterval.WHOLE;
       }
       interval = new QueryInterval( EQueryIntervalType.CSCE, ti.startTime(), ti.endTime() );
-      canRemove = IS5SequenceValidationOptions.FORCE_REPAIR.getValue( aArgs ).asBool();
-      canUpdate = IS5SequenceValidationOptions.REPAIR.getValue( aArgs ).asBool() || canRemove;
+      canRemove = VALIDATION_FORCE_REPAIR.getValue( aConfiguration ).asBool();
+      canUpdate = VALIDATION_REPAIR.getValue( aConfiguration ).asBool() || canRemove;
       stat = aStatistics;
     }
 

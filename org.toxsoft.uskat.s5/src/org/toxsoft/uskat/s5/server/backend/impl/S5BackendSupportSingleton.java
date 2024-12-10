@@ -6,18 +6,18 @@ import static org.toxsoft.uskat.s5.server.transactions.ES5TransactionResources.*
 
 import javax.ejb.*;
 
-import org.toxsoft.core.tslib.av.opset.IOptionSet;
-import org.toxsoft.core.tslib.gw.skid.Skid;
-import org.toxsoft.core.tslib.utils.errors.TsNullArgumentRtException;
-import org.toxsoft.uskat.classes.IS5ClassBackend;
-import org.toxsoft.uskat.classes.IS5ClassHistorableBackend;
-import org.toxsoft.uskat.core.backend.api.ISkBackendInfo;
-import org.toxsoft.uskat.s5.server.backend.IS5BackendCoreSingleton;
-import org.toxsoft.uskat.s5.server.backend.IS5BackendSupportSingleton;
-import org.toxsoft.uskat.s5.server.cluster.IS5ClusterManager;
-import org.toxsoft.uskat.s5.server.singletons.S5SingletonBase;
-import org.toxsoft.uskat.s5.server.transactions.IS5Transaction;
-import org.toxsoft.uskat.s5.server.transactions.IS5TransactionListener;
+import org.toxsoft.core.tslib.av.opset.*;
+import org.toxsoft.core.tslib.bricks.validator.vrl.*;
+import org.toxsoft.core.tslib.gw.skid.*;
+import org.toxsoft.core.tslib.utils.errors.*;
+import org.toxsoft.uskat.classes.*;
+import org.toxsoft.uskat.core.backend.api.*;
+import org.toxsoft.uskat.core.connection.*;
+import org.toxsoft.uskat.s5.server.backend.*;
+import org.toxsoft.uskat.s5.server.backend.supports.core.*;
+import org.toxsoft.uskat.s5.server.cluster.*;
+import org.toxsoft.uskat.s5.server.singletons.*;
+import org.toxsoft.uskat.s5.server.transactions.*;
 
 /**
  * Базовая реализация синглетона поддержки бекенда предоставляемого s5-сервером {@link IS5BackendSupportSingleton}
@@ -41,6 +41,11 @@ public abstract class S5BackendSupportSingleton
    */
   @EJB
   private IS5BackendCoreSingleton backendCoreSingleton;
+
+  /**
+   * Текущий режим работы сервера.
+   */
+  private ES5ServerMode serverMode = ES5ServerMode.STARTING;
 
   /**
    * Конструктор для наследников.
@@ -89,6 +94,39 @@ public abstract class S5BackendSupportSingleton
   }
 
   // ------------------------------------------------------------------------------------
+  // IS5BackendCoreInterceptor
+  //
+  @TransactionAttribute( TransactionAttributeType.SUPPORTS )
+  @Lock( LockType.WRITE )
+  @Override
+  public void beforeChangeServerMode( ES5ServerMode aOldMode, ES5ServerMode aNewMode, IVrListEdit aValidationList ) {
+    doBeforeChangeServerMode( aOldMode, aNewMode, aValidationList );
+  }
+
+  @TransactionAttribute( TransactionAttributeType.SUPPORTS )
+  @Lock( LockType.WRITE )
+  @Override
+  public void afterChangeServerMode( ES5ServerMode aOldMode, ES5ServerMode aNewMode ) {
+    doAfterChangeServerMode( aOldMode, aNewMode );
+    serverMode = aNewMode;
+  }
+
+  @TransactionAttribute( TransactionAttributeType.SUPPORTS )
+  @Lock( LockType.READ )
+  @Override
+  public void beforeSetSharedConnection( ISkConnection aOldConnection, ISkConnection aNewConnection,
+      IVrListEdit aValidationList ) {
+    doBeforeSetSharedConnection( aOldConnection, aNewConnection, aValidationList );
+  }
+
+  @TransactionAttribute( TransactionAttributeType.SUPPORTS )
+  @Lock( LockType.READ )
+  @Override
+  public void afterSetSharedConnection( ISkConnection aOldConnection, ISkConnection aNewConnection ) {
+    doAfterSetSharedConnection( aOldConnection, aNewConnection );
+  }
+
+  // ------------------------------------------------------------------------------------
   // Шаблонные методы для наследников
   //
   /**
@@ -128,6 +166,74 @@ public abstract class S5BackendSupportSingleton
     return IS5ClassBackend.CLASS_ID;
   }
 
+  /**
+   * Вызывается ДО выполнения метода {@link IS5BackendCoreSingleton#setMode(ES5ServerMode)}
+   * <p>
+   * Событие формируется в открытой транзакции которая впоследствии может быть отменена. Поэтому, если необходимо,
+   * клиент-перехватчик должен организовать логику восстановления своего состояния при откате транзакции (смотри
+   * S5TransactionSingleton}.
+   * <p>
+   * Состояние {@link ES5ServerMode#STARTING} устанавливается до регистрации перехватчиков, поэтому они его не получают.
+   *
+   * @param aOldMode {@link ES5ServerMode} старое состояние сервера.
+   * @param aNewMode {@link ES5ServerMode} новое состояние сервера.
+   * @param aValidationList {@link IVrListEdit} список-приемник проверки возможности изменения режима сервера
+   */
+  protected void doBeforeChangeServerMode( ES5ServerMode aOldMode, ES5ServerMode aNewMode,
+      IVrListEdit aValidationList ) {
+    // nop
+  }
+
+  /**
+   * Вызывается ПОСЛЕ {@link IS5BackendCoreSingleton#setMode(ES5ServerMode)}, но до завершения транзакции.
+   * <p>
+   * Событие формируется в открытой транзакции которая впоследствии может быть отменена. Поэтому, если необходимо,
+   * клиент-перехватчик должен организовать логику восстановления своего состояния при откате транзакции (смотри
+   * S5TransactionSingleton}.
+   * <p>
+   * Состояние {@link ES5ServerMode#STARTING} устанавливается до регистрации перехватчиков, поэтому они его не получают.
+   *
+   * @param aOldMode {@link ES5ServerMode} старое состояние сервера.
+   * @param aNewMode {@link ES5ServerMode} новое состояние сервера.
+   * @throws TsIllegalStateRtException отменить изменения сделанные методом
+   *           {@link IS5BackendCoreSingleton#setMode(ES5ServerMode)} (откат транзакции)
+   */
+  protected void doAfterChangeServerMode( ES5ServerMode aOldMode, ES5ServerMode aNewMode ) {
+    return;
+  }
+
+  /**
+   * Вызывается ДО выполнения метода {@link IS5BackendCoreSingleton#setSharedConnection(ISkConnection)}
+   * <p>
+   * Событие формируется в открытой транзакции которая впоследствии может быть отменена. Поэтому, если необходимо,
+   * клиент-перехватчик должен организовать логику восстановления своего состояния при откате транзакции (смотри
+   * S5TransactionSingleton}.
+   *
+   * @param aOldConnection {@link ISkConnection} старое соединение с ядром бекенда. null: не было установлено
+   * @param aNewConnection {@link ISkConnection} новое соединение с ядром бекенда
+   * @param aValidationList {@link IVrListEdit} список-приемник проверки возможности замены соединения.
+   */
+  protected void doBeforeSetSharedConnection( ISkConnection aOldConnection, ISkConnection aNewConnection,
+      IVrListEdit aValidationList ) {
+    // nop;
+  }
+
+  /**
+   * Вызывается ПОСЛЕ {@link IS5BackendCoreSingleton#setSharedConnection(ISkConnection)}, но до завершения транзакции.
+   * <p>
+   * Событие формируется в открытой транзакции которая впоследствии может быть отменена. Поэтому, если необходимо,
+   * клиент-перехватчик должен организовать логику восстановления своего состояния при откате транзакции (смотри
+   * S5TransactionSingleton}.
+   *
+   * @param aOldConnection {@link ISkConnection} старое соединение с ядром бекенда. null: не было установлено
+   * @param aNewConnection {@link ISkConnection} новое соединение с ядром бекенда
+   * @throws TsIllegalStateRtException отменить изменения сделанные методом
+   *           {@link IS5BackendCoreSingleton#setSharedConnection(ISkConnection)} (откат транзакции)
+   */
+  protected void doAfterSetSharedConnection( ISkConnection aOldConnection, ISkConnection aNewConnection ) {
+    // nop
+  }
+
   // ------------------------------------------------------------------------------------
   // Методы для наследников
   //
@@ -138,6 +244,15 @@ public abstract class S5BackendSupportSingleton
    */
   protected final IS5BackendCoreSingleton backend() {
     return backendCoreSingleton;
+  }
+
+  /**
+   * Возвращает текущий режим работы сервера
+   *
+   * @return {@link ES5ServerMode} режим работы сервера
+   */
+  protected ES5ServerMode serverMode() {
+    return serverMode;
   }
 
   /**

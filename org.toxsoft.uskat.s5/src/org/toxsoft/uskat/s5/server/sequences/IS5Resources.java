@@ -28,23 +28,8 @@ interface IS5Resources {
   // ------------------------------------------------------------------------------------
   // Строковые константы IS5SequenceAddonConfig
   //
-  String STR_N_DB_SCHEME_NAME = "database scheme"; //$NON-NLS-1$
-  String STR_D_DB_SCHEME_NAME = "database scheme"; //$NON-NLS-1$
-
-  String D_WRITE_LOAD_AVERAGE_MAX = Messages.getString( "IS5Resources.D_WRITE_LOAD_AVERAGE_MAX" ); //$NON-NLS-1$
-  String N_WRITE_LOAD_AVERAGE_MAX = Messages.getString( "IS5Resources.N_WRITE_LOAD_AVERAGE_MAX" ); //$NON-NLS-1$
-
-  String D_UNION_LOAD_AVERAGE_MAX = Messages.getString( "IS5Resources.D_UNION_LOAD_AVERAGE_MAX" ); //$NON-NLS-1$
-  String N_UNION_LOAD_AVERAGE_MAX = Messages.getString( "IS5Resources.N_UNION_LOAD_AVERAGE_MAX" ); //$NON-NLS-1$
-
-  String D_UNION_CALENDARS = Messages.getString( "IS5Resources.D_UNION_CALENDARS" ); //$NON-NLS-1$
-  String N_UNION_CALENDARS = Messages.getString( "IS5Resources.N_UNION_CALENDARS" ); //$NON-NLS-1$
-
-  String D_PARTITION_LOAD_AVERAGE_MAX = Messages.getString( "IS5Resources.D_PARTITION_LOAD_AVERAGE_MAX" ); //$NON-NLS-1$
-  String N_PARTITION_LOAD_AVERAGE_MAX = Messages.getString( "IS5Resources.N_PARTITION_LOAD_AVERAGE_MAX" ); //$NON-NLS-1$
-
-  String D_PARTITION_CALENDARS = Messages.getString( "IS5Resources.D_PARTITION_CALENDARS" ); //$NON-NLS-1$
-  String N_PARTITION_CALENDARS = Messages.getString( "IS5Resources.N_PARTITION_CALENDARS" ); //$NON-NLS-1$
+  String STR_N_DB_SCHEMA_NAME = "database schema"; //$NON-NLS-1$
+  String STR_D_DB_SCHEMA_NAME = "database schema"; //$NON-NLS-1$
 
   // ------------------------------------------------------------------------------------
   // Строки сообщений

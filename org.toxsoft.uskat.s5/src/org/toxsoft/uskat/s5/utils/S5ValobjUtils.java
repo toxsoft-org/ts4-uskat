@@ -1,23 +1,21 @@
 package org.toxsoft.uskat.s5.utils;
 
-import org.toxsoft.core.tslib.bricks.keeper.IEntityKeeper;
-import org.toxsoft.core.tslib.utils.errors.TsIllegalArgumentRtException;
-import org.toxsoft.core.tslib.utils.errors.TsNullArgumentRtException;
-import org.toxsoft.core.tslib.utils.valobj.TsValobjUtils;
-import org.toxsoft.uskat.core.api.cmdserv.DtoCommandStateChangeInfo;
-import org.toxsoft.uskat.core.api.hqserv.ESkQueryState;
-import org.toxsoft.uskat.core.connection.ESkAuthentificationType;
-import org.toxsoft.uskat.core.connection.ESkConnState;
-import org.toxsoft.uskat.core.impl.SkCoreUtils;
-import org.toxsoft.uskat.core.impl.SkLoggedUserInfo;
-import org.toxsoft.uskat.core.impl.dto.DtoCommand;
-import org.toxsoft.uskat.s5.client.remote.connection.S5ClusterTopology;
+import org.toxsoft.core.tslib.bricks.keeper.*;
+import org.toxsoft.core.tslib.utils.errors.*;
+import org.toxsoft.core.tslib.utils.valobj.*;
+import org.toxsoft.uskat.core.api.cmdserv.*;
+import org.toxsoft.uskat.core.api.hqserv.*;
+import org.toxsoft.uskat.core.connection.*;
+import org.toxsoft.uskat.core.impl.*;
+import org.toxsoft.uskat.core.impl.dto.*;
+import org.toxsoft.uskat.s5.client.remote.connection.*;
 import org.toxsoft.uskat.s5.common.*;
+import org.toxsoft.uskat.s5.server.backend.*;
+import org.toxsoft.uskat.s5.server.sequences.maintenance.*;
 import org.toxsoft.uskat.s5.server.sessions.*;
 import org.toxsoft.uskat.s5.server.statistics.*;
-import org.toxsoft.uskat.s5.server.transactions.S5TransactionInfo;
-import org.toxsoft.uskat.s5.server.transactions.S5TransactionInfos;
-import org.toxsoft.uskat.s5.utils.collections.SkidMap;
+import org.toxsoft.uskat.s5.server.transactions.*;
+import org.toxsoft.uskat.s5.utils.collections.*;
 
 /**
  * Value objects support in s5.
@@ -35,6 +33,8 @@ public class S5ValobjUtils {
     TsValobjUtils.registerKeeperIfNone( ESkAuthentificationType.KEEPER_ID, ESkAuthentificationType.KEEPER );
     TsValobjUtils.registerKeeperIfNone( SkLoggedUserInfo.KEEPER_ID, SkLoggedUserInfo.KEEPER );
 
+    TsValobjUtils.registerKeeperIfNone( ES5ServerMode.KEEPER_ID, ES5ServerMode.KEEPER );
+    TsValobjUtils.registerKeeperIfNone( ES5DatabaseEngine.KEEPER_ID, ES5DatabaseEngine.KEEPER );
     TsValobjUtils.registerKeeperIfNone( S5Host.KEEPER_ID, S5Host.KEEPER );
     TsValobjUtils.registerKeeperIfNone( S5HostList.KEEPER_ID, S5HostList.KEEPER );
 

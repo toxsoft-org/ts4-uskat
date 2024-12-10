@@ -16,7 +16,7 @@ import org.toxsoft.uskat.s5.server.sequences.impl.S5SequenceAsyncBlob;
  */
 @Entity
 public class S5HistDataAsyncBooleanBlobEntity
-    extends S5SequenceAsyncBlob<S5HistDataAsyncBooleanEnity, byte[], byte[]> {
+    extends S5SequenceAsyncBlob<S5HistDataAsyncBooleanEntity, byte[], byte[]> {
 
   private static final long serialVersionUID = 157157L;
 

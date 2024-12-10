@@ -59,7 +59,7 @@ public class S5InitialSingleton
   @Override
   public IOptionSet loadServiceConfig( String aServiceId ) {
     TsNullArgumentRtException.checkNull( aServiceId );
-    S5ServiceConfigEntity sc = entityManager.find( S5ServiceConfigEntity.class, aServiceId );
+    s5serviceconfigentity sc = entityManager.find( s5serviceconfigentity.class, aServiceId );
     if( sc == null ) {
       return null;
     }
@@ -72,9 +72,9 @@ public class S5InitialSingleton
   public void saveServiceConfig( String aServiceId, IOptionSet aServiceConfig ) {
     TsNullArgumentRtException.checkNull( aServiceId );
     String cfgString = OptionSetKeeper.KEEPER.ent2str( aServiceConfig );
-    S5ServiceConfigEntity sc = entityManager.find( S5ServiceConfigEntity.class, aServiceId );
+    s5serviceconfigentity sc = entityManager.find( s5serviceconfigentity.class, aServiceId );
     if( sc == null ) {
-      sc = new S5ServiceConfigEntity();
+      sc = new s5serviceconfigentity();
       sc.setServiceId( aServiceId );
       sc.setServiceConfig( cfgString );
       entityManager.persist( sc );

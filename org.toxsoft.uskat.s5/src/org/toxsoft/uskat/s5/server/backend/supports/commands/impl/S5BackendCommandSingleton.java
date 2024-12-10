@@ -325,7 +325,7 @@ public class S5BackendCommandSingleton
 
   @Override
   protected IS5SequenceFactory<IDtoCompletedCommand> doCreateFactory() {
-    return new S5CommandSequenceFactory( backend().initialConfig().impl(), sysdescrReader() );
+    return new S5CommandSequenceFactory( backend().initialConfig().impl(), configuration(), sysdescrReader() );
   }
 
   // ------------------------------------------------------------------------------------

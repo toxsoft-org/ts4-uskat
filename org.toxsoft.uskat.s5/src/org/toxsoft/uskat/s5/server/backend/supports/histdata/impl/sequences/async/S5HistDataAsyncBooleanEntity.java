@@ -27,7 +27,7 @@ import org.toxsoft.uskat.s5.utils.indexes.ILongKey;
  * @author mvk
  */
 @Entity
-public class S5HistDataAsyncBooleanEnity
+public class S5HistDataAsyncBooleanEntity
     extends S5HistDataAsyncBlock<byte[], S5HistDataAsyncBooleanBlobEntity> {
 
   private static final long serialVersionUID = 157157L;
@@ -38,12 +38,12 @@ public class S5HistDataAsyncBooleanEnity
    * @param aTypeInfo {@link IParameterized} параметризованное описание типа данного
    * @param aGwid {@link Gwid} НЕабстрактный {@link Gwid}-идентификатор данного
    * @param aValues {@link ITimedList}&lt;{@link TemporalAtomicValue}&gt; список значений
-   * @return {@link S5HistDataAsyncBooleanEnity} блок значений
+   * @return {@link S5HistDataAsyncBooleanEntity} блок значений
    * @throws TsNullArgumentRtException любой аргумент = null
    * @throws TsIllegalArgumentRtException количество значений в блоке = 0
    * @throws TsIllegalArgumentRtException описание данного должно представлять асинхронное данное
    */
-  static S5HistDataAsyncBooleanEnity create( IParameterized aTypeInfo, Gwid aGwid,
+  static S5HistDataAsyncBooleanEntity create( IParameterized aTypeInfo, Gwid aGwid,
       ITimedList<TemporalAtomicValue> aValues ) {
     TsNullArgumentRtException.checkNulls( aTypeInfo, aGwid, aValues );
     TsIllegalArgumentRtException.checkFalse( aValues.size() > 0 );
@@ -78,13 +78,13 @@ public class S5HistDataAsyncBooleanEnity
       index++;
     }
     S5HistDataAsyncBooleanBlobEntity blob = new S5HistDataAsyncBooleanBlobEntity( timestamps, values );
-    return new S5HistDataAsyncBooleanEnity( aTypeInfo, aGwid, blob );
+    return new S5HistDataAsyncBooleanEntity( aTypeInfo, aGwid, blob );
   }
 
   /**
    * Конструктор без параметров (для JPA)
    */
-  protected S5HistDataAsyncBooleanEnity() {
+  protected S5HistDataAsyncBooleanEntity() {
   }
 
   /**
@@ -99,7 +99,7 @@ public class S5HistDataAsyncBooleanEnity
    * @throws TsIllegalArgumentRtException метки времени не отсортированы в порядке возрастания
    * @throws TsIllegalArgumentRtException описание данного должно представлять асинхронное данное
    */
-  S5HistDataAsyncBooleanEnity( IParameterized aTypeInfo, Gwid aGwid, S5HistDataAsyncBooleanBlobEntity aBlob ) {
+  S5HistDataAsyncBooleanEntity( IParameterized aTypeInfo, Gwid aGwid, S5HistDataAsyncBooleanBlobEntity aBlob ) {
     super( aTypeInfo, aGwid, aBlob );
   }
 
@@ -110,7 +110,7 @@ public class S5HistDataAsyncBooleanEnity
    * @throws TsNullArgumentRtException аргумент = null
    * @throws TsInternalErrorRtException ошибка создания блока
    */
-  S5HistDataAsyncBooleanEnity( ResultSet aResultSet ) {
+  S5HistDataAsyncBooleanEntity( ResultSet aResultSet ) {
     super( aResultSet );
   }
 
@@ -139,7 +139,7 @@ public class S5HistDataAsyncBooleanEnity
   protected IS5SequenceBlockEdit<ITemporalAtomicValue> doCreateBlock( IParameterized aTypeInfo, long[] aTimestamps,
       byte[] aValues ) {
     S5HistDataAsyncBooleanBlobEntity blob = new S5HistDataAsyncBooleanBlobEntity( aTimestamps, aValues );
-    return new S5HistDataAsyncBooleanEnity( aTypeInfo, gwid(), blob );
+    return new S5HistDataAsyncBooleanEntity( aTypeInfo, gwid(), blob );
   }
 
   @Override

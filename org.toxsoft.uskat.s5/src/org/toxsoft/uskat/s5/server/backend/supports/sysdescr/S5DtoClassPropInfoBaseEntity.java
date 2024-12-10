@@ -13,6 +13,7 @@ import org.toxsoft.core.tslib.bricks.strid.*;
 import org.toxsoft.core.tslib.utils.*;
 import org.toxsoft.core.tslib.utils.errors.*;
 import org.toxsoft.uskat.core.api.sysdescr.dto.*;
+import org.toxsoft.uskat.s5.server.*;
 
 /**
  * Реализация интерфейса {@link IDtoClassInfo} способная маппироваться на таблицу базы данных
@@ -47,14 +48,15 @@ public abstract class S5DtoClassPropInfoBaseEntity
   @Column( insertable = true,
       updatable = false,
       nullable = false,
-      columnDefinition = "varchar(" + STRID_LENGTH_MAX + ") character set utf8 collate utf8_bin not null" )
+      columnDefinition = "varchar(" + STRID_LENGTH_MAX + ")" )
   private String id;
 
   /**
    * Описание дополнительных параметров класса
    */
-  @Lob
-  @Column( nullable = false )
+  @Column( nullable = false, //
+      columnDefinition = IS5ImplementConstants.LOB_TEXT_TYPE //
+  )
   private String paramsString;
 
   /**

@@ -155,6 +155,8 @@ public class S5BackendSysDescrSingleton
   //
   @Override
   @TransactionAttribute( TransactionAttributeType.SUPPORTS )
+  // 2024-11-30 mvk+++ postgres, fix "Large Objects may not be used in auto-commit mode"
+  // @Transactional
   public IStridablesList<IDtoClassInfo> readClassInfos() {
     // Выполнение запроса
     TypedQuery<S5ClassEntity> query = entityManager.createNamedQuery( QUERY_NAME_GET_CLASSES, S5ClassEntity.class );

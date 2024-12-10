@@ -7,32 +7,28 @@ import static org.toxsoft.uskat.s5.server.backend.supports.histdata.IS5HistDataH
 import static org.toxsoft.uskat.s5.server.backend.supports.histdata.impl.sequences.IS5Resources.*;
 import static org.toxsoft.uskat.s5.utils.IS5HardConstants.*;
 
-import org.toxsoft.core.tslib.av.EAtomicType;
-import org.toxsoft.core.tslib.av.IAtomicValue;
-import org.toxsoft.core.tslib.av.metainfo.IAvMetaConstants;
-import org.toxsoft.core.tslib.av.metainfo.IDataType;
-import org.toxsoft.core.tslib.av.opset.IOptionSetEdit;
-import org.toxsoft.core.tslib.av.temporal.ITemporalAtomicValue;
-import org.toxsoft.core.tslib.av.utils.IParameterized;
-import org.toxsoft.core.tslib.av.utils.IParameterizedEdit;
-import org.toxsoft.core.tslib.bricks.strid.impl.StridableParameterized;
-import org.toxsoft.core.tslib.bricks.time.IQueryInterval;
-import org.toxsoft.core.tslib.coll.IList;
-import org.toxsoft.core.tslib.coll.IListEdit;
-import org.toxsoft.core.tslib.coll.impl.ElemArrayList;
-import org.toxsoft.core.tslib.gw.gwid.Gwid;
-import org.toxsoft.core.tslib.utils.TsLibUtils;
+import org.toxsoft.core.tslib.av.*;
+import org.toxsoft.core.tslib.av.metainfo.*;
+import org.toxsoft.core.tslib.av.opset.*;
+import org.toxsoft.core.tslib.av.temporal.*;
+import org.toxsoft.core.tslib.av.utils.*;
+import org.toxsoft.core.tslib.bricks.strid.impl.*;
+import org.toxsoft.core.tslib.bricks.time.*;
+import org.toxsoft.core.tslib.coll.*;
+import org.toxsoft.core.tslib.coll.impl.*;
+import org.toxsoft.core.tslib.gw.gwid.*;
+import org.toxsoft.core.tslib.utils.*;
 import org.toxsoft.core.tslib.utils.errors.*;
-import org.toxsoft.uskat.core.api.sysdescr.ISkClassInfo;
-import org.toxsoft.uskat.core.api.sysdescr.dto.IDtoRtdataInfo;
-import org.toxsoft.uskat.s5.common.sysdescr.ISkSysdescrReader;
-import org.toxsoft.uskat.s5.server.backend.supports.histdata.IS5HistDataHardConstants;
+import org.toxsoft.uskat.core.api.sysdescr.*;
+import org.toxsoft.uskat.core.api.sysdescr.dto.*;
+import org.toxsoft.uskat.s5.common.sysdescr.*;
+import org.toxsoft.uskat.s5.server.backend.supports.histdata.*;
 import org.toxsoft.uskat.s5.server.backend.supports.histdata.impl.sequences.async.*;
 import org.toxsoft.uskat.s5.server.backend.supports.histdata.impl.sequences.sync.*;
 import org.toxsoft.uskat.s5.server.sequences.*;
-import org.toxsoft.uskat.s5.server.sequences.impl.S5SequenceFactory;
-import org.toxsoft.uskat.s5.server.sequences.impl.S5SequenceImplementation;
-import org.toxsoft.uskat.s5.server.startup.IS5InitialImplementation;
+import org.toxsoft.uskat.s5.server.sequences.impl.*;
+import org.toxsoft.uskat.s5.server.sequences.maintenance.*;
+import org.toxsoft.uskat.s5.server.startup.*;
 
 /**
  * Фабрика формирования последовательности блоков исторических данных
@@ -116,11 +112,12 @@ public final class S5HistDataSequenceFactory
    * Конструктор
    *
    * @param aInitialConfig {@link IS5InitialImplementation} начальная, неизменяемая, проектно-зависимая конфигурация
+   * @param aConfiguration {@link IOptionSet} конфигурация подсистемы {@link S5SequenceConfig#SYBSYSTEM_ID_PREFIX}.
    * @param aSysdescrReader {@link ISkSysdescrReader} читатель системного описания
    * @throws TsNullArgumentRtException любой аргумент = null
    */
-  public S5HistDataSequenceFactory( IS5InitialImplementation aInitialConfig, ISkSysdescrReader aSysdescrReader ) {
-    super( ID, STR_D_HISTDATA_FACTORY, aInitialConfig, aSysdescrReader );
+  public S5HistDataSequenceFactory( IS5InitialImplementation aInitialConfig, IOptionSet aConfiguration, ISkSysdescrReader aSysdescrReader ) {
+    super( ID, STR_D_HISTDATA_FACTORY, aInitialConfig, aConfiguration, aSysdescrReader );
   }
 
   // ------------------------------------------------------------------------------------
@@ -133,7 +130,7 @@ public final class S5HistDataSequenceFactory
     impls.addAll( initialConfig().getHistDataImplementations() );
     // Встроенные описания реализаций
     impls.add(
-        new S5SequenceImplementation( S5HistDataAsyncBooleanEnity.class, S5HistDataAsyncBooleanBlobEntity.class ) );
+        new S5SequenceImplementation( S5HistDataAsyncBooleanEntity.class, S5HistDataAsyncBooleanBlobEntity.class ) );
     impls.add(
         new S5SequenceImplementation( S5HistDataAsyncIntegerEntity.class, S5HistDataAsyncIntegerBlobEntity.class ) );
     impls.add(
@@ -218,24 +215,16 @@ public final class S5HistDataSequenceFactory
   @SuppressWarnings( "unchecked" )
   public Object doCreateValueArray( IParameterized aTypeInfo, int aSize ) {
     IDataType type = OPDEF_DATA_TYPE.getValue( aTypeInfo.params() ).asValobj();
-    switch( type.atomicType() ) {
-      case BOOLEAN:
-        return new byte[aSize];
-      case INTEGER:
-        return new long[aSize];
-      case TIMESTAMP:
-        return new long[aSize];
-      case FLOATING:
-        return new double[aSize];
-      case STRING:
-        return new String[aSize];
-      case VALOBJ:
-        return new Object[aSize];
-      case NONE:
-        throw new TsIllegalArgumentRtException();
-      default:
-        throw new TsNotAllEnumsUsedRtException();
-    }
+    return switch( type.atomicType() ) {
+      case BOOLEAN -> new byte[aSize];
+      case INTEGER -> new long[aSize];
+      case TIMESTAMP -> new long[aSize];
+      case FLOATING -> new double[aSize];
+      case STRING -> new String[aSize];
+      case VALOBJ -> new Object[aSize];
+      case NONE -> throw new TsIllegalArgumentRtException();
+      default -> throw new TsNotAllEnumsUsedRtException();
+    };
   }
 
   @Override
@@ -263,22 +252,14 @@ public final class S5HistDataSequenceFactory
   @Override
   public Object doGetSyncNullValue( IParameterized aTypeInfo ) {
     IDataType type = OPDEF_DATA_TYPE.getValue( aTypeInfo.params() ).asValobj();
-    switch( type.atomicType() ) {
-      case BOOLEAN:
-        return Byte_BOOLEAN_NULL;
-      case INTEGER:
-      case TIMESTAMP:
-        return Long_LONG_NULL;
-      case FLOATING:
-        return Double_DOUBLE_NULL;
-      case STRING:
-      case VALOBJ:
-        return VALOBJ_NULL;
-      case NONE:
-        throw new TsUnsupportedFeatureRtException();
-      default:
-        throw new TsNotAllEnumsUsedRtException();
-    }
+    return switch( type.atomicType() ) {
+      case BOOLEAN -> Byte_BOOLEAN_NULL;
+      case INTEGER, TIMESTAMP -> Long_LONG_NULL;
+      case FLOATING -> Double_DOUBLE_NULL;
+      case STRING, VALOBJ -> VALOBJ_NULL;
+      case NONE -> throw new TsUnsupportedFeatureRtException();
+      default -> throw new TsNotAllEnumsUsedRtException();
+    };
   }
 
   // ------------------------------------------------------------------------------------
@@ -306,52 +287,38 @@ public final class S5HistDataSequenceFactory
       // Реализация не найдена. автоматический подбор таблицы хранения
       if( !aSync ) {
         // Таблицы с асинхронными значениями
-        switch( aType ) {
-          case BOOLEAN:
-            return new S5SequenceImplementation( S5HistDataAsyncBooleanEnity.class,
-                S5HistDataAsyncBooleanBlobEntity.class );
-          case INTEGER:
-            return new S5SequenceImplementation( S5HistDataAsyncIntegerEntity.class,
-                S5HistDataAsyncIntegerBlobEntity.class );
-          case FLOATING:
-            return new S5SequenceImplementation( S5HistDataAsyncFloatingEntity.class,
-                S5HistDataAsyncFloatingBlobEntity.class );
-          case TIMESTAMP:
-            return new S5SequenceImplementation( S5HistDataAsyncTimestampEntity.class,
-                S5HistDataAsyncTimestampBlobEntity.class );
-          case STRING:
-            return new S5SequenceImplementation( S5HistDataAsyncStringEntity.class,
-                S5HistDataAsyncStringBlobEntity.class );
-          case VALOBJ:
-            return new S5SequenceImplementation( S5HistDataAsyncValobjEntity.class,
-                S5HistDataAsyncValobjBlobEntity.class );
-          case NONE:
-          default:
-            throw new TsNotAllEnumsUsedRtException();
-        }
+        return switch( aType ) {
+          case BOOLEAN -> new S5SequenceImplementation( S5HistDataAsyncBooleanEntity.class,
+                          S5HistDataAsyncBooleanBlobEntity.class );
+          case INTEGER -> new S5SequenceImplementation( S5HistDataAsyncIntegerEntity.class,
+                          S5HistDataAsyncIntegerBlobEntity.class );
+          case FLOATING -> new S5SequenceImplementation( S5HistDataAsyncFloatingEntity.class,
+                          S5HistDataAsyncFloatingBlobEntity.class );
+          case TIMESTAMP -> new S5SequenceImplementation( S5HistDataAsyncTimestampEntity.class,
+                          S5HistDataAsyncTimestampBlobEntity.class );
+          case STRING -> new S5SequenceImplementation( S5HistDataAsyncStringEntity.class,
+                          S5HistDataAsyncStringBlobEntity.class );
+          case VALOBJ -> new S5SequenceImplementation( S5HistDataAsyncValobjEntity.class,
+                          S5HistDataAsyncValobjBlobEntity.class );
+          case NONE -> throw new TsNotAllEnumsUsedRtException();
+          default -> throw new TsNotAllEnumsUsedRtException();
+        };
       }
       // Таблицы с синхронными значениями
-      switch( aType ) {
-        case BOOLEAN:
-          return new S5SequenceImplementation( S5HistDataSyncBooleanEntity.class,
-              S5HistDataSyncBooleanBlobEntity.class );
-        case INTEGER:
-          return new S5SequenceImplementation( S5HistDataSyncIntegerEntity.class,
-              S5HistDataSyncIntegerBlobEntity.class );
-        case FLOATING:
-          return new S5SequenceImplementation( S5HistDataSyncFloatingEntity.class,
-              S5HistDataSyncFloatingBlobEntity.class );
-        case TIMESTAMP:
-          return new S5SequenceImplementation( S5HistDataSyncTimestampEntity.class,
-              S5HistDataSyncTimestampBlobEntity.class );
-        case STRING:
-          return new S5SequenceImplementation( S5HistDataSyncStringEntity.class, S5HistDataSyncStringBlobEntity.class );
-        case VALOBJ:
-          return new S5SequenceImplementation( S5HistDataSyncValobjEntity.class, S5HistDataSyncValobjBlobEntity.class );
-        case NONE:
-        default:
-          throw new TsNotAllEnumsUsedRtException();
-      }
+      return switch( aType ) {
+        case BOOLEAN -> new S5SequenceImplementation( S5HistDataSyncBooleanEntity.class,
+                      S5HistDataSyncBooleanBlobEntity.class );
+        case INTEGER -> new S5SequenceImplementation( S5HistDataSyncIntegerEntity.class,
+                      S5HistDataSyncIntegerBlobEntity.class );
+        case FLOATING -> new S5SequenceImplementation( S5HistDataSyncFloatingEntity.class,
+                      S5HistDataSyncFloatingBlobEntity.class );
+        case TIMESTAMP -> new S5SequenceImplementation( S5HistDataSyncTimestampEntity.class,
+                      S5HistDataSyncTimestampBlobEntity.class );
+        case STRING -> new S5SequenceImplementation( S5HistDataSyncStringEntity.class, S5HistDataSyncStringBlobEntity.class );
+        case VALOBJ -> new S5SequenceImplementation( S5HistDataSyncValobjEntity.class, S5HistDataSyncValobjBlobEntity.class );
+        case NONE -> throw new TsNotAllEnumsUsedRtException();
+        default -> throw new TsNotAllEnumsUsedRtException();
+      };
     }
     // Многотабличная реализация найдена в проектной конфигурации. Автоматическое определение таблицы для хранения
     int tableCount = retValue.tableCount();

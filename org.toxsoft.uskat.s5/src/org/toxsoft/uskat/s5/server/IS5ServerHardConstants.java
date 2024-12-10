@@ -57,7 +57,7 @@ public interface IS5ServerHardConstants
   /**
    * Версия сервера.
    */
-  TsVersion version = new TsVersion( 22, 1, 2024, Month.OCTOBER, 24 );
+  TsVersion version = new TsVersion( 22, 2, 2024, Month.NOVEMBER, 29 );
 
   // ------------------------------------------------------------------------------------
   // Опции s5-backend.
@@ -156,33 +156,6 @@ public interface IS5ServerHardConstants
       TSID_DESCRIPTION, STR_D_BACKEND_MODULE, //
       TSID_IS_NULL_ALLOWED, AV_FALSE, //
       TSID_DEFAULT_VALUE, avValobj( new S5Module( "fooModule" ) ) );
-
-  /**
-   * Параметр {@link ISkBackendInfo#params()}: схема базы данных сервера в СУБД
-   * <p>
-   * Тип: {@link EAtomicType#STRING}
-   */
-  IDataDef OP_BACKEND_DB_SCHEME_NAME = create( S5_BACKEND_ID_START + "DbSchemeName", EAtomicType.STRING, //$NON-NLS-1$
-      TSID_NAME, STR_N_BACKEND_DB_SCHEME_NAME, //
-      TSID_DESCRIPTION, STR_D_BACKEND_DB_SCHEME_NAME, //
-      TSID_IS_NULL_ALLOWED, AV_FALSE, //
-      TSID_DEFAULT_VALUE, IAtomicValue.NULL );
-
-  /**
-   * Параметр {@link ISkBackendInfo#params()}: : гарантированное время (сутки) хранения данных.
-   * <p>
-   * Определяет время хранения значений исторических данных, событий и истории команд. По факту система может хранить
-   * данные более долгий период (определяется реализацией), но не меньший.
-   * <p>
-   * Тип: {@link EAtomicType#INTEGER}
-   */
-  IDataDef OP_DB_STORAGE_DEPTH = create( S5_BACKEND_ID_START + "DbStorageDepth", EAtomicType.INTEGER, //$NON-NLS-1$
-      TSID_NAME, STR_N_BACKEND_DB_STORAGE_DEPTH, //
-      TSID_DESCRIPTION, STR_D_BACKEND_DB_STORAGE_DEPTH, //
-      TSID_IS_NULL_ALLOWED, AV_FALSE, //
-      // 2023-09-29 TODO: mvkd:
-      // TSID_DEFAULT_VALUE, avInt( 10 * 365 ) ); // По умолчанию: 10 лет
-      TSID_DEFAULT_VALUE, avInt( 3 ) ); // Для отладки: 3 суток
 
   /**
    * Параметр {@link ISkBackendInfo#params()}: Идентификатор зоны времени, по которому работает сервер

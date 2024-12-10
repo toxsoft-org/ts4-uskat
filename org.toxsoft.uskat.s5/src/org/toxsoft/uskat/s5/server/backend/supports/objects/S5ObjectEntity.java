@@ -4,21 +4,21 @@ import static org.toxsoft.uskat.s5.common.IS5CommonResources.*;
 import static org.toxsoft.uskat.s5.server.backend.supports.objects.IS5Resources.*;
 import static org.toxsoft.uskat.s5.server.backend.supports.objects.S5ObjectID.*;
 
-import java.io.Serializable;
-import java.sql.ResultSet;
+import java.io.*;
+import java.sql.*;
 
 import javax.persistence.*;
 
-import org.toxsoft.core.log4j.LoggerWrapper;
-import org.toxsoft.core.tslib.av.opset.IOptionSet;
-import org.toxsoft.core.tslib.av.opset.impl.OptionSetKeeper;
+import org.toxsoft.core.log4j.*;
+import org.toxsoft.core.tslib.av.opset.*;
+import org.toxsoft.core.tslib.av.opset.impl.*;
 import org.toxsoft.core.tslib.gw.skid.*;
-import org.toxsoft.core.tslib.utils.TsLibUtils;
-import org.toxsoft.core.tslib.utils.errors.TsInternalErrorRtException;
-import org.toxsoft.core.tslib.utils.errors.TsNullArgumentRtException;
-import org.toxsoft.core.tslib.utils.logs.ILogger;
-import org.toxsoft.uskat.core.api.objserv.IDtoObject;
-import org.toxsoft.uskat.s5.server.backend.supports.sysdescr.S5ClassEntity;
+import org.toxsoft.core.tslib.utils.*;
+import org.toxsoft.core.tslib.utils.errors.*;
+import org.toxsoft.core.tslib.utils.logs.*;
+import org.toxsoft.uskat.core.api.objserv.*;
+import org.toxsoft.uskat.s5.server.*;
+import org.toxsoft.uskat.s5.server.backend.supports.sysdescr.*;
 
 /**
  * Реализация интерфейса {@link IDtoObject} способная маппироваться на таблицу базы данных
@@ -66,23 +66,25 @@ public class S5ObjectEntity
   /**
    * Значения всех расширенных атрибутов.
    */
-  @Lob
   @Column( name = FIELD_ATTRS_STRING, //
       nullable = false,
       insertable = true,
       updatable = true,
-      unique = false )
+      unique = false,
+      columnDefinition = IS5ImplementConstants.LOB_TEXT_TYPE //
+  )
   private String attrsString;
 
   /**
    * Значения всех склепок.
    */
-  @Lob
   @Column( name = FIELD_RIVERTS_STRING, //
       nullable = false,
       insertable = true,
       updatable = true,
-      unique = false )
+      unique = false,
+      columnDefinition = IS5ImplementConstants.LOB_TEXT_TYPE //
+  )
   private String rivetsString;
 
   /**

@@ -6,13 +6,11 @@ import static org.toxsoft.uskat.s5.server.IS5ImplementConstants.*;
 import static org.toxsoft.uskat.s5.server.backend.supports.clobs.IS5Resources.*;
 
 import java.io.*;
-import java.util.zip.GZIPInputStream;
-import java.util.zip.GZIPOutputStream;
+import java.util.zip.*;
 
 import javax.persistence.*;
 
-import org.toxsoft.core.tslib.utils.errors.TsInternalErrorRtException;
-import org.toxsoft.core.tslib.utils.errors.TsNullArgumentRtException;
+import org.toxsoft.core.tslib.utils.errors.*;
 
 /**
  * Реализация хранения lob-данных.
@@ -42,7 +40,7 @@ public class S5ClobEntity
   @Column( insertable = true,
       updatable = false,
       nullable = false,
-      columnDefinition = "varchar(" + STRID_LENGTH_MAX + ") character set utf8 collate utf8_bin not null" )
+      columnDefinition = "varchar(" + STRID_LENGTH_MAX + ")" )
   private String id;
 
   /**
@@ -172,10 +170,9 @@ public class S5ClobEntity
     if( aObj == this ) {
       return true;
     }
-    if( !(aObj instanceof S5ClobEntity) ) {
+    if( !(aObj instanceof S5ClobEntity other) ) {
       return false;
     }
-    S5ClobEntity other = (S5ClobEntity)aObj;
     if( !id.equals( other.id() ) ) {
       return false;
     }
