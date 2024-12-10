@@ -27,30 +27,15 @@ public final class S5DatabaseConfig
   public static final String SYBSYSTEM_ID_PREFIX = S5BackendCoreConfig.SYBSYSTEM_ID_PREFIX + ".db";
 
   /**
-   * Тип используемой СУБД: mariadb.
-   */
-  public static final String DB_ENGINE_MARIADB = "mariadb";
-
-  /**
-   * Тип используемой СУБД: mysql.
-   */
-  public static final String DB_ENGINE_MYSQL = "mysql";
-
-  /**
-   * Тип используемой СУБД: postgresql.
-   */
-  public static final String DB_ENGINE_POSTGRESQL = "postgresql";
-
-  /**
    * Параметр {@link S5BackendSequenceSupportSingleton#configuration()}: тип используемой СУБД
    * <p>
    * Тип: {@link EAtomicType#STRING}
    */
-  public static final IDataDef DATABASE_ENGINE = register( SYBSYSTEM_ID_PREFIX + ".engine", EAtomicType.STRING, //
-      TSID_NAME, STR_N_BACKEND_DB_ENGINE, //
-      TSID_DESCRIPTION, STR_D_BACKEND_DB_ENGINE, //
+  public static final IDataDef DATABASE_ENGINE = register( SYBSYSTEM_ID_PREFIX + ".engine", EAtomicType.VALOBJ, //
+      TSID_NAME, STR_N_DATABASE_ENGINE, //
+      TSID_DESCRIPTION, STR_D_DATABASE_ENGINE, //
       TSID_IS_NULL_ALLOWED, AV_FALSE, //
-      TSID_DEFAULT_VALUE, avStr( DB_ENGINE_MARIADB ) );
+      TSID_DEFAULT_VALUE, avValobj( ES5DatabaseEngine.MARIADB ) );
 
   /**
    * Параметр {@link S5BackendSequenceSupportSingleton#configuration()}: схема базы данных сервера в СУБД
@@ -58,8 +43,8 @@ public final class S5DatabaseConfig
    * Тип: {@link EAtomicType#STRING}
    */
   public static final IDataDef DATABASE_SCHEMA = register( SYBSYSTEM_ID_PREFIX + ".schema", EAtomicType.STRING, //
-      TSID_NAME, STR_N_BACKEND_DB_SCHEMA, //
-      TSID_DESCRIPTION, STR_D_BACKEND_DB_SCHEMA, //
+      TSID_NAME, STR_N_DATABASE_SCHEMA, //
+      TSID_DESCRIPTION, STR_D_DATABASE_SCHEMA, //
       TSID_IS_NULL_ALLOWED, AV_FALSE, //
       TSID_DEFAULT_VALUE, IAtomicValue.NULL );
 
@@ -72,8 +57,8 @@ public final class S5DatabaseConfig
    * Тип: {@link EAtomicType#INTEGER}
    */
   public static final IDataDef DATABASE_DEPTH = register( SYBSYSTEM_ID_PREFIX + ".depth", EAtomicType.INTEGER, //
-      TSID_NAME, STR_N_BACKEND_DB_DEPTH, //
-      TSID_DESCRIPTION, STR_D_BACKEND_DB_DEPTH, //
+      TSID_NAME, STR_N_DATABASE_DEPTH, //
+      TSID_DESCRIPTION, STR_D_DATABASE_DEPTH, //
       TSID_IS_NULL_ALLOWED, AV_FALSE, //
       TSID_DEFAULT_VALUE, avInt( 3 * 365 ) ); // По умолчанию: 3 года
 

@@ -5,20 +5,30 @@ package org.toxsoft.uskat.s5.server.sequences.maintenance;
  *
  * @author mvk
  */
+@SuppressWarnings( "nls" )
 interface IS5Resources {
 
   /**
    * {@link S5SequenceConfig}
    */
-  String STR_N_BACKEND_DB_ENGINE = "engine";          //$NON-NLS-1$
-  String STR_D_BACKEND_DB_ENGINE = "database engine"; //$NON-NLS-1$
+  String STR_N_DATABASE_ENGINE = "engine";          //$NON-NLS-1$
+  String STR_D_DATABASE_ENGINE = "database engine"; //$NON-NLS-1$
 
-  String STR_N_BACKEND_DB_SCHEMA = "schema";          //$NON-NLS-1$
-  String STR_D_BACKEND_DB_SCHEMA = "database schema"; //$NON-NLS-1$
+  String STR_N_DATABASE_SCHEMA = "schema";          //$NON-NLS-1$
+  String STR_D_DATABASE_SCHEMA = "database schema"; //$NON-NLS-1$
 
-  String STR_N_BACKEND_DB_DEPTH         = "depth";                                                                                                                                                               //$NON-NLS-1$
-  String STR_D_BACKEND_DB_DEPTH =
+  String STR_N_DATABASE_DEPTH = "depth";                                                                                                                                                                         //$NON-NLS-1$
+  String STR_D_DATABASE_DEPTH =
       "Determines the storage time (in days) for historical data values, events, and command history. In fact, the system can store data for a longer period (determined by the implementation), but not less."; //$NON-NLS-1$
+
+  String STR_N_MARIADB = "MariaDB";
+  String STR_D_MARIADB = "MariaDB database";
+
+  String STR_N_MYSQL = "MySQL";
+  String STR_D_MYSQL = "MySQL database";
+
+  String STR_N_POSTGRESQL = "PostgreSQL";
+  String STR_D_POSTGRESQL = "PostgreSQL database";
 
   /**
    * {@link S5SequenceUnionConfig}

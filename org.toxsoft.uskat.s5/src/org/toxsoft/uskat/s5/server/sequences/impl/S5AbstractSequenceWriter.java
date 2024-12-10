@@ -703,7 +703,7 @@ public abstract class S5AbstractSequenceWriter<S extends IS5Sequence<V>, V exten
     for( S5Partition partition : aPartitionOp.addPartitions() ) {
       try {
         aLogger.info( MSG_ADD_PARTITION, ownerName(), aSchema, tableName, partition );
-        String engine = DATABASE_ENGINE.getValue( configuration() ).asString();
+        ES5DatabaseEngine engine = DATABASE_ENGINE.getValue( configuration() ).asValobj();
         S5SequenceSQL.addPartition( aEntityManager, engine, aSchema, tableName, partition );
         retValue.addAdded( 1 );
       }
@@ -1454,7 +1454,7 @@ public abstract class S5AbstractSequenceWriter<S extends IS5Sequence<V>, V exten
    * @throws TsNullArgumentRtException любой аргумент = null
    */
   private void loadTablePartitions( EntityManager aEntityManager, String aSchema, String aTable, int aDepth ) {
-    String engine = DATABASE_ENGINE.getValue( configuration() ).asString();
+    ES5DatabaseEngine engine = DATABASE_ENGINE.getValue( configuration() ).asValobj();
     ITimedListEdit<S5Partition> partitionInfos =
         new TimedList<>( readPartitions( aEntityManager, engine, aSchema, aTable ) );
     partitionsByTable.put( aTable, partitionInfos );
@@ -1660,7 +1660,7 @@ public abstract class S5AbstractSequenceWriter<S extends IS5Sequence<V>, V exten
     TsNullArgumentRtException.checkNulls( aEntityManager, aSchema, aTable, aInterval );
     ITimedListEdit<S5Partition> partitions = partitionsByTable.findByKey( aTable );
     if( partitions == null ) {
-      String engine = DATABASE_ENGINE.getValue( configuration() ).asString();
+      ES5DatabaseEngine engine = DATABASE_ENGINE.getValue( configuration() ).asValobj();
       partitions = new TimedList<>( readPartitions( aEntityManager, engine, aSchema, aTable ) );
       partitionsByTable.put( aTable, partitions );
       StringBuilder sb = new StringBuilder();

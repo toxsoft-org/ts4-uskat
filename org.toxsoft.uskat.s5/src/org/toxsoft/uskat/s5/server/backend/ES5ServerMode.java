@@ -8,6 +8,7 @@ import org.toxsoft.core.tslib.bricks.strid.*;
 import org.toxsoft.core.tslib.bricks.strid.coll.*;
 import org.toxsoft.core.tslib.bricks.strid.coll.impl.*;
 import org.toxsoft.core.tslib.utils.errors.*;
+import org.toxsoft.uskat.s5.utils.*;
 
 /**
  * Режимы работы сервера
@@ -62,6 +63,11 @@ public enum ES5ServerMode
    * Это терминальное состояние (то есть, жизненный цикл сервера завершен).
    */
   OFF( "Shutdown", STR_D_SHUTDOWN, STR_N_SHUTDOWN ); //$NON-NLS-1$
+
+  /**
+   * Идентификатор хранителя для {@link S5ValobjUtils}.
+   */
+  public static final String KEEPER_ID = "ServerMode"; //$NON-NLS-1$
 
   /**
    * Синглтон хранителя.

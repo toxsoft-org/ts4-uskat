@@ -16,7 +16,9 @@ import javax.annotation.*;
 import javax.ejb.*;
 import javax.enterprise.concurrent.*;
 
+import org.toxsoft.core.tslib.av.*;
 import org.toxsoft.core.tslib.av.impl.*;
+import org.toxsoft.core.tslib.av.metainfo.*;
 import org.toxsoft.core.tslib.av.opset.*;
 import org.toxsoft.core.tslib.av.opset.impl.*;
 import org.toxsoft.core.tslib.bricks.strid.impl.*;
@@ -619,6 +621,17 @@ public class S5SingletonBase
   // ------------------------------------------------------------------------------------
   // Реализация интерфейса IS5Singleton
   //
+  @Override
+  @TransactionAttribute( TransactionAttributeType.SUPPORTS )
+  public void setConfigurationConstant( IDataDef aConstant, IAtomicValue aValue ) {
+    TsNullArgumentRtException.checkNulls( aConstant, aValue );
+    IAtomicValue prevValue = roConfiguration.findValue( aConstant );
+    if( prevValue == null || !prevValue.equals( aValue ) ) {
+      ((IOptionSetEdit)roConfiguration).setValue( aConstant, aValue );
+      logger().warning( ERR_REDEFINING_CONSTANT_VALUE, aConstant, prevValue, aValue );
+    }
+  }
+
   @Override
   @TransactionAttribute( TransactionAttributeType.SUPPORTS )
   public IOptionSet configuration() {

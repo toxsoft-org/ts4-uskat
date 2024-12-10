@@ -293,17 +293,16 @@ public abstract class S5BackendSequenceSupportSingleton<S extends IS5Sequence<V>
   //
   @Override
   protected void doInitSupport() {
-    // TODO: 2020-05-07 mvkd ???
-    // // Запрет повторных вызовов инициализации
-    // TsIllegalStateRtException.checkNoNull( connection );
-    // // Использование ISkConnection
-    // connection = localConnectionProvider.openConnection( id() );
-    // ReentrantReadWriteLock lock = connection.mainLock();
-    // ISkCoreApi coreApi = connection.coreApi();
-    // ISkSysdescr sysdescr = coreApi.sysdescr();
-    // typesManager = new S5SynchronizedDataTypesManager( sysdescr.dataTypesManager(), lock );
-    // classInfoManager = new S5SynchronizedClassInfoManager( sysdescr.classInfoManager(), lock );
-    // objectService = new S5SynchronizedObjectService( coreApi.objService(), lock );
+    try( Connection dbConnection = dataSource.getConnection() ) {
+      DatabaseMetaData metaData = dbConnection.getMetaData();
+      String databaseProductName = metaData.getDatabaseProductName();
+      ES5DatabaseEngine databaseType = ES5DatabaseEngine.findById( databaseProductName );
+      setConfigurationConstant( S5DatabaseConfig.DATABASE_ENGINE, avValobj( databaseType ) );
+    }
+    catch( SQLException e ) {
+      throw new TsInternalErrorRtException( e );
+    }
+
     // Поиск исполнителя потоков чтения блоков
     readExecutor = S5ServiceSingletonUtils.lookupExecutor( READ_EXECUTOR_JNDI );
 

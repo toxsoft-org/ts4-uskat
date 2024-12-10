@@ -18,7 +18,7 @@ import org.toxsoft.uskat.s5.server.*;
  * @author hazard157
  */
 @Entity
-public class S5ServiceConfigEntity {
+public class s5serviceconfigentity {
 
   private String serviceId;
   private String serviceConfig;
@@ -26,7 +26,7 @@ public class S5ServiceConfigEntity {
   /**
    * Пустой конструктор.
    */
-  public S5ServiceConfigEntity() {
+  public s5serviceconfigentity() {
     // nop
   }
 
