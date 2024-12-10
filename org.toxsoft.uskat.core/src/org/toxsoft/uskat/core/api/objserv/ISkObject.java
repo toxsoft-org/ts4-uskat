@@ -98,9 +98,9 @@ public interface ISkObject
   String readableName();
 
   /**
-   * Returns the core API of connnection to the objects source.
+   * Returns the core API of connection to the objects source.
    *
-   * @return {@link ISkCoreApi} - Skat core API
+   * @return {@link ISkCoreApi} - USkat core API
    */
   ISkCoreApi coreApi();
 

@@ -4,6 +4,8 @@ import java.util.*;
 
 import org.toxsoft.core.tslib.bricks.strid.coll.*;
 import org.toxsoft.core.tslib.coll.*;
+import org.toxsoft.core.tslib.gw.skid.*;
+import org.toxsoft.core.tslib.utils.errors.*;
 import org.toxsoft.uskat.core.*;
 import org.toxsoft.uskat.core.api.objserv.*;
 import org.toxsoft.uskat.core.api.sysdescr.dto.*;
@@ -22,6 +24,18 @@ import org.toxsoft.uskat.core.impl.*;
  * <p>
  * Локализатор создается при создании {@link SkCoreApi} и вместе с ним заверщает работу. Соответсвенно, все настроечные
  * параметры и ссылки он получает в конструкторе, в том числе, заданным и неизменным остается {@link #locale()}.
+ * <p>
+ * Methods <code>addXxxL10n()</code> are used to redefine L10n strings for the current session. These methods are used
+ * for SK-services. When Sk-sevice create Sk-class or Sk-object at least name and description must be supplied. Using
+ * current locale is a bad idea. In such case different clients of the Sk-server with different locates will cause
+ * multiple class/object recreation. To avoid harmful effects classes and objects must be created in English language by
+ * the Sk-service initialization code. However such classes need to be localized.
+ * <p>
+ * So Sk-services must:
+ * <ul>
+ * <li>create built-in entities in English (en_EN) language;</li>
+ * <li>immediately <code>addXxxL10n()</code> methods to localize such entities.</li>
+ * </ul>
  *
  * @author hazard157
  */
@@ -105,5 +119,18 @@ public interface ICoreL10n {
    * @return {@link IStridablesList}&lt;{@link IDtoObject}&gt; - localized objects
    */
   IList<IDtoObject> l10nObjectsList( IList<IDtoObject> aObjects );
+
+  /**
+   * Defines object L10n temporary data for current locale.
+   * <p>
+   * Specified L10n data is not stored permanently. Localization is valid only during current session. Existing
+   * localization data will be replaced.
+   *
+   * @param aSkid {@link Skid} - object SKID
+   * @param aName String - name as for {@link #locale()}
+   * @param aDescription String - description as for {@link #locale()}
+   * @throws TsNullArgumentRtException any argument = <code>null</code>
+   */
+  void addObjectL10n( Skid aSkid, String aName, String aDescription );
 
 }

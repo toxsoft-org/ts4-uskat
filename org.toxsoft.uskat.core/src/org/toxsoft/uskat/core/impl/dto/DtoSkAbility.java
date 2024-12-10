@@ -2,6 +2,7 @@ package org.toxsoft.uskat.core.impl.dto;
 
 import org.toxsoft.core.tslib.bricks.strid.impl.*;
 import org.toxsoft.core.tslib.utils.errors.*;
+import org.toxsoft.uskat.core.api.users.*;
 import org.toxsoft.uskat.core.api.users.ability.*;
 
 /**
@@ -52,7 +53,7 @@ public class DtoSkAbility
 
   @Override
   public String kindId() {
-    return params().getStr( OPID_KIND_ID, ISkAbilityHardConstants.ABILITY_KIND_ID_UNDEFINED );
+    return params().getStr( OPID_KIND_ID, ISkUserServiceHardConstants.ABILITY_KIND_ID_UNDEFINED );
   }
 
   // ------------------------------------------------------------------------------------

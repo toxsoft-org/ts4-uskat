@@ -157,6 +157,16 @@ interface ISkResources {
 
   // ------------------------------------------------------------------------------------
   // USkat entities are defined only in English, l10n done via USkat localization service
+
+  String ENG_ROOT_ROLE    = Messages.getStringEnglish( "STR_ROOT_ROLE" );   //$NON-NLS-1$
+  String ENG_ROOT_ROLE_D  = Messages.getStringEnglish( "STR_ROOT_ROLE_D" ); //$NON-NLS-1$
+  String ENG_GUEST_ROLE   = Messages.getString( "STR_GUEST_ROLE" );         //$NON-NLS-1$
+  String ENG_GUEST_ROLE_D = Messages.getString( "STR_GUEST_ROLE_D" );       //$NON-NLS-1$
+  String ENG_ROOT_USER    = Messages.getString( "STR_ROOT_USER" );          //$NON-NLS-1$
+  String ENG_ROOT_USER_D  = Messages.getString( "STR_ROOT_USER_D" );        //$NON-NLS-1$
+  String ENG_GUEST_USER   = Messages.getString( "STR_GUEST_USER" );         //$NON-NLS-1$
+  String ENG_GUEST_USER_D = Messages.getString( "STR_GUEST_USER_D" );       //$NON-NLS-1$
+
   String STR_ROOT_ROLE    = Messages.getString( "STR_ROOT_ROLE" );    //$NON-NLS-1$
   String STR_ROOT_ROLE_D  = Messages.getString( "STR_ROOT_ROLE_D" );  //$NON-NLS-1$
   String STR_GUEST_ROLE   = Messages.getString( "STR_GUEST_ROLE" );   //$NON-NLS-1$

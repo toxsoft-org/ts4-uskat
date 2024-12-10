@@ -703,6 +703,12 @@ public class SkCoreServObject
       sko.rivets().ensureSkidList( rinf.id() ).setAll( rivets );
     }
     // save object
+
+    /**
+     * FIXME here we need to localize object after it was written to the backend.<br>
+     * When creating system objects they are created in english. but in cache they have to be put localized!
+     */
+
     objsCache.put( sko );
     internalWriteSkObjectToBackend( sko );
     return (T)sko;

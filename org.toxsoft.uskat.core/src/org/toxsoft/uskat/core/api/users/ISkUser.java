@@ -41,7 +41,7 @@ public interface ISkUser
    *
    * @return boolean - user is enabled to login<br>
    *         <code>true</code> if user is allowed to connect to the server<br>
-   *         <code>false</code> if thei user is temporary disabled
+   *         <code>false</code> if the user is temporary disabled
    */
   default boolean isEnabled() {
     return attrs().getBool( ATRID_USER_IS_ENABLED );

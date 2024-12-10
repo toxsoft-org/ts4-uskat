@@ -5,6 +5,7 @@ import org.toxsoft.core.tslib.bricks.strid.coll.*;
 import org.toxsoft.core.tslib.bricks.validator.*;
 import org.toxsoft.core.tslib.bricks.validator.impl.*;
 import org.toxsoft.core.tslib.utils.errors.*;
+import org.toxsoft.uskat.core.api.users.*;
 
 /**
  * Manages abilities - rights of the role to access various functions of the system.
@@ -108,7 +109,7 @@ public interface ISkAbilityManager {
    * Removes the ability kind.
    * <p>
    * Note: removing kind does <b>not</b> removes any ability. Abilities of the removed kind will be listed as of kind
-   * {@link ISkAbilityHardConstants#ABILITY_KIND_ID_UNDEFINED}.
+   * {@link ISkUserServiceHardConstants#ABILITY_KIND_ID_UNDEFINED}.
    * <p>
    * If the specified kind does not exists then
    *

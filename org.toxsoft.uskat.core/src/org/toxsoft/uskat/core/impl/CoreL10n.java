@@ -26,6 +26,7 @@ import org.toxsoft.core.tslib.coll.*;
 import org.toxsoft.core.tslib.coll.impl.*;
 import org.toxsoft.core.tslib.gw.gwid.*;
 import org.toxsoft.core.tslib.gw.skid.*;
+import org.toxsoft.core.tslib.utils.errors.*;
 import org.toxsoft.core.tslib.utils.files.*;
 import org.toxsoft.core.tslib.utils.logs.impl.*;
 import org.toxsoft.uskat.core.api.objserv.*;
@@ -492,6 +493,13 @@ class CoreL10n
       }
     }
     return ll;
+  }
+
+  @Override
+  public void addObjectL10n( Skid aSkid, String aName, String aDescription ) {
+    TsNullArgumentRtException.checkNulls( aSkid, aName, aDescription );
+    L10nItem item = new L10nItem( aSkid.toString(), aName, aDescription );
+    ldObjsMap.put( aSkid, item );
   }
 
 }

@@ -367,45 +367,8 @@ public class SkCoreServUsers
 
   @Override
   protected void doInit( ITsContextRo aArgs ) {
-    // create class for ISkRole
-    IDtoClassInfo roleCinf = internalCreateRoleClassDto();
-    sysdescr().defineClass( roleCinf );
-    objServ().registerObjectCreator( ISkRole.CLASS_ID, SkRole.CREATOR );
-    // create class for ISkUser
-    IDtoClassInfo userCinf = internalCreateUserClassDto();
-    sysdescr().defineClass( userCinf );
-    objServ().registerObjectCreator( ISkUser.CLASS_ID, SkUser.CREATOR );
-    // create role rootRole
-    DtoObject objRoleRoot = DtoObject.createDtoObject( SKID_ROLE_ROOT, coreApi() );
-    objRoleRoot.attrs().setStr( AID_NAME, STR_ROOT_ROLE );
-    objRoleRoot.attrs().setStr( AID_DESCRIPTION, STR_ROOT_ROLE_D );
-    objServ().defineObject( objRoleRoot );
-    // create role guestRole
-    DtoObject objRoleGuest = DtoObject.createDtoObject( SKID_ROLE_GUEST, coreApi() );
-    objRoleGuest.attrs().setStr( AID_NAME, STR_GUEST_ROLE );
-    objRoleGuest.attrs().setStr( AID_DESCRIPTION, STR_GUEST_ROLE_D );
-    objServ().defineObject( objRoleGuest );
-    // create user root
-    DtoObject objUserRoot = DtoObject.createDtoObject( SKID_USER_ROOT, coreApi() );
-    objUserRoot.attrs().setStr( AID_NAME, STR_ROOT_USER );
-    objUserRoot.attrs().setStr( AID_DESCRIPTION, STR_ROOT_USER_D );
-    // if password is not set (or was reset) specify the builtin default password
-    if( objUserRoot.attrs().getStr( ATRID_PASSWORD_HASH ).isEmpty() ) {
-      objUserRoot.attrs().setStr( ATRID_PASSWORD_HASH, SkHelperUtils.getPasswordHashCode( INITIAL_ROOT_PASSWORD ) );
-    }
-    ISkObject skoRootUser = objServ().defineObject( objUserRoot );
-    linkService().setLink( skoRootUser.skid(), LNKID_USER_ROLES, new SkidList( objRoleRoot.skid() ) );
-    // create user guest
-    DtoObject objUserGuest = DtoObject.createDtoObject( SKID_USER_GUEST, coreApi() );
-    objUserGuest.attrs().setStr( AID_NAME, STR_GUEST_USER );
-    objUserGuest.attrs().setStr( AID_DESCRIPTION, STR_GUEST_USER_D );
-    ISkObject skoGuestUser = objServ().defineObject( objUserGuest );
-    linkService().setLink( skoGuestUser.skid(), LNKID_USER_ROLES, new SkidList( objRoleGuest.skid() ) );
-    // initialize ability management classes
-
-    // FIXME
-
-    //
+    internalCreateClasses();
+    internalCreateBuiltinObjects();
     sysdescr().svs().addValidator( claimingValidator );
     objServ().svs().addValidator( claimingValidator );
     linkService().svs().addValidator( claimingValidator );
@@ -422,6 +385,8 @@ public class SkCoreServUsers
     return switch( aClassId ) {
       case ISkUser.CLASS_ID -> true;
       case ISkRole.CLASS_ID -> true;
+      case ISkAbility.CLASS_ID -> true;
+      case ISkAbilityKind.CLASS_ID -> true;
       default -> false;
     };
   }
@@ -446,6 +411,63 @@ public class SkCoreServUsers
     objServ().svs().resumeValidator( claimingValidator );
     linkService().svs().resumeValidator( claimingValidator );
     clobService().svs().resumeValidator( claimingValidator );
+  }
+
+  /**
+   * Creates classes: {@link ISkRole}, {@link ISkUser}, {@link ISkAbility}, {@link ISkAbilityKind}.
+   */
+  private void internalCreateClasses() {
+    // ISkAbilityKind
+    IDtoClassInfo abKindCinf = internalCreateAbilityKindClassDto();
+    sysdescr().defineClass( abKindCinf );
+    objServ().registerObjectCreator( ISkAbilityKind.CLASS_ID, SkAbilityKind.CREATOR );
+    // ISkAbility
+    IDtoClassInfo abilityCinf = internalCreateAbilityClassDto();
+    sysdescr().defineClass( abilityCinf );
+    objServ().registerObjectCreator( ISkAbility.CLASS_ID, SkAbility.CREATOR );
+    // ISkRole
+    IDtoClassInfo roleCinf = internalCreateRoleClassDto();
+    sysdescr().defineClass( roleCinf );
+    objServ().registerObjectCreator( ISkRole.CLASS_ID, SkRole.CREATOR );
+    // ISkUser
+    IDtoClassInfo userCinf = internalCreateUserClassDto();
+    sysdescr().defineClass( userCinf );
+    objServ().registerObjectCreator( ISkUser.CLASS_ID, SkUser.CREATOR );
+  }
+
+  private void internalCreateBuiltinObjects() {
+    // undefined abilities kind
+    // DtoObject objRoleRoot = DtoObject.createDtoObject( SKID_ROLE_ROOT, coreApi() );
+    // TODO SkCoreServUsers.internalCreateBuiltinObjects()
+    // USkat core abilities kind
+    // TODO SkCoreServUsers.internalCreateBuiltinObjects()
+    // root role
+
+    DtoObject objRoleRoot = DtoObject.createDtoObject( SKID_ROLE_ROOT, coreApi() );
+    objRoleRoot.attrs().setStr( AID_NAME, ENG_ROOT_ROLE );
+    objRoleRoot.attrs().setStr( AID_DESCRIPTION, ENG_ROOT_ROLE_D );
+    objServ().defineObject( objRoleRoot );
+    // guest role
+    DtoObject objRoleGuest = DtoObject.createDtoObject( SKID_ROLE_GUEST, coreApi() );
+    objRoleGuest.attrs().setStr( AID_NAME, ENG_GUEST_ROLE );
+    objRoleGuest.attrs().setStr( AID_DESCRIPTION, ENG_GUEST_ROLE_D );
+    objServ().defineObject( objRoleGuest );
+    // root user
+    DtoObject objUserRoot = DtoObject.createDtoObject( SKID_USER_ROOT, coreApi() );
+    objUserRoot.attrs().setStr( AID_NAME, ENG_ROOT_USER );
+    objUserRoot.attrs().setStr( AID_DESCRIPTION, ENG_ROOT_USER_D );
+    // if password is not set (or was reset) specify the builtin default password
+    if( objUserRoot.attrs().getStr( ATRID_PASSWORD_HASH ).isEmpty() ) {
+      objUserRoot.attrs().setStr( ATRID_PASSWORD_HASH, SkHelperUtils.getPasswordHashCode( INITIAL_ROOT_PASSWORD ) );
+    }
+    ISkObject skoRootUser = objServ().defineObject( objUserRoot );
+    linkService().setLink( skoRootUser.skid(), LNKID_USER_ROLES, new SkidList( objRoleRoot.skid() ) );
+    // guest user
+    DtoObject objUserGuest = DtoObject.createDtoObject( SKID_USER_GUEST, coreApi() );
+    objUserGuest.attrs().setStr( AID_NAME, ENG_GUEST_USER );
+    objUserGuest.attrs().setStr( AID_DESCRIPTION, ENG_GUEST_USER_D );
+    ISkObject skoGuestUser = objServ().defineObject( objUserGuest );
+    linkService().setLink( skoGuestUser.skid(), LNKID_USER_ROLES, new SkidList( objRoleGuest.skid() ) );
   }
 
   /**
