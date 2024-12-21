@@ -1,8 +1,14 @@
 package org.toxsoft.uskat.core.impl;
 
+import static org.toxsoft.uskat.core.api.users.ISkUserServiceHardConstants.*;
+
+import org.toxsoft.core.tslib.bricks.strid.coll.*;
+import org.toxsoft.core.tslib.bricks.strid.coll.impl.*;
+import org.toxsoft.core.tslib.coll.*;
 import org.toxsoft.core.tslib.gw.skid.*;
 import org.toxsoft.uskat.core.api.objserv.*;
 import org.toxsoft.uskat.core.api.users.*;
+import org.toxsoft.uskat.core.api.users.ability.*;
 
 /**
  * {@link ISkRole} implementation.
@@ -22,5 +28,11 @@ class SkRole
   // ------------------------------------------------------------------------------------
   // ISkRole
   //
+
+  @Override
+  public IStridablesList<ISkAbility> listAllowedAbilities() {
+    IList<ISkAbility> absList = getLinkObjs( LNKID_ROLE_ALLOWED_ABILITIES );
+    return new StridablesList<>( absList );
+  }
 
 }

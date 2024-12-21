@@ -80,8 +80,8 @@ public interface ISkLinkService
    * <li>value {@link ISkidList#EMPTY} does not changes link at all.</li>
    * </ul>
    * <p>
-   * This sinle method allow to create link, edit or remove objects in the right objects list. Below there are some
-   * inline methods for convinience.
+   * This single method allow to create link, edit or remove objects in the right objects list. Below there are some
+   * inline methods for convenience.
    *
    * @param aLeftSkid {@link Skid} - the left object SKID
    * @param aLinkId String - the link ID

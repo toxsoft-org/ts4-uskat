@@ -147,34 +147,14 @@ interface ISkResources {
   String MSG_WARN_DISABLING_GUEST_USER  = Messages.getString( "MSG_WARN_DISABLING_GUEST_USER" );  //$NON-NLS-1$
   String MSG_ERR_CANT_DISABLE_ROOT_ROLE = Messages.getString( "MSG_ERR_CANT_DISABLE_ROOT_ROLE" ); //$NON-NLS-1$
   String MSG_WARN_DISABLING_GUEST_ROLE  = Messages.getString( "MSG_WARN_DISABLING_GUEST_ROLE" );  //$NON-NLS-1$
-
-  String FMT_WARN_CANT_DEL_NO_USER   = Messages.getString( "FMT_WARN_CANT_DEL_NO_USER" );   //$NON-NLS-1$
-  String MSG_ERR_CANT_DEL_ROOT_USER  = Messages.getString( "MSG_ERR_CANT_DEL_ROOT_USER" );  //$NON-NLS-1$
-  String MSG_ERR_CANT_DEL_GUEST_USER = Messages.getString( "MSG_ERR_CANT_DEL_GUEST_USER" ); //$NON-NLS-1$
-  String FMT_WARN_CANT_DEL_NO_ROLE   = Messages.getString( "FMT_WARN_CANT_DEL_NO_ROLE" );   //$NON-NLS-1$
-  String MSG_ERR_CANT_DEL_ROOT_ROLE  = Messages.getString( "MSG_ERR_CANT_DEL_ROOT_ROLE" );  //$NON-NLS-1$
-  String MSG_ERR_CANT_DEL_GUEST_ROLE = Messages.getString( "MSG_ERR_CANT_DEL_GUEST_ROLE" ); //$NON-NLS-1$
-
-  // ------------------------------------------------------------------------------------
-  // USkat entities are defined only in English, l10n done via USkat localization service
-
-  String ENG_ROOT_ROLE    = Messages.getStringEnglish( "STR_ROOT_ROLE" );   //$NON-NLS-1$
-  String ENG_ROOT_ROLE_D  = Messages.getStringEnglish( "STR_ROOT_ROLE_D" ); //$NON-NLS-1$
-  String ENG_GUEST_ROLE   = Messages.getString( "STR_GUEST_ROLE" );         //$NON-NLS-1$
-  String ENG_GUEST_ROLE_D = Messages.getString( "STR_GUEST_ROLE_D" );       //$NON-NLS-1$
-  String ENG_ROOT_USER    = Messages.getString( "STR_ROOT_USER" );          //$NON-NLS-1$
-  String ENG_ROOT_USER_D  = Messages.getString( "STR_ROOT_USER_D" );        //$NON-NLS-1$
-  String ENG_GUEST_USER   = Messages.getString( "STR_GUEST_USER" );         //$NON-NLS-1$
-  String ENG_GUEST_USER_D = Messages.getString( "STR_GUEST_USER_D" );       //$NON-NLS-1$
-
-  String STR_ROOT_ROLE    = Messages.getString( "STR_ROOT_ROLE" );    //$NON-NLS-1$
-  String STR_ROOT_ROLE_D  = Messages.getString( "STR_ROOT_ROLE_D" );  //$NON-NLS-1$
-  String STR_GUEST_ROLE   = Messages.getString( "STR_GUEST_ROLE" );   //$NON-NLS-1$
-  String STR_GUEST_ROLE_D = Messages.getString( "STR_GUEST_ROLE_D" ); //$NON-NLS-1$
-  String STR_ROOT_USER    = Messages.getString( "STR_ROOT_USER" );    //$NON-NLS-1$
-  String STR_ROOT_USER_D  = Messages.getString( "STR_ROOT_USER_D" );  //$NON-NLS-1$
-  String STR_GUEST_USER   = Messages.getString( "STR_GUEST_USER" );   //$NON-NLS-1$
-  String STR_GUEST_USER_D = Messages.getString( "STR_GUEST_USER_D" ); //$NON-NLS-1$
+  String FMT_WARN_CANT_DEL_NO_USER      = Messages.getString( "FMT_WARN_CANT_DEL_NO_USER" );      //$NON-NLS-1$
+  String MSG_ERR_CANT_DEL_ROOT_USER     = Messages.getString( "MSG_ERR_CANT_DEL_ROOT_USER" );     //$NON-NLS-1$
+  String MSG_ERR_CANT_DEL_GUEST_USER    = Messages.getString( "MSG_ERR_CANT_DEL_GUEST_USER" );    //$NON-NLS-1$
+  String MSG_ERR_CANT_DEL_CURRENT_USER  = Messages.getString( "MSG_ERR_CANT_DEL_CURRENT_USER" );  //$NON-NLS-1$
+  String FMT_WARN_CANT_DEL_NO_ROLE      = Messages.getString( "FMT_WARN_CANT_DEL_NO_ROLE" );      //$NON-NLS-1$
+  String MSG_ERR_CANT_DEL_ROOT_ROLE     = Messages.getString( "MSG_ERR_CANT_DEL_ROOT_ROLE" );     //$NON-NLS-1$
+  String MSG_ERR_CANT_DEL_GUEST_ROLE    = Messages.getString( "MSG_ERR_CANT_DEL_GUEST_ROLE" );    //$NON-NLS-1$
+  String MSG_ERR_CANT_DEL_CURRENT_ROLE  = Messages.getString( "MSG_ERR_CANT_DEL_CURRENT_ROLE" );  //$NON-NLS-1$
 
   /**
    * {@link SkCoreUtils}

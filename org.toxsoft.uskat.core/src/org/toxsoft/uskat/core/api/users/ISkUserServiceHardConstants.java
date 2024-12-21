@@ -4,7 +4,7 @@ import static org.toxsoft.core.tslib.av.impl.AvUtils.*;
 import static org.toxsoft.core.tslib.av.metainfo.IAvMetaConstants.*;
 import static org.toxsoft.core.tslib.gw.IGwHardConstants.*;
 import static org.toxsoft.uskat.core.ISkHardConstants.*;
-import static org.toxsoft.uskat.core.api.users.ISkResources.*;
+import static org.toxsoft.uskat.core.l10n.ISkCoreSharedResources.*;
 
 import org.toxsoft.core.tslib.av.opset.impl.*;
 import org.toxsoft.core.tslib.coll.helpers.*;
@@ -68,6 +68,11 @@ public interface ISkUserServiceHardConstants {
   String ATRID_ROLE_IS_HIDDEN = "hidden"; //$NON-NLS-1$
 
   /**
+   * ID of link {@link ISkRole#listAllowedAbilities()}.
+   */
+  String LNKID_ROLE_ALLOWED_ABILITIES = "allowedAbilities"; //$NON-NLS-1$
+
+  /**
    * Attribute {@link ISkRole#isEnabled()}.
    */
   IDtoAttrInfo ATRINF_ROLE_IS_ENABLED = DtoAttrInfo.create2( ATRID_ROLE_IS_ENABLED, DDEF_TS_BOOL, //
@@ -86,6 +91,15 @@ public interface ISkUserServiceHardConstants {
   );
 
   /**
+   * Link {@link ISkRole#listAllowedAbilities()}.
+   */
+  IDtoLinkInfo LNKINF_ROLE_ALLOWED_ABILITIES = DtoLinkInfo.create2( LNKID_ROLE_ALLOWED_ABILITIES, //
+      new SingleStringList( CLSID_ROLE ), new CollConstraint( 0, false, true, true ), //
+      TSID_NAME, STR_ROLE_ALLOWED_ABILITIES, //
+      TSID_DESCRIPTION, STR_ROLE_ALLOWED_ABILITIES_D //
+  );
+
+  /**
    * Creates DTO of {@link #CLSID_ROLE} class.
    *
    * @return {@link IDtoClassInfo} - {@link ISkRole#CLASS_ID} class info
@@ -100,6 +114,19 @@ public interface ISkUserServiceHardConstants {
     cinf.attrInfos().add( ATRINF_ROLE_IS_ENABLED );
     cinf.attrInfos().add( ATRINF_ROLE_IS_HIDDEN );
     return cinf;
+  }
+
+  /**
+   * Determines if role is an immutable built-in role.
+   *
+   * @param aRoleId String - the role ID
+   * @return boolean - <code>true</code> built-in immutable role, <code>false</code> - administrator defined role
+   */
+  static boolean isImmutableRole( String aRoleId ) {
+    return switch( aRoleId ) {
+      case ROLE_ID_ROOT, ROLE_ID_GUEST -> true;
+      default -> false;
+    };
   }
 
   // ------------------------------------------------------------------------------------
@@ -216,6 +243,19 @@ public interface ISkUserServiceHardConstants {
     return cinf;
   }
 
+  /**
+   * Determines if user is an immutable built-in user.
+   *
+   * @param aUserId String - the user ID
+   * @return boolean - <code>true</code> built-in immutable user, <code>false</code> - administrator defined user
+   */
+  static boolean isImmutableUser( String aUserId ) {
+    return switch( aUserId ) {
+      case USER_ID_ROOT, USER_ID_GUEST -> true;
+      default -> false;
+    };
+  }
+
   // ------------------------------------------------------------------------------------
   // Ability and ability kind
   //
@@ -231,23 +271,9 @@ public interface ISkUserServiceHardConstants {
   String CLSID_ABILITY_KIND = ISkHardConstants.SK_ID + ".AbilityKind"; //$NON-NLS-1$
 
   /**
-   * ID of the attribute {@link #ATRID_ABILITY_IS_ENABLED}.
-   */
-  String ATRID_ABILITY_IS_ENABLED = "enabled"; //$NON-NLS-1$
-
-  /**
    * ID of the link {@link #LNKINF_ABILITIES_OF_KIND}.
    */
   String LNKID_ABILITIES_OF_KIND = "abilities"; //$NON-NLS-1$
-
-  /**
-   * Attribute {@link ISkAbility#isEnabled()}.
-   */
-  IDtoAttrInfo ATRINF_ABILITY_IS_ENABLED = DtoAttrInfo.create2( ATRID_ABILITY_IS_ENABLED, DDEF_TS_BOOL, //
-      TSID_NAME, STR_ABILITY_IS_ENABLED, //
-      TSID_DESCRIPTION, STR_ABILITY_IS_ENABLED_D, //
-      TSID_DEFAULT_VALUE, AV_TRUE //
-  );
 
   /**
    * Link {@link ISkAbilityKind#listAbilities()}.
@@ -259,14 +285,14 @@ public interface ISkUserServiceHardConstants {
   );
 
   /**
-   * Built-in kind: for abilities with unspecified or non-existing kind IDs.
+   * Built-in kind ID: for abilities with unspecified or non-existing kind IDs.
    */
   String ABILITY_KIND_ID_UNDEFINED = "kind.undefined"; //$NON-NLS-1$
 
   /**
-   * Built-in kind: USkat core functionality.
+   * SKID corresponding to {@link #ABILITY_KIND_ID_UNDEFINED}.
    */
-  String ABILITY_KIND_ID_USKAT_CORE = "kind.uskat_core"; //$NON-NLS-1$
+  Skid SKID_ABILITY_KIND_UNDEFINED = new Skid( CLSID_ABILITY_KIND, ABILITY_KIND_ID_UNDEFINED );
 
   /**
    * Creates DTO of {@link #CLSID_ABILITY} class.
@@ -280,7 +306,6 @@ public interface ISkUserServiceHardConstants {
     ) );
     OPDEF_SK_IS_SOURCE_CODE_DEFINED_CLASS.setValue( cinf.params(), AV_TRUE );
     OPDEF_SK_IS_SOURCE_USKAT_CORE_CLASS.setValue( cinf.params(), AV_TRUE );
-    cinf.attrInfos().add( ATRINF_ABILITY_IS_ENABLED );
     return cinf;
   }
 

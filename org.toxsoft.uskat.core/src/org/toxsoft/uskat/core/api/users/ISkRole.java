@@ -2,8 +2,10 @@ package org.toxsoft.uskat.core.api.users;
 
 import static org.toxsoft.uskat.core.api.users.ISkUserServiceHardConstants.*;
 
+import org.toxsoft.core.tslib.bricks.strid.coll.*;
 import org.toxsoft.core.tslib.utils.errors.*;
 import org.toxsoft.uskat.core.api.objserv.*;
+import org.toxsoft.uskat.core.api.users.ability.*;
 
 /**
  * The role is set of rules determining rights of the {@link ISkUser}.
@@ -54,5 +56,12 @@ public interface ISkRole
     ISkUserService us = coreApi().getService( ISkUserService.SERVICE_ID );
     return us.abilityManager().isAbilityAllowed( strid(), aAbilityId );
   }
+
+  /**
+   * Returns abilities allowed for this role.
+   *
+   * @return {@link IStridablesList}&lt;{@link ISkAbility}&gt; - abilities allowed for the role
+   */
+  IStridablesList<ISkAbility> listAllowedAbilities();
 
 }

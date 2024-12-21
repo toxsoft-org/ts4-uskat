@@ -1,6 +1,7 @@
 package org.toxsoft.uskat.core.api.users.ability;
 
 import org.toxsoft.core.tslib.bricks.validator.*;
+import org.toxsoft.core.tslib.coll.primtypes.*;
 import org.toxsoft.core.tslib.utils.errors.*;
 
 /**
@@ -11,27 +12,17 @@ import org.toxsoft.core.tslib.utils.errors.*;
 public interface ISkAbilityManagerValidator {
 
   /**
-   * Checks if access rights to all abilities of the role can be changed at once.
-   *
-   * @param aRoleId String - the role ID
-   * @param aEnableAll boolean - <code>true</code> allow all, <code>false</code> - disallow all abilities
-   * @return {@link ValidationResult} - the check result
-   * @throws TsNullArgumentRtException any argument = <code>null</code>
-   */
-  ValidationResult canResetRoleAbilities( String aRoleId, boolean aEnableAll );
-
-  /**
    * Checks if access right to the ability can be changed for the role.
    * <p>
    * Note: this method is called only if <code>aEnable</code> has different value when the current access right.
    *
    * @param aRoleId String - the role ID
-   * @param aAbilityId String - the ability ID
-   * @param aEnable boolean - <code>true</code> allow , <code>false</code> - disallow the ability for role
+   * @param aAbilityIds {@link IStringList} - list of the the ability IDs
+   * @param aEnable boolean - <code>true</code> allow, <code>false</code> - disallow specified abilities for role
    * @return {@link ValidationResult} - the check result
    * @throws TsNullArgumentRtException any argument = <code>null</code>
    */
-  ValidationResult canSetRoleAbility( String aRoleId, String aAbilityId, boolean aEnable );
+  ValidationResult canSetRoleAbilities( String aRoleId, IStringList aAbilityIds, boolean aEnable );
 
   /**
    * Checks if new ability can be created or existing updated.

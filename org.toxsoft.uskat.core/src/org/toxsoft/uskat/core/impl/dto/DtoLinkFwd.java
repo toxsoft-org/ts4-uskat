@@ -139,7 +139,7 @@ public final class DtoLinkFwd
    * <p>
    * Method is aimed to simplify single object addition to the link.
    * <p>
-   * If given SKID alreday in list then returns copy of source argument.
+   * If given SKID already is in list then returns copy of source argument.
    *
    * @param aLink {@link IDtoLinkFwd} - source link
    * @param aRightSkidToRemove {@link Skid} - SKID obj object to add to {@link IDtoLinkFwd#rightSkids()}

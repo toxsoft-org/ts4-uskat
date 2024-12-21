@@ -86,12 +86,11 @@ public interface ISkCoreConfigConstants {
 
   /**
    * service creator. <br>
-   * Usage: TODO:
+   * Usage: TODO ???
    */
-  ITsContextRefDef<ITsThreadExecutor> REFDEF_THREAD_EXECUTOR =
-      TsContextRefDef.create( ITsThreadExecutor.class, //
-          TSID_NAME, STR_REF_THREAD_EXECUTOR, //
-          TSID_DESCRIPTION, STR_REF_THREAD_EXECUTOR_D, //
-          TSID_IS_MANDATORY, AV_TRUE //
-      );
+  ITsContextRefDef<ITsThreadExecutor> REFDEF_THREAD_EXECUTOR = TsContextRefDef.create( ITsThreadExecutor.class, //
+      TSID_NAME, STR_REF_THREAD_EXECUTOR, //
+      TSID_DESCRIPTION, STR_REF_THREAD_EXECUTOR_D, //
+      TSID_IS_MANDATORY, AV_TRUE //
+  );
 }

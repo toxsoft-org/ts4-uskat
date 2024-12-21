@@ -23,20 +23,4 @@ public interface ISkAbility
    */
   ISkAbilityKind kind();
 
-  /**
-   * Determines if ability is enabled.
-   * <p>
-   * The ability may be temporarily disabled by setting attribute
-   * {@link ISkUserServiceHardConstants#ATRID_ABILITY_IS_ENABLED} attribute to <code>false</code>. Any role, including
-   * root one, will return {@link ISkRole#isAbilityAllowed(String)} = <code>false</code>.
-   * <p>
-   * Disabling ability has sense in few cases. For example when adding new features to the system it may be disabled
-   * until fully tested.
-   *
-   * @return boolean - ability is enabled for allowed roles<br>
-   *         <code>true</code> if user is allowed to connect to the server<br>
-   *         <code>false</code> if there ability is temporary disabled for all users including root
-   */
-  boolean isEnabled();
-
 }

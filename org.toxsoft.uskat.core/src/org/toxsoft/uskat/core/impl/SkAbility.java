@@ -2,8 +2,8 @@ package org.toxsoft.uskat.core.impl;
 
 import static org.toxsoft.uskat.core.api.users.ISkUserServiceHardConstants.*;
 
+import org.toxsoft.core.tslib.coll.*;
 import org.toxsoft.core.tslib.gw.skid.*;
-import org.toxsoft.core.tslib.utils.errors.*;
 import org.toxsoft.uskat.core.api.objserv.*;
 import org.toxsoft.uskat.core.api.users.ability.*;
 
@@ -28,13 +28,12 @@ public class SkAbility
 
   @Override
   public ISkAbilityKind kind() {
-    // TODO Auto-generated method stub
-    throw new TsUnderDevelopmentRtException();
-  }
-
-  @Override
-  public boolean isEnabled() {
-    return attrs().getBool( ATRID_ABILITY_IS_ENABLED );
+    IList<ISkAbilityKind> absList = getLinkRevObjs( CLSID_ABILITY_KIND, LNKID_ABILITIES_OF_KIND );
+    ISkAbilityKind kind = absList.first();
+    if( kind == null ) {
+      kind = coreApi().objService().get( SKID_ABILITY_KIND_UNDEFINED );
+    }
+    return kind;
   }
 
 }

@@ -122,7 +122,7 @@ public interface ISkCoreApi {
   <S extends ISkService> S getService( String aServiceId );
 
   /**
-   * Adds and initializes new service to the runnning uskat.
+   * Adds and initializes new service to the running USkat.
    *
    * @param <S> - the type of the service
    * @param aCreator {@link ISkServiceCreator} - service constructor

@@ -9,7 +9,8 @@ public class Messages {
 
   private static final ResourceBundle RESOURCE_BUNDLE = ResourceBundle.getBundle( BUNDLE_NAME );
 
-  private static final ResourceBundle RESOURCE_BUNDLE_ENGLISH = ResourceBundle.getBundle( BUNDLE_NAME, Locale.ENGLISH );
+  // private static final ResourceBundle RESOURCE_BUNDLE_ENGLISH = ResourceBundle.getBundle( BUNDLE_NAME, Locale.ENGLISH
+  // );
 
   private Messages() {
   }
@@ -23,13 +24,13 @@ public class Messages {
     }
   }
 
-  public static String getStringEnglish( String aKey ) {
-    try {
-      return RESOURCE_BUNDLE_ENGLISH.getString( aKey );
-    }
-    catch( @SuppressWarnings( "unused" ) MissingResourceException e ) {
-      return '!' + aKey + '!';
-    }
-  }
+  // public static String getStringEnglish( String aKey ) {
+  // try {
+  // return RESOURCE_BUNDLE_ENGLISH.getString( aKey );
+  // }
+  // catch( @SuppressWarnings( "unused" ) MissingResourceException e ) {
+  // return '!' + aKey + '!';
+  // }
+  // }
 
 }

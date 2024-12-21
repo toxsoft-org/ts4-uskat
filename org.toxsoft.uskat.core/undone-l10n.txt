@@ -1,4 +1,3 @@
-+-- org.toxsoft.uskat.core (нет локализации на английский и грузинский языки)
 --- org.toxsoft.uskat.core.api.hqserv
 +-- org.toxsoft.uskat.core.api.ugwis.kinds
 --- org.toxsoft.uskat.core.backend

@@ -5,7 +5,6 @@ package org.toxsoft.uskat.core.api.hqserv;
  *
  * @author hazard157
  */
-@SuppressWarnings( "nls" )
 interface ISkResources {
 
   /**

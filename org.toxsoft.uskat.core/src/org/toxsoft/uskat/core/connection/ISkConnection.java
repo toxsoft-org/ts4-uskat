@@ -44,7 +44,7 @@ public interface ISkConnection
   void close();
 
   /**
-   * Returns the API of the uskat core.
+   * Returns the API of the USkat core.
    * <p>
    * Every time connection opens reference to the new instance of {@link ISkCoreApi} is returned.
    *

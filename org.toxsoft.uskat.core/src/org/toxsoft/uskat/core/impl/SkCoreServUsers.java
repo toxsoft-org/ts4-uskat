@@ -5,12 +5,14 @@ import static org.toxsoft.core.tslib.av.metainfo.IAvMetaConstants.*;
 import static org.toxsoft.uskat.core.ISkHardConstants.*;
 import static org.toxsoft.uskat.core.api.users.ISkUserServiceHardConstants.*;
 import static org.toxsoft.uskat.core.impl.ISkResources.*;
+import static org.toxsoft.uskat.core.l10n.ISkCoreSharedResources.*;
 
 import org.toxsoft.core.tslib.av.*;
 import org.toxsoft.core.tslib.av.impl.*;
 import org.toxsoft.core.tslib.av.metainfo.*;
 import org.toxsoft.core.tslib.bricks.ctx.*;
 import org.toxsoft.core.tslib.bricks.events.*;
+import org.toxsoft.core.tslib.bricks.events.msg.*;
 import org.toxsoft.core.tslib.bricks.strid.coll.*;
 import org.toxsoft.core.tslib.bricks.strid.coll.impl.*;
 import org.toxsoft.core.tslib.bricks.validator.*;
@@ -25,6 +27,7 @@ import org.toxsoft.uskat.core.api.objserv.*;
 import org.toxsoft.uskat.core.api.sysdescr.dto.*;
 import org.toxsoft.uskat.core.api.users.*;
 import org.toxsoft.uskat.core.api.users.ability.*;
+import org.toxsoft.uskat.core.backend.api.*;
 import org.toxsoft.uskat.core.devapi.*;
 import org.toxsoft.uskat.core.impl.dto.*;
 import org.toxsoft.uskat.core.utils.*;
@@ -42,6 +45,84 @@ public class SkCoreServUsers
    * Service creator singleton.
    */
   public static final ISkServiceCreator<AbstractSkService> CREATOR = SkCoreServUsers::new;
+
+  /**
+   * Builds message to the user service siblings to generate event
+   * {@link ISkUserServiceListener#onUsersChanged(ISkCoreApi, ECrudOp, String)}
+   *
+   * @author hazard157
+   */
+  static class BaMsgBuilderUsersChanged
+      extends AbstractBackendMessageBuilder {
+
+    static final String MSG_ID     = "UsersChanged"; //$NON-NLS-1$
+    static final String OPID_OP    = "op";           //$NON-NLS-1$
+    static final String OPID_LOGIN = "login";        //$NON-NLS-1$
+
+    static final BaMsgBuilderUsersChanged INSTANCE = new BaMsgBuilderUsersChanged();
+
+    private BaMsgBuilderUsersChanged() {
+      super( ISkUserService.SERVICE_ID, MSG_ID );
+    }
+
+    GtMessage makeMessage( ECrudOp aOp, String aLogin ) {
+      if( aLogin == null ) {
+        return makeMessageVarargs( OPID_OP, avValobj( aOp ) );
+      }
+      return makeMessageVarargs( OPID_OP, avValobj( aOp ), OPID_LOGIN, avStr( aLogin ) );
+    }
+
+    ECrudOp getCrudOp( GenericMessage aMsg ) {
+      return getArg( aMsg, OPID_OP ).asValobj();
+    }
+
+    String getLogin( GenericMessage aMsg ) {
+      if( !aMsg.args().hasKey( OPID_LOGIN ) ) {
+        return null;
+      }
+      return getArg( aMsg, OPID_LOGIN ).asString();
+    }
+
+  }
+
+  /**
+   * Builds message to the role service siblings to generate event
+   * {@link ISkUserServiceListener#onRolesChanged(ISkCoreApi, ECrudOp, String)}
+   *
+   * @author hazard157
+   */
+  static class BaMsgBuilderRolesChanged
+      extends AbstractBackendMessageBuilder {
+
+    static final String MSG_ID       = "RolesChanged"; //$NON-NLS-1$
+    static final String OPID_OP      = "op";           //$NON-NLS-1$
+    static final String OPID_ROLE_ID = "roleId";       //$NON-NLS-1$
+
+    static final BaMsgBuilderRolesChanged INSTANCE = new BaMsgBuilderRolesChanged();
+
+    private BaMsgBuilderRolesChanged() {
+      super( ISkUserService.SERVICE_ID, MSG_ID );
+    }
+
+    GtMessage makeMessage( ECrudOp aOp, String aRoleId ) {
+      if( aRoleId == null ) {
+        return makeMessageVarargs( OPID_OP, avValobj( aOp ) );
+      }
+      return makeMessageVarargs( OPID_OP, avValobj( aOp ), OPID_ROLE_ID, avStr( aRoleId ) );
+    }
+
+    ECrudOp getCrudOp( GenericMessage aMsg ) {
+      return getArg( aMsg, OPID_OP ).asValobj();
+    }
+
+    String getRoleId( GenericMessage aMsg ) {
+      if( !aMsg.args().hasKey( OPID_ROLE_ID ) ) {
+        return null;
+      }
+      return getArg( aMsg, OPID_ROLE_ID ).asString();
+    }
+
+  }
 
   /**
    * {@link ISkUserService#svs()} implementation.
@@ -297,7 +378,7 @@ public class SkCoreServUsers
 
     @Override
     public ValidationResult canRemoveUser( String aUserId ) {
-      // warn about attempt to remove unexisting user
+      // warn about attempt to remove non-existing user
       if( !listUsers().hasKey( aUserId ) ) {
         return ValidationResult.warn( FMT_WARN_CANT_DEL_NO_USER, aUserId );
       }
@@ -309,14 +390,16 @@ public class SkCoreServUsers
       if( USER_ID_GUEST.equals( aUserId ) ) {
         return ValidationResult.error( MSG_ERR_CANT_DEL_GUEST_USER );
       }
-      // TODO check attempt to remove current user
+      if( aUserId.equals( currUserSkid.strid() ) ) {
+        return ValidationResult.error( MSG_ERR_CANT_DEL_CURRENT_USER );
+      }
       // ???
       return ValidationResult.SUCCESS;
     }
 
     @Override
     public ValidationResult canRemoveRole( String aRoleId ) {
-      // warn about attempt to remove unexisting role
+      // warn about attempt to remove non-existing role
       if( !listRoles().hasKey( aRoleId ) ) {
         return ValidationResult.warn( FMT_WARN_CANT_DEL_NO_ROLE, aRoleId );
       }
@@ -328,19 +411,24 @@ public class SkCoreServUsers
       if( ROLE_ID_GUEST.equals( aRoleId ) ) {
         return ValidationResult.error( MSG_ERR_CANT_DEL_GUEST_ROLE );
       }
-      // TODO check attempt to remove current role
+      if( aRoleId.equals( currRoleSkid.strid() ) ) {
+        return ValidationResult.error( MSG_ERR_CANT_DEL_CURRENT_ROLE );
+      }
       // ???
       return ValidationResult.SUCCESS;
     }
 
   };
 
-  private final ISkAbilityManager abilityManager;
+  private final SkAbilityManager abilityManager;
 
   private final ValidationSupport            validationSupport = new ValidationSupport();
   private final ITsCompoundValidator<String> passwordValidator = TsCompoundValidator.create( true, true );
   private final Eventer                      eventer           = new Eventer();
   private final ClassClaimingCoreValidator   claimingValidator = new ClassClaimingCoreValidator();
+
+  private Skid currUserSkid = null; // currently logged user
+  private Skid currRoleSkid = null; // role of the currently logged user
 
   private final ITsValidator<String> builtinPasswordValidator = aValue -> {
     if( aValue.isBlank() ) {
@@ -367,17 +455,46 @@ public class SkCoreServUsers
 
   @Override
   protected void doInit( ITsContextRo aArgs ) {
+    ISkLoggedUserInfo userInfo = coreApi().getCurrentUserInfo();
+    currUserSkid = userInfo.userSkid();
+    currRoleSkid = userInfo.roleSkid();
+    // TODO setup L10n for built-in entities
     internalCreateClasses();
     internalCreateBuiltinObjects();
     sysdescr().svs().addValidator( claimingValidator );
     objServ().svs().addValidator( claimingValidator );
     linkService().svs().addValidator( claimingValidator );
     clobService().svs().addValidator( claimingValidator );
+    abilityManager.papiInit( aArgs );
   }
 
   @Override
   protected void doClose() {
     // nop
+  }
+
+  @Override
+  protected boolean onBackendMessage( GenericMessage aMessage ) {
+    // process ability manager messages
+    if( abilityManager.papiOnBackendMessage( aMessage ) ) {
+      return true;
+    }
+    // process user service own messages
+    return switch( aMessage.messageId() ) {
+      case BaMsgBuilderUsersChanged.MSG_ID -> {
+        ECrudOp op = BaMsgBuilderUsersChanged.INSTANCE.getCrudOp( aMessage );
+        String login = BaMsgBuilderUsersChanged.INSTANCE.getLogin( aMessage );
+        eventer.fireUserChanged( op, login );
+        yield true;
+      }
+      case BaMsgBuilderRolesChanged.MSG_ID -> {
+        ECrudOp op = BaMsgBuilderRolesChanged.INSTANCE.getCrudOp( aMessage );
+        String roleId = BaMsgBuilderRolesChanged.INSTANCE.getRoleId( aMessage );
+        eventer.fireRoleChanged( op, roleId );
+        yield true;
+      }
+      default -> false;
+    };
   }
 
   @Override
@@ -399,14 +516,14 @@ public class SkCoreServUsers
       TSID_DEFAULT_VALUE, AV_STR_EMPTY //
   );
 
-  private void pauseCoreValidation() {
+  void papiPauseCoreValidation() {
     sysdescr().svs().pauseValidator( claimingValidator );
     objServ().svs().pauseValidator( claimingValidator );
     linkService().svs().pauseValidator( claimingValidator );
     clobService().svs().pauseValidator( claimingValidator );
   }
 
-  private void resumeCoreValidation() {
+  void papiResumeCoreValidation() {
     sysdescr().svs().resumeValidator( claimingValidator );
     objServ().svs().resumeValidator( claimingValidator );
     linkService().svs().resumeValidator( claimingValidator );
@@ -437,12 +554,11 @@ public class SkCoreServUsers
 
   private void internalCreateBuiltinObjects() {
     // undefined abilities kind
-    // DtoObject objRoleRoot = DtoObject.createDtoObject( SKID_ROLE_ROOT, coreApi() );
-    // TODO SkCoreServUsers.internalCreateBuiltinObjects()
-    // USkat core abilities kind
-    // TODO SkCoreServUsers.internalCreateBuiltinObjects()
+    DtoObject objKindUndefined = DtoObject.createDtoObject( SKID_ABILITY_KIND_UNDEFINED, coreApi() );
+    objKindUndefined.attrs().setStr( AID_NAME, ENG_ABILITY_KIND_UNDEFINED );
+    objKindUndefined.attrs().setStr( AID_DESCRIPTION, ENG_ABILITY_KIND_UNDEFINED_D );
+    objServ().defineObject( objKindUndefined );
     // root role
-
     DtoObject objRoleRoot = DtoObject.createDtoObject( SKID_ROLE_ROOT, coreApi() );
     objRoleRoot.attrs().setStr( AID_NAME, ENG_ROOT_ROLE );
     objRoleRoot.attrs().setStr( AID_DESCRIPTION, ENG_ROOT_ROLE_D );
@@ -470,9 +586,17 @@ public class SkCoreServUsers
     linkService().setLink( skoGuestUser.skid(), LNKID_USER_ROLES, new SkidList( objRoleGuest.skid() ) );
   }
 
-  /**
-   * TODO listen to the server/backend messages to generate eventer messages
-   */
+  // ------------------------------------------------------------------------------------
+  // package API
+  //
+
+  Skid getCurrentUserSkid() {
+    return currUserSkid;
+  }
+
+  Skid getCurrentRoleSkid() {
+    return currRoleSkid;
+  }
 
   // ------------------------------------------------------------------------------------
   // ISkUserService
@@ -507,15 +631,19 @@ public class SkCoreServUsers
     checkThread();
     TsValidationFailedRtException.checkError( passwordValidator.validate( aPassword ) );
     TsValidationFailedRtException.checkError( validationSupport.canCreateUser( aDtoUser ) );
-    pauseCoreValidation();
+    papiPauseCoreValidation();
     try {
       // forcefully set password hash attribute
       DtoFullObject dtoUser = new DtoFullObject( aDtoUser );
       dtoUser.attrs().setStr( ATRID_PASSWORD_HASH, SkHelperUtils.getPasswordHashCode( aPassword ) );
-      return DtoFullObject.defineFullObject( coreApi(), aDtoUser );
+      ISkUser user = DtoFullObject.defineFullObject( coreApi(), aDtoUser );
+      // inform siblings
+      GtMessage msg = BaMsgBuilderUsersChanged.INSTANCE.makeMessage( ECrudOp.CREATE, aDtoUser.id() );
+      sendMessageToSiblings( msg );
+      return user;
     }
     finally {
-      resumeCoreValidation();
+      papiResumeCoreValidation();
     }
   }
 
@@ -527,15 +655,19 @@ public class SkCoreServUsers
     ISkUser oldUser = objServ().find( aDtoUser.skid() );
     TsItemNotFoundRtException.checkNull( oldUser );
     TsValidationFailedRtException.checkError( validationSupport.canEditUser( aDtoUser, oldUser ) );
-    pauseCoreValidation();
+    papiPauseCoreValidation();
     try {
       // edit object retaining previous password hash
       DtoFullObject dtoUser = new DtoFullObject( aDtoUser );
       dtoUser.attrs().setStr( ATRID_PASSWORD_HASH, oldUser.attrs().getStr( ATRID_PASSWORD_HASH ) );
-      return DtoFullObject.defineFullObject( coreApi(), aDtoUser );
+      ISkUser user = DtoFullObject.defineFullObject( coreApi(), aDtoUser );
+      // inform siblings
+      GtMessage msg = BaMsgBuilderUsersChanged.INSTANCE.makeMessage( ECrudOp.EDIT, aDtoUser.id() );
+      sendMessageToSiblings( msg );
+      return user;
     }
     finally {
-      resumeCoreValidation();
+      papiResumeCoreValidation();
     }
   }
 
@@ -551,12 +683,17 @@ public class SkCoreServUsers
     else {
       TsValidationFailedRtException.checkError( validationSupport.canCreateRole( aDtoRole ) );
     }
-    pauseCoreValidation();
+    papiPauseCoreValidation();
     try {
-      return objServ().defineObject( aDtoRole );
+      ISkRole role = objServ().defineObject( aDtoRole );
+      // inform siblings
+      ECrudOp op = oldRole != null ? ECrudOp.EDIT : ECrudOp.CREATE;
+      GtMessage msg = BaMsgBuilderRolesChanged.INSTANCE.makeMessage( op, aDtoRole.id() );
+      sendMessageToSiblings( msg );
+      return role;
     }
     finally {
-      resumeCoreValidation();
+      papiResumeCoreValidation();
     }
   }
 
@@ -564,12 +701,15 @@ public class SkCoreServUsers
   public void removeUser( String aUserId ) {
     checkThread();
     TsValidationFailedRtException.checkError( svs().validator().canRemoveUser( aUserId ) );
-    pauseCoreValidation();
+    papiPauseCoreValidation();
     try {
       coreApi().objService().removeObject( new Skid( ISkUser.CLASS_ID, aUserId ) );
+      // inform siblings
+      GtMessage msg = BaMsgBuilderUsersChanged.INSTANCE.makeMessage( ECrudOp.REMOVE, aUserId );
+      sendMessageToSiblings( msg );
     }
     finally {
-      resumeCoreValidation();
+      papiResumeCoreValidation();
     }
   }
 
@@ -577,12 +717,15 @@ public class SkCoreServUsers
   public void removeRole( String aRoleId ) {
     checkThread();
     TsValidationFailedRtException.checkError( svs().validator().canRemoveRole( aRoleId ) );
-    pauseCoreValidation();
+    papiPauseCoreValidation();
     try {
       coreApi().objService().removeObject( new Skid( ISkRole.CLASS_ID, aRoleId ) );
+      // inform siblings
+      GtMessage msg = BaMsgBuilderRolesChanged.INSTANCE.makeMessage( ECrudOp.REMOVE, aRoleId );
+      sendMessageToSiblings( msg );
     }
     finally {
-      resumeCoreValidation();
+      papiResumeCoreValidation();
     }
   }
 

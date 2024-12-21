@@ -195,7 +195,6 @@ public class UgwiKindSkRtDataInfo
    * Creates the UGWI of this kind.
    *
    * @param aClassId String - class ID
-   * @param aObjStrid String - object STRID
    * @param aDataId String - rt-data ID
    * @return {@link Ugwi} - created UGWI
    * @throws TsNullArgumentRtException any argument = <code>null</code>

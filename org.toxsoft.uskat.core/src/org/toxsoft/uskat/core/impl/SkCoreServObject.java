@@ -72,13 +72,6 @@ public class SkCoreServObject
     }
 
     SkObject put( SkObject aObject ) {
-
-      // DEBUG ---
-      // if( aObject.classId().contains( "ofile" ) ) {
-      // TsTestUtils.pl( aObject.readableName() );
-      // }
-      // ---
-
       if( cache.size() >= MAX_SIZE ) {
         cache.removeByKey( cache.keys().first() );
       }

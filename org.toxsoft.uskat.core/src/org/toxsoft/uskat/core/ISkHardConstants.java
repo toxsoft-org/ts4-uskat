@@ -5,7 +5,7 @@ import static org.toxsoft.core.tslib.av.EAtomicType.*;
 import static org.toxsoft.core.tslib.av.impl.AvUtils.*;
 import static org.toxsoft.core.tslib.av.impl.DataDef.*;
 import static org.toxsoft.core.tslib.av.metainfo.IAvMetaConstants.*;
-import static org.toxsoft.uskat.core.ISkResources.*;
+import static org.toxsoft.uskat.core.l10n.ISkCoreSharedResources.*;
 
 import org.toxsoft.core.tslib.av.*;
 import org.toxsoft.core.tslib.av.metainfo.*;
@@ -81,13 +81,14 @@ public interface ISkHardConstants {
   // Meta-info on classes
 
   /**
-   * Flags that attribute is the system managed. Type: {@link EAtomicType#BOOLEAN}<br>
+   * Flags that attribute is the system managed.<br>
+   * Type: {@link EAtomicType#BOOLEAN}<br>
    * Usage: system managed attributes values are stored as {@link SkObject} implementation class fields. At runtime this
    * attributes are also presented in the {@link ISkObject#attrs()} set however when storing object to database system
-   * attributes are not storeв as part of the {@link ISkObject#attrs()} set, rather they are stored by other means.<br>
+   * attributes are not stored as part of the {@link ISkObject#attrs()} set, rather they are stored by other means.<br>
    * Most obvious system attributes are {@link ISkHardConstants#AID_SKID},{@link ISkHardConstants#AID_STRID} and
    * {@link ISkHardConstants#AID_CLASS_ID}. All of them are derived from field {@link SkObject#skid()}.<br>
-   * System attributes are used to decrease needed storege amount and more important, it avoids possible errors due to
+   * System attributes are used to decrease needed storage amount and more important, it avoids possible errors due to
    * stored data duplication (both in fields and attributes set).<br>
    * This option must be specified in {@link IDtoAttrInfo#params()}.<br>
    * Default value: <code>false</code>
