@@ -35,5 +35,4 @@ Export-Package: org.toxsoft.uskat.core,
  org.toxsoft.uskat.core.impl.dto,
  org.toxsoft.uskat.core.l10n,
  org.toxsoft.uskat.core.utils,
- org.toxsoft.uskat.core.utils.msgen,
- org.toxsoft.uskat.core.utils.virtdata
+ org.toxsoft.uskat.core.utils.msgen
