@@ -111,6 +111,16 @@ public interface ISkCoreApi {
   IStringMap<ISkService> services();
 
   /**
+   * Finds the service by ID.
+   *
+   * @param <S> - expected type of the service
+   * @param aServiceId String - service identifier
+   * @return &lt;S&gt; - found service or <code>null</code>
+   * @throws TsNullArgumentRtException any argument = <code>null</code>
+   */
+  <S extends ISkService> S findService( String aServiceId );
+
+  /**
    * Returns the service.
    *
    * @param <S> - expected type of the service
@@ -119,7 +129,9 @@ public interface ISkCoreApi {
    * @throws TsNullArgumentRtException any argument = <code>null</code>
    * @throws TsItemNotFoundRtException no such service
    */
-  <S extends ISkService> S getService( String aServiceId );
+  default <S extends ISkService> S getService( String aServiceId ) {
+    return TsItemNotFoundRtException.checkNull( findService( aServiceId ) );
+  }
 
   /**
    * Adds and initializes new service to the running USkat.

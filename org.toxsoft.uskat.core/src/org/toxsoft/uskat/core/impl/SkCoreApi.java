@@ -295,8 +295,8 @@ public class SkCoreApi
 
   @SuppressWarnings( "unchecked" )
   @Override
-  final public <S extends ISkService> S getService( String aServiceId ) {
-    return (S)servicesMap.getByKey( aServiceId );
+  final public <S extends ISkService> S findService( String aServiceId ) {
+    return (S)servicesMap.findByKey( aServiceId );
   }
 
   @Override
