@@ -35,9 +35,10 @@ import org.toxsoft.uskat.s5.utils.jobs.*;
 @Singleton
 @LocalBean
 @DependsOn( { //
-    LOCAL_CONNECTIION_SINGLETON, //
     // Внимание! Чтобы использовать локальное соединение нужно минимальное описание системы для подключения (ISkUser):
-    PROJECT_INITIAL_SYSDESCR_SINGLETON //
+    PROJECT_INITIAL_SYSDESCR_SINGLETON, //
+    // Скатлеты используют локальные соединения
+    LOCAL_CONNECTIION_SINGLETON //
 } )
 @TransactionManagement( TransactionManagementType.CONTAINER )
 @TransactionAttribute( TransactionAttributeType.SUPPORTS )
