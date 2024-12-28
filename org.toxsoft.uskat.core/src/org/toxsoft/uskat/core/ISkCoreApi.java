@@ -1,5 +1,7 @@
 package org.toxsoft.uskat.core;
 
+import static org.toxsoft.uskat.core.l10n.ISkCoreSharedResources.*;
+
 import org.toxsoft.core.tslib.coll.primtypes.*;
 import org.toxsoft.core.tslib.utils.errors.*;
 import org.toxsoft.uskat.core.api.*;
@@ -130,7 +132,7 @@ public interface ISkCoreApi {
    * @throws TsItemNotFoundRtException no such service
    */
   default <S extends ISkService> S getService( String aServiceId ) {
-    return TsItemNotFoundRtException.checkNull( findService( aServiceId ) );
+    return TsItemNotFoundRtException.checkNull( findService( aServiceId ), FMT_ERR_SERVICE_NOT_FOUND, aServiceId );
   }
 
   /**

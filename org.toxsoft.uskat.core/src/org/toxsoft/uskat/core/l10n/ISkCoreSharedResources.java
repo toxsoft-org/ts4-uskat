@@ -19,6 +19,7 @@ public interface ISkCoreSharedResources {
   String STR_CLASS_IS_USKAT_SYSEXT_D = Messages.getString( "USkatCore.STR_CLASS_IS_USKAT_SYSEXT_D" ); //$NON-NLS-1$
   String STR_IS_SYS_ATTR             = Messages.getString( "USkatCore.STR_IS_SYS_ATTR" );             //$NON-NLS-1$
   String STR_IS_SYS_ATTR_D           = Messages.getString( "USkatCore.STR_IS_SYS_ATTR_D" );           //$NON-NLS-1$
+  String FMT_ERR_SERVICE_NOT_FOUND   = Messages.getEngStr( "USkatCore.FMT_ERR_SERVICE_NOT_FOUND" );   //$NON-NLS-1$
 
   // ------------------------------------------------------------------------------------
   // UserService
