@@ -119,9 +119,16 @@ public abstract class S5AbstractBackend<ADDON extends IS5BackendAddon>
   private ISkBackendInfo backendInfo;
 
   /**
-   * Генератор идентификаторов сессий, объектов {@link ISkSession}
+   * Генератор идентификаторов локальных сессий, объектов {@link ISkSession}
    */
-  private static IStridGenerator stridGenerator = new UuidStridGenerator( UuidStridGenerator.createState( "remote" ) ); //$NON-NLS-1$
+  private static IStridGenerator localStridGenerator =
+      new UuidStridGenerator( UuidStridGenerator.createState( "local" ) ); //$NON-NLS-1$
+
+  /**
+   * Генератор идентификаторов удаленных сессий, объектов {@link ISkSession}
+   */
+  private static IStridGenerator remoteStridGenerator =
+      new UuidStridGenerator( UuidStridGenerator.createState( "remote" ) ); //$NON-NLS-1$
 
   /**
    * Идентификатор сессии {@link ISkSession}.
@@ -205,8 +212,10 @@ public abstract class S5AbstractBackend<ADDON extends IS5BackendAddon>
     }
     // Параметры аутентификации
     IAtomicValue login = IS5ConnectionParams.OP_USERNAME.getValue( aArgs.params() );
+    // Генератор идентификаторов сессий
+    IStridGenerator idGenerator = (doIsLocal() ? localStridGenerator : remoteStridGenerator);
     // Формирование идентификатора сессии
-    sessionID = new Skid( ISkSession.CLASS_ID, login.asString() + "." + stridGenerator.nextId() ); //$NON-NLS-1$
+    sessionID = new Skid( ISkSession.CLASS_ID, login.asString() + "." + idGenerator.nextId() ); //$NON-NLS-1$
     // Получение блокировки соединения
     // frontendLock = aArgs.getRef( IS5ConnectionParams.REF_CONNECTION_LOCK.refKey(), S5Lockable.class );
     frontendLock = new S5Lockable();
