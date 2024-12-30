@@ -113,6 +113,7 @@ public interface ISkUserServiceHardConstants {
     OPDEF_SK_IS_SOURCE_USKAT_CORE_CLASS.setValue( cinf.params(), AV_TRUE );
     cinf.attrInfos().add( ATRINF_ROLE_IS_ENABLED );
     cinf.attrInfos().add( ATRINF_ROLE_IS_HIDDEN );
+    cinf.linkInfos().add( LNKINF_ROLE_ALLOWED_ABILITIES );
     return cinf;
   }
 
