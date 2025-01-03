@@ -3,30 +3,26 @@ package org.toxsoft.uskat.s5.server.startup;
 import static org.toxsoft.uskat.s5.server.IS5ServerHardConstants.*;
 import static org.toxsoft.uskat.s5.server.startup.IS5Resources.*;
 
-import javax.ejb.EJB;
+import javax.ejb.*;
 
-import org.toxsoft.core.tslib.av.metainfo.IAvMetaConstants;
-import org.toxsoft.core.tslib.av.opset.IOptionSet;
-import org.toxsoft.core.tslib.coll.primtypes.IStringMap;
+import org.toxsoft.core.tslib.av.metainfo.*;
+import org.toxsoft.core.tslib.av.opset.*;
+import org.toxsoft.core.tslib.coll.primtypes.*;
 import org.toxsoft.core.tslib.gw.skid.*;
-import org.toxsoft.core.tslib.utils.errors.TsIllegalStateRtException;
-import org.toxsoft.core.tslib.utils.errors.TsNullArgumentRtException;
-import org.toxsoft.uskat.classes.IS5ClassNode;
-import org.toxsoft.uskat.classes.IS5ClassServer;
-import org.toxsoft.uskat.classes.impl.S5ClassUtils;
-import org.toxsoft.uskat.core.ISkCoreApi;
-import org.toxsoft.uskat.core.api.linkserv.ISkLinkService;
-import org.toxsoft.uskat.core.api.objserv.IDtoObject;
-import org.toxsoft.uskat.core.api.objserv.ISkObjectService;
-import org.toxsoft.uskat.core.api.sysdescr.ISkSysdescr;
+import org.toxsoft.core.tslib.utils.errors.*;
+import org.toxsoft.uskat.classes.*;
+import org.toxsoft.uskat.classes.impl.*;
+import org.toxsoft.uskat.core.*;
+import org.toxsoft.uskat.core.api.linkserv.*;
+import org.toxsoft.uskat.core.api.objserv.*;
+import org.toxsoft.uskat.core.api.sysdescr.*;
 import org.toxsoft.uskat.core.api.users.*;
-import org.toxsoft.uskat.core.backend.api.ISkBackendInfo;
-import org.toxsoft.uskat.core.connection.ISkConnection;
-import org.toxsoft.uskat.core.impl.dto.DtoFullObject;
-import org.toxsoft.uskat.core.impl.dto.DtoObject;
-import org.toxsoft.uskat.s5.client.local.IS5LocalConnectionSingleton;
+import org.toxsoft.uskat.core.backend.api.*;
+import org.toxsoft.uskat.core.connection.*;
+import org.toxsoft.uskat.core.impl.dto.*;
+import org.toxsoft.uskat.s5.client.local.*;
 import org.toxsoft.uskat.s5.server.backend.supports.core.*;
-import org.toxsoft.uskat.s5.server.singletons.S5SingletonBase;
+import org.toxsoft.uskat.s5.server.singletons.*;
 
 /**
  * Реализация синглтона {@link IS5InitialSysdescrSingleton}.
@@ -57,11 +53,6 @@ public abstract class S5InitialSysdescrSingleton
    */
   @EJB
   private IS5LocalConnectionSingleton localConnectionSingleton;
-
-  /**
-   * Соединение с сервером. null: соединение не открывалось
-   */
-  private ISkConnection connection;
 
   /**
    * Описание системы
@@ -95,18 +86,20 @@ public abstract class S5InitialSysdescrSingleton
   //
   @Override
   protected void doInit() {
-    TsIllegalStateRtException.checkNoNull( connection );
-    // Подключение к серверу
-    connection = localConnectionSingleton.open( id() );
+    // Подключение к серверу для проверки/создания системного описания
+    ISkConnection connection = localConnectionSingleton.open( id() );
     ISkCoreApi coreApi = connection.coreApi();
     sysdescr = coreApi.sysdescr();
     objectService = coreApi.objService();
     linkService = coreApi.linkService();
     userService = coreApi.userService();
     // Проверка (и если необходимо создание) системного описания
-    checkSysdescr();
+    checkSysdescr( connection );
     // Установка соединения для ядра сервера
     backendCore.setSharedConnection( connection );
+    // Завершение соединения. представляет pure (без расширения skf-функциональностью) и не может полноценно
+    // использовано в дальнейшем
+    connection.close();
   }
 
   @Override
@@ -199,11 +192,11 @@ public abstract class S5InitialSysdescrSingleton
   /**
    * Проверка и если необходимо создание системного описания сервера
    */
-  private void checkSysdescr() {
+  private void checkSysdescr( ISkConnection aConnection ) {
     // Проверка и если необходимо создание классов s5-бекенда
-    S5ClassUtils.createS5Classes( connection.coreApi() );
+    S5ClassUtils.createS5Classes( aConnection.coreApi() );
     // Регистрация создателей объектов s5
-    S5ClassUtils.registerObjectCreators( connection.coreApi() );
+    S5ClassUtils.registerObjectCreators( aConnection.coreApi() );
     // Информация о бекенде
     ISkBackendInfo info = backendCore.getInfo();
     // Идентификатор сервера

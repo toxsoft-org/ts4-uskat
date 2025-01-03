@@ -7,6 +7,7 @@ import static org.toxsoft.core.tslib.utils.plugins.impl.PluginUtils.*;
 import static org.toxsoft.uskat.core.devapi.ISkatlet.*;
 import static org.toxsoft.uskat.s5.server.IS5ImplementConstants.*;
 import static org.toxsoft.uskat.s5.server.backend.supports.skatlets.IS5Resources.*;
+import static org.toxsoft.uskat.s5.server.backend.supports.skatlets.S5BackendSkatletsConfig.*;
 
 import java.io.*;
 import java.util.concurrent.*;
@@ -17,13 +18,15 @@ import org.toxsoft.core.tslib.av.opset.*;
 import org.toxsoft.core.tslib.av.opset.impl.*;
 import org.toxsoft.core.tslib.bricks.ctx.impl.*;
 import org.toxsoft.core.tslib.bricks.wub.*;
+import org.toxsoft.core.tslib.coll.primtypes.*;
 import org.toxsoft.core.tslib.coll.primtypes.impl.*;
 import org.toxsoft.core.tslib.utils.logs.impl.*;
 import org.toxsoft.core.tslib.utils.plugins.impl.*;
-import org.toxsoft.uskat.core.connection.*;
 import org.toxsoft.uskat.core.impl.*;
+import org.toxsoft.uskat.core.impl.SkatletBox.*;
 import org.toxsoft.uskat.s5.client.local.*;
 import org.toxsoft.uskat.s5.server.backend.impl.*;
+import org.toxsoft.uskat.s5.server.backend.supports.core.*;
 import org.toxsoft.uskat.s5.utils.jobs.*;
 
 /**
@@ -97,15 +100,21 @@ public class S5BackendSkatletsSingleton
   private static final long SHUTDOWN_TIMEOUT = 60000;
 
   /**
+   * Ядро сервера
+   */
+  @EJB
+  private IS5BackendCoreSingleton backendCore;
+
+  /**
    * Соединение с локальным сервером
    */
   @EJB
   private IS5LocalConnectionSingleton localConnectionSingleton;
 
   /**
-   * Разделяемое(общее) соединение между скатлетами
+   * Общее, разделяемое между модулями сервера, соединение
    */
-  private ISkConnection sharedConnection;
+  private SharedConnection sharedConnection;
 
   /**
    * Корневой контейнер компонентов синглетона
@@ -127,13 +136,13 @@ public class S5BackendSkatletsSingleton
     // Инициализация базового класса
     super.doInitSupport();
 
-    // Создание общего соединения скатлетов
-    sharedConnection = localConnectionSingleton.open( id() );
-
     // Проверка/настройка файловой системы
     createDirIfNotExist( SKATLETS_DIR );
     createDirIfNotExist( SKATLETS_DEPLOYMENTS_DIR );
     createDirIfNotExist( SKATLETS_TEMP_DIR );
+
+    // Конфигурация синглетона
+    IOptionSet configuration = configuration();
 
     // Параметры создания корневого контейнера и контейнера скатлетов
     IOptionSetEdit params = new OptionSet();
@@ -145,8 +154,8 @@ public class S5BackendSkatletsSingleton
     PLUGINS_DIR.setValue( environ.params(), avValobj( new StringArrayList( SKATLETS_DEPLOYMENTS_DIR ) ) );
     TMP_DIR.setValue( environ.params(), avStr( SKATLETS_TEMP_DIR ) );
     CLEAN_TMP_DIR.setValue( environ.params(), avBool( true ) );
-    REF_SKATLET_SUPPORT.setRef( environ,
-        new S5BackendSkatletSupport( localConnectionSingleton, sharedConnection, logger() ) );
+    REF_SKATLET_SUPPORT.setRef( environ, new S5BackendSkatletSupport( localConnectionSingleton, logger() ) );
+    OPDEF_SKATLETS_LOAD_ORDER.setValue( params, SKATLETS_LOAD_ORDERSKATLETS_LOAD_ORDER.getValue( configuration ) );
 
     // Создание корневого контейнера...
     rootBox = new WubBox( ROOT_BOX_ID, params );
@@ -159,6 +168,10 @@ public class S5BackendSkatletsSingleton
     // Запуск doJob
     addOwnDoJob( DOJOB_INTERVAL );
 
+    // Создание общего соединения скатлетов
+    sharedConnection = new SharedConnection( localConnectionSingleton.open( id() ), logger() );
+    // Установка общего(разделяемого между модулями) соединения в ядре и определяя его готовность к использованию
+    backendCore.setSharedConnection( sharedConnection );
   }
 
   @Override
@@ -175,7 +188,12 @@ public class S5BackendSkatletsSingleton
         }
       }
     }
-    sharedConnection.close();
+    sharedConnection.shutdown();
+  }
+
+  @Override
+  protected IStringList doConfigurationPaths() {
+    return new StringArrayList( ALL_SKATLETS_OPDEFS.keys() );
   }
 
   // ------------------------------------------------------------------------------------

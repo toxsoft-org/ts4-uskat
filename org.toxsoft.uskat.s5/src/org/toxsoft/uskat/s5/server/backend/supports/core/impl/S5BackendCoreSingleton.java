@@ -196,9 +196,9 @@ public class S5BackendCoreSingleton
   private S5BackendInfo backendInfo;
 
   /**
-   * Соединение с сервером
+   * Общее(разделяемое между модулями) соединение с сервером
    */
-  private ISkConnection connection;
+  private ISkConnection sharedConnection;
 
   /**
    * Писатель статитистики объекта {@link IS5ClassNode}. null: нет соединения
@@ -472,14 +472,14 @@ public class S5BackendCoreSingleton
   @Override
   public ISkConnection getSharedConnection() {
     TsIllegalArgumentRtException.checkFalse( isActive() );
-    return connection;
+    return sharedConnection;
   }
 
   @Lock( LockType.WRITE )
   @Override
   public void setSharedConnection( ISkConnection aConnection ) {
     TsNullArgumentRtException.checkNull( aConnection );
-    ISkConnection oldConnection = connection;
+    ISkConnection oldConnection = sharedConnection;
     // Пред-интерсепция
     IVrList vr = callBeforeSetSharedConnectionInterceptors( interceptors, oldConnection, aConnection );
     if( vr.firstWorstResult().isError() ) {
@@ -487,14 +487,14 @@ public class S5BackendCoreSingleton
       logger().error( ERR_REJECT_CHANGE_CONNECTION, oldConnection, aConnection, vr.items() );
       return;
     }
-    connection = aConnection;
+    sharedConnection = aConnection;
     // Пост-интерсепция
     try {
       callAfterSetSharedConnectionInterceptors( interceptors, oldConnection, aConnection );
     }
     catch( Throwable e ) {
       // Восстановление состояния на любой ошибке
-      connection = oldConnection;
+      sharedConnection = oldConnection;
       throw e;
     }
     if( statisticWriter != null ) {
@@ -542,7 +542,7 @@ public class S5BackendCoreSingleton
   @Override
   @TransactionAttribute( TransactionAttributeType.SUPPORTS )
   public boolean isActive() {
-    return (connection != null && !isClosed());
+    return (sharedConnection != null && !isClosed());
   }
 
   @Override
