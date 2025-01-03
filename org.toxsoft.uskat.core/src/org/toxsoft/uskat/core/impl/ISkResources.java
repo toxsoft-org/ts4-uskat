@@ -5,7 +5,6 @@ package org.toxsoft.uskat.core.impl;
  *
  * @author hazard157
  */
-@SuppressWarnings( "nls" )
 interface ISkResources {
 
   /**
@@ -177,9 +176,13 @@ interface ISkResources {
   /**
    * {@link SkatletBase}
    */
-  String FMT_INFO_SKATLET_INIT       = Messages.getString( "FMT_INFO_SKATLET_INIT" );       //$NON-NLS-1$
-  String FMT_INFO_SKATLET_START      = Messages.getString( "FMT_INFO_SKATLET_START" );      //$NON-NLS-1$
-  String FMT_INFO_SKATLET_QUERY_STOP = Messages.getString( "FMT_INFO_SKATLET_QUERY_STOP" ); //$NON-NLS-1$
-  String FMT_INFO_SKATLET_DESTROY    = Messages.getString( "FMT_INFO_SKATLET_DESTROY" );    //$NON-NLS-1$
-  String FMT_INFO_SKATLET_DOJOB      = Messages.getString( "FMT_INFO_SKATLET_DOJOB" );      //$NON-NLS-1$
+  String FMT_INFO_SKATLET_INITIALIZE  = Messages.getString( "FMT_INFO_SKATLET_INITIALIZE" );  //$NON-NLS-1$
+  String FMT_INFO_SKATLET_SET_CONTEXT = Messages.getString( "FMT_INFO_SKATLET_SET_CONTEXT" ); //$NON-NLS-1$
+  String FMT_INFO_SKATLET_START       = Messages.getString( "FMT_INFO_SKATLET_START" );       //$NON-NLS-1$
+  String FMT_INFO_SKATLET_QUERY_STOP  = Messages.getString( "FMT_INFO_SKATLET_QUERY_STOP" );  //$NON-NLS-1$
+  String FMT_INFO_SKATLET_DESTROY     = Messages.getString( "FMT_INFO_SKATLET_DESTROY" );     //$NON-NLS-1$
+  String FMT_INFO_SKATLET_DOJOB       = Messages.getString( "FMT_INFO_SKATLET_DOJOB" );       //$NON-NLS-1$
+  String FMT_ERR_SKATLET_INITIALIZE   = Messages.getString( "FMT_ERR_SKATLET_INITIALIZE" );   //$NON-NLS-1$
+  String FMT_WARN_ATTEMPT_OPEN_SHARE  = Messages.getString( "FMT_WARN_ATTEMPT_OPEN_SHARE" );  //$NON-NLS-1$
+  String FMT_WARN_ATTEMPT_CLOSE_SHARE = Messages.getString( "FMT_WARN_ATTEMPT_OPEN_SHARE" );  //$NON-NLS-1$
 }

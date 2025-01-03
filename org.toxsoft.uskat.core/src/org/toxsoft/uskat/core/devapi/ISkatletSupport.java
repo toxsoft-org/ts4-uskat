@@ -13,15 +13,6 @@ import org.toxsoft.uskat.core.impl.*;
 public interface ISkatletSupport {
 
   /**
-   * Возвращает общее, разделяемое между другими скатлетами соединение.
-   * <p>
-   * Попытка закрыть возвращаемое соединение ({@link ISkConnection#close()}) игнорируется.
-   *
-   * @return {@link ISkConnection} соединение.
-   */
-  ISkConnection getSharedConnection();
-
-  /**
    * Создает новое соединение.
    *
    * @param aName String имя соединения.

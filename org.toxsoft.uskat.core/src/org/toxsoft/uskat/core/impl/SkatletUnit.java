@@ -1,13 +1,12 @@
 package org.toxsoft.uskat.core.impl;
 
-import org.toxsoft.core.tslib.av.opset.IOptionSet;
-import org.toxsoft.core.tslib.bricks.ctx.ITsContextRo;
-import org.toxsoft.core.tslib.bricks.validator.ValidationResult;
-import org.toxsoft.core.tslib.bricks.wub.WubUnitDiagnostics;
-import org.toxsoft.core.tslib.utils.errors.TsNullArgumentRtException;
-import org.toxsoft.core.tslib.utils.plugins.impl.IPlugin;
-import org.toxsoft.core.tslib.utils.plugins.impl.PluginUnit;
-import org.toxsoft.uskat.core.devapi.ISkatlet;
+import org.toxsoft.core.tslib.av.opset.*;
+import org.toxsoft.core.tslib.bricks.ctx.*;
+import org.toxsoft.core.tslib.bricks.validator.*;
+import org.toxsoft.core.tslib.bricks.wub.*;
+import org.toxsoft.core.tslib.utils.errors.*;
+import org.toxsoft.core.tslib.utils.plugins.impl.*;
+import org.toxsoft.uskat.core.devapi.*;
 
 /**
  * Элемент контейнера {@link SkatletBox} представляющий {@link ISkatlet}.
@@ -18,6 +17,7 @@ public class SkatletUnit
     extends PluginUnit {
 
   private final ISkatlet skatlet;
+  private ITsContextRo   environ;
 
   /**
    * Конструктор
@@ -32,6 +32,29 @@ public class SkatletUnit
     skatlet = aPlugin.instance( ISkatlet.class );
   }
 
+  /**
+   * Initializes libraries, register types & service creators.
+   *
+   * @return {@link ValidationResult} - initialization success result
+   */
+  public ValidationResult initialize() {
+    return skatlet.initialize();
+  }
+
+  /**
+   * Устанавливает контекст скатлета
+   *
+   * @param aEnviron {@link ITsContext} контекст
+   * @throws TsNullArgumentRtException аргумент = null
+   * @throws TsIllegalStateRtException контекст уже установлен
+   */
+  public void setContext( ITsContextRo aEnviron ) {
+    TsNullArgumentRtException.checkNull( aEnviron );
+    TsIllegalStateRtException.checkNoNull( environ );
+    environ = aEnviron;
+    skatlet.setContext( aEnviron );
+  }
+
   // ------------------------------------------------------------------------------------
   // PluginUnit
   //
@@ -42,7 +65,9 @@ public class SkatletUnit
 
   @Override
   protected ValidationResult doInit( ITsContextRo aEnviron ) {
-    return skatlet.init( aEnviron );
+    // Инициализация скатлетов проводит SkatletBox непосредственно через вызов SkatletUnit.setConter(...)
+    // return skatlet.init( aEnviron );
+    return ValidationResult.SUCCESS;
   }
 
   @Override

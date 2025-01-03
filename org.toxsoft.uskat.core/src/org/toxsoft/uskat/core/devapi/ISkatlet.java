@@ -1,14 +1,19 @@
 package org.toxsoft.uskat.core.devapi;
 
+import static org.toxsoft.core.tslib.av.EAtomicType.*;
 import static org.toxsoft.core.tslib.av.impl.AvUtils.*;
 import static org.toxsoft.core.tslib.av.metainfo.IAvMetaConstants.*;
 import static org.toxsoft.core.tslib.bricks.ctx.impl.TsContextRefDef.*;
 import static org.toxsoft.uskat.core.devapi.ISkResources.*;
 
+import org.toxsoft.core.tslib.av.impl.*;
+import org.toxsoft.core.tslib.av.metainfo.*;
 import org.toxsoft.core.tslib.bricks.*;
 import org.toxsoft.core.tslib.bricks.ctx.*;
 import org.toxsoft.core.tslib.bricks.strid.*;
 import org.toxsoft.core.tslib.bricks.validator.*;
+import org.toxsoft.core.tslib.coll.primtypes.*;
+import org.toxsoft.core.tslib.utils.plugins.*;
 import org.toxsoft.uskat.core.connection.*;
 import org.toxsoft.uskat.core.impl.*;
 
@@ -23,7 +28,7 @@ public interface ISkatlet
     extends IStridableParameterized, ICooperativeMultiTaskable, IWorkerComponent {
 
   /**
-   * Параметр контекста {@link #init(ITsContextRo)}: API контейнера скатлета.
+   * Параметр контекста {@link #setContext(ITsContextRo)}: API контейнера скатлета.
    * <p>
    * Тип: {@link ISkConnection}.
    */
@@ -35,14 +40,46 @@ public interface ISkatlet
   );
 
   /**
-   * Initializes the unit to work in the environment specified as an argument.
+   * Параметр контекста {@link #setContext(ITsContextRo)}: общее, разделяемое между скатлетами соединение.
    * <p>
-   * Once successfully initialized (that is, put in execution environment) the unit can not initialized again. It may be
-   * started/stopped but not initialized.
+   * Общее соединение могут использовать скатлеты запускаемые при старте сервера или скатлеты которые не регистрируют в
+   * соединении новые типы или службы.
+   * <p>
+   * Тип: {@link ISkConnection}.
+   */
+  ITsContextRefDef<ISkConnection> REF_SHARED_CONNECTION = create( "SharedConnection", ISkConnection.class, //$NON-NLS-1$
+      TSID_NAME, STR_SKATLET_SHARED_CONNECTION, //
+      TSID_DESCRIPTION, STR_SKATLET_SHARED_CONNECTION_D, //
+      TSID_IS_NULL_ALLOWED, AV_FALSE, //
+      TSID_IS_MANDATORY, AV_TRUE //
+  );
+
+  /**
+   * Параметр контекста {@link #setContext(ITsContextRo)}: Порядок загрузки скатлетов. Скатлеты не указанные в списке
+   * загружаются последними.
+   * <p>
+   * В списке указываются идентфикаторы плагинов представляющие скателты {@link IPluginInfo#pluginId()}.
+   */
+  IDataDef OPDEF_SKATLETS_LOAD_ORDER = DataDef.create( "SkatletLoadOrder", VALOBJ, // //$NON-NLS-1$
+      TSID_NAME, STR_SKATLET_LOAD_ORDER, //
+      TSID_DESCRIPTION, STR_SKATLET_LOAD_ORDER_D, //
+      TSID_DEFAULT_VALUE, avValobj( IStringList.EMPTY ), //
+      TSID_IS_MANDATORY, AV_FALSE //
+  );
+
+  /**
+   * Initializes libraries, register types & service creators.
+   *
+   * @return {@link ValidationResult} - initialization success result
+   */
+  ValidationResult initialize();
+
+  /**
+   * Set skatlet context.
    *
    * @param aEnviron {@link ITsContextRo} - the execution environment
    * @return {@link ValidationResult} - initialization success result
    */
-  ValidationResult init( ITsContextRo aEnviron );
+  ValidationResult setContext( ITsContextRo aEnviron );
 
 }

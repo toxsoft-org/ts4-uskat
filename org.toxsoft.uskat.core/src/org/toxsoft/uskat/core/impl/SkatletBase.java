@@ -8,6 +8,7 @@ import org.toxsoft.core.tslib.bricks.strid.impl.*;
 import org.toxsoft.core.tslib.bricks.validator.*;
 import org.toxsoft.core.tslib.utils.errors.*;
 import org.toxsoft.core.tslib.utils.logs.*;
+import org.toxsoft.core.tslib.utils.logs.impl.*;
 import org.toxsoft.uskat.core.connection.*;
 import org.toxsoft.uskat.core.devapi.*;
 
@@ -45,7 +46,7 @@ public abstract class SkatletBase
    */
   protected final ISkConnection getSharedConnection() {
     TsIllegalStateRtException.checkNull( environ );
-    return ISkatlet.REF_SKATLET_SUPPORT.getRef( environ ).getSharedConnection();
+    return ISkatlet.REF_SHARED_CONNECTION.getRef( environ );
   }
 
   /**
@@ -68,17 +69,39 @@ public abstract class SkatletBase
    * @return {@link ILogger} logger.
    */
   protected final ILogger logger() {
-    TsIllegalStateRtException.checkNull( environ );
+    if( environ == null ) {
+      return LoggerUtils.defaultLogger();
+    }
     return ISkatlet.REF_SKATLET_SUPPORT.getRef( environ ).logger();
   }
 
   // ------------------------------------------------------------------------------------
   // ISkatlet
   //
+  /**
+   * Initializes libraries, register types & service creators.
+   *
+   * @return {@link ValidationResult} - initialization success result
+   */
   @Override
-  public final ValidationResult init( ITsContextRo aEnviron ) {
+  public final ValidationResult initialize() {
+    return doInitialize();
+  }
+
+  @Override
+  public final ValidationResult setContext( ITsContextRo aEnviron ) {
     environ = aEnviron;
-    return doInit( aEnviron );
+    return doSetContext( aEnviron );
+  }
+
+  /**
+   * Initializes libraries, register types & service creators.
+   *
+   * @return {@link ValidationResult} - initialization success result
+   */
+  protected ValidationResult doInitialize() {
+    logger().info( FMT_INFO_SKATLET_INITIALIZE, id() );
+    return ValidationResult.SUCCESS;
   }
 
   /**
@@ -90,8 +113,8 @@ public abstract class SkatletBase
    * @param aEnviron {@link ITsContextRo} - the execution environment
    * @return {@link ValidationResult} - initialization success result
    */
-  protected ValidationResult doInit( ITsContextRo aEnviron ) {
-    logger().info( FMT_INFO_SKATLET_INIT, id(), getSharedConnection() );
+  protected ValidationResult doSetContext( ITsContextRo aEnviron ) {
+    logger().info( FMT_INFO_SKATLET_SET_CONTEXT, id(), getSharedConnection() );
     return ValidationResult.SUCCESS;
   }
 
