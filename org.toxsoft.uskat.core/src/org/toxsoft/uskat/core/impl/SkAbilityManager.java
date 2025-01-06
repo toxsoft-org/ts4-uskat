@@ -106,11 +106,24 @@ class SkAbilityManager
     }
 
     @Override
-    public ValidationResult canSetRoleAbilities( String aRoleId, IStringList aAbilityIds, boolean aEnable ) {
+    public ValidationResult canChangeRoleAbilities( String aRoleId, IStringList aAbilityIds, boolean aEnable ) {
       TsNullArgumentRtException.checkNulls( aAbilityIds, aRoleId );
       ValidationResult vr = ValidationResult.SUCCESS;
       for( ISkAbilityManagerValidator v : validatorsList() ) {
-        vr = ValidationResult.firstNonOk( vr, v.canSetRoleAbilities( aRoleId, aAbilityIds, aEnable ) );
+        vr = ValidationResult.firstNonOk( vr, v.canChangeRoleAbilities( aRoleId, aAbilityIds, aEnable ) );
+        if( vr.isError() ) {
+          break;
+        }
+      }
+      return vr;
+    }
+
+    @Override
+    public ValidationResult canSetRoleAbilities( String aRoleId, IStringList aAbilityIds ) {
+      TsNullArgumentRtException.checkNulls( aAbilityIds, aRoleId );
+      ValidationResult vr = ValidationResult.SUCCESS;
+      for( ISkAbilityManagerValidator v : validatorsList() ) {
+        vr = ValidationResult.firstNonOk( vr, v.canSetRoleAbilities( aRoleId, aAbilityIds ) );
         if( vr.isError() ) {
           break;
         }
@@ -246,7 +259,7 @@ class SkAbilityManager
   private final ISkAbilityManagerValidator builtinValidator = new ISkAbilityManagerValidator() {
 
     @Override
-    public ValidationResult canSetRoleAbilities( String aRoleId, IStringList aAbilityIds, boolean aEnable ) {
+    public ValidationResult canChangeRoleAbilities( String aRoleId, IStringList aAbilityIds, boolean aEnable ) {
       // error: role does not exists
       ISkRole role = userService.findRole( aRoleId );
       if( role == null ) {
@@ -267,6 +280,14 @@ class SkAbilityManager
       if( !absentAbilityIds.isEmpty() ) {
         return ValidationResult.error( FMT_WARN_ABSENT_ABILITIES, absentAbilityIds.toString() );
       }
+      return ValidationResult.SUCCESS;
+    }
+
+    @Override
+    public ValidationResult canSetRoleAbilities( String aRoleId, IStringList aAbilityIds ) {
+
+      // TODO Auto-generated method stub
+
       return ValidationResult.SUCCESS;
     }
 
@@ -381,8 +402,8 @@ class SkAbilityManager
   }
 
   @Override
-  public void setRoleAbilities( String aRoleId, IStringList aAbilityIds, boolean aEnable ) {
-    TsValidationFailedRtException.checkError( svs.canSetRoleAbilities( aRoleId, aAbilityIds, aEnable ) );
+  public void changeRoleAbilities( String aRoleId, IStringList aAbilityIds, boolean aEnable ) {
+    TsValidationFailedRtException.checkError( svs.canChangeRoleAbilities( aRoleId, aAbilityIds, aEnable ) );
     if( aAbilityIds.isEmpty() ) {
       return;
     }
@@ -421,6 +442,14 @@ class SkAbilityManager
     // inform siblings
     GtMessage msg = BaMsgBuilderRoleAbilitiesChanged.INSTANCE.makeMessage( newAbIdsList );
     userService.sendMessageToSiblings( msg );
+  }
+
+  @Override
+  public void setRoleAbilities( String aRoleId, IStringList aEnabledAbilityIds ) {
+    TsValidationFailedRtException.checkError( svs.canSetRoleAbilities( aRoleId, aEnabledAbilityIds ) );
+
+    // TODO Auto-generated method stub
+
   }
 
   @Override

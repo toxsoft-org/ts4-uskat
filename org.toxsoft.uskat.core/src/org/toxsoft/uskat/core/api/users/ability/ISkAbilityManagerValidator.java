@@ -12,17 +12,28 @@ import org.toxsoft.core.tslib.utils.errors.*;
 public interface ISkAbilityManagerValidator {
 
   /**
-   * Checks if access right to the ability can be changed for the role.
+   * Checks if access rights to the abilities can be changed for the role.
    * <p>
-   * Note: this method is called only if <code>aEnable</code> has different value when the current access right.
+   * Note: method {@link ISkAbilityManager#changeRoleAbilities(String, IStringList, boolean)} assumes that other
+   * abilities, not listed in <code>aAbilityIds</code> does not change access state.
    *
    * @param aRoleId String - the role ID
-   * @param aAbilityIds {@link IStringList} - list of the the ability IDs
+   * @param aAbilityIds {@link IStringList} - list of the ability IDs to be changed
    * @param aEnable boolean - <code>true</code> allow, <code>false</code> - disallow specified abilities for role
    * @return {@link ValidationResult} - the check result
    * @throws TsNullArgumentRtException any argument = <code>null</code>
    */
-  ValidationResult canSetRoleAbilities( String aRoleId, IStringList aAbilityIds, boolean aEnable );
+  ValidationResult canChangeRoleAbilities( String aRoleId, IStringList aAbilityIds, boolean aEnable );
+
+  /**
+   * Checks if access rights of the role can be changed to the new set of allowed abilities.
+   *
+   * @param aRoleId String - the role ID
+   * @param aAbilityIds {@link IStringList} - list of new set of enabled ability IDs
+   * @return {@link ValidationResult} - the check result
+   * @throws TsNullArgumentRtException any argument = <code>null</code>
+   */
+  ValidationResult canSetRoleAbilities( String aRoleId, IStringList aAbilityIds );
 
   /**
    * Checks if new ability can be created or existing updated.

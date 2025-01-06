@@ -31,7 +31,13 @@ class SkRole
 
   @Override
   public IStridablesList<ISkAbility> listAllowedAbilities() {
-    IList<ISkAbility> absList = getLinkObjs( LNKID_ROLE_ALLOWED_ABILITIES );
+    IList<ISkAbility> absList;
+    if( id().equals( ROLE_ID_ROOT ) ) { // root is allowed everything!
+      absList = coreApi().userService().abilityManager().listAbilities();
+    }
+    else {
+      absList = getLinkObjs( LNKID_ROLE_ALLOWED_ABILITIES );
+    }
     return new StridablesList<>( absList );
   }
 

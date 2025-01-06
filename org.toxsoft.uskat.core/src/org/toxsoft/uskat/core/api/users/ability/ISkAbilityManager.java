@@ -62,6 +62,10 @@ public interface ISkAbilityManager {
 
   /**
    * Enable/disables access to the specified abilities of the role.
+   * <p>
+   * The access the the abilities not listed in <code>aAbilityIds</code> remains unchanged.
+   * <p>
+   * Unknown or duplicate ability IDs are ignored.
    *
    * @param aRoleId String - the role ID
    * @param aAbilityIds {@link IStringList} - list of the the ability IDs
@@ -69,7 +73,22 @@ public interface ISkAbilityManager {
    * @throws TsNullArgumentRtException any argument = <code>null</code>
    * @throws TsValidationFailedRtException failed validation {@link ISkAbilityManagerValidator}
    */
-  void setRoleAbilities( String aRoleId, IStringList aAbilityIds, boolean aEnable );
+  void changeRoleAbilities( String aRoleId, IStringList aAbilityIds, boolean aEnable );
+
+  /**
+   * Replaces existing abilities of the role with new set of the enabled abilities.
+   * <p>
+   * After call of this method all abilities from the <code>aEnabledAbilityIds</code> become enabled while all others
+   * became disabled.
+   * <p>
+   * Unknown or duplicate ability IDs are ignored.
+   *
+   * @param aRoleId String - the role ID
+   * @param aEnabledAbilityIds {@link IStringList} - list of the the ability IDs
+   * @throws TsNullArgumentRtException any argument = <code>null</code>
+   * @throws TsValidationFailedRtException failed validation {@link ISkAbilityManagerValidator}
+   */
+  void setRoleAbilities( String aRoleId, IStringList aEnabledAbilityIds );
 
   // ------------------------------------------------------------------------------------
   // Abilities and kinds management
@@ -169,17 +188,17 @@ public interface ISkAbilityManager {
 
   @SuppressWarnings( "javadoc" )
   default void setRoleAbility( String aRoleId, String aAbilityId, boolean aEnable ) {
-    setRoleAbilities( aRoleId, new SingleStringList( aAbilityId ), aEnable );
+    changeRoleAbilities( aRoleId, new SingleStringList( aAbilityId ), aEnable );
   }
 
   @SuppressWarnings( "javadoc" )
   default void enableRoleAbility( String aRoleId, String aAbilityId ) {
-    setRoleAbilities( aRoleId, new SingleStringList( aAbilityId ), true );
+    changeRoleAbilities( aRoleId, new SingleStringList( aAbilityId ), true );
   }
 
   @SuppressWarnings( "javadoc" )
   default void disableRoleAbility( String aRoleId, String aAbilityId ) {
-    setRoleAbilities( aRoleId, new SingleStringList( aAbilityId ), false );
+    changeRoleAbilities( aRoleId, new SingleStringList( aAbilityId ), false );
   }
 
 }
