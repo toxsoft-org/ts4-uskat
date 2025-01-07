@@ -8,6 +8,7 @@ import static org.toxsoft.uskat.core.l10n.ISkCoreSharedResources.*;
 import org.toxsoft.core.tslib.bricks.ctx.*;
 import org.toxsoft.core.tslib.bricks.events.*;
 import org.toxsoft.core.tslib.bricks.events.msg.*;
+import org.toxsoft.core.tslib.bricks.keeper.std.*;
 import org.toxsoft.core.tslib.bricks.strid.coll.*;
 import org.toxsoft.core.tslib.bricks.strid.coll.impl.*;
 import org.toxsoft.core.tslib.bricks.validator.*;
@@ -77,6 +78,7 @@ class SkAbilityManager
 
     private BaMsgBuilderRoleAbilitiesChanged() {
       super( ISkUserService.SERVICE_ID, MSG_ID );
+      defineArgValobj( OPID_ABILITY_IDS_LIST, StringListKeeper.KEEPER_ID, true );
     }
 
     GtMessage makeMessage( IStringList aAbilityIdsList ) {
