@@ -63,6 +63,8 @@ public class SkCoreServUsers
 
     private BaMsgBuilderUsersChanged() {
       super( ISkUserService.SERVICE_ID, MSG_ID );
+      defineArgValobj( OPID_OP, ECrudOp.KEEPER_ID, true );
+      defineArgNonValobj( OPID_LOGIN, EAtomicType.STRING, false );
     }
 
     GtMessage makeMessage( ECrudOp aOp, String aLogin ) {
@@ -102,6 +104,8 @@ public class SkCoreServUsers
 
     private BaMsgBuilderRolesChanged() {
       super( ISkUserService.SERVICE_ID, MSG_ID );
+      defineArgValobj( OPID_OP, ECrudOp.KEEPER_ID, true );
+      defineArgNonValobj( OPID_ROLE_ID, EAtomicType.STRING, false );
     }
 
     GtMessage makeMessage( ECrudOp aOp, String aRoleId ) {
