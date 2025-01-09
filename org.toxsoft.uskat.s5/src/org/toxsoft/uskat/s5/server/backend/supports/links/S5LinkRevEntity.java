@@ -149,7 +149,9 @@ public abstract class S5LinkRevEntity
   @Override
   public Gwid gwid() {
     if( gwid == null ) {
-      gwid = Gwid.createLink( classId(), rightSkid().strid(), linkId() );
+      // 2025-01-09 mvk: ---+++ compliance with the method contract
+      // gwid = Gwid.createLink( classId(), rightSkid().strid(), linkId() );
+      gwid = Gwid.createLink( classId(), linkId() );
     }
     return gwid;
   }
