@@ -24,12 +24,31 @@ import org.toxsoft.uskat.core.utils.*;
 public interface ISkUserServiceHardConstants {
 
   // ------------------------------------------------------------------------------------
-  // Role
+  // class IDs
+  //
 
   /**
    * {@link ISkRole} class ID.
    */
   String CLSID_ROLE = ISkHardConstants.SK_ID + ".Role"; //$NON-NLS-1$
+
+  /**
+   * {@link ISkUser} class ID.
+   */
+  String CLSID_USER = ISkHardConstants.SK_ID + ".User"; //$NON-NLS-1$
+
+  /**
+   * {@link ISkAbility} class ID.
+   */
+  String CLSID_ABILITY = ISkHardConstants.SK_ID + ".Ability"; //$NON-NLS-1$
+
+  /**
+   * {@link ISkAbilityKind} class ID.
+   */
+  String CLSID_ABILITY_KIND = ISkHardConstants.SK_ID + ".AbilityKind"; //$NON-NLS-1$
+
+  // ------------------------------------------------------------------------------------
+  // Role
 
   /**
    * Non-removable administrative role.
@@ -94,7 +113,7 @@ public interface ISkUserServiceHardConstants {
    * Link {@link ISkRole#listAllowedAbilities()}.
    */
   IDtoLinkInfo LNKINF_ROLE_ALLOWED_ABILITIES = DtoLinkInfo.create2( LNKID_ROLE_ALLOWED_ABILITIES, //
-      new SingleStringList( CLSID_ROLE ), new CollConstraint( 0, false, true, true ), //
+      new SingleStringList( CLSID_ABILITY ), new CollConstraint( 0, false, true, true ), //
       TSID_NAME, STR_ROLE_ALLOWED_ABILITIES, //
       TSID_DESCRIPTION, STR_ROLE_ALLOWED_ABILITIES_D //
   );
@@ -132,11 +151,6 @@ public interface ISkUserServiceHardConstants {
 
   // ------------------------------------------------------------------------------------
   // User
-
-  /**
-   * {@link ISkUser} class ID.
-   */
-  String CLSID_USER = ISkHardConstants.SK_ID + ".User"; //$NON-NLS-1$
 
   /**
    * Non-removable administrative account login.
@@ -260,16 +274,6 @@ public interface ISkUserServiceHardConstants {
   // ------------------------------------------------------------------------------------
   // Ability and ability kind
   //
-
-  /**
-   * {@link ISkAbility} class ID.
-   */
-  String CLSID_ABILITY = ISkHardConstants.SK_ID + ".Ability"; //$NON-NLS-1$
-
-  /**
-   * {@link ISkAbilityKind} class ID.
-   */
-  String CLSID_ABILITY_KIND = ISkHardConstants.SK_ID + ".AbilityKind"; //$NON-NLS-1$
 
   /**
    * ID of the link {@link #LNKINF_ABILITIES_OF_KIND}.

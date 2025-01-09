@@ -429,17 +429,17 @@ class SkAbilityManager
     ISkRole role = userService.getRole( aRoleId );
     // create new list of ability IDs
     IStridablesList<ISkAbility> roleAbsList = listRoleAbilities( aRoleId );
-    IStringListEdit newAbsIdsList;
+    IStringListEdit absIds;
     if( aEnable ) {
-      newAbsIdsList = TsCollectionsUtils.union( roleAbsList.ids(), aAbilityIds );
+      absIds = TsCollectionsUtils.union( roleAbsList.ids(), aAbilityIds );
     }
     else {
-      newAbsIdsList = TsCollectionsUtils.subtract( new StringLinkedBundleList( roleAbsList.ids() ), aAbilityIds );
+      absIds = TsCollectionsUtils.subtract( new StringLinkedBundleList( roleAbsList.ids() ), aAbilityIds );
     }
     // create IDs and SKIDs list (by the way removing duplicates and non-existing abilities)
     IStringListEdit newAbIdsList = new StringLinkedBundleList();
     SkidList skl = new SkidList();
-    for( String abId : newAbsIdsList ) {
+    for( String abId : absIds ) {
       if( findAbility( abId ) != null ) {
         Skid skid = new Skid( CLSID_ABILITY, abId );
         if( !skl.hasElem( skid ) ) {
