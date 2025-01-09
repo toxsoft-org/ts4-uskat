@@ -275,7 +275,7 @@ class SkAbilityManager
       IStridablesList<ISkAbility> absList = listAbilities();
       IStringListEdit absentAbilityIds = new StringArrayList();
       for( String abId : aAbilityIds ) {
-        if( !absList.hasKey( abId ) ) {
+        if( !absList.hasKey( abId ) && !absentAbilityIds.hasElem( abId ) ) {
           absentAbilityIds.add( abId );
         }
       }
@@ -287,9 +287,26 @@ class SkAbilityManager
 
     @Override
     public ValidationResult canSetRoleAbilities( String aRoleId, IStringList aAbilityIds ) {
-
-      // TODO Auto-generated method stub
-
+      // error: role does not exists
+      ISkRole role = userService.findRole( aRoleId );
+      if( role == null ) {
+        return ValidationResult.error( FMT_ERR_ROLE_NOT_EXISTS, aRoleId );
+      }
+      // error: role is immutable
+      if( isImmutableRole( aRoleId ) ) {
+        return ValidationResult.error( FMT_ERR_CANT_EDIT_BUILTIN_ROLE, aRoleId );
+      }
+      // warning: any ability does not exists
+      IStridablesList<ISkAbility> absList = listAbilities();
+      IStringListEdit absentAbilityIds = new StringArrayList();
+      for( String abId : aAbilityIds ) {
+        if( !absList.hasKey( abId ) && !absentAbilityIds.hasElem( abId ) ) {
+          absentAbilityIds.add( abId );
+        }
+      }
+      if( !absentAbilityIds.isEmpty() ) {
+        return ValidationResult.error( FMT_WARN_ABSENT_ABILITIES, absentAbilityIds.toString() );
+      }
       return ValidationResult.SUCCESS;
     }
 
@@ -411,18 +428,18 @@ class SkAbilityManager
     }
     ISkRole role = userService.getRole( aRoleId );
     // create new list of ability IDs
-    IStridablesList<ISkAbility> absList = listRoleAbilities( aRoleId );
-    IStringListEdit absIdsList = new StringLinkedBundleList( absList.ids() );
+    IStridablesList<ISkAbility> roleAbsList = listRoleAbilities( aRoleId );
+    IStringListEdit newAbsIdsList;
     if( aEnable ) {
-      TsCollectionsUtils.union( absIdsList, aAbilityIds );
+      newAbsIdsList = TsCollectionsUtils.union( roleAbsList.ids(), aAbilityIds );
     }
     else {
-      TsCollectionsUtils.subtract( absIdsList, aAbilityIds );
+      newAbsIdsList = TsCollectionsUtils.subtract( new StringLinkedBundleList( roleAbsList.ids() ), aAbilityIds );
     }
     // create IDs and SKIDs list (by the way removing duplicates and non-existing abilities)
     IStringListEdit newAbIdsList = new StringLinkedBundleList();
     SkidList skl = new SkidList();
-    for( String abId : absIdsList ) {
+    for( String abId : newAbsIdsList ) {
       if( findAbility( abId ) != null ) {
         Skid skid = new Skid( CLSID_ABILITY, abId );
         if( !skl.hasElem( skid ) ) {
@@ -449,9 +466,34 @@ class SkAbilityManager
   @Override
   public void setRoleAbilities( String aRoleId, IStringList aEnabledAbilityIds ) {
     TsValidationFailedRtException.checkError( svs.canSetRoleAbilities( aRoleId, aEnabledAbilityIds ) );
-
-    // TODO Auto-generated method stub
-
+    IStridablesList<ISkAbility> allAbsList = listAbilities();
+    // create ability IDs list without non-existing and duplicate abilities
+    IStringListEdit newAbIdsList = new StringArrayList();
+    for( String abId : aEnabledAbilityIds ) {
+      if( allAbsList.hasKey( aRoleId ) && !newAbIdsList.hasElem( abId ) ) {
+        newAbIdsList.add( abId );
+      }
+    }
+    // create SKIDs list from #newAbIds
+    SkidList skl = new SkidList();
+    for( String abId : newAbIdsList ) {
+      Skid skid = new Skid( CLSID_ABILITY, abId );
+      skl.add( skid );
+    }
+    // set role links of allowed abilities
+    Gwid gwid = Gwid.createLink( CLSID_ROLE, LNKID_ROLE_ALLOWED_ABILITIES );
+    ISkRole role = userService.getRole( aRoleId );
+    DtoLinkFwd link = new DtoLinkFwd( gwid, role.skid(), skl );
+    userService.papiPauseCoreValidation();
+    try {
+      userService.linkService().setLink( link );
+    }
+    finally {
+      userService.papiResumeCoreValidation();
+    }
+    // inform siblings
+    GtMessage msg = BaMsgBuilderRoleAbilitiesChanged.INSTANCE.makeMessage( newAbIdsList );
+    userService.sendMessageToSiblings( msg );
   }
 
   @Override
