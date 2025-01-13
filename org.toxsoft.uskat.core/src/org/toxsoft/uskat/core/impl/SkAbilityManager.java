@@ -470,11 +470,11 @@ class SkAbilityManager
     // create ability IDs list without non-existing and duplicate abilities
     IStringListEdit newAbIdsList = new StringArrayList();
     for( String abId : aEnabledAbilityIds ) {
-      if( allAbsList.hasKey( aRoleId ) && !newAbIdsList.hasElem( abId ) ) {
+      if( allAbsList.hasKey( abId ) && !newAbIdsList.hasElem( abId ) ) {
         newAbIdsList.add( abId );
       }
     }
-    // create SKIDs list from #newAbIds
+    // create SKIDs list from #newAbIdsList
     SkidList skl = new SkidList();
     for( String abId : newAbIdsList ) {
       Skid skid = new Skid( CLSID_ABILITY, abId );
