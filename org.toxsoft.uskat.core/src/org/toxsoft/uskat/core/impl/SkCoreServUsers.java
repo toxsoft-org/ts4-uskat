@@ -638,11 +638,11 @@ public class SkCoreServUsers
     papiPauseCoreValidation();
     try {
       // forcefully set password hash attribute
-      DtoFullObject dtoUser = new DtoFullObject( aDtoUser );
+      DtoFullObject dtoUser = new DtoFullObject( aDtoUser, aDtoUser.clobs(), aDtoUser.links().map() );
       dtoUser.attrs().setStr( ATRID_PASSWORD_HASH, SkHelperUtils.getPasswordHashCode( aPassword ) );
-      ISkUser user = DtoFullObject.defineFullObject( coreApi(), aDtoUser );
+      ISkUser user = DtoFullObject.defineFullObject( coreApi(), dtoUser );
       // inform siblings
-      GtMessage msg = BaMsgBuilderUsersChanged.INSTANCE.makeMessage( ECrudOp.CREATE, aDtoUser.id() );
+      GtMessage msg = BaMsgBuilderUsersChanged.INSTANCE.makeMessage( ECrudOp.CREATE, dtoUser.id() );
       sendMessageToSiblings( msg );
       return user;
     }
@@ -661,9 +661,6 @@ public class SkCoreServUsers
     TsValidationFailedRtException.checkError( validationSupport.canEditUser( aDtoUser, oldUser ) );
     papiPauseCoreValidation();
     try {
-      // edit object retaining previous password hash
-      DtoFullObject dtoUser = new DtoFullObject( aDtoUser );
-      dtoUser.attrs().setStr( ATRID_PASSWORD_HASH, oldUser.attrs().getStr( ATRID_PASSWORD_HASH ) );
       ISkUser user = DtoFullObject.defineFullObject( coreApi(), aDtoUser );
       // inform siblings
       GtMessage msg = BaMsgBuilderUsersChanged.INSTANCE.makeMessage( ECrudOp.EDIT, aDtoUser.id() );
