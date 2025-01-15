@@ -2,6 +2,7 @@ package org.toxsoft.uskat.s5.server.backend.impl;
 
 import static org.toxsoft.core.log4j.LoggerWrapper.*;
 import static org.toxsoft.core.tslib.av.impl.AvUtils.*;
+import static org.toxsoft.uskat.core.api.users.ISkUserServiceHardConstants.*;
 import static org.toxsoft.uskat.s5.client.IS5ConnectionParams.*;
 import static org.toxsoft.uskat.s5.common.IS5CommonResources.*;
 import static org.toxsoft.uskat.s5.server.IS5ImplementConstants.*;
@@ -10,69 +11,55 @@ import static org.toxsoft.uskat.s5.server.backend.impl.IS5Resources.*;
 import static org.toxsoft.uskat.s5.server.sessions.cluster.S5ClusterCommandCloseCallback.*;
 import static org.toxsoft.uskat.s5.server.sessions.cluster.S5ClusterCommandCreateCallback.*;
 
-import java.rmi.RemoteException;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
-import java.util.Properties;
-import java.util.concurrent.TimeUnit;
+import java.rmi.*;
+import java.util.*;
+import java.util.concurrent.*;
 
-import javax.annotation.Resource;
+import javax.annotation.*;
 import javax.ejb.*;
-import javax.naming.Context;
-import javax.naming.InitialContext;
+import javax.naming.*;
 
-import org.toxsoft.core.tslib.av.EAtomicType;
-import org.toxsoft.core.tslib.av.IAtomicValue;
-import org.toxsoft.core.tslib.av.opset.IOptionSet;
-import org.toxsoft.core.tslib.av.opset.IOptionSetEdit;
-import org.toxsoft.core.tslib.av.opset.impl.OptionSet;
-import org.toxsoft.core.tslib.bricks.ctx.ITsContextRo;
-import org.toxsoft.core.tslib.bricks.events.msg.GtMessage;
-import org.toxsoft.core.tslib.bricks.strid.coll.IStridablesList;
-import org.toxsoft.core.tslib.bricks.time.impl.TimeUtils;
-import org.toxsoft.core.tslib.bricks.time.impl.TimedList;
-import org.toxsoft.core.tslib.coll.IList;
-import org.toxsoft.core.tslib.coll.IListEdit;
-import org.toxsoft.core.tslib.coll.impl.ElemArrayList;
-import org.toxsoft.core.tslib.coll.impl.ElemLinkedList;
-import org.toxsoft.core.tslib.coll.primtypes.IStringMap;
-import org.toxsoft.core.tslib.coll.primtypes.IStringMapEdit;
-import org.toxsoft.core.tslib.coll.primtypes.impl.StringMap;
-import org.toxsoft.core.tslib.gw.gwid.Gwid;
-import org.toxsoft.core.tslib.gw.skid.ISkidList;
-import org.toxsoft.core.tslib.gw.skid.Skid;
+import org.toxsoft.core.tslib.av.*;
+import org.toxsoft.core.tslib.av.opset.*;
+import org.toxsoft.core.tslib.av.opset.impl.*;
+import org.toxsoft.core.tslib.bricks.ctx.*;
+import org.toxsoft.core.tslib.bricks.events.msg.*;
+import org.toxsoft.core.tslib.bricks.strid.coll.*;
+import org.toxsoft.core.tslib.bricks.time.impl.*;
+import org.toxsoft.core.tslib.coll.*;
+import org.toxsoft.core.tslib.coll.impl.*;
+import org.toxsoft.core.tslib.coll.primtypes.*;
+import org.toxsoft.core.tslib.coll.primtypes.impl.*;
+import org.toxsoft.core.tslib.gw.gwid.*;
+import org.toxsoft.core.tslib.gw.skid.*;
 import org.toxsoft.core.tslib.utils.errors.*;
-import org.toxsoft.core.tslib.utils.logs.ILogger;
-import org.toxsoft.uskat.core.ISkServiceCreator;
-import org.toxsoft.uskat.core.api.evserv.SkEvent;
-import org.toxsoft.uskat.core.api.objserv.IDtoObject;
-import org.toxsoft.uskat.core.api.users.ISkUser;
-import org.toxsoft.uskat.core.api.users.ISkUserServiceHardConstants;
-import org.toxsoft.uskat.core.backend.ISkBackendHardConstant;
-import org.toxsoft.uskat.core.backend.ISkFrontendRear;
+import org.toxsoft.core.tslib.utils.logs.*;
+import org.toxsoft.uskat.core.*;
+import org.toxsoft.uskat.core.api.evserv.*;
+import org.toxsoft.uskat.core.api.objserv.*;
+import org.toxsoft.uskat.core.api.users.*;
+import org.toxsoft.uskat.core.backend.*;
 import org.toxsoft.uskat.core.backend.api.*;
-import org.toxsoft.uskat.core.connection.ESkAuthentificationType;
-import org.toxsoft.uskat.core.impl.AbstractSkService;
-import org.toxsoft.uskat.core.impl.SkLoggedUserInfo;
-import org.toxsoft.uskat.core.impl.dto.DtoObject;
-import org.toxsoft.uskat.s5.client.remote.connection.S5ClusterTopology;
-import org.toxsoft.uskat.s5.common.sessions.IS5SessionInfo;
-import org.toxsoft.uskat.s5.common.sessions.ISkSession;
-import org.toxsoft.uskat.s5.legacy.ISkSystem;
-import org.toxsoft.uskat.s5.server.IS5ServerHardConstants;
+import org.toxsoft.uskat.core.connection.*;
+import org.toxsoft.uskat.core.impl.*;
+import org.toxsoft.uskat.core.impl.dto.*;
+import org.toxsoft.uskat.s5.client.remote.connection.*;
+import org.toxsoft.uskat.s5.common.sessions.*;
+import org.toxsoft.uskat.s5.legacy.*;
+import org.toxsoft.uskat.s5.server.*;
 import org.toxsoft.uskat.s5.server.backend.*;
 import org.toxsoft.uskat.s5.server.backend.addons.*;
-import org.toxsoft.uskat.s5.server.backend.supports.clobs.IS5BackendClobsSingleton;
+import org.toxsoft.uskat.s5.server.backend.supports.clobs.*;
 import org.toxsoft.uskat.s5.server.backend.supports.core.*;
-import org.toxsoft.uskat.s5.server.backend.supports.events.IS5BackendEventSingleton;
-import org.toxsoft.uskat.s5.server.backend.supports.links.IS5BackendLinksSingleton;
-import org.toxsoft.uskat.s5.server.backend.supports.objects.IS5BackendObjectsSingleton;
-import org.toxsoft.uskat.s5.server.backend.supports.sysdescr.IS5BackendSysDescrSingleton;
-import org.toxsoft.uskat.s5.server.cluster.IS5ClusterManager;
-import org.toxsoft.uskat.s5.server.frontend.IS5FrontendRear;
+import org.toxsoft.uskat.s5.server.backend.supports.events.*;
+import org.toxsoft.uskat.s5.server.backend.supports.links.*;
+import org.toxsoft.uskat.s5.server.backend.supports.objects.*;
+import org.toxsoft.uskat.s5.server.backend.supports.sysdescr.*;
+import org.toxsoft.uskat.s5.server.cluster.*;
+import org.toxsoft.uskat.s5.server.frontend.*;
 import org.toxsoft.uskat.s5.server.sessions.*;
 import org.toxsoft.uskat.s5.server.sessions.init.*;
-import org.toxsoft.uskat.s5.server.sessions.pas.S5SessionMessenger;
+import org.toxsoft.uskat.s5.server.sessions.pas.*;
 
 /**
  * Абстрактная реализация сессии {@link IS5Backend}.
@@ -274,18 +261,19 @@ public class S5BackendSession
   public IS5SessionInitResult init( IS5SessionInitData aInitData ) {
     TsNullArgumentRtException.checkNull( aInitData );
     String login = "???"; //$NON-NLS-1$
-    String pswd = "???"; //$NON-NLS-1$
+    String loginPasswordHash = "???"; //$NON-NLS-1$
     IAtomicValue remoteAddress = IAtomicValue.NULL;
     IAtomicValue remotePort = IAtomicValue.NULL;
     try {
       // Метка времени начала образования сессии
       long startTime = System.currentTimeMillis();
+
+      // 2025-01-15 mvk --- мы больше не используем систему аутентификации wildfly
       // Инициализация интерфейсов доступа
-      String principal = sessionContext.getCallerPrincipal().getName();
+      // String principal = sessionContext.getCallerPrincipal().getName();
+
       // Идентификатор сессии
       sessionID = aInitData.sessionID();
-      // Вывод в журнал
-      logger().info( MSG_CREATE_SESSION_REQUEST, principal, sessionID, remoteAddress, remotePort );
 
       // Просто для информации: отсюда можно получить remoteAddr клиента
       // Map<String, Object> contextData = sessionContext.getContextData();
@@ -297,11 +285,16 @@ public class S5BackendSession
       remoteAddress = OP_CLIENT_ADDRESS.getValue( clientOptions );
       remotePort = OP_CLIENT_PORT.getValue( clientOptions );
       login = OP_USERNAME.getValue( clientOptions ).asString();
-      pswd = OP_PASSWORD.getValue( clientOptions ).asString();
-      if( !login.equals( principal ) ) {
-        // Учтеная запись входа не соответствует вызову
-        throw new S5AccessDeniedException( ERR_WRONG_USER );
-      }
+      loginPasswordHash = OP_PASSWORD.getValue( clientOptions ).asString();
+
+      // 2025-01-15 mvk --- мы больше не используем систему аутентификации wildfly
+      // if( !login.equals( principal ) ) {
+      // // Учтеная запись входа не соответствует вызову
+      // throw new S5AccessDeniedException( ERR_WRONG_USER );
+      // }
+
+      // Вывод в журнал
+      logger().info( MSG_CREATE_SESSION_REQUEST, login, sessionID, remoteAddress, remotePort );
       // Пользователь системы
       IDtoObject user = objectsBackend.findObject( new Skid( ISkUser.CLASS_ID, login ) );
       if( user == null ) {
@@ -314,10 +307,12 @@ public class S5BackendSession
         eventBackend.fireAsyncEvents( IS5FrontendRear.NULL, new TimedList<>( event ) );
         throw new S5AccessDeniedException( ERR_WRONG_USER );
       }
-      String ATRID_PASSWORD_HASH = ISkUserServiceHardConstants.ATRID_PASSWORD_HASH;
-      // Хэшкод пароля пользователя
-      String pswdHashCode = user.attrs().getValue( ATRID_PASSWORD_HASH ).asString();
-      if( !pswdHashCode.equals( pswd ) ) { // Доступ запрещен - неверное имя пользователя или пароль
+      // Флаг активности учетной записи пользователя
+      IAtomicValue isEnabled = user.attrs().findValue( ATRID_USER_IS_ENABLED );
+      // Хэшкод пароля учетной записи пользователя
+      String userPasswordHash = user.attrs().getStr( ATRID_PASSWORD_HASH );
+      if( (isEnabled != null && !isEnabled.asBool()) || !userPasswordHash.equals( loginPasswordHash ) ) {
+        // Доступ запрещен - запись пользователя неактивна или неверное имя пользователя или пароль
         Gwid eventGwid = Gwid.createEvent( ISkSystem.CLASS_ID, ISkSystem.THIS_SYSTEM, ISkSystem.EVID_LOGIN_FAILED );
         IOptionSetEdit params = new OptionSet();
         params.setStr( ISkSystem.EVPID_LOGIN, login );
@@ -370,7 +365,7 @@ public class S5BackendSession
       finally {
         context.close();
       }
-      IS5SessionInfoEdit sessionInfo = new S5SessionInfo( principal, clientOptions );
+      IS5SessionInfoEdit sessionInfo = new S5SessionInfo( login, clientOptions );
       sessionInfo.setSessionID( sessionID );
       sessionInfo.setRemoteAddress( remoteAddress.asString(), remotePort.asInt() );
       // Установка топологии кластеров доступных клиенту при создании сессии
@@ -704,36 +699,6 @@ public class S5BackendSession
     TsNullArgumentRtException.checkNull( aMessage );
     // Метод вызывается через PAS-канал
     throw new TsUnsupportedFeatureRtException();
-  }
-
-  // ------------------------------------------------------------------------------------
-  // Открытые вспомогательные методы
-  //
-  /**
-   * Возвращает 128-битный хэш-код указанного пароля
-   * <p>
-   * deprecated TODO: метод вероятно должен быть в SkCoreServUsers как и раньше
-   *
-   * @param aPassword String пароль
-   * @return String хэш-код
-   * @throws TsNullArgumentRtException аргумент = null
-   */
-  public static String getPasswordHashCode( String aPassword ) {
-    TsNullArgumentRtException.checkNull( aPassword );
-    MessageDigest md;
-    try {
-      md = MessageDigest.getInstance( "MD5" ); //$NON-NLS-1$
-    }
-    catch( NoSuchAlgorithmException e ) {
-      throw new TsInternalErrorRtException( e );
-    }
-    md.update( aPassword.getBytes() );
-    byte[] digest = md.digest();
-    StringBuilder sb = new StringBuilder( digest.length * 2 );
-    for( byte b : digest ) {
-      sb.append( String.format( "%02x", Byte.valueOf( b ) ) ); //$NON-NLS-1$
-    }
-    return sb.toString();
   }
 
   // ------------------------------------------------------------------------------------
