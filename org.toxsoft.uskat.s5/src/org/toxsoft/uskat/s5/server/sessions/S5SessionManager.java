@@ -11,58 +11,51 @@ import static org.toxsoft.uskat.s5.server.sessions.cluster.S5ClusterCommandClose
 import static org.toxsoft.uskat.s5.server.sessions.cluster.S5ClusterCommandCreateCallback.*;
 import static org.toxsoft.uskat.s5.server.sessions.cluster.S5ClusterCommandUpdateSession.*;
 
-import javax.annotation.Resource;
+import javax.annotation.*;
 import javax.ejb.*;
 
-import org.infinispan.Cache;
-import org.infinispan.commons.util.CloseableIterator;
-import org.toxsoft.core.tslib.av.IAtomicValue;
-import org.toxsoft.core.tslib.av.opset.IOptionSet;
-import org.toxsoft.core.tslib.av.opset.IOptionSetEdit;
-import org.toxsoft.core.tslib.av.opset.impl.OptionSet;
-import org.toxsoft.core.tslib.bricks.strid.idgen.IStridGenerator;
-import org.toxsoft.core.tslib.bricks.strid.idgen.UuidStridGenerator;
-import org.toxsoft.core.tslib.bricks.time.impl.TimedList;
+import org.infinispan.*;
+import org.infinispan.commons.util.*;
+import org.toxsoft.core.tslib.av.*;
+import org.toxsoft.core.tslib.av.opset.*;
+import org.toxsoft.core.tslib.av.opset.impl.*;
+import org.toxsoft.core.tslib.bricks.strid.idgen.*;
+import org.toxsoft.core.tslib.bricks.time.impl.*;
 import org.toxsoft.core.tslib.coll.*;
 import org.toxsoft.core.tslib.coll.impl.*;
-import org.toxsoft.core.tslib.coll.primtypes.IStringMap;
-import org.toxsoft.core.tslib.coll.primtypes.impl.StringArrayList;
-import org.toxsoft.core.tslib.coll.synch.SynchronizedMap;
-import org.toxsoft.core.tslib.gw.gwid.Gwid;
+import org.toxsoft.core.tslib.coll.primtypes.*;
+import org.toxsoft.core.tslib.coll.primtypes.impl.*;
+import org.toxsoft.core.tslib.coll.synch.*;
+import org.toxsoft.core.tslib.gw.gwid.*;
 import org.toxsoft.core.tslib.gw.skid.*;
-import org.toxsoft.core.tslib.utils.errors.TsIllegalArgumentRtException;
-import org.toxsoft.core.tslib.utils.errors.TsNullArgumentRtException;
-import org.toxsoft.core.tslib.utils.logs.ELogSeverity;
-import org.toxsoft.core.tslib.utils.logs.ILogger;
-import org.toxsoft.uskat.core.api.evserv.SkEvent;
-import org.toxsoft.uskat.core.api.objserv.IDtoObject;
-import org.toxsoft.uskat.core.api.users.ISkUser;
-import org.toxsoft.uskat.core.api.users.ISkUserServiceHardConstants;
-import org.toxsoft.uskat.core.impl.dto.DtoLinkFwd;
-import org.toxsoft.uskat.core.impl.dto.DtoObject;
-import org.toxsoft.uskat.s5.client.IS5ConnectionParams;
-import org.toxsoft.uskat.s5.common.info.IS5SessionsInfos;
-import org.toxsoft.uskat.s5.common.sessions.IS5SessionInfo;
-import org.toxsoft.uskat.s5.common.sessions.ISkSession;
-import org.toxsoft.uskat.s5.legacy.ISkSystem;
-import org.toxsoft.uskat.s5.server.IS5ServerHardConstants;
+import org.toxsoft.core.tslib.utils.*;
+import org.toxsoft.core.tslib.utils.errors.*;
+import org.toxsoft.core.tslib.utils.logs.*;
+import org.toxsoft.uskat.core.api.evserv.*;
+import org.toxsoft.uskat.core.api.objserv.*;
+import org.toxsoft.uskat.core.api.sysdescr.*;
+import org.toxsoft.uskat.core.api.users.*;
+import org.toxsoft.uskat.core.impl.dto.*;
+import org.toxsoft.uskat.s5.client.*;
+import org.toxsoft.uskat.s5.common.info.*;
+import org.toxsoft.uskat.s5.common.sessions.*;
+import org.toxsoft.uskat.s5.legacy.*;
+import org.toxsoft.uskat.s5.server.*;
 import org.toxsoft.uskat.s5.server.backend.supports.core.*;
-import org.toxsoft.uskat.s5.server.backend.supports.events.IS5BackendEventSingleton;
-import org.toxsoft.uskat.s5.server.backend.supports.links.IS5BackendLinksSingleton;
-import org.toxsoft.uskat.s5.server.backend.supports.objects.IS5BackendObjectsSingleton;
-import org.toxsoft.uskat.s5.server.backend.supports.sysdescr.IS5BackendSysDescrSingleton;
-import org.toxsoft.uskat.s5.server.cluster.IS5ClusterListener;
-import org.toxsoft.uskat.s5.server.cluster.IS5ClusterManager;
-import org.toxsoft.uskat.s5.server.frontend.IS5FrontendRear;
-import org.toxsoft.uskat.s5.server.interceptors.S5InterceptorSupport;
+import org.toxsoft.uskat.s5.server.backend.supports.events.*;
+import org.toxsoft.uskat.s5.server.backend.supports.links.*;
+import org.toxsoft.uskat.s5.server.backend.supports.objects.*;
+import org.toxsoft.uskat.s5.server.backend.supports.sysdescr.*;
+import org.toxsoft.uskat.s5.server.cluster.*;
+import org.toxsoft.uskat.s5.server.frontend.*;
+import org.toxsoft.uskat.s5.server.interceptors.*;
 import org.toxsoft.uskat.s5.server.sessions.cluster.*;
 import org.toxsoft.uskat.s5.server.sessions.pas.*;
-import org.toxsoft.uskat.s5.server.singletons.S5SingletonBase;
-import org.toxsoft.uskat.s5.server.startup.IS5InitialImplementSingleton;
+import org.toxsoft.uskat.s5.server.singletons.*;
+import org.toxsoft.uskat.s5.server.startup.*;
 import org.toxsoft.uskat.s5.server.statistics.*;
-import org.toxsoft.uskat.s5.utils.jobs.IS5ServerJob;
-import org.wildfly.clustering.group.Membership;
-import org.wildfly.clustering.group.Node;
+import org.toxsoft.uskat.s5.utils.jobs.*;
+import org.wildfly.clustering.group.*;
 
 /**
  * Управление сессиями сервера
@@ -234,6 +227,11 @@ public class S5SessionManager
   private final S5InterceptorSupport<IS5SessionInterceptor> interceptors = new S5InterceptorSupport<>();
 
   /**
+   * Интерспетор операций проводимых над объектами (контроль учетных записей пользователей)
+   */
+  private S5ObjectsInterceptor objectsInterceptor;
+
+  /**
    * Признак того, что после старта был выполнен цикл удаления несуществующих сессий
    */
   private boolean wasCleanSessionsAfterStart;
@@ -304,12 +302,18 @@ public class S5SessionManager
     } );
     // Проверка и, если необходимо, обновление sysdescr
     S5SessionUtils.checkAndUpdateSysdecr( sysdescrSupport, objectsSupport );
+    // Контроль учетных записей пользователей
+    ISkClassInfo userClassInfo = sysdescrSupport.getReader().getClassInfo( ISkUser.CLASS_ID );
+    objectsInterceptor = new S5ObjectsInterceptor( sessionManager, userClassInfo );
+    objectsSupport.addObjectsInterceptor( objectsInterceptor, 1024 );
     // Запуск фоновой задачи
     addOwnDoJob( DO_JOB_TIMEOUT );
   }
 
   @Override
   protected void doClose() {
+    // Дерегистрация перехвата изменений учетных записей пользователей
+    objectsSupport.removeObjectsInterceptor( objectsInterceptor );
     // Завершение работы PAS-сервера
     callbackServer.close();
   }
@@ -1073,5 +1077,120 @@ public class S5SessionManager
     catch( Throwable e ) {
       logger().error( e );
     }
+  }
+
+  /**
+   * Перехват изменений объектов системы (контроль пользвателей)
+   */
+  private static final class S5ObjectsInterceptor
+      implements IS5ObjectsInterceptor {
+
+    private final IS5SessionManager sessionManager;
+    private final ISkClassInfo      userClassInfo;
+
+    /**
+     * Constructor.
+     *
+     * @param aSessionManager {@link IS5SessionInfo} менеджер сессий
+     * @param aUserClassInfo {@link ISkClassInfo} описание класса пользователя
+     * @throws TsNullArgumentRtException любой аргумент = null
+     */
+    public S5ObjectsInterceptor( IS5SessionManager aSessionManager, ISkClassInfo aUserClassInfo ) {
+      TsNullArgumentRtException.checkNulls( aSessionManager, aUserClassInfo );
+      sessionManager = aSessionManager;
+      userClassInfo = aUserClassInfo;
+    }
+
+    // ------------------------------------------------------------------------------------
+    // Реализация интерфейса IS5ObjectsInterceptor
+    //
+    @Override
+    public IDtoObject beforeFindObject( Skid aSkid, IDtoObject aObj ) {
+      return aObj;
+    }
+
+    @Override
+    public IDtoObject afterFindObject( Skid aSkid, IDtoObject aObj ) {
+      return aObj;
+    }
+
+    @Override
+    public void beforeReadObjects( IStringList aClassIds, IListEdit<IDtoObject> aObjs ) {
+      // nop
+    }
+
+    @Override
+    public void afterReadObjects( IStringList aClassIds, IListEdit<IDtoObject> aObjs ) {
+      // nop
+    }
+
+    @Override
+    public void beforeReadObjectsByIds( ISkidList aSkids, IListEdit<IDtoObject> aObjs ) {
+      // nop
+    }
+
+    @Override
+    public void afterReadObjectsByIds( ISkidList aSkids, IListEdit<IDtoObject> aObjs ) {
+      // nop
+    }
+
+    @Override
+    public void beforeWriteObjects( IMap<ISkClassInfo, IList<IDtoObject>> aRemovedObjs,
+        IMap<ISkClassInfo, IList<Pair<IDtoObject, IDtoObject>>> aUpdatedObjs,
+        IMap<ISkClassInfo, IList<IDtoObject>> aCreatedObjs ) {
+      IList<IDtoObject> removedUsers = aRemovedObjs.findByKey( userClassInfo );
+      IList<Pair<IDtoObject, IDtoObject>> changedUsers = aUpdatedObjs.findByKey( userClassInfo );
+      if( (removedUsers == null || removedUsers.size() == 0) && (changedUsers == null || changedUsers.size() == 0) ) {
+        return;
+      }
+      IList<S5SessionData> openSessions = sessionManager.openSessions();
+      // Карта идентификаторов пользователей открытых сессий. Ключ: логин пользователя. Значение: идентификатор сессии
+      IStringMapEdit<Skid> sessionIdsByLogins = new StringMap<Skid>();
+      // Формирование карты
+      for( S5SessionData session : openSessions ) {
+        IS5SessionInfo info = session.info();
+        sessionIdsByLogins.put( info.login(), info.sessionID() );
+      }
+      // Завершение всех сессий удаленных пользователей
+      if( removedUsers != null ) {
+        for( IDtoObject user : removedUsers ) {
+          Skid sessionId = sessionIdsByLogins.findByKey( user.strid() );
+          if( sessionId != null ) {
+            sessionManager.closeRemoteSession( sessionId );
+          }
+        }
+      }
+      // Завершение всех сессий пользователей у которых изменился пароль или учетные записи стали неактивны
+      if( changedUsers != null ) {
+        for( Pair<IDtoObject, IDtoObject> userPair : changedUsers ) {
+          IDtoObject oldUser = userPair.left();
+          IDtoObject newUser = userPair.right();
+          IOptionSet oldAttrs = oldUser.attrs();
+          IOptionSet newAttrs = newUser.attrs();
+          IAtomicValue oldPasswordHash = oldAttrs.findValue( ISkUserServiceHardConstants.ATRID_PASSWORD_HASH );
+          IAtomicValue newPasswordHash = newAttrs.findValue( ISkUserServiceHardConstants.ATRID_PASSWORD_HASH );
+          IAtomicValue newEnabled = newAttrs.findValue( ISkUserServiceHardConstants.ATRID_ROLE_IS_ENABLED );
+          if( oldPasswordHash != null && !oldPasswordHash.equals( newPasswordHash )
+              || newEnabled != null && !newEnabled.asBool() ) {
+            Skid sessionId = sessionIdsByLogins.findByKey( newUser.strid() );
+            if( sessionId != null ) {
+              sessionManager.closeRemoteSession( sessionId );
+            }
+          }
+        }
+      }
+    }
+
+    @Override
+    public void afterWriteObjects( IMap<ISkClassInfo, IList<IDtoObject>> aRemovedObjs,
+        IMap<ISkClassInfo, IList<Pair<IDtoObject, IDtoObject>>> aUpdatedObjs,
+        IMap<ISkClassInfo, IList<IDtoObject>> aCreatedObjs ) {
+      // nop
+    }
+
+    // ------------------------------------------------------------------------------------
+    // Внутренние методы
+    //
+
   }
 }

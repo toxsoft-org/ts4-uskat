@@ -35,12 +35,12 @@ import org.toxsoft.core.tslib.utils.*;
 import org.toxsoft.core.tslib.utils.errors.*;
 import org.toxsoft.core.tslib.utils.logs.*;
 import org.toxsoft.uskat.core.backend.*;
+import org.toxsoft.uskat.core.utils.*;
 import org.toxsoft.uskat.s5.client.remote.connection.pas.*;
 import org.toxsoft.uskat.s5.common.*;
 import org.toxsoft.uskat.s5.common.sessions.*;
 import org.toxsoft.uskat.s5.server.*;
 import org.toxsoft.uskat.s5.server.backend.*;
-import org.toxsoft.uskat.s5.server.backend.impl.*;
 import org.toxsoft.uskat.s5.server.sessions.init.*;
 import org.toxsoft.uskat.s5.utils.progress.*;
 import org.toxsoft.uskat.s5.utils.threads.impl.*;
@@ -557,9 +557,9 @@ public final class S5Connection
       String wpasswd = OP_WILDFLY_PASSWORD.getValue( options ).asString();
 
       // Передача пароля в hash-code
-      String passwdHashCode = S5BackendSession.getPasswordHashCode( OP_PASSWORD.getValue( openArgs ).asString() );
+      String passwdHash = SkHelperUtils.getPasswordHashCode( OP_PASSWORD.getValue( openArgs ).asString() );
       // Замена пароля на хэш-код
-      OP_PASSWORD.setValue( options, avStr( passwdHashCode ) );
+      OP_PASSWORD.setValue( options, avStr( passwdHash ) );
 
       // Адрес сервера
       S5HostList hosts = OP_HOSTS.getValue( options ).asValobj();
