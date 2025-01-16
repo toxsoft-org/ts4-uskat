@@ -32,6 +32,7 @@ import org.toxsoft.core.tslib.utils.*;
 import org.toxsoft.core.tslib.utils.errors.*;
 import org.toxsoft.core.tslib.utils.logs.*;
 import org.toxsoft.uskat.core.api.evserv.*;
+import org.toxsoft.uskat.core.api.linkserv.*;
 import org.toxsoft.uskat.core.api.objserv.*;
 import org.toxsoft.uskat.core.api.sysdescr.*;
 import org.toxsoft.uskat.core.api.users.*;
@@ -304,7 +305,7 @@ public class S5SessionManager
     S5SessionUtils.checkAndUpdateSysdecr( sysdescrSupport, objectsSupport );
     // Контроль учетных записей пользователей
     ISkClassInfo userClassInfo = sysdescrSupport.getReader().getClassInfo( ISkUser.CLASS_ID );
-    objectsInterceptor = new S5ObjectsInterceptor( sessionManager, userClassInfo );
+    objectsInterceptor = new S5ObjectsInterceptor( sessionManager, objectsSupport, linksSupport, userClassInfo );
     objectsSupport.addObjectsInterceptor( objectsInterceptor, 1024 );
     // Запуск фоновой задачи
     addOwnDoJob( DO_JOB_TIMEOUT );
@@ -1085,19 +1086,26 @@ public class S5SessionManager
   private static final class S5ObjectsInterceptor
       implements IS5ObjectsInterceptor {
 
-    private final IS5SessionManager sessionManager;
-    private final ISkClassInfo      userClassInfo;
+    private final IS5SessionManager          sessionManager;
+    private final IS5BackendObjectsSingleton objectsSupport;
+    private final IS5BackendLinksSingleton   linksSupport;
+    private final ISkClassInfo               userClassInfo;
 
     /**
      * Constructor.
      *
      * @param aSessionManager {@link IS5SessionInfo} менеджер сессий
+     * @param aObjectsSupport {@link IS5BackendObjectsSingleton} поддержка службы объектов
+     * @param aLinksSupport {@link IS5BackendLinksSingleton} поддержка службы связей между объектами
      * @param aUserClassInfo {@link ISkClassInfo} описание класса пользователя
      * @throws TsNullArgumentRtException любой аргумент = null
      */
-    public S5ObjectsInterceptor( IS5SessionManager aSessionManager, ISkClassInfo aUserClassInfo ) {
-      TsNullArgumentRtException.checkNulls( aSessionManager, aUserClassInfo );
+    public S5ObjectsInterceptor( IS5SessionManager aSessionManager, IS5BackendObjectsSingleton aObjectsSupport,
+        IS5BackendLinksSingleton aLinksSupport, ISkClassInfo aUserClassInfo ) {
+      TsNullArgumentRtException.checkNulls( aSessionManager, aObjectsSupport, aLinksSupport, aUserClassInfo );
       sessionManager = aSessionManager;
+      objectsSupport = aObjectsSupport;
+      linksSupport = aLinksSupport;
       userClassInfo = aUserClassInfo;
     }
 
@@ -1145,18 +1153,35 @@ public class S5SessionManager
       }
       IList<S5SessionData> openSessions = sessionManager.openSessions();
       // Карта идентификаторов пользователей открытых сессий. Ключ: логин пользователя. Значение: идентификатор сессии
-      IStringMapEdit<Skid> sessionIdsByLogins = new StringMap<Skid>();
+      IStringMapEdit<ISkidList> sessionIdsByLogins = new StringMap<>();
       // Формирование карты
       for( S5SessionData session : openSessions ) {
         IS5SessionInfo info = session.info();
-        sessionIdsByLogins.put( info.login(), info.sessionID() );
+        String login = info.login();
+        SkidList sessionIds = (SkidList)sessionIdsByLogins.findByKey( login );
+        if( sessionIds == null ) {
+          sessionIds = new SkidList();
+          sessionIdsByLogins.put( login, sessionIds );
+        }
+        sessionIds.add( info.sessionID() );
       }
       // Завершение всех сессий удаленных пользователей
       if( removedUsers != null ) {
         for( IDtoObject user : removedUsers ) {
-          Skid sessionId = sessionIdsByLogins.findByKey( user.strid() );
-          if( sessionId != null ) {
-            sessionManager.closeRemoteSession( sessionId );
+          String login = user.strid();
+          ISkidList sessionIds = sessionIdsByLogins.findByKey( login );
+          if( sessionIds != null ) {
+            for( Skid sessionId : sessionIds ) {
+              sessionManager.closeRemoteSession( sessionId );
+            }
+          }
+          // Чтобы удалить пользователя, необходимо удалить все его сессии связанные с ним по внешнему ключу
+          String classId = ISkSession.CLASS_ID;
+          Gwid linkGwid = Gwid.createLink( classId, ISkSession.LNKID_USER );
+          IDtoLinkRev linkRev = linksSupport.findLinkRev( linkGwid, user.skid(), new StringArrayList( classId ) );
+          for( Skid sessionId : linkRev.leftSkids() ) {
+            // Удаление объекта сессия чтобы можно было удалить пользователя. aInterceptable = true
+            objectsSupport.writeObjects( IS5FrontendRear.NULL, new SkidList( sessionId ), IList.EMPTY, true );
           }
         }
       }
@@ -1172,9 +1197,11 @@ public class S5SessionManager
           IAtomicValue newEnabled = newAttrs.findValue( ISkUserServiceHardConstants.ATRID_ROLE_IS_ENABLED );
           if( oldPasswordHash != null && !oldPasswordHash.equals( newPasswordHash )
               || newEnabled != null && !newEnabled.asBool() ) {
-            Skid sessionId = sessionIdsByLogins.findByKey( newUser.strid() );
-            if( sessionId != null ) {
-              sessionManager.closeRemoteSession( sessionId );
+            ISkidList sessionIds = sessionIdsByLogins.findByKey( newUser.strid() );
+            if( sessionIds != null ) {
+              for( Skid sessionId : sessionIds ) {
+                sessionManager.closeRemoteSession( sessionId );
+              }
             }
           }
         }

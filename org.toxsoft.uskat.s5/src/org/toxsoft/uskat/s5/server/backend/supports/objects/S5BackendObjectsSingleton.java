@@ -7,37 +7,33 @@ import static org.toxsoft.uskat.s5.server.backend.supports.objects.IS5Resources.
 import static org.toxsoft.uskat.s5.server.backend.supports.objects.S5ObjectReflectUtils.*;
 import static org.toxsoft.uskat.s5.server.backend.supports.objects.S5ObjectsSQL.*;
 
-import java.lang.reflect.Constructor;
-import java.sql.Connection;
-import java.sql.SQLException;
-import java.util.concurrent.TimeUnit;
+import java.lang.reflect.*;
+import java.sql.*;
+import java.util.concurrent.*;
 
-import javax.annotation.Resource;
+import javax.annotation.*;
 import javax.ejb.*;
-import javax.persistence.EntityManager;
-import javax.persistence.PersistenceContext;
-import javax.sql.DataSource;
+import javax.persistence.*;
+import javax.sql.*;
 
-import org.toxsoft.core.tslib.bricks.events.msg.GtMessage;
+import org.toxsoft.core.tslib.bricks.events.msg.*;
 import org.toxsoft.core.tslib.coll.*;
-import org.toxsoft.core.tslib.coll.helpers.ECrudOp;
+import org.toxsoft.core.tslib.coll.helpers.*;
 import org.toxsoft.core.tslib.coll.impl.*;
-import org.toxsoft.core.tslib.coll.primtypes.IStringList;
-import org.toxsoft.core.tslib.coll.primtypes.IStringMapEdit;
-import org.toxsoft.core.tslib.coll.primtypes.impl.StringMap;
+import org.toxsoft.core.tslib.coll.primtypes.*;
+import org.toxsoft.core.tslib.coll.primtypes.impl.*;
 import org.toxsoft.core.tslib.gw.skid.*;
-import org.toxsoft.core.tslib.utils.Pair;
-import org.toxsoft.core.tslib.utils.errors.TsInternalErrorRtException;
-import org.toxsoft.core.tslib.utils.errors.TsNullArgumentRtException;
-import org.toxsoft.uskat.core.api.objserv.IDtoObject;
-import org.toxsoft.uskat.core.api.sysdescr.ISkClassInfo;
-import org.toxsoft.uskat.core.backend.api.IBaObjectsMessages;
-import org.toxsoft.uskat.s5.common.sysdescr.ISkSysdescrReader;
-import org.toxsoft.uskat.s5.server.backend.impl.S5BackendSupportSingleton;
-import org.toxsoft.uskat.s5.server.backend.supports.events.IS5BackendEventSingleton;
-import org.toxsoft.uskat.s5.server.backend.supports.sysdescr.IS5BackendSysDescrSingleton;
-import org.toxsoft.uskat.s5.server.frontend.IS5FrontendRear;
-import org.toxsoft.uskat.s5.server.interceptors.S5InterceptorSupport;
+import org.toxsoft.core.tslib.utils.*;
+import org.toxsoft.core.tslib.utils.errors.*;
+import org.toxsoft.uskat.core.api.objserv.*;
+import org.toxsoft.uskat.core.api.sysdescr.*;
+import org.toxsoft.uskat.core.backend.api.*;
+import org.toxsoft.uskat.s5.common.sysdescr.*;
+import org.toxsoft.uskat.s5.server.backend.impl.*;
+import org.toxsoft.uskat.s5.server.backend.supports.events.*;
+import org.toxsoft.uskat.s5.server.backend.supports.sysdescr.*;
+import org.toxsoft.uskat.s5.server.frontend.*;
+import org.toxsoft.uskat.s5.server.interceptors.*;
 
 /**
  * Реализация {@link IS5BackendObjectsSingleton}.
@@ -261,6 +257,8 @@ public class S5BackendObjectsSingleton
         changedObjectIds.add( removedObj.skid() );
         entityManager.remove( removedObj );
         removeCount++;
+        logger().debug( "writeObjects(...): removed entity %s, rc = %d", removedObj, //$NON-NLS-1$
+            Integer.valueOf( removeCount ) );
       }
     }
     // Обновление объектов
@@ -274,6 +272,7 @@ public class S5BackendObjectsSingleton
         // TODO: mvkd experimental
         // updateObject( entityManager, obj.right() );
         updateCount++;
+        logger().debug( "writeObjects(...): merge entity %s, uc = %d", obj, Integer.valueOf( updateCount ) ); //$NON-NLS-1$
       }
     }
     // Создание объектов
@@ -284,11 +283,22 @@ public class S5BackendObjectsSingleton
         // TODO: mvkd experimental
         // createObject( entityManager, obj );
         createCount++;
+        logger().debug( "writeObjects(...): persist entity %s, cc = %d", obj, Integer.valueOf( createCount ) ); //$NON-NLS-1$
       }
     }
     long entityManagerTimestamp1 = System.currentTimeMillis();
+
+    // Счетчики для журнала
+    Integer rc = Integer.valueOf( removeCount );
+    Integer uc = Integer.valueOf( updateCount );
+    Integer cc = Integer.valueOf( createCount );
+
     // Синхронизация с базой данных
+    logger().debug( "writeObjects(...): flush before. rc = %d, uc = %d, cc = %d", rc, uc, cc ); //$NON-NLS-1$
     entityManager.flush();
+    logger().debug( "writeObjects(...): flush after. rc = %d, uc = %d, cc = %d, time = %d msec", rc, uc, cc, //$NON-NLS-1$
+        Long.valueOf( System.currentTimeMillis() - entityManagerTimestamp1 ) );
+
     long entityManagerTimestamp2 = System.currentTimeMillis();
 
     if( aInterceptable ) {
@@ -306,9 +316,6 @@ public class S5BackendObjectsSingleton
     long eventTimestamp = System.currentTimeMillis();
 
     // Запись в журнал
-    Integer rc = Integer.valueOf( removeCount );
-    Integer uc = Integer.valueOf( updateCount );
-    Integer cc = Integer.valueOf( createCount );
     Long at = Long.valueOf( eventTimestamp - currTime );
     Long lt = Long.valueOf( loadTimestamp - currTime );
     Long it1 = Long.valueOf( interceptorTimestamp1 - loadTimestamp );

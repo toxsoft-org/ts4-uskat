@@ -347,7 +347,7 @@ public class S5BackendLinksSingleton
         if( prevCount == 0 && newCount > 0 ) {
           // Создание новых связей
           try {
-            createdLinks( linkWriterSupport, newLink );
+            createdLinks( linkWriterSupport, newLink, logger() );
           }
           catch( Throwable e ) {
             if( e.getCause() instanceof TransientPropertyValueException ) {
@@ -366,8 +366,16 @@ public class S5BackendLinksSingleton
 
     long entityManagerTimestamp1 = System.currentTimeMillis();
 
+    // Счетчики для журнала
+    Integer rc = Integer.valueOf( removeCount );
+    Integer uc = Integer.valueOf( updateCount );
+    Integer cc = Integer.valueOf( createCount );
+
     // Синхронизация с базой данных
+    logger().debug( "writeLinksFwd(...): flush before. rc = %d, uc = %d, cc = %d", rc, uc, cc ); //$NON-NLS-1$
     entityManager.flush();
+    logger().debug( "writeLinksFwd(...): flush after. rc = %d, uc = %d, cc = %d, time = %d msec", rc, uc, cc, //$NON-NLS-1$
+        Long.valueOf( System.currentTimeMillis() - entityManagerTimestamp1 ) );
     long entityManagerTimestamp2 = System.currentTimeMillis();
 
     if( aInterceptionEnabled ) {
@@ -385,9 +393,6 @@ public class S5BackendLinksSingleton
     long eventTimestamp = System.currentTimeMillis();
 
     // Запись в журнал
-    Integer rc = Integer.valueOf( removeCount );
-    Integer uc = Integer.valueOf( updateCount );
-    Integer cc = Integer.valueOf( createCount );
     Long at = Long.valueOf( eventTimestamp - currTime );
     Long lt = Long.valueOf( loadTimestamp - currTime );
     Long it1 = Long.valueOf( interceptorTimestamp1 - loadTimestamp );
@@ -486,7 +491,7 @@ public class S5BackendLinksSingleton
       removeLinkRev( aSupport, linkClassId, leftSkid, linkId, rightSkid, aLogger );
     }
     aSupport.entityManager.remove( aLinkFwd );
-    aLogger.debug( "removeLinks(...): remove entity: aLinkFwd=%s", aLinkFwd ); //$NON-NLS-1$
+    aLogger.debug( "removeLinks(...): remove entity aLinkFwd=%s", aLinkFwd ); //$NON-NLS-1$
   }
 
   /**
@@ -509,12 +514,12 @@ public class S5BackendLinksSingleton
       removeLinkRev( aSupport, linkClassId, leftSkid, linkId, rightSkid, aLogger );
     }
     for( Skid rightSkid : aCreatedRightLinks ) {
-      createLinkRev( aSupport, leftSkid, linkClassId, linkId, rightSkid );
+      createLinkRev( aSupport, leftSkid, linkClassId, linkId, rightSkid, aLogger );
     }
     // 2020-07-23 mvk
     // aSupport.entityManager.merge( aNewLink );
     ((S5LinkFwdEntity)aSupport.entityManager.merge( aNewLink )).setRightSkids( aNewLink.rightSkids() );
-    aLogger.debug( "updateLinks(...): merge entity: aNewLink=%s", aNewLink ); //$NON-NLS-1$
+    aLogger.debug( "updateLinks(...): merge entity aNewLink=%s", aNewLink ); //$NON-NLS-1$
   }
 
   /**
@@ -522,17 +527,19 @@ public class S5BackendLinksSingleton
    *
    * @param aSupport {@link S5LinkWriterSupport} вспомогательный механизм записи
    * @param aLinkFwd {@link IDtoLinkFwd} добавляемая ПРЯМАЯ связь объекта
+   * @param aLogger {@link ILogger} журнал
    * @throws TsNullArgumentRtException любой аргумент = null
    */
-  private static void createdLinks( S5LinkWriterSupport aSupport, IDtoLinkFwd aLinkFwd ) {
-    TsNullArgumentRtException.checkNulls( aSupport, aLinkFwd );
+  private static void createdLinks( S5LinkWriterSupport aSupport, IDtoLinkFwd aLinkFwd, ILogger aLogger ) {
+    TsNullArgumentRtException.checkNulls( aSupport, aLinkFwd, aLogger );
     Skid leftSkid = aLinkFwd.leftSkid();
     String linkClassId = aLinkFwd.classId();
     String linkId = aLinkFwd.linkId();
     for( Skid rightSkid : aLinkFwd.rightSkids() ) {
-      createLinkRev( aSupport, leftSkid, linkClassId, linkId, rightSkid );
+      createLinkRev( aSupport, leftSkid, linkClassId, linkId, rightSkid, aLogger );
     }
     aSupport.entityManager.persist( aLinkFwd );
+    aLogger.debug( "createdLinks(...): persist entity aLinkFwd=%s", aLinkFwd ); //$NON-NLS-1$
   }
 
   /**
@@ -561,7 +568,7 @@ public class S5BackendLinksSingleton
     // 2021-01-30 mvk
     if( revLink == null ) {
       // Связь уже удалена
-      aLogger.debug( "removeLinkRev(...): entity already removed: linkID=%s", linkID ); //$NON-NLS-1$
+      aLogger.debug( "removeLinkRev(...): entity already removed. linkID=%s", linkID ); //$NON-NLS-1$
       return;
     }
     // Список объектов связи
@@ -572,12 +579,12 @@ public class S5BackendLinksSingleton
       // revLink.setLeftSkids( leftSkids );
       // aSupport.entityManager.merge( revLink );
       aSupport.entityManager.merge( revLink ).setLeftSkids( leftSkids );
-      aLogger.debug( "removeLinkRev(...): merge entity: revLink=%s, leftSkids=%s", revLink, leftSkids ); //$NON-NLS-1$
+      aLogger.debug( "removeLinkRev(...): merge entity revLink=%s, leftSkids=%s", revLink, leftSkids ); //$NON-NLS-1$
       return;
     }
     // 2021-01-27 mvk
     aSupport.entityManager.remove( revLink );
-    aLogger.debug( "removeLinkRev(...): remove entity: revLink=%s, leftSkids=IStridableList.EMPTY", revLink ); //$NON-NLS-1$
+    aLogger.debug( "removeLinkRev(...): remove entity revLink=%s, leftSkids=IStridableList.EMPTY", revLink ); //$NON-NLS-1$
   }
 
   /**
@@ -588,11 +595,12 @@ public class S5BackendLinksSingleton
    * @param aLinkClassId String идентификатор класса левого объекта связи в котором определена связь
    * @param aLinkId String идентификатор связи
    * @param aRightSkid {@link Skid} идентификатор правого объекта связи
+   * @param aLogger {@link ILogger} журнал
    * @throws TsNullArgumentRtException любой аргумент = null
    */
   private static void createLinkRev( S5LinkWriterSupport aSupport, Skid aLeftSkid, String aLinkClassId, String aLinkId,
-      Skid aRightSkid ) {
-    TsNullArgumentRtException.checkNulls( aLeftSkid, aLinkClassId, aLinkId, aRightSkid );
+      Skid aRightSkid, ILogger aLogger ) {
+    TsNullArgumentRtException.checkNulls( aLeftSkid, aLinkClassId, aLinkId, aRightSkid, aLogger );
     String classId = aRightSkid.classId();
     // Описание класса правого объекта
     ISkClassInfo classInfo = getClassInfo( aSupport.sysdescrReader, aSupport.classesByIds, classId );
@@ -612,6 +620,7 @@ public class S5BackendLinksSingleton
       }
       revLink = createLinkRevEntity( linkRevConstructor, aRightSkid, aLinkClassId, aLinkId, new SkidList( aLeftSkid ) );
       aSupport.entityManager.persist( revLink );
+      aLogger.debug( "createLinkRev(...): persist entity revLink=%s", revLink ); //$NON-NLS-1$
       return;
     }
     // Список объектов связи
@@ -623,6 +632,7 @@ public class S5BackendLinksSingleton
     // revLink.setLeftSkids( leftSkids );
     // aSupport.entityManager.merge( revLink );
     aSupport.entityManager.merge( revLink ).setLeftSkids( leftSkids );
+    aLogger.debug( "createLinkRev(...): merge entity revLink=%s, leftSkids=%s", revLink, leftSkids ); //$NON-NLS-1$
   }
 
   /**
