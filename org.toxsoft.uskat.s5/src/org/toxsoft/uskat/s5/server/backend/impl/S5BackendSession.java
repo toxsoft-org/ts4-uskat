@@ -605,9 +605,11 @@ public class S5BackendSession
     IS5SessionInfo sessionInfo = sessionInfo();
     // Формирование информации сессии бекенда
     S5BackendInfo retValue = new S5BackendInfo( backendInfo );
+    // Роль пользователя
+    Skid role = OP_ROLE.getValue( sessionInfo.clientOptions() ).asValobj();
     // Информация о зарегистрированном пользователе
-    SkLoggedUserInfo loggedUserInfo = new SkLoggedUserInfo( new Skid( ISkUser.CLASS_ID, sessionInfo.login() ),
-        ISkUserServiceHardConstants.SKID_ROLE_ROOT, ESkAuthentificationType.SIMPLE );
+    SkLoggedUserInfo loggedUserInfo =
+        new SkLoggedUserInfo( new Skid( ISkUser.CLASS_ID, sessionInfo.login() ), role, ESkAuthentificationType.SIMPLE );
     ISkBackendHardConstant.OPDEF_SKBI_LOGGED_USER.setValue( retValue.params(), avValobj( loggedUserInfo ) );
     // Идентификатор текущей сессии пользователя
     IS5ServerHardConstants.OP_BACKEND_SESSION_INFO.setValue( retValue.params(), avValobj( sessionInfo ) );

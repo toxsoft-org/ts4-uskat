@@ -13,6 +13,8 @@ interface IS5Resources {
   String N_USERNAME         = Messages.getString( "IS5Resources.N_USERNAME" );         //$NON-NLS-1$
   String D_PASSWORD         = Messages.getString( "IS5Resources.D_PASSWORD" );         //$NON-NLS-1$
   String N_PASSWORD         = Messages.getString( "IS5Resources.N_PASSWORD" );         //$NON-NLS-1$
+  String D_ROLE             = Messages.getString( "IS5Resources.D_ROLE" );             //$NON-NLS-1$
+  String N_ROLE             = Messages.getString( "IS5Resources.N_ROLE" );             //$NON-NLS-1$
   String D_WILDFLY_LOGIN    = Messages.getString( "IS5Resources.D_WILDFLY_LOGIN" );    //$NON-NLS-1$
   String N_WILDFLY_LOGIN    = Messages.getString( "IS5Resources.N_WILDFLY_LOGIN" );    //$NON-NLS-1$
   String D_WILDFLY_PASSWORD = Messages.getString( "IS5Resources.D_WILDFLY_PASSWORD" ); //$NON-NLS-1$

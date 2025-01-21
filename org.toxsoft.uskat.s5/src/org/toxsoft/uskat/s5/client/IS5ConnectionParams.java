@@ -7,16 +7,16 @@ import static org.toxsoft.core.tslib.av.metainfo.IAvMetaConstants.*;
 import static org.toxsoft.core.tslib.bricks.ctx.impl.TsContextRefDef.create;
 import static org.toxsoft.uskat.s5.client.IS5Resources.*;
 
-import java.time.Month;
+import java.time.*;
 
-import org.toxsoft.core.tslib.av.EAtomicType;
-import org.toxsoft.core.tslib.av.impl.AvUtils;
-import org.toxsoft.core.tslib.av.metainfo.IDataDef;
-import org.toxsoft.core.tslib.bricks.ctx.ITsContextRefDef;
-import org.toxsoft.core.tslib.gw.skid.Skid;
-import org.toxsoft.core.tslib.utils.TsVersion;
-import org.toxsoft.uskat.s5.common.S5HostList;
-import org.toxsoft.uskat.s5.utils.progress.IS5ProgressMonitor;
+import org.toxsoft.core.tslib.av.*;
+import org.toxsoft.core.tslib.av.impl.*;
+import org.toxsoft.core.tslib.av.metainfo.*;
+import org.toxsoft.core.tslib.bricks.ctx.*;
+import org.toxsoft.core.tslib.gw.skid.*;
+import org.toxsoft.core.tslib.utils.*;
+import org.toxsoft.uskat.s5.common.*;
+import org.toxsoft.uskat.s5.utils.progress.*;
 
 /**
  * Параметры соединения с s5
@@ -40,7 +40,7 @@ public interface IS5ConnectionParams {
   // Учетная запись пользователя (для remote)
   //
   /**
-   * Параметр: Имя пользователя
+   * Параметр: Логин пользователя для подключения к серверу
    * <p>
    * Тип: {@link EAtomicType#STRING}
    */
@@ -51,7 +51,7 @@ public interface IS5ConnectionParams {
       TSID_DEFAULT_VALUE, AvUtils.AV_STR_EMPTY );
 
   /**
-   * Параметр: Пароль пользователя
+   * Параметр: Пароль пользователя для подключения к серверу
    * <p>
    * Тип: {@link EAtomicType#STRING}
    */
@@ -60,6 +60,17 @@ public interface IS5ConnectionParams {
       TSID_DESCRIPTION, D_PASSWORD, //
       TSID_IS_NULL_ALLOWED, AV_FALSE, //
       TSID_DEFAULT_VALUE, AvUtils.AV_STR_EMPTY );
+
+  /**
+   * Параметр: Роль пользователя для подключения к серверу
+   * <p>
+   * Тип: {@link EAtomicType#VALOBJ} ({@link Skid})
+   */
+  IDataDef OP_ROLE = create( "role", VALOBJ, //$NON-NLS-1$
+      TSID_NAME, N_ROLE, //
+      TSID_DESCRIPTION, D_ROLE, //
+      TSID_IS_NULL_ALLOWED, AV_FALSE, //
+      TSID_DEFAULT_VALUE, AvUtils.avValobj( Skid.NONE ) );
 
   // ------------------------------------------------------------------------------------
   // Учетная запись пользователя (для local)
