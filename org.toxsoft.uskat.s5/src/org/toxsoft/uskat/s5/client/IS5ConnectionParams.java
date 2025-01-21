@@ -15,6 +15,7 @@ import org.toxsoft.core.tslib.av.metainfo.*;
 import org.toxsoft.core.tslib.bricks.ctx.*;
 import org.toxsoft.core.tslib.gw.skid.*;
 import org.toxsoft.core.tslib.utils.*;
+import org.toxsoft.uskat.core.api.users.*;
 import org.toxsoft.uskat.s5.common.*;
 import org.toxsoft.uskat.s5.utils.progress.*;
 
@@ -70,7 +71,7 @@ public interface IS5ConnectionParams {
       TSID_NAME, N_ROLE, //
       TSID_DESCRIPTION, D_ROLE, //
       TSID_IS_NULL_ALLOWED, AV_FALSE, //
-      TSID_DEFAULT_VALUE, AvUtils.avValobj( Skid.NONE ) );
+      TSID_DEFAULT_VALUE, AvUtils.avValobj( ISkUserServiceHardConstants.SKID_ROLE_GUEST ) );
 
   // ------------------------------------------------------------------------------------
   // Учетная запись пользователя (для local)
