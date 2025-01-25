@@ -143,10 +143,12 @@ public class S5StatisticWriter
     lockWrite( channelsLock );
     try {
       stat.close();
-      for( Pair<ISkWriteCurrDataChannel, ISkWriteHistDataChannel> channels : writeChannels ) {
-        channels.left().close();
-        channels.right().close();
-      }
+      synchronizer.syncExec( () -> {
+        for( Pair<ISkWriteCurrDataChannel, ISkWriteHistDataChannel> channels : writeChannels ) {
+          channels.left().close();
+          channels.right().close();
+        }
+      } );
       writeChannels.clear();
     }
     finally {
