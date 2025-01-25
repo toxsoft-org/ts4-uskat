@@ -1,0 +1,4 @@
+listConfigs
+
+removeConfig -id valcom.main -y
+

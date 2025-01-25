@@ -1,1 +1,4 @@
 listConfigs
+
+addConfig -id valcom.main -name "valcom.main" -descr "valcom.main" -host 192.168.1.141 -port 8080 -login root -passw root -currdata "{rtdata,[],[],0}"
+
