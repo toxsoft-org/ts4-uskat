@@ -1,11 +1,11 @@
 package org.toxsoft.uskat.s5.server.singletons;
 
 import static org.toxsoft.core.log4j.LoggerWrapper.*;
+import static org.toxsoft.core.tslib.bricks.strid.impl.StridUtils.*;
 import static org.toxsoft.uskat.s5.common.IS5CommonResources.*;
 import static org.toxsoft.uskat.s5.server.IS5ImplementConstants.*;
 import static org.toxsoft.uskat.s5.server.singletons.IS5Resources.*;
 import static org.toxsoft.uskat.s5.server.transactions.IS5TransactionDetectorSingleton.*;
-import static org.toxsoft.uskat.s5.utils.S5RegisteredConstants.*;
 import static org.toxsoft.uskat.s5.utils.threads.impl.S5Lockable.*;
 
 import java.lang.reflect.*;
@@ -21,7 +21,6 @@ import org.toxsoft.core.tslib.av.impl.*;
 import org.toxsoft.core.tslib.av.metainfo.*;
 import org.toxsoft.core.tslib.av.opset.*;
 import org.toxsoft.core.tslib.av.opset.impl.*;
-import org.toxsoft.core.tslib.bricks.strid.impl.*;
 import org.toxsoft.core.tslib.bricks.strio.chario.impl.*;
 import org.toxsoft.core.tslib.bricks.strio.impl.*;
 import org.toxsoft.core.tslib.bricks.time.impl.*;
@@ -35,7 +34,6 @@ import org.toxsoft.core.tslib.utils.logs.*;
 import org.toxsoft.uskat.s5.legacy.*;
 import org.toxsoft.uskat.s5.server.startup.*;
 import org.toxsoft.uskat.s5.server.transactions.*;
-import org.toxsoft.uskat.s5.utils.*;
 import org.toxsoft.uskat.s5.utils.jobs.*;
 import org.toxsoft.uskat.s5.utils.threads.*;
 import org.toxsoft.uskat.s5.utils.threads.impl.*;
@@ -182,13 +180,16 @@ public class S5SingletonBase
     Properties systemProperties = System.getProperties();
     // Подготовка набора параметров доступных только для чтения
     IOptionSetEdit roEdit = new OptionSet();
-    for( String id : allRegisteredConstants().keys() ) {
+    for( Object key : systemProperties.keySet() ) {
+      if( !(key instanceof String propId) ) {
+        continue;
+      }
       for( String pathId : configurationPaths ) {
-        if( pathId.length() == 0 || StridUtils.startsWithIdPath( id, pathId ) ) {
-          String value = systemProperties.getProperty( id );
+        if( startsWithIdPath( propId, pathId ) ) {
+          String value = systemProperties.getProperty( propId );
           if( value != null ) {
             StrioReader sr = new StrioReader( new CharInputStreamString( value, 0 ) );
-            roEdit.put( id, AtomicValueReaderUtils.readAtomicValueOrAsString( sr ) );
+            roEdit.put( propId, AtomicValueReaderUtils.readAtomicValueOrAsString( sr ) );
           }
         }
       }
@@ -203,16 +204,9 @@ public class S5SingletonBase
     boolean needWriteConfig = (loadedConfig == null);
     //
     for( String id : new StringArrayList( rwEdit.keys() ) ) {
-      if( !allRegisteredConstants().ids().hasElem( id ) ) {
-        // Удаление не существующей константы
-        logger().warning( ERR_REMOVING_UNREGISTERED_CONSTANT, id );
-        rwEdit.remove( id );
-        needWriteConfig = true;
-        continue;
-      }
       boolean foundPath = false;
       for( String pathId : configurationPaths ) {
-        if( pathId.length() == 0 || StridUtils.startsWithIdPath( id, pathId ) ) {
+        if( startsWithIdPath( id, pathId ) ) {
           foundPath = true;
           break;
         }
@@ -487,8 +481,7 @@ public class S5SingletonBase
   // Методы для переопределения наследниками
   //
   /**
-   * Возвращает список путей в {@link S5RegisteredConstants#allRegisteredConstants()} в которых находятся
-   * конфигурационные параметры подсистемы представляемые синглетоном.
+   * Возвращает список путей в в которых находятся конфигурационные параметры подсистемы представляемые синглетоном.
    * <p>
    * Путь представляет часть полного пути в имени параметра. Например, для того чтобы конфигурационный параметр
    * <b>uskat.s5.server.db.deep</b> мог использоваться в конфигурации необходимо определить любой из представленных

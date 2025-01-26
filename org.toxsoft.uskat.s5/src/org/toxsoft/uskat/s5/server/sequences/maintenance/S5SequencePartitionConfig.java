@@ -2,6 +2,7 @@ package org.toxsoft.uskat.s5.server.sequences.maintenance;
 
 import static org.toxsoft.core.tslib.av.EAtomicType.*;
 import static org.toxsoft.core.tslib.av.impl.AvUtils.*;
+import static org.toxsoft.core.tslib.av.impl.DataDef.*;
 import static org.toxsoft.core.tslib.av.metainfo.IAvMetaConstants.*;
 import static org.toxsoft.uskat.s5.server.sequences.maintenance.IS5Resources.*;
 
@@ -11,7 +12,6 @@ import org.toxsoft.core.tslib.bricks.strid.coll.*;
 import org.toxsoft.core.tslib.bricks.strid.coll.impl.*;
 import org.toxsoft.core.tslib.bricks.time.*;
 import org.toxsoft.core.tslib.coll.primtypes.*;
-import org.toxsoft.uskat.s5.utils.*;
 import org.toxsoft.uskat.s5.utils.schedules.*;
 
 /**
@@ -20,8 +20,7 @@ import org.toxsoft.uskat.s5.utils.schedules.*;
  * @author mvk
  */
 @SuppressWarnings( "nls" )
-public class S5SequencePartitionConfig
-    extends S5RegisteredConstants {
+public class S5SequencePartitionConfig {
 
   /**
    * Префикс идентфикаторов подсистемы
@@ -31,7 +30,7 @@ public class S5SequencePartitionConfig
   /**
    * Календари проведения удаления значений
    */
-  public static final IDataDef PARTITION_CALENDARS = register( SYBSYSTEM_ID_PREFIX + ".calendars", VALOBJ, //$NON-NLS-1$
+  public static final IDataDef PARTITION_CALENDARS = create( SYBSYSTEM_ID_PREFIX + ".calendars", VALOBJ, //$NON-NLS-1$
       TSID_NAME, N_PARTITION_CALENDARS, //
       TSID_DESCRIPTION, D_PARTITION_CALENDARS, //
       TSID_IS_NULL_ALLOWED, AV_FALSE, //
@@ -44,7 +43,7 @@ public class S5SequencePartitionConfig
    * Интервал удаления разделов. Если интервал {@link ITimeInterval#NULL}, то процесс автоматически определяет требуемый
    * интервал
    */
-  public static final IDataDef PARTITION_REMOVE_INTERVAL = register( SYBSYSTEM_ID_PREFIX + ".remove.interval", VALOBJ, //$NON-NLS-1$
+  public static final IDataDef PARTITION_REMOVE_INTERVAL = create( SYBSYSTEM_ID_PREFIX + ".remove.interval", VALOBJ, //$NON-NLS-1$
       TSID_NAME, N_REMOVE_INTERVAL, //
       TSID_DESCRIPTION, D_REMOVE_INTERVAL, //
       TSID_IS_NULL_ALLOWED, AV_FALSE, //
@@ -54,7 +53,7 @@ public class S5SequencePartitionConfig
   /**
    * Список имен таблиц разделы которых будут обработаны. Если список не указан, то все таблицы
    */
-  public static final IDataDef PARTITION_TABLES = register( SYBSYSTEM_ID_PREFIX + ".tables", VALOBJ, //$NON-NLS-1$
+  public static final IDataDef PARTITION_TABLES = create( SYBSYSTEM_ID_PREFIX + ".tables", VALOBJ, //$NON-NLS-1$
       TSID_NAME, N_REMOVE_FROM_TABLES, //
       TSID_DESCRIPTION, D_REMOVE_FROM_TABLES, //
       TSID_IS_NULL_ALLOWED, AV_FALSE, //
@@ -68,7 +67,7 @@ public class S5SequencePartitionConfig
    * ограничения
    */
   public static final IDataDef PARTITION_AUTO_THREADS_COUNT =
-      register( SYBSYSTEM_ID_PREFIX + ".auto.threads_count", INTEGER, //$NON-NLS-1$
+      create( SYBSYSTEM_ID_PREFIX + ".auto.threads_count", INTEGER, //$NON-NLS-1$
           TSID_NAME, N_REMOVE_THREADS_COUNT, //
           TSID_DESCRIPTION, D_REMOVE_THREADS_COUNT, //
           TSID_IS_NULL_ALLOWED, AV_FALSE, //
@@ -80,7 +79,7 @@ public class S5SequencePartitionConfig
    * <= 0: без ограничения
    */
   public static final IDataDef PARTITION_AUTO_LOOKUP_COUNT =
-      register( SYBSYSTEM_ID_PREFIX + ".auto.lookup_count", INTEGER, //$NON-NLS-1$
+      create( SYBSYSTEM_ID_PREFIX + ".auto.lookup_count", INTEGER, //$NON-NLS-1$
           TSID_NAME, N_REMOVE_LOOKUP_COUNT, //
           TSID_DESCRIPTION, D_REMOVE_LOOKUP_COUNT, //
           TSID_IS_NULL_ALLOWED, AV_FALSE, //

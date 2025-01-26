@@ -3,7 +3,6 @@ package org.toxsoft.uskat.s5.server.sequences.maintenance;
 import org.toxsoft.core.tslib.av.metainfo.*;
 import org.toxsoft.core.tslib.bricks.strid.coll.*;
 import org.toxsoft.core.tslib.bricks.strid.coll.impl.*;
-import org.toxsoft.uskat.s5.utils.*;
 
 /**
  * Описание конфигурации подсистемы обработки последовательностей значений.
@@ -11,8 +10,7 @@ import org.toxsoft.uskat.s5.utils.*;
  * @author mvk
  */
 @SuppressWarnings( "nls" )
-public final class S5SequenceConfig
-    extends S5RegisteredConstants {
+public final class S5SequenceConfig {
 
   /**
    * Префикс идентфикаторов подсистемы

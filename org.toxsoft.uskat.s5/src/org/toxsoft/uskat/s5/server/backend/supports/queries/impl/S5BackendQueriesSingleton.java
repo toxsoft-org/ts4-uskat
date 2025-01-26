@@ -61,7 +61,8 @@ import org.toxsoft.uskat.s5.utils.threads.impl.*;
 @DependsOn( { //
     BACKEND_EVENTS_SINGLETON, //
     BACKEND_COMMANDS_SINGLETON, //
-    BACKEND_HISTDATA_SINGLETON //
+    BACKEND_HISTDATA_SINGLETON, //
+    BACKEND_SKATLET_SINGLETON // используется разделяемое соединение для доступа к функциям ISkGwidService
 } )
 @TransactionManagement( TransactionManagementType.CONTAINER )
 @TransactionAttribute( TransactionAttributeType.SUPPORTS )
@@ -413,68 +414,35 @@ public class S5BackendQueriesSingleton
   @SuppressWarnings( "unchecked" )
   private IS5SequenceReader<IS5Sequence<?>, ?> findReaderByGwidKind( EGwidKind aGwidKind ) {
     TsNullArgumentRtException.checkNull( aGwidKind );
-    switch( aGwidKind ) {
-      case GW_RTDATA:
-        return (IS5SequenceReader<IS5Sequence<?>, ?>)(Object)histDataSupport;
-      case GW_EVENT:
-        return (IS5SequenceReader<IS5Sequence<?>, ?>)(Object)eventsSupport;
-      case GW_CMD:
-        return (IS5SequenceReader<IS5Sequence<?>, ?>)(Object)commandsSupport;
-      case GW_ATTR:
-      case GW_CLASS:
-      case GW_CLOB:
-      case GW_CMD_ARG:
-      case GW_EVENT_PARAM:
-      case GW_LINK:
-      case GW_RIVET:
-        throw new TsInternalErrorRtException();
-      default:
-        throw new TsNotAllEnumsUsedRtException();
-    }
+    return switch( aGwidKind ) {
+      case GW_RTDATA -> (IS5SequenceReader<IS5Sequence<?>, ?>)(Object)histDataSupport;
+      case GW_EVENT -> (IS5SequenceReader<IS5Sequence<?>, ?>)(Object)eventsSupport;
+      case GW_CMD -> (IS5SequenceReader<IS5Sequence<?>, ?>)(Object)commandsSupport;
+      case GW_ATTR, GW_CLASS, GW_CLOB, GW_CMD_ARG, GW_EVENT_PARAM, GW_LINK, GW_RIVET -> throw new TsInternalErrorRtException();
+      default -> throw new TsNotAllEnumsUsedRtException();
+    };
   }
 
   private static String getRawValuesStr( EGwidKind aGwidKind ) {
     TsNullArgumentRtException.checkNull( aGwidKind );
-    switch( aGwidKind ) {
-      case GW_RTDATA:
-        return STR_QUERY_RAW_VALUES;
-      case GW_EVENT:
-        return STR_QUERY_RAW_EVENTS;
-      case GW_CMD:
-        return STR_QUERY_RAW_COMMANDS;
-      case GW_ATTR:
-      case GW_CLASS:
-      case GW_CLOB:
-      case GW_CMD_ARG:
-      case GW_EVENT_PARAM:
-      case GW_LINK:
-      case GW_RIVET:
-        throw new TsInternalErrorRtException();
-      default:
-        throw new TsNotAllEnumsUsedRtException();
-    }
+    return switch( aGwidKind ) {
+      case GW_RTDATA -> STR_QUERY_RAW_VALUES;
+      case GW_EVENT -> STR_QUERY_RAW_EVENTS;
+      case GW_CMD -> STR_QUERY_RAW_COMMANDS;
+      case GW_ATTR, GW_CLASS, GW_CLOB, GW_CMD_ARG, GW_EVENT_PARAM, GW_LINK, GW_RIVET -> throw new TsInternalErrorRtException();
+      default -> throw new TsNotAllEnumsUsedRtException();
+    };
   }
 
   private static String getRawProcessingStr( EGwidKind aGwidKind ) {
     TsNullArgumentRtException.checkNull( aGwidKind );
-    switch( aGwidKind ) {
-      case GW_RTDATA:
-        return STR_PROCESSING_RAW_VALUES;
-      case GW_EVENT:
-        return STR_PROCESSING_RAW_EVENTS;
-      case GW_CMD:
-        return STR_PROCESSING_RAW_COMMANDS;
-      case GW_ATTR:
-      case GW_CLASS:
-      case GW_CLOB:
-      case GW_CMD_ARG:
-      case GW_EVENT_PARAM:
-      case GW_LINK:
-      case GW_RIVET:
-        throw new TsInternalErrorRtException();
-      default:
-        throw new TsNotAllEnumsUsedRtException();
-    }
+    return switch( aGwidKind ) {
+      case GW_RTDATA -> STR_PROCESSING_RAW_VALUES;
+      case GW_EVENT -> STR_PROCESSING_RAW_EVENTS;
+      case GW_CMD -> STR_PROCESSING_RAW_COMMANDS;
+      case GW_ATTR, GW_CLASS, GW_CLOB, GW_CMD_ARG, GW_EVENT_PARAM, GW_LINK, GW_RIVET -> throw new TsInternalErrorRtException();
+      default -> throw new TsNotAllEnumsUsedRtException();
+    };
   }
 
   private static IStringMap<IList<ITemporal<?>>> getValuesMap( IList<IS5BackendQueriesFunction> aFunctions,

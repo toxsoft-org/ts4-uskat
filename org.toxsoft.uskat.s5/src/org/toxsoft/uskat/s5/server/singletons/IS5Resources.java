@@ -23,8 +23,6 @@ interface IS5Resources {
   String MSG_GC_START          = Messages.getString( "IS5Resources.MSG_GC_START" );
   String MSG_GC_FINISH         = Messages.getString( "IS5Resources.MSG_GC_FINISH" );
 
-  String ERR_REMOVING_UNREGISTERED_CONSTANT          =
-      "initConfiguration(...): removing unregistered constant. id = %s";
   String ERR_REMOVING_CONSTANT_NOT_SPECIFIED_IN_PATH =
       "initConfiguration(...): removing constant not specified in path. id = %s";
   String ERR_REDEFINING_CONSTANT_VALUE               =

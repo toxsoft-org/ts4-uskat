@@ -1,6 +1,7 @@
 package org.toxsoft.uskat.s5.server.sequences.maintenance;
 
 import static org.toxsoft.core.tslib.av.impl.AvUtils.*;
+import static org.toxsoft.core.tslib.av.impl.DataDef.*;
 import static org.toxsoft.core.tslib.av.metainfo.IAvMetaConstants.*;
 import static org.toxsoft.uskat.s5.server.sequences.maintenance.IS5Resources.*;
 
@@ -10,7 +11,6 @@ import org.toxsoft.core.tslib.bricks.strid.coll.*;
 import org.toxsoft.core.tslib.bricks.strid.coll.impl.*;
 import org.toxsoft.uskat.s5.server.backend.supports.core.*;
 import org.toxsoft.uskat.s5.server.sequences.impl.*;
-import org.toxsoft.uskat.s5.utils.*;
 
 /**
  * Описание конфигурации подсистемы базы данных сервера.
@@ -18,8 +18,7 @@ import org.toxsoft.uskat.s5.utils.*;
  * @author mvk
  */
 @SuppressWarnings( "nls" )
-public final class S5DatabaseConfig
-    extends S5RegisteredConstants {
+public final class S5DatabaseConfig {
 
   /**
    * Префикс идентфикаторов подсистемы
@@ -31,7 +30,7 @@ public final class S5DatabaseConfig
    * <p>
    * Тип: {@link EAtomicType#STRING}
    */
-  public static final IDataDef DATABASE_ENGINE = register( SYBSYSTEM_ID_PREFIX + ".engine", EAtomicType.VALOBJ, //
+  public static final IDataDef DATABASE_ENGINE = create( SYBSYSTEM_ID_PREFIX + ".engine", EAtomicType.VALOBJ, //
       TSID_NAME, STR_N_DATABASE_ENGINE, //
       TSID_DESCRIPTION, STR_D_DATABASE_ENGINE, //
       TSID_IS_NULL_ALLOWED, AV_FALSE, //
@@ -42,7 +41,7 @@ public final class S5DatabaseConfig
    * <p>
    * Тип: {@link EAtomicType#STRING}
    */
-  public static final IDataDef DATABASE_SCHEMA = register( SYBSYSTEM_ID_PREFIX + ".schema", EAtomicType.STRING, //
+  public static final IDataDef DATABASE_SCHEMA = create( SYBSYSTEM_ID_PREFIX + ".schema", EAtomicType.STRING, //
       TSID_NAME, STR_N_DATABASE_SCHEMA, //
       TSID_DESCRIPTION, STR_D_DATABASE_SCHEMA, //
       TSID_IS_NULL_ALLOWED, AV_FALSE, //
@@ -56,7 +55,7 @@ public final class S5DatabaseConfig
    * <p>
    * Тип: {@link EAtomicType#INTEGER}
    */
-  public static final IDataDef DATABASE_DEPTH = register( SYBSYSTEM_ID_PREFIX + ".depth", EAtomicType.INTEGER, //
+  public static final IDataDef DATABASE_DEPTH = create( SYBSYSTEM_ID_PREFIX + ".depth", EAtomicType.INTEGER, //
       TSID_NAME, STR_N_DATABASE_DEPTH, //
       TSID_DESCRIPTION, STR_D_DATABASE_DEPTH, //
       TSID_IS_NULL_ALLOWED, AV_FALSE, //

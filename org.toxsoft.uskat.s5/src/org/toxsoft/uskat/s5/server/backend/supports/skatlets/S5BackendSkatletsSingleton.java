@@ -14,12 +14,15 @@ import java.util.concurrent.*;
 
 import javax.ejb.*;
 
+import org.toxsoft.core.tslib.av.*;
 import org.toxsoft.core.tslib.av.opset.*;
 import org.toxsoft.core.tslib.av.opset.impl.*;
+import org.toxsoft.core.tslib.bricks.ctx.*;
 import org.toxsoft.core.tslib.bricks.ctx.impl.*;
 import org.toxsoft.core.tslib.bricks.wub.*;
 import org.toxsoft.core.tslib.coll.primtypes.*;
 import org.toxsoft.core.tslib.coll.primtypes.impl.*;
+import org.toxsoft.core.tslib.utils.errors.*;
 import org.toxsoft.core.tslib.utils.logs.impl.*;
 import org.toxsoft.core.tslib.utils.plugins.impl.*;
 import org.toxsoft.uskat.core.impl.*;
@@ -149,7 +152,7 @@ public class S5BackendSkatletsSingleton
     OPDEF_UNIT_STOPPING_TIMEOUT_MSECS.setValue( params, avInt( SHUTDOWN_TIMEOUT ) );
 
     // Контекст для инициализации контейнера скатлетов
-    TsContext environ = new TsContext();
+    ITsContext environ = createContext( configuration );
     PLUGIN_TYPE_ID.setValue( environ.params(), avStr( PLUGIN_TYPE ) );
     PLUGINS_DIR.setValue( environ.params(), avValobj( new StringArrayList( SKATLETS_DEPLOYMENTS_DIR ) ) );
     TMP_DIR.setValue( environ.params(), avStr( SKATLETS_TEMP_DIR ) );
@@ -193,7 +196,7 @@ public class S5BackendSkatletsSingleton
 
   @Override
   protected IStringList doConfigurationPaths() {
-    return new StringArrayList( ALL_SKATLETS_OPDEFS.keys() );
+    return new StringArrayList( S5BackendSkatletsConfig.SYBSYSTEM_ID_PREFIX );
   }
 
   // ------------------------------------------------------------------------------------
@@ -213,5 +216,26 @@ public class S5BackendSkatletsSingleton
     }
     // Вывод журнала
     logger().debug( MSG_DOJOB );
+  }
+
+  // ------------------------------------------------------------------------------------
+  // private methods
+  //
+  private static ITsContext createContext( IOptionSet aConfiguration ) {
+    TsNullArgumentRtException.checkNull( aConfiguration );
+    ITsContext ctx = new TsContext( new IAskParent() {
+
+      @Override
+      public IAtomicValue findOp( String aId ) {
+        return aConfiguration.findByKey( aId );
+      }
+
+      @Override
+      public Object findRef( String aKey ) {
+        return null;
+      }
+
+    } );
+    return ctx;
   }
 }
