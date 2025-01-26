@@ -22,7 +22,6 @@ import org.toxsoft.core.tslib.coll.*;
 import org.toxsoft.core.tslib.coll.impl.*;
 import org.toxsoft.core.tslib.coll.primtypes.*;
 import org.toxsoft.core.tslib.coll.primtypes.impl.*;
-import org.toxsoft.core.tslib.coll.synch.*;
 import org.toxsoft.core.tslib.gw.skid.*;
 import org.toxsoft.core.tslib.utils.errors.*;
 import org.toxsoft.core.tslib.utils.logs.*;
@@ -159,7 +158,9 @@ public abstract class S5AbstractBackend<ADDON extends IS5BackendAddon>
   /**
    * Список расширений бекенда поддерживаемых сервером
    */
-  private final IStringMapEdit<ADDON> allAddons = new SynchronizedStringMap<>( new StringMap<>() );
+  // 2025-01-25 mvk ---+++ излишние затраты на производительность без основания
+  // private final IStringMapEdit<ADDON> allAddons = new SynchronizedStringMap<>( new StringMap<>() );
+  private final IStringMapEdit<ADDON> allAddons = new StringMap<>();
 
   /**
    * Признак завершенной инициализации
