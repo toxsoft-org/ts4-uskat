@@ -61,8 +61,7 @@ import org.toxsoft.uskat.s5.utils.threads.impl.*;
 @DependsOn( { //
     BACKEND_EVENTS_SINGLETON, //
     BACKEND_COMMANDS_SINGLETON, //
-    BACKEND_HISTDATA_SINGLETON, //
-    BACKEND_SKATLET_SINGLETON // используется разделяемое соединение для доступа к функциям ISkGwidService
+    BACKEND_HISTDATA_SINGLETON //
 } )
 @TransactionManagement( TransactionManagementType.CONTAINER )
 @TransactionAttribute( TransactionAttributeType.SUPPORTS )

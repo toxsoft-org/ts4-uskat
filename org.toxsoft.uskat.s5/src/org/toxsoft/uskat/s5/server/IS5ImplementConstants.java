@@ -173,24 +173,25 @@ public interface IS5ImplementConstants
   String BACKEND_HISTDATA_SINGLETON = S5BackendHistDataSingleton.BACKEND_HISTDATA_ID;
 
   /**
-   * 15. Синглетон предоставляющий локальное соединение.
+   * 15. Синглетон поддержки доступа к запросам данных
+   */
+  String BACKEND_QUERIES_SINGLETON = S5BackendQueriesSingleton.BACKEND_QUERIES_ID;
+
+  /**
+   * 16. Синглетон предоставляющий локальное соединение.
    */
   String LOCAL_CONNECTIION_SINGLETON = S5LocalConnectionSingleton.LOCAL_CONNECTION_ID;
 
   /**
-   * 16. Синглетон осуществляющий начальную инициализацию системного описания проекта.
+   * 17. Синглетон осуществляющий начальную инициализацию системного описания проекта.
    */
   String PROJECT_INITIAL_SYSDESCR_SINGLETON = S5InitialSysdescrSingleton.PROJECT_INITIAL_SYSDESCR_ID;
 
   /**
-   * 17. Синглетон контейнер скатлетов, хранитель общего(разделяемого между модулями системы) соединения.
+   * 18. Синглетон контейнер скатлетов, хранитель общего(разделяемого между модулями системы) соединения.
    */
   String BACKEND_SKATLET_SINGLETON = S5BackendSkatletsSingleton.BACKEND_SKATLET_BOX_ID;
 
-  /**
-   * 18. Синглетон поддержки доступа к запросам данных
-   */
-  String BACKEND_QUERIES_SINGLETON = S5BackendQueriesSingleton.BACKEND_QUERIES_ID;
 
   /**
    * Имя модуля реализующего сервер проекта
