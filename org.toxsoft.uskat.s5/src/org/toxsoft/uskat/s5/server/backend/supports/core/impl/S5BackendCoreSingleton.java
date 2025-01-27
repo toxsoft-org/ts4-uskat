@@ -385,17 +385,21 @@ public class S5BackendCoreSingleton
   public <T extends IS5BackendSupportSingleton> T get( String aSupportId, Class<T> aSupportInterface ) {
     TsNullArgumentRtException.checkNulls( aSupportId, aSupportInterface );
     try {
+      IS5BackendSupportSingleton support = null;
       int waitCount = 0;
       long startTime = System.currentTimeMillis();
       while( !isReadySupportSingletons() ) {
         if( System.currentTimeMillis() - startTime > SUPPORT_READY_TIMEOUT ) {
           throw new TsInternalErrorRtException( "supports not ready" ); //$NON-NLS-1$
         }
-        logger().warning( "Waiting load support singletons needs for backend implementation. %d", //$NON-NLS-1$
-            Integer.valueOf( waitCount++ ) );
+        support = backendSupports.findByKey( aSupportId );
+        if( support != null ) {
+          break;
+        }
+        logger().warning( "Waiting load support %s for backend implementation. %d", Integer.valueOf( waitCount++ ) ); //$NON-NLS-1$
         Thread.sleep( SUPPORT_READY_CHECK_INTERVAL );
       }
-      return aSupportInterface.cast( backendSupports.getByKey( aSupportId ) );
+      return aSupportInterface.cast( support );
     }
     catch( Exception ex ) {
       throw new TsIllegalArgumentRtException( ex, ex.getMessage() );
@@ -632,15 +636,17 @@ public class S5BackendCoreSingleton
    * @return boolean <b>true</b> все синглетоны завершили загрузку. <b>false</b> не все синглетоны завершили загрузку
    */
   private boolean isReadySupportSingletons() {
+    boolean retValue = true;
     IStringList singletonIds = backendSupports.keys();
     for( IS5BackendAddonCreator creator : initialConfig.impl().baCreators() ) {
       for( String singletonId : creator.supportSingletonIds() ) {
         if( !singletonIds.hasElem( singletonId ) ) {
-          return false;
+          retValue = false;
+          logger().warning( "isReadySupportSingletons(...): support %s is not available", singletonId ); //$NON-NLS-1$
         }
       }
     }
-    return true;
+    return retValue;
   }
 
   /**
