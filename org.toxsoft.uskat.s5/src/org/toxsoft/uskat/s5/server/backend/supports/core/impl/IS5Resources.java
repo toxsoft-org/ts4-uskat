@@ -21,6 +21,7 @@ interface IS5Resources {
       "setMode(...): the request to change server mode was rejected: oldMode = %s, newMode = %s, cause = %s";                               //$NON-NLS-1$
   String ERR_REJECT_CHANGE_CONNECTION =
       "setSharedConnection(...): the request to change shared connection was rejected: oldConnection = %s, newConnection = %s, cause = %s"; //$NON-NLS-1$
+  String ERR_WAITING_SUPPORT          = "Waiting load support %s for backend implementation. %d";                                           //$NON-NLS-1$
 
   // ------------------------------------------------------------------------------------
   // Тексты ошибок

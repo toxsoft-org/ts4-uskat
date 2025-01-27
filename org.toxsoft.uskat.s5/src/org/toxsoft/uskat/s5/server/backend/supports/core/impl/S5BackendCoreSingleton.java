@@ -396,7 +396,7 @@ public class S5BackendCoreSingleton
         if( support != null ) {
           break;
         }
-        logger().warning( "Waiting load support %s for backend implementation. %d", Integer.valueOf( waitCount++ ) ); //$NON-NLS-1$
+        logger().warning( ERR_WAITING_SUPPORT, aSupportId, Integer.valueOf( waitCount++ ) );
         Thread.sleep( SUPPORT_READY_CHECK_INTERVAL );
       }
       return aSupportInterface.cast( support );
