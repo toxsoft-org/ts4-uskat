@@ -14,9 +14,11 @@ import javax.enterprise.concurrent.*;
 import org.toxsoft.core.tslib.bricks.ctx.*;
 import org.toxsoft.core.tslib.bricks.ctx.impl.*;
 import org.toxsoft.core.tslib.bricks.strid.coll.*;
+import org.toxsoft.core.tslib.bricks.strid.coll.impl.*;
 import org.toxsoft.core.tslib.bricks.threadexec.*;
 import org.toxsoft.core.tslib.coll.*;
 import org.toxsoft.core.tslib.coll.impl.*;
+import org.toxsoft.core.tslib.coll.primtypes.*;
 import org.toxsoft.core.tslib.coll.synch.*;
 import org.toxsoft.core.tslib.utils.*;
 import org.toxsoft.core.tslib.utils.errors.*;
@@ -225,45 +227,37 @@ public class S5LocalConnectionSingleton
     TsNullArgumentRtException.checkNulls( aFrontend, aArgs );
     // Доступные расширения бекенда предоставляемые сервером
     // 2022-08-20 mvkd
+    IStringList availableSupportIds = backend.listSupportIds();
     IS5InitialImplementSingleton initialSingleton = backend.initialConfig();
     IS5InitialImplementation initialImplementation = initialSingleton.impl();
-    IStridablesList<IS5BackendAddonCreator> baCreators = initialImplementation.baCreators();
+
+    /**
+     * Следующий код решает следующую задачу: На разных этапах запуска, разные подсистемы могут создавать локальные
+     * соединение к серверу.
+     * <p>
+     * Первым подключением является подключение для проверки (и если необходимо создания) системного описания
+     * (sysdescr). При этом для этого подключения требуются только службы ядра ISkSysdescr, ISkObjectService,
+     * ISkLinkService.
+     * <p>
+     * На более поздних этапах загрузки локальное соединение может быть расширено skf-функциональностью, например,
+     * S5GatewaySingleton.
+     * <p>
+     * Этот код позволяет создавать локальные соединение по стратегии "то что уже есть на данный момент, то что уже
+     * загружено".
+     */
+    IStridablesListEdit<IS5BackendAddonCreator> availableCreators = new StridablesList<>();
+    for( IS5BackendAddonCreator creator : initialImplementation.baCreators() ) {
+      if( isAvailableAddon( availableSupportIds, creator ) ) {
+        availableCreators.add( creator );
+      }
+    }
     // Создание локального бекенда
-    return new S5BackendLocal( aFrontend, aArgs, backend, baCreators );
+    return new S5BackendLocal( aFrontend, aArgs, backend, availableCreators );
   }
 
   // ------------------------------------------------------------------------------------
-  // Реализация IS5ServerJob
+  // S5SingletonBase
   //
-  // private ISkConnection debugConnection;
-  // private DebugRunnable debugRunnable;
-  // private int debugCounter;
-
-  // private class DebugRunnable
-  // implements Runnable {
-  //
-  // @Override
-  // public void run() {
-  // try {
-  // debugCounter++;
-  // logger().info( "call timerExec: start (%d). thread = '%s'", Integer.valueOf( debugCounter ),
-  // Thread.currentThread().getName() );
-  // ITsThreadExecutor service =
-  // (ITsThreadExecutor)debugConnection.coreApi().services().getByKey( SkThreadExecutorService.SERVICE_ID );
-  // for( ISkClassInfo clazz : debugConnection.coreApi().sysdescr().listClasses() ) {
-  // logger().info( "clazz = %s", clazz.id() ); //$NON-NLS-1$
-  // }
-  // service.timerExec( 100, debugRunnable );
-  // logger().info( "call timerExec: finish (%d). thread = '%s'", Integer.valueOf( debugCounter ),
-  // Thread.currentThread().getName() );
-  // }
-  // catch( Throwable e ) {
-  // LoggerUtils.defaultLogger().error( e );
-  // }
-  // }
-  //
-  // }
-
   @Override
   public void doJob() {
     super.doJob();
@@ -283,48 +277,31 @@ public class S5LocalConnectionSingleton
       return;
     }
     doJobTimestamp = currTime;
-    // TODO:
+  }
 
-    // if( debugConnection != null ) {
-    // ITsThreadExecutor synchronizer = SkThreadExecutorService.getExecutor( debugConnection.coreApi() );
-    // if( debugRunnable == null ) {
-    // debugRunnable = new DebugRunnable();
-    // logger().info( "call timerExec: start (0)" );
-    // synchronizer.timerExec( 100, debugRunnable );
-    // synchronizer.timerExec( 100, debugRunnable );
-    // synchronizer.timerExec( 100, debugRunnable );
-    // synchronizer.timerExec( 100, debugRunnable );
-    // synchronizer.timerExec( 100, debugRunnable );
-    // logger().info( "call timerExec: finish (0)" );
-    // }
-    //
-    // logger().info( "call asyncExec: start (%d). thread = '%s'", Integer.valueOf( debugCounter ),
-    // Thread.currentThread().getName() );
-    // synchronizer.asyncExec( () -> {
-    // for( ISkClassInfo clazz : debugConnection.coreApi().sysdescr().listClasses() ) {
-    // logger().info( "clazz = %s", clazz.id() ); //$NON-NLS-1$
-    // }
-    // } );
-    // logger().info( "call asyncExec: finish (%d). thread = '%s'", Integer.valueOf( debugCounter ),
-    // Thread.currentThread().getName() );
-    //
-    // logger().info( "call syncExec: start (%d). thread = '%s'", Integer.valueOf( debugCounter ),
-    // Thread.currentThread().getName() );
-    // synchronizer.syncExec( () -> {
-    // for( ISkClassInfo clazz : debugConnection.coreApi().sysdescr().listClasses() ) {
-    // logger().info( "clazz = %s", clazz.id() ); //$NON-NLS-1$
-    // }
-    // } );
-    // logger().info( "call syncExec: finish (%d). thread = '%s'", Integer.valueOf( debugCounter ),
-    // Thread.currentThread().getName() );
-    //
-    // // logger().info( "call timerExec: start" );
-    // // service.timerExec( 500, () -> {
-    // // for( ISkClassInfo clazz : debugConnection.coreApi().sysdescr().listClasses() ) {
-    // // logger().info( "clazz = %s", clazz.id() ); //$NON-NLS-1$
-    // // }
-    // // } );
-    // // logger().info( "call timerExec: finish" );
-    // }
+  // ------------------------------------------------------------------------------------
+  // private methods
+  //
+  /**
+   * Проверяет доступность поддержки расширение бекенда в ядре системы
+   *
+   * @param aSupportIds {@link IStringList} список идентификаторов синглетонов поддержки расширений ядра поддерживаемых
+   *          на текущий момент времени
+   * @param aCreator {@link IS5BackendAddonCreator} построитель расширения бекенда.
+   * @return boolean <b>true</b> расширение доступно и может быть использовано. <b>false</b> расширение не доступно.
+   */
+  private boolean isAvailableAddon( IStringList aSupportIds, IS5BackendAddonCreator aCreator ) {
+    TsNullArgumentRtException.checkNulls( aSupportIds, aCreator );
+    for( String supportId : aCreator.supportSingletonIds() ) {
+      if( !aSupportIds.hasElem( supportId ) ) {
+        return false;
+      }
+      for( IS5BackendAddonCreator depend : aCreator.depends() ) {
+        if( !isAvailableAddon( aSupportIds, depend ) ) {
+          return false;
+        }
+      }
+    }
+    return true;
   }
 }
