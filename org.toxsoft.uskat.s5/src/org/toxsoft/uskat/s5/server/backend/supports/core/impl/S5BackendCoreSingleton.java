@@ -364,6 +364,12 @@ public class S5BackendCoreSingleton
 
   @Override
   @TransactionAttribute( TransactionAttributeType.SUPPORTS )
+  public IStringList listSupportIds() {
+    return backendSupports.keys();
+  }
+
+  @Override
+  @TransactionAttribute( TransactionAttributeType.SUPPORTS )
   public void add( String aSupportId, IS5BackendSupportSingleton aSupportInterface ) {
     TsNullArgumentRtException.checkNulls( aSupportId, aSupportInterface );
     if( backendSupports.hasKey( aSupportId ) ) {
@@ -390,7 +396,7 @@ public class S5BackendCoreSingleton
       long startTime = System.currentTimeMillis();
       while( !isReadySupportSingletons() ) {
         if( System.currentTimeMillis() - startTime > SUPPORT_READY_TIMEOUT ) {
-          throw new TsInternalErrorRtException( "supports not ready" ); //$NON-NLS-1$
+          throw new TsInternalErrorRtException( ERR_SUPPORT_IS_NOT_AVAILABLE );
         }
         support = backendSupports.findByKey( aSupportId );
         if( support != null ) {

@@ -1,9 +1,10 @@
 package org.toxsoft.uskat.s5.server.backend;
 
-import javax.ejb.Local;
+import javax.ejb.*;
 
+import org.toxsoft.core.tslib.coll.primtypes.*;
 import org.toxsoft.core.tslib.utils.errors.*;
-import org.toxsoft.uskat.s5.server.sessions.IS5SessionManager;
+import org.toxsoft.uskat.s5.server.sessions.*;
 
 /**
  * Интерфейс синглетона реестра поддержки бекендов {@link IS5BackendSupportSingleton}
@@ -21,6 +22,13 @@ public interface IS5BackendSupportRegistry {
    * @throws TsIllegalStateRtException менеджер сессий уже установлен
    */
   void setSessionManager( IS5SessionManager aSessionManager );
+
+  /**
+   * Возвращает список доступных синглетонов поддержки бекенда на текущий момент
+   *
+   * @return {@link IStringList} список доступных синглетонов поддержки бекенда.
+   */
+  IStringList listSupportIds();
 
   /**
    * Добавляет в бекенд синглетон поддержки
