@@ -48,7 +48,9 @@ import org.toxsoft.uskat.s5.utils.jobs.*;
 } )
 @TransactionManagement( TransactionManagementType.CONTAINER )
 @TransactionAttribute( TransactionAttributeType.SUPPORTS )
-@ConcurrencyManagement( ConcurrencyManagementType.CONTAINER )
+// 2025-01-27 mvk TODO: ???
+// @ConcurrencyManagement( ConcurrencyManagementType.CONTAINER )
+@ConcurrencyManagement( ConcurrencyManagementType.BEAN )
 @AccessTimeout( value = ACCESS_TIMEOUT_DEFAULT, unit = TimeUnit.MILLISECONDS )
 @Lock( LockType.READ )
 public class S5BackendSkatletsSingleton
