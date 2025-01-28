@@ -22,6 +22,7 @@ import org.toxsoft.core.tslib.coll.primtypes.*;
 import org.toxsoft.core.tslib.coll.synch.*;
 import org.toxsoft.core.tslib.utils.*;
 import org.toxsoft.core.tslib.utils.errors.*;
+import org.toxsoft.uskat.core.api.*;
 import org.toxsoft.uskat.core.api.users.*;
 import org.toxsoft.uskat.core.backend.*;
 import org.toxsoft.uskat.core.backend.metainf.*;
@@ -222,29 +223,35 @@ public class S5LocalConnectionSingleton
     return retValue;
   }
 
+  /**
+   * Следующий код ({@link #createBackend(ISkFrontendRear, ITsContextRo)}) решает следующую задачу: На разных этапах
+   * запуска, разные подсистемы могут создавать локальные соединение к серверу.
+   * <p>
+   * Первым подключением является подключение для проверки (и если необходимо создания) системного описания (sysdescr).
+   * При этом для этого подключения требуются только службы ядра ISkSysdescr, ISkObjectService, ISkLinkService.
+   * <p>
+   * На более поздних этапах загрузки локальное соединение может быть расширено skf-функциональностью, например,
+   * S5GatewaySingleton.
+   * <p>
+   * Чтобы обеспечить в возвращаемом бекенде наличие соответствующей поддержки (синглетона) службы, при разработке
+   * синглетонов поддержки служб {@link ISkService} необходимо использовать механизм зависимостей между синглетонами
+   * {@link DependsOn}.
+   * <p>
+   * Например, если некоторая служба(или ее поддержка) использует ISkDataQualityService, то синглетон ее поддержки
+   * должен иметь следующую зависимость:<br>
+   * <code>@DependsOn( { ...,S5BackendDataQualitySingleton.BACKEND_DATA_QUALITY_ID, ... } )</code>.
+   * <p>
+   * Этот код позволяет создавать локальные соединение по стратегии "то что уже есть на данный момент, то что уже
+   * загружено".
+   */
   @Override
   public ISkBackend createBackend( ISkFrontendRear aFrontend, ITsContextRo aArgs ) {
     TsNullArgumentRtException.checkNulls( aFrontend, aArgs );
     // Доступные расширения бекенда предоставляемые сервером
-    // 2022-08-20 mvkd
     IStringList availableSupportIds = backend.listSupportIds();
     IS5InitialImplementSingleton initialSingleton = backend.initialConfig();
     IS5InitialImplementation initialImplementation = initialSingleton.impl();
 
-    /**
-     * Следующий код решает следующую задачу: На разных этапах запуска, разные подсистемы могут создавать локальные
-     * соединение к серверу.
-     * <p>
-     * Первым подключением является подключение для проверки (и если необходимо создания) системного описания
-     * (sysdescr). При этом для этого подключения требуются только службы ядра ISkSysdescr, ISkObjectService,
-     * ISkLinkService.
-     * <p>
-     * На более поздних этапах загрузки локальное соединение может быть расширено skf-функциональностью, например,
-     * S5GatewaySingleton.
-     * <p>
-     * Этот код позволяет создавать локальные соединение по стратегии "то что уже есть на данный момент, то что уже
-     * загружено".
-     */
     IStridablesListEdit<IS5BackendAddonCreator> availableCreators = new StridablesList<>();
     for( IS5BackendAddonCreator creator : initialImplementation.baCreators() ) {
       if( isAvailableAddon( availableSupportIds, creator ) ) {
