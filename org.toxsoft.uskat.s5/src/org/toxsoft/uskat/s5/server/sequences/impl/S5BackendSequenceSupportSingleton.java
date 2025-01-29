@@ -419,11 +419,14 @@ public abstract class S5BackendSequenceSupportSingleton<S extends IS5Sequence<V>
       for( int index = 0, n = unionTimers.size(); index < n; index++ ) {
         Timer timer = unionTimers.get( index );
         if( timer.equals( aTimer ) ) {
+          ES5ServerMode serverMode = serverMode();
           // Проверка возможности выполнения дефрагментации при текущей загрузке системы
-          if( serverMode() != ES5ServerMode.WORKING ) {
+          if( serverMode != ES5ServerMode.WORKING ) {
             // Загруженность системы не позволяет провести дефрагментацию значений
-            uniterLogger.warning( ERR_UNION_DISABLE_BY_LOAD_AVERAGE, id(), serverMode(),
-                Double.valueOf( loadAverage() ) );
+            if( serverMode != ES5ServerMode.STARTING ) {
+              Double la = Double.valueOf( loadAverage() );
+              uniterLogger.warning( ERR_UNION_DISABLE_BY_LOAD_AVERAGE, id(), serverMode(), la );
+            }
             break;
           }
           // Запуск потока дефрагментации
@@ -467,8 +470,8 @@ public abstract class S5BackendSequenceSupportSingleton<S extends IS5Sequence<V>
   }
 
   @Override
-  protected void doAfterSetSharedConnection( ISkConnection aOldConnection, ISkConnection aNewConnection ) {
-    ISkCoreApi coreApi = aNewConnection.coreApi();
+  protected void doAfterSetSharedConnection( ISkConnection aConnection ) {
+    ISkCoreApi coreApi = aConnection.coreApi();
     ISkObjectService objectService = coreApi.objService();
     ISkLinkService linkService = coreApi.linkService();
     // Идентификатор узла
@@ -478,13 +481,8 @@ public abstract class S5BackendSequenceSupportSingleton<S extends IS5Sequence<V>
     // Создание/обновление бекенда как объекта системы
     objectService.defineObject( new DtoObject( backendId, IOptionSet.NULL, IStringMap.EMPTY ) );
     linkService.defineLink( backendId, IS5ClassBackend.LNKID_NODE, ISkidList.EMPTY, new SkidList( nodeId ) );
-
-    if( statisticWriter != null ) {
-      // Завершение работы предыдущего писателя статистики
-      statisticWriter.close();
-    }
     // Создание писателя статистики узла сервера
-    statisticWriter = new S5StatisticWriter( aNewConnection, backendId, STAT_HISTORABLE_BACKEND_PARAMS );
+    statisticWriter = new S5StatisticWriter( aConnection, backendId, STAT_HISTORABLE_BACKEND_PARAMS );
   }
 
   // ------------------------------------------------------------------------------------
