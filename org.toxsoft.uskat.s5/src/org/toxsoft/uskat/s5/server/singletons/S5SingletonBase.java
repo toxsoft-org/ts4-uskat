@@ -184,6 +184,9 @@ public class S5SingletonBase
       if( !(key instanceof String propId) ) {
         continue;
       }
+      if( !isValidIdPath( propId ) ) {
+        continue;
+      }
       for( String pathId : configurationPaths ) {
         if( startsWithIdPath( propId, pathId ) ) {
           String value = systemProperties.getProperty( propId );
