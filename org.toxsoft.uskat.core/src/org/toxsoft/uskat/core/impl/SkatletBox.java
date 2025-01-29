@@ -137,7 +137,7 @@ public class SkatletBox
 
       @Override
       public IAtomicValue findOp( String aId ) {
-        return aContext.params().findByKey( aId );
+        return aContext.params().findValue( aId );
       }
 
       @Override

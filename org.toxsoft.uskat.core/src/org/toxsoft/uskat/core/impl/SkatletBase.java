@@ -39,6 +39,15 @@ public abstract class SkatletBase
   // API для наследников
   //
   /**
+   * Skatlet's execution environment
+   *
+   * @return {@link ITsContextRo} - the execution environment
+   */
+  protected final ITsContextRo environ() {
+    return environ;
+  }
+
+  /**
    * Skatlet's shared connection.
    *
    * @return {@link ISkConnection} connection.
@@ -147,7 +156,7 @@ public abstract class SkatletBase
   //
   @Override
   public void doJob() {
-    logger().info( FMT_INFO_SKATLET_DOJOB, id() );
+    logger().debug( FMT_INFO_SKATLET_DOJOB, id() );
   }
 
 }
