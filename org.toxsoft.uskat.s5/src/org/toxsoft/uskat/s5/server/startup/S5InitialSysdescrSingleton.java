@@ -95,8 +95,6 @@ public abstract class S5InitialSysdescrSingleton
     userService = coreApi.userService();
     // Проверка (и если необходимо создание) системного описания
     checkSysdescr( connection );
-    // Установка соединения для ядра сервера
-    backendCore.setSharedConnection( connection );
     // Завершение соединения. представляет pure (без расширения skf-функциональностью) и не может полноценно
     // использовано в дальнейшем
     connection.close();
