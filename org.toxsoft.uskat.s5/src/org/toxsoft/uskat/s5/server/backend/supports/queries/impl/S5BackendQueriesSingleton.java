@@ -165,6 +165,11 @@ public class S5BackendQueriesSingleton
     for( IS5FrontendRear frontend : backend().attachedFrontends() ) {
       S5BaQueriesData baData =
           frontend.frontendData().findBackendAddonData( IBaQueries.ADDON_ID, S5BaQueriesData.class );
+      // 2025-01-28 mvk +++ на переходных процессах (образование или завершение сессии пользователя)
+      if( baData == null ) {
+        logger().warning( "doJob(...): frontend = %s, baData(S5BaQueriesData) = null", frontend ); //$NON-NLS-1$
+        continue;
+      }
       // Конвой-объект
       S5BaQueriesConvoy convoy = null;
       synchronized (baData) {
