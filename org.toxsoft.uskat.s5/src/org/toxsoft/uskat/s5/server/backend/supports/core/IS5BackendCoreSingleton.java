@@ -111,6 +111,9 @@ public interface IS5BackendCoreSingleton
 
   /**
    * Возвращает общее(разделяемое между модулями сервера) локальное соединение.
+   * <p>
+   * Следует учитывать природу общего(разделяемого между модулями системы) соединения - в жизненном цикле сервера оно
+   * создается при запуске сервера и завершается при его остановке.
    *
    * @return {@link ISkConnection} потокобезопасное соединение с сервером.
    * @throws TsIllegalArgumentRtException ядро поддержки не активно ({@link #isActive()} == false)
@@ -119,9 +122,13 @@ public interface IS5BackendCoreSingleton
 
   /**
    * Устанавливает общее(разделяемое между модулями сервера) локальное соединение.
+   * <p>
+   * Следует учитывать природу общего(разделяемого между модулями системы) соединения - в жизненном цикле сервера оно
+   * создается при запуске сервера и завершается при его остановке.
    *
    * @param aConnection {@link ISkConnection} соединение с локальным узлом сервера
    * @throws TsNullArgumentRtException аргумент = null
+   * @throws TsItemAlreadyExistsRtException общее соединение уже установлено
    */
   void setSharedConnection( ISkConnection aConnection );
 

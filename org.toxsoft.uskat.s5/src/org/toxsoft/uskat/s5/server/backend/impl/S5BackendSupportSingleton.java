@@ -68,7 +68,7 @@ public abstract class S5BackendSupportSingleton
    */
   @Override
   protected void doInit() {
-    backendCoreSingleton.add( id(), sessionContext().getBusinessObject( getClass() ) );
+    backendCoreSingleton.addSupport( id(), sessionContext().getBusinessObject( getClass() ) );
     doInitSupport();
     clusterManager.addCommandHandler( WHEN_SUPPORT_CONFIG_CHANGED_METHOD,
         new S5ClusterCommandWhenSupportConfigChanged() {
@@ -90,7 +90,7 @@ public abstract class S5BackendSupportSingleton
   @Override
   protected void doClose() {
     doCloseSupport();
-    backendCoreSingleton.remove( id() );
+    backendCoreSingleton.removeSupport( id() );
   }
 
   // ------------------------------------------------------------------------------------
@@ -114,16 +114,15 @@ public abstract class S5BackendSupportSingleton
   @TransactionAttribute( TransactionAttributeType.SUPPORTS )
   @Lock( LockType.READ )
   @Override
-  public void beforeSetSharedConnection( ISkConnection aOldConnection, ISkConnection aNewConnection,
-      IVrListEdit aValidationList ) {
-    doBeforeSetSharedConnection( aOldConnection, aNewConnection, aValidationList );
+  public void beforeSetSharedConnection( ISkConnection aConnection, IVrListEdit aValidationList ) {
+    doBeforeSetSharedConnection( aConnection, aValidationList );
   }
 
   @TransactionAttribute( TransactionAttributeType.SUPPORTS )
   @Lock( LockType.READ )
   @Override
-  public void afterSetSharedConnection( ISkConnection aOldConnection, ISkConnection aNewConnection ) {
-    doAfterSetSharedConnection( aOldConnection, aNewConnection );
+  public void afterSetSharedConnection( ISkConnection aConnection ) {
+    doAfterSetSharedConnection( aConnection );
   }
 
   // ------------------------------------------------------------------------------------
@@ -208,13 +207,14 @@ public abstract class S5BackendSupportSingleton
    * Событие формируется в открытой транзакции которая впоследствии может быть отменена. Поэтому, если необходимо,
    * клиент-перехватчик должен организовать логику восстановления своего состояния при откате транзакции (смотри
    * S5TransactionSingleton}.
+   * <p>
+   * Следует учитывать природу общего(разделяемого между модулями системы) соединения - в жизненном цикле сервера оно
+   * создается при запуске сервера и завершается при его остановке.
    *
-   * @param aOldConnection {@link ISkConnection} старое соединение с ядром бекенда. null: не было установлено
-   * @param aNewConnection {@link ISkConnection} новое соединение с ядром бекенда
+   * @param aConnection {@link ISkConnection} новое соединение с ядром бекенда
    * @param aValidationList {@link IVrListEdit} список-приемник проверки возможности замены соединения.
    */
-  protected void doBeforeSetSharedConnection( ISkConnection aOldConnection, ISkConnection aNewConnection,
-      IVrListEdit aValidationList ) {
+  protected void doBeforeSetSharedConnection( ISkConnection aConnection, IVrListEdit aValidationList ) {
     // nop;
   }
 
@@ -224,13 +224,15 @@ public abstract class S5BackendSupportSingleton
    * Событие формируется в открытой транзакции которая впоследствии может быть отменена. Поэтому, если необходимо,
    * клиент-перехватчик должен организовать логику восстановления своего состояния при откате транзакции (смотри
    * S5TransactionSingleton}.
+   * <p>
+   * Следует учитывать природу общего(разделяемого между модулями системы) соединения - в жизненном цикле сервера оно
+   * создается при запуске сервера и завершается при его остановке.
    *
-   * @param aOldConnection {@link ISkConnection} старое соединение с ядром бекенда. null: не было установлено
-   * @param aNewConnection {@link ISkConnection} новое соединение с ядром бекенда
+   * @param aConnection {@link ISkConnection} новое соединение с ядром бекенда
    * @throws TsIllegalStateRtException отменить изменения сделанные методом
    *           {@link IS5BackendCoreSingleton#setSharedConnection(ISkConnection)} (откат транзакции)
    */
-  protected void doAfterSetSharedConnection( ISkConnection aOldConnection, ISkConnection aNewConnection ) {
+  protected void doAfterSetSharedConnection( ISkConnection aConnection ) {
     // nop
   }
 

@@ -16,7 +16,8 @@ interface IS5Resources {
   String MSG_INIT_BACKEND   = Messages.getString( "IS5Resources.MSG_INIT_BACKEND" );   //$NON-NLS-1$
   String MSG_CLOSE_BACKEND  = Messages.getString( "IS5Resources.MSG_CLOSE_BACKEND" );  //$NON-NLS-1$
 
-  String MSG_CHANGE_MODE              = "setMode(...): changing server mode: oldMode = %s, newMode = %s";                                   //$NON-NLS-1$
+  String MSG_CHANGE_MODE              =
+      "setMode(...): changing server mode: oldMode = %s, newMode = %s, loadAverage = %s";                                                   //$NON-NLS-1$
   String ERR_REJECT_CHANGE_MODE       =
       "setMode(...): the request to change server mode was rejected: oldMode = %s, newMode = %s, cause = %s";                               //$NON-NLS-1$
   String ERR_REJECT_CHANGE_CONNECTION =

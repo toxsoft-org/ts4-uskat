@@ -35,7 +35,6 @@ import org.toxsoft.uskat.core.connection.*;
 import org.toxsoft.uskat.s5.common.*;
 import org.toxsoft.uskat.s5.server.*;
 import org.toxsoft.uskat.s5.server.backend.*;
-import org.toxsoft.uskat.s5.server.backend.addons.*;
 import org.toxsoft.uskat.s5.server.backend.impl.*;
 import org.toxsoft.uskat.s5.server.backend.supports.clobs.*;
 import org.toxsoft.uskat.s5.server.backend.supports.core.*;
@@ -370,7 +369,7 @@ public class S5BackendCoreSingleton
 
   @Override
   @TransactionAttribute( TransactionAttributeType.SUPPORTS )
-  public void add( String aSupportId, IS5BackendSupportSingleton aSupportInterface ) {
+  public void addSupport( String aSupportId, IS5BackendSupportSingleton aSupportInterface ) {
     TsNullArgumentRtException.checkNulls( aSupportId, aSupportInterface );
     if( backendSupports.hasKey( aSupportId ) ) {
       // Поддержка уже зарегистрирована
@@ -381,31 +380,32 @@ public class S5BackendCoreSingleton
 
   @Override
   @TransactionAttribute( TransactionAttributeType.SUPPORTS )
-  public void remove( String aSupportId ) {
+  public void removeSupport( String aSupportId ) {
     TsNullArgumentRtException.checkNull( aSupportId );
     backendSupports.removeByKey( aSupportId );
   }
 
   @Override
   @TransactionAttribute( TransactionAttributeType.SUPPORTS )
-  public <T extends IS5BackendSupportSingleton> T get( String aSupportId, Class<T> aSupportInterface ) {
+  public <T extends IS5BackendSupportSingleton> T findSupport( String aSupportId, Class<T> aSupportInterface ) {
     TsNullArgumentRtException.checkNulls( aSupportId, aSupportInterface );
     try {
       IS5BackendSupportSingleton support = null;
       int waitCount = 0;
       long startTime = System.currentTimeMillis();
-      while( !isReadySupportSingletons() ) {
+      // while( !isReadySupportSingletons() ) {
+      while( support == null ) {
         if( System.currentTimeMillis() - startTime > SUPPORT_READY_TIMEOUT ) {
           throw new TsInternalErrorRtException( ERR_SUPPORT_IS_NOT_AVAILABLE );
         }
         support = backendSupports.findByKey( aSupportId );
-        if( support != null ) {
-          break;
+        if( support == null ) {
+          logger().warning( ERR_WAITING_SUPPORT, aSupportId, Integer.valueOf( waitCount++ ) );
+          Thread.sleep( SUPPORT_READY_CHECK_INTERVAL );
         }
-        logger().warning( ERR_WAITING_SUPPORT, aSupportId, Integer.valueOf( waitCount++ ) );
-        Thread.sleep( SUPPORT_READY_CHECK_INTERVAL );
       }
-      return aSupportInterface.cast( support );
+      T retValue = aSupportInterface.cast( support );
+      return retValue;
     }
     catch( Exception ex ) {
       throw new TsIllegalArgumentRtException( ex, ex.getMessage() );
@@ -452,13 +452,13 @@ public class S5BackendCoreSingleton
         case WORKING:
         case SHUTDOWNING:
         case OFF:
-          logger().info( MSG_CHANGE_MODE, oldMode, aMode );
+          logger().info( MSG_CHANGE_MODE, oldMode, aMode, avFloat( loadAverage() ) );
           break;
         case BOOSTED:
-          logger().warning( MSG_CHANGE_MODE, oldMode, aMode );
+          logger().warning( MSG_CHANGE_MODE, oldMode, aMode, avFloat( loadAverage() ) );
           break;
         case OVERLOADED:
-          logger().error( MSG_CHANGE_MODE, oldMode, aMode );
+          logger().error( MSG_CHANGE_MODE, oldMode, aMode, avFloat( loadAverage() ) );
           break;
         default:
           throw new TsNotAllEnumsUsedRtException();
@@ -489,27 +489,22 @@ public class S5BackendCoreSingleton
   @Override
   public void setSharedConnection( ISkConnection aConnection ) {
     TsNullArgumentRtException.checkNull( aConnection );
-    ISkConnection oldConnection = sharedConnection;
+    TsItemAlreadyExistsRtException.checkNoNull( sharedConnection );
     // Пред-интерсепция
-    IVrList vr = callBeforeSetSharedConnectionInterceptors( interceptors, oldConnection, aConnection );
+    IVrList vr = callBeforeSetSharedConnectionInterceptors( interceptors, aConnection );
     if( vr.firstWorstResult().isError() ) {
       // Интерсепторы запретили выполнение операции
-      logger().error( ERR_REJECT_CHANGE_CONNECTION, oldConnection, aConnection, vr.items() );
+      logger().error( ERR_REJECT_CHANGE_CONNECTION, aConnection, vr.items() );
       return;
     }
     sharedConnection = aConnection;
     // Пост-интерсепция
     try {
-      callAfterSetSharedConnectionInterceptors( interceptors, oldConnection, aConnection );
+      callAfterSetSharedConnectionInterceptors( interceptors, aConnection );
     }
     catch( Throwable e ) {
-      // Восстановление состояния на любой ошибке
-      sharedConnection = oldConnection;
+      sharedConnection = null;
       throw e;
-    }
-    if( statisticWriter != null ) {
-      // Завершение работы предыдущего писателя статистики
-      statisticWriter.close();
     }
     // Информация о бекенде
     ISkBackendInfo info = getInfo();
@@ -635,26 +630,6 @@ public class S5BackendCoreSingleton
   // ------------------------------------------------------------------------------------
   // Внутренние методы
   //
-
-  /**
-   * Проверяет, все ли сиглетоны поддержки необходимые для реализации бекенда, завершили загрузку
-   *
-   * @return boolean <b>true</b> все синглетоны завершили загрузку. <b>false</b> не все синглетоны завершили загрузку
-   */
-  private boolean isReadySupportSingletons() {
-    boolean retValue = true;
-    IStringList singletonIds = backendSupports.keys();
-    for( IS5BackendAddonCreator creator : initialConfig.impl().baCreators() ) {
-      for( String singletonId : creator.supportSingletonIds() ) {
-        if( !singletonIds.hasElem( singletonId ) ) {
-          retValue = false;
-          logger().warning( "isReadySupportSingletons(...): support %s is not available", singletonId ); //$NON-NLS-1$
-        }
-      }
-    }
-    return retValue;
-  }
-
   /**
    * Слушатель транзакций
    */

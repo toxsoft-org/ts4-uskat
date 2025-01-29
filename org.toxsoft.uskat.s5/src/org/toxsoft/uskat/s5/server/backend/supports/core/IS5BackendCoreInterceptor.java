@@ -63,12 +63,10 @@ public interface IS5BackendCoreInterceptor
    * клиент-перехватчик должен организовать логику восстановления своего состояния при откате транзакции (смотри
    * S5TransactionSingleton}.
    *
-   * @param aOldConnection {@link ISkConnection} старое соединение с ядром бекенда. null: не было установлено
-   * @param aNewConnection {@link ISkConnection} новое соединение с ядром бекенда
+   * @param aConnection {@link ISkConnection} новое соединение с ядром бекенда
    * @param aValidationList {@link IVrListEdit} список-приемник проверки возможности замены соединения.
    */
-  void beforeSetSharedConnection( ISkConnection aOldConnection, ISkConnection aNewConnection,
-      IVrListEdit aValidationList );
+  void beforeSetSharedConnection( ISkConnection aConnection, IVrListEdit aValidationList );
 
   /**
    * Вызывается ПОСЛЕ {@link IS5BackendCoreSingleton#setSharedConnection(ISkConnection)}, но до завершения транзакции.
@@ -77,12 +75,11 @@ public interface IS5BackendCoreInterceptor
    * клиент-перехватчик должен организовать логику восстановления своего состояния при откате транзакции (смотри
    * S5TransactionSingleton}.
    *
-   * @param aOldConnection {@link ISkConnection} старое соединение с ядром бекенда. null: не было установлено
-   * @param aNewConnection {@link ISkConnection} новое соединение с ядром бекенда
+   * @param aConnection {@link ISkConnection} новое соединение с ядром бекенда
    * @throws TsIllegalStateRtException отменить изменения сделанные методом
    *           {@link IS5BackendCoreSingleton#setSharedConnection(ISkConnection)} (откат транзакции)
    */
-  void afterSetSharedConnection( ISkConnection aOldConnection, ISkConnection aNewConnection );
+  void afterSetSharedConnection( ISkConnection aConnection );
 
   // ------------------------------------------------------------------------------------
   // Вспомогательные методы
@@ -131,46 +128,41 @@ public interface IS5BackendCoreInterceptor
 
   /**
    * Вызов перехватчиков операции
-   * {@link IS5BackendCoreInterceptor#beforeSetSharedConnection(ISkConnection, ISkConnection, IVrListEdit)}
+   * {@link IS5BackendCoreInterceptor#beforeSetSharedConnection(ISkConnection, IVrListEdit)}
    *
    * @param aInterceptorSupport {@link S5InterceptorSupport}&lt;{@link IS5BackendCoreInterceptor}&gt; поддержка
    *          перехватчиков
-   * @param aOldConnection {@link ISkConnection} старое соединение с ядром бекенда. null: не было установлено
-   * @param aNewConnection {@link ISkConnection} новое соединение с ядром бекенда
+   * @param aConnection {@link ISkConnection} новое соединение с ядром бекенда
    * @return {@link IVrList} результат проверки возможности замены соединения.
    * @throws TsNullArgumentRtException любой аргумент (кроме aOldConnection) = null
    * @throws TsIllegalStateRtException запретить выполнение
    *           {@link IS5BackendCoreSingleton#setSharedConnection(ISkConnection)}
    */
   static IVrList callBeforeSetSharedConnectionInterceptors(
-      S5InterceptorSupport<IS5BackendCoreInterceptor> aInterceptorSupport, ISkConnection aOldConnection,
-      ISkConnection aNewConnection ) {
-    TsNullArgumentRtException.checkNulls( aInterceptorSupport, aNewConnection );
+      S5InterceptorSupport<IS5BackendCoreInterceptor> aInterceptorSupport, ISkConnection aConnection ) {
+    TsNullArgumentRtException.checkNulls( aInterceptorSupport, aConnection );
     IVrListEdit retValue = new VrList();
     for( IS5BackendCoreInterceptor interceptor : aInterceptorSupport.interceptors() ) {
-      interceptor.beforeSetSharedConnection( aOldConnection, aNewConnection, retValue );
+      interceptor.beforeSetSharedConnection( aConnection, retValue );
     }
     return retValue;
   }
 
   /**
-   * Вызов перехватчиков операции
-   * {@link IS5BackendCoreInterceptor#afterSetSharedConnection(ISkConnection, ISkConnection)}
+   * Вызов перехватчиков операции {@link IS5BackendCoreInterceptor#afterSetSharedConnection(ISkConnection)}
    *
    * @param aInterceptorSupport {@link S5InterceptorSupport}&lt;{@link IS5BackendCoreInterceptor}&gt; поддержка
    *          перехватчиков
-   * @param aOldConnection {@link ISkConnection} старое соединение с ядром бекенда. null: не было установлено
-   * @param aNewConnection {@link ISkConnection} новое соединение с ядром бекенда
+   * @param aConnection {@link ISkConnection} новое соединение с ядром бекенда
    * @throws TsNullArgumentRtException любой аргумент (кроме aOldConnection) = null
    * @throws TsIllegalStateRtException отменить изменения сделанные методом
    *           {@link IS5BackendCoreSingleton#setSharedConnection(ISkConnection)} (откат транзакции)
    */
   static void callAfterSetSharedConnectionInterceptors(
-      S5InterceptorSupport<IS5BackendCoreInterceptor> aInterceptorSupport, ISkConnection aOldConnection,
-      ISkConnection aNewConnection ) {
-    TsNullArgumentRtException.checkNulls( aInterceptorSupport, aNewConnection );
+      S5InterceptorSupport<IS5BackendCoreInterceptor> aInterceptorSupport, ISkConnection aConnection ) {
+    TsNullArgumentRtException.checkNulls( aInterceptorSupport, aConnection );
     for( IS5BackendCoreInterceptor interceptor : aInterceptorSupport.interceptors() ) {
-      interceptor.afterSetSharedConnection( aOldConnection, aNewConnection );
+      interceptor.afterSetSharedConnection( aConnection );
     }
   }
 }
