@@ -43,7 +43,7 @@ class S5BaEventsLocal
     super( aOwner, ISkBackendHardConstant.BAINF_EVENTS );
     // Синглтон поддержки чтения/записи системного описания
     eventsSupport =
-        aOwner.backendSingleton().get( S5BackendEventSingleton.BACKEND_EVENTS_ID, IS5BackendEventSingleton.class );
+        aOwner.backendSingleton().findSupport( S5BackendEventSingleton.BACKEND_EVENTS_ID, IS5BackendEventSingleton.class );
     // Установка конфигурации фронтенда
     frontend().frontendData().setBackendAddonData( IBaEvents.ADDON_ID, baData );
   }

@@ -45,7 +45,7 @@ class S5BaQueriesLocal
   public S5BaQueriesLocal( IS5BackendLocal aOwner ) {
     super( aOwner, ISkBackendHardConstant.BAINF_QUERIES );
     queriesSupport =
-        aOwner.backendSingleton().get( S5BackendQueriesSingleton.BACKEND_QUERIES_ID, IS5BackendQueriesSingleton.class );
+        aOwner.backendSingleton().findSupport( S5BackendQueriesSingleton.BACKEND_QUERIES_ID, IS5BackendQueriesSingleton.class );
     // Установка конфигурации фронтенда
     frontend().frontendData().setBackendAddonData( IBaQueries.ADDON_ID, baData );
   }

@@ -42,7 +42,7 @@ public interface IS5BackendSupportRegistry {
    * @throws TsIllegalArgumentRtException синглетон с идентификатором {@link IS5BackendSupportSingleton#id()} уже
    *           зарегистрирован
    */
-  void add( String aSupportId, IS5BackendSupportSingleton aSupportInterface );
+  void addSupport( String aSupportId, IS5BackendSupportSingleton aSupportInterface );
 
   /**
    * Удаляет из бекенда синглетон поддержки
@@ -52,7 +52,7 @@ public interface IS5BackendSupportRegistry {
    * @param aSupportId String - идентификатор (ИД-путь) синглетона поддержки {@link IS5BackendSupportSingleton#id()}
    * @throws TsNullArgumentRtException аргумент = null
    */
-  void remove( String aSupportId );
+  void removeSupport( String aSupportId );
 
   /**
    * Возвращает синглетон поддержки бекенда, если таковой существует.
@@ -64,5 +64,5 @@ public interface IS5BackendSupportRegistry {
    * @throws TsNullArgumentRtException любой аргумент = null
    * @throws ClassCastException поддержка есть, но она не запрошенного класса
    */
-  <T extends IS5BackendSupportSingleton> T get( String aSupportId, Class<T> aSupportInterface );
+  <T extends IS5BackendSupportSingleton> T findSupport( String aSupportId, Class<T> aSupportInterface );
 }

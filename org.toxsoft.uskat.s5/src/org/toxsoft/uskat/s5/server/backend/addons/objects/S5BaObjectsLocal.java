@@ -38,7 +38,7 @@ class S5BaObjectsLocal
     super( aOwner, ISkBackendHardConstant.BAINF_OBJECTS );
     // Синглтон поддержки чтения/записи системного описания
     objectsSupport =
-        aOwner.backendSingleton().get( S5BackendObjectsSingleton.BACKEND_OBJECTS_ID, IS5BackendObjectsSingleton.class );
+        aOwner.backendSingleton().findSupport( S5BackendObjectsSingleton.BACKEND_OBJECTS_ID, IS5BackendObjectsSingleton.class );
   }
 
   // ------------------------------------------------------------------------------------

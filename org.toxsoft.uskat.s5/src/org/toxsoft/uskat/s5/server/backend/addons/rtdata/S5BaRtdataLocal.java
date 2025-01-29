@@ -56,9 +56,9 @@ class S5BaRtdataLocal
    */
   public S5BaRtdataLocal( IS5BackendLocal aOwner ) {
     super( aOwner, ISkBackendHardConstant.BAINF_RTDATA );
-    currDataSupport = aOwner.backendSingleton().get( S5BackendCurrDataSingleton.BACKEND_CURRDATA_ID,
+    currDataSupport = aOwner.backendSingleton().findSupport( S5BackendCurrDataSingleton.BACKEND_CURRDATA_ID,
         IS5BackendCurrDataSingleton.class );
-    histDataSupport = aOwner.backendSingleton().get( S5BackendHistDataSingleton.BACKEND_HISTDATA_ID,
+    histDataSupport = aOwner.backendSingleton().findSupport( S5BackendHistDataSingleton.BACKEND_HISTDATA_ID,
         IS5BackendHistDataSingleton.class );
     // Установка конфигурации фронтенда
     frontend().frontendData().setBackendAddonData( IBaRtdata.ADDON_ID, baData );

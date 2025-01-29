@@ -39,7 +39,7 @@ class S5BaClobsLocal
     super( aOwner, ISkBackendHardConstant.BAINF_CLOBS );
     // Синглтон поддержки чтения/записи системного описания
     clobsSupport =
-        aOwner.backendSingleton().get( S5BackendClobsSingleton.BACKEND_CLOBS_ID, IS5BackendClobsSingleton.class );
+        aOwner.backendSingleton().findSupport( S5BackendClobsSingleton.BACKEND_CLOBS_ID, IS5BackendClobsSingleton.class );
     // Установка конфигурации фронтенда
     frontend().frontendData().setBackendAddonData( IBaClobs.ADDON_ID, baData );
   }

@@ -42,7 +42,7 @@ class S5BaClassesLocal
   public S5BaClassesLocal( IS5BackendLocal aOwner ) {
     super( aOwner, ISkBackendHardConstant.BAINF_CLASSES );
     // Синглтон поддержки чтения/записи системного описания
-    sysdescrSupport = aOwner.backendSingleton().get( S5BackendSysDescrSingleton.BACKEND_SYSDESCR_ID,
+    sysdescrSupport = aOwner.backendSingleton().findSupport( S5BackendSysDescrSingleton.BACKEND_SYSDESCR_ID,
         IS5BackendSysDescrSingleton.class );
     // Читатель системного описания
     sysdescrReader = new SkSysdescrReader( () -> sysdescrSupport.readClassInfos() );

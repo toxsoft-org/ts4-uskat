@@ -48,7 +48,7 @@ class S5BaCommandsLocal
   public S5BaCommandsLocal( IS5BackendLocal aOwner ) {
     super( aOwner, ISkBackendHardConstant.BAINF_COMMANDS );
     // Синглтон поддержки чтения/записи системного описания
-    commandsSupport = aOwner.backendSingleton().get( S5BackendCommandSingleton.BACKEND_COMMANDS_ID,
+    commandsSupport = aOwner.backendSingleton().findSupport( S5BackendCommandSingleton.BACKEND_COMMANDS_ID,
         IS5BackendCommandSingleton.class );
     // Установка конфигурации фронтенда
     frontend().frontendData().setBackendAddonData( IBaCommands.ADDON_ID, baData );

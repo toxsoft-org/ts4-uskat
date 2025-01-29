@@ -40,7 +40,7 @@ class S5BaLinksLocal
     super( aOwner, ISkBackendHardConstant.BAINF_LINKS );
     // Синглтон поддержки чтения/записи системного описания
     linksSupport =
-        aOwner.backendSingleton().get( S5BackendLinksSingleton.BACKEND_LINKS_ID, IS5BackendLinksSingleton.class );
+        aOwner.backendSingleton().findSupport( S5BackendLinksSingleton.BACKEND_LINKS_ID, IS5BackendLinksSingleton.class );
   }
 
   // ------------------------------------------------------------------------------------

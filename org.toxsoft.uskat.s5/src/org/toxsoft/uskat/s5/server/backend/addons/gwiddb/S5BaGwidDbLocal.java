@@ -42,7 +42,7 @@ class S5BaGwidDbLocal
     super( aOwner, ISkBackendHardConstant.BAINF_GWID_DB );
     // Синглтон поддержки чтения/записи системного описания
     gwidDbSupport =
-        aOwner.backendSingleton().get( S5BackendGwidDbSingleton.BACKEND_GWIDDB_ID, IS5BackendGwidDbSingleton.class );
+        aOwner.backendSingleton().findSupport( S5BackendGwidDbSingleton.BACKEND_GWIDDB_ID, IS5BackendGwidDbSingleton.class );
     // Установка конфигурации фронтенда
     frontend().frontendData().setBackendAddonData( IBaGwidDb.ADDON_ID, baData );
   }
