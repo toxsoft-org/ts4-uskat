@@ -452,13 +452,13 @@ public class S5BackendCoreSingleton
         case WORKING:
         case SHUTDOWNING:
         case OFF:
-          logger().info( MSG_CHANGE_MODE, oldMode, aMode, avFloat( loadAverage() ) );
+          logger().info( MSG_CHANGE_MODE, oldMode, aMode, Double.valueOf( loadAverage() ) );
           break;
         case BOOSTED:
-          logger().warning( MSG_CHANGE_MODE, oldMode, aMode, avFloat( loadAverage() ) );
+          logger().warning( MSG_CHANGE_MODE, oldMode, aMode, Double.valueOf( loadAverage() ) );
           break;
         case OVERLOADED:
-          logger().error( MSG_CHANGE_MODE, oldMode, aMode, avFloat( loadAverage() ) );
+          logger().error( MSG_CHANGE_MODE, oldMode, aMode, Double.valueOf( loadAverage() ) );
           break;
         default:
           throw new TsNotAllEnumsUsedRtException();
