@@ -1,7 +1,7 @@
 package org.toxsoft.uskat.classes;
 
-import org.toxsoft.uskat.core.api.objserv.ISkObject;
-import org.toxsoft.uskat.s5.server.IS5ServerHardConstants;
+import org.toxsoft.uskat.core.*;
+import org.toxsoft.uskat.core.api.objserv.*;
 
 /**
  * Класс s5: узел кластера сервера.
@@ -9,24 +9,19 @@ import org.toxsoft.uskat.s5.server.IS5ServerHardConstants;
  * @author mvk
  */
 @SuppressWarnings( "nls" )
-public interface IS5ClassNode
+public interface ISkServerNode
     extends ISkObject {
 
   /**
    * Идентификатор класса.
    */
-  String CLASS_ID = IS5ServerHardConstants.S5_ID_START + "Node";
-
-  /**
-   * Идентификатор класса.
-   */
-  String CLASS_NODE = CLASS_ID;
+  String CLASS_ID = ISkHardConstants.SK_ID + ".ServerNode";
 
   // ------------------------------------------------------------------------------------
   // Связи
   //
   /**
-   * Связь: сервер/кластер, в рамках которого работает узел {@link IS5ClassServer}.
+   * Связь: сервер/кластер, в рамках которого работает узел {@link ISkServer}.
    */
   String LNKID_SERVER = "server";
 

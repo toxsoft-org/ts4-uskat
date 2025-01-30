@@ -183,7 +183,7 @@ public abstract class S5BackendSequenceSupportSingleton<S extends IS5Sequence<V>
   private Timer dbmsStatisticsTimer;
 
   /**
-   * Писатель статитистики объекта {@link IS5ClassHistorableBackend}. null: нет соединения
+   * Писатель статитистики объекта {@link ISkServerHistorable}. null: нет соединения
    */
   private S5StatisticWriter statisticWriter;
 
@@ -466,7 +466,7 @@ public abstract class S5BackendSequenceSupportSingleton<S extends IS5Sequence<V>
 
   @Override
   protected String doBackendClassId() {
-    return IS5ClassHistorableBackend.CLASS_ID;
+    return ISkServerHistorable.CLASS_ID;
   }
 
   @Override
@@ -480,7 +480,7 @@ public abstract class S5BackendSequenceSupportSingleton<S extends IS5Sequence<V>
     Skid backendId = backendId();
     // Создание/обновление бекенда как объекта системы
     objectService.defineObject( new DtoObject( backendId, IOptionSet.NULL, IStringMap.EMPTY ) );
-    linkService.defineLink( backendId, IS5ClassBackend.LNKID_NODE, ISkidList.EMPTY, new SkidList( nodeId ) );
+    linkService.defineLink( backendId, ISkServerBackend.LNKID_NODE, ISkidList.EMPTY, new SkidList( nodeId ) );
     // Создание писателя статистики узла сервера
     statisticWriter = new S5StatisticWriter( aConnection, backendId, STAT_HISTORABLE_BACKEND_PARAMS );
   }

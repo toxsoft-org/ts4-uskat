@@ -1,7 +1,7 @@
 package org.toxsoft.uskat.classes;
 
-import org.toxsoft.core.tslib.av.EAtomicType;
-import org.toxsoft.uskat.s5.server.IS5ServerHardConstants;
+import org.toxsoft.core.tslib.av.*;
+import org.toxsoft.uskat.core.*;
 
 /**
  * Класс s5: бекенд службы работающий в рамках узла кластера и формирующий хранимые данные.
@@ -9,18 +9,13 @@ import org.toxsoft.uskat.s5.server.IS5ServerHardConstants;
  * @author mvk
  */
 @SuppressWarnings( "nls" )
-public interface IS5ClassHistorableBackend
-    extends IS5ClassBackend {
+public interface ISkServerHistorable
+    extends ISkServerBackend {
 
   /**
    * Идентификатор класса.
    */
-  String CLASS_ID = IS5ServerHardConstants.S5_ID_START + "HistorableBackend";
-
-  /**
-   * Идентификатор класса.
-   */
-  String CLASS_HISTORABLE_BACKEND = CLASS_ID;
+  String CLASS_ID = ISkHardConstants.SK_ID + ".ServerHistorable";
 
   // ------------------------------------------------------------------------------------
   // Данные

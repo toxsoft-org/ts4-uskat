@@ -198,21 +198,21 @@ public abstract class S5InitialSysdescrSingleton
     // Информация о бекенде
     ISkBackendInfo info = backendCore.getInfo();
     // Идентификатор сервера
-    Skid serverId = OP_BACKEND_SERVER_ID.getValue( info.params() ).asValobj();
+    Skid serverId = OP_SERVER_ID.getValue( info.params() ).asValobj();
     // Идентификатор узла сервера
-    Skid nodeId = OP_BACKEND_NODE_ID.getValue( info.params() ).asValobj();
+    Skid nodeId = OP_SERVER_NODE_ID.getValue( info.params() ).asValobj();
     // Проверка существования сервера
-    IS5ClassServer server = objectService.find( serverId );
+    ISkServer server = objectService.find( serverId );
     if( server == null ) {
       // Сервер не найден. Создание сервера
       server = objectService.defineObject( new DtoFullObject( serverId ) );
     }
     // Проверка существования узла сервера
-    IS5ClassNode node = objectService.find( nodeId );
+    ISkServerNode node = objectService.find( nodeId );
     if( node == null ) {
       // Узел не найден. Создание узла
       node = objectService.defineObject( new DtoFullObject( nodeId ) );
-      linkService.defineLink( nodeId, IS5ClassNode.LNKID_SERVER, ISkidList.EMPTY, new SkidList( serverId ) );
+      linkService.defineLink( nodeId, ISkServerNode.LNKID_SERVER, ISkidList.EMPTY, new SkidList( serverId ) );
     }
     // Создание проектного sysdescr
     doCreateSysdescr();

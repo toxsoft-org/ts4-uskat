@@ -200,7 +200,7 @@ public class S5BackendCoreSingleton
   private ISkConnection sharedConnection;
 
   /**
-   * Писатель статитистики объекта {@link IS5ClassNode}. null: нет соединения
+   * Писатель статитистики объекта {@link ISkServerNode}. null: нет соединения
    */
   private S5StatisticWriter statisticWriter;
 
@@ -509,7 +509,7 @@ public class S5BackendCoreSingleton
     // Информация о бекенде
     ISkBackendInfo info = getInfo();
     // Идентификатор узла сервера
-    Skid nodeId = OP_BACKEND_NODE_ID.getValue( info.params() ).asValobj();
+    Skid nodeId = OP_SERVER_NODE_ID.getValue( info.params() ).asValobj();
     // Создание писателя статистики узла сервера
     statisticWriter = new S5StatisticWriter( aConnection, nodeId, STAT_BACKEND_NODE_PARAMS );
   }

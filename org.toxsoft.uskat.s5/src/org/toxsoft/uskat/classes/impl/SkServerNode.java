@@ -7,30 +7,30 @@ import org.toxsoft.core.tslib.bricks.keeper.IEntityKeeper;
 import org.toxsoft.core.tslib.bricks.strio.IStrioReader;
 import org.toxsoft.core.tslib.bricks.strio.IStrioWriter;
 import org.toxsoft.core.tslib.gw.skid.Skid;
-import org.toxsoft.uskat.classes.IS5ClassServer;
+import org.toxsoft.uskat.classes.ISkServerNode;
 import org.toxsoft.uskat.core.api.objserv.ISkObject;
 import org.toxsoft.uskat.core.api.objserv.ISkObjectCreator;
 import org.toxsoft.uskat.core.impl.SkObject;
 
 /**
- * Реализация {@link IS5ClassServer} как {@link ISkObject}.
+ * Реализация {@link ISkServerNode} как {@link ISkObject}.
  *
  * @author mvk
  */
-public final class S5ClassServer
+public final class SkServerNode
     extends SkObject
-    implements IS5ClassServer {
+    implements ISkServerNode {
 
-  static final ISkObjectCreator<S5ClassServer> CREATOR = S5ClassServer::new;
+  static final ISkObjectCreator<SkServerNode> CREATOR = SkServerNode::new;
 
   /**
    * Экземпляр-синглтон хранителя.
    */
-  public static final IEntityKeeper<IS5ClassServer> KEEPER =
-      new AbstractEntityKeeper<>( IS5ClassServer.class, EEncloseMode.ENCLOSES_BASE_CLASS, null ) {
+  public static final IEntityKeeper<ISkServerNode> KEEPER =
+      new AbstractEntityKeeper<>( ISkServerNode.class, EEncloseMode.ENCLOSES_BASE_CLASS, null ) {
 
         @Override
-        protected void doWrite( IStrioWriter aWriter, IS5ClassServer aEntity ) {
+        protected void doWrite( IStrioWriter aWriter, ISkServerNode aEntity ) {
           Skid.KEEPER.write( aWriter, aEntity.skid() );
           aWriter.writeSeparatorChar();
           OptionSetKeeper.KEEPER.write( aWriter, aEntity.attrs() );
@@ -38,8 +38,8 @@ public final class S5ClassServer
         }
 
         @Override
-        protected IS5ClassServer doRead( IStrioReader aReader ) {
-          S5ClassServer retValue = new S5ClassServer( Skid.KEEPER.read( aReader ) );
+        protected ISkServerNode doRead( IStrioReader aReader ) {
+          SkServerNode retValue = new SkServerNode( Skid.KEEPER.read( aReader ) );
           aReader.ensureSeparatorChar();
           retValue.attrs().setAll( OptionSetKeeper.KEEPER.read( aReader ) );
           aReader.ensureSeparatorChar();
@@ -47,11 +47,11 @@ public final class S5ClassServer
         }
       };
 
-  S5ClassServer( Skid aSkid ) {
+  SkServerNode( Skid aSkid ) {
     super( aSkid );
   }
 
   // ------------------------------------------------------------------------------------
-  // IS5ClassServer
+  // ISkServerNode
   //
 }

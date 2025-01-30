@@ -2,36 +2,29 @@ package org.toxsoft.uskat.s5.server.startup;
 
 import static org.toxsoft.core.tslib.av.impl.AvUtils.*;
 import static org.toxsoft.core.tslib.av.metainfo.IAvMetaConstants.*;
-import static org.toxsoft.uskat.classes.IS5ClassNode.*;
-import static org.toxsoft.uskat.classes.IS5ClassServer.*;
 import static org.toxsoft.uskat.s5.server.IS5ImplementConstants.*;
 import static org.toxsoft.uskat.s5.server.IS5ServerHardConstants.*;
 
-import org.toxsoft.core.tslib.av.EAtomicType;
-import org.toxsoft.core.tslib.av.opset.IOptionSet;
-import org.toxsoft.core.tslib.av.opset.IOptionSetEdit;
-import org.toxsoft.core.tslib.av.opset.impl.OptionSet;
-import org.toxsoft.core.tslib.av.opset.impl.OptionSetUtils;
-import org.toxsoft.core.tslib.av.utils.IParameterized;
-import org.toxsoft.core.tslib.av.utils.IParameterizedEdit;
-import org.toxsoft.core.tslib.bricks.strid.coll.IStridablesList;
-import org.toxsoft.core.tslib.bricks.strid.impl.StridableParameterized;
-import org.toxsoft.core.tslib.coll.IList;
-import org.toxsoft.core.tslib.gw.gwid.Gwid;
-import org.toxsoft.core.tslib.gw.skid.Skid;
-import org.toxsoft.core.tslib.utils.errors.TsIllegalArgumentRtException;
-import org.toxsoft.core.tslib.utils.errors.TsNullArgumentRtException;
-import org.toxsoft.uskat.core.api.sysdescr.ISkClassInfo;
-import org.toxsoft.uskat.core.api.sysdescr.ISkSysdescr;
-import org.toxsoft.uskat.core.api.users.ISkUser;
-import org.toxsoft.uskat.s5.common.S5Module;
-import org.toxsoft.uskat.s5.common.S5ModuleList;
-import org.toxsoft.uskat.s5.common.sessions.ISkSession;
-import org.toxsoft.uskat.s5.server.IS5ServerHardConstants;
-import org.toxsoft.uskat.s5.server.backend.addons.IS5BackendAddonCreator;
+import org.toxsoft.core.tslib.av.*;
+import org.toxsoft.core.tslib.av.opset.*;
+import org.toxsoft.core.tslib.av.opset.impl.*;
+import org.toxsoft.core.tslib.av.utils.*;
+import org.toxsoft.core.tslib.bricks.strid.coll.*;
+import org.toxsoft.core.tslib.bricks.strid.impl.*;
+import org.toxsoft.core.tslib.coll.*;
+import org.toxsoft.core.tslib.gw.gwid.*;
+import org.toxsoft.core.tslib.gw.skid.*;
+import org.toxsoft.core.tslib.utils.errors.*;
+import org.toxsoft.uskat.classes.*;
+import org.toxsoft.uskat.core.api.sysdescr.*;
+import org.toxsoft.uskat.core.api.users.*;
+import org.toxsoft.uskat.s5.common.*;
+import org.toxsoft.uskat.s5.common.sessions.*;
+import org.toxsoft.uskat.s5.server.*;
+import org.toxsoft.uskat.s5.server.backend.addons.*;
 import org.toxsoft.uskat.s5.server.backend.supports.core.*;
 import org.toxsoft.uskat.s5.server.entities.*;
-import org.toxsoft.uskat.s5.server.sequences.IS5SequenceImplementation;
+import org.toxsoft.uskat.s5.server.sequences.*;
 
 /**
  * Базовая реализация {@link IS5InitialImplementation}.
@@ -78,13 +71,13 @@ public abstract class S5InitialImplementation
     params.setStr( TSID_NAME, aModule.nmName() );
     params.setStr( TSID_DESCRIPTION, aModule.description() );
 
-    Skid serverId = new Skid( CLASS_SERVER, aModule.id() );
+    Skid serverId = new Skid( ISkServer.CLASS_ID, aModule.id() );
     Skid nodeId = Skid.NONE;
     if( System.getProperty( JBOSS_NODE_NAME ) != null ) {
-      nodeId = new Skid( CLASS_NODE, System.getProperty( JBOSS_NODE_NAME ).replaceAll( "-", "." ) ); //$NON-NLS-1$ //$NON-NLS-2$
+      nodeId = new Skid( ISkServerNode.CLASS_ID, System.getProperty( JBOSS_NODE_NAME ).replaceAll( "-", "." ) ); //$NON-NLS-1$ //$NON-NLS-2$
     }
-    OP_BACKEND_SERVER_ID.setValue( params, avValobj( serverId ) );
-    OP_BACKEND_NODE_ID.setValue( params, avValobj( nodeId ) );
+    OP_SERVER_ID.setValue( params, avValobj( serverId ) );
+    OP_SERVER_NODE_ID.setValue( params, avValobj( nodeId ) );
     OP_BACKEND_VERSION.setValue( params, avValobj( version ) );
     OP_BACKEND_MODULE.setValue( params, avValobj( aModule ) );
     OP_BACKEND_CURRENT_TIME.setValue( params, avTimestamp( System.currentTimeMillis() ) );

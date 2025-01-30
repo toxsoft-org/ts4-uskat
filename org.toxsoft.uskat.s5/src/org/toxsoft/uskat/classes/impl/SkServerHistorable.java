@@ -7,30 +7,30 @@ import org.toxsoft.core.tslib.bricks.keeper.IEntityKeeper;
 import org.toxsoft.core.tslib.bricks.strio.IStrioReader;
 import org.toxsoft.core.tslib.bricks.strio.IStrioWriter;
 import org.toxsoft.core.tslib.gw.skid.Skid;
-import org.toxsoft.uskat.classes.IS5ClassBackend;
+import org.toxsoft.uskat.classes.ISkServerHistorable;
 import org.toxsoft.uskat.core.api.objserv.ISkObject;
 import org.toxsoft.uskat.core.api.objserv.ISkObjectCreator;
 import org.toxsoft.uskat.core.impl.SkObject;
 
 /**
- * Реализация {@link IS5ClassBackend} как {@link ISkObject}.
+ * Реализация {@link ISkServerHistorable} как {@link ISkObject}.
  *
  * @author mvk
  */
-public final class S5ClassBackend
+public final class SkServerHistorable
     extends SkObject
-    implements IS5ClassBackend {
+    implements ISkServerHistorable {
 
-  static final ISkObjectCreator<S5ClassBackend> CREATOR = S5ClassBackend::new;
+  static final ISkObjectCreator<SkServerHistorable> CREATOR = SkServerHistorable::new;
 
   /**
    * Экземпляр-синглтон хранителя.
    */
-  public static final IEntityKeeper<IS5ClassBackend> KEEPER =
-      new AbstractEntityKeeper<>( IS5ClassBackend.class, EEncloseMode.ENCLOSES_BASE_CLASS, null ) {
+  public static final IEntityKeeper<ISkServerHistorable> KEEPER =
+      new AbstractEntityKeeper<>( ISkServerHistorable.class, EEncloseMode.ENCLOSES_BASE_CLASS, null ) {
 
         @Override
-        protected void doWrite( IStrioWriter aWriter, IS5ClassBackend aEntity ) {
+        protected void doWrite( IStrioWriter aWriter, ISkServerHistorable aEntity ) {
           Skid.KEEPER.write( aWriter, aEntity.skid() );
           aWriter.writeSeparatorChar();
           OptionSetKeeper.KEEPER.write( aWriter, aEntity.attrs() );
@@ -38,8 +38,8 @@ public final class S5ClassBackend
         }
 
         @Override
-        protected IS5ClassBackend doRead( IStrioReader aReader ) {
-          S5ClassBackend retValue = new S5ClassBackend( Skid.KEEPER.read( aReader ) );
+        protected ISkServerHistorable doRead( IStrioReader aReader ) {
+          SkServerHistorable retValue = new SkServerHistorable( Skid.KEEPER.read( aReader ) );
           aReader.ensureSeparatorChar();
           retValue.attrs().setAll( OptionSetKeeper.KEEPER.read( aReader ) );
           aReader.ensureSeparatorChar();
@@ -47,11 +47,11 @@ public final class S5ClassBackend
         }
       };
 
-  S5ClassBackend( Skid aSkid ) {
+  SkServerHistorable( Skid aSkid ) {
     super( aSkid );
   }
 
   // ------------------------------------------------------------------------------------
-  // IS5ClassBackend
+  // ISkServerHistorable
   //
 }

@@ -158,11 +158,11 @@ public abstract class S5BackendSupportSingleton
   /**
    * Возвращает идентификатор класса бекенда
    *
-   * @return String класс бекенда, {@link IS5ClassBackend} или его наследник, например
-   *         {@link IS5ClassHistorableBackend}.
+   * @return String класс бекенда, {@link ISkServerBackend} или его наследник, например
+   *         {@link ISkServerHistorable}.
    */
   protected String doBackendClassId() {
-    return IS5ClassBackend.CLASS_ID;
+    return ISkServerBackend.CLASS_ID;
   }
 
   /**
@@ -275,7 +275,7 @@ public abstract class S5BackendSupportSingleton
     // Информация о бекенде
     ISkBackendInfo info = backend().getInfo();
     // Идентификатор узла сервера
-    Skid nodeId = OP_BACKEND_NODE_ID.getValue( info.params() ).asValobj();
+    Skid nodeId = OP_SERVER_NODE_ID.getValue( info.params() ).asValobj();
     return nodeId;
   }
 

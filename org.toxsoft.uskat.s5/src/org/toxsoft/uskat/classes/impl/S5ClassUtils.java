@@ -1,21 +1,18 @@
 package org.toxsoft.uskat.classes.impl;
 
 import static org.toxsoft.core.tslib.av.metainfo.IAvMetaConstants.*;
-import static org.toxsoft.uskat.classes.IS5ClassNode.*;
-import static org.toxsoft.uskat.classes.IS5ClassServer.*;
 import static org.toxsoft.uskat.classes.impl.IS5Resources.*;
 
-import org.toxsoft.core.tslib.av.opset.impl.OptionSetUtils;
-import org.toxsoft.core.tslib.coll.helpers.CollConstraint;
-import org.toxsoft.core.tslib.coll.primtypes.impl.SingleStringList;
-import org.toxsoft.core.tslib.gw.IGwHardConstants;
-import org.toxsoft.core.tslib.utils.errors.TsNullArgumentRtException;
+import org.toxsoft.core.tslib.av.opset.impl.*;
+import org.toxsoft.core.tslib.coll.helpers.*;
+import org.toxsoft.core.tslib.coll.primtypes.impl.*;
+import org.toxsoft.core.tslib.gw.*;
+import org.toxsoft.core.tslib.utils.errors.*;
 import org.toxsoft.uskat.classes.*;
-import org.toxsoft.uskat.core.ISkCoreApi;
-import org.toxsoft.uskat.core.api.objserv.ISkObjectService;
-import org.toxsoft.uskat.core.api.sysdescr.ISkSysdescr;
-import org.toxsoft.uskat.core.impl.dto.DtoClassInfo;
-import org.toxsoft.uskat.core.impl.dto.DtoLinkInfo;
+import org.toxsoft.uskat.core.*;
+import org.toxsoft.uskat.core.api.objserv.*;
+import org.toxsoft.uskat.core.api.sysdescr.*;
+import org.toxsoft.uskat.core.impl.dto.*;
 
 /**
  * Константы пакета
@@ -25,32 +22,32 @@ import org.toxsoft.uskat.core.impl.dto.DtoLinkInfo;
 public class S5ClassUtils {
 
   // ------------------------------------------------------------------------------------
-  // {@link IS5ClassNode}
+  // {@link ISkServerNode}
   //
   /**
-   * Связь {@link IS5ClassNode#LNKID_SERVER}: Сервер/кластер, в рамках которого работает узел {@link IS5ClassServer}
+   * Связь {@link ISkServerNode#LNKID_SERVER}: Сервер/кластер, в рамках которого работает узел {@link ISkServer}
    * <p>
-   * Классы объектов связи: {@link IS5ClassServer#CLASS_ID}.
+   * Классы объектов связи: {@link ISkServer#CLASS_ID}.
    */
   private static final DtoLinkInfo LNKINF_NODE_SERVER = DtoLinkInfo.create1( //
-      IS5ClassNode.LNKID_SERVER, //
-      new SingleStringList( CLASS_SERVER ), //
+      ISkServerNode.LNKID_SERVER, //
+      new SingleStringList( ISkServer.CLASS_ID ), //
       new CollConstraint( 1, true, true, true ), //
       OptionSetUtils.createOpSet( //
           DDEF_NAME, STR_N_LINK_NODE_SERVER, //
           DDEF_DESCRIPTION, STR_D_LINK_NODE_SERVER ) );
 
   // ------------------------------------------------------------------------------------
-  // {@link IS5ClassBackend}
+  // {@link ISkServerBackend}
   //
   /**
-   * Связь {@link IS5ClassBackend#LNKID_NODE}: Узел кластера, в рамках которого работает бекенд {@link IS5ClassNode}
+   * Связь {@link ISkServerBackend#LNKID_NODE}: Узел кластера, в рамках которого работает бекенд {@link ISkServerNode}
    * <p>
-   * Классы объектов связи: {@link IS5ClassServer#CLASS_ID}.
+   * Классы объектов связи: {@link ISkServer#CLASS_ID}.
    */
   private static final DtoLinkInfo LNKINF_BACKEND_NODE = DtoLinkInfo.create1( //
-      IS5ClassBackend.LNKID_NODE, //
-      new SingleStringList( CLASS_NODE ), //
+      ISkServerBackend.LNKID_NODE, //
+      new SingleStringList( ISkServerNode.CLASS_ID ), //
       new CollConstraint( 1, true, true, true ), //
       OptionSetUtils.createOpSet( //
           DDEF_NAME, STR_N_LINK_BACKEND_NODE, //
@@ -58,7 +55,7 @@ public class S5ClassUtils {
       ) );
 
   // ------------------------------------------------------------------------------------
-  // {@link IS5ClassHistorableBackend}
+  // {@link ISkServerHistorable}
   //
   // ------------------------------------------------------------------------------------
   //
@@ -72,9 +69,9 @@ public class S5ClassUtils {
   public static void createS5Classes( ISkCoreApi aCoreApi ) {
     TsNullArgumentRtException.checkNull( aCoreApi );
     ISkSysdescr cm = aCoreApi.sysdescr();
-    // IS5ClassServer
+    // ISkServer
     DtoClassInfo sci = new DtoClassInfo( //
-        IS5ClassServer.CLASS_ID, //
+        ISkServer.CLASS_ID, //
         IGwHardConstants.GW_ROOT_CLASS_ID, //
         OptionSetUtils.createOpSet( //
             DDEF_NAME, STR_N_CLASS_SERVER, //
@@ -82,9 +79,9 @@ public class S5ClassUtils {
         ) );
     cm.defineClass( sci );
 
-    // IS5ClassNode
+    // ISkServerNode
     sci = new DtoClassInfo( //
-        IS5ClassNode.CLASS_ID, //
+        ISkServerNode.CLASS_ID, //
         IGwHardConstants.GW_ROOT_CLASS_ID, //
         OptionSetUtils.createOpSet( //
             DDEF_NAME, STR_N_CLASS_NODE, //
@@ -95,9 +92,9 @@ public class S5ClassUtils {
     );
     cm.defineClass( sci );
 
-    // IS5ClassBackend
+    // ISkServerBackend
     sci = new DtoClassInfo( //
-        IS5ClassBackend.CLASS_ID, //
+        ISkServerBackend.CLASS_ID, //
         IGwHardConstants.GW_ROOT_CLASS_ID, //
         OptionSetUtils.createOpSet( //
             DDEF_NAME, STR_N_CLASS_BACKEND, //
@@ -108,10 +105,10 @@ public class S5ClassUtils {
     );
     cm.defineClass( sci );
 
-    // IS5ClassHistorableBackend
+    // ISkServerHistorable
     sci = new DtoClassInfo( //
-        IS5ClassHistorableBackend.CLASS_ID, //
-        IS5ClassBackend.CLASS_ID, OptionSetUtils.createOpSet( //
+        ISkServerHistorable.CLASS_ID, //
+        ISkServerBackend.CLASS_ID, OptionSetUtils.createOpSet( //
             DDEF_NAME, STR_N_CLASS_HISTORABLE_BACKEND, //
             DDEF_DESCRIPTION, STR_D_CLASS_HISTORABLE_BACKEND //
         ) );
@@ -129,9 +126,9 @@ public class S5ClassUtils {
     // Служба объектов
     ISkObjectService os = aCoreApi.objService();
     // Регистрация создателей объектов
-    os.registerObjectCreator( IS5ClassServer.CLASS_ID, S5ClassServer.CREATOR );
-    os.registerObjectCreator( IS5ClassNode.CLASS_ID, S5ClassBackendNode.CREATOR );
-    os.registerObjectCreator( IS5ClassBackend.CLASS_ID, S5ClassBackend.CREATOR );
-    os.registerObjectCreator( IS5ClassHistorableBackend.CLASS_ID, S5ClassHistorableBackend.CREATOR );
+    os.registerObjectCreator( ISkServer.CLASS_ID, SkServer.CREATOR );
+    os.registerObjectCreator( ISkServerNode.CLASS_ID, SkServerNode.CREATOR );
+    os.registerObjectCreator( ISkServerBackend.CLASS_ID, SkServerBackend.CREATOR );
+    os.registerObjectCreator( ISkServerHistorable.CLASS_ID, SkServerHistorable.CREATOR );
   }
 }
