@@ -192,7 +192,7 @@ public abstract class S5InitialSysdescrSingleton
    */
   private void checkSysdescr( ISkConnection aConnection ) {
     // Проверка и если необходимо создание классов s5-бекенда
-    S5ClassUtils.createS5Classes( aConnection.coreApi() );
+    S5ClassUtils.updateSkClasses( aConnection.coreApi() );
     // Регистрация создателей объектов s5
     S5ClassUtils.registerObjectCreators( aConnection.coreApi() );
     // Информация о бекенде

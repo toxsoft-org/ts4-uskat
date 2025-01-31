@@ -1,5 +1,6 @@
 package org.toxsoft.uskat.classes;
 
+import org.toxsoft.core.tslib.av.*;
 import org.toxsoft.uskat.core.*;
 import org.toxsoft.uskat.core.api.objserv.*;
 
@@ -29,4 +30,17 @@ public interface ISkServerNode
   // Данные
   //
   //
+  /**
+   * Данное: с узлом сервера установлена связь.
+   * <p>
+   * Тип: {@link EAtomicType#BOOLEAN}
+   */
+  String RTDID_ONLINE = "online";
+
+  /**
+   * Данное: интегральная оценка состояния подключенных к узлу ресурсов. 0 - нет связи, 100 - все подключено и работает.
+   * <p>
+   * Тип: {@link EAtomicType#INTEGER}
+   */
+  String RTDID_HEALTH = "health";
 }

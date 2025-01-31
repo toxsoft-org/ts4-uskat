@@ -1,12 +1,8 @@
 package org.toxsoft.uskat.s5.server.statistics;
 
-import static org.toxsoft.core.tslib.av.metainfo.IAvMetaConstants.*;
 import static org.toxsoft.uskat.s5.utils.threads.impl.S5Lockable.*;
 
 import org.toxsoft.core.tslib.av.*;
-import org.toxsoft.core.tslib.av.impl.*;
-import org.toxsoft.core.tslib.av.opset.*;
-import org.toxsoft.core.tslib.av.opset.impl.*;
 import org.toxsoft.core.tslib.av.temporal.*;
 import org.toxsoft.core.tslib.bricks.strid.*;
 import org.toxsoft.core.tslib.bricks.strid.coll.*;
@@ -14,7 +10,6 @@ import org.toxsoft.core.tslib.bricks.threadexec.*;
 import org.toxsoft.core.tslib.bricks.time.*;
 import org.toxsoft.core.tslib.bricks.time.impl.*;
 import org.toxsoft.core.tslib.coll.*;
-import org.toxsoft.core.tslib.coll.impl.*;
 import org.toxsoft.core.tslib.coll.primtypes.*;
 import org.toxsoft.core.tslib.coll.primtypes.impl.*;
 import org.toxsoft.core.tslib.gw.gwid.*;
@@ -22,11 +17,8 @@ import org.toxsoft.core.tslib.gw.skid.*;
 import org.toxsoft.core.tslib.utils.*;
 import org.toxsoft.core.tslib.utils.errors.*;
 import org.toxsoft.uskat.core.api.rtdserv.*;
-import org.toxsoft.uskat.core.api.sysdescr.*;
-import org.toxsoft.uskat.core.api.sysdescr.dto.*;
 import org.toxsoft.uskat.core.connection.*;
 import org.toxsoft.uskat.core.impl.*;
-import org.toxsoft.uskat.core.impl.dto.*;
 import org.toxsoft.uskat.s5.utils.threads.impl.*;
 
 /**
@@ -82,8 +74,6 @@ public class S5StatisticWriter
       }
 
     };
-    // Проверка определения данных статистики в объекте
-    createStatIfNeed( aConnection, aStatisticObjId, aInfos );
     // Создание каналов записи данных
     writeChannels.putAll( createChannels( aConnection, aStatisticObjId, aInfos ) );
   }
@@ -218,46 +208,6 @@ public class S5StatisticWriter
    * @param aConnection {@link ISkConnection} соединение используемое для сохранения статистики
    * @param aStatisticObjId {@link Skid} идентификатор объекта в котором сохраняются данные
    * @param aInfos {@link IStridablesList} список описаний параметров статистики
-   * @throws TsNullArgumentRtException любой аргумент = null
-   */
-  private static void createStatIfNeed( ISkConnection aConnection, Skid aStatisticObjId,
-      IStridablesList<S5StatisticParamInfo> aInfos ) {
-    TsNullArgumentRtException.checkNulls( aConnection, aStatisticObjId, aInfos );
-    ISkSysdescr cim = aConnection.coreApi().sysdescr();
-    ISkClassInfo classInfo = cim.getClassInfo( aStatisticObjId.classId() );
-    ISkClassInfo parentClassInfo = cim.getClassInfo( classInfo.parentId() );
-    IStridablesList<IDtoRtdataInfo> rtInfos = classInfo.rtdata().list();
-    // Список описаний данных которые необходимо добавить в класс
-    IListEdit<IDtoRtdataInfo> needDataInfos = new ElemLinkedList<>();
-    for( S5StatisticParamInfo info : aInfos ) {
-      for( IS5StatisticInterval interval : info.intervals() ) {
-        String dataId = getDataId( interval, info.id() );
-        if( !rtInfos.hasKey( dataId ) ) {
-          // Описание базового данного
-          IDtoRtdataInfo dataInfo = DtoRtdataInfo.create1( //
-              dataId, new DataType( info.atomicType() ), true, true, true, interval.milli(), //
-              OptionSetUtils.createOpSet( //
-                  DDEF_NAME, info.nmName() + '(' + interval.nmName() + ')', //
-                  DDEF_DESCRIPTION, info.description() + '(' + info.description() + ')' ) //
-          );
-          needDataInfos.add( dataInfo );
-        }
-      }
-    }
-    if( needDataInfos.size() > 0 ) {
-      // Добавление новых данных в класс
-      DtoClassInfo dtoClassInfo = dtoClassInfo( parentClassInfo, classInfo );
-      dtoClassInfo.rtdataInfos().addAll( needDataInfos );
-      cim.defineClass( dtoClassInfo );
-    }
-  }
-
-  /**
-   * Проверяет, если необходимо добавляет в класс указанного объекта, указанные параметры статистики
-   *
-   * @param aConnection {@link ISkConnection} соединение используемое для сохранения статистики
-   * @param aStatisticObjId {@link Skid} идентификатор объекта в котором сохраняются данные
-   * @param aInfos {@link IStridablesList} список описаний параметров статистики
    * @return {@link IStringMap}&lt;Pai возвращение aInfos
    * @throws TsNullArgumentRtException любой аргумент = null
    */
@@ -289,55 +239,6 @@ public class S5StatisticWriter
   }
 
   /**
-   * Возвращает описание класса в формате DTO
-   *
-   * @param aParentClassInfo {@link ISkClassInfo} описание родительского класса
-   * @param aClassInfo {@link ISkClassInfo} описание класса
-   * @return {@link DtoClassInfo} описание класса в формате DTO
-   * @throws TsNullArgumentRtException аргумент = null
-   */
-  private static DtoClassInfo dtoClassInfo( ISkClassInfo aParentClassInfo, ISkClassInfo aClassInfo ) {
-    TsNullArgumentRtException.checkNulls( aParentClassInfo, aClassInfo );
-    DtoClassInfo retValue = new DtoClassInfo( aClassInfo.id(), aClassInfo.parentId(), IOptionSet.NULL );
-    for( IDtoAttrInfo info : aClassInfo.attrs().list() ) {
-      if( !aParentClassInfo.attrs().list().hasKey( info.id() ) ) {
-        retValue.attrInfos().add( info );
-      }
-    }
-    for( IDtoRivetInfo info : aClassInfo.rivets().list() ) {
-      if( !aParentClassInfo.rivets().list().hasKey( info.id() ) ) {
-        retValue.rivetInfos().add( info );
-      }
-    }
-    for( IDtoLinkInfo info : aClassInfo.links().list() ) {
-      if( !aParentClassInfo.links().list().hasKey( info.id() ) ) {
-        retValue.linkInfos().add( info );
-      }
-    }
-    for( IDtoRtdataInfo info : aClassInfo.rtdata().list() ) {
-      if( !aParentClassInfo.rtdata().list().hasKey( info.id() ) ) {
-        retValue.rtdataInfos().add( info );
-      }
-    }
-    for( IDtoCmdInfo info : aClassInfo.cmds().list() ) {
-      if( !aParentClassInfo.cmds().list().hasKey( info.id() ) ) {
-        retValue.cmdInfos().add( info );
-      }
-    }
-    for( IDtoEventInfo info : aClassInfo.events().list() ) {
-      if( !aParentClassInfo.events().list().hasKey( info.id() ) ) {
-        retValue.eventInfos().add( info );
-      }
-    }
-    for( IDtoClobInfo info : aClassInfo.clobs().list() ) {
-      if( !aParentClassInfo.clobs().list().hasKey( info.id() ) ) {
-        retValue.clobInfos().add( info );
-      }
-    }
-    return retValue;
-  }
-
-  /**
    * Возвращает идентификатора данного (текущего, хранимого) в классе для параметра с указанным интервалом
    *
    * @param aInterval {@link IS5StatisticInterval} интервал статистики
@@ -345,7 +246,7 @@ public class S5StatisticWriter
    * @return String идентификатор данного
    */
   @SuppressWarnings( "nls" )
-  private static String getDataId( IS5StatisticInterval aInterval, String aParam ) {
+  public static String getDataId( IS5StatisticInterval aInterval, String aParam ) {
     return (aParam + "." + aInterval.id());
   }
 }
