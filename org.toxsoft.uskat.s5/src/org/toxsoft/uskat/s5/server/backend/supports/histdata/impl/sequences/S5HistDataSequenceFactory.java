@@ -116,7 +116,8 @@ public final class S5HistDataSequenceFactory
    * @param aSysdescrReader {@link ISkSysdescrReader} читатель системного описания
    * @throws TsNullArgumentRtException любой аргумент = null
    */
-  public S5HistDataSequenceFactory( IS5InitialImplementation aInitialConfig, IOptionSet aConfiguration, ISkSysdescrReader aSysdescrReader ) {
+  public S5HistDataSequenceFactory( IS5InitialImplementation aInitialConfig, IOptionSet aConfiguration,
+      ISkSysdescrReader aSysdescrReader ) {
     super( ID, STR_D_HISTDATA_FACTORY, aInitialConfig, aConfiguration, aSysdescrReader );
   }
 
@@ -189,7 +190,9 @@ public final class S5HistDataSequenceFactory
     // Атомарный тип значений
     IS5HistDataHardConstants.OP_ATOMIC_TYPE.setValue( params, avValobj( atomicType ) );
     // Установка значений неизменяемых опций("защита от дурака")
-    IAvMetaConstants.DDEF_DEFAULT_VALUE.setValue( params, rtdataInfo.dataType().defaultValue() );
+    // 2025-01-31 mvk ---+++
+    // IAvMetaConstants.DDEF_DEFAULT_VALUE.setValue( params, rtdataInfo.dataType().defaultValue() );
+    params.setValue( IAvMetaConstants.TSID_DEFAULT_VALUE, rtdataInfo.dataType().defaultValue() );
     IS5SequenceHardConstants.OP_IS_SYNC.setValue( params, avBool( rtdataInfo.isSync() ) );
     IS5SequenceHardConstants.OP_SYNC_DT.setValue( params, avInt( rtdataInfo.syncDataDeltaT() ) );
 
@@ -231,7 +234,9 @@ public final class S5HistDataSequenceFactory
   public Object doGetSyncDefaultValue( IParameterized aTypeInfo ) {
     IDataType type = OPDEF_DATA_TYPE.getValue( aTypeInfo.params() ).asValobj();
     EAtomicType atomicType = type.atomicType();
-    IAtomicValue defaultValue = IAvMetaConstants.DDEF_DEFAULT_VALUE.getValue( type.params() );
+    // 2025-01-31 mvk ---+++
+    // IAtomicValue defaultValue = IAvMetaConstants.DDEF_DEFAULT_VALUE.getValue( type.params() );
+    IAtomicValue defaultValue = type.params().getValue( IAvMetaConstants.TSID_DEFAULT_VALUE, IAtomicValue.NULL );
     Object retValue = null;
     retValue = switch( atomicType ) {
       case BOOLEAN -> (defaultValue.isAssigned() ? Byte.valueOf( defaultValue.asString() ) : Boolean.valueOf( false ));
@@ -289,17 +294,17 @@ public final class S5HistDataSequenceFactory
         // Таблицы с асинхронными значениями
         return switch( aType ) {
           case BOOLEAN -> new S5SequenceImplementation( S5HistDataAsyncBooleanEntity.class,
-                          S5HistDataAsyncBooleanBlobEntity.class );
+              S5HistDataAsyncBooleanBlobEntity.class );
           case INTEGER -> new S5SequenceImplementation( S5HistDataAsyncIntegerEntity.class,
-                          S5HistDataAsyncIntegerBlobEntity.class );
+              S5HistDataAsyncIntegerBlobEntity.class );
           case FLOATING -> new S5SequenceImplementation( S5HistDataAsyncFloatingEntity.class,
-                          S5HistDataAsyncFloatingBlobEntity.class );
+              S5HistDataAsyncFloatingBlobEntity.class );
           case TIMESTAMP -> new S5SequenceImplementation( S5HistDataAsyncTimestampEntity.class,
-                          S5HistDataAsyncTimestampBlobEntity.class );
+              S5HistDataAsyncTimestampBlobEntity.class );
           case STRING -> new S5SequenceImplementation( S5HistDataAsyncStringEntity.class,
-                          S5HistDataAsyncStringBlobEntity.class );
+              S5HistDataAsyncStringBlobEntity.class );
           case VALOBJ -> new S5SequenceImplementation( S5HistDataAsyncValobjEntity.class,
-                          S5HistDataAsyncValobjBlobEntity.class );
+              S5HistDataAsyncValobjBlobEntity.class );
           case NONE -> throw new TsNotAllEnumsUsedRtException();
           default -> throw new TsNotAllEnumsUsedRtException();
         };
@@ -307,15 +312,17 @@ public final class S5HistDataSequenceFactory
       // Таблицы с синхронными значениями
       return switch( aType ) {
         case BOOLEAN -> new S5SequenceImplementation( S5HistDataSyncBooleanEntity.class,
-                      S5HistDataSyncBooleanBlobEntity.class );
+            S5HistDataSyncBooleanBlobEntity.class );
         case INTEGER -> new S5SequenceImplementation( S5HistDataSyncIntegerEntity.class,
-                      S5HistDataSyncIntegerBlobEntity.class );
+            S5HistDataSyncIntegerBlobEntity.class );
         case FLOATING -> new S5SequenceImplementation( S5HistDataSyncFloatingEntity.class,
-                      S5HistDataSyncFloatingBlobEntity.class );
+            S5HistDataSyncFloatingBlobEntity.class );
         case TIMESTAMP -> new S5SequenceImplementation( S5HistDataSyncTimestampEntity.class,
-                      S5HistDataSyncTimestampBlobEntity.class );
-        case STRING -> new S5SequenceImplementation( S5HistDataSyncStringEntity.class, S5HistDataSyncStringBlobEntity.class );
-        case VALOBJ -> new S5SequenceImplementation( S5HistDataSyncValobjEntity.class, S5HistDataSyncValobjBlobEntity.class );
+            S5HistDataSyncTimestampBlobEntity.class );
+        case STRING -> new S5SequenceImplementation( S5HistDataSyncStringEntity.class,
+            S5HistDataSyncStringBlobEntity.class );
+        case VALOBJ -> new S5SequenceImplementation( S5HistDataSyncValobjEntity.class,
+            S5HistDataSyncValobjBlobEntity.class );
         case NONE -> throw new TsNotAllEnumsUsedRtException();
         default -> throw new TsNotAllEnumsUsedRtException();
       };

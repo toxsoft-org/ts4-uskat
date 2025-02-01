@@ -105,7 +105,7 @@ public class S5BackendSysDescrSingleton
     sysdescrReader = new S5BackendSysdescrReader( entityManager, sysdescr );
     // Регистрация на получение извещений об изменениях системного описания
     addClassInterceptor( sysdescrReader, 100 );
-    // Инициализация читателя, далее обновления будут проводиться через интерсепцию
+    // Инициализация читателя, далее обновления будут проводится через интерсепцию
     sysdescrReader.setClassInfos( S5BackendSysdescrReader.detach( entityManager, readClassInfos() ) );
     // Проверка существования корневого класса
     S5ClassEntity rootClass = entityManager.find( S5ClassEntity.class, GW_ROOT_CLASS_ID );

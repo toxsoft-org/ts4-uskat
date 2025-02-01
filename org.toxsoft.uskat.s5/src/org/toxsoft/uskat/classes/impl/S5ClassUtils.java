@@ -4,6 +4,7 @@ import static org.toxsoft.core.tslib.av.EAtomicType.*;
 import static org.toxsoft.core.tslib.av.impl.AvUtils.*;
 import static org.toxsoft.core.tslib.av.metainfo.IAvMetaConstants.*;
 import static org.toxsoft.uskat.classes.impl.IS5Resources.*;
+import static org.toxsoft.uskat.core.ISkHardConstants.*;
 
 import org.toxsoft.core.tslib.av.*;
 import org.toxsoft.core.tslib.av.impl.*;
@@ -116,7 +117,9 @@ public class S5ClassUtils {
         IGwHardConstants.GW_ROOT_CLASS_ID, //
         OptionSetUtils.createOpSet( //
             DDEF_NAME, STR_N_CLASS_SERVER, //
-            DDEF_DESCRIPTION, STR_D_CLASS_SERVER //
+            DDEF_DESCRIPTION, STR_D_CLASS_SERVER, //
+            OPDEF_SK_IS_SOURCE_CODE_DEFINED_CLASS, AV_TRUE, //
+            OPDEF_SK_IS_SOURCE_USKAT_CORE_CLASS, AV_FALSE //
         ) );
     cm.defineClass( sci );
 
@@ -126,7 +129,9 @@ public class S5ClassUtils {
         IGwHardConstants.GW_ROOT_CLASS_ID, //
         OptionSetUtils.createOpSet( //
             DDEF_NAME, STR_N_CLASS_NODE, //
-            DDEF_DESCRIPTION, STR_D_CLASS_NODE //
+            DDEF_DESCRIPTION, STR_D_CLASS_NODE, //
+            OPDEF_SK_IS_SOURCE_CODE_DEFINED_CLASS, AV_TRUE, //
+            OPDEF_SK_IS_SOURCE_USKAT_CORE_CLASS, AV_FALSE //
         ) );
     sci.linkInfos().addAll( //
         LNKINF_NODE_SERVER //
@@ -144,7 +149,9 @@ public class S5ClassUtils {
         IGwHardConstants.GW_ROOT_CLASS_ID, //
         OptionSetUtils.createOpSet( //
             DDEF_NAME, STR_N_CLASS_BACKEND, //
-            DDEF_DESCRIPTION, STR_D_CLASS_BACKEND //
+            DDEF_DESCRIPTION, STR_D_CLASS_BACKEND, //
+            OPDEF_SK_IS_SOURCE_CODE_DEFINED_CLASS, AV_TRUE, //
+            OPDEF_SK_IS_SOURCE_USKAT_CORE_CLASS, AV_FALSE //
         ) );
     sci.linkInfos().addAll( //
         LNKINF_BACKEND_NODE //
@@ -156,7 +163,9 @@ public class S5ClassUtils {
         ISkServerHistorable.CLASS_ID, //
         ISkServerBackend.CLASS_ID, OptionSetUtils.createOpSet( //
             DDEF_NAME, STR_N_CLASS_HISTORABLE_BACKEND, //
-            DDEF_DESCRIPTION, STR_D_CLASS_HISTORABLE_BACKEND //
+            DDEF_DESCRIPTION, STR_D_CLASS_HISTORABLE_BACKEND, //
+            OPDEF_SK_IS_SOURCE_CODE_DEFINED_CLASS, AV_TRUE, //
+            OPDEF_SK_IS_SOURCE_USKAT_CORE_CLASS, AV_FALSE //
         ) );
     sci.rtdataInfos().addAll( listStatRtdInfos( IS5ServerHardConstants.STAT_HISTORABLE_BACKEND_PARAMS ) );
     cm.defineClass( sci );
@@ -193,11 +202,12 @@ public class S5ClassUtils {
         String dataId = S5StatisticWriter.getDataId( interval, statInfo.id() );
         // Описание базового данного
         IDtoRtdataInfo info = DtoRtdataInfo.create1( //
-            dataId, new DataType( statInfo.atomicType() ), true, true, true, interval.milli(), //
+            dataId, new DataType( statInfo.atomicType(), OptionSetUtils.createOpSet( //
+                DDEF_DEFAULT_VALUE, statInfo.params().getValue( TSID_DEFAULT_VALUE ) ) ),
+            true, true, true, interval.milli(), //
             OptionSetUtils.createOpSet( //
                 DDEF_NAME, statInfo.nmName() + '(' + interval.nmName() + ')', //
-                DDEF_DESCRIPTION, statInfo.description() + '(' + statInfo.description() + ')' ) //
-        );
+                DDEF_DESCRIPTION, statInfo.description() + '(' + statInfo.description() + ')' ) );
         retValue.add( info );
       }
     }

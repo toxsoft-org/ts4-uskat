@@ -211,17 +211,17 @@ public abstract class S5SequenceFactory<V extends ITemporal<?>>
   @SuppressWarnings( "unchecked" )
   public final IS5SequenceBlockEdit<V> createBlock( Gwid aGwid, ITimedList<V> aValues ) {
     TsNullArgumentRtException.checkNulls( aGwid, aValues );
-    // Параметризованное описание типа данного
-    IParameterized typeInfo = typeInfo( aGwid );
-    // Имя класса реализации блока
-    String blockImplClass = OP_BLOCK_IMPL_CLASS.getValue( typeInfo.params() ).asString();
     try {
+      // Параметризованное описание типа данного
+      IParameterized typeInfo = typeInfo( aGwid );
+      // Имя класса реализации блока
+      String blockImplClass = OP_BLOCK_IMPL_CLASS.getValue( typeInfo.params() ).asString();
       // Статический метод создания блока
       Method createMethod = getCreateMethod( blockImplClass );
       // Создание блока
       return (IS5SequenceBlockEdit<V>)createMethod.invoke( null, typeInfo, aGwid, aValues );
     }
-    catch( IllegalAccessException | IllegalArgumentException | InvocationTargetException e ) {
+    catch( Throwable e ) {
       // Неожиданная ошибка создания блока значений
       throw new TsInternalErrorRtException( e, ERR_CREATE_BLOCK_UNEXPECTED, aGwid, cause( e ) );
     }
@@ -236,7 +236,7 @@ public abstract class S5SequenceFactory<V extends ITemporal<?>>
       // Создание блока через курсор JDBC
       return constructorMethod.newInstance( aResultSet );
     }
-    catch( IllegalAccessException | IllegalArgumentException | InvocationTargetException | InstantiationException e ) {
+    catch( Throwable e ) {
       // Неожиданная ошибка создания блока значений из курсора dbms(ResultSet)
       throw new TsInternalErrorRtException( e, ERR_CREATE_BLOCK_UNEXPECTED, aBlockImplClassName, cause( e ) );
     }

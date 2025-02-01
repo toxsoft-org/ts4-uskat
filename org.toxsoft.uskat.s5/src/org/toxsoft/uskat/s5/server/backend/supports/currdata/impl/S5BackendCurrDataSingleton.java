@@ -5,40 +5,36 @@ import static org.toxsoft.uskat.s5.server.backend.supports.currdata.impl.IS5Curr
 import static org.toxsoft.uskat.s5.server.backend.supports.currdata.impl.IS5Resources.*;
 
 import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.*;
 
-import javax.annotation.Resource;
+import javax.annotation.*;
 import javax.ejb.*;
 
-import org.infinispan.Cache;
-import org.toxsoft.core.tslib.av.EAtomicType;
-import org.toxsoft.core.tslib.av.IAtomicValue;
-import org.toxsoft.core.tslib.bricks.events.msg.GtMessage;
-import org.toxsoft.core.tslib.bricks.strid.coll.IStridablesList;
-import org.toxsoft.core.tslib.bricks.strid.coll.IStridablesListEdit;
-import org.toxsoft.core.tslib.bricks.strid.coll.impl.StridablesList;
+import org.infinispan.*;
+import org.toxsoft.core.tslib.av.*;
+import org.toxsoft.core.tslib.av.metainfo.*;
+import org.toxsoft.core.tslib.bricks.events.msg.*;
+import org.toxsoft.core.tslib.bricks.strid.coll.*;
+import org.toxsoft.core.tslib.bricks.strid.coll.impl.*;
 import org.toxsoft.core.tslib.coll.*;
-import org.toxsoft.core.tslib.coll.impl.ElemMap;
-import org.toxsoft.core.tslib.coll.primtypes.impl.StringArrayList;
+import org.toxsoft.core.tslib.coll.impl.*;
+import org.toxsoft.core.tslib.coll.primtypes.impl.*;
 import org.toxsoft.core.tslib.gw.gwid.*;
 import org.toxsoft.core.tslib.utils.errors.*;
-import org.toxsoft.core.tslib.utils.logs.ELogSeverity;
-import org.toxsoft.core.tslib.utils.logs.ILogger;
-import org.toxsoft.uskat.core.api.objserv.IDtoObject;
-import org.toxsoft.uskat.core.api.sysdescr.ISkClassInfo;
-import org.toxsoft.uskat.core.api.sysdescr.dto.IDtoRtdataInfo;
-import org.toxsoft.uskat.core.backend.api.BaMsgRtdataCurrData;
-import org.toxsoft.uskat.core.backend.api.IBaRtdata;
-import org.toxsoft.uskat.s5.common.sysdescr.ISkSysdescrReader;
-import org.toxsoft.uskat.s5.server.backend.addons.rtdata.S5BaRtdataData;
-import org.toxsoft.uskat.s5.server.backend.impl.S5BackendSupportSingleton;
-import org.toxsoft.uskat.s5.server.backend.supports.currdata.IS5BackendCurrDataSingleton;
-import org.toxsoft.uskat.s5.server.backend.supports.objects.IS5BackendObjectsSingleton;
-import org.toxsoft.uskat.s5.server.backend.supports.sysdescr.IS5BackendSysDescrSingleton;
-import org.toxsoft.uskat.s5.server.frontend.IS5FrontendRear;
-import org.toxsoft.uskat.s5.server.interceptors.S5InterceptorSupport;
-import org.toxsoft.uskat.s5.utils.jobs.IS5ServerJob;
+import org.toxsoft.core.tslib.utils.logs.*;
+import org.toxsoft.uskat.core.api.objserv.*;
+import org.toxsoft.uskat.core.api.sysdescr.*;
+import org.toxsoft.uskat.core.api.sysdescr.dto.*;
+import org.toxsoft.uskat.core.backend.api.*;
+import org.toxsoft.uskat.s5.common.sysdescr.*;
+import org.toxsoft.uskat.s5.server.backend.addons.rtdata.*;
+import org.toxsoft.uskat.s5.server.backend.impl.*;
+import org.toxsoft.uskat.s5.server.backend.supports.currdata.*;
+import org.toxsoft.uskat.s5.server.backend.supports.objects.*;
+import org.toxsoft.uskat.s5.server.backend.supports.sysdescr.*;
+import org.toxsoft.uskat.s5.server.frontend.*;
+import org.toxsoft.uskat.s5.server.interceptors.*;
+import org.toxsoft.uskat.s5.utils.jobs.*;
 
 /**
  * Реализация синглетона {@link IS5BackendCurrDataSingleton}
@@ -564,13 +560,12 @@ public class S5BackendCurrDataSingleton
       }
       String dataId = info.id();
       IAtomicValue defaultValue = info.dataType().defaultValue();
-      // TODO: 2019-12-28 mvk надо поднимать ошибку если defaultValue = IAtomicValue.NULL
-      // Но сейчас это мешает запуску uskat-tm. Заменяем на вывод ошибки в лог
-      // if( defaultValue == IAtomicValue.NULL && dataDef.params().getBool( TSID_IS_NULL_ALLOWED, true ) == false ) {
-      // // Текущее данное имеет тип для которого требуется, но неопределено значение по умолчанию
-      // throw new TsInternalErrorRtException( ERR_NO_DEFAULT_VALUE, classId, dataId, info.typeId() );
-      // }
-      aLogger.warning( ERR_NO_DEFAULT_VALUE, classId, dataId, info.dataType() );
+      IAtomicValue isNullAllowed = info.dataType().params().findValue( IAvMetaConstants.TSID_IS_NULL_ALLOWED );
+      if( defaultValue == IAtomicValue.NULL ) {
+        if( isNullAllowed == null || !isNullAllowed.isAssigned() || !isNullAllowed.asBool() ) {
+          aLogger.warning( ERR_NO_DEFAULT_VALUE, classId, dataId, info.dataType() );
+        }
+      }
       for( IDtoObject obj : objs ) {
         retValue.put( Gwid.createRtdata( classId, obj.strid(), dataId ), defaultValue );
       }
