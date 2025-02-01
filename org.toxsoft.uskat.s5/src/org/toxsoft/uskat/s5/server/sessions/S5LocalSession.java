@@ -8,7 +8,7 @@ import org.toxsoft.core.tslib.gw.skid.Skid;
 import org.toxsoft.core.tslib.utils.TsLibUtils;
 import org.toxsoft.core.tslib.utils.errors.TsNullArgumentRtException;
 import org.toxsoft.core.tslib.utils.logs.ILogger;
-import org.toxsoft.uskat.s5.common.sessions.ISkSession;
+import org.toxsoft.uskat.classes.*;
 import org.toxsoft.uskat.s5.server.frontend.IS5FrontendRear;
 
 /**

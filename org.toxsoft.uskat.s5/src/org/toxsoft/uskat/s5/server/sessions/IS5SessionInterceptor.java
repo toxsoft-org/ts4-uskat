@@ -6,8 +6,8 @@ import org.toxsoft.core.tslib.gw.skid.Skid;
 import org.toxsoft.core.tslib.utils.errors.TsIllegalStateRtException;
 import org.toxsoft.core.tslib.utils.errors.TsNullArgumentRtException;
 import org.toxsoft.core.tslib.utils.logs.ILogger;
+import org.toxsoft.uskat.classes.*;
 import org.toxsoft.uskat.core.api.evserv.SkEvent;
-import org.toxsoft.uskat.s5.common.sessions.ISkSession;
 import org.toxsoft.uskat.s5.server.interceptors.IS5Interceptor;
 import org.toxsoft.uskat.s5.server.interceptors.S5InterceptorSupport;
 

@@ -5,24 +5,38 @@ import static org.toxsoft.core.tslib.av.impl.AvUtils.*;
 import static org.toxsoft.core.tslib.av.metainfo.IAvMetaConstants.*;
 import static org.toxsoft.uskat.classes.impl.IS5Resources.*;
 import static org.toxsoft.uskat.core.ISkHardConstants.*;
+import static org.toxsoft.uskat.core.api.users.ISkUserServiceHardConstants.*;
+import static org.toxsoft.uskat.s5.server.IS5ServerHardConstants.*;
 
 import org.toxsoft.core.tslib.av.*;
 import org.toxsoft.core.tslib.av.impl.*;
+import org.toxsoft.core.tslib.av.metainfo.*;
+import org.toxsoft.core.tslib.av.opset.*;
 import org.toxsoft.core.tslib.av.opset.impl.*;
 import org.toxsoft.core.tslib.bricks.strid.coll.*;
+import org.toxsoft.core.tslib.bricks.strid.coll.impl.*;
 import org.toxsoft.core.tslib.coll.*;
 import org.toxsoft.core.tslib.coll.helpers.*;
 import org.toxsoft.core.tslib.coll.impl.*;
+import org.toxsoft.core.tslib.coll.primtypes.*;
 import org.toxsoft.core.tslib.coll.primtypes.impl.*;
 import org.toxsoft.core.tslib.gw.*;
+import org.toxsoft.core.tslib.gw.gwid.*;
+import org.toxsoft.core.tslib.gw.skid.*;
 import org.toxsoft.core.tslib.utils.errors.*;
 import org.toxsoft.uskat.classes.*;
-import org.toxsoft.uskat.core.*;
+import org.toxsoft.uskat.core.api.linkserv.*;
 import org.toxsoft.uskat.core.api.objserv.*;
-import org.toxsoft.uskat.core.api.sysdescr.*;
 import org.toxsoft.uskat.core.api.sysdescr.dto.*;
+import org.toxsoft.uskat.core.api.users.*;
+import org.toxsoft.uskat.core.backend.api.*;
 import org.toxsoft.uskat.core.impl.dto.*;
+import org.toxsoft.uskat.core.utils.*;
 import org.toxsoft.uskat.s5.server.*;
+import org.toxsoft.uskat.s5.server.backend.supports.links.*;
+import org.toxsoft.uskat.s5.server.backend.supports.objects.*;
+import org.toxsoft.uskat.s5.server.backend.supports.sysdescr.*;
+import org.toxsoft.uskat.s5.server.frontend.*;
 import org.toxsoft.uskat.s5.server.statistics.*;
 
 /**
@@ -32,160 +46,357 @@ import org.toxsoft.uskat.s5.server.statistics.*;
  */
 public class S5ClassUtils {
 
-  // ------------------------------------------------------------------------------------
-  // {@link ISkServerNode}
-  //
-  /**
-   * Связь {@link ISkServerNode#LNKID_SERVER}: Сервер/кластер, в рамках которого работает узел {@link ISkServer}
-   * <p>
-   * Классы объектов связи: {@link ISkServer#CLASS_ID}.
-   */
-  private static final DtoLinkInfo LNKINF_NODE_SERVER = DtoLinkInfo.create1( //
-      ISkServerNode.LNKID_SERVER, //
-      new SingleStringList( ISkServer.CLASS_ID ), //
-      new CollConstraint( 1, true, true, true ), //
-      OptionSetUtils.createOpSet( //
-          DDEF_NAME, STR_N_LINK_NODE_SERVER, //
-          DDEF_DESCRIPTION, STR_D_LINK_NODE_SERVER ) );
-
-  /**
-   * Данное: с узлом сервера установлена связь.
-   * <p>
-   * Тип: {@link EAtomicType#BOOLEAN}
-   */
-  private static final DtoRtdataInfo RTDINF_NODE_ONLINE = DtoRtdataInfo.create2( //
-      ISkServerNode.RTDID_ONLINE, //
-      DataType.create( BOOLEAN, //
-          TSID_FORMAT_STRING, FMT_BOOL_CHECK, //
-          TSID_DEFAULT_VALUE, AV_FALSE //
-      ), //
-      true, true, false, 1000, //
-      TSID_NAME, STR_RTD_ONLINE, //
-      TSID_DESCRIPTION, STR_RTD_ONLINE_D //
-  );
-
-  /**
-   * Данное: интегральная оценка состояния подключенных к узлу ресурсов. 0 - нет связи, 100 - все подключено и работает.
-   * <p>
-   * Тип: {@link EAtomicType#INTEGER}
-   */
-  private static final DtoRtdataInfo RTDINF_NODE_HEALTH = DtoRtdataInfo.create2( //
-      ISkServerNode.RTDID_HEALTH, //
-      DataType.create( INTEGER, //
-          TSID_DEFAULT_VALUE, AV_0 //
-      ), //
-      true, true, false, 1000, //
-      TSID_NAME, STR_RTD_HEALTH, //
-      TSID_DESCRIPTION, STR_RTD_HEALTH_D //
-  );
-
-  // ------------------------------------------------------------------------------------
-  // {@link ISkServerBackend}
-  //
-  /**
-   * Связь {@link ISkServerBackend#LNKID_NODE}: Узел кластера, в рамках которого работает бекенд {@link ISkServerNode}
-   * <p>
-   * Классы объектов связи: {@link ISkServer#CLASS_ID}.
-   */
-  private static final DtoLinkInfo LNKINF_BACKEND_NODE = DtoLinkInfo.create1( //
-      ISkServerBackend.LNKID_NODE, //
-      new SingleStringList( ISkServerNode.CLASS_ID ), //
-      new CollConstraint( 1, true, true, true ), //
-      OptionSetUtils.createOpSet( //
-          DDEF_NAME, STR_N_LINK_BACKEND_NODE, //
-          DDEF_DESCRIPTION, STR_D_LINK_BACKEND_NODE //
-      ) );
-
-  // ------------------------------------------------------------------------------------
-  // {@link ISkServerHistorable}
-  //
-  // ------------------------------------------------------------------------------------
-  //
-  //
   /**
    * Обновление описания sk-классов
    *
-   * @param aCoreApi {@link ISkCoreApi} ядро сервера
-   * @throws TsNullArgumentRtException аргумент = null
+   * @param aBackendInfo {@link ISkBackendInfo} информация о бекенде
+   * @param aSysdescrSupport {@link IS5BackendSysDescrSingleton} поддержка системного описания
+   * @param aObjectsSupport {@link IS5BackendObjectsSingleton} поддержка объектов
+   * @param aLinksSupport {@link IS5BackendLinksSingleton} поддержка связей объектов
+   * @throws TsNullArgumentRtException любой аргумент = null
    */
-  public static void updateSkClasses( ISkCoreApi aCoreApi ) {
-    TsNullArgumentRtException.checkNull( aCoreApi );
-    ISkSysdescr cm = aCoreApi.sysdescr();
+  public static void updateCoreSysdescr( ISkBackendInfo aBackendInfo, IS5BackendSysDescrSingleton aSysdescrSupport,
+      IS5BackendObjectsSingleton aObjectsSupport, IS5BackendLinksSingleton aLinksSupport ) {
+    TsNullArgumentRtException.checkNulls( aBackendInfo, aSysdescrSupport, aObjectsSupport, aLinksSupport );
+
+    // Описания обновляемых классов
+    IStridablesListEdit<IDtoClassInfo> dtoInfos = new StridablesList<>();
+    // ISkNetNode
+    dtoInfos.add( internalCreateNetNodeClassDto() );
     // ISkServer
-    DtoClassInfo sci = new DtoClassInfo( //
-        ISkServer.CLASS_ID, //
-        IGwHardConstants.GW_ROOT_CLASS_ID, //
-        OptionSetUtils.createOpSet( //
-            DDEF_NAME, STR_N_CLASS_SERVER, //
-            DDEF_DESCRIPTION, STR_D_CLASS_SERVER, //
-            OPDEF_SK_IS_SOURCE_CODE_DEFINED_CLASS, AV_TRUE, //
-            OPDEF_SK_IS_SOURCE_USKAT_CORE_CLASS, AV_FALSE //
-        ) );
-    cm.defineClass( sci );
-
-    // ISkServerNode
-    sci = new DtoClassInfo( //
-        ISkServerNode.CLASS_ID, //
-        IGwHardConstants.GW_ROOT_CLASS_ID, //
-        OptionSetUtils.createOpSet( //
-            DDEF_NAME, STR_N_CLASS_NODE, //
-            DDEF_DESCRIPTION, STR_D_CLASS_NODE, //
-            OPDEF_SK_IS_SOURCE_CODE_DEFINED_CLASS, AV_TRUE, //
-            OPDEF_SK_IS_SOURCE_USKAT_CORE_CLASS, AV_FALSE //
-        ) );
-    sci.linkInfos().addAll( //
-        LNKINF_NODE_SERVER //
-    );
-    sci.rtdataInfos().addAll( //
-        RTDINF_NODE_ONLINE, //
-        RTDINF_NODE_HEALTH //
-    );
-    sci.rtdataInfos().addAll( listStatRtdInfos( IS5ServerHardConstants.STAT_BACKEND_NODE_PARAMS ) );
-    cm.defineClass( sci );
-
+    dtoInfos.add( internalCreateServerClassDto() );
+    // ISkClusterNode
+    dtoInfos.add( internalCreateServerClusterNodeClassDto() );
     // ISkServerBackend
-    sci = new DtoClassInfo( //
+    dtoInfos.add( internalCreateServerBackendClassDto() );
+    // ISkServerHistorable
+    dtoInfos.add( internalCreateServerHistorableClassDto() );
+    // ISkUser
+    dtoInfos.add( internalCreateUserClassDto() );
+    // ISkSession
+    dtoInfos.add( internalCreateSessionClassDto() );
+    // Обновление описания классов
+    aSysdescrSupport.writeClassInfos( IStringList.EMPTY, dtoInfos );
+
+    // Создание пользователя root
+    if( aObjectsSupport.findObject( ISkUserServiceHardConstants.SKID_USER_ROOT ) == null ) {
+      IOptionSetEdit attrs = new OptionSet();
+      attrs.setStr( AID_NAME, STR_ROOT_USER );
+      attrs.setStr( AID_DESCRIPTION, STR_ROOT_USER_D );
+      attrs.setStr( ISkUserServiceHardConstants.ATRID_PASSWORD_HASH,
+          SkHelperUtils.getPasswordHashCode( ISkUserServiceHardConstants.INITIAL_ROOT_PASSWORD ) );
+      IDtoObject root = new DtoObject( ISkUserServiceHardConstants.SKID_USER_ROOT, attrs, IStringMap.EMPTY );
+      aObjectsSupport.writeObjects( IS5FrontendRear.NULL, ISkidList.EMPTY, new ElemArrayList<>( root ), true );
+    }
+
+    // Идентификатор сервера
+    Skid serverId = OP_SERVER_ID.getValue( aBackendInfo.params() ).asValobj();
+    // Идентификатор узла сервера
+    Skid nodeId = OP_SERVER_NODE_ID.getValue( aBackendInfo.params() ).asValobj();
+
+    // Проверка существования сервера
+    if( aObjectsSupport.findObject( serverId ) == null ) {
+      // Сервер не найден. Создание сервера
+      IDtoObject server = new DtoObject( serverId, new OptionSet(), IStringMap.EMPTY );
+      // aInterceptable = true
+      aObjectsSupport.writeObjects( IS5FrontendRear.NULL, ISkidList.EMPTY, new ElemArrayList<>( server ), true );
+    }
+
+    // Проверка существования узла сервера
+    if( aObjectsSupport.findObject( nodeId ) == null ) {
+      // Узел не найден. Создание узла
+      IDtoObject node = new DtoObject( nodeId, new OptionSet(), IStringMap.EMPTY );
+      // aInterceptable = true
+      aObjectsSupport.writeObjects( IS5FrontendRear.NULL, ISkidList.EMPTY, new ElemArrayList<>( node ), true );
+      // Установка связи
+      Gwid linkGwid = Gwid.createLink( ISkClusterNode.CLASS_ID, ISkClusterNode.LNKID_SERVER );
+      IDtoLinkFwd linkFwd = new DtoLinkFwd( linkGwid, nodeId, new SkidList( serverId ) );
+      aLinksSupport.writeLinksFwd( new ElemArrayList<>( linkFwd ) );
+    }
+  }
+
+  // ------------------------------------------------------------------------------------
+  // private methods
+  //
+  private static IDtoClassInfo internalCreateNetNodeClassDto() {
+    DtoClassInfo retValue = new DtoClassInfo( //
+        ISkNetNode.CLASS_ID, //
+        IGwHardConstants.GW_ROOT_CLASS_ID, //
+        OptionSetUtils.createOpSet( //
+            DDEF_NAME, STR_CLASS_NETNODE, //
+            DDEF_DESCRIPTION, STR_CLASS_NETNODE_D, //
+            OPDEF_SK_IS_SOURCE_CODE_DEFINED_CLASS, AV_TRUE, //
+            OPDEF_SK_IS_SOURCE_USKAT_CORE_CLASS, AV_FALSE //
+        ) );
+    retValue.linkInfos().addAll( //
+        DtoLinkInfo.create1( //
+            ISkNetNode.LNKID_CHILDS, //
+            new SingleStringList( ISkNetNode.CLASS_ID ), //
+            // aMaxCount = 0, aIsExactCount = false, aIsEmptyProhibited = false, aIsDuplicatesProhibited = true
+            new CollConstraint( 0, false, false, true ), //
+            OptionSetUtils.createOpSet( //
+                DDEF_NAME, STR_LNKID_CLUSTERNODE_SERVER, //
+                DDEF_DESCRIPTION, STR_LNKID_CLUSTERNODE_SERVER_D ) ) //
+    );
+    retValue.rtdataInfos().addAll( //
+        DtoRtdataInfo.create2( //
+            ISkNetNode.RTDID_ONLINE, //
+            DataType.create( BOOLEAN, //
+                TSID_FORMAT_STRING, FMT_BOOL_CHECK, //
+                TSID_DEFAULT_VALUE, AV_FALSE //
+            ), //
+            true, true, false, 1000, //
+            TSID_NAME, STR_RTD_NETNODE_ONLINE, //
+            TSID_DESCRIPTION, STR_RTD_NETNODE_ONLINE_D //
+        ), //
+        DtoRtdataInfo.create2( //
+            ISkNetNode.RTDID_HEALTH, //
+            DataType.create( INTEGER, //
+                TSID_DEFAULT_VALUE, AV_0 //
+            ), //
+            true, true, false, 1000, //
+            TSID_NAME, STR_RTD_NETNODE_HEALTH, //
+            TSID_DESCRIPTION, STR_RTD_NETNODE_HEALTH_D //
+        ) //
+    );
+    return retValue;
+  }
+
+  private static IDtoClassInfo internalCreateServerClassDto() {
+    DtoClassInfo retValue = new DtoClassInfo( //
+        ISkServer.CLASS_ID, //
+        ISkNetNode.CLASS_ID, //
+        OptionSetUtils.createOpSet( //
+            DDEF_NAME, STR_CLASS_SERVER, //
+            DDEF_DESCRIPTION, STR_CLASS_SERVER_D, //
+            OPDEF_SK_IS_SOURCE_CODE_DEFINED_CLASS, AV_TRUE, //
+            OPDEF_SK_IS_SOURCE_USKAT_CORE_CLASS, AV_FALSE //
+        ) );
+    retValue.eventInfos().addAll( //
+        DtoEventInfo.create1( ISkServer.EVID_LOGIN_FAILED, true, //
+            new StridablesList<>( //
+                DataDef.create( ISkServer.EVPID_LOGIN, EAtomicType.STRING, TSID_NAME, STR_EV_PARAM_LOGIN, //
+                    TSID_DESCRIPTION, STR_EV_PARAM_LOGIN_D, //
+                    TSID_IS_NULL_ALLOWED, AV_FALSE, //
+                    TSID_DEFAULT_VALUE, AV_STR_EMPTY ), //
+                DataDef.create( ISkServer.EVPID_IP, EAtomicType.STRING, TSID_NAME, STR_EV_PARAM_IP, //
+                    TSID_DESCRIPTION, STR_EV_PARAM_IP_D, //
+                    TSID_IS_NULL_ALLOWED, AV_FALSE, //
+                    TSID_DEFAULT_VALUE, AV_STR_EMPTY ) //
+            ), //
+            OptionSetUtils.createOpSet( //
+                IAvMetaConstants.TSID_NAME, STR_EV_LOGIN_FAILED, //
+                IAvMetaConstants.TSID_DESCRIPTION, STR_EV_LOGIN_FAILED_D //
+            ) ), //
+        DtoEventInfo.create1( ISkServer.EVID_SESSION_CREATED, true, //
+            new StridablesList<>( //
+                DataDef.create( ISkServer.EVPID_LOGIN, EAtomicType.STRING, TSID_NAME, STR_EV_PARAM_LOGIN, //
+                    TSID_DESCRIPTION, STR_EV_PARAM_LOGIN_D, //
+                    TSID_IS_NULL_ALLOWED, AV_FALSE, //
+                    TSID_DEFAULT_VALUE, AV_STR_EMPTY ), //
+                DataDef.create( ISkServer.EVPID_IP, EAtomicType.STRING, TSID_NAME, STR_EV_PARAM_IP, //
+                    TSID_DESCRIPTION, STR_EV_PARAM_IP_D, //
+                    TSID_IS_NULL_ALLOWED, AV_FALSE, //
+                    TSID_DEFAULT_VALUE, AV_STR_EMPTY ), //
+                DataDef.create( ISkServer.EVPID_SESSION_ID, EAtomicType.VALOBJ, TSID_NAME, STR_EV_SESSION_ID, //
+                    TSID_DESCRIPTION, STR_EV_SESSION_ID_D, //
+                    TSID_IS_NULL_ALLOWED, AV_FALSE ) //
+            ), //
+            OptionSetUtils.createOpSet( //
+                IAvMetaConstants.TSID_NAME, STR_EV_SESSION_CREATED, //
+                IAvMetaConstants.TSID_DESCRIPTION, STR_EV_SESSION_CREATED_D//
+            ) ), //
+        DtoEventInfo.create1( ISkServer.EVID_SESSION_CLOSED, true, //
+            new StridablesList<>( //
+                DataDef.create( ISkServer.EVPID_LOGIN, EAtomicType.STRING, TSID_NAME, STR_EV_PARAM_LOGIN, //
+                    TSID_DESCRIPTION, STR_EV_PARAM_LOGIN_D, //
+                    TSID_IS_NULL_ALLOWED, AV_FALSE, //
+                    TSID_DEFAULT_VALUE, AV_STR_EMPTY ), //
+                DataDef.create( ISkServer.EVPID_IP, EAtomicType.STRING, TSID_NAME, STR_EV_PARAM_IP, //
+                    TSID_DESCRIPTION, STR_EV_PARAM_IP_D, //
+                    TSID_IS_NULL_ALLOWED, AV_FALSE, //
+                    TSID_DEFAULT_VALUE, AV_STR_EMPTY ), //
+                DataDef.create( ISkServer.EVPID_SESSION_ID, EAtomicType.VALOBJ, TSID_NAME, STR_EV_SESSION_ID, //
+                    TSID_DESCRIPTION, STR_EV_SESSION_ID_D, //
+                    TSID_IS_NULL_ALLOWED, AV_FALSE ) //
+            ), //
+            OptionSetUtils.createOpSet( //
+                IAvMetaConstants.TSID_NAME, STR_EV_SESSION_CLOSED, //
+                IAvMetaConstants.TSID_DESCRIPTION, STR_EV_SESSION_CLOSED_D//
+            ) ), //
+        DtoEventInfo.create1( ISkServer.EVID_SESSION_BREAKED, true, //
+            new StridablesList<>( //
+                DataDef.create( ISkServer.EVPID_LOGIN, EAtomicType.STRING, TSID_NAME, STR_EV_PARAM_LOGIN, //
+                    TSID_DESCRIPTION, STR_EV_PARAM_LOGIN_D, //
+                    TSID_IS_NULL_ALLOWED, AV_FALSE, //
+                    TSID_DEFAULT_VALUE, AV_STR_EMPTY ), //
+                DataDef.create( ISkServer.EVPID_IP, EAtomicType.STRING, TSID_NAME, STR_EV_PARAM_IP, //
+                    TSID_DESCRIPTION, STR_EV_PARAM_IP_D, //
+                    TSID_IS_NULL_ALLOWED, AV_FALSE, //
+                    TSID_DEFAULT_VALUE, AV_STR_EMPTY ), //
+                DataDef.create( ISkServer.EVPID_SESSION_ID, EAtomicType.VALOBJ, TSID_NAME, STR_EV_SESSION_ID, //
+                    TSID_DESCRIPTION, STR_EV_SESSION_ID_D, //
+                    TSID_IS_NULL_ALLOWED, AV_FALSE ) //
+            ), //
+            OptionSetUtils.createOpSet( //
+                IAvMetaConstants.TSID_NAME, STR_EV_SESSION_BREAKED, //
+                IAvMetaConstants.TSID_DESCRIPTION, STR_EV_SESSION_BREAKED_D//
+            ) ), //
+        DtoEventInfo.create1( ISkServer.EVID_SESSION_RESTORED, true, //
+            new StridablesList<>( //
+                DataDef.create( ISkServer.EVPID_LOGIN, EAtomicType.STRING, TSID_NAME, STR_EV_PARAM_LOGIN, //
+                    TSID_DESCRIPTION, STR_EV_PARAM_LOGIN_D, //
+                    TSID_IS_NULL_ALLOWED, AV_FALSE, //
+                    TSID_DEFAULT_VALUE, AV_STR_EMPTY ), //
+                DataDef.create( ISkServer.EVPID_IP, EAtomicType.STRING, TSID_NAME, STR_EV_PARAM_IP, //
+                    TSID_DESCRIPTION, STR_EV_PARAM_IP_D, //
+                    TSID_IS_NULL_ALLOWED, AV_FALSE, //
+                    TSID_DEFAULT_VALUE, AV_STR_EMPTY ), //
+                DataDef.create( ISkServer.EVPID_SESSION_ID, EAtomicType.VALOBJ, TSID_NAME, STR_EV_SESSION_ID, //
+                    TSID_DESCRIPTION, STR_EV_SESSION_ID_D, //
+                    TSID_IS_NULL_ALLOWED, AV_FALSE ) //
+            ), //
+            OptionSetUtils.createOpSet( //
+                IAvMetaConstants.TSID_NAME, STR_EV_SESSION_RESTORED, //
+                IAvMetaConstants.TSID_DESCRIPTION, STR_EV_SESSION_RESTORED_D//
+            ) ), //
+        DtoEventInfo.create1( ISkServer.EVID_SYSDESCR_CHANGED, true, //
+            new StridablesList<>( //
+                DataDef.create( ISkServer.EVPID_USER, EAtomicType.STRING, TSID_NAME, STR_EV_PARAM_USER, //
+                    TSID_DESCRIPTION, STR_EV_PARAM_USER_D, //
+                    TSID_IS_NULL_ALLOWED, AV_FALSE, //
+                    TSID_DEFAULT_VALUE, AV_STR_EMPTY ), //
+                DataDef.create( ISkServer.EVPID_DESCR, EAtomicType.STRING, TSID_NAME, STR_EV_PARAM_DESCR, //
+                    TSID_DESCRIPTION, STR_EV_PARAM_DESCR_D, //
+                    TSID_IS_NULL_ALLOWED, AV_FALSE, //
+                    TSID_DEFAULT_VALUE, AV_STR_EMPTY ), //
+                DataDef.create( ISkServer.EVPID_EDITOR, EAtomicType.STRING, TSID_NAME, STR_EV_PARAM_EDITOR, //
+                    TSID_DESCRIPTION, STR_EV_PARAM_EDITOR_D, //
+                    TSID_IS_NULL_ALLOWED, AV_FALSE, //
+                    TSID_DEFAULT_VALUE, AV_STR_EMPTY ) //
+            ), //
+            OptionSetUtils.createOpSet( //
+                IAvMetaConstants.TSID_NAME, STR_EV_SYSDESCR_CHANGED, //
+                IAvMetaConstants.TSID_DESCRIPTION, STR_EV_SYSDESCR_CHANGED_D //
+            ) //
+        )//
+    );
+    return retValue;
+  }
+
+  private static IDtoClassInfo internalCreateServerClusterNodeClassDto() {
+    DtoClassInfo retValue = new DtoClassInfo( //
+        ISkClusterNode.CLASS_ID, //
+        ISkNetNode.CLASS_ID, //
+        OptionSetUtils.createOpSet( //
+            DDEF_NAME, STR_CLASS_CLUSTERNODE, //
+            DDEF_DESCRIPTION, STR_CLASS_CLUSTERNODE_D, //
+            OPDEF_SK_IS_SOURCE_CODE_DEFINED_CLASS, AV_TRUE, //
+            OPDEF_SK_IS_SOURCE_USKAT_CORE_CLASS, AV_FALSE //
+        ) );
+    retValue.linkInfos().addAll( //
+        DtoLinkInfo.create1( //
+            ISkClusterNode.LNKID_SERVER, //
+            new SingleStringList( ISkServer.CLASS_ID ), //
+            new CollConstraint( 1, true, true, true ), //
+            OptionSetUtils.createOpSet( //
+                DDEF_NAME, STR_LNKID_CLUSTERNODE_SERVER, //
+                DDEF_DESCRIPTION, STR_LNKID_CLUSTERNODE_SERVER_D ) ) //
+    );
+    retValue.rtdataInfos().addAll( listStatRtdInfos( IS5ServerHardConstants.STAT_BACKEND_NODE_PARAMS ) );
+    return retValue;
+  }
+
+  private static IDtoClassInfo internalCreateServerBackendClassDto() {
+    DtoClassInfo retValue = new DtoClassInfo( //
         ISkServerBackend.CLASS_ID, //
         IGwHardConstants.GW_ROOT_CLASS_ID, //
         OptionSetUtils.createOpSet( //
-            DDEF_NAME, STR_N_CLASS_BACKEND, //
-            DDEF_DESCRIPTION, STR_D_CLASS_BACKEND, //
+            DDEF_NAME, STR_CLASS_SERVERBACKEND, //
+            DDEF_DESCRIPTION, STR_CLASS_SERVERBACKEND_D, //
             OPDEF_SK_IS_SOURCE_CODE_DEFINED_CLASS, AV_TRUE, //
             OPDEF_SK_IS_SOURCE_USKAT_CORE_CLASS, AV_FALSE //
         ) );
-    sci.linkInfos().addAll( //
-        LNKINF_BACKEND_NODE //
+    retValue.linkInfos().addAll( //
+        DtoLinkInfo.create1( //
+            ISkServerBackend.LNKID_NODE, //
+            new SingleStringList( ISkClusterNode.CLASS_ID ), //
+            new CollConstraint( 1, true, true, true ), //
+            OptionSetUtils.createOpSet( //
+                DDEF_NAME, STR_LNKID_SERVERBACKEND_NODE, //
+                DDEF_DESCRIPTION, STR_LNKID_SERVERBACKEND_NODE_D //
+            ) ) //
     );
-    cm.defineClass( sci );
-
-    // ISkServerHistorable
-    sci = new DtoClassInfo( //
-        ISkServerHistorable.CLASS_ID, //
-        ISkServerBackend.CLASS_ID, OptionSetUtils.createOpSet( //
-            DDEF_NAME, STR_N_CLASS_HISTORABLE_BACKEND, //
-            DDEF_DESCRIPTION, STR_D_CLASS_HISTORABLE_BACKEND, //
-            OPDEF_SK_IS_SOURCE_CODE_DEFINED_CLASS, AV_TRUE, //
-            OPDEF_SK_IS_SOURCE_USKAT_CORE_CLASS, AV_FALSE //
-        ) );
-    sci.rtdataInfos().addAll( listStatRtdInfos( IS5ServerHardConstants.STAT_HISTORABLE_BACKEND_PARAMS ) );
-    cm.defineClass( sci );
+    return retValue;
   }
 
-  /**
-   * Регистрация конструкторов объектов uskat/metro
-   *
-   * @param aCoreApi {@link ISkCoreApi} API сервера
-   * @throws TsNullArgumentRtException аргумент = null;
-   */
-  public static void registerObjectCreators( ISkCoreApi aCoreApi ) {
-    TsNullArgumentRtException.checkNull( aCoreApi );
-    // Служба объектов
-    ISkObjectService os = aCoreApi.objService();
-    // Регистрация создателей объектов
-    os.registerObjectCreator( ISkServer.CLASS_ID, SkServer.CREATOR );
-    os.registerObjectCreator( ISkServerNode.CLASS_ID, SkServerNode.CREATOR );
-    os.registerObjectCreator( ISkServerBackend.CLASS_ID, SkServerBackend.CREATOR );
-    os.registerObjectCreator( ISkServerHistorable.CLASS_ID, SkServerHistorable.CREATOR );
+  private static IDtoClassInfo internalCreateServerHistorableClassDto() {
+    DtoClassInfo retValue = new DtoClassInfo( //
+        ISkServerHistorable.CLASS_ID, //
+        ISkServerBackend.CLASS_ID, OptionSetUtils.createOpSet( //
+            DDEF_NAME, STR_CLASS_SERVERHISTORABLE, //
+            DDEF_DESCRIPTION, STR_CLASS_SERVERHISTORABLE_D, //
+            OPDEF_SK_IS_SOURCE_CODE_DEFINED_CLASS, AV_TRUE, //
+            OPDEF_SK_IS_SOURCE_USKAT_CORE_CLASS, AV_FALSE //
+        ) );
+    retValue.rtdataInfos().addAll( listStatRtdInfos( IS5ServerHardConstants.STAT_HISTORABLE_BACKEND_PARAMS ) );
+    return retValue;
+  }
+
+  private static IDtoClassInfo internalCreateSessionClassDto() {
+    DtoClassInfo retValue = new DtoClassInfo( ISkSession.CLASS_ID, IGwHardConstants.GW_ROOT_CLASS_ID, //
+        OptionSetUtils.createOpSet( //
+            IAvMetaConstants.TSID_NAME, STR_CLASS_SESSION, //
+            IAvMetaConstants.TSID_DESCRIPTION, STR_CLASS_SESSION_D, //
+            OPDEF_SK_IS_SOURCE_CODE_DEFINED_CLASS, AV_TRUE, //
+            OPDEF_SK_IS_SOURCE_USKAT_CORE_CLASS, AV_FALSE //
+        ) );
+
+    // ATRID_STARTTIME
+    retValue.attrInfos().add( DtoAttrInfo.create1( ISkSession.ATRID_STARTTIME, DataType.create( TIMESTAMP, //
+        TSID_NAME, STR_ATRID_SESSION_STARTTIME, //
+        TSID_DESCRIPTION, STR_ATRID_SESSION_STARTTIME_D //
+    ), //
+        IOptionSet.NULL ) );
+    // ATRID_ENDTIME
+    retValue.attrInfos().add( DtoAttrInfo.create1( ISkSession.ATRID_ENDTIME, DataType.create( TIMESTAMP, //
+        TSID_NAME, STR_ATRID_SESSION_ENDTIME, //
+        TSID_DESCRIPTION, STR_ATRID_SESSION_ENDTIME_D //
+    ), IOptionSet.NULL ) );
+    // ATRID_BACKEND_SPECIFIC_PARAMS
+    retValue.attrInfos().add( DtoAttrInfo.create1( ISkSession.ATRID_BACKEND_SPECIFIC_PARAMS, DataType.create( VALOBJ, //
+        TSID_NAME, STR_ATRID_SESSION_BACKEND_SPECIFIC_PARAMS, //
+        TSID_DESCRIPTION, STR_ATRID_SESSION_BACKEND_SPECIFIC_PARAMS_D, //
+        TSID_KEEPER_ID, OptionSetKeeper.KEEPER_ID, //
+        TSID_IS_NULL_ALLOWED, AV_FALSE, //
+        TSID_DEFAULT_VALUE, avValobj( new OptionSet() ) //
+    ), IOptionSet.NULL ) );
+    // ATRID_CONNECTION_CREATION_PARAMS
+    retValue.attrInfos().add( DtoAttrInfo.create1( ISkSession.ATRID_CONNECTION_CREATION_PARAMS, DataType.create( VALOBJ, //
+        TSID_NAME, STR_ATRID_SESSION_CONNECTION_CREATION_PARAMS, //
+        TSID_DESCRIPTION, STR_ATRID_SESSION_CONNECTION_CREATION_PARAMS_D, //
+        TSID_KEEPER_ID, OptionSetKeeper.KEEPER_ID, //
+        TSID_IS_NULL_ALLOWED, AV_FALSE, //
+        TSID_DEFAULT_VALUE, avValobj( new OptionSet() ) //
+    ), IOptionSet.NULL ) );
+
+    retValue.linkInfos().addAll( //
+        // LNKID_USER
+        DtoLinkInfo.create2( ISkSession.LNKID_USER, //
+            new SingleStringList( ISkUser.CLASS_ID ), new CollConstraint( 1, true, true, false ), //
+            TSID_NAME, STR_LNKID_SESSION_USER, //
+            TSID_DESCRIPTION, STR_LNKID_SESSION_USER_D //
+        ) );
+
+    // RTDID_STATE
+    retValue.rtdataInfos().addAll( //
+        DtoRtdataInfo.create1( ISkSession.RTDID_STATE, //
+            DDEF_BOOLEAN, true, true, false, 1000, //
+            OptionSetUtils.createOpSet( //
+                TSID_NAME, STR_RTDID_SESSION_STATE, //
+                TSID_DESCRIPTION, STR_RTDID_SESSION_STATE_D ) //
+        ) );
+    return retValue;
   }
 
   /**

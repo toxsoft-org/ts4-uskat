@@ -10,44 +10,39 @@ import static org.toxsoft.uskat.skadmin.logon.IAdminHardConstants.*;
 import static org.toxsoft.uskat.skadmin.logon.IAdminResources.*;
 import static org.toxsoft.uskat.skadmin.logon.rules.AdminCheckClientUtils.*;
 
-import java.io.File;
+import java.io.*;
 import java.time.*;
-import java.time.format.DateTimeFormatter;
+import java.time.format.*;
 
-import org.toxsoft.core.tslib.av.IAtomicValue;
-import org.toxsoft.core.tslib.av.impl.AvUtils;
-import org.toxsoft.core.tslib.av.opset.IOptionSet;
-import org.toxsoft.core.tslib.bricks.strid.impl.StridUtils;
-import org.toxsoft.core.tslib.bricks.time.impl.TimeUtils;
+import org.toxsoft.core.tslib.av.*;
+import org.toxsoft.core.tslib.av.impl.*;
+import org.toxsoft.core.tslib.av.opset.*;
+import org.toxsoft.core.tslib.bricks.strid.impl.*;
+import org.toxsoft.core.tslib.bricks.time.impl.*;
 import org.toxsoft.core.tslib.bricks.validator.*;
-import org.toxsoft.core.tslib.coll.IList;
-import org.toxsoft.core.tslib.coll.IListEdit;
-import org.toxsoft.core.tslib.coll.impl.ElemArrayList;
-import org.toxsoft.core.tslib.coll.primtypes.IStringList;
-import org.toxsoft.core.tslib.coll.primtypes.IStringMap;
-import org.toxsoft.core.tslib.gw.skid.Skid;
-import org.toxsoft.core.tslib.utils.TsVersion;
-import org.toxsoft.core.tslib.utils.errors.TsNotAllEnumsUsedRtException;
-import org.toxsoft.core.tslib.utils.errors.TsNullArgumentRtException;
-import org.toxsoft.uskat.core.backend.api.ISkBackendInfo;
-import org.toxsoft.uskat.core.connection.ISkConnection;
-import org.toxsoft.uskat.legacy.plexy.IPlexyType;
-import org.toxsoft.uskat.legacy.plexy.IPlexyValue;
-import org.toxsoft.uskat.s5.client.IS5ConnectionParams;
-import org.toxsoft.uskat.s5.client.remote.connection.S5ClusterTopology;
-import org.toxsoft.uskat.s5.common.S5Module;
-import org.toxsoft.uskat.s5.common.info.ITransactionInfo;
-import org.toxsoft.uskat.s5.common.sessions.IS5SessionInfo;
-import org.toxsoft.uskat.s5.common.sessions.ISkSession;
-import org.toxsoft.uskat.s5.server.IS5ServerHardConstants;
-import org.toxsoft.uskat.s5.server.sessions.S5SessionsInfos;
-import org.toxsoft.uskat.s5.server.statistics.EStatisticInterval;
-import org.toxsoft.uskat.s5.server.statistics.IS5Statistic;
-import org.toxsoft.uskat.s5.server.transactions.S5TransactionInfos;
-import org.toxsoft.uskat.skadmin.core.EAdminCmdContextNames;
-import org.toxsoft.uskat.skadmin.core.IAdminCmdCallback;
-import org.toxsoft.uskat.skadmin.core.impl.AbstractAdminCmd;
-import org.toxsoft.uskat.skadmin.logon.rules.IAdminCheckClientRule;
+import org.toxsoft.core.tslib.bricks.validator.vrl.*;
+import org.toxsoft.core.tslib.coll.*;
+import org.toxsoft.core.tslib.coll.impl.*;
+import org.toxsoft.core.tslib.coll.primtypes.*;
+import org.toxsoft.core.tslib.gw.skid.*;
+import org.toxsoft.core.tslib.utils.*;
+import org.toxsoft.core.tslib.utils.errors.*;
+import org.toxsoft.uskat.classes.*;
+import org.toxsoft.uskat.core.backend.api.*;
+import org.toxsoft.uskat.core.connection.*;
+import org.toxsoft.uskat.legacy.plexy.*;
+import org.toxsoft.uskat.s5.client.*;
+import org.toxsoft.uskat.s5.client.remote.connection.*;
+import org.toxsoft.uskat.s5.common.*;
+import org.toxsoft.uskat.s5.common.info.*;
+import org.toxsoft.uskat.s5.common.sessions.*;
+import org.toxsoft.uskat.s5.server.*;
+import org.toxsoft.uskat.s5.server.sessions.*;
+import org.toxsoft.uskat.s5.server.statistics.*;
+import org.toxsoft.uskat.s5.server.transactions.*;
+import org.toxsoft.uskat.skadmin.core.*;
+import org.toxsoft.uskat.skadmin.core.impl.*;
+import org.toxsoft.uskat.skadmin.logon.rules.*;
 
 /**
  * Команда администрирования: вывести информацию о текущем состоянии сервера
@@ -288,7 +283,7 @@ public class AdminCmdInfo
     // Список невыполненных правил проверки
     IListEdit<IAdminCheckClientRule> unsatisfied = new ElemArrayList<>();
     // Валидация сессий
-    IList<IValResList> validations = validation( aServerTime, file, sessions, unsatisfied );
+    IList<IVrList> validations = validation( aServerTime, file, sessions, unsatisfied );
     addResultInfo( aHeaderText );
     if( !aTopology ) {
       StringBuilder legend = new StringBuilder( "interval = " ).append( aInterval.id() ); //$NON-NLS-1$
@@ -313,7 +308,7 @@ public class AdminCmdInfo
     int errorCount = 0;
     for( int index = 0, n = aSessions.size(); index < n; index++ ) {
       IS5SessionInfo session = aSessions.get( index );
-      IValResList validation = validations.get( index );
+      IVrList validation = validations.get( index );
       String msg = (aFormat ? MSG_INFO_SESSION_OPEN : MSG_INFO_SESSIONS_OPEN_FREE);
       if( aTopology ) {
         msg = (aFormat ? MSG_INFO_TOPOLOGY_OPEN : MSG_INFO_TOPOLOGY_OPEN_FREE);
@@ -354,9 +349,9 @@ public class AdminCmdInfo
         errors = Integer.valueOf( params.getInt( IS5ServerHardConstants.STAT_SESSION_ERRORS.id() ) );
         errorCount += errors.intValue();
       }
-      EValidationResultType resType = (validation.isOk() ? EValidationResultType.OK : EValidationResultType.ERROR);
-      for( int resultIndex = 0, m = validation.results().size(); resultIndex < m; resultIndex++ ) {
-        ValidationResult result = validation.results().get( resultIndex );
+      EValidationResultType resType = validation.getWorstType();
+      for( int resultIndex = 0, m = validation.items().size(); resultIndex < m; resultIndex++ ) {
+        ValidationResult result = validation.items().get( resultIndex ).vr();
         comment += result.message();
         if( result.isWarning() && resType == EValidationResultType.OK ) {
           resType = EValidationResultType.WARNING;

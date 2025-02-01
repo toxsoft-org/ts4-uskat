@@ -125,7 +125,7 @@ public interface IS5ServerHardConstants
       TSID_DEFAULT_VALUE, avValobj( Skid.NONE ) );
 
   /**
-   * Параметр {@link ISkBackendInfo#params()}: идентификатор узла сервера, объекта {@link ISkServerNode}
+   * Параметр {@link ISkBackendInfo#params()}: идентификатор узла сервера, объекта {@link ISkClusterNode}
    * <p>
    * Тип: {@link EAtomicType#VALOBJ} содержит {@link Skid}
    */
@@ -445,7 +445,7 @@ public interface IS5ServerHardConstants
   );
 
   // ------------------------------------------------------------------------------------
-  // Статистика узла бекенда (данные объектов {@link ISkServerNode})
+  // Статистика узла бекенда (данные объектов {@link ISkClusterNode})
   //
   /**
    * String prefix of the all backend node identifiers.
@@ -453,7 +453,7 @@ public interface IS5ServerHardConstants
   String STAT_BACKEND_NODE_ID_START = S5_BACKEND_ID_START + "node.statistic.";
 
   /**
-   * Параметр статистики узла бекенда (данное {@link ISkServerNode}): средняя загрузка операционной системы
+   * Параметр статистики узла бекенда (данное {@link ISkClusterNode}): средняя загрузка операционной системы
    * <p>
    * Тип: {@link EAtomicType#FLOATING}
    */
@@ -466,7 +466,7 @@ public interface IS5ServerHardConstants
       TSID_DESCRIPTION, STR_D_STAT_BACKEND_NODE_LOAD_AVERAGE );
 
   /**
-   * Параметр статистики узла бекенда (данное {@link ISkServerNode}): максимальная загрузка операционной системы
+   * Параметр статистики узла бекенда (данное {@link ISkClusterNode}): максимальная загрузка операционной системы
    * <p>
    * Тип: {@link EAtomicType#FLOATING}
    */
@@ -479,7 +479,7 @@ public interface IS5ServerHardConstants
       TSID_DESCRIPTION, STR_D_STAT_BACKEND_NODE_LOAD_MAX );
 
   /**
-   * Параметр статистики узла бекенда (данное {@link ISkServerNode}): Объем свободной памяти операционной системы (байты)
+   * Параметр статистики узла бекенда (данное {@link ISkClusterNode}): Объем свободной памяти операционной системы (байты)
    * <p>
    * Тип: {@link EAtomicType#FLOATING}
    */
@@ -492,7 +492,7 @@ public interface IS5ServerHardConstants
       TSID_DESCRIPTION, STR_D_STAT_BACKEND_NODE_FREE_PHYSICAL_MEMORY );
 
   /**
-   * Параметр статистики узла бекенда (данное {@link ISkServerNode}): Максимальный объем heap памяти (байты)
+   * Параметр статистики узла бекенда (данное {@link ISkClusterNode}): Максимальный объем heap памяти (байты)
    * <p>
    * Тип: {@link EAtomicType#FLOATING}
    */
@@ -505,7 +505,7 @@ public interface IS5ServerHardConstants
       TSID_DESCRIPTION, STR_D_STAT_BACKEND_NODE_MAX_HEAP_MEMORY );
 
   /**
-   * Параметр статистики узла бекенда (данное {@link ISkServerNode}): Используемый объем heap памяти (байты)
+   * Параметр статистики узла бекенда (данное {@link ISkClusterNode}): Используемый объем heap памяти (байты)
    * <p>
    * Тип: {@link EAtomicType#FLOATING}
    */
@@ -518,7 +518,7 @@ public interface IS5ServerHardConstants
       TSID_DESCRIPTION, STR_D_STAT_BACKEND_NODE_USED_HEAP_MEMORY );
 
   /**
-   * Параметр статистики узла бекенда (данное {@link ISkServerNode}): Максимальный объем non-heap памяти (байты)
+   * Параметр статистики узла бекенда (данное {@link ISkClusterNode}): Максимальный объем non-heap памяти (байты)
    * <p>
    * Тип: {@link EAtomicType#FLOATING}
    */
@@ -531,7 +531,7 @@ public interface IS5ServerHardConstants
       TSID_DESCRIPTION, STR_D_STAT_BACKEND_NODE_MAX_NON_HEAP_MEMORY );
 
   /**
-   * Параметр статистики узла бекенда (данное {@link ISkServerNode}): Используемый объем non-heap памяти (байты)
+   * Параметр статистики узла бекенда (данное {@link ISkClusterNode}): Используемый объем non-heap памяти (байты)
    * <p>
    * Тип: {@link EAtomicType#FLOATING}
    */
@@ -544,7 +544,7 @@ public interface IS5ServerHardConstants
       TSID_DESCRIPTION, STR_D_STAT_BACKEND_NODE_USED_NON_HEAP_MEMORY );
 
   /**
-   * Параметр статистики узла бекенда (данное {@link ISkServerNode}): Максимальное количество открытых сессий на
+   * Параметр статистики узла бекенда (данное {@link ISkClusterNode}): Максимальное количество открытых сессий на
    * интервале
    * <p>
    * Тип: {@link EAtomicType#INTEGER}
@@ -558,7 +558,7 @@ public interface IS5ServerHardConstants
       TSID_DESCRIPTION, STR_D_STAT_BACKEND_NODE_OPEN_SESSION_MAX );
 
   /**
-   * Параметр статистики узла бекенда (данное {@link ISkServerNode}): Максимальное количество открытых транзакций на
+   * Параметр статистики узла бекенда (данное {@link ISkClusterNode}): Максимальное количество открытых транзакций на
    * интервале
    * <p>
    * Тип: {@link EAtomicType#INTEGER}
@@ -572,7 +572,7 @@ public interface IS5ServerHardConstants
       TSID_DESCRIPTION, STR_D_STAT_BACKEND_NODE_OPEN_TX_MAX );
 
   /**
-   * Параметр статистики узла бекенда (данное {@link ISkServerNode}): Количество завершенных транзакций
+   * Параметр статистики узла бекенда (данное {@link ISkClusterNode}): Количество завершенных транзакций
    * <p>
    * Тип: {@link EAtomicType#INTEGER}
    */
@@ -585,7 +585,7 @@ public interface IS5ServerHardConstants
       TSID_DESCRIPTION, STR_D_STAT_BACKEND_NODE_COMMIT_TX );
 
   /**
-   * Параметр статистики узла бекенда (данное {@link ISkServerNode}): Количество откатов по транзакциям
+   * Параметр статистики узла бекенда (данное {@link ISkClusterNode}): Количество откатов по транзакциям
    * <p>
    * Тип: {@link EAtomicType#INTEGER}
    */
@@ -598,7 +598,7 @@ public interface IS5ServerHardConstants
       TSID_DESCRIPTION, STR_D_STAT_BACKEND_NODE_ROLLBACK_TX );
 
   /**
-   * Параметр статистики узла бекенда (данное {@link ISkServerNode}): Количество принятых pas-пакетов
+   * Параметр статистики узла бекенда (данное {@link ISkClusterNode}): Количество принятых pas-пакетов
    * <p>
    * Тип: {@link EAtomicType#INTEGER}
    */
@@ -611,7 +611,7 @@ public interface IS5ServerHardConstants
       TSID_DESCRIPTION, STR_D_STAT_BACKEND_NODE_PAS_RECEIVED );
 
   /**
-   * Параметр статистики узла бекенда (данное {@link ISkServerNode}): Количество отправленных pas-пакетов
+   * Параметр статистики узла бекенда (данное {@link ISkClusterNode}): Количество отправленных pas-пакетов
    * <p>
    * Тип: {@link EAtomicType#INTEGER}
    */
@@ -624,7 +624,7 @@ public interface IS5ServerHardConstants
       TSID_DESCRIPTION, STR_D_STAT_BACKEND_NODE_PAS_SEND );
 
   /**
-   * Список всех параметров статистики узла бекенда (данные {@link ISkServerNode})
+   * Список всех параметров статистики узла бекенда (данные {@link ISkClusterNode})
    */
   IStridablesList<S5StatisticParamInfo> STAT_BACKEND_NODE_PARAMS = new StridablesList<>( //
       STAT_BACKEND_NODE_LOAD_AVERAGE, //
@@ -987,7 +987,7 @@ public interface IS5ServerHardConstants
       TSID_DESCRIPTION, STR_D_STAT_HISTORABLE_BACKEND_PARTITIONS_ERROR_COUNT );
 
   /**
-   * Список всех параметров статистики поддержки бекенда формирующий хранимые данные (данные {@link ISkServerNode})
+   * Список всех параметров статистики поддержки бекенда формирующий хранимые данные (данные {@link ISkClusterNode})
    */
   IStridablesList<S5StatisticParamInfo> STAT_HISTORABLE_BACKEND_PARAMS = new StridablesList<>( //
       STAT_HISTORABLE_BACKEND_WRITED_COUNT, //

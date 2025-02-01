@@ -1,8 +1,8 @@
 package org.toxsoft.uskat.s5.server.sessions;
 
 import static org.toxsoft.core.tslib.av.impl.AvUtils.*;
+import static org.toxsoft.uskat.classes.ISkSession.*;
 import static org.toxsoft.uskat.s5.common.IS5CommonResources.*;
-import static org.toxsoft.uskat.s5.common.sessions.ISkSession.*;
 import static org.toxsoft.uskat.s5.server.IS5ImplementConstants.*;
 import static org.toxsoft.uskat.s5.server.IS5ServerHardConstants.*;
 import static org.toxsoft.uskat.s5.server.sessions.IS5Resources.*;
@@ -31,16 +31,18 @@ import org.toxsoft.core.tslib.gw.skid.*;
 import org.toxsoft.core.tslib.utils.*;
 import org.toxsoft.core.tslib.utils.errors.*;
 import org.toxsoft.core.tslib.utils.logs.*;
+import org.toxsoft.uskat.classes.*;
+import org.toxsoft.uskat.classes.impl.*;
 import org.toxsoft.uskat.core.api.evserv.*;
 import org.toxsoft.uskat.core.api.linkserv.*;
 import org.toxsoft.uskat.core.api.objserv.*;
 import org.toxsoft.uskat.core.api.sysdescr.*;
 import org.toxsoft.uskat.core.api.users.*;
+import org.toxsoft.uskat.core.backend.api.*;
 import org.toxsoft.uskat.core.impl.dto.*;
 import org.toxsoft.uskat.s5.client.*;
 import org.toxsoft.uskat.s5.common.info.*;
 import org.toxsoft.uskat.s5.common.sessions.*;
-import org.toxsoft.uskat.s5.legacy.*;
 import org.toxsoft.uskat.s5.server.*;
 import org.toxsoft.uskat.s5.server.backend.supports.core.*;
 import org.toxsoft.uskat.s5.server.backend.supports.events.*;
@@ -208,6 +210,11 @@ public class S5SessionManager
   private final IMapEdit<Skid, S5Statistic> statisticCountersBySessions = new SynchronizedMap<>( new ElemMap<>() );
 
   /**
+   * Идентификатор сервера в рамках которого работает менеджер сессий
+   */
+  private String serverId;
+
+  /**
    * Признак того, что после запуска менеджера сессий была выполнена пауза перед запуском doJob
    */
   private boolean doJobInited;
@@ -269,6 +276,8 @@ public class S5SessionManager
   //
   @Override
   protected void doInit() {
+    // Информация о бекенде сервера (это необходимо сделать до вызова setSessionManager(...) чтобы не было рекурсии
+    ISkBackendInfo info = backendCoreSingleton.getInfo();
     // Бизнес-API
     IS5SessionManager sessionManager = sessionContext().getBusinessObject( IS5SessionManager.class );
     // Регистрация менеджера сессий в ядре бекенда
@@ -299,16 +308,17 @@ public class S5SessionManager
           tryCreateMessenger( session );
         }
       }
-
     } );
-    // Проверка и, если необходимо, обновление sysdescr
-    S5SessionUtils.checkAndUpdateSysdecr( sysdescrSupport, objectsSupport );
+    // Обновление системного описания ядра
+    S5ClassUtils.updateCoreSysdescr( info, sysdescrSupport, objectsSupport, linksSupport );
     // Контроль учетных записей пользователей
     ISkClassInfo userClassInfo = sysdescrSupport.getReader().getClassInfo( ISkUser.CLASS_ID );
     objectsInterceptor = new S5ObjectsInterceptor( sessionManager, objectsSupport, linksSupport, userClassInfo );
     objectsSupport.addObjectsInterceptor( objectsInterceptor, 1024 );
     // Запуск фоновой задачи
     addOwnDoJob( DO_JOB_TIMEOUT );
+    // Идентификатор сервера (кэширование)
+    serverId = ((Skid)OP_SERVER_ID.getValue( info.params() ).asValobj()).strid();
   }
 
   @Override
@@ -414,12 +424,12 @@ public class S5SessionManager
       callAfterCreateSession( interceptors, sessionID, logger() );
 
       // Формирование события
-      Gwid eventGwid = Gwid.createEvent( ISkSystem.CLASS_ID, ISkSystem.THIS_SYSTEM,
-          created ? ISkSystem.EVID_SESSION_CREATED : ISkSystem.EVID_SESSION_RESTORED );
+      Gwid eventGwid = Gwid.createEvent( ISkServer.CLASS_ID, serverId,
+          created ? ISkServer.EVID_SESSION_CREATED : ISkServer.EVID_SESSION_RESTORED );
       IOptionSetEdit params = new OptionSet();
-      params.setStr( ISkSystem.EVPID_LOGIN, aSession.info().login() );
-      params.setStr( ISkSystem.EVPID_IP, aSession.info().remoteAddress() );
-      params.setValobj( ISkSystem.EVPID_SESSION_ID, sessionID );
+      params.setStr( ISkServer.EVPID_LOGIN, aSession.info().login() );
+      params.setStr( ISkServer.EVPID_IP, aSession.info().remoteAddress() );
+      params.setValobj( ISkServer.EVPID_SESSION_ID, sessionID );
       SkEvent event = new SkEvent( createTime, eventGwid, params );
       eventSupport.fireEvents( frontend, new TimedList<>( event ) );
 
@@ -497,12 +507,12 @@ public class S5SessionManager
         closedSessionCache.put( aSessionID, session );
 
         // Формирование события
-        String evId = (loss ? ISkSystem.EVID_SESSION_BREAKED : ISkSystem.EVID_SESSION_CLOSED);
-        Gwid eventGwid = Gwid.createEvent( ISkSystem.CLASS_ID, ISkSystem.THIS_SYSTEM, evId );
+        String evId = (loss ? ISkServer.EVID_SESSION_BREAKED : ISkServer.EVID_SESSION_CLOSED);
+        Gwid eventGwid = Gwid.createEvent( ISkServer.CLASS_ID, serverId, evId );
         IOptionSetEdit params = new OptionSet();
-        params.setStr( ISkSystem.EVPID_LOGIN, session.info().login() );
-        params.setStr( ISkSystem.EVPID_IP, session.info().remoteAddress() );
-        params.setValobj( ISkSystem.EVPID_SESSION_ID, sessionID );
+        params.setStr( ISkServer.EVPID_LOGIN, session.info().login() );
+        params.setStr( ISkServer.EVPID_IP, session.info().remoteAddress() );
+        params.setValobj( ISkServer.EVPID_SESSION_ID, sessionID );
         SkEvent event = new SkEvent( endTime, eventGwid, params );
         eventSupport.fireEvents( IS5FrontendRear.NULL, new TimedList<>( event ) );
 
@@ -654,7 +664,7 @@ public class S5SessionManager
     if( retValue == null ) {
       // Если сессия открыта, то создаем для нее статистику
       // IDpuObject session = objectsSupport.findObject( aSessionID );
-      // if( session != null && session.attrs().getValue( AID_ENDTIME ).isAssigned() == false ) {
+      // if( session != null && session.attrs().getValue( ATRID_ENDTIME ).isAssigned() == false ) {
       retValue = new S5Statistic( STAT_SESSION_PARAMS );
       statisticCountersBySessions.put( aSessionID, retValue );
       // }
@@ -1010,7 +1020,7 @@ public class S5SessionManager
     if( obj != null ) {
       // Сессия уже существует
       IOptionSetEdit attrs = new OptionSet( obj.attrs() );
-      attrs.setValue( AID_ENDTIME, IAtomicValue.NULL );
+      attrs.setValue( ATRID_ENDTIME, IAtomicValue.NULL );
       IDtoObject dto = new DtoObject( aSessionID, attrs, obj.rivets().map() );
       // Создание объекта сессия. aInterceptable = false
       objectsSupport.writeObjects( IS5FrontendRear.NULL, ISkidList.EMPTY, new ElemArrayList<>( dto ), false );
@@ -1018,9 +1028,9 @@ public class S5SessionManager
     }
     // Создание новой сессии
     IOptionSetEdit attrs = new OptionSet();
-    attrs.setTime( AID_STARTTIME, aCreationTime );
-    attrs.setValobj( AID_BACKEND_SPECIFIC_PARAMS, aBackendSpecificParams );
-    attrs.setValobj( AID_CONNECTION_CREATION_PARAMS, aConnectionCreationParams );
+    attrs.setTime( ATRID_STARTTIME, aCreationTime );
+    attrs.setValobj( ATRID_BACKEND_SPECIFIC_PARAMS, aBackendSpecificParams );
+    attrs.setValobj( ATRID_CONNECTION_CREATION_PARAMS, aConnectionCreationParams );
     IDtoObject dto = new DtoObject( aSessionID, attrs, IStringMap.EMPTY );
     // Создание объекта сессия. aInterceptable = false
     objectsSupport.writeObjects( IS5FrontendRear.NULL, ISkidList.EMPTY, new ElemArrayList<>( dto ), false );
@@ -1070,7 +1080,7 @@ public class S5SessionManager
     }
     try {
       IOptionSetEdit attrs = new OptionSet( obj.attrs() );
-      attrs.setTime( AID_ENDTIME, aEndTime );
+      attrs.setTime( ATRID_ENDTIME, aEndTime );
       IDtoObject dto = new DtoObject( aSessionID, attrs, obj.rivets().map() );
       // Создание объекта сессия. aInterceptable = false
       objectsSupport.writeObjects( IS5FrontendRear.NULL, ISkidList.EMPTY, new ElemArrayList<>( dto ), false );

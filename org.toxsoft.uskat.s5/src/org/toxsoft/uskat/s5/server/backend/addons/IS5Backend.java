@@ -3,8 +3,8 @@ package org.toxsoft.uskat.s5.server.backend.addons;
 import org.toxsoft.core.tslib.bricks.events.msg.GtMessage;
 import org.toxsoft.core.tslib.gw.skid.Skid;
 import org.toxsoft.core.tslib.utils.errors.TsNullArgumentRtException;
+import org.toxsoft.uskat.classes.*;
 import org.toxsoft.uskat.core.backend.ISkBackend;
-import org.toxsoft.uskat.s5.common.sessions.ISkSession;
 
 /**
  * Бекенд сервера s5

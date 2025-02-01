@@ -5,40 +5,40 @@ import org.toxsoft.uskat.core.*;
 import org.toxsoft.uskat.core.api.objserv.*;
 
 /**
- * Класс s5: узел кластера сервера.
+ * Класс: сетевой узел.
  *
  * @author mvk
  */
 @SuppressWarnings( "nls" )
-public interface ISkServerNode
+public interface ISkNetNode
     extends ISkObject {
 
   /**
    * Идентификатор класса.
    */
-  String CLASS_ID = ISkHardConstants.SK_ID + ".ServerNode";
+  String CLASS_ID = ISkHardConstants.SK_ID + ".NetNode";
 
   // ------------------------------------------------------------------------------------
   // Связи
   //
   /**
-   * Связь: сервер/кластер, в рамках которого работает узел {@link ISkServer}.
+   * Связь: список дочерних сетевых узлов подключенных к узлу.
    */
-  String LNKID_SERVER = "server";
+  String LNKID_CHILDS = "childs";
 
   // -----------------------------------------------------------------------------------
   // Данные
   //
   //
   /**
-   * Данное: с узлом сервера установлена связь.
+   * Данное: с сетевым узлом установлена связь.
    * <p>
    * Тип: {@link EAtomicType#BOOLEAN}
    */
   String RTDID_ONLINE = "online";
 
   /**
-   * Данное: интегральная оценка состояния подключенных к узлу ресурсов. 0 - нет связи, 100 - все подключено и работает.
+   * Данное: интегральная оценка состояния подключенных узлов. 0 - нет связи, 100 - все подключено и работает.
    * <p>
    * Тип: {@link EAtomicType#INTEGER}
    */

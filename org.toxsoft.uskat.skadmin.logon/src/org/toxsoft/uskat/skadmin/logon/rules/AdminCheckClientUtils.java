@@ -5,25 +5,22 @@ import static org.toxsoft.core.tslib.utils.TsLibUtils.*;
 import static org.toxsoft.uskat.skadmin.logon.rules.IAdminResources.*;
 
 import java.io.*;
-import java.time.ZonedDateTime;
-import java.util.Calendar;
+import java.time.*;
+import java.util.*;
 
-import org.toxsoft.core.tslib.av.opset.IOptionSet;
-import org.toxsoft.core.tslib.bricks.strio.IStrioWriter;
-import org.toxsoft.core.tslib.bricks.strio.chario.ICharOutputStream;
-import org.toxsoft.core.tslib.bricks.strio.chario.impl.CharOutputStreamWriter;
-import org.toxsoft.core.tslib.bricks.strio.impl.StrioWriter;
-import org.toxsoft.core.tslib.bricks.validator.IValResList;
-import org.toxsoft.core.tslib.bricks.validator.impl.ValResList;
-import org.toxsoft.core.tslib.coll.IList;
-import org.toxsoft.core.tslib.coll.IListEdit;
-import org.toxsoft.core.tslib.coll.impl.ElemArrayList;
-import org.toxsoft.core.tslib.coll.primtypes.IStringList;
-import org.toxsoft.core.tslib.coll.primtypes.impl.StringArrayList;
-import org.toxsoft.core.tslib.utils.errors.TsIoRtException;
-import org.toxsoft.core.tslib.utils.errors.TsNullArgumentRtException;
-import org.toxsoft.uskat.s5.common.sessions.IS5SessionInfo;
-import org.toxsoft.uskat.s5.server.IS5ServerHardConstants;
+import org.toxsoft.core.tslib.av.opset.*;
+import org.toxsoft.core.tslib.bricks.strio.*;
+import org.toxsoft.core.tslib.bricks.strio.chario.*;
+import org.toxsoft.core.tslib.bricks.strio.chario.impl.*;
+import org.toxsoft.core.tslib.bricks.strio.impl.*;
+import org.toxsoft.core.tslib.bricks.validator.vrl.*;
+import org.toxsoft.core.tslib.coll.*;
+import org.toxsoft.core.tslib.coll.impl.*;
+import org.toxsoft.core.tslib.coll.primtypes.*;
+import org.toxsoft.core.tslib.coll.primtypes.impl.*;
+import org.toxsoft.core.tslib.utils.errors.*;
+import org.toxsoft.uskat.s5.common.sessions.*;
+import org.toxsoft.uskat.s5.server.*;
 import org.toxsoft.uskat.s5.server.statistics.*;
 
 /**
@@ -94,11 +91,11 @@ public class AdminCheckClientUtils {
    * @param aFile File файл для сохранения правил проверки клиентов
    * @param aSessions {@link IList}&lt;{@link IS5SessionInfo}&gt; список сессий клиентов
    * @param aUnsatisfied {@link IListEdit}&lt;{@link IS5SessionInfo}&gt; список не выполненных правил
-   * @return {@link IList}&lt;{@link IValResList}&gt; список валидаций для каждой сессии. Порядок соответствует порядку
+   * @return {@link IList}&lt;{@link IVrList}&gt; список валидаций для каждой сессии. Порядок соответствует порядку
    *         aSessions
    * @throws TsNullArgumentRtException любой аргумент = null
    */
-  public static IList<IValResList> validation( ZonedDateTime aTime, File aFile, IList<IS5SessionInfo> aSessions,
+  public static IList<IVrList> validation( ZonedDateTime aTime, File aFile, IList<IS5SessionInfo> aSessions,
       IListEdit<IAdminCheckClientRule> aUnsatisfied ) {
     TsNullArgumentRtException.checkNulls( aFile, aSessions, aUnsatisfied );
     // Время сервера в милисекндах (mvk: ??? зона учитывается ???)
@@ -133,11 +130,11 @@ public class AdminCheckClientUtils {
       }
     }
     // Валидация
-    IListEdit<IValResList> retValue = new ElemArrayList<>( aSessions.size() );
+    IListEdit<IVrList> retValue = new ElemArrayList<>( aSessions.size() );
     for( int index = 0, n = aSessions.size(); index < n; index++ ) {
       IS5SessionInfo session = aSessions.get( index );
       long workTime = serverTime - session.openTime();
-      ValResList resultList = new ValResList();
+      VrList resultList = new VrList();
       retValue.add( resultList );
       // Удаление из обязательных правил все что совпадает с найденной сессией
       removeSatisfiedRules( session, unsatisfiedRules );

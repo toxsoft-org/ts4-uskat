@@ -4,7 +4,7 @@ import org.toxsoft.uskat.core.*;
 import org.toxsoft.uskat.core.api.objserv.*;
 
 /**
- * Класс s5: бекенд службы работающий в рамках узла кластера.
+ * Класс: бекенд службы работающий в рамках узла кластера.
  *
  * @author mvk
  */
@@ -21,7 +21,7 @@ public interface ISkServerBackend
   // Связи
   //
   /**
-   * Связь: узел кластера, в рамках которого работает бекенд {@link ISkServerNode}.
+   * Связь: узел кластера, в рамках которого работает бекенд {@link ISkClusterNode}.
    */
   String LNKID_NODE = "node";
 }

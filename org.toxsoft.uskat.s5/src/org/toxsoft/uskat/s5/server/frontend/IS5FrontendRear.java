@@ -6,8 +6,8 @@ import java.io.Serializable;
 import org.toxsoft.core.tslib.bricks.events.msg.*;
 import org.toxsoft.core.tslib.gw.skid.Skid;
 import org.toxsoft.core.tslib.utils.TsLibUtils;
+import org.toxsoft.uskat.classes.*;
 import org.toxsoft.uskat.core.backend.ISkFrontendRear;
-import org.toxsoft.uskat.s5.common.sessions.ISkSession;
 
 /**
  * Фронтенд предоставляемый s5-клиентами

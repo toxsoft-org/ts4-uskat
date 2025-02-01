@@ -34,6 +34,7 @@ import org.toxsoft.core.tslib.gw.gwid.*;
 import org.toxsoft.core.tslib.gw.skid.*;
 import org.toxsoft.core.tslib.utils.errors.*;
 import org.toxsoft.core.tslib.utils.logs.*;
+import org.toxsoft.uskat.classes.*;
 import org.toxsoft.uskat.core.*;
 import org.toxsoft.uskat.core.api.evserv.*;
 import org.toxsoft.uskat.core.api.objserv.*;
@@ -45,7 +46,6 @@ import org.toxsoft.uskat.core.impl.*;
 import org.toxsoft.uskat.core.impl.dto.*;
 import org.toxsoft.uskat.s5.client.remote.connection.*;
 import org.toxsoft.uskat.s5.common.sessions.*;
-import org.toxsoft.uskat.s5.legacy.*;
 import org.toxsoft.uskat.s5.server.*;
 import org.toxsoft.uskat.s5.server.backend.*;
 import org.toxsoft.uskat.s5.server.backend.addons.*;
@@ -295,14 +295,20 @@ public class S5BackendSession
 
       // Вывод в журнал
       logger().info( MSG_CREATE_SESSION_REQUEST, login, sessionID, remoteAddress, remotePort );
+
+      // Информация о бекенде сервера
+      ISkBackendInfo info = backendCoreSingleton.getInfo();
+      // Идентификатор сервера
+      String serverId = ((Skid)OP_SERVER_ID.getValue( info.params() ).asValobj()).strid();
+
       // Пользователь системы
       IDtoObject user = objectsBackend.findObject( new Skid( ISkUser.CLASS_ID, login ) );
       if( user == null ) {
         // Доступ запрещен - неверное имя пользователя или пароль
-        Gwid eventGwid = Gwid.createEvent( ISkSystem.CLASS_ID, ISkSystem.THIS_SYSTEM, ISkSystem.EVID_LOGIN_FAILED );
+        Gwid eventGwid = Gwid.createEvent( ISkServer.CLASS_ID, serverId, ISkServer.EVID_LOGIN_FAILED );
         IOptionSetEdit params = new OptionSet();
-        params.setStr( ISkSystem.EVPID_LOGIN, login );
-        params.setStr( ISkSystem.EVPID_IP, remoteAddress.asString() );
+        params.setStr( ISkServer.EVPID_LOGIN, login );
+        params.setStr( ISkServer.EVPID_IP, remoteAddress.asString() );
         SkEvent event = new SkEvent( startTime, eventGwid, params );
         eventBackend.fireAsyncEvents( IS5FrontendRear.NULL, new TimedList<>( event ) );
         throw new S5AccessDeniedException( ERR_WRONG_USER );
@@ -313,10 +319,10 @@ public class S5BackendSession
       String userPasswordHash = user.attrs().getStr( ATRID_PASSWORD_HASH );
       if( (isEnabled != null && !isEnabled.asBool()) || !userPasswordHash.equals( loginPasswordHash ) ) {
         // Доступ запрещен - запись пользователя неактивна или неверное имя пользователя или пароль
-        Gwid eventGwid = Gwid.createEvent( ISkSystem.CLASS_ID, ISkSystem.THIS_SYSTEM, ISkSystem.EVID_LOGIN_FAILED );
+        Gwid eventGwid = Gwid.createEvent( ISkServer.CLASS_ID, serverId, ISkServer.EVID_LOGIN_FAILED );
         IOptionSetEdit params = new OptionSet();
-        params.setStr( ISkSystem.EVPID_LOGIN, login );
-        params.setStr( ISkSystem.EVPID_IP, remoteAddress.asString() );
+        params.setStr( ISkServer.EVPID_LOGIN, login );
+        params.setStr( ISkServer.EVPID_IP, remoteAddress.asString() );
         SkEvent event = new SkEvent( startTime, eventGwid, params );
         eventBackend.fireAsyncEvents( IS5FrontendRear.NULL, new TimedList<>( event ) );
         throw new S5AccessDeniedException( ERR_WRONG_USER );
@@ -471,9 +477,9 @@ public class S5BackendSession
       // Сохранение топологии в ISkSession
       IDtoObject obj = objectsBackend.findObject( sessionID );
       IOptionSetEdit attrs = new OptionSet( obj.attrs() );
-      IOptionSetEdit backendSpecificParams = new OptionSet( attrs.getValobj( ISkSession.AID_BACKEND_SPECIFIC_PARAMS ) );
+      IOptionSetEdit backendSpecificParams = new OptionSet( attrs.getValobj( ISkSession.ATRID_BACKEND_SPECIFIC_PARAMS ) );
       OP_SESSION_CLUSTER_TOPOLOGY.setValue( backendSpecificParams, avValobj( aClusterTopology ) );
-      attrs.setValobj( ISkSession.AID_BACKEND_SPECIFIC_PARAMS, backendSpecificParams );
+      attrs.setValobj( ISkSession.ATRID_BACKEND_SPECIFIC_PARAMS, backendSpecificParams );
       IDtoObject dpu = new DtoObject( sessionID, attrs, obj.rivets().map() );
       // Создание объекта сессия. false: интерсепция запрещена
       objectsBackend.writeObjects( IS5FrontendRear.NULL, ISkidList.EMPTY, new ElemArrayList<>( dpu ), false );

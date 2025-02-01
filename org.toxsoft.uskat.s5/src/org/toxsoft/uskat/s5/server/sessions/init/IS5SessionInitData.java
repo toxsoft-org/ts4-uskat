@@ -4,10 +4,10 @@ import org.toxsoft.core.tslib.av.opset.IOptionSet;
 import org.toxsoft.core.tslib.coll.primtypes.IStringList;
 import org.toxsoft.core.tslib.gw.skid.Skid;
 import org.toxsoft.core.tslib.utils.errors.TsNullArgumentRtException;
+import org.toxsoft.uskat.classes.*;
 import org.toxsoft.uskat.core.backend.api.IBackendAddon;
 import org.toxsoft.uskat.s5.client.IS5ConnectionParams;
 import org.toxsoft.uskat.s5.client.remote.connection.S5ClusterTopology;
-import org.toxsoft.uskat.s5.common.sessions.ISkSession;
 import org.toxsoft.uskat.s5.server.frontend.IS5BackendAddonData;
 
 /**

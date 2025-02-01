@@ -23,7 +23,7 @@ import org.toxsoft.core.tslib.gw.skid.*;
 import org.toxsoft.core.tslib.utils.*;
 import org.toxsoft.core.tslib.utils.errors.*;
 import org.toxsoft.core.tslib.utils.logs.*;
-import org.toxsoft.uskat.s5.common.sessions.*;
+import org.toxsoft.uskat.classes.*;
 import org.toxsoft.uskat.s5.server.cluster.*;
 import org.toxsoft.uskat.s5.server.sessions.*;
 import org.toxsoft.uskat.s5.server.startup.*;

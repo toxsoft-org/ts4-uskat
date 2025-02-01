@@ -19,7 +19,6 @@ import org.toxsoft.uskat.classes.*;
 import org.toxsoft.uskat.core.api.sysdescr.*;
 import org.toxsoft.uskat.core.api.users.*;
 import org.toxsoft.uskat.s5.common.*;
-import org.toxsoft.uskat.s5.common.sessions.*;
 import org.toxsoft.uskat.s5.server.*;
 import org.toxsoft.uskat.s5.server.backend.addons.*;
 import org.toxsoft.uskat.s5.server.backend.supports.core.*;
@@ -74,7 +73,7 @@ public abstract class S5InitialImplementation
     Skid serverId = new Skid( ISkServer.CLASS_ID, aModule.id() );
     Skid nodeId = Skid.NONE;
     if( System.getProperty( JBOSS_NODE_NAME ) != null ) {
-      nodeId = new Skid( ISkServerNode.CLASS_ID, System.getProperty( JBOSS_NODE_NAME ).replaceAll( "-", "." ) ); //$NON-NLS-1$ //$NON-NLS-2$
+      nodeId = new Skid( ISkClusterNode.CLASS_ID, System.getProperty( JBOSS_NODE_NAME ).replaceAll( "-", "." ) ); //$NON-NLS-1$ //$NON-NLS-2$
     }
     OP_SERVER_ID.setValue( params, avValobj( serverId ) );
     OP_SERVER_NODE_ID.setValue( params, avValobj( nodeId ) );

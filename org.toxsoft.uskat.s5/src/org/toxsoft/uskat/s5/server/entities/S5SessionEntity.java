@@ -6,8 +6,8 @@ import javax.persistence.Entity;
 
 import org.toxsoft.core.tslib.gw.skid.Skid;
 import org.toxsoft.core.tslib.utils.errors.TsNullArgumentRtException;
+import org.toxsoft.uskat.classes.*;
 import org.toxsoft.uskat.core.api.objserv.IDtoObject;
-import org.toxsoft.uskat.s5.common.sessions.ISkSession;
 import org.toxsoft.uskat.s5.server.backend.supports.objects.S5ObjectEntity;
 import org.toxsoft.uskat.s5.server.backend.supports.objects.S5ObjectID;
 import org.toxsoft.uskat.s5.server.backend.supports.sysdescr.S5ClassEntity;

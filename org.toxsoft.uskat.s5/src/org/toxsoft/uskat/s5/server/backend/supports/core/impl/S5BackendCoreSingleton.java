@@ -65,8 +65,6 @@ import org.toxsoft.uskat.s5.utils.threads.impl.*;
 @DependsOn( { //
     TRANSACTION_MANAGER_SINGLETON, //
     CLUSTER_MANAGER_SINGLETON, //
-    // 2022-08-21 mvk
-    // SESSION_MANAGER_SINGLETON, //
     PROJECT_INITIAL_IMPLEMENT_SINGLETON //
 } )
 @TransactionManagement( TransactionManagementType.CONTAINER )
@@ -200,7 +198,7 @@ public class S5BackendCoreSingleton
   private ISkConnection sharedConnection;
 
   /**
-   * Писатель статитистики объекта {@link ISkServerNode}. null: нет соединения
+   * Писатель статитистики объекта {@link ISkClusterNode}. null: нет соединения
    */
   private S5StatisticWriter statisticWriter;
 
@@ -308,7 +306,10 @@ public class S5BackendCoreSingleton
       try {
         OP_BACKEND_ZONE_ID.setValue( backendInfo.params(), avStr( ZoneId.systemDefault().getId() ) );
         OP_BACKEND_CURRENT_TIME.setValue( backendInfo.params(), avTimestamp( System.currentTimeMillis() ) );
-        OP_BACKEND_SESSIONS_INFOS.setValue( backendInfo.params(), avValobj( sessionManager().getInfos() ) );
+        if( sessionManager != null ) {
+          // Доступен (уже загружен) менеджер сессий
+          OP_BACKEND_SESSIONS_INFOS.setValue( backendInfo.params(), avValobj( sessionManager().getInfos() ) );
+        }
         OP_BACKEND_TRANSACTIONS_INFOS.setValue( backendInfo.params(), avValobj( txManager.getInfos() ) );
         OP_BACKEND_HEAP_MEMORY_USAGE.setValue( backendInfo.params(), avStr( printHeapMemoryUsage() ) );
         OP_BACKEND_NON_HEAP_MEMORY_USAGE.setValue( backendInfo.params(), avStr( printNonHeapMemoryUsage() ) );

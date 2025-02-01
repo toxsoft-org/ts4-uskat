@@ -7,8 +7,8 @@ import java.sql.ResultSet;
 import javax.persistence.*;
 
 import org.toxsoft.core.tslib.utils.errors.TsNullArgumentRtException;
+import org.toxsoft.uskat.classes.*;
 import org.toxsoft.uskat.core.api.linkserv.IDtoLinkFwd;
-import org.toxsoft.uskat.s5.common.sessions.ISkSession;
 import org.toxsoft.uskat.s5.server.backend.supports.links.S5LinkFwdEntity;
 
 /**

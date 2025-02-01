@@ -11,7 +11,7 @@ import org.toxsoft.core.tslib.bricks.strio.IStrioWriter;
 import org.toxsoft.core.tslib.gw.skid.Skid;
 import org.toxsoft.core.tslib.utils.TsLibUtils;
 import org.toxsoft.core.tslib.utils.errors.TsNullArgumentRtException;
-import org.toxsoft.uskat.s5.common.sessions.ISkSession;
+import org.toxsoft.uskat.classes.*;
 
 /**
  * Идентифицирующая сессию информация.
