@@ -130,20 +130,20 @@ public class S5ClassUtils {
         ) );
     retValue.linkInfos().addAll( //
         DtoLinkInfo.create1( //
-            ISkNetNode.LNKID_CHILDS, //
+            ISkNetNode.LNKID_LINKED_NODES, //
             new SingleStringList( ISkNetNode.CLASS_ID ), //
             // aMaxCount = 0, aIsExactCount = false, aIsEmptyProhibited = false, aIsDuplicatesProhibited = true
             new CollConstraint( 0, false, false, true ), //
             OptionSetUtils.createOpSet( //
-                DDEF_NAME, STR_LNKID_CLUSTERNODE_SERVER, //
-                DDEF_DESCRIPTION, STR_LNKID_CLUSTERNODE_SERVER_D ) ) //
+                DDEF_NAME, STR_LNKID_NETNODE_LINKED_NODES, //
+                DDEF_DESCRIPTION, STR_LNKID_NETNODE_LINKED_NODES_D ) ) //
     );
     retValue.rtdataInfos().addAll( //
         DtoRtdataInfo.create2( //
             ISkNetNode.RTDID_ONLINE, //
-            DataType.create( BOOLEAN, //
+            DataType.create( VALOBJ, //
                 TSID_FORMAT_STRING, FMT_BOOL_CHECK, //
-                TSID_DEFAULT_VALUE, AV_FALSE //
+                TSID_DEFAULT_VALUE, avValobj( EConnState.OFFLINE ) //
             ), //
             true, true, false, 1000, //
             TSID_NAME, STR_RTD_NETNODE_ONLINE, //

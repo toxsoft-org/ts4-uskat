@@ -16,8 +16,8 @@ interface IS5Resources {
   String STR_CLASS_NETNODE   = "Узел";
   String STR_CLASS_NETNODE_D = "Сетевой узел системы";
 
-  String STR_LNKID_NETNODE_CHILDS   = "Узлы";
-  String STR_LNKID_NETNODE_CHILDS_D = "Список подключенных дочерних узлов";
+  String STR_LNKID_NETNODE_LINKED_NODES   = "Узлы";
+  String STR_LNKID_NETNODE_LINKED_NODES_D = "Список связанных узлов";
 
   String STR_RTD_NETNODE_ONLINE   = "Связь";
   String STR_RTD_NETNODE_ONLINE_D = "С узлом установлена связь";
@@ -75,7 +75,7 @@ interface IS5Resources {
   String STR_CLASS_CLUSTERNODE_D = "Узел кластера сервера";
 
   String STR_LNKID_CLUSTERNODE_SERVER   = "Сервер";
-  String STR_LNKID_CLUSTERNODE_SERVER_D = "Сервер/кластер в рамках которого работает узел";
+  String STR_LNKID_CLUSTERNODE_SERVER_D = "Сервер/кластер в рамках которого работает узел кластера";
 
   /**
    * {@link ISkServerBackend}

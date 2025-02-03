@@ -22,9 +22,9 @@ public interface ISkNetNode
   // Связи
   //
   /**
-   * Связь: список дочерних сетевых узлов подключенных к узлу.
+   * Связь: список связанных сетевых узлов.
    */
-  String LNKID_CHILDS = "childs";
+  String LNKID_LINKED_NODES = "linkedNodes";
 
   // -----------------------------------------------------------------------------------
   // Данные
@@ -33,7 +33,7 @@ public interface ISkNetNode
   /**
    * Данное: с сетевым узлом установлена связь.
    * <p>
-   * Тип: {@link EAtomicType#BOOLEAN}
+   * Тип: {@link EAtomicType#VALOBJ} ({@link EConnState})
    */
   String RTDID_ONLINE = "online";
 
