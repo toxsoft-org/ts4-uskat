@@ -3,6 +3,7 @@ package org.toxsoft.uskat.s5.utils;
 import org.toxsoft.core.tslib.bricks.keeper.*;
 import org.toxsoft.core.tslib.utils.errors.*;
 import org.toxsoft.core.tslib.utils.valobj.*;
+import org.toxsoft.uskat.classes.*;
 import org.toxsoft.uskat.core.api.cmdserv.*;
 import org.toxsoft.uskat.core.api.hqserv.*;
 import org.toxsoft.uskat.core.connection.*;
@@ -37,6 +38,7 @@ public class S5ValobjUtils {
     TsValobjUtils.registerKeeperIfNone( ES5DatabaseEngine.KEEPER_ID, ES5DatabaseEngine.KEEPER );
     TsValobjUtils.registerKeeperIfNone( S5Host.KEEPER_ID, S5Host.KEEPER );
     TsValobjUtils.registerKeeperIfNone( S5HostList.KEEPER_ID, S5HostList.KEEPER );
+    TsValobjUtils.registerKeeperIfNone( EConnState.KEEPER_ID, EConnState.KEEPER );
 
     TsValobjUtils.registerKeeperIfNone( S5Module.KEEPER_ID, S5Module.KEEPER );
     TsValobjUtils.registerKeeperIfNone( S5ModuleList.KEEPER_ID, S5ModuleList.KEEPER );
