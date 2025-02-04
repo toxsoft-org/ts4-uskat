@@ -130,13 +130,13 @@ public class S5ClassUtils {
         ) );
     retValue.linkInfos().addAll( //
         DtoLinkInfo.create1( //
-            ISkNetNode.LNKID_LINKED_NODES, //
-            new SingleStringList( ISkNetNode.CLASS_ID ), //
+            ISkNetNode.LNKID_RESOURCES, //
+            new SingleStringList( IGwHardConstants.GW_ROOT_CLASS_ID ), //
             // aMaxCount = 0, aIsExactCount = false, aIsEmptyProhibited = false, aIsDuplicatesProhibited = true
             new CollConstraint( 0, false, false, true ), //
             OptionSetUtils.createOpSet( //
-                DDEF_NAME, STR_LNKID_NETNODE_LINKED_NODES, //
-                DDEF_DESCRIPTION, STR_LNKID_NETNODE_LINKED_NODES_D ) ) //
+                DDEF_NAME, STR_LNKID_NETNODE_RESOURCES, //
+                DDEF_DESCRIPTION, STR_LNKID_NETNODE_RESOURCES_D ) ) //
     );
     retValue.rtdataInfos().addAll( //
         DtoRtdataInfo.create2( //

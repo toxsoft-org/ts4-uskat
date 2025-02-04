@@ -16,8 +16,8 @@ interface IS5Resources {
   String STR_CLASS_NETNODE   = "Узел";
   String STR_CLASS_NETNODE_D = "Сетевой узел системы";
 
-  String STR_LNKID_NETNODE_LINKED_NODES   = "Узлы";
-  String STR_LNKID_NETNODE_LINKED_NODES_D = "Список связанных узлов";
+  String STR_LNKID_NETNODE_RESOURCES   = "Ресурсы";
+  String STR_LNKID_NETNODE_RESOURCES_D = "Список подключаемых к сетевому узлу ресурсов системы";
 
   String STR_RTD_NETNODE_ONLINE   = "Связь";
   String STR_RTD_NETNODE_ONLINE_D = "С узлом установлена связь";
