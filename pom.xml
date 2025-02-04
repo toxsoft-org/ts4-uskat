@@ -572,6 +572,7 @@
     <module>org.toxsoft.uskat.backend.sqlite</module>
     <module>org.toxsoft.uskat.s5</module>
     <module>org.toxsoft.uskat.s5.histdata10</module>
+    <module>org.toxsoft.uskat.virtdata</module>
     <module>org.toxsoft.uskat.ws.exe</module> 
     <!-- <module>org.toxsoft.uskat.s5.cron</module> -->
     <module>org.toxsoft.uskat.skadmin.core</module>

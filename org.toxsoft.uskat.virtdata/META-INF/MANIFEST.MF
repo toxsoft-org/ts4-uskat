@@ -1,0 +1,11 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: USkat virtual data support
+Bundle-SymbolicName: org.toxsoft.uskat.virtdata
+Bundle-Version: 1.0.0.qualifier
+Export-Package: org.toxsoft.uskat.virtdata
+Require-Bundle: org.toxsoft.core.tslib,
+ org.toxsoft.uskat.core
+Bundle-Vendor: toxsoft.org
+Automatic-Module-Name: org.toxsoft.uskat.virtdata
+Bundle-RequiredExecutionEnvironment: JavaSE-21
