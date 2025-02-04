@@ -73,6 +73,9 @@ import org.wildfly.clustering.group.*;
     BACKEND_SYSDESCR_SINGLETON, //
     BACKEND_OBJECTS_SINGLETON, //
     BACKEND_LINKS_SINGLETON, //
+    BACKEND_CURRDATA_SINGLETON, //
+    BACKEND_HISTDATA_SINGLETON, //
+    BACKEND_COMMANDS_SINGLETON, //
     BACKEND_EVENTS_SINGLETON //
 } )
 @TransactionManagement( TransactionManagementType.CONTAINER )
