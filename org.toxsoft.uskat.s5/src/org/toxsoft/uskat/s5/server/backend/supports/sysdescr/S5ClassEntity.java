@@ -414,10 +414,15 @@ public class S5ClassEntity
   public boolean equals( Object aThat ) {
     if( super.equals( aThat ) ) {
       if( aThat instanceof IDtoClassInfo that ) {
-        return attrInfos().equals( that.attrInfos() ) && rivetInfos().equals( that.rivetInfos() )
-            && rtdataInfos().equals( that.rtdataInfos() ) && linkInfos().equals( that.linkInfos() )
-            && cmdInfos().equals( that.cmdInfos() ) && eventInfos().equals( that.eventInfos() )
-            && clobInfos().equals( that.clobInfos() );
+        return //
+        parentId.equals( that.parentId() ) && //
+            attrInfos().equals( that.attrInfos() ) && //
+            rivetInfos().equals( that.rivetInfos() ) && //
+            rtdataInfos().equals( that.rtdataInfos() ) && //
+            linkInfos().equals( that.linkInfos() ) && //
+            cmdInfos().equals( that.cmdInfos() ) && //
+            eventInfos().equals( that.eventInfos() ) && //
+            clobInfos().equals( that.clobInfos() );
       }
     }
     return false;
@@ -426,6 +431,7 @@ public class S5ClassEntity
   @Override
   public int hashCode() {
     int result = super.hashCode();
+    result = TsLibUtils.PRIME * result + parentId.hashCode();
     result = TsLibUtils.PRIME * result + attrInfos().hashCode();
     result = TsLibUtils.PRIME * result + rivetInfos().hashCode();
     result = TsLibUtils.PRIME * result + rtdataInfos().hashCode();
