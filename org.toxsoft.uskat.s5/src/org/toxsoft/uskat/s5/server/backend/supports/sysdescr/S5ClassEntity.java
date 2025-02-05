@@ -303,6 +303,7 @@ public class S5ClassEntity
   public void update( IDtoClassInfo aSource ) {
     TsNullArgumentRtException.checkNull( aSource );
     super.update( aSource );
+    parentId = aSource.parentId();
     attrString = DtoAttrInfo.KEEPER.coll2str( aSource.attrInfos() );
     rivetString = DtoRivetInfo.KEEPER.coll2str( aSource.rivetInfos() );
     linkString = DtoLinkInfo.KEEPER.coll2str( aSource.linkInfos() );
