@@ -100,10 +100,11 @@ public abstract class S5DtoClassPropInfoBaseEntity
   /**
    * Обновление данных
    *
+   * @param aParent {@link S5ClassEntity} описание родительского класса
    * @param aSource {@link IDtoClassInfo} исходное описание
-   * @throws TsNullArgumentRtException аргумент = null
+   * @throws TsNullArgumentRtException aSource = null
    */
-  public void update( IDtoClassInfo aSource ) {
+  public void update( S5ClassEntity aParent, IDtoClassInfo aSource ) {
     TsNullArgumentRtException.checkNull( aSource );
     paramsString = OptionSetKeeper.KEEPER.ent2str( aSource.params() );
     params = null;

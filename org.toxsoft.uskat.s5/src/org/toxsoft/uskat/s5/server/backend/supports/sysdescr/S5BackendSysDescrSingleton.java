@@ -433,7 +433,7 @@ public class S5BackendSysDescrSingleton
       // entityManager.merge( newEntity );
       // 2021-03-02 mvk prevEntity при таком использовании изменяется тоже, нам это не нужно
       // entityManager.merge( prevEntity ).update( newEntity );
-      entityManager.merge( dbEntity ).update( newEntity );
+      entityManager.merge( dbEntity ).update( parent, newEntity );
       // Без вызова запрос будет закэширован до закрытия транзакции и не будет ошибки по ключу
       entityManager.flush();
       // Сброс кэша классов

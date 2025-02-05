@@ -300,10 +300,11 @@ public class S5ClassEntity
    * @throws TsNullArgumentRtException аргумент = null
    */
   @Override
-  public void update( IDtoClassInfo aSource ) {
+  public void update( S5ClassEntity aParent, IDtoClassInfo aSource ) {
     TsNullArgumentRtException.checkNull( aSource );
-    super.update( aSource );
-    parentId = aSource.parentId();
+    super.update( aParent, aSource );
+    parent = aParent;
+    parentId = (aParent == null ? TsLibUtils.EMPTY_STRING : aParent.id());
     attrString = DtoAttrInfo.KEEPER.coll2str( aSource.attrInfos() );
     rivetString = DtoRivetInfo.KEEPER.coll2str( aSource.rivetInfos() );
     linkString = DtoLinkInfo.KEEPER.coll2str( aSource.linkInfos() );
