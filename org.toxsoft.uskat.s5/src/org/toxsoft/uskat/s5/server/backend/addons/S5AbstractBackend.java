@@ -415,11 +415,17 @@ public abstract class S5AbstractBackend<ADDON extends IS5BackendAddon>
       LoggerUtils.setErrorLogger( uskatLogger );
       LoggerUtils.errorLogger().error( MSG_RESTORE_ERROR_LOGGER, S5_USKAT_CORE_LOGGER );
     }
-    for( IS5BackendAddon addon : allAddons ) {
-      addon.doJob();
-      if( isClosed || isClosing ) {
-        return;
+    lockWrite( frontendLock );
+    try {
+      for( IS5BackendAddon addon : allAddons ) {
+        addon.doJob();
+        if( isClosed || isClosing ) {
+          return;
+        }
       }
+    }
+    finally {
+      unlockWrite( frontendLock );
     }
     threadExecutor.timerExec( ADDON_DOJOB_TIMEOUT, this );
   }
