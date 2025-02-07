@@ -113,9 +113,12 @@ public class SkatletBox
     }
 
     // Создание разделяемого соединения и его размещение в контексте
-    sharedConnection = new SharedConnection( support.createConnection( id(), new TsContext() ), support.logger() );
-    ISkatlet.REF_SHARED_CONNECTION.setRef( context, sharedConnection );
-
+    if( sharedConnection == null ) {
+      sharedConnection = new SharedConnection( support.createConnection( id(), new TsContext() ), support.logger() );
+      ISkatlet.REF_SHARED_CONNECTION.setRef( context, sharedConnection );
+      // Оповещение наследников
+      doCreateSharedConnection( sharedConnection );
+    }
     // Установка контекста скатлетов
     for( SkatletUnit unit : retValue ) {
       unit.setContext( context );
@@ -125,6 +128,19 @@ public class SkatletBox
 
   @Override
   protected void doAfterRunUnits( IList<SkatletUnit> aPlugins ) {
+    // nop
+  }
+
+  // ------------------------------------------------------------------------------------
+  // methods to override
+  //
+
+  /**
+   * Обработать создание общего(разделяемого модулями) соединения.
+   *
+   * @param aConnection {@link SharedConnection} созданное соединение
+   */
+  protected void doCreateSharedConnection( SharedConnection aConnection ) {
     // nop
   }
 
