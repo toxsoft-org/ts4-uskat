@@ -169,11 +169,11 @@ public abstract class AbstractSkService
   }
 
   /**
-   *
    * @throws TsIllegalStateRtException invalid thread access
    */
   final public void checkThread() {
-    if( !executor.thread().equals( Thread.currentThread() ) ) {
+    Thread currentThread = Thread.currentThread();
+    if( executor.thread() != currentThread ) {
       throw new TsIllegalStateRtException( FMT_ERR_INVALID_THREAD_ACCESS );
     }
   }
