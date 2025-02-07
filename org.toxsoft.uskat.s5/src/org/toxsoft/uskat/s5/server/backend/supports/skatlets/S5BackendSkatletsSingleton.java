@@ -165,18 +165,23 @@ public class S5BackendSkatletsSingleton
     // Создание корневого контейнера...
     rootBox = new WubBox( ROOT_BOX_ID, params );
     // Добавление в корневой контейнер контейнера скатлетов
-    rootBox.addUnit( new SkatletBox( SKATLET_BOX_ID, params ) );
+    rootBox.addUnit( new SkatletBox( SKATLET_BOX_ID, params ) {
+
+      @Override
+      protected void doCreateSharedConnection( SharedConnection aConnection ) {
+        // Создание общего (разделяемого между модулями системы) соединения
+        sharedConnection = aConnection;
+        // Установка общего(разделяемого между модулями) соединения в ядре и определяя его готовность к использованию
+        backendCore.setSharedConnection( sharedConnection );
+      }
+
+    } );
     // ...инициализация...
     rootBox.init( environ );
     // ...запуск
     rootBox.start();
     // Запуск doJob
     addOwnDoJob( DOJOB_INTERVAL );
-
-    // Создание общего соединения скатлетов
-    sharedConnection = new SharedConnection( localConnectionSingleton.open( id() ), logger() );
-    // Установка общего(разделяемого между модулями) соединения в ядре и определяя его готовность к использованию
-    backendCore.setSharedConnection( sharedConnection );
   }
 
   @Override
