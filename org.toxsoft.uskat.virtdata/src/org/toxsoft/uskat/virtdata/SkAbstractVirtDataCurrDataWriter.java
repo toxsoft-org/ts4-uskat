@@ -58,6 +58,16 @@ public abstract class SkAbstractVirtDataCurrDataWriter
   }
 
   // ------------------------------------------------------------------------------------
+  // public API
+  //
+  /**
+   * @return ID of write data
+   */
+  public final Gwid writeDataId() {
+    return writeChannel.gwid();
+  }
+
+  // ------------------------------------------------------------------------------------
   // API for subclasses
   //
   /**
@@ -65,13 +75,6 @@ public abstract class SkAbstractVirtDataCurrDataWriter
    */
   protected final ISkCoreApi coreApi() {
     return coreApi;
-  }
-
-  /**
-   * @return ID of write data
-   */
-  protected final Gwid writeDataId() {
-    return writeChannel.gwid();
   }
 
   /**
