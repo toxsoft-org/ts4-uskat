@@ -51,7 +51,7 @@ public abstract class S5AbstractBackend<ADDON extends IS5BackendAddon>
   /**
    * Таймаут (мсек) фоновой обработки аддонов
    */
-  private static final int ADDON_DOJOB_TIMEOUT = 10;
+  private static final int ADDON_DOJOB_TIMEOUT = 1000;
 
   /**
    * Идентификатор журнала используемый по умолчанию
