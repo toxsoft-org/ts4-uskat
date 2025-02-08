@@ -51,7 +51,12 @@ public abstract class S5AbstractBackend<ADDON extends IS5BackendAddon>
   /**
    * Идентификатор журнала используемый по умолчанию
    */
-  public static final String S5_USKAT_CORE_LOGGER = "S5USkatCore"; //$NON-NLS-1$
+  public static final String TS_DEFAULT_LOGGER = "TsDefaultLogger"; //$NON-NLS-1$
+
+  /**
+   * Идентификатор журнала ошибок используемый по умолчанию
+   */
+  public static final String TS_ERROR_LOGGER = "TsErrorLogger"; //$NON-NLS-1$
 
   /**
    * API разработчика ядра
@@ -178,9 +183,14 @@ public abstract class S5AbstractBackend<ADDON extends IS5BackendAddon>
   private boolean isClosed;
 
   /**
-   * Журнал uskat core
+   * Журнал по умолчанию
    */
-  private static final ILogger uskatLogger = getLogger( S5_USKAT_CORE_LOGGER );
+  private static final ILogger tsDefaultLogger = getLogger( TS_DEFAULT_LOGGER );
+
+  /**
+   * Журнал по умолчанию
+   */
+  private static final ILogger tsErrorLogger = getLogger( TS_ERROR_LOGGER );
 
   /**
    * Статическая инициализация
@@ -203,13 +213,13 @@ public abstract class S5AbstractBackend<ADDON extends IS5BackendAddon>
       IOptionSet aBackendInfoValue ) {
     TsNullArgumentRtException.checkNulls( aArgs, aFrontend, aBackendId, aBackendInfoValue );
     // Замена журнала по умолчанию
-    if( !LoggerUtils.defaultLogger().equals( uskatLogger ) ) {
-      LoggerUtils.setDefaultLogger( uskatLogger );
-      LoggerUtils.defaultLogger().info( MSG_CHANGE_DEFAULT_LOGGER, S5_USKAT_CORE_LOGGER );
+    if( !LoggerUtils.defaultLogger().equals( tsDefaultLogger ) ) {
+      LoggerUtils.setDefaultLogger( tsDefaultLogger );
+      LoggerUtils.defaultLogger().info( MSG_CHANGE_DEFAULT_LOGGER, TS_DEFAULT_LOGGER );
     }
-    if( !LoggerUtils.errorLogger().equals( uskatLogger ) ) {
-      LoggerUtils.setErrorLogger( uskatLogger );
-      LoggerUtils.errorLogger().info( MSG_CHANGE_ERROR_LOGGER, S5_USKAT_CORE_LOGGER );
+    if( !LoggerUtils.errorLogger().equals( tsErrorLogger ) ) {
+      LoggerUtils.setErrorLogger( tsErrorLogger );
+      LoggerUtils.errorLogger().info( MSG_CHANGE_ERROR_LOGGER, TS_ERROR_LOGGER );
     }
     // Параметры аутентификации
     IAtomicValue login = IS5ConnectionParams.OP_USERNAME.getValue( aArgs.params() );
@@ -410,13 +420,13 @@ public abstract class S5AbstractBackend<ADDON extends IS5BackendAddon>
       // backend завершил или завершает свою работу
       return;
     }
-    if( !LoggerUtils.defaultLogger().equals( uskatLogger ) ) {
-      LoggerUtils.setDefaultLogger( uskatLogger );
-      LoggerUtils.defaultLogger().error( MSG_RESTORE_DEFAULT_LOGGER, S5_USKAT_CORE_LOGGER );
+    if( !LoggerUtils.defaultLogger().equals( tsDefaultLogger ) ) {
+      LoggerUtils.setDefaultLogger( tsDefaultLogger );
+      LoggerUtils.defaultLogger().error( MSG_RESTORE_DEFAULT_LOGGER, TS_DEFAULT_LOGGER );
     }
-    if( !LoggerUtils.errorLogger().equals( uskatLogger ) ) {
-      LoggerUtils.setErrorLogger( uskatLogger );
-      LoggerUtils.errorLogger().error( MSG_RESTORE_ERROR_LOGGER, S5_USKAT_CORE_LOGGER );
+    if( !LoggerUtils.errorLogger().equals( tsErrorLogger ) ) {
+      LoggerUtils.setErrorLogger( tsErrorLogger );
+      LoggerUtils.errorLogger().error( MSG_RESTORE_ERROR_LOGGER, TS_ERROR_LOGGER );
     }
     lockWrite( frontendLock );
     try {
