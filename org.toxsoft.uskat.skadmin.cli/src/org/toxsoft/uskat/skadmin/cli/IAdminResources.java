@@ -77,8 +77,8 @@ interface IAdminResources {
   String MSG_CONSOLE_CMD_INIT    = "Инициализация команд консоли";
   String MSG_CONSOLE_INIT_FINISH = "Загрузка консоли завершена";
   String MSG_LOGO1               =
-      " Консоль администратора uskat. Версия: %s. Компания " + COLOR_ID + "ТоксСофт" + COLOR_RESET + ". 1993-2024.";
-  String MSG_LOGO2               = " Для справки введите " + COLOR_ID + "help" + COLOR_RESET + ".";
+      " Uskat admin console. Version: %s. " + COLOR_ID + "ToxSoft" + COLOR_RESET + " Ltd. www.toxsoft.ru. 1993-2025.";
+  String MSG_LOGO2               = " Use the " + COLOR_ID + "help" + COLOR_RESET + " command for more information.";
   String MSG_RCM_WIDTH           = COLOR_WARN + "Рекомендуемая ширина буфера консоли %d символов" + COLOR_RESET + ".";
   String MSG_PROMPT_START        = "[";
   String MSG_PROMPT_FINISH       = "]$";
