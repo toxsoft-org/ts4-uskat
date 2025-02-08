@@ -670,7 +670,7 @@ public abstract class S5AbstractBackend<ADDON extends IS5BackendAddon>
 
     } );
     ctx.params().setAll( aContext.params() );
-    ctx.params().setAll( S5ConfigurationUtils.readSystemConfiguraion( IS5ConnectionParams.SYBSYSTEM_ID_PREFIX ) );
+    ctx.params().putAll( S5ConfigurationUtils.readSystemConfiguraion( IS5ConnectionParams.SYBSYSTEM_ID_PREFIX ) );
     ctx.params().setValobj( IS5ConnectionParams.OP_SESSION_ID, aSessionID );
     return ctx;
   }
