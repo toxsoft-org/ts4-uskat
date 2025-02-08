@@ -303,17 +303,6 @@ public final class S5Connection
           // logger.info( MSG_OPEN_CONNECT_COMPLETED, Boolean.valueOf( wasInterrupted ) );
         }
       }
-      catch( S5ConnectionException e ) {
-        // Ошибка установки соединения
-        setConnectState( EConnectionState.DISCONNECTED );
-        // Завершение работы читателя
-        if( callbackReader != null ) {
-          callbackReader.close();
-          callbackReader = null;
-        }
-        fireOnAfterDeActiveEvent();
-        throw e;
-      }
       catch( Throwable e ) {
         // Ошибка установки соединения
         setConnectState( EConnectionState.DISCONNECTED );
@@ -323,7 +312,7 @@ public final class S5Connection
           callbackReader = null;
         }
         fireOnAfterDeActiveEvent();
-        throw new TsInternalErrorRtException( e );
+        throw e;
 
         // 2020-08-16 mvk контракт openSession:
         // "поднимать исключение если нет связи, автоматическая установка НОВОГО соединения не предусматривается"
