@@ -44,9 +44,10 @@ public class S5InitialSingleton
    * Пустой конструктор.
    */
   public S5InitialSingleton() {
-    ILogger logger = LoggerWrapper.getLogger( S5AbstractBackend.S5_USKAT_CORE_LOGGER );
-    LoggerUtils.setDefaultLogger( logger );
-    LoggerUtils.setErrorLogger( logger );
+    ILogger defaultLogger = LoggerWrapper.getLogger( S5AbstractBackend.TS_DEFAULT_LOGGER );
+    ILogger errorLogger = LoggerWrapper.getLogger( S5AbstractBackend.TS_ERROR_LOGGER );
+    LoggerUtils.setDefaultLogger( defaultLogger );
+    LoggerUtils.setErrorLogger( errorLogger );
   }
 
   // ------------------------------------------------------------------------------------
