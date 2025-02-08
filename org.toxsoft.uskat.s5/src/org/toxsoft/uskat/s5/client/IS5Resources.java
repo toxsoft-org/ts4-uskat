@@ -39,6 +39,8 @@ interface IS5Resources {
   String N_CURRDATA_TIMEOUT     = Messages.getString( "IS5Resources.N_CURRDATA_TIMEOUT" ); //$NON-NLS-1$
   String D_HISTDATA_TIMEOUT     = Messages.getString( "IS5Resources.D_HISTATA_TIMEOUT" );  //$NON-NLS-1$
   String N_HISTDATA_TIMEOUT     = Messages.getString( "IS5Resources.N_HISTDATA_TIMEOUT" ); //$NON-NLS-1$
+  String D_DOJOB_TIMEOUT        = "doJobTimeout";                                          //$NON-NLS-1$
+  String N_DOJOB_TIMEOUT        = "doJobTimeout";                                          //$NON-NLS-1$
   String D_HISTDATA_BUFFER_SIZE = "histdata buffer size";                                  //$NON-NLS-1$
   String N_HISTDATA_BUFFER_SIZE = "histdata buffer size";                                  //$NON-NLS-1$
 

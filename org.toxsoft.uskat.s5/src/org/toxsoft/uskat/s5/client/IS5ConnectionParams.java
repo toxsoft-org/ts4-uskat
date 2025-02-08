@@ -17,6 +17,7 @@ import org.toxsoft.core.tslib.gw.skid.*;
 import org.toxsoft.core.tslib.utils.*;
 import org.toxsoft.uskat.core.api.users.*;
 import org.toxsoft.uskat.s5.common.*;
+import org.toxsoft.uskat.s5.server.*;
 import org.toxsoft.uskat.s5.utils.progress.*;
 
 /**
@@ -27,11 +28,16 @@ import org.toxsoft.uskat.s5.utils.progress.*;
 public interface IS5ConnectionParams {
 
   /**
+   * Префикс идентфикаторов подсистемы
+   */
+  String SYBSYSTEM_ID_PREFIX = IS5ServerHardConstants.S5_FULL_ID + ".client"; //$NON-NLS-1$
+
+  /**
    * Параметр: Идентификатор сессии. Создается при создании нового соединения ISkConnection
    * <p>
    * Тип: {@link EAtomicType#VALOBJ}({@link Skid})
    */
-  IDataDef OP_SESSION_ID = create( "sessionID", VALOBJ, //$NON-NLS-1$
+  IDataDef OP_SESSION_ID = create( SYBSYSTEM_ID_PREFIX + ".sessionID", VALOBJ, //$NON-NLS-1$
       TSID_NAME, N_SESSION_ID, //
       TSID_DESCRIPTION, D_SESSION_ID, //
       TSID_IS_NULL_ALLOWED, AV_FALSE, //
@@ -45,7 +51,7 @@ public interface IS5ConnectionParams {
    * <p>
    * Тип: {@link EAtomicType#STRING}
    */
-  IDataDef OP_USERNAME = create( "username", STRING, //$NON-NLS-1$
+  IDataDef OP_USERNAME = create( SYBSYSTEM_ID_PREFIX + ".username", STRING, //$NON-NLS-1$
       TSID_NAME, N_USERNAME, //
       TSID_DESCRIPTION, D_USERNAME, //
       TSID_IS_NULL_ALLOWED, AV_FALSE, //
@@ -56,7 +62,7 @@ public interface IS5ConnectionParams {
    * <p>
    * Тип: {@link EAtomicType#STRING}
    */
-  IDataDef OP_PASSWORD = create( "password", STRING, //$NON-NLS-1$
+  IDataDef OP_PASSWORD = create( SYBSYSTEM_ID_PREFIX + ".password", STRING, //$NON-NLS-1$
       TSID_NAME, N_PASSWORD, //
       TSID_DESCRIPTION, D_PASSWORD, //
       TSID_IS_NULL_ALLOWED, AV_FALSE, //
@@ -67,7 +73,7 @@ public interface IS5ConnectionParams {
    * <p>
    * Тип: {@link EAtomicType#VALOBJ} ({@link Skid})
    */
-  IDataDef OP_ROLE = create( "role", VALOBJ, //$NON-NLS-1$
+  IDataDef OP_ROLE = create( SYBSYSTEM_ID_PREFIX + ".role", VALOBJ, //$NON-NLS-1$
       TSID_NAME, N_ROLE, //
       TSID_DESCRIPTION, D_ROLE, //
       TSID_IS_NULL_ALLOWED, AV_FALSE, //
@@ -81,7 +87,7 @@ public interface IS5ConnectionParams {
    * <p>
    * Тип: {@link EAtomicType#STRING}
    */
-  IDataDef OP_LOCAL_MODULE = create( "localModule", STRING, //$NON-NLS-1$
+  IDataDef OP_LOCAL_MODULE = create( SYBSYSTEM_ID_PREFIX + ".localModule", STRING, //$NON-NLS-1$
       TSID_NAME, N_LOCAL_MODULE, //
       TSID_DESCRIPTION, D_LOCAL_MODULE, //
       TSID_IS_NULL_ALLOWED, AV_FALSE, //
@@ -92,7 +98,7 @@ public interface IS5ConnectionParams {
    * <p>
    * Тип: {@link EAtomicType#STRING}
    */
-  IDataDef OP_LOCAL_NODE = create( "localNode", STRING, //$NON-NLS-1$
+  IDataDef OP_LOCAL_NODE = create( SYBSYSTEM_ID_PREFIX + ".localNode", STRING, //$NON-NLS-1$
       TSID_NAME, N_LOCAL_NODE, //
       TSID_DESCRIPTION, D_LOCAL_NODE, //
       TSID_IS_NULL_ALLOWED, AV_FALSE, //
@@ -109,7 +115,7 @@ public interface IS5ConnectionParams {
    * <p>
    * Тип: {@link EAtomicType#STRING}
    */
-  IDataDef OP_WILDFLY_LOGIN = create( "wildfly_login", STRING, //$NON-NLS-1$
+  IDataDef OP_WILDFLY_LOGIN = create( SYBSYSTEM_ID_PREFIX + ".wildfly_login", STRING, //$NON-NLS-1$
       TSID_NAME, N_WILDFLY_PASSWORD, //
       TSID_DESCRIPTION, D_WILDFLY_PASSWORD, //
       TSID_IS_NULL_ALLOWED, AV_FALSE, //
@@ -123,7 +129,7 @@ public interface IS5ConnectionParams {
    * <p>
    * Тип: {@link EAtomicType#STRING}
    */
-  IDataDef OP_WILDFLY_PASSWORD = create( "wildfly_password", STRING, //$NON-NLS-1$
+  IDataDef OP_WILDFLY_PASSWORD = create( SYBSYSTEM_ID_PREFIX + ".wildfly_password", STRING, //$NON-NLS-1$
       TSID_NAME, N_WILDFLY_PASSWORD, //
       TSID_DESCRIPTION, D_WILDFLY_PASSWORD, //
       TSID_IS_NULL_ALLOWED, AV_FALSE, //
@@ -135,7 +141,7 @@ public interface IS5ConnectionParams {
    * <p>
    * Тип: {@link EAtomicType#VALOBJ}({@link S5HostList})
    */
-  IDataDef OP_HOSTS = create( "hosts", VALOBJ, //$NON-NLS-1$
+  IDataDef OP_HOSTS = create( SYBSYSTEM_ID_PREFIX + ".hosts", VALOBJ, //$NON-NLS-1$
       TSID_NAME, N_HOSTS, //
       TSID_DESCRIPTION, D_HOSTS, //
       TSID_IS_NULL_ALLOWED, AV_FALSE, //
@@ -150,7 +156,7 @@ public interface IS5ConnectionParams {
    * <p>
    * Тип: {@link EAtomicType#STRING}
    */
-  IDataDef OP_CLIENT_ADDRESS = create( "clientAddress", STRING, //$NON-NLS-1$
+  IDataDef OP_CLIENT_ADDRESS = create( SYBSYSTEM_ID_PREFIX + ".clientAddress", STRING, //$NON-NLS-1$
       TSID_NAME, N_CLIENT_ADDRESS, //
       TSID_DESCRIPTION, D_CLIENT_ADDRESS, //
       TSID_IS_NULL_ALLOWED, AV_FALSE, //
@@ -161,7 +167,7 @@ public interface IS5ConnectionParams {
    * <p>
    * Тип: {@link EAtomicType#INTEGER}
    */
-  IDataDef OP_CLIENT_PORT = create( "clientPort", INTEGER, //$NON-NLS-1$
+  IDataDef OP_CLIENT_PORT = create( SYBSYSTEM_ID_PREFIX + ".clientPort", INTEGER, //$NON-NLS-1$
       TSID_NAME, N_CLIENT_PORT, //
       TSID_DESCRIPTION, D_CLIENT_PORT, //
       TSID_IS_NULL_ALLOWED, AV_FALSE, //
@@ -172,7 +178,7 @@ public interface IS5ConnectionParams {
    * <p>
    * Тип: {@link EAtomicType#STRING}
    */
-  IDataDef OP_CLIENT_PROGRAM = create( "clientProgram", STRING, //$NON-NLS-1$
+  IDataDef OP_CLIENT_PROGRAM = create( SYBSYSTEM_ID_PREFIX + ".clientProgram", STRING, //$NON-NLS-1$
       TSID_NAME, N_CLIENT_PROGRAM, //
       TSID_DESCRIPTION, D_CLIENT_PROGRAM, //
       TSID_IS_NULL_ALLOWED, AV_FALSE, //
@@ -183,7 +189,7 @@ public interface IS5ConnectionParams {
    * <p>
    * Тип: {@link EAtomicType#VALOBJ}({@link TsVersion})
    */
-  IDataDef OP_CLIENT_VERSION = create( "clientVersion", VALOBJ, //$NON-NLS-1$
+  IDataDef OP_CLIENT_VERSION = create( SYBSYSTEM_ID_PREFIX + ".clientVersion", VALOBJ, //$NON-NLS-1$
       TSID_NAME, N_CLIENT_VERSION, //
       TSID_DESCRIPTION, D_CLIENT_VERSION, //
       TSID_IS_NULL_ALLOWED, AV_FALSE, //
@@ -197,7 +203,7 @@ public interface IS5ConnectionParams {
    * <p>
    * Тип: {@link EAtomicType#INTEGER}
    */
-  IDataDef OP_CONNECT_TIMEOUT = create( "connectTimeout", INTEGER, //$NON-NLS-1$
+  IDataDef OP_CONNECT_TIMEOUT = create( SYBSYSTEM_ID_PREFIX + ".connectTimeout", INTEGER, //$NON-NLS-1$
       TSID_NAME, N_CONNECT_TIMEOUT, //
       TSID_DESCRIPTION, D_CONNECT_TIMEOUT, //
       TSID_IS_NULL_ALLOWED, AV_TRUE, //
@@ -208,7 +214,7 @@ public interface IS5ConnectionParams {
    * <p>
    * Тип: {@link EAtomicType#INTEGER}
    */
-  IDataDef OP_FAILURE_TIMEOUT = create( "failureTimeout", INTEGER, //$NON-NLS-1$
+  IDataDef OP_FAILURE_TIMEOUT = create( SYBSYSTEM_ID_PREFIX + ".failureTimeout", INTEGER, //$NON-NLS-1$
       TSID_NAME, N_FAILURE_TIMEOUT, //
       TSID_DESCRIPTION, D_FAILURE_TIMEOUT, //
       TSID_IS_NULL_ALLOWED, AV_TRUE, //
@@ -219,7 +225,7 @@ public interface IS5ConnectionParams {
    * <p>
    * Тип: {@link EAtomicType#INTEGER}
    */
-  IDataDef OP_CURRDATA_TIMEOUT = create( "currdataTimeout", INTEGER, //$NON-NLS-1$
+  IDataDef OP_CURRDATA_TIMEOUT = create( SYBSYSTEM_ID_PREFIX + ".currdataTimeout", INTEGER, //$NON-NLS-1$
       TSID_NAME, N_CURRDATA_TIMEOUT, //
       TSID_DESCRIPTION, D_CURRDATA_TIMEOUT, //
       TSID_IS_NULL_ALLOWED, AV_TRUE, //
@@ -231,18 +237,29 @@ public interface IS5ConnectionParams {
    * <p>
    * Тип: {@link EAtomicType#INTEGER}
    */
-  IDataDef OP_HISTDATA_TIMEOUT = create( "histdataTimeout", INTEGER, //$NON-NLS-1$
+  IDataDef OP_HISTDATA_TIMEOUT = create( SYBSYSTEM_ID_PREFIX + ".histdataTimeout", INTEGER, //$NON-NLS-1$
       TSID_NAME, N_HISTDATA_TIMEOUT, //
       TSID_DESCRIPTION, D_HISTDATA_TIMEOUT, //
       TSID_IS_NULL_ALLOWED, AV_TRUE, //
       TSID_DEFAULT_VALUE, avInt( 60000 ) );
 
   /**
+   * Параметр: Таймаут выполнения фонового процесса клиента.
+   * <p>
+   * Тип: {@link EAtomicType#INTEGER}
+   */
+  IDataDef OP_DOJOB_TIMEOUT = create( SYBSYSTEM_ID_PREFIX + ".doJobTimeout", INTEGER, //$NON-NLS-1$
+      TSID_NAME, N_DOJOB_TIMEOUT, //
+      TSID_DESCRIPTION, D_DOJOB_TIMEOUT, //
+      TSID_IS_NULL_ALLOWED, AV_TRUE, //
+      TSID_DEFAULT_VALUE, avInt( 10 ) );
+
+  /**
    * Параметр: Максимальный размер буфера для накопления хранимых значений одного параметра в моменты отсутствия связи
    * <p>
    * Тип: {@link EAtomicType#INTEGER}
    */
-  IDataDef OP_HISTDATA_BUFFER_SIZE = create( "histdataBufferSize", INTEGER, //$NON-NLS-1$
+  IDataDef OP_HISTDATA_BUFFER_SIZE = create( SYBSYSTEM_ID_PREFIX + ".histdataBufferSize", INTEGER, //$NON-NLS-1$
       TSID_NAME, N_HISTDATA_BUFFER_SIZE, //
       TSID_DESCRIPTION, D_HISTDATA_BUFFER_SIZE, //
       TSID_IS_NULL_ALLOWED, AV_TRUE, //
@@ -266,7 +283,7 @@ public interface IS5ConnectionParams {
    * <p>
    * Тип: {@link ClassLoader}
    */
-  ITsContextRefDef<ClassLoader> REF_CLASSLOADER = create( "classLoader", ClassLoader.class, //$NON-NLS-1$
+  ITsContextRefDef<ClassLoader> REF_CLASSLOADER = create( SYBSYSTEM_ID_PREFIX + ".classLoader", ClassLoader.class, //$NON-NLS-1$
       TSID_NAME, N_CLASSLOADER, //
       TSID_DESCRIPTION, D_CLASSLOADER, //
       TSID_IS_NULL_ALLOWED, AV_TRUE );
@@ -276,9 +293,10 @@ public interface IS5ConnectionParams {
    * <p>
    * Тип: {@link IS5ProgressMonitor}
    */
-  ITsContextRefDef<IS5ProgressMonitor> REF_MONITOR = create( "progressMonitor", IS5ProgressMonitor.class, //$NON-NLS-1$
-      TSID_NAME, N_MONITOR, //
-      TSID_DESCRIPTION, D_MONITOR, //
-      TSID_IS_NULL_ALLOWED, AV_TRUE );
+  ITsContextRefDef<IS5ProgressMonitor> REF_MONITOR =
+      create( SYBSYSTEM_ID_PREFIX + ".progressMonitor", IS5ProgressMonitor.class, //$NON-NLS-1$
+          TSID_NAME, N_MONITOR, //
+          TSID_DESCRIPTION, D_MONITOR, //
+          TSID_IS_NULL_ALLOWED, AV_TRUE );
 
 }

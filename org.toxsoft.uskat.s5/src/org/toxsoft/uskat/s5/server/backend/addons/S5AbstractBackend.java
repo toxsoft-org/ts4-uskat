@@ -49,11 +49,6 @@ public abstract class S5AbstractBackend<ADDON extends IS5BackendAddon>
     implements IS5Backend, Runnable {
 
   /**
-   * Таймаут (мсек) фоновой обработки аддонов
-   */
-  private static final int ADDON_DOJOB_TIMEOUT = 1000;
-
-  /**
    * Идентификатор журнала используемый по умолчанию
    */
   public static final String S5_USKAT_CORE_LOGGER = "S5USkatCore"; //$NON-NLS-1$
@@ -111,6 +106,11 @@ public abstract class S5AbstractBackend<ADDON extends IS5BackendAddon>
    * Монитор прогресса
    */
   private final IS5ProgressMonitor progressMonitor;
+
+  /**
+   * Таймаут (мсек) фоновой обработки аддонов
+   */
+  private final int doJobTimeout;
 
   /**
    * Значения параметров бекенда
@@ -275,8 +275,11 @@ public abstract class S5AbstractBackend<ADDON extends IS5BackendAddon>
     // Синхронизация обращения к uskat
     threadExecutor = REFDEF_THREAD_EXECUTOR.getRef( aArgs );
     threadExecutor.thread().setName( name );
+
+    // Таймаут выполнения doJob-задачи
+    doJobTimeout = OP_DOJOB_TIMEOUT.getValue( openArgs.params() ).asInt();
     // Запуск фоновой задачи обработки аддонов
-    threadExecutor.timerExec( ADDON_DOJOB_TIMEOUT, this );
+    threadExecutor.timerExec( doJobTimeout, this );
 
     IOptionSetEdit backendInfoValue = new OptionSet( aBackendInfoValue );
     OPDEF_SKBI_NEED_THREAD_SAFE_FRONTEND.setValue( backendInfoValue, AV_TRUE );
@@ -427,7 +430,7 @@ public abstract class S5AbstractBackend<ADDON extends IS5BackendAddon>
     finally {
       unlockWrite( frontendLock );
     }
-    threadExecutor.timerExec( ADDON_DOJOB_TIMEOUT, this );
+    threadExecutor.timerExec( doJobTimeout, this );
   }
 
   // ------------------------------------------------------------------------------------
@@ -667,6 +670,7 @@ public abstract class S5AbstractBackend<ADDON extends IS5BackendAddon>
 
     } );
     ctx.params().setAll( aContext.params() );
+    ctx.params().setAll( S5ConfigurationUtils.readSystemConfiguraion( IS5ConnectionParams.SYBSYSTEM_ID_PREFIX ) );
     ctx.params().setValobj( IS5ConnectionParams.OP_SESSION_ID, aSessionID );
     return ctx;
   }
