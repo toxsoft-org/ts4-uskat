@@ -23,7 +23,7 @@ public final class S5BackendCoreConfig {
   /**
    * Префикс идентфикаторов подсистемы
    */
-  public static final String SYBSYSTEM_ID_PREFIX = ISkHardConstants.USKAT_FULL_ID + ".backend.s5.server";
+  public static final String SYBSYSTEM_ID_PREFIX = ISkHardConstants.USKAT_FULL_ID + ".s5.server";
 
   /**
    * Минимальное время (секунды) в котором сервер находится в режиме {@link ES5ServerMode#STARTING}.
