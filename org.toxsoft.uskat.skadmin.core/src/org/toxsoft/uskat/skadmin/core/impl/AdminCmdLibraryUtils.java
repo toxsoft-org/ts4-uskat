@@ -4,23 +4,20 @@ import static org.toxsoft.core.log4j.LoggerWrapper.*;
 import static org.toxsoft.core.tslib.bricks.strio.IStrioHardConstants.*;
 import static org.toxsoft.uskat.skadmin.core.impl.IAdminResources.*;
 
-import java.io.File;
+import java.io.*;
 
-import org.toxsoft.core.tslib.av.IAtomicValue;
-import org.toxsoft.core.tslib.bricks.validator.impl.TsValidationFailedRtException;
-import org.toxsoft.core.tslib.coll.IList;
-import org.toxsoft.core.tslib.coll.IListEdit;
-import org.toxsoft.core.tslib.coll.impl.ElemArrayList;
-import org.toxsoft.core.tslib.coll.impl.ElemLinkedBundleList;
-import org.toxsoft.core.tslib.coll.primtypes.IStringList;
+import org.toxsoft.core.tslib.av.*;
+import org.toxsoft.core.tslib.bricks.validator.impl.*;
+import org.toxsoft.core.tslib.coll.*;
+import org.toxsoft.core.tslib.coll.impl.*;
+import org.toxsoft.core.tslib.coll.primtypes.*;
 import org.toxsoft.core.tslib.utils.errors.*;
-import org.toxsoft.core.tslib.utils.logs.ILogger;
-import org.toxsoft.core.tslib.utils.plugins.IPluginInfo;
-import org.toxsoft.core.tslib.utils.plugins.impl.IPlugin;
-import org.toxsoft.uskat.legacy.plexy.EPlexyKind;
-import org.toxsoft.uskat.legacy.plexy.IPlexyValue;
+import org.toxsoft.core.tslib.utils.logs.*;
+import org.toxsoft.core.tslib.utils.plugins.*;
+import org.toxsoft.core.tslib.utils.plugins.impl.*;
+import org.toxsoft.uskat.legacy.plexy.*;
 import org.toxsoft.uskat.skadmin.core.*;
-import org.toxsoft.uskat.skadmin.core.plugins.IAdminCmdLibraryPlugin;
+import org.toxsoft.uskat.skadmin.core.plugins.*;
 
 /**
  * Точка входа в библиотеку
@@ -68,7 +65,10 @@ public class AdminCmdLibraryUtils {
         logger.debug( MSG_LIBRARY_LOAD, instance.getName() );
       }
       catch( Throwable e ) {
-        throw new TsIllegalArgumentRtException( e, ERR_LIBRARY_LOAD, pluginInfo.pluginId(), pluginInfo.pluginType() );
+        String pluginId = pluginInfo.pluginId();
+        String pluginType = pluginInfo.pluginType();
+        String cause = e.getClass().getSimpleName() + ": " + e.getLocalizedMessage(); //$NON-NLS-1$
+        throw new TsIllegalArgumentRtException( e, ERR_LIBRARY_LOAD, pluginId, pluginType, cause );
       }
     }
     return libraries;

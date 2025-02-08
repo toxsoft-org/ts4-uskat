@@ -19,7 +19,7 @@ interface IAdminResources {
   String MSG_LIBRARY_CONTEXT = "Установка контекста команд для библиотеки(плагина): %s.";
   String MSG_LIBRARY_CLOSE   = "Завершение работы библиотеки(плагина): %s.";
 
-  String ERR_LIBRARY_LOAD               = "Ошибка загрузка библиотеки: pluginId: %s, plugintype = %s";
+  String ERR_LIBRARY_LOAD               = "Ошибка загрузка библиотеки: pluginId: %s, plugintype = %s. Cause: %s";
   String ERR_CMD_DOUBLE_DEFINE          = "Команда '%s' определяется более чем в одной библиотеке:  '%s' и '%s'.";
   String ERR_CMD_NOT_RESULT_DESCR       = "Команда '%s' определяет результат %s, но не имеет его описания.";
   String ERR_CMD_NOT_FOUND              = "Не найдена команда '%s'.";
