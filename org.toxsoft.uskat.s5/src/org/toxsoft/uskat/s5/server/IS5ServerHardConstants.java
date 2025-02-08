@@ -16,6 +16,7 @@ import org.toxsoft.core.tslib.coll.*;
 import org.toxsoft.core.tslib.gw.skid.*;
 import org.toxsoft.core.tslib.utils.*;
 import org.toxsoft.uskat.classes.*;
+import org.toxsoft.uskat.core.*;
 import org.toxsoft.uskat.core.api.sysdescr.*;
 import org.toxsoft.uskat.core.backend.api.*;
 import org.toxsoft.uskat.s5.client.remote.connection.*;
@@ -35,6 +36,11 @@ import org.toxsoft.uskat.s5.utils.*;
 @SuppressWarnings( "nls" )
 public interface IS5ServerHardConstants
     extends IS5HardConstants {
+
+  /**
+   * Префикс идентфикаторов подсистемы
+   */
+  String S5_FULL_ID = ISkHardConstants.USKAT_FULL_ID + ".s5";
 
   // ------------------------------------------------------------------------------------
   // Идентификация
@@ -479,7 +485,8 @@ public interface IS5ServerHardConstants
       TSID_DESCRIPTION, STR_D_STAT_BACKEND_NODE_LOAD_MAX );
 
   /**
-   * Параметр статистики узла бекенда (данное {@link ISkClusterNode}): Объем свободной памяти операционной системы (байты)
+   * Параметр статистики узла бекенда (данное {@link ISkClusterNode}): Объем свободной памяти операционной системы
+   * (байты)
    * <p>
    * Тип: {@link EAtomicType#FLOATING}
    */
@@ -651,8 +658,8 @@ public interface IS5ServerHardConstants
   String STAT_HISTORABLE_BACKEND_ID_START = S5_BACKEND_ID_START + "node.dbms.statistic.";
 
   /**
-   * Параметр статистики поддержки бекенда формирующий хранимые данные (данное {@link ISkServerHistorable}):
-   * Количество записей (транзакций) в базу данных
+   * Параметр статистики поддержки бекенда формирующий хранимые данные (данное {@link ISkServerHistorable}): Количество
+   * записей (транзакций) в базу данных
    * <p>
    * Тип: {@link EAtomicType#INTEGER}
    */
@@ -665,8 +672,8 @@ public interface IS5ServerHardConstants
       TSID_DESCRIPTION, STR_D_STAT_HISTORABLE_BACKEND_WRITE_COUNT );
 
   /**
-   * Параметр статистики поддержки бекенда формирующий хранимые данные (данное {@link ISkServerHistorable}):
-   * Количество загруженных блоков
+   * Параметр статистики поддержки бекенда формирующий хранимые данные (данное {@link ISkServerHistorable}): Количество
+   * загруженных блоков
    * <p>
    * Тип: {@link EAtomicType#INTEGER}
    */
@@ -679,8 +686,8 @@ public interface IS5ServerHardConstants
       TSID_DESCRIPTION, STR_D_STAT_HISTORABLE_BACKEND_LOADED_COUNT );
 
   /**
-   * Параметр статистики поддержки бекенда формирующий хранимые данные (данное {@link ISkServerHistorable}): Общее
-   * время загрузки блоков (мсек)
+   * Параметр статистики поддержки бекенда формирующий хранимые данные (данное {@link ISkServerHistorable}): Общее время
+   * загрузки блоков (мсек)
    * <p>
    * Тип: {@link EAtomicType#INTEGER}
    */
@@ -693,8 +700,8 @@ public interface IS5ServerHardConstants
       TSID_DESCRIPTION, STR_D_STAT_HISTORABLE_BACKEND_LOADED_TIME );
 
   /**
-   * Параметр статистики поддержки бекенда формирующий хранимые данные (данное {@link ISkServerHistorable}):
-   * Количество добавленных блоков
+   * Параметр статистики поддержки бекенда формирующий хранимые данные (данное {@link ISkServerHistorable}): Количество
+   * добавленных блоков
    * <p>
    * Тип: {@link EAtomicType#INTEGER}
    */
@@ -707,8 +714,8 @@ public interface IS5ServerHardConstants
       TSID_DESCRIPTION, STR_D_STAT_HISTORABLE_BACKEND_INSERT_COUNT );
 
   /**
-   * Параметр статистики поддержки бекенда формирующий хранимые данные (данное {@link ISkServerHistorable}): Общее
-   * время добавления блоков (мсек)
+   * Параметр статистики поддержки бекенда формирующий хранимые данные (данное {@link ISkServerHistorable}): Общее время
+   * добавления блоков (мсек)
    * <p>
    * Тип: {@link EAtomicType#INTEGER}
    */
@@ -721,8 +728,8 @@ public interface IS5ServerHardConstants
       TSID_DESCRIPTION, STR_D_STAT_HISTORABLE_BACKEND_INSERT_TIME );
 
   /**
-   * Параметр статистики поддержки бекенда формирующий хранимые данные (данное {@link ISkServerHistorable}):
-   * Количество обновленных блоков
+   * Параметр статистики поддержки бекенда формирующий хранимые данные (данное {@link ISkServerHistorable}): Количество
+   * обновленных блоков
    * <p>
    * Тип: {@link EAtomicType#INTEGER}
    */
@@ -735,8 +742,8 @@ public interface IS5ServerHardConstants
       TSID_DESCRIPTION, STR_D_STAT_HISTORABLE_BACKEND_MERGE_COUNT );
 
   /**
-   * Параметр статистики поддержки бекенда формирующий хранимые данные (данное {@link ISkServerHistorable}): Общее
-   * время обновления блоков (мсек)
+   * Параметр статистики поддержки бекенда формирующий хранимые данные (данное {@link ISkServerHistorable}): Общее время
+   * обновления блоков (мсек)
    * <p>
    * Тип: {@link EAtomicType#INTEGER}
    */
@@ -749,8 +756,8 @@ public interface IS5ServerHardConstants
       TSID_DESCRIPTION, STR_D_STAT_HISTORABLE_BACKEND_MERGE_TIME );
 
   /**
-   * Параметр статистики поддержки бекенда формирующий хранимые данные (данное {@link ISkServerHistorable}):
-   * Количество удаленных блоков
+   * Параметр статистики поддержки бекенда формирующий хранимые данные (данное {@link ISkServerHistorable}): Количество
+   * удаленных блоков
    * <p>
    * Тип: {@link EAtomicType#INTEGER}
    */
@@ -763,8 +770,8 @@ public interface IS5ServerHardConstants
       TSID_DESCRIPTION, STR_D_STAT_HISTORABLE_BACKEND_REMOVED_COUNT );
 
   /**
-   * Параметр статистики поддержки бекенда формирующий хранимые данные (данное {@link ISkServerHistorable}): Общее
-   * время удаления блоков (мсек)
+   * Параметр статистики поддержки бекенда формирующий хранимые данные (данное {@link ISkServerHistorable}): Общее время
+   * удаления блоков (мсек)
    * <p>
    * Тип: {@link EAtomicType#INTEGER}
    */
@@ -777,8 +784,8 @@ public interface IS5ServerHardConstants
       TSID_DESCRIPTION, STR_D_STAT_HISTORABLE_BACKEND_REMOVED_TIME );
 
   /**
-   * Параметр статистики поддержки бекенда формирующий хранимые данные (данное {@link ISkServerHistorable}):
-   * Количество ошибок записи блоков
+   * Параметр статистики поддержки бекенда формирующий хранимые данные (данное {@link ISkServerHistorable}): Количество
+   * ошибок записи блоков
    * <p>
    * Тип: {@link EAtomicType#INTEGER}
    */
@@ -791,8 +798,8 @@ public interface IS5ServerHardConstants
       TSID_DESCRIPTION, STR_D_STAT_HISTORABLE_BACKEND_ERROR_COUNT );
 
   /**
-   * Параметр статистики поддержки бекенда формирующий хранимые данные (данное {@link ISkServerHistorable}):
-   * Количество выполненных дефрагментаций
+   * Параметр статистики поддержки бекенда формирующий хранимые данные (данное {@link ISkServerHistorable}): Количество
+   * выполненных дефрагментаций
    * <p>
    * Тип: {@link EAtomicType#INTEGER}
    */
@@ -805,8 +812,8 @@ public interface IS5ServerHardConstants
       TSID_DESCRIPTION, STR_D_STAT_HISTORABLE_BACKEND_DEFRAGMENT_COUNT );
 
   /**
-   * Параметр статистики поддержки бекенда формирующий хранимые данные (данное {@link ISkServerHistorable}):
-   * Количество проанализированных данных при поиске дефрагментации
+   * Параметр статистики поддержки бекенда формирующий хранимые данные (данное {@link ISkServerHistorable}): Количество
+   * проанализированных данных при поиске дефрагментации
    * <p>
    * Тип: {@link EAtomicType#INTEGER}
    */
@@ -819,8 +826,8 @@ public interface IS5ServerHardConstants
       TSID_DESCRIPTION, STR_D_STAT_HISTORABLE_BACKEND_DEFRAGMENT_LOOKUP_COUNT );
 
   /**
-   * Параметр статистики поддержки бекенда формирующий хранимые данные (данное {@link ISkServerHistorable}):
-   * Количество обработанных данных при дефрагментации
+   * Параметр статистики поддержки бекенда формирующий хранимые данные (данное {@link ISkServerHistorable}): Количество
+   * обработанных данных при дефрагментации
    * <p>
    * Тип: {@link EAtomicType#INTEGER}
    */
@@ -833,8 +840,8 @@ public interface IS5ServerHardConstants
       TSID_DESCRIPTION, STR_D_STAT_HISTORABLE_BACKEND_DEFRAGMENT_THREAD_COUNT );
 
   /**
-   * Параметр статистики поддержки бекенда формирующий хранимые данные (данное {@link ISkServerHistorable}):
-   * Количество обработанных данных при дефрагментации
+   * Параметр статистики поддержки бекенда формирующий хранимые данные (данное {@link ISkServerHistorable}): Количество
+   * обработанных данных при дефрагментации
    * <p>
    * Тип: {@link EAtomicType#INTEGER}
    */
@@ -847,8 +854,8 @@ public interface IS5ServerHardConstants
       TSID_DESCRIPTION, STR_D_STAT_HISTORABLE_BACKEND_DEFRAGMENT_VALUE_COUNT );
 
   /**
-   * Параметр статистики поддержки бекенда формирующий хранимые данные (данное {@link ISkServerHistorable}):
-   * Количество обновленных блоков (merged) при дефрагментации
+   * Параметр статистики поддержки бекенда формирующий хранимые данные (данное {@link ISkServerHistorable}): Количество
+   * обновленных блоков (merged) при дефрагментации
    * <p>
    * Тип: {@link EAtomicType#INTEGER}
    */
@@ -861,8 +868,8 @@ public interface IS5ServerHardConstants
       TSID_DESCRIPTION, STR_D_STAT_HISTORABLE_BACKEND_DEFRAGMENT_MERGED_COUNT );
 
   /**
-   * Параметр статистики поддержки бекенда формирующий хранимые данные (данное {@link ISkServerHistorable}):
-   * Количество удаленных (removed) блоков при дефрагментации
+   * Параметр статистики поддержки бекенда формирующий хранимые данные (данное {@link ISkServerHistorable}): Количество
+   * удаленных (removed) блоков при дефрагментации
    * <p>
    * Тип: {@link EAtomicType#INTEGER}
    */
@@ -875,8 +882,8 @@ public interface IS5ServerHardConstants
       TSID_DESCRIPTION, STR_D_STAT_HISTORABLE_BACKEND_DEFRAGMENT_REMOVED_COUNT );
 
   /**
-   * Параметр статистики поддержки бекенда формирующий хранимые данные (данное {@link ISkServerHistorable}):
-   * Количество ошибок дефрагментации
+   * Параметр статистики поддержки бекенда формирующий хранимые данные (данное {@link ISkServerHistorable}): Количество
+   * ошибок дефрагментации
    * <p>
    * Тип: {@link EAtomicType#INTEGER}
    */
@@ -889,8 +896,8 @@ public interface IS5ServerHardConstants
       TSID_DESCRIPTION, STR_D_STAT_HISTORABLE_BACKEND_DEFRAGMENT_ERROR_COUNT );
 
   /**
-   * Параметр статистики поддержки бекенда формирующий хранимые данные (данное {@link ISkServerHistorable}):
-   * Количество выполненных обработок разделов таблиц
+   * Параметр статистики поддержки бекенда формирующий хранимые данные (данное {@link ISkServerHistorable}): Количество
+   * выполненных обработок разделов таблиц
    * <p>
    * Тип: {@link EAtomicType#INTEGER}
    */
@@ -903,8 +910,8 @@ public interface IS5ServerHardConstants
       TSID_DESCRIPTION, STR_D_STAT_HISTORABLE_BACKEND_PARTITIONS_TASKS_COUNT );
 
   /**
-   * Параметр статистики поддержки бекенда формирующий хранимые данные (данное {@link ISkServerHistorable}):
-   * Количество проверенных таблиц
+   * Параметр статистики поддержки бекенда формирующий хранимые данные (данное {@link ISkServerHistorable}): Количество
+   * проверенных таблиц
    * <p>
    * Тип: {@link EAtomicType#INTEGER}
    */
@@ -917,8 +924,8 @@ public interface IS5ServerHardConstants
       TSID_DESCRIPTION, STR_D_STAT_HISTORABLE_BACKEND_PARTITIONS_LOOKUP_COUNT );
 
   /**
-   * Параметр статистики поддержки бекенда формирующий хранимые данные (данное {@link ISkServerHistorable}):
-   * Количество операций обработки разделов таблиц
+   * Параметр статистики поддержки бекенда формирующий хранимые данные (данное {@link ISkServerHistorable}): Количество
+   * операций обработки разделов таблиц
    * <p>
    * Тип: {@link EAtomicType#INTEGER}
    */
@@ -931,8 +938,8 @@ public interface IS5ServerHardConstants
       TSID_DESCRIPTION, STR_D_STAT_HISTORABLE_BACKEND_PARTITIONS_THREAD_COUNT );
 
   /**
-   * Параметр статистики поддержки бекенда формирующий хранимые данные (данное {@link ISkServerHistorable}):
-   * Количество добавленных разделов таблиц
+   * Параметр статистики поддержки бекенда формирующий хранимые данные (данное {@link ISkServerHistorable}): Количество
+   * добавленных разделов таблиц
    * <p>
    * Тип: {@link EAtomicType#INTEGER}
    */
@@ -945,8 +952,8 @@ public interface IS5ServerHardConstants
       TSID_DESCRIPTION, STR_D_STAT_HISTORABLE_BACKEND_PARTITIONS_ADDED_COUNT );
 
   /**
-   * Параметр статистики поддержки бекенда формирующий хранимые данные (данное {@link ISkServerHistorable}):
-   * Количество удаленных разделов таблиц
+   * Параметр статистики поддержки бекенда формирующий хранимые данные (данное {@link ISkServerHistorable}): Количество
+   * удаленных разделов таблиц
    * <p>
    * Тип: {@link EAtomicType#INTEGER}
    */
@@ -959,8 +966,8 @@ public interface IS5ServerHardConstants
       TSID_DESCRIPTION, STR_D_STAT_HISTORABLE_BACKEND_PARTITIONS_REMOVED_COUNT );
 
   /**
-   * Параметр статистики поддержки бекенда формирующий хранимые данные (данное {@link ISkServerHistorable}):
-   * Количество удаленных блоков при удалении разделов таблиц
+   * Параметр статистики поддержки бекенда формирующий хранимые данные (данное {@link ISkServerHistorable}): Количество
+   * удаленных блоков при удалении разделов таблиц
    * <p>
    * Тип: {@link EAtomicType#INTEGER}
    */
@@ -973,8 +980,8 @@ public interface IS5ServerHardConstants
       TSID_DESCRIPTION, STR_D_STAT_HISTORABLE_BACKEND_PARTITIONS_BLOCKS_REMOVED_COUNT );
 
   /**
-   * Параметр статистики поддержки бекенда формирующий хранимые данные (данное {@link ISkServerHistorable}):
-   * Количество ошибок обработки разделов таблиц
+   * Параметр статистики поддержки бекенда формирующий хранимые данные (данное {@link ISkServerHistorable}): Количество
+   * ошибок обработки разделов таблиц
    * <p>
    * Тип: {@link EAtomicType#INTEGER}
    */

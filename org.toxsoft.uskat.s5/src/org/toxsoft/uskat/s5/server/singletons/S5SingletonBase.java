@@ -9,7 +9,6 @@ import static org.toxsoft.uskat.s5.server.transactions.IS5TransactionDetectorSin
 import static org.toxsoft.uskat.s5.utils.threads.impl.S5Lockable.*;
 
 import java.lang.reflect.*;
-import java.util.*;
 import java.util.concurrent.*;
 
 import javax.annotation.*;
@@ -17,12 +16,9 @@ import javax.ejb.*;
 import javax.enterprise.concurrent.*;
 
 import org.toxsoft.core.tslib.av.*;
-import org.toxsoft.core.tslib.av.impl.*;
 import org.toxsoft.core.tslib.av.metainfo.*;
 import org.toxsoft.core.tslib.av.opset.*;
 import org.toxsoft.core.tslib.av.opset.impl.*;
-import org.toxsoft.core.tslib.bricks.strio.chario.impl.*;
-import org.toxsoft.core.tslib.bricks.strio.impl.*;
 import org.toxsoft.core.tslib.bricks.time.impl.*;
 import org.toxsoft.core.tslib.coll.*;
 import org.toxsoft.core.tslib.coll.impl.*;
@@ -34,6 +30,7 @@ import org.toxsoft.core.tslib.utils.logs.*;
 import org.toxsoft.uskat.s5.legacy.*;
 import org.toxsoft.uskat.s5.server.startup.*;
 import org.toxsoft.uskat.s5.server.transactions.*;
+import org.toxsoft.uskat.s5.utils.*;
 import org.toxsoft.uskat.s5.utils.jobs.*;
 import org.toxsoft.uskat.s5.utils.threads.*;
 import org.toxsoft.uskat.s5.utils.threads.impl.*;
@@ -176,29 +173,8 @@ public class S5SingletonBase
   private void initConfiguration() {
     // Пути параметров конфигурации
     IStringList configurationPaths = doConfigurationPaths();
-    // Параметры окружения
-    Properties systemProperties = System.getProperties();
-    // Подготовка набора параметров доступных только для чтения
-    IOptionSetEdit roEdit = new OptionSet();
-    for( Object key : systemProperties.keySet() ) {
-      if( !(key instanceof String propId) ) {
-        continue;
-      }
-      if( !isValidIdPath( propId ) ) {
-        continue;
-      }
-      for( String pathId : configurationPaths ) {
-        if( startsWithIdPath( propId, pathId ) ) {
-          String value = systemProperties.getProperty( propId );
-          if( value != null ) {
-            StrioReader sr = new StrioReader( new CharInputStreamString( value, 0 ) );
-            roEdit.put( propId, AtomicValueReaderUtils.readAtomicValueOrAsString( sr ) );
-          }
-        }
-      }
-    }
-    roConfiguration = roEdit;
-
+    // Чтение значений параметров конфигурации из системного окружения
+    roConfiguration = S5ConfigurationUtils.readSystemConfiguraion( configurationPaths );
     // Загруженная конфигурация
     IOptionSet loadedConfig = initialSingleton.loadServiceConfig( id() );
     // Изменяемая конфигурация
