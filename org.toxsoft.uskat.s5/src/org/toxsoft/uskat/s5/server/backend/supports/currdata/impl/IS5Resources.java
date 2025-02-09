@@ -23,7 +23,7 @@ interface IS5Resources {
       "Сформирован кэш текущих данных кластера. Количество данных: %d. Время загрузки: %d msec. Время формирования: %d msec";
   String MSG_REJECT_CURRDATA_WRITE_BY_INTERCEPTORS = "Интерсепторы синглетона запись значений текущих данных";
   String MSG_WRITE_CURRDATA_VALUES_INFO            =
-      "Writing current values(%d). Duration %d(msec). Сhange LogLevel => TRACE to output values.";
+      "Writing current values(%d) in %d msec. Сhange LogLevel => TRACE to output values.";
   String MSG_WRITE_CURRDATA_VALUES_DEBUG           = "Writing current values(%d), time %d(msec). Values:";
   String MSG_WRITE_CURRDATA_VALUE                  = "Writing current value: %s=%s";
   String MSG_CURRDATA_VALUE                        = "   %s=%s";
