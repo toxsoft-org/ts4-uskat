@@ -361,7 +361,7 @@ interface IS5Resources {
   String ERR_PARTITION_DISABLE_BY_LOAD_AVERAGE =
       Messages.getString( "IS5Resources.ERR_PARTITION_DISABLE_BY_LOAD_AVERAGE" );                                        //$NON-NLS-1$
   String ERR_PARTITION_DISABLE_BY_PREV         = Messages.getString( "IS5Resources.ERR_PARTITION_DISABLE_BY_PREV" );     //$NON-NLS-1$
-  String ERR_REJECT_HANDLE                     = "%s. %s execution is prohibited. %s is in progress.";                   //$NON-NLS-1$
+  String ERR_REJECT_HANDLE                     = "%s. %s query rejected. %s is in progress.";                            //$NON-NLS-1$
   String ERR_PARTITION_NOT_INIT                =
       "%s. Отклонен запрос на выполнение обработки разделов таблиц. Автор %s. Причина: Инициализация SequenceWriter";    //$NON-NLS-1$
   String ERR_PARTITION_PLAN_CREATED_ALREADY    = "%s. %s: раздел уже запланирован для добавления (aCreatingPartitions)"; //$NON-NLS-1$
