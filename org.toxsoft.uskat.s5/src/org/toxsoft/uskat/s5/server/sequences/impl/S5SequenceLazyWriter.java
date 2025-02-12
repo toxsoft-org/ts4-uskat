@@ -610,14 +610,14 @@ class S5SequenceLazyWriter<S extends IS5Sequence<V>, V extends ITemporal<?>>
       // Добавление в результат
       retValue.add( realAllFragments );
       aLogger.debug( MSG_UNION_AUTO_ADD_INFO, gwid );
-      if( !fragmentCompleted ) {
-        // Требуется повторная дефрагментация
-        aLogger.debug( MSG_UNION_AUTO_REPEAT, gwid );
-        break;
-      }
       if( retValue.size() >= threadCount ) {
         // Сформировано необходимое количество данных для дефрагментации
         break;
+      }
+      if( !fragmentCompleted ) {
+        // Требуется повторная дефрагментация
+        aLogger.debug( MSG_UNION_AUTO_REPEAT, gwid );
+        continue;
       }
     }
     return retValue;
