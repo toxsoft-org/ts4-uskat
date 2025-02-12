@@ -488,7 +488,7 @@ class S5SequenceLazyWriter<S extends IS5Sequence<V>, V extends ITemporal<?>>
       }
       if( gwid == null ) {
         // Нет данных для дефрагментации
-        break;
+        continue;
       }
 
 //      boolean d = gwid.asString().equals( "s5.Node[hermes.pc]$rtdata(s5.node.statistic.PasSend.min)" );
