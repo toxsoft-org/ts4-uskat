@@ -212,7 +212,6 @@ public class DtoClassInfo
     else {
       dto = new DtoClassInfo( aSource.id(), aSource.parentId(), aSource.params() );
     }
-
     // FIXME make deep copies!!!
 
     dto.attrInfos().setAll( aSource.attrInfos() );
