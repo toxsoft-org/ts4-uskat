@@ -1,6 +1,5 @@
 package org.toxsoft.uskat.classes;
 
-import org.toxsoft.core.tslib.av.*;
 import org.toxsoft.uskat.core.*;
 
 /**
@@ -21,38 +20,38 @@ public interface ISkServerHistorable
   // Данные
   //
   //
-  /**
-   * Данное: количество выполненных операций дефрагментации.
-   * <p>
-   * Тип: {@link EAtomicType#INTEGER}
-   */
-  String RTDID_DEFRAGMENT_COUNT = "defragmentCount";
-
-  /**
-   * Данное: количество загруженных блоков при дефрагментации.
-   * <p>
-   * Тип: {@link EAtomicType#INTEGER}
-   */
-  String RTDID_FRAGMENT_LOOKUP_COUNT = "fragmentLookupCount";
-
-  /**
-   * Данное: количество обработанных блоков при дефрагментации.
-   * <p>
-   * Тип: {@link EAtomicType#INTEGER}
-   */
-  String RTDID_FRAGMENT_THREAD_COUNT = "fragmentThreadCount";
-
-  /**
-   * Данное: количество удаленных блоков при дефрагментации.
-   * <p>
-   * Тип: {@link EAtomicType#INTEGER}
-   */
-  String RTDID_FRAGMENT_REMOVED_COUNT = "fragmentRemovedCount";
-
-  /**
-   * Данное: количество ошибок дефрагментации.
-   * <p>
-   * Тип: {@link EAtomicType#INTEGER}
-   */
-  String RTDID_FRAGMENT_ERROR_COUNT = "fragmentErrorCount";
+  // /**
+  // * Данное: количество выполненных операций дефрагментации.
+  // * <p>
+  // * Тип: {@link EAtomicType#INTEGER}
+  // */
+  // String RTDID_DEFRAGMENT_COUNT = "defragmentCount";
+  //
+  // /**
+  // * Данное: количество загруженных блоков при дефрагментации.
+  // * <p>
+  // * Тип: {@link EAtomicType#INTEGER}
+  // */
+  // String RTDID_FRAGMENT_LOOKUP_COUNT = "fragmentLookupCount";
+  //
+  // /**
+  // * Данное: количество обработанных блоков при дефрагментации.
+  // * <p>
+  // * Тип: {@link EAtomicType#INTEGER}
+  // */
+  // String RTDID_FRAGMENT_THREAD_COUNT = "fragmentThreadCount";
+  //
+  // /**
+  // * Данное: количество удаленных блоков при дефрагментации.
+  // * <p>
+  // * Тип: {@link EAtomicType#INTEGER}
+  // */
+  // String RTDID_FRAGMENT_REMOVED_COUNT = "fragmentRemovedCount";
+  //
+  // /**
+  // * Данное: количество ошибок дефрагментации.
+  // * <p>
+  // * Тип: {@link EAtomicType#INTEGER}
+  // */
+  // String RTDID_FRAGMENT_ERROR_COUNT = "fragmentErrorCount";
 }

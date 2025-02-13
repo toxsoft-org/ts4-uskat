@@ -1,14 +1,13 @@
 package org.toxsoft.uskat.classes;
 
-import org.toxsoft.core.tslib.av.IAtomicValue;
-import org.toxsoft.core.tslib.av.opset.IOptionSet;
-import org.toxsoft.core.tslib.bricks.ctx.ITsContextRo;
-import org.toxsoft.core.tslib.coll.IList;
-import org.toxsoft.uskat.core.ISkHardConstants;
-import org.toxsoft.uskat.core.api.objserv.ISkObject;
-import org.toxsoft.uskat.core.api.objserv.ISkObjectService;
-import org.toxsoft.uskat.core.api.users.ISkUser;
-import org.toxsoft.uskat.core.connection.ISkConnection;
+import org.toxsoft.core.tslib.av.*;
+import org.toxsoft.core.tslib.av.opset.*;
+import org.toxsoft.core.tslib.bricks.ctx.*;
+import org.toxsoft.core.tslib.coll.*;
+import org.toxsoft.uskat.core.*;
+import org.toxsoft.uskat.core.api.objserv.*;
+import org.toxsoft.uskat.core.api.users.*;
+import org.toxsoft.uskat.core.connection.*;
 
 /**
  * Сессия соединения ползователя с системой Skat.
@@ -57,12 +56,12 @@ public interface ISkSession
   /**
    * Идентификатор связи "Пользователь, который вошел в систему" {@link #getUser()}.
    */
-  String LNKID_USER = "User"; //$NON-NLS-1$
+  String LNKID_USER = "lnkUser"; //$NON-NLS-1$
 
   /**
    * Идентификатор РВ-данного "Состояние соединения"
    */
-  String RTDID_STATE = "State"; //$NON-NLS-1$
+  String RTDID_STATE = "rtdState"; //$NON-NLS-1$
 
   /**
    * Returns the connection start time.

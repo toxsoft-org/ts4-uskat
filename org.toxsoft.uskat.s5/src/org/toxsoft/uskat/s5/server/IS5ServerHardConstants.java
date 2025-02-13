@@ -456,7 +456,7 @@ public interface IS5ServerHardConstants
   /**
    * String prefix of the all backend node identifiers.
    */
-  String STAT_BACKEND_NODE_ID_START = S5_BACKEND_ID_START + "node.statistic.";
+  String STAT_BACKEND_NODE_ID_START = "rtd";
 
   /**
    * Параметр статистики узла бекенда (данное {@link ISkClusterNode}): средняя загрузка операционной системы
@@ -652,10 +652,10 @@ public interface IS5ServerHardConstants
   // ------------------------------------------------------------------------------------
   // Статистика поддержки бекенда формирующий хранимые данные (данные объектов {@link ISkServerHistorable})
   //
-  /**
-   * String prefix of the all s5 session identifiers.
-   */
-  String STAT_HISTORABLE_BACKEND_ID_START = S5_BACKEND_ID_START + "node.dbms.statistic.";
+  // /**
+  // * String prefix of the all s5 session identifiers.
+  // */
+  // String STAT_HISTORABLE_BACKEND_ID_START = S5_BACKEND_ID_START + "node.dbms.statistic.";
 
   /**
    * Параметр статистики поддержки бекенда формирующий хранимые данные (данное {@link ISkServerHistorable}): Количество

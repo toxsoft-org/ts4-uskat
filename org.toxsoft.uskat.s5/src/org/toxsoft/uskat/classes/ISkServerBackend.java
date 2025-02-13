@@ -23,5 +23,5 @@ public interface ISkServerBackend
   /**
    * Связь: узел кластера, в рамках которого работает бекенд {@link ISkClusterNode}.
    */
-  String LNKID_NODE = "node";
+  String LNKID_NODE = "lnkNode";
 }

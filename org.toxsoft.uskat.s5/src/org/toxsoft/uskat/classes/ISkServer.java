@@ -47,7 +47,7 @@ public interface ISkServer
    * <li>{@link #EVPID_IP}.</li>.
    * </ul>
    */
-  String EVID_LOGIN_FAILED = "LoginFailed"; //$NON-NLS-1$
+  String EVID_LOGIN_FAILED = "evLoginFailed"; //$NON-NLS-1$
 
   /**
    * Идентификатор события: "Создание сессии пользователя".
@@ -59,7 +59,7 @@ public interface ISkServer
    * <li>{@link #EVPID_SESSION_ID};</li>.
    * </ul>
    */
-  String EVID_SESSION_CREATED = "SessionCreated"; //$NON-NLS-1$
+  String EVID_SESSION_CREATED = "evSessionCreated"; //$NON-NLS-1$
 
   /**
    * Идентификатор события: "Завершение сессии пользователя".
@@ -71,7 +71,7 @@ public interface ISkServer
    * <li>{@link #EVPID_SESSION_ID};</li>.
    * </ul>
    */
-  String EVID_SESSION_CLOSED = "SessionClosed"; //$NON-NLS-1$
+  String EVID_SESSION_CLOSED = "evSessionClosed"; //$NON-NLS-1$
 
   /**
    * Идентификатор события: "Обрыв сессии пользователя".
@@ -83,7 +83,7 @@ public interface ISkServer
    * <li>{@link #EVPID_SESSION_ID};</li>.
    * </ul>
    */
-  String EVID_SESSION_BREAKED = "SessionBreaked"; //$NON-NLS-1$
+  String EVID_SESSION_BREAKED = "evSessionBreaked"; //$NON-NLS-1$
 
   /**
    * Идентификатор события: "Восстановление сессии пользователя".
@@ -95,7 +95,7 @@ public interface ISkServer
    * <li>{@link #EVPID_SESSION_ID};</li>.
    * </ul>
    */
-  String EVID_SESSION_RESTORED = "SessionRestored"; //$NON-NLS-1$
+  String EVID_SESSION_RESTORED = "evSessionRestored"; //$NON-NLS-1$
 
   // ------------------------
   /**

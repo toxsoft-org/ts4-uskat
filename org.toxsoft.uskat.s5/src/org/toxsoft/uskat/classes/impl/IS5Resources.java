@@ -17,14 +17,14 @@ interface IS5Resources {
   String STR_CLASS_NETNODE_D = "Сетевой узел системы";
 
   String STR_LNKID_NETNODE_RESOURCES   = "Ресурсы";
-  String STR_LNKID_NETNODE_RESOURCES_D = "Список подключаемых к сетевому узлу ресурсов системы";
+  String STR_LNKID_NETNODE_RESOURCES_D = "Список ресурсов системы подключаемых к сетевому узлу";
 
   String STR_RTD_NETNODE_ONLINE   = "Связь";
   String STR_RTD_NETNODE_ONLINE_D = "С узлом установлена связь";
 
   String STR_RTD_NETNODE_HEALTH   = "Состояние";
   String STR_RTD_NETNODE_HEALTH_D =
-      "Интегральная оценка состояния подключенных узлов. 0 - нет связи, 100 - все подключено и работает.";
+      "Интегральная оценка состояния подключенных ресурсов. 0 - нет связи, 100 - все подключено и работает.";
 
   /**
    * {@link ISkServer}

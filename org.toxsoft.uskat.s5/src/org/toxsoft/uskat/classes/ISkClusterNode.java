@@ -22,7 +22,7 @@ public interface ISkClusterNode
   /**
    * Связь: сервер/кластер, в рамках которого работает узел {@link ISkServer}.
    */
-  String LNKID_SERVER = "server";
+  String LNKID_SERVER = "lnkServer";
 
   // -----------------------------------------------------------------------------------
   // Данные

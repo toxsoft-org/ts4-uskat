@@ -24,7 +24,7 @@ public interface ISkNetNode
   /**
    * Связь: список подключаемых к узлу ресурсов системы.
    */
-  String LNKID_RESOURCES = "resources";
+  String LNKID_RESOURCES = "lnkResources";
 
   // -----------------------------------------------------------------------------------
   // Данные
@@ -35,12 +35,12 @@ public interface ISkNetNode
    * <p>
    * Тип: {@link EAtomicType#VALOBJ} ({@link EConnState})
    */
-  String RTDID_ONLINE = "online";
+  String RTDID_ONLINE = "rtdOnline";
 
   /**
    * Данное: интегральная оценка состояния подключенных узлов. 0 - нет связи, 100 - все подключено и работает.
    * <p>
    * Тип: {@link EAtomicType#INTEGER}
    */
-  String RTDID_HEALTH = "health";
+  String RTDID_HEALTH = "rtdHealth";
 }
