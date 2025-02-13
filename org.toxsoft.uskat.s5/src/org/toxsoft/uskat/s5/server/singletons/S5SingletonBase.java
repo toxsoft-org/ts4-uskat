@@ -200,6 +200,15 @@ public class S5SingletonBase
     if( needWriteConfig ) {
       initialSingleton.saveServiceConfig( id(), rwEdit );
     }
+    // Вывод в журнал
+    IOptionSet configuration = configuration();
+    if( configuration.size() > 0 ) {
+      StringBuilder sb = new StringBuilder( MSG_CONFIGURATION_VALUES );
+      for( String paramId : configuration.keys() ) {
+        sb.append( String.format( "\n   %s = %s", paramId, configuration.getValue( paramId ) ) ); //$NON-NLS-1$
+      }
+      logger().info( sb.toString() );
+    }
   }
 
   /**
