@@ -2,7 +2,6 @@ package org.toxsoft.uskat.s5.server.startup;
 
 import static org.toxsoft.core.tslib.av.impl.AvUtils.*;
 import static org.toxsoft.core.tslib.av.metainfo.IAvMetaConstants.*;
-import static org.toxsoft.uskat.s5.server.IS5ImplementConstants.*;
 import static org.toxsoft.uskat.s5.server.IS5ServerHardConstants.*;
 
 import org.toxsoft.core.tslib.av.*;
@@ -48,12 +47,14 @@ public abstract class S5InitialImplementation
   /**
    * Конструктор.
    *
+   * @param aServerId String идентификатор сервера/кластера
+   * @param aNodeId String идентификатор узла сервера/кластера
    * @param aModule {@link S5Module} описание программного модуля представляющего сервер
    * @throws TsNullArgumentRtException любой аргумент = null
    * @throws TsIllegalArgumentRtException невалидный ИД-путь
    */
-  protected S5InitialImplementation( S5Module aModule ) {
-    TsNullArgumentRtException.checkNull( aModule );
+  protected S5InitialImplementation( String aServerId, String aNodeId, S5Module aModule ) {
+    TsNullArgumentRtException.checkNulls( aServerId, aNodeId );
     // Список зависимостей модуля s5-сервера
     S5ModuleList depends = aModule.params().getValobj( S5Module.DDEF_DEPENDS );
     depends.add( new S5Module( S5_SERVER_ID, OptionSetUtils.createOpSet( //
@@ -66,15 +67,12 @@ public abstract class S5InitialImplementation
     aModule.params().setValobj( S5Module.DDEF_DEPENDS, depends );
 
     params = new OptionSet();
-    params.setStr( TSID_ID, aModule.id() );
+    params.setStr( TSID_ID, aServerId );
     params.setStr( TSID_NAME, aModule.nmName() );
     params.setStr( TSID_DESCRIPTION, aModule.description() );
 
-    Skid serverId = new Skid( ISkServer.CLASS_ID, aModule.id() );
-    Skid nodeId = Skid.NONE;
-    if( System.getProperty( JBOSS_NODE_NAME ) != null ) {
-      nodeId = new Skid( ISkClusterNode.CLASS_ID, System.getProperty( JBOSS_NODE_NAME ).replaceAll( "-", "." ) ); //$NON-NLS-1$ //$NON-NLS-2$
-    }
+    Skid serverId = new Skid( ISkServer.CLASS_ID, aServerId );
+    Skid nodeId = new Skid( ISkClusterNode.CLASS_ID, aNodeId );
     OP_SERVER_ID.setValue( params, avValobj( serverId ) );
     OP_SERVER_NODE_ID.setValue( params, avValobj( nodeId ) );
     OP_BACKEND_VERSION.setValue( params, avValobj( version ) );

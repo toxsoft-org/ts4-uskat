@@ -2,25 +2,25 @@ package org.toxsoft.uskat.s5.server.startup;
 
 import static org.toxsoft.uskat.s5.utils.S5ManifestUtils.*;
 
-import org.toxsoft.core.tslib.av.EAtomicType;
-import org.toxsoft.core.tslib.av.opset.IOptionSet;
-import org.toxsoft.core.tslib.bricks.strid.coll.IStridablesList;
-import org.toxsoft.core.tslib.bricks.strid.coll.impl.StridablesList;
-import org.toxsoft.core.tslib.coll.IList;
-import org.toxsoft.core.tslib.gw.gwid.Gwid;
-import org.toxsoft.core.tslib.utils.TsVersion;
-import org.toxsoft.uskat.s5.common.S5Module;
-import org.toxsoft.uskat.s5.server.backend.addons.IS5BackendAddonCreator;
-import org.toxsoft.uskat.s5.server.backend.addons.classes.S5BaClassesCreator;
-import org.toxsoft.uskat.s5.server.backend.addons.clobs.S5BaClobsCreator;
-import org.toxsoft.uskat.s5.server.backend.addons.commands.S5BaCommandsCreator;
-import org.toxsoft.uskat.s5.server.backend.addons.events.S5BaEventsCreator;
-import org.toxsoft.uskat.s5.server.backend.addons.gwiddb.S5BaGwidDbCreator;
-import org.toxsoft.uskat.s5.server.backend.addons.links.S5BaLinksCreator;
-import org.toxsoft.uskat.s5.server.backend.addons.objects.S5BaObjectsCreator;
-import org.toxsoft.uskat.s5.server.backend.addons.queries.S5BaQueriesCreator;
-import org.toxsoft.uskat.s5.server.backend.addons.rtdata.S5BaRtdataCreator;
-import org.toxsoft.uskat.s5.server.sequences.IS5SequenceImplementation;
+import org.toxsoft.core.tslib.av.*;
+import org.toxsoft.core.tslib.av.opset.*;
+import org.toxsoft.core.tslib.bricks.strid.coll.*;
+import org.toxsoft.core.tslib.bricks.strid.coll.impl.*;
+import org.toxsoft.core.tslib.coll.*;
+import org.toxsoft.core.tslib.gw.gwid.*;
+import org.toxsoft.core.tslib.utils.*;
+import org.toxsoft.uskat.s5.common.*;
+import org.toxsoft.uskat.s5.server.backend.addons.*;
+import org.toxsoft.uskat.s5.server.backend.addons.classes.*;
+import org.toxsoft.uskat.s5.server.backend.addons.clobs.*;
+import org.toxsoft.uskat.s5.server.backend.addons.commands.*;
+import org.toxsoft.uskat.s5.server.backend.addons.events.*;
+import org.toxsoft.uskat.s5.server.backend.addons.gwiddb.*;
+import org.toxsoft.uskat.s5.server.backend.addons.links.*;
+import org.toxsoft.uskat.s5.server.backend.addons.objects.*;
+import org.toxsoft.uskat.s5.server.backend.addons.queries.*;
+import org.toxsoft.uskat.s5.server.backend.addons.rtdata.*;
+import org.toxsoft.uskat.s5.server.sequences.*;
 
 /**
  * Начальная, неизменяемая, проектно-зависимая конфигурация реализации бекенда сервера uskat
@@ -31,9 +31,14 @@ public class S5UskatServer
     extends S5InitialImplementation {
 
   /**
-   * Идентификатор модуля реализующего сервер
+   * Идентификатор сервера
    */
   public static final String SERVER_ID = "org.toxsoft.uskat.s5.server"; //$NON-NLS-1$
+
+  /**
+   * Идентификатор узла сервера
+   */
+  public static final String SERVER_NODE_ID = "org.toxsoft.uskat.server"; //$NON-NLS-1$
 
   /**
    * Имя модуля реализующего skat-s5 сервер
@@ -54,7 +59,7 @@ public class S5UskatServer
    * Конструктор
    */
   public S5UskatServer() {
-    super( new S5Module( SERVER_ID, SERVER_NAME, SERVER_DESCR, SERVER_VERSION ) );
+    super( SERVER_ID, SERVER_NODE_ID, new S5Module( SERVER_ID, SERVER_NAME, SERVER_DESCR, SERVER_VERSION ) );
   }
 
   // ------------------------------------------------------------------------------------
