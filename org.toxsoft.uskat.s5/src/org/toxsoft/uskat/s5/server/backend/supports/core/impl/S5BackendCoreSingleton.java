@@ -19,7 +19,6 @@ import javax.ejb.*;
 import javax.persistence.*;
 import javax.sql.*;
 
-import org.toxsoft.core.tslib.av.*;
 import org.toxsoft.core.tslib.av.opset.*;
 import org.toxsoft.core.tslib.bricks.events.msg.*;
 import org.toxsoft.core.tslib.bricks.validator.vrl.*;
@@ -583,13 +582,14 @@ public class S5BackendCoreSingleton
     super.doJob();
     // Текущее время
     long currTime = System.currentTimeMillis();
+    // Текущая информация по системе
+    S5PlatformInfo pi = S5ServerPlatformUtils.getPlatformInfo();
+    // Текущая загрузка сервера
+    double la = pi.loadAverage();
     // Обновление писателя статистики если он определен
     S5StatisticWriter stat = statisticWriter;
     if( stat != null ) {
-      S5PlatformInfo pi = S5ServerPlatformUtils.getPlatformInfo();
-      IAtomicValue loadAverage = avFloat( pi.loadAverage() );
-      stat.onEvent( STAT_BACKEND_NODE_LOAD_AVERAGE, loadAverage );
-      stat.onEvent( STAT_BACKEND_NODE_LOAD_MAX, loadAverage );
+      stat.onEvent( STAT_BACKEND_NODE_LOAD_AVERAGE, avFloat( la ) );
       stat.onEvent( STAT_BACKEND_NODE_FREE_PHYSICAL_MEMORY, avFloat( pi.freePhysicalMemory() ) );
       stat.onEvent( STAT_BACKEND_NODE_MAX_HEAP_MEMORY, avFloat( pi.maxHeapMemory() ) );
       stat.onEvent( STAT_BACKEND_NODE_USED_HEAP_MEMORY, avFloat( pi.usedHeapMemory() ) );
@@ -599,7 +599,6 @@ public class S5BackendCoreSingleton
       stat.onEvent( STAT_BACKEND_NODE_OPEN_SESSION_MAX, avInt( sessionManager().openSessionCount() ) );
       stat.update();
     }
-    double la = loadAverage();
     switch( mode() ) {
       case STARTING:
         if( currTime - modeTime >= startTimeMin && la < boostedAverage ) {

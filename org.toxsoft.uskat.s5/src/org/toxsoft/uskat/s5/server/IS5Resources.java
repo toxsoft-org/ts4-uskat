@@ -20,10 +20,10 @@ interface IS5Resources {
   String STR_N_BACKEND_SESSION_ID = "Сессия";                       //$NON-NLS-1$
   String STR_D_BACKEND_SESSION_ID = "Сессия текущего пользователя"; //$NON-NLS-1$
 
-  String STR_N_BACKEND_SERVER_ID = "Сервер";                                                //$NON-NLS-1$
+  String STR_N_BACKEND_SERVER_ID = "Сервер";                                           //$NON-NLS-1$
   String STR_D_BACKEND_SERVER_ID = "Идентификатор сервера, объекта {@link ISkServer}"; //$NON-NLS-1$
 
-  String STR_N_BACKEND_NODE_ID = "Узел";                                                     //$NON-NLS-1$
+  String STR_N_BACKEND_NODE_ID = "Узел";                                                       //$NON-NLS-1$
   String STR_D_BACKEND_NODE_ID = "Идентификатор узла сервера, объекта {@link ISkClusterNode}"; //$NON-NLS-1$
 
   String STR_N_BACKEND_VERSION = Messages.getString( "IS5Resources.STR_N_BACKEND_VERSION" ); //$NON-NLS-1$
@@ -101,10 +101,6 @@ interface IS5Resources {
   String STR_N_STAT_BACKEND_NODE_LOAD_AVERAGE = "Загрузка";
 
   String STR_D_STAT_BACKEND_NODE_LOAD_AVERAGE = "Средняя загрузка (%/100) операционной системы";
-
-  String STR_N_STAT_BACKEND_NODE_LOAD_MAX = "Загрузка, макс";
-
-  String STR_D_STAT_BACKEND_NODE_LOAD_MAX = "Максимальная загрузка (%/100) операционной системы";
 
   String STR_N_STAT_BACKEND_NODE_FREE_PHYSICAL_MEMORY = "Свободно";
 

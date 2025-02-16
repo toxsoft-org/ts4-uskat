@@ -466,23 +466,10 @@ public interface IS5ServerHardConstants
   S5StatisticParamInfo STAT_BACKEND_NODE_LOAD_AVERAGE = S5StatisticParamInfo.create( //
       STAT_BACKEND_NODE_ID_START + "LoadAverage", //
       EStatisticFunc.AVERAGE, //
-      new StridablesList<>( MINUTE, HOUR, DAY ), //
+      new StridablesList<>( SECOND, MINUTE, HOUR, DAY ), //
       EAtomicType.FLOATING, avFloat( 0 ), //
       TSID_NAME, STR_N_STAT_BACKEND_NODE_LOAD_AVERAGE, //
       TSID_DESCRIPTION, STR_D_STAT_BACKEND_NODE_LOAD_AVERAGE );
-
-  /**
-   * Параметр статистики узла бекенда (данное {@link ISkClusterNode}): максимальная загрузка операционной системы
-   * <p>
-   * Тип: {@link EAtomicType#FLOATING}
-   */
-  S5StatisticParamInfo STAT_BACKEND_NODE_LOAD_MAX = S5StatisticParamInfo.create( //
-      STAT_BACKEND_NODE_ID_START + "LoadMax", //
-      EStatisticFunc.MAX, //
-      new StridablesList<>( MINUTE, HOUR, DAY ), //
-      EAtomicType.FLOATING, avFloat( 0 ), //
-      TSID_NAME, STR_N_STAT_BACKEND_NODE_LOAD_MAX, //
-      TSID_DESCRIPTION, STR_D_STAT_BACKEND_NODE_LOAD_MAX );
 
   /**
    * Параметр статистики узла бекенда (данное {@link ISkClusterNode}): Объем свободной памяти операционной системы
@@ -635,7 +622,6 @@ public interface IS5ServerHardConstants
    */
   IStridablesList<S5StatisticParamInfo> STAT_BACKEND_NODE_PARAMS = new StridablesList<>( //
       STAT_BACKEND_NODE_LOAD_AVERAGE, //
-      STAT_BACKEND_NODE_LOAD_MAX, //
       STAT_BACKEND_NODE_FREE_PHYSICAL_MEMORY, //
       STAT_BACKEND_NODE_MAX_HEAP_MEMORY, //
       STAT_BACKEND_NODE_USED_HEAP_MEMORY, //

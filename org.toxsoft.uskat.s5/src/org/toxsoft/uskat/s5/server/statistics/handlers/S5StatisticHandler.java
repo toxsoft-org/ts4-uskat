@@ -2,15 +2,12 @@ package org.toxsoft.uskat.s5.server.statistics.handlers;
 
 import static org.toxsoft.uskat.s5.server.statistics.EStatisticInterval.*;
 
-import org.toxsoft.core.log4j.LoggerWrapper;
-import org.toxsoft.core.tslib.av.EAtomicType;
-import org.toxsoft.core.tslib.av.IAtomicValue;
-import org.toxsoft.core.tslib.utils.errors.TsIllegalArgumentRtException;
-import org.toxsoft.core.tslib.utils.errors.TsNullArgumentRtException;
-import org.toxsoft.core.tslib.utils.logs.ILogger;
-import org.toxsoft.uskat.s5.legacy.S5Stridable;
-import org.toxsoft.uskat.s5.server.statistics.EStatisticInterval;
-import org.toxsoft.uskat.s5.server.statistics.IS5StatisticInterval;
+import org.toxsoft.core.log4j.*;
+import org.toxsoft.core.tslib.av.*;
+import org.toxsoft.core.tslib.utils.errors.*;
+import org.toxsoft.core.tslib.utils.logs.*;
+import org.toxsoft.uskat.s5.legacy.*;
+import org.toxsoft.uskat.s5.server.statistics.*;
 
 // ------------------------------------------------------------------------------------
 // Обработчики статистики
@@ -114,19 +111,15 @@ public abstract class S5StatisticHandler
   public final IAtomicValue update() {
     // Текущее время
     long currTime = System.currentTimeMillis();
-    // Интервал выравнивания (мсек)
-    int ADJUST_INTERVAL = 1000;
-    // Значение выравнивания
-    int adjustValue = (int)(interval != ALL ? currTime / ADJUST_INTERVAL % (interval.milli() / ADJUST_INTERVAL) : 0);
-    // Признак начала интервала
-    boolean isStartInterval = (adjustValue == 0 && currTime - timestamp > interval.milli() / 4);
-    // Признак завершения интервала
-    boolean completed = (isAllInterval() || isStartInterval);
-    if( !completed ) {
-      return IAtomicValue.NULL;
+    if( interval != ALL ) {
+      long prevSlot = timestamp / interval.milli();
+      long currSlot = currTime / interval.milli();
+      if( prevSlot == currSlot ) {
+        return IAtomicValue.NULL;
+      }
     }
-    // Фиксируем время последнего вызова update
-    timestamp = currTime;
+    // Фиксируем время начала текущего временного слота
+    timestamp = currTime / interval.milli() * interval.milli();
     if( !wasValueAfterUpdate ) {
       // Не было значений с момента прошлого вызова update. Возвращаем значение по умолчанию
       return initValue;
