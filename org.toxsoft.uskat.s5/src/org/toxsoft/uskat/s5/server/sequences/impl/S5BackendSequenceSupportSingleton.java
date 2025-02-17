@@ -712,10 +712,20 @@ public abstract class S5BackendSequenceSupportSingleton<S extends IS5Sequence<V>
     S5StatisticWriter stat = statisticWriter;
     try {
       // Проверка возможности выполнения записи при текущей загрузке системы
-      if( serverMode() == ES5ServerMode.OVERLOADED || serverMode() == ES5ServerMode.SHUTDOWNING ) {
-        // Текущий режим запрещает запись
-        writeLogger.error( ERR_WRITE_DISABLE_BY_LOAD_AVERAGE, id(), serverMode(), Double.valueOf( loadAverage() ) );
-        return;
+      ES5ServerMode serverMode = serverMode();
+      switch( serverMode ) {
+        case STARTING:
+        case WORKING:
+        case BOOSTED:
+          break;
+        case OVERLOADED:
+        case SHUTDOWNING:
+        case OFF:
+          // Текущий режим запрещает запись
+          writeLogger.error( ERR_WRITE_DISABLE_BY_LOAD_AVERAGE, id(), serverMode(), Double.valueOf( loadAverage() ) );
+          return;
+        default:
+          break;
       }
       // Запись хранимых данных
       IS5SequenceWriteStat writeStat = sequenceWriter.write( entityManager(), aSequences );
