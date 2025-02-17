@@ -13,7 +13,7 @@ interface IS5Resources {
    */
   String STR_START_TIME_MIN   = "startTimeMin";
   String STR_START_TIME_MIN_D =
-      "Минимальное время (секунды) в котором сервер находится в режиме {@link ES5ServerMode#STARTING}";
+      "Минимальное время (секунды) в котором сервер находится в режиме {@link ES5ServerMode#STARTING}.";
 
   String STR_START_TIME_MAX   = "startTimeMax";
   String STR_START_TIME_MAX_D =
@@ -26,11 +26,15 @@ interface IS5Resources {
 
   String STR_BOOSTED_AVERAGE   = "boostedAverage";
   String STR_BOOSTED_AVERAGE_D =
-      "Уровень загрузки при котором s5-сервер может быть автоматически переключен в усиленный(форсаж) режим ({@link ES5ServerMode#BOOSTED})";
+      "Уровень загрузки при котором s5-сервер может быть автоматически переключен в усиленный(форсаж) режим ({@link ES5ServerMode#BOOSTED}).";
+
+  String STR_OVERLOADED_DELAY   = "overloadedDelay";
+  String STR_OVERLOADED_DELAY_D =
+      "Время (секунды) в течении которого загрузка сервера должан быть равной или более чем {@link #CORE_OVERLOADED_AVERAGE} после чего сервер автоматически может быть переключен в режим {@link ES5ServerMode#OVERLOADED}.";
 
   String STR_OVERLOADED_AVERAGE   = "overloadedAverage";
   String STR_OVERLOADED_AVERAGE_D =
-      "Уровень загрузки при котором s5-сервер может быть автоматически переключен в режим перегрузки ({@link ES5ServerMode#OVERLOADED})";
+      "Уровень загрузки при котором s5-сервер может быть автоматически переключен в режим перегрузки ({@link ES5ServerMode#OVERLOADED}).";
 
   // ------------------------------------------------------------------------------------
   // Строки сообщений

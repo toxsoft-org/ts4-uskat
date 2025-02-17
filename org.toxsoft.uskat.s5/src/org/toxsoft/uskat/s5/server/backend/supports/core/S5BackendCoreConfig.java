@@ -63,6 +63,18 @@ public final class S5BackendCoreConfig {
   );
 
   /**
+   * Время (секунды) в течении которого загрузка сервера должан быть равной или более чем
+   * {@link #CORE_OVERLOADED_AVERAGE} после чего сервер автоматически может быть переключен в режим
+   * {@link ES5ServerMode#OVERLOADED}.
+   */
+  public static final IDataDef CORE_OVERLOADED_DELAY = create( SYBSYSTEM_ID_PREFIX + ".overloaded.delay", INTEGER, //
+      TSID_NAME, STR_OVERLOADED_DELAY, //
+      TSID_DESCRIPTION, STR_OVERLOADED_DELAY_D, //
+      TSID_DEFAULT_VALUE, avInt( 10 ), //
+      TSID_IS_MANDATORY, AV_FALSE //
+  );
+
+  /**
    * Уровень загрузки при котором s5-сервер может быть автоматически переключен в режим перегрузки
    * ({@link ES5ServerMode#OVERLOADED}).
    */
@@ -80,6 +92,7 @@ public final class S5BackendCoreConfig {
       CORE_START_TIME_MIN, //
       CORE_START_TIME_MAX, //
       CORE_BOOSTED_AVERAGE, //
+      CORE_OVERLOADED_DELAY, //
       CORE_OVERLOADED_AVERAGE //
   );
 

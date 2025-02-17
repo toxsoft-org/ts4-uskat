@@ -21,6 +21,7 @@ import javax.sql.*;
 
 import org.toxsoft.core.tslib.av.opset.*;
 import org.toxsoft.core.tslib.bricks.events.msg.*;
+import org.toxsoft.core.tslib.bricks.time.impl.*;
 import org.toxsoft.core.tslib.bricks.validator.vrl.*;
 import org.toxsoft.core.tslib.coll.*;
 import org.toxsoft.core.tslib.coll.primtypes.*;
@@ -207,7 +208,14 @@ public class S5BackendCoreSingleton
   private long   startTimeMin;
   private long   startTimeMax;
   private double boostedAverage;
+  private long   overloadDelay;
   private double overloadAverage;
+
+  /**
+   * Метка времени когда загрузка стала равной или больше чем {@link #overloadAverage}. TimeUtils.MIN_TIMESTAMP: не
+   * установлено.
+   */
+  private long overloadTimestamp = TimeUtils.MIN_TIMESTAMP;
 
   /**
    * Конструктор.
@@ -253,6 +261,7 @@ public class S5BackendCoreSingleton
     startTimeMin = CORE_START_TIME_MIN.getValue( configuration ).asLong() * 1000;
     startTimeMax = CORE_START_TIME_MAX.getValue( configuration ).asLong() * 1000;
     boostedAverage = CORE_BOOSTED_AVERAGE.getValue( configuration ).asDouble();
+    overloadDelay = CORE_OVERLOADED_DELAY.getValue( configuration ).asLong() * 1000;
     overloadAverage = CORE_OVERLOADED_AVERAGE.getValue( configuration ).asDouble();
 
     // Инициализация backend у менеджера сессий
@@ -291,6 +300,7 @@ public class S5BackendCoreSingleton
     startTimeMin = CORE_START_TIME_MIN.getValue( aNewConfig ).asLong() * 1000;
     startTimeMax = CORE_START_TIME_MAX.getValue( aNewConfig ).asLong() * 1000;
     boostedAverage = CORE_BOOSTED_AVERAGE.getValue( aNewConfig ).asDouble();
+    overloadDelay = CORE_OVERLOADED_DELAY.getValue( aNewConfig ).asLong() * 1000;
     overloadAverage = CORE_OVERLOADED_AVERAGE.getValue( aNewConfig ).asDouble();
   }
 
@@ -599,19 +609,30 @@ public class S5BackendCoreSingleton
       stat.onEvent( STAT_BACKEND_NODE_OPEN_SESSION_MAX, avInt( sessionManager().openSessionCount() ) );
       stat.update();
     }
+    // Проверка условий перехода в режим OVERLOADED
+    if( la < overloadAverage ) {
+      overloadTimestamp = TimeUtils.MIN_TIMESTAMP;
+    }
+    else {
+      if( overloadTimestamp == TimeUtils.MIN_TIMESTAMP ) {
+        overloadTimestamp = currTime;
+      }
+    }
+    boolean needOverload = (currTime - overloadTimestamp >= overloadDelay);
+    // Обработка текущего состояния сервера
     switch( mode() ) {
       case STARTING:
         if( currTime - modeTime >= startTimeMin && la < boostedAverage ) {
           setMode( WORKING );
         }
         if( currTime - modeTime >= startTimeMax ) {
-          setMode( (la < boostedAverage ? WORKING : (la < overloadAverage ? BOOSTED : OVERLOADED)) );
+          setMode( (la < boostedAverage ? WORKING : (needOverload ? OVERLOADED : BOOSTED)) );
         }
         break;
       case WORKING:
       case BOOSTED:
       case OVERLOADED:
-        setMode( (la < boostedAverage ? WORKING : (la < overloadAverage ? BOOSTED : OVERLOADED)) );
+        setMode( (la < boostedAverage ? WORKING : (needOverload ? OVERLOADED : BOOSTED)) );
         break;
       case SHUTDOWNING:
       case OFF:
