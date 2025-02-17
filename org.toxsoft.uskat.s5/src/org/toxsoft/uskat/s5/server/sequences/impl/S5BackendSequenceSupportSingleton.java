@@ -698,11 +698,11 @@ public abstract class S5BackendSequenceSupportSingleton<S extends IS5Sequence<V>
   @TransactionAttribute( TransactionAttributeType.SUPPORTS )
   @Lock( LockType.READ )
   @Override
-  public void writeSequences( IList<S> aSequences ) {
+  public boolean writeSequences( IList<S> aSequences ) {
     TsNullArgumentRtException.checkNull( aSequences );
     if( OP_BACKEND_DATA_WRITE_DISABLE.getValue( backend().initialConfig().impl().params() ).asBool() ) {
       // Запрет записи хранимых данных
-      return;
+      return false;
     }
     // Установка фабрики формирования последовательности (подготовка к возможному редактированию)
     for( S sequence : aSequences ) {
@@ -723,7 +723,7 @@ public abstract class S5BackendSequenceSupportSingleton<S extends IS5Sequence<V>
         case OFF:
           // Текущий режим запрещает запись
           writeLogger.error( ERR_WRITE_DISABLE_BY_LOAD_AVERAGE, id(), serverMode(), Double.valueOf( loadAverage() ) );
-          return;
+          return false;
         default:
           break;
       }
@@ -742,6 +742,7 @@ public abstract class S5BackendSequenceSupportSingleton<S extends IS5Sequence<V>
         stat.onEvent( STAT_HISTORABLE_BACKEND_REMOVED_COUNT, avInt( dbmsStat.removedCount() ) );
         stat.onEvent( STAT_HISTORABLE_BACKEND_REMOVED_TIME, avInt( dbmsStat.removedTime() ) );
       }
+      return true;
     }
     catch( RuntimeException e ) {
       if( stat != null ) {

@@ -30,9 +30,10 @@ public interface IS5BackendSequenceSupportSingleton<S extends IS5Sequence<V>, V 
    * Синхронная запись последовательности значений указанных данных
    *
    * @param aSequences {@link IList}&lt;{@link S5Sequence}&gt; последовательность значений данных
+   * @return boolean <b>true</b> значения данных записаны в системе; <b>false</b> отклонение запроса на запись данных
    * @throws TsNullArgumentRtException любой аргумент = null
    */
-  void writeSequences( IList<S> aSequences );
+  boolean writeSequences( IList<S> aSequences );
 
   /**
    * Асинхронная запись запись последовательности значений указанных данных

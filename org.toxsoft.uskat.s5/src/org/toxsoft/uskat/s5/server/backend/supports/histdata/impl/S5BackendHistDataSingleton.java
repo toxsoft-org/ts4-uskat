@@ -139,7 +139,10 @@ public class S5BackendHistDataSingleton
         IS5SequenceBlockEdit<ITemporalAtomicValue> block = factory().createBlock( gwid, values );
         sequences.add( (IS5HistDataSequence)factory().createSequence( gwid, interval, new ElemArrayList<>( block ) ) );
       }
-      writeSequences( sequences );
+      if( !writeSequences( sequences ) ) {
+        // Отклонение запроса на запись данных, например в режиме ES5ServerMode.OVERLOADED
+        return;
+      }
 
       // Пост-вызов интерсепторов
       callAfterWriteHistData( interceptors, aValues, logger() );
