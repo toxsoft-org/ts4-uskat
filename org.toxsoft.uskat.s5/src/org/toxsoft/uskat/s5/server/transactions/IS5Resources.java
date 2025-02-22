@@ -54,6 +54,9 @@ interface IS5Resources {
   String E_TR_N_SEQUENCE_WRITE_STAT = Messages.getString( "IS5Resources.E_TR_N_SEQUENCE_WRITE_STAT" ); //$NON-NLS-1$
   String E_TR_D_SEQUENCE_WRITE_STAT = Messages.getString( "IS5Resources.E_TR_D_SEQUENCE_WRITE_STAT" ); //$NON-NLS-1$
 
+  String E_TR_N_FIRED_BACKEND_MESSAGES = Messages.getString( "IS5Resources.E_TR_N_FIRED_BACKEND_MESSAGES" ); //$NON-NLS-1$
+  String E_TR_D_FIRED_BACKEND_MESSAGES = Messages.getString( "IS5Resources.E_TR_D_FIRED_BACKEND_MESSAGES" ); //$NON-NLS-1$
+
   String E_TR_N_FIRED_EVENTS = Messages.getString( "IS5Resources.E_TR_N_FIRED_EVENTS" ); //$NON-NLS-1$
   String E_TR_D_FIRED_EVENTS = Messages.getString( "IS5Resources.E_TR_D_FIRED_EVENTS" ); //$NON-NLS-1$
 

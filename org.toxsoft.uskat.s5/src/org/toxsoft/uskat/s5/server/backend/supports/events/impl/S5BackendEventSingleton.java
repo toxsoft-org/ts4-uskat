@@ -100,16 +100,15 @@ public class S5BackendEventSingleton
   @TransactionAttribute( TransactionAttributeType.REQUIRED )
   public void fireEvents( IS5FrontendRear aFrontend, ITimedList<SkEvent> aEvents ) {
     TsNullArgumentRtException.checkNulls( aFrontend, aEvents );
-    IS5Transaction transaction = transactionManager().findTransaction();
-    if( transaction == null ) {
+    // Текущая транзакция
+    IS5Transaction tx = transactionManager().findTransaction();
+    if( tx == null ) {
       // Нет транзакции, немедленная отправка сообщений
       IMapEdit<IS5FrontendRear, ITimedList<SkEvent>> events = new ElemMap<>();
       events.put( aFrontend, aEvents );
       writeEventsImpl( events );
       return;
     }
-    // Текущая транзакция
-    IS5Transaction tx = transactionManager().getTransaction();
     // Размещение событий в текущей транзакции
     IMapEdit<IS5FrontendRear, ITimedListEdit<SkEvent>> txEvents = tx.findResource( TX_FIRED_EVENTS );
     if( txEvents == null ) {

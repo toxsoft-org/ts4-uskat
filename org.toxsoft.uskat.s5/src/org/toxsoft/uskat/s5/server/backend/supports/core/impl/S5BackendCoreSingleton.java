@@ -8,6 +8,7 @@ import static org.toxsoft.uskat.s5.server.backend.ES5ServerMode.*;
 import static org.toxsoft.uskat.s5.server.backend.supports.core.IS5BackendCoreInterceptor.*;
 import static org.toxsoft.uskat.s5.server.backend.supports.core.S5BackendCoreConfig.*;
 import static org.toxsoft.uskat.s5.server.backend.supports.core.impl.IS5Resources.*;
+import static org.toxsoft.uskat.s5.server.transactions.ES5TransactionResources.*;
 import static org.toxsoft.uskat.s5.utils.platform.S5ServerPlatformUtils.*;
 
 import java.sql.*;
@@ -24,6 +25,7 @@ import org.toxsoft.core.tslib.bricks.events.msg.*;
 import org.toxsoft.core.tslib.bricks.time.impl.*;
 import org.toxsoft.core.tslib.bricks.validator.vrl.*;
 import org.toxsoft.core.tslib.coll.*;
+import org.toxsoft.core.tslib.coll.impl.*;
 import org.toxsoft.core.tslib.coll.primtypes.*;
 import org.toxsoft.core.tslib.coll.primtypes.impl.*;
 import org.toxsoft.core.tslib.coll.synch.*;
@@ -543,12 +545,42 @@ public class S5BackendCoreSingleton
 
   @Override
   @TransactionAttribute( TransactionAttributeType.SUPPORTS )
-  public void onBroadcastMessage( GtMessage aMessage ) {
+  public void fireBackendMessage( GtMessage aMessage ) {
     TsNullArgumentRtException.checkNull( aMessage );
-    // Передача широковещательного сообщения всем фронтендам
-    for( IS5FrontendRear frontend : attachedFrontends() ) {
-      frontend.onBackendMessage( aMessage );
+    IS5Transaction tx = transactionManager().findTransaction();
+    if( tx == null ) {
+      // Нет текущей транзакции, немедленная передача широковещательного сообщения всем фронтендам
+      for( IS5FrontendRear frontend : attachedFrontends() ) {
+        frontend.onBackendMessage( aMessage );
+      }
+      return;
     }
+    // Размещение сообщений в текущей транзакции
+    IListEdit<GtMessage> txMessages = tx.findResource( TX_FIRED_BACKEND_MESSAGES );
+    if( txMessages == null ) {
+      // Сообщений еще нет в транзакции. Создание нового списка и размещение его в транзакции
+      txMessages = new ElemArrayList<>();
+      tx.putResource( TX_FIRED_BACKEND_MESSAGES, txMessages );
+      // Регистрируемся на получение событий об изменении состояния транзакции
+      tx.addListener( new IS5TransactionListener() {
+
+        @Override
+        public void changeTransactionStatus( IS5Transaction aTransaction ) {
+          if( aTransaction.getStatus() != ETransactionStatus.COMMITED ) {
+            return;
+          }
+          // Размещение сообщений в текущей транзакции
+          IList<GtMessage> txMessages2 = tx.getResource( TX_FIRED_BACKEND_MESSAGES, IList.EMPTY );
+          for( GtMessage message : txMessages2 ) {
+            for( IS5FrontendRear frontend : attachedFrontends() ) {
+              frontend.onBackendMessage( message );
+            }
+          }
+        }
+
+      } );
+    }
+    txMessages.add( aMessage );
   }
 
   // ------------------------------------------------------------------------------------

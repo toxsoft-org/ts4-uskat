@@ -4,20 +4,19 @@ import static java.lang.String.*;
 import static org.toxsoft.uskat.s5.server.transactions.IS5Resources.*;
 import static org.toxsoft.uskat.s5.utils.threads.impl.S5Lockable.*;
 
-import java.lang.reflect.Method;
+import java.lang.reflect.*;
 
-import javax.ejb.SessionContext;
-import javax.transaction.Synchronization;
+import javax.ejb.*;
+import javax.transaction.*;
 
-import org.toxsoft.core.tslib.bricks.strid.IStridable;
-import org.toxsoft.core.tslib.bricks.strid.impl.StridUtils;
-import org.toxsoft.core.tslib.coll.IList;
-import org.toxsoft.core.tslib.coll.IListEdit;
-import org.toxsoft.core.tslib.coll.impl.ElemArrayList;
-import org.toxsoft.core.tslib.coll.primtypes.IStringMapEdit;
-import org.toxsoft.core.tslib.coll.primtypes.impl.StringMap;
-import org.toxsoft.core.tslib.utils.errors.TsNullArgumentRtException;
-import org.toxsoft.uskat.s5.utils.threads.impl.S5Lockable;
+import org.toxsoft.core.tslib.bricks.strid.*;
+import org.toxsoft.core.tslib.bricks.strid.impl.*;
+import org.toxsoft.core.tslib.coll.*;
+import org.toxsoft.core.tslib.coll.impl.*;
+import org.toxsoft.core.tslib.coll.primtypes.*;
+import org.toxsoft.core.tslib.coll.primtypes.impl.*;
+import org.toxsoft.core.tslib.utils.errors.*;
+import org.toxsoft.uskat.s5.utils.threads.impl.*;
 
 /**
  * Транзакция s5-сервера
@@ -158,6 +157,34 @@ final class S5Transaction
     lockRead( lock );
     try {
       return (T)resources.getByKey( aResourceId.id() );
+    }
+    finally {
+      unlockRead( lock );
+    }
+  }
+
+  @Override
+  @SuppressWarnings( "unchecked" )
+  public <T> T getResource( String aResourceId, T aDefaultValue ) {
+    TsNullArgumentRtException.checkNull( aResourceId );
+    lockRead( lock );
+    try {
+      T retValue = (T)resources.findByKey( aResourceId );
+      return (retValue != null ? retValue : aDefaultValue);
+    }
+    finally {
+      unlockRead( lock );
+    }
+  }
+
+  @Override
+  @SuppressWarnings( "unchecked" )
+  public <T> T getResource( IStridable aResourceId, T aDefaultValue ) {
+    TsNullArgumentRtException.checkNull( aResourceId );
+    lockRead( lock );
+    try {
+      T retValue = (T)resources.findByKey( aResourceId.id() );
+      return (retValue != null ? retValue : aDefaultValue);
     }
     finally {
       unlockRead( lock );

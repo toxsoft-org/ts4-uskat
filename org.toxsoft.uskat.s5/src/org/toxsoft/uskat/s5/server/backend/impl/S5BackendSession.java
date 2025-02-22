@@ -417,7 +417,7 @@ public class S5BackendSession
       }
       // Получение и обработка широковещательных сообщений бекенда от фронтенда
       messenger.broadcastEventer().addListener( aMessage -> {
-        backendCoreSingleton.onBroadcastMessage( aMessage );
+        backendCoreSingleton.fireBackendMessage( aMessage );
       } );
 
       // 2021-04-10 mvk

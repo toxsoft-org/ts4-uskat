@@ -1,11 +1,11 @@
 package org.toxsoft.uskat.s5.server.transactions;
 
-import java.lang.reflect.Method;
+import java.lang.reflect.*;
 
-import javax.ejb.SessionContext;
+import javax.ejb.*;
 
-import org.toxsoft.core.tslib.bricks.strid.IStridable;
-import org.toxsoft.core.tslib.coll.IList;
+import org.toxsoft.core.tslib.bricks.strid.*;
+import org.toxsoft.core.tslib.coll.*;
 import org.toxsoft.core.tslib.utils.errors.*;
 
 /**
@@ -111,6 +111,30 @@ public interface IS5Transaction {
    * @throws TsItemNotFoundRtException ресурса нет в транзакции
    */
   <T> T getResource( IStridable aResourceId );
+
+  /**
+   * Возвращает ресурс транзакции
+   *
+   * @param <T> - тип ресурса
+   * @param aResourceId {@link IStridable} - идентификатор ресурса
+   * @param aDefaultValue значение по умолчанию если ресурс не найден
+   * @return Object ресурс транзакции
+   * @throws TsNullArgumentRtException любой аргумент = null
+   * @throws TsIllegalStateRtException нет текущей транзакции
+   */
+  <T> T getResource( IStridable aResourceId, T aDefaultValue );
+
+  /**
+   * Возвращает ресурс транзакции
+   *
+   * @param <T> - тип ресурса
+   * @param aResourceId {@link String} - идентификатор ресурса
+   * @param aDefaultValue значение по умолчанию если ресурс не найден
+   * @return Object ресурс транзакции
+   * @throws TsNullArgumentRtException любой аргумент = null
+   * @throws TsIllegalStateRtException нет текущей транзакции
+   */
+  <T> T getResource( String aResourceId, T aDefaultValue );
 
   /**
    * Проводит поиск и возвращает ресурс транзакции

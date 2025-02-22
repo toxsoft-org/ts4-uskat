@@ -161,10 +161,10 @@ public interface IS5BackendCoreSingleton
   void removeBackendCoreInterceptor( IS5BackendCoreInterceptor aInterceptor );
 
   /**
-   * Принять и обработать широковещаетльное сообщение.
+   * Формирование сообщение бекенда.
    *
-   * @param aMessage {@link GtMessage} - сообщение
+   * @param aMessage {@link GtMessage} - сообщение бекенда.
    * @throws TsNullArgumentRtException аргумент = null
    */
-  void onBroadcastMessage( GtMessage aMessage );
+  void fireBackendMessage( GtMessage aMessage );
 }

@@ -2,26 +2,24 @@ package org.toxsoft.uskat.s5.server.transactions;
 
 import static org.toxsoft.uskat.s5.server.transactions.IS5Resources.*;
 
-import java.util.List;
+import java.util.*;
 
-import org.toxsoft.core.tslib.av.opset.IOptionSet;
-import org.toxsoft.core.tslib.bricks.strid.IStridable;
-import org.toxsoft.core.tslib.bricks.strid.coll.IStridablesList;
-import org.toxsoft.core.tslib.bricks.strid.coll.IStridablesListEdit;
-import org.toxsoft.core.tslib.bricks.strid.coll.impl.StridablesList;
-import org.toxsoft.core.tslib.bricks.time.ITimedListEdit;
+import org.toxsoft.core.tslib.av.opset.*;
+import org.toxsoft.core.tslib.bricks.events.msg.*;
+import org.toxsoft.core.tslib.bricks.strid.*;
+import org.toxsoft.core.tslib.bricks.strid.coll.*;
+import org.toxsoft.core.tslib.bricks.strid.coll.impl.*;
+import org.toxsoft.core.tslib.bricks.time.*;
 import org.toxsoft.core.tslib.coll.*;
-import org.toxsoft.core.tslib.gw.gwid.Gwid;
-import org.toxsoft.core.tslib.utils.errors.TsItemNotFoundRtException;
-import org.toxsoft.core.tslib.utils.errors.TsNullArgumentRtException;
-import org.toxsoft.uskat.core.api.evserv.SkEvent;
-import org.toxsoft.uskat.core.api.linkserv.IDtoLinkFwd;
-import org.toxsoft.uskat.core.api.objserv.IDtoObject;
-import org.toxsoft.uskat.core.api.sysdescr.dto.IDtoAttrInfo;
-import org.toxsoft.uskat.core.api.sysdescr.dto.IDtoRtdataInfo;
-import org.toxsoft.uskat.s5.server.frontend.IS5FrontendRear;
-import org.toxsoft.uskat.s5.server.sequences.IS5Sequence;
-import org.toxsoft.uskat.s5.server.sequences.impl.S5SequenceWriteStat;
+import org.toxsoft.core.tslib.gw.gwid.*;
+import org.toxsoft.core.tslib.utils.errors.*;
+import org.toxsoft.uskat.core.api.evserv.*;
+import org.toxsoft.uskat.core.api.linkserv.*;
+import org.toxsoft.uskat.core.api.objserv.*;
+import org.toxsoft.uskat.core.api.sysdescr.dto.*;
+import org.toxsoft.uskat.s5.server.frontend.*;
+import org.toxsoft.uskat.s5.server.sequences.*;
+import org.toxsoft.uskat.s5.server.sequences.impl.*;
 
 /**
  * Известные, общедоступные ресурсы транзакции.
@@ -33,108 +31,116 @@ public enum ES5TransactionResources
     implements IStridable {
 
   /**
-   * Список объектов удаляемого класса
+   * Список объектов удаляемого класса.
    * <p>
-   * Тип: {@link IList}&lt;{@link IDtoObject}&gt; список объектов
+   * Тип: {@link IList}&lt;{@link IDtoObject}&gt; список объектов.
    */
   TX_REMOVED_CLASS_OBJS( "removedClassObjs", E_TR_D_REMOVED_CLASS_OBJS, E_TR_N_REMOVED_CLASS_OBJS, IList.class ),
 
   /**
-   * Список объектов изменяющихся классов
+   * Список объектов изменяющихся классов.
    * <p>
-   * Тип: {@link IList}&lt;{@link IDtoObject}&gt; список объектов
+   * Тип: {@link IList}&lt;{@link IDtoObject}&gt; список объектов.
    */
   TX_UPDATED_CLASS_OBJS( "updatedClassObjs", E_TR_D_UPDATED_CLASS_OBJS, E_TR_N_UPDATED_CLASS_OBJS, IList.class ),
 
   /**
-   * Идентификатор ресурса транзакции: список объектов у которых изменяется тип атрибутов
+   * Идентификатор ресурса транзакции: список объектов у которых изменяется тип атрибутов.
    * <p>
-   * Тип: {@link IList}&lt;{@link IDtoObject}&gt; список объектов
+   * Тип: {@link IList}&lt;{@link IDtoObject}&gt; список объектов.
    */
   TX_UPDATED_OBJS_BY_ATTR_TYPE( "updatedObjsByAttrType", E_TR_D_UPDATED_OBJS_BY_ATTR_TYPE,
       E_TR_N_UPDATED_OBJS_BY_ATTR_TYPE, IList.class ),
 
   /**
-   * Идентификатор ресурса транзакции: список объектов у которых изменяется тип текущих данных
+   * Идентификатор ресурса транзакции: список объектов у которых изменяется тип текущих данных.
    * <p>
-   * Тип: {@link IList}&lt;{@link IDtoObject}&gt; список объектов
+   * Тип: {@link IList}&lt;{@link IDtoObject}&gt; список объектов.
    */
   TX_UPDATED_OBJS_BY_CURRDATA_TYPE( "updatedObjsByCurrdataType", E_TR_D_UPDATED_OBJS_BY_CURRDATA_TYPE,
       E_TR_N_UPDATED_OBJS_BY_CURRDATA_TYPE, IList.class ),
 
   /**
-   * Идентификатор ресурса транзакции: список описаний атрибутов добавляемых в класс
+   * Идентификатор ресурса транзакции: список описаний атрибутов добавляемых в класс.
    * <p>
-   * Тип: {@link IStridablesList}&lt;{@link IDtoAttrInfo}&gt; список описаний атрибутов
+   * Тип: {@link IStridablesList}&lt;{@link IDtoAttrInfo}&gt; список описаний атрибутов.
    */
   TX_ADDED_ATTRS( "addedClassAttrs", E_TR_D_ADDED_ATTRS, E_TR_N_ADDED_ATTRS, IStridablesList.class ),
 
   /**
-   * Идентификатор ресурса транзакции: список описаний атрибутов удаляемых из класса
+   * Идентификатор ресурса транзакции: список описаний атрибутов удаляемых из класса.
    * <p>
-   * Тип: {@link IStridablesList}&lt;{@link IDtoAttrInfo}&gt; список описаний атрибутов
+   * Тип: {@link IStridablesList}&lt;{@link IDtoAttrInfo}&gt; список описаний атрибутов.
    */
   TX_REMOVED_ATTRS( "removedClassAttrs", E_TR_D_REMOVED_ATTRS, E_TR_N_REMOVED_ATTRS, IStridablesList.class ),
 
   /**
-   * Идентификатор ресурса транзакции: список описаний текущих данных добавляемых в класс
+   * Идентификатор ресурса транзакции: список описаний текущих данных добавляемых в класс.
    * <p>
-   * Тип: {@link IStridablesList}&lt;{@link IDtoRtdataInfo}&gt; список описаний данных
+   * Тип: {@link IStridablesList}&lt;{@link IDtoRtdataInfo}&gt; список описаний данных.
    */
   TX_ADDED_CURRDATA( "addedClassCurrdata", E_TR_D_ADDED_CURRDATA, E_TR_N_ADDED_CURRDATA, IStridablesList.class ),
 
   /**
-   * Идентификатор ресурса транзакции: список описаний текущих данных удаляемых из класса
+   * Идентификатор ресурса транзакции: список описаний текущих данных удаляемых из класса.
    * <p>
-   * Тип: {@link IStridablesList}&lt;{@link IDtoRtdataInfo}&gt; список описаний данных
+   * Тип: {@link IStridablesList}&lt;{@link IDtoRtdataInfo}&gt; список описаний данных.
    */
   TX_REMOVED_CURRDATA( "removedClassCurrdata", E_TR_D_REMOVED_CURRDATA, E_TR_N_REMOVED_CURRDATA,
       IStridablesList.class ),
 
   /**
-   * Идентификатор ресурса транзакции: список объектов меняющих реализацию хранения
+   * Идентификатор ресурса транзакции: список объектов меняющих реализацию хранения.
    * <p>
-   * Тип: {@link IList}&lt;{@link IDtoObject}&gt; список объектов
+   * Тип: {@link IList}&lt;{@link IDtoObject}&gt; список объектов.
    */
   TX_UPDATED_OBJS_BY_CHANGE_IMPL( "updatedObjsByChangeImpl", E_TR_D_UPDATED_OBJS_BY_CHANGE_IMPL,
       E_TR_N_UPDATED_OBJS_BY_CHANGE_IMPL, IList.class ),
 
   /**
-   * Идентификатор ресурса транзакции: список ПРЯМЫХ связей объектов меняющих реализацию хранения
+   * Идентификатор ресурса транзакции: список ПРЯМЫХ связей объектов меняющих реализацию хранения.
    * <p>
-   * Тип: {@link List}&lt;{@link IDtoLinkFwd}&gt; список связей
+   * Тип: {@link List}&lt;{@link IDtoLinkFwd}&gt; список связей.
    */
   TX_UPDATED_FWD_LINKS_BY_CHANGE_IMPL( "updatedFwdLinksByChangeImpl", E_TR_D_UPDATED_FWD_LINKS_BY_CHANGE_IMPL,
       E_TR_N_UPDATED_FWD_LINKS_BY_CHANGE_IMPL, List.class ),
 
   /**
-   * Идентификатор ресурса транзакции: список ОБРАТНЫХ связей объектов меняющих реализацию хранения
+   * Идентификатор ресурса транзакции: список ОБРАТНЫХ связей объектов меняющих реализацию хранения.
    * <p>
-   * Тип: {@link List}&lt;{@link IDtoLinkFwd}&gt; список связей
+   * Тип: {@link List}&lt;{@link IDtoLinkFwd}&gt; список связей.
    */
   TX_UPDATED_REV_LINKS_BY_CHANGE_IMPL( "updatedRevLinksByChangeImpl", E_TR_D_UPDATED_REV_LINKS_BY_CHANGE_IMPL,
       E_TR_N_UPDATED_REV_LINKS_BY_CHANGE_IMPL, List.class ),
 
   /**
    * Идентификатор ресурса транзакции: список идентификаторов данных блокирующих в текущей транзакции запись
-   * последовательности их значений ({@link IS5Sequence})
+   * последовательности их значений ({@link IS5Sequence}).
    * <p>
-   * Тип: {@link IListEdit}&lt;{@link Gwid}&gt; редактируемый (потокобезопасный) список идентификаторов данных
+   * Тип: {@link IListEdit}&lt;{@link Gwid}&gt; редактируемый (потокобезопасный) список идентификаторов данных.
    */
   TX_SEQUENCE_LOCKED_GWIDS( "sequenceLockedGwids", E_TR_D_SEQUENCE_LOCKED_GWIDS, E_TR_N_SEQUENCE_LOCKED_GWIDS,
       IListEdit.class ),
 
   /**
    * Идентификатор ресурса транзакции: статистика записи последовательности значений ({@link IS5Sequence}) в текущей
-   * транзакции
+   * транзакции.
    * <p>
-   * Тип: {@link S5SequenceWriteStat} статистика записи значений последовательности
+   * Тип: {@link S5SequenceWriteStat} статистика записи значений последовательности.
    */
   TX_SEQUENCE_WRITE_STAT( "sequenceWriteStat", E_TR_D_SEQUENCE_WRITE_STAT, E_TR_N_SEQUENCE_WRITE_STAT,
       IListEdit.class ),
 
   /**
-   * Идентификатор ресурса транзакции: карта событий сформированных в транзакции
+   * Идентификатор ресурса транзакции: список сообщений бекенда сформированных в транзакции.
+   * <p>
+   * Тип: {@link IListEdit}&lt;{@link GtMessage}&gt; список сформированных в транзакции.
+   */
+  TX_FIRED_BACKEND_MESSAGES( "firedBackendMessages", E_TR_D_FIRED_BACKEND_MESSAGES, E_TR_N_FIRED_BACKEND_MESSAGES,
+      IListEdit.class ),
+
+  /**
+   * Идентификатор ресурса транзакции: карта событий {@link ISkEventService} сформированных в транзакции.
    * <p>
    * Тип: {@link IMapEdit}&lt;{@link IS5FrontendRear},{@link ITimedListEdit}&lt;{@link SkEvent}&gt; карта событий
    * сформированных в транзакции <br>
@@ -144,17 +150,17 @@ public enum ES5TransactionResources
   TX_FIRED_EVENTS( "firedEvents", E_TR_D_FIRED_EVENTS, E_TR_N_FIRED_EVENTS, IMapEdit.class ),
 
   /**
-   * Идентификатор ресурса транзакции: предыдущая конфигурация поддержки расширения бекенда сохраненная в транзакции
+   * Идентификатор ресурса транзакции: предыдущая конфигурация поддержки расширения бекенда сохраненная в транзакции.
    * <p>
-   * Тип: {@link IOptionSet} предыдущая конфигурация синглетона поддержки расширения бекенда
+   * Тип: {@link IOptionSet} предыдущая конфигурация синглетона поддержки расширения бекенда.
    */
   TX_SAVE_SUPPORT_PREV_CONFIG( "saveSupportPrevConfig", E_TR_D_SAVE_SUPPORT_PREV_CONFIG,
       E_TR_N_SAVE_SUPPORT_PREV_CONFIG, IOptionSet.class ),
 
   /**
-   * Идентификатор ресурса транзакции: новая конфигурация поддержки расширения бекенда сохраненная в транзакции
+   * Идентификатор ресурса транзакции: новая конфигурация поддержки расширения бекенда сохраненная в транзакции.
    * <p>
-   * Тип: {@link IOptionSet} новая конфигурация синглетона поддержки расширения бекенда
+   * Тип: {@link IOptionSet} новая конфигурация синглетона поддержки расширения бекенда.
    */
   TX_SAVE_SUPPORT_NEW_CONFIG( "saveSupportNewConfig", E_TR_D_SAVE_SUPPORT_NEW_CONFIG, E_TR_N_SAVE_SUPPORT_NEW_CONFIG,
       IOptionSet.class ),
