@@ -152,17 +152,21 @@ public class SkCoreApi
         internalInitService( s );
       }
     } );
+
     inited = true;
+
     // process external handlers in direct order
-    for( int i = 0, n = coreApiHandlersList.size(); i < n; i++ ) {
-      ISkCoreExternalHandler h = coreApiHandlersList.get( i );
-      try {
-        h.processSkCoreInitialization( this );
+    executor.syncExec( () -> {
+      for( int i = 0, n = coreApiHandlersList.size(); i < n; i++ ) {
+        ISkCoreExternalHandler h = coreApiHandlersList.get( i );
+        try {
+          h.processSkCoreInitialization( this );
+        }
+        catch( Exception ex ) {
+          LoggerUtils.errorLogger().error( ex );
+        }
       }
-      catch( Exception ex ) {
-        LoggerUtils.errorLogger().error( ex );
-      }
-    }
+    } );
   }
 
   // ------------------------------------------------------------------------------------
