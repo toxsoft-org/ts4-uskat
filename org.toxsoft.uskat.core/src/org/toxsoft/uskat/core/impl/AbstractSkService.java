@@ -174,7 +174,9 @@ public abstract class AbstractSkService
   final public void checkThread() {
     Thread currentThread = Thread.currentThread();
     if( executor.thread() != currentThread ) {
-      throw new TsIllegalStateRtException( FMT_ERR_INVALID_THREAD_ACCESS );
+      String owner = executor.thread().getName();
+      String current = Thread.currentThread().getName();
+      throw new TsIllegalStateRtException( FMT_ERR_INVALID_THREAD_ACCESS, owner, current );
     }
   }
 
