@@ -12,6 +12,7 @@ import javax.ejb.*;
 
 import org.infinispan.*;
 import org.toxsoft.core.tslib.av.*;
+import org.toxsoft.core.tslib.av.errors.*;
 import org.toxsoft.core.tslib.av.metainfo.*;
 import org.toxsoft.core.tslib.bricks.events.msg.*;
 import org.toxsoft.core.tslib.bricks.strid.coll.*;
@@ -371,17 +372,14 @@ public class S5BackendCurrDataSingleton
         continue;
       }
       EAtomicType type = valuesTypes.get( gwid );
-      EAtomicType valueType = newValue.atomicType();
       if( type == null ) {
         ISkClassInfo classInfo = sysdescrReader.getClassInfo( gwid.classId() );
         IDtoRtdataInfo dataInfo = classInfo.rtdata().list().getByKey( gwid.propId() );
         type = dataInfo.dataType().atomicType();
         valuesTypes.put( gwid, type );
       }
-      if( newValue.isAssigned() && newValue.atomicType() != type ) {
-        // Недопустимый тип значения
-        throw new TsIllegalArgumentRtException( ERR_WRONG_VALUE_TYPE, gwid, type, valueType, newValue );
-      }
+      // Проверка типа значения
+      AvTypeCastRtException.checkCanAssign( type, newValue.atomicType() );
 
       if( !prevValue.equals( newValue ) ) {
         // Изменилось значение текущего данного
