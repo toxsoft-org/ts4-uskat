@@ -806,7 +806,7 @@ public abstract class S5BackendSequenceSupportSingleton<S extends IS5Sequence<V>
       }
       // Признак требование проводить автоматическое восстановление целостности
       final boolean autoRepair = VALIDATION_AUTO_REPAIR.getValue( configuration() ).asBool();
-      if( !autoRepair ) {
+      if( autoRepair ) {
         // При дефрагментации произошли ошибки. Разрешено автоматическое восстановление последовательностей
         repairSequences( fragmentInfos );
       }
@@ -1427,7 +1427,6 @@ public abstract class S5BackendSequenceSupportSingleton<S extends IS5Sequence<V>
     // Опции конфигурации
     IOptionSetEdit configuration = new OptionSet( configuration() );
     VALIDATION_INTERVAL.setValue( configuration, avValobj( new TimeInterval( startTime, currTime ) ) );
-    VALIDATION_REPAIR.setValue( configuration, avValobj( VALIDATION_REPAIR.getValue( configuration ) ) );
     VALIDATION_GWIDS.setValue( configuration, avValobj( ids ) );
     // Запуск операции восстановления
     validation( MSG_AUTO_VALIDATION_AUTHOR, configuration );

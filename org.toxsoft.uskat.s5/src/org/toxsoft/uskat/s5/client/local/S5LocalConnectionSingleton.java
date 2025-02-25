@@ -271,6 +271,8 @@ public class S5LocalConnectionSingleton
     // Замена на штатный исполнитель потоков
     for( String connectionName : initExecutors.keys().copyTo( new ElemArrayList<>() ) ) {
       TsThreadExecutor threadExecutor = initExecutors.getByKey( connectionName );
+      // TODO: !!! 2025-02-25 mvk при работе с шлюзами в проекте valcom появилось подозрение что executorService может
+      // подменять рабочий поток у соединения что может приводить к 'invalid thread access' в соединении.
       threadExecutor.setExecutor( executorService );
       threadExecutor.thread().setName( connectionName );
       initExecutors.removeByKey( connectionName );
