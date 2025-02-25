@@ -5,6 +5,7 @@ import org.toxsoft.core.tslib.av.temporal.*;
 import org.toxsoft.core.tslib.bricks.ctx.*;
 import org.toxsoft.core.tslib.bricks.events.msg.*;
 import org.toxsoft.core.tslib.bricks.time.*;
+import org.toxsoft.core.tslib.coll.impl.*;
 import org.toxsoft.core.tslib.coll.primtypes.*;
 import org.toxsoft.core.tslib.coll.primtypes.impl.*;
 import org.toxsoft.core.tslib.gw.gwid.*;
@@ -55,7 +56,7 @@ public class SkCoreServHistQuery
 
   @Override
   protected void doClose() {
-    for( ISkAsynchronousQuery query : openQueries.values() ) {
+    for( ISkAsynchronousQuery query : new ElemArrayList<>( openQueries.values() ) ) {
       query.close();
     }
     openQueries.clear();
