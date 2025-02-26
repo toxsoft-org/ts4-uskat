@@ -1,5 +1,6 @@
 package org.toxsoft.uskat.core.impl;
 
+import static java.lang.Long.*;
 import static org.toxsoft.uskat.core.impl.ISkResources.*;
 
 import org.toxsoft.core.tslib.av.*;
@@ -558,12 +559,15 @@ public class SkCoreServRtdata
       ITimedList<ITemporalAtomicValue> values = aValues;
       if( syncDataDeltaT > 0 ) {
         values = alignValuesBySlot( aValues, syncDataDeltaT );
+        ITimeInterval vi = aValues.getInterval();
+        long startTime = min( vi.startTime(), interval.startTime() );
+        long endTime = max( vi.endTime(), interval.endTime() );
+        interval = new TimeInterval( startTime, endTime );
       }
       for( ITemporalAtomicValue temporalValue : values ) {
         AvTypeCastRtException.checkCanAssign( atomicType, temporalValue.value().atomicType() );
       }
-
-      ba().baRtdata().writeHistData( gwid, aInterval, values );
+      ba().baRtdata().writeHistData( gwid, interval, values );
     }
 
     private static ITimedList<ITemporalAtomicValue> alignValuesBySlot( ITimedList<ITemporalAtomicValue> aValues,
