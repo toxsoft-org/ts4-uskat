@@ -241,7 +241,9 @@ public class SkCoreServRtdata
       IBaRtdata rtDataBackend = ba().baRtdata();
       for( Gwid g : cdWriteChannelsMap.keys() ) {
         SkWriteCurrDataChannel channel = cdWriteChannelsMap.getByKey( g );
-        rtDataBackend.writeCurrData( g, channel.value );
+        if( channel.value != null ) {
+          rtDataBackend.writeCurrData( g, channel.value );
+        }
       }
     }
   }
@@ -564,8 +566,8 @@ public class SkCoreServRtdata
       ba().baRtdata().writeHistData( gwid, aInterval, values );
     }
 
-    private static ITimedList<ITemporalAtomicValue> alignValuesBySlot(
-        ITimedList<ITemporalAtomicValue> aValues, long aSyncDataDeltaT ) {
+    private static ITimedList<ITemporalAtomicValue> alignValuesBySlot( ITimedList<ITemporalAtomicValue> aValues,
+        long aSyncDataDeltaT ) {
       TsNullArgumentRtException.checkNull( aValues );
       TsIllegalArgumentRtException.checkFalse( aSyncDataDeltaT > 0 );
       if( aValues.size() == 0 ) {
