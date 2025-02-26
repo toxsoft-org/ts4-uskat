@@ -9,6 +9,7 @@ import org.toxsoft.core.tslib.bricks.ctx.*;
 import org.toxsoft.core.tslib.bricks.events.*;
 import org.toxsoft.core.tslib.bricks.events.msg.*;
 import org.toxsoft.core.tslib.bricks.time.*;
+import org.toxsoft.core.tslib.bricks.time.impl.*;
 import org.toxsoft.core.tslib.coll.*;
 import org.toxsoft.core.tslib.coll.impl.*;
 import org.toxsoft.core.tslib.gw.gwid.*;
@@ -520,12 +521,14 @@ public class SkCoreServRtdata
       implements ISkWriteHistDataChannel {
 
     private final EAtomicType atomicType;
+    private final long        syncDataDeltaT;
 
     SkWriteHistDataChannel( Gwid aGwid ) {
       super( aGwid );
       ISkClassInfo cinf = sysdescr().getClassInfo( aGwid.classId() );
       IDtoRtdataInfo dinf = cinf.rtdata().list().getByKey( aGwid.propId() );
       atomicType = dinf.dataType().atomicType();
+      syncDataDeltaT = (dinf.isSync() ? dinf.syncDataDeltaT() : -1);
     }
 
     @Override
@@ -550,11 +553,46 @@ public class SkCoreServRtdata
       if( aInterval.startTime() > interval.startTime() || aInterval.endTime() < interval.endTime() ) {
         throw new TsIllegalArgumentRtException( FMT_ERR_HDW_CHANNEL_WRONG_WRITE_INTERVAL, aInterval, interval );
       }
-      for( ITemporalAtomicValue temporalValue : aValues ) {
+      ITimedList<ITemporalAtomicValue> values = aValues;
+      if( syncDataDeltaT > 0 ) {
+        values = alignValuesBySlot( aValues, syncDataDeltaT );
+      }
+      for( ITemporalAtomicValue temporalValue : values ) {
         AvTypeCastRtException.checkCanAssign( atomicType, temporalValue.value().atomicType() );
       }
-      ba().baRtdata().writeHistData( gwid, aInterval, aValues );
+
+      ba().baRtdata().writeHistData( gwid, aInterval, values );
     }
+
+    private static ITimedList<ITemporalAtomicValue> alignValuesBySlot(
+        ITimedList<ITemporalAtomicValue> aValues, long aSyncDataDeltaT ) {
+      TsNullArgumentRtException.checkNull( aValues );
+      TsIllegalArgumentRtException.checkFalse( aSyncDataDeltaT > 0 );
+      if( aValues.size() == 0 ) {
+        return aValues;
+      }
+      ITimedListEdit<ITemporalAtomicValue> retValue = new TimedList<>();
+      ITemporalAtomicValue lastValue = null;
+      for( ITemporalAtomicValue temporalValue : aValues ) {
+        ITemporalAtomicValue nextValue = alignValueBySlot( temporalValue, aSyncDataDeltaT );
+        if( lastValue != null && lastValue.timestamp() != nextValue.timestamp() ) {
+          retValue.add( lastValue );
+        }
+        lastValue = nextValue;
+      }
+      if( lastValue != null ) {
+        retValue.add( lastValue );
+      }
+      return retValue;
+    }
+  }
+
+  private static ITemporalAtomicValue alignValueBySlot( ITemporalAtomicValue aValue, long aSyncDataDeltaT ) {
+    long timestamp = (aValue.timestamp() / aSyncDataDeltaT) * aSyncDataDeltaT;
+    if( timestamp == aValue.timestamp() ) {
+      return aValue;
+    }
+    return new TemporalAtomicValue( timestamp, aValue.value() );
   }
 
   /**
