@@ -234,6 +234,17 @@ public class SkCoreServRtdata
     return true;
   }
 
+  @Override
+  protected void onBackendActiveStateChanged( boolean aIsActive ) {
+    if( aIsActive ) {
+      IBaRtdata rtDataBackend = ba().baRtdata();
+      for( Gwid g : cdWriteChannelsMap.keys() ) {
+        SkWriteCurrDataChannel channel = cdWriteChannelsMap.getByKey( g );
+        rtDataBackend.writeCurrData( g, channel.value );
+      }
+    }
+  }
+
   // ------------------------------------------------------------------------------------
   // ------------------------------------------------------------------------------------
   // ------------------------------------------------------------------------------------
