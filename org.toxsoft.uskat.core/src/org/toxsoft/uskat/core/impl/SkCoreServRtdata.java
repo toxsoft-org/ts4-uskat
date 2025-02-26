@@ -560,7 +560,7 @@ public class SkCoreServRtdata
       ITimedList<ITemporalAtomicValue> values = aValues;
       if( syncDataDeltaT > 0 ) {
         values = alignValuesBySlot( aValues, syncDataDeltaT );
-        vi = aValues.getInterval();
+        vi = values.getInterval();
         long startTime = min( vi.startTime(), interval.startTime() );
         long endTime = max( vi.endTime(), interval.endTime() );
         interval = new TimeInterval( startTime, endTime );
