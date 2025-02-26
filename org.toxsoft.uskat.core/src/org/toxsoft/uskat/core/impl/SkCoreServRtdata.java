@@ -552,14 +552,15 @@ public class SkCoreServRtdata
       checkThread();
       TsIllegalStateRtException.checkFalse( isOk() );
       TsNullArgumentRtException.checkNulls( aInterval, aValues );
-      ITimeInterval interval = aValues.getInterval();
-      if( aInterval.startTime() > interval.startTime() || aInterval.endTime() < interval.endTime() ) {
-        throw new TsIllegalArgumentRtException( FMT_ERR_HDW_CHANNEL_WRONG_WRITE_INTERVAL, aInterval, interval );
+      ITimeInterval vi = aValues.getInterval();
+      if( aInterval.startTime() > vi.startTime() || aInterval.endTime() < vi.endTime() ) {
+        throw new TsIllegalArgumentRtException( FMT_ERR_HDW_CHANNEL_WRONG_WRITE_INTERVAL, aInterval, vi );
       }
+      ITimeInterval interval = aInterval;
       ITimedList<ITemporalAtomicValue> values = aValues;
       if( syncDataDeltaT > 0 ) {
         values = alignValuesBySlot( aValues, syncDataDeltaT );
-        ITimeInterval vi = aValues.getInterval();
+        vi = aValues.getInterval();
         long startTime = min( vi.startTime(), interval.startTime() );
         long endTime = max( vi.endTime(), interval.endTime() );
         interval = new TimeInterval( startTime, endTime );
