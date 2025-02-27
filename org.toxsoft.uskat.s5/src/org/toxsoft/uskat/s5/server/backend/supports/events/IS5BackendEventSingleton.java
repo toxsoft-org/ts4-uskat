@@ -26,9 +26,9 @@ public interface IS5BackendEventSingleton
    * Предплоагается, что уж собственных подписчиков фронтед известит сам.
    *
    * @param aFrontend {@link IS5FrontendRear} frontend передающий события на обработку
-   * @param aEvents {@link ITimedList}&lt;{@link SkEvent}&gt; - упорядоченный по времени список событий
+   * @param aEvents {@link ISkEventList} список событий
    */
-  void fireEvents( IS5FrontendRear aFrontend, ITimedList<SkEvent> aEvents );
+  void fireEvents( IS5FrontendRear aFrontend, ISkEventList aEvents );
 
   /**
    * Фронтенд сгенерировал события, которые бекенд должен асинхронно раздать всем, кроме этого фронтенда.
@@ -36,9 +36,9 @@ public interface IS5BackendEventSingleton
    * Предплоагается, что уж собственных подписчиков фронтед известит сам.
    *
    * @param aFrontend {@link IS5FrontendRear} frontend передающий события на обработку
-   * @param aEvents {@link ITimedList}&lt;{@link SkEvent}&gt; - упорядоченный по времени список событий
+   * @param aEvents {@link ISkEventList} - список событий
    */
-  void fireAsyncEvents( IS5FrontendRear aFrontend, ITimedList<SkEvent> aEvents );
+  void fireAsyncEvents( IS5FrontendRear aFrontend, ISkEventList aEvents );
 
   /**
    * Запрашивает события за заданный период времени.
@@ -61,13 +61,12 @@ public interface IS5BackendEventSingleton
   /**
    * Реализация передачи сообщений в систему
    *
-   * @param aEvents {@link IMap}&lt;{@link IS5FrontendRear},{@link ITimedList}&lt;{@link SkEvent}&gt;&gt; карта
-   *          отправляемых событий. <br>
+   * @param aEvents {@link IMap}&lt;{@link IS5FrontendRear},{@link ISkEventList}&gt; карта отправляемых событий.<br>
    *          Ключ: фроненд формирующий события; <br>
    *          Значение: список формируемых событий.
    * @throws TsNullArgumentRtException аргумент = null
    */
-  void writeEventsImpl( IMap<IS5FrontendRear, ITimedList<SkEvent>> aEvents );
+  void writeEventsImpl( IMap<IS5FrontendRear, ISkEventList> aEvents );
 
   // ------------------------------------------------------------------------------------
   // Интерсепция

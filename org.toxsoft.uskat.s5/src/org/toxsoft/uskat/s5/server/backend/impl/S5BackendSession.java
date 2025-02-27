@@ -310,7 +310,7 @@ public class S5BackendSession
         params.setStr( ISkServer.EVPID_LOGIN, login );
         params.setStr( ISkServer.EVPID_IP, remoteAddress.asString() );
         SkEvent event = new SkEvent( startTime, eventGwid, params );
-        eventBackend.fireAsyncEvents( IS5FrontendRear.NULL, new TimedList<>( event ) );
+        eventBackend.fireAsyncEvents( IS5FrontendRear.NULL, new SkEventList( event ) );
         throw new S5AccessDeniedException( ERR_WRONG_USER );
       }
       // Флаг активности учетной записи пользователя
@@ -324,7 +324,7 @@ public class S5BackendSession
         params.setStr( ISkServer.EVPID_LOGIN, login );
         params.setStr( ISkServer.EVPID_IP, remoteAddress.asString() );
         SkEvent event = new SkEvent( startTime, eventGwid, params );
-        eventBackend.fireAsyncEvents( IS5FrontendRear.NULL, new TimedList<>( event ) );
+        eventBackend.fireAsyncEvents( IS5FrontendRear.NULL, new SkEventList( event ) );
         throw new S5AccessDeniedException( ERR_WRONG_USER );
       }
       // 2021-09-18 mvkd требуется отсекать "старых" клиентов
@@ -477,7 +477,8 @@ public class S5BackendSession
       // Сохранение топологии в ISkSession
       IDtoObject obj = objectsBackend.findObject( sessionID );
       IOptionSetEdit attrs = new OptionSet( obj.attrs() );
-      IOptionSetEdit backendSpecificParams = new OptionSet( attrs.getValobj( ISkSession.ATRID_BACKEND_SPECIFIC_PARAMS ) );
+      IOptionSetEdit backendSpecificParams =
+          new OptionSet( attrs.getValobj( ISkSession.ATRID_BACKEND_SPECIFIC_PARAMS ) );
       OP_SESSION_CLUSTER_TOPOLOGY.setValue( backendSpecificParams, avValobj( aClusterTopology ) );
       attrs.setValobj( ISkSession.ATRID_BACKEND_SPECIFIC_PARAMS, backendSpecificParams );
       IDtoObject dpu = new DtoObject( sessionID, attrs, obj.rivets().map() );

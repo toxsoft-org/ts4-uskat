@@ -20,7 +20,6 @@ import org.toxsoft.core.tslib.av.*;
 import org.toxsoft.core.tslib.av.opset.*;
 import org.toxsoft.core.tslib.av.opset.impl.*;
 import org.toxsoft.core.tslib.bricks.strid.idgen.*;
-import org.toxsoft.core.tslib.bricks.time.impl.*;
 import org.toxsoft.core.tslib.coll.*;
 import org.toxsoft.core.tslib.coll.impl.*;
 import org.toxsoft.core.tslib.coll.primtypes.*;
@@ -39,6 +38,7 @@ import org.toxsoft.uskat.core.api.objserv.*;
 import org.toxsoft.uskat.core.api.sysdescr.*;
 import org.toxsoft.uskat.core.api.users.*;
 import org.toxsoft.uskat.core.backend.api.*;
+import org.toxsoft.uskat.core.impl.*;
 import org.toxsoft.uskat.core.impl.dto.*;
 import org.toxsoft.uskat.s5.client.*;
 import org.toxsoft.uskat.s5.common.info.*;
@@ -434,7 +434,7 @@ public class S5SessionManager
       params.setStr( ISkServer.EVPID_IP, aSession.info().remoteAddress() );
       params.setValobj( ISkServer.EVPID_SESSION_ID, sessionID );
       SkEvent event = new SkEvent( createTime, eventGwid, params );
-      eventSupport.fireEvents( frontend, new TimedList<>( event ) );
+      eventSupport.fireEvents( frontend, new SkEventList( event ) );
 
       return (prevSession == null);
     }
@@ -517,7 +517,7 @@ public class S5SessionManager
         params.setStr( ISkServer.EVPID_IP, session.info().remoteAddress() );
         params.setValobj( ISkServer.EVPID_SESSION_ID, sessionID );
         SkEvent event = new SkEvent( endTime, eventGwid, params );
-        eventSupport.fireEvents( IS5FrontendRear.NULL, new TimedList<>( event ) );
+        eventSupport.fireEvents( IS5FrontendRear.NULL, new SkEventList( event ) );
 
         callAfterCloseSession( interceptors, sessionID, logger() );
       }

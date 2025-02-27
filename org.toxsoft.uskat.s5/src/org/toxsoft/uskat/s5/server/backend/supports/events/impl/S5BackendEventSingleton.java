@@ -105,13 +105,13 @@ public class S5BackendEventSingleton
   //
   @Override
   @TransactionAttribute( TransactionAttributeType.REQUIRED )
-  public void fireEvents( IS5FrontendRear aFrontend, ITimedList<SkEvent> aEvents ) {
+  public void fireEvents( IS5FrontendRear aFrontend, ISkEventList aEvents ) {
     TsNullArgumentRtException.checkNulls( aFrontend, aEvents );
     // Текущая транзакция
     IS5Transaction tx = transactionManager().findTransaction();
     if( tx == null ) {
       // Нет транзакции, немедленная отправка сообщений
-      IMapEdit<IS5FrontendRear, ITimedList<SkEvent>> events = new ElemMap<>();
+      IMapEdit<IS5FrontendRear, ISkEventList> events = new ElemMap<>();
       events.put( aFrontend, aEvents );
       writeEventsImpl( events );
       return;
@@ -137,7 +137,7 @@ public class S5BackendEventSingleton
 
   @Override
   @Asynchronous
-  public void fireAsyncEvents( IS5FrontendRear aFrontend, ITimedList<SkEvent> aEvents ) {
+  public void fireAsyncEvents( IS5FrontendRear aFrontend, ISkEventList aEvents ) {
     fireEvents( aFrontend, aEvents );
   }
 
@@ -214,7 +214,7 @@ public class S5BackendEventSingleton
 
   @Override
   @Asynchronous
-  public void writeEventsImpl( IMap<IS5FrontendRear, ITimedList<SkEvent>> aEvents ) {
+  public void writeEventsImpl( IMap<IS5FrontendRear, ISkEventList> aEvents ) {
     TsNullArgumentRtException.checkNull( aEvents );
     if( aEvents.size() == 0 ) {
       return;
@@ -223,7 +223,7 @@ public class S5BackendEventSingleton
     for( IS5FrontendRear fireRaiser : aEvents.keys() ) {
       try {
         // Список событий для передачи frontend
-        ITimedList<SkEvent> events = aEvents.getByKey( fireRaiser );
+        ISkEventList events = aEvents.getByKey( fireRaiser );
 
         // Пред-вызов интерсепторов
         if( !callBeforeWriteEvents( interceptors, events ) ) {
@@ -286,7 +286,7 @@ public class S5BackendEventSingleton
       case PREPARED:
         break;
       case COMMITED:
-        IMap<IS5FrontendRear, ITimedList<SkEvent>> txEvents = aTransaction.findResource( TX_FIRED_EVENTS );
+        IMap<IS5FrontendRear, ISkEventList> txEvents = aTransaction.findResource( TX_FIRED_EVENTS );
         if( txEvents == null ) {
           // В транзакции нет событий
           return;

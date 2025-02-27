@@ -35,17 +35,17 @@ public interface IS5EventInterceptor
    * Идентификатором события может быть только конкретный (с идентификатором объекта) {@link Gwid}-ы имеющий вид
    * {@link EGwidKind#GW_EVENT}. Все другие идентификаторы молча игнорируются.
    *
-   * @param aEvents {@link ITimedList}&lt;{@link SkEvent}&gt; события.
+   * @param aEvents {@link ISkEventList} события.
    * @return boolean <b>true</b> разрешить дальнейшее выполнение операции;<b>false</b> отменить выполнение операции.
    * @throws TsNullArgumentRtException аргумент = null
    */
-  boolean beforeWriteEvents( ITimedList<SkEvent> aEvents );
+  boolean beforeWriteEvents( ISkEventList aEvents );
 
   /**
    * Вызывается ПОСЛЕ записи событий в систему, но ДО завершения транзакции.
    * <p>
    * Событие формируется в открытой транзакции, но все попытки ее отмены (через поднятие исключения в
-   * {@link #afterWriteEvents(ITimedList)}) будут игнорироваться.
+   * {@link #afterWriteEvents(ISkEventList)}) будут игнорироваться.
    * <p>
    * Внимание: большое значение имеет интервал времени за который записываются значения: aEvents.left() -
    * {@link ITimeInterval} . Метод предполагает, что в аргументе за заданный интервал содержатся <b>все</b> события.
@@ -57,13 +57,13 @@ public interface IS5EventInterceptor
    * @param aEvents {@link ITimedList}&lt;{@link SkEvent}&gt; события.
    * @throws TsNullArgumentRtException аргумент = null
    */
-  void afterWriteEvents( ITimedList<SkEvent> aEvents );
+  void afterWriteEvents( ISkEventList aEvents );
 
   // ------------------------------------------------------------------------------------
   // Вспомогательные методы
   //
   /**
-   * Вызов перехватчиков операции {@link IS5EventInterceptor#beforeWriteEvents(ITimedList)}
+   * Вызов перехватчиков операции {@link IS5EventInterceptor#beforeWriteEvents(ISkEventList)}
    *
    * @param aInterceptorSupport {@link S5InterceptorSupport}&lt;{@link IS5EventInterceptor}&gt; поддержка перехватчиков
    * @param aEvents {@link ITimedList}&lt;{@link SkEvent}&gt; события.
@@ -71,7 +71,7 @@ public interface IS5EventInterceptor
    * @throws TsNullArgumentRtException любой аргумент = null
    */
   static boolean callBeforeWriteEvents( S5InterceptorSupport<IS5EventInterceptor> aInterceptorSupport,
-      ITimedList<SkEvent> aEvents ) {
+      ISkEventList aEvents ) {
     TsNullArgumentRtException.checkNulls( aInterceptorSupport, aEvents );
     for( IS5EventInterceptor interceptor : aInterceptorSupport.interceptors() ) {
       if( !interceptor.beforeWriteEvents( aEvents ) ) {
@@ -82,15 +82,15 @@ public interface IS5EventInterceptor
   }
 
   /**
-   * Вызов перехватчиков операции {@link IS5EventInterceptor#afterWriteEvents(ITimedList)}
+   * Вызов перехватчиков операции {@link IS5EventInterceptor#afterWriteEvents(ISkEventList)}
    *
    * @param aInterceptorSupport {@link S5InterceptorSupport}&lt;{@link IS5EventInterceptor}&gt; поддержка перехватчиков
    * @param aEvents {@link ITimedList}&lt;{@link SkEvent}&gt; события.
    * @param aLogger {@link ILogger} журнал работы
    * @throws TsNullArgumentRtException любой аргумент = null
    */
-  static void callAfterWriteEvents( S5InterceptorSupport<IS5EventInterceptor> aInterceptorSupport,
-      ITimedList<SkEvent> aEvents, ILogger aLogger ) {
+  static void callAfterWriteEvents( S5InterceptorSupport<IS5EventInterceptor> aInterceptorSupport, ISkEventList aEvents,
+      ILogger aLogger ) {
     TsNullArgumentRtException.checkNulls( aInterceptorSupport, aEvents, aLogger );
     for( IS5EventInterceptor interceptor : aInterceptorSupport.interceptors() ) {
       try {
