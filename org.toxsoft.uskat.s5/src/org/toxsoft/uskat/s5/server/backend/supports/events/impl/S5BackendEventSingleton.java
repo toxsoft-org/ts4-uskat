@@ -128,7 +128,7 @@ public class S5BackendEventSingleton
     ITimedListEdit<SkEvent> frontendEvents = txEvents.findByKey( aFrontend );
     if( frontendEvents == null ) {
       // frontend еще не передавал события в транзакции. Создаем список событий
-      frontendEvents = new TimedList<>();
+      frontendEvents = new SkEventList();
       txEvents.put( aFrontend, frontendEvents );
     }
     // Размещение события в списке событий
