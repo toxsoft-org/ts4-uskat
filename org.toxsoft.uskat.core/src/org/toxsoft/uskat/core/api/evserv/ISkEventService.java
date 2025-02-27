@@ -40,7 +40,7 @@ public interface ISkEventService
    * @throws TsItemNotFoundRtException no such event is defined
    * @throws TsIllegalArgumentRtException invalid event parameter
    */
-  void fireEvents( IList<SkEvent> aEvents );
+  void fireEvents( ISkEventList aEvents );
 
   /**
    * Registers a handler, that is, subscribes to events of interest.

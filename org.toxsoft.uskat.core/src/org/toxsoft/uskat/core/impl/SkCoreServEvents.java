@@ -156,7 +156,7 @@ public class SkCoreServEvents
   }
 
   @Override
-  public void fireEvents( IList<SkEvent> aEvents ) {
+  public void fireEvents( ISkEventList aEvents ) {
     TsNullArgumentRtException.checkNull( aEvents );
     SkEventList events = new SkEventList();
     events.addAll( aEvents );

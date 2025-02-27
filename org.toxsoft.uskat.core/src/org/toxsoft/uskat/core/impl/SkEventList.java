@@ -3,6 +3,7 @@ package org.toxsoft.uskat.core.impl;
 import org.toxsoft.core.tslib.bricks.keeper.*;
 import org.toxsoft.core.tslib.bricks.keeper.AbstractEntityKeeper.*;
 import org.toxsoft.core.tslib.bricks.strio.*;
+import org.toxsoft.core.tslib.bricks.time.*;
 import org.toxsoft.core.tslib.bricks.time.impl.*;
 import org.toxsoft.core.tslib.utils.errors.*;
 import org.toxsoft.uskat.core.api.evserv.*;
@@ -11,6 +12,7 @@ import org.toxsoft.uskat.core.api.evserv.*;
  * {@link ISkEventList} editable implementation.
  *
  * @author hazard157
+ * @author mvk
  */
 public class SkEventList
     extends TimedList<SkEvent>
@@ -89,4 +91,65 @@ public class SkEventList
     this();
     setAll( aElems );
   }
+
+  // ------------------------------------------------------------------------------------
+  // TimedList override
+  //
+
+  @Override
+  public SkEventList selectInterval( ITimeInterval aTimeInterval ) {
+    TsNullArgumentRtException.checkNull( aTimeInterval );
+    SkEventList ll = new SkEventList();
+    if( isEmpty() ) {
+      return ll;
+    }
+    int index1 = findFirstOrAfter( aTimeInterval.startTime() );
+    int index2 = findLastOrBefore( aTimeInterval.endTime() );
+    for( int i = index1; i <= index2; i++ ) {
+      ll.add( get( i ) );
+    }
+    return ll;
+  }
+
+  @Override
+  public SkEventList selectExtendedInterval( ITimeInterval aTimeInterval ) {
+    TsNullArgumentRtException.checkNull( aTimeInterval );
+    SkEventList ll = new SkEventList();
+    if( isEmpty() ) {
+      return ll;
+    }
+    int index1 = findFirstOrBefore( aTimeInterval.startTime() );
+    int index2 = findLastOrAfter( aTimeInterval.endTime() );
+    for( int i = index1; i <= index2; i++ ) {
+      ll.add( get( i ) );
+    }
+    return ll;
+  }
+
+  @Override
+  public SkEventList selectAfter( long aTimestamp ) {
+    SkEventList ll = new SkEventList();
+    if( isEmpty() ) {
+      return ll;
+    }
+    int index = findFirstOrAfter( aTimestamp );
+    for( int i = index, count = size(); i < count; i++ ) {
+      ll.add( get( i ) );
+    }
+    return ll;
+  }
+
+  @Override
+  public SkEventList selectBefore( long aTimestamp ) {
+    SkEventList ll = new SkEventList();
+    if( isEmpty() ) {
+      return ll;
+    }
+    int index = findLastOrBefore( aTimestamp );
+    for( int i = 0; i <= index; i++ ) {
+      ll.add( get( i ) );
+    }
+    return ll;
+  }
+
 }
