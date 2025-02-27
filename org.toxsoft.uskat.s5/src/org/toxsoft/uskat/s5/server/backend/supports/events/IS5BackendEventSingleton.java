@@ -1,16 +1,15 @@
 package org.toxsoft.uskat.s5.server.backend.supports.events;
 
-import javax.ejb.Local;
+import javax.ejb.*;
 
-import org.toxsoft.core.tslib.bricks.time.ITimeInterval;
-import org.toxsoft.core.tslib.bricks.time.ITimedList;
-import org.toxsoft.core.tslib.coll.IMap;
+import org.toxsoft.core.tslib.bricks.time.*;
+import org.toxsoft.core.tslib.coll.*;
 import org.toxsoft.core.tslib.gw.gwid.*;
-import org.toxsoft.core.tslib.utils.errors.TsNullArgumentRtException;
-import org.toxsoft.uskat.core.api.evserv.SkEvent;
-import org.toxsoft.uskat.s5.server.backend.supports.events.sequences.IS5EventSequence;
-import org.toxsoft.uskat.s5.server.frontend.IS5FrontendRear;
-import org.toxsoft.uskat.s5.server.sequences.IS5BackendSequenceSupportSingleton;
+import org.toxsoft.core.tslib.utils.errors.*;
+import org.toxsoft.uskat.core.api.evserv.*;
+import org.toxsoft.uskat.s5.server.backend.supports.events.sequences.*;
+import org.toxsoft.uskat.s5.server.frontend.*;
+import org.toxsoft.uskat.s5.server.sequences.*;
 
 /**
  * Локальный интерфейс синглетона событий предоставляемый s5-сервером.
@@ -69,4 +68,28 @@ public interface IS5BackendEventSingleton
    * @throws TsNullArgumentRtException аргумент = null
    */
   void writeEventsImpl( IMap<IS5FrontendRear, ITimedList<SkEvent>> aEvents );
+
+  // ------------------------------------------------------------------------------------
+  // Интерсепция
+  //
+  /**
+   * Добавляет перехватчика операций проводимых над событиями.
+   * <p>
+   * Если такой перехватчик уже зарегистрирован, то обновляет его приоритет.
+   *
+   * @param aInterceptor {@link IS5EventInterceptor } перехватчик операций
+   * @param aPriority int приоритет перехватчика. Чем меньше значение, тем выше приоритет.
+   * @throws TsNullArgumentRtException аргумент = null
+   */
+  void addEventInterceptor( IS5EventInterceptor aInterceptor, int aPriority );
+
+  /**
+   * Удаляет перехватчика операций проводимых над событиями.
+   * <p>
+   * Если такой перехватчик не зарегистрирован, то метод ничего не делает.
+   *
+   * @param aInterceptor {@link IS5EventInterceptor } перехватчик операций
+   * @throws TsNullArgumentRtException аргумент = null
+   */
+  void removeEventInterceptor( IS5EventInterceptor aInterceptor );
 }

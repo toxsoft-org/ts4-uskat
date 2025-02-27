@@ -4,6 +4,7 @@ import static org.toxsoft.uskat.s5.common.IS5CommonResources.*;
 import static org.toxsoft.uskat.s5.legacy.SkGwidUtils.*;
 import static org.toxsoft.uskat.s5.server.IS5ImplementConstants.*;
 import static org.toxsoft.uskat.s5.server.backend.addons.events.S5BaEventsUtils.*;
+import static org.toxsoft.uskat.s5.server.backend.supports.events.IS5EventInterceptor.*;
 import static org.toxsoft.uskat.s5.server.backend.supports.events.impl.IS5Resources.*;
 import static org.toxsoft.uskat.s5.server.transactions.ES5TransactionResources.*;
 
@@ -32,6 +33,7 @@ import org.toxsoft.uskat.s5.server.backend.addons.events.*;
 import org.toxsoft.uskat.s5.server.backend.supports.events.*;
 import org.toxsoft.uskat.s5.server.backend.supports.events.sequences.*;
 import org.toxsoft.uskat.s5.server.frontend.*;
+import org.toxsoft.uskat.s5.server.interceptors.*;
 import org.toxsoft.uskat.s5.server.sequences.*;
 import org.toxsoft.uskat.s5.server.sequences.impl.*;
 import org.toxsoft.uskat.s5.server.transactions.*;
@@ -69,6 +71,11 @@ public class S5BackendEventSingleton
    * Интервал выполнения doJob (мсек)
    */
   private static final long DOJOB_INTERVAL = 1000;
+
+  /**
+   * Поддержка интерсепторов операций проводимых над событиями.
+   */
+  private final S5InterceptorSupport<IS5EventInterceptor> interceptors = new S5InterceptorSupport<>();
 
   /**
    * Конструктор.
@@ -218,6 +225,13 @@ public class S5BackendEventSingleton
         // Список событий для передачи frontend
         ITimedList<SkEvent> events = aEvents.getByKey( fireRaiser );
 
+        // Пред-вызов интерсепторов
+        if( !callBeforeWriteEvents( interceptors, events ) ) {
+          // Интерсепторы отклонили запись событий
+          logger().debug( MSG_REJECT_EVENTS_WRITE_BY_INTERCEPTORS );
+          continue;
+        }
+
         if( logger().isSeverityOn( ELogSeverity.INFO ) ) {
           StringBuilder sb = new StringBuilder();
           for( SkEvent event : events ) {
@@ -226,7 +240,6 @@ public class S5BackendEventSingleton
           }
           logger().info( "writeEventsImpl(...): fireEvents(...): %s", sb.toString() ); //$NON-NLS-1$
         }
-
         // Формирование последовательностей событий по объектам
         IList<IS5EventSequence> sequences = createEventSequences( factory(), events );
         // Cохранение событий в базе данных
@@ -253,6 +266,9 @@ public class S5BackendEventSingleton
             logger().error( e, MSG_ERR_ON_EVENTS, events2str( frontendEvents ), cause( e ) );
           }
         }
+
+        // Пост-вызов интерсепторов
+        callAfterWriteEvents( interceptors, events, logger() );
       }
       catch( Throwable e ) {
         logger().error( e );
@@ -357,6 +373,18 @@ public class S5BackendEventSingleton
         factory.removeTypeInfo( Gwid.createObj( obj.classId(), obj.strid() ) );
       }
     }
+  }
+
+  @Override
+  public void addEventInterceptor( IS5EventInterceptor aInterceptor, int aPriority ) {
+    TsNullArgumentRtException.checkNulls( aInterceptor );
+    interceptors.add( aInterceptor, aPriority );
+  }
+
+  @Override
+  public void removeEventInterceptor( IS5EventInterceptor aInterceptor ) {
+    TsNullArgumentRtException.checkNulls( aInterceptor );
+    interceptors.remove( aInterceptor );
   }
 
   // ------------------------------------------------------------------------------------
