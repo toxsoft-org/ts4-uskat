@@ -68,6 +68,18 @@ public class SkEventList
   }
 
   /**
+   * Constructor.
+   * <p>
+   * Create a list with a specified capacity.
+   *
+   * @param aBundleCapacity int - number of elements in bundle
+   * @throws TsIllegalArgumentRtException aBundleCapacity is out of range
+   */
+  public SkEventList( int aBundleCapacity ) {
+    super( aBundleCapacity );
+  }
+
+  /**
    * Constructor with initialization by array events.
    *
    * @param aElems &lt;SkEvent&gt;[] - specified array
@@ -77,5 +89,4 @@ public class SkEventList
     this();
     setAll( aElems );
   }
-
 }
