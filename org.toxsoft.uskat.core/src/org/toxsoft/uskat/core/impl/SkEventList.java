@@ -4,6 +4,7 @@ import org.toxsoft.core.tslib.bricks.keeper.*;
 import org.toxsoft.core.tslib.bricks.keeper.AbstractEntityKeeper.*;
 import org.toxsoft.core.tslib.bricks.strio.*;
 import org.toxsoft.core.tslib.bricks.time.impl.*;
+import org.toxsoft.core.tslib.utils.errors.*;
 import org.toxsoft.uskat.core.api.evserv.*;
 
 /**
@@ -64,7 +65,17 @@ public class SkEventList
    * Constructor.
    */
   public SkEventList() {
-    super();
+  }
+
+  /**
+   * Constructor with initialization by array events.
+   *
+   * @param aElems &lt;SkEvent&gt;[] - specified array
+   * @throws TsNullArgumentRtException argument or any it's element = <code>null</code>
+   */
+  public SkEventList( SkEvent... aElems ) {
+    this();
+    setAll( aElems );
   }
 
 }
