@@ -261,8 +261,12 @@ public class S5BackendCurrDataSingleton
     }
 
     // Планирование передачи текущих значений для вновь подписанных данных
-    if( addRtdGwids.size() > 0 ) {
-      IMap<Gwid, IAtomicValue> values = readValues( addRtdGwids );
+    // 2025-02-28 mvk: ---+++ valcom попытка оптимизировать приводит к тому, что возможна ситуация, что клиент может не
+    // получить требуемые им значения. Точная причина этого пока не определена
+    // if( addRtdGwids.size() > 0 ) {
+    // IMap<Gwid, IAtomicValue> values = readValues( addRtdGwids );
+    if( aRtdGwids.size() > 0 ) {
+      IMap<Gwid, IAtomicValue> values = readValues( aRtdGwids );
       aFrontend.onBackendMessage( BaMsgRtdataCurrData.INSTANCE.makeMessage( values ) );
     }
   }
@@ -356,7 +360,6 @@ public class S5BackendCurrDataSingleton
   @Override
   public void writeValues( IS5FrontendRear aFrontend, IMap<Gwid, IAtomicValue> aValues ) {
     TsNullArgumentRtException.checkNulls( aFrontend, aValues );
-
     // Текущее время трассировки
     long traceTime0 = System.currentTimeMillis();
 
@@ -398,6 +401,7 @@ public class S5BackendCurrDataSingleton
       logger().info( MSG_REJECT_CURRDATA_WRITE_BY_INTERCEPTORS );
       return;
     }
+
     // Запись значений в кэш
     valuesCache.putAll( newCachedValues );
 
