@@ -24,7 +24,7 @@ interface IS5Resources {
   String STR_D_BACKEND_SERVER_ID = "Идентификатор сервера, объекта {@link ISkServer}"; //$NON-NLS-1$
 
   String STR_N_BACKEND_NODE_ID = "Узел";                                                       //$NON-NLS-1$
-  String STR_D_BACKEND_NODE_ID = "Идентификатор узла сервера, объекта {@link ISkClusterNode}"; //$NON-NLS-1$
+  String STR_D_BACKEND_NODE_ID = "Идентификатор узла сервера, объекта {@link ISkServerNode}"; //$NON-NLS-1$
 
   String STR_N_BACKEND_VERSION = Messages.getString( "IS5Resources.STR_N_BACKEND_VERSION" ); //$NON-NLS-1$
   String STR_D_BACKEND_VERSION = Messages.getString( "IS5Resources.STR_D_BACKEND_VERSION" ); //$NON-NLS-1$

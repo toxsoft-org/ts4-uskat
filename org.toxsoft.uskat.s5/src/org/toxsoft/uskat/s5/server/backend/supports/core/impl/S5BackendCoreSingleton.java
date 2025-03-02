@@ -200,7 +200,7 @@ public class S5BackendCoreSingleton
   private ISkConnection sharedConnection;
 
   /**
-   * Писатель статитистики объекта {@link ISkClusterNode}. null: нет соединения
+   * Писатель статитистики объекта {@link ISkServerNode}. null: нет соединения
    */
   private S5StatisticWriter statisticWriter;
 

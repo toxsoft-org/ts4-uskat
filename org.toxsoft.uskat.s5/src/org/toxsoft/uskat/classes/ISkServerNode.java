@@ -3,12 +3,12 @@ package org.toxsoft.uskat.classes;
 import org.toxsoft.uskat.core.*;
 
 /**
- * Класс: узел кластера сервера.
+ * Класс: узел сервера(кластера).
  *
  * @author mvk
  */
 @SuppressWarnings( "nls" )
-public interface ISkClusterNode
+public interface ISkServerNode
     extends ISkNetNode {
 
   /**

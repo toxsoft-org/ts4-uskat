@@ -69,13 +69,13 @@ interface IS5Resources {
   String STR_EV_SYSDESCR_CHANGED_D = "Изменено системное описание сервера"; //
 
   /**
-   * {@link ISkClusterNode}
+   * {@link ISkServerNode}
    */
-  String STR_CLASS_CLUSTERNODE   = "ServerNode";
-  String STR_CLASS_CLUSTERNODE_D = "Узел кластера сервера";
+  String STR_CLASS_SERVERNODE   = "ServerNode";
+  String STR_CLASS_SERVERNODE_D = "Узел сервера/кластера";
 
-  String STR_LNKID_CLUSTERNODE_SERVER   = "Сервер";
-  String STR_LNKID_CLUSTERNODE_SERVER_D = "Сервер/кластер в рамках которого работает узел кластера";
+  String STR_LNKID_SERVERNODE_SERVER   = "Сервер";
+  String STR_LNKID_SERVERNODE_SERVER_D = "Сервер/кластер в рамках которого работает узел кластера";
 
   /**
    * {@link ISkServerBackend}

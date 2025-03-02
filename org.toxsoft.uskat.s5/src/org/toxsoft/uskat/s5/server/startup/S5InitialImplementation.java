@@ -72,7 +72,7 @@ public abstract class S5InitialImplementation
     params.setStr( TSID_DESCRIPTION, aModule.description() );
 
     Skid serverId = new Skid( ISkServer.CLASS_ID, aServerId );
-    Skid nodeId = new Skid( ISkClusterNode.CLASS_ID, aNodeId );
+    Skid nodeId = new Skid( ISkServerNode.CLASS_ID, aNodeId );
     OP_SERVER_ID.setValue( params, avValobj( serverId ) );
     OP_SERVER_NODE_ID.setValue( params, avValobj( nodeId ) );
     OP_BACKEND_VERSION.setValue( params, avValobj( version ) );

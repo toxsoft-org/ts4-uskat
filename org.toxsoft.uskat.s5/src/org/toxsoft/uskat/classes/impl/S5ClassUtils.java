@@ -65,8 +65,8 @@ public class S5ClassUtils {
     dtoInfos.add( internalCreateNetNodeClassDto() );
     // ISkServer
     dtoInfos.add( internalCreateServerClassDto() );
-    // ISkClusterNode
-    dtoInfos.add( internalCreateServerClusterNodeClassDto() );
+    // ISkServerNode
+    dtoInfos.add( internalCreateServerNodeClassDto() );
     // ISkServerBackend
     dtoInfos.add( internalCreateServerBackendClassDto() );
     // ISkServerHistorable
@@ -109,7 +109,7 @@ public class S5ClassUtils {
       // aInterceptable = true
       aObjectsSupport.writeObjects( IS5FrontendRear.NULL, ISkidList.EMPTY, new ElemArrayList<>( node ), true );
       // Установка связи
-      Gwid linkGwid = Gwid.createLink( ISkClusterNode.CLASS_ID, ISkClusterNode.LNKID_SERVER );
+      Gwid linkGwid = Gwid.createLink( ISkServerNode.CLASS_ID, ISkServerNode.LNKID_SERVER );
       IDtoLinkFwd linkFwd = new DtoLinkFwd( linkGwid, nodeId, new SkidList( serverId ) );
       aLinksSupport.writeLinksFwd( new ElemArrayList<>( linkFwd ) );
     }
@@ -284,24 +284,24 @@ public class S5ClassUtils {
     return retValue;
   }
 
-  private static IDtoClassInfo internalCreateServerClusterNodeClassDto() {
+  private static IDtoClassInfo internalCreateServerNodeClassDto() {
     DtoClassInfo retValue = new DtoClassInfo( //
-        ISkClusterNode.CLASS_ID, //
+        ISkServerNode.CLASS_ID, //
         ISkNetNode.CLASS_ID, //
         OptionSetUtils.createOpSet( //
-            DDEF_NAME, STR_CLASS_CLUSTERNODE, //
-            DDEF_DESCRIPTION, STR_CLASS_CLUSTERNODE_D, //
+            DDEF_NAME, STR_CLASS_SERVERNODE, //
+            DDEF_DESCRIPTION, STR_CLASS_SERVERNODE_D, //
             OPDEF_SK_IS_SOURCE_CODE_DEFINED_CLASS, AV_TRUE, //
             OPDEF_SK_IS_SOURCE_USKAT_CORE_CLASS, AV_FALSE //
         ) );
     retValue.linkInfos().addAll( //
         DtoLinkInfo.create1( //
-            ISkClusterNode.LNKID_SERVER, //
+            ISkServerNode.LNKID_SERVER, //
             new SingleStringList( ISkServer.CLASS_ID ), //
             new CollConstraint( 1, true, true, true ), //
             OptionSetUtils.createOpSet( //
-                DDEF_NAME, STR_LNKID_CLUSTERNODE_SERVER, //
-                DDEF_DESCRIPTION, STR_LNKID_CLUSTERNODE_SERVER_D ) ) //
+                DDEF_NAME, STR_LNKID_SERVERNODE_SERVER, //
+                DDEF_DESCRIPTION, STR_LNKID_SERVERNODE_SERVER_D ) ) //
     );
     retValue.rtdataInfos().addAll( listStatRtdInfos( IS5ServerHardConstants.STAT_BACKEND_NODE_PARAMS ) );
     return retValue;
@@ -320,7 +320,7 @@ public class S5ClassUtils {
     retValue.linkInfos().addAll( //
         DtoLinkInfo.create1( //
             ISkServerBackend.LNKID_NODE, //
-            new SingleStringList( ISkClusterNode.CLASS_ID ), //
+            new SingleStringList( ISkServerNode.CLASS_ID ), //
             new CollConstraint( 1, true, true, true ), //
             OptionSetUtils.createOpSet( //
                 DDEF_NAME, STR_LNKID_SERVERBACKEND_NODE, //
