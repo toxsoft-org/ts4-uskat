@@ -133,7 +133,7 @@ public class SkVirtDataCurrDataReader
    * @throws TsNullArgumentRtException argument = null.
    * @throws TsItemNotFoundRtException read channel does not exist.
    */
-  protected final int getInt( Gwid aGwid ) {
+  public final int getInt( Gwid aGwid ) {
     TsNullArgumentRtException.checkNull( aGwid );
     return readChannels.getByKey( aGwid ).getValue().asInt();
   }
