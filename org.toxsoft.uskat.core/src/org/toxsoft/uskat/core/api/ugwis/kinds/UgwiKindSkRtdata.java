@@ -72,14 +72,14 @@ public class UgwiKindSkRtdata
     }
 
     @Override
-    public IAtomicValue doFindContent( Ugwi aUgwi ) {
+    public synchronized IAtomicValue doFindContent( Ugwi aUgwi ) {
       coreApi().rtdService().eventer().addListener( this );
       IMap<Gwid, ISkReadCurrDataChannel> chMap =
           coreApi().rtdService().createReadCurrDataChannels( new GwidList( getGwid( aUgwi ) ) );
       ISkReadCurrDataChannel channel = chMap.values().first(); // open channel or null
       try {
         // wait until get notification of current data
-        Thread.currentThread().wait();
+        wait();
       }
       catch( InterruptedException ex ) {
         LoggerUtils.errorLogger().error( ex );
@@ -133,9 +133,9 @@ public class UgwiKindSkRtdata
     }
 
     @Override
-    public void onCurrData( IMap<Gwid, IAtomicValue> aNewValues ) {
+    public synchronized void onCurrData( IMap<Gwid, IAtomicValue> aNewValues ) {
       actualValues = aNewValues;
-      Thread.currentThread().notifyAll();
+      notify();
     }
 
   }
