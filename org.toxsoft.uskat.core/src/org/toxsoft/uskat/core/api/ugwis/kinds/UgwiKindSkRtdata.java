@@ -16,7 +16,6 @@ import org.toxsoft.core.tslib.gw.gwid.*;
 import org.toxsoft.core.tslib.gw.skid.*;
 import org.toxsoft.core.tslib.gw.ugwi.*;
 import org.toxsoft.core.tslib.utils.errors.*;
-import org.toxsoft.core.tslib.utils.logs.impl.*;
 import org.toxsoft.uskat.core.*;
 import org.toxsoft.uskat.core.api.objserv.*;
 import org.toxsoft.uskat.core.api.rtdserv.*;
@@ -62,35 +61,21 @@ public class UgwiKindSkRtdata
    * @author dima
    */
   public static class Kind
-      extends AbstractSkUgwiKind<IAtomicValue>
-      implements ISkCurrDataChangeListener {
-
-    private IMap<Gwid, IAtomicValue> actualValues;
+      extends AbstractSkUgwiKind<IAtomicValue> {
 
     Kind( AbstractUgwiKind<IAtomicValue> aRegistrator, ISkCoreApi aCoreApi ) {
       super( aRegistrator, aCoreApi );
     }
 
     @Override
-    public synchronized IAtomicValue doFindContent( Ugwi aUgwi ) {
-      coreApi().rtdService().eventer().addListener( this );
+    public IAtomicValue doFindContent( Ugwi aUgwi ) {
       IAtomicValue retVal = IAtomicValue.NULL;
       IMap<Gwid, ISkReadCurrDataChannel> chMap =
           coreApi().rtdService().createReadCurrDataChannels( new GwidList( getGwid( aUgwi ) ) );
       ISkReadCurrDataChannel channel = chMap.values().first(); // open channel or null
-      try {
-        // wait until get notification of current data
-        wait();
-      }
-      catch( InterruptedException ex ) {
-        LoggerUtils.errorLogger().error( ex );
-      }
       if( channel != null ) {
-        // retVal = channel.getValue();
+        retVal = channel.getValue();
         channel.close();
-      }
-      if( actualValues != null && actualValues.hasKey( getGwid( aUgwi ) ) ) {
-        retVal = actualValues.findByKey( getGwid( aUgwi ) );
       }
       return retVal;
     }
@@ -122,12 +107,6 @@ public class UgwiKindSkRtdata
         }
       }
       return null;
-    }
-
-    @Override
-    public synchronized void onCurrData( IMap<Gwid, IAtomicValue> aNewValues ) {
-      actualValues = aNewValues;
-      notify();
     }
 
   }
