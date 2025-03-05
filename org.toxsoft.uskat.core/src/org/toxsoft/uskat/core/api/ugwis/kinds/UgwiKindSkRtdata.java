@@ -16,6 +16,7 @@ import org.toxsoft.core.tslib.gw.gwid.*;
 import org.toxsoft.core.tslib.gw.skid.*;
 import org.toxsoft.core.tslib.gw.ugwi.*;
 import org.toxsoft.core.tslib.utils.errors.*;
+import org.toxsoft.core.tslib.utils.logs.impl.*;
 import org.toxsoft.uskat.core.*;
 import org.toxsoft.uskat.core.api.objserv.*;
 import org.toxsoft.uskat.core.api.rtdserv.*;
@@ -61,7 +62,10 @@ public class UgwiKindSkRtdata
    * @author dima
    */
   public static class Kind
-      extends AbstractSkUgwiKind<IAtomicValue> {
+      extends AbstractSkUgwiKind<IAtomicValue>
+      implements ISkCurrDataChangeListener {
+
+    private IMap<Gwid, IAtomicValue> actualValues = null;
 
     Kind( AbstractUgwiKind<IAtomicValue> aRegistrator, ISkCoreApi aCoreApi ) {
       super( aRegistrator, aCoreApi );
@@ -69,13 +73,34 @@ public class UgwiKindSkRtdata
 
     @Override
     public IAtomicValue doFindContent( Ugwi aUgwi ) {
+      coreApi().rtdService().eventer().addListener( this );
       IMap<Gwid, ISkReadCurrDataChannel> chMap =
           coreApi().rtdService().createReadCurrDataChannels( new GwidList( getGwid( aUgwi ) ) );
       ISkReadCurrDataChannel channel = chMap.values().first(); // open channel or null
-      if( channel != null ) {
-        return channel.getValue();
+      try {
+        // wait until get notification of current data
+        Thread.currentThread().wait();
       }
-      return IAtomicValue.NULL;
+      catch( InterruptedException ex ) {
+        LoggerUtils.errorLogger().error( ex );
+      }
+      if( channel != null ) {
+        channel.close();
+      }
+      IAtomicValue retVal = IAtomicValue.NULL;
+      if( actualValues != null && actualValues.hasKey( getGwid( aUgwi ) ) ) {
+        retVal = actualValues.findByKey( getGwid( aUgwi ) );
+      }
+      return retVal;
+
+      // old version
+      // ISkReadCurrDataChannel channel = chMap.values().first(); // open channel or null
+      // if( channel != null ) {
+      // IAtomicValue retVal = channel.getValue();
+      // channel.close();
+      // return retVal;
+      // }
+      // return IAtomicValue.NULL;
     }
 
     @Override
@@ -105,6 +130,12 @@ public class UgwiKindSkRtdata
         }
       }
       return null;
+    }
+
+    @Override
+    public void onCurrData( IMap<Gwid, IAtomicValue> aNewValues ) {
+      actualValues = aNewValues;
+      Thread.currentThread().notifyAll();
     }
 
   }
