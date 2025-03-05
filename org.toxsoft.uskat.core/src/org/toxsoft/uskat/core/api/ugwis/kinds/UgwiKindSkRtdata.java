@@ -65,7 +65,7 @@ public class UgwiKindSkRtdata
       extends AbstractSkUgwiKind<IAtomicValue>
       implements ISkCurrDataChangeListener {
 
-    private IMap<Gwid, IAtomicValue> actualValues = null;
+    private IMap<Gwid, IAtomicValue> actualValues;
 
     Kind( AbstractUgwiKind<IAtomicValue> aRegistrator, ISkCoreApi aCoreApi ) {
       super( aRegistrator, aCoreApi );
@@ -74,6 +74,7 @@ public class UgwiKindSkRtdata
     @Override
     public synchronized IAtomicValue doFindContent( Ugwi aUgwi ) {
       coreApi().rtdService().eventer().addListener( this );
+      IAtomicValue retVal = IAtomicValue.NULL;
       IMap<Gwid, ISkReadCurrDataChannel> chMap =
           coreApi().rtdService().createReadCurrDataChannels( new GwidList( getGwid( aUgwi ) ) );
       ISkReadCurrDataChannel channel = chMap.values().first(); // open channel or null
@@ -85,22 +86,13 @@ public class UgwiKindSkRtdata
         LoggerUtils.errorLogger().error( ex );
       }
       if( channel != null ) {
+        // retVal = channel.getValue();
         channel.close();
       }
-      IAtomicValue retVal = IAtomicValue.NULL;
       if( actualValues != null && actualValues.hasKey( getGwid( aUgwi ) ) ) {
         retVal = actualValues.findByKey( getGwid( aUgwi ) );
       }
       return retVal;
-
-      // old version
-      // ISkReadCurrDataChannel channel = chMap.values().first(); // open channel or null
-      // if( channel != null ) {
-      // IAtomicValue retVal = channel.getValue();
-      // channel.close();
-      // return retVal;
-      // }
-      // return IAtomicValue.NULL;
     }
 
     @Override
