@@ -376,7 +376,11 @@ public class SkCoreServRtdata
         ba().baRtdata().configureCurrDataReader( new GwidList( cdReadChannelsMap.keys() ) );
     // channels init
     for( Gwid g : retValue.keys() ) {
-      cdReadChannelsMap.getByKey( g ).setValue( retValue.getByKey( g ) );
+      SkReadCurrDataChannel channel = cdReadChannelsMap.findByKey( g );
+      IAtomicValue value = retValue.findByKey( g );
+      if( channel != null && value != null ) {
+        channel.setValue( value );
+      }
     }
     return result;
   }

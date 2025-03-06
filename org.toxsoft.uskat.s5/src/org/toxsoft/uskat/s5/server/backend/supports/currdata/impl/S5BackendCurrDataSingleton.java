@@ -354,7 +354,13 @@ public class S5BackendCurrDataSingleton
     IMapEdit<Gwid, IAtomicValue> retValue = new ElemMap<>();
     // Начало пакетного изменения значений в кэше
     for( Gwid gwid : aRtdGwids ) {
-      retValue.put( gwid, valuesCache.get( gwid ) );
+      IAtomicValue value = valuesCache.get( gwid );
+      if( value == null ) {
+        // Текущее данное не зарегистрировано
+        logger().error( ERR_CACHE_READING_CURRDATA_NOT_FOUND, gwid );
+        continue;
+      }
+      retValue.put( gwid, value );
     }
     return retValue;
   }
@@ -373,8 +379,8 @@ public class S5BackendCurrDataSingleton
       IAtomicValue newValue = aValues.getByKey( gwid );
       IAtomicValue prevValue = valuesCache.get( gwid );
       if( prevValue == null ) {
-        // В кэше не найдено данное
-        logger().error( ERR_CACHE_VALUE_NOT_FOUND, gwid, newValue );
+        // Текущее данное не зарегистрировано
+        logger().error( ERR_CACHE_WRITING_CURRDATA_NOT_FOUND, gwid, newValue );
         continue;
       }
       EAtomicType type = valuesTypes.get( gwid );
