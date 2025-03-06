@@ -136,9 +136,10 @@ class S5BaRtdataLocal
   // IBaRtdata
   //
   @Override
-  public void configureCurrDataReader( IGwidList aRtdGwids ) {
+  public IMap<Gwid, IAtomicValue> configureCurrDataReader( IGwidList aRtdGwids ) {
     TsNullArgumentRtException.checkNull( aRtdGwids );
-    currDataSupport.configureCurrDataReader( frontend(), aRtdGwids );
+    IMap<Gwid, IAtomicValue> retValue = currDataSupport.configureCurrDataReader( frontend(), aRtdGwids );
+    return retValue;
   }
 
   @Override
