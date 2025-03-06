@@ -118,12 +118,11 @@ public class S5BaRtdataSession
   //
   @TransactionAttribute( TransactionAttributeType.SUPPORTS )
   @Override
-  public IMap<Gwid, IAtomicValue> configureCurrDataReader( IGwidList aRtdGwids ) {
+  public void configureCurrDataReader( IGwidList aRtdGwids ) {
     TsNullArgumentRtException.checkNull( aRtdGwids );
-    IMap<Gwid, IAtomicValue> retValue = currDataSupport.configureCurrDataReader( frontend(), aRtdGwids );
+    currDataSupport.configureCurrDataReader( frontend(), aRtdGwids );
     // Сохранение измененной сессии в кластере сервера
     writeSessionData();
-    return retValue;
   }
 
   @TransactionAttribute( TransactionAttributeType.SUPPORTS )

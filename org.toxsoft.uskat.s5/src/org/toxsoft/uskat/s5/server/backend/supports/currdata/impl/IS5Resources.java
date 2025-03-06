@@ -37,9 +37,8 @@ interface IS5Resources {
       "Размер кэша текущих данных не соотвествует количеству текущих данных в системе. Размер кэша = %d. Текущих данных в системе: %d.";
   String ERR_NO_DEFAULT_VALUE                =
       "Класс %s. Текущее данное %s имеет тип %s для которого требуется, но неопределено значение по умолчанию";
-  String ERR_CACHE_WRITING_CURRDATA_NOT_FOUND           =
-      "writeValues(...): текущее данное не зарегистрировано:  gwid = %s, newValue = %s";
-  String ERR_CACHE_READING_CURRDATA_NOT_FOUND              = "readValues(...): текущее данное не зарегистрировано: gwid=%s.";
+  String ERR_CACHE_VALUE_NOT_FOUND           =
+      "В кэше currdataValuesCache не найдено данного gwid = %s для записи newValue = %s";
   String ERR_WRONG_VALUE_TYPE                =
       "Недопустимый тип значения для текущего данного. gwid=%s, dataType=%s, valueType=%s(%s)";
 }

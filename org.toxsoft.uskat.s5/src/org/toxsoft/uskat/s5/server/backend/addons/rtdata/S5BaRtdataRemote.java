@@ -1,19 +1,21 @@
 package org.toxsoft.uskat.s5.server.backend.addons.rtdata;
 
-import org.toxsoft.core.tslib.av.*;
-import org.toxsoft.core.tslib.av.temporal.*;
-import org.toxsoft.core.tslib.bricks.events.msg.*;
+import org.toxsoft.core.tslib.av.IAtomicValue;
+import org.toxsoft.core.tslib.av.temporal.ITemporalAtomicValue;
+import org.toxsoft.core.tslib.bricks.events.msg.GtMessage;
 import org.toxsoft.core.tslib.bricks.time.*;
-import org.toxsoft.core.tslib.bricks.time.impl.*;
-import org.toxsoft.core.tslib.coll.*;
-import org.toxsoft.core.tslib.gw.gwid.*;
-import org.toxsoft.core.tslib.utils.*;
-import org.toxsoft.core.tslib.utils.errors.*;
-import org.toxsoft.uskat.core.backend.*;
+import org.toxsoft.core.tslib.bricks.time.impl.TimeInterval;
+import org.toxsoft.core.tslib.bricks.time.impl.TimedList;
+import org.toxsoft.core.tslib.gw.gwid.Gwid;
+import org.toxsoft.core.tslib.gw.gwid.IGwidList;
+import org.toxsoft.core.tslib.utils.Pair;
+import org.toxsoft.core.tslib.utils.errors.TsNullArgumentRtException;
+import org.toxsoft.uskat.core.backend.ISkBackendHardConstant;
 import org.toxsoft.uskat.core.backend.api.*;
-import org.toxsoft.uskat.s5.client.*;
-import org.toxsoft.uskat.s5.server.backend.addons.*;
-import org.toxsoft.uskat.s5.server.backend.messages.*;
+import org.toxsoft.uskat.s5.client.IS5ConnectionParams;
+import org.toxsoft.uskat.s5.server.backend.addons.IS5BackendRemote;
+import org.toxsoft.uskat.s5.server.backend.addons.S5AbstractBackendAddonRemote;
+import org.toxsoft.uskat.s5.server.backend.messages.S5BaBeforeConnectMessages;
 
 /**
  * Remote {@link IBaRtdata} implementation.
@@ -110,11 +112,10 @@ class S5BaRtdataRemote
   // IBaRtdata
   //
   @Override
-  public IMap<Gwid, IAtomicValue> configureCurrDataReader( IGwidList aRtdGwids ) {
+  public void configureCurrDataReader( IGwidList aRtdGwids ) {
     TsNullArgumentRtException.checkNull( aRtdGwids );
     baData.currdataGwidsToFrontend.setAll( aRtdGwids );
-    IMap<Gwid, IAtomicValue> retValue = session().configureCurrDataReader( aRtdGwids );
-    return retValue;
+    session().configureCurrDataReader( aRtdGwids );
   }
 
   @Override

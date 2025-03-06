@@ -229,7 +229,7 @@ public class S5BackendCurrDataSingleton
 
   @TransactionAttribute( TransactionAttributeType.SUPPORTS )
   @Override
-  public IMap<Gwid, IAtomicValue> configureCurrDataReader( IS5FrontendRear aFrontend, IGwidList aRtdGwids ) {
+  public void configureCurrDataReader( IS5FrontendRear aFrontend, IGwidList aRtdGwids ) {
     TsNullArgumentRtException.checkNulls( aFrontend, aRtdGwids );
 
     // Данные фронтенда
@@ -250,7 +250,7 @@ public class S5BackendCurrDataSingleton
     if( !callBeforeConfigureCurrDataReader( interceptors, aFrontend, removeRtdGwids, addRtdGwids ) ) {
       // Интерсепторы отклонили регистрацию читателя данных
       logger().info( MSG_REJECT_READER_BY_INTERCEPTORS );
-      return IMap.EMPTY;
+      return;
     }
 
     // Пост-вызов интерсепторов
@@ -266,12 +266,9 @@ public class S5BackendCurrDataSingleton
     // if( addRtdGwids.size() > 0 ) {
     // IMap<Gwid, IAtomicValue> values = readValues( addRtdGwids );
     if( aRtdGwids.size() > 0 ) {
-      IMap<Gwid, IAtomicValue> retValue = readValues( aRtdGwids );
-      // 2025-02-06 mvk: потом убрать, лишние действие, атавизм (значения данных передаются как результат запроса)
-      aFrontend.onBackendMessage( BaMsgRtdataCurrData.INSTANCE.makeMessage( retValue ) );
-      return retValue;
+      IMap<Gwid, IAtomicValue> values = readValues( aRtdGwids );
+      aFrontend.onBackendMessage( BaMsgRtdataCurrData.INSTANCE.makeMessage( values ) );
     }
-    return IMap.EMPTY;
   }
 
   @TransactionAttribute( TransactionAttributeType.SUPPORTS )
@@ -354,13 +351,7 @@ public class S5BackendCurrDataSingleton
     IMapEdit<Gwid, IAtomicValue> retValue = new ElemMap<>();
     // Начало пакетного изменения значений в кэше
     for( Gwid gwid : aRtdGwids ) {
-      IAtomicValue value = valuesCache.get( gwid );
-      if( value == null ) {
-        // Текущее данное не зарегистрировано
-        logger().error( ERR_CACHE_READING_CURRDATA_NOT_FOUND, gwid );
-        continue;
-      }
-      retValue.put( gwid, value );
+      retValue.put( gwid, valuesCache.get( gwid ) );
     }
     return retValue;
   }
@@ -379,8 +370,8 @@ public class S5BackendCurrDataSingleton
       IAtomicValue newValue = aValues.getByKey( gwid );
       IAtomicValue prevValue = valuesCache.get( gwid );
       if( prevValue == null ) {
-        // Текущее данное не зарегистрировано
-        logger().error( ERR_CACHE_WRITING_CURRDATA_NOT_FOUND, gwid, newValue );
+        // В кэше не найдено данное
+        logger().error( ERR_CACHE_VALUE_NOT_FOUND, gwid, newValue );
         continue;
       }
       EAtomicType type = valuesTypes.get( gwid );

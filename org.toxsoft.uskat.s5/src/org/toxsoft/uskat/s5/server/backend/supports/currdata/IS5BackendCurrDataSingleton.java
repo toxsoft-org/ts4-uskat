@@ -1,15 +1,17 @@
 package org.toxsoft.uskat.s5.server.backend.supports.currdata;
 
-import javax.ejb.*;
+import javax.ejb.Local;
 
-import org.toxsoft.core.tslib.av.*;
-import org.toxsoft.core.tslib.coll.*;
-import org.toxsoft.core.tslib.coll.primtypes.*;
-import org.toxsoft.core.tslib.gw.gwid.*;
-import org.toxsoft.core.tslib.utils.errors.*;
-import org.toxsoft.uskat.s5.server.backend.*;
-import org.toxsoft.uskat.s5.server.backend.supports.currdata.impl.*;
-import org.toxsoft.uskat.s5.server.frontend.*;
+import org.toxsoft.core.tslib.av.IAtomicValue;
+import org.toxsoft.core.tslib.coll.IMap;
+import org.toxsoft.core.tslib.coll.primtypes.IIntMap;
+import org.toxsoft.core.tslib.gw.gwid.Gwid;
+import org.toxsoft.core.tslib.gw.gwid.IGwidList;
+import org.toxsoft.core.tslib.utils.errors.TsIllegalArgumentRtException;
+import org.toxsoft.core.tslib.utils.errors.TsNullArgumentRtException;
+import org.toxsoft.uskat.s5.server.backend.IS5BackendSupportSingleton;
+import org.toxsoft.uskat.s5.server.backend.supports.currdata.impl.IS5CurrDataInterceptor;
+import org.toxsoft.uskat.s5.server.frontend.IS5FrontendRear;
 
 /**
  * Локальный интерфейс синглетона запросов к текущим данным предоставляемым s5-сервером.
@@ -51,12 +53,9 @@ public interface IS5BackendCurrDataSingleton
    *
    * @param aFrontend {@link IS5FrontendRear} фронтенд сформировавший запрос
    * @param aRtdGwids {@link IGwidList} - список идентификаторов данных читаемых клиентом
-   * @return {@link IMap}&lt;{@link Gwid},{@link IAtomicValue}&gt; карта текущих значений;<br>
-   *         Key: {@link Gwid} конкретный GWID текущего данного;<br>
-   *         Value: {@link IAtomicValue} текущее значение данного.
    * @throws TsNullArgumentRtException <code>aToAdd</code> == null
    */
-  IMap<Gwid, IAtomicValue> configureCurrDataReader( IS5FrontendRear aFrontend, IGwidList aRtdGwids );
+  void configureCurrDataReader( IS5FrontendRear aFrontend, IGwidList aRtdGwids );
 
   /**
    * Конфигурирует, какие текущие РВданные хочет писать клиент.
