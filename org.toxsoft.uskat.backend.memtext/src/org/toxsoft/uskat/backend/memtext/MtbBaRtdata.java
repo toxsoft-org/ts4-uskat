@@ -428,20 +428,11 @@ public class MtbBaRtdata
   //
 
   @Override
-  public IMap<Gwid, IAtomicValue> configureCurrDataReader( IGwidList aRtdGwids ) {
+  public void configureCurrDataReader( IGwidList aRtdGwids ) {
     cdLock.writeLock().lock();
     try {
       cdReadGwids.setAll( aRtdGwids );
       internalConfigureCurrDataReadWrite();
-      IMapEdit<Gwid, IAtomicValue> retValue = new ElemMap<>();
-      for( Gwid g : aRtdGwids ) {
-        IAtomicValue value = cdMap.findByKey( g );
-        if( value != null ) {
-          retValue.put( g, value );
-        }
-      }
-      return retValue;
-
     }
     finally {
       cdLock.writeLock().unlock();
