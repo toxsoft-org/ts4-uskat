@@ -3,6 +3,7 @@ package org.toxsoft.uskat.backend.sqlite.addons;
 import org.toxsoft.core.tslib.av.*;
 import org.toxsoft.core.tslib.av.temporal.*;
 import org.toxsoft.core.tslib.bricks.time.*;
+import org.toxsoft.core.tslib.coll.*;
 import org.toxsoft.core.tslib.gw.gwid.*;
 import org.toxsoft.uskat.backend.sqlite.*;
 import org.toxsoft.uskat.core.backend.*;
@@ -51,9 +52,9 @@ public class BaRtData
   //
 
   @Override
-  public void configureCurrDataReader( IGwidList aRtdGwids ) {
+  public IMap<Gwid, IAtomicValue> configureCurrDataReader( IGwidList aRtdGwids ) {
     // TODO Auto-generated method stub
-
+    return IMap.EMPTY;
   }
 
   @Override
