@@ -32,7 +32,7 @@ public interface IS5BackendCoreInterceptor
    * клиент-перехватчик должен организовать логику восстановления своего состояния при откате транзакции (смотри
    * S5TransactionSingleton}.
    * <p>
-   * Состояние {@link ES5ServerMode#STARTING} устанавливается до регистрации перехватчиков, поэтому они его не получают.
+   * Состояние {@link ES5ServerMode#LOADING} устанавливается до регистрации перехватчиков, поэтому они его не получают.
    *
    * @param aOldMode {@link ES5ServerMode} старое состояние сервера.
    * @param aNewMode {@link ES5ServerMode} новое состояние сервера.
@@ -47,7 +47,7 @@ public interface IS5BackendCoreInterceptor
    * клиент-перехватчик должен организовать логику восстановления своего состояния при откате транзакции (смотри
    * S5TransactionSingleton}.
    * <p>
-   * Состояние {@link ES5ServerMode#STARTING} устанавливается до регистрации перехватчиков, поэтому они его не получают.
+   * Состояние {@link ES5ServerMode#LOADING} устанавливается до регистрации перехватчиков, поэтому они его не получают.
    *
    * @param aOldMode {@link ES5ServerMode} старое состояние сервера.
    * @param aNewMode {@link ES5ServerMode} новое состояние сервера.

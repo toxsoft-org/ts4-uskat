@@ -6,6 +6,7 @@ import static org.toxsoft.core.tslib.utils.plugins.IPluginsHardConstants.*;
 import static org.toxsoft.core.tslib.utils.plugins.impl.PluginUtils.*;
 import static org.toxsoft.uskat.core.devapi.ISkatlet.*;
 import static org.toxsoft.uskat.s5.server.IS5ImplementConstants.*;
+import static org.toxsoft.uskat.s5.server.backend.ES5ServerMode.*;
 import static org.toxsoft.uskat.s5.server.backend.supports.skatlets.IS5Resources.*;
 import static org.toxsoft.uskat.s5.server.backend.supports.skatlets.S5BackendSkatletsConfig.*;
 
@@ -182,6 +183,8 @@ public class S5BackendSkatletsSingleton
     rootBox.start();
     // Запуск doJob
     addOwnDoJob( DOJOB_INTERVAL );
+    // Все локальные модули загружены. Переключение режима сервера в режим запуска
+    backendCore.setMode( STARTING );
   }
 
   @Override

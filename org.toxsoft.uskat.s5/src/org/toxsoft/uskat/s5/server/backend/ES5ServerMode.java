@@ -8,6 +8,7 @@ import org.toxsoft.core.tslib.bricks.strid.*;
 import org.toxsoft.core.tslib.bricks.strid.coll.*;
 import org.toxsoft.core.tslib.bricks.strid.coll.impl.*;
 import org.toxsoft.core.tslib.utils.errors.*;
+import org.toxsoft.uskat.s5.server.singletons.*;
 import org.toxsoft.uskat.s5.utils.*;
 
 /**
@@ -19,10 +20,20 @@ public enum ES5ServerMode
     implements IStridable {
 
   /**
-   * Сервер находится в состоянии запуска.
+   * Загрузка сервера.
    * <p>
-   * Это первое состояние (то есть, начало жизненного цикла сервера). Сервер находится в этом состоянии некоторое время
-   * (задается конфигурацией), после этого переключается в другой режим в зависимости от текущей загруженности.
+   * Это первое состояние (то есть, начало жизненного цикла сервера). На этом этапе запускаются локальные модули
+   * локального узла сервера в соответствии с их зависимостями. Фоновая работа модулей {@link S5SingletonBase#doJob()} -
+   * запрещена.
+   */
+  LOADING( "Loading", STR_D_STARTING, STR_N_STARTING ), //$NON-NLS-1$
+
+  /**
+   * Сервер загрузился, но еще находится в состоянии запуска.
+   * <p>
+   * Все модули узла сервера загружены и к нему подключаются удаленные ресурсы (сервера, шлюзы, клиенты). Сервер
+   * находится в этом состоянии некоторое время (задается конфигурацией), после этого переключается в другой режим в
+   * зависимости от текущей загруженности.
    */
   STARTING( "Starting", STR_D_STARTING, STR_N_STARTING ), //$NON-NLS-1$
 

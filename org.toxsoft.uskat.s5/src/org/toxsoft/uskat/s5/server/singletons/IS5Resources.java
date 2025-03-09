@@ -32,6 +32,7 @@ interface IS5Resources {
   // ------------------------------------------------------------------------------------
   // Тексты ошибок
   //
+  String ERR_DOJOB_DISABLED_BY_LOCKER     = "doJob() is disabled by S5SingletonLocker";
   String MSG_ERR_SERVER_JOB               = Messages.getString( "IS5Resources.MSG_ERR_SERVER_JOB" );
   String MSG_ERR_SERVER_JOB_ALREADY_EXIST = Messages.getString( "IS5Resources.MSG_ERR_SERVER_JOB_ALREADY_EXIST" );
   String MSG_ERR_SERVER_CONFIG_ROLLBACK   = Messages.getString( "IS5Resources.MSG_ERR_SERVER_CONFIG_ROLLBACK" );

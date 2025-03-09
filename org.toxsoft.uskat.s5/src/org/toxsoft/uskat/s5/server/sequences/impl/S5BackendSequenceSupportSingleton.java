@@ -23,7 +23,6 @@ import java.util.concurrent.*;
 
 import javax.annotation.*;
 import javax.ejb.*;
-import javax.ejb.Timer;
 import javax.enterprise.concurrent.*;
 import javax.persistence.*;
 import javax.sql.*;
@@ -66,7 +65,7 @@ import org.toxsoft.uskat.s5.server.sequences.reader.*;
 import org.toxsoft.uskat.s5.server.sequences.writer.*;
 import org.toxsoft.uskat.s5.server.singletons.*;
 import org.toxsoft.uskat.s5.server.statistics.*;
-import org.toxsoft.uskat.s5.utils.schedules.*;
+import org.toxsoft.uskat.s5.utils.*;
 
 /**
  * Базовая (абстрактная) реализация синглетона поддержки бекенда обрабатывающего последовательности данных
@@ -93,12 +92,6 @@ public abstract class S5BackendSequenceSupportSingleton<S extends IS5Sequence<V>
    */
   @Resource
   private DataSource dataSource;
-
-  /**
-   * Служба таймера
-   */
-  @Resource
-  private TimerService timerService;
 
   /**
    * backend управления классами системы
@@ -148,9 +141,14 @@ public abstract class S5BackendSequenceSupportSingleton<S extends IS5Sequence<V>
   private final IStridGenerator uuidGenerator;
 
   /**
-   * Таймеры расписания задачи дефрагментации блоков
+   * Таймер выполнения обработки статитистики.
    */
-  private IListEdit<Timer> unionTimers = new ElemArrayList<>();
+  private S5IntervalTimer staticticsTimer;
+
+  /**
+   * Таймер выполнения дефрагментации.
+   */
+  private S5IntervalTimer unionTimer;
 
   /**
    * Исполнитель потоков дефрагментации
@@ -163,9 +161,9 @@ public abstract class S5BackendSequenceSupportSingleton<S extends IS5Sequence<V>
   private S5SequenceUniterThread uniterThread;
 
   /**
-   * Таймеры расписания задачи обработки разделов таблиц значений хранимых данных
+   * Таймер выполнения обработки разделов.
    */
-  private IListEdit<Timer> partitionTimers = new ElemArrayList<>();
+  private S5IntervalTimer partitionTimer;
 
   /**
    * Исполнитель потоков обработки разделов таблиц
@@ -176,11 +174,6 @@ public abstract class S5BackendSequenceSupportSingleton<S extends IS5Sequence<V>
    * Последний запущенный поток обработки разделов таблиц. null: неопределен
    */
   private S5SequencePartitionThread partitionThread;
-
-  /**
-   * Таймер обновления статистики
-   */
-  private Timer dbmsStatisticsTimer;
 
   /**
    * Писатель статитистики объекта {@link ISkServerHistorable}. null: нет соединения
@@ -267,18 +260,7 @@ public abstract class S5BackendSequenceSupportSingleton<S extends IS5Sequence<V>
 
   @Override
   protected void onConfigChanged( IOptionSet aPrevConfig, IOptionSet aNewConfig ) {
-    S5ScheduleExpressionList prevUnionCalendars = UNION_CALENDARS.getValue( aPrevConfig ).asValobj();
-    S5ScheduleExpressionList newUnionCalendars = UNION_CALENDARS.getValue( aNewConfig ).asValobj();
-    if( !newUnionCalendars.equals( prevUnionCalendars ) ) {
-      // Изменение календарей дефрагментации
-      updateUnionTimers();
-    }
-    S5ScheduleExpressionList prevRemoveCalendars = PARTITION_CALENDARS.getValue( aPrevConfig ).asValobj();
-    S5ScheduleExpressionList newRemoveCalendars = PARTITION_CALENDARS.getValue( aNewConfig ).asValobj();
-    if( !newRemoveCalendars.equals( prevRemoveCalendars ) ) {
-      // Изменение календарей дефрагментации
-      updatePartitionTimers();
-    }
+    // nop
   }
 
   @Override
@@ -293,6 +275,8 @@ public abstract class S5BackendSequenceSupportSingleton<S extends IS5Sequence<V>
   //
   @Override
   protected void doInitSupport() {
+    // Конфигурация подсистемы
+    IOptionSet configuration = configuration();
     try( Connection dbConnection = dataSource.getConnection() ) {
       DatabaseMetaData metaData = dbConnection.getMetaData();
       String databaseProductName = metaData.getDatabaseProductName();
@@ -306,12 +290,19 @@ public abstract class S5BackendSequenceSupportSingleton<S extends IS5Sequence<V>
     // Поиск исполнителя потоков чтения блоков
     readExecutor = S5ServiceSingletonUtils.lookupExecutor( READ_EXECUTOR_JNDI );
 
+    // Таймер фонового процесса дефрагментации
+    staticticsTimer = new S5IntervalTimer( configuration.getInt( SEQUENCES_STATISTICS_TIMEOUT ) );
+
+    // Таймер фонового процесса дефрагментации
+    unionTimer = new S5IntervalTimer( configuration.getInt( UNION_DOJOB_TIMEOUT ) );
     // Поиск исполнителя потоков объединения блоков
     unionExecutor = S5ServiceSingletonUtils.lookupExecutor( UNION_EXECUTOR_JNDI );
     // Запуск потока дефрагментации
     uniterThread = new S5SequenceUniterThread( getBusinessObject(), MSG_UNION_AUTHOR_SCHEDULE, uniterLogger );
     unionExecutor.execute( uniterThread );
 
+    // Таймер фонового процесса обработки разделов
+    partitionTimer = new S5IntervalTimer( configuration.getInt( PARTITION_DOJOB_TIMEOUT ) );
     // Поиск исполнителя потоков удаления блоков
     partitionExecutor = S5ServiceSingletonUtils.lookupExecutor( PARTITION_EXECUTOR_JNDI );
     // Запуск потока удаления блоков
@@ -321,8 +312,6 @@ public abstract class S5BackendSequenceSupportSingleton<S extends IS5Sequence<V>
 
     // Бизнес интерфейс синглетона
     IS5BackendSequenceSupportSingleton<S, V> singletonView = getBusinessObject();
-    // Регистрация слушателей ядра. 100: низкий приоритет
-    backend().addBackendCoreInterceptor( singletonView, 100 );
     // Перехват операций службы IClassService
     sysdescrBackend.addClassInterceptor( singletonView, doGetInterceptorsPriority() );
     // Перехват операций службы IObjectService
@@ -331,20 +320,40 @@ public abstract class S5BackendSequenceSupportSingleton<S extends IS5Sequence<V>
     sysdescrReader = sysdescrBackend.getReader();
     // Инициализация статегии записи последовательностей
     sequenceWriter = new S5SequenceLastBlockWriter<>( id(), backend(), factory(), configuration() );
-    // Инициализация таймера запуска задачи дефрагментации значений
-    updateUnionTimers();
-    // Инициализация таймера запуска задачи обработки разделов таблиц
-    updatePartitionTimers();
-    // Формирование таймера обновления статистики
-    long statisticsUpdateInterval = EStatisticInterval.SECOND.milli();
-    TimerConfig tc = new TimerConfig( "StatisticsTimer", false ); //$NON-NLS-1$
-    dbmsStatisticsTimer = timerService.createIntervalTimer( statisticsUpdateInterval, statisticsUpdateInterval, tc );
+
   }
 
   @Override
   public void doJob() {
     // Фоновая задача писателя
     sequenceWriter.doJob();
+    // Обработка дефрагментации
+    if( unionTimer.update() ) {
+      unionDoJob();
+    }
+    // Обработка разделов
+    if( partitionTimer.update() ) {
+      partitionDoJob();
+    }
+    // Обработка статистики
+    if( staticticsTimer.update() ) {
+      // Обновление писателя статистики если он определен
+      S5StatisticWriter stat = statisticWriter;
+      if( stat != null ) {
+        // S5PlatformInfo pi = getPlatformInfo();
+        // IAtomicValue loadAverage = dvFloat( pi.loadAverage() );
+        // stat.onEvent( STAT_BACKEND_NODE_LOAD_AVERAGE, loadAverage );
+        // stat.onEvent( STAT_BACKEND_NODE_LOAD_MAX, loadAverage );
+        // stat.onEvent( STAT_BACKEND_NODE_FREE_PHYSICAL_MEMORY, dvFloat( pi.freePhysicalMemory() ) );
+        // stat.onEvent( STAT_BACKEND_NODE_MAX_HEAP_MEMORY, dvFloat( pi.maxHeapMemory() ) );
+        // stat.onEvent( STAT_BACKEND_NODE_USED_HEAP_MEMORY, dvFloat( pi.usedHeapMemory() ) );
+        // stat.onEvent( STAT_BACKEND_NODE_MAX_NON_HEAP_MEMORY, dvFloat( pi.maxNonHeapMemory() ) );
+        // stat.onEvent( STAT_BACKEND_NODE_USED_NON_HEAP_MEMORY, dvFloat( pi.usedNonHeapMemory() ) );
+        // stat.onEvent( STAT_BACKEND_NODE_OPEN_TX_MAX, dvInt( txManager.openCount() ) );
+        // stat.onEvent( STAT_BACKEND_NODE_OPEN_SESSION_MAX, dvInt( sessionManager.openSessionCount() ) );
+        stat.update();
+      }
+    }
   }
 
   @Override
@@ -363,11 +372,6 @@ public abstract class S5BackendSequenceSupportSingleton<S extends IS5Sequence<V>
     uniterThread.close();
     // Завершение потока удаления значений
     partitionThread.close();
-    // Завершение работы таймеров
-    dbmsStatisticsTimer.cancel();
-    for( Timer timer : unionTimers ) {
-      timer.cancel();
-    }
     // Завершение работы писателя последовательностей
     sequenceWriter.close();
     // Бизнес интерфейс синглетона
@@ -382,86 +386,6 @@ public abstract class S5BackendSequenceSupportSingleton<S extends IS5Sequence<V>
     // connection.close();
     // connection = null;
     // }
-  }
-
-  @Timeout
-  @TransactionTimeout( value = SEQUENCE_TIMER_TRANSACTION_TIMEOUT_DEFAULT, unit = TimeUnit.MILLISECONDS )
-  // Блокировка на запись серьезно изменяет ранее хорошо отлаженную реализацию и проводит к тому, что
-  // проваливаются регламенты по календарю и возникают ложные блокировки службы. Да и в целом блокировать в общем случае
-  // на запись не есть хорошо по вопросам производительности. Клиенты, если им необходимо блокировка на запись должны
-  // самостоятельно решать этот вопрос, например, через асинхронные вызовы
-  // @Lock( LockType.WRITE )
-  // 2021-04-04
-  @Lock( LockType.READ )
-  private void doTimerEventHandle( Timer aTimer ) {
-    if( logger().isSeverityOn( ELogSeverity.DEBUG ) ) {
-      // Запускается обработка события таймера
-      logger().debug( MSG_TIMER_EVENT_START, aTimer.getInfo() );
-    }
-    try {
-      // Обновление писателя статистики если он определен
-      S5StatisticWriter stat = statisticWriter;
-      if( stat != null ) {
-        // S5PlatformInfo pi = getPlatformInfo();
-        // IAtomicValue loadAverage = dvFloat( pi.loadAverage() );
-        // stat.onEvent( STAT_BACKEND_NODE_LOAD_AVERAGE, loadAverage );
-        // stat.onEvent( STAT_BACKEND_NODE_LOAD_MAX, loadAverage );
-        // stat.onEvent( STAT_BACKEND_NODE_FREE_PHYSICAL_MEMORY, dvFloat( pi.freePhysicalMemory() ) );
-        // stat.onEvent( STAT_BACKEND_NODE_MAX_HEAP_MEMORY, dvFloat( pi.maxHeapMemory() ) );
-        // stat.onEvent( STAT_BACKEND_NODE_USED_HEAP_MEMORY, dvFloat( pi.usedHeapMemory() ) );
-        // stat.onEvent( STAT_BACKEND_NODE_MAX_NON_HEAP_MEMORY, dvFloat( pi.maxNonHeapMemory() ) );
-        // stat.onEvent( STAT_BACKEND_NODE_USED_NON_HEAP_MEMORY, dvFloat( pi.usedNonHeapMemory() ) );
-        // stat.onEvent( STAT_BACKEND_NODE_OPEN_TX_MAX, dvInt( txManager.openCount() ) );
-        // stat.onEvent( STAT_BACKEND_NODE_OPEN_SESSION_MAX, dvInt( sessionManager.openSessionCount() ) );
-        stat.update();
-      }
-
-      for( int index = 0, n = unionTimers.size(); index < n; index++ ) {
-        Timer timer = unionTimers.get( index );
-        if( timer.equals( aTimer ) ) {
-          ES5ServerMode serverMode = serverMode();
-          // Проверка возможности выполнения дефрагментации при текущей загрузке системы
-          if( serverMode != ES5ServerMode.WORKING ) {
-            // Загруженность системы не позволяет провести дефрагментацию значений
-            if( serverMode != ES5ServerMode.STARTING ) {
-              Double la = Double.valueOf( loadAverage() );
-              uniterLogger.warning( ERR_UNION_DISABLE_BY_LOAD_AVERAGE, id(), serverMode(), la );
-            }
-            break;
-          }
-          // Запуск потока дефрагментации
-          if( !uniterThread.tryStart() ) {
-            // Запрет дефрагментации значений по календарю (незавершен предыдущий процесс)
-            uniterLogger.warning( ERR_UNION_DISABLE_BY_PREV_UNITER, id() );
-          }
-          break;
-        }
-      }
-      for( int index = 0, n = partitionTimers.size(); index < n; index++ ) {
-        Timer timer = partitionTimers.get( index );
-        if( timer.equals( aTimer ) ) {
-          if( serverMode() != ES5ServerMode.WORKING ) {
-            // Текущий режим запрещает проводить операцию
-            partitionLogger.warning( ERR_PARTITION_DISABLE_BY_LOAD_AVERAGE, id(), serverMode(),
-                Double.valueOf( loadAverage() ) );
-            break;
-          }
-          // System.err.println( "doTimerEventHandle" );
-          // Запуск потока обработки разделов таблиц
-          if( !partitionThread.tryStart() ) {
-            // Запрет обработки таблиц по календарю (незавершен предыдущий процесс)
-            partitionLogger.warning( ERR_PARTITION_DISABLE_BY_PREV, id() );
-          }
-          break;
-        }
-      }
-    }
-    finally {
-      if( logger().isSeverityOn( ELogSeverity.DEBUG ) ) {
-        // Завершается обработка события таймера
-        logger().debug( MSG_TIMER_EVENT_FINISH, aTimer.getInfo() );
-      }
-    }
   }
 
   @Override
@@ -714,6 +638,9 @@ public abstract class S5BackendSequenceSupportSingleton<S extends IS5Sequence<V>
       // Проверка возможности выполнения записи при текущей загрузке системы
       ES5ServerMode serverMode = serverMode();
       switch( serverMode ) {
+        case LOADING:
+          // Во время загрузки запрещено сохранять данные
+          throw new TsInternalErrorRtException();
         case STARTING:
         case WORKING:
         case BOOSTED:
@@ -1433,115 +1360,47 @@ public abstract class S5BackendSequenceSupportSingleton<S extends IS5Sequence<V>
   }
 
   // ------------------------------------------------------------------------------------
-  // Внутренние методы. Таймеры
+  // Внутренние методы
   //
   /**
-   * Обновление таймеров дефрагментации по календарю
+   * Выполнение фоновой обработки дефрагментации.
    */
-  private void updateUnionTimers() {
-    if( OP_BACKEND_DATA_WRITE_DISABLE.getValue( backend().initialConfig().impl().params() ).asBool() ) {
-      // Запрет записи хранимых данных
+  private void unionDoJob() {
+    // Текущий режим работы сервера
+    ES5ServerMode serverMode = serverMode();
+    // Проверка возможности выполнения дефрагментации при текущей загрузке системы
+    if( serverMode != ES5ServerMode.WORKING ) {
+      // Загруженность системы не позволяет провести дефрагментацию значений
+      if( serverMode != ES5ServerMode.STARTING ) {
+        Double la = Double.valueOf( loadAverage() );
+        uniterLogger.warning( ERR_UNION_DISABLE_BY_LOAD_AVERAGE, id(), serverMode, la );
+      }
       return;
     }
-    IListEdit<Timer> oldTimers = new ElemArrayList<>( unionTimers );
-    // Текущие календари конфигурации
-    S5ScheduleExpressionList calendars = UNION_CALENDARS.getValue( configuration() ).asValobj();
-    // Удаление календарей которые больше не используется
-    for( Timer timer : oldTimers ) {
-      ScheduleExpression schedule = timer.getSchedule();
-      try {
-        if( !calendars.hasElem( new S5ScheduleExpression( schedule ) ) ) {
-          timer.cancel();
-          unionTimers.remove( timer );
-          logger().info( MSG_CANCEL_UNION_TIMER, schedule );
-          continue;
-        }
-      }
-      catch( Exception e ) {
-        logger().error( ERR_CANCEL_UNION_TIMER, schedule, cause( e ) );
-      }
-    }
-    // Проверка текущих таймеров и создание если они неопределены
-    for( int index = 0, n = calendars.size(); index < n; index++ ) {
-      IScheduleExpression schedule = calendars.get( index );
-      Timer newTimer = null;
-      for( Timer timer : unionTimers ) {
-        if( schedule.equals( new S5ScheduleExpression( timer.getSchedule() ) ) ) {
-          // Таймер найден
-          newTimer = timer;
-          break;
-        }
-      }
-      if( newTimer != null ) {
-        // Таймер уже существует
-        continue;
-      }
-      try {
-        TimerConfig tc = new TimerConfig(
-            String.format( "UnionTimer[%s]", S5ScheduleExpressionKeeper.KEEPER.ent2str( schedule ) ), false ); //$NON-NLS-1$
-        newTimer = timerService.createCalendarTimer( (ScheduleExpression)schedule, tc );
-        unionTimers.add( newTimer );
-        logger().info( MSG_CREATE_UNION_TIMER, schedule );
-      }
-      catch( Exception e ) {
-        // Ошибка создания таймера задачи объединения
-        logger().error( ERR_CREATE_UNION_TIMER, schedule, cause( e ) );
-      }
+    // Запуск потока дефрагментации
+    if( !uniterThread.tryStart() ) {
+      // Запрет дефрагментации значений по календарю (незавершен предыдущий процесс)
+      uniterLogger.warning( ERR_UNION_DISABLE_BY_PREV_UNITER, id() );
     }
   }
 
   /**
-   * Обновление таймеров обработки разделов таблиц по календарю
+   * Выполнение фоновой обработки обработки разделов.
    */
-  private void updatePartitionTimers() {
-    if( OP_BACKEND_DATA_WRITE_DISABLE.getValue( backend().initialConfig().impl().params() ).asBool() ) {
-      // Запрет записи хранимых данных
+  private void partitionDoJob() {
+    // Текущий режим работы сервера
+    ES5ServerMode serverMode = serverMode();
+    if( serverMode != ES5ServerMode.WORKING ) {
+      // Текущий режим запрещает проводить операцию
+      Double la = Double.valueOf( loadAverage() );
+      partitionLogger.warning( ERR_PARTITION_DISABLE_BY_LOAD_AVERAGE, id(), serverMode, la );
       return;
     }
-    IListEdit<Timer> oldTimers = new ElemArrayList<>( partitionTimers );
-    // Текущие календари конфигурации
-    S5ScheduleExpressionList calendars = PARTITION_CALENDARS.getValue( configuration() ).asValobj();
-    // Удаление календарей которые больше не используется
-    for( Timer timer : oldTimers ) {
-      ScheduleExpression schedule = timer.getSchedule();
-      try {
-        if( !calendars.hasElem( new S5ScheduleExpression( schedule ) ) ) {
-          timer.cancel();
-          partitionTimers.remove( timer );
-          logger().info( MSG_CANCEL_PARTITION_TIMER, schedule );
-          continue;
-        }
-      }
-      catch( Exception e ) {
-        logger().error( ERR_CANCEL_PARTITION_TIMER, schedule, cause( e ) );
-      }
-    }
-    // Проверка текущих таймеров и создание если они неопределены
-    for( int index = 0, n = calendars.size(); index < n; index++ ) {
-      IScheduleExpression schedule = calendars.get( index );
-      Timer newTimer = null;
-      for( Timer timer : partitionTimers ) {
-        if( schedule.equals( new S5ScheduleExpression( timer.getSchedule() ) ) ) {
-          // Таймер найден
-          newTimer = timer;
-          break;
-        }
-      }
-      if( newTimer != null ) {
-        // Таймер уже существует
-        continue;
-      }
-      try {
-        TimerConfig tc = new TimerConfig(
-            String.format( "RemoveTimer[%s]", S5ScheduleExpressionKeeper.KEEPER.ent2str( schedule ) ), false ); //$NON-NLS-1$
-        newTimer = timerService.createCalendarTimer( (ScheduleExpression)schedule, tc );
-        partitionTimers.add( newTimer );
-        logger().info( MSG_CREATE_PARTITION_TIMER, schedule );
-      }
-      catch( Exception e ) {
-        // Ошибка создания таймера задачи объединения
-        logger().error( ERR_CREATE_PARTITION_TIMER, schedule, cause( e ) );
-      }
+    // System.err.println( "doTimerEventHandle" );
+    // Запуск потока обработки разделов таблиц
+    if( !partitionThread.tryStart() ) {
+      // Запрет обработки таблиц по календарю (незавершен предыдущий процесс)
+      partitionLogger.warning( ERR_PARTITION_DISABLE_BY_PREV, id() );
     }
   }
 }

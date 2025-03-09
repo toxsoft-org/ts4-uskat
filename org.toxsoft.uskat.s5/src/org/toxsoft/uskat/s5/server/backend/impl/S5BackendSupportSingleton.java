@@ -40,7 +40,7 @@ public abstract class S5BackendSupportSingleton
    * Поддержка синглетонов (контейнер)
    */
   @EJB
-  private IS5BackendCoreSingleton backendCoreSingleton;
+  private IS5BackendCoreSingleton backendCore;
 
   /**
    * Текущий режим работы сервера.
@@ -68,7 +68,7 @@ public abstract class S5BackendSupportSingleton
    */
   @Override
   protected void doInit() {
-    backendCoreSingleton.addSupport( id(), sessionContext().getBusinessObject( getClass() ) );
+    backendCore.addSupport( id(), sessionContext().getBusinessObject( getClass() ) );
     doInitSupport();
     clusterManager.addCommandHandler( WHEN_SUPPORT_CONFIG_CHANGED_METHOD,
         new S5ClusterCommandWhenSupportConfigChanged() {
@@ -90,7 +90,7 @@ public abstract class S5BackendSupportSingleton
   @Override
   protected void doClose() {
     doCloseSupport();
-    backendCoreSingleton.removeSupport( id() );
+    backendCore.removeSupport( id() );
   }
 
   // ------------------------------------------------------------------------------------
@@ -240,12 +240,12 @@ public abstract class S5BackendSupportSingleton
   // Методы для наследников
   //
   /**
-   * Возвращает backendCoreSingleton
+   * Возвращает backendCore
    *
-   * @return {@link IS5BackendCoreSingleton} backendCoreSingleton
+   * @return {@link IS5BackendCoreSingleton} backendCore
    */
   protected final IS5BackendCoreSingleton backend() {
-    return backendCoreSingleton;
+    return backendCore;
   }
 
   /**
@@ -287,7 +287,7 @@ public abstract class S5BackendSupportSingleton
   protected final Skid backendId() {
     // Идентификатор узла сервера
     Skid nodeId = nodeId();
-    // Полный (с именем узла) идентификатор backendCoreSingleton
+    // Полный (с именем узла) идентификатор backendCore
     return new Skid( doBackendClassId(), nodeId.strid() + '.' + id() );
   }
 

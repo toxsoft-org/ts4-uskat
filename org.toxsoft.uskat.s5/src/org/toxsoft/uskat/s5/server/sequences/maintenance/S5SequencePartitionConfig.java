@@ -6,13 +6,13 @@ import static org.toxsoft.core.tslib.av.impl.DataDef.*;
 import static org.toxsoft.core.tslib.av.metainfo.IAvMetaConstants.*;
 import static org.toxsoft.uskat.s5.server.sequences.maintenance.IS5Resources.*;
 
+import org.toxsoft.core.tslib.av.impl.*;
 import org.toxsoft.core.tslib.av.metainfo.*;
 import org.toxsoft.core.tslib.bricks.keeper.std.*;
 import org.toxsoft.core.tslib.bricks.strid.coll.*;
 import org.toxsoft.core.tslib.bricks.strid.coll.impl.*;
 import org.toxsoft.core.tslib.bricks.time.*;
 import org.toxsoft.core.tslib.coll.primtypes.*;
-import org.toxsoft.uskat.s5.utils.schedules.*;
 
 /**
  * Описание конфигурации подсистемы управления разделами базы данных (контроль глубины хранения).
@@ -28,16 +28,14 @@ public class S5SequencePartitionConfig {
   public static final String SYBSYSTEM_ID_PREFIX = S5DatabaseConfig.SYBSYSTEM_ID_PREFIX + ".partitions";
 
   /**
-   * Календари проведения удаления значений
+   * Интервал выполнения фонововой работы обработки разделов (мсек)
    */
-  public static final IDataDef PARTITION_CALENDARS = create( SYBSYSTEM_ID_PREFIX + ".calendars", VALOBJ, //$NON-NLS-1$
-      TSID_NAME, N_PARTITION_CALENDARS, //
-      TSID_DESCRIPTION, D_PARTITION_CALENDARS, //
+  public static final IDataDef PARTITION_DOJOB_TIMEOUT = create( SYBSYSTEM_ID_PREFIX + ".doJobTimeout", INTEGER, //$NON-NLS-1$
+      TSID_NAME, N_PARTITION_DOJOB_TIMEOUT, //
+      TSID_DESCRIPTION, D_PARTITION_DOJOB_TIMEOUT, //
       TSID_IS_NULL_ALLOWED, AV_FALSE, //
       TSID_IS_MANDATORY, AV_FALSE, //
-      TSID_DEFAULT_VALUE, avValobj( new S5ScheduleExpressionList( //
-          S5ScheduleUtils.createSchedule( "*", "*", "*", "*/60" ) ) )//
-  );
+      TSID_DEFAULT_VALUE, AvUtils.avInt( 24 * 60 * 60 * 1000 ) );
 
   /**
    * Интервал удаления разделов. Если интервал {@link ITimeInterval#NULL}, то процесс автоматически определяет требуемый
@@ -90,7 +88,7 @@ public class S5SequencePartitionConfig {
    * Все параметры подсистемы.
    */
   public static final IStridablesList<IDataDef> ALL_PARTITION_OPDEFS = new StridablesList<>( //
-      PARTITION_CALENDARS, //
+      PARTITION_DOJOB_TIMEOUT, //
       PARTITION_REMOVE_INTERVAL, //
       PARTITION_TABLES, //
       PARTITION_AUTO_THREADS_COUNT, //

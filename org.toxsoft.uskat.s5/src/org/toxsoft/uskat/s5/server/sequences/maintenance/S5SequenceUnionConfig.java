@@ -12,7 +12,6 @@ import org.toxsoft.core.tslib.bricks.strid.coll.*;
 import org.toxsoft.core.tslib.bricks.strid.coll.impl.*;
 import org.toxsoft.core.tslib.bricks.time.*;
 import org.toxsoft.core.tslib.gw.gwid.*;
-import org.toxsoft.uskat.s5.utils.schedules.*;
 
 /**
  * Описание конфигурации подсистемы дефрагментации блоков последовательностей.
@@ -28,18 +27,14 @@ public final class S5SequenceUnionConfig {
   public static final String SYBSYSTEM_ID_PREFIX = S5SequenceConfig.SYBSYSTEM_ID_PREFIX + ".union";
 
   /**
-   * Календари проведения дефрагментации
+   * Интервал выполнения фонововой работы дефрагментации (мсек)
    */
-  public static final IDataDef UNION_CALENDARS = create( SYBSYSTEM_ID_PREFIX + ".calendars", VALOBJ, //$NON-NLS-1$
-      TSID_NAME, N_UNION_CALENDARS, //
-      TSID_DESCRIPTION, D_UNION_CALENDARS, //
+  public static final IDataDef UNION_DOJOB_TIMEOUT = create( SYBSYSTEM_ID_PREFIX + ".doJobTimeout", INTEGER, //$NON-NLS-1$
+      TSID_NAME, N_UNION_DOJOB_TIMEOUT, //
+      TSID_DESCRIPTION, D_UNION_DOJOB_TIMEOUT, //
       TSID_IS_NULL_ALLOWED, AV_FALSE, //
       TSID_IS_MANDATORY, AV_FALSE, //
-      TSID_DEFAULT_VALUE, avValobj( new S5ScheduleExpressionList( //
-          // TODO: 2023-11-10 mvkd перегрузка хранимыми данными gubaha-stend
-          // S5ScheduleUtils.createSchedule( "*", "*", "*", "*/5" ) ) )//
-          S5ScheduleUtils.createSchedule( "*", "*", "*", "*" ) ) )//
-  );
+      TSID_DEFAULT_VALUE, AvUtils.avInt( 1000 ) );
 
   /**
    * Интервал дефрагментации. Если интервал не указан, то процесс автоматически определяет требуемый интервал
@@ -132,7 +127,7 @@ public final class S5SequenceUnionConfig {
    * Все параметры подсистемы.
    */
   public static final IStridablesList<IDataDef> ALL_UNION_OPDEFS = new StridablesList<>( //
-      UNION_CALENDARS, //
+      UNION_DOJOB_TIMEOUT, //
       UNION_INTERVAL, //
       UNION_GWIDS, //
       UNION_AUTO_OFFSET, //

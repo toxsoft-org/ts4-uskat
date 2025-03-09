@@ -28,6 +28,7 @@ import org.toxsoft.core.tslib.utils.*;
 import org.toxsoft.core.tslib.utils.errors.*;
 import org.toxsoft.core.tslib.utils.logs.*;
 import org.toxsoft.uskat.s5.legacy.*;
+import org.toxsoft.uskat.s5.server.backend.supports.core.impl.*;
 import org.toxsoft.uskat.s5.server.startup.*;
 import org.toxsoft.uskat.s5.server.transactions.*;
 import org.toxsoft.uskat.s5.utils.*;
@@ -241,7 +242,7 @@ public class S5SingletonBase
    *
    * @return long метка времени
    */
-  protected long launchTimestamp() {
+  protected final long launchTimestamp() {
     return launchTimestamp;
   }
 
@@ -331,6 +332,10 @@ public class S5SingletonBase
 
         @Override
         public void doJob() {
+          if( !S5SingletonLocker.isDoJobEnable() ) {
+            // Выполнение doJob запрещено (serverMode = LOADING)
+            logger().debug( ERR_DOJOB_DISABLED_BY_LOCKER );
+          }
           doJobRun();
         }
 

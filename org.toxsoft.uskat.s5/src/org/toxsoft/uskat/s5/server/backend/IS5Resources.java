@@ -10,6 +10,8 @@ interface IS5Resources {
   // ------------------------------------------------------------------------------------
   // Строки сообщений
   //
+  String STR_D_LOADING     = "The server is loading";       //$NON-NLS-1$
+  String STR_N_LOADING     = "loading";                     //$NON-NLS-1$
   String STR_D_STARTING    = "The server is starting";      //$NON-NLS-1$
   String STR_N_STARTING    = "starting";                    //$NON-NLS-1$
   String STR_D_WORKING     = "The server is working";       //$NON-NLS-1$

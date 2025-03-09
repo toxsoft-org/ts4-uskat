@@ -180,9 +180,9 @@ public class S5BackendCoreSingleton
   private final S5InterceptorSupport<IS5BackendCoreInterceptor> interceptors = new S5InterceptorSupport<>();
 
   /**
-   * Текущее состояние сервера.
+   * Текущее состояние сервера (управляемое ядром).
    */
-  private ES5ServerMode mode = STARTING;
+  private ES5ServerMode controlledMode = LOADING;
 
   /**
    * Метка времени (мсек с начала эпохи) последнего изменения состояния сервера
@@ -428,10 +428,10 @@ public class S5BackendCoreSingleton
   @Override
   public boolean setMode( ES5ServerMode aMode ) {
     TsNullArgumentRtException.checkNull( aMode );
-    if( mode == aMode ) {
+    if( controlledMode == aMode ) {
       return true;
     }
-    ES5ServerMode oldMode = mode;
+    ES5ServerMode oldMode = controlledMode;
     long oldTimeout = S5Lockable.accessTimeoutDefault();
     // Пред-интерсепция
     IVrList vr = callBeforeChangeServerModeInterceptors( interceptors, oldMode, aMode );
@@ -440,9 +440,13 @@ public class S5BackendCoreSingleton
       logger().error( ERR_REJECT_CHANGE_MODE, oldMode, aMode, vr.items() );
       return false;
     }
-    mode = aMode;
+    controlledMode = aMode;
     modeTime = System.currentTimeMillis();
-    switch( mode ) {
+    switch( controlledMode ) {
+      case LOADING:
+        // Выход из режима загрузки, разрешение doJob-потоков
+        S5SingletonLocker.setDoJobEnable( true );
+        //$FALL-THROUGH$
       case STARTING:
       case BOOSTED:
       case OVERLOADED:
@@ -460,6 +464,9 @@ public class S5BackendCoreSingleton
     try {
       callAfterChangeServerModeInterceptors( interceptors, oldMode, aMode );
       switch( aMode ) {
+        case LOADING:
+          // Запрещено переключаться в режим загрузки.
+          throw new TsInternalErrorRtException();
         case STARTING:
         case WORKING:
         case SHUTDOWNING:
@@ -478,7 +485,7 @@ public class S5BackendCoreSingleton
     }
     catch( Throwable e ) {
       // Восстановление состояния на любой ошибке
-      mode = oldMode;
+      controlledMode = oldMode;
       S5Lockable.setAccessTimeoutDefault( oldTimeout );
       logger().error( e );
       throw e;
@@ -488,7 +495,7 @@ public class S5BackendCoreSingleton
 
   @Override
   public ES5ServerMode mode() {
-    return mode;
+    return controlledMode;
   }
 
   @Override
@@ -653,6 +660,9 @@ public class S5BackendCoreSingleton
     boolean needOverload = (currTime - overloadTimestamp >= overloadDelay);
     // Обработка текущего состояния сервера
     switch( mode() ) {
+      case LOADING:
+        // doJob запрещен
+        throw new TsInternalErrorRtException();
       case STARTING:
         if( currTime - modeTime >= startTimeMin && la < boostedAverage ) {
           setMode( WORKING );

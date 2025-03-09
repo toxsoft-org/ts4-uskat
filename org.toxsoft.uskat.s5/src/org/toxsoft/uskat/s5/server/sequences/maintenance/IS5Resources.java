@@ -30,11 +30,14 @@ interface IS5Resources {
   String STR_N_POSTGRESQL = "PostgreSQL";
   String STR_D_POSTGRESQL = "PostgreSQL database";
 
+  String N_STATISTICS_TIMEOUT = "statDoJobTimeout";
+  String D_STATISTICS_TIMEOUT = "Интервал обработки статитистики (мсек)";
+
   /**
    * {@link S5SequenceUnionConfig}
    */
-  String D_UNION_CALENDARS = Messages.getString( "IS5Resources.D_UNION_CALENDARS" ); //$NON-NLS-1$
-  String N_UNION_CALENDARS = Messages.getString( "IS5Resources.N_UNION_CALENDARS" ); //$NON-NLS-1$
+  String N_UNION_DOJOB_TIMEOUT = "doJobTimeout";
+  String D_UNION_DOJOB_TIMEOUT = "Интервал выполнения фонововой работы дефрагментации (мсек)";
 
   String D_UNION_INTERVAL = Messages.getString( "IS5Resources.D_UNION_INTERVAL" ); //$NON-NLS-1$
   String N_UNION_INTERVAL = Messages.getString( "IS5Resources.N_UNION_INTERVAL" ); //$NON-NLS-1$
@@ -66,8 +69,8 @@ interface IS5Resources {
   /**
    * {@link S5SequencePartitionConfig}
    */
-  String D_PARTITION_CALENDARS = Messages.getString( "IS5Resources.D_PARTITION_CALENDARS" ); //$NON-NLS-1$
-  String N_PARTITION_CALENDARS = Messages.getString( "IS5Resources.N_PARTITION_CALENDARS" ); //$NON-NLS-1$
+  String N_PARTITION_DOJOB_TIMEOUT = "doJobTimeout";
+  String D_PARTITION_DOJOB_TIMEOUT = "Интервал выполнения фонововой работы обработки разделов (мсек)";
 
   String D_REMOVE_INTERVAL = Messages.getString( "IS5Resources.D_REMOVE_INTERVAL" ); //$NON-NLS-1$
   String N_REMOVE_INTERVAL = Messages.getString( "IS5Resources.N_REMOVE_INTERVAL" ); //$NON-NLS-1$
