@@ -673,10 +673,11 @@ public class S5SingletonBase
   public void doJob() {
     // Метод может быть переопределен в наследнике с правильной (для наследника) установкой аннотаций:
     // @TransactionAttribute( TransactionAttributeType.??? ) и @Lock( LockType.??? )
-    if( logger().isSeverityOn( ELogSeverity.DEBUG ) ) {
-      // Количество команд на выполнении
-      logger().debug( MSG_DOJOB );
-    }
+    // 2025-03-10 mvk--- на текущем этапе разработки это стало мусором в логах
+    // if( logger().isSeverityOn( ELogSeverity.DEBUG ) ) {
+    // // Количество команд на выполнении
+    // logger().debug( MSG_DOJOB );
+    // }
   }
 
   /**
