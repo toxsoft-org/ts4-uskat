@@ -229,7 +229,7 @@ public class S5BackendCurrDataSingleton
 
   @TransactionAttribute( TransactionAttributeType.SUPPORTS )
   @Override
-  public void configureCurrDataReader( IS5FrontendRear aFrontend, IGwidList aRtdGwids ) {
+  public IMap<Gwid, IAtomicValue> configureCurrDataReader( IS5FrontendRear aFrontend, IGwidList aRtdGwids ) {
     TsNullArgumentRtException.checkNulls( aFrontend, aRtdGwids );
 
     // Данные фронтенда
@@ -250,7 +250,7 @@ public class S5BackendCurrDataSingleton
     if( !callBeforeConfigureCurrDataReader( interceptors, aFrontend, removeRtdGwids, addRtdGwids ) ) {
       // Интерсепторы отклонили регистрацию читателя данных
       logger().info( MSG_REJECT_READER_BY_INTERCEPTORS );
-      return;
+      return IMap.EMPTY;
     }
 
     // Пост-вызов интерсепторов
@@ -266,9 +266,12 @@ public class S5BackendCurrDataSingleton
     // if( addRtdGwids.size() > 0 ) {
     // IMap<Gwid, IAtomicValue> values = readValues( addRtdGwids );
     if( aRtdGwids.size() > 0 ) {
-      IMap<Gwid, IAtomicValue> values = readValues( aRtdGwids );
-      aFrontend.onBackendMessage( BaMsgRtdataCurrData.INSTANCE.makeMessage( values ) );
+      IMap<Gwid, IAtomicValue> retValue = readValues( aRtdGwids );
+      // 2025-02-06 mvk: потом убрать, лишние действие, атавизм (значения данных передаются как результат запроса)
+      aFrontend.onBackendMessage( BaMsgRtdataCurrData.INSTANCE.makeMessage( retValue ) );
+      return retValue;
     }
+    return IMap.EMPTY;
   }
 
   @TransactionAttribute( TransactionAttributeType.SUPPORTS )
@@ -353,7 +356,7 @@ public class S5BackendCurrDataSingleton
     for( Gwid gwid : aRtdGwids ) {
       IAtomicValue value = valuesCache.get( gwid );
       if( value == null ) {
-        // Текущее данное не зарестировано
+        // Текущее данное не зарегистрировано
         logger().error( ERR_READ_CACHE_VALUE_NOT_FOUND, gwid );
         continue;
       }

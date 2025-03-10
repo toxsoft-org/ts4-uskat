@@ -3,6 +3,7 @@ package org.toxsoft.uskat.core.backend.api;
 import org.toxsoft.core.tslib.av.*;
 import org.toxsoft.core.tslib.av.temporal.*;
 import org.toxsoft.core.tslib.bricks.time.*;
+import org.toxsoft.core.tslib.coll.*;
 import org.toxsoft.core.tslib.gw.gwid.*;
 import org.toxsoft.uskat.core.api.evserv.*;
 import org.toxsoft.uskat.core.api.rtdserv.*;
@@ -31,8 +32,11 @@ public interface IBaRtdata
    * Prepares backend to supply current RTdata values in real-time.
    *
    * @param aRtdGwids {@link IGwidList} - list of current RTdata concrete GWIDs
+   * @return {@link IMap}&lt;{@link Gwid},{@link IAtomicValue}&gt; current RTdata values;<br>
+   *         Key: {@link Gwid} concrete GWID;<br>
+   *         Value: {@link IAtomicValue} сurrent value.
    */
-  void configureCurrDataReader( IGwidList aRtdGwids );
+  IMap<Gwid, IAtomicValue> configureCurrDataReader( IGwidList aRtdGwids );
 
   /**
    * Prepares backend to receive current values for the specified RTdata.
