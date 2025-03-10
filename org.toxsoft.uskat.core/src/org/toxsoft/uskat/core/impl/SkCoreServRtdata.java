@@ -372,15 +372,15 @@ public class SkCoreServRtdata
       result.put( g, channel );
     }
     // inform backend
-    IMap<Gwid, IAtomicValue> retValue =
-        ba().baRtdata().configureCurrDataReader( new GwidList( cdReadChannelsMap.keys() ) );
-    // channels init
-    for( Gwid g : retValue.keys() ) {
-      SkReadCurrDataChannel channel = cdReadChannelsMap.findByKey( g );
-      IAtomicValue value = retValue.findByKey( g );
-      if( channel != null && value != null ) {
-        channel.setValue( value );
+    IMap<Gwid, IAtomicValue> initValues = ba().baRtdata().configureCurrDataReader( gwids );
+    // init channel value
+    for( Gwid g : gwids ) {
+      IAtomicValue initValue = initValues.findByKey( g );
+      if( initValue == null ) {
+        continue;
       }
+      SkReadCurrDataChannel channel = (SkReadCurrDataChannel)result.getByKey( g );
+      channel.setValue( initValue );
     }
     return result;
   }
