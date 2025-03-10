@@ -372,7 +372,8 @@ public class SkCoreServRtdata
       result.put( g, channel );
     }
     // inform backend
-    IMap<Gwid, IAtomicValue> initValues = ba().baRtdata().configureCurrDataReader( gwids );
+    IMap<Gwid, IAtomicValue> initValues =
+        ba().baRtdata().configureCurrDataReader( new GwidList( cdReadChannelsMap.keys() ) );
     // init channel value
     for( Gwid g : gwids ) {
       IAtomicValue initValue = initValues.findByKey( g );
