@@ -59,6 +59,11 @@ public class S5SingletonBase
   private static final long serialVersionUID = 157157L;
 
   /**
+   * Таймаут (мсек) вывода сообщений в потоке doJob
+   */
+  private static final long DOJOB_LOGGER_TIMEOUT = 10000;
+
+  /**
    * Ссылка на первый синглтон.
    */
   @EJB
@@ -126,6 +131,11 @@ public class S5SingletonBase
    * Признак того, что синглетон завершил свою работу
    */
   private boolean closed;
+
+  /**
+   * Таймер вывода сообщений о работе фонового процесса
+   */
+  private S5IntervalTimer doJobLogTimer = new S5IntervalTimer( DOJOB_LOGGER_TIMEOUT );
 
   /**
    * Журнал
@@ -333,8 +343,10 @@ public class S5SingletonBase
         @Override
         public void doJob() {
           if( !S5SingletonLocker.isDoJobEnable() ) {
-            // Выполнение doJob запрещено (serverMode = LOADING)
-            logger().debug( ERR_DOJOB_DISABLED_BY_LOCKER );
+            if( doJobLogTimer.update() ) {
+              // Выполнение doJob запрещено (serverMode = LOADING)
+              logger().debug( ERR_DOJOB_DISABLED_BY_LOCKER );
+            }
           }
           doJobRun();
         }
