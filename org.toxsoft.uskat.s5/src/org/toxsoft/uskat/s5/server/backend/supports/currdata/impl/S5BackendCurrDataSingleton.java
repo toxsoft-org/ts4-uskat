@@ -265,13 +265,15 @@ public class S5BackendCurrDataSingleton
     // получить требуемые им значения. Точная причина этого пока не определена
     // if( addRtdGwids.size() > 0 ) {
     // IMap<Gwid, IAtomicValue> values = readValues( addRtdGwids );
-    if( aRtdGwids.size() > 0 ) {
-      IMap<Gwid, IAtomicValue> retValue = readValues( aRtdGwids );
-      // 2025-02-06 mvk: потом убрать, лишние действие, атавизм (значения данных передаются как результат запроса)
-      aFrontend.onBackendMessage( BaMsgRtdataCurrData.INSTANCE.makeMessage( retValue ) );
-      return retValue;
+
+    // 2025-03-100 mvk: ---+++ valcom возвращение исходного варианта после отказа от передачи значений через сообщение в
+    // пользу возвращаемого результата: IMap<Gwid, IAtomicValue> configureCurrDataReader(...)
+    // if( aRtdGwids.size() > 0 ) {
+    if( addRtdGwids.size() == 0 ) {
+      return IMap.EMPTY;
     }
-    return IMap.EMPTY;
+    IMap<Gwid, IAtomicValue> retValue = readValues( addRtdGwids );
+    return retValue;
   }
 
   @TransactionAttribute( TransactionAttributeType.SUPPORTS )
