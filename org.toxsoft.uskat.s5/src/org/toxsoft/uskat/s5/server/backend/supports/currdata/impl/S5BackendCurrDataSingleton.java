@@ -259,20 +259,11 @@ public class S5BackendCurrDataSingleton
     synchronized (baData) {
       baData.currdataGwidsToFrontend.setAll( aRtdGwids );
     }
-
-    // Планирование передачи текущих значений для вновь подписанных данных
-    // 2025-02-28 mvk: ---+++ valcom попытка оптимизировать приводит к тому, что возможна ситуация, что клиент может не
-    // получить требуемые им значения. Точная причина этого пока не определена
-    // if( addRtdGwids.size() > 0 ) {
-    // IMap<Gwid, IAtomicValue> values = readValues( addRtdGwids );
-
-    // 2025-03-100 mvk: ---+++ valcom возвращение исходного варианта после отказа от передачи значений через сообщение в
-    // пользу возвращаемого результата: IMap<Gwid, IAtomicValue> configureCurrDataReader(...)
-    // if( aRtdGwids.size() > 0 ) {
-    if( addRtdGwids.size() == 0 ) {
+    if( aRtdGwids.size() == 0 ) {
+      // В новой подписке нет данных
       return IMap.EMPTY;
     }
-    IMap<Gwid, IAtomicValue> retValue = readValues( addRtdGwids );
+    IMap<Gwid, IAtomicValue> retValue = readValues( aRtdGwids );
     return retValue;
   }
 
