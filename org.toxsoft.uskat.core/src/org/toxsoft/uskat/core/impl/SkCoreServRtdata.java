@@ -194,8 +194,8 @@ public class SkCoreServRtdata
   @Override
   protected void doClose() {
     // cancel all subscriptions
-    ba().baRtdata().configureCurrDataWriter( IGwidList.EMPTY );
-    ba().baRtdata().configureCurrDataReader( IGwidList.EMPTY );
+    ba().baRtdata().configureCurrDataWriter( null, IGwidList.EMPTY );
+    ba().baRtdata().configureCurrDataReader( null, IGwidList.EMPTY );
     eventer.clearListenersList();
     eventer.resetPendingEvents();
     // close all open curr data write channels
@@ -371,6 +371,20 @@ public class SkCoreServRtdata
       channel.incCounter();
       result.put( g, channel );
     }
+
+    // Удаляемые данные из подписки
+    GwidList removeRtdGwids;
+    synchronized (baData) {
+      removeRtdGwids = new GwidList( baData.currdataGwidsToFrontend );
+    }
+    // Добавляемые данные в подписку
+    GwidList addRtdGwids = new GwidList();
+    for( Gwid rtdGwid : aRtdGwids ) {
+      if( removeRtdGwids.remove( rtdGwid ) < 0 ) {
+        addRtdGwids.add( rtdGwid );
+      }
+    }
+
     // inform backend
     IMap<Gwid, IAtomicValue> initValues =
         ba().baRtdata().configureCurrDataReader( new GwidList( cdReadChannelsMap.keys() ) );
