@@ -229,8 +229,9 @@ public class S5BackendCurrDataSingleton
 
   @TransactionAttribute( TransactionAttributeType.SUPPORTS )
   @Override
-  public IMap<Gwid, IAtomicValue> configureCurrDataReader( IS5FrontendRear aFrontend, IGwidList aRtdGwids ) {
-    TsNullArgumentRtException.checkNulls( aFrontend, aRtdGwids );
+  public IMap<Gwid, IAtomicValue> configureCurrDataReader( IS5FrontendRear aFrontend, IGwidList aToRemove,
+      IGwidList aToAdd ) {
+    TsNullArgumentRtException.checkNulls( aFrontend, aToAdd );
 
     // Данные фронтенда
     S5BaRtdataData baData = aFrontend.frontendData().findBackendAddonData( IBaRtdata.ADDON_ID, S5BaRtdataData.class );
@@ -269,8 +270,8 @@ public class S5BackendCurrDataSingleton
 
   @TransactionAttribute( TransactionAttributeType.SUPPORTS )
   @Override
-  public void configureCurrDataWriter( IS5FrontendRear aFrontend, IGwidList aRtdGwids ) {
-    TsNullArgumentRtException.checkNulls( aFrontend, aRtdGwids );
+  public void configureCurrDataWriter( IS5FrontendRear aFrontend, IGwidList aToRemove, IGwidList aToAdd ) {
+    TsNullArgumentRtException.checkNulls( aFrontend, aToAdd );
 
     // Данные фронтенда
     S5BaRtdataData baData = aFrontend.frontendData().findBackendAddonData( IBaRtdata.ADDON_ID, S5BaRtdataData.class );

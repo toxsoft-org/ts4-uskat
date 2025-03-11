@@ -110,18 +110,34 @@ class S5BaRtdataRemote
   // IBaRtdata
   //
   @Override
-  public IMap<Gwid, IAtomicValue> configureCurrDataReader( IGwidList aRtdGwids ) {
-    TsNullArgumentRtException.checkNull( aRtdGwids );
-    baData.currdataGwidsToFrontend.setAll( aRtdGwids );
-    IMap<Gwid, IAtomicValue> retValue = session().configureCurrDataReader( aRtdGwids );
+  public IMap<Gwid, IAtomicValue> configureCurrDataReader( IGwidList aToRemove, IGwidList aToAdd ) {
+    TsNullArgumentRtException.checkNull( aToRemove );
+    if( aToRemove == null ) {
+      baData.currdataGwidsToFrontend.clear();
+    }
+    if( aToRemove != null ) {
+      for( Gwid gwid : aToRemove ) {
+        baData.currdataGwidsToFrontend.remove( gwid );
+      }
+    }
+    baData.currdataGwidsToFrontend.addAll( aToAdd );
+    IMap<Gwid, IAtomicValue> retValue = session().configureCurrDataReader( aToRemove, aToAdd );
     return retValue;
   }
 
   @Override
-  public void configureCurrDataWriter( IGwidList aRtdGwids ) {
-    TsNullArgumentRtException.checkNull( aRtdGwids );
-    baData.currdataGwidsToBackend.setAll( aRtdGwids );
-    session().configureCurrDataWriter( aRtdGwids );
+  public void configureCurrDataWriter( IGwidList aToRemove, IGwidList aToAdd ) {
+    TsNullArgumentRtException.checkNull( aToAdd );
+    if( aToRemove == null ) {
+      baData.currdataGwidsToBackend.clear();
+    }
+    if( aToRemove != null ) {
+      for( Gwid gwid : aToRemove ) {
+        baData.currdataGwidsToBackend.remove( gwid );
+      }
+    }
+    baData.currdataGwidsToBackend.addAll( aToAdd );
+    session().configureCurrDataWriter( aToRemove, aToAdd );
   }
 
   @Override

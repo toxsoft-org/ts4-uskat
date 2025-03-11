@@ -4,7 +4,6 @@ import javax.ejb.*;
 
 import org.toxsoft.core.tslib.av.*;
 import org.toxsoft.core.tslib.coll.*;
-import org.toxsoft.core.tslib.coll.primtypes.*;
 import org.toxsoft.core.tslib.gw.gwid.*;
 import org.toxsoft.core.tslib.utils.errors.*;
 import org.toxsoft.uskat.s5.server.backend.*;
@@ -39,24 +38,17 @@ public interface IS5BackendCurrDataSingleton
    * разный смысл! Пустой список означает, что никакие РВданные не удаляются из списка интересующих клиента, в то время,
    * как <code>null</code> означает, что <b>все</b> до этого интересующие РВданные более не нужны, и должны быть удалены
    * из списка интересующих клиента.
-   * <p>
-   * Метод возвращает карту. Ключами в карте являются уникальные int-ключи, назначаемыйе сервером запрошенному
-   * РВданному. Значением в карте является {@link Gwid} идентификатор <code>всех</code> запрошенных клиентом данных. То
-   * есть, значения {@link IIntMap#values()} в карте, это список все РВданных, сформированный согласно запросу - ранее
-   * запрошенные данные минус <code>aToRemove</code> плюс <code>aToAdd</code>. При этом в карте отсутствуют
-   * повторяющейся РВ данные.
-   * <p>
-   * Обратите внимание, что сохранение значения ключенй между вызовами метода не гарантируется. Один и тотже
-   * {@link Gwid} может иметь разный ключ после каждого вызова.
    *
    * @param aFrontend {@link IS5FrontendRear} фронтенд сформировавший запрос
-   * @param aRtdGwids {@link IGwidList} - список идентификаторов данных читаемых клиентом
+   * @param aToRemove {@link IGwidList} - список идентификаторов данных удаляемых из читаемых клиентом данных. null: все
+   *          данные.
+   * @param aToAdd {@link IGwidList} - список идентификаторов данных добавляемых в читаемые клиентом данные.
    * @return {@link IMap}&lt;{@link Gwid},{@link IAtomicValue}&gt; карта текущих значений;<br>
    *         Key: {@link Gwid} конкретный GWID текущего данного;<br>
    *         Value: {@link IAtomicValue} текущее значение данного.
    * @throws TsNullArgumentRtException <code>aToAdd</code> == null
    */
-  IMap<Gwid, IAtomicValue> configureCurrDataReader( IS5FrontendRear aFrontend, IGwidList aRtdGwids );
+  IMap<Gwid, IAtomicValue> configureCurrDataReader( IS5FrontendRear aFrontend, IGwidList aToRemove, IGwidList aToAdd );
 
   /**
    * Конфигурирует, какие текущие РВданные хочет писать клиент.
@@ -65,21 +57,14 @@ public interface IS5BackendCurrDataSingleton
    * список означает, что никакие РВданные не удаляются из списка интересующих клиента, в то время, как
    * <code>null</code> означает, что <b>все</b> до этого интересующие РВданные более не нужны, и должны быть удалены из
    * списка интересующих клиента.
-   * <p>
-   * Метод возвращает карту. Ключами в карте являются уникальные int-ключи, назначаемыйе сервером запрошенному
-   * РВданному. Значением в карте является {@link Gwid} идентификатор <code>всех</code> запрошенных клиентом данных. То
-   * есть, значения {@link IIntMap#values()} в карте, это список все РВданных, сформированный согласно запросу - ранее
-   * запрошенные данные минус <code>aToRemove</code> плюс <code>aToAdd</code>. При этом в карте отсутствуют
-   * повторяющейся РВ данные.
-   * <p>
-   * Обратите внимание, что сохранение значения ключенй между вызовами метода не гарантируется. Один и тотже
-   * {@link Gwid} может иметь разный ключ после каждого вызова.
    *
    * @param aFrontend {@link IS5FrontendRear} фронтенд сформировавший запрос
-   * @param aRtdGwids {@link IGwidList} - список идентификаторов данных записываемых клиентом
+   * @param aToRemove {@link IGwidList} - список идентификаторов данных удаляемых из записываемых клиентом данных. null:
+   *          все данные.
+   * @param aToAdd {@link IGwidList} - список идентификаторов данных добавляемых в записываемые клиентом данные.
    * @throws TsNullArgumentRtException <code>aToAdd</code> == null
    */
-  void configureCurrDataWriter( IS5FrontendRear aFrontend, IGwidList aRtdGwids );
+  void configureCurrDataWriter( IS5FrontendRear aFrontend, IGwidList aToRemove, IGwidList aToAdd );
 
   /**
    * Возвращает список идентификаторов текущих данных читаемых клиентами службы
