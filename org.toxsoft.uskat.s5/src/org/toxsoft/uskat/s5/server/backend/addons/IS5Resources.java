@@ -34,7 +34,7 @@ interface IS5Resources {
       "S5AbstractBackend::run(): change default error logger: LoggerUtils.setErrorLogger( %s )";  //$NON-NLS-1$
   String MSG_RESTORE_ERROR_LOGGER =
       "S5AbstractBackend::run(): restore default error logger: LoggerUtils.setErrorLogger( %s )"; //$NON-NLS-1$
-
+  String MSG_DOJOB                = "S5AbstractBackend.run(...)";                                 //$NON-NLS-1$
   // ------------------------------------------------------------------------------------
   // Тексты ошибок
   //
