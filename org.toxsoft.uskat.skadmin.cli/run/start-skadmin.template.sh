@@ -13,11 +13,11 @@ ADMIN_PLUGINPATH=\
 ../../../ts4-targets/ts4-target-uskat/main/plugins
 
 ADMIN_USER=root
-ADMIN_PASSWORD=1
+ADMIN_PASSWORD=root
 ADMIN_HOST="127.0.0.1"
 ADMIN_PORT="8080"
 ADMIN_CONNECT_TIMEOUT=3000
-ADMIN_FAILURE_TIMEOUT=500000
+ADMIN_FAILURE_TIMEOUT=10000
 ADMIN_CURRDATA_TIMEOUT=-1
 ADMIN_INITIALIZER=""
 
@@ -33,7 +33,12 @@ _LOGGER="-Dlog4j.configuration=file:log4j.xml"
 _REMOTE_DEBUG="-Xdebug -Xnoagent -Xrunjdwp:transport=dt_socket,server=y,suspend=n,address=8000"
 
 
-${JAVA_HOME}/bin/java $_PLUGIN_PATHS $_CHARSET $_LOGGER $_XMS_MEMORY $_XMX_MEMORY $_CLASS_PATH $_MAIN_CLASS connect -user $ADMIN_USER -password $ADMIN_PASSWORD -host $ADMIN_HOST -port $ADMIN_PORT -connectTimeout
-
-
-
+${JAVA_HOME}/bin/java $_PLUGIN_PATHS $_CHARSET $_LOGGER $_REMOTE_DEBUG $_XMS_MEMORY $_XMX_MEMORY $_CLASS_PATH $_MAIN_CLASS \
+  connect \
+  -user     $ADMIN_USER     \
+  -password $ADMIN_PASSWORD \
+  -host     $ADMIN_HOST     \
+  -port     $ADMIN_PORT     \
+  -connectTimeout  $ADMIN_CONNECT_TIMEOUT  \
+  -failureTimeout  $ADMIN_FAILURE_TIMEOUT  \
+  -currdataTimeout $ADMIN_CURRDATA_TIMEOUT
