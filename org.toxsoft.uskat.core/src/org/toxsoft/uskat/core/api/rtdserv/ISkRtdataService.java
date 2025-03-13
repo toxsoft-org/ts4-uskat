@@ -122,4 +122,17 @@ public interface ISkRtdataService
    */
   ITimedList<ITemporalAtomicValue> queryObjRtdata( IQueryInterval aInterval, Gwid aGwid );
 
+  // ------------------------------------------------------------------------------------
+  // inline methods for convenience
+
+  @SuppressWarnings( "javadoc" )
+  default ISkReadCurrDataChannel createReadCurrDataChannel( Gwid aGwid ) {
+    return createReadCurrDataChannels( new GwidList( aGwid ) ).getByKey( aGwid );
+  }
+
+  @SuppressWarnings( "javadoc" )
+  default ISkWriteCurrDataChannel createWriteCurrDataChannel( Gwid aGwid ) {
+    return createWriteCurrDataChannels( new GwidList( aGwid ) ).getByKey( aGwid );
+  }
+
 }
