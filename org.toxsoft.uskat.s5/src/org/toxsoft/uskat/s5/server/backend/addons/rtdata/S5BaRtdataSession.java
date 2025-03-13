@@ -118,9 +118,9 @@ public class S5BaRtdataSession
   //
   @TransactionAttribute( TransactionAttributeType.SUPPORTS )
   @Override
-  public IMap<Gwid, IAtomicValue> configureCurrDataReader( IGwidList aRtdGwids ) {
-    TsNullArgumentRtException.checkNull( aRtdGwids );
-    IMap<Gwid, IAtomicValue> retValue = currDataSupport.configureCurrDataReader( frontend(), aRtdGwids );
+  public IMap<Gwid, IAtomicValue> configureCurrDataReader( IGwidList aToRemove, IGwidList aToAdd ) {
+    TsNullArgumentRtException.checkNull( aToAdd );
+    IMap<Gwid, IAtomicValue> retValue = currDataSupport.configureCurrDataReader( frontend(), aToRemove, aToAdd );
     // Сохранение измененной сессии в кластере сервера
     writeSessionData();
     return retValue;
@@ -128,9 +128,9 @@ public class S5BaRtdataSession
 
   @TransactionAttribute( TransactionAttributeType.SUPPORTS )
   @Override
-  public void configureCurrDataWriter( IGwidList aRtdGwids ) {
-    TsNullArgumentRtException.checkNull( aRtdGwids );
-    currDataSupport.configureCurrDataWriter( frontend(), aRtdGwids );
+  public void configureCurrDataWriter( IGwidList aToRemove, IGwidList aToAdd ) {
+    TsNullArgumentRtException.checkNull( aToAdd );
+    currDataSupport.configureCurrDataWriter( frontend(), aToRemove, aToAdd );
     // Сохранение измененной сессии в кластере сервера
     writeSessionData();
   }

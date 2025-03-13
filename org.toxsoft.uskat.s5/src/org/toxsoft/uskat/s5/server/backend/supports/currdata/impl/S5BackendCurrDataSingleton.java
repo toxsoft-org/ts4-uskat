@@ -235,36 +235,32 @@ public class S5BackendCurrDataSingleton
 
     // Данные фронтенда
     S5BaRtdataData baData = aFrontend.frontendData().findBackendAddonData( IBaRtdata.ADDON_ID, S5BaRtdataData.class );
-    // Удаляемые данные из подписки
-    GwidList removeRtdGwids;
-    synchronized (baData) {
-      removeRtdGwids = new GwidList( baData.currdataGwidsToFrontend );
-    }
-    // Добавляемые данные в подписку
-    GwidList addRtdGwids = new GwidList();
-    for( Gwid rtdGwid : aRtdGwids ) {
-      if( removeRtdGwids.remove( rtdGwid ) < 0 ) {
-        addRtdGwids.add( rtdGwid );
-      }
-    }
     // Пред-вызов интерсепторов
-    if( !callBeforeConfigureCurrDataReader( interceptors, aFrontend, removeRtdGwids, addRtdGwids ) ) {
+    if( !callBeforeConfigureCurrDataReader( interceptors, aFrontend, aToRemove, aToAdd ) ) {
       // Интерсепторы отклонили регистрацию читателя данных
       logger().info( MSG_REJECT_READER_BY_INTERCEPTORS );
       return IMap.EMPTY;
     }
-
-    // Пост-вызов интерсепторов
-    callAfterConfigureCurrDataReader( interceptors, aFrontend, removeRtdGwids, addRtdGwids, logger() );
     // Фактическое выполнение подписки на данные
     synchronized (baData) {
-      baData.currdataGwidsToFrontend.setAll( aRtdGwids );
+      if( aToRemove == null ) {
+        baData.currdataGwidsToFrontend.clear();
+      }
+      if( aToRemove != null ) {
+        for( Gwid g : aToRemove ) {
+          baData.currdataGwidsToFrontend.remove( g );
+        }
+      }
+      baData.currdataGwidsToFrontend.addAll( aToAdd );
     }
-    if( aRtdGwids.size() == 0 ) {
-      // В новой подписке нет данных
+    // Пост-вызов интерсепторов
+    callAfterConfigureCurrDataReader( interceptors, aFrontend, aToRemove, aToAdd, logger() );
+
+    if( aToAdd.size() == 0 ) {
+      // Нет новых данных
       return IMap.EMPTY;
     }
-    IMap<Gwid, IAtomicValue> retValue = readValues( aRtdGwids );
+    IMap<Gwid, IAtomicValue> retValue = readValues( aToAdd );
     return retValue;
   }
 
@@ -275,31 +271,26 @@ public class S5BackendCurrDataSingleton
 
     // Данные фронтенда
     S5BaRtdataData baData = aFrontend.frontendData().findBackendAddonData( IBaRtdata.ADDON_ID, S5BaRtdataData.class );
-    // Удаляемые данные из подписки
-    GwidList removeRtdGwids;
-    synchronized (baData) {
-      removeRtdGwids = new GwidList( baData.currdataGwidsToBackend );
-    }
-    // Добавляемые данные в подписку
-    GwidList addRtdGwids = new GwidList();
-    for( Gwid rtdGwid : aRtdGwids ) {
-      if( removeRtdGwids.remove( rtdGwid ) < 0 ) {
-        addRtdGwids.add( rtdGwid );
-      }
-    }
     // Пред-вызов интерсепторов
-    if( !callBeforeConfigureCurrDataWriter( interceptors, aFrontend, removeRtdGwids, addRtdGwids ) ) {
+    if( !callBeforeConfigureCurrDataWriter( interceptors, aFrontend, aToRemove, aToAdd ) ) {
       // Интерсепторы отклонили регистрацию читателя данных
       logger().info( MSG_REJECT_READER_BY_INTERCEPTORS );
       return;
     }
-
-    // Пост-вызов интерсепторов
-    callAfterConfigureCurrDataWriter( interceptors, aFrontend, removeRtdGwids, addRtdGwids, logger() );
     // Фактическое выполнение подписки на данные
     synchronized (baData) {
-      baData.currdataGwidsToBackend.setAll( aRtdGwids );
+      if( aToRemove == null ) {
+        baData.currdataGwidsToBackend.clear();
+      }
+      if( aToRemove != null ) {
+        for( Gwid g : aToRemove ) {
+          baData.currdataGwidsToBackend.remove( g );
+        }
+      }
+      baData.currdataGwidsToBackend.addAll( aToAdd );
     }
+    // Пост-вызов интерсепторов
+    callAfterConfigureCurrDataWriter( interceptors, aFrontend, aToRemove, aToAdd, logger() );
   }
 
   @TransactionAttribute( TransactionAttributeType.SUPPORTS )

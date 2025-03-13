@@ -313,12 +313,14 @@ public class SkCoreServRtdata
 
     @Override
     public void close() {
+      checkThread();
       if( counter > 0 ) {
         --counter;
       }
       if( counter == 0 ) {
         if( cdReadChannelsMap.hasElem( this ) ) {
           cdReadChannelsMap.removeByKey( gwid );
+          cdReadToRemove.add( gwid );
         }
       }
     }
@@ -353,6 +355,7 @@ public class SkCoreServRtdata
   }
 
   private final IMapEdit<Gwid, SkReadCurrDataChannel> cdReadChannelsMap = new ElemMap<>();
+  private final GwidList                              cdReadToRemove    = new GwidList();
 
   @Override
   public IMap<Gwid, ISkReadCurrDataChannel> createReadCurrDataChannels( IGwidList aGwids ) {
@@ -362,32 +365,20 @@ public class SkCoreServRtdata
     IMapEdit<Gwid, ISkReadCurrDataChannel> result = new ElemMap<>();
     // for all valid GWId either get existing or create new channel
     IGwidList gwids = toValidRtdataGwids( aGwids, false );
+    GwidList cdReadToAdd = new GwidList();
     for( Gwid g : gwids ) {
       SkReadCurrDataChannel channel = cdReadChannelsMap.findByKey( g );
       if( channel == null ) {
         channel = new SkReadCurrDataChannel( g );
         cdReadChannelsMap.put( g, channel );
+        cdReadToAdd.add( g );
       }
       channel.incCounter();
       result.put( g, channel );
     }
-
-    // Удаляемые данные из подписки
-    GwidList removeRtdGwids;
-    synchronized (baData) {
-      removeRtdGwids = new GwidList( baData.currdataGwidsToFrontend );
-    }
-    // Добавляемые данные в подписку
-    GwidList addRtdGwids = new GwidList();
-    for( Gwid rtdGwid : aRtdGwids ) {
-      if( removeRtdGwids.remove( rtdGwid ) < 0 ) {
-        addRtdGwids.add( rtdGwid );
-      }
-    }
-
     // inform backend
-    IMap<Gwid, IAtomicValue> initValues =
-        ba().baRtdata().configureCurrDataReader( new GwidList( cdReadChannelsMap.keys() ) );
+    IMap<Gwid, IAtomicValue> initValues = ba().baRtdata().configureCurrDataReader( cdReadToRemove, cdReadToAdd );
+    cdReadToRemove.clear();
     // init channel value
     for( Gwid g : gwids ) {
       IAtomicValue initValue = initValues.findByKey( g );
@@ -467,6 +458,7 @@ public class SkCoreServRtdata
 
     @Override
     protected boolean doIsOk() {
+      checkThread();
       return cdWriteChannelsMap.hasKey( gwid );
     }
 
@@ -498,6 +490,7 @@ public class SkCoreServRtdata
    * @see #cdReadChannelsMap
    */
   final IMapEdit<Gwid, SkWriteCurrDataChannel> cdWriteChannelsMap = new ElemMap<>();
+  private final GwidList                       cdWriteToRemove    = new GwidList();
 
   @Override
   public IMap<Gwid, ISkWriteCurrDataChannel> createWriteCurrDataChannels( IGwidList aGwids1 ) {
@@ -507,16 +500,19 @@ public class SkCoreServRtdata
     IMapEdit<Gwid, ISkWriteCurrDataChannel> result = new ElemMap<>();
     // for all valid GWId either get exiting or create new channel
     IGwidList gwids = toValidRtdataGwids( aGwids1, false );
+    GwidList cdWriteToAdd = new GwidList();
     for( Gwid g : gwids ) {
       SkWriteCurrDataChannel channel = cdWriteChannelsMap.findByKey( g );
       if( channel == null ) {
         channel = new SkWriteCurrDataChannel( g );
         cdWriteChannelsMap.put( g, channel );
+        cdWriteToAdd.add( g );
       }
       result.put( g, channel );
     }
     // inform backend
-    ba().baRtdata().configureCurrDataWriter( new GwidList( cdWriteChannelsMap.keys() ) );
+    ba().baRtdata().configureCurrDataWriter( cdWriteToRemove, cdWriteToAdd );
+    cdWriteToRemove.clear();
     return result;
   }
 

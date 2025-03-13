@@ -428,13 +428,21 @@ public class MtbBaRtdata
   //
 
   @Override
-  public IMap<Gwid, IAtomicValue> configureCurrDataReader( IGwidList aRtdGwids ) {
+  public IMap<Gwid, IAtomicValue> configureCurrDataReader( IGwidList aToRemove, IGwidList aToAdd ) {
     cdLock.writeLock().lock();
     try {
-      cdReadGwids.setAll( aRtdGwids );
+      if( aToRemove == null ) {
+        cdReadGwids.clear();
+      }
+      if( aToRemove != null ) {
+        for( Gwid g : aToRemove ) {
+          cdReadGwids.remove( g );
+        }
+      }
+      cdReadGwids.addAll( aToAdd );
       internalConfigureCurrDataReadWrite();
       IMapEdit<Gwid, IAtomicValue> retValue = new ElemMap<>();
-      for( Gwid g : aRtdGwids ) {
+      for( Gwid g : aToAdd ) {
         IAtomicValue value = cdMap.findByKey( g );
         if( value != null ) {
           retValue.put( g, value );
@@ -448,10 +456,18 @@ public class MtbBaRtdata
   }
 
   @Override
-  public void configureCurrDataWriter( IGwidList aRtdGwids ) {
+  public void configureCurrDataWriter( IGwidList aToRemove, IGwidList aToAdd ) {
     cdLock.writeLock().lock();
     try {
-      cdWriteGwids.setAll( aRtdGwids );
+      if( aToRemove == null ) {
+        cdWriteGwids.clear();
+      }
+      if( aToRemove != null ) {
+        for( Gwid g : aToRemove ) {
+          cdWriteGwids.remove( g );
+        }
+      }
+      cdWriteGwids.addAll( aToAdd );
       internalConfigureCurrDataReadWrite();
     }
     finally {
