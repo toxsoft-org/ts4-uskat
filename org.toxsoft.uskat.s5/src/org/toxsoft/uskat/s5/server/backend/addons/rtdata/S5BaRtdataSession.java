@@ -9,6 +9,7 @@ import javax.ejb.*;
 
 import org.toxsoft.core.tslib.av.*;
 import org.toxsoft.core.tslib.av.temporal.*;
+import org.toxsoft.core.tslib.bricks.events.msg.*;
 import org.toxsoft.core.tslib.bricks.time.*;
 import org.toxsoft.core.tslib.coll.*;
 import org.toxsoft.core.tslib.coll.impl.*;
@@ -111,6 +112,15 @@ public class S5BaRtdataSession
         return;
       }
     } );
+    // 2023-03-12 mvk+++
+    // Передача текущих значений данных на которые подписан клиент
+    if( baData.currdataGwidsToFrontend.size() > 0 ) {
+      IMap<Gwid, IAtomicValue> retValue = currDataSupport.readValues( baData.currdataGwidsToFrontend );
+      // Немедленная передача текущих значений фронтенду
+      GtMessage message = BaMsgRtdataCurrData.INSTANCE.makeMessage( retValue );
+      // Немедленная передача текущих значений фронтенду
+      frontend().onBackendMessage( message );
+    }
   }
 
   // ------------------------------------------------------------------------------------
