@@ -13,27 +13,37 @@ ADMIN_PLUGINPATH=\
 ../../../ts4-targets/ts4-target-uskat/main/plugins
 
 ADMIN_USER=root
-ADMIN_PASSWORD=1
+ADMIN_PASSWORD=root
 ADMIN_HOST="127.0.0.1"
 ADMIN_PORT="8080"
 ADMIN_CONNECT_TIMEOUT=3000
-ADMIN_FAILURE_TIMEOUT=500000
-ADMIN_CURRDATA_TIMEOUT=-1
-ADMIN_INITIALIZER=""
+ADMIN_FAILURE_TIMEOUT=10000
+ADMIN_CURRDATA_TIMEOUT=300
+ADMIN_DOJOB_TIMEOUT=10
+ADMIN_MEMORY=512M
+ADMIN_CHARSET="UTF8"
 
-
-# Параметры jvm
-_CLASS_PATH="-cp $ADMIN_CLASSPATH"
-_PLUGIN_PATHS="-Dorg.toxsoft.uskat.skadmin.plugin.paths=$ADMIN_PLUGINPATH"
-_MAIN_CLASS="org.toxsoft.uskat.skadmin.cli.Main"
-_XMS_MEMORY="-Xms256m"
-_XMX_MEMORY="-Xmx512m"
-_CHARSET="-Dfile.encoding=UTF8"
-_LOGGER="-Dlog4j.configuration=file:log4j.xml"
+# раскоментировать если нужна удаленная отладка
 _REMOTE_DEBUG="-Xdebug -Xnoagent -Xrunjdwp:transport=dt_socket,server=y,suspend=n,address=8000"
 
 
-${JAVA_HOME}/bin/java $_PLUGIN_PATHS $_CHARSET $_LOGGER $_XMS_MEMORY $_XMX_MEMORY $_CLASS_PATH $_MAIN_CLASS connect -user $ADMIN_USER -password $ADMIN_PASSWORD -host $ADMIN_HOST -port $ADMIN_PORT -connectTimeout
-
+${JAVA_HOME}/bin/java \
+  -Xms$ADMIN_MEMORY \
+  -Xmx$ADMIN_MEMORY \
+  -cp $ADMIN_CLASSPATH \
+  -Dorg.toxsoft.uskat.s5.client.doJobTimeout=$ADMIN_DOJOB_TIMEOUT \
+  -Dorg.toxsoft.uskat.skadmin.plugin.paths=$ADMIN_PLUGINPATH \
+  -Dfile.encoding=$ADMIN_CHARSET \
+  -Dlog4j.configuration=file:log4j.xml \
+  $_REMOTE_DEBUG \
+  org.toxsoft.uskat.skadmin.cli.Main \
+  connect \
+  -user     $ADMIN_USER     \
+  -password $ADMIN_PASSWORD \
+  -host     $ADMIN_HOST     \
+  -port     $ADMIN_PORT     \
+  -connectTimeout  $ADMIN_CONNECT_TIMEOUT  \
+  -failureTimeout  $ADMIN_FAILURE_TIMEOUT  \
+  -currdataTimeout $ADMIN_CURRDATA_TIMEOUT
 
 

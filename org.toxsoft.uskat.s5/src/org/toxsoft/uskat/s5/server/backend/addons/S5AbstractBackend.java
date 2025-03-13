@@ -416,6 +416,7 @@ public abstract class S5AbstractBackend<ADDON extends IS5BackendAddon>
   //
   @Override
   public void run() {
+    logger.debug( MSG_DOJOB );
     if( isClosed || isClosing ) {
       // backend завершил или завершает свою работу
       return;
