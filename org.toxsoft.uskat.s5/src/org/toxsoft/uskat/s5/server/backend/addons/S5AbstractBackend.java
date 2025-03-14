@@ -276,15 +276,12 @@ public abstract class S5AbstractBackend<ADDON extends IS5BackendAddon>
     progressMonitor = (aArgs.hasKey( REF_MONITOR.refKey() ) ? //
         aArgs.getRef( REF_MONITOR.refKey(), IS5ProgressMonitor.class ) : //
         IS5ProgressMonitor.NULL);
-    // Имя бекенда
-    String name = "sessionID = " + sessionID.strid(); //$NON-NLS-1$
 
     // Задача (поток) обслуживания потребностей бекенда
     // backendDojobThread = new S5BackendDoJobThread( name, this );
 
     // Синхронизация обращения к uskat
     threadExecutor = REFDEF_THREAD_EXECUTOR.getRef( aArgs );
-    threadExecutor.thread().setName( name );
 
     // Таймаут выполнения doJob-задачи
     doJobTimeout = OP_DOJOB_TIMEOUT.getValue( openArgs.params() ).asInt();

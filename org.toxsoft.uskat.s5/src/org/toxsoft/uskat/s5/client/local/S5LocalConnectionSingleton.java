@@ -1,5 +1,6 @@
 package org.toxsoft.uskat.s5.client.local;
 
+import static org.toxsoft.core.log4j.LoggerWrapper.*;
 import static org.toxsoft.core.tslib.av.impl.AvUtils.*;
 import static org.toxsoft.uskat.s5.client.local.IS5Resources.*;
 import static org.toxsoft.uskat.s5.client.local.S5ClusterCommandWhenObjectsChanged.*;
@@ -82,11 +83,6 @@ public class S5LocalConnectionSingleton
   private static final long DO_JOB_TIMEOUT = 1000;
 
   /**
-   * Служба управления вызовами API {@link #EXECUTOR_JNDI}
-   */
-  private ExecutorService executorService;
-
-  /**
    * Менеджер управления кластером s5-сервера
    */
   @EJB
@@ -142,7 +138,8 @@ public class S5LocalConnectionSingleton
   @Override
   protected void doInit() {
     // Поиск исполнителя потоков объединения блоков
-    executorService = S5ServiceSingletonUtils.lookupExecutor( EXECUTOR_JNDI );
+    // TODO: 2023-03-14 mvk ???
+    // executorService = S5ServiceSingletonUtils.lookupExecutor( EXECUTOR_JNDI );
     // executorService = Executors.newFixedThreadPool( 1024 );
     // Прием сообщений кластера
     whenSysdecrChangedHandler = new S5ClusterCommandWhenSysdescrChanged( backend );
@@ -191,8 +188,8 @@ public class S5LocalConnectionSingleton
     IS5ConnectionParams.OP_HISTDATA_TIMEOUT.setValue( ctx.params(), avInt( 10000 ) );
 
     // Текущий поток используется только для открытия соединения
-    Thread thread = Thread.currentThread();
-    TsThreadExecutor executor = new TsThreadExecutor( thread );
+    TsThreadExecutor executor =
+        new TsThreadExecutor( getClass().getSimpleName(), Thread.currentThread(), getLogger( TsThreadExecutor.class ) );
     ISkCoreConfigConstants.REFDEF_THREAD_EXECUTOR.setRef( ctx, executor );
 
     // Имя соединения
@@ -273,8 +270,8 @@ public class S5LocalConnectionSingleton
       TsThreadExecutor threadExecutor = initExecutors.getByKey( connectionName );
       // TODO: !!! 2025-02-25 mvk при работе с шлюзами в проекте valcom появилось подозрение что executorService может
       // подменять рабочий поток у соединения что может приводить к 'invalid thread access' в соединении.
-      threadExecutor.setExecutor( executorService );
-      threadExecutor.thread().setName( connectionName );
+      // threadExecutor.setExecutor( executorService );
+      threadExecutor.setThread( null );
       initExecutors.removeByKey( connectionName );
     }
 

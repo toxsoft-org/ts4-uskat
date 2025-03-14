@@ -1,6 +1,6 @@
 package org.toxsoft.uskat.core.impl;
 
-import static java.lang.String.*;
+import static org.toxsoft.core.tslib.bricks.threadexec.TsThreadExecutorUtils.*;
 import static org.toxsoft.uskat.core.impl.ISkResources.*;
 
 import org.toxsoft.core.tslib.av.*;
@@ -207,12 +207,12 @@ public class SkatletBox
 
     @Override
     public void open( ITsContextRo aArgs ) {
-      logger.warning( FMT_WARN_ATTEMPT_OPEN_SHARE, currentThreadStackToString() );
+      logger.warning( FMT_WARN_ATTEMPT_OPEN_SHARE, threadStackToString( Thread.currentThread() ) );
     }
 
     @Override
     public void close() {
-      logger.warning( FMT_WARN_ATTEMPT_CLOSE_SHARE, currentThreadStackToString() );
+      logger.warning( FMT_WARN_ATTEMPT_CLOSE_SHARE, threadStackToString( Thread.currentThread() ) );
     }
 
     @Override
@@ -238,15 +238,6 @@ public class SkatletBox
     @Override
     public ITsContext scope() {
       return connection.scope();
-    }
-
-    private static String currentThreadStackToString() {
-      StringBuilder sb = new StringBuilder();
-      StackTraceElement[] stack = Thread.currentThread().getStackTrace();
-      for( int index = 2, n = stack.length; index < n; index++ ) {
-        sb.append( format( "   %s\n", stack[index] ) ); //$NON-NLS-1$
-      }
-      return sb.toString();
     }
   }
 

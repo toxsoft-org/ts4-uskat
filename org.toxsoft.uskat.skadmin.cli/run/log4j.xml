@@ -33,6 +33,10 @@
                 <priority value="WARN" />
         </category>
 
+        <category name="org.toxsoft.core.tslib.bricks.threadexec.TsThreadExecutor">
+                <priority value="WARN" />
+        </category>
+
 
         <category name="org.toxsoft.core.pas">
                 <priority value="WARN" />

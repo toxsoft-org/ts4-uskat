@@ -2,6 +2,7 @@ package org.toxsoft.uskat.s5.client.remote.connection;
 
 import static java.lang.String.*;
 import static org.toxsoft.core.log4j.LoggerWrapper.*;
+import static org.toxsoft.core.tslib.bricks.threadexec.TsThreadExecutorUtils.*;
 import static org.toxsoft.uskat.s5.client.remote.connection.IS5Resources.*;
 import static org.toxsoft.uskat.s5.client.remote.connection.S5Connection.*;
 import static org.toxsoft.uskat.s5.common.IS5CommonResources.*;
@@ -48,7 +49,7 @@ class S5ConnectionThread
     logger.info( MSG_QUERY_CLOSE_THREAD, getName(), this );
     if( logger.isSeverityOn( ELogSeverity.DEBUG ) ) {
       // Вывод стека запроса завершения
-      logger.debug( MSG_STACK, getName(), this, currentThreadStackToString() );
+      logger.debug( MSG_STACK, getName(), this, threadStackToString( Thread.currentThread() ) );
     }
     shutdown = true;
     // Прерывание работы потока
@@ -97,7 +98,7 @@ class S5ConnectionThread
       }
       catch( Throwable e ) {
         if( logger.isSeverityOn( ELogSeverity.DEBUG ) ) {
-          logger.error( ERR_CREATE_CONNECTION_WITH_STACK, cause( e ), currentThreadStackToString() );
+          logger.error( ERR_CREATE_CONNECTION_WITH_STACK, cause( e ), threadStackToString( Thread.currentThread() ) );
         }
         else {
           logger.error( ERR_CREATE_CONNECTION, cause( e ) );

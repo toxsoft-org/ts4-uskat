@@ -1,9 +1,8 @@
 package org.toxsoft.uskat.s5.common;
 
-import static java.lang.String.*;
 import static org.toxsoft.core.log4j.LoggerWrapper.*;
 
-import org.toxsoft.core.tslib.utils.logs.ILogger;
+import org.toxsoft.core.tslib.utils.logs.*;
 
 /**
  * Общие локализуемые ресурсы.
@@ -16,10 +15,6 @@ public interface IS5CommonResources {
   // ------------------------------------------------------------------------------------
   // Строки сообщений
   //
-  /**
-   * Формат вывода элемента стека
-   */
-  String MSG_STACK_ITEM = "   %s\n";
 
   // ------------------------------------------------------------------------------------
   // Тексты ошибок
@@ -55,22 +50,5 @@ public interface IS5CommonResources {
     }
     String err = aError.getClass().getSimpleName();
     return (aError.getLocalizedMessage() != null ? err + ": " + aError.getLocalizedMessage() : err);
-  }
-
-  /**
-   * Возвращает стек вызовов текущего потока в текстовом представлении
-   *
-   * @return String текстовое представление стека
-   */
-  static String currentThreadStackToString() {
-    // Вывод стека запроса завершения
-    StringBuilder sb = new StringBuilder();
-    // Стек текущего потока
-    StackTraceElement[] stack = Thread.currentThread().getStackTrace();
-    // index = 2 чтобы избежать вывод вызова Thread.getStackTrace() и currentThreadStackToString()
-    for( int index = 2, n = stack.length; index < n; index++ ) {
-      sb.append( format( MSG_STACK_ITEM, stack[index] ) );
-    }
-    return sb.toString();
   }
 }
