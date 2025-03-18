@@ -23,6 +23,7 @@ public abstract class SkAbstractVirtDataCurrDataWriter
   private final ISkCoreApi              coreApi;
   private final ISkWriteCurrDataChannel writeChannel;
   private final ILogger                 logger;
+  private IAtomicValue                  value;
 
   /**
    * Constructor.
@@ -54,6 +55,7 @@ public abstract class SkAbstractVirtDataCurrDataWriter
     if( writeChannel == null ) {
       throw new TsIllegalArgumentRtException( ERR_NOT_FOUND_WRITE_DATA, writeDataIds.first() );
     }
+    value = IAtomicValue.NULL;
     logger = aLogger;
   }
 
@@ -65,6 +67,15 @@ public abstract class SkAbstractVirtDataCurrDataWriter
    */
   public final Gwid writeDataId() {
     return writeChannel.gwid();
+  }
+
+  /**
+   * Returns last value
+   *
+   * @return {@link IAtomicValue} value
+   */
+  public final IAtomicValue value() {
+    return value;
   }
 
   // ------------------------------------------------------------------------------------
@@ -100,8 +111,15 @@ public abstract class SkAbstractVirtDataCurrDataWriter
   //
   @Override
   public final void onGenericChangeEvent( Object aSource ) {
+    IAtomicValue prevValue = value;
+    IAtomicValue newValue = doCalculateValue();
+    if( prevValue.equals( newValue ) ) {
+      return;
+    }
     // The value on one (or more) channels has changed.
-    writeChannel.setValue( doCalculateValue() );
+    writeChannel.setValue( newValue );
+    // The notification
+    doHandleValue( prevValue, newValue );
   }
 
   // ------------------------------------------------------------------------------------
@@ -122,6 +140,16 @@ public abstract class SkAbstractVirtDataCurrDataWriter
    * @return {@link IAtomicValue} value to write to channel
    */
   protected abstract IAtomicValue doCalculateValue();
+
+  /**
+   * Handle value change notification.
+   *
+   * @param aPrevValue {@link IAtomicValue} old value
+   * @param aNewValue {@link IAtomicValue} new value
+   */
+  protected void doHandleValue( IAtomicValue aPrevValue, IAtomicValue aNewValue ) {
+    // nop
+  }
 
   /**
    * Close resources.
