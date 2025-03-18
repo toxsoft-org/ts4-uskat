@@ -555,6 +555,12 @@ class AdminConsole
     }
     sbPrompt.append( MSG_PROMPT_FINISH );
     terminal.setPrompt( sbPrompt.toString() );
+    try {
+      terminal.flush();
+    }
+    catch( IOException ex ) {
+      logger.error( ex );
+    }
   }
 
   @Override
