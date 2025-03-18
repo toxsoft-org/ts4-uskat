@@ -3,21 +3,17 @@ package org.toxsoft.uskat.skadmin.cli;
 import static org.toxsoft.uskat.skadmin.cli.AdminColors.*;
 import static org.toxsoft.uskat.skadmin.cli.IAdminAnsiConstants.*;
 
-import org.toxsoft.core.log4j.LoggerWrapper;
-import org.toxsoft.core.tslib.av.IAtomicValue;
-import org.toxsoft.core.tslib.av.metainfo.IAvMetaConstants;
-import org.toxsoft.core.tslib.av.opset.IOptionSet;
-import org.toxsoft.core.tslib.bricks.validator.EValidationResultType;
-import org.toxsoft.core.tslib.bricks.validator.ValidationResult;
-import org.toxsoft.core.tslib.coll.IList;
-import org.toxsoft.core.tslib.utils.TsLibUtils;
-import org.toxsoft.core.tslib.utils.errors.TsNotAllEnumsUsedRtException;
-import org.toxsoft.core.tslib.utils.errors.TsNullArgumentRtException;
-import org.toxsoft.core.tslib.utils.logs.ILogger;
-import org.toxsoft.uskat.legacy.plexy.IPlexyType;
-import org.toxsoft.uskat.legacy.plexy.IPlexyValue;
-import org.toxsoft.uskat.skadmin.core.IAdminCmdCallback;
-import org.toxsoft.uskat.skadmin.core.IAdminCmdResult;
+import org.toxsoft.core.log4j.*;
+import org.toxsoft.core.tslib.av.*;
+import org.toxsoft.core.tslib.av.metainfo.*;
+import org.toxsoft.core.tslib.av.opset.*;
+import org.toxsoft.core.tslib.bricks.validator.*;
+import org.toxsoft.core.tslib.coll.*;
+import org.toxsoft.core.tslib.utils.*;
+import org.toxsoft.core.tslib.utils.errors.*;
+import org.toxsoft.core.tslib.utils.logs.*;
+import org.toxsoft.uskat.legacy.plexy.*;
+import org.toxsoft.uskat.skadmin.core.*;
 
 /**
  * Обратный вызов исполняемых команд
@@ -58,7 +54,7 @@ class AdminCmdCallback
       IList<ValidationResult> aMessages ) {
     TsNullArgumentRtException.checkNulls( aType, aPossibleValues, aMessages );
     // Выводим сообщения о состоянии выполнения команды. Кроме последнего.
-    printMessages( aMessages, aMessages.size() - 1 );
+    printMessages( console, aMessages, aMessages.size() - 1 );
     // Последнее используется для вопроса
     String message = TsLibUtils.EMPTY_STRING;
     String colorScheme = COLOR_RESET;
@@ -82,7 +78,7 @@ class AdminCmdCallback
   public boolean beforeStart( IList<ValidationResult> aMessages, long aStepsCount, boolean aStartDefault ) {
     TsNullArgumentRtException.checkNull( aMessages );
     // Выводим сообщения о состоянии выполнения команды. Кроме последнего.
-    printMessages( aMessages, aMessages.size() - 1 );
+    printMessages( console, aMessages, aMessages.size() - 1 );
     // Последнее используется для вопроса
     String message = TsLibUtils.EMPTY_STRING;
     String colorScheme = COLOR_RESET;
@@ -99,7 +95,7 @@ class AdminCmdCallback
       boolean aCancelable ) {
     TsNullArgumentRtException.checkNull( aMessages );
     // Выводим сообщения о состоянии выполнения команды
-    printMessages( aMessages, aMessages.size() );
+    printMessages( console, aMessages, aMessages.size() );
     return !cancel;
   }
 
@@ -119,7 +115,7 @@ class AdminCmdCallback
    * @param aMessages {@link IList}&lt;{@link ValidationResult}&gt; - список сообщений
    * @param aCount количество выводимых сообщений
    */
-  private static void printMessages( IList<ValidationResult> aMessages, int aCount ) {
+  private static void printMessages( IAdminConsole aConsole, IList<ValidationResult> aMessages, int aCount ) {
     TsNullArgumentRtException.checkNulls( aMessages );
     for( int index = 0, n = aCount; index < n; index++ ) {
       ValidationResult item = aMessages.get( index );
@@ -127,6 +123,7 @@ class AdminCmdCallback
       System.out.print( colorScheme + item.message() + COLOR_RESET );
       logger.debug( item.message() );
     }
+    aConsole.updatePrompt();
   }
 
   /**
@@ -138,16 +135,12 @@ class AdminCmdCallback
    */
   private static String getColorScheme( EValidationResultType aType ) {
     TsNullArgumentRtException.checkNulls( aType );
-    switch( aType ) {
-      case OK:
-        return COLOR_INFO;
-      case WARNING:
-        return COLOR_WARN;
-      case ERROR:
-        return COLOR_ERROR;
-      default:
-        throw new TsNotAllEnumsUsedRtException();
-    }
+    return switch( aType ) {
+      case OK -> COLOR_INFO;
+      case WARNING -> COLOR_WARN;
+      case ERROR -> COLOR_ERROR;
+      default -> throw new TsNotAllEnumsUsedRtException();
+    };
   }
 
 }
