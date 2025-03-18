@@ -67,6 +67,13 @@ public interface ISkUserServiceHardConstants {
   String ROLE_ID_GUEST = "guestRole"; //$NON-NLS-1$
 
   /**
+   * The role identifies at connection opening that user must be logged in with it's default role.
+   * <p>
+   * FIXME the concept of the default role for user must be implemented in UserService.
+   */
+  String ROLE_ID_USKAT_DEFAULT = "__uskat_default__"; //$NON-NLS-1$
+
+  /**
    * SKID of root role.
    */
   Skid SKID_ROLE_ROOT = new Skid( CLSID_ROLE, ROLE_ID_ROOT );
