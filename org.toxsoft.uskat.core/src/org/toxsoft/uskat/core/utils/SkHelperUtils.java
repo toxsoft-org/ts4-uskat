@@ -194,19 +194,15 @@ public class SkHelperUtils {
   }
 
   /**
-   * Get the <b>concrete</b> identifiers ({@link Gwid#isAbstract()} == <b>false</b>) of real-time data
-   * ({@link Gwid#kind()} == <b>{@link EGwidKind#GW_RTDATA}</b>) from the provided input list.
-   * <p>
-   * The input list identifier {@link Gwid#kind()} must be one of the following: {@link EGwidKind#GW_CLASS},
-   * {@link EGwidKind#GW_LINK} or EGwidKind#GW_RTDATA.
+   * Get the <b>concrete</b> identifiers ({@link Gwid#isAbstract()} == <b>false</b>) from the provided input list.
    *
    * @param aCoreApi {@link ISkCoreApi} uskat API
    * @param aInputs {@link IGwidList} input list of identifiers
+   * @param aOutputKind {@link EGwidKind} kind of output identifiers.
    * @return {@link IGwidList} output list of identifiers
    * @throws TsNullArgumentRtException any argument = <b>null</b>.
-   * @throws TsIllegalArgumentRtException invalid identifier {@link Gwid#kind()}.
    */
-  public static IGwidList getConcreteRtDataGwids( ISkCoreApi aCoreApi, IGwidList aInputs ) {
+  public static IGwidList expandGwids( ISkCoreApi aCoreApi, IGwidList aInputs, EGwidKind aOutputKind ) {
     TsNullArgumentRtException.checkNulls( aCoreApi, aInputs );
     ISkSysdescr sysdescr = aCoreApi.sysdescr();
     ISkLinkService linkService = aCoreApi.linkService();
@@ -215,25 +211,136 @@ public class SkHelperUtils {
     for( Gwid g : aInputs ) {
       switch( g.kind() ) {
         case GW_CLASS: {
-          retValue.addAll( getObjRtdataGwids( sysdescr, gwidService.expandGwid( g ).objIds() ) );
+          switch( aOutputKind ) {
+            case GW_CLASS:
+              retValue.addAll( gwidService.expandGwid( g ) );
+              break;
+            case GW_ATTR:
+            case GW_LINK:
+            case GW_RIVET:
+            case GW_RTDATA:
+            case GW_EVENT:
+            case GW_CMD:
+              retValue.addAll( expandGwids( sysdescr, gwidService.expandGwid( g ).objIds(), aOutputKind ) );
+              break;
+            case GW_CMD_ARG:
+            case GW_EVENT_PARAM:
+            case GW_CLOB:
+              throw new TsUnderDevelopmentRtException();
+            default:
+              throw new TsNotAllEnumsUsedRtException();
+          }
           break;
         }
         case GW_LINK: {
-          for( Gwid link : gwidService.expandGwid( g ) ) {
-            retValue.addAll( getObjRtdataGwids( sysdescr, linkService.getLinkFwd( link ).rightSkids() ) );
+          switch( aOutputKind ) {
+            case GW_LINK:
+              retValue.addAll( gwidService.expandGwid( g ) );
+              break;
+            case GW_ATTR:
+            case GW_RIVET:
+            case GW_RTDATA:
+            case GW_EVENT:
+            case GW_CMD:
+              for( Gwid link : gwidService.expandGwid( g ) ) {
+                retValue.addAll( expandGwids( sysdescr, linkService.getLinkFwd( link ).rightSkids(), aOutputKind ) );
+              }
+              break;
+            case GW_CLASS:
+            case GW_CMD_ARG:
+            case GW_EVENT_PARAM:
+            case GW_CLOB:
+              throw new TsUnderDevelopmentRtException();
+            default:
+              throw new TsNotAllEnumsUsedRtException();
+          }
+          break;
+        }
+        case GW_ATTR: {
+          switch( aOutputKind ) {
+            case GW_ATTR:
+              retValue.addAll( gwidService.expandGwid( g ) );
+              break;
+            case GW_CLASS:
+            case GW_LINK:
+            case GW_RIVET:
+            case GW_RTDATA:
+            case GW_EVENT:
+            case GW_EVENT_PARAM:
+            case GW_CMD:
+            case GW_CMD_ARG:
+            case GW_CLOB:
+              // ignored
+              break;
+            default:
+              throw new TsNotAllEnumsUsedRtException();
           }
           break;
         }
         case GW_RTDATA:
-          retValue.addAll( gwidService.expandGwid( g ) );
+          switch( aOutputKind ) {
+            case GW_RTDATA:
+              retValue.addAll( gwidService.expandGwid( g ) );
+              break;
+            case GW_CLASS:
+            case GW_ATTR:
+            case GW_LINK:
+            case GW_RIVET:
+            case GW_EVENT:
+            case GW_EVENT_PARAM:
+            case GW_CMD:
+            case GW_CMD_ARG:
+            case GW_CLOB:
+              // ignored
+              break;
+            default:
+              throw new TsNotAllEnumsUsedRtException();
+          }
           break;
-        case GW_ATTR:
-        case GW_RIVET:
-        case GW_CLOB:
-        case GW_CMD:
-        case GW_CMD_ARG:
         case GW_EVENT:
+          switch( aOutputKind ) {
+            case GW_EVENT:
+              retValue.addAll( gwidService.expandGwid( g ) );
+              break;
+            case GW_CLASS:
+            case GW_ATTR:
+            case GW_LINK:
+            case GW_RIVET:
+            case GW_RTDATA:
+            case GW_EVENT_PARAM:
+            case GW_CMD:
+            case GW_CMD_ARG:
+            case GW_CLOB:
+              // ignored
+              break;
+            default:
+              throw new TsNotAllEnumsUsedRtException();
+          }
+          break;
+        case GW_CMD:
+          switch( aOutputKind ) {
+            case GW_CMD:
+              retValue.addAll( gwidService.expandGwid( g ) );
+              break;
+            case GW_CLASS:
+            case GW_ATTR:
+            case GW_LINK:
+            case GW_RIVET:
+            case GW_RTDATA:
+            case GW_EVENT:
+            case GW_EVENT_PARAM:
+            case GW_CMD_ARG:
+            case GW_CLOB:
+              // ignored
+              break;
+            default:
+              throw new TsNotAllEnumsUsedRtException();
+          }
+          break;
+        case GW_RIVET:
+        case GW_CMD_ARG:
         case GW_EVENT_PARAM:
+        case GW_CLOB:
           throw new TsIllegalArgumentRtException();
         default:
           throw new TsNotAllEnumsUsedRtException();
@@ -242,12 +349,55 @@ public class SkHelperUtils {
     return retValue;
   }
 
-  private static IGwidList getObjRtdataGwids( ISkSysdescr aSysdescr, ISkidList aObjIds ) {
+  private static IGwidList expandGwids( ISkSysdescr aSysdescr, ISkidList aObjIds, EGwidKind aOutputKind ) {
     GwidList retValue = new GwidList();
     for( Skid objId : aObjIds ) {
-      IStridablesList<IDtoRtdataInfo> rtDataInfos = aSysdescr.getClassInfo( objId.classId() ).rtdata().list();
-      for( String rtDataId : rtDataInfos.keys() ) {
-        retValue.add( Gwid.createRtdata( objId, rtDataId ) );
+      switch( aOutputKind ) {
+        case GW_CLASS:
+          retValue.add( Gwid.createObj( objId ) );
+          break;
+        case GW_ATTR:
+          IStridablesList<IDtoAttrInfo> rtAttrInfos = aSysdescr.getClassInfo( objId.classId() ).attrs().list();
+          for( String id : rtAttrInfos.keys() ) {
+            retValue.add( Gwid.createAttr( objId, id ) );
+          }
+          break;
+        case GW_LINK:
+          IStridablesList<IDtoLinkInfo> rtLinkInfos = aSysdescr.getClassInfo( objId.classId() ).links().list();
+          for( String id : rtLinkInfos.keys() ) {
+            retValue.add( Gwid.createLink( objId, id ) );
+          }
+          break;
+        case GW_RIVET:
+          IStridablesList<IDtoRivetInfo> rtRivetInfos = aSysdescr.getClassInfo( objId.classId() ).rivets().list();
+          for( String id : rtRivetInfos.keys() ) {
+            retValue.add( Gwid.createRivet( objId, id ) );
+          }
+          break;
+        case GW_RTDATA:
+          IStridablesList<IDtoRtdataInfo> rtDataInfos = aSysdescr.getClassInfo( objId.classId() ).rtdata().list();
+          for( String id : rtDataInfos.keys() ) {
+            retValue.add( Gwid.createRtdata( objId, id ) );
+          }
+          break;
+        case GW_EVENT:
+          IStridablesList<IDtoEventInfo> rtEventInfos = aSysdescr.getClassInfo( objId.classId() ).events().list();
+          for( String id : rtEventInfos.keys() ) {
+            retValue.add( Gwid.createEvent( objId, id ) );
+          }
+          break;
+        case GW_CMD:
+          IStridablesList<IDtoCmdInfo> rtCmdInfos = aSysdescr.getClassInfo( objId.classId() ).cmds().list();
+          for( String id : rtCmdInfos.keys() ) {
+            retValue.add( Gwid.createCmd( objId, id ) );
+          }
+          break;
+        case GW_CLOB:
+        case GW_CMD_ARG:
+        case GW_EVENT_PARAM:
+          throw new TsUnderDevelopmentRtException();
+        default:
+          throw new TsNotAllEnumsUsedRtException();
       }
     }
     return retValue;
