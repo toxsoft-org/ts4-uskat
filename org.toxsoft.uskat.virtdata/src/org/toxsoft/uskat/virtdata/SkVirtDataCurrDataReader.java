@@ -43,18 +43,14 @@ public class SkVirtDataCurrDataReader
     coreApi = aCoreApi;
     objId = aObjId;
     changeListener = aChangeListener;
+    ISkRtdataService rtdService = coreApi.rtdService();
+    rtdService.eventer().addListener( this );
+    // Register read currdata
     GwidList readGwids = new GwidList();
     for( String dataId : aReadDataIds ) {
       readGwids.add( Gwid.createRtdata( objId.classId(), objId.strid(), dataId ) );
     }
-    ISkRtdataService rtdService = coreApi.rtdService();
-    rtdService.eventer().addListener( this );
-    readChannels.putAll( rtdService.createReadCurrDataChannels( readGwids ) );
-    for( Gwid gwid : readGwids ) {
-      if( !readChannels.hasKey( gwid ) ) {
-        throw new TsIllegalArgumentRtException( ERR_NOT_FOUND_READ_DATA, gwid );
-      }
-    }
+    addReadData( readGwids );
   }
 
   // ------------------------------------------------------------------------------------
@@ -67,8 +63,13 @@ public class SkVirtDataCurrDataReader
    * @throws TsNullArgumentRtException any argument = null
    */
   public final void addReadData( IGwidList aGwids ) {
-    TsNullArgumentRtException.checkNulls( aGwids );
+    TsNullArgumentRtException.checkNull( aGwids );
     readChannels.putAll( coreApi.rtdService().createReadCurrDataChannels( aGwids ) );
+    for( Gwid gwid : aGwids ) {
+      if( !readChannels.hasKey( gwid ) ) {
+        throw new TsIllegalArgumentRtException( ERR_NOT_FOUND_READ_DATA, gwid );
+      }
+    }
   }
 
   /**
