@@ -281,7 +281,7 @@ public class S5BackendSession
       // InetSocketAddress remoteAddr = (InetSocketAddress)contextData.get( "jboss.source-address" );
 
       // Параметры подключения клиента к серверу
-      IOptionSet clientOptions = aInitData.clientOptions();
+      IOptionSetEdit clientOptions = new OptionSet( aInitData.clientOptions() );
       remoteAddress = OP_CLIENT_ADDRESS.getValue( clientOptions );
       remotePort = OP_CLIENT_PORT.getValue( clientOptions );
       login = OP_USERNAME.getValue( clientOptions ).asString();
@@ -333,6 +333,14 @@ public class S5BackendSession
       if( clientVersion != null && clientVersion.isAssigned() && clientVersion.atomicType() == EAtomicType.STRING ) {
         // Неподдерживаемая версия клиента
         throw new S5AccessDeniedException( String.format( ERR_WRONG_VERSION, clientVersion ) );
+      }
+
+      // 2025-03-20 mvk role auto definition
+      Skid role = OP_ROLE.getValue( clientOptions ).asValobj();
+      if( ROLE_ID_USKAT_DEFAULT.equals( role.strid() ) ) {
+        Gwid linkId = Gwid.createLink( ISkUser.CLASS_ID, LNKID_USER_ROLES );
+        ISkidList roles = linksBackend.findLinkFwd( linkId, user.skid() ).rightSkids();
+        clientOptions.setValobj( OP_ROLE, roles.first() );
       }
 
       // Информация о сессии пользователя
