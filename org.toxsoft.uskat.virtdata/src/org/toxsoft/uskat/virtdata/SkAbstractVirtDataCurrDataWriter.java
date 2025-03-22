@@ -119,7 +119,7 @@ public abstract class SkAbstractVirtDataCurrDataWriter
     // The value on one (or more) channels has changed.
     writeChannel.setValue( newValue );
     // The notification
-    doHandleValue( prevValue, newValue );
+    doHandleValueChanged( prevValue, newValue );
   }
 
   // ------------------------------------------------------------------------------------
@@ -147,7 +147,7 @@ public abstract class SkAbstractVirtDataCurrDataWriter
    * @param aPrevValue {@link IAtomicValue} old value
    * @param aNewValue {@link IAtomicValue} new value
    */
-  protected void doHandleValue( IAtomicValue aPrevValue, IAtomicValue aNewValue ) {
+  protected void doHandleValueChanged( IAtomicValue aPrevValue, IAtomicValue aNewValue ) {
     // nop
   }
 
