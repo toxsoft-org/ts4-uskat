@@ -184,7 +184,9 @@ public class S5LocalConnectionSingleton
     IS5ConnectionParams.OP_PASSWORD.setValue( ctx.params(), avStr( TsLibUtils.EMPTY_STRING ) );
     IS5ConnectionParams.OP_LOCAL_MODULE.setValue( ctx.params(), avStr( moduleName ) );
     IS5ConnectionParams.OP_LOCAL_NODE.setValue( ctx.params(), avStr( moduleNode ) );
-    IS5ConnectionParams.OP_CURRDATA_TIMEOUT.setValue( ctx.params(), avInt( 10 ) );
+    // 2025-03-23 mvk попытка ---+++ WORKAROUND пропуска текущих данных SkAlarmProcessor (valcom)
+    // IS5ConnectionParams.OP_CURRDATA_TIMEOUT.setValue( ctx.params(), avInt( 10 ) );
+    IS5ConnectionParams.OP_CURRDATA_TIMEOUT.setValue( ctx.params(), avInt( -1 ) );
     IS5ConnectionParams.OP_HISTDATA_TIMEOUT.setValue( ctx.params(), avInt( 10000 ) );
 
     // Текущий поток используется только для открытия соединения
