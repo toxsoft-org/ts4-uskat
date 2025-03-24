@@ -1,6 +1,7 @@
 package org.toxsoft.uskat.skadmin.dev.rtdata;
 
 import static org.toxsoft.core.tslib.av.EAtomicType.*;
+import static org.toxsoft.core.tslib.av.impl.AvUtils.*;
 import static org.toxsoft.core.tslib.bricks.strio.IStrioHardConstants.*;
 import static org.toxsoft.core.tslib.utils.TsLibUtils.*;
 import static org.toxsoft.uskat.legacy.plexy.impl.PlexyValueUtils.*;
@@ -58,7 +59,8 @@ interface IAdminHardConstants {
   /**
    * Аргумент : требование закрыть указанные каналы чтения
    */
-  IAdminCmdArgDef ARG_READ_CLOSE = new AdminCmdArgDef( "close", createType( BOOLEAN, "false" ), STR_ARG_READ_CLOSE );
+  IAdminCmdArgDef ARG_READ_CLOSE =
+      new AdminCmdArgDef( "close", createType( BOOLEAN, avBool( false ) ), STR_ARG_READ_CLOSE );
 
   /**
    * Аргумент : метка времени начала чтения хранимых данных.
@@ -109,6 +111,30 @@ interface IAdminHardConstants {
    */
   IAdminCmdArgDef ARG_WRITE_TIMESTAMP =
       new AdminCmdArgDef( "timestamp", DT_TIMESTAMP_NULLABLE, STR_ARG_WRITE_TIMESTAMP );
+
+  // ------------------------------------------------------------------------------------
+  // AdminCmdWriteTest
+  //
+  String CMD_WRITE_TEST_ID    = CMD_PATH_PREFIX + "writeTest";
+  String CMD_WRITE_TEST_ALIAS = EMPTY_STRING;
+  String CMD_WRITE_TEST_NAME  = EMPTY_STRING;
+  String CMD_WRITE_TEST_DESCR = STR_CMD_WRITE_TEST;
+
+  /**
+   * Аргумент : Таймаут между передачами значений.
+   */
+  IAdminCmdArgDef ARG_WRITE_TIMEOUT = new AdminCmdArgDef( "timeout", DT_INTEGER_NULLABLE, STR_ARG_WRITE_TEST_TIMEOUT );
+
+  /**
+   * Аргумент : Количество передач значений.
+   */
+  IAdminCmdArgDef ARG_WRITE_COUNT = new AdminCmdArgDef( "count", DT_INTEGER_NULLABLE, STR_ARG_WRITE_TEST_COUNT );
+
+  /**
+   * Аргумент : Прирост значения при каждой передачи.
+   */
+  IAdminCmdArgDef ARG_WRITE_INCREMENT =
+      new AdminCmdArgDef( "increment", DT_INTEGER_NULLABLE, STR_ARG_WRITE_TEST_INCREMENT );
 
   // ------------------------------------------------------------------------------------
   // AdminCmdFire

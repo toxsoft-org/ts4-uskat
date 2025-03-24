@@ -49,6 +49,14 @@ interface IAdminHardResources {
   String MSG_CMD_WRITE_VALUE     = "%s | %s = %s";
 
   // ------------------------------------------------------------------------------------
+  // AdminCmdWriteTest
+  //
+  String STR_CMD_WRITE_TEST           = "Выполняет серию сохранений значений текущего данного имеющего числовой тип.";
+  String STR_ARG_WRITE_TEST_TIMEOUT   = "Таймаут между передачами значений.";
+  String STR_ARG_WRITE_TEST_COUNT     = "Количество передач значений.";
+  String STR_ARG_WRITE_TEST_INCREMENT = "Прирост значения при каждой передачи.";
+
+  // ------------------------------------------------------------------------------------
   // AdminCmdFire
   //
   String STR_CMD_FIRE        = "Формирование событий системы";
