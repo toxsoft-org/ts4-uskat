@@ -624,7 +624,7 @@ public class S5SessionManager
     // Создание передатчика обратных вызовов сессии
     logger().info( MSG_CREATE_SESSION_CALLBACK, sessionID, remoteAddr, Integer.valueOf( remotePort ) );
     // Поиск канала для создания писателей обратных вызовов
-    S5SessionCallbackChannel callbackChannel = callbackServer.findSessionChannel( sessionID, remoteAddr, remotePort );
+    S5SessionCallbackChannel callbackChannel = callbackServer.findChannel( sessionID, remoteAddr, remotePort );
     if( callbackChannel == null ) {
       // Не найден канал для обратных вызовов
       logger().warning( ERR_CALLBACK_NOT_FOUND, sessionID );

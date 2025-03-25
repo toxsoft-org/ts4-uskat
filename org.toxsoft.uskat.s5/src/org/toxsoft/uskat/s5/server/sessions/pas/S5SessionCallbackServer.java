@@ -1,7 +1,9 @@
 package org.toxsoft.uskat.s5.server.sessions.pas;
 
+import static java.lang.String.*;
 import static org.toxsoft.core.log4j.LoggerWrapper.*;
 import static org.toxsoft.core.tslib.av.impl.AvUtils.*;
+import static org.toxsoft.core.tslib.utils.TsLibUtils.*;
 import static org.toxsoft.uskat.s5.server.IS5ImplementConstants.*;
 import static org.toxsoft.uskat.s5.server.IS5ServerHardConstants.*;
 import static org.toxsoft.uskat.s5.server.sessions.pas.IS5Resources.*;
@@ -17,7 +19,7 @@ import org.toxsoft.core.pas.server.*;
 import org.toxsoft.core.tslib.av.*;
 import org.toxsoft.core.tslib.av.metainfo.*;
 import org.toxsoft.core.tslib.bricks.ctx.impl.*;
-import org.toxsoft.core.tslib.bricks.time.impl.*;
+import org.toxsoft.core.tslib.coll.*;
 import org.toxsoft.core.tslib.coll.impl.*;
 import org.toxsoft.core.tslib.gw.skid.*;
 import org.toxsoft.core.tslib.utils.*;
@@ -27,6 +29,7 @@ import org.toxsoft.uskat.classes.*;
 import org.toxsoft.uskat.s5.server.cluster.*;
 import org.toxsoft.uskat.s5.server.sessions.*;
 import org.toxsoft.uskat.s5.server.startup.*;
+import org.toxsoft.uskat.s5.utils.*;
 
 /**
  * Поставщик PAS-каналов для образования писателей обратных вызовов
@@ -50,6 +53,11 @@ public final class S5SessionCallbackServer
    * Сервер каналов используемых передатчиками callback-сообщений
    */
   private PasServer<S5SessionCallbackChannel> pasServer;
+
+  /**
+   * Таймер статистики
+   */
+  private final S5IntervalTimer statisticsTimer = new S5IntervalTimer( 10000 );
 
   /**
    * Счетчик не найденных каналов
@@ -135,7 +143,7 @@ public final class S5SessionCallbackServer
             duplicateCount++;
           }
         }
-        if( logger.isSeverityOn( ELogSeverity.DEBUG ) ) {
+        if( logger.isSeverityOn( ELogSeverity.DEBUG ) && statisticsTimer.update() ) {
           // Вывод в журнал о статусе процесса doJob
           Long time = Long.valueOf( System.currentTimeMillis() - currTime );
           Integer ac = Integer.valueOf( anonymousCount );
@@ -169,44 +177,51 @@ public final class S5SessionCallbackServer
    * @return {@link S5SessionCallbackChannel} PAS-канал
    * @throws TsNullArgumentRtException аргумент = null
    */
-  public S5SessionCallbackChannel findSessionChannel( Skid aSessionID, String aRemoteAddr, int aRemotePort ) {
+  @SuppressWarnings( { "boxing" } )
+  public S5SessionCallbackChannel findChannel( Skid aSessionID, String aRemoteAddr, int aRemotePort ) {
     TsNullArgumentRtException.checkNull( aSessionID, aRemoteAddr );
     // 2022-01-15 mvk
     // Из-за специфического создания соединений клиента с сервером (с начала создается pas канал, потом сессия)
     // в пуле pas-сервера может быть несколько каналов с одним и тем же идентификатором сессии. Причем, некоторые уже
     // могут быть завершены, а некоторые еще нет (гонка потоков). Считаем, актуальным только последний (по времени
     // создания)
+    IList<S5SessionCallbackChannel> channels = pasServer.channels();
+    int count = channels.size();
     S5SessionCallbackChannel retValue = null;
-    for( S5SessionCallbackChannel channel : pasServer.channels()
-        .copyTo( new ElemArrayList<>( pasServer.channels().size() ) ) ) {
-      Skid sessionID = channel.getSessionID();
-      if( sessionID.equals( aSessionID ) && //
-          channel.getRemoteAddress().getHostAddress().equals( aRemoteAddr ) && //
-          channel.getRemotePort() == aRemotePort ) {
-        if( retValue == null ) {
-          retValue = channel;
-          logger.info( "findSessionChannel(...): found a channel with session id = %s. time = %s (remote=%s:%d)", //$NON-NLS-1$
-              aSessionID, //
-              TimeUtils.timestampToString( retValue.getCreationTimestamp() ), //
-              retValue.getRemoteAddress(), Integer.valueOf( retValue.getRemotePort() ) //
-          );
-          continue;
+    StringBuilder sb = (logger.isSeverityOn( ELogSeverity.DEBUG ) ? new StringBuilder() : null);
+    // Индекс текущего канала
+    int index = 0;
+    for( S5SessionCallbackChannel channel : channels.copyTo( new ElemArrayList<>( count ) ) ) {
+      // Параметры текущего канала
+      Skid id = channel.getSessionID();
+      String strid = id.strid();
+      long time = channel.getCreationTimestamp();
+      int port = channel.getRemotePort();
+      String addr = channel.getRemoteAddress().getHostAddress();
+      boolean isSuitable = (id.equals( aSessionID ) && addr.equals( aRemoteAddr ) && port == aRemotePort);
+      if( sb != null ) {
+        sb.append( format( FMT_CHANNEL, index++, strid, channel, isSuitable ? FMT_SUITABLE : EMPTY_STRING ) );
+      }
+      if( isSuitable ) {
+        // Признак необходимости замены канала
+        boolean needReplaceResult = (retValue == null || retValue.getCreationTimestamp() >= time);
+        if( retValue != null ) {
+          // Найден еще один канал с той же сессией
+          logger.warning( ERR_FOUND_SESSION_DOUBLE, aSessionID.strid(), retValue, channel );
         }
-        logger.warning(
-            "findSessionChannel(...): found a channel with same session id = %s. time1 = %s (remote=%s:%d), time2 = %s (remote=%s:%d)", //$NON-NLS-1$
-            aSessionID, //
-            TimeUtils.timestampToString( retValue.getCreationTimestamp() ), //
-            retValue.getRemoteAddress(), Integer.valueOf( retValue.getRemotePort() ), //
-            TimeUtils.timestampToString( channel.getCreationTimestamp() ), //
-            channel.getRemoteAddress(), Integer.valueOf( channel.getRemotePort() ) //
-        );
-        if( retValue.getCreationTimestamp() >= channel.getCreationTimestamp() ) {
+        if( needReplaceResult ) {
           retValue = channel;
         }
       }
     }
+    if( sb != null && retValue == null ) {
+      sb.append( ERR_CHANNEL_NOT_FOUND );
+    }
     if( retValue == null ) {
       unprovidedCount++;
+    }
+    if( sb != null ) {
+      logger.debug( MSG_FIND_CHANNEL, aSessionID.strid(), aRemoteAddr, aRemotePort, count, sb.toString() );
     }
     return retValue;
   }
