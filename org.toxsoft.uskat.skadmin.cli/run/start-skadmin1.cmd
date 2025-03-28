@@ -25,7 +25,7 @@ set ADMIN_MEMORY=2048M
 set ADMIN_CHARSET=CP866
 
 :: раскоментировать если нужна удаленная отладка
-set _REMOTE_DEBUG=-Xdebug -Xnoagent -Xrunjdwp:transport=dt_socket,server=y,suspend=n,address=8002
+set _REMOTE_DEBUG=-Xdebug -Xnoagent -Xrunjdwp:transport=dt_socket,server=y,suspend=n,address=8001
 
 %JAVA_HOME%\bin\java 							^
   -Xms%ADMIN_MEMORY% 							^

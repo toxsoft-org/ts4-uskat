@@ -1,8 +1,5 @@
 @echo off
-
-:: set JAVA_HOME=C:\Program Files\Java\jdk-11.0.10
-:: set JAVA_HOME="C:\Program Files\Java\jdk-17.0.2"
-set JAVA_HOME="C:\Program Files\Java\jdk-17.0.11_7.1_graalvm"
+set JAVA_HOME="C:\Program Files\Java\graalvm-jdk-21.0.3+7.1"
 
 :: Настройка окружения запуска
 set ADMIN_CLASSPATH=^
@@ -11,30 +8,42 @@ set ADMIN_CLASSPATH=^
 ../../../ts4-targets/ts4-target-uskat/lib/*;^
 ../../../ts4-targets/ts4-target-skf-bridge/lib/*;^
 ../../../ts4-targets/ts4-target-sitrol/lib/*
-:: ../dist/*
 
 set ADMIN_PLUGINPATH=^
 ../../../ts4-targets/ts4-target-uskat/main/plugins:^
 ../../../ts4-targets/ts4-target-skf-bridge/main/plugins
 
 set ADMIN_USER=root
-set ADMIN_PASSWORD=1
-set ADMIN_HOST="localhost"
+set ADMIN_PASSWORD=root
+set ADMIN_HOST=localhost
 set ADMIN_PORT=8080
-set ADMIN_CONNECT_TIMEOUT=300000
-set ADMIN_FAILURE_TIMEOUT=500000
-set ADMIN_CURRDATA_TIMEOUT=-1
+set ADMIN_CONNECT_TIMEOUT=3000
+set ADMIN_FAILURE_TIMEOUT=10000
+set ADMIN_CURRDATA_TIMEOUT=300
+set ADMIN_DOJOB_TIMEOUT=10
+set ADMIN_MEMORY=512M
+set ADMIN_CHARSET=CP866
+
+:: раскоментировать если нужна удаленная отладка
+set _REMOTE_DEBUG=-Xdebug -Xnoagent -Xrunjdwp:transport=dt_socket,server=y,suspend=n,address=8000
+
+%JAVA_HOME%\bin\java 							^
+  -Xms%ADMIN_MEMORY% 							^
+  -Xmx%ADMIN_MEMORY% 							^
+  -cp %ADMIN_CLASSPATH% 						^
+  -Dorg.toxsoft.uskat.s5.client.doJobTimeout=%ADMIN_DOJOB_TIMEOUT% 	^
+  -Dorg.toxsoft.uskat.skadmin.plugin.paths=%ADMIN_PLUGINPATH% 		^
+  -Dfile.encoding=%ADMIN_CHARSET% 					^
+  -Dlog4j.configuration=file:log4j.xml 					^
+  %_REMOTE_DEBUG% 							^
+  org.toxsoft.uskat.skadmin.cli.Main 					^
+  connect 								^
+  -user     %ADMIN_USER%     						^
+  -password %ADMIN_PASSWORD% 						^
+  -host     %ADMIN_HOST%     						^
+  -port     %ADMIN_PORT%     						^
+  -connectTimeout  %ADMIN_CONNECT_TIMEOUT%  				^
+  -failureTimeout  %ADMIN_FAILURE_TIMEOUT%  				^
+  -currdataTimeout %ADMIN_CURRDATA_TIMEOUT%
 
 
-:: Параметры jvm
-set _CLASS_PATH=-cp %ADMIN_CLASSPATH%
-set _PLUGIN_PATHS=-Dorg.toxsoft.uskat.skadmin.plugin.paths=%ADMIN_PLUGINPATH%
-set _MAIN_CLASS=org.toxsoft.uskat.skadmin.cli.Main
-set _XMS_MEMORY=-Xms1024m
-set _XMX_MEMORY=-Xmx1024m
-set _CHARSET=-Dfile.encoding=CP866
-set _LOGGER=-Dlog4j.configuration=file:log4j.xml
-set _REMOTE_DEBUG=-Xdebug -Xnoagent -Xrunjdwp:transport=dt_socket,server=y,suspend=n,address=8000 
-set _PROFILER_AGENT=
-
-%JAVA_HOME%\bin\java --add-opens java.base/java.lang=ALL-UNNAMED %_PLUGIN_PATHS% %_PROFILER_AGENT% %_REMOTE_DEBUG% %_CHARSET% %_LOGGER% %_XMS_MEMORY% %_XMX_MEMORY% %_CLASS_PATH% %_MAIN_CLASS% connect -user %ADMIN_USER% -password %ADMIN_PASSWORD% -host %ADMIN_HOST% -port %ADMIN_PORT% -connectTimeout %ADMIN_CONNECT_TIMEOUT% -failureTimeout %ADMIN_FAILURE_TIMEOUT% 
