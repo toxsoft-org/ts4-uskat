@@ -333,8 +333,10 @@ public class SkCoreApi
           return;
         }
         boolean isActive = BackendMsgActiveChanged.INSTANCE.getActive( aMessage );
-        // 2025-03-28 mvk ---
-        // conn.changeState( isActive ? ESkConnState.ACTIVE : ESkConnState.INACTIVE );
+        ESkConnState oldState = conn.state();
+        if( conn.changeState( isActive ? ESkConnState.ACTIVE : ESkConnState.INACTIVE ) ) {
+          return;
+        }
         for( int i = servicesMap.size() - 1; i >= 0; i-- ) {
           try {
             AbstractSkService s1 = servicesMap.values().get( i );
@@ -346,8 +348,8 @@ public class SkCoreApi
         }
         // process external handlers
         callExternalBackendActivityChangeHandlers( isActive );
-        // 2025-03-28 mvk +++
-        conn.changeState( isActive ? ESkConnState.ACTIVE : ESkConnState.INACTIVE );
+        // client notifications
+        conn.stateChanged( oldState );
         return;
       }
       AbstractSkService s2 = servicesMap.findByKey( aMessage.topicId() );

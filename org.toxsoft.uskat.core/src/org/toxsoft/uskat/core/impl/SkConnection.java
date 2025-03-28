@@ -38,6 +38,20 @@ class SkConnection
   // ------------------------------------------------------------------------------------
   // implementation
   //
+  void stateChanged( ESkConnState aOldState ) {
+    if( !listeners.isEmpty() ) {
+      IList<ISkConnectionListener> ll = new ElemArrayList<>( listeners );
+      for( int i = 0; i < ll.size(); i++ ) {
+        ISkConnectionListener l = ll.get( i );
+        try {
+          l.onSkConnectionStateChanged( this, aOldState );
+        }
+        catch( Exception ex ) {
+          LoggerUtils.defaultLogger().error( ex );
+        }
+      }
+    }
+  }
 
   void beforeChangeState( ESkConnState aNewState ) {
     if( !listeners.isEmpty() ) {
@@ -54,23 +68,13 @@ class SkConnection
     }
   }
 
-  void changeState( ESkConnState aNewState ) {
+  boolean changeState( ESkConnState aNewState ) {
     ESkConnState oldState = state;
     if( aNewState != oldState ) {
       state = aNewState;
-      if( !listeners.isEmpty() ) {
-        IList<ISkConnectionListener> ll = new ElemArrayList<>( listeners );
-        for( int i = 0; i < ll.size(); i++ ) {
-          ISkConnectionListener l = ll.get( i );
-          try {
-            l.onSkConnectionStateChanged( this, oldState );
-          }
-          catch( Exception ex ) {
-            LoggerUtils.defaultLogger().error( ex );
-          }
-        }
-      }
+      return true;
     }
+    return false;
   }
 
   private static ITsContext createContextForCoraApi( ITsContextRo aContext ) {
@@ -97,10 +101,12 @@ class SkConnection
 
   @Override
   public void close() {
-    if( state() != ESkConnState.CLOSED ) {
+    ESkConnState oldState = state();
+    if( oldState != ESkConnState.CLOSED ) {
       beforeChangeState( ESkConnState.CLOSED );
       coreApi.close();
       changeState( ESkConnState.CLOSED );
+      stateChanged( oldState );
       coreApi = null;
     }
   }
@@ -126,6 +132,7 @@ class SkConnection
     // TODO Auto-generated method stub
 
     changeState( ESkConnState.ACTIVE );
+    stateChanged( ESkConnState.CLOSED );
   }
 
   @Override
