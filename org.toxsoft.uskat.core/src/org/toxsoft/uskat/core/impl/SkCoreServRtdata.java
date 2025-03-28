@@ -238,13 +238,24 @@ public class SkCoreServRtdata
 
   @Override
   protected void onBackendActiveStateChanged( boolean aIsActive ) {
+    // 2025-03-26 mvk--- очень вредное, даже комичное решение привело к тому каждый клиент выступающий как писатель
+    // конкретного данного пытался переписать данное своими значениями при образовании связи. Например, каждый АРМ у
+    // которого есть служба алармов, при восстановлении связи с сервером переписывал своими rtdata-значениями
+    // (ISkAlarm$rtdata(alert) и ISkAlarm$rtdata(mute) у всех алармов системы.
+    // if( aIsActive ) {
+    // IBaRtdata rtDataBackend = ba().baRtdata();
+    // for( Gwid g : cdWriteChannelsMap.keys() ) {
+    // SkWriteCurrDataChannel channel = cdWriteChannelsMap.getByKey( g );
+    // if( channel.value != null ) {
+    // rtDataBackend.writeCurrData( g, channel.value );
+    // }
+    // }
+    // }
+    // 2025-03-28 mvk
     if( aIsActive ) {
-      IBaRtdata rtDataBackend = ba().baRtdata();
+      // Реинициализация каналов записи, чтобы клиент мог заново отправить значения
       for( Gwid g : cdWriteChannelsMap.keys() ) {
-        SkWriteCurrDataChannel channel = cdWriteChannelsMap.getByKey( g );
-        if( channel.value != null ) {
-          rtDataBackend.writeCurrData( g, channel.value );
-        }
+        cdWriteChannelsMap.getByKey( g ).value = null;
       }
     }
   }
@@ -265,6 +276,9 @@ public class SkCoreServRtdata
   class SkReadCurrDataChannel
       extends SkRtdataChannel
       implements ISkReadCurrDataChannel {
+
+    // 2025-03-24 TODO: mvkd+++
+    // private IAtomicValue debugNextValue = null;
 
     /**
      * {@link ISkReadCurrDataChannel} implementation to be returned by
@@ -332,6 +346,21 @@ public class SkCoreServRtdata
     }
 
     boolean setValue( IAtomicValue aValue ) {
+
+      // // 2025-03-24 TODO: mvkd+++
+      // if( atomicType == EAtomicType.INTEGER ) {
+      // IAtomicValue v = aValue;
+      // if( !v.isAssigned() ) {
+      // v = AvUtils.AV_0;
+      // }
+      // if( debugNextValue != null && debugNextValue.asInt() != v.asInt() ) {
+      // LoggerUtils.errorLogger().error(
+      // "SkReadCurrDataChannel.setValue(...): gwid = %s, debugNextValue = %s, aValue = %s", gwid, debugNextValue,
+      // v );
+      // }
+      // debugNextValue = AvUtils.avInt( v.asInt() + 1 );
+      // }
+
       if( value != null && value.equals( aValue ) ) {
         return false;
       }
@@ -483,7 +512,6 @@ public class SkCoreServRtdata
       // write success. cache last value
       value = aValue;
     }
-
   }
 
   /**
