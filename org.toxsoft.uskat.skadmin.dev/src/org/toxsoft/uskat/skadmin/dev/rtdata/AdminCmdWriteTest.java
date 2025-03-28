@@ -1,6 +1,7 @@
 package org.toxsoft.uskat.skadmin.dev.rtdata;
 
 import static org.toxsoft.core.tslib.av.impl.AvUtils.*;
+import static org.toxsoft.core.tslib.bricks.validator.ValidationResult.*;
 import static org.toxsoft.core.tslib.utils.TsLibUtils.*;
 import static org.toxsoft.uskat.legacy.plexy.impl.PlexyValueUtils.*;
 import static org.toxsoft.uskat.skadmin.core.EAdminCmdContextNames.*;
@@ -9,6 +10,7 @@ import static org.toxsoft.uskat.skadmin.dev.rtdata.IAdminHardConstants.*;
 import static org.toxsoft.uskat.skadmin.dev.rtdata.IAdminHardResources.*;
 
 import org.toxsoft.core.tslib.av.*;
+import org.toxsoft.core.tslib.av.errors.*;
 import org.toxsoft.core.tslib.av.temporal.*;
 import org.toxsoft.core.tslib.bricks.strid.coll.*;
 import org.toxsoft.core.tslib.bricks.time.*;
@@ -35,6 +37,11 @@ import org.toxsoft.uskat.skadmin.core.impl.*;
  */
 public class AdminCmdWriteTest
     extends AbstractAdminCmd {
+
+  /**
+   * Обратный вызов выполняемой команды
+   */
+  private static IAdminCmdCallback callback;
 
   /**
    * Конструктор
@@ -100,6 +107,7 @@ public class AdminCmdWriteTest
   @SuppressWarnings( { "nls", "boxing" } )
   @Override
   public void doExec( IStringMap<IPlexyValue> aArgValues, IAdminCmdCallback aCallback ) {
+    callback = aCallback;
     ISkCoreApi coreApi = argSingleRef( CTX_SK_CORE_API );
     String classId = argSingleValue( ARG_CLASSID ).asString();
     String objStrid = argSingleValue( ARG_STRID ).asString();
@@ -141,11 +149,21 @@ public class AdminCmdWriteTest
         // Создание каналов
         IMap<Gwid, ISkWriteCurrDataChannel> channels = currdata.createWriteCurrDataChannels( gwids );
         try {
-          addResultInfo( '\n' + MSG_CMD_WRITE_CURRDATA, Integer.valueOf( gwids.size() ) );
+          print( '\n' + MSG_CMD_WRITE_CURRDATA, Integer.valueOf( gwids.size() ) );
           for( int index = 0; index < count; index++ ) {
+            Gwid writedLastGwid = null;
+            IAtomicValue writedLastValue = null;
+            int writed = 0;
             for( Gwid gwid : gwids ) {
-              channels.getByKey( gwid ).setValue( value );
-              addResultInfo( "\n[%d] " + MSG_CMD_WRITE_VALUE, index, time, gwid, value );
+              try {
+                channels.getByKey( gwid ).setValue( value );
+                writedLastGwid = gwid;
+                writedLastValue = value;
+                writed++;
+              }
+              catch( @SuppressWarnings( "unused" ) AvTypeCastRtException e ) {
+                continue;
+              }
               switch( value.atomicType() ) {
                 case FLOATING:
                   value = avFloat( value.asFloat() + increment );
@@ -165,11 +183,15 @@ public class AdminCmdWriteTest
                   throw new TsNotAllEnumsUsedRtException();
               }
             }
+            if( writedLastGwid != null ) {
+              String g = writedLastGwid.toString() + (gwids.size() > 2 ? ",...(" + writed + ")" : EMPTY_STRING);
+              print( "\n[%d] " + MSG_CMD_WRITE_VALUE, index, time, g, writedLastValue );
+            }
             if( timeout > 0 ) {
               Thread.sleep( timeout );
             }
           }
-          addResultInfo( "\n" ); //$NON-NLS-1$
+          print( "\n" ); //$NON-NLS-1$
         }
         finally {
           for( ISkWriteCurrDataChannel channel : channels.values() ) {
@@ -187,21 +209,32 @@ public class AdminCmdWriteTest
         ITimeInterval interval = new TimeInterval( timestamp, timestamp );
         ITimedList<ITemporalAtomicValue> values = new TimedList<>( new TemporalAtomicValue( timestamp, value ) );
         try {
-          addResultInfo( '\n' + MSG_CMD_WRITE_HISTDATA, Integer.valueOf( gwids.size() ) );
+          print( '\n' + MSG_CMD_WRITE_HISTDATA, Integer.valueOf( gwids.size() ) );
           for( int index = 0; index < count; index++ ) {
+            Gwid writedLastGwid = null;
+            int writed = 0;
             for( Gwid gwid : gwids ) {
-              channels.getByKey( gwid ).writeValues( interval, values );
-              addResultInfo( "\n[%d] " + MSG_CMD_WRITE_VALUE, index, TimeUtils.timestampToString( timestamp ), gwid,
-                  value );
+              try {
+                channels.getByKey( gwid ).writeValues( interval, values );
+              }
+              catch( @SuppressWarnings( "unused" ) AvTypeCastRtException e ) {
+                continue;
+              }
               switch( value.atomicType() ) {
                 case FLOATING:
                   value = avFloat( value.asFloat() + increment );
+                  writedLastGwid = gwid;
+                  writed++;
                   break;
                 case INTEGER:
                   value = avInt( value.asInt() + increment );
+                  writedLastGwid = gwid;
+                  writed++;
                   break;
                 case TIMESTAMP:
                   value = avTimestamp( value.asLong() + increment );
+                  writedLastGwid = gwid;
+                  writed++;
                   break;
                 case BOOLEAN:
                 case NONE:
@@ -212,11 +245,15 @@ public class AdminCmdWriteTest
                   throw new TsNotAllEnumsUsedRtException();
               }
             }
+            if( writedLastGwid != null ) {
+              String g = writedLastGwid.toString() + (gwids.size() > 2 ? ",...(" + writed + ")" : EMPTY_STRING);
+              print( "\n[%d] " + MSG_CMD_WRITE_VALUE, index, time, g, value );
+            }
             if( timeout > 0 ) {
               Thread.sleep( timeout );
             }
           }
-          addResultInfo( "\n" ); //$NON-NLS-1$
+          print( "\n" ); //$NON-NLS-1$
         }
         finally {
           for( ISkWriteHistDataChannel channel : channels.values() ) {
@@ -301,4 +338,14 @@ public class AdminCmdWriteTest
   // ------------------------------------------------------------------------------------
   // Внутренние методы
   //
+  /**
+   * Вывести сообщение в callback клиента
+   *
+   * @param aMessage String - текст сообщения
+   * @param aArgs Object[] - аргументы сообщения
+   * @throws TsNullArgumentRtException любой аргумент = null
+   */
+  private static void print( String aMessage, Object... aArgs ) {
+    callback.onNextStep( new ElemArrayList<>( info( aMessage, aArgs ) ), 0, 0, false );
+  }
 }
