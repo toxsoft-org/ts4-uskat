@@ -594,15 +594,18 @@ public abstract class S5AbstractBackend<ADDON extends IS5BackendAddon>
     if( logger.isSeverityOn( ELogSeverity.DEBUG ) ) {
       logger.info( "onBackendMessage recevied: %s", aMessage ); //$NON-NLS-1$
     }
-    lockWrite( frontendLock );
-    try {
-      for( IS5BackendAddon addon : allAddons ) {
-        addon.onBackendMessage( aMessage );
-      }
+
+    // 2025-03-24 mvk--- 
+    // На valcom-проекте, при устранении "missing currdata" обнаружено что код может вызывать большие задержки и даже сбой
+    // lockWrite( frontendLock );
+    // try {
+    for( IS5BackendAddon addon : allAddons ) {
+      addon.onBackendMessage( aMessage );
     }
-    finally {
-      unlockWrite( frontendLock );
-    }
+    // }
+    // finally {
+    // unlockWrite( frontendLock );
+    // }
     frontend.onBackendMessage( aMessage );
   }
 
