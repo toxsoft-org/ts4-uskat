@@ -1,5 +1,6 @@
 package org.toxsoft.uskat.s5.server.backend.supports.currdata.impl;
 
+import static org.toxsoft.core.tslib.av.impl.AvUtils.*;
 import static org.toxsoft.uskat.s5.server.IS5ImplementConstants.*;
 import static org.toxsoft.uskat.s5.server.backend.supports.currdata.impl.IS5CurrDataInterceptor.*;
 import static org.toxsoft.uskat.s5.server.backend.supports.currdata.impl.IS5Resources.*;
@@ -345,6 +346,19 @@ public class S5BackendCurrDataSingleton
         logger().error( ERR_READ_CACHE_VALUE_NOT_FOUND, gwid );
         continue;
       }
+//
+//      // 2025-03-24 TODO: mvkd+++
+//      EAtomicType type = valuesTypes.get( gwid );
+//      if( type == null ) {
+//        ISkClassInfo classInfo = sysdescrReader.getClassInfo( gwid.classId() );
+//        IDtoRtdataInfo dataInfo = classInfo.rtdata().list().getByKey( gwid.propId() );
+//        type = dataInfo.dataType().atomicType();
+//        valuesTypes.put( gwid, type );
+//      }
+//      if( type == EAtomicType.INTEGER && !value.isAssigned() ) {
+//        value = AV_0;
+//      }
+//
       retValue.put( gwid, value );
     }
     return retValue;
@@ -354,93 +368,131 @@ public class S5BackendCurrDataSingleton
   @Override
   public void writeValues( IS5FrontendRear aFrontend, IMap<Gwid, IAtomicValue> aValues ) {
     TsNullArgumentRtException.checkNulls( aFrontend, aValues );
-    // Текущее время трассировки
-    long traceTime0 = System.currentTimeMillis();
+    Thread t = Thread.currentThread();
+    synchronized (this) {
+      // Текущее время трассировки
+      long traceTime0 = System.currentTimeMillis();
 
-    IMapEdit<Gwid, IAtomicValue> changedValues = new ElemMap<>();
-    Map<Gwid, IAtomicValue> newCachedValues = new HashMap<>();
+      IMapEdit<Gwid, IAtomicValue> changedValues = new ElemMap<>();
+      Map<Gwid, IAtomicValue> newCachedValues = new HashMap<>();
 
-    for( Gwid gwid : aValues.keys() ) {
-      IAtomicValue newValue = aValues.getByKey( gwid );
-      IAtomicValue prevValue = valuesCache.get( gwid );
-      if( prevValue == null ) {
-        // В кэше не найдено данное
-        logger().error( ERR_WRITE_CACHE_VALUE_NOT_FOUND, gwid, newValue );
-        continue;
+      for( Gwid gwid : aValues.keys() ) {
+        IAtomicValue newValue = aValues.getByKey( gwid );
+        IAtomicValue prevValue = valuesCache.get( gwid );
+        if( prevValue == null ) {
+          // В кэше не найдено данное
+          logger().error( ERR_WRITE_CACHE_VALUE_NOT_FOUND, gwid, newValue );
+          continue;
+        }
+        EAtomicType type = valuesTypes.get( gwid );
+        if( type == null ) {
+          ISkClassInfo classInfo = sysdescrReader.getClassInfo( gwid.classId() );
+          IDtoRtdataInfo dataInfo = classInfo.rtdata().list().getByKey( gwid.propId() );
+          type = dataInfo.dataType().atomicType();
+          valuesTypes.put( gwid, type );
+        }
+        // Проверка типа значения
+        AvTypeCastRtException.checkCanAssign( type, newValue.atomicType() );
+
+        // // 2025-03-24 TODO: mvkd+++
+        // if( newValue.atomicType() != EAtomicType.INTEGER ) {
+        if( !prevValue.equals( newValue ) ) {
+          // Изменилось значение текущего данного
+          newCachedValues.put( gwid, newValue );
+          changedValues.put( gwid, newValue );
+        }
+        // }
       }
-      EAtomicType type = valuesTypes.get( gwid );
-      if( type == null ) {
-        ISkClassInfo classInfo = sysdescrReader.getClassInfo( gwid.classId() );
-        IDtoRtdataInfo dataInfo = classInfo.rtdata().list().getByKey( gwid.propId() );
-        type = dataInfo.dataType().atomicType();
-        valuesTypes.put( gwid, type );
+
+//      // 2025-03-24 TODO: mvkd+++ start
+//      int count = 0;
+//      for( Gwid gwid : valuesCache.keySet() ) {
+//        if( ++count > 1000 ) {
+//          break;
+//        }
+//        EAtomicType type = valuesTypes.get( gwid );
+//        if( type == null ) {
+//          ISkClassInfo classInfo = sysdescrReader.getClassInfo( gwid.classId() );
+//          IDtoRtdataInfo dataInfo = classInfo.rtdata().list().getByKey( gwid.propId() );
+//          type = dataInfo.dataType().atomicType();
+//          valuesTypes.put( gwid, type );
+//        }
+//        if( type != EAtomicType.INTEGER ) {
+//          continue;
+//        }
+//        IAtomicValue prevValue = valuesCache.get( gwid );
+//        if( prevValue == null || !prevValue.isAssigned() ) {
+//          prevValue = AV_0;
+//        }
+//        IAtomicValue newValue = avInt( prevValue.asInt() + 1 );
+//        newCachedValues.put( gwid, newValue );
+//        changedValues.put( gwid, newValue );
+//      }
+//      // 2025-03-24 TODO: mvkd+++ finish
+
+      if( changedValues.size() <= 0 ) {
+        // Данные не изменились
+        return;
       }
-      // Проверка типа значения
-      AvTypeCastRtException.checkCanAssign( type, newValue.atomicType() );
 
-      if( !prevValue.equals( newValue ) ) {
-        // Изменилось значение текущего данного
-        newCachedValues.put( gwid, newValue );
-        changedValues.put( gwid, newValue );
+      // Пред-вызов интерсепторов
+      if( !callBeforeWriteCurrData( interceptors, changedValues ) ) {
+        // Интерсепторы отклонили запись значений текущих данных
+        logger().info( MSG_REJECT_CURRDATA_WRITE_BY_INTERCEPTORS );
+        return;
       }
-    }
-    if( changedValues.size() <= 0 ) {
-      // Данные не изменились
-      return;
-    }
 
-    // Пред-вызов интерсепторов
-    if( !callBeforeWriteCurrData( interceptors, changedValues ) ) {
-      // Интерсепторы отклонили запись значений текущих данных
-      logger().info( MSG_REJECT_CURRDATA_WRITE_BY_INTERCEPTORS );
-      return;
-    }
+      // Запись значений в кэш
+      valuesCache.putAll( newCachedValues );
 
-    // Запись значений в кэш
-    valuesCache.putAll( newCachedValues );
+      // Пост-вызов интерсепторов
+      callAfterWriteCurrData( interceptors, changedValues, logger() );
 
-    // Пост-вызов интерсепторов
-    callAfterWriteCurrData( interceptors, changedValues, logger() );
-
-    // Текущее время
-    long currTime = System.currentTimeMillis();
-
-    // Вывод в журнал сообщения об изменении значений
-    writeValuesToLog( logger(), newCachedValues, currTime - traceTime0 );
-
-    // Проход по всем фронтендам и формирование их буферов передачи данных
-    for( IS5FrontendRear frontend : backend().attachedFrontends() ) {
-      // Данные расширения для сессии
-      S5BaRtdataData baData = frontend.frontendData().findBackendAddonData( IBaRtdata.ADDON_ID, S5BaRtdataData.class );
-      if( baData == null ) {
-        // фронтенд не поддерживает обработку текущих данных
-        continue;
-      }
-      GtMessage message = null;
-      synchronized (baData) {
-        for( Gwid gwid : changedValues.keys() ) {
-          if(
-          // фронтенд подписан на чтение значений текущих данного
-          baData.currdataGwidsToFrontend.hasElem( gwid ) ||
-          // фронтенд формирует значения текущего данного, но не он их изменил
-              (frontend != aFrontend && baData.currdataGwidsToBackend.hasElem( gwid )) ) {
-            if( baData.currdataToFrontend.size() == 0 ) {
-              // При добавлении первого данного обнуляем отсчет времени
-              baData.lastCurrdataToFrontendTime = currTime;
+      // Текущее время
+      long currTime = System.currentTimeMillis();
+      // Проход по всем фронтендам и формирование их буферов передачи данных
+      for( IS5FrontendRear frontend : backend().attachedFrontends() ) {
+        // Данные расширения для сессии
+        S5BaRtdataData baData =
+            frontend.frontendData().findBackendAddonData( IBaRtdata.ADDON_ID, S5BaRtdataData.class );
+        if( baData == null ) {
+          // фронтенд не поддерживает обработку текущих данных
+          continue;
+        }
+        GtMessage message = null;
+        synchronized (baData) {
+          for( Gwid gwid : changedValues.keys() ) {
+            if(
+            // фронтенд подписан на чтение значений текущих данного
+            baData.currdataGwidsToFrontend.hasElem( gwid ) ||
+            // фронтенд формирует значения текущего данного, но не он их изменил
+                (frontend != aFrontend && baData.currdataGwidsToBackend.hasElem( gwid )) ) {
+              if( baData.currdataToFrontend.size() == 0 ) {
+                // При добавлении первого данного обнуляем отсчет времени
+                baData.lastCurrdataToFrontendTime = currTime;
+              }
+              baData.currdataToFrontend.put( gwid, changedValues.getByKey( gwid ) );
             }
-            baData.currdataToFrontend.put( gwid, changedValues.getByKey( gwid ) );
+          }
+          if( baData.currdataToFrontend.size() > 0 && baData.currdataTimeout <= 0 ) {
+            // Немедленная передача текущих значений фронтенду
+            message = BaMsgRtdataCurrData.INSTANCE.makeMessage( baData.currdataToFrontend );
+            baData.currdataToFrontend.clear();
+            baData.lastCurrdataToFrontendTime = currTime;
           }
         }
-        if( baData.currdataToFrontend.size() > 0 && baData.currdataTimeout <= 0 ) {
+        if( message != null ) {
           // Немедленная передача текущих значений фронтенду
-          message = BaMsgRtdataCurrData.INSTANCE.makeMessage( baData.currdataToFrontend );
-          baData.currdataToFrontend.clear();
-          baData.lastCurrdataToFrontendTime = currTime;
+          frontend.onBackendMessage( message );
         }
       }
-      if( message != null ) {
-        // Немедленная передача текущих значений фронтенду
-        frontend.onBackendMessage( message );
+      // Текущее время
+      currTime = System.currentTimeMillis();
+      // Вывод в журнал сообщения об изменении значений
+      writeValuesToLog( logger(), newCachedValues, currTime - traceTime0 );
+
+      if( t != Thread.currentThread() ) {
+        logger().info( MSG_WRITE_THREAD_DIFF );
       }
     }
   }

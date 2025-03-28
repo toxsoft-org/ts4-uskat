@@ -27,6 +27,7 @@ interface IS5Resources {
   String MSG_WRITE_CURRDATA_VALUES_DEBUG           = "Writing current values(%d), time %d(msec). Values:";
   String MSG_WRITE_CURRDATA_VALUE                  = "Writing current value: %s=%s";
   String MSG_CURRDATA_VALUE                        = "   %s=%s";
+  String MSG_WRITE_THREAD_DIFF                     = "writeValues(...) t != Thread.currentThread()";
 
   // ------------------------------------------------------------------------------------
   // Тексты ошибок
