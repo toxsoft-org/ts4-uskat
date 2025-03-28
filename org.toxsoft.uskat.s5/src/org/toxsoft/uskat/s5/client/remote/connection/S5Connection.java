@@ -550,6 +550,9 @@ public final class S5Connection
       // Замена пароля на хэш-код
       OP_PASSWORD.setValue( options, avStr( passwdHash ) );
 
+      // Вывод в журнал опций подключения (только после замены паролья на хеш-код)
+      logger.info( MSG_CLIENT_OPTIONS, OptionSetUtils.humanReadable( options ) );
+
       // Адрес сервера
       S5HostList hosts = OP_HOSTS.getValue( options ).asValobj();
       String moduleName = IS5ImplementConstants.BACKEND_SERVER_MODULE_ID;
