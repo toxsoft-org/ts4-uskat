@@ -1,6 +1,5 @@
 package org.toxsoft.uskat.s5.server.backend.supports.currdata.impl;
 
-import static org.toxsoft.core.tslib.av.impl.AvUtils.*;
 import static org.toxsoft.uskat.s5.server.IS5ImplementConstants.*;
 import static org.toxsoft.uskat.s5.server.backend.supports.currdata.impl.IS5CurrDataInterceptor.*;
 import static org.toxsoft.uskat.s5.server.backend.supports.currdata.impl.IS5Resources.*;
@@ -346,19 +345,6 @@ public class S5BackendCurrDataSingleton
         logger().error( ERR_READ_CACHE_VALUE_NOT_FOUND, gwid );
         continue;
       }
-//
-//      // 2025-03-24 TODO: mvkd+++
-//      EAtomicType type = valuesTypes.get( gwid );
-//      if( type == null ) {
-//        ISkClassInfo classInfo = sysdescrReader.getClassInfo( gwid.classId() );
-//        IDtoRtdataInfo dataInfo = classInfo.rtdata().list().getByKey( gwid.propId() );
-//        type = dataInfo.dataType().atomicType();
-//        valuesTypes.put( gwid, type );
-//      }
-//      if( type == EAtomicType.INTEGER && !value.isAssigned() ) {
-//        value = AV_0;
-//      }
-//
       retValue.put( gwid, value );
     }
     return retValue;
@@ -391,44 +377,16 @@ public class S5BackendCurrDataSingleton
           type = dataInfo.dataType().atomicType();
           valuesTypes.put( gwid, type );
         }
+
         // Проверка типа значения
         AvTypeCastRtException.checkCanAssign( type, newValue.atomicType() );
 
-        // // 2025-03-24 TODO: mvkd+++
-        // if( newValue.atomicType() != EAtomicType.INTEGER ) {
         if( !prevValue.equals( newValue ) ) {
           // Изменилось значение текущего данного
           newCachedValues.put( gwid, newValue );
           changedValues.put( gwid, newValue );
         }
-        // }
       }
-
-//      // 2025-03-24 TODO: mvkd+++ start
-//      int count = 0;
-//      for( Gwid gwid : valuesCache.keySet() ) {
-//        if( ++count > 1000 ) {
-//          break;
-//        }
-//        EAtomicType type = valuesTypes.get( gwid );
-//        if( type == null ) {
-//          ISkClassInfo classInfo = sysdescrReader.getClassInfo( gwid.classId() );
-//          IDtoRtdataInfo dataInfo = classInfo.rtdata().list().getByKey( gwid.propId() );
-//          type = dataInfo.dataType().atomicType();
-//          valuesTypes.put( gwid, type );
-//        }
-//        if( type != EAtomicType.INTEGER ) {
-//          continue;
-//        }
-//        IAtomicValue prevValue = valuesCache.get( gwid );
-//        if( prevValue == null || !prevValue.isAssigned() ) {
-//          prevValue = AV_0;
-//        }
-//        IAtomicValue newValue = avInt( prevValue.asInt() + 1 );
-//        newCachedValues.put( gwid, newValue );
-//        changedValues.put( gwid, newValue );
-//      }
-//      // 2025-03-24 TODO: mvkd+++ finish
 
       if( changedValues.size() <= 0 ) {
         // Данные не изменились

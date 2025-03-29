@@ -6,23 +6,19 @@ import static org.toxsoft.uskat.s5.server.backend.supports.currdata.impl.IS5Reso
 import static org.toxsoft.uskat.s5.server.backend.supports.objects.S5BackendObjectsUtils.*;
 import static org.toxsoft.uskat.s5.server.transactions.ES5TransactionResources.*;
 
-import org.toxsoft.core.tslib.av.IAtomicValue;
-import org.toxsoft.core.tslib.av.metainfo.IDataType;
-import org.toxsoft.core.tslib.bricks.strid.coll.IStridablesList;
-import org.toxsoft.core.tslib.bricks.strid.coll.IStridablesListEdit;
-import org.toxsoft.core.tslib.bricks.strid.coll.impl.StridablesList;
+import org.toxsoft.core.tslib.av.*;
+import org.toxsoft.core.tslib.av.metainfo.*;
+import org.toxsoft.core.tslib.bricks.strid.coll.*;
+import org.toxsoft.core.tslib.bricks.strid.coll.impl.*;
 import org.toxsoft.core.tslib.coll.*;
-import org.toxsoft.core.tslib.coll.impl.ElemMap;
+import org.toxsoft.core.tslib.coll.impl.*;
 import org.toxsoft.core.tslib.gw.gwid.*;
-import org.toxsoft.core.tslib.utils.errors.TsIllegalStateRtException;
-import org.toxsoft.core.tslib.utils.errors.TsNullArgumentRtException;
-import org.toxsoft.uskat.core.api.objserv.IDtoObject;
-import org.toxsoft.uskat.core.api.sysdescr.dto.IDtoClassInfo;
-import org.toxsoft.uskat.core.api.sysdescr.dto.IDtoRtdataInfo;
-import org.toxsoft.uskat.s5.server.backend.supports.currdata.IS5BackendCurrDataSingleton;
-import org.toxsoft.uskat.s5.server.backend.supports.objects.IS5BackendObjectsSingleton;
-import org.toxsoft.uskat.s5.server.backend.supports.objects.S5ObjectEntity;
-import org.toxsoft.uskat.s5.server.backend.supports.sysdescr.IS5ClassesInterceptor;
+import org.toxsoft.core.tslib.utils.errors.*;
+import org.toxsoft.uskat.core.api.objserv.*;
+import org.toxsoft.uskat.core.api.sysdescr.dto.*;
+import org.toxsoft.uskat.s5.server.backend.supports.currdata.*;
+import org.toxsoft.uskat.s5.server.backend.supports.objects.*;
+import org.toxsoft.uskat.s5.server.backend.supports.sysdescr.*;
 import org.toxsoft.uskat.s5.server.transactions.*;
 
 /**
@@ -180,4 +176,38 @@ class S5SysdescrInterceptor
   // ------------------------------------------------------------------------------------
   // Внутренние методы
   //
+  /**
+   * Формирует список добавленных и удаленных элементов класса (атрибуты, данные, связи, события, команды) из двух
+   * представленных списков - старая и новая редакция
+   *
+   * @param <T> тип элемента
+   * @param aPrevPropInfos {@link IStridablesList}&lt;{@link IDtoClassPropInfoBase}&gt; список элементов (старая
+   *          редакция)
+   * @param aNewPropInfos {@link IStridablesList}&lt;{@link IDtoClassPropInfoBase}&gt; список элементов (новая редакция)
+   * @param aRemovedProps {@link IStridablesListEdit}&lt;{@link IDtoClassPropInfoBase}&gt; список удаленных элементов
+   * @param aAddedProps {@link IStridablesListEdit}&lt;{@link IDtoClassPropInfoBase}&gt; список добавленных элементов
+   * @throws TsNullArgumentRtException любой аргумент = null
+   */
+  private static <T extends IDtoRtdataInfo> void loadSysdescrChangedProps( IStridablesList<T> aPrevPropInfos,
+      IStridablesList<T> aNewPropInfos, IStridablesListEdit<T> aRemovedProps, IStridablesListEdit<T> aAddedProps ) {
+    TsNullArgumentRtException.checkNulls( aPrevPropInfos, aNewPropInfos, aRemovedProps, aAddedProps );
+    for( T prevPropInfo : aPrevPropInfos ) {
+      T newPropInfo = aNewPropInfos.findByKey( prevPropInfo.id() );
+      if( newPropInfo == null || //
+          !newPropInfo.isCurr() || //
+          newPropInfo.dataType().atomicType() != prevPropInfo.dataType().atomicType() ) {
+        aRemovedProps.put( prevPropInfo );
+      }
+    }
+    for( T newPropInfo : aNewPropInfos ) {
+      if( !newPropInfo.isCurr() ) {
+        continue;
+      }
+      T prevPropInfo = aPrevPropInfos.findByKey( newPropInfo.id() );
+      if( prevPropInfo == null || //
+          newPropInfo.dataType().atomicType() != prevPropInfo.dataType().atomicType() ) {
+        aAddedProps.put( newPropInfo );
+      }
+    }
+  }
 }
