@@ -1580,7 +1580,7 @@ public abstract class S5AbstractSequenceWriter<S extends IS5Sequence<V>, V exten
         em = entityManagerFactory().createEntityManager();
         try {
           // Обработка статистики
-          S5SequencePartitionStat<V> result = partitionJob( em, schema, op, logger() );
+          S5SequencePartitionStat<V> result = partitionJob( em, schema, op, partitionLogger );
           statistics.addAdded( result.addedCount() );
           statistics.addRemovedPartitions( result.removedPartitionCount() );
           statistics.addRemovedBlocks( result.removedBlockCount() );
