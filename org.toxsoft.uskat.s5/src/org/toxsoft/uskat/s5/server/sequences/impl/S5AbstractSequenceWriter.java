@@ -1575,7 +1575,6 @@ public abstract class S5AbstractSequenceWriter<S extends IS5Sequence<V>, V exten
       Integer q = Integer.valueOf( partitionCount );
       partitionLogger.info( MSG_PARTITION_START_THREAD, ownerName(), c, q, interval );
 
-      // 2023-10-07 TODO: mvkd
       for( S5PartitionOperation op : ops ) {
         // Создание менеджера постоянства
         em = entityManagerFactory().createEntityManager();

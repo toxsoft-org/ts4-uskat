@@ -69,6 +69,29 @@ public abstract class S5BackendSupportSingleton
   @Override
   protected void doInit() {
     backendCore.addSupport( id(), sessionContext().getBusinessObject( getClass() ) );
+    backendCore.addBackendCoreInterceptor( new IS5BackendCoreInterceptor() {
+
+      @Override
+      public void beforeChangeServerMode( ES5ServerMode aOldMode, ES5ServerMode aNewMode,
+          IVrListEdit aValidationList ) {
+        // nop
+      }
+
+      @Override
+      public void afterChangeServerMode( ES5ServerMode aOldMode, ES5ServerMode aNewMode ) {
+        serverMode = aNewMode;
+      }
+
+      @Override
+      public void beforeSetSharedConnection( ISkConnection aConnection, IVrListEdit aValidationList ) {
+        // nop
+      }
+
+      @Override
+      public void afterSetSharedConnection( ISkConnection aConnection ) {
+        // nop
+      }
+    }, 0 );
     doInitSupport();
     clusterManager.addCommandHandler( WHEN_SUPPORT_CONFIG_CHANGED_METHOD,
         new S5ClusterCommandWhenSupportConfigChanged() {
@@ -91,38 +114,6 @@ public abstract class S5BackendSupportSingleton
   protected void doClose() {
     doCloseSupport();
     backendCore.removeSupport( id() );
-  }
-
-  // ------------------------------------------------------------------------------------
-  // IS5BackendCoreInterceptor
-  //
-  @TransactionAttribute( TransactionAttributeType.SUPPORTS )
-  @Lock( LockType.WRITE )
-  @Override
-  public void beforeChangeServerMode( ES5ServerMode aOldMode, ES5ServerMode aNewMode, IVrListEdit aValidationList ) {
-    doBeforeChangeServerMode( aOldMode, aNewMode, aValidationList );
-  }
-
-  @TransactionAttribute( TransactionAttributeType.SUPPORTS )
-  @Lock( LockType.WRITE )
-  @Override
-  public void afterChangeServerMode( ES5ServerMode aOldMode, ES5ServerMode aNewMode ) {
-    doAfterChangeServerMode( aOldMode, aNewMode );
-    serverMode = aNewMode;
-  }
-
-  @TransactionAttribute( TransactionAttributeType.SUPPORTS )
-  @Lock( LockType.READ )
-  @Override
-  public void beforeSetSharedConnection( ISkConnection aConnection, IVrListEdit aValidationList ) {
-    doBeforeSetSharedConnection( aConnection, aValidationList );
-  }
-
-  @TransactionAttribute( TransactionAttributeType.SUPPORTS )
-  @Lock( LockType.READ )
-  @Override
-  public void afterSetSharedConnection( ISkConnection aConnection ) {
-    doAfterSetSharedConnection( aConnection );
   }
 
   // ------------------------------------------------------------------------------------
@@ -158,8 +149,7 @@ public abstract class S5BackendSupportSingleton
   /**
    * Возвращает идентификатор класса бекенда
    *
-   * @return String класс бекенда, {@link ISkServerBackend} или его наследник, например
-   *         {@link ISkServerHistorable}.
+   * @return String класс бекенда, {@link ISkServerBackend} или его наследник, например {@link ISkServerHistorable}.
    */
   protected String doBackendClassId() {
     return ISkServerBackend.CLASS_ID;

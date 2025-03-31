@@ -146,9 +146,9 @@ public abstract class S5BackendSequenceSupportSingleton<S extends IS5Sequence<V>
   private S5IntervalTimer staticticsTimer;
 
   /**
-   * Таймер выполнения дефрагментации.
+   * doJob-таймер выполнения дефрагментации.
    */
-  private S5IntervalTimer unionTimer;
+  private S5IntervalTimer unionDoJobTimer;
 
   /**
    * Исполнитель потоков дефрагментации
@@ -161,9 +161,9 @@ public abstract class S5BackendSequenceSupportSingleton<S extends IS5Sequence<V>
   private S5SequenceUniterThread uniterThread;
 
   /**
-   * Таймер выполнения обработки разделов.
+   * doJob-таймер выполнения обработки разделов.
    */
-  private S5IntervalTimer partitionTimer;
+  private S5IntervalTimer partitionDoJobTimer;
 
   /**
    * Исполнитель потоков обработки разделов таблиц
@@ -294,7 +294,7 @@ public abstract class S5BackendSequenceSupportSingleton<S extends IS5Sequence<V>
     staticticsTimer = new S5IntervalTimer( configuration.getInt( SEQUENCES_STATISTICS_TIMEOUT ) );
 
     // Таймер фонового процесса дефрагментации
-    unionTimer = new S5IntervalTimer( configuration.getInt( UNION_DOJOB_TIMEOUT ) );
+    unionDoJobTimer = new S5IntervalTimer( configuration.getInt( UNION_DOJOB_TIMEOUT ) );
     // Поиск исполнителя потоков объединения блоков
     unionExecutor = S5ServiceSingletonUtils.lookupExecutor( UNION_EXECUTOR_JNDI );
     // Запуск потока дефрагментации
@@ -302,7 +302,7 @@ public abstract class S5BackendSequenceSupportSingleton<S extends IS5Sequence<V>
     unionExecutor.execute( uniterThread );
 
     // Таймер фонового процесса обработки разделов
-    partitionTimer = new S5IntervalTimer( configuration.getInt( PARTITION_DOJOB_TIMEOUT ) );
+    partitionDoJobTimer = new S5IntervalTimer( configuration.getInt( PARTITION_DOJOB_TIMEOUT ) );
     // Поиск исполнителя потоков удаления блоков
     partitionExecutor = S5ServiceSingletonUtils.lookupExecutor( PARTITION_EXECUTOR_JNDI );
     // Запуск потока удаления блоков
@@ -328,11 +328,11 @@ public abstract class S5BackendSequenceSupportSingleton<S extends IS5Sequence<V>
     // Фоновая задача писателя
     sequenceWriter.doJob();
     // Обработка дефрагментации
-    if( unionTimer.update() ) {
+    if( unionDoJobTimer.update() ) {
       unionDoJob();
     }
     // Обработка разделов
-    if( partitionTimer.update() ) {
+    if( partitionDoJobTimer.update() ) {
       partitionDoJob();
     }
     // Обработка статистики
@@ -1396,7 +1396,6 @@ public abstract class S5BackendSequenceSupportSingleton<S extends IS5Sequence<V>
       partitionLogger.warning( ERR_PARTITION_DISABLE_BY_LOAD_AVERAGE, id(), serverMode, la );
       return;
     }
-    // System.err.println( "doTimerEventHandle" );
     // Запуск потока обработки разделов таблиц
     if( !partitionThread.tryStart() ) {
       // Запрет обработки таблиц по календарю (незавершен предыдущий процесс)

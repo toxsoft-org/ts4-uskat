@@ -28,14 +28,16 @@ public class S5SequencePartitionConfig {
   public static final String SYBSYSTEM_ID_PREFIX = S5DatabaseConfig.SYBSYSTEM_ID_PREFIX + ".partitions";
 
   /**
-   * Интервал выполнения фонововой работы обработки разделов (мсек)
+   * Интервал выполнения фонововой работы обработки разделов (мсек).
+   * <p>
+   * Определяет как часто выполняется doJob для выполнения операций обработки разделов.
    */
   public static final IDataDef PARTITION_DOJOB_TIMEOUT = create( SYBSYSTEM_ID_PREFIX + ".doJobTimeout", INTEGER, //$NON-NLS-1$
       TSID_NAME, N_PARTITION_DOJOB_TIMEOUT, //
       TSID_DESCRIPTION, D_PARTITION_DOJOB_TIMEOUT, //
       TSID_IS_NULL_ALLOWED, AV_FALSE, //
       TSID_IS_MANDATORY, AV_FALSE, //
-      TSID_DEFAULT_VALUE, AvUtils.avInt( 24 * 60 * 60 * 1000 ) );
+      TSID_DEFAULT_VALUE, AvUtils.avInt( 1000 ) );
 
   /**
    * Интервал удаления разделов. Если интервал {@link ITimeInterval#NULL}, то процесс автоматически определяет требуемый
