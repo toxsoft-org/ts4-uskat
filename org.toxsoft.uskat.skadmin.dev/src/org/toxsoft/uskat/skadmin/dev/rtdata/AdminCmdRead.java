@@ -410,39 +410,6 @@ public class AdminCmdRead
   // Внутренние методы
   //
   /**
-   * Ожидание значений каналов
-   *
-   * @param aNewChannels {@link IMap}&lt; {@link Gwid}, {@link ISkReadCurrDataChannel}&gt; карта новых открытых каналов
-   * @param aTimeout long время (мсек) ожидания данных
-   * @return boolean <b>true</b> значение получено;<b>false</b> значение не получено
-   * @throws InterruptedException прерывание ожидания
-   */
-  // private static boolean waitValues( IMap<Gwid, ISkReadCurrDataChannel> aNewChannels, long aTimeout )
-  // throws InterruptedException {
-  // TsNullArgumentRtException.checkNull( aNewChannels );
-  // synchronized (cdChannels) {
-  // IList<Gwid> readyChannelIds = cdGwids.getByKey( connection );
-  // IMapEdit<Gwid, ISkReadCurrDataChannel> newChannels = cdChannels.getByKey( connection );
-  // if( newChannels == null ) {
-  // newChannels = new ElemMap<>();
-  // cdChannels.put( connection, newChannels );
-  // }
-  // for( Gwid gwid : aNewChannels.keys() ) {
-  // if( !readyChannelIds.hasElem( gwid ) ) {
-  // // Канал еще не получил значение, ожидание
-  // cdChannels.wait( aTimeout );
-  // // Проверка получения значения
-  // if( !readyChannelIds.hasElem( gwid ) ) {
-  // return false;
-  // }
-  // newChannels.put( gwid, aNewChannels.getByKey( gwid ) );
-  // }
-  // }
-  // }
-  // return true;
-  // }
-
-  /**
    * Вывести сообщение в callback клиента
    *
    * @param aMessage String - текст сообщения
