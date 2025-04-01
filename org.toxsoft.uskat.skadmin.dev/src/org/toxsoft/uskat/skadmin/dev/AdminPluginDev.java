@@ -18,7 +18,7 @@ public class AdminPluginDev
   /**
    * ИД-путь команд которые находятся в плагине
    */
-  public static final String DEV_CMD_PATH = "sk.dev."; //$NON-NLS-1$
+  public static final String CMD_PATH = "sk."; //$NON-NLS-1$
 
   // ------------------------------------------------------------------------------------
   // Реализация абстрактных методов AbstractPluginCmdLibrary

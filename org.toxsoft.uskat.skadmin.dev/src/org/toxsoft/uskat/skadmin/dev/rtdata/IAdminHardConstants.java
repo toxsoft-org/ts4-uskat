@@ -29,7 +29,7 @@ interface IAdminHardConstants {
   /**
    * Префикс идентификаторов команд и их алиасов плагина
    */
-  String CMD_PATH_PREFIX = AdminPluginDev.DEV_CMD_PATH + "rtdata.";
+  String CMD_PATH_PREFIX = AdminPluginDev.CMD_PATH + "rtdata.";
 
   // ------------------------------------------------------------------------------------
   // AdminCmdRead, AdminCmdWrite, AdminCmdClose

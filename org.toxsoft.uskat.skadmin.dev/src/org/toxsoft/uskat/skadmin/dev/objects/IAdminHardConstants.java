@@ -21,7 +21,7 @@ interface IAdminHardConstants {
   /**
    * Префикс идентификаторов команд и их алиасов плагина
    */
-  String CMD_PATH_PREFIX = AdminPluginDev.DEV_CMD_PATH + "objects.";
+  String CMD_PATH_PREFIX = AdminPluginDev.CMD_PATH + "objects.";
 
   // ------------------------------------------------------------------------------------
   // AdminCmdGetAttr, AdminCmdSetAttr

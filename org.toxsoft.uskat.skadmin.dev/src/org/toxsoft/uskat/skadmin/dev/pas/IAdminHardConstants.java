@@ -21,7 +21,7 @@ interface IAdminHardConstants {
   /**
    * Префикс идентификаторов команд и их алиасов плагина
    */
-  String CMD_PATH_PREFIX = AdminPluginDev.DEV_CMD_PATH + "pas.";
+  String CMD_PATH_PREFIX = AdminPluginDev.CMD_PATH + "pas.";
 
   /**
    * Значение по умолчанию для аргумента: {@link #ARG_PAS_HOST}.
