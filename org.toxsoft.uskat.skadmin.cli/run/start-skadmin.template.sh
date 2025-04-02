@@ -6,11 +6,16 @@ ADMIN_CLASSPATH=\
 ../../../ts4-targets/ts4-target-extlibs/lib/*:\
 ../../../ts4-targets/ts4-target-core/lib/*:\
 ../../../ts4-targets/ts4-target-uskat/lib/*:\
-../../../ts4-targets/ts4-target-sitrol/lib/*:\
+../../../ts4-targets/ts4-target-skf-dq/lib/*:\
+../../../ts4-targets/ts4-target-skf-bridge/lib/*:\
+../../../ts4-targets/ts4-target-skt-sitrol/lib/*:\
 ../dist/*
 
 ADMIN_PLUGINPATH=\
-../../../ts4-targets/ts4-target-uskat/main/plugins
+../../../ts4-targets/ts4-target-uskat/main/plugins:\
+../../../ts4-targets/ts4-target-skf-dq/main/plugins:\
+../../../ts4-targets/ts4-target-skf-bridge/main/plugins
+
 
 ADMIN_USER=root
 ADMIN_PASSWORD=root
