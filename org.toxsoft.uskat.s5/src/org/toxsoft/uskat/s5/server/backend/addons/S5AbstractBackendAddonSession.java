@@ -3,26 +3,24 @@ package org.toxsoft.uskat.s5.server.backend.addons;
 import static org.toxsoft.core.log4j.LoggerWrapper.*;
 import static org.toxsoft.uskat.s5.server.IS5ImplementConstants.*;
 
-import java.rmi.RemoteException;
-import java.util.concurrent.TimeUnit;
+import java.rmi.*;
+import java.util.concurrent.*;
 
-import javax.annotation.Resource;
+import javax.annotation.*;
 import javax.ejb.*;
 
-import org.toxsoft.core.tslib.bricks.strid.IStridable;
-import org.toxsoft.core.tslib.bricks.strid.impl.Stridable;
-import org.toxsoft.core.tslib.gw.skid.Skid;
-import org.toxsoft.core.tslib.utils.errors.TsInternalErrorRtException;
-import org.toxsoft.core.tslib.utils.errors.TsNullArgumentRtException;
-import org.toxsoft.core.tslib.utils.logs.ILogger;
+import org.toxsoft.core.tslib.bricks.strid.*;
+import org.toxsoft.core.tslib.bricks.strid.impl.*;
+import org.toxsoft.core.tslib.gw.skid.*;
+import org.toxsoft.core.tslib.utils.errors.*;
+import org.toxsoft.core.tslib.utils.logs.*;
 import org.toxsoft.uskat.classes.*;
-import org.toxsoft.uskat.s5.server.backend.IS5BackendSessionControl;
-import org.toxsoft.uskat.s5.server.frontend.IS5FrontendRear;
-import org.toxsoft.uskat.s5.server.sessions.IS5SessionManager;
-import org.toxsoft.uskat.s5.server.sessions.init.IS5SessionInitData;
-import org.toxsoft.uskat.s5.server.sessions.init.S5SessionInitResult;
-import org.toxsoft.uskat.s5.server.sessions.pas.S5SessionMessenger;
-import org.toxsoft.uskat.s5.server.statistics.IS5StatisticCounter;
+import org.toxsoft.uskat.s5.server.backend.*;
+import org.toxsoft.uskat.s5.server.frontend.*;
+import org.toxsoft.uskat.s5.server.sessions.*;
+import org.toxsoft.uskat.s5.server.sessions.init.*;
+import org.toxsoft.uskat.s5.server.sessions.pas.*;
+import org.toxsoft.uskat.s5.server.statistics.*;
 
 /**
  * Абстрактная реализация сессии расширения backend
@@ -106,7 +104,7 @@ public abstract class S5AbstractBackendAddonSession
       throws EJBException,
       RemoteException {
     // Установлен контекст сессии расширения
-    logger().info( "setSessionContext(...): %s. aContext : %s", id(), aContext ); //$NON-NLS-1$
+    logger().debug( "setSessionContext(...): %s. aContext : %s", id(), aContext ); //$NON-NLS-1$
   }
 
   @Override
