@@ -6,29 +6,25 @@ import static org.toxsoft.uskat.s5.server.IS5ImplementConstants.*;
 import static org.toxsoft.uskat.s5.server.transactions.IS5Resources.*;
 import static org.toxsoft.uskat.s5.utils.threads.impl.S5Lockable.*;
 
-import java.io.Serializable;
-import java.lang.reflect.Method;
+import java.io.*;
+import java.lang.reflect.*;
 
 import javax.annotation.*;
 import javax.ejb.*;
-import javax.interceptor.ExcludeDefaultInterceptors;
-import javax.transaction.TransactionSynchronizationRegistry;
+import javax.interceptor.*;
+import javax.transaction.*;
 
-import org.toxsoft.core.tslib.bricks.strid.impl.Stridable;
-import org.toxsoft.core.tslib.coll.IList;
-import org.toxsoft.core.tslib.coll.IListEdit;
-import org.toxsoft.core.tslib.coll.impl.ElemArrayList;
-import org.toxsoft.core.tslib.coll.impl.ElemLinkedList;
-import org.toxsoft.core.tslib.coll.primtypes.IStringMapEdit;
-import org.toxsoft.core.tslib.coll.primtypes.impl.StringMap;
-import org.toxsoft.core.tslib.utils.TsLibUtils;
-import org.toxsoft.core.tslib.utils.errors.TsIllegalArgumentRtException;
-import org.toxsoft.core.tslib.utils.errors.TsNullArgumentRtException;
-import org.toxsoft.core.tslib.utils.logs.ILogger;
-import org.toxsoft.uskat.s5.common.info.ITransactionInfo;
-import org.toxsoft.uskat.s5.common.info.ITransactionsInfos;
-import org.toxsoft.uskat.s5.server.singletons.S5SingletonBase;
-import org.toxsoft.uskat.s5.utils.threads.impl.S5Lockable;
+import org.toxsoft.core.tslib.bricks.strid.impl.*;
+import org.toxsoft.core.tslib.coll.*;
+import org.toxsoft.core.tslib.coll.impl.*;
+import org.toxsoft.core.tslib.coll.primtypes.*;
+import org.toxsoft.core.tslib.coll.primtypes.impl.*;
+import org.toxsoft.core.tslib.utils.*;
+import org.toxsoft.core.tslib.utils.errors.*;
+import org.toxsoft.core.tslib.utils.logs.*;
+import org.toxsoft.uskat.s5.common.info.*;
+import org.toxsoft.uskat.s5.server.singletons.*;
+import org.toxsoft.uskat.s5.utils.threads.impl.*;
 
 /**
  * Начало выполнения кода сервера S5 - первый стартующий синглтон.
@@ -138,7 +134,7 @@ public class S5TransactionManager
    */
   public S5TransactionManager() {
     super( TRANSACTION_MANAGER_ID, STR_D_TRANSACTION_MANAGER, TsLibUtils.EMPTY_STRING );
-    logger.info( MSG_CREATE_SINGLETON );
+    logger.debug( MSG_CREATE_SINGLETON );
   }
 
   // ------------------------------------------------------------------------------------
