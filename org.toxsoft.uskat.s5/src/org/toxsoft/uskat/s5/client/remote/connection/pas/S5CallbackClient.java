@@ -23,6 +23,7 @@ import org.toxsoft.core.tslib.bricks.ctx.impl.*;
 import org.toxsoft.core.tslib.coll.*;
 import org.toxsoft.core.tslib.coll.impl.*;
 import org.toxsoft.core.tslib.coll.primtypes.*;
+import org.toxsoft.core.tslib.gw.skid.*;
 import org.toxsoft.core.tslib.utils.errors.*;
 import org.toxsoft.core.tslib.utils.logs.*;
 import org.toxsoft.uskat.core.backend.*;
@@ -417,10 +418,18 @@ public final class S5CallbackClient
 
       @Override
       protected void doOnSended( S5CallbackChannel aSource, IJSONMessage aMessage ) {
-        if( aMessage.kind() == EJSONKind.NOTIFICATION
-            && ((IJSONNotification)aMessage).method().equals( SESSION_INIT_METHOD ) ) {
-          // send INIT SESSION message
-          aLogger.info( MSG_SENDED_INIT_SESSION_MESSAGE, aSource, aMessage );
+        if( aMessage.kind() != EJSONKind.NOTIFICATION ) {
+          return;
+        }
+        IJSONNotification notification = (IJSONNotification)aMessage;
+        switch( notification.method() ) {
+          case SESSION_INIT_METHOD:
+            // INIT SESSION message sended
+            Skid sessionID = Skid.KEEPER.str2ent( notification.params().getByKey( SESSION_ID ).asString() );
+            aLogger.info( MSG_SENDED_INIT_SESSION_MESSAGE, aSource, sessionID );
+            break;
+          default:
+            break;
         }
       }
 

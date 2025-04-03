@@ -3,16 +3,15 @@ package org.toxsoft.uskat.s5.server.sessions.pas;
 import static org.toxsoft.core.pas.tj.impl.TjUtils.*;
 import static org.toxsoft.uskat.s5.server.sessions.pas.S5SessionCallbackHardConstants.*;
 
-import org.toxsoft.core.pas.common.IPasTxChannel;
-import org.toxsoft.core.pas.json.IJSONNotification;
-import org.toxsoft.core.pas.json.IJSONNotificationHandler;
-import org.toxsoft.core.pas.tj.ITjValue;
-import org.toxsoft.core.tslib.coll.primtypes.IStringMapEdit;
-import org.toxsoft.core.tslib.coll.primtypes.impl.StringMap;
-import org.toxsoft.core.tslib.gw.skid.Skid;
-import org.toxsoft.core.tslib.utils.errors.TsNullArgumentRtException;
+import org.toxsoft.core.pas.common.*;
+import org.toxsoft.core.pas.json.*;
+import org.toxsoft.core.pas.tj.*;
+import org.toxsoft.core.tslib.coll.primtypes.*;
+import org.toxsoft.core.tslib.coll.primtypes.impl.*;
+import org.toxsoft.core.tslib.gw.skid.*;
+import org.toxsoft.core.tslib.utils.errors.*;
 import org.toxsoft.uskat.classes.*;
-import org.toxsoft.uskat.s5.server.backend.IS5BackendSessionControl;
+import org.toxsoft.uskat.s5.server.backend.*;
 
 /**
  * Вызов клиента: инициализация сессии
@@ -30,7 +29,7 @@ public final class S5SessionCallbackInit
   /**
    * Идентификатор сессии идентификатор сессии {@link ISkSession}
    */
-  private static final String SESSION_ID = "sessionID"; //$NON-NLS-1$
+  public static final String SESSION_ID = "sessionID"; //$NON-NLS-1$
 
   /**
    * Конструктор

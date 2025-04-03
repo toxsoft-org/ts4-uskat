@@ -16,7 +16,7 @@ interface IS5Resources {
   String MSG_FIND_CHANNEL                  =
       "findChannel(...): aSessionID = %s, aRemoteAddr = %s, aRemotePort = %d, channels(%d): %s";
   String MSG_RECEIVED_INIT_SESSION_MESSAGE =
-      "doOnReceived(...): received INIT SESSION message. aSource = %s, aMessage = %s";
+      "doOnReceived(...): received INIT SESSION message. aSource = %s, aSessionID = %s";
   String FMT_CHANNEL                       = "\n[%d] sessionID = %s, %s %s";
   String FMT_SUITABLE                      = " - IS SUITABLE";
 
