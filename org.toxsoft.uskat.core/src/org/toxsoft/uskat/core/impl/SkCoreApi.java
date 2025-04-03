@@ -334,7 +334,8 @@ public class SkCoreApi
         }
         boolean isActive = BackendMsgActiveChanged.INSTANCE.getActive( aMessage );
         ESkConnState oldState = conn.state();
-        if( conn.changeState( isActive ? ESkConnState.ACTIVE : ESkConnState.INACTIVE ) ) {
+        if( !conn.changeState( isActive ? ESkConnState.ACTIVE : ESkConnState.INACTIVE ) ) {
+          // state was not changed
           return;
         }
         for( int i = servicesMap.size() - 1; i >= 0; i-- ) {
