@@ -230,7 +230,7 @@ public abstract class AbstractSkService
    * @param aArgs {@link ITsContextRo} - initialization arguments (the same as backend init args)
    */
   final void init( ITsContextRo aArgs ) {
-    logger().info( FMT_INFO_SERVICE_INIT, serviceId() );
+    logger().debug( FMT_INFO_SERVICE_INIT, serviceId() );
     TsIllegalStateRtException.checkTrue( inited );
     try {
       doInit( aArgs );
@@ -248,7 +248,7 @@ public abstract class AbstractSkService
    * After closing the service it is not usable.
    */
   final void close() {
-    logger().info( FMT_INFO_SERVICE_CLOSE, serviceId() );
+    logger().debug( FMT_INFO_SERVICE_CLOSE, serviceId() );
     if( !inited ) {
       return;
     }
