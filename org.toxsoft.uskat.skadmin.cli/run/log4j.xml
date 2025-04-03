@@ -29,6 +29,10 @@
                 <priority value="WARN" />
         </category>
 
+        <category name="org.toxsoft.uskat.s5.client.remote.connection.pas.S5CallbackClient">
+                <priority value="INFO" />
+        </category>
+
         <category name="org.toxsoft.uskat.s5.client">
                 <priority value="WARN" />
         </category>
@@ -50,9 +54,21 @@
                 <priority value="WARN" />
         </category>
 
-
         <category name="org.toxsoft.uskat.s5.server.backend.addons.events.S5BaEventsRemote">
                 <priority value="INFO" />
+        </category>
+
+        <category name="TsDefaultLogger">
+                <priority value="WARN" />
+        </category>
+
+        <category name="TsErrorLogger">
+                <priority value="WARN" />
+        </category>
+
+
+        <category name="org.wildfly.security">
+                <priority value="WARN" />
         </category>
 
         <category name="org.xnio">
