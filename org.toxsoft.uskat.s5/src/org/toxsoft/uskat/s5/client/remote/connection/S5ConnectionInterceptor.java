@@ -4,21 +4,19 @@ import static org.toxsoft.uskat.s5.client.IS5ConnectionParams.*;
 import static org.toxsoft.uskat.s5.client.remote.connection.IS5Resources.*;
 import static org.toxsoft.uskat.s5.common.IS5CommonResources.*;
 
-import java.lang.reflect.Method;
-import java.util.concurrent.TimeUnit;
-import java.util.function.Supplier;
+import java.lang.reflect.*;
+import java.util.concurrent.*;
+import java.util.function.*;
 
 import org.jboss.ejb.client.*;
-import org.toxsoft.core.tslib.av.opset.IOptionSet;
-import org.toxsoft.core.tslib.coll.primtypes.IStringMap;
-import org.toxsoft.core.tslib.coll.primtypes.IStringMapEdit;
-import org.toxsoft.core.tslib.coll.primtypes.impl.StringMap;
-import org.toxsoft.core.tslib.utils.errors.TsInternalErrorRtException;
-import org.toxsoft.core.tslib.utils.errors.TsNullArgumentRtException;
-import org.toxsoft.core.tslib.utils.logs.ILogger;
-import org.toxsoft.uskat.s5.server.backend.addons.IS5BackendAddonSession;
-import org.toxsoft.uskat.s5.server.sessions.init.S5SessionInitResult;
-import org.wildfly.security.auth.client.AuthenticationContext;
+import org.toxsoft.core.tslib.av.opset.*;
+import org.toxsoft.core.tslib.coll.primtypes.*;
+import org.toxsoft.core.tslib.coll.primtypes.impl.*;
+import org.toxsoft.core.tslib.utils.errors.*;
+import org.toxsoft.core.tslib.utils.logs.*;
+import org.toxsoft.uskat.s5.server.backend.addons.*;
+import org.toxsoft.uskat.s5.server.sessions.init.*;
+import org.wildfly.security.auth.client.*;
 
 /**
  * Перехват удаленных вызовов к серверу:
@@ -163,7 +161,7 @@ class S5ConnectionInterceptor
           connection.logger().debug( MSG_CHANGE_ADDON_AFFINITY, addonId, addonAffinity, backendAffinity );
 
           // 2020-09-03 mvk +++
-          logger.info( MSG_INTERCEPTOR_SET_INVOCATION_TIMEOUT, Long.valueOf( failureTimeout ) );
+          logger.debug( MSG_INTERCEPTOR_SET_INVOCATION_TIMEOUT, Long.valueOf( failureTimeout ) );
           EJBClient.setInvocationTimeout( proxy, failureTimeout, TimeUnit.MILLISECONDS );
 
         }

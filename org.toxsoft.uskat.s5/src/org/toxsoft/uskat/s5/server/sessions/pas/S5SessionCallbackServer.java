@@ -15,6 +15,7 @@ import static org.toxsoft.uskat.s5.utils.platform.S5ServerPlatformUtils.*;
 import java.util.concurrent.*;
 
 import org.toxsoft.core.pas.common.*;
+import org.toxsoft.core.pas.json.*;
 import org.toxsoft.core.pas.server.*;
 import org.toxsoft.core.tslib.av.*;
 import org.toxsoft.core.tslib.av.metainfo.*;
@@ -113,6 +114,15 @@ public final class S5SessionCallbackServer
 
       private int anonymousCount;
       private int duplicateCount;
+
+      @Override
+      protected void doOnReceived( S5SessionCallbackChannel aSource, IJSONMessage aMessage ) {
+        if( aMessage.kind() == EJSONKind.NOTIFICATION
+            && ((IJSONNotification)aMessage).method().equals( SESSION_INIT_METHOD ) ) {
+          // receive INIT SESSION message
+          logger.info( MSG_RECEIVED_INIT_SESSION_MESSAGE, aSource, aMessage );
+        }
+      }
 
       @Override
       public void doJob() {

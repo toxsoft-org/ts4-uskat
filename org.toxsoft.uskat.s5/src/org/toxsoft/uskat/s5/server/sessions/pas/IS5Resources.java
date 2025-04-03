@@ -8,15 +8,17 @@ package org.toxsoft.uskat.s5.server.sessions.pas;
 @SuppressWarnings( "nls" )
 interface IS5Resources {
 
-  String MSG_SEND_EVENTS            = Messages.getString( "IS5Resources.MSG_SEND_EVENTS" );
-  String MSG_SEND_COMMAND           = Messages.getString( "IS5Resources.MSG_SEND_COMMAND" );
-  String MSG_SEND_COMMAND_STATES    = Messages.getString( "IS5Resources.MSG_SEND_COMMAND_STATES" );
-  String MSG_CREATE_CALLBACK_WRITER = Messages.getString( "IS5Resources.MSG_CREATE_CALLBACK_WRITER" );
-  String MSG_DOJOB_RUN              = Messages.getString( "IS5Resources.MSG_DOJOB_RUN" );
-  String MSG_FIND_CHANNEL           =
+  String MSG_SEND_EVENTS                   = Messages.getString( "IS5Resources.MSG_SEND_EVENTS" );
+  String MSG_SEND_COMMAND                  = Messages.getString( "IS5Resources.MSG_SEND_COMMAND" );
+  String MSG_SEND_COMMAND_STATES           = Messages.getString( "IS5Resources.MSG_SEND_COMMAND_STATES" );
+  String MSG_CREATE_CALLBACK_WRITER        = Messages.getString( "IS5Resources.MSG_CREATE_CALLBACK_WRITER" );
+  String MSG_DOJOB_RUN                     = Messages.getString( "IS5Resources.MSG_DOJOB_RUN" );
+  String MSG_FIND_CHANNEL                  =
       "findChannel(...): aSessionID = %s, aRemoteAddr = %s, aRemotePort = %d, channels(%d): %s";
-  String FMT_CHANNEL                = "\n[%d] sessionID = %s, %s %s";
-  String FMT_SUITABLE               = " - IS SUITABLE";
+  String MSG_RECEIVED_INIT_SESSION_MESSAGE =
+      "doOnReceived(...): received INIT SESSION message. aSource = %s, aMessage = %s";
+  String FMT_CHANNEL                       = "\n[%d] sessionID = %s, %s %s";
+  String FMT_SUITABLE                      = " - IS SUITABLE";
 
   String ERR_SEND_NOT_CONNECTION              = Messages.getString( "IS5Resources.ERR_SEND_NOT_CONNECTION" );
   String ERR_SEND_EVENTS                      = Messages.getString( "IS5Resources.ERR_SEND_EVENTS" );

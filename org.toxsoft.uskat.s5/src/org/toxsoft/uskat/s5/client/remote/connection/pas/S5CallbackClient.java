@@ -8,12 +8,14 @@ import static org.toxsoft.uskat.s5.client.remote.connection.pas.IS5Resources.*;
 import static org.toxsoft.uskat.s5.client.remote.connection.pas.S5CallbackOnBackendMessage.*;
 import static org.toxsoft.uskat.s5.client.remote.connection.pas.S5CallbackOnGetBaCreatorClasses.*;
 import static org.toxsoft.uskat.s5.server.IS5ImplementConstants.*;
+import static org.toxsoft.uskat.s5.server.sessions.pas.S5SessionCallbackInit.*;
 
 import java.net.*;
 import java.util.concurrent.*;
 
 import org.toxsoft.core.pas.client.*;
 import org.toxsoft.core.pas.common.*;
+import org.toxsoft.core.pas.json.*;
 import org.toxsoft.core.tslib.av.opset.*;
 import org.toxsoft.core.tslib.bricks.*;
 import org.toxsoft.core.tslib.bricks.ctx.*;
@@ -286,7 +288,7 @@ public final class S5CallbackClient
 
         if( needVerify ) {
           // Передача session-verify уведомления
-          logger.info( MSG_SEND_VERIFY, channel );
+          logger.debug( MSG_SEND_VERIFY, channel );
           S5SessionCallbackVerify.send( channel );
         }
       }
@@ -411,7 +413,18 @@ public final class S5CallbackClient
     // Минимальный интервал передачи пакетов через соединение (не может быть больше чем 2/3 таймаута сессии)
     IPasParams.OP_PAS_FAILURE_TIMEOUT.setValue( ctx.params(), avInt( failureTimeout ) );
     // aExternalDoJobCall = true: НЕ создавать внутренний поток для doJob
-    PasClient<S5CallbackChannel> retValue = new PasClient<>( ctx, S5CallbackChannel.CREATOR, true, aLogger );
+    PasClient<S5CallbackChannel> retValue = new PasClient<>( ctx, S5CallbackChannel.CREATOR, true, aLogger ) {
+
+      @Override
+      protected void doOnSended( S5CallbackChannel aSource, IJSONMessage aMessage ) {
+        if( aMessage.kind() == EJSONKind.NOTIFICATION
+            && ((IJSONNotification)aMessage).method().equals( SESSION_INIT_METHOD ) ) {
+          // send INIT SESSION message
+          aLogger.info( MSG_SENDED_INIT_SESSION_MESSAGE, aSource, aMessage );
+        }
+      }
+
+    };
     // Регистрация обработчиков
     ISkFrontendRear frontend = aConnection.frontend();
     retValue.registerNotificationHandler( ON_MESSAGE_METHOD, new S5CallbackOnBackendMessage( frontend ) );
@@ -530,7 +543,7 @@ public final class S5CallbackClient
       String threadId = String.format( "callback pas client %d", Integer.valueOf( ++execCount ) ); //$NON-NLS-1$
       Thread thread = new Thread( aCommand, threadId );
       thread.start();
-      logger.info( "Start pas client thread = %s", threadId ); //$NON-NLS-1$
+      logger.debug( "Start pas client thread = %s", threadId ); //$NON-NLS-1$
     }
 
   }
