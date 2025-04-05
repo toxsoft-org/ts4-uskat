@@ -325,8 +325,6 @@ public abstract class S5BackendSequenceSupportSingleton<S extends IS5Sequence<V>
 
   @Override
   public void doJob() {
-    // Фоновая задача писателя
-    sequenceWriter.doJob();
     // Обработка дефрагментации
     if( unionDoJobTimer.update() ) {
       unionDoJob();

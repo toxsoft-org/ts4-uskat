@@ -1103,7 +1103,7 @@ public abstract class S5AbstractSequenceWriter<S extends IS5Sequence<V>, V exten
 
   @Override
   public final S5SequenceUnionStat<V> union( String aAuthor, IOptionSet aArgs ) {
-    TsNullArgumentRtException.checkNulls( aArgs );
+    TsNullArgumentRtException.checkNulls( aAuthor, aArgs );
     // Время запуска операции
     long traceStartTime = System.currentTimeMillis();
     // Журнал для операций над разделами
@@ -1151,19 +1151,43 @@ public abstract class S5AbstractSequenceWriter<S extends IS5Sequence<V>, V exten
 
   @Override
   public synchronized final S5SequencePartitionStat<V> partition( String aAuthor, IOptionSet aArgs ) {
-    // Попытка захвата блокировки для выполнения обработки
-    // if( lastCheckPartitionDay < 0 || !tryLockWrite( partitionWorkingLock, 10 ) ) {
-    // // Проводится инициализация S5SequenceWriter
-    // ILogger partitionLogger = LoggerWrapper.getLogger( LOG_PARTITION_ID );
-    // partitionLogger.warning( ERR_PARTITION_NOT_INIT, ownerName(), aAuthor );
-    // return new S5SequencePartitionStat<>();
-    // }
+    TsNullArgumentRtException.checkNulls( aAuthor, aArgs );
+    if( !tryLockWrite( partitionWorkingLock, 10 ) ) {
+      // Журнал для операций над разделами
+      ILogger partitionLogger = LoggerWrapper.getLogger( LOG_PARTITION_ID );
+      partitionLogger.info( ERR_REJECT_HANDLE, ownerName(), STR_DO_JOB, partitionWorkingLockOwner );
+      return new S5SequencePartitionStat<>();
+    }
+    partitionWorkingLockOwner = STR_DO_JOB;
     try {
-      return doPartition( aAuthor, aArgs );
+      if( lastCheckPartitionDay < 0 ) {
+        // Состояние после перезапуска сервера. Принудительная проверка разделов всех таблиц в ускоренном порядке
+        EntityManager em = entityManagerFactory().createEntityManager();
+        try {
+          // Планирование обработки всех таблиц
+          planAllTablesPartitionsCheck();
+          // Обработка текущего состояния разделов
+          IOptionSetEdit jobConfig = new OptionSet( configuration() );
+          // Максимальное количество потоков удаления (без ограничений)
+          PARTITION_AUTO_THREADS_COUNT.setValue( jobConfig, AvUtils.AV_N1 );
+          // Мощность поиска удаляемых данных (без ограничений)
+          PARTITION_AUTO_LOOKUP_COUNT.setValue( jobConfig, AvUtils.AV_N1 );
+          // Запуск операции проверки разделов
+          S5SequencePartitionStat<V> retValue = doPartition( MSG_PARTITION_AUTHOR_INIT, jobConfig );
+          return retValue;
+        }
+        finally {
+          em.close();
+        }
+      }
+      // Планирование обработки разделов таблиц
+      planAllTablesPartitionsCheck();
     }
     finally {
-      // unlockWrite( partitionWorkingLock );
+      unlockWrite( partitionWorkingLock );
     }
+    S5SequencePartitionStat<V> retValue = doPartition( aAuthor, aArgs );
+    return retValue;
   }
 
   @Override
@@ -1186,47 +1210,6 @@ public abstract class S5AbstractSequenceWriter<S extends IS5Sequence<V>, V exten
     Long d = Long.valueOf( (System.currentTimeMillis() - startTime) / 1000 );
     validationLogger.info( MSG_VALIDATION_TASK_FINISH, aAuthor, i, a, w, e, u, r, n, v, d );
     return retValue;
-  }
-
-  // ------------------------------------------------------------------------------------
-  // ICooperativeMultiTaskable
-  //
-  @Override
-  public void doJob() {
-    if( !tryLockWrite( partitionWorkingLock, 10 ) ) {
-      // Журнал для операций над разделами
-      ILogger partitionLogger = LoggerWrapper.getLogger( LOG_PARTITION_ID );
-      partitionLogger.info( ERR_REJECT_HANDLE, ownerName(), STR_DO_JOB, partitionWorkingLockOwner );
-      return;
-    }
-    partitionWorkingLockOwner = STR_DO_JOB;
-    try {
-      if( lastCheckPartitionDay < 0 ) {
-        // Состояние после перезапуска сервера. Принудительная проверка разделов всех таблиц в ускоренном порядке
-        EntityManager em = entityManagerFactory().createEntityManager();
-        try {
-          // Планирование обработки всех таблиц
-          planAllTablesPartitionsCheck();
-          // Обработка текущего состояния разделов
-          IOptionSetEdit jobConfig = new OptionSet( configuration() );
-          // Максимальное количество потоков удаления (без ограничений)
-          PARTITION_AUTO_THREADS_COUNT.setValue( jobConfig, AvUtils.AV_N1 );
-          // Мощность поиска удаляемых данных (без ограничений)
-          PARTITION_AUTO_LOOKUP_COUNT.setValue( jobConfig, AvUtils.AV_N1 );
-          // Запуск операции проверки разделов
-          doPartition( MSG_PARTITION_AUTHOR_INIT, jobConfig );
-          return;
-        }
-        finally {
-          em.close();
-        }
-      }
-      // Планирование обработки разделов таблиц
-      planAllTablesPartitionsCheck();
-    }
-    finally {
-      unlockWrite( partitionWorkingLock );
-    }
   }
 
   // ------------------------------------------------------------------------------------
@@ -1595,7 +1578,7 @@ public abstract class S5AbstractSequenceWriter<S extends IS5Sequence<V>, V exten
           em.close();
         }
       }
-      // Оповещение наследников о проведении удаления блоков
+      // Оповещение наследников о выполнении операций над разделами таблиц
       onPartitionEvent( aConfiguration, ops, partitionLogger );
       return statistics;
     }
@@ -1631,14 +1614,14 @@ public abstract class S5AbstractSequenceWriter<S extends IS5Sequence<V>, V exten
           }
           threaded += "]"; //$NON-NLS-1$
         }
+        String owner = ownerName();
         Integer lc = Integer.valueOf( statistics.lookupCount() );
         Integer ac = Integer.valueOf( statistics.addedCount() );
         Integer rc = Integer.valueOf( statistics.removedPartitionCount() );
         Integer rbc = Integer.valueOf( statistics.removedBlockCount() );
         Integer ec = Integer.valueOf( statistics.errorCount() );
         Integer qs = Integer.valueOf( statistics.queueSize() );
-        partitionLogger.info( MSG_PARTITION_TASK_FINISH, ownerName(), aAuthor, lc, tc, threaded, ac, rc, rbc, ec, qs,
-            d );
+        partitionLogger.info( MSG_PARTITION_TASK_FINISH, owner, aAuthor, lc, tc, threaded, ac, rc, rbc, ec, qs, d );
       }
       unlockWrite( partitionWorkingLock );
     }

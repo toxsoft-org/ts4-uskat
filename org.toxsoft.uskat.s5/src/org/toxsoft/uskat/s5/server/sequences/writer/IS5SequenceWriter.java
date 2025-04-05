@@ -3,7 +3,6 @@ package org.toxsoft.uskat.s5.server.sequences.writer;
 import javax.persistence.*;
 
 import org.toxsoft.core.tslib.av.opset.*;
-import org.toxsoft.core.tslib.bricks.*;
 import org.toxsoft.core.tslib.bricks.time.*;
 import org.toxsoft.core.tslib.coll.*;
 import org.toxsoft.core.tslib.utils.*;
@@ -19,7 +18,7 @@ import org.toxsoft.uskat.s5.server.sequences.maintenance.*;
  * @param <V> тип значения последовательности
  */
 public interface IS5SequenceWriter<S extends IS5Sequence<V>, V extends ITemporal<?>>
-    extends ICooperativeMultiTaskable, ICloseable {
+    extends ICloseable {
 
   /**
    * Установить новую конфигурацию подсистемы хранения (данные/команды/события).
