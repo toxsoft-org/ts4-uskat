@@ -8,7 +8,8 @@ package org.toxsoft.uskat.s5.utils;
 public final class S5IntervalTimer {
 
   private final long interval;
-  private long       timestamp = System.currentTimeMillis();
+  private long       startTime = System.currentTimeMillis();
+  private long       timestamp = startTime;
 
   /**
    * Constructor.
@@ -20,19 +21,47 @@ public final class S5IntervalTimer {
   }
 
   /**
-   * Updates the timer state and signals the start of the next interval..
+   * Returns a timer overflow flag.
+   *
+   * @return boolean <b>true</b> interval is over; <b>false</b> interval isn't over.
+   */
+  public boolean isOver() {
+    long currTime = System.currentTimeMillis();
+    long prevSlot = timestamp / interval;
+    long currSlot = currTime / interval;
+    boolean retValue = (prevSlot < currSlot);
+    return retValue;
+  }
+
+  /**
+   * Updates the timer state and signals the start of the next interval.
    *
    * @return boolean <b>true</b> the start of next interval. <b>false</> continuation of the current interval.
    */
   public boolean update() {
-    long currTime = System.currentTimeMillis();
-    long prevSlot = timestamp / interval;
-    long currSlot = currTime / interval;
-    boolean retValue = (prevSlot != currSlot);
-    if( retValue ) {
-      // Фиксируем время начала текущего временного слота
-      timestamp = currTime / interval * interval;
+    boolean nextInterval = isOver();
+    if( nextInterval ) {
+      reset();
     }
-    return retValue;
+    return nextInterval;
   }
+
+  /**
+   * Resets a timer.
+   */
+  public void reset() {
+    timestamp = System.currentTimeMillis() / interval * interval;
+  }
+
+  /**
+   * Returns the zero-based interval number after timer start.
+   *
+   * @return int interval number. 0: first interval.
+   */
+  public int intervalNo() {
+    long startSlot = startTime / interval;
+    long currSlot = System.currentTimeMillis() / interval;
+    return (int)(currSlot - startSlot);
+  }
+
 }
