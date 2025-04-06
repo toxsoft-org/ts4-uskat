@@ -97,8 +97,8 @@ interface IS5Resources {
   String MSG_UNION_AUTO_REPEAT         = Messages.getString( "IS5Resources.MSG_UNION_AUTO_REPEAT" );
 
   String MSG_PARTITION_CHECK_AFTER_STARTUP =
-      "[%s] partition(...): start partition check after startup. partitionTimeInterval = %d (msec)";
-  String MSG_PARTITION_AUTHOR_INIT         = "Post-start/reconfig processing";
+      "[%s] partition(...): Start partition check after startup/reconfiguration. Interval = %d (msec)";
+  String MSG_PARTITION_AUTHOR_INIT         = "Post-startup/reconfiguration processing";
   String MSG_PARTITION_AUTHOR_SCHEDULE     = "Scheduled processing";
 
   String MSG_PARTITION_PLAN_CREATE = "[%s] %s.%s. It's planned to create table partitions in auto mode: %s";

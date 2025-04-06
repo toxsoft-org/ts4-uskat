@@ -72,8 +72,8 @@ interface IS5Resources {
   String N_PARTITION_DOJOB_TIMEOUT = "doJobTimeout";
   String D_PARTITION_DOJOB_TIMEOUT = "Интервал выполнения фонововой работы обработки разделов (мсек)";
 
-  String N_PARTITION_TIMEOUT = "timeout";
-  String D_PARTITION_TIMEOUT = "Интервал выполнения операций обработки разделов (мсек)";
+  String N_PARTITION_AUTO_TIMEOUT = "autoTimeout";
+  String D_PARTITION_AUTO_TIMEOUT = "Интервал выполнения операций обработки разделов (мсек)";
 
   String D_REMOVE_INTERVAL = Messages.getString( "IS5Resources.D_REMOVE_INTERVAL" ); //$NON-NLS-1$
   String N_REMOVE_INTERVAL = Messages.getString( "IS5Resources.N_REMOVE_INTERVAL" ); //$NON-NLS-1$

@@ -40,6 +40,19 @@ public class S5SequencePartitionConfig {
       TSID_DEFAULT_VALUE, AvUtils.avInt( 1000 ) );
 
   /**
+   * Интервал/таймаут (мсек) между выполнениями обработки разделов в автоматическом режиме.
+   * <p>
+   * Определяет как часто выполняются операций проверки и обработки разделов.
+   */
+  public static final IDataDef PARTITION_AUTO_TIMEOUT = create( SYBSYSTEM_ID_PREFIX + ".autoTimeout", INTEGER, //$NON-NLS-1$
+      TSID_NAME, N_PARTITION_AUTO_TIMEOUT, //
+      TSID_DESCRIPTION, D_PARTITION_AUTO_TIMEOUT, //
+      TSID_IS_NULL_ALLOWED, AV_FALSE, //
+      TSID_IS_MANDATORY, AV_FALSE, //
+      TSID_DEFAULT_VALUE, AvUtils.avInt( 5 * 60 * 1000 ) );
+  // TSID_DEFAULT_VALUE, AvUtils.avInt( 24 * 60 * 60 * 1000 ) );
+
+  /**
    * Интервал удаления разделов. Если интервал {@link ITimeInterval#NULL}, то процесс автоматически определяет требуемый
    * интервал
    */
@@ -91,6 +104,7 @@ public class S5SequencePartitionConfig {
    */
   public static final IStridablesList<IDataDef> ALL_PARTITION_OPDEFS = new StridablesList<>( //
       PARTITION_DOJOB_TIMEOUT, //
+      PARTITION_AUTO_TIMEOUT, //
       PARTITION_REMOVE_INTERVAL, //
       PARTITION_TABLES, //
       PARTITION_AUTO_THREADS_COUNT, //

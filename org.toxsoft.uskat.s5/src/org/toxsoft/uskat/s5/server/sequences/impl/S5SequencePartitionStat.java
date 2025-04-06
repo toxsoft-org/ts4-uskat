@@ -1,20 +1,17 @@
 package org.toxsoft.uskat.s5.server.sequences.impl;
 
-import java.io.Serializable;
+import java.io.*;
 
-import org.toxsoft.core.tslib.bricks.time.ITemporal;
-import org.toxsoft.core.tslib.coll.IList;
-import org.toxsoft.core.tslib.utils.errors.TsNullArgumentRtException;
-import org.toxsoft.uskat.s5.server.sequences.maintenance.IS5SequencePartitionStat;
-import org.toxsoft.uskat.s5.server.sequences.maintenance.S5PartitionOperation;
+import org.toxsoft.core.tslib.coll.*;
+import org.toxsoft.core.tslib.utils.errors.*;
+import org.toxsoft.uskat.s5.server.sequences.maintenance.*;
 
 /**
  * Реализация {@link IS5SequencePartitionStat}
  *
  * @author mvk
- * @param <V> тип значений в блоках
  */
-final class S5SequencePartitionStat<V extends ITemporal<?>>
+final class S5SequencePartitionStat
     implements IS5SequencePartitionStat, Serializable {
 
   private static final long serialVersionUID = 157157L;
