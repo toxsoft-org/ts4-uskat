@@ -195,9 +195,9 @@ public abstract class S5AbstractSequenceWriter<S extends IS5Sequence<V>, V exten
   /**
    * Блокировка доступа к {@link #partitionsByTable}
    */
-  private final S5Lockable partitionWorkingLock = new S5Lockable();
+  private final S5Lockable writerLock = new S5Lockable();
 
-  private volatile String partitionWorkingLockOwner = "???"; //$NON-NLS-1$
+  private volatile String writerLockOwner = "???"; //$NON-NLS-1$
   /**
    * Журнал
    */
@@ -1099,12 +1099,12 @@ public abstract class S5AbstractSequenceWriter<S extends IS5Sequence<V>, V exten
     // Журнал для операций над разделами
     ILogger uniterLogger = LoggerWrapper.getLogger( LOG_UNITER_ID );
     // Запрещено одновременно выполнять обработку разделов и дефрагментацию
-    if( !tryLockWrite( partitionWorkingLock, 10 ) ) {
+    if( !tryLockWrite( writerLock, 10 ) ) {
       // Запрет выполнения дерфагментации. Выполняется обработка разделов
-      uniterLogger.info( ERR_REJECT_HANDLE, ownerName(), STR_DO_DEFRAG, partitionWorkingLockOwner );
+      uniterLogger.info( ERR_REJECT_HANDLE, ownerName(), STR_DO_DEFRAG, writerLockOwner );
       return new S5SequenceUnionStat<>();
     }
-    partitionWorkingLockOwner = STR_DO_DEFRAG;
+    writerLockOwner = STR_DO_DEFRAG;
     // Запуск операции
     S5SequenceUnionStat<V> retValue = doUnion( aArgs );
     try {
@@ -1135,24 +1135,24 @@ public abstract class S5AbstractSequenceWriter<S extends IS5Sequence<V>, V exten
       return retValue;
     }
     finally {
-      unlockWrite( partitionWorkingLock );
+      unlockWrite( writerLock );
     }
   }
 
   @SuppressWarnings( "boxing" )
   private void partitionInit() {
     TsIllegalArgumentRtException.checkNoNull( partitionTimer );
-    if( !tryLockWrite( partitionWorkingLock, 10 ) ) {
+    if( !tryLockWrite( writerLock, 10 ) ) {
       // Журнал для операций над разделами
       ILogger partitionLogger = LoggerWrapper.getLogger( LOG_PARTITION_ID );
-      partitionLogger.info( ERR_REJECT_HANDLE, ownerName(), STR_DO_PARTITION, partitionWorkingLockOwner );
+      partitionLogger.info( ERR_REJECT_HANDLE, ownerName(), STR_DO_PARTITION, writerLockOwner );
       return;
     }
     try {
       // Журнал для операций над разделами
       ILogger partitionLogger = LoggerWrapper.getLogger( LOG_PARTITION_ID );
       // Имя текущей операции писателя
-      partitionWorkingLockOwner = STR_DO_PARTITION_AFTER_START;
+      writerLockOwner = STR_DO_PARTITION_AFTER_START;
       // TODO: сделать параметром конфигурации
       // long partitionTimerInterval = (5 * 60 * 1000); // 1 раз в 5 минут
       long partitionTimerInterval = (24 * 60 * 60 * 1000); // один раз в сутки
@@ -1178,7 +1178,7 @@ public abstract class S5AbstractSequenceWriter<S extends IS5Sequence<V>, V exten
       }
     }
     finally {
-      unlockWrite( partitionWorkingLock );
+      unlockWrite( writerLock );
     }
   }
 
@@ -1186,10 +1186,10 @@ public abstract class S5AbstractSequenceWriter<S extends IS5Sequence<V>, V exten
   public synchronized final IS5SequencePartitionStat partition( String aAuthor, IOptionSet aArgs ) {
     TsNullArgumentRtException.checkNulls( aAuthor, aArgs );
     TsIllegalStateRtException.checkNull( partitionTimer );
-    if( !tryLockWrite( partitionWorkingLock, 10 ) ) {
+    if( !tryLockWrite( writerLock, 10 ) ) {
       // Журнал для операций над разделами
       ILogger partitionLogger = LoggerWrapper.getLogger( LOG_PARTITION_ID );
-      partitionLogger.info( ERR_REJECT_HANDLE, ownerName(), STR_DO_PARTITION, partitionWorkingLockOwner );
+      partitionLogger.info( ERR_REJECT_HANDLE, ownerName(), STR_DO_PARTITION, writerLockOwner );
       return IS5SequencePartitionStat.NONE;
     }
     // Возвращаемый результат
@@ -1198,7 +1198,7 @@ public abstract class S5AbstractSequenceWriter<S extends IS5Sequence<V>, V exten
       // Журнал для операций над разделами
       ILogger partitionLogger = LoggerWrapper.getLogger( LOG_PARTITION_ID );
       // Имя текущей операции писателя
-      partitionWorkingLockOwner = STR_DO_PARTITION;
+      writerLockOwner = STR_DO_PARTITION;
       if( !partitionTimer.isOver() ) {
         return IS5SequencePartitionStat.NONE;
       }
@@ -1212,7 +1212,7 @@ public abstract class S5AbstractSequenceWriter<S extends IS5Sequence<V>, V exten
       if( partitionTimer.isOver() && retValue.errorCount() == 0 ) {
         partitionTimer.reset();
       }
-      unlockWrite( partitionWorkingLock );
+      unlockWrite( writerLock );
     }
   }
 
