@@ -750,7 +750,7 @@ public abstract class S5BackendSequenceSupportSingleton<S extends IS5Sequence<V>
     TsNullArgumentRtException.checkNulls( aAuthor, aArgs );
     if( logger().isSeverityOn( ELogSeverity.DEBUG ) ) {
       // Запуск задачи обработки разделов
-      logger().debug( MSG_SINGLETON_PARTITION_TASK_START );
+      logger().debug( MSG_SINGLETON_PARTITION_TASK_START, id() );
     }
     try {
       // Запуск процесса регламента
@@ -772,7 +772,7 @@ public abstract class S5BackendSequenceSupportSingleton<S extends IS5Sequence<V>
     }
     finally {
       // Завершение задачи дефрагментации
-      logger().debug( MSG_SINGLETON_PARTITION_TASK_FINISH );
+      logger().debug( MSG_SINGLETON_PARTITION_TASK_FINISH, id() );
     }
   }
 

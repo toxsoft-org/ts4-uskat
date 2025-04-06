@@ -1,6 +1,8 @@
 package org.toxsoft.uskat.s5.server.sequences.maintenance;
 
-import org.toxsoft.core.tslib.coll.IList;
+import java.io.*;
+
+import org.toxsoft.core.tslib.coll.*;
 
 /**
  * Статистика выполнения процесса выполнения операций над разделами таблиц хранимых данных
@@ -8,6 +10,11 @@ import org.toxsoft.core.tslib.coll.IList;
  * @author mvk
  */
 public interface IS5SequencePartitionStat {
+
+  /**
+   * Пустая (нет связи с сервером) информация о сессии пользователя
+   */
+  IS5SequencePartitionStat NONE = new NonePartitionStat();
 
   /**
    * Возвращает список описаний операций над разделами таблиц
@@ -57,4 +64,58 @@ public interface IS5SequencePartitionStat {
    * @return int количество данных в очереди
    */
   int queueSize();
+}
+
+class NonePartitionStat
+    implements IS5SequencePartitionStat {
+
+  /**
+   * Метод корректно восстанавливает сериализированный {@link IS5SequencePartitionStat#NONE}.
+   *
+   * @return Object объект {@link IS5SequencePartitionStat#NONE}
+   * @throws ObjectStreamException это обявление, оно тут не выбрасывается
+   */
+  @SuppressWarnings( { "static-method" } )
+  private Object readResolve()
+      throws ObjectStreamException {
+    return IS5SequencePartitionStat.NONE;
+  }
+
+  // ------------------------------------------------------------------------------------
+  // Реализация IS5SequencePartitionStat
+  //
+  @Override
+  public IList<S5PartitionOperation> operations() {
+    return IList.EMPTY;
+  }
+
+  @Override
+  public int lookupCount() {
+    return 0;
+  }
+
+  @Override
+  public int addedCount() {
+    return 0;
+  }
+
+  @Override
+  public int removedPartitionCount() {
+    return 0;
+  }
+
+  @Override
+  public int removedBlockCount() {
+    return 0;
+  }
+
+  @Override
+  public int errorCount() {
+    return 0;
+  }
+
+  @Override
+  public int queueSize() {
+    return 0;
+  }
 }
