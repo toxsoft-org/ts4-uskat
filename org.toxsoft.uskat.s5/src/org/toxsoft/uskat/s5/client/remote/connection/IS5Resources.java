@@ -59,8 +59,10 @@ interface IS5Resources {
 
   String MSG_LOOKUP_REMOTE_API_FINISH = Messages.getString( "IS5Resources.MSG_LOOKUP_REMOTE_API_FINISH" );
 
-  String MSG_TRYCONNECT_USING_CLASSLOADER = "tryConnect(...): classLoader = %s";
-  String MSG_INIT_REMOTE_API_FINISH       = Messages.getString( "IS5Resources.MSG_INIT_REMOTE_API_FINISH" );
+  String MSG_TRYCONNECT_WORKAROUND_AFFINITY = "tryConnect(...): workaround(!), standaloneAffinity: %s, uri = %s";
+  String MSG_TRYCONNECT_TOPOLOGY            = "tryConnect(...): topology: %s";
+  String MSG_TRYCONNECT_USING_CLASSLOADER   = "tryConnect(...): classLoader = %s";
+  String MSG_INIT_REMOTE_API_FINISH         = Messages.getString( "IS5Resources.MSG_INIT_REMOTE_API_FINISH" );
 
   String MSG_CONNECT_JMS_SERVER = Messages.getString( "IS5Resources.MSG_CONNECT_JMS_SERVER" );
   String MSG_START_JMS_START    = Messages.getString( "IS5Resources.MSG_START_JMS_START" );

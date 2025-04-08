@@ -627,8 +627,9 @@ public final class S5Connection
           int port = hosts.get( 0 ).port();
           URI uri = new URI( "remote+http://" + addr + ":" + String.valueOf( port ) ); //$NON-NLS-1$ //$NON-NLS-2$
           standaloneAffinity = Affinity.forUri( uri );
+          logger.info( MSG_TRYCONNECT_WORKAROUND_AFFINITY, standaloneAffinity, uri );
         }
-
+        logger.info( MSG_TRYCONNECT_TOPOLOGY, topology );
         // Запуск получения обратных вызовов
         InetSocketAddress localAddress = callbackReader.start( topology );
         // Завершение получения адресов доступных узлов кластера, создание каналов обратного вызова
