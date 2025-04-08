@@ -59,6 +59,11 @@ public abstract class S5AbstractBackend<ADDON extends IS5BackendAddon>
   public static final String TS_ERROR_LOGGER = "TsErrorLogger"; //$NON-NLS-1$
 
   /**
+   * Таймаут ожидания блокировки (мсек).
+   */
+  private static final long WAIT_FRONTED_LOCK_TIMEOUT = 1000;
+
+  /**
    * API разработчика ядра
    * <p>
    * TODO: 2022-09-22 mvk: использование {@link IDevCoreApi} в бекенде (для передачи сообщения backend->frontend) -
@@ -411,6 +416,7 @@ public abstract class S5AbstractBackend<ADDON extends IS5BackendAddon>
   // ------------------------------------------------------------------------------------
   // Runnable
   //
+  @SuppressWarnings( { "boxing" } )
   @Override
   public void run() {
     logger.debug( MSG_DOJOB );
@@ -426,17 +432,21 @@ public abstract class S5AbstractBackend<ADDON extends IS5BackendAddon>
       LoggerUtils.setErrorLogger( tsErrorLogger );
       LoggerUtils.errorLogger().error( MSG_RESTORE_ERROR_LOGGER, TS_ERROR_LOGGER );
     }
-    lockWrite( frontendLock );
-    try {
-      for( IS5BackendAddon addon : allAddons ) {
-        addon.doJob();
-        if( isClosed || isClosing ) {
-          return;
+    if( tryLockWrite( frontendLock, WAIT_FRONTED_LOCK_TIMEOUT ) ) {
+      try {
+        for( IS5BackendAddon addon : allAddons ) {
+          addon.doJob();
+          if( isClosed || isClosing ) {
+            return;
+          }
         }
       }
+      finally {
+        unlockWrite( frontendLock );
+      }
     }
-    finally {
-      unlockWrite( frontendLock );
+    else {
+      logger().warning( ERR_RUN_CANT_GET_FRONTEND_LOCK, WAIT_FRONTED_LOCK_TIMEOUT );
     }
     threadExecutor.timerExec( doJobTimeout, this );
   }
@@ -595,8 +605,9 @@ public abstract class S5AbstractBackend<ADDON extends IS5BackendAddon>
       logger.info( "onBackendMessage recevied: %s", aMessage ); //$NON-NLS-1$
     }
 
-    // 2025-03-24 mvk--- 
-    // На valcom-проекте, при устранении "missing currdata" обнаружено что код может вызывать большие задержки и даже сбой
+    // 2025-03-24 mvk---
+    // На valcom-проекте, при устранении "missing currdata" обнаружено что код может вызывать большие задержки и даже
+    // сбой
     // lockWrite( frontendLock );
     // try {
     for( IS5BackendAddon addon : allAddons ) {
