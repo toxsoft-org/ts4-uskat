@@ -114,6 +114,7 @@ public class SdedDtoCmdInfoM5Model
       protected IM5CollectionPanel<IDtoCmdInfo> doCreateCollEditPanel( ITsGuiContext aContext,
           IM5ItemsProvider<IDtoCmdInfo> aItemsProvider, IM5LifecycleManager<IDtoCmdInfo> aLifecycleManager ) {
         OPDEF_IS_ACTIONS_CRUD.setValue( aContext.params(), AV_TRUE );
+        OPDEF_IS_FILTER_PANE.setValue( aContext.params(), AV_TRUE );
         MultiPaneComponentModown<IDtoCmdInfo> mpc =
             new SdedDtoCmdInfoM5Mpc( aContext, model(), aItemsProvider, aLifecycleManager ) {
 
