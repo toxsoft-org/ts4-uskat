@@ -49,6 +49,7 @@ public class SdedDtoRtdataInfoM5Model
           params().setBool( TSID_IS_NULL_ALLOWED, false );
           params().setStr( M5_VALED_OPDEF_WIDGET_TYPE_ID, M5VWTID_INPLACE );
           params().setInt( IValedControlConstants.OPDEF_VERTICAL_SPAN, 10 );
+          setFlags( M5FF_DETAIL );
         }
 
         protected IDataType doGetFieldValue( IDtoRtdataInfo aEntity ) {
