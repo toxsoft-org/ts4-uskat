@@ -1,5 +1,5 @@
 @echo off
-set JAVA_HOME="C:\Program Files\Java\graalvm-jdk-21.0.3+7.1"
+set JAVA_HOME=C:\Program Files\Java\jdk-21
 
 :: Настройка окружения запуска
 set ADMIN_CLASSPATH=^
@@ -29,7 +29,7 @@ set ADMIN_CHARSET=CP866
 :: раскоментировать если нужна удаленная отладка
 set _REMOTE_DEBUG=-Xdebug -Xnoagent -Xrunjdwp:transport=dt_socket,server=y,suspend=n,address=8002
 
-%JAVA_HOME%\bin\java 							^
+"%JAVA_HOME%"\bin\java 							^
   -Xms%ADMIN_MEMORY% 							^
   -Xmx%ADMIN_MEMORY% 							^
   -cp %ADMIN_CLASSPATH% 						^
