@@ -1,8 +1,9 @@
 package org.toxsoft.uskat.ws.exe.e4.addons;
 
 import org.eclipse.e4.core.contexts.*;
+import org.toxsoft.core.tsgui.bricks.quant.*;
 import org.toxsoft.core.tsgui.mws.bases.*;
-import org.toxsoft.uskat.ws.exe.*;
+import org.toxsoft.uskat.core.gui.*;
 
 /**
  * Application main addons.
@@ -22,6 +23,11 @@ public class AddonUskatWsExe
   // ------------------------------------------------------------------------------------
   // MwsAbstractAddon
   //
+
+  @Override
+  protected void doRegisterQuants( IQuantRegistrator aQuantRegistrator ) {
+    aQuantRegistrator.registerQuant( new QuantSkCoreGui() );
+  }
 
   @Override
   protected void initApp( IEclipseContext aAppContext ) {
