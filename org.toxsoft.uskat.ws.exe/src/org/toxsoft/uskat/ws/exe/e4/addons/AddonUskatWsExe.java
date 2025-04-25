@@ -26,7 +26,7 @@ public class AddonUskatWsExe
 
   @Override
   protected void doRegisterQuants( IQuantRegistrator aQuantRegistrator ) {
-    aQuantRegistrator.registerQuant( new QuantSkCoreGui() );
+    // nop
   }
 
   @Override
