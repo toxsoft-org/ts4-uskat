@@ -516,6 +516,7 @@
         <!-- TODO rcp-библиотеки -->
         <module>org.toxsoft.uskat.core.gui</module>
         <module>org.toxsoft.uskat.backend.s5.gui</module>
+        <module>org.toxsoft.uskat.ws.core</module>
 
         <module>zz-releng/p2.rcp</module>
         <module>zz-releng/ant.rcp</module>

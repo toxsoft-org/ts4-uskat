@@ -1,6 +1,20 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <?pde version="3.5"?>
 
+<!--
+    2020-08-11 mvk источник: https://stackoverflow.com/questions/24749268/the-eclipse-rcp-project-could-not-be-exported-successfully
+    для решения проблем со сборкой p2-репозитория небходимо установить режим журналирования в файле:
+    ${ECLIPSE_HOME}/plugins/org.eclipse.pde.build_3.10.700.v20191228-1214/scripts/genericTargets.xml, например:
+    ...
+    <target name="runDirector" >
+        <record name="/home/tsdev/works/git-repos/sitrol-tm/ru.sitrol.tm.ws.exe/dist/p2.log" loglevel="verbose"/>
+    ...
+    ...
+    2025-04-17 mvk:
+    Внимание: идентификатор продукта (id="org.toxsoft.uskat.ws.exe.uskat_ws_exe_product") ПРЕДОПРЕДЕЛЕН и состоит из двух частей:
+         1. "org.toxsoft.uskat.ws.exe" имя проекта/плагина приложения
+         2. "uskat_ws_exe_product" идентификатор продукта определяемый в plugin.xml в плагине приложения (п.1).
+-->
 <product 
     name="USkat WorkStation" 
     uid="uskat-ws-exe" 
