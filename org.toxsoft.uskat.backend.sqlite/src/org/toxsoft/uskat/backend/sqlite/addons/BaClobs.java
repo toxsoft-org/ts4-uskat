@@ -14,7 +14,7 @@ import org.toxsoft.uskat.core.backend.api.*;
  * <p>
  * Uses the table {@link #CLOBS_TABLE} with the structure:
  * <ul>
- * <li>ClobGwid string PRIMARY KEY - contains the CLOB GWID string returned by {@link Gwid#asString()};</li>
+ * <li>ClobGwid string PRIMARY KEY - contains the CLOB GWID string returned by {@link Gwid#toString()};</li>
  * <li>ClobString text NOT NULL - contains the CLOB itself.</li>
  * </ul>
  *
@@ -101,12 +101,12 @@ public class BaClobs
 
   @Override
   public String readClob( Gwid aGwid ) {
-    return table.find( aGwid.asString() );
+    return table.find( aGwid.toString() );
   }
 
   @Override
   public void writeClob( Gwid aGwid, String aClob ) {
-    table.writeTable( aGwid.asString(), aClob );
+    table.writeTable( aGwid.toString(), aClob );
     GtMessage msg = BaMsgClobsChanged.BUILDER.makeMessage( aGwid );
     owner().frontend().onBackendMessage( msg );
   }
