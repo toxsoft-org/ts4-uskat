@@ -7,26 +7,25 @@ import org.toxsoft.uskat.core.gui.conn.*;
 import org.toxsoft.uskat.ws.conn.mws.*;
 
 /**
- * Command {@link ISkWsConnConstants#CMDID_SKCONN_CONNECT}.
+ * Command {@link ISkWsConnConstants#CMDID_SKCONN_INFO}.
  * <p>
- * Connects to the connection marked as the "default connection", if no connection is default then executes command
- * {@link ISkWsConnConstants#CMDID_SKCONN_SELECT}.
+ * Show dialog with connection information.
  * <p>
- * Command is enabled when connection is closed.
+ * Command is enabled when connection is open.
  *
  * @author hazard157
  */
-public class CmdConnect {
+public class CmdInfo {
 
   @Execute
   void exec( Shell aShell ) {
-    // TODO CmdConnect.exec()
+    // TODO CmdInfo.exec()
     TsDialogUtils.underDevelopment( aShell );
   }
 
   @CanExecute
   boolean canExec( ISkConnectionSupplier aConnectionSupplier ) {
-    return !aConnectionSupplier.defConn().state().isOpen();
+    return aConnectionSupplier.defConn().state().isOpen();
   }
 
 }

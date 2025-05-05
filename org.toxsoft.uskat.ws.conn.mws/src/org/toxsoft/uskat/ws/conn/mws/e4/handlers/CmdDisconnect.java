@@ -16,6 +16,8 @@ import org.toxsoft.uskat.ws.conn.mws.*;
  * Command {@link ISkWsConnConstants#CMDID_SKCONN_DISCONNECT}.
  * <p>
  * Disconnects current connection {@link ISkConnectionSupplier#defConn()}.
+ * <p>
+ * Command is enabled when connection is open.
  *
  * @author hazard157
  */

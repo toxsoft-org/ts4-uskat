@@ -7,20 +7,21 @@ import org.toxsoft.uskat.core.gui.conn.*;
 import org.toxsoft.uskat.ws.conn.mws.*;
 
 /**
- * Command {@link ISkWsConnConstants#CMDID_SKCONN_CONNECT}.
+ * Command {@link ISkWsConnConstants#CMDID_SKCONN_CHANGE_ROLE}.
  * <p>
- * Connects to the connection marked as the "default connection", if no connection is default then executes command
- * {@link ISkWsConnConstants#CMDID_SKCONN_SELECT}.
+ * Invokes dialog with current user's roles list. After selectiong another role (not with user is currently logged in)
+ * closes corrent session and asks login/password for connection with the new role. If user has only one role, displays
+ * information dialog instead of role selection.
  * <p>
- * Command is enabled when connection is closed.
+ * Command is enabled when connection is open.
  *
  * @author hazard157
  */
-public class CmdConnect {
+public class CmdChangeRole {
 
   @Execute
   void exec( Shell aShell ) {
-    // TODO CmdConnect.exec()
+    // TODO CmdChangeRole.exec()
     TsDialogUtils.underDevelopment( aShell );
   }
 

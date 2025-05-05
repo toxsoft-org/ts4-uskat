@@ -5,7 +5,9 @@ Bundle-SymbolicName: org.toxsoft.uskat.ws.core;singleton:=true
 Bundle-Version: 1.0.0.qualifier
 Bundle-Activator: org.toxsoft.uskat.ws.core.Activator
 Bundle-Vendor: toxsoft.org
-Export-Package: org.toxsoft.uskat.ws.core
+Export-Package: org.toxsoft.uskat.ws.core,
+ org.toxsoft.uskat.ws.core.e4.addons,
+ org.toxsoft.uskat.ws.core.l10n
 Require-Bundle: jakarta.inject.jakarta.inject-api,
  jakarta.annotation-api,
  org.eclipse.core.runtime,
@@ -18,7 +20,9 @@ Require-Bundle: jakarta.inject.jakarta.inject-api,
  org.toxsoft.core.singlesrc.rcp,
  org.toxsoft.core.tsgui,
  org.toxsoft.uskat.core,
- org.toxsoft.uskat.core.gui
+ org.toxsoft.uskat.core.gui,
+ org.toxsoft.uskat.s5,
+ org.toxsoft.uskat.backend.s5.gui
 Bundle-RequiredExecutionEnvironment: JavaSE-21
 Automatic-Module-Name: org.toxsoft.uskat.ws.core
 Bundle-ActivationPolicy: lazy

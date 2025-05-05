@@ -7,6 +7,7 @@ Bundle-Activator: org.toxsoft.uskat.ws.conn.mws.Activator
 Bundle-Vendor: toxsoft.org
 Export-Package: org.toxsoft.uskat.ws.conn.mws,
  org.toxsoft.uskat.ws.conn.mws.e4.addons,
+ org.toxsoft.uskat.ws.conn.mws.e4.handlers,
  org.toxsoft.uskat.ws.conn.mws.l10n
 Require-Bundle: jakarta.inject.jakarta.inject-api,
  jakarta.annotation-api,
@@ -20,7 +21,10 @@ Require-Bundle: jakarta.inject.jakarta.inject-api,
  org.toxsoft.core.singlesrc.rcp,
  org.toxsoft.core.tsgui,
  org.toxsoft.uskat.core,
- org.toxsoft.uskat.core.gui
+ org.toxsoft.uskat.core.gui,
+ org.toxsoft.uskat.backend.memtext,
+ org.toxsoft.uskat.backend.sqlite,
+ org.toxsoft.uskat.backend.s5.gui
 Bundle-RequiredExecutionEnvironment: JavaSE-21
 Automatic-Module-Name: org.toxsoft.uskat.ws.conn.mws
 Bundle-ActivationPolicy: lazy

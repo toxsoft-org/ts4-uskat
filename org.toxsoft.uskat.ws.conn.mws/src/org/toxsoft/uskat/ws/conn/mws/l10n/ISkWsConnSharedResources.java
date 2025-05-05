@@ -8,8 +8,8 @@ package org.toxsoft.uskat.ws.conn.mws.l10n;
 @SuppressWarnings( "javadoc" )
 public interface ISkWsConnSharedResources {
 
-  String STR_APP_INFO   = Messages.getString( "STR_APP_INFO" );   //$NON-NLS-1$
-  String STR_APP_INFO_D = Messages.getString( "STR_APP_INFO_D" ); //$NON-NLS-1$
+  String DLG_EDIT_CONFIGS   = Messages.getString( "DLG_EDIT_CONFIGS" );   //$NON-NLS-1$
+  String DLG_EDIT_CONFIGS_D = Messages.getString( "DLG_EDIT_CONFIGS_D" ); //$NON-NLS-1$
 
   String MSG_ALREADY_DISCONNECTED      = Messages.getString( "MSG_ALREADY_DISCONNECTED" );      //$NON-NLS-1$
   String FMT_ASK_REALLY_DISCONNECT     = Messages.getString( "FMT_ASK_REALLY_DISCONNECT" );     //$NON-NLS-1$
