@@ -1,6 +1,9 @@
 <?xml version="1.0" encoding="ASCII"?>
-<fragment:ModelFragments xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:application="http://www.eclipse.org/ui/2010/UIModel/application" xmlns:fragment="http://www.eclipse.org/ui/2010/UIModel/fragment" xmi:id="_98wYUOiPEe-N3pRbT9NVTw">
+<fragment:ModelFragments xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:application="http://www.eclipse.org/ui/2010/UIModel/application" xmlns:fragment="http://www.eclipse.org/ui/2010/UIModel/fragment" xmlns:menu="http://www.eclipse.org/ui/2010/UIModel/application/ui/menu" xmi:id="_98wYUOiPEe-N3pRbT9NVTw">
   <fragments xsi:type="fragment:StringModelFragment" xmi:id="_-askoOinEe-N3pRbT9NVTw" featurename="addons" parentElementId="org.toxsoft.mws.app.main">
     <elements xsi:type="application:Addon" xmi:id="__Yb_QOinEe-N3pRbT9NVTw" elementId="org.toxsoft.uskat.ws.conn.mws.addon.0" contributionURI="bundleclass://org.toxsoft.uskat.ws.conn.mws/org.toxsoft.uskat.ws.conn.mws.e4.addons.AddonSkWsConn"/>
+  </fragments>
+  <fragments xsi:type="fragment:StringModelFragment" xmi:id="_XTHeYCjgEfCMsY42_oKhLg" featurename="children" parentElementId="org.toxsoft.mws.menu.main.server">
+    <elements xsi:type="menu:HandledMenuItem" xmi:id="_cR-lECjgEfCMsY42_oKhLg" elementId="org.toxsoft.uskat.ws.conn.mws.handledmenuitem.0"/>
   </fragments>
 </fragment:ModelFragments>

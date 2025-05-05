@@ -15,13 +15,14 @@ public interface ISkWsConnConstants {
   // E4
   //
 
-  String CMDID_S5CONN_OPEN   = "org.toxsoft.uskat.ws.conn.cmd.open";   //$NON-NLS-1$
-  String CMDID_S5CONN_CLOSE  = "org.toxsoft.uskat.ws.conn.cmd.close";  //$NON-NLS-1$
-  String CMDID_S5CONN_INFO   = "org.toxsoft.uskat.ws.conn.cmd.info";   //$NON-NLS-1$
-  String CMDID_S5CONN_SELECT = "org.toxsoft.uskat.ws.conn.cmd.select"; //$NON-NLS-1$
-  String CMDID_S5CONN_EDIT   = "org.toxsoft.uskat.ws.conn.cmd.edit";   //$NON-NLS-1$
-  String CMDID_S5CONN_IMPORT = "org.toxsoft.uskat.ws.conn.cmd.import"; //$NON-NLS-1$
-  String CMDID_S5CONN_EXPORT = "org.toxsoft.uskat.ws.conn.cmd.export"; //$NON-NLS-1$
+  String CMDID_SKCONN_CONNECT    = "org.toxsoft.uskat.ws.conn.cmd.connect";    //$NON-NLS-1$
+  String CMDID_SKCONN_DISCONNECT = "org.toxsoft.uskat.ws.conn.cmd.disconnect"; //$NON-NLS-1$
+  String CMDID_SKCONN_SELECT     = "org.toxsoft.uskat.ws.conn.cmd.select";     //$NON-NLS-1$
+  String CMDID_SKCONN_EDIT       = "org.toxsoft.uskat.ws.conn.cmd.edit";       //$NON-NLS-1$
+
+  String CMDID_SKCONN_INFO   = "org.toxsoft.uskat.ws.conn.cmd.info";   //$NON-NLS-1$
+  String CMDID_SKCONN_IMPORT = "org.toxsoft.uskat.ws.conn.cmd.import"; //$NON-NLS-1$
+  String CMDID_SKCONN_EXPORT = "org.toxsoft.uskat.ws.conn.cmd.export"; //$NON-NLS-1$
 
   // ------------------------------------------------------------------------------------
   // Icons

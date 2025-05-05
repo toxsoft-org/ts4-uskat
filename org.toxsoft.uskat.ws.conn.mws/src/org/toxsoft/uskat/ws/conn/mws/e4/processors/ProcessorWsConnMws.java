@@ -71,35 +71,35 @@ public class ProcessorWsConnMws {
       subMenu.setLabel( Messages.STR_L_SUBMENU_CONFIGS );
       subMenu.setTooltip( Messages.STR_P_SUBMENU_CONFIGS );
       subMenu.setIconURI( tsguiIconUri( ICONID_TRANSPARENT ) );
-      insertFirstMenuItem( subMenu, CMDID_S5CONN_INFO, tsguiIconUri( ICONID_DIALOG_INFORMATION ) );
+      insertFirstMenuItem( subMenu, CMDID_SKCONN_INFO, tsguiIconUri( ICONID_DIALOG_INFORMATION ) );
       insertFirstMenuSeparator( subMenu );
-      insertFirstMenuItem( subMenu, CMDID_S5CONN_EXPORT, tsguiIconUri( ICONID_TRANSPARENT ) );
-      insertFirstMenuItem( subMenu, CMDID_S5CONN_IMPORT, tsguiIconUri( ICONID_TRANSPARENT ) );
+      insertFirstMenuItem( subMenu, CMDID_SKCONN_EXPORT, tsguiIconUri( ICONID_TRANSPARENT ) );
+      insertFirstMenuItem( subMenu, CMDID_SKCONN_IMPORT, tsguiIconUri( ICONID_TRANSPARENT ) );
       insertFirstMenuSeparator( subMenu );
-      insertFirstMenuItem( subMenu, CMDID_S5CONN_EDIT, tsguiIconUri( ICONID_TRANSPARENT ) );
+      insertFirstMenuItem( subMenu, CMDID_SKCONN_EDIT, tsguiIconUri( ICONID_TRANSPARENT ) );
       insertFirstMenuSeparator( subMenu );
-      insertFirstMenuItem( subMenu, CMDID_S5CONN_SELECT, tsguiIconUri( ICONID_TRANSPARENT ) );
+      insertFirstMenuItem( subMenu, CMDID_SKCONN_SELECT, tsguiIconUri( ICONID_TRANSPARENT ) );
       insertFirstMenuSeparator( aMenu );
     }
-    insertFirstMenuItem( aMenu, CMDID_S5CONN_CLOSE, pluginIconUri( ICONID_USKAT_DISCONNECT ) );
-    insertFirstMenuItem( aMenu, CMDID_S5CONN_OPEN, pluginIconUri( ICONID_USKAT_CONNECT ) );
+    insertFirstMenuItem( aMenu, CMDID_SKCONN_CLOSE, pluginIconUri( ICONID_USKAT_DISCONNECT ) );
+    insertFirstMenuItem( aMenu, CMDID_SKCONN_OPEN, pluginIconUri( ICONID_USKAT_CONNECT ) );
   }
 
   private void initAsServerMenu( MMenu aMenu ) {
     // Инициализация меню
-    insertFirstMenuItem( aMenu, CMDID_S5CONN_INFO, tsguiIconUri( ICONID_DIALOG_INFORMATION ) );
+    insertFirstMenuItem( aMenu, CMDID_SKCONN_INFO, tsguiIconUri( ICONID_DIALOG_INFORMATION ) );
     insertFirstMenuSeparator( aMenu );
     if( isMultiConfig() ) {
-      insertFirstMenuItem( aMenu, CMDID_S5CONN_EXPORT, tsguiIconUri( ICONID_TRANSPARENT ) );
-      insertFirstMenuItem( aMenu, CMDID_S5CONN_IMPORT, tsguiIconUri( ICONID_TRANSPARENT ) );
-      insertFirstMenuItem( aMenu, CMDID_S5CONN_EDIT, tsguiIconUri( ICONID_TRANSPARENT ) );
+      insertFirstMenuItem( aMenu, CMDID_SKCONN_EXPORT, tsguiIconUri( ICONID_TRANSPARENT ) );
+      insertFirstMenuItem( aMenu, CMDID_SKCONN_IMPORT, tsguiIconUri( ICONID_TRANSPARENT ) );
+      insertFirstMenuItem( aMenu, CMDID_SKCONN_EDIT, tsguiIconUri( ICONID_TRANSPARENT ) );
       insertFirstMenuSeparator( aMenu );
     }
-    insertFirstMenuItem( aMenu, CMDID_S5CONN_CLOSE, pluginIconUri( ICONID_USKAT_DISCONNECT ) );
+    insertFirstMenuItem( aMenu, CMDID_SKCONN_CLOSE, pluginIconUri( ICONID_USKAT_DISCONNECT ) );
     if( isMultiConfig() ) {
-      insertFirstMenuItem( aMenu, CMDID_S5CONN_SELECT, tsguiIconUri( ICONID_TRANSPARENT ) );
+      insertFirstMenuItem( aMenu, CMDID_SKCONN_SELECT, tsguiIconUri( ICONID_TRANSPARENT ) );
     }
-    insertFirstMenuItem( aMenu, CMDID_S5CONN_OPEN, pluginIconUri( ICONID_USKAT_CONNECT ) );
+    insertFirstMenuItem( aMenu, CMDID_SKCONN_OPEN, pluginIconUri( ICONID_USKAT_CONNECT ) );
   }
 
   void insertFirstMenuSeparator( MMenu aMenu ) {
@@ -132,8 +132,8 @@ public class ProcessorWsConnMws {
       }
     }
     // добавим команды
-    insertFirstToolbarItem( tbProject, CMDID_S5CONN_CLOSE, pluginIconUri( ICONID_USKAT_DISCONNECT ) );
-    insertFirstToolbarItem( tbProject, CMDID_S5CONN_OPEN, pluginIconUri( ICONID_USKAT_CONNECT ) );
+    insertFirstToolbarItem( tbProject, CMDID_SKCONN_CLOSE, pluginIconUri( ICONID_USKAT_DISCONNECT ) );
+    insertFirstToolbarItem( tbProject, CMDID_SKCONN_OPEN, pluginIconUri( ICONID_USKAT_CONNECT ) );
   }
 
   void insertFirstToolbarItem( MToolBar aToolbar, String aCmdId, String aIconUri ) {
