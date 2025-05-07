@@ -2,6 +2,8 @@ package org.toxsoft.uskat.ws.conn.mws.e4.handlers;
 
 import org.eclipse.e4.core.contexts.*;
 import org.eclipse.e4.core.di.annotations.*;
+import org.toxsoft.core.tsgui.bricks.ctx.impl.*;
+import org.toxsoft.uskat.core.gui.conn.*;
 import org.toxsoft.uskat.ws.conn.mws.*;
 
 /**
@@ -17,7 +19,7 @@ public class CmdEdit {
 
   @Execute
   void exec( IEclipseContext aEclipseContext ) {
-    HandlerUtils.editCfgs( aEclipseContext );
+    SkConnGuiUtils.editCfgs( new TsGuiContext( aEclipseContext ) );
   }
 
   @CanExecute

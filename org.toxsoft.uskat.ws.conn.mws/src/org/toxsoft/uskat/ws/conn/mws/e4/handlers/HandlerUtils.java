@@ -1,19 +1,5 @@
 package org.toxsoft.uskat.ws.conn.mws.e4.handlers;
 
-import static org.toxsoft.core.tsgui.dialogs.datarec.ITsDialogConstants.*;
-import static org.toxsoft.uskat.core.gui.conn.m5.IConnectionConfigM5Constants.*;
-import static org.toxsoft.uskat.ws.conn.mws.l10n.ISkWsConnSharedResources.*;
-
-import org.eclipse.e4.core.contexts.*;
-import org.toxsoft.core.tsgui.bricks.ctx.*;
-import org.toxsoft.core.tsgui.bricks.ctx.impl.*;
-import org.toxsoft.core.tsgui.dialogs.datarec.*;
-import org.toxsoft.core.tsgui.m5.*;
-import org.toxsoft.core.tsgui.m5.gui.*;
-import org.toxsoft.core.tsgui.m5.gui.panels.*;
-import org.toxsoft.core.tsgui.m5.model.*;
-import org.toxsoft.uskat.core.gui.conn.cfg.*;
-
 /**
  * Вспомогательные (общие) методы выполнения команд.
  *
@@ -22,34 +8,9 @@ import org.toxsoft.uskat.core.gui.conn.cfg.*;
  */
 public class HandlerUtils {
 
-  static void editCfgs( IEclipseContext aEclipseContext ) {
-    ITsGuiContext ctx = new TsGuiContext( aEclipseContext );
-    IM5Domain m5 = ctx.get( IM5Domain.class );
-    IM5Model<IConnectionConfig> model = m5.getModel( MID_SK_CONN_CFG, IConnectionConfig.class );
-    IConnectionConfigService ccService = ctx.get( IConnectionConfigService.class );
-    IM5LifecycleManager<IConnectionConfig> lm = model.getLifecycleManager( ccService );
-    TsDialogInfo cdi = new TsDialogInfo( ctx, DLG_EDIT_CONFIGS, DLG_EDIT_CONFIGS_D, DF_NO_APPROVE );
-    cdi.setMinSizeShellRelative( 10, 50 );
-    cdi.setMaxSizeShellRelative( 50, 80 );
-    IM5CollectionPanel<IConnectionConfig> panel =
-        model.panelCreator().createCollEditPanel( ctx, lm.itemsProvider(), lm );
-    M5GuiUtils.showCollPanel( cdi, panel );
-  }
-
-  // static IConnectionConfig selectCfg( IEclipseContext aEclipseContext ) {
-  // Shell shell = aEclipseContext.get( Shell.class );
-  // IM5Domain m5 = aEclipseContext.get( IM5Domain.class );
-  // IM5Model<IConnectionConfig> model = m5.getModel( ConnectionConfigM5Model.MODEL_ID, IConnectionConfig.class );
-  // IM5LifecycleManager<IConnectionConfig> lm = model.getDefaultLifecycleManager();
-  // CommonDialogInfo cdi = new CommonDialogInfo( shell, DLG_C_SELECT_CFG, DLG_T_SELECT_CFG );
-  // cdi.setMinSizeShellRelative( 10, 50 );
-  // cdi.setMaxSizeShellRelative( 50, 80 );
-  // return M5GuiUtils.askSelectItem( aEclipseContext, model, null, cdi, lm.itemsProvider(), null );
-  // }
-  //
   // static IConnectionConfig selectEditCfg( IEclipseContext aEclipseContext ) {
-  // Shell shell = aEclipseContext.get( Shell.class );
-  // IM5Domain m5 = aEclipseContext.get( IM5Domain.class );
+  // Shell shell = ctx.get( Shell.class );
+  // IM5Domain m5 = ctx.get( IM5Domain.class );
   // IM5Model<IConnectionConfig> model = m5.getModel( ConnectionConfigM5Model.MODEL_ID, IConnectionConfig.class );
   // IM5LifecycleManager<IConnectionConfig> lm = model.getDefaultLifecycleManager();
   // CommonDialogInfo cdi = new CommonDialogInfo( shell, DLG_C_SELECT_CFG, DLG_T_SELECT_CFG );
@@ -57,14 +18,15 @@ public class HandlerUtils {
   // cdi.setMaxSizeShellRelative( 50, 80 );
   // return M5GuiUtils.askSelectItem( aEclipseContext, model, null, cdi, lm.itemsProvider(), lm );
   // }
+
+  // static void openConnection( IEclipseContext aEclipseContext1, IConnectionConfig aCfg,
+  // ILoginInfo aForcedLoginInfoOrNull ) {
+  // ITsGuiContext ctx = new TsGuiContext( aEclipseContext1 );
   //
-  // static void openConnection( IEclipseContext aEclipseContext, IConnectionConfig aCfg, ILoginInfo
-  // aForcedLoginInfoOrNull
-  // ) {
-  // Shell shell = aEclipseContext.get( Shell.class );
-  // ISkConnection skConn = aEclipseContext.get( ISkConnection.class );
-  // ITsModularWorkstationService workstationService = aEclipseContext.get( ITsModularWorkstationService.class );
-  // IMwsConnectionConfigService connCfgService = aEclipseContext.get( IMwsConnectionConfigService.class );
+  // Shell shell = ctx.get( Shell.class );
+  // ISkConnection skConn = ctx.get( ISkConnection.class );
+  // ITsModularWorkstationService workstationService = ctx.get( ITsModularWorkstationService.class );
+  // IMwsConnectionConfigService connCfgService = ctx.get( IMwsConnectionConfigService.class );
   //
   // // Контекст модульного приложения
   // ITsContext mwsContext = workstationService.mwsContext();
@@ -148,7 +110,7 @@ public class HandlerUtils {
   // }
   // } ) );
   // }
-  //
+
   // /**
   // * Инициализирует соединение с севрером после старта программы.
   // *

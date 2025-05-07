@@ -15,6 +15,9 @@ import org.toxsoft.uskat.core.gui.km5.*;
  *
  * @author dima
  */
+
+// FIXME GOGA Do we really need this class? It does nothing!
+
 public class KM5ObjedContributor
     extends KM5AbstractContributor {
 
@@ -44,10 +47,10 @@ public class KM5ObjedContributor
     return modelsList;
   }
 
-  private boolean isObjedClassId( String aClassId ) {
-    // TODO реализовать KM5ObjedContributor.isObjedClassId()
-    throw new TsUnderDevelopmentRtException( "KM5ObjedContributor.isObjedClassId()" );
-  }
+  // private boolean isObjedClassId( String aClassId ) {
+  // // TODO реализовать KM5ObjedContributor.isObjedClassId()
+  // throw new TsUnderDevelopmentRtException( "KM5ObjedContributor.isObjedClassId()" );
+  // }
 
   // ------------------------------------------------------------------------------------
   // KM5AbstractContributor

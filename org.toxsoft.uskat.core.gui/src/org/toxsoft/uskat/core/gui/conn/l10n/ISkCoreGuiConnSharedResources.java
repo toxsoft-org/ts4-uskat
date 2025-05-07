@@ -1,11 +1,31 @@
-package org.toxsoft.uskat.core.gui.conn.m5;
+package org.toxsoft.uskat.core.gui.conn.l10n;
+
+import org.toxsoft.uskat.core.gui.conn.*;
+import org.toxsoft.uskat.core.gui.conn.m5.*;
 
 /**
  * Localizable resources.
  *
  * @author hazard157
  */
-interface ISkResources {
+@SuppressWarnings( "javadoc" )
+public interface ISkCoreGuiConnSharedResources {
+
+  /**
+   * {@link SkConnectionSupplier}
+   */
+  String FMT_ERR_CONN_ID_EXISTS      = Messages.getString( "FMT_ERR_CONN_ID_EXISTS" );      //$NON-NLS-1$
+  String MSG_ERR_CANT_REMOVE_NULL_ID = Messages.getString( "MSG_ERR_CANT_REMOVE_NULL_ID" ); //$NON-NLS-1$
+  String FMT_WARN_NO_SUCH_CONN_ID    = Messages.getString( "FMT_WARN_NO_SUCH_CONN_ID" );    //$NON-NLS-1$
+
+  /**
+   * {@link SkConnGuiUtils}
+   */
+  String DLG_EDIT_CONFIGS         = Messages.getString( "DLG_EDIT_CONFIGS" );         //$NON-NLS-1$
+  String DLG_EDIT_CONFIGS_D       = Messages.getString( "DLG_EDIT_CONFIGS_D" );       //$NON-NLS-1$
+  String DLG_SELECT_CFG           = Messages.getString( "DLG_SELECT_CFG" );           //$NON-NLS-1$
+  String DLG_SELECT_CFG_D         = Messages.getString( "DLG_SELECT_CFG_D" );         //$NON-NLS-1$
+  String FMT_ERR_UNKNOWN_PROVIDER = Messages.getString( "FMT_ERR_UNKNOWN_PROVIDER" ); //$NON-NLS-1$
 
   /**
    * {@link ConnectionConfigM5LifecycleManager}

@@ -6,7 +6,7 @@ import static org.toxsoft.core.tslib.av.impl.AvUtils.*;
 import static org.toxsoft.core.tslib.av.metainfo.IAvMetaConstants.*;
 import static org.toxsoft.uskat.core.gui.ISkCoreGuiConstants.*;
 import static org.toxsoft.uskat.core.gui.km5.sgw.ISgwM5Constants.*;
-import static org.toxsoft.uskat.core.gui.ugwi.kinds.ISkResources.*;
+import static org.toxsoft.uskat.core.gui.ugwi.kinds.ISkCoreGuiUgwiKindsSharedResources.*;
 
 import org.eclipse.swt.*;
 import org.eclipse.swt.custom.*;

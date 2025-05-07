@@ -1,6 +1,7 @@
 package org.toxsoft.uskat.core.gui.km5.sded.sded;
 
 import static org.toxsoft.core.tslib.av.metainfo.IAvMetaConstants.*;
+import static org.toxsoft.core.tslib.utils.TsLibUtils.*;
 import static org.toxsoft.uskat.core.gui.km5.sded.IKM5SdedConstants.*;
 
 import org.toxsoft.core.tsgui.bricks.ctx.*;
@@ -94,7 +95,7 @@ public class SdedDtoFullObjectM5EntityPanel
       }
       String tooltip = fd.description();
       // IVecTabLayoutData layoutData = new VecTabLayoutData( label, tooltip, fd.iconId(), EIconSize.IS_16X16 );
-      IVecTabLayoutData layoutData = new VecTabLayoutData( label, tooltip, "", EIconSize.IS_16X16 );
+      IVecTabLayoutData layoutData = new VecTabLayoutData( label, tooltip, EMPTY_STRING, EIconSize.IS_16X16 );
       ll.addControl( varEditor, layoutData );
     }
     return ll;

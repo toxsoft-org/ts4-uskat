@@ -5,7 +5,7 @@ import static org.toxsoft.core.tslib.av.EAtomicType.*;
 import static org.toxsoft.core.tslib.av.impl.AvUtils.*;
 import static org.toxsoft.core.tslib.av.metainfo.IAvMetaConstants.*;
 import static org.toxsoft.uskat.core.gui.ISkCoreGuiConstants.*;
-import static org.toxsoft.uskat.core.gui.ugwi.kinds.ISkResources.*;
+import static org.toxsoft.uskat.core.gui.ugwi.kinds.ISkCoreGuiUgwiKindsSharedResources.*;
 import static org.toxsoft.uskat.core.gui.valed.ugwi.ValedUgwiSelector.*;
 
 import org.eclipse.swt.layout.*;

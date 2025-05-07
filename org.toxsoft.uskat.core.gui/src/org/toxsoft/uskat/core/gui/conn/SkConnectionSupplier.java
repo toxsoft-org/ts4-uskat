@@ -1,6 +1,6 @@
 package org.toxsoft.uskat.core.gui.conn;
 
-import static org.toxsoft.uskat.core.gui.conn.ISkResources.*;
+import static org.toxsoft.uskat.core.gui.conn.l10n.ISkCoreGuiConnSharedResources.*;
 
 import org.eclipse.e4.core.contexts.*;
 import org.toxsoft.core.tsgui.bricks.ctx.*;
@@ -160,22 +160,12 @@ public class SkConnectionSupplier
   // implementation
   //
 
-  @SuppressWarnings( { "rawtypes", "unused", "unchecked" } )
   private ISkConnection internalReallyCreateConnectionInstance( IdChain aKey, ITsGuiContext aContext ) {
     ISkConnection conn = SkCoreUtils.createConnection();
     conn.scope().put( ITsGuiContext.class, aContext );
     // initialize connection-specific M5 domain
+    @SuppressWarnings( { "unused" } )
     KM5Support km5 = new KM5Support( conn, aContext.get( IM5Domain.class ) );
-    // initialize UGWI kind GUI-related helpers
-    // IStringMap<IList<SkUgwiGuiUtils.IRegistrator<?>>> map = SkUgwiGuiUtils.getHelperRegistratorsMap();
-    // for( String ugwiKindId : map.keys() ) {
-    // AbstractUgwiKind<?> kind = (AbstractUgwiKind)conn.coreApi().ugwiService().listKinds().findByKey( ugwiKindId );
-    // if( kind != null ) {
-    // for( SkUgwiGuiUtils.IRegistrator r : map.getByKey( ugwiKindId ) ) {
-    // r.registerHelpersForKind( kind );
-    // }
-    // }
-    // }
     connsMap.put( aKey, conn );
     return conn;
   }

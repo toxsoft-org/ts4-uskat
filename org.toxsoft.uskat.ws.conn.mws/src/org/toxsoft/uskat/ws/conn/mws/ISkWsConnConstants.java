@@ -1,7 +1,16 @@
 package org.toxsoft.uskat.ws.conn.mws;
 
+import static org.toxsoft.core.tslib.av.EAtomicType.*;
+import static org.toxsoft.core.tslib.av.impl.AvUtils.*;
+import static org.toxsoft.core.tslib.av.metainfo.IAvMetaConstants.*;
+import static org.toxsoft.uskat.core.ISkHardConstants.*;
+import static org.toxsoft.uskat.ws.conn.mws.l10n.ISkWsConnSharedResources.*;
+
 import org.eclipse.e4.core.contexts.*;
 import org.toxsoft.core.tsgui.graphics.icons.*;
+import org.toxsoft.core.tsgui.graphics.image.*;
+import org.toxsoft.core.tslib.av.impl.*;
+import org.toxsoft.core.tslib.av.metainfo.*;
 import org.toxsoft.uskat.core.gui.conn.cfg.*;
 
 /**
@@ -47,6 +56,21 @@ public interface ISkWsConnConstants {
 
   String PREFIX_OF_ICON_FIELD_NAME = "ICONID_"; //$NON-NLS-1$
   // String ICONID_FOO= "foo"; //$NON-NLS-1$
+
+  // ------------------------------------------------------------------------------------
+  // Application Preferences
+  //
+
+  String PBID_CONN_CONFIGS = USKAT_FULL_ID + ".ws.conn_configs"; //$NON-NLS-1$
+
+  String APREFID_LAST_CONNECTION_ID = "LastConnectionID"; //$NON-NLS-1$
+
+  IDataDef APPREF_LAST_CONNECTION_ID = DataDef.create( APREFID_LAST_CONNECTION_ID, STRING, //
+      TSID_NAME, STR_LAST_CONNECTION_ID, //
+      TSID_DESCRIPTION, STR_LAST_CONNECTION_ID_D, //
+      TSID_KEEPER_ID, EThumbSize.KEEPER_ID, //
+      TSID_DEFAULT_VALUE, avValobj( EThumbSize.SZ180 ) //
+  );
 
   /**
    * Constants registration.

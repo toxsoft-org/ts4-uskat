@@ -7,7 +7,7 @@ import org.toxsoft.core.tsgui.valed.controls.basic.*;
  *
  * @author dima
  */
-public interface ITsResources {
+interface ISkResources {
 
   /**
    * {@link ValedDoubleSpinner}

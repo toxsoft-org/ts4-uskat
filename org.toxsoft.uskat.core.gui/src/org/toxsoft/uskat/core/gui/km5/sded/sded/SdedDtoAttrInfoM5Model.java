@@ -22,7 +22,6 @@ import org.toxsoft.core.tslib.av.metainfo.*;
 import org.toxsoft.core.tslib.av.opset.*;
 import org.toxsoft.core.tslib.av.opset.impl.*;
 import org.toxsoft.core.tslib.bricks.validator.*;
-import org.toxsoft.core.tslib.utils.*;
 import org.toxsoft.core.tslib.utils.errors.*;
 import org.toxsoft.uskat.core.api.sysdescr.dto.*;
 import org.toxsoft.uskat.core.connection.*;
@@ -84,8 +83,7 @@ public class SdedDtoAttrInfoM5Model
 
     @Override
     protected ValidationResult doBeforeCreate( IM5Bunch<IDtoAttrInfo> aValues ) {
-      IDtoAttrInfo ainf = makeAttrInfo( aValues );
-      TsTestUtils.pl( "%s", ainf.toString() );
+      // IDtoAttrInfo ainf = makeAttrInfo( aValues );
 
       // TODO Auto-generated method stub
 
