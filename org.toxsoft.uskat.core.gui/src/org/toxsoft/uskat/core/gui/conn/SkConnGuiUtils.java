@@ -2,20 +2,25 @@ package org.toxsoft.uskat.core.gui.conn;
 
 import static org.toxsoft.core.tsgui.dialogs.datarec.ITsDialogConstants.*;
 import static org.toxsoft.core.tslib.av.impl.AvUtils.*;
+import static org.toxsoft.uskat.core.api.users.ISkUserServiceHardConstants.*;
 import static org.toxsoft.uskat.core.gui.conn.l10n.ISkCoreGuiConnSharedResources.*;
 import static org.toxsoft.uskat.core.gui.conn.m5.IConnectionConfigM5Constants.*;
 
 import org.eclipse.swt.widgets.*;
 import org.toxsoft.core.tsgui.bricks.ctx.*;
+import org.toxsoft.core.tsgui.bricks.ctx.impl.*;
 import org.toxsoft.core.tsgui.dialogs.*;
 import org.toxsoft.core.tsgui.dialogs.datarec.*;
 import org.toxsoft.core.tsgui.m5.*;
 import org.toxsoft.core.tsgui.m5.gui.*;
 import org.toxsoft.core.tsgui.m5.gui.panels.*;
 import org.toxsoft.core.tsgui.m5.model.*;
+import org.toxsoft.core.tsgui.panels.misc.*;
+import org.toxsoft.core.tslib.av.*;
 import org.toxsoft.core.tslib.bricks.ctx.*;
 import org.toxsoft.core.tslib.bricks.validator.*;
 import org.toxsoft.core.tslib.utils.errors.*;
+import org.toxsoft.core.tslib.utils.login.*;
 import org.toxsoft.uskat.core.api.users.*;
 import org.toxsoft.uskat.core.connection.*;
 import org.toxsoft.uskat.core.gui.conn.cfg.*;
@@ -27,6 +32,33 @@ import org.toxsoft.uskat.core.impl.*;
  * @author hazard157
  */
 public class SkConnGuiUtils {
+
+  /**
+   * Invokes dialog and asks (if necessary) user to enter login and password.
+   * <p>
+   * Does not asks for role ID.
+   * <p>
+   * Depending on authentification type, method may return immediately with the some default values.
+   *
+   * @param aType {@link EAtomicType} - authentification type
+   * @param aInitVals {@link ILoginInfo} - initial values when asking user, may be <code>null</code>
+   * @param aContext {@link ITsGuiContext} - the context
+   * @return {@link ILoginInfo} - filled info or <code>null</code> on cancel
+   * @throws TsNullArgumentRtException any argument = <code>null</code>
+   */
+  public static ILoginInfo askUserPassword( ESkAuthentificationType aType, ILoginInfo aInitVals,
+      ITsGuiContext aContext ) {
+    TsNullArgumentRtException.checkNulls( aType, aContext );
+    return switch( aType ) {
+      case NONE -> new LoginInfo( USER_ID_ROOT, INITIAL_ROOT_PASSWORD, ROLE_ID_USKAT_DEFAULT );
+      case SIMPLE -> {
+        ITsGuiContext ctx = new TsGuiContext( aContext );
+        PanelLoginInfo.OPDEF_IS_ROLE_USED.setValue( ctx.params(), AV_FALSE ); // no role field in dialog
+        yield PanelLoginInfo.edit( ctx, aInitVals, ITsValidator.PASS );
+      }
+      default -> throw new TsNotAllEnumsUsedRtException();
+    };
+  }
 
   /**
    * Edits configuration of the {@link IConnectionConfigService} found in the context.

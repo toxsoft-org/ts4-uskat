@@ -3,6 +3,7 @@ package org.toxsoft.uskat.ws.conn.mws.e4.handlers;
 import static org.toxsoft.core.tslib.av.impl.AvUtils.*;
 import static org.toxsoft.uskat.core.api.users.ISkUserServiceHardConstants.*;
 import static org.toxsoft.uskat.core.connection.ISkConnectionConstants.*;
+import static org.toxsoft.uskat.ws.conn.mws.ISkWsConnConstants.*;
 import static org.toxsoft.uskat.ws.conn.mws.l10n.ISkWsConnSharedResources.*;
 
 import org.eclipse.e4.core.contexts.*;
@@ -13,10 +14,12 @@ import org.toxsoft.core.tsgui.bricks.ctx.impl.*;
 import org.toxsoft.core.tsgui.dialogs.*;
 import org.toxsoft.core.tsgui.mws.services.e4helper.*;
 import org.toxsoft.core.tsgui.panels.misc.*;
+import org.toxsoft.core.tslib.bricks.apprefs.*;
 import org.toxsoft.core.tslib.bricks.ctx.*;
 import org.toxsoft.core.tslib.bricks.ctx.impl.*;
 import org.toxsoft.core.tslib.bricks.validator.*;
 import org.toxsoft.core.tslib.utils.login.*;
+import org.toxsoft.uskat.core.connection.*;
 import org.toxsoft.uskat.core.gui.conn.*;
 import org.toxsoft.uskat.core.gui.conn.cfg.*;
 import org.toxsoft.uskat.ws.conn.mws.*;
@@ -48,9 +51,12 @@ public class CmdSelect {
       return;
     }
     // ask user for login info (with default role!)
+    IConnectionConfigService ccService = ctx.get( IConnectionConfigService.class );
+    IConnectionConfigProvider ccProvider = ccService.listProviders().getByKey( cfg.providerId() );
+    ESkAuthentificationType authentificationType = ccProvider.backendMetaInfo().getAuthentificationType();
     ILoginInfo initVal = null; // TODO use last usere's login
     PanelLoginInfo.OPDEF_IS_ROLE_USED.setValue( ctx.params(), AV_FALSE ); // no role field in dialog
-    ILoginInfo loginInfo = PanelLoginInfo.edit( ctx, initVal, ITsValidator.PASS );
+    ILoginInfo loginInfo = SkConnGuiUtils.askUserPassword( authentificationType, initVal, ctx );
     if( loginInfo == null ) {
       return;
     }
@@ -65,7 +71,9 @@ public class CmdSelect {
       TsDialogUtils.underDevelopment( aShell );
       // HandlerUtils.openConnection( aEclipseContext, cfg, null );
 
-      // TODO remember last connection config ID
+      // remember last connection config ID
+      IAppPreferences aprefs = ctx.get( IAppPreferences.class );
+      APPREF_LAST_CONNECTION_ID.setValue( aprefs.getBundle( PBID_CONN_CONFIGS ).prefs(), avStr( cfg.id() ) );
 
     }
     finally {
