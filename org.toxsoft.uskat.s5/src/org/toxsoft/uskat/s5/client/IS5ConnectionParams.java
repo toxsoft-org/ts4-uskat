@@ -15,6 +15,7 @@ import org.toxsoft.core.tslib.av.metainfo.*;
 import org.toxsoft.core.tslib.bricks.ctx.*;
 import org.toxsoft.core.tslib.gw.skid.*;
 import org.toxsoft.core.tslib.utils.*;
+import org.toxsoft.uskat.core.api.users.*;
 import org.toxsoft.uskat.core.connection.*;
 import org.toxsoft.uskat.s5.common.*;
 import org.toxsoft.uskat.s5.server.*;
@@ -74,11 +75,11 @@ public interface IS5ConnectionParams {
   // * <p>
   // * Тип: {@link EAtomicType#VALOBJ} ({@link Skid})
   // */
-  // IDataDef OP_ROLE = create( SYBSYSTEM_ID_PREFIX + ".role", VALOBJ, //$NON-NLS-1$
-  // TSID_NAME, N_ROLE, //
-  // TSID_DESCRIPTION, D_ROLE, //
-  // TSID_IS_NULL_ALLOWED, AV_FALSE, //
-  // TSID_DEFAULT_VALUE, AvUtils.avValobj( ISkUserServiceHardConstants.SKID_ROLE_GUEST ) );
+  IDataDef OP_ROLE     = create( SYBSYSTEM_ID_PREFIX + ".role", VALOBJ,                     //$NON-NLS-1$
+      TSID_NAME, N_ROLE,                                                                    //
+      TSID_DESCRIPTION, D_ROLE,                                                             //
+      TSID_IS_NULL_ALLOWED, AV_FALSE,                                                       //
+      TSID_DEFAULT_VALUE, AvUtils.avValobj( ISkUserServiceHardConstants.SKID_ROLE_GUEST ) );
   /**
    * Параметр: Логин пользователя для подключения к серверу
    * <p>
@@ -98,7 +99,7 @@ public interface IS5ConnectionParams {
    * <p>
    * Тип: {@link EAtomicType#VALOBJ} ({@link Skid})
    */
-  IDataDef OP_ROLE = ISkConnectionConstants.ARGDEF_ROLE;
+  // IDataDef OP_ROLE = ISkConnectionConstants.ARGDEF_ROLE;
 
   // ------------------------------------------------------------------------------------
   // Учетная запись пользователя (для local)
