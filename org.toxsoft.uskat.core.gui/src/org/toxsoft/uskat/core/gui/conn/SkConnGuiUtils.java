@@ -83,14 +83,15 @@ public class SkConnGuiUtils {
   /**
    * Selects configuration of the {@link IConnectionConfigService} found in the context.
    * <p>
-   * Method assumes that selection is done for immediate connection to the server so approprieate message is displayed
-   * to the user.
+   * Method assumes that selection is done for immediate connection to the server so appropriate message is displayed to
+   * the user.
    *
    * @param aContext {@link ITsGuiContext} =- the GUI context
+   * @param aInitalCfgId String - initially selected configuration ID or <code>null</code>
    * @return {@link IConnectionConfig} - selected configuration or <code>null</code>
    * @throws TsNullArgumentRtException any argument = <code>null</code>
    */
-  public static IConnectionConfig selectCfgToConnect( ITsGuiContext aContext ) {
+  public static IConnectionConfig selectCfgToConnect( ITsGuiContext aContext, String aInitalCfgId ) {
     TsNullArgumentRtException.checkNull( aContext );
     IM5Domain m5 = aContext.get( IM5Domain.class );
     IM5Model<IConnectionConfig> model = m5.getModel( MID_SK_CONN_CFG, IConnectionConfig.class );
@@ -99,7 +100,11 @@ public class SkConnGuiUtils {
     TsDialogInfo cdi = new TsDialogInfo( aContext, DLG_SELECT_CFG, DLG_SELECT_CFG_D );
     cdi.setMinSizeShellRelative( 10, 50 );
     cdi.setMaxSizeShellRelative( 50, 80 );
-    return M5GuiUtils.askSelectItem( cdi, model, null, lm.itemsProvider(), null );
+    IConnectionConfig initCfg = null;
+    if( aInitalCfgId != null ) {
+      initCfg = ccService.listConfigs().findByKey( aInitalCfgId );
+    }
+    return M5GuiUtils.askSelectItem( cdi, model, initCfg, lm.itemsProvider(), null );
   }
 
   /**
