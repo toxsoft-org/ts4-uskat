@@ -1,10 +1,12 @@
 package org.toxsoft.uskat.ws.conn.mws.e4.handlers;
 
+import org.eclipse.e4.core.contexts.*;
 import org.eclipse.e4.core.di.annotations.*;
-import org.eclipse.swt.widgets.*;
-import org.toxsoft.core.tsgui.dialogs.*;
+import org.toxsoft.core.tsgui.bricks.ctx.*;
+import org.toxsoft.core.tsgui.bricks.ctx.impl.*;
 import org.toxsoft.uskat.core.gui.conn.*;
 import org.toxsoft.uskat.ws.conn.mws.*;
+import org.toxsoft.uskat.ws.conn.mws.main.*;
 
 /**
  * Command {@link ISkWsConnConstants#CMDID_SKCONN_INFO}.
@@ -18,9 +20,10 @@ import org.toxsoft.uskat.ws.conn.mws.*;
 public class CmdInfo {
 
   @Execute
-  void exec( Shell aShell ) {
-    // TODO CmdInfo.exec()
-    TsDialogUtils.underDevelopment( aShell );
+  void exec( IEclipseContext aEclipseContext ) {
+    ITsGuiContext ctx = new TsGuiContext( aEclipseContext );
+    IHandlerHelper hh = new HandlerHelper( ctx );
+    hh.showServerInfo();
   }
 
   @CanExecute
