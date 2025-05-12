@@ -336,7 +336,9 @@ public class S5BackendSession
       }
 
       // 2025-03-20 mvk role auto definition
-      Skid role = OP_ROLE.getValue( clientOptions ).asValobj();
+      // 2025-05-12 mvk ---+++
+      // Skid role = OP_ROLE.getValue( clientOptions ).asValobj();
+      Skid role = clientOptions.getValobj( OP_ROLE.id(), ISkUserServiceHardConstants.SKID_ROLE_GUEST );
       if( ROLE_ID_USKAT_DEFAULT.equals( role.strid() ) ) {
         Gwid linkId = Gwid.createLink( ISkUser.CLASS_ID, LNKID_USER_ROLES );
         ISkidList roles = linksBackend.findLinkFwd( linkId, user.skid() ).rightSkids();
@@ -621,7 +623,9 @@ public class S5BackendSession
     // Формирование информации сессии бекенда
     S5BackendInfo retValue = new S5BackendInfo( backendInfo );
     // Роль пользователя
-    Skid role = OP_ROLE.getValue( sessionInfo.clientOptions() ).asValobj();
+    // 2025-05-12 mvk---+++
+    // Skid role = OP_ROLE.getValue( clientOptions ).asValobj();
+    Skid role = sessionInfo.clientOptions().getValobj( OP_ROLE.id(), ISkUserServiceHardConstants.SKID_ROLE_GUEST );
     // Информация о зарегистрированном пользователе
     SkLoggedUserInfo loggedUserInfo =
         new SkLoggedUserInfo( new Skid( ISkUser.CLASS_ID, sessionInfo.login() ), role, ESkAuthentificationType.SIMPLE );
