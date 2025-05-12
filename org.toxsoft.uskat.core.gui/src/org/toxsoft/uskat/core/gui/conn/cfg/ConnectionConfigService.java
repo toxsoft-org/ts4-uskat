@@ -217,9 +217,10 @@ public final class ConnectionConfigService
   @Override
   public void registerPovider( IConnectionConfigProvider aProvider ) {
     TsNullArgumentRtException.checkNull( aProvider );
-    TsItemAlreadyExistsRtException.checkTrue( providersList.hasKey( aProvider.id() ) );
-    providersList.add( aProvider );
-    eventer.fireProvidersListChanged();
+    if( !providersList.hasKey( aProvider.id() ) ) {
+      providersList.add( aProvider );
+      eventer.fireProvidersListChanged();
+    }
   }
 
   @Override

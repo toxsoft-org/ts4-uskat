@@ -20,7 +20,8 @@ import org.toxsoft.uskat.core.connection.*;
  * @author hazard157
  */
 public sealed interface ISkBackendMetaInfo
-    extends IStridable permits SkBackendMetaInfo {
+    extends IStridable
+    permits SkBackendMetaInfo {
 
   /**
    * Returns the options used as the arguments of the backend creation.
@@ -37,7 +38,7 @@ public sealed interface ISkBackendMetaInfo
   IStringMap<ITsContextRefDef<?>> argRefs();
 
   /**
-   * Returns authentification type requred by the backend.
+   * Returns authentification type reqiured by the backend.
    *
    * @return {@link ESkAuthentificationType} - authentification type
    */

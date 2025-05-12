@@ -53,10 +53,11 @@ public sealed interface IConnectionConfigService
 
   /**
    * Registers the provider.
+   * <p>
+   * If the provider with the same ID is already registered than does nothing.
    *
    * @param aProvider {@link IConnectionConfigProvider} - the provider
    * @throws TsNullArgumentRtException any argument = <code>null</code>
-   * @throws TsItemAlreadyExistsRtException provider with the same ID is already registered
    */
   void registerPovider( IConnectionConfigProvider aProvider );
 

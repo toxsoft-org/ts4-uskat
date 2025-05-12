@@ -1,0 +1,17 @@
+Main concepts:
+  * list of servers are stored in the separate dedicated file
+  * the are several modes of operation (connection to the server):
+    - automatically connect to the specified server from the list
+    - automatically connect to the last server from the list
+    - no automatic connection, user must select from list
+    - no automatic connection, user must manually connect to the predefined server
+  * any connection, even automatic one requires user to authentificate via login/role/password
+  * last login/role may be stored for authentification (depending on option: NONE / CFG_FILE)
+  * user may or may not edit list of servers
+  * options are processed at starup in following sequence: buil-in defaults, configuration file, command line arguments
+  * single entry in the servers list may contain sevaral addresses for automatic switching
+  
+  
+Under questions:
+  * how about storing possible logins/roles? or maybe roles list is requested during startup?
+

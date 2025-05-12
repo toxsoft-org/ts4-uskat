@@ -29,7 +29,7 @@ public class Activator
   /**
    * Default configuration file name (located in the startup directory).
    */
-  public static final String DEFAULT_CFG_FILE_NAME = "uskat-ws.cfg"; //$NON-NLS-1$
+  public static final String DEFAULT_CFG_FILE_NAME = "ws.cfg"; //$NON-NLS-1$
 
   private static Activator instance = null;
 

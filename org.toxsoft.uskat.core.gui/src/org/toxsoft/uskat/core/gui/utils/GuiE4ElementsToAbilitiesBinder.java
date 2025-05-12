@@ -66,6 +66,9 @@ public final class GuiE4ElementsToAbilitiesBinder
 
   /**
    * Constructor.
+   *
+   * @param aContext {@link ITsGuiContext} - the context
+   * @throws TsNullArgumentRtException any argument = <code>null</code>
    */
   public GuiE4ElementsToAbilitiesBinder( ITsGuiContext aContext ) {
     TsNullArgumentRtException.checkNull( aContext );

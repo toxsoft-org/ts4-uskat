@@ -3,6 +3,7 @@ package org.toxsoft.uskat.ws.core.e4.addons;
 import org.eclipse.e4.core.contexts.*;
 import org.toxsoft.core.tsgui.bricks.quant.*;
 import org.toxsoft.core.tsgui.mws.bases.*;
+import org.toxsoft.uskat.backend.s5.gui.*;
 import org.toxsoft.uskat.core.gui.*;
 import org.toxsoft.uskat.ws.core.*;
 import org.toxsoft.uskat.ws.core.Activator;
@@ -29,6 +30,7 @@ public class AddonUskatWsCore
   @Override
   protected void doRegisterQuants( IQuantRegistrator aQuantRegistrator ) {
     aQuantRegistrator.registerQuant( new QuantSkCoreGui() );
+    aQuantRegistrator.registerQuant( new QuantSkBackendS5Gui() );
   }
 
   @Override

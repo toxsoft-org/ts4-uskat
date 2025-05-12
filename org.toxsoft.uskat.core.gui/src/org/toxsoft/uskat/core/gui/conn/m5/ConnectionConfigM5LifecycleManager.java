@@ -3,8 +3,8 @@ package org.toxsoft.uskat.core.gui.conn.m5;
 import static org.toxsoft.core.tsgui.m5.IM5Constants.*;
 import static org.toxsoft.core.tslib.av.impl.AvUtils.*;
 import static org.toxsoft.core.tslib.av.metainfo.IAvMetaConstants.*;
+import static org.toxsoft.uskat.core.gui.conn.l10n.ISkCoreGuiConnSharedResources.*;
 import static org.toxsoft.uskat.core.gui.conn.m5.IConnectionConfigM5Constants.*;
-import static org.toxsoft.uskat.core.gui.conn.m5.ISkResources.*;
 
 import org.toxsoft.core.tsgui.m5.*;
 import org.toxsoft.core.tsgui.m5.model.impl.*;

@@ -5,7 +5,8 @@ package org.toxsoft.uskat.core.gui.ugwi.kinds;
  *
  * @author dima
  */
-public interface ISkResources {
+@SuppressWarnings( "javadoc" )
+public interface ISkCoreGuiUgwiKindsSharedResources {
 
   /**
    * {@link SingleSkPropUgwiSelectPanel}

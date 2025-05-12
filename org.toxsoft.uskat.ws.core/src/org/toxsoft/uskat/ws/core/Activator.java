@@ -16,7 +16,7 @@ public class Activator
   /**
    * The plugin ID (for Java static imports).
    */
-  public static final String PLUGIN_ID = "org.toxsoft.templates"; //$NON-NLS-1$
+  public static final String PLUGIN_ID = "org.toxsoft.uskat.ws.core"; //$NON-NLS-1$
 
   private static Activator instance = null;
 

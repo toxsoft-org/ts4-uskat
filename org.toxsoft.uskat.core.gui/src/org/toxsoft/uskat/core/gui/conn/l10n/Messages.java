@@ -1,4 +1,4 @@
-package org.toxsoft.uskat.core.gui.conn;
+package org.toxsoft.uskat.core.gui.conn.l10n;
 
 import java.util.*;
 

@@ -1,6 +1,6 @@
 package org.toxsoft.uskat.core.gui.km5.sded.sded.editors;
 
-import static org.toxsoft.uskat.core.gui.km5.sded.sded.editors.ITsResources.*;
+import static org.toxsoft.uskat.core.gui.km5.sded.sded.editors.ISkResources.*;
 
 import org.eclipse.swt.*;
 import org.eclipse.swt.custom.*;

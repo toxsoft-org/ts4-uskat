@@ -153,14 +153,14 @@ public class BaGwidDb
     if( table == null ) {
       return null;
     }
-    return table.find( aKey.asString() );
+    return table.find( aKey.toString() );
   }
 
   @Override
   public void writeValue( IdChain aSectionId, Gwid aKey, String aValue ) {
     IdClobTable table = ensureTableForSection( aSectionId );
-    boolean wasRow = table.hasClob( aKey.asString() );
-    table.writeTable( aKey.asString(), aValue );
+    boolean wasRow = table.hasClob( aKey.toString() );
+    table.writeTable( aKey.toString(), aValue );
     ECrudOp op = wasRow ? ECrudOp.EDIT : ECrudOp.CREATE;
     GtMessage msg = BaMsgGwidDbChanged.BUILDER.makeMessage( aSectionId, op, aKey );
     owner().frontend().onBackendMessage( msg );
@@ -171,7 +171,7 @@ public class BaGwidDb
     String tableName = makeTableName( aSectionId );
     IdClobTable table = tablesByName.findByKey( tableName );
     if( table != null ) {
-      String key = aKey.asString();
+      String key = aKey.toString();
       if( table.hasClob( key ) ) {
         table.removeRow( key );
         GtMessage msg = BaMsgGwidDbChanged.BUILDER.makeMessage( aSectionId, ECrudOp.REMOVE, aKey );
