@@ -61,8 +61,8 @@ public interface ISkConnectionConstants {
   );
 
   /**
-   * The user login name.<br>
-   * Usage: login name is an IDpath. If backend requests login name than it is mandatory.<br>
+   * The user role name.<br>
+   * Usage: role name is an IDpath. If backend requests role name than it is mandatory.<br>
    * Default value: no default value
    */
   IDataDef ARGDEF_ROLE = DataDef.create( ARGID_ROLE, STRING, //
