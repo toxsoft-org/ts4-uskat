@@ -600,21 +600,23 @@ public class SkCoreServRtdata
       checkThread();
       TsIllegalStateRtException.checkFalse( isOk() );
       TsNullArgumentRtException.checkNulls( aInterval, aValues );
-      ITimeInterval vi = aValues.getInterval();
-      if( aInterval.startTime() > vi.startTime() || aInterval.endTime() < vi.endTime() ) {
-        throw new TsIllegalArgumentRtException( FMT_ERR_HDW_CHANNEL_WRONG_WRITE_INTERVAL, aInterval, vi );
-      }
       ITimeInterval interval = aInterval;
       ITimedList<ITemporalAtomicValue> values = aValues;
-      if( syncDataDeltaT > 0 ) {
-        values = alignValuesBySlot( aValues, syncDataDeltaT );
-        vi = values.getInterval();
-        long startTime = min( vi.startTime(), interval.startTime() );
-        long endTime = max( vi.endTime(), interval.endTime() );
-        interval = new TimeInterval( startTime, endTime );
-      }
-      for( ITemporalAtomicValue temporalValue : values ) {
-        AvTypeCastRtException.checkCanAssign( atomicType, temporalValue.value().atomicType() );
+      if( values.size() > 0 ) {
+        ITimeInterval vi = aValues.getInterval();
+        if( aInterval.startTime() > vi.startTime() || aInterval.endTime() < vi.endTime() ) {
+          throw new TsIllegalArgumentRtException( FMT_ERR_HDW_CHANNEL_WRONG_WRITE_INTERVAL, aInterval, vi );
+        }
+        if( syncDataDeltaT > 0 ) {
+          values = alignValuesBySlot( aValues, syncDataDeltaT );
+          vi = values.getInterval();
+          long startTime = min( vi.startTime(), interval.startTime() );
+          long endTime = max( vi.endTime(), interval.endTime() );
+          interval = new TimeInterval( startTime, endTime );
+        }
+        for( ITemporalAtomicValue temporalValue : values ) {
+          AvTypeCastRtException.checkCanAssign( atomicType, temporalValue.value().atomicType() );
+        }
       }
       ba().baRtdata().writeHistData( gwid, interval, values );
     }

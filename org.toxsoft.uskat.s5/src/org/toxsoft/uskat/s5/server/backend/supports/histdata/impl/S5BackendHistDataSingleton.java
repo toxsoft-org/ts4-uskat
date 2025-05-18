@@ -136,8 +136,12 @@ public class S5BackendHistDataSingleton
         ITimeInterval ti = intervalValues.left();
         ITimedList<ITemporalAtomicValue> values = intervalValues.right();
         IQueryInterval interval = new QueryInterval( EQueryIntervalType.CSCE, ti.startTime(), ti.endTime() );
-        IS5SequenceBlockEdit<ITemporalAtomicValue> block = factory().createBlock( gwid, values );
-        sequences.add( (IS5HistDataSequence)factory().createSequence( gwid, interval, new ElemArrayList<>( block ) ) );
+        IList<IS5SequenceBlockEdit<ITemporalAtomicValue>> blocks = IList.EMPTY;
+        if( values.size() > 0 ) {
+          IS5SequenceBlockEdit<ITemporalAtomicValue> block = factory().createBlock( gwid, values );
+          blocks = new ElemArrayList<>( block );
+        }
+        sequences.add( (IS5HistDataSequence)factory().createSequence( gwid, interval, blocks ) );
       }
       if( !writeSequences( sequences ) ) {
         // Отклонение запроса на запись данных, например в режиме ES5ServerMode.OVERLOADED
