@@ -169,11 +169,9 @@ class S5BaRtdataLocal
       Pair<ITimeInterval, ITimedList<ITemporalAtomicValue>> newValues = new Pair<>( aInterval, aValues );
       if( prevValues != null ) {
         // Объединение значений по одному данному
-        long startTime = Math.min( prevValues.left().startTime(), newValues.left().startTime() );
-        long endTime = Math.max( prevValues.left().endTime(), newValues.left().endTime() );
         TimedList<ITemporalAtomicValue> values = new TimedList<>( prevValues.right() );
         values.addAll( newValues.right() );
-        newValues = new Pair<>( new TimeInterval( startTime, endTime ), values );
+        newValues = new Pair<>( values.getInterval(), values );
       }
       baData.histdataToBackend.put( aGwid, newValues );
     }

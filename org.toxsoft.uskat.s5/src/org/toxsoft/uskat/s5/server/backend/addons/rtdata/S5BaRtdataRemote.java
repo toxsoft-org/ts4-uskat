@@ -164,15 +164,13 @@ class S5BaRtdataRemote
       Pair<ITimeInterval, ITimedList<ITemporalAtomicValue>> newValues = new Pair<>( aInterval, aValues );
       if( prevValues != null ) {
         // Объединение значений по одному данному
-        long startTime = Math.min( prevValues.left().startTime(), newValues.left().startTime() );
-        long endTime = Math.max( prevValues.left().endTime(), newValues.left().endTime() );
         TimedList<ITemporalAtomicValue> values = new TimedList<>( prevValues.right() );
         values.addAll( newValues.right() );
         // Ограничение размера буфера значений параметра
         if( values.size() - histBufferSize >= 0 ) {
           values.removeRangeByIndex( 0, values.size() - histBufferSize );
         }
-        newValues = new Pair<>( new TimeInterval( startTime, endTime ), values );
+        newValues = new Pair<>( values.getInterval(), values );
       }
       baData.histdataToBackend.put( aGwid, newValues );
     }
