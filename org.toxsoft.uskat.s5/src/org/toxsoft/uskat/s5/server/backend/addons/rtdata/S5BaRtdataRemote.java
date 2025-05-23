@@ -1,5 +1,7 @@
 package org.toxsoft.uskat.s5.server.backend.addons.rtdata;
 
+import static org.toxsoft.uskat.s5.server.backend.addons.rtdata.IS5Resources.*;
+
 import org.toxsoft.core.tslib.av.*;
 import org.toxsoft.core.tslib.av.temporal.*;
 import org.toxsoft.core.tslib.bricks.events.msg.*;
@@ -9,6 +11,7 @@ import org.toxsoft.core.tslib.coll.*;
 import org.toxsoft.core.tslib.gw.gwid.*;
 import org.toxsoft.core.tslib.utils.*;
 import org.toxsoft.core.tslib.utils.errors.*;
+import org.toxsoft.core.tslib.utils.logs.*;
 import org.toxsoft.uskat.core.backend.*;
 import org.toxsoft.uskat.core.backend.api.*;
 import org.toxsoft.uskat.s5.client.*;
@@ -98,6 +101,9 @@ class S5BaRtdataRemote
     }
     if( histDataMessage != null ) {
       owner().onFrontendMessage( histDataMessage );
+      if( logger().isSeverityOn( ELogSeverity.DEBUG ) ) {
+        logger().debug( MSG_HISTDATA_SENDED, histDataMessage );
+      }
     }
   }
 
@@ -164,13 +170,15 @@ class S5BaRtdataRemote
       Pair<ITimeInterval, ITimedList<ITemporalAtomicValue>> newValues = new Pair<>( aInterval, aValues );
       if( prevValues != null ) {
         // Объединение значений по одному данному
+        ITimeInterval prevInterval = prevValues.left();
+        ITimeInterval newInterval = TimeUtils.union( prevInterval, aInterval );
         TimedList<ITemporalAtomicValue> values = new TimedList<>( prevValues.right() );
         values.addAll( newValues.right() );
         // Ограничение размера буфера значений параметра
         if( values.size() - histBufferSize >= 0 ) {
           values.removeRangeByIndex( 0, values.size() - histBufferSize );
         }
-        newValues = new Pair<>( values.getInterval(), values );
+        newValues = new Pair<>( newInterval, values );
       }
       baData.histdataToBackend.put( aGwid, newValues );
     }
