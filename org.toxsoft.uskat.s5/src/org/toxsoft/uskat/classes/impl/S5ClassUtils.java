@@ -95,24 +95,29 @@ public class S5ClassUtils {
     Skid nodeId = OP_SERVER_NODE_ID.getValue( aBackendInfo.params() ).asValobj();
 
     // Проверка существования сервера
-    if( aObjectsSupport.findObject( serverId ) == null ) {
-      // Сервер не найден. Создание сервера
-      IDtoObject server = new DtoObject( serverId, new OptionSet(), IStringMap.EMPTY );
-      // aInterceptable = true
-      aObjectsSupport.writeObjects( IS5FrontendRear.NULL, ISkidList.EMPTY, new ElemArrayList<>( server ), true );
-    }
+    // if( aObjectsSupport.findObject( serverId ) == null ) {
+    IOptionSetEdit attrs = new OptionSet();
+    DDEF_NAME.setValue( attrs, avStr( STR_CLASS_SERVER ) );
+    DDEF_DESCRIPTION.setValue( attrs, avStr( STR_CLASS_SERVER_D ) );
+    // Сервер не найден. Создание сервера
+    IDtoObject server = new DtoObject( serverId, attrs, IStringMap.EMPTY );
+    // aInterceptable = true
+    aObjectsSupport.writeObjects( IS5FrontendRear.NULL, ISkidList.EMPTY, new ElemArrayList<>( server ), true );
+    // }
 
     // Проверка существования узла сервера
-    if( aObjectsSupport.findObject( nodeId ) == null ) {
-      // Узел не найден. Создание узла
-      IDtoObject node = new DtoObject( nodeId, new OptionSet(), IStringMap.EMPTY );
-      // aInterceptable = true
-      aObjectsSupport.writeObjects( IS5FrontendRear.NULL, ISkidList.EMPTY, new ElemArrayList<>( node ), true );
-      // Установка связи
-      Gwid linkGwid = Gwid.createLink( ISkServerNode.CLASS_ID, ISkServerNode.LNKID_SERVER );
-      IDtoLinkFwd linkFwd = new DtoLinkFwd( linkGwid, nodeId, new SkidList( serverId ) );
-      aLinksSupport.writeLinksFwd( new ElemArrayList<>( linkFwd ) );
-    }
+    // if( aObjectsSupport.findObject( nodeId ) == null ) {
+    DDEF_NAME.setValue( attrs, avStr( STR_CLASS_NETNODE ) );
+    DDEF_DESCRIPTION.setValue( attrs, avStr( STR_CLASS_NETNODE_D ) );
+    // Узел не найден. Создание узла
+    IDtoObject node = new DtoObject( nodeId, attrs, IStringMap.EMPTY );
+    // aInterceptable = true
+    aObjectsSupport.writeObjects( IS5FrontendRear.NULL, ISkidList.EMPTY, new ElemArrayList<>( node ), true );
+    // Установка связи
+    Gwid linkGwid = Gwid.createLink( ISkServerNode.CLASS_ID, ISkServerNode.LNKID_SERVER );
+    IDtoLinkFwd linkFwd = new DtoLinkFwd( linkGwid, nodeId, new SkidList( serverId ) );
+    aLinksSupport.writeLinksFwd( new ElemArrayList<>( linkFwd ) );
+    // }
   }
 
   // ------------------------------------------------------------------------------------

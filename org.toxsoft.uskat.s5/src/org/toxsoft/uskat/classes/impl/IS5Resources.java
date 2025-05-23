@@ -29,8 +29,8 @@ interface IS5Resources {
   /**
    * {@link ISkServer}
    */
-  String STR_CLASS_SERVER   = "Server";
-  String STR_CLASS_SERVER_D = "Сервер/кластер системы";
+  String STR_CLASS_SERVER   = "Сервер";
+  String STR_CLASS_SERVER_D = "Сервер системы";
 
   String STR_EV_PARAM_LOGIN   = "Логин";              //
   String STR_EV_PARAM_LOGIN_D = "Логин пользователя"; //
