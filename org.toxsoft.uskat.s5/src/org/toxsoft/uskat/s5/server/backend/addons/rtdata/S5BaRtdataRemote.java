@@ -1,5 +1,6 @@
 package org.toxsoft.uskat.s5.server.backend.addons.rtdata;
 
+import static java.lang.String.*;
 import static org.toxsoft.uskat.s5.server.backend.addons.rtdata.IS5Resources.*;
 
 import org.toxsoft.core.tslib.av.*;
@@ -92,6 +93,11 @@ class S5BaRtdataRemote
           (baData.histdataTimeout <= 0 || currTime - baData.lastHistdataToBackendTime > baData.histdataTimeout) ) {
         // Отправка значений хранимых данных от фронтенда в бекенд
         histDataMessage = BaMsgRtdataHistData.INSTANCE.makeMessage( baData.histdataToBackend );
+        // Журналирование
+        if( logger().isSeverityOn( ELogSeverity.DEBUG ) ) {
+          logger().debug( MSG_HD_SENDING, hdToLog( baData.histdataToBackend ) );
+          logger().debug( MSG_HD_SENDED, hdToLog( BaMsgRtdataHistData.INSTANCE.getNewValues( histDataMessage ) ) );
+        }
         baData.histdataToBackend.clear();
         baData.lastHistdataToBackendTime = currTime;
       }
@@ -101,9 +107,6 @@ class S5BaRtdataRemote
     }
     if( histDataMessage != null ) {
       owner().onFrontendMessage( histDataMessage );
-      if( logger().isSeverityOn( ELogSeverity.DEBUG ) ) {
-        logger().debug( MSG_HISTDATA_SENDED, histDataMessage );
-      }
     }
   }
 
@@ -191,4 +194,25 @@ class S5BaRtdataRemote
     TsNullArgumentRtException.checkNulls( aInterval, aGwid );
     return session().queryObjRtdata( aInterval, aGwid );
   }
+
+  // ------------------------------------------------------------------------------------
+  // private methods
+  //
+  @SuppressWarnings( { "nls", "boxing" } )
+  private static String hdToLog( IMap<Gwid, Pair<ITimeInterval, ITimedList<ITemporalAtomicValue>>> aHistData ) {
+    StringBuilder sb = new StringBuilder();
+    for( Gwid gwid : aHistData.keys() ) {
+      Pair<ITimeInterval, ITimedList<ITemporalAtomicValue>> p = aHistData.getByKey( gwid );
+      sb.append( format( "gwid = %s, ", gwid ) );
+      sb.append( format( "interval = %s, ", p.left() ) );
+      if( p.right().size() > 0 ) {
+        sb.append( format( "first = %s, ", p.right().first() ) );
+        sb.append( format( "last = %s, ", p.right().first() ) );
+        sb.append( format( "size = %d, ", p.right().size() ) );
+      }
+      sb.append( "\n" );
+    }
+    return sb.toString();
+  }
+
 }
