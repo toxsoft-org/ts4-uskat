@@ -33,7 +33,7 @@ public class S5BackendGuiUtils {
    * @throws TsNullArgumentRtException любой аргумент = null
    */
   @SuppressWarnings( "unused" )
-  public static void showProgressConnectionDialog( Shell aShell, ISkConnection aConnection,
+  public static void showConnProgressDialog( Shell aShell, ISkConnection aConnection,
       ITsContextRo aConnectionContext, String aText, long aTimeout ) {
     TsNullArgumentRtException.checkNulls( aShell, aConnection, aConnectionContext, aText );
 
