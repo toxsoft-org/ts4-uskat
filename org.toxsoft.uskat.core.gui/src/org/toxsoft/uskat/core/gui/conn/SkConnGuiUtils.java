@@ -9,7 +9,6 @@ import static org.toxsoft.uskat.core.gui.conn.m5.IConnectionConfigM5Constants.*;
 import org.eclipse.swt.widgets.*;
 import org.toxsoft.core.tsgui.bricks.ctx.*;
 import org.toxsoft.core.tsgui.bricks.ctx.impl.*;
-import org.toxsoft.core.tsgui.dialogs.*;
 import org.toxsoft.core.tsgui.dialogs.datarec.*;
 import org.toxsoft.core.tsgui.m5.*;
 import org.toxsoft.core.tsgui.m5.gui.*;
@@ -143,28 +142,6 @@ public class SkConnGuiUtils {
         avStr( ISkUserServiceHardConstants.ROLE_ID_USKAT_DEFAULT ) );
     ccProvider.fillArgs( aConnArgs, aCfg.opValues() );
     return ValidationResult.SUCCESS;
-  }
-
-  /**
-   * Opens the connection with the specified parameters displaying the progress dialog.
-   * <p>
-   * TODO what this method does?
-   *
-   * @param aConn {@link ISkConnection} - the connectio to open
-   * @param aCfg {@link IConnectionConfig} - connecion opening parameters
-   * @param aContext {@link ITsGuiContext} - the GUI application context
-   * @return {@link ValidationResult} - opening process success indication
-   * @throws TsNullArgumentRtException any argument = <code>null</code>
-   * @throws TsIllegalArgumentRtException connecion is already open
-   */
-  public static ValidationResult openConnection( ISkConnection aConn, IConnectionConfig aCfg, ITsGuiContext aContext ) {
-    TsNullArgumentRtException.checkNulls( aConn, aCfg, aContext );
-    TsIllegalArgumentRtException.checkTrue( aConn.state().isOpen() );
-
-    // TODO SkConnGuiUtils.openConnection()
-
-    TsDialogUtils.underDevelopment( aContext.get( Shell.class ) );
-    return ValidationResult.error( "Under development" );
   }
 
   /**
