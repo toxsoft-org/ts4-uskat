@@ -8,6 +8,7 @@ import org.toxsoft.core.tslib.av.metainfo.*;
 import org.toxsoft.core.tslib.av.opset.*;
 import org.toxsoft.core.tslib.bricks.keeper.*;
 import org.toxsoft.core.tslib.bricks.strid.coll.*;
+import org.toxsoft.core.tslib.bricks.strid.coll.impl.*;
 import org.toxsoft.core.tslib.bricks.strid.impl.*;
 import org.toxsoft.core.tslib.bricks.strio.*;
 import org.toxsoft.core.tslib.bricks.strio.chario.impl.*;
@@ -75,6 +76,22 @@ public final class DtoCmdInfo
   public static DtoCmdInfo create1( String aId, IStridablesList<IDataDef> aArgDefs, IOptionSet aParams ) {
     DtoCmdInfo ainf = new DtoCmdInfo( aId, aParams );
     ainf.setProps( aArgDefs );
+    return ainf;
+  }
+
+  /**
+   * Static constructor.
+   *
+   * @param aId String - the ID (IDpath)
+   * @param aParams {@link IOptionSet} - parameters values
+   * @param aArgDefs {@link IDataDef}[] - the arguments data defs array
+   * @return {@link DtoCmdInfo} - created instance
+   * @throws TsNullArgumentRtException any argument = <code>null</code>
+   * @throws TsIllegalArgumentRtException identifier is not an IDpath
+   */
+  public static DtoCmdInfo create2( String aId, IOptionSet aParams, IDataDef... aArgDefs ) {
+    DtoCmdInfo ainf = new DtoCmdInfo( aId, aParams );
+    ainf.setProps( new StridablesList<>( aArgDefs ) );
     return ainf;
   }
 

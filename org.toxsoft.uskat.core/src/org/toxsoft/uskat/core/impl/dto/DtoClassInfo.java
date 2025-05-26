@@ -164,16 +164,18 @@ public class DtoClassInfo
   }
 
   /**
+   * Creates class definition DTO.
+   *
    * @param aId String - the class ID (IDpath)
    * @param aParentId String - the parent ID (an IDpath)
    * @param aParams {@link IOptionSet} - {@link #params()} initial values
-   * @param aAttrInfos {@link IStridablesListEdit}&lt; {@link IDtoAttrInfo}&lt; - attributes info list
-   * @param aClobInfos {@link IStridablesListEdit}&lt; {@link IDtoClobInfo}&lt; - CLOBs info list
-   * @param aRivetInfos {@link IStridablesListEdit}&lt; {@link IDtoRivetInfo}&lt; - rivets info list
-   * @param aLinkInfos {@link IStridablesListEdit}&lt; {@link IDtoLinkInfo}&lt; - links info list
-   * @param aRtdataInfos {@link IStridablesListEdit}&lt; {@link IDtoRtdataInfo}&lt; - RTdata info list
-   * @param aCmdInfos {@link IStridablesListEdit}&lt; {@link IDtoCmdInfo}&lt; - commands info list
-   * @param aEventInfos {@link IStridablesListEdit}&lt; {@link IDtoEventInfo}&lt; - link info list
+   * @param aAttrInfos {@link IStridablesList}&lt; {@link IDtoAttrInfo}&lt; - attributes info list
+   * @param aClobInfos {@link IStridablesList}&lt; {@link IDtoClobInfo}&lt; - CLOBs info list
+   * @param aRivetInfos {@link IStridablesList}&lt; {@link IDtoRivetInfo}&lt; - rivets info list
+   * @param aLinkInfos {@link IStridablesList}&lt; {@link IDtoLinkInfo}&lt; - links info list
+   * @param aRtdataInfos {@link IStridablesList}&lt; {@link IDtoRtdataInfo}&lt; - RTdata info list
+   * @param aCmdInfos {@link IStridablesList}&lt; {@link IDtoCmdInfo}&lt; - commands info list
+   * @param aEventInfos {@link IStridablesList}&lt; {@link IDtoEventInfo}&lt; - link info list
    * @return {@link IDtoClassInfo} - created instance
    * @throws TsNullArgumentRtException any argument = <code>null</code>
    * @throws TsIllegalArgumentRtException any ID is not an IDpath
@@ -191,6 +193,59 @@ public class DtoClassInfo
     dto.linkInfos.setAll( aLinkInfos );
     dto.cmdInfos.setAll( aCmdInfos );
     dto.eventInfos.setAll( aEventInfos );
+    return dto;
+  }
+
+  /**
+   * Creates class definition DTO.
+   *
+   * @param aId String - the class ID (IDpath)
+   * @param aParentId String - the parent ID (an IDpath)
+   * @param aParams {@link IOptionSet} - {@link #params()} initial values
+   * @param aPropInfos - {@link DtoAbstractClassPropInfoBase}[] - property definitions array
+   * @return {@link IDtoClassInfo} - created instance
+   * @throws TsNullArgumentRtException any argument = <code>null</code>
+   * @throws TsIllegalArgumentRtException any ID is not an IDpath
+   */
+  public static IDtoClassInfo create( String aId, String aParentId, IOptionSet aParams,
+      IDtoClassPropInfoBase... aPropInfos ) {
+    TsNullArgumentRtException.checkNulls( aId, aParentId, aParams );
+    TsErrorUtils.checkArrayArg( aPropInfos );
+    DtoClassInfo dto = new DtoClassInfo( aId, aParentId, aParams );
+    for( IDtoClassPropInfoBase propInf : aPropInfos ) {
+      switch( propInf.kind() ) {
+        case ATTR: {
+          dto.attrInfos.add( (DtoAttrInfo)propInf );
+          break;
+        }
+        case CLOB: {
+          dto.clobInfos.add( (DtoClobInfo)propInf );
+          break;
+        }
+        case CMD: {
+          dto.cmdInfos.add( (DtoCmdInfo)propInf );
+          break;
+        }
+        case EVENT: {
+          dto.eventInfos.add( (DtoEventInfo)propInf );
+          break;
+        }
+        case LINK: {
+          dto.linkInfos.add( (DtoLinkInfo)propInf );
+          break;
+        }
+        case RIVET: {
+          dto.rivetInfos.add( (DtoRivetInfo)propInf );
+          break;
+        }
+        case RTDATA: {
+          dto.rtdataInfos.add( (DtoRtdataInfo)propInf );
+          break;
+        }
+        default:
+          break;
+      }
+    }
     return dto;
   }
 

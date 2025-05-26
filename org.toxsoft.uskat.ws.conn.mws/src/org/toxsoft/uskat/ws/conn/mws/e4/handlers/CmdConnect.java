@@ -1,16 +1,11 @@
 package org.toxsoft.uskat.ws.conn.mws.e4.handlers;
 
-import static org.toxsoft.core.tslib.utils.TsLibUtils.*;
-import static org.toxsoft.uskat.ws.conn.mws.ISkWsConnConstants.*;
-import static org.toxsoft.uskat.ws.conn.mws.l10n.ISkWsConnSharedResources.*;
-
 import org.eclipse.e4.core.di.annotations.*;
-import org.eclipse.swt.widgets.*;
-import org.toxsoft.core.tsgui.dialogs.*;
-import org.toxsoft.core.tslib.bricks.apprefs.*;
+import org.toxsoft.core.tslib.bricks.ctx.*;
 import org.toxsoft.uskat.core.gui.conn.*;
 import org.toxsoft.uskat.core.gui.conn.cfg.*;
 import org.toxsoft.uskat.ws.conn.mws.*;
+import org.toxsoft.uskat.ws.conn.mws.main.*;
 
 /**
  * Command {@link ISkWsConnConstants#CMDID_SKCONN_CONNECT}.
@@ -25,19 +20,17 @@ import org.toxsoft.uskat.ws.conn.mws.*;
 public class CmdConnect {
 
   @Execute
-  void exec( Shell aShell, IAppPreferences aAppPrefs, IConnectionConfigService aCcService ) {
-    String lastId = aAppPrefs.getBundle( PBID_CONN_CONFIGS ).prefs().getStr( APREFID_LAST_CONNECTION_ID, EMPTY_STRING );
-    if( lastId.isEmpty() ) {
-      TsDialogUtils.warn( aShell, MSG_WARN_NO_LAST_CONN );
+  void exec( IHandlerHelper aHandlerHelper ) {
+    // get last successful connection
+    IConnectionConfig cfg = aHandlerHelper.findLastConfig();
+    if( cfg == null ) {
       return;
     }
-    if( !aCcService.listConfigs().hasKey( lastId ) ) {
-      TsDialogUtils.warn( aShell, FMT_WARN_LAST_CONN_DELETED, lastId );
+    ITsContext connArgs = aHandlerHelper.prepareConnArgs( cfg );
+    if( connArgs == null ) {
       return;
     }
-
-    // TODO CmdConnect.exec()
-    TsDialogUtils.underDevelopment( aShell );
+    aHandlerHelper.openConnection( connArgs );
   }
 
   @CanExecute

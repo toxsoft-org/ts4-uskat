@@ -38,6 +38,7 @@ class SkConnection
   // ------------------------------------------------------------------------------------
   // implementation
   //
+
   void stateChanged( ESkConnState aOldState ) {
     if( !listeners.isEmpty() ) {
       IList<ISkConnectionListener> ll = new ElemArrayList<>( listeners );
@@ -128,9 +129,6 @@ class SkConnection
     beforeChangeState( ESkConnState.ACTIVE );
     ITsContext ctx = createContextForCoraApi( aArgs );
     coreApi = new SkCoreApi( ctx, this );
-
-    // TODO Auto-generated method stub
-
     changeState( ESkConnState.ACTIVE );
     stateChanged( ESkConnState.CLOSED );
   }

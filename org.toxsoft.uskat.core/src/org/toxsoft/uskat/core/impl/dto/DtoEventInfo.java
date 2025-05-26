@@ -8,6 +8,7 @@ import org.toxsoft.core.tslib.av.metainfo.*;
 import org.toxsoft.core.tslib.av.opset.*;
 import org.toxsoft.core.tslib.bricks.keeper.*;
 import org.toxsoft.core.tslib.bricks.strid.coll.*;
+import org.toxsoft.core.tslib.bricks.strid.coll.impl.*;
 import org.toxsoft.core.tslib.bricks.strid.impl.*;
 import org.toxsoft.core.tslib.bricks.strio.*;
 import org.toxsoft.core.tslib.bricks.strio.chario.impl.*;
@@ -77,6 +78,23 @@ public final class DtoEventInfo
       IOptionSet aParams ) {
     DtoEventInfo ainf = new DtoEventInfo( aId, aParams );
     ainf.setProps( aIsHist, aParamDefs );
+    return ainf;
+  }
+
+  /**
+   * Static constructor.
+   *
+   * @param aId String - the ID (IDpath)
+   * @param aIsHist boolean - historical event flag
+   * @param aParams {@link IOptionSet} - parameters values
+   * @param aParamDefs {@link IDataDef}[] - the parameters data defs array
+   * @return {@link DtoEventInfo} - created instance
+   * @throws TsNullArgumentRtException any argument = <code>null</code>
+   * @throws TsIllegalArgumentRtException identifier is not an IDpath
+   */
+  public static DtoEventInfo create2( String aId, boolean aIsHist, IOptionSet aParams, IDataDef... aParamDefs ) {
+    DtoEventInfo ainf = new DtoEventInfo( aId, aParams );
+    ainf.setProps( aIsHist, new StridablesList<>( aParamDefs ) );
     return ainf;
   }
 
