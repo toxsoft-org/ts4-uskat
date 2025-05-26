@@ -1,9 +1,6 @@
 package org.toxsoft.uskat.ws.conn.mws.e4.handlers;
 
-import org.eclipse.e4.core.contexts.*;
 import org.eclipse.e4.core.di.annotations.*;
-import org.toxsoft.core.tsgui.bricks.ctx.*;
-import org.toxsoft.core.tsgui.bricks.ctx.impl.*;
 import org.toxsoft.uskat.core.gui.conn.*;
 import org.toxsoft.uskat.ws.conn.mws.*;
 import org.toxsoft.uskat.ws.conn.mws.main.*;
@@ -20,10 +17,8 @@ import org.toxsoft.uskat.ws.conn.mws.main.*;
 public class CmdDisconnect {
 
   @Execute
-  void exec( IEclipseContext aEclipseContext ) {
-    ITsGuiContext ctx = new TsGuiContext( aEclipseContext );
-    IHandlerHelper hh = new HandlerHelper( ctx );
-    hh.closeCOnnection();
+  void exec( IHandlerHelper aHandlerHelper ) {
+    aHandlerHelper.closeCOnnection();
   }
 
   @CanExecute

@@ -76,6 +76,16 @@ public class HandlerHelper
   }
 
   @Override
+  public IConnectionConfig selectCfgToConnect( String aInitalCfgId ) {
+    return SkConnGuiUtils.selectCfgToConnect( tsContext(), aInitalCfgId );
+  }
+
+  @Override
+  public void editCfgs() {
+    SkConnGuiUtils.editCfgs( tsContext() );
+  }
+
+  @Override
   public ITsContext prepareConnArgs( IConnectionConfig aCfg ) {
     TsNullArgumentRtException.checkNull( aCfg );
     ITsContext connArgs = new TsContext();
@@ -106,7 +116,7 @@ public class HandlerHelper
     TsIllegalStateRtException.checkTrue( skConn.state().isOpen() );
     ProgressMonitorDialog pmDlg = new ProgressMonitorDialog( getShell() );
     try {
-      pmDlg.run( true, false, aMonitor -> skConn().open( aConnArgs ) );
+      pmDlg.run( false, false, aMonitor -> skConn().open( aConnArgs ) );
       if( getAppPrefsValue( PREFBUNDLEID_CONN_CONFIGS, APPREF_IS_DIALOG_AFTER_CONNECT ).asBool() ) {
         ISkBackendInfo binf = skConn().backendInfo();
         String binfStr = StridUtils.printf( StridUtils.FORMAT_ID_NAME, binf );

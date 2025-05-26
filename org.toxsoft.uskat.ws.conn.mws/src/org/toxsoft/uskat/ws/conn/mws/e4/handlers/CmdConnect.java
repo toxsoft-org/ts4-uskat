@@ -1,9 +1,6 @@
 package org.toxsoft.uskat.ws.conn.mws.e4.handlers;
 
-import org.eclipse.e4.core.contexts.*;
 import org.eclipse.e4.core.di.annotations.*;
-import org.toxsoft.core.tsgui.bricks.ctx.*;
-import org.toxsoft.core.tsgui.bricks.ctx.impl.*;
 import org.toxsoft.core.tslib.bricks.ctx.*;
 import org.toxsoft.uskat.core.gui.conn.*;
 import org.toxsoft.uskat.core.gui.conn.cfg.*;
@@ -23,19 +20,17 @@ import org.toxsoft.uskat.ws.conn.mws.main.*;
 public class CmdConnect {
 
   @Execute
-  void exec( IEclipseContext aEclipseContext ) {
-    ITsGuiContext ctx = new TsGuiContext( aEclipseContext );
-    IHandlerHelper hh = new HandlerHelper( ctx );
+  void exec( IHandlerHelper aHandlerHelper ) {
     // get last successful connection
-    IConnectionConfig cfg = hh.findLastConfig();
+    IConnectionConfig cfg = aHandlerHelper.findLastConfig();
     if( cfg == null ) {
       return;
     }
-    ITsContext connArgs = hh.prepareConnArgs( cfg );
+    ITsContext connArgs = aHandlerHelper.prepareConnArgs( cfg );
     if( connArgs == null ) {
       return;
     }
-    hh.openConnection( connArgs );
+    aHandlerHelper.openConnection( connArgs );
   }
 
   @CanExecute

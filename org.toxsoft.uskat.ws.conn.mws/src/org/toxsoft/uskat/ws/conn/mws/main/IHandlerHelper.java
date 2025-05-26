@@ -32,6 +32,23 @@ public interface IHandlerHelper {
   IConnectionConfig findLastConfig();
 
   /**
+   * Selects configuration of the {@link IConnectionConfigService} found in the context.
+   * <p>
+   * Method assumes that selection is done for immediate connection to the server so appropriate message is displayed to
+   * the user.
+   *
+   * @param aInitalCfgId String - initially selected configuration ID or <code>null</code>
+   * @return {@link IConnectionConfig} - selected configuration or <code>null</code>
+   * @throws TsNullArgumentRtException any argument = <code>null</code>
+   */
+  IConnectionConfig selectCfgToConnect( String aInitalCfgId );
+
+  /**
+   * Edits configuration of the {@link IConnectionConfigService} found in the context.
+   */
+  void editCfgs();
+
+  /**
    * Prepares connection arguments for the specified configuration.
    * <p>
    * Displays all necessary dialogs like error/warning messages and asks login information (login/password).
