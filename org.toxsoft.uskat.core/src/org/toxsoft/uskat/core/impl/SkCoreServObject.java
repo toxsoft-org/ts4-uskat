@@ -303,7 +303,7 @@ public class SkCoreServObject
             return ValidationResult.error( FMT_ERR_NO_ATTR_VAL, aDtoObj.skid().toString(), attrInfo.id() );
           }
         }
-        IAtomicValue val = aDtoObj.attrs().getValue( attrInfo.id() );
+        IAtomicValue val = aDtoObj.attrs().getValue( attrInfo.id(), IAtomicValue.NULL );
         // check if NULL value is allowed
         if( val == IAtomicValue.NULL && !attrInfo.params().getBool( TSID_IS_NULL_ALLOWED, true ) ) {
           return ValidationResult.error( FMT_ERR_NULL_ATTR_VAL, aDtoObj.skid().toString(), attrInfo.id() );
