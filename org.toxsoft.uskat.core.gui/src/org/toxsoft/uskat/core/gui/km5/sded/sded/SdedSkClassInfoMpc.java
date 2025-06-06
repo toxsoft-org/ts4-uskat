@@ -56,7 +56,7 @@ class SdedSkClassInfoMpc
       if( parentNode != null ) {
         return parentNode;
       }
-      ISkClassInfo parentClass = aAllClasses.getByKey( aCinf.id() );
+      ISkClassInfo parentClass = aAllClasses.getByKey( aCinf.parentId() );
       DefaultTsNode<ISkClassInfo> grandpaNode = getParentNode( parentClass, aNodesMap, aAllClasses );
       parentNode = new DefaultTsNode<>( NK_CLASS, grandpaNode, parentClass );
       aNodesMap.put( parentClass.id(), parentNode );
