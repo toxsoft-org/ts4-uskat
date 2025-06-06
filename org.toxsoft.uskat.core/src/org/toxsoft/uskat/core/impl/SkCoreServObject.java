@@ -297,20 +297,22 @@ public class SkCoreServObject
       // check attributes
       for( IDtoAttrInfo attrInfo : classInfo.attrs().list() ) {
         IAtomicValue defVal = attrInfo.dataType().params().getValue( TSID_DEFAULT_VALUE, null );
-        IAtomicValue val = aDtoObj.attrs().getValue( attrInfo.id(), null );
-        if( val != null ) {
-          // check if atomic type of attribute is compatible with the specified value
-          EAtomicType lType = attrInfo.dataType().atomicType();
-          EAtomicType rType = val.atomicType();
-          AvTypeCastRtException.checkCanAssign( lType, rType, FMT_ERR_INV_ATTR_TYPE, aDtoObj.skid().toString(),
-              attrInfo.id(), rType.id(), lType.id() );
-        }
-        else {
-          // at creation type all non-system attributes must have value specified
+        // at creation type all non-system attributes must have value specified
+        if( !aDtoObj.attrs().hasKey( attrInfo.id() ) ) {
           if( aCreation && defVal == null && !isSkSysAttr( attrInfo ) ) {
             return ValidationResult.error( FMT_ERR_NO_ATTR_VAL, aDtoObj.skid().toString(), attrInfo.id() );
           }
         }
+        IAtomicValue val = aDtoObj.attrs().getValue( attrInfo.id() );
+        // check if NULL value is allowed
+        if( val == IAtomicValue.NULL && !attrInfo.params().getBool( TSID_IS_NULL_ALLOWED, true ) ) {
+          return ValidationResult.error( FMT_ERR_NULL_ATTR_VAL, aDtoObj.skid().toString(), attrInfo.id() );
+        }
+        // check if atomic type of attribute is compatible with the specified value
+        EAtomicType lType = attrInfo.dataType().atomicType();
+        EAtomicType rType = val.atomicType();
+        AvTypeCastRtException.checkCanAssign( lType, rType, FMT_ERR_INV_ATTR_TYPE, aDtoObj.skid().toString(),
+            attrInfo.id(), rType.id(), lType.id() );
       }
       // check rivets
       for( IDtoRivetInfo rivetInfo : classInfo.rivets().list() ) {
@@ -699,7 +701,7 @@ public class SkCoreServObject
 
     /**
      * FIXME here we need to localize object after it was written to the backend.<br>
-     * When creating system objects they are created in english. but in cache they have to be put localized!
+     * When creating system objects they are created in English. but in cache they have to be put localized!
      */
 
     objsCache.put( sko );
