@@ -721,14 +721,14 @@ public class SkCoreServObject
   @Override
   public ISkidList getRivetRev( String aClassId, String aRivetId, Skid aRightSkid ) {
     checkThread();
-    // TODO реализовать SkCoreServObject.getRivetRev()
+    // TODO implement SkCoreServObject.getRivetRev()
     throw new TsUnderDevelopmentRtException( "SkCoreServObject.getRivetRev()" );
   }
 
   @Override
   public IMap<Gwid, ISkidList> getAllRivetsRev( Skid aRightSkid ) {
     checkThread();
-    // TODO реализовать SkCoreServObject.getRivetRev()
+    // TODO implement SkCoreServObject.getRivetRev()
     throw new TsUnderDevelopmentRtException( "SkCoreServObject.getRivetRev()" );
   }
 
