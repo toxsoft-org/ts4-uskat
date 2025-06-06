@@ -31,7 +31,7 @@ public interface ISkCommandService
    *
    * @param aCmdGwid {@link Gwid} - concrete GWID of the command
    * @param aAuthorSkid {@link Skid} - SKID of the command author
-   * @param aArgs {@link IOptionSet} - command argumens values
+   * @param aArgs {@link IOptionSet} - command arguments values
    * @return {@link ISkCommand} - created command instance
    * @throws TsNullArgumentRtException any argument = <code>null</code>
    * @throws TsIllegalArgumentRtException illegal or non-existing command GWID

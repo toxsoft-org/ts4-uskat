@@ -97,6 +97,7 @@ interface ISkResources {
    * {@link SkCoreServObject}
    */
   String FMT_ERR_INV_ATTR_TYPE      = Messages.getString( "FMT_ERR_INV_ATTR_TYPE" );      //$NON-NLS-1$
+  String FMT_ERR_NULL_ATTR_VAL      = Messages.getString( "FMT_ERR_NULL_ATTR_VAL" );      //$NON-NLS-1$
   String FMT_ERR_NO_ATTR_VAL        = Messages.getString( "FMT_ERR_NO_ATTR_VAL" );        //$NON-NLS-1$
   String FMT_ERR_NO_RIVET_CLASS     = Messages.getString( "FMT_ERR_NO_RIVET_CLASS" );     //$NON-NLS-1$
   String FMT_ERR_NO_RIVET           = Messages.getString( "FMT_ERR_NO_RIVET" );           //$NON-NLS-1$

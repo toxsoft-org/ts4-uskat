@@ -125,7 +125,7 @@ public interface ISkLinkService
   ITsEventer<ISkLinkServiceListener> eventer();
 
   // ------------------------------------------------------------------------------------
-  // inline methods for convinience
+  // inline methods for convenience
 
   /**
    * Returns the forward link by the concrete GWID.

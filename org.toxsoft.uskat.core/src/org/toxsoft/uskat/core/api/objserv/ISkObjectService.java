@@ -148,7 +148,7 @@ public interface ISkObjectService
   IMap<Gwid, ISkidList> getAllRivetsRev( Skid aRightSkid );
 
   /**
-   * Removes multiple obejcts at once.
+   * Removes multiple objects at once.
    * <p>
    * All forward links of all removed objects are also deleted.
    *
