@@ -59,7 +59,7 @@ public abstract class SkatletBase
   }
 
   /**
-   * Skatlet's shared connection.
+   * Create a new skatlet's connection.
    *
    * @param aName String connection name.
    * @param aArgs {@link ITsContextRo} connection config params.
