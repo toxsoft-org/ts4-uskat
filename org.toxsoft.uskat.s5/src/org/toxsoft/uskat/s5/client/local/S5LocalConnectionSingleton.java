@@ -12,6 +12,7 @@ import java.util.concurrent.*;
 import javax.ejb.*;
 import javax.enterprise.concurrent.*;
 
+import org.toxsoft.core.tslib.av.opset.*;
 import org.toxsoft.core.tslib.bricks.ctx.*;
 import org.toxsoft.core.tslib.bricks.ctx.impl.*;
 import org.toxsoft.core.tslib.bricks.strid.coll.*;
@@ -76,6 +77,16 @@ public class S5LocalConnectionSingleton
    * Имя синглетона в контейнере сервера для организации зависимостей (@DependsOn)
    */
   public static final String LOCAL_CONNECTION_ID = "S5LocalConnectionSingleton"; //$NON-NLS-1$
+
+  /**
+   * Таймаут(мсек) между передачами текущих данных по умолчанию
+   */
+  private static final long DEFAULT_CURRDATA_TIMEOUT = 10;
+
+  /**
+   * Таймаут(мсек) между передачами хранимых данных по умолчанию
+   */
+  private static final long DEFAULT_HISTDATA_TIMEOUT = 10000;
 
   /**
    * Таймаут(мсек) между выполнением фоновых задач синглетона
@@ -179,14 +190,20 @@ public class S5LocalConnectionSingleton
     String moduleNode = clusterManager.group().getLocalMember().getName().replaceAll( "-", "." );
 
     ITsContext ctx = new TsContext( aArgs );
+    IOptionSetEdit params = ctx.params();
     ISkCoreConfigConstants.REFDEF_BACKEND_PROVIDER.setRef( ctx, provider );
-    IS5ConnectionParams.OP_USERNAME.setValue( ctx.params(), avStr( ISkUserServiceHardConstants.USER_ID_ROOT ) );
-    IS5ConnectionParams.OP_PASSWORD.setValue( ctx.params(), avStr( TsLibUtils.EMPTY_STRING ) );
-    IS5ConnectionParams.OP_LOCAL_MODULE.setValue( ctx.params(), avStr( moduleName ) );
-    IS5ConnectionParams.OP_LOCAL_NODE.setValue( ctx.params(), avStr( moduleNode ) );
-    IS5ConnectionParams.OP_CURRDATA_TIMEOUT.setValue( ctx.params(), avInt( 10 ) );
-    IS5ConnectionParams.OP_HISTDATA_TIMEOUT.setValue( ctx.params(), avInt( 10000 ) );
-
+    IS5ConnectionParams.OP_LOCAL_MODULE.setValue( params, avStr( moduleName ) );
+    IS5ConnectionParams.OP_LOCAL_NODE.setValue( params, avStr( moduleNode ) );
+    if( !params.hasKey( IS5ConnectionParams.OP_USERNAME.id() ) ) {
+      IS5ConnectionParams.OP_USERNAME.setValue( params, avStr( ISkUserServiceHardConstants.USER_ID_ROOT ) );
+      IS5ConnectionParams.OP_PASSWORD.setValue( params, avStr( TsLibUtils.EMPTY_STRING ) );
+    }
+    if( !params.hasKey( IS5ConnectionParams.OP_CURRDATA_TIMEOUT.id() ) ) {
+      IS5ConnectionParams.OP_CURRDATA_TIMEOUT.setValue( params, avInt( DEFAULT_CURRDATA_TIMEOUT ) );
+    }
+    if( !params.hasKey( IS5ConnectionParams.OP_HISTDATA_TIMEOUT.id() ) ) {
+      IS5ConnectionParams.OP_HISTDATA_TIMEOUT.setValue( params, avInt( DEFAULT_HISTDATA_TIMEOUT ) );
+    }
     // Текущий поток используется только для открытия соединения
     TsThreadExecutor executor =
         new TsThreadExecutor( getClass().getSimpleName(), Thread.currentThread(), getLogger( TsThreadExecutor.class ) );
