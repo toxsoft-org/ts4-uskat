@@ -21,6 +21,6 @@ interface IS5Resources {
   // ------------------------------------------------------------------------------------
   // Тексты ошибок
   //
-  // String ERR_CREATE_SKATLET_DIR = "Создан каталог скатлетов: %s";
+  String ERR_SKATLET_CONTAINER_IS_NOT_READY = "skatlet container is not ready!";
 
 }

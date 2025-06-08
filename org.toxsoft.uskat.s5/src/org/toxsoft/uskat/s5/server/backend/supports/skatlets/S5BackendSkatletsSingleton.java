@@ -28,6 +28,7 @@ import org.toxsoft.core.tslib.utils.logs.impl.*;
 import org.toxsoft.core.tslib.utils.plugins.impl.*;
 import org.toxsoft.uskat.core.impl.*;
 import org.toxsoft.uskat.core.impl.SkatletBox.*;
+import org.toxsoft.uskat.core.utils.*;
 import org.toxsoft.uskat.s5.client.local.*;
 import org.toxsoft.uskat.s5.server.backend.impl.*;
 import org.toxsoft.uskat.s5.server.backend.supports.core.*;
@@ -106,6 +107,11 @@ public class S5BackendSkatletsSingleton
   private static final long SHUTDOWN_TIMEOUT = 60000;
 
   /**
+   * Интервал (мсек) вывода статистики.
+   */
+  private static final long STAT_INTERVAL = 10 * 1000;
+
+  /**
    * Ядро сервера
    */
   @EJB
@@ -126,6 +132,11 @@ public class S5BackendSkatletsSingleton
    * Корневой контейнер компонентов синглетона
    */
   private WubBox rootBox;
+
+  /**
+   * Таймер вывода статистики
+   */
+  private SkIntervalTimer statTimer = new SkIntervalTimer( STAT_INTERVAL );
 
   /**
    * Конструктор.
@@ -180,7 +191,12 @@ public class S5BackendSkatletsSingleton
     // ...инициализация...
     rootBox.init( environ );
     // ...запуск
-    rootBox.start();
+    try {
+      rootBox.start();
+    }
+    catch( Throwable e ) {
+      logger().error( e );
+    }
     // Запуск doJob
     addOwnDoJob( DOJOB_INTERVAL );
     // Все локальные модули загружены. Переключение режима сервера в режим запуска
@@ -192,6 +208,14 @@ public class S5BackendSkatletsSingleton
     synchronized (rootBox) {
       rootBox.queryStop();
       while( !rootBox.isStopped() ) {
+        if( rootBox.state() == EWubUnitState.CREATED || //
+            rootBox.state() == EWubUnitState.INITED ) {
+          if( statTimer.update() ) {
+            // Журнал
+            logger().error( ERR_SKATLET_CONTAINER_IS_NOT_READY );
+          }
+          continue;
+        }
         doJob();
         try {
           Thread.sleep( DOJOB_INTERVAL );
@@ -220,6 +244,14 @@ public class S5BackendSkatletsSingleton
   public void doJob() {
     // Обработка корневого контейнера
     if( !rootBox.isStopped() ) {
+      if( rootBox.state() == EWubUnitState.CREATED || //
+          rootBox.state() == EWubUnitState.INITED ) {
+        if( statTimer.update() ) {
+          // Журнал
+          logger().error( ERR_SKATLET_CONTAINER_IS_NOT_READY );
+        }
+        return;
+      }
       synchronized (rootBox) {
         rootBox.doJob();
       }
