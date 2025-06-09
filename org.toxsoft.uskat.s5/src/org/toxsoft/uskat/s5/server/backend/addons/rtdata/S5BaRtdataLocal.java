@@ -1,6 +1,7 @@
 package org.toxsoft.uskat.s5.server.backend.addons.rtdata;
 
 import static org.toxsoft.core.tslib.av.impl.AvUtils.*;
+import static org.toxsoft.uskat.s5.server.backend.addons.rtdata.IS5Resources.*;
 
 import org.toxsoft.core.tslib.av.*;
 import org.toxsoft.core.tslib.av.temporal.*;
@@ -11,6 +12,7 @@ import org.toxsoft.core.tslib.coll.*;
 import org.toxsoft.core.tslib.gw.gwid.*;
 import org.toxsoft.core.tslib.utils.*;
 import org.toxsoft.core.tslib.utils.errors.*;
+import org.toxsoft.core.tslib.utils.logs.*;
 import org.toxsoft.uskat.core.backend.*;
 import org.toxsoft.uskat.core.backend.api.*;
 import org.toxsoft.uskat.s5.client.*;
@@ -44,6 +46,11 @@ class S5BaRtdataLocal
    * Данные конфигурации фронтенда для {@link IBaRtdata}
    */
   private final S5BaRtdataData baData = new S5BaRtdataData();
+
+  /**
+   * Максимальный размер буфера хранимых данных
+   */
+  private final int histBufferSize;
 
   /**
    * Constructor.
@@ -83,7 +90,7 @@ class S5BaRtdataLocal
     // Установка таймаутов
     baData.currdataTimeout = IS5ConnectionParams.OP_CURRDATA_TIMEOUT.getValue( aOwner.openArgs().params() ).asLong();
     baData.histdataTimeout = IS5ConnectionParams.OP_HISTDATA_TIMEOUT.getValue( aOwner.openArgs().params() ).asLong();
-
+    histBufferSize = IS5ConnectionParams.OP_HISTDATA_BUFFER_SIZE.getValue( aOwner.openArgs().params() ).asInt();
   }
 
   // ------------------------------------------------------------------------------------
@@ -102,16 +109,34 @@ class S5BaRtdataLocal
     GtMessage histDataMessage = null;
     synchronized (baData) {
       if( baData.currdataToBackend.size() > 0 && //
+          owner().isActive() && //
           (baData.currdataTimeout <= 0 || currTime - baData.lastCurrdataToBackendTime > baData.currdataTimeout) ) {
-        // Отправка данных от фронтенда в бекенд
+        // Отправка значений текущих данных от фронтенда в бекенд
         currDataMessage = BaMsgRtdataCurrData.INSTANCE.makeMessage( baData.currdataToBackend );
+
+        // TODO: 2023-11-19 mvkd
+        // if( logger().isSeverityOn( ELogSeverity.DEBUG ) ) {
+        // Gwid testGwid = Gwid.of( "AnalogInput[TP1]$rtdata(rtdPhysicalValue)" );
+        // IAtomicValue testValue = baData.currdataToBackend.findByKey( testGwid );
+        // if( testValue != null ) {
+        // logger().debug( "send currdata: %s = %s", testGwid, testValue );
+        // }
+        // }
+
         baData.currdataToBackend.clear();
         baData.lastCurrdataToBackendTime = currTime;
       }
       if( baData.histdataToBackend.size() > 0 && //
+          owner().isActive() && //
           (baData.histdataTimeout <= 0 || currTime - baData.lastHistdataToBackendTime > baData.histdataTimeout) ) {
         // Отправка значений хранимых данных от фронтенда в бекенд
         histDataMessage = BaMsgRtdataHistData.INSTANCE.makeMessage( baData.histdataToBackend );
+        // Журналирование
+        if( logger().isSeverityOn( ELogSeverity.DEBUG ) ) {
+          logger().debug( MSG_HD_SENDING, S5BaRtdataRemote.hdToLog( baData.histdataToBackend ) );
+          logger().debug( MSG_HD_SENDED,
+              S5BaRtdataRemote.hdToLog( BaMsgRtdataHistData.INSTANCE.getNewValues( histDataMessage ) ) );
+        }
         baData.histdataToBackend.clear();
         baData.lastHistdataToBackendTime = currTime;
       }
@@ -161,6 +186,7 @@ class S5BaRtdataLocal
   @Override
   public void writeHistData( Gwid aGwid, ITimeInterval aInterval, ITimedList<ITemporalAtomicValue> aValues ) {
     TsNullArgumentRtException.checkNulls( aGwid, aInterval, aValues );
+    BaMsgRtdataHistData.checkIntervals( aGwid, aInterval, aValues );
     synchronized (baData) {
       if( baData.histdataToBackend.size() == 0 ) {
         baData.lastHistdataToBackendTime = System.currentTimeMillis();
@@ -175,6 +201,32 @@ class S5BaRtdataLocal
       }
       baData.histdataToBackend.put( aGwid, newValues );
     }
+
+    BaMsgRtdataHistData.checkIntervals( aGwid, aInterval, aValues );
+    synchronized (baData) {
+      if( baData.histdataToBackend.size() == 0 ) {
+        baData.lastHistdataToBackendTime = System.currentTimeMillis();
+      }
+      Pair<ITimeInterval, ITimedList<ITemporalAtomicValue>> prevValues = baData.histdataToBackend.findByKey( aGwid );
+      Pair<ITimeInterval, ITimedList<ITemporalAtomicValue>> newValues = new Pair<>( aInterval, aValues );
+      if( prevValues != null ) {
+        // Объединение значений по одному данному
+        ITimeInterval prevInterval = prevValues.left();
+        ITimeInterval newInterval = TimeUtils.union( prevInterval, aInterval );
+        TimedList<ITemporalAtomicValue> values = new TimedList<>( prevValues.right() );
+        values.addAll( newValues.right() );
+        BaMsgRtdataHistData.checkIntervals( aGwid, newInterval, values );
+        // Ограничение размера буфера значений параметра
+        if( values.size() - histBufferSize >= 0 ) {
+          values.removeRangeByIndex( 0, values.size() - histBufferSize );
+        }
+        BaMsgRtdataHistData.checkIntervals( aGwid, newInterval, values );
+        newValues = new Pair<>( newInterval, values );
+      }
+      baData.histdataToBackend.put( aGwid, newValues );
+    }
+    // Выполнение doJob для обработки немедленной отправки (baData.histdataTimeout <= 0)
+    doJob();
   }
 
   @Override

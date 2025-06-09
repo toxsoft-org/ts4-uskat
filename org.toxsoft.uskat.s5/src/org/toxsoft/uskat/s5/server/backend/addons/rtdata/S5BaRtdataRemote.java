@@ -165,6 +165,7 @@ class S5BaRtdataRemote
   @Override
   public void writeHistData( Gwid aGwid, ITimeInterval aInterval, ITimedList<ITemporalAtomicValue> aValues ) {
     TsNullArgumentRtException.checkNulls( aGwid, aInterval, aValues );
+    BaMsgRtdataHistData.checkIntervals( aGwid, aInterval, aValues );
     synchronized (baData) {
       if( baData.histdataToBackend.size() == 0 ) {
         baData.lastHistdataToBackendTime = System.currentTimeMillis();
@@ -177,10 +178,12 @@ class S5BaRtdataRemote
         ITimeInterval newInterval = TimeUtils.union( prevInterval, aInterval );
         TimedList<ITemporalAtomicValue> values = new TimedList<>( prevValues.right() );
         values.addAll( newValues.right() );
+        BaMsgRtdataHistData.checkIntervals( aGwid, newInterval, values );
         // Ограничение размера буфера значений параметра
         if( values.size() - histBufferSize >= 0 ) {
           values.removeRangeByIndex( 0, values.size() - histBufferSize );
         }
+        BaMsgRtdataHistData.checkIntervals( aGwid, newInterval, values );
         newValues = new Pair<>( newInterval, values );
       }
       baData.histdataToBackend.put( aGwid, newValues );
@@ -199,7 +202,7 @@ class S5BaRtdataRemote
   // private methods
   //
   @SuppressWarnings( { "nls", "boxing" } )
-  private static String hdToLog( IMap<Gwid, Pair<ITimeInterval, ITimedList<ITemporalAtomicValue>>> aHistData ) {
+  static String hdToLog( IMap<Gwid, Pair<ITimeInterval, ITimedList<ITemporalAtomicValue>>> aHistData ) {
     StringBuilder sb = new StringBuilder();
     for( Gwid gwid : aHistData.keys() ) {
       Pair<ITimeInterval, ITimedList<ITemporalAtomicValue>> p = aHistData.getByKey( gwid );

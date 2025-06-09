@@ -2,28 +2,20 @@ package org.toxsoft.uskat.core.backend.api;
 
 import static org.toxsoft.core.tslib.bricks.strio.IStrioHardConstants.*;
 
-import org.toxsoft.core.tslib.av.EAtomicType;
-import org.toxsoft.core.tslib.av.temporal.ITemporalAtomicValue;
-import org.toxsoft.core.tslib.av.temporal.TemporalAtomicValueKeeper;
-import org.toxsoft.core.tslib.bricks.events.msg.GenericMessage;
-import org.toxsoft.core.tslib.bricks.events.msg.GtMessage;
-import org.toxsoft.core.tslib.bricks.strio.IStrioReader;
-import org.toxsoft.core.tslib.bricks.strio.IStrioWriter;
-import org.toxsoft.core.tslib.bricks.strio.chario.impl.CharInputStreamString;
-import org.toxsoft.core.tslib.bricks.strio.chario.impl.CharOutputStreamAppendable;
-import org.toxsoft.core.tslib.bricks.strio.impl.StrioReader;
-import org.toxsoft.core.tslib.bricks.strio.impl.StrioWriter;
-import org.toxsoft.core.tslib.bricks.time.ITimeInterval;
-import org.toxsoft.core.tslib.bricks.time.ITimedList;
-import org.toxsoft.core.tslib.bricks.time.impl.TimeInterval;
-import org.toxsoft.core.tslib.bricks.time.impl.TimedList;
-import org.toxsoft.core.tslib.coll.IMap;
-import org.toxsoft.core.tslib.coll.IMapEdit;
-import org.toxsoft.core.tslib.coll.impl.ElemMap;
-import org.toxsoft.core.tslib.gw.gwid.Gwid;
-import org.toxsoft.core.tslib.utils.Pair;
-import org.toxsoft.core.tslib.utils.errors.TsNullArgumentRtException;
-import org.toxsoft.uskat.core.api.rtdserv.ISkRtdataService;
+import org.toxsoft.core.tslib.av.*;
+import org.toxsoft.core.tslib.av.temporal.*;
+import org.toxsoft.core.tslib.bricks.events.msg.*;
+import org.toxsoft.core.tslib.bricks.strio.*;
+import org.toxsoft.core.tslib.bricks.strio.chario.impl.*;
+import org.toxsoft.core.tslib.bricks.strio.impl.*;
+import org.toxsoft.core.tslib.bricks.time.*;
+import org.toxsoft.core.tslib.bricks.time.impl.*;
+import org.toxsoft.core.tslib.coll.*;
+import org.toxsoft.core.tslib.coll.impl.*;
+import org.toxsoft.core.tslib.gw.gwid.*;
+import org.toxsoft.core.tslib.utils.*;
+import org.toxsoft.core.tslib.utils.errors.*;
+import org.toxsoft.uskat.core.api.rtdserv.*;
 
 /**
  * {@link IBaRtdata} message builder: new values of historical data received.
@@ -67,6 +59,7 @@ public class BaMsgRtdataHistData
       Pair<ITimeInterval, ITimedList<ITemporalAtomicValue>> p = aNewValues.values().get( i );
       ITimeInterval interval = p.left();
       ITimedList<ITemporalAtomicValue> v = p.right();
+      checkIntervals( g, interval, v );
       Gwid.KEEPER.write( sw, g );
       sw.writeSeparatorChar();
       sw.writeLong( interval.startTime() );
@@ -100,12 +93,35 @@ public class BaMsgRtdataHistData
         long startTime = sr.readLong();
         sr.ensureSeparatorChar();
         long endTime = sr.readLong();
+        ITimeInterval interval = new TimeInterval( startTime, endTime );
         sr.ensureSeparatorChar();
         ITimedList<ITemporalAtomicValue> v = new TimedList<>( TemporalAtomicValueKeeper.KEEPER.readColl( sr ) );
-        map.put( g, new Pair<>( new TimeInterval( startTime, endTime ), v ) );
+        checkIntervals( g, interval, v );
+        map.put( g, new Pair<>( interval, v ) );
       } while( sr.readArrayNext() );
     }
     return map;
   }
 
+  /**
+   * Check interval of histdata values
+   *
+   * @param aGwid {@link Gwid} id of data
+   * @param aInterval {@link ITimeInterval} interval for check
+   * @param aValues {@link ITimedList} timed values list
+   * @throws TsNullArgumentRtException any arg = null
+   */
+  @SuppressWarnings( "nls" )
+  public static void checkIntervals( Gwid aGwid, ITimeInterval aInterval, ITimedList<ITemporalAtomicValue> aValues ) {
+    TsNullArgumentRtException.checkNulls( aGwid, aInterval, aValues );
+    ITimeInterval vInterval = aValues.getInterval();
+    if( aInterval.startTime() > vInterval.startTime() ) {
+      throw new TsIllegalArgumentRtException( "%s: wrong values interval (left). aInterval = %s, vInterval = %s",
+          aInterval, vInterval );
+    }
+    if( aInterval.endTime() < vInterval.endTime() ) {
+      throw new TsIllegalArgumentRtException( "%s: wrong values interval (right). aInterval = %s, vInterval = %s",
+          aInterval, vInterval );
+    }
+  }
 }
