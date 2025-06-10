@@ -256,9 +256,11 @@ public class S5BackendObjectsSingleton
     for( IList<IDtoObject> classRemovedObjs : removedObjs.values() ) {
       for( IDtoObject removedObj : classRemovedObjs ) {
         changedObjectIds.add( removedObj.skid() );
+        // removing obj rivets
+        rc += removingObjectRivets( entityManager, removedObj.skid(), removedObj.rivetRevs() );
+        // removing obj
         entityManager.remove( removedObj );
         rc++;
-        // TODO: removing rivetRevs
         if( logger().isSeverityOn( ELogSeverity.DEBUG ) ) {
           logger().debug( "writeObjects(...): removed entity %s, rc = %d", removedObj, rc );
         }
@@ -269,6 +271,8 @@ public class S5BackendObjectsSingleton
     for( IList<Pair<IDtoObject, IDtoObject>> objs : updatedObjs.values() ) {
       for( Pair<IDtoObject, IDtoObject> obj : objs ) {
         changedObjectIds.add( obj.right().skid() );
+        // updating obj rivets
+        uc += updateObjectRivets( entityManager, obj.left().skid(), obj.left().rivetRevs(), obj.right().rivetRevs() );
         // 2020-07-23 mvk
         // entityManager.merge( obj.right() );
         S5ObjectEntity changedObj = ((S5ObjectEntity)entityManager.merge( obj.right() ));
@@ -358,6 +362,20 @@ public class S5BackendObjectsSingleton
     if( logger().isSeverityOn( ELogSeverity.INFO ) ) {
       logger().info( MSG_WRITE_OBJECTES, rc, uc, cc, at, lt, it1, et1, et2, it2, et );
     }
+  }
+
+  private static int removingObjectRivets( EntityManager aEntityManager, Skid aLeftObjId,
+      IStringMap<IMappedSkids> aRivets ) {
+    TsNullArgumentRtException.checkNulls( aEntityManager, aLeftObjId, aRivets );
+    // TODO Auto-generated method stub
+    return 0;
+  }
+
+  private static int updateObjectRivets( EntityManager aEntityManager, Skid aLeftObjId, IStringMap<IMappedSkids> aPrevRivets,
+      IStringMap<IMappedSkids> aNewRivets ) {
+    TsNullArgumentRtException.checkNulls( aEntityManager, aLeftObjId, aPrevRivets, aNewRivets );
+    // TODO Auto-generated method stub
+    return 0;
   }
 
   // ------------------------------------------------------------------------------------
