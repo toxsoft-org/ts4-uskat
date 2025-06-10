@@ -25,6 +25,7 @@ import org.toxsoft.core.tslib.coll.primtypes.impl.*;
 import org.toxsoft.core.tslib.gw.skid.*;
 import org.toxsoft.core.tslib.utils.*;
 import org.toxsoft.core.tslib.utils.errors.*;
+import org.toxsoft.core.tslib.utils.logs.*;
 import org.toxsoft.uskat.core.api.objserv.*;
 import org.toxsoft.uskat.core.api.sysdescr.*;
 import org.toxsoft.uskat.core.backend.api.*;
@@ -215,7 +216,7 @@ public class S5BackendObjectsSingleton
     return new ElemArrayList<>( retValue );
   }
 
-  @SuppressWarnings( "unchecked" )
+  @SuppressWarnings( { "unchecked", "nls", "boxing" } )
   @Override
   @TransactionAttribute( TransactionAttributeType.REQUIRED )
   public void writeObjects( IS5FrontendRear aFrontend, ISkidList aRemovedSkids, IList<IDtoObject> aObjects,
@@ -251,53 +252,62 @@ public class S5BackendObjectsSingleton
     // Список объектов изменивших атрибуты или удаленных из системы
     IListEdit<Skid> changedObjectIds = new SkidList();
     // Удаление объектов
-    int removeCount = 0;
+    int rc = 0;
     for( IList<IDtoObject> classRemovedObjs : removedObjs.values() ) {
       for( IDtoObject removedObj : classRemovedObjs ) {
         changedObjectIds.add( removedObj.skid() );
         entityManager.remove( removedObj );
-        removeCount++;
-        logger().debug( "writeObjects(...): removed entity %s, rc = %d", removedObj, //$NON-NLS-1$
-            Integer.valueOf( removeCount ) );
+        rc++;
+        // TODO: removing rivetRevs
+        if( logger().isSeverityOn( ELogSeverity.DEBUG ) ) {
+          logger().debug( "writeObjects(...): removed entity %s, rc = %d", removedObj, rc );
+        }
       }
     }
     // Обновление объектов
-    int updateCount = 0;
+    int uc = 0;
     for( IList<Pair<IDtoObject, IDtoObject>> objs : updatedObjs.values() ) {
       for( Pair<IDtoObject, IDtoObject> obj : objs ) {
         changedObjectIds.add( obj.right().skid() );
         // 2020-07-23 mvk
         // entityManager.merge( obj.right() );
-        ((S5ObjectEntity)entityManager.merge( obj.right() )).setAttrs( obj.right().attrs() );
+        S5ObjectEntity changedObj = ((S5ObjectEntity)entityManager.merge( obj.right() ));
+        changedObj.setAttrs( obj.right().attrs() );
+        changedObj.setRivets( obj.right().rivets() );
         // TODO: mvkd experimental
         // updateObject( entityManager, obj.right() );
-        updateCount++;
-        logger().debug( "writeObjects(...): merge entity %s, uc = %d", obj, Integer.valueOf( updateCount ) ); //$NON-NLS-1$
+        uc++;
+        // TODO: updating rivetRevs
+        if( logger().isSeverityOn( ELogSeverity.DEBUG ) ) {
+          logger().debug( "writeObjects(...): merge entity %s, uc = %d", obj, uc );
+        }
       }
     }
     // Создание объектов
-    int createCount = 0;
+    int cc = 0;
     for( IList<IDtoObject> objs : createdObjs.values() ) {
       for( IDtoObject obj : objs ) {
         entityManager.persist( obj );
         // TODO: mvkd experimental
         // createObject( entityManager, obj );
-        createCount++;
-        logger().debug( "writeObjects(...): persist entity %s, cc = %d", obj, Integer.valueOf( createCount ) ); //$NON-NLS-1$
+        cc++;
+        // TODO: updating rivetRevs
+        if( logger().isSeverityOn( ELogSeverity.DEBUG ) ) {
+          logger().debug( "writeObjects(...): persist entity %s, cc = %d", obj, cc );
+        }
       }
     }
     long entityManagerTimestamp1 = System.currentTimeMillis();
 
-    // Счетчики для журнала
-    Integer rc = Integer.valueOf( removeCount );
-    Integer uc = Integer.valueOf( updateCount );
-    Integer cc = Integer.valueOf( createCount );
-
     // Синхронизация с базой данных
-    logger().debug( "writeObjects(...): flush before. rc = %d, uc = %d, cc = %d", rc, uc, cc ); //$NON-NLS-1$
+    if( logger().isSeverityOn( ELogSeverity.DEBUG ) ) {
+      logger().debug( "writeObjects(...): flush before. rc = %d, uc = %d, cc = %d", rc, uc, cc );
+    }
     entityManager.flush();
-    logger().debug( "writeObjects(...): flush after. rc = %d, uc = %d, cc = %d, time = %d msec", rc, uc, cc, //$NON-NLS-1$
-        Long.valueOf( System.currentTimeMillis() - entityManagerTimestamp1 ) );
+    if( logger().isSeverityOn( ELogSeverity.DEBUG ) ) {
+      long t = System.currentTimeMillis() - entityManagerTimestamp1;
+      logger().debug( "writeObjects(...): flush after. rc = %d, uc = %d, cc = %d, time = %d msec", rc, uc, cc, t );
+    }
 
     long entityManagerTimestamp2 = System.currentTimeMillis();
 
@@ -316,36 +326,38 @@ public class S5BackendObjectsSingleton
     long eventTimestamp = System.currentTimeMillis();
 
     // Запись в журнал
-    Long at = Long.valueOf( eventTimestamp - currTime );
-    Long lt = Long.valueOf( loadTimestamp - currTime );
-    Long it1 = Long.valueOf( interceptorTimestamp1 - loadTimestamp );
-    Long et1 = Long.valueOf( entityManagerTimestamp1 - interceptorTimestamp1 );
-    Long et2 = Long.valueOf( entityManagerTimestamp2 - entityManagerTimestamp1 );
-    Long it2 = Long.valueOf( interceptorTimestamp2 - entityManagerTimestamp2 );
-    Long et = Long.valueOf( eventTimestamp - interceptorTimestamp2 );
+    long at = eventTimestamp - currTime;
+    long lt = loadTimestamp - currTime;
+    long it1 = interceptorTimestamp1 - loadTimestamp;
+    long et1 = entityManagerTimestamp1 - interceptorTimestamp1;
+    long et2 = entityManagerTimestamp2 - entityManagerTimestamp1;
+    long it2 = interceptorTimestamp2 - entityManagerTimestamp2;
+    long et = eventTimestamp - interceptorTimestamp2;
 
     // Признак необходимости оповещения frontend об изменениях
-    boolean needFrontendNotify = (removeCount > 0 || createCount > 0 || updateCount > 0);
+    boolean needFrontendNotify = (rc > 0 || cc > 0 || uc > 0);
 
     if( needFrontendNotify ) {
       IList<IS5FrontendRear> frontends = backend().attachedFrontends();
-      if( removeCount == 1 ) {
+      if( rc == 1 ) {
         // Отправление события об удалении класса для frontend
         fireWhenObjectsChanged( frontends, ECrudOp.REMOVE, removedObjs.values().first().first().skid() );
       }
-      if( createCount == 1 ) {
+      if( cc == 1 ) {
         // Отправление события об создании класса для frontend
         fireWhenObjectsChanged( frontends, ECrudOp.CREATE, createdObjs.values().first().first().skid() );
       }
-      if( updateCount == 1 ) {
+      if( uc == 1 ) {
         // Отправление события об создании класса для frontend
         fireWhenObjectsChanged( frontends, ECrudOp.EDIT, updatedObjs.values().first().first().left().skid() );
       }
-      if( removeCount + createCount + updateCount > 1 ) {
+      if( rc + cc + uc > 1 ) {
         fireWhenObjectsChanged( frontends, ECrudOp.LIST, null );
       }
     }
-    logger().info( MSG_WRITE_OBJECTES, rc, uc, cc, at, lt, it1, et1, et2, it2, et );
+    if( logger().isSeverityOn( ELogSeverity.INFO ) ) {
+      logger().info( MSG_WRITE_OBJECTES, rc, uc, cc, at, lt, it1, et1, et2, it2, et );
+    }
   }
 
   // ------------------------------------------------------------------------------------

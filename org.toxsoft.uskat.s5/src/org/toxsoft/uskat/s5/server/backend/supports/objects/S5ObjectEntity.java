@@ -55,7 +55,7 @@ public class S5ObjectEntity
   /**
    * Поле таблицы: значения обратных склепок объектов на целевой объект в строковом формате
    */
-  protected static final String FIELD_RIVERT_REVS_STRING = "rivertRevsString"; //$NON-NLS-1$
+  protected static final String FIELD_RIVET_REVS_STRING = "rivertRevsString"; //$NON-NLS-1$
 
   /**
    * Первичный составной (classId,strid) ключ
@@ -100,7 +100,7 @@ public class S5ObjectEntity
   /**
    * Значения всех обратных склепок .
    */
-  @Column( name = FIELD_RIVERT_REVS_STRING, //
+  @Column( name = FIELD_RIVET_REVS_STRING, //
       nullable = false,
       insertable = true,
       updatable = true,
@@ -129,7 +129,7 @@ public class S5ObjectEntity
     id = new S5ObjectID( aSource.skid() );
     classInfo = S5ClassEntity.createPrimaryKey( aSource.classId() );
     setAttrs( aSource.attrs() );
-    setRiverts( aSource.rivets() );
+    setRivets( aSource.rivets() );
   }
 
   /**
@@ -217,16 +217,16 @@ public class S5ObjectEntity
   /**
    * Установить значение всех склепок
    *
-   * @param aRiverts {@link IOptionSet} карта атрибутов и их значений
+   * @param aRivets {@link IOptionSet} карта атрибутов и их значений
    * @throws TsNullArgumentRtException аргумент = null
    */
-  void setRiverts( IMappedSkids aRiverts ) {
-    TsNullArgumentRtException.checkNull( aRiverts );
+  void setRivets( IMappedSkids aRivets ) {
+    TsNullArgumentRtException.checkNull( aRivets );
     try {
-      rivetsString = MappedSkids.KEEPER.ent2str( aRiverts );
+      rivetsString = MappedSkids.KEEPER.ent2str( aRivets );
     }
     catch( Throwable e ) {
-      logger().error( e, "setRiverts(...). cause: %s", cause( e ) ); //$NON-NLS-1$
+      logger().error( e, "setRivets(...). cause: %s", cause( e ) ); //$NON-NLS-1$
       throw e;
     }
     rivets = null;
@@ -235,23 +235,23 @@ public class S5ObjectEntity
   /**
    * Установить значение всех обратных склепок
    *
-   * @param aRivertRevs {@link IStringMap}&lt;{@link MappedSkids};&gt; SKIDs map of reverse rivets where: <br>
+   * @param aRivetRevs {@link IStringMap}&lt;{@link MappedSkids};&gt; SKIDs map of reverse rivets where: <br>
    *          - {@link IStringMap} key is "rivet class ID";<br>
    *          - {@link IMappedSkids} key is "rivet ID";<br>
    *          - {@link IMappedSkids} values are "SKIDs list of the left objects which have this object riveted".
    * @throws TsNullArgumentRtException аргумент = null
    */
-  void setRivertRevs( IStringMap<IMappedSkids> aRivertRevs ) {
-    TsNullArgumentRtException.checkNull( aRivertRevs );
+  void setRivetRevs( IStringMap<IMappedSkids> aRivetRevs ) {
+    TsNullArgumentRtException.checkNull( aRivetRevs );
     try {
       StringBuilder sb = new StringBuilder();
       ICharOutputStream chOut = new CharOutputStreamAppendable( sb );
       IStrioWriter sw = new StrioWriter( chOut );
-      StrioUtils.writeStringMap( sw, EMPTY_STRING, aRivertRevs, MappedSkids.KEEPER, true );
+      StrioUtils.writeStringMap( sw, EMPTY_STRING, aRivetRevs, MappedSkids.KEEPER, true );
       rivetRevsString = sb.toString();
     }
     catch( Throwable e ) {
-      logger().error( e, "setRivertRevs(...). cause: %s", cause( e ) ); //$NON-NLS-1$
+      logger().error( e, "setRivetRevs(...). cause: %s", cause( e ) ); //$NON-NLS-1$
       throw e;
     }
     rivets = null;
