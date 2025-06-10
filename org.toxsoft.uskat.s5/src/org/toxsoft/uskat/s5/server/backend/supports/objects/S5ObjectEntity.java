@@ -1,5 +1,6 @@
 package org.toxsoft.uskat.s5.server.backend.supports.objects;
 
+import static org.toxsoft.core.tslib.utils.TsLibUtils.*;
 import static org.toxsoft.uskat.s5.common.IS5CommonResources.*;
 import static org.toxsoft.uskat.s5.server.backend.supports.objects.IS5Resources.*;
 import static org.toxsoft.uskat.s5.server.backend.supports.objects.S5ObjectID.*;
@@ -12,8 +13,12 @@ import javax.persistence.*;
 import org.toxsoft.core.log4j.*;
 import org.toxsoft.core.tslib.av.opset.*;
 import org.toxsoft.core.tslib.av.opset.impl.*;
+import org.toxsoft.core.tslib.bricks.strio.*;
+import org.toxsoft.core.tslib.bricks.strio.chario.*;
+import org.toxsoft.core.tslib.bricks.strio.chario.impl.*;
+import org.toxsoft.core.tslib.bricks.strio.impl.*;
+import org.toxsoft.core.tslib.coll.primtypes.*;
 import org.toxsoft.core.tslib.gw.skid.*;
-import org.toxsoft.core.tslib.utils.*;
 import org.toxsoft.core.tslib.utils.errors.*;
 import org.toxsoft.core.tslib.utils.logs.*;
 import org.toxsoft.uskat.core.api.objserv.*;
@@ -46,6 +51,11 @@ public class S5ObjectEntity
    * Поле таблицы: значения склепок объекта в строковом формате
    */
   protected static final String FIELD_RIVERTS_STRING = "rivertsString"; //$NON-NLS-1$
+
+  /**
+   * Поле таблицы: значения обратных склепок объектов на целевой объект в строковом формате
+   */
+  protected static final String FIELD_RIVERT_REVS_STRING = "rivertRevsString"; //$NON-NLS-1$
 
   /**
    * Первичный составной (classId,strid) ключ
@@ -88,12 +98,25 @@ public class S5ObjectEntity
   private String rivetsString;
 
   /**
+   * Значения всех обратных склепок .
+   */
+  @Column( name = FIELD_RIVERT_REVS_STRING, //
+      nullable = false,
+      insertable = true,
+      updatable = true,
+      unique = false,
+      columnDefinition = IS5ImplementConstants.LOB_TEXT_TYPE //
+  )
+  private String rivetRevsString;
+
+  /**
    * Lazy
    */
-  private transient Skid         skid;
-  private transient IOptionSet   attrs;
-  private transient IMappedSkids rivets;
-  private transient ILogger      logger;
+  private transient Skid                     skid;
+  private transient IOptionSet               attrs;
+  private transient IMappedSkids             rivets;
+  private transient IStringMap<IMappedSkids> rivetRevs;
+  private transient ILogger                  logger;
 
   /**
    * Конструктор копирования (для сохранения объекта в базу данных)
@@ -124,6 +147,7 @@ public class S5ObjectEntity
       classInfo = null;
       attrsString = aResultSet.getString( FIELD_ATTRS_STRING );
       rivetsString = aResultSet.getString( FIELD_RIVERTS_STRING );
+      rivetRevsString = aResultSet.getString( FIELD_RIVERTS_STRING );
     }
     catch( Throwable e ) {
       // Неожиданная ошибка чтения данных jdbc-курсора
@@ -141,8 +165,9 @@ public class S5ObjectEntity
     TsNullArgumentRtException.checkNull( aId );
     id = aId;
     classInfo = null;
-    attrsString = TsLibUtils.EMPTY_STRING;
-    rivetsString = TsLibUtils.EMPTY_STRING;
+    attrsString = EMPTY_STRING;
+    rivetsString = EMPTY_STRING;
+    rivetRevsString = EMPTY_STRING;
   }
 
   /**
@@ -151,8 +176,9 @@ public class S5ObjectEntity
   protected S5ObjectEntity() {
     id = null;
     classInfo = null;
-    attrsString = TsLibUtils.EMPTY_STRING;
-    rivetsString = TsLibUtils.EMPTY_STRING;
+    attrsString = EMPTY_STRING;
+    rivetsString = EMPTY_STRING;
+    rivetRevsString = EMPTY_STRING;
   }
 
   /**
@@ -206,6 +232,31 @@ public class S5ObjectEntity
     rivets = null;
   }
 
+  /**
+   * Установить значение всех обратных склепок
+   *
+   * @param aRivertRevs {@link IStringMap}&lt;{@link MappedSkids};&gt; SKIDs map of reverse rivets where: <br>
+   *          - {@link IStringMap} key is "rivet class ID";<br>
+   *          - {@link IMappedSkids} key is "rivet ID";<br>
+   *          - {@link IMappedSkids} values are "SKIDs list of the left objects which have this object riveted".
+   * @throws TsNullArgumentRtException аргумент = null
+   */
+  void setRivertRevs( IStringMap<IMappedSkids> aRivertRevs ) {
+    TsNullArgumentRtException.checkNull( aRivertRevs );
+    try {
+      StringBuilder sb = new StringBuilder();
+      ICharOutputStream chOut = new CharOutputStreamAppendable( sb );
+      IStrioWriter sw = new StrioWriter( chOut );
+      StrioUtils.writeStringMap( sw, EMPTY_STRING, aRivertRevs, MappedSkids.KEEPER, true );
+      rivetRevsString = sb.toString();
+    }
+    catch( Throwable e ) {
+      logger().error( e, "setRivertRevs(...). cause: %s", cause( e ) ); //$NON-NLS-1$
+      throw e;
+    }
+    rivets = null;
+  }
+
   // ------------------------------------------------------------------------------------
   // Реализация интерфейса IDtoObject
   //
@@ -233,6 +284,16 @@ public class S5ObjectEntity
     return rivets;
   }
 
+  @Override
+  public IStringMap<IMappedSkids> rivetRevs() {
+    if( rivetRevs == null ) {
+      ICharInputStream chIn = new CharInputStreamString( rivetRevsString );
+      IStrioReader sr = new StrioReader( chIn );
+      rivetRevs = StrioUtils.readStringMap( sr, EMPTY_STRING, MappedSkids.KEEPER );
+    }
+    return rivetRevs;
+  }
+
   // ------------------------------------------------------------------------------------
   // Реализация Object
   //
@@ -254,9 +315,9 @@ public class S5ObjectEntity
 
   @Override
   public int hashCode() {
-    int result = TsLibUtils.INITIAL_HASH_CODE;
-    result = TsLibUtils.PRIME * result + id.hashCode();
-    result = TsLibUtils.PRIME * result + attrs().hashCode();
+    int result = INITIAL_HASH_CODE;
+    result = PRIME * result + id.hashCode();
+    result = PRIME * result + attrs().hashCode();
     return result;
   }
 
