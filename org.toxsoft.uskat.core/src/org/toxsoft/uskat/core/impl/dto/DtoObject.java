@@ -10,7 +10,9 @@ import org.toxsoft.core.tslib.av.opset.impl.*;
 import org.toxsoft.core.tslib.bricks.keeper.*;
 import org.toxsoft.core.tslib.bricks.keeper.AbstractEntityKeeper.*;
 import org.toxsoft.core.tslib.bricks.strio.*;
+import org.toxsoft.core.tslib.bricks.strio.impl.*;
 import org.toxsoft.core.tslib.coll.primtypes.*;
+import org.toxsoft.core.tslib.coll.primtypes.impl.*;
 import org.toxsoft.core.tslib.gw.skid.*;
 import org.toxsoft.core.tslib.utils.errors.*;
 import org.toxsoft.uskat.core.*;
@@ -41,6 +43,8 @@ public final class DtoObject
           OptionSetKeeper.KEEPER.write( aSw, aEntity.attrs() );
           aSw.writeSeparatorChar();
           MappedSkids.KEEPER.write( aSw, aEntity.rivets() );
+          aSw.writeSeparatorChar();
+          StrioUtils.writeStringMap( aSw, EMPTY_STRING, aEntity.rivetRevs(), MappedSkids.KEEPER, true );
         }
 
         @Override
@@ -50,13 +54,16 @@ public final class DtoObject
           OptionSet attrs = (OptionSet)OptionSetKeeper.KEEPER.read( aSr );
           aSr.ensureSeparatorChar();
           MappedSkids ms = (MappedSkids)MappedSkids.KEEPER.read( aSr );
-          return new DtoObject( 0, skid, attrs, ms );
+          aSr.ensureSeparatorChar();
+          IStringMapEdit<IMappedSkids> rr = StrioUtils.readStringMap( aSr, EMPTY_STRING, MappedSkids.KEEPER );
+          return new DtoObject( 0, skid, attrs, ms, rr );
         }
       };
 
-  private final Skid           skid;
-  private final IOptionSetEdit attrs;
-  private final MappedSkids    rivets;
+  private final Skid                         skid;
+  private final IOptionSetEdit               attrs;
+  private final MappedSkids                  rivets;
+  private final IStringMapEdit<IMappedSkids> rivetRevs;
 
   /**
    * Constructor.
@@ -67,11 +74,7 @@ public final class DtoObject
    * @throws TsNullArgumentRtException any argument = <code>null</code>
    */
   public DtoObject( Skid aSkid, IOptionSet aAttrs, IStringMap<ISkidList> aRivets ) {
-    skid = TsNullArgumentRtException.checkNull( aSkid );
-    attrs = new OptionSet();
-    attrs.addAll( aAttrs );
-    rivets = new MappedSkids();
-    rivets.setAll( aRivets );
+    this( aSkid, aAttrs, aRivets, IStringMap.EMPTY );
   }
 
   /**
@@ -81,21 +84,48 @@ public final class DtoObject
    * @throws TsNullArgumentRtException any argument = <code>null</code>
    */
   public DtoObject( Skid aSkid ) {
-    this( aSkid, IOptionSet.NULL, IStringMap.EMPTY );
+    this( aSkid, IOptionSet.NULL, IStringMap.EMPTY, IStringMap.EMPTY );
   }
 
   /**
-   * Package-private constructor for keeper.
+   * Constructor.
+   * <p>
+   * Package-private constructor for {@link CoreL10n}.
+   *
+   * @param aSkid {@link Skid} - object skid
+   * @param aAttrs {@link IOptionSet} - attributes values
+   * @param aRivets {@link IStringMap}&lt;{@link ISkidList}&gt; - rivets
+   * @param aRivetRevs {@link IStringMap}&lt;{@link MappedSkids};&gt; SKIDs map of reverse rivets where: <br>
+   *          - {@link IStringMap} key is "rivet class ID";<br>
+   *          - {@link IMappedSkids} key is "rivet ID";<br>
+   *          - {@link IMappedSkids} values are "SKIDs list of the left objects which have this object riveted".
+   * @throws TsNullArgumentRtException any argument = <code>null</code>
+   */
+  DtoObject( Skid aSkid, IOptionSet aAttrs, IStringMap<ISkidList> aRivets, IStringMap<IMappedSkids> aRivetRevs ) {
+    TsNullArgumentRtException.checkNulls( aSkid, aAttrs, aRivets, aRivetRevs );
+    skid = aSkid;
+    attrs = new OptionSet();
+    attrs.addAll( aAttrs );
+    rivets = new MappedSkids();
+    rivets.setAll( aRivets );
+    rivetRevs = new StringMap<>();
+    rivetRevs.setAll( aRivetRevs );
+  }
+
+  /**
+   * Package-private constructor for keeper & {@link DtoFullObject}.
    *
    * @param aFoo int - unsed argument for unique constructor signature
    * @param aSkid {@link Skid} - object skid
    * @param aAttrs {@link OptionSet} - attributes values
    * @param aRivets {@link MappedSkids} - reivets values
    */
-  DtoObject( int aFoo, Skid aSkid, IOptionSetEdit aAttrs, MappedSkids aRivets ) {
+  DtoObject( int aFoo, Skid aSkid, IOptionSetEdit aAttrs, MappedSkids aRivets,
+      IStringMapEdit<IMappedSkids> aRivetRevs ) {
     skid = aSkid;
     attrs = aAttrs;
     rivets = aRivets;
+    rivetRevs = aRivetRevs;
   }
 
   /**
@@ -154,6 +184,10 @@ public final class DtoObject
     for( IDtoRivetInfo rinf : cinf.rivets().list() ) {
       dto.rivets().ensureSkidList( rinf.id(), rinf.count() );
     }
+    // Метод createDtoObject позволяет создавать только НОВЫЕ объекты клиента, список обратных склепок всегда пустой (он
+    // формируется бекендом)
+    dto.rivetRevs().clear();
+
     return dto;
   }
 
@@ -177,9 +211,8 @@ public final class DtoObject
   }
 
   @Override
-  public IStringMap<IMappedSkids> rivetRevs() {
-    // DtoObject is a client implementaion of IDtoObject and it always has an empty rivetRevs
-    return IStringMap.EMPTY;
+  public IStringMapEdit<IMappedSkids> rivetRevs() {
+    return rivetRevs;
   }
 
   // ------------------------------------------------------------------------------------
@@ -201,6 +234,8 @@ public final class DtoObject
     OptionSetKeeper.KEEPER.write( aSw, aEntity.attrs() );
     aSw.writeSeparatorChar();
     MappedSkids.KEEPER.write( aSw, aEntity.rivets() );
+    aSw.writeSeparatorChar();
+    StrioUtils.writeStringMap( aSw, EMPTY_STRING, aEntity.rivetRevs(), MappedSkids.KEEPER, true );
     aSw.writeChar( CHAR_SET_END );
   }
 
@@ -221,8 +256,10 @@ public final class DtoObject
     OptionSet attrs = (OptionSet)OptionSetKeeper.KEEPER.read( aSr );
     aSr.ensureSeparatorChar();
     MappedSkids rivets = (MappedSkids)MappedSkids.KEEPER.read( aSr );
+    aSr.ensureSeparatorChar();
+    IStringMapEdit<IMappedSkids> rr = StrioUtils.readStringMap( aSr, EMPTY_STRING, MappedSkids.KEEPER );
     aSr.ensureChar( CHAR_SET_END );
-    return new DtoObject( 0, skid, attrs, rivets );
+    return new DtoObject( 0, skid, attrs, rivets, rr );
   }
 
   // ------------------------------------------------------------------------------------

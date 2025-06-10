@@ -33,6 +33,7 @@ import org.toxsoft.uskat.core.backend.api.*;
 import org.toxsoft.uskat.core.connection.*;
 import org.toxsoft.uskat.core.devapi.*;
 import org.toxsoft.uskat.core.devapi.gwiddb.*;
+import org.toxsoft.uskat.core.impl.dto.*;
 
 /**
  * An {@link ISkCoreApi} and {@link IDevCoreApi} implementation.

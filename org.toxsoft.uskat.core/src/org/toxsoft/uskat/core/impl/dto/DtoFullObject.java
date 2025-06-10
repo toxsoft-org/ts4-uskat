@@ -111,7 +111,7 @@ public final class DtoFullObject
 
   private DtoFullObject( Skid aSkid, IOptionSetEdit aAttrs, MappedSkids aRivets, IStringMapEdit<String> aClobs,
       MappedSkids aLinks ) {
-    dtoObject = new DtoObject( 0, aSkid, aAttrs, aRivets );
+    dtoObject = new DtoObject( 0, aSkid, aAttrs, aRivets, IStringMap.EMPTY );
     clobs = aClobs;
     links = aLinks;
   }

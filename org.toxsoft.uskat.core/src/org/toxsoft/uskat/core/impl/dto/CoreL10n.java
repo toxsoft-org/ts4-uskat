@@ -1,11 +1,11 @@
-package org.toxsoft.uskat.core.impl;
+package org.toxsoft.uskat.core.impl.dto;
 
 import static org.toxsoft.core.tslib.av.impl.AvUtils.*;
 import static org.toxsoft.core.tslib.av.metainfo.IAvMetaConstants.*;
 import static org.toxsoft.core.tslib.bricks.strio.IStrioHardConstants.*;
 import static org.toxsoft.core.tslib.coll.impl.TsCollectionsUtils.*;
 import static org.toxsoft.uskat.core.impl.ISkCoreConfigConstants.*;
-import static org.toxsoft.uskat.core.impl.ISkResources.*;
+import static org.toxsoft.uskat.core.impl.dto.ISkResources.*;
 
 import java.io.*;
 import java.util.*;
@@ -33,7 +33,7 @@ import org.toxsoft.uskat.core.api.objserv.*;
 import org.toxsoft.uskat.core.api.sysdescr.dto.*;
 import org.toxsoft.uskat.core.connection.*;
 import org.toxsoft.uskat.core.devapi.*;
-import org.toxsoft.uskat.core.impl.dto.*;
+import org.toxsoft.uskat.core.impl.*;
 
 /**
  * Реализация {@link ICoreL10n}.
@@ -48,7 +48,7 @@ import org.toxsoft.uskat.core.impl.dto.*;
  *
  * @author hazard157
  */
-class CoreL10n
+public class CoreL10n
     implements ICoreL10n {
 
   // TODO add warning if any GWID is localized in more than one file
@@ -470,7 +470,7 @@ class CoreL10n
     if( l10 == null ) {
       return aObject;
     }
-    DtoObject obj = new DtoObject( aObject.skid(), aObject.attrs(), aObject.rivets().map() );
+    DtoObject obj = new DtoObject( aObject.skid(), aObject.attrs(), aObject.rivets().map(), aObject.rivetRevs() );
     l10.update( obj.attrs() );
     return obj;
   }
@@ -484,7 +484,7 @@ class CoreL10n
     for( IDtoObject dpu : aObjects ) {
       L10nItem l10 = ldObjsMap.findByKey( dpu.skid() );
       if( l10 != null ) {
-        DtoObject obj = new DtoObject( dpu.skid(), dpu.attrs(), dpu.rivets().map() );
+        DtoObject obj = new DtoObject( dpu.skid(), dpu.attrs(), dpu.rivets().map(), dpu.rivetRevs() );
         l10.update( obj.attrs() );
         ll.add( obj );
       }
