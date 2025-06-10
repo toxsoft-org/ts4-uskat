@@ -10,7 +10,9 @@ import org.toxsoft.core.tslib.av.opset.impl.*;
 import org.toxsoft.core.tslib.bricks.keeper.*;
 import org.toxsoft.core.tslib.bricks.keeper.AbstractEntityKeeper.*;
 import org.toxsoft.core.tslib.bricks.strio.*;
+import org.toxsoft.core.tslib.bricks.strio.impl.*;
 import org.toxsoft.core.tslib.coll.primtypes.*;
+import org.toxsoft.core.tslib.coll.primtypes.impl.*;
 import org.toxsoft.core.tslib.gw.skid.*;
 import org.toxsoft.core.tslib.utils.errors.*;
 import org.toxsoft.uskat.core.*;
@@ -41,6 +43,8 @@ public final class DtoObject
           OptionSetKeeper.KEEPER.write( aSw, aEntity.attrs() );
           aSw.writeSeparatorChar();
           MappedSkids.KEEPER.write( aSw, aEntity.rivets() );
+          aSw.writeSeparatorChar();
+          StrioUtils.writeStringMap( aSw, EMPTY_STRING, aEntity.rivetRevs(), MappedSkids.KEEPER, true );
         }
 
         @Override
@@ -50,13 +54,16 @@ public final class DtoObject
           OptionSet attrs = (OptionSet)OptionSetKeeper.KEEPER.read( aSr );
           aSr.ensureSeparatorChar();
           MappedSkids ms = (MappedSkids)MappedSkids.KEEPER.read( aSr );
-          return new DtoObject( 0, skid, attrs, ms );
+          aSr.ensureSeparatorChar();
+          IStringMapEdit<IMappedSkids> rr = StrioUtils.readStringMap( aSr, EMPTY_STRING, MappedSkids.KEEPER );
+          return new DtoObject( 0, skid, attrs, ms, rr );
         }
       };
 
-  private final Skid           skid;
-  private final IOptionSetEdit attrs;
-  private final MappedSkids    rivets;
+  private final Skid                         skid;
+  private final IOptionSetEdit               attrs;
+  private final MappedSkids                  rivets;
+  private final IStringMapEdit<IMappedSkids> rivetRevs;
 
   /**
    * Constructor.
@@ -64,14 +71,22 @@ public final class DtoObject
    * @param aSkid {@link Skid} - object skid
    * @param aAttrs {@link IOptionSet} - attributes values
    * @param aRivets {@link IStringMap}&lt;{@link ISkidList}&gt; - rivets
+   * @param aRivetRevs {@link IStringMap}&lt;{@link MappedSkids};&gt; SKIDs map of reverse rivets where: <br>
+   *          - {@link IStringMap} key is "rivet class ID";<br>
+   *          - {@link IMappedSkids} key is "rivet ID";<br>
+   *          - {@link IMappedSkids} values are "SKIDs list of the left objects which have this object riveted".
    * @throws TsNullArgumentRtException any argument = <code>null</code>
    */
-  public DtoObject( Skid aSkid, IOptionSet aAttrs, IStringMap<ISkidList> aRivets ) {
-    skid = TsNullArgumentRtException.checkNull( aSkid );
+  public DtoObject( Skid aSkid, IOptionSet aAttrs, IStringMap<ISkidList> aRivets,
+      IStringMap<IMappedSkids> aRivetRevs ) {
+    TsNullArgumentRtException.checkNulls( aSkid, aAttrs, aRivets, aRivetRevs );
+    skid = aSkid;
     attrs = new OptionSet();
     attrs.addAll( aAttrs );
     rivets = new MappedSkids();
     rivets.setAll( aRivets );
+    rivetRevs = new StringMap<>();
+    rivetRevs.setAll( aRivetRevs );
   }
 
   /**
@@ -81,7 +96,7 @@ public final class DtoObject
    * @throws TsNullArgumentRtException any argument = <code>null</code>
    */
   public DtoObject( Skid aSkid ) {
-    this( aSkid, IOptionSet.NULL, IStringMap.EMPTY );
+    this( aSkid, IOptionSet.NULL, IStringMap.EMPTY, IStringMap.EMPTY );
   }
 
   /**
@@ -92,10 +107,12 @@ public final class DtoObject
    * @param aAttrs {@link OptionSet} - attributes values
    * @param aRivets {@link MappedSkids} - reivets values
    */
-  DtoObject( int aFoo, Skid aSkid, IOptionSetEdit aAttrs, MappedSkids aRivets ) {
+  DtoObject( int aFoo, Skid aSkid, IOptionSetEdit aAttrs, MappedSkids aRivets,
+      IStringMapEdit<IMappedSkids> aRivetRevs ) {
     skid = aSkid;
     attrs = aAttrs;
     rivets = aRivets;
+    rivetRevs = aRivetRevs;
   }
 
   /**
@@ -154,6 +171,27 @@ public final class DtoObject
     for( IDtoRivetInfo rinf : cinf.rivets().list() ) {
       dto.rivets().ensureSkidList( rinf.id(), rinf.count() );
     }
+    // TODO: 2025-06-10 mvk можно ли в ISkSysdescr добавить метод подобный следующему:
+    // вернуть все классы объекты которых ревитят объекты указанного класса (left obj => rigth obj)
+    // IStringList getRivetedClassIds( String aRightObjClassId )
+    // Наличие такого метода позволило бы избежать возможную деградацию кода в этом месте (кода создается большое
+    // количество объектов).
+    // Такой же метод не помешал бы и для связей (links).
+    ISkClassHierarchyExplorer hierarchy = aCoreApi.sysdescr().hierarchy();
+    for( ISkClassInfo revClassInfo : aCoreApi.sysdescr().listClasses() ) {
+      for( IDtoRivetInfo rinf : revClassInfo.rivets().list() ) {
+        if( hierarchy.isAssignableFrom( rinf.rightClassId(), cinf.id() ) ) {
+          MappedSkids rr = (MappedSkids)dto.rivetRevs().findByKey( revClassInfo.id() );
+          if( rr == null ) {
+            rr = new MappedSkids();
+            dto.rivetRevs().put( revClassInfo.id(), rr );
+          }
+          rr.ensureSkidList( rinf.id(), rinf.count() );
+        }
+      }
+    }
+    // Это может быть привести к неоправданной деградации при создании большого количества объектов.
+    // dto.rivetRevs
     return dto;
   }
 
@@ -176,6 +214,11 @@ public final class DtoObject
     return rivets;
   }
 
+  @Override
+  public IStringMapEdit<IMappedSkids> rivetRevs() {
+    return rivetRevs;
+  }
+
   // ------------------------------------------------------------------------------------
   // API
   //
@@ -195,6 +238,8 @@ public final class DtoObject
     OptionSetKeeper.KEEPER.write( aSw, aEntity.attrs() );
     aSw.writeSeparatorChar();
     MappedSkids.KEEPER.write( aSw, aEntity.rivets() );
+    aSw.writeSeparatorChar();
+    StrioUtils.writeStringMap( aSw, EMPTY_STRING, aEntity.rivetRevs(), MappedSkids.KEEPER, true );
     aSw.writeChar( CHAR_SET_END );
   }
 
@@ -215,8 +260,10 @@ public final class DtoObject
     OptionSet attrs = (OptionSet)OptionSetKeeper.KEEPER.read( aSr );
     aSr.ensureSeparatorChar();
     MappedSkids rivets = (MappedSkids)MappedSkids.KEEPER.read( aSr );
+    aSr.ensureSeparatorChar();
+    IStringMapEdit<IMappedSkids> rr = StrioUtils.readStringMap( aSr, EMPTY_STRING, MappedSkids.KEEPER );
     aSr.ensureChar( CHAR_SET_END );
-    return new DtoObject( 0, skid, attrs, rivets );
+    return new DtoObject( 0, skid, attrs, rivets, rr );
   }
 
   // ------------------------------------------------------------------------------------

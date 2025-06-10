@@ -85,7 +85,8 @@ public class S5ClassUtils {
       attrs.setStr( AID_DESCRIPTION, STR_ROOT_USER_D );
       attrs.setStr( ISkUserServiceHardConstants.ATRID_PASSWORD_HASH,
           SkHelperUtils.getPasswordHashCode( ISkUserServiceHardConstants.INITIAL_ROOT_PASSWORD ) );
-      IDtoObject root = new DtoObject( ISkUserServiceHardConstants.SKID_USER_ROOT, attrs, IStringMap.EMPTY );
+      IDtoObject root =
+          new DtoObject( ISkUserServiceHardConstants.SKID_USER_ROOT, attrs, IStringMap.EMPTY, IStringMap.EMPTY );
       aObjectsSupport.writeObjects( IS5FrontendRear.NULL, ISkidList.EMPTY, new ElemArrayList<>( root ), true );
     }
 
@@ -100,7 +101,7 @@ public class S5ClassUtils {
     DDEF_NAME.setValue( attrs, avStr( STR_CLASS_SERVER ) );
     DDEF_DESCRIPTION.setValue( attrs, avStr( STR_CLASS_SERVER_D ) );
     // Сервер не найден. Создание сервера
-    IDtoObject server = new DtoObject( serverId, attrs, IStringMap.EMPTY );
+    IDtoObject server = new DtoObject( serverId, attrs, IStringMap.EMPTY, IStringMap.EMPTY );
     // aInterceptable = true
     aObjectsSupport.writeObjects( IS5FrontendRear.NULL, ISkidList.EMPTY, new ElemArrayList<>( server ), true );
     // }
@@ -110,7 +111,7 @@ public class S5ClassUtils {
     DDEF_NAME.setValue( attrs, avStr( STR_CLASS_NETNODE ) );
     DDEF_DESCRIPTION.setValue( attrs, avStr( STR_CLASS_NETNODE_D ) );
     // Узел не найден. Создание узла
-    IDtoObject node = new DtoObject( nodeId, attrs, IStringMap.EMPTY );
+    IDtoObject node = new DtoObject( nodeId, attrs, IStringMap.EMPTY, IStringMap.EMPTY );
     // aInterceptable = true
     aObjectsSupport.writeObjects( IS5FrontendRear.NULL, ISkidList.EMPTY, new ElemArrayList<>( node ), true );
     // Установка связи

@@ -50,6 +50,8 @@ public final class DtoFullObject
           StrioUtils.writeStringMap( aSw, EMPTY_STRING, aEntity.clobs(), StringKeeper.KEEPER, true );
           aSw.writeSeparatorChar();
           MappedSkids.KEEPER.write( aSw, aEntity.links() );
+          aSw.writeSeparatorChar();
+          StrioUtils.writeStringMap( aSw, EMPTY_STRING, aEntity.rivetRevs(), MappedSkids.KEEPER, true );
         }
 
         @Override
@@ -63,7 +65,9 @@ public final class DtoFullObject
           IStringMapEdit<String> clobs = StrioUtils.readStringMap( aSr, EMPTY_STRING, StringKeeper.KEEPER );
           aSr.ensureSeparatorChar();
           MappedSkids links = (MappedSkids)MappedSkids.KEEPER.read( aSr );
-          return new DtoFullObject( skid, attrs, ms, clobs, links );
+          aSr.ensureSeparatorChar();
+          IStringMapEdit<IMappedSkids> rr = StrioUtils.readStringMap( aSr, EMPTY_STRING, MappedSkids.KEEPER );
+          return new DtoFullObject( skid, attrs, ms, clobs, links, rr );
         }
       };
 
@@ -90,7 +94,7 @@ public final class DtoFullObject
    * @throws TsNullArgumentRtException any argument = <code>null</code>
    */
   public DtoFullObject( IDtoObject aObject ) {
-    this( aObject, IStringMap.EMPTY, IStringMap.EMPTY );
+    this( aObject, IStringMap.EMPTY, IStringMap.EMPTY, IStringMap.EMPTY );
   }
 
   /**
@@ -99,19 +103,24 @@ public final class DtoFullObject
    * @param aObject {@link IDtoObject} - the source object data
    * @param aClobs {@link IStringMap}&lt;String&gt; - CLOBs values
    * @param aLinks {@link IStringMap}&lt;{@link ISkidList}&lt; - links values
+   * @param aRivetRevs {@link IStringMap}&lt;{@link MappedSkids};&gt; SKIDs map of reverse rivets where: <br>
+   *          - {@link IStringMap} key is "rivet class ID";<br>
+   *          - {@link IMappedSkids} key is "rivet ID";<br>
+   *          - {@link IMappedSkids} values are "SKIDs list of the left objects which have this object riveted".
    * @throws TsNullArgumentRtException any argument = <code>null</code>
    */
-  public DtoFullObject( IDtoObject aObject, IStringMap<String> aClobs, IStringMap<ISkidList> aLinks ) {
+  public DtoFullObject( IDtoObject aObject, IStringMap<String> aClobs, IStringMap<ISkidList> aLinks,
+      IStringMap<IMappedSkids> aRivetRevs ) {
     TsNullArgumentRtException.checkNulls( aObject, aClobs, aLinks );
-    dtoObject = new DtoObject( aObject.skid(), aObject.attrs(), aObject.rivets().map() );
+    dtoObject = new DtoObject( aObject.skid(), aObject.attrs(), aObject.rivets().map(), aRivetRevs );
     clobs = new StringMap<>( aClobs );
     links = new MappedSkids();
     links.setAll( aLinks );
   }
 
   private DtoFullObject( Skid aSkid, IOptionSetEdit aAttrs, MappedSkids aRivets, IStringMapEdit<String> aClobs,
-      MappedSkids aLinks ) {
-    dtoObject = new DtoObject( 0, aSkid, aAttrs, aRivets );
+      MappedSkids aLinks, IStringMapEdit<IMappedSkids> aRivetRevs ) {
+    dtoObject = new DtoObject( 0, aSkid, aAttrs, aRivets, aRivetRevs );
     clobs = aClobs;
     links = aLinks;
   }
@@ -239,6 +248,11 @@ public final class DtoFullObject
   @Override
   public MappedSkids rivets() {
     return dtoObject.rivets();
+  }
+
+  @Override
+  public IStringMap<IMappedSkids> rivetRevs() {
+    return dtoObject.rivetRevs();
   }
 
   @Override

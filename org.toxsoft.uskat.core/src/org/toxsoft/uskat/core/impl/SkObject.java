@@ -38,10 +38,11 @@ public class SkObject
    */
   static final ISkObjectCreator<SkObject> DEFAULT_CREATOR = SkObject::new;
 
-  private ISkCoreApi           coreApi;
-  private final Skid           skid;
-  private final IOptionSetEdit attrs  = new OptionSet();
-  private final MappedSkids    rivets = new MappedSkids();
+  private ISkCoreApi                         coreApi;
+  private final Skid                         skid;
+  private final IOptionSetEdit               attrs     = new OptionSet();
+  private final MappedSkids                  rivets    = new MappedSkids();
+  private final IStringMapEdit<IMappedSkids> rivetRevs = new StringMap<>();
 
   /**
    * The map of the RTdata ID <-> RTdata GWID.
@@ -149,6 +150,11 @@ public class SkObject
   }
 
   @Override
+  final public IStringMapEdit<IMappedSkids> rivetRevs() {
+    return rivetRevs;
+  }
+
+  @Override
   final public ISkCoreApi coreApi() {
     return coreApi;
   }
@@ -199,16 +205,16 @@ public class SkObject
     return (IList)coreApi.objService().getObjs( sl );
   }
 
+  @SuppressWarnings( "unchecked" )
   @Override
   public <T extends ISkObject> IList<T> getRivetRevObjs( String aClassId, String aRivetId ) {
-    // TODO реализовать SkObject.getRivetRevObjs()
-    throw new TsUnderDevelopmentRtException( "SkObject.getRivetRevObjs()" );
+    ISkidList objIds = getRivetRevSkids( aClassId, aRivetId );
+    return (IList<T>)coreApi.objService().getObjs( objIds );
   }
 
   @Override
   public ISkidList getRivetRevSkids( String aClassId, String aRivetId ) {
-    // TODO реализовать SkObject.getRivetRevSkids()
-    throw new TsUnderDevelopmentRtException( "SkObject.getRivetRevSkids()" );
+    return rivetRevs.getByKey( aClassId ).map().getByKey( aRivetId );
   }
 
   @Override

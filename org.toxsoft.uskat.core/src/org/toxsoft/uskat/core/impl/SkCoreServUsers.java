@@ -638,7 +638,8 @@ public class SkCoreServUsers
     papiPauseCoreValidation();
     try {
       // forcefully set password hash attribute
-      DtoFullObject dtoUser = new DtoFullObject( aDtoUser, aDtoUser.clobs(), aDtoUser.links().map() );
+      DtoFullObject dtoUser =
+          new DtoFullObject( aDtoUser, aDtoUser.clobs(), aDtoUser.links().map(), aDtoUser.rivetRevs() );
       dtoUser.attrs().setStr( ATRID_PASSWORD_HASH, SkHelperUtils.getPasswordHashCode( aPassword ) );
       ISkUser user = DtoFullObject.defineFullObject( coreApi(), dtoUser );
       // inform siblings

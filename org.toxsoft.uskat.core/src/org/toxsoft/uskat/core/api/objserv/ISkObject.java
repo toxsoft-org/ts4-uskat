@@ -6,6 +6,7 @@ import org.toxsoft.core.tslib.av.*;
 import org.toxsoft.core.tslib.av.opset.*;
 import org.toxsoft.core.tslib.bricks.strid.*;
 import org.toxsoft.core.tslib.coll.*;
+import org.toxsoft.core.tslib.coll.primtypes.*;
 import org.toxsoft.core.tslib.gw.skid.*;
 import org.toxsoft.core.tslib.utils.*;
 import org.toxsoft.core.tslib.utils.errors.*;
@@ -60,6 +61,16 @@ public interface ISkObject
    * @return {@link IMappedSkids} - the map "rivet ID" - "riveted right objects SKIDs list"
    */
   IMappedSkids rivets();
+
+  /**
+   * Returns SKIDs map of reverse rivets (left objects which have this object riveted).
+   *
+   * @return {@link IStringMap}&lt;{@link IMappedSkids}&gt; SKIDs map of reverse rivets where: <br>
+   *         - {@link IStringMap} key is "rivet class ID";<br>
+   *         - {@link IMappedSkids} key is "rivet ID" - ;<br>
+   *         - {@link IMappedSkids} values are "SKIDs list of the left objects which have this object riveted".
+   */
+  IStringMap<IMappedSkids> rivetRevs();
 
   /**
    * Returns the object class ID.
@@ -365,6 +376,11 @@ class InternalNoneSkObject
   @Override
   public IMappedSkids rivets() {
     return IMappedSkids.EMPTY;
+  }
+
+  @Override
+  public IStringMap<IMappedSkids> rivetRevs() {
+    return IStringMap.EMPTY;
   }
 
   @Override

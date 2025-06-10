@@ -1024,7 +1024,7 @@ public class S5SessionManager
       // Сессия уже существует
       IOptionSetEdit attrs = new OptionSet( obj.attrs() );
       attrs.setValue( ATRID_ENDTIME, IAtomicValue.NULL );
-      IDtoObject dto = new DtoObject( aSessionID, attrs, obj.rivets().map() );
+      IDtoObject dto = new DtoObject( aSessionID, attrs, obj.rivets().map(), IStringMap.EMPTY );
       // Создание объекта сессия. aInterceptable = false
       objectsSupport.writeObjects( IS5FrontendRear.NULL, ISkidList.EMPTY, new ElemArrayList<>( dto ), false );
       return false;
@@ -1034,7 +1034,7 @@ public class S5SessionManager
     attrs.setTime( ATRID_STARTTIME, aCreationTime );
     attrs.setValobj( ATRID_BACKEND_SPECIFIC_PARAMS, aBackendSpecificParams );
     attrs.setValobj( ATRID_CONNECTION_CREATION_PARAMS, aConnectionCreationParams );
-    IDtoObject dto = new DtoObject( aSessionID, attrs, IStringMap.EMPTY );
+    IDtoObject dto = new DtoObject( aSessionID, attrs, IStringMap.EMPTY, IStringMap.EMPTY );
     // Создание объекта сессия. aInterceptable = false
     objectsSupport.writeObjects( IS5FrontendRear.NULL, ISkidList.EMPTY, new ElemArrayList<>( dto ), false );
     // Установка пользователя сессии
@@ -1084,7 +1084,7 @@ public class S5SessionManager
     try {
       IOptionSetEdit attrs = new OptionSet( obj.attrs() );
       attrs.setTime( ATRID_ENDTIME, aEndTime );
-      IDtoObject dto = new DtoObject( aSessionID, attrs, obj.rivets().map() );
+      IDtoObject dto = new DtoObject( aSessionID, attrs, obj.rivets().map(), IStringMap.EMPTY );
       // Создание объекта сессия. aInterceptable = false
       objectsSupport.writeObjects( IS5FrontendRear.NULL, ISkidList.EMPTY, new ElemArrayList<>( dto ), false );
     }
