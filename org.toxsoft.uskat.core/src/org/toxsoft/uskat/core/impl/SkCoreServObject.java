@@ -509,6 +509,8 @@ public class SkCoreServObject
       }
       sko.rivets().map().put( rinf.id(), rivet );
     }
+    // initialize rivet revs from aObjectDto. Skid.NONE values ​​should already be set in the aObjectDto itself
+    sko.rivetRevs().setAll( aObjectDto.rivetRevs() );
     return sko;
   }
 
@@ -526,7 +528,7 @@ public class SkCoreServObject
    */
   private DtoObject createForBackendSave( ISkObject aSkObj ) {
     ISkClassInfo classInfo = coreApi().sysdescr().getClassInfo( aSkObj.classId() );
-    DtoObject dtoObj = new DtoObject( aSkObj.skid(), IOptionSet.NULL, aSkObj.rivets().map(), aSkObj.rivetRevs() );
+    DtoObject dtoObj = new DtoObject( aSkObj.skid(), IOptionSet.NULL, aSkObj.rivets().map() );
     // copy all but system attributes and attributes with default values
     for( IDtoAttrInfo ainf : classInfo.attrs().list() ) {
       // don't save system attributes

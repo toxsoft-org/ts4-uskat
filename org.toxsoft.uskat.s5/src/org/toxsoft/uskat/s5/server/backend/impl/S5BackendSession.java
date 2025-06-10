@@ -491,7 +491,7 @@ public class S5BackendSession
           new OptionSet( attrs.getValobj( ISkSession.ATRID_BACKEND_SPECIFIC_PARAMS ) );
       OP_SESSION_CLUSTER_TOPOLOGY.setValue( backendSpecificParams, avValobj( aClusterTopology ) );
       attrs.setValobj( ISkSession.ATRID_BACKEND_SPECIFIC_PARAMS, backendSpecificParams );
-      IDtoObject dpu = new DtoObject( sessionID, attrs, obj.rivets().map(), IStringMap.EMPTY );
+      IDtoObject dpu = new DtoObject( sessionID, attrs, obj.rivets().map() );
       // Создание объекта сессия. false: интерсепция запрещена
       objectsBackend.writeObjects( IS5FrontendRear.NULL, ISkidList.EMPTY, new ElemArrayList<>( dpu ), false );
     }

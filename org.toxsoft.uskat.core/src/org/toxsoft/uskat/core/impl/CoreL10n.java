@@ -470,7 +470,7 @@ class CoreL10n
     if( l10 == null ) {
       return aObject;
     }
-    DtoObject obj = new DtoObject( aObject.skid(), aObject.attrs(), aObject.rivets().map(), aObject.rivetRevs() );
+    DtoObject obj = new DtoObject( aObject.skid(), aObject.attrs(), aObject.rivets().map() );
     l10.update( obj.attrs() );
     return obj;
   }
@@ -484,7 +484,7 @@ class CoreL10n
     for( IDtoObject dpu : aObjects ) {
       L10nItem l10 = ldObjsMap.findByKey( dpu.skid() );
       if( l10 != null ) {
-        DtoObject obj = new DtoObject( dpu.skid(), dpu.attrs(), dpu.rivets().map(), dpu.rivetRevs() );
+        DtoObject obj = new DtoObject( dpu.skid(), dpu.attrs(), dpu.rivets().map() );
         l10.update( obj.attrs() );
         ll.add( obj );
       }

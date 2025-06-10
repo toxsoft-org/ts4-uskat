@@ -401,7 +401,7 @@ public abstract class S5BackendSequenceSupportSingleton<S extends IS5Sequence<V>
     // Полный (с именем узла) идентификатор backend
     Skid backendId = backendId();
     // Создание/обновление бекенда как объекта системы
-    objectService.defineObject( new DtoObject( backendId, IOptionSet.NULL, IStringMap.EMPTY, IStringMap.EMPTY ) );
+    objectService.defineObject( new DtoObject( backendId, IOptionSet.NULL, IStringMap.EMPTY ) );
     linkService.defineLink( backendId, ISkServerBackend.LNKID_NODE, ISkidList.EMPTY, new SkidList( nodeId ) );
     // Создание писателя статистики узла сервера
     statisticWriter = new S5StatisticWriter( aConnection, backendId, STAT_HISTORABLE_BACKEND_PARAMS );
