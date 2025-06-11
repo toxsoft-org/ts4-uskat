@@ -224,9 +224,9 @@ public class S5BackendObjectsSingleton
     TsNullArgumentRtException.checkNulls( aFrontend, aRemovedSkids, aObjects );
     // Время начала выполнения запроса
     long currTime = System.currentTimeMillis();
-    // Карта описаний классов по их идентификаторам
+    // Карта описаний классов (кэш) по их идентификаторам
     IStringMapEdit<ISkClassInfo> classesByIds = new StringMap<>();
-    // Карта классов реализаций объектов по идентификаторам их классов
+    // Карта классов реализаций объектов (кэш) по идентификаторам их классов
     IStringMapEdit<Class<S5ObjectEntity>> implByIds = new StringMap<>();
     // Карта удаляемых объектов по классам
     IMap<ISkClassInfo, IList<IDtoObject>> removedObjs = loadObjectsBySkids( aRemovedSkids, classesByIds, implByIds );
@@ -257,7 +257,7 @@ public class S5BackendObjectsSingleton
       for( IDtoObject removedObj : classRemovedObjs ) {
         changedObjectIds.add( removedObj.skid() );
         // removing obj rivets
-        rc += removingObjectRivets( entityManager, removedObj.skid(), removedObj.rivetRevs() );
+        rc += removingObjectRivets( entityManager, removedObj );
         // removing obj
         entityManager.remove( removedObj );
         rc++;
@@ -272,12 +272,14 @@ public class S5BackendObjectsSingleton
       for( Pair<IDtoObject, IDtoObject> obj : objs ) {
         changedObjectIds.add( obj.right().skid() );
         // updating obj rivets
-        uc += updateObjectRivets( entityManager, obj.left().skid(), obj.left().rivetRevs(), obj.right().rivetRevs() );
+        uc += updateObjectRivets( entityManager, obj.left(), obj.right() );
         // 2020-07-23 mvk
         // entityManager.merge( obj.right() );
         S5ObjectEntity changedObj = ((S5ObjectEntity)entityManager.merge( obj.right() ));
         changedObj.setAttrs( obj.right().attrs() );
         changedObj.setRivets( obj.right().rivets() );
+        // Восстановление списка obj.left(!) обратных склепок
+        changedObj.setRivetRevs( obj.left().rivetRevs() );
         // TODO: mvkd experimental
         // updateObject( entityManager, obj.right() );
         uc++;
@@ -344,18 +346,19 @@ public class S5BackendObjectsSingleton
     if( needFrontendNotify ) {
       IList<IS5FrontendRear> frontends = backend().attachedFrontends();
       if( rc == 1 ) {
-        // Отправление события об удалении класса для frontend
+        // Отправление события об удалении объекта
         fireWhenObjectsChanged( frontends, ECrudOp.REMOVE, removedObjs.values().first().first().skid() );
       }
       if( cc == 1 ) {
-        // Отправление события об создании класса для frontend
+        // Отправление события об создании объекта
         fireWhenObjectsChanged( frontends, ECrudOp.CREATE, createdObjs.values().first().first().skid() );
       }
       if( uc == 1 ) {
-        // Отправление события об создании класса для frontend
+        // Отправление события об обновлении объекта
         fireWhenObjectsChanged( frontends, ECrudOp.EDIT, updatedObjs.values().first().first().left().skid() );
       }
       if( rc + cc + uc > 1 ) {
+        // Отправление события об обновлении объектов
         fireWhenObjectsChanged( frontends, ECrudOp.LIST, null );
       }
     }
@@ -364,18 +367,29 @@ public class S5BackendObjectsSingleton
     }
   }
 
-  private static int removingObjectRivets( EntityManager aEntityManager, Skid aLeftObjId,
-      IStringMap<IMappedSkids> aRivets ) {
-    TsNullArgumentRtException.checkNulls( aEntityManager, aLeftObjId, aRivets );
+  private static int removingObjectRivets( EntityManager aEntityManager, IDtoObject aObj ) {
+    TsNullArgumentRtException.checkNulls( aEntityManager, aObj );
+    IStringMap<IMappedSkids> rivetRevs = aObj.rivetRevs();
+    int retValue = 0;
+    // Необходимо пройти по всем объектам склепок и удалить обратные склепки на удаляемый объект
+    for( String rivetClassId : rivetRevs.keys() ) {
+      for( String rightObjId : rivetRevs.getByKey( rivetClassId ).map().keys() ) {
+
+      }
+    }
     // TODO Auto-generated method stub
-    return 0;
+    return retValue;
   }
 
-  private static int updateObjectRivets( EntityManager aEntityManager, Skid aLeftObjId, IStringMap<IMappedSkids> aPrevRivets,
-      IStringMap<IMappedSkids> aNewRivets ) {
-    TsNullArgumentRtException.checkNulls( aEntityManager, aLeftObjId, aPrevRivets, aNewRivets );
+  private static int updateObjectRivets( EntityManager aEntityManager, IDtoObject aPrevObj, IDtoObject aNewObj ) {
+    TsNullArgumentRtException.checkNulls( aEntityManager, aPrevObj, aNewObj );
+    int retValue = 0;
+    // Необходимо:
+    // 1. Определить какие склепки были и больше их нет.
+    // 2. Для несуществующих больше склепок пройти по всем объектам и удалить обратную склепку на обновляемый объект
+    // 3. Для новых склепок пройти по всем объектам и добавить обратные склепки на обновляемый объект
     // TODO Auto-generated method stub
-    return 0;
+    return retValue;
   }
 
   // ------------------------------------------------------------------------------------
@@ -464,11 +478,8 @@ public class S5BackendObjectsSingleton
     IStringMapEdit<Constructor<S5ObjectEntity>> objectContructors = new StringMap<>();
     for( IDtoObject obj : aObjects ) {
       String classId = obj.classId();
-      ISkClassInfo classInfo = aClassesByIds.findByKey( classId );
-      if( classInfo == null ) {
-        classInfo = sysdescrReader.getClassInfo( classId );
-        aClassesByIds.put( classId, classInfo );
-      }
+      // Поиск и если необходимо кэширование описания класса
+      ISkClassInfo classInfo = findAndCacheClassInfo( sysdescrReader, classId, aClassesByIds );
       // Класс реализации объекта
       Class<S5ObjectEntity> objImplClass = getObjectImplClass( classInfo, aImplByIds );
       // Создание нового объекта
@@ -504,6 +515,57 @@ public class S5BackendObjectsSingleton
       }
       objs.add( new Pair<>( prevObj, newObj ) );
     }
+  }
+
+  /**
+   * Проводит попытку прочитать описание класса из представленного кэша классов. Если описание класса в кэше не найдно,
+   * то попытка найти класс через представленный читатель и размещение его в кэше.
+   *
+   * @param aSysdescrReader {@link ISkSysdescrReader} читатель классов.
+   * @param aClassId String идентификатор класса для поиска описания.
+   * @param aClassesByIds {@link IStringMapEdit}&lt;{@link ISkClassInfo}&gt; редактируемый кэш описаний классов.<br>
+   *          Ключ: идентификтор класса.
+   * @return {@link ISkClassInfo} найденное описание класса. null: класс не существует.
+   * @throws TsNullArgumentRtException любой аргумент = null
+   */
+  private static ISkClassInfo findAndCacheClassInfo( ISkSysdescrReader aSysdescrReader, String aClassId,
+      IStringMapEdit<ISkClassInfo> aClassesByIds ) {
+    TsNullArgumentRtException.checkNulls( aSysdescrReader, aClassId, aClassesByIds );
+    ISkClassInfo classInfo = aClassesByIds.findByKey( aClassId );
+    if( classInfo == null ) {
+      classInfo = aSysdescrReader.getClassInfo( aClassId );
+      aClassesByIds.put( aClassId, classInfo );
+    }
+    return classInfo;
+  }
+
+  /**
+   * Проводит попытку прочитать описание класса из представленного кэша классов. Если описание класса в кэше не найдно,
+   * то попытка найти класс через представленный читатель и размещение его в кэше.
+   *
+   * @param aEntityManager {@link EntityManager} менеджер постоянства.
+   * @param aObjId {@link Skid} идентификатор объекта для поиска.
+   * @param aSysdescrReader {@link ISkSysdescrReader} читатель классов.
+   * @param aClassesByIds {@link IStringMapEdit}&lt;{@link ISkClassInfo}&gt; редактируемый кэш описаний классов.<br>
+   *          Ключ: идентификтор класса.
+   * @param aImplByIds {@link IStringMapEdit}&lt;Class&gt; карта классов реализаций объектов по описаниям классов. <br>
+   *          Ключ: описание класса;<br>
+   *          Значение: Класс реализации объекта.
+   * @return {@link ISkClassInfo} найденное описание класса. null: класс не существует.
+   * @throws TsNullArgumentRtException любой аргумент = null
+   */
+  private static IDtoObject findObject( EntityManager aEntityManager, Skid aObjId, ISkSysdescrReader aSysdescrReader,
+      IStringMapEdit<ISkClassInfo> aClassesByIds, IStringMapEdit<Class<S5ObjectEntity>> aImplByIds ) {
+    TsNullArgumentRtException.checkNulls( aEntityManager, aObjId, aSysdescrReader, aClassesByIds );
+    // Идентификатор класса объекта
+    String classId = aObjId.classId();
+    // Поиск и если необходимо кэширование описания класса
+    ISkClassInfo classInfo = findAndCacheClassInfo( aSysdescrReader, classId, aClassesByIds );
+    // Класс реализации объекта
+    Class<S5ObjectEntity> objImplClass = getObjectImplClass( classInfo, aImplByIds );
+    // Поиск объекта
+    IDtoObject retValue = aEntityManager.find( objImplClass, new S5ObjectID( aObjId ) );
+    return retValue;
   }
 
   /**
