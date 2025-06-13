@@ -172,6 +172,11 @@ class SdedSkClassInfoMpc
     IStridablesList<ISkClassInfo> allItems = new StridablesList<>( itemsProvider().listItems() );
     if( toolbar().isActionChecked( ACTID_HIDE_CLAIMED_CLASSES ) ) {
       IStridablesListEdit<ISkClassInfo> visibleItems = new StridablesList<>();
+
+      /**
+       * FIXME do not ADD some classes, just remove not-needed ones
+       */
+
       // add SYSDESCR owned classes with all parents
       for( ISkClassInfo cinf : allItems ) {
         String claimingServiceId = skSysdescr().determineClassClaimingServiceId( cinf.id() );
