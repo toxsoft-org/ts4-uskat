@@ -18,6 +18,7 @@ import org.toxsoft.core.tslib.bricks.strio.chario.*;
 import org.toxsoft.core.tslib.bricks.strio.chario.impl.*;
 import org.toxsoft.core.tslib.bricks.strio.impl.*;
 import org.toxsoft.core.tslib.coll.primtypes.*;
+import org.toxsoft.core.tslib.coll.primtypes.impl.*;
 import org.toxsoft.core.tslib.gw.skid.*;
 import org.toxsoft.core.tslib.utils.errors.*;
 import org.toxsoft.core.tslib.utils.logs.*;
@@ -130,6 +131,7 @@ public class S5ObjectEntity
     classInfo = S5ClassEntity.createPrimaryKey( aSource.classId() );
     setAttrs( aSource.attrs() );
     setRivets( aSource.rivets() );
+    setRivetRevs( new StringMap<>() );
   }
 
   /**
@@ -147,7 +149,7 @@ public class S5ObjectEntity
       classInfo = null;
       attrsString = aResultSet.getString( FIELD_ATTRS_STRING );
       rivetsString = aResultSet.getString( FIELD_RIVERTS_STRING );
-      rivetRevsString = aResultSet.getString( FIELD_RIVERTS_STRING );
+      rivetRevsString = aResultSet.getString( FIELD_RIVET_REVS_STRING );
     }
     catch( Throwable e ) {
       // Неожиданная ошибка чтения данных jdbc-курсора
@@ -165,9 +167,9 @@ public class S5ObjectEntity
     TsNullArgumentRtException.checkNull( aId );
     id = aId;
     classInfo = null;
-    attrsString = EMPTY_STRING;
-    rivetsString = EMPTY_STRING;
-    rivetRevsString = EMPTY_STRING;
+    setAttrs( IOptionSet.NULL );
+    setRivets( IMappedSkids.EMPTY );
+    setRivetRevs( IStringMap.EMPTY );
   }
 
   /**
@@ -176,9 +178,9 @@ public class S5ObjectEntity
   protected S5ObjectEntity() {
     id = null;
     classInfo = null;
-    attrsString = EMPTY_STRING;
-    rivetsString = EMPTY_STRING;
-    rivetRevsString = EMPTY_STRING;
+    setAttrs( IOptionSet.NULL );
+    setRivets( IMappedSkids.EMPTY );
+    setRivetRevs( IStringMap.EMPTY );
   }
 
   /**

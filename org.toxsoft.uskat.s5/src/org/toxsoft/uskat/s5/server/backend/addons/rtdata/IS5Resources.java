@@ -17,5 +17,5 @@ interface IS5Resources {
   // ------------------------------------------------------------------------------------
   // Тексты ошибок
   //
-  // String ERR_ = "";
+  // String ERR_RIVET_REVS_RIGHT_OBJ_NOT_FOUND = "";
 }
