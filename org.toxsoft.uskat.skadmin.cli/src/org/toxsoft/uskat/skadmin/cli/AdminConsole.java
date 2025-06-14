@@ -137,7 +137,7 @@ class AdminConsole
     TMP_DIR.setValue( environ.params(), avStr( "temp" ) ); //$NON-NLS-1$
     CLEAN_TMP_DIR.setValue( environ.params(), avBool( true ) );
     // Создание контейнера плагинов
-    PluginBox<PluginUnit> pluginBox = new PluginBox<>( "pluginBox", params ); //$NON-NLS-1$
+    PluginBox<PluginUnit> pluginBox = new PluginBox<>( "pluginBox", params, logger ); //$NON-NLS-1$
     // Создание корневого контейнера...
     rootBox = new WubBox( "rootBox", params ); //$NON-NLS-1$
     // Добавление в корневой контейнер контейнера плагинов

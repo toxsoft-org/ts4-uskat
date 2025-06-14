@@ -49,10 +49,11 @@ public class SkatletBox
    *
    * @param aId String идентификатор контейнера
    * @param aParams {@link IOptionSet} параметры контейнера
+   * @param aLogger {@link ILogger} журнал работы
    * @throws TsNullArgumentRtException любой аргумент = null
    */
-  public SkatletBox( String aId, IOptionSet aParams ) {
-    super( aId, aParams );
+  public SkatletBox( String aId, IOptionSet aParams, ILogger aLogger ) {
+    super( aId, aParams, aLogger );
   }
 
   // ------------------------------------------------------------------------------------
@@ -80,6 +81,7 @@ public class SkatletBox
 
   @Override
   protected IList<IPluginInfo> doBeforeLoadUnits( IList<IPluginInfo> aPluginInfos ) {
+    // Формирование списка согласно порядку определенного клиентом
     IStringList pluginIdsByOrder = ISkatlet.OPDEF_SKATLETS_LOAD_ORDER.getValue( params() ).asValobj();
     IStringMapEdit<IPluginInfo> source = new StringMap<>();
     for( IPluginInfo pluginInfo : aPluginInfos ) {
