@@ -56,7 +56,7 @@ public class S5ObjectEntity
   /**
    * Поле таблицы: значения обратных склепок объектов на целевой объект в строковом формате
    */
-  protected static final String FIELD_RIVET_REVS_STRING = "rivertRevsString"; //$NON-NLS-1$
+  protected static final String FIELD_RIVET_REVS_STRING = "rivetRevsString"; //$NON-NLS-1$
 
   /**
    * Первичный составной (classId,strid) ключ
