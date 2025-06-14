@@ -177,7 +177,7 @@ public class S5BackendSkatletsSingleton
     // Создание корневого контейнера...
     rootBox = new WubBox( ROOT_BOX_ID, params );
     // Добавление в корневой контейнер контейнера скатлетов
-    rootBox.addUnit( new SkatletBox( SKATLET_BOX_ID, params ) {
+    rootBox.addUnit( new SkatletBox( SKATLET_BOX_ID, params, logger() ) {
 
       @Override
       protected void doCreateSharedConnection( SharedConnection aConnection ) {
