@@ -544,11 +544,6 @@ public class SkCoreServObject
     return dtoObj;
   }
 
-  private void internalWriteSkObjectToBackend( ISkObject aObj ) {
-    DtoObject dtoObj = createForBackendSave( aObj );
-    ba().baObjects().writeObjects( ISkidList.EMPTY, new SingleItemList<>( dtoObj ) );
-  }
-
   boolean internalDoesObjectExists( Skid aSkid ) {
     if( objsCache.has( aSkid ) ) {
       return true;
@@ -674,41 +669,56 @@ public class SkCoreServObject
   @Override
   public <T extends ISkObject> T defineObject( IDtoObject aDtoObject ) {
     checkThread();
-    // check preconditions
     TsNullArgumentRtException.checkNull( aDtoObject );
+    return (T)defineObjects( ISkidList.EMPTY, new SingleItemList<>( aDtoObject ) ).first();
+  }
+
+  @Override
+  public IList<ISkObject> defineObjects( ISkidList aRemoveSkids, IList<IDtoObject> aDtoObjects ) {
+    checkThread();
+    // check preconditions
+    TsNullArgumentRtException.checkNull( aDtoObjects );
     coreApi().papiCheckIsOpen();
-    ISkClassInfo cInfo = coreApi().sysdescr().getClassInfo( aDtoObject.skid().classId() );
-    // validate operation
-    SkObject sko = find( aDtoObject.skid() );
-    if( sko != null ) { // validate exiting object editing
-      TsValidationFailedRtException.checkError( validationSupport.canEditObject( aDtoObject, sko ) );
-    }
-    else { // validate new object creation
-      TsValidationFailedRtException.checkError( validationSupport.canCreateObject( aDtoObject ) );
-      sko = fromDto( aDtoObject, cInfo );
-    }
-    // refresh attribute values (validator already checked that attributes set is valid)
-    for( IDtoAttrInfo ainf : cInfo.attrs().list() ) {
-      if( !isSkSysAttr( ainf ) ) {
-        IAtomicValue val = aDtoObject.attrs().getValue( ainf.id(), ainf.dataType().defaultValue() );
-        sko.attrs().setValue( ainf.id(), val );
+
+    IListEdit<ISkObject> retValue = new ElemArrayList<>();
+    IListEdit<IDtoObject> objsForBackendSave = new ElemArrayList<>();
+
+    for( IDtoObject aDtoObject : aDtoObjects ) {
+      ISkClassInfo cInfo = coreApi().sysdescr().getClassInfo( aDtoObject.skid().classId() );
+      // validate operation
+      SkObject sko = find( aDtoObject.skid() );
+      if( sko != null ) { // validate exiting object editing
+        TsValidationFailedRtException.checkError( validationSupport.canEditObject( aDtoObject, sko ) );
       }
+      else { // validate new object creation
+        TsValidationFailedRtException.checkError( validationSupport.canCreateObject( aDtoObject ) );
+        sko = fromDto( aDtoObject, cInfo );
+      }
+      // refresh attribute values (validator already checked that attributes set is valid)
+      for( IDtoAttrInfo ainf : cInfo.attrs().list() ) {
+        if( !isSkSysAttr( ainf ) ) {
+          IAtomicValue val = aDtoObject.attrs().getValue( ainf.id(), ainf.dataType().defaultValue() );
+          sko.attrs().setValue( ainf.id(), val );
+        }
+      }
+      // refresh rivets values
+      for( IDtoRivetInfo rinf : cInfo.rivets().list() ) {
+        ISkidList rivets = aDtoObject.rivets().map().getByKey( rinf.id() );
+        sko.rivets().ensureSkidList( rinf.id() ).setAll( rivets );
+      }
+      /**
+       * FIXME here we need to localize object after it was written to the backend.<br>
+       * When creating system objects they are created in English. but in cache they have to be put localized!
+       */
+      retValue.add( sko );
+      objsForBackendSave.add( createForBackendSave( sko ) );
     }
-    // refresh rivets values
-    for( IDtoRivetInfo rinf : cInfo.rivets().list() ) {
-      ISkidList rivets = aDtoObject.rivets().map().getByKey( rinf.id() );
-      sko.rivets().ensureSkidList( rinf.id() ).setAll( rivets );
+    ba().baObjects().writeObjects( aRemoveSkids, objsForBackendSave );
+    // backend write successful, updating cache
+    for( ISkObject sko : retValue ) {
+      objsCache.put( (SkObject)sko );
     }
-    // save object
-
-    /**
-     * FIXME here we need to localize object after it was written to the backend.<br>
-     * When creating system objects they are created in English. but in cache they have to be put localized!
-     */
-
-    objsCache.put( sko );
-    internalWriteSkObjectToBackend( sko );
-    return (T)sko;
+    return retValue;
   }
 
   @Override

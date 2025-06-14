@@ -18,6 +18,7 @@ import javax.persistence.*;
 import javax.sql.*;
 
 import org.toxsoft.core.tslib.bricks.events.msg.*;
+import org.toxsoft.core.tslib.bricks.strio.*;
 import org.toxsoft.core.tslib.coll.*;
 import org.toxsoft.core.tslib.coll.helpers.*;
 import org.toxsoft.core.tslib.coll.impl.*;
@@ -273,15 +274,20 @@ public class S5BackendObjectsSingleton
     for( IList<Pair<IDtoObject, IDtoObject>> objs : updatedObjs.values() ) {
       for( Pair<IDtoObject, IDtoObject> obj : objs ) {
         changedObjectIds.add( obj.right().skid() );
-        // updating obj rivets
-        uc += updateRivets( obj.left(), obj.right(), em, sysdescrReader, classesByIds, implByIds, logger() );
         // 2020-07-23 mvk
         // em.merge( obj.right() );
+        // Восстановление списка obj.left(!) обратных склепок
+
+        ((S5ObjectEntity)obj.right()).setRivetRevs( obj.left().rivetRevs() ); // TODO: (!) выбрать рабочий вариант 1
+
+        // Обновление объекта в базе данных
         S5ObjectEntity changedObj = ((S5ObjectEntity)em.merge( obj.right() ));
         changedObj.setAttrs( obj.right().attrs() );
         changedObj.setRivets( obj.right().rivets() );
+
         // Восстановление списка obj.left(!) обратных склепок
-        changedObj.setRivetRevs( obj.left().rivetRevs() );
+        changedObj.setRivetRevs( obj.left().rivetRevs() ); // TODO: (!) выбрать рабочий вариант 2
+
         // TODO: mvkd experimental
         // updateObject( em, obj.right() );
         uc++;
@@ -299,14 +305,34 @@ public class S5BackendObjectsSingleton
         // TODO: mvkd experimental
         // createObject( em, obj );
         cc++;
-        // добавление obj rivets
-        cc += creatingRivets( obj, em, sysdescrReader, classesByIds, implByIds, logger() );
         // TODO: updating rivetRevs
         if( logger().isSeverityOn( ELogSeverity.DEBUG ) ) {
           logger().debug( "writeObjects(...): persist entity %s, cc = %d", obj, cc );
         }
       }
     }
+    // Проверка существования оставшихся обратных склепок на удаленные объекты
+    for( IList<IDtoObject> classRemovedObjs : removedObjs.values() ) {
+      for( IDtoObject removedObj : classRemovedObjs ) {
+        IStringMap<IMappedSkids> rr = removedObj.rivetRevs();
+        if( rr.size() > 0 ) {
+          // Запрет удаления объекта на который ссылаются другие объекты
+          throw new TsIllegalArgumentRtException( ERR_CANT_REMOVE_HAS_RIVET_REVS, removedObj, rivetRevsStr( rr ) );
+        }
+      }
+    }
+    // Обновление склепок созданных и обновленных объектов
+    for( IList<Pair<IDtoObject, IDtoObject>> objs : updatedObjs.values() ) {
+      for( Pair<IDtoObject, IDtoObject> obj : objs ) {
+        uc += updateRivets( obj.left(), obj.right(), em, sysdescrReader, classesByIds, implByIds, logger() );
+      }
+    }
+    for( IList<IDtoObject> objs : createdObjs.values() ) {
+      for( IDtoObject obj : objs ) {
+        cc += creatingRivets( obj, em, sysdescrReader, classesByIds, implByIds, logger() );
+      }
+    }
+
     long entityManagerTimestamp1 = System.currentTimeMillis();
 
     // Синхронизация с базой данных
@@ -700,6 +726,38 @@ public class S5BackendObjectsSingleton
       }
     }
     return retValue;
+  }
+
+  /**
+   * Возвращает текстовое представление обратных склепок объекта
+   *
+   * @param aRivetRevs {@link IStringMap}&lt;{@link IMappedSkids}&gt; SKIDs map of reverse rivets where: <br>
+   *          - {@link IStringMap} key is "rivet class ID";<br>
+   *          - {@link IMappedSkids} key is "rivet ID" - ;<br>
+   *          - {@link IMappedSkids} values are "SKIDs list of the left objects which have this object riveted".
+   * @return String текстовое представление.
+   * @throws TsNullArgumentRtException аргумент = null
+   */
+  @SuppressWarnings( { "nls", "boxing" } )
+  private static String rivetRevsStr( IStringMap<IMappedSkids> aRivetRevs ) {
+    TsNullArgumentRtException.checkNull( aRivetRevs );
+    StringBuilder sb = new StringBuilder();
+    for( String rivetClassId : aRivetRevs.keys() ) {
+      IMappedSkids mappedSkids = aRivetRevs.getByKey( rivetClassId );
+      for( String rivetId : mappedSkids.map().keys() ) {
+        ISkidList leftObjIds = mappedSkids.map().getByKey( rivetId );
+        sb.append( String.format( "%s %s (%d): ", rivetClassId, rivetId, leftObjIds.size() ) );
+        for( int index = 0, n = leftObjIds.size(); index < n; index++ ) {
+          sb.append( leftObjIds.get( index ) );
+          if( index + 1 < n ) {
+            sb.append( ',' );
+            sb.append( IStrioHardConstants.CHAR_SPACE );
+          }
+        }
+        sb.append( '\n' );
+      }
+    }
+    return sb.toString();
   }
 
   /**

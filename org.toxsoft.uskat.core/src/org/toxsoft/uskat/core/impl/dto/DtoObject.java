@@ -234,8 +234,9 @@ public final class DtoObject
     OptionSetKeeper.KEEPER.write( aSw, aEntity.attrs() );
     aSw.writeSeparatorChar();
     MappedSkids.KEEPER.write( aSw, aEntity.rivets() );
-    aSw.writeSeparatorChar();
-    StrioUtils.writeStringMap( aSw, EMPTY_STRING, aEntity.rivetRevs(), MappedSkids.KEEPER, true );
+    // Краткой форме записи обратные склепки не нужны - они формируются бекендом при записи объектов
+    // aSw.writeSeparatorChar();
+    // StrioUtils.writeStringMap( aSw, EMPTY_STRING, aEntity.rivetRevs(), MappedSkids.KEEPER, true );
     aSw.writeChar( CHAR_SET_END );
   }
 
@@ -256,10 +257,11 @@ public final class DtoObject
     OptionSet attrs = (OptionSet)OptionSetKeeper.KEEPER.read( aSr );
     aSr.ensureSeparatorChar();
     MappedSkids rivets = (MappedSkids)MappedSkids.KEEPER.read( aSr );
-    aSr.ensureSeparatorChar();
-    IStringMapEdit<IMappedSkids> rr = StrioUtils.readStringMap( aSr, EMPTY_STRING, MappedSkids.KEEPER );
+    // Краткой форме записи обратные склепки не нужны - они формируются бекендом при записи объектов
+    // aSr.ensureSeparatorChar();
+    // IStringMapEdit<IMappedSkids> rr = StrioUtils.readStringMap( aSr, EMPTY_STRING, MappedSkids.KEEPER );
     aSr.ensureChar( CHAR_SET_END );
-    return new DtoObject( 0, skid, attrs, rivets, rr );
+    return new DtoObject( 0, skid, attrs, rivets, IStringMap.EMPTY );
   }
 
   // ------------------------------------------------------------------------------------

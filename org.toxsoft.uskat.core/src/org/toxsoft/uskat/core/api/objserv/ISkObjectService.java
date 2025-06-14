@@ -116,6 +116,19 @@ public interface ISkObjectService
   <T extends ISkObject> T defineObject( IDtoObject aDtoObject );
 
   /**
+   * Creates new objects or updates or deletes existing objects in a single transaction.
+   *
+   * @param aRemoveSkids {@link ISkidList} - list of SKIDs of objects to remove
+   * @param aDtoObjects {@link IList}&lt;{@link IDtoObject}&gt; - list of the object data
+   * @return {@link IList}&lt;{@link ISkObject}&gt; list of the created/update objects
+   * @throws TsNullArgumentRtException any argument = <code>null</code>
+   * @throws TsValidationFailedRtException failed validation
+   *           {@link ISkObjectServiceValidator#canCreateObject(IDtoObject)} or
+   *           {@link ISkObjectServiceValidator#canEditObject(IDtoObject, ISkObject)}
+   */
+  IList<ISkObject> defineObjects( ISkidList aRemoveSkids, IList<IDtoObject> aDtoObjects );
+
+  /**
    * Removes the specified object.
    * <p>
    * All forward links are also deleted.

@@ -35,11 +35,14 @@ interface IS5Resources {
 
   String ERR_CREATE_OBJ_UNEXPECTED = Messages.getString( "IS5Resources.ERR_CREATE_OBJ_UNEXPECTED" );
 
-  String ERR_NO_DEFAULT_VALUE                  = Messages.getString( "IS5Resources.ERR_NO_DEFAULT_VALUE" );
-  String ERR_CANT_CHANGE_CLASS_WITH_OBJS       = Messages.getString( "IS5Resources.ERR_CANT_CHANGE_CLASS_WITH_OBJS" );
-  String ERR_ATTR_NOT_HAVE_DEFAULT_VALUE       = Messages.getString( "IS5Resources.ERR_ATTR_NOT_HAVE_DEFAULT_VALUE" );
-  String ERR_CANT_CHANGE_IMPL_AND_ATTRS        = Messages.getString( "IS5Resources.ERR_CANT_CHANGE_IMPL_AND_ATTRS" );
-  String ERR_CHANGE_OBJECT_IMPL                = Messages.getString( "IS5Resources.ERR_CHANGE_OBJECT_IMPL" );
+  String ERR_NO_DEFAULT_VALUE            = Messages.getString( "IS5Resources.ERR_NO_DEFAULT_VALUE" );
+  String ERR_CANT_CHANGE_CLASS_WITH_OBJS = Messages.getString( "IS5Resources.ERR_CANT_CHANGE_CLASS_WITH_OBJS" );
+  String ERR_ATTR_NOT_HAVE_DEFAULT_VALUE = Messages.getString( "IS5Resources.ERR_ATTR_NOT_HAVE_DEFAULT_VALUE" );
+  String ERR_CANT_CHANGE_IMPL_AND_ATTRS  = Messages.getString( "IS5Resources.ERR_CANT_CHANGE_IMPL_AND_ATTRS" );
+  String ERR_CHANGE_OBJECT_IMPL          = Messages.getString( "IS5Resources.ERR_CHANGE_OBJECT_IMPL" );
+
+  String ERR_CANT_REMOVE_HAS_RIVET_REVS  =
+      "%s: prohibition of deleting an object that is in the rivets of other objects: \n%s";
   String ERR_RIVERT_REVS_ALREADY_EXIST         =
       "%s(...): rightObj %s, rivetId = %s, leftObj =%s: rivet rev already exist.";
   String ERR_RIVET_REVS_RIGHT_OBJ_NOT_FOUND    = "%s(...): right obj %s is not found";
