@@ -112,6 +112,8 @@ public class SkCoreApi
     // thread separator service
     llCreators.add( SkThreadExecutorService.CREATOR );
 
+    // 2025-06-14 mvk---+++ инициализация должна проводится в порядке создания (могут быть зависимости между службами)
+    IListEdit<AbstractSkService> serviceList = new ElemArrayList<>();
     // fill map of the services
     executor.syncExec( () -> {
       for( ISkServiceCreator<? extends AbstractSkService> c : llCreators ) {
@@ -130,6 +132,7 @@ public class SkCoreApi
           throw ex;
         }
         servicesMap.put( s.serviceId(), s );
+        serviceList.add( s );
       }
     } );
     // init mandatory service refs
@@ -147,8 +150,14 @@ public class SkCoreApi
     gwidDbService = getService( ISkGwidDbService.SERVICE_ID );
     // initialize services
     executor.syncExec( () -> {
-      for( int i = 0; i < servicesMap.size(); i++ ) {
-        AbstractSkService s = servicesMap.values().get( i );
+      // 2025-06-14 mvk---+++ инициализация служб должна проводиться в том же порядке в котором они создавались:
+      // могут быть зависимости между службами, например, INmSitrolService зависит от классов ISitrolService
+      // for( int i = 0; i < servicesMap.size(); i++ ) {
+      // AbstractSkService s = servicesMap.values().get( i );
+      // internalInitService( s );
+      // }
+      for( int i = 0; i < serviceList.size(); i++ ) {
+        AbstractSkService s = serviceList.get( i );
         internalInitService( s );
       }
     } );
