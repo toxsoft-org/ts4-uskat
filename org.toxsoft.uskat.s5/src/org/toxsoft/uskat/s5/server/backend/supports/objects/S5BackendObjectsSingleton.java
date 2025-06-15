@@ -18,7 +18,6 @@ import javax.persistence.*;
 import javax.sql.*;
 
 import org.toxsoft.core.tslib.bricks.events.msg.*;
-import org.toxsoft.core.tslib.bricks.strio.*;
 import org.toxsoft.core.tslib.coll.*;
 import org.toxsoft.core.tslib.coll.helpers.*;
 import org.toxsoft.core.tslib.coll.impl.*;
@@ -32,6 +31,7 @@ import org.toxsoft.uskat.core.api.objserv.*;
 import org.toxsoft.uskat.core.api.sysdescr.*;
 import org.toxsoft.uskat.core.api.sysdescr.dto.*;
 import org.toxsoft.uskat.core.backend.api.*;
+import org.toxsoft.uskat.core.utils.*;
 import org.toxsoft.uskat.s5.common.sysdescr.*;
 import org.toxsoft.uskat.s5.server.backend.impl.*;
 import org.toxsoft.uskat.s5.server.backend.supports.events.*;
@@ -316,8 +316,9 @@ public class S5BackendObjectsSingleton
       for( IDtoObject removedObj : classRemovedObjs ) {
         IStringMap<IMappedSkids> rr = removedObj.rivetRevs();
         if( rr.size() > 0 ) {
+          String rrs = SkHelperUtils.rivetRevsStr( rr );
           // Запрет удаления объекта на который ссылаются другие объекты
-          throw new TsIllegalArgumentRtException( ERR_CANT_REMOVE_HAS_RIVET_REVS, removedObj, rivetRevsStr( rr ) );
+          throw new TsIllegalArgumentRtException( ERR_CANT_REMOVE_HAS_RIVET_REVS, removedObj, rrs );
         }
       }
     }
@@ -729,38 +730,6 @@ public class S5BackendObjectsSingleton
   }
 
   /**
-   * Возвращает текстовое представление обратных склепок объекта
-   *
-   * @param aRivetRevs {@link IStringMap}&lt;{@link IMappedSkids}&gt; SKIDs map of reverse rivets where: <br>
-   *          - {@link IStringMap} key is "rivet class ID";<br>
-   *          - {@link IMappedSkids} key is "rivet ID" - ;<br>
-   *          - {@link IMappedSkids} values are "SKIDs list of the left objects which have this object riveted".
-   * @return String текстовое представление.
-   * @throws TsNullArgumentRtException аргумент = null
-   */
-  @SuppressWarnings( { "nls", "boxing" } )
-  private static String rivetRevsStr( IStringMap<IMappedSkids> aRivetRevs ) {
-    TsNullArgumentRtException.checkNull( aRivetRevs );
-    StringBuilder sb = new StringBuilder();
-    for( String rivetClassId : aRivetRevs.keys() ) {
-      IMappedSkids mappedSkids = aRivetRevs.getByKey( rivetClassId );
-      for( String rivetId : mappedSkids.map().keys() ) {
-        ISkidList leftObjIds = mappedSkids.map().getByKey( rivetId );
-        sb.append( String.format( "%s %s (%d): ", rivetClassId, rivetId, leftObjIds.size() ) );
-        for( int index = 0, n = leftObjIds.size(); index < n; index++ ) {
-          sb.append( leftObjIds.get( index ) );
-          if( index + 1 < n ) {
-            sb.append( ',' );
-            sb.append( IStrioHardConstants.CHAR_SPACE );
-          }
-        }
-        sb.append( '\n' );
-      }
-    }
-    return sb.toString();
-  }
-
-  /**
    * Редактор обратных склепок объекта
    *
    * @author mvk
@@ -819,6 +788,7 @@ public class S5BackendObjectsSingleton
       TsNullArgumentRtException.checkNull( aRightObj );
       TsIllegalStateRtException.checkNull( rivetClassId );
       setRivet( rivetClassId, rivetId );
+      obj = null;
 
       // Попытка инициализировать редактор предыдущими значениями
       IStringMap<IMappedSkids> prevRivetRevs = aRightObj.rivetRevs();
@@ -836,6 +806,8 @@ public class S5BackendObjectsSingleton
           newSkidList.setAll( prevSkidList );
         }
       }
+      obj = aRightObj;
+
       return newSkidList;
     }
 
