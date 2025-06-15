@@ -5,9 +5,11 @@ import java.security.*;
 import org.toxsoft.core.tslib.av.*;
 import org.toxsoft.core.tslib.av.metainfo.*;
 import org.toxsoft.core.tslib.bricks.strid.coll.*;
+import org.toxsoft.core.tslib.bricks.strio.*;
 import org.toxsoft.core.tslib.coll.*;
 import org.toxsoft.core.tslib.coll.basis.*;
 import org.toxsoft.core.tslib.coll.impl.*;
+import org.toxsoft.core.tslib.coll.primtypes.*;
 import org.toxsoft.core.tslib.gw.gwid.*;
 import org.toxsoft.core.tslib.gw.skid.*;
 import org.toxsoft.core.tslib.utils.*;
@@ -401,6 +403,38 @@ public class SkHelperUtils {
       }
     }
     return retValue;
+  }
+
+  /**
+   * Возвращает текстовое представление обратных склепок объекта
+   *
+   * @param aRivetRevs {@link IStringMap}&lt;{@link IMappedSkids}&gt; SKIDs map of reverse rivets where: <br>
+   *          - {@link IStringMap} key is "rivet class ID";<br>
+   *          - {@link IMappedSkids} key is "rivet ID" - ;<br>
+   *          - {@link IMappedSkids} values are "SKIDs list of the left objects which have this object riveted".
+   * @return String текстовое представление.
+   * @throws TsNullArgumentRtException аргумент = null
+   */
+  @SuppressWarnings( { "nls", "boxing" } )
+  public static String rivetRevsStr( IStringMap<IMappedSkids> aRivetRevs ) {
+    TsNullArgumentRtException.checkNull( aRivetRevs );
+    StringBuilder sb = new StringBuilder();
+    for( String rivetClassId : aRivetRevs.keys() ) {
+      IMappedSkids mappedSkids = aRivetRevs.getByKey( rivetClassId );
+      for( String rivetId : mappedSkids.map().keys() ) {
+        ISkidList leftObjIds = mappedSkids.map().getByKey( rivetId );
+        sb.append( String.format( "%s$rivet(%s) (%d): ", rivetClassId, rivetId, leftObjIds.size() ) );
+        for( int index = 0, n = leftObjIds.size(); index < n; index++ ) {
+          sb.append( leftObjIds.get( index ) );
+          if( index + 1 < n ) {
+            sb.append( ',' );
+            sb.append( IStrioHardConstants.CHAR_SPACE );
+          }
+        }
+        sb.append( IStrioHardConstants.CHAR_EOL );
+      }
+    }
+    return sb.toString();
   }
 
   /**
