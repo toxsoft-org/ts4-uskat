@@ -1,6 +1,5 @@
 package org.toxsoft.uskat.s5.server.backend.supports.objects;
 
-import static org.toxsoft.core.tslib.coll.impl.TsCollectionsUtils.*;
 import static org.toxsoft.uskat.s5.common.IS5CommonResources.*;
 import static org.toxsoft.uskat.s5.server.IS5ImplementConstants.*;
 import static org.toxsoft.uskat.s5.server.backend.supports.objects.IS5ObjectsInterceptor.*;
@@ -29,8 +28,8 @@ import org.toxsoft.core.tslib.utils.errors.*;
 import org.toxsoft.core.tslib.utils.logs.*;
 import org.toxsoft.uskat.core.api.objserv.*;
 import org.toxsoft.uskat.core.api.sysdescr.*;
-import org.toxsoft.uskat.core.api.sysdescr.dto.*;
 import org.toxsoft.uskat.core.backend.api.*;
+import org.toxsoft.uskat.core.impl.*;
 import org.toxsoft.uskat.core.utils.*;
 import org.toxsoft.uskat.s5.common.sysdescr.*;
 import org.toxsoft.uskat.s5.server.backend.impl.*;
@@ -252,20 +251,20 @@ public class S5BackendObjectsSingleton
     }
     long interceptorTimestamp1 = System.currentTimeMillis();
 
+    // Редактор склепок объекта
+    ObjectRivetEditor rivetEditor = new ObjectRivetEditor( classesByIds, implByIds );
+
     // Список объектов изменивших атрибуты или удаленных из системы
     IListEdit<Skid> changedObjectIds = new SkidList();
+
     // Удаление объектов
     int rc = 0;
-    for( IList<IDtoObject> classRemovedObjs : removedObjs.values() ) {
-      for( IDtoObject removedObj : classRemovedObjs ) {
-        changedObjectIds.add( removedObj.skid() );
+    for( IList<IDtoObject> classObjs : removedObjs.values() ) {
+      for( IDtoObject removedObj : classObjs ) {
         // removing obj rivets
-        rc += removingRivets( removedObj, em, sysdescrReader, classesByIds, implByIds, logger() );
-        // removing obj
-        em.remove( removedObj );
-        rc++;
+        rc += rivetEditor.removeRivets( removedObj );
         if( logger().isSeverityOn( ELogSeverity.DEBUG ) ) {
-          logger().debug( "writeObjects(...): removed entity %s, rc = %d", removedObj, rc );
+          logger().debug( "writeObjects(...): removingRivets for entity %s, rc = %d", removedObj, rc );
         }
       }
     }
@@ -289,7 +288,10 @@ public class S5BackendObjectsSingleton
 
         // Восстановление списка obj.left(!) обратных склепок
         // TODO: (!) проверить и выбрать рабочий вариант 2
-        changedObj.setRivetRevs( obj.left().rivetRevs() );
+        // changedObj.setRivetRevs( obj.left().rivetRevs() );
+
+        // Обновление склепок
+        uc += rivetEditor.updateRivets( obj.left(), obj.right() );
 
         // TODO: mvkd experimental
         // updateObject( em, obj.right() );
@@ -300,6 +302,25 @@ public class S5BackendObjectsSingleton
         }
       }
     }
+    // Удаленние объектов с проверкой того, что они не имеют обратных склепок
+    for( IList<IDtoObject> removedClassObjs : removedObjs.values() ) {
+      for( IDtoObject removedObj : removedClassObjs ) {
+        IStringMap<IMappedSkids> rr = removedObj.rivetRevs();
+        if( SkHelperUtils.rivetRevsSize( rr ) > 0 ) {
+          String rrs = SkHelperUtils.rivetRevsStr( rr );
+          // Запрет удаления объекта на который ссылаются другие объекты
+          throw new TsIllegalArgumentRtException( ERR_CANT_REMOVE_HAS_RIVET_REVS, removedObj, rrs );
+        }
+        // removing obj
+        em.remove( removedObj );
+        changedObjectIds.add( removedObj.skid() );
+        rc++;
+        if( logger().isSeverityOn( ELogSeverity.DEBUG ) ) {
+          logger().debug( "writeObjects(...): removed entity %s, rc = %d", removedObj, rc );
+        }
+      }
+    }
+
     // Создание объектов
     int cc = 0;
     for( IList<IDtoObject> objs : createdObjs.values() ) {
@@ -314,26 +335,14 @@ public class S5BackendObjectsSingleton
         }
       }
     }
-    // Проверка существования оставшихся обратных склепок на удаленные объекты
-    for( IList<IDtoObject> classRemovedObjs : removedObjs.values() ) {
-      for( IDtoObject removedObj : classRemovedObjs ) {
-        IStringMap<IMappedSkids> rr = removedObj.rivetRevs();
-        if( rr.size() > 0 ) {
-          String rrs = SkHelperUtils.rivetRevsStr( rr );
-          // Запрет удаления объекта на который ссылаются другие объекты
-          throw new TsIllegalArgumentRtException( ERR_CANT_REMOVE_HAS_RIVET_REVS, removedObj, rrs );
-        }
-      }
-    }
-    // Обновление склепок созданных и обновленных объектов
-    for( IList<Pair<IDtoObject, IDtoObject>> objs : updatedObjs.values() ) {
-      for( Pair<IDtoObject, IDtoObject> obj : objs ) {
-        uc += updateRivets( obj.left(), obj.right(), em, sysdescrReader, classesByIds, implByIds, logger() );
-      }
-    }
     for( IList<IDtoObject> objs : createdObjs.values() ) {
       for( IDtoObject obj : objs ) {
-        cc += creatingRivets( obj, em, sysdescrReader, classesByIds, implByIds, logger() );
+        // Создание склепок
+        cc += rivetEditor.createRivets( obj );
+        // TODO: updating rivetRevs
+        if( logger().isSeverityOn( ELogSeverity.DEBUG ) ) {
+          logger().debug( "writeObjects(...): creatingRivets for entity %s, cc = %d", obj, cc );
+        }
       }
     }
 
@@ -549,315 +558,52 @@ public class S5BackendObjectsSingleton
   }
 
   /**
-   * Добавляет склепки указанного объекта на другие объекты.
-   *
-   * @param aObj {@link IDtoObject} добавленный объект.
-   * @param aEntityManager {@link EntityManager} менеджер постоянства.
-   * @param aSysdescrReader {@link ISkSysdescrReader} читатель классов.
-   * @param aClassesByIds {@link IStringMapEdit}&lt;{@link ISkClassInfo}&gt; редактируемый кэш описаний классов.<br>
-   *          Ключ: идентификтор класса.
-   * @param aImplByIds {@link IStringMapEdit}&lt;Class&gt; карта классов реализаций объектов по описаниям классов. <br>
-   *          Ключ: описание класса;<br>
-   *          Значение: Класс реализации объекта.
-   * @return int количество обновленных объектов.
-   * @throws TsNullArgumentRtException любой аргумент = null
-   */
-  private static int creatingRivets( IDtoObject aObj, EntityManager aEntityManager, ISkSysdescrReader aSysdescrReader,
-      IStringMapEdit<ISkClassInfo> aClassesByIds, IStringMapEdit<Class<S5ObjectEntity>> aImplByIds, ILogger aLogger ) {
-    TsNullArgumentRtException.checkNulls( aObj, aEntityManager, aSysdescrReader, aClassesByIds, aImplByIds );
-    int retValue = 0;
-    ISkClassInfo classInfo = aSysdescrReader.findClassInfo( aObj.classId() );
-    Skid leftObjId = aObj.skid();
-    IMappedSkids rivets = aObj.rivets();
-    RivetRevEditor rivetRevEditor = new RivetRevEditor( aLogger );
-    // Необходимо пройти по всем объектам склепок и добавить обратные склепки на добавленный объект
-    for( IDtoRivetInfo rivetInfo : classInfo.rivets().list() ) {
-      String rivetId = rivetInfo.id();
-      ISkClassInfo rivetClassInfo = classInfo.rivets().findSuperDeclarer( rivetId );
-      String rivetClassId = rivetClassInfo.id();
-      // Установка в редакторе описания склепки
-      rivetRevEditor.setRivet( rivetClassId, rivetId );
-
-      ISkidList rightObjIds = rivets.map().getByKey( rivetId );
-      for( Skid rightObjId : rightObjIds ) {
-        S5ObjectEntity rightObj = findObject( rightObjId, aEntityManager, aSysdescrReader, aClassesByIds, aImplByIds );
-        if( rightObj == null ) {
-          aLogger.error( ERR_RIVET_REVS_RIGHT_OBJ_NOT_FOUND, METHOD_CREATING_RIVETS, rightObjId );
-          continue;
-        }
-        // Установка правого объекта в редакторе обратных склепок. aCreating = true
-        SkidList skidListEdit = rivetRevEditor.setRightObj( rightObj, true );
-        if( skidListEdit.hasElem( leftObjId ) ) {
-          aLogger.error( ERR_RIVERT_REVS_ALREADY_EXIST, METHOD_CREATING_RIVETS, rightObjId, rivetId, leftObjId );
-          continue;
-        }
-        skidListEdit.add( leftObjId );
-        if( rivetRevEditor.commit() ) {
-          retValue++;
-        }
-      }
-    }
-    return retValue;
-  }
-
-  /**
-   * Удаляет склепки указанного объекта на другие объекты.
-   *
-   * @param aObj {@link IDtoObject} удаляемый объект.
-   * @param aEntityManager {@link EntityManager} менеджер постоянства.
-   * @param aSysdescrReader {@link ISkSysdescrReader} читатель классов.
-   * @param aClassesByIds {@link IStringMapEdit}&lt;{@link ISkClassInfo}&gt; редактируемый кэш описаний классов.<br>
-   *          Ключ: идентификтор класса.
-   * @param aImplByIds {@link IStringMapEdit}&lt;Class&gt; карта классов реализаций объектов по описаниям классов. <br>
-   *          Ключ: описание класса;<br>
-   *          Значение: Класс реализации объекта.
-   * @return int количество обновленных объектов.
-   * @throws TsNullArgumentRtException любой аргумент = null
-   */
-  private static int removingRivets( IDtoObject aObj, EntityManager aEntityManager, ISkSysdescrReader aSysdescrReader,
-      IStringMapEdit<ISkClassInfo> aClassesByIds, IStringMapEdit<Class<S5ObjectEntity>> aImplByIds, ILogger aLogger ) {
-    TsNullArgumentRtException.checkNulls( aObj, aEntityManager, aSysdescrReader, aClassesByIds, aImplByIds );
-    int retValue = 0;
-    ISkClassInfo classInfo = aSysdescrReader.findClassInfo( aObj.classId() );
-    Skid leftObjId = aObj.skid();
-    IMappedSkids rivets = aObj.rivets();
-    RivetRevEditor rivetRevEditor = new RivetRevEditor( aLogger );
-    // Необходимо пройти по всем объектам склепок и удалить обратные склепки на удаляемый объект
-    for( IDtoRivetInfo rivetInfo : classInfo.rivets().list() ) {
-      String rivetId = rivetInfo.id();
-      ISkClassInfo rivetClassInfo = classInfo.rivets().findSuperDeclarer( rivetId );
-      String rivetClassId = rivetClassInfo.id();
-      // Установка в редакторе описания склепки
-      rivetRevEditor.setRivet( rivetClassId, rivetId );
-
-      ISkidList rightObjIds = rivets.map().getByKey( rivetId );
-      for( Skid rightObjId : rightObjIds ) {
-        S5ObjectEntity rightObj = findObject( rightObjId, aEntityManager, aSysdescrReader, aClassesByIds, aImplByIds );
-        if( rightObj == null ) {
-          aLogger.error( ERR_RIVET_REVS_RIGHT_OBJ_NOT_FOUND, METHOD_REMOVING_RIVETS, rightObjId );
-          continue;
-        }
-        // Установка правого объекта в редакторе обратных склепок. aCreating = false
-        SkidList skidListEdit = rivetRevEditor.setRightObj( rightObj, false );
-        if( skidListEdit.remove( leftObjId ) == 0 ) {
-          aLogger.error( ERR_RIVET_REVS_LEFT_OBJ_NOT_FOUND, METHOD_REMOVING_RIVETS, rightObjId, rivetId, leftObjId );
-          continue;
-        }
-        if( rivetRevEditor.commit() ) {
-          retValue++;
-        }
-      }
-    }
-    return retValue;
-  }
-
-  /**
-   * Обновляет склепки указанного объекта на другие объекты.
-   *
-   * @param aPrevObj {@link IDtoObject} предыдущее состояние объекта.
-   * @param aNewObj {@link IDtoObject} новое состояние объекта.
-   * @param aEntityManager {@link EntityManager} менеджер постоянства.
-   * @param aSysdescrReader {@link ISkSysdescrReader} читатель классов.
-   * @param aClassesByIds {@link IStringMapEdit}&lt;{@link ISkClassInfo}&gt; редактируемый кэш описаний классов.<br>
-   *          Ключ: идентификтор класса.
-   * @param aImplByIds {@link IStringMapEdit}&lt;Class&gt; карта классов реализаций объектов по описаниям классов. <br>
-   *          Ключ: описание класса;<br>
-   *          Значение: Класс реализации объекта.
-   * @return int количество обновленных объектов.
-   * @throws TsNullArgumentRtException любой аргумент = null
-   * @throws TsIllegalArgumentRtException предыдущее и новое состояние должны принадлежать одному объекту
-   */
-  private static int updateRivets( IDtoObject aPrevObj, IDtoObject aNewObj, EntityManager aEntityManager,
-      ISkSysdescrReader aSysdescrReader, IStringMapEdit<ISkClassInfo> aClassesByIds,
-      IStringMapEdit<Class<S5ObjectEntity>> aImplByIds, ILogger aLogger ) {
-    TsNullArgumentRtException.checkNulls( aPrevObj, aNewObj, aEntityManager, aSysdescrReader, aClassesByIds,
-        aImplByIds );
-    TsIllegalArgumentRtException.checkFalse( aPrevObj.skid().equals( aNewObj.skid() ) );
-    int retValue = 0;
-    ISkClassInfo classInfo = aSysdescrReader.findClassInfo( aPrevObj.classId() );
-    // Идентфикатор объекта
-    Skid leftObjId = aPrevObj.skid();
-    // Предыдущее состояние склепок
-    IMappedSkids prevRivets = aPrevObj.rivets();
-    // Новое состояние склепок
-    IMappedSkids newRivets = aNewObj.rivets();
-    // Редактор обратных склепок правых объектов
-    RivetRevEditor rivetRevEditor = new RivetRevEditor( aLogger );
-    // Необходимо пройти по всем объектам склепок и удалить обратные склепки на удаляемый объект
-    for( IDtoRivetInfo rivetInfo : classInfo.rivets().list() ) {
-      String rivetId = rivetInfo.id();
-      ISkClassInfo rivetClassInfo = classInfo.rivets().findSuperDeclarer( rivetId );
-      String rivetClassId = rivetClassInfo.id();
-      // Установка в редакторе описания склепки
-      rivetRevEditor.setRivet( rivetClassId, rivetId );
-
-      ISkidList prevRightObjIds = prevRivets.map().getByKey( rivetId );
-      ISkidList newRightObjIds = newRivets.map().getByKey( rivetId );
-      // Удаление объектов из склепок
-      for( Skid rightObjId : subtract( new SkidList( prevRightObjIds ), newRightObjIds ) ) {
-        S5ObjectEntity rightObj = findObject( rightObjId, aEntityManager, aSysdescrReader, aClassesByIds, aImplByIds );
-        if( rightObj == null ) {
-          aLogger.error( ERR_RIVET_REVS_RIGHT_OBJ_NOT_FOUND, METHOD_UPDATING_RIVETS, rightObjId );
-          continue;
-        }
-        // Установка правого объекта в редакторе обратных склепок. aCreating = false
-        SkidList skidListEdit = rivetRevEditor.setRightObj( rightObj, false );
-        if( skidListEdit.remove( leftObjId ) == 0 ) {
-          aLogger.error( ERR_RIVET_REVS_LEFT_OBJ_NOT_FOUND, METHOD_UPDATING_RIVETS, rightObjId, rivetId, leftObjId );
-          continue;
-        }
-        if( rivetRevEditor.commit() ) {
-          retValue++;
-        }
-      }
-      // Добавление объектов в склепки
-      for( Skid rightObjId : subtract( new SkidList( newRightObjIds ), prevRightObjIds ) ) {
-        S5ObjectEntity rightObj = findObject( rightObjId, aEntityManager, aSysdescrReader, aClassesByIds, aImplByIds );
-        if( rightObj == null ) {
-          aLogger.error( ERR_RIVET_REVS_RIGHT_OBJ_NOT_FOUND, METHOD_UPDATING_RIVETS, rightObjId );
-          continue;
-        }
-        // Установка правого объекта в редакторе обратных склепок. aCreating = false
-        SkidList skidListEdit = rivetRevEditor.setRightObj( rightObj, false );
-        if( skidListEdit.hasElem( leftObjId ) ) {
-          aLogger.error( ERR_RIVERT_REVS_ALREADY_EXIST, METHOD_UPDATING_RIVETS, rightObjId, rivetId, leftObjId );
-          continue;
-        }
-        skidListEdit.add( leftObjId );
-        if( rivetRevEditor.commit() ) {
-          retValue++;
-        }
-      }
-    }
-    return retValue;
-  }
-
-  /**
-   * Редактор обратных склепок объекта
+   * Редактор обратных склепок объктов
    *
    * @author mvk
    */
-  private static class RivetRevEditor {
+  private class ObjectRivetEditor
+      extends AbstractSkRivetEditor {
 
-    private final IStringMapEdit<IMappedSkids> newRivetRevs   = new StringMap<>();
-    private final MappedSkids                  newMappedSkids = new MappedSkids();
-    private final SkidList                     newSkidList    = new SkidList();
-    private final ILogger                      logger;
+    private final IStringMapEdit<ISkClassInfo>          classesByIds;
+    private final IStringMapEdit<Class<S5ObjectEntity>> implByIds;
 
-    private String rivetClassId;
-    private String rivetId;
-
-    private S5ObjectEntity obj;
-
-    /**
-     * Constructor.
-     *
-     * @param aLogger {@link ILogger} журнал
-     * @throws TsNullArgumentRtException аргумент = null
-     */
-    RivetRevEditor( ILogger aLogger ) {
-      TsNullArgumentRtException.checkNull( aLogger );
-      logger = aLogger;
+    @SuppressWarnings( "synthetic-access" )
+    ObjectRivetEditor( IStringMapEdit<ISkClassInfo> aClassesByIds, IStringMapEdit<Class<S5ObjectEntity>> aImplByIds ) {
+      super( logger() );
+      TsNullArgumentRtException.checkNulls( aClassesByIds, aImplByIds );
+      classesByIds = aClassesByIds;
+      implByIds = aImplByIds;
     }
 
-    /**
-     * Установка описания редактируемой склепки
-     *
-     * @param aRivetClassId String класс в котором определяется склепка
-     * @param aRivetId String идентификатор склепки
-     * @throws TsNullArgumentRtException любой аргумент = null
-     */
-    void setRivet( String aRivetClassId, String aRivetId ) {
-      TsNullArgumentRtException.checkNulls( aRivetClassId, aRivetId );
-      rivetClassId = aRivetClassId;
-      rivetId = aRivetId;
-      newRivetRevs.clear();
-      newMappedSkids.map().clear();
-      newSkidList.clear();
-      newRivetRevs.put( aRivetClassId, newMappedSkids );
-      newMappedSkids.map().put( aRivetId, newSkidList );
+    // ------------------------------------------------------------------------------------
+    // abstract methods implementations
+    //
+    @Override
+    protected ISkClassInfo doGetClassInfo( String aClassId ) {
+      return findAndCacheClassInfo( sysdescrReader, aClassId, classesByIds );
     }
 
-    /**
-     * Установка объекта для редактирования (правый объект в склепке).
-     *
-     * @param aRightObj {@link S5ObjectEntity} объект с обратными склепками
-     * @param aCreating boolean <b>true</b> редактор нового объекта; редактор существующего объекта.
-     * @return {@link SkidList} редактируемый список идентификторов объектов входящих в обратную склепку.
-     * @throws TsNullArgumentRtException любой аргумент = null
-     * @throws TsIllegalArgumentRtException не установлено описание редактируемой склепки
-     */
-    SkidList setRightObj( S5ObjectEntity aRightObj, boolean aCreating ) {
-      TsNullArgumentRtException.checkNull( aRightObj );
-      TsIllegalStateRtException.checkNull( rivetClassId );
-      setRivet( rivetClassId, rivetId );
-      obj = null;
-
-      // Попытка инициализировать редактор предыдущими значениями
-      IStringMap<IMappedSkids> prevRivetRevs = aRightObj.rivetRevs();
-      IMappedSkids prevMappedSkids = prevRivetRevs.findByKey( rivetClassId );
-      if( prevMappedSkids == null && !aCreating ) {
-        logger.error( ERR_RIVET_REVS_EDITOR_CLASS_NOT_FOUND, aRightObj.skid(), rivetClassId );
-      }
-      if( prevMappedSkids != null ) {
-        newMappedSkids.setAll( prevMappedSkids.map() );
-        ISkidList prevSkidList = prevMappedSkids.map().findByKey( rivetId );
-        if( prevSkidList == null && !aCreating ) {
-          logger.error( ERR_RIVET_REVS_EDITOR_RIVET_NOT_FOUND, aRightObj.skid(), rivetId );
-        }
-        if( prevSkidList != null ) {
-          newSkidList.setAll( prevSkidList );
-        }
-      }
-      obj = aRightObj;
-
-      return newSkidList;
-    }
-
-    /**
-     * Если необходимо, сохраняет изменения в объекте {@link #setRightObj(S5ObjectEntity, boolean)}.
-     *
-     * @return boolean <b>true</b> данные были сохранены. <b>false</b> данные не изменились.
-     */
-    boolean commit() {
-      TsIllegalStateRtException.checkNull( obj );
-      boolean retValue = false;
-      if( !obj.rivetRevs().equals( newRivetRevs ) ) {
-        obj.setRivetRevs( newRivetRevs );
-        retValue = true;
-      }
-      obj = null;
+    @Override
+    protected IDtoObject doFindObject( Skid aObjId ) {
+      // Идентификатор класса объекта
+      String classId = aObjId.classId();
+      // Поиск и если необходимо кэширование описания класса
+      ISkClassInfo classInfo = doGetClassInfo( classId );
+      // Класс реализации объекта
+      Class<S5ObjectEntity> objImplClass = getObjectImplClass( classInfo, implByIds );
+      // Поиск объекта
+      S5ObjectEntity retValue = em.find( objImplClass, new S5ObjectID( aObjId ) );
       return retValue;
     }
-  }
 
-  /**
-   * Находит объект по указанному идентификатору используя и обновляя кэши классов и реализаций объектов.
-   *
-   * @param aObjId {@link Skid} идентификатор объекта для поиска.
-   * @param aEntityManager {@link EntityManager} менеджер постоянства.
-   * @param aSysdescrReader {@link ISkSysdescrReader} читатель классов.
-   * @param aClassesByIds {@link IStringMapEdit}&lt;{@link ISkClassInfo}&gt; редактируемый кэш описаний классов.<br>
-   *          Ключ: идентификтор класса.
-   * @param aImplByIds {@link IStringMapEdit}&lt;Class&gt; карта классов реализаций объектов по описаниям классов. <br>
-   *          Ключ: описание класса;<br>
-   *          Значение: Класс реализации объекта.
-   * @return {@link S5ObjectEntity} найденный объект. null: объект не существует.
-   * @throws TsNullArgumentRtException любой аргумент = null
-   */
-  private static S5ObjectEntity findObject( Skid aObjId, EntityManager aEntityManager,
-      ISkSysdescrReader aSysdescrReader, IStringMapEdit<ISkClassInfo> aClassesByIds,
-      IStringMapEdit<Class<S5ObjectEntity>> aImplByIds ) {
-    TsNullArgumentRtException.checkNulls( aEntityManager, aObjId, aSysdescrReader, aClassesByIds );
-    // Идентификатор класса объекта
-    String classId = aObjId.classId();
-    // Поиск и если необходимо кэширование описания класса
-    ISkClassInfo classInfo = findAndCacheClassInfo( aSysdescrReader, classId, aClassesByIds );
-    // Класс реализации объекта
-    Class<S5ObjectEntity> objImplClass = getObjectImplClass( classInfo, aImplByIds );
-    // Поиск объекта
-    S5ObjectEntity retValue = aEntityManager.find( objImplClass, new S5ObjectID( aObjId ) );
-    return retValue;
+    @Override
+    protected void doWriteRivetRevs( IDtoObject aObj, IStringMapEdit<IMappedSkids> aRivetRevs ) {
+      ((S5ObjectEntity)aObj).setRivetRevs( aRivetRevs );
+      // S5ObjectEntity changedObj = ((S5ObjectEntity)em.merge( aObj ));
+      em.merge( aObj );
+      // changedObj.setRivetRevs( aRivetRevs );
+    }
   }
 
   /**

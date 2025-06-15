@@ -406,6 +406,27 @@ public class SkHelperUtils {
   }
 
   /**
+   * Возвращает общее количество объектов в обратных склепках
+   *
+   * @param aRivetRevs {@link IStringMap}&lt;{@link IMappedSkids}&gt; SKIDs map of reverse rivets where: <br>
+   *          - {@link IStringMap} key is "rivet class ID";<br>
+   *          - {@link IMappedSkids} key is "rivet ID" - ;<br>
+   *          - {@link IMappedSkids} values are "SKIDs list of the left objects which have this object riveted".
+   * @return int общее количество объектов
+   * @throws TsNullArgumentRtException аргумент = null
+   */
+  public static int rivetRevsSize( IStringMap<IMappedSkids> aRivetRevs ) {
+    TsNullArgumentRtException.checkNull( aRivetRevs );
+    int retValue = 0;
+    for( IMappedSkids mappedSkids : aRivetRevs.values() ) {
+      for( ISkidList leftObjIds : mappedSkids.map().values() ) {
+        retValue += leftObjIds.size();
+      }
+    }
+    return retValue;
+  }
+
+  /**
    * Возвращает текстовое представление обратных склепок объекта
    *
    * @param aRivetRevs {@link IStringMap}&lt;{@link IMappedSkids}&gt; SKIDs map of reverse rivets where: <br>
