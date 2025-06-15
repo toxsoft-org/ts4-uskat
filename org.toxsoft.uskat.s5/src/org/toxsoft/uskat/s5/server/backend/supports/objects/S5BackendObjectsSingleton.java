@@ -278,7 +278,9 @@ public class S5BackendObjectsSingleton
         // em.merge( obj.right() );
         // Восстановление списка obj.left(!) обратных склепок
 
-        ((S5ObjectEntity)obj.right()).setRivetRevs( obj.left().rivetRevs() ); // TODO: (!) выбрать рабочий вариант 1
+        // Восстановление списка obj.left(!) обратных склепок
+        // TODO: (!) проверить и выбрать рабочий вариант 1
+        ((S5ObjectEntity)obj.right()).setRivetRevs( obj.left().rivetRevs() );
 
         // Обновление объекта в базе данных
         S5ObjectEntity changedObj = ((S5ObjectEntity)em.merge( obj.right() ));
@@ -286,7 +288,8 @@ public class S5BackendObjectsSingleton
         changedObj.setRivets( obj.right().rivets() );
 
         // Восстановление списка obj.left(!) обратных склепок
-        changedObj.setRivetRevs( obj.left().rivetRevs() ); // TODO: (!) выбрать рабочий вариант 2
+        // TODO: (!) проверить и выбрать рабочий вариант 2
+        changedObj.setRivetRevs( obj.left().rivetRevs() );
 
         // TODO: mvkd experimental
         // updateObject( em, obj.right() );
