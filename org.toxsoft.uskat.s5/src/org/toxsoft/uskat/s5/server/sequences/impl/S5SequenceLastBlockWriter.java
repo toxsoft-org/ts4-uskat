@@ -85,7 +85,7 @@ class S5SequenceLastBlockWriter<S extends IS5Sequence<V>, V extends ITemporal<?>
   /**
    * Проводит запись последовательности данных
    *
-   * @param aEntityManager {@link EntityManager} менеджер постоянства используемый для записи
+   * @param aEntityManager {@link AbstractSkObjectManager} менеджер постоянства используемый для записи
    * @param aSequence S последовательность
    * @param aStatistics {@link S5SequenceWriteStat} редактируемая статистика
    * @param aThreadIndex int индекс записи (индекс потока или просто порядковый номер, для журнала)
@@ -305,7 +305,7 @@ class S5SequenceLastBlockWriter<S extends IS5Sequence<V>, V extends ITemporal<?>
     // Фабрика менеджеров постоянства
     EntityManagerFactory entityManagerFactory = entityManagerFactory();
     // Список созданных менджеров постоянства
-    IListEdit<EntityManager> ems = new ElemArrayList<>();
+    IListEdit<AbstractSkObjectManager> ems = new ElemArrayList<>();
     try {
       // Исполнитель s5-потоков проверки данных
       S5WriteThreadExecutor executor = new S5WriteThreadExecutor( writeExecutor(), logger );
@@ -315,7 +315,7 @@ class S5SequenceLastBlockWriter<S extends IS5Sequence<V>, V extends ITemporal<?>
         // Последовательность
         S sequence = aSequences.get( index );
         // Менеджер постоянства
-        EntityManager em = entityManagerFactory.createEntityManager();
+        AbstractSkObjectManager em = entityManagerFactory.createEntityManager();
         // Присоединение менджера к текущей транзакции
         em.joinTransaction();
         // Размещение в списке для последующего завершения
@@ -330,7 +330,7 @@ class S5SequenceLastBlockWriter<S extends IS5Sequence<V>, V extends ITemporal<?>
       addUnionCandidates( aInfoes );
     }
     finally {
-      for( EntityManager em : ems ) {
+      for( AbstractSkObjectManager em : ems ) {
         em.close();
       }
     }

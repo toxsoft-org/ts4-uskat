@@ -487,7 +487,7 @@ public abstract class S5AbstractSequenceWriter<S extends IS5Sequence<V>, V exten
   /**
    * Сохраняет блоки в dbms
    *
-   * @param aEntityManager {@link EntityManager} менеджер постоянства
+   * @param aEntityManager {@link AbstractSkObjectManager} менеджер постоянства
    * @param aBlocks {@link Iterable}&lt;{@link IS5SequenceBlock}&lt;V;&gt;&gt; сохраняемые блоки значений
    * @param aStat {@link S5DbmsStatistics} статистика работы
    * @param aLogger {@link ILogger} журнал
@@ -552,7 +552,7 @@ public abstract class S5AbstractSequenceWriter<S extends IS5Sequence<V>, V exten
   /**
    * Удаляет из базы данных все блоки покрывающие интервал указанным списком
    *
-   * @param aEntityManager {@link EntityManager} менеджер постоянства
+   * @param aEntityManager {@link AbstractSkObjectManager} менеджер постоянства
    * @param aRemovedBlocks {@link IList} список блоков
    * @param aStat {@link S5DbmsStatistics} статистика работы
    * @param <V> тип значения последовательности
@@ -601,7 +601,7 @@ public abstract class S5AbstractSequenceWriter<S extends IS5Sequence<V>, V exten
   /**
    * Проводит дефрагментацию блоков в указанном интервале
    *
-   * @param aEntityManager {@link EntityManager} менеджер постоянства
+   * @param aEntityManager {@link AbstractSkObjectManager} менеджер постоянства
    * @param aGwid {@link Gwid} идентификатор данного
    * @param aInterval {@link ITimeInterval} интервал дефрагментации
    * @param aLogger {@link ILogger} журнал работы
@@ -679,7 +679,7 @@ public abstract class S5AbstractSequenceWriter<S extends IS5Sequence<V>, V exten
   /**
    * Проводит проверку блоков указанного данного в указанном интервале и восстановления их состояния
    *
-   * @param aEntityManager {@link EntityManager} менеджер постоянства
+   * @param aEntityManager {@link AbstractSkObjectManager} менеджер постоянства
    * @param aGwid {@link Gwid} идентификатор данного
    * @param aInterval {@link IQueryInterval} интервал блоков проверяемых блоков
    * @param aState {@link S5SequenceValidationStat} состояние задачи проверки блоков
@@ -911,7 +911,7 @@ public abstract class S5AbstractSequenceWriter<S extends IS5Sequence<V>, V exten
   /**
    * Шаблонный метод записи данных последовательностей
    *
-   * @param aEntityManager {@link EntityManager} мененджер постоянства который МОЖЕТ использовать писатель для записи
+   * @param aEntityManager {@link AbstractSkObjectManager} мененджер постоянства который МОЖЕТ использовать писатель для записи
    * @param aSequences {@link IList}&lt;{@link S5Sequence}&gt; последовательность значений
    * @param aStatistics {@link IS5SequenceWriteStat} редактируемая статистика выполнения записи
    * @throws TsIllegalStateRtException попытка конкуретного изменения данных последовательности
@@ -1148,7 +1148,7 @@ public abstract class S5AbstractSequenceWriter<S extends IS5Sequence<V>, V exten
   /**
    * Выполняет попытку объединения блоков в указанном интервале
    *
-   * @param aEntityManager {@link EntityManager} менеджер постоянства
+   * @param aEntityManager {@link AbstractSkObjectManager} менеджер постоянства
    * @param aPassNo int номер попытки объединения для информации (отсчет от 0)
    * @param aGwid {@link Gwid} идентификатор данного
    * @param aInterval {@link ITimeInterval} интервал дефрагментации

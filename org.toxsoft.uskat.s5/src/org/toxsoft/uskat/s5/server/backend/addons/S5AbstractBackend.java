@@ -125,7 +125,7 @@ public abstract class S5AbstractBackend<ADDON extends IS5BackendAddon>
   /**
    * Значения параметров бекенда
    */
-  private ISkBackendInfo backendInfo;
+  private SkBackendInfo backendInfo;
 
   /**
    * Генератор идентификаторов локальных сессий, объектов {@link ISkSession}
@@ -295,6 +295,7 @@ public abstract class S5AbstractBackend<ADDON extends IS5BackendAddon>
 
     IOptionSetEdit backendInfoValue = new OptionSet( aBackendInfoValue );
     OPDEF_SKBI_NEED_THREAD_SAFE_FRONTEND.setValue( backendInfoValue, AV_TRUE );
+    // backendInfo =
     backendInfo = new SkBackendInfo( aBackendId, System.currentTimeMillis(), backendInfoValue );
   }
 
@@ -314,10 +315,10 @@ public abstract class S5AbstractBackend<ADDON extends IS5BackendAddon>
 
   @Override
   public final ISkBackendInfo getBackendInfo() {
-    ISkBackendInfo serverBackendInfo = doFindServerBackendInfo();
-    if( serverBackendInfo != null ) {
-      backendInfo = serverBackendInfo;
-    }
+    backendInfo.params().addAll( getBackendInfoOptions() );
+    // Общие (локальный, удаленны) параметры бекендов
+    // Бекенд поддерживает транзакции
+    ISkBackendHardConstant.OPDEF_TRANSACTION_SUPPORT.setValue( backendInfo.params(), AV_TRUE );
     return backendInfo;
   }
 
@@ -528,12 +529,14 @@ public abstract class S5AbstractBackend<ADDON extends IS5BackendAddon>
   protected abstract IStringMap<ADDON> doCreateAddons( IStridablesList<IS5BackendAddonCreator> aBaCreators );
 
   /**
-   * Возвращает значения параметров бекенда предоставляемых сервером
+   * Возвращает значения параметров бекенда предоставляемых сервером.
+   * <p>
+   * Возвращаемые значения опций будут размещены в общем контейнере {@link ISkBackend#getBackendInfo()}.
    *
-   * @return {@link ISkBackendInfo} значения параметров бекенда или null если сервер недоступен
+   * @return {@link SkBackendInfo} значения параметров бекенда или null если сервер недоступен
    */
-  protected ISkBackendInfo doFindServerBackendInfo() {
-    return null;
+  protected IOptionSet getBackendInfoOptions() {
+    return IOptionSet.NULL;
   }
 
   /**

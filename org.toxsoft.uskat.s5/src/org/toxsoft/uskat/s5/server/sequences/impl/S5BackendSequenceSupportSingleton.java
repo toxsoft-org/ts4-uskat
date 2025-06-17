@@ -918,7 +918,7 @@ public abstract class S5BackendSequenceSupportSingleton<S extends IS5Sequence<V>
   /**
    * Возвращает менеджер постоянства JPA используемый синглетоном
    *
-   * @return {@link EntityManager} менеджер постоянства JPA
+   * @return {@link AbstractSkObjectManager} менеджер постоянства JPA
    */
   protected final EntityManager entityManager() {
     return em;

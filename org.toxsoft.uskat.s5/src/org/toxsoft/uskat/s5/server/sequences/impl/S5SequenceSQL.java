@@ -138,7 +138,7 @@ class S5SequenceSQL {
   /**
    * Загрузка размеров блоков попадающих в указанный интервал
    *
-   * @param aEntityManager {@link EntityManager} менеджер постоянства
+   * @param aEntityManager {@link AbstractSkObjectManager} менеджер постоянства
    * @param aFactory {@link IS5SequenceFactory} фабрика формирования последовательностей
    * @param aGwid {@link Gwid} идентификатор данного
    * @param aInterval {@link IQueryInterval} интервал запроса
@@ -279,7 +279,7 @@ class S5SequenceSQL {
   /**
    * Загрузка меток времени и размеров блоков попадающих в указанный интервал
    *
-   * @param aEntityManager {@link EntityManager} менеджер постоянства
+   * @param aEntityManager {@link AbstractSkObjectManager} менеджер постоянства
    * @param aFactory {@link IS5SequenceFactory} фабрика формирования последовательностей
    * @param aGwid {@link Gwid} идентификатор данного
    * @param aInterval {@link IQueryInterval} интервал запроса
@@ -412,7 +412,7 @@ class S5SequenceSQL {
   /**
    * Загрузка блоков попадающих в указанный интервал
    *
-   * @param aEntityManager {@link EntityManager} менеджер постоянства
+   * @param aEntityManager {@link AbstractSkObjectManager} менеджер постоянства
    * @param aFactory {@link IS5SequenceFactory} фабрика формирования последовательностей
    * @param aGwid {@link Gwid} идентификатор данного
    * @param aInterval {@link IQueryInterval} интервал запроса
@@ -508,7 +508,7 @@ class S5SequenceSQL {
    * <p>
    * Если блоков нет, то ничего не делает.
    *
-   * @param aEntityManager {@link EntityManager} менеджер постоянства
+   * @param aEntityManager {@link AbstractSkObjectManager} менеджер постоянства
    * @param aFactory {@link IS5SequenceFactory} фабрика формирования последовательностей
    * @param aGwid {@link Gwid} идентификатор данного
    * @param aInterval {@link ITimeInterval} интервал удаляемых блоков
@@ -570,7 +570,7 @@ class S5SequenceSQL {
   /**
    * Проводится поиск ближайшего блока у которого есть значение на указанной метке времени или перед ней
    *
-   * @param aEntityManager {@link EntityManager} менеджер постоянства
+   * @param aEntityManager {@link AbstractSkObjectManager} менеджер постоянства
    * @param aFactory {@link IS5SequenceFactory} фабрика формирования последовательностей
    * @param aGwid {@link Gwid} идентификатор данного
    * @param aTimestamp long метка времени (мсек с начала эпохи) перед которой или на которой проводится поиск блока со
@@ -793,7 +793,7 @@ class S5SequenceSQL {
    * время завершения этого блока если оно ДО указанной метки-аргумент или саму метку-аргумент если она попадает в
    * найденный блок
    *
-   * @param aEntityManager {@link EntityManager} менеджер постоянства
+   * @param aEntityManager {@link AbstractSkObjectManager} менеджер постоянства
    * @param aFactory {@link IS5SequenceFactory} фабрика формирования последовательностей
    * @param aGwid {@link Gwid} идентификатор данного
    * @param aBeforeTime long метка времени (мсек с начала эпохи) перед которой или на которой проводится поиск блока со
@@ -863,7 +863,7 @@ class S5SequenceSQL {
    * время начала этого блока если оно ПОСЛЕ указанной метки-аргумент или саму метку-аргумент если она попадает в
    * найденный блок
    *
-   * @param aEntityManager {@link EntityManager} менеджер постоянства
+   * @param aEntityManager {@link AbstractSkObjectManager} менеджер постоянства
    * @param aFactory {@link IS5SequenceFactory} фабрика формирования последовательностей
    * @param aGwid {@link Gwid} идентификатор данного
    * @param aAfterTime long метка времени (мсек с начала эпохи) после которой или на которой проводится поиск блока со
@@ -924,7 +924,7 @@ class S5SequenceSQL {
   /**
    * Проводится первого блока значений и возвращает его интервал времени
    *
-   * @param aEntityManager {@link EntityManager} менеджер постоянства
+   * @param aEntityManager {@link AbstractSkObjectManager} менеджер постоянства
    * @param aFactory {@link IS5SequenceFactory} фабрика формирования последовательностей
    * @param aGwid {@link Gwid} идентификатор данного
    * @return {@link ITimeInterval} интервал первого блока значений. {@link ITimeInterval#NULL}: блок не найден (нет
@@ -986,7 +986,7 @@ class S5SequenceSQL {
    * Проводит поиск времени начала фрагментации блоков, чтобы можно было бы выполнить процесс их объединения и получения
    * полного блока
    *
-   * @param aEntityManager {@link EntityManager} менеджер постоянства
+   * @param aEntityManager {@link AbstractSkObjectManager} менеджер постоянства
    * @param aFactory {@link IS5SequenceFactory} фабрика формирования последовательностей
    * @param aGwid {@link Gwid} идентификатор данного
    * @param aToTime long (время мсек с начала эпохи) до которого проводить поиск фрагментированных блоков (включительно)
@@ -1141,7 +1141,7 @@ class S5SequenceSQL {
   /**
    * Проводится поиск ближайшего блока у которого есть значение на указанной метке времени или перед ней
    *
-   * @param aEntityManager {@link EntityManager} менеджер постоянства
+   * @param aEntityManager {@link AbstractSkObjectManager} менеджер постоянства
    * @param aFactory {@link IS5SequenceFactory} фабрика формирования последовательностей
    * @param aGwid {@link Gwid} идентификатор данного
    * @return long метка времени завершения последнего блока. MIN_TIMESTAMP: блок не найден
@@ -1192,7 +1192,7 @@ class S5SequenceSQL {
   /**
    * Проводится поиск последнего блока
    *
-   * @param aEntityManager {@link EntityManager} менеджер постоянства
+   * @param aEntityManager {@link AbstractSkObjectManager} менеджер постоянства
    * @param aFactory {@link IS5SequenceFactory} фабрика формирования последовательностей
    * @param aGwid {@link Gwid} идентификатор данного
    * @return {@link IS5SequenceBlock}&lt;V&gt; найденный блок. null: блок не найден
@@ -1448,7 +1448,7 @@ class S5SequenceSQL {
   /**
    * Формирует запрос создания записи в таблице базы данных
    *
-   * @param aEntityManager {@link EntityManager} менеджер постоянства
+   * @param aEntityManager {@link AbstractSkObjectManager} менеджер постоянства
    * @param aTable String имя таблицы
    * @param aParams {@link IStringMap}&lt;Object&gt; карта параметров запроса.<br>
    *          Ключ: имя поля таблицы;Значение: значение поля.
@@ -1492,7 +1492,7 @@ class S5SequenceSQL {
   /**
    * Формирует запрос создания записи в таблице базы данных
    *
-   * @param aEntityManager {@link EntityManager} менеджер постоянства
+   * @param aEntityManager {@link AbstractSkObjectManager} менеджер постоянства
    * @param aTable String имя таблицы
    * @param aParams {@link IStringMap}&lt;Object&gt; карта параметров запроса.<br>
    *          Ключ: имя поля таблицы;Значение: значение поля.
@@ -1540,7 +1540,7 @@ class S5SequenceSQL {
   /**
    * Возвращает список идентификаторов всех данных которые хранятся в базе данных
    *
-   * @param aEntityManager {@link EntityManager} менеджер постоянства
+   * @param aEntityManager {@link AbstractSkObjectManager} менеджер постоянства
    * @param aTables {@link IList}&lt;{@link Pair}&lt;String,String&gt;&gt; список пар таблиц реализации блоков
    *          ({@link Pair#left()}) и их blob {@link Pair#right()}
    * @return {@link IGwidList} список идентификаторов
@@ -1581,7 +1581,7 @@ class S5SequenceSQL {
   /**
    * Возвращает список идентификаторов всех данных которые хранятся в таблице базы данных
    *
-   * @param aEntityManager {@link EntityManager} менеджер постоянства
+   * @param aEntityManager {@link AbstractSkObjectManager} менеджер постоянства
    * @param aSchema String имя схемы базы данных сервера
    * @param aTable String имя таблицы в которой находятся разделы
    * @param aPartitionInfos {@link IList}&lt;{@link S5Partition}&gt; список описаний разделов
@@ -1636,7 +1636,7 @@ class S5SequenceSQL {
   /**
    * Возвращает список идентификаторов всех данных которые хранятся в базе данных
    *
-   * @param aEntityManager {@link EntityManager} менеджер постоянства
+   * @param aEntityManager {@link AbstractSkObjectManager} менеджер постоянства
    * @param aEngine {@link ES5DatabaseEngine} тип базы данных (смотри {@link S5DatabaseConfig#DATABASE_ENGINE})
    * @param aSchema String имя схемы базы данных сервера
    * @param aTable String имя таблицы в которой находятся разделы
@@ -1723,7 +1723,7 @@ class S5SequenceSQL {
   /**
    * Добавляет указанный раздел в указанную таблицу
    *
-   * @param aEntityManager {@link EntityManager} менеджер постоянства
+   * @param aEntityManager {@link AbstractSkObjectManager} менеджер постоянства
    * @param aEngine {@link ES5DatabaseEngine} тип базы данных (смотри {@link S5DatabaseConfig#DATABASE_ENGINE})
    * @param aSchema String имя схемы базы данных сервера
    * @param aTable String имя таблицы в которой находятся разделы
@@ -1801,7 +1801,7 @@ class S5SequenceSQL {
   /**
    * Возвращает количество строк в разделе таблицы базе данных
    *
-   * @param aEntityManager {@link EntityManager} менеджер постоянства
+   * @param aEntityManager {@link AbstractSkObjectManager} менеджер постоянства
    * @param aSchema String имя схемы базы данных сервера
    * @param aTable String имя таблицы в которой находятся разделы
    * @param aPartition String имя раздела
@@ -1838,7 +1838,7 @@ class S5SequenceSQL {
   /**
    * Удаляет указанный раздел из указанной таблицы
    *
-   * @param aEntityManager {@link EntityManager} менеджер постоянства
+   * @param aEntityManager {@link AbstractSkObjectManager} менеджер постоянства
    * @param aSchema String имя схемы базы данных сервера
    * @param aTable String имя таблицы в которой находятся разделы
    * @param aPartition String имя раздела

@@ -621,7 +621,7 @@ public class S5BackendSession
     // Информация о сессии
     IS5SessionInfo sessionInfo = sessionInfo();
     // Формирование информации сессии бекенда
-    S5BackendInfo retValue = new S5BackendInfo( backendInfo );
+    SkBackendInfo retValue = new SkBackendInfo( backendInfo.id(), backendInfo.startTime(), backendInfo.params() );
     // Роль пользователя
     // 2025-05-12 mvk---+++
     // Skid role = OP_ROLE.getValue( clientOptions ).asValobj();

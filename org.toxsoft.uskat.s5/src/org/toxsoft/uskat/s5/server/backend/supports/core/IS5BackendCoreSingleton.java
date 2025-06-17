@@ -35,7 +35,7 @@ public interface IS5BackendCoreSingleton
    * Возвращает фабрика менеджеров постоянства Application Managed Entity Manager (используемых для многопоточной
    * записи)
    * <p>
-   * Источники(persitent context + transaction + EntityManager):
+   * Источники(persitent context + transaction + AbstractSkObjectManager):
    * http://www.kumaranuj.com/2013/06/jpa-2-entitymanagers-transactions-and.html
    * https://docs.oracle.com/cd/E19798-01/821-1841/bnbra/index.html
    *

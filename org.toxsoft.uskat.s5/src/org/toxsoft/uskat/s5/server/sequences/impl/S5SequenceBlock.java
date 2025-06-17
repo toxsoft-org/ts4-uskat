@@ -250,7 +250,7 @@ public abstract class S5SequenceBlock<V extends ITemporal<?>, BLOB_ARRAY, BLOB e
   /**
    * Сохраняет блок в базе данных
    *
-   * @param aEntityManager {@link EntityManager} менеджер постоянства
+   * @param aEntityManager {@link AbstractSkObjectManager} менеджер постоянства
    * @return boolean <b>true</b> запись выполнена; <b>false</b> запись не требуется
    * @throws TsNullArgumentRtException аргумент = null
    */
@@ -732,8 +732,8 @@ public abstract class S5SequenceBlock<V extends ITemporal<?>, BLOB_ARRAY, BLOB e
   /**
    * Обновить значения блока
    * <p>
-   * Используется {@link S5AbstractSequenceWriter#writeBlocksToDbms(EntityManager, Iterable, ILogger, S5DbmsStatistics)}
-   * при выполнении операций {@link EntityManager#merge(Object)}.
+   * Используется {@link S5AbstractSequenceWriter#writeBlocksToDbms(AbstractSkObjectManager, Iterable, ILogger, S5DbmsStatistics)}
+   * при выполнении операций {@link AbstractSkObjectManager#merge(Object)}.
    *
    * @param aSource {@link S5SequenceBlock} исходный блок
    * @throws TsNullArgumentRtException аргумент = null

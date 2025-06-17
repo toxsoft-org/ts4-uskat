@@ -113,7 +113,7 @@ abstract class S5AbstractPartitionManager {
       // Журнал
       logger.info( MSG_PARTITION_CHECK_AFTER_STARTUP, owner, timeout );
       // Состояние после перезапуска сервера. Принудительная проверка разделов всех таблиц в ускоренном порядке
-      // EntityManager em = entityManagerFactory.createEntityManager();
+      // AbstractSkObjectManager em = entityManagerFactory.createEntityManager();
       // try {
       // // Планирование обработки всех таблиц
       // planAllTablesPartitionsCheck( logger );
@@ -216,7 +216,7 @@ abstract class S5AbstractPartitionManager {
   /**
    * Загрузка текущих разделов таблицы в карту разделов
    *
-   * @param aEntityManager {@link EntityManager} менеджер постоянства
+   * @param aEntityManager {@link AbstractSkObjectManager} менеджер постоянства
    * @param aSchema String схема базы данных с которой работает сервер
    * @param aTable String имя таблицы
    * @param aDepth int глубина (в сутках) хранения значений
@@ -351,7 +351,7 @@ abstract class S5AbstractPartitionManager {
   /**
    * Проводит поиск разделов которые необходимо добавить в dbms
    *
-   * @param aEntityManager {@link EntityManager} менеджер постоянства
+   * @param aEntityManager {@link AbstractSkObjectManager} менеджер постоянства
    * @param aSchema String схема базы данных с которой работает сервер
    * @param aTable String имя таблицы
    * @param aInterval {@link ITimeInterval} интервал значений сохраняемых в базу данны
@@ -380,7 +380,7 @@ abstract class S5AbstractPartitionManager {
   /**
    * Формирует список описания для удаления разделов из таблицы
    *
-   * @param aEntityManager {@link EntityManager} менеджер постоянства
+   * @param aEntityManager {@link AbstractSkObjectManager} менеджер постоянства
    * @param aSchema String схема базы данных сервера
    * @param aTableName String таблица базы данных
    * @param aInterval {@link ITimeInterval} интервал в который должны полностью попадать удаляемые разделы
@@ -408,7 +408,7 @@ abstract class S5AbstractPartitionManager {
   /**
    * Возращает операции над разделами таблиц которые необходимо выполнить по запросу пользователя
    *
-   * @param aEntityManager {@link EntityManager} менеджер постоянства
+   * @param aEntityManager {@link AbstractSkObjectManager} менеджер постоянства
    * @param aConfiguration {@link IOptionSet} конфигурация подсистемы для выполнения операций над разделами.
    * @return {@link IList}&lt;S5PartitionOperation&gt; список операций над разделами
    * @throws TsNullArgumentRtException аргумент = null
@@ -443,7 +443,7 @@ abstract class S5AbstractPartitionManager {
   /**
    * Возращает операции над разделами таблиц которые необходимо выполнить в автоматическом режиме
    *
-   * @param aEntityManager {@link EntityManager} менеджер постоянства
+   * @param aEntityManager {@link AbstractSkObjectManager} менеджер постоянства
    * @param aConfiguration {@link IOptionSet} конфигурация подсистемы для выполнения операций над разделами.
    * @param aStatistics {@link S5SequencePartitionStat} статистика с возможностью редактирования
    * @param aLogger {@link ILogger} журнал
@@ -542,7 +542,7 @@ abstract class S5AbstractPartitionManager {
   /**
    * Выполняет операцию над разделами таблицы
    *
-   * @param aEntityManager {@link EntityManager} менеджер постоянства
+   * @param aEntityManager {@link AbstractSkObjectManager} менеджер постоянства
    * @param aSchema схема базы данных сервера
    * @param aPartitionOp {@link S5PartitionOperation} операция над разделами
    * @param aLogger {@link ILogger} журнал работы

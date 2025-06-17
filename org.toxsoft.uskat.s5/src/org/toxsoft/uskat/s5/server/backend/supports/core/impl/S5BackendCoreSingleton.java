@@ -34,10 +34,10 @@ import org.toxsoft.core.tslib.utils.errors.*;
 import org.toxsoft.uskat.classes.*;
 import org.toxsoft.uskat.core.backend.api.*;
 import org.toxsoft.uskat.core.connection.*;
+import org.toxsoft.uskat.core.impl.*;
 import org.toxsoft.uskat.s5.common.*;
 import org.toxsoft.uskat.s5.server.*;
 import org.toxsoft.uskat.s5.server.backend.*;
-import org.toxsoft.uskat.s5.server.backend.impl.*;
 import org.toxsoft.uskat.s5.server.backend.supports.clobs.*;
 import org.toxsoft.uskat.s5.server.backend.supports.core.*;
 import org.toxsoft.uskat.s5.server.backend.supports.links.*;
@@ -104,7 +104,7 @@ public class S5BackendCoreSingleton
   /**
    * Фабрика менеджеров постоянства Application Managed Entity Manager (используемых для многопоточной записи)
    * <p>
-   * Источники(persitent context + transaction + EntityManager):
+   * Источники(persitent context + transaction + AbstractSkObjectManager):
    * http://www.kumaranuj.com/2013/06/jpa-2-entitymanagers-transactions-and.html
    * https://docs.oracle.com/cd/E19798-01/821-1841/bnbra/index.html
    */
@@ -192,7 +192,7 @@ public class S5BackendCoreSingleton
   /**
    * Информация о бекенде
    */
-  private S5BackendInfo backendInfo;
+  private SkBackendInfo backendInfo;
 
   /**
    * Общее(разделяемое между модулями) соединение с сервером
@@ -243,17 +243,17 @@ public class S5BackendCoreSingleton
     catch( SQLException e ) {
       logger().error( e );
     }
+    long currTime = System.currentTimeMillis();
     // Параметры бекенда
     IOptionSet initialConfigParams = initialConfig.impl().params();
     // Модуль реализующий бекенд
     S5Module module = OP_BACKEND_MODULE.getValue( initialConfigParams ).asValobj();
     // Описание бекенда
-    backendInfo = new S5BackendInfo( module );
+    backendInfo = new SkBackendInfo( module.id(), currTime );
     // Перекрываем параметры
     backendInfo.params().addAll( initialConfigParams );
     // Время запуска сервера
-    IS5ServerHardConstants.OP_BACKEND_START_TIME.setValue( backendInfo.params(),
-        avTimestamp( System.currentTimeMillis() ) );
+    IS5ServerHardConstants.OP_BACKEND_START_TIME.setValue( backendInfo.params(), avTimestamp( currTime ) );
     // Установка режима работы с кэшем сессий (infinispan)
     // ConfigurationBuilder builder = new ConfigurationBuilder();
     // // builder.transaction().lockingMode( LockingMode.PESSIMISTIC );

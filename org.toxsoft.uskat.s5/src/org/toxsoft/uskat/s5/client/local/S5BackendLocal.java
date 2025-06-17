@@ -3,6 +3,7 @@ package org.toxsoft.uskat.s5.client.local;
 import static org.toxsoft.core.tslib.av.impl.AvUtils.*;
 
 import org.toxsoft.core.tslib.av.opset.*;
+import org.toxsoft.core.tslib.av.opset.impl.*;
 import org.toxsoft.core.tslib.bricks.ctx.*;
 import org.toxsoft.core.tslib.bricks.strid.coll.*;
 import org.toxsoft.core.tslib.coll.primtypes.*;
@@ -16,7 +17,6 @@ import org.toxsoft.uskat.core.connection.*;
 import org.toxsoft.uskat.core.impl.*;
 import org.toxsoft.uskat.s5.client.*;
 import org.toxsoft.uskat.s5.server.backend.addons.*;
-import org.toxsoft.uskat.s5.server.backend.impl.*;
 import org.toxsoft.uskat.s5.server.backend.messages.*;
 import org.toxsoft.uskat.s5.server.backend.supports.core.*;
 import org.toxsoft.uskat.s5.server.sessions.*;
@@ -127,16 +127,16 @@ public final class S5BackendLocal
   }
 
   @Override
-  protected ISkBackendInfo doFindServerBackendInfo() {
+  protected IOptionSet getBackendInfoOptions() {
     // Запрос текущей информации о сервере (backend)
     ISkBackendInfo backendInfo = backendSingleton.getInfo();
     // Формирование информации сессии бекенда
-    S5BackendInfo retValue = new S5BackendInfo( backendInfo );
+    IOptionSetEdit retValue = new OptionSet( backendInfo.params() );
     // Информация о зарегистрированном пользователе
     SkLoggedUserInfo loggedUserInfo =
         new SkLoggedUserInfo( new Skid( ISkUser.CLASS_ID, ISkUserServiceHardConstants.USER_ID_ROOT ),
             ISkUserServiceHardConstants.SKID_ROLE_ROOT, ESkAuthentificationType.SIMPLE );
-    ISkBackendHardConstant.OPDEF_SKBI_LOGGED_USER.setValue( retValue.params(), avValobj( loggedUserInfo ) );
+    ISkBackendHardConstant.OPDEF_SKBI_LOGGED_USER.setValue( retValue, avValobj( loggedUserInfo ) );
     return retValue;
   }
 

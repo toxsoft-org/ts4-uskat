@@ -176,6 +176,13 @@ interface ISkResources {
   String FMT_WARN_ATTEMPT_CLOSE_SHARE = Messages.getString( "FMT_WARN_ATTEMPT_OPEN_SHARE" );
 
   /**
+   * AbstractSkObjectManager
+   */
+  String ERR_OBJ_ALREADY_REMOVED = "%s: obj has already been removed.";
+  String ERR_OBJ_ALREADY_EXIST   = "%s: obj has already exist.";
+  String ERR_OBJ_NOT_FOUND       = "%s: obj not found.";
+
+  /**
    * {@link AbstractSkRivetEditor}
    */
   String METHOD_CREATING_RIVETS = "creatingRivets";

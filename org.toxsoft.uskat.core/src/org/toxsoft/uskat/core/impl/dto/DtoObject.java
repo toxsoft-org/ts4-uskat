@@ -19,6 +19,7 @@ import org.toxsoft.uskat.core.*;
 import org.toxsoft.uskat.core.api.objserv.*;
 import org.toxsoft.uskat.core.api.sysdescr.*;
 import org.toxsoft.uskat.core.api.sysdescr.dto.*;
+import org.toxsoft.uskat.core.impl.*;
 
 /**
  * {@link IDtoObject} implementation.
@@ -60,10 +61,10 @@ public final class DtoObject
         }
       };
 
-  private final Skid                         skid;
-  private final IOptionSetEdit               attrs;
-  private final MappedSkids                  rivets;
-  private final IStringMapEdit<IMappedSkids> rivetRevs;
+  private final Skid                   skid;
+  private final IOptionSetEdit         attrs;
+  private final MappedSkids            rivets;
+  private IStringMapEdit<IMappedSkids> rivetRevs;
 
   /**
    * Constructor.
@@ -265,6 +266,23 @@ public final class DtoObject
     }
     aSr.ensureChar( CHAR_SET_END );
     return new DtoObject( 0, skid, attrs, rivets, rr );
+  }
+
+  /**
+   * Set object reverse rivets.
+   * <p>
+   * The method is used by {@link AbstractSkObjectManager} & {@link SkCoreServObject}.
+   *
+   * @param aDtoObj {@link DtoObject} updating object
+   * @param aRivetRevs {@link IStringMap}&lt;{@link MappedSkids};&gt; SKIDs map of reverse rivets where: <br>
+   *          - {@link IStringMap} key is "rivet class ID";<br>
+   *          - {@link IMappedSkids} key is "rivet ID";<br>
+   *          - {@link IMappedSkids} values are "SKIDs list of the left objects which have this object riveted".
+   * @throws TsNullArgumentRtException any arg = null
+   */
+  public static void setRivetRevs( DtoObject aDtoObj, IStringMap<IMappedSkids> aRivetRevs ) {
+    TsNullArgumentRtException.checkNulls( aDtoObj, aRivetRevs );
+    aDtoObj.rivetRevs = new StringMap<>( aRivetRevs );
   }
 
   // ------------------------------------------------------------------------------------

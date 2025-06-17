@@ -84,7 +84,7 @@ final class S5LinkWriterSupport {
   /**
    * Конструктор
    *
-   * @param aEntityManager {@link EntityManager} менеджер постоянства
+   * @param aEntityManager {@link AbstractSkObjectManager} менеджер постоянства
    * @param aSysdescrReader {@link ISkSysdescrReader} читатель системного описания
    * @throws TsNullArgumentRtException любой аргумент = null
    */

@@ -302,7 +302,7 @@ public class S5BackendObjectsSingleton
         }
       }
     }
-    // Удаленние объектов с проверкой того, что они не имеют обратных склепок
+    // Удаление объектов с проверкой того, что они не имеют обратных склепок
     for( IList<IDtoObject> removedClassObjs : removedObjs.values() ) {
       for( IDtoObject removedObj : removedClassObjs ) {
         IStringMap<IMappedSkids> rr = removedObj.rivetRevs();

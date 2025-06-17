@@ -31,7 +31,7 @@ final class S5BackendSysdescrReader
   /**
    * Конструктор
    *
-   * @param aEntityManager {@link EntityManager} менджер постоянства
+   * @param aEntityManager {@link AbstractSkObjectManager} менджер постоянства
    * @param aBackendSysdescr {@link IS5BackendSysDescrSingleton} поддержка чтения системного описания
    * @throws TsNullArgumentRtException любой аргумент = null
    */
@@ -80,7 +80,7 @@ final class S5BackendSysdescrReader
   /**
    * Отсоединение entity-сущностей от JPA
    *
-   * @param aEntityManager {@link EntityManager} менеджер постоянства
+   * @param aEntityManager {@link AbstractSkObjectManager} менеджер постоянства
    * @param aInfos {@link IStridablesList}&lt;T%gt; список описаний
    * @return {@link IStridablesList}&lt;T%gt; список описаний
    * @param <T> тип сущности

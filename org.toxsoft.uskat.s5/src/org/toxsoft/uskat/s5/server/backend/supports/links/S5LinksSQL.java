@@ -70,7 +70,7 @@ class S5LinksSQL {
   /**
    * Возвращает все ПРЯМЫЕ связи объектов указанного класса (без учета наследников)
    *
-   * @param aEntityManager {@link EntityManager} менеджер постоянства
+   * @param aEntityManager {@link AbstractSkObjectManager} менеджер постоянства
    * @param aLinkFwdImplClassName String полное имя класса реализации прямой связи, наследник {@link S5LinkFwdEntity}
    * @param aLefObjClassId String идентификатор класса левого объекта связи
    * @param aLefObjClassLinkId String идентификатор запрашиваемых связей. Пустая строка: все связи
@@ -101,7 +101,7 @@ class S5LinksSQL {
   /**
    * Возвращает все ПРЯМЫЕ связи объектов указанного класса (без учета наследников)
    *
-   * @param aEntityManager {@link EntityManager} менеджер постоянства
+   * @param aEntityManager {@link AbstractSkObjectManager} менеджер постоянства
    * @param aLinkFwdImplClassName String полное имя класса реализации прямой связи, наследник {@link S5LinkFwdEntity}
    * @param aLeftSkid {@link Skid} идентификатор левого объекта связи
    * @return {@link IList}&lt;{@link S5LinkFwdEntity}&gt; список прямых связей
@@ -129,7 +129,7 @@ class S5LinksSQL {
   /**
    * Возвращает все ОБРАТНЫЕ связи объектов указанного класса (без учета наследников)
    *
-   * @param aEntityManager {@link EntityManager} менеджер постоянства
+   * @param aEntityManager {@link AbstractSkObjectManager} менеджер постоянства
    * @param aLinkRevImplClassName String полное имя класса реализации обратной связи, наследник {@link S5LinkRevEntity}
    * @param aRightObjClassId String идентификатор класса правого объекта связи
    * @return {@link IList}&lt;{@link S5LinkRevEntity}&gt; список обратных связей
@@ -157,7 +157,7 @@ class S5LinksSQL {
   /**
    * Возвращает все ОБРАТНЫЕ связи указанного объекта (без учета наследников)
    *
-   * @param aEntityManager {@link EntityManager} менеджер постоянства
+   * @param aEntityManager {@link AbstractSkObjectManager} менеджер постоянства
    * @param aLinkRevImplClassName String полное имя класса реализации обратной связи, наследник {@link S5LinkRevEntity}
    * @param aRightSkid String идентификатор класса правого объекта связи
    * @return {@link IList}&lt;{@link S5LinkRevEntity}&gt; список обратных связей
@@ -185,7 +185,7 @@ class S5LinksSQL {
   /**
    * Удаляет ПРЯМЫЕ/ОБРАТНЫЕ связи левого/правого объектов указанного класса из базы данных
    *
-   * @param aEntityManager {@link EntityManager} менеджер постоянства
+   * @param aEntityManager {@link AbstractSkObjectManager} менеджер постоянства
    * @param aLinkImplClassName String полное имя класса реализации связи, наследника {@link S5LinkFwdEntity} или
    *          {@link S5LinkRevEntity}
    * @param aClassId String идентификатор класса левого объекта связи

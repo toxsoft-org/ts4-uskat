@@ -47,7 +47,7 @@ class S5ClassesInterceptor
   /**
    * Конструктор
    *
-   * @param aEntityManager {@link EntityManager} менеджер постоянства
+   * @param aEntityManager {@link AbstractSkObjectManager} менеджер постоянства
    * @param aTransactionManager {@link IS5TransactionManagerSingleton} менеджер транзакций
    * @param aObjectsBackend {@link IS5BackendLinksSingleton} backend управления объектами
    * @param aLinksBackend {@link IS5BackendLinksSingleton} backend управления связями между объектами системы
@@ -148,7 +148,7 @@ class S5ClassesInterceptor
    * в другую
    *
    * @param aTxManager {@link IS5TransactionManagerSingleton} менеджер транзакций
-   * @param aEntityManager {@link EntityManager} менеджер постоянства
+   * @param aEntityManager {@link AbstractSkObjectManager} менеджер постоянства
    * @param aPrevClassInfo {@link IDtoClassInfo} описание класса (старая редакция)
    * @param aNewClassInfo {@link IDtoClassInfo} описание класса (новая редакция)
    * @return boolean <b>true</b> выполнен процесс перемещения реализации;<b>false</b> перемещение не требуется
@@ -197,7 +197,7 @@ class S5ClassesInterceptor
    * Если необходимо, завершает перемещение реализации связей объектов из одной таблицы базы данных в другую
    *
    * @param aTxManager {@link IS5TransactionManagerSingleton} менеджер транзакций
-   * @param aEntityManager {@link EntityManager} менеджер постоянства
+   * @param aEntityManager {@link AbstractSkObjectManager} менеджер постоянства
    * @param aNewClassInfo {@link IDtoClassInfo} описание класса (новая редакция)
    * @return boolean <b>true</b> выполнен процесс перемещения реализации;<b>false</b> перемещение не требуется
    * @throws TsNullArgumentRtException любой аргумент = null

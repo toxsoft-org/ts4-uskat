@@ -31,6 +31,7 @@ public interface ISkBackendHardConstant {
   String OPID_SKBI_LOGGED_USER               = SKBI_ID + ".LoggedUser";             //$NON-NLS-1$
   String OPID_SKBI_MAX_CLOB_LENGTH           = SKBI_ID + ".MaxClobLength";          //$NON-NLS-1$
   String OPID_SKBI_NEED_THREAD_SAFE_FRONTEND = SKBI_ID + ".NeedThreadSafeFrontend"; //$NON-NLS-1$
+  String OPID_SKBI_TRANSACTION_SUPPORT       = SKBI_ID + ".TransactionSupport";     //$NON-NLS-1$
 
   IDataDef OPDEF_SKBI_LOGGED_USER = DataDef.create( OPID_SKBI_LOGGED_USER, VALOBJ, //
       TSID_NAME, STR_SKBI_LOGGED_USER, //
@@ -47,6 +48,12 @@ public interface ISkBackendHardConstant {
   IDataDef OPDEF_SKBI_NEED_THREAD_SAFE_FRONTEND = DataDef.create( OPID_SKBI_NEED_THREAD_SAFE_FRONTEND, BOOLEAN, //
       TSID_NAME, STR_SKBI_NEED_THREAD_SAFE_FRONTEND, //
       TSID_DESCRIPTION, STR_SKBI_NEED_THREAD_SAFE_FRONTEND_D, //
+      TSID_DEFAULT_VALUE, AV_FALSE //
+  );
+
+  IDataDef OPDEF_TRANSACTION_SUPPORT = DataDef.create( OPID_SKBI_TRANSACTION_SUPPORT, BOOLEAN, //
+      TSID_NAME, STR_TRANSACTION_SUPPORT, //
+      TSID_DESCRIPTION, STR_TRANSACTION_SUPPORT_D, //
       TSID_DEFAULT_VALUE, AV_FALSE //
   );
 

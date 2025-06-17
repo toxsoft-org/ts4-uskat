@@ -3,29 +3,25 @@ package org.toxsoft.uskat.s5.client.remote;
 import static org.toxsoft.uskat.s5.client.remote.IS5Resources.*;
 import static org.toxsoft.uskat.s5.common.IS5CommonResources.*;
 
-import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.*;
 
-import org.toxsoft.core.tslib.av.opset.IOptionSet;
-import org.toxsoft.core.tslib.bricks.ctx.ITsContextRo;
-import org.toxsoft.core.tslib.bricks.strid.coll.IStridablesList;
-import org.toxsoft.core.tslib.bricks.strid.coll.IStridablesListEdit;
-import org.toxsoft.core.tslib.bricks.strid.coll.impl.StridablesList;
-import org.toxsoft.core.tslib.coll.helpers.ECrudOp;
-import org.toxsoft.core.tslib.coll.primtypes.IStringMap;
-import org.toxsoft.core.tslib.coll.primtypes.IStringMapEdit;
-import org.toxsoft.core.tslib.coll.primtypes.impl.StringMap;
+import org.toxsoft.core.tslib.av.opset.*;
+import org.toxsoft.core.tslib.bricks.ctx.*;
+import org.toxsoft.core.tslib.bricks.strid.coll.*;
+import org.toxsoft.core.tslib.bricks.strid.coll.impl.*;
+import org.toxsoft.core.tslib.coll.helpers.*;
+import org.toxsoft.core.tslib.coll.primtypes.*;
+import org.toxsoft.core.tslib.coll.primtypes.impl.*;
 import org.toxsoft.core.tslib.utils.errors.*;
-import org.toxsoft.core.tslib.utils.logs.impl.LoggerUtils;
-import org.toxsoft.uskat.core.backend.ISkBackendHardConstant;
-import org.toxsoft.uskat.core.backend.ISkFrontendRear;
+import org.toxsoft.core.tslib.utils.logs.impl.*;
+import org.toxsoft.uskat.core.backend.*;
 import org.toxsoft.uskat.core.backend.api.*;
 import org.toxsoft.uskat.s5.client.remote.connection.*;
-import org.toxsoft.uskat.s5.server.backend.IS5BackendSession;
+import org.toxsoft.uskat.s5.server.backend.*;
 import org.toxsoft.uskat.s5.server.backend.addons.*;
 import org.toxsoft.uskat.s5.server.backend.messages.*;
-import org.toxsoft.uskat.s5.server.sessions.init.IS5SessionInitResult;
-import org.toxsoft.uskat.s5.server.sessions.init.S5SessionInitData;
-import org.toxsoft.uskat.s5.server.sessions.pas.S5CallbackOnFrontendMessage;
+import org.toxsoft.uskat.s5.server.sessions.init.*;
+import org.toxsoft.uskat.s5.server.sessions.pas.*;
 
 /**
  * Удаленный s5-backend
@@ -237,8 +233,8 @@ public final class S5BackendRemote
   }
 
   @Override
-  protected ISkBackendInfo doFindServerBackendInfo() {
-    return (connection.state() == EConnectionState.CONNECTED ? session().getBackendInfo() : null);
+  protected IOptionSet getBackendInfoOptions() {
+    return (connection.state() == EConnectionState.CONNECTED ? session().getBackendInfo().params() : IOptionSet.NULL);
   }
 
   // ------------------------------------------------------------------------------------

@@ -35,4 +35,7 @@ interface ISkResources {
   String STR_BA_GWID_DB                       = Messages.getString( "STR_BA_GWID_DB" );                       //$NON-NLS-1$
   String STR_BA_GWID_DB_D                     = Messages.getString( "STR_BA_GWID_DB_D" );                     //$NON-NLS-1$
 
+  String STR_TRANSACTION_SUPPORT   = "transaction support";
+  String STR_TRANSACTION_SUPPORT_D = "an indication that the backend supports transactional object writes";
+
 }

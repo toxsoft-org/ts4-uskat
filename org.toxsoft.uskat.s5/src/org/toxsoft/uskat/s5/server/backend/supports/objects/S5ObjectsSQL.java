@@ -286,7 +286,7 @@ class S5ObjectsSQL {
    * <p>
    * TODO: mvkd эксперименты с native-SQL для insert и update
    *
-   * @param aEntityManager {@link EntityManager} менеджер постоянства
+   * @param aEntityManager {@link AbstractSkObjectManager} менеджер постоянства
    * @param aObject {@link IDtoObject} объект
    * @throws TsNullArgumentRtException любой аргумент = null
    */
@@ -319,7 +319,7 @@ class S5ObjectsSQL {
    * <p>
    * TODO: mvkd эксперименты с native-SQL для insert и update
    *
-   * @param aEntityManager {@link EntityManager} менеджер постоянства
+   * @param aEntityManager {@link AbstractSkObjectManager} менеджер постоянства
    * @param aObject {@link IDtoObject} объект
    * @throws TsNullArgumentRtException любой аргумент = null
    */
