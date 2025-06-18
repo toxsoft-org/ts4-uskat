@@ -254,7 +254,7 @@ public final class S5BackendRemote
    * @return {@link IStridablesList}&lt;{@link IS5BackendAddon}&gt; список расширений бекенда.
    * @throws TsNullArgumentRtException любой аргумент = null
    */
-  @SuppressWarnings( { "unchecked" } )
+  @SuppressWarnings( { "unchecked", "unused" } )
   private static IStridablesList<IS5BackendAddonCreator> createBaCreators( ClassLoader aClassLoader,
       IStringMap<String> aBaCreatorClasses ) {
     TsNullArgumentRtException.checkNulls( aClassLoader, aBaCreatorClasses );
@@ -267,7 +267,7 @@ public final class S5BackendRemote
       }
       catch( ClassNotFoundException e ) {
         // Не найден класс построителя расширения бекенда в classpath клиента
-        LoggerUtils.errorLogger().error( e, ERR_BA_CREATOR_NOT_FOUND, addonId, baCreatorClassName );
+        LoggerUtils.errorLogger().error( ERR_BA_CREATOR_NOT_FOUND, addonId, baCreatorClassName );
         continue;
       }
       try {
