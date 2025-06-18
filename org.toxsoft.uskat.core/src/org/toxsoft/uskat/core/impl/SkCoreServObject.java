@@ -788,14 +788,14 @@ public class SkCoreServObject
       rivetEditor.updateRivets( prevObj, newObj );
     }
     // removing objects with a check that they do not have reverse rivets
-    for( IDtoObject removedObj : removingObjs ) {
-      IStringMap<IMappedSkids> rr = removedObj.rivetRevs();
+    for( IDtoObject removingObj : removingObjs ) {
+      IStringMap<IMappedSkids> rr = removingObj.rivetRevs();
       if( SkHelperUtils.rivetRevsSize( rr ) > 0 ) {
         String rrs = SkHelperUtils.rivetRevsStr( rr );
-        throw new TsIllegalArgumentRtException( ERR_CANT_REMOVE_HAS_RIVET_REVS, removedObj, rrs );
+        throw new TsIllegalArgumentRtException( ERR_CANT_REMOVE_HAS_RIVET_REVS, removingObj, rrs );
       }
       // removing obj
-      em.remove( removedObj );
+      em.remove( removingObj );
     }
     // Creating objects
     for( IDtoObject creatingObj : creatingObjs ) {

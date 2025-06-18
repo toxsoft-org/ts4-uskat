@@ -185,17 +185,20 @@ interface ISkResources {
   /**
    * {@link AbstractSkRivetEditor}
    */
-  String METHOD_CREATING_RIVETS = "creatingRivets";
-  String METHOD_UPDATING_RIVETS = "updatingRivets";
-  String METHOD_REMOVING_RIVETS = "removingRivets";
+  String M_CREATE_RR = "creatingRivets";
+  String M_UPDATE_RR = "updatingRivets";
+  String M_REMOVE_RR = "removingRivets";
 
-  String ERR_CANT_REMOVE_HAS_RIVET_REVS        =
-      "%s: prohibition of deleting an object that is in the rivets of other objects: \n%s";
-  String ERR_RIVERT_REVS_ALREADY_EXIST         =
-      "%s(...): rightObj %s, rivetId = %s, leftObj =%s: rivet rev already exist.";
-  String ERR_RIVET_REVS_RIGHT_OBJ_NOT_FOUND    = "%s(...): right obj %s is not found";
-  String ERR_RIVET_REVS_LEFT_OBJ_NOT_FOUND     =
-      "%s(...): rightObj %s, rivetId = %s, leftObj =%s: leftObj is not found";
-  String ERR_RIVET_REVS_EDITOR_CLASS_NOT_FOUND = "openRivetRevsEditor(...): %s: rivetClassId %s is not found";
-  String ERR_RIVET_REVS_EDITOR_RIVET_NOT_FOUND = "openRivetRevsEditor(...): %s: rivetId %s is not found";
+  String ERR_CANT_REMOVE_HAS_RIVET_REVS =
+      "prohibition of removing object = %s that is in the rivets of other objects: \n%s";
+  String ERR_RR_ALREADY_EXIST           =
+      "%s(...): rightObj = %s, rivetId = %s, leftObj = %s: reverse rivet already exist.";
+  String ERR_RR_ROBJ_NOT_FOUND          =
+      "%s(...): leftObj = %s, rivetClassId = %s, rivetId = %s, rightObj = %s:  rightObj is not found";
+  String ERR_RR_LOBJ_NOT_FOUND          =
+      "%s(...): rightObj = %s, rivetClassId = %s, rivetId = %s, leftObj = %s: leftObj is not found";
+  String ERR_RR_EDITOR_CLASS_NOT_FOUND  =
+      "openRivetRevsEditor(...): rightObj = %s, rivetClassId = %s, rivetId = %s. rivetClassId is not found";
+  String ERR_RR_EDITOR_RIVET_NOT_FOUND  =
+      "openRivetRevsEditor(...): rightObj = %s, rivetClassId = %s, rivetId = %s. rivetId is not found";
 }

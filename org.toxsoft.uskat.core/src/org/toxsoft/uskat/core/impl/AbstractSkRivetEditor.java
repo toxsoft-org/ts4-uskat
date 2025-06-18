@@ -60,14 +60,18 @@ public abstract class AbstractSkRivetEditor {
 
       ISkidList rightObjIds = rivets.map().getByKey( rivetId );
       for( Skid rightObjId : rightObjIds ) {
+        if( rightObjId == Skid.NONE ) {
+          continue;
+        }
         IDtoObject rightObj = doFindObject( rightObjId );
         if( rightObj == null ) {
-          throw new TsItemNotFoundRtException( ERR_RIVET_REVS_RIGHT_OBJ_NOT_FOUND, METHOD_CREATING_RIVETS, rightObjId );
+          throw new TsItemNotFoundRtException( ERR_RR_ROBJ_NOT_FOUND, M_CREATE_RR, leftObjId, rivetClassId, rivetId,
+              rightObjId );
         }
         // Установка правого объекта в редакторе обратных склепок. aCreating = true
         SkidList skidListEdit = reverseEditor.setRightObj( rightObj, true );
         if( skidListEdit.hasElem( leftObjId ) ) {
-          logger.error( ERR_RIVERT_REVS_ALREADY_EXIST, METHOD_CREATING_RIVETS, rightObjId, rivetId, leftObjId );
+          logger.error( ERR_RR_ALREADY_EXIST, M_CREATE_RR, rightObjId, rivetId, leftObjId );
           continue;
         }
         skidListEdit.add( leftObjId );
@@ -103,15 +107,18 @@ public abstract class AbstractSkRivetEditor {
 
       ISkidList rightObjIds = rivets.map().getByKey( rivetId );
       for( Skid rightObjId : rightObjIds ) {
+        if( rightObjId == Skid.NONE ) {
+          continue;
+        }
         IDtoObject rightObj = doFindObject( rightObjId );
         if( rightObj == null ) {
-          logger.error( ERR_RIVET_REVS_RIGHT_OBJ_NOT_FOUND, METHOD_REMOVING_RIVETS, rightObjId );
+          logger.error( ERR_RR_ROBJ_NOT_FOUND, M_REMOVE_RR, leftObjId, rivetClassId, rivetId, rightObjId );
           continue;
         }
         // Установка правого объекта в редакторе обратных склепок. aCreating = false
         SkidList newSkidList = reverseEditor.setRightObj( rightObj, false );
         if( newSkidList.remove( leftObjId ) < 0 ) {
-          logger.error( ERR_RIVET_REVS_LEFT_OBJ_NOT_FOUND, METHOD_REMOVING_RIVETS, rightObjId, rivetId, leftObjId );
+          logger.error( ERR_RR_LOBJ_NOT_FOUND, M_REMOVE_RR, rightObjId, rivetClassId, rivetId, leftObjId );
           continue;
         }
         if( reverseEditor.flush() ) {
@@ -156,15 +163,18 @@ public abstract class AbstractSkRivetEditor {
       ISkidList newRightObjIds = newRivets.map().getByKey( rivetId );
       // Удаление объектов из склепок
       for( Skid rightObjId : subtract( new SkidList( prevRightObjIds ), newRightObjIds ) ) {
+        if( rightObjId == Skid.NONE ) {
+          continue;
+        }
         IDtoObject rightObj = doFindObject( rightObjId );
         if( rightObj == null ) {
-          logger.error( ERR_RIVET_REVS_RIGHT_OBJ_NOT_FOUND, METHOD_UPDATING_RIVETS, rightObjId );
+          logger.error( ERR_RR_ROBJ_NOT_FOUND, M_UPDATE_RR, leftObjId, rivetClassId, rivetId, rightObjId );
           continue;
         }
         // Установка правого объекта в редакторе обратных склепок. aCreating = false
         SkidList newSkidList = reverseEditor.setRightObj( rightObj, false );
         if( newSkidList.remove( leftObjId ) < 0 ) {
-          logger.error( ERR_RIVET_REVS_LEFT_OBJ_NOT_FOUND, METHOD_UPDATING_RIVETS, rightObjId, rivetId, leftObjId );
+          logger.error( ERR_RR_LOBJ_NOT_FOUND, M_UPDATE_RR, rightObjId, rivetClassId, rivetId, leftObjId );
           continue;
         }
         if( reverseEditor.flush() ) {
@@ -173,14 +183,18 @@ public abstract class AbstractSkRivetEditor {
       }
       // Добавление объектов в склепки
       for( Skid rightObjId : subtract( new SkidList( newRightObjIds ), prevRightObjIds ) ) {
+        if( rightObjId == Skid.NONE ) {
+          continue;
+        }
         IDtoObject rightObj = doFindObject( rightObjId );
         if( rightObj == null ) {
-          throw new TsItemNotFoundRtException( ERR_RIVET_REVS_RIGHT_OBJ_NOT_FOUND, METHOD_UPDATING_RIVETS, rightObjId );
+          throw new TsItemNotFoundRtException( ERR_RR_ROBJ_NOT_FOUND, M_UPDATE_RR, leftObjId, rivetClassId, rivetId,
+              rightObjId );
         }
         // Установка правого объекта в редакторе обратных склепок. aCreating = false
         SkidList newSkidList = reverseEditor.setRightObj( rightObj, false );
         if( newSkidList.hasElem( leftObjId ) ) {
-          logger.error( ERR_RIVERT_REVS_ALREADY_EXIST, METHOD_UPDATING_RIVETS, rightObjId, rivetId, leftObjId );
+          logger.error( ERR_RR_ALREADY_EXIST, M_UPDATE_RR, rightObjId, rivetId, leftObjId );
           continue;
         }
         newSkidList.add( leftObjId );
@@ -254,12 +268,12 @@ public abstract class AbstractSkRivetEditor {
       IStringMap<IMappedSkids> rivetRevs = aRightObj.rivetRevs();
       IMappedSkids mappedSkids = rivetRevs.findByKey( rivetClassId );
       if( mappedSkids == null && !aCreating ) {
-        logger.error( ERR_RIVET_REVS_EDITOR_CLASS_NOT_FOUND, aRightObj.skid(), rivetClassId );
+        logger.error( ERR_RR_EDITOR_CLASS_NOT_FOUND, aRightObj.skid(), rivetClassId, rivetId );
       }
       if( mappedSkids != null ) {
         prevSkidList = mappedSkids.map().findByKey( rivetId );
         if( prevSkidList == null && !aCreating ) {
-          logger.error( ERR_RIVET_REVS_EDITOR_RIVET_NOT_FOUND, aRightObj.skid(), rivetId );
+          logger.error( ERR_RR_EDITOR_RIVET_NOT_FOUND, aRightObj.skid(), rivetClassId, rivetId );
         }
         if( prevSkidList != null ) {
           newSkidList.setAll( prevSkidList );
