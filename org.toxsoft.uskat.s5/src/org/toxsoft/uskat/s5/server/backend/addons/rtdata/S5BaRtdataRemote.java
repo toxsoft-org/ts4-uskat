@@ -120,7 +120,7 @@ class S5BaRtdataRemote
   //
   @Override
   public IMap<Gwid, IAtomicValue> configureCurrDataReader( IGwidList aToRemove, IGwidList aToAdd ) {
-    TsNullArgumentRtException.checkNull( aToRemove );
+    TsNullArgumentRtException.checkNull( aToAdd );
     if( aToRemove == null ) {
       baData.currdataGwidsToFrontend.clear();
     }
