@@ -70,7 +70,8 @@ public class SkCoreUtils {
   //
 
   private static final IListEdit<ISkServiceCreator<? extends AbstractSkService>> registeredServiceCreatorsList =
-      new ElemArrayList<>();
+      // aAllowDuplicates == false
+      new ElemArrayList<>( false );
 
   /**
    * Returns list of the registered Sk-service creators.
@@ -78,7 +79,9 @@ public class SkCoreUtils {
    * @return {@link IList}&lt;{@link ISkServiceCreator}&gt; - registered creators list
    */
   public static IList<ISkServiceCreator<? extends AbstractSkService>> listRegisteredSkServiceCreators() {
-    return new ElemArrayList<>( registeredServiceCreatorsList );
+    synchronized (registeredServiceCreatorsList) {
+      return new ElemArrayList<>( registeredServiceCreatorsList );
+    }
   }
 
   /**
@@ -90,7 +93,7 @@ public class SkCoreUtils {
    * @throws TsNullArgumentRtException any argument = <code>null</code>
    */
   public static void registerSkServiceCreator( ISkServiceCreator<? extends AbstractSkService> aCreator ) {
-    if( !registeredServiceCreatorsList.hasElem( aCreator ) ) {
+    synchronized (registeredServiceCreatorsList) {
       registeredServiceCreatorsList.add( aCreator );
     }
   }
@@ -98,8 +101,9 @@ public class SkCoreUtils {
   // ------------------------------------------------------------------------------------
   // Core API handlers registry
   //
-
-  private static final IListEdit<ISkCoreExternalHandler> registeredCoreApiHandlersList = new ElemArrayList<>();
+  private static final IListEdit<ISkCoreExternalHandler> registeredCoreApiHandlersList =
+      // aAllowDuplicates = false
+      new ElemArrayList<>( false );
 
   /**
    * Returns list of the registered Core API handlers.
@@ -107,7 +111,9 @@ public class SkCoreUtils {
    * @return {@link IList}&lt;{@link ISkCoreExternalHandler}&gt; - registered handlers list
    */
   public static IList<ISkCoreExternalHandler> listRegisteredCoreApiHandlers() {
-    return registeredCoreApiHandlersList.copyTo( null );
+    synchronized (registeredCoreApiHandlersList) {
+      return registeredCoreApiHandlersList.copyTo( null );
+    }
   }
 
   /**
@@ -119,7 +125,7 @@ public class SkCoreUtils {
    * @throws TsNullArgumentRtException any argument = <code>null</code>
    */
   public static void registerCoreApiHandler( ISkCoreExternalHandler aHandler ) {
-    if( !registeredCoreApiHandlersList.hasElem( aHandler ) ) {
+    synchronized (registeredCoreApiHandlersList) {
       registeredCoreApiHandlersList.add( aHandler );
     }
   }
