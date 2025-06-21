@@ -14,7 +14,7 @@ interface IS5Resources {
   String METHOD_REMOVING_RIVETS = "removingRivets";
 
   // ------------------------------------------------------------------------------------
-  // Строки сообщений
+  // messages
   //
   String MSG_READ_OBJ_BY_SKID_SQL_START  = Messages.getString( "IS5Resources.MSG_READ_OBJ_BY_SKID_SQL_START" );
   String MSG_READ_OBJ_BY_SKID_SQL_FINISH = Messages.getString( "IS5Resources.MSG_READ_OBJ_BY_SKID_SQL_FINISH" );
@@ -24,7 +24,7 @@ interface IS5Resources {
   String MSG_WRITE_OBJECTES                 = Messages.getString( "IS5Resources.MSG_WRITE_OBJECTES" );
 
   // ------------------------------------------------------------------------------------
-  // Тексты ошибок
+  // errors & warnings
   //
   String ERR_OBJECT_IMPL_NOT_FOUND         = Messages.getString( "IS5Resources.ERR_OBJECT_IMPL_NOT_FOUND" );
   String ERR_OBJECT_CONSTRUCTOR_NOT_FOUND1 = Messages.getString( "IS5Resources.ERR_OBJECT_CONSTRUCTOR_NOT_FOUND1" );
@@ -41,7 +41,7 @@ interface IS5Resources {
   String ERR_CANT_CHANGE_IMPL_AND_ATTRS  = Messages.getString( "IS5Resources.ERR_CANT_CHANGE_IMPL_AND_ATTRS" );
   String ERR_CHANGE_OBJECT_IMPL          = Messages.getString( "IS5Resources.ERR_CHANGE_OBJECT_IMPL" );
 
-  String ERR_CANT_REMOVE_HAS_RIVET_REVS  =
+  String ERR_CANT_REMOVE_HAS_RIVET_REVS        =
       "%s: prohibition of deleting an object that is in the rivets of other objects: \n%s";
   String ERR_RIVERT_REVS_ALREADY_EXIST         =
       "%s(...): rightObj %s, rivetId = %s, leftObj =%s: rivet rev already exist.";
@@ -50,4 +50,7 @@ interface IS5Resources {
       "%s(...): rightObj %s, rivetId = %s, leftObj =%s: leftObj is not found";
   String ERR_RIVET_REVS_EDITOR_CLASS_NOT_FOUND = "openRivetRevsEditor(...): %s: rivetClassId %s is not found";
   String ERR_RIVET_REVS_EDITOR_RIVET_NOT_FOUND = "openRivetRevsEditor(...): %s: rivetId %s is not found";
+
+  String ERR_RIVET_REVS_TOO_LONG =
+      "%s.rivetRevsString: data too long (%d, max = %d) for column. Text(newRivetRevsString) = \n%s";
 }

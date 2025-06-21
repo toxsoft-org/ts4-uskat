@@ -243,6 +243,7 @@ public class S5ObjectEntity
    *          - {@link IMappedSkids} values are "SKIDs list of the left objects which have this object riveted".
    * @throws TsNullArgumentRtException аргумент = null
    */
+  @SuppressWarnings( "boxing" )
   void setRivetRevs( IStringMap<IMappedSkids> aRivetRevs ) {
     TsNullArgumentRtException.checkNull( aRivetRevs );
     try {
@@ -250,7 +251,13 @@ public class S5ObjectEntity
       ICharOutputStream chOut = new CharOutputStreamAppendable( sb );
       IStrioWriter sw = new StrioWriter( chOut );
       StrioUtils.writeStringMap( sw, EMPTY_STRING, aRivetRevs, MappedSkids.KEEPER, true );
-      rivetRevsString = sb.toString();
+      String newRivetRevsString = sb.toString();
+      if( newRivetRevsString.length() > IS5ImplementConstants.LOB_TEXT_TYPE_MAX_SIZE ) {
+        // Data too long for column rivetRevsString
+        throw new TsIllegalArgumentRtException( ERR_RIVET_REVS_TOO_LONG, id, newRivetRevsString.length(),
+            IS5ImplementConstants.LOB_TEXT_TYPE_MAX_SIZE, newRivetRevsString );
+      }
+      rivetRevsString = newRivetRevsString;
     }
     catch( Throwable e ) {
       logger().error( e, "setRivetRevs(...). cause: %s", cause( e ) ); //$NON-NLS-1$

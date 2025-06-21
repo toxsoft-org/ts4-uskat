@@ -192,7 +192,6 @@ public interface IS5ImplementConstants
    */
   String BACKEND_SKATLET_SINGLETON = S5BackendSkatletsSingleton.BACKEND_SKATLET_BOX_ID;
 
-
   /**
    * Имя модуля реализующего сервер проекта
    */
@@ -232,9 +231,21 @@ public interface IS5ImplementConstants
    * <li>https://www.baeldung.com/jpa-annotation-postgresql-text-type.</li>
    * </ul>
    */
-  String LOB_TEXT_TYPE = "TEXT"; // mysql size = 65,535, postgresql size = unlimited (?)
+  // String LOB_TEXT_TYPE = "TEXT"; // mysql size = 65,535, postgresql size = unlimited (?)
   // String LOB_TEXT_TYPE = "MEDIUMTEXT"; // mysql size = 16,777,215
   // String LOB_TEXT_TYPE = "LONGTEXT"; // mysql size = 4,294,967,295
+
+  /**
+   * Максимальный размер поля СУБД имеющего тип {@link #LOB_TEXT_TYPE}.
+   */
+  // int LOB_TEXT_TYPE_MAX_SIZE = 65535;
+
+  String LOB_TEXT_TYPE = "MEDIUMTEXT"; // mysql size = 4,294,967,295
+
+  /**
+   * Максимальный размер поля СУБД имеющего тип {@link #LOB_TEXT_TYPE}.
+   */
+  long LOB_TEXT_TYPE_MAX_SIZE = 16777215;
 
   // ------------------------------------------------------------------------------------
   // Ресурсы s5-backend и их JNDI
