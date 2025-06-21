@@ -34,6 +34,7 @@ import org.toxsoft.core.tslib.coll.synch.*;
 import org.toxsoft.core.tslib.gw.gwid.*;
 import org.toxsoft.core.tslib.utils.errors.*;
 import org.toxsoft.core.tslib.utils.logs.*;
+import org.toxsoft.uskat.core.impl.*;
 import org.toxsoft.uskat.s5.server.backend.supports.core.*;
 import org.toxsoft.uskat.s5.server.cluster.*;
 import org.toxsoft.uskat.s5.server.sequences.*;
@@ -487,7 +488,7 @@ public abstract class S5AbstractSequenceWriter<S extends IS5Sequence<V>, V exten
   /**
    * Сохраняет блоки в dbms
    *
-   * @param aEntityManager {@link AbstractSkObjectManager} менеджер постоянства
+   * @param aEntityManager {@link EntityManager} менеджер постоянства
    * @param aBlocks {@link Iterable}&lt;{@link IS5SequenceBlock}&lt;V;&gt;&gt; сохраняемые блоки значений
    * @param aStat {@link S5DbmsStatistics} статистика работы
    * @param aLogger {@link ILogger} журнал
@@ -911,7 +912,8 @@ public abstract class S5AbstractSequenceWriter<S extends IS5Sequence<V>, V exten
   /**
    * Шаблонный метод записи данных последовательностей
    *
-   * @param aEntityManager {@link AbstractSkObjectManager} мененджер постоянства который МОЖЕТ использовать писатель для записи
+   * @param aEntityManager {@link AbstractSkObjectManager} мененджер постоянства который МОЖЕТ использовать писатель для
+   *          записи
    * @param aSequences {@link IList}&lt;{@link S5Sequence}&gt; последовательность значений
    * @param aStatistics {@link IS5SequenceWriteStat} редактируемая статистика выполнения записи
    * @throws TsIllegalStateRtException попытка конкуретного изменения данных последовательности

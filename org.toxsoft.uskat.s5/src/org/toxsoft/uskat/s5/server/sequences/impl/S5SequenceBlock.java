@@ -27,6 +27,8 @@ import org.toxsoft.core.tslib.gw.gwid.*;
 import org.toxsoft.core.tslib.utils.*;
 import org.toxsoft.core.tslib.utils.errors.*;
 import org.toxsoft.core.tslib.utils.logs.*;
+import org.toxsoft.uskat.core.api.objserv.*;
+import org.toxsoft.uskat.core.impl.*;
 import org.toxsoft.uskat.s5.server.sequences.*;
 
 /**
@@ -250,7 +252,7 @@ public abstract class S5SequenceBlock<V extends ITemporal<?>, BLOB_ARRAY, BLOB e
   /**
    * Сохраняет блок в базе данных
    *
-   * @param aEntityManager {@link AbstractSkObjectManager} менеджер постоянства
+   * @param aEntityManager {@link EntityManager} менеджер постоянства
    * @return boolean <b>true</b> запись выполнена; <b>false</b> запись не требуется
    * @throws TsNullArgumentRtException аргумент = null
    */
@@ -732,8 +734,8 @@ public abstract class S5SequenceBlock<V extends ITemporal<?>, BLOB_ARRAY, BLOB e
   /**
    * Обновить значения блока
    * <p>
-   * Используется {@link S5AbstractSequenceWriter#writeBlocksToDbms(AbstractSkObjectManager, Iterable, ILogger, S5DbmsStatistics)}
-   * при выполнении операций {@link AbstractSkObjectManager#merge(Object)}.
+   * Используется {@link S5AbstractSequenceWriter#writeBlocksToDbms(EntityManager, Iterable, ILogger, S5DbmsStatistics)}
+   * при выполнении операций {@link AbstractSkObjectManager#merge(IDtoObject)}.
    *
    * @param aSource {@link S5SequenceBlock} исходный блок
    * @throws TsNullArgumentRtException аргумент = null

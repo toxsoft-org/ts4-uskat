@@ -85,7 +85,7 @@ class S5SequenceLastBlockWriter<S extends IS5Sequence<V>, V extends ITemporal<?>
   /**
    * Проводит запись последовательности данных
    *
-   * @param aEntityManager {@link AbstractSkObjectManager} менеджер постоянства используемый для записи
+   * @param aEntityManager {@link EntityManager} менеджер постоянства используемый для записи
    * @param aSequence S последовательность
    * @param aStatistics {@link S5SequenceWriteStat} редактируемая статистика
    * @param aThreadIndex int индекс записи (индекс потока или просто порядковый номер, для журнала)

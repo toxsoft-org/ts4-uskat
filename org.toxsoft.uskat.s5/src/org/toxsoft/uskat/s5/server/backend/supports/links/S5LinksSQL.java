@@ -8,19 +8,17 @@ import static org.toxsoft.uskat.s5.server.backend.supports.links.S5LinkFwdEntity
 import static org.toxsoft.uskat.s5.server.backend.supports.links.S5LinkID.*;
 import static org.toxsoft.uskat.s5.server.backend.supports.objects.S5ObjectID.*;
 
-import java.util.List;
+import java.util.*;
 
-import javax.persistence.EntityManager;
-import javax.persistence.Query;
+import javax.persistence.*;
 
-import org.toxsoft.core.tslib.coll.IList;
-import org.toxsoft.core.tslib.gw.skid.Skid;
-import org.toxsoft.core.tslib.utils.errors.TsNullArgumentRtException;
-import org.toxsoft.core.tslib.utils.logs.ILogger;
-import org.toxsoft.uskat.core.api.linkserv.IDtoLinkFwd;
-import org.toxsoft.uskat.core.api.linkserv.IDtoLinkRev;
-import org.toxsoft.uskat.s5.server.entities.S5DefaultLinkFwdEntity;
-import org.toxsoft.uskat.s5.server.entities.S5DefaultLinkRevEntity;
+import org.toxsoft.core.tslib.coll.*;
+import org.toxsoft.core.tslib.gw.skid.*;
+import org.toxsoft.core.tslib.utils.errors.*;
+import org.toxsoft.core.tslib.utils.logs.*;
+import org.toxsoft.uskat.core.api.linkserv.*;
+import org.toxsoft.uskat.core.impl.*;
+import org.toxsoft.uskat.s5.server.entities.*;
 
 /**
  * Служебные константы и методы для выполнения SQL-запросов
@@ -101,7 +99,7 @@ class S5LinksSQL {
   /**
    * Возвращает все ПРЯМЫЕ связи объектов указанного класса (без учета наследников)
    *
-   * @param aEntityManager {@link AbstractSkObjectManager} менеджер постоянства
+   * @param aEntityManager {@link EntityManager} менеджер постоянства
    * @param aLinkFwdImplClassName String полное имя класса реализации прямой связи, наследник {@link S5LinkFwdEntity}
    * @param aLeftSkid {@link Skid} идентификатор левого объекта связи
    * @return {@link IList}&lt;{@link S5LinkFwdEntity}&gt; список прямых связей

@@ -1,19 +1,18 @@
 package org.toxsoft.uskat.s5.server.backend.supports.links;
 
-import java.lang.reflect.Constructor;
+import java.lang.reflect.*;
 
-import javax.persistence.EntityManager;
+import javax.persistence.*;
 
-import org.toxsoft.core.tslib.coll.IListEdit;
-import org.toxsoft.core.tslib.coll.IMapEdit;
-import org.toxsoft.core.tslib.coll.impl.ElemMap;
-import org.toxsoft.core.tslib.coll.primtypes.IStringMapEdit;
-import org.toxsoft.core.tslib.coll.primtypes.impl.StringMap;
-import org.toxsoft.core.tslib.utils.Pair;
-import org.toxsoft.core.tslib.utils.errors.TsNullArgumentRtException;
-import org.toxsoft.uskat.core.api.linkserv.IDtoLinkFwd;
-import org.toxsoft.uskat.core.api.sysdescr.ISkClassInfo;
-import org.toxsoft.uskat.s5.common.sysdescr.ISkSysdescrReader;
+import org.toxsoft.core.tslib.coll.*;
+import org.toxsoft.core.tslib.coll.impl.*;
+import org.toxsoft.core.tslib.coll.primtypes.*;
+import org.toxsoft.core.tslib.coll.primtypes.impl.*;
+import org.toxsoft.core.tslib.utils.*;
+import org.toxsoft.core.tslib.utils.errors.*;
+import org.toxsoft.uskat.core.api.linkserv.*;
+import org.toxsoft.uskat.core.api.sysdescr.*;
+import org.toxsoft.uskat.s5.common.sysdescr.*;
 
 /**
  * Вспомогательный класс записи связей между объектами
@@ -84,7 +83,7 @@ final class S5LinkWriterSupport {
   /**
    * Конструктор
    *
-   * @param aEntityManager {@link AbstractSkObjectManager} менеджер постоянства
+   * @param aEntityManager {@link EntityManager} менеджер постоянства
    * @param aSysdescrReader {@link ISkSysdescrReader} читатель системного описания
    * @throws TsNullArgumentRtException любой аргумент = null
    */

@@ -206,7 +206,7 @@ public class S5SequenceBlob<BLOCK extends S5SequenceBlock<?, ?, ?>, BLOB_ARRAY, 
   /**
    * Выполняет операцию записи blob в базу данных
    *
-   * @param aEntityManager {@link AbstractSkObjectManager} менеджер постоянства
+   * @param aEntityManager {@link EntityManager} менеджер постоянства
    * @throws TsNullArgumentRtException аргумент = null
    */
   final void executeInsert( EntityManager aEntityManager ) {

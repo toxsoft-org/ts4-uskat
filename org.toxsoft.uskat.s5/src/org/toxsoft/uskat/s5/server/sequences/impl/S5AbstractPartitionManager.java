@@ -23,6 +23,7 @@ import org.toxsoft.core.tslib.coll.primtypes.*;
 import org.toxsoft.core.tslib.utils.*;
 import org.toxsoft.core.tslib.utils.errors.*;
 import org.toxsoft.core.tslib.utils.logs.*;
+import org.toxsoft.uskat.core.impl.*;
 import org.toxsoft.uskat.s5.server.sequences.*;
 import org.toxsoft.uskat.s5.server.sequences.maintenance.*;
 import org.toxsoft.uskat.s5.utils.*;
@@ -216,7 +217,7 @@ abstract class S5AbstractPartitionManager {
   /**
    * Загрузка текущих разделов таблицы в карту разделов
    *
-   * @param aEntityManager {@link AbstractSkObjectManager} менеджер постоянства
+   * @param aEntityManager {@link EntityManager} менеджер постоянства
    * @param aSchema String схема базы данных с которой работает сервер
    * @param aTable String имя таблицы
    * @param aDepth int глубина (в сутках) хранения значений

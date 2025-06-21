@@ -31,7 +31,7 @@ public interface IS5SequenceWriter<S extends IS5Sequence<V>, V extends ITemporal
   /**
    * Запись в dbms значений последовательности данных
    *
-   * @param aEntityManager {@link AbstractSkObjectManager} мененджер постоянства который МОЖЕТ использовать писатель для записи
+   * @param aEntityManager {@link EntityManager} мененджер постоянства который МОЖЕТ использовать писатель для записи
    * @param aSequences {@link IList}&lt;{@link IS5Sequence}&gt; список последовательностей значений
    * @return {@link IS5SequenceWriteStat} статистика выполнения записи
    * @throws TsNullArgumentRtException любой аргумент = null

@@ -1,13 +1,13 @@
 package org.toxsoft.uskat.s5.server.backend.supports.sysdescr;
 
-import javax.persistence.EntityManager;
+import javax.persistence.*;
 
-import org.toxsoft.core.tslib.bricks.strid.IStridable;
-import org.toxsoft.core.tslib.bricks.strid.coll.IStridablesList;
-import org.toxsoft.core.tslib.utils.errors.TsNullArgumentRtException;
-import org.toxsoft.uskat.core.api.sysdescr.dto.IDtoClassInfo;
-import org.toxsoft.uskat.s5.common.sysdescr.ISkSysdescrReader;
-import org.toxsoft.uskat.s5.common.sysdescr.SkSysdescrReader;
+import org.toxsoft.core.tslib.bricks.strid.*;
+import org.toxsoft.core.tslib.bricks.strid.coll.*;
+import org.toxsoft.core.tslib.utils.errors.*;
+import org.toxsoft.uskat.core.api.sysdescr.dto.*;
+import org.toxsoft.uskat.core.impl.*;
+import org.toxsoft.uskat.s5.common.sysdescr.*;
 
 /**
  * Реализация {@link ISkSysdescrReader} для работы в сервере
@@ -80,7 +80,7 @@ final class S5BackendSysdescrReader
   /**
    * Отсоединение entity-сущностей от JPA
    *
-   * @param aEntityManager {@link AbstractSkObjectManager} менеджер постоянства
+   * @param aEntityManager {@link EntityManager} менеджер постоянства
    * @param aInfos {@link IStridablesList}&lt;T%gt; список описаний
    * @return {@link IStridablesList}&lt;T%gt; список описаний
    * @param <T> тип сущности

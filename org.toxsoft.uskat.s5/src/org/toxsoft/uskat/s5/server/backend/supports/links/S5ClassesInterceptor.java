@@ -22,6 +22,7 @@ import org.toxsoft.core.tslib.utils.errors.*;
 import org.toxsoft.uskat.core.api.linkserv.*;
 import org.toxsoft.uskat.core.api.objserv.*;
 import org.toxsoft.uskat.core.api.sysdescr.dto.*;
+import org.toxsoft.uskat.core.impl.*;
 import org.toxsoft.uskat.s5.server.backend.supports.objects.*;
 import org.toxsoft.uskat.s5.server.backend.supports.sysdescr.*;
 import org.toxsoft.uskat.s5.server.transactions.*;
@@ -148,7 +149,7 @@ class S5ClassesInterceptor
    * в другую
    *
    * @param aTxManager {@link IS5TransactionManagerSingleton} менеджер транзакций
-   * @param aEntityManager {@link AbstractSkObjectManager} менеджер постоянства
+   * @param aEntityManager {@link EntityManager} менеджер постоянства
    * @param aPrevClassInfo {@link IDtoClassInfo} описание класса (старая редакция)
    * @param aNewClassInfo {@link IDtoClassInfo} описание класса (новая редакция)
    * @return boolean <b>true</b> выполнен процесс перемещения реализации;<b>false</b> перемещение не требуется
