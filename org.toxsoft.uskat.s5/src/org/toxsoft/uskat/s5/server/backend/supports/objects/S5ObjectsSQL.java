@@ -10,25 +10,23 @@ import static org.toxsoft.uskat.s5.server.backend.supports.objects.S5ObjectEntit
 import static org.toxsoft.uskat.s5.server.backend.supports.objects.S5ObjectID.*;
 import static org.toxsoft.uskat.s5.server.backend.supports.objects.S5ObjectReflectUtils.*;
 
-import java.lang.reflect.Constructor;
+import java.lang.reflect.*;
 import java.sql.*;
 
-import javax.persistence.EntityManager;
-import javax.persistence.Query;
+import javax.persistence.*;
 
-import org.toxsoft.core.tslib.av.opset.impl.OptionSetKeeper;
-import org.toxsoft.core.tslib.coll.IList;
-import org.toxsoft.core.tslib.coll.IListEdit;
-import org.toxsoft.core.tslib.coll.impl.ElemLinkedList;
+import org.toxsoft.core.tslib.av.opset.impl.*;
+import org.toxsoft.core.tslib.coll.*;
+import org.toxsoft.core.tslib.coll.impl.*;
 import org.toxsoft.core.tslib.coll.primtypes.*;
-import org.toxsoft.core.tslib.coll.primtypes.impl.StringMap;
+import org.toxsoft.core.tslib.coll.primtypes.impl.*;
 import org.toxsoft.core.tslib.gw.skid.*;
-import org.toxsoft.core.tslib.utils.errors.TsInternalErrorRtException;
-import org.toxsoft.core.tslib.utils.errors.TsNullArgumentRtException;
-import org.toxsoft.core.tslib.utils.logs.ILogger;
-import org.toxsoft.uskat.core.api.objserv.IDtoObject;
-import org.toxsoft.uskat.core.api.sysdescr.ISkClassInfo;
-import org.toxsoft.uskat.s5.common.sysdescr.ISkSysdescrReader;
+import org.toxsoft.core.tslib.utils.errors.*;
+import org.toxsoft.core.tslib.utils.logs.*;
+import org.toxsoft.uskat.core.api.objserv.*;
+import org.toxsoft.uskat.core.api.sysdescr.*;
+import org.toxsoft.uskat.core.impl.*;
+import org.toxsoft.uskat.s5.common.sysdescr.*;
 
 /**
  * Служебные константы и методы для выполнения SQL-запросов
@@ -286,7 +284,7 @@ class S5ObjectsSQL {
    * <p>
    * TODO: mvkd эксперименты с native-SQL для insert и update
    *
-   * @param aEntityManager {@link AbstractSkObjectManager} менеджер постоянства
+   * @param aEntityManager {@link EntityManager} менеджер постоянства
    * @param aObject {@link IDtoObject} объект
    * @throws TsNullArgumentRtException любой аргумент = null
    */

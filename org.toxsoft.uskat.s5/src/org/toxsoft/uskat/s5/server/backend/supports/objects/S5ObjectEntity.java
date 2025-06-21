@@ -256,7 +256,7 @@ public class S5ObjectEntity
       logger().error( e, "setRivetRevs(...). cause: %s", cause( e ) ); //$NON-NLS-1$
       throw e;
     }
-    rivets = null;
+    rivetRevs = null;
   }
 
   // ------------------------------------------------------------------------------------

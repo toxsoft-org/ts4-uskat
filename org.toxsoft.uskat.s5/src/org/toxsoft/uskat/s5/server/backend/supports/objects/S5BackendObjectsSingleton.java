@@ -275,10 +275,8 @@ public class S5BackendObjectsSingleton
         changedObjectIds.add( obj.right().skid() );
         // 2020-07-23 mvk
         // em.merge( obj.right() );
-        // Восстановление списка obj.left(!) обратных склепок
 
         // Восстановление списка obj.left(!) обратных склепок
-        // TODO: (!) проверить и выбрать рабочий вариант 1
         ((S5ObjectEntity)obj.right()).setRivetRevs( obj.left().rivetRevs() );
 
         // Обновление объекта в базе данных
@@ -286,17 +284,13 @@ public class S5BackendObjectsSingleton
         changedObj.setAttrs( obj.right().attrs() );
         changedObj.setRivets( obj.right().rivets() );
 
-        // Восстановление списка obj.left(!) обратных склепок
-        // TODO: (!) проверить и выбрать рабочий вариант 2
-        // changedObj.setRivetRevs( obj.left().rivetRevs() );
+        // TODO: mvkd experimental
+        // updateObject( em, obj.right() );
+        uc++;
 
         // Обновление склепок
         uc += rivetEditor.updateRivets( obj.left(), obj.right() );
 
-        // TODO: mvkd experimental
-        // updateObject( em, obj.right() );
-        uc++;
-        // TODO: updating rivetRevs
         if( logger().isSeverityOn( ELogSeverity.DEBUG ) ) {
           logger().debug( "writeObjects(...): merge entity %s, uc = %d", obj, uc );
         }
@@ -526,11 +520,15 @@ public class S5BackendObjectsSingleton
         objs.add( newObj );
         continue;
       }
+      // Объект обновляется
       IListEdit<Pair<IDtoObject, IDtoObject>> objs = aUpdatedObjs.findByKey( classInfo );
       if( objs == null ) {
         objs = new ElemArrayList<>( aObjects.size() );
         aUpdatedObjs.put( classInfo, objs );
       }
+      // Отсоединение предыдущего состояния (обеспечение режима readonly)
+      em.detach( prevObj );
+      // Добавление в список элемента: старое состояние объекта, новое состояние объекта
       objs.add( new Pair<>( prevObj, newObj ) );
     }
   }
@@ -600,9 +598,7 @@ public class S5BackendObjectsSingleton
     @Override
     protected void doWriteRivetRevs( IDtoObject aObj, IStringMapEdit<IMappedSkids> aRivetRevs ) {
       ((S5ObjectEntity)aObj).setRivetRevs( aRivetRevs );
-      // S5ObjectEntity changedObj = ((S5ObjectEntity)em.merge( aObj ));
       em.merge( aObj );
-      // changedObj.setRivetRevs( aRivetRevs );
     }
   }
 
