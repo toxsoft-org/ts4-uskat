@@ -300,6 +300,14 @@ public abstract class AbstractSkRivetEditor {
           newRivetRevs.put( rivetClassId, mappedSkids );
         }
         mappedSkids.map().put( rivetId, newSkidList );
+
+        if( newSkidList.size() == 0 ) {
+          mappedSkids.map().removeByKey( rivetId );
+        }
+        if( mappedSkids.map().size() == 0 ) {
+          newRivetRevs.removeByKey( rivetClassId );
+        }
+
         doWriteRivetRevs( obj, newRivetRevs );
         retValue = true;
       }
