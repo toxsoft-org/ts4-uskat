@@ -64,7 +64,7 @@ public class SkatletBox
     // Клиент обязан разместить в контексте следующие параметры
     support = ISkatlet.REF_SKATLET_SUPPORT.getRef( aEnviron );
     // Создание контекста контейнера
-    context = createContext( aEnviron );
+    context = createChildContext( aEnviron );
     return super.doInit( aEnviron );
   }
 
@@ -149,22 +149,29 @@ public class SkatletBox
   // ------------------------------------------------------------------------------------
   // private methods
   //
-  private static ITsContext createContext( ITsContextRo aContext ) {
-    TsNullArgumentRtException.checkNull( aContext );
+  /**
+   * Создать дочерний контекст
+   *
+   * @param aParent {@link ITsContextRo} родительский контекст
+   * @return {@link ITsContext} созданный контекст
+   * @throws TsNullArgumentRtException аргумент = null
+   */
+  public static ITsContext createChildContext( ITsContextRo aParent ) {
+    TsNullArgumentRtException.checkNull( aParent );
     ITsContext ctx = new TsContext( new IAskParent() {
 
       @Override
       public IAtomicValue findOp( String aId ) {
-        return aContext.params().findValue( aId );
+        return aParent.params().findValue( aId );
       }
 
       @Override
       public Object findRef( String aKey ) {
-        return aContext.find( aKey );
+        return aParent.find( aKey );
       }
 
     } );
-    ctx.params().setAll( aContext.params() );
+    ctx.params().setAll( aParent.params() );
     return ctx;
   }
 
