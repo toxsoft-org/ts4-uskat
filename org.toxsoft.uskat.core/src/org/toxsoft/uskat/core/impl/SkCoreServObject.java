@@ -493,6 +493,8 @@ public class SkCoreServObject
     String classId = aObjectDto.skid().classId();
     ISkObjectCreator<? extends SkObject> creator = objsCreators.getCreator( classId );
     SkObject sko = creator.createObject( aObjectDto.skid() );
+    // 2025-07-01 TODO: mvkd, vs WORKARROND SkoObject.CREATER, linkService, SkObject.postConstruct (stack overflow)
+    objsCache.put( sko );
     sko.papiSetCoreApi( coreApi() );
     // initialize attributes from aObjectDto or by default values
     for( IDtoAttrInfo ainf : aClassInfo.attrs().list() ) {
