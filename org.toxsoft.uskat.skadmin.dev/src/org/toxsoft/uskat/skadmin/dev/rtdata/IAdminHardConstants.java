@@ -24,8 +24,6 @@ import org.toxsoft.uskat.skadmin.dev.events.*;
 @SuppressWarnings( "nls" )
 interface IAdminHardConstants {
 
-  String MULTI = "*";
-
   /**
    * Префикс идентификаторов команд и их алиасов плагина
    */

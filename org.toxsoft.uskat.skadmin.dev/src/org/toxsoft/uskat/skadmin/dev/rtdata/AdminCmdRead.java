@@ -2,6 +2,7 @@ package org.toxsoft.uskat.skadmin.dev.rtdata;
 
 import static org.toxsoft.core.tslib.av.impl.AvUtils.*;
 import static org.toxsoft.core.tslib.bricks.validator.ValidationResult.*;
+import static org.toxsoft.core.tslib.gw.gwid.Gwid.*;
 import static org.toxsoft.core.tslib.utils.TsLibUtils.*;
 import static org.toxsoft.uskat.legacy.plexy.impl.PlexyValueUtils.*;
 import static org.toxsoft.uskat.skadmin.core.EAdminCmdContextNames.*;
@@ -174,10 +175,10 @@ public class AdminCmdRead
     String objStrid = argSingleValue( ARG_STRID ).asString();
     String dataId = argSingleValue( ARG_DATAID ).asString();
     if( objStrid.equals( EMPTY_STRING ) ) {
-      objStrid = MULTI;
+      objStrid = STR_MULTI_ID;
     }
     if( dataId.equals( EMPTY_STRING ) ) {
-      dataId = MULTI;
+      dataId = STR_MULTI_ID;
     }
     boolean close = argSingleValue( ARG_READ_CLOSE ).asBool();
     IAtomicValue readStartTime = argSingleValue( ARG_READ_START_TIME );
@@ -358,7 +359,7 @@ public class AdminCmdRead
       // Подготовка списка возможных значений
       IListEdit<IPlexyValue> values = new ElemArrayList<>( objList.size() );
       // Значение '*'
-      IAtomicValue atomicValue = avStr( MULTI );
+      IAtomicValue atomicValue = avStr( STR_MULTI_ID );
       IPlexyValue plexyValue = pvSingleValue( atomicValue );
       values.add( plexyValue );
       for( int index = 0, n = objList.size(); index < n; index++ ) {
@@ -377,7 +378,7 @@ public class AdminCmdRead
       IStridablesList<IDtoRtdataInfo> rtdInfos = classInfo.rtdata().list();
       IListEdit<IPlexyValue> values = new ElemLinkedList<>();
       // Значение '*'
-      IAtomicValue atomicValue = avStr( MULTI );
+      IAtomicValue atomicValue = avStr( STR_MULTI_ID );
       IPlexyValue plexyValue = pvSingleValue( atomicValue );
       values.add( plexyValue );
       for( IDtoRtdataInfo rtdInfo : rtdInfos ) {
@@ -393,7 +394,7 @@ public class AdminCmdRead
     if( aArgId.equals( ARG_READ_TYPE.id() ) ) {
       IListEdit<IPlexyValue> values = new ElemLinkedList<>();
       // Значение '*'
-      IAtomicValue atomicValue = avStr( MULTI );
+      IAtomicValue atomicValue = avStr( STR_MULTI_ID );
       IPlexyValue plexyValue = pvSingleValue( atomicValue );
       values.add( plexyValue );
       for( EQueryIntervalType type : EQueryIntervalType.values() ) {

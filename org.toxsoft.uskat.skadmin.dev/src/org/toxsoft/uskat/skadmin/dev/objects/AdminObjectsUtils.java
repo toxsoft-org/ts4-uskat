@@ -1,5 +1,7 @@
 package org.toxsoft.uskat.skadmin.dev.objects;
 
+import static org.toxsoft.core.tslib.gw.gwid.Gwid.*;
+
 import org.toxsoft.core.tslib.bricks.strid.coll.*;
 import org.toxsoft.core.tslib.coll.primtypes.*;
 import org.toxsoft.core.tslib.coll.primtypes.impl.*;
@@ -14,7 +16,7 @@ import org.toxsoft.uskat.core.api.sysdescr.dto.*;
  *
  * @author mvk
  */
-class AdminObjectsUtils {
+public class AdminObjectsUtils {
 
   /**
    * Возвращает список {@link Gwid}-идентификаторов объектов
@@ -27,19 +29,10 @@ class AdminObjectsUtils {
    */
   static ISkidList getObjSkids( ISkCoreApi aCoreApi, String aClassId, String aStrid ) {
     TsNullArgumentRtException.checkNulls( aCoreApi, aClassId, aStrid );
-    IStringListEdit strids = new StringArrayList( aStrid );
-    if( aStrid.equals( "*" ) ) {//$NON-NLS-1$
-      strids.clear();
-      ISkidList skids = aCoreApi.objService().listSkids( aClassId, true );
-      for( Skid skid : skids ) {
-        strids.add( skid.strid() );
-      }
+    if( aStrid.equals( STR_MULTI_ID ) ) {
+      return aCoreApi.objService().listSkids( aClassId, true );
     }
-    SkidList retValue = new SkidList();
-    for( String strid : strids ) {
-      retValue.add( new Skid( aClassId, strid ) );
-    }
-    return retValue;
+    return new SkidList( new Skid( aClassId, aStrid ) );
   }
 
   /**
@@ -54,16 +47,15 @@ class AdminObjectsUtils {
    */
   static IGwidList getAttrGwids( ISkCoreApi aCoreApi, String aClassId, String aStrid, String aAttrId ) {
     TsNullArgumentRtException.checkNulls( aCoreApi, aClassId, aStrid, aAttrId );
-    IStringListEdit strids = new StringArrayList( aStrid );
-    IStringListEdit attrIds = new StringArrayList( aAttrId );
-    if( aStrid.equals( "*" ) ) {//$NON-NLS-1$
-      strids.clear();
-      ISkidList skids = aCoreApi.objService().listSkids( aClassId, true );
-      for( Skid skid : skids ) {
-        strids.add( skid.strid() );
-      }
+    SkidList objIds = new SkidList();
+    if( aStrid.equals( STR_MULTI_ID ) ) {
+      objIds.setAll( aCoreApi.objService().listSkids( aClassId, true ) );
     }
-    if( aAttrId.equals( "*" ) ) { //$NON-NLS-1$
+    else {
+      objIds.add( new Skid( aClassId, aStrid ) );
+    }
+    IStringListEdit attrIds = new StringArrayList( aAttrId );
+    if( aAttrId.equals( STR_MULTI_ID ) ) {
       attrIds.clear();
       IStridablesList<IDtoAttrInfo> infos = aCoreApi.sysdescr().getClassInfo( aClassId ).attrs().list();
       for( IDtoAttrInfo info : infos ) {
@@ -71,9 +63,9 @@ class AdminObjectsUtils {
       }
     }
     GwidList retValue = new GwidList();
-    for( String strid : strids ) {
+    for( Skid objId : objIds ) {
       for( String attrId : attrIds ) {
-        retValue.add( Gwid.createAttr( aClassId, strid, attrId ) );
+        retValue.add( Gwid.createAttr( objId.classId(), objId.strid(), attrId ) );
       }
     }
     return retValue;

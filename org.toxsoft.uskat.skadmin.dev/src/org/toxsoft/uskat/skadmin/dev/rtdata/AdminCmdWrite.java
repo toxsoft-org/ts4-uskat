@@ -1,6 +1,7 @@
 package org.toxsoft.uskat.skadmin.dev.rtdata;
 
 import static org.toxsoft.core.tslib.av.impl.AvUtils.*;
+import static org.toxsoft.core.tslib.gw.gwid.Gwid.*;
 import static org.toxsoft.core.tslib.utils.TsLibUtils.*;
 import static org.toxsoft.uskat.legacy.plexy.impl.PlexyValueUtils.*;
 import static org.toxsoft.uskat.skadmin.core.EAdminCmdContextNames.*;
@@ -8,31 +9,24 @@ import static org.toxsoft.uskat.skadmin.dev.rtdata.AdminCurrdataUtils.*;
 import static org.toxsoft.uskat.skadmin.dev.rtdata.IAdminHardConstants.*;
 import static org.toxsoft.uskat.skadmin.dev.rtdata.IAdminHardResources.*;
 
-import org.toxsoft.core.tslib.av.IAtomicValue;
-import org.toxsoft.core.tslib.av.temporal.ITemporalAtomicValue;
-import org.toxsoft.core.tslib.av.temporal.TemporalAtomicValue;
-import org.toxsoft.core.tslib.bricks.strid.coll.IStridablesList;
-import org.toxsoft.core.tslib.bricks.time.ITimeInterval;
-import org.toxsoft.core.tslib.bricks.time.ITimedList;
+import org.toxsoft.core.tslib.av.*;
+import org.toxsoft.core.tslib.av.temporal.*;
+import org.toxsoft.core.tslib.bricks.strid.coll.*;
+import org.toxsoft.core.tslib.bricks.time.*;
 import org.toxsoft.core.tslib.bricks.time.impl.*;
 import org.toxsoft.core.tslib.coll.*;
-import org.toxsoft.core.tslib.coll.impl.ElemArrayList;
-import org.toxsoft.core.tslib.coll.impl.ElemLinkedList;
-import org.toxsoft.core.tslib.coll.primtypes.IStringList;
-import org.toxsoft.core.tslib.coll.primtypes.IStringMap;
-import org.toxsoft.core.tslib.gw.gwid.Gwid;
-import org.toxsoft.core.tslib.gw.gwid.IGwidList;
-import org.toxsoft.core.tslib.gw.skid.ISkidList;
-import org.toxsoft.uskat.core.ISkCoreApi;
-import org.toxsoft.uskat.core.api.objserv.ISkObjectService;
+import org.toxsoft.core.tslib.coll.impl.*;
+import org.toxsoft.core.tslib.coll.primtypes.*;
+import org.toxsoft.core.tslib.gw.gwid.*;
+import org.toxsoft.core.tslib.gw.skid.*;
+import org.toxsoft.uskat.core.*;
+import org.toxsoft.uskat.core.api.objserv.*;
 import org.toxsoft.uskat.core.api.rtdserv.*;
-import org.toxsoft.uskat.core.api.sysdescr.ISkClassInfo;
-import org.toxsoft.uskat.core.api.sysdescr.ISkSysdescr;
-import org.toxsoft.uskat.core.api.sysdescr.dto.IDtoRtdataInfo;
-import org.toxsoft.uskat.legacy.plexy.IPlexyType;
-import org.toxsoft.uskat.legacy.plexy.IPlexyValue;
-import org.toxsoft.uskat.skadmin.core.IAdminCmdCallback;
-import org.toxsoft.uskat.skadmin.core.impl.AbstractAdminCmd;
+import org.toxsoft.uskat.core.api.sysdescr.*;
+import org.toxsoft.uskat.core.api.sysdescr.dto.*;
+import org.toxsoft.uskat.legacy.plexy.*;
+import org.toxsoft.uskat.skadmin.core.*;
+import org.toxsoft.uskat.skadmin.core.impl.*;
 
 /**
  * Команда s5admin: Сохраняет в системе значение текущего данного
@@ -104,10 +98,10 @@ public class AdminCmdWrite
     String objStrid = argSingleValue( ARG_STRID ).asString();
     String dataId = argSingleValue( ARG_DATAID ).asString();
     if( objStrid.equals( EMPTY_STRING ) ) {
-      objStrid = MULTI;
+      objStrid = STR_MULTI_ID;
     }
     if( dataId.equals( EMPTY_STRING ) ) {
-      dataId = MULTI;
+      dataId = STR_MULTI_ID;
     }
     if( classId.equals( EMPTY_STRING ) ) {
       // Нет команды
@@ -208,7 +202,7 @@ public class AdminCmdWrite
       // Подготовка списка возможных значений
       IListEdit<IPlexyValue> values = new ElemArrayList<>( objList.size() );
       // Значение '*'
-      IAtomicValue atomicValue = avStr( MULTI );
+      IAtomicValue atomicValue = avStr( STR_MULTI_ID );
       IPlexyValue plexyValue = pvSingleValue( atomicValue );
       values.add( plexyValue );
       for( int index = 0, n = objList.size(); index < n; index++ ) {
@@ -227,7 +221,7 @@ public class AdminCmdWrite
       IStridablesList<IDtoRtdataInfo> rtdInfos = classInfo.rtdata().list();
       IListEdit<IPlexyValue> values = new ElemLinkedList<>();
       // Значение '*'
-      IAtomicValue atomicValue = avStr( MULTI );
+      IAtomicValue atomicValue = avStr( STR_MULTI_ID );
       IPlexyValue plexyValue = pvSingleValue( atomicValue );
       values.add( plexyValue );
       for( IDtoRtdataInfo rtdInfo : rtdInfos ) {

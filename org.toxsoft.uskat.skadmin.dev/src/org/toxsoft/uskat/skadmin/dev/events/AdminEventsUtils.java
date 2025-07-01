@@ -1,16 +1,15 @@
 package org.toxsoft.uskat.skadmin.dev.events;
 
-import static org.toxsoft.uskat.skadmin.dev.events.IAdminHardConstants.*;
+import static org.toxsoft.core.tslib.gw.gwid.Gwid.*;
 
-import org.toxsoft.core.tslib.bricks.strid.coll.IStridablesList;
-import org.toxsoft.core.tslib.coll.primtypes.IStringListEdit;
-import org.toxsoft.core.tslib.coll.primtypes.impl.StringArrayList;
+import org.toxsoft.core.tslib.bricks.strid.coll.*;
+import org.toxsoft.core.tslib.coll.primtypes.*;
+import org.toxsoft.core.tslib.coll.primtypes.impl.*;
 import org.toxsoft.core.tslib.gw.gwid.*;
-import org.toxsoft.core.tslib.gw.skid.ISkidList;
-import org.toxsoft.core.tslib.gw.skid.Skid;
-import org.toxsoft.core.tslib.utils.errors.TsNullArgumentRtException;
-import org.toxsoft.uskat.core.ISkCoreApi;
-import org.toxsoft.uskat.core.api.sysdescr.dto.IDtoEventInfo;
+import org.toxsoft.core.tslib.gw.skid.*;
+import org.toxsoft.core.tslib.utils.errors.*;
+import org.toxsoft.uskat.core.*;
+import org.toxsoft.uskat.core.api.sysdescr.dto.*;
 
 /**
  * Вспомогательные методы пакета
@@ -31,16 +30,15 @@ class AdminEventsUtils {
    */
   static IGwidList getEventGwids( ISkCoreApi aCoreApi, String aClassId, String aStrid, String aEventId ) {
     TsNullArgumentRtException.checkNulls( aCoreApi, aClassId, aStrid, aEventId );
-    IStringListEdit strids = new StringArrayList( aStrid );
-    IStringListEdit eventIds = new StringArrayList( aEventId );
-    if( aStrid.equals( MULTI ) ) {
-      strids.clear();
-      ISkidList skids = aCoreApi.objService().listSkids( aClassId, true );
-      for( Skid skid : skids ) {
-        strids.add( skid.strid() );
-      }
+    SkidList objIds = new SkidList();
+    if( aStrid.equals( STR_MULTI_ID ) ) {
+      objIds.setAll( aCoreApi.objService().listSkids( aClassId, true ) );
     }
-    if( aEventId.equals( MULTI ) ) {
+    else {
+      objIds.add( new Skid( aClassId, aStrid ) );
+    }
+    IStringListEdit eventIds = new StringArrayList( aEventId );
+    if( aEventId.equals( STR_MULTI_ID ) ) {
       eventIds.clear();
       IStridablesList<IDtoEventInfo> infos = aCoreApi.sysdescr().getClassInfo( aClassId ).events().list();
       for( IDtoEventInfo info : infos ) {
@@ -48,9 +46,9 @@ class AdminEventsUtils {
       }
     }
     GwidList retValue = new GwidList();
-    for( String strid : strids ) {
+    for( Skid objId : objIds ) {
       for( String eventId : eventIds ) {
-        retValue.add( Gwid.createEvent( aClassId, strid, eventId ) );
+        retValue.add( Gwid.createEvent( objId.classId(), objId.strid(), eventId ) );
       }
     }
     return retValue;
