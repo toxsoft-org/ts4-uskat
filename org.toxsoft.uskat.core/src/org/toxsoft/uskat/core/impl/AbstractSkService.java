@@ -2,6 +2,8 @@ package org.toxsoft.uskat.core.impl;
 
 import static org.toxsoft.uskat.core.impl.ISkResources.*;
 
+import org.toxsoft.core.tslib.av.opset.*;
+import org.toxsoft.core.tslib.av.opset.impl.*;
 import org.toxsoft.core.tslib.bricks.ctx.*;
 import org.toxsoft.core.tslib.bricks.events.msg.*;
 import org.toxsoft.core.tslib.bricks.strid.impl.*;
@@ -181,8 +183,7 @@ public abstract class AbstractSkService
   }
 
   /**
-   * Returns the inidividual logger for this service. ======= Returns the individual logger for this service. >>>>>>>
-   * refs/heads/main
+   * Returns the individual logger for this service. ======= Returns the individual logger for this service.
    *
    * @return {@link CoreLogger} - service logger
    */
@@ -207,6 +208,34 @@ public abstract class AbstractSkService
     TsNullArgumentRtException.checkNull( aMessage );
     TsIllegalArgumentRtException.checkFalse( aMessage.topicId().equals( serviceId() ) );
     coreApi.backend().sendBackendMessage( aMessage );
+  }
+
+  /**
+   * Creates instance of {@link GtMessage} for siblings, with topic ID equal to the {@link #serviceId()}.
+   *
+   * @param aMessageId String - the message ID
+   * @param aArgs {@link IOptionSet} - arguments, will be copied to internal set
+   * @return {@link GtMessage} - created instance
+   * @throws TsNullArgumentRtException any argument = <code>null</code>
+   * @throws TsIllegalArgumentRtException any ID is not an IDpath
+   */
+  final public GtMessage makeSiblingMessage( String aMessageId, IOptionSet aArgs ) {
+    return new GtMessage( serviceId, aMessageId, aArgs );
+  }
+
+  /**
+   * Creates instance of {@link GtMessage} for siblings, with topic ID equal to the {@link #serviceId()}.
+   *
+   * @param aMessageId String - the message ID
+   * @param aIdsAndValues Object[] - identifier / value pairs as for {@link OptionSetUtils#createOpSet(Object...)}
+   * @return {@link GtMessage} - created instance
+   * @throws TsNullArgumentRtException any argument = <code>null</code>
+   * @throws TsIllegalArgumentRtException any ID is not an IDpath
+   * @throws TsIllegalArgumentRtException number of elements in array is uneven
+   * @throws ClassCastException argument types convention is violated
+   */
+  final public GtMessage makeSiblingMessage2( String aMessageId, Object... aIdsAndValues ) {
+    return new GtMessage( serviceId, aMessageId, aIdsAndValues );
   }
 
   // ------------------------------------------------------------------------------------
@@ -384,7 +413,7 @@ public abstract class AbstractSkService
   protected abstract void doInit( ITsContextRo aArgs );
 
   /**
-   * Subclasses must finish jobs, save data, release resources and perform all neccessary clean-ups.
+   * Subclasses must finish jobs, save data, release resources and perform all necessary clean-ups.
    * <p>
    * Method is called when USkat core is finishing working. Avterf this method service will not be used.
    */
@@ -393,7 +422,7 @@ public abstract class AbstractSkService
   /**
    * Subclass may handle message from the backend.
    * <p>
-   * Base implementation simply returns <code>false</code>. When overriding there is no need to call superclass method.
+   * Base implementation simply returns <code>false</code>. There is no need to call superclass method when overriding.
    * <p>
    * If method returns <code>false</code> caller base class will log an "unhandled message" warning.
    *
