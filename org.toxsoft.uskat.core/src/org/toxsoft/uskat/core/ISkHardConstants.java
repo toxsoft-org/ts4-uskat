@@ -9,6 +9,8 @@ import static org.toxsoft.uskat.core.l10n.ISkCoreSharedResources.*;
 
 import org.toxsoft.core.tslib.av.*;
 import org.toxsoft.core.tslib.av.metainfo.*;
+import org.toxsoft.core.tslib.coll.primtypes.*;
+import org.toxsoft.core.tslib.coll.primtypes.impl.*;
 import org.toxsoft.core.tslib.utils.errors.*;
 import org.toxsoft.uskat.core.api.objserv.*;
 import org.toxsoft.uskat.core.api.sysdescr.dto.*;
@@ -77,6 +79,26 @@ public interface ISkHardConstants {
    */
   String AID_DESCRIPTION = IAvMetaConstants.TSID_DESCRIPTION;
 
+  /**
+   * Complete list of the system attribute IDs.
+   */
+  IStringList SK_SYS_ATTRS_LIST = new StringArrayList( ///
+      AID_SKID, AID_CLASS_ID, AID_STRID, AID_NAME, AID_DESCRIPTION ///
+  );
+
+  /**
+   * Determines if argument is an identifier of the system attribute.
+   * <p>
+   * Simply checks if argument is in the {@link #SK_SYS_ATTRS_LIST}.
+   *
+   * @param aAttrId String - the ID to check
+   * @return boolean - <code>true</code> if argument is a system attribute ID
+   * @throws TsNullArgumentRtException argument = <code>null</code>
+   */
+  static boolean isSkSysAttrId( String aAttrId ) {
+    return SK_SYS_ATTRS_LIST.hasElem( aAttrId );
+  }
+
   // ------------------------------------------------------------------------------------
   // Meta-info on classes
 
@@ -104,12 +126,12 @@ public interface ISkHardConstants {
    * Determines if argument is the system attribute.
    *
    * @param aAttrInfo {@link IDtoAttrInfo} - the attribute info
-   * @return boolean - <code>true</code> if argument has {@link #OPDEF_SK_IS_SYS_ATTR} flag set
+   * @return boolean - <code>true</code> if argument has {@link #OPDEF_SK_IS_SYS_ATTR} flag set or sysattr ID
    * @throws TsNullArgumentRtException argument = <code>null</code>
    */
   static boolean isSkSysAttr( IDtoAttrInfo aAttrInfo ) {
     TsNullArgumentRtException.checkNull( aAttrInfo );
-    return OPDEF_SK_IS_SYS_ATTR.getValue( aAttrInfo.params() ).asBool();
+    return isSkSysAttrId( aAttrInfo.id() ) || OPDEF_SK_IS_SYS_ATTR.getValue( aAttrInfo.params() ).asBool();
   }
 
   /**
