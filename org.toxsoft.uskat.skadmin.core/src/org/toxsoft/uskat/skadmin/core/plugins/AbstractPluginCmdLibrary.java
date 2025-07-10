@@ -2,10 +2,9 @@ package org.toxsoft.uskat.skadmin.core.plugins;
 
 import static org.toxsoft.uskat.skadmin.core.plugins.IAdminResources.*;
 
-import org.toxsoft.core.tslib.utils.errors.TsIllegalStateRtException;
-import org.toxsoft.core.tslib.utils.errors.TsNullArgumentRtException;
-import org.toxsoft.core.tslib.utils.plugins.IPluginInfo;
-import org.toxsoft.uskat.skadmin.core.impl.AbstractAdminCmdLibrary;
+import org.toxsoft.core.tslib.utils.errors.*;
+import org.toxsoft.core.tslib.utils.plugins.*;
+import org.toxsoft.uskat.skadmin.core.impl.*;
 
 /**
  * Абстрактный плагин команд s5admin
@@ -22,7 +21,7 @@ public abstract class AbstractPluginCmdLibrary
   private IPluginInfo pluginInfo;
 
   // ------------------------------------------------------------------------------------
-  // Реализация интерфейса IAdminCmdLibraryPlugin
+  // IAdminCmdLibraryPlugin
   //
   @Override
   public IPluginInfo plugInfo() {
