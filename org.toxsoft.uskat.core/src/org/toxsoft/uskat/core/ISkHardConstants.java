@@ -131,7 +131,9 @@ public interface ISkHardConstants {
    */
   static boolean isSkSysAttr( IDtoAttrInfo aAttrInfo ) {
     TsNullArgumentRtException.checkNull( aAttrInfo );
-    return isSkSysAttrId( aAttrInfo.id() ) || OPDEF_SK_IS_SYS_ATTR.getValue( aAttrInfo.params() ).asBool();
+    // 2025-07-11 mvk, vs ---+++ вернули назад (ISkObjService.defineObject).
+    // return isSkSysAttrId( aAttrInfo.id() ) || OPDEF_SK_IS_SYS_ATTR.getValue( aAttrInfo.params() ).asBool();
+    return OPDEF_SK_IS_SYS_ATTR.getValue( aAttrInfo.params() ).asBool();
   }
 
   /**
