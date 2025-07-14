@@ -111,13 +111,13 @@ class S5SequenceLazyWriter<S extends IS5Sequence<V>, V extends ITemporal<?>>
     // Фабрика менеджеров постоянства
     EntityManagerFactory entityManagerFactory = entityManagerFactory();
     // Список созданных менджеров постоянства
-    IListEdit<AbstractSkObjectManager> ems = new ElemArrayList<>();
+    IListEdit<EntityManager> ems = new ElemArrayList<>();
     try {
       // Исполнитель s5-потоков проверки данных
       S5WriteThreadExecutor executor = new S5WriteThreadExecutor( writeExecutor(), logger );
       for( int index = 0, n = aInfoes.size(); index < n; index++ ) {
         // Менеджер постоянства
-        AbstractSkObjectManager em = entityManagerFactory.createEntityManager();
+        EntityManager em = entityManagerFactory.createEntityManager();
         // Присоединение менджера к текущей транзакции
         em.joinTransaction();
         // Размещение в списке для последующего завершения
@@ -135,7 +135,7 @@ class S5SequenceLazyWriter<S extends IS5Sequence<V>, V extends ITemporal<?>>
       addUnionCandidates( aSequences );
     }
     finally {
-      for( AbstractSkObjectManager em : ems ) {
+      for( EntityManager em : ems ) {
         em.close();
       }
     }
@@ -399,7 +399,7 @@ class S5SequenceLazyWriter<S extends IS5Sequence<V>, V extends ITemporal<?>>
   /**
    * Возращает описания и добавляет необходимые параметры для выполнения дефрагментации по запросу
    *
-   * @param aEntityManager {@link AbstractSkObjectManager} менеджер постоянства
+   * @param aEntityManager {@link EntityManager} менеджер постоянства
    * @param aConfiguration {@link IOptionSet} конфигурация подсистемы для дефрагментации блоков
    * @return {@link IList}&lt;IS5SequenceFragmentInfo&gt; список описаний фрагментированности данных
    * @throws TsNullArgumentRtException аргумент = null
@@ -427,7 +427,7 @@ class S5SequenceLazyWriter<S extends IS5Sequence<V>, V extends ITemporal<?>>
   /**
    * Возращает описания и добавляет необходимые параметры для выполнения дефрагментации в автоматическом режиме
    *
-   * @param aEntityManager {@link AbstractSkObjectManager} менеджер постоянства
+   * @param aEntityManager {@link EntityManager} менеджер постоянства
    * @param aConfiguration {@link IOptionSet} конфигурация подсистема для дефрагментации блоков .
    * @param aStatistics {@link S5SequenceUnionStat} статистика с возможностью редактирования
    * @param aLogger {@link ILogger} журнал
@@ -639,7 +639,7 @@ class S5SequenceLazyWriter<S extends IS5Sequence<V>, V extends ITemporal<?>>
     /**
      * Создание асинхронной задачи проверки блоков последовательности данных
      *
-     * @param aEntityManager {@link AbstractSkObjectManager} менеджер постоянства
+     * @param aEntityManager {@link EntityManager} менеджер постоянства
      * @param aSequence S последовательность
      * @param aStatistics {@link S5SequenceWriteStat} статистика выполнения задачи
      * @param aLogger {@link ILogger} журнал
@@ -660,7 +660,7 @@ class S5SequenceLazyWriter<S extends IS5Sequence<V>, V extends ITemporal<?>>
     /**
      * Возвращает менджер постоянства используемый потоком
      *
-     * @return {@link AbstractSkObjectManager} менджер постоянства
+     * @return {@link EntityManager} менджер постоянства
      */
     protected final EntityManager entityManager() {
       return em;

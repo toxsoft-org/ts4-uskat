@@ -25,7 +25,6 @@ import org.toxsoft.core.tslib.utils.errors.*;
 import org.toxsoft.core.tslib.utils.logs.*;
 import org.toxsoft.uskat.core.api.objserv.*;
 import org.toxsoft.uskat.core.api.sysdescr.*;
-import org.toxsoft.uskat.core.impl.*;
 import org.toxsoft.uskat.s5.common.sysdescr.*;
 
 /**
@@ -317,7 +316,7 @@ class S5ObjectsSQL {
    * <p>
    * TODO: mvkd эксперименты с native-SQL для insert и update
    *
-   * @param aEntityManager {@link AbstractSkObjectManager} менеджер постоянства
+   * @param aEntityManager {@link EntityManager} менеджер постоянства
    * @param aObject {@link IDtoObject} объект
    * @throws TsNullArgumentRtException любой аргумент = null
    */

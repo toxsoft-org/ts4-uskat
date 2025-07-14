@@ -22,7 +22,6 @@ import org.toxsoft.core.tslib.utils.errors.*;
 import org.toxsoft.uskat.core.api.linkserv.*;
 import org.toxsoft.uskat.core.api.objserv.*;
 import org.toxsoft.uskat.core.api.sysdescr.dto.*;
-import org.toxsoft.uskat.core.impl.*;
 import org.toxsoft.uskat.s5.server.backend.supports.objects.*;
 import org.toxsoft.uskat.s5.server.backend.supports.sysdescr.*;
 import org.toxsoft.uskat.s5.server.transactions.*;
@@ -48,7 +47,7 @@ class S5ClassesInterceptor
   /**
    * Конструктор
    *
-   * @param aEntityManager {@link AbstractSkObjectManager} менеджер постоянства
+   * @param aEntityManager {@link EntityManager} менеджер постоянства
    * @param aTransactionManager {@link IS5TransactionManagerSingleton} менеджер транзакций
    * @param aObjectsBackend {@link IS5BackendLinksSingleton} backend управления объектами
    * @param aLinksBackend {@link IS5BackendLinksSingleton} backend управления связями между объектами системы
@@ -198,7 +197,7 @@ class S5ClassesInterceptor
    * Если необходимо, завершает перемещение реализации связей объектов из одной таблицы базы данных в другую
    *
    * @param aTxManager {@link IS5TransactionManagerSingleton} менеджер транзакций
-   * @param aEntityManager {@link AbstractSkObjectManager} менеджер постоянства
+   * @param aEntityManager {@link EntityManager} менеджер постоянства
    * @param aNewClassInfo {@link IDtoClassInfo} описание класса (новая редакция)
    * @return boolean <b>true</b> выполнен процесс перемещения реализации;<b>false</b> перемещение не требуется
    * @throws TsNullArgumentRtException любой аргумент = null

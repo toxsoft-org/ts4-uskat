@@ -561,7 +561,7 @@ public class S5BackendObjectsSingleton
    * @author mvk
    */
   private class ObjectRivetEditor
-      extends AbstractSkRivetEditor {
+      extends AbstractDtoObjectRivetManager {
 
     private final IStringMapEdit<ISkClassInfo>          classesByIds;
     private final IStringMapEdit<Class<S5ObjectEntity>> implByIds;

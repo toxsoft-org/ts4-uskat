@@ -6,7 +6,6 @@ import org.toxsoft.core.tslib.bricks.strid.*;
 import org.toxsoft.core.tslib.bricks.strid.coll.*;
 import org.toxsoft.core.tslib.utils.errors.*;
 import org.toxsoft.uskat.core.api.sysdescr.dto.*;
-import org.toxsoft.uskat.core.impl.*;
 import org.toxsoft.uskat.s5.common.sysdescr.*;
 
 /**
@@ -31,7 +30,7 @@ final class S5BackendSysdescrReader
   /**
    * Конструктор
    *
-   * @param aEntityManager {@link AbstractSkObjectManager} менджер постоянства
+   * @param aEntityManager {@link EntityManager} менджер постоянства
    * @param aBackendSysdescr {@link IS5BackendSysDescrSingleton} поддержка чтения системного описания
    * @throws TsNullArgumentRtException любой аргумент = null
    */

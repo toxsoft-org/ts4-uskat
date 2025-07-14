@@ -28,7 +28,6 @@ import org.toxsoft.core.tslib.utils.*;
 import org.toxsoft.core.tslib.utils.errors.*;
 import org.toxsoft.core.tslib.utils.logs.*;
 import org.toxsoft.uskat.core.api.objserv.*;
-import org.toxsoft.uskat.core.impl.*;
 import org.toxsoft.uskat.s5.server.sequences.*;
 
 /**
@@ -735,7 +734,7 @@ public abstract class S5SequenceBlock<V extends ITemporal<?>, BLOB_ARRAY, BLOB e
    * Обновить значения блока
    * <p>
    * Используется {@link S5AbstractSequenceWriter#writeBlocksToDbms(EntityManager, Iterable, ILogger, S5DbmsStatistics)}
-   * при выполнении операций {@link AbstractSkObjectManager#merge(IDtoObject)}.
+   * при выполнении операций {@link EntityManager#merge(IDtoObject)}.
    *
    * @param aSource {@link S5SequenceBlock} исходный блок
    * @throws TsNullArgumentRtException аргумент = null
