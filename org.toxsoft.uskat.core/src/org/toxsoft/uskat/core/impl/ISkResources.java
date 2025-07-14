@@ -176,14 +176,14 @@ interface ISkResources {
   String FMT_WARN_ATTEMPT_CLOSE_SHARE = Messages.getString( "FMT_WARN_ATTEMPT_OPEN_SHARE" );
 
   /**
-   * AbstractSkObjectManager
+   * AbstractDtoObjectManager
    */
   String ERR_OBJ_ALREADY_REMOVED = "%s: obj has already been removed.";
   String ERR_OBJ_ALREADY_EXIST   = "%s: obj has already exist.";
   String ERR_OBJ_NOT_FOUND       = "%s: obj not found.";
 
   /**
-   * {@link AbstractSkRivetEditor}
+   * {@link AbstractDtoObjectRivetManager}
    */
   String M_CREATE_RR = "creatingRivets";
   String M_UPDATE_RR = "updatingRivets";
@@ -198,7 +198,7 @@ interface ISkResources {
   String ERR_RR_LOBJ_NOT_FOUND          =
       "%s(...): rightObj = %s, rivetClassId = %s, rivetId = %s, leftObj = %s: leftObj is not found";
   String ERR_RR_EDITOR_CLASS_NOT_FOUND  =
-      "openRivetRevsEditor(...): rightObj = %s, rivetClassId = %s, rivetId = %s. rivetClassId is not found";
+      "setRightObj(...): rightObj = %s, rivetClassId = %s, rivetId = %s. rivetClassId is not found";
   String ERR_RR_EDITOR_RIVET_NOT_FOUND  =
-      "openRivetRevsEditor(...): rightObj = %s, rivetClassId = %s, rivetId = %s. rivetId is not found";
+      "setRightObj(...): rightObj = %s, rivetClassId = %s, rivetId = %s. rivetId is not found";
 }

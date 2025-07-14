@@ -7,6 +7,7 @@ import org.toxsoft.uskat.core.*;
 import org.toxsoft.uskat.core.api.sysdescr.*;
 import org.toxsoft.uskat.core.connection.*;
 import org.toxsoft.uskat.core.devapi.gwiddb.*;
+import org.toxsoft.uskat.core.devapi.transactions.*;
 
 /**
  * Core API extensions for USkat service developers.
@@ -22,6 +23,13 @@ public interface IDevCoreApi
    * @return {@link ISkGwidDbService} - GWID-Steing key-value database
    */
   ISkGwidDbService gwidDbService();
+
+  /**
+   * Returns the batch operations service.
+   *
+   * @return {@link ISkTransactionService} - the batch service
+   */
+  ISkTransactionService transactionService();
 
   /**
    * Finds backend addon.

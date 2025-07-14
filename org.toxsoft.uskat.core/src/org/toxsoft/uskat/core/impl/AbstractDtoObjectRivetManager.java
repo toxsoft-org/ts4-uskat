@@ -3,6 +3,7 @@ package org.toxsoft.uskat.core.impl;
 import static org.toxsoft.core.tslib.coll.impl.TsCollectionsUtils.*;
 import static org.toxsoft.uskat.core.impl.ISkResources.*;
 
+import org.toxsoft.core.tslib.bricks.threadexec.*;
 import org.toxsoft.core.tslib.coll.primtypes.*;
 import org.toxsoft.core.tslib.coll.primtypes.impl.*;
 import org.toxsoft.core.tslib.gw.skid.*;
@@ -11,15 +12,18 @@ import org.toxsoft.core.tslib.utils.logs.*;
 import org.toxsoft.uskat.core.api.objserv.*;
 import org.toxsoft.uskat.core.api.sysdescr.*;
 import org.toxsoft.uskat.core.api.sysdescr.dto.*;
+import org.toxsoft.uskat.core.devapi.transactions.*;
 
 /**
- * Abstract object rivet editor.
+ * {@link IDtoObjectRivetManager} abstract implementation.
  *
  * @author mvk
  */
-public abstract class AbstractSkRivetEditor {
+public abstract class AbstractDtoObjectRivetManager
+    implements IDtoObjectRivetManager {
 
-  private final ILogger logger;
+  private final ITsThreadExecutor executor;
+  private final ILogger           logger;
 
   /**
    * Constructor.
@@ -27,23 +31,32 @@ public abstract class AbstractSkRivetEditor {
    * @param aLogger {@link ILogger} logger
    * @throws TsNullArgumentRtException any arg = null
    */
-  protected AbstractSkRivetEditor( ILogger aLogger ) {
+  protected AbstractDtoObjectRivetManager( ILogger aLogger ) {
     TsNullArgumentRtException.checkNull( aLogger );
+    executor = null;
+    logger = aLogger;
+  }
+
+  /**
+   * Constructor.
+   *
+   * @param aExecutor {@link ITsThreadExecutor} executor
+   * @param aLogger {@link ILogger} logger
+   * @throws TsNullArgumentRtException any arg = null
+   */
+  protected AbstractDtoObjectRivetManager( ITsThreadExecutor aExecutor, ILogger aLogger ) {
+    TsNullArgumentRtException.checkNulls( aExecutor, aLogger );
+    executor = aExecutor;
     logger = aLogger;
   }
 
   // ------------------------------------------------------------------------------------
-  // public api
+  // IDtoObjectRivetManager
   //
 
-  /**
-   * Добавляет склепки указанного объекта на другие объекты.
-   *
-   * @param aObj {@link IDtoObject} добавленный объект.
-   * @return int количество обновленных объектов.
-   * @throws TsNullArgumentRtException любой аргумент = null
-   */
+  @Override
   public final int createRivets( IDtoObject aObj ) {
+    checkThread();
     TsNullArgumentRtException.checkNulls( aObj );
     int retValue = 0;
     ISkClassInfo classInfo = doGetClassInfo( aObj.classId() );
@@ -83,14 +96,9 @@ public abstract class AbstractSkRivetEditor {
     return retValue;
   }
 
-  /**
-   * Удаляет склепки указанного объекта на другие объекты.
-   *
-   * @param aObj {@link IDtoObject} удаляемый объект.
-   * @return int количество обновленных объектов.
-   * @throws TsNullArgumentRtException любой аргумент = null
-   */
+  @Override
   public final int removeRivets( IDtoObject aObj ) {
+    checkThread();
     TsNullArgumentRtException.checkNulls( aObj );
     int retValue = 0;
     ISkClassInfo classInfo = doGetClassInfo( aObj.classId() );
@@ -129,16 +137,9 @@ public abstract class AbstractSkRivetEditor {
     return retValue;
   }
 
-  /**
-   * Обновляет склепки указанного объекта на другие объекты.
-   *
-   * @param aPrevObj {@link IDtoObject} предыдущее состояние объекта.
-   * @param aNewObj {@link IDtoObject} новое состояние объекта.
-   * @return int количество обновленных объектов.
-   * @throws TsNullArgumentRtException любой аргумент = null
-   * @throws TsIllegalArgumentRtException предыдущее и новое состояние должны принадлежать одному объекту
-   */
+  @Override
   public final int updateRivets( IDtoObject aPrevObj, IDtoObject aNewObj ) {
+    checkThread();
     TsNullArgumentRtException.checkNulls( aPrevObj, aNewObj );
     TsIllegalArgumentRtException.checkFalse( aPrevObj.skid().equals( aNewObj.skid() ) );
     int retValue = 0;
@@ -174,7 +175,7 @@ public abstract class AbstractSkRivetEditor {
         // Установка правого объекта в редакторе обратных склепок. aCreating = false
         SkidList newSkidList = reverseEditor.setRightObj( rightObj, false );
         if( newSkidList.remove( leftObjId ) < 0 ) {
-          logger.error( ERR_RR_LOBJ_NOT_FOUND, M_UPDATE_RR, rightObjId, rivetClassId, rivetId, leftObjId );
+          logger.debug( ERR_RR_LOBJ_NOT_FOUND, M_UPDATE_RR, rightObjId, rivetClassId, rivetId, leftObjId );
           continue;
         }
         if( reverseEditor.flush() ) {
@@ -268,12 +269,12 @@ public abstract class AbstractSkRivetEditor {
       IStringMap<IMappedSkids> rivetRevs = aRightObj.rivetRevs();
       IMappedSkids mappedSkids = rivetRevs.findByKey( rivetClassId );
       if( mappedSkids == null && !aCreating ) {
-        logger.error( ERR_RR_EDITOR_CLASS_NOT_FOUND, aRightObj.skid(), rivetClassId, rivetId );
+        logger.debug( ERR_RR_EDITOR_CLASS_NOT_FOUND, aRightObj.skid(), rivetClassId, rivetId );
       }
       if( mappedSkids != null ) {
         prevSkidList = mappedSkids.map().findByKey( rivetId );
         if( prevSkidList == null && !aCreating ) {
-          logger.error( ERR_RR_EDITOR_RIVET_NOT_FOUND, aRightObj.skid(), rivetClassId, rivetId );
+          logger.debug( ERR_RR_EDITOR_RIVET_NOT_FOUND, aRightObj.skid(), rivetClassId, rivetId );
         }
         if( prevSkidList != null ) {
           newSkidList.setAll( prevSkidList );
@@ -313,6 +314,18 @@ public abstract class AbstractSkRivetEditor {
       }
       obj = null;
       return retValue;
+    }
+  }
+
+  /**
+   * @throws TsIllegalStateRtException invalid thread access
+   */
+  final public void checkThread() {
+    Thread currentThread = Thread.currentThread();
+    if( executor != null && executor.thread() != currentThread ) {
+      String owner = executor.thread().getName();
+      String current = Thread.currentThread().getName();
+      throw new TsIllegalStateRtException( FMT_ERR_INVALID_THREAD_ACCESS, owner, current );
     }
   }
 

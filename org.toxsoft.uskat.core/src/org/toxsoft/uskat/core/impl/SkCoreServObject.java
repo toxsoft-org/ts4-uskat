@@ -27,12 +27,12 @@ import org.toxsoft.core.tslib.utils.errors.*;
 import org.toxsoft.core.tslib.utils.logs.impl.*;
 import org.toxsoft.core.tslib.utils.txtmatch.*;
 import org.toxsoft.uskat.core.*;
+import org.toxsoft.uskat.core.api.linkserv.*;
 import org.toxsoft.uskat.core.api.objserv.*;
 import org.toxsoft.uskat.core.api.sysdescr.*;
 import org.toxsoft.uskat.core.api.sysdescr.dto.*;
-import org.toxsoft.uskat.core.backend.*;
-import org.toxsoft.uskat.core.backend.api.*;
 import org.toxsoft.uskat.core.devapi.*;
+import org.toxsoft.uskat.core.devapi.transactions.*;
 import org.toxsoft.uskat.core.impl.dto.*;
 import org.toxsoft.uskat.core.utils.*;
 
@@ -421,7 +421,76 @@ public class SkCoreServObject
     }
   };
 
+  /**
+   * Updates objects class when Sk-class changes.
+   */
+  private final ISkTransactionServiceListener transactionListener = new ISkTransactionServiceListener() {
+
+    @Override
+    public void onStart() {
+      txObjsCache.clear();
+    }
+
+    @Override
+    public void onInvalidation( Skid aObjId ) {
+      txObjsCache.remove( aObjId );
+    }
+
+    @Override
+    public void onBeforeCommit( IList<IDtoObject> aRemovingObjs, IList<Pair<IDtoObject, IDtoObject>> aUpdatingObjs,
+        IList<IDtoObject> aCreatingObjs, IList<IDtoLinkFwd> aUpdatingLinks ) {
+      // rivet manager
+      IDtoObjectRivetManager rivetManager = coreApi().transactionService().rivetManager();
+
+      // removing rivets of the removing objs
+      for( IDtoObject removedObj : aRemovingObjs ) {
+        // removing object rivets
+        rivetManager.removeRivets( removedObj );
+      }
+
+      // creating a new object rivets
+      for( IDtoObject creatingObj : aCreatingObjs ) {
+        rivetManager.createRivets( creatingObj );
+      }
+
+      // updating object rivets
+      for( Pair<IDtoObject, IDtoObject> obj : aUpdatingObjs ) {
+        // previous object state
+        IDtoObject prevObj = obj.left();
+        // new object state
+        IDtoObject newObj = obj.right();
+        // updating an object rivets in the storage
+        rivetManager.updateRivets( prevObj, newObj );
+      }
+
+      // check that removing objects do not have reverse rivets
+      for( IDtoObject removingObj : aRemovingObjs ) {
+        IStringMap<IMappedSkids> rr = removingObj.rivetRevs();
+        if( SkHelperUtils.rivetRevsSize( rr ) > 0 ) {
+          String rrs = SkHelperUtils.rivetRevsStr( rr );
+          throw new TsIllegalArgumentRtException( ERR_CANT_REMOVE_HAS_RIVET_REVS, removingObj, rrs );
+        }
+      }
+    }
+
+    @Override
+    public void onAfterCommit( IList<IDtoObject> aRemovingObjs, IList<Pair<IDtoObject, IDtoObject>> aUpdatingObjs,
+        IList<IDtoObject> aCreatingObjs, IList<IDtoLinkFwd> aUpdatingLinks ) {
+
+      // backend write successful, updating cache
+      for( IDtoObject removingObj : aRemovingObjs ) {
+        objsCache.remove( removingObj.skid() );
+      }
+      ISkSysdescr sysdescr = coreApi().sysdescr();
+      for( Pair<IDtoObject, IDtoObject> updatingObj : aUpdatingObjs ) {
+        IDtoObject dtoObj = updatingObj.right();
+        loadFromDtoAndCache( sysdescr.getClassInfo( dtoObj.classId() ), dtoObj );
+      }
+    }
+  };
+
   final ObjsCache         objsCache         = new ObjsCache();
+  final ObjsCache         txObjsCache       = new ObjsCache();
   final ObjsCreators      objsCreators      = new ObjsCreators();
   final Eventer           eventer           = new Eventer();
   final ValidationSupport validationSupport = new ValidationSupport();
@@ -443,6 +512,7 @@ public class SkCoreServObject
   @Override
   protected void doInit( ITsContextRo aArgs ) {
     sysdescr().eventer().addListener( sysdescrListener );
+    coreApi().transactionService().eventer().addListener( transactionListener );
   }
 
   @Override
@@ -476,6 +546,12 @@ public class SkCoreServObject
   // ------------------------------------------------------------------------------------
   // implementation
   //
+  private SkObject loadFromDtoAndCache( ISkClassInfo aClassInfo, IDtoObject aObjectDto ) {
+    SkObject retValue = fromDto( aClassInfo, aObjectDto );
+    objsCache.put( retValue );
+    retValue.papiSetCoreApi( coreApi() );
+    return retValue;
+  }
 
   /**
    * Creates {@link SkObject} from the data {@link IDtoObject}.
@@ -485,17 +561,19 @@ public class SkCoreServObject
    * <p>
    * Created instance will have all and only the attributes and rivets as described in {@link ISkClassInfo}.
    *
-   * @param aObjectDto {@link IDtoObject} - data for object creation
    * @param aClassInfo {@link ISkClassInfo} - class description of the object to be created
+   * @param aObjectDto {@link IDtoObject} - data for object creation
    * @return {@link SkObject} - created instance
    */
-  private SkObject fromDto( IDtoObject aObjectDto, ISkClassInfo aClassInfo ) {
+  private SkObject fromDto( ISkClassInfo aClassInfo, IDtoObject aObjectDto ) {
     String classId = aObjectDto.skid().classId();
     ISkObjectCreator<? extends SkObject> creator = objsCreators.getCreator( classId );
     SkObject sko = creator.createObject( aObjectDto.skid() );
     // 2025-07-01 TODO: mvkd, vs WORKARROND SkoObject.CREATER, linkService, SkObject.postConstruct (stack overflow)
-    objsCache.put( sko );
-    sko.papiSetCoreApi( coreApi() );
+    // 2025-07-12 mvk --- должен находить объект в текущей транзакции или в кэше (если нет транзакции)
+    // objsCache.put( sko );
+    // 2025-07-12 mvk --- обеспечивается вызывающим кодом после размещения объекта в хранилище/кэше.
+    // sko.papiSetCoreApi( coreApi() );
     // initialize attributes from aObjectDto or by default values
     for( IDtoAttrInfo ainf : aClassInfo.attrs().list() ) {
       if( !isSkSysAttr( ainf ) ) {
@@ -519,8 +597,9 @@ public class SkCoreServObject
     return sko;
   }
 
-  private DtoObject createForBackendSave( ISkObject aSkObj ) {
-    ISkClassInfo classInfo = coreApi().sysdescr().getClassInfo( aSkObj.classId() );
+  static DtoObject createForBackendSave( ISkCoreApi aCoreApi, ISkObject aSkObj ) {
+    TsNullArgumentRtException.checkNulls( aCoreApi, aSkObj );
+    ISkClassInfo classInfo = aCoreApi.sysdescr().getClassInfo( aSkObj.classId() );
     DtoObject dtoObj = new DtoObject( aSkObj.skid(), IOptionSet.NULL, aSkObj.rivets().map() );
     // copy all but system attributes and attributes with default values
     for( IDtoAttrInfo ainf : classInfo.attrs().list() ) {
@@ -547,14 +626,6 @@ public class SkCoreServObject
     return false;
   }
 
-  private void internalRemoveObjects( ISkidList aSkids ) {
-    // remove all links before removing object
-    for( Skid s : aSkids ) {
-      linkService().removeLinks( s );
-    }
-    ba().baObjects().writeObjects( aSkids, IList.EMPTY );
-  }
-
   // ------------------------------------------------------------------------------------
   // ISkObjectService
   //
@@ -565,15 +636,39 @@ public class SkCoreServObject
     checkThread();
     TsNullArgumentRtException.checkNull( aSkid );
     coreApi().papiCheckIsOpen();
+
+    // search in active transaction
+    ISkTransactionService transactionService = coreApi().transactionService();
+    if( transactionService.isActive() ) {
+      IDtoObjectManager objectManager = transactionService.objectManager();
+      if( objectManager.wasRemoved( aSkid ) ) {
+        // object was removed in the current transaction
+        return null;
+      }
+      SkObject sko = txObjsCache.find( aSkid );
+      if( sko != null ) {
+        return (T)sko;
+      }
+      IDtoObject dtoObj = objectManager.find( aSkid );
+      if( dtoObj != null ) {
+        // Вместо loadObjAndCache используется непосредственно fromDto чтобы не изменять кэш до завершения транзакции
+        sko = fromDto( coreApi().sysdescr().findClassInfo( dtoObj.classId() ), dtoObj );
+        txObjsCache.put( sko );
+        sko.papiSetCoreApi( coreApi() );
+        return (T)sko;
+      }
+      // В кэше objectManager нет объекта, поиск объекта общем кэше
+    }
+
     SkObject sko = objsCache.find( aSkid );
     if( sko != null ) {
       return (T)sko;
     }
-    IDtoObject dpu = coreApi().l10n().l10nObject( ba().baObjects().findObject( aSkid ) );
-    if( dpu != null ) {
+    IDtoObject dto = coreApi().l10n().l10nObject( ba().baObjects().findObject( aSkid ) );
+    if( dto != null ) {
       ISkClassInfo cInfo = coreApi().sysdescr().getClassInfo( aSkid.classId() );
-      sko = fromDto( dpu, cInfo );
-      return (T)objsCache.put( sko );
+      sko = loadFromDtoAndCache( cInfo, dto );
+      return (T)sko;
     }
     return null;
   }
@@ -590,8 +685,15 @@ public class SkCoreServObject
 
   @Override
   public ISkidList listSkids( String aClassId, boolean aIncludeSubclasses ) {
+    // 2025-07-12 mvk TODO: use ISkTransactionService
     checkThread();
     coreApi().papiCheckIsOpen();
+
+    if( coreApi().transactionService().isActive() ) {
+      // 2025-07-12 mvk TODO: use ISkTransactionService
+      throw new TsUnderDevelopmentRtException( "listSkids(...): is not implemented for active transaction" );
+    }
+
     ISkClassInfo cinf = coreApi().sysdescr().getClassInfo( aClassId );
     IStridablesList<ISkClassInfo> classesList;
     if( aIncludeSubclasses ) {
@@ -614,6 +716,12 @@ public class SkCoreServObject
     checkThread();
     TsNullArgumentRtException.checkNull( aClassId );
     coreApi().papiCheckIsOpen();
+
+    if( coreApi().transactionService().isActive() ) {
+      // 2025-07-12 mvk TODO: use ISkTransactionService
+      throw new TsUnderDevelopmentRtException( "listObjs(...): is not implemented for active transaction" );
+    }
+
     ISkClassInfo cinf = sysdescr().getClassInfo( aClassId );
     IStridablesList<ISkClassInfo> classesList;
     if( aIncludeSubclasses ) {
@@ -623,15 +731,14 @@ public class SkCoreServObject
       classesList = new StridablesList<>( cinf );
     }
     // OPTIMIZE search objects in cache ???
-    IList<IDtoObject> dpuObjs = coreApi().l10n().l10nObjectsList( ba().baObjects().readObjects( classesList.ids() ) );
+    IList<IDtoObject> dtoObjs = coreApi().l10n().l10nObjectsList( ba().baObjects().readObjects( classesList.ids() ) );
     // aAllowDuplicates = false
     IListEdit<ISkObject> ll = new ElemLinkedBundleList<>( 256, false );
-    for( IDtoObject dpu : dpuObjs ) {
-      SkObject sko = objsCache.find( dpu.skid() );
+    for( IDtoObject dto : dtoObjs ) {
+      SkObject sko = objsCache.find( dto.skid() );
       if( sko == null ) {
-        ISkClassInfo cInfo = sysdescr().getClassInfo( dpu.skid().classId() );
-        sko = fromDto( dpu, cInfo );
-        objsCache.put( sko );
+        ISkClassInfo cInfo = sysdescr().getClassInfo( dto.skid().classId() );
+        sko = loadFromDtoAndCache( cInfo, dto );
       }
       ll.add( sko );
     }
@@ -643,15 +750,20 @@ public class SkCoreServObject
     checkThread();
     TsNullArgumentRtException.checkNull( aSkids );
     coreApi().papiCheckIsOpen();
-    IList<IDtoObject> dpuObjs = coreApi().l10n().l10nObjectsList( ba().baObjects().readObjectsByIds( aSkids ) );
+
+    if( coreApi().transactionService().isActive() ) {
+      // 2025-07-12 mvk TODO: use ISkTransactionService
+      throw new TsUnderDevelopmentRtException( "getObjs(...): is not implemented for active transaction" );
+    }
+
+    IList<IDtoObject> dtoObjs = coreApi().l10n().l10nObjectsList( ba().baObjects().readObjectsByIds( aSkids ) );
     IListEdit<ISkObject> result = new ElemLinkedBundleList<>(
         TsCollectionsUtils.getListInitialCapacity( TsCollectionsUtils.estimateOrder( 1_000 ) ), false );
-    for( IDtoObject dpu : dpuObjs ) {
-      SkObject sko = objsCache.find( dpu.skid() );
+    for( IDtoObject dto : dtoObjs ) {
+      SkObject sko = objsCache.find( dto.skid() );
       if( sko == null ) {
-        ISkClassInfo cInfo = sysdescr().getClassInfo( dpu.skid().classId() );
-        sko = fromDto( dpu, cInfo );
-        objsCache.put( sko );
+        ISkClassInfo cInfo = sysdescr().getClassInfo( dto.skid().classId() );
+        sko = loadFromDtoAndCache( cInfo, dto );
       }
       result.add( sko );
     }
@@ -671,33 +783,42 @@ public class SkCoreServObject
     // check preconditions
     TsNullArgumentRtException.checkNulls( aRemoveSkids, aDtoObjects );
     coreApi().papiCheckIsOpen();
-    ISkBackendInfo backendInfo = coreApi().backend().getBackendInfo();
-    if( ISkBackendHardConstant.OPDEF_TRANSACTION_SUPPORT.getValue( backendInfo.params() ).asBool() ) {
-      // backend supports transactions
-      return defineObjectsForTransactionalBackend( aRemoveSkids, aDtoObjects );
+
+    ISkTransactionService transactionService = coreApi().transactionService();
+    // check transaction status
+    boolean needNewTransaction = !transactionService.isActive();
+    if( needNewTransaction ) {
+      // start a new transaction (it will need to be closed on exit)
+      transactionService.start();
     }
-    // backend does not support transactions
-    return defineObjectsForSimpleBackend( aRemoveSkids, aDtoObjects );
+
+    try {
+      IList<ISkObject> retValue = defineObjectsImpl( aRemoveSkids, aDtoObjects );
+
+      if( needNewTransaction ) {
+        // transaction commit
+        transactionService.commit();
+      }
+
+      return retValue;
+    }
+    catch( Throwable e ) {
+      logger().error( e );
+      // transaction rollback
+      transactionService.rollback();
+      throw e;
+    }
   }
 
   @Override
   public void removeObject( Skid aSkid ) {
-    checkThread();
-    coreApi().papiCheckIsOpen();
-    TsValidationFailedRtException.checkError( validationSupport.canRemoveObject( aSkid ) );
-    objsCache.remove( aSkid );
-    internalRemoveObjects( new SkidList( aSkid ) );
+    TsNullArgumentRtException.checkNull( aSkid );
+    defineObjects( new SkidList( aSkid ), IList.EMPTY );
   }
 
   @Override
   public void removeObjects( ISkidList aSkids ) {
-    checkThread();
-    coreApi().papiCheckIsOpen();
-    TsValidationFailedRtException.checkError( validationSupport.canRemoveObjects( aSkids ) );
-    for( Skid s : aSkids ) {
-      objsCache.remove( s );
-    }
-    internalRemoveObjects( aSkids );
+    defineObjects( aSkids, IList.EMPTY );
   }
 
   @Override
@@ -720,49 +841,19 @@ public class SkCoreServObject
   // private methods
   //
 
-  private IList<ISkObject> defineObjectsForSimpleBackend( ISkidList aRemoveSkids, IList<IDtoObject> aDtoObjects ) {
+  private IList<ISkObject> defineObjectsImpl( ISkidList aRemoveSkids, IList<IDtoObject> aDtoObjects ) {
     // check preconditions
     TsNullArgumentRtException.checkNulls( aRemoveSkids, aDtoObjects );
     ISkSysdescr sysdescr = coreApi().sysdescr();
-    ISkObjectService objectService = coreApi().objService();
-    // entity manager
-    AbstractSkObjectManager em = new AbstractSkObjectManager() {
-
-      @Override
-      DtoObject loadFromDb( Skid aObjId ) {
-        ISkObject sko = objectService.find( aObjId );
-        if( sko != null ) {
-          return createForBackendSave( sko );
-        }
-        return null;
-      }
-    };
-    // Object rivets editor
-    AbstractSkRivetEditor rivetEditor = new AbstractSkRivetEditor( logger() ) {
-
-      // ------------------------------------------------------------------------------------
-      // abstract methods implementations
-      //
-      @Override
-      protected ISkClassInfo doGetClassInfo( String aClassId ) {
-        return sysdescr.getClassInfo( aClassId );
-      }
-
-      @Override
-      protected IDtoObject doFindObject( Skid aObjId ) {
-        return em.find( aObjId );
-      }
-
-      @Override
-      protected void doWriteRivetRevs( IDtoObject aObj, IStringMapEdit<IMappedSkids> aRivetRevs ) {
-        DtoObject.setRivetRevs( (DtoObject)aObj, aRivetRevs );
-        em.merge( aObj );
-      }
-    };
+    ISkTransactionService transactionService = coreApi().transactionService();
+    // DtoObject manager
+    IDtoObjectManager objectManager = transactionService.objectManager();
+    // DtoObject rivets manager
+    // IDtoObjectRivetManager rivetManager = transactionService.rivetManager();
     IListEdit<IDtoObject> removingObjs = new ElemArrayList<>();
     IListEdit<Pair<IDtoObject, IDtoObject>> updatingObjs = new ElemArrayList<>();
     IListEdit<IDtoObject> creatingObjs = new ElemArrayList<>();
-    loadObjects( aRemoveSkids, aDtoObjects, em, removingObjs, updatingObjs, creatingObjs );
+    loadObjects( aRemoveSkids, aDtoObjects, objectManager, removingObjs, updatingObjs, creatingObjs );
 
     // checking access rights to operations on objects
     TsValidationFailedRtException.checkError( validationSupport.canRemoveObjects( aRemoveSkids ) );
@@ -773,10 +864,6 @@ public class SkCoreServObject
     for( IDtoObject obj : creatingObjs ) {
       TsValidationFailedRtException.checkError( validationSupport.canCreateObject( obj ) );
     }
-    for( IDtoObject removedObj : removingObjs ) {
-      // removing object rivets
-      rivetEditor.removeRivets( removedObj );
-    }
     for( Pair<IDtoObject, IDtoObject> obj : updatingObjs ) {
       // previous object state
       IDtoObject prevObj = obj.left();
@@ -785,101 +872,27 @@ public class SkCoreServObject
       // restore reverse rivets
       DtoObject.setRivetRevs( newObj, prevObj.rivetRevs() );
       // updating an object state in the storage
-      em.merge( newObj );
-      // updating an object rivets in the storage
-      rivetEditor.updateRivets( prevObj, newObj );
+      objectManager.merge( newObj );
     }
     // removing objects with a check that they do not have reverse rivets
     for( IDtoObject removingObj : removingObjs ) {
-      IStringMap<IMappedSkids> rr = removingObj.rivetRevs();
-      if( SkHelperUtils.rivetRevsSize( rr ) > 0 ) {
-        String rrs = SkHelperUtils.rivetRevsStr( rr );
-        throw new TsIllegalArgumentRtException( ERR_CANT_REMOVE_HAS_RIVET_REVS, removingObj, rrs );
-      }
       // removing obj
-      em.remove( removingObj );
+      objectManager.remove( removingObj );
     }
     // Creating objects
     for( IDtoObject creatingObj : creatingObjs ) {
       // populating a new object state with attributes and forward rivets of its class
       DtoObject obj = populateObj( sysdescr.getClassInfo( creatingObj.classId() ), creatingObj );
       // create an object in the storage
-      em.persist( obj );
-    }
-    for( IDtoObject creatingObj : creatingObjs ) {
-      // Creating object rivets
-      rivetEditor.createRivets( creatingObj );
-    }
-    // preparation of the final list of created & updated objects
-    IListEdit<IDtoObject> objsForBackendSave = new ElemArrayList<>( em.createdObjs().size() + em.changedObjs().size() );
-    objsForBackendSave.addAll( em.createdObjs() );
-    objsForBackendSave.addAll( em.changedObjs() );
-
-    // "transaction commmit"
-    ba().baObjects().writeObjects( aRemoveSkids, objsForBackendSave );
-
-    // backend write successful, updating cache
-    for( Skid skid : aRemoveSkids ) {
-      objsCache.remove( skid );
-    }
-    for( IDtoObject dtoObj : objsForBackendSave ) {
-      objsCache.put( fromDto( dtoObj, sysdescr.getClassInfo( dtoObj.classId() ) ) );
+      objectManager.persist( obj );
     }
     // prepare results
-    IListEdit<ISkObject> retValue = new ElemArrayList<>( em.createdObjs().size() + em.changedObjs().size() );
+    IListEdit<ISkObject> retValue = new ElemArrayList<>( aDtoObjects.size() );
     for( IDtoObject dtoObj : aDtoObjects ) {
-      retValue.add( objsCache.find( dtoObj.skid() ) );
-    }
-    return retValue;
-  }
-
-  private IList<ISkObject> defineObjectsForTransactionalBackend( ISkidList aRemoveSkids,
-      IList<IDtoObject> aDtoObjects ) {
-    // check preconditions
-    TsNullArgumentRtException.checkNulls( aRemoveSkids, aDtoObjects );
-
-    IListEdit<ISkObject> retValue = new ElemArrayList<>();
-    IListEdit<IDtoObject> objsForBackendSave = new ElemArrayList<>();
-
-    for( IDtoObject dtoObj : aDtoObjects ) {
-      ISkClassInfo cInfo = coreApi().sysdescr().getClassInfo( dtoObj.skid().classId() );
-      // validate operation
-      SkObject sko = find( dtoObj.skid() );
-      if( sko != null ) { // validate exiting object editing
-        TsValidationFailedRtException.checkError( validationSupport.canEditObject( dtoObj, sko ) );
-      }
-      else { // validate new object creation
-        TsValidationFailedRtException.checkError( validationSupport.canCreateObject( dtoObj ) );
-        sko = fromDto( dtoObj, cInfo );
-      }
-      // refresh attribute values (validator already checked that attributes set is valid)
-      for( IDtoAttrInfo ainf : cInfo.attrs().list() ) {
-        if( !isSkSysAttr( ainf ) ) {
-          IAtomicValue val = dtoObj.attrs().getValue( ainf.id(), ainf.dataType().defaultValue() );
-          sko.attrs().setValue( ainf.id(), val );
-        }
-      }
-      // refresh rivets values
-      for( IDtoRivetInfo rinf : cInfo.rivets().list() ) {
-        ISkidList rivets = dtoObj.rivets().map().getByKey( rinf.id() );
-        sko.rivets().ensureSkidList( rinf.id() ).setAll( rivets );
-      }
-      /**
-       * FIXME here we need to localize object after it was written to the backend.<br>
-       * When creating system objects they are created in English. but in cache they have to be put localized!
-       */
+      // Вместо loadObjAndCache используется непосредственно fromDto чтобы не изменять кэш до завершения транзакции
+      SkObject sko = fromDto( sysdescr.findClassInfo( dtoObj.classId() ), dtoObj );
+      sko.papiSetCoreApi( coreApi() );
       retValue.add( sko );
-      objsForBackendSave.add( createForBackendSave( sko ) );
-    }
-
-    ba().baObjects().writeObjects( aRemoveSkids, objsForBackendSave );
-
-    // backend write successful, updating cache
-    for( Skid skid : aRemoveSkids ) {
-      objsCache.remove( skid );
-    }
-    for( ISkObject sko : retValue ) {
-      objsCache.put( (SkObject)sko );
     }
     return retValue;
   }
@@ -903,7 +916,7 @@ public class SkCoreServObject
   }
 
   private static void loadObjects( ISkidList aRemoveSkids, IList<IDtoObject> aDtoObjects,
-      AbstractSkObjectManager aEntityManager, IListEdit<IDtoObject> aRemoveObjects,
+      IDtoObjectManager aEntityManager, IListEdit<IDtoObject> aRemoveObjects,
       IListEdit<Pair<IDtoObject, IDtoObject>> aUpdateObjects, IListEdit<IDtoObject> aCreateObjects ) {
     for( Skid objId : aRemoveSkids ) {
       IDtoObject obj = aEntityManager.find( objId );
@@ -915,10 +928,14 @@ public class SkCoreServObject
       Skid objId = obj.skid();
       IDtoObject prevObj = aEntityManager.find( objId );
       if( prevObj == null ) {
+        // create a new object
         aCreateObjects.add( obj );
         continue;
       }
-      aUpdateObjects.add( new Pair<>( prevObj, obj ) );
+      if( !prevObj.equals( obj ) ) {
+        // object state changed
+        aUpdateObjects.add( new Pair<>( prevObj, obj ) );
+      }
     }
   }
 }

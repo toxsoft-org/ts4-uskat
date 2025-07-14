@@ -271,7 +271,7 @@ public final class DtoObject
   /**
    * Set object reverse rivets.
    * <p>
-   * The method is used by {@link AbstractSkObjectManager} & {@link SkCoreServObject}.
+   * The method is used by {@link AbstractDtoObjectManager} & {@link SkCoreServObject}.
    *
    * @param aDtoObj {@link DtoObject} updating object
    * @param aRivetRevs {@link IStringMap}&lt;{@link MappedSkids};&gt; SKIDs map of reverse rivets where: <br>

@@ -171,6 +171,15 @@ public abstract class AbstractSkService
   }
 
   /**
+   * Returns thread executor.
+   *
+   * @return {@link ITsThreadExecutor} thread executor
+   */
+  final public ITsThreadExecutor threadExecutor() {
+    return executor;
+  }
+
+  /**
    * @throws TsIllegalStateRtException invalid thread access
    */
   final public void checkThread() {

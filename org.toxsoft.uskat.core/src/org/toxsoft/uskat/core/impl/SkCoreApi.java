@@ -33,6 +33,7 @@ import org.toxsoft.uskat.core.backend.api.*;
 import org.toxsoft.uskat.core.connection.*;
 import org.toxsoft.uskat.core.devapi.*;
 import org.toxsoft.uskat.core.devapi.gwiddb.*;
+import org.toxsoft.uskat.core.devapi.transactions.*;
 import org.toxsoft.uskat.core.impl.dto.*;
 
 /**
@@ -64,6 +65,7 @@ public class SkCoreApi
   private final SkCoreServGwids     gwidService;
   private final SkCoreServUgwis     ugwiService;
   private final SkCoreServGwidDb    gwidDbService;
+  private final SkCoreServTransaction   transactionService;
 
   private final IList<ISkCoreExternalHandler> coreApiHandlersList;
 
@@ -107,6 +109,7 @@ public class SkCoreApi
     llCreators.add( SkCoreServGwids.CREATOR );
     llCreators.add( SkCoreServUgwis.CREATOR );
     llCreators.add( SkCoreServGwidDb.CREATOR );
+    llCreators.add( SkCoreServTransaction.CREATOR );
     // backend and user-specified services
     llCreators.addAll( backend.listBackendServicesCreators() );
     llCreators.addAll( SkCoreUtils.listRegisteredSkServiceCreators() );
@@ -149,6 +152,7 @@ public class SkCoreApi
     gwidService = getService( ISkGwidService.SERVICE_ID );
     ugwiService = getService( ISkUgwiService.SERVICE_ID );
     gwidDbService = getService( ISkGwidDbService.SERVICE_ID );
+    transactionService = getService( ISkTransactionService.SERVICE_ID );
     // initialize services
     executor.syncExec( () -> {
       // 2025-06-14 mvk---+++ инициализация служб должна проводиться в том же порядке в котором они создавались:
@@ -299,6 +303,11 @@ public class SkCoreApi
   @Override
   public ISkGwidDbService gwidDbService() {
     return gwidDbService;
+  }
+
+  @Override
+  public ISkTransactionService transactionService() {
+    return transactionService;
   }
 
   @SuppressWarnings( { "unchecked", "rawtypes" } )
