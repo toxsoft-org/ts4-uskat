@@ -113,7 +113,11 @@ public class ValedSkidListEditor
     TsDialogInfo di = new TsDialogInfo( ctx, DLG_T_SKID_LIST_SEL, STR_MSG_SKID_LIST_SELECTION );
     IListEdit<ISkObject> initObjs = new ElemArrayList<>();
     for( Skid skid : aSkidList ) {
-      initObjs.add( conn.coreApi().objService().get( skid ) );
+      ISkObject skObj = conn.coreApi().objService().find( skid );
+      if( skObj == null ) {
+        skObj = ISkObject.NONE;
+      }
+      initObjs.add( skObj );
     }
     IList<ISkObject> selObjs = M5GuiUtils.askSelectItemsList( di, modelSk, initObjs, lmSk.itemsProvider() );
     if( selObjs == null ) {

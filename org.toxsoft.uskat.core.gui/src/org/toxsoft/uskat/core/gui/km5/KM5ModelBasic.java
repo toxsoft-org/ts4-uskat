@@ -7,6 +7,7 @@ import static org.toxsoft.uskat.core.ISkHardConstants.*;
 import static org.toxsoft.uskat.core.gui.km5.ISkKm5SharedResources.*;
 
 import org.toxsoft.core.tsgui.m5.gui.panels.impl.*;
+import org.toxsoft.core.tsgui.m5.model.*;
 import org.toxsoft.core.tslib.utils.errors.*;
 import org.toxsoft.uskat.core.*;
 import org.toxsoft.uskat.core.api.objserv.*;
@@ -105,6 +106,11 @@ public class KM5ModelBasic<T extends ISkObject>
   public KM5ModelBasic( String aId, Class<T> aModelledClass, ISkConnection aConn ) {
     super( aId, aModelledClass, aConn );
     setNameAndDescription( STR_N_KM5M_OBJECT, STR_D_KM5M_OBJECT );
+  }
+
+  @Override
+  protected IM5LifecycleManager<T> doCreateDefaultLifecycleManager() {
+    return getLifecycleManager( this.skConn() );
   }
 
 }
