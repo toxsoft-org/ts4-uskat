@@ -100,7 +100,7 @@ public class MtbBackendToFile
     File f = new File( fileName );
     TsFileUtils.checkFileAppendable( f );
     // non-existing and zero-length files are considered as new file creation
-    if( f.exists() || f.length() == 0 ) {
+    if( f.exists() && f.length() > 0 ) {
       loadFromFile();
     }
     else {
