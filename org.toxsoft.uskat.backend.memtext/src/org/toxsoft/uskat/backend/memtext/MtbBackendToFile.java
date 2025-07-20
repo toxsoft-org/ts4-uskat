@@ -99,11 +99,12 @@ public class MtbBackendToFile
     String fileName = OPDEF_FILE_PATH.getValue( argContext().params() ).asString();
     File f = new File( fileName );
     TsFileUtils.checkFileAppendable( f );
-    if( f.exists() ) {
+    // non-existing and zero-length files are considered as new file creation
+    if( f.exists() || f.length() == 0 ) {
       loadFromFile();
     }
     else {
-      saveToFile(); // save an empty file with neccsary formating
+      saveToFile(); // save an empty file with necessary formating
     }
     setBackendInfoParamsOpton( OPDEF_FILE_PATH.id(), AvUtils.avStr( f.getAbsolutePath() ) );
   }
