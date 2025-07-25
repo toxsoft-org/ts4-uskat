@@ -18,7 +18,6 @@ import org.toxsoft.core.tslib.bricks.strio.chario.*;
 import org.toxsoft.core.tslib.bricks.strio.chario.impl.*;
 import org.toxsoft.core.tslib.bricks.strio.impl.*;
 import org.toxsoft.core.tslib.coll.primtypes.*;
-import org.toxsoft.core.tslib.coll.primtypes.impl.*;
 import org.toxsoft.core.tslib.gw.skid.*;
 import org.toxsoft.core.tslib.utils.errors.*;
 import org.toxsoft.core.tslib.utils.logs.*;
@@ -131,7 +130,7 @@ public class S5ObjectEntity
     classInfo = S5ClassEntity.createPrimaryKey( aSource.classId() );
     setAttrs( aSource.attrs() );
     setRivets( aSource.rivets() );
-    setRivetRevs( new StringMap<>() );
+    setRivetRevs( aSource.rivetRevs() );
   }
 
   /**
