@@ -255,13 +255,6 @@ public class SkCoreServTransaction
 
     // fire before commit event
     eventer.fireBeforeCommitEvent( removingObjs, updatingObjs, creatingObjs, updatingLinks );
-
-    // refresh changed list after "before-commit-event" handle
-    removingObjs = new ElemArrayList<>( objectManager.removingObjs().values() );
-    updatingObjs = new ElemArrayList<>( objectManager.updatingObjs().values() );
-    creatingObjs = new ElemArrayList<>( objectManager.creatingObjs().values() );
-    updatingLinks = new ElemArrayList<>( this.txUpdatingLinks );
-
     try {
       // TODO: добавить в метод аргумент обновляемые связи
       if( removingObjs.size() > 0 || updatingObjs.size() > 0 || creatingObjs.size() > 0 ) {

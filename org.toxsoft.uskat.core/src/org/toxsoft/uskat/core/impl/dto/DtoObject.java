@@ -300,10 +300,7 @@ public final class DtoObject
       return true;
     }
     if( aThat instanceof DtoObject that ) {
-      return skid.equals( that.skid ) && //
-          attrs.equals( that.attrs ) && //
-          rivets.equals( that.rivets ) && //
-          rivetRevs.equals( that.rivetRevs );
+      return skid.equals( that.skid ) && attrs.equals( that.attrs ) && rivets.equals( that.rivets );
     }
     return false;
   }
@@ -314,7 +311,6 @@ public final class DtoObject
     result = PRIME * result + skid.hashCode();
     result = PRIME * result + attrs.hashCode();
     result = PRIME * result + rivets.hashCode();
-    result = PRIME * result + rivetRevs.hashCode();
     return result;
   }
 

@@ -317,10 +317,7 @@ public class S5ObjectEntity
       return true;
     }
     if( aThat instanceof S5ObjectEntity that ) {
-      return id.equals( that.id ) && //
-          that.attrsString.equals( that.attrsString ) && //
-          that.rivetsString.equals( that.rivetsString ) && //
-          that.rivetRevsString.equals( that.rivetRevsString );
+      return id.equals( that.id ) && attrs().equals( that.attrs() );
     }
     return false;
   }
@@ -329,9 +326,7 @@ public class S5ObjectEntity
   public int hashCode() {
     int result = INITIAL_HASH_CODE;
     result = PRIME * result + id.hashCode();
-    result = PRIME * result + attrsString.hashCode();
-    result = PRIME * result + rivetsString.hashCode();
-    result = PRIME * result + rivetRevsString.hashCode();
+    result = PRIME * result + attrs().hashCode();
     return result;
   }
 
