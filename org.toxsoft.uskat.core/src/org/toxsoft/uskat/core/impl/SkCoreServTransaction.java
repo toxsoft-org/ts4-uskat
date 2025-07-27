@@ -66,10 +66,32 @@ public class SkCoreServTransaction
       }
     }
 
-    void fireInvalidationEvent( Skid aObjectId ) {
+    void fireObjCreatedEvent( IDtoObject aObjectId ) {
       for( ISkTransactionServiceListener l : listeners() ) {
         try {
-          l.onInvalidation( aObjectId );
+          l.onObjCreated( aObjectId );
+        }
+        catch( Exception ex ) {
+          LoggerUtils.errorLogger().error( ex );
+        }
+      }
+    }
+
+    void fireObjMergedEvent( IDtoObject aObjectId ) {
+      for( ISkTransactionServiceListener l : listeners() ) {
+        try {
+          l.onObjMerged( aObjectId );
+        }
+        catch( Exception ex ) {
+          LoggerUtils.errorLogger().error( ex );
+        }
+      }
+    }
+
+    void fireObjRemovedEvent( IDtoObject aObjectId ) {
+      for( ISkTransactionServiceListener l : listeners() ) {
+        try {
+          l.onObjRemoved( aObjectId );
         }
         catch( Exception ex ) {
           LoggerUtils.errorLogger().error( ex );
@@ -169,17 +191,17 @@ public class SkCoreServTransaction
 
       @Override
       protected void doPersist( IDtoObject aDtoObj ) {
-        eventer.fireInvalidationEvent( aDtoObj.skid() );
+        eventer.fireObjCreatedEvent( aDtoObj );
       }
 
       @Override
       protected void doMerge( IDtoObject aDtoObj ) {
-        eventer.fireInvalidationEvent( aDtoObj.skid() );
+        eventer.fireObjMergedEvent( aDtoObj );
       }
 
       @Override
       protected void doRemove( IDtoObject aDtoObj ) {
-        eventer.fireInvalidationEvent( aDtoObj.skid() );
+        eventer.fireObjRemovedEvent( aDtoObj );
       }
 
       @Override
