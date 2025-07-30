@@ -263,9 +263,6 @@ public class S5BackendObjectsSingleton
         // 2020-07-23 mvk
         // em.merge( obj.right() );
 
-        // Восстановление списка obj.left(!) обратных склепок
-        ((S5ObjectEntity)obj.right()).setRivetRevs( obj.left().rivetRevs() );
-
         // Обновление объекта в базе данных
         S5ObjectEntity changedObj = ((S5ObjectEntity)em.merge( obj.right() ));
         changedObj.setAttrs( obj.right().attrs() );
