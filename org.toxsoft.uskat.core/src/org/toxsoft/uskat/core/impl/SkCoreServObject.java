@@ -432,8 +432,22 @@ public class SkCoreServObject
     }
 
     @Override
-    public void onInvalidation( Skid aObjId ) {
-      txObjsCache.remove( aObjId );
+    public void onObjCreated( IDtoObject aDtoObj ) {
+      // nop
+    }
+
+    @Override
+    public void onObjMerged( IDtoObject aDtoObj ) {
+      // remove object cache
+      txObjsCache.remove( aDtoObj.skid() );
+    }
+
+    @Override
+    public void onObjRemoved( IDtoObject aDtoObj ) {
+      // remove object cache
+      txObjsCache.remove( aDtoObj.skid() );
+      // removing rivets of the removed obj
+      coreApi().transactionService().rivetManager().removeRivets( aDtoObj );
     }
 
     @Override
@@ -442,11 +456,11 @@ public class SkCoreServObject
       // rivet manager
       IDtoObjectRivetManager rivetManager = coreApi().transactionService().rivetManager();
 
-      // removing rivets of the removing objs
-      for( IDtoObject removedObj : aRemovingObjs ) {
-        // removing object rivets
-        rivetManager.removeRivets( removedObj );
-      }
+      // // removing rivets of the removing objs
+      // for( IDtoObject removedObj : aRemovingObjs ) {
+      // // removing object rivets
+      // rivetManager.removeRivets( removedObj );
+      // }
 
       // creating a new object rivets
       for( IDtoObject creatingObj : aCreatingObjs ) {
@@ -848,7 +862,7 @@ public class SkCoreServObject
     ISkTransactionService transactionService = coreApi().transactionService();
     // DtoObject manager
     IDtoObjectManager objectManager = transactionService.objectManager();
-    // DtoObject rivets manager
+    // // DtoObject rivets manager
     // IDtoObjectRivetManager rivetManager = transactionService.rivetManager();
     IListEdit<IDtoObject> removingObjs = new ElemArrayList<>();
     IListEdit<Pair<IDtoObject, IDtoObject>> updatingObjs = new ElemArrayList<>();
@@ -864,6 +878,31 @@ public class SkCoreServObject
     for( IDtoObject obj : creatingObjs ) {
       TsValidationFailedRtException.checkError( validationSupport.canCreateObject( obj ) );
     }
+
+    // Skid testSkid = new Skid( "nm.ButtonRelaysGroup", "knrGr_ZL_Ekn" );
+    // Creating objects
+    for( IDtoObject creatingObj : creatingObjs ) {
+      // populating a new object state with attributes and forward rivets of its class
+      DtoObject obj = populateObj( sysdescr.getClassInfo( creatingObj.classId() ), creatingObj );
+      // create an object in the storage
+      objectManager.persist( obj );
+      // if( obj.skid().equals( testSkid ) ) {
+      // logger().error( "testSkid founded = %s", obj );
+      // }
+    }
+    // int testIndex = -1;
+    // IDtoObject testObj = objectManager.find( testSkid );
+    // for( int index = 0, n = aDtoObjects.size() - 1; index < n; index++ ) {
+    // if( aDtoObjects.get( index ).skid().equals( testSkid ) ) {
+    // testIndex = index;
+    // break;
+    // }
+    // }
+    // logger().error( "testObj (%s) = %s, aDtoObjects index = %d", testSkid, testObj, testIndex );
+    // // creating an object rivets in the storage
+    // for( IDtoObject creatingObj : creatingObjs ) {
+    // rivetManager.createRivets( creatingObj );
+    // }
     for( Pair<IDtoObject, IDtoObject> obj : updatingObjs ) {
       // previous object state
       IDtoObject prevObj = obj.left();
@@ -873,18 +912,15 @@ public class SkCoreServObject
       DtoObject.setRivetRevs( newObj, prevObj.rivetRevs() );
       // updating an object state in the storage
       objectManager.merge( newObj );
+      // // updating an object rivets in the storage
+      // rivetManager.updateRivets( prevObj, newObj );
     }
     // removing objects with a check that they do not have reverse rivets
     for( IDtoObject removingObj : removingObjs ) {
+      // // removing object rivets
+      // rivetManager.removeRivets( removingObj );
       // removing obj
       objectManager.remove( removingObj );
-    }
-    // Creating objects
-    for( IDtoObject creatingObj : creatingObjs ) {
-      // populating a new object state with attributes and forward rivets of its class
-      DtoObject obj = populateObj( sysdescr.getClassInfo( creatingObj.classId() ), creatingObj );
-      // create an object in the storage
-      objectManager.persist( obj );
     }
     // prepare results
     IListEdit<ISkObject> retValue = new ElemArrayList<>( aDtoObjects.size() );

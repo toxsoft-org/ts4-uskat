@@ -29,7 +29,6 @@ import org.toxsoft.core.tslib.utils.logs.*;
 import org.toxsoft.uskat.core.api.objserv.*;
 import org.toxsoft.uskat.core.api.sysdescr.*;
 import org.toxsoft.uskat.core.backend.api.*;
-import org.toxsoft.uskat.core.impl.*;
 import org.toxsoft.uskat.core.utils.*;
 import org.toxsoft.uskat.s5.common.sysdescr.*;
 import org.toxsoft.uskat.s5.server.backend.impl.*;
@@ -251,23 +250,11 @@ public class S5BackendObjectsSingleton
     }
     long interceptorTimestamp1 = System.currentTimeMillis();
 
-    // Редактор склепок объекта
-    ObjectRivetEditor rivetEditor = new ObjectRivetEditor( classesByIds, implByIds );
-
     // Список объектов изменивших атрибуты или удаленных из системы
     IListEdit<Skid> changedObjectIds = new SkidList();
 
     // Удаление объектов
     int rc = 0;
-    for( IList<IDtoObject> classObjs : removedObjs.values() ) {
-      for( IDtoObject removedObj : classObjs ) {
-        // removing obj rivets
-        rc += rivetEditor.removeRivets( removedObj );
-        if( logger().isSeverityOn( ELogSeverity.DEBUG ) ) {
-          logger().debug( "writeObjects(...): removingRivets for entity %s, rc = %d", removedObj, rc );
-        }
-      }
-    }
     // Обновление объектов
     int uc = 0;
     for( IList<Pair<IDtoObject, IDtoObject>> objs : updatedObjs.values() ) {
@@ -283,13 +270,11 @@ public class S5BackendObjectsSingleton
         S5ObjectEntity changedObj = ((S5ObjectEntity)em.merge( obj.right() ));
         changedObj.setAttrs( obj.right().attrs() );
         changedObj.setRivets( obj.right().rivets() );
+        changedObj.setRivetRevs( obj.right().rivetRevs() );
 
         // TODO: mvkd experimental
         // updateObject( em, obj.right() );
         uc++;
-
-        // Обновление склепок
-        uc += rivetEditor.updateRivets( obj.left(), obj.right() );
 
         if( logger().isSeverityOn( ELogSeverity.DEBUG ) ) {
           logger().debug( "writeObjects(...): merge entity %s, uc = %d", obj, uc );
@@ -329,17 +314,6 @@ public class S5BackendObjectsSingleton
         }
       }
     }
-    for( IList<IDtoObject> objs : createdObjs.values() ) {
-      for( IDtoObject obj : objs ) {
-        // Создание склепок
-        cc += rivetEditor.createRivets( obj );
-        // TODO: updating rivetRevs
-        if( logger().isSeverityOn( ELogSeverity.DEBUG ) ) {
-          logger().debug( "writeObjects(...): creatingRivets for entity %s, cc = %d", obj, cc );
-        }
-      }
-    }
-
     long entityManagerTimestamp1 = System.currentTimeMillis();
 
     // Синхронизация с базой данных
@@ -553,53 +527,6 @@ public class S5BackendObjectsSingleton
       aClassesByIds.put( aClassId, classInfo );
     }
     return classInfo;
-  }
-
-  /**
-   * Редактор обратных склепок объктов
-   *
-   * @author mvk
-   */
-  private class ObjectRivetEditor
-      extends AbstractDtoObjectRivetManager {
-
-    private final IStringMapEdit<ISkClassInfo>          classesByIds;
-    private final IStringMapEdit<Class<S5ObjectEntity>> implByIds;
-
-    @SuppressWarnings( "synthetic-access" )
-    ObjectRivetEditor( IStringMapEdit<ISkClassInfo> aClassesByIds, IStringMapEdit<Class<S5ObjectEntity>> aImplByIds ) {
-      super( logger() );
-      TsNullArgumentRtException.checkNulls( aClassesByIds, aImplByIds );
-      classesByIds = aClassesByIds;
-      implByIds = aImplByIds;
-    }
-
-    // ------------------------------------------------------------------------------------
-    // abstract methods implementations
-    //
-    @Override
-    protected ISkClassInfo doGetClassInfo( String aClassId ) {
-      return findAndCacheClassInfo( sysdescrReader, aClassId, classesByIds );
-    }
-
-    @Override
-    protected IDtoObject doFindObject( Skid aObjId ) {
-      // Идентификатор класса объекта
-      String classId = aObjId.classId();
-      // Поиск и если необходимо кэширование описания класса
-      ISkClassInfo classInfo = doGetClassInfo( classId );
-      // Класс реализации объекта
-      Class<S5ObjectEntity> objImplClass = getObjectImplClass( classInfo, implByIds );
-      // Поиск объекта
-      S5ObjectEntity retValue = em.find( objImplClass, new S5ObjectID( aObjId ) );
-      return retValue;
-    }
-
-    @Override
-    protected void doWriteRivetRevs( IDtoObject aObj, IStringMapEdit<IMappedSkids> aRivetRevs ) {
-      ((S5ObjectEntity)aObj).setRivetRevs( aRivetRevs );
-      em.merge( aObj );
-    }
   }
 
   /**

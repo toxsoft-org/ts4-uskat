@@ -1,7 +1,6 @@
 package org.toxsoft.uskat.core.devapi.transactions;
 
 import org.toxsoft.core.tslib.coll.*;
-import org.toxsoft.core.tslib.gw.skid.*;
 import org.toxsoft.core.tslib.utils.*;
 import org.toxsoft.uskat.core.api.linkserv.*;
 import org.toxsoft.uskat.core.api.objserv.*;
@@ -21,13 +20,29 @@ public interface ISkTransactionServiceListener {
   }
 
   /**
-   * Called after an object's state has been invalidated and its state needs to be updated.
-   * <p>
-   * Can be used to reset an object in the cache.
+   * Called after the object has been created.
    *
-   * @param aObjId {@link Skid} object id
+   * @param aDtoObj {@link IDtoObject} object
    */
-  default void onInvalidation( Skid aObjId ) {
+  default void onObjCreated( IDtoObject aDtoObj ) {
+    // nop
+  }
+
+  /**
+   * Called after the object has been merged.
+   *
+   * @param aDtoObj {@link IDtoObject} object
+   */
+  default void onObjMerged( IDtoObject aDtoObj ) {
+    // nop
+  }
+
+  /**
+   * Called after the object has been removed.
+   *
+   * @param aDtoObj {@link IDtoObject} object
+   */
+  default void onObjRemoved( IDtoObject aDtoObj ) {
     // nop
   }
 

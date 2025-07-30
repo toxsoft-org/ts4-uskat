@@ -78,6 +78,7 @@ public abstract class AbstractDtoObjectRivetManager
         }
         IDtoObject rightObj = doFindObject( rightObjId );
         if( rightObj == null ) {
+          rightObj = doFindObject( rightObjId );
           throw new TsItemNotFoundRtException( ERR_RR_ROBJ_NOT_FOUND, M_CREATE_RR, leftObjId, rivetClassId, rivetId,
               rightObjId );
         }
@@ -300,7 +301,7 @@ public abstract class AbstractDtoObjectRivetManager
           mappedSkids = new MappedSkids();
           newRivetRevs.put( rivetClassId, mappedSkids );
         }
-        mappedSkids.map().put( rivetId, newSkidList );
+        mappedSkids.map().put( rivetId, new SkidList( newSkidList ) );
 
         if( newSkidList.size() == 0 ) {
           mappedSkids.map().removeByKey( rivetId );
