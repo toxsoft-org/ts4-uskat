@@ -32,6 +32,7 @@ import org.toxsoft.uskat.core.backend.api.*;
 import org.toxsoft.uskat.core.utils.*;
 import org.toxsoft.uskat.s5.common.sysdescr.*;
 import org.toxsoft.uskat.s5.server.backend.impl.*;
+import org.toxsoft.uskat.s5.server.backend.supports.core.*;
 import org.toxsoft.uskat.s5.server.backend.supports.events.*;
 import org.toxsoft.uskat.s5.server.backend.supports.sysdescr.*;
 import org.toxsoft.uskat.s5.server.frontend.*;
@@ -75,6 +76,12 @@ public class S5BackendObjectsSingleton
    */
   @Resource
   private DataSource dataSource;
+
+  /**
+   * Ядро сервера
+   */
+  @EJB
+  private IS5BackendCoreSingleton backendCore;
 
   /**
    * backend управления классами системы
@@ -352,22 +359,21 @@ public class S5BackendObjectsSingleton
     boolean needFrontendNotify = (rc > 0 || cc > 0 || uc > 0);
 
     if( needFrontendNotify ) {
-      IList<IS5FrontendRear> frontends = backend().attachedFrontends();
       if( rc == 1 ) {
         // Отправление события об удалении объекта
-        fireWhenObjectsChanged( frontends, ECrudOp.REMOVE, removedObjs.values().first().first().skid() );
+        fireWhenObjectsChanged( backendCore, ECrudOp.REMOVE, removedObjs.values().first().first().skid() );
       }
       if( cc == 1 ) {
         // Отправление события об создании объекта
-        fireWhenObjectsChanged( frontends, ECrudOp.CREATE, createdObjs.values().first().first().skid() );
+        fireWhenObjectsChanged( backendCore, ECrudOp.CREATE, createdObjs.values().first().first().skid() );
       }
       if( uc == 1 ) {
         // Отправление события об обновлении объекта
-        fireWhenObjectsChanged( frontends, ECrudOp.EDIT, updatedObjs.values().first().first().left().skid() );
+        fireWhenObjectsChanged( backendCore, ECrudOp.EDIT, updatedObjs.values().first().first().left().skid() );
       }
       if( rc + cc + uc > 1 ) {
         // Отправление события об обновлении объектов
-        fireWhenObjectsChanged( frontends, ECrudOp.LIST, null );
+        fireWhenObjectsChanged( backendCore, ECrudOp.LIST, null );
       }
     }
     if( logger().isSeverityOn( ELogSeverity.INFO ) ) {
@@ -529,17 +535,15 @@ public class S5BackendObjectsSingleton
   /**
    * Формирование события: произошло изменение объектов системы
    *
-   * @param aFrontends {@link IS5FrontendRear} список фронтендов подключенных к бекенду
+   * @param aEventer {@link IS5BackendEventer} передатчик сообщений бекенда
    * @param aOp {@link ECrudOp} тип операции над объектами
    * @param aObjectId {@link Skid} идентификатор объекта или null для {@link ECrudOp#LIST}.
    * @throws TsNullArgumentRtException аргумент = null
    */
-  private static void fireWhenObjectsChanged( IList<IS5FrontendRear> aFrontends, ECrudOp aOp, Skid aObjectId ) {
-    TsNullArgumentRtException.checkNulls( aFrontends, aOp );
+  private static void fireWhenObjectsChanged( IS5BackendEventer aEventer, ECrudOp aOp, Skid aObjectId ) {
+    TsNullArgumentRtException.checkNulls( aEventer, aOp );
     TsNullArgumentRtException.checkTrue( aOp != ECrudOp.LIST && aObjectId == null );
     GtMessage message = IBaObjectsMessages.makeMessage( aOp, aObjectId );
-    for( IS5FrontendRear frontend : aFrontends ) {
-      frontend.onBackendMessage( message );
-    }
+    aEventer.fireBackendMessage( message );
   }
 }

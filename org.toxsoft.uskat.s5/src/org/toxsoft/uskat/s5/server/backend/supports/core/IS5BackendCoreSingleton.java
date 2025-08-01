@@ -3,7 +3,6 @@ package org.toxsoft.uskat.s5.server.backend.supports.core;
 import javax.ejb.*;
 import javax.persistence.*;
 
-import org.toxsoft.core.tslib.bricks.events.msg.*;
 import org.toxsoft.core.tslib.utils.errors.*;
 import org.toxsoft.uskat.core.backend.*;
 import org.toxsoft.uskat.core.backend.api.*;
@@ -22,7 +21,7 @@ import org.toxsoft.uskat.s5.server.transactions.*;
  */
 @Local
 public interface IS5BackendCoreSingleton
-    extends IS5BackendSupportRegistry, IS5FrontendAttachable {
+    extends IS5BackendSupportRegistry, IS5FrontendAttachable, IS5BackendEventer {
 
   /**
    * Возвращает информацию о сервере.
@@ -160,11 +159,4 @@ public interface IS5BackendCoreSingleton
    */
   void removeBackendCoreInterceptor( IS5BackendCoreInterceptor aInterceptor );
 
-  /**
-   * Формирование сообщение бекенда.
-   *
-   * @param aMessage {@link GtMessage} - сообщение бекенда.
-   * @throws TsNullArgumentRtException аргумент = null
-   */
-  void fireBackendMessage( GtMessage aMessage );
 }
