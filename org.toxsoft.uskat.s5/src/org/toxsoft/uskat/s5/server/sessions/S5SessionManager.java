@@ -280,7 +280,7 @@ public class S5SessionManager
   @Override
   protected void doInit() {
     // Информация о бекенде сервера (это необходимо сделать до вызова setSessionManager(...) чтобы не было рекурсии
-    ISkBackendInfo info = backendCoreSingleton.getInfo();
+    ISkBackendInfo info = backendCoreSingleton.getBackendInfo();
     // Бизнес-API
     IS5SessionManager sessionManager = sessionContext().getBusinessObject( IS5SessionManager.class );
     // Регистрация менеджера сессий в ядре бекенда

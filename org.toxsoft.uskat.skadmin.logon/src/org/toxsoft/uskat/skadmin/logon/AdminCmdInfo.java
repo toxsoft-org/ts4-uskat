@@ -24,6 +24,7 @@ import org.toxsoft.core.tslib.bricks.validator.vrl.*;
 import org.toxsoft.core.tslib.coll.*;
 import org.toxsoft.core.tslib.coll.impl.*;
 import org.toxsoft.core.tslib.coll.primtypes.*;
+import org.toxsoft.core.tslib.coll.primtypes.impl.*;
 import org.toxsoft.core.tslib.gw.skid.*;
 import org.toxsoft.core.tslib.utils.*;
 import org.toxsoft.core.tslib.utils.errors.*;
@@ -77,6 +78,8 @@ public class AdminCmdInfo
     addArg( ARG_INFO_INTERVAL );
     // Вывод информации о платформе
     addArg( ARG_INFO_PLATFORM );
+    // Вывод параметров из backendInfo
+    addArg( ARG_BACKEND_INFO_PARAMS );
     // Вывод информации о транзакциях
     addArg( ARG_INFO_TRANSACTIONS );
     // Вывод информации об открытых сессиях
@@ -130,6 +133,7 @@ public class AdminCmdInfo
   public void doExec( IStringMap<IPlexyValue> aArgValues, IAdminCmdCallback aCallback ) {
     ISkConnection connection = argSingleRef( CTX_SK_CONNECTION );
     boolean showPlatform = argSingleValue( ARG_INFO_PLATFORM ).asBool();
+    String backendInfoParams = argSingleValue( ARG_BACKEND_INFO_PARAMS ).asString().trim();
     boolean showTransaction = argSingleValue( ARG_INFO_TRANSACTIONS ).asBool();
     boolean showOpenSessions = argSingleValue( ARG_INFO_OPEN_SESSIONS ).asBool();
     boolean showCloseSessions = argSingleValue( ARG_INFO_CLOSE_SESSIONS ).asBool();
@@ -178,6 +182,17 @@ public class AdminCmdInfo
       // Вывод информации об использовании non-heap памяти
       addResultInfo( MSG_INFO_NON_HEAP_USAGE_INFO,
           OP_BACKEND_NON_HEAP_MEMORY_USAGE.getValue( info.params() ).asString() );
+    }
+    if( backendInfoParams.length() > 0 ) {
+      IStringList paramsIds = new StringArrayList( backendInfoParams.split( "," ) ); //$NON-NLS-1$
+      addResultInfo( MSG_INFO_LINE );
+      addResultInfo( MSG_INFO_BACKEND_INFO );
+      for( String key : info.params().keys() ) {
+        if( backendInfoParams.equals( "*" ) || paramsIds.hasElem( key ) ) { //$NON-NLS-1$
+          addResultInfo( "%s = %s\n", key, info.params().getValue( key ) ); //$NON-NLS-1$
+        }
+      }
+      addResultInfo( MSG_INFO_LINE );
     }
     if( showTransaction ) {
       // Вывод списка активных транзакций
@@ -364,7 +379,7 @@ public class AdminCmdInfo
       // Параметры подключения клиента к серверу
       IOptionSet clientOptions = session.clientOptions();
       // Имя программы клиента
-      String clientProgram = IS5ConnectionParams.OP_CLIENT_PROGRAM.getValue( clientOptions ).asString();
+      // String clientProgram = IS5ConnectionParams.OP_CLIENT_PROGRAM.getValue( clientOptions ).asString();
       // Версия клиента
       TsVersion clientVersion = IS5ConnectionParams.OP_CLIENT_VERSION.getValue( clientOptions ).asValobj();
       // if( unknownClientType == true ) {
@@ -495,7 +510,7 @@ public class AdminCmdInfo
       // Параметры подключения клиента к серверу
       IOptionSet clientOptions = session.clientOptions();
       // Имя программы клиента
-      String clientProgram = IS5ConnectionParams.OP_CLIENT_PROGRAM.getValue( clientOptions ).asString();
+      // String clientProgram = IS5ConnectionParams.OP_CLIENT_PROGRAM.getValue( clientOptions ).asString();
       // Версия клиента
       TsVersion clientVersion = IS5ConnectionParams.OP_CLIENT_VERSION.getValue( clientOptions ).asValobj();
 

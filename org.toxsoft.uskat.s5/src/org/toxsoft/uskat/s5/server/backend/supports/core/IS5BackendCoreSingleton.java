@@ -3,6 +3,7 @@ package org.toxsoft.uskat.s5.server.backend.supports.core;
 import javax.ejb.*;
 import javax.persistence.*;
 
+import org.toxsoft.core.tslib.av.*;
 import org.toxsoft.core.tslib.utils.errors.*;
 import org.toxsoft.uskat.core.backend.*;
 import org.toxsoft.uskat.core.backend.api.*;
@@ -28,7 +29,18 @@ public interface IS5BackendCoreSingleton
    *
    * @return {@link ISkBackendInfo} информация о сервере.
    */
-  ISkBackendInfo getInfo();
+  ISkBackendInfo getBackendInfo();
+
+  /**
+   * Установить значение параметра в информации о сервере
+   * <p>
+   * Если значение параметра уже было в информации о сервере, то его значение переписывается.
+   *
+   * @param aParamId String идентификатор параметра.
+   * @param aParamValue {@link IAtomicValue} значение параметра
+   * @throws TsNullArgumentRtException любой аргумент = null
+   */
+  void setBackendInfoParam( String aParamId, IAtomicValue aParamValue );
 
   /**
    * Возвращает фабрика менеджеров постоянства Application Managed Entity Manager (используемых для многопоточной

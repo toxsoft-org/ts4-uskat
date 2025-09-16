@@ -171,7 +171,8 @@ public class S5BackendSkatletsSingleton
     PLUGINS_DIR.setValue( environ.params(), avValobj( new StringArrayList( SKATLETS_DEPLOYMENTS_DIR ) ) );
     TMP_DIR.setValue( environ.params(), avStr( SKATLETS_TEMP_DIR ) );
     CLEAN_TMP_DIR.setValue( environ.params(), avBool( true ) );
-    REF_SKATLET_SUPPORT.setRef( environ, new S5BackendSkatletSupport( localConnectionSingleton, logger() ) );
+    REF_SKATLET_SUPPORT.setRef( environ,
+        new S5BackendSkatletSupport( backendCore, localConnectionSingleton, logger() ) );
     OPDEF_SKATLETS_LOAD_ORDER.setValue( params, SKATLETS_LOAD_ORDERSKATLETS_LOAD_ORDER.getValue( configuration ) );
 
     // Создание корневого контейнера...

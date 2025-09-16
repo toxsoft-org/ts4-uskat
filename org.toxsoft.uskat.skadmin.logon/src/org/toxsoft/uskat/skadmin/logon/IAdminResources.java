@@ -81,6 +81,8 @@ interface IAdminResources {
   String STR_CMD_INFO                = "Возвращает информацию о текущем состоянии сервера";
   String STR_ARG_INFO_INTERVAL       = "Интервал запрашиваемой статитстики. Допустимые значения: ";
   String STR_ARG_INFO_PLATFORM       = "Требование вывода информации о платформе (память, загруженность)";
+  String STR_ARG_BACKEND_INFO_PARAMS =
+      "Требование вывода указанных параметров из ({@link ISkBackend#getBackendInfo()}). * - все параметры";
   String STR_ARG_INFO_TRANSACTIONS   = "Требование вывода информации о транзакциях";
   String STR_ARG_INFO_OPEN_SESSIONS  = "Требование вывода информации об открытых сессиях";
   String STR_ARG_INFO_CLOSE_SESSIONS = "Требование вывода информации об закрытых сессиях";
@@ -108,6 +110,7 @@ interface IAdminResources {
   String MSG_INFO_HEAP_USAGE_INFO       = "Использование heap памяти: \n%s";
   String MSG_INFO_NON_HEAP_USAGE_INFO   = "Использование non-heap памяти: \n%s";
   String MSG_INFO_CREATE_CHECKFILE      = "Создан файл проверки сессий клиентов: %s\n";
+  String MSG_INFO_BACKEND_INFO          = "ISkBackendInfo: \n";
   String MSG_INFO_LINE                  =
       "-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------\n";
   String MSG_INFO_TX_LEGEND             =

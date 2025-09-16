@@ -263,7 +263,7 @@ public abstract class S5BackendSupportSingleton
    */
   protected final Skid nodeId() {
     // Информация о бекенде
-    ISkBackendInfo info = backend().getInfo();
+    ISkBackendInfo info = backend().getBackendInfo();
     // Идентификатор узла сервера
     Skid nodeId = OP_SERVER_NODE_ID.getValue( info.params() ).asValobj();
     return nodeId;

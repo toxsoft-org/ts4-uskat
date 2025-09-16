@@ -1,16 +1,18 @@
 package org.toxsoft.uskat.skadmin.logon;
 
 import static org.toxsoft.core.tslib.av.EAtomicType.*;
+import static org.toxsoft.core.tslib.av.impl.AvUtils.*;
 import static org.toxsoft.core.tslib.utils.TsLibUtils.*;
 import static org.toxsoft.uskat.legacy.plexy.impl.PlexyValueUtils.*;
 import static org.toxsoft.uskat.s5.utils.collections.S5CollectionUtils.*;
 import static org.toxsoft.uskat.skadmin.core.plugins.AdminPluginUtils.*;
 import static org.toxsoft.uskat.skadmin.logon.IAdminResources.*;
 
-import org.toxsoft.core.tslib.av.EAtomicType;
-import org.toxsoft.uskat.s5.server.statistics.EStatisticInterval;
-import org.toxsoft.uskat.skadmin.core.IAdminCmdArgDef;
-import org.toxsoft.uskat.skadmin.core.impl.AdminCmdArgDef;
+import org.toxsoft.core.tslib.av.*;
+import org.toxsoft.uskat.core.backend.*;
+import org.toxsoft.uskat.s5.server.statistics.*;
+import org.toxsoft.uskat.skadmin.core.*;
+import org.toxsoft.uskat.skadmin.core.impl.*;
 
 /**
  * Константы пакета.
@@ -157,50 +159,57 @@ interface IAdminHardConstants {
   /**
    * Аргумент {@link AdminCmdInfo}: Интервал статистики
    */
-  IAdminCmdArgDef ARG_INFO_INTERVAL = new AdminCmdArgDef( "interval", createType( EAtomicType.STRING, "min" ),
+  IAdminCmdArgDef ARG_INFO_INTERVAL = new AdminCmdArgDef( "interval", createType( EAtomicType.STRING, avStr( "min" ) ),
       STR_ARG_INFO_INTERVAL + itemsToString( EStatisticInterval.asStridablesList() ) );
 
   /**
    * Аргумент {@link AdminCmdInfo}: Требование вывода информации о платформе
    */
   IAdminCmdArgDef ARG_INFO_PLATFORM =
-      new AdminCmdArgDef( "platform", "p", createType( BOOLEAN, "false" ), STR_ARG_INFO_PLATFORM );
+      new AdminCmdArgDef( "platform", "p", createType( BOOLEAN, avBool( false ) ), STR_ARG_INFO_PLATFORM );
+
+  /**
+   * Аргумент {@link AdminCmdInfo}: Требование вывода указанных параметров из {@link ISkBackend#getBackendInfo()}. * -
+   * все параметры.
+   */
+  IAdminCmdArgDef ARG_BACKEND_INFO_PARAMS =
+      new AdminCmdArgDef( "backendInfoParams", "", createType( STRING, avStr( "" ) ), STR_ARG_BACKEND_INFO_PARAMS );
 
   /**
    * Аргумент {@link AdminCmdInfo}: Требование вывода информации о транзакциях
    */
   IAdminCmdArgDef ARG_INFO_TRANSACTIONS =
-      new AdminCmdArgDef( "transactions", "t", createType( BOOLEAN, "false" ), STR_ARG_INFO_TRANSACTIONS );
+      new AdminCmdArgDef( "transactions", "t", createType( BOOLEAN, avBool( false ) ), STR_ARG_INFO_TRANSACTIONS );
 
   /**
    * Аргумент {@link AdminCmdInfo}: Требование вывода информации об открытых сессиях
    */
   IAdminCmdArgDef ARG_INFO_OPEN_SESSIONS =
-      new AdminCmdArgDef( "openSessions", "o", createType( BOOLEAN, "true" ), STR_ARG_INFO_OPEN_SESSIONS );
+      new AdminCmdArgDef( "openSessions", "o", createType( BOOLEAN, avBool( true ) ), STR_ARG_INFO_OPEN_SESSIONS );
 
   /**
    * Аргумент {@link AdminCmdInfo}: Требование вывода информации о закрытых сессиях
    */
   IAdminCmdArgDef ARG_INFO_CLOSE_SESSIONS =
-      new AdminCmdArgDef( "closeSessions", "c", createType( BOOLEAN, "false" ), STR_ARG_INFO_CLOSE_SESSIONS );
+      new AdminCmdArgDef( "closeSessions", "c", createType( BOOLEAN, avBool( false ) ), STR_ARG_INFO_CLOSE_SESSIONS );
 
   /**
    * Аргумент {@link AdminCmdInfo}: Требование вывода информации о топологии кластеров доступных клиенту
    */
   IAdminCmdArgDef ARG_INFO_TOPOLOGY =
-      new AdminCmdArgDef( "topology", createType( BOOLEAN, "false" ), STR_ARG_INFO_TOPOLOGY );
+      new AdminCmdArgDef( "topology", createType( BOOLEAN, avBool( false ) ), STR_ARG_INFO_TOPOLOGY );
 
   /**
    * Аргумент {@link AdminCmdInfo}: Требование вывода информации о приеме/передаче хранимых данных клиентам
    */
   IAdminCmdArgDef ARG_INFO_HISTDATA =
-      new AdminCmdArgDef( "histdata", createType( BOOLEAN, "false" ), STR_ARG_INFO_HISTDATA );
+      new AdminCmdArgDef( "histdata", createType( BOOLEAN, avBool( false ) ), STR_ARG_INFO_HISTDATA );
 
   /**
    * Аргумент {@link AdminCmdInfo}: Имя текстового файла (в каталоге data), в формате \"имя_клиента, ip-адрес\" для
    * контроля связи с клиентом
    */
   IAdminCmdArgDef ARG_INFO_CHECKFILE =
-      new AdminCmdArgDef( "checkfile", createType( STRING, "clients.txt" ), STR_ARG_INFO_CHECKFILE );
+      new AdminCmdArgDef( "checkfile", createType( STRING, avStr( "clients.txt" ) ), STR_ARG_INFO_CHECKFILE );
 
 }

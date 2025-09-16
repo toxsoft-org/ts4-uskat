@@ -20,6 +20,7 @@ import javax.ejb.*;
 import javax.persistence.*;
 import javax.sql.*;
 
+import org.toxsoft.core.tslib.av.*;
 import org.toxsoft.core.tslib.av.opset.*;
 import org.toxsoft.core.tslib.bricks.events.msg.*;
 import org.toxsoft.core.tslib.bricks.time.impl.*;
@@ -311,7 +312,7 @@ public class S5BackendCoreSingleton
   //
   @Override
   @TransactionAttribute( TransactionAttributeType.SUPPORTS )
-  public ISkBackendInfo getInfo() {
+  public ISkBackendInfo getBackendInfo() {
     // Размещение текущей информации о сервере (backend)
     synchronized (backendInfo) {
       try {
@@ -332,6 +333,22 @@ public class S5BackendCoreSingleton
     }
 
     return backendInfo;
+  }
+
+  @Override
+  @TransactionAttribute( TransactionAttributeType.SUPPORTS )
+  public void setBackendInfoParam( String aParamId, IAtomicValue aParamValue ) {
+    TsNullArgumentRtException.checkNulls( aParamId, aParamValue );
+    // Размещение текущей информации о сервере (backend)
+    synchronized (backendInfo) {
+      try {
+        // TODO: игнорировать установку built-in значений
+        backendInfo.params().setValue( aParamId, aParamValue );
+      }
+      catch( Throwable e ) {
+        logger().error( e );
+      }
+    }
   }
 
   @Override
@@ -526,7 +543,7 @@ public class S5BackendCoreSingleton
       throw e;
     }
     // Информация о бекенде
-    ISkBackendInfo info = getInfo();
+    ISkBackendInfo info = getBackendInfo();
     // Идентификатор узла сервера
     Skid nodeId = OP_SERVER_NODE_ID.getValue( info.params() ).asValobj();
     // Создание писателя статистики узла сервера

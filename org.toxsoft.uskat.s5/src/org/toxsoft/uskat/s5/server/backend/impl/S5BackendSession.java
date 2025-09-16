@@ -297,7 +297,7 @@ public class S5BackendSession
       logger().info( MSG_CREATE_SESSION_REQUEST, login, sessionID, remoteAddress, remotePort );
 
       // Информация о бекенде сервера
-      ISkBackendInfo info = backendCoreSingleton.getInfo();
+      ISkBackendInfo info = backendCoreSingleton.getBackendInfo();
       // Идентификатор сервера
       String serverId = ((Skid)OP_SERVER_ID.getValue( info.params() ).asValobj()).strid();
 
@@ -617,7 +617,7 @@ public class S5BackendSession
   @TransactionAttribute( TransactionAttributeType.SUPPORTS )
   public ISkBackendInfo getBackendInfo() {
     // Запрос текущей информации о сервере (backend)
-    ISkBackendInfo backendInfo = backendCoreSingleton.getInfo();
+    ISkBackendInfo backendInfo = backendCoreSingleton.getBackendInfo();
     // Информация о сессии
     IS5SessionInfo sessionInfo = sessionInfo();
     // Формирование информации сессии бекенда

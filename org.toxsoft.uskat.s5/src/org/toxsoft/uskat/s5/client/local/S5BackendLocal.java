@@ -129,7 +129,7 @@ public final class S5BackendLocal
   @Override
   protected IOptionSet getBackendInfoOptions() {
     // Запрос текущей информации о сервере (backend)
-    ISkBackendInfo backendInfo = backendSingleton.getInfo();
+    ISkBackendInfo backendInfo = backendSingleton.getBackendInfo();
     // Формирование информации сессии бекенда
     IOptionSetEdit retValue = new OptionSet( backendInfo.params() );
     // Информация о зарегистрированном пользователе

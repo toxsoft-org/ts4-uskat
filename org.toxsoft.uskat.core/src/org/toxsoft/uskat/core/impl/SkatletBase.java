@@ -2,6 +2,7 @@ package org.toxsoft.uskat.core.impl;
 
 import static org.toxsoft.uskat.core.impl.ISkResources.*;
 
+import org.toxsoft.core.tslib.av.*;
 import org.toxsoft.core.tslib.av.opset.*;
 import org.toxsoft.core.tslib.bricks.ctx.*;
 import org.toxsoft.core.tslib.bricks.strid.impl.*;
@@ -45,6 +46,31 @@ public abstract class SkatletBase
    */
   protected final ITsContextRo environ() {
     return environ;
+  }
+
+  /**
+   * Возвращает значение параметра из информации о сервере.
+   *
+   * @param aParamId String идентификатор параметра.
+   * @param aDefaultValue {@link IAtomicValue} значение по умолчанию
+   * @return aParamValue {@link IAtomicValue} значение параметра
+   * @throws TsNullArgumentRtException любой аргумент = null
+   */
+  IAtomicValue getBackendInfoParam( String aParamId, IAtomicValue aDefaultValue ) {
+    return ISkatlet.REF_SKATLET_SUPPORT.getRef( environ ).getBackendInfoParam( aParamId, aDefaultValue );
+  }
+
+  /**
+   * Установить значение параметра в информации о сервере
+   * <p>
+   * Если значение параметра уже было в информации о сервере, то его значение переписывается.
+   *
+   * @param aParamId String идентификатор параметра.
+   * @param aParamValue {@link IAtomicValue} значение параметра
+   * @throws TsNullArgumentRtException любой аргумент = null
+   */
+  protected final void setBackendInfoParam( String aParamId, IAtomicValue aParamValue ) {
+    ISkatlet.REF_SKATLET_SUPPORT.getRef( environ ).setBackendInfoParam( aParamId, aParamValue );
   }
 
   /**
