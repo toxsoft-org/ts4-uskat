@@ -3,6 +3,7 @@ package org.toxsoft.uskat.core.gui.conn;
 import org.eclipse.swt.widgets.*;
 import org.toxsoft.core.tslib.bricks.threadexec.*;
 import org.toxsoft.core.tslib.utils.errors.*;
+import org.toxsoft.core.tslib.utils.logs.*;
 
 /**
  * Реализация {@link ITsThreadExecutor} для GUI (SWT)
@@ -13,6 +14,8 @@ public final class SkGuiThreadExecutor
     implements ITsThreadExecutor {
 
   private final Display display;
+  @SuppressWarnings( "unused" )
+  private ILogger       logger;
 
   /**
    * Constructor.
@@ -53,6 +56,12 @@ public final class SkGuiThreadExecutor
       return;
     }
     asyncExec( () -> display.timerExec( aMilliseconds, aRunnable ) );
+  }
+
+  @Override
+  public void setLogger( ILogger aLogger ) {
+    TsNullArgumentRtException.checkNull( aLogger );
+    logger = aLogger;
   }
 
   // ------------------------------------------------------------------------------------

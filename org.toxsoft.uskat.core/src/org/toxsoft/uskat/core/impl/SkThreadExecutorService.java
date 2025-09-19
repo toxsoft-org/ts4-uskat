@@ -3,6 +3,7 @@ package org.toxsoft.uskat.core.impl;
 import org.toxsoft.core.tslib.bricks.ctx.*;
 import org.toxsoft.core.tslib.bricks.threadexec.*;
 import org.toxsoft.core.tslib.utils.errors.*;
+import org.toxsoft.core.tslib.utils.logs.*;
 import org.toxsoft.uskat.core.*;
 import org.toxsoft.uskat.core.devapi.*;
 
@@ -79,6 +80,12 @@ public class SkThreadExecutorService
   public void timerExec( int aMilliseconds, Runnable aRunnable ) {
     TsNullArgumentRtException.checkNull( aRunnable );
     threadExecutor.timerExec( aMilliseconds, aRunnable );
+  }
+
+  @Override
+  public void setLogger( ILogger aLogger ) {
+    TsNullArgumentRtException.checkNull( aLogger );
+    threadExecutor.setLogger( aLogger );
   }
 
   // ------------------------------------------------------------------------------------
