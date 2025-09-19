@@ -137,6 +137,10 @@ public class SdedObjectEditor
   }
 
   private Object whenObjectsChanged( ECrudOp aOp, Skid aSkid ) {
+    if( aSkid == null ) {
+      // nothing todo
+      return null;
+    }
     // обновим левый список объектов
     objectListPane.refresh();
     // теперь поищем в открытых закладках изменившийся объект
