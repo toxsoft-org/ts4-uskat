@@ -1,9 +1,10 @@
 package org.toxsoft.uskat.core.api.cmdserv;
 
-import org.toxsoft.core.tslib.av.errors.*;
 import org.toxsoft.core.tslib.av.opset.*;
 import org.toxsoft.core.tslib.bricks.events.change.*;
 import org.toxsoft.core.tslib.bricks.time.*;
+import org.toxsoft.core.tslib.bricks.validator.*;
+import org.toxsoft.core.tslib.bricks.validator.impl.*;
 import org.toxsoft.core.tslib.gw.gwid.*;
 import org.toxsoft.core.tslib.gw.skid.*;
 import org.toxsoft.core.tslib.utils.errors.*;
@@ -34,9 +35,8 @@ public interface ISkCommandService
    * @param aArgs {@link IOptionSet} - command arguments values
    * @return {@link ISkCommand} - created command instance
    * @throws TsNullArgumentRtException any argument = <code>null</code>
-   * @throws TsIllegalArgumentRtException illegal or non-existing command GWID
-   * @throws TsIllegalArgumentRtException illegal or non-existing author SKID
-   * @throws AvTypeCastRtException incompatible argument type
+   * @throws TsValidationFailedRtException failed
+   *           {@link ISkCommandServiceValidator#canSendCommand(Gwid, Skid, IOptionSet)}
    */
   ISkCommand sendCommand( Gwid aCmdGwid, Skid aAuthorSkid, IOptionSet aArgs );
 
@@ -113,7 +113,6 @@ public interface ISkCommandService
 
   // ------------------------------------------------------------------------------------
   // Global GWIDs handling
-  //
 
   /**
    * Returns list of concrete command GWIDs that have executers assigned.
@@ -137,5 +136,15 @@ public interface ISkCommandService
    * @return {@link IGenericChangeEventer} - the eventer
    */
   IGenericChangeEventer globallyHandledGwidsEventer();
+
+  // ------------------------------------------------------------------------------------
+  // Service support
+
+  /**
+   * Returns the service validator.
+   *
+   * @return {@link ITsValidationSupport}&lt;{@link ISkCommandServiceValidator}&gt; - the service validator
+   */
+  ITsValidationSupport<ISkCommandServiceValidator> svs();
 
 }
