@@ -1,14 +1,13 @@
 package org.toxsoft.uskat.core.backend.api;
 
-import org.toxsoft.core.tslib.av.opset.IOptionSet;
-import org.toxsoft.core.tslib.bricks.time.ITimeInterval;
-import org.toxsoft.core.tslib.bricks.time.ITimedList;
-import org.toxsoft.core.tslib.gw.gwid.Gwid;
-import org.toxsoft.core.tslib.gw.gwid.IGwidList;
-import org.toxsoft.core.tslib.gw.skid.Skid;
+import org.toxsoft.core.tslib.av.opset.*;
+import org.toxsoft.core.tslib.bricks.time.*;
+import org.toxsoft.core.tslib.bricks.validator.*;
+import org.toxsoft.core.tslib.gw.gwid.*;
+import org.toxsoft.core.tslib.gw.skid.*;
 import org.toxsoft.uskat.core.api.cmdserv.*;
-import org.toxsoft.uskat.core.backend.ISkBackendHardConstant;
-import org.toxsoft.uskat.core.impl.SkCommand;
+import org.toxsoft.uskat.core.backend.*;
+import org.toxsoft.uskat.core.impl.*;
 
 /**
  * Backend addon to wirk with commands.
@@ -36,6 +35,26 @@ public interface IBaCommands
    * @return {@link SkCommand} - created command
    */
   SkCommand sendCommand( Gwid aCmdGwid, Skid aAuthorSkid, IOptionSet aArgs );
+
+  /**
+   * Checks if command can be sent.
+   * <p>
+   * The successful check does not guarantees that {@link #sendCommand(Gwid, Skid, IOptionSet)} will succeed, however if
+   * check fails, sending command will definitely throw an exception.
+   *
+   * @param aCmdGwid {@link Gwid} - concrete GWID of the command
+   * @param aAuthorSkid {@link Skid} - command author's SKID
+   * @param aArgs {@link IOptionSet} - command arguments
+   * @return {@link ValidationResult} - the check result
+   */
+  default ValidationResult canSendCommand( Gwid aCmdGwid, Skid aAuthorSkid, IOptionSet aArgs ) {
+    /**
+     * FIXME GOGA 2025-09-25<br>
+     * This method is temporarily declared as 'default' one to avoid compile-time errors. As soon as development
+     * finishes the method must be declared abstract.
+     */
+    return ValidationResult.SUCCESS;
+  }
 
   /**
    * Tells backend which GWIDs of command have executors registered in caller frontend.

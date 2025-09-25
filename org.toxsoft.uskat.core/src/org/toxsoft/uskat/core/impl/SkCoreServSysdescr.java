@@ -469,10 +469,10 @@ public class SkCoreServSysdescr
    * <p>
    * This method guards against corrupted data read from the backend.
    * <p>
-   * In any case when method returns true it also logs appropriate error message.
+   * In any case when method returns <code>false</code> it also logs appropriate error message.
    *
    * @param aClassDto {@link IDtoClassInfo} - info about class to be used in Sysdescr
-   * @param aAncestors {@link IStridablesList}&lt;{@link IDtoClassInfo}&gt; - list wilh all ansestors
+   * @param aAncestors {@link IStridablesList}&lt;{@link IDtoClassInfo}&gt; - list with all ancestors
    * @return boolean - <code>true</code> class is vali9d, <code>false</code> - class must be ignored
    */
   private boolean isValidToUseClass( IDtoClassInfo aClassDto, IStridablesList<IDtoClassInfo> aAncestors ) {

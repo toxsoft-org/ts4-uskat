@@ -65,9 +65,12 @@ interface ISkResources {
   /**
    * {@link SkCoreServCommands}
    */
+  String FMT_ERR_CMD_GWID_IS_INVALID      = Messages.getString( "FMT_ERR_CMD_GWID_IS_INVALID" );
   String FMT_ERR_CMD_CLASS_NOT_EXIST      = Messages.getString( "FMT_ERR_CMD_CLASS_NOT_EXIST" );
   String FMT_ERR_CMD_NOT_EXIST            = Messages.getString( "FMT_ERR_CMD_NOT_EXIST" );
   String FMT_ERR_CMD_AUTHOR_NOT_EXIST     = Messages.getString( "FMT_ERR_CMD_AUTHOR_NOT_EXIST" );
+  String FMT_ERR_CMD_NO_MANDATORY_ARG     = Messages.getString( "FMT_ERR_CMD_NO_MANDATORY_ARG" );
+  String FMT_ERR_CMD_ARG_INV_ATOMIC_TYPE  = Messages.getString( "FMT_ERR_CMD_ARG_INV_ATOMIC_TYPE" );
   String FMT_ERR_UNHANDLED_CMD            = Messages.getString( "FMT_ERR_UNHANDLED_CMD" );
   String FMT_ERR_UNEXPECTED_EXECUTION     = Messages.getString( "FMT_ERR_UNEXPECTED_EXECUTION" );
   String FMT_LOG_WARN_NO_STATE_CHANGE_CMD = Messages.getString( "FMT_LOG_WARN_NO_STATE_CHANGE_CMD" );

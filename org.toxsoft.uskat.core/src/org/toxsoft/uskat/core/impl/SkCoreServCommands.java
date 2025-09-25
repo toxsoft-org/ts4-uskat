@@ -10,6 +10,8 @@ import org.toxsoft.core.tslib.bricks.ctx.*;
 import org.toxsoft.core.tslib.bricks.events.change.*;
 import org.toxsoft.core.tslib.bricks.events.msg.*;
 import org.toxsoft.core.tslib.bricks.time.*;
+import org.toxsoft.core.tslib.bricks.validator.*;
+import org.toxsoft.core.tslib.bricks.validator.impl.*;
 import org.toxsoft.core.tslib.coll.*;
 import org.toxsoft.core.tslib.coll.impl.*;
 import org.toxsoft.core.tslib.coll.primtypes.*;
@@ -41,6 +43,43 @@ public class SkCoreServCommands
   public static final ISkServiceCreator<AbstractSkService> CREATOR = SkCoreServCommands::new;
 
   /**
+   * {@link ISkCommandService#svs()} implementation.
+   *
+   * @author hazard157
+   */
+  class Svs
+      extends AbstractTsValidationSupport<ISkCommandServiceValidator>
+      implements ISkCommandServiceValidator {
+
+    // ------------------------------------------------------------------------------------
+    // AbstractTsValidationSupport
+    //
+
+    @Override
+    public ISkCommandServiceValidator validator() {
+      return this;
+    }
+
+    // ------------------------------------------------------------------------------------
+    // ISkCommandServiceValidator
+    //
+
+    @Override
+    public ValidationResult canSendCommand( Gwid aCmdGwid, Skid aAuthorSkid, IOptionSet aArgs ) {
+      TsNullArgumentRtException.checkNulls( aCmdGwid, aAuthorSkid, aArgs );
+      ValidationResult vr = ValidationResult.SUCCESS;
+      for( ISkCommandServiceValidator v : validatorsList() ) {
+        vr = ValidationResult.firstNonOk( vr, v.canSendCommand( aCmdGwid, aAuthorSkid, aArgs ) );
+        if( vr.isError() ) {
+          return vr;
+        }
+      }
+      return vr;
+    }
+
+  }
+
+  /**
    * Send commands executing now.
    * <p>
    * This is map "command instance ID" - "command"
@@ -53,6 +92,46 @@ public class SkCoreServCommands
   private final IMapEdit<ISkCommandExecutor, IGwidList> registeredExecutors = new ElemMap<>();
 
   private final GenericChangeEventer globallyHandledGwidsEventer;
+  private final Svs                  svs = new Svs();
+
+  private final ISkCommandServiceValidator builtinValidator = ( aCmdGwid, aAuthorSkid, aArgs ) -> {
+    if( aCmdGwid.kind() != EGwidKind.GW_CMD || aCmdGwid.isAbstract() || aCmdGwid.isMulti() ) {
+      return ValidationResult.error( FMT_ERR_CMD_GWID_IS_INVALID, aCmdGwid.toString() );
+    }
+    // check command entities exists
+    ISkClassInfo classInfo = sysdescr().findClassInfo( aCmdGwid.classId() );
+    if( classInfo == null ) {
+      return ValidationResult.error( FMT_ERR_CMD_CLASS_NOT_EXIST, aCmdGwid.classId() );
+    }
+    IDtoCmdInfo cmdInfo = classInfo.cmds().list().findByKey( aCmdGwid.propId() );
+    if( cmdInfo == null ) {
+      return ValidationResult.error( FMT_ERR_CMD_NOT_EXIST, aCmdGwid.propId(), aCmdGwid.classId() );
+    }
+    ISkObject author = coreApi().objService().find( aAuthorSkid );
+    if( author == null ) {
+      return ValidationResult.error( FMT_ERR_CMD_AUTHOR_NOT_EXIST, aAuthorSkid.toString(), aCmdGwid.toString() );
+    }
+    // check command arguments are valid
+    for( IDataDef argInfo : cmdInfo.argDefs() ) {
+      IAtomicValue value = aArgs.getValue( argInfo.id() );
+      // check mandatory arguments
+      if( argInfo.isMandatory() && !aArgs.hasKey( argInfo.id() ) ) {
+        return ValidationResult.error( FMT_ERR_CMD_NO_MANDATORY_ARG, aCmdGwid.toString(), argInfo.id() );
+      }
+
+      // check atomic type of value is compatible to the argument definition
+      if( !AvTypeCastRtException.canAssign( argInfo.atomicType(), value.atomicType() ) ) {
+        return ValidationResult.error( FMT_ERR_CMD_ARG_INV_ATOMIC_TYPE, aCmdGwid.toString(), argInfo.id(),
+            value.atomicType().id(), argInfo.atomicType().id() );
+      }
+      /**
+       * Command argument DataDef constraints mainly are application domain constraints, GUI builder info, etc so they
+       * are considered as hints, not mandatory restrictions. USkat does NOT checks argument values against other
+       * constraints.
+       */
+    }
+    return ba().baCommands().canSendCommand( aCmdGwid, aAuthorSkid, aArgs );
+  };
 
   /**
    * Constructor.
@@ -62,6 +141,7 @@ public class SkCoreServCommands
   SkCoreServCommands( IDevCoreApi aCoreApi ) {
     super( SERVICE_ID, aCoreApi );
     globallyHandledGwidsEventer = new GenericChangeEventer( this );
+    svs.addValidator( builtinValidator );
   }
 
   // ------------------------------------------------------------------------------------
@@ -179,33 +259,7 @@ public class SkCoreServCommands
   @Override
   public ISkCommand sendCommand( Gwid aCmdGwid, Skid aAuthorSkid, IOptionSet aArgs ) {
     checkThread();
-    // check preconditions
-    TsNullArgumentRtException.checkNulls( aCmdGwid, aAuthorSkid, aArgs );
-    TsIllegalArgumentRtException.checkFalse( aCmdGwid.kind() == EGwidKind.GW_CMD );
-    TsIllegalArgumentRtException.checkTrue( aCmdGwid.isAbstract() );
-    TsIllegalArgumentRtException.checkTrue( aCmdGwid.isMulti() );
-    // check command entities exists
-    ISkClassInfo classInfo = sysdescr().findClassInfo( aCmdGwid.classId() );
-    if( classInfo == null ) {
-      throw new TsIllegalArgumentRtException( FMT_ERR_CMD_CLASS_NOT_EXIST, aCmdGwid.classId() );
-    }
-    IDtoCmdInfo cmdInfo = classInfo.cmds().list().findByKey( aCmdGwid.propId() );
-    if( cmdInfo == null ) {
-      throw new TsIllegalArgumentRtException( FMT_ERR_CMD_NOT_EXIST, aCmdGwid.propId(), aCmdGwid.classId() );
-    }
-    ISkObject author = coreApi().objService().find( aAuthorSkid );
-    if( author == null ) {
-      throw new TsIllegalArgumentRtException( FMT_ERR_CMD_AUTHOR_NOT_EXIST, aAuthorSkid );
-    }
-    // check command arguments are valid
-    for( IDataDef argInfo : cmdInfo.argDefs() ) {
-      IAtomicValue value = aArgs.getValue( argInfo.id() );
-      AvTypeCastRtException.checkCanAssign( argInfo.atomicType(), value.atomicType() );
-      /**
-       * Command argument DataDef constraints mainly are application domain constraints, GUI builder info, etc so they
-       * are considered as hints, not mandatory restrictions. USkat does NOT checks argument values against constraints.
-       */
-    }
+    TsValidationFailedRtException.checkError( svs.validator().canSendCommand( aCmdGwid, aAuthorSkid, aArgs ) );
     // send command
     SkCommand cmd = ba().baCommands().sendCommand( aCmdGwid, aAuthorSkid, aArgs );
     if( !cmd.isComplete() ) {
@@ -268,6 +322,11 @@ public class SkCoreServCommands
   public IGwidList listGloballyHandledCommandGwids() {
     checkThread();
     return ba().baCommands().listGloballyHandledCommandGwids();
+  }
+
+  @Override
+  public ITsValidationSupport<ISkCommandServiceValidator> svs() {
+    return svs;
   }
 
   @Override
