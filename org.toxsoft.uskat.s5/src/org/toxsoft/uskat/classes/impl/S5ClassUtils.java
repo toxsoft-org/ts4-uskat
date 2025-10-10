@@ -396,7 +396,7 @@ public class S5ClassUtils {
     // RTDID_STATE
     retValue.rtdataInfos().addAll( //
         DtoRtdataInfo.create1( ISkSession.RTDID_STATE, //
-            DDEF_BOOLEAN, true, true, false, 1000, //
+            DT_BOOLEAN, true, true, false, 1000, //
             OptionSetUtils.createOpSet( //
                 TSID_NAME, STR_RTDID_SESSION_STATE, //
                 TSID_DESCRIPTION, STR_RTDID_SESSION_STATE_D ) //
