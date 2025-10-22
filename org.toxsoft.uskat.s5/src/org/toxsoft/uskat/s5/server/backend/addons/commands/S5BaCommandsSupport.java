@@ -49,6 +49,13 @@ public final class S5BaCommandsSupport
   private final IStringListEdit executingCmds = new StringArrayList( false );
 
   /**
+   * Карта результатов проверки возможности выполнения команд. <br>
+   * Ключ: идентификатор {@link IDtoCommand#instanceId()} команды ожидающей тестирования.<br>
+   * Значение: результат тестирования.
+   */
+  private final IStringMapEdit<ValidationResult> testingCmds = new StringMap<>();
+
+  /**
    * Блокировка доступа к данным класса. (lazy)
    */
   private volatile transient S5Lockable lock;
@@ -78,7 +85,7 @@ public final class S5BaCommandsSupport
   }
 
   /**
-   * Добавляет идентификатор команды в список команд ожидающих выполнения
+   * Добавляет идентификатор команды в список команд ожидающих выполнения.
    * <p>
    * Если команда уже добавлена, то ничего не делает
    * <p>
@@ -96,8 +103,8 @@ public final class S5BaCommandsSupport
       executingCmds.add( aCmdInstanceId );
       if( executingCmds.size() > EXEC_COMMAND_MAX ) {
         // Превышение максимального количества одновременно выполняемых команд
-        String remotCmdId = executingCmds.removeByIndex( executingCmds.size() - 1 );
-        return ValidationResult.warn( ERR_EXEC_CMD_MAX, Integer.valueOf( EXEC_COMMAND_MAX ), remotCmdId );
+        String remoteCmdId = executingCmds.removeByIndex( executingCmds.size() - 1 );
+        return ValidationResult.warn( ERR_EXEC_CMD_MAX, Integer.valueOf( EXEC_COMMAND_MAX ), remoteCmdId );
       }
       return ValidationResult.SUCCESS;
     }
@@ -141,19 +148,40 @@ public final class S5BaCommandsSupport
   }
 
   /**
-   * Удаляет идентификатор команды из списока команд ожидающих выполнения
+   * Определяет результат тестирования команды.
+   * <p>
+   * Если у команды ранее уже был установлен результат, то заменяет его на новый.
+   *
+   * @param aCmdInstanceId String идентификатор команды {@link IDtoCommand#instanceId()}
+   * @param aResult {@link ValidationResult} результат для инициализации.
+   * @return {@link ValidationResult} предыдущий результат. null: неопределено (команда не была зарегистирована)
+   * @throws TsNullArgumentRtException любой аргумент = null
+   */
+  public ValidationResult defineTestResult( String aCmdInstanceId, ValidationResult aResult ) {
+    TsNullArgumentRtException.checkNulls( aCmdInstanceId, aResult );
+    lockWrite( lock() );
+    try {
+      return testingCmds.put( aCmdInstanceId, aResult );
+    }
+    finally {
+      unlockWrite( lock() );
+    }
+  }
+
+  /**
+   * Удаляет идентификатор команды из списка команд ожидающих тестирования.
    * <p>
    * Если команда не зарегистрирована, то ничего не делает
    *
    * @param aCmdId String идентификатор команды {@link IDtoCommand#instanceId()}
-   * @return boolean <b>true</b> команда удалена;<b>false</b> команда не найдена.
+   * @return {@link ValidationResult} результат выполнения тестирования команды; null: команда не найдена.
    * @throws TsNullArgumentRtException любой аргумент = null
    */
-  public boolean removeExecutingCmd( String aCmdId ) {
+  public ValidationResult removeTestResult( String aCmdId ) {
     TsNullArgumentRtException.checkNull( aCmdId );
     lockWrite( lock() );
     try {
-      return (executingCmds.remove( aCmdId ) >= 0);
+      return testingCmds.removeByKey( aCmdId );
     }
     finally {
       unlockWrite( lock() );

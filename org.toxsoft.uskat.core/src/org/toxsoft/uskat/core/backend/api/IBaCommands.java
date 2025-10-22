@@ -25,6 +25,11 @@ public interface IBaCommands
   String ADDON_ID = ISkBackendHardConstant.BAID_COMMANDS;
 
   /**
+   * Test command timeout (msec)
+   */
+  long COMMAND_TEST_TIMEOUT = 10000;
+
+  /**
    * Backend starts command execution if possible.
    * <p>
    * Returned command may in any state, even in completed state.
@@ -47,7 +52,7 @@ public interface IBaCommands
    * @param aArgs {@link IOptionSet} - command arguments
    * @return {@link ValidationResult} - the check result
    */
-  default ValidationResult canSendCommand( Gwid aCmdGwid, Skid aAuthorSkid, IOptionSet aArgs ) {
+  default ValidationResult testCommand( Gwid aCmdGwid, Skid aAuthorSkid, IOptionSet aArgs ) {
     /**
      * FIXME GOGA 2025-09-25<br>
      * This method is temporarily declared as 'default' one to avoid compile-time errors. As soon as development
@@ -75,6 +80,14 @@ public interface IBaCommands
    * @param aStateChangeInfo {@link DtoCommandStateChangeInfo} - new state of the command
    */
   void changeCommandState( DtoCommandStateChangeInfo aStateChangeInfo );
+
+  /**
+   * Request to set the result of the test command.
+   *
+   * @param aInstanceId String - identifier of the testing command ({@link IDtoCommand#instanceId()})
+   * @param aResult {@link ValidationResult} - test result
+   */
+  void changeTestState( String aInstanceId, ValidationResult aResult );
 
   /**
    * Returns list of concrete command GWIDs that have executers assigned.

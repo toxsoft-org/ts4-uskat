@@ -74,6 +74,7 @@ interface ISkResources {
   String FMT_ERR_UNHANDLED_CMD            = Messages.getString( "FMT_ERR_UNHANDLED_CMD" );
   String FMT_ERR_UNEXPECTED_EXECUTION     = Messages.getString( "FMT_ERR_UNEXPECTED_EXECUTION" );
   String FMT_LOG_WARN_NO_STATE_CHANGE_CMD = Messages.getString( "FMT_LOG_WARN_NO_STATE_CHANGE_CMD" );
+  String FMT_ERR_UNEXPECTED_TESTING       = "Unexpected error while testing command: %s";
 
   /**
    * {@link SkCoreServLinks}

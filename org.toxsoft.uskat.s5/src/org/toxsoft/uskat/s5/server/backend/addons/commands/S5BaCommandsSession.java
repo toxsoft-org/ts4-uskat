@@ -98,6 +98,13 @@ public class S5BaCommandsSession
     return retValue;
   }
 
+  @TransactionAttribute( TransactionAttributeType.SUPPORTS )
+  @Override
+  public ValidationResult testCommand( Gwid aCmdGwid, Skid aAuthorSkid, IOptionSet aArgs ) {
+    TsNullArgumentRtException.checkNulls( aCmdGwid, aAuthorSkid, aArgs );
+    return commandsSupport.testCommand( aCmdGwid, aAuthorSkid, aArgs );
+  }
+
   @TransactionAttribute( TransactionAttributeType.NOT_SUPPORTED )
   @Override
   public void setHandledCommandGwids( IGwidList aGwids ) {
@@ -130,6 +137,12 @@ public class S5BaCommandsSession
   public void changeCommandState( DtoCommandStateChangeInfo aStateChangeInfo ) {
     TsNullArgumentRtException.checkNull( aStateChangeInfo );
     commandsSupport.changeCommandState( aStateChangeInfo );
+  }
+
+  @Override
+  public void changeTestState( String aInstanceId, ValidationResult aResult ) {
+    TsNullArgumentRtException.checkNulls( aInstanceId, aResult );
+    commandsSupport.changeTestState( aInstanceId, aResult );
   }
 
   @TransactionAttribute( TransactionAttributeType.SUPPORTS )

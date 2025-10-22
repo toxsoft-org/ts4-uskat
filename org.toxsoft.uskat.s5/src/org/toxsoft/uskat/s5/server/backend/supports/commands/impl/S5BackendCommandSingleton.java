@@ -17,6 +17,7 @@ import org.toxsoft.core.tslib.av.opset.*;
 import org.toxsoft.core.tslib.bricks.strid.coll.*;
 import org.toxsoft.core.tslib.bricks.time.*;
 import org.toxsoft.core.tslib.bricks.time.impl.*;
+import org.toxsoft.core.tslib.bricks.validator.*;
 import org.toxsoft.core.tslib.coll.*;
 import org.toxsoft.core.tslib.coll.impl.*;
 import org.toxsoft.core.tslib.gw.gwid.*;
@@ -125,7 +126,7 @@ public class S5BackendCommandSingleton
   }
 
   // ------------------------------------------------------------------------------------
-  // Реализация IS5BackendQueriesSingleton
+  // Реализация IS5BackendCommandSingleton
   //
   @TransactionAttribute( TransactionAttributeType.SUPPORTS )
   @Override
@@ -176,6 +177,43 @@ public class S5BackendCommandSingleton
     }
   }
 
+  @TransactionAttribute( TransactionAttributeType.SUPPORTS )
+  @Override
+  public ValidationResult testCommand( Gwid aCmdGwid, Skid aAuthorSkid, IOptionSet aArgs ) {
+    TsNullArgumentRtException.checkNulls( aCmdGwid, aAuthorSkid, aArgs );
+    // Фронтенд исполнителя команды
+    IS5FrontendRear frontend = findExecutorFrontend( aCmdGwid );
+    // Данные фронтенда
+    S5BaCommandsData frontendData = findCommandsFrontendData( frontend );
+    if( frontendData == null ) {
+      // фронтенд не поддерживает реальное время
+      return ValidationResult.error( ERR_FRONTEND_DOES_NOT_SUPPORT_CMD, aCmdGwid );
+    }
+    // Идентификатор команды
+    String instanceId = S5CommandIdGenerator.INSTANCE.nextId();
+    // Фиксация факта ожидания выполнения команды
+    synchronized (frontendData.commands) {
+      // Результат тестирования по умолчанию
+      ValidationResult initResult =
+          ValidationResult.error( ERR_TEST_FAILED_BY_TIMEOUT, aCmdGwid, Long.valueOf( COMMAND_TEST_TIMEOUT ) );
+      // Ожидание выполнения тестирования
+      frontendData.commands.defineTestResult( instanceId, initResult );
+      // Команда
+      DtoCommand command = new DtoCommand( System.currentTimeMillis(), instanceId, aCmdGwid, aAuthorSkid, aArgs );
+      // Передача запроса исполнителю
+      frontend.onBackendMessage( BaMsgCommandsTestCmd.INSTANCE.makeMessage( command ) );
+      try {
+        frontendData.commands.wait( COMMAND_TEST_TIMEOUT );
+      }
+      catch( InterruptedException e ) {
+        logger().error( e );
+      }
+    }
+    ValidationResult result = frontendData.commands.removeTestResult( instanceId );
+
+    return result;
+  }
+
   @TransactionAttribute( TransactionAttributeType.NOT_SUPPORTED )
   @Override
   public void setHandledCommandGwids( IGwidList aGwids ) {
@@ -206,6 +244,31 @@ public class S5BackendCommandSingleton
     }
     // Изменение состояния. false: установка состояния уже выполняемой команды
     changeCommandState( cmd.left(), cmd.right(), aStateChangeInfo );
+  }
+
+  @Override
+  public void changeTestState( String aInstanceId, ValidationResult aResult ) {
+    TsNullArgumentRtException.checkNulls( aInstanceId, aResult );
+    // Сообщение frontend
+    for( IS5FrontendRear frontend : backend().attachedFrontends() ) {
+      S5BaCommandsData frontendData = findCommandsFrontendData( frontend );
+      if( frontendData == null ) {
+        // фронтенд не поддерживает реальное время
+        continue;
+      }
+      // Поддержка выполнения команд
+      synchronized (frontendData.commands) {
+        if( frontendData.commands.defineTestResult( aInstanceId, aResult ) == null ) {
+          // Получен результат незарегистрированной команды
+          frontendData.commands.removeTestResult( aInstanceId );
+          // Журнал
+          logger().error( ERR_UNKNOWN_TEST_COMMAND, aInstanceId );
+          continue;
+        }
+        // Запуск механизма оповещения фронтенда
+        frontendData.commands.notify();
+      }
+    }
   }
 
   @TransactionAttribute( TransactionAttributeType.SUPPORTS )

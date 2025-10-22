@@ -27,6 +27,7 @@ interface ISkResources {
   String STR_D_HISTORY_DEPTH_HOURS      = "RTdata history will be kept for specified number of hours";
   String STR_N_CURR_DATA_10MS_TICKS     = "CurrData 10ms ticks";
   String STR_D_CURR_DATA_10MS_TICKS     = "Current data will be checked and updated every specified ticks of 10 msec";
+  String FMT_ERR_TEST_FAILED_BY_TIMEOUT = "Failed to test command %s by timeout = %d";
 
   /**
    * {@link MtbBackendToFile}

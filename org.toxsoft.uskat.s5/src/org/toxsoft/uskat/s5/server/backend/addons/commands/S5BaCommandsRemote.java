@@ -1,21 +1,18 @@
 package org.toxsoft.uskat.s5.server.backend.addons.commands;
 
-import org.toxsoft.core.tslib.av.opset.IOptionSet;
-import org.toxsoft.core.tslib.bricks.events.msg.GtMessage;
-import org.toxsoft.core.tslib.bricks.time.ITimeInterval;
-import org.toxsoft.core.tslib.bricks.time.ITimedList;
-import org.toxsoft.core.tslib.gw.gwid.Gwid;
-import org.toxsoft.core.tslib.gw.gwid.IGwidList;
-import org.toxsoft.core.tslib.gw.skid.Skid;
-import org.toxsoft.core.tslib.utils.errors.TsNullArgumentRtException;
-import org.toxsoft.uskat.core.api.cmdserv.DtoCommandStateChangeInfo;
-import org.toxsoft.uskat.core.api.cmdserv.IDtoCompletedCommand;
-import org.toxsoft.uskat.core.backend.ISkBackendHardConstant;
-import org.toxsoft.uskat.core.backend.api.IBaCommands;
-import org.toxsoft.uskat.core.impl.SkCommand;
-import org.toxsoft.uskat.s5.server.backend.addons.IS5BackendRemote;
-import org.toxsoft.uskat.s5.server.backend.addons.S5AbstractBackendAddonRemote;
-import org.toxsoft.uskat.s5.server.backend.messages.S5BaBeforeConnectMessages;
+import org.toxsoft.core.tslib.av.opset.*;
+import org.toxsoft.core.tslib.bricks.events.msg.*;
+import org.toxsoft.core.tslib.bricks.time.*;
+import org.toxsoft.core.tslib.bricks.validator.*;
+import org.toxsoft.core.tslib.gw.gwid.*;
+import org.toxsoft.core.tslib.gw.skid.*;
+import org.toxsoft.core.tslib.utils.errors.*;
+import org.toxsoft.uskat.core.api.cmdserv.*;
+import org.toxsoft.uskat.core.backend.*;
+import org.toxsoft.uskat.core.backend.api.*;
+import org.toxsoft.uskat.core.impl.*;
+import org.toxsoft.uskat.s5.server.backend.addons.*;
+import org.toxsoft.uskat.s5.server.backend.messages.*;
 
 /**
  * Remote {@link IBaCommands} implementation.
@@ -68,6 +65,12 @@ class S5BaCommandsRemote
   }
 
   @Override
+  public ValidationResult testCommand( Gwid aCmdGwid, Skid aAuthorSkid, IOptionSet aArgs ) {
+    TsNullArgumentRtException.checkNulls( aCmdGwid, aAuthorSkid, aArgs );
+    return session().testCommand( aCmdGwid, aAuthorSkid, aArgs );
+  }
+
+  @Override
   public void setHandledCommandGwids( IGwidList aGwids ) {
     TsNullArgumentRtException.checkNull( aGwids );
     baData.commands.setHandledCommandGwids( aGwids );
@@ -81,6 +84,12 @@ class S5BaCommandsRemote
   public void changeCommandState( DtoCommandStateChangeInfo aStateChangeInfo ) {
     TsNullArgumentRtException.checkNull( aStateChangeInfo );
     session().changeCommandState( aStateChangeInfo );
+  }
+
+  @Override
+  public void changeTestState( String aInstanceId, ValidationResult aResult ) {
+    TsNullArgumentRtException.checkNulls( aInstanceId, aResult );
+    session().changeTestState( aInstanceId, aResult );
   }
 
   @Override

@@ -1,35 +1,30 @@
 package org.toxsoft.uskat.backend.memtext;
 
 import static org.toxsoft.uskat.backend.memtext.IBackendMemtextConstants.*;
+import static org.toxsoft.uskat.backend.memtext.ISkResources.*;
 
-import org.toxsoft.core.tslib.av.opset.IOptionSet;
-import org.toxsoft.core.tslib.bricks.events.msg.GtMessage;
-import org.toxsoft.core.tslib.bricks.strid.idgen.IStridGenerator;
-import org.toxsoft.core.tslib.bricks.strid.idgen.UuidStridGenerator;
-import org.toxsoft.core.tslib.bricks.strio.IStrioReader;
-import org.toxsoft.core.tslib.bricks.strio.IStrioWriter;
-import org.toxsoft.core.tslib.bricks.strio.impl.StrioUtils;
-import org.toxsoft.core.tslib.bricks.time.ITimeInterval;
-import org.toxsoft.core.tslib.bricks.time.ITimedList;
-import org.toxsoft.core.tslib.bricks.time.impl.TimeUtils;
-import org.toxsoft.core.tslib.bricks.time.impl.TimedList;
-import org.toxsoft.core.tslib.coll.IList;
-import org.toxsoft.core.tslib.coll.IListEdit;
-import org.toxsoft.core.tslib.coll.derivative.IRingBuffer;
-import org.toxsoft.core.tslib.coll.derivative.RingBuffer;
-import org.toxsoft.core.tslib.coll.impl.ElemLinkedBundleList;
-import org.toxsoft.core.tslib.coll.primtypes.IStringList;
+import org.toxsoft.core.tslib.av.opset.*;
+import org.toxsoft.core.tslib.bricks.events.msg.*;
+import org.toxsoft.core.tslib.bricks.strid.idgen.*;
+import org.toxsoft.core.tslib.bricks.strio.*;
+import org.toxsoft.core.tslib.bricks.strio.impl.*;
+import org.toxsoft.core.tslib.bricks.time.*;
+import org.toxsoft.core.tslib.bricks.time.impl.*;
+import org.toxsoft.core.tslib.bricks.validator.*;
+import org.toxsoft.core.tslib.coll.*;
+import org.toxsoft.core.tslib.coll.derivative.*;
+import org.toxsoft.core.tslib.coll.impl.*;
+import org.toxsoft.core.tslib.coll.primtypes.*;
 import org.toxsoft.core.tslib.gw.gwid.*;
-import org.toxsoft.core.tslib.gw.skid.Skid;
-import org.toxsoft.core.tslib.utils.TsMiscUtils;
-import org.toxsoft.core.tslib.utils.errors.TsNullArgumentRtException;
-import org.toxsoft.uskat.core.api.cmdserv.DtoCommandStateChangeInfo;
-import org.toxsoft.uskat.core.api.cmdserv.IDtoCompletedCommand;
-import org.toxsoft.uskat.core.backend.ISkBackendHardConstant;
+import org.toxsoft.core.tslib.gw.skid.*;
+import org.toxsoft.core.tslib.utils.*;
+import org.toxsoft.core.tslib.utils.errors.*;
+import org.toxsoft.core.tslib.utils.logs.impl.*;
+import org.toxsoft.uskat.core.api.cmdserv.*;
+import org.toxsoft.uskat.core.backend.*;
 import org.toxsoft.uskat.core.backend.api.*;
-import org.toxsoft.uskat.core.impl.SkCommand;
-import org.toxsoft.uskat.core.impl.dto.DtoCommand;
-import org.toxsoft.uskat.core.impl.dto.DtoCompletedCommand;
+import org.toxsoft.uskat.core.impl.*;
+import org.toxsoft.uskat.core.impl.dto.*;
 
 /**
  * {@link IBaCommands} implementation.
@@ -58,6 +53,16 @@ public class MtbBaCommands
    * Ring buffer with completed commands.
    */
   private final IRingBuffer<IDtoCompletedCommand> cmdsHistory;
+
+  /**
+   * Result of the last command test. null
+   */
+  private ValidationResult lastTestResult;
+
+  /**
+   * Lock of the {@link #lastTestResultLock}.
+   */
+  private Object lastTestResultLock = new Object();
 
   /**
    * Constructor.
@@ -141,6 +146,31 @@ public class MtbBaCommands
   }
 
   @Override
+  public ValidationResult testCommand( Gwid aCmdGwid, Skid aAuthorSkid, IOptionSet aArgs ) {
+    TsNullArgumentRtException.checkNulls( aCmdGwid, aAuthorSkid, aArgs );
+    // Фиксация факта ожидания выполнения команды
+    synchronized (lastTestResultLock) {
+      // Результат тестирования по умолчанию
+      ValidationResult initResult =
+          ValidationResult.error( FMT_ERR_TEST_FAILED_BY_TIMEOUT, aCmdGwid, Long.valueOf( COMMAND_TEST_TIMEOUT ) );
+      // Ожидание выполнения тестирования
+      lastTestResult = initResult;
+      String instanceId = cmdInstanceIdGenerator.nextId();
+      // Команда
+      DtoCommand command = new DtoCommand( System.currentTimeMillis(), instanceId, aCmdGwid, aAuthorSkid, aArgs );
+      // Передача запроса исполнителю
+      owner().frontend().onBackendMessage( BaMsgCommandsTestCmd.INSTANCE.makeMessage( command ) );
+      try {
+        lastTestResultLock.wait( COMMAND_TEST_TIMEOUT );
+      }
+      catch( InterruptedException e ) {
+        LoggerUtils.errorLogger().error( e );
+      }
+    }
+    return lastTestResult;
+  }
+
+  @Override
   public void setHandledCommandGwids( IGwidList aGwids ) {
     listOfHandledCommandGwids.setAll( aGwids );
   }
@@ -149,6 +179,16 @@ public class MtbBaCommands
   public void changeCommandState( DtoCommandStateChangeInfo aStateChangeInfo ) {
     GtMessage msg = BaMsgCommandsChangeState.INSTANCE.makeMessage( aStateChangeInfo );
     owner().frontend().onBackendMessage( msg );
+  }
+
+  @Override
+  public void changeTestState( String aInstanceId, ValidationResult aResult ) {
+    // Поддержка выполнения команд
+    synchronized (lastTestResultLock) {
+      lastTestResult = aResult;
+      // Запуск механизма оповещения фронтенда
+      lastTestResultLock.notify();
+    }
   }
 
   @Override

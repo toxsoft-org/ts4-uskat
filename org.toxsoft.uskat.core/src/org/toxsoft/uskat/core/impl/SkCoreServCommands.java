@@ -130,7 +130,7 @@ public class SkCoreServCommands
        * constraints.
        */
     }
-    return ba().baCommands().canSendCommand( aCmdGwid, aAuthorSkid, aArgs );
+    return ba().baCommands().testCommand( aCmdGwid, aAuthorSkid, aArgs );
   };
 
   /**
@@ -165,6 +165,11 @@ public class SkCoreServCommands
       case BaMsgCommandsExecCmd.MSG_ID -> {
         IDtoCommand cmd = BaMsgCommandsExecCmd.INSTANCE.getCmd( aMessage );
         handleMsgExecuteCommand( cmd );
+        yield true;
+      }
+      case BaMsgCommandsTestCmd.MSG_ID -> {
+        IDtoCommand cmd = BaMsgCommandsTestCmd.INSTANCE.getCmd( aMessage );
+        handleMsgTestCommand( cmd );
         yield true;
       }
       case BaMsgCommandsChangeState.MSG_ID -> {
@@ -227,6 +232,25 @@ public class SkCoreServCommands
       catch( Throwable e ) {
         // Журнал
         logger().error( e, FMT_ERR_UNEXPECTED_EXECUTION, aCommand.toString() );
+      }
+      return;
+    }
+    // Журнал
+    logger().error( FMT_ERR_UNHANDLED_CMD, aCommand.toString() );
+  }
+
+  private void handleMsgTestCommand( IDtoCommand aCommand ) {
+    ISkCommandExecutor executor = findExecutorForGwid( aCommand.cmdGwid() );
+    if( executor != null ) {
+      executingCmds.put( aCommand.instanceId(), new SkCommand( aCommand ) );
+      try {
+        ValidationResult result =
+            executor.canExecuteCommand( aCommand.cmdGwid(), aCommand.authorSkid(), aCommand.argValues() );
+        ba().baCommands().changeTestState( aCommand.instanceId(), result );
+      }
+      catch( Throwable e ) {
+        // Журнал
+        logger().error( e, FMT_ERR_UNEXPECTED_TESTING, aCommand.toString() );
       }
       return;
     }
