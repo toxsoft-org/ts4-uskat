@@ -2,6 +2,7 @@ package org.toxsoft.uskat.backend.sqlite.addons;
 
 import org.toxsoft.core.tslib.av.opset.*;
 import org.toxsoft.core.tslib.bricks.time.*;
+import org.toxsoft.core.tslib.bricks.validator.*;
 import org.toxsoft.core.tslib.gw.gwid.*;
 import org.toxsoft.core.tslib.gw.skid.*;
 import org.toxsoft.uskat.backend.sqlite.*;
@@ -69,6 +70,12 @@ public class BaCommands
     // TODO Auto-generated method stub
 
   }
+  @Override
+  public void changeTestState( String aInstanceId, ValidationResult aResult ) {
+    // TODO Auto-generated method stub
+
+  }
+
 
   @Override
   public IGwidList listGloballyHandledCommandGwids() {
