@@ -149,13 +149,14 @@ public class SdedSkObjectMpc
       found = new DefaultTsNode<>( NK_CLASS_ID, parentNode, aCinf.id() );
       found.setName( aCinf.nmName() );
       aAllMap.put( found.entity(), found );
-      aRootsMap.put( found.entity(), found );
+      parentNode.addNode( found );
       // sort parent node children
       IListBasicEdit<DefaultTsNode<String>> sortedChildren = new SortedElemLinkedBundleListEx<>( ( aO1, aO2 ) -> {
         ISkClassInfo cinf1 = aAllClasses.getByKey( aO1.entity() );
         ISkClassInfo cinf2 = aAllClasses.getByKey( aO2.entity() );
         return cinf1.nmName().compareTo( cinf2.nmName() );
       } );
+      sortedChildren.setAll( (IList)parentNode.childs() );
       parentNode.setNodes( (IList)sortedChildren );
       return found;
     }
@@ -181,6 +182,7 @@ public class SdedSkObjectMpc
         ISkClassInfo cinf2 = allClasses.getByKey( aO2.entity() );
         return cinf1.nmName().compareTo( cinf2.nmName() );
       } );
+      rootsList.setAll( rootsMap.values() );
       return (IList)rootsList;
     }
 
