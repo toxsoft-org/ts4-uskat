@@ -43,6 +43,12 @@ public class SdedSkObjectMpc
       ISkClassInfo.class, true, ICONID_SDED_CLASSES_LIST );
 
   /**
+   * Tree node kind for class IDs.
+   */
+  public static final ITsNodeKind<String> NK_CLASS_ID = new TsNodeKind<>( "SkClassId", //$NON-NLS-1$
+      String.class, true, ICONID_SDED_CLASSES_LIST );
+
+  /**
    * Tree node kind for objects.
    */
   public static final ITsNodeKind<ISkObject> NK_OBJECT = new TsNodeKind<>( "SkObject", //$NON-NLS-1$
@@ -107,6 +113,7 @@ public class SdedSkObjectMpc
     }
   }
 
+  @SuppressWarnings( { "unchecked", "rawtypes" } )
   static class TreeMakerByClass
       implements ITsTreeMaker<ISkObject> {
 
@@ -116,66 +123,112 @@ public class SdedSkObjectMpc
       coreApi = aCoreApi;
     }
 
-    private DefaultTsNode<ISkClassInfo> getParentNode( ISkClassInfo aCinf,
-        IStringMapEdit<DefaultTsNode<ISkClassInfo>> aAllMap, IStridablesList<ISkClassInfo> aAllItems ) {
-      DefaultTsNode<ISkClassInfo> parentNode = aAllMap.findByKey( aCinf.parentId() );
-      if( parentNode != null ) {
-        return parentNode;
+    // private DefaultTsNode<ISkClassInfo> getParentNode( ISkClassInfo aCinf,
+    // IStringMapEdit<DefaultTsNode<ISkClassInfo>> aAllMap, IStridablesList<ISkClassInfo> aAllItems ) {
+    // DefaultTsNode<ISkClassInfo> parentNode = aAllMap.findByKey( aCinf.parentId() );
+    // if( parentNode != null ) {
+    // return parentNode;
+    // }
+    // ISkClassInfo parentClass = aAllItems.getByKey( aCinf.id() );
+    // DefaultTsNode<ISkClassInfo> grandpaNode = getParentNode( parentClass, aAllMap, aAllItems );
+    // // parentNode = new DefaultTsNode<>( NK_CLASS, grandpaNode, parentClass );
+    // parentNode = new SkClassInfoTsNode( grandpaNode, parentClass );
+    // aAllMap.put( parentClass.id(), parentNode );
+    // grandpaNode.addNode( parentNode );
+    // return parentNode;
+    // }
+
+    private DefaultTsNode<String> ensureClassNode( ISkClassInfo aCinf, IStringMapEdit<DefaultTsNode<String>> aRootsMap,
+        IStringMapEdit<DefaultTsNode<String>> aAllMap, IStridablesList<ISkClassInfo> aAllClasses ) {
+      // return if already exists
+      DefaultTsNode<String> found = aAllMap.findByKey( aCinf.id() );
+      if( found != null ) {
+        return found;
       }
-      ISkClassInfo parentClass = aAllItems.getByKey( aCinf.id() );
-      DefaultTsNode<ISkClassInfo> grandpaNode = getParentNode( parentClass, aAllMap, aAllItems );
-      // parentNode = new DefaultTsNode<>( NK_CLASS, grandpaNode, parentClass );
-      parentNode = new SkClassInfoTsNode( grandpaNode, parentClass );
-      aAllMap.put( parentClass.id(), parentNode );
-      grandpaNode.addNode( parentNode );
-      return parentNode;
+      DefaultTsNode<String> parentNode = ensureClassNode( aCinf.parent(), aRootsMap, aAllMap, aAllClasses );
+      found = new DefaultTsNode<>( NK_CLASS_ID, parentNode, aCinf.id() );
+      found.setName( aCinf.nmName() );
+      aAllMap.put( found.entity(), found );
+      aRootsMap.put( found.entity(), found );
+      // sort parent node children
+      IListBasicEdit<DefaultTsNode<String>> sortedChildren = new SortedElemLinkedBundleListEx<>( ( aO1, aO2 ) -> {
+        ISkClassInfo cinf1 = aAllClasses.getByKey( aO1.entity() );
+        ISkClassInfo cinf2 = aAllClasses.getByKey( aO2.entity() );
+        return cinf1.nmName().compareTo( cinf2.nmName() );
+      } );
+      parentNode.setNodes( (IList)sortedChildren );
+      return found;
     }
 
     @Override
     public IList<ITsNode> makeRoots( ITsNode aRootNode, IList<ISkObject> aObjs ) {
-      // сначала строим дерево классов
-      IListEdit<ISkClassInfo> classItems = new ElemArrayList<>();
-      for( ISkObject obj : aObjs ) {
-        classItems.add( obj.classInfo() );
-      }
-
-      IStridablesList<ISkClassInfo> allItems = coreApi.sysdescr().listClasses();
-      IStringMapEdit<DefaultTsNode<ISkClassInfo>> allMap = new StringMap<>();
-      IListEdit<ITsNode> retVal = new ElemArrayList<>();
-      // в корень все классы у которых родитель GW_ROOT_CLASS_ID
-      for( ISkClassInfo skClassInfo : allItems ) {
-        if( skClassInfo.id().equals( IGwHardConstants.GW_ROOT_CLASS_ID ) ) {
-          continue;
-        }
-        if( skClassInfo.parent().id().equals( IGwHardConstants.GW_ROOT_CLASS_ID ) ) {
-          // DefaultTsNode<ISkClassInfo> skRoot = new DefaultTsNode<>( NK_CLASS, aRootNode, skClassInfo );
-          DefaultTsNode<ISkClassInfo> skRoot = new SkClassInfoTsNode( aRootNode, skClassInfo );
-          allMap.put( skRoot.entity().id(), skRoot );
-          retVal.add( skRoot );
-        }
-      }
-      for( ISkClassInfo cinf : allItems ) {
-        if( cinf.id().equals( IGwHardConstants.GW_ROOT_CLASS_ID ) ) {
-          continue;
-        }
-        if( allMap.hasKey( cinf.id() ) ) {
-          continue;
-        }
-        DefaultTsNode<ISkClassInfo> parentNode = getParentNode( cinf, allMap, allItems );
-        // DefaultTsNode<ISkClassInfo> classNode = new DefaultTsNode<>( NK_CLASS, parentNode, cinf );
-        DefaultTsNode<ISkClassInfo> classNode = new SkClassInfoTsNode( parentNode, cinf );
-        allMap.put( cinf.id(), classNode );
-        parentNode.addNode( classNode );
-      }
-      // тут у нас есть дерево классов, но в нем нет листьев объектов, добавляем
-      for( ISkObject obj : aObjs ) {
-        // находим нужный узел класса
-        DefaultTsNode<ISkClassInfo> classNode = allMap.findByKey( obj.classInfo().id() );
-        DefaultTsNode<ISkObject> objNode = new DefaultTsNode<>( NK_OBJECT, classNode, obj );
+      IStridablesList<ISkClassInfo> allClasses = coreApi.sysdescr().listClasses();
+      // initialize root and helper nodes with GreenWorld's root class node
+      IStringMapEdit<DefaultTsNode<String>> rootsMap = new StringMap<>();
+      IStringMapEdit<DefaultTsNode<String>> allMap = new StringMap<>();
+      DefaultTsNode<String> skrNode = new DefaultTsNode<>( NK_CLASS_ID, aRootNode, IGwHardConstants.GW_ROOT_CLASS_ID );
+      skrNode.setName( allClasses.getByKey( skrNode.entity() ).nmName() );
+      rootsMap.put( skrNode.entity(), skrNode );
+      allMap.put( skrNode.entity(), skrNode );
+      // iterate over objects and add to the corresponding class node
+      for( ISkObject o : aObjs ) {
+        DefaultTsNode<String> classNode = ensureClassNode( o.classInfo(), rootsMap, allMap, allClasses );
+        DefaultTsNode<ISkObject> objNode = new DefaultTsNode<>( NK_OBJECT, classNode, o );
         classNode.addNode( objNode );
       }
-      return retVal;
+      IListBasicEdit<DefaultTsNode<String>> rootsList = new SortedElemLinkedBundleListEx<>( ( aO1, aO2 ) -> {
+        ISkClassInfo cinf1 = allClasses.getByKey( aO1.entity() );
+        ISkClassInfo cinf2 = allClasses.getByKey( aO2.entity() );
+        return cinf1.nmName().compareTo( cinf2.nmName() );
+      } );
+      return (IList)rootsList;
     }
+
+    // @Override
+    // public IList<ITsNode> makeRoots( ITsNode aRootNode, IList<ISkObject> aObjs ) {
+    // // сначала строим дерево классов
+    // IListEdit<ISkClassInfo> classItems = new ElemArrayList<>();
+    // for( ISkObject obj : aObjs ) {
+    // classItems.add( obj.classInfo() );
+    // }
+    //
+    // IStridablesList<ISkClassInfo> allItems = coreApi.sysdescr().listClasses();
+    // IStringMapEdit<DefaultTsNode<ISkClassInfo>> allMap = new StringMap<>();
+    // IListEdit<ITsNode> retVal = new ElemArrayList<>();
+    // // в корень все классы у которых родитель GW_ROOT_CLASS_ID
+    // for( ISkClassInfo skClassInfo : allItems ) {
+    // if( skClassInfo.id().equals( IGwHardConstants.GW_ROOT_CLASS_ID ) ) {
+    // continue;
+    // }
+    // if( skClassInfo.parent().id().equals( IGwHardConstants.GW_ROOT_CLASS_ID ) ) {
+    // // DefaultTsNode<ISkClassInfo> skRoot = new DefaultTsNode<>( NK_CLASS, aRootNode, skClassInfo );
+    // DefaultTsNode<ISkClassInfo> skRoot = new SkClassInfoTsNode( aRootNode, skClassInfo );
+    // allMap.put( skRoot.entity().id(), skRoot );
+    // retVal.add( skRoot );
+    // }
+    // }
+    // for( ISkClassInfo cinf : allItems ) {
+    // if( cinf.id().equals( IGwHardConstants.GW_ROOT_CLASS_ID ) ) {
+    // continue;
+    // }
+    // if( allMap.hasKey( cinf.id() ) ) {
+    // continue;
+    // }
+    // DefaultTsNode<ISkClassInfo> parentNode = getParentNode( cinf, allMap, allItems );
+    // // DefaultTsNode<ISkClassInfo> classNode = new DefaultTsNode<>( NK_CLASS, parentNode, cinf );
+    // DefaultTsNode<ISkClassInfo> classNode = new SkClassInfoTsNode( parentNode, cinf );
+    // allMap.put( cinf.id(), classNode );
+    // parentNode.addNode( classNode );
+    // }
+    // // тут у нас есть дерево классов, но в нем нет листьев объектов, добавляем
+    // for( ISkObject obj : aObjs ) {
+    // // находим нужный узел класса
+    // DefaultTsNode<ISkClassInfo> classNode = allMap.findByKey( obj.classInfo().id() );
+    // DefaultTsNode<ISkObject> objNode = new DefaultTsNode<>( NK_OBJECT, classNode, obj );
+    // classNode.addNode( objNode );
+    // }
+    // return retVal;
+    // }
 
     @Override
     public boolean isItemNode( ITsNode aNode ) {
