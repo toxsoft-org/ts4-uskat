@@ -364,7 +364,7 @@ public class S5BackendCommandSingleton
         // currTime - cmd.timestamp() >= getCmdTimeout( sysdescrReader(), cmd ) ) {
         // 2025-10-24 mvk ---+++
         // if( currTime - cmd.timestamp() >= getCmdTimeout( sysdescrReader(), cmd ) ) {
-        long lastStateTime = states.last().timestamp();
+        long lastStateTime = (states.size() > 0 ? states.last().timestamp() : cmd.timestamp());
         if( currTime - lastStateTime >= getCmdTimeout( sysdescrReader(), cmd ) ) {
           // Завершение выполнения команды по таймауту
           DtoCommandStateChangeInfo newState =
