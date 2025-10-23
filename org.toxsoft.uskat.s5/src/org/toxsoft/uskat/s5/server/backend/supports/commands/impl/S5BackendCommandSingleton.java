@@ -357,11 +357,15 @@ public class S5BackendCommandSingleton
       while( iterator.hasNext() ) {
         Pair<IDtoCommand, ITimedListEdit<SkCommandState>> cmdPair = iterator.next();
         IDtoCommand cmd = cmdPair.left();
+        ITimedListEdit<SkCommandState> states = cmdPair.right();
         // 2020-03-21, mvk, клиент может не иметь доступа к первичному узлу кластера - узел работает в другой сети и у
         // клиента нет к нему доступа (пример: Тбилиси, локальные сервера станции, клиенты программа НУ).
         // if( clusterManager.isPrimary() == true && //
         // currTime - cmd.timestamp() >= getCmdTimeout( sysdescrReader(), cmd ) ) {
-        if( currTime - cmd.timestamp() >= getCmdTimeout( sysdescrReader(), cmd ) ) {
+        // 2025-10-24 mvk ---+++
+        // if( currTime - cmd.timestamp() >= getCmdTimeout( sysdescrReader(), cmd ) ) {
+        long lastStateTime = states.last().timestamp();
+        if( currTime - lastStateTime >= getCmdTimeout( sysdescrReader(), cmd ) ) {
           // Завершение выполнения команды по таймауту
           DtoCommandStateChangeInfo newState =
               createChangeInfo( cmd.instanceId(), currTime, TIMEOUTED, REASON_CANCEL_BY_TIMEOUT );
