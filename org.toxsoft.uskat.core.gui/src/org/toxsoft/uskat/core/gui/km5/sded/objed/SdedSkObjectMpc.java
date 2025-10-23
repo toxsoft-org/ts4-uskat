@@ -151,13 +151,29 @@ public class SdedSkObjectMpc
       aAllMap.put( found.entity(), found );
       parentNode.addNode( found );
       // sort parent node children
-      IListBasicEdit<DefaultTsNode<String>> sortedChildren = new SortedElemLinkedBundleListEx<>( ( aO1, aO2 ) -> {
+      IListEdit<ITsNode> allChildren = new ElemArrayList<>();
+      IListBasicEdit<DefaultTsNode<String>> sortedClassChildren = new SortedElemLinkedBundleListEx<>( ( aO1, aO2 ) -> {
         ISkClassInfo cinf1 = aAllClasses.getByKey( aO1.entity() );
         ISkClassInfo cinf2 = aAllClasses.getByKey( aO2.entity() );
         return cinf1.nmName().compareTo( cinf2.nmName() );
       } );
-      sortedChildren.setAll( (IList)parentNode.childs() );
-      parentNode.setNodes( (IList)sortedChildren );
+      for( ITsNode node : parentNode.childs() ) {
+        if( node.kind().equals( NK_CLASS_ID ) ) {
+          sortedClassChildren.add( (DefaultTsNode)node );
+        }
+      }
+      allChildren.addAll( (IList)sortedClassChildren );
+
+      IListBasicEdit<DefaultTsNode<ISkObject>> sortedObjChildren = new SortedElemLinkedBundleListEx<>(
+          ( aO1, aO2 ) -> aO1.entity().nmName().compareTo( aO2.entity().nmName() ) );
+      for( ITsNode node : parentNode.childs() ) {
+        if( node.kind().equals( NK_OBJECT ) ) {
+          sortedObjChildren.add( (DefaultTsNode)node );
+        }
+      }
+      allChildren.addAll( (IList)sortedObjChildren );
+
+      parentNode.setNodes( allChildren );
       return found;
     }
 
