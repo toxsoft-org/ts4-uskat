@@ -98,7 +98,7 @@ public class SdedSkClassInfoM5Model
         @Override
         protected void doInit() {
           setNameAndDescription( STR_N_CLASS_DESCRIPTION, STR_D_CLASS_DESCRIPTION );
-          setFlags( M5FF_DETAIL );
+          setFlags( M5FF_COLUMN );
         }
 
         protected IAtomicValue doGetFieldValue( ISkClassInfo aEntity ) {
