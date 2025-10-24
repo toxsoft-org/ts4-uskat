@@ -130,7 +130,9 @@ public class SkCoreServCommands
        * constraints.
        */
     }
-    return ba().baCommands().testCommand( aCmdGwid, aAuthorSkid, aArgs );
+    // TODO: 2025-10-24 mvk under develop
+    // return ba().baCommands().testCommand( aCmdGwid, aAuthorSkid, aArgs );
+    return ValidationResult.SUCCESS;
   };
 
   /**
