@@ -1,6 +1,5 @@
 package org.toxsoft.uskat.core.impl;
 
-import static org.toxsoft.core.tslib.coll.impl.TsCollectionsUtils.*;
 import static org.toxsoft.uskat.core.impl.ISkResources.*;
 
 import org.toxsoft.core.tslib.bricks.threadexec.*;
@@ -164,7 +163,9 @@ public abstract class AbstractDtoObjectRivetManager
       ISkidList prevRightObjIds = prevRivets.map().getByKey( rivetId );
       ISkidList newRightObjIds = newRivets.map().getByKey( rivetId );
       // Удаление объектов из склепок
-      for( Skid rightObjId : subtract( new SkidList( prevRightObjIds ), newRightObjIds ) ) {
+      // 2025-10-28 mvk ---+++
+      // for( Skid rightObjId : subtract( new SkidList( prevRightObjIds ), newRightObjIds ) ) {
+      for( Skid rightObjId : prevRightObjIds ) {
         if( rightObjId == Skid.NONE ) {
           continue;
         }
@@ -184,7 +185,9 @@ public abstract class AbstractDtoObjectRivetManager
         }
       }
       // Добавление объектов в склепки
-      for( Skid rightObjId : subtract( new SkidList( newRightObjIds ), prevRightObjIds ) ) {
+      // 2025-10-28 mvk ---+++
+      // for( Skid rightObjId : subtract( new SkidList( newRightObjIds ), prevRightObjIds ) ) {
+      for( Skid rightObjId : newRightObjIds ) {
         if( rightObjId == Skid.NONE ) {
           continue;
         }
