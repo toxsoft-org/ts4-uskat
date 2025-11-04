@@ -180,6 +180,12 @@ interface ISkResources {
   String FMT_WARN_ATTEMPT_CLOSE_SHARE = Messages.getString( "FMT_WARN_ATTEMPT_OPEN_SHARE" );
 
   /**
+   * {@link SkWorkerBase}
+   */
+  String FMT_INFO_DOJOB_STAT        = "doJob(): currdata = %d (%d), errors = %d (%d).";
+  String FMT_INFO_CURRDATA_RECEVIED = "currdata received. count = %d";
+
+  /**
    * AbstractDtoObjectManager
    */
   String ERR_OBJ_ALREADY_REMOVED = "%s: obj has already been removed.";

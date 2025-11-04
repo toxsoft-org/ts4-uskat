@@ -23,4 +23,29 @@ interface ISkResources {
   String STR_SKATLET_LOAD_ORDER          = Messages.getString( "STR_SKATLET_LOAD_ORDER" );
   String STR_SKATLET_LOAD_ORDER_D        = Messages.getString( "STR_SKATLET_LOAD_ORDER_D" );
 
+  /**
+   * {@link ISkWorkerHardConstants}
+   */
+  String STR_N_WORKER_CORE_API = "coreApi";
+  String STR_D_WORKER_CORE_API = "API сервера";
+
+  String STR_N_WORKER_REGISTRY = "workers";
+  String STR_D_WORKER_REGISTRY = "Реестр доступных компонентов";
+
+  String STR_N_WORKER_SHARED_CONTEXT = "Общий контекст";
+  String STR_D_WORKER_SHARED_CONTEXT = "Общий контекст разделяемый между компонентами";
+
+  String STR_N_WORKER_LOGGER = "logger";
+  String STR_D_WORKER_LOGGER = "Журнал работы компонета";
+
+  // ------------------------------------------------------------------------------------
+  // messages
+  //
+
+  // ------------------------------------------------------------------------------------
+  // errors & warnings
+  //
+  String ERR_WORKER_IS_ALREADY_REGISTERED = "worker %s is already registered";
+  String ERR_WORKER_IS_NOT_FOUND          = "worker %s is not found";
+
 }
