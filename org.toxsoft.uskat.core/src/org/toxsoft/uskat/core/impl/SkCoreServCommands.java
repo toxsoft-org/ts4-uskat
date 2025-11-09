@@ -131,8 +131,8 @@ public class SkCoreServCommands
        */
     }
     // TODO: 2025-10-24 mvk under develop
-    // return ba().baCommands().testCommand( aCmdGwid, aAuthorSkid, aArgs );
-    return ValidationResult.SUCCESS;
+    return ba().baCommands().testCommand( aCmdGwid, aAuthorSkid, aArgs );
+    // return ValidationResult.SUCCESS;
   };
 
   /**

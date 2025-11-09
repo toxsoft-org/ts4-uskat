@@ -177,7 +177,8 @@ public class S5BackendCommandSingleton
     }
   }
 
-  @TransactionAttribute( TransactionAttributeType.SUPPORTS )
+  @TransactionAttribute( TransactionAttributeType.NOT_SUPPORTED )
+  @Lock( LockType.READ )
   @Override
   public ValidationResult testCommand( Gwid aCmdGwid, Skid aAuthorSkid, IOptionSet aArgs ) {
     TsNullArgumentRtException.checkNulls( aCmdGwid, aAuthorSkid, aArgs );
