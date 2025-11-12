@@ -184,6 +184,10 @@ public class S5BackendCommandSingleton
     TsNullArgumentRtException.checkNulls( aCmdGwid, aAuthorSkid, aArgs );
     // Фронтенд исполнителя команды
     IS5FrontendRear frontend = findExecutorFrontend( aCmdGwid );
+    if( frontend == null ) {
+      // фронтенд не поддерживает реальное время
+      return ValidationResult.error( ERR_FRONTEND_DOES_NOT_SUPPORT_CMD, aCmdGwid );
+    }
     // Данные фронтенда
     S5BaCommandsData frontendData = findCommandsFrontendData( frontend );
     if( frontendData == null ) {
