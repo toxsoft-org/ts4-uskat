@@ -46,7 +46,7 @@ public class SdedDtoFullObjectM5Model
   /**
    * Attribute {@link IDtoFullObject#id()}
    */
-  public final M5AttributeFieldDef<IDtoFullObject> ID = new M5AttributeFieldDef<>( FID_ID, DDEF_STRING ) {
+  public final M5AttributeFieldDef<IDtoFullObject> ID = new M5AttributeFieldDef<>( FID_ID, DT_STRING ) {
 
     @Override
     protected void doInit() {
