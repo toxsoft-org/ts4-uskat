@@ -1,7 +1,5 @@
 package org.toxsoft.uskat.core.gui.km5.sded.objed;
 
-import static org.toxsoft.core.tslib.av.impl.AvUtils.*;
-
 import org.toxsoft.core.tsgui.m5.*;
 import org.toxsoft.core.tsgui.m5.model.impl.*;
 import org.toxsoft.core.tslib.bricks.validator.*;
@@ -25,19 +23,16 @@ class SdedSkObjectM5LifecycleManager
     extends M5LifecycleManager<ISkObject, ISkConnection>
     implements ISkConnected {
 
-  private SdedSkObjectMpc mpc;
-
-  public void setMpc( SdedSkObjectMpc aMpc ) {
-    mpc = aMpc;
-  }
-
   public SdedSkObjectM5LifecycleManager( IM5Model<ISkObject> aModel, ISkConnection aMaster ) {
     super( aModel, true, true, true, true, aMaster );
     TsNullArgumentRtException.checkNull( aMaster );
   }
 
-  private IDtoObject makeDtoObject( IM5Bunch<ISkObject> aValues ) {
+  // ------------------------------------------------------------------------------------
+  // implementation
+  //
 
+  private IDtoObject makeDtoObject( IM5Bunch<ISkObject> aValues ) {
     String classId = aValues.getAsAv( ISkHardConstants.AID_CLASS_ID ).asString();
     String id = aValues.getAsAv( ISkHardConstants.AID_STRID ).asString();
     Skid skid = new Skid( classId, id );
@@ -49,27 +44,8 @@ class SdedSkObjectM5LifecycleManager
   }
 
   // ------------------------------------------------------------------------------------
-  // implementation
+  // M5LifecycleManager
   //
-  // @Override
-  // protected ValidationResult doBeforeCreate( IM5Bunch<ISkObject> aValues ) {
-  // IDtoObject dtoObject = makeDtoObject( aValues );
-  // return skObjServ().svs().validator().canCreateObject( dtoObject );
-  // }
-
-  /**
-   * Subclass may perform additional tuning of the values for new entity creation.
-   * <p>
-   * In base class does nothing, there is no need to call superclass method when overriding.
-   *
-   * @param aValues {@link IM5BunchEdit} - new editable bunch with default field values
-   */
-  @Override
-  protected void doSetupNewItemValues( IM5BunchEdit<ISkObject> aValues ) {
-    // id класса берем из дерева в панели
-    String classId = mpc.getSelClass().id();
-    aValues.set( ISkHardConstants.AID_CLASS_ID, avStr( classId ) );
-  }
 
   @Override
   protected ISkObject doCreate( IM5Bunch<ISkObject> aValues ) {

@@ -41,7 +41,7 @@ public class KM5ObjedContributor
   // implementation
   //
 
-  private IStridablesListEdit<M5Model<?>> internalCreateAllModels() {
+  private static IStridablesListEdit<M5Model<?>> internalCreateAllModels() {
     IStridablesListEdit<M5Model<?>> modelsList = new StridablesList<>();
     // TODO add all models of this KM5 unit
     return modelsList;
