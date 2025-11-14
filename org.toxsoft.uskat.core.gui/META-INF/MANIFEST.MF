@@ -24,6 +24,7 @@ Bundle-ActivationPolicy: lazy
 Export-Package: org.toxsoft.uskat.core.gui,
  org.toxsoft.uskat.core.gui.conn,
  org.toxsoft.uskat.core.gui.conn.cfg,
+ org.toxsoft.uskat.core.gui.conn.l10n,
  org.toxsoft.uskat.core.gui.conn.m5,
  org.toxsoft.uskat.core.gui.conn.valed,
  org.toxsoft.uskat.core.gui.e4.handlers,
