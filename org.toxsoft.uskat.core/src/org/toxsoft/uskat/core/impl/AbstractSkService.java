@@ -355,6 +355,11 @@ public abstract class AbstractSkService
   }
 
   @SuppressWarnings( "javadoc" )
+  public ISkLinkService linkService() {
+    return coreApi.linkService();
+  }
+
+  @SuppressWarnings( "javadoc" )
   public ISkClobService clobService() {
     return coreApi.clobService();
   }
@@ -367,11 +372,6 @@ public abstract class AbstractSkService
   @SuppressWarnings( "javadoc" )
   public ISkEventService eventService() {
     return coreApi.eventService();
-  }
-
-  @SuppressWarnings( "javadoc" )
-  public ISkLinkService linkService() {
-    return coreApi.linkService();
   }
 
   @SuppressWarnings( "javadoc" )
