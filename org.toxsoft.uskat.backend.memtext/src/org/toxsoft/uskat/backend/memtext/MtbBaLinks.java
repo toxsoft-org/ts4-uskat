@@ -289,7 +289,9 @@ public class MtbBaLinks
       }
       if( !Objects.equals( lf, map.findByKey( lf.leftSkid() ) ) ) {
         map.put( lf.leftSkid(), lf );
-        Gwid g = Gwid.createLink( lf.leftSkid().classId(), lf.leftSkid().strid(), lf.gwid().classId() );
+        // 2025-11-18 mvk fix ---+++
+        // Gwid g = Gwid.createLink( lf.leftSkid().classId(), lf.leftSkid().strid(), lf.gwid().classId() );
+        Gwid g = Gwid.createLink( lf.leftSkid().classId(), lf.leftSkid().strid(), lf.linkId() );
         if( !changedConcreteGwids.hasElem( g ) ) {
           changedConcreteGwids.add( g );
         }
