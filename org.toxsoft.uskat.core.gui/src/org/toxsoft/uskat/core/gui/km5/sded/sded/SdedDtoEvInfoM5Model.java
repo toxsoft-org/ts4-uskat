@@ -41,7 +41,7 @@ public class SdedDtoEvInfoM5Model
   /**
    * M5-attribute {@link IDtoRtdataInfo#isHist()}.
    */
-  public final IM5AttributeFieldDef<IDtoEventInfo> IS_HIST = new M5AttributeFieldDef<>( FID_IS_HIST, DDEF_BOOLEAN ) {
+  public final IM5AttributeFieldDef<IDtoEventInfo> IS_HIST = new M5AttributeFieldDef<>( FID_IS_HIST, DT_BOOLEAN ) {
 
     @Override
     protected void doInit() {

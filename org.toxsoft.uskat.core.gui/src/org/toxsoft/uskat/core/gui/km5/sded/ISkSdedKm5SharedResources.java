@@ -1,7 +1,6 @@
 package org.toxsoft.uskat.core.gui.km5.sded;
 
 import org.toxsoft.uskat.core.gui.*;
-import org.toxsoft.uskat.core.gui.km5.sded.objed.*;
 import org.toxsoft.uskat.core.gui.km5.sded.sded.*;
 
 /**
@@ -85,8 +84,10 @@ public interface ISkSdedKm5SharedResources {
   /**
    * {@link SdedSkClassInfoM5Model}, {@link SdedSkObjectMpc}
    */
-  String STR_N_TMI_BY_HIERARCHY = Messages.getString( "STR_N_TMI_BY_HIERARCHY" ); //$NON-NLS-1$
-  String STR_D_TMI_BY_HIERARCHY = Messages.getString( "STR_D_TMI_BY_HIERARCHY" ); //$NON-NLS-1$
+  String STR_TMI_BY_HIERARCHY         = Messages.getString( "STR_TMI_BY_HIERARCHY" );       //$NON-NLS-1$
+  String STR_TMI_BY_HIERARCHY_D       = Messages.getString( "STR_TMI_BY_HIERARCHY_D" );     //$NON-NLS-1$
+  String STR_TMI_BY_WHOLE_HIERARCHY   = Messages.getString( "STR_TMI_BY_WHOLE_HIERARCHY" ); //$NON-NLS-1$
+  String STR_TMI_BY_WHOLE_HIERARCHY_D = Messages.getString( "STR_TMI_BY_WHOLE_HIERARCHY" ); //$NON-NLS-1$
 
   /**
    * {@link ISkCoreGuiConstants}

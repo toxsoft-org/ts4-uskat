@@ -107,7 +107,7 @@ class SdedSkClassInfoMpc
       IM5ItemsProvider<ISkClassInfo> aItemsProvider, IM5LifecycleManager<ISkClassInfo> aLifecycleManager ) {
     super( aContext, aModel, aItemsProvider, aLifecycleManager );
     TreeModeInfo<ISkClassInfo> tmiByHierarchy = new TreeModeInfo<>( TMIID_BY_HIERARCHY, //
-        STR_N_TMI_BY_HIERARCHY, STR_D_TMI_BY_HIERARCHY, null, new TreeMakerByHierarchy() );
+        STR_TMI_BY_HIERARCHY, STR_TMI_BY_HIERARCHY_D, null, new TreeMakerByHierarchy() );
     treeModeManager().addTreeMode( tmiByHierarchy );
   }
 

@@ -58,9 +58,6 @@ public class SdedSkObjectM5Model
         OPDEF_IS_FILTER_PANE.setValue( aContext.params(), AV_TRUE );
         OPDEF_IS_SUPPORTS_TREE.setValue( aContext.params(), AV_TRUE );
         SdedSkObjectMpc mpc = new SdedSkObjectMpc( aContext, model(), aItemsProvider, aLifecycleManager );
-        if( aLifecycleManager instanceof SdedSkObjectM5LifecycleManager ) {
-          ((SdedSkObjectM5LifecycleManager)aLifecycleManager).setMpc( mpc );
-        }
         return new M5CollectionPanelMpcModownWrapper<>( mpc, false );
       }
 
@@ -72,8 +69,7 @@ public class SdedSkObjectM5Model
         OPDEF_IS_FILTER_PANE.setValue( aContext.params(), AV_TRUE );
         OPDEF_IS_SUPPORTS_CHECKS.setValue( aContext.params(), AV_TRUE );
         OPDEF_IS_SUPPORTS_TREE.setValue( aContext.params(), AV_TRUE );
-        SdedSkObjectMpc mpc = new SdedSkObjectMpc( aContext, model(), aItemsProvider );
-
+        SdedSkObjectMpc mpc = new SdedSkObjectMpc( aContext, model(), aItemsProvider, null );
         return new M5CollectionPanelMpcModownWrapper<>( mpc, true );
       }
 

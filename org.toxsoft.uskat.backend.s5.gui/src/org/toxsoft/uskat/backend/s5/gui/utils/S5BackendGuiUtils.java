@@ -21,32 +21,38 @@ import org.toxsoft.uskat.s5.client.remote.connection.*;
  */
 public class S5BackendGuiUtils {
 
-  private static final long ERR_CONNECTION_TIMEOUT = 500;
+  /**
+   * Milliseconds to wait after failed attempt to connection before next try.
+   */
+  private static final long ERR_CONNECTION_WAIT_MSECS = 300;
 
   /**
-   * @param aShell {@link Shell} родительское окно
-   * @param aConnection {@link ISkConnection} открываемое соединение
-   * @param aConnectionContext {@link ITsContext} контекст открываемого соединения, параметр
-   *          {@link ISkConnection#open(ITsContextRo)}
-   * @param aText String текст в диалоге
-   * @param aTimeout long время (мсек) ожидания подключения. < 0: бесконечно.
-   * @throws TsNullArgumentRtException любой аргумент = null
+   * Establishes connection to the server with progress dialog.
+   * <p>
+   * Progress dialog has single "Cancel" button.
+   *
+   * @param aShell {@link Shell} - parent shell for the progress dialog window
+   * @param aConnection {@link ISkConnection} - connection to be opened
+   * @param aArgs {@link ITsContextRo} - the connection arguments for {@link ISkConnection#open(ITsContextRo)}
+   * @param aCaption String - dialog window caption text
+   * @param aTimeout long - Connection wait time (milliseconds), < 0: infinite.
+   * @return boolean - success flag, <code>true</code> connection was established
+   * @throws TsNullArgumentRtException any argument = <code>null</code>
+   * @throws TsIllegalArgumentRtException connection is already open
    */
-  @SuppressWarnings( "unused" )
-  public static void showConnProgressDialog( Shell aShell, ISkConnection aConnection,
-      ITsContextRo aConnectionContext, String aText, long aTimeout ) {
-    TsNullArgumentRtException.checkNulls( aShell, aConnection, aConnectionContext, aText );
-
-    ITsThreadExecutor threadExecutor = ISkCoreConfigConstants.REFDEF_THREAD_EXECUTOR.getRef( aConnectionContext );
+  public static boolean showConnProgressDialog( Shell aShell, ISkConnection aConnection, ITsContextRo aArgs,
+      String aCaption, long aTimeout ) {
+    TsNullArgumentRtException.checkNulls( aShell, aConnection, aArgs, aCaption );
+    TsIllegalArgumentRtException.checkTrue( aConnection.state().isOpen() );
+    ITsThreadExecutor threadExecutor = ISkCoreConfigConstants.REFDEF_THREAD_EXECUTOR.getRef( aArgs );
 
     // Создание диалога прогресса выполнения запроса
-    ConnectionProgressDialog progressDialog = new ConnectionProgressDialog( aShell, aText, aTimeout );
+    ConnectionProgressDialog progressDialog = new ConnectionProgressDialog( aShell, aCaption, aTimeout );
     progressDialog.setCancelHandler( () -> {
       // Пользователь отменил операцию
       progressDialog.cancel();
     } );
     try {
-      // fork = false, cancelable = true
       progressDialog.run( true, true, aMonitor -> {
         while( aConnection.state() != ESkConnState.ACTIVE ) {
           if( progressDialog.isNeedCancel() ) {
@@ -55,15 +61,15 @@ public class S5BackendGuiUtils {
           }
           threadExecutor.syncExec( () -> {
             try {
-              aConnection.open( aConnectionContext );
+              aConnection.open( aArgs );
             }
             catch( S5ConnectionException e ) {
               LoggerUtils.errorLogger().error( ERR_NO_CONNECT, e.getLocalizedMessage() );
             }
             try {
-              Thread.sleep( ERR_CONNECTION_TIMEOUT );
+              Thread.sleep( ERR_CONNECTION_WAIT_MSECS );
             }
-            catch( InterruptedException e ) {
+            catch( @SuppressWarnings( "unused" ) InterruptedException e ) {
               // nop
             }
             catch( Exception e ) {
@@ -80,6 +86,7 @@ public class S5BackendGuiUtils {
     catch( InvocationTargetException | InterruptedException ex ) {
       LoggerUtils.errorLogger().error( ex );
     }
+    return aConnection.state().isOpen();
   }
 
   /**

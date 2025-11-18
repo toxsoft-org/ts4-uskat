@@ -40,7 +40,7 @@ public class LinkIdSkidListM5Model
   /**
    * Attribute {@link LinkIdSkidList#linkId()}
    */
-  public final M5AttributeFieldDef<LinkIdSkidList> LINK_ID = new M5AttributeFieldDef<>( FID_ID, DDEF_STRING ) {
+  public final M5AttributeFieldDef<LinkIdSkidList> LINK_ID = new M5AttributeFieldDef<>( FID_ID, DT_STRING ) {
 
     @Override
     protected void doInit() {
