@@ -19,6 +19,7 @@ import javax.persistence.*;
 import javax.sql.*;
 
 import org.hibernate.*;
+import org.toxsoft.core.tslib.bricks.events.msg.*;
 import org.toxsoft.core.tslib.coll.*;
 import org.toxsoft.core.tslib.coll.impl.*;
 import org.toxsoft.core.tslib.coll.primtypes.*;
@@ -30,9 +31,11 @@ import org.toxsoft.core.tslib.utils.errors.*;
 import org.toxsoft.core.tslib.utils.logs.*;
 import org.toxsoft.uskat.core.api.linkserv.*;
 import org.toxsoft.uskat.core.api.sysdescr.*;
+import org.toxsoft.uskat.core.backend.api.*;
 import org.toxsoft.uskat.core.impl.dto.*;
 import org.toxsoft.uskat.s5.common.sysdescr.*;
 import org.toxsoft.uskat.s5.server.backend.impl.*;
+import org.toxsoft.uskat.s5.server.backend.supports.core.*;
 import org.toxsoft.uskat.s5.server.backend.supports.events.*;
 import org.toxsoft.uskat.s5.server.backend.supports.objects.*;
 import org.toxsoft.uskat.s5.server.backend.supports.sysdescr.*;
@@ -76,6 +79,12 @@ public class S5BackendLinksSingleton
    */
   @Resource
   private DataSource dataSource;
+
+  /**
+   * Ядро сервера
+   */
+  @EJB
+  private IS5BackendCoreSingleton backendCore;
 
   /**
    * backend управления классами системы
@@ -307,6 +316,8 @@ public class S5BackendLinksSingleton
     }
     long interceptorTimestamp1 = System.currentTimeMillis();
 
+    // Список идентификаторов изменившихся конкретных связей
+    GwidList changedConrecteGwids = new GwidList();
     int removeCount = 0;
     int updateCount = 0;
     int createCount = 0;
@@ -361,9 +372,15 @@ public class S5BackendLinksSingleton
           }
           createCount += 1 + newCount;
         }
+        // Формирование списка идентификаторов изменившихся конкретных связей
+        changedConrecteGwids
+            .add( Gwid.createLink( newLink.leftSkid().classId(), newLink.leftSkid().strid(), newLink.linkId() ) );
       }
     }
-
+    if( changedConrecteGwids.size() > 0 ) {
+      // Формирование сообщения для фронтенда
+      fireWhenLinksChanged( backendCore, changedConrecteGwids );
+    }
     long entityManagerTimestamp1 = System.currentTimeMillis();
 
     // Счетчики для журнала
@@ -656,6 +673,19 @@ public class S5BackendLinksSingleton
       aClassesByIds.put( aClassId, classInfo );
     }
     return classInfo;
+  }
+
+  /**
+   * Формирование события: произошло изменение связей объектов системы
+   *
+   * @param aEventer {@link IS5BackendEventer} передатчик сообщений бекенда
+   * @param aChangedConcreteGwids {@link IGwidList} список изменных связей объектов.
+   * @throws TsNullArgumentRtException аргумент = null
+   */
+  private static void fireWhenLinksChanged( IS5BackendEventer aEventer, IGwidList aChangedConcreteGwids ) {
+    TsNullArgumentRtException.checkNulls( aEventer, aChangedConcreteGwids );
+    GtMessage message = IBaLinksMessages.makeMessage( aChangedConcreteGwids );
+    aEventer.fireBackendMessage( message );
   }
 
   /**
