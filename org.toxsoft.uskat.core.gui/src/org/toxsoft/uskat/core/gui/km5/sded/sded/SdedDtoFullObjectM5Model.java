@@ -50,7 +50,7 @@ public class SdedDtoFullObjectM5Model
 
     @Override
     protected void doInit() {
-      setNameAndDescription( STR_N_PROP_ID, STR_D_PROP_ID );
+      setNameAndDescription( STR_OBJECT_STRID, STR_OBJECT_STRID_D );
       setDefaultValue( DEFAULT_ID_AV );
       setFlags( M5FF_INVARIANT );
     }
