@@ -109,6 +109,8 @@ public interface ISkSdedKm5SharedResources {
   /**
    * {@link SdedDtoFullObjectM5Model}
    */
+  String STR_OBJECT_STRID               = Messages.getString( "STR_OBJECT_STRID" );               //$NON-NLS-1$
+  String STR_OBJECT_STRID_D             = Messages.getString( "STR_OBJECT_STRID_D" );             //$NON-NLS-1$
   String STR_OBJECT_NAME                = Messages.getString( "STR_OBJECT_NAME" );                //$NON-NLS-1$
   String STR_OBJECT_NAME_D              = Messages.getString( "STR_OBJECT_NAME_D" );              //$NON-NLS-1$
   String STR_OBJECT_DESCRIPTION         = Messages.getString( "STR_OBJECT_DESCRIPTION" );         //$NON-NLS-1$
