@@ -130,7 +130,7 @@ class SkConnection
     ITsContext ctx = createContextForCoraApi( aArgs );
     coreApi = new SkCoreApi( ctx, this );
     changeState( ESkConnState.ACTIVE );
-    stateChanged( ESkConnState.CLOSED );
+    stateChanged( ESkConnState.ACTIVE );
   }
 
   @Override
