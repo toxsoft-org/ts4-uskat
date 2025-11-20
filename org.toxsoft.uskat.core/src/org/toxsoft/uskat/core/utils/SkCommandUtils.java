@@ -52,6 +52,26 @@ public class SkCommandUtils {
   }
 
   /**
+   * Обновление(регистрация) обработчика команд на выполнение команд для объектов указанного класса.
+   *
+   * @param aCoreApi {@link ISkCoreApi} API сервера
+   * @param aExecutor {@link ISkCommandExecutor} исполнитель команд
+   * @param aObjectId {@link Skid} объект выполняемых команд
+   * @throws TsNullArgumentRtException любой аргумент = null
+   */
+  public static void defineCmdExecutor( ISkCoreApi aCoreApi, ISkCommandExecutor aExecutor, Skid aObjectId ) {
+    TsNullArgumentRtException.checkNulls( aCoreApi, aExecutor, aObjectId );
+    GwidList gwids = new GwidList();
+    String classId = aObjectId.classId();
+    ISkClassInfo classInfo = aCoreApi.sysdescr().getClassInfo( classId );
+    for( String cmdId : classInfo.cmds().list().keys() ) {
+      gwids.add( Gwid.createCmd( aObjectId, cmdId ) );
+    }
+
+    aCoreApi.cmdService().registerExecutor( aExecutor, gwids );
+  }
+
+  /**
    * Дерегистрация обработчика команд.
    *
    * @param aCoreApi {@link ISkCoreApi} API сервера
