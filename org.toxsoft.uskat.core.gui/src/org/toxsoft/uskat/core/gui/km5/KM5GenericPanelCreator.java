@@ -20,7 +20,7 @@ import org.toxsoft.uskat.core.api.objserv.*;
  * Предназначен также для переопределения для создания собственных реализации.
  *
  * @author hazard157
- * @param <T> - modelled entity type
+ * @param <T> - modeled entity type
  */
 public class KM5GenericPanelCreator<T extends ISkObject>
     extends M5DefaultPanelCreator<T> {

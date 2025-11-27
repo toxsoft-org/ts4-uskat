@@ -13,6 +13,7 @@ import org.toxsoft.core.tslib.coll.primtypes.*;
 import org.toxsoft.core.tslib.coll.primtypes.impl.*;
 import org.toxsoft.core.tslib.utils.errors.*;
 import org.toxsoft.uskat.core.api.objserv.*;
+import org.toxsoft.uskat.core.api.sysdescr.*;
 import org.toxsoft.uskat.core.api.sysdescr.dto.*;
 import org.toxsoft.uskat.core.impl.*;
 
@@ -123,20 +124,6 @@ public interface ISkHardConstants {
   );
 
   /**
-   * Determines if argument is the system attribute.
-   *
-   * @param aAttrInfo {@link IDtoAttrInfo} - the attribute info
-   * @return boolean - <code>true</code> if argument has {@link #OPDEF_SK_IS_SYS_ATTR} flag set or sysattr ID
-   * @throws TsNullArgumentRtException argument = <code>null</code>
-   */
-  static boolean isSkSysAttr( IDtoAttrInfo aAttrInfo ) {
-    TsNullArgumentRtException.checkNull( aAttrInfo );
-    // 2025-07-11 mvk, vs ---+++ вернули назад (ISkObjService.defineObject).
-    // return isSkSysAttrId( aAttrInfo.id() ) || OPDEF_SK_IS_SYS_ATTR.getValue( aAttrInfo.params() ).asBool();
-    return OPDEF_SK_IS_SYS_ATTR.getValue( aAttrInfo.params() ).asBool();
-  }
-
-  /**
    * Flags that class is defined at runtime.<br>
    * Type: {@link EAtomicType#BOOLEAN}<br>
    * Usage: this option is not mandatory however it is very strongly recommended to set it to <code>true</code> for
@@ -179,5 +166,52 @@ public interface ISkHardConstants {
       TSID_IS_NULL_ALLOWED, AV_TRUE, //
       TSID_DEFAULT_VALUE, AV_FALSE //
   );
+
+  // ------------------------------------------------------------------------------------
+  // Some common logic
+  //
+
+  /**
+   * Determines if argument is the system attribute.
+   *
+   * @param aAttrInfo {@link IDtoAttrInfo} - the attribute info
+   * @return boolean - <code>true</code> if argument has {@link #OPDEF_SK_IS_SYS_ATTR} flag set or sysattr ID
+   * @throws TsNullArgumentRtException argument = <code>null</code>
+   */
+  static boolean isSkSysAttr( IDtoAttrInfo aAttrInfo ) {
+    TsNullArgumentRtException.checkNull( aAttrInfo );
+    // 2025-07-11 mvk, vs ---+++ вернули назад (ISkObjService.defineObject).
+    // return isSkSysAttrId( aAttrInfo.id() ) || OPDEF_SK_IS_SYS_ATTR.getValue( aAttrInfo.params() ).asBool();
+    return OPDEF_SK_IS_SYS_ATTR.getValue( aAttrInfo.params() ).asBool();
+  }
+
+  /**
+   * Determines if the class is a pure Green World class.
+   * <p>
+   * Pure Green World class means that the class satisfies all conditions:
+   * <ul>
+   * <li>class is claimed by {@link ISkSysdescr}, see {@link ISkSysdescr#determineClassClaimingServiceId(String)};</li>
+   * <li>class is note source defined, that is {@link ISkClassInfo#params()} does <b>not</b> contains any of the listed
+   * options with value <code>true</code>: {@link #OPDEF_SK_IS_SOURCE_CODE_DEFINED_CLASS},
+   * {@link #OPDEF_SK_IS_SOURCE_USKAT_CORE_CLASS} or {@link #OPDEF_SK_IS_SOURCE_USKAT_SYSEXT_CLASS}.</li>
+   * </ul>
+   *
+   * @param aClassInfo {@link ISkClassInfo} - the clas info to check
+   * @param aCoreApi {@link ISkCoreApi} - the USkat core API
+   * @return boolean - <code>true</code> for pure Green World class
+   */
+  static boolean isPureGreenWorldClass( ISkClassInfo aClassInfo, ISkCoreApi aCoreApi ) {
+    if( aClassInfo.params().getBool( OPDEF_SK_IS_SOURCE_CODE_DEFINED_CLASS ) ) {
+      return false;
+    }
+    if( aClassInfo.params().getBool( OPDEF_SK_IS_SOURCE_USKAT_CORE_CLASS ) ) {
+      return false;
+    }
+    if( aClassInfo.params().getBool( OPDEF_SK_IS_SOURCE_USKAT_SYSEXT_CLASS ) ) {
+      return false;
+    }
+    String claimingServiceId = aCoreApi.sysdescr().determineClassClaimingServiceId( aClassInfo.id() );
+    return claimingServiceId.equals( ISkSysdescr.SERVICE_ID );
+  }
 
 }

@@ -99,7 +99,7 @@ public interface ISkSysdescr
   /**
    * Determines ID of service claiming ownership of entities of the specified class.
    * <p>
-   * All classes not explicitly claimed by any service is considered to be"oned" by {@link ISkSysdescr#SERVICE_ID}.
+   * All classes not explicitly claimed by any service is considered to be "owned" by {@link ISkSysdescr#SERVICE_ID}.
    *
    * @param aClassId String - ID of class to be checked
    * @return String - ID of claiming service ID

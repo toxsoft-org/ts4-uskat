@@ -20,7 +20,7 @@ import org.toxsoft.uskat.core.gui.km5.*;
  * M5-mode base for all entities extending {@link IDtoClassPropInfoBase}.
  *
  * @author hazard157
- * @param <T> - modelled entity type
+ * @param <T> - modeled entity type
  */
 public class SdedDtoPropInfoM5ModelBase<T extends IDtoClassPropInfoBase>
     extends KM5ConnectedModelBase<T> {
@@ -112,7 +112,7 @@ public class SdedDtoPropInfoM5ModelBase<T extends IDtoClassPropInfoBase>
    * Constructor.
    *
    * @param aId String - model ID
-   * @param aEntityClass {@link Class}&lt;T&gt; - modelled entity type
+   * @param aEntityClass {@link Class}&lt;T&gt; - modeled entity type
    * @param aConn {@link ISkConnection} - Sk-connection to be used in constructor
    * @throws TsNullArgumentRtException any argument = <code>null</code>
    * @throws TsIllegalArgumentRtException identifier is not an IDpath
