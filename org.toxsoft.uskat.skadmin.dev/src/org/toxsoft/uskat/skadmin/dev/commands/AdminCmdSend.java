@@ -18,7 +18,6 @@ import org.toxsoft.core.tslib.coll.impl.*;
 import org.toxsoft.core.tslib.coll.primtypes.*;
 import org.toxsoft.core.tslib.gw.gwid.*;
 import org.toxsoft.core.tslib.gw.skid.*;
-import org.toxsoft.core.tslib.utils.*;
 import org.toxsoft.core.tslib.utils.errors.*;
 import org.toxsoft.uskat.core.*;
 import org.toxsoft.uskat.core.api.cmdserv.*;
@@ -198,8 +197,8 @@ public class AdminCmdSend
       ISkidList objList = objService.listSkids( classId, true );
       // Подготовка списка возможных значений
       IListEdit<IPlexyValue> values = new ElemArrayList<>( objList.size() );
-      // Пустое значение
-      IAtomicValue dataValue = AvUtils.avStr( TsLibUtils.EMPTY_STRING );
+      // Значение '*'
+      IAtomicValue dataValue = AvUtils.avStr( MULTI );
       IPlexyValue plexyValue = pvSingleValue( dataValue );
       values.add( plexyValue );
       for( int index = 0, n = objList.size(); index < n; index++ ) {
