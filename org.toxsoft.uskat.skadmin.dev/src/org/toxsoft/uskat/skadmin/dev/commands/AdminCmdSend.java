@@ -1,6 +1,7 @@
 package org.toxsoft.uskat.skadmin.dev.commands;
 
 import static org.toxsoft.core.tslib.bricks.validator.ValidationResult.*;
+import static org.toxsoft.core.tslib.utils.TsLibUtils.*;
 import static org.toxsoft.uskat.legacy.plexy.impl.PlexyValueUtils.*;
 import static org.toxsoft.uskat.skadmin.core.EAdminCmdContextNames.*;
 import static org.toxsoft.uskat.skadmin.dev.commands.IAdminHardConstants.*;
@@ -109,7 +110,7 @@ public class AdminCmdSend
     try {
       // Аргументы команды
       String classId = argSingleValue( ARG_SEND_CLASSID ).asString();
-      String objStrid = argSingleValue( ARG_SEND_STRID ).asString();
+      String strid = argSingleValue( ARG_SEND_STRID ).asString();
       String cmdId = argSingleValue( ARG_SEND_CMDID ).asString();
       IOptionSet args = argOptionSet( ARG_SEND_ARGS );
       IAtomicValue authorClassId = argSingleValue( ARG_SEND_AUTHOR_CLASSID );
@@ -117,6 +118,13 @@ public class AdminCmdSend
       if( !authorClassId.isAssigned() ) {
         authorClassId = AvUtils.avStr( ISkUser.CLASS_ID );
       }
+
+      if( strid.equals( EMPTY_STRING ) ) {
+        strid = MULTI;
+      }
+      // Получение идентификаторов атрибутов
+      ISkidList objIds = AdminCmdUtils.getObjSkids( coreApi, classId, strid );
+
       if( !authorStrid.isAssigned() ) {
         // TODO: connection.getConnectionInfo()....
         // authorStrid = AvUtils.avStr( connection.sessionInfo().getUser().login() );
@@ -124,26 +132,28 @@ public class AdminCmdSend
       }
       try {
         long startTime = System.currentTimeMillis();
-        Gwid cmdGwid = Gwid.createCmd( classId, objStrid, cmdId );
-        Skid authorSkid = new Skid( authorClassId.asString(), authorStrid.asString() );
+        for( Skid objId : objIds ) {
+          Gwid cmdGwid = Gwid.createCmd( objId, cmdId );
+          Skid authorSkid = new Skid( authorClassId.asString(), authorStrid.asString() );
 
-        ISkClassInfo classInfo = sysdescr.getClassInfo( classId );
-        IDtoCmdInfo cmdInfo = classInfo.cmds().list().findByKey( cmdId );
-        // check command arguments are valid
-        for( IDataDef argInfo : cmdInfo.argDefs() ) {
-          if( !args.hasKey( argInfo.id() ) ) {
-            println( MSG_COMMAND_ARG_NOT_FOUND, argInfo.id() );
-            resultFail();
-            return;
+          ISkClassInfo classInfo = sysdescr.getClassInfo( classId );
+          IDtoCmdInfo cmdInfo = classInfo.cmds().list().findByKey( cmdId );
+          // check command arguments are valid
+          for( IDataDef argInfo : cmdInfo.argDefs() ) {
+            if( !args.hasKey( argInfo.id() ) ) {
+              println( MSG_COMMAND_ARG_NOT_FOUND, argInfo.id() );
+              resultFail();
+              return;
+            }
           }
-        }
-        synchronized (this) {
-          // Выполнение
-          ISkCommand cmd = commandService.sendCommand( cmdGwid, authorSkid, args );
-          // Установка слушателя команды
-          cmd.stateEventer().addListener( this );
-          // Команда отправлена на выполнение
-          println( MSG_COMMAND_SEND, cmd.instanceId() );
+          synchronized (this) {
+            // Выполнение
+            ISkCommand cmd = commandService.sendCommand( cmdGwid, authorSkid, args );
+            // Установка слушателя команды
+            cmd.stateEventer().addListener( this );
+            // Команда отправлена на выполнение
+            println( MSG_COMMAND_SEND, cmd.instanceId() );
+          }
         }
         long delta = (System.currentTimeMillis() - startTime) / 1000;
         addResultInfo( MSG_CMD_TIME, Long.valueOf( delta ) );

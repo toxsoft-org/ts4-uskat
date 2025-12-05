@@ -13,7 +13,7 @@ interface IAdminHardResources {
   //
   String STR_CMD_SEND                = "Отправка команды на исполнение";
   String STR_ARG_SEND_CLASSID        = "Идентификатор класса объекта";
-  String STR_ARG_SEND_STRID          = "Строковый идентификатор объекта класса classId";
+  String STR_ARG_SEND_STRID          = "Строковый идентификатор объекта класса classId. * - все объекты класса";
   String STR_ARG_SEND_CMDID          = "Идентификатор команды";
   String STR_ARG_SEND_ARGS           = "Список аргументов команды";
   String STR_ARG_SEND_AUTHOR_CLASSID = "Класс автора команды";

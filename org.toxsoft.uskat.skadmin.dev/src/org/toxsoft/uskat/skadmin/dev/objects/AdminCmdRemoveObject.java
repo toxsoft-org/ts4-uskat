@@ -84,10 +84,10 @@ public class AdminCmdRemoveObject
     if( strid.equals( EMPTY_STRING ) ) {
       strid = MULTI;
     }
-    // Время начала чтения значений
-    long startTime = System.currentTimeMillis();
     // Получение идентификаторов атрибутов
     ISkidList objIds = AdminObjectsUtils.getObjSkids( coreApi, classId, strid );
+    // Время начала чтения значений
+    long startTime = System.currentTimeMillis();
     // Запись в журнал
     addResultInfo( "\n" + MSG_CMD_REMOVE_OBJ, Integer.valueOf( objIds.size() ) ); //$NON-NLS-1$
     // Уадление объектов

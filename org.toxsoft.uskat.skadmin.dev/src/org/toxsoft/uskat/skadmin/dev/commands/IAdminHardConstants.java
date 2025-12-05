@@ -23,6 +23,8 @@ import org.toxsoft.uskat.skadmin.dev.*;
 @SuppressWarnings( "nls" )
 interface IAdminHardConstants {
 
+  String MULTI = "*";
+
   /**
    * Тип аргумента "состояние ответа команды"
    */
@@ -49,7 +51,7 @@ interface IAdminHardConstants {
   /**
    * Аргумент {@link AdminCmdSend}: Строковый идентификатор объекта класса
    */
-  IAdminCmdArgDef ARG_SEND_STRID = new AdminCmdArgDef( "strid", DT_STRING, STR_ARG_SEND_STRID );
+  IAdminCmdArgDef ARG_SEND_STRID = new AdminCmdArgDef( "strid", DT_STRING_NULLABLE, STR_ARG_SEND_STRID );
 
   /**
    * Аргумент {@link AdminCmdSend}: Идентификатор команды
