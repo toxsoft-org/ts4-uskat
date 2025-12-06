@@ -50,6 +50,12 @@ public class AdminCmdParserUtils {
       };
 
   /**
+   * Разделители. Отличие от {@link IStrioHardConstants#DEFAULT_DELIMITER_CHARS} - добавлен пробел
+   */
+  private static final String READ_ATOMIC_VALUE_DELIMITER_CHARS =
+      IStrioHardConstants.DEFAULT_DELIMITER_CHARS + IStrioHardConstants.CHAR_SPACE;
+
+  /**
    * Определяет имена параметров контекста из потока лексем
    * <p>
    * Определение имен идет с указанного индекса списка лексем и заканчивается на любой лексеме не имеющей тип
@@ -818,8 +824,9 @@ public class AdminCmdParserUtils {
             data = String.format( "\"%s\"", data ); //$NON-NLS-1$
           }
           try {
-            // Тип значения определяется через формат ввода
-            return AtomicValueKeeper.KEEPER.str2ent( data );
+            // Тип значения определяется через формат ввода.
+            // ";" - терминатор/разделитель для правильного завершения разбора timestamp (StrioReader.readTimestamp())
+            return AtomicValueKeeper.KEEPER.str2ent( data + ";" ); //$NON-NLS-1$
           }
           catch( StrioRtException e ) {
             String err = (paramName.length() == 0 ? String.format( ERR_MSG_INVALID_VALUE, aName, data )
