@@ -94,11 +94,11 @@ public class AdminCmdReceiver
       gwids.add( Gwid.KEEPER.str2ent( gwid ) );
     }
     int timeout = argSingleValue( ARG_RECV_TIMEOUT ).asInt();
-
+    // Исполнитель uskat-потоков
     ITsThreadExecutor threadExecutor = SkThreadExecutorService.getExecutor( coreApi );
-    // Установка обработчика событий
-    eventService.registerHandler( gwids, this );
-    // Таймер удаления обработчика событий
+    // Установка слушателя событий
+    threadExecutor.syncExec( () -> eventService.registerHandler( gwids, AdminCmdReceiver.this ) );
+    // Таймер удаления слушателя событий
     threadExecutor.timerExec( timeout, () -> {
       eventService.unregisterHandler( AdminCmdReceiver.this );
       println( MSG_DEREG_EVENT_LISTENER, gwidsToStr( gwids ) );

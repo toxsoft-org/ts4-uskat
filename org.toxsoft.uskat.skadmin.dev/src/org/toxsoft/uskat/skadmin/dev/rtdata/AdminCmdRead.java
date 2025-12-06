@@ -15,6 +15,7 @@ import org.toxsoft.core.tslib.av.opset.*;
 import org.toxsoft.core.tslib.av.opset.impl.*;
 import org.toxsoft.core.tslib.bricks.strid.coll.*;
 import org.toxsoft.core.tslib.bricks.strid.coll.impl.*;
+import org.toxsoft.core.tslib.bricks.threadexec.*;
 import org.toxsoft.core.tslib.bricks.time.*;
 import org.toxsoft.core.tslib.bricks.time.impl.*;
 import org.toxsoft.core.tslib.coll.*;
@@ -30,6 +31,7 @@ import org.toxsoft.uskat.core.api.rtdserv.*;
 import org.toxsoft.uskat.core.api.sysdescr.*;
 import org.toxsoft.uskat.core.api.sysdescr.dto.*;
 import org.toxsoft.uskat.core.connection.*;
+import org.toxsoft.uskat.core.impl.*;
 import org.toxsoft.uskat.legacy.plexy.*;
 import org.toxsoft.uskat.skadmin.core.*;
 import org.toxsoft.uskat.skadmin.core.impl.*;
@@ -171,11 +173,13 @@ public class AdminCmdRead
     connection.addConnectionListener( connectionListener );
     callback = aCallback;
     ISkCoreApi coreApi = connection.coreApi();
-    String classId = argSingleValue( ARG_CLASSID ).asString();
-    String objStrid = argSingleValue( ARG_STRID ).asString();
+    ISkRtdataService currdata = coreApi.rtdService();
+
+    IAtomicValue classId = argSingleValue( ARG_CLASSID );
+    String strid = argSingleValue( ARG_STRID ).asString();
     String dataId = argSingleValue( ARG_DATAID ).asString();
-    if( objStrid.equals( EMPTY_STRING ) ) {
-      objStrid = STR_MULTI_ID;
+    if( strid.equals( EMPTY_STRING ) ) {
+      strid = STR_MULTI_ID;
     }
     if( dataId.equals( EMPTY_STRING ) ) {
       dataId = STR_MULTI_ID;
@@ -188,19 +192,15 @@ public class AdminCmdRead
     if( !readTimeout.isAssigned() ) {
       readTimeout = avInt( 10000 );
     }
-    // Служба текущих данных
-    ISkRtdataService currdata = coreApi.rtdService();
-    // Регистрация(перегистрация слушателя) текущих данных
-    currdata.eventer().addListener( cdListener );
     // Каналы уже открытые на текущем соединении
-    IMapEdit<Gwid, ISkReadCurrDataChannel> channels = cdChannels.findByKey( connection );
-    if( channels == null ) {
-      channels = new ElemMap<>();
-      cdChannels.put( connection, channels );
-      cdGwids.put( connection, new ElemArrayList<>( false ) );
-    }
+    final IMapEdit<Gwid, ISkReadCurrDataChannel> channels = getConnectionChannels();
+    // Исполнитель uskat-потоков
+    ITsThreadExecutor threadExecutor = SkThreadExecutorService.getExecutor( coreApi );
+    // Регистрация(перегистрация слушателя) текущих данных
+    threadExecutor.syncExec( () -> currdata.eventer().addListener( cdListener ) );
     try {
-      if( classId.equals( EMPTY_STRING ) ) {
+      // Если нет класса объектов и close = true, то выводятся значения всех открытых каналов и после они закрываются
+      if( !classId.isAssigned() ) {
         if( !close ) {
           // Нет команды
           IPlexyValue pxValue = pvSingleRef( IAtomicValue.NULL );
@@ -208,37 +208,32 @@ public class AdminCmdRead
           resultOk( pxValue );
           return;
         }
-        // Закрываются все каналы
         long startTime = System.currentTimeMillis();
         // Время в текстовом виде
         String time = TimeUtils.timestampToString( startTime );
-        // Значение текущего данного прочитанное из последнего канала
-        IAtomicValue value = IAtomicValue.NULL;
         // Чтение каналов
         addResultInfo( "\n" + MSG_CMD_READ, time, Integer.valueOf( channels.size() ) ); //$NON-NLS-1$
-        for( ISkReadCurrDataChannel channel : channels ) {
-          value = channel.getValue();
-          addResultInfo( "\n" + MSG_CMD_READ_VALUE, time, channel.gwid(), value ); //$NON-NLS-1$
-          channel.close();
-        }
-        cdChannels.removeByKey( connection );
-        cdGwids.removeByKey( connection );
-        currdata.eventer().removeListener( cdListener );
-        IPlexyValue pxValue = pvSingleRef( value );
+        // Чтение и вывод текущих значений
+        threadExecutor.syncExec( () -> {
+          // Значение текущего данного прочитанное из последнего канала
+          IAtomicValue value = IAtomicValue.NULL;
+          for( ISkReadCurrDataChannel channel : channels ) {
+            value = channel.getValue();
+            addResultInfo( "\n" + MSG_CMD_READ_VALUE, time, channel.gwid(), value ); //$NON-NLS-1$
+            channel.close();
+          }
+          cdChannels.removeByKey( connection );
+          cdGwids.removeByKey( connection );
+          currdata.eventer().removeListener( cdListener );
+        } );
+        IPlexyValue pxValue = pvSingleRef( IAtomicValue.NULL );
         setContextParamValue( CTX_SK_ATOMIC_VALUE, pxValue );
         resultOk( pxValue );
-        return;
       }
       // Получение идентификаторов текущих данных. currdata = true, histdata = false
-      IList<Gwid> gwids = getDataGwids( coreApi, classId, objStrid, dataId, true, false );
-
+      IList<Gwid> gwids = getDataGwids( coreApi, classId.asString(), strid, dataId, true, false );
+      // Чтение хранимых данных
       if( readStartTime.isAssigned() ) {
-        if( !readEndTime.isAssigned() ) {
-          readEndTime = avTimestamp( System.currentTimeMillis() );
-        }
-        if( !readType.isAssigned() ) {
-          readType = avStr( EQueryIntervalType.CSCE.id() );
-        }
         // Чтение хранимых данных
         IOptionSetEdit options = new OptionSet();
         // 2022-09-19 mvk ---
@@ -247,16 +242,27 @@ public class AdminCmdRead
 
         // Служба запросов данных
         ISkHistoryQueryService histdata = coreApi.hqService();
-
-        ISkQueryRawHistory query = histdata.createHistoricQuery( options );
-        // try {
-        query.genericChangeEventer().addListener( new AdminHistDataQueryChangeListener( query, callback ) );
-        query.prepare( new GwidList( gwids ) );
-        // synchronized (query) {
-        EQueryIntervalType rt = EQueryIntervalType.findById( readType.asString() );
-        long st = readStartTime.asLong();
-        long et = readEndTime.asLong();
-        query.exec( new QueryInterval( rt, st, et ) );
+        // Запрос хранимых данных у сервера
+        threadExecutor.syncExec( () -> {
+          ISkQueryRawHistory query = histdata.createHistoricQuery( options );
+          // try {
+          query.genericChangeEventer().addListener( new AdminHistDataQueryChangeListener( query, callback ) );
+          query.prepare( new GwidList( gwids ) );
+          // synchronized (query) {
+          IAtomicValue ret = readEndTime;
+          if( !ret.isAssigned() ) {
+            ret = avTimestamp( System.currentTimeMillis() );
+          }
+          IAtomicValue rt = readType;
+          if( !rt.isAssigned() ) {
+            rt = avStr( EQueryIntervalType.CSCE.id() );
+          }
+          EQueryIntervalType type = EQueryIntervalType.findById( rt.asString() );
+          long st = readStartTime.asLong();
+          long et = readEndTime.asLong();
+          query.exec( new QueryInterval( type, st, et ) );
+        } );
+        // TODO:
         // query.wait( readTimeout.asLong() );
         // }
         // }
@@ -282,47 +288,45 @@ public class AdminCmdRead
           newChannelGwids.add( gwid );
         }
       }
-      IMap<Gwid, ISkReadCurrDataChannel> newChannels = null;
-      // Создание новых каналов (добавление в карту cdChannels проводится в onCurrData(...)
-      newChannels = currdata.createReadCurrDataChannels( newChannelGwids );
-      // Добавление вновь добавленных каналов в кэша
-      channels.putAll( newChannels );
-      // Готовые каналы соединения
-      IListEdit<Gwid> readyChannelIds = cdGwids.getByKey( connection );
-      // Вывод уже полученных значений
-      for( Gwid gwid : gwids ) {
-        ISkReadCurrDataChannel channel = channels.getByKey( gwid );
-        if( channel == null ) {
-          addResultInfo( "\n" + MSG_CMD_NOT_FOUND, time, gwid ); //$NON-NLS-1$
-          continue;
-        }
-        if( !channel.isOk() ) {
-          addResultInfo( "\n" + MSG_CMD_NOT_READY, time, gwid ); //$NON-NLS-1$
-          continue;
-        }
-        // Вывод текущего значения канала
-        value = channel.getValue();
-        addResultInfo( "\n" + MSG_CMD_READ_VALUE, time, gwid, value ); //$NON-NLS-1$
-      }
-
-      if( close ) {
-        // Завершение работы каналов
+      // Запрос к серверу на создание текущих данных и вывод их значений
+      threadExecutor.syncExec( () -> {
+        // Создание новых каналов (добавление в карту cdChannels проводится в onCurrData(...)
+        channels.putAll( currdata.createReadCurrDataChannels( newChannelGwids ) );
+        // Готовые каналы соединения
+        IListEdit<Gwid> readyChannelIds = cdGwids.getByKey( connection );
+        // Вывод уже полученных значений
         for( Gwid gwid : gwids ) {
-          ISkReadCurrDataChannel channel = channels.removeByKey( gwid );
-          if( channel != null ) {
-            channel.close();
+          ISkReadCurrDataChannel channel = channels.findByKey( gwid );
+          if( channel == null ) {
+            addResultInfo( "\n" + MSG_CMD_NOT_FOUND, time, gwid ); //$NON-NLS-1$
+            continue;
           }
-          readyChannelIds.remove( gwid );
+          if( !channel.isOk() ) {
+            addResultInfo( "\n" + MSG_CMD_NOT_READY, time, gwid ); //$NON-NLS-1$
+            continue;
+          }
+          // Вывод текущего значения канала
+          addResultInfo( "\n" + MSG_CMD_READ_VALUE, time, gwid, channel.getValue() ); //$NON-NLS-1$
         }
-        if( channels.size() == 0 ) {
-          currdata.eventer().removeListener( cdListener );
+        // Завершение работы каналов по требованию
+        if( close ) {
+          for( Gwid gwid : gwids ) {
+            ISkReadCurrDataChannel channel = channels.removeByKey( gwid );
+            if( channel != null ) {
+              channel.close();
+            }
+            readyChannelIds.remove( gwid );
+          }
+          if( channels.size() == 0 ) {
+            currdata.eventer().removeListener( cdListener );
+          }
         }
-      }
-      addResultInfo( "\n\n" + MSG_CMD_TIME, Long.valueOf( System.currentTimeMillis() - startTime ) ); //$NON-NLS-1$
+        addResultInfo( "\n\n" + MSG_CMD_TIME, Long.valueOf( System.currentTimeMillis() - startTime ) ); //$NON-NLS-1$
 
-      IPlexyValue pxValue = pvSingleRef( value );
-      setContextParamValue( CTX_SK_ATOMIC_VALUE, pxValue );
-      resultOk( pxValue );
+        IPlexyValue pxValue = pvSingleRef( value );
+        setContextParamValue( CTX_SK_ATOMIC_VALUE, pxValue );
+        resultOk( pxValue );
+      } );
     }
     catch( Throwable e ) {
       addResultError( e );
@@ -336,80 +340,87 @@ public class AdminCmdRead
     if( pxCoreApi == null ) {
       return IList.EMPTY;
     }
-    ISkCoreApi coreApi = (ISkCoreApi)pxCoreApi.singleRef();
-    ISkSysdescr sysdescr = coreApi.sysdescr();
-    ISkObjectService objService = coreApi.objService();
-    if( aArgId.equals( ARG_CLASSID.id() ) ) {
-      // Список всех классов
-      IStridablesList<ISkClassInfo> classInfos = sysdescr.listClasses();
-      // Подготовка списка возможных значений
-      IListEdit<IPlexyValue> values = new ElemArrayList<>( classInfos.size() );
-      for( int index = 0, n = classInfos.size(); index < n; index++ ) {
-        IAtomicValue atomicValue = avStr( classInfos.get( index ).id() );
-        IPlexyValue plexyValue = pvSingleValue( atomicValue );
-        values.add( plexyValue );
-      }
-      return values;
-    }
-    if( (aArgId.equals( ARG_STRID.id() ) && aArgValues.keys().hasElem( ARG_CLASSID.id() )) ) {
-      // Идентификатор класса
-      String classId = aArgValues.getByKey( ARG_CLASSID.id() ).singleValue().asString();
-      // Список всех объектов с учетом наследников
-      ISkidList objList = objService.listSkids( classId, true );
-      // Подготовка списка возможных значений
-      IListEdit<IPlexyValue> values = new ElemArrayList<>( objList.size() );
-      // Значение '*'
-      IAtomicValue atomicValue = avStr( STR_MULTI_ID );
-      IPlexyValue plexyValue = pvSingleValue( atomicValue );
-      values.add( plexyValue );
-      for( int index = 0, n = objList.size(); index < n; index++ ) {
-        atomicValue = avStr( objList.get( index ).strid() );
-        plexyValue = pvSingleValue( atomicValue );
-        values.add( plexyValue );
-      }
-      return values;
-    }
-    if( aArgId.equals( ARG_DATAID.id() ) && aArgValues.keys().hasElem( ARG_CLASSID.id() ) ) {
-      String classId = aArgValues.getByKey( ARG_CLASSID.id() ).singleValue().asString();
-      ISkClassInfo classInfo = sysdescr.findClassInfo( classId );
-      if( classInfo == null ) {
-        return IList.EMPTY;
-      }
-      IStridablesList<IDtoRtdataInfo> rtdInfos = classInfo.rtdata().list();
-      IListEdit<IPlexyValue> values = new ElemLinkedList<>();
-      // Значение '*'
-      IAtomicValue atomicValue = avStr( STR_MULTI_ID );
-      IPlexyValue plexyValue = pvSingleValue( atomicValue );
-      values.add( plexyValue );
-      for( IDtoRtdataInfo rtdInfo : rtdInfos ) {
-        if( !rtdInfo.isCurr() ) {
-          continue;
+    IListEdit<IPlexyValue> retValues = new ElemArrayList<>();
+    // Исполнитель uskat-потоков
+    ITsThreadExecutor threadExecutor = SkThreadExecutorService.getExecutor( pxCoreApi.singleRef() );
+    // Определение допускаемых значений
+    threadExecutor.syncExec( () -> {
+      ISkCoreApi coreApi = (ISkCoreApi)pxCoreApi.singleRef();
+      ISkSysdescr sysdescr = coreApi.sysdescr();
+      ISkObjectService objService = coreApi.objService();
+      if( aArgId.equals( ARG_CLASSID.id() ) ) {
+        // Список всех классов
+        IStridablesList<ISkClassInfo> classInfos = sysdescr.listClasses();
+        // Подготовка списка возможных значений
+        for( int index = 0, n = classInfos.size(); index < n; index++ ) {
+          IAtomicValue atomicValue = avStr( classInfos.get( index ).id() );
+          IPlexyValue plexyValue = pvSingleValue( atomicValue );
+          retValues.add( plexyValue );
         }
-        atomicValue = avStr( rtdInfo.id() );
-        plexyValue = pvSingleValue( atomicValue );
-        values.add( plexyValue );
       }
-      return values;
-    }
-    if( aArgId.equals( ARG_READ_TYPE.id() ) ) {
-      IListEdit<IPlexyValue> values = new ElemLinkedList<>();
-      // Значение '*'
-      IAtomicValue atomicValue = avStr( STR_MULTI_ID );
-      IPlexyValue plexyValue = pvSingleValue( atomicValue );
-      values.add( plexyValue );
-      for( EQueryIntervalType type : EQueryIntervalType.values() ) {
-        atomicValue = avStr( type.id() );
-        plexyValue = pvSingleValue( atomicValue );
-        values.add( plexyValue );
+      if( (aArgId.equals( ARG_STRID.id() ) && aArgValues.keys().hasElem( ARG_CLASSID.id() )) ) {
+        // Идентификатор класса
+        String classId = aArgValues.getByKey( ARG_CLASSID.id() ).singleValue().asString();
+        // Список всех объектов с учетом наследников
+        ISkidList objList = objService.listSkids( classId, true );
+        // Значение '*'
+        IAtomicValue atomicValue = avStr( STR_MULTI_ID );
+        IPlexyValue plexyValue = pvSingleValue( atomicValue );
+        retValues.add( plexyValue );
+        for( int index = 0, n = objList.size(); index < n; index++ ) {
+          atomicValue = avStr( objList.get( index ).strid() );
+          plexyValue = pvSingleValue( atomicValue );
+          retValues.add( plexyValue );
+        }
       }
-      return values;
-    }
-    return IList.EMPTY;
+      if( aArgId.equals( ARG_DATAID.id() ) && aArgValues.keys().hasElem( ARG_CLASSID.id() ) ) {
+        String classId = aArgValues.getByKey( ARG_CLASSID.id() ).singleValue().asString();
+        ISkClassInfo classInfo = sysdescr.findClassInfo( classId );
+        if( classInfo == null ) {
+          return;
+        }
+        IStridablesList<IDtoRtdataInfo> rtdInfos = classInfo.rtdata().list();
+        // Значение '*'
+        IAtomicValue atomicValue = avStr( STR_MULTI_ID );
+        IPlexyValue plexyValue = pvSingleValue( atomicValue );
+        retValues.add( plexyValue );
+        for( IDtoRtdataInfo rtdInfo : rtdInfos ) {
+          if( !rtdInfo.isCurr() ) {
+            continue;
+          }
+          atomicValue = avStr( rtdInfo.id() );
+          plexyValue = pvSingleValue( atomicValue );
+          retValues.add( plexyValue );
+        }
+      }
+      if( aArgId.equals( ARG_READ_TYPE.id() ) ) {
+        // Значение '*'
+        IAtomicValue atomicValue = avStr( STR_MULTI_ID );
+        IPlexyValue plexyValue = pvSingleValue( atomicValue );
+        retValues.add( plexyValue );
+        for( EQueryIntervalType type : EQueryIntervalType.values() ) {
+          atomicValue = avStr( type.id() );
+          plexyValue = pvSingleValue( atomicValue );
+          retValues.add( plexyValue );
+        }
+      }
+    } );
+    return retValues;
   }
 
   // ------------------------------------------------------------------------------------
   // Внутренние методы
   //
+  private static IMapEdit<Gwid, ISkReadCurrDataChannel> getConnectionChannels() {
+    IMapEdit<Gwid, ISkReadCurrDataChannel> channels = cdChannels.findByKey( connection );
+    if( channels == null ) {
+      channels = new ElemMap<>();
+      cdChannels.put( connection, channels );
+      cdGwids.put( connection, new ElemArrayList<>( false ) );
+    }
+    return channels;
+  }
+
   /**
    * Вывести сообщение в callback клиента
    *

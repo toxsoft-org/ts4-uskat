@@ -1,14 +1,12 @@
 package org.toxsoft.uskat.legacy.plexy;
 
-import java.io.ObjectStreamException;
-import java.io.Serializable;
+import java.io.*;
 
-import org.toxsoft.core.tslib.av.IAtomicValue;
-import org.toxsoft.core.tslib.av.opset.IOptionSet;
-import org.toxsoft.core.tslib.coll.IList;
-import org.toxsoft.core.tslib.utils.errors.TsNullObjectErrorRtException;
-import org.toxsoft.core.tslib.utils.errors.TsUnsupportedFeatureRtException;
-import org.toxsoft.uskat.legacy.plexy.impl.PlexyValueUtils;
+import org.toxsoft.core.tslib.av.*;
+import org.toxsoft.core.tslib.av.opset.*;
+import org.toxsoft.core.tslib.coll.*;
+import org.toxsoft.core.tslib.utils.errors.*;
+import org.toxsoft.uskat.legacy.plexy.impl.*;
 
 /**
  * Плекси-значение.
@@ -62,10 +60,10 @@ public interface IPlexyValue {
   /**
    * Возвращает значение-ссылку для плекси-значения вида {@link EPlexyKind#SINGLE_REF}.
    *
-   * @return {@link Object} - значение-ссылка
+   * @return T - значение-ссылка
    * @throws TsUnsupportedFeatureRtException плекси-значения НЕ вида {@link EPlexyKind#SINGLE_REF}.
    */
-  Object singleRef();
+  <T> T singleRef();
 
   /**
    * Возвращает значение-список для плекси-значения вида {@link EPlexyKind#REF_LIST}.
@@ -115,7 +113,7 @@ class InternalNullPlexyValue
   }
 
   @Override
-  public Object singleRef() {
+  public <T> T singleRef() {
     throw new TsNullObjectErrorRtException();
   }
 

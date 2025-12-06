@@ -7,29 +7,26 @@ import static org.toxsoft.uskat.skadmin.core.EAdminCmdContextNames.*;
 import static org.toxsoft.uskat.skadmin.dev.events.IAdminHardConstants.*;
 import static org.toxsoft.uskat.skadmin.dev.events.IAdminHardResources.*;
 
-import org.toxsoft.core.tslib.av.IAtomicValue;
-import org.toxsoft.core.tslib.av.impl.AvUtils;
-import org.toxsoft.core.tslib.av.opset.IOptionSet;
-import org.toxsoft.core.tslib.bricks.strid.coll.IStridablesList;
-import org.toxsoft.core.tslib.coll.IList;
-import org.toxsoft.core.tslib.coll.IListEdit;
-import org.toxsoft.core.tslib.coll.impl.ElemArrayList;
-import org.toxsoft.core.tslib.coll.primtypes.IStringList;
-import org.toxsoft.core.tslib.coll.primtypes.IStringMap;
-import org.toxsoft.core.tslib.gw.gwid.Gwid;
-import org.toxsoft.core.tslib.gw.skid.ISkidList;
-import org.toxsoft.core.tslib.utils.errors.TsNullArgumentRtException;
-import org.toxsoft.uskat.core.ISkCoreApi;
-import org.toxsoft.uskat.core.api.evserv.ISkEventService;
-import org.toxsoft.uskat.core.api.evserv.SkEvent;
-import org.toxsoft.uskat.core.api.objserv.ISkObjectService;
-import org.toxsoft.uskat.core.api.sysdescr.ISkClassInfo;
-import org.toxsoft.uskat.core.api.sysdescr.ISkSysdescr;
-import org.toxsoft.uskat.core.api.sysdescr.dto.IDtoEventInfo;
-import org.toxsoft.uskat.legacy.plexy.IPlexyType;
-import org.toxsoft.uskat.legacy.plexy.IPlexyValue;
-import org.toxsoft.uskat.skadmin.core.IAdminCmdCallback;
-import org.toxsoft.uskat.skadmin.core.impl.AbstractAdminCmd;
+import org.toxsoft.core.tslib.av.*;
+import org.toxsoft.core.tslib.av.impl.*;
+import org.toxsoft.core.tslib.av.opset.*;
+import org.toxsoft.core.tslib.bricks.strid.coll.*;
+import org.toxsoft.core.tslib.bricks.threadexec.*;
+import org.toxsoft.core.tslib.coll.*;
+import org.toxsoft.core.tslib.coll.impl.*;
+import org.toxsoft.core.tslib.coll.primtypes.*;
+import org.toxsoft.core.tslib.gw.gwid.*;
+import org.toxsoft.core.tslib.gw.skid.*;
+import org.toxsoft.core.tslib.utils.errors.*;
+import org.toxsoft.uskat.core.*;
+import org.toxsoft.uskat.core.api.evserv.*;
+import org.toxsoft.uskat.core.api.objserv.*;
+import org.toxsoft.uskat.core.api.sysdescr.*;
+import org.toxsoft.uskat.core.api.sysdescr.dto.*;
+import org.toxsoft.uskat.core.impl.*;
+import org.toxsoft.uskat.legacy.plexy.*;
+import org.toxsoft.uskat.skadmin.core.*;
+import org.toxsoft.uskat.skadmin.core.impl.*;
 
 /**
  * Команда s5admin: генерация события
@@ -108,8 +105,10 @@ public class AdminCmdFire
       try {
         long startTime = System.currentTimeMillis();
         Gwid eventGwid = Gwid.createEvent( classId, objStrid, eventId );
-
-        eventService.fireEvent( new SkEvent( startTime, eventGwid, args ) );
+        // Исполнитель uskat-потоков
+        ITsThreadExecutor threadExecutor = SkThreadExecutorService.getExecutor( coreApi );
+        // Передача события
+        threadExecutor.syncExec( () -> eventService.fireEvent( new SkEvent( startTime, eventGwid, args ) ) );
         // Команда отправлена на выполнение
         println( MSG_EVENT_FIRED, eventGwid );
         long delta = (System.currentTimeMillis() - startTime) / 1000;
@@ -132,61 +131,60 @@ public class AdminCmdFire
     if( pxCoreApi == null ) {
       return IList.EMPTY;
     }
-    ISkCoreApi coreApi = (ISkCoreApi)pxCoreApi.singleRef();
-    ISkSysdescr sysdescr = coreApi.sysdescr();
-    ISkObjectService objService = coreApi.objService();
-    if( aArgId.equals( ARG_CLASSID.id() ) ) {
-      // Список всех классов
-      IStridablesList<ISkClassInfo> classInfos = sysdescr.listClasses();
-      // Подготовка списка возможных значений
-      IListEdit<IPlexyValue> values = new ElemArrayList<>( classInfos.size() );
-      for( int index = 0, n = classInfos.size(); index < n; index++ ) {
-        IAtomicValue dataValue = AvUtils.avStr( classInfos.get( index ).id() );
+    IListEdit<IPlexyValue> retValues = new ElemArrayList<>();
+    // Исполнитель uskat-потоков
+    ITsThreadExecutor threadExecutor = SkThreadExecutorService.getExecutor( pxCoreApi.singleRef() );
+    // Определение допускаемых значений
+    threadExecutor.syncExec( () -> {
+      ISkCoreApi coreApi = (ISkCoreApi)pxCoreApi.singleRef();
+      ISkSysdescr sysdescr = coreApi.sysdescr();
+      ISkObjectService objService = coreApi.objService();
+      if( aArgId.equals( ARG_CLASSID.id() ) ) {
+        // Список всех классов
+        IStridablesList<ISkClassInfo> classInfos = sysdescr.listClasses();
+        // Подготовка списка возможных значений
+        for( int index = 0, n = classInfos.size(); index < n; index++ ) {
+          IAtomicValue dataValue = AvUtils.avStr( classInfos.get( index ).id() );
+          IPlexyValue plexyValue = pvSingleValue( dataValue );
+          retValues.add( plexyValue );
+        }
+      }
+      if( aArgId.equals( ARG_STRID.id() ) && aArgValues.keys().hasElem( ARG_CLASSID.id() ) ) {
+        // Идентификатор класса
+        String classId = aArgValues.getByKey( ARG_CLASSID.id() ).singleValue().asString();
+        // Список всех объектов с учетом наследников
+        ISkidList objList = objService.listSkids( classId, true );
+        // Пустое значение
+        IAtomicValue dataValue = AvUtils.avStr( EMPTY_STRING );
         IPlexyValue plexyValue = pvSingleValue( dataValue );
-        values.add( plexyValue );
+        retValues.add( plexyValue );
+        for( int index = 0, n = objList.size(); index < n; index++ ) {
+          dataValue = AvUtils.avStr( objList.get( index ).strid() );
+          plexyValue = pvSingleValue( dataValue );
+          retValues.add( plexyValue );
+        }
       }
-      return values;
-    }
-    if( aArgId.equals( ARG_STRID.id() ) && aArgValues.keys().hasElem( ARG_CLASSID.id() ) ) {
-      // Идентификатор класса
-      String classId = aArgValues.getByKey( ARG_CLASSID.id() ).singleValue().asString();
-      // Список всех объектов с учетом наследников
-      ISkidList objList = objService.listSkids( classId, true );
-      // Подготовка списка возможных значений
-      IListEdit<IPlexyValue> values = new ElemArrayList<>( objList.size() );
-      // Пустое значение
-      IAtomicValue dataValue = AvUtils.avStr( EMPTY_STRING );
-      IPlexyValue plexyValue = pvSingleValue( dataValue );
-      values.add( plexyValue );
-      for( int index = 0, n = objList.size(); index < n; index++ ) {
-        dataValue = AvUtils.avStr( objList.get( index ).strid() );
-        plexyValue = pvSingleValue( dataValue );
-        values.add( plexyValue );
+      if( aArgId.equals( ARG_EVID.id() ) && aArgValues.keys().hasElem( ARG_CLASSID.id() ) ) {
+        // Идентификатор класса
+        String classId = aArgValues.getByKey( ARG_CLASSID.id() ).singleValue().asString();
+        // Список всех связей с учетом наследников
+        ISkClassInfo classInfo = sysdescr.findClassInfo( classId );
+        if( classInfo == null ) {
+          return;
+        }
+        IStridablesList<IDtoEventInfo> eventInfoes = classInfo.events().list();
+        // Пустое значение
+        IAtomicValue dataValue = AvUtils.avStr( EMPTY_STRING );
+        IPlexyValue plexyValue = pvSingleValue( dataValue );
+        retValues.add( plexyValue );
+        for( IDtoEventInfo eventInfo : eventInfoes ) {
+          dataValue = AvUtils.avStr( eventInfo.id() );
+          plexyValue = pvSingleValue( dataValue );
+          retValues.add( plexyValue );
+        }
       }
-      return values;
-    }
-    if( aArgId.equals( ARG_EVID.id() ) && aArgValues.keys().hasElem( ARG_CLASSID.id() ) ) {
-      // Идентификатор класса
-      String classId = aArgValues.getByKey( ARG_CLASSID.id() ).singleValue().asString();
-      // Список всех связей с учетом наследников
-      ISkClassInfo classInfo = sysdescr.findClassInfo( classId );
-      if( classInfo == null ) {
-        return IList.EMPTY;
-      }
-      IStridablesList<IDtoEventInfo> eventInfoes = classInfo.events().list();
-      IListEdit<IPlexyValue> values = new ElemArrayList<>( eventInfoes.size() );
-      // Пустое значение
-      IAtomicValue dataValue = AvUtils.avStr( EMPTY_STRING );
-      IPlexyValue plexyValue = pvSingleValue( dataValue );
-      values.add( plexyValue );
-      for( IDtoEventInfo eventInfo : eventInfoes ) {
-        dataValue = AvUtils.avStr( eventInfo.id() );
-        plexyValue = pvSingleValue( dataValue );
-        values.add( plexyValue );
-      }
-      return values;
-    }
-    return IList.EMPTY;
+    } );
+    return retValues;
   }
 
   // ------------------------------------------------------------------------------------

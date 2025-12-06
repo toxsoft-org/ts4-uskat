@@ -1,10 +1,8 @@
 package org.toxsoft.uskat.legacy.plexy.impl;
 
-import org.toxsoft.core.tslib.utils.TsLibUtils;
-import org.toxsoft.core.tslib.utils.errors.TsIllegalArgumentRtException;
-import org.toxsoft.core.tslib.utils.errors.TsNullArgumentRtException;
-import org.toxsoft.uskat.legacy.plexy.EPlexyKind;
-import org.toxsoft.uskat.legacy.plexy.IPlexyType;
+import org.toxsoft.core.tslib.utils.*;
+import org.toxsoft.core.tslib.utils.errors.*;
+import org.toxsoft.uskat.legacy.plexy.*;
 
 /**
  * Реализация поекси-значения вида {@link EPlexyKind#SINGLE_REF}.
@@ -40,9 +38,10 @@ public class PlexyValueSingleRefImpl
   // Реализация интерфейса PlexyValueSingleImpl
   //
 
+  @SuppressWarnings( "unchecked" )
   @Override
-  public Object singleRef() {
-    return ref;
+  public <T> T singleRef() {
+    return (T)ref;
   }
 
   // ------------------------------------------------------------------------------------

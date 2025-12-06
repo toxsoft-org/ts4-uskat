@@ -236,14 +236,7 @@ class AdminConsole
         // Сохранение истории команд в файле
         ((PersistentHistory)terminal.getHistory()).flush();
         // Выполнение командной строки с возможностью "довода" значений аргументов
-        threadExecutor.syncExec( () -> {
-          try {
-            execute( line, true );
-          }
-          catch( Throwable e ) {
-            logger.error( e );
-          }
-        } );
+        execute( line, true );
       }
       catch( IOException e ) {
         throw new TsInternalErrorRtException( e, e.getLocalizedMessage() );
@@ -676,7 +669,7 @@ class AdminConsole
               break;
             case SINGLE_REF:
               sbPrompt.append( COLOR_SINGLE_REF );
-              sbPrompt.append( possible.singleRef() );
+              sbPrompt.append( possible.singleRef().toString() );
               break;
             case REF_LIST:
               sbPrompt.append( COLOR_REF_LIST );

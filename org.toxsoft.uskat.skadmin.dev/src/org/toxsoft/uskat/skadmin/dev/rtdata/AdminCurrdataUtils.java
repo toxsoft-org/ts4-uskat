@@ -3,6 +3,7 @@ package org.toxsoft.uskat.skadmin.dev.rtdata;
 import static org.toxsoft.core.tslib.gw.gwid.Gwid.*;
 
 import org.toxsoft.core.tslib.bricks.strid.coll.*;
+import org.toxsoft.core.tslib.bricks.threadexec.*;
 import org.toxsoft.core.tslib.coll.primtypes.*;
 import org.toxsoft.core.tslib.coll.primtypes.impl.*;
 import org.toxsoft.core.tslib.gw.gwid.*;
@@ -10,6 +11,7 @@ import org.toxsoft.core.tslib.gw.skid.*;
 import org.toxsoft.core.tslib.utils.errors.*;
 import org.toxsoft.uskat.core.*;
 import org.toxsoft.uskat.core.api.sysdescr.dto.*;
+import org.toxsoft.uskat.core.impl.*;
 
 /**
  * Вспомогательные методы пакета
@@ -33,31 +35,33 @@ class AdminCurrdataUtils {
   static IGwidList getDataGwids( ISkCoreApi aCoreApi, String aClassId, String aStrid, String aDataId, boolean aCurrData,
       boolean aHistData ) {
     TsNullArgumentRtException.checkNulls( aCoreApi, aClassId, aStrid, aDataId );
-    SkidList objIds = new SkidList();
-    if( aStrid.equals( STR_MULTI_ID ) ) {
-      objIds.setAll( aCoreApi.objService().listSkids( aClassId, true ) );
-    }
-    else {
-      objIds.add( new Skid( aClassId, aStrid ) );
-    }
-    IStringListEdit dataIds = new StringArrayList( aDataId );
-    if( aDataId.equals( STR_MULTI_ID ) ) {
-      dataIds.clear();
-      IStridablesList<IDtoRtdataInfo> infos = aCoreApi.sysdescr().getClassInfo( aClassId ).rtdata().list();
-      for( IDtoRtdataInfo info : infos ) {
-        if( aCurrData && info.isCurr() || //
-            aHistData && info.isHist() ) {
-          dataIds.add( info.id() );
+    GwidList retValue = new GwidList();
+    ITsThreadExecutor executor = SkThreadExecutorService.getExecutor( aCoreApi );
+    executor.syncExec( () -> {
+      SkidList objIds = new SkidList();
+      if( aStrid.equals( STR_MULTI_ID ) ) {
+        objIds.setAll( aCoreApi.objService().listSkids( aClassId, true ) );
+      }
+      else {
+        objIds.add( new Skid( aClassId, aStrid ) );
+      }
+      IStringListEdit dataIds = new StringArrayList( aDataId );
+      if( aDataId.equals( STR_MULTI_ID ) ) {
+        dataIds.clear();
+        IStridablesList<IDtoRtdataInfo> infos = aCoreApi.sysdescr().getClassInfo( aClassId ).rtdata().list();
+        for( IDtoRtdataInfo info : infos ) {
+          if( aCurrData && info.isCurr() || //
+              aHistData && info.isHist() ) {
+            dataIds.add( info.id() );
+          }
         }
       }
-    }
-    GwidList retValue = new GwidList();
-    for( Skid objId : objIds ) {
-      for( String dataId : dataIds ) {
-        retValue.add( Gwid.createRtdata( objId.classId(), objId.strid(), dataId ) );
+      for( Skid objId : objIds ) {
+        for( String dataId : dataIds ) {
+          retValue.add( Gwid.createRtdata( objId.classId(), objId.strid(), dataId ) );
+        }
       }
-    }
+    } );
     return retValue;
   }
-
 }

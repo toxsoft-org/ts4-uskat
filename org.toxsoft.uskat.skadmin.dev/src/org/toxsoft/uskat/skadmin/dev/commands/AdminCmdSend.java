@@ -13,6 +13,7 @@ import org.toxsoft.core.tslib.av.metainfo.*;
 import org.toxsoft.core.tslib.av.opset.*;
 import org.toxsoft.core.tslib.bricks.events.change.*;
 import org.toxsoft.core.tslib.bricks.strid.coll.*;
+import org.toxsoft.core.tslib.bricks.threadexec.*;
 import org.toxsoft.core.tslib.coll.*;
 import org.toxsoft.core.tslib.coll.impl.*;
 import org.toxsoft.core.tslib.coll.primtypes.*;
@@ -117,41 +118,46 @@ public class AdminCmdSend
       if( !authorClassId.isAssigned() ) {
         authorClassId = AvUtils.avStr( ISkUser.CLASS_ID );
       }
-
       if( strid.equals( EMPTY_STRING ) ) {
         strid = MULTI;
       }
+      final String strid2 = strid;
       // Получение идентификаторов атрибутов
-      ISkidList objIds = AdminCmdUtils.getObjSkids( coreApi, classId, strid );
-
+      ISkidList objIds = AdminCmdUtils.getObjSkids( coreApi, classId, strid2 );
+      // Определение автора команды
       if( !authorStrid.isAssigned() ) {
         // TODO: connection.getConnectionInfo()....
         // authorStrid = AvUtils.avStr( connection.sessionInfo().getUser().login() );
         authorStrid = AvUtils.avStr( "root" ); //$NON-NLS-1$
       }
+      // Исполнитель uskat-потоков
+      ITsThreadExecutor threadExecutor = SkThreadExecutorService.getExecutor( coreApi );
       try {
         long startTime = System.currentTimeMillis();
         for( Skid objId : objIds ) {
           Gwid cmdGwid = Gwid.createCmd( objId, cmdId );
           Skid authorSkid = new Skid( authorClassId.asString(), authorStrid.asString() );
-
-          ISkClassInfo classInfo = sysdescr.getClassInfo( classId );
-          IDtoCmdInfo cmdInfo = classInfo.cmds().list().findByKey( cmdId );
-          // check command arguments are valid
-          for( IDataDef argInfo : cmdInfo.argDefs() ) {
-            if( !args.hasKey( argInfo.id() ) ) {
-              println( MSG_COMMAND_ARG_NOT_FOUND, argInfo.id() );
-              resultFail();
-              return;
+          // Выполнение
+          threadExecutor.syncExec( () -> {
+            ISkClassInfo classInfo = sysdescr.getClassInfo( classId );
+            IDtoCmdInfo cmdInfo = classInfo.cmds().list().findByKey( cmdId );
+            // check command arguments are valid
+            for( IDataDef argInfo : cmdInfo.argDefs() ) {
+              if( !args.hasKey( argInfo.id() ) ) {
+                println( MSG_COMMAND_ARG_NOT_FOUND, argInfo.id() );
+                resultFail();
+                return;
+              }
             }
-          }
-          synchronized (this) {
-            // Выполнение
             ISkCommand cmd = commandService.sendCommand( cmdGwid, authorSkid, args );
             // Установка слушателя команды
-            cmd.stateEventer().addListener( this );
+            cmd.stateEventer().addListener( AdminCmdSend.this );
             // Команда отправлена на выполнение
-            println( MSG_COMMAND_SEND, cmd.instanceId() );
+            println( MSG_COMMAND_SEND, cmd.instanceId(), cmd.cmdGwid() );
+          } );
+          synchronized (this) {
+            // Ожидание выполнения команды
+            wait();
           }
         }
         long delta = (System.currentTimeMillis() - startTime) / 1000;
@@ -174,61 +180,59 @@ public class AdminCmdSend
     if( pxCoreApi == null ) {
       return IList.EMPTY;
     }
-    ISkCoreApi coreApi = (ISkCoreApi)pxCoreApi.singleRef();
-    ISkSysdescr sysdescr = coreApi.sysdescr();
-    ISkObjectService objService = coreApi.objService();
-    if( aArgId.equals( ARG_SEND_CLASSID.id() ) ) {
-      // Список всех классов
-      IStridablesList<ISkClassInfo> classInfos = sysdescr.listClasses();
-      // Подготовка списка возможных значений
-      IListEdit<IPlexyValue> values = new ElemArrayList<>( classInfos.size() );
-      // Тип значений
-      for( int index = 0, n = classInfos.size(); index < n; index++ ) {
-        IAtomicValue dataValue = AvUtils.avStr( classInfos.get( index ).id() );
+    IListEdit<IPlexyValue> retValues = new ElemArrayList<>();
+    // Исполнитель uskat-потоков
+    ITsThreadExecutor threadExecutor = SkThreadExecutorService.getExecutor( pxCoreApi.singleRef() );
+    // Определение допускаяемых значений
+    threadExecutor.syncExec( () -> {
+      ISkCoreApi coreApi = (ISkCoreApi)pxCoreApi.singleRef();
+      ISkSysdescr sysdescr = coreApi.sysdescr();
+      ISkObjectService objService = coreApi.objService();
+      if( aArgId.equals( ARG_SEND_CLASSID.id() ) ) {
+        // Список всех классов
+        IStridablesList<ISkClassInfo> classInfos = sysdescr.listClasses();
+        // Тип значений
+        for( int index = 0, n = classInfos.size(); index < n; index++ ) {
+          IAtomicValue dataValue = AvUtils.avStr( classInfos.get( index ).id() );
+          IPlexyValue plexyValue = pvSingleValue( dataValue );
+          retValues.add( plexyValue );
+        }
+      }
+      if( (aArgId.equals( ARG_SEND_STRID.id() ) && aArgValues.keys().hasElem( ARG_SEND_CLASSID.id() )) ) {
+        // Идентификатор класса
+        String classId = aArgValues.getByKey( ARG_SEND_CLASSID.id() ).singleValue().asString();
+        // Список всех объектов с учетом наследников
+        ISkidList objList = objService.listSkids( classId, true );
+        // Значение '*'
+        IAtomicValue dataValue = AvUtils.avStr( MULTI );
         IPlexyValue plexyValue = pvSingleValue( dataValue );
-        values.add( plexyValue );
+        retValues.add( plexyValue );
+        for( int index = 0, n = objList.size(); index < n; index++ ) {
+          dataValue = AvUtils.avStr( objList.get( index ).strid() );
+          plexyValue = pvSingleValue( dataValue );
+          retValues.add( plexyValue );
+        }
       }
-      return values;
-    }
-    if( (aArgId.equals( ARG_SEND_STRID.id() ) && aArgValues.keys().hasElem( ARG_SEND_CLASSID.id() )) ) {
-      // Идентификатор класса
-      String classId = aArgValues.getByKey( ARG_SEND_CLASSID.id() ).singleValue().asString();
-      // Список всех объектов с учетом наследников
-      ISkidList objList = objService.listSkids( classId, true );
-      // Подготовка списка возможных значений
-      IListEdit<IPlexyValue> values = new ElemArrayList<>( objList.size() );
-      // Значение '*'
-      IAtomicValue dataValue = AvUtils.avStr( MULTI );
-      IPlexyValue plexyValue = pvSingleValue( dataValue );
-      values.add( plexyValue );
-      for( int index = 0, n = objList.size(); index < n; index++ ) {
-        dataValue = AvUtils.avStr( objList.get( index ).strid() );
-        plexyValue = pvSingleValue( dataValue );
-        values.add( plexyValue );
+      if( aArgId.equals( ARG_SEND_CMDID.id() ) && aArgValues.keys().hasElem( ARG_SEND_CLASSID.id() ) ) {
+        // Идентификатор класса
+        String classId = aArgValues.getByKey( ARG_SEND_CLASSID.id() ).singleValue().asString();
+        // Список всех связей с учетом наследников
+        ISkClassInfo classInfo = sysdescr.findClassInfo( classId );
+        if( classInfo == null ) {
+          return;
+        }
+        IStridablesList<IDtoCmdInfo> cmdInfoes = classInfo.cmds().list();
+        // Пустое значение
+        IPlexyValue plexyValue = pvSingleValue( AvUtils.AV_STR_EMPTY );
+        retValues.add( plexyValue );
+        for( IDtoCmdInfo cmdInfo : cmdInfoes ) {
+          IAtomicValue dataValue = AvUtils.avStr( cmdInfo.id() );
+          plexyValue = pvSingleValue( dataValue );
+          retValues.add( plexyValue );
+        }
       }
-      return values;
-    }
-    if( aArgId.equals( ARG_SEND_CMDID.id() ) && aArgValues.keys().hasElem( ARG_SEND_CLASSID.id() ) ) {
-      // Идентификатор класса
-      String classId = aArgValues.getByKey( ARG_SEND_CLASSID.id() ).singleValue().asString();
-      // Список всех связей с учетом наследников
-      ISkClassInfo classInfo = sysdescr.findClassInfo( classId );
-      if( classInfo == null ) {
-        return IList.EMPTY;
-      }
-      IStridablesList<IDtoCmdInfo> cmdInfoes = classInfo.cmds().list();
-      IListEdit<IPlexyValue> values = new ElemArrayList<>( cmdInfoes.size() );
-      // Пустое значение
-      IPlexyValue plexyValue = pvSingleValue( AvUtils.AV_STR_EMPTY );
-      values.add( plexyValue );
-      for( IDtoCmdInfo cmdInfo : cmdInfoes ) {
-        IAtomicValue dataValue = AvUtils.avStr( cmdInfo.id() );
-        plexyValue = pvSingleValue( dataValue );
-        values.add( plexyValue );
-      }
-      return values;
-    }
-    return IList.EMPTY;
+    } );
+    return retValues;
   }
 
   // ------------------------------------------------------------------------------------
@@ -254,7 +258,7 @@ public class AdminCmdSend
     synchronized (this) {
       if( aCommand.state().state().isComplete() ) {
         // Сигнал о завершении команды
-        this.notifyAll();
+        this.notify();
       }
     }
   }

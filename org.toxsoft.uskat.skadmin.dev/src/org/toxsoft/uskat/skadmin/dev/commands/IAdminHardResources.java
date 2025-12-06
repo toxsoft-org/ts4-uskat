@@ -73,7 +73,7 @@ interface IAdminHardResources {
   String MSG_INFO_CMD_RES_INFO               = "|%-23s| %-20s| %s\n";
   String MSG_INFO_CMD_EXECUTED               = "Обработка команды успешно завершена";
   String MSG_COMMAND_COMPLETE                = "Команда %s успешно выполнена";
-  String MSG_COMMAND_SEND                    = "Команда %s отправлена на выполнение";
+  String MSG_COMMAND_SEND                    = "Команда %s отправлена на выполнение: gwid = %s";
   String MSG_COMMAND_ARG_NOT_FOUND           = "Не найдено значение аргумента команды: %s";
   String MSG_COMMAND_STATE_CHANGED           = "Изменение состояния команды : %s";
   String MSG_EXCUTABLE_COMMAND_GWIDS_CHANGED = "Изменение списка поддерживаемых команд. Count = %d";

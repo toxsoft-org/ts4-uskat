@@ -1,12 +1,10 @@
 package org.toxsoft.uskat.legacy.plexy.impl;
 
-import org.toxsoft.core.tslib.av.IAtomicValue;
-import org.toxsoft.core.tslib.av.opset.IOptionSet;
-import org.toxsoft.core.tslib.coll.IList;
-import org.toxsoft.core.tslib.utils.errors.TsNullArgumentRtException;
-import org.toxsoft.core.tslib.utils.errors.TsUnsupportedFeatureRtException;
-import org.toxsoft.uskat.legacy.plexy.IPlexyType;
-import org.toxsoft.uskat.legacy.plexy.IPlexyValue;
+import org.toxsoft.core.tslib.av.*;
+import org.toxsoft.core.tslib.av.opset.*;
+import org.toxsoft.core.tslib.coll.*;
+import org.toxsoft.core.tslib.utils.errors.*;
+import org.toxsoft.uskat.legacy.plexy.*;
 
 /**
  * Базовый класс для реализации PlecyValueXxxImpl.
@@ -53,7 +51,7 @@ class AbstractPlexyValue
   }
 
   @Override
-  public Object singleRef() {
+  public <T> T singleRef() {
     throw new TsUnsupportedFeatureRtException();
   }
 

@@ -37,7 +37,6 @@ public class AdminPluginDev
     // Данные
     addCmd( new AdminCmdRead() );
     addCmd( new AdminCmdWrite() );
-    addCmd( new AdminCmdWriteTest() );
     // Команды
     addCmd( new AdminCmdSend() );
     addCmd( new AdminCmdExecutor() );

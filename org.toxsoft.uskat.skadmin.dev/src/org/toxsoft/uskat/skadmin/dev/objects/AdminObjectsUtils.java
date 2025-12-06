@@ -3,6 +3,7 @@ package org.toxsoft.uskat.skadmin.dev.objects;
 import static org.toxsoft.core.tslib.gw.gwid.Gwid.*;
 
 import org.toxsoft.core.tslib.bricks.strid.coll.*;
+import org.toxsoft.core.tslib.bricks.threadexec.*;
 import org.toxsoft.core.tslib.coll.primtypes.*;
 import org.toxsoft.core.tslib.coll.primtypes.impl.*;
 import org.toxsoft.core.tslib.gw.gwid.*;
@@ -10,6 +11,7 @@ import org.toxsoft.core.tslib.gw.skid.*;
 import org.toxsoft.core.tslib.utils.errors.*;
 import org.toxsoft.uskat.core.*;
 import org.toxsoft.uskat.core.api.sysdescr.dto.*;
+import org.toxsoft.uskat.core.impl.*;
 
 /**
  * Вспомогательные методы пакета
@@ -29,10 +31,16 @@ public class AdminObjectsUtils {
    */
   static ISkidList getObjSkids( ISkCoreApi aCoreApi, String aClassId, String aStrid ) {
     TsNullArgumentRtException.checkNulls( aCoreApi, aClassId, aStrid );
-    if( aStrid.equals( STR_MULTI_ID ) ) {
-      return aCoreApi.objService().listSkids( aClassId, true );
-    }
-    return new SkidList( new Skid( aClassId, aStrid ) );
+    SkidList retValue = new SkidList();
+    ITsThreadExecutor executor = SkThreadExecutorService.getExecutor( aCoreApi );
+    executor.syncExec( () -> {
+      if( aStrid.equals( STR_MULTI_ID ) ) {
+        retValue.addAll( aCoreApi.objService().listSkids( aClassId, true ) );
+        return;
+      }
+      retValue.add( new Skid( aClassId, aStrid ) );
+    } );
+    return retValue;
   }
 
   /**
@@ -47,28 +55,33 @@ public class AdminObjectsUtils {
    */
   static IGwidList getAttrGwids( ISkCoreApi aCoreApi, String aClassId, String aStrid, String aAttrId ) {
     TsNullArgumentRtException.checkNulls( aCoreApi, aClassId, aStrid, aAttrId );
-    SkidList objIds = new SkidList();
-    if( aStrid.equals( STR_MULTI_ID ) ) {
-      objIds.setAll( aCoreApi.objService().listSkids( aClassId, true ) );
-    }
-    else {
-      objIds.add( new Skid( aClassId, aStrid ) );
-    }
-    IStringListEdit attrIds = new StringArrayList( aAttrId );
-    if( aAttrId.equals( STR_MULTI_ID ) ) {
-      attrIds.clear();
-      IStridablesList<IDtoAttrInfo> infos = aCoreApi.sysdescr().getClassInfo( aClassId ).attrs().list();
-      for( IDtoAttrInfo info : infos ) {
-        attrIds.add( info.id() );
-      }
-    }
+    // Исполнитель uskat-потоков
+    ITsThreadExecutor threadExecutor = SkThreadExecutorService.getExecutor( aCoreApi );
+    // Возвращаемый результат
     GwidList retValue = new GwidList();
-    for( Skid objId : objIds ) {
-      for( String attrId : attrIds ) {
-        retValue.add( Gwid.createAttr( objId.classId(), objId.strid(), attrId ) );
+    // Формирование результата
+    threadExecutor.syncExec( () -> {
+      SkidList objIds = new SkidList();
+      if( aStrid.equals( STR_MULTI_ID ) ) {
+        objIds.setAll( aCoreApi.objService().listSkids( aClassId, true ) );
       }
-    }
+      else {
+        objIds.add( new Skid( aClassId, aStrid ) );
+      }
+      IStringListEdit attrIds = new StringArrayList( aAttrId );
+      if( aAttrId.equals( STR_MULTI_ID ) ) {
+        attrIds.clear();
+        IStridablesList<IDtoAttrInfo> infos = aCoreApi.sysdescr().getClassInfo( aClassId ).attrs().list();
+        for( IDtoAttrInfo info : infos ) {
+          attrIds.add( info.id() );
+        }
+      }
+      for( Skid objId : objIds ) {
+        for( String attrId : attrIds ) {
+          retValue.add( Gwid.createAttr( objId.classId(), objId.strid(), attrId ) );
+        }
+      }
+    } );
     return retValue;
   }
-
 }
