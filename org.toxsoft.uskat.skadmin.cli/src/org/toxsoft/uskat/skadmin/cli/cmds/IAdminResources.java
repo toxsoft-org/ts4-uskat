@@ -536,6 +536,9 @@ interface IAdminResources {
           + ". Особый случай представления значения " + COLOR_SINGLE_VALUE + "IAtomicValue.NULL" + COLOR_RESET + " которое вводится как: "
           + COLOR_SINGLE_VALUE + "@{}" + COLOR_RESET
           + ".\n\n"
+          + COLOR_SINGLE_VALUE + "None" + COLOR_RESET + ": тип имеет только ОДНО значение IAtomicValue.NULL которое вводится как: "
+          + COLOR_SINGLE_VALUE + COLOR_SINGLE_VALUE + "None"+ COLOR_RESET  //
+          + ".\n\n"
           + COLOR_SINGLE_VALUE + "List" + COLOR_RESET + ": Список значений параметров вводятся в формате: "
           + COLOR_SINGLE_VALUE + COLOR_SINGLE_VALUE + "Значение_Параметра1"+ COLOR_RESET + ", "
           + COLOR_SINGLE_VALUE + "Значение_Параметра2"+ COLOR_RESET + ", ..."
@@ -551,8 +554,7 @@ interface IAdminResources {
           + "всегда обрамлять кавычками строковые данные и использовать каноническую форму определения значений аргументов."
           + "\n\n"
           + "ПРИМЕРЫ."
-          + "\n1. Отправка команды:"
-          + "\n"
+          + "\n1. Отправка команды:\n"
           + COLOR_ID + "sk.dev.commands.send -classId "
           + COLOR_SINGLE_VALUE + "sk.Alarm " + COLOR_RESET
           + COLOR_ID + "-strid " + COLOR_RESET
@@ -561,29 +563,30 @@ interface IAdminResources {
           + COLOR_SINGLE_VALUE + "cmdAcknowledge "  + COLOR_RESET
           + COLOR_ID + "-args " + COLOR_RESET
           + COLOR_VALUE_LIST + "ackAuthorGwid=@Gwid[sk.User[root]]"+ COLOR_RESET +", " + COLOR_VALUE_LIST + "ackComment=\"it's ok now\"" + COLOR_RESET
-          + "\n\n2. Прием ВСЕХ текущих данных ВСЕХ объектов класса " + COLOR_SINGLE_VALUE + "AnalogInput" + COLOR_RESET
-          + ":\n"
+          + "\n\n" //
+          + "2. Прием ВСЕХ текущих данных ВСЕХ объектов класса " + COLOR_SINGLE_VALUE + "AnalogInput" + COLOR_RESET + ":\n"
           + COLOR_ID + "sk.dev.rtdata.read -classId "
           + COLOR_SINGLE_VALUE + "AnalogInput " + COLOR_RESET
           + COLOR_ID + "-strid " + COLOR_RESET
           + COLOR_SINGLE_VALUE + "* " + COLOR_RESET
           + COLOR_ID + "-dataId " + COLOR_RESET
           + COLOR_SINGLE_VALUE + "*" + COLOR_RESET
-          + "\n\n3. Установка значения " + COLOR_SINGLE_VALUE + "IAtomicValue.NULL" + COLOR_RESET + " для контекстной переменной " + COLOR_SINGLE_REF + "$a" + COLOR_RESET
+          + "\n\n" //
+          + "3. Установка значения " + COLOR_SINGLE_VALUE + "IAtomicValue.NULL" + COLOR_RESET + "(тип EAtomicType.VALOBJ) для контекстной переменной " + COLOR_SINGLE_REF + "$a" + COLOR_RESET
           + ":\n"
-          + COLOR_SINGLE_REF + "$a" + COLOR_RESET + "=" + COLOR_SINGLE_VALUE + "@{}" + COLOR_RESET
+          + COLOR_SINGLE_REF + "$a" + COLOR_RESET + "=" + COLOR_SINGLE_VALUE + "@{}" + COLOR_RESET //
+          + "\n\n" //
+          + "4. Установка значения " + COLOR_SINGLE_VALUE + "IAtomicValue.NULL" + COLOR_RESET + "(тип EAtomicType.NONE) для контекстной переменной " + COLOR_SINGLE_REF + "$a" + COLOR_RESET + ":\n"
+          + COLOR_SINGLE_REF + "$a" + COLOR_RESET + "=" + COLOR_SINGLE_VALUE + "None" + COLOR_RESET
           + "\n\n"
-          //
-          //
           + "Справка по команде (упрощенная форма): " + COLOR_ID + "help" + COLOR_RESET + COLOR_SINGLE_VALUE
           + " имя_команды"
-          + COLOR_RESET
-          +
-          //
-          "\n\nСправка по всем командам (каноническая форма с использованием флага): " + COLOR_ID + "help -a"
-          + COLOR_RESET
-          //
-          + "\n\nСписок доступных команд текущего раздела (каноническая форма с использованием флага): " + COLOR_ID
+          + COLOR_RESET //
+          + "\n\n" //
+          + "Справка по всем командам (каноническая форма с использованием флага): " + COLOR_ID + "help -a"
+          + COLOR_RESET //
+          + "\n\n" //
+          + "Список доступных команд текущего раздела (каноническая форма с использованием флага): " + COLOR_ID
           + "list -d" + COLOR_RESET + "\n";
   // @formatter:on
 

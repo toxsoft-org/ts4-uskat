@@ -280,16 +280,16 @@ public class AdminCmdRead
       print( "\n" + (close ? MSG_CMD_READ : MSG_CMD_READ_CREATE), time, Integer.valueOf( gwids.size() ) ); //$NON-NLS-1$
       // Список идентфикаторов создаваемых каналов
       GwidList newChannelGwids = new GwidList();
-      for( Gwid gwid : gwids ) {
-        ISkReadCurrDataChannel channel = channels.findByKey( gwid );
-        // Признак необходимости создать новый канал
-        boolean needNewChannel = (channel == null || !channel.isOk());
-        if( needNewChannel ) {
-          newChannelGwids.add( gwid );
-        }
-      }
       // Запрос к серверу на создание текущих данных и вывод их значений
       threadExecutor.syncExec( () -> {
+        for( Gwid gwid : gwids ) {
+          ISkReadCurrDataChannel channel = channels.findByKey( gwid );
+          // Признак необходимости создать новый канал
+          boolean needNewChannel = (channel == null || !channel.isOk());
+          if( needNewChannel ) {
+            newChannelGwids.add( gwid );
+          }
+        }
         // Создание новых каналов (добавление в карту cdChannels проводится в onCurrData(...)
         channels.putAll( currdata.createReadCurrDataChannels( newChannelGwids ) );
         // Готовые каналы соединения
