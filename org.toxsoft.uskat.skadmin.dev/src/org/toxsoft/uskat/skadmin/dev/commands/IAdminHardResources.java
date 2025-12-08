@@ -74,7 +74,7 @@ interface IAdminHardResources {
   String MSG_INFO_CMD_EXECUTED               = "Обработка команды успешно завершена";
   String MSG_COMMAND_COMPLETE                = "Команда %s успешно выполнена";
   String MSG_COMMAND_SEND                    = "Команда %s отправлена на выполнение: gwid = %s";
-  String MSG_COMMAND_ARG_NOT_FOUND           = "Не найдено значение аргумента команды: %s";
+  String MSG_COMMAND_ARG_NOT_FOUND           = "Не найдено значение аргумента команды: cmdGwid = %s, argId = %s";
   String MSG_COMMAND_STATE_CHANGED           = "Изменение состояния команды : %s";
   String MSG_EXCUTABLE_COMMAND_GWIDS_CHANGED = "Изменение списка поддерживаемых команд. Count = %d";
   String MSG_COMMAND_EXECUTE                 = "Получение команды на выполнение : %s";
@@ -100,4 +100,5 @@ interface IAdminHardResources {
       "Нарушение формата определения Coc элементом %s. Формат должен быть в виде: \"classId:objStrid:cmdId\".";
   String ERR_AUTHOR_STRID_NOT_DEFINED = "Не определен строковый идентификатор объекта класса %s (автор команды)";
   String ERR_CANT_EXECUTE_BY_TIMEOUT  = "Команда %s не выполнена в установленное время (%d ms) и будет отменена";
+  String ERR_CANT_EXECUTE             = "Команда %s не может быть исполнена. Причина: %s";
 }
