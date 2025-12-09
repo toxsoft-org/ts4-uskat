@@ -250,10 +250,15 @@ public class S5BackendEventSingleton
           // // События не передаются frontend-у которые он отправил
           // continue;
           // }
+          IS5FrontendData frontendData = frontend.frontendData();
+          S5BaEventsData eventsData = frontendData.findBackendAddonData( IBaEvents.ADDON_ID, S5BaEventsData.class );
+          if( eventsData == null ) {
+            // В данных фронтенда нет подсистемы events
+            logger().error( MSG_FRONTDATA_EVENTS_DOESNT_EXIST, frontend );
+            continue;
+          }
           // Фильтрация интересуемых событий
-          SkEventList frontendEvents =
-              frontend.frontendData().findBackendAddonData( IBaEvents.ADDON_ID, S5BaEventsData.class ).events
-                  .filter( sysdescrBackend(), events );
+          SkEventList frontendEvents = eventsData.events.filter( sysdescrBackend(), events );
           if( frontendEvents.size() == 0 ) {
             // Нечего отправлять
             continue;

@@ -20,4 +20,5 @@ interface IS5Resources {
   //
   String MSG_ERR_ON_EVENTS                       = Messages.getString( "IS5Resources.MSG_ERR_ON_EVENTS" ); //$NON-NLS-1$
   String MSG_REJECT_EVENTS_WRITE_BY_INTERCEPTORS = "Интерсепторы синглетона отклонили запись событий";     //$NON-NLS-1$
+  String MSG_FRONTDATA_EVENTS_DOESNT_EXIST       = "Frontend %s has not events data (events = null)";      //$NON-NLS-1$
 }
