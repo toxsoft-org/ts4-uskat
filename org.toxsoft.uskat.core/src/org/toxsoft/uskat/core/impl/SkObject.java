@@ -214,7 +214,12 @@ public class SkObject
 
   @Override
   public ISkidList getRivetRevSkids( String aClassId, String aRivetId ) {
-    return rivetRevs.getByKey( aClassId ).map().getByKey( aRivetId );
+    IMappedSkids mappedSkids = rivetRevs.findByKey( aClassId );
+    if( mappedSkids == null ) {
+      return ISkidList.EMPTY;
+    }
+    ISkidList retValue = mappedSkids.map().findByKey( aRivetId );
+    return (retValue != null ? retValue : ISkidList.EMPTY);
   }
 
   @Override
