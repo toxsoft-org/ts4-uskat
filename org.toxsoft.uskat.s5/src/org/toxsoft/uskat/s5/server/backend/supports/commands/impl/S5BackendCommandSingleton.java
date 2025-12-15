@@ -72,6 +72,11 @@ public class S5BackendCommandSingleton
   public static final String BACKEND_COMMANDS_ID = "S5BackendCommandSingleton"; //$NON-NLS-1$
 
   /**
+   * Состояние ожидание результатов тестирования выполнения команды.
+   */
+  public static final ValidationResult TIMEOUT = ValidationResult.error( "TIMEOUT" ); //$NON-NLS-1$
+
+  /**
    * Интервал выполнения doJob (мсек)
    */
   private static final long DOJOB_INTERVAL = 1000;
@@ -89,6 +94,15 @@ public class S5BackendCommandSingleton
    */
   @Resource( lookup = INFINISPAN_CACHE_CMD_STATES )
   private Cache<String, Pair<IDtoCommand, ITimedListEdit<SkCommandState>>> executingCommandsCache;
+
+  /**
+   * Кэш команд выполняемых в данный момент
+   * <p>
+   * Ключ: идентификатор команды, {@link IDtoCommand#instanceId()} ;<br>
+   * Значение: {@link ValidationResult} результат тестирования. .
+   */
+  @Resource( lookup = INFINISPAN_CACHE_CMD_TESTS )
+  private Cache<String, ValidationResult> testingCommandsCache;
 
   /**
    * Идентификатор узла кластера сервера
@@ -189,35 +203,44 @@ public class S5BackendCommandSingleton
       // Не найден исполнитель команды
       return ValidationResult.error( REASON_EXECUTOR_NOT_FOUND, aCmdGwid );
     }
-    // Данные фронтенда
-    S5BaCommandsData frontendData = findCommandsFrontendData( frontend );
-    if( frontendData == null ) {
-      // фронтенд не поддерживает реальное время
-      return ValidationResult.error( ERR_FRONTEND_DOES_NOT_SUPPORT_CMD, aCmdGwid );
-    }
     // Идентификатор команды
     String instanceId = S5CommandIdGenerator.INSTANCE.nextId();
-    // Фиксация факта ожидания выполнения команды
-    synchronized (frontendData.commands) {
-      // Результат тестирования по умолчанию
-      ValidationResult initResult =
-          ValidationResult.error( ERR_TEST_FAILED_BY_TIMEOUT, aCmdGwid, Long.valueOf( COMMAND_TEST_TIMEOUT ) );
-      // Ожидание выполнения тестирования
-      frontendData.commands.defineTestResult( instanceId, initResult );
-      // Команда
-      DtoCommand command = new DtoCommand( System.currentTimeMillis(), instanceId, aCmdGwid, aAuthorSkid, aArgs );
+    // Команда
+    DtoCommand command = new DtoCommand( System.currentTimeMillis(), instanceId, aCmdGwid, aAuthorSkid, aArgs );
+    // Результат по умолчанию
+    ValidationResult retValue =
+        ValidationResult.error( ERR_TEST_FAILED_BY_TIMEOUT, aCmdGwid, Long.valueOf( COMMAND_TEST_TIMEOUT ) );
+    synchronized (testingCommandsCache) {
+      // Размещение признака запроса проверки
+      testingCommandsCache.put( instanceId, TIMEOUT );
       // Передача запроса исполнителю
       frontend.onBackendMessage( BaMsgCommandsTestCmd.INSTANCE.makeMessage( command ) );
       try {
-        frontendData.commands.wait( COMMAND_TEST_TIMEOUT );
+        ValidationResult result = null;
+        long currTime = System.currentTimeMillis();
+        while( true ) {
+          testingCommandsCache.wait( COMMAND_TEST_TIMEOUT );
+          boolean hasTimeout = (Math.abs( System.currentTimeMillis() - currTime ) > COMMAND_TEST_TIMEOUT);
+          if( hasTimeout ) {
+            break;
+          }
+          // Попытка получить результ
+          result = testingCommandsCache.get( instanceId );
+          // Признак того, что был получен результат тестирования
+          boolean hasResult = (result != null && !result.equals( TIMEOUT ));
+          if( hasResult ) {
+            retValue = (result != null ? result : retValue);
+            break;
+          }
+        }
       }
       catch( InterruptedException e ) {
         logger().error( e );
       }
     }
-    ValidationResult result = frontendData.commands.removeTestResult( instanceId );
-
-    return result;
+    // Очитска кэша
+    testingCommandsCache.remove( instanceId );
+    return retValue;
   }
 
   @TransactionAttribute( TransactionAttributeType.NOT_SUPPORTED )
@@ -270,12 +293,18 @@ public class S5BackendCommandSingleton
         }
       }
       if( removed > 0 || added > 0 ) {
-        logger().info( MSG_SET_SESSION_EXECUTABLES_CHANGED, aFrontend, //
-            Integer.valueOf( removed ), sbRemoved.toString(), //
-            Integer.valueOf( added ), sbAdded.toString() );
+        StringBuilder sb = new StringBuilder();
+        sb.append( String.format( MSG_SESSION_EXECUTABLES_CHANGED, aFrontend, Integer.valueOf( removed + added ) ) );
+        if( removed > 0 ) {
+          sb.append( String.format( MSG_EXECUTABLES_REMOVED, Integer.valueOf( removed ), sbRemoved.toString() ) );
+        }
+        if( added > 0 ) {
+          sb.append( String.format( MSG_EXECUTABLES_ADDED, Integer.valueOf( added ), sbAdded.toString() ) );
+        }
+        logger().info( sb.toString() );
       }
       else {
-        logger().info( MSG_SET_SESSION_EXECUTABLES_ARE_NOT_CHANGED, aFrontend );
+        logger().info( MSG_SESSION_EXECUTABLES_ARE_NOT_CHANGED, aFrontend );
       }
     }
     if( logger().isSeverityOn( ELogSeverity.DEBUG ) ) {
@@ -308,25 +337,17 @@ public class S5BackendCommandSingleton
   @Override
   public void changeTestState( String aInstanceId, ValidationResult aResult ) {
     TsNullArgumentRtException.checkNulls( aInstanceId, aResult );
-    // Сообщение frontend
-    for( IS5FrontendRear frontend : backend().attachedFrontends() ) {
-      S5BaCommandsData frontendData = findCommandsFrontendData( frontend );
-      if( frontendData == null ) {
-        // фронтенд не поддерживает реальное время
-        continue;
+    // Поддержка выполнения команд
+    synchronized (testingCommandsCache) {
+      ValidationResult testingResult = testingCommandsCache.get( aInstanceId );
+      if( testingResult == null ) {
+        // Журнал
+        logger().error( ERR_UNKNOWN_TEST_COMMAND, aInstanceId );
+        return;
       }
-      // Поддержка выполнения команд
-      synchronized (frontendData.commands) {
-        if( frontendData.commands.defineTestResult( aInstanceId, aResult ) == null ) {
-          // Получен результат незарегистрированной команды
-          frontendData.commands.removeTestResult( aInstanceId );
-          // Журнал
-          logger().error( ERR_UNKNOWN_TEST_COMMAND, aInstanceId );
-          continue;
-        }
-        // Запуск механизма оповещения фронтенда
-        frontendData.commands.notify();
-      }
+      testingCommandsCache.put( aInstanceId, aResult );
+      // Запуск механизма оповещения фронтенда
+      testingCommandsCache.notifyAll();
     }
   }
 

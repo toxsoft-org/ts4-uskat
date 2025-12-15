@@ -14,15 +14,17 @@ interface IS5Resources {
   // ------------------------------------------------------------------------------------
   // Строки сообщений
   //
-  String MSG_READ_COMMANDS                          = Messages.getString( "IS5Resources.MSG_READ_COMMANDS" );
-  String MSG_NEW_STATE                              = Messages.getString( "IS5Resources.MSG_NEW_STATE" );
-  String MSG_DOJOB                                  = Messages.getString( "IS5Resources.MSG_DOJOB" );
-  String MSG_SET_EXECUTABLE_CMDS                    = Messages.getString( "IS5Resources.MSG_SET_EXECUTABLE_CMDS" );
-  String MSG_SET_SESSION_EXECUTABLES_CHANGED            =
-      "setHandledCommandGwids(...): frontend = %s. executors changed.\ngwids removed (%d):\n%s\ngwids added(%d):\n%s";
-  String MSG_SET_SESSION_EXECUTABLES_ARE_NOT_CHANGED =
+  String MSG_READ_COMMANDS                       = Messages.getString( "IS5Resources.MSG_READ_COMMANDS" );
+  String MSG_NEW_STATE                           = Messages.getString( "IS5Resources.MSG_NEW_STATE" );
+  String MSG_DOJOB                               = Messages.getString( "IS5Resources.MSG_DOJOB" );
+  String MSG_SET_EXECUTABLE_CMDS                 = Messages.getString( "IS5Resources.MSG_SET_EXECUTABLE_CMDS" );
+  String MSG_SESSION_EXECUTABLES_CHANGED         =
+      "setHandledCommandGwids(...): frontend = %s. executors changed (%d).";
+  String MSG_EXECUTABLES_REMOVED                 = "\nexecutors were removed (%d):%s";
+  String MSG_EXECUTABLES_ADDED                   = "\nexecutors were added (%d):%s";
+  String MSG_SESSION_EXECUTABLES_ARE_NOT_CHANGED =
       "setHandledCommandGwids(...): frontend = %s. executors are not changed.";
-  String MSG_CMD_EXECUTOR                           = Messages.getString( "IS5Resources.MSG_CMD_EXECUTOR" );
+  String MSG_CMD_EXECUTOR                        = Messages.getString( "IS5Resources.MSG_CMD_EXECUTOR" );
 
   // ------------------------------------------------------------------------------------
   // Тексты ошибок

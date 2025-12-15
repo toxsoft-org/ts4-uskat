@@ -49,13 +49,6 @@ public final class S5BaCommandsSupport
   private final IStringListEdit executingCmds = new StringArrayList( false );
 
   /**
-   * Карта результатов проверки возможности выполнения команд. <br>
-   * Ключ: идентификатор {@link IDtoCommand#instanceId()} команды ожидающей тестирования.<br>
-   * Значение: результат тестирования.
-   */
-  private final IStringMapEdit<ValidationResult> testingCmds = new StringMap<>();
-
-  /**
    * Блокировка доступа к данным класса. (lazy)
    */
   private volatile transient S5Lockable lock;
@@ -141,47 +134,6 @@ public final class S5BaCommandsSupport
         retValue.add( state );
       }
       return retValue;
-    }
-    finally {
-      unlockWrite( lock() );
-    }
-  }
-
-  /**
-   * Определяет результат тестирования команды.
-   * <p>
-   * Если у команды ранее уже был установлен результат, то заменяет его на новый.
-   *
-   * @param aCmdInstanceId String идентификатор команды {@link IDtoCommand#instanceId()}
-   * @param aResult {@link ValidationResult} результат для инициализации.
-   * @return {@link ValidationResult} предыдущий результат. null: неопределено (команда не была зарегистирована)
-   * @throws TsNullArgumentRtException любой аргумент = null
-   */
-  public ValidationResult defineTestResult( String aCmdInstanceId, ValidationResult aResult ) {
-    TsNullArgumentRtException.checkNulls( aCmdInstanceId, aResult );
-    lockWrite( lock() );
-    try {
-      return testingCmds.put( aCmdInstanceId, aResult );
-    }
-    finally {
-      unlockWrite( lock() );
-    }
-  }
-
-  /**
-   * Удаляет идентификатор команды из списка команд ожидающих тестирования.
-   * <p>
-   * Если команда не зарегистрирована, то ничего не делает
-   *
-   * @param aCmdId String идентификатор команды {@link IDtoCommand#instanceId()}
-   * @return {@link ValidationResult} результат выполнения тестирования команды; null: команда не найдена.
-   * @throws TsNullArgumentRtException любой аргумент = null
-   */
-  public ValidationResult removeTestResult( String aCmdId ) {
-    TsNullArgumentRtException.checkNull( aCmdId );
-    lockWrite( lock() );
-    try {
-      return testingCmds.removeByKey( aCmdId );
     }
     finally {
       unlockWrite( lock() );
