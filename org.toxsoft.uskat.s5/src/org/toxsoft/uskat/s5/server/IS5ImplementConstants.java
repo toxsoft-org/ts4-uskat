@@ -346,6 +346,11 @@ public interface IS5ImplementConstants
   String INFINISPAN_CACHE_CMD_STATES = "java:jboss/infinispan/cache/s5caches/cmd_states"; //$NON-NLS-1$
 
   /**
+   * JNDI-имя кэша состояния тестирования команд
+   */
+  String INFINISPAN_CACHE_CMD_TESTS = "java:jboss/infinispan/cache/s5caches/cmd_tests"; //$NON-NLS-1$
+
+  /**
    * JNDI-имя кэша идентификаторов данных последовательности хранимых данных
    */
   String INFINISPAN_CACHE_HISTDATA_GWIDS = "java:jboss/infinispan/cache/s5caches/histdata_gwids"; //$NON-NLS-1$

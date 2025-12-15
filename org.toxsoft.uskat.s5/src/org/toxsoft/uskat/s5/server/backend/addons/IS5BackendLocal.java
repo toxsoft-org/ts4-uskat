@@ -17,4 +17,18 @@ public interface IS5BackendLocal
    */
   IS5BackendCoreSingleton backendSingleton();
 
+  /**
+   * Возвращает имя модуля создавшего локальное соединение.
+   *
+   * @return String имя модуля
+   */
+  String localModule();
+
+  /**
+   * Возвращает узел на котором было создано локальное соединение.
+   *
+   * @return String имя узла
+   */
+  String localNode();
+
 }

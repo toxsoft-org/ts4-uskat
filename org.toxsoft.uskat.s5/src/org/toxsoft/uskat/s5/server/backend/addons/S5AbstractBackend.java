@@ -270,6 +270,11 @@ public abstract class S5AbstractBackend<ADDON extends IS5BackendAddon>
         return frontendEventer;
       }
 
+      @Override
+      public String toString() {
+        return S5AbstractBackend.this.toString();
+      }
+
     };
     // Параметры создания бекенда
     openArgs = createContextForBackend( aArgs, sessionID );

@@ -1,6 +1,7 @@
 package org.toxsoft.uskat.s5.client.local;
 
 import static org.toxsoft.core.tslib.av.impl.AvUtils.*;
+import static org.toxsoft.uskat.s5.client.local.IS5Resources.*;
 
 import org.toxsoft.core.tslib.av.opset.*;
 import org.toxsoft.core.tslib.av.opset.impl.*;
@@ -72,6 +73,16 @@ public final class S5BackendLocal
   @Override
   public IS5BackendCoreSingleton backendSingleton() {
     return backendSingleton;
+  }
+
+  @Override
+  public String localModule() {
+    return IS5ConnectionParams.OP_LOCAL_MODULE.getValue( openArgs().params() ).asString();
+  }
+
+  @Override
+  public String localNode() {
+    return IS5ConnectionParams.OP_LOCAL_NODE.getValue( openArgs().params() ).asString();
   }
 
   // ------------------------------------------------------------------------------------
@@ -146,4 +157,11 @@ public final class S5BackendLocal
     sessionManager.closeLocalSession( sessionID() );
   }
 
+  // ------------------------------------------------------------------------------------
+  // Object
+  //
+  @Override
+  public String toString() {
+    return String.format( TO_STRING_FORMAT, localModule(), localNode() );
+  }
 }
