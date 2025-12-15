@@ -19,7 +19,7 @@ interface IS5Resources {
   String MSG_DOJOB                       = Messages.getString( "IS5Resources.MSG_DOJOB" );
   String MSG_SET_EXECUTABLE_CMDS         = Messages.getString( "IS5Resources.MSG_SET_EXECUTABLE_CMDS" );
   String MSG_SET_SESSION_EXECUTABLE_CMDS =
-      "setHandledCommandGwids(...): frontend = %s. executors changed.\n%s gwids removed (%d):\n%s\ngwids added(%d):\n%s";
+      "setHandledCommandGwids(...): frontend = %s. executors changed.\ngwids removed (%d):\n%s\ngwids added(%d):\n%s";
   String MSG_CMD_EXECUTOR                = Messages.getString( "IS5Resources.MSG_CMD_EXECUTOR" );
 
   // ------------------------------------------------------------------------------------
