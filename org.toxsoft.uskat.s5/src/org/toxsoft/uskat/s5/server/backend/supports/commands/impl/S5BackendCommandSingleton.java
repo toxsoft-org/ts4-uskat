@@ -265,7 +265,7 @@ public class S5BackendCommandSingleton
       int added = 0;
       for( Gwid gwid : aGwids ) {
         if( !prev.hasElem( gwid ) ) {
-          sbRemoved.append( String.format( "\n   %s", gwid ) ); //$NON-NLS-1$
+          sbAdded.append( String.format( "\n   %s", gwid ) ); //$NON-NLS-1$
           added++;
         }
       }
