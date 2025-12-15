@@ -223,7 +223,24 @@ public class S5BackendCommandSingleton
   @TransactionAttribute( TransactionAttributeType.NOT_SUPPORTED )
   @Override
   public void setHandledCommandGwids( IGwidList aGwids ) {
-    TsNullArgumentRtException.checkNulls( aGwids );
+    // Использование запрещенного API, использовать:
+    // setHandledCommandGwids( S5BaCommandsData aSessionData, IGwidList aGwids )
+    throw new TsIllegalStateRtException();
+  }
+
+  @TransactionAttribute( TransactionAttributeType.NOT_SUPPORTED )
+  @Override
+  public void setHandledCommandGwids( IS5FrontendRear aFrontend, IGwidList aGwids ) {
+    TsNullArgumentRtException.checkNulls( aFrontend, aGwids );
+    // Данные сессии
+    S5BaCommandsData baData =
+        aFrontend.frontendData().findBackendAddonData( IBaCommands.ADDON_ID, S5BaCommandsData.class );
+    // Проверка существования данных команд в сессии
+    TsInternalErrorRtException.checkNull( baData );
+    // Предыдущий список исполнителей
+    IGwidList prev = baData.commands.getHandledCommandGwids();
+    // Реконфигурация набора
+    baData.commands.setHandledCommandGwids( aGwids );
     // Сообщение frontend
     for( IS5FrontendRear frontend : backend().attachedFrontends() ) {
       S5BaCommandsData frontendData = findCommandsFrontendData( frontend );
@@ -235,14 +252,36 @@ public class S5BackendCommandSingleton
       frontend.onBackendMessage( BaMsgCommandsGloballyHandledGwidsChanged.INSTANCE.makeMessage() );
     }
     if( logger().isSeverityOn( ELogSeverity.INFO ) ) {
+      // Вывод в журнал информации удаленных и добавленных исполнителей команд в сессии
+      StringBuilder sbRemoved = new StringBuilder();
+      int removed = 0;
+      for( Gwid gwid : prev ) {
+        if( !aGwids.hasElem( gwid ) ) {
+          sbRemoved.append( String.format( "\n   %s", gwid ) ); //$NON-NLS-1$
+          removed++;
+        }
+      }
+      StringBuilder sbAdded = new StringBuilder();
+      int added = 0;
+      for( Gwid gwid : aGwids ) {
+        if( !prev.hasElem( gwid ) ) {
+          sbRemoved.append( String.format( "\n   %s", gwid ) ); //$NON-NLS-1$
+          added++;
+        }
+      }
+      logger().debug( MSG_SET_SESSION_EXECUTABLE_CMDS, aFrontend, //
+          Integer.valueOf( removed ), sbRemoved.toString(), //
+          Integer.valueOf( added ), sbAdded.toString() );
+    }
+    if( logger().isSeverityOn( ELogSeverity.DEBUG ) ) {
       IGwidList gwids = listGloballyHandledCommandGwids();
       // Вывод в журнал информации зарегистрированных исполнителей команд
       StringBuilder sb = new StringBuilder();
       for( Gwid gwid : gwids ) {
         sb.append( String.format( "\n   %s", gwid ) ); //$NON-NLS-1$
       }
-      logger().info( MSG_SET_EXECUTABLE_CMDS, Integer.valueOf( gwids.size() ), sb.toString() );
-      logger().info( sb.toString() );
+      logger().debug( MSG_SET_EXECUTABLE_CMDS, Integer.valueOf( gwids.size() ), sb.toString() );
+      logger().debug( sb.toString() );
     }
   }
 

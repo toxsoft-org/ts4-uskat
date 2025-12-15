@@ -14,11 +14,13 @@ interface IS5Resources {
   // ------------------------------------------------------------------------------------
   // Строки сообщений
   //
-  String MSG_READ_COMMANDS       = Messages.getString( "IS5Resources.MSG_READ_COMMANDS" );
-  String MSG_NEW_STATE           = Messages.getString( "IS5Resources.MSG_NEW_STATE" );
-  String MSG_DOJOB               = Messages.getString( "IS5Resources.MSG_DOJOB" );
-  String MSG_SET_EXECUTABLE_CMDS = Messages.getString( "IS5Resources.MSG_SET_EXECUTABLE_CMDS" );
-  String MSG_CMD_EXECUTOR        = Messages.getString( "IS5Resources.MSG_CMD_EXECUTOR" );
+  String MSG_READ_COMMANDS               = Messages.getString( "IS5Resources.MSG_READ_COMMANDS" );
+  String MSG_NEW_STATE                   = Messages.getString( "IS5Resources.MSG_NEW_STATE" );
+  String MSG_DOJOB                       = Messages.getString( "IS5Resources.MSG_DOJOB" );
+  String MSG_SET_EXECUTABLE_CMDS         = Messages.getString( "IS5Resources.MSG_SET_EXECUTABLE_CMDS" );
+  String MSG_SET_SESSION_EXECUTABLE_CMDS =
+      "setHandledCommandGwids(...): frontend = %s. executors changed.\n%s gwids removed (%d):\n%s\ngwids added(%d):\n%s";
+  String MSG_CMD_EXECUTOR                = Messages.getString( "IS5Resources.MSG_CMD_EXECUTOR" );
 
   // ------------------------------------------------------------------------------------
   // Тексты ошибок

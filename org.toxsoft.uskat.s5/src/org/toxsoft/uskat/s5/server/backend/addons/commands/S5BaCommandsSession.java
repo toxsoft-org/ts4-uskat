@@ -13,7 +13,6 @@ import org.toxsoft.core.tslib.bricks.validator.*;
 import org.toxsoft.core.tslib.gw.gwid.*;
 import org.toxsoft.core.tslib.gw.skid.*;
 import org.toxsoft.core.tslib.utils.errors.*;
-import org.toxsoft.core.tslib.utils.logs.*;
 import org.toxsoft.uskat.core.api.cmdserv.*;
 import org.toxsoft.uskat.core.backend.*;
 import org.toxsoft.uskat.core.backend.api.*;
@@ -109,27 +108,10 @@ public class S5BaCommandsSession
   @Override
   public void setHandledCommandGwids( IGwidList aGwids ) {
     TsNullArgumentRtException.checkNull( aGwids );
-    // Данные сессии
-    S5BaCommandsData baData =
-        frontend().frontendData().findBackendAddonData( IBaCommands.ADDON_ID, S5BaCommandsData.class );
-    // Реконфигурация набора
-    baData.commands.setHandledCommandGwids( aGwids );
+    // Запрос к синглетону
+    commandsSupport.setHandledCommandGwids( frontend(), aGwids );
     // Сохранение измененной сессии в кластере сервера
     writeSessionData();
-    // Вывод протокола
-    if( logger().isSeverityOn( ELogSeverity.INFO ) ) {
-      // Вывод в журнал информации о регистрации ресурсов в сессии
-      StringBuilder sb = new StringBuilder();
-      sb.append( String.format( "setHandledCommandGwids(...): sessionID = %s, changed executor list:", sessionID() ) ); //$NON-NLS-1$
-      sb.append( String.format( "\n   === commands (%d) === ", //$NON-NLS-1$
-          Integer.valueOf( baData.commands.getHandledCommandGwids().size() ) ) );
-      for( Gwid gwid : baData.commands.getHandledCommandGwids() ) {
-        sb.append( String.format( "\n   %s", gwid ) ); //$NON-NLS-1$
-      }
-      logger().info( sb.toString() );
-    }
-    // Оповещение бекенда
-    commandsSupport.setHandledCommandGwids( aGwids );
   }
 
   @TransactionAttribute( TransactionAttributeType.REQUIRED )

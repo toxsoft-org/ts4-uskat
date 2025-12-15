@@ -89,9 +89,8 @@ class S5BaCommandsLocal
   @Override
   public void setHandledCommandGwids( IGwidList aGwids ) {
     TsNullArgumentRtException.checkNull( aGwids );
-    baData.commands.setHandledCommandGwids( aGwids );
-    // Оповещение бекенда
-    commandsSupport.setHandledCommandGwids( aGwids );
+    // Запрос к синглетону
+    commandsSupport.setHandledCommandGwids( frontend(), aGwids );
   }
 
   @Override

@@ -1,11 +1,13 @@
 package org.toxsoft.uskat.s5.server.backend.supports.commands;
 
-import javax.ejb.Local;
+import javax.ejb.*;
 
-import org.toxsoft.uskat.core.api.cmdserv.IDtoCompletedCommand;
-import org.toxsoft.uskat.core.backend.api.IBaCommands;
-import org.toxsoft.uskat.s5.server.backend.supports.commands.sequences.IS5CommandSequence;
-import org.toxsoft.uskat.s5.server.sequences.IS5BackendSequenceSupportSingleton;
+import org.toxsoft.core.tslib.gw.gwid.*;
+import org.toxsoft.uskat.core.api.cmdserv.*;
+import org.toxsoft.uskat.core.backend.api.*;
+import org.toxsoft.uskat.s5.server.backend.supports.commands.sequences.*;
+import org.toxsoft.uskat.s5.server.frontend.*;
+import org.toxsoft.uskat.s5.server.sequences.*;
 
 /**
  * Локальный интерфейс синглетона команд предоставляемый s5-сервером.
@@ -15,6 +17,18 @@ import org.toxsoft.uskat.s5.server.sequences.IS5BackendSequenceSupportSingleton;
 @Local
 public interface IS5BackendCommandSingleton
     extends IBaCommands, IS5BackendSequenceSupportSingleton<IS5CommandSequence, IDtoCompletedCommand> {
+
+  /**
+   * Tells backend which GWIDs of command have executors registered in caller frontend.
+   * <p>
+   * Argument replaces previous lsit of GWIDs. An empty list means the frontent will not execute any command.
+   * <p>
+   * List change does not affects commands being executed now.
+   *
+   * @param aFrontend {@link IS5FrontendRear} сессия
+   * @param aGwids {@link IGwidList} - GWIDs of commands that are executed by this object
+   */
+  void setHandledCommandGwids( IS5FrontendRear aFrontend, IGwidList aGwids );
 
   // /**
   // * Возвращает список поддерживаемых команд
