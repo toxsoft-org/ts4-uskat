@@ -269,7 +269,7 @@ public class S5BackendCommandSingleton
           added++;
         }
       }
-      logger().debug( MSG_SET_SESSION_EXECUTABLE_CMDS, aFrontend, //
+      logger().info( MSG_SET_SESSION_EXECUTABLE_CMDS, aFrontend, //
           Integer.valueOf( removed ), sbRemoved.toString(), //
           Integer.valueOf( added ), sbAdded.toString() );
     }
