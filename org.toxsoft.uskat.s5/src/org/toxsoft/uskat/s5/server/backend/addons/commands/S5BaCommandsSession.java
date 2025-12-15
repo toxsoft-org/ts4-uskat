@@ -117,7 +117,7 @@ public class S5BaCommandsSession
     // Сохранение измененной сессии в кластере сервера
     writeSessionData();
     // Вывод протокола
-    if( logger().isSeverityOn( ELogSeverity.INFO ) || logger().isSeverityOn( ELogSeverity.DEBUG ) ) {
+    if( logger().isSeverityOn( ELogSeverity.INFO ) ) {
       // Вывод в журнал информации о регистрации ресурсов в сессии
       StringBuilder sb = new StringBuilder();
       sb.append( String.format( "setHandledCommandGwids(...): sessionID = %s, changed executor list:", sessionID() ) ); //$NON-NLS-1$

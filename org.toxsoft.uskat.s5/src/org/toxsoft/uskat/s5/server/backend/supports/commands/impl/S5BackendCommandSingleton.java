@@ -24,6 +24,7 @@ import org.toxsoft.core.tslib.gw.gwid.*;
 import org.toxsoft.core.tslib.gw.skid.*;
 import org.toxsoft.core.tslib.utils.*;
 import org.toxsoft.core.tslib.utils.errors.*;
+import org.toxsoft.core.tslib.utils.logs.*;
 import org.toxsoft.uskat.core.api.cmdserv.*;
 import org.toxsoft.uskat.core.api.objserv.*;
 import org.toxsoft.uskat.core.api.sysdescr.*;
@@ -186,7 +187,7 @@ public class S5BackendCommandSingleton
     IS5FrontendRear frontend = findExecutorFrontend( aCmdGwid );
     if( frontend == null ) {
       // Не найден исполнитель команды
-      return ValidationResult.error( REASON_EXECUTOR_NOT_FOUND );
+      return ValidationResult.error( REASON_EXECUTOR_NOT_FOUND, aCmdGwid );
     }
     // Данные фронтенда
     S5BaCommandsData frontendData = findCommandsFrontendData( frontend );
@@ -233,7 +234,16 @@ public class S5BackendCommandSingleton
       // Оповещение фронтенда об изменении списка команд поддерживаемых исполнителями
       frontend.onBackendMessage( BaMsgCommandsGloballyHandledGwidsChanged.INSTANCE.makeMessage() );
     }
-    logger().info( MSG_SET_EXECUTABLE_CMDS, Integer.valueOf( listGloballyHandledCommandGwids().size() ) );
+    if( logger().isSeverityOn( ELogSeverity.INFO ) ) {
+      IGwidList gwids = listGloballyHandledCommandGwids();
+      // Вывод в журнал информации зарегистрированных исполнителей команд
+      StringBuilder sb = new StringBuilder();
+      for( Gwid gwid : gwids ) {
+        sb.append( String.format( "\n   %s", gwid ) ); //$NON-NLS-1$
+      }
+      logger().info( MSG_SET_EXECUTABLE_CMDS, Integer.valueOf( gwids.size() ), sb.toString() );
+      logger().info( sb.toString() );
+    }
   }
 
   @TransactionAttribute( TransactionAttributeType.REQUIRED )
