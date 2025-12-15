@@ -269,9 +269,14 @@ public class S5BackendCommandSingleton
           added++;
         }
       }
-      logger().info( MSG_SET_SESSION_EXECUTABLE_CMDS, aFrontend, //
-          Integer.valueOf( removed ), sbRemoved.toString(), //
-          Integer.valueOf( added ), sbAdded.toString() );
+      if( removed > 0 || added > 0 ) {
+        logger().info( MSG_SET_SESSION_EXECUTABLES_CHANGED, aFrontend, //
+            Integer.valueOf( removed ), sbRemoved.toString(), //
+            Integer.valueOf( added ), sbAdded.toString() );
+      }
+      else {
+        logger().info( MSG_SET_SESSION_EXECUTABLES_ARE_NOT_CHANGED, aFrontend );
+      }
     }
     if( logger().isSeverityOn( ELogSeverity.DEBUG ) ) {
       IGwidList gwids = listGloballyHandledCommandGwids();
