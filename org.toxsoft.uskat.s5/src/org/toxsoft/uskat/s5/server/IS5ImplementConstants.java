@@ -50,54 +50,54 @@ public interface IS5ImplementConstants
    * Таймаут(мсек) {@link StatefulTimeout} по которому SFSB без обращения к ним переходят в невалидное состояние. -1:
    * Бесконечно
    */
-  long STATEFULL_TIMEOUT = 2 * 60 * 1000;
+  int STATEFULL_TIMEOUT = 2 * 60 * 1000;
 
   /**
    * Таймаут(мсек) SFSB в течении которого при потоки ожидают освобождение бина
    */
-  long ACCESS_TIMEOUT_DEFAULT = 10 * 1000;
+  int ACCESS_TIMEOUT_DEFAULT = 10 * 1000;
 
   /**
    * Таймаут(мсек) SFSB в течении которого при потоки ожидают освобождение бина в режиме форсированной работы сервера
    */
-  long ACCESS_BOOST_TIMEOUT = 60 * 1000;
+  int ACCESS_BOOST_TIMEOUT = 60 * 1000;
 
   /**
    * Таймаут(мсек) транзакции по умолчанию
    */
-  long TRANSACTION_TIMEOUT_DEFAULT = 10 * 1000;
+  int TRANSACTION_TIMEOUT_DEFAULT = 10 * 1000;
 
   /**
    * Таймаут(мсек) SFSB в течении которого он должны ответить на {@link IS5BackendSessionControl#verify()} прежде чем
    * будет вызвающий код будет определит, что SFSB занят
    */
-  long CHECK_ACCESS_TIMEOUT_DEFAULT = 100;
+  int CHECK_ACCESS_TIMEOUT_DEFAULT = 100;
 
   /**
    * Таймаут(мсек) SFSB в течении которого он должны ответить на {@link IS5BackendSessionControl#removeAsync()} прежде
    * чем будет вызвающий код будет определит, что SFSB занят
    */
-  long REMOVE_ACCESS_TIMEOUT_DEFAULT = 100;
+  int REMOVE_ACCESS_TIMEOUT_DEFAULT = 100;
 
   /**
    * Таймаут(мсек) между выполнением фоновых задач службы по умолчанию
    */
-  long DEFAULT_JOB_TIMEOUT = 100;
+  int DEFAULT_JOB_TIMEOUT = 100;
 
   /**
    * Таймаут(мсек) между выполнением фоновых синглетона backend сервера
    */
-  long BACKEND_JOB_TIMEOUT = 100;
+  int BACKEND_JOB_TIMEOUT = 100;
 
   /**
    * Таймаут(мсек) между выполнением фоновых задач службы ICurrDataService
    */
-  long CURRDATA_JOB_TIMEOUT = 100;
+  int CURRDATA_JOB_TIMEOUT = 100;
 
   /**
    * Таймаут(мсек) проверки целостности списка сессий
    */
-  long SESSIONS_JOB_TIMEOUT = 5 * 60 * 1000;
+  int SESSIONS_JOB_TIMEOUT = 5 * 60 * 1000;
 
   // ------------------------------------------------------------------------------------
   // Предопределенные имена синглетонов для определения зависимостемй между модулями сервера

@@ -107,8 +107,8 @@ public final class S5SessionCallbackServer
     // Идентификация канала (узел-сессия)
     IAvMetaConstants.DDEF_NAME.setValue( ctx.params(), serverName );
     IAvMetaConstants.DDEF_DESCRIPTION.setValue( ctx.params(), serverName );
-    // Таймаут отказа по факту выставляется клиентом
-    IPasParams.OP_PAS_FAILURE_TIMEOUT.setValue( ctx.params(), IAtomicValue.NULL );
+    // Таймаут проверки работоспособности канала устанавливается клиентом (AV_0)
+    IPasParams.OP_PAS_FAILURE_TIMEOUT.setValue( ctx.params(), AV_0 );
     // aExternalDoJobCall = false
     pasServer = new PasServer<>( ctx, S5SessionCallbackChannel.CREATOR, false, getLogger( PasServer.class ) ) {
 

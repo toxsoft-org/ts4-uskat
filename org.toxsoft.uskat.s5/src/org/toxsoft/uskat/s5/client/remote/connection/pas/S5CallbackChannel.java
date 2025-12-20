@@ -1,15 +1,12 @@
 package org.toxsoft.uskat.s5.client.remote.connection.pas;
 
-import java.net.Socket;
+import java.net.*;
 
-import org.toxsoft.core.pas.client.IPasClientChannelCreator;
-import org.toxsoft.core.pas.client.PasClientChannel;
-import org.toxsoft.core.pas.common.PasHandlerHolder;
-import org.toxsoft.core.tslib.av.impl.AvUtils;
-import org.toxsoft.core.tslib.bricks.ctx.ITsContextRo;
-import org.toxsoft.core.tslib.utils.errors.TsIllegalArgumentRtException;
-import org.toxsoft.core.tslib.utils.errors.TsNullArgumentRtException;
-import org.toxsoft.core.tslib.utils.logs.ILogger;
+import org.toxsoft.core.pas.client.*;
+import org.toxsoft.core.pas.common.*;
+import org.toxsoft.core.tslib.bricks.ctx.*;
+import org.toxsoft.core.tslib.utils.errors.*;
+import org.toxsoft.core.tslib.utils.logs.*;
 
 /**
  * Канал приема обратных вызовов сервера
@@ -81,13 +78,13 @@ final class S5CallbackChannel
   /**
    * Установка таймаута отказа работоспособности канала
    *
-   * @param aTimeout long мсек таймаута.
+   * @param aTimeout int мсек таймаута.
    * @throws TsIllegalArgumentRtException недопустимый таймаут
    */
-  void setRegularFailureTimeout( long aTimeout ) {
+  void setRegularFailureTimeout( int aTimeout ) {
     TsIllegalArgumentRtException.checkTrue( aTimeout <= 0 );
     needRegularFailureTimeout = false;
-    super.setFailureTimeout( AvUtils.avInt( aTimeout ) );
+    super.setFailureTimeout( aTimeout );
   }
 
   // ------------------------------------------------------------------------------------

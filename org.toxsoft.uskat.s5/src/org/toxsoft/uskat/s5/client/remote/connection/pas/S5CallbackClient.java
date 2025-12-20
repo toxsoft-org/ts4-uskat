@@ -279,7 +279,7 @@ public final class S5CallbackClient
           if( channel.needRegularFailureTimeout() ) {
             // Установка регулярного таймаута отказа работоспособности канала
             IOptionSet options = connection.sessionInitData().clientOptions();
-            long failureTimeout = IS5ConnectionParams.OP_FAILURE_TIMEOUT.getValue( options ).asInt();
+            int failureTimeout = IS5ConnectionParams.OP_FAILURE_TIMEOUT.getValue( options ).asInt();
             if( failureTimeout < 0 || failureTimeout > (2 * STATEFULL_TIMEOUT) / 3 ) {
               failureTimeout = (2 * STATEFULL_TIMEOUT) / 3;
             }
