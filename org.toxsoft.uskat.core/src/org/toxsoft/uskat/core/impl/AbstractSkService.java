@@ -55,7 +55,7 @@ public abstract class AbstractSkService
     implements ISkService {
 
   /**
-   * Сore services validators implementation that prohibits services to change entities of non-claimed classes.
+   * Core services validators implementation that prohibits services to change entities of non-claimed classes.
    * <p>
    * Instance may be created by subclass and added to {@link ISkSysdescr#svs()}, {@link ISkObjectService#svs()},
    * {@link ISkLinkService#svs()}, {@link ISkClobService#svs()}.
@@ -120,7 +120,7 @@ public abstract class AbstractSkService
   /**
    * Constructor for subclasses.
    * <p>
-   * Implementation notes: subclasses must not initilize it's content in constructor. All initialization staff must be
+   * Implementation notes: subclasses must not initialize it's content in constructor. All initialization staff must be
    * performed in {@link #doInit(ITsContextRo)} method.
    *
    * @param aId String - the service ID
@@ -140,7 +140,7 @@ public abstract class AbstractSkService
   /**
    * Returns error if class with specified ID is claimed by this service.
    * <p>
-   * This is helper method for various core services validaton implementations.
+   * This is helper method for various core services validation implementations.
    *
    * @param aClassId String - ID of class to be checked
    * @return {@link ValidationResult} - error if entities of class is claimed be this service
@@ -252,7 +252,7 @@ public abstract class AbstractSkService
   //
 
   /**
-   * Determines if service is is inited state - after {@link #init(ITsContextRo)} and before {@link #close()}.
+   * Determines if service is is initialized state - after {@link #init(ITsContextRo)} and before {@link #close()}.
    *
    * @return boolean - the initialization flag
    */

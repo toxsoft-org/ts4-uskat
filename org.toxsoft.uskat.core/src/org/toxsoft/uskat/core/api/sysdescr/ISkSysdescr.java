@@ -89,7 +89,7 @@ public interface ISkSysdescr
   /**
    * Returns the handy means of class hierarchy exploration.
    *
-   * @return {@link ISkClassHierarchyExplorer} - the hierarachy explorer
+   * @return {@link ISkClassHierarchyExplorer} - the hierarchy explorer
    */
   ISkClassHierarchyExplorer hierarchy();
 

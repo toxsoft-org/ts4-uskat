@@ -10,6 +10,7 @@ import org.toxsoft.core.tslib.utils.errors.*;
 import org.toxsoft.core.tslib.utils.txtmatch.*;
 import org.toxsoft.uskat.core.*;
 import org.toxsoft.uskat.core.api.*;
+import org.toxsoft.uskat.core.impl.*;
 
 /**
  * Core service: objects manipulation.
@@ -28,7 +29,6 @@ public interface ISkObjectService
    * TODO in object service:
    * <ul>
    * <li>convoy objects;</li>
-   * <li>object "owner" service or it is determined by class service?;</li>
    * </ul>
    */
 
@@ -149,18 +149,20 @@ public interface ISkObjectService
    */
   void removeObjects( ISkidList aSkids );
 
-  // TODO TRANSLATE
-
   /**
-   * Регистрирует создатель объектов по правилу проверки идентификатор класса.
+   * Register the creator of Java class implementation of {@link ISkObject}.
    * <p>
-   * Правила проверяются по порядку из регистриации, и поиск останавливается на первом успешном
-   * {@link TextMatcher#match(String)}.
+   * Any object with class ID accepted by {@link TextMatcher#accept(String) aRule.accept(String)} will be created by
+   * {@link ISkObjectCreator#createObject(Skid) aCreator.createObject(Skid)} For unregistered class IDs actual Java
+   * implementation will be the class {@link SkObject}.
+   * <p>
+   * The rules are checked in the order of registration and the first rule accepting class ID creates object by by
+   * corresponding creator.
    *
-   * @param aRule {@link TextMatcher} - провило проверки идентификатора класса
-   * @param aCreator {@link ISkObjectCreator} - добавляемый создатель
-   * @throws TsNullArgumentRtException любой аргумент = null
-   * @throws TsItemAlreadyExistsRtException с этим правилом уже зарегистрирован создатель
+   * @param aRule {@link TextMatcher} - the class ID checking rule
+   * @param aCreator {@link ISkObjectCreator} - the creator of objects with class IDs accepted by the <code>aRule</code>
+   * @throws TsNullArgumentRtException any argument = <code>null</code>
+   * @throws TsItemAlreadyExistsRtException this rule was already registered
    */
   void registerObjectCreator( TextMatcher aRule, ISkObjectCreator<?> aCreator );
 
@@ -182,7 +184,7 @@ public interface ISkObjectService
   ITsEventer<ISkObjectServiceListener> eventer();
 
   // ------------------------------------------------------------------------------------
-  // Convinience inline methods
+  // Convenience inline methods
 
   @SuppressWarnings( "javadoc" )
   default void registerObjectCreator( String aClassId, ISkObjectCreator<?> aCreator ) {
