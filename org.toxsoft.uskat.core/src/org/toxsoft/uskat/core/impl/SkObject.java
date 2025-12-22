@@ -230,6 +230,13 @@ public class SkObject
   }
 
   @Override
+  public void setClob( String aClobId, String aClobString ) {
+    TsNullArgumentRtException.checkNull( aClobString );
+    Gwid gwid = Gwid.createClob( classId(), strid(), aClobId );
+    coreApi.clobService().writeClob( gwid, aClobString );
+  }
+
+  @Override
   public IAtomicValue readRtdataIfOpen( String aRtdataId ) {
     Gwid rtdGwid = internalRtDataIdToCachedGwid( aRtdataId );
     ISkReadCurrDataChannel ch = coreApi.rtdService().findReadCurrDataChannel( rtdGwid );

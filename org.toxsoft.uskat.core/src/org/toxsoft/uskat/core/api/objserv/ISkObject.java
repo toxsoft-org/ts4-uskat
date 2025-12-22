@@ -231,6 +231,16 @@ public interface ISkObject
     return getClob( aClobId, TsLibUtils.EMPTY_STRING );
   }
 
+  /**
+   * Sets the CLOB value.
+   *
+   * @param aClobId String - the ClOB ID
+   * @param aClobString String - the CLOB as a {@link String}
+   * @throws TsNullArgumentRtException any argument = <code>null</code>
+   * @throws TsItemNotFoundRtException no such CLOB is declared
+   */
+  void setClob( String aClobId, String aClobString );
+
   // ------------------------------------------------------------------------------------
   // RTdata
 
@@ -445,6 +455,11 @@ class InternalNoneSkObject
 
   @Override
   public String getClob( String aClobId, String aDefaultValue ) {
+    throw new TsNullObjectErrorRtException();
+  }
+
+  @Override
+  public void setClob( String aClobId, String aClobString ) {
     throw new TsNullObjectErrorRtException();
   }
 
