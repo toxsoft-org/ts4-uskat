@@ -54,7 +54,7 @@ public interface ISkCoreApi {
   ISkCommandService cmdService();
 
   /**
-   * Reurns the event service.
+   * Returns the event service.
    *
    * @return {@link ISkEventService} - the event service
    */

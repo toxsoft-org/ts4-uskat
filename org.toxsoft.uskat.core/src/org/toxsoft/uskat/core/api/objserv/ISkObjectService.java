@@ -156,7 +156,7 @@ public interface ISkObjectService
    * {@link ISkObjectCreator#createObject(Skid) aCreator.createObject(Skid)} For unregistered class IDs actual Java
    * implementation will be the class {@link SkObject}.
    * <p>
-   * The rules are checked in the order of registration and the first rule accepting class ID creates object by by
+   * The rules are iterated in the reverse order of registration so the last rule accepting class ID creates object by
    * corresponding creator.
    *
    * @param aRule {@link TextMatcher} - the class ID checking rule
