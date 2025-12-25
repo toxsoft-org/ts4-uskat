@@ -8,6 +8,7 @@ import org.toxsoft.uskat.core.api.sysdescr.*;
 import org.toxsoft.uskat.core.connection.*;
 import org.toxsoft.uskat.core.devapi.gwiddb.*;
 import org.toxsoft.uskat.core.devapi.transactions.*;
+import org.toxsoft.uskat.core.impl.*;
 
 /**
  * Core API extensions for USkat service developers.
@@ -58,15 +59,17 @@ public interface IDevCoreApi
   ITsContextRo openArgs();
 
   /**
-   * Determines ID of service claiming ownership of entities of the specified class.
+   * Returns information how the Sk-object of asked class is implemented in corAPI.
    * <p>
-   * All classes not explicitly claimed by any service is considered to be"oned" by {@link ISkSysdescr#SERVICE_ID}.
+   * All classes not explicitly claimed by any service is considered to be "owned" by {@link ISkSysdescr#SERVICE_ID}.
+   * <p>
+   * For non-existing class and classes not claimed by any service returns "owner" service
+   * {@link ISkSysdescr#SERVICE_ID} and pure {@link SkObject} creator.
    *
-   * @param aClassId String - ID of class to be checked
-   * @return String - ID of claiming service ID
-   * @throws TsNullArgumentRtException any argument = <code>null</code>
+   * @param aClassId String - class ID
+   * @return {@link SkClassImplementationInfo} - Sk-class implementation information
    */
-  String determineClassClaimingServiceId( String aClassId );
+  SkClassImplementationInfo getSkClassImplementationInfo( String aClassId );
 
   /**
    * Returns the Sk-connection - owner and creator of this instance.
@@ -85,5 +88,14 @@ public interface IDevCoreApi
    * @return {@link ITsThreadExecutor} - the user-specified thread access
    */
   ITsThreadExecutor executor();
+
+  /**
+   * @deprecated Use {@link #getSkClassImplementationInfo(String)} instead
+   */
+  @Deprecated
+  @SuppressWarnings( "javadoc" )
+  default String determineClassClaimingServiceId( String aClassId ) {
+    return getSkClassImplementationInfo( aClassId ).claimingServiceId();
+  }
 
 }

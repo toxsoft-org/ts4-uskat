@@ -53,19 +53,19 @@ public class SkCoreApi
   private final CoreLogger        logger;
   private final ISkBackend        backend;
 
-  private final SkCoreServSysdescr  sysdescr;
-  private final SkCoreServObject    objService;
-  private final SkCoreServClobs     clobService;
-  private final SkCoreServCommands  cmdService;
-  private final SkCoreServEvents    eventService;
-  private final SkCoreServLinks     linkService;
-  private final SkCoreServRtdata    rtdService;
-  private final SkCoreServHistQuery hqService;
-  private final SkCoreServUsers     userService;
-  private final SkCoreServGwids     gwidService;
-  private final SkCoreServUgwis     ugwiService;
-  private final SkCoreServGwidDb    gwidDbService;
-  private final SkCoreServTransaction   transactionService;
+  private final SkCoreServSysdescr    sysdescr;
+  private final SkCoreServObject      objService;
+  private final SkCoreServClobs       clobService;
+  private final SkCoreServCommands    cmdService;
+  private final SkCoreServEvents      eventService;
+  private final SkCoreServLinks       linkService;
+  private final SkCoreServRtdata      rtdService;
+  private final SkCoreServHistQuery   hqService;
+  private final SkCoreServUsers       userService;
+  private final SkCoreServGwids       gwidService;
+  private final SkCoreServUgwis       ugwiService;
+  private final SkCoreServGwidDb      gwidDbService;
+  private final SkCoreServTransaction transactionService;
 
   private final IList<ISkCoreExternalHandler> coreApiHandlersList;
 
@@ -403,14 +403,17 @@ public class SkCoreApi
   }
 
   @Override
-  public String determineClassClaimingServiceId( String aClassId ) {
+  public SkClassImplementationInfo getSkClassImplementationInfo( String aClassId ) {
     TsNullArgumentRtException.checkNull( aClassId );
+    String claimingClassId = ISkSysdescr.SERVICE_ID;
     for( AbstractSkService s : servicesMap ) {
       if( s.isClassClaimedByService( aClassId ) ) {
-        return s.serviceId();
+        claimingClassId = s.serviceId();
+        break;
       }
     }
-    return ISkSysdescr.SERVICE_ID;
+    ISkObjectCreator<? extends SkObject> creator = objService.papiGetObjectCreator( aClassId );
+    return new SkClassImplementationInfo( aClassId, claimingClassId, creator );
   }
 
   @Override

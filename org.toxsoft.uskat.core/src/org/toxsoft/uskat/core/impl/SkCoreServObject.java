@@ -118,7 +118,7 @@ public class SkCoreServObject
     // API
     //
 
-    ISkObjectCreator<?> getCreator( String aClassId ) {
+    ISkObjectCreator<? extends SkObject> getCreator( String aClassId ) {
       ISkObjectCreator<? extends SkObject> creator = objCreatorsByIds.findByKey( aClassId );
       if( creator == null ) {
         // iterate in the reverse order, for rules registered later to override earlier ones
@@ -561,6 +561,7 @@ public class SkCoreServObject
   // ------------------------------------------------------------------------------------
   // implementation
   //
+
   private SkObject loadFromDtoAndCache( ISkClassInfo aClassInfo, IDtoObject aObjectDto ) {
     SkObject retValue = fromDto( aClassInfo, aObjectDto );
     objsCache.put( retValue );
@@ -612,6 +613,141 @@ public class SkCoreServObject
     return sko;
   }
 
+  private boolean internalDoesObjectExists( Skid aSkid ) {
+    if( objsCache.has( aSkid ) ) {
+      return true;
+    }
+    if( ba().baObjects().findObject( aSkid ) != null ) {
+      return true;
+    }
+    return false;
+  }
+
+  private IList<ISkObject> defineObjectsImpl( ISkidList aRemoveSkids, IList<IDtoObject> aDtoObjects ) {
+    // check preconditions
+    TsNullArgumentRtException.checkNulls( aRemoveSkids, aDtoObjects );
+    ISkSysdescr sysdescr = coreApi().sysdescr();
+    ISkTransactionService transactionService = coreApi().transactionService();
+    // DtoObject manager
+    IDtoObjectManager objectManager = transactionService.objectManager();
+    // // DtoObject rivets manager
+    // IDtoObjectRivetManager rivetManager = transactionService.rivetManager();
+    IListEdit<IDtoObject> removingObjs = new ElemArrayList<>();
+    IListEdit<Pair<IDtoObject, IDtoObject>> updatingObjs = new ElemArrayList<>();
+    IListEdit<IDtoObject> creatingObjs = new ElemArrayList<>();
+    loadObjects( aRemoveSkids, aDtoObjects, objectManager, removingObjs, updatingObjs, creatingObjs );
+
+    // checking access rights to operations on objects
+    TsValidationFailedRtException.checkError( validationSupport.canRemoveObjects( aRemoveSkids ) );
+    for( Pair<IDtoObject, IDtoObject> obj : updatingObjs ) {
+      IDtoObject prevObj = obj.left();
+      TsValidationFailedRtException.checkError( validationSupport.canEditObject( prevObj, find( prevObj.skid() ) ) );
+    }
+    for( IDtoObject obj : creatingObjs ) {
+      TsValidationFailedRtException.checkError( validationSupport.canCreateObject( obj ) );
+    }
+
+    // Skid testSkid = new Skid( "nm.ButtonRelaysGroup", "knrGr_ZL_Ekn" );
+    // Creating objects
+    for( IDtoObject creatingObj : creatingObjs ) {
+      // populating a new object state with attributes and forward rivets of its class
+      DtoObject obj = populateObj( sysdescr.getClassInfo( creatingObj.classId() ), creatingObj );
+      // create an object in the storage
+      objectManager.persist( obj );
+      // if( obj.skid().equals( testSkid ) ) {
+      // logger().error( "testSkid founded = %s", obj );
+      // }
+    }
+    // int testIndex = -1;
+    // IDtoObject testObj = objectManager.find( testSkid );
+    // for( int index = 0, n = aDtoObjects.size() - 1; index < n; index++ ) {
+    // if( aDtoObjects.get( index ).skid().equals( testSkid ) ) {
+    // testIndex = index;
+    // break;
+    // }
+    // }
+    // logger().error( "testObj (%s) = %s, aDtoObjects index = %d", testSkid, testObj, testIndex );
+    // // creating an object rivets in the storage
+    // for( IDtoObject creatingObj : creatingObjs ) {
+    // rivetManager.createRivets( creatingObj );
+    // }
+    for( Pair<IDtoObject, IDtoObject> obj : updatingObjs ) {
+      // previous object state
+      IDtoObject prevObj = obj.left();
+      // populating a new object state with attributes and forward rivets of its class
+      DtoObject newObj = populateObj( sysdescr.getClassInfo( prevObj.classId() ), obj.right() );
+      // restore reverse rivets
+      DtoObject.setRivetRevs( newObj, prevObj.rivetRevs() );
+      // updating an object state in the storage
+      objectManager.merge( newObj );
+      // // updating an object rivets in the storage
+      // rivetManager.updateRivets( prevObj, newObj );
+    }
+    // removing objects with a check that they do not have reverse rivets
+    for( IDtoObject removingObj : removingObjs ) {
+      // // removing object rivets
+      // rivetManager.removeRivets( removingObj );
+      // removing obj
+      objectManager.remove( removingObj );
+    }
+    // prepare results
+    IListEdit<ISkObject> retValue = new ElemArrayList<>( aDtoObjects.size() );
+    for( IDtoObject dtoObj : aDtoObjects ) {
+      // Вместо loadObjAndCache используется непосредственно fromDto чтобы не изменять кэш до завершения транзакции
+      SkObject sko = fromDto( sysdescr.findClassInfo( dtoObj.classId() ), dtoObj );
+      sko.papiSetCoreApi( coreApi() );
+      retValue.add( sko );
+    }
+    return retValue;
+  }
+
+  private static DtoObject populateObj( ISkClassInfo aClassInfo, IDtoObject aSource ) {
+    TsNullArgumentRtException.checkNulls( aClassInfo, aSource );
+    DtoObject retValue = new DtoObject( aSource.skid() );
+    // refresh attribute values (validator already checked that attributes set is valid)
+    for( IDtoAttrInfo ainf : aClassInfo.attrs().list() ) {
+      if( !isSkSysAttr( ainf ) ) {
+        IAtomicValue val = aSource.attrs().getValue( ainf.id(), ainf.dataType().defaultValue() );
+        retValue.attrs().setValue( ainf.id(), val );
+      }
+    }
+    // refresh rivets values
+    for( IDtoRivetInfo rinf : aClassInfo.rivets().list() ) {
+      ISkidList rivets = aSource.rivets().map().getByKey( rinf.id() );
+      retValue.rivets().ensureSkidList( rinf.id() ).setAll( rivets );
+    }
+    return retValue;
+  }
+
+  private static void loadObjects( ISkidList aRemoveSkids, IList<IDtoObject> aDtoObjects,
+      IDtoObjectManager aEntityManager, IListEdit<IDtoObject> aRemoveObjects,
+      IListEdit<Pair<IDtoObject, IDtoObject>> aUpdateObjects, IListEdit<IDtoObject> aCreateObjects ) {
+    for( Skid objId : aRemoveSkids ) {
+      IDtoObject obj = aEntityManager.find( objId );
+      if( obj != null ) {
+        aRemoveObjects.add( obj );
+      }
+    }
+    for( IDtoObject obj : aDtoObjects ) {
+      Skid objId = obj.skid();
+      IDtoObject prevObj = aEntityManager.find( objId );
+      if( prevObj == null ) {
+        // create a new object
+        aCreateObjects.add( obj );
+        continue;
+      }
+      if( !prevObj.equals( obj ) ) {
+        // object state changed
+        aUpdateObjects.add( new Pair<>( prevObj, obj ) );
+      }
+    }
+  }
+
+  // ------------------------------------------------------------------------------------
+  // package API
+  //
+
+  // FIXME question from GOGA: why this method is open, not private?
   static DtoObject createForBackendSave( ISkCoreApi aCoreApi, ISkObject aSkObj ) {
     TsNullArgumentRtException.checkNulls( aCoreApi, aSkObj );
     ISkClassInfo classInfo = aCoreApi.sysdescr().getClassInfo( aSkObj.classId() );
@@ -631,14 +767,8 @@ public class SkCoreServObject
     return dtoObj;
   }
 
-  boolean internalDoesObjectExists( Skid aSkid ) {
-    if( objsCache.has( aSkid ) ) {
-      return true;
-    }
-    if( ba().baObjects().findObject( aSkid ) != null ) {
-      return true;
-    }
-    return false;
+  ISkObjectCreator<? extends SkObject> papiGetObjectCreator( String aClassId ) {
+    return objsCreators.getCreator( aClassId );
   }
 
   // ------------------------------------------------------------------------------------
@@ -765,12 +895,10 @@ public class SkCoreServObject
     checkThread();
     TsNullArgumentRtException.checkNull( aSkids );
     coreApi().papiCheckIsOpen();
-
     if( coreApi().transactionService().isActive() ) {
       // 2025-07-12 mvk TODO: use ISkTransactionService
       throw new TsUnderDevelopmentRtException( "getObjs(...): is not implemented for active transaction" );
     }
-
     IList<IDtoObject> dtoObjs = coreApi().l10n().l10nObjectsList( ba().baObjects().readObjectsByIds( aSkids ) );
     IListEdit<ISkObject> result = new ElemLinkedBundleList<>(
         TsCollectionsUtils.getListInitialCapacity( TsCollectionsUtils.estimateOrder( 1_000 ) ), false );
@@ -798,7 +926,6 @@ public class SkCoreServObject
     // check preconditions
     TsNullArgumentRtException.checkNulls( aRemoveSkids, aDtoObjects );
     coreApi().papiCheckIsOpen();
-
     ISkTransactionService transactionService = coreApi().transactionService();
     // check transaction status
     boolean needNewTransaction = !transactionService.isActive();
@@ -806,7 +933,6 @@ public class SkCoreServObject
       // start a new transaction (it will need to be closed on exit)
       transactionService.start();
     }
-
     try {
       IList<ISkObject> retValue = defineObjectsImpl( aRemoveSkids, aDtoObjects );
 
@@ -852,127 +978,4 @@ public class SkCoreServObject
     return eventer;
   }
 
-  // ------------------------------------------------------------------------------------
-  // private methods
-  //
-
-  private IList<ISkObject> defineObjectsImpl( ISkidList aRemoveSkids, IList<IDtoObject> aDtoObjects ) {
-    // check preconditions
-    TsNullArgumentRtException.checkNulls( aRemoveSkids, aDtoObjects );
-    ISkSysdescr sysdescr = coreApi().sysdescr();
-    ISkTransactionService transactionService = coreApi().transactionService();
-    // DtoObject manager
-    IDtoObjectManager objectManager = transactionService.objectManager();
-    // // DtoObject rivets manager
-    // IDtoObjectRivetManager rivetManager = transactionService.rivetManager();
-    IListEdit<IDtoObject> removingObjs = new ElemArrayList<>();
-    IListEdit<Pair<IDtoObject, IDtoObject>> updatingObjs = new ElemArrayList<>();
-    IListEdit<IDtoObject> creatingObjs = new ElemArrayList<>();
-    loadObjects( aRemoveSkids, aDtoObjects, objectManager, removingObjs, updatingObjs, creatingObjs );
-
-    // checking access rights to operations on objects
-    TsValidationFailedRtException.checkError( validationSupport.canRemoveObjects( aRemoveSkids ) );
-    for( Pair<IDtoObject, IDtoObject> obj : updatingObjs ) {
-      IDtoObject prevObj = obj.left();
-      TsValidationFailedRtException.checkError( validationSupport.canEditObject( prevObj, find( prevObj.skid() ) ) );
-    }
-    for( IDtoObject obj : creatingObjs ) {
-      TsValidationFailedRtException.checkError( validationSupport.canCreateObject( obj ) );
-    }
-
-    // Skid testSkid = new Skid( "nm.ButtonRelaysGroup", "knrGr_ZL_Ekn" );
-    // Creating objects
-    for( IDtoObject creatingObj : creatingObjs ) {
-      // populating a new object state with attributes and forward rivets of its class
-      DtoObject obj = populateObj( sysdescr.getClassInfo( creatingObj.classId() ), creatingObj );
-      // create an object in the storage
-      objectManager.persist( obj );
-      // if( obj.skid().equals( testSkid ) ) {
-      // logger().error( "testSkid founded = %s", obj );
-      // }
-    }
-    // int testIndex = -1;
-    // IDtoObject testObj = objectManager.find( testSkid );
-    // for( int index = 0, n = aDtoObjects.size() - 1; index < n; index++ ) {
-    // if( aDtoObjects.get( index ).skid().equals( testSkid ) ) {
-    // testIndex = index;
-    // break;
-    // }
-    // }
-    // logger().error( "testObj (%s) = %s, aDtoObjects index = %d", testSkid, testObj, testIndex );
-    // // creating an object rivets in the storage
-    // for( IDtoObject creatingObj : creatingObjs ) {
-    // rivetManager.createRivets( creatingObj );
-    // }
-    for( Pair<IDtoObject, IDtoObject> obj : updatingObjs ) {
-      // previous object state
-      IDtoObject prevObj = obj.left();
-      // populating a new object state with attributes and forward rivets of its class
-      DtoObject newObj = populateObj( sysdescr.getClassInfo( prevObj.classId() ), obj.right() );
-      // restore reverse rivets
-      DtoObject.setRivetRevs( newObj, prevObj.rivetRevs() );
-      // updating an object state in the storage
-      objectManager.merge( newObj );
-      // // updating an object rivets in the storage
-      // rivetManager.updateRivets( prevObj, newObj );
-    }
-    // removing objects with a check that they do not have reverse rivets
-    for( IDtoObject removingObj : removingObjs ) {
-      // // removing object rivets
-      // rivetManager.removeRivets( removingObj );
-      // removing obj
-      objectManager.remove( removingObj );
-    }
-    // prepare results
-    IListEdit<ISkObject> retValue = new ElemArrayList<>( aDtoObjects.size() );
-    for( IDtoObject dtoObj : aDtoObjects ) {
-      // Вместо loadObjAndCache используется непосредственно fromDto чтобы не изменять кэш до завершения транзакции
-      SkObject sko = fromDto( sysdescr.findClassInfo( dtoObj.classId() ), dtoObj );
-      sko.papiSetCoreApi( coreApi() );
-      retValue.add( sko );
-    }
-    return retValue;
-  }
-
-  private static DtoObject populateObj( ISkClassInfo aClassInfo, IDtoObject aSource ) {
-    TsNullArgumentRtException.checkNulls( aClassInfo, aSource );
-    DtoObject retValue = new DtoObject( aSource.skid() );
-    // refresh attribute values (validator already checked that attributes set is valid)
-    for( IDtoAttrInfo ainf : aClassInfo.attrs().list() ) {
-      if( !isSkSysAttr( ainf ) ) {
-        IAtomicValue val = aSource.attrs().getValue( ainf.id(), ainf.dataType().defaultValue() );
-        retValue.attrs().setValue( ainf.id(), val );
-      }
-    }
-    // refresh rivets values
-    for( IDtoRivetInfo rinf : aClassInfo.rivets().list() ) {
-      ISkidList rivets = aSource.rivets().map().getByKey( rinf.id() );
-      retValue.rivets().ensureSkidList( rinf.id() ).setAll( rivets );
-    }
-    return retValue;
-  }
-
-  private static void loadObjects( ISkidList aRemoveSkids, IList<IDtoObject> aDtoObjects,
-      IDtoObjectManager aEntityManager, IListEdit<IDtoObject> aRemoveObjects,
-      IListEdit<Pair<IDtoObject, IDtoObject>> aUpdateObjects, IListEdit<IDtoObject> aCreateObjects ) {
-    for( Skid objId : aRemoveSkids ) {
-      IDtoObject obj = aEntityManager.find( objId );
-      if( obj != null ) {
-        aRemoveObjects.add( obj );
-      }
-    }
-    for( IDtoObject obj : aDtoObjects ) {
-      Skid objId = obj.skid();
-      IDtoObject prevObj = aEntityManager.find( objId );
-      if( prevObj == null ) {
-        // create a new object
-        aCreateObjects.add( obj );
-        continue;
-      }
-      if( !prevObj.equals( obj ) ) {
-        // object state changed
-        aUpdateObjects.add( new Pair<>( prevObj, obj ) );
-      }
-    }
-  }
 }
