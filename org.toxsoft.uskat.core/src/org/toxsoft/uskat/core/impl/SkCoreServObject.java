@@ -639,9 +639,8 @@ public class SkCoreServObject
 
     // checking access rights to operations on objects
     TsValidationFailedRtException.checkError( validationSupport.canRemoveObjects( aRemoveSkids ) );
-    for( Pair<IDtoObject, IDtoObject> obj : updatingObjs ) {
-      IDtoObject prevObj = obj.left();
-      TsValidationFailedRtException.checkError( validationSupport.canEditObject( prevObj, find( prevObj.skid() ) ) );
+    for( Pair<IDtoObject, IDtoObject> p : updatingObjs ) {
+      TsValidationFailedRtException.checkError( validationSupport.canEditObject( p.right(), find( p.left().skid() ) ) );
     }
     for( IDtoObject obj : creatingObjs ) {
       TsValidationFailedRtException.checkError( validationSupport.canCreateObject( obj ) );
