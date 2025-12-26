@@ -8,6 +8,8 @@ import org.toxsoft.core.tslib.utils.errors.*;
 import org.toxsoft.uskat.core.*;
 import org.toxsoft.uskat.core.api.*;
 import org.toxsoft.uskat.core.api.sysdescr.dto.*;
+import org.toxsoft.uskat.core.devapi.*;
+import org.toxsoft.uskat.core.impl.*;
 
 /**
  * Core service: system description (classes manager).
@@ -97,6 +99,19 @@ public interface ISkSysdescr
   // Classes ownership
 
   /**
+   * Returns information how the Sk-object of asked class is implemented in corAPI.
+   * <p>
+   * All classes not explicitly claimed by any service is considered to be "owned" by {@link ISkSysdescr#SERVICE_ID}.
+   * <p>
+   * For non-existing class and classes not claimed by any service returns "owner" service
+   * {@link ISkSysdescr#SERVICE_ID} and pure {@link SkObject} creator.
+   *
+   * @param aClassId String - class ID
+   * @return {@link SkClassImplementationInfo} - Sk-class implementation information
+   */
+  SkClassImplementationInfo getSkClassImplementationInfo( String aClassId );
+
+  /**
    * Determines ID of service claiming ownership of entities of the specified class.
    * <p>
    * All classes not explicitly claimed by any service is considered to be "owned" by {@link ISkSysdescr#SERVICE_ID}.
@@ -104,8 +119,12 @@ public interface ISkSysdescr
    * @param aClassId String - ID of class to be checked
    * @return String - ID of claiming service ID
    * @throws TsNullArgumentRtException any argument = <code>null</code>
+   * @deprecated Use {@link #getSkClassImplementationInfo(String)} instead
    */
-  String determineClassClaimingServiceId( String aClassId );
+  @Deprecated
+  default String determineClassClaimingServiceId( String aClassId ) {
+    return getSkClassImplementationInfo( aClassId ).claimingServiceId();
+  }
 
   // ------------------------------------------------------------------------------------
   // Service support

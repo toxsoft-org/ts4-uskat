@@ -5,8 +5,10 @@ import static org.toxsoft.core.tslib.av.metainfo.IAvMetaConstants.*;
 import org.toxsoft.core.tsgui.m5.*;
 import org.toxsoft.core.tsgui.m5.model.*;
 import org.toxsoft.core.tslib.bricks.keeper.*;
+import org.toxsoft.core.tslib.bricks.strid.*;
 import org.toxsoft.core.tslib.bricks.strid.coll.*;
 import org.toxsoft.core.tslib.bricks.strid.coll.impl.*;
+import org.toxsoft.core.tslib.gw.skid.*;
 import org.toxsoft.core.tslib.utils.errors.*;
 import org.toxsoft.core.tslib.utils.valobj.*;
 import org.toxsoft.uskat.core.*;
@@ -14,6 +16,8 @@ import org.toxsoft.uskat.core.api.objserv.*;
 import org.toxsoft.uskat.core.api.sysdescr.*;
 import org.toxsoft.uskat.core.api.sysdescr.dto.*;
 import org.toxsoft.uskat.core.connection.*;
+import org.toxsoft.uskat.core.devapi.*;
+import org.toxsoft.uskat.core.impl.*;
 
 /**
  * Base class for subject area Sk-classes modeling.
@@ -21,12 +25,12 @@ import org.toxsoft.uskat.core.connection.*;
  * This is M5-model of classes claimed by {@link ISkSysdescr}. For other service classes use {@link KM5ModelBasic}
  * instead.
  * <p>
- * This model creates M5-model with all M5-modelable properties (attributes, rivets, CLOBs and links) defined. Default
+ * This model creates M5-model with all M5-modeled properties (attributes, rivets, CLOBs and links) defined. Default
  * lifecycle manager and GUI panels are also provided.
  * <p>
  * This class may be used to directly create models or to be subclassed.
  *
- * @see ISkSysdescr#determineClassClaimingServiceId(String)
+ * @see ISkSysdescr#getSkClassImplementationInfo(String)
  * @see KM5ModelBasic
  * @author hazard157
  * @param <T> - modeled entity type
@@ -55,7 +59,7 @@ public class KM5ModelGeneric<T extends ISkObject>
    */
   @SuppressWarnings( { "unchecked", "rawtypes" } )
   public KM5ModelGeneric( ISkClassInfo aClassInfo, ISkConnection aConn ) {
-    super( TsNullArgumentRtException.checkNull( aClassInfo.id() ), (Class)ISkObject.class, aConn );
+    super( TsNullArgumentRtException.checkNull( aClassInfo.id() ), determineJavaClass( aClassInfo, aConn ), aConn );
     setNameAndDescription( aClassInfo.nmName(), aClassInfo.description() );
     IStridablesListEdit<IM5FieldDef<? extends ISkObject, ?>> fdefs = new StridablesList<>();
     fdefs.addAll( SKID, CLASS_ID, STRID, NAME, DESCRIPTION );
@@ -106,6 +110,16 @@ public class KM5ModelGeneric<T extends ISkObject>
     addFieldDefs( (IStridablesList)fdefs );
     // set default GUI panels creator
     setPanelCreator( new KM5GenericPanelCreator<>() );
+  }
+
+  @SuppressWarnings( "rawtypes" )
+  private static Class determineJavaClass( ISkClassInfo aClassInfo, ISkConnection aConn ) {
+    ISkSysdescr sd = aConn.coreApi().sysdescr();
+    String classId = aClassInfo.id();
+    SkClassImplementationInfo classImplInf = sd.getSkClassImplementationInfo( classId );
+    SkObject tmpObj = classImplInf.objCreator().createObject( new Skid( classId, IStridable.NONE_ID ) );
+    return tmpObj.getClass();
+
   }
 
   @Override

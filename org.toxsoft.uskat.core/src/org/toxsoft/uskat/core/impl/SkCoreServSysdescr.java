@@ -587,9 +587,9 @@ public class SkCoreServSysdescr
   }
 
   @Override
-  public String determineClassClaimingServiceId( String aClassId ) {
+  public SkClassImplementationInfo getSkClassImplementationInfo( String aClassId ) {
     checkThread();
-    return coreApi().determineClassClaimingServiceId( aClassId );
+    return coreApi().getSkClassImplementationInfo( aClassId );
   }
 
   @Override
