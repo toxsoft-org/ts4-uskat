@@ -37,6 +37,7 @@ import org.toxsoft.uskat.core.*;
 import org.toxsoft.uskat.core.api.objserv.*;
 import org.toxsoft.uskat.core.api.sysdescr.*;
 import org.toxsoft.uskat.core.api.sysdescr.dto.*;
+import org.toxsoft.uskat.core.api.ugwis.*;
 import org.toxsoft.uskat.core.api.ugwis.kinds.*;
 import org.toxsoft.uskat.core.connection.*;
 import org.toxsoft.uskat.core.gui.conn.*;
@@ -190,83 +191,84 @@ public class SingleSkPropAbstractUgwiSelectorPanel
     panelProps.setSelectedItem( null );
     // panelObjects.setSelectedItem( null );
     if( aItem != null ) {
-      // Gwid gwid = Gwid.of( aItem.essence() );
-      // initUgwi = aItem;
-      Gwid gwid = ugwi2Gwid( aItem );
-      ISkClassInfo cinf = coreApi.sysdescr().findClassInfo( gwid.classId() );
-      if( cinf != null ) {
-        panelClasses.setSelectedItem( cinf );
-        if( !gwid.isAbstract() && !gwid.isMulti() ) {
-          ISkObject obj = coreApi.objService().find( gwid.skid() );
-          if( obj != null && gwid.isProp() ) {
-            // FIXME --- GOGA temporary disabled to remove RRI dependency from SkIDE repository
-            // для НСИ атрибутов отдельная отработка
-            // panelObjects.setSelectedItem( obj );
-            // if( aItem.kindId().equals( UgwiKindRriAttr.KIND_ID ) ) {
-            // IdChain chain = IdChain.of( aItem.essence() );
-            // String sectId = chain.get( UgwiKindRriAttr.IDX_SECTION_ID );
-            // ISkRegRefInfoService rriServ =
-            // (ISkRegRefInfoService)coreApi.getService( ISkRegRefInfoService.SERVICE_ID );
-            // ISkRriSection rriSect = rriServ.findSection( sectId );
-            // IStridablesList<IDtoRriParamInfo> rriParamInfoes = rriSect.listParamInfoes( cinf.id() );
-            // IDtoRriParamInfo rriParamInfo = rriParamInfoes.findByKey( gwid.propId() );
-            // IDtoClassPropInfoBase prop = rriParamInfo.attrInfo();
-            // panelProps.setSelectedItem( prop );
-            // }
-            // else {
-            IDtoClassPropInfoBase prop = cinf.props( getClassPropKind() ).list().findByKey( gwid.propId() );
-            panelProps.setSelectedItem( prop );
-            // }
-            // ---
+      ISkUgwiKind ugwiKind = coreApi.ugwiService().listKinds().findByKey( aItem.kindId() );
+      if( ugwiKind != null ) {
+        Gwid gwid = ugwiKind.ugwiKind().getGwid( aItem );
+        ISkClassInfo cinf = coreApi.sysdescr().findClassInfo( gwid.classId() );
+        if( cinf != null ) {
+          panelClasses.setSelectedItem( cinf );
+          if( !gwid.isAbstract() && !gwid.isMulti() ) {
+            ISkObject obj = coreApi.objService().find( gwid.skid() );
+            if( obj != null && gwid.isProp() ) {
+              // FIXME --- GOGA temporary disabled to remove RRI dependency from SkIDE repository
+              // для НСИ атрибутов отдельная отработка
+              // panelObjects.setSelectedItem( obj );
+              // if( aItem.kindId().equals( UgwiKindRriAttr.KIND_ID ) ) {
+              // IdChain chain = IdChain.of( aItem.essence() );
+              // String sectId = chain.get( UgwiKindRriAttr.IDX_SECTION_ID );
+              // ISkRegRefInfoService rriServ =
+              // (ISkRegRefInfoService)coreApi.getService( ISkRegRefInfoService.SERVICE_ID );
+              // ISkRriSection rriSect = rriServ.findSection( sectId );
+              // IStridablesList<IDtoRriParamInfo> rriParamInfoes = rriSect.listParamInfoes( cinf.id() );
+              // IDtoRriParamInfo rriParamInfo = rriParamInfoes.findByKey( gwid.propId() );
+              // IDtoClassPropInfoBase prop = rriParamInfo.attrInfo();
+              // panelProps.setSelectedItem( prop );
+              // }
+              // else {
+              IDtoClassPropInfoBase prop = cinf.props( getClassPropKind() ).list().findByKey( gwid.propId() );
+              panelProps.setSelectedItem( prop );
+              // }
+              // ---
+            }
           }
         }
       }
     }
   }
 
-  /**
-   * Create Gwid from Ugwi
-   *
-   * @param aItem - origanal Ugwi
-   * @return resulting Gwid
-   */
-  public static Gwid ugwi2Gwid( Ugwi aItem ) {
-    Gwid retVal = null;
-    switch( aItem.kindId() ) {
-      // FIXME --- GOGA temporary disabled to remove RRI dependency from SkIDE repository
-      // case UgwiKindRriAttr.KIND_ID -> {
-      // retVal = UgwiKindRriAttr.getGwid( aItem );
-      // break;
-      // }
-      // ---
-      case UgwiKindSkAttr.KIND_ID -> {
-        retVal = UgwiKindSkAttr.getGwid( aItem );
-        break;
-      }
-      case UgwiKindSkRtdata.KIND_ID -> {
-        retVal = UgwiKindSkRtdata.getGwid( aItem );
-        break;
-      }
-      case UgwiKindSkRtDataInfo.KIND_ID -> {
-        retVal = UgwiKindSkRtDataInfo.getGwid( aItem );
-        break;
-      }
-      case UgwiKindSkCmd.KIND_ID -> {
-        retVal = UgwiKindSkCmd.getGwid( aItem );
-        break;
-      }
-      case UgwiKindSkLink.KIND_ID -> {
-        retVal = Gwid.createLink( UgwiKindSkLink.getSkid( aItem ), UgwiKindSkLink.getLinkId( aItem ) );
-        break;
-      }
-      case UgwiKindSkRivet.KIND_ID -> {
-        retVal = Gwid.createRivet( UgwiKindSkRivet.getSkid( aItem ), UgwiKindSkRivet.getRivetId( aItem ) );
-        break;
-      }
-      default -> throw new TsNotAllEnumsUsedRtException();
-    }
-    return retVal;
-  }
+  // /**
+  // * Create Gwid from Ugwi
+  // *
+  // * @param aItem - origanal Ugwi
+  // * @return resulting Gwid
+  // */
+  // public static Gwid ugwi2Gwid( Ugwi aItem ) {
+  // Gwid retVal = null;
+  // switch( aItem.kindId() ) {
+  // // FIXME --- GOGA temporary disabled to remove RRI dependency from SkIDE repository
+  // // case UgwiKindRriAttr.KIND_ID -> {
+  // // retVal = UgwiKindRriAttr.getGwid( aItem );
+  // // break;
+  // // }
+  // // ---
+  // case UgwiKindSkAttr.KIND_ID -> {
+  // retVal = UgwiKindSkAttr.getGwid( aItem );
+  // break;
+  // }
+  // case UgwiKindSkRtdata.KIND_ID -> {
+  // retVal = UgwiKindSkRtdata.getGwid( aItem );
+  // break;
+  // }
+  // case UgwiKindSkRtDataInfo.KIND_ID -> {
+  // retVal = UgwiKindSkRtDataInfo.getGwid( aItem );
+  // break;
+  // }
+  // case UgwiKindSkCmd.KIND_ID -> {
+  // retVal = UgwiKindSkCmd.getGwid( aItem );
+  // break;
+  // }
+  // case UgwiKindSkLink.KIND_ID -> {
+  // retVal = Gwid.createLink( UgwiKindSkLink.getSkid( aItem ), UgwiKindSkLink.getLinkId( aItem ) );
+  // break;
+  // }
+  // case UgwiKindSkRivet.KIND_ID -> {
+  // retVal = Gwid.createRivet( UgwiKindSkRivet.getSkid( aItem ), UgwiKindSkRivet.getRivetId( aItem ) );
+  // break;
+  // }
+  // default -> throw new TsNotAllEnumsUsedRtException();
+  // }
+  // return retVal;
+  // }
 
   @Override
   public void addTsSelectionListener( ITsSelectionChangeListener<Ugwi> aListener ) {

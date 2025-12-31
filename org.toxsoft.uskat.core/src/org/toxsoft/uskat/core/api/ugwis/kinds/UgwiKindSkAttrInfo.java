@@ -11,7 +11,7 @@ import org.toxsoft.core.tslib.av.opset.impl.*;
 import org.toxsoft.core.tslib.bricks.strid.impl.*;
 import org.toxsoft.core.tslib.bricks.strid.more.*;
 import org.toxsoft.core.tslib.bricks.validator.*;
-import org.toxsoft.core.tslib.bricks.validator.impl.*;
+import org.toxsoft.core.tslib.gw.gwid.*;
 import org.toxsoft.core.tslib.gw.skid.*;
 import org.toxsoft.core.tslib.gw.ugwi.*;
 import org.toxsoft.core.tslib.utils.errors.*;
@@ -54,15 +54,16 @@ public class UgwiKindSkAttrInfo
   public static class Kind
       extends AbstractSkUgwiKind<IDtoAttrInfo> {
 
-    Kind( AbstractUgwiKind<IDtoAttrInfo> aRegistrator, ISkCoreApi aCoreApi ) {
-      super( aRegistrator, aCoreApi );
+    Kind( AbstractUgwiKind<IDtoAttrInfo> aStaticKind, ISkCoreApi aCoreApi ) {
+      super( aStaticKind, aCoreApi );
     }
 
     @Override
     public IDtoAttrInfo doFindContent( Ugwi aUgwi ) {
-      ISkClassInfo clsInfo = coreApi().sysdescr().findClassInfo( getClassId( aUgwi ) );
+      Gwid gwid = ugwiKind().getGwid( aUgwi );
+      ISkClassInfo clsInfo = coreApi().sysdescr().findClassInfo( gwid.classId() );
       if( clsInfo != null ) {
-        return clsInfo.attrs().list().getByKey( getAttrId( aUgwi ) );
+        return clsInfo.attrs().list().getByKey( gwid.propId() );
       }
       return null;
     }
@@ -88,11 +89,10 @@ public class UgwiKindSkAttrInfo
 
     @Override
     protected IDataType doGetAtomicValueDataType( Ugwi aUgwi ) {
-      String classId = getClassId( aUgwi );
-      ISkClassInfo cinf = coreApi().sysdescr().findClassInfo( classId );
+      Gwid gwid = ugwiKind().getGwid( aUgwi );
+      ISkClassInfo cinf = coreApi().sysdescr().findClassInfo( gwid.classId() );
       if( cinf != null ) {
-        String attrId = getAttrId( aUgwi );
-        IDtoAttrInfo ainf = cinf.attrs().list().findByKey( attrId );
+        IDtoAttrInfo ainf = cinf.attrs().list().findByKey( gwid.propId() );
         if( ainf != null ) {
           return ainf.dataType();
         }
@@ -116,7 +116,7 @@ public class UgwiKindSkAttrInfo
    * Constructor.
    */
   private UgwiKindSkAttrInfo() {
-    super( KIND_ID, OptionSetUtils.createOpSet( //
+    super( KIND_ID, true, OptionSetUtils.createOpSet( //
         TSID_NAME, STR_UK_ATTR, //
         TSID_DESCRIPTION, STR_UK_ATTR_D //
     ) );
@@ -144,37 +144,43 @@ public class UgwiKindSkAttrInfo
     return new Kind( this, aSkConn );
   }
 
+  @Override
+  protected Gwid doGetGwid( Ugwi aUgwi ) {
+    IdChain chain = IdChain.of( aUgwi.essence() );
+    return Gwid.createAttr( chain.get( IDX_CLASS_ID ), chain.get( IDX_ATTR_ID ) );
+  }
+
   // ------------------------------------------------------------------------------------
   // API
   //
 
-  /**
-   * Extracts class ID from the UGWI of this kind.
-   *
-   * @param aUgwi {@link Ugwi} - the UGWI
-   * @return String - the class ID
-   * @throws TsNullArgumentRtException any argument = <code>null</code>
-   * @throws TsValidationFailedRtException invalid UGWI for this kind
-   */
-  public static String getClassId( Ugwi aUgwi ) {
-    TsValidationFailedRtException.checkError( INSTANCE.validateUgwi( aUgwi ) );
-    IdChain chain = IdChain.of( aUgwi.essence() );
-    return chain.get( IDX_CLASS_ID );
-  }
-
-  /**
-   * Extracts attribute ID from the UGWI of this kind.
-   *
-   * @param aUgwi {@link Ugwi} - the UGWI
-   * @return String - the attribute ID
-   * @throws TsNullArgumentRtException any argument = <code>null</code>
-   * @throws TsValidationFailedRtException invalid UGWI for this kind
-   */
-  public static String getAttrId( Ugwi aUgwi ) {
-    TsValidationFailedRtException.checkError( INSTANCE.validateUgwi( aUgwi ) );
-    IdChain chain = IdChain.of( aUgwi.essence() );
-    return chain.get( IDX_ATTR_ID );
-  }
+  // /**
+  // * Extracts class ID from the UGWI of this kind.
+  // *
+  // * @param aUgwi {@link Ugwi} - the UGWI
+  // * @return String - the class ID
+  // * @throws TsNullArgumentRtException any argument = <code>null</code>
+  // * @throws TsValidationFailedRtException invalid UGWI for this kind
+  // */
+  // public static String getClassId( Ugwi aUgwi ) {
+  // TsValidationFailedRtException.checkError( INSTANCE.validateUgwi( aUgwi ) );
+  // IdChain chain = IdChain.of( aUgwi.essence() );
+  // return chain.get( IDX_CLASS_ID );
+  // }
+  //
+  // /**
+  // * Extracts attribute ID from the UGWI of this kind.
+  // *
+  // * @param aUgwi {@link Ugwi} - the UGWI
+  // * @return String - the attribute ID
+  // * @throws TsNullArgumentRtException any argument = <code>null</code>
+  // * @throws TsValidationFailedRtException invalid UGWI for this kind
+  // */
+  // public static String getAttrId( Ugwi aUgwi ) {
+  // TsValidationFailedRtException.checkError( INSTANCE.validateUgwi( aUgwi ) );
+  // IdChain chain = IdChain.of( aUgwi.essence() );
+  // return chain.get( IDX_ATTR_ID );
+  // }
 
   /**
    * Creates the UGWI of UgwiKindSkAttr kind.

@@ -38,6 +38,7 @@ import org.toxsoft.uskat.core.*;
 import org.toxsoft.uskat.core.api.objserv.*;
 import org.toxsoft.uskat.core.api.sysdescr.*;
 import org.toxsoft.uskat.core.api.sysdescr.dto.*;
+import org.toxsoft.uskat.core.api.ugwis.*;
 import org.toxsoft.uskat.core.api.ugwis.kinds.*;
 import org.toxsoft.uskat.core.connection.*;
 import org.toxsoft.uskat.core.gui.conn.*;
@@ -170,54 +171,58 @@ public class SingleSkidUgwiSelectPanel2
   public void setSelectedItem( Ugwi aItem ) {
     panelObjects.setSelectedItem( null );
     if( aItem != null ) {
-      // Gwid gwid = Gwid.of( aItem.essence() );
-      Gwid gwid = ugwi2Gwid( aItem );
-      ISkClassInfo cinf = coreApi.sysdescr().findClassInfo( gwid.classId() );
-      if( cinf != null ) {
-        panelClasses.setSelectedItem( cinf );
-        if( !gwid.isAbstract() && !gwid.isMulti() ) {
-          ISkObject obj = coreApi.objService().find( gwid.skid() );
-          if( obj != null && gwid.isProp() ) {
-            panelObjects.setSelectedItem( obj );
-          }
+      return;
+    }
+    ISkUgwiKind ugwiKind = coreApi.ugwiService().findKind( aItem );
+    if( ugwiKind == null ) {
+      return;
+    }
+    Gwid gwid = ugwiKind.ugwiKind().getGwid( aItem );
+    ISkClassInfo cinf = coreApi.sysdescr().findClassInfo( gwid.classId() );
+    if( cinf != null ) {
+      panelClasses.setSelectedItem( cinf );
+      if( !gwid.isAbstract() && !gwid.isMulti() ) {
+        ISkObject obj = coreApi.objService().find( gwid.skid() );
+        if( obj != null && gwid.isProp() ) {
+          panelObjects.setSelectedItem( obj );
         }
       }
     }
   }
 
-  /**
-   * Create Gwid from Ugwi
-   *
-   * @param aItem - origanal Ugwi
-   * @return resulting Gwid
-   */
-  public static Gwid ugwi2Gwid( Ugwi aItem ) {
-    Gwid retVal = null;
-    switch( aItem.kindId() ) {
-      case UgwiKindSkAttr.KIND_ID -> {
-        retVal = UgwiKindSkAttr.getGwid( aItem );
-        break;
-      }
-      case UgwiKindSkRtdata.KIND_ID -> {
-        retVal = UgwiKindSkRtdata.getGwid( aItem );
-        break;
-      }
-      case UgwiKindSkCmd.KIND_ID -> {
-        retVal = UgwiKindSkCmd.getGwid( aItem );
-        break;
-      }
-      case UgwiKindSkLink.KIND_ID -> {
-        retVal = Gwid.createLink( UgwiKindSkLink.getSkid( aItem ), UgwiKindSkLink.getLinkId( aItem ) );
-        break;
-      }
-      case UgwiKindSkRivet.KIND_ID -> {
-        retVal = Gwid.createRivet( UgwiKindSkRivet.getSkid( aItem ), UgwiKindSkRivet.getRivetId( aItem ) );
-        break;
-      }
-      default -> throw new TsNotAllEnumsUsedRtException();
-    }
-    return retVal;
-  }
+  // /**
+  // * Create Gwid from Ugwi
+  // *
+  // * @param aItem - origanal Ugwi
+  // * @return resulting Gwid
+  // */
+  // public static Gwid ugwi2Gwid( Ugwi aItem ) {
+  // Gwid retVal = null;
+  // switch( aItem.kindId() ) {
+  // case UgwiKindSkAttr.KIND_ID -> {
+  // retVal = UgwiKindSkAttr.getGwid( aItem );
+  // break;
+  // }
+  // case UgwiKindSkRtdata.KIND_ID -> {
+  // retVal = UgwiKindSkRtdata.getGwid( aItem );
+  // break;
+  // }
+  // case UgwiKindSkCmd.KIND_ID -> {
+  // retVal = UgwiKindSkCmd.getGwid( aItem );
+  // break;
+  // }
+  // case UgwiKindSkLink.KIND_ID -> {
+  // retVal = Gwid.createLink( UgwiKindSkLink.getSkid( aItem ), UgwiKindSkLink.getLinkId( aItem ) );
+  // break;
+  // }
+  // case UgwiKindSkRivet.KIND_ID -> {
+  // retVal = Gwid.createRivet( UgwiKindSkRivet.getSkid( aItem ), UgwiKindSkRivet.getRivetId( aItem ) );
+  // break;
+  // }
+  // default -> throw new TsNotAllEnumsUsedRtException();
+  // }
+  // return retVal;
+  // }
 
   @Override
   public void addTsSelectionListener( ITsSelectionChangeListener<Ugwi> aListener ) {

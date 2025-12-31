@@ -33,6 +33,7 @@ import org.toxsoft.uskat.core.*;
 import org.toxsoft.uskat.core.api.objserv.*;
 import org.toxsoft.uskat.core.api.sysdescr.*;
 import org.toxsoft.uskat.core.api.sysdescr.dto.*;
+import org.toxsoft.uskat.core.api.ugwis.*;
 import org.toxsoft.uskat.core.connection.*;
 import org.toxsoft.uskat.core.gui.glib.gwidsel.*;
 import org.toxsoft.uskat.core.gui.ugwi.kinds.*;
@@ -188,7 +189,8 @@ public class ValedUgwiSelectorTable
     if( aValue != null ) {
       // dima 30.08.24
       // Gwid gwid = Gwid.of( aItem.essence() );
-      Gwid gwid = SingleSkPropUgwiSelectPanel.ugwi2Gwid( aValue );
+      ISkUgwiKind ugwiKind = coreApi.ugwiService().getKind( aValue );
+      Gwid gwid = ugwiKind.ugwiKind().getGwid( aValue );
       ISkClassInfo cinf = coreApi.sysdescr().findClassInfo( gwid.classId() );
       if( cinf != null ) {
         panelClasses.setSelectedItem( cinf );

@@ -10,14 +10,12 @@ import org.toxsoft.core.tslib.av.opset.impl.*;
 import org.toxsoft.core.tslib.bricks.strid.impl.*;
 import org.toxsoft.core.tslib.bricks.strid.more.*;
 import org.toxsoft.core.tslib.bricks.validator.*;
-import org.toxsoft.core.tslib.bricks.validator.impl.*;
 import org.toxsoft.core.tslib.coll.*;
 import org.toxsoft.core.tslib.gw.gwid.*;
 import org.toxsoft.core.tslib.gw.skid.*;
 import org.toxsoft.core.tslib.gw.ugwi.*;
 import org.toxsoft.core.tslib.utils.errors.*;
 import org.toxsoft.uskat.core.*;
-import org.toxsoft.uskat.core.api.objserv.*;
 import org.toxsoft.uskat.core.api.rtdserv.*;
 import org.toxsoft.uskat.core.api.sysdescr.*;
 import org.toxsoft.uskat.core.api.sysdescr.dto.*;
@@ -63,15 +61,15 @@ public class UgwiKindSkRtdata
   public static class Kind
       extends AbstractSkUgwiKind<IAtomicValue> {
 
-    Kind( AbstractUgwiKind<IAtomicValue> aRegistrator, ISkCoreApi aCoreApi ) {
-      super( aRegistrator, aCoreApi );
+    Kind( AbstractUgwiKind<IAtomicValue> aStaticKind, ISkCoreApi aCoreApi ) {
+      super( aStaticKind, aCoreApi );
     }
 
     @Override
     public IAtomicValue doFindContent( Ugwi aUgwi ) {
       IAtomicValue retVal = IAtomicValue.NULL;
       IMap<Gwid, ISkReadCurrDataChannel> chMap =
-          coreApi().rtdService().createReadCurrDataChannels( new GwidList( getGwid( aUgwi ) ) );
+          coreApi().rtdService().createReadCurrDataChannels( new GwidList( ugwiKind().getGwid( aUgwi ) ) );
       ISkReadCurrDataChannel channel = chMap.values().first(); // open channel or null
       if( channel != null ) {
         retVal = channel.getValue();
@@ -97,11 +95,10 @@ public class UgwiKindSkRtdata
 
     @Override
     protected IDataType doGetAtomicValueDataType( Ugwi aUgwi ) {
-      String classId = getClassId( aUgwi );
-      ISkClassInfo cinf = coreApi().sysdescr().findClassInfo( classId );
+      Gwid gwid = ugwiKind().getGwid( aUgwi );
+      ISkClassInfo cinf = coreApi().sysdescr().findClassInfo( gwid.classId() );
       if( cinf != null ) {
-        String rtDataId = getRtdataId( aUgwi );
-        IDtoRtdataInfo rtdInf = cinf.rtdata().list().findByKey( rtDataId );
+        IDtoRtdataInfo rtdInf = cinf.rtdata().list().findByKey( gwid.propId() );
         if( rtdInf != null ) {
           return rtdInf.dataType();
         }
@@ -125,7 +122,7 @@ public class UgwiKindSkRtdata
    * Constructor.
    */
   private UgwiKindSkRtdata() {
-    super( KIND_ID, OptionSetUtils.createOpSet( //
+    super( KIND_ID, true, OptionSetUtils.createOpSet( //
         TSID_NAME, STR_UK_RTDATA, //
         TSID_DESCRIPTION, STR_UK_RTDATA_D //
     ) );
@@ -153,79 +150,72 @@ public class UgwiKindSkRtdata
     return new Kind( this, aSkConn );
   }
 
-  // ------------------------------------------------------------------------------------
-  // API
-  //
-
-  /**
-   * Extracts class ID from the UGWI of this kind.
-   *
-   * @param aUgwi {@link Ugwi} - the UGWI
-   * @return String - the class ID
-   * @throws TsNullArgumentRtException any argument = <code>null</code>
-   * @throws TsValidationFailedRtException invalid UGWI for this kind
-   */
-  public static String getClassId( Ugwi aUgwi ) {
-    TsValidationFailedRtException.checkError( INSTANCE.validateUgwi( aUgwi ) );
-    IdChain chain = IdChain.of( aUgwi.essence() );
-    return chain.get( IDX_CLASS_ID );
-  }
-
-  /**
-   * Extracts object STRID from the UGWI of this kind.
-   *
-   * @param aUgwi {@link Ugwi} - the UGWI
-   * @return String - the object STRID
-   * @throws TsNullArgumentRtException any argument = <code>null</code>
-   * @throws TsValidationFailedRtException invalid UGWI for this kind
-   */
-  public static String getObjStrid( Ugwi aUgwi ) {
-    TsValidationFailedRtException.checkError( INSTANCE.validateUgwi( aUgwi ) );
-    IdChain chain = IdChain.of( aUgwi.essence() );
-    return chain.get( IDX_OBJ_STRID );
-  }
-
-  /**
-   * Extracts object SKID from the UGWI of this kind.
-   *
-   * @param aUgwi {@link Ugwi} - the UGWI
-   * @return {@link Skid} - the object SKID
-   * @throws TsNullArgumentRtException any argument = <code>null</code>
-   * @throws TsValidationFailedRtException invalid UGWI for this kind
-   */
-  public static Skid getSkid( Ugwi aUgwi ) {
-    TsValidationFailedRtException.checkError( INSTANCE.validateUgwi( aUgwi ) );
-    IdChain chain = IdChain.of( aUgwi.essence() );
-    return new Skid( chain.get( IDX_CLASS_ID ), chain.get( IDX_OBJ_STRID ) );
-  }
-
-  /**
-   * Extracts Gwid from the UGWI of this kind.
-   *
-   * @param aUgwi {@link Ugwi} - the UGWI
-   * @return {@link Gwid} - the GWID
-   * @throws TsNullArgumentRtException any argument = <code>null</code>
-   * @throws TsValidationFailedRtException invalid UGWI for this kind
-   */
-  public static Gwid getGwid( Ugwi aUgwi ) {
-    TsValidationFailedRtException.checkError( INSTANCE.validateUgwi( aUgwi ) );
+  @Override
+  protected Gwid doGetGwid( Ugwi aUgwi ) {
     IdChain chain = IdChain.of( aUgwi.essence() );
     return Gwid.createRtdata( chain.get( IDX_CLASS_ID ), chain.get( IDX_OBJ_STRID ), chain.get( IDX_RTDATA_ID ) );
   }
 
-  /**
-   * Extracts rtData ID from the UGWI of this kind.
-   *
-   * @param aUgwi {@link Ugwi} - the UGWI
-   * @return String - the rtData ID
-   * @throws TsNullArgumentRtException any argument = <code>null</code>
-   * @throws TsValidationFailedRtException invalid UGWI for this kind
-   */
-  public static String getRtdataId( Ugwi aUgwi ) {
-    TsValidationFailedRtException.checkError( INSTANCE.validateUgwi( aUgwi ) );
-    IdChain chain = IdChain.of( aUgwi.essence() );
-    return chain.get( IDX_RTDATA_ID );
-  }
+  // ------------------------------------------------------------------------------------
+  // API
+  //
+
+  // /**
+  // * Extracts class ID from the UGWI of this kind.
+  // *
+  // * @param aUgwi {@link Ugwi} - the UGWI
+  // * @return String - the class ID
+  // * @throws TsNullArgumentRtException any argument = <code>null</code>
+  // * @throws TsValidationFailedRtException invalid UGWI for this kind
+  // */
+  // public static String getClassId( Ugwi aUgwi ) {
+  // TsValidationFailedRtException.checkError( INSTANCE.validateUgwi( aUgwi ) );
+  // IdChain chain = IdChain.of( aUgwi.essence() );
+  // return chain.get( IDX_CLASS_ID );
+  // }
+  //
+  // /**
+  // * Extracts object STRID from the UGWI of this kind.
+  // *
+  // * @param aUgwi {@link Ugwi} - the UGWI
+  // * @return String - the object STRID
+  // * @throws TsNullArgumentRtException any argument = <code>null</code>
+  // * @throws TsValidationFailedRtException invalid UGWI for this kind
+  // */
+  // public static String getObjStrid( Ugwi aUgwi ) {
+  // TsValidationFailedRtException.checkError( INSTANCE.validateUgwi( aUgwi ) );
+  // IdChain chain = IdChain.of( aUgwi.essence() );
+  // return chain.get( IDX_OBJ_STRID );
+  // }
+  //
+  // /**
+  // * Extracts object SKID from the UGWI of this kind.
+  // *
+  // * @param aUgwi {@link Ugwi} - the UGWI
+  // * @return {@link Skid} - the object SKID
+  // * @throws TsNullArgumentRtException any argument = <code>null</code>
+  // * @throws TsValidationFailedRtException invalid UGWI for this kind
+  // */
+  // public static Skid getSkid( Ugwi aUgwi ) {
+  // TsValidationFailedRtException.checkError( INSTANCE.validateUgwi( aUgwi ) );
+  // IdChain chain = IdChain.of( aUgwi.essence() );
+  // return new Skid( chain.get( IDX_CLASS_ID ), chain.get( IDX_OBJ_STRID ) );
+  // }
+  //
+  //
+  // /**
+  // * Extracts rtData ID from the UGWI of this kind.
+  // *
+  // * @param aUgwi {@link Ugwi} - the UGWI
+  // * @return String - the rtData ID
+  // * @throws TsNullArgumentRtException any argument = <code>null</code>
+  // * @throws TsValidationFailedRtException invalid UGWI for this kind
+  // */
+  // public static String getRtdataId( Ugwi aUgwi ) {
+  // TsValidationFailedRtException.checkError( INSTANCE.validateUgwi( aUgwi ) );
+  // IdChain chain = IdChain.of( aUgwi.essence() );
+  // return chain.get( IDX_RTDATA_ID );
+  // }
 
   /**
    * Creates the UGWI of this kind.
@@ -262,24 +252,24 @@ public class UgwiKindSkRtdata
     return Ugwi.of( KIND_ID, chain.canonicalString() );
   }
 
-  /**
-   * Возвращает признак существования объекта и данного, на которые указывает {@link Ugwi}.<br>
-   *
-   * @param aUgwi {@link Ugwi} - ИД сущности
-   * @param aCoreApi {@link ISkCoreApi} - API сервера
-   * @return <b>true</b> - сущность есть<br>
-   *         <b>false</b> - сущность отсутствует
-   */
-  public static boolean isEntityExists( Ugwi aUgwi, ISkCoreApi aCoreApi ) {
-    if( INSTANCE.validateUgwi( aUgwi ) != ValidationResult.SUCCESS ) {
-      return false;
-    }
-    TsIllegalArgumentRtException.checkFalse( aUgwi.kindId().equals( KIND_ID ) );
-    ISkObject skObj = aCoreApi.objService().find( getSkid( aUgwi ) );
-    if( skObj != null ) {
-      return skObj.classInfo().rtdata().list().hasKey( getRtdataId( aUgwi ) );
-    }
-    return false;
-  }
+  // /**
+  // * Возвращает признак существования объекта и данного, на которые указывает {@link Ugwi}.<br>
+  // *
+  // * @param aUgwi {@link Ugwi} - ИД сущности
+  // * @param aCoreApi {@link ISkCoreApi} - API сервера
+  // * @return <b>true</b> - сущность есть<br>
+  // * <b>false</b> - сущность отсутствует
+  // */
+  // public static boolean isEntityExists( Ugwi aUgwi, ISkCoreApi aCoreApi ) {
+  // if( INSTANCE.validateUgwi( aUgwi ) != ValidationResult.SUCCESS ) {
+  // return false;
+  // }
+  // TsIllegalArgumentRtException.checkFalse( aUgwi.kindId().equals( KIND_ID ) );
+  // ISkObject skObj = aCoreApi.objService().find( getSkid( aUgwi ) );
+  // if( skObj != null ) {
+  // return skObj.classInfo().rtdata().list().hasKey( getRtdataId( aUgwi ) );
+  // }
+  // return false;
+  // }
 
 }

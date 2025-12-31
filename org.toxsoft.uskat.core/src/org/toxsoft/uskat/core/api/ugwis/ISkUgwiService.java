@@ -90,4 +90,29 @@ public interface ISkUgwiService
    */
   void registerKind( AbstractSkUgwiKind<?> aUgwiKind );
 
+  // ------------------------------------------------------------------------------------
+  // inline methods for convenience
+
+  @SuppressWarnings( "javadoc" )
+  default ISkUgwiKind findKind( String aUgwiKindId ) {
+    return listKinds().findByKey( aUgwiKindId );
+  }
+
+  @SuppressWarnings( "javadoc" )
+  default ISkUgwiKind getKind( String aUgwiKindId ) {
+    return listKinds().getByKey( aUgwiKindId );
+  }
+
+  @SuppressWarnings( "javadoc" )
+  default ISkUgwiKind findKind( Ugwi aUgwi ) {
+    TsNullArgumentRtException.checkNull( aUgwi );
+    return listKinds().findByKey( aUgwi.kindId() );
+  }
+
+  @SuppressWarnings( "javadoc" )
+  default ISkUgwiKind getKind( Ugwi aUgwi ) {
+    TsNullArgumentRtException.checkNull( aUgwi );
+    return listKinds().getByKey( aUgwi.kindId() );
+  }
+
 }

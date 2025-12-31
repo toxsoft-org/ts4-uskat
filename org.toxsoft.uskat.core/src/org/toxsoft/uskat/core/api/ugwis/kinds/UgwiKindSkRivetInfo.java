@@ -11,7 +11,7 @@ import org.toxsoft.core.tslib.av.opset.impl.*;
 import org.toxsoft.core.tslib.bricks.strid.impl.*;
 import org.toxsoft.core.tslib.bricks.strid.more.*;
 import org.toxsoft.core.tslib.bricks.validator.*;
-import org.toxsoft.core.tslib.bricks.validator.impl.*;
+import org.toxsoft.core.tslib.gw.gwid.*;
 import org.toxsoft.core.tslib.gw.skid.*;
 import org.toxsoft.core.tslib.gw.ugwi.*;
 import org.toxsoft.core.tslib.utils.errors.*;
@@ -57,15 +57,16 @@ public class UgwiKindSkRivetInfo
   public static class Kind
       extends AbstractSkUgwiKind<IDtoRivetInfo> {
 
-    Kind( AbstractUgwiKind<IDtoRivetInfo> aRegistrator, ISkCoreApi aCoreApi ) {
-      super( aRegistrator, aCoreApi );
+    Kind( AbstractUgwiKind<IDtoRivetInfo> aStaticKind, ISkCoreApi aCoreApi ) {
+      super( aStaticKind, aCoreApi );
     }
 
     @Override
     public IDtoRivetInfo doFindContent( Ugwi aUgwi ) {
-      ISkClassInfo clsInfo = coreApi().sysdescr().findClassInfo( getClassId( aUgwi ) );
+      Gwid gwid = ugwiKind().getGwid( aUgwi );
+      ISkClassInfo clsInfo = coreApi().sysdescr().findClassInfo( gwid.classId() );
       if( clsInfo != null ) {
-        return clsInfo.rivets().list().findByKey( getRivetId( aUgwi ) );
+        return clsInfo.rivets().list().findByKey( gwid.propId() );
       }
       return null;
     }
@@ -110,7 +111,7 @@ public class UgwiKindSkRivetInfo
    * Constructor.
    */
   private UgwiKindSkRivetInfo() {
-    super( KIND_ID, OptionSetUtils.createOpSet( //
+    super( KIND_ID, true, OptionSetUtils.createOpSet( //
         TSID_NAME, STR_UK_RIVET, //
         TSID_DESCRIPTION, STR_UK_RIVET_D //
     ) );
@@ -138,37 +139,43 @@ public class UgwiKindSkRivetInfo
     return new Kind( this, aSkConn );
   }
 
+  @Override
+  protected Gwid doGetGwid( Ugwi aUgwi ) {
+    IdChain chain = IdChain.of( aUgwi.essence() );
+    return Gwid.createRivet( chain.get( IDX_CLASS_ID ), chain.get( IDX_RIVET_ID ) );
+  }
+
   // ------------------------------------------------------------------------------------
   // API
   //
 
-  /**
-   * Extracts class ID from the UGWI of this kind.
-   *
-   * @param aUgwi {@link Ugwi} - the UGWI
-   * @return String - the class ID
-   * @throws TsNullArgumentRtException any argument = <code>null</code>
-   * @throws TsValidationFailedRtException invalid UGWI for this kind
-   */
-  public static String getClassId( Ugwi aUgwi ) {
-    TsValidationFailedRtException.checkError( INSTANCE.validateUgwi( aUgwi ) );
-    IdChain chain = IdChain.of( aUgwi.essence() );
-    return chain.get( IDX_CLASS_ID );
-  }
-
-  /**
-   * Extracts rivet ID from the UGWI of this kind.
-   *
-   * @param aUgwi {@link Ugwi} - the UGWI
-   * @return String - the rivet ID
-   * @throws TsNullArgumentRtException any argument = <code>null</code>
-   * @throws TsValidationFailedRtException invalid UGWI for this kind
-   */
-  public static String getRivetId( Ugwi aUgwi ) {
-    TsValidationFailedRtException.checkError( INSTANCE.validateUgwi( aUgwi ) );
-    IdChain chain = IdChain.of( aUgwi.essence() );
-    return chain.get( IDX_RIVET_ID );
-  }
+  // /**
+  // * Extracts class ID from the UGWI of this kind.
+  // *
+  // * @param aUgwi {@link Ugwi} - the UGWI
+  // * @return String - the class ID
+  // * @throws TsNullArgumentRtException any argument = <code>null</code>
+  // * @throws TsValidationFailedRtException invalid UGWI for this kind
+  // */
+  // public static String getClassId( Ugwi aUgwi ) {
+  // TsValidationFailedRtException.checkError( INSTANCE.validateUgwi( aUgwi ) );
+  // IdChain chain = IdChain.of( aUgwi.essence() );
+  // return chain.get( IDX_CLASS_ID );
+  // }
+  //
+  // /**
+  // * Extracts rivet ID from the UGWI of this kind.
+  // *
+  // * @param aUgwi {@link Ugwi} - the UGWI
+  // * @return String - the rivet ID
+  // * @throws TsNullArgumentRtException any argument = <code>null</code>
+  // * @throws TsValidationFailedRtException invalid UGWI for this kind
+  // */
+  // public static String getRivetId( Ugwi aUgwi ) {
+  // TsValidationFailedRtException.checkError( INSTANCE.validateUgwi( aUgwi ) );
+  // IdChain chain = IdChain.of( aUgwi.essence() );
+  // return chain.get( IDX_RIVET_ID );
+  // }
 
   /**
    * Creates the UGWI of UgwiKindSkRivetInfo kind.

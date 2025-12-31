@@ -11,7 +11,7 @@ import org.toxsoft.core.tslib.av.opset.impl.*;
 import org.toxsoft.core.tslib.bricks.strid.impl.*;
 import org.toxsoft.core.tslib.bricks.strid.more.*;
 import org.toxsoft.core.tslib.bricks.validator.*;
-import org.toxsoft.core.tslib.bricks.validator.impl.*;
+import org.toxsoft.core.tslib.gw.gwid.*;
 import org.toxsoft.core.tslib.gw.skid.*;
 import org.toxsoft.core.tslib.gw.ugwi.*;
 import org.toxsoft.core.tslib.utils.errors.*;
@@ -54,15 +54,16 @@ public class UgwiKindSkCmdInfo
   public static class Kind
       extends AbstractSkUgwiKind<IDtoCmdInfo> {
 
-    Kind( AbstractUgwiKind<IDtoCmdInfo> aRegistrator, ISkCoreApi aCoreApi ) {
-      super( aRegistrator, aCoreApi );
+    Kind( AbstractUgwiKind<IDtoCmdInfo> aStaticKind, ISkCoreApi aCoreApi ) {
+      super( aStaticKind, aCoreApi );
     }
 
     @Override
     public IDtoCmdInfo doFindContent( Ugwi aUgwi ) {
-      ISkClassInfo clsInfo = coreApi().sysdescr().findClassInfo( getClassId( aUgwi ) );
+      Gwid gwid = ugwiKind().getGwid( aUgwi );
+      ISkClassInfo clsInfo = coreApi().sysdescr().findClassInfo( gwid.classId() );
       if( clsInfo != null ) {
-        return clsInfo.cmds().list().getByKey( getCmdId( aUgwi ) );
+        return clsInfo.cmds().list().getByKey( gwid.propId() );
       }
       return null;
     }
@@ -107,7 +108,7 @@ public class UgwiKindSkCmdInfo
    * Constructor.
    */
   private UgwiKindSkCmdInfo() {
-    super( KIND_ID, OptionSetUtils.createOpSet( //
+    super( KIND_ID, true, OptionSetUtils.createOpSet( //
         TSID_NAME, STR_UK_CMD, //
         TSID_DESCRIPTION, STR_UK_CMD_D //
     ) );
@@ -135,37 +136,43 @@ public class UgwiKindSkCmdInfo
     return new Kind( this, aSkConn );
   }
 
+  @Override
+  public Gwid doGetGwid( Ugwi aUgwi ) {
+    IdChain chain = IdChain.of( aUgwi.essence() );
+    return Gwid.createCmd( chain.get( IDX_CLASS_ID ), chain.get( IDX_CMD_ID ) );
+  }
+
   // ------------------------------------------------------------------------------------
   // API
   //
 
-  /**
-   * Extracts class ID from the UGWI of this kind.
-   *
-   * @param aUgwi {@link Ugwi} - the UGWI
-   * @return String - the class ID
-   * @throws TsNullArgumentRtException any argument = <code>null</code>
-   * @throws TsValidationFailedRtException invalid UGWI for this kind
-   */
-  public static String getClassId( Ugwi aUgwi ) {
-    TsValidationFailedRtException.checkError( INSTANCE.validateUgwi( aUgwi ) );
-    IdChain chain = IdChain.of( aUgwi.essence() );
-    return chain.get( IDX_CLASS_ID );
-  }
-
-  /**
-   * Extracts rt-data ID from the UGWI of this kind.
-   *
-   * @param aUgwi {@link Ugwi} - the UGWI
-   * @return String - the command ID
-   * @throws TsNullArgumentRtException any argument = <code>null</code>
-   * @throws TsValidationFailedRtException invalid UGWI for this kind
-   */
-  public static String getCmdId( Ugwi aUgwi ) {
-    TsValidationFailedRtException.checkError( INSTANCE.validateUgwi( aUgwi ) );
-    IdChain chain = IdChain.of( aUgwi.essence() );
-    return chain.get( IDX_CMD_ID );
-  }
+  // /**
+  // * Extracts class ID from the UGWI of this kind.
+  // *
+  // * @param aUgwi {@link Ugwi} - the UGWI
+  // * @return String - the class ID
+  // * @throws TsNullArgumentRtException any argument = <code>null</code>
+  // * @throws TsValidationFailedRtException invalid UGWI for this kind
+  // */
+  // public static String getClassId( Ugwi aUgwi ) {
+  // TsValidationFailedRtException.checkError( INSTANCE.validateUgwi( aUgwi ) );
+  // IdChain chain = IdChain.of( aUgwi.essence() );
+  // return chain.get( IDX_CLASS_ID );
+  // }
+  //
+  // /**
+  // * Extracts rt-data ID from the UGWI of this kind.
+  // *
+  // * @param aUgwi {@link Ugwi} - the UGWI
+  // * @return String - the command ID
+  // * @throws TsNullArgumentRtException any argument = <code>null</code>
+  // * @throws TsValidationFailedRtException invalid UGWI for this kind
+  // */
+  // public static String getCmdId( Ugwi aUgwi ) {
+  // TsValidationFailedRtException.checkError( INSTANCE.validateUgwi( aUgwi ) );
+  // IdChain chain = IdChain.of( aUgwi.essence() );
+  // return chain.get( IDX_CMD_ID );
+  // }
 
   /**
    * Creates the UGWI of this kind.

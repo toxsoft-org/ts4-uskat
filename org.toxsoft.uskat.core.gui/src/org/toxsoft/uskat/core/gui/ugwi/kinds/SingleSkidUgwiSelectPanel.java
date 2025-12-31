@@ -37,6 +37,7 @@ import org.toxsoft.core.tslib.utils.errors.*;
 import org.toxsoft.uskat.core.*;
 import org.toxsoft.uskat.core.api.objserv.*;
 import org.toxsoft.uskat.core.api.sysdescr.dto.*;
+import org.toxsoft.uskat.core.api.ugwis.*;
 import org.toxsoft.uskat.core.api.ugwis.kinds.*;
 import org.toxsoft.uskat.core.connection.*;
 import org.toxsoft.uskat.core.gui.conn.*;
@@ -198,14 +199,16 @@ public class SingleSkidUgwiSelectPanel
   public void setSelectedItem( Ugwi aItem ) {
     panelObjects.setSelectedItem( null );
     if( aItem != null ) {
-      // dima 30.08.24
-      // Gwid gwid = Gwid.of( aItem.essence() );
-      Gwid gwid = SingleSkPropUgwiSelectPanel.ugwi2Gwid( aItem );
-      ISkObject obj = coreApi.objService().find( gwid.skid() );
-      if( obj != null ) {
-        panelObjects.setSelectedItem( obj );
-      }
-
+      return;
+    }
+    ISkUgwiKind ugwiKind = coreApi.ugwiService().findKind( aItem );
+    if( ugwiKind == null ) {
+      return;
+    }
+    Gwid gwid = ugwiKind.ugwiKind().getGwid( aItem );
+    ISkObject obj = coreApi.objService().find( gwid.skid() );
+    if( obj != null ) {
+      panelObjects.setSelectedItem( obj );
     }
   }
 

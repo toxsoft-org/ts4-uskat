@@ -5,8 +5,10 @@ import static org.toxsoft.core.tslib.utils.TsLibUtils.*;
 import org.toxsoft.core.tslib.bricks.strid.*;
 import org.toxsoft.core.tslib.bricks.validator.*;
 import org.toxsoft.core.tslib.bricks.validator.impl.*;
+import org.toxsoft.core.tslib.gw.gwid.*;
 import org.toxsoft.core.tslib.gw.ugwi.*;
 import org.toxsoft.core.tslib.utils.errors.*;
+import org.toxsoft.uskat.core.*;
 
 /**
  * The UGWI kind description.
@@ -72,6 +74,42 @@ public sealed interface IUgwiKind
    * @throws TsValidationFailedRtException failed {@link #validateUgwi(String, String)}
    */
   Ugwi createUgwi( String aNamespace, String aEssence );
+
+  /**
+   * Determines if entity addresses by the UGWI actually exists in the particular USkat.
+   * <p>
+   * For {@link Ugwi#NONE} returns false.
+   *
+   * @param aUgwi {@link Ugwi} - the UGWI
+   * @param aCoreApi {@link ISkCoreApi} - USKat API
+   * @return boolean - the entity existence flag<br>
+   *         <b>true</b> - addressed entity exists in <code>aCoreApi</code>;<br>
+   *         <b>false</b> - argument addresses nothing in <code>aCoreApi</code>.
+   * @throws TsNullArgumentRtException any argument = <code>null</code>
+   * @throws TsValidationFailedRtException argument is not a valid UGWI of this kind
+   */
+  boolean isSkEntity( Ugwi aUgwi, ISkCoreApi aCoreApi );
+
+  /**
+   * Determines if entity addresses by this kind of UGWI also may be addressed by a GWID. <
+   *
+   * @return boolean - the sign that this kind of UGWI points to the GWID addressed Sk-entity<br>
+   *         <b>true</b> - this is an alias to GWID, method {@link #getGwid(Ugwi)} returns valid GWID;<br>
+   *         <b>false</b> - this is non-GWID entity, {@link #getGwid(Ugwi)} throws an exception.
+   */
+  boolean hasGwid();
+
+  /**
+   * Returns the GWID address of the Sk-entity addressed by this UGWI, if supported.
+   *
+   * @param aUgwi {@link Ugwi} - the UGWI to get GWID from
+   * @return {@link Gwid} - the GWID alias of this UGWI
+   * @throws TsNullArgumentRtException any argument = <code>null</code>
+   * @throws TsIllegalArgumentRtException argument is {@link Ugwi#NONE}
+   * @throws TsUnsupportedFeatureRtException this UGWI kind does supports UWGI aliases
+   * @throws TsValidationFailedRtException argument is not a valid UGWI of this kind
+   */
+  Gwid getGwid( Ugwi aUgwi );
 
   // ------------------------------------------------------------------------------------
   // Inline methods for convenience

@@ -11,7 +11,7 @@ import org.toxsoft.core.tslib.av.opset.impl.*;
 import org.toxsoft.core.tslib.bricks.strid.impl.*;
 import org.toxsoft.core.tslib.bricks.strid.more.*;
 import org.toxsoft.core.tslib.bricks.validator.*;
-import org.toxsoft.core.tslib.bricks.validator.impl.*;
+import org.toxsoft.core.tslib.gw.gwid.*;
 import org.toxsoft.core.tslib.gw.ugwi.*;
 import org.toxsoft.core.tslib.utils.errors.*;
 import org.toxsoft.uskat.core.*;
@@ -47,13 +47,14 @@ public class UgwiKindSkClassInfo
   public static class Kind
       extends AbstractSkUgwiKind<ISkClassInfo> {
 
-    Kind( AbstractUgwiKind<ISkClassInfo> aRegistrator, ISkCoreApi aCoreApi ) {
-      super( aRegistrator, aCoreApi );
+    Kind( AbstractUgwiKind<ISkClassInfo> aStaticKind, ISkCoreApi aCoreApi ) {
+      super( aStaticKind, aCoreApi );
     }
 
     @Override
     public ISkClassInfo doFindContent( Ugwi aUgwi ) {
-      return coreApi().sysdescr().findClassInfo( getClassId( aUgwi ) );
+      Gwid gwid = ugwiKind().getGwid( aUgwi );
+      return coreApi().sysdescr().findClassInfo( gwid.classId() );
     }
 
     @Override
@@ -96,7 +97,7 @@ public class UgwiKindSkClassInfo
    * Constructor.
    */
   private UgwiKindSkClassInfo() {
-    super( KIND_ID, OptionSetUtils.createOpSet( //
+    super( KIND_ID, true, OptionSetUtils.createOpSet( //
         TSID_NAME, STR_UK_CLASS_INFO, //
         TSID_DESCRIPTION, STR_UK_CLASS_INFO_D //
     ) );
@@ -124,23 +125,29 @@ public class UgwiKindSkClassInfo
     return new Kind( this, aSkConn );
   }
 
+  @Override
+  protected Gwid doGetGwid( Ugwi aUgwi ) {
+    IdChain chain = IdChain.of( aUgwi.essence() );
+    return Gwid.createClass( chain.get( IDX_CLASS_ID ) );
+  }
+
   // ------------------------------------------------------------------------------------
   // API
   //
 
-  /**
-   * Extracts class ID from the UGWI of this kind.
-   *
-   * @param aUgwi {@link Ugwi} - the UGWI
-   * @return String - the class ID
-   * @throws TsNullArgumentRtException any argument = <code>null</code>
-   * @throws TsValidationFailedRtException invalid UGWI for this kind
-   */
-  public static String getClassId( Ugwi aUgwi ) {
-    TsValidationFailedRtException.checkError( INSTANCE.validateUgwi( aUgwi ) );
-    IdChain chain = IdChain.of( aUgwi.essence() );
-    return chain.get( IDX_CLASS_ID );
-  }
+  // /**
+  // * Extracts class ID from the UGWI of this kind.
+  // *
+  // * @param aUgwi {@link Ugwi} - the UGWI
+  // * @return String - the class ID
+  // * @throws TsNullArgumentRtException any argument = <code>null</code>
+  // * @throws TsValidationFailedRtException invalid UGWI for this kind
+  // */
+  // public static String getClassId( Ugwi aUgwi ) {
+  // TsValidationFailedRtException.checkError( INSTANCE.validateUgwi( aUgwi ) );
+  // IdChain chain = IdChain.of( aUgwi.essence() );
+  // return chain.get( IDX_CLASS_ID );
+  // }
 
   /**
    * Creates the UGWI of this kind.

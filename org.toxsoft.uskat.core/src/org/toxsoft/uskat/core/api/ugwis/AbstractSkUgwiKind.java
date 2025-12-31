@@ -29,14 +29,14 @@ public non-sealed abstract class AbstractSkUgwiKind<T>
   /**
    * Constructor.
    *
-   * @param aRegistrator {@link AbstractUgwiKind} - the kind registrator
+   * @param aStaticKind {@link AbstractUgwiKind} - the kind registrator
    * @param aCoreApi {@link ISkCoreApi} - the core API
    * @throws TsNullArgumentRtException any argument = <code>null</code>
    * @throws TsIllegalArgumentRtException ID is not an IDpath
    */
-  public AbstractSkUgwiKind( AbstractUgwiKind<T> aRegistrator, ISkCoreApi aCoreApi ) {
-    TsNullArgumentRtException.checkNulls( aRegistrator, aCoreApi );
-    ugwiKind = aRegistrator;
+  public AbstractSkUgwiKind( AbstractUgwiKind<T> aStaticKind, ISkCoreApi aCoreApi ) {
+    TsNullArgumentRtException.checkNulls( aStaticKind, aCoreApi );
+    ugwiKind = aStaticKind;
     coreApi = aCoreApi;
   }
 

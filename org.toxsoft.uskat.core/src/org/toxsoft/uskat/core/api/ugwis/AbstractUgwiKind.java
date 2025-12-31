@@ -6,9 +6,11 @@ import org.toxsoft.core.tslib.av.opset.*;
 import org.toxsoft.core.tslib.bricks.strid.impl.*;
 import org.toxsoft.core.tslib.bricks.validator.*;
 import org.toxsoft.core.tslib.bricks.validator.impl.*;
+import org.toxsoft.core.tslib.gw.gwid.*;
 import org.toxsoft.core.tslib.gw.ugwi.*;
 import org.toxsoft.core.tslib.utils.errors.*;
 import org.toxsoft.uskat.core.*;
+import org.toxsoft.uskat.core.api.gwids.*;
 
 /**
  * Basic implementation of {@link ISkUgwiKind}.
@@ -20,16 +22,20 @@ public non-sealed abstract class AbstractUgwiKind<T>
     extends StridableParameterized
     implements IUgwiKind {
 
+  private final boolean hasGwid;
+
   /**
    * Constructor.
    *
    * @param aId String - the ID (IDpath)
+   * @param aHasGwid boolean - value, returned by the method {@link #hasGwid()}
    * @param aParams {@link IOptionSet} - {@link #params()} initial values
    * @throws TsNullArgumentRtException any argument = <code>null</code>
    * @throws TsIllegalArgumentRtException ID is not an IDpath
    */
-  public AbstractUgwiKind( String aId, IOptionSet aParams ) {
+  public AbstractUgwiKind( String aId, boolean aHasGwid, IOptionSet aParams ) {
     super( aId, aParams );
+    hasGwid = aHasGwid;
   }
 
   // ------------------------------------------------------------------------------------
@@ -68,6 +74,34 @@ public non-sealed abstract class AbstractUgwiKind<T>
   final public Ugwi createUgwi( String aNamespace, String aEssence ) {
     TsValidationFailedRtException.checkError( validateUgwi( aNamespace, aEssence ) );
     return Ugwi.of( id(), aNamespace, aEssence );
+  }
+
+  @Override
+  public boolean isSkEntity( Ugwi aUgwi, ISkCoreApi aCoreApi ) {
+    TsNullArgumentRtException.checkNulls( aUgwi, aCoreApi );
+    if( aUgwi == Ugwi.NONE ) {
+      return false;
+    }
+    TsValidationFailedRtException.checkError( validateUgwi( aUgwi ) );
+    if( hasGwid ) {
+      Gwid gwid = doGetGwid( aUgwi );
+      return aCoreApi.gwidService().exists( gwid );
+    }
+    return doIsSkEntity( aUgwi, aCoreApi );
+  }
+
+  @Override
+  final public boolean hasGwid() {
+    return hasGwid;
+  }
+
+  @Override
+  final public Gwid getGwid( Ugwi aUgwi ) {
+    TsNullArgumentRtException.checkNull( aUgwi );
+    TsIllegalArgumentRtException.checkFalse( aUgwi == Ugwi.NONE );
+    TsUnsupportedFeatureRtException.checkFalse( hasGwid );
+    TsValidationFailedRtException.checkError( validateUgwi( aUgwi ) );
+    return doGetGwid( aUgwi );
   }
 
   // ------------------------------------------------------------------------------------
@@ -117,6 +151,22 @@ public non-sealed abstract class AbstractUgwiKind<T>
   }
 
   /**
+   * For non-GWID UGWI kind implementation method must determine if the addressed Sk-entity exists.
+   * <p>
+   * This method is called only for UGWI kinds not supporting GWID alias ({@link #hasGwid()} == <code>false</code>). For
+   * UGWI kinds with valid {@link #getGwid(Ugwi)} entity existence is determined by {@link ISkGwidService#exists(Gwid)}.
+   * <p>
+   * In the base class throws {@link TsUnderDevelopmentRtException}, implementation must never call superclass method.
+   *
+   * @param aUgwi {@link Ugwi} - valid UGWI of this kind
+   * @param aCoreApi {@link ISkCoreApi} - USkat API
+   * @return boolean - the entity existence flag
+   */
+  protected boolean doIsSkEntity( Ugwi aUgwi, ISkCoreApi aCoreApi ) {
+    throw new TsUnderDevelopmentRtException();
+  }
+
+  /**
    * Implementation must perform check of UGWI essence for syntactical validity.
    *
    * @param aEssence String - the essence, never is <code>null</code>, may be an empty string
@@ -131,5 +181,17 @@ public non-sealed abstract class AbstractUgwiKind<T>
    * @return {@link AbstractSkUgwiKind} - created kind
    */
   protected abstract AbstractSkUgwiKind<?> doCreateUgwiKind( ISkCoreApi aCoreApi );
+
+  /**
+   * Implementation must return {@link Gwid} extracted from the argument.
+   * <p>
+   * The argument is checked to be not <code>null</code> and {@link Ugwi#kindId()} is equal to this {@link #id()}.
+   * <p>
+   * FIXME make method not abstract ?
+   *
+   * @param aUgwi {@link Ugwi} - valid UGWI of this kind
+   * @return {@link Gwid} - the GWID extracted from the argument
+   */
+  protected abstract Gwid doGetGwid( Ugwi aUgwi );
 
 }

@@ -12,7 +12,7 @@ import org.toxsoft.core.tslib.av.metainfo.*;
 import org.toxsoft.core.tslib.av.opset.impl.*;
 import org.toxsoft.core.tslib.bricks.strid.impl.*;
 import org.toxsoft.core.tslib.bricks.validator.*;
-import org.toxsoft.core.tslib.bricks.validator.impl.*;
+import org.toxsoft.core.tslib.gw.gwid.*;
 import org.toxsoft.core.tslib.gw.skid.*;
 import org.toxsoft.core.tslib.gw.ugwi.*;
 import org.toxsoft.core.tslib.utils.errors.*;
@@ -47,16 +47,16 @@ public class UgwiKindSkSkid
   public static class Kind
       extends AbstractSkUgwiKind<Skid> {
 
-    Kind( AbstractUgwiKind<Skid> aRegistrator, ISkCoreApi aCoreApi ) {
-      super( aRegistrator, aCoreApi );
+    Kind( AbstractUgwiKind<Skid> aStaticKind, ISkCoreApi aCoreApi ) {
+      super( aStaticKind, aCoreApi );
     }
 
     @Override
     public Skid doFindContent( Ugwi aUgwi ) {
-      Skid skid = getSkid( aUgwi );
-      ISkObject sko = coreApi().objService().find( skid );
+      Gwid gwid = ugwiKind().getGwid( aUgwi );
+      ISkObject sko = coreApi().objService().find( gwid.skid() );
       if( sko != null ) {
-        return skid;
+        return gwid.skid();
       }
       return null;
     }
@@ -101,14 +101,14 @@ public class UgwiKindSkSkid
    * Constructor.
    */
   private UgwiKindSkSkid() {
-    super( KIND_ID, OptionSetUtils.createOpSet( //
+    super( KIND_ID, true, OptionSetUtils.createOpSet( //
         TSID_NAME, STR_UK_SKID, //
         TSID_DESCRIPTION, STR_UK_SKID_D //
     ) );
   }
 
   // ------------------------------------------------------------------------------------
-  // AbstractUgwiKindRegistrator
+  // AbstractUgwiKind
   //
 
   @Override
@@ -124,47 +124,52 @@ public class UgwiKindSkSkid
     return new Kind( this, aSkConn );
   }
 
+  @Override
+  protected Gwid doGetGwid( Ugwi aUgwi ) {
+    return Gwid.createObj( Skid.of( aUgwi.essence() ) );
+  }
+
   // ------------------------------------------------------------------------------------
   // API
   //
 
-  /**
-   * Extracts class ID from the UGWI of this kind.
-   *
-   * @param aUgwi {@link Ugwi} - the UGWI
-   * @return String - the class ID
-   * @throws TsNullArgumentRtException any argument = <code>null</code>
-   * @throws TsValidationFailedRtException invalid UGWI for this kind
-   */
-  public static String getClassId( Ugwi aUgwi ) {
-    TsValidationFailedRtException.checkError( INSTANCE.validateUgwi( aUgwi ) );
-    return getSkid( aUgwi ).classId();
-  }
-
-  /**
-   * Extracts object STRID from the UGWI of this kind.
-   *
-   * @param aUgwi {@link Ugwi} - the UGWI
-   * @return String - the object STRID
-   * @throws TsNullArgumentRtException any argument = <code>null</code>
-   * @throws TsValidationFailedRtException invalid UGWI for this kind
-   */
-  public static String getObjStrid( Ugwi aUgwi ) {
-    return getSkid( aUgwi ).strid();
-  }
-
-  /**
-   * Extracts object SKID from the UGWI of this kind.
-   *
-   * @param aUgwi {@link Ugwi} - the UGWI
-   * @return {@link Skid} - the object SKID
-   * @throws TsNullArgumentRtException any argument = <code>null</code>
-   * @throws TsValidationFailedRtException invalid UGWI for this kind
-   */
-  public static Skid getSkid( Ugwi aUgwi ) {
-    TsValidationFailedRtException.checkError( INSTANCE.validateUgwi( aUgwi ) );
-    return Skid.of( aUgwi.essence() );
-  }
+  // /**
+  // * Extracts class ID from the UGWI of this kind.
+  // *
+  // * @param aUgwi {@link Ugwi} - the UGWI
+  // * @return String - the class ID
+  // * @throws TsNullArgumentRtException any argument = <code>null</code>
+  // * @throws TsValidationFailedRtException invalid UGWI for this kind
+  // */
+  // public static String getClassId( Ugwi aUgwi ) {
+  // TsValidationFailedRtException.checkError( INSTANCE.validateUgwi( aUgwi ) );
+  // return getSkid( aUgwi ).classId();
+  // }
+  //
+  // /**
+  // * Extracts object STRID from the UGWI of this kind.
+  // *
+  // * @param aUgwi {@link Ugwi} - the UGWI
+  // * @return String - the object STRID
+  // * @throws TsNullArgumentRtException any argument = <code>null</code>
+  // * @throws TsValidationFailedRtException invalid UGWI for this kind
+  // */
+  // public static String getObjStrid( Ugwi aUgwi ) {
+  // return getSkid( aUgwi ).strid();
+  // }
+  //
+  // /**
+  // * Extracts object SKID from the UGWI of this kind.
+  // *
+  // * @param aUgwi {@link Ugwi} - the UGWI
+  // * @return {@link Skid} - the object SKID
+  // * @throws TsNullArgumentRtException any argument = <code>null</code>
+  // * @throws TsValidationFailedRtException invalid UGWI for this kind
+  // */
+  // public static Skid getSkid( Ugwi aUgwi ) {
+  // TsValidationFailedRtException.checkError( INSTANCE.validateUgwi( aUgwi ) );
+  // return Skid.of( aUgwi.essence() );
+  // }
 
   /**
    * Creates the UGWI of this kind.
@@ -196,20 +201,20 @@ public class UgwiKindSkSkid
     return Ugwi.of( KIND_ID, aObjSkid.canonicalString() );
   }
 
-  /**
-   * Возвращает признак существования объекта, на который указывает {@link Ugwi}.<br>
-   *
-   * @param aUgwi {@link Ugwi} - ИД сущности
-   * @param aCoreApi {@link ISkCoreApi} - API сервера
-   * @return <b>true</b> - сущность есть<br>
-   *         <b>false</b> - сущность отсутствует
-   */
-  public static boolean isEntityExists( Ugwi aUgwi, ISkCoreApi aCoreApi ) {
-    if( INSTANCE.validateUgwi( aUgwi ) != ValidationResult.SUCCESS ) {
-      return false;
-    }
-    TsIllegalArgumentRtException.checkFalse( aUgwi.kindId().equals( KIND_ID ) );
-    return aCoreApi.objService().find( getSkid( aUgwi ) ) != null;
-  }
+  // /**
+  // * Возвращает признак существования объекта, на который указывает {@link Ugwi}.<br>
+  // *
+  // * @param aUgwi {@link Ugwi} - ИД сущности
+  // * @param aCoreApi {@link ISkCoreApi} - API сервера
+  // * @return <b>true</b> - сущность есть<br>
+  // * <b>false</b> - сущность отсутствует
+  // */
+  // public static boolean isEntityExists( Ugwi aUgwi, ISkCoreApi aCoreApi ) {
+  // if( INSTANCE.validateUgwi( aUgwi ) != ValidationResult.SUCCESS ) {
+  // return false;
+  // }
+  // TsIllegalArgumentRtException.checkFalse( aUgwi.kindId().equals( KIND_ID ) );
+  // return aCoreApi.objService().find( getSkid( aUgwi ) ) != null;
+  // }
 
 }
