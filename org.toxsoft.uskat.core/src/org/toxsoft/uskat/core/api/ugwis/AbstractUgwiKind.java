@@ -98,7 +98,7 @@ public non-sealed abstract class AbstractUgwiKind<T>
   @Override
   final public Gwid getGwid( Ugwi aUgwi ) {
     TsNullArgumentRtException.checkNull( aUgwi );
-    TsIllegalArgumentRtException.checkFalse( aUgwi == Ugwi.NONE );
+    TsIllegalArgumentRtException.checkTrue( aUgwi == Ugwi.NONE );
     TsUnsupportedFeatureRtException.checkFalse( hasGwid );
     TsValidationFailedRtException.checkError( validateUgwi( aUgwi ) );
     return doGetGwid( aUgwi );
