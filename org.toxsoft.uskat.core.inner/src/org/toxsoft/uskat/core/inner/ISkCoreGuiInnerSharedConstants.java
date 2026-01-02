@@ -15,7 +15,7 @@ public interface ISkCoreGuiInnerSharedConstants {
 
   String SKCGC_VALED_CONCRETE_GWID_EDITOR_NAME                = "ts.valed.ConcreteGwidEditor";                 //$NON-NLS-1$
   String SKCGC_VALED_CONCRETE_GWID_EDITOR_NAME_OPID_GWID_KIND = "ts.valed.ConcreteGwidEditor.option.GwidKind"; //$NON-NLS-1$
-  String SKCGC_VALED_AV_VALOBJ_CONCRETE_GWID_EDITOR_NAME      = "ts.valed.AvValobjConcreteGwidEditor";         //$NON-NLS-1$
-  String SKCGC_VALED_AV_VALOBJ_UGWI_SELECTOR_TEXT_AND_BUTTON  = "ts.valed.AvValobjUgwiSelectorTextAndButton";  //$NON-NLS-1$
+  String SKCGC_VALED_AV_CONCRETE_GWID_EDITOR_NAME             = "ts.valed.AvValobjConcreteGwidEditor";         //$NON-NLS-1$
+  String SKCGC_VALED_AV_UGWI_SELECTOR_TEXT_AND_BUTTON         = "ts.valed.AvValobjUgwiSelectorTextAndButton";  //$NON-NLS-1$
 
 }
