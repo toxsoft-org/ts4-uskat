@@ -12,7 +12,6 @@ import org.toxsoft.core.tslib.bricks.strid.impl.*;
 import org.toxsoft.core.tslib.bricks.strid.more.*;
 import org.toxsoft.core.tslib.bricks.validator.*;
 import org.toxsoft.core.tslib.gw.gwid.*;
-import org.toxsoft.core.tslib.gw.skid.*;
 import org.toxsoft.core.tslib.gw.ugwi.*;
 import org.toxsoft.core.tslib.utils.errors.*;
 import org.toxsoft.uskat.core.*;
@@ -198,39 +197,39 @@ public class UgwiKindSkAttrInfo
     return Ugwi.of( KIND_ID, chain.canonicalString() );
   }
 
-  /**
-   * Creates the UGWI of UgwiKindSkAttr kind.
-   *
-   * @param aClassId String - class ID
-   * @param aObjStrid String - object STRID
-   * @param aAttrId String - attribute ID
-   * @return {@link Ugwi} - created UGWI
-   * @throws TsNullArgumentRtException any argument = <code>null</code>
-   * @throws TsIllegalArgumentRtException any ID is not an IDpath
-   */
-  public static Ugwi makeUgwi( String aClassId, String aObjStrid, String aAttrId ) {
-    StridUtils.checkValidIdPath( aClassId );
-    StridUtils.checkValidIdPath( aObjStrid );
-    StridUtils.checkValidIdPath( aAttrId );
-    IdChain chain = new IdChain( aClassId, aObjStrid, aAttrId );
-    return Ugwi.of( UgwiKindSkAttr.KIND_ID, chain.canonicalString() );
-  }
-
-  /**
-   * Creates the UGWI of UgwiKindSkAttr kind.
-   *
-   * @param aObjSkid {@link Skid} - SKID of the object
-   * @param aAttrId String - attribute ID
-   * @return {@link Ugwi} - created UGWI
-   * @throws TsNullArgumentRtException any argument = <code>null</code>
-   * @throws TsIllegalArgumentRtException any ID is not an IDpath
-   */
-  public static Ugwi makeUgwi( Skid aObjSkid, String aAttrId ) {
-    TsNullArgumentRtException.checkNull( aObjSkid );
-    TsIllegalArgumentRtException.checkTrue( aObjSkid == Skid.NONE );
-    StridUtils.checkValidIdPath( aAttrId );
-    IdChain chain = new IdChain( aObjSkid.classId(), aObjSkid.strid(), aAttrId );
-    return Ugwi.of( UgwiKindSkAttr.KIND_ID, chain.canonicalString() );
-  }
+  // /**
+  // * Creates the UGWI of UgwiKindSkAttr kind.
+  // *
+  // * @param aClassId String - class ID
+  // * @param aObjStrid String - object STRID
+  // * @param aAttrId String - attribute ID
+  // * @return {@link Ugwi} - created UGWI
+  // * @throws TsNullArgumentRtException any argument = <code>null</code>
+  // * @throws TsIllegalArgumentRtException any ID is not an IDpath
+  // */
+  // public static Ugwi makeUgwi( String aClassId, String aObjStrid, String aAttrId ) {
+  // StridUtils.checkValidIdPath( aClassId );
+  // StridUtils.checkValidIdPath( aObjStrid );
+  // StridUtils.checkValidIdPath( aAttrId );
+  // IdChain chain = new IdChain( aClassId, aObjStrid, aAttrId );
+  // return Ugwi.of( UgwiKindSkAttr.KIND_ID, chain.canonicalString() );
+  // }
+  //
+  // /**
+  // * Creates the UGWI of UgwiKindSkAttr kind.
+  // *
+  // * @param aObjSkid {@link Skid} - SKID of the object
+  // * @param aAttrId String - attribute ID
+  // * @return {@link Ugwi} - created UGWI
+  // * @throws TsNullArgumentRtException any argument = <code>null</code>
+  // * @throws TsIllegalArgumentRtException any ID is not an IDpath
+  // */
+  // public static Ugwi makeUgwi( Skid aObjSkid, String aAttrId ) {
+  // TsNullArgumentRtException.checkNull( aObjSkid );
+  // TsIllegalArgumentRtException.checkTrue( aObjSkid == Skid.NONE );
+  // StridUtils.checkValidIdPath( aAttrId );
+  // IdChain chain = new IdChain( aObjSkid.classId(), aObjSkid.strid(), aAttrId );
+  // return Ugwi.of( UgwiKindSkAttr.KIND_ID, chain.canonicalString() );
+  // }
 
 }

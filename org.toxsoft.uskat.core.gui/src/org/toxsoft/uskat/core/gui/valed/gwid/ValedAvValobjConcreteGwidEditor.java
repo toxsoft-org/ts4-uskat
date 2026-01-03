@@ -23,7 +23,7 @@ public class ValedAvValobjConcreteGwidEditor
   /**
    * The factory name.
    */
-  public static final String FACTORY_NAME = SKCGC_VALED_AV_VALOBJ_CONCRETE_GWID_EDITOR_NAME;
+  public static final String FACTORY_NAME = SKCGC_VALED_AV_CONCRETE_GWID_EDITOR_NAME;
 
   /**
    * The factory class.

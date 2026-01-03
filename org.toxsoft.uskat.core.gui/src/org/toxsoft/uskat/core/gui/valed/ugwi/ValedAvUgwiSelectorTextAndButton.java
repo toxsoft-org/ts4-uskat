@@ -23,7 +23,7 @@ public class ValedAvUgwiSelectorTextAndButton
   /**
    * The factory name.
    */
-  public static final String FACTORY_NAME = SKCGC_VALED_AV_VALOBJ_UGWI_SELECTOR_TEXT_AND_BUTTON;
+  public static final String FACTORY_NAME = SKCGC_VALED_AV_UGWI_SELECTOR_TEXT_AND_BUTTON;
 
   /**
    * The factory class.

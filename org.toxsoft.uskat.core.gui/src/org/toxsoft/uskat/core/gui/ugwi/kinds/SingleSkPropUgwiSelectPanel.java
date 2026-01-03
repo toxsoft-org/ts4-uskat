@@ -184,7 +184,7 @@ public class SingleSkPropUgwiSelectPanel
     String ugwiKindId = tsContext().params().getStr( OPDEF_SK_UGWI_KIND_ID );
     return switch( ugwiKindId ) {
       case UgwiKindSkAttr.KIND_ID -> UgwiKindSkAttr.makeUgwi( selObj.skid(), selProp.id() );
-      case UgwiKindSkAttrInfo.KIND_ID -> UgwiKindSkAttrInfo.makeUgwi( selObj.skid(), selProp.id() );
+      case UgwiKindSkAttrInfo.KIND_ID -> UgwiKindSkAttrInfo.makeUgwi( selObj.classId(), selProp.id() );
       case UgwiKindSkRtdata.KIND_ID -> UgwiKindSkRtdata.makeUgwi( selObj.skid(), selProp.id() );
       case UgwiKindSkCmd.KIND_ID -> UgwiKindSkCmd.makeUgwi( selObj.skid(), selProp.id() );
       default -> throw new TsNotAllEnumsUsedRtException();

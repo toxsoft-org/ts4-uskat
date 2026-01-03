@@ -3,7 +3,6 @@ package org.toxsoft.uskat.core.gui.glib;
 import org.eclipse.swt.*;
 import org.eclipse.swt.widgets.*;
 import org.toxsoft.core.tsgui.bricks.ctx.*;
-import org.toxsoft.core.tsgui.panels.*;
 import org.toxsoft.core.tsgui.valed.api.*;
 import org.toxsoft.core.tslib.av.*;
 import org.toxsoft.core.tslib.bricks.*;
@@ -13,7 +12,6 @@ import org.toxsoft.core.tslib.coll.impl.*;
 import org.toxsoft.core.tslib.gw.gwid.*;
 import org.toxsoft.core.tslib.utils.errors.*;
 import org.toxsoft.uskat.core.api.rtdserv.*;
-import org.toxsoft.uskat.core.connection.*;
 import org.toxsoft.uskat.core.gui.conn.*;
 import org.toxsoft.uskat.core.gui.utils.*;
 
@@ -31,13 +29,13 @@ import org.toxsoft.uskat.core.gui.utils.*;
  * <li>optionally, VALED updates may be temporarily paused by {@link #rtPause()} and restarted again by
  * {@link #rtStart()}.</li>
  * </ul>
- * Note: real-time VALEDs <b>must</b> with {@link IAtomicValue} types of values.<br>
+ * Note: real-time VALEDs <b>must</b> be with {@link IAtomicValue} types of values.<br>
  * Note: GWID-VALED bindings can not be changed after first call to {@link #rtStart()}.<br>
  *
  * @author hazard157
  */
 public class RtValedsPanel
-    extends TsPanel
+    extends SkPanel
     implements ISkGuiContextable {
 
   /**
@@ -75,7 +73,6 @@ public class RtValedsPanel
     }
   };
 
-  private final ISkConnection      skConn;
   private final IListEdit<RtdItem> rtdItems = new ElemArrayList<>();
 
   /**
@@ -88,10 +85,10 @@ public class RtValedsPanel
   /**
    * Constructor.
    * <p>
-   * Constructos stores reference to the context, does not creates copy.
+   * Constructor stores reference to the context, does not creates copy.
    * <p>
    * Argument <code>aSkConnId</code> specifies which connection to use from {@link ISkConnectionSupplier}. If argument
-   * vakue id {@link IdChain#NULL}, {@link ISkConnectionSupplier#defConn()} will be used. Note that connection is
+   * value id {@link IdChain#NULL}, {@link ISkConnectionSupplier#defConn()} will be used. Note that connection is
    * defined at constructor call and does not changes after.
    *
    * @param aParent {@link Composite} - parent component
@@ -100,13 +97,7 @@ public class RtValedsPanel
    * @throws TsNullArgumentRtException any argument = <code>null</code>
    */
   public RtValedsPanel( Composite aParent, ITsGuiContext aContext, IdChain aSkConnId ) {
-    super( aParent, aContext, SWT.DOUBLE_BUFFERED );
-    if( aSkConnId != IdChain.NULL ) {
-      skConn = connectionSupplier().getConn( aSkConnId );
-    }
-    else {
-      skConn = connectionSupplier().defConn();
-    }
+    super( aParent, aContext, aSkConnId, SWT.DOUBLE_BUFFERED );
     guiTimersService().slowTimers().addListener( periodicalTimerHandler );
   }
 
@@ -129,15 +120,6 @@ public class RtValedsPanel
   protected void doDispose() {
     rtPause();
     guiTimersService().slowTimers().removeListener( periodicalTimerHandler );
-  }
-
-  // ------------------------------------------------------------------------------------
-  // ISkGuiContextable
-  //
-
-  @Override
-  public ISkConnection skConn() {
-    return skConn;
   }
 
   // ------------------------------------------------------------------------------------
@@ -192,7 +174,7 @@ public class RtValedsPanel
   }
 
   /**
-   * Pauses started updates.
+   * Pauses started real-time updates.
    * <p>
    * Has no effect on not yet started or already paused updates.
    */
@@ -204,7 +186,7 @@ public class RtValedsPanel
   }
 
   /**
-   * Determines if realtime updates are started and running.
+   * Determines if real-time updates are started and running.
    *
    * @return <code>true</code> - <code>true</code> when VALEDs are updated in real-time now
    */
