@@ -12,7 +12,7 @@ import org.toxsoft.core.tslib.av.opset.impl.*;
 import org.toxsoft.core.tslib.bricks.strid.coll.*;
 import org.toxsoft.core.tslib.bricks.strid.coll.impl.*;
 import org.toxsoft.core.tslib.bricks.validator.*;
-import org.toxsoft.core.tslib.bricks.validator.impl.*;
+import org.toxsoft.core.tslib.bricks.validator.vrl.*;
 import org.toxsoft.core.tslib.coll.*;
 import org.toxsoft.core.tslib.coll.impl.*;
 import org.toxsoft.core.tslib.gw.*;
@@ -225,11 +225,11 @@ public class SkCoreUtils {
    * to <code>aLog</code>.
    *
    * @param aClassDtos {@link IStridablesList}&lt;{@link IDtoClassInfo}&gt; - source list
-   * @param aLog {@link ValResList} - log to collect warning and error messages or <code>null</code>
+   * @param aLog {@link IVrListEdit} - log to collect warning and error messages or <code>null</code>
    * @return {@link IStridablesListEdit}&lt;{@link IDtoClassInfo}&gt; - valid hierarchy tree classes list
    */
   public static IStridablesList<IDtoClassInfo> makeHierarchyTreeOfClassDtos( IStridablesList<IDtoClassInfo> aClassDtos,
-      ValResList aLog ) {
+      IVrListEdit aLog ) {
     IStridablesListEdit<IDtoClassInfo> argDtos = new StridablesList<>( aClassDtos );
     // make list without orphans
     IStridablesListEdit<IDtoClassInfo> llResult = new StridablesList<>();
@@ -270,8 +270,8 @@ public class SkCoreUtils {
   /**
    * Builds class {@link ISkClassInfo} hierarchy tree from suppled list of class DTOs.
    * <p>
-   * Method implementation uses {@link #makeHierarchyTreeOfClassDtos(IStridablesList, ValResList)} to prepare valid list
-   * of DTOs. Note that some classes from source list may be silently omitted from resulting list.
+   * Method implementation uses {@link #makeHierarchyTreeOfClassDtos(IStridablesList, IVrListEdit)} to prepare valid
+   * list of DTOs. Note that some classes from source list may be silently omitted from resulting list.
    *
    * @param aClassDtos {@link IStridablesListEdit}&lt;{@link IDtoClassInfo}&gt; - source list
    * @return {@link IStridablesListEdit}&lt;{@link ISkClassInfo}&gt; - valid hierarchy tree classes list

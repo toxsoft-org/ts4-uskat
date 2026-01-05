@@ -12,6 +12,7 @@ import org.toxsoft.core.tslib.bricks.strid.coll.*;
 import org.toxsoft.core.tslib.bricks.strid.coll.impl.*;
 import org.toxsoft.core.tslib.bricks.validator.*;
 import org.toxsoft.core.tslib.bricks.validator.impl.*;
+import org.toxsoft.core.tslib.bricks.validator.vrl.*;
 import org.toxsoft.core.tslib.coll.*;
 import org.toxsoft.core.tslib.coll.helpers.*;
 import org.toxsoft.core.tslib.coll.primtypes.*;
@@ -419,10 +420,10 @@ public class SkCoreServSysdescr
       // load DTOs from backend
       IStridablesList<IDtoClassInfo> loadedDtos = new StridablesList<>( ba().baClasses().readClassInfos() );
       // validate DTOs
-      ValResList vrl = new ValResList();
+      IVrListEdit vrl = new VrList();
       IStridablesList<IDtoClassInfo> validDtos = SkCoreUtils.makeHierarchyTreeOfClassDtos( loadedDtos, vrl );
-      for( ValidationResult vr : vrl.results() ) {
-        vr.logTo( logger() );
+      for( VrlItem i : vrl.items() ) {
+        i.vr().logTo( logger() );
       }
       // localize DTOs
       IStridablesList<IDtoClassInfo> localizedDtos = coreApi().l10n().l10nClassInfos( validDtos );
