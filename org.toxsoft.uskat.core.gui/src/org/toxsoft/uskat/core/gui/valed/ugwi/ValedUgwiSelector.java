@@ -1,6 +1,5 @@
 package org.toxsoft.uskat.core.gui.valed.ugwi;
 
-import static org.toxsoft.core.tsgui.valed.api.IValedControlConstants.*;
 import static org.toxsoft.core.tslib.av.EAtomicType.*;
 import static org.toxsoft.core.tslib.av.impl.AvUtils.*;
 import static org.toxsoft.core.tslib.av.metainfo.IAvMetaConstants.*;
@@ -74,6 +73,7 @@ public class ValedUgwiSelector {
    *
    * @author dima
    */
+  @SuppressWarnings( "unchecked" )
   static class Factory
       extends AbstractValedControlFactory {
 
@@ -81,23 +81,14 @@ public class ValedUgwiSelector {
       super( FACTORY_NAME );
     }
 
-    @SuppressWarnings( "unchecked" )
     @Override
     protected IValedControl<Ugwi> doCreateEditor( ITsGuiContext aContext ) {
-      String valedUiOutfit = OPDEF_VALED_UI_OUTFIT.getValue( aContext.params() ).asString();
-      AbstractValedControl<Ugwi, ?> e;
-      switch( valedUiOutfit ) {
-        default:
-        case VALED_UI_OUTFIT_SINGLE_LINE: {
-          e = new ValedUgwiSelectorTextAndButton( aContext );
-          break;
-        }
-        case VALED_UI_OUTFIT_EMBEDDABLE: {
-          e = new ValedUgwiSelectorTable( aContext );
-          break;
-        }
-      }
-      return e;
+      return new ValedUgwiSelectorTable( aContext );
+    }
+
+    @Override
+    protected IValedControl<Ugwi> doCreateSingleLine( ITsGuiContext aContext ) {
+      return new ValedUgwiSelectorTextAndButton( aContext );
     }
 
   }
