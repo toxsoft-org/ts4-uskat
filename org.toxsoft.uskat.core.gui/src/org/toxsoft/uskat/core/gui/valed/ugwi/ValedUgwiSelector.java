@@ -21,10 +21,6 @@ import org.toxsoft.uskat.core.api.ugwis.kinds.*;
  * <p>
  * Actually it is not a VALED, rather it declares UGWI selector VALED factory and applicable options. The factory
  * dispatches which VALED to create. Option are applicable also UGWI atomic value editors.
- * <p>
- * Respects the option {@link IValedControlConstants#OPDEF_VALED_UI_OUTFIT} with possible values
- * {@link IValedControlConstants#VALED_UI_OUTFIT_SINGLE_LINE} and
- * {@link IValedControlConstants#VALED_UI_OUTFIT_EMBEDDABLE}.
  *
  * @author hazard157
  * @author dima
