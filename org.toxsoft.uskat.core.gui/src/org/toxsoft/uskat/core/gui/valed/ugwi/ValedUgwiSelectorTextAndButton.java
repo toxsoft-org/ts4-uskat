@@ -38,11 +38,16 @@ class ValedUgwiSelectorTextAndButton
    * <p>
    * This factory is <b>not</b> intended to be registered.
    */
+  @SuppressWarnings( "unchecked" )
   static final IValedControlFactory FACTORY = new AbstractValedControlFactory( FACTORY_NAME ) {
 
-    @SuppressWarnings( "unchecked" )
     @Override
     protected IValedControl<Ugwi> doCreateEditor( ITsGuiContext aContext ) {
+      return new ValedUgwiSelectorTextAndButton( aContext );
+    }
+
+    @Override
+    protected IValedControl<Ugwi> doCreateSingleLine( ITsGuiContext aContext ) {
       return new ValedUgwiSelectorTextAndButton( aContext );
     }
   };
