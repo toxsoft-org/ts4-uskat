@@ -925,6 +925,10 @@ public class SkCoreServObject
     // check preconditions
     TsNullArgumentRtException.checkNulls( aRemoveSkids, aDtoObjects );
     coreApi().papiCheckIsOpen();
+    if( aRemoveSkids.size() == 0 && aDtoObjects.size() == 0 ) {
+      // nothing to do
+      return IList.EMPTY;
+    }
     ISkTransactionService transactionService = coreApi().transactionService();
     // check transaction status
     boolean needNewTransaction = !transactionService.isActive();

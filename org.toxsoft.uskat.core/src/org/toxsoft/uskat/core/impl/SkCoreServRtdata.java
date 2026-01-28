@@ -216,19 +216,23 @@ public class SkCoreServRtdata
 
   @Override
   protected boolean onBackendMessage( GenericMessage aMessage ) {
-    IMap<Gwid, IAtomicValue> newValues = BaMsgRtdataCurrData.INSTANCE.getNewValues( aMessage );
+    IMap<Gwid, IAtomicValue> msgValues = BaMsgRtdataCurrData.INSTANCE.getNewValues( aMessage );
+    IMapEdit<Gwid, IAtomicValue> newValues = new ElemMap<>();
     // update current data values in channels
-    for( Gwid g : newValues.keys() ) {
+    for( Gwid g : msgValues.keys() ) {
       SkReadCurrDataChannel channel = cdReadChannelsMap.findByKey( g );
       if( channel != null ) {
-        channel.setValue( newValues.getByKey( g ) );
+        IAtomicValue value = msgValues.getByKey( g );
+        if( channel.setValue( value ) ) {
+          newValues.put( g, value );
+        }
       }
     }
     // update curr data values (cache) out channels
-    for( Gwid g : newValues.keys() ) {
+    for( Gwid g : msgValues.keys() ) {
       SkWriteCurrDataChannel channel = cdWriteChannelsMap.findByKey( g );
       if( channel != null ) {
-        channel.value = newValues.getByKey( g );
+        channel.value = msgValues.getByKey( g );
       }
     }
     // fire new data event
@@ -511,6 +515,14 @@ public class SkCoreServRtdata
       ba().baRtdata().writeCurrData( gwid, aValue );
       // write success. cache last value
       value = aValue;
+      // 2026-01-18 mvk+++
+      // instant update of the value of an existing reading channel
+      SkReadCurrDataChannel readChannel = cdReadChannelsMap.findByKey( gwid );
+      if( readChannel != null && readChannel.isOk() && readChannel.setValue( aValue ) ) {
+        IMapEdit<Gwid, IAtomicValue> newValues = new ElemMap<>();
+        newValues.put( gwid, aValue );
+        eventer.fireCurrData( newValues );
+      }
     }
   }
 
