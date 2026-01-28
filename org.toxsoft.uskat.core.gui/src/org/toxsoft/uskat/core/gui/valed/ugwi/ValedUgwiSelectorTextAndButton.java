@@ -7,6 +7,7 @@ import static org.toxsoft.uskat.core.gui.valed.ugwi.ISkResources.*;
 import static org.toxsoft.uskat.core.gui.valed.ugwi.ValedUgwiSelector.*;
 
 import org.toxsoft.core.tsgui.bricks.ctx.*;
+import org.toxsoft.core.tsgui.bricks.ctx.impl.*;
 import org.toxsoft.core.tsgui.valed.api.*;
 import org.toxsoft.core.tsgui.valed.controls.helpers.*;
 import org.toxsoft.core.tsgui.valed.impl.*;
@@ -125,12 +126,14 @@ class ValedUgwiSelectorTextAndButton
     IStringList kindIds = allowedUgwiKindIds();
     TsInternalErrorRtException.checkTrue( kindIds.isEmpty() ); // can't happen empty kinds in SkUgwiUtils
     // select UGWI
+    ITsGuiContext ctx = new TsGuiContext( tsContext() );
+    ctx.params().setBool( OPDEF_IS_SINGLE_LINE_UI, false );
     Ugwi selUgwi;
     if( kindIds.size() == 1 ) {
-      selUgwi = PanelUgwiSelector.selectUgwiSingleKind( tsContext(), currValue, kindIds.first() );
+      selUgwi = PanelUgwiSelector.selectUgwiSingleKind( ctx, currValue, kindIds.first() );
     }
     else {
-      selUgwi = PanelUgwiSelector.selectUgwiListKinds( tsContext(), currValue, kindIds );
+      selUgwi = PanelUgwiSelector.selectUgwiListKinds( ctx, currValue, kindIds );
     }
     if( selUgwi == null ) {
       return false;
