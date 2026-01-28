@@ -31,7 +31,7 @@ class ValedUgwiSelectorTextAndButton
   /**
    * The factory name.
    */
-  public static final String FACTORY_NAME = VALED_EDNAME_PREFIX + ".AvValobjUgwiSelectorTextAndButton"; //$NON-NLS-1$
+  public static final String FACTORY_NAME = VALED_EDNAME_PREFIX + ".ValobjUgwiSelectorTextAndButton"; //$NON-NLS-1$
 
   /**
    * Package-private factory singleton for {@link ValedAvUgwiSelectorTextAndButton} constructor.
