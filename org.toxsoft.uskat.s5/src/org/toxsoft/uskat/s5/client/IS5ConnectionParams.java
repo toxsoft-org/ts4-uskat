@@ -18,7 +18,6 @@ import org.toxsoft.core.tslib.utils.*;
 import org.toxsoft.uskat.core.connection.*;
 import org.toxsoft.uskat.s5.common.*;
 import org.toxsoft.uskat.s5.server.*;
-import org.toxsoft.uskat.s5.utils.progress.*;
 
 /**
  * Параметры соединения с s5
@@ -303,16 +302,5 @@ public interface IS5ConnectionParams {
       TSID_NAME, N_CLASSLOADER, //
       TSID_DESCRIPTION, D_CLASSLOADER, //
       TSID_IS_NULL_ALLOWED, AV_TRUE );
-
-  /**
-   * Параметр: Монитор работы используемый для соединения с s5-сервером
-   * <p>
-   * Тип: {@link IS5ProgressMonitor}
-   */
-  ITsContextRefDef<IS5ProgressMonitor> REF_MONITOR =
-      create( SYBSYSTEM_ID_PREFIX + ".progressMonitor", IS5ProgressMonitor.class, //$NON-NLS-1$
-          TSID_NAME, N_MONITOR, //
-          TSID_DESCRIPTION, D_MONITOR, //
-          TSID_IS_NULL_ALLOWED, AV_TRUE );
 
 }

@@ -18,11 +18,13 @@ import org.toxsoft.core.tslib.bricks.strid.coll.*;
 import org.toxsoft.core.tslib.bricks.strid.coll.impl.*;
 import org.toxsoft.core.tslib.bricks.strid.idgen.*;
 import org.toxsoft.core.tslib.bricks.threadexec.*;
+import org.toxsoft.core.tslib.bricks.validator.*;
 import org.toxsoft.core.tslib.coll.*;
 import org.toxsoft.core.tslib.coll.impl.*;
 import org.toxsoft.core.tslib.coll.primtypes.*;
 import org.toxsoft.core.tslib.coll.primtypes.impl.*;
 import org.toxsoft.core.tslib.gw.skid.*;
+import org.toxsoft.core.tslib.utils.*;
 import org.toxsoft.core.tslib.utils.errors.*;
 import org.toxsoft.core.tslib.utils.logs.*;
 import org.toxsoft.core.tslib.utils.logs.impl.*;
@@ -36,7 +38,6 @@ import org.toxsoft.uskat.s5.client.*;
 import org.toxsoft.uskat.s5.server.backend.messages.*;
 import org.toxsoft.uskat.s5.server.frontend.*;
 import org.toxsoft.uskat.s5.utils.*;
-import org.toxsoft.uskat.s5.utils.progress.*;
 import org.toxsoft.uskat.s5.utils.threads.impl.*;
 
 /**
@@ -115,7 +116,7 @@ public abstract class S5AbstractBackend<ADDON extends IS5BackendAddon>
   /**
    * Монитор прогресса
    */
-  private final IS5ProgressMonitor progressMonitor;
+  private final ILongOpProgressCallback progressMonitor;
 
   /**
    * Таймаут (мсек) фоновой обработки аддонов
@@ -283,9 +284,9 @@ public abstract class S5AbstractBackend<ADDON extends IS5BackendAddon>
         aArgs.getRef( REF_CLASSLOADER.refKey(), ClassLoader.class ) : //
         ClassLoader.getSystemClassLoader());
     // Монитор прогресса подключения
-    progressMonitor = (aArgs.hasKey( REF_MONITOR.refKey() ) ? //
-        aArgs.getRef( REF_MONITOR.refKey(), IS5ProgressMonitor.class ) : //
-        IS5ProgressMonitor.NULL);
+    progressMonitor = (aArgs.hasKey( ISkConnectionConstants.REF_OP_PROGRESS.refKey() ) ? //
+        aArgs.getRef( ISkConnectionConstants.REF_OP_PROGRESS.refKey(), ILongOpProgressCallback.class ) : //
+          ILongOpProgressCallback.NONE);
 
     // Задача (поток) обслуживания потребностей бекенда
     // backendDojobThread = new S5BackendDoJobThread( name, this );
@@ -658,9 +659,9 @@ public abstract class S5AbstractBackend<ADDON extends IS5BackendAddon>
   /**
    * Возвращает монитор прогресса
    *
-   * @return {@link IS5ProgressMonitor} монитор прогресса
+   * @return {@link ILongOpProgressCallback} монитор прогресса
    */
-  protected final IS5ProgressMonitor progressMonitor() {
+  protected final ILongOpProgressCallback progressMonitor() {
     return progressMonitor;
   }
 
