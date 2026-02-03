@@ -51,6 +51,10 @@ interface ISkResources {
   String FMT_ERR_CANT_CREATE_SERVICE        = Messages.getString( "FMT_ERR_CANT_CREATE_SERVICE" );
   String FMT_ERR_DUP_SERVICE_ID             = Messages.getString( "FMT_ERR_DUP_SERVICE_ID" );
   String LOG_WARN_UNHANDLED_BACKEND_MESSAGE = Messages.getString( "LOG_WARN_UNHANDLED_BACKEND_MESSAGE" );
+  String FMT_MSG_INIT_SERVICE               = Messages.getString( "FMT_MSG_INIT_SERVICE" );
+  String FMT_MSG_INIT_HANDLER               = Messages.getString( "MSG_INIT_HANDLER" );
+  String FMT_MSG_SERVICE_STATE_CHANGED      = Messages.getString( "FMT_MSG_SERVICE_STATE_CHANGED" );
+  String FMT_MSG_LISTENER_STATE_CHANGED     = Messages.getString( "FMT_MSG_LISTENER_STATE_CHANGED" );
 
   /**
    * {@link SkCoreServClobs}

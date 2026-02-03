@@ -7,11 +7,13 @@ import org.toxsoft.core.tslib.bricks.ctx.*;
 import org.toxsoft.core.tslib.bricks.ctx.impl.*;
 import org.toxsoft.core.tslib.coll.*;
 import org.toxsoft.core.tslib.coll.impl.*;
+import org.toxsoft.core.tslib.utils.*;
 import org.toxsoft.core.tslib.utils.errors.*;
 import org.toxsoft.core.tslib.utils.logs.impl.*;
 import org.toxsoft.uskat.core.*;
 import org.toxsoft.uskat.core.backend.api.*;
 import org.toxsoft.uskat.core.connection.*;
+import org.toxsoft.uskat.core.devapi.*;
 
 /**
  * {@link ISkConnection} implementation.
@@ -41,10 +43,13 @@ class SkConnection
 
   void stateChanged( ESkConnState aOldState ) {
     if( !listeners.isEmpty() ) {
+      ILongOpProgressCallback progressCallback = ((IDevCoreApi)coreApi()).progressCallback();
       IList<ISkConnectionListener> ll = new ElemArrayList<>( listeners );
       for( int i = 0; i < ll.size(); i++ ) {
         ISkConnectionListener l = ll.get( i );
         try {
+          String listenerName = l.getClass().getSimpleName();
+          progressCallback.updateWorkProgress( String.format( FMT_MSG_LISTENER_STATE_CHANGED, listenerName ), -1 );
           l.onSkConnectionStateChanged( this, aOldState );
         }
         catch( Exception ex ) {

@@ -193,6 +193,7 @@ public class SkCoreApi
 
   private <S extends AbstractSkService> S internalInitService( S aService ) {
     try {
+      progressCallback().updateWorkProgress( String.format( FMT_MSG_INIT_SERVICE, aService.serviceId() ), -1 );
       aService.init( openArgs );
     }
     catch( Exception ex ) {
@@ -208,6 +209,8 @@ public class SkCoreApi
     for( int i = 0, n = coreApiHandlersList.size(); i < n; i++ ) {
       ISkCoreExternalHandler h = coreApiHandlersList.get( i );
       try {
+        String handlerName = h.getClass().getSimpleName();
+        progressCallback().updateWorkProgress( String.format( FMT_MSG_INIT_HANDLER, handlerName ), -1 );
         h.processSkBackendActiveStateChange( this, aBackendActive );
       }
       catch( Exception ex ) {
@@ -360,6 +363,7 @@ public class SkCoreApi
         for( int i = servicesMap.size() - 1; i >= 0; i-- ) {
           try {
             AbstractSkService s1 = servicesMap.values().get( i );
+            progressCallback().updateWorkProgress( String.format( FMT_MSG_SERVICE_STATE_CHANGED, s1.serviceId() ), -1 );
             s1.onBackendActiveStateChanged( isActive );
           }
           catch( Exception ex ) {
@@ -424,6 +428,14 @@ public class SkCoreApi
   @Override
   public ITsThreadExecutor executor() {
     return executor;
+  }
+
+  @Override
+  public ILongOpProgressCallback progressCallback() {
+    if( !openArgs.hasKey( ISkConnectionConstants.REF_OP_PROGRESS.refKey() ) ) {
+      return ILongOpProgressCallback.NONE;
+    }
+    return openArgs.getRef( ISkConnectionConstants.REF_OP_PROGRESS.refKey(), ILongOpProgressCallback.class );
   }
 
   // ------------------------------------------------------------------------------------

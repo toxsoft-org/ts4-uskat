@@ -28,11 +28,13 @@ interface ISkResources {
   /**
    * {@link ISkConnectionConstants}
    */
-  String STR_LOGIN      = Messages.getString( "STR_LOGIN" );      //$NON-NLS-1$
-  String STR_LOGIN_D    = Messages.getString( "STR_LOGIN_D" );    //$NON-NLS-1$
-  String STR_PASSWORD   = Messages.getString( "STR_PASSWORD" );   //$NON-NLS-1$
-  String STR_PASSWORD_D = Messages.getString( "STR_PASSWORD_D" ); //$NON-NLS-1$
-  String STR_ROLE       = Messages.getString( "STR_ROLE" );       //$NON-NLS-1$
-  String STR_ROLE_D     = Messages.getString( "STR_ROLE_D" );     //$NON-NLS-1$
+  String STR_LOGIN         = Messages.getString( "STR_LOGIN" );         //$NON-NLS-1$
+  String STR_LOGIN_D       = Messages.getString( "STR_LOGIN_D" );       //$NON-NLS-1$
+  String STR_PASSWORD      = Messages.getString( "STR_PASSWORD" );      //$NON-NLS-1$
+  String STR_PASSWORD_D    = Messages.getString( "STR_PASSWORD_D" );    //$NON-NLS-1$
+  String STR_ROLE          = Messages.getString( "STR_ROLE" );          //$NON-NLS-1$
+  String STR_ROLE_D        = Messages.getString( "STR_ROLE_D" );        //$NON-NLS-1$
+  String STR_OP_PROGRESS   = Messages.getString( "STR_OP_PROGRESS" );   //$NON-NLS-1$
+  String STR_OP_PROGRESS_D = Messages.getString( "STR_OP_PROGRESS_D" ); //$NON-NLS-1$
 
 }
