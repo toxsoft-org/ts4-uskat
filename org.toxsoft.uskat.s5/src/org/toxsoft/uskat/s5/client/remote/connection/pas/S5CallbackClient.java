@@ -230,14 +230,27 @@ public final class S5CallbackClient
 
   @Override
   public void disconnected() {
+    // 2026-02-03 mvk---+++
+    // deadlock is suspected due to a connection close request and a connection break being detected.
+    // try {
+    // synchronized (pasClients) {
+    // for( PasClient<S5CallbackChannel> pasClient : pasClients.copyTo( new ElemArrayList<>( pasClients.size() ) ) ) {
+    // pasClient.close();
+    // }
+    // pasClients.clear();
+    // }
+    // }
     try {
+      IList<PasClient<S5CallbackChannel>> clients;
       synchronized (pasClients) {
-        for( PasClient<S5CallbackChannel> pasClient : pasClients.copyTo( new ElemArrayList<>( pasClients.size() ) ) ) {
-          pasClient.close();
-        }
+        clients = new ElemArrayList<>( pasClients );
         pasClients.clear();
       }
+      for( PasClient<S5CallbackChannel> pasClient : clients ) {
+        pasClient.close();
+      }
     }
+
     finally {
       // Снимаем возможное состояние прерывания потока
       boolean isInterrupted = Thread.interrupted();
