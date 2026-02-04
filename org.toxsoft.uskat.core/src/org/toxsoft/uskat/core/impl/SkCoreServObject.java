@@ -947,7 +947,6 @@ public class SkCoreServObject
       return retValue;
     }
     catch( Throwable e ) {
-      logger().error( e );
       // transaction rollback
       transactionService.rollback();
       throw e;
