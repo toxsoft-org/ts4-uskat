@@ -18,7 +18,6 @@ import org.toxsoft.core.tslib.bricks.strid.coll.*;
 import org.toxsoft.core.tslib.bricks.strid.coll.impl.*;
 import org.toxsoft.core.tslib.bricks.strid.idgen.*;
 import org.toxsoft.core.tslib.bricks.threadexec.*;
-import org.toxsoft.core.tslib.bricks.validator.*;
 import org.toxsoft.core.tslib.coll.*;
 import org.toxsoft.core.tslib.coll.impl.*;
 import org.toxsoft.core.tslib.coll.primtypes.*;
@@ -284,9 +283,9 @@ public abstract class S5AbstractBackend<ADDON extends IS5BackendAddon>
         aArgs.getRef( REF_CLASSLOADER.refKey(), ClassLoader.class ) : //
         ClassLoader.getSystemClassLoader());
     // Монитор прогресса подключения
-    progressMonitor = (aArgs.hasKey( ISkConnectionConstants.REF_OP_PROGRESS.refKey() ) ? //
-        aArgs.getRef( ISkConnectionConstants.REF_OP_PROGRESS.refKey(), ILongOpProgressCallback.class ) : //
-          ILongOpProgressCallback.NONE);
+    progressMonitor = (aArgs.hasKey( ISkCoreConfigConstants.REFDEF_PROGRESS_CALLBACK.refKey() ) ? //
+        aArgs.getRef( ISkCoreConfigConstants.REFDEF_PROGRESS_CALLBACK.refKey(), ILongOpProgressCallback.class ) : //
+        ILongOpProgressCallback.NONE);
 
     // Задача (поток) обслуживания потребностей бекенда
     // backendDojobThread = new S5BackendDoJobThread( name, this );

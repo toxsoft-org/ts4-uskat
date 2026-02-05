@@ -1,12 +1,13 @@
 package org.toxsoft.uskat.backend.s5.gui.utils;
 
+import static org.toxsoft.uskat.core.impl.ISkCoreConfigConstants.*;
+
 import java.lang.reflect.*;
 
 import org.eclipse.core.runtime.*;
 import org.eclipse.jface.operation.*;
 import org.eclipse.swt.widgets.*;
 import org.toxsoft.core.tslib.bricks.ctx.*;
-import org.toxsoft.core.tslib.bricks.ctx.impl.*;
 import org.toxsoft.core.tslib.bricks.threadexec.*;
 import org.toxsoft.core.tslib.bricks.validator.*;
 import org.toxsoft.core.tslib.utils.*;
@@ -42,7 +43,7 @@ class S5ConnectTask
   S5ConnectTask( S5ConnectDialog aDlg, ISkConnection aConn, ITsContextRo aArgs ) {
     TsNullArgumentRtException.checkNulls( aDlg, aConn, aArgs );
     dlg = aDlg;
-    threadExecutor = ISkCoreConfigConstants.REFDEF_THREAD_EXECUTOR.getRef( aArgs );
+    threadExecutor = REFDEF_THREAD_EXECUTOR.getRef( aArgs );
     conn = aConn;
     args = aArgs;
   }
@@ -133,23 +134,33 @@ class S5ConnectTask
 
   @Override
   public void run() {
-    fatalError = null;
+    SkProgressCallback progressCallback = args.getRef( REFDEF_PROGRESS_CALLBACK.refKey(), SkProgressCallback.class );
+    if( progressCallback == null ) {
+      ITsContext ctx = (ITsContext)args;
+      progressCallback = new SkProgressCallback();
+      ctx.put( ISkCoreConfigConstants.REFDEF_PROGRESS_CALLBACK.refKey(), progressCallback );
+    }
+    ILongOpProgressCallback prevCallback = progressCallback.setCallbackExecutor( this );
     try {
       readAndDispatch();
-      TsContext ctx = (TsContext)args;
-      ctx.put( ISkConnectionConstants.REF_OP_PROGRESS.refKey(), this );
-      conn.open( ctx );
-      readAndDispatch();
+      fatalError = null;
+      conn.open( args );
     }
     catch( S5ConnectionException e ) {
       fatalError = e;
     }
+    progressCallback.setCallbackExecutor( prevCallback );
   }
 
   // ------------------------------------------------------------------------------------
   // private methods
   //
-  private static void readAndDispatch() {
+  private void readAndDispatch() {
+    Thread currThread = Thread.currentThread();
+    Thread guiThread = threadExecutor.thread();
+    if( currThread != guiThread ) {
+      return;
+    }
     for( int index = 0; index < READ_AND_DISPATCH_MAX; index++ ) {
       try {
         Display.getDefault().readAndDispatch();

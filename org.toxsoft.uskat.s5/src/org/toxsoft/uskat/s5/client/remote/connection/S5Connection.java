@@ -568,6 +568,10 @@ public final class S5Connection
       ClassLoader loader = classLoader;
       try {
         // 2021-01-20 mvk необходимо закрыть все соединения чтобы они не мешали потом через callback
+        if( callbackReader == null ) {
+          // 2026-02-05 mvk+++ соединение уже закрыто
+          return;
+        }
         callbackReader.disconnected();
         // Поиск сервера и бина его API
         progressMonitor.updateWorkProgress( format( USER_LOOKUP_REMOTE_API_START, this ), -1 );
