@@ -46,12 +46,13 @@ public class SkCoreApi
 
   private final IStringMapEdit<AbstractSkService> servicesMap = new StringMap<>();
 
-  private final ITsContextRo      openArgs;
-  private final SkConnection      conn;
-  private final ITsThreadExecutor executor;
-  private final CoreL10n          coreL10n;
-  private final CoreLogger        logger;
-  private final ISkBackend        backend;
+  private final ITsContextRo       openArgs;
+  private final SkConnection       conn;
+  private final ITsThreadExecutor  executor;
+  private final SkProgressCallback progressCallback;
+  private final CoreL10n           coreL10n;
+  private final CoreLogger         logger;
+  private final ISkBackend         backend;
 
   private final SkCoreServSysdescr    sysdescr;
   private final SkCoreServObject      objService;
@@ -87,6 +88,8 @@ public class SkCoreApi
     openArgs = aArgs;
     conn = aConn;
     executor = REFDEF_THREAD_EXECUTOR.getRef( aArgs );
+    progressCallback = (aArgs.hasKey( REFDEF_PROGRESS_CALLBACK.refKey() ) ? REFDEF_PROGRESS_CALLBACK.getRef( aArgs )
+        : new SkProgressCallback());
     coreL10n = new CoreL10n( aArgs );
     coreApiHandlersList = new ElemArrayList<>( SkCoreUtils.listRegisteredCoreApiHandlers() );
     // create backend
@@ -381,7 +384,7 @@ public class SkCoreApi
         s2.papiOnBackendMessage( aMessage );
       }
       else {
-        logger().warning( LOG_WARN_UNHANDLED_BACKEND_MESSAGE, aMessage.topicId(), aMessage.messageId(),
+        logger().warning( FMT_WARN_UNHANDLED_BACKEND_MESSAGE, aMessage.topicId(), aMessage.messageId(),
             aMessage.args() == IOptionSet.NULL ? "IOptionSet.NULL" : aMessage.args() ); //$NON-NLS-1$
       }
     } );
@@ -431,11 +434,8 @@ public class SkCoreApi
   }
 
   @Override
-  public ILongOpProgressCallback progressCallback() {
-    if( !openArgs.hasKey( ISkConnectionConstants.REF_OP_PROGRESS.refKey() ) ) {
-      return ILongOpProgressCallback.NONE;
-    }
-    return openArgs.getRef( ISkConnectionConstants.REF_OP_PROGRESS.refKey(), ILongOpProgressCallback.class );
+  public SkProgressCallback progressCallback() {
+    return progressCallback;
   }
 
   // ------------------------------------------------------------------------------------

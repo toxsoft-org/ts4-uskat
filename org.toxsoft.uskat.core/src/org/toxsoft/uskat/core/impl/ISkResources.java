@@ -37,6 +37,8 @@ interface ISkResources {
   String STR_REF_THREAD_EXECUTOR_D      = Messages.getString( "STR_REF_THREAD_EXECUTOR_D" );
   String STR_REF_BACKEND_PROVIDER       = Messages.getString( "STR_REF_BACKEND_PROVIDER" );
   String STR_REF_BACKEND_PROVIDER_D     = Messages.getString( "STR_REF_BACKEND_PROVIDER_D" );
+  String STR_REF_PROGRESS_CALLBACK      = Messages.getString( "STR_REF_PROGRESS_CALLBACK" );
+  String STR_REF_PROGRESS_CALLBACK_D    = Messages.getString( "STR_REF_PROGRESS_CALLBACK_D" );
 
   /**
    * {@link SkConnection}.
@@ -50,7 +52,7 @@ interface ISkResources {
   String MSG_ERR_CONN_NOT_OPEN              = Messages.getString( "MSG_ERR_CONN_NOT_OPEN" );
   String FMT_ERR_CANT_CREATE_SERVICE        = Messages.getString( "FMT_ERR_CANT_CREATE_SERVICE" );
   String FMT_ERR_DUP_SERVICE_ID             = Messages.getString( "FMT_ERR_DUP_SERVICE_ID" );
-  String LOG_WARN_UNHANDLED_BACKEND_MESSAGE = Messages.getString( "LOG_WARN_UNHANDLED_BACKEND_MESSAGE" );
+  String FMT_WARN_UNHANDLED_BACKEND_MESSAGE = Messages.getString( "FMT_WARN_UNHANDLED_BACKEND_MESSAGE" );
   String FMT_MSG_INIT_SERVICE               = Messages.getString( "FMT_MSG_INIT_SERVICE" );
   String FMT_MSG_INIT_HANDLER               = Messages.getString( "MSG_INIT_HANDLER" );
   String FMT_MSG_SERVICE_STATE_CHANGED      = Messages.getString( "FMT_MSG_SERVICE_STATE_CHANGED" );

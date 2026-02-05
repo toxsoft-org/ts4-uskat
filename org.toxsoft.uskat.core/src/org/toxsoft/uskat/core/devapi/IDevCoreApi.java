@@ -95,7 +95,7 @@ public interface IDevCoreApi
    *
    * @return {@link ILongOpProgressCallback} the progress callback
    */
-  ILongOpProgressCallback progressCallback();
+  SkProgressCallback progressCallback();
 
   /**
    * @deprecated Use {@link #getSkClassImplementationInfo(String)} instead

@@ -8,11 +8,8 @@ import static org.toxsoft.uskat.core.connection.ISkResources.*;
 
 import org.toxsoft.core.tslib.av.impl.*;
 import org.toxsoft.core.tslib.av.metainfo.*;
-import org.toxsoft.core.tslib.bricks.ctx.*;
-import org.toxsoft.core.tslib.bricks.ctx.impl.*;
 import org.toxsoft.core.tslib.bricks.strid.coll.*;
 import org.toxsoft.core.tslib.bricks.strid.coll.impl.*;
-import org.toxsoft.core.tslib.utils.*;
 
 /**
  * ISkConnection related constants.
@@ -78,17 +75,6 @@ public interface ISkConnectionConstants {
       TSID_DESCRIPTION, STR_ROLE_D, //
       TSID_IS_MANDATORY, AV_TRUE //
   );
-
-  /**
-   * The long operation progress callback.<br>
-   * Usage: TODO:<br>
-   * Default value: no default value
-   */
-  ITsContextRefDef<ILongOpProgressCallback> REF_OP_PROGRESS =
-      TsContextRefDef.create( ARGID_OP_PROGRESS, ILongOpProgressCallback.class, //
-          TSID_NAME, STR_OP_PROGRESS, //
-          TSID_DESCRIPTION, STR_OP_PROGRESS_D, //
-          TSID_IS_MANDATORY, AV_FALSE );
 
   /**
    * All argument options needed for {@link ESkAuthentificationType#SIMPLE}.

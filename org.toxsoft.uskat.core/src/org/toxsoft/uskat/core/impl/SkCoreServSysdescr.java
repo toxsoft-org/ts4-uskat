@@ -523,6 +523,14 @@ public class SkCoreServSysdescr
     };
   }
 
+  @Override
+  protected void onBackendActiveStateChanged( boolean aIsActive ) {
+    // 2026-02-05 mvk +++
+    if( aIsActive ) {
+      cacheIsInvalid = true;
+    }
+  }
+
   // ------------------------------------------------------------------------------------
   // ISkSysdescr
   //

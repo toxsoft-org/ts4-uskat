@@ -93,4 +93,14 @@ public interface ISkCoreConfigConstants {
       TSID_DESCRIPTION, STR_REF_THREAD_EXECUTOR_D, //
       TSID_IS_MANDATORY, AV_TRUE //
   );
+
+  /**
+   * The long operation progress callback.<br>
+   * Usage: TODO:<br>
+   * Default value: no default value
+   */
+  ITsContextRefDef<SkProgressCallback> REFDEF_PROGRESS_CALLBACK = TsContextRefDef.create( SkProgressCallback.class, //
+      TSID_NAME, STR_REF_PROGRESS_CALLBACK, //
+      TSID_DESCRIPTION, STR_REF_PROGRESS_CALLBACK_D, //
+      TSID_IS_MANDATORY, AV_TRUE );
 }
