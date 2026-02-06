@@ -266,8 +266,8 @@ public class SkCoreServTransaction
       eventer.fireAfterCommitEvent( removingObjs, updatingObjs, creatingObjs, updatingLinks );
     }
     catch( Throwable e ) {
-      logger().error( e );
       rollback();
+      throw e;
     }
   }
 

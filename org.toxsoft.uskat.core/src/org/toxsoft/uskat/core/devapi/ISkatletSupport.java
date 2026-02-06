@@ -42,6 +42,7 @@ public interface ISkatletSupport {
    * @param aArgs {@link ITsContextRo} дополнительные параметры для создания соединения, например,
    *          {@link ISkCoreConfigConstants#OPDEF_L10N_FILES_DIR}.
    * @return {@link ISkConnection} соединение.
+   * @throws TsNullArgumentRtException любой аргумент = null
    */
   ISkConnection createConnection( String aName, ITsContextRo aArgs );
 
