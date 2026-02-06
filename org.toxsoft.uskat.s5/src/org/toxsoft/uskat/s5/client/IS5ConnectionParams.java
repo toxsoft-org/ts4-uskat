@@ -280,6 +280,28 @@ public interface IS5ConnectionParams {
       TSID_IS_NULL_ALLOWED, AV_TRUE, //
       TSID_DEFAULT_VALUE, avInt( 259_200 ) ); // по умолчанию 3 дня секундных данных
 
+  /**
+   * Параметр: размер очереди исполнителя потоков выше которого в журнале формируются сообщения об ошибке.
+   * <p>
+   * Тип: {@link EAtomicType#INTEGER}
+   */
+  IDataDef OP_THREAD_EXECUTOR_QUEUE_WARNING = create( SYBSYSTEM_ID_PREFIX + ".threadExecutorQueueWarning", INTEGER, //$NON-NLS-1$
+      TSID_NAME, N_THREAD_EXECUTOR_QUEUE_WARNING, //
+      TSID_DESCRIPTION, D_THREAD_EXECUTOR_QUEUE_WARNING, //
+      TSID_IS_NULL_ALLOWED, AV_TRUE, //
+      TSID_DEFAULT_VALUE, avInt( 4096 ) );
+
+  /**
+   * Параметр: размер очереди исполнителя потоков выше которого в журнале формируются сообщения об ошибке.
+   * <p>
+   * Тип: {@link EAtomicType#INTEGER}
+   */
+  IDataDef OP_THREAD_EXECUTOR_QUEUE_ERROR = create( SYBSYSTEM_ID_PREFIX + ".threadExecutorQueueError", INTEGER, //$NON-NLS-1$
+      TSID_NAME, N_THREAD_EXECUTOR_QUEUE_ERROR, //
+      TSID_DESCRIPTION, D_THREAD_EXECUTOR_QUEUE_ERROR, //
+      TSID_IS_NULL_ALLOWED, AV_TRUE, //
+      TSID_DEFAULT_VALUE, avInt( 8192 ) );
+
   // ------------------------------------------------------------------------------------
   // Параметры контекста соединения
   //
