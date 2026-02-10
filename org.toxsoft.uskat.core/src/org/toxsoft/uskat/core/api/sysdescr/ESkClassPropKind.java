@@ -14,7 +14,7 @@ import org.toxsoft.core.tslib.gw.skid.*;
 import org.toxsoft.core.tslib.utils.errors.*;
 
 /**
- * The enumeration of XXX.
+ * The kind of the class property.
  *
  * @author hazard157
  */
@@ -24,37 +24,38 @@ public enum ESkClassPropKind
   /**
    * Attribute.
    */
-  ATTR( IGwHardConstants.GW_KEYWORD_ATTR, STR_N_CPK_ATTR, STR_D_CPK_ATTR, EGwidKind.GW_ATTR ),
+  ATTR( IGwHardConstants.GW_KEYWORD_ATTR, STR_CPK_ATTR, STR_CPK_ATTR_PLURAL, STR_CPK_ATTR_D, EGwidKind.GW_ATTR ),
 
   /**
    * RT-data.
    */
-  RTDATA( IGwHardConstants.GW_KEYWORD_RTDATA, STR_N_CPK_RTDATA, STR_D_CPK_RTDATA, EGwidKind.GW_RTDATA ),
+  RTDATA( IGwHardConstants.GW_KEYWORD_RTDATA, STR_CPK_RTDATA, STR_CPK_RTDATA_PLURAL, STR_CPK_RTDATA_D,
+      EGwidKind.GW_RTDATA ),
 
   /**
-   * Rivet - Склёпка.
+   * Rivet.
    */
-  RIVET( IGwHardConstants.GW_KEYWORD_RIVET, STR_N_CPK_RIVET, STR_D_CPK_RIVET, EGwidKind.GW_RIVET ),
+  RIVET( IGwHardConstants.GW_KEYWORD_RIVET, STR_CPK_RIVET, STR_CPK_RIVET_PLURAL, STR_CPK_RIVET_D, EGwidKind.GW_RIVET ),
 
   /**
    * Link.
    */
-  LINK( IGwHardConstants.GW_KEYWORD_LINK, STR_N_CPK_LINK, STR_D_CPK_LINK, EGwidKind.GW_LINK ),
+  LINK( IGwHardConstants.GW_KEYWORD_LINK, STR_CPK_LINK, STR_CPK_LINK_PLURAL, STR_CPK_LINK_D, EGwidKind.GW_LINK ),
 
   /**
    * Command.
    */
-  CMD( IGwHardConstants.GW_KEYWORD_CMD, STR_N_CPK_CMD, STR_D_CPK_CMD, EGwidKind.GW_CMD ),
+  CMD( IGwHardConstants.GW_KEYWORD_CMD, STR_CPK_CMD, STR_CPK_CMD_PLURAL, STR_CPK_CMD_D, EGwidKind.GW_CMD ),
 
   /**
    * Event.
    */
-  EVENT( IGwHardConstants.GW_KEYWORD_EVENT, STR_N_CPK_EVENT, STR_D_CPK_EVENT, EGwidKind.GW_EVENT ),
+  EVENT( IGwHardConstants.GW_KEYWORD_EVENT, STR_CPK_EVENT, STR_CPK_EVENT_PLURAL, STR_CPK_EVENT_D, EGwidKind.GW_EVENT ),
 
   /**
    * CLOB.
    */
-  CLOB( IGwHardConstants.GW_KEYWORD_CLOB, STR_N_CPK_CLOB, STR_D_CPK_CLOB, EGwidKind.GW_CLOB ),
+  CLOB( IGwHardConstants.GW_KEYWORD_CLOB, STR_CPK_CLOB, STR_CPK_CLOB_PLURAL, STR_CPK_CLOB_D, EGwidKind.GW_CLOB ),
 
   ;
 
@@ -72,12 +73,14 @@ public enum ESkClassPropKind
 
   private final String    id;
   private final String    name;
+  private final String    namePlural;
   private final String    description;
   private final EGwidKind gwidKind;
 
-  ESkClassPropKind( String aId, String aName, String aDescription, EGwidKind aGwidKind ) {
+  ESkClassPropKind( String aId, String aName, String aNamePlural, String aDescription, EGwidKind aGwidKind ) {
     id = aId;
     name = aName;
+    namePlural = aNamePlural;
     description = aDescription;
     gwidKind = aGwidKind;
   }
@@ -104,6 +107,15 @@ public enum ESkClassPropKind
   // ----------------------------------------------------------------------------------
   // API
   //
+
+  /**
+   * Returns the plural name of the property kind.
+   *
+   * @return String - plural name
+   */
+  public String pluralName() {
+    return namePlural;
+  }
 
   /**
    * Return the corresponding {@link Gwid} kind.

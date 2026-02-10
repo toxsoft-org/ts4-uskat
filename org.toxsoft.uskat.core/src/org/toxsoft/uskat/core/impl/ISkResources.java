@@ -112,6 +112,9 @@ interface ISkResources {
   String FMT_WARN_ORPHAN_CLASS             = Messages.getString( "FMT_WARN_ORPHAN_CLASS" );
   String FMT_WARN_UNWANTED_CLASS_ID        = Messages.getString( "FMT_WARN_UNWANTED_CLASS_ID" );
   String FMT_WARN_EMPTY_CLASS_NAME         = Messages.getString( "FMT_WARN_EMPTY_CLASS_NAME" );
+  String FMT_ERR_CLASS_DUP_SELF_PROP_ID    = Messages.getString( "FMT_ERR_CLASS_DUP_SELF_PROP_ID" );
+  String FMT_ERR_CLASS_DUP_SUPER_PROP_ID   = Messages.getString( "FMT_ERR_CLASS_DUP_SUPER_PROP_ID" );
+  String FMT_ERR_CLASS_DUP_SUB_PROP_ID     = Messages.getString( "FMT_ERR_CLASS_DUP_SUB_PROP_ID" );
   String FMT_ERR_CLASS_HAS_PROP_ID         = Messages.getString( "FMT_ERR_CLASS_HAS_PROP_ID" );
   String FMT_ERR_CLASS_ALREADY_EXISTS      = Messages.getString( "FMT_ERR_CLASS_ALREADY_EXISTS" );
   String FMT_ERR_NO_PARENT_CLASS           = Messages.getString( "FMT_ERR_NO_PARENT_CLASS" );

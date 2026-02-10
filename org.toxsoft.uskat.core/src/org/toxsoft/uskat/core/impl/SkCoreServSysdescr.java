@@ -245,7 +245,9 @@ public class SkCoreServSysdescr
   }
 
   /**
-   * Builtin classes editing validator is always on.
+   * Builtin classes editing validator is always on.\
+   * <p>
+   * TODO redesign is needed, now it's a unclear code, espacially when checling for properties duplicates
    */
   private final ISkSysdescrValidator builtinValidator = new ISkSysdescrValidator() {
 
@@ -264,22 +266,64 @@ public class SkCoreServSysdescr
       return vr;
     }
 
-    private ValidationResult checkUniquePropIds( IDtoClassInfo aClassInfo, ISkClassInfo aParent ) {
-      // collect parent prop IDs
-      IStringListEdit propIds = new StringArrayList();
-      for( ESkClassPropKind k : ESkClassPropKind.asList() ) {
-        ISkClassProps<?> p = aParent.props( k );
-        propIds.addAll( p.list().ids() );
-      }
-      // error if diff kind of props has the same ID
-      for( ESkClassPropKind k : ESkClassPropKind.asList() ) {
-        for( IDtoClassPropInfoBase p : aClassInfo.propInfos( k ) ) {
-          if( propIds.hasElem( p.id() ) ) {
-            return ValidationResult.error( FMT_ERR_CLASS_HAS_PROP_ID, p.id() );
+    /**
+     * Checks for property IDs uniquity of the <code>aClassInfo</code> self p[roperties.
+     * <p>
+     * Iterates over self properties of the <code>aClassInfo</code> to ensure that no one of them has same ID as any
+     * properties of any kind in the this class and the ancestors and descendant (when editing class) hierarchy.
+     *
+     * @param aClassInfo {@link IDtoClassInfo} - an edited class with only self properties
+     * @param aParent {@link ISkClassInfo} - parent class
+     * @param aSelf {@link ISkClassInfo} - edited class original info or <code>null</code> when creating
+     * @return {@link ValidationResult} - the check result
+     */
+    private ValidationResult checkUniquePropIds( IDtoClassInfo aClassInfo, ISkClassInfo aParent, ISkClassInfo aSelf ) {
+      // GOGA --- 2026-02-10 new code, more strict checks
+      // iterate over all self properties
+      for( ESkClassPropKind k1 : ESkClassPropKind.asList() ) {
+        for( String pid : aClassInfo.propInfos( k1 ).ids() ) {
+          // iterate over all properties of other kind
+          for( ESkClassPropKind k2 : ESkClassPropKind.asList() ) {
+            if( k2 != k1 ) {
+              // check class does not contains duplicates in self properties
+              if( aClassInfo.propInfos( k2 ).ids().hasElem( pid ) ) {
+                return ValidationResult.error( FMT_ERR_CLASS_DUP_SELF_PROP_ID, pid, k1.nmName(), k2.nmName() );
+              }
+              // check duplicates in ancestors
+              ISkClassInfo superDeclarer = aParent.props( k2 ).findSuperDeclarer( pid );
+              if( superDeclarer != null ) {
+                return ValidationResult.error( FMT_ERR_CLASS_DUP_SUPER_PROP_ID, pid, k1.nmName(), k2.nmName(),
+                    superDeclarer.id() );
+              }
+              // check duplicates in descendants when editing
+              if( aSelf != null ) {
+                IStridablesList<ISkClassInfo> subDeclarers = aParent.props( k2 ).findSubDeclarers( pid );
+                if( !subDeclarers.isEmpty() ) {
+                  return ValidationResult.error( FMT_ERR_CLASS_DUP_SUB_PROP_ID, pid, k1.nmName(), k2.nmName(),
+                      subDeclarers.first().id() );
+                }
+              }
+            }
           }
-          propIds.add( p.id() );
         }
       }
+      // OLD CODE
+      // // collect parent prop IDs
+      // IStringListEdit propIds = new StringArrayList();
+      // for( ESkClassPropKind k : ESkClassPropKind.asList() ) {
+      // ISkClassProps<?> p = aParent.props( k );
+      // propIds.addAll( p.list().ids() );
+      // }
+      // // error if diff kind of props has the same ID
+      // for( ESkClassPropKind k : ESkClassPropKind.asList() ) {
+      // for( IDtoClassPropInfoBase p : aClassInfo.propInfos( k ) ) {
+      // if( propIds.hasElem( p.id() ) ) {
+      // return ValidationResult.error( FMT_ERR_CLASS_HAS_PROP_ID, p.id() );
+      // }
+      // propIds.add( p.id() );
+      // }
+      // }
+      // ---
       return ValidationResult.SUCCESS;
     }
 
@@ -315,7 +359,7 @@ public class SkCoreServSysdescr
         }
       }
       // check no duplicate prop IDs at all
-      vr = ValidationResult.firstNonOk( vr, checkUniquePropIds( aClassInfo, parentInfo ) );
+      vr = ValidationResult.firstNonOk( vr, checkUniquePropIds( aClassInfo, parentInfo, null ) );
       if( vr.isError() ) {
         return vr;
       }
@@ -356,22 +400,25 @@ public class SkCoreServSysdescr
             return ValidationResult.error( FMT_ERR_DUP_PROP_IN_SUB, k.nmName(), p.id(), subClassIds );
           }
         }
+        ValidationResult vr = ValidationResult.SUCCESS;
+
         // FIXME check changed properties
         // FIXME GOGA 2023-02-10 error!
-        // ValidationResult vr = ValidationResult.SUCCESS;
         // for( IDtoClassPropInfoBase p : diff.getByKey( EDiffNature.DIFF ) ) {
         // // check that changed property is compatible with existing one so that exsiting values in DB will remain
         // }
-        // // check no duplicate prop IDs at all
-        // vr = ValidationResult.firstNonOk( vr, checkUniquePropIds( aClassInfo, aOldInfo.parent() ) );
-        // if( vr.isError() ) {
-        // return vr;
-        // }
+
+        // check no duplicate prop IDs at all
+        vr = ValidationResult.firstNonOk( vr, checkUniquePropIds( aClassInfo, aOldInfo.parent(), aOldInfo ) );
+        if( vr.isError() ) {
+          return vr;
+        }
       }
       return checkInfo( aClassInfo );
     }
 
     @Override
+
     public ValidationResult canRemoveClass( String aClassId ) {
       if( aClassId.equals( IGwHardConstants.GW_ROOT_CLASS_ID ) ) {
         return ValidationResult.error( MSG_ERR_CANT_REMOVE_ROOT_CLASS );

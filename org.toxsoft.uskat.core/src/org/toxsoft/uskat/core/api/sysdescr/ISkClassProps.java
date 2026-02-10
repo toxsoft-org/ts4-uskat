@@ -52,10 +52,10 @@ public interface ISkClassProps<T extends IDtoClassPropInfoBase> {
   ISkClassInfo findSuperDeclarer( String aPropId );
 
   /**
-   * Returns the classes, whch declares properties of specified ID.
+   * Returns the classes, which declares properties of specified ID.
    * <p>
-   * Returns an empty list if property is not declared at all in the herarchy of this class. also an empty list is
-   * returned if such property exists in this class and obvously can not be declared by subclasses.
+   * Returns an empty list if property is not declared at all in the hierarchy of this class. also an empty list is
+   * returned if such property exists in this class and obviously can not be declared by subclasses.
    *
    * @param aPropId String - the property ID
    * @return {@link IStridablesList}&lt;{@link ISkClassInfo}&gt; - list of declarer subclasses
@@ -63,7 +63,7 @@ public interface ISkClassProps<T extends IDtoClassPropInfoBase> {
   IStridablesList<ISkClassInfo> findSubDeclarers( String aPropId );
 
   /**
-   * Creteas and retuirns copy of the {@link #list()} or {@link #listSelf()}.
+   * Creates and returns copy of the {@link #list()} or {@link #listSelf()}.
    *
    * @param aOnlySelf boolean - <code>true</code> for {@link #listSelf()} copy, <code>false</code> for {@link #list()}
    * @return IStridablesList&lt;T&gt; - copy of the specified list of properties
