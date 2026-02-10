@@ -14,6 +14,7 @@ import org.toxsoft.core.tsgui.graphics.icons.*;
 import org.toxsoft.core.tslib.bricks.strid.more.*;
 import org.toxsoft.core.tslib.utils.errors.*;
 import org.toxsoft.uskat.core.*;
+import org.toxsoft.uskat.core.api.sysdescr.*;
 import org.toxsoft.uskat.core.connection.*;
 import org.toxsoft.uskat.core.gui.conn.*;
 
@@ -58,6 +59,19 @@ public interface ISkCoreGuiConstants {
   String ICONID_COLORED_WORLD_BLUE  = "colored-world-blue";  //$NON-NLS-1$
   String ICONID_COLORED_WORLD_GREEN = "colored-world-green"; //$NON-NLS-1$
   String ICONID_COLORED_WORLD_RED   = "colored-world-red";   //$NON-NLS-1$
+
+  static String getClassPropKindIconId( ESkClassPropKind aKind ) {
+    return switch( aKind ) {
+      case ATTR -> ICONID_SDED_CLASS_ATTR;
+      case CLOB -> ICONID_SDED_CLASS_CLOB;
+      case CMD -> ICONID_SDED_CLASS_CMD;
+      case EVENT -> ICONID_SDED_CLASS_EVENT;
+      case LINK -> ICONID_SDED_CLASS_LINK;
+      case RIVET -> ICONID_SDED_CLASS_RIVET;
+      case RTDATA -> ICONID_SDED_CLASS_DATA;
+      default -> null;
+    };
+  }
 
   // ------------------------------------------------------------------------------------
   // TODO ???

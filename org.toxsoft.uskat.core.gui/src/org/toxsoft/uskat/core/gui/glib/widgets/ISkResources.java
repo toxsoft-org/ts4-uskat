@@ -6,7 +6,7 @@ package org.toxsoft.uskat.core.gui.glib.widgets;
  * @author hazard157
  */
 @SuppressWarnings( "javadoc" )
-public interface ISkResources {
+interface ISkResources {
 
   /**
    * {@link GwidViewWidget}
