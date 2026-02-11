@@ -9,7 +9,6 @@ import org.toxsoft.core.tslib.coll.primtypes.*;
 import org.toxsoft.core.tslib.gw.skid.*;
 import org.toxsoft.core.tslib.utils.*;
 import org.toxsoft.core.tslib.utils.errors.*;
-import org.toxsoft.core.tslib.utils.logs.impl.*;
 import org.toxsoft.uskat.core.*;
 import org.toxsoft.uskat.core.api.linkserv.*;
 import org.toxsoft.uskat.core.api.objserv.*;
@@ -55,83 +54,42 @@ public class SkCoreServTransaction
       // nop
     }
 
-    void fireBeforeStartEvent() {
-      for( ISkTransactionServiceListener l : listeners() ) {
-        try {
-          l.onStart();
-        }
-        catch( Exception ex ) {
-          LoggerUtils.errorLogger().error( ex );
-        }
-      }
-    }
-
     void fireObjCreatedEvent( IDtoObject aObjectId ) {
       for( ISkTransactionServiceListener l : listeners() ) {
-        try {
-          l.onObjCreated( aObjectId );
-        }
-        catch( Exception ex ) {
-          LoggerUtils.errorLogger().error( ex );
-        }
+        l.onObjCreated( aObjectId );
       }
     }
 
     void fireObjMergedEvent( IDtoObject aObjectId ) {
       for( ISkTransactionServiceListener l : listeners() ) {
-        try {
-          l.onObjMerged( aObjectId );
-        }
-        catch( Exception ex ) {
-          LoggerUtils.errorLogger().error( ex );
-        }
+        l.onObjMerged( aObjectId );
       }
     }
 
     void fireObjRemovedEvent( IDtoObject aObjectId ) {
       for( ISkTransactionServiceListener l : listeners() ) {
-        try {
-          l.onObjRemoved( aObjectId );
-        }
-        catch( Exception ex ) {
-          LoggerUtils.errorLogger().error( ex );
-        }
+        l.onObjRemoved( aObjectId );
       }
     }
 
     void fireBeforeCommitEvent( IList<IDtoObject> aRemovingObjs, IList<Pair<IDtoObject, IDtoObject>> aUpdatingObjs,
         IList<IDtoObject> aCreatingObjs, IList<IDtoLinkFwd> aUpdatingLinks ) {
       for( ISkTransactionServiceListener l : listeners() ) {
-        try {
-          l.onBeforeCommit( aRemovingObjs, aUpdatingObjs, aCreatingObjs, aUpdatingLinks );
-        }
-        catch( Exception ex ) {
-          LoggerUtils.errorLogger().error( ex );
-        }
+        l.onBeforeCommit( aRemovingObjs, aUpdatingObjs, aCreatingObjs, aUpdatingLinks );
       }
     }
 
     void fireAfterCommitEvent( IList<IDtoObject> aRemovingObjs, IList<Pair<IDtoObject, IDtoObject>> aUpdatingObjs,
         IList<IDtoObject> aCreatingObjs, IList<IDtoLinkFwd> aUpdatingLinks ) {
       for( ISkTransactionServiceListener l : listeners() ) {
-        try {
-          l.onAfterCommit( aRemovingObjs, aUpdatingObjs, aCreatingObjs, aUpdatingLinks );
-        }
-        catch( Exception ex ) {
-          LoggerUtils.errorLogger().error( ex );
-        }
+        l.onAfterCommit( aRemovingObjs, aUpdatingObjs, aCreatingObjs, aUpdatingLinks );
       }
     }
 
     void fireRollbackEvent( IList<IDtoObject> aRemovingObjs, IList<Pair<IDtoObject, IDtoObject>> aUpdatingObjs,
         IList<IDtoObject> aCreatingObjs, IList<IDtoLinkFwd> aUpdatingLinks ) {
       for( ISkTransactionServiceListener l : listeners() ) {
-        try {
-          l.onRollback( aRemovingObjs, aUpdatingObjs, aCreatingObjs, aUpdatingLinks );
-        }
-        catch( Exception ex ) {
-          LoggerUtils.errorLogger().error( ex );
-        }
+        l.onRollback( aRemovingObjs, aUpdatingObjs, aCreatingObjs, aUpdatingLinks );
       }
     }
   }
@@ -308,8 +266,8 @@ public class SkCoreServTransaction
       eventer.fireAfterCommitEvent( removingObjs, updatingObjs, creatingObjs, updatingLinks );
     }
     catch( Throwable e ) {
-      logger().error( e );
       rollback();
+      throw e;
     }
   }
 

@@ -1,11 +1,11 @@
 package org.toxsoft.uskat.s5.client.local;
 
-import javax.ejb.Local;
+import javax.ejb.*;
 
-import org.toxsoft.core.tslib.bricks.ctx.ITsContextRo;
-import org.toxsoft.core.tslib.utils.errors.TsNullArgumentRtException;
-import org.toxsoft.uskat.core.connection.ISkConnection;
-import org.toxsoft.uskat.core.impl.ISkCoreConfigConstants;
+import org.toxsoft.core.tslib.bricks.ctx.*;
+import org.toxsoft.core.tslib.utils.errors.*;
+import org.toxsoft.uskat.core.connection.*;
+import org.toxsoft.uskat.core.impl.*;
 
 /**
  * Поставщик соединений {@link ISkConnection} с локальным сервером.
@@ -38,4 +38,5 @@ public interface IS5LocalConnectionSingleton {
    * @throws TsNullArgumentRtException аргумент = null
    */
   ISkConnection open( String aModuleName, ITsContextRo aArgs );
+
 }

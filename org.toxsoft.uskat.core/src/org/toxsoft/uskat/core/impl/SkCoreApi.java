@@ -46,12 +46,13 @@ public class SkCoreApi
 
   private final IStringMapEdit<AbstractSkService> servicesMap = new StringMap<>();
 
-  private final ITsContextRo      openArgs;
-  private final SkConnection      conn;
-  private final ITsThreadExecutor executor;
-  private final CoreL10n          coreL10n;
-  private final CoreLogger        logger;
-  private final ISkBackend        backend;
+  private final ITsContextRo       openArgs;
+  private final SkConnection       conn;
+  private final ITsThreadExecutor  executor;
+  private final SkProgressCallback progressCallback;
+  private final CoreL10n           coreL10n;
+  private final CoreLogger         logger;
+  private final ISkBackend         backend;
 
   private final SkCoreServSysdescr    sysdescr;
   private final SkCoreServObject      objService;
@@ -87,6 +88,8 @@ public class SkCoreApi
     openArgs = aArgs;
     conn = aConn;
     executor = REFDEF_THREAD_EXECUTOR.getRef( aArgs );
+    progressCallback = (aArgs.hasKey( REFDEF_PROGRESS_CALLBACK.refKey() ) ? REFDEF_PROGRESS_CALLBACK.getRef( aArgs )
+        : new SkProgressCallback());
     coreL10n = new CoreL10n( aArgs );
     coreApiHandlersList = new ElemArrayList<>( SkCoreUtils.listRegisteredCoreApiHandlers() );
     // create backend
@@ -193,6 +196,7 @@ public class SkCoreApi
 
   private <S extends AbstractSkService> S internalInitService( S aService ) {
     try {
+      progressCallback().updateWorkProgress( String.format( FMT_MSG_INIT_SERVICE, aService.serviceId() ), -1 );
       aService.init( openArgs );
     }
     catch( Exception ex ) {
@@ -208,6 +212,8 @@ public class SkCoreApi
     for( int i = 0, n = coreApiHandlersList.size(); i < n; i++ ) {
       ISkCoreExternalHandler h = coreApiHandlersList.get( i );
       try {
+        String handlerName = h.getClass().getSimpleName();
+        progressCallback().updateWorkProgress( String.format( FMT_MSG_INIT_HANDLER, handlerName ), -1 );
         h.processSkBackendActiveStateChange( this, aBackendActive );
       }
       catch( Exception ex ) {
@@ -360,6 +366,7 @@ public class SkCoreApi
         for( int i = servicesMap.size() - 1; i >= 0; i-- ) {
           try {
             AbstractSkService s1 = servicesMap.values().get( i );
+            progressCallback().updateWorkProgress( String.format( FMT_MSG_SERVICE_STATE_CHANGED, s1.serviceId() ), -1 );
             s1.onBackendActiveStateChanged( isActive );
           }
           catch( Exception ex ) {
@@ -377,7 +384,7 @@ public class SkCoreApi
         s2.papiOnBackendMessage( aMessage );
       }
       else {
-        logger().warning( LOG_WARN_UNHANDLED_BACKEND_MESSAGE, aMessage.topicId(), aMessage.messageId(),
+        logger().warning( FMT_WARN_UNHANDLED_BACKEND_MESSAGE, aMessage.topicId(), aMessage.messageId(),
             aMessage.args() == IOptionSet.NULL ? "IOptionSet.NULL" : aMessage.args() ); //$NON-NLS-1$
       }
     } );
@@ -424,6 +431,11 @@ public class SkCoreApi
   @Override
   public ITsThreadExecutor executor() {
     return executor;
+  }
+
+  @Override
+  public SkProgressCallback progressCallback() {
+    return progressCallback;
   }
 
   // ------------------------------------------------------------------------------------

@@ -34,6 +34,8 @@ interface IS5Resources {
   String USER_PROGRESS_AFTER_ACTIVE      = Messages.getString( "IS5Resources.USER_PROGRESS_AFTER_ACTIVE" );
   String USER_PROGRESS_WAIT_TRY_CONNECT  = Messages.getString( "IS5Resources.USER_PROGRESS_WAIT_TRY_CONNECT" );
   String USER_PROGRESS_AFTER_CONNECT_END = Messages.getString( "IS5Resources.USER_PROGRESS_AFTER_CONNECT_END" );
+  String USER_INIT_WORKSTATION           = "Инициализация компонентов АРМа";
+  String USER_OBTAINING_WORKSTATION_DATA = "Получение данных компонентов";
 
   /**
    * {@link S5Connection}

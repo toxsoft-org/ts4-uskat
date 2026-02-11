@@ -31,18 +31,24 @@ interface IS5Resources {
   String D_CLIENT_VERSION = Messages.getString( "IS5Resources.D_CLIENT_VERSION" ); //$NON-NLS-1$
   String N_CLIENT_VERSION = Messages.getString( "IS5Resources.N_CLIENT_VERSION" ); //$NON-NLS-1$
 
-  String D_CONNECT_TIMEOUT      = Messages.getString( "IS5Resources.D_CONNECT_TIMEOUT" );  //$NON-NLS-1$
-  String N_CONNECT_TIMEOUT      = Messages.getString( "IS5Resources.N_CONNECT_TIMEOUT" );  //$NON-NLS-1$
-  String D_FAILURE_TIMEOUT      = Messages.getString( "IS5Resources.D_FAILURE_TIMEOUT" );  //$NON-NLS-1$
-  String N_FAILURE_TIMEOUT      = Messages.getString( "IS5Resources.N_FAILURE_TIMEOUT" );  //$NON-NLS-1$
-  String D_CURRDATA_TIMEOUT     = Messages.getString( "IS5Resources.D_CURRDATA_TIMEOUT" ); //$NON-NLS-1$
-  String N_CURRDATA_TIMEOUT     = Messages.getString( "IS5Resources.N_CURRDATA_TIMEOUT" ); //$NON-NLS-1$
-  String D_HISTDATA_TIMEOUT     = Messages.getString( "IS5Resources.D_HISTATA_TIMEOUT" );  //$NON-NLS-1$
-  String N_HISTDATA_TIMEOUT     = Messages.getString( "IS5Resources.N_HISTDATA_TIMEOUT" ); //$NON-NLS-1$
-  String D_DOJOB_TIMEOUT        = "doJobTimeout";                                          //$NON-NLS-1$
-  String N_DOJOB_TIMEOUT        = "doJobTimeout";                                          //$NON-NLS-1$
-  String D_HISTDATA_BUFFER_SIZE = "histdata buffer size";                                  //$NON-NLS-1$
-  String N_HISTDATA_BUFFER_SIZE = "histdata buffer size";                                  //$NON-NLS-1$
+  String D_CONNECT_TIMEOUT               = Messages.getString( "IS5Resources.D_CONNECT_TIMEOUT" );       //$NON-NLS-1$
+  String N_CONNECT_TIMEOUT               = Messages.getString( "IS5Resources.N_CONNECT_TIMEOUT" );       //$NON-NLS-1$
+  String D_FAILURE_TIMEOUT               = Messages.getString( "IS5Resources.D_FAILURE_TIMEOUT" );       //$NON-NLS-1$
+  String N_FAILURE_TIMEOUT               = Messages.getString( "IS5Resources.N_FAILURE_TIMEOUT" );       //$NON-NLS-1$
+  String D_CURRDATA_TIMEOUT              = Messages.getString( "IS5Resources.D_CURRDATA_TIMEOUT" );      //$NON-NLS-1$
+  String N_CURRDATA_TIMEOUT              = Messages.getString( "IS5Resources.N_CURRDATA_TIMEOUT" );      //$NON-NLS-1$
+  String D_HISTDATA_TIMEOUT              = Messages.getString( "IS5Resources.D_HISTATA_TIMEOUT" );       //$NON-NLS-1$
+  String N_HISTDATA_TIMEOUT              = Messages.getString( "IS5Resources.N_HISTDATA_TIMEOUT" );      //$NON-NLS-1$
+  String D_DOJOB_TIMEOUT                 = "doJobTimeout";                                               //$NON-NLS-1$
+  String N_DOJOB_TIMEOUT                 = "doJobTimeout";                                               //$NON-NLS-1$
+  String D_HISTDATA_BUFFER_SIZE          = "histdata buffer size";                                       //$NON-NLS-1$
+  String N_HISTDATA_BUFFER_SIZE          = "histdata buffer size";                                       //$NON-NLS-1$
+  String D_THREAD_EXECUTOR_QUEUE_WARNING =
+      "The maximum size of the thread executor message queue before a warning is generated in the log."; //$NON-NLS-1$
+  String N_THREAD_EXECUTOR_QUEUE_WARNING = "warning queue";                                              //$NON-NLS-1$
+  String D_THREAD_EXECUTOR_QUEUE_ERROR   =
+      "The maximum size of the thread executor message queue before a error is generated in the log.";   //$NON-NLS-1$
+  String N_THREAD_EXECUTOR_QUEUE_ERROR   = "error queue";                                                //$NON-NLS-1$
 
   String D_CLASSLOADER     = Messages.getString( "IS5Resources.D_CLASSLOADER" );     //$NON-NLS-1$
   String N_CLASSLOADER     = Messages.getString( "IS5Resources.N_CLASSLOADER" );     //$NON-NLS-1$

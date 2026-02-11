@@ -27,6 +27,7 @@ import org.jboss.marshalling.Pair;
 import org.toxsoft.core.pas.common.*;
 import org.toxsoft.core.tslib.av.opset.*;
 import org.toxsoft.core.tslib.av.opset.impl.*;
+import org.toxsoft.core.tslib.bricks.validator.*;
 import org.toxsoft.core.tslib.coll.*;
 import org.toxsoft.core.tslib.coll.impl.*;
 import org.toxsoft.core.tslib.coll.primtypes.*;
@@ -42,7 +43,6 @@ import org.toxsoft.uskat.s5.common.*;
 import org.toxsoft.uskat.s5.server.*;
 import org.toxsoft.uskat.s5.server.backend.*;
 import org.toxsoft.uskat.s5.server.sessions.init.*;
-import org.toxsoft.uskat.s5.utils.progress.*;
 import org.toxsoft.uskat.s5.utils.threads.impl.*;
 import org.wildfly.common.context.*;
 import org.wildfly.naming.client.*;
@@ -185,7 +185,7 @@ public final class S5Connection
   /**
    * Монитор прогресса проводимой операции на соединении
    */
-  private IS5ProgressMonitor progressMonitor = IS5ProgressMonitor.NULL;
+  private ILongOpProgressCallback progressMonitor = ILongOpProgressCallback.NONE;
 
   /**
    * Счетчик созданных экземпляров соединений
@@ -236,7 +236,7 @@ public final class S5Connection
    */
   public void openSession( IOptionSet aConfiguration )
       throws S5ConnectionException {
-    openSession( aConfiguration, IS5ProgressMonitor.NULL );
+    openSession( aConfiguration, ILongOpProgressCallback.NONE );
   }
 
   /**
@@ -247,14 +247,14 @@ public final class S5Connection
    * {@link IS5ConnectionListener#onAfterConnect(IS5Connection)}.
    *
    * @param aOptions {@link IOptionSet} конфигурация соединения
-   * @param aProgressMonitor {@link IS5ProgressMonitor} монитор прогресса проводимой операции на соединении
+   * @param aProgressMonitor {@link ILongOpProgressCallback} монитор прогресса проводимой операции на соединении
    * @throws TsNullArgumentRtException любой аргумент = null
    * @throws TsIllegalStateRtException сессия связи уже активна
    * @throws TsIllegalStateRtException соединение завершается (выполняется метод {@link #closeSession()}
    * @throws TsIllegalStateRtException работа с соединением завершена
    * @throws S5ConnectionException ошибка установления связи или инициализации сессии
    */
-  public void openSession( IOptionSet aOptions, IS5ProgressMonitor aProgressMonitor )
+  public void openSession( IOptionSet aOptions, ILongOpProgressCallback aProgressMonitor )
       throws S5ConnectionException {
     TsNullArgumentRtException.checkNull( aOptions );
     TsNullArgumentRtException.checkNull( aProgressMonitor );
@@ -268,18 +268,18 @@ public final class S5Connection
       throw new S5ConnectionException( aOptions, ERR_HOSTS_NOT_DEFINED );
     }
     String host = hosts.first().address();
-    progressMonitor.beginTask( format( USER_PROGRESS_CONNECT, host ), -1 );
-    progressMonitor.subTask( format( USER_PROGRESS_WAIT_OPEN ) );
+    progressMonitor.startWork( (format( USER_PROGRESS_CONNECT, host )), true ); // aUndefined = true
+    progressMonitor.updateWorkProgress( format( USER_PROGRESS_WAIT_OPEN ), -1 );
     lockWrite( lock );
     try {
       TsIllegalStateRtException.checkTrue( state != EConnectionState.DISCONNECTED, ERR_ALREADY_ACTIVE );
       // Проверка, что соединение не в состоянии завершения
       checkNotClosing();
       // Оповещение о начале активизации соединения
-      progressMonitor.subTask( format( USER_PROGRESS_BEFORE_ACTIVE ) );
+      progressMonitor.updateWorkProgress( format( USER_PROGRESS_BEFORE_ACTIVE ), -1 );
       fireOnBeforeActiveEvent();
       // Перевод соединения в активное состояние
-      progressMonitor.subTask( format( USER_PROGRESS_ACTIVE_ON ) );
+      progressMonitor.updateWorkProgress( format( USER_PROGRESS_ACTIVE_ON ), -1 );
       setConnectState( EConnectionState.INACTIVE );
       // Сохранение параметров подключения к серверу (создание копии)
       sessionInitData.setClientOptions( aOptions );
@@ -289,7 +289,7 @@ public final class S5Connection
       // callback-соединение
       callbackReader = new S5CallbackClient( this );
       // Оповещение о завершении активизации соединения
-      progressMonitor.subTask( format( USER_PROGRESS_AFTER_ACTIVE ) );
+      progressMonitor.updateWorkProgress( format( USER_PROGRESS_AFTER_ACTIVE ), -1 );
       fireOnAfterActiveEvent();
       // Попытка образовать связь с сервером
       try {
@@ -522,7 +522,7 @@ public final class S5Connection
    */
   void tryConnect()
       throws S5ConnectionException {
-    progressMonitor.subTask( format( USER_PROGRESS_WAIT_TRY_CONNECT ) );
+    progressMonitor.updateWorkProgress( format( USER_PROGRESS_WAIT_TRY_CONNECT ), -1 );
     IOptionSetEdit options = sessionInitData.clientOptions();
     lockWrite( lock );
     try {
@@ -537,7 +537,7 @@ public final class S5Connection
       }
 
       // Оповещение клиента о предстоящей попытки установке связи с сервером
-      progressMonitor.subTask( format( USER_PROGRESS_BEFORE_CONNECT, this ) );
+      progressMonitor.updateWorkProgress( format( USER_PROGRESS_BEFORE_CONNECT, this ), -1 );
       fireOnBeforeConnectEvent();
 
       // Для подключения к серверу используется wildfly-запись. Позже, в S5BackendSession.init(...) проверяется учетная
@@ -568,9 +568,13 @@ public final class S5Connection
       ClassLoader loader = classLoader;
       try {
         // 2021-01-20 mvk необходимо закрыть все соединения чтобы они не мешали потом через callback
+        if( callbackReader == null ) {
+          // 2026-02-05 mvk+++ соединение уже закрыто
+          return;
+        }
         callbackReader.disconnected();
         // Поиск сервера и бина его API
-        progressMonitor.subTask( format( USER_LOOKUP_REMOTE_API_START, this ) );
+        progressMonitor.updateWorkProgress( format( USER_LOOKUP_REMOTE_API_START, this ), -1 );
         logger.debug( USER_LOOKUP_REMOTE_API_START, this );
         Pair<SessionID, IS5BackendSession> remote =
             lookupClusterRemoteApi( this, hosts, wlogin, wpasswd, moduleName, apiIntefaceName, apiBeanName, loader );
@@ -595,7 +599,7 @@ public final class S5Connection
       }
       try {
         // Получение адресов доступных узлов кластера, создание каналов обратного вызова
-        progressMonitor.subTask( format( USER_INIT_CALLBACKS_START, this ) );
+        progressMonitor.updateWorkProgress( format( USER_INIT_CALLBACKS_START, this ), -1 );
         // Текущая топология кластеров доступных клиенту
         S5ClusterTopology topology = createClusterTopology( ejbClientContext );
         if( topology.nodes().size() == 0 ) {
@@ -633,7 +637,7 @@ public final class S5Connection
         // Запуск получения обратных вызовов
         InetSocketAddress localAddress = callbackReader.start( topology );
         // Завершение получения адресов доступных узлов кластера, создание каналов обратного вызова
-        progressMonitor.subTask( format( USER_INIT_CALLBACKS_FINISH, this ) );
+        progressMonitor.updateWorkProgress( format( USER_INIT_CALLBACKS_FINISH, this ), -1 );
 
         // Сообщение клиентам о обнаружении сервера
         fireOnAfterDiscoverEvent();
@@ -643,7 +647,7 @@ public final class S5Connection
         OP_CLIENT_PORT.setValue( options, avInt( localAddress.getPort() ) );
         // Инициализация сессии пользователя на сервере
         logger.debug( USER_INIT_REMOTE_API_START, this );
-        progressMonitor.subTask( format( USER_INIT_REMOTE_API_START, this ) );
+        progressMonitor.updateWorkProgress( format( USER_INIT_REMOTE_API_START, this ), -1 );
 
         // 2020-07-23 mvk установка таймаута создания соединения
         logger.info( MSG_SET_INVOCATION_CREATE_TIMEOUT, Long.valueOf( createTimeout ) );
@@ -655,6 +659,7 @@ public final class S5Connection
         IS5SessionInitResult initResult = remoteBackend.init( sessionInitData );
         sessionInitResult.setAll( initResult );
         logger.debug( MSG_INIT_REMOTE_API_FINISH, this );
+        progressMonitor.updateWorkProgress( format( MSG_INIT_REMOTE_API_FINISH, this ), -1 );
 
         // 2020-07-23 mvk установка таймаута отказа соединения
         logger.info( MSG_SET_INVOCATION_FAILURE_TIMEOUT, Long.valueOf( failureTimeout ) );
@@ -664,26 +669,37 @@ public final class S5Connection
         callbackReader.setNotificationEnabled();
       }
       catch( RequestSendFailedException e ) {
+        progressMonitor.startWork( ERR_NOT_CONNECTED, true ); // aUndefined = true
         logger.debug( e, ERR_NOT_CONNECTED, entryPoint, cause( e ) );
         callbackReader.disconnected();
         if( e.getCause() instanceof RequestSendFailedException ) {
           Throwable requestError = e.getCause();
           if( requestError.getCause() instanceof SaslException ) {
+            progressMonitor.updateWorkProgress( ERR_NO_ACCESS, -1 );
             // Неверное имя пользователя или пароль
             throw new S5ConnectionException( e, options, ERR_NO_ACCESS );
           }
           if( requestError.getCause() instanceof java.net.UnknownHostException ) {
             // Сервер не найден
+            progressMonitor.updateWorkProgress( ERR_SERVER_NOT_FOUND, -1 );
             throw new S5ConnectionException( e, options, ERR_SERVER_NOT_FOUND );
           }
           if( requestError.getCause() instanceof java.net.ConnectException ) {
             // Сервер не найден
+            progressMonitor.updateWorkProgress( ERR_SERVER_NOT_FOUND, -1 );
             throw new S5ConnectionException( e, options, ERR_SERVER_NOT_FOUND );
           }
         }
+        progressMonitor.updateWorkProgress( ERR_INIT_SESSION, -1 );
         throw new S5ConnectionException( e, options, ERR_INIT_SESSION, entryPoint, cause( e ) );
       }
       catch( Throwable e ) {
+        String errText = e.getLocalizedMessage();
+        if( e.getCause() != null ) {
+          errText = e.getCause().getLocalizedMessage();
+        }
+        progressMonitor.startWork( ERR_NOT_CONNECTED, true ); // aUndefined = true
+        progressMonitor.updateWorkProgress( errText, -1 );
         callbackReader.disconnected();
         safeCloseRemoteApi();
         // Вывод журнала
@@ -721,7 +737,7 @@ public final class S5Connection
     finally {
       unlockWrite( lock );
     }
-    progressMonitor.subTask( format( USER_PROGRESS_AFTER_CONNECT_END ) );
+    progressMonitor.updateWorkProgress( format( USER_PROGRESS_AFTER_CONNECT_END ), -1 );
     try {
       fireOnAfterConnectEvent();
     }
@@ -736,11 +752,14 @@ public final class S5Connection
       remoteBackend = null;
       setConnectState( EConnectionState.INACTIVE );
       logger.error( "tryConnect(...): fireOnAfterConnectEvent fail. end closing... cause = %s", cause( e ) ); //$NON-NLS-1$
+      progressMonitor.finished( ValidationResult.SUCCESS );
       // Необходимо поднять исключение, чтобы информировать клиента об ошибке установке связи
       throw new S5ConnectionException( e, options, "tryConnect(...): fireOnAfterConnectEvent error" ); //$NON-NLS-1$
     }
     try {
-      progressMonitor.done();
+      progressMonitor.startWork( USER_INIT_WORKSTATION, true ); // aUndefined = true
+      progressMonitor.updateWorkProgress( USER_OBTAINING_WORKSTATION_DATA, -1 );
+      progressMonitor.finished( ValidationResult.SUCCESS );
     }
     catch( Throwable e ) {
       // Неожиданная ошибка монитора прогресса

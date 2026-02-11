@@ -1,9 +1,9 @@
 package org.toxsoft.uskat.core.gui.glib.query;
 
-import org.eclipse.jface.dialogs.ProgressMonitorDialog;
+import org.eclipse.jface.dialogs.*;
 import org.eclipse.swt.widgets.*;
-import org.toxsoft.core.tslib.utils.errors.TsNullArgumentRtException;
-import org.toxsoft.core.tslib.utils.logs.impl.LoggerUtils;
+import org.toxsoft.core.tslib.utils.errors.*;
+import org.toxsoft.core.tslib.utils.logs.impl.*;
 
 /**
  * Диалог прогресса выполнения операции
@@ -56,6 +56,9 @@ public class SkProgressDialog
   public int open() {
     Thread thread = new Thread( () -> {
       getParentShell().getDisplay().asyncExec( () -> {
+        if( progressIndicator.isDisposed() ) {
+          return;
+        }
         if( timeout >= 0 ) {
           progressIndicator.beginTask( 1000 );
         }
@@ -67,6 +70,9 @@ public class SkProgressDialog
         long sleep = timeout / 1000;
         for( int index = 0; index < 1000; index++ ) {
           getParentShell().getDisplay().asyncExec( () -> {
+            if( progressIndicator.isDisposed() ) {
+              return;
+            }
             if( progressIndicator.isDisposed() ) {
               return;
             }

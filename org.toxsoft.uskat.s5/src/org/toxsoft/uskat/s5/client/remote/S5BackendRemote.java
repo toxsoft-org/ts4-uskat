@@ -9,7 +9,6 @@ import org.toxsoft.core.tslib.av.opset.*;
 import org.toxsoft.core.tslib.bricks.ctx.*;
 import org.toxsoft.core.tslib.bricks.strid.coll.*;
 import org.toxsoft.core.tslib.bricks.strid.coll.impl.*;
-import org.toxsoft.core.tslib.coll.helpers.*;
 import org.toxsoft.core.tslib.coll.primtypes.*;
 import org.toxsoft.core.tslib.coll.primtypes.impl.*;
 import org.toxsoft.core.tslib.utils.errors.*;
@@ -114,14 +113,7 @@ public final class S5BackendRemote
   //
   @Override
   public void onBeforeConnect( IS5Connection aSource ) {
-    if( wasConnect ) {
-      // Эмуляция сообщений о возможном изменении классов, объектов и связей при восстановлении связи с сервером
-      // aClassId = null (all classes)
-      fireBackendMessage( IBaClassesMessages.makeMessage( ECrudOp.LIST, null ) );
-      fireBackendMessage( IBaObjectsMessages.makeMessage( ECrudOp.LIST, null ) );
-      // TODO: ???
-      // fireBackendMessage( IBaLinksMessages.makeMessage( ECrudOp.LIST, null ) );
-    }
+    // nop
   }
 
   @Override

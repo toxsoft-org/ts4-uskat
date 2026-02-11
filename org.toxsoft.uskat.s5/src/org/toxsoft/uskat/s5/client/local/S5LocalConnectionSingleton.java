@@ -24,6 +24,7 @@ import org.toxsoft.core.tslib.coll.primtypes.*;
 import org.toxsoft.core.tslib.coll.synch.*;
 import org.toxsoft.core.tslib.utils.*;
 import org.toxsoft.core.tslib.utils.errors.*;
+import org.toxsoft.core.tslib.utils.logs.*;
 import org.toxsoft.uskat.core.api.*;
 import org.toxsoft.uskat.core.api.users.*;
 import org.toxsoft.uskat.core.backend.*;
@@ -204,9 +205,14 @@ public class S5LocalConnectionSingleton
     if( !params.hasKey( IS5ConnectionParams.OP_HISTDATA_TIMEOUT.id() ) ) {
       IS5ConnectionParams.OP_HISTDATA_TIMEOUT.setValue( params, avInt( DEFAULT_HISTDATA_TIMEOUT ) );
     }
-    // Текущий поток используется только для открытия соединения
-    TsThreadExecutor executor =
-        new TsThreadExecutor( getClass().getSimpleName(), Thread.currentThread(), getLogger( TsThreadExecutor.class ) );
+    int warnQueueMax = 16384;
+    int errQueueMax = 16384;
+    Thread currThread = Thread.currentThread();
+    ILogger logger = getLogger( TsThreadExecutor.class );
+    // Текущий поток (currThread) используется только для открытия соединения
+    TsThreadExecutor executor = new TsThreadExecutor( getClass().getSimpleName(), currThread, logger );
+    executor.setLoggerWarningQueueMax( warnQueueMax );
+    executor.setLoggerErrorQueueMax( errQueueMax );
     ISkCoreConfigConstants.REFDEF_THREAD_EXECUTOR.setRef( ctx, executor );
 
     // Имя соединения

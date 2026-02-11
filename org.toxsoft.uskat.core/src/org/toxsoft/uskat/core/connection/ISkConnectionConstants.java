@@ -37,6 +37,11 @@ public interface ISkConnectionConstants {
   String ARGID_ROLE = SK_ID + "role"; //$NON-NLS-1$
 
   /**
+   * ID of connection opening argument {@link #ARGDEF_ROLE}.
+   */
+  String ARGID_OP_PROGRESS = SK_ID + "progress"; //$NON-NLS-1$
+
+  /**
    * The user login name.<br>
    * Usage: login name is an IDpath. If backend requests login name than it is mandatory.<br>
    * Default value: no default value

@@ -2,6 +2,7 @@ package org.toxsoft.uskat.core.devapi;
 
 import org.toxsoft.core.tslib.bricks.ctx.*;
 import org.toxsoft.core.tslib.bricks.threadexec.*;
+import org.toxsoft.core.tslib.utils.*;
 import org.toxsoft.core.tslib.utils.errors.*;
 import org.toxsoft.uskat.core.*;
 import org.toxsoft.uskat.core.api.sysdescr.*;
@@ -88,6 +89,13 @@ public interface IDevCoreApi
    * @return {@link ITsThreadExecutor} - the user-specified thread access
    */
   ITsThreadExecutor executor();
+
+  /**
+   * Returns the progress callback of a lengthy operation.
+   *
+   * @return {@link ILongOpProgressCallback} the progress callback
+   */
+  SkProgressCallback progressCallback();
 
   /**
    * @deprecated Use {@link #getSkClassImplementationInfo(String)} instead

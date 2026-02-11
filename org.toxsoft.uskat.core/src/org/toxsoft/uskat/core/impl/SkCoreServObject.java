@@ -558,6 +558,14 @@ public class SkCoreServObject
     };
   }
 
+  @Override
+  protected void onBackendActiveStateChanged( boolean aIsActive ) {
+    // 2026-02-05 mvk +++
+    if( aIsActive ) {
+      objsCache.clear();
+    }
+  }
+
   // ------------------------------------------------------------------------------------
   // implementation
   //
@@ -947,7 +955,6 @@ public class SkCoreServObject
       return retValue;
     }
     catch( Throwable e ) {
-      logger().error( e );
       // transaction rollback
       transactionService.rollback();
       throw e;

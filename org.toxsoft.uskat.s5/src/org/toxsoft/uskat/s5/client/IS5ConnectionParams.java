@@ -18,7 +18,6 @@ import org.toxsoft.core.tslib.utils.*;
 import org.toxsoft.uskat.core.connection.*;
 import org.toxsoft.uskat.s5.common.*;
 import org.toxsoft.uskat.s5.server.*;
-import org.toxsoft.uskat.s5.utils.progress.*;
 
 /**
  * Параметры соединения с s5
@@ -281,6 +280,28 @@ public interface IS5ConnectionParams {
       TSID_IS_NULL_ALLOWED, AV_TRUE, //
       TSID_DEFAULT_VALUE, avInt( 259_200 ) ); // по умолчанию 3 дня секундных данных
 
+  /**
+   * Параметр: размер очереди исполнителя потоков выше которого в журнале формируются сообщения об ошибке.
+   * <p>
+   * Тип: {@link EAtomicType#INTEGER}
+   */
+  IDataDef OP_THREAD_EXECUTOR_QUEUE_WARNING = create( SYBSYSTEM_ID_PREFIX + ".threadExecutorQueueWarning", INTEGER, //$NON-NLS-1$
+      TSID_NAME, N_THREAD_EXECUTOR_QUEUE_WARNING, //
+      TSID_DESCRIPTION, D_THREAD_EXECUTOR_QUEUE_WARNING, //
+      TSID_IS_NULL_ALLOWED, AV_TRUE, //
+      TSID_DEFAULT_VALUE, avInt( 4096 ) );
+
+  /**
+   * Параметр: размер очереди исполнителя потоков выше которого в журнале формируются сообщения об ошибке.
+   * <p>
+   * Тип: {@link EAtomicType#INTEGER}
+   */
+  IDataDef OP_THREAD_EXECUTOR_QUEUE_ERROR = create( SYBSYSTEM_ID_PREFIX + ".threadExecutorQueueError", INTEGER, //$NON-NLS-1$
+      TSID_NAME, N_THREAD_EXECUTOR_QUEUE_ERROR, //
+      TSID_DESCRIPTION, D_THREAD_EXECUTOR_QUEUE_ERROR, //
+      TSID_IS_NULL_ALLOWED, AV_TRUE, //
+      TSID_DEFAULT_VALUE, avInt( 8192 ) );
+
   // ------------------------------------------------------------------------------------
   // Параметры контекста соединения
   //
@@ -303,16 +324,5 @@ public interface IS5ConnectionParams {
       TSID_NAME, N_CLASSLOADER, //
       TSID_DESCRIPTION, D_CLASSLOADER, //
       TSID_IS_NULL_ALLOWED, AV_TRUE );
-
-  /**
-   * Параметр: Монитор работы используемый для соединения с s5-сервером
-   * <p>
-   * Тип: {@link IS5ProgressMonitor}
-   */
-  ITsContextRefDef<IS5ProgressMonitor> REF_MONITOR =
-      create( SYBSYSTEM_ID_PREFIX + ".progressMonitor", IS5ProgressMonitor.class, //$NON-NLS-1$
-          TSID_NAME, N_MONITOR, //
-          TSID_DESCRIPTION, D_MONITOR, //
-          TSID_IS_NULL_ALLOWED, AV_TRUE );
 
 }
