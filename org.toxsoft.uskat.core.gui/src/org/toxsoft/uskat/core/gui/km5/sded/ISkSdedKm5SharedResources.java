@@ -46,22 +46,24 @@ public interface ISkSdedKm5SharedResources {
   /**
    * {@link SdedDtoCmdInfoM5Model}
    */
-  String STR_N_ARG_DEFS           = Messages.getString( "STR_N_ARG_DEFS" );           //$NON-NLS-1$
-  String STR_D_ARG_DEFS           = Messages.getString( "STR_D_ARG_DEFS" );           //$NON-NLS-1$
-  String STR_ADD_CMD_DLG_CAPTION  = Messages.getString( "STR_ADD_CMD_DLG_CAPTION" );  //$NON-NLS-1$
-  String STR_ADD_CMD_DLG_TITLE    = Messages.getString( "STR_ADD_CMD_DLG_TITLE" );    //$NON-NLS-1$
-  String STR_EDIT_CMD_DLG_CAPTION = Messages.getString( "STR_EDIT_CMD_DLG_CAPTION" ); //$NON-NLS-1$
-  String STR_EDIT_CMD_DLG_TITLE   = Messages.getString( "STR_EDIT_CMD_DLG_TITLE" );   //$NON-NLS-1$
+  String STR_CMD_ARG_DEFS   = Messages.getString( "ClassCmd.STR_CMD_ARG_DEFS" );   //$NON-NLS-1$
+  String STR_CMD_ARG_DEFS_D = Messages.getString( "ClassCmd.STR_CMD_ARG_DEFS_D" ); //$NON-NLS-1$
+  String STR_CMD_ADD_DLG    = Messages.getString( "ClassCmd.STR_CMD_ADD_DLG" );    //$NON-NLS-1$
+  String STR_CMD_ADD_DLG_D  = Messages.getString( "ClassCmd.STR_CMD_ADD_DLG_D" );  //$NON-NLS-1$
+  String STR_CMD_EDIT_DLG   = Messages.getString( "ClassCmd.STR_CMD_EDIT_DLG" );   //$NON-NLS-1$
+  String STR_CMD_EDIT_DLG_D = Messages.getString( "ClassCmd.STR_CMD_EDIT_DLG_D" ); //$NON-NLS-1$
 
   /**
    * {@link SdedDtoEvInfoM5Model}
    */
-  String STR_N_PARAM_DEFS         = Messages.getString( "STR_N_PARAM_DEFS" );         //$NON-NLS-1$
-  String STR_D_PARAM_DEFS         = Messages.getString( "STR_D_PARAM_DEFS" );         //$NON-NLS-1$
-  String STR_ADD_EVT_DLG_CAPTION  = Messages.getString( "STR_ADD_EVT_DLG_CAPTION" );  //$NON-NLS-1$
-  String STR_ADD_EVT_DLG_TITLE    = Messages.getString( "STR_ADD_EVT_DLG_TITLE" );    //$NON-NLS-1$
-  String STR_EDIT_EVT_DLG_CAPTION = Messages.getString( "STR_EDIT_EVT_DLG_CAPTION" ); //$NON-NLS-1$
-  String STR_EDIT_EVT_DLG_TITLE   = Messages.getString( "STR_EDIT_EVT_DLG_TITLE" );   //$NON-NLS-1$
+  String STR_EVENT_IS_HIST      = Messages.getString( "ClassEvent.STR_EVENT_IS_HIST" );      //$NON-NLS-1$
+  String STR_EVENT_IS_HIST_D    = Messages.getString( "ClassEvent.STR_EVENT_IS_HIST_D" );    //$NON-NLS-1$
+  String STR_EVENT_PARAM_DEFS   = Messages.getString( "ClassEvent.STR_EVENT_PARAM_DEFS" );   //$NON-NLS-1$
+  String STR_EVENT_PARAM_DEFS_D = Messages.getString( "ClassEvent.STR_EVENT_PARAM_DEFS_D" ); //$NON-NLS-1$
+  String STR_EVENT_ADD_DLG      = Messages.getString( "ClassEvent.STR_EVENT_ADD_DLG" );      //$NON-NLS-1$
+  String STR_EVENT_ADD_DLG_D    = Messages.getString( "ClassEvent.STR_EVENT_ADD_DLG_D" );    //$NON-NLS-1$
+  String STR_EVENT_EDIT_DLG     = Messages.getString( "ClassEvent.STR_EVENT_EDIT_DLG" );     //$NON-NLS-1$
+  String STR_EVENT_EDIT_DLG_D   = Messages.getString( "ClassEvent.STR_EVENT_EDIT_DLG_D" );   //$NON-NLS-1$
 
   /**
    * {@link SdedDtoRivetInfoM5Model}
@@ -72,14 +74,14 @@ public interface ISkSdedKm5SharedResources {
   /**
    * {@link SdedDtoRtdataInfoM5Model}
    */
-  String STR_N_IS_CURR      = Messages.getString( "STR_N_IS_CURR" );      //$NON-NLS-1$
-  String STR_D_IS_CURR      = Messages.getString( "STR_D_IS_CURR" );      //$NON-NLS-1$
-  String STR_N_IS_HIST      = Messages.getString( "STR_N_IS_HIST" );      //$NON-NLS-1$
-  String STR_D_IS_HIST      = Messages.getString( "STR_D_IS_HIST" );      //$NON-NLS-1$
-  String STR_N_IS_SYNC      = Messages.getString( "STR_N_IS_SYNC" );      //$NON-NLS-1$
-  String STR_D_IS_SYNC      = Messages.getString( "STR_D_IS_SYNC" );      //$NON-NLS-1$
-  String STR_N_SYNC_DELTA_T = Messages.getString( "STR_N_SYNC_DELTA_T" ); //$NON-NLS-1$
-  String STR_D_SYNC_DELTA_T = Messages.getString( "STR_D_SYNC_DELTA_T" ); //$NON-NLS-1$
+  String STR_RTDATA_IS_CURR        = Messages.getString( "ClassRtdata.STR_RTDATA_IS_CURR" );        //$NON-NLS-1$
+  String STR_RTDATA_IS_CURR_D      = Messages.getString( "ClassRtdata.STR_RTDATA_IS_CURR_D" );      //$NON-NLS-1$
+  String STR_RTDATA_IS_HIST        = Messages.getString( "ClassRtdata.STR_RTDATA_IS_HIST" );        //$NON-NLS-1$
+  String STR_RTDATA_IS_HIST_D      = Messages.getString( "ClassRtdata.STR_RTDATA_IS_HIST_D" );      //$NON-NLS-1$
+  String STR_RTDATA_IS_SYNC        = Messages.getString( "ClassRtdata.STR_RTDATA_IS_SYNC" );        //$NON-NLS-1$
+  String STR_RTDATA_IS_SYNC_D      = Messages.getString( "ClassRtdata.STR_RTDATA_IS_SYNC_D" );      //$NON-NLS-1$
+  String STR_RTDATA_SYNC_DELTA_T   = Messages.getString( "ClassRtdata.STR_RTDATA_SYNC_DELTA_T" );   //$NON-NLS-1$
+  String STR_RTDATA_SYNC_DELTA_T_D = Messages.getString( "ClassRtdata.STR_RTDATA_SYNC_DELTA_T_D" ); //$NON-NLS-1$
 
   /**
    * {@link SdedSkClassInfoM5Model}, {@link SdedSkObjectMpc}

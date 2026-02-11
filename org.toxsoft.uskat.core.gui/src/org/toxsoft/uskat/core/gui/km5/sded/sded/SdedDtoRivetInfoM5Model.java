@@ -70,7 +70,7 @@ public class SdedDtoRivetInfoM5Model
       super( aModel );
     }
 
-    private IDtoRivetInfo makeDtoLinkInfo( IM5Bunch<IDtoRivetInfo> aValues ) {
+    private IDtoRivetInfo makeDtoRivetInfo( IM5Bunch<IDtoRivetInfo> aValues ) {
       String id = aValues.getAsAv( FID_ID ).asString();
       ISkClassInfo classInfo = CLASS_ID.getFieldValue( aValues );
       IAtomicValue count = COUNT.getFieldValue( aValues );
@@ -86,12 +86,12 @@ public class SdedDtoRivetInfoM5Model
 
     @Override
     protected IDtoRivetInfo doCreate( IM5Bunch<IDtoRivetInfo> aValues ) {
-      return makeDtoLinkInfo( aValues );
+      return makeDtoRivetInfo( aValues );
     }
 
     @Override
     protected IDtoRivetInfo doEdit( IM5Bunch<IDtoRivetInfo> aValues ) {
-      return makeDtoLinkInfo( aValues );
+      return makeDtoRivetInfo( aValues );
     }
 
     @Override

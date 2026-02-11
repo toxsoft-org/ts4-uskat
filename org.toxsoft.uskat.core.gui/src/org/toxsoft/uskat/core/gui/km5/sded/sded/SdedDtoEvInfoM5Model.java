@@ -45,7 +45,7 @@ public class SdedDtoEvInfoM5Model
 
     @Override
     protected void doInit() {
-      setNameAndDescription( STR_N_IS_HIST, STR_D_IS_HIST );
+      setNameAndDescription( STR_EVENT_IS_HIST, STR_EVENT_IS_HIST_D );
       setFlags( M5FF_DETAIL );
     }
 
@@ -64,7 +64,7 @@ public class SdedDtoEvInfoM5Model
 
         @Override
         protected void doInit() {
-          setNameAndDescription( STR_N_PARAM_DEFS, STR_D_PARAM_DEFS );
+          setNameAndDescription( STR_EVENT_PARAM_DEFS, STR_EVENT_PARAM_DEFS_D );
           setFlags( M5FF_DETAIL );
           params().setInt( IValedControlConstants.OPDEF_VERTICAL_SPAN, 5 );
 
@@ -143,7 +143,7 @@ public class SdedDtoEvInfoM5Model
               @Override
               protected ITsDialogInfo doCreateDialogInfoToEditItem( IDtoEventInfo aItem ) {
                 TsDialogInfo retVal =
-                    new TsDialogInfo( aContext, getShell(), STR_EDIT_EVT_DLG_CAPTION, STR_EDIT_EVT_DLG_TITLE, 0 );
+                    new TsDialogInfo( aContext, getShell(), STR_EVENT_EDIT_DLG, STR_EVENT_EDIT_DLG_D, 0 );
                 retVal.setMinSize( new TsPoint( -30, -60 ) );
                 return retVal;
               }
@@ -151,7 +151,7 @@ public class SdedDtoEvInfoM5Model
               @Override
               protected ITsDialogInfo doCreateDialogInfoToAddItem() {
                 TsDialogInfo retVal =
-                    new TsDialogInfo( aContext, getShell(), STR_ADD_EVT_DLG_CAPTION, STR_ADD_EVT_DLG_TITLE, 0 );
+                    new TsDialogInfo( aContext, getShell(), STR_EVENT_ADD_DLG, STR_EVENT_ADD_DLG_D, 0 );
                 retVal.setMinSize( new TsPoint( -30, -60 ) );
 
                 return retVal;

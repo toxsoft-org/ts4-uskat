@@ -65,7 +65,7 @@ public class SdedDtoRtdataInfoM5Model
 
     @Override
     protected void doInit() {
-      setNameAndDescription( STR_N_IS_CURR, STR_D_IS_CURR );
+      setNameAndDescription( STR_RTDATA_IS_CURR, STR_RTDATA_IS_CURR_D );
       setFlags( M5FF_DETAIL );
     }
 
@@ -83,7 +83,7 @@ public class SdedDtoRtdataInfoM5Model
 
     @Override
     protected void doInit() {
-      setNameAndDescription( STR_N_IS_HIST, STR_D_IS_HIST );
+      setNameAndDescription( STR_RTDATA_IS_HIST, STR_RTDATA_IS_HIST_D );
       setFlags( M5FF_DETAIL );
     }
 
@@ -101,7 +101,7 @@ public class SdedDtoRtdataInfoM5Model
 
     @Override
     protected void doInit() {
-      setNameAndDescription( STR_N_IS_SYNC, STR_D_IS_SYNC );
+      setNameAndDescription( STR_RTDATA_IS_SYNC, STR_RTDATA_IS_SYNC_D );
       setFlags( M5FF_DETAIL );
     }
 
@@ -120,7 +120,7 @@ public class SdedDtoRtdataInfoM5Model
 
         @Override
         protected void doInit() {
-          setNameAndDescription( STR_N_SYNC_DELTA_T, STR_D_SYNC_DELTA_T );
+          setNameAndDescription( STR_RTDATA_SYNC_DELTA_T, STR_RTDATA_SYNC_DELTA_T_D );
           setFlags( M5FF_DETAIL );
           setDefaultValue( AvUtils.AV_1 );
         }

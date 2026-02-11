@@ -44,7 +44,7 @@ public class SdedDtoCmdInfoM5Model
 
         @Override
         protected void doInit() {
-          setNameAndDescription( STR_N_ARG_DEFS, STR_D_ARG_DEFS );
+          setNameAndDescription( STR_CMD_ARG_DEFS, STR_CMD_ARG_DEFS_D );
           setFlags( M5FF_DETAIL );
           params().setInt( IValedControlConstants.OPDEF_VERTICAL_SPAN, 5 );
         }
@@ -69,9 +69,7 @@ public class SdedDtoCmdInfoM5Model
 
     private IDtoCmdInfo makeCmdInfo( IM5Bunch<IDtoCmdInfo> aValues ) {
       String id = aValues.getAsAv( FID_ID ).asString();
-
       StridablesList<IDataDef> dataDefs = new StridablesList<>( ARG_DEFS.getFieldValue( aValues ) );
-
       IOptionSetEdit params = new OptionSet();
       if( aValues.originalEntity() != null ) {
         params.setAll( aValues.originalEntity().params() );
@@ -120,16 +118,14 @@ public class SdedDtoCmdInfoM5Model
 
               @Override
               protected ITsDialogInfo doCreateDialogInfoToEditItem( IDtoCmdInfo aItem ) {
-                TsDialogInfo retVal =
-                    new TsDialogInfo( aContext, getShell(), STR_EDIT_CMD_DLG_CAPTION, STR_EDIT_CMD_DLG_TITLE, 0 );
+                TsDialogInfo retVal = new TsDialogInfo( aContext, getShell(), STR_CMD_EDIT_DLG, STR_CMD_EDIT_DLG_D, 0 );
                 retVal.setMinSize( new TsPoint( -30, -60 ) );
                 return retVal;
               }
 
               @Override
               protected ITsDialogInfo doCreateDialogInfoToAddItem() {
-                TsDialogInfo retVal =
-                    new TsDialogInfo( aContext, getShell(), STR_ADD_CMD_DLG_CAPTION, STR_ADD_CMD_DLG_TITLE, 0 );
+                TsDialogInfo retVal = new TsDialogInfo( aContext, getShell(), STR_CMD_ADD_DLG, STR_CMD_ADD_DLG_D, 0 );
                 retVal.setMinSize( new TsPoint( -30, -60 ) );
 
                 return retVal;
