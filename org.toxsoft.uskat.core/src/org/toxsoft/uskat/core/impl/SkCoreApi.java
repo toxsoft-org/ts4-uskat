@@ -447,30 +447,35 @@ public class SkCoreApi
     if( !inited ) {
       return;
     }
-    // process external handlers in reverse order
-    for( int n = coreApiHandlersList.size(), i = n - 1; i >= 0; i-- ) {
-      ISkCoreExternalHandler h = coreApiHandlersList.get( i );
-      try {
-        h.processSkCoreShutdown( this );
+    try {
+      // process external handlers in reverse order
+      for( int n = coreApiHandlersList.size(), i = n - 1; i >= 0; i-- ) {
+        ISkCoreExternalHandler h = coreApiHandlersList.get( i );
+        try {
+          h.processSkCoreShutdown( this );
+        }
+        catch( Exception ex ) {
+          LoggerUtils.errorLogger().error( ex );
+        }
       }
-      catch( Exception ex ) {
-        LoggerUtils.errorLogger().error( ex );
+      // close services
+      for( int i = servicesMap.size() - 1; i >= 0; i-- ) {
+        try {
+          AbstractSkService s = servicesMap.values().get( i );
+          s.close();
+        }
+        catch( Exception ex ) {
+          logger().error( ex );
+        }
       }
+      // backend closes after services were closed
+      backend.close();
+      servicesMap.clear();
+      inited = false;
     }
-    // close services
-    for( int i = servicesMap.size() - 1; i >= 0; i-- ) {
-      try {
-        AbstractSkService s = servicesMap.values().get( i );
-        s.close();
-      }
-      catch( Exception ex ) {
-        logger().error( ex );
-      }
+    catch( Throwable e ) {
+      logger().error( e );
     }
-    // backend closes after services were closed
-    backend.close();
-    servicesMap.clear();
-    inited = false;
   }
 
 }
