@@ -1164,11 +1164,14 @@ public class S5SessionManager
       if( (removedUsers == null || removedUsers.size() == 0) && (changedUsers == null || changedUsers.size() == 0) ) {
         return;
       }
-      IList<S5SessionData> openSessions = sessionManager.openSessions();
+      // Все сессии в системе (открытые и закрытые)
+      IListEdit<S5SessionData> sessions = new ElemArrayList<>();
+      sessions.addAll( sessionManager.openSessions() );
+      sessions.addAll( sessionManager.closedSessions() );
       // Карта идентификаторов пользователей открытых сессий. Ключ: логин пользователя. Значение: идентификатор сессии
       IStringMapEdit<ISkidList> sessionIdsByLogins = new StringMap<>();
       // Формирование карты
-      for( S5SessionData session : openSessions ) {
+      for( S5SessionData session : sessions ) {
         IS5SessionInfo info = session.info();
         String login = info.login();
         SkidList sessionIds = (SkidList)sessionIdsByLogins.findByKey( login );
