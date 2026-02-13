@@ -297,7 +297,9 @@ public class SkCoreServSysdescr
               }
               // check duplicates in descendants when editing
               if( aSelf != null ) {
-                IStridablesList<ISkClassInfo> subDeclarers = aParent.props( k2 ).findSubDeclarers( pid );
+                // 2026-02-11 mvk ---+++ fix candidate
+                // IStridablesList<ISkClassInfo> subDeclarers = aParent.props( k2 ).findSubDeclarers( pid );
+                IStridablesList<ISkClassInfo> subDeclarers = aSelf.props( k2 ).findSubDeclarers( pid );
                 if( !subDeclarers.isEmpty() ) {
                   return ValidationResult.error( FMT_ERR_CLASS_DUP_SUB_PROP_ID, pid, k1.nmName(), k2.nmName(),
                       subDeclarers.first().id() );
