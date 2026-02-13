@@ -1,7 +1,7 @@
 package org.toxsoft.uskat.s5.server.backend.impl;
 
-import org.toxsoft.core.tslib.utils.errors.TsIllegalArgumentRtException;
-import org.toxsoft.uskat.s5.server.sessions.init.IS5SessionInitData;
+import org.toxsoft.core.tslib.utils.errors.*;
+import org.toxsoft.uskat.s5.server.sessions.init.*;
 
 /**
  * Ошибка доступа к системе: "Доступ к системе запрещен. Неверное имя пользователя или пароль".
@@ -23,5 +23,18 @@ public class S5AccessDeniedException
    */
   public S5AccessDeniedException( String aMessageFormat, Object... aMsgArgs ) {
     super( aMessageFormat, aMsgArgs );
+  }
+
+  /**
+   * Constructor for wrapper exception.
+   * <p>
+   * Message string is created using {@link String#format(String, Object...)}.
+   *
+   * @param aCause Throwable - cause, mey be <code>null</code>
+   * @param aMessageFormat String - message format string
+   * @param aMsgArgs Object[] - optional arguments for message string
+   */
+  public S5AccessDeniedException( Throwable aCause, String aMessageFormat, Object... aMsgArgs ) {
+    super( aCause, aMessageFormat, aMsgArgs );
   }
 }

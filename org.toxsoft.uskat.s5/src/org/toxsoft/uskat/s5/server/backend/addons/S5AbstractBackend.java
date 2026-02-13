@@ -471,7 +471,12 @@ public abstract class S5AbstractBackend<ADDON extends IS5BackendAddon>
     // Формирование сообщения о предстоящем завершении работы
     fireBackendMessage( S5BaBeforeCloseMessages.INSTANCE.makeMessage() );
     // Завершение работы наследниками
-    doClose();
+    try {
+      doClose();
+    }
+    catch( Throwable e ) {
+      logger.error( e );
+    }
     // Завершение работы базового класса
     // backendDojobThread.close();
 
@@ -487,7 +492,12 @@ public abstract class S5AbstractBackend<ADDON extends IS5BackendAddon>
     lockWrite( frontendLock );
     try {
       for( IS5BackendAddon addon : allAddons ) {
-        addon.close();
+        try {
+          addon.close();
+        }
+        catch( Throwable e ) {
+          logger.error( e );
+        }
       }
     }
     finally {
