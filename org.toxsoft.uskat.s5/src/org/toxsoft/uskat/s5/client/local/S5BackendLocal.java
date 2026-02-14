@@ -118,7 +118,7 @@ public final class S5BackendLocal
     // Формирование сообщения о предстоящем подключении
     fireBackendMessage( S5BaBeforeConnectMessages.INSTANCE.makeMessage() );
     // Формирование сообщения об изменении состояния бекенда: active = true
-    fireBackendMessage( BackendMsgActiveChanged.INSTANCE.makeMessage( true ) );
+    fireBackendMessage( BackendMsgStateChanged.INSTANCE.makeMessage( ESkConnState.ACTIVE ) );
   }
 
   @Override
@@ -153,8 +153,18 @@ public final class S5BackendLocal
 
   @Override
   public void doClose() {
-    backendSingleton.detachFrontend( frontend() );
-    sessionManager.closeLocalSession( sessionID() );
+    try {
+      backendSingleton.detachFrontend( frontend() );
+    }
+    catch( Throwable e ) {
+      logger().error( e );
+    }
+    try {
+      sessionManager.closeLocalSession( sessionID() );
+    }
+    catch( Throwable e ) {
+      logger().error( e );
+    }
   }
 
   // ------------------------------------------------------------------------------------

@@ -10,6 +10,7 @@ import static org.toxsoft.uskat.s5.utils.threads.impl.S5Lockable.*;
 
 import org.toxsoft.core.tslib.utils.errors.*;
 import org.toxsoft.core.tslib.utils.logs.*;
+import org.toxsoft.uskat.s5.server.backend.impl.*;
 import org.toxsoft.uskat.s5.utils.threads.impl.*;
 
 /**
@@ -67,52 +68,66 @@ class S5ConnectionThread
 
   @Override
   public void run() {
-    // Обработка обрыва связи
-    // 2021-01-20 mvk
-    // connection.handlingUnexpectedBreak();
-    while( !shutdown ) {
-      try {
-        // 2021-01-19 mvk fix-попытка ошибки существования потока восстановления связи закрытого соединения
-        S5Lockable lock = connection.frontedLock();
-        if( lock == null ) {
-          // Не найдена блокировка соединения в пуле блокировок. Завершение потока восстановления соединения
-          logger.warning( ERR_CLOSE_BY_LOCK_NOT_FOUND, getName() );
-          break;
-        }
-        // 2020-10-12 mvk doJob + mainLock
-        lockWrite( connection.frontedLock() );
+    try {
+      // Обработка обрыва связи
+      // 2021-01-20 mvk
+      // connection.handlingUnexpectedBreak();
+      while( !shutdown ) {
         try {
+          // 2021-01-19 mvk fix-попытка ошибки существования потока восстановления связи закрытого соединения
+          S5Lockable lock = connection.frontedLock();
+          if( lock == null ) {
+            // Не найдена блокировка соединения в пуле блокировок. Завершение потока восстановления соединения
+            logger.warning( ERR_CLOSE_BY_LOCK_NOT_FOUND, getName() );
+            break;
+          }
+          // 2020-10-12 mvk doJob + mainLock
+          lockWrite( connection.frontedLock() );
           try {
-            connection.tryConnect();
+            try {
+              // 2026-02-13 mvk+++
+              if( connection.state() != EConnectionState.INACTIVE ) {
+                return;
+              }
+              connection.tryConnect();
+              return;
+            }
+            catch( Throwable e ) {
+              if( e instanceof S5AccessDeniedException || e.getCause() instanceof S5AccessDeniedException ) {
+                connection.closeSession();
+                return;
+              }
+            }
+            finally {
+              // Сброс возможно установленного признака прерывания потока
+              interrupted();
+            }
           }
           finally {
-            // Сброс возможно установленного признака прерывания потока
-            interrupted();
+            // 2020-10-12 mvk doJob + mainLock
+            unlockWrite( connection.frontedLock() );
           }
         }
-        finally {
-          // 2020-10-12 mvk doJob + mainLock
-          unlockWrite( connection.frontedLock() );
+        catch( Throwable e ) {
+          if( logger.isSeverityOn( ELogSeverity.DEBUG ) ) {
+            logger.error( ERR_CREATE_CONNECTION_WITH_STACK, cause( e ), threadStackToString( Thread.currentThread() ) );
+          }
+          else {
+            logger.error( ERR_CREATE_CONNECTION, cause( e ) );
+          }
         }
-        break;
-      }
-      catch( Throwable e ) {
-        if( logger.isSeverityOn( ELogSeverity.DEBUG ) ) {
-          logger.error( ERR_CREATE_CONNECTION_WITH_STACK, cause( e ), threadStackToString( Thread.currentThread() ) );
+        try {
+          Thread.sleep( ERROR_TIMEOUT );
         }
-        else {
-          logger.error( ERR_CREATE_CONNECTION, cause( e ) );
+        catch( InterruptedException e ) {
+          logger.debug( MSG_CONNECTION_THREAD_TRY_INTERRUPT, getName(), cause( e ) );
+          // Сброс возможно установленного признака прерывания потока
+          interrupted();
         }
-      }
-      try {
-        Thread.sleep( ERROR_TIMEOUT );
-      }
-      catch( InterruptedException e ) {
-        logger.debug( MSG_CONNECTION_THREAD_TRY_INTERRUPT, getName(), cause( e ) );
-        // Сброс возможно установленного признака прерывания потока
-        interrupted();
       }
     }
-    logger.debug( MSG_CONNECTION_THREAD_FINISH, getName() );
+    finally {
+      logger.debug( MSG_CONNECTION_THREAD_FINISH, getName() );
+    }
   }
 }

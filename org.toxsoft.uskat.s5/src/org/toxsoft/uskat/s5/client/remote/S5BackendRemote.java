@@ -15,6 +15,7 @@ import org.toxsoft.core.tslib.utils.errors.*;
 import org.toxsoft.core.tslib.utils.logs.impl.*;
 import org.toxsoft.uskat.core.backend.*;
 import org.toxsoft.uskat.core.backend.api.*;
+import org.toxsoft.uskat.core.connection.*;
 import org.toxsoft.uskat.s5.client.remote.connection.*;
 import org.toxsoft.uskat.s5.server.backend.*;
 import org.toxsoft.uskat.s5.server.backend.addons.*;
@@ -111,6 +112,15 @@ public final class S5BackendRemote
   // ------------------------------------------------------------------------------------
   // IS5ConnectionListener
   //
+
+  @Override
+  public void onAfterDeactivate( IS5Connection aSource ) {
+    if( isInited() ) {
+      // Формирование сообщения об изменении состояния бекенда
+      fireBackendMessage( BackendMsgStateChanged.INSTANCE.makeMessage( ESkConnState.CLOSED ) );
+    }
+  }
+
   @Override
   public void onBeforeConnect( IS5Connection aSource ) {
     // nop
@@ -138,16 +148,16 @@ public final class S5BackendRemote
     // Сообщение об активации бекенда не должно быть в конструкторе, так как слушатели состояния соединения могут
     // получить сообщение об активации соединения при еще не до конца созданном соединении
     if( isInited() ) {
-      // Формирование сообщения об изменении состояния бекенда: active = true
-      fireBackendMessage( BackendMsgActiveChanged.INSTANCE.makeMessage( true ) );
+      // Формирование сообщения об изменении состояния бекенда
+      fireBackendMessage( BackendMsgStateChanged.INSTANCE.makeMessage( ESkConnState.ACTIVE ) );
     }
   }
 
   @Override
   public void onAfterDisconnect( IS5Connection aSource ) {
     session = null;
-    // Формирование сообщения об изменении состояния бекенда: active = false
-    fireBackendMessage( BackendMsgActiveChanged.INSTANCE.makeMessage( false ) );
+    // Формирование сообщения об изменении состояния бекенда
+    fireBackendMessage( BackendMsgStateChanged.INSTANCE.makeMessage( ESkConnState.INACTIVE ) );
   }
 
   // ------------------------------------------------------------------------------------
@@ -155,8 +165,18 @@ public final class S5BackendRemote
   //
   @Override
   public void doClose() {
-    session().close();
-    connection.closeSession();
+    try {
+      session().close();
+    }
+    catch( Throwable e ) {
+      logger().error( e );
+    }
+    try {
+      connection.closeSession();
+    }
+    catch( Throwable e ) {
+      logger().error( e );
+    }
   }
 
   // ------------------------------------------------------------------------------------

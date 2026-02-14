@@ -42,6 +42,7 @@ import org.toxsoft.uskat.s5.client.remote.connection.pas.*;
 import org.toxsoft.uskat.s5.common.*;
 import org.toxsoft.uskat.s5.server.*;
 import org.toxsoft.uskat.s5.server.backend.*;
+import org.toxsoft.uskat.s5.server.backend.impl.*;
 import org.toxsoft.uskat.s5.server.sessions.init.*;
 import org.toxsoft.uskat.s5.utils.threads.impl.*;
 import org.wildfly.common.context.*;
@@ -677,7 +678,8 @@ public final class S5Connection
           if( requestError.getCause() instanceof SaslException ) {
             progressMonitor.updateWorkProgress( ERR_NO_ACCESS, -1 );
             // Неверное имя пользователя или пароль
-            throw new S5ConnectionException( e, options, ERR_NO_ACCESS );
+            // setConnectState( EConnectionState.DISCONNECTED );
+            throw new S5AccessDeniedException( e, ERR_NO_ACCESS );
           }
           if( requestError.getCause() instanceof java.net.UnknownHostException ) {
             // Сервер не найден
@@ -695,8 +697,14 @@ public final class S5Connection
       }
       catch( Throwable e ) {
         String errText = e.getLocalizedMessage();
+        if( e instanceof S5AccessDeniedException ) {
+          // setConnectState( EConnectionState.DISCONNECTED );
+        }
         if( e.getCause() != null ) {
           errText = e.getCause().getLocalizedMessage();
+          if( e.getCause() instanceof S5AccessDeniedException ) {
+            // setConnectState( EConnectionState.DISCONNECTED );
+          }
         }
         progressMonitor.startWork( ERR_NOT_CONNECTED, true ); // aUndefined = true
         progressMonitor.updateWorkProgress( errText, -1 );
@@ -1045,14 +1053,18 @@ public final class S5Connection
       return;
     }
     logger.info( MSG_CONNECTION_THREAD_QUERY_FINISH, thread );
-    thread.shutdownQuery();
-    // Ожидание завершения потока
-    while( thread.isAlive() ) {
-      try {
-        Thread.sleep( 1 );
-      }
-      catch( InterruptedException e ) {
-        logger.error( e );
+    // 2026-02-14 mvk +++
+    Thread currThread = Thread.currentThread();
+    if( thread != currThread ) {
+      thread.shutdownQuery();
+      // Ожидание завершения потока
+      while( thread.isAlive() ) {
+        try {
+          Thread.sleep( 1 );
+        }
+        catch( InterruptedException e ) {
+          logger.error( e );
+        }
       }
     }
     logger.info( MSG_CONNECTION_THREAD_COMPLETED, thread );

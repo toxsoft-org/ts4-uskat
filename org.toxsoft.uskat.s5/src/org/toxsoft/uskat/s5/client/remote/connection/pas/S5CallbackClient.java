@@ -271,40 +271,43 @@ public final class S5CallbackClient
     if( needVerify ) {
       lastCheckTime = currTime;
     }
+    // 2026-02-13 mvk+++---
+    // synchronized (pasClients) {
+    // IList<PasClient<S5CallbackChannel>> clients = pasClients.copyTo( new ElemArrayList<>( pasClients.size() ) );
+    IList<PasClient<S5CallbackChannel>> clients;
     synchronized (pasClients) {
-      IList<PasClient<S5CallbackChannel>> clients = pasClients.copyTo( new ElemArrayList<>( pasClients.size() ) );
+      clients = pasClients.copyTo( new ElemArrayList<>( pasClients.size() ) );
+    }
+    // 2020-08-15 mvkd
+    // if( needVerify == true ) {
+    // System.err.println( "S5CallBackClient.doJob" );
+    // connection.restoreSessionQuery();
+    // return;
+    // }
 
-      // 2020-08-15 mvkd
-      // if( needVerify == true ) {
-      // System.err.println( "S5CallBackClient.doJob" );
-      // connection.restoreSessionQuery();
-      // return;
-      // }
-
-      for( PasClient<S5CallbackChannel> pasClient : clients ) {
-        pasClient.doJob();
-        S5CallbackChannel channel = pasClient.getChannelOrNull();
-        if( channel == null ) {
-          continue;
-        }
-        if( currTime - channel.getCreationTimestamp() > createTimeout ) {
-          // Период подключения к серверу завершен
-          if( channel.needRegularFailureTimeout() ) {
-            // Установка регулярного таймаута отказа работоспособности канала
-            IOptionSet options = connection.sessionInitData().clientOptions();
-            int failureTimeout = IS5ConnectionParams.OP_FAILURE_TIMEOUT.getValue( options ).asInt();
-            if( failureTimeout < 0 || failureTimeout > (2 * STATEFULL_TIMEOUT) / 3 ) {
-              failureTimeout = (2 * STATEFULL_TIMEOUT) / 3;
-            }
-            channel.setRegularFailureTimeout( failureTimeout );
+    for( PasClient<S5CallbackChannel> pasClient : clients ) {
+      pasClient.doJob();
+      S5CallbackChannel channel = pasClient.getChannelOrNull();
+      if( channel == null ) {
+        continue;
+      }
+      if( currTime - channel.getCreationTimestamp() > createTimeout ) {
+        // Период подключения к серверу завершен
+        if( channel.needRegularFailureTimeout() ) {
+          // Установка регулярного таймаута отказа работоспособности канала
+          IOptionSet options = connection.sessionInitData().clientOptions();
+          int failureTimeout = IS5ConnectionParams.OP_FAILURE_TIMEOUT.getValue( options ).asInt();
+          if( failureTimeout < 0 || failureTimeout > (2 * STATEFULL_TIMEOUT) / 3 ) {
+            failureTimeout = (2 * STATEFULL_TIMEOUT) / 3;
           }
+          channel.setRegularFailureTimeout( failureTimeout );
         }
+      }
 
-        if( needVerify ) {
-          // Передача session-verify уведомления
-          logger.debug( MSG_SEND_VERIFY, channel );
-          S5SessionCallbackVerify.send( channel );
-        }
+      if( needVerify ) {
+        // Передача session-verify уведомления
+        logger.debug( MSG_SEND_VERIFY, channel );
+        S5SessionCallbackVerify.send( channel );
       }
     }
     if( logger.isSeverityOn( ELogSeverity.DEBUG ) ) {
@@ -356,17 +359,19 @@ public final class S5CallbackClient
    */
   void onCloseChannel( S5CallbackChannel aChannel ) {
     TsNullArgumentRtException.checkNull( aChannel );
+    IList<S5CallbackChannel> clients;
     synchronized (pasClients) {
       if( !notificationEnabled ) {
         // Уведомление игнорируется - уведомления запрещены
         logger.warning( ERR_CLOSE_NOTIFICATION_IGNORED );
         return;
       }
-      if( getConnectedChannels( pasClients ).size() <= 1 ) {
-        // Закрывается последнее callback-соединение с серверов. Пересоздание соединения
-        logger.error( ERR_CLOSE_BY_NOT_CONNECTION );
-        connection.restoreSessionQuery();
-      }
+      clients = getConnectedChannels( pasClients );
+    }
+    if( clients.size() <= 1 ) {
+      // Закрывается последнее callback-соединение с серверов. Пересоздание соединения
+      logger.error( ERR_CLOSE_BY_NOT_CONNECTION );
+      connection.restoreSessionQuery();
     }
   }
 
