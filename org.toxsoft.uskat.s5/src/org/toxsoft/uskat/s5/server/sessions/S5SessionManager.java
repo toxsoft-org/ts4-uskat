@@ -43,6 +43,7 @@ import org.toxsoft.uskat.core.impl.dto.*;
 import org.toxsoft.uskat.s5.client.*;
 import org.toxsoft.uskat.s5.common.info.*;
 import org.toxsoft.uskat.s5.common.sessions.*;
+import org.toxsoft.uskat.s5.common.sysdescr.*;
 import org.toxsoft.uskat.s5.server.*;
 import org.toxsoft.uskat.s5.server.backend.supports.core.*;
 import org.toxsoft.uskat.s5.server.backend.supports.events.*;
@@ -314,9 +315,7 @@ public class S5SessionManager
     } );
     // Обновление системного описания ядра
     S5ClassUtils.updateCoreSysdescr( info, sysdescrSupport, objectsSupport, linksSupport );
-    // Контроль учетных записей пользователей
-    ISkClassInfo userClassInfo = sysdescrSupport.getReader().getClassInfo( ISkUser.CLASS_ID );
-    objectsInterceptor = new S5ObjectsInterceptor( sessionManager, objectsSupport, linksSupport, userClassInfo );
+    objectsInterceptor = new S5ObjectsInterceptor( sessionManager, sysdescrSupport, objectsSupport, linksSupport );
     objectsSupport.addObjectsInterceptor( objectsInterceptor, 1024 );
     // Запуск фоновой задачи
     addOwnDoJob( DO_JOB_TIMEOUT );
@@ -1100,26 +1099,26 @@ public class S5SessionManager
       implements IS5ObjectsInterceptor {
 
     private final IS5SessionManager          sessionManager;
+    private final ISkSysdescrReader          sysdescrReader;
     private final IS5BackendObjectsSingleton objectsSupport;
     private final IS5BackendLinksSingleton   linksSupport;
-    private final ISkClassInfo               userClassInfo;
 
     /**
      * Constructor.
      *
      * @param aSessionManager {@link IS5SessionInfo} менеджер сессий
+     * @param aSysdescrSupport {@link IS5BackendSysDescrSingleton} поддержка службы классов
      * @param aObjectsSupport {@link IS5BackendObjectsSingleton} поддержка службы объектов
      * @param aLinksSupport {@link IS5BackendLinksSingleton} поддержка службы связей между объектами
-     * @param aUserClassInfo {@link ISkClassInfo} описание класса пользователя
      * @throws TsNullArgumentRtException любой аргумент = null
      */
-    public S5ObjectsInterceptor( IS5SessionManager aSessionManager, IS5BackendObjectsSingleton aObjectsSupport,
-        IS5BackendLinksSingleton aLinksSupport, ISkClassInfo aUserClassInfo ) {
-      TsNullArgumentRtException.checkNulls( aSessionManager, aObjectsSupport, aLinksSupport, aUserClassInfo );
+    public S5ObjectsInterceptor( IS5SessionManager aSessionManager, IS5BackendSysDescrSingleton aSysdescrSupport,
+        IS5BackendObjectsSingleton aObjectsSupport, IS5BackendLinksSingleton aLinksSupport ) {
+      TsNullArgumentRtException.checkNulls( aSessionManager, aSysdescrSupport, aObjectsSupport, aLinksSupport );
       sessionManager = aSessionManager;
+      sysdescrReader = aSysdescrSupport.getReader();
       objectsSupport = aObjectsSupport;
       linksSupport = aLinksSupport;
-      userClassInfo = aUserClassInfo;
     }
 
     // ------------------------------------------------------------------------------------
@@ -1159,6 +1158,8 @@ public class S5SessionManager
     public void beforeWriteObjects( IMap<ISkClassInfo, IList<IDtoObject>> aRemovedObjs,
         IMap<ISkClassInfo, IList<Pair<IDtoObject, IDtoObject>>> aUpdatedObjs,
         IMap<ISkClassInfo, IList<IDtoObject>> aCreatedObjs ) {
+      // Контроль учетных записей пользователей
+      ISkClassInfo userClassInfo = sysdescrReader.getClassInfo( ISkUser.CLASS_ID );
       IList<IDtoObject> removedUsers = aRemovedObjs.findByKey( userClassInfo );
       IList<Pair<IDtoObject, IDtoObject>> changedUsers = aUpdatedObjs.findByKey( userClassInfo );
       if( (removedUsers == null || removedUsers.size() == 0) && (changedUsers == null || changedUsers.size() == 0) ) {
