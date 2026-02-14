@@ -314,7 +314,7 @@ public abstract class S5AbstractBackend<ADDON extends IS5BackendAddon>
     isClosed = false;
     if( isActive() ) {
       // Формирование сообщения об изменении состояния бекенда: active = true
-      fireBackendMessage( BackendMsgActiveChanged.INSTANCE.makeMessage( true ) );
+      fireBackendMessage( BackendMsgStateChanged.INSTANCE.makeMessage( ESkConnState.ACTIVE ) );
     }
   }
 

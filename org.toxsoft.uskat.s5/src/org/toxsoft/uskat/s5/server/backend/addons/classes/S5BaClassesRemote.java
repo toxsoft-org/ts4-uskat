@@ -1,15 +1,15 @@
 package org.toxsoft.uskat.s5.server.backend.addons.classes;
 
-import org.toxsoft.core.tslib.bricks.events.msg.GtMessage;
-import org.toxsoft.core.tslib.bricks.strid.coll.IStridablesList;
-import org.toxsoft.core.tslib.coll.primtypes.IStringList;
-import org.toxsoft.core.tslib.utils.errors.TsNullArgumentRtException;
-import org.toxsoft.uskat.core.api.sysdescr.dto.IDtoClassInfo;
-import org.toxsoft.uskat.core.backend.ISkBackendHardConstant;
+import org.toxsoft.core.tslib.bricks.events.msg.*;
+import org.toxsoft.core.tslib.bricks.strid.coll.*;
+import org.toxsoft.core.tslib.coll.primtypes.*;
+import org.toxsoft.core.tslib.utils.errors.*;
+import org.toxsoft.uskat.core.api.sysdescr.dto.*;
+import org.toxsoft.uskat.core.backend.*;
 import org.toxsoft.uskat.core.backend.api.*;
-import org.toxsoft.uskat.s5.common.sysdescr.SkSysdescrReader;
-import org.toxsoft.uskat.s5.server.backend.addons.IS5BackendRemote;
-import org.toxsoft.uskat.s5.server.backend.addons.S5AbstractBackendAddonRemote;
+import org.toxsoft.uskat.core.connection.*;
+import org.toxsoft.uskat.s5.common.sysdescr.*;
+import org.toxsoft.uskat.s5.server.backend.addons.*;
 
 /**
  * Remote {@link IBaClasses} implementation.
@@ -42,8 +42,8 @@ class S5BaClassesRemote
   //
   @Override
   public void onBackendMessage( GtMessage aMessage ) {
-    if( BackendMsgActiveChanged.INSTANCE.isOwnMessage( aMessage )
-        && BackendMsgActiveChanged.INSTANCE.getActive( aMessage ) ) {
+    if( BackendMsgStateChanged.INSTANCE.isOwnMessage( aMessage )
+        && BackendMsgStateChanged.INSTANCE.getState( aMessage ) == ESkConnState.ACTIVE ) {
       // Подключение к серверу, обработка полученных классов
       sysdescrReader
           .setClassInfos( owner().sessionInitResult().getBackendAddonData( id(), S5BaClassesData.class ).classInfos );

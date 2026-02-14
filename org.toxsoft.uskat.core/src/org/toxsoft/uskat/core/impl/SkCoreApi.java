@@ -353,13 +353,14 @@ public class SkCoreApi
     // 2024-04-07 mvk gateway local connection open error
     // executor.syncExec( () -> {
     executor.asyncExec( () -> {
-      if( BackendMsgActiveChanged.INSTANCE.isOwnMessage( aMessage ) ) {
+      if( BackendMsgStateChanged.INSTANCE.isOwnMessage( aMessage ) ) {
         if( !inited ) {
           return;
         }
-        boolean isActive = BackendMsgActiveChanged.INSTANCE.getActive( aMessage );
+        ESkConnState newState = BackendMsgStateChanged.INSTANCE.getState( aMessage );
         ESkConnState oldState = conn.state();
-        if( !conn.changeState( isActive ? ESkConnState.ACTIVE : ESkConnState.INACTIVE ) ) {
+        boolean isActive = (newState == ESkConnState.ACTIVE);
+        if( !conn.changeState( newState ) ) {
           // state was not changed
           return;
         }
