@@ -64,8 +64,8 @@ public class MtbBackendToTsProj
    */
   public static final IDataDef OPDEF_PDU_ID = //
       DataDef.create( MtbBackendToTsProj.class.getSimpleName() + ".PduId", STRING, //$NON-NLS-1$
-          TSID_NAME, STR_N_OP_PDU_ID, //
-          TSID_DESCRIPTION, STR_D_OP_PDU_ID, //
+          TSID_NAME, STR_OP_PDU_ID, //
+          TSID_DESCRIPTION, STR_OP_PDU_ID_D, //
           TSID_IS_MANDATORY, AV_FALSE, //
           TSID_DEFAULT_VALUE, avStr( DEFAULT_PDU_ID ) //
       );
@@ -75,8 +75,8 @@ public class MtbBackendToTsProj
    */
   public static final ITsContextRefDef<ITsProject> REFDEF_PROJECT = //
       TsContextRefDef.create( MtbBackendToTsProj.class.getSimpleName() + ".Project", ITsProject.class, //$NON-NLS-1$
-          TSID_NAME, STR_N_REF_PROJECT, //
-          TSID_DESCRIPTION, STR_D_REF_PROJECT, //
+          TSID_NAME, STR_REF_PROJECT, //
+          TSID_DESCRIPTION, STR_REF_PROJECT_D, //
           TSID_IS_MANDATORY, AV_TRUE //
       );
 

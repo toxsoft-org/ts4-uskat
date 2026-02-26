@@ -21,7 +21,7 @@ class MtbBackendToTsProjMetaInfo
   static final ISkBackendMetaInfo INSTANCE = new MtbBackendToTsProjMetaInfo();
 
   private MtbBackendToTsProjMetaInfo() {
-    super( BACKEND_ID, STR_N_BACKEND_MEMTEXT_TO_FILE, STR_D_BACKEND_MEMTEXT_TO_FILE );
+    super( BACKEND_ID, STR_BACKEND_MEMTEXT_TO_FILE, STR_BACKEND_MEMTEXT_TO_FILE_D );
     argOps().add( MtbBackendToTsProj.OPDEF_PDU_ID );
     argOps().add( IBackendMemtextConstants.OPDEF_NOT_STORED_OBJ_CLASS_IDS );
     argOps().add( IBackendMemtextConstants.OPDEF_IS_EVENTS_STORED );

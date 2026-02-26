@@ -55,8 +55,8 @@ public class MtbBackendToFile
    */
   public static final IDataDef OPDEF_FILE_PATH =
       DataDef.create( MtbBackendToFile.class.getSimpleName() + ".FilePath", STRING, //$NON-NLS-1$
-          TSID_NAME, STR_N_OP_FILE_PATH, //
-          TSID_DESCRIPTION, STR_D_OP_FILE_PATH, //
+          TSID_NAME, STR_OP_FILE_PATH, //
+          TSID_DESCRIPTION, STR_OP_FILE_PATH_D, //
           // this option must match constants from TSGUI
           "org.toxsoft.valed.option.EditorFactoryName", "ts.valed.AvStringFile", //$NON-NLS-1$//$NON-NLS-2$
           "org.toxsoft.valed.option.File.IsOpenDialog", AV_TRUE, //
@@ -73,8 +73,8 @@ public class MtbBackendToFile
   public static final IDataDef OPDEF_AUTO_SAVE_SECS =
       DataDef.create( MtbBackendToFile.class.getSimpleName() + ".AutoSaveSecs", INTEGER, //$NON-NLS-1$
           TSID_DEFAULT_VALUE, avInt( 20 ), //
-          TSID_NAME, STR_N_OP_AUTO_SAVE_SECS, //
-          TSID_DESCRIPTION, STR_D_OP_AUTO_SAVE_SECS //
+          TSID_NAME, STR_OP_AUTO_SAVE_SECS, //
+          TSID_DESCRIPTION, STR_OP_AUTO_SAVE_SECS_D //
       );
 
   /**

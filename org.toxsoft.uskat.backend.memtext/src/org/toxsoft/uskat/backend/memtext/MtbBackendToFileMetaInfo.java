@@ -21,7 +21,7 @@ class MtbBackendToFileMetaInfo
   static final ISkBackendMetaInfo INSTANCE = new MtbBackendToFileMetaInfo();
 
   private MtbBackendToFileMetaInfo() {
-    super( BACKEND_ID, STR_N_BACKEND_MEMTEXT_TO_FILE, STR_D_BACKEND_MEMTEXT_TO_FILE );
+    super( BACKEND_ID, STR_BACKEND_MEMTEXT_TO_FILE, STR_BACKEND_MEMTEXT_TO_FILE_D );
     argOps().add( MtbBackendToFile.OPDEF_FILE_PATH );
     argOps().add( MtbBackendToFile.OPDEF_AUTO_SAVE_SECS );
     argOps().add( IBackendMemtextConstants.OPDEF_NOT_STORED_OBJ_CLASS_IDS );
