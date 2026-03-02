@@ -7,7 +7,8 @@ Bundle-Vendor: toxsoft.org
 Automatic-Module-Name: org.toxsoft.uskat.core
 Bundle-RequiredExecutionEnvironment: JavaSE-21
 Require-Bundle: org.toxsoft.core.tslib,
- org.toxsoft.core.tsgui
+ org.toxsoft.core.tsgui,
+ org.toxsoft.uskat.core.inner
 Export-Package: org.toxsoft.uskat.core,
  org.toxsoft.uskat.core.api,
  org.toxsoft.uskat.core.api.clobserv,

@@ -1,6 +1,7 @@
 package org.toxsoft.uskat.core.api.sysdescr;
 
 import static org.toxsoft.uskat.core.api.sysdescr.ISkResources.*;
+import static org.toxsoft.uskat.core.inner.ISkCoreGuiInnerSharedConstants.*;
 
 import org.toxsoft.core.tslib.bricks.keeper.*;
 import org.toxsoft.core.tslib.bricks.keeper.std.*;
@@ -12,6 +13,7 @@ import org.toxsoft.core.tslib.gw.*;
 import org.toxsoft.core.tslib.gw.gwid.*;
 import org.toxsoft.core.tslib.gw.skid.*;
 import org.toxsoft.core.tslib.utils.errors.*;
+import org.toxsoft.core.tslib.utils.gui.*;
 
 /**
  * The kind of the class property.
@@ -19,43 +21,49 @@ import org.toxsoft.core.tslib.utils.errors.*;
  * @author hazard157
  */
 public enum ESkClassPropKind
-    implements IStridable {
+    implements IStridable, IIconIdable {
 
   /**
    * Attribute.
    */
-  ATTR( IGwHardConstants.GW_KEYWORD_ATTR, STR_CPK_ATTR, STR_CPK_ATTR_PLURAL, STR_CPK_ATTR_D, EGwidKind.GW_ATTR ),
+  ATTR( IGwHardConstants.GW_KEYWORD_ATTR, STR_CPK_ATTR, STR_CPK_ATTR_PLURAL, STR_CPK_ATTR_D, //
+      EGwidKind.GW_ATTR, ICONID_SDED_CLASS_ATTR ),
 
   /**
    * RT-data.
    */
-  RTDATA( IGwHardConstants.GW_KEYWORD_RTDATA, STR_CPK_RTDATA, STR_CPK_RTDATA_PLURAL, STR_CPK_RTDATA_D,
-      EGwidKind.GW_RTDATA ),
+  RTDATA( IGwHardConstants.GW_KEYWORD_RTDATA, STR_CPK_RTDATA, STR_CPK_RTDATA_PLURAL, STR_CPK_RTDATA_D, //
+      EGwidKind.GW_RTDATA, ICONID_SDED_CLASS_DATA ),
 
   /**
    * Rivet.
    */
-  RIVET( IGwHardConstants.GW_KEYWORD_RIVET, STR_CPK_RIVET, STR_CPK_RIVET_PLURAL, STR_CPK_RIVET_D, EGwidKind.GW_RIVET ),
+  RIVET( IGwHardConstants.GW_KEYWORD_RIVET, STR_CPK_RIVET, STR_CPK_RIVET_PLURAL, STR_CPK_RIVET_D, //
+      EGwidKind.GW_RIVET, ICONID_SDED_CLASS_RIVET ),
 
   /**
    * Link.
    */
-  LINK( IGwHardConstants.GW_KEYWORD_LINK, STR_CPK_LINK, STR_CPK_LINK_PLURAL, STR_CPK_LINK_D, EGwidKind.GW_LINK ),
+  LINK( IGwHardConstants.GW_KEYWORD_LINK, STR_CPK_LINK, STR_CPK_LINK_PLURAL, STR_CPK_LINK_D, //
+      EGwidKind.GW_LINK, ICONID_SDED_CLASS_LINK ),
 
   /**
    * Command.
    */
-  CMD( IGwHardConstants.GW_KEYWORD_CMD, STR_CPK_CMD, STR_CPK_CMD_PLURAL, STR_CPK_CMD_D, EGwidKind.GW_CMD ),
+  CMD( IGwHardConstants.GW_KEYWORD_CMD, STR_CPK_CMD, STR_CPK_CMD_PLURAL, STR_CPK_CMD_D, //
+      EGwidKind.GW_CMD, ICONID_SDED_CLASS_CMD ),
 
   /**
    * Event.
    */
-  EVENT( IGwHardConstants.GW_KEYWORD_EVENT, STR_CPK_EVENT, STR_CPK_EVENT_PLURAL, STR_CPK_EVENT_D, EGwidKind.GW_EVENT ),
+  EVENT( IGwHardConstants.GW_KEYWORD_EVENT, STR_CPK_EVENT, STR_CPK_EVENT_PLURAL, STR_CPK_EVENT_D, //
+      EGwidKind.GW_EVENT, ICONID_SDED_CLASS_EVENT ),
 
   /**
    * CLOB.
    */
-  CLOB( IGwHardConstants.GW_KEYWORD_CLOB, STR_CPK_CLOB, STR_CPK_CLOB_PLURAL, STR_CPK_CLOB_D, EGwidKind.GW_CLOB ),
+  CLOB( IGwHardConstants.GW_KEYWORD_CLOB, STR_CPK_CLOB, STR_CPK_CLOB_PLURAL, STR_CPK_CLOB_D, //
+      EGwidKind.GW_CLOB, ICONID_SDED_CLASS_CLOB ),
 
   ;
 
@@ -76,13 +84,16 @@ public enum ESkClassPropKind
   private final String    namePlural;
   private final String    description;
   private final EGwidKind gwidKind;
+  private final String    iconId;
 
-  ESkClassPropKind( String aId, String aName, String aNamePlural, String aDescription, EGwidKind aGwidKind ) {
+  ESkClassPropKind( String aId, String aName, String aNamePlural, String aDescription, EGwidKind aGwidKind,
+      String aIconId ) {
     id = aId;
     name = aName;
     namePlural = aNamePlural;
     description = aDescription;
     gwidKind = aGwidKind;
+    iconId = aIconId;
   }
 
   // --------------------------------------------------------------------------
@@ -102,6 +113,15 @@ public enum ESkClassPropKind
   @Override
   public String description() {
     return description;
+  }
+
+  // ------------------------------------------------------------------------------------
+  // IIconIdable
+  //
+
+  @Override
+  public String iconId() {
+    return iconId;
   }
 
   // ----------------------------------------------------------------------------------

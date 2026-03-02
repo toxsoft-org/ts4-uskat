@@ -19,6 +19,24 @@ import org.toxsoft.core.tslib.utils.gui.*;
 public interface ISkCoreGuiInnerSharedConstants {
 
   // ------------------------------------------------------------------------------------
+  // Icon IDs
+
+  String ICONID_SDED_CLASS_ATTR  = "sded-class-attr";  //$NON-NLS-1$
+  String ICONID_SDED_CLASS_CLOB  = "sded-class-clob";  //$NON-NLS-1$
+  String ICONID_SDED_CLASS_RIVET = "sded-class-rivet"; //$NON-NLS-1$
+  String ICONID_SDED_CLASS_LINK  = "sded-class-link";  //$NON-NLS-1$
+  String ICONID_SDED_CLASS_DATA  = "sded-class-data";  //$NON-NLS-1$
+  String ICONID_SDED_CLASS_CMD   = "sded-class-cmd";   //$NON-NLS-1$
+  String ICONID_SDED_CLASS_EVENT = "sded-class-event"; //$NON-NLS-1$
+  String ICONID_SDED_OBJ_ATTR    = "sded-obj-attr";    //$NON-NLS-1$
+  String ICONID_SDED_OBJ_CLOB    = "sded-obj-clob";    //$NON-NLS-1$
+  String ICONID_SDED_OBJ_RIVET   = "sded-obj-rivet";   //$NON-NLS-1$
+  String ICONID_SDED_OBJ_LINK    = "sded-obj-link";    //$NON-NLS-1$
+  String ICONID_SDED_OBJ_DATA    = "sded-obj-data";    //$NON-NLS-1$
+  String ICONID_SDED_OBJ_CMD     = "sded-obj-cmd";     //$NON-NLS-1$
+  String ICONID_SDED_OBJ_EVENT   = "sded-obj-event";   //$NON-NLS-1$
+
+  // ------------------------------------------------------------------------------------
   // Class ID selector VALEDs
 
   String SKCGC_VALED_CLASS_ID_SELECTOR                          = "ts.valed.ClassIdSelector";           //$NON-NLS-1$
