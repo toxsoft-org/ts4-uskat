@@ -192,7 +192,7 @@ class SkClassInfo
    * @param aAll {@link IStridablesList}&lt;{@link ISkClassInfo}&gt; - list of valid tree of classes
    */
   void papiInitClassHierarchy( IStridablesList<ISkClassInfo> aAll ) {
-    // предки
+    // ancestors
     IStridablesListEdit<ISkClassInfo> a2 = new StridablesList<>();
     ISkClassInfo cinf = this;
     while( !cinf.parentId().isEmpty() ) {
@@ -203,16 +203,16 @@ class SkClassInfo
     IStridablesListEdit<ISkClassInfo> a1 = new StridablesList<>( ancestorsNoSelf );
     a1.add( this );
     ancestorsWithSelf = a1;
-    // наследники
-    IStridablesListEdit<ISkClassInfo> d1 = new StridablesList<>(); // only childs, without self
+    // descendands
+    IStridablesListEdit<ISkClassInfo> d1 = new StridablesList<>(); // only children, without self
     IStridablesListEdit<ISkClassInfo> d2 = new StridablesList<>(); // all descendants, without self
     for( ISkClassInfo cInfo : aAll ) {
-      // добавим непосредственных детей в d1
+      // add direct children to d1
       if( cInfo.parentId().equals( id() ) ) {
         d1.add( cInfo );
       }
-      // в d2 добавим всех потомков
-      if( !ancestorsWithSelf.hasKey( cInfo.id() ) ) { // оптимизация: убедимся, что класс не сам, и не родитель
+      // add all descendants to d2
+      if( !ancestorsWithSelf.hasKey( cInfo.id() ) ) { // optimization: ensure the class is neither itself nor its parent
         if( internalIsDescendant( cInfo, id(), aAll ) ) {
           d2.add( cInfo );
         }
@@ -249,6 +249,14 @@ class SkClassInfo
       }
     }
     return false;
+  }
+
+  private ISkClassInfo rootInfo() {
+    ISkClassInfo inf = this;
+    while( inf.parent() != null ) {
+      inf = inf.parent();
+    }
+    return inf;
   }
 
   // ------------------------------------------------------------------------------------
@@ -347,6 +355,45 @@ class SkClassInfo
   @Override
   public <T extends IDtoClassPropInfoBase> ISkClassProps<T> props( ESkClassPropKind aKind ) {
     return (ISkClassProps)propsMap.getByKey( aKind );
+  }
+
+  @Override
+  public IList<IDtoClassPropInfoBase> listProps( boolean aInclSelf, boolean aInclParent, boolean aInclObj ) {
+    if( !aInclSelf && !aInclParent ) {
+      return IList.EMPTY;
+    }
+    if( !aInclSelf && parent() == null ) { // for root class non-self properties are empty
+      return IList.EMPTY;
+    }
+    IListEdit<IDtoClassPropInfoBase> llAll = new ElemArrayList<>( 100 );
+    for( ESkClassPropKind k : ESkClassPropKind.asList() ) {
+      IList<IDtoClassPropInfoBase> llToAdd;
+      ISkClassProps<IDtoClassPropInfoBase> p = props( k );
+      if( aInclParent ) {
+        if( aInclSelf ) { // with self
+          llToAdd = p.list();
+        }
+        else { // without self
+          ISkClassInfo pinf = parent(); // never is null!
+          llToAdd = pinf.props( k ).list();
+        }
+      }
+      else {
+        llToAdd = p.listSelf();
+      }
+      if( parent() != null && !aInclObj ) { // include ISkObject properties if requested or for ISkObject itself
+        ISkClassInfo rootInf = rootInfo();
+        for( IDtoClassPropInfoBase inf : llToAdd ) {
+          if( !rootInf.props( k ).list().hasKey( inf.id() ) ) {
+            llAll.add( inf );
+          }
+        }
+      }
+      else {
+        llAll.addAll( llToAdd );
+      }
+    }
+    return llAll;
   }
 
 }

@@ -2,10 +2,12 @@ package org.toxsoft.uskat.core.api.sysdescr;
 
 import org.toxsoft.core.tslib.bricks.strid.*;
 import org.toxsoft.core.tslib.bricks.strid.coll.*;
+import org.toxsoft.core.tslib.coll.*;
 import org.toxsoft.core.tslib.coll.primtypes.*;
 import org.toxsoft.core.tslib.gw.*;
 import org.toxsoft.core.tslib.utils.*;
 import org.toxsoft.core.tslib.utils.errors.*;
+import org.toxsoft.uskat.core.api.objserv.*;
 import org.toxsoft.uskat.core.api.sysdescr.dto.*;
 
 /**
@@ -74,6 +76,25 @@ public interface ISkClassInfo
    * @return {@link ISkClassProps}&lt;{@link IDtoCmdInfo}&gt; - information about commands
    */
   ISkClassProps<IDtoCmdInfo> cmds();
+
+  /**
+   * Returns information about specified kind of class properties.
+   *
+   * @param <T> - concrete type of property info
+   * @param aKind {@link ESkClassPropKind} - the requested kind of properties
+   * @return {@link ISkClassProps}&lt;T&gt; - requested properties
+   */
+  <T extends IDtoClassPropInfoBase> ISkClassProps<T> props( ESkClassPropKind aKind );
+
+  /**
+   * Lists all kind of properties as a single list.
+   *
+   * @param aInclSelf boolean - include self properties
+   * @param aInclParent boolean - include ancestor's properties
+   * @param aInclObj boolean - include also {@link ISkObject} properties when ancestors are included
+   * @return {@link IList}&lt;{@link IDtoClassPropInfoBase}&gt; - list of all properties not in any particular order
+   */
+  IList<IDtoClassPropInfoBase> listProps( boolean aInclSelf, boolean aInclParent, boolean aInclObj );
 
   // ------------------------------------------------------------------------------------
   // hierarchy info
@@ -159,7 +180,7 @@ public interface ISkClassInfo
   boolean isOfClass( IStringList aClassIdsList );
 
   // ------------------------------------------------------------------------------------
-  // Convinience inline methods
+  // Convenience inline methods
 
   /**
    * Returns the superclass ID.
@@ -171,14 +192,5 @@ public interface ISkClassInfo
   default String parentId() {
     return parent() != null ? parent().id() : TsLibUtils.EMPTY_STRING;
   }
-
-  /**
-   * Returns information about specified kinf of class properties.
-   *
-   * @param <T> - concrete type of property info
-   * @param aKind {@link ESkClassPropKind} - the requested kind of properties
-   * @return {@link ISkClassProps}&lt;T&gt; - requested properties
-   */
-  <T extends IDtoClassPropInfoBase> ISkClassProps<T> props( ESkClassPropKind aKind );
 
 }
