@@ -31,7 +31,7 @@ import org.toxsoft.uskat.core.impl.*;
  * @author hazard157
  */
 public interface ISkObject
-    extends IStridable {
+    extends IStridable, ISkidable {
 
   /**
    * Non-existing object single ton with identifier {@link Skid#NONE}.
@@ -43,6 +43,7 @@ public interface ISkObject
    *
    * @return {@link Skid} - the object SKID
    */
+  @Override
   Skid skid();
 
   /**
