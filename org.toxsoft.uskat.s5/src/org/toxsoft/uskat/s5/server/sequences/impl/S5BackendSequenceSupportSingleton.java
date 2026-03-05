@@ -588,11 +588,34 @@ public abstract class S5BackendSequenceSupportSingleton<S extends IS5Sequence<V>
         // Журналирование
         Long traceTimeout = Long.valueOf( System.currentTimeMillis() - traceStartTime );
         logger().debug( MSG_READ_SEQUENCE_TIME, Integer.valueOf( count ), traceTimeout );
+        if( logger().isSeverityOn( ELogSeverity.DEBUG ) ) {
+          StringBuilder sb = new StringBuilder();
+          for( Gwid gwid : retValue.keys() ) {
+            S s = retValue.getByKey( gwid );
+            int blockCount = s.blocks().size();
+            sb.append( String.format( "************** gwid = %s, blocks = %d\n", gwid, //$NON-NLS-1$
+                Integer.valueOf( blockCount ) ) );
+            int currBlock = 0;
+            for( int index = 0; index < blockCount; index++ ) {
+              IS5SequenceBlock<V> b = s.blocks().get( index );
+              for( int index2 = 0, n2 = b.size(); index2 < n2; index2++ ) {
+                sb.append( String.format( "   [%d][%d]  %s\n", Integer.valueOf( currBlock ), Integer.valueOf( index2 ), //$NON-NLS-1$
+                    b.getValue( index2 ) ) );
+              }
+              currBlock++;
+            }
+            sb.append( "**************\n" ); //$NON-NLS-1$
+          }
+          logger().debug( "readSequences(...): query is completed. aQueryId = %s, interval = %s, gwids = %d:\n%s", //$NON-NLS-1$
+              aQueryId, aInterval, Integer.valueOf( retValue.size() ), sb );
+        }
+        else {
+          logger().info( "readSequences(...): query is completed. aQueryId = %s", aQueryId ); //$NON-NLS-1$
+        }
         return retValue;
       }
       finally {
         readQueries.removeByKey( aQueryId );
-        logger().info( "readSequences(...): query is completed. aQueryId = %s", aQueryId ); //$NON-NLS-1$
       }
     }
     catch( SQLException e ) {
