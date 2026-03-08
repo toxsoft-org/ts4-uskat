@@ -7,6 +7,8 @@ import static org.toxsoft.uskat.core.ISkHardConstants.*;
 import static org.toxsoft.uskat.core.gui.ISkCoreGuiConstants.*;
 import static org.toxsoft.uskat.ws.conn.mws.l10n.ISkWsConnSharedResources.*;
 
+import java.io.*;
+
 import org.eclipse.e4.core.contexts.*;
 import org.toxsoft.core.tsgui.graphics.icons.*;
 import org.toxsoft.core.tsgui.graphics.image.*;
@@ -14,8 +16,10 @@ import org.toxsoft.core.tslib.av.impl.*;
 import org.toxsoft.core.tslib.av.metainfo.*;
 import org.toxsoft.core.tslib.av.opset.impl.*;
 import org.toxsoft.core.tslib.bricks.apprefs.*;
+import org.toxsoft.core.tslib.bricks.keeper.*;
 import org.toxsoft.core.tslib.bricks.strid.coll.*;
 import org.toxsoft.core.tslib.bricks.strid.coll.impl.*;
+import org.toxsoft.core.tslib.coll.basis.*;
 import org.toxsoft.uskat.core.gui.conn.cfg.*;
 
 /**
@@ -45,9 +49,32 @@ public interface ISkWsConnConstants {
   /**
    * Name of the file where the data from {@link IConnectionConfigService} is stored.
    * <p>
-   * Path may be absolute or relative to the workstation application working directory.
+   * Path may be absolute or relative to the application working directory.
+   * <p>
+   * Content is written/read by {@link ConnectionConfig#KEEPER} methods
+   * {@link IEntityKeeper#writeColl(File, ITsCollection, boolean)} and {@link IEntityKeeper#readColl(File)}
+   * respectively.
    */
   String CLINEARG_CONN_CFG_FILE_NAME = "connCfgFileName"; //$NON-NLS-1$
+
+  /**
+   * Command line options for automatic connection at application startup.
+   * <p>
+   * If {@link #CLINEARG_AUTO_CONNECT} is "<code>true</code>" workstation will try to connect to the server using
+   * configuration {@link #CLINEARG_AUTO_CONN_CFG_ID}. User login {@link #CLINEARG_AUTO_CONN_USER_LOGIN}, role
+   * {@link #CLINEARG_AUTO_CONN_USER_ROLE} and password {@link #CLINEARG_AUTO_CONN_USER_PASSWORD} will be used for
+   * authentification. If connection fails and {@link #CLINEARG_AUTO_CONN_RETRY} is "<code>false</code>" application
+   * will exit with an error message. If retry is enabled every {@link #CLINEARG_AUTO_CONN_RETRY_INTERVAL_SEC} seconds
+   * application will try to establish connection until user cancel or server respond.
+   */
+  String CLINEARG_AUTO_CONNECT                 = "autoConnect";              //$NON-NLS-1$
+  String CLINEARG_AUTO_CONN_CFG_ID             = "autoConnCfgId";            //$NON-NLS-1$
+  String CLINEARG_AUTO_CONN_USER_LOGIN         = "autoConnUserLogin";        //$NON-NLS-1$
+  String CLINEARG_AUTO_CONN_USER_ROLE          = "autoConnUserRole";         //$NON-NLS-1$
+  String CLINEARG_AUTO_CONN_USER_PASSWORD      = "autoConnUserPasswrd";      //$NON-NLS-1$
+  String CLINEARG_AUTO_CONN_RETRY              = "autoConnRetry";            //$NON-NLS-1$
+  String CLINEARG_AUTO_CONN_RETRY_INTERVAL_SEC = "autoConnRetryIntervalSec"; //$NON-NLS-1$
+  String CLINEARG_AUTO_CONN_PERSISTENT         = "autoConnPersistent";       //$NON-NLS-1$
 
   /**
    * Name of the file when {@link #CLINEARG_CONN_CFG_FILE_NAME} is not specified.
@@ -71,6 +98,9 @@ public interface ISkWsConnConstants {
   String APPREFID_LAST_CONNECTION_ID      = "LastConnectionID";     //$NON-NLS-1$
   String APPREFID_IS_DIALOG_AFTER_CONNECT = "IsDialogAfterConnect"; //$NON-NLS-1$
 
+  /**
+   * AppPref: Identifier of the connection configuration opened last time.
+   */
   IDataDef APPREF_LAST_CONNECTION_ID = DataDef.create( APPREFID_LAST_CONNECTION_ID, STRING, ///
       TSID_NAME, STR_LAST_CONNECTION_ID, ///
       TSID_DESCRIPTION, STR_LAST_CONNECTION_ID_D, ///
@@ -78,6 +108,9 @@ public interface ISkWsConnConstants {
       TSID_DEFAULT_VALUE, AV_STR_EMPTY ///
   );
 
+  /**
+   * AppPref: The sign to show message dialog after successful connection or disconnection.
+   */
   IDataDef APPREF_IS_DIALOG_AFTER_CONNECT = DataDef.create( APPREFID_IS_DIALOG_AFTER_CONNECT, BOOLEAN, ///
       TSID_NAME, STR_IS_DIALOG_AFTER_CONNECT, ///
       TSID_DESCRIPTION, STR_IS_DIALOG_AFTER_CONNECT_D, ///

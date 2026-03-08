@@ -25,7 +25,7 @@ import org.toxsoft.uskat.ws.conn.mws.*;
  * <li>registers all providers known by this plugin;</li>
  * <li>processes {@link ISkWsConnConstants#CLINEARG_CONN_CFG_FILE_NAME} to specify {@link #connCfgFile};</li>
  * <li>{@link IConnectionConfigService} is set up to store data in {@link #connCfgFile};</li>
- * <li>if {@link #connCfgFile} exists on startp, data will be loaded.</li>
+ * <li>if {@link #connCfgFile} exists on startup, data will be loaded.</li>
  * </ul>
  *
  * @author hazard157
