@@ -36,7 +36,7 @@ public interface ISkCoreConfigConstants {
    */
   IDataDef OPDEF_L10N_FILES_DIR = DataDef.create( SK_ID + "L10nFileDir", STRING, //$NON-NLS-1$
       TSID_NAME, STR_OP_L10N_FILES_DIR, //
-      TSID_DESCRIPTION, STR_OP_L10N_FILES_DIR, //
+      TSID_DESCRIPTION, STR_OP_L10N_FILES_DIR_D, //
       TSID_DEFAULT_VALUE, avStr( "uskat-l10n" ) //$NON-NLS-1$
   );
 
@@ -47,7 +47,7 @@ public interface ISkCoreConfigConstants {
    */
   IDataDef OPDEF_LOCALE = DataDef.create( SK_ID + "Locale", VALOBJ, //$NON-NLS-1$
       TSID_NAME, STR_OP_LOCALE, //
-      TSID_DESCRIPTION, STR_OP_LOCALE, //
+      TSID_DESCRIPTION, STR_OP_LOCALE_D, //
       TSID_KEEPER_ID, LocaleKeeper.KEEPER_ID, //
       TSID_DEFAULT_VALUE, avValobj( Locale.getDefault(), LocaleKeeper.KEEPER, LocaleKeeper.KEEPER_ID ) //
   );
@@ -60,7 +60,7 @@ public interface ISkCoreConfigConstants {
    */
   IDataDef OPDEF_DEF_CORE_LOG_SEVERITY = DataDef.create( SK_ID + "DefaultCoreLogSeverity", VALOBJ, //$NON-NLS-1$
       TSID_NAME, STR_OP_DEF_CORE_LOG_SEVERITY, //
-      TSID_DESCRIPTION, STR_OP_DEF_CORE_LOG_SEVERITY, //
+      TSID_DESCRIPTION, STR_OP_DEF_CORE_LOG_SEVERITY_D, //
       TSID_KEEPER_ID, ELogSeverity.KEEPER_ID, //
       TSID_DEFAULT_VALUE, avValobj( ELogSeverity.DEBUG, ELogSeverity.KEEPER, ELogSeverity.KEEPER_ID ) //
   );

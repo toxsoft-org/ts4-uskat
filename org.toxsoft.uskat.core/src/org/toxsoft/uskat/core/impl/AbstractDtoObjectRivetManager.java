@@ -77,14 +77,14 @@ public abstract class AbstractDtoObjectRivetManager
         }
         IDtoObject rightObj = doFindObject( rightObjId );
         if( rightObj == null ) {
-          rightObj = doFindObject( rightObjId );
-          throw new TsItemNotFoundRtException( ERR_RR_ROBJ_NOT_FOUND, M_CREATE_RR, leftObjId, rivetClassId, rivetId,
-              rightObjId );
+          rightObj = doFindObject( rightObjId ); // FIXME do this call has a sense here?
+          throw new TsItemNotFoundRtException( FMT_ERR_RR_ROBJ_NOT_FOUND, "createRivets", leftObjId, rivetClassId, //$NON-NLS-1$
+              rivetId, rightObjId );
         }
         // Установка правого объекта в редакторе обратных склепок. aCreating = true
         SkidList skidListEdit = reverseEditor.setRightObj( rightObj, true );
         if( skidListEdit.hasElem( leftObjId ) ) {
-          logger.error( ERR_RR_ALREADY_EXIST, M_CREATE_RR, rightObjId, rivetId, leftObjId );
+          logger.error( FMT_ERR_RR_FIXME_WAAT_IS_THIS_ERROR, "createRivets", rightObjId, rivetId, leftObjId ); //$NON-NLS-1$
           continue;
         }
         skidListEdit.add( leftObjId );
@@ -120,13 +120,13 @@ public abstract class AbstractDtoObjectRivetManager
         }
         IDtoObject rightObj = doFindObject( rightObjId );
         if( rightObj == null ) {
-          logger.error( ERR_RR_ROBJ_NOT_FOUND, M_REMOVE_RR, leftObjId, rivetClassId, rivetId, rightObjId );
+          logger.error( FMT_ERR_RR_ROBJ_NOT_FOUND, "removeRivets", leftObjId, rivetClassId, rivetId, rightObjId ); //$NON-NLS-1$
           continue;
         }
         // Установка правого объекта в редакторе обратных склепок. aCreating = false
         SkidList newSkidList = reverseEditor.setRightObj( rightObj, false );
         if( newSkidList.remove( leftObjId ) < 0 ) {
-          logger.error( ERR_RR_LOBJ_NOT_FOUND, M_REMOVE_RR, rightObjId, rivetClassId, rivetId, leftObjId );
+          logger.error( FMT_ERR_RR_LOBJ_NOT_FOUND, "removeRivets", rightObjId, rivetClassId, rivetId, leftObjId ); //$NON-NLS-1$
           continue;
         }
         if( reverseEditor.flush() ) {
@@ -171,13 +171,13 @@ public abstract class AbstractDtoObjectRivetManager
         }
         IDtoObject rightObj = doFindObject( rightObjId );
         if( rightObj == null ) {
-          logger.error( ERR_RR_ROBJ_NOT_FOUND, M_UPDATE_RR, leftObjId, rivetClassId, rivetId, rightObjId );
+          logger.error( FMT_ERR_RR_ROBJ_NOT_FOUND, "updateRivets", leftObjId, rivetClassId, rivetId, rightObjId ); //$NON-NLS-1$
           continue;
         }
         // Установка правого объекта в редакторе обратных склепок. aCreating = false
         SkidList newSkidList = reverseEditor.setRightObj( rightObj, false );
         if( newSkidList.remove( leftObjId ) < 0 ) {
-          logger.debug( ERR_RR_LOBJ_NOT_FOUND, M_UPDATE_RR, rightObjId, rivetClassId, rivetId, leftObjId );
+          logger.debug( FMT_ERR_RR_LOBJ_NOT_FOUND, "updateRivets", rightObjId, rivetClassId, rivetId, leftObjId ); //$NON-NLS-1$
           continue;
         }
         if( reverseEditor.flush() ) {
@@ -193,13 +193,13 @@ public abstract class AbstractDtoObjectRivetManager
         }
         IDtoObject rightObj = doFindObject( rightObjId );
         if( rightObj == null ) {
-          throw new TsItemNotFoundRtException( ERR_RR_ROBJ_NOT_FOUND, M_UPDATE_RR, leftObjId, rivetClassId, rivetId,
-              rightObjId );
+          throw new TsItemNotFoundRtException( FMT_ERR_RR_ROBJ_NOT_FOUND, "updateRivets", leftObjId, rivetClassId, //$NON-NLS-1$
+              rivetId, rightObjId );
         }
         // Установка правого объекта в редакторе обратных склепок. aCreating = false
         SkidList newSkidList = reverseEditor.setRightObj( rightObj, false );
         if( newSkidList.hasElem( leftObjId ) ) {
-          logger.error( ERR_RR_ALREADY_EXIST, M_UPDATE_RR, rightObjId, rivetId, leftObjId );
+          logger.error( FMT_ERR_RR_FIXME_WAAT_IS_THIS_ERROR, "updateRivets", rightObjId, rivetId, leftObjId ); //$NON-NLS-1$
           continue;
         }
         newSkidList.add( leftObjId );
@@ -273,12 +273,12 @@ public abstract class AbstractDtoObjectRivetManager
       IStringMap<IMappedSkids> rivetRevs = aRightObj.rivetRevs();
       IMappedSkids mappedSkids = rivetRevs.findByKey( rivetClassId );
       if( mappedSkids == null && !aCreating ) {
-        logger.debug( ERR_RR_EDITOR_CLASS_NOT_FOUND, aRightObj.skid(), rivetClassId, rivetId );
+        logger.debug( FMT_ERR_RR_EDITOR_CLASS_NOT_FOUND, aRightObj.skid(), rivetClassId, rivetId );
       }
       if( mappedSkids != null ) {
         prevSkidList = mappedSkids.map().findByKey( rivetId );
         if( prevSkidList == null && !aCreating ) {
-          logger.debug( ERR_RR_EDITOR_RIVET_NOT_FOUND, aRightObj.skid(), rivetClassId, rivetId );
+          logger.debug( FMT_ERR_RR_EDITOR_RIVET_NOT_FOUND, aRightObj.skid(), rivetClassId, rivetId );
         }
         if( prevSkidList != null ) {
           newSkidList.setAll( prevSkidList );

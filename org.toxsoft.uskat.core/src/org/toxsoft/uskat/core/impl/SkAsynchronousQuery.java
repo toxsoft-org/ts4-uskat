@@ -29,12 +29,12 @@ public abstract class SkAsynchronousQuery
    */
   public static final ITimedList<?> EMPTY_TIMED_LIST = new TimedList<>();
 
-  private final String                     queryId;
-  private final IOptionSet                 options;
-  private final SkCoreServHistQuery service;
-  private final GenericChangeEventer       eventer      = new GenericChangeEventer( this );
-  private ESkQueryState                    state        = UNPREPARED;
-  private String                           stateMessage = TsLibUtils.EMPTY_STRING;
+  private final String               queryId;
+  private final IOptionSet           options;
+  private final SkCoreServHistQuery  service;
+  private final GenericChangeEventer eventer      = new GenericChangeEventer( this );
+  private ESkQueryState              state        = UNPREPARED;
+  private String                     stateMessage = TsLibUtils.EMPTY_STRING;
 
   private long queryTimestamp = System.currentTimeMillis();
 
@@ -55,6 +55,7 @@ public abstract class SkAsynchronousQuery
   // ------------------------------------------------------------------------------------
   // ISkAsynchronousQuery
   //
+
   @Override
   public final String queryId() {
     return queryId;
@@ -105,7 +106,7 @@ public abstract class SkAsynchronousQuery
   public void cancel() {
     checkThread();
     if( state == CLOSED ) {
-      throw new TsIllegalArgumentRtException( FMT_ERR_QUERY_INVALID_STATE, this, state );
+      throw new TsIllegalArgumentRtException( FMT_ERR_QUERY_IS_ALREADY_CLOSED, this, state );
     }
     if( state != EXECUTING ) {
       return;
@@ -222,6 +223,7 @@ public abstract class SkAsynchronousQuery
   // ------------------------------------------------------------------------------------
   // abstract implementation
   //
+  
   /**
    * Process the received data
    *
@@ -232,8 +234,9 @@ public abstract class SkAsynchronousQuery
   protected abstract void doNextData( IStringMap<ITimedList<ITemporal<?>>> aValues, ESkQueryState aState );
 
   // ------------------------------------------------------------------------------------
-  // api for descedents
+  // API for descendants
   //
+
   protected static void checkInvalidState( SkAsynchronousQuery aQuery, ESkQueryState... aInvalidStates ) {
     TsNullArgumentRtException.checkNulls( aQuery, aInvalidStates );
     ESkQueryState currState = aQuery.state();

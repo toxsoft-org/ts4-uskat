@@ -43,7 +43,7 @@ public final class SkWorkerRegistry
   public <T extends ISkWorker> T getWorker( String aWorkerId ) {
     T retValue = findWorker( aWorkerId );
     if( retValue == null ) {
-      throw new TsItemNotFoundRtException( ERR_WORKER_IS_NOT_FOUND, aWorkerId );
+      throw new TsItemNotFoundRtException( FMT_ERR_WORKER_IS_NOT_FOUND, aWorkerId );
     }
     return retValue;
   }
@@ -74,7 +74,7 @@ public final class SkWorkerRegistry
   public void put( String aWorkerId, ISkWorker aWorker ) {
     TsNullArgumentRtException.checkNulls( aWorkerId, aWorker );
     if( findWorker( aWorkerId ) != null ) {
-      throw new TsIllegalArgumentRtException( ERR_WORKER_IS_ALREADY_REGISTERED, aWorkerId );
+      throw new TsIllegalArgumentRtException( FMT_ERR_WORKER_IS_ALREADY_REGISTERED, aWorkerId );
     }
     map.put( aWorkerId, aWorker );
   }

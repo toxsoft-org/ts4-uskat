@@ -3,6 +3,7 @@ package org.toxsoft.uskat.backend.memtext;
 import static org.toxsoft.core.tslib.av.EAtomicType.*;
 import static org.toxsoft.core.tslib.av.impl.AvUtils.*;
 import static org.toxsoft.core.tslib.av.metainfo.IAvMetaConstants.*;
+import static org.toxsoft.core.tslib.utils.gui.ITsLibInnerSharedConstants.*;
 import static org.toxsoft.uskat.backend.memtext.ISkResources.*;
 
 import java.io.*;
@@ -57,9 +58,9 @@ public class MtbBackendToFile
       DataDef.create( MtbBackendToFile.class.getSimpleName() + ".FilePath", STRING, //$NON-NLS-1$
           TSID_NAME, STR_OP_FILE_PATH, //
           TSID_DESCRIPTION, STR_OP_FILE_PATH_D, //
-          // this option must match constants from TSGUI
-          "org.toxsoft.valed.option.EditorFactoryName", "ts.valed.AvStringFile", //$NON-NLS-1$//$NON-NLS-2$
-          "org.toxsoft.valed.option.File.IsOpenDialog", AV_TRUE, //
+          TSLIB_VCC_OPID_EDITOR_FACTORY_NAME, TSLIB_VALED_AV_STRING_FILE, //
+          TSLIB_VALED_FILE_OPID_IS_OPEN_DIALOG, AV_TRUE, //
+          TSID_DEFAULT_VALUE, AV_STR_EMPTY, //
           TSID_IS_MANDATORY, AV_TRUE //
       );
 

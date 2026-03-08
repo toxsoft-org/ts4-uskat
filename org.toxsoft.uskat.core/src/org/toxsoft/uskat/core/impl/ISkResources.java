@@ -107,8 +107,8 @@ interface ISkResources {
   /**
    * {@link SkCoreServRtdata}
    */
-  String FMT_ERR_RTD_CHNL_INV_ATOMIC_TYPE         = Messages.getString( "FMT_ERR_RTD_CHNL_INV_ATOMIC_TYPE" );         //$NON-NLS-1$
-  String FMT_ERR_CDW_CHANNEL_HAS_NO_KEY           = Messages.getString( "FMT_ERR_CDW_CHANNEL_HAS_NO_KEY" );           //$NON-NLS-1$
+  String FMT_ERR_RTD_CHNL_INV_ATOMIC_TYPE = Messages.getString( "FMT_ERR_RTD_CHNL_INV_ATOMIC_TYPE" ); //$NON-NLS-1$
+  // String FMT_ERR_CDW_CHANNEL_HAS_NO_KEY1 = Messages.getString( "FMT_ERR_CDW_CHANNEL_HAS_NO_KEY" ); //$NON-NLS-1$
   String FMT_ERR_HDW_CHANNEL_WRONG_WRITE_INTERVAL = Messages.getString( "FMT_ERR_HDW_CHANNEL_WRONG_WRITE_INTERVAL" ); //$NON-NLS-1$
 
   /**
@@ -171,8 +171,9 @@ interface ISkResources {
   /**
    * {@link SkAsynchronousQuery}
    */
-  String FMT_ERR_QUERY_INVALID_STATE = Messages.getString( "FMT_ERR_QUERY_INVALID_STATE" ); //$NON-NLS-1$
-  String FMT_ERR_QUERY_TIMEOUT       = Messages.getString( "FMT_ERR_QUERY_TIMEOUT" );       //$NON-NLS-1$
+  String FMT_ERR_QUERY_IS_ALREADY_CLOSED = Messages.getString( "FMT_ERR_QUERY_IS_ALREADY_CLOSED" ); //$NON-NLS-1$
+  String FMT_ERR_QUERY_INVALID_STATE    = Messages.getString( "FMT_ERR_QUERY_INVALID_STATE" );     //$NON-NLS-1$
+  String FMT_ERR_QUERY_TIMEOUT           = Messages.getString( "FMT_ERR_QUERY_TIMEOUT" );           //$NON-NLS-1$
 
   /**
    * {@link SkatletBase}
@@ -203,14 +204,16 @@ interface ISkResources {
   /**
    * {@link AbstractDtoObjectRivetManager}
    */
-  String M_CREATE_RR = Messages.getString( "M_CREATE_RR" ); //$NON-NLS-1$
-  String M_UPDATE_RR = Messages.getString( "M_UPDATE_RR" ); //$NON-NLS-1$
-  String M_REMOVE_RR = Messages.getString( "M_REMOVE_RR" ); //$NON-NLS-1$
 
-  String ERR_CANT_REMOVE_HAS_RIVET_REVS = Messages.getString( "ERR_CANT_REMOVE_HAS_RIVET_REVS" ); //$NON-NLS-1$
-  String ERR_RR_ALREADY_EXIST           = Messages.getString( "ERR_RR_ALREADY_EXIST" );           //$NON-NLS-1$
-  String ERR_RR_ROBJ_NOT_FOUND          = Messages.getString( "ERR_RR_ROBJ_NOT_FOUND" );          //$NON-NLS-1$
-  String ERR_RR_LOBJ_NOT_FOUND          = Messages.getString( "ERR_RR_LOBJ_NOT_FOUND" );          //$NON-NLS-1$
-  String ERR_RR_EDITOR_CLASS_NOT_FOUND  = Messages.getString( "ERR_RR_EDITOR_CLASS_NOT_FOUND" );  //$NON-NLS-1$
-  String ERR_RR_EDITOR_RIVET_NOT_FOUND  = Messages.getString( "ERR_RR_EDITOR_RIVET_NOT_FOUND" );  //$NON-NLS-1$
+  /**
+   * {@link AbstractDtoObjectRivetManager}
+   */
+
+  // FIXME what is this error? what text should be in error message?
+  String FMT_ERR_RR_FIXME_WAAT_IS_THIS_ERROR = Messages.getString( "FMT_ERR_RR_ROBJ_ALREADY_EXISTS" ); //$NON-NLS-1$
+
+  String FMT_ERR_RR_ROBJ_NOT_FOUND         = Messages.getString( "ERR_RR_ROBJ_NOT_FOUND" );             //$NON-NLS-1$
+  String FMT_ERR_RR_LOBJ_NOT_FOUND         = Messages.getString( "FMT_ERR_RR_LOBJ_NOT_FOUND" );         //$NON-NLS-1$
+  String FMT_ERR_RR_EDITOR_CLASS_NOT_FOUND = Messages.getString( "FMT_ERR_RR_EDITOR_CLASS_NOT_FOUND" ); //$NON-NLS-1$
+  String FMT_ERR_RR_EDITOR_RIVET_NOT_FOUND = Messages.getString( "FMT_ERR_RR_EDITOR_RIVET_NOT_FOUND" ); //$NON-NLS-1$
 }

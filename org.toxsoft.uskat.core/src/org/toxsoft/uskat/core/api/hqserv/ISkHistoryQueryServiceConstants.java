@@ -7,10 +7,10 @@ import static org.toxsoft.core.tslib.av.metainfo.IAvMetaConstants.*;
 import static org.toxsoft.uskat.core.ISkHardConstants.*;
 import static org.toxsoft.uskat.core.api.hqserv.ISkResources.*;
 
-import org.toxsoft.core.tslib.av.EAtomicType;
-import org.toxsoft.core.tslib.av.metainfo.IDataDef;
-import org.toxsoft.core.tslib.bricks.time.impl.TimeUtils;
-import org.toxsoft.core.tslib.gw.gwid.EGwidKind;
+import org.toxsoft.core.tslib.av.*;
+import org.toxsoft.core.tslib.av.metainfo.*;
+import org.toxsoft.core.tslib.bricks.time.impl.*;
+import org.toxsoft.core.tslib.gw.gwid.*;
 
 /**
  * {@link ISkQueryRawHistory} constants.
@@ -112,7 +112,7 @@ public interface ISkHistoryQueryServiceConstants {
   //
 
   /**
-   * Maximal alloed time of query executions in milliseconds.
+   * Maximum allowed time of query executions in milliseconds.
    * <p>
    * After specified time query will be cancelled.
    * <p>

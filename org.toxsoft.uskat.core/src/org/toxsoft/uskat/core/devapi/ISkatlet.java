@@ -10,6 +10,7 @@ import org.toxsoft.core.tslib.av.impl.*;
 import org.toxsoft.core.tslib.av.metainfo.*;
 import org.toxsoft.core.tslib.bricks.*;
 import org.toxsoft.core.tslib.bricks.ctx.*;
+import org.toxsoft.core.tslib.bricks.keeper.std.*;
 import org.toxsoft.core.tslib.bricks.strid.*;
 import org.toxsoft.core.tslib.bricks.validator.*;
 import org.toxsoft.core.tslib.coll.primtypes.*;
@@ -63,6 +64,7 @@ public interface ISkatlet
   IDataDef OPDEF_SKATLETS_LOAD_ORDER = DataDef.create( "SkatletLoadOrder", VALOBJ, // //$NON-NLS-1$
       TSID_NAME, STR_SKATLET_LOAD_ORDER, //
       TSID_DESCRIPTION, STR_SKATLET_LOAD_ORDER_D, //
+      TSID_KEEPER_ID, StringListKeeper.KEEPER_ID, //
       TSID_DEFAULT_VALUE, avValobj( IStringList.EMPTY ), //
       TSID_IS_MANDATORY, AV_FALSE //
   );

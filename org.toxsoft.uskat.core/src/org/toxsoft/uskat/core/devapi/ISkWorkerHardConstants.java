@@ -29,8 +29,8 @@ public interface ISkWorkerHardConstants {
    * Тип: {@link ISkCoreApi}
    */
   ITsContextRefDef<ISkCoreApi> REFDEF_WORKER_CORE_API = create( SITROL_WORKERS_FULL_ID + ".api", ISkCoreApi.class, //$NON-NLS-1$
-      TSID_NAME, STR_N_WORKER_CORE_API, //
-      TSID_DESCRIPTION, STR_D_WORKER_CORE_API, //
+      TSID_NAME, STR_WORKER_CORE_API, //
+      TSID_DESCRIPTION, STR_WORKER_CORE_API_D, //
       TSID_IS_NULL_ALLOWED, AV_TRUE );
 
   /**
@@ -40,8 +40,8 @@ public interface ISkWorkerHardConstants {
    */
   ITsContextRefDef<SkWorkerRegistry> REFDEF_WORKER_REGISTRY =
       create( SITROL_WORKERS_FULL_ID + ".registry", SkWorkerRegistry.class, //$NON-NLS-1$
-          TSID_NAME, STR_N_WORKER_REGISTRY, //
-          TSID_DESCRIPTION, STR_D_WORKER_REGISTRY, //
+          TSID_NAME, STR_WORKER_REGISTRY, //
+          TSID_DESCRIPTION, STR_WORKER_REGISTRY_D, //
           TSID_IS_NULL_ALLOWED, AV_TRUE );
 
   /**
@@ -51,8 +51,8 @@ public interface ISkWorkerHardConstants {
    */
   ITsContextRefDef<ITsContext> REFDEF_WORKER_SHARED_CONTEXT =
       create( SITROL_WORKERS_FULL_ID + ".SharedContext", ITsContext.class, //$NON-NLS-1$
-          TSID_NAME, STR_N_WORKER_CORE_API, //
-          TSID_DESCRIPTION, STR_D_WORKER_CORE_API, //
+          TSID_NAME, STR_WORKER_SHARED_CONTEXT, //
+          TSID_DESCRIPTION, STR_WORKER_SHARED_CONTEXT_D, //
           TSID_IS_NULL_ALLOWED, AV_TRUE );
 
   /**
@@ -61,7 +61,8 @@ public interface ISkWorkerHardConstants {
    * Тип: {@link ILogger}
    */
   ITsContextRefDef<ILogger> REFDEF_WORKER_LOGGER = create( SITROL_WORKERS_FULL_ID + ".logger", ILogger.class, //$NON-NLS-1$
-      TSID_NAME, STR_N_WORKER_LOGGER, //
-      TSID_DESCRIPTION, STR_D_WORKER_LOGGER, //
+      TSID_NAME, STR_WORKER_LOGGER, //
+      TSID_DESCRIPTION, STR_WORKER_LOGGER_D, //
       TSID_IS_NULL_ALLOWED, AV_TRUE );
+
 }
