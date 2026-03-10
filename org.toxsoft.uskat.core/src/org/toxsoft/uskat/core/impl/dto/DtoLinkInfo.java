@@ -35,7 +35,7 @@ public final class DtoLinkInfo
    */
   @SuppressWarnings( "hiding" )
   public static final IEntityKeeper<IDtoLinkInfo> KEEPER =
-      new AbstractStridableParameterizedKeeper<>( IDtoLinkInfo.class, null ) {
+      new AbstractStridableParameterizedKeeper<>( IDtoLinkInfo.class, null, false ) {
 
         @Override
         protected IDtoLinkInfo doCreate( String aId, IOptionSet aParams ) {

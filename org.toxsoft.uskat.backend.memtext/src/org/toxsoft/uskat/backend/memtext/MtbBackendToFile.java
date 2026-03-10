@@ -73,9 +73,9 @@ public class MtbBackendToFile
    */
   public static final IDataDef OPDEF_AUTO_SAVE_SECS =
       DataDef.create( MtbBackendToFile.class.getSimpleName() + ".AutoSaveSecs", INTEGER, //$NON-NLS-1$
-          TSID_DEFAULT_VALUE, avInt( 20 ), //
           TSID_NAME, STR_OP_AUTO_SAVE_SECS, //
-          TSID_DESCRIPTION, STR_OP_AUTO_SAVE_SECS_D //
+          TSID_DESCRIPTION, STR_OP_AUTO_SAVE_SECS_D, //
+          TSID_DEFAULT_VALUE, avInt( 20 ) //
       );
 
   /**
