@@ -305,17 +305,17 @@ public class ConsoleCmdSignal
     /**
      * Неизвестный (возможно пока) тип данных.
      */
-    CREATE( "create", E_SIGNAL_N_CREATE, E_SIGNAL_D_CREATE ), //$NON-NLS-1$
+    CREATE( "create", E_SIGNAL_CREATE, E_SIGNAL_CREATE_D ), //$NON-NLS-1$
 
     /**
      * Булевый тип данных, принимает одно из двух значений: true или false.<br>
      */
-    DELETE( "delete", E_SIGNAL_N_DELETE, E_SIGNAL_D_DELETE ), //$NON-NLS-1$
+    DELETE( "delete", E_SIGNAL_DELETE, E_SIGNAL_DELETE_D ), //$NON-NLS-1$
 
     /**
      * Целое число, без ограничения диапазона.
      */
-    WAIT( "wait", E_SIGNAL_N_WAIT, E_SIGNAL_D_WAIT ); //$NON-NLS-1$
+    WAIT( "wait", E_SIGNAL_WAIT, E_SIGNAL_WAIT_D ); //$NON-NLS-1$
 
     private final String id;
     private final String nmName;

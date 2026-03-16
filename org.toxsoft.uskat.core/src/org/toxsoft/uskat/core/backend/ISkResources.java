@@ -5,7 +5,6 @@ package org.toxsoft.uskat.core.backend;
  *
  * @author hazard157
  */
-@SuppressWarnings( "nls" )
 interface ISkResources {
 
   String STR_SKBI_LOGGED_USER                 = Messages.getString( "STR_SKBI_LOGGED_USER" );                 //$NON-NLS-1$
@@ -35,7 +34,7 @@ interface ISkResources {
   String STR_BA_GWID_DB                       = Messages.getString( "STR_BA_GWID_DB" );                       //$NON-NLS-1$
   String STR_BA_GWID_DB_D                     = Messages.getString( "STR_BA_GWID_DB_D" );                     //$NON-NLS-1$
 
-  String STR_TRANSACTION_SUPPORT   = "transaction support";
-  String STR_TRANSACTION_SUPPORT_D = "an indication that the backend supports transactional object writes";
+  String STR_TRANSACTION_SUPPORT   = Messages.getString( "STR_TRANSACTION_SUPPORT" );   //$NON-NLS-1$
+  String STR_TRANSACTION_SUPPORT_D = Messages.getString( "STR_TRANSACTION_SUPPORT_D" ); //$NON-NLS-1$
 
 }
