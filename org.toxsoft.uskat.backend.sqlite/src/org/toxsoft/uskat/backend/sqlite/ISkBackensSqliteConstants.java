@@ -3,6 +3,7 @@ package org.toxsoft.uskat.backend.sqlite;
 import static org.toxsoft.core.tslib.av.EAtomicType.*;
 import static org.toxsoft.core.tslib.av.impl.AvUtils.*;
 import static org.toxsoft.core.tslib.av.metainfo.IAvMetaConstants.*;
+import static org.toxsoft.core.tslib.utils.gui.ITsLibInnerSharedConstants.*;
 import static org.toxsoft.uskat.backend.sqlite.l10n.ISkBackendSqliteSharedResources.*;
 
 import org.toxsoft.core.tslib.av.impl.*;
@@ -29,13 +30,8 @@ public interface ISkBackensSqliteConstants {
   IDataDef OPDEF_DB_FILE_NAME = DataDef.create( OPID_DB_FILE_NAME, STRING, //
       TSID_NAME, STR_OP_DB_FILE_NAME, //
       TSID_DESCRIPTION, STR_OP_DB_FILE_NAME_D, //
-
-      // TODO --- we don't want to include
-      "org.toxsoft.valed.option.EditorFactoryName", "ts.valed.AvStringFile", //
-      "org.toxsoft.valed.option.File.IsOpenDialog", AV_TRUE, //
-
-      // ---
-
+      TSLIB_VCC_OPID_EDITOR_FACTORY_NAME, TSLIB_VALED_AV_STRING_FILE, //
+      TSLIB_VALED_FILE_OPID_IS_OPEN_DIALOG, AV_TRUE, //
       TSID_DEFAULT_VALUE, avStr( DEFAULT_DB_FILE_NAME ) //
   );
 

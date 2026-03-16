@@ -23,7 +23,6 @@ import org.toxsoft.uskat.core.*;
 import org.toxsoft.uskat.core.api.users.*;
 import org.toxsoft.uskat.core.backend.*;
 import org.toxsoft.uskat.core.backend.api.*;
-import org.toxsoft.uskat.core.backend.metainf.*;
 import org.toxsoft.uskat.core.connection.*;
 import org.toxsoft.uskat.core.impl.*;
 
@@ -38,19 +37,7 @@ public class SkBackendSqlite
   /**
    * The backend provider singleton.
    */
-  public static final ISkBackendProvider PROVIDER = new ISkBackendProvider() {
-
-    @Override
-    public ISkBackendMetaInfo getMetaInfo() {
-      return SkBackendSqliteMetaInfo.INSTANCE;
-    }
-
-    @Override
-    public ISkBackend createBackend( ISkFrontendRear aFrontend, ITsContextRo aArgs ) {
-      return new SkBackendSqlite( aFrontend, aArgs );
-    }
-
-  };
+  public static final ISkBackendProvider PROVIDER = new SkBackendSqliteProvider();
 
   private static final String JDBC_DRIVER_NAME = "org.sqlite.JDBC"; //$NON-NLS-1$
 

@@ -20,7 +20,6 @@ import org.toxsoft.core.tslib.utils.errors.*;
 import org.toxsoft.core.tslib.utils.files.*;
 import org.toxsoft.uskat.core.backend.*;
 import org.toxsoft.uskat.core.backend.api.*;
-import org.toxsoft.uskat.core.backend.metainf.*;
 
 /**
  * {@link MtbAbstractBackend} implementation which stores data in {@link File}.
@@ -33,18 +32,7 @@ public class MtbBackendToFile
   /**
    * The backend provider singleton.
    */
-  public static final ISkBackendProvider PROVIDER = new ISkBackendProvider() {
-
-    @Override
-    public ISkBackendMetaInfo getMetaInfo() {
-      return MtbBackendToFileMetaInfo.INSTANCE;
-    }
-
-    @Override
-    public ISkBackend createBackend( ISkFrontendRear aFrontend, ITsContextRo aArgs ) {
-      return new MtbBackendToFile( aFrontend, aArgs );
-    }
-  };
+  public static final ISkBackendProvider PROVIDER = new MtbBackendToFileProvider();
 
   /**
    * ID of this backend returned as {@link ISkBackendInfo#id()}.
