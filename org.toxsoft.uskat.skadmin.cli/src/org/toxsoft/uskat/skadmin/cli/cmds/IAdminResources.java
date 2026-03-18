@@ -160,6 +160,7 @@ interface IAdminResources {
   // ------------------------------------------------------------------------------------
   // ConsoleCmdBatch
   //
+  // FIXME l10n
   String BATCH_CMD_ID    = "batch";
   String BATCH_CMD_ALIAS = "b";
   String BATCH_CMD_NAME  = "Выполнение сценария";

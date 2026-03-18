@@ -14,12 +14,12 @@ interface IAdminResources {
   /**
    * Двоеточие
    */
-  String CHAR_COLON = ":";
+  String CHAR_COLON = ":";//$NON-NLS-1$
 
   /**
    * Точка с запятой
    */
-  String CHAR_SEMICOLON = ";";
+  String CHAR_SEMICOLON = ";";//$NON-NLS-1$
 
   /**
    * Маска ввода
@@ -29,37 +29,37 @@ interface IAdminResources {
   /**
    * Обратный слеш
    */
-  String CHAR_SLASH = "/";
+  String CHAR_SLASH = "/";//$NON-NLS-1$
 
   /**
    * Коммерческая at
    */
-  String CHAR_AT = "@";
+  String CHAR_AT = "@";//$NON-NLS-1$
 
   /**
    * Символ y
    */
-  String CHAR_YES = "y";
+  String CHAR_YES = "y";//$NON-NLS-1$
 
   /**
    * Символ n
    */
-  String CHAR_NO = "n";
+  String CHAR_NO = "n";//$NON-NLS-1$
 
   /**
    * Пробел
    */
-  String CHAR_SPACE = " ";
+  String CHAR_SPACE = " ";//$NON-NLS-1$
 
   /**
    * ?
    */
-  String CHAR_QUESTION = "?";
+  String CHAR_QUESTION = "?";//$NON-NLS-1$
 
   /**
    * Файл истории введенных команд
    */
-  String CONSOLE_HISTORY_FILE = "skadmin.history";
+  String CONSOLE_HISTORY_FILE = "skadmin.history";//$NON-NLS-1$
 
   /**
    * Количество элементов в истории
@@ -74,35 +74,34 @@ interface IAdminResources {
   /**
    * Текст запуска
    */
-  String MSG_CONSOLE_CMD_INIT    = "Инициализация команд консоли";
-  String MSG_CONSOLE_INIT_FINISH = "Загрузка консоли завершена";
+  // FIXME l10n
+  String MSG_CONSOLE_CMD_INIT    = Messages.getString( "MSG_CONSOLE_CMD_INIT" );                                      //$NON-NLS-1$
+  String MSG_CONSOLE_INIT_FINISH = Messages.getString( "MSG_CONSOLE_INIT_FINISH" );                                   //$NON-NLS-1$
   String MSG_LOGO1               =
       " Uskat admin console. Version: %s. " + COLOR_ID + "ToxSoft" + COLOR_RESET + " Ltd. www.toxsoft.ru. 1993-2025.";
   String MSG_LOGO2               = " Use the " + COLOR_ID + "help" + COLOR_RESET + " command for more information.";
   String MSG_RCM_WIDTH           = COLOR_WARN + "Рекомендуемая ширина буфера консоли %d символов" + COLOR_RESET + ".";
-  String MSG_PROMPT_START        = "[";
-  String MSG_PROMPT_FINISH       = "]$";
-  String MSG_RETRY_ENTRY         = "Повторить ввод значения";
-  String MSG_ANSWER_YES          = "y";
+  String MSG_PROMPT_START        = "[";                                                                               //$NON-NLS-1$
+  String MSG_PROMPT_FINISH       = "]$";                                                                              //$NON-NLS-1$
+  String MSG_RETRY_ENTRY         = Messages.getString( "MSG_RETRY_ENTRY" );                                           //$NON-NLS-1$
+  String MSG_ANSWER_YES          = Messages.getString( "MSG_ANSWER_YES" );                                            //$NON-NLS-1$
   String MSG_CMD_START_EXECUTE   = "%s%s" + COLOR_RESET;
   String MSG_CMD_FINISH_ID       = "Команда " + COLOR_ID + "%s" + COLOR_RESET + ". ";
   String MSG_CMD_FINISH_RESULT   = "Результат: %s%s" + COLOR_RESET + ". ";
-  String MSG_CONSOLE_FINISHED    = "skadmin завершил работу";
+  String MSG_CONSOLE_FINISHED    = Messages.getString( "MSG_CONSOLE_FINISHED" );                                      //$NON-NLS-1$
 
   /**
    * Идентификатор аргумента "пароль"
    */
-  String PASSWORD_ARG_ID = "password";
+  String PASSWORD_ARG_ID = Messages.getString( "PASSWORD_ARG_ID" ); //$NON-NLS-1$
 
-  String MSG_ERR_CTX_MULTY_INPUTS      =
-      "Входной параметр контекста при указании выходных параметров может быть только один";
+  String MSG_ERR_CTX_MULTY_INPUTS      = Messages.getString( "MSG_ERR_CTX_MULTY_INPUTS" );                           //$NON-NLS-1$
   String MSG_ERR                       = COLOR_ERROR + "%s" + COLOR_RESET;
   String MSG_ERR_CMD_UNEXPECTED        = COLOR_ERROR + "Ошибка выполнения команды '%s'. Причина: '%s'" + COLOR_RESET;
   String MSG_ERR_READ_CONTEXT          =
       COLOR_ERROR + "Ошибка чтения файла контекста параметров %s. Причина: '%s'" + COLOR_RESET;
-  String MSG_ERR_CMD_REJECT            = "Отказ пользователя от выполнения команды '%s'.";
-  String MSG_ERR_ARG_NOT_FOUND         = "Для выполнения команды '%s' не указан аргумент '%s'.";
-  String MSG_ERR_CONTEXT_ARG_NOT_FOUND = "В контексте не найден параметр: '%s'";
-  String MSG_ERR_CONTEXT_OVER_INPUT    =
-      "Фактическое количество параметров контекста превышает требуемое для выполнения команды: %d (требуется: %d)";
+  String MSG_ERR_CMD_REJECT            = Messages.getString( "MSG_ERR_CMD_REJECT" );                                 //$NON-NLS-1$
+  String MSG_ERR_ARG_NOT_FOUND         = Messages.getString( "MSG_ERR_ARG_NOT_FOUND" );                              //$NON-NLS-1$
+  String MSG_ERR_CONTEXT_ARG_NOT_FOUND = Messages.getString( "MSG_ERR_CONTEXT_ARG_NOT_FOUND" );                      //$NON-NLS-1$
+  String MSG_ERR_CONTEXT_OVER_INPUT    = Messages.getString( "MSG_ERR_CONTEXT_OVER_INPUT" );                         //$NON-NLS-1$
 }
