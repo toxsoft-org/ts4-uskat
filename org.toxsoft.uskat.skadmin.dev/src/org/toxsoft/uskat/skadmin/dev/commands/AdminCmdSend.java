@@ -9,11 +9,11 @@ import static org.toxsoft.uskat.skadmin.dev.commands.IAdminHardResources.*;
 
 import org.toxsoft.core.tslib.av.*;
 import org.toxsoft.core.tslib.av.impl.*;
+import org.toxsoft.core.tslib.av.metainfo.*;
 import org.toxsoft.core.tslib.av.opset.*;
 import org.toxsoft.core.tslib.bricks.events.change.*;
 import org.toxsoft.core.tslib.bricks.strid.coll.*;
 import org.toxsoft.core.tslib.bricks.threadexec.*;
-import org.toxsoft.core.tslib.bricks.validator.*;
 import org.toxsoft.core.tslib.coll.*;
 import org.toxsoft.core.tslib.coll.impl.*;
 import org.toxsoft.core.tslib.coll.primtypes.*;
@@ -44,11 +44,6 @@ public class AdminCmdSend
    * Обратный вызов выполняемой команды
    */
   private IAdminCmdCallback callback;
-
-  /**
-   * API сервера
-   */
-  private ISkCoreApi coreApi;
 
   /**
    * Конструктор
@@ -107,10 +102,9 @@ public class AdminCmdSend
 
   @Override
   public void doExec( IStringMap<IPlexyValue> aArgValues, IAdminCmdCallback aCallback ) {
-
     callback = aCallback;
     // API сервера
-    coreApi = argSingleRef( CTX_SK_CORE_API );
+    ISkCoreApi coreApi = argSingleRef( CTX_SK_CORE_API );
     ISkSysdescr sysdescr = coreApi.sysdescr();
     ISkCommandService commandService = coreApi.cmdService();
     try {
@@ -143,20 +137,27 @@ public class AdminCmdSend
         for( Skid objId : objIds ) {
           Gwid cmdGwid = Gwid.createCmd( objId, cmdId );
           Skid authorSkid = new Skid( authorClassId.asString(), authorStrid.asString() );
-          // Задача команды
-          AdminCmdSendTask task = new AdminCmdSendTask( this, cmdGwid, args, authorSkid );
           // Выполнение
-          threadExecutor.syncExec( task );
-          // Если требуется, ожидание выполнения команды
+          threadExecutor.syncExec( () -> {
+            ISkClassInfo classInfo = sysdescr.getClassInfo( classId );
+            IDtoCmdInfo cmdInfo = classInfo.cmds().list().findByKey( cmdId );
+            // check command arguments are valid
+            for( IDataDef argInfo : cmdInfo.argDefs() ) {
+              if( !args.hasKey( argInfo.id() ) ) {
+                println( MSG_COMMAND_ARG_NOT_FOUND, argInfo.id() );
+                resultFail();
+                return;
+              }
+            }
+            ISkCommand cmd = commandService.sendCommand( cmdGwid, authorSkid, args );
+            // Установка слушателя команды
+            cmd.stateEventer().addListener( AdminCmdSend.this );
+            // Команда отправлена на выполнение
+            println( MSG_COMMAND_SEND, cmd.instanceId(), cmd.cmdGwid() );
+          } );
           synchronized (this) {
-            ValidationResult result = task.resultOrNull();
-            if( result != null ) {
-              println( task.resultOrNull().message() );
-            }
-            if( result == null ) {
-              // Ожидание выполнения команды
-              wait();
-            }
+            // Ожидание выполнения команды
+            wait();
           }
         }
         long delta = (System.currentTimeMillis() - startTime) / 1000;
@@ -184,7 +185,7 @@ public class AdminCmdSend
     ITsThreadExecutor threadExecutor = SkThreadExecutorService.getExecutor( pxCoreApi.singleRef() );
     // Определение допускаяемых значений
     threadExecutor.syncExec( () -> {
-      coreApi = (ISkCoreApi)pxCoreApi.singleRef();
+      ISkCoreApi coreApi = (ISkCoreApi)pxCoreApi.singleRef();
       ISkSysdescr sysdescr = coreApi.sysdescr();
       ISkObjectService objService = coreApi.objService();
       if( aArgId.equals( ARG_SEND_CLASSID.id() ) ) {
@@ -269,12 +270,8 @@ public class AdminCmdSend
   // }
 
   // ------------------------------------------------------------------------------------
-  // Методы пакета
+  // Внутренние методы
   //
-  ISkCoreApi coreApi() {
-    return coreApi;
-  }
-
   /**
    * Вывести сообщение в callback клиента
    *
@@ -282,13 +279,9 @@ public class AdminCmdSend
    * @param aArgs Object[] - аргументы сообщения
    * @throws TsNullArgumentRtException любой аргумент = null
    */
-  void println( String aMessage, Object... aArgs ) {
+  private void println( String aMessage, Object... aArgs ) {
     print( aMessage + '\n', aArgs );
   }
-
-  // ------------------------------------------------------------------------------------
-  // Внутренние методы
-  //
 
   /**
    * Вывести сообщение в callback клиента

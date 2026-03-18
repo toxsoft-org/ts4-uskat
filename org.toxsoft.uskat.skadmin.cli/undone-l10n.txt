@@ -1,3 +1,0 @@
---- org.toxsoft.uskat.skadmin.cli.parsers;
---- org.toxsoft.uskat.skadmin.cli; (+FIXME)
---- org.toxsoft.uskat.skadmin.cli.cmds; (+FIXME)
