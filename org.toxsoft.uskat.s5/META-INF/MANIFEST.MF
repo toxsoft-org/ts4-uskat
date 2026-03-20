@@ -4,8 +4,7 @@ Bundle-Name: uskat s5 backend implementation
 Bundle-SymbolicName: org.toxsoft.uskat.s5
 Bundle-Version: 1.0.0.qualifier
 Bundle-Vendor: ToxSoft Ltd.
-Require-Bundle: org.toxsoft.extlibs.log4j,
- org.toxsoft.extlibs.wildfly,
+Require-Bundle: org.toxsoft.extlibs.wildfly,
  org.toxsoft.core.tslib,
  org.toxsoft.core.pas,
  org.toxsoft.core.log4j,
@@ -67,6 +66,7 @@ Export-Package: org.toxsoft.uskat.classes,
  org.toxsoft.uskat.s5.server.entities,
  org.toxsoft.uskat.s5.server.frontend,
  org.toxsoft.uskat.s5.server.interceptors,
+ org.toxsoft.uskat.s5.server.logger,
  org.toxsoft.uskat.s5.server.sequences,
  org.toxsoft.uskat.s5.server.sequences.cluster,
  org.toxsoft.uskat.s5.server.sequences.impl,

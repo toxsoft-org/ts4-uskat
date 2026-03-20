@@ -1,8 +1,7 @@
 package org.toxsoft.uskat.s5.common;
 
-import static org.toxsoft.core.log4j.LoggerWrapper.*;
-
 import org.toxsoft.core.tslib.utils.logs.*;
+import org.toxsoft.uskat.s5.server.logger.*;
 
 /**
  * Общие локализуемые ресурсы.
@@ -27,7 +26,7 @@ public interface IS5CommonResources {
   /**
    * Журнал работы
    */
-  ILogger commonResourceLogger = getLogger( IS5CommonResources.class );
+  ILogger commonResourceLogger = LoggerWrapper.getLogger( IS5CommonResources.class );
 
   // ------------------------------------------------------------------------------------
   // Вспомогательные методы

@@ -2,8 +2,6 @@ package org.toxsoft.uskat.s5.server.backend.supports.links;
 
 import java.lang.reflect.*;
 
-import javax.persistence.*;
-
 import org.toxsoft.core.tslib.coll.*;
 import org.toxsoft.core.tslib.coll.impl.*;
 import org.toxsoft.core.tslib.coll.primtypes.*;
@@ -13,6 +11,8 @@ import org.toxsoft.core.tslib.utils.errors.*;
 import org.toxsoft.uskat.core.api.linkserv.*;
 import org.toxsoft.uskat.core.api.sysdescr.*;
 import org.toxsoft.uskat.s5.common.sysdescr.*;
+
+import jakarta.persistence.*;
 
 /**
  * Вспомогательный класс записи связей между объектами

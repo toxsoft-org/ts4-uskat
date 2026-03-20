@@ -1,18 +1,15 @@
 package org.toxsoft.uskat.s5.utils;
 
-import static org.toxsoft.core.log4j.LoggerWrapper.*;
-
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.URL;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
+import java.io.*;
+import java.net.*;
+import java.text.*;
 import java.util.*;
-import java.util.jar.Manifest;
+import java.util.jar.*;
 
-import org.toxsoft.core.tslib.utils.errors.TsNullArgumentRtException;
-import org.toxsoft.core.tslib.utils.logs.ILogger;
-import org.toxsoft.uskat.s5.server.backend.impl.S5BackendSession;
+import org.toxsoft.core.tslib.utils.errors.*;
+import org.toxsoft.core.tslib.utils.logs.*;
+import org.toxsoft.uskat.s5.server.backend.impl.*;
+import org.toxsoft.uskat.s5.server.logger.*;
 
 /**
  * Вспомогательные методы работы с манифестом
@@ -31,7 +28,7 @@ public class S5ManifestUtils {
    * Журнал
    */
   @SuppressWarnings( "unused" )
-  private static final ILogger logger = getLogger( S5ManifestUtils.class );
+  private static final ILogger logger = LoggerWrapper.getLogger( S5ManifestUtils.class );
 
   /**
    * Считывает из манифеста время сборки сервера

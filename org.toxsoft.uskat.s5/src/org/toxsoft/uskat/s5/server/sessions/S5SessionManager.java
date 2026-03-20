@@ -11,9 +11,6 @@ import static org.toxsoft.uskat.s5.server.sessions.cluster.S5ClusterCommandClose
 import static org.toxsoft.uskat.s5.server.sessions.cluster.S5ClusterCommandCreateCallback.*;
 import static org.toxsoft.uskat.s5.server.sessions.cluster.S5ClusterCommandUpdateSession.*;
 
-import javax.annotation.*;
-import javax.ejb.*;
-
 import org.infinispan.*;
 import org.infinispan.commons.util.*;
 import org.toxsoft.core.tslib.av.*;
@@ -60,6 +57,9 @@ import org.toxsoft.uskat.s5.server.startup.*;
 import org.toxsoft.uskat.s5.server.statistics.*;
 import org.toxsoft.uskat.s5.utils.jobs.*;
 import org.wildfly.clustering.group.*;
+
+import jakarta.annotation.*;
+import jakarta.ejb.*;
 
 /**
  * Управление сессиями сервера

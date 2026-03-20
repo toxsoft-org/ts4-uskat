@@ -1,8 +1,8 @@
 package org.toxsoft.uskat.s5.server.transactions;
 
-import javax.ejb.Local;
+import org.toxsoft.core.tslib.utils.errors.*;
 
-import org.toxsoft.core.tslib.utils.errors.TsIllegalArgumentRtException;
+import jakarta.ejb.*;
 
 /**
  * Слушатель транзакций

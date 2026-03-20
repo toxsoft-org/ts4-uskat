@@ -1,13 +1,13 @@
 package org.toxsoft.uskat.s5.server.backend.supports.events;
 
-import javax.ejb.*;
-
 import org.toxsoft.core.tslib.bricks.time.*;
 import org.toxsoft.core.tslib.gw.gwid.*;
 import org.toxsoft.core.tslib.utils.errors.*;
 import org.toxsoft.core.tslib.utils.logs.*;
 import org.toxsoft.uskat.core.api.evserv.*;
 import org.toxsoft.uskat.s5.server.interceptors.*;
+
+import jakarta.ejb.*;
 
 /**
  * Перехватчик операций записи событий в системе .

@@ -4,7 +4,6 @@ import static org.toxsoft.uskat.s5.common.sysdescr.ISkResources.*;
 
 import java.util.concurrent.locks.*;
 
-import org.toxsoft.core.log4j.*;
 import org.toxsoft.core.tslib.bricks.strid.coll.*;
 import org.toxsoft.core.tslib.bricks.strid.coll.impl.*;
 import org.toxsoft.core.tslib.coll.primtypes.*;
@@ -15,6 +14,7 @@ import org.toxsoft.core.tslib.utils.logs.*;
 import org.toxsoft.uskat.core.api.sysdescr.*;
 import org.toxsoft.uskat.core.api.sysdescr.dto.*;
 import org.toxsoft.uskat.core.impl.*;
+import org.toxsoft.uskat.s5.server.logger.*;
 
 /**
  * Реализация {@link ISkSysdescrReader}

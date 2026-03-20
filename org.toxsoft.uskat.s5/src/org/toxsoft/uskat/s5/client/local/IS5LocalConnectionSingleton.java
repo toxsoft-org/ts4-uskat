@@ -1,11 +1,11 @@
 package org.toxsoft.uskat.s5.client.local;
 
-import javax.ejb.*;
-
 import org.toxsoft.core.tslib.bricks.ctx.*;
 import org.toxsoft.core.tslib.utils.errors.*;
 import org.toxsoft.uskat.core.connection.*;
 import org.toxsoft.uskat.core.impl.*;
+
+import jakarta.ejb.*;
 
 /**
  * Поставщик соединений {@link ISkConnection} с локальным сервером.

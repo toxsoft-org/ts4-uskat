@@ -2,11 +2,11 @@ package org.toxsoft.uskat.s5.server.transactions;
 
 import java.lang.reflect.*;
 
-import javax.ejb.*;
-
 import org.toxsoft.core.tslib.bricks.strid.*;
 import org.toxsoft.core.tslib.coll.*;
 import org.toxsoft.core.tslib.utils.errors.*;
+
+import jakarta.ejb.*;
 
 /**
  * Транзакция сервера s5

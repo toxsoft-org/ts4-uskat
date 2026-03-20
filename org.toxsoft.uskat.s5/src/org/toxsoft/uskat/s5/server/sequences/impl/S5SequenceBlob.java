@@ -13,12 +13,12 @@ import java.lang.reflect.*;
 import java.lang.reflect.Array;
 import java.sql.*;
 
-import javax.persistence.*;
-
 import org.toxsoft.core.tslib.bricks.validator.vrl.*;
 import org.toxsoft.core.tslib.coll.primtypes.*;
 import org.toxsoft.core.tslib.coll.primtypes.impl.*;
 import org.toxsoft.core.tslib.utils.errors.*;
+
+import jakarta.persistence.*;
 
 /**
  * Абстрактная реализация хранения данных блоков в blob.
@@ -210,7 +210,6 @@ public class S5SequenceBlob<BLOCK extends S5SequenceBlock<?, ?, ?>, BLOB_ARRAY, 
    * @throws TsNullArgumentRtException аргумент = null
    */
   final void executeInsert( EntityManager aEntityManager ) {
-    TsNullArgumentRtException.checkNull( aEntityManager );
     // Имя таблицы реализации блока
     String tableName = getLast( getClass().getName() );
     // Параметры запроса. Ключ: имя поля. Значение: значение поля

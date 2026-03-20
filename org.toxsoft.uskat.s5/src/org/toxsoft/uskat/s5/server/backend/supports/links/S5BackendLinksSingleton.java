@@ -13,9 +13,6 @@ import java.lang.reflect.*;
 import java.util.*;
 import java.util.concurrent.*;
 
-import javax.annotation.*;
-import javax.ejb.*;
-import javax.persistence.*;
 import javax.sql.*;
 
 import org.hibernate.*;
@@ -40,6 +37,10 @@ import org.toxsoft.uskat.s5.server.backend.supports.events.*;
 import org.toxsoft.uskat.s5.server.backend.supports.objects.*;
 import org.toxsoft.uskat.s5.server.backend.supports.sysdescr.*;
 import org.toxsoft.uskat.s5.server.interceptors.*;
+
+import jakarta.annotation.*;
+import jakarta.ejb.*;
+import jakarta.persistence.*;
 
 /**
  * Реализация {@link IS5BackendLinksSingleton}.

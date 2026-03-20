@@ -1,9 +1,9 @@
 package org.toxsoft.uskat.s5.server.backend.addons.objects;
 
-import javax.ejb.Remote;
+import org.toxsoft.uskat.core.backend.api.*;
+import org.toxsoft.uskat.s5.server.backend.addons.*;
 
-import org.toxsoft.uskat.core.backend.api.IBaObjects;
-import org.toxsoft.uskat.s5.server.backend.addons.IS5BackendAddonSession;
+import jakarta.ejb.*;
 
 /**
  * Сессия расширения backend {@link IBaObjects}

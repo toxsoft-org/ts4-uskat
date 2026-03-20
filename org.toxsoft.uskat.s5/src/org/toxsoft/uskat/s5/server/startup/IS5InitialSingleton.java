@@ -1,10 +1,9 @@
 package org.toxsoft.uskat.s5.server.startup;
 
-import javax.ejb.Local;
+import org.toxsoft.core.tslib.av.opset.*;
+import org.toxsoft.core.tslib.utils.errors.*;
 
-import org.toxsoft.core.tslib.av.opset.IOptionSet;
-import org.toxsoft.core.tslib.utils.errors.TsIllegalArgumentRtException;
-import org.toxsoft.core.tslib.utils.errors.TsNullArgumentRtException;
+import jakarta.ejb.*;
 
 /**
  * Локальный интерфейс синглтона, стартующего первым на сервере.

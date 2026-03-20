@@ -1,9 +1,9 @@
 package org.toxsoft.uskat.s5.server.transactions;
 
-import javax.ejb.Local;
-
 import org.toxsoft.core.tslib.utils.errors.*;
-import org.toxsoft.uskat.s5.common.info.ITransactionsInfos;
+import org.toxsoft.uskat.s5.common.info.*;
+
+import jakarta.ejb.*;
 
 /**
  * Локальный интерфейс синглтона мониторнига и управления транзакциями сервера s5

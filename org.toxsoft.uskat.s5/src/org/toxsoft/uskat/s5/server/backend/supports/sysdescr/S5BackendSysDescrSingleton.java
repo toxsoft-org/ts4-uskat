@@ -12,9 +12,6 @@ import static org.toxsoft.uskat.s5.server.transactions.ES5TransactionResources.*
 import java.util.*;
 import java.util.concurrent.*;
 
-import javax.ejb.*;
-import javax.persistence.*;
-
 import org.hibernate.exception.*;
 import org.toxsoft.core.tslib.bricks.events.msg.*;
 import org.toxsoft.core.tslib.bricks.strid.*;
@@ -39,6 +36,9 @@ import org.toxsoft.uskat.s5.server.frontend.*;
 import org.toxsoft.uskat.s5.server.interceptors.*;
 import org.toxsoft.uskat.s5.server.startup.*;
 import org.toxsoft.uskat.s5.server.transactions.*;
+
+import jakarta.ejb.*;
+import jakarta.persistence.*;
 
 /**
  * Реализация {@link IS5BackendObjectsSingleton}.

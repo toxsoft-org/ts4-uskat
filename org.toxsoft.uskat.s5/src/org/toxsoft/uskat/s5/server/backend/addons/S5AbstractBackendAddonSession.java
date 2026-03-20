@@ -1,13 +1,9 @@
 package org.toxsoft.uskat.s5.server.backend.addons;
 
-import static org.toxsoft.core.log4j.LoggerWrapper.*;
 import static org.toxsoft.uskat.s5.server.IS5ImplementConstants.*;
 
 import java.rmi.*;
 import java.util.concurrent.*;
-
-import javax.annotation.*;
-import javax.ejb.*;
 
 import org.toxsoft.core.tslib.bricks.strid.*;
 import org.toxsoft.core.tslib.bricks.strid.impl.*;
@@ -17,10 +13,14 @@ import org.toxsoft.core.tslib.utils.logs.*;
 import org.toxsoft.uskat.classes.*;
 import org.toxsoft.uskat.s5.server.backend.*;
 import org.toxsoft.uskat.s5.server.frontend.*;
+import org.toxsoft.uskat.s5.server.logger.*;
 import org.toxsoft.uskat.s5.server.sessions.*;
 import org.toxsoft.uskat.s5.server.sessions.init.*;
 import org.toxsoft.uskat.s5.server.sessions.pas.*;
 import org.toxsoft.uskat.s5.server.statistics.*;
+
+import jakarta.annotation.*;
+import jakarta.ejb.*;
 
 /**
  * Абстрактная реализация сессии расширения backend
@@ -295,7 +295,7 @@ public abstract class S5AbstractBackendAddonSession
    */
   protected final ILogger logger() {
     if( logger == null ) {
-      logger = getLogger( getClass() );
+      logger = LoggerWrapper.getLogger( getClass() );
     }
     return logger;
   }

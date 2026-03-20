@@ -1,7 +1,6 @@
 package org.toxsoft.uskat.s5.server.backend.supports.objects;
 
 import static java.lang.String.*;
-import static org.toxsoft.core.log4j.LoggerWrapper.*;
 import static org.toxsoft.core.tslib.bricks.strid.impl.StridUtils.*;
 import static org.toxsoft.uskat.s5.common.IS5CommonResources.*;
 import static org.toxsoft.uskat.s5.server.IS5ServerHardConstants.*;
@@ -12,8 +11,6 @@ import static org.toxsoft.uskat.s5.server.backend.supports.objects.S5ObjectRefle
 
 import java.lang.reflect.*;
 import java.sql.*;
-
-import javax.persistence.*;
 
 import org.toxsoft.core.tslib.av.opset.impl.*;
 import org.toxsoft.core.tslib.coll.*;
@@ -26,6 +23,9 @@ import org.toxsoft.core.tslib.utils.logs.*;
 import org.toxsoft.uskat.core.api.objserv.*;
 import org.toxsoft.uskat.core.api.sysdescr.*;
 import org.toxsoft.uskat.s5.common.sysdescr.*;
+import org.toxsoft.uskat.s5.server.logger.*;
+
+import jakarta.persistence.*;
 
 /**
  * Служебные константы и методы для выполнения SQL-запросов
@@ -38,7 +38,7 @@ class S5ObjectsSQL {
   /**
    * Журнал работы
    */
-  private static final ILogger logger = getLogger( S5ObjectsSQL.class );
+  private static final ILogger logger = LoggerWrapper.getLogger( S5ObjectsSQL.class );
 
   // ------------------------------------------------------------------------------------
   // Запросы

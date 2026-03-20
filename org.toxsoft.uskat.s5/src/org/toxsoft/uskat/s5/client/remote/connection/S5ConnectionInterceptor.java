@@ -18,6 +18,8 @@ import org.toxsoft.uskat.s5.server.backend.addons.*;
 import org.toxsoft.uskat.s5.server.sessions.init.*;
 import org.wildfly.security.auth.client.*;
 
+import jakarta.ejb.*;
+
 /**
  * Перехват удаленных вызовов к серверу:
  * <li>1. Замена proxy remote-служб на proxy в контексте клиента;</li>
@@ -100,6 +102,8 @@ class S5ConnectionInterceptor
     // В tm2, при подключении к системе через проброс порта промежуточных компьютеров и роутеров
     // потребовалось явно устанавливать affinity для каждого вызова.
     // Необходимо проверить что это будет работать на кластерных конфигурациях сервера
+    // 2026-03-20 mvk ---+++
+    // Affinity standaloneAffinity = connection.getStandaloneAffinityOrNull();
     Affinity standaloneAffinity = connection.getStandaloneAffinityOrNull();
     if( standaloneAffinity != null ) {
       aInvocationContext.setWeakAffinity( standaloneAffinity );
@@ -114,7 +118,7 @@ class S5ConnectionInterceptor
     try {
       originalResult = aInvocationContext.getResult();
     }
-    catch( javax.ejb.NoSuchEJBException e ) {
+    catch( NoSuchEJBException e ) {
       if( connection.state() == EConnectionState.DISCONNECTED ) {
         // Невозможно найти EJB при завершении работы соединения
         Method method = aInvocationContext.getInvokedMethod();
@@ -218,7 +222,9 @@ class S5ConnectionInterceptor
       final Object ejbProxy = aOriginalResult;
       // // we *don'debug* change the locator of the original proxy
       final EJBLocator<?> ejbLocator = EJBClient.getLocatorFor( ejbProxy );
-      Object ejb = EJBClient.createProxy3( ejbLocator, aContextSupplier );
+      // 2026-03-20 mvk ---+++
+      // Object ejb = EJBClient.createProxy3( ejbLocator, aContextSupplier );
+      Object ejb = EJBClient.createProxy( ejbLocator );
       return ejb;
     }
     catch( Throwable e ) {

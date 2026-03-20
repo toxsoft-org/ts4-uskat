@@ -1,9 +1,9 @@
 package org.toxsoft.uskat.s5.server.backend.supports.core;
 
-import javax.ejb.*;
-
 import org.toxsoft.core.tslib.bricks.events.msg.*;
 import org.toxsoft.core.tslib.utils.errors.*;
+
+import jakarta.ejb.*;
 
 /**
  * Локальный интерфейс синглетона реализующего передачу сообщений бекенда.

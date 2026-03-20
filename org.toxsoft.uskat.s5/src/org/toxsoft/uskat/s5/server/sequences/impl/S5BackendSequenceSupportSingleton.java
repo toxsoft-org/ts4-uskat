@@ -1,6 +1,5 @@
 package org.toxsoft.uskat.s5.server.sequences.impl;
 
-import static org.toxsoft.core.log4j.LoggerWrapper.*;
 import static org.toxsoft.core.tslib.av.impl.AvUtils.*;
 import static org.toxsoft.core.tslib.bricks.time.EQueryIntervalType.*;
 import static org.toxsoft.core.tslib.bricks.time.impl.TimeUtils.*;
@@ -21,10 +20,6 @@ import java.sql.*;
 import java.util.*;
 import java.util.concurrent.*;
 
-import javax.annotation.*;
-import javax.ejb.*;
-import javax.enterprise.concurrent.*;
-import javax.persistence.*;
 import javax.sql.*;
 
 import org.jboss.ejb3.annotation.*;
@@ -59,6 +54,7 @@ import org.toxsoft.uskat.s5.server.backend.impl.*;
 import org.toxsoft.uskat.s5.server.backend.supports.objects.*;
 import org.toxsoft.uskat.s5.server.backend.supports.sysdescr.*;
 import org.toxsoft.uskat.s5.server.frontend.*;
+import org.toxsoft.uskat.s5.server.logger.*;
 import org.toxsoft.uskat.s5.server.sequences.*;
 import org.toxsoft.uskat.s5.server.sequences.maintenance.*;
 import org.toxsoft.uskat.s5.server.sequences.reader.*;
@@ -66,6 +62,12 @@ import org.toxsoft.uskat.s5.server.sequences.writer.*;
 import org.toxsoft.uskat.s5.server.singletons.*;
 import org.toxsoft.uskat.s5.server.statistics.*;
 import org.toxsoft.uskat.s5.utils.*;
+
+import jakarta.annotation.*;
+import jakarta.ejb.*;
+import jakarta.ejb.Asynchronous;
+import jakarta.enterprise.concurrent.*;
+import jakarta.persistence.*;
 
 /**
  * Базовая (абстрактная) реализация синглетона поддержки бекенда обрабатывающего последовательности данных
@@ -215,17 +217,17 @@ public abstract class S5BackendSequenceSupportSingleton<S extends IS5Sequence<V>
   /**
    * Журнал записи последовательностей
    */
-  private ILogger writeLogger = getLogger( LOG_WRITER_ID );
+  private ILogger writeLogger = LoggerWrapper.getLogger( LOG_WRITER_ID );
 
   /**
    * Журнал дефрагментации последовательностей
    */
-  private ILogger uniterLogger = getLogger( LOG_UNITER_ID );
+  private ILogger uniterLogger = LoggerWrapper.getLogger( LOG_UNITER_ID );
 
   /**
    * Журнал обработки разделов таблиц
    */
-  private ILogger partitionLogger = getLogger( LOG_PARTITION_ID );
+  private ILogger partitionLogger = LoggerWrapper.getLogger( LOG_PARTITION_ID );
 
   /**
    * Конструктор для наследников.
@@ -676,7 +678,7 @@ public abstract class S5BackendSequenceSupportSingleton<S extends IS5Sequence<V>
           break;
       }
       // Запись хранимых данных
-      IS5SequenceWriteStat writeStat = sequenceWriter.write( entityManager(), aSequences );
+      IS5SequenceWriteStat writeStat = sequenceWriter.write( em, aSequences );
       // Формирование статистики
       if( stat != null ) {
         IS5DbmsStatistics dbmsStat = writeStat.dbmsStatistics();

@@ -1,9 +1,9 @@
 package org.toxsoft.uskat.s5.schedules.supports;
 
-import javax.ejb.Local;
+import org.toxsoft.uskat.s5.schedules.lib.*;
+import org.toxsoft.uskat.s5.server.backend.*;
 
-import org.toxsoft.uskat.s5.schedules.lib.IBaSchedules;
-import org.toxsoft.uskat.s5.server.backend.IS5BackendSupportSingleton;
+import jakarta.ejb.*;
 
 /**
  * Локальный интерфейс синглетона backend {@link IBaSchedules} предоставляемый s5-сервером.

@@ -1,6 +1,5 @@
 package org.toxsoft.uskat.s5.server.transactions;
 
-import static org.toxsoft.core.log4j.LoggerWrapper.*;
 import static org.toxsoft.uskat.s5.common.IS5CommonResources.*;
 import static org.toxsoft.uskat.s5.server.IS5ImplementConstants.*;
 import static org.toxsoft.uskat.s5.server.transactions.IS5Resources.*;
@@ -8,11 +7,6 @@ import static org.toxsoft.uskat.s5.utils.threads.impl.S5Lockable.*;
 
 import java.io.*;
 import java.lang.reflect.*;
-
-import javax.annotation.*;
-import javax.ejb.*;
-import javax.interceptor.*;
-import javax.transaction.*;
 
 import org.toxsoft.core.tslib.bricks.strid.impl.*;
 import org.toxsoft.core.tslib.coll.*;
@@ -23,8 +17,14 @@ import org.toxsoft.core.tslib.utils.*;
 import org.toxsoft.core.tslib.utils.errors.*;
 import org.toxsoft.core.tslib.utils.logs.*;
 import org.toxsoft.uskat.s5.common.info.*;
+import org.toxsoft.uskat.s5.server.logger.*;
 import org.toxsoft.uskat.s5.server.singletons.*;
 import org.toxsoft.uskat.s5.utils.threads.impl.*;
+
+import jakarta.annotation.*;
+import jakarta.ejb.*;
+import jakarta.interceptor.*;
+import jakarta.transaction.*;
 
 /**
  * Начало выполнения кода сервера S5 - первый стартующий синглтон.
@@ -127,7 +127,7 @@ public class S5TransactionManager
   /**
    * Журнал
    */
-  private final ILogger logger = getLogger( getClass() );
+  private final ILogger logger = LoggerWrapper.getLogger( getClass() );
 
   /**
    * Пустой конструктор.

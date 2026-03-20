@@ -1,7 +1,5 @@
 package org.toxsoft.uskat.s5.server.sequences;
 
-import javax.ejb.*;
-
 import org.toxsoft.core.tslib.av.opset.*;
 import org.toxsoft.core.tslib.bricks.time.*;
 import org.toxsoft.core.tslib.coll.*;
@@ -12,6 +10,8 @@ import org.toxsoft.uskat.s5.server.backend.supports.sysdescr.*;
 import org.toxsoft.uskat.s5.server.sequences.impl.*;
 import org.toxsoft.uskat.s5.server.sequences.maintenance.*;
 import org.toxsoft.uskat.s5.server.sequences.reader.*;
+
+import jakarta.ejb.*;
 
 /**
  * Локальный интерфейс поддержки бекенда обрабатывающего последовательности данных {@link IS5Sequence}.

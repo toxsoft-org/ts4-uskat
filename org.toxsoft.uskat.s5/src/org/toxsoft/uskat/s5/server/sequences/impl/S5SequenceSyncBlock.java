@@ -8,8 +8,6 @@ import static org.toxsoft.uskat.s5.server.sequences.impl.IS5Resources.*;
 import java.lang.reflect.Array;
 import java.sql.*;
 
-import javax.persistence.*;
-
 import org.toxsoft.core.tslib.av.utils.*;
 import org.toxsoft.core.tslib.bricks.time.*;
 import org.toxsoft.core.tslib.bricks.validator.*;
@@ -21,6 +19,8 @@ import org.toxsoft.core.tslib.utils.errors.*;
 import org.toxsoft.core.tslib.utils.logs.*;
 import org.toxsoft.uskat.s5.server.sequences.*;
 import org.toxsoft.uskat.s5.server.sequences.maintenance.*;
+
+import jakarta.persistence.*;
 
 /**
  * Блок хранения синхронных данных.

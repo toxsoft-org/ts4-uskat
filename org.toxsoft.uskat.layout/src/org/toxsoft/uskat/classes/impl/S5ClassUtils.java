@@ -13,6 +13,7 @@ import org.toxsoft.core.tslib.av.metainfo.*;
 import org.toxsoft.core.tslib.av.opset.impl.*;
 import org.toxsoft.core.tslib.bricks.strid.coll.*;
 import org.toxsoft.core.tslib.bricks.strid.coll.impl.*;
+import org.toxsoft.core.tslib.coll.*;
 import org.toxsoft.core.tslib.coll.helpers.*;
 import org.toxsoft.core.tslib.coll.impl.*;
 import org.toxsoft.core.tslib.coll.primtypes.*;
@@ -280,6 +281,32 @@ public class S5ClassUtils {
                 DDEF_DESCRIPTION, STR_LNKID_CLUSTERNODE_SERVER_D ) ) //
     );
     retValue.rtdataInfos().addAll( listStatRtdInfos( IS5ServerHardConstants.STAT_BACKEND_NODE_PARAMS ) );
+    return retValue;
+  }
+
+  /**
+   * Проверяет, если необходимо добавляет в класс указанного объекта, указанные параметры статистики
+   *
+   * @param aStatInfos {@link IStridablesList} список описаний параметров статистики
+   * @throws TsNullArgumentRtException любой аргумент = null
+   */
+  private static IList<IDtoRtdataInfo> listStatRtdInfos( IStridablesList<S5StatisticParamInfo> aStatInfos ) {
+    TsNullArgumentRtException.checkNulls( aStatInfos );
+    IListEdit<IDtoRtdataInfo> retValue = new ElemLinkedList<>();
+    for( S5StatisticParamInfo statInfo : aStatInfos ) {
+      for( IS5StatisticInterval interval : statInfo.intervals() ) {
+        String dataId = S5StatisticWriter.getDataId( interval, statInfo.id() );
+        // Описание базового данного
+        IDtoRtdataInfo info = DtoRtdataInfo.create1( //
+            dataId, new DataType( statInfo.atomicType(), OptionSetUtils.createOpSet( //
+                DDEF_DEFAULT_VALUE, statInfo.params().getValue( TSID_DEFAULT_VALUE ) ) ),
+            true, true, true, interval.milli(), //
+            OptionSetUtils.createOpSet( //
+                DDEF_NAME, statInfo.nmName() + '(' + interval.nmName() + ')', //
+                DDEF_DESCRIPTION, statInfo.description() + '(' + statInfo.description() + ')' ) );
+        retValue.add( info );
+      }
+    }
     return retValue;
   }
 }

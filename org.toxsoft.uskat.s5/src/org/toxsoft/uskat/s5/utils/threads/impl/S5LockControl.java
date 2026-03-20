@@ -1,22 +1,19 @@
 package org.toxsoft.uskat.s5.utils.threads.impl;
 
 import static java.util.concurrent.TimeUnit.*;
-import static org.toxsoft.core.log4j.LoggerWrapper.*;
 import static org.toxsoft.uskat.s5.utils.threads.impl.IS5Resources.*;
 import static org.toxsoft.uskat.s5.utils.threads.impl.S5Lockable.*;
 
-import java.util.Formatter;
-import java.util.concurrent.atomic.AtomicLong;
-import java.util.concurrent.locks.ReentrantReadWriteLock;
+import java.util.*;
+import java.util.concurrent.atomic.*;
+import java.util.concurrent.locks.*;
 
-import org.toxsoft.core.tslib.coll.IListEdit;
-import org.toxsoft.core.tslib.coll.IMapEdit;
-import org.toxsoft.core.tslib.coll.impl.ElemLinkedList;
-import org.toxsoft.core.tslib.coll.impl.ElemMap;
-import org.toxsoft.core.tslib.utils.TsLibUtils;
+import org.toxsoft.core.tslib.coll.*;
+import org.toxsoft.core.tslib.coll.impl.*;
+import org.toxsoft.core.tslib.utils.*;
 import org.toxsoft.core.tslib.utils.errors.*;
-import org.toxsoft.core.tslib.utils.logs.ELogSeverity;
-import org.toxsoft.core.tslib.utils.logs.ILogger;
+import org.toxsoft.core.tslib.utils.logs.*;
+import org.toxsoft.uskat.s5.server.logger.*;
 
 /**
  * Управление блокировкой
@@ -34,7 +31,7 @@ final class S5LockControl {
   private final IMapEdit<Thread, IListEdit<StackTraceElement[]>> readsByThreads  = new ElemMap<>();
   private final IMapEdit<Thread, IListEdit<StackTraceElement[]>> writesByThreads = new ElemMap<>();
 
-  private final ILogger logger = getLogger( getClass() );
+  private final ILogger logger = LoggerWrapper.getLogger( getClass() );
 
   /**
    * Конструктор

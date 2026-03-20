@@ -2,21 +2,19 @@ package org.toxsoft.uskat.s5.server.backend.supports.commands.impl;
 
 import static org.toxsoft.uskat.s5.utils.indexes.impl.S5BinaryIndexUtils.*;
 
-import java.sql.ResultSet;
+import java.sql.*;
 
-import javax.persistence.Entity;
-
-import org.toxsoft.core.tslib.av.utils.IParameterized;
-import org.toxsoft.core.tslib.bricks.time.ITimedList;
-import org.toxsoft.core.tslib.gw.gwid.EGwidKind;
-import org.toxsoft.core.tslib.gw.gwid.Gwid;
+import org.toxsoft.core.tslib.av.utils.*;
+import org.toxsoft.core.tslib.bricks.time.*;
+import org.toxsoft.core.tslib.gw.gwid.*;
 import org.toxsoft.core.tslib.utils.errors.*;
-import org.toxsoft.uskat.core.api.cmdserv.IDtoCompletedCommand;
-import org.toxsoft.uskat.s5.server.backend.supports.commands.sequences.S5CommandCursor;
-import org.toxsoft.uskat.s5.server.sequences.IS5SequenceBlockEdit;
-import org.toxsoft.uskat.s5.server.sequences.IS5SequenceCursor;
-import org.toxsoft.uskat.s5.server.sequences.impl.S5SequenceAsyncBlock;
-import org.toxsoft.uskat.s5.utils.indexes.ILongKey;
+import org.toxsoft.uskat.core.api.cmdserv.*;
+import org.toxsoft.uskat.s5.server.backend.supports.commands.sequences.*;
+import org.toxsoft.uskat.s5.server.sequences.*;
+import org.toxsoft.uskat.s5.server.sequences.impl.*;
+import org.toxsoft.uskat.s5.utils.indexes.*;
+
+import jakarta.persistence.*;
 
 /**
  * Блок хранения команд s5-объекта.

@@ -1,15 +1,13 @@
 package org.toxsoft.uskat.s5.server.backend.addons;
 
-import javax.ejb.Local;
+import org.toxsoft.core.tslib.bricks.strid.*;
+import org.toxsoft.core.tslib.utils.*;
+import org.toxsoft.core.tslib.utils.errors.*;
+import org.toxsoft.uskat.s5.server.backend.*;
+import org.toxsoft.uskat.s5.server.sessions.init.*;
+import org.toxsoft.uskat.s5.server.sessions.pas.*;
 
-import org.toxsoft.core.tslib.bricks.strid.IStridable;
-import org.toxsoft.core.tslib.utils.ICloseable;
-import org.toxsoft.core.tslib.utils.errors.TsNullArgumentRtException;
-import org.toxsoft.uskat.s5.server.backend.IS5BackendSessionControl;
-import org.toxsoft.uskat.s5.server.backend.IS5Verifiable;
-import org.toxsoft.uskat.s5.server.sessions.init.IS5SessionInitData;
-import org.toxsoft.uskat.s5.server.sessions.init.S5SessionInitResult;
-import org.toxsoft.uskat.s5.server.sessions.pas.S5SessionMessenger;
+import jakarta.ejb.*;
 
 /**
  * Управление сессией расширения бекенда. Работает только в локальном доступе к серверу (в том же процессе что и сервер)

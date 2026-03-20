@@ -1,6 +1,5 @@
 package org.toxsoft.uskat.s5.utils.threads.impl;
 
-import static org.toxsoft.core.log4j.LoggerWrapper.*;
 import static org.toxsoft.uskat.s5.utils.threads.impl.IS5Resources.*;
 
 import java.util.concurrent.*;
@@ -11,6 +10,7 @@ import org.toxsoft.core.tslib.coll.impl.*;
 import org.toxsoft.core.tslib.utils.errors.*;
 import org.toxsoft.core.tslib.utils.logs.*;
 import org.toxsoft.uskat.s5.common.error.*;
+import org.toxsoft.uskat.s5.server.logger.*;
 import org.toxsoft.uskat.s5.utils.threads.*;
 
 /**
@@ -44,7 +44,7 @@ public abstract class S5AbstactThreadExecutor<THREAD_TYPE extends IS5Thread>
     threadFactory = aThreadFactory;
     executor = null;
     threads = new ElemArrayList<>();
-    logger = getLogger( getClass() );
+    logger = LoggerWrapper.getLogger( getClass() );
   }
 
   /**
@@ -73,7 +73,7 @@ public abstract class S5AbstactThreadExecutor<THREAD_TYPE extends IS5Thread>
     threadFactory = null;
     executor = aExecutor;
     threads = new ElemArrayList<>();
-    logger = getLogger( getClass() );
+    logger = LoggerWrapper.getLogger( getClass() );
   }
 
   /**

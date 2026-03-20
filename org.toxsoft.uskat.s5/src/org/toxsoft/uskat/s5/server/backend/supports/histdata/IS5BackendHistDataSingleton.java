@@ -1,16 +1,15 @@
 package org.toxsoft.uskat.s5.server.backend.supports.histdata;
 
-import javax.ejb.Local;
-
-import org.toxsoft.core.tslib.av.temporal.ITemporalAtomicValue;
+import org.toxsoft.core.tslib.av.temporal.*;
 import org.toxsoft.core.tslib.bricks.time.*;
-import org.toxsoft.core.tslib.coll.IMap;
-import org.toxsoft.core.tslib.gw.gwid.EGwidKind;
-import org.toxsoft.core.tslib.gw.gwid.Gwid;
-import org.toxsoft.core.tslib.utils.Pair;
-import org.toxsoft.core.tslib.utils.errors.TsNullArgumentRtException;
-import org.toxsoft.uskat.core.api.evserv.SkEvent;
-import org.toxsoft.uskat.s5.server.sequences.IS5BackendSequenceSupportSingleton;
+import org.toxsoft.core.tslib.coll.*;
+import org.toxsoft.core.tslib.gw.gwid.*;
+import org.toxsoft.core.tslib.utils.*;
+import org.toxsoft.core.tslib.utils.errors.*;
+import org.toxsoft.uskat.core.api.evserv.*;
+import org.toxsoft.uskat.s5.server.sequences.*;
+
+import jakarta.ejb.*;
 
 /**
  * Локальный интерфейс синглетона запросов к хранимым данным предоставляемый s5-сервером.

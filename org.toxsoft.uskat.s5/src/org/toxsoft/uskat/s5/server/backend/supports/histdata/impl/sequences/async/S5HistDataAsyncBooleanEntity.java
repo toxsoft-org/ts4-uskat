@@ -5,21 +5,19 @@ import static org.toxsoft.uskat.s5.server.backend.supports.histdata.impl.sequenc
 import static org.toxsoft.uskat.s5.server.sequences.IS5SequenceHardConstants.*;
 import static org.toxsoft.uskat.s5.utils.indexes.impl.S5BinaryIndexUtils.*;
 
-import java.sql.ResultSet;
+import java.sql.*;
 
-import javax.persistence.Entity;
-
-import org.toxsoft.core.tslib.av.EAtomicType;
-import org.toxsoft.core.tslib.av.IAtomicValue;
-import org.toxsoft.core.tslib.av.errors.AvUnassignedValueRtException;
-import org.toxsoft.core.tslib.av.temporal.ITemporalAtomicValue;
-import org.toxsoft.core.tslib.av.temporal.TemporalAtomicValue;
-import org.toxsoft.core.tslib.av.utils.IParameterized;
-import org.toxsoft.core.tslib.bricks.time.ITimedList;
-import org.toxsoft.core.tslib.gw.gwid.Gwid;
+import org.toxsoft.core.tslib.av.*;
+import org.toxsoft.core.tslib.av.errors.*;
+import org.toxsoft.core.tslib.av.temporal.*;
+import org.toxsoft.core.tslib.av.utils.*;
+import org.toxsoft.core.tslib.bricks.time.*;
+import org.toxsoft.core.tslib.gw.gwid.*;
 import org.toxsoft.core.tslib.utils.errors.*;
-import org.toxsoft.uskat.s5.server.sequences.IS5SequenceBlockEdit;
-import org.toxsoft.uskat.s5.utils.indexes.ILongKey;
+import org.toxsoft.uskat.s5.server.sequences.*;
+import org.toxsoft.uskat.s5.utils.indexes.*;
+
+import jakarta.persistence.*;
 
 /**
  * Блок хранения асинхронных атомарных значений типа {@link EAtomicType#BOOLEAN}
@@ -120,16 +118,12 @@ public class S5HistDataAsyncBooleanEntity
   @Override
   public TemporalAtomicValue getValue( int aIndex ) {
     byte value = values()[aIndex];
-    switch( value ) {
-      case BOOLEAN_FALSE:
-        return new TemporalAtomicValue( timestamp( aIndex ), AV_FALSE );
-      case BOOLEAN_TRUE:
-        return new TemporalAtomicValue( timestamp( aIndex ), AV_TRUE );
-      case BOOLEAN_NULL:
-        return new TemporalAtomicValue( timestamp( aIndex ), IAtomicValue.NULL );
-      default:
-        throw new TsNotAllEnumsUsedRtException();
-    }
+    return switch( value ) {
+      case BOOLEAN_FALSE -> new TemporalAtomicValue( timestamp( aIndex ), AV_FALSE );
+      case BOOLEAN_TRUE -> new TemporalAtomicValue( timestamp( aIndex ), AV_TRUE );
+      case BOOLEAN_NULL -> new TemporalAtomicValue( timestamp( aIndex ), IAtomicValue.NULL );
+      default -> throw new TsNotAllEnumsUsedRtException();
+    };
   }
 
   // ------------------------------------------------------------------------------------
@@ -171,72 +165,52 @@ public class S5HistDataAsyncBooleanEntity
 
   @Override
   public boolean asBool( int aIndex ) {
-    switch( values()[aIndex] ) {
-      case BOOLEAN_TRUE:
-        return true;
-      case BOOLEAN_FALSE:
-        return false;
-      case BOOLEAN_NULL:
-        throw new AvUnassignedValueRtException();
-      default:
-        throw new TsNotAllEnumsUsedRtException();
-    }
+    return switch( values()[aIndex] ) {
+      case BOOLEAN_TRUE -> true;
+      case BOOLEAN_FALSE -> false;
+      case BOOLEAN_NULL -> throw new AvUnassignedValueRtException();
+      default -> throw new TsNotAllEnumsUsedRtException();
+    };
   }
 
   @Override
   public int asInt( int aIndex ) {
-    switch( values()[aIndex] ) {
-      case BOOLEAN_TRUE:
-        return AV_1.asInt();
-      case BOOLEAN_FALSE:
-        return AV_0.asInt();
-      case BOOLEAN_NULL:
-        throw new AvUnassignedValueRtException();
-      default:
-        throw new TsNotAllEnumsUsedRtException();
-    }
+    return switch( values()[aIndex] ) {
+      case BOOLEAN_TRUE -> AV_1.asInt();
+      case BOOLEAN_FALSE -> AV_0.asInt();
+      case BOOLEAN_NULL -> throw new AvUnassignedValueRtException();
+      default -> throw new TsNotAllEnumsUsedRtException();
+    };
   }
 
   @Override
   public long asLong( int aIndex ) {
-    switch( values()[aIndex] ) {
-      case BOOLEAN_TRUE:
-        return AV_1.asLong();
-      case BOOLEAN_FALSE:
-        return AV_0.asLong();
-      case BOOLEAN_NULL:
-        throw new AvUnassignedValueRtException();
-      default:
-        throw new TsNotAllEnumsUsedRtException();
-    }
+    return switch( values()[aIndex] ) {
+      case BOOLEAN_TRUE -> AV_1.asLong();
+      case BOOLEAN_FALSE -> AV_0.asLong();
+      case BOOLEAN_NULL -> throw new AvUnassignedValueRtException();
+      default -> throw new TsNotAllEnumsUsedRtException();
+    };
   }
 
   @Override
   public float asFloat( int aIndex ) {
-    switch( values()[aIndex] ) {
-      case BOOLEAN_TRUE:
-        return AV_1.asFloat();
-      case BOOLEAN_FALSE:
-        return AV_0.asFloat();
-      case BOOLEAN_NULL:
-        throw new AvUnassignedValueRtException();
-      default:
-        throw new TsNotAllEnumsUsedRtException();
-    }
+    return switch( values()[aIndex] ) {
+      case BOOLEAN_TRUE -> AV_1.asFloat();
+      case BOOLEAN_FALSE -> AV_0.asFloat();
+      case BOOLEAN_NULL -> throw new AvUnassignedValueRtException();
+      default -> throw new TsNotAllEnumsUsedRtException();
+    };
   }
 
   @Override
   public double asDouble( int aIndex ) {
-    switch( values()[aIndex] ) {
-      case BOOLEAN_TRUE:
-        return AV_1.asDouble();
-      case BOOLEAN_FALSE:
-        return AV_0.asDouble();
-      case BOOLEAN_NULL:
-        throw new AvUnassignedValueRtException();
-      default:
-        throw new TsNotAllEnumsUsedRtException();
-    }
+    return switch( values()[aIndex] ) {
+      case BOOLEAN_TRUE -> AV_1.asDouble();
+      case BOOLEAN_FALSE -> AV_0.asDouble();
+      case BOOLEAN_NULL -> throw new AvUnassignedValueRtException();
+      default -> throw new TsNotAllEnumsUsedRtException();
+    };
   }
 
   // ------------------------------------------------------------------------------------

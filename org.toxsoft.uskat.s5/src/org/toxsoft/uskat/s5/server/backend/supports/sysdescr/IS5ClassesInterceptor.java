@@ -1,15 +1,13 @@
 package org.toxsoft.uskat.s5.server.backend.supports.sysdescr;
 
-import javax.ejb.Local;
+import org.toxsoft.core.tslib.bricks.strid.coll.*;
+import org.toxsoft.core.tslib.coll.*;
+import org.toxsoft.core.tslib.utils.errors.*;
+import org.toxsoft.uskat.core.api.evserv.*;
+import org.toxsoft.uskat.core.api.sysdescr.dto.*;
+import org.toxsoft.uskat.s5.server.interceptors.*;
 
-import org.toxsoft.core.tslib.bricks.strid.coll.IStridablesList;
-import org.toxsoft.core.tslib.coll.IList;
-import org.toxsoft.core.tslib.utils.errors.TsIllegalStateRtException;
-import org.toxsoft.core.tslib.utils.errors.TsNullArgumentRtException;
-import org.toxsoft.uskat.core.api.evserv.SkEvent;
-import org.toxsoft.uskat.core.api.sysdescr.dto.IDtoClassInfo;
-import org.toxsoft.uskat.s5.server.interceptors.IS5Interceptor;
-import org.toxsoft.uskat.s5.server.interceptors.S5InterceptorSupport;
+import jakarta.ejb.*;
 
 /**
  * Перехватчик операций изменения s5-классов системы.

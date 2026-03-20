@@ -1,14 +1,13 @@
 package org.toxsoft.uskat.s5.server.sequences.impl;
 
 import static java.lang.String.*;
-import static org.toxsoft.core.log4j.LoggerWrapper.*;
 import static org.toxsoft.uskat.s5.server.sequences.impl.IS5Resources.*;
 
-import org.toxsoft.core.tslib.utils.TsLibUtils;
-import org.toxsoft.core.tslib.utils.errors.TsIllegalArgumentRtException;
-import org.toxsoft.core.tslib.utils.errors.TsNullArgumentRtException;
-import org.toxsoft.core.tslib.utils.logs.ILogger;
-import org.toxsoft.uskat.s5.server.sequences.IS5SequenceImplementation;
+import org.toxsoft.core.tslib.utils.*;
+import org.toxsoft.core.tslib.utils.errors.*;
+import org.toxsoft.core.tslib.utils.logs.*;
+import org.toxsoft.uskat.s5.server.logger.*;
+import org.toxsoft.uskat.s5.server.sequences.*;
 
 /**
  * Реализация {@link IS5SequenceImplementation}
@@ -22,7 +21,7 @@ public final class S5SequenceImplementation
   private final String blobClassName;
   private final int    tableCount;
 
-  private static final ILogger logger = getLogger( S5SequenceImplementation.class );
+  private static final ILogger logger = LoggerWrapper.getLogger( S5SequenceImplementation.class );
 
   /**
    * Конструктор для описания хранения в одной таблице

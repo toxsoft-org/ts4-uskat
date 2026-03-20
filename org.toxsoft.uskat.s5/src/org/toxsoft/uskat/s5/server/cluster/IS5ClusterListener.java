@@ -1,10 +1,9 @@
 package org.toxsoft.uskat.s5.server.cluster;
 
-import javax.ejb.Local;
+import org.toxsoft.core.tslib.utils.errors.*;
+import org.wildfly.clustering.group.*;
 
-import org.toxsoft.core.tslib.utils.errors.TsNullArgumentRtException;
-import org.wildfly.clustering.group.Membership;
-import org.wildfly.clustering.group.Node;
+import jakarta.ejb.*;
 
 /**
  * Слушатель событий кластера s5-сервера

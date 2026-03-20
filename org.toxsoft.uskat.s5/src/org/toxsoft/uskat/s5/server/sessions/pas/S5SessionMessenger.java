@@ -1,30 +1,27 @@
 package org.toxsoft.uskat.s5.server.sessions.pas;
 
 import static java.lang.String.*;
-import static org.toxsoft.core.log4j.LoggerWrapper.*;
 import static org.toxsoft.core.tslib.av.impl.AvUtils.*;
 import static org.toxsoft.uskat.s5.server.sessions.S5SessionUtils.*;
 import static org.toxsoft.uskat.s5.server.sessions.pas.IS5Resources.*;
 
-import javax.ejb.TransactionAttribute;
-import javax.ejb.TransactionAttributeType;
-
-import org.toxsoft.core.tslib.av.IAtomicValue;
-import org.toxsoft.core.tslib.bricks.ICooperativeMultiTaskable;
+import org.toxsoft.core.tslib.av.*;
+import org.toxsoft.core.tslib.bricks.*;
 import org.toxsoft.core.tslib.bricks.events.msg.*;
-import org.toxsoft.core.tslib.gw.skid.Skid;
-import org.toxsoft.core.tslib.utils.ICloseable;
-import org.toxsoft.core.tslib.utils.TsLibUtils;
-import org.toxsoft.core.tslib.utils.errors.TsNullArgumentRtException;
-import org.toxsoft.core.tslib.utils.logs.ILogger;
-import org.toxsoft.uskat.s5.client.remote.connection.pas.S5CallbackOnBackendMessage;
-import org.toxsoft.uskat.s5.common.sessions.IS5SessionInfo;
+import org.toxsoft.core.tslib.gw.skid.*;
+import org.toxsoft.core.tslib.utils.*;
+import org.toxsoft.core.tslib.utils.errors.*;
+import org.toxsoft.core.tslib.utils.logs.*;
+import org.toxsoft.uskat.s5.client.remote.connection.pas.*;
+import org.toxsoft.uskat.s5.common.sessions.*;
 import org.toxsoft.uskat.s5.server.backend.supports.core.*;
 import org.toxsoft.uskat.s5.server.backend.supports.core.impl.*;
-import org.toxsoft.uskat.s5.server.frontend.IS5FrontendRear;
-import org.toxsoft.uskat.s5.server.frontend.S5FrontendData;
+import org.toxsoft.uskat.s5.server.frontend.*;
+import org.toxsoft.uskat.s5.server.logger.*;
 import org.toxsoft.uskat.s5.server.sessions.*;
-import org.toxsoft.uskat.s5.server.statistics.IS5StatisticCounter;
+import org.toxsoft.uskat.s5.server.statistics.*;
+
+import jakarta.ejb.*;
 
 /**
  * Механизм приема/передачи сообщений от клиента работающий в рамках его сессии на сервере
@@ -44,7 +41,7 @@ public class S5SessionMessenger
   private S5SessionCallbackChannel      channel;
   private final GtMessageEventer        broadcastEventer = new GtMessageEventer();
   private final GtMessageEventer        frontendEventer  = new GtMessageEventer();
-  private final ILogger                 logger           = getLogger( getClass() );
+  private final ILogger                 logger           = LoggerWrapper.getLogger( getClass() );
 
   /**
    * Менеджер сессий

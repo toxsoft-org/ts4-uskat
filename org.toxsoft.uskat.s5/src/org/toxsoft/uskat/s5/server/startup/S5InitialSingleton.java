@@ -2,17 +2,17 @@ package org.toxsoft.uskat.s5.server.startup;
 
 import static org.toxsoft.uskat.s5.server.IS5ImplementConstants.*;
 
-import javax.ejb.*;
-import javax.persistence.*;
-
-import org.toxsoft.core.log4j.*;
 import org.toxsoft.core.tslib.av.opset.*;
 import org.toxsoft.core.tslib.av.opset.impl.*;
 import org.toxsoft.core.tslib.utils.errors.*;
 import org.toxsoft.core.tslib.utils.logs.*;
 import org.toxsoft.core.tslib.utils.logs.impl.*;
 import org.toxsoft.uskat.s5.server.backend.addons.*;
+import org.toxsoft.uskat.s5.server.logger.*;
 import org.toxsoft.uskat.s5.server.transactions.*;
+
+import jakarta.ejb.*;
+import jakarta.persistence.*;
 
 /**
  * Начало выполнения кода сервера S5 - второй (после {@link S5TransactionManager}) стартующий синглтон.

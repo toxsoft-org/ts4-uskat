@@ -1,14 +1,13 @@
 package org.toxsoft.uskat.s5.server.transactions;
 
-import java.io.Serializable;
-import java.lang.reflect.Method;
+import java.io.*;
+import java.lang.reflect.*;
 
-import javax.ejb.EJB;
-import javax.interceptor.AroundInvoke;
-import javax.interceptor.InvocationContext;
+import org.toxsoft.core.tslib.utils.errors.*;
+import org.toxsoft.uskat.s5.server.backend.impl.*;
 
-import org.toxsoft.core.tslib.utils.errors.TsIllegalStateRtException;
-import org.toxsoft.uskat.s5.server.backend.impl.S5BackendSession;
+import jakarta.ejb.*;
+import jakarta.interceptor.*;
 
 /**
  * Интерсептор синглтона мониторинга транзакциями.

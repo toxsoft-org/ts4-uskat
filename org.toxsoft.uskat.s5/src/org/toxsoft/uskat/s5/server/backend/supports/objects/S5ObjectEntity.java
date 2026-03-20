@@ -8,9 +8,6 @@ import static org.toxsoft.uskat.s5.server.backend.supports.objects.S5ObjectID.*;
 import java.io.*;
 import java.sql.*;
 
-import javax.persistence.*;
-
-import org.toxsoft.core.log4j.*;
 import org.toxsoft.core.tslib.av.opset.*;
 import org.toxsoft.core.tslib.av.opset.impl.*;
 import org.toxsoft.core.tslib.bricks.strio.*;
@@ -24,6 +21,9 @@ import org.toxsoft.core.tslib.utils.logs.*;
 import org.toxsoft.uskat.core.api.objserv.*;
 import org.toxsoft.uskat.s5.server.*;
 import org.toxsoft.uskat.s5.server.backend.supports.sysdescr.*;
+import org.toxsoft.uskat.s5.server.logger.*;
+
+import jakarta.persistence.*;
 
 /**
  * Реализация интерфейса {@link IDtoObject} способная маппироваться на таблицу базы данных
@@ -31,7 +31,8 @@ import org.toxsoft.uskat.s5.server.backend.supports.sysdescr.*;
  * @author mvk
  */
 @MappedSuperclass
-@Inheritance( strategy = InheritanceType.TABLE_PER_CLASS )
+// 2026-03-20 mvk --- (wildfly-39.0.1.)
+// @Inheritance( strategy = InheritanceType.TABLE_PER_CLASS )
 public class S5ObjectEntity
     implements IDtoObject, Serializable {
 

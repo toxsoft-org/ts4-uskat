@@ -1,8 +1,5 @@
 package org.toxsoft.uskat.s5.server.backend.supports.core;
 
-import javax.ejb.*;
-import javax.persistence.*;
-
 import org.toxsoft.core.tslib.av.*;
 import org.toxsoft.core.tslib.utils.errors.*;
 import org.toxsoft.uskat.core.backend.*;
@@ -14,6 +11,9 @@ import org.toxsoft.uskat.s5.server.sessions.*;
 import org.toxsoft.uskat.s5.server.startup.*;
 import org.toxsoft.uskat.s5.server.statistics.*;
 import org.toxsoft.uskat.s5.server.transactions.*;
+
+import jakarta.ejb.*;
+import jakarta.persistence.*;
 
 /**
  * Локальный интерфейс синглетона предоставляющего ядро бекенда s5-сервера.

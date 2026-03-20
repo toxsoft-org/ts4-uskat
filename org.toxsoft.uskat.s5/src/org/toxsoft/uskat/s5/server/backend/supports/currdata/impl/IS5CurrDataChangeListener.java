@@ -1,8 +1,8 @@
 package org.toxsoft.uskat.s5.server.backend.supports.currdata.impl;
 
-import javax.ejb.Local;
+import org.toxsoft.uskat.core.api.rtdserv.*;
 
-import org.toxsoft.uskat.core.api.rtdserv.ISkCurrDataChangeListener;
+import jakarta.ejb.*;
 
 /**
  * EJB-cлушатель текущих данных

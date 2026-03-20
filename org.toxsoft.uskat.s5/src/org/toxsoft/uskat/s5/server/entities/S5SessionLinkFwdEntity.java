@@ -2,14 +2,14 @@ package org.toxsoft.uskat.s5.server.entities;
 
 import static org.toxsoft.uskat.s5.server.backend.supports.objects.S5ObjectID.*;
 
-import java.sql.ResultSet;
+import java.sql.*;
 
-import javax.persistence.*;
-
-import org.toxsoft.core.tslib.utils.errors.TsNullArgumentRtException;
+import org.toxsoft.core.tslib.utils.errors.*;
 import org.toxsoft.uskat.classes.*;
-import org.toxsoft.uskat.core.api.linkserv.IDtoLinkFwd;
-import org.toxsoft.uskat.s5.server.backend.supports.links.S5LinkFwdEntity;
+import org.toxsoft.uskat.core.api.linkserv.*;
+import org.toxsoft.uskat.s5.server.backend.supports.links.*;
+
+import jakarta.persistence.*;
 
 /**
  * Реализация интерфейса {@link IDtoLinkFwd} способная маппироваться на таблицу базы данных и предназначеная для
@@ -63,6 +63,5 @@ public final class S5SessionLinkFwdEntity
    * Конструктор по умолчанию для JPA (PojoInstantiator)
    */
   S5SessionLinkFwdEntity() {
-    super();
   }
 }

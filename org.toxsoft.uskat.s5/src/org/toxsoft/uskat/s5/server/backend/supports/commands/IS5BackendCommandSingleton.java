@@ -1,13 +1,13 @@
 package org.toxsoft.uskat.s5.server.backend.supports.commands;
 
-import javax.ejb.*;
-
 import org.toxsoft.core.tslib.gw.gwid.*;
 import org.toxsoft.uskat.core.api.cmdserv.*;
 import org.toxsoft.uskat.core.backend.api.*;
 import org.toxsoft.uskat.s5.server.backend.supports.commands.sequences.*;
 import org.toxsoft.uskat.s5.server.frontend.*;
 import org.toxsoft.uskat.s5.server.sequences.*;
+
+import jakarta.ejb.*;
 
 /**
  * Локальный интерфейс синглетона команд предоставляемый s5-сервером.

@@ -1,8 +1,8 @@
 package org.toxsoft.uskat.s5.server.startup;
 
-import javax.ejb.Local;
+import org.toxsoft.uskat.s5.server.*;
 
-import org.toxsoft.uskat.s5.server.IS5ImplementConstants;
+import jakarta.ejb.*;
 
 /**
  * Начальное, проектно-зависимое, определение системного описания сервера

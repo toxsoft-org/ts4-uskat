@@ -12,8 +12,6 @@ import static org.toxsoft.uskat.s5.server.transactions.ES5TransactionResources.*
 import java.util.*;
 
 import javax.naming.*;
-import javax.persistence.*;
-import javax.transaction.*;
 
 import org.toxsoft.core.tslib.av.opset.*;
 import org.toxsoft.core.tslib.av.utils.*;
@@ -34,6 +32,9 @@ import org.toxsoft.uskat.s5.server.sequences.writer.*;
 import org.toxsoft.uskat.s5.server.transactions.*;
 import org.toxsoft.uskat.s5.utils.threads.*;
 import org.toxsoft.uskat.s5.utils.threads.impl.*;
+
+import jakarta.persistence.*;
+import jakarta.transaction.*;
 
 /**
  * Реализация писателя значений последовательностей данных {@link IS5SequenceWriter}
@@ -506,55 +507,56 @@ class S5SequenceLastBlockWriter<S extends IS5Sequence<V>, V extends ITemporal<?>
       for( S sequence : sequences ) {
         gwids.add( sequence.gwid() );
       }
-      EntityManager em = entityManagerFactory().createEntityManager();
-      try {
-        // Блокировка доступа к данным (false: без проверки текущий транзакции)
-        tryLockGwids( gwids, false );
+      try( EntityManager em = createEntityManager() ) {
         try {
+          // Блокировка доступа к данным (false: без проверки текущий транзакции)
+          tryLockGwids( gwids, false );
           try {
-            UserTransaction tx = InitialContext.doLookup( USER_TRANSACTION_JNDI );
-            // Открываем транзакцию
-            tx.begin();
             try {
-              // Присоединение менеджера постоянства к транзкации
-              em.joinTransaction();
-              // Запись последовательностей
-              for( S sequence : sequences ) {
-                writeSequence( em, sequence, stat, 0 );
+              UserTransaction tx = InitialContext.doLookup( USER_TRANSACTION_JNDI );
+              // Открываем транзакцию
+              tx.begin();
+              try {
+                // Присоединение менеджера постоянства к транзкации
+                em.joinTransaction();
+                // Запись последовательностей
+                for( S sequence : sequences ) {
+                  writeSequence( em, sequence, stat, 0 );
+                }
+                // Установка времени завершения записи (НЕ транзакции!)
+                stat.setEndTime( System.currentTimeMillis() );
+                // Завершаем транзакцию
+                tx.commit();
+                // Обновление последних блоков после успешного завершение транзакции
+                updateLastBlocksAfterTransaction( gwids, true );
+                // Вывод статистики
+                String name = gwidsToString( gwids, 3 );
+                Long dt = Long.valueOf( System.currentTimeMillis() - stat.createTime() );
+                Long dw = Long.valueOf( stat.endTime() - stat.createTime() );
+                Long c = Long.valueOf( stat.dataCount() );
+                ITimeInterval wi = stat.writedBlockInterval();
+                Long wc = Long.valueOf( stat.writedBlockCount() );
+                logger().info( MSG_WRITE_SEQUENCE_TIME, name, dt, dw, c, wi, wc, stat.dbmsStatistics() );
               }
-              // Установка времени завершения записи (НЕ транзакции!)
-              stat.setEndTime( System.currentTimeMillis() );
-              // Завершаем транзакцию
-              tx.commit();
-              // Обновление последних блоков после успешного завершение транзакции
-              updateLastBlocksAfterTransaction( gwids, true );
-              // Вывод статистики
-              String name = gwidsToString( gwids, 3 );
-              Long dt = Long.valueOf( System.currentTimeMillis() - stat.createTime() );
-              Long dw = Long.valueOf( stat.endTime() - stat.createTime() );
-              Long c = Long.valueOf( stat.dataCount() );
-              ITimeInterval wi = stat.writedBlockInterval();
-              Long wc = Long.valueOf( stat.writedBlockCount() );
-              logger().info( MSG_WRITE_SEQUENCE_TIME, name, dt, dw, c, wi, wc, stat.dbmsStatistics() );
+              catch( Throwable e ) {
+                // Откат транзакции на любой ошибке
+                tx.rollback();
+                // Обновление последних блоков после отката транзакции
+                updateLastBlocksAfterTransaction( gwids, false );
+                throw e;
+              }
             }
             catch( Throwable e ) {
-              // Откат транзакции на любой ошибке
-              tx.rollback();
-              // Обновление последних блоков после отката транзакции
-              updateLastBlocksAfterTransaction( gwids, false );
-              throw e;
+              throw new TsInternalErrorRtException( e, ERR_WRITE_TASK, Integer.valueOf( gwids.size() ), cause( e ) );
             }
           }
-          catch( Throwable e ) {
-            throw new TsInternalErrorRtException( e, ERR_WRITE_TASK, Integer.valueOf( gwids.size() ), cause( e ) );
+          finally {
+            unlockGwids( gwids );
           }
         }
         finally {
-          unlockGwids( gwids );
+          em.close();
         }
-      }
-      finally {
-        em.close();
       }
     }
 

@@ -1,6 +1,5 @@
 package org.toxsoft.uskat.s5.server.backend.impl;
 
-import static org.toxsoft.core.log4j.LoggerWrapper.*;
 import static org.toxsoft.core.tslib.av.impl.AvUtils.*;
 import static org.toxsoft.uskat.core.api.users.ISkUserServiceHardConstants.*;
 import static org.toxsoft.uskat.s5.client.IS5ConnectionParams.*;
@@ -15,8 +14,6 @@ import java.rmi.*;
 import java.util.*;
 import java.util.concurrent.*;
 
-import javax.annotation.*;
-import javax.ejb.*;
 import javax.naming.*;
 
 import org.toxsoft.core.tslib.av.*;
@@ -57,9 +54,13 @@ import org.toxsoft.uskat.s5.server.backend.supports.objects.*;
 import org.toxsoft.uskat.s5.server.backend.supports.sysdescr.*;
 import org.toxsoft.uskat.s5.server.cluster.*;
 import org.toxsoft.uskat.s5.server.frontend.*;
+import org.toxsoft.uskat.s5.server.logger.*;
 import org.toxsoft.uskat.s5.server.sessions.*;
 import org.toxsoft.uskat.s5.server.sessions.init.*;
 import org.toxsoft.uskat.s5.server.sessions.pas.*;
+
+import jakarta.annotation.*;
+import jakarta.ejb.*;
 
 /**
  * Абстрактная реализация сессии {@link IS5Backend}.
@@ -824,7 +825,7 @@ public class S5BackendSession
    */
   private ILogger logger() {
     if( logger == null ) {
-      logger = getLogger( getClass() );
+      logger = LoggerWrapper.getLogger( getClass() );
     }
     return logger;
   }

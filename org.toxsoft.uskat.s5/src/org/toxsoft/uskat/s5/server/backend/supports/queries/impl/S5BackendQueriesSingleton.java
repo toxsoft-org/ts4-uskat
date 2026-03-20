@@ -7,9 +7,6 @@ import static org.toxsoft.uskat.s5.server.backend.supports.queries.impl.IS5Resou
 
 import java.util.concurrent.*;
 
-import javax.ejb.*;
-import javax.enterprise.concurrent.*;
-
 import org.toxsoft.core.tslib.av.*;
 import org.toxsoft.core.tslib.av.opset.*;
 import org.toxsoft.core.tslib.av.temporal.*;
@@ -49,6 +46,10 @@ import org.toxsoft.uskat.s5.server.sequences.reader.*;
 import org.toxsoft.uskat.s5.server.singletons.*;
 import org.toxsoft.uskat.s5.utils.jobs.*;
 import org.toxsoft.uskat.s5.utils.threads.impl.*;
+
+import jakarta.ejb.*;
+import jakarta.ejb.Asynchronous;
+import jakarta.enterprise.concurrent.*;
 
 /**
  * Реализация синглетона {@link IS5BackendQueriesSingleton}

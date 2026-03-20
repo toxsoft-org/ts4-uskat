@@ -2,11 +2,11 @@ package org.toxsoft.uskat.s5.server.statistics.handlers;
 
 import static org.toxsoft.uskat.s5.server.statistics.EStatisticInterval.*;
 
-import org.toxsoft.core.log4j.*;
 import org.toxsoft.core.tslib.av.*;
 import org.toxsoft.core.tslib.utils.errors.*;
 import org.toxsoft.core.tslib.utils.logs.*;
 import org.toxsoft.uskat.s5.legacy.*;
+import org.toxsoft.uskat.s5.server.logger.*;
 import org.toxsoft.uskat.s5.server.statistics.*;
 
 // ------------------------------------------------------------------------------------

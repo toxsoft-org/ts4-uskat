@@ -1,9 +1,9 @@
 package org.toxsoft.uskat.s5.utils.jobs;
 
-import javax.ejb.Local;
+import org.toxsoft.core.tslib.bricks.*;
+import org.toxsoft.core.tslib.utils.*;
 
-import org.toxsoft.core.tslib.bricks.ICooperativeMultiTaskable;
-import org.toxsoft.core.tslib.utils.ICloseable;
+import jakarta.ejb.*;
 
 /**
  * Фоновая задача выполняемая на сервере в режиме кооперативной многозадачности

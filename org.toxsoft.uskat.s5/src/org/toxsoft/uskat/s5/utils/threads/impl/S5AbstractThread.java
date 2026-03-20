@@ -1,15 +1,14 @@
 package org.toxsoft.uskat.s5.utils.threads.impl;
 
-import static org.toxsoft.core.log4j.LoggerWrapper.*;
 import static org.toxsoft.uskat.s5.common.IS5CommonResources.*;
 import static org.toxsoft.uskat.s5.utils.threads.impl.IS5Resources.*;
 
-import org.toxsoft.core.tslib.bricks.time.impl.TimeUtils;
+import org.toxsoft.core.tslib.bricks.time.impl.*;
 import org.toxsoft.core.tslib.utils.errors.*;
-import org.toxsoft.core.tslib.utils.logs.ILogger;
-import org.toxsoft.uskat.s5.common.error.S5RuntimeException;
-import org.toxsoft.uskat.s5.utils.threads.IS5Thread;
-import org.toxsoft.uskat.s5.utils.threads.IS5ThreadExecutor;
+import org.toxsoft.core.tslib.utils.logs.*;
+import org.toxsoft.uskat.s5.common.error.*;
+import org.toxsoft.uskat.s5.server.logger.*;
+import org.toxsoft.uskat.s5.utils.threads.*;
 
 /**
  * Абстрактная реализация потока s5-платформы
@@ -82,7 +81,7 @@ public abstract class S5AbstractThread<THREAD_TYPE extends IS5Thread>
    */
   protected final ILogger logger() {
     if( logger == null ) {
-      logger = manager != null ? manager.logger() : getLogger( getClass() );
+      logger = manager != null ? manager.logger() : LoggerWrapper.getLogger( getClass() );
     }
     return logger;
   }

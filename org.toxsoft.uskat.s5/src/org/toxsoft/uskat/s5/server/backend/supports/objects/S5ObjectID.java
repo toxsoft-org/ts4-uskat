@@ -7,11 +7,11 @@ import static org.toxsoft.uskat.s5.server.backend.supports.objects.IS5Resources.
 import java.io.*;
 import java.sql.*;
 
-import javax.persistence.*;
-
 import org.toxsoft.core.tslib.gw.skid.*;
 import org.toxsoft.core.tslib.utils.*;
 import org.toxsoft.core.tslib.utils.errors.*;
+
+import jakarta.persistence.*;
 
 /**
  * Первичный составной ключ объекта

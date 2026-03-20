@@ -1,16 +1,15 @@
 package org.toxsoft.uskat.s5.server.backend.supports.queries;
 
-import javax.ejb.Local;
-
-import org.toxsoft.core.tslib.av.opset.IOptionSet;
-import org.toxsoft.core.tslib.bricks.events.msg.GenericMessage;
-import org.toxsoft.core.tslib.bricks.time.EQueryIntervalType;
-import org.toxsoft.core.tslib.bricks.time.IQueryInterval;
-import org.toxsoft.core.tslib.coll.primtypes.IStringMap;
+import org.toxsoft.core.tslib.av.opset.*;
+import org.toxsoft.core.tslib.bricks.events.msg.*;
+import org.toxsoft.core.tslib.bricks.time.*;
+import org.toxsoft.core.tslib.coll.primtypes.*;
 import org.toxsoft.uskat.core.api.hqserv.*;
-import org.toxsoft.uskat.core.backend.api.BaMsgQueryNextData;
-import org.toxsoft.uskat.s5.server.backend.IS5BackendSupportSingleton;
-import org.toxsoft.uskat.s5.server.frontend.IS5FrontendRear;
+import org.toxsoft.uskat.core.backend.api.*;
+import org.toxsoft.uskat.s5.server.backend.*;
+import org.toxsoft.uskat.s5.server.frontend.*;
+
+import jakarta.ejb.*;
 
 /**
  * Локальный интерфейс синглетона запросов хранимых данных предоставляемый s5-сервером.

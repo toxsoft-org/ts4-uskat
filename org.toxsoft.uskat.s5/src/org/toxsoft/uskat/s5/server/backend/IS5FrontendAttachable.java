@@ -1,11 +1,11 @@
 package org.toxsoft.uskat.s5.server.backend;
 
-import javax.ejb.Local;
+import org.toxsoft.core.tslib.coll.*;
+import org.toxsoft.core.tslib.utils.errors.*;
+import org.toxsoft.uskat.core.backend.*;
+import org.toxsoft.uskat.s5.server.frontend.*;
 
-import org.toxsoft.core.tslib.coll.IList;
-import org.toxsoft.core.tslib.utils.errors.TsNullArgumentRtException;
-import org.toxsoft.uskat.core.backend.ISkFrontendRear;
-import org.toxsoft.uskat.s5.server.frontend.IS5FrontendRear;
+import jakarta.ejb.*;
 
 /**
  * Интерфейс-метка способности присоединять {@link ISkFrontendRear}

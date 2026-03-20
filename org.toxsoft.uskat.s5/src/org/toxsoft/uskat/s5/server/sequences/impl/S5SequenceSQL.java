@@ -1,7 +1,6 @@
 package org.toxsoft.uskat.s5.server.sequences.impl;
 
 import static java.lang.String.*;
-import static org.toxsoft.core.log4j.LoggerWrapper.*;
 import static org.toxsoft.core.tslib.bricks.strid.impl.StridUtils.*;
 import static org.toxsoft.core.tslib.bricks.time.EQueryIntervalType.*;
 import static org.toxsoft.core.tslib.bricks.time.impl.TimeUtils.*;
@@ -16,8 +15,6 @@ import java.math.*;
 import java.sql.*;
 import java.util.*;
 
-import javax.persistence.*;
-
 import org.toxsoft.core.tslib.av.utils.*;
 import org.toxsoft.core.tslib.bricks.time.*;
 import org.toxsoft.core.tslib.bricks.time.impl.*;
@@ -29,10 +26,13 @@ import org.toxsoft.core.tslib.utils.*;
 import org.toxsoft.core.tslib.utils.errors.*;
 import org.toxsoft.core.tslib.utils.logs.*;
 import org.toxsoft.uskat.s5.server.backend.supports.objects.*;
+import org.toxsoft.uskat.s5.server.logger.*;
 import org.toxsoft.uskat.s5.server.sequences.*;
 import org.toxsoft.uskat.s5.server.sequences.maintenance.*;
 import org.toxsoft.uskat.s5.server.sequences.reader.*;
 import org.toxsoft.uskat.s5.utils.collections.*;
+
+import jakarta.persistence.*;
 
 /**
  * Служебные методы для выполнения SQL-запросов к последовательностям значений данных.
@@ -45,7 +45,7 @@ class S5SequenceSQL {
   /**
    * Журанл
    */
-  private static ILogger logger = getLogger( S5SequenceSQL.class );
+  private static ILogger logger = LoggerWrapper.getLogger( S5SequenceSQL.class );
 
   /**
    * Оператор объединения SQL запросов

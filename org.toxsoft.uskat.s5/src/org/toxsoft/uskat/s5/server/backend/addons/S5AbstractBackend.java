@@ -1,6 +1,5 @@
 package org.toxsoft.uskat.s5.server.backend.addons;
 
-import static org.toxsoft.core.log4j.LoggerWrapper.*;
 import static org.toxsoft.core.tslib.av.impl.AvUtils.*;
 import static org.toxsoft.uskat.core.backend.ISkBackendHardConstant.*;
 import static org.toxsoft.uskat.core.impl.ISkCoreConfigConstants.*;
@@ -36,6 +35,7 @@ import org.toxsoft.uskat.core.impl.*;
 import org.toxsoft.uskat.s5.client.*;
 import org.toxsoft.uskat.s5.server.backend.messages.*;
 import org.toxsoft.uskat.s5.server.frontend.*;
+import org.toxsoft.uskat.s5.server.logger.*;
 import org.toxsoft.uskat.s5.utils.*;
 import org.toxsoft.uskat.s5.utils.threads.impl.*;
 
@@ -149,7 +149,7 @@ public abstract class S5AbstractBackend<ADDON extends IS5BackendAddon>
   /**
    * Журнал работы
    */
-  private ILogger logger = getLogger( getClass() );
+  private ILogger logger = LoggerWrapper.getLogger( getClass() );
 
   /**
    * Исполнитель запросов к соединению
@@ -190,12 +190,12 @@ public abstract class S5AbstractBackend<ADDON extends IS5BackendAddon>
   /**
    * Журнал по умолчанию
    */
-  private static final ILogger tsDefaultLogger = getLogger( TS_DEFAULT_LOGGER );
+  private static final ILogger tsDefaultLogger = LoggerWrapper.getLogger( TS_DEFAULT_LOGGER );
 
   /**
    * Журнал по умолчанию
    */
-  private static final ILogger tsErrorLogger = getLogger( TS_ERROR_LOGGER );
+  private static final ILogger tsErrorLogger = LoggerWrapper.getLogger( TS_ERROR_LOGGER );
 
   /**
    * Статическая инициализация

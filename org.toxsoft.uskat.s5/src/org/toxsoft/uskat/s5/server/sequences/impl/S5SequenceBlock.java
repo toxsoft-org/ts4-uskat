@@ -1,7 +1,6 @@
 package org.toxsoft.uskat.s5.server.sequences.impl;
 
 import static java.lang.String.*;
-import static org.toxsoft.core.log4j.LoggerWrapper.*;
 import static org.toxsoft.core.tslib.bricks.time.impl.TimeUtils.*;
 import static org.toxsoft.uskat.s5.common.IS5CommonResources.*;
 import static org.toxsoft.uskat.s5.server.sequences.IS5SequenceHardConstants.*;
@@ -12,8 +11,6 @@ import java.io.*;
 import java.lang.reflect.Array;
 import java.sql.*;
 import java.util.*;
-
-import javax.persistence.*;
 
 import org.toxsoft.core.tslib.av.utils.*;
 import org.toxsoft.core.tslib.bricks.time.*;
@@ -28,7 +25,10 @@ import org.toxsoft.core.tslib.utils.*;
 import org.toxsoft.core.tslib.utils.errors.*;
 import org.toxsoft.core.tslib.utils.logs.*;
 import org.toxsoft.uskat.core.api.objserv.*;
+import org.toxsoft.uskat.s5.server.logger.*;
 import org.toxsoft.uskat.s5.server.sequences.*;
+
+import jakarta.persistence.*;
 
 /**
  * Базовый блок хранения данных последовательности.
@@ -156,7 +156,7 @@ public abstract class S5SequenceBlock<V extends ITemporal<?>, BLOB_ARRAY, BLOB e
   /**
    * Журнал (общий для всех блоков)
    */
-  protected static ILogger logger = getLogger( "S5SequenceBlock" ); //$NON-NLS-1$
+  protected static ILogger logger = LoggerWrapper.getLogger( "S5SequenceBlock" ); //$NON-NLS-1$
 
   /**
    * Конструктор без параметров (для JPA)
@@ -256,7 +256,6 @@ public abstract class S5SequenceBlock<V extends ITemporal<?>, BLOB_ARRAY, BLOB e
    * @throws TsNullArgumentRtException аргумент = null
    */
   final boolean write( EntityManager aEntityManager ) {
-    TsNullArgumentRtException.checkNull( aEntityManager );
     TsInternalErrorRtException.checkTrue( created && merged );
     if( created ) {
       // executeInsert( aEntityManager );

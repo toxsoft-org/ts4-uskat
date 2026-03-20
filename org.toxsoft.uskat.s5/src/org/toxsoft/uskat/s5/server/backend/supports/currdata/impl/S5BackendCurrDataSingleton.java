@@ -7,9 +7,6 @@ import static org.toxsoft.uskat.s5.server.backend.supports.currdata.impl.IS5Reso
 import java.util.*;
 import java.util.concurrent.*;
 
-import javax.annotation.*;
-import javax.ejb.*;
-
 import org.infinispan.*;
 import org.toxsoft.core.tslib.av.*;
 import org.toxsoft.core.tslib.av.errors.*;
@@ -36,6 +33,9 @@ import org.toxsoft.uskat.s5.server.backend.supports.sysdescr.*;
 import org.toxsoft.uskat.s5.server.frontend.*;
 import org.toxsoft.uskat.s5.server.interceptors.*;
 import org.toxsoft.uskat.s5.utils.jobs.*;
+
+import jakarta.annotation.*;
+import jakarta.ejb.*;
 
 /**
  * Реализация синглетона {@link IS5BackendCurrDataSingleton}

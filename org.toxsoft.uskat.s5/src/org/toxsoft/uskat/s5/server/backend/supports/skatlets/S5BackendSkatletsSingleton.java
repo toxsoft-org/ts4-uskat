@@ -13,8 +13,6 @@ import static org.toxsoft.uskat.s5.server.backend.supports.skatlets.S5BackendSka
 import java.io.*;
 import java.util.concurrent.*;
 
-import javax.ejb.*;
-
 import org.toxsoft.core.tslib.av.*;
 import org.toxsoft.core.tslib.av.opset.*;
 import org.toxsoft.core.tslib.av.opset.impl.*;
@@ -33,6 +31,8 @@ import org.toxsoft.uskat.s5.client.local.*;
 import org.toxsoft.uskat.s5.server.backend.impl.*;
 import org.toxsoft.uskat.s5.server.backend.supports.core.*;
 import org.toxsoft.uskat.s5.utils.jobs.*;
+
+import jakarta.ejb.*;
 
 /**
  * Реализация {@link IS5BackendSkatletsSingleton}.

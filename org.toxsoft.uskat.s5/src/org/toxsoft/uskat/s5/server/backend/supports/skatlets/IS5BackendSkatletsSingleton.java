@@ -1,9 +1,9 @@
 package org.toxsoft.uskat.s5.server.backend.supports.skatlets;
 
-import javax.ejb.*;
-
 import org.toxsoft.uskat.core.devapi.*;
 import org.toxsoft.uskat.s5.server.backend.*;
+
+import jakarta.ejb.*;
 
 /**
  * Локальный интерфейс синглетона поддержки скатлетов ({@link ISkatlet}) предоставляемый s5-сервером.
