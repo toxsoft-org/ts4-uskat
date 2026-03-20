@@ -508,54 +508,49 @@ class S5SequenceLastBlockWriter<S extends IS5Sequence<V>, V extends ITemporal<?>
         gwids.add( sequence.gwid() );
       }
       try( EntityManager em = createEntityManager() ) {
+        // Блокировка доступа к данным (false: без проверки текущий транзакции)
+        tryLockGwids( gwids, false );
         try {
-          // Блокировка доступа к данным (false: без проверки текущий транзакции)
-          tryLockGwids( gwids, false );
           try {
+            UserTransaction tx = InitialContext.doLookup( USER_TRANSACTION_JNDI );
+            // Открываем транзакцию
+            tx.begin();
             try {
-              UserTransaction tx = InitialContext.doLookup( USER_TRANSACTION_JNDI );
-              // Открываем транзакцию
-              tx.begin();
-              try {
-                // Присоединение менеджера постоянства к транзкации
-                em.joinTransaction();
-                // Запись последовательностей
-                for( S sequence : sequences ) {
-                  writeSequence( em, sequence, stat, 0 );
-                }
-                // Установка времени завершения записи (НЕ транзакции!)
-                stat.setEndTime( System.currentTimeMillis() );
-                // Завершаем транзакцию
-                tx.commit();
-                // Обновление последних блоков после успешного завершение транзакции
-                updateLastBlocksAfterTransaction( gwids, true );
-                // Вывод статистики
-                String name = gwidsToString( gwids, 3 );
-                Long dt = Long.valueOf( System.currentTimeMillis() - stat.createTime() );
-                Long dw = Long.valueOf( stat.endTime() - stat.createTime() );
-                Long c = Long.valueOf( stat.dataCount() );
-                ITimeInterval wi = stat.writedBlockInterval();
-                Long wc = Long.valueOf( stat.writedBlockCount() );
-                logger().info( MSG_WRITE_SEQUENCE_TIME, name, dt, dw, c, wi, wc, stat.dbmsStatistics() );
+              // Присоединение менеджера постоянства к транзкации
+              em.joinTransaction();
+              // Запись последовательностей
+              for( S sequence : sequences ) {
+                writeSequence( em, sequence, stat, 0 );
               }
-              catch( Throwable e ) {
-                // Откат транзакции на любой ошибке
-                tx.rollback();
-                // Обновление последних блоков после отката транзакции
-                updateLastBlocksAfterTransaction( gwids, false );
-                throw e;
-              }
+              // Установка времени завершения записи (НЕ транзакции!)
+              stat.setEndTime( System.currentTimeMillis() );
+              // Завершаем транзакцию
+              tx.commit();
+              // Обновление последних блоков после успешного завершение транзакции
+              updateLastBlocksAfterTransaction( gwids, true );
+              // Вывод статистики
+              String name = gwidsToString( gwids, 3 );
+              Long dt = Long.valueOf( System.currentTimeMillis() - stat.createTime() );
+              Long dw = Long.valueOf( stat.endTime() - stat.createTime() );
+              Long c = Long.valueOf( stat.dataCount() );
+              ITimeInterval wi = stat.writedBlockInterval();
+              Long wc = Long.valueOf( stat.writedBlockCount() );
+              logger().info( MSG_WRITE_SEQUENCE_TIME, name, dt, dw, c, wi, wc, stat.dbmsStatistics() );
             }
             catch( Throwable e ) {
-              throw new TsInternalErrorRtException( e, ERR_WRITE_TASK, Integer.valueOf( gwids.size() ), cause( e ) );
+              // Откат транзакции на любой ошибке
+              tx.rollback();
+              // Обновление последних блоков после отката транзакции
+              updateLastBlocksAfterTransaction( gwids, false );
+              throw e;
             }
           }
-          finally {
-            unlockGwids( gwids );
+          catch( Throwable e ) {
+            throw new TsInternalErrorRtException( e, ERR_WRITE_TASK, Integer.valueOf( gwids.size() ), cause( e ) );
           }
         }
         finally {
-          em.close();
+          unlockGwids( gwids );
         }
       }
     }

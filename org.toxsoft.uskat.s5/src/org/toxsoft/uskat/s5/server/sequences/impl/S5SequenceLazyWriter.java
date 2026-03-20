@@ -163,7 +163,6 @@ class S5SequenceLazyWriter<S extends IS5Sequence<V>, V extends ITemporal<?>>
     IList<IS5SequenceFragmentInfo> infoes = IList.EMPTY;
     // Создание менеджера постоянства
     try (  EntityManager em = createEntityManager() ) {
-    try {
       // Список данных для объединения
       infoes = (!isAuto ? prepareDefragmentManual( em, aConfiguration ) :
                           prepareDefragmentAuto( em, aConfiguration, statistics, uniterLogger ));
@@ -190,14 +189,9 @@ class S5SequenceLazyWriter<S extends IS5Sequence<V>, V extends ITemporal<?>>
       // Запуск потоков (с ожиданием, без поднятия исключений на ошибках потоков)
       executor.run( true, false );
     }
-    finally {
-      em.close();
-    }
-
     // Оповещение наследников о проведение дефрагментации блоков
     onUnionEvent( aConfiguration, infoes, uniterLogger );
     return statistics;
-    }
   }
 
   @Override
@@ -206,8 +200,7 @@ class S5SequenceLazyWriter<S extends IS5Sequence<V>, V extends ITemporal<?>>
     // Состояние задачи проверки блоков
     S5SequenceValidationStat statistics = new S5SequenceValidationStat();
     // Менеджер постоянства
-    try( EntityManager em = createEntityManager() ){
-      try {
+    try( EntityManager em = createEntityManager() ) {
         // Журнал для потоков
         ILogger logger = LoggerWrapper.getLogger( LOG_VALIDATOR_ID );
         // Исполнитель s5-потоков проверки данных
@@ -224,11 +217,7 @@ class S5SequenceLazyWriter<S extends IS5Sequence<V>, V extends ITemporal<?>>
         // Запуск потоков (с ожиданием, без поднятия исключений на ошибках потоков)
         executor.run( true, false );
       }
-      finally {
-        em.close();
-      }
       return statistics;
-    }
   }
 
   // ------------------------------------------------------------------------------------
@@ -740,7 +729,6 @@ class S5SequenceLazyWriter<S extends IS5Sequence<V>, V extends ITemporal<?>>
     @Override
     protected void doRun() {
       try( EntityManager em = createEntityManager() ){
-        try {
           // Идентификатор данного
           Gwid gwid = info.gwid();
           // Список блокируемых данных
@@ -779,10 +767,6 @@ class S5SequenceLazyWriter<S extends IS5Sequence<V>, V extends ITemporal<?>>
             unlockGwids( lockedGwids );
           }
         }
-        finally {
-          em.close();
-        }
-      }
     }
 
     @Override

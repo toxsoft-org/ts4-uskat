@@ -29,7 +29,8 @@ import jakarta.persistence.*;
  * @param <BLOB_ARRAY_HOLDER> тип объекта хранящий массив значений
  */
 @MappedSuperclass
-@Inheritance( strategy = InheritanceType.TABLE_PER_CLASS )
+// 2026-03-21 mvk--- wildfly 39
+// @Inheritance( strategy = InheritanceType.TABLE_PER_CLASS )
 public class S5SequenceBlob<BLOCK extends S5SequenceBlock<?, ?, ?>, BLOB_ARRAY, BLOB_ARRAY_HOLDER>
     implements Serializable {
 

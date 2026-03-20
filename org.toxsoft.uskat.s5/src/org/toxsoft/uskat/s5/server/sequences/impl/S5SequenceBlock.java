@@ -39,7 +39,8 @@ import jakarta.persistence.*;
  * @param <BLOB> реализация blob-а используемого для хранения значений блока
  */
 @MappedSuperclass
-@Inheritance( strategy = InheritanceType.TABLE_PER_CLASS )
+// 2026-03-21 mvk--- wildfly 39
+// @Inheritance( strategy = InheritanceType.TABLE_PER_CLASS )
 public abstract class S5SequenceBlock<V extends ITemporal<?>, BLOB_ARRAY, BLOB extends S5SequenceBlob<?, BLOB_ARRAY, ?>>
     implements IS5SequenceBlockEdit<V>, Serializable {
 
