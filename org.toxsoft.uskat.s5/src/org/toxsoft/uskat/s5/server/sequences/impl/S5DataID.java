@@ -34,6 +34,11 @@ public class S5DataID
   public static final String FIELD_GWID = "gwid"; //$NON-NLS-1$
 
   /**
+   * Идентификатор поля таблицы {@link #FIELD_GWID} в MQL-запросах
+   */
+  public static final String MQL_FIELD_GWID = "gwidString"; //$NON-NLS-1$
+
+  /**
    * Поле таблицы: время (мсек с начала эпохи) начала данных (включительно)
    */
   public static final String FIELD_START_TIME = "startTime"; //$NON-NLS-1$

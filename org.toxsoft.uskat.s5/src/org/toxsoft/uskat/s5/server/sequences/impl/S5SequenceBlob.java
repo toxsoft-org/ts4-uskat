@@ -37,6 +37,11 @@ public class S5SequenceBlob<BLOCK extends S5SequenceBlock<?, ?, ?>, BLOB_ARRAY, 
   private static final long serialVersionUID = 157157L;
 
   /**
+   * Идентификатор первичного составного ключа в MQL-запросах
+   */
+  public static final String MQL_FIELD_ID = "id"; //$NON-NLS-1$
+
+  /**
    * Значения блока
    */
   public static final String FIELD_VALUES = "_values"; //$NON-NLS-1$

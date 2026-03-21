@@ -47,6 +47,11 @@ public abstract class S5SequenceBlock<V extends ITemporal<?>, BLOB_ARRAY, BLOB e
   private static final long serialVersionUID = 157157L;
 
   /**
+   * Идентификатор первичного составного ключа в MQL-запросах
+   */
+  public static final String MQL_FIELD_ID = "id"; //$NON-NLS-1$
+
+  /**
    * Поле таблицы: время (мсек с начала эпохи) завершения данных (включительно)
    */
   public static final String FIELD_END_TIME = "endTime"; //$NON-NLS-1$
