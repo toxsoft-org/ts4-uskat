@@ -41,7 +41,6 @@ import org.toxsoft.uskat.s5.server.backend.impl.*;
 import org.toxsoft.uskat.s5.server.logger.*;
 import org.toxsoft.uskat.s5.server.sessions.init.*;
 import org.toxsoft.uskat.s5.utils.threads.impl.*;
-import org.wildfly.naming.client.util.*;
 import org.wildfly.security.auth.client.*;
 
 import jakarta.ejb.*;
@@ -573,8 +572,8 @@ public final class S5Connection
         // Поиск сервера и бина его API
         progressMonitor.updateWorkProgress( format( USER_LOOKUP_REMOTE_API_START, this ), -1 );
         logger.debug( USER_LOOKUP_REMOTE_API_START, this );
-        remoteBackend = lookupRemoteApiByJNDI( this, hosts.first(), wlogin, wpasswd, moduleName, apiIntefaceName,
-            apiBeanName, loader );
+        remoteBackend =
+            lookupBackend( this, hosts.first(), wlogin, wpasswd, moduleName, apiIntefaceName, apiBeanName, loader );
         // Сообщение завершении поиска сервера
         logger.debug( MSG_LOOKUP_REMOTE_API_FINISH, this, sessionInitData.sessionID() );
       }
@@ -583,6 +582,7 @@ public final class S5Connection
         throw new S5ConnectionException( e, options, ERR_NO_CLIENT_SUPPORT, entryPoint, cause( e ) );
       }
       catch( Throwable e ) {
+        logger.error( e );
         if( e.getCause() instanceof NoSuchEJBException ) {
           // Сервер не поддерживает указанное API
           // mvk 2018-10-11
@@ -651,8 +651,14 @@ public final class S5Connection
         // Вывод в журнал текущего загрузчика классов
         logger.info( MSG_TRYCONNECT_USING_CLASSLOADER, Thread.currentThread().getContextClassLoader() );
         // Запрос соединения и его инициализация
-        IS5SessionInitResult initResult = remoteBackend.init( sessionInitData );
-        sessionInitResult.setAll( initResult );
+        try {
+          IS5SessionInitResult initResult = remoteBackend.init( sessionInitData );
+          sessionInitResult.setAll( initResult );
+        }
+        catch( Throwable e ) {
+          logger.error( e );
+          throw e;
+        }
         logger.debug( MSG_INIT_REMOTE_API_FINISH, this );
         progressMonitor.updateWorkProgress( format( MSG_INIT_REMOTE_API_FINISH, this ), -1 );
 
@@ -1438,14 +1444,14 @@ public final class S5Connection
    */
 
   @SuppressWarnings( { "nls", "unused" } )
-  private static IS5BackendSession lookupRemoteApiByJNDI( S5Connection aConnection, S5Host aHost, String aLogin,
+  private static IS5BackendSession lookupBackend( S5Connection aConnection, S5Host aHost, String aLogin,
       String aPassword, String aModuleName, String aInterfaceName, String aBeanName, ClassLoader aClassLoader )
       throws Exception {
     TsNullArgumentRtException.checkNulls( aConnection, aHost, aLogin, aPassword, aClassLoader );
 
     // Подбор параметров соедниения: https://docs.jboss.org/author/display/EJBCLIENT/Overview+of+Client+properties
     // Properties properties = new Properties();
-    FastHashtable<String, Object> properties = new FastHashtable<>();
+    Hashtable<String, Object> properties = new Hashtable<>();
     // properties.put( Context.INITIAL_CONTEXT_FACTORY, "org.wildfly.naming.client.WildFlyInitialContextFactory" );
     // properties.put( Context.SECURITY_PRINCIPAL, aLogin );
     // properties.put( Context.SECURITY_CREDENTIALS, aPassword );
@@ -1468,26 +1474,20 @@ public final class S5Connection
     properties.put( "org.jboss.ejb.client.scoped.context", "true" ); // enable scoping here
 
     Context context = new InitialContext( properties );
-    Context ejbRootNamingContext = (Context)context.lookup( "ejb:" );
     try {
-      final IS5BackendSession bean = (IS5BackendSession)ejbRootNamingContext
-          .lookup( "ejb:" + "" + "/" + aModuleName + "/" + aBeanName + "!" + aInterfaceName + "?stateful" );
+      String url = "ejb:" + "" + "/" + aModuleName + "/" + aBeanName + "!" + aInterfaceName;
+      final IS5BackendSession retValue = (IS5BackendSession)context.lookup( url );
+      return retValue;
     }
     finally {
       try {
-        ejbRootNamingContext.close();
-      }
-      catch( Exception e ) {
-        // nop
-      }
-      try {
+        // ejbRootNamingContext.close();
         context.close();
       }
       catch( Exception e ) {
         // nop
       }
     }
-    return null;
   }
 
   // @formatter:off
@@ -1889,6 +1889,9 @@ public final class S5Connection
    * @throws TsNullArgumentRtException аргумент = null
    */
   private static S5ClusterTopology createClusterTopology( EJBClientContext aContext ) {
+    if( aContext == null ) {
+      return new S5ClusterTopology();
+    }
     TsNullArgumentRtException.checkNull( aContext );
     // 2026-03-20 mvk---+++ IS5ClusterTopologyListener (org.toxsoft.extlibs.wildfly.ejb.client removed)
     // Map<String, List<Pair<String, InetSocketAddress>>> nodesByClusters = S5ClusterNodeUtils.getNodeAddrs( aContext );
