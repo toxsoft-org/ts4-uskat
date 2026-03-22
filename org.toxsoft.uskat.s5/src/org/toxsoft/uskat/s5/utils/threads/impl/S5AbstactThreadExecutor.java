@@ -118,7 +118,7 @@ public abstract class S5AbstactThreadExecutor<THREAD_TYPE extends IS5Thread>
     synchronized (completedCountSignal) {
       completedCount++;
       if( completed() || (throwable && error != null) ) {
-        // Завершение работы если все потоки завершили работу или в потоке поизошла ошибка и включен режим throwable
+        // Завершение работы если все потоки завершили работу или в потоке поизошла ошибка и включен режим error
         completedCountSignal.notify();
         // Завершаем работу менеджера
         close();
