@@ -100,110 +100,111 @@ interface IAdminResources {
   // ------------------------------------------------------------------------------------
   // ConsoleCmdHelp
   //
-  String HELP_CMD_ID    = Messages.getString( "HELP_CMD_ID" );    //$NON-NLS-1$
-  String HELP_CMD_ALIAS = Messages.getString( "HELP_CMD_ALIAS" ); //$NON-NLS-1$
-  String HELP_CMD_NAME  = Messages.getString( "HELP_CMD_NAME" );  //$NON-NLS-1$
-  String HELP_CMD_DESCR = Messages.getString( "HELP_CMD_DESCR" ); //$NON-NLS-1$
+  String HELP_CMD_ID    = "help";
+  String HELP_CMD_ALIAS = "h";
+  String HELP_CMD_NAME  = "Помощь";
+  String HELP_CMD_DESCR = "Справка по командам и аргументам";
 
-  String HELP_ARG_CMD_ID    = Messages.getString( "HELP_ARG_CMD_ID" );    //$NON-NLS-1$
-  String HELP_ARG_CMD_ALIAS = Messages.getString( "HELP_ARG_CMD_ALIAS" ); //$NON-NLS-1$
-  String HELP_ARG_CMD_NAME  = Messages.getString( "HELP_ARG_CMD_NAME" );  //$NON-NLS-1$
-  String HELP_ARG_CMD_DESCR = Messages.getString( "HELP_ARG_CMD_DESCR" ); //$NON-NLS-1$
+  String HELP_ARG_CMD_ID    = "cmd";
+  String HELP_ARG_CMD_ALIAS = "c";
+  String HELP_ARG_CMD_NAME  = "Имя команды";
+  String HELP_ARG_CMD_DESCR = "Имя команды по которой требуется вывести детальную справку";
 
-  String HELP_ARG_ALL_ID      = Messages.getString( "HELP_ARG_ALL_ID" );      //$NON-NLS-1$
-  String HELP_ARG_ALL_ALIAS   = Messages.getString( "HELP_ARG_ALL_ALIAS" );   //$NON-NLS-1$
-  String HELP_ARG_ALL_NAME    = Messages.getString( "HELP_ARG_ALL_NAME" );    //$NON-NLS-1$
-  String HELP_ARG_ALL_DESCR   = Messages.getString( "HELP_ARG_ALL_DESCR" );   //$NON-NLS-1$
-  String HELP_ARG_ALL_DEFAULT = Messages.getString( "HELP_ARG_ALL_DEFAULT" ); //$NON-NLS-1$
+  String HELP_ARG_ALL_ID      = "all";
+  String HELP_ARG_ALL_ALIAS   = "a";
+  String HELP_ARG_ALL_NAME    = "Флаг";
+  String HELP_ARG_ALL_DESCR   = "Вывести справку по всем командам";
+  String HELP_ARG_ALL_DEFAULT = "false";
 
   // ------------------------------------------------------------------------------------
   // ConsoleCmdClear
   //
-  String CLEAR_CMD_ID    = Messages.getString( "CLEAR_CMD_ID" );    //$NON-NLS-1$
-  String CLEAR_CMD_ALIAS = Messages.getString( "CLEAR_CMD_ALIAS" ); //$NON-NLS-1$
-  String CLEAR_CMD_NAME  = Messages.getString( "CLEAR_CMD_NAME" );  //$NON-NLS-1$
-  String CLEAR_CMD_DESCR = Messages.getString( "CLEAR_CMD_DESCR" ); //$NON-NLS-1$
+  String CLEAR_CMD_ID    = "clear";
+  String CLEAR_CMD_ALIAS = "";
+  String CLEAR_CMD_NAME  = "Очистка экрана";
+  String CLEAR_CMD_DESCR = "";
 
   // ------------------------------------------------------------------------------------
   // ConsoleCmdCd
   //
-  String CD_CMD_ID    = Messages.getString( "CD_CMD_ID" );    //$NON-NLS-1$
-  String CD_CMD_ALIAS = Messages.getString( "CD_CMD_ALIAS" ); //$NON-NLS-1$
-  String CD_CMD_NAME  = Messages.getString( "CD_CMD_NAME" );  //$NON-NLS-1$
-  String CD_CMD_DESCR = Messages.getString( "CD_CMD_DESCR" ); //$NON-NLS-1$
+  String CD_CMD_ID    = "chdir";
+  String CD_CMD_ALIAS = "cd";
+  String CD_CMD_NAME  = "Смена раздела";
+  String CD_CMD_DESCR = "Смена текущего раздела команд";
 
-  String CD_ARG_SECTION_ID    = Messages.getString( "CD_ARG_SECTION_ID" );    //$NON-NLS-1$
-  String CD_ARG_SECTION_ALIAS = Messages.getString( "CD_ARG_SECTION_ALIAS" ); //$NON-NLS-1$
-  String CD_ARG_SECTION_NAME  = Messages.getString( "CD_ARG_SECTION_NAME" );  //$NON-NLS-1$
-  String CD_ARG_SECTION_DESCR = Messages.getString( "CD_ARG_SECTION_DESCR" ); //$NON-NLS-1$
+  String CD_ARG_SECTION_ID    = "section";
+  String CD_ARG_SECTION_ALIAS = "s";
+  String CD_ARG_SECTION_NAME  = "Имя раздела";
+  String CD_ARG_SECTION_DESCR = "Раздел на который требуется осуществить переход";
 
   // ------------------------------------------------------------------------------------
   // ConsoleCmdLs
   //
-  String LS_CMD_ID    = Messages.getString( "LS_CMD_ID" );    //$NON-NLS-1$
-  String LS_CMD_ALIAS = Messages.getString( "LS_CMD_ALIAS" ); //$NON-NLS-1$
-  String LS_CMD_NAME  = Messages.getString( "LS_CMD_NAME" );  //$NON-NLS-1$
-  String LS_CMD_DESCR = Messages.getString( "LS_CMD_DESCR" ); //$NON-NLS-1$
+  String LS_CMD_ID    = "list";
+  String LS_CMD_ALIAS = "ls";
+  String LS_CMD_NAME  = "Список команд и разделов";
+  String LS_CMD_DESCR = "Вывод на экран разделов и команд доступных в разделе";
 
-  String LS_ARG_SECTION_ID    = Messages.getString( "LS_ARG_SECTION_ID" );    //$NON-NLS-1$
-  String LS_ARG_SECTION_ALIAS = Messages.getString( "LS_ARG_SECTION_ALIAS" ); //$NON-NLS-1$
-  String LS_ARG_SECTION_NAME  = Messages.getString( "LS_ARG_SECTION_NAME" );  //$NON-NLS-1$
-  String LS_ARG_SECTION_DESCR = Messages.getString( "LS_ARG_SECTION_DESCR" ); //$NON-NLS-1$
+  String LS_ARG_SECTION_ID    = "section";
+  String LS_ARG_SECTION_ALIAS = "s";
+  String LS_ARG_SECTION_NAME  = "Имя раздела";
+  String LS_ARG_SECTION_DESCR =
+      "Раздел по которому требуется вывести информацию. Пустая строка: вывод по текущему разделу";
 
-  String LS_ARG_DESCRIPTION_ID      = Messages.getString( "LS_ARG_DESCRIPTION_ID" );      //$NON-NLS-1$
-  String LS_ARG_DESCRIPTION_ALIAS   = Messages.getString( "LS_ARG_DESCRIPTION_ALIAS" );   //$NON-NLS-1$
-  String LS_ARG_DESCRIPTION_NAME    = Messages.getString( "LS_ARG_DESCRIPTION_NAME" );    //$NON-NLS-1$
-  String LS_ARG_DESCRIPTION_DESCR   = Messages.getString( "LS_ARG_DESCRIPTION_DESCR" );   //$NON-NLS-1$
-  String LS_ARG_DESCRIPTION_DEFAULT = Messages.getString( "LS_ARG_DESCRIPTION_DEFAULT" ); //$NON-NLS-1$
+  String LS_ARG_DESCRIPTION_ID      = "description";
+  String LS_ARG_DESCRIPTION_ALIAS   = "d";
+  String LS_ARG_DESCRIPTION_NAME    = "Флаг";
+  String LS_ARG_DESCRIPTION_DESCR   = "Вывести описание команд";
+  String LS_ARG_DESCRIPTION_DEFAULT = "false";
 
   // ------------------------------------------------------------------------------------
   // ConsoleCmdBatch
   //
-  // FIXME l10n
-  String BATCH_CMD_ID    = Messages.getString( "BATCH_CMD_ID" );                                                          //$NON-NLS-1$
-  String BATCH_CMD_ALIAS = Messages.getString( "BATCH_CMD_ALIAS" );                                                       //$NON-NLS-1$
-  String BATCH_CMD_NAME  = Messages.getString( "BATCH_CMD_NAME" );                                                        //$NON-NLS-1$
+  String BATCH_CMD_ID    = "batch";
+  String BATCH_CMD_ALIAS = "b";
+  String BATCH_CMD_NAME  = "Выполнение сценария";
   String BATCH_CMD_DESCR =
       "Команда -batch построчно читает из представленного текстового файла команды skadmin и запускает их на выполнение. "
           + "Строки начинающиеся символом # игнорируются (строка комментарий).\n\n "
           + "Поиск скрипта по указанному имени выполняется в каталогах (в указанном порядке):\n"
           + "   * Каталог $APPLICATION_HOME/scripts;\n" + "   * Каталог $SKADMIN_HOME/scripts.\n";
 
-  String BATCH_ARG_FILE_ID    = Messages.getString( "BATCH_ARG_FILE_ID" );    //$NON-NLS-1$
-  String BATCH_ARG_FILE_ALIAS = Messages.getString( "BATCH_ARG_FILE_ALIAS" ); //$NON-NLS-1$
-  String BATCH_ARG_FILE_NAME  = Messages.getString( "BATCH_ARG_FILE_NAME" );  //$NON-NLS-1$
-  String BATCH_ARG_FILE_DESCR = Messages.getString( "BATCH_ARG_FILE_DESCR" ); //$NON-NLS-1$
+  String BATCH_ARG_FILE_ID    = "file";
+  String BATCH_ARG_FILE_ALIAS = "f";
+  String BATCH_ARG_FILE_NAME  = "Имя файла";
+  String BATCH_ARG_FILE_DESCR = "Текстовый файл с командами для выполнения";
 
-  String BATCH_ARG_ARGS_ID    = Messages.getString( "BATCH_ARG_ARGS_ID" );    //$NON-NLS-1$
-  String BATCH_ARG_ARGS_ALIAS = Messages.getString( "BATCH_ARG_ARGS_ALIAS" ); //$NON-NLS-1$
-  String BATCH_ARG_ARGS_NAME  = Messages.getString( "BATCH_ARG_ARGS_NAME" );  //$NON-NLS-1$
-  String BATCH_ARG_ARGS_DESCR = Messages.getString( "BATCH_ARG_ARGS_DESCR" ); //$NON-NLS-1$
+  String BATCH_ARG_ARGS_ID    = "args";
+  String BATCH_ARG_ARGS_ALIAS = "";
+  String BATCH_ARG_ARGS_NAME  = "";
+  String BATCH_ARG_ARGS_DESCR =
+      "Список фактических значений аргументов для выполнения скрипта. В сценарии эти значения доступны через параметры контекста $1, $2,...$N";
 
-  String BATCH_ARG_CHARSET_ID      = Messages.getString( "BATCH_ARG_CHARSET_ID" );      //$NON-NLS-1$
-  String BATCH_ARG_CHARSET_ALIAS   = Messages.getString( "BATCH_ARG_CHARSET_ALIAS" );   //$NON-NLS-1$
-  String BATCH_ARG_CHARSET_NAME    = Messages.getString( "BATCH_ARG_CHARSET_NAME" );    //$NON-NLS-1$
-  String BATCH_ARG_CHARSET_DESCR   = Messages.getString( "BATCH_ARG_CHARSET_DESCR" );   //$NON-NLS-1$
-  String BATCH_ARG_CHARSET_DEFAULT = Messages.getString( "BATCH_ARG_CHARSET_DEFAULT" ); //$NON-NLS-1$
+  String BATCH_ARG_CHARSET_ID      = "charset";
+  String BATCH_ARG_CHARSET_ALIAS   = "";
+  String BATCH_ARG_CHARSET_NAME    = "";
+  String BATCH_ARG_CHARSET_DESCR   = "Кодировка текстового файла";
+  String BATCH_ARG_CHARSET_DEFAULT = "UTF8";
 
-  String BATCH_ARG_EXIT_ID      = Messages.getString( "BATCH_ARG_EXIT_ID" );      //$NON-NLS-1$
-  String BATCH_ARG_EXIT_ALIAS   = Messages.getString( "BATCH_ARG_EXIT_ALIAS" );   //$NON-NLS-1$
-  String BATCH_ARG_EXIT_NAME    = Messages.getString( "BATCH_ARG_EXIT_NAME" );    //$NON-NLS-1$
-  String BATCH_ARG_EXIT_DESCR   = Messages.getString( "BATCH_ARG_EXIT_DESCR" );   //$NON-NLS-1$
-  String BATCH_ARG_EXIT_DEFAULT = Messages.getString( "BATCH_ARG_EXIT_DEFAULT" ); //$NON-NLS-1$
+  String BATCH_ARG_EXIT_ID      = "exit";
+  String BATCH_ARG_EXIT_ALIAS   = "";
+  String BATCH_ARG_EXIT_NAME    = "";
+  String BATCH_ARG_EXIT_DESCR   = "Признак завершения работы консоли после выполнения команд файла";
+  String BATCH_ARG_EXIT_DEFAULT = "false";
 
   // ------------------------------------------------------------------------------------
   // ConsoleCmdHasParam
   //
-  String HAS_CMD_ID           = Messages.getString( "HAS_CMD_ID" );           //$NON-NLS-1$
-  String HAS_CMD_ALIAS        = Messages.getString( "HAS_CMD_ALIAS" );        //$NON-NLS-1$
-  String HAS_CMD_NAME         = Messages.getString( "HAS_CMD_NAME" );         //$NON-NLS-1$
-  String HAS_CMD_DESCR        = Messages.getString( "HAS_CMD_DESCR" );        //$NON-NLS-1$
-  String HAS_CMD_RESULT_DESCR = Messages.getString( "HAS_CMD_RESULT_DESCR" ); //$NON-NLS-1$
+  String HAS_CMD_ID           = "hasContextParam";
+  String HAS_CMD_ALIAS        = "";
+  String HAS_CMD_NAME         = "";
+  String HAS_CMD_DESCR        = "Возвращает  признак существования параметра в текущем контексте";
+  String HAS_CMD_RESULT_DESCR = "Признак существования параметра";
 
-  String HAS_ARG_NAME_ID    = Messages.getString( "HAS_ARG_NAME_ID" );    //$NON-NLS-1$
-  String HAS_ARG_NAME_ALIAS = Messages.getString( "HAS_ARG_NAME_ALIAS" ); //$NON-NLS-1$
-  String HAS_ARG_NAME_NAME  = Messages.getString( "HAS_ARG_NAME_NAME" );  //$NON-NLS-1$
-  String HAS_ARG_NAME_DESCR = Messages.getString( "HAS_ARG_NAME_DESCR" ); //$NON-NLS-1$
+  String HAS_ARG_NAME_ID    = "name";
+  String HAS_ARG_NAME_ALIAS = "";
+  String HAS_ARG_NAME_NAME  = "";
+  String HAS_ARG_NAME_DESCR = "Имя проверяемого параметра. ВНИМАНИЕ: без префикса '$'";
 
   // ------------------------------------------------------------------------------------
   // ConsoleCmdSignal
