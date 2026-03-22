@@ -1,5 +1,8 @@
 package org.toxsoft.uskat.core.gui.conn;
 
+import java.util.concurrent.atomic.*;
+import java.util.function.*;
+
 import org.eclipse.swt.widgets.*;
 import org.toxsoft.core.tslib.bricks.threadexec.*;
 import org.toxsoft.core.tslib.utils.errors.*;
@@ -45,7 +48,18 @@ public final class SkGuiThreadExecutor
   @Override
   public void syncExec( Runnable aRunnable ) {
     TsNullArgumentRtException.checkNull( aRunnable );
+    final Consumer<Error> originErrorHandler = display.getErrorHandler();
+    final AtomicReference<Error> errorRef = new AtomicReference<>();
+    display.syncExec( () -> display.setErrorHandler( aError -> {
+      originErrorHandler.accept( aError );
+      errorRef.set( aError );
+    } ) );
     display.syncExec( aRunnable );
+    display.syncExec( () -> display.setErrorHandler( originErrorHandler ) );
+    Error error = errorRef.get();
+    if( error != null ) {
+      throw new Error( error );
+    }
   }
 
   @Override
