@@ -334,11 +334,15 @@ class S5SequenceSQL {
 
   /**
    * Идентификатор поля {@link #FIELD_GWID} в MQL-запросах.
+   *
+   * @since 2026-03-21 mvk+++ wildfly 39
    */
   private static final String MQL_GWID = MQL_FIELD_ID + "." + MQL_FIELD_GWID;
 
   /**
    * Идентификатор поля {@link #FIELD_START_TIME} в MQL-запросах.
+   *
+   * @since 2026-03-21 mvk+++ wildfly 39
    */
   private static final String MQL_START_TIME = MQL_FIELD_ID + "." + FIELD_START_TIME;
 
