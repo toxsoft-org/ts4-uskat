@@ -41,6 +41,7 @@ import org.toxsoft.uskat.s5.server.backend.impl.*;
 import org.toxsoft.uskat.s5.server.logger.*;
 import org.toxsoft.uskat.s5.server.sessions.init.*;
 import org.toxsoft.uskat.s5.utils.threads.impl.*;
+import org.wildfly.naming.client.*;
 import org.wildfly.security.auth.client.*;
 
 import jakarta.ejb.*;
@@ -551,7 +552,6 @@ public final class S5Connection
 
       // Адрес сервера
       S5HostList hosts = OP_HOSTS.getValue( options ).asValobj();
-      String moduleName = IS5ImplementConstants.BACKEND_SERVER_MODULE_ID;
       String apiIntefaceName = IS5ImplementConstants.BACKEND_SESSION_INTERFACE;
       String apiBeanName = IS5ImplementConstants.BACKEND_SESSION_IMPLEMENTATION;
 
@@ -572,8 +572,7 @@ public final class S5Connection
         // Поиск сервера и бина его API
         progressMonitor.updateWorkProgress( format( USER_LOOKUP_REMOTE_API_START, this ), -1 );
         logger.debug( USER_LOOKUP_REMOTE_API_START, this );
-        remoteBackend =
-            lookupBackend( this, hosts.first(), wlogin, wpasswd, moduleName, apiIntefaceName, apiBeanName, loader );
+        remoteBackend = lookupBackend( this, hosts.first() );
         // Сообщение завершении поиска сервера
         logger.debug( MSG_LOOKUP_REMOTE_API_FINISH, this, sessionInitData.sessionID() );
       }
@@ -1286,168 +1285,74 @@ public final class S5Connection
   // }
 
   /**
-   * Проводит поиск удаленного API сервера
-   *
-   * @param aConnection {@link S5Connection} соединение с сервером
-   * @param aHost String ip-адрес или имя хоста на котором работает сервер
-   * @param aPort Integer порт на котором работает сервер
-   * @param aLogin String имя пользователя
-   * @param aPassword String пароль пользователя
-   * @param aModuleName String имя модуля сервера реализующего API
-   * @param aInterfaceName String имя класса интерфейса удаленной ссылки на API
-   * @param aBeanName String имя класса бина реализующего API клиента
-   * @param aClassLoader {@link ClassLoader} загручик классов для создания proxy API сервера
-   * @return {@link InitialContext} контекст имен сервера
-   * @throws Exception ошибка создания соединения
-   * @throws TsNullArgumentRtException любой аргумент = null
-   * @throws NamingException контекст не найден
-   */
-  /* 2022-02-03 mvk переход на ejb-client-4.0.44 (wildfly-26.0.1.Final)
-   * @formatter:off
-  @SuppressWarnings( { "nls", "unchecked", "unused" } )
-  private IS5BackendSession lookupRemoteApi( S5Connection aConnection, String aHost, Integer aPort, String aLogin,
-      String aPassword, String aModuleName, String aInterfaceName, String aBeanName, ClassLoader aClassLoader )
-      throws Exception {
-    TsNullArgumentRtException.checkNulls( aConnection, aHost, aPort, aLogin, aPassword, aClassLoader );
-
-    // Подбор параметров соедниения: https://docs.jboss.org/author/display/EJBCLIENT/Overview+of+Client+properties
-    // Properties properties = new Properties();
-    FastHashtable<String, Object> properties = new FastHashtable<>();
-    // properties.put( Context.INITIAL_CONTEXT_FACTORY, "org.wildfly.naming.client.WildFlyInitialContextFactory" );
-    // properties.put( Context.SECURITY_PRINCIPAL, aLogin );
-    // properties.put( Context.SECURITY_CREDENTIALS, aPassword );
-    // properties.put( "remote.connections", "default" );
-    properties.put( "remote.connection.default.host", aHost );
-    properties.put( "remote.connection.default.port", aPort.toString() );
-    properties.put( "remote.connection.default.username", aLogin );
-    properties.put( "remote.connection.default.password", aPassword );
-    // properties.put( "remote.connection.default.connect.timeout", "1" );
-
-    properties.put( "remote.connection.default.connect.options.org.xnio.Options.SASL_POLICY_NOPLAINTEXT", "false" );
-    properties.put( "remote.connection.default.connect.options.org.xnio.Options.SASL_POLICY_NOANONYMOUS", "false" );
-    properties.put( "remote.connection.default.connect.options.org.xnio.Options.SASL_DISALLOWED_MECHANISMS",
-        "JBOSS-LOCAL-USER" );
-    properties.put( "remote.connectionprovider.create.options.org.xnio.Options.SSL_ENABLED", "false" );
-
-    properties.put( "endpoint.name", "s5.endpoint" );
-
-    // properties.put( "invocation.timeout", "2000" );
-    // properties.put( "reconnect.tasks.timeout", "3000" );
-    // properties.put( "remote.connection.default.connect.timeout", "3000" );
-    // properties.put(
-    // "remote.connection.default.connect.options.org.jboss.remoting3.RemotingOptions.HEARTBEAT_INTERVAL",
-    // 2000 );
-
-    // properties.put( "endpoint.create.options.org.xnio.Options.THREAD_DAEMON", "false" );
-    // properties.put( "remote.connection.default.connect.options.org.xnio.Options.KEEP_ALIVE", "true" );
-    // properties.put( "endpoint.create.options.org.xnio.Options.WORKER_TASK_MAX_THREADS", "1" );
-    // OptionMap.create( Options.THREAD_DAEMON, false ).toString() );
-
-    // properties.put( "remote.connection.default.protocol", "remoting" );
-    // properties.put( "endpoint.name", "client-endpoint" );
-
-    try {
-      // WildFlyRootContext ctx = new WildFlyRootContext( properties, ClassLoader.getSystemClassLoader() );
-      // if( true ) {
-      // IS5BackendSession ejb = (IS5BackendSession)ctx
-      // .lookup( "ejb:" + "" + "/" + aModuleName + "/" + aBeanName + "!" + aInterfaceName + "?stateful" );
-      // }
-      // Формирование контеста аутентификации пользователя
-      ProviderEnvironment.Builder builder = new ProviderEnvironment.Builder();
-      builder.populateFromEnvironment( properties );
-      ProviderEnvironment providerEnvironment = builder.build();
-      authenticationContext = providerEnvironment.getAuthenticationContextSupplier().get();
-
-      // 2019-05-30: mvk: try fix server to server connection error. source:
-      // https://developer.jboss.org/thread/278645
-      AuthenticationConfiguration superUser = AuthenticationConfiguration.empty()
-          .setSaslMechanismSelector( SaslMechanismSelector.NONE.addMechanism( "PLAIN" ) ). // //$NON-NLS-1$
-          useName( aLogin ).usePassword( aPassword );
-      authenticationContext = authenticationContext.with( MatchRule.ALL, superUser );
-      AuthenticationContext.getContextManager().setThreadDefault( authenticationContext );
-
-      // Код выполняемый в потоке контекста авторизации
-      Callable<IS5BackendSession> callable = () -> {
-        // Прокси точки входа на сервер
-        Class<IS5BackendSession> view = (Class<IS5BackendSession>)aClassLoader.loadClass( aInterfaceName );
-        String appname = "";
-        String modulename = aModuleName;
-        String beanname = aBeanName;
-        String distinctname = "";
-        StatelessEJBLocator<IS5BackendSession> locator = null;
-        try {
-          EJBIdentifier ejbId = new EJBIdentifier( appname, modulename, beanname, distinctname );
-          // mvk 2018-10-11
-          // locator = StatelessEJBLocator.create( view, ejbId, Affinity.NONE );
-          URI uri = new URI( "remote+http://" + aHost + ":" + aPort.toString() );
-          Affinity affinity = Affinity.forUri( uri );
-          locator = StatelessEJBLocator.create( view, ejbId, affinity );
-        }
-        catch( RuntimeException e ) {
-          throw e;
-        }
-        try {
-          // Подготовка и установка контекста EJB для соединения
-          EJBClientContext.Builder contextBuilder = new EJBClientContext.Builder();
-          // Загрузка поставщиков EJB транспорта
-          loadTransportProviders( contextBuilder, RemoteTransportProvider.class.getClassLoader(), logger );
-          // Установка перехватчика вызовов
-          contextBuilder.addInterceptor( new S5ConnectionInterceptor( S5Connection.this ) );
-          // Сборка контекста и установка его по умолчанию для текущего (авторизации) потока
-          ejbClientContext = contextBuilder.build();
-          // TODO: ???
-          // setEJBContextForCurrentThread();
-          if( true ) {
-            throw new TsUnderDevelopmentRtException();
-          }
-          // Фабрика имен
-          RemoteNamingProviderFactory namingProviderFactory = new RemoteNamingProviderFactory();
-          // Поставщик имен
-          try( NamingProvider namingProvider =
-              namingProviderFactory.createProvider( properties, providerEnvironment ) ) {
-            // Создание proxy на точку входа сервера (IServerApi) в контексте клиента
-            Object proxy = EJBClient.createSessionProxy( locator, S5Connection.this, namingProvider );
-            // // Замена прокси на прокси контекста соединения
-            // IS5BackendSession retValue = (IS5BackendSession)replaceContextProxy( S5Connection.this, proxy );
-            return (IS5BackendSession)proxy;
-          }
-        }
-        catch( RuntimeException e ) {
-          throw e;
-        }
-      };
-      // Запуск кода в контексте авторизации
-      return authenticationContext.runCallable( callable );
-    }
-    catch( Exception e ) {
-      throw e;
-    }
-  }
-  * @formatter:on
-  */
-
-  /**
-   * Ищет контекст имен сервера
+   * Проводит поиск s5-бекенда
    *
    * @param aConnection {@link S5Connection} соединение с сервером
    * @param aHost {@link S5Host} адрес хоста на котором работает сервер
    * @param aLogin String имя пользователя
    * @param aPassword String пароль пользователя
-   * @param aModuleName String имя модуля сервера реализующего API
-   * @param aInterfaceName String имя класса интерфейса удаленной ссылки на API
-   * @param aBeanName String имя класса бина реализующего API клиента
    * @param aClassLoader {@link ClassLoader} загручик классов для создания proxy API сервера
-   * @return {@link InitialContext} контекст имен сервера
+   * @return {@link IS5BackendSession} найденный бекенд
    * @throws Exception ошибка создания соединения
    * @throws TsNullArgumentRtException любой аргумент = null
    * @throws NamingException контекст не найден
    */
+  @SuppressWarnings( "nls" )
+  private static IS5BackendSession lookupBackend( S5Connection aConnection, S5Host aHost )
+      throws Exception {
+    TsNullArgumentRtException.checkNulls( aConnection, aHost );
 
+    String moduleName = IS5ImplementConstants.BACKEND_SERVER_MODULE_ID;
+    String apiIntefaceName = IS5ImplementConstants.BACKEND_SESSION_INTERFACE;
+    String apiBeanName = IS5ImplementConstants.BACKEND_SESSION_IMPLEMENTATION;
+    String providerURL = String.format( "remote+http://%s:%s", aHost.address(), String.valueOf( aHost.port() ) );
+
+    final Hashtable<String, String> jndiProperties = new Hashtable<>();
+    // jndiProperties.put( Context.INITIAL_CONTEXT_FACTORY, "org.wildfly.naming.client.WildFlyInitialContextFactory" );
+    jndiProperties.put( Context.INITIAL_CONTEXT_FACTORY, WildFlyInitialContextFactory.class.getName() );
+    // use HTTP upgrade, an initial upgrade requests is sent to upgrade to the remoting protocol
+    jndiProperties.put( Context.PROVIDER_URL, providerURL );
+    // jndiProperties.put( Context.SECURITY_PRINCIPAL, aLogin );
+    // jndiProperties.put( Context.SECURITY_CREDENTIALS, aPassword );
+    final Context context = new InitialContext( jndiProperties );
+    try {
+      // String lookupPath = "ejb:/" + moduleName + "/" + apiBeanName + "!" + apiIntefaceName;
+      String lookupPath = "ejb:/" + moduleName + "/" + apiBeanName + "!" + apiIntefaceName + "?stateful";
+      IS5BackendSession retValue = (IS5BackendSession)context.lookup( lookupPath );
+      return retValue;
+    }
+    finally {
+      try {
+        context.close();
+      }
+      catch( @SuppressWarnings( "unused" ) Exception e ) {
+        // nop
+      }
+    }
+  }
+
+  /**
+   * Проводит поиск s5-бекенда
+   *
+   * @param aConnection {@link S5Connection} соединение с сервером
+   * @param aHost {@link S5Host} адрес хоста на котором работает сервер
+   * @param aLogin String имя пользователя
+   * @param aPassword String пароль пользователя
+   * @param aClassLoader {@link ClassLoader} загручик классов для создания proxy API сервера
+   * @return {@link IS5BackendSession} найденный бекенд
+   * @throws Exception ошибка создания соединения
+   * @throws TsNullArgumentRtException любой аргумент = null
+   * @throws NamingException контекст не найден
+   */
   @SuppressWarnings( { "nls", "unused" } )
-  private static IS5BackendSession lookupBackend( S5Connection aConnection, S5Host aHost, String aLogin,
-      String aPassword, String aModuleName, String aInterfaceName, String aBeanName, ClassLoader aClassLoader )
+  private static IS5BackendSession lookupBackend26( S5Connection aConnection, S5Host aHost, String aLogin,
+      String aPassword, ClassLoader aClassLoader )
       throws Exception {
     TsNullArgumentRtException.checkNulls( aConnection, aHost, aLogin, aPassword, aClassLoader );
+
+    String moduleName = IS5ImplementConstants.BACKEND_SERVER_MODULE_ID;
+    String apiIntefaceName = IS5ImplementConstants.BACKEND_SESSION_INTERFACE;
+    String apiBeanName = IS5ImplementConstants.BACKEND_SESSION_IMPLEMENTATION;
 
     // Подбор параметров соедниения: https://docs.jboss.org/author/display/EJBCLIENT/Overview+of+Client+properties
     // Properties properties = new Properties();
@@ -1475,7 +1380,7 @@ public final class S5Connection
 
     Context context = new InitialContext( properties );
     try {
-      String url = "ejb:" + "" + "/" + aModuleName + "/" + aBeanName + "!" + aInterfaceName;
+      String url = "ejb:" + "" + "/" + moduleName + "/" + apiBeanName + "!" + apiIntefaceName;
       final IS5BackendSession retValue = (IS5BackendSession)context.lookup( url );
       return retValue;
     }
