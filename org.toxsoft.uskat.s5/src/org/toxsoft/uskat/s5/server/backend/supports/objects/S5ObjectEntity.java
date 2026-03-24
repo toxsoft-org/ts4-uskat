@@ -3,7 +3,6 @@ package org.toxsoft.uskat.s5.server.backend.supports.objects;
 import static org.toxsoft.core.tslib.utils.TsLibUtils.*;
 import static org.toxsoft.uskat.s5.common.IS5CommonResources.*;
 import static org.toxsoft.uskat.s5.server.backend.supports.objects.IS5Resources.*;
-import static org.toxsoft.uskat.s5.server.backend.supports.objects.S5ObjectID.*;
 
 import java.io.*;
 import java.sql.*;
@@ -64,15 +63,16 @@ public class S5ObjectEntity
   @EmbeddedId
   private S5ObjectID id;
 
-  /**
-   * Идентификатор класса объекта
-   */
-  @ManyToOne( targetEntity = S5ClassEntity.class, optional = false, fetch = FetchType.LAZY )
-  @JoinColumn( name = FIELD_CLASSID, //
-      insertable = false,
-      updatable = false,
-      nullable = false )
-  private S5ClassEntity classInfo;
+  // 2026-03-24 mvk wildfly 39 ---
+  // /**
+  // * Идентификатор класса объекта
+  // */
+  // @ManyToOne( targetEntity = S5ClassEntity.class, optional = false, fetch = FetchType.LAZY )
+  // @JoinColumn( name = FIELD_CLASSID, //
+  // insertable = false,
+  // updatable = false,
+  // nullable = false )
+  // private S5ClassEntity classInfo;
 
   /**
    * Значения всех расширенных атрибутов.
@@ -128,7 +128,8 @@ public class S5ObjectEntity
   protected S5ObjectEntity( IDtoObject aSource ) {
     TsNullArgumentRtException.checkNull( aSource );
     id = new S5ObjectID( aSource.skid() );
-    classInfo = S5ClassEntity.createPrimaryKey( aSource.classId() );
+    // 2026-03-24 mvk wildfly 39 ---
+    // classInfo = S5ClassEntity.createPrimaryKey( aSource.classId() );
     setAttrs( aSource.attrs() );
     setRivets( aSource.rivets() );
     setRivetRevs( aSource.rivetRevs() );
@@ -146,7 +147,8 @@ public class S5ObjectEntity
     }
     try {
       id = new S5ObjectID( aResultSet );
-      classInfo = null;
+      // 2026-03-24 mvk wildfly 39 ---
+      // classInfo = null;
       attrsString = aResultSet.getString( FIELD_ATTRS_STRING );
       rivetsString = aResultSet.getString( FIELD_RIVERTS_STRING );
       rivetRevsString = aResultSet.getString( FIELD_RIVET_REVS_STRING );
@@ -166,7 +168,8 @@ public class S5ObjectEntity
   protected S5ObjectEntity( S5ObjectID aId ) {
     TsNullArgumentRtException.checkNull( aId );
     id = aId;
-    classInfo = null;
+    // 2026-03-24 mvk wildfly 39 ---
+    // classInfo = null;
     setAttrs( IOptionSet.NULL );
     setRivets( IMappedSkids.EMPTY );
     setRivetRevs( IStringMap.EMPTY );
@@ -177,7 +180,8 @@ public class S5ObjectEntity
    */
   protected S5ObjectEntity() {
     id = null;
-    classInfo = null;
+    // 2026-03-24 mvk wildfly 39 ---
+    // classInfo = null;
     setAttrs( IOptionSet.NULL );
     setRivets( IMappedSkids.EMPTY );
     setRivetRevs( IStringMap.EMPTY );
