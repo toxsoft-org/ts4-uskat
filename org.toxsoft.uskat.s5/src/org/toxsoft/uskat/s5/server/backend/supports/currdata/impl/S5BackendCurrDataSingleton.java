@@ -638,7 +638,7 @@ public class S5BackendCurrDataSingleton
    * @param aTime long время (мсек) записи
    * @return String строка представления значений текущих данных
    */
-  public static String toStr( String aMessage, Map<Gwid, IAtomicValue> aValues, long aTime ) {
+  private static String toStr( String aMessage, Map<Gwid, IAtomicValue> aValues, long aTime ) {
     TsNullArgumentRtException.checkNulls( aValues );
     StringBuilder sb = new StringBuilder();
     sb.append( String.format( aMessage, Integer.valueOf( aValues.size() ), Long.valueOf( aTime ) ) );

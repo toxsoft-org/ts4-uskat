@@ -6,8 +6,7 @@ import org.toxsoft.core.tslib.av.opset.*;
 import org.toxsoft.core.tslib.av.opset.impl.*;
 import org.toxsoft.core.tslib.utils.errors.*;
 import org.toxsoft.core.tslib.utils.logs.*;
-import org.toxsoft.core.tslib.utils.logs.impl.*;
-import org.toxsoft.uskat.s5.server.backend.addons.*;
+import org.toxsoft.uskat.core.logger.*;
 import org.toxsoft.uskat.s5.server.logger.*;
 import org.toxsoft.uskat.s5.server.transactions.*;
 
@@ -44,10 +43,8 @@ public class S5InitialSingleton
    * Пустой конструктор.
    */
   public S5InitialSingleton() {
-    ILogger defaultLogger = LoggerWrapper.getLogger( S5AbstractBackend.TS_DEFAULT_LOGGER );
-    ILogger errorLogger = LoggerWrapper.getLogger( S5AbstractBackend.TS_ERROR_LOGGER );
-    LoggerUtils.setDefaultLogger( defaultLogger );
-    LoggerUtils.setErrorLogger( errorLogger );
+    // Фабрика журналов компонент
+    LoggerUtils.setLoggerFactory( LoggerWrapper::getLogger );
   }
 
   // ------------------------------------------------------------------------------------

@@ -9,11 +9,12 @@ import org.toxsoft.core.tslib.coll.*;
 import org.toxsoft.core.tslib.coll.impl.*;
 import org.toxsoft.core.tslib.utils.*;
 import org.toxsoft.core.tslib.utils.errors.*;
-import org.toxsoft.core.tslib.utils.logs.impl.*;
+import org.toxsoft.core.tslib.utils.logs.*;
 import org.toxsoft.uskat.core.*;
 import org.toxsoft.uskat.core.backend.api.*;
 import org.toxsoft.uskat.core.connection.*;
 import org.toxsoft.uskat.core.devapi.*;
+import org.toxsoft.uskat.core.logger.*;
 
 /**
  * {@link ISkConnection} implementation.
@@ -27,8 +28,9 @@ class SkConnection
 
   private final ITsContext scope = new TsContext();
 
-  private ESkConnState state   = ESkConnState.CLOSED;
-  private SkCoreApi    coreApi = null;
+  private ESkConnState  state   = ESkConnState.CLOSED;
+  private SkCoreApi     coreApi = null;
+  private final ILogger logger  = LoggerUtils.getLogger( getClass() );
 
   /**
    * Constructor.
@@ -53,7 +55,7 @@ class SkConnection
           l.onSkConnectionStateChanged( this, aOldState );
         }
         catch( Exception ex ) {
-          LoggerUtils.defaultLogger().error( ex );
+          logger.error( ex );
         }
       }
     }
@@ -68,7 +70,7 @@ class SkConnection
           l.beforeSkConnectionStateChange( this, aNewState );
         }
         catch( Exception ex ) {
-          LoggerUtils.defaultLogger().error( ex );
+          logger.error( ex );
         }
       }
     }

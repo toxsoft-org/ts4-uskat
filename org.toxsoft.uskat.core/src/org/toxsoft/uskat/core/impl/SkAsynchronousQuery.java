@@ -12,9 +12,10 @@ import org.toxsoft.core.tslib.coll.primtypes.*;
 import org.toxsoft.core.tslib.gw.gwid.*;
 import org.toxsoft.core.tslib.utils.*;
 import org.toxsoft.core.tslib.utils.errors.*;
-import org.toxsoft.core.tslib.utils.logs.impl.*;
+import org.toxsoft.core.tslib.utils.logs.*;
 import org.toxsoft.uskat.core.api.hqserv.*;
 import org.toxsoft.uskat.core.backend.api.*;
+import org.toxsoft.uskat.core.logger.*;
 
 /**
  * {@link ISkAsynchronousQuery} abstract implementation.
@@ -36,7 +37,8 @@ public abstract class SkAsynchronousQuery
   private ESkQueryState              state        = UNPREPARED;
   private String                     stateMessage = TsLibUtils.EMPTY_STRING;
 
-  private long queryTimestamp = System.currentTimeMillis();
+  private long          queryTimestamp = System.currentTimeMillis();
+  private final ILogger logger         = LoggerUtils.getLogger( getClass() );
 
   /**
    * Constructor
@@ -115,7 +117,7 @@ public abstract class SkAsynchronousQuery
       backend().cancel( queryId );
     }
     catch( Exception e ) {
-      LoggerUtils.errorLogger().error( e );
+      logger.error( e );
     }
     changeState( PREPARED );
   }
@@ -132,7 +134,7 @@ public abstract class SkAsynchronousQuery
       backend().close( queryId );
     }
     catch( Exception e ) {
-      LoggerUtils.errorLogger().error( e );
+      logger.error( e );
     }
     changeState( CLOSED );
   }
@@ -223,7 +225,7 @@ public abstract class SkAsynchronousQuery
   // ------------------------------------------------------------------------------------
   // abstract implementation
   //
-  
+
   /**
    * Process the received data
    *

@@ -12,10 +12,10 @@ import org.toxsoft.core.tslib.bricks.strid.coll.impl.*;
 import org.toxsoft.core.tslib.coll.primtypes.*;
 import org.toxsoft.core.tslib.coll.primtypes.impl.*;
 import org.toxsoft.core.tslib.utils.errors.*;
-import org.toxsoft.core.tslib.utils.logs.impl.*;
 import org.toxsoft.uskat.core.backend.*;
 import org.toxsoft.uskat.core.backend.api.*;
 import org.toxsoft.uskat.core.connection.*;
+import org.toxsoft.uskat.core.logger.*;
 import org.toxsoft.uskat.s5.client.remote.connection.*;
 import org.toxsoft.uskat.s5.server.backend.*;
 import org.toxsoft.uskat.s5.server.backend.addons.*;
@@ -279,7 +279,7 @@ public final class S5BackendRemote
       }
       catch( ClassNotFoundException e ) {
         // Не найден класс построителя расширения бекенда в classpath клиента
-        LoggerUtils.errorLogger().error( ERR_BA_CREATOR_NOT_FOUND, addonId, baCreatorClassName );
+        LoggerUtils.getLogger( S5BackendRemote.class ).error( ERR_BA_CREATOR_NOT_FOUND, addonId, baCreatorClassName );
         continue;
       }
       try {

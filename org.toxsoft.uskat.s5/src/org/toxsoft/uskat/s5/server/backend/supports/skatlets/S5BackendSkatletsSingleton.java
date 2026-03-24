@@ -22,7 +22,6 @@ import org.toxsoft.core.tslib.bricks.wub.*;
 import org.toxsoft.core.tslib.coll.primtypes.*;
 import org.toxsoft.core.tslib.coll.primtypes.impl.*;
 import org.toxsoft.core.tslib.utils.errors.*;
-import org.toxsoft.core.tslib.utils.logs.impl.*;
 import org.toxsoft.core.tslib.utils.plugins.impl.*;
 import org.toxsoft.uskat.core.impl.*;
 import org.toxsoft.uskat.core.impl.SkatletBox.*;
@@ -222,7 +221,7 @@ public class S5BackendSkatletsSingleton
           Thread.sleep( DOJOB_INTERVAL );
         }
         catch( InterruptedException ex ) {
-          LoggerUtils.errorLogger().error( ex );
+          logger().error( ex );
         }
       }
     }

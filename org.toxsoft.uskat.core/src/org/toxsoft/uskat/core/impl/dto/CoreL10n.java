@@ -28,12 +28,13 @@ import org.toxsoft.core.tslib.gw.gwid.*;
 import org.toxsoft.core.tslib.gw.skid.*;
 import org.toxsoft.core.tslib.utils.errors.*;
 import org.toxsoft.core.tslib.utils.files.*;
-import org.toxsoft.core.tslib.utils.logs.impl.*;
+import org.toxsoft.core.tslib.utils.logs.*;
 import org.toxsoft.uskat.core.api.objserv.*;
 import org.toxsoft.uskat.core.api.sysdescr.dto.*;
 import org.toxsoft.uskat.core.connection.*;
 import org.toxsoft.uskat.core.devapi.*;
 import org.toxsoft.uskat.core.impl.*;
+import org.toxsoft.uskat.core.logger.*;
 
 /**
  * Реализация {@link ICoreL10n}.
@@ -214,6 +215,8 @@ public class CoreL10n
   private final IMapEdit<Skid, L10nItem> ldObjsMap    =
       new ElemMap<>( getMapBucketsCount( estimateOrder( 10_000 ) ), getListInitialCapacity( estimateOrder( 10_000 ) ) );
 
+  private final static ILogger logger = LoggerUtils.getLogger( CoreL10n.class );
+
   /**
    * Конструктор.
    * <p>
@@ -239,12 +242,12 @@ public class CoreL10n
       }
       else {
         localeFilesRoot = null;
-        LoggerUtils.errorLogger().warning( FMT_WARN_L10N_NO_LOCALE_DIR, longName, shortName );
+        logger.warning( FMT_WARN_L10N_NO_LOCALE_DIR, longName, shortName );
       }
     }
     else {
       localeFilesRoot = null;
-      LoggerUtils.errorLogger().warning( FMT_WARN_L10N_NO_ROOT_DIR, l10nFilesRoot.getAbsolutePath() );
+      logger.warning( FMT_WARN_L10N_NO_ROOT_DIR, l10nFilesRoot.getAbsolutePath() );
     }
     // загрузим данные локализации
     if( localeFilesRoot != null ) {
@@ -277,7 +280,7 @@ public class CoreL10n
         ldClassesMap.put( gwid, item );
       }
       catch( Exception ex ) {
-        LoggerUtils.errorLogger().warning( ex, FMT_WARN_L10N_INV_SDC_GWID_STR, item.entityIdString() );
+        logger.warning( ex, FMT_WARN_L10N_INV_SDC_GWID_STR, item.entityIdString() );
       }
     }
     ll.clear();
@@ -291,7 +294,7 @@ public class CoreL10n
         ldObjsMap.put( skid, item );
       }
       catch( Exception ex ) {
-        LoggerUtils.errorLogger().warning( ex, FMT_WARN_L10N_INV_OBJ_SKID_STR, item.entityIdString() );
+        logger.warning( ex, FMT_WARN_L10N_INV_OBJ_SKID_STR, item.entityIdString() );
       }
     }
   }
@@ -327,7 +330,7 @@ public class CoreL10n
    */
   private static void loadItemsFromFile( File aFile, IListEdit<L10nItem> aItems ) {
     if( !TsFileUtils.isFileReadable( aFile ) ) {
-      LoggerUtils.errorLogger().warning( FMT_WARN_L10N_BAD_FILE, aFile.getName() );
+      logger.warning( FMT_WARN_L10N_BAD_FILE, aFile.getName() );
       return;
     }
     L10nItem lastItem = null;
@@ -341,12 +344,12 @@ public class CoreL10n
     }
     catch( Exception ex ) {
       if( lastItem != null ) {
-        LoggerUtils.errorLogger().info( FMT_LAST_READ_ITEM, lastItem.entityIdString(), lastItem.name() );
+        logger.info( FMT_LAST_READ_ITEM, lastItem.entityIdString(), lastItem.name() );
       }
       else {
-        LoggerUtils.errorLogger().info( MSG_NO_ITEMS_READ_YET );
+        logger.info( MSG_NO_ITEMS_READ_YET );
       }
-      LoggerUtils.errorLogger().error( ex, FMT_ERR_L10N_LOADING_FILE, aFile.getName() );
+      logger.error( ex, FMT_ERR_L10N_LOADING_FILE, aFile.getName() );
     }
   }
 

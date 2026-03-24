@@ -26,12 +26,13 @@ import org.toxsoft.core.tslib.bricks.strid.impl.*;
 import org.toxsoft.core.tslib.bricks.validator.*;
 import org.toxsoft.core.tslib.utils.errors.*;
 import org.toxsoft.core.tslib.utils.login.*;
-import org.toxsoft.core.tslib.utils.logs.impl.*;
+import org.toxsoft.core.tslib.utils.logs.*;
 import org.toxsoft.uskat.core.backend.api.*;
 import org.toxsoft.uskat.core.connection.*;
 import org.toxsoft.uskat.core.gui.conn.*;
 import org.toxsoft.uskat.core.gui.conn.cfg.*;
 import org.toxsoft.uskat.core.gui.utils.*;
+import org.toxsoft.uskat.core.logger.*;
 
 /**
  * {@link IHandlerHelper} implementation.
@@ -43,6 +44,7 @@ public class HandlerHelper
 
   private final ITsGuiContext tsContext;
   private final ISkConnection skConn;
+  private final ILogger       logger = LoggerUtils.getLogger( getClass() );
 
   /**
    * Constructor.
@@ -125,7 +127,7 @@ public class HandlerHelper
       return true;
     }
     catch( Exception ex ) {
-      LoggerUtils.errorLogger().error( ex );
+      logger.error( ex );
       String msg = ex.getMessage();
       if( msg != null && !msg.isBlank() ) {
         TsDialogUtils.error( getShell(), FMT_ERR_OPEN_CONNECTION, ex.getMessage() );
@@ -182,7 +184,7 @@ public class HandlerHelper
         }
       }
       catch( Exception ex ) {
-        LoggerUtils.errorLogger().error( ex );
+        logger.error( ex );
         TsDialogUtils.warn( getShell(), MSG_WARN_DISCONNECTION_ERROR );
       }
     }

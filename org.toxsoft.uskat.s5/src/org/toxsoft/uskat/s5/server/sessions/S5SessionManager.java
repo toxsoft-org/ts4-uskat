@@ -6,7 +6,7 @@ import static org.toxsoft.uskat.s5.common.IS5CommonResources.*;
 import static org.toxsoft.uskat.s5.server.IS5ImplementConstants.*;
 import static org.toxsoft.uskat.s5.server.IS5ServerHardConstants.*;
 import static org.toxsoft.uskat.s5.server.sessions.IS5Resources.*;
-import static org.toxsoft.uskat.s5.server.sessions.IS5SessionInterceptor.*;
+import static org.toxsoft.uskat.s5.server.sessions.S5SessionInterceptorUtils.*;
 import static org.toxsoft.uskat.s5.server.sessions.cluster.S5ClusterCommandCloseCallback.*;
 import static org.toxsoft.uskat.s5.server.sessions.cluster.S5ClusterCommandCreateCallback.*;
 import static org.toxsoft.uskat.s5.server.sessions.cluster.S5ClusterCommandUpdateSession.*;

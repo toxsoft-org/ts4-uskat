@@ -1344,56 +1344,56 @@ public final class S5Connection
    * @throws TsNullArgumentRtException любой аргумент = null
    * @throws NamingException контекст не найден
    */
-  @SuppressWarnings( { "nls", "unused" } )
-  private static IS5BackendSession lookupBackend26( S5Connection aConnection, S5Host aHost, String aLogin,
-      String aPassword, ClassLoader aClassLoader )
-      throws Exception {
-    TsNullArgumentRtException.checkNulls( aConnection, aHost, aLogin, aPassword, aClassLoader );
-
-    String moduleName = IS5ImplementConstants.BACKEND_SERVER_MODULE_ID;
-    String apiIntefaceName = IS5ImplementConstants.BACKEND_SESSION_INTERFACE;
-    String apiBeanName = IS5ImplementConstants.BACKEND_SESSION_IMPLEMENTATION;
-
-    // Подбор параметров соедниения: https://docs.jboss.org/author/display/EJBCLIENT/Overview+of+Client+properties
-    // Properties properties = new Properties();
-    Hashtable<String, Object> properties = new Hashtable<>();
-    // properties.put( Context.INITIAL_CONTEXT_FACTORY, "org.wildfly.naming.client.WildFlyInitialContextFactory" );
-    // properties.put( Context.SECURITY_PRINCIPAL, aLogin );
-    // properties.put( Context.SECURITY_CREDENTIALS, aPassword );
-    // properties.put( "remote.connections", "default" );
-    properties.put( "remote.connection.default.host", aHost.address() );
-    properties.put( "remote.connection.default.port", String.valueOf( aHost.port() ) );
-    properties.put( "remote.connection.default.username", aLogin );
-    properties.put( "remote.connection.default.password", aPassword );
-    // properties.put( "remote.connection.default.connect.timeout", "1" );
-
-    properties.put( "remote.connection.default.connect.options.org.xnio.Options.SASL_POLICY_NOPLAINTEXT", "false" );
-    properties.put( "remote.connection.default.connect.options.org.xnio.Options.SASL_POLICY_NOANONYMOUS", "false" );
-    properties.put( "remote.connection.default.connect.options.org.xnio.Options.SASL_DISALLOWED_MECHANISMS",
-        "JBOSS-LOCAL-USER" );
-    properties.put( "remote.connectionprovider.create.options.org.xnio.Options.SSL_ENABLED", "false" );
-
-    properties.put( "endpoint.name", "s5.endpoint" );
-
-    properties.put( Context.URL_PKG_PREFIXES, "org.jboss.ejb.client.naming" );
-    properties.put( "org.jboss.ejb.client.scoped.context", "true" ); // enable scoping here
-
-    Context context = new InitialContext( properties );
-    try {
-      String url = "ejb:" + "" + "/" + moduleName + "/" + apiBeanName + "!" + apiIntefaceName;
-      final IS5BackendSession retValue = (IS5BackendSession)context.lookup( url );
-      return retValue;
-    }
-    finally {
-      try {
-        // ejbRootNamingContext.close();
-        context.close();
-      }
-      catch( Exception e ) {
-        // nop
-      }
-    }
-  }
+//  @SuppressWarnings( { "nls", "unused" } )
+//  private static IS5BackendSession lookupBackend26( S5Connection aConnection, S5Host aHost, String aLogin,
+//      String aPassword, ClassLoader aClassLoader )
+//      throws Exception {
+//    TsNullArgumentRtException.checkNulls( aConnection, aHost, aLogin, aPassword, aClassLoader );
+//
+//    String moduleName = IS5ImplementConstants.BACKEND_SERVER_MODULE_ID;
+//    String apiIntefaceName = IS5ImplementConstants.BACKEND_SESSION_INTERFACE;
+//    String apiBeanName = IS5ImplementConstants.BACKEND_SESSION_IMPLEMENTATION;
+//
+//    // Подбор параметров соедниения: https://docs.jboss.org/author/display/EJBCLIENT/Overview+of+Client+properties
+//    // Properties properties = new Properties();
+//    Hashtable<String, Object> properties = new Hashtable<>();
+//    // properties.put( Context.INITIAL_CONTEXT_FACTORY, "org.wildfly.naming.client.WildFlyInitialContextFactory" );
+//    // properties.put( Context.SECURITY_PRINCIPAL, aLogin );
+//    // properties.put( Context.SECURITY_CREDENTIALS, aPassword );
+//    // properties.put( "remote.connections", "default" );
+//    properties.put( "remote.connection.default.host", aHost.address() );
+//    properties.put( "remote.connection.default.port", String.valueOf( aHost.port() ) );
+//    properties.put( "remote.connection.default.username", aLogin );
+//    properties.put( "remote.connection.default.password", aPassword );
+//    // properties.put( "remote.connection.default.connect.timeout", "1" );
+//
+//    properties.put( "remote.connection.default.connect.options.org.xnio.Options.SASL_POLICY_NOPLAINTEXT", "false" );
+//    properties.put( "remote.connection.default.connect.options.org.xnio.Options.SASL_POLICY_NOANONYMOUS", "false" );
+//    properties.put( "remote.connection.default.connect.options.org.xnio.Options.SASL_DISALLOWED_MECHANISMS",
+//        "JBOSS-LOCAL-USER" );
+//    properties.put( "remote.connectionprovider.create.options.org.xnio.Options.SSL_ENABLED", "false" );
+//
+//    properties.put( "endpoint.name", "s5.endpoint" );
+//
+//    properties.put( Context.URL_PKG_PREFIXES, "org.jboss.ejb.client.naming" );
+//    properties.put( "org.jboss.ejb.client.scoped.context", "true" ); // enable scoping here
+//
+//    Context context = new InitialContext( properties );
+//    try {
+//      String url = "ejb:" + "" + "/" + moduleName + "/" + apiBeanName + "!" + apiIntefaceName;
+//      final IS5BackendSession retValue = (IS5BackendSession)context.lookup( url );
+//      return retValue;
+//    }
+//    finally {
+//      try {
+//        // ejbRootNamingContext.close();
+//        context.close();
+//      }
+//      catch( Exception e ) {
+//        // nop
+//      }
+//    }
+//  }
 
   // @formatter:off
   /**

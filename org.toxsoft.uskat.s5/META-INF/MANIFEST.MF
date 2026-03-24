@@ -5,9 +5,9 @@ Bundle-SymbolicName: org.toxsoft.uskat.s5
 Bundle-Version: 1.0.0.qualifier
 Bundle-Vendor: ToxSoft Ltd.
 Require-Bundle: org.toxsoft.extlibs.wildfly,
+ org.toxsoft.extlibs.wildfly.server,
  org.toxsoft.core.tslib,
  org.toxsoft.core.pas,
- org.toxsoft.core.log4j,
  org.toxsoft.uskat.core
 Eclipse-RegisterBuddy: org.toxsoft.extlibs.wildfly
 Eclipse-BuddyPolicy: registered

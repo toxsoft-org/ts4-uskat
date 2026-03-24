@@ -2,21 +2,21 @@ package org.toxsoft.uskat.s5.schedules.lib.impl;
 
 import static org.toxsoft.uskat.s5.schedules.lib.ISkSchedulesHardConstants.*;
 
-import org.toxsoft.core.tslib.bricks.ctx.ITsContextRo;
-import org.toxsoft.core.tslib.bricks.events.AbstractTsEventer;
-import org.toxsoft.core.tslib.bricks.events.ITsEventer;
-import org.toxsoft.core.tslib.bricks.events.msg.GenericMessage;
-import org.toxsoft.core.tslib.bricks.strid.coll.IStridablesList;
-import org.toxsoft.core.tslib.bricks.strid.coll.impl.StridablesList;
-import org.toxsoft.core.tslib.coll.IList;
+import org.toxsoft.core.tslib.bricks.ctx.*;
+import org.toxsoft.core.tslib.bricks.events.*;
+import org.toxsoft.core.tslib.bricks.events.msg.*;
+import org.toxsoft.core.tslib.bricks.strid.coll.*;
+import org.toxsoft.core.tslib.bricks.strid.coll.impl.*;
+import org.toxsoft.core.tslib.coll.*;
 import org.toxsoft.core.tslib.gw.skid.*;
-import org.toxsoft.core.tslib.utils.errors.TsNullArgumentRtException;
-import org.toxsoft.core.tslib.utils.logs.impl.LoggerUtils;
-import org.toxsoft.uskat.core.ISkServiceCreator;
-import org.toxsoft.uskat.core.api.objserv.IDtoFullObject;
-import org.toxsoft.uskat.core.devapi.IDevCoreApi;
-import org.toxsoft.uskat.core.impl.AbstractSkService;
-import org.toxsoft.uskat.core.impl.dto.DtoFullObject;
+import org.toxsoft.core.tslib.utils.errors.*;
+import org.toxsoft.core.tslib.utils.logs.*;
+import org.toxsoft.uskat.core.*;
+import org.toxsoft.uskat.core.api.objserv.*;
+import org.toxsoft.uskat.core.devapi.*;
+import org.toxsoft.uskat.core.impl.*;
+import org.toxsoft.uskat.core.impl.dto.*;
+import org.toxsoft.uskat.core.logger.*;
 import org.toxsoft.uskat.s5.schedules.lib.*;
 
 /**
@@ -58,7 +58,7 @@ public class SkScheduleService
             l.onScheduled( onScheduleIds );
           }
           catch( Exception ex ) {
-            LoggerUtils.errorLogger().error( ex );
+            logger.error( ex );
           }
         }
         onScheduleIds = null;
@@ -83,6 +83,10 @@ public class SkScheduleService
 
   private final Eventer                    eventer           = new Eventer();
   private final ClassClaimingCoreValidator claimingValidator = new ClassClaimingCoreValidator();
+  /**
+   * Logger
+   */
+  private final ILogger                    logger            = LoggerUtils.getLogger( getClass() );
 
   /**
    * Конструктор службы.

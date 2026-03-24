@@ -2,8 +2,9 @@ package org.toxsoft.uskat.skadmin.cli;
 
 import static org.toxsoft.uskat.skadmin.cli.IAdminResources.*;
 
-import org.toxsoft.core.log4j.LoggerWrapper;
-import org.toxsoft.core.tslib.utils.logs.ILogger;
+import org.toxsoft.core.log4j.*;
+import org.toxsoft.core.tslib.utils.logs.*;
+import org.toxsoft.uskat.core.logger.*;
 
 /**
  * Класс запуска приложения: консоль администратора s5
@@ -12,14 +13,19 @@ import org.toxsoft.core.tslib.utils.logs.ILogger;
  */
 public class Main {
 
-  private static ILogger logger = LoggerWrapper.getLogger( Main.class );
+  private static ILogger logger;
 
   /**
    * @param aArgs String[] параметры командной строки
    */
   public static void main( String[] aArgs ) {
+    // Инициализация журналов компонентов
+    LoggerUtils.setLoggerFactory( LoggerWrapper::getLogger );
+    // Инициализация журнала компонента
+    logger = LoggerWrapper.getLogger( Main.class );
     // Слежение за файлом конфигурации журнала log4j.xml
-    LoggerWrapper.setScanPropertiesTimeout( 10000 );
+    // 2026-03-22 mvk wildfly 39
+    // LoggerWrapper.setScanPropertiesTimeout( 10000 );
     // Формируем командую строку из аргументов среды
     StringBuilder sb = new StringBuilder();
     for( int index = 0, n = aArgs.length; index < n; index++ ) {

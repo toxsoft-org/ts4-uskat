@@ -6,7 +6,6 @@ import java.rmi.*;
 import java.util.concurrent.*;
 
 import org.toxsoft.core.tslib.bricks.strid.*;
-import org.toxsoft.core.tslib.bricks.strid.impl.*;
 import org.toxsoft.core.tslib.gw.skid.*;
 import org.toxsoft.core.tslib.utils.errors.*;
 import org.toxsoft.core.tslib.utils.logs.*;
@@ -28,10 +27,14 @@ import jakarta.ejb.*;
  * @author mvk
  */
 public abstract class S5AbstractBackendAddonSession
-    extends Stridable
     implements SessionBean, IS5BackendAddonSession, IS5BackendAddonSessionControl {
 
   private static final long serialVersionUID = 157157L;
+
+  private final String id;
+  private final String name;
+
+  private final String description;
 
   /**
    * Контекст сессии
@@ -93,14 +96,36 @@ public abstract class S5AbstractBackendAddonSession
    * @throws TsNullArgumentRtException любой аргумент = null
    */
   protected S5AbstractBackendAddonSession( IStridable aInfo ) {
-    super( aInfo );
+    TsNullArgumentRtException.checkNull( aInfo );
+    id = aInfo.id();
+    name = aInfo.nmName();
+    description = aInfo.description();
   }
 
   // ------------------------------------------------------------------------------------
-  // Реализация интерфейса SessionBean
+  // IStridable
   //
   @Override
-  public final void setSessionContext( SessionContext aContext )
+  public String id() {
+    return id;
+  }
+
+  @Override
+  public String nmName() {
+    return name;
+  }
+
+  @Override
+  public String description() {
+    return description;
+  }
+
+  // ------------------------------------------------------------------------------------
+  // SessionBean
+  //
+  @Override
+  // final --- WFLYEJB0131: Jakarta Enterprise Beans should not have a final or static method
+  public void setSessionContext( SessionContext aContext )
       throws EJBException,
       RemoteException {
     // Установлен контекст сессии расширения
@@ -108,7 +133,8 @@ public abstract class S5AbstractBackendAddonSession
   }
 
   @Override
-  public final void ejbRemove()
+  // final --- WFLYEJB0131: Jakarta Enterprise Beans should not have a final or static method
+  public void ejbRemove()
       throws EJBException,
       RemoteException {
     if( sessionID == null ) {
@@ -140,7 +166,8 @@ public abstract class S5AbstractBackendAddonSession
   }
 
   @Override
-  public final void ejbActivate()
+  // final --- WFLYEJB0131: Jakarta Enterprise Beans should not have a final or static method
+  public void ejbActivate()
       throws EJBException,
       RemoteException {
     // Активизация сессии расширения
@@ -148,7 +175,8 @@ public abstract class S5AbstractBackendAddonSession
   }
 
   @Override
-  public final void ejbPassivate()
+  // final --- WFLYEJB0131: Jakarta Enterprise Beans should not have a final or static method
+  public void ejbPassivate()
       throws EJBException,
       RemoteException {
     // Деактивизация сессии расширения
@@ -156,7 +184,7 @@ public abstract class S5AbstractBackendAddonSession
   }
 
   // ------------------------------------------------------------------------------------
-  // Реализация интерфейса IS5BackendAddonSessionControl
+  // IS5BackendAddonSessionControl
   //
   @Override
   public IS5BackendAddonSessionControl control() {
@@ -204,7 +232,7 @@ public abstract class S5AbstractBackendAddonSession
   }
 
   // ------------------------------------------------------------------------------------
-  // Реализация интерфейса IS5Verifiable
+  // IS5Verifiable
   //
   @Override
   public void verify() {
@@ -213,7 +241,7 @@ public abstract class S5AbstractBackendAddonSession
   }
 
   // ------------------------------------------------------------------------------------
-  // Реализация интерфейса IClosable
+  // IClosable
   //
   @Override
   public void close() {

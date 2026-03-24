@@ -9,11 +9,12 @@ import org.toxsoft.core.tslib.coll.impl.*;
 import org.toxsoft.core.tslib.coll.primtypes.*;
 import org.toxsoft.core.tslib.coll.primtypes.impl.*;
 import org.toxsoft.core.tslib.utils.errors.*;
-import org.toxsoft.core.tslib.utils.logs.impl.*;
+import org.toxsoft.core.tslib.utils.logs.*;
 import org.toxsoft.uskat.core.*;
 import org.toxsoft.uskat.core.api.objserv.*;
 import org.toxsoft.uskat.core.api.sysdescr.*;
 import org.toxsoft.uskat.core.connection.*;
+import org.toxsoft.uskat.core.logger.*;
 import org.toxsoft.uskat.core.utils.*;
 
 /**
@@ -84,6 +85,8 @@ public final class KM5Support
 
   private final IList<KM5AbstractContributor> contributorsList;
 
+  private final ILogger logger = LoggerUtils.getLogger( getClass() );
+
   /**
    * Constructor.
    * <p>
@@ -145,7 +148,7 @@ public final class KM5Support
           contributedModelIds.add( modelId );
         }
         else {
-          LoggerUtils.errorLogger().warning( FMT_LOG_WARN_DUP_CLASS_CONTRIBUTION, modelId );
+          logger.warning( FMT_LOG_WARN_DUP_CLASS_CONTRIBUTION, modelId );
         }
       }
     }

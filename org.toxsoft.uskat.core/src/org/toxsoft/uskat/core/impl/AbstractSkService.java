@@ -12,7 +12,6 @@ import org.toxsoft.core.tslib.bricks.validator.*;
 import org.toxsoft.core.tslib.gw.gwid.*;
 import org.toxsoft.core.tslib.gw.skid.*;
 import org.toxsoft.core.tslib.utils.errors.*;
-import org.toxsoft.core.tslib.utils.logs.impl.*;
 import org.toxsoft.uskat.core.*;
 import org.toxsoft.uskat.core.api.*;
 import org.toxsoft.uskat.core.api.clobserv.*;
@@ -28,6 +27,7 @@ import org.toxsoft.uskat.core.api.users.*;
 import org.toxsoft.uskat.core.connection.*;
 import org.toxsoft.uskat.core.devapi.*;
 import org.toxsoft.uskat.core.devapi.gwiddb.*;
+import org.toxsoft.uskat.core.logger.*;
 
 /**
  * {@link ISkService} implementation base.
@@ -130,7 +130,7 @@ public abstract class AbstractSkService
     serviceId = StridUtils.checkValidIdPath( aId );
     coreApi = SkCoreApi.class.cast( aCoreApi );
     executor = aCoreApi.executor();
-    logger = new CoreLogger( LoggerUtils.defaultLogger(), aCoreApi.openArgs() );
+    logger = new CoreLogger( LoggerUtils.getLogger( getClass() ), aCoreApi.openArgs() );
   }
 
   // ------------------------------------------------------------------------------------

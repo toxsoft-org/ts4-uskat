@@ -8,9 +8,9 @@ import org.toxsoft.core.tslib.gw.gwid.*;
 import org.toxsoft.core.tslib.utils.*;
 import org.toxsoft.core.tslib.utils.errors.*;
 import org.toxsoft.core.tslib.utils.logs.*;
-import org.toxsoft.core.tslib.utils.logs.impl.*;
 import org.toxsoft.uskat.core.*;
 import org.toxsoft.uskat.core.api.rtdserv.*;
+import org.toxsoft.uskat.core.logger.*;
 
 /**
  * An abstract implementation of a virtual data writer.
@@ -22,8 +22,8 @@ public abstract class SkAbstractVirtDataCurrDataWriter
 
   private final ISkCoreApi              coreApi;
   private final ISkWriteCurrDataChannel writeChannel;
-  private final ILogger                 logger;
   private IAtomicValue                  value;
+  private ILogger                       logger = LoggerUtils.getLogger( getClass() );
 
   /**
    * Constructor.
@@ -34,7 +34,16 @@ public abstract class SkAbstractVirtDataCurrDataWriter
    * @throws TsIllegalArgumentRtException object of another class.
    */
   protected SkAbstractVirtDataCurrDataWriter( ISkCoreApi aCoreApi, Gwid aWriteDataId ) {
-    this( aCoreApi, aWriteDataId, LoggerUtils.defaultLogger() );
+    TsNullArgumentRtException.checkNulls( aCoreApi, aWriteDataId );
+    coreApi = aCoreApi;
+    ISkRtdataService rtdService = coreApi.rtdService();
+    GwidList writeDataIds = new GwidList();
+    writeDataIds.add( aWriteDataId );
+    writeChannel = rtdService.createWriteCurrDataChannels( writeDataIds ).values().first();
+    if( writeChannel == null ) {
+      throw new TsIllegalArgumentRtException( ERR_NOT_FOUND_WRITE_DATA, writeDataIds.first() );
+    }
+    value = IAtomicValue.NULL;
   }
 
   /**
@@ -46,17 +55,8 @@ public abstract class SkAbstractVirtDataCurrDataWriter
    * @throws TsIllegalArgumentRtException object of another class.
    */
   protected SkAbstractVirtDataCurrDataWriter( ISkCoreApi aCoreApi, Gwid aWriteDataId, ILogger aLogger ) {
-    TsNullArgumentRtException.checkNulls( aCoreApi, aWriteDataId, aLogger );
-    coreApi = aCoreApi;
-    ISkRtdataService rtdService = coreApi.rtdService();
-    GwidList writeDataIds = new GwidList();
-    writeDataIds.add( aWriteDataId );
-    writeChannel = rtdService.createWriteCurrDataChannels( writeDataIds ).values().first();
-    if( writeChannel == null ) {
-      throw new TsIllegalArgumentRtException( ERR_NOT_FOUND_WRITE_DATA, writeDataIds.first() );
-    }
-    value = IAtomicValue.NULL;
-    logger = aLogger;
+    this( aCoreApi, aWriteDataId );
+    logger = TsNullArgumentRtException.checkNull( aLogger );
   }
 
   // ------------------------------------------------------------------------------------

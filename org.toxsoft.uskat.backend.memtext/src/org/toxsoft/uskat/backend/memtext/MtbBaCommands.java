@@ -19,12 +19,13 @@ import org.toxsoft.core.tslib.gw.gwid.*;
 import org.toxsoft.core.tslib.gw.skid.*;
 import org.toxsoft.core.tslib.utils.*;
 import org.toxsoft.core.tslib.utils.errors.*;
-import org.toxsoft.core.tslib.utils.logs.impl.*;
+import org.toxsoft.core.tslib.utils.logs.*;
 import org.toxsoft.uskat.core.api.cmdserv.*;
 import org.toxsoft.uskat.core.backend.*;
 import org.toxsoft.uskat.core.backend.api.*;
 import org.toxsoft.uskat.core.impl.*;
 import org.toxsoft.uskat.core.impl.dto.*;
+import org.toxsoft.uskat.core.logger.*;
 
 /**
  * {@link IBaCommands} implementation.
@@ -63,6 +64,11 @@ public class MtbBaCommands
    * Lock of the {@link #lastTestResultLock}.
    */
   private Object lastTestResultLock = new Object();
+
+  /**
+   * Logger
+   */
+  private final ILogger logger = LoggerUtils.getLogger( getClass() );
 
   /**
    * Constructor.
@@ -164,7 +170,7 @@ public class MtbBaCommands
         lastTestResultLock.wait( COMMAND_TEST_TIMEOUT );
       }
       catch( InterruptedException e ) {
-        LoggerUtils.errorLogger().error( e );
+        logger.error( e );
       }
     }
     return lastTestResult;

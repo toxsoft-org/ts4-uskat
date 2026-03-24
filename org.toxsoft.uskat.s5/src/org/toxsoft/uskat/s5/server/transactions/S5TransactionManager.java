@@ -8,7 +8,6 @@ import static org.toxsoft.uskat.s5.utils.threads.impl.S5Lockable.*;
 import java.io.*;
 import java.lang.reflect.*;
 
-import org.toxsoft.core.tslib.bricks.strid.impl.*;
 import org.toxsoft.core.tslib.coll.*;
 import org.toxsoft.core.tslib.coll.impl.*;
 import org.toxsoft.core.tslib.coll.primtypes.*;
@@ -52,7 +51,6 @@ import jakarta.transaction.*;
 @ExcludeDefaultInterceptors
 @Lock( LockType.READ )
 public class S5TransactionManager
-    extends Stridable
     implements IS5TransactionManagerSingleton, IS5TransactionDetectorSingleton, Serializable {
 
   private static final long serialVersionUID = 157157L;
@@ -133,7 +131,7 @@ public class S5TransactionManager
    * Пустой конструктор.
    */
   public S5TransactionManager() {
-    super( TRANSACTION_MANAGER_ID, STR_D_TRANSACTION_MANAGER, TsLibUtils.EMPTY_STRING );
+    // super( TRANSACTION_MANAGER_ID, STR_D_TRANSACTION_MANAGER, TsLibUtils.EMPTY_STRING );
     logger.debug( MSG_CREATE_SINGLETON );
   }
 
@@ -159,8 +157,9 @@ public class S5TransactionManager
   }
 
   // ------------------------------------------------------------------------------------
-  // Реализация интерфейса IS5TransactionSingleton
+  // IS5TransactionManagerSingleton
   //
+
   @Override
   public int openCount() {
     lockRead( lock );
@@ -260,8 +259,9 @@ public class S5TransactionManager
   }
 
   // ------------------------------------------------------------------------------------
-  // Реализация интерфейса IS5TransactionDetectorSingleton
+  // IS5TransactionDetectorSingleton
   //
+
   @Override
   public void onCallBusinessMethod( Object aOwner, Method aMethod, Object[] aParams ) {
     TsNullArgumentRtException.checkNulls( aOwner, aMethod, aParams );
@@ -307,8 +307,9 @@ public class S5TransactionManager
   }
 
   // ------------------------------------------------------------------------------------
-  // API пакета
+  // package API
   //
+
   /**
    * Обработка события: изменение статуса транзакции "перед завершением"
    *
@@ -381,8 +382,9 @@ public class S5TransactionManager
   }
 
   // ------------------------------------------------------------------------------------
-  // Внутренние методы
+  // private methods
   //
+
   /**
    * Возвращает статус текущей транзакции
    *

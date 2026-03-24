@@ -184,7 +184,8 @@ public class S5BackendSession
    *
    * @return {@link SessionContext} контекст сессии
    */
-  public final SessionContext sessionContext() {
+  // final --- WFLYEJB0131: Jakarta Enterprise Beans should not have a final or static method
+  public SessionContext sessionContext() {
     return sessionContext;
   }
 
@@ -192,7 +193,8 @@ public class S5BackendSession
   // Реализация интерфейса SessionBean
   //
   @Override
-  public final void setSessionContext( SessionContext aContext )
+  // final --- WFLYEJB0131: Jakarta Enterprise Beans should not have a final or static method
+  public void setSessionContext( SessionContext aContext )
       throws EJBException,
       RemoteException {
     logger().info( MSG_SESSION_INITIALIZE, aContext );
@@ -200,7 +202,8 @@ public class S5BackendSession
   }
 
   @Override
-  public final void ejbRemove()
+  // final --- WFLYEJB0131: Jakarta Enterprise Beans should not have a final or static method
+  public void ejbRemove()
       throws EJBException,
       RemoteException {
     if( sessionID == null ) {
@@ -234,14 +237,16 @@ public class S5BackendSession
   }
 
   @Override
-  public final void ejbActivate()
+  // final --- WFLYEJB0131: Jakarta Enterprise Beans should not have a final or static method
+  public void ejbActivate()
       throws EJBException,
       RemoteException {
     logger().debug( MSG_SESSION_ACTIVATE, sessionID );
   }
 
   @Override
-  public final void ejbPassivate()
+  // final --- WFLYEJB0131: Jakarta Enterprise Beans should not have a final or static method
+  public void ejbPassivate()
       throws EJBException,
       RemoteException {
     logger().debug( MSG_SESSION_PASSIVATE, sessionID );

@@ -4,6 +4,7 @@ import static org.toxsoft.uskat.core.impl.ISkCoreConfigConstants.*;
 import static org.toxsoft.uskat.core.impl.ISkResources.*;
 
 import org.toxsoft.core.tslib.av.opset.*;
+import org.toxsoft.core.tslib.bricks.*;
 import org.toxsoft.core.tslib.bricks.ctx.*;
 import org.toxsoft.core.tslib.bricks.events.msg.*;
 import org.toxsoft.core.tslib.bricks.threadexec.*;
@@ -97,7 +98,10 @@ public class SkCoreApi
     ISkBackendProvider bp = REFDEF_BACKEND_PROVIDER.getRef( aArgs );
     TsValidationFailedRtException.checkError( bp.getMetaInfo().checkArguments( aArgs ) );
     backend = bp.createBackend( this, aArgs );
+    // initializing the backend
     backend.initialize();
+    // hangling messages received from the backend
+    ((ICooperativeMultiTaskable)executor).doJob();
     // prepare services to be created
     IListEdit<ISkServiceCreator<? extends AbstractSkService>> llCreators = new ElemArrayList<>( 100, false );
     // mandatory built-in services
@@ -170,7 +174,7 @@ public class SkCoreApi
         internalInitService( s );
       }
     } );
-
+    // Установка флага инициализации API
     inited = true;
 
     // process external handlers in direct order
