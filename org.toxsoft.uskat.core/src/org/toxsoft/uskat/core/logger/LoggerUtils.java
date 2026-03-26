@@ -15,7 +15,7 @@ public final class LoggerUtils {
   /**
    * Идентификатор журнала по умолчанию.
    */
-  private static final String DEFAULT_LOGGER_ID = "org.toxsoft.uskat"; //$NON-NLS-1$
+  private static final String DEFAULT_LOGGER_ID = "org.toxsoft"; //$NON-NLS-1$
 
   /**
    * Фабрика журналов (одна на JVM).
