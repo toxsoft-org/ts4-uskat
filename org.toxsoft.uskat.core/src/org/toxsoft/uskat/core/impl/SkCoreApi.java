@@ -101,7 +101,7 @@ public class SkCoreApi
     // initializing the backend
     backend.initialize();
     // hangling messages received from the backend
-    ((ICooperativeMultiTaskable)executor).doJob();
+    executor.syncExec( () -> ((ICooperativeMultiTaskable)executor).doJob() );
     // prepare services to be created
     IListEdit<ISkServiceCreator<? extends AbstractSkService>> llCreators = new ElemArrayList<>( 100, false );
     // mandatory built-in services
