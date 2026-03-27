@@ -761,32 +761,32 @@ public class ConsoleCmdBatch
     /**
      * Нет оператора.
      */
-    NOOP( "noop", E_OPERATOR_NOOP, E_OPERATOR_NOOP_D ), //$NON-NLS-1$
+    NOOP( "noop", E_OPERATOR_N_NOOP, E_OPERATOR_D_NOOP ), //$NON-NLS-1$
 
     /**
      * Оператор if.
      */
-    IF( "if", E_OPERATOR_IF, E_OPERATOR_IF_D ), //$NON-NLS-1$
+    IF( "if", E_OPERATOR_N_IF, E_OPERATOR_D_IF ), //$NON-NLS-1$
 
     /**
      * Оператор while
      */
-    WHILE( "while", E_OPERATOR_WHILE, E_OPERATOR_WHILE_D ), //$NON-NLS-1$
+    WHILE( "while", E_OPERATOR_N_WHILE, E_OPERATOR_D_WHILE ), //$NON-NLS-1$
 
     /**
      * Оператор end.
      */
-    END( "end", E_OPERATOR_END, E_OPERATOR_END_D ), //$NON-NLS-1$
+    END( "end", E_OPERATOR_N_END, E_OPERATOR_D_END ), //$NON-NLS-1$
 
     /**
      * Оператор return.
      */
-    RETURN( "return", E_OPERATOR_RETURN, E_OPERATOR_RETURN_D ), //$NON-NLS-1$
+    RETURN( "return", E_OPERATOR_N_RETURN, E_OPERATOR_D_RETURN ), //$NON-NLS-1$
 
     /**
      * Оператор include.
      */
-    INCLUDE( "include", E_OPERATOR_INCLUDE, E_OPERATOR_INCLUDE_D ); //$NON-NLS-1$
+    INCLUDE( "include", E_OPERATOR_N_INCLUDE, E_OPERATOR_D_INCLUDE ); //$NON-NLS-1$
 
     private final String id;
     private final String nmName;
