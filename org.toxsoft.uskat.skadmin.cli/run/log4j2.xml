@@ -3,6 +3,8 @@
     <!-- Настройка логгеров -->
     <Loggers>
         <!-- Настройка журналов компонент системы -->
+        <Logger level="TRACE"   name="org.jboss.ejb.client" />
+
         <Logger level="ALL"   name="org.toxsoft" />
         <Logger level="WARN"  name="org.toxsoft.core.tslib.bricks.threadexec.TsThreadExecutor" />
 
@@ -12,11 +14,11 @@
 
 
         <Logger level="ALL"   name="ru.toxsoft" />
-        
+
         <Logger level="INFO"  name="org.toxsoft.uskat.skadmin.cli.AdminConsole" />
 
         <!-- Корневой логгер: уровень ERROR, выводит в оба аппендера -->
-        <Root level="ERROR">
+        <Root level="ALL">
             <AppenderRef ref="Console"/>
             <AppenderRef ref="File"/>
         </Root>
@@ -26,7 +28,7 @@
     <Appenders>
         <!-- Консольный аппендер -->
         <Console name="Console" target="SYSTEM_OUT">
-            <ThresholdFilter level="INFO" onMatch="ACCEPT" onMismatch="DENY"/>
+            <ThresholdFilter level="ALL" onMatch="ACCEPT" onMismatch="DENY"/>
             <PatternLayout pattern="[%-5level|%d{HH:mm:ss.SSS}|%-20c{1}] %msg%n%ex{full}"/>
         </Console>
 
@@ -34,7 +36,7 @@
         <RollingFile name="File"
                      fileName="logs/app.log"
                      filePattern="logs/app-%d{EEEE}.log">
-            <ThresholdFilter level="INFO" onMatch="ACCEPT" onMismatch="DENY"/>
+            <ThresholdFilter level="ALL" onMatch="ACCEPT" onMismatch="DENY"/>
             <PatternLayout pattern="[%-5level|%d{yyyy-MM-dd HH:mm:ss.SSS}|%-20logger{36}|%-25t{36}] %msg%n%ex{full}"/>
             <Policies>
                 <!-- Политика ротации по времени: каждый день -->

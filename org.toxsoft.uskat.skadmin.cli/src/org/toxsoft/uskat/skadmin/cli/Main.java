@@ -20,7 +20,7 @@ public class Main {
    */
   public static void main( String[] aArgs ) {
     // Инициализация журналов компонентов
-    LoggerUtils.setLoggerFactory( LoggerWrapper::getLogger );
+    LoggerUtils.setLoggerFactory( org.toxsoft.core.log4j.LoggerWrapper::getLogger );
     // Инициализация журнала компонента
     logger = LoggerWrapper.getLogger( Main.class );
     // Слежение за файлом конфигурации журнала log4j.xml

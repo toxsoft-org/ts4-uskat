@@ -3,7 +3,6 @@ package org.toxsoft.uskat.ws.exe;
 import java.io.*;
 
 import org.eclipse.osgi.service.environment.*;
-import org.toxsoft.core.log4j.*;
 import org.toxsoft.core.tsgui.mws.bases.*;
 import org.toxsoft.core.tsgui.mws.osgi.*;
 import org.toxsoft.core.tslib.bricks.apprefs.impl.*;
@@ -47,7 +46,7 @@ public class Activator
   @Override
   protected void doStart() {
     // Инициализация журналов компонентов
-    LoggerUtils.setLoggerFactory( LoggerWrapper::getLogger );
+    LoggerUtils.setLoggerFactory( org.toxsoft.core.log4j.LoggerWrapper::getLogger );
     // Инициализация службы mws
     IMwsOsgiService mws = findOsgiService( IMwsOsgiService.class );
     // application preferences will be stored in the config file
