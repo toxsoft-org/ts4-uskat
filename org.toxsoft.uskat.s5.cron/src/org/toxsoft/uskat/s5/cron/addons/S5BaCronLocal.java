@@ -1,13 +1,12 @@
 package org.toxsoft.uskat.s5.cron.addons;
 
-import org.toxsoft.core.tslib.bricks.events.msg.GtMessage;
-import org.toxsoft.core.tslib.utils.errors.TsNullArgumentRtException;
-import org.toxsoft.uskat.s5.cron.lib.IBaCrone;
-import org.toxsoft.uskat.s5.cron.lib.ISkCronHardConstants;
-import org.toxsoft.uskat.s5.cron.supports.IS5BackendCronSingleton;
-import org.toxsoft.uskat.s5.cron.supports.S5BackendCronSingleton;
-import org.toxsoft.uskat.s5.server.backend.addons.IS5BackendLocal;
-import org.toxsoft.uskat.s5.server.backend.addons.S5AbstractBackendAddonLocal;
+import javax.ejb.*;
+
+import org.toxsoft.core.tslib.bricks.events.msg.*;
+import org.toxsoft.core.tslib.utils.errors.*;
+import org.toxsoft.uskat.s5.cron.lib.*;
+import org.toxsoft.uskat.s5.cron.supports.*;
+import org.toxsoft.uskat.s5.server.backend.addons.*;
 
 /**
  * Local {@link IBaCrone} implementation.
@@ -19,10 +18,10 @@ public final class S5BaCronLocal
     implements IBaCrone {
 
   /**
-   * Поддержка бекенда службы
+   * backend календарей системы.
    */
-  @SuppressWarnings( "unused" )
-  private final IS5BackendCronSingleton schedulesSupport;
+  @EJB
+  private IS5BackendCronSingleton schedulesSupport;
 
   /**
    * Данные конфигурации фронтенда для {@link IBaCrone}
@@ -37,8 +36,6 @@ public final class S5BaCronLocal
    */
   public S5BaCronLocal( IS5BackendLocal aOwner ) {
     super( aOwner, ISkCronHardConstants.BAINF_CRON );
-    schedulesSupport = aOwner.backendSingleton().get( S5BackendCronSingleton.BACKEND_SCHEDULES_ID,
-        IS5BackendCronSingleton.class );
     // Установка конфигурации фронтенда
     frontend().frontendData().setBackendAddonData( IBaCrone.ADDON_ID, baData );
   }
