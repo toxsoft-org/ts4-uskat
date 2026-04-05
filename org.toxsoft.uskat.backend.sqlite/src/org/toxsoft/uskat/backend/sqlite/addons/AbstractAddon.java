@@ -8,9 +8,9 @@ import org.toxsoft.core.tslib.coll.basis.*;
 import org.toxsoft.core.tslib.utils.*;
 import org.toxsoft.core.tslib.utils.errors.*;
 import org.toxsoft.core.tslib.utils.logs.*;
+import org.toxsoft.core.tslib.utils.logs.impl.*;
 import org.toxsoft.uskat.backend.sqlite.*;
 import org.toxsoft.uskat.core.backend.api.*;
-import org.toxsoft.uskat.core.logger.*;
 
 /**
  * This backend addons base implementation.

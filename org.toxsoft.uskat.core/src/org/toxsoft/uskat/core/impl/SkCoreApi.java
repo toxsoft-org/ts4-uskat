@@ -3,7 +3,7 @@ package org.toxsoft.uskat.core.impl;
 import static org.toxsoft.uskat.core.impl.ISkCoreConfigConstants.*;
 import static org.toxsoft.uskat.core.impl.ISkResources.*;
 
-import org.toxsoft.core.tslib.av.opset.*;
+import org.toxsoft.core.tslib.av.opset.impl.*;
 import org.toxsoft.core.tslib.bricks.*;
 import org.toxsoft.core.tslib.bricks.ctx.*;
 import org.toxsoft.core.tslib.bricks.events.msg.*;
@@ -15,7 +15,7 @@ import org.toxsoft.core.tslib.coll.primtypes.*;
 import org.toxsoft.core.tslib.coll.primtypes.impl.*;
 import org.toxsoft.core.tslib.utils.*;
 import org.toxsoft.core.tslib.utils.errors.*;
-import org.toxsoft.core.tslib.utils.logs.*;
+import org.toxsoft.core.tslib.utils.logs.impl.*;
 import org.toxsoft.uskat.core.*;
 import org.toxsoft.uskat.core.api.*;
 import org.toxsoft.uskat.core.api.clobserv.*;
@@ -36,7 +36,6 @@ import org.toxsoft.uskat.core.devapi.*;
 import org.toxsoft.uskat.core.devapi.gwiddb.*;
 import org.toxsoft.uskat.core.devapi.transactions.*;
 import org.toxsoft.uskat.core.impl.dto.*;
-import org.toxsoft.uskat.core.logger.*;
 
 /**
  * An {@link ISkCoreApi} and {@link IDevCoreApi} implementation.
@@ -100,7 +99,7 @@ public class SkCoreApi
     backend = bp.createBackend( this, aArgs );
     // initializing the backend
     backend.initialize();
-    // hangling messages received from the backend
+    // handling messages received from the backend during initializing
     executor.syncExec( () -> ((ICooperativeMultiTaskable)executor).doJob() );
     // prepare services to be created
     IListEdit<ISkServiceCreator<? extends AbstractSkService>> llCreators = new ElemArrayList<>( 100, false );
@@ -176,7 +175,6 @@ public class SkCoreApi
     } );
     // Установка флага инициализации API
     inited = true;
-
     // process external handlers in direct order
     executor.syncExec( () -> {
       for( int i = 0, n = coreApiHandlersList.size(); i < n; i++ ) {
@@ -358,10 +356,13 @@ public class SkCoreApi
     // 2024-04-07 mvk gateway local connection open error
     // executor.syncExec( () -> {
     executor.asyncExec( () -> {
+      if( !inited ) {
+        // core api is not ready
+        logger.debug( FMT_WARN_UNHANDLED_BACKEND_MESSAGE, aMessage.topicId(), aMessage.messageId(),
+            OptionSetUtils.humanReadable( aMessage.args() ) );
+        return;
+      }
       if( BackendMsgStateChanged.INSTANCE.isOwnMessage( aMessage ) ) {
-        if( !inited ) {
-          return;
-        }
         ESkConnState newState = BackendMsgStateChanged.INSTANCE.getState( aMessage );
         ESkConnState oldState = conn.state();
         boolean isActive = (newState == ESkConnState.ACTIVE);
@@ -388,12 +389,10 @@ public class SkCoreApi
       AbstractSkService s2 = servicesMap.findByKey( aMessage.topicId() );
       if( s2 != null ) {
         s2.papiOnBackendMessage( aMessage );
+        return;
       }
-      else {
-        ELogSeverity severity = (inited ? ELogSeverity.ERROR : ELogSeverity.DEBUG);
-        logger.log( severity, FMT_WARN_UNHANDLED_BACKEND_MESSAGE, aMessage.topicId(), aMessage.messageId(),
-            aMessage.args() == IOptionSet.NULL ? "IOptionSet.NULL" : aMessage.args() ); //$NON-NLS-1$
-      }
+      logger.error( FMT_WARN_UNHANDLED_BACKEND_MESSAGE, aMessage.topicId(), aMessage.messageId(),
+          OptionSetUtils.humanReadable( aMessage.args() ) );
     } );
   }
 

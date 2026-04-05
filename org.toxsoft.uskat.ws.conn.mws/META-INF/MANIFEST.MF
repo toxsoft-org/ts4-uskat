@@ -25,7 +25,7 @@ Require-Bundle: jakarta.inject.jakarta.inject-api,
  org.toxsoft.uskat.core.gui,
  org.toxsoft.uskat.backend.memtext,
  org.toxsoft.uskat.backend.sqlite,
- org.toxsoft.uskat.backend.s5.gui
+ org.toxsoft.uskat.s5.gui
 Bundle-RequiredExecutionEnvironment: JavaSE-21
 Automatic-Module-Name: org.toxsoft.uskat.ws.conn.mws
 Bundle-ActivationPolicy: lazy

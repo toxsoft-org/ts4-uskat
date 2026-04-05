@@ -548,8 +548,10 @@ public final class S5Connection
       // Замена пароля на хэш-код
       OP_PASSWORD.setValue( options, avStr( passwdHash ) );
 
-      // Вывод в журнал опций подключения (только после замены паролья на хеш-код)
-      logger.info( MSG_CLIENT_OPTIONS, OptionSetUtils.humanReadable( options ) );
+      // Вывод в журнал опций подключения (с максировкой учетной записи)
+      IOptionSetEdit loggerOptions = new OptionSet( options );
+      OP_PASSWORD.setValue( loggerOptions, avStr( "************************" ) ); //$NON-NLS-1$
+      logger.info( MSG_CLIENT_OPTIONS, OptionSetUtils.humanReadable( loggerOptions ) );
 
       // Адрес сервера
       S5HostList hosts = OP_HOSTS.getValue( options ).asValobj();
@@ -623,14 +625,15 @@ public final class S5Connection
         // TODO: ??? возможно потребуется определять в настройках соединения отдельный признак "кластер",
         // на тот случай, когда клиенту может быть доступен только один узел кластера
         // if( topology.nodes().size() <= 1 ) {
-        if( hosts.size() == 1 && topology.nodes().size() == 1 ) {
-          // Один узел, подключаемся как к standalone
-          String addr = hosts.get( 0 ).address();
-          int port = hosts.get( 0 ).port();
-          URI uri = new URI( "remote+http://" + addr + ":" + String.valueOf( port ) ); //$NON-NLS-1$ //$NON-NLS-2$
-          standaloneAffinity = Affinity.forUri( uri );
-          logger.info( MSG_TRYCONNECT_WORKAROUND_AFFINITY, standaloneAffinity, uri );
-        }
+        // 2026-04-06 mvk --- standaloneAffinity использовался S5ConnectionInterceptor который сейчас не используется
+        // if( hosts.size() == 1 && topology.nodes().size() == 1 ) {
+        // // Один узел, подключаемся как к standalone
+        // String addr = hosts.get( 0 ).address();
+        // int port = hosts.get( 0 ).port();
+        // URI uri = new URI( "remote+http://" + addr + ":" + String.valueOf( port ) ); //$NON-NLS-1$ //$NON-NLS-2$
+        // standaloneAffinity = Affinity.forUri( uri );
+        // logger.info( MSG_TRYCONNECT_WORKAROUND_AFFINITY, standaloneAffinity, uri );
+        // }
         logger.info( MSG_TRYCONNECT_TOPOLOGY, topology );
         // Запуск получения обратных вызовов
         InetSocketAddress localAddress = callbackReader.start( topology );
@@ -1930,6 +1933,10 @@ public final class S5Connection
    * @return {@link Affinity} адрес. null: не определен.
    */
   Affinity getStandaloneAffinityOrNull() {
+    if( standaloneAffinity == null ) {
+      // 2026-04-06 mvk --- standaloneAffinity использовался S5ConnectionInterceptor который сейчас не используется
+      throw new TsUnderDevelopmentRtException();
+    }
     return standaloneAffinity;
   }
 }

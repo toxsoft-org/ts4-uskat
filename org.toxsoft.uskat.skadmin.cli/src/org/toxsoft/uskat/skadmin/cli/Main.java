@@ -4,7 +4,7 @@ import static org.toxsoft.uskat.skadmin.cli.IAdminResources.*;
 
 import org.toxsoft.core.log4j.*;
 import org.toxsoft.core.tslib.utils.logs.*;
-import org.toxsoft.uskat.core.logger.*;
+import org.toxsoft.core.tslib.utils.logs.impl.*;
 
 /**
  * Класс запуска приложения: консоль администратора s5

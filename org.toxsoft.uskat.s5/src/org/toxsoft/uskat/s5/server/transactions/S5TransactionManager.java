@@ -15,6 +15,7 @@ import org.toxsoft.core.tslib.coll.primtypes.impl.*;
 import org.toxsoft.core.tslib.utils.*;
 import org.toxsoft.core.tslib.utils.errors.*;
 import org.toxsoft.core.tslib.utils.logs.*;
+import org.toxsoft.core.tslib.utils.logs.impl.*;
 import org.toxsoft.uskat.s5.common.info.*;
 import org.toxsoft.uskat.s5.server.logger.*;
 import org.toxsoft.uskat.s5.server.singletons.*;
@@ -131,6 +132,8 @@ public class S5TransactionManager
    * Пустой конструктор.
    */
   public S5TransactionManager() {
+    // Фабрика журналов компонент
+    LoggerUtils.setLoggerFactory( org.toxsoft.uskat.s5.server.logger.LoggerWrapper::getLogger );
     // super( TRANSACTION_MANAGER_ID, STR_D_TRANSACTION_MANAGER, TsLibUtils.EMPTY_STRING );
     logger.debug( MSG_CREATE_SINGLETON );
   }

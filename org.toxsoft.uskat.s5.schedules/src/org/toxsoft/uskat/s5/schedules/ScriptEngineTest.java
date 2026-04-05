@@ -2,7 +2,7 @@ package org.toxsoft.uskat.s5.schedules;
 
 import javax.script.*;
 
-import org.toxsoft.uskat.core.logger.*;
+import org.toxsoft.core.tslib.utils.logs.impl.*;
 
 public class ScriptEngineTest {
 

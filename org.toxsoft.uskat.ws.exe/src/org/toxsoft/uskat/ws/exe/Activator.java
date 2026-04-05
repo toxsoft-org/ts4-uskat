@@ -7,7 +7,6 @@ import org.toxsoft.core.tsgui.mws.bases.*;
 import org.toxsoft.core.tsgui.mws.osgi.*;
 import org.toxsoft.core.tslib.bricks.apprefs.impl.*;
 import org.toxsoft.core.tslib.utils.progargs.*;
-import org.toxsoft.uskat.core.logger.*;
 
 /**
  * The plugin activator.
@@ -45,8 +44,6 @@ public class Activator
 
   @Override
   protected void doStart() {
-    // Инициализация журналов компонентов
-    LoggerUtils.setLoggerFactory( org.toxsoft.core.log4j.LoggerWrapper::getLogger );
     // Инициализация службы mws
     IMwsOsgiService mws = findOsgiService( IMwsOsgiService.class );
     // application preferences will be stored in the config file

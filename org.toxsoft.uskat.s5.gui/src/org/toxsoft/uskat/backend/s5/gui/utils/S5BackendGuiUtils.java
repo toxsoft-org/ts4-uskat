@@ -6,8 +6,8 @@ import org.eclipse.swt.widgets.*;
 import org.toxsoft.core.tslib.bricks.ctx.*;
 import org.toxsoft.core.tslib.utils.errors.*;
 import org.toxsoft.core.tslib.utils.logs.*;
+import org.toxsoft.core.tslib.utils.logs.impl.*;
 import org.toxsoft.uskat.core.connection.*;
-import org.toxsoft.uskat.core.logger.*;
 
 /**
  * Вспомогательные методы для работы с s5-бекендом в GUI

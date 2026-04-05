@@ -12,11 +12,11 @@ import org.toxsoft.core.tsgui.widgets.*;
 import org.toxsoft.core.tslib.bricks.strid.more.*;
 import org.toxsoft.core.tslib.utils.errors.*;
 import org.toxsoft.core.tslib.utils.logs.*;
+import org.toxsoft.core.tslib.utils.logs.impl.*;
 import org.toxsoft.uskat.core.connection.*;
 import org.toxsoft.uskat.core.gui.*;
 import org.toxsoft.uskat.core.gui.conn.*;
 import org.toxsoft.uskat.core.gui.utils.*;
-import org.toxsoft.uskat.core.logger.*;
 
 /**
  * Base class for all views with content related to the USkat.

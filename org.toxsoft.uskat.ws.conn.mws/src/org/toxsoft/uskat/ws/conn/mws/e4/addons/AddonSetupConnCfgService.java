@@ -10,12 +10,12 @@ import org.toxsoft.core.tslib.av.opset.*;
 import org.toxsoft.core.tslib.bricks.validator.*;
 import org.toxsoft.core.tslib.coll.*;
 import org.toxsoft.core.tslib.utils.logs.*;
+import org.toxsoft.core.tslib.utils.logs.impl.*;
 import org.toxsoft.core.tslib.utils.progargs.*;
 import org.toxsoft.uskat.backend.memtext.*;
 import org.toxsoft.uskat.backend.s5.gui.utils.*;
 import org.toxsoft.uskat.backend.sqlite.*;
 import org.toxsoft.uskat.core.gui.conn.cfg.*;
-import org.toxsoft.uskat.core.logger.*;
 import org.toxsoft.uskat.ws.conn.mws.*;
 
 /**

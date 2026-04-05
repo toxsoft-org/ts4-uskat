@@ -13,9 +13,9 @@ import org.toxsoft.core.tslib.bricks.validator.*;
 import org.toxsoft.core.tslib.utils.*;
 import org.toxsoft.core.tslib.utils.errors.*;
 import org.toxsoft.core.tslib.utils.logs.*;
+import org.toxsoft.core.tslib.utils.logs.impl.*;
 import org.toxsoft.uskat.core.connection.*;
 import org.toxsoft.uskat.core.impl.*;
-import org.toxsoft.uskat.core.logger.*;
 import org.toxsoft.uskat.s5.client.remote.connection.*;
 
 class S5ConnectTask

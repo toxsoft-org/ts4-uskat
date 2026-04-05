@@ -9,7 +9,7 @@
   <properties>
     <tychoVersion>4.0.8</tychoVersion>
     <sonar.exclusions>**/src-gen/**</sonar.exclusions>
- 
+
     <!-- Версия java -->
     <java.version>21</java.version>
     <java.environment>JavaSE-21</java.environment>
@@ -39,7 +39,7 @@
 
     <!-- Формат метки времени билда: https://stackoverflow.com/questions/13228472/how-to-access-maven-build-timestamp-for-resource-filtering -->
     <maven.build.timestamp.format>yyyy-MM-dd HH:mm:ss</maven.build.timestamp.format>
-    
+
     <env.ui.test>-Xms512m -Xmx2048m</env.ui.test>
   </properties>
 
@@ -210,12 +210,12 @@
           <useProjectSettings>true</useProjectSettings>
           <optimize>true</optimize>
           <showWarnings>false</showWarnings>
-          
+
           <!-- 2021-01-12 mvk пример отключения кода
           <excludes>
              <exclude>ru/uskat/mws/lib/core/olds/</exclude>
              <exclude>ru/uskat/lib/mnemos/m5/</exclude>
-             <exclude>ru/uskat/mws/lib/refbooks/m5/</exclude>                
+             <exclude>ru/uskat/mws/lib/refbooks/m5/</exclude>
           </excludes>
           -->
 
@@ -482,7 +482,7 @@
       <activation>
         <property>
           <name>!rap</name>
-        </property>      
+        </property>
       </activation>
       <build>
         <plugins>
@@ -515,8 +515,8 @@
       <modules>
         <!-- TODO rcp-библиотеки -->
         <module>org.toxsoft.uskat.core.gui</module>
-        <module>org.toxsoft.uskat.backend.s5.gui</module>
         <module>org.toxsoft.uskat.ws.core</module>
+        <module>org.toxsoft.uskat.s5.gui</module>
 
         <module>zz-releng/p2.rcp</module>
         <module>zz-releng/ant.rcp</module>
@@ -527,7 +527,7 @@
       <activation>
         <property>
           <name>rap</name>
-        </property>      
+        </property>
       </activation>
       <build>
         <plugins>
@@ -558,9 +558,9 @@
           </plugin>
         </plugins>
       </build>
-      <modules>                                           
+      <modules>
         <!-- TODO rap-библиотеки -->
- 
+
         <module>zz-releng/p2.rap</module>
         <module>zz-releng/ant.rap</module>
      </modules>
@@ -574,8 +574,8 @@
     <module>org.toxsoft.uskat.s5</module>
     <module>org.toxsoft.uskat.s5.histdata10</module>
     <module>org.toxsoft.uskat.virtdata</module>
-    <module>org.toxsoft.uskat.ws.exe</module> 
-    <!-- <module>org.toxsoft.uskat.s5.cron</module> -->
+    <module>org.toxsoft.uskat.ws.exe</module>
+    <module>org.toxsoft.uskat.s5.cron</module>
     <module>org.toxsoft.uskat.skadmin.core</module>
     <module>org.toxsoft.uskat.skadmin.cli</module>
     <module>org.toxsoft.uskat.skadmin.dev</module>
