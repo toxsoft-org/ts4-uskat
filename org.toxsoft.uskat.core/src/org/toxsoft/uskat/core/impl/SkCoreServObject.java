@@ -60,8 +60,8 @@ public class SkCoreServObject
 
     private static final int MAX_SIZE = 256 * 1024;
 
-    private final IStringMapEdit<IMapEdit<Skid, SkObject>> classObjCache = new StringMap<>();
-    private final IStringListEdit allObjClassIds = new StringArrayList();
+    private final IStringMapEdit<IMapEdit<Skid, SkObject>> classObjCache  = new StringMap<>();
+    private final IStringListEdit                          allObjClassIds = new StringArrayList();
 
     ObjsCache() {
       // nop
@@ -855,8 +855,7 @@ public class SkCoreServObject
     finally {
       // trace1
       long trace1 = System.currentTimeMillis();
-      LoggerUtils.defaultLogger().info( "SkCoreServObject::find(%s): result = %s. time = (%d)", aSkid, sko,
-          trace1 - trace0 );
+      LoggerUtils.info( "SkCoreServObject::find(%s): result = %s. time = (%d)", aSkid, sko, trace1 - trace0 );
     }
   }
 
@@ -895,7 +894,7 @@ public class SkCoreServObject
     finally {
       // trace1
       long trace1 = System.currentTimeMillis();
-      LoggerUtils.defaultLogger().info( "SkCoreServObject::listSkids(%s,%s): result size = %d. time = (%d)", //
+      LoggerUtils.info( "SkCoreServObject::listSkids(%s,%s): result size = %d. time = (%d)", //
           aClassId, aIncludeSubclasses, ll.size(), trace1 - trace0 );
     }
   }
@@ -962,8 +961,7 @@ public class SkCoreServObject
     finally {
       // trace1
       long trace1 = System.currentTimeMillis();
-      LoggerUtils.defaultLogger().info(
-          "SkCoreServObject::getObjs(%s,%s): request classIds = %d, result objs = %d. time = (%d)", //
+      LoggerUtils.info( "SkCoreServObject::getObjs(%s,%s): request classIds = %d, result objs = %d. time = (%d)", //
           aClassIds, aIncludeSubclasses, aClassIds.size(), ll.size(), trace1 - trace0 );
     }
   }
