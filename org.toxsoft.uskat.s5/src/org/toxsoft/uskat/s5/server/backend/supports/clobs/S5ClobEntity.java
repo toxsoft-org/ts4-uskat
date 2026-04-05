@@ -8,9 +8,9 @@ import static org.toxsoft.uskat.s5.server.backend.supports.clobs.IS5Resources.*;
 import java.io.*;
 import java.util.zip.*;
 
-import javax.persistence.*;
-
 import org.toxsoft.core.tslib.utils.errors.*;
+
+import jakarta.persistence.*;
 
 /**
  * Реализация хранения lob-данных.

@@ -14,10 +14,11 @@ import org.toxsoft.core.tslib.coll.*;
 import org.toxsoft.core.tslib.coll.helpers.*;
 import org.toxsoft.core.tslib.coll.impl.*;
 import org.toxsoft.core.tslib.utils.errors.*;
-import org.toxsoft.core.tslib.utils.logs.impl.*;
+import org.toxsoft.core.tslib.utils.logs.*;
 import org.toxsoft.uskat.core.connection.*;
 import org.toxsoft.uskat.core.gui.km5.*;
 import org.toxsoft.uskat.core.impl.*;
+import org.toxsoft.uskat.core.logger.*;
 
 /**
  * {@link ISkConnectionSupplier} implementation.
@@ -144,6 +145,7 @@ public class SkConnectionSupplier
   private final Eventer eventer = new Eventer();
 
   private final IMapEdit<IdChain, ISkConnection> connsMap = new ElemMap<>();
+  private final ILogger                          logger   = LoggerUtils.getLogger( getClass() );
 
   /**
    * Constructor.
@@ -227,7 +229,7 @@ public class SkConnectionSupplier
         }
       }
       catch( Exception ex ) {
-        LoggerUtils.errorLogger().error( ex );
+        logger.error( ex );
       }
     }
   }

@@ -5,9 +5,9 @@ Bundle-SymbolicName: org.toxsoft.uskat.skadmin.cli
 Bundle-Version: 1.0.0.qualifier
 Bundle-Vendor: ToxSoft Ltd.
 Bundle-RequiredExecutionEnvironment: JavaSE-21
-Require-Bundle: org.toxsoft.extlibs.log4j,
- org.toxsoft.extlibs.jline,
+Require-Bundle: org.toxsoft.extlibs.jline,
  org.toxsoft.extlibs.wildfly,
+ org.toxsoft.extlibs.log4j,
  org.toxsoft.core.tslib,
  org.toxsoft.core.log4j,
  org.toxsoft.uskat.core,

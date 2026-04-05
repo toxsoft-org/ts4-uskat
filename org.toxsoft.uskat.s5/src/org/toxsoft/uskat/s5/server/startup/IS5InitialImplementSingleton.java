@@ -1,11 +1,10 @@
 package org.toxsoft.uskat.s5.server.startup;
 
-import javax.ejb.Local;
+import org.toxsoft.core.tslib.av.utils.*;
+import org.toxsoft.uskat.core.backend.api.*;
+import org.toxsoft.uskat.s5.server.*;
 
-import org.toxsoft.core.tslib.av.utils.IParameterized;
-import org.toxsoft.uskat.core.backend.api.ISkBackendInfo;
-import org.toxsoft.uskat.s5.server.IS5ImplementConstants;
-import org.toxsoft.uskat.s5.server.IS5ServerHardConstants;
+import jakarta.ejb.*;
 
 /**
  * Начальная, неизменяемая, проектно-зависимая конфигурация реализации бекенда сервера

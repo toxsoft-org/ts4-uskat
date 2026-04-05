@@ -2,13 +2,13 @@ package org.toxsoft.uskat.s5.server.backend.supports.links;
 
 import java.util.*;
 
-import javax.ejb.*;
-
 import org.toxsoft.core.tslib.coll.*;
 import org.toxsoft.core.tslib.utils.errors.*;
 import org.toxsoft.uskat.core.api.linkserv.*;
 import org.toxsoft.uskat.core.backend.api.*;
 import org.toxsoft.uskat.s5.server.backend.*;
+
+import jakarta.ejb.*;
 
 /**
  * Локальный интерфейс синглетона {@link IBaLinks} предоставляемый s5-сервером.

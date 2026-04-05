@@ -1,7 +1,6 @@
 package org.toxsoft.uskat.s5.server.sequences.impl;
 
 import static java.lang.String.*;
-import static org.toxsoft.core.log4j.LoggerWrapper.*;
 import static org.toxsoft.core.tslib.bricks.time.impl.TimeUtils.*;
 import static org.toxsoft.uskat.s5.common.IS5CommonResources.*;
 import static org.toxsoft.uskat.s5.server.sequences.IS5SequenceHardConstants.*;
@@ -9,20 +8,18 @@ import static org.toxsoft.uskat.s5.server.sequences.impl.IS5Resources.*;
 import static org.toxsoft.uskat.s5.server.sequences.impl.S5SequenceBlock.*;
 import static org.toxsoft.uskat.s5.server.sequences.impl.S5SequenceUtils.*;
 
-import java.io.Serializable;
+import java.io.*;
 
-import org.toxsoft.core.tslib.av.utils.IParameterized;
+import org.toxsoft.core.tslib.av.utils.*;
 import org.toxsoft.core.tslib.bricks.time.*;
-import org.toxsoft.core.tslib.bricks.time.impl.QueryInterval;
-import org.toxsoft.core.tslib.bricks.time.impl.TimedList;
-import org.toxsoft.core.tslib.coll.IList;
-import org.toxsoft.core.tslib.coll.IListEdit;
-import org.toxsoft.core.tslib.coll.impl.ElemArrayList;
-import org.toxsoft.core.tslib.coll.impl.ElemLinkedList;
-import org.toxsoft.core.tslib.gw.gwid.Gwid;
-import org.toxsoft.core.tslib.utils.TsLibUtils;
+import org.toxsoft.core.tslib.bricks.time.impl.*;
+import org.toxsoft.core.tslib.coll.*;
+import org.toxsoft.core.tslib.coll.impl.*;
+import org.toxsoft.core.tslib.gw.gwid.*;
+import org.toxsoft.core.tslib.utils.*;
 import org.toxsoft.core.tslib.utils.errors.*;
-import org.toxsoft.core.tslib.utils.logs.ILogger;
+import org.toxsoft.core.tslib.utils.logs.*;
+import org.toxsoft.uskat.s5.server.logger.*;
 import org.toxsoft.uskat.s5.server.sequences.*;
 
 /**
@@ -611,7 +608,7 @@ public abstract class S5Sequence<V extends ITemporal<?>>
    */
   protected final ILogger logger() {
     if( logger == null ) {
-      logger = getLogger( getClass() );
+      logger = LoggerWrapper.getLogger( getClass() );
     }
     return logger;
   }
@@ -623,7 +620,7 @@ public abstract class S5Sequence<V extends ITemporal<?>>
    */
   protected final ILogger uniterLogger() {
     if( uniterLogger == null ) {
-      uniterLogger = getLogger( LOG_UNITER_ID );
+      uniterLogger = LoggerWrapper.getLogger( LOG_UNITER_ID );
     }
     return uniterLogger;
   }
@@ -635,7 +632,7 @@ public abstract class S5Sequence<V extends ITemporal<?>>
    */
   protected final ILogger validatorLogger() {
     if( validatorLogger == null ) {
-      validatorLogger = getLogger( LOG_VALIDATOR_ID );
+      validatorLogger = LoggerWrapper.getLogger( LOG_VALIDATOR_ID );
     }
     return validatorLogger;
   }

@@ -1,6 +1,5 @@
 package org.toxsoft.uskat.s5.client.remote.connection.pas;
 
-import static org.toxsoft.core.log4j.LoggerWrapper.*;
 import static org.toxsoft.core.pas.server.IPasServerParams.*;
 import static org.toxsoft.core.tslib.av.impl.AvUtils.*;
 import static org.toxsoft.core.tslib.av.metainfo.IAvMetaConstants.*;
@@ -30,6 +29,7 @@ import org.toxsoft.uskat.core.backend.*;
 import org.toxsoft.uskat.s5.client.*;
 import org.toxsoft.uskat.s5.client.remote.connection.*;
 import org.toxsoft.uskat.s5.server.backend.addons.*;
+import org.toxsoft.uskat.s5.server.logger.*;
 import org.toxsoft.uskat.s5.server.sessions.pas.*;
 
 /**
@@ -98,7 +98,7 @@ public final class S5CallbackClient
   /**
    * Журнал
    */
-  private ILogger logger = getLogger( getClass() );
+  private ILogger logger = LoggerWrapper.getLogger( getClass() );
 
   /**
    * Конструктор
@@ -553,7 +553,7 @@ public final class S5CallbackClient
 
     private static int execCount;
 
-    private ILogger logger = getLogger( getClass() );
+    private ILogger logger = LoggerWrapper.getLogger( getClass() );
 
     /**
      * Закрытый конструктор

@@ -1,7 +1,5 @@
 package org.toxsoft.uskat.s5.utils.threads.impl;
 
-import static org.toxsoft.core.log4j.LoggerWrapper.*;
-
 import java.util.concurrent.locks.*;
 
 import org.toxsoft.core.tslib.coll.*;
@@ -10,6 +8,7 @@ import org.toxsoft.core.tslib.utils.*;
 import org.toxsoft.core.tslib.utils.errors.*;
 import org.toxsoft.core.tslib.utils.logs.*;
 import org.toxsoft.uskat.s5.server.*;
+import org.toxsoft.uskat.s5.server.logger.*;
 
 /**
  * Базовая реализация блокируемого ресурса
@@ -56,7 +55,7 @@ public class S5Lockable {
   /**
    * Журнал работы
    */
-  private static final ILogger logger = getLogger( "S5Lockable" ); //$NON-NLS-1$
+  private static final ILogger logger = LoggerWrapper.getLogger( "S5Lockable" ); //$NON-NLS-1$
 
   static {
     // Запрет трассировки блокировок

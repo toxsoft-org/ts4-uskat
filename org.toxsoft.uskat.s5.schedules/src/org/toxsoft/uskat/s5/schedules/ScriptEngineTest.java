@@ -2,7 +2,7 @@ package org.toxsoft.uskat.s5.schedules;
 
 import javax.script.*;
 
-import org.toxsoft.core.tslib.utils.logs.impl.LoggerUtils;
+import org.toxsoft.uskat.core.logger.*;
 
 public class ScriptEngineTest {
 
@@ -14,7 +14,7 @@ public class ScriptEngineTest {
       graalEngine.eval( "print('Hello World!');" );
     }
     catch( ScriptException ex ) {
-      LoggerUtils.errorLogger().error( ex );
+      LoggerUtils.error( ex );
     }
   }
 }

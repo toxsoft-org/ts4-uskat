@@ -1,8 +1,8 @@
 package org.toxsoft.uskat.s5.server.backend;
 
-import javax.ejb.*;
-
 import org.toxsoft.uskat.s5.server.singletons.*;
+
+import jakarta.ejb.*;
 
 /**
  * Локальный интерфейс синглетона поддержки бекенда предоставляемого s5-сервером.

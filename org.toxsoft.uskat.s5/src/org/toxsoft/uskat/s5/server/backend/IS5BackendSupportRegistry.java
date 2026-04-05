@@ -1,10 +1,10 @@
 package org.toxsoft.uskat.s5.server.backend;
 
-import javax.ejb.*;
-
 import org.toxsoft.core.tslib.coll.primtypes.*;
 import org.toxsoft.core.tslib.utils.errors.*;
 import org.toxsoft.uskat.s5.server.sessions.*;
+
+import jakarta.ejb.*;
 
 /**
  * Интерфейс синглетона реестра поддержки бекендов {@link IS5BackendSupportSingleton}

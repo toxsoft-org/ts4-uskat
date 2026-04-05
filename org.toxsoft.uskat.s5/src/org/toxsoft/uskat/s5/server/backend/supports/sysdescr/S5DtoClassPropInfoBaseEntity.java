@@ -5,8 +5,6 @@ import static org.toxsoft.uskat.s5.server.IS5ImplementConstants.*;
 
 import java.io.*;
 
-import javax.persistence.*;
-
 import org.toxsoft.core.tslib.av.opset.*;
 import org.toxsoft.core.tslib.av.opset.impl.*;
 import org.toxsoft.core.tslib.bricks.strid.*;
@@ -15,6 +13,8 @@ import org.toxsoft.core.tslib.utils.errors.*;
 import org.toxsoft.uskat.core.api.sysdescr.dto.*;
 import org.toxsoft.uskat.s5.server.*;
 
+import jakarta.persistence.*;
+
 /**
  * Реализация интерфейса {@link IDtoClassInfo} способная маппироваться на таблицу базы данных
  * <p>
@@ -22,7 +22,8 @@ import org.toxsoft.uskat.s5.server.*;
  * @author mvk
  */
 @MappedSuperclass
-@Inheritance( strategy = InheritanceType.TABLE_PER_CLASS )
+// 2026-03-20 mvk --- (wildfly-39.0.1.)
+// @Inheritance( strategy = InheritanceType.TABLE_PER_CLASS )
 // 2020-05-17 mvk ??? ошибка записи классов в usecase: local-main сервера: @formatter:off
 //at java.base/jdk.internal.reflect.Reflection.newIllegalAccessException(Reflection.java:361)
 //at java.base/java.lang.reflect.AccessibleObject.checkAccess(AccessibleObject.java:591)

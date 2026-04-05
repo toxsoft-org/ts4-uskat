@@ -9,9 +9,6 @@ import static org.toxsoft.uskat.s5.server.sequences.maintenance.S5SequencePartit
 
 import java.util.*;
 
-import javax.persistence.*;
-
-import org.toxsoft.core.log4j.*;
 import org.toxsoft.core.tslib.av.opset.*;
 import org.toxsoft.core.tslib.bricks.time.*;
 import org.toxsoft.core.tslib.bricks.time.impl.*;
@@ -23,10 +20,13 @@ import org.toxsoft.core.tslib.coll.primtypes.*;
 import org.toxsoft.core.tslib.utils.*;
 import org.toxsoft.core.tslib.utils.errors.*;
 import org.toxsoft.core.tslib.utils.logs.*;
+import org.toxsoft.uskat.s5.server.logger.*;
 import org.toxsoft.uskat.s5.server.sequences.*;
 import org.toxsoft.uskat.s5.server.sequences.maintenance.*;
 import org.toxsoft.uskat.s5.utils.*;
 import org.toxsoft.uskat.s5.utils.collections.*;
+
+import jakarta.persistence.*;
 
 /**
  * Управление разделами таблиц.
@@ -246,17 +246,13 @@ abstract class S5AbstractPartitionManager {
     String schema = DATABASE_SCHEMA.getValue( aConfiguration ).asString();
     try {
       if( partitionsByTable.size() == 0 ) {
-        EntityManager em = entityManagerFactory.createEntityManager();
-        try {
+        try( EntityManager em = entityManagerFactory.createEntityManager() ) {
           for( IS5SequenceTableNames tableNames : sequenceFactory.tableNames() ) {
             int blockDepth = sequenceFactory.getTableDepth( tableNames.blockTableName() );
             int blobDepth = sequenceFactory.getTableDepth( tableNames.blobTableName() );
             loadTablePartitions( em, schema, tableNames.blockTableName(), blockDepth, logger );
             loadTablePartitions( em, schema, tableNames.blobTableName(), blobDepth, logger );
           }
-        }
-        finally {
-          em.close();
         }
       }
       // Интервал удаления разделов. Если интервал ITimeInterval.NULLL, то определяется автоматически.
@@ -266,14 +262,10 @@ abstract class S5AbstractPartitionManager {
       // Список операций над разделами
       IList<S5PartitionOperation> ops = IList.EMPTY;
       // Создание менеджера постоянства
-      EntityManager em = entityManagerFactory.createEntityManager();
-      try {
+      try( EntityManager em = entityManagerFactory.createEntityManager() ) {
         // Формирование списка операций над разделами
         ops = (!isAuto ? preparePartitionManual( em, aConfiguration, logger ) : //
             preparePartitionAuto( em, aConfiguration, statistics, logger ));
-      }
-      finally {
-        em.close();
       }
       // Текущий размер очереди заданий на проверку необходимости операций над разделами в авт.режиме
       int partitionCount = partitionCandidates.size();
@@ -293,8 +285,7 @@ abstract class S5AbstractPartitionManager {
 
       for( S5PartitionOperation op : ops ) {
         // Создание менеджера постоянства
-        em = entityManagerFactory.createEntityManager();
-        try {
+        try( EntityManager em = entityManagerFactory.createEntityManager() ) {
           // Обработка статистики
           S5SequencePartitionStat result = partitionJob( em, schema, op, logger );
           statistics.addAdded( result.addedCount() );
@@ -306,9 +297,6 @@ abstract class S5AbstractPartitionManager {
           // Неожиданная ошибка операции обработки разделов таблиц
           statistics.addErrors( 1 );
           logger.error( e, ERR_PARTITION_OP, owner, op, cause( e ) );
-        }
-        finally {
-          em.close();
         }
       }
       // Оповещение наследников о выполнении операций над разделами таблиц

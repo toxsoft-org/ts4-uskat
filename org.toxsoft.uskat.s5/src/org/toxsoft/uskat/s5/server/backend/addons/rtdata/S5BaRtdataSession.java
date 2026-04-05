@@ -5,8 +5,6 @@ import static org.toxsoft.uskat.s5.server.IS5ImplementConstants.*;
 
 import java.util.concurrent.*;
 
-import javax.ejb.*;
-
 import org.toxsoft.core.tslib.av.*;
 import org.toxsoft.core.tslib.av.temporal.*;
 import org.toxsoft.core.tslib.bricks.events.msg.*;
@@ -24,6 +22,8 @@ import org.toxsoft.uskat.s5.server.backend.supports.currdata.*;
 import org.toxsoft.uskat.s5.server.backend.supports.histdata.*;
 import org.toxsoft.uskat.s5.server.sessions.init.*;
 import org.toxsoft.uskat.s5.server.sessions.pas.*;
+
+import jakarta.ejb.*;
 
 /**
  * Реализация сессии расширения бекенда {@link IS5BaRtdataSession}.

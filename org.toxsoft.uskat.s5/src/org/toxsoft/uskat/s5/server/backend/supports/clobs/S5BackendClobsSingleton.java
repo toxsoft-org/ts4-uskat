@@ -10,9 +10,6 @@ import java.io.*;
 import java.util.*;
 import java.util.concurrent.*;
 
-import javax.ejb.*;
-import javax.persistence.*;
-
 import org.toxsoft.core.tslib.bricks.events.msg.*;
 import org.toxsoft.core.tslib.coll.*;
 import org.toxsoft.core.tslib.gw.gwid.*;
@@ -21,6 +18,9 @@ import org.toxsoft.uskat.core.backend.api.*;
 import org.toxsoft.uskat.s5.server.backend.impl.*;
 import org.toxsoft.uskat.s5.server.frontend.*;
 import org.toxsoft.uskat.s5.server.interceptors.*;
+
+import jakarta.ejb.*;
+import jakarta.persistence.*;
 
 /**
  * Реализация {@link IS5BackendClobsSingleton}.

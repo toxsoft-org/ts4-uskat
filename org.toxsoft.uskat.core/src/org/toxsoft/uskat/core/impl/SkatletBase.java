@@ -9,9 +9,9 @@ import org.toxsoft.core.tslib.bricks.strid.impl.*;
 import org.toxsoft.core.tslib.bricks.validator.*;
 import org.toxsoft.core.tslib.utils.errors.*;
 import org.toxsoft.core.tslib.utils.logs.*;
-import org.toxsoft.core.tslib.utils.logs.impl.*;
 import org.toxsoft.uskat.core.connection.*;
 import org.toxsoft.uskat.core.devapi.*;
+import org.toxsoft.uskat.core.logger.*;
 
 /**
  * Base skatlet implementation.
@@ -105,7 +105,7 @@ public abstract class SkatletBase
    */
   protected final ILogger logger() {
     if( environ == null ) {
-      return LoggerUtils.defaultLogger();
+      return LoggerUtils.getLogger( getClass() );
     }
     return ISkatlet.REF_SKATLET_SUPPORT.getRef( environ ).logger();
   }

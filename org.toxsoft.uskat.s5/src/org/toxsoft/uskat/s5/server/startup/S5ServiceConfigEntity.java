@@ -1,10 +1,10 @@
 package org.toxsoft.uskat.s5.server.startup;
 
-import javax.persistence.*;
-
 import org.toxsoft.core.tslib.av.opset.*;
 import org.toxsoft.core.tslib.av.opset.impl.*;
 import org.toxsoft.uskat.s5.server.*;
+
+import jakarta.persistence.*;
 
 /**
  * Сущность для хранения конфигурации служб.

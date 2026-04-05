@@ -1,7 +1,5 @@
 package org.toxsoft.uskat.s5.server.backend.supports.events;
 
-import javax.ejb.*;
-
 import org.toxsoft.core.tslib.bricks.time.*;
 import org.toxsoft.core.tslib.coll.*;
 import org.toxsoft.core.tslib.gw.gwid.*;
@@ -10,6 +8,8 @@ import org.toxsoft.uskat.core.api.evserv.*;
 import org.toxsoft.uskat.s5.server.backend.supports.events.sequences.*;
 import org.toxsoft.uskat.s5.server.frontend.*;
 import org.toxsoft.uskat.s5.server.sequences.*;
+
+import jakarta.ejb.*;
 
 /**
  * Локальный интерфейс синглетона событий предоставляемый s5-сервером.

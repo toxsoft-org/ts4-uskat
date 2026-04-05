@@ -8,9 +8,6 @@ import static org.toxsoft.uskat.s5.server.backend.supports.commands.impl.IS5Reso
 
 import java.util.concurrent.*;
 
-import javax.annotation.*;
-import javax.ejb.*;
-
 import org.infinispan.*;
 import org.infinispan.commons.util.*;
 import org.toxsoft.core.tslib.av.opset.*;
@@ -42,6 +39,9 @@ import org.toxsoft.uskat.s5.server.sequences.impl.*;
 import org.toxsoft.uskat.s5.server.transactions.*;
 import org.toxsoft.uskat.s5.utils.collections.*;
 import org.toxsoft.uskat.s5.utils.jobs.*;
+
+import jakarta.annotation.*;
+import jakarta.ejb.*;
 
 /**
  * Реализация синглетона {@link IS5BackendCommandSingleton}

@@ -2,14 +2,14 @@ package org.toxsoft.uskat.s5.server.startup;
 
 import static org.toxsoft.uskat.s5.server.startup.IS5Resources.*;
 
-import javax.ejb.*;
-
 import org.toxsoft.core.tslib.utils.errors.*;
 import org.toxsoft.uskat.core.*;
 import org.toxsoft.uskat.core.connection.*;
 import org.toxsoft.uskat.s5.client.local.*;
 import org.toxsoft.uskat.s5.server.backend.supports.core.*;
 import org.toxsoft.uskat.s5.server.singletons.*;
+
+import jakarta.ejb.*;
 
 /**
  * Реализация синглтона {@link IS5InitialSysdescrSingleton}.

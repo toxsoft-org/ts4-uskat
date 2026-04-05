@@ -1,18 +1,17 @@
 package org.toxsoft.uskat.core.gui.glib.query;
 
-import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.*;
 
-import org.eclipse.swt.widgets.Shell;
-import org.toxsoft.core.tslib.av.impl.AvUtils;
-import org.toxsoft.core.tslib.av.opset.IOptionSetEdit;
-import org.toxsoft.core.tslib.av.opset.impl.OptionSet;
-import org.toxsoft.core.tslib.av.opset.impl.OptionSetUtils;
+import org.eclipse.swt.widgets.*;
+import org.toxsoft.core.tslib.av.impl.*;
+import org.toxsoft.core.tslib.av.opset.*;
+import org.toxsoft.core.tslib.av.opset.impl.*;
 import org.toxsoft.core.tslib.bricks.threadexec.*;
-import org.toxsoft.core.tslib.bricks.time.IQueryInterval;
+import org.toxsoft.core.tslib.bricks.time.*;
 import org.toxsoft.core.tslib.utils.errors.*;
-import org.toxsoft.core.tslib.utils.logs.impl.LoggerUtils;
-import org.toxsoft.uskat.core.api.hqserv.ISkAsynchronousQuery;
-import org.toxsoft.uskat.core.api.hqserv.ISkHistoryQueryServiceConstants;
+import org.toxsoft.core.tslib.utils.logs.*;
+import org.toxsoft.uskat.core.api.hqserv.*;
+import org.toxsoft.uskat.core.logger.*;
 
 /**
  * Диалог прогресса выполнения операции
@@ -25,6 +24,7 @@ public abstract class SkAbstractQueryDialog<T extends ISkAsynchronousQuery>
 
   private ITsThreadExecutor threadExecutor;
   private T                 query;
+  private final ILogger     logger = LoggerUtils.getLogger( getClass() );
 
   /**
    * Конструктор
@@ -71,7 +71,7 @@ public abstract class SkAbstractQueryDialog<T extends ISkAsynchronousQuery>
       } );
     }
     catch( InvocationTargetException | InterruptedException ex ) {
-      LoggerUtils.errorLogger().error( ex );
+      logger.error( ex );
     }
     finally {
       threadExecutor.syncExec( () -> query.close() );
@@ -113,7 +113,7 @@ public abstract class SkAbstractQueryDialog<T extends ISkAsynchronousQuery>
         default:
           throw new TsNotAllEnumsUsedRtException();
       }
-      LoggerUtils.defaultLogger().info( "query message: %s", aQuery.stateMessage() ); //$NON-NLS-1$
+      logger.info( "query message: %s", aQuery.stateMessage() ); //$NON-NLS-1$
     } );
     // Асинхронное(!) выполнение запроса
     threadExecutor.asyncExec( () -> aQuery.exec( aInterval ) );
@@ -123,7 +123,7 @@ public abstract class SkAbstractQueryDialog<T extends ISkAsynchronousQuery>
         aQuery.wait();
       }
       catch( InterruptedException ex ) {
-        LoggerUtils.errorLogger().error( ex );
+        logger.error( ex );
       }
     }
   }

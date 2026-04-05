@@ -1,7 +1,6 @@
 package org.toxsoft.uskat.s5.client.remote.connection;
 
 import static java.lang.String.*;
-import static org.toxsoft.core.log4j.LoggerWrapper.*;
 import static org.toxsoft.core.tslib.bricks.threadexec.TsThreadExecutorUtils.*;
 import static org.toxsoft.uskat.s5.client.remote.connection.IS5Resources.*;
 import static org.toxsoft.uskat.s5.client.remote.connection.S5Connection.*;
@@ -11,6 +10,7 @@ import static org.toxsoft.uskat.s5.utils.threads.impl.S5Lockable.*;
 import org.toxsoft.core.tslib.utils.errors.*;
 import org.toxsoft.core.tslib.utils.logs.*;
 import org.toxsoft.uskat.s5.server.backend.impl.*;
+import org.toxsoft.uskat.s5.server.logger.*;
 import org.toxsoft.uskat.s5.utils.threads.impl.*;
 
 /**
@@ -36,7 +36,7 @@ class S5ConnectionThread
     setName( format( THREAD_ID, getClass().getSimpleName(), Long.valueOf( threadId() ) ) );
     setDaemon( true );
     connection = aConnection;
-    logger = getLogger( getClass() );
+    logger = LoggerWrapper.getLogger( getClass() );
   }
 
   // ------------------------------------------------------------------------------------

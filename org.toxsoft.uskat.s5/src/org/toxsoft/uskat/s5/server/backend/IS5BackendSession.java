@@ -1,9 +1,9 @@
 package org.toxsoft.uskat.s5.server.backend;
 
-import javax.ejb.Remote;
-
-import org.toxsoft.uskat.core.backend.ISkBackend;
+import org.toxsoft.uskat.core.backend.*;
 import org.toxsoft.uskat.s5.server.sessions.init.*;
+
+import jakarta.ejb.*;
 
 /**
  * Удаленный доступ к {@link ISkBackend} предоставляемый s5-сервером

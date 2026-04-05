@@ -1,6 +1,5 @@
 package org.toxsoft.uskat.s5.server.transactions;
 
-import static org.toxsoft.core.log4j.LoggerWrapper.*;
 import static org.toxsoft.uskat.s5.common.IS5CommonResources.*;
 import static org.toxsoft.uskat.s5.server.IS5ImplementConstants.*;
 import static org.toxsoft.uskat.s5.server.transactions.IS5Resources.*;
@@ -9,12 +8,6 @@ import static org.toxsoft.uskat.s5.utils.threads.impl.S5Lockable.*;
 import java.io.*;
 import java.lang.reflect.*;
 
-import javax.annotation.*;
-import javax.ejb.*;
-import javax.interceptor.*;
-import javax.transaction.*;
-
-import org.toxsoft.core.tslib.bricks.strid.impl.*;
 import org.toxsoft.core.tslib.coll.*;
 import org.toxsoft.core.tslib.coll.impl.*;
 import org.toxsoft.core.tslib.coll.primtypes.*;
@@ -23,8 +16,14 @@ import org.toxsoft.core.tslib.utils.*;
 import org.toxsoft.core.tslib.utils.errors.*;
 import org.toxsoft.core.tslib.utils.logs.*;
 import org.toxsoft.uskat.s5.common.info.*;
+import org.toxsoft.uskat.s5.server.logger.*;
 import org.toxsoft.uskat.s5.server.singletons.*;
 import org.toxsoft.uskat.s5.utils.threads.impl.*;
+
+import jakarta.annotation.*;
+import jakarta.ejb.*;
+import jakarta.interceptor.*;
+import jakarta.transaction.*;
 
 /**
  * Начало выполнения кода сервера S5 - первый стартующий синглтон.
@@ -52,7 +51,6 @@ import org.toxsoft.uskat.s5.utils.threads.impl.*;
 @ExcludeDefaultInterceptors
 @Lock( LockType.READ )
 public class S5TransactionManager
-    extends Stridable
     implements IS5TransactionManagerSingleton, IS5TransactionDetectorSingleton, Serializable {
 
   private static final long serialVersionUID = 157157L;
@@ -127,13 +125,13 @@ public class S5TransactionManager
   /**
    * Журнал
    */
-  private final ILogger logger = getLogger( getClass() );
+  private final ILogger logger = LoggerWrapper.getLogger( getClass() );
 
   /**
    * Пустой конструктор.
    */
   public S5TransactionManager() {
-    super( TRANSACTION_MANAGER_ID, STR_D_TRANSACTION_MANAGER, TsLibUtils.EMPTY_STRING );
+    // super( TRANSACTION_MANAGER_ID, STR_D_TRANSACTION_MANAGER, TsLibUtils.EMPTY_STRING );
     logger.debug( MSG_CREATE_SINGLETON );
   }
 
@@ -159,8 +157,9 @@ public class S5TransactionManager
   }
 
   // ------------------------------------------------------------------------------------
-  // Реализация интерфейса IS5TransactionSingleton
+  // IS5TransactionManagerSingleton
   //
+
   @Override
   public int openCount() {
     lockRead( lock );
@@ -260,8 +259,9 @@ public class S5TransactionManager
   }
 
   // ------------------------------------------------------------------------------------
-  // Реализация интерфейса IS5TransactionDetectorSingleton
+  // IS5TransactionDetectorSingleton
   //
+
   @Override
   public void onCallBusinessMethod( Object aOwner, Method aMethod, Object[] aParams ) {
     TsNullArgumentRtException.checkNulls( aOwner, aMethod, aParams );
@@ -307,8 +307,9 @@ public class S5TransactionManager
   }
 
   // ------------------------------------------------------------------------------------
-  // API пакета
+  // package API
   //
+
   /**
    * Обработка события: изменение статуса транзакции "перед завершением"
    *
@@ -381,8 +382,9 @@ public class S5TransactionManager
   }
 
   // ------------------------------------------------------------------------------------
-  // Внутренние методы
+  // private methods
   //
+
   /**
    * Возвращает статус текущей транзакции
    *

@@ -1,9 +1,9 @@
 package org.toxsoft.uskat.s5.utils.schedules;
 
-import javax.ejb.ScheduleExpression;
+import org.toxsoft.core.tslib.utils.*;
+import org.toxsoft.core.tslib.utils.errors.*;
 
-import org.toxsoft.core.tslib.utils.TsLibUtils;
-import org.toxsoft.core.tslib.utils.errors.TsNullArgumentRtException;
+import jakarta.ejb.*;
 
 /**
  * Расписание для календаря

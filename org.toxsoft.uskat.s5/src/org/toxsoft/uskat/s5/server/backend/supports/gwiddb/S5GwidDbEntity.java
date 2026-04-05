@@ -5,13 +5,11 @@ import static org.toxsoft.uskat.s5.common.IS5CommonResources.*;
 import static org.toxsoft.uskat.s5.server.backend.supports.gwiddb.IS5Resources.*;
 
 import java.io.*;
-import java.util.zip.GZIPInputStream;
-import java.util.zip.GZIPOutputStream;
+import java.util.zip.*;
 
-import javax.persistence.*;
+import org.toxsoft.core.tslib.utils.errors.*;
 
-import org.toxsoft.core.tslib.utils.errors.TsInternalErrorRtException;
-import org.toxsoft.core.tslib.utils.errors.TsNullArgumentRtException;
+import jakarta.persistence.*;
 
 /**
  * Sectioned key-value (GWID-STRING) database entity.

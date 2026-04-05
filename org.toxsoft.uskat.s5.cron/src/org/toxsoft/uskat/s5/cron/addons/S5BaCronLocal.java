@@ -1,12 +1,12 @@
 package org.toxsoft.uskat.s5.cron.addons;
 
-import javax.ejb.*;
-
 import org.toxsoft.core.tslib.bricks.events.msg.*;
 import org.toxsoft.core.tslib.utils.errors.*;
 import org.toxsoft.uskat.s5.cron.lib.*;
 import org.toxsoft.uskat.s5.cron.supports.*;
 import org.toxsoft.uskat.s5.server.backend.addons.*;
+
+import jakarta.ejb.*;
 
 /**
  * Local {@link IBaCrone} implementation.
@@ -36,6 +36,7 @@ public final class S5BaCronLocal
    */
   public S5BaCronLocal( IS5BackendLocal aOwner ) {
     super( aOwner, ISkCronHardConstants.BAINF_CRON );
+
     // Установка конфигурации фронтенда
     frontend().frontendData().setBackendAddonData( IBaCrone.ADDON_ID, baData );
   }

@@ -6,9 +6,6 @@ import static org.toxsoft.uskat.s5.utils.threads.impl.S5Lockable.*;
 
 import java.lang.reflect.*;
 
-import javax.ejb.*;
-import javax.transaction.*;
-
 import org.toxsoft.core.tslib.bricks.strid.*;
 import org.toxsoft.core.tslib.bricks.strid.impl.*;
 import org.toxsoft.core.tslib.coll.*;
@@ -17,6 +14,9 @@ import org.toxsoft.core.tslib.coll.primtypes.*;
 import org.toxsoft.core.tslib.coll.primtypes.impl.*;
 import org.toxsoft.core.tslib.utils.errors.*;
 import org.toxsoft.uskat.s5.utils.threads.impl.*;
+
+import jakarta.ejb.*;
+import jakarta.transaction.*;
 
 /**
  * Транзакция s5-сервера

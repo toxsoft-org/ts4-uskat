@@ -2,13 +2,11 @@ package org.toxsoft.uskat.s5.server.startup;
 
 import static org.toxsoft.uskat.s5.server.startup.IS5Resources.*;
 
-import javax.ejb.TransactionAttribute;
-import javax.ejb.TransactionAttributeType;
+import org.toxsoft.core.tslib.utils.errors.*;
+import org.toxsoft.uskat.s5.server.singletons.*;
+import org.toxsoft.uskat.s5.utils.*;
 
-import org.toxsoft.core.tslib.utils.errors.TsIllegalArgumentRtException;
-import org.toxsoft.core.tslib.utils.errors.TsNullArgumentRtException;
-import org.toxsoft.uskat.s5.server.singletons.S5SingletonBase;
-import org.toxsoft.uskat.s5.utils.S5ValobjUtils;
+import jakarta.ejb.*;
 
 /**
  * Реализация синглтона {@link IS5InitialImplementSingleton}.

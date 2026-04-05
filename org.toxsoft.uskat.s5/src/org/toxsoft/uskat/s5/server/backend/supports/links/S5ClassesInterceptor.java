@@ -10,8 +10,6 @@ import static org.toxsoft.uskat.s5.server.transactions.ES5TransactionResources.*
 import java.lang.reflect.*;
 import java.util.*;
 
-import javax.persistence.*;
-
 import org.toxsoft.core.tslib.bricks.strid.coll.*;
 import org.toxsoft.core.tslib.bricks.strid.coll.impl.*;
 import org.toxsoft.core.tslib.coll.*;
@@ -25,6 +23,8 @@ import org.toxsoft.uskat.core.api.sysdescr.dto.*;
 import org.toxsoft.uskat.s5.server.backend.supports.objects.*;
 import org.toxsoft.uskat.s5.server.backend.supports.sysdescr.*;
 import org.toxsoft.uskat.s5.server.transactions.*;
+
+import jakarta.persistence.*;
 
 /**
  * Интерсептор системного описания используемый {@link S5BackendLinksSingleton}

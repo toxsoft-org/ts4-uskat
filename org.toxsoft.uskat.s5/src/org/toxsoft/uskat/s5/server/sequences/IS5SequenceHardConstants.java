@@ -5,13 +5,13 @@ import static org.toxsoft.core.tslib.av.impl.DataDef.*;
 import static org.toxsoft.core.tslib.av.metainfo.IAvMetaConstants.*;
 import static org.toxsoft.uskat.s5.server.sequences.IS5Resources.*;
 
-import javax.enterprise.concurrent.*;
-
 import org.toxsoft.core.tslib.av.*;
 import org.toxsoft.core.tslib.av.metainfo.*;
 import org.toxsoft.uskat.core.impl.dto.*;
 import org.toxsoft.uskat.s5.server.sequences.maintenance.*;
 import org.toxsoft.uskat.s5.utils.*;
+
+import jakarta.enterprise.concurrent.*;
 
 /**
  * Константы по умолчанию определяющие работу механизма {@link IS5Sequence}.

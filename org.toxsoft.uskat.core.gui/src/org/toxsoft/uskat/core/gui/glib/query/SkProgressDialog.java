@@ -3,7 +3,8 @@ package org.toxsoft.uskat.core.gui.glib.query;
 import org.eclipse.jface.dialogs.*;
 import org.eclipse.swt.widgets.*;
 import org.toxsoft.core.tslib.utils.errors.*;
-import org.toxsoft.core.tslib.utils.logs.impl.*;
+import org.toxsoft.core.tslib.utils.logs.*;
+import org.toxsoft.uskat.core.logger.*;
 
 /**
  * Диалог прогресса выполнения операции
@@ -17,6 +18,7 @@ public class SkProgressDialog
   private String                dialogName;
   private long                  timeout;
   private ISkQueryCancelHandler cancelHandler;
+  private final ILogger         logger = LoggerUtils.getLogger( getClass() );
 
   /**
    * Конструктор
@@ -82,7 +84,7 @@ public class SkProgressDialog
             Thread.sleep( sleep );
           }
           catch( InterruptedException e ) {
-            LoggerUtils.errorLogger().error( e );
+            logger.error( e );
           }
         }
       }

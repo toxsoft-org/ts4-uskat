@@ -11,11 +11,12 @@ import org.toxsoft.core.tsgui.utils.layout.*;
 import org.toxsoft.core.tsgui.widgets.*;
 import org.toxsoft.core.tslib.bricks.strid.more.*;
 import org.toxsoft.core.tslib.utils.errors.*;
-import org.toxsoft.core.tslib.utils.logs.impl.*;
+import org.toxsoft.core.tslib.utils.logs.*;
 import org.toxsoft.uskat.core.connection.*;
 import org.toxsoft.uskat.core.gui.*;
 import org.toxsoft.uskat.core.gui.conn.*;
 import org.toxsoft.uskat.core.gui.utils.*;
+import org.toxsoft.uskat.core.logger.*;
 
 /**
  * Base class for all views with content related to the USkat.
@@ -63,6 +64,11 @@ public abstract class SkMwsAbstractPart
    * {@link #internalDisposeContent()} methods, respectively.
    */
   TsComposite disposableBackplane = null;
+
+  /**
+   * Logger
+   */
+  private ILogger logger = LoggerUtils.getLogger( getClass() );
 
   /**
    * Constructor.
@@ -133,7 +139,7 @@ public abstract class SkMwsAbstractPart
     }
     catch( Exception ex ) {
       // in case of an error, we will destroy the user content - no need to clutter up the UIpart
-      LoggerUtils.errorLogger().error( ex );
+      logger.error( ex );
       TsDialogUtils.error( getShell(), ex );
       internalDisposeContent();
       return;
@@ -155,21 +161,21 @@ public abstract class SkMwsAbstractPart
       doBeforeDisposeContent();
     }
     catch( Exception ex ) {
-      LoggerUtils.errorLogger().error( ex );
+      logger.error( ex );
     }
     // destroy visual components
     try {
       disposableBackplane.dispose();
     }
     catch( Exception ex ) {
-      LoggerUtils.errorLogger().error( ex );
+      logger.error( ex );
     }
     // reset to initial state
     try {
       doAfterDisposeContent();
     }
     catch( Exception ex ) {
-      LoggerUtils.errorLogger().error( ex );
+      logger.error( ex );
     }
     disposableBackplane = null;
     basement.layout( true, true );
@@ -200,7 +206,7 @@ public abstract class SkMwsAbstractPart
         internalCreateContent();
       }
       catch( Exception ex ) {
-        LoggerUtils.errorLogger().error( ex );
+        logger.error( ex );
       }
     }
     // remove connection listener when UIpart is disposed

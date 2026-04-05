@@ -1,12 +1,12 @@
 package org.toxsoft.uskat.s5.server.cluster;
 
-import javax.ejb.Local;
+import org.toxsoft.core.pas.tj.*;
+import org.toxsoft.core.pas.tj.impl.*;
+import org.toxsoft.core.tslib.coll.primtypes.*;
+import org.toxsoft.core.tslib.utils.errors.*;
+import org.wildfly.clustering.group.*;
 
-import org.toxsoft.core.pas.tj.ITjValue;
-import org.toxsoft.core.pas.tj.impl.TjUtils;
-import org.toxsoft.core.tslib.coll.primtypes.IStringMap;
-import org.toxsoft.core.tslib.utils.errors.TsNullArgumentRtException;
-import org.wildfly.clustering.group.Group;
+import jakarta.ejb.*;
 
 /**
  * Менеджер кластера s5-сервера

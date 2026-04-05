@@ -1,8 +1,8 @@
 package org.toxsoft.uskat.s5.common.error;
 
-import javax.ejb.ApplicationException;
+import org.toxsoft.core.tslib.utils.*;
 
-import org.toxsoft.core.tslib.utils.TsLibUtils;
+import jakarta.ejb.*;
 
 /**
  * {@link RuntimeException}-исключение без отката текущей транзакции

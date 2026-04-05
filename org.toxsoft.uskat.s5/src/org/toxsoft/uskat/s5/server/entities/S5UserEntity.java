@@ -1,16 +1,15 @@
 package org.toxsoft.uskat.s5.server.entities;
 
-import java.sql.ResultSet;
+import java.sql.*;
 
-import javax.persistence.Entity;
+import org.toxsoft.core.tslib.gw.skid.*;
+import org.toxsoft.core.tslib.utils.errors.*;
+import org.toxsoft.uskat.core.api.objserv.*;
+import org.toxsoft.uskat.core.api.users.*;
+import org.toxsoft.uskat.s5.server.backend.supports.objects.*;
+import org.toxsoft.uskat.s5.server.backend.supports.sysdescr.*;
 
-import org.toxsoft.core.tslib.gw.skid.Skid;
-import org.toxsoft.core.tslib.utils.errors.TsNullArgumentRtException;
-import org.toxsoft.uskat.core.api.objserv.IDtoObject;
-import org.toxsoft.uskat.core.api.users.ISkUser;
-import org.toxsoft.uskat.s5.server.backend.supports.objects.S5ObjectEntity;
-import org.toxsoft.uskat.s5.server.backend.supports.objects.S5ObjectID;
-import org.toxsoft.uskat.s5.server.backend.supports.sysdescr.S5ClassEntity;
+import jakarta.persistence.*;
 
 /**
  * Реализация интерфейса {@link IDtoObject} способная маппироваться на таблицу базы данных и предназначеная для
@@ -58,7 +57,6 @@ public final class S5UserEntity
    * Конструктор по умолчанию для JPA (PojoInstantiator)
    */
   S5UserEntity() {
-    super();
   }
 
   // ------------------------------------------------------------------------------------

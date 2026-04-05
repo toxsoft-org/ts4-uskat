@@ -1,11 +1,11 @@
 package org.toxsoft.uskat.s5.server.transactions;
 
-import java.lang.reflect.Method;
-import java.util.Objects;
+import java.lang.reflect.*;
+import java.util.*;
 
-import javax.ejb.Local;
+import org.toxsoft.core.tslib.utils.errors.*;
 
-import org.toxsoft.core.tslib.utils.errors.TsNullArgumentRtException;
+import jakarta.ejb.*;
 
 /**
  * Локальный интерфейс синглтона обнаружения транзакций сервера s5

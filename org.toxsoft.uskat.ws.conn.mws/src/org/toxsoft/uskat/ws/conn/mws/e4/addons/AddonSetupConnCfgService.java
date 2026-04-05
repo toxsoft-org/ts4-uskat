@@ -9,12 +9,13 @@ import org.toxsoft.core.tsgui.mws.bases.*;
 import org.toxsoft.core.tslib.av.opset.*;
 import org.toxsoft.core.tslib.bricks.validator.*;
 import org.toxsoft.core.tslib.coll.*;
-import org.toxsoft.core.tslib.utils.logs.impl.*;
+import org.toxsoft.core.tslib.utils.logs.*;
 import org.toxsoft.core.tslib.utils.progargs.*;
 import org.toxsoft.uskat.backend.memtext.*;
 import org.toxsoft.uskat.backend.s5.gui.utils.*;
 import org.toxsoft.uskat.backend.sqlite.*;
 import org.toxsoft.uskat.core.gui.conn.cfg.*;
+import org.toxsoft.uskat.core.logger.*;
 import org.toxsoft.uskat.ws.conn.mws.*;
 
 /**
@@ -48,6 +49,7 @@ public class AddonSetupConnCfgService
 
   private File                     connCfgFile = null;
   private IConnectionConfigService ccService   = null;
+  private final ILogger            logger      = LoggerUtils.getLogger( getClass() );
 
   /**
    * Constructor.
@@ -81,12 +83,12 @@ public class AddonSetupConnCfgService
             ccService.defineConfig( cc );
           }
           else {
-            LoggerUtils.errorLogger().warning( vr.message() );
+            logger.warning( vr.message() );
           }
         }
       }
       catch( Exception ex ) {
-        LoggerUtils.errorLogger().error( ex );
+        logger.error( ex );
       }
     }
     // setup connection configuration data to be stored in the file

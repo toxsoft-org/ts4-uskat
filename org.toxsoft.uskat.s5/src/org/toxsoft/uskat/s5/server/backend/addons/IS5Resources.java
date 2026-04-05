@@ -26,16 +26,7 @@ interface IS5Resources {
   // ------------------------------------------------------------------------------------
   // Строки сообщений
   //
-  String MSG_CHANGE_DEFAULT_LOGGER  =
-      "S5AbstractBackend::run(): change default logger: LoggerUtils.setDefaultLogger( %s )";
-  String MSG_RESTORE_DEFAULT_LOGGER =
-      "S5AbstractBackend::run(): restore default logger:  LoggerUtils.setDefaultLogger( %s )";
-
-  String MSG_CHANGE_ERROR_LOGGER  =
-      "S5AbstractBackend::run(): change default error logger: LoggerUtils.setErrorLogger( %s )";
-  String MSG_RESTORE_ERROR_LOGGER =
-      "S5AbstractBackend::run(): restore default error logger: LoggerUtils.setErrorLogger( %s )";
-  String MSG_DOJOB                = "S5AbstractBackend.run(...)";
+  String MSG_DOJOB = "S5AbstractBackend.run(...)";
   // ------------------------------------------------------------------------------------
   // Тексты ошибок
   //

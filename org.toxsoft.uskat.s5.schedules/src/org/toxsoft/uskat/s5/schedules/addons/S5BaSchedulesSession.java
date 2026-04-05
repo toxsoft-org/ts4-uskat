@@ -2,18 +2,15 @@ package org.toxsoft.uskat.s5.schedules.addons;
 
 import static org.toxsoft.uskat.s5.server.IS5ImplementConstants.*;
 
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.*;
 
-import javax.ejb.*;
+import org.toxsoft.uskat.s5.schedules.lib.*;
+import org.toxsoft.uskat.s5.schedules.supports.*;
+import org.toxsoft.uskat.s5.server.backend.addons.*;
+import org.toxsoft.uskat.s5.server.sessions.init.*;
+import org.toxsoft.uskat.s5.server.sessions.pas.*;
 
-import org.toxsoft.uskat.s5.schedules.lib.IBaSchedules;
-import org.toxsoft.uskat.s5.schedules.lib.ISkSchedulesHardConstants;
-import org.toxsoft.uskat.s5.schedules.supports.IS5BackendSchedulesSingleton;
-import org.toxsoft.uskat.s5.server.backend.addons.IS5BackendAddonSessionControl;
-import org.toxsoft.uskat.s5.server.backend.addons.S5AbstractBackendAddonSession;
-import org.toxsoft.uskat.s5.server.sessions.init.IS5SessionInitData;
-import org.toxsoft.uskat.s5.server.sessions.init.S5SessionInitResult;
-import org.toxsoft.uskat.s5.server.sessions.pas.S5SessionMessenger;
+import jakarta.ejb.*;
 
 /**
  * Сессия реализации службы {@link IBaSchedules}.

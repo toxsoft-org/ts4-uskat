@@ -1,9 +1,9 @@
 package org.toxsoft.uskat.s5.cron.addons;
 
-import javax.ejb.Remote;
+import org.toxsoft.uskat.s5.cron.lib.*;
+import org.toxsoft.uskat.s5.server.backend.addons.*;
 
-import org.toxsoft.uskat.s5.cron.lib.IBaCrone;
-import org.toxsoft.uskat.s5.server.backend.addons.IS5BackendAddonRemote;
+import jakarta.ejb.*;
 
 /**
  * Удаленный интерфейс службы {@link IBaCrone}.

@@ -3,12 +3,11 @@ package org.toxsoft.uskat.s5.server.singletons;
 import static org.toxsoft.uskat.s5.common.IS5CommonResources.*;
 import static org.toxsoft.uskat.s5.server.singletons.IS5Resources.*;
 
-import javax.enterprise.concurrent.ManagedExecutorService;
-import javax.naming.InitialContext;
-import javax.naming.NamingException;
+import javax.naming.*;
 
-import org.toxsoft.core.tslib.utils.errors.TsIllegalArgumentRtException;
-import org.toxsoft.core.tslib.utils.errors.TsNullArgumentRtException;
+import org.toxsoft.core.tslib.utils.errors.*;
+
+import jakarta.enterprise.concurrent.*;
 
 /**
  * Открытые методы доступам к последовательностям значений

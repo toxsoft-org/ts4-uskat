@@ -1,11 +1,10 @@
 package org.toxsoft.uskat.s5.server.sequences.impl;
 
-import java.sql.ResultSet;
+import java.sql.*;
 
-import javax.persistence.MappedSuperclass;
+import org.toxsoft.core.tslib.utils.errors.*;
 
-import org.toxsoft.core.tslib.utils.errors.TsInternalErrorRtException;
-import org.toxsoft.core.tslib.utils.errors.TsNullArgumentRtException;
+import jakarta.persistence.*;
 
 /**
  * Абстрактная реализация хранения данных блоков в blob с синхронными значениями.

@@ -8,12 +8,12 @@ import static org.toxsoft.uskat.s5.server.backend.supports.objects.S5ObjectID.*;
 import java.io.*;
 import java.sql.*;
 
-import javax.enterprise.concurrent.*;
-import javax.persistence.*;
-
 import org.toxsoft.core.tslib.gw.skid.*;
 import org.toxsoft.core.tslib.utils.*;
 import org.toxsoft.core.tslib.utils.errors.*;
+
+import jakarta.enterprise.concurrent.*;
+import jakarta.persistence.*;
 
 /**
  * Первичный составной ключ связи объекта

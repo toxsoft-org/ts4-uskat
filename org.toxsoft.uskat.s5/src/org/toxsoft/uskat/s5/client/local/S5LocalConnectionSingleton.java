@@ -1,6 +1,5 @@
 package org.toxsoft.uskat.s5.client.local;
 
-import static org.toxsoft.core.log4j.LoggerWrapper.*;
 import static org.toxsoft.core.tslib.av.impl.AvUtils.*;
 import static org.toxsoft.uskat.s5.client.local.IS5Resources.*;
 import static org.toxsoft.uskat.s5.client.local.S5ClusterCommandWhenObjectsChanged.*;
@@ -8,9 +7,6 @@ import static org.toxsoft.uskat.s5.client.local.S5ClusterCommandWhenSysdescrChan
 import static org.toxsoft.uskat.s5.server.IS5ImplementConstants.*;
 
 import java.util.concurrent.*;
-
-import javax.ejb.*;
-import javax.enterprise.concurrent.*;
 
 import org.toxsoft.core.tslib.av.opset.*;
 import org.toxsoft.core.tslib.bricks.ctx.*;
@@ -35,9 +31,13 @@ import org.toxsoft.uskat.s5.client.*;
 import org.toxsoft.uskat.s5.server.backend.addons.*;
 import org.toxsoft.uskat.s5.server.backend.supports.core.*;
 import org.toxsoft.uskat.s5.server.cluster.*;
+import org.toxsoft.uskat.s5.server.logger.*;
 import org.toxsoft.uskat.s5.server.singletons.*;
 import org.toxsoft.uskat.s5.server.startup.*;
 import org.toxsoft.uskat.s5.utils.jobs.*;
+
+import jakarta.ejb.*;
+import jakarta.enterprise.concurrent.*;
 
 /**
  * Реализация синглтона {@link IS5LocalConnectionSingleton}.
@@ -208,7 +208,7 @@ public class S5LocalConnectionSingleton
     int warnQueueMax = 16384;
     int errQueueMax = 16384;
     Thread currThread = Thread.currentThread();
-    ILogger logger = getLogger( TsThreadExecutor.class );
+    ILogger logger = LoggerWrapper.getLogger( TsThreadExecutor.class );
     // Текущий поток (currThread) используется только для открытия соединения
     TsThreadExecutor executor = new TsThreadExecutor( getClass().getSimpleName(), currThread, logger );
     executor.setLoggerWarningQueueMax( warnQueueMax );

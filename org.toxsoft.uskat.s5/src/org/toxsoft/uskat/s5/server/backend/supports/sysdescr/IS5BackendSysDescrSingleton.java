@@ -1,15 +1,14 @@
 package org.toxsoft.uskat.s5.server.backend.supports.sysdescr;
 
-import javax.ejb.Local;
+import org.toxsoft.core.tslib.bricks.strid.coll.*;
+import org.toxsoft.core.tslib.coll.primtypes.*;
+import org.toxsoft.core.tslib.utils.errors.*;
+import org.toxsoft.uskat.core.api.sysdescr.*;
+import org.toxsoft.uskat.core.api.sysdescr.dto.*;
+import org.toxsoft.uskat.s5.common.sysdescr.*;
+import org.toxsoft.uskat.s5.server.backend.*;
 
-import org.toxsoft.core.tslib.bricks.strid.coll.IStridablesList;
-import org.toxsoft.core.tslib.coll.primtypes.IStringList;
-import org.toxsoft.core.tslib.utils.errors.TsNullArgumentRtException;
-import org.toxsoft.uskat.core.api.sysdescr.ISkClassHierarchyExplorer;
-import org.toxsoft.uskat.core.api.sysdescr.dto.IDtoClassInfo;
-import org.toxsoft.uskat.s5.common.sysdescr.ISkSysdescrDtoReader;
-import org.toxsoft.uskat.s5.common.sysdescr.ISkSysdescrReader;
-import org.toxsoft.uskat.s5.server.backend.IS5BackendSupportSingleton;
+import jakarta.ejb.*;
 
 /**
  * Поддержка доступа к системному описанию

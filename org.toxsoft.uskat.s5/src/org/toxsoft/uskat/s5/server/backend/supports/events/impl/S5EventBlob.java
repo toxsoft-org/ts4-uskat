@@ -1,13 +1,12 @@
 package org.toxsoft.uskat.s5.server.backend.supports.events.impl;
 
-import java.sql.ResultSet;
+import java.sql.*;
 
-import javax.persistence.Entity;
+import org.toxsoft.core.tslib.utils.errors.*;
+import org.toxsoft.uskat.core.api.evserv.*;
+import org.toxsoft.uskat.s5.server.sequences.impl.*;
 
-import org.toxsoft.core.tslib.utils.errors.TsInternalErrorRtException;
-import org.toxsoft.core.tslib.utils.errors.TsNullArgumentRtException;
-import org.toxsoft.uskat.core.api.evserv.SkEvent;
-import org.toxsoft.uskat.s5.server.sequences.impl.S5SequenceAsyncBlob;
+import jakarta.persistence.*;
 
 /**
  * Данные блока хранения событий s5-объекта.

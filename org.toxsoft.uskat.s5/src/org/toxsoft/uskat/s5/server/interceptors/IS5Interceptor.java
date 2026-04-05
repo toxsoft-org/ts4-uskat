@@ -1,7 +1,6 @@
 package org.toxsoft.uskat.s5.server.interceptors;
 
-import javax.ejb.LockType;
-import javax.ejb.TransactionAttributeType;
+import jakarta.ejb.*;
 
 /**
  * Объект перехватчика (интерсепция) определенных операций над сущностями системы

@@ -1,17 +1,16 @@
 package org.toxsoft.uskat.s5.server.sessions;
 
-import javax.ejb.Local;
-
-import org.toxsoft.core.tslib.coll.IList;
-import org.toxsoft.core.tslib.gw.skid.Skid;
-import org.toxsoft.core.tslib.utils.errors.TsIllegalArgumentRtException;
-import org.toxsoft.core.tslib.utils.errors.TsNullArgumentRtException;
+import org.toxsoft.core.tslib.coll.*;
+import org.toxsoft.core.tslib.gw.skid.*;
+import org.toxsoft.core.tslib.utils.errors.*;
 import org.toxsoft.uskat.classes.*;
-import org.toxsoft.uskat.s5.common.info.IS5SessionsInfos;
+import org.toxsoft.uskat.s5.common.info.*;
 import org.toxsoft.uskat.s5.common.sessions.*;
-import org.toxsoft.uskat.s5.server.frontend.IS5FrontendRear;
-import org.toxsoft.uskat.s5.server.sessions.pas.S5SessionMessenger;
-import org.toxsoft.uskat.s5.server.statistics.IS5StatisticCounter;
+import org.toxsoft.uskat.s5.server.frontend.*;
+import org.toxsoft.uskat.s5.server.sessions.pas.*;
+import org.toxsoft.uskat.s5.server.statistics.*;
+
+import jakarta.ejb.*;
 
 /**
  * Управление сессиями пользователей сервера

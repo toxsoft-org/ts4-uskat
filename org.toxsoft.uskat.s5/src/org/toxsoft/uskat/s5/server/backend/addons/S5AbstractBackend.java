@@ -1,6 +1,5 @@
 package org.toxsoft.uskat.s5.server.backend.addons;
 
-import static org.toxsoft.core.log4j.LoggerWrapper.*;
 import static org.toxsoft.core.tslib.av.impl.AvUtils.*;
 import static org.toxsoft.uskat.core.backend.ISkBackendHardConstant.*;
 import static org.toxsoft.uskat.core.impl.ISkCoreConfigConstants.*;
@@ -26,13 +25,13 @@ import org.toxsoft.core.tslib.gw.skid.*;
 import org.toxsoft.core.tslib.utils.*;
 import org.toxsoft.core.tslib.utils.errors.*;
 import org.toxsoft.core.tslib.utils.logs.*;
-import org.toxsoft.core.tslib.utils.logs.impl.*;
 import org.toxsoft.uskat.classes.*;
 import org.toxsoft.uskat.core.*;
 import org.toxsoft.uskat.core.backend.*;
 import org.toxsoft.uskat.core.backend.api.*;
 import org.toxsoft.uskat.core.connection.*;
 import org.toxsoft.uskat.core.impl.*;
+import org.toxsoft.uskat.core.logger.*;
 import org.toxsoft.uskat.s5.client.*;
 import org.toxsoft.uskat.s5.server.backend.messages.*;
 import org.toxsoft.uskat.s5.server.frontend.*;
@@ -147,12 +146,7 @@ public abstract class S5AbstractBackend<ADDON extends IS5BackendAddon>
   private Skid sessionID = Skid.NONE;
 
   /**
-   * Журнал работы
-   */
-  private ILogger logger = getLogger( getClass() );
-
-  /**
-   * Исполнитель запросов к соединению
+   * /** Исполнитель запросов к соединению
    */
   private final ITsThreadExecutor threadExecutor;
 
@@ -188,14 +182,9 @@ public abstract class S5AbstractBackend<ADDON extends IS5BackendAddon>
   private boolean isClosed;
 
   /**
-   * Журнал по умолчанию
+   * Журнал работы.
    */
-  private static final ILogger tsDefaultLogger = getLogger( TS_DEFAULT_LOGGER );
-
-  /**
-   * Журнал по умолчанию
-   */
-  private static final ILogger tsErrorLogger = getLogger( TS_ERROR_LOGGER );
+  private final ILogger logger = LoggerUtils.getLogger( getClass() );
 
   /**
    * Статическая инициализация
@@ -217,15 +206,6 @@ public abstract class S5AbstractBackend<ADDON extends IS5BackendAddon>
   public S5AbstractBackend( ISkFrontendRear aFrontend, ITsContextRo aArgs, String aBackendId,
       IOptionSet aBackendInfoValue ) {
     TsNullArgumentRtException.checkNulls( aArgs, aFrontend, aBackendId, aBackendInfoValue );
-    // Замена журнала по умолчанию
-    if( !LoggerUtils.defaultLogger().equals( tsDefaultLogger ) ) {
-      LoggerUtils.setDefaultLogger( tsDefaultLogger );
-      LoggerUtils.defaultLogger().info( MSG_CHANGE_DEFAULT_LOGGER, TS_DEFAULT_LOGGER );
-    }
-    if( !LoggerUtils.errorLogger().equals( tsErrorLogger ) ) {
-      LoggerUtils.setErrorLogger( tsErrorLogger );
-      LoggerUtils.errorLogger().info( MSG_CHANGE_ERROR_LOGGER, TS_ERROR_LOGGER );
-    }
     // Параметры аутентификации
     IAtomicValue login = IS5ConnectionParams.OP_USERNAME.getValue( aArgs.params() );
     // Генератор идентификаторов сессий
@@ -429,14 +409,6 @@ public abstract class S5AbstractBackend<ADDON extends IS5BackendAddon>
     if( isClosed || isClosing ) {
       // backend завершил или завершает свою работу
       return;
-    }
-    if( !LoggerUtils.defaultLogger().equals( tsDefaultLogger ) ) {
-      LoggerUtils.setDefaultLogger( tsDefaultLogger );
-      LoggerUtils.defaultLogger().error( MSG_RESTORE_DEFAULT_LOGGER, TS_DEFAULT_LOGGER );
-    }
-    if( !LoggerUtils.errorLogger().equals( tsErrorLogger ) ) {
-      LoggerUtils.setErrorLogger( tsErrorLogger );
-      LoggerUtils.errorLogger().error( MSG_RESTORE_ERROR_LOGGER, TS_ERROR_LOGGER );
     }
     if( tryLockWrite( frontendLock, WAIT_FRONTED_LOCK_TIMEOUT ) ) {
       try {

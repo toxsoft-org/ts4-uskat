@@ -13,12 +13,12 @@ import java.lang.reflect.*;
 import java.lang.reflect.Array;
 import java.sql.*;
 
-import javax.persistence.*;
-
 import org.toxsoft.core.tslib.bricks.validator.vrl.*;
 import org.toxsoft.core.tslib.coll.primtypes.*;
 import org.toxsoft.core.tslib.coll.primtypes.impl.*;
 import org.toxsoft.core.tslib.utils.errors.*;
+
+import jakarta.persistence.*;
 
 /**
  * Абстрактная реализация хранения данных блоков в blob.
@@ -29,11 +29,17 @@ import org.toxsoft.core.tslib.utils.errors.*;
  * @param <BLOB_ARRAY_HOLDER> тип объекта хранящий массив значений
  */
 @MappedSuperclass
-@Inheritance( strategy = InheritanceType.TABLE_PER_CLASS )
+// 2026-03-21 mvk--- wildfly 39
+// @Inheritance( strategy = InheritanceType.TABLE_PER_CLASS )
 public class S5SequenceBlob<BLOCK extends S5SequenceBlock<?, ?, ?>, BLOB_ARRAY, BLOB_ARRAY_HOLDER>
     implements Serializable {
 
   private static final long serialVersionUID = 157157L;
+
+  /**
+   * Идентификатор первичного составного ключа в MQL-запросах
+   */
+  public static final String MQL_FIELD_ID = "id"; //$NON-NLS-1$
 
   /**
    * Значения блока
@@ -210,7 +216,6 @@ public class S5SequenceBlob<BLOCK extends S5SequenceBlock<?, ?, ?>, BLOB_ARRAY, 
    * @throws TsNullArgumentRtException аргумент = null
    */
   final void executeInsert( EntityManager aEntityManager ) {
-    TsNullArgumentRtException.checkNull( aEntityManager );
     // Имя таблицы реализации блока
     String tableName = getLast( getClass().getName() );
     // Параметры запроса. Ключ: имя поля. Значение: значение поля

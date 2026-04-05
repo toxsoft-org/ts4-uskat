@@ -1,17 +1,16 @@
 package org.toxsoft.uskat.s5.server.backend.supports.core.impl;
 
-import static org.toxsoft.core.log4j.LoggerWrapper.*;
 import static org.toxsoft.uskat.s5.utils.threads.impl.S5Lockable.*;
 
-import org.toxsoft.core.tslib.coll.IList;
-import org.toxsoft.core.tslib.coll.IListEdit;
-import org.toxsoft.core.tslib.coll.impl.ElemArrayList;
-import org.toxsoft.core.tslib.utils.errors.TsNullArgumentRtException;
-import org.toxsoft.core.tslib.utils.logs.ILogger;
-import org.toxsoft.uskat.core.backend.ISkFrontendRear;
-import org.toxsoft.uskat.s5.server.backend.IS5FrontendAttachable;
-import org.toxsoft.uskat.s5.server.frontend.IS5FrontendRear;
-import org.toxsoft.uskat.s5.utils.threads.impl.S5Lockable;
+import org.toxsoft.core.tslib.coll.*;
+import org.toxsoft.core.tslib.coll.impl.*;
+import org.toxsoft.core.tslib.utils.errors.*;
+import org.toxsoft.core.tslib.utils.logs.*;
+import org.toxsoft.uskat.core.backend.*;
+import org.toxsoft.uskat.s5.server.backend.*;
+import org.toxsoft.uskat.s5.server.frontend.*;
+import org.toxsoft.uskat.s5.server.logger.*;
+import org.toxsoft.uskat.s5.utils.threads.impl.*;
 
 /**
  * Поддержка работы с {@link ISkFrontendRear}
@@ -39,7 +38,7 @@ class S5FrontendsSupport
   /**
    * Журнал работы
    */
-  private final ILogger logger = getLogger( getClass() );
+  private final ILogger logger = LoggerWrapper.getLogger( getClass() );
 
   // ------------------------------------------------------------------------------------
   // Реализация IS5FrontendAttachable

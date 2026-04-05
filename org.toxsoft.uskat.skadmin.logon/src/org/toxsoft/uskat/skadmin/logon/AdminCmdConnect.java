@@ -213,6 +213,7 @@ public class AdminCmdConnect
       resultOk( pxConnection );
     }
     catch( RuntimeException e ) {
+      logger().error( e );
       // Ошибка подключения к серверу
       String errMsg = e.getLocalizedMessage();
       addResultError( ERR_CONNECT_NO_CONNECTION, (errMsg != null ? errMsg : e.getClass().getName()) );

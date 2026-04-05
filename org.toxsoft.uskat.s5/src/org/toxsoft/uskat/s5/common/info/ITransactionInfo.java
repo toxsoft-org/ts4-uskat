@@ -1,8 +1,8 @@
 package org.toxsoft.uskat.s5.common.info;
 
-import javax.ejb.SessionContext;
+import org.toxsoft.uskat.s5.server.transactions.*;
 
-import org.toxsoft.uskat.s5.server.transactions.ETransactionStatus;
+import jakarta.ejb.*;
 
 /**
  * Информация о транзакции s5-сервера

@@ -6,13 +6,10 @@ import static org.toxsoft.uskat.s5.common.IS5CommonResources.*;
 import static org.toxsoft.uskat.s5.server.IS5ImplementConstants.*;
 import static org.toxsoft.uskat.s5.server.IS5ServerHardConstants.*;
 import static org.toxsoft.uskat.s5.server.sessions.IS5Resources.*;
-import static org.toxsoft.uskat.s5.server.sessions.IS5SessionInterceptor.*;
+import static org.toxsoft.uskat.s5.server.sessions.S5SessionInterceptorUtils.*;
 import static org.toxsoft.uskat.s5.server.sessions.cluster.S5ClusterCommandCloseCallback.*;
 import static org.toxsoft.uskat.s5.server.sessions.cluster.S5ClusterCommandCreateCallback.*;
 import static org.toxsoft.uskat.s5.server.sessions.cluster.S5ClusterCommandUpdateSession.*;
-
-import javax.annotation.*;
-import javax.ejb.*;
 
 import org.infinispan.*;
 import org.infinispan.commons.util.*;
@@ -60,6 +57,9 @@ import org.toxsoft.uskat.s5.server.startup.*;
 import org.toxsoft.uskat.s5.server.statistics.*;
 import org.toxsoft.uskat.s5.utils.jobs.*;
 import org.wildfly.clustering.group.*;
+
+import jakarta.annotation.*;
+import jakarta.ejb.*;
 
 /**
  * Управление сессиями сервера

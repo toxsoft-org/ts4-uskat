@@ -5,22 +5,19 @@ import static org.toxsoft.uskat.s5.server.backend.supports.histdata.impl.sequenc
 import static org.toxsoft.uskat.s5.server.backend.supports.histdata.impl.sequences.sync.IS5Resources.*;
 import static org.toxsoft.uskat.s5.server.sequences.IS5SequenceHardConstants.*;
 
-import java.sql.ResultSet;
+import java.sql.*;
 
-import javax.persistence.Entity;
-
-import org.toxsoft.core.tslib.av.EAtomicType;
-import org.toxsoft.core.tslib.av.IAtomicValue;
-import org.toxsoft.core.tslib.av.errors.AvDataLossRtException;
-import org.toxsoft.core.tslib.av.errors.AvUnassignedValueRtException;
-import org.toxsoft.core.tslib.av.temporal.ITemporalAtomicValue;
-import org.toxsoft.core.tslib.av.temporal.TemporalAtomicValue;
-import org.toxsoft.core.tslib.av.utils.IParameterized;
-import org.toxsoft.core.tslib.bricks.time.ITimedList;
-import org.toxsoft.core.tslib.gw.gwid.Gwid;
+import org.toxsoft.core.tslib.av.*;
+import org.toxsoft.core.tslib.av.errors.*;
+import org.toxsoft.core.tslib.av.temporal.*;
+import org.toxsoft.core.tslib.av.utils.*;
+import org.toxsoft.core.tslib.bricks.time.*;
+import org.toxsoft.core.tslib.gw.gwid.*;
 import org.toxsoft.core.tslib.utils.errors.*;
 import org.toxsoft.uskat.s5.server.backend.supports.histdata.impl.sequences.S5HistDataSyncBlock;
-import org.toxsoft.uskat.s5.server.sequences.IS5SequenceBlockEdit;
+import org.toxsoft.uskat.s5.server.sequences.*;
+
+import jakarta.persistence.*;
 
 /**
  * Блок хранения асинхронных атомарных значений типа {@link EAtomicType#INTEGER}

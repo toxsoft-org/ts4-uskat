@@ -13,8 +13,6 @@ import static org.toxsoft.uskat.s5.server.backend.supports.skatlets.S5BackendSka
 import java.io.*;
 import java.util.concurrent.*;
 
-import javax.ejb.*;
-
 import org.toxsoft.core.tslib.av.*;
 import org.toxsoft.core.tslib.av.opset.*;
 import org.toxsoft.core.tslib.av.opset.impl.*;
@@ -24,7 +22,6 @@ import org.toxsoft.core.tslib.bricks.wub.*;
 import org.toxsoft.core.tslib.coll.primtypes.*;
 import org.toxsoft.core.tslib.coll.primtypes.impl.*;
 import org.toxsoft.core.tslib.utils.errors.*;
-import org.toxsoft.core.tslib.utils.logs.impl.*;
 import org.toxsoft.core.tslib.utils.plugins.impl.*;
 import org.toxsoft.uskat.core.impl.*;
 import org.toxsoft.uskat.core.impl.SkatletBox.*;
@@ -33,6 +30,8 @@ import org.toxsoft.uskat.s5.client.local.*;
 import org.toxsoft.uskat.s5.server.backend.impl.*;
 import org.toxsoft.uskat.s5.server.backend.supports.core.*;
 import org.toxsoft.uskat.s5.utils.jobs.*;
+
+import jakarta.ejb.*;
 
 /**
  * Реализация {@link IS5BackendSkatletsSingleton}.
@@ -222,7 +221,7 @@ public class S5BackendSkatletsSingleton
           Thread.sleep( DOJOB_INTERVAL );
         }
         catch( InterruptedException ex ) {
-          LoggerUtils.errorLogger().error( ex );
+          logger().error( ex );
         }
       }
     }

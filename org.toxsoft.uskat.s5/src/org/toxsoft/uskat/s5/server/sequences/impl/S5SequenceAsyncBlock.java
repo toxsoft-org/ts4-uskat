@@ -10,8 +10,6 @@ import java.lang.reflect.Array;
 import java.sql.*;
 import java.util.*;
 
-import javax.persistence.*;
-
 import org.toxsoft.core.tslib.av.utils.*;
 import org.toxsoft.core.tslib.bricks.time.*;
 import org.toxsoft.core.tslib.bricks.time.impl.*;
@@ -24,6 +22,8 @@ import org.toxsoft.core.tslib.utils.logs.*;
 import org.toxsoft.uskat.s5.server.sequences.*;
 import org.toxsoft.uskat.s5.server.sequences.maintenance.*;
 import org.toxsoft.uskat.s5.utils.indexes.*;
+
+import jakarta.persistence.*;
 
 /**
  * Блок хранения асинхронных данных.

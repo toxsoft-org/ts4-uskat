@@ -1,9 +1,5 @@
 package org.toxsoft.uskat.s5.server;
 
-import javax.ejb.*;
-import javax.enterprise.concurrent.*;
-import javax.transaction.*;
-
 import org.toxsoft.uskat.s5.client.local.*;
 import org.toxsoft.uskat.s5.server.backend.*;
 import org.toxsoft.uskat.s5.server.backend.impl.*;
@@ -24,6 +20,10 @@ import org.toxsoft.uskat.s5.server.sessions.pas.*;
 import org.toxsoft.uskat.s5.server.startup.*;
 import org.toxsoft.uskat.s5.server.transactions.*;
 import org.toxsoft.uskat.s5.utils.*;
+
+import jakarta.ejb.*;
+import jakarta.enterprise.concurrent.*;
+import jakarta.transaction.*;
 
 /**
  * Константы реализации s5-сервера.

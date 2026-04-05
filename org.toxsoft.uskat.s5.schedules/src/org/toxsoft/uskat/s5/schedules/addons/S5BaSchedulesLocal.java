@@ -1,13 +1,10 @@
 package org.toxsoft.uskat.s5.schedules.addons;
 
-import org.toxsoft.core.tslib.bricks.events.msg.GtMessage;
-import org.toxsoft.core.tslib.utils.errors.TsNullArgumentRtException;
-import org.toxsoft.uskat.s5.schedules.lib.IBaSchedules;
-import org.toxsoft.uskat.s5.schedules.lib.ISkSchedulesHardConstants;
-import org.toxsoft.uskat.s5.schedules.supports.IS5BackendSchedulesSingleton;
-import org.toxsoft.uskat.s5.schedules.supports.S5BackendSchedulesSingleton;
-import org.toxsoft.uskat.s5.server.backend.addons.IS5BackendLocal;
-import org.toxsoft.uskat.s5.server.backend.addons.S5AbstractBackendAddonLocal;
+import org.toxsoft.core.tslib.bricks.events.msg.*;
+import org.toxsoft.core.tslib.utils.errors.*;
+import org.toxsoft.uskat.s5.schedules.lib.*;
+import org.toxsoft.uskat.s5.schedules.supports.*;
+import org.toxsoft.uskat.s5.server.backend.addons.*;
 
 /**
  * Local {@link IBaSchedules} implementation.
@@ -37,7 +34,7 @@ public final class S5BaSchedulesLocal
    */
   public S5BaSchedulesLocal( IS5BackendLocal aOwner ) {
     super( aOwner, ISkSchedulesHardConstants.BAINF_SCHEDULES );
-    schedulesSupport = aOwner.backendSingleton().get( S5BackendSchedulesSingleton.BACKEND_SCHEDULES_ID,
+    schedulesSupport = aOwner.backendSingleton().findSupport( S5BackendSchedulesSingleton.BACKEND_SCHEDULES_ID,
         IS5BackendSchedulesSingleton.class );
     // Установка конфигурации фронтенда
     frontend().frontendData().setBackendAddonData( IBaSchedules.ADDON_ID, baData );

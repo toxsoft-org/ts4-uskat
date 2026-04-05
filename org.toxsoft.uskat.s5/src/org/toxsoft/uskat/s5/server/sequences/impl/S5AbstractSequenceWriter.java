@@ -1,6 +1,5 @@
 package org.toxsoft.uskat.s5.server.sequences.impl;
 
-import static org.toxsoft.core.log4j.LoggerWrapper.*;
 import static org.toxsoft.core.tslib.bricks.time.impl.TimeUtils.*;
 import static org.toxsoft.core.tslib.utils.TsLibUtils.*;
 import static org.toxsoft.uskat.s5.common.IS5CommonResources.*;
@@ -14,10 +13,6 @@ import static org.toxsoft.uskat.s5.utils.threads.impl.S5Lockable.*;
 import java.util.*;
 import java.util.concurrent.*;
 
-import javax.enterprise.concurrent.*;
-import javax.persistence.*;
-
-import org.toxsoft.core.log4j.*;
 import org.toxsoft.core.pas.tj.*;
 import org.toxsoft.core.pas.tj.impl.*;
 import org.toxsoft.core.tslib.av.opset.*;
@@ -36,6 +31,7 @@ import org.toxsoft.core.tslib.utils.errors.*;
 import org.toxsoft.core.tslib.utils.logs.*;
 import org.toxsoft.uskat.s5.server.backend.supports.core.*;
 import org.toxsoft.uskat.s5.server.cluster.*;
+import org.toxsoft.uskat.s5.server.logger.*;
 import org.toxsoft.uskat.s5.server.sequences.*;
 import org.toxsoft.uskat.s5.server.sequences.cluster.*;
 import org.toxsoft.uskat.s5.server.sequences.maintenance.*;
@@ -44,6 +40,9 @@ import org.toxsoft.uskat.s5.server.singletons.*;
 import org.toxsoft.uskat.s5.server.startup.*;
 import org.toxsoft.uskat.s5.server.transactions.*;
 import org.toxsoft.uskat.s5.utils.threads.impl.*;
+
+import jakarta.enterprise.concurrent.*;
+import jakarta.persistence.*;
 
 /**
  * Абстрактная реализация писателя значений последовательностей данных {@link IS5SequenceWriter}
@@ -249,7 +248,7 @@ public abstract class S5AbstractSequenceWriter<S extends IS5Sequence<V>, V exten
     // Конфигурация подсистемы хранения
     setConfiguration( aConfiguration );
     // Журнал
-    logger = getLogger( LOG_WRITER_ID );
+    logger = LoggerWrapper.getLogger( LOG_WRITER_ID );
   }
 
   // ------------------------------------------------------------------------------------
@@ -346,12 +345,12 @@ public abstract class S5AbstractSequenceWriter<S extends IS5Sequence<V>, V exten
   }
 
   /**
-   * Возвращает фабрику менеджеров постоянства
+   * Создает новый менеджер постоянства
    *
-   * @return {@link EntityManagerFactory} фабрика
+   * @return {@link EntityManager} менеджер постоянства
    */
-  protected final EntityManagerFactory entityManagerFactory() {
-    return entityManagerFactory;
+  protected final EntityManager createEntityManager() {
+    return entityManagerFactory.createEntityManager();
   }
 
   /**

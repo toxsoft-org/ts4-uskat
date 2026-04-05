@@ -1,22 +1,20 @@
 package org.toxsoft.uskat.s5.server.sequences.impl;
 
-import static org.toxsoft.core.log4j.LoggerWrapper.*;
-
 import java.sql.*;
 
-import javax.persistence.Version;
+import org.toxsoft.core.tslib.bricks.time.*;
+import org.toxsoft.core.tslib.coll.*;
+import org.toxsoft.core.tslib.coll.impl.*;
+import org.toxsoft.core.tslib.coll.synch.*;
+import org.toxsoft.core.tslib.utils.*;
+import org.toxsoft.core.tslib.utils.errors.*;
+import org.toxsoft.core.tslib.utils.logs.*;
+import org.toxsoft.uskat.s5.server.frontend.*;
+import org.toxsoft.uskat.s5.server.logger.*;
+import org.toxsoft.uskat.s5.server.sequences.*;
+import org.toxsoft.uskat.s5.server.sequences.reader.*;
 
-import org.toxsoft.core.tslib.bricks.time.IQueryInterval;
-import org.toxsoft.core.tslib.coll.IListEdit;
-import org.toxsoft.core.tslib.coll.impl.ElemArrayList;
-import org.toxsoft.core.tslib.coll.synch.SynchronizedListEdit;
-import org.toxsoft.core.tslib.utils.TsLibUtils;
-import org.toxsoft.core.tslib.utils.errors.TsIllegalArgumentRtException;
-import org.toxsoft.core.tslib.utils.errors.TsNullArgumentRtException;
-import org.toxsoft.core.tslib.utils.logs.ILogger;
-import org.toxsoft.uskat.s5.server.frontend.IS5FrontendRear;
-import org.toxsoft.uskat.s5.server.sequences.IS5SequenceFactory;
-import org.toxsoft.uskat.s5.server.sequences.reader.IS5SequenceReadQuery;
+import jakarta.persistence.*;
 
 /**
  * Реализация {@link IS5SequenceReadQuery}
@@ -35,7 +33,7 @@ final class S5SequenceReadQuery
   private final IListEdit<Statement>  statements = new SynchronizedListEdit<>( new ElemArrayList<>( false ) );
   private boolean                     closed;
   private volatile Thread             thread;
-  private final ILogger               logger     = getLogger( getClass() );
+  private final ILogger               logger     = LoggerWrapper.getLogger( getClass() );
 
   /**
    * Конструктор

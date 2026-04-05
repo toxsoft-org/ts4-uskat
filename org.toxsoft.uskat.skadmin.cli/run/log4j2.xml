@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Configuration status="WARN">
+    <!-- Настройка логгеров -->
+    <Loggers>
+        <!-- Настройка журналов компонент системы -->
+        <Logger level="TRACE"   name="org.jboss.ejb.client" />
+
+        <Logger level="ALL"   name="org.toxsoft" />
+        <Logger level="WARN"  name="org.toxsoft.core.tslib.bricks.threadexec.TsThreadExecutor" />
+
+        <Logger level="INFO"  name="org.toxsoft.uskat.s5.common" />
+        <Logger level="INFO"  name="org.toxsoft.uskat.s5.client" />
+        <Logger level="INFO"  name="org.toxsoft.uskat.s5.server" />
+
+
+        <Logger level="ALL"   name="ru.toxsoft" />
+
+        <Logger level="INFO"  name="org.toxsoft.uskat.skadmin.cli.AdminConsole" />
+
+        <!-- Корневой логгер: уровень ERROR, выводит в оба аппендера -->
+        <Root level="ALL">
+            <AppenderRef ref="Console"/>
+            <AppenderRef ref="File"/>
+        </Root>
+    </Loggers>
+
+    <!-- Определение аппендеров -->
+    <Appenders>
+        <!-- Консольный аппендер -->
+        <Console name="Console" target="SYSTEM_OUT">
+            <ThresholdFilter level="ALL" onMatch="ACCEPT" onMismatch="DENY"/>
+            <PatternLayout pattern="[%-5level|%d{HH:mm:ss.SSS}|%-20c{1}] %msg%n%ex{full}"/>
+        </Console>
+
+        <!-- Файловый аппендер с ротацией по дням недели -->
+        <RollingFile name="File"
+                     fileName="logs/app.log"
+                     filePattern="logs/app-%d{EEEE}.log">
+            <ThresholdFilter level="ALL" onMatch="ACCEPT" onMismatch="DENY"/>
+            <PatternLayout pattern="[%-5level|%d{yyyy-MM-dd HH:mm:ss.SSS}|%-20logger{36}|%-25t{36}] %msg%n%ex{full}"/>
+            <Policies>
+                <!-- Политика ротации по времени: каждый день -->
+                <TimeBasedTriggeringPolicy interval="1" modulate="true"/>
+            </Policies>
+            <!-- Стратегия переименования: при ротации файл app.log переименовывается в app-{день недели}.log -->
+            <DefaultRolloverStrategy max="7"/>
+        </RollingFile>
+    </Appenders>
+
+</Configuration>

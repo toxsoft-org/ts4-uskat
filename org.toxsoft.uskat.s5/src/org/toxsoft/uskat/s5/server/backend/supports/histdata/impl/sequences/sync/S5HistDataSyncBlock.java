@@ -1,17 +1,16 @@
 package org.toxsoft.uskat.s5.server.backend.supports.histdata.impl.sequences.sync;
 
-import java.sql.ResultSet;
+import java.sql.*;
 
-import javax.persistence.MappedSuperclass;
-
-import org.toxsoft.core.tslib.av.temporal.ITemporalAtomicValue;
-import org.toxsoft.core.tslib.av.utils.IParameterized;
-import org.toxsoft.core.tslib.gw.gwid.Gwid;
+import org.toxsoft.core.tslib.av.temporal.*;
+import org.toxsoft.core.tslib.av.utils.*;
+import org.toxsoft.core.tslib.gw.gwid.*;
 import org.toxsoft.core.tslib.utils.errors.*;
-import org.toxsoft.uskat.s5.server.backend.supports.histdata.impl.sequences.IS5HistDataBlock;
-import org.toxsoft.uskat.s5.server.sequences.IS5SequenceCursor;
-import org.toxsoft.uskat.s5.server.sequences.impl.S5SequenceSyncBlob;
-import org.toxsoft.uskat.s5.server.sequences.impl.S5SequenceSyncBlock;
+import org.toxsoft.uskat.s5.server.backend.supports.histdata.impl.sequences.*;
+import org.toxsoft.uskat.s5.server.sequences.*;
+import org.toxsoft.uskat.s5.server.sequences.impl.*;
+
+import jakarta.persistence.*;
 
 /**
  * Блок хранения синхронных исторических данных s5-объекта .

@@ -1,7 +1,6 @@
 package org.toxsoft.uskat.s5.server.sequences.impl;
 
 import static java.lang.String.*;
-import static org.toxsoft.core.log4j.LoggerWrapper.*;
 import static org.toxsoft.core.tslib.bricks.strid.impl.StridUtils.*;
 import static org.toxsoft.core.tslib.bricks.time.EQueryIntervalType.*;
 import static org.toxsoft.core.tslib.bricks.time.impl.TimeUtils.*;
@@ -12,11 +11,8 @@ import static org.toxsoft.uskat.s5.server.sequences.impl.IS5Resources.*;
 import static org.toxsoft.uskat.s5.server.sequences.impl.S5DataID.*;
 import static org.toxsoft.uskat.s5.server.sequences.impl.S5SequenceBlock.*;
 
-import java.math.*;
 import java.sql.*;
 import java.util.*;
-
-import javax.persistence.*;
 
 import org.toxsoft.core.tslib.av.utils.*;
 import org.toxsoft.core.tslib.bricks.time.*;
@@ -29,10 +25,13 @@ import org.toxsoft.core.tslib.utils.*;
 import org.toxsoft.core.tslib.utils.errors.*;
 import org.toxsoft.core.tslib.utils.logs.*;
 import org.toxsoft.uskat.s5.server.backend.supports.objects.*;
+import org.toxsoft.uskat.s5.server.logger.*;
 import org.toxsoft.uskat.s5.server.sequences.*;
 import org.toxsoft.uskat.s5.server.sequences.maintenance.*;
 import org.toxsoft.uskat.s5.server.sequences.reader.*;
 import org.toxsoft.uskat.s5.utils.collections.*;
+
+import jakarta.persistence.*;
 
 /**
  * Служебные методы для выполнения SQL-запросов к последовательностям значений данных.
@@ -45,7 +44,7 @@ class S5SequenceSQL {
   /**
    * Журанл
    */
-  private static ILogger logger = getLogger( S5SequenceSQL.class );
+  private static ILogger logger = LoggerWrapper.getLogger( S5SequenceSQL.class );
 
   /**
    * Оператор объединения SQL запросов
@@ -334,6 +333,20 @@ class S5SequenceSQL {
   }
 
   /**
+   * Идентификатор поля {@link #FIELD_GWID} в MQL-запросах.
+   *
+   * @since 2026-03-21 mvk+++ wildfly 39
+   */
+  private static final String MQL_GWID = MQL_FIELD_ID + "." + MQL_FIELD_GWID;
+
+  /**
+   * Идентификатор поля {@link #FIELD_START_TIME} в MQL-запросах.
+   *
+   * @since 2026-03-21 mvk+++ wildfly 39
+   */
+  private static final String MQL_START_TIME = MQL_FIELD_ID + "." + FIELD_START_TIME;
+
+  /**
    * Формат запроса блоков данного полностью находящихся в указанном интервале
    * <p>
    * Интервал закрытый с начала, закрытый по завершению
@@ -345,9 +358,9 @@ class S5SequenceSQL {
    */
   private static final String QFRMT_CSCE_BLOCKS = //
       "select b from %s b where"//
-          + "(" + FIELD_GWID + "='%s')and"//
-          + "(" + FIELD_START_TIME + ">=%d)and(" + FIELD_END_TIME + "<=%d)" //
-          + "order by " + FIELD_START_TIME;
+          + "(" + MQL_GWID + "='%s')and"//
+          + "(" + MQL_START_TIME + ">=%d)and(" + FIELD_END_TIME + "<=%d)" //
+          + "order by " + MQL_START_TIME;
 
   /**
    * Формат запроса блоков данного полностью или частично попадающих в указанный интервал
@@ -365,11 +378,11 @@ class S5SequenceSQL {
    */
   private static final String QFRMT_OSOE_BLOCKS = //
       "select b from %s b where" //
-          + "(" + FIELD_GWID + "='%s')and" //
-          + "((" + FIELD_START_TIME + ">=%d)and(" + FIELD_START_TIME + "<=%d)or" //
+          + "(" + MQL_GWID + "='%s')and" //
+          + "((" + MQL_START_TIME + ">=%d)and(" + MQL_START_TIME + "<=%d)or" //
           + "(" + FIELD_END_TIME + ">=%d)and(" + FIELD_END_TIME + "<=%d)or" //
-          + "(" + FIELD_START_TIME + "<=%d)and(" + FIELD_END_TIME + ">=%d))"//
-          + "order by " + FIELD_START_TIME;
+          + "(" + MQL_START_TIME + "<=%d)and(" + FIELD_END_TIME + ">=%d))"//
+          + "order by " + MQL_START_TIME;
 
   /**
    * Формат запроса блоков данного полностью или частично попадающих в указанный интервал
@@ -385,10 +398,10 @@ class S5SequenceSQL {
    */
   private static final String QFRMT_CSOE_BLOCKS = //
       "select b from %s b where" //
-          + "( " + FIELD_GWID + "='%s')and" //
+          + "( " + MQL_GWID + "='%s')and" //
           + "((" + FIELD_END_TIME + ">=%d)and(" + FIELD_END_TIME + "<=%d)or" //
-          + "(" + FIELD_START_TIME + "<=%d)and(" + FIELD_END_TIME + ">=%d))"//
-          + "order by " + FIELD_START_TIME;
+          + "(" + MQL_START_TIME + "<=%d)and(" + FIELD_END_TIME + ">=%d))"//
+          + "order by " + MQL_START_TIME;
 
   /**
    * Формат запроса блоков данного полностью или частично попадающих в указанный интервал
@@ -404,10 +417,10 @@ class S5SequenceSQL {
    */
   private static final String QFRMT_OSCE_BLOCKS = //
       "select b from %s b where" //
-          + "( " + FIELD_GWID + "='%s')and" //
-          + "((" + FIELD_START_TIME + ">=%d)and(" + FIELD_START_TIME + "<=%d)or" //
-          + "(" + FIELD_START_TIME + "<=%d)and(" + FIELD_END_TIME + ">=%d))"//
-          + "order by " + FIELD_START_TIME;
+          + "( " + MQL_GWID + "='%s')and" //
+          + "((" + MQL_START_TIME + ">=%d)and(" + MQL_START_TIME + "<=%d)or" //
+          + "(" + MQL_START_TIME + "<=%d)and(" + FIELD_END_TIME + ">=%d))"//
+          + "order by " + MQL_START_TIME;
 
   /**
    * Загрузка блоков попадающих в указанный интервал
@@ -562,10 +575,10 @@ class S5SequenceSQL {
    */
   private static final String QFRMT_BLOCK_BEFORE_TIME = //
       "select b from %s b where" //
-          + "(" + FIELD_GWID + "='%s')and" //
+          + "(" + MQL_GWID + "='%s')and" //
           + "((" + FIELD_END_TIME + "<%d)or"//
-          + " (" + FIELD_START_TIME + "<=%d)and( " + FIELD_END_TIME + ">=%d))" //
-          + "order by " + FIELD_START_TIME + " desc";
+          + " (" + MQL_START_TIME + "<=%d)and( " + FIELD_END_TIME + ">=%d))" //
+          + "order by " + MQL_START_TIME + " desc";
 
   /**
    * Проводится поиск ближайшего блока у которого есть значение на указанной метке времени или перед ней
@@ -828,12 +841,12 @@ class S5SequenceSQL {
       query.setFirstResult( 0 );
       query.setMaxResults( 1 );
       // Запрос данных
-      List<BigInteger> entities = query.getResultList();
+      List<Long> entities = query.getResultList();
       if( entities.size() == 0 ) {
         // Нет данных
         return MIN_TIMESTAMP;
       }
-      BigInteger endTime = entities.get( 0 );
+      Long endTime = entities.get( 0 );
       return Math.min( aBeforeTime.longValue(), endTime.longValue() );
     }
     catch( RuntimeException e ) {
@@ -896,12 +909,12 @@ class S5SequenceSQL {
       query.setFirstResult( 0 );
       query.setMaxResults( 1 );
       // Запрос данных
-      List<BigInteger> entities = query.getResultList();
+      List<Long> entities = query.getResultList();
       if( entities.size() == 0 ) {
         // Нет данных
         return MAX_TIMESTAMP;
       }
-      BigInteger startTime = entities.get( 0 );
+      Long startTime = entities.get( 0 );
       return Math.max( aAfterTime.longValue(), startTime.longValue() );
     }
     catch( RuntimeException e ) {
@@ -954,8 +967,8 @@ class S5SequenceSQL {
         return ITimeInterval.NULL;
       }
       Object[] obj = (Object[])entities.get( 0 );
-      BigInteger startTime = (BigInteger)obj[0];
-      BigInteger endTime = (BigInteger)obj[1];
+      Long startTime = (Long)obj[0];
+      Long endTime = (Long)obj[1];
       long stl = startTime.longValue();
       long etl = endTime.longValue();
       ITimeInterval retValue = new TimeInterval( stl, etl );
@@ -1019,7 +1032,7 @@ class S5SequenceSQL {
       query.setFirstResult( 0 );
       query.setMaxResults( 1 );
       // Запрос данных
-      List<BigInteger> entities = query.getResultList();
+      List<Long> entities = query.getResultList();
       // Время первого блока
       long fragmentStartTime = MAX_TIMESTAMP;
       // Время последнего блока
@@ -1062,8 +1075,8 @@ class S5SequenceSQL {
       boolean tooLateBlocks = false;
       for( int index = 0; index < startsTimesSizesListSize; index++ ) {
         Object[] bts = startsTimesSizesList.get( index );
-        long startTime = ((BigInteger)bts[0]).longValue();
-        long endTime = ((BigInteger)bts[1]).longValue();
+        long startTime = ((Long)bts[0]).longValue();
+        long endTime = ((Long)bts[1]).longValue();
         int size = ((Integer)bts[2]).intValue();
         if( size < 0 ) {
           // Найден полный блок с которым невозможно объединение
@@ -1164,12 +1177,12 @@ class S5SequenceSQL {
       query.setFirstResult( 0 );
       query.setMaxResults( 1 );
       // Запрос данных
-      List<BigInteger> entities = query.getResultList();
+      List<Long> entities = query.getResultList();
       if( entities.size() == 0 ) {
         // Нет данных
         return MIN_TIMESTAMP;
       }
-      BigInteger startTime = entities.get( 0 );
+      Long startTime = entities.get( 0 );
       return startTime.longValue();
 
     }
@@ -1186,8 +1199,11 @@ class S5SequenceSQL {
    */
   private static final String QFRMT_LAST_BLOCK = //
       "select b from %s b where" //
-          + "(" + FIELD_GWID + "='%s')"//
-          + "order by " + FIELD_START_TIME + " desc";
+          // 2026-03-21 mvk---+++ wildfly 39
+          // + "(" + FIELD_GWID + "='%s')"//
+          // + "order by " + FIELD_START_TIME + " desc";
+          + "( " + MQL_GWID + "='%s')"//
+          + "order by " + MQL_START_TIME + " desc";
 
   /**
    * Проводится поиск последнего блока
@@ -1815,12 +1831,12 @@ class S5SequenceSQL {
     // Выполнение запроса
     Query query = aEntityManager.createNativeQuery( sql );
     // Запрос данных
-    List<BigInteger> entities = query.getResultList();
+    List<Long> entities = query.getResultList();
     if( entities.size() == 0 ) {
       // Нет данных
       return 0;
     }
-    BigInteger retValue = entities.get( 0 );
+    Long retValue = entities.get( 0 );
     return retValue.intValue();
   }
 

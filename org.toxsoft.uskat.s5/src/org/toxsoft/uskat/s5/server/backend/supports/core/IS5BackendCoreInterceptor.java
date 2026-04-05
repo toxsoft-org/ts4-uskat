@@ -1,13 +1,13 @@
 package org.toxsoft.uskat.s5.server.backend.supports.core;
 
-import javax.ejb.*;
-
 import org.toxsoft.core.tslib.bricks.validator.vrl.*;
 import org.toxsoft.core.tslib.utils.errors.*;
 import org.toxsoft.uskat.core.api.evserv.*;
 import org.toxsoft.uskat.core.connection.*;
 import org.toxsoft.uskat.s5.server.backend.*;
 import org.toxsoft.uskat.s5.server.interceptors.*;
+
+import jakarta.ejb.*;
 
 /**
  * Перехватчик операций ядра backend.

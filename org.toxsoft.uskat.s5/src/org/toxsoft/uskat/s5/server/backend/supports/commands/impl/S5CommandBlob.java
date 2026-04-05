@@ -1,14 +1,13 @@
 package org.toxsoft.uskat.s5.server.backend.supports.commands.impl;
 
-import java.sql.ResultSet;
+import java.sql.*;
 
-import javax.persistence.Entity;
+import org.toxsoft.core.tslib.utils.errors.*;
+import org.toxsoft.uskat.core.api.cmdserv.*;
+import org.toxsoft.uskat.core.impl.dto.*;
+import org.toxsoft.uskat.s5.server.sequences.impl.*;
 
-import org.toxsoft.core.tslib.utils.errors.TsInternalErrorRtException;
-import org.toxsoft.core.tslib.utils.errors.TsNullArgumentRtException;
-import org.toxsoft.uskat.core.api.cmdserv.IDtoCompletedCommand;
-import org.toxsoft.uskat.core.impl.dto.DtoCompletedCommand;
-import org.toxsoft.uskat.s5.server.sequences.impl.S5SequenceAsyncBlob;
+import jakarta.persistence.*;
 
 /**
  * Данные блока хранения истории выполненных команд s5-объекта.

@@ -12,8 +12,6 @@ import static org.toxsoft.uskat.s5.server.transactions.ES5TransactionResources.*
 import java.util.*;
 
 import javax.naming.*;
-import javax.persistence.*;
-import javax.transaction.*;
 
 import org.toxsoft.core.tslib.av.opset.*;
 import org.toxsoft.core.tslib.av.utils.*;
@@ -34,6 +32,9 @@ import org.toxsoft.uskat.s5.server.sequences.writer.*;
 import org.toxsoft.uskat.s5.server.transactions.*;
 import org.toxsoft.uskat.s5.utils.threads.*;
 import org.toxsoft.uskat.s5.utils.threads.impl.*;
+
+import jakarta.persistence.*;
+import jakarta.transaction.*;
 
 /**
  * Реализация писателя значений последовательностей данных {@link IS5SequenceWriter}
@@ -506,8 +507,7 @@ class S5SequenceLastBlockWriter<S extends IS5Sequence<V>, V extends ITemporal<?>
       for( S sequence : sequences ) {
         gwids.add( sequence.gwid() );
       }
-      EntityManager em = entityManagerFactory().createEntityManager();
-      try {
+      try( EntityManager em = createEntityManager() ) {
         // Блокировка доступа к данным (false: без проверки текущий транзакции)
         tryLockGwids( gwids, false );
         try {
@@ -552,9 +552,6 @@ class S5SequenceLastBlockWriter<S extends IS5Sequence<V>, V extends ITemporal<?>
         finally {
           unlockGwids( gwids );
         }
-      }
-      finally {
-        em.close();
       }
     }
 

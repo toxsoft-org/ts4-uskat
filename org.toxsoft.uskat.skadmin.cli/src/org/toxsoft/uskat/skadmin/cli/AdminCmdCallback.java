@@ -3,7 +3,6 @@ package org.toxsoft.uskat.skadmin.cli;
 import static org.toxsoft.uskat.skadmin.cli.AdminColors.*;
 import static org.toxsoft.uskat.skadmin.cli.IAdminAnsiConstants.*;
 
-import org.toxsoft.core.log4j.*;
 import org.toxsoft.core.tslib.av.*;
 import org.toxsoft.core.tslib.av.metainfo.*;
 import org.toxsoft.core.tslib.av.opset.*;
@@ -13,6 +12,7 @@ import org.toxsoft.core.tslib.utils.*;
 import org.toxsoft.core.tslib.utils.errors.*;
 import org.toxsoft.core.tslib.utils.logs.*;
 import org.toxsoft.uskat.legacy.plexy.*;
+import org.toxsoft.uskat.s5.server.logger.*;
 import org.toxsoft.uskat.skadmin.core.*;
 
 /**

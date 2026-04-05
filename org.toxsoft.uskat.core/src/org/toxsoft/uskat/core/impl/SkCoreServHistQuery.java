@@ -10,13 +10,14 @@ import org.toxsoft.core.tslib.coll.primtypes.*;
 import org.toxsoft.core.tslib.coll.primtypes.impl.*;
 import org.toxsoft.core.tslib.gw.gwid.*;
 import org.toxsoft.core.tslib.utils.errors.*;
-import org.toxsoft.core.tslib.utils.logs.impl.*;
+import org.toxsoft.core.tslib.utils.logs.*;
 import org.toxsoft.uskat.core.*;
 import org.toxsoft.uskat.core.api.cmdserv.*;
 import org.toxsoft.uskat.core.api.evserv.*;
 import org.toxsoft.uskat.core.api.hqserv.*;
 import org.toxsoft.uskat.core.backend.api.*;
 import org.toxsoft.uskat.core.devapi.*;
+import org.toxsoft.uskat.core.logger.*;
 
 /**
  * {@link ISkHistoryQueryService} implementation.
@@ -36,6 +37,8 @@ public class SkCoreServHistQuery
    * Open queries
    */
   private final IStringMapEdit<SkAsynchronousQuery> openQueries = new StringMap<>();
+
+  private ILogger logger = LoggerUtils.getLogger( getClass() );
 
   /**
    * Constructor.
@@ -84,11 +87,10 @@ public class SkCoreServHistQuery
         return false;
       case GW_RTDATA:
         long st = System.currentTimeMillis();
-        LoggerUtils.defaultLogger().info( "SkCoreServHistQueryService.onBackendMessage(...) NextData recv" ); //$NON-NLS-1$
+        logger.info( "SkCoreServHistQueryService.onBackendMessage(...) NextData recv" ); //$NON-NLS-1$
         IStringMap<ITimedList<ITemporalAtomicValue>> values = BaMsgQueryNextData.INSTANCE.getAtomicValues( aMessage );
         long et = System.currentTimeMillis();
-        LoggerUtils.defaultLogger().info(
-            "SkCoreServHistQueryService.onBackendMessage(...) values read time = %d (msec)", // //$NON-NLS-1$
+        logger.info( "SkCoreServHistQueryService.onBackendMessage(...) values read time = %d (msec)", // //$NON-NLS-1$
             Long.valueOf( et - st ) );
         query.nextData( (IStringMap<ITimedList<ITemporal<?>>>)(Object)values, state, stateMessage );
         break;

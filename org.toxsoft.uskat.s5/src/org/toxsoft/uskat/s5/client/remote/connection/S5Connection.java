@@ -1,7 +1,6 @@
 package org.toxsoft.uskat.s5.client.remote.connection;
 
 import static java.lang.String.*;
-import static org.toxsoft.core.log4j.LoggerWrapper.*;
 import static org.toxsoft.core.tslib.av.impl.AvUtils.*;
 import static org.toxsoft.uskat.s5.client.IS5ConnectionParams.*;
 import static org.toxsoft.uskat.s5.client.remote.connection.IS5Resources.*;
@@ -15,14 +14,10 @@ import java.util.*;
 import java.util.concurrent.*;
 import java.util.function.*;
 
-import javax.ejb.*;
 import javax.naming.*;
 import javax.security.sasl.*;
 
 import org.jboss.ejb.client.*;
-import org.jboss.ejb.client.EJBClientContext.*;
-import org.jboss.ejb.protocol.remote.*;
-import org.jboss.ejb.protocol.remote.S5ClusterNodeUtils.*;
 import org.jboss.marshalling.Pair;
 import org.toxsoft.core.pas.common.*;
 import org.toxsoft.core.tslib.av.opset.*;
@@ -43,14 +38,14 @@ import org.toxsoft.uskat.s5.common.*;
 import org.toxsoft.uskat.s5.server.*;
 import org.toxsoft.uskat.s5.server.backend.*;
 import org.toxsoft.uskat.s5.server.backend.impl.*;
+import org.toxsoft.uskat.s5.server.logger.*;
 import org.toxsoft.uskat.s5.server.sessions.init.*;
 import org.toxsoft.uskat.s5.utils.threads.impl.*;
-import org.wildfly.common.context.*;
 import org.wildfly.naming.client.*;
-import org.wildfly.naming.client.remote.*;
-import org.wildfly.naming.client.util.*;
 import org.wildfly.security.auth.client.*;
 import org.wildfly.security.sasl.*;
+
+import jakarta.ejb.*;
 
 /**
  * Реализация соединение с сервером {@link IS5Connection}.
@@ -58,7 +53,9 @@ import org.wildfly.security.sasl.*;
  * @author mvk
  */
 public final class S5Connection
-    implements IS5Connection, Supplier<AuthenticationContext>, IS5ClusterTopologyListener {
+    // 2026-03-20 mvk---+++ IS5ClusterTopologyListener (org.toxsoft.extlibs.wildfly.ejb.client removed)
+    // implements IS5Connection, Supplier<AuthenticationContext>, IS5ClusterTopologyListener {
+    implements IS5Connection, Supplier<AuthenticationContext> {
 
   /**
    * Текстовое представление точки подключения
@@ -218,7 +215,7 @@ public final class S5Connection
     lock = TsNullArgumentRtException.checkNull( aFrontendLock );
     frontedLock = aFrontendLock;
     uniqueId = instanceCount++;
-    logger = getLogger( getClass() );
+    logger = LoggerWrapper.getLogger( getClass() );
   }
 
   // ------------------------------------------------------------------------------------
@@ -556,7 +553,6 @@ public final class S5Connection
 
       // Адрес сервера
       S5HostList hosts = OP_HOSTS.getValue( options ).asValobj();
-      String moduleName = IS5ImplementConstants.BACKEND_SERVER_MODULE_ID;
       String apiIntefaceName = IS5ImplementConstants.BACKEND_SESSION_INTERFACE;
       String apiBeanName = IS5ImplementConstants.BACKEND_SESSION_IMPLEMENTATION;
 
@@ -566,6 +562,9 @@ public final class S5Connection
       long failureTimeout = OP_FAILURE_TIMEOUT.getValue( options ).asInt();
 
       String entryPoint = format( ENTRY_POINT, wlogin, hostsToString( hosts, true ), apiIntefaceName, apiBeanName );
+
+      String wildflyLogin = OP_WILDFLY_LOGIN.getValue( options ).asString();
+      String wildflyPasswd = OP_WILDFLY_PASSWORD.getValue( options ).asString();
       ClassLoader loader = classLoader;
       try {
         // 2021-01-20 mvk необходимо закрыть все соединения чтобы они не мешали потом через callback
@@ -577,10 +576,7 @@ public final class S5Connection
         // Поиск сервера и бина его API
         progressMonitor.updateWorkProgress( format( USER_LOOKUP_REMOTE_API_START, this ), -1 );
         logger.debug( USER_LOOKUP_REMOTE_API_START, this );
-        Pair<SessionID, IS5BackendSession> remote =
-            lookupClusterRemoteApi( this, hosts, wlogin, wpasswd, moduleName, apiIntefaceName, apiBeanName, loader );
-        // remoteSessionID = remote.getA();
-        remoteBackend = remote.getB();
+        remoteBackend = lookupBackend( this, hosts.first(), wildflyLogin, wildflyPasswd );
         // Сообщение завершении поиска сервера
         logger.debug( MSG_LOOKUP_REMOTE_API_FINISH, this, sessionInitData.sessionID() );
       }
@@ -589,6 +585,7 @@ public final class S5Connection
         throw new S5ConnectionException( e, options, ERR_NO_CLIENT_SUPPORT, entryPoint, cause( e ) );
       }
       catch( Throwable e ) {
+        logger.error( e );
         if( e.getCause() instanceof NoSuchEJBException ) {
           // Сервер не поддерживает указанное API
           // mvk 2018-10-11
@@ -657,8 +654,14 @@ public final class S5Connection
         // Вывод в журнал текущего загрузчика классов
         logger.info( MSG_TRYCONNECT_USING_CLASSLOADER, Thread.currentThread().getContextClassLoader() );
         // Запрос соединения и его инициализация
-        IS5SessionInitResult initResult = remoteBackend.init( sessionInitData );
-        sessionInitResult.setAll( initResult );
+        try {
+          IS5SessionInitResult initResult = remoteBackend.init( sessionInitData );
+          sessionInitResult.setAll( initResult );
+        }
+        catch( Throwable e ) {
+          logger.error( e );
+          throw e;
+        }
         logger.debug( MSG_INIT_REMOTE_API_FINISH, this );
         progressMonitor.updateWorkProgress( format( MSG_INIT_REMOTE_API_FINISH, this ), -1 );
 
@@ -918,7 +921,8 @@ public final class S5Connection
   // ------------------------------------------------------------------------------------
   // Реализация IS5ClusterTopologyListener
   //
-  @Override
+  // 2026-03-20 mvk---+++ IS5ClusterTopologyListener (org.toxsoft.extlibs.wildfly.ejb.client removed)
+  // @Override
   public void onTopologyComplete( String aClusterName, List<Pair<String, InetSocketAddress>> aNodes ) {
     // Создание кластера
     logger().info( MSG_CREATE_CLUSTER, aClusterName, nodesToStr( aNodes ) );
@@ -926,7 +930,8 @@ public final class S5Connection
     updateClusterTopology();
   }
 
-  @Override
+  // 2026-03-20 mvk---+++ IS5ClusterTopologyListener (org.toxsoft.extlibs.wildfly.ejb.client removed)
+  // @Override
   public void onTopologyRemoval( String aClusterName ) {
     // Удаление кластера
     logger().info( MSG_REMOVE_CLUSTER, aClusterName );
@@ -934,7 +939,8 @@ public final class S5Connection
     updateClusterTopology();
   }
 
-  @Override
+  // 2026-03-20 mvk---+++ IS5ClusterTopologyListener (org.toxsoft.extlibs.wildfly.ejb.client removed)
+  // @Override
   public void onTopologyAddition( String aClusterName, List<Pair<String, InetSocketAddress>> aNodes,
       List<String> aAddedNodes ) {
     // Добавление узлов в кластер
@@ -943,7 +949,8 @@ public final class S5Connection
     updateClusterTopology();
   }
 
-  @Override
+  // 2026-03-20 mvk---+++ IS5ClusterTopologyListener (org.toxsoft.extlibs.wildfly.ejb.client removed)
+  // @Override
   public void onTopologyNodeRemoval( String aClusterName, List<Pair<String, InetSocketAddress>> aNodes,
       List<String> aRemovedNodes ) {
     // Удаление узлов из кластера
@@ -1071,427 +1078,348 @@ public final class S5Connection
     reconnectThread = null;
   }
 
+  // /**
+  // * Проводит поиск удаленного API сервера
+  // *
+  // * @param aConnection {@link S5Connection} соединение с сервером
+  // * @param aHosts {@link S5HostList} список описаний хостов узлов кластера сервера
+  // * @param aLogin String имя пользователя
+  // * @param aPassword String пароль пользователя
+  // * @param aModuleName String имя модуля сервера реализующего API
+  // * @param aInterfaceName String имя класса интерфейса удаленной ссылки на API
+  // * @param aBeanName String имя класса бина реализующего API клиента
+  // * @param aClassLoader {@link ClassLoader} загручик классов для создания proxy API сервера
+  // * @return {@link Pair}&lt;{@link SessionID},{@link IS5BackendSession}&gt; пара представляющая идентификатор сессии
+  // и
+  // * удаленную ссылку на backend
+  // * @throws Exception ошибка создания соединения
+  // * @throws TsNullArgumentRtException любой аргумент = null
+  // * @throws NamingException контекст не найден
+  // */
+  // @SuppressWarnings( { "nls", "unchecked" } )
+  // private Pair<SessionID, IS5BackendSession> lookupClusterRemoteApi( S5Connection aConnection, S5HostList aHosts,
+  // String aLogin, String aPassword, String aModuleName, String aInterfaceName, String aBeanName,
+  // ClassLoader aClassLoader )
+  // throws Exception {
+  // TsNullArgumentRtException.checkNull( aConnection );
+  // TsNullArgumentRtException.checkNull( aHosts );
+  // TsNullArgumentRtException.checkNull( aLogin );
+  // TsNullArgumentRtException.checkNull( aPassword );
+  // TsNullArgumentRtException.checkNull( aClassLoader );
+  // int hostCount = aHosts.size();
+  // if( hostCount == 0 ) {
+  // throw new TsIllegalStateRtException( "Неопределен host и port сервера." );
+  // }
+  // // Подбор параметров соедниения: https://docs.jboss.org/author/display/EJBCLIENT/Overview+of+Client+properties
+  // // Properties properties = new Properties();
+  // FastHashtable<String, Object> properties = new FastHashtable<>();
+  // // properties.put( Context.INITIAL_CONTEXT_FACTORY, "org.wildfly.naming.client.WildFlyInitialContextFactory" );
+  // // properties.put( Context.PROVIDER_URL, "http-remoting://localhost:8080" );
+  // // properties.put( Context.SECURITY_PRINCIPAL, aLogin );
+  // // properties.put( Context.SECURITY_CREDENTIALS, aPassword );
+  //
+  // // TODO: 2020-03-16 mvk ???
+  // properties.put( "org.jboss.ejb.client.scoped.context", "true" );
+  // properties.put( "java.naming.factory.url.pkgs", "org.jboss.ejb.client.naming" );
+  // // 2020-09-03 mvk ---
+  // // properties.put( "invocation.timeout", "300000" );
+  // properties.put( "remote.connections.connect.eager", "false" );
+  //
+  // properties.put( "remote.clusters", "ejb" );
+  // properties.put( "remote.cluster.ejb.username", aLogin );
+  // properties.put( "remote.cluster.ejb.password", aPassword );
+  // properties.put( "remote.cluster.ejb.connect.options.org.xnio.Options.SASL_DISALLOWED_MECHANISMS",
+  // "JBOSS-LOCAL-USER" );
+  // properties.put( "remote.cluster.ejb.connect.options.org.xnio.Options.SASL_POLICY_NOPLAINTEXT", "false" );
+  //
+  // StringBuilder sb = new StringBuilder();
+  // for( int index = 0; index < hostCount; index++ ) {
+  // String nodeId = format( CLUSTER_NODE_NAME, Integer.valueOf( index + 1 ) );
+  // sb.append( nodeId );
+  // if( index + 1 < hostCount ) {
+  // sb.append( ',' );
+  // }
+  // String host = aHosts.get( index ).address();
+  // int port = aHosts.get( index ).port();
+//      // @formatter:off
+//      properties.put( format( "remote.connection.%s.host", nodeId ), host );
+//      properties.put( format( "remote.connection.%s.port", nodeId ), Integer.toString(port) );
+//      properties.put( format( "remote.connection.%s.username", nodeId ), aLogin );
+//      properties.put( format( "remote.connection.%s.password", nodeId ), aPassword );
+//      // properties.put( format( "remote.connection.%s.connect.timeout", nodeId ), "1" );
+//
+//      properties.put( format( "remote.connection.%s.connect.options.org.xnio.Options.SASL_POLICY_NOPLAINTEXT", nodeId ), "false" );
+//      properties.put( format( "remote.connection.%s.connect.options.org.xnio.Options.SASL_POLICY_NOANONYMOUS", nodeId ), "false" );
+//      properties.put( format( "remote.connection.%s.connect.options.org.xnio.Options.SASL_DISALLOWED_MECHANISMS", nodeId ), "JBOSS-LOCAL-USER" );
+//      // @formatter:on
+  // }
+  // properties.put( "remote.connections", sb.toString() );
+  // properties.put( "remote.connectionprovider.create.options.org.xnio.Options.SSL_ENABLED", "false" );
+  // properties.put( "endpoint.name", "s5.endpoint" );
+  //
+  // // properties.put( "invocation.timeout", "2000" );
+  // // properties.put( "reconnect.tasks.timeout", "3000" );
+  // // properties.put( "remote.connection.default.connect.timeout", "3000" );
+  // // properties.put(
+  // // "remote.connection.default.connect.options.org.jboss.remoting3.RemotingOptions.HEARTBEAT_INTERVAL",
+  // // 2000 );
+  //
+  // // properties.put( "endpoint.create.options.org.xnio.Options.THREAD_DAEMON", "false" );
+  // // properties.put( "remote.connection.default.connect.options.org.xnio.Options.KEEP_ALIVE", "true" );
+  // // properties.put( "endpoint.create.options.org.xnio.Options.WORKER_TASK_MAX_THREADS", "1" );
+  // // OptionMap.create( Options.THREAD_DAEMON, false ).toString() );
+  //
+  // // properties.put( "remote.connection.default.protocol", "remoting" );
+  // // properties.put( "endpoint.name", "client-endpoint" );
+  //
+  // try {
+  // // Формирование контеста аутентификации пользователя
+  // ProviderEnvironment.Builder builder = new ProviderEnvironment.Builder();
+  // builder.populateFromEnvironment( properties );
+  // ProviderEnvironment providerEnvironment = builder.build();
+  // authenticationContext = providerEnvironment.getAuthenticationContextSupplier().get();
+  //
+  // // 2019-05-30: mvk: try fix server to server connection error. source:
+  // // https://developer.jboss.org/thread/278645
+  // AuthenticationConfiguration superUser = AuthenticationConfiguration.empty()
+  // .setSaslMechanismSelector( SaslMechanismSelector.NONE.addMechanism( "PLAIN" ) ). // //$NON-NLS-1$
+  // useName( aLogin ).usePassword( aPassword );
+  // authenticationContext = authenticationContext.with( MatchRule.ALL, superUser );
+  // // TODO: 2020-03-15 ??? возможно тоже требует замены на setGlobalDefault
+  // AuthenticationContext.getContextManager().setThreadDefault( authenticationContext );
+  // // AuthenticationContext.getContextManager().setGlobalDefault( authenticationContext );
+  //
+  // // Код выполняемый в потоке контекста авторизации
+  // java.util.concurrent.Callable<Pair<SessionID, IS5BackendSession>> callable = () -> {
+  // // Прокси точки входа на сервер
+  // Class<IS5BackendSession> view = (Class<IS5BackendSession>)aClassLoader.loadClass( aInterfaceName );
+  // String appname = "";
+  // String modulename = aModuleName;
+  // String beanname = aBeanName;
+  // String distinctname = "";
+  // String hostname = null;
+  // Integer port = null;
+  // for( S5Host host : aHosts ) {
+  // String h = host.address();
+  // int p = host.port();
+  // if( availableNode( h, p, 1000, logger ) ) {
+  // hostname = h;
+  // port = Integer.valueOf( p );
+  // break;
+  // }
+  // }
+  // if( hostname == null || port == null ) {
+  // // Нет доступных узлов кластера
+  // String nodes = hostsToString( aHosts, true );
+  // logger().error( ERR_NOT_FOUND_AVAILABLE_NODES, nodes );
+  // throw new TsIllegalStateRtException( ERR_NOT_FOUND_AVAILABLE_NODES, nodes );
+  // }
+  // try {
+  // // Фиксация потока поиска сервера
+  // lookupApiThread = Thread.currentThread();
+  // try {
+  // EJBIdentifier ejbId = new EJBIdentifier( appname, modulename, beanname, distinctname );
+  // URI uri = new URI( "remote+http://" + hostname + ":" + port.toString() );
+  // // URI uri = new URI( "cluster://" + hostname + ":" + port.toString() );
+  // Affinity affinity = Affinity.forUri( uri );
+  // StatelessEJBLocator<IS5BackendSession> locator = StatelessEJBLocator.create( view, ejbId, affinity );
+  // // Подготовка и установка контекста EJB для соединения
+  // EJBClientContext.Builder contextBuilder = new EJBClientContext.Builder();
+  // // Загрузка поставщиков EJB транспорта
+  // loadTransportProviders( contextBuilder, RemoteTransportProvider.class.getClassLoader(), logger );
+  // // Установка перехватчика вызовов
+  // contextBuilder.addInterceptor( new S5ConnectionInterceptor( S5Connection.this ) );
+  // // Сборка контекста и установка его по умолчанию для текущего (авторизации) потока
+  // ejbClientContext = contextBuilder.build();
+  // // Регистрация слушателя кластера контекста клиента
+  // S5ClusterNodeUtils.addClusterTopologyListener( ejbClientContext, this );
+  //
+  // ContextManager<EJBClientContext> ejbContextManager = EJBClientContext.getContextManager();
+  // // 2020-03-19 mvk требуется для работы внутри wildfly (gateways). Иначе возможен AuthenticationException
+  // ejbContextManager.setClassLoaderDefault( classLoader, ejbClientContext );
+  //
+  // // TODO: 2020-03-19 mvk: как избавиться от setGlobalDefault( ejbClientContext )??? для нескольких соединений
+  // // ejbContextManager.setClassLoaderDefault( classLoader, ejbClientContext );
+  // // ejbContextManager.setClassLoaderDefaultSupplier( classLoader, ejbSupplier );
+  // ejbContextManager.setGlobalDefault( ejbClientContext );
+  // // ejbContextManager.setGlobalDefaultSupplier( ejbSupplier );
+  // // ejbContextManager.setGlobalDefaultSupplierIfNotSet( Supplier < Supplier < EJBClientContext >> aSupplier
+  // // );
+  // // ejbContextManager.setThreadDefault( ejbClientContext );
+  // // ejbContextManager.setThreadDefaultSupplier( ejbSupplier );
+  //
+  // // Фабрика имен
+  // RemoteNamingProviderFactory namingProviderFactory = new RemoteNamingProviderFactory();
+  // // Поставщик имен
+  // try( NamingProvider namingProvider =
+  // namingProviderFactory.createProvider( properties, providerEnvironment ) ) {
+  // // Создание proxy на точку входа сервера (IServerApi) в контексте клиента
+  // Pair<SessionID, IS5BackendSession> session =
+  // EJBClient.createSessionProxy2( locator, S5Connection.this, namingProvider );
+  // // Замена прокси на прокси контекста соединения
+  // // TODO: 2020-03-08 mvk
+  // // IS5BackendSession proxy =
+  // // (IS5BackendSession)S5ConnectionInterceptor.replaceContextProxy( S5Connection.this, session.getB() );
+  // IS5BackendSession proxy = session.getB();
+  // if( proxy == null ) {
+  // throw new TsInternalErrorRtException(
+  // "lookupClusterRemoteApi(...): EJBClient.createSessionProxy2 return proxy = null " );
+  // }
+  // // TODO: 2020-03-16 mvk+
+  // EJBClient.setStrongAffinity( proxy, new ClusterAffinity( "ejb" ) );
+  //
+  // return Pair.create( session.getA(), proxy );
+  // }
+  // }
+  // finally {
+  // // Поток поиска сервера завершил свою работу
+  // lookupApiThread = null;
+  // }
+  // }
+  // catch( RuntimeException e ) {
+  // throw e;
+  // }
+  // };
+  // // Запуск кода в контексте авторизации
+  // return authenticationContext.runCallable( callable );
+  // }
+  // catch( Exception e ) {
+  // throw e;
+  // }
+  // }
+
   /**
-   * Проводит поиск удаленного API сервера
+   * Проводит поиск s5-бекенда
    *
    * @param aConnection {@link S5Connection} соединение с сервером
-   * @param aHosts {@link S5HostList} список описаний хостов узлов кластера сервера
+   * @param aHost {@link S5Host} адрес хоста на котором работает сервер
    * @param aLogin String имя пользователя
    * @param aPassword String пароль пользователя
-   * @param aModuleName String имя модуля сервера реализующего API
-   * @param aInterfaceName String имя класса интерфейса удаленной ссылки на API
-   * @param aBeanName String имя класса бина реализующего API клиента
    * @param aClassLoader {@link ClassLoader} загручик классов для создания proxy API сервера
-   * @return {@link Pair}&lt;{@link SessionID},{@link IS5BackendSession}&gt; пара представляющая идентификатор сессии и
-   *         удаленную ссылку на backend
+   * @return {@link IS5BackendSession} найденный бекенд
    * @throws Exception ошибка создания соединения
    * @throws TsNullArgumentRtException любой аргумент = null
    * @throws NamingException контекст не найден
    */
-  @SuppressWarnings( { "nls", "unchecked" } )
-  private Pair<SessionID, IS5BackendSession> lookupClusterRemoteApi( S5Connection aConnection, S5HostList aHosts,
-      String aLogin, String aPassword, String aModuleName, String aInterfaceName, String aBeanName,
-      ClassLoader aClassLoader )
+  @SuppressWarnings( "nls" )
+  private static IS5BackendSession lookupBackend( S5Connection aConnection, S5Host aHost, String aLogin,
+      String aPasswd )
       throws Exception {
-    TsNullArgumentRtException.checkNull( aConnection );
-    TsNullArgumentRtException.checkNull( aHosts );
-    TsNullArgumentRtException.checkNull( aLogin );
-    TsNullArgumentRtException.checkNull( aPassword );
-    TsNullArgumentRtException.checkNull( aClassLoader );
-    int hostCount = aHosts.size();
-    if( hostCount == 0 ) {
-      throw new TsIllegalStateRtException( "Неопределен host и port сервера." );
-    }
-    // Подбор параметров соедниения: https://docs.jboss.org/author/display/EJBCLIENT/Overview+of+Client+properties
-    // Properties properties = new Properties();
-    FastHashtable<String, Object> properties = new FastHashtable<>();
-    // properties.put( Context.INITIAL_CONTEXT_FACTORY, "org.wildfly.naming.client.WildFlyInitialContextFactory" );
-    // properties.put( Context.PROVIDER_URL, "http-remoting://localhost:8080" );
-    // properties.put( Context.SECURITY_PRINCIPAL, aLogin );
-    // properties.put( Context.SECURITY_CREDENTIALS, aPassword );
+    TsNullArgumentRtException.checkNulls( aConnection, aHost );
 
-    // TODO: 2020-03-16 mvk ???
-    properties.put( "org.jboss.ejb.client.scoped.context", "true" );
-    properties.put( "java.naming.factory.url.pkgs", "org.jboss.ejb.client.naming" );
-    // 2020-09-03 mvk ---
-    // properties.put( "invocation.timeout", "300000" );
-    properties.put( "remote.connections.connect.eager", "false" );
+    String moduleName = IS5ImplementConstants.BACKEND_SERVER_MODULE_ID;
+    String apiIntefaceName = IS5ImplementConstants.BACKEND_SESSION_INTERFACE;
+    String apiBeanName = IS5ImplementConstants.BACKEND_SESSION_IMPLEMENTATION;
+    String providerURL = String.format( "remote+http://%s:%s", aHost.address(), String.valueOf( aHost.port() ) );
 
-    properties.put( "remote.clusters", "ejb" );
-    properties.put( "remote.cluster.ejb.username", aLogin );
-    properties.put( "remote.cluster.ejb.password", aPassword );
-    properties.put( "remote.cluster.ejb.connect.options.org.xnio.Options.SASL_DISALLOWED_MECHANISMS",
-        "JBOSS-LOCAL-USER" );
-    properties.put( "remote.cluster.ejb.connect.options.org.xnio.Options.SASL_POLICY_NOPLAINTEXT", "false" );
+    final Hashtable<String, String> jndiProperties = new Hashtable<>();
+    // jndiProperties.put( Context.INITIAL_CONTEXT_FACTORY, "org.wildfly.naming.client.WildFlyInitialContextFactory" );
+    jndiProperties.put( Context.INITIAL_CONTEXT_FACTORY, WildFlyInitialContextFactory.class.getName() );
+    // use HTTP upgrade, an initial upgrade requests is sent to upgrade to the remoting protocol
+    jndiProperties.put( Context.PROVIDER_URL, providerURL );
 
-    StringBuilder sb = new StringBuilder();
-    for( int index = 0; index < hostCount; index++ ) {
-      String nodeId = format( CLUSTER_NODE_NAME, Integer.valueOf( index + 1 ) );
-      sb.append( nodeId );
-      if( index + 1 < hostCount ) {
-        sb.append( ',' );
-      }
-      String host = aHosts.get( index ).address();
-      int port = aHosts.get( index ).port();
-      // @formatter:off
-      properties.put( format( "remote.connection.%s.host", nodeId ), host );
-      properties.put( format( "remote.connection.%s.port", nodeId ), Integer.toString(port) );
-      properties.put( format( "remote.connection.%s.username", nodeId ), aLogin );
-      properties.put( format( "remote.connection.%s.password", nodeId ), aPassword );
-      // properties.put( format( "remote.connection.%s.connect.timeout", nodeId ), "1" );
+    // Отключаем JBOSS-LOCAL-USER механизм (by deepseek)
+    jndiProperties.put( Context.SECURITY_PRINCIPAL, aLogin );
+    jndiProperties.put( Context.SECURITY_CREDENTIALS, aPasswd );
 
-      properties.put( format( "remote.connection.%s.connect.options.org.xnio.Options.SASL_POLICY_NOPLAINTEXT", nodeId ), "false" );
-      properties.put( format( "remote.connection.%s.connect.options.org.xnio.Options.SASL_POLICY_NOANONYMOUS", nodeId ), "false" );
-      properties.put( format( "remote.connection.%s.connect.options.org.xnio.Options.SASL_DISALLOWED_MECHANISMS", nodeId ), "JBOSS-LOCAL-USER" );
-      // @formatter:on
-    }
-    properties.put( "remote.connections", sb.toString() );
-    properties.put( "remote.connectionprovider.create.options.org.xnio.Options.SSL_ENABLED", "false" );
-    properties.put( "endpoint.name", "s5.endpoint" );
+    String lookupPath = "ejb:/" + moduleName + "/" + apiBeanName + "!" + apiIntefaceName + "?stateful";
 
-    // properties.put( "invocation.timeout", "2000" );
-    // properties.put( "reconnect.tasks.timeout", "3000" );
-    // properties.put( "remote.connection.default.connect.timeout", "3000" );
-    // properties.put(
-    // "remote.connection.default.connect.options.org.jboss.remoting3.RemotingOptions.HEARTBEAT_INTERVAL",
-    // 2000 );
+    // 2026-04-03 by clouds ---+++
+    // Отключаем JBOSS-LOCAL-USER механизм (by deepseek)
+    // jndiProperties.put( "remote.connection.default.connect.options.org.xnio.Options.SASL_DISALLOWED_MECHANISMS",
+    // "JBOSS-LOCAL-USER" );
+    // jndiProperties.put( "remote.connection.default.connect.options.org.xnio.Options.SASL_POLICY_NOPLAINTEXT", "false"
+    // );
+    // jndiProperties.put( "remote.connection.default.connect.options.org.xnio.Options.SASL_POLICY_NOANONYMOUS", "false"
+    // );
+    // final Context context = new InitialContext( jndiProperties );
+    // IS5BackendSession retValue = (IS5BackendSession)context.lookup( lookupPath );
 
-    // properties.put( "endpoint.create.options.org.xnio.Options.THREAD_DAEMON", "false" );
-    // properties.put( "remote.connection.default.connect.options.org.xnio.Options.KEEP_ALIVE", "true" );
-    // properties.put( "endpoint.create.options.org.xnio.Options.WORKER_TASK_MAX_THREADS", "1" );
-    // OptionMap.create( Options.THREAD_DAEMON, false ).toString() );
+    // Требуется обернуть вызов в AuthenticationContext с явным DIGEST-MD5
+    AuthenticationConfiguration authConfig = AuthenticationConfiguration.empty()
+        .setSaslMechanismSelector( SaslMechanismSelector.NONE.addMechanism( "DIGEST-MD5" ) ).useName( aLogin )
+        .usePassword( aPasswd.toCharArray() );
 
-    // properties.put( "remote.connection.default.protocol", "remoting" );
-    // properties.put( "endpoint.name", "client-endpoint" );
-
+    AuthenticationContext authContext = AuthenticationContext.empty().with( MatchRule.ALL, authConfig );
+    final Context context = new InitialContext( jndiProperties );
     try {
-      // Формирование контеста аутентификации пользователя
-      ProviderEnvironment.Builder builder = new ProviderEnvironment.Builder();
-      builder.populateFromEnvironment( properties );
-      ProviderEnvironment providerEnvironment = builder.build();
-      authenticationContext = providerEnvironment.getAuthenticationContextSupplier().get();
-
-      // 2019-05-30: mvk: try fix server to server connection error. source:
-      // https://developer.jboss.org/thread/278645
-      AuthenticationConfiguration superUser = AuthenticationConfiguration.empty()
-          .setSaslMechanismSelector( SaslMechanismSelector.NONE.addMechanism( "PLAIN" ) ). // //$NON-NLS-1$
-          useName( aLogin ).usePassword( aPassword );
-      authenticationContext = authenticationContext.with( MatchRule.ALL, superUser );
-      // TODO: 2020-03-15 ??? возможно тоже требует замены на setGlobalDefault
-      AuthenticationContext.getContextManager().setThreadDefault( authenticationContext );
-      // AuthenticationContext.getContextManager().setGlobalDefault( authenticationContext );
-
-      // Код выполняемый в потоке контекста авторизации
-      java.util.concurrent.Callable<Pair<SessionID, IS5BackendSession>> callable = () -> {
-        // Прокси точки входа на сервер
-        Class<IS5BackendSession> view = (Class<IS5BackendSession>)aClassLoader.loadClass( aInterfaceName );
-        String appname = "";
-        String modulename = aModuleName;
-        String beanname = aBeanName;
-        String distinctname = "";
-        String hostname = null;
-        Integer port = null;
-        for( S5Host host : aHosts ) {
-          String h = host.address();
-          int p = host.port();
-          if( availableNode( h, p, 1000, logger ) ) {
-            hostname = h;
-            port = Integer.valueOf( p );
-            break;
-          }
-        }
-        if( hostname == null || port == null ) {
-          // Нет доступных узлов кластера
-          String nodes = hostsToString( aHosts, true );
-          logger().error( ERR_NOT_FOUND_AVAILABLE_NODES, nodes );
-          throw new TsIllegalStateRtException( ERR_NOT_FOUND_AVAILABLE_NODES, nodes );
-        }
-        try {
-          // Фиксация потока поиска сервера
-          lookupApiThread = Thread.currentThread();
-          try {
-            EJBIdentifier ejbId = new EJBIdentifier( appname, modulename, beanname, distinctname );
-            URI uri = new URI( "remote+http://" + hostname + ":" + port.toString() );
-            // URI uri = new URI( "cluster://" + hostname + ":" + port.toString() );
-            Affinity affinity = Affinity.forUri( uri );
-            StatelessEJBLocator<IS5BackendSession> locator = StatelessEJBLocator.create( view, ejbId, affinity );
-            // Подготовка и установка контекста EJB для соединения
-            EJBClientContext.Builder contextBuilder = new EJBClientContext.Builder();
-            // Загрузка поставщиков EJB транспорта
-            loadTransportProviders( contextBuilder, RemoteTransportProvider.class.getClassLoader(), logger );
-            // Установка перехватчика вызовов
-            contextBuilder.addInterceptor( new S5ConnectionInterceptor( S5Connection.this ) );
-            // Сборка контекста и установка его по умолчанию для текущего (авторизации) потока
-            ejbClientContext = contextBuilder.build();
-            // Регистрация слушателя кластера контекста клиента
-            S5ClusterNodeUtils.addClusterTopologyListener( ejbClientContext, this );
-
-            ContextManager<EJBClientContext> ejbContextManager = EJBClientContext.getContextManager();
-            // 2020-03-19 mvk требуется для работы внутри wildfly (gateways). Иначе возможен AuthenticationException
-            ejbContextManager.setClassLoaderDefault( classLoader, ejbClientContext );
-
-            // TODO: 2020-03-19 mvk: как избавиться от setGlobalDefault( ejbClientContext )??? для нескольких соединений
-            // ejbContextManager.setClassLoaderDefault( classLoader, ejbClientContext );
-            // ejbContextManager.setClassLoaderDefaultSupplier( classLoader, ejbSupplier );
-            ejbContextManager.setGlobalDefault( ejbClientContext );
-            // ejbContextManager.setGlobalDefaultSupplier( ejbSupplier );
-            // ejbContextManager.setGlobalDefaultSupplierIfNotSet( Supplier < Supplier < EJBClientContext >> aSupplier
-            // );
-            // ejbContextManager.setThreadDefault( ejbClientContext );
-            // ejbContextManager.setThreadDefaultSupplier( ejbSupplier );
-
-            // Фабрика имен
-            RemoteNamingProviderFactory namingProviderFactory = new RemoteNamingProviderFactory();
-            // Поставщик имен
-            try( NamingProvider namingProvider =
-                namingProviderFactory.createProvider( properties, providerEnvironment ) ) {
-              // Создание proxy на точку входа сервера (IServerApi) в контексте клиента
-              Pair<SessionID, IS5BackendSession> session =
-                  EJBClient.createSessionProxy2( locator, S5Connection.this, namingProvider );
-              // Замена прокси на прокси контекста соединения
-              // TODO: 2020-03-08 mvk
-              // IS5BackendSession proxy =
-              // (IS5BackendSession)S5ConnectionInterceptor.replaceContextProxy( S5Connection.this, session.getB() );
-              IS5BackendSession proxy = session.getB();
-              if( proxy == null ) {
-                throw new TsInternalErrorRtException(
-                    "lookupClusterRemoteApi(...): EJBClient.createSessionProxy2 return proxy = null " );
-              }
-              // TODO: 2020-03-16 mvk+
-              EJBClient.setStrongAffinity( proxy, new ClusterAffinity( "ejb" ) );
-
-              return Pair.create( session.getA(), proxy );
-            }
-          }
-          finally {
-            // Поток поиска сервера завершил свою работу
-            lookupApiThread = null;
-          }
-        }
-        catch( RuntimeException e ) {
-          throw e;
-        }
-      };
-      // Запуск кода в контексте авторизации
-      return authenticationContext.runCallable( callable );
-    }
-    catch( Exception e ) {
-      throw e;
-    }
-  }
-
-  /**
-   * Проводит поиск удаленного API сервера
-   *
-   * @param aConnection {@link S5Connection} соединение с сервером
-   * @param aHost String ip-адрес или имя хоста на котором работает сервер
-   * @param aPort Integer порт на котором работает сервер
-   * @param aLogin String имя пользователя
-   * @param aPassword String пароль пользователя
-   * @param aModuleName String имя модуля сервера реализующего API
-   * @param aInterfaceName String имя класса интерфейса удаленной ссылки на API
-   * @param aBeanName String имя класса бина реализующего API клиента
-   * @param aClassLoader {@link ClassLoader} загручик классов для создания proxy API сервера
-   * @return {@link InitialContext} контекст имен сервера
-   * @throws Exception ошибка создания соединения
-   * @throws TsNullArgumentRtException любой аргумент = null
-   * @throws NamingException контекст не найден
-   */
-  /* 2022-02-03 mvk переход на ejb-client-4.0.44 (wildfly-26.0.1.Final)
-   * @formatter:off
-  @SuppressWarnings( { "nls", "unchecked", "unused" } )
-  private IS5BackendSession lookupRemoteApi( S5Connection aConnection, String aHost, Integer aPort, String aLogin,
-      String aPassword, String aModuleName, String aInterfaceName, String aBeanName, ClassLoader aClassLoader )
-      throws Exception {
-    TsNullArgumentRtException.checkNulls( aConnection, aHost, aPort, aLogin, aPassword, aClassLoader );
-
-    // Подбор параметров соедниения: https://docs.jboss.org/author/display/EJBCLIENT/Overview+of+Client+properties
-    // Properties properties = new Properties();
-    FastHashtable<String, Object> properties = new FastHashtable<>();
-    // properties.put( Context.INITIAL_CONTEXT_FACTORY, "org.wildfly.naming.client.WildFlyInitialContextFactory" );
-    // properties.put( Context.SECURITY_PRINCIPAL, aLogin );
-    // properties.put( Context.SECURITY_CREDENTIALS, aPassword );
-    // properties.put( "remote.connections", "default" );
-    properties.put( "remote.connection.default.host", aHost );
-    properties.put( "remote.connection.default.port", aPort.toString() );
-    properties.put( "remote.connection.default.username", aLogin );
-    properties.put( "remote.connection.default.password", aPassword );
-    // properties.put( "remote.connection.default.connect.timeout", "1" );
-
-    properties.put( "remote.connection.default.connect.options.org.xnio.Options.SASL_POLICY_NOPLAINTEXT", "false" );
-    properties.put( "remote.connection.default.connect.options.org.xnio.Options.SASL_POLICY_NOANONYMOUS", "false" );
-    properties.put( "remote.connection.default.connect.options.org.xnio.Options.SASL_DISALLOWED_MECHANISMS",
-        "JBOSS-LOCAL-USER" );
-    properties.put( "remote.connectionprovider.create.options.org.xnio.Options.SSL_ENABLED", "false" );
-
-    properties.put( "endpoint.name", "s5.endpoint" );
-
-    // properties.put( "invocation.timeout", "2000" );
-    // properties.put( "reconnect.tasks.timeout", "3000" );
-    // properties.put( "remote.connection.default.connect.timeout", "3000" );
-    // properties.put(
-    // "remote.connection.default.connect.options.org.jboss.remoting3.RemotingOptions.HEARTBEAT_INTERVAL",
-    // 2000 );
-
-    // properties.put( "endpoint.create.options.org.xnio.Options.THREAD_DAEMON", "false" );
-    // properties.put( "remote.connection.default.connect.options.org.xnio.Options.KEEP_ALIVE", "true" );
-    // properties.put( "endpoint.create.options.org.xnio.Options.WORKER_TASK_MAX_THREADS", "1" );
-    // OptionMap.create( Options.THREAD_DAEMON, false ).toString() );
-
-    // properties.put( "remote.connection.default.protocol", "remoting" );
-    // properties.put( "endpoint.name", "client-endpoint" );
-
-    try {
-      // WildFlyRootContext ctx = new WildFlyRootContext( properties, ClassLoader.getSystemClassLoader() );
-      // if( true ) {
-      // IS5BackendSession ejb = (IS5BackendSession)ctx
-      // .lookup( "ejb:" + "" + "/" + aModuleName + "/" + aBeanName + "!" + aInterfaceName + "?stateful" );
-      // }
-      // Формирование контеста аутентификации пользователя
-      ProviderEnvironment.Builder builder = new ProviderEnvironment.Builder();
-      builder.populateFromEnvironment( properties );
-      ProviderEnvironment providerEnvironment = builder.build();
-      authenticationContext = providerEnvironment.getAuthenticationContextSupplier().get();
-
-      // 2019-05-30: mvk: try fix server to server connection error. source:
-      // https://developer.jboss.org/thread/278645
-      AuthenticationConfiguration superUser = AuthenticationConfiguration.empty()
-          .setSaslMechanismSelector( SaslMechanismSelector.NONE.addMechanism( "PLAIN" ) ). // //$NON-NLS-1$
-          useName( aLogin ).usePassword( aPassword );
-      authenticationContext = authenticationContext.with( MatchRule.ALL, superUser );
-      AuthenticationContext.getContextManager().setThreadDefault( authenticationContext );
-
-      // Код выполняемый в потоке контекста авторизации
-      Callable<IS5BackendSession> callable = () -> {
-        // Прокси точки входа на сервер
-        Class<IS5BackendSession> view = (Class<IS5BackendSession>)aClassLoader.loadClass( aInterfaceName );
-        String appname = "";
-        String modulename = aModuleName;
-        String beanname = aBeanName;
-        String distinctname = "";
-        StatelessEJBLocator<IS5BackendSession> locator = null;
-        try {
-          EJBIdentifier ejbId = new EJBIdentifier( appname, modulename, beanname, distinctname );
-          // mvk 2018-10-11
-          // locator = StatelessEJBLocator.create( view, ejbId, Affinity.NONE );
-          URI uri = new URI( "remote+http://" + aHost + ":" + aPort.toString() );
-          Affinity affinity = Affinity.forUri( uri );
-          locator = StatelessEJBLocator.create( view, ejbId, affinity );
-        }
-        catch( RuntimeException e ) {
-          throw e;
-        }
-        try {
-          // Подготовка и установка контекста EJB для соединения
-          EJBClientContext.Builder contextBuilder = new EJBClientContext.Builder();
-          // Загрузка поставщиков EJB транспорта
-          loadTransportProviders( contextBuilder, RemoteTransportProvider.class.getClassLoader(), logger );
-          // Установка перехватчика вызовов
-          contextBuilder.addInterceptor( new S5ConnectionInterceptor( S5Connection.this ) );
-          // Сборка контекста и установка его по умолчанию для текущего (авторизации) потока
-          ejbClientContext = contextBuilder.build();
-          // TODO: ???
-          // setEJBContextForCurrentThread();
-          if( true ) {
-            throw new TsUnderDevelopmentRtException();
-          }
-          // Фабрика имен
-          RemoteNamingProviderFactory namingProviderFactory = new RemoteNamingProviderFactory();
-          // Поставщик имен
-          try( NamingProvider namingProvider =
-              namingProviderFactory.createProvider( properties, providerEnvironment ) ) {
-            // Создание proxy на точку входа сервера (IServerApi) в контексте клиента
-            Object proxy = EJBClient.createSessionProxy( locator, S5Connection.this, namingProvider );
-            // // Замена прокси на прокси контекста соединения
-            // IS5BackendSession retValue = (IS5BackendSession)replaceContextProxy( S5Connection.this, proxy );
-            return (IS5BackendSession)proxy;
-          }
-        }
-        catch( RuntimeException e ) {
-          throw e;
-        }
-      };
-      // Запуск кода в контексте авторизации
-      return authenticationContext.runCallable( callable );
-    }
-    catch( Exception e ) {
-      throw e;
-    }
-  }
-  * @formatter:on
-  */
-
-  /**
-   * Ищет контекст имен сервера
-   *
-   * @param aConnection {@link S5Connection} соединение с сервером
-   * @param aHost String ip-адрес или имя хоста на котором работает сервер
-   * @param aPort Integer порт на котором работает сервер
-   * @param aLogin String имя пользователя
-   * @param aPassword String пароль пользователя
-   * @param aModuleName String имя модуля сервера реализующего API
-   * @param aInterfaceName String имя класса интерфейса удаленной ссылки на API
-   * @param aBeanName String имя класса бина реализующего API клиента
-   * @param aClassLoader {@link ClassLoader} загручик классов для создания proxy API сервера
-   * @return {@link InitialContext} контекст имен сервера
-   * @throws Exception ошибка создания соединения
-   * @throws TsNullArgumentRtException любой аргумент = null
-   * @throws NamingException контекст не найден
-   */
-
-  @SuppressWarnings( { "nls", "unused" } )
-  private static IS5BackendSession lookupRemoteApiByJNDI( S5Connection aConnection, String aHost, Integer aPort,
-      String aLogin, String aPassword, String aModuleName, String aInterfaceName, String aBeanName,
-      ClassLoader aClassLoader )
-      throws Exception {
-    TsNullArgumentRtException.checkNulls( aConnection, aHost, aPort, aLogin, aPassword, aClassLoader );
-
-    // Подбор параметров соедниения: https://docs.jboss.org/author/display/EJBCLIENT/Overview+of+Client+properties
-    // Properties properties = new Properties();
-    FastHashtable<String, Object> properties = new FastHashtable<>();
-    // properties.put( Context.INITIAL_CONTEXT_FACTORY, "org.wildfly.naming.client.WildFlyInitialContextFactory" );
-    // properties.put( Context.SECURITY_PRINCIPAL, aLogin );
-    // properties.put( Context.SECURITY_CREDENTIALS, aPassword );
-    // properties.put( "remote.connections", "default" );
-    properties.put( "remote.connection.default.host", aHost );
-    properties.put( "remote.connection.default.port", aPort.toString() );
-    properties.put( "remote.connection.default.username", aLogin );
-    properties.put( "remote.connection.default.password", aPassword );
-    // properties.put( "remote.connection.default.connect.timeout", "1" );
-
-    properties.put( "remote.connection.default.connect.options.org.xnio.Options.SASL_POLICY_NOPLAINTEXT", "false" );
-    properties.put( "remote.connection.default.connect.options.org.xnio.Options.SASL_POLICY_NOANONYMOUS", "false" );
-    properties.put( "remote.connection.default.connect.options.org.xnio.Options.SASL_DISALLOWED_MECHANISMS",
-        "JBOSS-LOCAL-USER" );
-    properties.put( "remote.connectionprovider.create.options.org.xnio.Options.SSL_ENABLED", "false" );
-
-    properties.put( "endpoint.name", "s5.endpoint" );
-
-    properties.put( Context.URL_PKG_PREFIXES, "org.jboss.ejb.client.naming" );
-    properties.put( "org.jboss.ejb.client.scoped.context", "true" ); // enable scoping here
-
-    Context context = new InitialContext( properties );
-    Context ejbRootNamingContext = (Context)context.lookup( "ejb:" );
-    try {
-      final IS5BackendSession bean = (IS5BackendSession)ejbRootNamingContext
-          .lookup( "ejb:" + "" + "/" + aModuleName + "/" + aBeanName + "!" + aInterfaceName + "?stateful" );
+      // Запуск JNDI-lookup внутри явного AuthenticationContext
+      IS5BackendSession retValue = authContext.runCallable( () -> (IS5BackendSession)context.lookup( lookupPath ) );
+      return retValue;
     }
     finally {
       try {
-        ejbRootNamingContext.close();
-      }
-      catch( Exception e ) {
-        // nop
-      }
-      try {
         context.close();
       }
-      catch( Exception e ) {
+      catch( @SuppressWarnings( "unused" ) Exception e ) {
         // nop
       }
     }
-    return null;
   }
+
+  /**
+   * Проводит поиск s5-бекенда
+   *
+   * @param aConnection {@link S5Connection} соединение с сервером
+   * @param aHost {@link S5Host} адрес хоста на котором работает сервер
+   * @param aLogin String имя пользователя
+   * @param aPassword String пароль пользователя
+   * @param aClassLoader {@link ClassLoader} загручик классов для создания proxy API сервера
+   * @return {@link IS5BackendSession} найденный бекенд
+   * @throws Exception ошибка создания соединения
+   * @throws TsNullArgumentRtException любой аргумент = null
+   * @throws NamingException контекст не найден
+   */
+  // @SuppressWarnings( { "nls", "unused" } )
+  // private static IS5BackendSession lookupBackend26( S5Connection aConnection, S5Host aHost, String aLogin,
+  // String aPassword, ClassLoader aClassLoader )
+  // throws Exception {
+  // TsNullArgumentRtException.checkNulls( aConnection, aHost, aLogin, aPassword, aClassLoader );
+  //
+  // String moduleName = IS5ImplementConstants.BACKEND_SERVER_MODULE_ID;
+  // String apiIntefaceName = IS5ImplementConstants.BACKEND_SESSION_INTERFACE;
+  // String apiBeanName = IS5ImplementConstants.BACKEND_SESSION_IMPLEMENTATION;
+  //
+  // // Подбор параметров соедниения: https://docs.jboss.org/author/display/EJBCLIENT/Overview+of+Client+properties
+  // // Properties properties = new Properties();
+  // Hashtable<String, Object> properties = new Hashtable<>();
+  // // properties.put( Context.INITIAL_CONTEXT_FACTORY, "org.wildfly.naming.client.WildFlyInitialContextFactory" );
+  // // properties.put( Context.SECURITY_PRINCIPAL, aLogin );
+  // // properties.put( Context.SECURITY_CREDENTIALS, aPassword );
+  // // properties.put( "remote.connections", "default" );
+  // properties.put( "remote.connection.default.host", aHost.address() );
+  // properties.put( "remote.connection.default.port", String.valueOf( aHost.port() ) );
+  // properties.put( "remote.connection.default.username", aLogin );
+  // properties.put( "remote.connection.default.password", aPassword );
+  // // properties.put( "remote.connection.default.connect.timeout", "1" );
+  //
+  // properties.put( "remote.connection.default.connect.options.org.xnio.Options.SASL_POLICY_NOPLAINTEXT", "false" );
+  // properties.put( "remote.connection.default.connect.options.org.xnio.Options.SASL_POLICY_NOANONYMOUS", "false" );
+  // properties.put( "remote.connection.default.connect.options.org.xnio.Options.SASL_DISALLOWED_MECHANISMS",
+  // "JBOSS-LOCAL-USER" );
+  // properties.put( "remote.connectionprovider.create.options.org.xnio.Options.SSL_ENABLED", "false" );
+  //
+  // properties.put( "endpoint.name", "s5.endpoint" );
+  //
+  // properties.put( Context.URL_PKG_PREFIXES, "org.jboss.ejb.client.naming" );
+  // properties.put( "org.jboss.ejb.client.scoped.context", "true" ); // enable scoping here
+  //
+  // Context context = new InitialContext( properties );
+  // try {
+  // String url = "ejb:" + "" + "/" + moduleName + "/" + apiBeanName + "!" + apiIntefaceName;
+  // final IS5BackendSession retValue = (IS5BackendSession)context.lookup( url );
+  // return retValue;
+  // }
+  // finally {
+  // try {
+  // // ejbRootNamingContext.close();
+  // context.close();
+  // }
+  // catch( Exception e ) {
+  // // nop
+  // }
+  // }
+  // }
 
   // @formatter:off
   /**
@@ -1608,7 +1536,8 @@ public final class S5Connection
         logger.debug( MSG_CALL_REMOTE_API_CLOSE, this );
         if( ejbClientContext != null ) {
           // Дерегистрация слушателя кластера контекста клиента
-          S5ClusterNodeUtils.removeClusterTopologyListener( ejbClientContext, this );
+          // 2026-03-20 mvk--- IS5ClusterTopologyListener (org.toxsoft.extlibs.wildfly.ejb.client removed)
+          // S5ClusterNodeUtils.removeClusterTopologyListener( ejbClientContext, this );
         }
         // TODO: проверить актуальность следующего комментария:
         // mvk: сервер закрывает сессию по своим событиям (по разрыву p2p, по таймауту, по "грязным" исключениям
@@ -1891,17 +1820,22 @@ public final class S5Connection
    * @throws TsNullArgumentRtException аргумент = null
    */
   private static S5ClusterTopology createClusterTopology( EJBClientContext aContext ) {
-    TsNullArgumentRtException.checkNull( aContext );
-    Map<String, List<Pair<String, InetSocketAddress>>> nodesByClusters = S5ClusterNodeUtils.getNodeAddrs( aContext );
-    IListEdit<IS5ClusterNodeInfo> nodes = new ElemLinkedList<>();
-    for( String clusterName : nodesByClusters.keySet() ) {
-      for( Pair<String, InetSocketAddress> node : nodesByClusters.get( clusterName ) ) {
-        String nodeName = node.getA();
-        InetSocketAddress addr = node.getB();
-        nodes.add( new S5ClusterNodeInfo( clusterName, nodeName, addr.getHostString(), addr.getPort() ) );
-      }
+    if( aContext == null ) {
+      return new S5ClusterTopology();
     }
-    return new S5ClusterTopology( nodes );
+    TsNullArgumentRtException.checkNull( aContext );
+    // 2026-03-20 mvk---+++ IS5ClusterTopologyListener (org.toxsoft.extlibs.wildfly.ejb.client removed)
+    // Map<String, List<Pair<String, InetSocketAddress>>> nodesByClusters = S5ClusterNodeUtils.getNodeAddrs( aContext );
+    // IListEdit<IS5ClusterNodeInfo> nodes = new ElemLinkedList<>();
+    // for( String clusterName : nodesByClusters.keySet() ) {
+    // for( Pair<String, InetSocketAddress> node : nodesByClusters.get( clusterName ) ) {
+    // String nodeName = node.getA();
+    // InetSocketAddress addr = node.getB();
+    // nodes.add( new S5ClusterNodeInfo( clusterName, nodeName, addr.getHostString(), addr.getPort() ) );
+    // }
+    // }
+    // return new S5ClusterTopology( nodes );
+    return new S5ClusterTopology();
   }
 
   /**

@@ -10,10 +10,6 @@ import static org.toxsoft.uskat.s5.utils.threads.impl.S5Lockable.*;
 import java.util.*;
 import java.util.concurrent.*;
 
-import javax.annotation.*;
-import javax.ejb.*;
-import javax.ejb.Timer;
-
 import org.jboss.ejb3.annotation.*;
 import org.toxsoft.core.tslib.av.opset.*;
 import org.toxsoft.core.tslib.av.opset.impl.*;
@@ -41,6 +37,10 @@ import org.toxsoft.uskat.s5.server.backend.supports.sysdescr.*;
 import org.toxsoft.uskat.s5.server.frontend.*;
 import org.toxsoft.uskat.s5.utils.jobs.*;
 import org.toxsoft.uskat.s5.utils.threads.impl.*;
+
+import jakarta.annotation.*;
+import jakarta.ejb.*;
+import jakarta.ejb.Timer;
 
 /**
  * Синглетон backend {@link IBaCrone} предоставляемый s5-сервером.

@@ -1,9 +1,9 @@
 package org.toxsoft.uskat.s5.cron.supports;
 
-import javax.ejb.Local;
+import org.toxsoft.uskat.s5.cron.lib.*;
+import org.toxsoft.uskat.s5.server.backend.*;
 
-import org.toxsoft.uskat.s5.cron.lib.IBaCrone;
-import org.toxsoft.uskat.s5.server.backend.IS5BackendSupportSingleton;
+import jakarta.ejb.*;
 
 /**
  * Локальный интерфейс синглетона backend {@link IBaCrone} предоставляемый s5-сервером.

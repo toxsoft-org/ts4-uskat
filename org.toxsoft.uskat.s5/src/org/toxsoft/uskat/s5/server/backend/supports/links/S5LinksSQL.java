@@ -1,7 +1,6 @@
 package org.toxsoft.uskat.s5.server.backend.supports.links;
 
 import static java.lang.String.*;
-import static org.toxsoft.core.log4j.LoggerWrapper.*;
 import static org.toxsoft.core.tslib.bricks.strid.impl.StridUtils.*;
 import static org.toxsoft.uskat.s5.server.backend.supports.links.IS5Resources.*;
 import static org.toxsoft.uskat.s5.server.backend.supports.links.S5LinkFwdEntity.*;
@@ -10,14 +9,15 @@ import static org.toxsoft.uskat.s5.server.backend.supports.objects.S5ObjectID.*;
 
 import java.util.*;
 
-import javax.persistence.*;
-
 import org.toxsoft.core.tslib.coll.*;
 import org.toxsoft.core.tslib.gw.skid.*;
 import org.toxsoft.core.tslib.utils.errors.*;
 import org.toxsoft.core.tslib.utils.logs.*;
 import org.toxsoft.uskat.core.api.linkserv.*;
 import org.toxsoft.uskat.s5.server.entities.*;
+import org.toxsoft.uskat.s5.server.logger.*;
+
+import jakarta.persistence.*;
 
 /**
  * Служебные константы и методы для выполнения SQL-запросов
@@ -30,7 +30,7 @@ class S5LinksSQL {
   /**
    * Журнал работы
    */
-  private static final ILogger logger = getLogger( S5LinksSQL.class );
+  private static final ILogger logger = LoggerWrapper.getLogger( S5LinksSQL.class );
 
   // ------------------------------------------------------------------------------------
   // Запросы

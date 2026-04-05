@@ -1,7 +1,6 @@
 package org.toxsoft.uskat.s5.server.sessions;
 
 import static java.lang.String.*;
-import static org.toxsoft.core.log4j.LoggerWrapper.*;
 import static org.toxsoft.uskat.s5.server.IS5ServerHardConstants.*;
 import static org.toxsoft.uskat.s5.server.sessions.IS5Resources.*;
 
@@ -22,6 +21,7 @@ import org.toxsoft.core.tslib.utils.valobj.*;
 import org.toxsoft.uskat.s5.client.remote.connection.*;
 import org.toxsoft.uskat.s5.common.sessions.*;
 import org.toxsoft.uskat.s5.server.*;
+import org.toxsoft.uskat.s5.server.logger.*;
 import org.toxsoft.uskat.s5.server.statistics.*;
 
 /**
@@ -111,7 +111,7 @@ public final class S5SessionInfo
   private S5Statistic       statistics;
   private volatile long     closeTime     = TimeUtils.MAX_TIMESTAMP;
   private volatile boolean  closeByRemote = false;
-  private static ILogger    logger        = getLogger( S5SessionInfo.class );
+  private static ILogger    logger        = LoggerWrapper.getLogger( S5SessionInfo.class );
 
   static {
     // Попытка заставить провести инициализацию открытых констант класса

@@ -1,13 +1,13 @@
 package org.toxsoft.uskat.s5.server.backend.supports.gwiddb;
 
-import javax.ejb.Local;
+import org.toxsoft.core.tslib.bricks.strid.more.*;
+import org.toxsoft.core.tslib.coll.*;
+import org.toxsoft.core.tslib.gw.gwid.*;
+import org.toxsoft.core.tslib.utils.errors.*;
+import org.toxsoft.uskat.core.backend.api.*;
+import org.toxsoft.uskat.s5.server.backend.*;
 
-import org.toxsoft.core.tslib.bricks.strid.more.IdChain;
-import org.toxsoft.core.tslib.coll.IList;
-import org.toxsoft.core.tslib.gw.gwid.Gwid;
-import org.toxsoft.core.tslib.utils.errors.TsNullArgumentRtException;
-import org.toxsoft.uskat.core.backend.api.IBaGwidDb;
-import org.toxsoft.uskat.s5.server.backend.IS5BackendSupportSingleton;
+import jakarta.ejb.*;
 
 /**
  * Поддержка сервера для функций {@link IBaGwidDb}.

@@ -1,18 +1,18 @@
 package org.toxsoft.uskat.s5.server.sequences.impl;
 
 import static org.toxsoft.uskat.s5.common.IS5CommonResources.*;
-import static org.toxsoft.uskat.s5.server.IS5ImplementConstants.*;
 import static org.toxsoft.uskat.s5.server.sequences.impl.IS5Resources.*;
 
 import java.io.*;
 import java.sql.*;
 
-import javax.persistence.*;
-
 import org.toxsoft.core.tslib.bricks.time.impl.*;
 import org.toxsoft.core.tslib.gw.gwid.*;
 import org.toxsoft.core.tslib.utils.*;
 import org.toxsoft.core.tslib.utils.errors.*;
+import org.toxsoft.uskat.s5.server.*;
+
+import jakarta.persistence.*;
 
 /**
  * Первичный составной ключ данного реального времени
@@ -34,6 +34,11 @@ public class S5DataID
   public static final String FIELD_GWID = "gwid"; //$NON-NLS-1$
 
   /**
+   * Идентификатор поля таблицы {@link #FIELD_GWID} в MQL-запросах
+   */
+  public static final String MQL_FIELD_GWID = "gwidString"; //$NON-NLS-1$
+
+  /**
    * Поле таблицы: время (мсек с начала эпохи) начала данных (включительно)
    */
   public static final String FIELD_START_TIME = "startTime"; //$NON-NLS-1$
@@ -41,18 +46,18 @@ public class S5DataID
   /**
    * НЕабстрактный {@link Gwid}-идентификатор в строковом формате
    */
-  @Column( name = FIELD_GWID, //
+  @Column( name = S5DataID.FIELD_GWID, //
       nullable = false,
       insertable = true,
       updatable = false,
       unique = false,
-      columnDefinition = "varchar(" + STRID_LENGTH_MAX + ")" )
+      columnDefinition = "varchar(" + IS5ImplementConstants.STRID_LENGTH_MAX + ")" )
   private String gwidString;
 
   /**
    * Время (мсек с начала эпохи) начала данных (включительно)
    */
-  @Column( name = FIELD_START_TIME, //
+  @Column( name = S5DataID.FIELD_START_TIME, //
       nullable = false,
       insertable = true,
       updatable = false,

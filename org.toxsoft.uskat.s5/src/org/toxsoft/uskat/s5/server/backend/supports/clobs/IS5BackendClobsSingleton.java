@@ -1,11 +1,10 @@
 package org.toxsoft.uskat.s5.server.backend.supports.clobs;
 
-import javax.ejb.Local;
+import org.toxsoft.core.tslib.gw.gwid.*;
+import org.toxsoft.core.tslib.utils.errors.*;
+import org.toxsoft.uskat.s5.server.backend.*;
 
-import org.toxsoft.core.tslib.gw.gwid.Gwid;
-import org.toxsoft.core.tslib.utils.errors.TsIllegalArgumentRtException;
-import org.toxsoft.core.tslib.utils.errors.TsNullArgumentRtException;
-import org.toxsoft.uskat.s5.server.backend.IS5BackendSupportSingleton;
+import jakarta.ejb.*;
 
 /**
  * Поддержка сервера для функций доступа к большим объектам (Large OBject - LOB).

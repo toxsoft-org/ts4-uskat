@@ -7,12 +7,12 @@ import static org.toxsoft.uskat.s5.server.backend.supports.gwiddb.IS5Resources.*
 import java.io.*;
 import java.sql.*;
 
-import javax.persistence.*;
-
 import org.toxsoft.core.tslib.bricks.strid.more.*;
 import org.toxsoft.core.tslib.gw.gwid.*;
 import org.toxsoft.core.tslib.utils.*;
 import org.toxsoft.core.tslib.utils.errors.*;
+
+import jakarta.persistence.*;
 
 /**
  * Первичный составной ключ {@link S5GwidDbEntity}.

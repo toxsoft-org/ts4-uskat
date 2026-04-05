@@ -20,7 +20,6 @@ import java.util.*;
 import java.util.jar.*;
 
 import org.fusesource.jansi.*;
-import org.toxsoft.core.log4j.*;
 import org.toxsoft.core.tslib.av.*;
 import org.toxsoft.core.tslib.av.impl.*;
 import org.toxsoft.core.tslib.av.metainfo.*;
@@ -46,6 +45,7 @@ import org.toxsoft.uskat.legacy.plexy.*;
 import org.toxsoft.uskat.s5.common.*;
 import org.toxsoft.uskat.s5.common.sessions.*;
 import org.toxsoft.uskat.s5.server.*;
+import org.toxsoft.uskat.s5.server.logger.*;
 import org.toxsoft.uskat.skadmin.cli.cmds.*;
 import org.toxsoft.uskat.skadmin.cli.completion.*;
 import org.toxsoft.uskat.skadmin.cli.parsers.*;

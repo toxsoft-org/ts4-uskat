@@ -1,6 +1,5 @@
 package org.toxsoft.uskat.s5.server.singletons;
 
-import static org.toxsoft.core.log4j.LoggerWrapper.*;
 import static org.toxsoft.core.tslib.bricks.strid.impl.StridUtils.*;
 import static org.toxsoft.uskat.s5.common.IS5CommonResources.*;
 import static org.toxsoft.uskat.s5.server.IS5ImplementConstants.*;
@@ -10,10 +9,6 @@ import static org.toxsoft.uskat.s5.utils.threads.impl.S5Lockable.*;
 
 import java.lang.reflect.*;
 import java.util.concurrent.*;
-
-import javax.annotation.*;
-import javax.ejb.*;
-import javax.enterprise.concurrent.*;
 
 import org.toxsoft.core.tslib.av.*;
 import org.toxsoft.core.tslib.av.metainfo.*;
@@ -29,12 +24,17 @@ import org.toxsoft.core.tslib.utils.errors.*;
 import org.toxsoft.core.tslib.utils.logs.*;
 import org.toxsoft.uskat.s5.legacy.*;
 import org.toxsoft.uskat.s5.server.backend.supports.core.impl.*;
+import org.toxsoft.uskat.s5.server.logger.*;
 import org.toxsoft.uskat.s5.server.startup.*;
 import org.toxsoft.uskat.s5.server.transactions.*;
 import org.toxsoft.uskat.s5.utils.*;
 import org.toxsoft.uskat.s5.utils.jobs.*;
 import org.toxsoft.uskat.s5.utils.threads.*;
 import org.toxsoft.uskat.s5.utils.threads.impl.*;
+
+import jakarta.annotation.*;
+import jakarta.ejb.*;
+import jakarta.enterprise.concurrent.*;
 
 /**
  * Базовый класс для облегчения реализации синглтонов сервера.
@@ -152,7 +152,7 @@ public class S5SingletonBase
   protected S5SingletonBase( String aId, String aName ) {
     super( aId, aName, TsLibUtils.EMPTY_STRING );
     launchTimestamp = System.currentTimeMillis();
-    logger = getLogger( getClass() );
+    logger = LoggerWrapper.getLogger( getClass() );
   }
 
   // ------------------------------------------------------------------------------------

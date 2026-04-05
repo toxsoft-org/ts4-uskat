@@ -12,9 +12,10 @@ import org.toxsoft.core.tslib.bricks.threadexec.*;
 import org.toxsoft.core.tslib.bricks.validator.*;
 import org.toxsoft.core.tslib.utils.*;
 import org.toxsoft.core.tslib.utils.errors.*;
-import org.toxsoft.core.tslib.utils.logs.impl.*;
+import org.toxsoft.core.tslib.utils.logs.*;
 import org.toxsoft.uskat.core.connection.*;
 import org.toxsoft.uskat.core.impl.*;
+import org.toxsoft.uskat.core.logger.*;
 import org.toxsoft.uskat.s5.client.remote.connection.*;
 
 class S5ConnectTask
@@ -39,6 +40,11 @@ class S5ConnectTask
 
   private IProgressMonitor   monitor;
   private TsRuntimeException fatalError;
+
+  /**
+   * Logger
+   */
+  private final ILogger logger = LoggerUtils.getLogger( getClass() );
 
   S5ConnectTask( S5ConnectDialog aDlg, ISkConnection aConn, ITsContextRo aArgs ) {
     TsNullArgumentRtException.checkNulls( aDlg, aConn, aArgs );
@@ -85,10 +91,10 @@ class S5ConnectTask
     monitor.setTaskName( "Установка связи завершена" );
     aMonitor.done();
     if( conn.state() == ESkConnState.ACTIVE ) {
-      LoggerUtils.defaultLogger().info( "Установлено соединение %s", conn ); //$NON-NLS-1$
+      logger.info( "Установлено соединение %s", conn ); //$NON-NLS-1$
     }
     if( fatalError != null ) {
-      LoggerUtils.errorLogger().info( "Ошибка установки соединения : %s. Причина: %s", conn, //$NON-NLS-1$
+      logger.info( "Ошибка установки соединения : %s. Причина: %s", conn, //$NON-NLS-1$
           fatalError.getLocalizedMessage() );
     }
     return;
@@ -166,7 +172,7 @@ class S5ConnectTask
         Display.getDefault().readAndDispatch();
       }
       catch( Throwable e ) {
-        LoggerUtils.errorLogger().error( e );
+        logger.error( e );
       }
     }
   }

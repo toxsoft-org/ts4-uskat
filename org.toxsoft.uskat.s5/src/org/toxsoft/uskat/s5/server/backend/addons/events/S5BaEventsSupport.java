@@ -1,20 +1,19 @@
 package org.toxsoft.uskat.s5.server.backend.addons.events;
 
-import static org.toxsoft.core.log4j.LoggerWrapper.*;
 import static org.toxsoft.uskat.s5.utils.threads.impl.S5Lockable.*;
 
-import java.io.Serializable;
+import java.io.*;
 
-import org.toxsoft.core.tslib.bricks.time.ITimedList;
+import org.toxsoft.core.tslib.bricks.time.*;
 import org.toxsoft.core.tslib.gw.gwid.*;
-import org.toxsoft.core.tslib.utils.errors.TsNotAllEnumsUsedRtException;
-import org.toxsoft.core.tslib.utils.errors.TsNullArgumentRtException;
-import org.toxsoft.core.tslib.utils.logs.ILogger;
+import org.toxsoft.core.tslib.utils.errors.*;
+import org.toxsoft.core.tslib.utils.logs.*;
 import org.toxsoft.uskat.core.api.evserv.*;
-import org.toxsoft.uskat.core.api.sysdescr.ISkClassHierarchyExplorer;
-import org.toxsoft.uskat.core.impl.SkEventList;
-import org.toxsoft.uskat.s5.legacy.SkGwidUtils;
-import org.toxsoft.uskat.s5.utils.threads.impl.S5Lockable;
+import org.toxsoft.uskat.core.api.sysdescr.*;
+import org.toxsoft.uskat.core.impl.*;
+import org.toxsoft.uskat.s5.legacy.*;
+import org.toxsoft.uskat.s5.server.logger.*;
+import org.toxsoft.uskat.s5.utils.threads.impl.*;
 
 /**
  * Вспомогательный класс обработки событий {@link SkEvent}.
@@ -172,7 +171,7 @@ public final class S5BaEventsSupport
    */
   private synchronized ILogger logger() {
     if( logger == null ) {
-      logger = getLogger( getClass() );
+      logger = LoggerWrapper.getLogger( getClass() );
     }
     return logger;
   }

@@ -15,9 +15,6 @@ import java.sql.*;
 import java.time.*;
 import java.util.concurrent.*;
 
-import javax.annotation.*;
-import javax.ejb.*;
-import javax.persistence.*;
 import javax.sql.*;
 
 import org.toxsoft.core.tslib.av.*;
@@ -55,6 +52,10 @@ import org.toxsoft.uskat.s5.server.transactions.*;
 import org.toxsoft.uskat.s5.utils.jobs.*;
 import org.toxsoft.uskat.s5.utils.platform.*;
 import org.toxsoft.uskat.s5.utils.threads.impl.*;
+
+import jakarta.annotation.*;
+import jakarta.ejb.*;
+import jakarta.persistence.*;
 
 /**
  * Реализация синглтона {@link IS5BackendCoreSingleton}.

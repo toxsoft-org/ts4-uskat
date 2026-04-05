@@ -13,10 +13,7 @@ import static org.toxsoft.uskat.s5.utils.threads.impl.S5Lockable.*;
 import java.util.*;
 
 import javax.naming.*;
-import javax.persistence.*;
-import javax.transaction.*;
 
-import org.toxsoft.core.log4j.*;
 import org.toxsoft.core.tslib.av.opset.*;
 import org.toxsoft.core.tslib.av.utils.*;
 import org.toxsoft.core.tslib.bricks.strid.impl.*;
@@ -29,13 +26,16 @@ import org.toxsoft.core.tslib.coll.impl.*;
 import org.toxsoft.core.tslib.gw.gwid.*;
 import org.toxsoft.core.tslib.utils.errors.*;
 import org.toxsoft.core.tslib.utils.logs.*;
-import org.toxsoft.uskat.core.impl.*;
 import org.toxsoft.uskat.s5.server.backend.supports.core.*;
+import org.toxsoft.uskat.s5.server.logger.*;
 import org.toxsoft.uskat.s5.server.sequences.*;
 import org.toxsoft.uskat.s5.server.sequences.maintenance.*;
 import org.toxsoft.uskat.s5.server.sequences.writer.*;
 import org.toxsoft.uskat.s5.utils.collections.*;
 import org.toxsoft.uskat.s5.utils.threads.impl.*;
+
+import jakarta.persistence.*;
+import jakarta.transaction.*;
 
 /**
  * Реализация писателя значений последовательностей данных {@link IS5SequenceWriter}.
@@ -162,8 +162,7 @@ class S5SequenceLazyWriter<S extends IS5Sequence<V>, V extends ITemporal<?>>
     // Список данных для объединения
     IList<IS5SequenceFragmentInfo> infoes = IList.EMPTY;
     // Создание менеджера постоянства
-    EntityManager em = entityManagerFactory().createEntityManager();
-    try {
+    try (  EntityManager em = createEntityManager() ) {
       // Список данных для объединения
       infoes = (!isAuto ? prepareDefragmentManual( em, aConfiguration ) :
                           prepareDefragmentAuto( em, aConfiguration, statistics, uniterLogger ));
@@ -190,9 +189,6 @@ class S5SequenceLazyWriter<S extends IS5Sequence<V>, V extends ITemporal<?>>
       // Запуск потоков (с ожиданием, без поднятия исключений на ошибках потоков)
       executor.run( true, false );
     }
-    finally {
-      em.close();
-    }
     // Оповещение наследников о проведение дефрагментации блоков
     onUnionEvent( aConfiguration, infoes, uniterLogger );
     return statistics;
@@ -204,28 +200,24 @@ class S5SequenceLazyWriter<S extends IS5Sequence<V>, V extends ITemporal<?>>
     // Состояние задачи проверки блоков
     S5SequenceValidationStat statistics = new S5SequenceValidationStat();
     // Менеджер постоянства
-    EntityManager em = entityManagerFactory().createEntityManager();
-    try {
-      // Журнал для потоков
-      ILogger logger = LoggerWrapper.getLogger( LOG_VALIDATOR_ID );
-      // Исполнитель s5-потоков проверки данных
-      S5WriteThreadExecutor executor = new S5WriteThreadExecutor( validationExecutor(), logger );
-      // Идентификаторы данных. Если список не указан, то все данные
-      IGwidList gwids = VALIDATION_GWIDS.getValue( aConfiguration ).asValobj();
-      if( gwids.size() == 0 ) {
-        // Запрос всех идентификаторов данных которые есть в базе данных
-        gwids = getAllGwids( em, sequenceFactory().tableNames() );
+    try( EntityManager em = createEntityManager() ) {
+        // Журнал для потоков
+        ILogger logger = LoggerWrapper.getLogger( LOG_VALIDATOR_ID );
+        // Исполнитель s5-потоков проверки данных
+        S5WriteThreadExecutor executor = new S5WriteThreadExecutor( validationExecutor(), logger );
+        // Идентификаторы данных. Если список не указан, то все данные
+        IGwidList gwids = VALIDATION_GWIDS.getValue( aConfiguration ).asValobj();
+        if( gwids.size() == 0 ) {
+          // Запрос всех идентификаторов данных которые есть в базе данных
+          gwids = getAllGwids( em, sequenceFactory().tableNames() );
+        }
+        for( Gwid gwid : gwids ) {
+          executor.add( new ValidationThread( gwid, aConfiguration, statistics, logger ) );
+        }
+        // Запуск потоков (с ожиданием, без поднятия исключений на ошибках потоков)
+        executor.run( true, false );
       }
-      for( Gwid gwid : gwids ) {
-        executor.add( new ValidationThread( gwid, aConfiguration, statistics, logger ) );
-      }
-      // Запуск потоков (с ожиданием, без поднятия исключений на ошибках потоков)
-      executor.run( true, false );
-    }
-    finally {
-      em.close();
-    }
-    return statistics;
+      return statistics;
   }
 
   // ------------------------------------------------------------------------------------
@@ -736,49 +728,45 @@ class S5SequenceLazyWriter<S extends IS5Sequence<V>, V extends ITemporal<?>>
     //
     @Override
     protected void doRun() {
-      EntityManager em = entityManagerFactory().createEntityManager();
-      try {
-        // Идентификатор данного
-        Gwid gwid = info.gwid();
-        // Список блокируемых данных
-        IGwidList lockedGwids = new GwidList( gwid );
-        // Блокировка доступа к данным (false: без проверки текущий транзакции)
-        tryLockGwids( lockedGwids, false );
-        try {
+      try( EntityManager em = createEntityManager() ){
+          // Идентификатор данного
+          Gwid gwid = info.gwid();
+          // Список блокируемых данных
+          IGwidList lockedGwids = new GwidList( gwid );
+          // Блокировка доступа к данным (false: без проверки текущий транзакции)
+          tryLockGwids( lockedGwids, false );
           try {
-            UserTransaction tx = InitialContext.doLookup( USER_TRANSACTION_JNDI );
-            // Открываем транзакцию
-            tx.begin();
             try {
-              // Присоединение менеджера постоянства к транзкации
-              em.joinTransaction();
-              // Дефрагментация блоков на интервале
-              S5SequenceUnionStat<V> result = unionInterval( em, gwid, info.interval(), logger() );
-              stat.addDbmsMerged( result.dbmsMergedCount() );
-              stat.addDbmsRemoved( result.dbmsRemovedCount() );
-              stat.addValues( result.valueCount() );
-              stat.addErrors( result.errorCount() );
-              // Завершаем транзакцию
-              tx.commit();
+              UserTransaction tx = InitialContext.doLookup( USER_TRANSACTION_JNDI );
+              // Открываем транзакцию
+              tx.begin();
+              try {
+                // Присоединение менеджера постоянства к транзкации
+                em.joinTransaction();
+                // Дефрагментация блоков на интервале
+                S5SequenceUnionStat<V> result = unionInterval( em, gwid, info.interval(), logger() );
+                stat.addDbmsMerged( result.dbmsMergedCount() );
+                stat.addDbmsRemoved( result.dbmsRemovedCount() );
+                stat.addValues( result.valueCount() );
+                stat.addErrors( result.errorCount() );
+                // Завершаем транзакцию
+                tx.commit();
+              }
+              catch( Throwable e ) {
+                // Откат транзакции на любой ошибке
+                tx.rollback();
+                throw e;
+              }
             }
             catch( Throwable e ) {
-              // Откат транзакции на любой ошибке
-              tx.rollback();
-              throw e;
+              stat.addErrors( 1 );
+              logger().error( e, ERR_ASYNC_UNION_TASK, info, cause( e ) );
             }
           }
-          catch( Throwable e ) {
-            stat.addErrors( 1 );
-            logger().error( e, ERR_ASYNC_UNION_TASK, info, cause( e ) );
+          finally {
+            unlockGwids( lockedGwids );
           }
         }
-        finally {
-          unlockGwids( lockedGwids );
-        }
-      }
-      finally {
-        em.close();
-      }
     }
 
     @Override
@@ -833,41 +821,42 @@ class S5SequenceLazyWriter<S extends IS5Sequence<V>, V extends ITemporal<?>>
     //
     @Override
     protected void doRun() {
-      EntityManager em = entityManagerFactory().createEntityManager();
-      try {
-        IGwidList lockedGwids = new GwidList( gwid );
-        // Блокировка доступа к данным (false: без проверки текущий транзакции)
-        tryLockGwids( lockedGwids, false );
+      try( EntityManager em = createEntityManager() ){
         try {
+          IGwidList lockedGwids = new GwidList( gwid );
+          // Блокировка доступа к данным (false: без проверки текущий транзакции)
+          tryLockGwids( lockedGwids, false );
           try {
-            UserTransaction tx = InitialContext.doLookup( USER_TRANSACTION_JNDI );
-            // Открываем транзакцию
-            tx.begin();
             try {
-              // Присоединение менеджера постоянства к транзкации
-              em.joinTransaction();
-              // Объединение блоков
-              validationInterval( em, gwid, interval, stat, canUpdate, canRemove, logger() );
-              // Завешаем транзакцию
-              tx.commit();
+              UserTransaction tx = InitialContext.doLookup( USER_TRANSACTION_JNDI );
+              // Открываем транзакцию
+              tx.begin();
+              try {
+                // Присоединение менеджера постоянства к транзкации
+                em.joinTransaction();
+                // Объединение блоков
+                validationInterval( em, gwid, interval, stat, canUpdate, canRemove, logger() );
+                // Завешаем транзакцию
+                tx.commit();
+              }
+              catch( Throwable e ) {
+                // Откат транзакции на любой ошибке
+                tx.rollback();
+                throw e;
+              }
             }
             catch( Throwable e ) {
-              // Откат транзакции на любой ошибке
-              tx.rollback();
-              throw e;
+              logger().error( e, ERR_ASYNC_UNION_TASK, gwid, cause( e ) );
             }
           }
-          catch( Throwable e ) {
-            logger().error( e, ERR_ASYNC_UNION_TASK, gwid, cause( e ) );
+          finally {
+            unlockGwids( lockedGwids );
           }
         }
         finally {
-          unlockGwids( lockedGwids );
+          em.close();
+          stat.addInfo();
         }
-      }
-      finally {
-        em.close();
-        stat.addInfo();
       }
     }
 

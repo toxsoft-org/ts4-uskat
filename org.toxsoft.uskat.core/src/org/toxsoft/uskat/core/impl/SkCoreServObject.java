@@ -24,7 +24,7 @@ import org.toxsoft.core.tslib.coll.primtypes.impl.*;
 import org.toxsoft.core.tslib.gw.skid.*;
 import org.toxsoft.core.tslib.utils.*;
 import org.toxsoft.core.tslib.utils.errors.*;
-import org.toxsoft.core.tslib.utils.logs.impl.*;
+import org.toxsoft.core.tslib.utils.logs.*;
 import org.toxsoft.core.tslib.utils.txtmatch.*;
 import org.toxsoft.uskat.core.*;
 import org.toxsoft.uskat.core.api.linkserv.*;
@@ -34,6 +34,7 @@ import org.toxsoft.uskat.core.api.sysdescr.dto.*;
 import org.toxsoft.uskat.core.devapi.*;
 import org.toxsoft.uskat.core.devapi.transactions.*;
 import org.toxsoft.uskat.core.impl.dto.*;
+import org.toxsoft.uskat.core.logger.*;
 import org.toxsoft.uskat.core.utils.*;
 
 /**
@@ -239,7 +240,7 @@ public class SkCoreServObject
           l.onObjectsChanged( coreApi(), aOp, aSkid );
         }
         catch( Exception ex ) {
-          LoggerUtils.errorLogger().error( ex );
+          logger.error( ex );
         }
       }
     }
@@ -543,6 +544,7 @@ public class SkCoreServObject
   final ObjsCreators      objsCreators      = new ObjsCreators();
   final Eventer           eventer           = new Eventer();
   final ValidationSupport validationSupport = new ValidationSupport();
+  private final ILogger   logger            = LoggerUtils.getLogger( getClass() );
 
   /**
    * Constructor.

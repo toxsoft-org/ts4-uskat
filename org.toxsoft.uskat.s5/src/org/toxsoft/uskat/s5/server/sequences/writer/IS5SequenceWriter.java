@@ -1,7 +1,5 @@
 package org.toxsoft.uskat.s5.server.sequences.writer;
 
-import javax.persistence.*;
-
 import org.toxsoft.core.tslib.av.opset.*;
 import org.toxsoft.core.tslib.bricks.time.*;
 import org.toxsoft.core.tslib.coll.*;
@@ -9,6 +7,8 @@ import org.toxsoft.core.tslib.utils.*;
 import org.toxsoft.core.tslib.utils.errors.*;
 import org.toxsoft.uskat.s5.server.sequences.*;
 import org.toxsoft.uskat.s5.server.sequences.maintenance.*;
+
+import jakarta.persistence.*;
 
 /**
  * Писатель значений последовательностей данных {@link IS5Sequence}

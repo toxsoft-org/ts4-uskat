@@ -19,9 +19,10 @@ import org.toxsoft.core.tslib.coll.primtypes.*;
 import org.toxsoft.core.tslib.gw.gwid.*;
 import org.toxsoft.core.tslib.utils.*;
 import org.toxsoft.core.tslib.utils.errors.*;
-import org.toxsoft.core.tslib.utils.logs.impl.*;
+import org.toxsoft.core.tslib.utils.logs.*;
 import org.toxsoft.uskat.core.backend.*;
 import org.toxsoft.uskat.core.backend.api.*;
+import org.toxsoft.uskat.core.logger.*;
 
 /**
  * {@link IBaRtdata} implementation.
@@ -60,6 +61,11 @@ public class MtbBaRtdata
    * Keyword for STRIO storage of RTdata history.
    */
   private static final String KW_HISTORY_DATA = "HistoryData"; //$NON-NLS-1$
+
+  /**
+   * Logger
+   */
+  private final ILogger logger = LoggerUtils.getLogger( getClass() );
 
   /**
    * Internal thread.
@@ -114,7 +120,7 @@ public class MtbBaRtdata
           }
         }
         catch( InterruptedException ex ) {
-          LoggerUtils.errorLogger().error( ex );
+          logger.error( ex );
         }
       }
     }
@@ -127,7 +133,7 @@ public class MtbBaRtdata
         Thread.sleep( 2 * INTERNAL_THREAD_TICK_MSECS );
       }
       catch( InterruptedException ex ) {
-        LoggerUtils.errorLogger().error( ex );
+        logger.error( ex );
       }
     }
 

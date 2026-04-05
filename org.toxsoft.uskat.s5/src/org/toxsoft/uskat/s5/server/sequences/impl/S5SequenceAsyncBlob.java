@@ -5,13 +5,12 @@ import static org.toxsoft.uskat.s5.common.IS5CommonResources.*;
 import static org.toxsoft.uskat.s5.server.sequences.impl.IS5Resources.*;
 
 import java.lang.reflect.Array;
-import java.sql.ResultSet;
+import java.sql.*;
 
-import javax.persistence.Column;
-import javax.persistence.MappedSuperclass;
-
-import org.toxsoft.core.tslib.coll.primtypes.IStringMapEdit;
+import org.toxsoft.core.tslib.coll.primtypes.*;
 import org.toxsoft.core.tslib.utils.errors.*;
+
+import jakarta.persistence.*;
 
 /**
  * Абстрактная реализация хранения данных блоков в blob с метками времени.

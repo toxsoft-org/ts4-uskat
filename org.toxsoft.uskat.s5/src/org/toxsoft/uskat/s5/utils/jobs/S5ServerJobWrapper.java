@@ -1,9 +1,8 @@
 package org.toxsoft.uskat.s5.utils.jobs;
 
-import static org.toxsoft.core.log4j.LoggerWrapper.*;
-
-import org.toxsoft.core.tslib.utils.errors.TsNullArgumentRtException;
-import org.toxsoft.core.tslib.utils.logs.ILogger;
+import org.toxsoft.core.tslib.utils.errors.*;
+import org.toxsoft.core.tslib.utils.logs.*;
+import org.toxsoft.uskat.s5.server.logger.*;
 
 /**
  * Оболочка для серверной задачи
@@ -24,7 +23,7 @@ public class S5ServerJobWrapper
    * @throws TsNullArgumentRtException аргумент = null
    */
   public S5ServerJobWrapper( IS5ServerJob aJob ) {
-    this( aJob, false, getLogger( S5ServerJobWrapper.class ) );
+    this( aJob, false, LoggerWrapper.getLogger( S5ServerJobWrapper.class ) );
   }
 
   /**
@@ -35,7 +34,7 @@ public class S5ServerJobWrapper
    * @throws TsNullArgumentRtException любой аргумент = null
    */
   public S5ServerJobWrapper( IS5ServerJob aJob, boolean aSafe ) {
-    this( aJob, aSafe, getLogger( S5ServerJobWrapper.class ) );
+    this( aJob, aSafe, LoggerWrapper.getLogger( S5ServerJobWrapper.class ) );
   }
 
   /**

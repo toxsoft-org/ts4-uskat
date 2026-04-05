@@ -1,7 +1,5 @@
 package org.toxsoft.uskat.s5.server.backend.supports.currdata;
 
-import javax.ejb.*;
-
 import org.toxsoft.core.tslib.av.*;
 import org.toxsoft.core.tslib.coll.*;
 import org.toxsoft.core.tslib.gw.gwid.*;
@@ -9,6 +7,8 @@ import org.toxsoft.core.tslib.utils.errors.*;
 import org.toxsoft.uskat.s5.server.backend.*;
 import org.toxsoft.uskat.s5.server.backend.supports.currdata.impl.*;
 import org.toxsoft.uskat.s5.server.frontend.*;
+
+import jakarta.ejb.*;
 
 /**
  * Локальный интерфейс синглетона запросов к текущим данным предоставляемым s5-сервером.

@@ -5,8 +5,9 @@ import java.lang.reflect.*;
 import org.eclipse.swt.widgets.*;
 import org.toxsoft.core.tslib.bricks.ctx.*;
 import org.toxsoft.core.tslib.utils.errors.*;
-import org.toxsoft.core.tslib.utils.logs.impl.*;
+import org.toxsoft.core.tslib.utils.logs.*;
 import org.toxsoft.uskat.core.connection.*;
+import org.toxsoft.uskat.core.logger.*;
 
 /**
  * Вспомогательные методы для работы с s5-бекендом в GUI
@@ -14,6 +15,11 @@ import org.toxsoft.uskat.core.connection.*;
  * @author mvk
  */
 public class S5BackendGuiUtils {
+
+  /**
+   * Logger
+   */
+  private static final ILogger logger = LoggerUtils.getLogger( S5BackendGuiUtils.class );
 
   /**
    * Establishes connection to the server with progress dialog.
@@ -44,7 +50,7 @@ public class S5BackendGuiUtils {
       }
     }
     catch( InvocationTargetException | InterruptedException ex ) {
-      LoggerUtils.errorLogger().error( ex );
+      logger.error( ex );
     }
     return aConnection.state().isOpen();
   }

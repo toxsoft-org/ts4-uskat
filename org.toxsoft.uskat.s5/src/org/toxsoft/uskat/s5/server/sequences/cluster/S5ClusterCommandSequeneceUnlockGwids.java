@@ -1,20 +1,18 @@
 package org.toxsoft.uskat.s5.server.sequences.cluster;
 
-import static org.toxsoft.core.log4j.LoggerWrapper.*;
 import static org.toxsoft.uskat.s5.server.cluster.IS5ClusterHardConstants.*;
 
-import org.toxsoft.core.pas.tj.ITjValue;
-import org.toxsoft.core.pas.tj.impl.TjUtils;
-import org.toxsoft.core.tslib.coll.IList;
-import org.toxsoft.core.tslib.coll.primtypes.IStringMap;
-import org.toxsoft.core.tslib.coll.primtypes.IStringMapEdit;
-import org.toxsoft.core.tslib.coll.primtypes.impl.StringMap;
+import org.toxsoft.core.pas.tj.*;
+import org.toxsoft.core.pas.tj.impl.*;
+import org.toxsoft.core.tslib.coll.*;
+import org.toxsoft.core.tslib.coll.primtypes.*;
+import org.toxsoft.core.tslib.coll.primtypes.impl.*;
 import org.toxsoft.core.tslib.gw.gwid.*;
-import org.toxsoft.core.tslib.utils.errors.TsNullArgumentRtException;
-import org.toxsoft.core.tslib.utils.logs.ILogger;
-import org.toxsoft.uskat.s5.server.cluster.IS5ClusterCommand;
-import org.toxsoft.uskat.s5.server.cluster.IS5ClusterCommandHandler;
-import org.toxsoft.uskat.s5.server.sequences.impl.S5AbstractSequenceWriter;
+import org.toxsoft.core.tslib.utils.errors.*;
+import org.toxsoft.core.tslib.utils.logs.*;
+import org.toxsoft.uskat.s5.server.cluster.*;
+import org.toxsoft.uskat.s5.server.logger.*;
+import org.toxsoft.uskat.s5.server.sequences.impl.*;
 
 /**
  * Обработчик команды кластера: всем узлам разблокировать доступ записи значений последовательностей в БД к указанным
@@ -46,7 +44,7 @@ public final class S5ClusterCommandSequeneceUnlockGwids
    * Журнал работы
    */
   @SuppressWarnings( "unused" )
-  private final ILogger logger = getLogger( getClass() );
+  private final ILogger logger = LoggerWrapper.getLogger( getClass() );
 
   /**
    * Конструктор

@@ -10,8 +10,6 @@ import static org.toxsoft.uskat.s5.server.transactions.ES5TransactionResources.*
 
 import java.util.concurrent.*;
 
-import javax.ejb.*;
-
 import org.toxsoft.core.tslib.bricks.strid.coll.*;
 import org.toxsoft.core.tslib.bricks.time.*;
 import org.toxsoft.core.tslib.bricks.time.impl.*;
@@ -39,6 +37,8 @@ import org.toxsoft.uskat.s5.server.sequences.impl.*;
 import org.toxsoft.uskat.s5.server.transactions.*;
 import org.toxsoft.uskat.s5.utils.collections.*;
 import org.toxsoft.uskat.s5.utils.jobs.*;
+
+import jakarta.ejb.*;
 
 /**
  * Реализация синглетона {@link IS5BackendEventSingleton}

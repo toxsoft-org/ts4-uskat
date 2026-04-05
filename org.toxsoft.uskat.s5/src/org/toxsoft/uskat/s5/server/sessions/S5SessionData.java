@@ -1,15 +1,15 @@
 package org.toxsoft.uskat.s5.server.sessions;
 
-import static org.toxsoft.core.log4j.LoggerWrapper.*;
 import static org.toxsoft.core.tslib.bricks.time.impl.TimeUtils.*;
 
-import java.io.Serializable;
+import java.io.*;
 
-import org.toxsoft.core.tslib.utils.errors.TsNullArgumentRtException;
-import org.toxsoft.core.tslib.utils.logs.ILogger;
-import org.toxsoft.uskat.s5.common.sessions.IS5SessionInfo;
-import org.toxsoft.uskat.s5.server.backend.IS5BackendSessionControl;
-import org.toxsoft.uskat.s5.server.frontend.S5FrontendData;
+import org.toxsoft.core.tslib.utils.errors.*;
+import org.toxsoft.core.tslib.utils.logs.*;
+import org.toxsoft.uskat.s5.common.sessions.*;
+import org.toxsoft.uskat.s5.server.backend.*;
+import org.toxsoft.uskat.s5.server.frontend.*;
+import org.toxsoft.uskat.s5.server.logger.*;
 
 /**
  * Данные сессии пользователя удаленных клиентов
@@ -128,7 +128,7 @@ public final class S5SessionData
   @SuppressWarnings( "unused" )
   private ILogger logger() {
     if( logger == null ) {
-      logger = getLogger( getClass() );
+      logger = LoggerWrapper.getLogger( getClass() );
     }
     return logger;
   }

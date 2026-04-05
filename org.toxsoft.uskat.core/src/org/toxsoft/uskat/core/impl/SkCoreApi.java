@@ -4,6 +4,7 @@ import static org.toxsoft.uskat.core.impl.ISkCoreConfigConstants.*;
 import static org.toxsoft.uskat.core.impl.ISkResources.*;
 
 import org.toxsoft.core.tslib.av.opset.*;
+import org.toxsoft.core.tslib.bricks.*;
 import org.toxsoft.core.tslib.bricks.ctx.*;
 import org.toxsoft.core.tslib.bricks.events.msg.*;
 import org.toxsoft.core.tslib.bricks.threadexec.*;
@@ -14,7 +15,7 @@ import org.toxsoft.core.tslib.coll.primtypes.*;
 import org.toxsoft.core.tslib.coll.primtypes.impl.*;
 import org.toxsoft.core.tslib.utils.*;
 import org.toxsoft.core.tslib.utils.errors.*;
-import org.toxsoft.core.tslib.utils.logs.impl.*;
+import org.toxsoft.core.tslib.utils.logs.*;
 import org.toxsoft.uskat.core.*;
 import org.toxsoft.uskat.core.api.*;
 import org.toxsoft.uskat.core.api.clobserv.*;
@@ -35,6 +36,7 @@ import org.toxsoft.uskat.core.devapi.*;
 import org.toxsoft.uskat.core.devapi.gwiddb.*;
 import org.toxsoft.uskat.core.devapi.transactions.*;
 import org.toxsoft.uskat.core.impl.dto.*;
+import org.toxsoft.uskat.core.logger.*;
 
 /**
  * An {@link ISkCoreApi} and {@link IDevCoreApi} implementation.
@@ -84,7 +86,7 @@ public class SkCoreApi
    */
   SkCoreApi( ITsContextRo aArgs, SkConnection aConn ) {
     TsNullArgumentRtException.checkNulls( aArgs, aConn );
-    logger = new CoreLogger( LoggerUtils.defaultLogger(), aArgs );
+    logger = new CoreLogger( LoggerUtils.getLogger( getClass() ), aArgs );
     openArgs = aArgs;
     conn = aConn;
     executor = REFDEF_THREAD_EXECUTOR.getRef( aArgs );
@@ -96,7 +98,10 @@ public class SkCoreApi
     ISkBackendProvider bp = REFDEF_BACKEND_PROVIDER.getRef( aArgs );
     TsValidationFailedRtException.checkError( bp.getMetaInfo().checkArguments( aArgs ) );
     backend = bp.createBackend( this, aArgs );
+    // initializing the backend
     backend.initialize();
+    // hangling messages received from the backend
+    executor.syncExec( () -> ((ICooperativeMultiTaskable)executor).doJob() );
     // prepare services to be created
     IListEdit<ISkServiceCreator<? extends AbstractSkService>> llCreators = new ElemArrayList<>( 100, false );
     // mandatory built-in services
@@ -169,7 +174,7 @@ public class SkCoreApi
         internalInitService( s );
       }
     } );
-
+    // Установка флага инициализации API
     inited = true;
 
     // process external handlers in direct order
@@ -180,7 +185,7 @@ public class SkCoreApi
           h.processSkCoreInitialization( this );
         }
         catch( Exception ex ) {
-          LoggerUtils.errorLogger().error( ex );
+          logger.error( ex );
         }
       }
     } );
@@ -217,7 +222,7 @@ public class SkCoreApi
         h.processSkBackendActiveStateChange( this, aBackendActive );
       }
       catch( Exception ex ) {
-        LoggerUtils.errorLogger().error( ex );
+        logger.error( ex );
       }
     }
   }
@@ -385,7 +390,8 @@ public class SkCoreApi
         s2.papiOnBackendMessage( aMessage );
       }
       else {
-        logger().warning( FMT_WARN_UNHANDLED_BACKEND_MESSAGE, aMessage.topicId(), aMessage.messageId(),
+        ELogSeverity severity = (inited ? ELogSeverity.ERROR : ELogSeverity.DEBUG);
+        logger.log( severity, FMT_WARN_UNHANDLED_BACKEND_MESSAGE, aMessage.topicId(), aMessage.messageId(),
             aMessage.args() == IOptionSet.NULL ? "IOptionSet.NULL" : aMessage.args() ); //$NON-NLS-1$
       }
     } );
@@ -456,7 +462,7 @@ public class SkCoreApi
           h.processSkCoreShutdown( this );
         }
         catch( Exception ex ) {
-          LoggerUtils.errorLogger().error( ex );
+          logger.error( ex );
         }
       }
       // close services
