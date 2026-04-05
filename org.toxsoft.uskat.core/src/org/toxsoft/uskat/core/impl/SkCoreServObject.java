@@ -55,51 +55,85 @@ public class SkCoreServObject
    *
    * @author hazard157
    */
-  static class ObjsCache {
+  class ObjsCache {
 
     private static final int MAX_SIZE = 256 * 1024;
 
-    private final IMapEdit<Skid, SkObject> cache = new ElemMap<>( TsCollectionsUtils.getMapBucketsCount( //
-        TsCollectionsUtils.estimateOrder( MAX_SIZE ) ), TsCollectionsUtils.DEFAULT_BUNDLE_CAPACITY );
+    private final IStringMapEdit<IMapEdit<Skid, SkObject>> classObjCache = new StringMap<>();
+    private final IStringListEdit allObjClassIds = new StringArrayList();
 
     ObjsCache() {
       // nop
     }
 
     boolean has( Skid aSkid ) {
+      IMapEdit<Skid, SkObject> cache = classObjCache.findByKey( aSkid.classId() );
+      if( cache == null ) {
+        return false;
+      }
       return cache.hasKey( aSkid );
     }
 
     SkObject find( Skid aSkid ) {
+      IMapEdit<Skid, SkObject> cache = classObjCache.findByKey( aSkid.classId() );
+      if( cache == null ) {
+        return null;
+      }
       return cache.findByKey( aSkid );
     }
 
+    @SuppressWarnings( "unchecked" )
+    <T extends ISkObject> IList<T> listObjs( String aClassId ) {
+      IMapEdit<Skid, SkObject> cache = classObjCache.findByKey( aClassId );
+      return (cache == null ? IList.EMPTY : (IList<T>)cache.values());
+    }
+
     SkObject put( SkObject aObject ) {
+      String classId = aObject.classId();
+      IMapEdit<Skid, SkObject> cache = classObjCache.findByKey( classId );
+      if( cache == null ) {
+        cache = new ElemMap<>( TsCollectionsUtils.getMapBucketsCount( //
+            TsCollectionsUtils.estimateOrder( MAX_SIZE ) ), TsCollectionsUtils.DEFAULT_BUNDLE_CAPACITY );
+        classObjCache.put( classId, cache );
+      }
       if( cache.size() >= MAX_SIZE ) {
-        cache.removeByKey( cache.keys().first() );
+        Skid removeObjId = cache.keys().first();
+        cache.removeByKey( removeObjId );
+        allObjClassIds.remove( classId );
       }
       cache.put( aObject.skid(), aObject );
       return aObject;
     }
 
+    void addAllObjClassIds( String aClassId ) {
+      allObjClassIds.add( aClassId );
+    }
+
+    void removeAllObjClassIds( String aClassId ) {
+      allObjClassIds.remove( aClassId );
+      ISkClassInfo parentClassInfo = coreApi().sysdescr().findClassInfo( aClassId ).parent();
+      if( parentClassInfo != null ) {
+        removeAllObjClassIds( parentClassInfo.id() );
+      }
+    }
+
     void remove( Skid aSkid ) {
-      cache.removeByKey( aSkid );
+      String classId = aSkid.classId();
+      IMapEdit<Skid, SkObject> cache = classObjCache.findByKey( classId );
+      if( cache != null ) {
+        cache.removeByKey( aSkid );
+      }
+      removeAllObjClassIds( classId );
     }
 
     void removeByClass( String aClassId ) {
-      SkidList toRemove = new SkidList();
-      for( Skid s : cache.keys() ) {
-        if( s.classId().equals( aClassId ) ) {
-          toRemove.add( s );
-        }
-      }
-      for( Skid s : toRemove ) {
-        cache.removeByKey( s );
-      }
+      classObjCache.removeByKey( aClassId );
+      removeAllObjClassIds( aClassId );
     }
 
     void clear() {
-      cache.clear();
+      classObjCache.clear();
+      allObjClassIds.clear();
     }
 
   }
@@ -547,6 +581,9 @@ public class SkCoreServObject
           if( op != ECrudOp.CREATE ) {
             objsCache.remove( skid );
           }
+          else {
+            objsCache.removeAllObjClassIds( skid.classId() );
+          }
         }
         else {
           objsCache.clear();
@@ -593,11 +630,6 @@ public class SkCoreServObject
     String classId = aObjectDto.skid().classId();
     ISkObjectCreator<? extends SkObject> creator = objsCreators.getCreator( classId );
     SkObject sko = creator.createObject( aObjectDto.skid() );
-    // 2025-07-01 TODO: mvkd, vs WORKARROND SkoObject.CREATER, linkService, SkObject.postConstruct (stack overflow)
-    // 2025-07-12 mvk --- должен находить объект в текущей транзакции или в кэше (если нет транзакции)
-    // objsCache.put( sko );
-    // 2025-07-12 mvk --- обеспечивается вызывающим кодом после размещения объекта в хранилище/кэше.
-    // sko.papiSetCoreApi( coreApi() );
     // initialize attributes from aObjectDto or by default values
     for( IDtoAttrInfo ainf : aClassInfo.attrs().list() ) {
       if( !isSkSysAttr( ainf ) ) {
@@ -653,31 +685,13 @@ public class SkCoreServObject
     for( IDtoObject obj : creatingObjs ) {
       TsValidationFailedRtException.checkError( validationSupport.canCreateObject( obj ) );
     }
-
-    // Skid testSkid = new Skid( "nm.ButtonRelaysGroup", "knrGr_ZL_Ekn" );
     // Creating objects
     for( IDtoObject creatingObj : creatingObjs ) {
       // populating a new object state with attributes and forward rivets of its class
       DtoObject obj = populateObj( sysdescr.getClassInfo( creatingObj.classId() ), creatingObj );
       // create an object in the storage
       objectManager.persist( obj );
-      // if( obj.skid().equals( testSkid ) ) {
-      // logger().error( "testSkid founded = %s", obj );
-      // }
     }
-    // int testIndex = -1;
-    // IDtoObject testObj = objectManager.find( testSkid );
-    // for( int index = 0, n = aDtoObjects.size() - 1; index < n; index++ ) {
-    // if( aDtoObjects.get( index ).skid().equals( testSkid ) ) {
-    // testIndex = index;
-    // break;
-    // }
-    // }
-    // logger().error( "testObj (%s) = %s, aDtoObjects index = %d", testSkid, testObj, testIndex );
-    // // creating an object rivets in the storage
-    // for( IDtoObject creatingObj : creatingObjs ) {
-    // rivetManager.createRivets( creatingObj );
-    // }
     for( Pair<IDtoObject, IDtoObject> obj : updatingObjs ) {
       // previous object state
       IDtoObject prevObj = obj.left();
@@ -763,12 +777,17 @@ public class SkCoreServObject
     for( IDtoAttrInfo ainf : classInfo.attrs().list() ) {
       // don't save system attributes
       if( !ISkHardConstants.isSkSysAttr( ainf ) ) {
-        IAtomicValue attrVal = aSkObj.attrs().getValue( ainf.id() );
         IAtomicValue defVal = ainf.dataType().defaultValue();
-        // don't save attribute with the default value
-        if( !attrVal.equals( defVal ) ) {
-          dtoObj.attrs().setValue( ainf.id(), attrVal );
-        }
+        // 2026-03-27 mvk --- необходима безусловная(!) установка значений по умолчанию системных атрибутов, так как при
+        // сохранении объектов и определения изменения их состояния, OptionSet.equalsIgnoreOrder(...) по картам
+        // атрибутов работает неправильно: в одной карте значения системного атрибута НЕТ, а возвращается его значение
+        // по умолчанию, в другой карте его значение ЕСТЬ и оно установлено как значение по умолчанию.
+        // IAtomicValue attrVal = aSkObj.attrs().getValue( ainf.id() );
+        // // don't save attribute with the default value
+        // if( !attrVal.equals( defVal ) ) {
+        // dtoObj.attrs().setValue( ainf.id(), attrVal );
+        // }
+        dtoObj.attrs().setValue( ainf.id(), defVal );
       }
     }
     return dtoObj;
@@ -789,6 +808,9 @@ public class SkCoreServObject
     TsNullArgumentRtException.checkNull( aSkid );
     coreApi().papiCheckIsOpen();
 
+    if( aSkid == Skid.NONE ) {
+      return null;
+    }
     // search in active transaction
     ISkTransactionService transactionService = coreApi().transactionService();
     if( transactionService.isActive() ) {
@@ -816,13 +838,24 @@ public class SkCoreServObject
     if( sko != null ) {
       return (T)sko;
     }
-    IDtoObject dto = coreApi().l10n().l10nObject( ba().baObjects().findObject( aSkid ) );
-    if( dto != null ) {
-      ISkClassInfo cInfo = coreApi().sysdescr().getClassInfo( aSkid.classId() );
-      sko = loadFromDtoAndCache( cInfo, dto );
-      return (T)sko;
+
+    // trace0
+    long trace0 = System.currentTimeMillis();
+    try {
+      IDtoObject dto = coreApi().l10n().l10nObject( ba().baObjects().findObject( aSkid ) );
+      if( dto != null ) {
+        ISkClassInfo cInfo = coreApi().sysdescr().getClassInfo( aSkid.classId() );
+        sko = loadFromDtoAndCache( cInfo, dto );
+        return (T)sko;
+      }
+      return null;
     }
-    return null;
+    finally {
+      // trace1
+      long trace1 = System.currentTimeMillis();
+      LoggerUtils.defaultLogger().info( "SkCoreServObject::find(%s): result = %s. time = (%d)", aSkid, sko,
+          trace1 - trace0 );
+    }
   }
 
   @SuppressWarnings( "unchecked" )
@@ -846,20 +879,23 @@ public class SkCoreServObject
       throw new TsUnderDevelopmentRtException( "listSkids(...): is not implemented for active transaction" );
     }
 
-    ISkClassInfo cinf = coreApi().sysdescr().getClassInfo( aClassId );
-    IStridablesList<ISkClassInfo> classesList;
-    if( aIncludeSubclasses ) {
-      classesList = cinf.listSubclasses( !aIncludeSubclasses, true );
-    }
-    else {
-      classesList = new StridablesList<>( cinf );
-    }
-    IList<IDtoObject> dpuObjs = coreApi().l10n().l10nObjectsList( ba().baObjects().readObjects( classesList.ids() ) );
     SkidList ll = new SkidList();
-    for( IDtoObject dpu : dpuObjs ) {
-      ll.add( dpu.skid() );
+
+    // trace0
+    long trace0 = System.currentTimeMillis();
+    try {
+      IList<ISkObject> objs = listObjs( aClassId, aIncludeSubclasses );
+      for( ISkObject obj : objs ) {
+        ll.add( obj.skid() );
+      }
+      return ll;
     }
-    return ll;
+    finally {
+      // trace1
+      long trace1 = System.currentTimeMillis();
+      LoggerUtils.defaultLogger().info( "SkCoreServObject::listSkids(%s,%s): result size = %d. time = (%d)", //
+          aClassId, aIncludeSubclasses, ll.size(), trace1 - trace0 );
+    }
   }
 
   @SuppressWarnings( "unchecked" )
@@ -867,34 +903,67 @@ public class SkCoreServObject
   public <T extends ISkObject> IList<T> listObjs( String aClassId, boolean aIncludeSubclasses ) {
     checkThread();
     TsNullArgumentRtException.checkNull( aClassId );
+    return (IList<T>)getObjs( new StringArrayList( aClassId ), aIncludeSubclasses );
+  }
+
+  @Override
+  public IList<ISkObject> getObjs( IStringList aClassIds, boolean aIncludeSubclasses ) {
+    checkThread();
+    TsNullArgumentRtException.checkNull( aClassIds );
     coreApi().papiCheckIsOpen();
 
     if( coreApi().transactionService().isActive() ) {
       // 2025-07-12 mvk TODO: use ISkTransactionService
-      throw new TsUnderDevelopmentRtException( "listObjs(...): is not implemented for active transaction" );
+      throw new TsUnderDevelopmentRtException( "getObjs(...): is not implemented for active transaction" );
     }
 
-    ISkClassInfo cinf = sysdescr().getClassInfo( aClassId );
-    IStridablesList<ISkClassInfo> classesList;
-    if( aIncludeSubclasses ) {
-      classesList = cinf.listSubclasses( !aIncludeSubclasses, true );
+    if( aClassIds.size() == 0 ) {
+      return IList.EMPTY;
     }
-    else {
-      classesList = new StridablesList<>( cinf );
-    }
-    // OPTIMIZE search objects in cache ???
-    IList<IDtoObject> dtoObjs = coreApi().l10n().l10nObjectsList( ba().baObjects().readObjects( classesList.ids() ) );
-    // aAllowDuplicates = false
-    IListEdit<ISkObject> ll = new ElemLinkedBundleList<>( 256, false );
-    for( IDtoObject dto : dtoObjs ) {
-      SkObject sko = objsCache.find( dto.skid() );
-      if( sko == null ) {
-        ISkClassInfo cInfo = sysdescr().getClassInfo( dto.skid().classId() );
-        sko = loadFromDtoAndCache( cInfo, dto );
+    // trace0
+    long trace0 = System.currentTimeMillis();
+
+    IStringListEdit subClassIds = new StringArrayList( aClassIds.size(), false );// aAllowDuplicates = false
+    IStringListEdit baClassIds = new StringArrayList( aClassIds.size(), false );// aAllowDuplicates = false
+    for( String classId : aClassIds ) {
+      ISkClassInfo cinf = sysdescr().getClassInfo( classId );
+      IStridablesList<ISkClassInfo> subClassesList =
+          (aIncludeSubclasses ? cinf.listSubclasses( !aIncludeSubclasses, true ) : new StridablesList<>( cinf ));
+      for( String subClassId : subClassesList.ids() ) {
+        subClassIds.add( subClassId );
+        if( !objsCache.allObjClassIds.hasElem( subClassId ) ) {
+          baClassIds.add( subClassId );
+        }
       }
-      ll.add( sko );
     }
-    return (IList<T>)ll;
+    IListEdit<ISkObject> ll = new ElemArrayList<>( false ); // aAllowDuplicates = false
+    IList<IDtoObject> dtoObjs = IList.EMPTY;
+    try {
+      if( baClassIds.size() > 0 ) {
+        dtoObjs = coreApi().l10n().l10nObjectsList( ba().baObjects().readObjects( baClassIds ) );
+        ll = new ElemArrayList<>( dtoObjs.size(), false ); // aAllowDuplicates = false
+      }
+      // loading obj to cache
+      for( IDtoObject dto : dtoObjs ) {
+        ISkClassInfo cInfo = sysdescr().getClassInfo( dto.skid().classId() );
+        loadFromDtoAndCache( cInfo, dto );
+      }
+      for( String baClassId : baClassIds ) {
+        objsCache.addAllObjClassIds( baClassId );
+      }
+      // preparing results
+      for( String subClassId : subClassIds ) {
+        ll.addAll( objsCache.listObjs( subClassId ) );
+      }
+      return ll;
+    }
+    finally {
+      // trace1
+      long trace1 = System.currentTimeMillis();
+      LoggerUtils.defaultLogger().info(
+          "SkCoreServObject::getObjs(%s,%s): request classIds = %d, result objs = %d. time = (%d)", //
+          aClassIds, aIncludeSubclasses, aClassIds.size(), ll.size(), trace1 - trace0 );
+    }
   }
 
   @Override
@@ -987,5 +1056,4 @@ public class SkCoreServObject
   public ITsEventer<ISkObjectServiceListener> eventer() {
     return eventer;
   }
-
 }

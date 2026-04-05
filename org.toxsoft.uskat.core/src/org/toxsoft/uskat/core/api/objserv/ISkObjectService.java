@@ -5,6 +5,7 @@ import org.toxsoft.core.tslib.bricks.strid.impl.*;
 import org.toxsoft.core.tslib.bricks.validator.*;
 import org.toxsoft.core.tslib.bricks.validator.impl.*;
 import org.toxsoft.core.tslib.coll.*;
+import org.toxsoft.core.tslib.coll.primtypes.*;
 import org.toxsoft.core.tslib.gw.skid.*;
 import org.toxsoft.core.tslib.utils.errors.*;
 import org.toxsoft.core.tslib.utils.txtmatch.*;
@@ -86,6 +87,17 @@ public interface ISkObjectService
    * @throws TsItemNotFoundRtException no such class
    */
   <T extends ISkObject> IList<T> listObjs( String aClassId, boolean aIncludeSubclasses );
+
+  /**
+   * Returns objects of the specified classes and, optionally, all their subclasses.
+   *
+   * @param aClassIds {@link IStringList} the object class ID list
+   * @param aIncludeSubclasses boolean - <code>true</code> to include objects of all subclasses
+   * @return {@link IList}&lt;{@link ISkObject}&gt; - objects list
+   * @throws TsNullArgumentRtException any argument = <code>null</code>
+   * @throws TsItemNotFoundRtException no such class
+   */
+  IList<ISkObject> getObjs( IStringList aClassIds, boolean aIncludeSubclasses );
 
   /**
    * Returns objects by SKIDs.
