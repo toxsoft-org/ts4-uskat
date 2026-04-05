@@ -4,6 +4,7 @@ import java.util.*;
 
 import org.toxsoft.core.tslib.utils.errors.*;
 import org.toxsoft.core.tslib.utils.logs.*;
+import org.toxsoft.core.tslib.utils.logs.impl.*;
 
 /**
  * Вспомогательные методы доступа к журналам комнентов системы.
@@ -20,7 +21,7 @@ public final class LoggerUtils {
   /**
    * Фабрика журналов (одна на JVM).
    */
-  private static ILoggerFactory factory = aName -> org.toxsoft.core.tslib.utils.logs.impl.LoggerUtils2.stdoutLogger();
+  private static ILoggerFactory factory = aName -> new PrintStreamLogger( System.out );
 
   /**
    * Журнал по умолчанию.
