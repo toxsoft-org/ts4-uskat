@@ -353,11 +353,17 @@ public class SkCoreApi
 
   @Override
   public void onBackendMessage( GtMessage aMessage ) {
+    if( !inited ) {
+      // core api is not ready yet
+      logger.debug( FMT_WARN_UNHANDLED_BACKEND_MESSAGE, aMessage.topicId(), aMessage.messageId(),
+          OptionSetUtils.humanReadable( aMessage.args() ) );
+      return;
+    }
     // 2024-04-07 mvk gateway local connection open error
     // executor.syncExec( () -> {
     executor.asyncExec( () -> {
       if( !inited ) {
-        // core api is not ready
+        // core api is no longer ready
         logger.debug( FMT_WARN_UNHANDLED_BACKEND_MESSAGE, aMessage.topicId(), aMessage.messageId(),
             OptionSetUtils.humanReadable( aMessage.args() ) );
         return;
