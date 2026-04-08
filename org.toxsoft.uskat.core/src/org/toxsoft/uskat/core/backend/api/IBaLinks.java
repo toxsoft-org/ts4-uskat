@@ -26,8 +26,8 @@ public interface IBaLinks
   /**
    * Finds the forward link.
    * <p>
-   * Argument <code>aLinkGwid</code> must must contain the class ID where the specified link is declared, not the
-   * subclass. Generally backend is "dumb" and does not knows about class inheritance.
+   * Argument <code>aLinkGwid</code> must contain the class ID where the specified link is declared, not the subclass.
+   * Generally backend is "dumb" and does not knows about class inheritance.
    *
    * @param aLinkGwid {@link Gwid} - abstract GWID of link
    * @param aLeftSkid {@link Skid} - the left object SKID
