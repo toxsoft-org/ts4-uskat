@@ -16,7 +16,6 @@ import org.toxsoft.core.tslib.bricks.keeper.std.*;
 import org.toxsoft.core.tslib.bricks.strid.coll.*;
 import org.toxsoft.core.tslib.bricks.strid.coll.impl.*;
 import org.toxsoft.core.tslib.bricks.threadexec.*;
-import org.toxsoft.core.tslib.utils.logs.*;
 import org.toxsoft.uskat.core.backend.*;
 import org.toxsoft.uskat.core.connection.*;
 
@@ -53,23 +52,9 @@ public interface ISkCoreConfigConstants {
   );
 
   /**
-   * {@link ISkConnection#open(ITsContextRo)} argument: Default log messages lowest severity to be logged. <br>
-   * Usage: optional argument to specify which severity of the log messages will be logged. All messages of the
-   * specified and higher severity will be logged. Thus specifying this option to {@link ELogSeverity#DEBUG} will log
-   * all messages, while {@link ELogSeverity#ERROR} will log only errors. Note that error messages can not be hidden.
-   */
-  IDataDef OPDEF_DEF_CORE_LOG_SEVERITY = DataDef.create( SK_ID + "DefaultCoreLogSeverity", VALOBJ, //$NON-NLS-1$
-      TSID_NAME, STR_OP_DEF_CORE_LOG_SEVERITY, //
-      TSID_DESCRIPTION, STR_OP_DEF_CORE_LOG_SEVERITY_D, //
-      TSID_KEEPER_ID, ELogSeverity.KEEPER_ID, //
-      TSID_DEFAULT_VALUE, avValobj( ELogSeverity.DEBUG, ELogSeverity.KEEPER, ELogSeverity.KEEPER_ID ) //
-  );
-
-  /**
    * All USkat core implementation-specific connection opening arguments.
    */
   IStridablesList<IDataDef> ALL_SK_CORE_CFG_PARAMS = new StridablesList<>( //
-      OPDEF_DEF_CORE_LOG_SEVERITY, //
       OPDEF_LOCALE, //
       OPDEF_L10N_FILES_DIR //
   );

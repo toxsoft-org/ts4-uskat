@@ -15,6 +15,7 @@ import org.toxsoft.core.tslib.coll.primtypes.*;
 import org.toxsoft.core.tslib.coll.primtypes.impl.*;
 import org.toxsoft.core.tslib.utils.*;
 import org.toxsoft.core.tslib.utils.errors.*;
+import org.toxsoft.core.tslib.utils.logs.*;
 import org.toxsoft.core.tslib.utils.logs.impl.*;
 import org.toxsoft.uskat.core.*;
 import org.toxsoft.uskat.core.api.*;
@@ -52,7 +53,7 @@ public class SkCoreApi
   private final ITsThreadExecutor  executor;
   private final SkProgressCallback progressCallback;
   private final CoreL10n           coreL10n;
-  private final CoreLogger         logger;
+  private final ILogger            logger;
   private final ISkBackend         backend;
 
   private final SkCoreServSysdescr    sysdescr;
@@ -85,7 +86,7 @@ public class SkCoreApi
    */
   SkCoreApi( ITsContextRo aArgs, SkConnection aConn ) {
     TsNullArgumentRtException.checkNulls( aArgs, aConn );
-    logger = new CoreLogger( LoggerUtils.getLogger( getClass() ), aArgs );
+    logger = LoggerUtils.getLogger( getClass() );
     openArgs = aArgs;
     conn = aConn;
     executor = REFDEF_THREAD_EXECUTOR.getRef( aArgs );
@@ -193,7 +194,7 @@ public class SkCoreApi
   // implementation
   //
 
-  private CoreLogger logger() {
+  private ILogger logger() {
     return logger;
   }
 

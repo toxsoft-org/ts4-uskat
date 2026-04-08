@@ -24,8 +24,6 @@ import org.toxsoft.core.tslib.coll.primtypes.impl.*;
 import org.toxsoft.core.tslib.gw.skid.*;
 import org.toxsoft.core.tslib.utils.*;
 import org.toxsoft.core.tslib.utils.errors.*;
-import org.toxsoft.core.tslib.utils.logs.*;
-import org.toxsoft.core.tslib.utils.logs.impl.*;
 import org.toxsoft.core.tslib.utils.txtmatch.*;
 import org.toxsoft.uskat.core.*;
 import org.toxsoft.uskat.core.api.linkserv.*;
@@ -240,7 +238,7 @@ public class SkCoreServObject
           l.onObjectsChanged( coreApi(), aOp, aSkid );
         }
         catch( Exception ex ) {
-          logger.error( ex );
+          logger().error( ex );
         }
       }
     }
@@ -544,7 +542,6 @@ public class SkCoreServObject
   final ObjsCreators      objsCreators      = new ObjsCreators();
   final Eventer           eventer           = new Eventer();
   final ValidationSupport validationSupport = new ValidationSupport();
-  private final ILogger   logger            = LoggerUtils.getLogger( getClass() );
 
   /**
    * Constructor.
@@ -853,7 +850,7 @@ public class SkCoreServObject
       return null;
     }
     finally {
-      logger.info( FMT_MSG_FIND_OBJ, aSkid, sko, Long.valueOf( System.currentTimeMillis() - trace0 ) );
+      logger().info( FMT_MSG_FIND_OBJ, aSkid, sko, Long.valueOf( System.currentTimeMillis() - trace0 ) );
     }
   }
 
@@ -890,7 +887,7 @@ public class SkCoreServObject
       return ll;
     }
     finally {
-      logger.info( FMT_MSG_LIST_SKIDS, aClassId, Boolean.valueOf( aIncludeSubclasses ), Integer.valueOf( ll.size() ),
+      logger().info( FMT_MSG_LIST_SKIDS, aClassId, Boolean.valueOf( aIncludeSubclasses ), Integer.valueOf( ll.size() ),
           Long.valueOf( System.currentTimeMillis() - trace0 ) );
     }
   }
@@ -955,7 +952,7 @@ public class SkCoreServObject
       return ll;
     }
     finally {
-      logger.info( FMT_MSG_GET_OBJS, aClassIds, Boolean.valueOf( aIncludeSubclasses ),
+      logger().info( FMT_MSG_GET_OBJS, aClassIds, Boolean.valueOf( aIncludeSubclasses ),
           Integer.valueOf( aClassIds.size() ), Integer.valueOf( ll.size() ),
           Long.valueOf( System.currentTimeMillis() - trace0 ) );
     }

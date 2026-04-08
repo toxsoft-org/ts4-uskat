@@ -12,6 +12,7 @@ import org.toxsoft.core.tslib.bricks.validator.*;
 import org.toxsoft.core.tslib.gw.gwid.*;
 import org.toxsoft.core.tslib.gw.skid.*;
 import org.toxsoft.core.tslib.utils.errors.*;
+import org.toxsoft.core.tslib.utils.logs.*;
 import org.toxsoft.core.tslib.utils.logs.impl.*;
 import org.toxsoft.uskat.core.*;
 import org.toxsoft.uskat.core.api.*;
@@ -113,7 +114,7 @@ public abstract class AbstractSkService
   private final String            serviceId;
   private final SkCoreApi         coreApi;
   private final ITsThreadExecutor executor;
-  private final CoreLogger        logger;
+  private final ILogger           logger;
 
   private boolean inited = false;
 
@@ -130,7 +131,7 @@ public abstract class AbstractSkService
     serviceId = StridUtils.checkValidIdPath( aId );
     coreApi = SkCoreApi.class.cast( aCoreApi );
     executor = aCoreApi.executor();
-    logger = new CoreLogger( LoggerUtils.getLogger( getClass() ), aCoreApi.openArgs() );
+    logger = LoggerUtils.getLogger( getClass() );
   }
 
   // ------------------------------------------------------------------------------------
@@ -194,9 +195,9 @@ public abstract class AbstractSkService
   /**
    * Returns the individual logger for this service. ======= Returns the individual logger for this service.
    *
-   * @return {@link CoreLogger} - service logger
+   * @return {@link ILogger} - service logger
    */
-  final public CoreLogger logger() {
+  final public ILogger logger() {
     return logger;
   }
 

@@ -234,8 +234,12 @@ public class SkCoreServLinks
     if( declaringClassInfo == null ) {
       throw new TsItemNotFoundRtException( FMT_ERR_NO_SUCH_LINK1, aLinkId, aLeftSkid.classId() );
     }
+    // trace0
+    long trace0 = System.currentTimeMillis();
     // read link
-    return readFromBackend( Gwid.createLink( declaringClassInfo.id(), aLinkId ), aLeftSkid );
+    IDtoLinkFwd retValue = readFromBackend( Gwid.createLink( declaringClassInfo.id(), aLinkId ), aLeftSkid );
+    logger().info( FMT_MSG_GET_LINK_FWD, aLeftSkid, aLinkId, Long.valueOf( System.currentTimeMillis() - trace0 ) );
+    return retValue;
   }
 
   @Override
@@ -247,6 +251,8 @@ public class SkCoreServLinks
     if( left == null ) {
       throw new TsItemNotFoundRtException( FMT_ERR_NO_SUCH_OBJ, aLeftSkid );
     }
+    // trace0
+    long trace0 = System.currentTimeMillis();
     // iterate over all links
     ISkClassInfo leftClassInfo = sysdescr().getClassInfo( aLeftSkid.classId() );
     IStringMapEdit<IDtoLinkFwd> map = new StringMap<>();
@@ -256,6 +262,8 @@ public class SkCoreServLinks
       IDtoLinkFwd lf = readFromBackend( linkGwid, aLeftSkid );
       map.put( linkId, lf );
     }
+    logger().info( FMT_MSG_GET_ALL_LINKS_FWD, aLeftSkid, Integer.valueOf( map.size() ),
+        Long.valueOf( System.currentTimeMillis() - trace0 ) );
     return map;
   }
 
@@ -279,7 +287,11 @@ public class SkCoreServLinks
       throw new TsItemNotFoundRtException( FMT_ERR_NO_SUCH_OBJ, aRightSkid );
     }
     Gwid linkGwid = Gwid.createLink( declaringClassInfo.id(), aLinkId );
+    // trace0
+    long trace0 = System.currentTimeMillis();
     IDtoLinkRev lr = ba().baLinks().findLinkRev( linkGwid, aRightSkid, IStringList.EMPTY );
+    logger().info( FMT_MSG_GET_LINK_REV, aClassId, aLinkId, aRightSkid,
+        Long.valueOf( System.currentTimeMillis() - trace0 ) );
     if( lr == null ) {
       lr = new DtoLinkRev( linkGwid, aRightSkid, ISkidList.EMPTY );
     }
@@ -308,6 +320,8 @@ public class SkCoreServLinks
     if( declaringClassInfo == null ) {
       throw new TsItemNotFoundRtException( FMT_ERR_NO_SUCH_LINK1, aLinkId, aLeftSkid.classId() );
     }
+    // trace0
+    long trace0 = System.currentTimeMillis();
     // creale forward link to be written to backend
     Gwid linkGwid = Gwid.createLink( declaringClassInfo.id(), aLinkId );
     DtoLinkFwd newLink = new DtoLinkFwd( linkGwid, aLeftSkid, ISkidList.EMPTY );
@@ -337,6 +351,8 @@ public class SkCoreServLinks
       TsValidationFailedRtException.checkError( validationSupport.canSetLink( oldLink, newLink ) );
       ba().baLinks().writeLinksFwd( new SingleItemList<>( newLink ) );
     }
+    logger().info( FMT_MSG_DEFINE_LINK, aLeftSkid, aLinkId, aLinkId, aRemovedSkids, aAddedSkids,
+        Long.valueOf( System.currentTimeMillis() - trace0 ) );
     return newLink;
   }
 
@@ -356,6 +372,8 @@ public class SkCoreServLinks
     if( allLinkIds.isEmpty() ) {
       return;
     }
+    // trace0
+    long trace0 = System.currentTimeMillis();
     // remove all links
     IListEdit<IDtoLinkFwd> ll = new ElemArrayList<>();
     for( String lid : allLinkIds ) {
@@ -365,6 +383,8 @@ public class SkCoreServLinks
       ll.add( link );
     }
     ba().baLinks().writeLinksFwd( ll );
+    logger().info( FMT_MSG_REMOVE_LINK, aLeftSkid, Integer.valueOf( ll.size() ),
+        Long.valueOf( System.currentTimeMillis() - trace0 ) );
   }
 
   @Override

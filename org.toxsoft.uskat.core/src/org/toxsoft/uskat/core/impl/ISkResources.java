@@ -67,6 +67,8 @@ interface ISkResources {
   String FMT_ERR_CLOB_TOO_LONG        = Messages.getString( "FMT_ERR_CLOB_TOO_LONG" );
   String FMT_ERR_CLOB_TO_BACKEND      = Messages.getString( "FMT_ERR_CLOB_TO_BACKEND" );
   String FMT_ERR_NO_OBJ_OF_CLOB       = Messages.getString( "FMT_ERR_NO_OBJ_OF_CLOB" );
+  String FMT_MSG_READ_CLOB            = "readClob(%s): length = %s. time = %d (msec)";
+  String FMT_MSG_WRITE_CLOB           = "writeClob(%s): length = %s. time = %d (msec)";
 
   /**
    * {@link SkCoreServCommands}
@@ -90,6 +92,11 @@ interface ISkResources {
   String FMT_ERR_NO_LINK_RIGHT_OBJ_CLASS = Messages.getString( "FMT_ERR_NO_LINK_RIGHT_OBJ_CLASS" );
   String FMT_ERR_NO_LINK_RIGHT_OBJ_STRID = Messages.getString( "FMT_ERR_NO_LINK_RIGHT_OBJ_STRID" );
   String FMT_ERR_RIGHT_OBJ_INV_CLASS     = Messages.getString( "FMT_ERR_RIGHT_OBJ_INV_CLASS" );
+  String FMT_MSG_GET_LINK_FWD            = "getLinkFwd(%s,%s): time = %d (msec)";
+  String FMT_MSG_GET_ALL_LINKS_FWD       = "getAllLinksFwd(%s): size = %d, time = %d (msec)";
+  String FMT_MSG_GET_LINK_REV            = "getLinkRev(%s,%s,%s): time = %d (msec)";
+  String FMT_MSG_DEFINE_LINK             = "defineLink(%s,%s,%s,%s,%s): time = %d (msec)";
+  String FMT_MSG_REMOVE_LINK             = "removeLink(%s): size = %d, time = %d (msec)";
 
   /**
    * {@link SkCoreServObject}
@@ -104,9 +111,9 @@ interface ISkResources {
   String FMT_ERR_OBJ_ALREADY_EXISTS = Messages.getString( "FMT_ERR_OBJ_ALREADY_EXISTS" );
   String FMT_ERR_CANT_CHANGE_SKID   = Messages.getString( "FMT_ERR_CANT_CHANGE_SKID" );
   String FMT_ERR_CANT_REMOVE_NO_OBJ = Messages.getString( "FMT_ERR_CANT_REMOVE_NO_OBJ" );
-  String FMT_MSG_FIND_OBJ           = "find(%s): result = %s. time = (%d)";
-  String FMT_MSG_LIST_SKIDS         = "listSkids(%s,%s): result size = %d. time = (%d)";
-  String FMT_MSG_GET_OBJS           = "getObjs(%s,%s): request classIds = %d, result objs = %d. time = (%d)";
+  String FMT_MSG_FIND_OBJ           = "find(%s): result = %s. time = %d (msec)";
+  String FMT_MSG_LIST_SKIDS         = "listSkids(%s,%s): result size = %d. time = %d (msec)";
+  String FMT_MSG_GET_OBJS           = "getObjs(%s,%s): request classIds = %d, result objs = %d. time = %d (msec)";
 
   /**
    * {@link SkCoreServRtdata}

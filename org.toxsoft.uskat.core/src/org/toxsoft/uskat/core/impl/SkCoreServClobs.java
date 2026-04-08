@@ -189,7 +189,11 @@ public class SkCoreServClobs
     TsIllegalArgumentRtException.checkTrue( aGwid.isAbstract() || aGwid.isMulti() );
     TsIllegalArgumentRtException.checkTrue( aGwid.kind() != EGwidKind.GW_CLOB );
     TsItemNotFoundRtException.checkNull( objServ().find( aGwid.skid() ) );
+    // trace0
+    long trace0 = System.currentTimeMillis();
     String clob = ba().baClobs().readClob( aGwid );
+    String length = (clob != null ? String.valueOf( clob.length() ) : "null"); //$NON-NLS-1$
+    logger().info( FMT_MSG_READ_CLOB, aGwid, length, Long.valueOf( System.currentTimeMillis() - trace0 ) );
     return (clob != null) ? clob : TsLibUtils.EMPTY_STRING;
   }
 
@@ -198,7 +202,11 @@ public class SkCoreServClobs
     checkThread();
     TsValidationFailedRtException.checkError( validationSupport.canWriteClob( aGwid, aClob ) );
     try {
+      // trace0
+      long trace0 = System.currentTimeMillis();
       ba().baClobs().writeClob( aGwid, aClob );
+      String length = String.valueOf( aClob.length() );
+      logger().info( FMT_MSG_READ_CLOB, aGwid, length, Long.valueOf( System.currentTimeMillis() - trace0 ) );
     }
     catch( Exception ex ) {
       throw new TsIoRtException( ex, FMT_ERR_CLOB_TO_BACKEND, aGwid.toString() );
