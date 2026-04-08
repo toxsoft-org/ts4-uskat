@@ -140,11 +140,20 @@ public class SkCoreServLinks
       removeAllObjGwids( classId );
     }
 
+    void removeByConcreteLink( Gwid aConcreteLink ) {
+      String classId = aConcreteLink.classId();
+      Gwid linkGwid = Gwid.createLink( classId, aConcreteLink.propId() );
+      IMapEdit<Skid, IDtoLinkFwd> cache = objsByLinkGwids.findByKey( linkGwid );
+      if( cache != null ) {
+        cache.removeByKey( aConcreteLink.skid() );
+      }
+      removeAllObjGwids( classId );
+    }
+
     void clear() {
       objsByLinkGwids.clear();
       allObjGwids.clear();
     }
-
   }
 
   /**
@@ -267,6 +276,7 @@ public class SkCoreServLinks
     return ValidationResult.firstNonOk( vr, lInfo.linkConstraint().validateWarnEmpty( aNewLink.rightSkids() ) );
   };
 
+  final LinksCache        linksCache        = new LinksCache();
   final Eventer           eventer           = new Eventer();
   final ValidationSupport validationSupport = new ValidationSupport();
   private final ILogger   logger            = LoggerUtils.getLogger( getClass() );
@@ -301,11 +311,24 @@ public class SkCoreServLinks
     return switch( aMessage.messageId() ) {
       case MSGID_LINKS_CHANGE -> {
         IGwidList gwidList = extractGwidList( aMessage );
+        for( Gwid gwid : gwidList ) {
+          linksCache.removeByConcreteLink( gwid );
+        }
         eventer.fireLinksChanged( gwidList );
         yield true;
       }
       default -> false;
     };
+  }
+
+  @Override
+  protected void onBackendActiveStateChanged( boolean aIsActive ) {
+    // 2026-02-05 mvk +++
+    if( aIsActive ) {
+      // TODO: 2026-04-08 mvk: нужно ли вместо очистки кэша сделать пакетный запрос для обновления ???. Если да, тоо
+      // делать это по параметру конфигурации или безусловно?
+      linksCache.clear();
+    }
   }
 
   // ------------------------------------------------------------------------------------

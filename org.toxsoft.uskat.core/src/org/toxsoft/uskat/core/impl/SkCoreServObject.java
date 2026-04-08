@@ -594,6 +594,8 @@ public class SkCoreServObject
   protected void onBackendActiveStateChanged( boolean aIsActive ) {
     // 2026-02-05 mvk +++
     if( aIsActive ) {
+      // TODO: 2026-04-08 mvk: нужно ли вместо очистки кэша сделать пакетный запрос для обновления ???. Если да, тоо
+      // делать это по параметру конфигурации или безусловно?
       objsCache.clear();
     }
   }
