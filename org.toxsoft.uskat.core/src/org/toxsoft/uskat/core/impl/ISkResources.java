@@ -121,6 +121,8 @@ interface ISkResources {
   String FMT_ERR_RTD_CHNL_INV_ATOMIC_TYPE = Messages.getString( "FMT_ERR_RTD_CHNL_INV_ATOMIC_TYPE" );
   // String FMT_ERR_CDW_CHANNEL_HAS_NO_KEY1 = Messages.getString( "FMT_ERR_CDW_CHANNEL_HAS_NO_KEY" );
   String FMT_ERR_HDW_CHANNEL_WRONG_WRITE_INTERVAL = Messages.getString( "FMT_ERR_HDW_CHANNEL_WRONG_WRITE_INTERVAL" );
+  String FMT_MSG_CREATE_READ_CURRDATA             = "createReadCurrDataChannels(%s): size = %d. time = %d (msec)";
+  String FMT_MSG_CREATE_WRITE_CURRDATA            = "createWriteCurrDataChannels(%s): size = %d. time = %d (msec)";
 
   /**
    * {@link SkCoreServSysdescr}

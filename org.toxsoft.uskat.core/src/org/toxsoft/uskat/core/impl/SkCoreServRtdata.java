@@ -397,6 +397,10 @@ public class SkCoreServRtdata
     checkThread();
     TsNullArgumentRtException.checkNull( aGwids );
     TsIllegalStateRtException.checkFalse( isInited() );
+
+    // trace0
+    long trace0 = System.currentTimeMillis();
+
     IMapEdit<Gwid, ISkReadCurrDataChannel> result = new ElemMap<>();
     // for all valid GWId either get existing or create new channel
     IGwidList gwids = toValidRtdataGwids( aGwids, false );
@@ -423,6 +427,8 @@ public class SkCoreServRtdata
       SkReadCurrDataChannel channel = (SkReadCurrDataChannel)result.getByKey( g );
       channel.setValue( initValue );
     }
+    logger().info( FMT_MSG_CREATE_READ_CURRDATA, aGwids, Integer.valueOf( result.size() ),
+        Long.valueOf( System.currentTimeMillis() - trace0 ) );
     return result;
   }
 
@@ -535,13 +541,17 @@ public class SkCoreServRtdata
   private final GwidList                       cdWriteToRemove    = new GwidList();
 
   @Override
-  public IMap<Gwid, ISkWriteCurrDataChannel> createWriteCurrDataChannels( IGwidList aGwids1 ) {
+  public IMap<Gwid, ISkWriteCurrDataChannel> createWriteCurrDataChannels( IGwidList aGwids ) {
     checkThread();
-    TsNullArgumentRtException.checkNull( aGwids1 );
+    TsNullArgumentRtException.checkNull( aGwids );
     TsIllegalStateRtException.checkFalse( isInited() );
+
+    // trace0
+    long trace0 = System.currentTimeMillis();
+
     IMapEdit<Gwid, ISkWriteCurrDataChannel> result = new ElemMap<>();
     // for all valid GWId either get exiting or create new channel
-    IGwidList gwids = toValidRtdataGwids( aGwids1, false );
+    IGwidList gwids = toValidRtdataGwids( aGwids, false );
     GwidList cdWriteToAdd = new GwidList();
     for( Gwid g : gwids ) {
       SkWriteCurrDataChannel channel = cdWriteChannelsMap.findByKey( g );
@@ -555,6 +565,8 @@ public class SkCoreServRtdata
     // inform backend
     ba().baRtdata().configureCurrDataWriter( cdWriteToRemove, cdWriteToAdd );
     cdWriteToRemove.clear();
+    logger().info( FMT_MSG_CREATE_WRITE_CURRDATA, aGwids, Integer.valueOf( result.size() ),
+        Long.valueOf( System.currentTimeMillis() - trace0 ) );
     return result;
   }
 
