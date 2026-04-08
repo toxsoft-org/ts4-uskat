@@ -427,7 +427,7 @@ public class SkCoreServRtdata
       SkReadCurrDataChannel channel = (SkReadCurrDataChannel)result.getByKey( g );
       channel.setValue( initValue );
     }
-    logger().info( FMT_MSG_CREATE_READ_CURRDATA, aGwids, Integer.valueOf( result.size() ),
+    logger().info( FMT_MSG_CREATE_READ_CURRDATA, aGwids, Integer.valueOf( cdReadToAdd.size() ),
         Long.valueOf( System.currentTimeMillis() - trace0 ) );
     return result;
   }
@@ -565,7 +565,7 @@ public class SkCoreServRtdata
     // inform backend
     ba().baRtdata().configureCurrDataWriter( cdWriteToRemove, cdWriteToAdd );
     cdWriteToRemove.clear();
-    logger().info( FMT_MSG_CREATE_WRITE_CURRDATA, aGwids, Integer.valueOf( result.size() ),
+    logger().info( FMT_MSG_CREATE_WRITE_CURRDATA, aGwids, Integer.valueOf( cdWriteToAdd.size() ),
         Long.valueOf( System.currentTimeMillis() - trace0 ) );
     return result;
   }
