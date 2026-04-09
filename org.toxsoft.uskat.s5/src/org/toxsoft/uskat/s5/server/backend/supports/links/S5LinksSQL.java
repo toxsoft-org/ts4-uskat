@@ -10,6 +10,8 @@ import static org.toxsoft.uskat.s5.server.backend.supports.objects.S5ObjectID.*;
 import java.util.*;
 
 import org.toxsoft.core.tslib.coll.*;
+import org.toxsoft.core.tslib.coll.primtypes.*;
+import org.toxsoft.core.tslib.gw.gwid.*;
 import org.toxsoft.core.tslib.gw.skid.*;
 import org.toxsoft.core.tslib.utils.errors.*;
 import org.toxsoft.core.tslib.utils.logs.*;
@@ -65,6 +67,16 @@ class S5LinksSQL {
       "(link." + FIELD_ID + "." + FIELD_CLASSID + "='%s')AND(link." + FIELD_ID + "." + FIELD_STRID + "='%s')";
 
   /**
+   * Формат запроса связей по абстрактному {@link Gwid}-идентификатору.
+   * <p>
+   * <li>1. %s - Класс реализации описания, например,{@link S5DefaultLinkFwdEntity}/{@link S5DefaultLinkRevEntity};</li>
+   * <li>2. %s - Идентификатор класса определящего связь;</li>
+   * <li>3. %s - Идентификатор связи.</li>
+   */
+  private static final String QFRMT_GET_LINKS_BY_GWID = "(SELECT link FROM %s link WHERE" + //
+      "(link." + FIELD_ID + "." + FIELD_LINK_CLASSID + "='%s')AND(link." + FIELD_ID + "." + FIELD_LINKID + "='%s'))";
+
+  /**
    * Возвращает все ПРЯМЫЕ связи объектов указанного класса (без учета наследников)
    *
    * @param aEntityManager {@link EntityManager} менеджер постоянства
@@ -110,7 +122,7 @@ class S5LinksSQL {
     TsNullArgumentRtException.checkNulls( aEntityManager, aLeftSkid );
     // Время начала выполнения запроса
     long traceStartTime = System.currentTimeMillis();
-    // Текст SQL-запроса
+    // Имя класса реализации
     String tableName = getLast( aLinkFwdImplClassName );
     // Текст SQL-запроса
     String sql = format( QFRMT_GET_LINKS_BY_OBJID, tableName, aLeftSkid.classId(), aLeftSkid.strid() );
@@ -120,6 +132,53 @@ class S5LinksSQL {
     // Получен результат запроса
     Long time = Long.valueOf( System.currentTimeMillis() - traceStartTime );
     logger.info( MSG_READ_FWD_LINKS_BY_CLASSID_SQL_FINISH, Integer.valueOf( retValue.size() ), time );
+    return (List<IDtoLinkFwd>)(Object)retValue;
+  }
+
+  /**
+   * Возвращает все ПРЯМЫЕ связи по описанию абстрактной связи.
+   *
+   * @param aEntityManager {@link EntityManager} менеджер постоянства
+   * @param aLinkGwidInfos {@link IMap}&lt;{@link Gwid},{@link IStringList}&gt; карта описания читаемых связей.<br>
+   *          Ключ {@link Gwid} - идентификатор абстрактной связи;<br>
+   *          Значение {@link IStringList} - список полных имен классов реализации прямой связи, наследник
+   *          {@link S5LinkFwdEntity}
+   * @return {@link IList}&lt;{@link S5LinkFwdEntity}&gt; список прямых связей
+   * @throws TsNullArgumentRtException любой аргумент = null
+   */
+  @SuppressWarnings( "unchecked" )
+  static List<IDtoLinkFwd> getFwdLinksByLinkGwidInfos( EntityManager aEntityManager,
+      IMap<Gwid, IStringList> aLinkGwidInfos ) {
+    TsNullArgumentRtException.checkNulls( aEntityManager, aLinkGwidInfos );
+    // Время начала выполнения запроса
+    long traceStartTime = System.currentTimeMillis();
+    // Построитель SQL-запроса
+    StringBuilder sqlBuilder = new StringBuilder();
+    for( int index = 0, n = aLinkGwidInfos.size(); index < n; index++ ) {
+      Gwid linkGwid = aLinkGwidInfos.keys().get( index );
+      IStringList imples = aLinkGwidInfos.getByKey( linkGwid );
+      for( int index2 = 0, n2 = imples.size(); index2 < n2; index2++ ) {
+        String tableName = getLast( imples.get( index2 ) );
+        // Текст SQL-подзапроса
+        String subSql = format( QFRMT_GET_LINKS_BY_GWID, tableName, linkGwid.classId(), linkGwid.propId() );
+        // Формирование SQL-запроса
+        sqlBuilder.append( subSql );
+        if( index2 + 1 < n2 ) {
+          sqlBuilder.append( "union" );
+        }
+      }
+      if( index + 1 < n ) {
+        sqlBuilder.append( "union" );
+      }
+    }
+    // Текст SQL-полного запроса
+    String sql = sqlBuilder.toString();
+    // Выполнение запроса
+    Query query = aEntityManager.createQuery( sql );
+    List<Object> retValue = query.getResultList();
+    // Получен результат запроса
+    Long time = Long.valueOf( System.currentTimeMillis() - traceStartTime );
+    logger.info( MSG_READ_FWD_LINKS_BY_GWID_SQL_FINISH, Integer.valueOf( retValue.size() ), time );
     return (List<IDtoLinkFwd>)(Object)retValue;
   }
 

@@ -1,20 +1,16 @@
 package org.toxsoft.uskat.s5.server.backend.addons.links;
 
-import org.toxsoft.core.tslib.bricks.events.msg.GtMessage;
-import org.toxsoft.core.tslib.coll.IList;
-import org.toxsoft.core.tslib.coll.IMap;
-import org.toxsoft.core.tslib.coll.primtypes.IStringList;
-import org.toxsoft.core.tslib.gw.gwid.Gwid;
-import org.toxsoft.core.tslib.gw.skid.Skid;
-import org.toxsoft.core.tslib.utils.errors.TsNullArgumentRtException;
-import org.toxsoft.uskat.core.api.linkserv.IDtoLinkFwd;
-import org.toxsoft.uskat.core.api.linkserv.IDtoLinkRev;
-import org.toxsoft.uskat.core.backend.ISkBackendHardConstant;
-import org.toxsoft.uskat.core.backend.api.IBaLinks;
-import org.toxsoft.uskat.s5.server.backend.addons.IS5BackendLocal;
-import org.toxsoft.uskat.s5.server.backend.addons.S5AbstractBackendAddonLocal;
-import org.toxsoft.uskat.s5.server.backend.supports.links.IS5BackendLinksSingleton;
-import org.toxsoft.uskat.s5.server.backend.supports.links.S5BackendLinksSingleton;
+import org.toxsoft.core.tslib.bricks.events.msg.*;
+import org.toxsoft.core.tslib.coll.*;
+import org.toxsoft.core.tslib.coll.primtypes.*;
+import org.toxsoft.core.tslib.gw.gwid.*;
+import org.toxsoft.core.tslib.gw.skid.*;
+import org.toxsoft.core.tslib.utils.errors.*;
+import org.toxsoft.uskat.core.api.linkserv.*;
+import org.toxsoft.uskat.core.backend.*;
+import org.toxsoft.uskat.core.backend.api.*;
+import org.toxsoft.uskat.s5.server.backend.addons.*;
+import org.toxsoft.uskat.s5.server.backend.supports.links.*;
 
 /**
  * Local {@link IBaLinks} implementation.
@@ -39,8 +35,8 @@ class S5BaLinksLocal
   public S5BaLinksLocal( IS5BackendLocal aOwner ) {
     super( aOwner, ISkBackendHardConstant.BAINF_LINKS );
     // Синглтон поддержки чтения/записи системного описания
-    linksSupport =
-        aOwner.backendSingleton().findSupport( S5BackendLinksSingleton.BACKEND_LINKS_ID, IS5BackendLinksSingleton.class );
+    linksSupport = aOwner.backendSingleton().findSupport( S5BackendLinksSingleton.BACKEND_LINKS_ID,
+        IS5BackendLinksSingleton.class );
   }
 
   // ------------------------------------------------------------------------------------
@@ -69,6 +65,12 @@ class S5BaLinksLocal
   public IList<IDtoLinkFwd> getAllLinksFwd( Skid aLeftSkid ) {
     TsNullArgumentRtException.checkNull( aLeftSkid );
     return linksSupport.getAllLinksFwd( aLeftSkid );
+  }
+
+  @Override
+  public IList<IDtoLinkFwd> getAllLinksFwd( IGwidList aLinkGwids ) {
+    TsNullArgumentRtException.checkNull( aLinkGwids );
+    return linksSupport.getAllLinksFwd( aLinkGwids );
   }
 
   @Override

@@ -32,6 +32,7 @@ import org.toxsoft.uskat.core.api.sysdescr.*;
 import org.toxsoft.uskat.core.api.sysdescr.dto.*;
 import org.toxsoft.uskat.core.devapi.*;
 import org.toxsoft.uskat.core.devapi.transactions.*;
+import org.toxsoft.uskat.core.impl.SkCoreServLinks.*;
 import org.toxsoft.uskat.core.impl.dto.*;
 import org.toxsoft.uskat.core.utils.*;
 
@@ -571,6 +572,7 @@ public class SkCoreServObject
       case MSGID_OBJECTS_CHANGE -> {
         ECrudOp op = extractCrudOp( aMessage );
         Skid skid = extractSkid( aMessage );
+        LinksCache linkCache = ((SkCoreServLinks)coreApi().linkService()).linksCache;
         if( skid != null ) {
           // if created by this service, object is already in cache, if sibling service - remove() has no sense
           if( op != ECrudOp.CREATE ) {
@@ -579,9 +581,21 @@ public class SkCoreServObject
           else {
             objsCache.removeAllObjClassIds( skid.classId() );
           }
+          if( op == ECrudOp.CREATE ) {
+            linkCache.removeAllObjGwids( skid.classId() );
+          }
+          if( op == ECrudOp.REMOVE ) {
+            linkCache.removeByObjId( skid );
+          }
         }
         else {
           objsCache.clear();
+          if( op == ECrudOp.CREATE ) {
+            linkCache.clear();
+          }
+          if( op == ECrudOp.REMOVE ) {
+            linkCache.clear();
+          }
         }
         eventer.fireObjectsChanged( op, skid );
         yield true;
@@ -950,9 +964,11 @@ public class SkCoreServObject
       return ll;
     }
     finally {
-      logger().info( FMT_MSG_GET_OBJS, aClassIds, Boolean.valueOf( aIncludeSubclasses ),
-          Integer.valueOf( aClassIds.size() ), Integer.valueOf( ll.size() ),
-          Long.valueOf( System.currentTimeMillis() - trace0 ) );
+      if( baClassIds.size() > 0 ) {
+        logger().info( FMT_MSG_GET_OBJS, aClassIds, Boolean.valueOf( aIncludeSubclasses ),
+            Integer.valueOf( aClassIds.size() ), Integer.valueOf( ll.size() ),
+            Long.valueOf( System.currentTimeMillis() - trace0 ) );
+      }
     }
   }
 

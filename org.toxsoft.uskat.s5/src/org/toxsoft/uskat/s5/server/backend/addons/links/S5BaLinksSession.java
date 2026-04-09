@@ -77,6 +77,12 @@ public class S5BaLinksSession
   }
 
   @Override
+  public IList<IDtoLinkFwd> getAllLinksFwd( IGwidList aLinkGwids ) {
+    TsNullArgumentRtException.checkNull( aLinkGwids );
+    return linksSupport.getAllLinksFwd( aLinkGwids );
+  }
+
+  @Override
   public IDtoLinkRev findLinkRev( Gwid aLinkGwid, Skid aRightSkid, IStringList aLeftClassIds ) {
     TsNullArgumentRtException.checkNulls( aLinkGwid, aRightSkid, aLeftClassIds );
     return linksSupport.findLinkRev( aLinkGwid, aRightSkid, aLeftClassIds );

@@ -93,7 +93,11 @@ public class SkCoreServLinks
       return aLink;
     }
 
-    void addAllObjClassIds( Gwid aLinkGwid ) {
+    boolean hasAllObjGwids( Gwid aLinkGwid ) {
+      return allObjGwids.hasElem( aLinkGwid );
+    }
+
+    void addAllObjGwids( Gwid aLinkGwid ) {
       if( !allObjGwids.hasElem( aLinkGwid ) ) {
         allObjGwids.add( aLinkGwid );
       }
@@ -101,13 +105,11 @@ public class SkCoreServLinks
 
     void removeAllObjGwids( String aClassId ) {
       ISkClassInfo classInfo = coreApi().sysdescr().getClassInfo( aClassId );
-      for( IDtoLinkInfo linkInfo : classInfo.links().listSelf() ) {
-        Gwid linkGwid = Gwid.createLink( aClassId, linkInfo.id() );
+      ISkClassProps<IDtoLinkInfo> linkInfos = classInfo.links();
+      for( IDtoLinkInfo linkInfo : linkInfos.list() ) {
+        String linkId = linkInfo.id();
+        Gwid linkGwid = Gwid.createLink( linkInfos.findSuperDeclarer( linkId ).id(), linkId );
         allObjGwids.remove( linkGwid );
-      }
-      ISkClassInfo parentInfo = classInfo.parent();
-      if( parentInfo != null ) {
-        removeAllObjGwids( parentInfo.id() );
       }
     }
 
@@ -334,18 +336,75 @@ public class SkCoreServLinks
   // ------------------------------------------------------------------------------------
   // implementation
   //
+  private IList<IDtoLinkFwd> readFromBackend( IGwidList aLinkGwids ) {
+    GwidList baLinkGwids = new GwidList();
+    for( Gwid linkGwid : aLinkGwids ) {
+      if( !linksCache.hasAllObjGwids( linkGwid ) ) {
+        baLinkGwids.add( linkGwid );
+      }
+    }
+    if( baLinkGwids.size() > 0 ) {
+      IList<IDtoLinkFwd> baLinks = ba().baLinks().getAllLinksFwd( baLinkGwids );
+      for( IDtoLinkFwd baLink : baLinks ) {
+        linksCache.put( baLink.gwid(), baLink );
+      }
+      for( Gwid baLinkGwid : baLinkGwids ) {
+        linksCache.addAllObjGwids( baLinkGwid );
+      }
+    }
+    IListEdit<IDtoLinkFwd> retValue = new ElemLinkedList<>();
+    for( Gwid linkGwid : aLinkGwids ) {
+      retValue.addAll( linksCache.objsByLinkGwids.getByKey( linkGwid ) );
+    }
+    return retValue;
+  }
 
   private IDtoLinkFwd readFromBackend( Gwid aLinkGwid, Skid aLeftSkid ) {
-    IDtoLinkFwd lf = ba().baLinks().findLinkFwd( aLinkGwid, aLeftSkid );
+    IDtoLinkFwd lf = linksCache.find( aLinkGwid, aLeftSkid );
     if( lf != null ) {
       return lf;
     }
-    return new DtoLinkFwd( aLinkGwid, aLeftSkid, ISkidList.EMPTY );
+    lf = ba().baLinks().findLinkFwd( aLinkGwid, aLeftSkid );
+    if( lf == null ) {
+      lf = new DtoLinkFwd( aLinkGwid, aLeftSkid, ISkidList.EMPTY );
+    }
+    linksCache.put( aLinkGwid, lf );
+    return lf;
   }
 
   // ------------------------------------------------------------------------------------
   // ISkLinkService
   //
+  @Override
+  public IMap<Skid, IStringMap<IDtoLinkFwd>> getLinkFwds( IStringList aClassIds ) {
+    checkThread();
+    TsNullArgumentRtException.checkNull( aClassIds );
+    GwidList baLinkGwids = new GwidList();
+    for( String classId : aClassIds ) {
+      ISkClassInfo classInfo = coreApi().sysdescr().getClassInfo( classId );
+      ISkClassProps<IDtoLinkInfo> linkInfos = classInfo.links();
+      for( IDtoLinkInfo linkInfo : linkInfos.list() ) {
+        String linkId = linkInfo.id();
+        Gwid linkGwid = Gwid.createLink( linkInfos.findSuperDeclarer( linkId ).id(), linkId );
+        if( baLinkGwids.hasElem( linkGwid ) ) {
+          continue;
+        }
+        baLinkGwids.add( linkGwid );
+      }
+    }
+    IList<IDtoLinkFwd> links = readFromBackend( baLinkGwids );
+    IMapEdit<Skid, IStringMap<IDtoLinkFwd>> retValue = new ElemMap<>();
+    for( IDtoLinkFwd link : links ) {
+      Skid objId = link.leftSkid();
+      IStringMapEdit<IDtoLinkFwd> objLinks = (IStringMapEdit<IDtoLinkFwd>)retValue.findByKey( objId );
+      if( objLinks == null ) {
+        objLinks = new StringMap<>();
+        retValue.put( objId, objLinks );
+      }
+      objLinks.put( link.linkId(), link );
+    }
+    return retValue;
+  }
 
   @Override
   public IDtoLinkFwd getLinkFwd( Skid aLeftSkid, String aLinkId ) {

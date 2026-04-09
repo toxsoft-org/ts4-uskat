@@ -17,6 +17,7 @@ import javax.sql.*;
 
 import org.hibernate.*;
 import org.toxsoft.core.tslib.bricks.events.msg.*;
+import org.toxsoft.core.tslib.bricks.strid.coll.*;
 import org.toxsoft.core.tslib.coll.*;
 import org.toxsoft.core.tslib.coll.impl.*;
 import org.toxsoft.core.tslib.coll.primtypes.*;
@@ -202,7 +203,7 @@ public class S5BackendLinksSingleton
 
   @Override
   public IList<IDtoLinkFwd> getAllLinksFwd( Skid aLeftSkid ) {
-    TsNullArgumentRtException.checkNulls( aLeftSkid );
+    TsNullArgumentRtException.checkNull( aLeftSkid );
 
     // Пред-интерсепция
     IList<IDtoLinkFwd> retValue = callBeforeGetAllLinksFwd( interceptors, aLeftSkid );
@@ -214,6 +215,35 @@ public class S5BackendLinksSingleton
 
     // Пост-интерсепция
     retValue = callAfterGetAllLinksFwd( interceptors, aLeftSkid, retValue );
+
+    return retValue;
+  }
+
+  @Override
+  public IList<IDtoLinkFwd> getAllLinksFwd( IGwidList aLinkGwids ) {
+    TsNullArgumentRtException.checkNull( aLinkGwids );
+
+    // Пред-интерсепция
+    IList<IDtoLinkFwd> retValue = callBeforeGetAllLinksFwd( interceptors, aLinkGwids );
+    if( retValue == null ) {
+      IMapEdit<Gwid, IStringList> linkGwidInfos = new ElemMap<>();
+      for( Gwid linkGwid : aLinkGwids ) {
+        ISkClassInfo classInfo = sysdescrReader.findClassInfo( linkGwid.classId() );
+        IStridablesList<ISkClassInfo> sc = classInfo.listSubclasses( false, true ); // aOnlyChilds, aIncludeSelf
+        IStringListEdit impls = new StringArrayList( sc.size() );
+        for( ISkClassInfo c : sc ) {
+          String linkImplClassName = OP_FWD_LINK_IMPL_CLASS.getValue( c.params() ).asString();
+          impls.add( linkImplClassName );
+        }
+        if( impls.size() > 0 ) {
+          linkGwidInfos.put( linkGwid, impls );
+        }
+      }
+      retValue = new ElemArrayList<>( getFwdLinksByLinkGwidInfos( entityManager, linkGwidInfos ) );
+    }
+
+    // Пост-интерсепция
+    retValue = callAfterGetAllLinksFwd( interceptors, aLinkGwids, retValue );
 
     return retValue;
   }

@@ -58,6 +58,12 @@ public class BaLinks
   }
 
   @Override
+  public IList<IDtoLinkFwd> getAllLinksFwd( IGwidList aLinkGwids ) {
+    // TODO Auto-generated method stub
+    return null;
+  }
+
+  @Override
   public IList<IDtoLinkFwd> getAllLinksFwd( Skid aLeftSkid ) {
     // TODO Auto-generated method stub
     return null;

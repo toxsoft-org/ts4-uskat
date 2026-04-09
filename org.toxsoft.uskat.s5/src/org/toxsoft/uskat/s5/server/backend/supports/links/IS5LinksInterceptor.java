@@ -92,6 +92,38 @@ public interface IS5LinksInterceptor
   IList<IDtoLinkFwd> afterGetAllLinksFwd( Skid aLeftSkid, IList<IDtoLinkFwd> aLinks );
 
   /**
+   * Вызывается ДО выполнения метода {@link IS5BackendLinksSingleton#getAllLinksFwd(IGwidList)}
+   * <p>
+   * Событие формируется в открытой транзакции которая впоследствии может быть отменена. Поэтому, если необходимо,
+   * клиент-перехватчик должен организовать логику восстановления своего состояния при откате транзакции (смотри
+   * S5TransactionSingleton}.
+   *
+   * @param aLinkGwids {@link IGwidList} - список идентификаторов запрашиваемых абстрактных связей
+   * @param aLinks {@link IList}&lt;{@link IDtoLinkFwd}&gt; - список связей найденных ранее интерсепторами. null: не
+   *          найдены
+   * @return {@link IList}&lt;{@link IDtoLinkFwd}&gt; - список связей (м.б. пустая) или <code>null</code> если нет
+   *         такого класса/объекта
+   * @throws TsIllegalStateRtException запретить выполнение {@link IS5BackendLinksSingleton#findLinkFwd(Gwid, Skid)}
+   */
+  IList<IDtoLinkFwd> beforeGetAllLinksFwd( IGwidList aLinkGwids, IList<IDtoLinkFwd> aLinks );
+
+  /**
+   * Вызывается ПОСЛЕ выполнения метода {@link IS5BackendLinksSingleton#getAllLinksFwd(IGwidList)}
+   * <p>
+   * Событие формируется в открытой транзакции которая впоследствии может быть отменена. Поэтому, если необходимо,
+   * клиент-перехватчик должен организовать логику восстановления своего состояния при откате транзакции (смотри
+   * S5TransactionSingleton}.
+   *
+   * @param aLinkGwids {@link IGwidList} - список идентификаторов запрашиваемых абстрактных связей
+   * @param aLinks {@link IList}&lt;{@link IDtoLinkFwd} - список связей найденных ранее службой или интерсепторами.
+   *          null: не найдены
+   * @return {@link IList}&lt;{@link IDtoLinkFwd} - список связей (м.б. пустая) или <code>null</code> если нет такого
+   *         класса/объекта
+   * @throws TsIllegalStateRtException запретить выполнение {@link IS5BackendLinksSingleton#getAllLinksFwd(Skid)}
+   */
+  IList<IDtoLinkFwd> afterGetAllLinksFwd( IGwidList aLinkGwids, IList<IDtoLinkFwd> aLinks );
+
+  /**
    * Вызывается ДО выполнения метода {@link IS5BackendLinksSingleton#findLinkRev(Gwid, Skid, IStringList)}
    * <p>
    * Событие формируется в открытой транзакции которая впоследствии может быть отменена. Поэтому, если необходимо,
@@ -285,6 +317,45 @@ public interface IS5LinksInterceptor
     IList<IDtoLinkFwd> retValue = aLinks;
     for( IS5LinksInterceptor interceptor : aInterceptorSupport.interceptors() ) {
       retValue = interceptor.afterGetAllLinksFwd( aLeftSkid, retValue );
+    }
+    return retValue;
+  }
+
+  /**
+   * Вызов перехватчиков операции {@link IS5LinksInterceptor#beforeGetAllLinksFwd(Skid, IList)}
+   *
+   * @param aInterceptorSupport {@link S5InterceptorSupport}&lt;{@link IS5LinksInterceptor}&gt; поддержка перехватчиков
+   * @param aLinkGwids {@link IGwidList} - список идентификаторов запрашиваемых абстрактных связей
+   * @return {@link IList}&lt;{@link IDtoLinkFwd}&gt; - список найденных связей или <code>null</code> если нет такой
+   * @throws TsNullArgumentRtException любой аргумент = null
+   * @throws TsIllegalStateRtException запретить выполнение {@link IS5BackendLinksSingleton#getAllLinksFwd(Skid)}
+   */
+  static IList<IDtoLinkFwd> callBeforeGetAllLinksFwd( S5InterceptorSupport<IS5LinksInterceptor> aInterceptorSupport,
+      IGwidList aLinkGwids ) {
+    TsNullArgumentRtException.checkNulls( aInterceptorSupport, aLinkGwids );
+    IList<IDtoLinkFwd> retValue = null;
+    for( IS5LinksInterceptor interceptor : aInterceptorSupport.interceptors() ) {
+      retValue = interceptor.beforeGetAllLinksFwd( aLinkGwids, retValue );
+    }
+    return retValue;
+  }
+
+  /**
+   * Вызов перехватчиков операции {@link IS5LinksInterceptor#afterGetAllLinksFwd(Skid, IList)}
+   *
+   * @param aInterceptorSupport {@link S5InterceptorSupport}&lt;{@link IS5LinksInterceptor}&gt; поддержка перехватчиков
+   * @param aLinkGwids {@link IGwidList} - список идентификаторов запрашиваемых абстрактных связей
+   * @param aLinks {@link IDtoLinkFwd} - список связей найденных ранее службой или интерсепторами. null: не найдено
+   * @return {@link IList}&lt;{@link IDtoLinkFwd}&gt; - список найденных связей или <code>null</code> если нет такой
+   * @throws TsNullArgumentRtException любой аргумент = null
+   * @throws TsIllegalStateRtException запретить выполнение {@link IS5BackendLinksSingleton#getAllLinksFwd(Skid)}
+   */
+  static IList<IDtoLinkFwd> callAfterGetAllLinksFwd( S5InterceptorSupport<IS5LinksInterceptor> aInterceptorSupport,
+      IGwidList aLinkGwids, IList<IDtoLinkFwd> aLinks ) {
+    TsNullArgumentRtException.checkNulls( aInterceptorSupport, aLinkGwids );
+    IList<IDtoLinkFwd> retValue = aLinks;
+    for( IS5LinksInterceptor interceptor : aInterceptorSupport.interceptors() ) {
+      retValue = interceptor.afterGetAllLinksFwd( aLinkGwids, retValue );
     }
     return retValue;
   }

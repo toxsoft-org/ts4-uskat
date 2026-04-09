@@ -3,6 +3,7 @@ package org.toxsoft.uskat.core.api.linkserv;
 import org.toxsoft.core.tslib.bricks.events.*;
 import org.toxsoft.core.tslib.bricks.validator.*;
 import org.toxsoft.core.tslib.bricks.validator.impl.*;
+import org.toxsoft.core.tslib.coll.*;
 import org.toxsoft.core.tslib.coll.primtypes.*;
 import org.toxsoft.core.tslib.gw.gwid.*;
 import org.toxsoft.core.tslib.gw.skid.*;
@@ -23,6 +24,18 @@ public interface ISkLinkService
    * Service ID.
    */
   String SERVICE_ID = ISkHardConstants.SK_CORE_SERVICE_ID_PREFIX + ".Links"; //$NON-NLS-1$
+
+  /**
+   * Returns forward links between objects of the specified classes.
+   *
+   * @param aClassIds {@link IStringList} class IDs list
+   * @return {@link IMap}&lt;{@link Skid},{@link IStringMap}&lt;{@link IDtoLinkFwd}&gt;&gt; - forward links map.<br>
+   *         key1 {@link Skid} object ID;<br>
+   *         key2 String the link ID.
+   * @throws TsNullArgumentRtException any argument = <code>null</code>
+   * @throws TsItemNotFoundRtException no such link or object exists
+   */
+  IMap<Skid, IStringMap<IDtoLinkFwd>> getLinkFwds( IStringList aClassIds );
 
   /**
    * Returns the forward link.

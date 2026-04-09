@@ -1,18 +1,15 @@
 package org.toxsoft.uskat.s5.server.backend.addons.links;
 
-import org.toxsoft.core.tslib.bricks.events.msg.GtMessage;
-import org.toxsoft.core.tslib.coll.IList;
-import org.toxsoft.core.tslib.coll.IMap;
-import org.toxsoft.core.tslib.coll.primtypes.IStringList;
-import org.toxsoft.core.tslib.gw.gwid.Gwid;
-import org.toxsoft.core.tslib.gw.skid.Skid;
-import org.toxsoft.core.tslib.utils.errors.TsNullArgumentRtException;
-import org.toxsoft.uskat.core.api.linkserv.IDtoLinkFwd;
-import org.toxsoft.uskat.core.api.linkserv.IDtoLinkRev;
-import org.toxsoft.uskat.core.backend.ISkBackendHardConstant;
-import org.toxsoft.uskat.core.backend.api.IBaLinks;
-import org.toxsoft.uskat.s5.server.backend.addons.IS5BackendRemote;
-import org.toxsoft.uskat.s5.server.backend.addons.S5AbstractBackendAddonRemote;
+import org.toxsoft.core.tslib.bricks.events.msg.*;
+import org.toxsoft.core.tslib.coll.*;
+import org.toxsoft.core.tslib.coll.primtypes.*;
+import org.toxsoft.core.tslib.gw.gwid.*;
+import org.toxsoft.core.tslib.gw.skid.*;
+import org.toxsoft.core.tslib.utils.errors.*;
+import org.toxsoft.uskat.core.api.linkserv.*;
+import org.toxsoft.uskat.core.backend.*;
+import org.toxsoft.uskat.core.backend.api.*;
+import org.toxsoft.uskat.s5.server.backend.addons.*;
 
 /**
  * Remote {@link IBaLinks} implementation.
@@ -59,6 +56,12 @@ class S5BaLinksRemote
   public IList<IDtoLinkFwd> getAllLinksFwd( Skid aLeftSkid ) {
     TsNullArgumentRtException.checkNull( aLeftSkid );
     return session().getAllLinksFwd( aLeftSkid );
+  }
+
+  @Override
+  public IList<IDtoLinkFwd> getAllLinksFwd( IGwidList aLinkGwids ) {
+    TsNullArgumentRtException.checkNull( aLinkGwids );
+    return session().getAllLinksFwd( aLinkGwids );
   }
 
   @Override
