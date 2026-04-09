@@ -92,6 +92,7 @@ interface ISkResources {
   String FMT_ERR_NO_LINK_RIGHT_OBJ_CLASS = Messages.getString( "FMT_ERR_NO_LINK_RIGHT_OBJ_CLASS" );
   String FMT_ERR_NO_LINK_RIGHT_OBJ_STRID = Messages.getString( "FMT_ERR_NO_LINK_RIGHT_OBJ_STRID" );
   String FMT_ERR_RIGHT_OBJ_INV_CLASS     = Messages.getString( "FMT_ERR_RIGHT_OBJ_INV_CLASS" );
+  String FMT_MSG_GET_LINKS_FWD           = "getLinkFwds(%s): size = %d, time = %d (msec)";
   String FMT_MSG_GET_LINK_FWD            = "getLinkFwd(%s,%s): time = %d (msec)";
   String FMT_MSG_GET_ALL_LINKS_FWD       = "getAllLinksFwd(%s): size = %d, time = %d (msec)";
   String FMT_MSG_GET_LINK_REV            = "getLinkRev(%s,%s,%s): time = %d (msec)";

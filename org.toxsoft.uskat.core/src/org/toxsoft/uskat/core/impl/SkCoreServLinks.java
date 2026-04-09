@@ -354,7 +354,10 @@ public class SkCoreServLinks
     }
     IListEdit<IDtoLinkFwd> retValue = new ElemLinkedList<>();
     for( Gwid linkGwid : aLinkGwids ) {
-      retValue.addAll( linksCache.objsByLinkGwids.getByKey( linkGwid ) );
+      IMap<Skid, IDtoLinkFwd> links = linksCache.objsByLinkGwids.findByKey( linkGwid );
+      if( links != null ) {
+        retValue.addAll( links );
+      }
     }
     return retValue;
   }
@@ -379,6 +382,10 @@ public class SkCoreServLinks
   public IMap<Skid, IStringMap<IDtoLinkFwd>> getLinkFwds( IStringList aClassIds ) {
     checkThread();
     TsNullArgumentRtException.checkNull( aClassIds );
+
+    // trace0
+    long trace0 = System.currentTimeMillis();
+
     GwidList baLinkGwids = new GwidList();
     for( String classId : aClassIds ) {
       ISkClassInfo classInfo = coreApi().sysdescr().getClassInfo( classId );
@@ -403,6 +410,10 @@ public class SkCoreServLinks
       }
       objLinks.put( link.linkId(), link );
     }
+
+    logger().info( FMT_MSG_GET_LINKS_FWD, aClassIds, Integer.valueOf( links.size() ),
+        Long.valueOf( System.currentTimeMillis() - trace0 ) );
+
     return retValue;
   }
 
