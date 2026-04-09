@@ -11,6 +11,7 @@ import org.toxsoft.core.tslib.bricks.strio.*;
 import org.toxsoft.core.tslib.bricks.strio.impl.*;
 import org.toxsoft.core.tslib.coll.helpers.*;
 import org.toxsoft.core.tslib.coll.primtypes.*;
+import org.toxsoft.core.tslib.coll.primtypes.impl.*;
 import org.toxsoft.core.tslib.gw.*;
 import org.toxsoft.core.tslib.utils.errors.*;
 import org.toxsoft.uskat.core.api.sysdescr.dto.*;
@@ -49,18 +50,18 @@ class MtbBaClasses
   public void close() {
     // GOGA 2024-02-02 --- do NOT save classes defined by the Java code
     // GOGA 2024-02-03 --- restore, it is an error!
-    // IStringListEdit cidsToRemove = new StringArrayList();
-    // for( IDtoClassInfo cinf : classInfos ) {
-    // // try to remove
-    // if( OPDEF_SK_IS_SOURCE_CODE_DEFINED_CLASS.getValue( cinf.params() ).asBool() ) {
-    // if( !hasNonSourceCodeSubclass( cinf ) ) {
-    // cidsToRemove.add( cinf.id() );
-    // }
-    // }
-    // }
-    // for( String cid : cidsToRemove ) {
-    // classInfos.removeById( cid );
-    // }
+    IStringListEdit cidsToRemove = new StringArrayList();
+    for( IDtoClassInfo cinf : classInfos ) {
+      // try to remove
+      if( OPDEF_SK_IS_SOURCE_CODE_DEFINED_CLASS.getValue( cinf.params() ).asBool() ) {
+        if( !hasNonSourceCodeSubclass( cinf ) ) {
+          cidsToRemove.add( cinf.id() );
+        }
+      }
+    }
+    for( String cid : cidsToRemove ) {
+      classInfos.removeById( cid );
+    }
     // ---
   }
 
