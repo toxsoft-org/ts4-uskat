@@ -10,6 +10,7 @@ import static org.toxsoft.uskat.s5.server.backend.supports.links.S5LinksSQL.*;
 import static org.toxsoft.uskat.s5.server.backend.supports.objects.S5BackendObjectsUtils.*;
 
 import java.lang.reflect.*;
+import java.sql.*;
 import java.util.*;
 import java.util.concurrent.*;
 
@@ -17,7 +18,6 @@ import javax.sql.*;
 
 import org.hibernate.*;
 import org.toxsoft.core.tslib.bricks.events.msg.*;
-import org.toxsoft.core.tslib.bricks.strid.coll.*;
 import org.toxsoft.core.tslib.coll.*;
 import org.toxsoft.core.tslib.coll.impl.*;
 import org.toxsoft.core.tslib.coll.primtypes.*;
@@ -225,21 +225,15 @@ public class S5BackendLinksSingleton
 
     // Пред-интерсепция
     IList<IDtoLinkFwd> retValue = callBeforeGetAllLinksFwd( interceptors, aLinkGwids );
-    if( retValue == null ) {
-      IMapEdit<Gwid, IStringList> linkGwidInfos = new ElemMap<>();
-      for( Gwid linkGwid : aLinkGwids ) {
-        ISkClassInfo classInfo = sysdescrReader.findClassInfo( linkGwid.classId() );
-        IStridablesList<ISkClassInfo> sc = classInfo.listSubclasses( false, true ); // aOnlyChilds, aIncludeSelf
-        IStringListEdit impls = new StringArrayList( sc.size() );
-        for( ISkClassInfo c : sc ) {
-          String linkImplClassName = OP_FWD_LINK_IMPL_CLASS.getValue( c.params() ).asString();
-          impls.add( linkImplClassName );
-        }
-        if( impls.size() > 0 ) {
-          linkGwidInfos.put( linkGwid, impls );
-        }
-      }
-      retValue = new ElemArrayList<>( getFwdLinksByLinkGwidInfos( entityManager, linkGwidInfos ) );
+    if( retValue != null ) {
+      return retValue;
+    }
+    try( Connection dbConnection = dataSource.getConnection() ) {
+      retValue = getFwdLinksByLinkGwids( dbConnection, sysdescrReader, aLinkGwids );
+    }
+    catch( SQLException e ) {
+      // Неожиданная ошибка чтения объектов из базы данных
+      throw new TsInternalErrorRtException( e, ERR_READ_UNEXPECTED, cause( e ) );
     }
 
     // Пост-интерсепция

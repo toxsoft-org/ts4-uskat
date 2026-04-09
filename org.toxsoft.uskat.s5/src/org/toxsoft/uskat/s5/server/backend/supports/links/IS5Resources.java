@@ -15,7 +15,6 @@ interface IS5Resources {
   //
   String MSG_READ_FWD_LINKS_BY_CLASSID_SQL_FINISH          =
       Messages.getString( "IS5Resources.MSG_READ_FWD_LINKS_BY_CLASSID_SQL_FINISH" );
-  String MSG_READ_FWD_LINKS_BY_GWID_SQL_FINISH             = "getFwdLinksByGwid(...): size = %d, time = %d (msec)'";
   String MSG_READ_REV_LINKS_BY_CLASSID_SQL_FINISH          =
       Messages.getString( "IS5Resources.MSG_READ_REV_LINKS_BY_CLASSID_SQL_FINISH" );
   String MSG_DELETE_LINKS_BY_CLASSID_SQL_FINISH            =
@@ -23,7 +22,8 @@ interface IS5Resources {
   String MSG_DELETE_LINKS_BY_CLASSID_AND_LINKID_SQL_FINISH =
       Messages.getString( "IS5Resources.MSG_DELETE_LINKS_BY_CLASSID_AND_LINKID_SQL_FINISH" );
   String MSG_WRITE_LINKS                                   = Messages.getString( "IS5Resources.MSG_WRITE_LINKS" );
-
+  String MSG_READ_FWD_LINKS_BY_GWID_SQL                    = "getFwdLinksByLinkGwids(...): sql query prepared: \n'%s'";
+  String MSG_READ_FWD_LINKS_BY_GWID_SQL_FINISH             = "getFwdLinksByGwid(...): size = %d, time = %d (msec)'";
   // ------------------------------------------------------------------------------------
   // Тексты ошибок
   //

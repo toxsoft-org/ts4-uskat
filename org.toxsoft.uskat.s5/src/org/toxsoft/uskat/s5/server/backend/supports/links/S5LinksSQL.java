@@ -2,20 +2,29 @@ package org.toxsoft.uskat.s5.server.backend.supports.links;
 
 import static java.lang.String.*;
 import static org.toxsoft.core.tslib.bricks.strid.impl.StridUtils.*;
+import static org.toxsoft.uskat.s5.common.IS5CommonResources.*;
+import static org.toxsoft.uskat.s5.server.IS5ServerHardConstants.*;
 import static org.toxsoft.uskat.s5.server.backend.supports.links.IS5Resources.*;
 import static org.toxsoft.uskat.s5.server.backend.supports.links.S5LinkFwdEntity.*;
 import static org.toxsoft.uskat.s5.server.backend.supports.links.S5LinkID.*;
 import static org.toxsoft.uskat.s5.server.backend.supports.objects.S5ObjectID.*;
 
+import java.lang.reflect.*;
+import java.sql.*;
 import java.util.*;
 
+import org.toxsoft.core.tslib.bricks.strid.coll.*;
 import org.toxsoft.core.tslib.coll.*;
+import org.toxsoft.core.tslib.coll.impl.*;
 import org.toxsoft.core.tslib.coll.primtypes.*;
+import org.toxsoft.core.tslib.coll.primtypes.impl.*;
 import org.toxsoft.core.tslib.gw.gwid.*;
 import org.toxsoft.core.tslib.gw.skid.*;
 import org.toxsoft.core.tslib.utils.errors.*;
 import org.toxsoft.core.tslib.utils.logs.*;
 import org.toxsoft.uskat.core.api.linkserv.*;
+import org.toxsoft.uskat.core.api.sysdescr.*;
+import org.toxsoft.uskat.s5.common.sysdescr.*;
 import org.toxsoft.uskat.s5.server.entities.*;
 import org.toxsoft.uskat.s5.server.logger.*;
 
@@ -73,8 +82,8 @@ class S5LinksSQL {
    * <li>2. %s - Идентификатор класса определящего связь;</li>
    * <li>3. %s - Идентификатор связи.</li>
    */
-  private static final String QFRMT_GET_LINKS_BY_GWID = "(SELECT link FROM %s link WHERE" + //
-      "(link." + FIELD_ID + "." + FIELD_LINK_CLASSID + "='%s')AND(link." + FIELD_ID + "." + FIELD_LINKID + "='%s'))";
+  private static final String QFRMT_GET_LINKS_BY_GWID2 = "(SELECT * FROM %s WHERE" + //
+      "(" + FIELD_LINK_CLASSID + "='%s')AND(" + FIELD_LINKID + "='%s'))";
 
   /**
    * Возвращает все ПРЯМЫЕ связи объектов указанного класса (без учета наследников)
@@ -99,7 +108,7 @@ class S5LinksSQL {
         format( QFRMT_GET_LINKS_BY_CLASSID, tableName, aLefObjClassId ) : //
         format( QFRMT_GET_LINKS_BY_CLASSID_LINKID, tableName, aLefObjClassId, aLefObjClassLinkId );
     // Выполнение запроса
-    Query query = aEntityManager.createQuery( sql );
+    Query query = aEntityManager.createQuery( sql, S5LinkFwdEntity.class );
     List<Object> retValue = query.getResultList();
     // Получен результат запроса
     Long time = Long.valueOf( System.currentTimeMillis() - traceStartTime );
@@ -138,29 +147,48 @@ class S5LinksSQL {
   /**
    * Возвращает все ПРЯМЫЕ связи по описанию абстрактной связи.
    *
-   * @param aEntityManager {@link EntityManager} менеджер постоянства
-   * @param aLinkGwidInfos {@link IMap}&lt;{@link Gwid},{@link IStringList}&gt; карта описания читаемых связей.<br>
-   *          Ключ {@link Gwid} - идентификатор абстрактной связи;<br>
-   *          Значение {@link IStringList} - список полных имен классов реализации прямой связи, наследник
-   *          {@link S5LinkFwdEntity}
+   * @param aConnection {@link Connection} соединение с базой данных
+   * @param aSysdescrReader {@link ISkSysdescrReader} читатель системного описания
+   * @param aLinkGwids {@link IGwidList} список описаний абстрактных связей
    * @return {@link IList}&lt;{@link S5LinkFwdEntity}&gt; список прямых связей
    * @throws TsNullArgumentRtException любой аргумент = null
    */
-  @SuppressWarnings( "unchecked" )
-  static List<IDtoLinkFwd> getFwdLinksByLinkGwidInfos( EntityManager aEntityManager,
-      IMap<Gwid, IStringList> aLinkGwidInfos ) {
-    TsNullArgumentRtException.checkNulls( aEntityManager, aLinkGwidInfos );
+  static IList<IDtoLinkFwd> getFwdLinksByLinkGwids( Connection aConnection, ISkSysdescrReader aSysdescrReader,
+      IGwidList aLinkGwids ) {
+    TsNullArgumentRtException.checkNulls( aConnection, aSysdescrReader, aLinkGwids );
     // Время начала выполнения запроса
     long traceStartTime = System.currentTimeMillis();
+
+    // Карта имен классов реализации прямых связей по идентификаторам классов
+    IStringMapEdit<String> linkImplByClassIds = new StringMap<>();
+    // Карта имен классов реализации прямых связей по идентификаторам связей
+    IMapEdit<Gwid, IStringList> linkImplByGwids = new ElemMap<>();
+    for( Gwid linkGwid : aLinkGwids ) {
+      ISkClassInfo classInfo = aSysdescrReader.findClassInfo( linkGwid.classId() );
+      IStridablesList<ISkClassInfo> sc = classInfo.listSubclasses( false, true ); // aOnlyChilds, aIncludeSelf
+      IStringListEdit linkGwidImpls = new StringArrayList( sc.size() );
+      for( ISkClassInfo c : sc ) {
+        String classId = c.id();
+        String linkImplClassName = OP_FWD_LINK_IMPL_CLASS.getValue( c.params() ).asString();
+        linkImplByClassIds.put( classId, linkImplClassName );
+        linkGwidImpls.add( linkImplClassName );
+      }
+      if( linkGwidImpls.size() > 0 ) {
+        linkImplByGwids.put( linkGwid, linkGwidImpls );
+      }
+    }
     // Построитель SQL-запроса
     StringBuilder sqlBuilder = new StringBuilder();
-    for( int index = 0, n = aLinkGwidInfos.size(); index < n; index++ ) {
-      Gwid linkGwid = aLinkGwidInfos.keys().get( index );
-      IStringList imples = aLinkGwidInfos.getByKey( linkGwid );
-      for( int index2 = 0, n2 = imples.size(); index2 < n2; index2++ ) {
-        String tableName = getLast( imples.get( index2 ) );
+    for( int index = 0, n = linkImplByGwids.keys().size(); index < n; index++ ) {
+      Gwid linkGwid = linkImplByGwids.keys().get( index );
+      IStringList linkImpls = linkImplByGwids.getByKey( linkGwid );
+      for( int index2 = 0, n2 = linkImpls.size(); index2 < n2; index2++ ) {
+        // Класс реализации хранения значений объекта
+        String linkImplClassName = linkImpls.get( index2 );
+        // Имя таблицы реализации хранения
+        String tableName = getLast( linkImplClassName );
         // Текст SQL-подзапроса
-        String subSql = format( QFRMT_GET_LINKS_BY_GWID, tableName, linkGwid.classId(), linkGwid.propId() );
+        String subSql = format( QFRMT_GET_LINKS_BY_GWID2, tableName, linkGwid.classId(), linkGwid.propId() );
         // Формирование SQL-запроса
         sqlBuilder.append( subSql );
         if( index2 + 1 < n2 ) {
@@ -173,13 +201,14 @@ class S5LinksSQL {
     }
     // Текст SQL-полного запроса
     String sql = sqlBuilder.toString();
+    // Сформирован SQL-запрос
+    logger.info( MSG_READ_FWD_LINKS_BY_GWID_SQL, sql );
     // Выполнение запроса
-    Query query = aEntityManager.createQuery( sql );
-    List<Object> retValue = query.getResultList();
+    IList<IDtoLinkFwd> retValue = executeLinkFwdQuery( aConnection, linkImplByClassIds, sql );
     // Получен результат запроса
     Long time = Long.valueOf( System.currentTimeMillis() - traceStartTime );
     logger.info( MSG_READ_FWD_LINKS_BY_GWID_SQL_FINISH, Integer.valueOf( retValue.size() ), time );
-    return (List<IDtoLinkFwd>)(Object)retValue;
+    return retValue;
   }
 
   /**
@@ -266,5 +295,50 @@ class S5LinksSQL {
     Long time = Long.valueOf( System.currentTimeMillis() - traceStartTime );
     logger.info( MSG_DELETE_LINKS_BY_CLASSID_SQL_FINISH, tableName, Integer.valueOf( retValue.size() ), time );
     return retValue.size();
+  }
+
+  /**
+   * Выполнение запроса на получение связей.
+   *
+   * @param aConnection {@link Connection} соединение с базой данных
+   * @param aLinkImplClassNames {@link IStringMap}&lt;String&gt; карта имен классов реализации связей. <br>
+   *          Ключ: имя класса объекта;<br>
+   *          Значение: полное имя java-класса реализации связи
+   * @param aSQL String текст SQL-запроса
+   * @return {@link IList}&lt;{@link IDtoLinkFwd}&gt; список загруженных связей
+   * @throws TsNullArgumentRtException любой аргумент = null
+   */
+  private static IList<IDtoLinkFwd> executeLinkFwdQuery( Connection aConnection, IStringMap<String> aLinkImplClassNames,
+      String aSQL ) {
+    TsNullArgumentRtException.checkNulls( aConnection, aLinkImplClassNames, aSQL );
+    // Результат выполнения запроса
+    IListEdit<IDtoLinkFwd> retValue = new ElemLinkedList<>();
+    // Карта конструкторов объектов. Ключ: идентификатор класса; Значение: конструктор
+    IStringMapEdit<Constructor<S5LinkFwdEntity>> objectContructors = new StringMap<>();
+    try {
+      // Выполнение запроса
+      try( Statement statement =
+          aConnection.createStatement( ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY );
+          ResultSet rs = statement.executeQuery( aSQL ); ) {
+        for( boolean hasData = rs.first(); hasData; hasData = rs.next() ) {
+          // Идентификатор класса объекта
+          String classId = rs.getString( FIELD_CLASSID );
+          // Конструктор c
+          Constructor<S5LinkFwdEntity> linkConstructor = objectContructors.findByKey( classId );
+          if( linkConstructor == null ) {
+            // Конструктор еще неопределен
+            String linkImplClassName = aLinkImplClassNames.getByKey( classId );
+            linkConstructor = S5LinkFwdReflectUtils.getConstructorByResultSet( linkImplClassName );
+            objectContructors.put( classId, linkConstructor );
+          }
+          retValue.add( linkConstructor.newInstance( rs ) );
+        }
+      }
+    }
+    catch( Throwable e ) {
+      // Неожиданная ошибка выполнения запроса на получение объектов
+      throw new TsInternalErrorRtException( e, ERR_READ_JDBC_UNEXPECTED, cause( e ) );
+    }
+    return retValue;
   }
 }
