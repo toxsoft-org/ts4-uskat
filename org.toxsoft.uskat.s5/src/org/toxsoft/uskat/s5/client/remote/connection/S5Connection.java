@@ -559,15 +559,13 @@ public final class S5Connection
       String apiBeanName = IS5ImplementConstants.BACKEND_SESSION_IMPLEMENTATION;
 
       // Таймаут создания каналов
-      long createTimeout = OP_CONNECT_TIMEOUT.getValue( options ).asInt();
+      long connectTimeout = OP_CONNECT_TIMEOUT.getValue( options ).asInt();
       // Минимальный интервал передачи пакетов через соединение (не может быть больше чем 2/3 таймаута сессии)
       long failureTimeout = OP_FAILURE_TIMEOUT.getValue( options ).asInt();
 
       String entryPoint = format( ENTRY_POINT, wlogin, hostsToString( hosts, true ), apiIntefaceName, apiBeanName );
 
-      String wildflyLogin = OP_WILDFLY_LOGIN.getValue( options ).asString();
-      String wildflyPasswd = OP_WILDFLY_PASSWORD.getValue( options ).asString();
-      ClassLoader loader = classLoader;
+      // ClassLoader loader = classLoader;
       try {
         // 2021-01-20 mvk необходимо закрыть все соединения чтобы они не мешали потом через callback
         if( callbackReader == null ) {
@@ -578,7 +576,7 @@ public final class S5Connection
         // Поиск сервера и бина его API
         progressMonitor.updateWorkProgress( format( USER_LOOKUP_REMOTE_API_START, this ), -1 );
         logger.debug( USER_LOOKUP_REMOTE_API_START, this );
-        remoteBackend = lookupBackend( this, hosts.first(), wildflyLogin, wildflyPasswd );
+        remoteBackend = lookupBackend( this, hosts.first(), wlogin, wpasswd, connectTimeout );
         // Сообщение завершении поиска сервера
         logger.debug( MSG_LOOKUP_REMOTE_API_FINISH, this, sessionInitData.sessionID() );
       }
@@ -651,8 +649,8 @@ public final class S5Connection
         progressMonitor.updateWorkProgress( format( USER_INIT_REMOTE_API_START, this ), -1 );
 
         // 2020-07-23 mvk установка таймаута создания соединения
-        logger.info( MSG_SET_INVOCATION_CREATE_TIMEOUT, Long.valueOf( createTimeout ) );
-        EJBClient.setInvocationTimeout( remoteBackend, createTimeout, TimeUnit.MILLISECONDS );
+        logger.info( MSG_SET_INVOCATION_CREATE_TIMEOUT, Long.valueOf( connectTimeout ) );
+        EJBClient.setInvocationTimeout( remoteBackend, connectTimeout, TimeUnit.MILLISECONDS );
 
         // Вывод в журнал текущего загрузчика классов
         logger.info( MSG_TRYCONNECT_USING_CLASSLOADER, Thread.currentThread().getContextClassLoader() );
@@ -1297,16 +1295,16 @@ public final class S5Connection
    * @param aConnection {@link S5Connection} соединение с сервером
    * @param aHost {@link S5Host} адрес хоста на котором работает сервер
    * @param aLogin String имя пользователя
-   * @param aPassword String пароль пользователя
-   * @param aClassLoader {@link ClassLoader} загручик классов для создания proxy API сервера
+   * @param aPasswd String пароль пользователя
+   * @param aConnectTimeout long таймаут (мсек) подключения к серверу
    * @return {@link IS5BackendSession} найденный бекенд
    * @throws Exception ошибка создания соединения
    * @throws TsNullArgumentRtException любой аргумент = null
    * @throws NamingException контекст не найден
    */
   @SuppressWarnings( "nls" )
-  private static IS5BackendSession lookupBackend( S5Connection aConnection, S5Host aHost, String aLogin,
-      String aPasswd )
+  private static IS5BackendSession lookupBackend( S5Connection aConnection, S5Host aHost, String aLogin, String aPasswd,
+      long aConnectTimeout )
       throws Exception {
     TsNullArgumentRtException.checkNulls( aConnection, aHost );
 
@@ -1320,6 +1318,9 @@ public final class S5Connection
     jndiProperties.put( Context.INITIAL_CONTEXT_FACTORY, WildFlyInitialContextFactory.class.getName() );
     // use HTTP upgrade, an initial upgrade requests is sent to upgrade to the remoting protocol
     jndiProperties.put( Context.PROVIDER_URL, providerURL );
+
+    // Устанавливаем таймаут в 10000 миллисекунд (by deepseek)
+    jndiProperties.put( "org.jboss.ejb.client.invocation.timeout", String.valueOf( aConnectTimeout ) );
 
     // Отключаем JBOSS-LOCAL-USER механизм (by deepseek)
     jndiProperties.put( Context.SECURITY_PRINCIPAL, aLogin );
