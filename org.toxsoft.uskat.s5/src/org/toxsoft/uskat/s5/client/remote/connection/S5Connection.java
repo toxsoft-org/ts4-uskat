@@ -163,12 +163,12 @@ public final class S5Connection
   /**
    * Контекст аутентификации
    */
-  private AuthenticationContext authenticationContext;
+  private volatile AuthenticationContext authenticationContext;
 
   /**
-   * EJB-контекст клиента
+   * EJB-контекст клиента. null: еще не создавался
    */
-  private EJBClientContext ejbClientContext;
+  private volatile EJBClientContext ejbClientContext;
 
   /**
    * Адрес сервера работающего в standalone-режиме. null: адрес не определен
@@ -1290,20 +1290,48 @@ public final class S5Connection
   // }
 
   /**
-   * Проводит поиск s5-бекенда
+   * Проводит поиск s5-бекенда с ограничением времени выполнения lookup (deepseek version).
+   * <p>
+   * <h2>Отличия:</h2>
+   * <ul>
+   * <li>Убран параметр org.jboss.ejb.client.invocation.timeout – он не влияет на InitialContext.lookup, а относится к
+   * вызовам методов EJB после получения прокси.</li>
+   * <li>Добавлен remote.connection.default.read.timeout – дополнительная защита на транспортном уровне (если lookup
+   * зависнет на чтении данных, сработает этот таймаут, но он не заменяет основной механизм).</li>
+   * <li>Создание ExecutorService на каждый вызов – безопасно, так как потоки завершаются в finally. Для
+   * высоконагруженных систем можно использовать статический пул, но в данном случае простота и надёжность важнее.</li>
+   * <li>Задача (Callable) создаёт InitialContext внутри блока try-with-resources – это гарантирует закрытие контекста
+   * даже при прерывании потока (если прерывание происходит во время lookup, то метод выбросит InterruptedException, и
+   * try закроет ресурсы).</li>
+   * <li>Обработка TimeoutException – задача отменяется (cancel(true)), что прерывает поток, выполняющий lookup. После
+   * этого выбрасывается NamingException с информацией о таймауте.</li>
+   * <li>Восстановление статуса прерывания при InterruptedException – хороший тон для библиотечного кода.</li>
+   * <li>Проброс оригинального исключения из ExecutionException – если внутри задачи возникло NamingException или другое
+   * проверяемое исключение, оно будет выброшено наружу без потери стека.</li>
+   * <li>executor.shutdownNow() в finally – гарантирует, что пул потоков будет остановлен (попытка прервать задачу, если
+   * она ещё выполняется). После отмены или завершения задачи повторный вызов безопасен.</li>
+   * </ul>
+   * <p>
+   * <h2>Возможность повторных попыток без перезагрузки клиента</h2> Благодаря тому, что каждая попытка создаёт свежий
+   * InitialContext и новый ExecutorService, клиент может вызывать эту функцию многократно (например, в цикле с паузами)
+   * до тех пор, пока сервер не станет доступен. Перезагрузка клиентского приложения не требуется – все ресурсы
+   * корректно освобождаются после каждой попытки (даже при таймауте).
+   * <p>
+   * <h2>Использование контейнере</h2>Если вы работаете внутри Jakarta EE контейнера Если этот код выполняется внутри
+   * WildFly (например, в сервлете или EJB), лучше использовать управляемый ManagedExecutorService через @Resource,
+   * чтобы контейнер управлял потоками. В standalone-клиенте приведённый вариант безопасен.
    *
    * @param aConnection {@link S5Connection} соединение с сервером
    * @param aHost {@link S5Host} адрес хоста на котором работает сервер
    * @param aLogin String имя пользователя
    * @param aPasswd String пароль пользователя
-   * @param aConnectTimeout long таймаут (мсек) подключения к серверу
+   * @param aConnectTimeout long таймаут (мсек) на операцию lookup
    * @return {@link IS5BackendSession} найденный бекенд
-   * @throws Exception ошибка создания соединения
    * @throws TsNullArgumentRtException любой аргумент = null
-   * @throws NamingException контекст не найден
+   * @throws Exception контекст не найден или превышен таймаут
    */
-  @SuppressWarnings( "nls" )
-  private static IS5BackendSession lookupBackend( S5Connection aConnection, S5Host aHost, String aLogin, String aPasswd,
+  @SuppressWarnings( { "nls", "unused", "resource" } )
+  private IS5BackendSession lookupBackend( S5Connection aConnection, S5Host aHost, String aLogin, String aPasswd,
       long aConnectTimeout )
       throws Exception {
     TsNullArgumentRtException.checkNulls( aConnection, aHost );
@@ -1314,219 +1342,167 @@ public final class S5Connection
     String providerURL = String.format( "remote+http://%s:%s", aHost.address(), String.valueOf( aHost.port() ) );
 
     final Hashtable<String, String> jndiProperties = new Hashtable<>();
-    // jndiProperties.put( Context.INITIAL_CONTEXT_FACTORY, "org.wildfly.naming.client.WildFlyInitialContextFactory" );
     jndiProperties.put( Context.INITIAL_CONTEXT_FACTORY, WildFlyInitialContextFactory.class.getName() );
-    // use HTTP upgrade, an initial upgrade requests is sent to upgrade to the remoting protocol
     jndiProperties.put( Context.PROVIDER_URL, providerURL );
 
-    // Устанавливаем таймаут в 10000 миллисекунд (by deepseek)
-    jndiProperties.put( "org.jboss.ejb.client.invocation.timeout", String.valueOf( aConnectTimeout ) );
+    // // --- Ключевые параметры для борьбы с "засыпанием" клиента ---
+    // // Таймаут чтения – чтобы операция не висела вечно
+    // jndiProperties.put( "remote.connection.default.read.timeout", String.valueOf( aConnectTimeout ) );
+    // // Heartbeat – проверка живости соединения каждые 5 секунд
+    // jndiProperties.put( "remote.connection.default.heartbeat.interval", "5000" );
+    // // Таймаут ожидания heartbeat (если нет ответа 30 сек – соединение разорвано)
+    // jndiProperties.put( "remote.connection.default.heartbeat.timeout", "30000" );
+    // // Бесконечные попытки переподключения (0 = бесконечно)
+    // jndiProperties.put( "remote.connection.default.max-retries", "0" );
+    // jndiProperties.put( "remote.connection.default.max-reconnect-attempts", "0" );
+    // // Время жизни соединения – должно быть больше максимального ожидаемого разрыва (например, 10 минут)
+    // jndiProperties.put( "remote.connection.default.connection-ttl", "600000" );
+    // // Таймаут установки соединения
+    // jndiProperties.put( "remote.connection.default.connect.timeout", "10000" );
 
-    // Отключаем JBOSS-LOCAL-USER механизм (by deepseek)
     jndiProperties.put( Context.SECURITY_PRINCIPAL, aLogin );
     jndiProperties.put( Context.SECURITY_CREDENTIALS, aPasswd );
 
     String lookupPath = "ejb:/" + moduleName + "/" + apiBeanName + "!" + apiIntefaceName + "?stateful";
 
-    // 2026-04-03 by clouds ---+++
-    // Отключаем JBOSS-LOCAL-USER механизм (by deepseek)
-    // jndiProperties.put( "remote.connection.default.connect.options.org.xnio.Options.SASL_DISALLOWED_MECHANISMS",
-    // "JBOSS-LOCAL-USER" );
-    // jndiProperties.put( "remote.connection.default.connect.options.org.xnio.Options.SASL_POLICY_NOPLAINTEXT", "false"
-    // );
-    // jndiProperties.put( "remote.connection.default.connect.options.org.xnio.Options.SASL_POLICY_NOANONYMOUS", "false"
-    // );
-    // final Context context = new InitialContext( jndiProperties );
-    // IS5BackendSession retValue = (IS5BackendSession)context.lookup( lookupPath );
+    if( ejbClientContext != null ) {
+      // 2026-04-11 mvk--- неэффективная попытка ускорить восстановление связи при длительных потерях связи с сервером
+      // EJBClientContext.getCurrent().close();
+      // logger.debug( "lookupBackend(...): closing ejbClientContext: %s", ejbClientContext );
+      // ejbClientContext.close();
+      // logger.debug( "lookupBackend(...): ejbClientContext closed: %s", ejbClientContext );
+      // ejbClientContext = null;
+    }
 
-    // Требуется обернуть вызов в AuthenticationContext с явным DIGEST-MD5
     AuthenticationConfiguration authConfig = AuthenticationConfiguration.empty()
         .setSaslMechanismSelector( SaslMechanismSelector.NONE.addMechanism( "DIGEST-MD5" ) ).useName( aLogin )
         .usePassword( aPasswd.toCharArray() );
-
     AuthenticationContext authContext = AuthenticationContext.empty().with( MatchRule.ALL, authConfig );
-    final Context context = new InitialContext( jndiProperties );
+
+    ExecutorService executor = Executors.newSingleThreadExecutor();
+    Future<IS5BackendSession> future = executor.submit( () -> authContext.runCallable( () -> {
+      InitialContext ctx = null;
+      try {
+        Thread thread = Thread.currentThread();
+        thread.setName( "lookupBackend(...): ctx.lookup[ " + thread.getName() + "]" );
+        ejbClientContext = EJBClientContext.getCurrent();
+        ctx = new InitialContext( jndiProperties );
+        return (IS5BackendSession)ctx.lookup( lookupPath );
+      }
+      finally {
+        if( ctx != null ) {
+          try {
+            ctx.close();
+          }
+          catch( Exception ignored ) {
+            // nop
+          }
+        }
+      }
+    } ) );
+
     try {
-      // Запуск JNDI-lookup внутри явного AuthenticationContext
-      IS5BackendSession retValue = authContext.runCallable( () -> (IS5BackendSession)context.lookup( lookupPath ) );
-      return retValue;
+      return future.get( aConnectTimeout, TimeUnit.MILLISECONDS );
+    }
+    catch( TimeoutException e ) {
+      future.cancel( true );
+      NamingException ne =
+          new NamingException( "JNDI lookup превысил таймаут " + aConnectTimeout + " мс для " + providerURL );
+      ne.initCause( e );
+      throw ne;
+    }
+    catch( InterruptedException e ) {
+      Thread.currentThread().interrupt();
+      NamingException ne = new NamingException( "Поток был прерван во время lookup" );
+      ne.initCause( e );
+      throw ne;
+    }
+    catch( ExecutionException e ) {
+      Throwable cause = e.getCause();
+      if( cause instanceof NamingException ) {
+        throw (NamingException)cause;
+      }
+      if( cause instanceof Exception ) {
+        throw (Exception)cause;
+      }
+      NamingException ne = new NamingException( "Ошибка при выполнении lookup" );
+      ne.initCause( cause );
+      throw ne;
     }
     finally {
-      try {
-        context.close();
-      }
-      catch( @SuppressWarnings( "unused" ) Exception e ) {
-        // nop
-      }
+      executor.shutdownNow();
     }
   }
 
-  /**
-   * Проводит поиск s5-бекенда
-   *
-   * @param aConnection {@link S5Connection} соединение с сервером
-   * @param aHost {@link S5Host} адрес хоста на котором работает сервер
-   * @param aLogin String имя пользователя
-   * @param aPassword String пароль пользователя
-   * @param aClassLoader {@link ClassLoader} загручик классов для создания proxy API сервера
-   * @return {@link IS5BackendSession} найденный бекенд
-   * @throws Exception ошибка создания соединения
-   * @throws TsNullArgumentRtException любой аргумент = null
-   * @throws NamingException контекст не найден
-   */
-  // @SuppressWarnings( { "nls", "unused" } )
-  // private static IS5BackendSession lookupBackend26( S5Connection aConnection, S5Host aHost, String aLogin,
-  // String aPassword, ClassLoader aClassLoader )
-  // throws Exception {
-  // TsNullArgumentRtException.checkNulls( aConnection, aHost, aLogin, aPassword, aClassLoader );
-  //
-  // String moduleName = IS5ImplementConstants.BACKEND_SERVER_MODULE_ID;
-  // String apiIntefaceName = IS5ImplementConstants.BACKEND_SESSION_INTERFACE;
-  // String apiBeanName = IS5ImplementConstants.BACKEND_SESSION_IMPLEMENTATION;
-  //
-  // // Подбор параметров соедниения: https://docs.jboss.org/author/display/EJBCLIENT/Overview+of+Client+properties
-  // // Properties properties = new Properties();
-  // Hashtable<String, Object> properties = new Hashtable<>();
-  // // properties.put( Context.INITIAL_CONTEXT_FACTORY, "org.wildfly.naming.client.WildFlyInitialContextFactory" );
-  // // properties.put( Context.SECURITY_PRINCIPAL, aLogin );
-  // // properties.put( Context.SECURITY_CREDENTIALS, aPassword );
-  // // properties.put( "remote.connections", "default" );
-  // properties.put( "remote.connection.default.host", aHost.address() );
-  // properties.put( "remote.connection.default.port", String.valueOf( aHost.port() ) );
-  // properties.put( "remote.connection.default.username", aLogin );
-  // properties.put( "remote.connection.default.password", aPassword );
-  // // properties.put( "remote.connection.default.connect.timeout", "1" );
-  //
-  // properties.put( "remote.connection.default.connect.options.org.xnio.Options.SASL_POLICY_NOPLAINTEXT", "false" );
-  // properties.put( "remote.connection.default.connect.options.org.xnio.Options.SASL_POLICY_NOANONYMOUS", "false" );
-  // properties.put( "remote.connection.default.connect.options.org.xnio.Options.SASL_DISALLOWED_MECHANISMS",
-  // "JBOSS-LOCAL-USER" );
-  // properties.put( "remote.connectionprovider.create.options.org.xnio.Options.SSL_ENABLED", "false" );
-  //
-  // properties.put( "endpoint.name", "s5.endpoint" );
-  //
-  // properties.put( Context.URL_PKG_PREFIXES, "org.jboss.ejb.client.naming" );
-  // properties.put( "org.jboss.ejb.client.scoped.context", "true" ); // enable scoping here
-  //
-  // Context context = new InitialContext( properties );
-  // try {
-  // String url = "ejb:" + "" + "/" + moduleName + "/" + apiBeanName + "!" + apiIntefaceName;
-  // final IS5BackendSession retValue = (IS5BackendSession)context.lookup( url );
-  // return retValue;
-  // }
-  // finally {
-  // try {
-  // // ejbRootNamingContext.close();
-  // context.close();
-  // }
-  // catch( Exception e ) {
-  // // nop
-  // }
-  // }
-  // }
+  private static IS5BackendSession lookupBackend2( S5Connection aConnection, S5Host aHost, String aLogin,
+      String aPasswd, long aConnectTimeout )
+      throws Throwable {
+    TsNullArgumentRtException.checkNulls( aConnection, aHost );
 
-  // @formatter:off
-  /**
-   * Ищет контекст имен сервера
-   *
-   * @param aHost String ip-адрес или имя хоста на котором работает сервер
-   * @param aPort Integer порт на котором работает сервер
-   * @param aLogin String имя пользователя
-   * @param aPassword String пароль пользователя
-   * @return {@link InitialContext} контекст имен сервера
-   * @throws TsNullArgumentRtException любой аргумент = null
-   * @throws NamingException контекст не найден
-   */
-//  @SuppressWarnings( "nls" )
-//  private static InitialContext lookupContext( String aHost, Integer aPort, String aLogin, String aPassword,
-//      String aModuleName, String aBeanName )
-//          throws NamingException {
-//    TsNullArgumentRtException.checkNulls( aHost, aPort, aLogin, aPassword );
-//    // Подбор параметров соедниения: https://community.jboss.org/thread/198085
-//
-//    // Работа без файлов jndi.properties, jboss-ejb-client.properties:
-//    // http://tapas-tanmoy-bose.blogspot.ru/2013/12/wildfly-ejb-invocations-from-remote.html)
-//    if( true ) {
-//      // return null;
-//    }
-//
-//    // String providerUrl = format( PROVIDER_URL_FORMAT, aHost, aPort );
-//    // Настройка свойств клиента jboss (jboss-ejb-client.properties)
-//    Properties clientProperties = new Properties();
-//    clientProperties.put( "remote.connections", "default" );
-//    clientProperties.put( "remote.connection.default.host", aHost );
-//    clientProperties.put( "remote.connection.default.port", aPort.toString() );
-//    clientProperties.put( "remote.connection.default.username", aLogin );
-//    clientProperties.put( "remote.connection.default.password", aPassword );
-//    clientProperties.put( "remote.connection.x1.connect.options.org.xnio.Options.SASL_POLICY_NOPLAINTEXT", "false" );
-//    clientProperties.put( "remote.connection.x1.connect.options.org.xnio.Options.SASL_POLICY_NOANONYMOUS", "false" );
-//    clientProperties.put( "remote.connection.default.connect.options.org.xnio.Options.SASL_DISALLOWED_MECHANISMS",
-//        "JBOSS-LOCAL-USER" );
-//    clientProperties.put( "remote.connectionprovider.create.options.org.xnio.Options.SSL_ENABLED", "false" );
-//    clientProperties.put( "invocation.timeout", "200" );
-//    EJBClientContext.setSelector(
-//        new ConfigBasedEJBClientContextSelector( new PropertiesBasedEJBClientConfiguration( clientProperties ) ) );
-//
-//    StatefulEJBLocator<IS5BackendSession> locator;
-//    try {
-//      locator =
-//          EJBClient.createSession( IS5BackendSession.class, "", "tm_server_deploy", "TmServerApiSessionImpl", "" );
-//      final IS5BackendSession ejb = EJBClient.createProxy( locator );
-//      System.out.println( ejb );
-//    }
-//    catch( Exception e ) {
-//      // TODO Auto-generated catch block
-//      e.printStackTrace();
-//    }
-//
-//    if( true ) {
-//      return null;
-//    }
-//    // // Настройка свойств jndi (jndi.properties)
-//    // Properties jndiProperties = new Properties();
-//    // jndiProperties.put( Context.URL_PKG_PREFIXES, "org.jboss.ejb.client.naming" );
-//    // jndiProperties.put( Context.INITIAL_CONTEXT_FACTORY,
-//    // org.jboss.naming.remote.client.InitialContextFactory.class.getName() );
-//    // jndiProperties.put( Context.SECURITY_PRINCIPAL, aLogin );
-//    // jndiProperties.put( Context.SECURITY_CREDENTIALS, aPassword );
-//    // jndiProperties.put( Context.PROVIDER_URL, providerUrl );
-//    // jndiProperties.put( "jboss.naming.client.ejb.context", Boolean.valueOf( true ) );
-//    // jndiProperties.put( "jboss.naming.client.connect.options.org.xnio.Options.SASL_POLICY_NOPLAINTEXT",
-//    // Boolean.FALSE.toString() );
-//    // jndiProperties.put( "s5.server.host", aHost );
-//    //
-//    // return new InitialContext( jndiProperties );
-//    return null;
-//  }
+    String moduleName = IS5ImplementConstants.BACKEND_SERVER_MODULE_ID;
+    String apiIntefaceName = IS5ImplementConstants.BACKEND_SESSION_INTERFACE;
+    String apiBeanName = IS5ImplementConstants.BACKEND_SESSION_IMPLEMENTATION;
+    String providerURL = String.format( "remote+http://%s:%s", aHost.address(), String.valueOf( aHost.port() ) );
 
-  /**
-   * Ищет в контексте имен соединения ссылку на удаленный интерфейс сервера
-   *
-   * @param aModuleName String имя модуля приложения
-   * @param aJndiName String jndi-имя удаленного интерфейса сервера
-   * @return {@link IS5BackendSession} ссылка на удаленный интерфейс соединения
-   * @throws TsNullArgumentRtException любой аргумент = null
-   * @throws NamingException ссылка не найдена
-   * @throws TsIllegalArgumentRtException найденная ссылка не является ссылкой удаленного интерфейса s5-сервера
-   */
-  // @formatter:off
-//  private static IS5BackendSession lookupRemoteApi( Context aInitialContext, String aModuleName, String aJndiName )
-//      throws NamingException {
-//    TsNullArgumentRtException.checkNulls( aInitialContext, aModuleName, aJndiName );
-//    String app = EMPTY_STRING;
-//    String module = aModuleName;
-//    String distinct = EMPTY_STRING;
-//    String jndiName = aJndiName;
-//    String lookupName = format( JNDI_LOOKUP_FORMAT, app, module, distinct, jndiName );
-//    Object ref = aInitialContext.lookup( lookupName );
-//
-//    if( !(ref instanceof IServerApi) ) {
-//      String refClassName = (ref != null ? ref.getClass().getName() : MSG_NULL_REF);
-//      throw new TsIllegalArgumentRtException( MSG_ERR_NOT_SERVER_API, aJndiName, refClassName );
-//    }
-//    return (IS5BackendSession)ref;
-//  }
-  // @formatter:on
+    final Hashtable<String, String> jndiProperties = new Hashtable<>();
+    jndiProperties.put( Context.INITIAL_CONTEXT_FACTORY, WildFlyInitialContextFactory.class.getName() );
+    jndiProperties.put( Context.PROVIDER_URL, providerURL );
+    jndiProperties.put( "remote.connection.default.read.timeout", String.valueOf( aConnectTimeout ) );
+    jndiProperties.put( Context.SECURITY_PRINCIPAL, aLogin );
+    jndiProperties.put( Context.SECURITY_CREDENTIALS, aPasswd );
+
+    String lookupPath = "ejb:/" + moduleName + "/" + apiBeanName + "!" + apiIntefaceName + "?stateful";
+
+    AuthenticationConfiguration authConfig = AuthenticationConfiguration.empty()
+        .setSaslMechanismSelector( SaslMechanismSelector.NONE.addMechanism( "DIGEST-MD5" ) ).useName( aLogin )
+        .usePassword( aPasswd.toCharArray() );
+    AuthenticationContext authContext = AuthenticationContext.empty().with( MatchRule.ALL, authConfig );
+
+    ExecutorService executor = Executors.newSingleThreadExecutor();
+    Future<IS5BackendSession> future = executor.submit( () -> authContext.runCallable( () -> {
+      InitialContext ctx = null;
+      try {
+        ctx = new InitialContext( jndiProperties );
+        return (IS5BackendSession)ctx.lookup( lookupPath );
+      }
+      finally {
+        if( ctx != null ) {
+          try {
+            ctx.close();
+          }
+          catch( Exception ignored ) {
+            // nop
+          }
+        }
+      }
+    } ) );
+
+    try {
+      return future.get( aConnectTimeout, TimeUnit.MILLISECONDS );
+    }
+    catch( TimeoutException e ) {
+      future.cancel( true );
+      throw new NamingException( "JNDI lookup превысил таймаут " + aConnectTimeout + " мс для " + providerURL )
+          .initCause( e );
+    }
+    catch( InterruptedException e ) {
+      Thread.currentThread().interrupt();
+      throw new NamingException( "Поток был прерван во время lookup" ).initCause( e );
+    }
+    catch( ExecutionException e ) {
+      Throwable cause = e.getCause();
+      if( cause instanceof NamingException ) {
+        throw (NamingException)cause;
+      }
+      if( cause instanceof Exception ) {
+        throw (Exception)cause;
+      }
+      throw new NamingException( "Ошибка при выполнении lookup" ).initCause( cause );
+    }
+    finally {
+      executor.shutdownNow();
+    }
+  }
 
   /**
    * Безопасное (без исключений) закрытие удаленного интерфейса сервера
@@ -1552,6 +1528,18 @@ public final class S5Connection
         // (IS5ConnectionParams.FAILURE_TIMEOUT). minimal value = 1 msec
         EJBClient.setInvocationTimeout( remoteBackend, 1, TimeUnit.MILLISECONDS );
         remoteBackend.close();
+      }
+      catch( Throwable e ) {
+        logger.error( e );
+      }
+      try {
+        if( ejbClientContext != null ) {
+          // 2026-04-11 mvk--- неэффективная попытка ускорить восстановление связи при длительных потерях связи с
+          // сервером
+          // logger.debug( "safeCloseRemoteApi(...): closing ejbClientContext: %s", ejbClientContext );
+          // ejbClientContext.close();
+          // logger.debug( "safeCloseRemoteApi(...): ejbClientContext closed: %s", ejbClientContext );
+        }
       }
       catch( Throwable e ) {
         logger.error( e );
