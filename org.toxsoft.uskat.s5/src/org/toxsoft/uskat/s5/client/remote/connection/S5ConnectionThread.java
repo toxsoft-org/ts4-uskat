@@ -21,7 +21,7 @@ import org.toxsoft.uskat.s5.utils.threads.impl.*;
 class S5ConnectionThread
     extends Thread {
 
-  private static long        ERROR_TIMEOUT = 5000;
+  private static long        ERROR_TIMEOUT = 500;
   private final S5Connection connection;
   private boolean            shutdown;
   private ILogger            logger;
