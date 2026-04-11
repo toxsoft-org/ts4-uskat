@@ -31,6 +31,19 @@ public final class SkGuiThreadExecutor
   }
 
   // ------------------------------------------------------------------------------------
+  // public API
+  //
+
+  /**
+   * Returns an indication that the thread executor has been disposed.
+   *
+   * @return <b>true</b>executor is disposed. any call will throws an exceptions;<b>false</b> executor is running.
+   */
+  public boolean isDisposed() {
+    return display.isDisposed();
+  }
+
+  // ------------------------------------------------------------------------------------
   // ITsThreadExecutor
   //
 
@@ -87,5 +100,4 @@ public final class SkGuiThreadExecutor
     TsIllegalStateRtException.checkFalse( thread().equals( Thread.currentThread() ) );
     display.readAndDispatch();
   }
-
 }
