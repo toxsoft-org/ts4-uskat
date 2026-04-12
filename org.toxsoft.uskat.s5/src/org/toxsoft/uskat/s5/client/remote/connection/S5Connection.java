@@ -166,7 +166,11 @@ public final class S5Connection
   private volatile AuthenticationContext authenticationContext;
 
   /**
-   * EJB-контекст клиента. null: еще не создавался
+   * EJB-контекст клиента. null: еще не создавался.
+   * <p>
+   * Хранение контекста необходимо для его очистки в случаях потери и восстановления связи. Есть предположение, что в
+   * некоторых случаях(проверялось разрывом vpn-соединения) без его очистки восстановить связь становится невозможно
+   * даже после ~100 секунд после того как сервер стал доступным.
    */
   private volatile EJBClientContext ejbClientContext;
 
@@ -1366,12 +1370,12 @@ public final class S5Connection
     String lookupPath = "ejb:/" + moduleName + "/" + apiBeanName + "!" + apiIntefaceName + "?stateful";
 
     if( ejbClientContext != null ) {
-      // 2026-04-11 mvk--- неэффективная попытка ускорить восстановление связи при длительных потерях связи с сервером
-      // EJBClientContext.getCurrent().close();
-      // logger.debug( "lookupBackend(...): closing ejbClientContext: %s", ejbClientContext );
-      // ejbClientContext.close();
-      // logger.debug( "lookupBackend(...): ejbClientContext closed: %s", ejbClientContext );
-      // ejbClientContext = null;
+      // 2026-04-11 mvk попытка ускорить восстановление связи при длительных потерях связи с сервером
+      EJBClientContext.getCurrent().close();
+      logger.debug( "lookupBackend(...): closing ejbClientContext: %s", ejbClientContext );
+      ejbClientContext.close();
+      logger.debug( "lookupBackend(...): ejbClientContext closed: %s", ejbClientContext );
+      ejbClientContext = null;
     }
 
     AuthenticationConfiguration authConfig = AuthenticationConfiguration.empty()
@@ -1534,11 +1538,10 @@ public final class S5Connection
       }
       try {
         if( ejbClientContext != null ) {
-          // 2026-04-11 mvk--- неэффективная попытка ускорить восстановление связи при длительных потерях связи с
-          // сервером
-          // logger.debug( "safeCloseRemoteApi(...): closing ejbClientContext: %s", ejbClientContext );
-          // ejbClientContext.close();
-          // logger.debug( "safeCloseRemoteApi(...): ejbClientContext closed: %s", ejbClientContext );
+          // 2026-04-11 mvk попытка ускорить восстановление связи при длительных потерях связи с сервером
+          logger.debug( "safeCloseRemoteApi(...): closing ejbClientContext: %s", ejbClientContext ); //$NON-NLS-1$
+          ejbClientContext.close();
+          logger.debug( "safeCloseRemoteApi(...): ejbClientContext closed: %s", ejbClientContext ); //$NON-NLS-1$
         }
       }
       catch( Throwable e ) {
