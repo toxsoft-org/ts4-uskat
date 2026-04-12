@@ -111,7 +111,8 @@ public class SkThreadExecutorService
    */
   public static ITsThreadExecutor getExecutor( ISkCoreApi aCoreApi ) {
     TsNullArgumentRtException.checkNull( aCoreApi );
-    ITsThreadExecutor service = (ITsThreadExecutor)aCoreApi.services().getByKey( SkThreadExecutorService.SERVICE_ID );
-    return service;
+    SkThreadExecutorService service =
+        (SkThreadExecutorService)aCoreApi.services().getByKey( SkThreadExecutorService.SERVICE_ID );
+    return service.threadExecutor();
   }
 }
