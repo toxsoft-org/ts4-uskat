@@ -26,7 +26,7 @@ class S5ConnectTask
    * <p>
    * Determined empirically.
    */
-  private static final int READ_AND_DISPATCH_MAX = 512;
+  private static final int READ_AND_DISPATCH_MAX = 1;
 
   /**
    * Milliseconds to wait after failed attempt to connection before next try.
