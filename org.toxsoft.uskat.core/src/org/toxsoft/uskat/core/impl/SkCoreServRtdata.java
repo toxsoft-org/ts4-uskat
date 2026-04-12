@@ -234,7 +234,11 @@ public class SkCoreServRtdata
     for( Gwid g : msgValues.keys() ) {
       SkWriteCurrDataChannel channel = cdWriteChannelsMap.findByKey( g );
       if( channel != null ) {
-        channel.value = msgValues.getByKey( g );
+        IAtomicValue value = msgValues.getByKey( g );
+        if( channel.value == null || !channel.value.equals( value ) ) {
+          channel.value = value;
+          newValues.put( g, value );
+        }
       }
     }
     // fire new data event
@@ -481,8 +485,8 @@ public class SkCoreServRtdata
       }
 
       @Override
-      public void setValue( IAtomicValue aValue ) {
-        SkWriteCurrDataChannel.this.setValue( aValue );
+      public IAtomicValue setValue( IAtomicValue aValue ) {
+        return SkWriteCurrDataChannel.this.setValue( aValue );
       }
 
     };
@@ -512,16 +516,17 @@ public class SkCoreServRtdata
     }
 
     @Override
-    public void setValue( IAtomicValue aValue ) {
+    public IAtomicValue setValue( IAtomicValue aValue ) {
       checkThread();
       TsIllegalStateRtException.checkFalse( isOk() );
       TsNullArgumentRtException.checkNull( aValue );
       if( value != null && value.equals( aValue ) ) {
-        return;
+        return value;
       }
       AvTypeCastRtException.checkCanAssign( atomicType, aValue.atomicType() );
       ba().baRtdata().writeCurrData( gwid, aValue );
       // write success. cache last value
+      IAtomicValue retValue = value;
       value = aValue;
       // 2026-01-18 mvk+++
       // instant update of the value of an existing reading channel
@@ -531,6 +536,7 @@ public class SkCoreServRtdata
         newValues.put( gwid, aValue );
         eventer.fireCurrData( newValues );
       }
+      return (retValue != null ? retValue : IAtomicValue.NULL);
     }
   }
 
