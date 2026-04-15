@@ -47,6 +47,9 @@ public class AddonSetupConnCfgService
     }
   };
 
+  /**
+   * File stores list of connection configurations as a {@link ConnectionConfig#KEEPER} collection.
+   */
   private File                     connCfgFile = null;
   private IConnectionConfigService ccService   = null;
   private final ILogger            logger      = LoggerUtils.getLogger( getClass() );

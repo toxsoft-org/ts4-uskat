@@ -8,8 +8,7 @@ import org.toxsoft.uskat.core.gui.conn.cfg.*;
 /**
  * Helper class to implement different task of server connections.
  * <p>
- * Usage: simply create an instance of {@link HandlerHelper}, call all necessary methods and forget about it - instance
- * does not allocates any resources.
+ * Instance of this interface implementation may be found in the application windows level context.
  *
  * @author hazard157
  */

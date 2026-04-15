@@ -75,7 +75,7 @@ public interface ISkCoreApi {
   ISkRtdataService rtdService();
 
   /**
-   * Returns asyncronyous queries service.
+   * Returns asynchronous queries service.
    *
    * @return {@link ISkHistoryQueryService} - the history query service
    */
