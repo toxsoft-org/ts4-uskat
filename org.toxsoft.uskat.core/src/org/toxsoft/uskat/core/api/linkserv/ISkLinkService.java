@@ -29,13 +29,14 @@ public interface ISkLinkService
    * Returns forward links between objects of the specified classes.
    *
    * @param aClassIds {@link IStringList} class IDs list
+   * @param aIncludeSubclasses boolean - <code>true</code> to include objects of all subclasses
    * @return {@link IMap}&lt;{@link Skid},{@link IStringMap}&lt;{@link IDtoLinkFwd}&gt;&gt; - forward links map.<br>
    *         key1 {@link Skid} object ID;<br>
    *         key2 String the link ID.
    * @throws TsNullArgumentRtException any argument = <code>null</code>
    * @throws TsItemNotFoundRtException no such link or object exists
    */
-  IMap<Skid, IStringMap<IDtoLinkFwd>> getLinkFwds( IStringList aClassIds );
+  IMap<Skid, IStringMap<IDtoLinkFwd>> getLinkFwds( IStringList aClassIds, boolean aIncludeSubclasses );
 
   /**
    * Returns the forward link.

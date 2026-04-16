@@ -379,7 +379,7 @@ public class SkCoreServLinks
   // ISkLinkService
   //
   @Override
-  public IMap<Skid, IStringMap<IDtoLinkFwd>> getLinkFwds( IStringList aClassIds ) {
+  public IMap<Skid, IStringMap<IDtoLinkFwd>> getLinkFwds( IStringList aClassIds, boolean aIncludeSubclasses ) {
     checkThread();
     TsNullArgumentRtException.checkNull( aClassIds );
 
@@ -403,6 +403,9 @@ public class SkCoreServLinks
     IMapEdit<Skid, IStringMap<IDtoLinkFwd>> retValue = new ElemMap<>();
     for( IDtoLinkFwd link : links ) {
       Skid objId = link.leftSkid();
+      if( !aIncludeSubclasses && !aClassIds.hasElem( objId.classId() ) ) {
+        continue;
+      }
       IStringMapEdit<IDtoLinkFwd> objLinks = (IStringMapEdit<IDtoLinkFwd>)retValue.findByKey( objId );
       if( objLinks == null ) {
         objLinks = new StringMap<>();
