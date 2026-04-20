@@ -909,11 +909,11 @@ public class SkCoreServObject
   public <T extends ISkObject> IList<T> listObjs( String aClassId, boolean aIncludeSubclasses ) {
     checkThread();
     TsNullArgumentRtException.checkNull( aClassId );
-    return (IList<T>)getObjs( new StringArrayList( aClassId ), aIncludeSubclasses );
+    return (IList<T>)listObjs( new StringArrayList( aClassId ), aIncludeSubclasses );
   }
 
   @Override
-  public IList<ISkObject> getObjs( IStringList aClassIds, boolean aIncludeSubclasses ) {
+  public IList<ISkObject> listObjs( IStringList aClassIds, boolean aIncludeSubclasses ) {
     checkThread();
     TsNullArgumentRtException.checkNull( aClassIds );
     coreApi().papiCheckIsOpen();
