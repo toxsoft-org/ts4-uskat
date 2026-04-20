@@ -19,9 +19,10 @@ public interface ISkWriteCurrDataChannel
    * Writes current value as it is known at method call time.
    *
    * @param aValue {@link IAtomicValue} - lastest value of RTData
+   * @return {@link IAtomicValue} previous value
    * @throws TsNullArgumentRtException any argument = <code>null</code>
    * @throws AvTypeCastRtException atomic type of the value does not matches channel atomic type
    */
-  void setValue( IAtomicValue aValue );
+  IAtomicValue setValue( IAtomicValue aValue );
 
 }

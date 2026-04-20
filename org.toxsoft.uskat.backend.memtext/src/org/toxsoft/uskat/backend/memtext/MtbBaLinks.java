@@ -208,6 +208,22 @@ public class MtbBaLinks
   }
 
   @Override
+  public IList<IDtoLinkFwd> getAllLinksFwd( IGwidList aLinkGwids ) {
+    internalCheck();
+    IListEdit<IDtoLinkFwd> ll = new ElemLinkedBundleList<>();
+    for( Gwid linkGwid : aLinkGwids ) {
+      IMap<Skid, IDtoLinkFwd> map = linksMap.findByKey( linkGwid );
+      if( map == null ) {
+        continue;
+      }
+      for( Skid s : map.keys() ) {
+        ll.add( map.getByKey( s ) );
+      }
+    }
+    return ll;
+  }
+
+  @Override
   public IList<IDtoLinkFwd> getAllLinksFwd( Skid aLeftSkid ) {
     internalCheck();
     IListEdit<IDtoLinkFwd> ll = new ElemLinkedBundleList<>();

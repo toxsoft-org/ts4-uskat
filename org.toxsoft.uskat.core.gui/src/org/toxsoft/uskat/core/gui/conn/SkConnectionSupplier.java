@@ -8,6 +8,7 @@ import org.toxsoft.core.tsgui.bricks.ctx.impl.*;
 import org.toxsoft.core.tsgui.m5.*;
 import org.toxsoft.core.tslib.bricks.events.*;
 import org.toxsoft.core.tslib.bricks.strid.more.*;
+import org.toxsoft.core.tslib.bricks.threadexec.*;
 import org.toxsoft.core.tslib.bricks.validator.*;
 import org.toxsoft.core.tslib.bricks.validator.impl.*;
 import org.toxsoft.core.tslib.coll.*;
@@ -225,6 +226,14 @@ public class SkConnectionSupplier
     for( ISkConnection conn : connsMap.values() ) {
       try {
         if( conn.state().isOpen() ) {
+          ITsThreadExecutor threadExecutor = SkThreadExecutorService.getExecutor( conn.coreApi() );
+          if( threadExecutor instanceof SkThreadExecutorService ) {
+            threadExecutor = ((SkThreadExecutorService)threadExecutor).threadExecutor();
+          }
+          if( threadExecutor instanceof SkGuiThreadExecutor && ((SkGuiThreadExecutor)threadExecutor).isDisposed() ) {
+            logger.warning( FMT_CONN_DISPLAY_IS_DISPOSED, conn );
+            continue;
+          }
           conn.close();
         }
       }

@@ -26,8 +26,8 @@ public interface IBaLinks
   /**
    * Finds the forward link.
    * <p>
-   * Argument <code>aLinkGwid</code> must must contain the class ID where the specified link is declared, not the
-   * subclass. Generally backend is "dumb" and does not knows about class inheritance.
+   * Argument <code>aLinkGwid</code> must contain the class ID where the specified link is declared, not the subclass.
+   * Generally backend is "dumb" and does not knows about class inheritance.
    *
    * @param aLinkGwid {@link Gwid} - abstract GWID of link
    * @param aLeftSkid {@link Skid} - the left object SKID
@@ -44,6 +44,17 @@ public interface IBaLinks
    * @return {@link IList}&lt;{@link IDtoLinkFwd}&gt; - list of forward links
    */
   IList<IDtoLinkFwd> getAllLinksFwd( Skid aLeftSkid );
+
+  /**
+   * Returns all forward links stored in backend.
+   * <p>
+   * Argument <code>aLinkGwid</code> must contain the class ID where the specified link is declared, not the subclass.
+   * Generally backend is "dumb" and does not knows about class inheritance.
+   *
+   * @param aLinkGwids {@link IGwidList} - list of abstract GWID of link
+   * @return {@link IDtoLinkFwd} - forward link, may be <code>null</code> if no objects are linked
+   */
+  IList<IDtoLinkFwd> getAllLinksFwd( IGwidList aLinkGwids );
 
   /**
    * Finds the reverse link.

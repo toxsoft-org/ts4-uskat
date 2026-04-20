@@ -97,7 +97,7 @@ public interface ISkObjectService
    * @throws TsNullArgumentRtException any argument = <code>null</code>
    * @throws TsItemNotFoundRtException no such class
    */
-  IList<ISkObject> getObjs( IStringList aClassIds, boolean aIncludeSubclasses );
+  IList<ISkObject> listObjs( IStringList aClassIds, boolean aIncludeSubclasses );
 
   /**
    * Returns objects by SKIDs.

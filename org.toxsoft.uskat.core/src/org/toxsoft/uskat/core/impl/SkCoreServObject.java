@@ -32,6 +32,7 @@ import org.toxsoft.uskat.core.api.sysdescr.*;
 import org.toxsoft.uskat.core.api.sysdescr.dto.*;
 import org.toxsoft.uskat.core.devapi.*;
 import org.toxsoft.uskat.core.devapi.transactions.*;
+import org.toxsoft.uskat.core.impl.SkCoreServLinks.*;
 import org.toxsoft.uskat.core.impl.dto.*;
 import org.toxsoft.uskat.core.utils.*;
 
@@ -58,7 +59,7 @@ public class SkCoreServObject
 
     private static final int MAX_SIZE = 256 * 1024;
 
-    private final IStringMapEdit<IMapEdit<Skid, SkObject>> classObjCache  = new StringMap<>();
+    private final IStringMapEdit<IMapEdit<Skid, SkObject>> objsByClassIds = new StringMap<>();
     private final IStringListEdit                          allObjClassIds = new StringArrayList();
 
     ObjsCache() {
@@ -66,15 +67,11 @@ public class SkCoreServObject
     }
 
     boolean has( Skid aSkid ) {
-      IMapEdit<Skid, SkObject> cache = classObjCache.findByKey( aSkid.classId() );
-      if( cache == null ) {
-        return false;
-      }
-      return cache.hasKey( aSkid );
+      return (find( aSkid ) != null);
     }
 
     SkObject find( Skid aSkid ) {
-      IMapEdit<Skid, SkObject> cache = classObjCache.findByKey( aSkid.classId() );
+      IMapEdit<Skid, SkObject> cache = objsByClassIds.findByKey( aSkid.classId() );
       if( cache == null ) {
         return null;
       }
@@ -83,17 +80,17 @@ public class SkCoreServObject
 
     @SuppressWarnings( "unchecked" )
     <T extends ISkObject> IList<T> listObjs( String aClassId ) {
-      IMapEdit<Skid, SkObject> cache = classObjCache.findByKey( aClassId );
+      IMapEdit<Skid, SkObject> cache = objsByClassIds.findByKey( aClassId );
       return (cache == null ? IList.EMPTY : (IList<T>)cache.values());
     }
 
     SkObject put( SkObject aObject ) {
       String classId = aObject.classId();
-      IMapEdit<Skid, SkObject> cache = classObjCache.findByKey( classId );
+      IMapEdit<Skid, SkObject> cache = objsByClassIds.findByKey( classId );
       if( cache == null ) {
         cache = new ElemMap<>( TsCollectionsUtils.getMapBucketsCount( //
             TsCollectionsUtils.estimateOrder( MAX_SIZE ) ), TsCollectionsUtils.DEFAULT_BUNDLE_CAPACITY );
-        classObjCache.put( classId, cache );
+        objsByClassIds.put( classId, cache );
       }
       if( cache.size() >= MAX_SIZE ) {
         Skid removeObjId = cache.keys().first();
@@ -110,15 +107,15 @@ public class SkCoreServObject
 
     void removeAllObjClassIds( String aClassId ) {
       allObjClassIds.remove( aClassId );
-      ISkClassInfo parentClassInfo = coreApi().sysdescr().findClassInfo( aClassId ).parent();
-      if( parentClassInfo != null ) {
-        removeAllObjClassIds( parentClassInfo.id() );
+      ISkClassInfo parentInfo = coreApi().sysdescr().findClassInfo( aClassId ).parent();
+      if( parentInfo != null ) {
+        removeAllObjClassIds( parentInfo.id() );
       }
     }
 
     void remove( Skid aSkid ) {
       String classId = aSkid.classId();
-      IMapEdit<Skid, SkObject> cache = classObjCache.findByKey( classId );
+      IMapEdit<Skid, SkObject> cache = objsByClassIds.findByKey( classId );
       if( cache != null ) {
         cache.removeByKey( aSkid );
       }
@@ -126,12 +123,12 @@ public class SkCoreServObject
     }
 
     void removeByClass( String aClassId ) {
-      classObjCache.removeByKey( aClassId );
+      objsByClassIds.removeByKey( aClassId );
       removeAllObjClassIds( aClassId );
     }
 
     void clear() {
-      classObjCache.clear();
+      objsByClassIds.clear();
       allObjClassIds.clear();
     }
 
@@ -575,6 +572,7 @@ public class SkCoreServObject
       case MSGID_OBJECTS_CHANGE -> {
         ECrudOp op = extractCrudOp( aMessage );
         Skid skid = extractSkid( aMessage );
+        LinksCache linkCache = ((SkCoreServLinks)coreApi().linkService()).linksCache;
         if( skid != null ) {
           // if created by this service, object is already in cache, if sibling service - remove() has no sense
           if( op != ECrudOp.CREATE ) {
@@ -583,9 +581,21 @@ public class SkCoreServObject
           else {
             objsCache.removeAllObjClassIds( skid.classId() );
           }
+          if( op == ECrudOp.CREATE ) {
+            linkCache.removeAllObjGwids( skid.classId() );
+          }
+          if( op == ECrudOp.REMOVE ) {
+            linkCache.removeByObjId( skid );
+          }
         }
         else {
           objsCache.clear();
+          if( op == ECrudOp.CREATE ) {
+            linkCache.clear();
+          }
+          if( op == ECrudOp.REMOVE ) {
+            linkCache.clear();
+          }
         }
         eventer.fireObjectsChanged( op, skid );
         yield true;
@@ -598,6 +608,8 @@ public class SkCoreServObject
   protected void onBackendActiveStateChanged( boolean aIsActive ) {
     // 2026-02-05 mvk +++
     if( aIsActive ) {
+      // TODO: 2026-04-08 mvk: нужно ли вместо очистки кэша сделать пакетный запрос для обновления ???. Если да, тоо
+      // делать это по параметру конфигурации или безусловно?
       objsCache.clear();
     }
   }
@@ -897,11 +909,11 @@ public class SkCoreServObject
   public <T extends ISkObject> IList<T> listObjs( String aClassId, boolean aIncludeSubclasses ) {
     checkThread();
     TsNullArgumentRtException.checkNull( aClassId );
-    return (IList<T>)getObjs( new StringArrayList( aClassId ), aIncludeSubclasses );
+    return (IList<T>)listObjs( new StringArrayList( aClassId ), aIncludeSubclasses );
   }
 
   @Override
-  public IList<ISkObject> getObjs( IStringList aClassIds, boolean aIncludeSubclasses ) {
+  public IList<ISkObject> listObjs( IStringList aClassIds, boolean aIncludeSubclasses ) {
     checkThread();
     TsNullArgumentRtException.checkNull( aClassIds );
     coreApi().papiCheckIsOpen();
@@ -952,9 +964,11 @@ public class SkCoreServObject
       return ll;
     }
     finally {
-      logger().info( FMT_MSG_GET_OBJS, aClassIds, Boolean.valueOf( aIncludeSubclasses ),
-          Integer.valueOf( aClassIds.size() ), Integer.valueOf( ll.size() ),
-          Long.valueOf( System.currentTimeMillis() - trace0 ) );
+      if( baClassIds.size() > 0 ) {
+        logger().info( FMT_MSG_GET_OBJS, aClassIds, Boolean.valueOf( aIncludeSubclasses ),
+            Integer.valueOf( aClassIds.size() ), Integer.valueOf( ll.size() ),
+            Long.valueOf( System.currentTimeMillis() - trace0 ) );
+      }
     }
   }
 

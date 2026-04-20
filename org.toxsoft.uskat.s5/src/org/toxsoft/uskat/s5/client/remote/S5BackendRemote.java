@@ -43,6 +43,11 @@ public final class S5BackendRemote
   private final S5Connection connection;
 
   /**
+   * Параметры бекенда.
+   */
+  private volatile IOptionSet backendInfoOptions = IOptionSet.NULL;
+
+  /**
    * Признак того, что было установлено соединение
    */
   private volatile boolean wasConnect;
@@ -246,7 +251,10 @@ public final class S5BackendRemote
 
   @Override
   protected IOptionSet getBackendInfoOptions() {
-    return (connection.state() == EConnectionState.CONNECTED ? session().getBackendInfo().params() : IOptionSet.NULL);
+    if( backendInfoOptions == IOptionSet.NULL && connection.state() == EConnectionState.CONNECTED ) {
+      backendInfoOptions = session().getBackendInfo().params();
+    }
+    return backendInfoOptions;
   }
 
   // ------------------------------------------------------------------------------------

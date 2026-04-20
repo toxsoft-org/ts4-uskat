@@ -103,7 +103,9 @@ class MtbBaClasses
         if( !OPDEF_SK_IS_SOURCE_CODE_DEFINED_CLASS.getValue( cinfSub.params() ).asBool() ) {
           return true;
         }
-        boolean hasNonJavaSubSub = hasNonSourceCodeSubclass( aClassInfo );
+        // 2026-04-14 mvk ---+++
+        // boolean hasNonJavaSubSub = hasNonSourceCodeSubclass( aClassInfo );
+        boolean hasNonJavaSubSub = hasNonSourceCodeSubclass( cinfSub );
         if( hasNonJavaSubSub ) {
           return true;
         }

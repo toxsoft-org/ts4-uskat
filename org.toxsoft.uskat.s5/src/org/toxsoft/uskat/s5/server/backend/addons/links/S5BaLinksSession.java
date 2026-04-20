@@ -5,6 +5,7 @@ import static org.toxsoft.uskat.s5.server.IS5ImplementConstants.*;
 import java.util.concurrent.*;
 
 import org.toxsoft.core.tslib.coll.*;
+import org.toxsoft.core.tslib.coll.impl.*;
 import org.toxsoft.core.tslib.coll.primtypes.*;
 import org.toxsoft.core.tslib.gw.gwid.*;
 import org.toxsoft.core.tslib.gw.skid.*;
@@ -74,6 +75,16 @@ public class S5BaLinksSession
   public IList<IDtoLinkFwd> getAllLinksFwd( Skid aLeftSkid ) {
     TsNullArgumentRtException.checkNull( aLeftSkid );
     return linksSupport.getAllLinksFwd( aLeftSkid );
+  }
+
+  @Override
+  public IList<IDtoLinkFwd> getAllLinksFwd( IGwidList aLinkGwids ) {
+    TsNullArgumentRtException.checkNull( aLinkGwids );
+    // preparing for result marshaling
+    IList<IDtoLinkFwd> links = linksSupport.getAllLinksFwd( aLinkGwids );
+    IListEdit<IDtoLinkFwd> retValue = new ElemArrayList<>( links.size() );
+    retValue.setAll( links );
+    return retValue;
   }
 
   @Override

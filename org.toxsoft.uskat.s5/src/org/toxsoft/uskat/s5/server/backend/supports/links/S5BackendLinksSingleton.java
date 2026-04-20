@@ -10,6 +10,7 @@ import static org.toxsoft.uskat.s5.server.backend.supports.links.S5LinksSQL.*;
 import static org.toxsoft.uskat.s5.server.backend.supports.objects.S5BackendObjectsUtils.*;
 
 import java.lang.reflect.*;
+import java.sql.*;
 import java.util.*;
 import java.util.concurrent.*;
 
@@ -202,7 +203,7 @@ public class S5BackendLinksSingleton
 
   @Override
   public IList<IDtoLinkFwd> getAllLinksFwd( Skid aLeftSkid ) {
-    TsNullArgumentRtException.checkNulls( aLeftSkid );
+    TsNullArgumentRtException.checkNull( aLeftSkid );
 
     // Пред-интерсепция
     IList<IDtoLinkFwd> retValue = callBeforeGetAllLinksFwd( interceptors, aLeftSkid );
@@ -214,6 +215,29 @@ public class S5BackendLinksSingleton
 
     // Пост-интерсепция
     retValue = callAfterGetAllLinksFwd( interceptors, aLeftSkid, retValue );
+
+    return retValue;
+  }
+
+  @Override
+  public IList<IDtoLinkFwd> getAllLinksFwd( IGwidList aLinkGwids ) {
+    TsNullArgumentRtException.checkNull( aLinkGwids );
+
+    // Пред-интерсепция
+    IList<IDtoLinkFwd> retValue = callBeforeGetAllLinksFwd( interceptors, aLinkGwids );
+    if( retValue != null ) {
+      return retValue;
+    }
+    try( Connection dbConnection = dataSource.getConnection() ) {
+      retValue = getFwdLinksByLinkGwids( dbConnection, sysdescrReader, aLinkGwids );
+    }
+    catch( SQLException e ) {
+      // Неожиданная ошибка чтения объектов из базы данных
+      throw new TsInternalErrorRtException( e, ERR_READ_UNEXPECTED, cause( e ) );
+    }
+
+    // Пост-интерсепция
+    retValue = callAfterGetAllLinksFwd( interceptors, aLinkGwids, retValue );
 
     return retValue;
   }

@@ -42,6 +42,123 @@ public class SkCoreServLinks
   public static final ISkServiceCreator<AbstractSkService> CREATOR = SkCoreServLinks::new;
 
   /**
+   * Internal cache of the links.
+   */
+  class LinksCache {
+
+    private static final int MAX_SIZE = 256 * 1024;
+
+    private final IMapEdit<Gwid, IMapEdit<Skid, IDtoLinkFwd>> objsByLinkGwids = new ElemMap<>();
+    private final GwidList                                    allObjGwids     = new GwidList();
+
+    LinksCache() {
+      // nop
+    }
+
+    boolean has( Gwid aLinkGwid, Skid aSkid ) {
+      IMapEdit<Skid, IDtoLinkFwd> cache = objsByLinkGwids.findByKey( aLinkGwid );
+      if( cache == null ) {
+        return false;
+      }
+      return cache.hasKey( aSkid );
+    }
+
+    IDtoLinkFwd find( Gwid aLinkGwid, Skid aSkid ) {
+      IMapEdit<Skid, IDtoLinkFwd> cache = objsByLinkGwids.findByKey( aLinkGwid );
+      if( cache == null ) {
+        return null;
+      }
+      return cache.findByKey( aSkid );
+    }
+
+    @SuppressWarnings( "unchecked" )
+    <T extends IDtoLinkFwd> IList<T> listObjs( Gwid aLinkGwid ) {
+      IMapEdit<Skid, IDtoLinkFwd> cache = objsByLinkGwids.findByKey( aLinkGwid );
+      return (cache == null ? IList.EMPTY : (IList<T>)cache.values());
+    }
+
+    IDtoLinkFwd put( Gwid aLinkGwid, IDtoLinkFwd aLink ) {
+      IMapEdit<Skid, IDtoLinkFwd> cache = objsByLinkGwids.findByKey( aLinkGwid );
+      if( cache == null ) {
+        cache = new ElemMap<>( TsCollectionsUtils.getMapBucketsCount( //
+            TsCollectionsUtils.estimateOrder( MAX_SIZE ) ), TsCollectionsUtils.DEFAULT_BUNDLE_CAPACITY );
+        objsByLinkGwids.put( aLinkGwid, cache );
+      }
+      if( cache.size() >= MAX_SIZE ) {
+        Skid removeObjId = cache.keys().first();
+        cache.removeByKey( removeObjId );
+        allObjGwids.remove( aLinkGwid );
+      }
+      cache.put( aLink.leftSkid(), aLink );
+      return aLink;
+    }
+
+    boolean hasAllObjGwids( Gwid aLinkGwid ) {
+      return allObjGwids.hasElem( aLinkGwid );
+    }
+
+    void addAllObjGwids( Gwid aLinkGwid ) {
+      if( !allObjGwids.hasElem( aLinkGwid ) ) {
+        allObjGwids.add( aLinkGwid );
+      }
+    }
+
+    void removeAllObjGwids( String aClassId ) {
+      ISkClassInfo classInfo = coreApi().sysdescr().getClassInfo( aClassId );
+      ISkClassProps<IDtoLinkInfo> linkInfos = classInfo.links();
+      for( IDtoLinkInfo linkInfo : linkInfos.list() ) {
+        String linkId = linkInfo.id();
+        Gwid linkGwid = Gwid.createLink( linkInfos.findSuperDeclarer( linkId ).id(), linkId );
+        allObjGwids.remove( linkGwid );
+      }
+    }
+
+    void removeByClassId( String aClassId ) {
+      ISkClassInfo classInfo = coreApi().sysdescr().getClassInfo( aClassId );
+      ISkClassProps<IDtoLinkInfo> linkInfos = classInfo.links();
+      for( IDtoLinkInfo linkInfo : linkInfos.list() ) {
+        String linkId = linkInfo.id();
+        Gwid linkGwid = Gwid.createLink( linkInfos.findSuperDeclarer( linkId ).id(), linkId );
+        IMapEdit<Skid, IDtoLinkFwd> cache = objsByLinkGwids.findByKey( linkGwid );
+        if( cache != null ) {
+          cache.clear();
+        }
+      }
+      removeAllObjGwids( aClassId );
+    }
+
+    void removeByObjId( Skid aSkid ) {
+      String classId = aSkid.classId();
+      ISkClassInfo classInfo = coreApi().sysdescr().getClassInfo( classId );
+      ISkClassProps<IDtoLinkInfo> linkInfos = classInfo.links();
+      for( IDtoLinkInfo linkInfo : linkInfos.list() ) {
+        String linkId = linkInfo.id();
+        Gwid linkGwid = Gwid.createLink( linkInfos.findSuperDeclarer( linkId ).id(), linkId );
+        IMapEdit<Skid, IDtoLinkFwd> cache = objsByLinkGwids.findByKey( linkGwid );
+        if( cache != null ) {
+          cache.removeByKey( aSkid );
+        }
+      }
+      removeAllObjGwids( classId );
+    }
+
+    void removeByConcreteLink( Gwid aConcreteLink ) {
+      String classId = aConcreteLink.classId();
+      Gwid linkGwid = Gwid.createLink( classId, aConcreteLink.propId() );
+      IMapEdit<Skid, IDtoLinkFwd> cache = objsByLinkGwids.findByKey( linkGwid );
+      if( cache != null ) {
+        cache.removeByKey( aConcreteLink.skid() );
+      }
+      removeAllObjGwids( classId );
+    }
+
+    void clear() {
+      objsByLinkGwids.clear();
+      allObjGwids.clear();
+    }
+  }
+
+  /**
    * {@link ISkLinkService#eventer()} implementation.
    *
    * @author hazard157
@@ -161,6 +278,7 @@ public class SkCoreServLinks
     return ValidationResult.firstNonOk( vr, lInfo.linkConstraint().validateWarnEmpty( aNewLink.rightSkids() ) );
   };
 
+  final LinksCache        linksCache        = new LinksCache();
   final Eventer           eventer           = new Eventer();
   final ValidationSupport validationSupport = new ValidationSupport();
   private final ILogger   logger            = LoggerUtils.getLogger( getClass() );
@@ -195,6 +313,9 @@ public class SkCoreServLinks
     return switch( aMessage.messageId() ) {
       case MSGID_LINKS_CHANGE -> {
         IGwidList gwidList = extractGwidList( aMessage );
+        for( Gwid gwid : gwidList ) {
+          linksCache.removeByConcreteLink( gwid );
+        }
         eventer.fireLinksChanged( gwidList );
         yield true;
       }
@@ -202,21 +323,102 @@ public class SkCoreServLinks
     };
   }
 
+  @Override
+  protected void onBackendActiveStateChanged( boolean aIsActive ) {
+    // 2026-02-05 mvk +++
+    if( aIsActive ) {
+      // TODO: 2026-04-08 mvk: нужно ли вместо очистки кэша сделать пакетный запрос для обновления ???. Если да, тоо
+      // делать это по параметру конфигурации или безусловно?
+      linksCache.clear();
+    }
+  }
+
   // ------------------------------------------------------------------------------------
   // implementation
   //
+  private IList<IDtoLinkFwd> readFromBackend( IGwidList aLinkGwids ) {
+    GwidList baLinkGwids = new GwidList();
+    for( Gwid linkGwid : aLinkGwids ) {
+      if( !linksCache.hasAllObjGwids( linkGwid ) ) {
+        baLinkGwids.add( linkGwid );
+      }
+    }
+    if( baLinkGwids.size() > 0 ) {
+      IList<IDtoLinkFwd> baLinks = ba().baLinks().getAllLinksFwd( baLinkGwids );
+      for( IDtoLinkFwd baLink : baLinks ) {
+        linksCache.put( baLink.gwid(), baLink );
+      }
+      for( Gwid baLinkGwid : baLinkGwids ) {
+        linksCache.addAllObjGwids( baLinkGwid );
+      }
+    }
+    IListEdit<IDtoLinkFwd> retValue = new ElemLinkedList<>();
+    for( Gwid linkGwid : aLinkGwids ) {
+      IMap<Skid, IDtoLinkFwd> links = linksCache.objsByLinkGwids.findByKey( linkGwid );
+      if( links != null ) {
+        retValue.addAll( links );
+      }
+    }
+    return retValue;
+  }
 
   private IDtoLinkFwd readFromBackend( Gwid aLinkGwid, Skid aLeftSkid ) {
-    IDtoLinkFwd lf = ba().baLinks().findLinkFwd( aLinkGwid, aLeftSkid );
+    IDtoLinkFwd lf = linksCache.find( aLinkGwid, aLeftSkid );
     if( lf != null ) {
       return lf;
     }
-    return new DtoLinkFwd( aLinkGwid, aLeftSkid, ISkidList.EMPTY );
+    lf = ba().baLinks().findLinkFwd( aLinkGwid, aLeftSkid );
+    if( lf == null ) {
+      lf = new DtoLinkFwd( aLinkGwid, aLeftSkid, ISkidList.EMPTY );
+    }
+    linksCache.put( aLinkGwid, lf );
+    return lf;
   }
 
   // ------------------------------------------------------------------------------------
   // ISkLinkService
   //
+  @Override
+  public IMap<Skid, IStringMap<IDtoLinkFwd>> getLinkFwds( IStringList aClassIds, boolean aIncludeSubclasses ) {
+    checkThread();
+    TsNullArgumentRtException.checkNull( aClassIds );
+
+    // trace0
+    long trace0 = System.currentTimeMillis();
+
+    GwidList baLinkGwids = new GwidList();
+    for( String classId : aClassIds ) {
+      ISkClassInfo classInfo = coreApi().sysdescr().getClassInfo( classId );
+      ISkClassProps<IDtoLinkInfo> linkInfos = classInfo.links();
+      for( IDtoLinkInfo linkInfo : linkInfos.list() ) {
+        String linkId = linkInfo.id();
+        Gwid linkGwid = Gwid.createLink( linkInfos.findSuperDeclarer( linkId ).id(), linkId );
+        if( baLinkGwids.hasElem( linkGwid ) ) {
+          continue;
+        }
+        baLinkGwids.add( linkGwid );
+      }
+    }
+    IList<IDtoLinkFwd> links = readFromBackend( baLinkGwids );
+    IMapEdit<Skid, IStringMap<IDtoLinkFwd>> retValue = new ElemMap<>();
+    for( IDtoLinkFwd link : links ) {
+      Skid objId = link.leftSkid();
+      if( !aIncludeSubclasses && !aClassIds.hasElem( objId.classId() ) ) {
+        continue;
+      }
+      IStringMapEdit<IDtoLinkFwd> objLinks = (IStringMapEdit<IDtoLinkFwd>)retValue.findByKey( objId );
+      if( objLinks == null ) {
+        objLinks = new StringMap<>();
+        retValue.put( objId, objLinks );
+      }
+      objLinks.put( link.linkId(), link );
+    }
+
+    logger().info( FMT_MSG_GET_LINKS_FWD, aClassIds, Integer.valueOf( links.size() ),
+        Long.valueOf( System.currentTimeMillis() - trace0 ) );
+
+    return retValue;
+  }
 
   @Override
   public IDtoLinkFwd getLinkFwd( Skid aLeftSkid, String aLinkId ) {
