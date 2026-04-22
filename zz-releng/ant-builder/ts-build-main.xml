@@ -30,9 +30,11 @@
     <ant dir="../../org.toxsoft.uskat.skadmin.cli" antfile="${ts-scripts-dir}/ts-build-lib.xml" target="build-lib-jar" />
     <ant dir="../../org.toxsoft.uskat.skadmin.dev" antfile="${ts-scripts-dir}/ts-build-lib.xml" target="build-lib-jar" />
     <ant dir="../../org.toxsoft.uskat.skadmin.logon" antfile="${ts-scripts-dir}/ts-build-lib.xml" target="build-lib-jar" />
+    <ant dir="../../org.toxsoft.uskat.devel.mws" antfile="${ts-scripts-dir}/ts-build-lib.xml" target="build-lib-jar" />
     <ant dir="../../org.toxsoft.uskat.demo.skatlet" antfile="${ts-scripts-dir}/ts-build-lib.xml" target="build-lib-jar">
       <property name="lib.jar" value="org.toxsoft.uskat.demo-skatlet.jar" />
     </ant>
+
   </target>
 
   <!-- ЦЕЛЬ: сборка plugin-ов -->
@@ -54,7 +56,8 @@
                                 org.toxsoft.uskat.skadmin.core,
                                 org.toxsoft.uskat.skadmin.cli,
                                 org.toxsoft.uskat.skadmin.dev,
-                                org.toxsoft.uskat.skadmin.logon"
+                                org.toxsoft.uskat.skadmin.logon,
+                                org.toxsoft.uskat.devel.mws"
                        useworkspacecompiledclasses="true"
                        useJARFormat="true" />
   </target>

@@ -580,7 +580,8 @@
     <module>org.toxsoft.uskat.skadmin.cli</module>
     <module>org.toxsoft.uskat.skadmin.dev</module>
     <module>org.toxsoft.uskat.skadmin.logon</module>
-    <module>org.toxsoft.uskat.demo.skatlet</module> 
+    <module>org.toxsoft.uskat.demo.skatlet</module>
+    <module>org.toxsoft.uskat.devel.mws</module>
 
     <module>zz-releng/p2.main</module>
     <module>zz-releng/ant.main</module>

@@ -18,6 +18,7 @@
    <bundle id="org.toxsoft.uskat.skadmin.cli"/>
    <bundle id="org.toxsoft.uskat.skadmin.dev"/>
    <bundle id="org.toxsoft.uskat.skadmin.logon"/>
+   <bundle id="org.toxsoft.uskat.devel.mws"/>
 
    <!-- sources -->
    <bundle id="org.toxsoft.uskat.core.inner.source"/>
@@ -33,5 +34,6 @@
    <bundle id="org.toxsoft.uskat.skadmin.cli.source"/>
    <bundle id="org.toxsoft.uskat.skadmin.dev.source"/>
    <bundle id="org.toxsoft.uskat.skadmin.logon.source"/>
+   <bundle id="org.toxsoft.uskat.devel.mws.source"/>
 
 </site>
