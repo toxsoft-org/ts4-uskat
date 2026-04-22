@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="ASCII"?>
+<fragment:ModelFragments xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:advanced="http://www.eclipse.org/ui/2010/UIModel/application/ui/advanced" xmlns:application="http://www.eclipse.org/ui/2010/UIModel/application" xmlns:commands="http://www.eclipse.org/ui/2010/UIModel/application/commands" xmlns:fragment="http://www.eclipse.org/ui/2010/UIModel/fragment" xmlns:menu="http://www.eclipse.org/ui/2010/UIModel/application/ui/menu" xmi:id="_IcWRkD45EfGJxopV2DTygw">
+  <imports xsi:type="commands:Category" xmi:id="_MvT7kD45EfGJxopV2DTygw" elementId="org.toxsoft.mws.cmdcategory.global"/>
+  <imports xsi:type="commands:Command" xmi:id="_PDNQ0D45EfGJxopV2DTygw" elementId="org.toxsoft.mws.cmd.switch_persp">
+    <parameters xmi:id="_QTksgD45EfGJxopV2DTygw" elementId="org.toxsoft.mws.cmd.switch_persp.arg.perspId" name="org.toxsoft.mws.cmd.switch_persp.arg.perspId" optional="false"/>
+    <parameters xmi:id="_RxSAoD45EfGJxopV2DTygw" elementId="org.toxsoft.mws.cmd.switch_persp.arg.partId" name="org.toxsoft.mws.cmd.switch_persp.arg.partId"/>
+  </imports>
+  <fragments xsi:type="fragment:StringModelFragment" xmi:id="_JHfgUD45EfGJxopV2DTygw" featurename="addons" parentElementId="org.toxsoft.mws.app.main">
+    <elements xsi:type="application:Addon" xmi:id="_KWzzID45EfGJxopV2DTygw" elementId="org.toxsoft.uskat.devel.mws.addon.0" contributionURI="bundleclass://org.toxsoft.uskat.devel.mws/org.toxsoft.uskat.devel.mws.e4.addons.AddonSkDevelMws"/>
+  </fragments>
+  <fragments xsi:type="fragment:StringModelFragment" xmi:id="_VXzbYD45EfGJxopV2DTygw" featurename="children" parentElementId="org.toxsoft.mws.perspectivestack.main">
+    <elements xsi:type="advanced:Perspective" xmi:id="_YKiBsD45EfGJxopV2DTygw" elementId="org.toxsoft.uskat.devel.mws.persp.main" label="%Persp_Main" iconURI="platform:/plugin/org.toxsoft.core.tsgui/icons/is24x24/run-test.png" tooltip="%Persp_Main_D"/>
+  </fragments>
+  <fragments xsi:type="fragment:StringModelFragment" xmi:id="_VkU0cD45EfGJxopV2DTygw" featurename="children" parentElementId="org.toxsoft.mws.menu.main.perspectives">
+    <elements xsi:type="menu:HandledMenuItem" xmi:id="_xjGzgD45EfGJxopV2DTygw" elementId="org.toxsoft.uskat.devel.mws.handledmenuitem.persp_main" label="%Persp_Main" iconURI="platform:/plugin/org.toxsoft.core.tsgui/icons/is24x24/run-test.png" tooltip="%Persp_Main_D" type="Radio" command="_PDNQ0D45EfGJxopV2DTygw">
+      <parameters xmi:id="_9kIVYD45EfGJxopV2DTygw" elementId="org.toxsoft.uskat.devel.mws.parameter.0" name="org.toxsoft.mws.cmd.switch_persp.arg.perspId" value="org.toxsoft.uskat.devel.mws.persp.main"/>
+    </elements>
+  </fragments>
+  <fragments xsi:type="fragment:StringModelFragment" xmi:id="_Vv-DwD45EfGJxopV2DTygw" featurename="children" parentElementId="org.toxsoft.mws.toolbar.perspectives">
+    <elements xsi:type="menu:HandledToolItem" xmi:id="_18sC4D45EfGJxopV2DTygw" elementId="org.toxsoft.uskat.devel.mws.handledtoolitem.persp_main" label="%Persp_Main" iconURI="platform:/plugin/org.toxsoft.core.tsgui/icons/is24x24/run-test.png" tooltip="%Persp_Main_D" type="Radio" command="_PDNQ0D45EfGJxopV2DTygw">
+      <parameters xmi:id="_-mqJYD45EfGJxopV2DTygw" elementId="org.toxsoft.uskat.devel.mws.parameter.1" name="org.toxsoft.mws.cmd.switch_persp.arg.perspId" value="org.toxsoft.uskat.devel.mws.persp.main"/>
+    </elements>
+  </fragments>
+</fragment:ModelFragments>
