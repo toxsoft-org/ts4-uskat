@@ -35,7 +35,7 @@ public final class SkMessageInfo
         protected void doWrite( IStrioWriter aSw, ISkMessageInfo aEntity ) {
           aSw.writeQuotedString( aEntity.fmtStr() );
           aSw.writeSeparatorChar();
-          StrioUtils.writeStringMap( aSw, EMPTY_STRING, aEntity.usedUgwies(), Ugwi.KEEPER, false );
+          StrioUtils.writeStringMap( aSw, EMPTY_STRING, aEntity.usedUgwies(), Ugwi.KEEPER );
         }
 
         @Override

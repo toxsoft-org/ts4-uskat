@@ -213,7 +213,7 @@ public interface ISkUserServiceHardConstants {
   /**
    * Internal attribute storing password hash code calculated by {@link SkHelperUtils#getPasswordHashCode(String)}.
    */
-  IDtoAttrInfo ATRINF_PASSWORD_HASH = DtoAttrInfo.create2( ATRID_PASSWORD_HASH, DDEF_STRING, //
+  IDtoAttrInfo ATRINF_PASSWORD_HASH = DtoAttrInfo.create2( ATRID_PASSWORD_HASH, DT_STRING, //
       TSID_NAME, STR_PASSWORD, //
       TSID_DESCRIPTION, STR_PASSWORD_D, //
       TSID_DEFAULT_VALUE, AV_STR_EMPTY //

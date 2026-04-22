@@ -1,7 +1,5 @@
 package org.toxsoft.uskat.core.api.users.acl;
 
-//import org.toxsoft.uskat.core.backend.acl.*;
-
 /**
  * USkat support for role-based access rights to the data.
  * <p>
@@ -19,5 +17,6 @@ package org.toxsoft.uskat.core.api.users.acl;
  */
 public interface IAccessRightsManager {
 
-  // nop
+  // TODO need API
+
 }

@@ -5,7 +5,7 @@ package org.toxsoft.uskat.core.api.users.acl;
  *
  * @author hazard157
  */
-interface ITmpResources {
+interface ISkResources {
 
   String STR_SK_ACCESS_DENY    = Messages.getString( "STR_SK_ACCESS_DENY" );    //$NON-NLS-1$
   String STR_SK_ACCESS_DENY_D  = Messages.getString( "STR_SK_ACCESS_DENY_D" );  //$NON-NLS-1$

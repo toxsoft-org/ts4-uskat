@@ -4,7 +4,6 @@ import static org.toxsoft.uskat.core.impl.ISkCoreConfigConstants.*;
 import static org.toxsoft.uskat.core.impl.ISkResources.*;
 
 import org.toxsoft.core.tslib.av.opset.impl.*;
-import org.toxsoft.core.tslib.bricks.*;
 import org.toxsoft.core.tslib.bricks.ctx.*;
 import org.toxsoft.core.tslib.bricks.events.msg.*;
 import org.toxsoft.core.tslib.bricks.threadexec.*;
@@ -101,7 +100,7 @@ public class SkCoreApi
     // initializing the backend
     backend.initialize();
     // handling messages received from the backend during initializing
-    executor.syncExec( () -> ((ICooperativeMultiTaskable)executor).doJob() );
+    executor.syncExec( () -> executor.doJob() );
     // prepare services to be created
     IListEdit<ISkServiceCreator<? extends AbstractSkService>> llCreators = new ElemArrayList<>( 100, false );
     // mandatory built-in services

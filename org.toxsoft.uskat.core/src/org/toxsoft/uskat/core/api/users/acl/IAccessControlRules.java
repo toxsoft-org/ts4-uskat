@@ -7,4 +7,6 @@ package org.toxsoft.uskat.core.api.users.acl;
  */
 public interface IAccessControlRules {
 
+  // TODO need API
+
 }

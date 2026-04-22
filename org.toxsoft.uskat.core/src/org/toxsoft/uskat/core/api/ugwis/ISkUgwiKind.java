@@ -69,14 +69,14 @@ public sealed interface ISkUgwiKind
    * There are several cases when executing the method:
    * <ul>
    * <li>If content does not exists method returns {@link IAtomicValue#NULL}, as a data type
-   * {@link IAvMetaConstants#DDEF_NONE} is returned;</li>
+   * {@link IAvMetaConstants#DT_NONE} is returned;</li>
    * <li>If content is a natural atomic value method returns {@link ISkUgwiKind#getContent(Ugwi)}. As a data type the
    * meta-information from the respective Sk-service is returned;</li>
    * <li>If content can be represented as an atomic value method returns value created by
    * {@link AvUtils#avFromObj(Object)}. A data type is a simple wrapper over value returned by
    * {@link AvUtils#atFromObj(Object)};</li>
    * <li>Content can not be represented as an atomic value, so {@link EAtomicType#STRING} will be returned with
-   * {@link Object#toString() content.toString()}. As a data type {@link IAvMetaConstants#DDEF_STRING} is returned.</li>
+   * {@link Object#toString() content.toString()}. As a data type {@link IAvMetaConstants#DT_STRING} is returned.</li>
    * </ul>
    *
    * @param aUgwi {@link Ugwi} - the UGWI
@@ -96,7 +96,7 @@ public sealed interface ISkUgwiKind
    * Values returned for difference cases are described in the comments of the method {@link #getAtomicValue(Ugwi)}.
    *
    * @param aUgwi {@link Ugwi} - the UGWI
-   * @return {@link IDataType} - the atomic value meta information or {@link IAvMetaConstants#DDEF_NONE}
+   * @return {@link IDataType} - the atomic value meta information or {@link IAvMetaConstants#DT_NONE}
    * @throws TsNullArgumentRtException any argument = <code>null</code>
    * @throws TsIllegalArgumentRtException argument is not of this kind
    */

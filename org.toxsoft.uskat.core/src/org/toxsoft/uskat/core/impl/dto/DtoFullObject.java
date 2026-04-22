@@ -47,7 +47,7 @@ public final class DtoFullObject
           aSw.writeSeparatorChar();
           MappedSkids.KEEPER.write( aSw, aEntity.rivets() );
           aSw.writeSeparatorChar();
-          StrioUtils.writeStringMap( aSw, EMPTY_STRING, aEntity.clobs(), StringKeeper.KEEPER, true );
+          StrioUtils.writeStringMap( aSw, EMPTY_STRING, aEntity.clobs(), StringKeeper.KEEPER );
           aSw.writeSeparatorChar();
           MappedSkids.KEEPER.write( aSw, aEntity.links() );
         }

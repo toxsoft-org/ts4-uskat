@@ -511,7 +511,7 @@ public class SkCoreServObject
       for( IDtoObject removingObj : aRemovingObjs ) {
         IStringMap<IMappedSkids> rr = removingObj.rivetRevs();
         if( SkHelperUtils.rivetRevsSize( rr ) > 0 ) {
-          String rrs = SkHelperUtils.rivetRevsStr( rr );
+          // String rrs = SkHelperUtils.rivetRevsStr( rr );
           // 2025-08-09 TODO: mvk --- need object remover registration
           // throw new TsIllegalArgumentRtException( ERR_CANT_REMOVE_HAS_RIVET_REVS, removingObj, rrs );
         }

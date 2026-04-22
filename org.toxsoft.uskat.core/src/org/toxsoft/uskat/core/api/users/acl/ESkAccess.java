@@ -1,6 +1,6 @@
 package org.toxsoft.uskat.core.api.users.acl;
 
-import static org.toxsoft.uskat.core.api.users.acl.ITmpResources.*;
+import static org.toxsoft.uskat.core.api.users.acl.ISkResources.*;
 
 import org.toxsoft.core.tslib.bricks.keeper.*;
 import org.toxsoft.core.tslib.bricks.keeper.std.*;

@@ -138,7 +138,7 @@ public non-sealed abstract class AbstractSkUgwiKind<T>
     TsNullArgumentRtException.checkNull( aUgwi );
     TsIllegalArgumentRtException.checkFalse( aUgwi.kindId().equals( id() ) );
     IDataType dt = doGetAtomicValueDataType( aUgwi );
-    return dt != null ? dt : IAvMetaConstants.DDEF_NONE;
+    return dt != null ? dt : IAvMetaConstants.DT_NONE;
   }
 
   @Override
@@ -205,7 +205,7 @@ public non-sealed abstract class AbstractSkUgwiKind<T>
    * Method may return null if the meta information about does not exists.
    *
    * @param aUgwi {@link Ugwi} - the UGWI of this kind
-   * @return {@link IDataType} - the meta information or {@link IAvMetaConstants#DDEF_NONE} or <code>null</code>
+   * @return {@link IDataType} - the meta information or {@link IAvMetaConstants#DT_NONE} or <code>null</code>
    */
   protected abstract IDataType doGetAtomicValueDataType( Ugwi aUgwi );
 

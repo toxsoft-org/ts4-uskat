@@ -15,6 +15,7 @@ import org.toxsoft.core.tslib.utils.errors.*;
 import org.toxsoft.uskat.core.api.objserv.*;
 import org.toxsoft.uskat.core.api.sysdescr.*;
 import org.toxsoft.uskat.core.api.sysdescr.dto.*;
+import org.toxsoft.uskat.core.devapi.*;
 import org.toxsoft.uskat.core.impl.*;
 
 /**
@@ -190,7 +191,7 @@ public interface ISkHardConstants {
    * <p>
    * Pure Green World class means that the class satisfies all conditions:
    * <ul>
-   * <li>class is claimed by {@link ISkSysdescr}, see {@link ISkSysdescr#determineClassClaimingServiceId(String)};</li>
+   * <li>class is claimed by {@link ISkSysdescr}, see {@link ISkSysdescr#getSkClassImplementationInfo(String)};</li>
    * <li>class is note source defined, that is {@link ISkClassInfo#params()} does <b>not</b> contains any of the listed
    * options with value <code>true</code>: {@link #OPDEF_SK_IS_SOURCE_CODE_DEFINED_CLASS},
    * {@link #OPDEF_SK_IS_SOURCE_USKAT_CORE_CLASS} or {@link #OPDEF_SK_IS_SOURCE_USKAT_SYSEXT_CLASS}.</li>
@@ -210,7 +211,8 @@ public interface ISkHardConstants {
     if( aClassInfo.params().getBool( OPDEF_SK_IS_SOURCE_USKAT_SYSEXT_CLASS ) ) {
       return false;
     }
-    String claimingServiceId = aCoreApi.sysdescr().determineClassClaimingServiceId( aClassInfo.id() );
+    SkClassImplementationInfo info = aCoreApi.sysdescr().getSkClassImplementationInfo( aClassInfo.id() );
+    String claimingServiceId = info.claimingServiceId();
     return claimingServiceId.equals( ISkSysdescr.SERVICE_ID );
   }
 
