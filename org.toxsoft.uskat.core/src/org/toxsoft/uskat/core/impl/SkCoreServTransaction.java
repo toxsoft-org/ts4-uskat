@@ -166,7 +166,7 @@ public class SkCoreServTransaction
       DtoObject doLoadFromDb( Skid aObjId ) {
         ISkObject sko = coreApi().objService().find( aObjId );
         if( sko != null ) {
-          DtoObject retValue = SkCoreServObject.createForBackendSave( coreApi(), sko );
+          DtoObject retValue = new DtoObject( aObjId, sko.attrs(), sko.rivets().map() );
           // Восстановление обратных склепок
           DtoObject.setRivetRevs( retValue, sko.rivetRevs() );
           return retValue;

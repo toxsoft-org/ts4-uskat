@@ -7,7 +7,6 @@ import static org.toxsoft.uskat.core.impl.ISkResources.*;
 
 import org.toxsoft.core.tslib.av.*;
 import org.toxsoft.core.tslib.av.errors.*;
-import org.toxsoft.core.tslib.av.opset.*;
 import org.toxsoft.core.tslib.bricks.ctx.*;
 import org.toxsoft.core.tslib.bricks.events.*;
 import org.toxsoft.core.tslib.bricks.events.msg.*;
@@ -778,31 +777,6 @@ public class SkCoreServObject
   // ------------------------------------------------------------------------------------
   // package API
   //
-
-  // FIXME question from GOGA: why this method is open, not private?
-  static DtoObject createForBackendSave( ISkCoreApi aCoreApi, ISkObject aSkObj ) {
-    TsNullArgumentRtException.checkNulls( aCoreApi, aSkObj );
-    ISkClassInfo classInfo = aCoreApi.sysdescr().getClassInfo( aSkObj.classId() );
-    DtoObject dtoObj = new DtoObject( aSkObj.skid(), IOptionSet.NULL, aSkObj.rivets().map() );
-    // copy all but system attributes and attributes with default values
-    for( IDtoAttrInfo ainf : classInfo.attrs().list() ) {
-      // don't save system attributes
-      if( !ISkHardConstants.isSkSysAttr( ainf ) ) {
-        IAtomicValue defVal = ainf.dataType().defaultValue();
-        // 2026-03-27 mvk --- необходима безусловная(!) установка значений по умолчанию системных атрибутов, так как при
-        // сохранении объектов и определения изменения их состояния, OptionSet.equalsIgnoreOrder(...) по картам
-        // атрибутов работает неправильно: в одной карте значения системного атрибута НЕТ, а возвращается его значение
-        // по умолчанию, в другой карте его значение ЕСТЬ и оно установлено как значение по умолчанию.
-        // IAtomicValue attrVal = aSkObj.attrs().getValue( ainf.id() );
-        // // don't save attribute with the default value
-        // if( !attrVal.equals( defVal ) ) {
-        // dtoObj.attrs().setValue( ainf.id(), attrVal );
-        // }
-        dtoObj.attrs().setValue( ainf.id(), defVal );
-      }
-    }
-    return dtoObj;
-  }
 
   ISkObjectCreator<? extends SkObject> papiGetObjectCreator( String aClassId ) {
     return objsCreators.getCreator( aClassId );
