@@ -1,58 +1,65 @@
 package org.toxsoft.uskat.core.gui.valed.std;
 
-import static org.toxsoft.core.tslib.av.EAtomicType.*;
+import static org.toxsoft.core.tsgui.m5.gui.mpc.IMultiPaneComponentConstants.*;
 import static org.toxsoft.core.tslib.av.impl.AvUtils.*;
-import static org.toxsoft.core.tslib.av.metainfo.IAvMetaConstants.*;
-import static org.toxsoft.uskat.core.ISkHardConstants.*;
+import static org.toxsoft.uskat.core.gui.valed.std.ISkStdValedControlConstants.*;
 
 import org.eclipse.swt.widgets.*;
 import org.toxsoft.core.tsgui.bricks.ctx.*;
+import org.toxsoft.core.tsgui.bricks.ctx.impl.*;
+import org.toxsoft.core.tsgui.m5.*;
+import org.toxsoft.core.tsgui.m5.gui.panels.*;
+import org.toxsoft.core.tsgui.m5.model.*;
+import org.toxsoft.core.tsgui.valed.api.*;
 import org.toxsoft.core.tsgui.valed.impl.*;
-import org.toxsoft.core.tslib.av.impl.*;
-import org.toxsoft.core.tslib.av.metainfo.*;
 import org.toxsoft.core.tslib.bricks.filter.*;
-import org.toxsoft.core.tslib.bricks.filter.impl.*;
-import org.toxsoft.core.tslib.bricks.validator.*;
+import org.toxsoft.core.tslib.bricks.strid.coll.*;
+import org.toxsoft.core.tslib.bricks.strid.coll.impl.*;
 import org.toxsoft.core.tslib.utils.errors.*;
 import org.toxsoft.uskat.core.api.sysdescr.*;
+import org.toxsoft.uskat.core.gui.km5.sded2.sysdecsr.*;
+import org.toxsoft.uskat.core.gui.valed.*;
+import org.toxsoft.uskat.core.inner.*;
 
 /**
  * Chooses class ID from the {@link ISkSysdescr#listClasses()}.
  * <p>
  * Value is the {@link String} class ID {@link ISkClassInfo#id()}.
+ * <p>
+ * Respects options:
+ * <ul>
+ * <li>{@link ISkStdValedControlConstants#OPDEF_IS_START_MODE_TREE};</li>
+ * <li>{@link ISkStdValedControlConstants#OPDEF_CLASS_ID_FILTER_PARAMS}.</li>
+ * </ul>
+ * <p>
+ * <p>
+ * Note: {@link #getValue()} may return <code>null</code>.
  *
  * @author hazard157
  */
 public class ValedSkClassIdSelector
-    extends AbstractValedControl<String, Control> {
-
-  private static final String OPID_PREFIX = SK_ID + ".valed.option.ClassIdSelector"; //$NON-NLS-1$
+    extends AbstractSkValedControl<String> {
 
   /**
-   * Option: determines tree (<code>true</code>) or list (<code>false</code>) mode at startup.<br>
-   * Default value: <code>true</code>
+   * The registered factory ID.
    */
-  public static final IDataDef OPDEF_IS_START_MODE_TREE = DataDef.create( OPID_PREFIX + ".IsStartModeTree", BOOLEAN, //$NON-NLS-1$
-      TSID_DEFAULT_VALUE, AV_TRUE //
-  );
+  public static final String FACTORY_NAME = ISkCoreGuiInnerSharedConstants.SKCGC_VALED_CLASS_ID_SELECTOR;
 
   /**
-   * Option: {@link ITsCombiFilterParams} to create class Id filter {@link ITsFilter}&lt;String&gt;.<br>
-   * Default value: {@link ITsCombiFilterParams#ALL}
+   * The factory singleton.
    */
-  public static final IDataDef OPDEF_CLASS_ID_FILTER_PARAMS =
-      DataDef.create( OPID_PREFIX + ".ClassIdFilterParams", BOOLEAN, //$NON-NLS-1$
-          TSID_KEEPER_ID, TsCombiFilterParamsKeeper.KEEPER_ID, //
-          TSID_DEFAULT_VALUE, TsCombiFilterParamsKeeper.AV_ALL //
-      );
+  @SuppressWarnings( "unchecked" )
+  public static final IValedControlFactory FACTORY = new AbstractValedControlFactory( FACTORY_NAME ) {
 
-  // /**
-  // * Option: ???.<br>
-  // * Default value: ???
-  // */
-  // public static final IDataDef OPDEF_ = DataDef.create( OPID_PREFIX + ".IsStartModeTree", BOOLEAN, //$NON-NLS-1$
-  // TSID_DEFAULT_VALUE, AV_TRUE //
-  // );
+    @Override
+    protected IValedControl<String> doCreateEditor( ITsGuiContext aContext ) {
+      return new ValedSkClassIdSelector( aContext );
+    }
+
+  };
+
+  private final IM5ItemsProvider<ISkClassInfo>   classesProvider;
+  private final IM5CollectionPanel<ISkClassInfo> classesListPane;
 
   // private final ITsFilter<String> classIdFilter;
 
@@ -66,6 +73,14 @@ public class ValedSkClassIdSelector
     super( aContext );
     ITsCombiFilterParams fp = OPDEF_CLASS_ID_FILTER_PARAMS.getValue( tsContext().params() ).asValobj();
     // ITsFilter<String> filter = TsCombiFilter.create( fp, ITsFilterFactoriesRegistry. )
+
+    // classesListPane
+    IM5Model<ISkClassInfo> modelSk = m5().getModel( Sded2SkClassInfoM5Model.MODEL_ID, ISkClassInfo.class );
+    IM5LifecycleManager<ISkClassInfo> lmSk = modelSk.getLifecycleManager( skConn() );
+    classesProvider = lmSk.itemsProvider();
+    ITsGuiContext ctx1 = new TsGuiContext( tsContext() );
+    OPDEF_IS_FILTER_PANE.setValue( ctx1.params(), AV_TRUE );
+    classesListPane = modelSk.panelCreator().createCollViewerPanel( ctx1, classesProvider );
   }
 
   // ------------------------------------------------------------------------------------
@@ -74,37 +89,30 @@ public class ValedSkClassIdSelector
 
   @Override
   protected Control doCreateControl( Composite aParent ) {
-    // TODO Auto-generated method stub
-    return null;
+    return classesListPane.createControl( aParent );
   }
 
   @Override
   protected void doSetEditable( boolean aEditable ) {
-    // TODO Auto-generated method stub
-
-  }
-
-  @Override
-  protected ValidationResult doCanGetValue() {
-    // TODO Auto-generated method stub
-    return super.doCanGetValue();
+    classesListPane.setEditable( aEditable );
   }
 
   @Override
   protected String doGetUnvalidatedValue() {
-    // TODO Auto-generated method stub
-    return null;
+    ISkClassInfo cinf = classesListPane.selectedItem();
+    return cinf != null ? cinf.id() : null;
   }
 
   @Override
   protected void doSetUnvalidatedValue( String aValue ) {
-    // TODO Auto-generated method stub
-
+    IStridablesList<ISkClassInfo> llClasses = new StridablesList<>( classesProvider.listItems() );
+    ISkClassInfo cinf = llClasses.findByKey( aValue );
+    classesListPane.setSelectedItem( cinf );
   }
 
   @Override
   protected void doClearValue() {
-    // TODO Auto-generated method stub
+    classesListPane.setSelectedItem( null );
   }
 
 }

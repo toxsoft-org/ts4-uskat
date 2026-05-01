@@ -8,8 +8,8 @@ import org.toxsoft.core.tslib.utils.errors.*;
  * Classes hierarchy information provider.
  * <p>
  * The idea of interface is to provide single place to answer miscellaneous questions about relationships in the class
- * hierarchy. For logical questions about releations between classes only positive answer <code>true</code> is
- * meaningful, negative answers may caused both by absenсe of the releation or the absence of the class with the
+ * hierarchy. For logical questions about relations between classes only positive answer <code>true</code> is
+ * meaningful, negative answers may caused both by absence of the relation or the absence of the class with the
  * specified ID.
  *
  * @author hazard157

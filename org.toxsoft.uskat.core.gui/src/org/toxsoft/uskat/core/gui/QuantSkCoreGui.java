@@ -17,9 +17,11 @@ import org.toxsoft.uskat.core.gui.km5.first.*;
 import org.toxsoft.uskat.core.gui.km5.sded.objed.*;
 import org.toxsoft.uskat.core.gui.km5.sded.sded.*;
 import org.toxsoft.uskat.core.gui.km5.sded.sded.editors.*;
+import org.toxsoft.uskat.core.gui.km5.sded2.*;
 import org.toxsoft.uskat.core.gui.km5.sgw.*;
 import org.toxsoft.uskat.core.gui.ugwi.*;
 import org.toxsoft.uskat.core.gui.valed.gwid.*;
+import org.toxsoft.uskat.core.gui.valed.std.*;
 import org.toxsoft.uskat.core.gui.valed.ugwi.*;
 import org.toxsoft.uskat.core.impl.*;
 
@@ -47,6 +49,7 @@ public class QuantSkCoreGui
     KM5Utils.registerContributorCreator( KM5SgwContributor.CREATOR );
     KM5Utils.registerContributorCreator( KM5SdedContributor.CREATOR );
     KM5Utils.registerContributorCreator( KM5ObjedContributor.CREATOR );
+    KM5Utils.registerContributorCreator( KM5Sded2Contributor.CREATOR );
     // ---
 
   }
@@ -84,7 +87,9 @@ public class QuantSkCoreGui
     facReg.registerFactory( ValedAvUgwiSelectorTextAndButton.FACTORY );
 
     facReg.registerFactory( ValedUgwiSelector.FACTORY );
-    facReg.registerFactory( ValedAvUgwiSelector.FACTORY );
+
+    facReg.registerFactory( ValedSkClassIdSelector.FACTORY );
+    facReg.registerFactory( ValedAvSkClassIdSelector.FACTORY );
 
   }
 
