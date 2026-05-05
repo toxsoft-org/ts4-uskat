@@ -526,6 +526,9 @@ public class SkCoreServObject
         objsCache.remove( removingObj.skid() );
       }
       ISkSysdescr sysdescr = coreApi().sysdescr();
+      for( IDtoObject dtoObj : aCreatingObjs ) {
+        loadFromDtoAndCache( sysdescr.getClassInfo( dtoObj.classId() ), dtoObj );
+      }
       for( Pair<IDtoObject, IDtoObject> updatingObj : aUpdatingObjs ) {
         IDtoObject dtoObj = updatingObj.right();
         loadFromDtoAndCache( sysdescr.getClassInfo( dtoObj.classId() ), dtoObj );
