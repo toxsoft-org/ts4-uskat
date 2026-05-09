@@ -23,10 +23,17 @@ import org.toxsoft.uskat.core.api.sysdescr.*;
 /**
  * {@link IM5EntityPanel} implementation to be returned by {@link Sded2SkClassInfoM5Model}.
  * <p>
- * Entity panel contains:
+ * Entity panel is a tab folder and contains following tabs:
  * <ul>
- * <li>top part - ladder layout field editors for fields class ID, parent ID, name and description;</li>
- * <li>bottom part - tab folder with separate tab for class properties like: attr, links, RTdata, etc.</li>
+ * <li>"Browse" - all properties in the single tree, VALED of the field {@link Sded2SkClassInfoM5Model#ALL_PROPS};</li>
+ * <li>"Class" - class ID, name, description and parentID, VALEDs of respective fields;</li>
+ * <li>"Attributes" - class attributes in a single tree, {@link Sded2SkClassInfoM5Model#SELF_ATTR_INFOS};</li>
+ * <li>"Rivets" - class rivets in a single tree, {@link Sded2SkClassInfoM5Model#SELF_RIVET_INFOS};</li>
+ * <li>"Links" - class links in a single tree, {@link Sded2SkClassInfoM5Model#SELF_LINK_INFOS};</li>
+ * <li>"RTData" - class RT-data in a single tree, {@link Sded2SkClassInfoM5Model#SELF_RTDATA_INFOS};</li>
+ * <li>"Commands" - class command in a single tree, {@link Sded2SkClassInfoM5Model#SELF_CMD_INFOS};</li>
+ * <li>"Events" - class events in a single tree, {@link Sded2SkClassInfoM5Model#SELF_EVENT_INFOS};</li>
+ * <li>"CLOBs" - class CLOBs in a single tree, {@link Sded2SkClassInfoM5Model#SELF_CLOB_INFOS}.</li>
  * </ul>
  *
  * @author hazard157
