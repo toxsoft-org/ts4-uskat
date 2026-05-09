@@ -1,5 +1,7 @@
 package org.toxsoft.uskat.core.gui.valed.std;
 
+import org.toxsoft.uskat.core.gui.valed.std.*;
+
 /**
  * Localizable resources.
  *

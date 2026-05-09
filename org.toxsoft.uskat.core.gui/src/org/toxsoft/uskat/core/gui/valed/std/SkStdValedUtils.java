@@ -9,6 +9,7 @@ import org.toxsoft.core.tsgui.valed.api.*;
 import org.toxsoft.core.tsgui.valed.impl.*;
 import org.toxsoft.core.tslib.utils.*;
 import org.toxsoft.core.tslib.utils.errors.*;
+import org.toxsoft.uskat.core.gui.valed.std.clsid.*;
 
 /**
  * Helper methods to work with USkat standard VALEDs.

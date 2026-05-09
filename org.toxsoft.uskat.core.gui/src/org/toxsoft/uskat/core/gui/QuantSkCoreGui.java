@@ -22,6 +22,7 @@ import org.toxsoft.uskat.core.gui.km5.sgw.*;
 import org.toxsoft.uskat.core.gui.ugwi.*;
 import org.toxsoft.uskat.core.gui.valed.gwid.*;
 import org.toxsoft.uskat.core.gui.valed.std.*;
+import org.toxsoft.uskat.core.gui.valed.std.clsid.*;
 import org.toxsoft.uskat.core.gui.valed.ugwi.*;
 import org.toxsoft.uskat.core.impl.*;
 

@@ -1,4 +1,4 @@
-package org.toxsoft.uskat.core.gui.valed.std;
+package org.toxsoft.uskat.core.gui.valed.std.clsid;
 
 import static org.toxsoft.core.tslib.av.impl.AvUtils.*;
 

@@ -1,4 +1,4 @@
-package org.toxsoft.uskat.core.gui.valed.std;
+package org.toxsoft.uskat.core.gui.valed.std.clsid;
 
 import static org.toxsoft.core.tsgui.m5.gui.mpc.IMultiPaneComponentConstants.*;
 import static org.toxsoft.core.tslib.av.impl.AvUtils.*;
@@ -19,6 +19,7 @@ import org.toxsoft.core.tslib.utils.errors.*;
 import org.toxsoft.uskat.core.api.sysdescr.*;
 import org.toxsoft.uskat.core.gui.km5.sded2.sysdecsr.*;
 import org.toxsoft.uskat.core.gui.valed.*;
+import org.toxsoft.uskat.core.gui.valed.std.*;
 import org.toxsoft.uskat.core.inner.*;
 
 /**
