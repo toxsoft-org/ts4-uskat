@@ -82,6 +82,7 @@ public class ValedSkClassIdSelector
     ITsGuiContext ctx1 = new TsGuiContext( tsContext() );
     OPDEF_IS_FILTER_PANE.setValue( ctx1.params(), AV_TRUE );
     classesListPane = modelSk.panelCreator().createCollViewerPanel( ctx1, classesProvider );
+    classesListPane.addTsSelectionListener( ( src, sel ) -> fireModifyEvent( true ) );
   }
 
   // ------------------------------------------------------------------------------------
