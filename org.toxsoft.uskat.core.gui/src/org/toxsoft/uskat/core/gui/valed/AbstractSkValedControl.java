@@ -9,6 +9,7 @@ import org.toxsoft.core.tslib.utils.errors.*;
 import org.toxsoft.uskat.core.*;
 import org.toxsoft.uskat.core.connection.*;
 import org.toxsoft.uskat.core.gui.*;
+import org.toxsoft.uskat.core.gui.utils.*;
 import org.toxsoft.uskat.core.utils.*;
 
 /**
@@ -23,7 +24,7 @@ import org.toxsoft.uskat.core.utils.*;
  */
 public abstract class AbstractSkValedControl<V>
     extends AbstractValedControl<V, Control>
-    implements ISkConnected {
+    implements ISkGuiContextable {
 
   private final ISkConnection skConn; // never is null
 
