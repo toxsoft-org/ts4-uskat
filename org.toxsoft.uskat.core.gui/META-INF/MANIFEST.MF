@@ -52,4 +52,5 @@ Export-Package: org.toxsoft.uskat.core.gui,
  org.toxsoft.uskat.core.gui.valed,
  org.toxsoft.uskat.core.gui.valed.gwid,
  org.toxsoft.uskat.core.gui.valed.std,
+ org.toxsoft.uskat.core.gui.valed.std.skid,
  org.toxsoft.uskat.core.gui.valed.ugwi
