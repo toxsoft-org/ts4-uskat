@@ -21,7 +21,6 @@ import org.toxsoft.uskat.core.gui.km5.sded2.*;
 import org.toxsoft.uskat.core.gui.km5.sgw.*;
 import org.toxsoft.uskat.core.gui.ugwi.*;
 import org.toxsoft.uskat.core.gui.valed.gwid.*;
-import org.toxsoft.uskat.core.gui.valed.std.*;
 import org.toxsoft.uskat.core.gui.valed.std.clsid.*;
 import org.toxsoft.uskat.core.gui.valed.ugwi.*;
 import org.toxsoft.uskat.core.impl.*;
@@ -87,6 +86,7 @@ public class QuantSkCoreGui
     facReg.registerFactory( ValedAvValobjConcreteGwidEditor.FACTORY );
     facReg.registerFactory( ValedAvUgwiSelectorTextAndButton.FACTORY );
 
+    facReg.registerFactory( ValedAvUgwiSelector.FACTORY );
     facReg.registerFactory( ValedUgwiSelector.FACTORY );
 
     facReg.registerFactory( ValedSkClassIdSelector.FACTORY );
