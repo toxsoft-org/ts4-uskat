@@ -1,10 +1,9 @@
-package org.toxsoft.uskat.core.gui.valed.std.skid;
+package org.toxsoft.uskat.core.gui.valed.std.gwid;
 
 import org.eclipse.swt.widgets.*;
 import org.toxsoft.core.tsgui.bricks.ctx.*;
 import org.toxsoft.core.tsgui.valed.impl.*;
-import org.toxsoft.core.tslib.bricks.validator.*;
-import org.toxsoft.core.tslib.gw.skid.*;
+import org.toxsoft.core.tslib.gw.gwid.*;
 import org.toxsoft.core.tslib.utils.errors.*;
 
 /**
@@ -12,8 +11,8 @@ import org.toxsoft.core.tslib.utils.errors.*;
  *
  * @author hazard157
  */
-class ValedSkidSelectorOtherKind
-    extends AbstractValedControl<Skid, Control> {
+class ValedGwidSelectorSimple
+    extends AbstractValedControl<Gwid, Control> {
 
   /**
    * Constructor.
@@ -21,7 +20,7 @@ class ValedSkidSelectorOtherKind
    * @param aContext {@link ITsGuiContext} - the VALED context
    * @throws TsNullArgumentRtException any argument = <code>null</code>
    */
-  ValedSkidSelectorOtherKind( ITsGuiContext aContext ) {
+  public ValedGwidSelectorSimple( ITsGuiContext aContext ) {
     super( aContext );
     // TODO Auto-generated constructor stub
   }
@@ -43,19 +42,13 @@ class ValedSkidSelectorOtherKind
   }
 
   @Override
-  protected ValidationResult doCanGetValue() {
-    // TODO Auto-generated method stub
-    return super.doCanGetValue();
-  }
-
-  @Override
-  protected Skid doGetUnvalidatedValue() {
+  protected Gwid doGetUnvalidatedValue() {
     // TODO Auto-generated method stub
     return null;
   }
 
   @Override
-  protected void doSetUnvalidatedValue( Skid aValue ) {
+  protected void doSetUnvalidatedValue( Gwid aValue ) {
     // TODO Auto-generated method stub
 
   }

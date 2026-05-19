@@ -1,20 +1,20 @@
-package org.toxsoft.uskat.core.gui.valed.std.skid;
+package org.toxsoft.uskat.core.gui.valed.std.gwid;
 
 import static org.toxsoft.core.tsgui.valed.api.IValedControlConstants.*;
 
 import org.toxsoft.core.tsgui.bricks.ctx.*;
 import org.toxsoft.core.tsgui.valed.api.*;
 import org.toxsoft.core.tsgui.valed.impl.*;
-import org.toxsoft.core.tslib.gw.skid.*;
+import org.toxsoft.core.tslib.gw.gwid.*;
 import org.toxsoft.uskat.core.*;
 import org.toxsoft.uskat.core.inner.*;
 
 /**
- * Chooses {@link Skid} from the obejcts provided by {@link ISkCoreApi#objService()}.
+ * Chooses {@link Gwid} from the obejcts provided by {@link ISkCoreApi#objService()}.
  *
  * @author hazard157
  */
-public final class ValedSkidSelector {
+public final class ValedGwidSelector {
 
   /**
    * The registered factory ID.
@@ -38,17 +38,17 @@ public final class ValedSkidSelector {
   public static final IValedControlFactory FACTORY = new AbstractValedControlFactory( FACTORY_NAME ) {
 
     @Override
-    protected IValedControl<Skid> doCreateEditor( ITsGuiContext aContext ) {
+    protected IValedControl<Gwid> doCreateEditor( ITsGuiContext aContext ) {
       String outfitId = OPDEF_VALED_UI_OUTFIT_ID.getValue( aContext.params() ).asString();
       return switch( outfitId ) {
-        case OUTFIT_ID_OTHER -> new ValedSkidSelectorOtherKind( aContext );
-        case OUTFIT_ID_SIMPLE -> new ValedSkidSelectorSimple( aContext );
-        default -> new ValedSkidSelectorSimple( aContext );
+        case OUTFIT_ID_OTHER -> new ValedGwidSelectorOther( aContext );
+        case OUTFIT_ID_SIMPLE -> new ValedGwidSelectorSimple( aContext );
+        default -> new ValedGwidSelectorSimple( aContext );
       };
     }
 
     @Override
-    protected IValedControl<Skid> doCreateSingleLine( ITsGuiContext aContext ) {
+    protected IValedControl<Gwid> doCreateSingleLine( ITsGuiContext aContext ) {
       String outfitId = OPDEF_VALED_UI_OUTFIT_ID.getValue( aContext.params() ).asString();
       return switch( outfitId ) {
         case OUTFIT_ID_OTHER -> super.doCreateSingleLine( aContext );
@@ -58,7 +58,7 @@ public final class ValedSkidSelector {
     }
 
     @Override
-    protected IValedControl<Skid> doCreateViewer( ITsGuiContext aContext ) {
+    protected IValedControl<Gwid> doCreateViewer( ITsGuiContext aContext ) {
       String outfitId = OPDEF_VALED_UI_OUTFIT_ID.getValue( aContext.params() ).asString();
       return switch( outfitId ) {
         case OUTFIT_ID_OTHER -> super.doCreateViewer( aContext );
