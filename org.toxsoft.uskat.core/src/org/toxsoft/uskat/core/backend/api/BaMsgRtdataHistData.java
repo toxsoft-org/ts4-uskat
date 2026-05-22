@@ -116,12 +116,12 @@ public class BaMsgRtdataHistData
     TsNullArgumentRtException.checkNulls( aGwid, aInterval, aValues );
     ITimeInterval vInterval = aValues.getInterval();
     if( aInterval.startTime() > vInterval.startTime() ) {
-      throw new TsIllegalArgumentRtException( "%s: wrong values interval (left). aInterval = %s, vInterval = %s",
+      throw new TsIllegalArgumentRtException( "%s: wrong values interval (left). aInterval = %s, vInterval = %s", aGwid,
           aInterval, vInterval );
     }
     if( aInterval.endTime() < vInterval.endTime() ) {
       throw new TsIllegalArgumentRtException( "%s: wrong values interval (right). aInterval = %s, vInterval = %s",
-          aInterval, vInterval );
+          aGwid, aInterval, vInterval );
     }
   }
 }
