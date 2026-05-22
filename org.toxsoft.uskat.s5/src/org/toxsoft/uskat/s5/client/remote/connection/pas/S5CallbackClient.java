@@ -98,7 +98,7 @@ public final class S5CallbackClient
   /**
    * Журнал
    */
-  private ILogger logger = LoggerWrapper.getLogger( getClass() );
+  private static final ILogger logger = LoggerWrapper.getLogger( S5CallbackClient.class );
 
   /**
    * Конструктор
@@ -117,7 +117,7 @@ public final class S5CallbackClient
     // Определение интервал doJob задачи
     long failureTimeout = IS5ConnectionParams.OP_FAILURE_TIMEOUT.getValue( options ).asInt();
     long doJobTimeout = Math.max( Math.min( (failureTimeout) / 3, DOJOB_TIMEOUT_MAX ), DOJOB_TIMEOUT_MIN );
-    doJob = new PasDoJob( "S5CallbackClient doJob", this, doJobTimeout, logger ); //$NON-NLS-1$
+    doJob = new PasDoJob( "S5CallbackClient doJob", this, doJobTimeout ); //$NON-NLS-1$
     S5CallbackReaderExecutor.INSTANCE.execute( doJob );
   }
 
@@ -141,7 +141,7 @@ public final class S5CallbackClient
       notificationEnabled = false;
       // Создание каналов с узлами сервера
       for( IS5ClusterNodeInfo node : aTopology.nodes() ) {
-        pasClients.add( createClient( connection, this, node, logger ) );
+        pasClients.add( createClient( connection, this, node ) );
       }
       try {
         // Ожидание открытия каналов
@@ -306,7 +306,7 @@ public final class S5CallbackClient
 
       if( needVerify ) {
         // Передача session-verify уведомления
-        logger.debug( MSG_SEND_VERIFY, channel );
+        logger.info( MSG_SEND_VERIFY, channel );
         S5SessionCallbackVerify.send( channel );
       }
     }
@@ -404,13 +404,12 @@ public final class S5CallbackClient
    * @param aConnection {@link S5Connection} s5-соединение с сервером
    * @param aReader {@link S5CallbackClient} читатель обратных вызовов сервера
    * @param aNode {@link IS5ClusterNodeInfo} описание узла кластера сервера
-   * @param aLogger {@link ILogger} журнал работы
    * @return {@link PasClient} PAS-клиент
    * @throws TsNullArgumentRtException любой аргумент = null
    */
   private static PasClient<S5CallbackChannel> createClient( S5Connection aConnection, S5CallbackClient aReader,
-      IS5ClusterNodeInfo aNode, ILogger aLogger ) {
-    TsNullArgumentRtException.checkNulls( aConnection, aReader, aNode, aLogger );
+      IS5ClusterNodeInfo aNode ) {
+    TsNullArgumentRtException.checkNulls( aConnection, aReader, aNode );
     // Конфигурация соединения
     IOptionSet options = aConnection.sessionInitData().clientOptions();
     // Сетевой адрес подключаемого узла
@@ -432,7 +431,7 @@ public final class S5CallbackClient
     // Минимальный интервал передачи пакетов через соединение (не может быть больше чем 2/3 таймаута сессии)
     IPasParams.OP_PAS_FAILURE_TIMEOUT.setValue( ctx.params(), avInt( failureTimeout ) );
     // aExternalDoJobCall = true: НЕ создавать внутренний поток для doJob
-    PasClient<S5CallbackChannel> retValue = new PasClient<>( ctx, S5CallbackChannel.CREATOR, true, aLogger ) {
+    PasClient<S5CallbackChannel> retValue = new PasClient<>( ctx, S5CallbackChannel.CREATOR, true ) {
 
       @Override
       protected void doOnSended( S5CallbackChannel aSource, IJSONMessage aMessage ) {
@@ -444,7 +443,7 @@ public final class S5CallbackClient
           case SESSION_INIT_METHOD:
             // INIT SESSION message sended
             Skid sessionID = Skid.KEEPER.str2ent( notification.params().getByKey( SESSION_ID ).asString() );
-            aLogger.info( MSG_SENDED_INIT_SESSION_MESSAGE, aSource, sessionID );
+            logger.info( MSG_SENDED_INIT_SESSION_MESSAGE, aSource, sessionID );
             break;
           default:
             break;
@@ -497,7 +496,7 @@ public final class S5CallbackClient
         if( needConnect ) {
           // Обновление топологии. Подключение к новому узлу
           logger.info( MSG_CONNECT_NODE, connection, aTopology, node );
-          pasClients.add( createClient( connection, this, node, logger ) );
+          pasClients.add( createClient( connection, this, node ) );
         }
       }
       // Проверка и если требуется завершение соединений с отключенными узлами кластера
@@ -552,8 +551,6 @@ public final class S5CallbackClient
     static Executor INSTANCE = new S5CallbackReaderExecutor();
 
     private static int execCount;
-
-    private ILogger logger = LoggerWrapper.getLogger( getClass() );
 
     /**
      * Закрытый конструктор
