@@ -300,6 +300,8 @@ public final class S5CallbackClient
           if( failureTimeout < 0 || failureTimeout > (2 * STATEFULL_TIMEOUT) / 3 ) {
             failureTimeout = (2 * STATEFULL_TIMEOUT) / 3;
           }
+          logger.info( "doJob(...) call setRegularFailureTimeout. channel = %s, failureTimeout = %d", channel, //$NON-NLS-1$
+              Integer.valueOf( failureTimeout ) );
           channel.setRegularFailureTimeout( failureTimeout );
         }
       }
