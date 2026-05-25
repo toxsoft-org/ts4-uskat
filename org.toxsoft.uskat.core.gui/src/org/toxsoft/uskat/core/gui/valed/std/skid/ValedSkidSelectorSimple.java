@@ -1,5 +1,7 @@
 package org.toxsoft.uskat.core.gui.valed.std.skid;
 
+import static org.toxsoft.uskat.core.gui.valed.std.skid.ISkResources.*;
+
 import org.eclipse.swt.*;
 import org.eclipse.swt.custom.*;
 import org.eclipse.swt.widgets.*;
@@ -86,7 +88,7 @@ public class ValedSkidSelectorSimple
         return ValidationResult.SUCCESS;
       }
     }
-    return ValidationResult.error( "No selected SKID" );
+    return ValidationResult.error( STR_ERR_NO_SELECTED_SKID );
   }
 
   @Override
