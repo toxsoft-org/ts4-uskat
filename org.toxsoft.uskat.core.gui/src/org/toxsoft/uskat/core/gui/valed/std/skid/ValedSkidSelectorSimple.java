@@ -71,7 +71,7 @@ public class ValedSkidSelectorSimple
     SashForm sash = new SashForm( aParent, SWT.HORIZONTAL );
     classSelector.createControl( sash );
     objectsPanel.createControl( sash );
-    sash.setWeights( 1, 1 );
+    sash.setWeights( 2, 1 );
     return sash;
   }
 
