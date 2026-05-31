@@ -32,6 +32,21 @@ public final class ValedGwidSelector {
   public static final String OUTFIT_ID_OTHER = "other"; //$NON-NLS-1$
 
   /**
+   * The ID of the rt-data outfit.
+   */
+  public static final String OUTFIT_ID_RTDATA = "rtdata"; //$NON-NLS-1$
+
+  /**
+   * The ID of the parameter that indicated is abstract or concrete GWID needed
+   */
+  public static final String PARAMID_ABSTRACT = "abstract"; //$NON-NLS-1$
+
+  /**
+   * The ID of the parameter that determines what kind of property GWID needed
+   */
+  public static final String PARAMID_PROP_KIND = "propKind"; //$NON-NLS-1$
+
+  /**
    * The factory singleton.
    */
   @SuppressWarnings( "unchecked" )
@@ -43,6 +58,7 @@ public final class ValedGwidSelector {
       return switch( outfitId ) {
         case OUTFIT_ID_OTHER -> new ValedGwidSelectorOther( aContext );
         case OUTFIT_ID_SIMPLE -> new ValedGwidSelectorSimple( aContext );
+        case OUTFIT_ID_RTDATA -> new ValedSinglePropGwidSelector( aContext );
         default -> new ValedGwidSelectorSimple( aContext );
       };
     }
@@ -53,6 +69,7 @@ public final class ValedGwidSelector {
       return switch( outfitId ) {
         case OUTFIT_ID_OTHER -> super.doCreateSingleLine( aContext );
         case OUTFIT_ID_SIMPLE -> super.doCreateSingleLine( aContext );
+        case OUTFIT_ID_RTDATA -> super.doCreateSingleLine( aContext );
         default -> super.doCreateSingleLine( aContext );
       };
     }
@@ -63,6 +80,7 @@ public final class ValedGwidSelector {
       return switch( outfitId ) {
         case OUTFIT_ID_OTHER -> super.doCreateViewer( aContext );
         case OUTFIT_ID_SIMPLE -> super.doCreateViewer( aContext );
+        case OUTFIT_ID_RTDATA -> super.doCreateViewer( aContext );
         default -> super.doCreateViewer( aContext );
       };
     }
