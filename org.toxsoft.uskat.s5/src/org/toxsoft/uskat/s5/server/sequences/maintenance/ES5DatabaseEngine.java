@@ -15,28 +15,34 @@ import org.toxsoft.uskat.s5.utils.*;
  *
  * @author mvk
  */
+@SuppressWarnings( "nls" )
 public enum ES5DatabaseEngine
     implements IStridable {
 
   /**
    * Mariadb.
    */
-  MARIADB( "MariaDB", STR_D_MARIADB, STR_N_MARIADB ), //$NON-NLS-1$
+  MARIADB( "MariaDB", STR_D_MARIADB, STR_N_MARIADB, true ),
 
   /**
    * MysSQL
    */
-  MYSQL( "MySQL", STR_D_MARIADB, STR_N_MARIADB ), //$NON-NLS-1$
+  MYSQL( "MySQL", STR_D_MARIADB, STR_N_MARIADB, true ),
 
   /**
    * PostgreSQL
    */
-  POSTGRESQL( "PostgreSQL", STR_D_POSTGRESQL, STR_N_POSTGRESQL ); //$NON-NLS-1$
+  POSTGRESQL( "PostgreSQL", STR_D_POSTGRESQL, STR_N_POSTGRESQL, true ),
+
+  /**
+   * H2 ( HyperSonic 2)
+   */
+  H2( "H2", STR_D_POSTGRESQL, STR_N_POSTGRESQL, false );
 
   /**
    * Идентификатор хранителя для {@link S5ValobjUtils}.
    */
-  public static final String KEEPER_ID = "DatabaseEngine"; //$NON-NLS-1$
+  public static final String KEEPER_ID = "DatabaseEngine";
 
   /**
    * Синглтон хранителя.
@@ -45,9 +51,10 @@ public enum ES5DatabaseEngine
 
   private static IStridablesList<ES5DatabaseEngine> list = null;
 
-  private final String id;
-  private final String nmName;
-  private final String description;
+  private final String  id;
+  private final String  nmName;
+  private final String  description;
+  private final boolean partitonSupported;
 
   /**
    * Constructor.
@@ -55,11 +62,13 @@ public enum ES5DatabaseEngine
    * @param aId String - identifier (IDpath)
    * @param aName - short name
    * @param aDescription String - description
+   * @pararm aPartitionSupported boolean - true: partittion supported; false: partition not supported
    */
-  ES5DatabaseEngine( String aId, String aName, String aDescription ) {
+  ES5DatabaseEngine( String aId, String aName, String aDescription, boolean aPartitionSupported ) {
     id = aId;
     nmName = aName;
     description = aDescription;
+    partitonSupported = aPartitionSupported;
   }
 
   // --------------------------------------------------------------------------
@@ -84,6 +93,14 @@ public enum ES5DatabaseEngine
   // ----------------------------------------------------------------------------------
   // Additional API
   //
+  /**
+   * Returns the partition support flag.
+   *
+   * @return flag value. true: partittion supported; false: partition not supported
+   */
+  public boolean partitionSupported() {
+    return partitonSupported;
+  }
 
   /**
    * Returns all constants as list.

@@ -68,7 +68,7 @@ public class S5HistDataSyncIntegerEntity2
       prevWriteIndex = nextWriteIndex;
       prev = next;
     }
-    S5HistDataSyncIntegerBlobEntity2 blob = new S5HistDataSyncIntegerBlobEntity2( values );
+    S5HistDataSyncIntegerBlobEntity2 blob = new S5HistDataSyncIntegerBlobEntity2( values, Long.valueOf( endTime ) );
     return new S5HistDataSyncIntegerEntity2( aTypeInfo, aGwid, startTime, blob );
   }
 
@@ -120,8 +120,8 @@ public class S5HistDataSyncIntegerEntity2
   //
   @Override
   protected IS5SequenceBlockEdit<ITemporalAtomicValue> doCreateBlock( IParameterized aTypeInfo, long aStartTime,
-      long[] aValues ) {
-    S5HistDataSyncIntegerBlobEntity2 blob = new S5HistDataSyncIntegerBlobEntity2( aValues );
+      long aEndTime, long[] aValues ) {
+    S5HistDataSyncIntegerBlobEntity2 blob = new S5HistDataSyncIntegerBlobEntity2( aValues, Long.valueOf( aEndTime ) );
     return new S5HistDataSyncIntegerEntity2( aTypeInfo, gwid(), aStartTime, blob );
   }
 

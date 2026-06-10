@@ -74,22 +74,23 @@ public abstract class S5BackendSupportSingleton
       @Override
       public void beforeChangeServerMode( ES5ServerMode aOldMode, ES5ServerMode aNewMode,
           IVrListEdit aValidationList ) {
-        // nop
+        doBeforeChangeServerMode( aOldMode, aNewMode, aValidationList );
       }
 
       @Override
       public void afterChangeServerMode( ES5ServerMode aOldMode, ES5ServerMode aNewMode ) {
         serverMode = aNewMode;
+        doAfterChangeServerMode( aOldMode, aNewMode );
       }
 
       @Override
       public void beforeSetSharedConnection( ISkConnection aConnection, IVrListEdit aValidationList ) {
-        // nop
+        doBeforeSetSharedConnection( aConnection, aValidationList );
       }
 
       @Override
       public void afterSetSharedConnection( ISkConnection aConnection ) {
-        // nop
+        doAfterSetSharedConnection( aConnection );
       }
     }, 0 );
     doInitSupport();

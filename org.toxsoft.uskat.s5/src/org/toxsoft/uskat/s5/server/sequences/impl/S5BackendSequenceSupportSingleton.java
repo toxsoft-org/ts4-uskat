@@ -54,7 +54,6 @@ import org.toxsoft.uskat.s5.server.backend.impl.*;
 import org.toxsoft.uskat.s5.server.backend.supports.objects.*;
 import org.toxsoft.uskat.s5.server.backend.supports.sysdescr.*;
 import org.toxsoft.uskat.s5.server.frontend.*;
-import org.toxsoft.uskat.s5.server.logger.*;
 import org.toxsoft.uskat.s5.server.sequences.*;
 import org.toxsoft.uskat.s5.server.sequences.maintenance.*;
 import org.toxsoft.uskat.s5.server.sequences.reader.*;
@@ -217,17 +216,17 @@ public abstract class S5BackendSequenceSupportSingleton<S extends IS5Sequence<V>
   /**
    * Журнал записи последовательностей
    */
-  private ILogger writeLogger = LoggerWrapper.getLogger( LOG_WRITER_ID );
+  private ILogger writeLogger = org.toxsoft.uskat.s5.server.logger.LoggerWrapper.getLogger( LOG_WRITER_ID );
 
   /**
    * Журнал дефрагментации последовательностей
    */
-  private ILogger uniterLogger = LoggerWrapper.getLogger( LOG_UNITER_ID );
+  private ILogger uniterLogger = org.toxsoft.uskat.s5.server.logger.LoggerWrapper.getLogger( LOG_UNITER_ID );
 
   /**
    * Журнал обработки разделов таблиц
    */
-  private ILogger partitionLogger = LoggerWrapper.getLogger( LOG_PARTITION_ID );
+  private ILogger partitionLogger = org.toxsoft.uskat.s5.server.logger.LoggerWrapper.getLogger( LOG_PARTITION_ID );
 
   /**
    * Конструктор для наследников.
@@ -1413,7 +1412,7 @@ public abstract class S5BackendSequenceSupportSingleton<S extends IS5Sequence<V>
   private void partitionDoJob() {
     // Текущий режим работы сервера
     ES5ServerMode serverMode = serverMode();
-    if( serverMode != ES5ServerMode.WORKING ) {
+    if( serverMode != ES5ServerMode.STARTING && serverMode != ES5ServerMode.WORKING ) {
       // Текущий режим запрещает проводить операцию
       Double la = Double.valueOf( loadAverage() );
       partitionLogger.warning( ERR_PARTITION_DISABLE_BY_LOAD_AVERAGE, id(), serverMode, la );

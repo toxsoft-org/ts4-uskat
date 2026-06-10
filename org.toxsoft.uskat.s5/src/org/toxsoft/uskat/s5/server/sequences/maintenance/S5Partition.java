@@ -318,7 +318,7 @@ public final class S5Partition
    * @param aStartTime long метка времени (мсек с начала эпохи)
    * @return String текстовый формат метки
    */
-  private static String partitionTimeToString( long aStartTime ) {
+  public static String partitionTimeToString( long aStartTime ) {
     Calendar c = Calendar.getInstance();
     c.setTimeInMillis( aStartTime );
     int year = c.get( Calendar.YEAR );
@@ -334,7 +334,7 @@ public final class S5Partition
    * @return long long метка времени (мсек с начала эпохи)
    * @throws TsNullArgumentRtException аргумент = null
    */
-  private static long stringToPartitionTime( String aTimeStr ) {
+  public static long stringToPartitionTime( String aTimeStr ) {
     TsNullArgumentRtException.checkNull( aTimeStr );
     Calendar c = Calendar.getInstance();
     String[] t = aTimeStr.split( "_" ); //$NON-NLS-1$

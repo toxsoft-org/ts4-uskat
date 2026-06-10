@@ -8,6 +8,7 @@ import static org.toxsoft.uskat.s5.server.backend.addons.IS5Resources.*;
 import static org.toxsoft.uskat.s5.utils.threads.impl.S5Lockable.*;
 
 import org.toxsoft.core.tslib.av.*;
+import org.toxsoft.core.tslib.av.metainfo.*;
 import org.toxsoft.core.tslib.av.opset.*;
 import org.toxsoft.core.tslib.av.opset.impl.*;
 import org.toxsoft.core.tslib.bricks.ctx.*;
@@ -300,7 +301,9 @@ public abstract class S5AbstractBackend<ADDON extends IS5BackendAddon>
 
   @Override
   public final ISkBackendInfo getBackendInfo() {
-    backendInfo.params().addAll( getBackendInfoOptions() );
+    IOptionSet backendOptions = getBackendInfoOptions();
+    String serverId = backendOptions.getStr( IAvMetaConstants.TSID_ID );
+    backendInfo = new SkBackendInfo( serverId, System.currentTimeMillis(), backendOptions );
     // Общие (локальный, удаленны) параметры бекендов
     // Бекенд поддерживает транзакции
     ISkBackendHardConstant.OPDEF_TRANSACTION_SUPPORT.setValue( backendInfo.params(), AV_TRUE );

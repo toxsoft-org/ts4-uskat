@@ -107,6 +107,9 @@ public class S5BackendEventSingleton
   @TransactionAttribute( TransactionAttributeType.REQUIRED )
   public void fireEvents( IS5FrontendRear aFrontend, ISkEventList aEvents ) {
     TsNullArgumentRtException.checkNulls( aFrontend, aEvents );
+    long traceStartTime = System.currentTimeMillis();
+    // Журнал
+    logger().info( MSG_START_FIRE_EVENTS, aEvents );
     // Текущая транзакция
     IS5Transaction tx = transactionManager().findTransaction();
     if( tx == null ) {
@@ -114,6 +117,8 @@ public class S5BackendEventSingleton
       IMapEdit<IS5FrontendRear, ISkEventList> events = new ElemMap<>();
       events.put( aFrontend, aEvents );
       writeEventsImpl( events );
+      // Журнал
+      logger().info( MSG_FINISH_FIRE_EVENTS, aEvents, Long.valueOf( System.currentTimeMillis() - traceStartTime ) );
       return;
     }
     // Размещение событий в текущей транзакции
@@ -133,6 +138,8 @@ public class S5BackendEventSingleton
     }
     // Размещение события в списке событий
     frontendEvents.addAll( aEvents );
+    // Журнал
+    logger().info( MSG_FINISH_FIRE_EVENTS, aEvents, Long.valueOf( System.currentTimeMillis() - traceStartTime ) );
   }
 
   @Override
@@ -146,6 +153,8 @@ public class S5BackendEventSingleton
   public ITimedList<SkEvent> queryEvents( ITimeInterval aInterval, IGwidList aNeededGwids ) {
     TsNullArgumentRtException.checkNulls( aInterval, aNeededGwids );
     long traceStartTime = System.currentTimeMillis();
+    // Журнал
+    logger().info( MSG_START_READ_EVENTS, aInterval, aNeededGwids );
     // Подготовка списка идентификаторов запрашиваемых объектов. false: без повторов
     GwidList gwids = new GwidList();
     for( Gwid needGwid : aNeededGwids ) {
@@ -207,7 +216,7 @@ public class S5BackendEventSingleton
     Long rt = Long.valueOf( traceReadEndTime - traceReadStartTime );
     Long ft = Long.valueOf( traceResultTime - traceReadEndTime );
     Long at = Long.valueOf( traceResultTime - traceStartTime );
-    // Завершено чтение событий
+    // Журнал
     logger().info( MSG_READ_EVENTS, gc, aInterval, rc, at, pt, rt, ft );
     return retValue;
   }
@@ -219,6 +228,9 @@ public class S5BackendEventSingleton
     if( aEvents.size() == 0 ) {
       return;
     }
+    long traceStartTime = System.currentTimeMillis();
+    // Журнал
+    logger().info( MSG_START_WRITE_EVENTS, aEvents );
     // Отправка сообщений об изменении связей только после успешного завершения транзакции
     for( IS5FrontendRear fireRaiser : aEvents.keys() ) {
       try {
@@ -279,6 +291,7 @@ public class S5BackendEventSingleton
         logger().error( e );
       }
     }
+    logger().info( MSG_FINISH_WRITE_EVENTS, aEvents, Long.valueOf( System.currentTimeMillis() - traceStartTime ) );
   }
 
   // ------------------------------------------------------------------------------------

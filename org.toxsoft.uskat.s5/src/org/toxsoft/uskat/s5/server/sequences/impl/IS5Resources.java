@@ -68,6 +68,10 @@ interface IS5Resources {
   String MSG_PARTITION_START                 = "%s. start partition handle. aAuthor = %s.";
   String MSG_PARTITION_FINISH                = Messages.getString( "IS5Resources.MSG_PARTITION_FINISH" );
   String MSG_PARTITION_PASS_FINISH           = Messages.getString( "IS5Resources.MSG_PARTITION_PASS_FINISH" );
+  String MSG_PARTITION_REMOVING_BLOCKS       = "%s. removeBlocks(...) starting: %s/%s. %s";
+  String MSG_PARTITION_REMOVE_BLOCKS_RESULT  =
+      "%s. removeBlocks(...) finished: %s/%s. %s. removed = %d. time = %d (msec)";
+  String MSG_PARTITION_DROPPED               = "%s. dropPartition(...). blocks removed = %d";
 
   String MSG_VALIDATION_UPDATE         = Messages.getString( "IS5Resources.MSG_VALIDATION_UPDATE" );
   String MSG_VALIDATION_REMOVE         = Messages.getString( "IS5Resources.MSG_VALIDATION_REMOVE" );
@@ -283,7 +287,9 @@ interface IS5Resources {
   String ERR_CREATE_INFO_UNEXPECTED            = Messages.getString( "IS5Resources.ERR_CREATE_INFO_UNEXPECTED" );
   String ERR_REMOVE_INFO                       = Messages.getString( "IS5Resources.ERR_REMOVE_INFO" );
   String ERR_REMOVE_INFO_OBJID                 = Messages.getString( "IS5Resources.ERR_REMOVE_INFO_OBJID" );
-  String ERR_REMOVE_BLOCK                      = Messages.getString( "IS5Resources.ERR_REMOVE_BLOCK" );
+  String ERR_REMOVE_BLOCK                      =
+      "%s. Ошибка удаления блоков последовательности в интервале %s. Причина: %s";
+  String ERR_REMOVE_BLOCK_BY_GWID              = Messages.getString( "IS5Resources.ERR_REMOVE_BLOCK_BY_GWID" );
   String ERR_REMOVE_BLOCK_OBJID                = Messages.getString( "IS5Resources.ERR_REMOVE_BLOCK_OBJID" );
   String ERR_REMOVE_BLOCK_DATAID               = Messages.getString( "IS5Resources.ERR_REMOVE_BLOCK_DATAID" );
   String ERR_REMOVE_BLOCK_OBJID_DATAID         = Messages.getString( "IS5Resources.ERR_REMOVE_BLOCK_OBJID_DATAID" );
@@ -299,7 +305,7 @@ interface IS5Resources {
       "[%s] Errors occurred while processing partitions. Scheduling reprocessing";
   String ERR_ADD_PARTITION                  = "[%s] %s.%s. Error adding table partition %s. Cause: %s";
   String ERR_ADD_PARTITION2                 = "%s.%s. Error adding table partition %s. Cause: %s";
-  String ERR_DROP_PARTITION                 = "%[%s] %s.%s. Error removing table partition %s. Cause: %s";
+  String ERR_DROP_PARTITION                 = "%s [%s] %s.%s. Error removing table partition %s. Cause: %s";
   String ERR_DROP_PARTITION2                = "%s.%s. Error removing table partition %s. Cause: %s";
 
   String ERR_DATAID_NOT_FOUND = Messages.getString( "IS5Resources.ERR_DATAID_NOT_FOUND" );

@@ -168,6 +168,30 @@ public abstract class S5SequenceFactory<V extends ITemporal<?>>
   }
 
   @Override
+  public final String findBlockTableName( String aBlobTableName ) {
+    TsNullArgumentRtException.checkNull( aBlobTableName );
+    IList<IS5SequenceTableNames> tableNames = doTableNames();
+    for( IS5SequenceTableNames tableName : tableNames ) {
+      if( tableName.blobTableName().equals( aBlobTableName ) ) {
+        return tableName.blockTableName();
+      }
+    }
+    return null;
+  }
+
+  @Override
+  public final String findBlobTableName( String aBlockTableName ) {
+    TsNullArgumentRtException.checkNull( aBlockTableName );
+    IList<IS5SequenceTableNames> tableNames = doTableNames();
+    for( IS5SequenceTableNames tableName : tableNames ) {
+      if( tableName.blockTableName().equals( aBlockTableName ) ) {
+        return tableName.blobTableName();
+      }
+    }
+    return null;
+  }
+
+  @Override
   public final int getTableDepth( String aTableName ) {
     TsNullArgumentRtException.checkNull( aTableName );
     for( IS5SequenceTableNames tables : tableNames() ) {

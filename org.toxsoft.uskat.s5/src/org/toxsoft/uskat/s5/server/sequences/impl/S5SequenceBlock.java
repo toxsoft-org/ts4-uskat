@@ -25,7 +25,6 @@ import org.toxsoft.core.tslib.utils.*;
 import org.toxsoft.core.tslib.utils.errors.*;
 import org.toxsoft.core.tslib.utils.logs.*;
 import org.toxsoft.uskat.core.api.objserv.*;
-import org.toxsoft.uskat.s5.server.logger.*;
 import org.toxsoft.uskat.s5.server.sequences.*;
 
 import jakarta.persistence.*;
@@ -162,7 +161,7 @@ public abstract class S5SequenceBlock<V extends ITemporal<?>, BLOB_ARRAY, BLOB e
   /**
    * Журнал (общий для всех блоков)
    */
-  protected static ILogger logger = LoggerWrapper.getLogger( "S5SequenceBlock" ); //$NON-NLS-1$
+  protected static ILogger logger = org.toxsoft.uskat.s5.server.logger.LoggerWrapper.getLogger( "S5SequenceBlock" ); //$NON-NLS-1$
 
   /**
    * Конструктор без параметров (для JPA)
@@ -708,10 +707,10 @@ public abstract class S5SequenceBlock<V extends ITemporal<?>, BLOB_ARRAY, BLOB e
     TsNullArgumentRtException.checkNull( aValues );
     int newSize = Array.getLength( aValues );
     TsNullArgumentRtException.checkFalse( newSize > 0, ERR_WRONG_SIZE );
-    _blob.setValues( aValues );
     // выставляем size, чтобы избежать ошибки "cannot be null"
     size = Integer.valueOf( size == null || size.intValue() > 0 ? newSize : -newSize );
     endTime = Long.valueOf( timestamp( newSize - 1 ) );
+    _blob.setValues( aValues, endTime );
     // TODO: mvkd: только для отладки
     debugStartTime = new Timestamp( startTime() );
     debugEndTime = new Timestamp( endTime.longValue() );
@@ -751,9 +750,9 @@ public abstract class S5SequenceBlock<V extends ITemporal<?>, BLOB_ARRAY, BLOB e
     TsNullArgumentRtException.checkNull( aSource );
     TsIllegalArgumentRtException.checkFalse( id.equals( aSource.id ) );
     TsIllegalArgumentRtException.checkTrue( created );
-    _blob.setValues( (BLOB_ARRAY)aSource.values() );
     size = aSource.size;
     endTime = aSource.endTime;
+    _blob.setValues( (BLOB_ARRAY)aSource.values(), endTime );
     // TODO: mvkd: только для отладки
     debugStartTime = aSource.debugStartTime;
     debugEndTime = aSource.debugEndTime;

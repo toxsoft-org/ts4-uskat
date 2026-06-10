@@ -31,7 +31,6 @@ import org.toxsoft.core.tslib.utils.errors.*;
 import org.toxsoft.core.tslib.utils.logs.*;
 import org.toxsoft.uskat.s5.server.backend.supports.core.*;
 import org.toxsoft.uskat.s5.server.cluster.*;
-import org.toxsoft.uskat.s5.server.logger.*;
 import org.toxsoft.uskat.s5.server.sequences.*;
 import org.toxsoft.uskat.s5.server.sequences.cluster.*;
 import org.toxsoft.uskat.s5.server.sequences.maintenance.*;
@@ -248,7 +247,7 @@ public abstract class S5AbstractSequenceWriter<S extends IS5Sequence<V>, V exten
     // Конфигурация подсистемы хранения
     setConfiguration( aConfiguration );
     // Журнал
-    logger = LoggerWrapper.getLogger( LOG_WRITER_ID );
+    logger = org.toxsoft.uskat.s5.server.logger.LoggerWrapper.getLogger( LOG_WRITER_ID );
   }
 
   // ------------------------------------------------------------------------------------
@@ -1009,7 +1008,7 @@ public abstract class S5AbstractSequenceWriter<S extends IS5Sequence<V>, V exten
     // Время запуска операции
     long traceStartTime = System.currentTimeMillis();
     // Журнал для операций над разделами
-    ILogger uniterLogger = LoggerWrapper.getLogger( LOG_UNITER_ID );
+    ILogger uniterLogger = org.toxsoft.uskat.s5.server.logger.LoggerWrapper.getLogger( LOG_UNITER_ID );
     // Запрещено одновременно выполнять обработку разделов и дефрагментацию
     if( !tryLockWrite( writerLock, 10 ) ) {
       // Запрет выполнения дерфагментации. Выполняется обработка разделов
@@ -1066,7 +1065,7 @@ public abstract class S5AbstractSequenceWriter<S extends IS5Sequence<V>, V exten
     S5SequenceValidationStat retValue = doValidation( aArgs );
     // Вывод статистики
     // Журнал для операций над разделами
-    ILogger validationLogger = LoggerWrapper.getLogger( LOG_VALIDATOR_ID );
+    ILogger validationLogger = org.toxsoft.uskat.s5.server.logger.LoggerWrapper.getLogger( LOG_VALIDATOR_ID );
     Long i = Long.valueOf( retValue.infoCount() );
     Long a = Long.valueOf( retValue.processedCount() );
     Long w = Long.valueOf( retValue.warnCount() );
@@ -1161,7 +1160,7 @@ public abstract class S5AbstractSequenceWriter<S extends IS5Sequence<V>, V exten
       S5SequenceUnionStat<V> aState ) {
     TsNullArgumentRtException.checkNulls( aEntityManager, aGwid, aInterval, aState );
     // Журнал для операций над разделами
-    ILogger uniterLogger = LoggerWrapper.getLogger( LOG_UNITER_ID );
+    ILogger uniterLogger = org.toxsoft.uskat.s5.server.logger.LoggerWrapper.getLogger( LOG_UNITER_ID );
     // Менеджер постоянства
     EntityManager em = aEntityManager;
     IS5SequenceFactory<V> factory = sequenceFactory();

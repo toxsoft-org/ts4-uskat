@@ -65,6 +65,7 @@ public class S5SequenceBlob<BLOCK extends S5SequenceBlock<?, ?, ?>, BLOB_ARRAY, 
   /**
    * Значения хранимые в блоке в сериализованном виде
    */
+  @Lob
   @Column( insertable = true, updatable = true, nullable = false, unique = false, length = Integer.MAX_VALUE )
   private BLOB_ARRAY_HOLDER _values;
 
@@ -72,6 +73,17 @@ public class S5SequenceBlob<BLOCK extends S5SequenceBlock<?, ?, ?>, BLOB_ARRAY, 
    * Значения хранимые в блоке
    */
   private transient BLOB_ARRAY values;
+
+  // 2026-05-22 mvkd TODO FIXME! после завершенияя перехода установить nullable = false
+  /**
+   * Время (мсек с начала эпохи) окончания данных (включительно)
+   */
+  @Column( name = FIELD_END_TIME, //
+      insertable = true,
+      updatable = true,
+      nullable = true,
+      unique = false )
+  private Long endTime;
 
   /**
    * Конструктор без параметров (для JPA)
@@ -83,11 +95,12 @@ public class S5SequenceBlob<BLOCK extends S5SequenceBlock<?, ?, ?>, BLOB_ARRAY, 
    * Конструктор blob для нового блока
    *
    * @param aValues BLOB_ARRAY массив значений
+   * @param aEndTime Long метка времени завершения данных (мсек)
    * @throws TsNullArgumentRtException аргумент = null
    */
-  protected S5SequenceBlob( BLOB_ARRAY aValues ) {
-    TsNullArgumentRtException.checkNull( aValues );
-    setValues( aValues );
+  protected S5SequenceBlob( BLOB_ARRAY aValues, Long aEndTime ) {
+    TsNullArgumentRtException.checkNulls( aValues, aEndTime );
+    setValues( aValues, aEndTime );
   }
 
   /**
@@ -101,7 +114,8 @@ public class S5SequenceBlob<BLOCK extends S5SequenceBlock<?, ?, ?>, BLOB_ARRAY, 
   protected S5SequenceBlob( ResultSet aResultSet ) {
     try {
       id = new S5DataID( aResultSet );
-      if( getGenericClass( 1 ) != byte[].class ) {
+      Class<?> fieldValuesType = getGenericClass( 2 );
+      if( !fieldValuesType.equals( byte[].class ) ) {
         try( InputStream is = aResultSet.getBinaryStream( FIELD_VALUES ) ) {
           _values = ((BLOB_ARRAY_HOLDER)new ObjectInputStream( is ).readObject());
         }
@@ -109,6 +123,7 @@ public class S5SequenceBlob<BLOCK extends S5SequenceBlock<?, ?, ?>, BLOB_ARRAY, 
       else {
         _values = (BLOB_ARRAY_HOLDER)aResultSet.getBytes( FIELD_VALUES );
       }
+      endTime = Long.valueOf( aResultSet.getLong( FIELD_END_TIME ) );
     }
     catch( Throwable e ) {
       // Неожиданная ошибка создания blob из курсора dbms
@@ -127,7 +142,14 @@ public class S5SequenceBlob<BLOCK extends S5SequenceBlock<?, ?, ?>, BLOB_ARRAY, 
    */
   @SuppressWarnings( "unchecked" )
   protected BLOB_ARRAY_HOLDER doSerialize( BLOB_ARRAY aValues ) {
-    return (BLOB_ARRAY_HOLDER)aValues;
+    try( ByteArrayOutputStream bos = new ByteArrayOutputStream();
+        ObjectOutputStream oos = new ObjectOutputStream( bos ) ) {
+      oos.writeObject( aValues );
+      return (BLOB_ARRAY_HOLDER)bos.toByteArray();
+    }
+    catch( Throwable e ) {
+      throw new TsInternalErrorRtException( e );
+    }
   }
 
   /**
@@ -138,7 +160,12 @@ public class S5SequenceBlob<BLOCK extends S5SequenceBlock<?, ?, ?>, BLOB_ARRAY, 
    */
   @SuppressWarnings( "unchecked" )
   protected BLOB_ARRAY doDeserialize( BLOB_ARRAY_HOLDER aValues ) {
-    return (BLOB_ARRAY)aValues;
+    try( ObjectInputStream ois = new ObjectInputStream( new ByteArrayInputStream( (byte[])aValues ) ) ) {
+      return (BLOB_ARRAY)ois.readObject();
+    }
+    catch( Exception e ) {
+      throw new TsInternalErrorRtException( e );
+    }
   }
 
   // ------------------------------------------------------------------------------------
@@ -191,12 +218,14 @@ public class S5SequenceBlob<BLOCK extends S5SequenceBlock<?, ?, ?>, BLOB_ARRAY, 
    * Установка значений blob
    *
    * @param aValues BLOB_ARRAY массив значений blob
-   * @throws TsNullArgumentRtException аргумент = null
+   * @param aEndTime Long метка времени завершения данных (мсек)
+   * @throws TsNullArgumentRtException любой аргумент = null
    */
-  final void setValues( BLOB_ARRAY aValues ) {
-    TsNullArgumentRtException.checkNull( aValues );
+  final void setValues( BLOB_ARRAY aValues, Long aEndTime ) {
+    TsNullArgumentRtException.checkNulls( aValues, aEndTime );
     values = aValues;
     _values = doSerialize( aValues );
+    endTime = aEndTime;
   }
 
   /**
@@ -280,8 +309,8 @@ public class S5SequenceBlob<BLOCK extends S5SequenceBlock<?, ?, ?>, BLOB_ARRAY, 
    * @return Class<?> generic-класс
    */
   private Class<?> getGenericClass( int aParamIndex ) {
-    Class<?> genericClass =
-        (Class<?>)((ParameterizedType)getClass().getGenericSuperclass()).getActualTypeArguments()[aParamIndex];
+    Type[] typeArgs = ((ParameterizedType)getClass().getGenericSuperclass()).getActualTypeArguments();
+    Class<?> genericClass = (Class<?>)typeArgs[aParamIndex];
     return genericClass;
   }
 }

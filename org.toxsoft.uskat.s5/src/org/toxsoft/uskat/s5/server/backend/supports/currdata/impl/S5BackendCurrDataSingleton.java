@@ -164,7 +164,8 @@ public class S5BackendCurrDataSingleton
       synchronized (baData) {
         if( baData.currdataToFrontend.size() > 0 && //
             (currTime - baData.lastCurrdataToFrontendTime >= baData.currdataTimeout) ) {
-          message = BaMsgRtdataCurrData.INSTANCE.makeMessage( baData.currdataToFrontend );
+          int counter = baData.currdataEditionCounter.incrementAndGet();
+          message = BaMsgRtdataCurrData.INSTANCE.makeMessage( counter, baData.currdataToFrontend );
           baData.currdataToFrontend.clear();
           baData.lastCurrdataToFrontendTime = currTime;
         }
@@ -229,8 +230,7 @@ public class S5BackendCurrDataSingleton
 
   @TransactionAttribute( TransactionAttributeType.SUPPORTS )
   @Override
-  public IMap<Gwid, IAtomicValue> configureCurrDataReader( IS5FrontendRear aFrontend, IGwidList aToRemove,
-      IGwidList aToAdd ) {
+  public BaRtDataEdition configureCurrDataReader( IS5FrontendRear aFrontend, IGwidList aToRemove, IGwidList aToAdd ) {
     TsNullArgumentRtException.checkNulls( aFrontend, aToAdd );
 
     // Данные фронтенда
@@ -239,9 +239,10 @@ public class S5BackendCurrDataSingleton
     if( !callBeforeConfigureCurrDataReader( interceptors, aFrontend, aToRemove, aToAdd ) ) {
       // Интерсепторы отклонили регистрацию читателя данных
       logger().info( MSG_REJECT_READER_BY_INTERCEPTORS );
-      return IMap.EMPTY;
+      return new BaRtDataEdition( 0, IMap.EMPTY );
     }
     // Фактическое выполнение подписки на данные
+    int editionNo = 0;
     synchronized (baData) {
       if( aToRemove == null ) {
         baData.currdataGwidsToFrontend.clear();
@@ -252,16 +253,17 @@ public class S5BackendCurrDataSingleton
         }
       }
       baData.currdataGwidsToFrontend.addAll( aToAdd );
+      editionNo = baData.currdataEditionCounter.intValue();
     }
     // Пост-вызов интерсепторов
     callAfterConfigureCurrDataReader( interceptors, aFrontend, aToRemove, aToAdd, logger() );
 
     if( aToAdd.size() == 0 ) {
       // Нет новых данных
-      return IMap.EMPTY;
+      return new BaRtDataEdition( 0, IMap.EMPTY );
     }
     IMap<Gwid, IAtomicValue> retValue = readValues( aToAdd );
-    return retValue;
+    return new BaRtDataEdition( editionNo, retValue );
   }
 
   @TransactionAttribute( TransactionAttributeType.SUPPORTS )
@@ -434,7 +436,8 @@ public class S5BackendCurrDataSingleton
           }
           if( baData.currdataToFrontend.size() > 0 && baData.currdataTimeout <= 0 ) {
             // Немедленная передача текущих значений фронтенду
-            message = BaMsgRtdataCurrData.INSTANCE.makeMessage( baData.currdataToFrontend );
+            int counter = baData.currdataEditionCounter.incrementAndGet();
+            message = BaMsgRtdataCurrData.INSTANCE.makeMessage( counter, baData.currdataToFrontend );
             baData.currdataToFrontend.clear();
             baData.lastCurrdataToFrontendTime = currTime;
           }

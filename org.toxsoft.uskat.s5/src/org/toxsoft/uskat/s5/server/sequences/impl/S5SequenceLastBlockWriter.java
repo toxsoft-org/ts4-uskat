@@ -97,12 +97,6 @@ class S5SequenceLastBlockWriter<S extends IS5Sequence<V>, V extends ITemporal<?>
   protected IS5SequenceBlock<V> writeSequence( EntityManager aEntityManager, S aSequence,
       S5SequenceWriteStat aStatistics, int aThreadIndex ) {
     TsNullArgumentRtException.checkNulls( aEntityManager, aSequence, aStatistics );
-
-    // TODO: mvkd
-    // if( aInfo.id().longValue() != 35 ) {
-    // return null;
-    // }
-
     // Статистика по dbms
     S5DbmsStatistics dbmsStat = aStatistics.dbmsStatistics();
     // Индекс потока. -1: запись без использования потоков

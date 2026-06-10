@@ -1,15 +1,12 @@
 package org.toxsoft.uskat.s5.server.sequences.maintenance;
 
-import java.io.Serializable;
+import java.io.*;
 
-import org.toxsoft.core.tslib.coll.IList;
-import org.toxsoft.core.tslib.coll.IListEdit;
-import org.toxsoft.core.tslib.coll.impl.ElemLinkedList;
-import org.toxsoft.core.tslib.gw.gwid.GwidList;
-import org.toxsoft.core.tslib.gw.gwid.IGwidList;
-import org.toxsoft.core.tslib.utils.TsLibUtils;
-import org.toxsoft.core.tslib.utils.errors.TsIllegalArgumentRtException;
-import org.toxsoft.core.tslib.utils.errors.TsNullArgumentRtException;
+import org.toxsoft.core.tslib.coll.*;
+import org.toxsoft.core.tslib.coll.impl.*;
+import org.toxsoft.core.tslib.gw.gwid.*;
+import org.toxsoft.core.tslib.utils.*;
+import org.toxsoft.core.tslib.utils.errors.*;
 
 /**
  * Информация об операциях выполняемых над разделами (partition) таблицы.
@@ -27,7 +24,7 @@ public final class S5PartitionOperation
   private final GwidList               removeGwids      = new GwidList();
 
   /**
-   * Конструктор
+   * Конструктор.
    *
    * @param aTableName String имя таблицы хранения данного
    * @throws TsNullArgumentRtException любой аргумент = null
@@ -42,7 +39,7 @@ public final class S5PartitionOperation
   // Открытое API
   //
   /**
-   * Возвращает имя таблицы хранения данного
+   * Возвращает имя таблицы хранения данного.
    *
    * @return String имя таблицы в базе данных
    */
@@ -51,7 +48,7 @@ public final class S5PartitionOperation
   }
 
   /**
-   * Список идентификаторов данных в удляемых таблицах
+   * Список идентификаторов данных в удаляемых таблицах.
    *
    * @return {@link IGwidList} список идентификаторов данных
    */
@@ -60,7 +57,7 @@ public final class S5PartitionOperation
   }
 
   /**
-   * Возвращает список разделов добавляемых в таблицу с уже имеющей разделы
+   * Возвращает список разделов добавляемых в таблицу с уже имеющей разделы.
    *
    * @return {@link IList}&lt;{@link S5Partition}&gt; список добавляемых разделов
    */
@@ -69,7 +66,7 @@ public final class S5PartitionOperation
   }
 
   /**
-   * Возвращает список удаляемых разделов
+   * Возвращает список удаляемых разделов.
    *
    * @return {@link IList}&lt;{@link S5Partition}&gt; список удаляемых разделов
    */

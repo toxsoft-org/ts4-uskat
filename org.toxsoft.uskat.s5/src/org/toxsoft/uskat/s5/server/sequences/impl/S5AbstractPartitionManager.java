@@ -20,7 +20,6 @@ import org.toxsoft.core.tslib.coll.primtypes.*;
 import org.toxsoft.core.tslib.utils.*;
 import org.toxsoft.core.tslib.utils.errors.*;
 import org.toxsoft.core.tslib.utils.logs.*;
-import org.toxsoft.uskat.s5.server.logger.*;
 import org.toxsoft.uskat.s5.server.sequences.*;
 import org.toxsoft.uskat.s5.server.sequences.maintenance.*;
 import org.toxsoft.uskat.s5.utils.*;
@@ -75,6 +74,11 @@ abstract class S5AbstractPartitionManager {
   private S5IntervalTimer autoTimer = new S5IntervalTimer( 24 * 60 * 60 * 1000 );
 
   /**
+   * Журнал
+   */
+  private final ILogger logger = org.toxsoft.uskat.s5.server.logger.LoggerWrapper.getLogger( LOG_PARTITION_ID );
+
+  /**
    * Constructor.
    *
    * @param aOwner String собственник мендежера
@@ -89,11 +93,6 @@ abstract class S5AbstractPartitionManager {
     entityManagerFactory = aEntityManagerFactory;
     sequenceFactory = aSequenceFactory;
   }
-
-  /**
-   * Журнал
-   */
-  private final ILogger logger = LoggerWrapper.getLogger( LOG_PARTITION_ID );
 
   // ------------------------------------------------------------------------------------
   // Открытое API
@@ -379,6 +378,12 @@ abstract class S5AbstractPartitionManager {
   private IList<S5Partition> findRemovePartitions( EntityManager aEntityManager, String aSchema, String aTableName,
       ITimeInterval aInterval, ILogger aLogger ) {
     TsNullArgumentRtException.checkNulls( aEntityManager, aSchema, aTableName, aInterval );
+    // dbms
+    ES5DatabaseEngine engine = DATABASE_ENGINE.getValue( configuration ).asValobj();
+    if( !engine.partitionSupported() ) {
+      // dbms не поддерживает разделы
+      return new ElemArrayList<S5Partition>( new S5Partition( aInterval ) );
+    }
     IList<S5Partition> partitionInfos = partitionsByTable.getByKey( aTableName );
     IListEdit<S5Partition> retValue = IList.EMPTY;
     // Формирование списка удаляемых разделов
@@ -442,6 +447,8 @@ abstract class S5AbstractPartitionManager {
   private IList<S5PartitionOperation> preparePartitionAuto( EntityManager aEntityManager, IOptionSet aConfiguration,
       S5SequencePartitionStat aStatistics, ILogger aLogger ) {
     TsNullArgumentRtException.checkNulls( aEntityManager, aConfiguration, aStatistics, aLogger );
+    // dbms
+    ES5DatabaseEngine engine = DATABASE_ENGINE.getValue( configuration ).asValobj();
     // Схема базы данных
     String schema = DATABASE_SCHEMA.getValue( aConfiguration ).asString();
     // Максимальное количество потоков удаления
@@ -451,7 +458,9 @@ abstract class S5AbstractPartitionManager {
     // Текущее время
     long currTime = System.currentTimeMillis();
     // мсек в сутках
-    long msecInDay = 24 * 60 * 60 * 1000;
+    // 2026-05-23 TODO: mvkd
+     long msecInDay = 24 * 60 * 60 * 1000;
+//    long msecInDay = 60 * 1000;
     // Интервал записи создаваемых разделов в таблицах (двойной, упреждение)
     ITimeInterval writeInterval = new TimeInterval( currTime, currTime + 2 * msecInDay );
     // Возвращаемый результат
@@ -459,6 +468,11 @@ abstract class S5AbstractPartitionManager {
     // Текущее количество выполненных операций поиска удаляемых данных
     int lookupCount = 0;
     while( true ) {
+      // Проверка на завершение
+      if( threadCount > 0 && retValue.size() >= threadCount ) {
+        // Сформировано необходимое количество операций удаления разделов
+        break;
+      }
       if( lookupCountMax > 0 && lookupCount >= lookupCountMax ) {
         // Установлено ограничение по количество операций поиска за один проход
         break;
@@ -483,6 +497,14 @@ abstract class S5AbstractPartitionManager {
       int depth = sequenceFactory.getTableDepth( blockTable );
       // Интервал удаления
       ITimeInterval removeInterval = new TimeInterval( TimeUtils.MIN_TIMESTAMP, currTime - depth * msecInDay );
+
+      if( !engine.partitionSupported() ) {
+        // dbms не поддерживает разделы. Создание описания "псевдораздела" для удаления из обоих таблиц
+        S5PartitionOperation op = new S5PartitionOperation( blockTable );
+        op.removePartitions().add( new S5Partition( removeInterval ) );
+        retValue.addAll( op );
+        continue;
+      }
       // Список добавляемых разделов
       IList<S5Partition> addPartitions =
           findAddPartitions( aEntityManager, schema, blockTable, writeInterval, depth, aLogger );
@@ -518,11 +540,6 @@ abstract class S5AbstractPartitionManager {
           aLogger.debug( MSG_PARTITION_PLAN_REMOVE, owner, schema, blobTable, depth, op.removePartitions() );
         }
       }
-      // Проверка на завершение
-      if( threadCount > 0 && retValue.size() >= threadCount ) {
-        // Сформировано необходимое количество операций удаления разделов
-        break;
-      }
     }
     return retValue;
   }
@@ -543,6 +560,8 @@ abstract class S5AbstractPartitionManager {
     TsNullArgumentRtException.checkNulls( aEntityManager, aSchema, aPartitionOp, aLogger );
     // Состояние задачи удаления данного
     S5SequencePartitionStat retValue = new S5SequencePartitionStat();
+    // dbms
+    ES5DatabaseEngine engine = DATABASE_ENGINE.getValue( configuration ).asValobj();
     // Таблица
     String table = aPartitionOp.tableName();
     // Текущее время сервера
@@ -551,7 +570,6 @@ abstract class S5AbstractPartitionManager {
     for( S5Partition partition : aPartitionOp.addPartitions() ) {
       try {
         aLogger.info( MSG_ADD_PARTITION, owner, aSchema, table, partition );
-        ES5DatabaseEngine engine = DATABASE_ENGINE.getValue( configuration ).asValobj();
         S5SequenceSQL.addPartition( aEntityManager, engine, aSchema, table, partition );
         retValue.addAdded( 1 );
       }
@@ -564,24 +582,45 @@ abstract class S5AbstractPartitionManager {
     IListEdit<S5Partition> removePartitions = aPartitionOp.removePartitions();
     // Установка идентификаторов данных удаленных разделов
     if( removePartitions.size() > 0 ) {
-      aPartitionOp.removeGwids().addAll( getAllPartitionGwids( aEntityManager, aSchema, table, removePartitions ) );
+      if( engine.partitionSupported() ) {
+        aPartitionOp.removeGwids().addAll( getAllPartitionGwids( aEntityManager, aSchema, table, removePartitions ) );
+      }
     }
     // Удаление разделов из базы данных
     for( S5Partition partition : removePartitions ) {
-      String partitionName = partition.name();
       try {
+        if( !engine.partitionSupported() ) {
+          // dbms не поддерживает разделы
+          ITimeInterval interval = partition.interval();
+          String blockTable = table;
+          String blobTable = sequenceFactory.findBlobTableName( blockTable );
+          // Удаление записей в таблицах
+          long startTime = System.currentTimeMillis();
+          int removedBlocks = removeBlocks( aEntityManager, blockTable, blobTable, interval );
+          aLogger.debug( MSG_PARTITION_REMOVING_BLOCKS, owner, blockTable, blobTable, interval );
+          // Журнал
+          if( aLogger.isSeverityOn( ELogSeverity.DEBUG ) || removedBlocks > 0 ) {
+            Long time = Long.valueOf( System.currentTimeMillis() - startTime );
+            aLogger.info( MSG_PARTITION_REMOVE_BLOCKS_RESULT, owner, blockTable, blobTable, interval, //
+                Integer.valueOf( removedBlocks ), time );
+          }
+          retValue.addRemovedBlocks( removedBlocks );
+          continue;
+        }
+        String partitionName = partition.name();
         aLogger.info( MSG_REMOVE_PARTITION, owner, aSchema, table, partition );
         retValue.addRemovedPartitions( 1 );
-        int removedBlocks = dropPartition( aEntityManager, aSchema, table, partitionName );
-        if( removedBlocks > 0 ) {
-          aLogger.info( "%s. dropPartition(...). removedBlocks = %d", owner, Integer.valueOf( removedBlocks ) ); //$NON-NLS-1$
+        int removedBlocks = dropPartition( aEntityManager, engine, aSchema, table, partitionName );
+        // Журнал
+        if( aLogger.isSeverityOn( ELogSeverity.DEBUG ) || removedBlocks > 0 ) {
+          aLogger.info( MSG_PARTITION_DROPPED, owner, Integer.valueOf( removedBlocks ) );
         }
         retValue.addRemovedBlocks( removedBlocks );
       }
       catch( Throwable e ) {
         // Ошибка удаления раздела
         retValue.addErrors( 1 );
-        aLogger.error( e, String.format( ERR_DROP_PARTITION, owner, aSchema, table, partitionName, cause( e ) ) );
+        aLogger.error( e, String.format( ERR_DROP_PARTITION, owner, aSchema, table, partition.name(), cause( e ) ) );
       }
     }
     // Добавление, удаление разделов из кэша описаний разделов

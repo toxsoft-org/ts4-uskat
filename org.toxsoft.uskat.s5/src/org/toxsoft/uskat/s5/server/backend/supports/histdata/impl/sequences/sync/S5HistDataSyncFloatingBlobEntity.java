@@ -15,7 +15,7 @@ import jakarta.persistence.*;
  */
 @Entity
 public class S5HistDataSyncFloatingBlobEntity
-    extends S5SequenceSyncBlob<S5HistDataSyncFloatingEntity, double[], double[]> {
+    extends S5SequenceSyncBlob<S5HistDataSyncFloatingEntity, double[], byte[]> {
 
   private static final long serialVersionUID = 157157L;
 
@@ -29,10 +29,11 @@ public class S5HistDataSyncFloatingBlobEntity
    * Конструктор blob для нового блока (идентификатор формируется автоматически)
    *
    * @param aValues double[] массив значений
+   * @param aEndTime Long метка времени завершения данных (мсек)
    * @throws TsNullArgumentRtException аргумент = null
    */
-  S5HistDataSyncFloatingBlobEntity( double[] aValues ) {
-    super( aValues );
+  S5HistDataSyncFloatingBlobEntity( double[] aValues, Long aEndTime ) {
+    super( aValues, aEndTime );
   }
 
   /**
@@ -45,4 +46,5 @@ public class S5HistDataSyncFloatingBlobEntity
   S5HistDataSyncFloatingBlobEntity( ResultSet aResultSet ) {
     super( aResultSet );
   }
+
 }

@@ -1,13 +1,13 @@
 package org.toxsoft.uskat.s5.server.sequences;
 
-import java.sql.ResultSet;
+import java.sql.*;
 
-import org.toxsoft.core.tslib.av.utils.IParameterized;
+import org.toxsoft.core.tslib.av.utils.*;
 import org.toxsoft.core.tslib.bricks.time.*;
-import org.toxsoft.core.tslib.coll.IList;
-import org.toxsoft.core.tslib.gw.gwid.Gwid;
+import org.toxsoft.core.tslib.coll.*;
+import org.toxsoft.core.tslib.gw.gwid.*;
 import org.toxsoft.core.tslib.utils.errors.*;
-import org.toxsoft.uskat.s5.server.sequences.impl.S5SequenceBlock;
+import org.toxsoft.uskat.s5.server.sequences.impl.*;
 
 /**
  * Фабрика формирования последовательностей {@link IS5Sequence}
@@ -24,6 +24,24 @@ public interface IS5SequenceFactory<V extends ITemporal<?>>
    * @return {@link IList}&lt;{@link IS5SequenceTableNames}&gt; список пар определяющих хранение блока и его blob
    */
   IList<IS5SequenceTableNames> tableNames();
+
+  /**
+   * Возвращает имя таблицы хранения блоков по указанной таблице хранения blob.
+   *
+   * @param aBlobTableName String имя таблицы хранения blob
+   * @return String имя таблицы хранения блоков; null: таблица хранения blob не найдена
+   * @throws TsNullArgumentRtException аргумент = null;
+   */
+  String findBlockTableName( String aBlobTableName );
+
+  /**
+   * Возвращает имя таблицы хранения blob по указанной таблице хранения блоков.
+   *
+   * @param aBlockTableName String имя таблицы хранения блоков
+   * @return String имя таблицы хранения blob; null: таблица хранения блоков не найдена
+   * @throws TsNullArgumentRtException аргумент = null;
+   */
+  String findBlobTableName( String aBlockTableName );
 
   /**
    * Возвращает глубину хранения (в сутках) значений в таблице с указанным именем

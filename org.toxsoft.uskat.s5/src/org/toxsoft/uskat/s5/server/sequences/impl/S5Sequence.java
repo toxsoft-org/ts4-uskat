@@ -19,7 +19,6 @@ import org.toxsoft.core.tslib.gw.gwid.*;
 import org.toxsoft.core.tslib.utils.*;
 import org.toxsoft.core.tslib.utils.errors.*;
 import org.toxsoft.core.tslib.utils.logs.*;
-import org.toxsoft.uskat.s5.server.logger.*;
 import org.toxsoft.uskat.s5.server.sequences.*;
 
 /**
@@ -608,7 +607,7 @@ public abstract class S5Sequence<V extends ITemporal<?>>
    */
   protected final ILogger logger() {
     if( logger == null ) {
-      logger = LoggerWrapper.getLogger( getClass() );
+      logger = org.toxsoft.uskat.s5.server.logger.LoggerWrapper.getLogger( getClass() );
     }
     return logger;
   }
@@ -620,7 +619,7 @@ public abstract class S5Sequence<V extends ITemporal<?>>
    */
   protected final ILogger uniterLogger() {
     if( uniterLogger == null ) {
-      uniterLogger = LoggerWrapper.getLogger( LOG_UNITER_ID );
+      uniterLogger = org.toxsoft.uskat.s5.server.logger.LoggerWrapper.getLogger( LOG_UNITER_ID );
     }
     return uniterLogger;
   }
@@ -632,7 +631,7 @@ public abstract class S5Sequence<V extends ITemporal<?>>
    */
   protected final ILogger validatorLogger() {
     if( validatorLogger == null ) {
-      validatorLogger = LoggerWrapper.getLogger( LOG_VALIDATOR_ID );
+      validatorLogger = org.toxsoft.uskat.s5.server.logger.LoggerWrapper.getLogger( LOG_VALIDATOR_ID );
     }
     return validatorLogger;
   }

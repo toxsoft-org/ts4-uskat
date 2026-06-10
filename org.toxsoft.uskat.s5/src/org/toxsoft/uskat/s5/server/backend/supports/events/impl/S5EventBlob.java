@@ -15,7 +15,7 @@ import jakarta.persistence.*;
  */
 @Entity
 public class S5EventBlob
-    extends S5SequenceAsyncBlob<S5EventBlock, SkEvent[], String[]> {
+    extends S5SequenceAsyncBlob<S5EventBlock, SkEvent[], byte[]> {
 
   private static final long serialVersionUID = 157157L;
 
@@ -45,27 +45,6 @@ public class S5EventBlob
    */
   S5EventBlob( ResultSet aResultSet ) {
     super( aResultSet );
-  }
-
-  // ------------------------------------------------------------------------------------
-  // S5SequenceBlob
-  //
-  @Override
-  protected String[] doSerialize( SkEvent[] aValues ) {
-    String[] retValue = new String[aValues.length];
-    for( int index = 0, n = aValues.length; index < n; index++ ) {
-      retValue[index] = SkEvent.KEEPER.ent2str( aValues[index] );
-    }
-    return retValue;
-  }
-
-  @Override
-  protected SkEvent[] doDeserialize( String[] aValues ) {
-    SkEvent[] retValue = new SkEvent[aValues.length];
-    for( int index = 0, n = aValues.length; index < n; index++ ) {
-      retValue[index] = SkEvent.KEEPER.str2ent( aValues[index] );
-    }
-    return retValue;
   }
 
 }

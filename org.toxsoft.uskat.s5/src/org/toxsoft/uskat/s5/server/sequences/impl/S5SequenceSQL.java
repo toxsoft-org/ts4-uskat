@@ -499,6 +499,80 @@ class S5SequenceSQL {
    * <li>2. %s - имя таблицы блока, например, S5HistDataAsyncBlock;</li>
    * <li>3. %s - имя таблицы blob, например, S5HistDataAsyncBlob;</li>
    * <li>4. %s - имя таблицы блока, например, S5HistDataAsyncBlock;</li>
+   * <li>5. %s - имя таблицы блока, например, S5HistDataAsyncBlock;</li>
+   * <li>6. %d - время начала запроса (startTime).</li>
+   * <li>7. %s - имя таблицы блока, например, S5HistDataAsyncBlock;</li>
+   * <li>8. %d - время завершения запроса (endTime).</li>
+   */
+  // blobImplTableName, blockImplTableName, //
+  // blobImplTableName, blockImplTableName, //
+  // blockImplTableName, st, //
+  // blockImplTableName, et );
+
+  private static final String QFRMT_DELETE_BLOCKS = "delete %s,%s " //
+      + "from %s "//
+      + "INNER JOIN %s " //
+      + "where(%s." + FIELD_START_TIME + ">=%d)and(%s." + FIELD_END_TIME + "<=%d)";
+
+  /**
+   * Формат запроса удаления блоков до указанного времени.
+   * <p>
+   * <li>1. %s - имя таблицы, например, S5HistDataAsyncBlob;</li>
+   * <li>2. %d - время (мсек) с которого (включительно) будут удалены все записи из таблицы.</li>
+   * <li>3. %d - время (мсек) до которого (включительно) будут удалены все записи из таблицы.</li>
+   */
+  private static final String QFRMT_DELETE_BLOCKS_IN_INTERVAL = //
+      "delete from %s where(%d<=" + FIELD_START_TIME + ")and(" + FIELD_END_TIME + "<=%d)";
+
+  /**
+   * Удаляет блоки данных в указанном интервале
+   * <p>
+   * Блоки удаляется полностью даже если частично попадают в указанный интервал
+   * <p>
+   * Если блоков нет, то ничего не делает.
+   *
+   * @param aEntityManager {@link EntityManager} менеджер постоянства
+   * @param aBlockTableName String имя таблицы блоков
+   * @param aBlobTableName String имя таблицы blob
+   * @param aInterval {@link ITimeInterval} интервал удаляемых блоков
+   * @param <V> тип значения последовательности
+   * @return int количество удаленных блоков
+   * @throws TsNullArgumentRtException любой аргумент = null
+   */
+  static <V extends ITemporal<?>> int removeBlocks( EntityManager aEntityManager, String aBlockTableName,
+      String aBlobTableName, ITimeInterval aInterval ) {
+    TsNullArgumentRtException.checkNulls( aEntityManager, aBlockTableName, aBlobTableName, aInterval );
+    // WORKAROUND: нельзя давать в SQL запросы константы MIN_TIMESTAMP, MIN_TIMESTAMP ???
+    long startTime = aInterval.startTime();
+    long endTime = aInterval.endTime();
+    startTime = (startTime == MIN_TIMESTAMP ? startTime + 1 : startTime);
+    endTime = (endTime == MAX_TIMESTAMP ? endTime - 1 : endTime);
+    // Имя таблицы реализации блоков
+    String blockImplTableName = aBlockTableName;
+    // Имя таблицы реализации blob
+    String blobImplTableName = aBlobTableName;
+    Long st = Long.valueOf( startTime );
+    Long et = Long.valueOf( endTime );
+    String sql1 = format( QFRMT_DELETE_BLOCKS_IN_INTERVAL, blobImplTableName, st, et );
+    String sql2 = format( QFRMT_DELETE_BLOCKS_IN_INTERVAL, blockImplTableName, st, et );
+    String sql = sql1 + ';' + sql2;
+    try {
+      // Выполнение запроса
+      int retCode = aEntityManager.createNativeQuery( sql ).executeUpdate();
+      return retCode;
+    }
+    catch( RuntimeException e ) {
+      throw new TsIllegalArgumentRtException( e, ERR_REMOVE_BLOCK_BY_GWID, aBlockTableName, aInterval, cause( e ) );
+    }
+  }
+
+  /**
+   * Формат запроса удаления блоков данного по идентификатору данного полностью попадающий в указанном интервале
+   * <p>
+   * <li>1. %s - имя таблицы blob, например, S5HistDataAsyncBlob;</li>
+   * <li>2. %s - имя таблицы блока, например, S5HistDataAsyncBlock;</li>
+   * <li>3. %s - имя таблицы blob, например, S5HistDataAsyncBlob;</li>
+   * <li>4. %s - имя таблицы блока, например, S5HistDataAsyncBlock;</li>
    * <li>5. %s - имя таблицы blob, например, S5HistDataAsyncBlob;</li>
    * <li>6. %s - имя таблицы блока, например, S5HistDataAsyncBlock;</li>
    * <li>7. %s - имя таблицы blob, например, S5HistDataAsyncBlob;</li>
@@ -508,7 +582,7 @@ class S5SequenceSQL {
    * <li>11. %s - имя таблицы блока, например, S5HistDataAsyncBlock;</li>
    * <li>12. %d - время завершения запроса (endTime).</li>
    */
-  private static final String QFRMT_DELETE_BLOCKS = "delete %s,%s " //
+  private static final String QFRMT_DELETE_BLOCKS_BY_GWID = "delete %s,%s " //
       + "from %s "//
       + "INNER JOIN %s " //
       + "where(%s.gwid = %s.gwid)and(%s.gwid = '%s')and" //
@@ -546,7 +620,7 @@ class S5SequenceSQL {
     Long st = Long.valueOf( startTime );
     Long et = Long.valueOf( endTime );
     // Текст SQL-запроса
-    String sql = format( QFRMT_DELETE_BLOCKS, //
+    String sql = format( QFRMT_DELETE_BLOCKS_BY_GWID, //
         blobImplTableName, blockImplTableName, //
         blobImplTableName, blockImplTableName, //
         blobImplTableName, blockImplTableName, //
@@ -560,7 +634,7 @@ class S5SequenceSQL {
       return retCode;
     }
     catch( RuntimeException e ) {
-      throw new TsIllegalArgumentRtException( e, ERR_REMOVE_BLOCK, aGwid, aInterval, cause( e ) );
+      throw new TsIllegalArgumentRtException( e, ERR_REMOVE_BLOCK_BY_GWID, aGwid, aInterval, cause( e ) );
     }
   }
 
@@ -1665,11 +1739,19 @@ class S5SequenceSQL {
     IListEdit<S5Partition> retValue = new ElemLinkedList<>();
     // Текст SQL-запроса
     String sql = EMPTY_STRING;
-    sql = switch( aEngine ) {
-      case MARIADB, MYSQL -> format( QFRMT_GET_PARTIONS_MARIADB, aSchema, aTable );
-      case POSTGRESQL -> /* Запрос для postgresql */ format( QFRMT_GET_PARTIONS_POSTGRESQL, aSchema, aTable );
-      default -> throw new TsNotAllEnumsUsedRtException();
-    };
+    switch( aEngine ) {
+      case MARIADB, MYSQL:
+        sql = format( QFRMT_GET_PARTIONS_MARIADB, aSchema, aTable );
+        break;
+      case POSTGRESQL:
+        sql = format( QFRMT_GET_PARTIONS_POSTGRESQL, aSchema, aTable );
+        break;
+      case H2:
+        // dbms не поддерживает разделы
+        return IList.EMPTY;
+      default:
+        throw new TsNotAllEnumsUsedRtException();
+    }
     // Выполнение запроса
     Query query = aEntityManager.createNativeQuery( sql );
     // Запрос данных
@@ -1855,14 +1937,16 @@ class S5SequenceSQL {
    * Удаляет указанный раздел из указанной таблицы
    *
    * @param aEntityManager {@link EntityManager} менеджер постоянства
+   * @param aEngine {@link ES5DatabaseEngine} тип базы данных (смотри {@link S5DatabaseConfig#DATABASE_ENGINE})
    * @param aSchema String имя схемы базы данных сервера
    * @param aTable String имя таблицы в которой находятся разделы
    * @param aPartition String имя раздела
    * @return int количество удаленных блоков
    * @throws TsNullArgumentRtException любой аргумент = null
    */
-  static int dropPartition( EntityManager aEntityManager, String aSchema, String aTable, String aPartition ) {
-    TsNullArgumentRtException.checkNulls( aEntityManager, aSchema, aTable, aPartition );
+  static int dropPartition( EntityManager aEntityManager, ES5DatabaseEngine aEngine, String aSchema, String aTable,
+      String aPartition ) {
+    TsNullArgumentRtException.checkNulls( aEntityManager, aEngine, aSchema, aTable, aPartition );
     int rowCount = getPartitionRowCount( aEntityManager, aSchema, aTable, aPartition );
     // Текст SQL-запроса
     String sql = format( QFRMT_DROP_PARTION, aSchema, aTable, aPartition );

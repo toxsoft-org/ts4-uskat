@@ -4,6 +4,7 @@ import org.toxsoft.core.tslib.av.*;
 import org.toxsoft.core.tslib.coll.*;
 import org.toxsoft.core.tslib.gw.gwid.*;
 import org.toxsoft.core.tslib.utils.errors.*;
+import org.toxsoft.uskat.core.backend.api.*;
 import org.toxsoft.uskat.s5.server.backend.*;
 import org.toxsoft.uskat.s5.server.backend.supports.currdata.impl.*;
 import org.toxsoft.uskat.s5.server.frontend.*;
@@ -43,12 +44,10 @@ public interface IS5BackendCurrDataSingleton
    * @param aToRemove {@link IGwidList} - список идентификаторов данных удаляемых из читаемых клиентом данных. null: все
    *          данные.
    * @param aToAdd {@link IGwidList} - список идентификаторов данных добавляемых в читаемые клиентом данные.
-   * @return {@link IMap}&lt;{@link Gwid},{@link IAtomicValue}&gt; карта текущих значений;<br>
-   *         Key: {@link Gwid} конкретный GWID текущего данного;<br>
-   *         Value: {@link IAtomicValue} текущее значение данного.
+   * @return {@link BaRtDataEdition} редакция текущих данных.
    * @throws TsNullArgumentRtException <code>aToAdd</code> == null
    */
-  IMap<Gwid, IAtomicValue> configureCurrDataReader( IS5FrontendRear aFrontend, IGwidList aToRemove, IGwidList aToAdd );
+  BaRtDataEdition configureCurrDataReader( IS5FrontendRear aFrontend, IGwidList aToRemove, IGwidList aToAdd );
 
   /**
    * Конфигурирует, какие текущие РВданные хочет писать клиент.

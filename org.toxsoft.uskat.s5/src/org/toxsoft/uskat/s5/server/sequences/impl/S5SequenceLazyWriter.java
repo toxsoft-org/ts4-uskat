@@ -27,7 +27,6 @@ import org.toxsoft.core.tslib.gw.gwid.*;
 import org.toxsoft.core.tslib.utils.errors.*;
 import org.toxsoft.core.tslib.utils.logs.*;
 import org.toxsoft.uskat.s5.server.backend.supports.core.*;
-import org.toxsoft.uskat.s5.server.logger.*;
 import org.toxsoft.uskat.s5.server.sequences.*;
 import org.toxsoft.uskat.s5.server.sequences.maintenance.*;
 import org.toxsoft.uskat.s5.server.sequences.writer.*;
@@ -152,7 +151,7 @@ class S5SequenceLazyWriter<S extends IS5Sequence<V>, V extends ITemporal<?>>
   @Override
   public S5SequenceUnionStat<V> doUnion( IOptionSet aConfiguration ) {
     // Журнал для потоков
-    ILogger uniterLogger = LoggerWrapper.getLogger( LOG_UNITER_ID );
+    ILogger uniterLogger = org.toxsoft.uskat.s5.server.logger.LoggerWrapper.getLogger( LOG_UNITER_ID );
     // Состояние задачи дефрагментации данного
     S5SequenceUnionStat<V> statistics = new S5SequenceUnionStat<>();
     // Интервал дефрагментации. Если интервал не указан, то процесс автоматически определяет требуемый интервал
@@ -202,7 +201,7 @@ class S5SequenceLazyWriter<S extends IS5Sequence<V>, V extends ITemporal<?>>
     // Менеджер постоянства
     try( EntityManager em = createEntityManager() ) {
         // Журнал для потоков
-        ILogger logger = LoggerWrapper.getLogger( LOG_VALIDATOR_ID );
+        ILogger logger = org.toxsoft.uskat.s5.server.logger.LoggerWrapper.getLogger( LOG_VALIDATOR_ID );
         // Исполнитель s5-потоков проверки данных
         S5WriteThreadExecutor executor = new S5WriteThreadExecutor( validationExecutor(), logger );
         // Идентификаторы данных. Если список не указан, то все данные
