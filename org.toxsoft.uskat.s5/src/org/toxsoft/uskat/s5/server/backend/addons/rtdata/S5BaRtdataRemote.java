@@ -74,7 +74,8 @@ class S5BaRtdataRemote
           owner().isActive() && //
           (baData.currdataTimeout <= 0 || currTime - baData.lastCurrdataToBackendTime > baData.currdataTimeout) ) {
         // Отправка значений текущих данных от фронтенда в бекенд
-        currDataMessage = BaMsgRtdataCurrData.INSTANCE.makeMessage( baData.currdataToBackend );
+        int counter = baData.currdataToBackendCounter.incrementAndGet();
+        currDataMessage = BaMsgRtdataCurrData.INSTANCE.makeMessage( counter, baData.currdataToBackend );
 
         // TODO: 2023-11-19 mvkd
         // if( logger().isSeverityOn( ELogSeverity.DEBUG ) ) {
@@ -119,7 +120,7 @@ class S5BaRtdataRemote
   // IBaRtdata
   //
   @Override
-  public IMap<Gwid, IAtomicValue> configureCurrDataReader( IGwidList aToRemove, IGwidList aToAdd ) {
+  public BaRtDataEdition configureCurrDataReader( IGwidList aToRemove, IGwidList aToAdd ) {
     TsNullArgumentRtException.checkNull( aToAdd );
     if( aToRemove == null ) {
       baData.currdataGwidsToFrontend.clear();
@@ -130,7 +131,7 @@ class S5BaRtdataRemote
       }
     }
     baData.currdataGwidsToFrontend.addAll( aToAdd );
-    IMap<Gwid, IAtomicValue> retValue = session().configureCurrDataReader( aToRemove, aToAdd );
+    BaRtDataEdition retValue = session().configureCurrDataReader( aToRemove, aToAdd );
     return retValue;
   }
 

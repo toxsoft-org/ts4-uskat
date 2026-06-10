@@ -71,6 +71,8 @@ public class SkCoreApi
 
   private final IList<ISkCoreExternalHandler> coreApiHandlersList;
 
+  private ISkLoggedUserInfo userInfo;
+
   /**
    * Initialization flag.
    */
@@ -344,7 +346,10 @@ public class SkCoreApi
 
   @Override
   public ISkLoggedUserInfo getCurrentUserInfo() {
-    return ISkBackendHardConstant.OPDEF_SKBI_LOGGED_USER.getValue( backend.getBackendInfo().params() ).asValobj();
+    if( userInfo == null ) {
+      userInfo = ISkBackendHardConstant.OPDEF_SKBI_LOGGED_USER.getValue( backend.getBackendInfo().params() ).asValobj();
+    }
+    return userInfo;
   }
 
   // ------------------------------------------------------------------------------------

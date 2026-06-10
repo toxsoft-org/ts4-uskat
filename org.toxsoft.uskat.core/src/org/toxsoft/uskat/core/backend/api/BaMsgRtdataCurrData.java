@@ -1,24 +1,20 @@
 package org.toxsoft.uskat.core.backend.api;
 
+import static org.toxsoft.core.tslib.av.impl.AvUtils.*;
 import static org.toxsoft.core.tslib.bricks.strio.IStrioHardConstants.*;
 
-import org.toxsoft.core.tslib.av.EAtomicType;
-import org.toxsoft.core.tslib.av.IAtomicValue;
-import org.toxsoft.core.tslib.av.impl.AtomicValueKeeper;
-import org.toxsoft.core.tslib.bricks.events.msg.GenericMessage;
-import org.toxsoft.core.tslib.bricks.events.msg.GtMessage;
-import org.toxsoft.core.tslib.bricks.strio.IStrioReader;
-import org.toxsoft.core.tslib.bricks.strio.IStrioWriter;
-import org.toxsoft.core.tslib.bricks.strio.chario.impl.CharInputStreamString;
-import org.toxsoft.core.tslib.bricks.strio.chario.impl.CharOutputStreamAppendable;
-import org.toxsoft.core.tslib.bricks.strio.impl.StrioReader;
-import org.toxsoft.core.tslib.bricks.strio.impl.StrioWriter;
-import org.toxsoft.core.tslib.coll.IMap;
-import org.toxsoft.core.tslib.coll.IMapEdit;
-import org.toxsoft.core.tslib.coll.impl.ElemMap;
-import org.toxsoft.core.tslib.gw.gwid.Gwid;
-import org.toxsoft.core.tslib.utils.errors.TsNullArgumentRtException;
-import org.toxsoft.uskat.core.api.rtdserv.ISkRtdataService;
+import org.toxsoft.core.tslib.av.*;
+import org.toxsoft.core.tslib.av.impl.*;
+import org.toxsoft.core.tslib.bricks.events.msg.*;
+import org.toxsoft.core.tslib.bricks.strio.*;
+import org.toxsoft.core.tslib.bricks.strio.chario.impl.*;
+import org.toxsoft.core.tslib.bricks.strio.impl.*;
+import org.toxsoft.core.tslib.coll.*;
+import org.toxsoft.core.tslib.coll.impl.*;
+import org.toxsoft.core.tslib.gw.gwid.*;
+import org.toxsoft.core.tslib.utils.*;
+import org.toxsoft.core.tslib.utils.errors.*;
+import org.toxsoft.uskat.core.api.rtdserv.*;
 
 /**
  * {@link IBaRtdata} message builder: new values of current data received.
@@ -38,21 +34,24 @@ public class BaMsgRtdataCurrData
    */
   public static final BaMsgRtdataCurrData INSTANCE = new BaMsgRtdataCurrData();
 
-  private static final String ARGID_NEW_VALUES = "NewValues"; //$NON-NLS-1$
+  private static final String ARGID_EDITION_NO = "MessageCounter"; //$NON-NLS-1$
+  private static final String ARGID_NEW_VALUES = "NewValues";      //$NON-NLS-1$
 
   BaMsgRtdataCurrData() {
     super( ISkRtdataService.SERVICE_ID, MSG_ID );
+    defineArgNonValobj( ARGID_EDITION_NO, EAtomicType.INTEGER, true );
     defineArgNonValobj( ARGID_NEW_VALUES, EAtomicType.STRING, true );
   }
 
   /**
    * Creates the message instance.
    *
+   * @param aEditionNo int value of edition
    * @param aNewValues {@link IMap}&lt;{@link Gwid},{@link IAtomicValue}&gt; - map "RTdata GWID" - "current value"
    * @return {@link GtMessage} - created instance of the message
    * @throws TsNullArgumentRtException any argument = <code>null</code>
    */
-  public GtMessage makeMessage( IMap<Gwid, IAtomicValue> aNewValues ) {
+  public GtMessage makeMessage( int aEditionNo, IMap<Gwid, IAtomicValue> aNewValues ) {
     StringBuilder sb = new StringBuilder();
     IStrioWriter sw = new StrioWriter( new CharOutputStreamAppendable( sb ) );
     sw.writeChar( CHAR_ARRAY_BEGIN );
@@ -67,16 +66,21 @@ public class BaMsgRtdataCurrData
       }
     }
     sw.writeChar( CHAR_ARRAY_END );
-    return makeMessageVarargs( ARGID_NEW_VALUES, sb.toString() );
+    return makeMessageVarargs( //
+        ARGID_EDITION_NO, avInt( aEditionNo ), //
+        ARGID_NEW_VALUES, sb.toString() );
   }
 
   /**
    * Extracts new current RTdata values argument from the message.
    *
    * @param aMsg {@link GenericMessage} - the message
-   * @return {@link IMap}&lt;{@link Gwid},{@link IAtomicValue}&gt; - map "RTdata GWID" - "current value"
+   * @return {@link Pair} message <br>
+   *         {@link Pair#left()} int value of the counter of sent messages {@link Pair#right()}
+   *         {@link IMap}&lt;{@link Gwid},{@link IAtomicValue}&gt; - map "RTdata GWID" - "current value"
    */
-  public IMap<Gwid, IAtomicValue> getNewValues( GenericMessage aMsg ) {
+  public BaRtDataEdition getNewValues( GenericMessage aMsg ) {
+    int editionNo = getArg( aMsg, ARGID_EDITION_NO ).asInt();
     String s = getArg( aMsg, ARGID_NEW_VALUES ).asString();
     IMapEdit<Gwid, IAtomicValue> map = new ElemMap<>();
     IStrioReader sr = new StrioReader( new CharInputStreamString( s ) );
@@ -88,7 +92,7 @@ public class BaMsgRtdataCurrData
         map.put( g, v );
       } while( sr.readArrayNext() );
     }
-    return map;
+    return new BaRtDataEdition( editionNo, map );
   }
 
 }

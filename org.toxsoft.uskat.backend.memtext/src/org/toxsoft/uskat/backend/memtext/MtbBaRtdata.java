@@ -4,6 +4,7 @@ import static org.toxsoft.core.tslib.bricks.strio.IStrioHardConstants.*;
 import static org.toxsoft.core.tslib.utils.TsLibUtils.*;
 import static org.toxsoft.uskat.backend.memtext.IBackendMemtextConstants.*;
 
+import java.util.concurrent.atomic.*;
 import java.util.concurrent.locks.*;
 
 import org.toxsoft.core.tslib.av.*;
@@ -147,8 +148,9 @@ public class MtbBaRtdata
   private final GwidList                     cdWriteGwids = new GwidList();
   private final IMapEdit<Gwid, IAtomicValue> cdMap        = new ElemMap<>();
 
-  private final ReentrantReadWriteLock                          hdLock = new ReentrantReadWriteLock();
-  private final IMapEdit<Gwid, TimedList<ITemporalAtomicValue>> hdMap  = new ElemMap<>();
+  private final ReentrantReadWriteLock                          hdLock           = new ReentrantReadWriteLock();
+  private final IMapEdit<Gwid, TimedList<ITemporalAtomicValue>> hdMap            = new ElemMap<>();
+  private final AtomicInteger                                   currdataEditionCounter = new AtomicInteger();
 
   private InternalThread theThread;
 
@@ -372,7 +374,8 @@ public class MtbBaRtdata
       cdLock.writeLock().unlock();
     }
     // prepare and send message to frontend (note: frontend call is thread-safe)
-    GtMessage msg = BaMsgRtdataCurrData.INSTANCE.makeMessage( nvMap );
+    int counter = currdataEditionCounter.incrementAndGet();
+    GtMessage msg = BaMsgRtdataCurrData.INSTANCE.makeMessage( counter, nvMap );
     owner().frontend().onBackendMessage( msg );
   }
 
@@ -434,7 +437,7 @@ public class MtbBaRtdata
   //
 
   @Override
-  public IMap<Gwid, IAtomicValue> configureCurrDataReader( IGwidList aToRemove, IGwidList aToAdd ) {
+  public BaRtDataEdition configureCurrDataReader( IGwidList aToRemove, IGwidList aToAdd ) {
     cdLock.writeLock().lock();
     try {
       if( aToRemove == null ) {
@@ -454,7 +457,7 @@ public class MtbBaRtdata
           retValue.put( g, value );
         }
       }
-      return retValue;
+      return new BaRtDataEdition( currdataEditionCounter.intValue(), retValue );
     }
     finally {
       cdLock.writeLock().unlock();

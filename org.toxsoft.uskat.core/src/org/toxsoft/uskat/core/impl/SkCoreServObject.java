@@ -106,7 +106,12 @@ public class SkCoreServObject
 
     void removeAllObjClassIds( String aClassId ) {
       allObjClassIds.remove( aClassId );
-      ISkClassInfo parentInfo = coreApi().sysdescr().findClassInfo( aClassId ).parent();
+      ISkClassInfo classInfo = coreApi().sysdescr().findClassInfo( aClassId );
+      if( classInfo == null ) {
+        logger().warning( FMT_ERR_CLASS_DOES_NOT_EXISTS, "removeAllObjClassIds(...)", aClassId ); //$NON-NLS-1$
+        return;
+      }
+      ISkClassInfo parentInfo = classInfo.parent();
       if( parentInfo != null ) {
         removeAllObjClassIds( parentInfo.id() );
       }

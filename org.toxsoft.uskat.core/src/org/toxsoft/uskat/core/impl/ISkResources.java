@@ -11,8 +11,9 @@ interface ISkResources {
   /**
    * Common messages.
    */
-  String FMT_ERR_NO_SUCH_CLASS = Messages.getString( "FMT_ERR_NO_SUCH_CLASS" );
-  String FMT_ERR_NO_SUCH_OBJ   = Messages.getString( "FMT_ERR_NO_SUCH_OBJ" );
+  String FMT_ERR_CLASS_DOES_NOT_EXISTS = "%s: class '%s' does not exists";
+  String FMT_ERR_NO_SUCH_CLASS         = Messages.getString( "FMT_ERR_NO_SUCH_CLASS" );
+  String FMT_ERR_NO_SUCH_OBJ           = Messages.getString( "FMT_ERR_NO_SUCH_OBJ" );
 
   /**
    * {@link AbstractSkService}
@@ -124,6 +125,10 @@ interface ISkResources {
   String FMT_ERR_HDW_CHANNEL_WRONG_WRITE_INTERVAL = Messages.getString( "FMT_ERR_HDW_CHANNEL_WRONG_WRITE_INTERVAL" );
   String FMT_MSG_CREATE_READ_CURRDATA             = "createReadCurrDataChannels(%s): size = %d. time = %d (msec)";
   String FMT_MSG_CREATE_WRITE_CURRDATA            = "createWriteCurrDataChannels(%s): size = %d. time = %d (msec)";
+  String FMT_MSG_READING_SYNCHRONIZATION          =
+      "onBackendMessage(...): edition receviedNo = %d, expectedNo = %d, queryNo = %d, gwids = %d";
+  String FMT_MSG_IGNORE_OLD_CURRDATA              =
+      "onBackendMessage(...): old currdata ignored. edition receviedNo = %d, expectedNo = %d, gwids = %d";
 
   /**
    * {@link SkCoreServSysdescr}

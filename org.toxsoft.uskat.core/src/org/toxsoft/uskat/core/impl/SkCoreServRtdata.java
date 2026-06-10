@@ -3,6 +3,8 @@ package org.toxsoft.uskat.core.impl;
 import static java.lang.Long.*;
 import static org.toxsoft.uskat.core.impl.ISkResources.*;
 
+import java.util.concurrent.atomic.*;
+
 import org.toxsoft.core.tslib.av.*;
 import org.toxsoft.core.tslib.av.errors.*;
 import org.toxsoft.core.tslib.av.temporal.*;
@@ -125,8 +127,9 @@ public class SkCoreServRtdata
   // SkCoreServRtdata
   //
 
-  private final Eventer eventer = new Eventer();
-  private final ILogger logger  = LoggerUtils.getLogger( getClass() );
+  private final Eventer       eventer            = new Eventer();
+  private final AtomicInteger cdBackendEditionNo = new AtomicInteger();
+  private final ILogger       logger             = LoggerUtils.getLogger( getClass() );
 
   /**
    * Constructor.
@@ -184,6 +187,28 @@ public class SkCoreServRtdata
     return ll;
   }
 
+  private static void synchronizeCurrDataEdition( SkCoreServRtdata aService, BaRtDataEdition aEdition ) {
+    TsNullArgumentRtException.checkNulls( aService, aEdition );
+    // update counter
+    aService.cdBackendEditionNo.set( aEdition.editionNo() );
+    // update current values
+    IMap<Gwid, IAtomicValue> values = aEdition.values();
+    // ids
+    IList<Gwid> gwids = values.keys();
+    // init channel value
+    for( Gwid g : gwids ) {
+      IAtomicValue initValue = values.getByKey( g );
+      SkReadCurrDataChannel readChannel = aService.cdReadChannelsMap.findByKey( g );
+      if( readChannel != null ) {
+        readChannel.setValue( initValue );
+      }
+      SkWriteCurrDataChannel writeChannel = aService.cdWriteChannelsMap.findByKey( g );
+      if( writeChannel != null ) {
+        writeChannel.value = initValue;
+      }
+    }
+  }
+
   // ------------------------------------------------------------------------------------
   // AbstractSkCoreService
   //
@@ -218,23 +243,53 @@ public class SkCoreServRtdata
 
   @Override
   protected boolean onBackendMessage( GenericMessage aMessage ) {
-    IMap<Gwid, IAtomicValue> msgValues = BaMsgRtdataCurrData.INSTANCE.getNewValues( aMessage );
+    BaRtDataEdition receviedEdition = BaMsgRtdataCurrData.INSTANCE.getNewValues( aMessage );
+    IMap<Gwid, IAtomicValue> receviedValues = receviedEdition.values();
+    int expectedNo = cdBackendEditionNo.intValue() + 1;
+    int receviedNo = receviedEdition.editionNo();
+    int compare = BaRtDataEdition.compareEditionNo( receviedNo, expectedNo );
+    if( compare < 0 ) {
+      // old currdata ignored
+      logger().warning( FMT_MSG_IGNORE_OLD_CURRDATA, //
+          Integer.valueOf( receviedNo ), //
+          Integer.valueOf( expectedNo ), //
+          Integer.valueOf( receviedValues.size() ) //
+      ); //
+      return false;
+    }
+    if( expectedNo != receviedNo ) {
+      BaRtDataEdition edition =
+          ba().baRtdata().configureCurrDataReader( cdReadToRemove, new GwidList( cdReadChannelsMap.keys() ) );
+      cdReadToRemove.clear();
+      // logger
+      logger().warning( FMT_MSG_READING_SYNCHRONIZATION, //
+          Integer.valueOf( receviedNo ), //
+          Integer.valueOf( expectedNo ), //
+          Integer.valueOf( edition.editionNo() ), //
+          Integer.valueOf( receviedValues.size() ) );
+      // synchronization
+      synchronizeCurrDataEdition( this, edition );
+      // fire new data event
+      eventer.fireCurrData( edition.values() );
+      return true;
+    }
+    cdBackendEditionNo.set( receviedNo );
     IMapEdit<Gwid, IAtomicValue> newValues = new ElemMap<>();
     // update current data values in channels
-    for( Gwid g : msgValues.keys() ) {
+    for( Gwid g : receviedValues.keys() ) {
       SkReadCurrDataChannel channel = cdReadChannelsMap.findByKey( g );
       if( channel != null ) {
-        IAtomicValue value = msgValues.getByKey( g );
+        IAtomicValue value = receviedValues.getByKey( g );
         if( channel.setValue( value ) ) {
           newValues.put( g, value );
         }
       }
     }
     // update curr data values (cache) out channels
-    for( Gwid g : msgValues.keys() ) {
+    for( Gwid g : receviedValues.keys() ) {
       SkWriteCurrDataChannel channel = cdWriteChannelsMap.findByKey( g );
       if( channel != null ) {
-        IAtomicValue value = msgValues.getByKey( g );
+        IAtomicValue value = receviedValues.getByKey( g );
         if( channel.value == null || !channel.value.equals( value ) ) {
           channel.value = value;
           newValues.put( g, value );
@@ -420,17 +475,11 @@ public class SkCoreServRtdata
       result.put( g, channel );
     }
     // inform backend
-    IMap<Gwid, IAtomicValue> initValues = ba().baRtdata().configureCurrDataReader( cdReadToRemove, cdReadToAdd );
+    BaRtDataEdition edition = ba().baRtdata().configureCurrDataReader( cdReadToRemove, cdReadToAdd );
     cdReadToRemove.clear();
-    // init channel value
-    for( Gwid g : gwids ) {
-      IAtomicValue initValue = initValues.findByKey( g );
-      if( initValue == null ) {
-        continue;
-      }
-      SkReadCurrDataChannel channel = (SkReadCurrDataChannel)result.getByKey( g );
-      channel.setValue( initValue );
-    }
+    // synchronization
+    synchronizeCurrDataEdition( this, edition );
+    // logger
     logger().info( FMT_MSG_CREATE_READ_CURRDATA, aGwids, Integer.valueOf( cdReadToAdd.size() ),
         Long.valueOf( System.currentTimeMillis() - trace0 ) );
     return result;

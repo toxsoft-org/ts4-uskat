@@ -104,7 +104,11 @@ public class SkCoreServLinks
     }
 
     void removeAllObjGwids( String aClassId ) {
-      ISkClassInfo classInfo = coreApi().sysdescr().getClassInfo( aClassId );
+      ISkClassInfo classInfo = coreApi().sysdescr().findClassInfo( aClassId );
+      if( classInfo == null ) {
+        logger().warning( FMT_ERR_CLASS_DOES_NOT_EXISTS, "removeAllObjGwids(...)", aClassId ); //$NON-NLS-1$
+        return;
+      }
       ISkClassProps<IDtoLinkInfo> linkInfos = classInfo.links();
       for( IDtoLinkInfo linkInfo : linkInfos.list() ) {
         String linkId = linkInfo.id();
@@ -114,7 +118,11 @@ public class SkCoreServLinks
     }
 
     void removeByClassId( String aClassId ) {
-      ISkClassInfo classInfo = coreApi().sysdescr().getClassInfo( aClassId );
+      ISkClassInfo classInfo = coreApi().sysdescr().findClassInfo( aClassId );
+      if( classInfo == null ) {
+        logger().warning( FMT_ERR_CLASS_DOES_NOT_EXISTS, "removeByClassId(...)", aClassId ); //$NON-NLS-1$
+        return;
+      }
       ISkClassProps<IDtoLinkInfo> linkInfos = classInfo.links();
       for( IDtoLinkInfo linkInfo : linkInfos.list() ) {
         String linkId = linkInfo.id();
@@ -129,7 +137,11 @@ public class SkCoreServLinks
 
     void removeByObjId( Skid aSkid ) {
       String classId = aSkid.classId();
-      ISkClassInfo classInfo = coreApi().sysdescr().getClassInfo( classId );
+      ISkClassInfo classInfo = coreApi().sysdescr().findClassInfo( classId );
+      if( classInfo == null ) {
+        logger().warning( FMT_ERR_CLASS_DOES_NOT_EXISTS, "removeByObjId(...)", classId ); //$NON-NLS-1$
+        return;
+      }
       ISkClassProps<IDtoLinkInfo> linkInfos = classInfo.links();
       for( IDtoLinkInfo linkInfo : linkInfos.list() ) {
         String linkId = linkInfo.id();
@@ -477,7 +489,7 @@ public class SkCoreServLinks
     // find declaring class and by the way check that link exists
     ISkClassInfo classInfo = sysdescr().getClassInfo( aClassId );
     if( classInfo == null ) {
-      throw new TsItemNotFoundRtException( FMT_ERR_NO_SUCH_CLASS, aClassId );
+      throw new TsItemNotFoundRtException( FMT_ERR_CLASS_DOES_NOT_EXISTS, "getLinkRev(...)", aClassId ); //$NON-NLS-1$
     }
     ISkClassInfo declaringClassInfo = classInfo.links().findSuperDeclarer( aLinkId );
     if( declaringClassInfo == null ) {

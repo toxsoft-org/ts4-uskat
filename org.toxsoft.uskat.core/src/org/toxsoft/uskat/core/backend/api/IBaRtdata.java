@@ -3,7 +3,6 @@ package org.toxsoft.uskat.core.backend.api;
 import org.toxsoft.core.tslib.av.*;
 import org.toxsoft.core.tslib.av.temporal.*;
 import org.toxsoft.core.tslib.bricks.time.*;
-import org.toxsoft.core.tslib.coll.*;
 import org.toxsoft.core.tslib.gw.gwid.*;
 import org.toxsoft.core.tslib.utils.errors.*;
 import org.toxsoft.uskat.core.api.evserv.*;
@@ -35,12 +34,10 @@ public interface IBaRtdata
    * @param aToRemove {@link IGwidList} - list of current RTdata concrete GWIDs removed from read currdata. null -
    *          remove all GWIDs.
    * @param aToAdd {@link IGwidList} - list of current RTdata concrete GWIDs added to read currdata.
-   * @return {@link IMap}&lt;{@link Gwid},{@link IAtomicValue}&gt; current RTdata values;<br>
-   *         Key: {@link Gwid} concrete GWID;<br>
-   *         Value: {@link IAtomicValue} сurrent value.
+   * @return {@link BaRtDataEdition} new RTdata edition.
    * @throws TsNullArgumentRtException argument aToAdd = <code>null</code>
    */
-  IMap<Gwid, IAtomicValue> configureCurrDataReader( IGwidList aToRemove, IGwidList aToAdd );
+  BaRtDataEdition configureCurrDataReader( IGwidList aToRemove, IGwidList aToAdd );
 
   /**
    * Prepares backend to receive current values for the specified RTdata.

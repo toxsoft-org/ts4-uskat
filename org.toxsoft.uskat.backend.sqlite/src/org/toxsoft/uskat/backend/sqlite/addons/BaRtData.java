@@ -52,9 +52,9 @@ public class BaRtData
   //
 
   @Override
-  public IMap<Gwid, IAtomicValue> configureCurrDataReader( IGwidList aToRemove, IGwidList aToAdd ) {
+  public BaRtDataEdition configureCurrDataReader( IGwidList aToRemove, IGwidList aToAdd ) {
     // TODO Auto-generated method stub
-    return IMap.EMPTY;
+    return new BaRtDataEdition( 0, IMap.EMPTY );
   }
 
   @Override

@@ -95,9 +95,9 @@ public class S5BaRtdataSession
     frontend().frontendEventer().addListener( aMessage -> {
       // Получение значений текущих данных от фронтенда для записи в бекенда
       if( aMessage.messageId().equals( BaMsgRtdataCurrData.MSG_ID ) ) {
-        IMap<Gwid, IAtomicValue> values = BaMsgRtdataCurrData.INSTANCE.getNewValues( aMessage );
+        BaRtDataEdition edition = BaMsgRtdataCurrData.INSTANCE.getNewValues( aMessage );
         // Запись новых значений текущих данных
-        currDataSupport.writeValues( frontend(), values );
+        currDataSupport.writeValues( frontend(), edition.values() );
         // Обработка статистики приема пакета текущих данных
         statisticCounter().onEvent( IS5ServerHardConstants.STAT_SESSION_RECEVIED_CURRDATA, AV_1 );
         return;
@@ -117,7 +117,8 @@ public class S5BaRtdataSession
     if( baData.currdataGwidsToFrontend.size() > 0 ) {
       IMap<Gwid, IAtomicValue> retValue = currDataSupport.readValues( baData.currdataGwidsToFrontend );
       // Немедленная передача текущих значений фронтенду
-      GtMessage message = BaMsgRtdataCurrData.INSTANCE.makeMessage( retValue );
+      int counter = baData.currdataEditionCounter.incrementAndGet();
+      GtMessage message = BaMsgRtdataCurrData.INSTANCE.makeMessage( counter, retValue );
       // Немедленная передача текущих значений фронтенду
       frontend().onBackendMessage( message );
     }
@@ -128,9 +129,9 @@ public class S5BaRtdataSession
   //
   @TransactionAttribute( TransactionAttributeType.SUPPORTS )
   @Override
-  public IMap<Gwid, IAtomicValue> configureCurrDataReader( IGwidList aToRemove, IGwidList aToAdd ) {
+  public BaRtDataEdition configureCurrDataReader( IGwidList aToRemove, IGwidList aToAdd ) {
     TsNullArgumentRtException.checkNull( aToAdd );
-    IMap<Gwid, IAtomicValue> retValue = currDataSupport.configureCurrDataReader( frontend(), aToRemove, aToAdd );
+    BaRtDataEdition retValue = currDataSupport.configureCurrDataReader( frontend(), aToRemove, aToAdd );
     // Сохранение измененной сессии в кластере сервера
     writeSessionData();
     return retValue;

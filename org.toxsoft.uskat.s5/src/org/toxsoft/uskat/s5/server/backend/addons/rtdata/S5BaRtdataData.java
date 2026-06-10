@@ -1,19 +1,18 @@
 package org.toxsoft.uskat.s5.server.backend.addons.rtdata;
 
-import java.io.Serializable;
+import java.io.*;
+import java.util.concurrent.atomic.*;
 
-import org.toxsoft.core.tslib.av.IAtomicValue;
-import org.toxsoft.core.tslib.av.temporal.ITemporalAtomicValue;
-import org.toxsoft.core.tslib.bricks.time.ITimeInterval;
-import org.toxsoft.core.tslib.bricks.time.ITimedList;
-import org.toxsoft.core.tslib.coll.IMapEdit;
-import org.toxsoft.core.tslib.coll.impl.ElemMap;
-import org.toxsoft.core.tslib.gw.gwid.Gwid;
-import org.toxsoft.core.tslib.gw.gwid.GwidList;
-import org.toxsoft.core.tslib.utils.Pair;
-import org.toxsoft.uskat.core.backend.api.IBaRtdata;
-import org.toxsoft.uskat.s5.client.IS5ConnectionParams;
-import org.toxsoft.uskat.s5.server.frontend.IS5BackendAddonData;
+import org.toxsoft.core.tslib.av.*;
+import org.toxsoft.core.tslib.av.temporal.*;
+import org.toxsoft.core.tslib.bricks.time.*;
+import org.toxsoft.core.tslib.coll.*;
+import org.toxsoft.core.tslib.coll.impl.*;
+import org.toxsoft.core.tslib.gw.gwid.*;
+import org.toxsoft.core.tslib.utils.*;
+import org.toxsoft.uskat.core.backend.api.*;
+import org.toxsoft.uskat.s5.client.*;
+import org.toxsoft.uskat.s5.server.frontend.*;
 
 /**
  * Данные конфигурации фронтенда для {@link IBaRtdata}.
@@ -66,6 +65,16 @@ public class S5BaRtdataData
    * non-transient чтобы на сервере не требовалась инициализация
    */
   public long lastCurrdataToFrontendTime = System.currentTimeMillis();
+
+  /**
+   * Счетчик отправленных фронтенду пакетов текущих данных.
+   */
+  public AtomicInteger currdataEditionCounter = new AtomicInteger();
+
+  /**
+   * Счетчик отправленных бекенду пакетов текущих данных.
+   */
+  public AtomicInteger currdataToBackendCounter = new AtomicInteger();
 
   // ------------------------------------------------------------------------------------
   // Хранимые данные

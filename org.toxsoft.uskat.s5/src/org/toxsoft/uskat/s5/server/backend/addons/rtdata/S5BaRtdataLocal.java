@@ -70,9 +70,9 @@ class S5BaRtdataLocal
     frontend().frontendEventer().addListener( aMessage -> {
       // Получение значений текущих данных от фронтенда для записи в бекенда
       if( aMessage.messageId().equals( BaMsgRtdataCurrData.MSG_ID ) ) {
-        IMap<Gwid, IAtomicValue> values = BaMsgRtdataCurrData.INSTANCE.getNewValues( aMessage );
+        BaRtDataEdition edition = BaMsgRtdataCurrData.INSTANCE.getNewValues( aMessage );
         // Запись новых значений текущих данных
-        currDataSupport.writeValues( frontend(), values );
+        currDataSupport.writeValues( frontend(), edition.values() );
         // Обработка статистики приема пакета текущих данных
         statisticCounter().onEvent( IS5ServerHardConstants.STAT_SESSION_RECEVIED_CURRDATA, AV_1 );
         return;
@@ -112,7 +112,8 @@ class S5BaRtdataLocal
           owner().isActive() && //
           (baData.currdataTimeout <= 0 || currTime - baData.lastCurrdataToBackendTime > baData.currdataTimeout) ) {
         // Отправка значений текущих данных от фронтенда в бекенд
-        currDataMessage = BaMsgRtdataCurrData.INSTANCE.makeMessage( baData.currdataToBackend );
+        int counter = baData.currdataToBackendCounter.incrementAndGet();
+        currDataMessage = BaMsgRtdataCurrData.INSTANCE.makeMessage( counter, baData.currdataToBackend );
 
         // TODO: 2023-11-19 mvkd
         // if( logger().isSeverityOn( ELogSeverity.DEBUG ) ) {
@@ -158,9 +159,9 @@ class S5BaRtdataLocal
   // IBaRtdata
   //
   @Override
-  public IMap<Gwid, IAtomicValue> configureCurrDataReader( IGwidList aToRemove, IGwidList aToAdd ) {
+  public BaRtDataEdition configureCurrDataReader( IGwidList aToRemove, IGwidList aToAdd ) {
     TsNullArgumentRtException.checkNull( aToAdd );
-    IMap<Gwid, IAtomicValue> retValue = currDataSupport.configureCurrDataReader( frontend(), aToRemove, aToAdd );
+    BaRtDataEdition retValue = currDataSupport.configureCurrDataReader( frontend(), aToRemove, aToAdd );
     return retValue;
   }
 
