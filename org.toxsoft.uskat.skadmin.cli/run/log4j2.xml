@@ -3,9 +3,9 @@
     <!-- Настройка логгеров -->
     <Loggers>
         <!-- Настройка журналов компонент системы -->
-        <Logger level="TRACE"   name="org.jboss.ejb.client" />
+        <Logger level="WARN"  name="org.jboss.ejb.client" />
 
-        <Logger level="ALL"   name="org.toxsoft" />
+        <Logger level="WARN"  name="org.toxsoft" />
         <Logger level="WARN"  name="org.toxsoft.core.tslib.bricks.threadexec.TsThreadExecutor" />
 
         <Logger level="INFO"  name="org.toxsoft.uskat.s5.common" />
@@ -13,9 +13,7 @@
         <Logger level="INFO"  name="org.toxsoft.uskat.s5.server" />
 
 
-        <Logger level="ALL"   name="ru.toxsoft" />
-
-        <Logger level="INFO"  name="org.toxsoft.uskat.skadmin.cli.AdminConsole" />
+        <Logger level="WARN"  name="org.toxsoft.uskat.skadmin.cli.AdminConsole" />
 
         <!-- Корневой логгер: уровень ERROR, выводит в оба аппендера -->
         <Root level="ALL">
@@ -28,7 +26,7 @@
     <Appenders>
         <!-- Консольный аппендер -->
         <Console name="Console" target="SYSTEM_OUT">
-            <ThresholdFilter level="ALL" onMatch="ACCEPT" onMismatch="DENY"/>
+            <ThresholdFilter level="WARN" onMatch="ACCEPT" onMismatch="DENY"/>
             <PatternLayout pattern="[%-5level|%d{HH:mm:ss.SSS}|%-20c{1}] %msg%n%ex{full}"/>
         </Console>
 
