@@ -53,7 +53,9 @@ import jakarta.ejb.*;
 } )
 @TransactionManagement( TransactionManagementType.CONTAINER )
 @TransactionAttribute( TransactionAttributeType.SUPPORTS )
-@ConcurrencyManagement( ConcurrencyManagementType.CONTAINER )
+// 2026-06-15 mvk ---+++
+// @ConcurrencyManagement( ConcurrencyManagementType.CONTAINER )
+@ConcurrencyManagement( ConcurrencyManagementType.BEAN )
 @AccessTimeout( value = ACCESS_TIMEOUT_DEFAULT, unit = TimeUnit.MILLISECONDS )
 @Lock( LockType.READ )
 public class S5BackendEventSingleton
