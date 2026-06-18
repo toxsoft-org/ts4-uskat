@@ -2,28 +2,23 @@ package org.toxsoft.uskat.s5.server.sessions.pas;
 
 import static org.toxsoft.uskat.s5.server.sessions.pas.IS5Resources.*;
 
-import java.net.Socket;
+import java.net.*;
 
-import org.toxsoft.core.pas.common.PasChannel;
-import org.toxsoft.core.pas.common.PasHandlerHolder;
-import org.toxsoft.core.pas.json.IJSONNotification;
-import org.toxsoft.core.pas.json.IJSONNotificationHandler;
-import org.toxsoft.core.pas.server.IPasServerChannelCreator;
-import org.toxsoft.core.pas.server.PasServerChannel;
-import org.toxsoft.core.pas.tj.ITjValue;
-import org.toxsoft.core.tslib.av.impl.AvUtils;
-import org.toxsoft.core.tslib.bricks.ctx.ITsContextRo;
-import org.toxsoft.core.tslib.coll.primtypes.IStringMap;
-import org.toxsoft.core.tslib.gw.skid.Skid;
-import org.toxsoft.core.tslib.utils.errors.TsIllegalArgumentRtException;
-import org.toxsoft.core.tslib.utils.errors.TsNullArgumentRtException;
-import org.toxsoft.core.tslib.utils.logs.ILogger;
+import org.toxsoft.core.pas.common.*;
+import org.toxsoft.core.pas.json.*;
+import org.toxsoft.core.pas.server.*;
+import org.toxsoft.core.pas.tj.*;
+import org.toxsoft.core.tslib.av.impl.*;
+import org.toxsoft.core.tslib.bricks.ctx.*;
+import org.toxsoft.core.tslib.coll.primtypes.*;
+import org.toxsoft.core.tslib.gw.skid.*;
+import org.toxsoft.core.tslib.utils.errors.*;
 import org.toxsoft.uskat.classes.*;
-import org.toxsoft.uskat.s5.client.remote.connection.pas.S5CallbackOnGetBaCreatorClasses;
-import org.toxsoft.uskat.s5.server.IS5ServerHardConstants;
-import org.toxsoft.uskat.s5.server.sessions.IS5SessionManager;
-import org.toxsoft.uskat.s5.server.startup.IS5InitialImplementation;
-import org.toxsoft.uskat.s5.server.statistics.IS5StatisticCounter;
+import org.toxsoft.uskat.s5.client.remote.connection.pas.*;
+import org.toxsoft.uskat.s5.server.*;
+import org.toxsoft.uskat.s5.server.sessions.*;
+import org.toxsoft.uskat.s5.server.startup.*;
+import org.toxsoft.uskat.s5.server.statistics.*;
 
 /**
  * Канал приема обратных вызовов сервера
@@ -51,14 +46,13 @@ public final class S5SessionCallbackChannel
    * @param aContext {@link ITsContextRo} - контекст выполнения, общий для всех каналов и сервера
    * @param aSocket {@link Socket} сокет соединения
    * @param aHandlerHolder {@link PasHandlerHolder} хранитель обработчиков канала
-   * @param aLogger {@link ILogger} журнал работы класса канала
    * @throws TsNullArgumentRtException любой аргумент = <code>null</code>
    * @throws TsIllegalArgumentRtException ошибка создания читателя канала
    * @throws TsIllegalArgumentRtException ошибка создания писателя канала
    */
   S5SessionCallbackChannel( ITsContextRo aContext, Socket aSocket,
-      PasHandlerHolder<? extends PasServerChannel> aHandlerHolder, ILogger aLogger ) {
-    super( aContext, aSocket, aHandlerHolder, aLogger );
+      PasHandlerHolder<? extends PasServerChannel> aHandlerHolder ) {
+    super( aContext, aSocket, aHandlerHolder );
     callbackServer = aContext.get( S5SessionCallbackServer.class );
     initialImplementation = aContext.get( IS5InitialImplementation.class );
   }

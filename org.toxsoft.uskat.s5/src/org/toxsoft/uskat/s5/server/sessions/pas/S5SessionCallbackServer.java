@@ -110,68 +110,67 @@ public final class S5SessionCallbackServer
     // Таймаут проверки работоспособности канала устанавливается клиентом (AV_0)
     IPasParams.OP_PAS_FAILURE_TIMEOUT.setValue( ctx.params(), AV_0 );
     // aExternalDoJobCall = false
-    pasServer =
-        new PasServer<>( ctx, S5SessionCallbackChannel.CREATOR, false, LoggerWrapper.getLogger( PasServer.class ) ) {
+    pasServer = new PasServer<>( ctx, S5SessionCallbackChannel.CREATOR, false ) {
 
-          private int anonymousCount;
-          private int duplicateCount;
+      private int anonymousCount;
+      private int duplicateCount;
 
-          @Override
-          protected void doOnReceived( S5SessionCallbackChannel aSource, IJSONMessage aMessage ) {
-            if( aMessage.kind() != EJSONKind.NOTIFICATION ) {
-              return;
-            }
-            IJSONNotification notification = (IJSONNotification)aMessage;
-            switch( notification.method() ) {
-              case SESSION_INIT_METHOD:
-                // INIT SESSION message received
-                Skid sessionID = Skid.KEEPER.str2ent( notification.params().getByKey( SESSION_ID ).asString() );
-                logger.info( MSG_RECEIVED_INIT_SESSION_MESSAGE, aSource, sessionID );
-                break;
-              default:
-                break;
-            }
+      @Override
+      protected void doOnReceived( S5SessionCallbackChannel aSource, IJSONMessage aMessage ) {
+        if( aMessage.kind() != EJSONKind.NOTIFICATION ) {
+          return;
+        }
+        IJSONNotification notification = (IJSONNotification)aMessage;
+        switch( notification.method() ) {
+          case SESSION_INIT_METHOD:
+            // INIT SESSION message received
+            Skid sessionID = Skid.KEEPER.str2ent( notification.params().getByKey( SESSION_ID ).asString() );
+            logger.info( MSG_RECEIVED_INIT_SESSION_MESSAGE, aSource, sessionID );
+            break;
+          default:
+            break;
+        }
+      }
+
+      @Override
+      public void doJob() {
+        super.doJob();
+        // Текущее время
+        long currTime = System.currentTimeMillis();
+        // Список сессий обработанных каналов
+        SkidList sessionIds = new SkidList();
+        // Проверка того, что все каналы имеют сессию
+        for( S5SessionCallbackChannel channel : pasServer.channels()
+            .copyTo( new ElemArrayList<>( pasServer.channels().size() ) ) ) {
+          Skid sessionID = channel.getSessionID();
+          if( sessionID == Skid.NONE && (currTime - channel.getCreationTimestamp() > WAIT_SESSION_TIMEOUT) ) {
+            // Канал не имеет сессии и будет закрыт
+            logger().error( ERR_NO_CHANNEL_SESSION, channel );
+            channel.close();
+            anonymousCount++;
           }
-
-          @Override
-          public void doJob() {
-            super.doJob();
-            // Текущее время
-            long currTime = System.currentTimeMillis();
-            // Список сессий обработанных каналов
-            SkidList sessionIds = new SkidList();
-            // Проверка того, что все каналы имеют сессию
-            for( S5SessionCallbackChannel channel : pasServer.channels()
-                .copyTo( new ElemArrayList<>( pasServer.channels().size() ) ) ) {
-              Skid sessionID = channel.getSessionID();
-              if( sessionID == Skid.NONE && (currTime - channel.getCreationTimestamp() > WAIT_SESSION_TIMEOUT) ) {
-                // Канал не имеет сессии и будет закрыт
-                logger().error( ERR_NO_CHANNEL_SESSION, channel );
-                channel.close();
-                anonymousCount++;
-              }
-              if( sessionID != Skid.NONE ) {
-                if( !sessionIds.hasElem( sessionID ) ) {
-                  sessionIds.add( sessionID );
-                  continue;
-                }
-                // Обнаружен дубль-канал для одной и той же сессии. Канал будет закрыт
-                logger().error( ERR_FOUND_DUPLICATE_CHANNEL, sessionID, channel );
-                channel.setDuplicate( true );
-                channel.close();
-                duplicateCount++;
-              }
+          if( sessionID != Skid.NONE ) {
+            if( !sessionIds.hasElem( sessionID ) ) {
+              sessionIds.add( sessionID );
+              continue;
             }
-            if( logger.isSeverityOn( ELogSeverity.DEBUG ) && statisticsTimer.update() ) {
-              // Вывод в журнал о статусе процесса doJob
-              Long time = Long.valueOf( System.currentTimeMillis() - currTime );
-              Integer ac = Integer.valueOf( anonymousCount );
-              Integer dc = Integer.valueOf( duplicateCount );
-              Integer nfc = Integer.valueOf( unprovidedCount );
-              logger.debug( MSG_DOJOB_RUN, time, ac, dc, nfc );
-            }
+            // Обнаружен дубль-канал для одной и той же сессии. Канал будет закрыт
+            logger().error( ERR_FOUND_DUPLICATE_CHANNEL, sessionID, channel );
+            channel.setDuplicate( true );
+            channel.close();
+            duplicateCount++;
           }
-        };
+        }
+        if( logger.isSeverityOn( ELogSeverity.DEBUG ) && statisticsTimer.update() ) {
+          // Вывод в журнал о статусе процесса doJob
+          Long time = Long.valueOf( System.currentTimeMillis() - currTime );
+          Integer ac = Integer.valueOf( anonymousCount );
+          Integer dc = Integer.valueOf( duplicateCount );
+          Integer nfc = Integer.valueOf( unprovidedCount );
+          logger.debug( MSG_DOJOB_RUN, time, ac, dc, nfc );
+        }
+      }
+    };
     // Регистрация исполнителей запросов и уведомлений
     // @formatter:off
     pasServer.registerNotificationHandler( SESSION_INIT_METHOD, new S5SessionCallbackInit( ) );
