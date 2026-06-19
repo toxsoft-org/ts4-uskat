@@ -1,12 +1,10 @@
 package org.toxsoft.uskat.s5.server.sequences.impl;
 
 import static java.lang.String.*;
-import static org.toxsoft.core.tslib.bricks.strid.impl.StridUtils.*;
 import static org.toxsoft.uskat.s5.common.IS5CommonResources.*;
 import static org.toxsoft.uskat.s5.server.sequences.impl.IS5Resources.*;
 import static org.toxsoft.uskat.s5.server.sequences.impl.S5DataID.*;
 import static org.toxsoft.uskat.s5.server.sequences.impl.S5SequenceBlock.*;
-import static org.toxsoft.uskat.s5.server.sequences.impl.S5SequenceSQL.*;
 
 import java.io.*;
 import java.lang.reflect.*;
@@ -14,8 +12,6 @@ import java.lang.reflect.Array;
 import java.sql.*;
 
 import org.toxsoft.core.tslib.bricks.validator.vrl.*;
-import org.toxsoft.core.tslib.coll.primtypes.*;
-import org.toxsoft.core.tslib.coll.primtypes.impl.*;
 import org.toxsoft.core.tslib.utils.errors.*;
 
 import jakarta.persistence.*;
@@ -238,22 +234,24 @@ public class S5SequenceBlob<BLOCK extends S5SequenceBlock<?, ?, ?>, BLOB_ARRAY, 
     return new VrList();
   }
 
-  /**
-   * Выполняет операцию записи blob в базу данных
-   *
-   * @param aEntityManager {@link EntityManager} менеджер постоянства
-   * @throws TsNullArgumentRtException аргумент = null
-   */
-  final void executeInsert( EntityManager aEntityManager ) {
-    // Имя таблицы реализации блока
-    String tableName = getLast( getClass().getName() );
-    // Параметры запроса. Ключ: имя поля. Значение: значение поля
-    IStringMap<Object> params = doInsertQueryParams();
-    // Создание запроса
-    Query query = createInsertQuery( aEntityManager, tableName, params );
-    // Выполнение запроса
-    query.executeUpdate();
-  }
+  // 2026-06-19 mvk--- not used
+  // /**
+  // * Выполняет операцию записи blob в базу данных
+  // *
+  // * @param aEntityManager {@link EntityManager} менеджер постоянства
+  // * @throws TsNullArgumentRtException аргумент = null
+  // */
+  // @SuppressWarnings( "unused" )
+  // private final void executeInsert( EntityManager aEntityManager ) {
+  // // Имя таблицы реализации блока
+  // String tableName = getLast( getClass().getName() );
+  // // Параметры запроса. Ключ: имя поля. Значение: значение поля
+  // IStringMap<Object> params = doInsertQueryParams();
+  // // Создание запроса
+  // Query query = createInsertQuery( aEntityManager, tableName, params );
+  // // Выполнение запроса
+  // query.executeUpdate();
+  // }
 
   // ------------------------------------------------------------------------------------
   // Реализация Object
@@ -268,39 +266,42 @@ public class S5SequenceBlob<BLOCK extends S5SequenceBlock<?, ?, ?>, BLOB_ARRAY, 
   // ------------------------------------------------------------------------------------
   // Внутреннее API
   //
-  /**
-   * Возвращает параметры необходимые для выполнения запроса записи blob в БД
-   * <p>
-   * Наследники могут переопределять метод для добавления собственных параметров к уже определенным в базовом классе
-   *
-   * @return {@link IStringMap} карта параметров с возможностью добавления. <br>
-   *         Ключ: имя поля в таблице;<br>
-   *         Значение: значение поля.
-   */
-  protected IStringMapEdit<Object> doInsertQueryParams() {
-    IStringMapEdit<Object> retValue = new StringMap<>();
-    retValue.put( FIELD_GWID, id.gwid().toString() );
-    retValue.put( FIELD_START_TIME, id.startTime() );
-    // retValue.put( FIELD_VALUES, _values );
-    retValue.put( FIELD_VALUES, new byte[0] );
-    return retValue;
-  }
-
-  /**
-   * Возвращает параметры необходимые для выполнения запроса обновления blob в БД
-   * <p>
-   * Наследники могут переопределять метод для добавления собственных параметров к уже определенным в базовом классе
-   *
-   * @return {@link IStringMap} карта параметров с возможностью добавления. <br>
-   *         Ключ: имя поля в таблице;<br>
-   *         Значение: значение поля.
-   */
-  protected IStringMapEdit<Object> doUpdateQueryParams() {
-    IStringMapEdit<Object> retValue = new StringMap<>();
-    // retValue.put( FIELD_VALUES, _values );
-    retValue.put( FIELD_VALUES, new byte[0] );
-    return retValue;
-  }
+  // 2026-06-19 mvk--- not used
+  // /**
+  // * Возвращает параметры необходимые для выполнения запроса записи blob в БД
+  // * <p>
+  // * Наследники могут переопределять метод для добавления собственных параметров к уже определенным в базовом классе
+  // *
+  // * @return {@link IStringMap} карта параметров с возможностью добавления. <br>
+  // * Ключ: имя поля в таблице;<br>
+  // * Значение: значение поля.
+  // */
+  // protected IStringMapEdit<Object> doInsertQueryParams() {
+  // IStringMapEdit<Object> retValue = new StringMap<>();
+  // retValue.put( FIELD_GWID, id.gwid().toString() );
+  // retValue.put( FIELD_START_TIME, id.startTime() );
+  // retValue.put( FIELD_END_TIME, endTime );
+  // // retValue.put( FIELD_VALUES, _values );
+  // retValue.put( FIELD_VALUES, new byte[0] );
+  // return retValue;
+  // }
+  //
+  // /**
+  // * Возвращает параметры необходимые для выполнения запроса обновления blob в БД
+  // * <p>
+  // * Наследники могут переопределять метод для добавления собственных параметров к уже определенным в базовом классе
+  // *
+  // * @return {@link IStringMap} карта параметров с возможностью добавления. <br>
+  // * Ключ: имя поля в таблице;<br>
+  // * Значение: значение поля.
+  // */
+  // protected IStringMapEdit<Object> doUpdateQueryParams() {
+  // IStringMapEdit<Object> retValue = new StringMap<>();
+  // retValue.put( FIELD_END_TIME, endTime );
+  // // retValue.put( FIELD_VALUES, _values );
+  // retValue.put( FIELD_VALUES, new byte[0] );
+  // return retValue;
+  // }
 
   /**
    * Возвращает класс generic-класса использумого наследником
