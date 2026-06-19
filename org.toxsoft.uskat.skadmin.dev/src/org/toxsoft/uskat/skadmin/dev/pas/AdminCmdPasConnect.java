@@ -7,24 +7,19 @@ import static org.toxsoft.uskat.skadmin.core.EAdminCmdContextNames.*;
 import static org.toxsoft.uskat.skadmin.dev.pas.IAdminHardConstants.*;
 import static org.toxsoft.uskat.skadmin.dev.pas.IAdminHardResources.*;
 
-import org.toxsoft.core.pas.client.PasClient;
-import org.toxsoft.core.pas.client.PasClientChannel;
-import org.toxsoft.core.pas.common.IPasParams;
-import org.toxsoft.core.tslib.av.IAtomicValue;
-import org.toxsoft.core.tslib.av.metainfo.IAvMetaConstants;
-import org.toxsoft.core.tslib.bricks.ctx.ITsContext;
-import org.toxsoft.core.tslib.bricks.ctx.impl.TsContext;
-import org.toxsoft.core.tslib.bricks.strid.coll.IStridablesList;
-import org.toxsoft.core.tslib.bricks.strid.coll.IStridablesListEdit;
-import org.toxsoft.core.tslib.bricks.strid.coll.impl.StridablesList;
-import org.toxsoft.core.tslib.coll.IList;
-import org.toxsoft.core.tslib.coll.primtypes.IStringList;
-import org.toxsoft.core.tslib.coll.primtypes.IStringMap;
-import org.toxsoft.uskat.legacy.plexy.IPlexyType;
-import org.toxsoft.uskat.legacy.plexy.IPlexyValue;
-import org.toxsoft.uskat.skadmin.core.IAdminCmdCallback;
-import org.toxsoft.uskat.skadmin.core.IAdminCmdContextParam;
-import org.toxsoft.uskat.skadmin.core.impl.AbstractAdminCmd;
+import org.toxsoft.core.pas.client.*;
+import org.toxsoft.core.pas.common.*;
+import org.toxsoft.core.tslib.av.*;
+import org.toxsoft.core.tslib.av.metainfo.*;
+import org.toxsoft.core.tslib.bricks.ctx.*;
+import org.toxsoft.core.tslib.bricks.ctx.impl.*;
+import org.toxsoft.core.tslib.bricks.strid.coll.*;
+import org.toxsoft.core.tslib.bricks.strid.coll.impl.*;
+import org.toxsoft.core.tslib.coll.*;
+import org.toxsoft.core.tslib.coll.primtypes.*;
+import org.toxsoft.uskat.legacy.plexy.*;
+import org.toxsoft.uskat.skadmin.core.*;
+import org.toxsoft.uskat.skadmin.core.impl.*;
 
 /**
  * Команда s5admin: подключение к PAS-серверу (Public Access Server)
@@ -136,7 +131,7 @@ public class AdminCmdPasConnect
       IPasParams.OP_PAS_WRITE_TIMEOUT.setValue( ctx.params(), writeTimeout );
       IPasParams.OP_PAS_FAILURE_TIMEOUT.setValue( ctx.params(), failureTimeout );
       // aExternalDoJobCall = false: создавать внутренний поток для doJob
-      PasClient<PasClientChannel> pasClient = new PasClient<>( ctx, PasClientChannel.CREATOR, false, logger() );
+      PasClient<PasClientChannel> pasClient = new PasClient<>( ctx, PasClientChannel.CREATOR, false );
       // Запуск потока
       Thread thread = new Thread( pasClient );
       thread.start();

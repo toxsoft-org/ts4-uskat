@@ -4,11 +4,11 @@ import static org.toxsoft.core.tslib.utils.TsLibUtils.*;
 import static org.toxsoft.uskat.skadmin.core.plugins.AdminPluginUtils.*;
 import static org.toxsoft.uskat.skadmin.dev.pas.IAdminHardResources.*;
 
-import org.toxsoft.core.tslib.av.metainfo.IAvMetaConstants;
-import org.toxsoft.uskat.legacy.plexy.impl.PlexyValueUtils;
-import org.toxsoft.uskat.skadmin.core.IAdminCmdArgDef;
-import org.toxsoft.uskat.skadmin.core.impl.AdminCmdArgDef;
-import org.toxsoft.uskat.skadmin.dev.AdminPluginDev;
+import org.toxsoft.core.tslib.av.metainfo.*;
+import org.toxsoft.uskat.legacy.plexy.impl.*;
+import org.toxsoft.uskat.skadmin.core.*;
+import org.toxsoft.uskat.skadmin.core.impl.*;
+import org.toxsoft.uskat.skadmin.dev.*;
 
 /**
  * Константы пакета.
@@ -59,7 +59,7 @@ interface IAdminHardConstants {
   /**
    * Аргумент: Имя вызываемого метода.
    */
-  IAdminCmdArgDef ARG_PAS_METHOD = new AdminCmdArgDef( "method", IAvMetaConstants.DDEF_STRING, STR_ARG_METHOD );
+  IAdminCmdArgDef ARG_PAS_METHOD = new AdminCmdArgDef( "method", IAvMetaConstants.DT_STRING, STR_ARG_METHOD );
 
   /**
    * Аргумент: Параметры вызываемого метода.
