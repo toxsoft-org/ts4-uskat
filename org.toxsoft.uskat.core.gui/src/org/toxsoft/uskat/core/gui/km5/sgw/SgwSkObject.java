@@ -28,9 +28,13 @@ public class SgwSkObject
    */
   public SgwSkObject( ISkConnection aConn ) {
     super( MID_SGW_SK_OBJECT, ISkObject.class, aConn );
-    addFieldDefs( CLASS_ID, STRID, NAME, SKID, DESCRIPTION );
-    SKID.addFlags( M5FF_COLUMN );
-    DESCRIPTION.addFlags( M5FF_DETAIL );
+    addFieldDefs( CLASS_ID, STRID, NAME, DESCRIPTION, SKID );
+    // dima 25.06.26 request from Sinko
+    // SKID.addFlags( M5FF_COLUMN );
+    // DESCRIPTION.addFlags( M5FF_DETAIL );
+    SKID.removeFlags( M5FF_COLUMN );
+    DESCRIPTION.removeFlags( M5FF_DETAIL );
+    DESCRIPTION.addFlags( M5FF_COLUMN );
   }
 
 }
