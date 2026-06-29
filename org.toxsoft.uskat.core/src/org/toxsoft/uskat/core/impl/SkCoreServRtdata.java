@@ -187,8 +187,11 @@ public class SkCoreServRtdata
     return ll;
   }
 
-  private static void synchronizeCurrDataEdition( SkCoreServRtdata aService, BaRtDataEdition aEdition ) {
+  private static IMap<Gwid, IAtomicValue> synchronizeCurrDataEdition( SkCoreServRtdata aService,
+      BaRtDataEdition aEdition ) {
     TsNullArgumentRtException.checkNulls( aService, aEdition );
+    // changed values
+    IMapEdit<Gwid, IAtomicValue> retValue = new ElemMap<>();
     // update counter
     aService.cdBackendEditionNo.set( aEdition.editionNo() );
     // update current values
@@ -199,14 +202,16 @@ public class SkCoreServRtdata
     for( Gwid g : gwids ) {
       IAtomicValue initValue = values.getByKey( g );
       SkReadCurrDataChannel readChannel = aService.cdReadChannelsMap.findByKey( g );
-      if( readChannel != null ) {
+      if( readChannel != null && !initValue.equals( readChannel.value ) ) {
         readChannel.setValue( initValue );
+        retValue.put( g, initValue );
       }
       SkWriteCurrDataChannel writeChannel = aService.cdWriteChannelsMap.findByKey( g );
       if( writeChannel != null ) {
         writeChannel.value = initValue;
       }
     }
+    return retValue;
   }
 
   // ------------------------------------------------------------------------------------
@@ -268,9 +273,11 @@ public class SkCoreServRtdata
           Integer.valueOf( edition.editionNo() ), //
           Integer.valueOf( receviedValues.size() ) );
       // synchronization
-      synchronizeCurrDataEdition( this, edition );
-      // fire new data event
-      eventer.fireCurrData( edition.values() );
+      IMap<Gwid, IAtomicValue> changedValues = synchronizeCurrDataEdition( this, edition );
+      if( changedValues.size() > 0 ) {
+        // fire new data event
+        eventer.fireCurrData( changedValues );
+      }
       return true;
     }
     cdBackendEditionNo.set( receviedNo );
@@ -478,7 +485,11 @@ public class SkCoreServRtdata
     BaRtDataEdition edition = ba().baRtdata().configureCurrDataReader( cdReadToRemove, cdReadToAdd );
     cdReadToRemove.clear();
     // synchronization
-    synchronizeCurrDataEdition( this, edition );
+    IMap<Gwid, IAtomicValue> changedValues = synchronizeCurrDataEdition( this, edition );
+    if( changedValues.size() > 0 ) {
+      // fire new data event
+      eventer.fireCurrData( changedValues );
+    }
     // logger
     logger().info( FMT_MSG_CREATE_READ_CURRDATA, aGwids, Integer.valueOf( cdReadToAdd.size() ),
         Long.valueOf( System.currentTimeMillis() - trace0 ) );
