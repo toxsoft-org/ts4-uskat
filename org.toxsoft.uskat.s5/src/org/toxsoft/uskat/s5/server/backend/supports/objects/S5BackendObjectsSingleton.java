@@ -249,6 +249,11 @@ public class S5BackendObjectsSingleton
 
     // Анализ существования объектов
     loadObjectsByDpu( aObjects, classesByIds, implByIds, updatedObjsEdit, createdObjsEdit );
+    // Анализ необходимости проведения записи в СУБД
+    if( removedObjs.size() == 0 && updatedObjs.size() == 0 && createdObjsEdit.size() == 0 ) {
+      // Объекты не изменились
+      return;
+    }
     // Время загрузки текущего состояния объектов
     long loadTimestamp = System.currentTimeMillis();
 
@@ -496,6 +501,10 @@ public class S5BackendObjectsSingleton
           aCreatedObjs.put( classInfo, objs );
         }
         objs.add( newObj );
+        continue;
+      }
+      if( prevObj.equals( newObj ) ) {
+        logger().debug( "loadObjectsByDpu(...): obj %s is not changed", newObj ); //$NON-NLS-1$
         continue;
       }
       // Объект обновляется
