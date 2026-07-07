@@ -244,15 +244,7 @@ public class S5BackendCurrDataSingleton
     // Фактическое выполнение подписки на данные
     int editionNo = 0;
     synchronized (baData) {
-      if( aToRemove == null ) {
-        baData.currdataGwidsToFrontend.clear();
-      }
-      if( aToRemove != null ) {
-        for( Gwid g : aToRemove ) {
-          baData.currdataGwidsToFrontend.remove( g );
-        }
-      }
-      baData.currdataGwidsToFrontend.addAll( aToAdd );
+      baData.configureCurrdataGwidsToFrontend( aToRemove, aToAdd );
       editionNo = baData.currdataEditionCounter.intValue();
     }
     // Пост-вызов интерсепторов
@@ -281,15 +273,7 @@ public class S5BackendCurrDataSingleton
     }
     // Фактическое выполнение подписки на данные
     synchronized (baData) {
-      if( aToRemove == null ) {
-        baData.currdataGwidsToBackend.clear();
-      }
-      if( aToRemove != null ) {
-        for( Gwid g : aToRemove ) {
-          baData.currdataGwidsToBackend.remove( g );
-        }
-      }
-      baData.currdataGwidsToBackend.addAll( aToAdd );
+      baData.configureCurrdataGwidsToBackend( aToRemove, aToAdd );
     }
     // Пост-вызов интерсепторов
     callAfterConfigureCurrDataWriter( interceptors, aFrontend, aToRemove, aToAdd, logger() );
@@ -306,7 +290,7 @@ public class S5BackendCurrDataSingleton
         continue;
       }
       synchronized (baData) {
-        for( Gwid gwid : baData.currdataGwidsToFrontend ) {
+        for( Gwid gwid : baData.currdataGwidsToFrontend() ) {
           gwids.add( gwid );
         }
       }
@@ -326,7 +310,7 @@ public class S5BackendCurrDataSingleton
         continue;
       }
       synchronized (baData) {
-        for( Gwid gwid : baData.currdataGwidsToBackend ) {
+        for( Gwid gwid : baData.currdataGwidsToBackend() ) {
           gwids.add( gwid );
         }
       }
@@ -424,9 +408,9 @@ public class S5BackendCurrDataSingleton
           for( Gwid gwid : changedValues.keys() ) {
             if(
             // фронтенд подписан на чтение значений текущих данного
-            baData.currdataGwidsToFrontend.hasElem( gwid ) ||
+            baData.currdataGwidsToFrontend().hasElem( gwid ) ||
             // фронтенд формирует значения текущего данного, но не он их изменил
-                (frontend != aFrontend && baData.currdataGwidsToBackend.hasElem( gwid )) ) {
+                (frontend != aFrontend && baData.currdataGwidsToBackend().hasElem( gwid )) ) {
               if( baData.currdataToFrontend.size() == 0 ) {
                 // При добавлении первого данного обнуляем отсчет времени
                 baData.lastCurrdataToFrontendTime = currTime;

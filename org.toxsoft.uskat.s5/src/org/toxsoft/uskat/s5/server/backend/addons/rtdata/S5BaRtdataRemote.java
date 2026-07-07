@@ -122,15 +122,7 @@ class S5BaRtdataRemote
   @Override
   public BaRtDataEdition configureCurrDataReader( IGwidList aToRemove, IGwidList aToAdd ) {
     TsNullArgumentRtException.checkNull( aToAdd );
-    if( aToRemove == null ) {
-      baData.currdataGwidsToFrontend.clear();
-    }
-    if( aToRemove != null ) {
-      for( Gwid gwid : aToRemove ) {
-        baData.currdataGwidsToFrontend.remove( gwid );
-      }
-    }
-    baData.currdataGwidsToFrontend.addAll( aToAdd );
+    baData.configureCurrdataGwidsToFrontend( aToRemove, aToAdd );
     BaRtDataEdition retValue = session().configureCurrDataReader( aToRemove, aToAdd );
     return retValue;
   }
@@ -138,15 +130,7 @@ class S5BaRtdataRemote
   @Override
   public void configureCurrDataWriter( IGwidList aToRemove, IGwidList aToAdd ) {
     TsNullArgumentRtException.checkNull( aToAdd );
-    if( aToRemove == null ) {
-      baData.currdataGwidsToBackend.clear();
-    }
-    if( aToRemove != null ) {
-      for( Gwid gwid : aToRemove ) {
-        baData.currdataGwidsToBackend.remove( gwid );
-      }
-    }
-    baData.currdataGwidsToBackend.addAll( aToAdd );
+    baData.configureCurrdataGwidsToBackend( aToRemove, aToAdd );
     session().configureCurrDataWriter( aToRemove, aToAdd );
   }
 

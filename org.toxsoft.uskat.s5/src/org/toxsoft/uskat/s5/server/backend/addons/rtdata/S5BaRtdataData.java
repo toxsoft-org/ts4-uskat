@@ -10,6 +10,7 @@ import org.toxsoft.core.tslib.coll.*;
 import org.toxsoft.core.tslib.coll.impl.*;
 import org.toxsoft.core.tslib.gw.gwid.*;
 import org.toxsoft.core.tslib.utils.*;
+import org.toxsoft.core.tslib.utils.errors.*;
 import org.toxsoft.uskat.core.backend.api.*;
 import org.toxsoft.uskat.s5.client.*;
 import org.toxsoft.uskat.s5.server.frontend.*;
@@ -19,7 +20,7 @@ import org.toxsoft.uskat.s5.server.frontend.*;
  *
  * @author mvk
  */
-public class S5BaRtdataData
+public final class S5BaRtdataData
     implements IS5BackendAddonData, Serializable {
 
   private static final long serialVersionUID = 157157L;
@@ -35,7 +36,7 @@ public class S5BaRtdataData
   /**
    * Идентификаторы данных передаваемые в бекенд
    */
-  public final GwidList currdataGwidsToBackend = new GwidList();
+  private final GwidList currdataGwidsToBackend = new GwidList();
 
   /**
    * Значения текущих данных готовых для передачи в бекенд
@@ -50,7 +51,7 @@ public class S5BaRtdataData
   /**
    * Идентификаторы данных передавамые в фронтенд
    */
-  public final GwidList currdataGwidsToFrontend = new GwidList();
+  private final GwidList currdataGwidsToFrontend = new GwidList();
 
   /**
    * Значения текущих данных готовых для передачи в фроненд
@@ -95,4 +96,48 @@ public class S5BaRtdataData
    */
   transient public long lastHistdataToBackendTime = System.currentTimeMillis();
 
+  // ------------------------------------------------------------------------------------
+  // public API
+  //
+  public IGwidList currdataGwidsToBackend() {
+    return currdataGwidsToBackend;
+  }
+
+  public void configureCurrdataGwidsToBackend( IGwidList aToRemove, IGwidList aToAdd ) {
+    TsNullArgumentRtException.checkNull( aToAdd );
+    if( aToRemove == null ) {
+      currdataGwidsToBackend.clear();
+    }
+    if( aToRemove != null ) {
+      for( Gwid g : aToRemove ) {
+        currdataGwidsToBackend.remove( g );
+      }
+    }
+    for( Gwid g : aToAdd ) {
+      if( !currdataGwidsToBackend.hasElem( g ) ) {
+        currdataGwidsToBackend.add( g );
+      }
+    }
+  }
+
+  public IGwidList currdataGwidsToFrontend() {
+    return currdataGwidsToFrontend;
+  }
+
+  public void configureCurrdataGwidsToFrontend( IGwidList aToRemove, IGwidList aToAdd ) {
+    TsNullArgumentRtException.checkNull( aToAdd );
+    if( aToRemove == null ) {
+      currdataGwidsToFrontend.clear();
+    }
+    if( aToRemove != null ) {
+      for( Gwid g : aToRemove ) {
+        currdataGwidsToFrontend.remove( g );
+      }
+    }
+    for( Gwid g : aToAdd ) {
+      if( !currdataGwidsToFrontend.hasElem( g ) ) {
+        currdataGwidsToFrontend.add( g );
+      }
+    }
+  }
 }

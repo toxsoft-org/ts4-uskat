@@ -114,8 +114,8 @@ public class S5BaRtdataSession
     } );
     // 2023-03-12 mvk+++
     // Передача текущих значений данных на которые подписан клиент
-    if( baData.currdataGwidsToFrontend.size() > 0 ) {
-      IMap<Gwid, IAtomicValue> retValue = currDataSupport.readValues( baData.currdataGwidsToFrontend );
+    if( baData.currdataGwidsToFrontend().size() > 0 ) {
+      IMap<Gwid, IAtomicValue> retValue = currDataSupport.readValues( baData.currdataGwidsToFrontend() );
       // Немедленная передача текущих значений фронтенду
       int counter = baData.currdataEditionCounter.incrementAndGet();
       GtMessage message = BaMsgRtdataCurrData.INSTANCE.makeMessage( counter, retValue );
