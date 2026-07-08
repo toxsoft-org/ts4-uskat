@@ -11,6 +11,8 @@ import org.toxsoft.core.tslib.coll.impl.*;
 import org.toxsoft.core.tslib.gw.gwid.*;
 import org.toxsoft.core.tslib.utils.*;
 import org.toxsoft.core.tslib.utils.errors.*;
+import org.toxsoft.core.tslib.utils.logs.*;
+import org.toxsoft.core.tslib.utils.logs.impl.*;
 import org.toxsoft.uskat.core.backend.api.*;
 import org.toxsoft.uskat.s5.client.*;
 import org.toxsoft.uskat.s5.server.frontend.*;
@@ -77,6 +79,11 @@ public final class S5BaRtdataData
    */
   public AtomicInteger currdataToBackendCounter = new AtomicInteger();
 
+  /**
+   * Журнал работы.
+   */
+  transient private ILogger logger;
+
   // ------------------------------------------------------------------------------------
   // Хранимые данные
   //
@@ -118,6 +125,8 @@ public final class S5BaRtdataData
         currdataGwidsToBackend.add( g );
       }
     }
+    logger().info( "configureCurrdataGwidsToBackend(...): aToRemove = %s, aToAdd = %s, toBackend = %s", aToRemove,
+        aToAdd, currdataGwidsToBackend );
   }
 
   public IGwidList currdataGwidsToFrontend() {
@@ -139,5 +148,17 @@ public final class S5BaRtdataData
         currdataGwidsToFrontend.add( g );
       }
     }
+    logger().info( "configureCurrdataGwidsToBackend(...): aToRemove = %s, aToAdd = %s, toFrontend = %s", aToRemove,
+        aToAdd, currdataGwidsToFrontend );
+  }
+
+  // ------------------------------------------------------------------------------------
+  // private API
+  //
+  private ILogger logger() {
+    if( logger == null ) {
+      logger = LoggerUtils.getLogger( getClass() );
+    }
+    return logger;
   }
 }
