@@ -125,8 +125,10 @@ public final class S5BaRtdataData
         currdataGwidsToBackend.add( g );
       }
     }
-    logger().info( "configureCurrdataGwidsToBackend(...): aToRemove = %s, aToAdd = %s, toBackend = %s", aToRemove,
-        aToAdd, currdataGwidsToBackend );
+    if( aToRemove == null || aToRemove.size() > 0 || aToAdd.size() > 0 ) {
+      logger().info( "configureCurrdataGwidsToBackend(...): aToRemove = %s, aToAdd = %s, toBackend = %s", aToRemove,
+          aToAdd, currdataGwidsToBackend );
+    }
   }
 
   public IGwidList currdataGwidsToFrontend() {
@@ -148,8 +150,10 @@ public final class S5BaRtdataData
         currdataGwidsToFrontend.add( g );
       }
     }
-    logger().info( "configureCurrdataGwidsToBackend(...): aToRemove = %s, aToAdd = %s, toFrontend = %s", aToRemove,
-        aToAdd, currdataGwidsToFrontend );
+    if( aToRemove == null || aToRemove.size() > 0 || aToAdd.size() > 0 ) {
+      logger().info( "configureCurrdataGwidsToBackend(...): aToRemove = %s, aToAdd = %s, toFrontend = %s", aToRemove,
+          aToAdd, currdataGwidsToFrontend );
+    }
   }
 
   // ------------------------------------------------------------------------------------
