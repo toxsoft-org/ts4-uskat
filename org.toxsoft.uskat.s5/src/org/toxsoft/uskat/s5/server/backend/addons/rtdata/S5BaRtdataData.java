@@ -112,6 +112,7 @@ public final class S5BaRtdataData
 
   public void configureCurrdataGwidsToBackend( IGwidList aToRemove, IGwidList aToAdd ) {
     TsNullArgumentRtException.checkNull( aToAdd );
+    int prev = currdataGwidsToBackend.size();
     if( aToRemove == null ) {
       currdataGwidsToBackend.clear();
     }
@@ -126,8 +127,7 @@ public final class S5BaRtdataData
       }
     }
     if( aToRemove == null || aToRemove.size() > 0 || aToAdd.size() > 0 ) {
-      logger().info( "configureCurrdataGwidsToBackend(...): aToRemove = %s, aToAdd = %s, toBackend = %s", aToRemove,
-          aToAdd, currdataGwidsToBackend );
+      log( "configureCurrdataGwidsToBackend(...)", aToRemove, aToAdd, prev, currdataGwidsToBackend ); //$NON-NLS-1$
     }
   }
 
@@ -137,6 +137,7 @@ public final class S5BaRtdataData
 
   public void configureCurrdataGwidsToFrontend( IGwidList aToRemove, IGwidList aToAdd ) {
     TsNullArgumentRtException.checkNull( aToAdd );
+    int prev = currdataGwidsToFrontend.size();
     if( aToRemove == null ) {
       currdataGwidsToFrontend.clear();
     }
@@ -151,8 +152,7 @@ public final class S5BaRtdataData
       }
     }
     if( aToRemove == null || aToRemove.size() > 0 || aToAdd.size() > 0 ) {
-      logger().info( "configureCurrdataGwidsToBackend(...): aToRemove = %s, aToAdd = %s, toFrontend = %s", aToRemove,
-          aToAdd, currdataGwidsToFrontend );
+      log( "configureCurrdataGwidsToBackend(...)", aToRemove, aToAdd, prev, currdataGwidsToFrontend ); //$NON-NLS-1$
     }
   }
 
@@ -164,5 +164,18 @@ public final class S5BaRtdataData
       logger = LoggerUtils.getLogger( getClass() );
     }
     return logger;
+  }
+
+  @SuppressWarnings( "nls" )
+  private void log( String aSource, IGwidList aToRemove, IGwidList aToAdd, int aPrev, IGwidList aTarget ) {
+    if( logger().isSeverityOn( ELogSeverity.DEBUG ) ) {
+      String toRemove = (aToRemove != null ? aToRemove.toString() : "null");
+      logger().debug( "%s: aToRemove = %s, aToAdd = %s, aPrev = %d, toBackend = %s", aSource, toRemove, aToAdd,
+          Integer.valueOf( aPrev ), aTarget );
+      return;
+    }
+    String toRemove = (aToRemove != null ? String.valueOf( aToRemove.size() ) : "null");
+    logger().info( "%s: aToRemove = %s, aToAdd = %s, aPrev = %d, toBackend = %s", aSource, toRemove,
+        String.valueOf( aToAdd.size() ), Integer.valueOf( aPrev ), String.valueOf( aTarget.size() ) );
   }
 }
