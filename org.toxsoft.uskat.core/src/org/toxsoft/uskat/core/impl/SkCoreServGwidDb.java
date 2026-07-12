@@ -29,6 +29,78 @@ public class SkCoreServGwidDb
   public static final ISkServiceCreator<AbstractSkService> CREATOR = SkCoreServGwidDb::new;
 
   /**
+   * Internal cache of the clob.
+   *
+   * @author mvk
+   */
+  class ClobCache {
+
+    private static final int MAX_SIZE = 256 * 1024;
+
+    private final IMapEdit<IdChain, IList<Gwid>>            allSectionGwids = new ElemMap<>();
+    private final IMapEdit<IdChain, IMapEdit<Gwid, String>> clobByGwids     = new ElemMap<>();
+
+    ClobCache() {
+      // nop
+    }
+
+    boolean has( IdChain aSectionId, Gwid aKey ) {
+      return (find( aSectionId, aKey ) != null);
+    }
+
+    String find( IdChain aSectionId, Gwid aKey ) {
+      IMapEdit<Gwid, String> cache = clobByGwids.findByKey( aSectionId );
+      if( cache == null ) {
+        return null;
+      }
+      return cache.findByKey( aKey );
+    }
+
+    void put( IdChain aSectionId, Gwid aKey, String aClob ) {
+      IMapEdit<Gwid, String> cache = clobByGwids.findByKey( aSectionId );
+      if( cache == null ) {
+        cache = new ElemMap<>( TsCollectionsUtils.getMapBucketsCount( //
+            TsCollectionsUtils.estimateOrder( MAX_SIZE ) ), TsCollectionsUtils.DEFAULT_BUNDLE_CAPACITY );
+        clobByGwids.put( aSectionId, cache );
+      }
+      if( cache.size() >= MAX_SIZE ) {
+        Gwid removeGwid = cache.keys().first();
+        cache.removeByKey( removeGwid );
+        allSectionGwids.removeByKey( aSectionId );
+      }
+      cache.put( aKey, aClob );
+      allSectionGwids.removeByKey( aSectionId );
+    }
+
+    IList<Gwid> findAllSectionGwids( IdChain aSectionId ) {
+      return allSectionGwids.findByKey( aSectionId );
+    }
+
+    void addAllSectionGwids( IdChain aSectionId, IList<Gwid> aGwids ) {
+      allSectionGwids.put( aSectionId, aGwids );
+    }
+
+    void removeSection( IdChain aSectionId ) {
+      clobByGwids.removeByKey( aSectionId );
+      allSectionGwids.removeByKey( aSectionId );
+    }
+
+    void removeClob( IdChain aSectionId, Gwid aKey ) {
+      IMapEdit<Gwid, String> cache = clobByGwids.findByKey( aSectionId );
+      if( cache != null ) {
+        cache.removeByKey( aKey );
+      }
+      allSectionGwids.removeByKey( aSectionId );
+    }
+
+    void clear() {
+      allSectionGwids.clear();
+      clobByGwids.clear();
+    }
+
+  }
+
+  /**
    * {@link ISkGwidDbService#eventer()} implementation.
    *
    * @author hazard157
@@ -80,7 +152,8 @@ public class SkCoreServGwidDb
 
   }
 
-  final Eventer eventer = new Eventer();
+  final ClobCache clobCache = new ClobCache();
+  final Eventer   eventer   = new Eventer();
 
   /**
    * Constructor.
@@ -113,11 +186,29 @@ public class SkCoreServGwidDb
         IdChain sectionId = BaMsgGwidDbChanged.BUILDER.getSectionId( aMessage );
         Gwid key = BaMsgGwidDbChanged.BUILDER.getKey( aMessage );
         ECrudOp op = BaMsgGwidDbChanged.BUILDER.getCrudOp( aMessage );
+        switch( op ) {
+          case CREATE:
+          case EDIT:
+          case REMOVE:
+            clobCache.removeClob( sectionId, key );
+            break;
+          case LIST:
+            break;
+          default:
+            throw new TsNotAllEnumsUsedRtException();
+        }
         eventer.fireGwidDbChangeEvent( sectionId, key, op );
         yield true;
       }
       default -> false;
     };
+  }
+
+  @Override
+  protected void onBackendActiveStateChanged( boolean aIsActive ) {
+    if( aIsActive ) {
+      clobCache.clear();
+    }
   }
 
   // ------------------------------------------------------------------------------------
@@ -139,13 +230,22 @@ public class SkCoreServGwidDb
       @Override
       public IList<Gwid> listKeys() {
         checkThread();
-        return ba().baGwidDb().listKeys( aSectionId );
+        IList<Gwid> keys = clobCache.findAllSectionGwids( aSectionId );
+        if( keys != null ) {
+          return keys;
+        }
+        keys = new GwidList( ba().baGwidDb().listKeys( aSectionId ) );
+        clobCache.addAllSectionGwids( aSectionId, keys );
+        return keys;
       }
 
       @Override
       public boolean hasClob( Gwid aKey ) {
         checkThread();
         TsNullArgumentRtException.checkNull( aKey );
+        if( clobCache.find( aSectionId, aKey ) != null ) {
+          return true;
+        }
         return listKeys().hasElem( aKey );
       }
 
@@ -155,13 +255,20 @@ public class SkCoreServGwidDb
         TsNullArgumentRtException.checkNulls( aKey, aValue );
         checkKeyExistence( aKey );
         ba().baGwidDb().writeValue( aSectionId, aKey, aValue );
+        clobCache.put( aSectionId, aKey, aValue );
       }
 
       @Override
       public String readClob( Gwid aKey ) {
         checkThread();
         TsNullArgumentRtException.checkNull( aKey );
-        return ba().baGwidDb().readValue( aSectionId, aKey );
+        String clob = clobCache.find( aSectionId, aKey );
+        if( clob != null ) {
+          return clob;
+        }
+        clob = ba().baGwidDb().readValue( aSectionId, aKey );
+        clobCache.put( aSectionId, aKey, clob );
+        return clob;
       }
 
       @Override
@@ -169,6 +276,7 @@ public class SkCoreServGwidDb
         checkThread();
         TsNullArgumentRtException.checkNull( aKey );
         ba().baGwidDb().removeValue( aSectionId, aKey );
+        clobCache.removeClob( aSectionId, aKey );
       }
 
     };
@@ -179,6 +287,7 @@ public class SkCoreServGwidDb
     checkThread();
     TsNullArgumentRtException.checkNull( aSectionId );
     ba().baGwidDb().removeSection( aSectionId );
+    clobCache.removeSection( aSectionId );
   }
 
   @Override
