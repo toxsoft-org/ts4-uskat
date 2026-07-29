@@ -23,6 +23,7 @@ set ADMIN_CURRDATA_TIMEOUT=300
 set ADMIN_DOJOB_TIMEOUT=10
 set ADMIN_MEMORY=512M
 set ADMIN_CHARSET=CP866
+set ADMIN_VERSION='{ 1, 127, 2026-07-01_00:00:00.000 }'
 
 :: раскоментировать если нужна удаленная отладка
 set _REMOTE_DEBUG=-Xdebug -Xnoagent -Xrunjdwp:transport=dt_socket,server=y,suspend=n,address=8000
@@ -31,6 +32,7 @@ set _REMOTE_DEBUG=-Xdebug -Xnoagent -Xrunjdwp:transport=dt_socket,server=y,suspe
   -Xms%ADMIN_MEMORY% 							^
   -Xmx%ADMIN_MEMORY% 							^
   -cp %ADMIN_CLASSPATH% 						^
+  -Duskat.server.version="%ADMIN_VERSION%" ^
   -Dorg.toxsoft.uskat.s5.client.doJobTimeout=%ADMIN_DOJOB_TIMEOUT% 	^
   -Dorg.toxsoft.uskat.skadmin.plugin.paths=%ADMIN_PLUGINPATH% 		^
   -Dfile.encoding=%ADMIN_CHARSET% 					^

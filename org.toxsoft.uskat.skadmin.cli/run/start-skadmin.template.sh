@@ -27,6 +27,7 @@ ADMIN_CURRDATA_TIMEOUT=300
 ADMIN_DOJOB_TIMEOUT=10
 ADMIN_MEMORY=512M
 ADMIN_CHARSET="UTF8"
+ADMIN_VERSION='{ 1, 127, 2026-07-01_00:00:00.000 }'
 
 # раскоментировать если нужна удаленная отладка
 _REMOTE_DEBUG="-Xdebug -Xnoagent -Xrunjdwp:transport=dt_socket,server=y,suspend=n,address=8000"
@@ -36,6 +37,7 @@ ${JAVA_HOME}/bin/java \
   -Xms$ADMIN_MEMORY \
   -Xmx$ADMIN_MEMORY \
   -cp $ADMIN_CLASSPATH \
+  -Duskat.server.version="$ADMIN_VERSION" \
   -Dorg.toxsoft.uskat.s5.client.doJobTimeout=$ADMIN_DOJOB_TIMEOUT \
   -Dorg.toxsoft.uskat.skadmin.plugin.paths=$ADMIN_PLUGINPATH \
   -Dfile.encoding=$ADMIN_CHARSET \
