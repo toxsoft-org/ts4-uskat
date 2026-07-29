@@ -63,7 +63,7 @@ public interface IS5ServerHardConstants
   /**
    * Версия сервера.
    */
-  TsVersion version = new TsVersion( 22, 13, 2025, Month.MAY, 19 );
+  TsVersion version = buildVersion();
 
   // ------------------------------------------------------------------------------------
   // Опции s5-backend.
@@ -1008,4 +1008,16 @@ public interface IS5ServerHardConstants
       STAT_HISTORABLE_BACKEND_PARTITIONS_BLOCKS_REMOVED_COUNT, //
       STAT_HISTORABLE_BACKEND_PARTITIONS_ERROR_COUNT //
   );
+
+  /**
+   * Формирует версию s5.
+   *
+   * @return {@link TsVersion} версия.
+   */
+  private static TsVersion buildVersion() {
+    TsVersion defaultVersion = new TsVersion( 22, 13, 2025, Month.MAY, 19 );
+    String property = System.getProperty( "uskat.server.version" );
+    TsVersion retValue = (property != null ? TsVersion.KEEPER.str2ent( property ) : defaultVersion);
+    return retValue;
+  }
 }

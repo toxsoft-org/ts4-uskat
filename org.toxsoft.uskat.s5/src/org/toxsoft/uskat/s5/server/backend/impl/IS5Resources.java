@@ -37,7 +37,9 @@ interface IS5Resources {
   String ERR_UNEXPECTED_EXTENSION_CLOSE  = Messages.getString( "IS5Resources.ERR_UNEXPECTED_EXTENSION_CLOSE" );  //$NON-NLS-1$
   String ERR_API_UNEXPECTED_ERROR        = Messages.getString( "IS5Resources.ERR_API_UNEXPECTED_ERROR" );        //$NON-NLS-1$
   String ERR_WRONG_USER                  = Messages.getString( "IS5Resources.ERR_WRONG_USER" );                  //$NON-NLS-1$
-  String ERR_WRONG_VERSION               = Messages.getString( "IS5Resources.ERR_WRONG_VERSION" );               //$NON-NLS-1$
+  String ERR_WRONG_VERSION_TYPE          = Messages.getString( "IS5Resources.ERR_WRONG_VERSION_TYPE" );          //$NON-NLS-1$
+  String ERR_WRONG_VERSION               =
+      "Версия клиента не поддерживается (обновите программу). client = '%s'. server = '%s'";                     //$NON-NLS-1$
   String ERR_REJECT_CONNECT              = "Отказ подключения к системе клиента %s[%s:%s]. Причина: %s";         //$NON-NLS-1$
   String ERR_UNEXPECTED_CONNECT_FAIL     = "Неожиданная ошибка подключения клиента %s[%s:%s]. Причина: %s";      //$NON-NLS-1$
 }

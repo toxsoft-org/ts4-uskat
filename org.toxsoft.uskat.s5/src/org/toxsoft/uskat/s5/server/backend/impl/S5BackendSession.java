@@ -29,6 +29,7 @@ import org.toxsoft.core.tslib.coll.primtypes.*;
 import org.toxsoft.core.tslib.coll.primtypes.impl.*;
 import org.toxsoft.core.tslib.gw.gwid.*;
 import org.toxsoft.core.tslib.gw.skid.*;
+import org.toxsoft.core.tslib.utils.*;
 import org.toxsoft.core.tslib.utils.errors.*;
 import org.toxsoft.core.tslib.utils.logs.*;
 import org.toxsoft.uskat.classes.*;
@@ -335,12 +336,22 @@ public class S5BackendSession
       }
       // 2021-09-18 mvkd требуется отсекать "старых" клиентов
       // Проверка версии клиента
-      IAtomicValue clientVersion = OP_CLIENT_VERSION.getValue( clientOptions );
-      if( clientVersion != null && clientVersion.isAssigned() && clientVersion.atomicType() == EAtomicType.STRING ) {
+      IAtomicValue avClientVersion = OP_CLIENT_VERSION.getValue( clientOptions );
+      if( avClientVersion != null && avClientVersion.isAssigned()
+          && avClientVersion.atomicType() == EAtomicType.STRING ) {
         // Неподдерживаемая версия клиента
-        throw new S5AccessDeniedException( String.format( ERR_WRONG_VERSION, clientVersion ) );
+        throw new S5AccessDeniedException( String.format( ERR_WRONG_VERSION_TYPE, avClientVersion ) );
       }
-
+      TsVersion serverVersion = IS5ServerHardConstants.version;
+      if( avClientVersion == null ) {
+        // Неподдерживаемая версия клиента
+        throw new S5AccessDeniedException( String.format( ERR_WRONG_VERSION, "null", serverVersion ) ); //$NON-NLS-1$
+      }
+      TsVersion clientVersion = avClientVersion.asValobj();
+      if( clientVersion.compareTo( serverVersion ) < 0 ) {
+        // Неподдерживаемая версия клиента
+        throw new S5AccessDeniedException( String.format( ERR_WRONG_VERSION, clientVersion, serverVersion ) );
+      }
       // 2025-03-20 mvk role auto definition
       // 2025-05-12 mvk ---+++
       // Skid role = OP_ROLE.getValue( clientOptions ).asValobj();

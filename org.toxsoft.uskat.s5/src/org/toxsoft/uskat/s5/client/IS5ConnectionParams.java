@@ -7,8 +7,6 @@ import static org.toxsoft.core.tslib.av.metainfo.IAvMetaConstants.*;
 import static org.toxsoft.core.tslib.bricks.ctx.impl.TsContextRefDef.create;
 import static org.toxsoft.uskat.s5.client.IS5Resources.*;
 
-import java.time.*;
-
 import org.toxsoft.core.tslib.av.*;
 import org.toxsoft.core.tslib.av.impl.*;
 import org.toxsoft.core.tslib.av.metainfo.*;
@@ -208,7 +206,7 @@ public interface IS5ConnectionParams {
       TSID_NAME, N_CLIENT_VERSION, //
       TSID_DESCRIPTION, D_CLIENT_VERSION, //
       TSID_IS_NULL_ALLOWED, AV_FALSE, //
-      TSID_DEFAULT_VALUE, avValobj( new TsVersion( 1, 1, 2022, Month.JANUARY, 1 ) ) );
+      TSID_DEFAULT_VALUE, avValobj( IS5ServerHardConstants.version ) );
 
   // ------------------------------------------------------------------------------------
   // Таймауты соединения
