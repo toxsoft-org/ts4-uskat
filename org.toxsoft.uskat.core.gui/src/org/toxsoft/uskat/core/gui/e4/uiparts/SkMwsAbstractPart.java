@@ -1,10 +1,13 @@
 package org.toxsoft.uskat.core.gui.e4.uiparts;
 
+import static org.toxsoft.core.tslib.utils.TsLibUtils.*;
 import static org.toxsoft.uskat.core.gui.ISkCoreGuiConstants.*;
 
 import org.eclipse.swt.*;
+import org.eclipse.swt.graphics.*;
 import org.eclipse.swt.widgets.*;
 import org.toxsoft.core.tsgui.dialogs.*;
+import org.toxsoft.core.tsgui.graphics.colors.*;
 import org.toxsoft.core.tsgui.m5.*;
 import org.toxsoft.core.tsgui.mws.bases.*;
 import org.toxsoft.core.tsgui.utils.layout.*;
@@ -27,7 +30,7 @@ import org.toxsoft.uskat.core.gui.utils.*;
  * {@link #doAfterDisposeContent()}/{@link #doBeforeDisposeContent()} methods can be called multiple times as connection
  * opens/closes.
  * <p>
- * This part does <b>not</b> support connection change after part creation!
+ * This part does <b>not</b> support connection reference change after part creation!
  *
  * @author hazard157
  */
@@ -64,6 +67,12 @@ public abstract class SkMwsAbstractPart
    * {@link #internalDisposeContent()} methods, respectively.
    */
   TsComposite disposableBackplane = null;
+
+  // closed connection background support
+  private boolean isClosedConnBkgEnabled = false;
+  private boolean isClosedConnScreenshot = false;
+  private String  cloedConnMessage       = EMPTY_STRING;
+  private Image   closedConnBkgImage     = null;
 
   /**
    * Logger
@@ -103,13 +112,16 @@ public abstract class SkMwsAbstractPart
     switch( aSource.state() ) {
       case ACTIVE: {
         if( !contentExists ) {
+          internalResetClosedConnBackground();
           internalCreateContent();
         }
         break;
       }
       case CLOSED: {
         if( contentExists ) {
+          internalPrepareClosedConnBackground();
           internalDisposeContent();
+          internalDisplayClosedConnBackground();
         }
         break;
       }
@@ -181,6 +193,56 @@ public abstract class SkMwsAbstractPart
     basement.layout( true, true );
   }
 
+  private void internalPrepareClosedConnBackground() {
+    internalDisposeClosedConnImage();
+    Rectangle cliemtAreaRect = basement.getClientArea();
+    int w = cliemtAreaRect.width;
+    int h = cliemtAreaRect.height;
+    closedConnBkgImage = new Image( getDisplay(), w, h );
+    // prepare background image
+    GC gc = new GC( closedConnBkgImage );
+    // make screenshot or empty background
+    if( isClosedConnScreenshot ) {
+      basement.print( gc );
+    }
+    else {
+      gc.setBackground( basement.getBackground() );
+      gc.fillRectangle( 0, 0, w, h );
+    }
+    // draw message
+    if( !cloedConnMessage.isBlank() ) {
+      gc.setForeground( colorManager().getColor( ETsColor.RED ) );
+      Font font = fontManager().getFont( "Arial", 28, SWT.BOLD );
+      gc.setFont( font );
+      Point p = gc.textExtent( cloedConnMessage );
+      gc.drawText( cloedConnMessage, (w - p.x) / 2, (h - p.y) / 2 );
+    }
+    gc.dispose();
+  }
+
+  private void internalDisplayClosedConnBackground() {
+    basement.setBackgroundImage( closedConnBkgImage );
+  }
+
+  private void internalResetClosedConnBackground() {
+    basement.setBackgroundImage( null );
+  }
+
+  private void internalDisposeClosedConnImage() {
+    if( closedConnBkgImage == null ) {
+      return;
+    }
+    if( !closedConnBkgImage.isDisposed() ) {
+      try {
+        closedConnBkgImage.dispose();
+      }
+      catch( Exception ex ) {
+        LoggerUtils.error( ex );
+      }
+    }
+    closedConnBkgImage = null;
+  }
+
   // ------------------------------------------------------------------------------------
   // MwsAbstractPart
   //
@@ -213,6 +275,11 @@ public abstract class SkMwsAbstractPart
     basement.addDisposeListener( e -> skConn.removeConnectionListener( this ) );
   }
 
+  @Override
+  protected void beforeDestroy() {
+    internalDisposeClosedConnImage();
+  }
+
   // ------------------------------------------------------------------------------------
   // ISkGuiContextable
   //
@@ -227,6 +294,35 @@ public abstract class SkMwsAbstractPart
   @Override
   public IM5Domain m5() {
     return skConn().scope().get( IM5Domain.class );
+  }
+
+  // ------------------------------------------------------------------------------------
+  // API
+  //
+
+  /**
+   * Enables closed background image/message when connection is closed.
+   * <p>
+   * By default, when connection closes, UIpart clears its content and displayes default background fille of
+   * {@link Composite}. When enabled, UIpart displays screenshot iamge of the content before close and the specified
+   * message.
+   *
+   * @param aScreenshot boolean - <code>true</code> to display screenshot
+   * @param aMessage String - message text or an empty string for no message
+   * @throws TsNullArgumentRtException any argument = <code>null</code>
+   */
+  public void enableClosedConnectionBackground( boolean aScreenshot, String aMessage ) {
+    TsNullArgumentRtException.checkNull( aMessage );
+    isClosedConnBkgEnabled = true;
+    isClosedConnScreenshot = aScreenshot;
+    cloedConnMessage = aMessage;
+  }
+
+  /**
+   * Disables closed connection background display.
+   */
+  public void disableClosedConnectionBackground() {
+    isClosedConnBkgEnabled = false;
   }
 
   // ------------------------------------------------------------------------------------
