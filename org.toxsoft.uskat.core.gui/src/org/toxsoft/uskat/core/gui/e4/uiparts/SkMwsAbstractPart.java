@@ -112,16 +112,22 @@ public abstract class SkMwsAbstractPart
     switch( aSource.state() ) {
       case ACTIVE: {
         if( !contentExists ) {
-          internalResetClosedConnBackground();
+          if( isClosedConnBkgEnabled ) {
+            internalResetClosedConnBackground();
+          }
           internalCreateContent();
         }
         break;
       }
       case CLOSED: {
         if( contentExists ) {
-          internalPrepareClosedConnBackground();
+          if( isClosedConnBkgEnabled ) {
+            internalPrepareClosedConnBackground();
+          }
           internalDisposeContent();
-          internalDisplayClosedConnBackground();
+          if( isClosedConnBkgEnabled ) {
+            internalDisplayClosedConnBackground();
+          }
         }
         break;
       }
