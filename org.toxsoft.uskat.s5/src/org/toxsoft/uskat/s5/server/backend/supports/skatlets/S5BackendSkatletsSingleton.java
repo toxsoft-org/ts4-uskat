@@ -253,7 +253,12 @@ public class S5BackendSkatletsSingleton
         return;
       }
       synchronized (rootBox) {
-        rootBox.doJob();
+        try {
+          rootBox.doJob();
+        }
+        catch( Throwable e ) {
+          logger().error( e );
+        }
       }
     }
     // Вывод журнала
