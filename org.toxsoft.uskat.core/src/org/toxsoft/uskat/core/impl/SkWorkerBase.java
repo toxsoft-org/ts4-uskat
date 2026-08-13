@@ -177,40 +177,45 @@ public class SkWorkerBase<CONFIG extends ISkWorkerConfig>
   @SuppressWarnings( { "boxing" } )
   @Override
   public final void doJob() {
-    writeStateInfo( this, "doJob", "state 1" ); //$NON-NLS-1$//$NON-NLS-2$
-    if( stopped ) {
-      writeStateInfo( this, "doJob", "state 2" ); //$NON-NLS-1$//$NON-NLS-2$
-      return; // not yet started or already stopped
-    }
+    try {
+      writeStateInfo( this, "doJob", "state 1" ); //$NON-NLS-1$//$NON-NLS-2$
+      if( stopped ) {
+        writeStateInfo( this, "doJob", "state 2" ); //$NON-NLS-1$//$NON-NLS-2$
+        return; // not yet started or already stopped
+      }
 
-    Thread currThread = Thread.currentThread();
-    if( currThread == threadExecutor.thread() ) {
-      writeStateInfo( this, "doJob", "state 3.1 (currThread == threadExecutor.thread())" ); //$NON-NLS-1$//$NON-NLS-2$
-    }
-    else {
-      writeStateInfo( this, "doJob", "state 3.2 (currThread != threadExecutor.thread())" ); //$NON-NLS-1$//$NON-NLS-2$
-    }
-    // Выполнение фоновой обработки компонента
-    threadExecutor.syncExec( () -> {
-      writeStateInfo( this, "doJob", "state 4" ); //$NON-NLS-1$//$NON-NLS-2$
-      doWorkerDoJob();
-      writeStateInfo( this, "doJob", "state 5" ); //$NON-NLS-1$//$NON-NLS-2$
-    } );
-    writeStateInfo( this, "doJob", "state 6" ); //$NON-NLS-1$//$NON-NLS-2$
+      Thread currThread = Thread.currentThread();
+      if( currThread == threadExecutor.thread() ) {
+        writeStateInfo( this, "doJob", "state 3.1 (currThread == threadExecutor.thread())" ); //$NON-NLS-1$//$NON-NLS-2$
+      }
+      else {
+        writeStateInfo( this, "doJob", "state 3.2 (currThread != threadExecutor.thread())" ); //$NON-NLS-1$//$NON-NLS-2$
+      }
+      // Выполнение фоновой обработки компонента
+      threadExecutor.syncExec( () -> {
+        writeStateInfo( this, "doJob", "state 4" ); //$NON-NLS-1$//$NON-NLS-2$
+        doWorkerDoJob();
+        writeStateInfo( this, "doJob", "state 5" ); //$NON-NLS-1$//$NON-NLS-2$
+      } );
+      writeStateInfo( this, "doJob", "state 6" ); //$NON-NLS-1$//$NON-NLS-2$
 
-    if( statTimer.update() ) {
-      // Формирование общей статистики
-      statAllCurrDataRecevied += statCurrDataRecevied;
-      statAllErrors += statErrors;
-      // Журнал
-      logger.debug( FMT_INFO_DOJOB_STAT, //
-          statCurrDataRecevied, statAllCurrDataRecevied, //
-          statErrors, statAllErrors //
-      );
-      // Сброс статистики за интервал
-      statCurrDataRecevied = statErrors = 0;
+      if( statTimer.update() ) {
+        // Формирование общей статистики
+        statAllCurrDataRecevied += statCurrDataRecevied;
+        statAllErrors += statErrors;
+        // Журнал
+        logger.debug( FMT_INFO_DOJOB_STAT, //
+            statCurrDataRecevied, statAllCurrDataRecevied, //
+            statErrors, statAllErrors //
+        );
+        // Сброс статистики за интервал
+        statCurrDataRecevied = statErrors = 0;
+      }
+      writeStateInfo( this, "doJob", "state 7" ); //$NON-NLS-1$//$NON-NLS-2$
     }
-    writeStateInfo( this, "doJob", "state 7" ); //$NON-NLS-1$//$NON-NLS-2$
+    catch( Throwable e ) {
+      logger.error( e );
+    }
   }
 
   // ------------------------------------------------------------------------------------
