@@ -228,6 +228,9 @@ public abstract class SkMwsAbstractPart
 
   private void internalDisplayClosedConnBackground() {
     basement.setBackgroundImage( closedConnBkgImage );
+    // ImageLoader imageLoader = new ImageLoader();
+    // imageLoader.data = new ImageData[] { closedConnBkgImage.getImageData() };
+    // imageLoader.save( "C:/1/scr.png", INITIAL_HASH_CODE );
   }
 
   private void internalResetClosedConnBackground() {
