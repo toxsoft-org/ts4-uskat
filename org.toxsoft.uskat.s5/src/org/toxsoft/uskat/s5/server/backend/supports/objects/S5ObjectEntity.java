@@ -254,7 +254,8 @@ public class S5ObjectEntity
       StringBuilder sb = new StringBuilder();
       ICharOutputStream chOut = new CharOutputStreamAppendable( sb );
       IStrioWriter sw = new StrioWriter( chOut );
-      StrioUtils.writeStringMap( sw, EMPTY_STRING, aRivetRevs, MappedSkids.KEEPER, true );
+      StrioUtils.writeStringMap( sw, EMPTY_STRING, aRivetRevs, MappedSkids.KEEPER );
+
       String newRivetRevsString = sb.toString();
       if( newRivetRevsString.length() > IS5ImplementConstants.LOB_TEXT_TYPE_MAX_SIZE ) {
         // Data too long for column rivetRevsString
@@ -320,8 +321,11 @@ public class S5ObjectEntity
     if( aThat == this ) {
       return true;
     }
-    if( aThat instanceof S5ObjectEntity that ) {
-      return id.equals( that.id ) && attrs().equals( that.attrs() );
+    if( aThat instanceof IDtoObject that ) {
+      return skid().equals( that.skid() ) && //
+          attrs().equals( that.attrs() ) && //
+          rivets().equals( that.rivets() ) && //
+          rivetRevs().equals( that.rivetRevs() );
     }
     return false;
   }
