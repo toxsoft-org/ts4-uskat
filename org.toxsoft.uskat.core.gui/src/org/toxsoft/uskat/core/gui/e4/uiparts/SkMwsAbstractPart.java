@@ -119,7 +119,7 @@ public abstract class SkMwsAbstractPart
         }
         break;
       }
-      case CLOSED: {
+      case INACTIVE:
         if( contentExists ) {
           if( isClosedConnBkgEnabled ) {
             internalPrepareClosedConnBackground();
@@ -130,9 +130,7 @@ public abstract class SkMwsAbstractPart
           }
         }
         break;
-      }
-      case INACTIVE: {
-        // do nothing: here we have just ACTIVE->INACTIVE state change
+      case CLOSED: {
         break;
       }
       default:
