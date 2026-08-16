@@ -45,6 +45,8 @@ public class AdminCmdSend
    */
   private IAdminCmdCallback callback;
 
+  private boolean passCmd = false;
+
   /**
    * Конструктор
    */
@@ -149,15 +151,25 @@ public class AdminCmdSend
                 return;
               }
             }
-            ISkCommand cmd = commandService.sendCommand( cmdGwid, authorSkid, args );
-            // Установка слушателя команды
-            cmd.stateEventer().addListener( AdminCmdSend.this );
-            // Команда отправлена на выполнение
-            println( MSG_COMMAND_SEND, cmd.instanceId(), cmd.cmdGwid() );
+            try {
+              ISkCommand cmd = commandService.sendCommand( cmdGwid, authorSkid, args );
+              // Установка слушателя команды
+              cmd.stateEventer().addListener( AdminCmdSend.this );
+              // Команда отправлена на выполнение
+              println( MSG_COMMAND_SEND, cmd.instanceId(), cmd.cmdGwid() );
+              passCmd = true;
+            }
+            catch( Throwable e ) {
+              logger().error( "send command error. %s", e.getLocalizedMessage() );
+              passCmd = false;
+              return;
+            }
           } );
-          synchronized (this) {
-            // Ожидание выполнения команды
-            wait();
+          if( passCmd ) {
+            synchronized (this) {
+              // Ожидание выполнения команды
+              wait();
+            }
           }
         }
         long delta = (System.currentTimeMillis() - startTime) / 1000;
