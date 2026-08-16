@@ -67,6 +67,8 @@ public class AdminCmdSend
     addArg( ARG_SEND_AUTHOR_CLASSID );
     // Строковый идентификатор объекта автора команды (strid)
     addArg( ARG_SEND_AUTHOR_STRID );
+    // Таймаут ожидания выполнения команды
+    addArg( ARG_SEND_TIMEOUT );
   }
 
   // ------------------------------------------------------------------------------------
@@ -117,11 +119,16 @@ public class AdminCmdSend
       IOptionSet args = argOptionSet( ARG_SEND_ARGS );
       IAtomicValue authorClassId = argSingleValue( ARG_SEND_AUTHOR_CLASSID );
       IAtomicValue authorStrid = argSingleValue( ARG_SEND_AUTHOR_STRID );
+      IAtomicValue argTimeout = argSingleValue( ARG_SEND_TIMEOUT );
       if( !authorClassId.isAssigned() ) {
         authorClassId = AvUtils.avStr( ISkUser.CLASS_ID );
       }
       if( strid.equals( EMPTY_STRING ) ) {
         strid = MULTI;
+      }
+      long timeout = 0; // 0 - is timeout default value
+      if( argTimeout.isAssigned() ) {
+        timeout = argTimeout.asLong();
       }
       final String strid2 = strid;
       // Получение идентификаторов атрибутов
@@ -165,10 +172,10 @@ public class AdminCmdSend
               return;
             }
           } );
-          if( passCmd ) {
+          if( passCmd && timeout > 0 ) {
             synchronized (this) {
               // Ожидание выполнения команды
-              wait();
+              wait( timeout );
             }
           }
         }

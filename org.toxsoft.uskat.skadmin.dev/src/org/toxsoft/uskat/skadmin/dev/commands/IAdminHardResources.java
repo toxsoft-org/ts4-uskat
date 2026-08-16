@@ -18,7 +18,7 @@ interface IAdminHardResources {
   String STR_ARG_SEND_ARGS           = "Список аргументов команды";
   String STR_ARG_SEND_AUTHOR_CLASSID = "Класс автора команды";
   String STR_ARG_SEND_AUTHOR_STRID   = "Строковый идентификатор автора команды";
-  String STR_ARG_SEND_TIMEOUT        = "Таймаут(мсек) ожидания завершения выполнения команды";
+  String STR_ARG_SEND_TIMEOUT        = "Таймаут(мсек) ожидания выполнения команды. <= 0: без ожидания";
 
   // ------------------------------------------------------------------------------------
   // AdminCmdExecutor
@@ -27,7 +27,7 @@ interface IAdminHardResources {
   String STR_ARG_EXEC_GWIDS            = "Список GWID-идентификаторов выполняемых команд";
   String STR_ARG_EXEC_TIMEOUT          = "Время ожидания команд(мсек)";
   String STR_ARG_EXEC_RESPONSE         = "Состояние возвращаемое при получении команды";
-  String STR_ARG_EXEC_RESPONSE_TIMEOUT = "Таймаут отправки ответного состояния команды (мсек)";
+  String STR_ARG_EXEC_RESPONSE_TIMEOUT = "Таймаут(мсек) отправки ответного состояния команды";
 
   // ------------------------------------------------------------------------------------
 
