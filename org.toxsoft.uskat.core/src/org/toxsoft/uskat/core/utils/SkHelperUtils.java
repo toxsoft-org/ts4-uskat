@@ -14,6 +14,7 @@ import org.toxsoft.core.tslib.gw.gwid.*;
 import org.toxsoft.core.tslib.gw.skid.*;
 import org.toxsoft.core.tslib.utils.*;
 import org.toxsoft.core.tslib.utils.errors.*;
+import org.toxsoft.core.tslib.utils.logs.impl.*;
 import org.toxsoft.uskat.core.*;
 import org.toxsoft.uskat.core.api.gwids.*;
 import org.toxsoft.uskat.core.api.linkserv.*;
@@ -29,6 +30,14 @@ import org.toxsoft.uskat.core.api.sysdescr.dto.*;
  * @author hazard157
  */
 public class SkHelperUtils {
+
+  @SuppressWarnings( "javadoc" )
+  public static void main( String[] aArgs ) {
+    if( aArgs.length <= 0 ) {
+      return;
+    }
+    LoggerUtils.info( getPasswordHashCode( aArgs[0] ) );
+  }
 
   /**
    * Returns the data type constraint for the attribute.
