@@ -7,6 +7,7 @@ import static org.toxsoft.uskat.s5.server.sequences.impl.IS5Resources.*;
 import java.lang.reflect.Array;
 import java.sql.*;
 
+import org.toxsoft.core.tslib.coll.primtypes.*;
 import org.toxsoft.core.tslib.utils.errors.*;
 
 import jakarta.persistence.*;
@@ -92,7 +93,7 @@ public class S5SequenceAsyncBlob<BLOCK extends S5SequenceAsyncBlock<?, ?, ?>, BL
    * @throws TsNullArgumentRtException любой аргумент = null
    */
   protected S5SequenceAsyncBlob( long[] aTimestamps, BLOB_ARRAY aValues ) {
-    super( aValues, Long.valueOf( aTimestamps[aTimestamps.length - 1] ) );
+    super( aValues );
     setTimestamps( aTimestamps );
   }
 
@@ -190,24 +191,23 @@ public class S5SequenceAsyncBlob<BLOCK extends S5SequenceAsyncBlock<?, ?, ?>, BL
   // ------------------------------------------------------------------------------------
   // Реализация шаблонных методов S5SequenceBlob
   //
-  // 2026-06-19 mvk--- not used
-  // @Override
-  // protected IStringMapEdit<Object> doInsertQueryParams() {
-  // IStringMapEdit<Object> retValue = super.doInsertQueryParams();
-  // retValue.put( FIELD_TIMES_START, _timesStart );
-  // retValue.put( FIELD_TIMES_UNIT, _timesUnit );
-  // retValue.put( FIELD_TIMES_OFFSETS, _timesOffsets );
-  // return retValue;
-  // }
-  //
-  // @Override
-  // protected IStringMapEdit<Object> doUpdateQueryParams() {
-  // IStringMapEdit<Object> retValue = super.doUpdateQueryParams();
-  // retValue.put( FIELD_TIMES_START, _timesStart );
-  // retValue.put( FIELD_TIMES_UNIT, _timesUnit );
-  // retValue.put( FIELD_TIMES_OFFSETS, _timesOffsets );
-  // return retValue;
-  // }
+  @Override
+  protected IStringMapEdit<Object> doInsertQueryParams() {
+    IStringMapEdit<Object> retValue = super.doInsertQueryParams();
+    retValue.put( FIELD_TIMES_START, _timesStart );
+    retValue.put( FIELD_TIMES_UNIT, _timesUnit );
+    retValue.put( FIELD_TIMES_OFFSETS, _timesOffsets );
+    return retValue;
+  }
+
+  @Override
+  protected IStringMapEdit<Object> doUpdateQueryParams() {
+    IStringMapEdit<Object> retValue = super.doUpdateQueryParams();
+    retValue.put( FIELD_TIMES_START, _timesStart );
+    retValue.put( FIELD_TIMES_UNIT, _timesUnit );
+    retValue.put( FIELD_TIMES_OFFSETS, _timesOffsets );
+    return retValue;
+  }
 
   // ------------------------------------------------------------------------------------
   // Внутреннее API

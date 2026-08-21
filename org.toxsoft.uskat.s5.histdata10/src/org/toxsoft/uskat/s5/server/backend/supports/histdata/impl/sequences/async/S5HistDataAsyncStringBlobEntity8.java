@@ -15,7 +15,7 @@ import jakarta.persistence.*;
  */
 @Entity
 public class S5HistDataAsyncStringBlobEntity8
-    extends S5SequenceAsyncBlob<S5HistDataAsyncStringEntity8, String[], byte[]> {
+    extends S5SequenceAsyncBlob<S5HistDataAsyncStringEntity8, String[], String[]> {
 
   private static final long serialVersionUID = 157157L;
 

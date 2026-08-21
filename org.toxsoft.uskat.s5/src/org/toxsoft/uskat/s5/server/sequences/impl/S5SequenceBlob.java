@@ -1,10 +1,12 @@
 package org.toxsoft.uskat.s5.server.sequences.impl;
 
 import static java.lang.String.*;
+import static org.toxsoft.core.tslib.bricks.strid.impl.StridUtils.*;
 import static org.toxsoft.uskat.s5.common.IS5CommonResources.*;
 import static org.toxsoft.uskat.s5.server.sequences.impl.IS5Resources.*;
 import static org.toxsoft.uskat.s5.server.sequences.impl.S5DataID.*;
 import static org.toxsoft.uskat.s5.server.sequences.impl.S5SequenceBlock.*;
+import static org.toxsoft.uskat.s5.server.sequences.impl.S5SequenceSQL.*;
 
 import java.io.*;
 import java.lang.reflect.*;
@@ -12,6 +14,8 @@ import java.lang.reflect.Array;
 import java.sql.*;
 
 import org.toxsoft.core.tslib.bricks.validator.vrl.*;
+import org.toxsoft.core.tslib.coll.primtypes.*;
+import org.toxsoft.core.tslib.coll.primtypes.impl.*;
 import org.toxsoft.core.tslib.utils.errors.*;
 
 import jakarta.persistence.*;
@@ -61,7 +65,6 @@ public class S5SequenceBlob<BLOCK extends S5SequenceBlock<?, ?, ?>, BLOB_ARRAY, 
   /**
    * Значения хранимые в блоке в сериализованном виде
    */
-  @Lob
   @Column( insertable = true, updatable = true, nullable = false, unique = false, length = Integer.MAX_VALUE )
   private BLOB_ARRAY_HOLDER _values;
 
@@ -69,17 +72,6 @@ public class S5SequenceBlob<BLOCK extends S5SequenceBlock<?, ?, ?>, BLOB_ARRAY, 
    * Значения хранимые в блоке
    */
   private transient BLOB_ARRAY values;
-
-  // 2026-05-22 mvkd TODO FIXME! после завершенияя перехода установить nullable = false
-  /**
-   * Время (мсек с начала эпохи) окончания данных (включительно)
-   */
-  @Column( name = FIELD_END_TIME, //
-      insertable = true,
-      updatable = true,
-      nullable = true,
-      unique = false )
-  private Long endTime;
 
   /**
    * Конструктор без параметров (для JPA)
@@ -91,12 +83,11 @@ public class S5SequenceBlob<BLOCK extends S5SequenceBlock<?, ?, ?>, BLOB_ARRAY, 
    * Конструктор blob для нового блока
    *
    * @param aValues BLOB_ARRAY массив значений
-   * @param aEndTime Long метка времени завершения данных (мсек)
    * @throws TsNullArgumentRtException аргумент = null
    */
-  protected S5SequenceBlob( BLOB_ARRAY aValues, Long aEndTime ) {
-    TsNullArgumentRtException.checkNulls( aValues, aEndTime );
-    setValues( aValues, aEndTime );
+  protected S5SequenceBlob( BLOB_ARRAY aValues ) {
+    TsNullArgumentRtException.checkNull( aValues );
+    setValues( aValues );
   }
 
   /**
@@ -110,8 +101,7 @@ public class S5SequenceBlob<BLOCK extends S5SequenceBlock<?, ?, ?>, BLOB_ARRAY, 
   protected S5SequenceBlob( ResultSet aResultSet ) {
     try {
       id = new S5DataID( aResultSet );
-      Class<?> fieldValuesType = getGenericClass( 2 );
-      if( !fieldValuesType.equals( byte[].class ) ) {
+      if( getGenericClass( 1 ) != byte[].class ) {
         try( InputStream is = aResultSet.getBinaryStream( FIELD_VALUES ) ) {
           _values = ((BLOB_ARRAY_HOLDER)new ObjectInputStream( is ).readObject());
         }
@@ -119,7 +109,6 @@ public class S5SequenceBlob<BLOCK extends S5SequenceBlock<?, ?, ?>, BLOB_ARRAY, 
       else {
         _values = (BLOB_ARRAY_HOLDER)aResultSet.getBytes( FIELD_VALUES );
       }
-      endTime = Long.valueOf( aResultSet.getLong( FIELD_END_TIME ) );
     }
     catch( Throwable e ) {
       // Неожиданная ошибка создания blob из курсора dbms
@@ -138,14 +127,7 @@ public class S5SequenceBlob<BLOCK extends S5SequenceBlock<?, ?, ?>, BLOB_ARRAY, 
    */
   @SuppressWarnings( "unchecked" )
   protected BLOB_ARRAY_HOLDER doSerialize( BLOB_ARRAY aValues ) {
-    try( ByteArrayOutputStream bos = new ByteArrayOutputStream();
-        ObjectOutputStream oos = new ObjectOutputStream( bos ) ) {
-      oos.writeObject( aValues );
-      return (BLOB_ARRAY_HOLDER)bos.toByteArray();
-    }
-    catch( Throwable e ) {
-      throw new TsInternalErrorRtException( e );
-    }
+    return (BLOB_ARRAY_HOLDER)aValues;
   }
 
   /**
@@ -156,12 +138,7 @@ public class S5SequenceBlob<BLOCK extends S5SequenceBlock<?, ?, ?>, BLOB_ARRAY, 
    */
   @SuppressWarnings( "unchecked" )
   protected BLOB_ARRAY doDeserialize( BLOB_ARRAY_HOLDER aValues ) {
-    try( ObjectInputStream ois = new ObjectInputStream( new ByteArrayInputStream( (byte[])aValues ) ) ) {
-      return (BLOB_ARRAY)ois.readObject();
-    }
-    catch( Exception e ) {
-      throw new TsInternalErrorRtException( e );
-    }
+    return (BLOB_ARRAY)aValues;
   }
 
   // ------------------------------------------------------------------------------------
@@ -214,14 +191,12 @@ public class S5SequenceBlob<BLOCK extends S5SequenceBlock<?, ?, ?>, BLOB_ARRAY, 
    * Установка значений blob
    *
    * @param aValues BLOB_ARRAY массив значений blob
-   * @param aEndTime Long метка времени завершения данных (мсек)
-   * @throws TsNullArgumentRtException любой аргумент = null
+   * @throws TsNullArgumentRtException аргумент = null
    */
-  final void setValues( BLOB_ARRAY aValues, Long aEndTime ) {
-    TsNullArgumentRtException.checkNulls( aValues, aEndTime );
+  final void setValues( BLOB_ARRAY aValues ) {
+    TsNullArgumentRtException.checkNull( aValues );
     values = aValues;
     _values = doSerialize( aValues );
-    endTime = aEndTime;
   }
 
   /**
@@ -234,24 +209,22 @@ public class S5SequenceBlob<BLOCK extends S5SequenceBlock<?, ?, ?>, BLOB_ARRAY, 
     return new VrList();
   }
 
-  // 2026-06-19 mvk--- not used
-  // /**
-  // * Выполняет операцию записи blob в базу данных
-  // *
-  // * @param aEntityManager {@link EntityManager} менеджер постоянства
-  // * @throws TsNullArgumentRtException аргумент = null
-  // */
-  // @SuppressWarnings( "unused" )
-  // private final void executeInsert( EntityManager aEntityManager ) {
-  // // Имя таблицы реализации блока
-  // String tableName = getLast( getClass().getName() );
-  // // Параметры запроса. Ключ: имя поля. Значение: значение поля
-  // IStringMap<Object> params = doInsertQueryParams();
-  // // Создание запроса
-  // Query query = createInsertQuery( aEntityManager, tableName, params );
-  // // Выполнение запроса
-  // query.executeUpdate();
-  // }
+  /**
+   * Выполняет операцию записи blob в базу данных
+   *
+   * @param aEntityManager {@link EntityManager} менеджер постоянства
+   * @throws TsNullArgumentRtException аргумент = null
+   */
+  final void executeInsert( EntityManager aEntityManager ) {
+    // Имя таблицы реализации блока
+    String tableName = getLast( getClass().getName() );
+    // Параметры запроса. Ключ: имя поля. Значение: значение поля
+    IStringMap<Object> params = doInsertQueryParams();
+    // Создание запроса
+    Query query = createInsertQuery( aEntityManager, tableName, params );
+    // Выполнение запроса
+    query.executeUpdate();
+  }
 
   // ------------------------------------------------------------------------------------
   // Реализация Object
@@ -266,42 +239,39 @@ public class S5SequenceBlob<BLOCK extends S5SequenceBlock<?, ?, ?>, BLOB_ARRAY, 
   // ------------------------------------------------------------------------------------
   // Внутреннее API
   //
-  // 2026-06-19 mvk--- not used
-  // /**
-  // * Возвращает параметры необходимые для выполнения запроса записи blob в БД
-  // * <p>
-  // * Наследники могут переопределять метод для добавления собственных параметров к уже определенным в базовом классе
-  // *
-  // * @return {@link IStringMap} карта параметров с возможностью добавления. <br>
-  // * Ключ: имя поля в таблице;<br>
-  // * Значение: значение поля.
-  // */
-  // protected IStringMapEdit<Object> doInsertQueryParams() {
-  // IStringMapEdit<Object> retValue = new StringMap<>();
-  // retValue.put( FIELD_GWID, id.gwid().toString() );
-  // retValue.put( FIELD_START_TIME, id.startTime() );
-  // retValue.put( FIELD_END_TIME, endTime );
-  // // retValue.put( FIELD_VALUES, _values );
-  // retValue.put( FIELD_VALUES, new byte[0] );
-  // return retValue;
-  // }
-  //
-  // /**
-  // * Возвращает параметры необходимые для выполнения запроса обновления blob в БД
-  // * <p>
-  // * Наследники могут переопределять метод для добавления собственных параметров к уже определенным в базовом классе
-  // *
-  // * @return {@link IStringMap} карта параметров с возможностью добавления. <br>
-  // * Ключ: имя поля в таблице;<br>
-  // * Значение: значение поля.
-  // */
-  // protected IStringMapEdit<Object> doUpdateQueryParams() {
-  // IStringMapEdit<Object> retValue = new StringMap<>();
-  // retValue.put( FIELD_END_TIME, endTime );
-  // // retValue.put( FIELD_VALUES, _values );
-  // retValue.put( FIELD_VALUES, new byte[0] );
-  // return retValue;
-  // }
+  /**
+   * Возвращает параметры необходимые для выполнения запроса записи blob в БД
+   * <p>
+   * Наследники могут переопределять метод для добавления собственных параметров к уже определенным в базовом классе
+   *
+   * @return {@link IStringMap} карта параметров с возможностью добавления. <br>
+   *         Ключ: имя поля в таблице;<br>
+   *         Значение: значение поля.
+   */
+  protected IStringMapEdit<Object> doInsertQueryParams() {
+    IStringMapEdit<Object> retValue = new StringMap<>();
+    retValue.put( FIELD_GWID, id.gwid().toString() );
+    retValue.put( FIELD_START_TIME, id.startTime() );
+    // retValue.put( FIELD_VALUES, _values );
+    retValue.put( FIELD_VALUES, new byte[0] );
+    return retValue;
+  }
+
+  /**
+   * Возвращает параметры необходимые для выполнения запроса обновления blob в БД
+   * <p>
+   * Наследники могут переопределять метод для добавления собственных параметров к уже определенным в базовом классе
+   *
+   * @return {@link IStringMap} карта параметров с возможностью добавления. <br>
+   *         Ключ: имя поля в таблице;<br>
+   *         Значение: значение поля.
+   */
+  protected IStringMapEdit<Object> doUpdateQueryParams() {
+    IStringMapEdit<Object> retValue = new StringMap<>();
+    // retValue.put( FIELD_VALUES, _values );
+    retValue.put( FIELD_VALUES, new byte[0] );
+    return retValue;
+  }
 
   /**
    * Возвращает класс generic-класса использумого наследником
@@ -310,8 +280,8 @@ public class S5SequenceBlob<BLOCK extends S5SequenceBlock<?, ?, ?>, BLOB_ARRAY, 
    * @return Class<?> generic-класс
    */
   private Class<?> getGenericClass( int aParamIndex ) {
-    Type[] typeArgs = ((ParameterizedType)getClass().getGenericSuperclass()).getActualTypeArguments();
-    Class<?> genericClass = (Class<?>)typeArgs[aParamIndex];
+    Class<?> genericClass =
+        (Class<?>)((ParameterizedType)getClass().getGenericSuperclass()).getActualTypeArguments()[aParamIndex];
     return genericClass;
   }
 }

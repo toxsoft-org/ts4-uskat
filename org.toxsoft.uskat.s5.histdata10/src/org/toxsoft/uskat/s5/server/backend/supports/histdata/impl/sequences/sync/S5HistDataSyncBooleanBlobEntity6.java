@@ -29,11 +29,10 @@ public class S5HistDataSyncBooleanBlobEntity6
    * Конструктор blob для нового блока (идентификатор формируется автоматически)
    *
    * @param aValues byte[] массив значений
-   * @param aEndTime Long метка времени завершения данных (мсек)
    * @throws TsNullArgumentRtException аргумент = null
    */
-  S5HistDataSyncBooleanBlobEntity6( byte[] aValues, Long aEndTime ) {
-    super( aValues, aEndTime );
+  S5HistDataSyncBooleanBlobEntity6( byte[] aValues ) {
+    super( aValues );
   }
 
   /**

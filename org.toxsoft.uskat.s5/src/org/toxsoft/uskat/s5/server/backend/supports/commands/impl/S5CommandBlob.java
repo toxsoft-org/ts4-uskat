@@ -4,6 +4,7 @@ import java.sql.*;
 
 import org.toxsoft.core.tslib.utils.errors.*;
 import org.toxsoft.uskat.core.api.cmdserv.*;
+import org.toxsoft.uskat.core.impl.dto.*;
 import org.toxsoft.uskat.s5.server.sequences.impl.*;
 
 import jakarta.persistence.*;
@@ -15,7 +16,7 @@ import jakarta.persistence.*;
  */
 @Entity
 public class S5CommandBlob
-    extends S5SequenceAsyncBlob<S5CommandBlock, IDtoCompletedCommand[], byte[]> {
+    extends S5SequenceAsyncBlob<S5CommandBlock, IDtoCompletedCommand[], String[]> {
 
   private static final long serialVersionUID = 157157L;
 
@@ -47,4 +48,24 @@ public class S5CommandBlob
     super( aResultSet );
   }
 
+  // ------------------------------------------------------------------------------------
+  // S5SequenceBlob
+  //
+  @Override
+  protected String[] doSerialize( IDtoCompletedCommand[] aValues ) {
+    String[] retValue = new String[aValues.length];
+    for( int index = 0, n = aValues.length; index < n; index++ ) {
+      retValue[index] = DtoCompletedCommand.KEEPER.ent2str( aValues[index] );
+    }
+    return retValue;
+  }
+
+  @Override
+  protected IDtoCompletedCommand[] doDeserialize( String[] aValues ) {
+    IDtoCompletedCommand[] retValue = new IDtoCompletedCommand[aValues.length];
+    for( int index = 0, n = aValues.length; index < n; index++ ) {
+      retValue[index] = DtoCompletedCommand.KEEPER.str2ent( aValues[index] );
+    }
+    return retValue;
+  }
 }
