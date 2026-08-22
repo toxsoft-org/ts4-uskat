@@ -84,7 +84,9 @@ public class S5SequenceCursor<T extends ITemporal<?>>
       for( int index = 0, n = sequence.blocks().size(); index < n; index++ ) {
         IS5SequenceBlock<?> b = sequence.blocks().get( index );
         if( aFromTime <= b.endTime() ) {
-          nextBlock = block;
+          // 2026-08-22 mvk ---+++
+          // nextBlock = block;
+          nextBlock = b;
           nextBlockIndex = index;
           break;
         }
@@ -113,13 +115,14 @@ public class S5SequenceCursor<T extends ITemporal<?>>
     TsIllegalArgumentRtException.checkFalse( hasNextValue() );
     currentBlock = nextBlock;
     currentValueIndex = nextValueIndex;
+    T retValue = doGetCurrentValue();
     position++;
     if( nextValueIndex + 1 < nextBlock.size() ) {
       // Перемещение по текущему блоку
       nextValueIndex++;
-      return doGetCurrentValue();
+      return retValue;
     }
-    if( sequence != null ) {
+    if( sequence != null && nextBlockIndex >= 0 ) {
       // Попытка найти следующий блок в последовательности со значениями
       for( int index = nextBlockIndex + 1, n = sequence.blocks().size(); index < n; index++ ) {
         IS5SequenceBlock<?> b = sequence.blocks().get( index );
@@ -127,7 +130,7 @@ public class S5SequenceCursor<T extends ITemporal<?>>
           nextBlock = b;
           nextBlockIndex = index;
           nextValueIndex = 0;
-          return doGetCurrentValue();
+          return retValue;
         }
       }
     }
@@ -135,7 +138,7 @@ public class S5SequenceCursor<T extends ITemporal<?>>
     nextBlock = null;
     nextBlockIndex = -1;
     nextValueIndex = -1;
-    return doGetCurrentValue();
+    return retValue;
   }
 
   @Override
