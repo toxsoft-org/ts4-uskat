@@ -213,6 +213,9 @@ class S5BackendQueriesAtomicValueFunctions
     // Установка курсора на начало последовательности
     // TODO: Отработать aggregationStart
     cursor.setTime( interval.startTime() );
+    // 2028-08-22 mvk+++
+    long queryStartTime = interval.startTime();
+    long queryEndTime = interval.endTime();
     // Обработка значений курсора
     while( cursor.hasNextValue() ) {
       if( query.state() != ES5QueriesConvoyState.EXECUTING ) {
@@ -221,6 +224,15 @@ class S5BackendQueriesAtomicValueFunctions
       }
       // Следующее raw-значение последовательности
       ITemporalAtomicValue value = (ITemporalAtomicValue)cursor.nextValue();
+      // 2028-08-22 mvk+++
+      // Метка времени значения
+      long timestamp = value.timestamp();
+      if( timestamp < queryStartTime ) {
+        continue;
+      }
+      if( queryEndTime <= timestamp ) {
+        break;
+      }
       // Признак того, что значение было допущено фильтрами для обработки
       boolean accepted = filter.accept( value.value() );
       // Фильтрация
@@ -257,7 +269,8 @@ class S5BackendQueriesAtomicValueFunctions
     rawCounter.add( 1 );
     if( aValue == null ) {
       // У последовательности больше нет значений. Формирование последнего значения
-      addValue();
+      // 2026-08-22 mvk---
+      // addValue();
       // Дополнение по необходимости пустыми значениями
       // addEmptyValues( interval.endTime() );
       // Передача сформированного результата
