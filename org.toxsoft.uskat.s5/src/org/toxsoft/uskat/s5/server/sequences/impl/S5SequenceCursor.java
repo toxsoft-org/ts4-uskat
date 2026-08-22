@@ -1,8 +1,7 @@
 package org.toxsoft.uskat.s5.server.sequences.impl;
 
-import org.toxsoft.core.tslib.bricks.time.ITemporal;
-import org.toxsoft.core.tslib.utils.errors.TsIllegalArgumentRtException;
-import org.toxsoft.core.tslib.utils.errors.TsNullArgumentRtException;
+import org.toxsoft.core.tslib.bricks.time.*;
+import org.toxsoft.core.tslib.utils.errors.*;
 import org.toxsoft.uskat.s5.server.sequences.*;
 
 /**
@@ -84,7 +83,9 @@ public class S5SequenceCursor<T extends ITemporal<?>>
       for( int index = 0, n = sequence.blocks().size(); index < n; index++ ) {
         IS5SequenceBlock<?> b = sequence.blocks().get( index );
         if( aFromTime <= b.endTime() ) {
-          nextBlock = block;
+          // 2026-08-28 mvk ---+++ critical fix
+          // nextBlock = block;
+          nextBlock = b;
           nextBlockIndex = index;
           break;
         }
