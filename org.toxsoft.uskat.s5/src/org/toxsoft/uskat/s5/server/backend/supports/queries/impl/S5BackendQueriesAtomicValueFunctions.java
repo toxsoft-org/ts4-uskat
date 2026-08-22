@@ -269,7 +269,6 @@ class S5BackendQueriesAtomicValueFunctions
     rawCounter.add( 1 );
     if( aValue == null ) {
       // У последовательности больше нет значений. Формирование последнего значения
-      // 2026-08-22 mvk---
       addValue();
       // Дополнение по необходимости пустыми значениями
       // addEmptyValues( interval.endTime() );
