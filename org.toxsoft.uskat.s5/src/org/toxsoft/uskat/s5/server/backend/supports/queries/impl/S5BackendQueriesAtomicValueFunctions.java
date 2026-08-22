@@ -270,7 +270,7 @@ class S5BackendQueriesAtomicValueFunctions
     if( aValue == null ) {
       // У последовательности больше нет значений. Формирование последнего значения
       // 2026-08-22 mvk---
-      // addValue();
+      addValue();
       // Дополнение по необходимости пустыми значениями
       // addEmptyValues( interval.endTime() );
       // Передача сформированного результата
