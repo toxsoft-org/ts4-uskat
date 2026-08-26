@@ -250,11 +250,13 @@ public class S5BackendCurrDataSingleton
     // Пост-вызов интерсепторов
     callAfterConfigureCurrDataReader( interceptors, aFrontend, aToRemove, aToAdd, logger() );
 
-    if( aToAdd.size() == 0 ) {
-      // Нет новых данных
-      return new BaRtDataEdition( 0, IMap.EMPTY );
-    }
-    IMap<Gwid, IAtomicValue> retValue = readValues( aToAdd );
+    // 2026-08-25 mvk---+++
+    // if( aToAdd.size() == 0 ) {
+    // // Нет новых данных
+    // return new BaRtDataEdition( 0, IMap.EMPTY );
+    // }
+    // IMap<Gwid, IAtomicValue> retValue = readValues( aToAdd );
+    IMap<Gwid, IAtomicValue> retValue = readValues( baData.currdataGwidsToFrontend() );
     return new BaRtDataEdition( editionNo, retValue );
   }
 
