@@ -464,6 +464,9 @@ public class SkCoreServRtdata
     TsNullArgumentRtException.checkNull( aGwids );
     TsIllegalStateRtException.checkFalse( isInited() );
 
+    if( aGwids.size() == 0 ) {
+      return IMap.EMPTY;
+    }
     // trace0
     long trace0 = System.currentTimeMillis();
 
@@ -611,6 +614,10 @@ public class SkCoreServRtdata
     checkThread();
     TsNullArgumentRtException.checkNull( aGwids );
     TsIllegalStateRtException.checkFalse( isInited() );
+
+    if( aGwids.size() == 0 ) {
+      return IMap.EMPTY;
+    }
 
     // trace0
     long trace0 = System.currentTimeMillis();
