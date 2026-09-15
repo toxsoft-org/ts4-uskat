@@ -26,7 +26,8 @@ public interface ISkDevelMwsConstants {
   // ------------------------------------------------------------------------------------
   // E4
 
-  String PERSPID_SKDEVEL_MAIN = "org.toxsoft.uskat.devel.mws.persp.main"; //$NON-NLS-1$
+  String PERSPID_SKDEVEL_MAIN                = "org.toxsoft.uskat.devel.mws.persp.main";                //$NON-NLS-1$
+  String PARTID_SKDEVEL_SELECTOR_VALEDS_DEMO = "org.toxsoft.uskat.devel.mws.part.selector_valeds_demo"; //$NON-NLS-1$
 
   // ------------------------------------------------------------------------------------
   // plugin constants prefixes
