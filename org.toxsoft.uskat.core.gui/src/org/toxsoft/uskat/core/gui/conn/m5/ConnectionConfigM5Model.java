@@ -1,6 +1,7 @@
 package org.toxsoft.uskat.core.gui.conn.m5;
 
 import static org.toxsoft.core.tsgui.m5.IM5Constants.*;
+import static org.toxsoft.core.tslib.av.impl.AvUtils.*;
 import static org.toxsoft.uskat.core.gui.conn.l10n.ISkCoreGuiConnSharedResources.*;
 import static org.toxsoft.uskat.core.gui.conn.m5.IConnectionConfigM5Constants.*;
 
@@ -83,6 +84,7 @@ public class ConnectionConfigM5Model
       setDefaultValue( IOptionSet.NULL );
       params().setBool( IValedControlConstants.OPDEF_IS_WIDTH_FIXED, false );
       params().setInt( IValedControlConstants.OPDEF_VERTICAL_SPAN, 6 );
+      params().setBool( IValedControlConstants.OPDEF_NO_FIELD_LABEL, true );
     }
 
     protected IOptionSet doGetFieldValue( IConnectionConfig aEntity ) {
@@ -101,6 +103,7 @@ public class ConnectionConfigM5Model
       setNameAndDescription( STR_N_PARAMS, STR_D_PARAMS );
       setFlags( M5FF_HIDDEN );
       setValedEditor( ValedOptionSet.FACTORY_NAME );
+      IValedControlConstants.OPDEF_NO_FIELD_LABEL.setValue( params(), AV_TRUE );
       setDefaultValue( IOptionSet.NULL );
     }
 
