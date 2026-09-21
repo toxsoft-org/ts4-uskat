@@ -3,6 +3,8 @@ package org.toxsoft.uskat.core.gui.conn;
 import static org.toxsoft.uskat.core.gui.conn.l10n.ISkCoreGuiConnSharedResources.*;
 
 import org.eclipse.e4.core.contexts.*;
+import org.eclipse.swt.*;
+import org.eclipse.swt.widgets.*;
 import org.toxsoft.core.tsgui.bricks.ctx.*;
 import org.toxsoft.core.tsgui.bricks.ctx.impl.*;
 import org.toxsoft.core.tsgui.m5.*;
@@ -157,6 +159,13 @@ public class SkConnectionSupplier
   public SkConnectionSupplier( IEclipseContext aWinContext ) {
     internalReallyCreateConnectionInstance( DEF_CONN_ID, new TsGuiContext( aWinContext ) );
     svs.addValidator( builtinValidator );
+    // 2026-09-21 mvk+++
+    Display display = aWinContext.get( Display.class );
+    display.addListener( SWT.Dispose, event -> {
+      // Этот блок выполнится в UI-потоке ровно в момент
+      // уничтожения Display, но ДО того, как его флаг станет isDisposed() = true.
+      close();
+    } );
   }
 
   // ------------------------------------------------------------------------------------
