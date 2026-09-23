@@ -78,6 +78,25 @@ public abstract class SkAbstractVirtDataCurrDataWriter
     return value;
   }
 
+  /**
+   * Writes a value to a channel.
+   *
+   * @param aValue {@link IAtomicValue} value
+   * @return {@link IAtomicValue} previous value
+   * @throws TsNullArgumentRtException arg = null
+   */
+  protected final IAtomicValue setValue( IAtomicValue aValue ) {
+    IAtomicValue retValue = value;
+    if( retValue.equals( aValue ) ) {
+      return retValue;
+    }
+    // The value on one (or more) channels has changed.
+    writeChannel.setValue( aValue );
+    // The notification
+    doHandleValueChanged( retValue, aValue );
+    return retValue;
+  }
+
   // ------------------------------------------------------------------------------------
   // API for subclasses
   //
@@ -111,15 +130,7 @@ public abstract class SkAbstractVirtDataCurrDataWriter
   //
   @Override
   public final void onGenericChangeEvent( Object aSource ) {
-    IAtomicValue prevValue = value;
-    IAtomicValue newValue = doCalculateValue();
-    if( prevValue.equals( newValue ) ) {
-      return;
-    }
-    // The value on one (or more) channels has changed.
-    writeChannel.setValue( newValue );
-    // The notification
-    doHandleValueChanged( prevValue, newValue );
+    setValue( doCalculateValue() );
   }
 
   // ------------------------------------------------------------------------------------
