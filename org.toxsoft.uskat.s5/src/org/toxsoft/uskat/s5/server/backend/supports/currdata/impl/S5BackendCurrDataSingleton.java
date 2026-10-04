@@ -477,67 +477,33 @@ public class S5BackendCurrDataSingleton
       Cache<Gwid, IAtomicValue> aValuesCache, ILogger aLogger ) {
     TsNullArgumentRtException.checkNulls( aSysdescrReader, aObjectsBackend, aValuesCache, aLogger );
     long traceStartTime = System.currentTimeMillis();
-    IMap<Gwid, IAtomicValue> allValues = getDefaultValues( aSysdescrReader, aObjectsBackend, aLogger );
-    int size = aValuesCache.size();
-    Long traceLoadTime = Long.valueOf( System.currentTimeMillis() - traceStartTime );
-    if( size > 0 ) {
-      // Кэш уже сформирован кластером
-      aLogger.info( MSG_CACHE_ALREADY_INITED, Integer.valueOf( size ), traceLoadTime );
-      if( allValues.size() != size ) {
-        // Размер кэша текущих данных не соотвествует количеству текущих данных в системе
-        aLogger.error( ERR_WRONG_CACHE_SIZE, Integer.valueOf( size ), Integer.valueOf( allValues.size() ) );
-      }
-      return size;
-    }
-    // TODO: требуется блокировка доступа к кэшу текущих данных на уровне кластера
-    for( Gwid gwid : allValues.keys() ) {
-      aValuesCache.put( gwid, allValues.getByKey( gwid ) );
+    int retValue = 0;
+    for( ISkClassInfo classInfo : aSysdescrReader.getClassInfos() ) {
+      retValue += initCacheBySkClass( aObjectsBackend, classInfo, aValuesCache, aLogger );
     }
     // Сформирован кэш текущих данных кластера
     Long initTime = Long.valueOf( System.currentTimeMillis() - traceStartTime );
-    aLogger.info( MSG_CACHE_INITED, Integer.valueOf( size ), traceLoadTime, initTime );
-    return size;
-  }
-
-  /**
-   * Возвращает значения текущих данных по умолчанию для всех объектов системы
-   *
-   * @param aSysdescrReader {@link ISkSysdescrReader} читатель системного описания
-   * @param aObjectsBackend {@link IS5BackendObjectsSingleton} поддержка доступа к объектам системы
-   * @param aLogger {@link ILogger} журнал работы
-   * @return {@link IMap}&lt;{@link Gwid},{@link IAtomicValue}&gt; карта значений по умолчанию<br>
-   *         Ключ: идентификатор текущего данного;<br>
-   *         Значение: атомарное значение по умолчанию.
-   * @throws TsNullArgumentRtException любой аргумент = null
-   */
-  private static IMap<Gwid, IAtomicValue> getDefaultValues( ISkSysdescrReader aSysdescrReader,
-      IS5BackendObjectsSingleton aObjectsBackend, ILogger aLogger ) {
-    TsNullArgumentRtException.checkNulls( aSysdescrReader, aObjectsBackend, aLogger );
-    IMapEdit<Gwid, IAtomicValue> retValue = new ElemMap<>();
-    for( ISkClassInfo classInfo : aSysdescrReader.getClassInfos() ) {
-      retValue.putAll( getClassDefaultValues( aObjectsBackend, classInfo, aLogger ) );
-    }
+    aLogger.info( MSG_CACHE_INITED, Integer.valueOf( retValue ), initTime );
     return retValue;
   }
 
   /**
-   * Возвращает значения текущих данных по умолчанию для всех объектов указанного класса без наследников
+   * Добавляет в кэш default-значения текущих данных для всех объектов указанного класса без наследников
    *
    * @param aObjectsBackend {@link IS5BackendObjectsSingleton} поддержка доступа к объектам системы
    * @param aClassInfo {@link ISkClassInfo} описание класса
+   * @param aCache {@link Cache} инициализируемый кэш
    * @param aLogger {@link ILogger} журнал работы
-   * @return {@link IMap}&lt;{@link Gwid},{@link IAtomicValue}&gt; карта значений по умолчанию<br>
-   *         Ключ: идентификатор текущего данного;<br>
-   *         Значение: атомарное значение по умолчанию.
+   * @return int количество значений добавленных в кэш
    * @throws TsNullArgumentRtException любой аргумент = null
    */
-  private static IMap<Gwid, IAtomicValue> getClassDefaultValues( IS5BackendObjectsSingleton aObjectsBackend,
-      ISkClassInfo aClassInfo, ILogger aLogger ) {
-    TsNullArgumentRtException.checkNulls( aObjectsBackend, aClassInfo, aLogger );
+  private static int initCacheBySkClass( IS5BackendObjectsSingleton aObjectsBackend, ISkClassInfo aClassInfo,
+      Cache<Gwid, IAtomicValue> aCache, ILogger aLogger ) {
+    TsNullArgumentRtException.checkNulls( aObjectsBackend, aClassInfo, aCache, aLogger );
     IStridablesList<IDtoRtdataInfo> infos = classCurrDataInfos( aClassInfo );
     if( infos.size() == 0 ) {
       // В классе нет текущих данных
-      return IMap.EMPTY;
+      return 0;
     }
     // Идентификатор класса
     String classId = aClassInfo.id();
@@ -545,9 +511,9 @@ public class S5BackendCurrDataSingleton
     IList<IDtoObject> objs = aObjectsBackend.readObjects( new StringArrayList( classId ) );
     if( objs.size() == 0 ) {
       // Нет объектов класса
-      return IMap.EMPTY;
+      return 0;
     }
-    IMapEdit<Gwid, IAtomicValue> retValue = new ElemMap<>();
+    int retValue = 0;
     for( IDtoRtdataInfo info : infos ) {
       if( !info.isCurr() ) {
         // Загружаются только текущие данные
@@ -562,8 +528,9 @@ public class S5BackendCurrDataSingleton
         }
       }
       for( IDtoObject obj : objs ) {
-        retValue.put( Gwid.createRtdata( classId, obj.strid(), dataId ), defaultValue );
+        aCache.put( Gwid.createRtdata( classId, obj.strid(), dataId ), defaultValue );
       }
+      retValue += objs.size();
     }
     return retValue;
   }
