@@ -281,8 +281,7 @@ public class S5BackendCoreSingleton
     // Регистрация слушателя транзакций для формирования по ним статистики
     txManager.addTransactionListener( statisticListener );
     // Вывод в журнал сообщения о запуске бекенда
-    logger().log( INFO, MSG_CREATE_BACKEND, module.id(), module.description(), version,
-        IS5ServerHardConstants.version );
+    logger().log( INFO, MSG_CREATE_BACKEND, module.id(), module.description(), version );
   }
 
   @Override
