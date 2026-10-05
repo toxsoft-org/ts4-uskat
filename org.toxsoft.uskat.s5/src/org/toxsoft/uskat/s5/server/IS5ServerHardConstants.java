@@ -1015,7 +1015,7 @@ public interface IS5ServerHardConstants
    * @return {@link TsVersion} версия.
    */
   private static TsVersion buildVersion() {
-    TsVersion defaultVersion = new TsVersion( 22, 13, 2025, Month.MAY, 19 );
+    TsVersion defaultVersion = new TsVersion( 4, 3, 2026, Month.OCTOBER, 5 );
     String property = System.getProperty( "uskat.server.version" );
     TsVersion retValue = (property != null ? TsVersion.KEEPER.str2ent( property ) : defaultVersion);
     return retValue;
