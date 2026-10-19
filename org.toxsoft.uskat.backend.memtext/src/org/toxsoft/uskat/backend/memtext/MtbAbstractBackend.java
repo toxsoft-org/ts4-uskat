@@ -326,7 +326,7 @@ public abstract class MtbAbstractBackend
   //
 
   /**
-   * Subclass preforms checks and tasks on every API method call.
+   * Subclass performs checks and tasks on every API method call.
    */
   protected abstract void doInternalCheck();
 

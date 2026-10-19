@@ -124,7 +124,7 @@ public class MtbBackendToFile
   }
 
   // ------------------------------------------------------------------------------------
-  // API класса
+  // API
   //
 
   /**
@@ -139,7 +139,7 @@ public class MtbBackendToFile
   }
 
   /**
-   * Saves the current contetn to the file specified as {@link #OPDEF_FILE_PATH} option.
+   * Saves the current content to the file specified as {@link #OPDEF_FILE_PATH} option.
    */
   public void saveToFile() {
     File f = new File( OPDEF_FILE_PATH.getValue( argContext().params() ).asString() );

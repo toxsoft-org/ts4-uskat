@@ -32,6 +32,11 @@ public class SkConnectionSupplier
     implements ISkConnectionSupplier {
 
   /**
+   * M5-domain ID for {@link ISkConnectionSupplier#DEF_CONN_ID} created by KM5 subsystem.
+   */
+  private static final String DEF_CONN_M5_DOMAIN_ID = "DefaultConnectionDomain"; //$NON-NLS-1$
+
+  /**
    * {@link ISkConnectionSupplier#svs()} implementation.
    *
    * @author hazard157
@@ -176,8 +181,9 @@ public class SkConnectionSupplier
     ISkConnection conn = SkCoreUtils.createConnection();
     conn.scope().put( ITsGuiContext.class, aContext );
     // initialize connection-specific M5 domain
+    String newDomId = aKey.isEmpty() ? DEF_CONN_M5_DOMAIN_ID : aKey.last();
     @SuppressWarnings( { "unused" } )
-    KM5Support km5 = new KM5Support( conn, aContext.get( IM5Domain.class ) );
+    KM5Support km5 = new KM5Support( conn, aContext.get( IM5Domain.class ), newDomId );
     connsMap.put( aKey, conn );
     return conn;
   }

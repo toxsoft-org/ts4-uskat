@@ -3,6 +3,7 @@ package org.toxsoft.uskat.core.gui.km5;
 import org.toxsoft.core.tsgui.m5.*;
 import org.toxsoft.core.tsgui.m5.model.impl.*;
 import org.toxsoft.core.tslib.bricks.strid.idgen.*;
+import org.toxsoft.core.tslib.bricks.strid.impl.*;
 import org.toxsoft.core.tslib.coll.*;
 import org.toxsoft.core.tslib.coll.helpers.*;
 import org.toxsoft.core.tslib.coll.impl.*;
@@ -94,13 +95,16 @@ public final class KM5Support
    *
    * @param aConn {@link ISkConnection} - the connection
    * @param aParentDomain {@link IM5Domain} - the parent domain
+   * @param aNewDomainId String - ID of the domain to be created
    * @throws TsNullArgumentRtException any argument = <code>null</code>
    * @throws TsItemNotFoundRtException the context does not have reference to the parent {@link IM5Domain}
+   * @throws TsIllegalArgumentRtException new domain ID is not an IDpath
    */
-  public KM5Support( ISkConnection aConn, IM5Domain aParentDomain ) {
+  public KM5Support( ISkConnection aConn, IM5Domain aParentDomain, String aNewDomainId ) {
     TsNullArgumentRtException.checkNulls( aConn, aParentDomain );
+    StridUtils.checkValidIdPath( aNewDomainId );
     skConn = aConn;
-    m5 = aParentDomain.createChildDomain( domainIdGenerator.nextId(), aParentDomain.tsContext() );
+    m5 = aParentDomain.createChildDomain( aNewDomainId, aParentDomain.tsContext() );
     // inform connection and domain about each other
     skConn.scope().put( IM5Domain.class, m5 );
     skConn.scope().put( KM5Support.class, this );
@@ -121,6 +125,20 @@ public final class KM5Support
     }
     // now we'll listen to the connection
     skConn.addConnectionListener( skConnectionListener );
+  }
+
+  /**
+   * Constructor with default new domain ID.
+   * <p>
+   * The child M5-domain will be created as child of <code>aParentDomain</code> and share the same context.
+   *
+   * @param aConn {@link ISkConnection} - the connection
+   * @param aParentDomain {@link IM5Domain} - the parent domain
+   * @throws TsNullArgumentRtException any argument = <code>null</code>
+   * @throws TsItemNotFoundRtException the context does not have reference to the parent {@link IM5Domain}
+   */
+  public KM5Support( ISkConnection aConn, IM5Domain aParentDomain ) {
+    this( aConn, aParentDomain, domainIdGenerator.nextId() );
   }
 
   // ------------------------------------------------------------------------------------
