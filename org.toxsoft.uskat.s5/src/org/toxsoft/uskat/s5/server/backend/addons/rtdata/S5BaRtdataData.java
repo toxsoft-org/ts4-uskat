@@ -152,7 +152,7 @@ public final class S5BaRtdataData
       }
     }
     if( aToRemove == null || aToRemove.size() > 0 || aToAdd.size() > 0 ) {
-      log( "configureCurrdataGwidsToBackend(...)", aToRemove, aToAdd, prev, currdataGwidsToFrontend ); //$NON-NLS-1$
+      log( "configureCurrdataGwidsToFrontend(...)", aToRemove, aToAdd, prev, currdataGwidsToFrontend ); //$NON-NLS-1$
     }
   }
 
