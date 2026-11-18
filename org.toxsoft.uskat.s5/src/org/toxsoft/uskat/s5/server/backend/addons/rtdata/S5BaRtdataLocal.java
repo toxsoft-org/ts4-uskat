@@ -166,9 +166,10 @@ class S5BaRtdataLocal
   }
 
   @Override
-  public void configureCurrDataWriter( IGwidList aToRemove, IGwidList aToAdd ) {
+  public BaRtDataEdition configureCurrDataWriter( IGwidList aToRemove, IGwidList aToAdd ) {
     TsNullArgumentRtException.checkNull( aToAdd );
-    currDataSupport.configureCurrDataWriter( frontend(), aToRemove, aToAdd );
+    BaRtDataEdition retValue = currDataSupport.configureCurrDataWriter( frontend(), aToRemove, aToAdd );
+    return retValue;
   }
 
   @Override

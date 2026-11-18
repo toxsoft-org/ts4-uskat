@@ -168,14 +168,27 @@ public final class S5BaRtdataData
 
   @SuppressWarnings( "nls" )
   private void log( String aSource, IGwidList aToRemove, IGwidList aToAdd, int aPrev, IGwidList aTarget ) {
+    String toRemove = (aToRemove != null ? String.valueOf( aToRemove.size() ) : "null");
+    String toAdd = String.valueOf( aToAdd.size() );
+    String newSize = String.valueOf( aTarget.size() );
+    String prevSize = String.valueOf( aPrev );
     if( logger().isSeverityOn( ELogSeverity.DEBUG ) ) {
-      String toRemove = (aToRemove != null ? aToRemove.toString() : "null");
-      logger().debug( "%s: aToRemove = %s, aToAdd = %s, aPrev = %d, toBackend = %s", aSource, toRemove, aToAdd,
-          Integer.valueOf( aPrev ), aTarget );
+      StringBuilder sbToRemove = new StringBuilder();
+      StringBuilder sbToAdd = new StringBuilder();
+      if( aToRemove != null ) {
+        for( int index = 0, n = aToRemove.size(); index < n; index++ ) {
+          sbToRemove
+              .append( String.format( "aToRemove[%d] = %s\r\n", Integer.valueOf( index ), aToRemove.get( index ) ) );
+        }
+      }
+      for( int index = 0, n = aToAdd.size(); index < n; index++ ) {
+        sbToAdd.append( String.format( "aToAdd[%d] = %s\r\n", Integer.valueOf( index ), aToAdd.get( index ) ) );
+      }
+      logger().debug( "%s: aToRemove = %s, aToAdd = %s, prevSize = %s, newSize = %s:\n%s%s", aSource, toRemove, toAdd,
+          prevSize, newSize, sbToRemove, sbToAdd );
       return;
     }
-    String toRemove = (aToRemove != null ? String.valueOf( aToRemove.size() ) : "null");
-    logger().info( "%s: aToRemove = %s, aToAdd = %s, aPrev = %d, toBackend = %s", aSource, toRemove,
-        String.valueOf( aToAdd.size() ), Integer.valueOf( aPrev ), String.valueOf( aTarget.size() ) );
+    logger().info( "%s: aToRemove = %s, aToAdd = %s, prevSize = %s, newSize = %s", aSource, toRemove, toAdd, prevSize,
+        newSize );
   }
 }

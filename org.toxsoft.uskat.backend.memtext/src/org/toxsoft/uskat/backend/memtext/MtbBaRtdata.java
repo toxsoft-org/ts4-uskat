@@ -148,8 +148,8 @@ public class MtbBaRtdata
   private final GwidList                     cdWriteGwids = new GwidList();
   private final IMapEdit<Gwid, IAtomicValue> cdMap        = new ElemMap<>();
 
-  private final ReentrantReadWriteLock                          hdLock           = new ReentrantReadWriteLock();
-  private final IMapEdit<Gwid, TimedList<ITemporalAtomicValue>> hdMap            = new ElemMap<>();
+  private final ReentrantReadWriteLock                          hdLock                 = new ReentrantReadWriteLock();
+  private final IMapEdit<Gwid, TimedList<ITemporalAtomicValue>> hdMap                  = new ElemMap<>();
   private final AtomicInteger                                   currdataEditionCounter = new AtomicInteger();
 
   private InternalThread theThread;
@@ -451,7 +451,7 @@ public class MtbBaRtdata
       cdReadGwids.addAll( aToAdd );
       internalConfigureCurrDataReadWrite();
       IMapEdit<Gwid, IAtomicValue> retValue = new ElemMap<>();
-      for( Gwid g : aToAdd ) {
+      for( Gwid g : cdReadGwids ) {
         IAtomicValue value = cdMap.findByKey( g );
         if( value != null ) {
           retValue.put( g, value );
@@ -465,7 +465,7 @@ public class MtbBaRtdata
   }
 
   @Override
-  public void configureCurrDataWriter( IGwidList aToRemove, IGwidList aToAdd ) {
+  public BaRtDataEdition configureCurrDataWriter( IGwidList aToRemove, IGwidList aToAdd ) {
     cdLock.writeLock().lock();
     try {
       if( aToRemove == null ) {
@@ -478,6 +478,14 @@ public class MtbBaRtdata
       }
       cdWriteGwids.addAll( aToAdd );
       internalConfigureCurrDataReadWrite();
+      IMapEdit<Gwid, IAtomicValue> retValue = new ElemMap<>();
+      for( Gwid g : cdWriteGwids ) {
+        IAtomicValue value = cdMap.findByKey( g );
+        if( value != null ) {
+          retValue.put( g, value );
+        }
+      }
+      return new BaRtDataEdition( currdataEditionCounter.intValue(), retValue );
     }
     finally {
       cdLock.writeLock().unlock();

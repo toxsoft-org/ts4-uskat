@@ -58,9 +58,9 @@ public class BaRtData
   }
 
   @Override
-  public void configureCurrDataWriter( IGwidList aToRemove, IGwidList aToAdd ) {
+  public BaRtDataEdition configureCurrDataWriter( IGwidList aToRemove, IGwidList aToAdd ) {
     // TODO Auto-generated method stub
-
+    return new BaRtDataEdition( 0, IMap.EMPTY );
   }
 
   @Override

@@ -122,16 +122,19 @@ class S5BaRtdataRemote
   @Override
   public BaRtDataEdition configureCurrDataReader( IGwidList aToRemove, IGwidList aToAdd ) {
     TsNullArgumentRtException.checkNull( aToAdd );
-    baData.configureCurrdataGwidsToFrontend( aToRemove, aToAdd );
     BaRtDataEdition retValue = session().configureCurrDataReader( aToRemove, aToAdd );
+    // aToRemove = null (remove all)
+    baData.configureCurrdataGwidsToFrontend( null, new GwidList( retValue.values().keys() ) );
     return retValue;
   }
 
   @Override
-  public void configureCurrDataWriter( IGwidList aToRemove, IGwidList aToAdd ) {
+  public BaRtDataEdition configureCurrDataWriter( IGwidList aToRemove, IGwidList aToAdd ) {
     TsNullArgumentRtException.checkNull( aToAdd );
-    baData.configureCurrdataGwidsToBackend( aToRemove, aToAdd );
-    session().configureCurrDataWriter( aToRemove, aToAdd );
+    BaRtDataEdition retValue = session().configureCurrDataWriter( aToRemove, aToAdd );
+    // aToRemove = null (remove all)
+    baData.configureCurrdataGwidsToBackend( null, new GwidList( retValue.values().keys() ) );
+    return retValue;
   }
 
   @Override

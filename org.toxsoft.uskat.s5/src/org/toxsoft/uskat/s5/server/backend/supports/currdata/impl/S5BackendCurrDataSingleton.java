@@ -250,19 +250,20 @@ public class S5BackendCurrDataSingleton
     // Пост-вызов интерсепторов
     callAfterConfigureCurrDataReader( interceptors, aFrontend, aToRemove, aToAdd, logger() );
 
-    // 2026-08-25 mvk---+++
-    // if( aToAdd.size() == 0 ) {
-    // // Нет новых данных
-    // return new BaRtDataEdition( 0, IMap.EMPTY );
-    // }
-    // IMap<Gwid, IAtomicValue> retValue = readValues( aToAdd );
     IMap<Gwid, IAtomicValue> retValue = readValues( baData.currdataGwidsToFrontend() );
+    if( retValue.keys().size() != baData.currdataGwidsToFrontend().size() ) {
+      logger().warning( "configureCurrDataReader(...): invalid set of gwids, synchronization will be performed" ); //$NON-NLS-1$
+      synchronized (baData) {
+        // aToRemove = null (remove all)
+        baData.configureCurrdataGwidsToFrontend( null, new GwidList( retValue.keys() ) );
+      }
+    }
     return new BaRtDataEdition( editionNo, retValue );
   }
 
   @TransactionAttribute( TransactionAttributeType.SUPPORTS )
   @Override
-  public void configureCurrDataWriter( IS5FrontendRear aFrontend, IGwidList aToRemove, IGwidList aToAdd ) {
+  public BaRtDataEdition configureCurrDataWriter( IS5FrontendRear aFrontend, IGwidList aToRemove, IGwidList aToAdd ) {
     TsNullArgumentRtException.checkNulls( aFrontend, aToAdd );
 
     // Данные фронтенда
@@ -271,14 +272,25 @@ public class S5BackendCurrDataSingleton
     if( !callBeforeConfigureCurrDataWriter( interceptors, aFrontend, aToRemove, aToAdd ) ) {
       // Интерсепторы отклонили регистрацию читателя данных
       logger().info( MSG_REJECT_READER_BY_INTERCEPTORS );
-      return;
+      return new BaRtDataEdition( 0, IMap.EMPTY );
     }
     // Фактическое выполнение подписки на данные
+    int editionNo = 0;
     synchronized (baData) {
       baData.configureCurrdataGwidsToBackend( aToRemove, aToAdd );
+      editionNo = baData.currdataEditionCounter.intValue();
     }
     // Пост-вызов интерсепторов
     callAfterConfigureCurrDataWriter( interceptors, aFrontend, aToRemove, aToAdd, logger() );
+    IMap<Gwid, IAtomicValue> retValue = readValues( baData.currdataGwidsToBackend() );
+    if( retValue.keys().size() != baData.currdataGwidsToBackend().size() ) {
+      logger().warning( "configureCurrDataWriter(...): invalid set of gwids, synchronization will be performed" ); //$NON-NLS-1$
+      synchronized (baData) {
+        // aToRemove = null (remove all)
+        baData.configureCurrdataGwidsToBackend( null, new GwidList( retValue.keys() ) );
+      }
+    }
+    return new BaRtDataEdition( editionNo, retValue );
   }
 
   @TransactionAttribute( TransactionAttributeType.SUPPORTS )

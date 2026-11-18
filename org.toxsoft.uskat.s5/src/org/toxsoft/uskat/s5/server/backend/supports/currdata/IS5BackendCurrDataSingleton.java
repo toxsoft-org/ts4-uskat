@@ -61,9 +61,10 @@ public interface IS5BackendCurrDataSingleton
    * @param aToRemove {@link IGwidList} - список идентификаторов данных удаляемых из записываемых клиентом данных. null:
    *          все данные.
    * @param aToAdd {@link IGwidList} - список идентификаторов данных добавляемых в записываемые клиентом данные.
+   * @return {@link BaRtDataEdition} редакция текущих данных.
    * @throws TsNullArgumentRtException <code>aToAdd</code> == null
    */
-  void configureCurrDataWriter( IS5FrontendRear aFrontend, IGwidList aToRemove, IGwidList aToAdd );
+  BaRtDataEdition configureCurrDataWriter( IS5FrontendRear aFrontend, IGwidList aToRemove, IGwidList aToAdd );
 
   /**
    * Возвращает список идентификаторов текущих данных читаемых клиентами службы

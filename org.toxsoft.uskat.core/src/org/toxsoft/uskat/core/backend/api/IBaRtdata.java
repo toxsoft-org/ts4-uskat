@@ -47,9 +47,10 @@ public interface IBaRtdata
    * @param aToRemove {@link IGwidList} - list of current RTdata concrete GWIDs removed from write currdata. null -
    *          remove all GWIDs.
    * @param aToAdd {@link IGwidList} - list of current RTdata concrete GWIDs added to write currdata.
+   * @return {@link BaRtDataEdition} new RTdata edition.
    * @throws TsNullArgumentRtException argument aToAdd = <code>null</code>
    */
-  void configureCurrDataWriter( IGwidList aToRemove, IGwidList aToAdd );
+  BaRtDataEdition configureCurrDataWriter( IGwidList aToRemove, IGwidList aToAdd );
 
   /**
    * Updates the actual value of the current data.

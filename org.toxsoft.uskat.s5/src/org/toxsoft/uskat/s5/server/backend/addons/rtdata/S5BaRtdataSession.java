@@ -139,11 +139,12 @@ public class S5BaRtdataSession
 
   @TransactionAttribute( TransactionAttributeType.SUPPORTS )
   @Override
-  public void configureCurrDataWriter( IGwidList aToRemove, IGwidList aToAdd ) {
+  public BaRtDataEdition configureCurrDataWriter( IGwidList aToRemove, IGwidList aToAdd ) {
     TsNullArgumentRtException.checkNull( aToAdd );
-    currDataSupport.configureCurrDataWriter( frontend(), aToRemove, aToAdd );
+    BaRtDataEdition retValue = currDataSupport.configureCurrDataWriter( frontend(), aToRemove, aToAdd );
     // Сохранение измененной сессии в кластере сервера
     writeSessionData();
+    return retValue;
   }
 
   // Клиент не должен использовать этот метод - текущие данные поступают через IGtMessageListener.onGenericTopicMessage(
