@@ -325,6 +325,9 @@ public class SkCoreServRtdata
     // }
     // 2025-03-28 mvk
     if( aIsActive ) {
+      // 2026-11-19 mvk +++
+      // После восстановления связи текущие данные сервера являются первоисточником
+      cdBackendEditionNo.set( -1 );
       // Реинициализация каналов записи, чтобы клиент мог заново отправить значения
       for( Gwid g : cdWriteChannelsMap.keys() ) {
         cdWriteChannelsMap.getByKey( g ).value = null;
@@ -575,6 +578,7 @@ public class SkCoreServRtdata
       checkThread();
       if( cdWriteChannelsMap.hasElem( this ) ) {
         cdWriteChannelsMap.removeByKey( gwid );
+        cdWriteToRemove.add( gwid );
       }
     }
 
